@@ -3870,6 +3870,9 @@ msgstr "Hours/1000 Pieces"
 msgid "Hours/Piece"
 msgstr "Hours/Piece"
 
+msgid "How many were actually picked?"
+msgstr "How many were actually picked?"
+
 msgid "How the resolved price was calculated."
 msgstr "How the resolved price was calculated."
 
@@ -4615,6 +4618,9 @@ msgstr "Mark lot as partial?"
 
 msgid "Mark Partial"
 msgstr "Mark Partial"
+
+msgid "Mark Short"
+msgstr "Mark Short"
 
 msgid "Mark to delete"
 msgstr "Mark to delete"
@@ -5814,6 +5820,9 @@ msgstr "Pick a date or leave blank to clear it."
 msgid "Pick List"
 msgstr "Pick List"
 
+msgid "Picked quantity"
+msgstr "Picked quantity"
+
 msgid "Picking Lines"
 msgstr "Picking Lines"
 
@@ -5822,6 +5831,9 @@ msgstr "Picking List"
 
 msgid "Picking List ID"
 msgstr "Picking List ID"
+
+msgid "Picking List Notes"
+msgstr "Picking List Notes"
 
 msgid "Picking Lists"
 msgstr "Picking Lists"
@@ -6942,18 +6954,11 @@ msgstr "Seconds/Piece"
 msgid "Select"
 msgstr "Select"
 
-#. placeholder {0}: item.jobReadableId
-msgid "Select {0}"
-msgstr "Select {0}"
-
 msgid "Select a assignee"
 msgstr "Select a assignee"
 
 msgid "Select a default approver"
 msgstr "Select a default approver"
-
-msgid "Select a location to view the picking schedule"
-msgstr "Select a location to view the picking schedule"
 
 msgid "Select a new owner"
 msgstr "Select a new owner"
@@ -7291,8 +7296,14 @@ msgstr "Shipping:"
 msgid "Shop Floor"
 msgstr "Shop Floor"
 
+msgid "Short"
+msgstr "Short"
+
 msgid "Short Description"
 msgstr "Short Description"
+
+msgid "Short pick {itemName}"
+msgstr "Short pick {itemName}"
 
 msgid "Shortcuts"
 msgstr "Shortcuts"
@@ -7477,9 +7488,6 @@ msgstr "Start of Fiscal Year"
 
 msgid "Start of Tax Year"
 msgstr "Start of Tax Year"
-
-msgid "Start Picking"
-msgstr "Start Picking"
 
 msgid "Start Time"
 msgstr "Start Time"
@@ -8090,9 +8098,6 @@ msgstr "Total Minutes"
 msgid "Total Price"
 msgstr "Total Price"
 
-msgid "Total Qty"
-msgstr "Total Qty"
-
 msgid "Total Quantity"
 msgstr "Total Quantity"
 
@@ -8281,6 +8286,9 @@ msgstr "Unlink"
 
 msgid "Unlink job from sales order?"
 msgstr "Unlink job from sales order?"
+
+msgid "Unpick"
+msgstr "Unpick"
 
 msgid "Unsaved changes"
 msgstr "Unsaved changes"
@@ -8539,6 +8547,9 @@ msgstr "View Issue"
 
 msgid "View Item Master"
 msgstr "View Item Master"
+
+msgid "View Lists"
+msgstr "View Lists"
 
 msgid "View maintenance dispatch"
 msgstr "View maintenance dispatch"

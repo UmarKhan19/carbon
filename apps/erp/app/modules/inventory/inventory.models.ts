@@ -393,6 +393,15 @@ export const pickingListLineStatusType = [
   "Cancelled"
 ] as const;
 
+// A picking list locks once it is Completed or Cancelled: no further picks or
+// unpicks are allowed until it is reopened (which requires the inventory
+// `delete` permission, ERP-only).
+export function isPickingListLocked(
+  status: string | null | undefined
+): boolean {
+  return status === "Completed" || status === "Cancelled";
+}
+
 export const pickingListValidator = z.object({
   id: zfd.text(z.string().optional()),
   pickingListId: zfd.text(z.string().optional()),
@@ -428,15 +437,8 @@ export const generatePickingListValidator = z.object({
   dueDate: zfd.text(z.string().optional())
 });
 
-export const confirmPickingListLineValidator = z.object({
+export const pickQuantityValidator = z.object({
   pickingListLineId: z.string().min(1),
-  quantityPicked: zfd.numeric(z.number().min(0)),
-  trackedEntities: z
-    .array(
-      z.object({
-        trackedEntityId: z.string().min(1),
-        quantityPicked: zfd.numeric(z.number().min(0))
-      })
-    )
-    .optional()
+  quantity: zfd.numeric(z.number().min(0)),
+  markShort: zfd.text(z.string().optional())
 });

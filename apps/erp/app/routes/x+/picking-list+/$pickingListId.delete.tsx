@@ -4,7 +4,7 @@ import { flash } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { deletePickingList } from "~/modules/inventory";
-import { path } from "~/utils/path";
+import { path, requestReferrer } from "~/utils/path";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const { client } = await requirePermissions(request, {
@@ -23,8 +23,17 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
+  // Return to wherever the delete came from (e.g. the lists view with its
+  // filters/location params). Fall back to the lists view, and never redirect
+  // back to the just-deleted detail page.
+  const referrer = requestReferrer(request);
+  const destination =
+    referrer && !referrer.includes(`/picking-list/${pickingListId}`)
+      ? referrer
+      : path.to.pickingListsTable;
+
   throw redirect(
-    path.to.pickingLists,
+    destination,
     await flash(request, success("Picking list deleted successfully"))
   );
 }

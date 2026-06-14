@@ -28,6 +28,11 @@ export default function useInventorySubmodules() {
       name: t`Manage`,
       routes: [
         {
+          name: t`Picking Lists`,
+          to: path.to.pickingLists,
+          icon: <LuClipboardList />
+        },
+        {
           name: t`Receipts`,
           to: path.to.receipts,
           icon: <LuHandCoins />,
@@ -50,11 +55,6 @@ export default function useInventorySubmodules() {
           to: path.to.warehouseTransfers,
           icon: <LuArrowRightLeft />,
           table: "warehouseTransfer"
-        },
-        {
-          name: t`Picking Lists`,
-          to: path.to.pickingLists,
-          icon: <LuClipboardList />
         }
       ]
     },

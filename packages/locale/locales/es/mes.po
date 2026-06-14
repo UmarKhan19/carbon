@@ -131,6 +131,9 @@ msgstr "Al iniciar sesión, acepta los <0>Términos de servicio</0> y la <1>Pol�
 msgid "Cancel"
 msgstr "Cancelar"
 
+msgid "Cancelled"
+msgstr ""
+
 msgid "Carbon Logo"
 msgstr "Logotipo de Carbon"
 
@@ -193,9 +196,6 @@ msgstr "Completar todo"
 
 msgid "Completed"
 msgstr "Completado"
-
-msgid "Confirm"
-msgstr ""
 
 msgid "Console"
 msgstr "Consola"
@@ -271,6 +271,9 @@ msgstr "Descargar"
 
 msgid "Download Labels"
 msgstr "Descargar Etiquetas"
+
+msgid "Draft"
+msgstr ""
 
 msgid "Drag and drop a file here, or click to select a file"
 msgstr "Arrastre y suelte un archivo aquí, o haga clic para seleccionar un archivo"
@@ -366,14 +369,14 @@ msgstr "Finalizar de todas formas"
 msgid "Forgot to Clock Out?"
 msgstr "¿Olvidó registrar la salida?"
 
-msgid "From"
-msgstr ""
-
 msgid "Go back to operation"
 msgstr "Volver a la operación"
 
 msgid "Have a technical issue? Contact <0>Carbon Support.</0>"
 msgstr "¿Tiene un problema técnico? Contacte al <0>Soporte de Carbon.</0>"
+
+msgid "How many were actually picked?"
+msgstr ""
 
 msgid "I understand and want to complete without issuing"
 msgstr "Entiendo y deseo completar sin emitir"
@@ -450,6 +453,9 @@ msgstr "Salir de esta página"
 msgid "Let's build something"
 msgstr "Construyamos algo"
 
+msgid "lines"
+msgstr ""
+
 msgid "Loading item details..."
 msgstr "Cargando detalles del artículo..."
 
@@ -497,6 +503,9 @@ msgstr "Agregar artículos al inventario manualmente"
 
 msgid "Manually remove items from inventory"
 msgstr "Eliminar artículos del inventario manualmente"
+
+msgid "Mark Short"
+msgstr ""
 
 msgid "matches"
 msgstr "coincide con"
@@ -674,6 +683,12 @@ msgstr "Inspección aprobada"
 msgid "Pause"
 msgstr "Pausar"
 
+msgid "Pick"
+msgstr ""
+
+msgid "Picked quantity"
+msgstr ""
+
 #. placeholder {0}: startColumn?.title
 #. placeholder {1}: startIndex + 1
 #. placeholder {2}: columnOrder.length
@@ -724,9 +739,6 @@ msgstr "Procesos"
 
 msgid "Progress"
 msgstr "Progreso"
-
-msgid "Qty"
-msgstr ""
 
 msgid "Quality Issue"
 msgstr "Problema de Calidad"
@@ -882,6 +894,9 @@ msgstr "Preparación"
 msgid "Short"
 msgstr ""
 
+msgid "Short pick {itemName}"
+msgstr ""
+
 msgid "Sign in with Email"
 msgstr "Iniciar sesión con correo electrónico"
 
@@ -994,14 +1009,14 @@ msgstr "Seguimiento"
 msgid "Type a message..."
 msgstr "Escriba un mensaje..."
 
-msgid "Ungrouped"
-msgstr ""
-
 msgid "Unissued serial/batch materials"
 msgstr "Materiales de serie/lote no emitidos"
 
 msgid "Unknown"
 msgstr "Desconocido"
+
+msgid "Unpick"
+msgstr ""
 
 msgid "Unsaved changes"
 msgstr "Cambios no guardados"

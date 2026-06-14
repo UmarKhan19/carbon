@@ -1,5 +1,5 @@
 {
-  "generated": "2026-06-13T16:16:44.257Z",
+  "generated": "2026-06-14T05:18:45.138Z",
   "totalTools": 1201,
   "modules": 15,
   "tools": [
@@ -6299,7 +6299,7 @@
       "module": "inventory",
       "classification": "READ",
       "description": "get picking schedule",
-      "paramCount": 3,
+      "paramCount": 2,
       "serviceParams": [
         "client",
         "args"
@@ -6312,12 +6312,6 @@
         "properties": {
           "locationId": {
             "type": "string"
-          },
-          "workCenterId": {
-            "type": [
-              "string",
-              "null"
-            ]
           },
           "search": {
             "type": [
@@ -6378,10 +6372,10 @@
       }
     },
     {
-      "name": "inventory_confirmPickingListLine",
+      "name": "inventory_pickPickingListLine",
       "module": "inventory",
       "classification": "WRITE",
-      "description": "confirm picking list line",
+      "description": "pick picking list line",
       "paramCount": 3,
       "serviceParams": [
         "client",
@@ -6396,14 +6390,16 @@
           "pickingListLineId": {
             "type": "string"
           },
-          "quantityPicked": {
+          "quantity": {
             "type": "number"
           },
-          "trackedEntities": {}
+          "markShort": {
+            "type": "boolean"
+          }
         },
         "required": [
           "pickingListLineId",
-          "quantityPicked"
+          "quantity"
         ]
       }
     },

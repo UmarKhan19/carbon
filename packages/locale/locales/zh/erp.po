@@ -3870,6 +3870,9 @@ msgstr "小时/1000件"
 msgid "Hours/Piece"
 msgstr "小时/件"
 
+msgid "How many were actually picked?"
+msgstr ""
+
 msgid "How the resolved price was calculated."
 msgstr "已解决价格的计算方式。"
 
@@ -4615,6 +4618,9 @@ msgstr "将批次标记为部分？"
 
 msgid "Mark Partial"
 msgstr "标记为部分"
+
+msgid "Mark Short"
+msgstr ""
 
 msgid "Mark to delete"
 msgstr "标记删除"
@@ -5814,6 +5820,9 @@ msgstr "选择日期或留空以清除。"
 msgid "Pick List"
 msgstr "拣货单"
 
+msgid "Picked quantity"
+msgstr ""
+
 msgid "Picking Lines"
 msgstr ""
 
@@ -5821,6 +5830,9 @@ msgid "Picking List"
 msgstr ""
 
 msgid "Picking List ID"
+msgstr ""
+
+msgid "Picking List Notes"
 msgstr ""
 
 msgid "Picking Lists"
@@ -6942,18 +6954,11 @@ msgstr "秒/件"
 msgid "Select"
 msgstr "选择"
 
-#. placeholder {0}: item.jobReadableId
-msgid "Select {0}"
-msgstr ""
-
 msgid "Select a assignee"
 msgstr "选择受理人"
 
 msgid "Select a default approver"
 msgstr "选择默认审批人"
-
-msgid "Select a location to view the picking schedule"
-msgstr ""
 
 msgid "Select a new owner"
 msgstr "选择新的所有者"
@@ -7291,8 +7296,14 @@ msgstr "运费："
 msgid "Shop Floor"
 msgstr "车间"
 
+msgid "Short"
+msgstr ""
+
 msgid "Short Description"
 msgstr "简短描述"
+
+msgid "Short pick {itemName}"
+msgstr ""
 
 msgid "Shortcuts"
 msgstr "快捷键"
@@ -7477,9 +7488,6 @@ msgstr "财政年度开始"
 
 msgid "Start of Tax Year"
 msgstr "税年开始"
-
-msgid "Start Picking"
-msgstr ""
 
 msgid "Start Time"
 msgstr "开始时间"
@@ -8090,9 +8098,6 @@ msgstr "总分钟"
 msgid "Total Price"
 msgstr "总价"
 
-msgid "Total Qty"
-msgstr ""
-
 msgid "Total Quantity"
 msgstr "总数量"
 
@@ -8281,6 +8286,9 @@ msgstr "取消链接"
 
 msgid "Unlink job from sales order?"
 msgstr "从销售订单取消关联工作？"
+
+msgid "Unpick"
+msgstr ""
 
 msgid "Unsaved changes"
 msgstr "未保存的更改"
@@ -8539,6 +8547,9 @@ msgstr "查看问题"
 
 msgid "View Item Master"
 msgstr "查看物料主数据"
+
+msgid "View Lists"
+msgstr ""
 
 msgid "View maintenance dispatch"
 msgstr "查看维护派遣"

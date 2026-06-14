@@ -3870,6 +3870,9 @@ msgstr "時間/1000個"
 msgid "Hours/Piece"
 msgstr "時間/個"
 
+msgid "How many were actually picked?"
+msgstr ""
+
 msgid "How the resolved price was calculated."
 msgstr "解決された価格がどのように計算されたかを示します。"
 
@@ -4615,6 +4618,9 @@ msgstr "ロットを部分的にマークしますか？"
 
 msgid "Mark Partial"
 msgstr "部分的にマーク"
+
+msgid "Mark Short"
+msgstr ""
 
 msgid "Mark to delete"
 msgstr "削除対象にマーク"
@@ -5814,6 +5820,9 @@ msgstr "日付を選択するか、空白のままにしてクリアしてくだ
 msgid "Pick List"
 msgstr "ピッキングリスト"
 
+msgid "Picked quantity"
+msgstr ""
+
 msgid "Picking Lines"
 msgstr ""
 
@@ -5821,6 +5830,9 @@ msgid "Picking List"
 msgstr ""
 
 msgid "Picking List ID"
+msgstr ""
+
+msgid "Picking List Notes"
 msgstr ""
 
 msgid "Picking Lists"
@@ -6942,18 +6954,11 @@ msgstr "秒/個"
 msgid "Select"
 msgstr "選択"
 
-#. placeholder {0}: item.jobReadableId
-msgid "Select {0}"
-msgstr ""
-
 msgid "Select a assignee"
 msgstr "担当者を選択"
 
 msgid "Select a default approver"
 msgstr "デフォルト承認者を選択"
-
-msgid "Select a location to view the picking schedule"
-msgstr ""
 
 msgid "Select a new owner"
 msgstr "新しい所有者を選択"
@@ -7291,8 +7296,14 @@ msgstr "配送:"
 msgid "Shop Floor"
 msgstr "ショップフロア"
 
+msgid "Short"
+msgstr ""
+
 msgid "Short Description"
 msgstr "短い説明"
+
+msgid "Short pick {itemName}"
+msgstr ""
 
 msgid "Shortcuts"
 msgstr "ショートカット"
@@ -7477,9 +7488,6 @@ msgstr "会計年度の開始"
 
 msgid "Start of Tax Year"
 msgstr "税年度の開始"
-
-msgid "Start Picking"
-msgstr ""
 
 msgid "Start Time"
 msgstr "開始時刻"
@@ -8090,9 +8098,6 @@ msgstr "合計分"
 msgid "Total Price"
 msgstr "合計価格"
 
-msgid "Total Qty"
-msgstr ""
-
 msgid "Total Quantity"
 msgstr "合計数量"
 
@@ -8281,6 +8286,9 @@ msgstr "リンク解除"
 
 msgid "Unlink job from sales order?"
 msgstr "販売注文からジョブのリンクを解除しますか？"
+
+msgid "Unpick"
+msgstr ""
 
 msgid "Unsaved changes"
 msgstr "未保存の変更"
@@ -8539,6 +8547,9 @@ msgstr "問題を表示"
 
 msgid "View Item Master"
 msgstr "アイテムマスターを表示"
+
+msgid "View Lists"
+msgstr ""
 
 msgid "View maintenance dispatch"
 msgstr "メンテナンスディスパッチを表示"

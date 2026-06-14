@@ -1,23 +1,32 @@
 import {
-  Badge,
+  BarProgress,
+  Button,
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
   Count,
   cn,
   HStack,
+  toast,
   VStack
 } from "@carbon/react";
 import { Trans } from "@lingui/react/macro";
-import { useMemo } from "react";
-import { Outlet, useNavigate } from "react-router";
-import { Empty } from "~/components";
+import { useEffect, useMemo, useState } from "react";
+import { LuCirclePlus, LuQrCode, LuUndo2 } from "react-icons/lu";
+import { useFetcher } from "react-router";
+import { Empty, ItemThumbnail } from "~/components";
+import { Enumerable } from "~/components/Enumerable";
+import { usePermissions } from "~/hooks";
+import { useItems } from "~/stores";
 import { path } from "~/utils/path";
+import { isPickingListLocked } from "../../inventory.models";
 import type {
   getPickingList,
   getPickingListLines
 } from "../../inventory.service";
+import { ShortPickModal } from "./ShortPickModal";
 
 type PickingListData = NonNullable<
   Awaited<ReturnType<typeof getPickingList>>["data"]
@@ -33,12 +42,13 @@ type PickingListLinesProps = {
   pickingList: PickingListData;
 };
 
-type GroupedLines = {
-  jobOperationId: string;
-  jobId: string;
+// A "kit" is the box a kitter fills for one job operation. Parts must not be
+// mixed across operations, so lines are grouped by job operation — the job +
+// operation + work center identify the box.
+type Kit = {
+  key: string;
   jobReadableId: string | null;
-  operationOrder: number | null;
-  processName: string | null;
+  operationName: string | null;
   workCenterName: string | null;
   lines: PickingListLineData;
 };
@@ -48,171 +58,244 @@ const PickingListLines = ({
   pickingListId,
   pickingList
 }: PickingListLinesProps) => {
-  const groupedLines = useMemo(() => {
-    const groups = new Map<string, GroupedLines>();
-
+  const isLocked = isPickingListLocked(pickingList?.status);
+  const kits = useMemo(() => {
+    const groups = new Map<string, Kit>();
     for (const line of pickingListLines) {
-      const opId = line.jobOperationId ?? "unassigned";
-      if (!groups.has(opId)) {
-        groups.set(opId, {
-          jobOperationId: opId,
-          jobId: line.jobId ?? "",
+      const key = line.jobOperationId ?? "ungrouped";
+      if (!groups.has(key)) {
+        groups.set(key, {
+          key,
           jobReadableId: line.job?.jobId ?? null,
-          operationOrder: line.jobOperation?.order ?? null,
-          processName: line.jobOperation?.process?.name ?? null,
+          operationName: line.jobOperation?.process?.name ?? null,
           workCenterName: line.jobOperation?.workCenter?.name ?? null,
           lines: []
         });
       }
-      groups.get(opId)!.lines.push(line);
+      groups.get(key)!.lines.push(line);
     }
-
     return Array.from(groups.values()).sort((a, b) => {
-      const jobCmp = (a.jobReadableId ?? "").localeCompare(
-        b.jobReadableId ?? ""
-      );
-      if (jobCmp !== 0) return jobCmp;
-      return (a.operationOrder ?? 0) - (b.operationOrder ?? 0);
+      const job = (a.jobReadableId ?? "").localeCompare(b.jobReadableId ?? "");
+      if (job !== 0) return job;
+      return (a.operationName ?? "").localeCompare(b.operationName ?? "");
     });
   }, [pickingListLines]);
 
-  return (
-    <>
+  if (kits.length === 0) {
+    return (
       <Card>
         <CardHeader>
-          <CardTitle className="flex flex-row items-center gap-2">
+          <CardTitle>
             <Trans>Picking Lines</Trans>
-            {pickingListLines.length > 0 && (
-              <Count count={pickingListLines.length} />
-            )}
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col gap-6">
-            {groupedLines.length > 0 ? (
-              groupedLines.map((group) => (
-                <PickingListLineGroup
-                  key={group.jobOperationId}
-                  group={group}
-                  pickingListId={pickingListId}
-                />
-              ))
-            ) : (
-              <div className="flex flex-1 py-24 justify-center items-center w-full">
-                <Empty />
-              </div>
-            )}
+          <div className="border rounded-lg">
+            <Empty className="py-6" />
           </div>
         </CardContent>
       </Card>
-      <Outlet />
-    </>
+    );
+  }
+
+  return (
+    <VStack spacing={4} className="w-full">
+      {kits.map((kit) => (
+        <PickingKitCard
+          key={kit.key}
+          kit={kit}
+          pickingListId={pickingListId}
+          isLocked={isLocked}
+        />
+      ))}
+    </VStack>
   );
 };
 
-function PickingListLineGroup({
-  group,
-  pickingListId
+function PickingKitCard({
+  kit,
+  pickingListId,
+  isLocked
 }: {
-  group: GroupedLines;
+  kit: Kit;
   pickingListId: string;
+  isLocked: boolean;
 }) {
-  return (
-    <div className="border rounded-lg">
-      <div className="flex items-center gap-4 p-4 border-b bg-muted/50">
-        <HStack spacing={4}>
-          <span className="text-sm font-medium">
-            {group.jobReadableId ?? "Unknown Job"}
-          </span>
-          {group.processName && (
-            <Badge variant="secondary">
-              Op {group.operationOrder} - {group.processName}
-            </Badge>
-          )}
-          {group.workCenterName && (
-            <Badge variant="outline">{group.workCenterName}</Badge>
-          )}
-        </HStack>
-      </div>
+  const totalToPick = kit.lines.reduce(
+    (sum, l) => sum + Number(l.quantityToPick ?? 0),
+    0
+  );
+  const totalPicked = kit.lines.reduce(
+    (sum, l) =>
+      sum +
+      Math.min(Number(l.quantityPicked ?? 0), Number(l.quantityToPick ?? 0)),
+    0
+  );
+  const progress = totalToPick > 0 ? (totalPicked / totalToPick) * 100 : 0;
 
-      {group.lines.map((line, index) => (
-        <PickingListLineItem
-          key={line.id}
-          line={line}
-          pickingListId={pickingListId}
-          className={index === group.lines.length - 1 ? "border-none" : ""}
-        />
-      ))}
-    </div>
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>
+          {kit.jobReadableId ?? "Unknown Job"}
+          {kit.operationName ? ` · ${kit.operationName}` : ""}
+        </CardTitle>
+        {kit.workCenterName && (
+          <CardDescription>
+            <Enumerable value={kit.workCenterName} />
+          </CardDescription>
+        )}
+      </CardHeader>
+      <CardContent>
+        <BarProgress progress={progress} className="mb-4" />
+        <div className="border rounded-lg">
+          {kit.lines.map((line, index) => (
+            <PickingListLineItem
+              key={line.id}
+              line={line}
+              pickingListId={pickingListId}
+              isLast={index === kit.lines.length - 1}
+              isLocked={isLocked}
+            />
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
 function PickingListLineItem({
   line,
   pickingListId,
-  className
+  isLast,
+  isLocked
 }: {
   line: PickingListLineData[number];
   pickingListId: string;
-  className?: string;
+  isLast: boolean;
+  isLocked: boolean;
 }) {
-  const navigate = useNavigate();
+  const permissions = usePermissions();
+  const [items] = useItems();
+  const fetcher = useFetcher<{ success: boolean; message?: string }>();
+  const isPending = fetcher.state !== "idle";
+  const [shortOpen, setShortOpen] = useState(false);
 
+  useEffect(() => {
+    if (fetcher.data && fetcher.data.success === false) {
+      toast.error(fetcher.data.message ?? "Failed to pick line");
+    }
+  }, [fetcher.data]);
+
+  const item = items.find((i) => i.id === line.itemId);
+  const itemName = item?.name ?? line.item?.name ?? "";
   const quantityToPick = Number(line.quantityToPick ?? 0);
   const quantityPicked = Number(line.quantityPicked ?? 0);
+  const isPicked = quantityToPick > 0 && quantityPicked >= quantityToPick;
+  const isShort = line.status === "Short";
+  const isResolved = isPicked || isShort;
+  const isTracked =
+    item?.itemTrackingType === "Serial" || item?.itemTrackingType === "Batch";
+  const source = (line as { storageUnit?: { name?: string } }).storageUnit
+    ?.name;
+  const canPick = permissions.can("update", "inventory");
+
+  const pick = (quantity: number) => {
+    const formData = new FormData();
+    formData.append("pickingListLineId", line.id);
+    formData.append("quantity", String(quantity));
+    fetcher.submit(formData, {
+      method: "post",
+      action: path.to.pickingListLineQuantity(pickingListId)
+    });
+  };
 
   return (
     <div
-      className={cn("border-b p-4 hover:bg-muted/30 cursor-pointer", className)}
-      onClick={() => {
-        if (line.id) {
-          navigate(path.to.pickingListLine(pickingListId, line.id));
-        }
-      }}
+      className={cn(
+        "flex items-center justify-between gap-6 p-4 border-b transition-opacity duration-150",
+        isLast && "border-none",
+        isResolved && "opacity-50 hover:opacity-100"
+      )}
     >
-      <div className="flex flex-1 justify-between items-center w-full">
-        <HStack spacing={4} className="flex-1">
-          <VStack spacing={0}>
-            <span className="text-sm font-medium">
-              {line.item?.readableId ?? "Unknown"} - {line.item?.name ?? ""}
-            </span>
-            {line.storageUnit?.name && (
-              <span className="text-xs text-muted-foreground">
-                {line.storageUnit.name}
-              </span>
-            )}
-          </VStack>
-        </HStack>
+      <HStack spacing={4} className="min-w-0 flex-1">
+        <ItemThumbnail
+          size="md"
+          thumbnailPath={null}
+          type={(item?.type as "Part") ?? "Part"}
+        />
+        <VStack spacing={0} className="min-w-0">
+          <p className="text-sm font-medium truncate">{itemName}</p>
+          <p className="text-xs text-muted-foreground truncate">
+            {item?.readableIdWithRevision ?? line.item?.readableId}
+          </p>
+        </VStack>
+      </HStack>
 
-        <HStack spacing={4}>
-          <div className="text-sm text-right">
-            <span className="font-medium">
-              {quantityPicked.toLocaleString()}
-            </span>
-            <span className="text-muted-foreground">
-              {" "}
-              / {quantityToPick.toLocaleString()}
-            </span>
+      <HStack spacing={6} className="shrink-0">
+        {source && (
+          <div className="text-base font-medium whitespace-nowrap">
+            {source}
           </div>
-          <PickingLineStatus status={line.status ?? "Pending"} />
-        </HStack>
-      </div>
+        )}
+        <Count
+          count={isShort ? quantityPicked : quantityToPick}
+          className={cn(
+            "text-white text-base tabular-nums",
+            isPicked
+              ? "bg-emerald-600"
+              : isShort
+                ? "bg-orange-500"
+                : "bg-red-600"
+          )}
+        />
+        {isLocked ? null : isTracked ? (
+          <Button variant="secondary" leftIcon={<LuQrCode />} isDisabled>
+            <Trans>Scan</Trans>
+          </Button>
+        ) : isPicked ? (
+          <Button
+            variant="secondary"
+            leftIcon={<LuUndo2 />}
+            isDisabled={!canPick || isPending}
+            isLoading={isPending}
+            onClick={() => pick(0)}
+          >
+            <Trans>Unpick</Trans>
+          </Button>
+        ) : (
+          <HStack spacing={1}>
+            <Button
+              variant="secondary"
+              isDisabled={!canPick || isPending}
+              onClick={() => setShortOpen(true)}
+            >
+              <Trans>Short</Trans>
+            </Button>
+            <Button
+              leftIcon={<LuCirclePlus />}
+              isDisabled={!canPick || isPending}
+              isLoading={isPending}
+              onClick={() => pick(quantityToPick)}
+            >
+              <Trans>Pick</Trans>
+            </Button>
+          </HStack>
+        )}
+      </HStack>
+
+      {shortOpen && (
+        <ShortPickModal
+          pickingListId={pickingListId}
+          lineId={line.id}
+          itemName={itemName}
+          quantityToPick={quantityToPick}
+          quantityPicked={quantityPicked}
+          onClose={() => setShortOpen(false)}
+        />
+      )}
     </div>
   );
-}
-
-function PickingLineStatus({ status }: { status: string }) {
-  switch (status) {
-    case "Picked":
-      return <Badge variant="green">{status}</Badge>;
-    case "Short":
-      return <Badge variant="yellow">{status}</Badge>;
-    case "Cancelled":
-      return <Badge variant="destructive">{status}</Badge>;
-    case "Pending":
-    default:
-      return <Badge variant="secondary">{status}</Badge>;
-  }
 }
 
 export default PickingListLines;

@@ -1,9 +1,10 @@
-import { MenuIcon, MenuItem, useDisclosure } from "@carbon/react";
+import { Button, MenuIcon, MenuItem, useDisclosure } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo, useState } from "react";
 import {
   LuCalendar,
+  LuCirclePlus,
   LuClock,
   LuHash,
   LuMapPin,
@@ -11,7 +12,7 @@ import {
   LuTrash,
   LuUser
 } from "react-icons/lu";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { EmployeeAvatar, Hyperlink, Table } from "~/components";
 import { ConfirmDelete } from "~/components/Modals";
 import { useDateFormatter, usePermissions, useUrlParams } from "~/hooks";
@@ -19,7 +20,7 @@ import { path } from "~/utils/path";
 import { pickingListStatusType } from "../../inventory.models";
 import PickingListStatus from "./PickingListStatus";
 
-type PickingList = {
+export type PickingList = {
   id: string;
   pickingListId: string;
   status: (typeof pickingListStatusType)[number];
@@ -198,6 +199,15 @@ const PickingListsTable = memo(({ data, count }: PickingListsTableProps) => {
           createdAt: false,
           createdBy: false
         }}
+        primaryAction={
+          permissions.can("create", "inventory") ? (
+            <Button asChild leftIcon={<LuCirclePlus />}>
+              <Link to={path.to.pickingSchedule}>
+                <Trans>New Picking List</Trans>
+              </Link>
+            </Button>
+          ) : undefined
+        }
         renderContextMenu={renderContextMenu}
         title={t`Picking Lists`}
       />

@@ -1,51 +1,49 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import {
   Badge,
+  BarProgress,
   Button,
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
+  Count,
+  cn,
   Heading,
   HStack,
   SidebarTrigger,
+  toast,
   VStack
 } from "@carbon/react";
-import { Trans, useLingui } from "@lingui/react/macro";
-import { useMemo, useState } from "react";
-import { LuChevronDown, LuChevronRight } from "react-icons/lu";
+import { Trans } from "@lingui/react/macro";
+import { useEffect, useMemo, useState } from "react";
+import {
+  LuCheck,
+  LuCirclePlus,
+  LuPlay,
+  LuQrCode,
+  LuUndo2
+} from "react-icons/lu";
 import type { LoaderFunctionArgs } from "react-router";
 import { useFetcher, useLoaderData } from "react-router";
-import { userContext } from "~/context";
-import {
-  getPickingListForExecution,
-  updatePickingListStatus
-} from "~/services/picking.service";
+import { Enumerable } from "~/components/Enumerable";
+import ItemThumbnail from "~/components/ItemThumbnail";
+import { PickingListStatus } from "~/components/PickingListStatus";
+import { ShortPickModal } from "~/components/ShortPickModal";
+import { isPickingListLocked } from "~/services/models";
+import { getPickingListForExecution } from "~/services/picking.service";
+import { useItems } from "~/stores";
 import { path } from "~/utils/path";
 
-export async function loader({ context, request, params }: LoaderFunctionArgs) {
-  const { client, userId } = await requirePermissions(request, {});
-  const effectiveUserId = context.get(userContext)?.effectiveUserId ?? userId;
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  const { client } = await requirePermissions(request, {});
   const pickingListId = params.pickingListId!;
 
   const result = await getPickingListForExecution(client, pickingListId);
 
   if (result.error || !result.data) {
     throw new Response("Picking list not found", { status: 404 });
-  }
-
-  // Auto-transition Draft to In Progress
-  if (result.data.status === "Draft") {
-    await updatePickingListStatus(
-      client,
-      pickingListId,
-      "In Progress",
-      effectiveUserId
-    );
-    result.data.status = "In Progress";
   }
 
   return {
@@ -57,230 +55,350 @@ type Line = NonNullable<
   Awaited<ReturnType<typeof getPickingListForExecution>>["data"]
 >["lines"][number];
 
-interface GroupedKit {
+// A "kit" is the box a kitter fills for one job operation. Parts must not be
+// mixed across operations, so lines are grouped by job operation — the job +
+// operation + work center identify the box.
+interface Kit {
   key: string;
-  label: string;
+  jobReadableId: string | null;
+  operationName: string | null;
+  workCenterName: string | null;
   lines: Line[];
 }
 
 export default function PickingExecutionRoute() {
-  const { t } = useLingui();
   const { pickingList } = useLoaderData<typeof loader>();
 
-  const groupedKits = useMemo(() => {
-    const groups = new Map<string, GroupedKit>();
+  const lines = pickingList.lines ?? [];
+  const isLocked = isPickingListLocked(pickingList.status);
 
-    for (const line of pickingList.lines ?? []) {
-      const op = line.jobOperation;
+  const kits = useMemo(() => {
+    const groups = new Map<string, Kit>();
+    for (const line of lines) {
       const key = line.jobOperationId ?? "ungrouped";
-      const label = op
-        ? `${(line.job as any)?.jobId ?? ""} - Op ${op.order}: ${(op.process as any)?.name ?? ""} (${(op.workCenter as any)?.name ?? ""})`
-        : t`Ungrouped`;
-
       if (!groups.has(key)) {
-        groups.set(key, { key, label, lines: [] });
+        groups.set(key, {
+          key,
+          jobReadableId: (line.job as { jobId?: string } | null)?.jobId ?? null,
+          operationName:
+            (line.jobOperation as { process?: { name?: string } } | null)
+              ?.process?.name ?? null,
+          workCenterName:
+            (line.jobOperation as { workCenter?: { name?: string } } | null)
+              ?.workCenter?.name ?? null,
+          lines: []
+        });
       }
       groups.get(key)!.lines.push(line);
     }
+    return Array.from(groups.values()).sort((a, b) => {
+      const job = (a.jobReadableId ?? "").localeCompare(b.jobReadableId ?? "");
+      if (job !== 0) return job;
+      return (a.operationName ?? "").localeCompare(b.operationName ?? "");
+    });
+  }, [lines]);
 
-    return Array.from(groups.values());
-  }, [pickingList.lines, t]);
+  const completedCount = lines.filter((l) => isLineResolved(l)).length;
 
   return (
     <div className="flex flex-col flex-1">
-      <header className="sticky top-0 z-10 flex h-[var(--header-height)] shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 border-b bg-background">
+      <header className="sticky top-0 z-10 flex h-[var(--header-height)] shrink-0 items-center justify-between gap-2 border-b bg-background">
         <div className="flex items-center gap-2 px-2">
           <SidebarTrigger />
           <Heading size="h4">{pickingList.pickingListId}</Heading>
-          <Badge
-            variant={
-              pickingList.status === "Completed"
-                ? "default"
-                : pickingList.status === "In Progress"
-                  ? "default"
-                  : "secondary"
-            }
-          >
-            {pickingList.status}
-          </Badge>
+          <PickingListStatus status={pickingList.status} />
+        </div>
+        <div className="flex items-center gap-3 px-3">
+          <span className="text-sm text-muted-foreground tabular-nums">
+            {completedCount}/{lines.length} <Trans>lines</Trans>
+          </span>
+          <PickingListControls
+            pickingListId={pickingList.id}
+            status={pickingList.status}
+          />
         </div>
       </header>
 
       <main className="h-[calc(100dvh-var(--header-height))] w-full overflow-y-auto scrollbar-thin scrollbar-thumb-accent scrollbar-track-transparent p-4">
-        <VStack className="gap-4">
-          {groupedKits.map((kit) => (
-            <KitSection
-              key={kit.key}
-              kit={kit}
-              pickingListId={pickingList.id}
-            />
-          ))}
-        </VStack>
+        <div className="w-full max-w-5xl mx-auto pb-16">
+          <VStack spacing={4} className="w-full">
+            {kits.map((kit) => (
+              <PickingKitCard
+                key={kit.key}
+                kit={kit}
+                pickingListId={pickingList.id}
+                isLocked={isLocked}
+              />
+            ))}
+          </VStack>
+        </div>
       </main>
     </div>
   );
 }
 
-function KitSection({
-  kit,
-  pickingListId
+function PickingListControls({
+  pickingListId,
+  status
 }: {
-  kit: GroupedKit;
   pickingListId: string;
+  status: string;
 }) {
-  const [open, setOpen] = useState(true);
-
-  return (
-    <Collapsible open={open} onOpenChange={setOpen}>
-      <Card>
-        <CollapsibleTrigger asChild>
-          <CardHeader className="cursor-pointer select-none">
-            <HStack className="justify-between">
-              <HStack>
-                {open ? (
-                  <LuChevronDown className="h-4 w-4" />
-                ) : (
-                  <LuChevronRight className="h-4 w-4" />
-                )}
-                <CardTitle className="text-sm">{kit.label}</CardTitle>
-              </HStack>
-              <span className="text-xs text-muted-foreground">
-                {
-                  kit.lines.filter(
-                    (l) =>
-                      l.status === "Picked" ||
-                      l.status === "Short" ||
-                      l.status === "Cancelled"
-                  ).length
-                }
-                /{kit.lines.length}
-              </span>
-            </HStack>
-          </CardHeader>
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <CardContent className="pt-0">
-            <VStack className="gap-3">
-              {kit.lines.map((line) => (
-                <PickLineCard
-                  key={line.id}
-                  line={line}
-                  pickingListId={pickingListId}
-                />
-              ))}
-            </VStack>
-          </CardContent>
-        </CollapsibleContent>
-      </Card>
-    </Collapsible>
-  );
-}
-
-function PickLineCard({
-  line,
-  pickingListId
-}: {
-  line: Line;
-  pickingListId: string;
-}) {
-  const fetcher = useFetcher();
+  const fetcher = useFetcher<{ success: boolean; message?: string }>();
   const isSubmitting = fetcher.state !== "idle";
-  const isResolved =
-    line.status === "Picked" ||
-    line.status === "Short" ||
-    line.status === "Cancelled";
 
-  const item = line.item as { name: string; readableId: string } | null;
-  const storageUnit = line.storageUnit as { name: string } | null;
-  const quantityToPick = Number(line.quantityToPick ?? 0);
-
-  const handleConfirm = () => {
-    const formData = new FormData();
-    formData.append("pickingListLineId", line.id);
-    formData.append("quantityPicked", String(quantityToPick));
-
-    if (line.trackedEntities?.length) {
-      const trackedEntities = line.trackedEntities.map((te: any) => ({
-        trackedEntityId: te.trackedEntityId,
-        quantityPicked: Number(te.trackedEntity?.quantity ?? 0)
-      }));
-      formData.append("trackedEntities", JSON.stringify(trackedEntities));
+  useEffect(() => {
+    if (fetcher.data && fetcher.data.success === false) {
+      toast.error(fetcher.data.message ?? "Failed to update status");
     }
+  }, [fetcher.data]);
 
+  const setStatus = (next: string) => {
+    const formData = new FormData();
+    formData.append("status", next);
     fetcher.submit(formData, {
       method: "post",
-      action: path.to.pickingConfirm(pickingListId)
+      action: path.to.pickingStatus(pickingListId)
     });
   };
 
-  const handleShort = () => {
+  if (status === "Completed" || status === "Cancelled") return null;
+
+  return (
+    <HStack spacing={2}>
+      {status === "Draft" && (
+        <Button
+          size="lg"
+          leftIcon={<LuPlay />}
+          isLoading={isSubmitting}
+          isDisabled={isSubmitting}
+          onClick={() => setStatus("In Progress")}
+        >
+          <Trans>Start</Trans>
+        </Button>
+      )}
+      {status === "In Progress" && (
+        <Button
+          size="lg"
+          leftIcon={<LuCheck />}
+          isLoading={isSubmitting}
+          isDisabled={isSubmitting}
+          onClick={() => setStatus("Completed")}
+        >
+          <Trans>Complete</Trans>
+        </Button>
+      )}
+    </HStack>
+  );
+}
+
+function isLineResolved(line: Line) {
+  if (line.status === "Short" || line.status === "Cancelled") return true;
+  return (
+    Number(line.quantityToPick ?? 0) > 0 &&
+    Number(line.quantityPicked ?? 0) >= Number(line.quantityToPick ?? 0)
+  );
+}
+
+function PickingKitCard({
+  kit,
+  pickingListId,
+  isLocked
+}: {
+  kit: Kit;
+  pickingListId: string;
+  isLocked: boolean;
+}) {
+  const totalToPick = kit.lines.reduce(
+    (sum, l) => sum + Number(l.quantityToPick ?? 0),
+    0
+  );
+  const totalPicked = kit.lines.reduce(
+    (sum, l) =>
+      sum +
+      Math.min(Number(l.quantityPicked ?? 0), Number(l.quantityToPick ?? 0)),
+    0
+  );
+  const progress = totalToPick > 0 ? (totalPicked / totalToPick) * 100 : 0;
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>
+          {kit.jobReadableId ?? "Unknown Job"}
+          {kit.operationName ? ` · ${kit.operationName}` : ""}
+        </CardTitle>
+        {kit.workCenterName && (
+          <CardDescription>
+            <Enumerable value={kit.workCenterName} />
+          </CardDescription>
+        )}
+      </CardHeader>
+      <CardContent>
+        <BarProgress progress={progress} className="mb-4" />
+        <div className="border rounded-lg">
+          {kit.lines.map((line, index) => (
+            <PickLineItem
+              key={line.id}
+              line={line}
+              pickingListId={pickingListId}
+              isLast={index === kit.lines.length - 1}
+              isLocked={isLocked}
+            />
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function PickLineItem({
+  line,
+  pickingListId,
+  isLast,
+  isLocked
+}: {
+  line: Line;
+  pickingListId: string;
+  isLast: boolean;
+  isLocked: boolean;
+}) {
+  const [items] = useItems();
+  const fetcher = useFetcher<{ success: boolean; message?: string }>();
+  const isSubmitting = fetcher.state !== "idle";
+  const [shortOpen, setShortOpen] = useState(false);
+
+  useEffect(() => {
+    if (fetcher.data && fetcher.data.success === false) {
+      toast.error(fetcher.data.message ?? "Failed to update pick line");
+    }
+  }, [fetcher.data]);
+
+  const lineItem = line.item as { name: string; readableId: string } | null;
+  const item = items.find((i) => i.id === line.itemId);
+  const itemName = item?.name ?? lineItem?.name ?? "";
+  const source = (line.storageUnit as { name?: string } | null)?.name;
+  const quantityToPick = Number(line.quantityToPick ?? 0);
+  const quantityPicked = Number(line.quantityPicked ?? 0);
+  const isTracked = (line.trackedEntities?.length ?? 0) > 0;
+
+  const isFullyPicked = quantityToPick > 0 && quantityPicked >= quantityToPick;
+  const isShort = line.status === "Short";
+  const isCancelled = line.status === "Cancelled";
+  const isResolved = isFullyPicked || isShort || isCancelled;
+
+  const pick = (quantity: number) => {
     const formData = new FormData();
     formData.append("pickingListLineId", line.id);
-    formData.append("quantityPicked", "0");
-
+    formData.append("quantity", String(quantity));
     fetcher.submit(formData, {
       method: "post",
-      action: path.to.pickingConfirm(pickingListId)
+      action: path.to.pickingLineQuantity(pickingListId)
     });
   };
 
   return (
     <div
-      className={`border rounded-md p-3 ${isResolved ? "opacity-60 bg-muted" : "bg-card"}`}
+      className={cn(
+        "flex items-center justify-between gap-6 p-4 border-b transition-opacity duration-150",
+        isLast && "border-none",
+        isResolved && "opacity-50 hover:opacity-100"
+      )}
     >
-      <HStack className="justify-between items-start">
-        <VStack className="gap-1 flex-1">
-          <HStack className="gap-2">
-            <span className="font-medium text-sm">{item?.readableId}</span>
-            <span className="text-sm text-muted-foreground">{item?.name}</span>
-          </HStack>
-          <HStack className="gap-4 text-xs text-muted-foreground">
-            <span>
-              <Trans>Qty</Trans>: {quantityToPick}
-            </span>
-            {storageUnit && (
-              <span>
-                <Trans>From</Trans>: {storageUnit.name}
-              </span>
-            )}
-          </HStack>
-          {line.trackedEntities && line.trackedEntities.length > 0 && (
-            <div className="mt-1">
-              {line.trackedEntities.map((te: any) => (
-                <span
-                  key={te.id}
-                  className="text-xs bg-muted px-1.5 py-0.5 rounded mr-1"
-                >
-                  {te.trackedEntity?.readableId} ({te.trackedEntity?.quantity})
-                </span>
-              ))}
-            </div>
-          )}
+      <HStack spacing={4} className="min-w-0 flex-1">
+        <ItemThumbnail
+          size="lg"
+          thumbnailPath={null}
+          type={(item?.type as "Part") ?? "Part"}
+        />
+        <VStack spacing={0} className="min-w-0">
+          <p className="text-sm font-medium truncate">{itemName}</p>
+          <p className="text-xs text-muted-foreground truncate">
+            {item?.readableIdWithRevision ?? lineItem?.readableId}
+          </p>
         </VStack>
-        <HStack className="gap-2 shrink-0">
-          {isResolved ? (
-            <Badge
-              variant={line.status === "Picked" ? "default" : "destructive"}
-            >
-              {line.status}
-            </Badge>
-          ) : (
-            <>
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={handleShort}
-                disabled={isSubmitting}
-              >
-                <Trans>Short</Trans>
-              </Button>
-              <Button size="sm" onClick={handleConfirm} disabled={isSubmitting}>
-                <Trans>Confirm</Trans>
-              </Button>
-            </>
-          )}
-        </HStack>
       </HStack>
+
+      <HStack spacing={6} className="shrink-0">
+        {source && (
+          <div className="text-base font-medium whitespace-nowrap">
+            {source}
+          </div>
+        )}
+        <Count
+          count={isShort ? quantityPicked : quantityToPick}
+          className={cn(
+            "text-white text-base tabular-nums",
+            isFullyPicked
+              ? "bg-emerald-600"
+              : isShort
+                ? "bg-orange-500"
+                : "bg-red-600"
+          )}
+        />
+        {isLocked ? (
+          isCancelled ? (
+            <Badge variant="red">
+              <Trans>Cancelled</Trans>
+            </Badge>
+          ) : null
+        ) : isCancelled ? (
+          <Badge variant="red">
+            <Trans>Cancelled</Trans>
+          </Badge>
+        ) : isTracked ? (
+          <Button
+            size="lg"
+            variant="secondary"
+            leftIcon={<LuQrCode />}
+            isDisabled
+          >
+            <Trans>Scan</Trans>
+          </Button>
+        ) : isFullyPicked ? (
+          <Button
+            size="lg"
+            variant="secondary"
+            leftIcon={<LuUndo2 />}
+            onClick={() => pick(0)}
+            isLoading={isSubmitting}
+            isDisabled={isSubmitting}
+          >
+            <Trans>Unpick</Trans>
+          </Button>
+        ) : (
+          <HStack spacing={1}>
+            <Button
+              size="lg"
+              variant="secondary"
+              onClick={() => setShortOpen(true)}
+              isDisabled={isSubmitting}
+            >
+              <Trans>Short</Trans>
+            </Button>
+            <Button
+              size="lg"
+              leftIcon={<LuCirclePlus />}
+              onClick={() => pick(quantityToPick)}
+              isLoading={isSubmitting}
+              isDisabled={isSubmitting}
+            >
+              <Trans>Pick</Trans>
+            </Button>
+          </HStack>
+        )}
+      </HStack>
+
+      {shortOpen && (
+        <ShortPickModal
+          pickingListId={pickingListId}
+          lineId={line.id}
+          itemName={itemName}
+          quantityToPick={quantityToPick}
+          quantityPicked={quantityPicked}
+          onClose={() => setShortOpen(false)}
+        />
+      )}
     </div>
   );
 }

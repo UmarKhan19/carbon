@@ -384,6 +384,15 @@ export const sequences = [
     next: 1,
     size: 6,
     step: 1
+  },
+  {
+    table: "pickingList",
+    name: "Picking List",
+    prefix: "PL",
+    suffix: null,
+    next: 0,
+    size: 6,
+    step: 1
   }
 ] as const;
 

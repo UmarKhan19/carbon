@@ -3870,6 +3870,9 @@ msgstr "घंटे/1000 पीस"
 msgid "Hours/Piece"
 msgstr "घंटे/टुकड़ा"
 
+msgid "How many were actually picked?"
+msgstr ""
+
 msgid "How the resolved price was calculated."
 msgstr "हल की गई कीमत की गणना कैसे की गई।"
 
@@ -4615,6 +4618,9 @@ msgstr "लॉट को आंशिक के रूप में चिह्
 
 msgid "Mark Partial"
 msgstr "आंशिक रूप से चिह्नित करें"
+
+msgid "Mark Short"
+msgstr ""
 
 msgid "Mark to delete"
 msgstr "हटाने के लिए चिह्नित करें"
@@ -5814,6 +5820,9 @@ msgstr "एक तारीख चुनें या इसे साफ कर
 msgid "Pick List"
 msgstr "पिक लिस्ट"
 
+msgid "Picked quantity"
+msgstr ""
+
 msgid "Picking Lines"
 msgstr ""
 
@@ -5821,6 +5830,9 @@ msgid "Picking List"
 msgstr ""
 
 msgid "Picking List ID"
+msgstr ""
+
+msgid "Picking List Notes"
 msgstr ""
 
 msgid "Picking Lists"
@@ -6942,18 +6954,11 @@ msgstr "सेकंड/पीस"
 msgid "Select"
 msgstr "चुनें"
 
-#. placeholder {0}: item.jobReadableId
-msgid "Select {0}"
-msgstr ""
-
 msgid "Select a assignee"
 msgstr "एक असाइनी चुनें"
 
 msgid "Select a default approver"
 msgstr "एक डिफ़ॉल्ट अनुमोदक चुनें"
-
-msgid "Select a location to view the picking schedule"
-msgstr ""
 
 msgid "Select a new owner"
 msgstr "एक नया मालिक चुनें"
@@ -7291,8 +7296,14 @@ msgstr "शिपिंग:"
 msgid "Shop Floor"
 msgstr "शॉप फ्लोर"
 
+msgid "Short"
+msgstr ""
+
 msgid "Short Description"
 msgstr "संक्षिप्त विवरण"
+
+msgid "Short pick {itemName}"
+msgstr ""
 
 msgid "Shortcuts"
 msgstr "शॉर्टकट"
@@ -7477,9 +7488,6 @@ msgstr "वित्तीय वर्ष की शुरुआत"
 
 msgid "Start of Tax Year"
 msgstr "कर वर्ष की शुरुआत"
-
-msgid "Start Picking"
-msgstr ""
 
 msgid "Start Time"
 msgstr "शुरुआत का समय"
@@ -8090,9 +8098,6 @@ msgstr "कुल मिनट"
 msgid "Total Price"
 msgstr "कुल मूल्य"
 
-msgid "Total Qty"
-msgstr ""
-
 msgid "Total Quantity"
 msgstr "कुल मात्रा"
 
@@ -8281,6 +8286,9 @@ msgstr "अनलिंक करें"
 
 msgid "Unlink job from sales order?"
 msgstr "बिक्रय आदेश से नौकरी को अनलिंक करें?"
+
+msgid "Unpick"
+msgstr ""
 
 msgid "Unsaved changes"
 msgstr "असहेजे परिवर्तन"
@@ -8539,6 +8547,9 @@ msgstr "समस्या देखें"
 
 msgid "View Item Master"
 msgstr "आइटम मास्टर देखें"
+
+msgid "View Lists"
+msgstr ""
 
 msgid "View maintenance dispatch"
 msgstr "रखरखाव डिस्पैच देखें"

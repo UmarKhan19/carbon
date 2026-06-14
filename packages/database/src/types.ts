@@ -3051,11 +3051,8 @@ export type Database = {
           enforceInspectionFourEyes: boolean
           gaugeCalibrationExpiredNotificationGroup: string[]
           id: string
-          includeThumbnailsOnPurchasingPdfs: boolean
-          includeThumbnailsOnSalesPdfs: boolean
           inventoryJobCompletedNotificationGroup: string[]
           inventoryShelfLife: Json
-          jobTravelerIncludeWorkInstructions: boolean
           kanbanOutput: Database["public"]["Enums"]["kanbanOutput"]
           maintenanceAdvanceDays: number
           maintenanceDispatchNotificationGroup: string[] | null
@@ -3097,11 +3094,8 @@ export type Database = {
           enforceInspectionFourEyes?: boolean
           gaugeCalibrationExpiredNotificationGroup?: string[]
           id: string
-          includeThumbnailsOnPurchasingPdfs?: boolean
-          includeThumbnailsOnSalesPdfs?: boolean
           inventoryJobCompletedNotificationGroup?: string[]
           inventoryShelfLife?: Json
-          jobTravelerIncludeWorkInstructions?: boolean
           kanbanOutput?: Database["public"]["Enums"]["kanbanOutput"]
           maintenanceAdvanceDays?: number
           maintenanceDispatchNotificationGroup?: string[] | null
@@ -3143,11 +3137,8 @@ export type Database = {
           enforceInspectionFourEyes?: boolean
           gaugeCalibrationExpiredNotificationGroup?: string[]
           id?: string
-          includeThumbnailsOnPurchasingPdfs?: boolean
-          includeThumbnailsOnSalesPdfs?: boolean
           inventoryJobCompletedNotificationGroup?: string[]
           inventoryShelfLife?: Json
-          jobTravelerIncludeWorkInstructions?: boolean
           kanbanOutput?: Database["public"]["Enums"]["kanbanOutput"]
           maintenanceAdvanceDays?: number
           maintenanceDispatchNotificationGroup?: string[] | null
@@ -26747,6 +26738,526 @@ export type Database = {
         }
         Relationships: []
       }
+      pickingList: {
+        Row: {
+          assignee: string | null
+          companyId: string
+          createdAt: string
+          createdBy: string
+          customFields: Json | null
+          dueDate: string | null
+          id: string
+          locationId: string
+          notes: Json | null
+          pickingListId: string
+          status: Database["public"]["Enums"]["pickingListStatus"]
+          updatedAt: string | null
+          updatedBy: string | null
+        }
+        Insert: {
+          assignee?: string | null
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          customFields?: Json | null
+          dueDate?: string | null
+          id?: string
+          locationId: string
+          notes?: Json | null
+          pickingListId: string
+          status?: Database["public"]["Enums"]["pickingListStatus"]
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Update: {
+          assignee?: string | null
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          customFields?: Json | null
+          dueDate?: string | null
+          id?: string
+          locationId?: string
+          notes?: Json | null
+          pickingListId?: string
+          status?: Database["public"]["Enums"]["pickingListStatus"]
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pickingList_assignee_fkey"
+            columns: ["assignee"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingList_assignee_fkey"
+            columns: ["assignee"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingList_assignee_fkey"
+            columns: ["assignee"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingList_assignee_fkey"
+            columns: ["assignee"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingList_assignee_fkey"
+            columns: ["assignee"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "pickingList_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingList_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingList_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "pickingList_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "pickingList_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingList_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingList_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingList_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingList_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "pickingList_locationId_fkey"
+            columns: ["locationId"]
+            isOneToOne: false
+            referencedRelation: "location"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingList_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingList_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingList_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingList_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingList_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+        ]
+      }
+      pickingListLine: {
+        Row: {
+          companyId: string
+          createdAt: string
+          createdBy: string
+          customFields: Json | null
+          id: string
+          itemId: string
+          jobId: string
+          jobMaterialId: string
+          jobOperationId: string | null
+          outstandingQuantity: number | null
+          pickingListId: string
+          quantityPicked: number
+          quantityToPick: number
+          status: Database["public"]["Enums"]["pickingListLineStatus"]
+          storageUnitId: string | null
+          toStorageUnitId: string | null
+          updatedAt: string | null
+          updatedBy: string | null
+        }
+        Insert: {
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          customFields?: Json | null
+          id?: string
+          itemId: string
+          jobId: string
+          jobMaterialId: string
+          jobOperationId?: string | null
+          outstandingQuantity?: number | null
+          pickingListId: string
+          quantityPicked?: number
+          quantityToPick: number
+          status?: Database["public"]["Enums"]["pickingListLineStatus"]
+          storageUnitId?: string | null
+          toStorageUnitId?: string | null
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Update: {
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          customFields?: Json | null
+          id?: string
+          itemId?: string
+          jobId?: string
+          jobMaterialId?: string
+          jobOperationId?: string | null
+          outstandingQuantity?: number | null
+          pickingListId?: string
+          quantityPicked?: number
+          quantityToPick?: number
+          status?: Database["public"]["Enums"]["pickingListLineStatus"]
+          storageUnitId?: string | null
+          toStorageUnitId?: string | null
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pickingListLine_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingListLine_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingListLine_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "pickingListLine_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "pickingListLine_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingListLine_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingListLine_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingListLine_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingListLine_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "pickingListLine_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "consumables"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingListLine_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "item"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingListLine_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingListLine_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "parts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingListLine_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingListLine_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "tools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingListLine_jobId_fkey"
+            columns: ["jobId"]
+            isOneToOne: false
+            referencedRelation: "job"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingListLine_jobId_fkey"
+            columns: ["jobId"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingListLine_jobId_fkey"
+            columns: ["jobId"]
+            isOneToOne: false
+            referencedRelation: "openProductionOrders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingListLine_jobMaterialId_fkey"
+            columns: ["jobMaterialId"]
+            isOneToOne: false
+            referencedRelation: "jobMaterial"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingListLine_jobMaterialId_fkey"
+            columns: ["jobMaterialId"]
+            isOneToOne: false
+            referencedRelation: "jobMaterialWithMakeMethodId"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingListLine_jobMaterialId_fkey"
+            columns: ["jobMaterialId"]
+            isOneToOne: false
+            referencedRelation: "openJobMaterialLines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingListLine_jobOperationId_fkey"
+            columns: ["jobOperationId"]
+            isOneToOne: false
+            referencedRelation: "jobOperation"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingListLine_jobOperationId_fkey"
+            columns: ["jobOperationId"]
+            isOneToOne: false
+            referencedRelation: "jobOperationsWithDependencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingListLine_jobOperationId_fkey"
+            columns: ["jobOperationId"]
+            isOneToOne: false
+            referencedRelation: "jobOperationsWithMakeMethods"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingListLine_pickingListId_fkey"
+            columns: ["pickingListId"]
+            isOneToOne: false
+            referencedRelation: "pickingList"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingListLine_pickingListId_fkey"
+            columns: ["pickingListId"]
+            isOneToOne: false
+            referencedRelation: "pickingLists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingListLine_storageUnitId_fkey"
+            columns: ["storageUnitId"]
+            isOneToOne: false
+            referencedRelation: "storageUnit"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingListLine_toStorageUnitId_fkey"
+            columns: ["toStorageUnitId"]
+            isOneToOne: false
+            referencedRelation: "storageUnit"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingListLine_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingListLine_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingListLine_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingListLine_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingListLine_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+        ]
+      }
+      pickingListLineTrackedEntity: {
+        Row: {
+          pickingListLineId: string
+          quantity: number
+          quantityPicked: number
+          trackedEntityId: string
+        }
+        Insert: {
+          pickingListLineId: string
+          quantity: number
+          quantityPicked?: number
+          trackedEntityId: string
+        }
+        Update: {
+          pickingListLineId?: string
+          quantity?: number
+          quantityPicked?: number
+          trackedEntityId?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pickingListLineTrackedEntity_pickingListLineId_fkey"
+            columns: ["pickingListLineId"]
+            isOneToOne: false
+            referencedRelation: "pickingListLine"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingListLineTrackedEntity_trackedEntityId_fkey"
+            columns: ["trackedEntityId"]
+            isOneToOne: false
+            referencedRelation: "trackedEntity"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pickMethod: {
         Row: {
           companyId: string
@@ -38710,7 +39221,49 @@ export type Database = {
           },
         ]
       }
-      searchIndex_d8lrj78sm0h02bck1u9g: {
+      searchIndex_d8mo58ngo0h02bp1f7rg: {
+        Row: {
+          createdAt: string
+          description: string | null
+          entityId: string
+          entityType: string
+          id: number
+          link: string
+          metadata: Json | null
+          searchVector: unknown
+          tags: string[] | null
+          title: string
+          updatedAt: string | null
+        }
+        Insert: {
+          createdAt?: string
+          description?: string | null
+          entityId: string
+          entityType: string
+          id?: number
+          link: string
+          metadata?: Json | null
+          searchVector?: unknown
+          tags?: string[] | null
+          title: string
+          updatedAt?: string | null
+        }
+        Update: {
+          createdAt?: string
+          description?: string | null
+          entityId?: string
+          entityType?: string
+          id?: number
+          link?: string
+          metadata?: Json | null
+          searchVector?: unknown
+          tags?: string[] | null
+          title?: string
+          updatedAt?: string | null
+        }
+        Relationships: []
+      }
+      searchIndex_PMZBgR2ziNiHeJGLkw39nK: {
         Row: {
           createdAt: string
           description: string | null
@@ -41459,6 +42012,7 @@ export type Database = {
           createdBy: string
           customFields: Json | null
           id: string
+          isWorkCenterDefault: boolean
           locationId: string
           name: string
           parentId: string | null
@@ -41476,6 +42030,7 @@ export type Database = {
           createdBy: string
           customFields?: Json | null
           id?: string
+          isWorkCenterDefault?: boolean
           locationId: string
           name: string
           parentId?: string | null
@@ -41493,6 +42048,7 @@ export type Database = {
           createdBy?: string
           customFields?: Json | null
           id?: string
+          isWorkCenterDefault?: boolean
           locationId?: string
           name?: string
           parentId?: string | null
@@ -41627,7 +42183,28 @@ export type Database = {
             foreignKeyName: "storageUnit_workCenterId_fkey"
             columns: ["workCenterId"]
             isOneToOne: false
+            referencedRelation: "riskRegisters"
+            referencedColumns: ["workCenterId"]
+          },
+          {
+            foreignKeyName: "storageUnit_workCenterId_fkey"
+            columns: ["workCenterId"]
+            isOneToOne: false
             referencedRelation: "workCenter"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "storageUnit_workCenterId_fkey"
+            columns: ["workCenterId"]
+            isOneToOne: false
+            referencedRelation: "workCenters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "storageUnit_workCenterId_fkey"
+            columns: ["workCenterId"]
+            isOneToOne: false
+            referencedRelation: "workCentersWithBlockingStatus"
             referencedColumns: ["id"]
           },
         ]
@@ -55046,6 +55623,170 @@ export type Database = {
           },
         ]
       }
+      pickingLists: {
+        Row: {
+          assignee: string | null
+          assigneeAvatarUrl: string | null
+          assigneeName: string | null
+          companyId: string | null
+          completedLineCount: number | null
+          createdAt: string | null
+          createdBy: string | null
+          customFields: Json | null
+          dueDate: string | null
+          id: string | null
+          lineCount: number | null
+          locationId: string | null
+          locationName: string | null
+          notes: Json | null
+          pickingListId: string | null
+          status: Database["public"]["Enums"]["pickingListStatus"] | null
+          updatedAt: string | null
+          updatedBy: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pickingList_assignee_fkey"
+            columns: ["assignee"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingList_assignee_fkey"
+            columns: ["assignee"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingList_assignee_fkey"
+            columns: ["assignee"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingList_assignee_fkey"
+            columns: ["assignee"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingList_assignee_fkey"
+            columns: ["assignee"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "pickingList_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingList_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingList_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "pickingList_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "pickingList_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingList_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingList_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingList_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingList_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "pickingList_locationId_fkey"
+            columns: ["locationId"]
+            isOneToOne: false
+            referencedRelation: "location"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingList_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingList_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingList_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingList_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pickingList_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+        ]
+      }
       procedures: {
         Row: {
           assignee: string | null
@@ -59747,7 +60488,7 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["shipmentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -59761,7 +60502,7 @@ export type Database = {
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["shipmentCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -64175,10 +64916,8 @@ export type Database = {
         }[]
       }
       get_effective_work_center_id: {
-        Args: {
-          p_storage_unit_id: string
-        }
-        Returns: string | null
+        Args: { p_storage_unit_id: string }
+        Returns: string
       }
       get_entity_audit_log: {
         Args: {
@@ -64699,6 +65438,14 @@ export type Database = {
           salesRfqs: Json
         }[]
       }
+      get_or_create_work_center_lineside: {
+        Args: {
+          p_company_id: string
+          p_user_id: string
+          p_work_center_id: string
+        }
+        Returns: string
+      }
       get_part_details: {
         Args: { item_id: string }
         Returns: {
@@ -64736,6 +65483,46 @@ export type Database = {
       get_period_end_date: { Args: { period: string }; Returns: string }
       get_period_start_date: { Args: { period: string }; Returns: string }
       get_permission_companies: { Args: { claim: string }; Returns: string[] }
+      get_picking_schedule: {
+        Args: { p_company_id: string; p_location_id: string; p_search?: string }
+        Returns: {
+          customerId: string
+          customerName: string
+          deadlineType: Database["public"]["Enums"]["deadlineType"]
+          dueDate: string
+          itemDescription: string
+          itemId: string
+          itemReadableId: string
+          jobId: string
+          jobMakeMethodId: string
+          jobOperationId: string
+          jobReadableId: string
+          laborTime: number
+          laborUnit: Database["public"]["Enums"]["factor"]
+          machineTime: number
+          machineUnit: Database["public"]["Enums"]["factor"]
+          operationDescription: string
+          operationOrder: number
+          operationQuantity: number
+          operationStatus: Database["public"]["Enums"]["jobOperationStatus"]
+          partsToPickCount: number
+          processName: string
+          quantityComplete: number
+          quantityReworked: number
+          quantityScrapped: number
+          salesOrderId: string
+          salesOrderLineId: string
+          salesOrderReadableId: string
+          setupTime: number
+          setupUnit: Database["public"]["Enums"]["factor"]
+          tags: string[]
+          targetQuantity: number
+          thumbnailPath: string
+          totalQuantityToPick: number
+          workCenterId: string
+          workCenterName: string
+        }[]
+      }
       get_primary_key_column: {
         Args: { p_table_name: string }
         Returns: string
@@ -66173,6 +66960,8 @@ export type Database = {
         | "Fixture"
       paymentTermCalculationMethod: "Net" | "End of Month" | "Day of Month"
       periodType: "Week" | "Day" | "Month"
+      pickingListLineStatus: "Pending" | "Picked" | "Short" | "Cancelled"
+      pickingListStatus: "Draft" | "In Progress" | "Completed" | "Cancelled"
       pricingRuleAmountType: "Percentage" | "Fixed"
       pricingRuleType: "Discount" | "Markup"
       procedureStatus: "Draft" | "Active" | "Archived"
@@ -67477,6 +68266,8 @@ export const Constants = {
       ],
       paymentTermCalculationMethod: ["Net", "End of Month", "Day of Month"],
       periodType: ["Week", "Day", "Month"],
+      pickingListLineStatus: ["Pending", "Picked", "Short", "Cancelled"],
+      pickingListStatus: ["Draft", "In Progress", "Completed", "Cancelled"],
       pricingRuleAmountType: ["Percentage", "Fixed"],
       pricingRuleType: ["Discount", "Markup"],
       procedureStatus: ["Draft", "Active", "Archived"],

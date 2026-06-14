@@ -5,6 +5,7 @@ import { msg } from "@lingui/core/macro";
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useParams } from "react-router";
 import { getPickingList, getPickingListLines } from "~/modules/inventory";
+import { PickingListHeader } from "~/modules/inventory/ui/PickingLists";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
@@ -58,9 +59,10 @@ export default function PickingListDetailRoute() {
   if (!pickingListId) throw new Error("Could not find pickingListId");
 
   return (
-    <div className="flex h-[calc(100dvh-49px)] overflow-y-auto scrollbar-hide w-full">
-      <div className="h-full p-4 w-full max-w-5xl mx-auto">
-        <div className="flex flex-col gap-2 pb-16 w-full">
+    <div className="flex flex-col h-[calc(100dvh-49px)] overflow-hidden w-full">
+      <PickingListHeader />
+      <div className="flex h-[calc(100dvh-99px)] overflow-y-auto scrollbar-hide w-full">
+        <div className="h-full p-4 w-full max-w-5xl mx-auto flex flex-col gap-4 pb-16">
           <Outlet />
         </div>
       </div>

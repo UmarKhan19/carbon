@@ -157,7 +157,9 @@ export const path = {
     unconsume: `${x}/unconsume`,
     picking: `${x}/picking`,
     pickingDetail: (id: string) => generatePath(`${x}/picking/${id}`),
-    pickingConfirm: (id: string) => generatePath(`${x}/picking/${id}/confirm`),
+    pickingLineQuantity: (id: string) =>
+      generatePath(`${x}/picking/${id}/line/quantity`),
+    pickingStatus: (id: string) => generatePath(`${x}/picking/${id}/status`),
     workCenter: (workCenter: string) =>
       generatePath(`${x}/operations/${workCenter}`),
     itemMaster: (itemId: string, type: string) =>

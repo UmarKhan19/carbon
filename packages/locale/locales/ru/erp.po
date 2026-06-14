@@ -3870,6 +3870,9 @@ msgstr "Часов/1000 Деталей"
 msgid "Hours/Piece"
 msgstr "Часов/Деталь"
 
+msgid "How many were actually picked?"
+msgstr ""
+
 msgid "How the resolved price was calculated."
 msgstr "Как была рассчитана окончательная цена."
 
@@ -4615,6 +4618,9 @@ msgstr "Отметить партию как частичную?"
 
 msgid "Mark Partial"
 msgstr "Отметить как частичное"
+
+msgid "Mark Short"
+msgstr ""
 
 msgid "Mark to delete"
 msgstr "Отметить для удаления"
@@ -5814,6 +5820,9 @@ msgstr "Выберите дату или оставьте пустым, чтоб
 msgid "Pick List"
 msgstr "Список подбора"
 
+msgid "Picked quantity"
+msgstr ""
+
 msgid "Picking Lines"
 msgstr ""
 
@@ -5821,6 +5830,9 @@ msgid "Picking List"
 msgstr ""
 
 msgid "Picking List ID"
+msgstr ""
+
+msgid "Picking List Notes"
 msgstr ""
 
 msgid "Picking Lists"
@@ -6942,18 +6954,11 @@ msgstr "Секунды/Деталь"
 msgid "Select"
 msgstr "Выбрать"
 
-#. placeholder {0}: item.jobReadableId
-msgid "Select {0}"
-msgstr ""
-
 msgid "Select a assignee"
 msgstr "Выберите исполнителя"
 
 msgid "Select a default approver"
 msgstr "Выберите утверждающего по умолчанию"
-
-msgid "Select a location to view the picking schedule"
-msgstr ""
 
 msgid "Select a new owner"
 msgstr "Выберите нового владельца"
@@ -7291,8 +7296,14 @@ msgstr "Доставка:"
 msgid "Shop Floor"
 msgstr "Цех"
 
+msgid "Short"
+msgstr ""
+
 msgid "Short Description"
 msgstr "Краткое описание"
+
+msgid "Short pick {itemName}"
+msgstr ""
 
 msgid "Shortcuts"
 msgstr "Сочетания клавиш"
@@ -7477,9 +7488,6 @@ msgstr "Начало финансового года"
 
 msgid "Start of Tax Year"
 msgstr "Начало налогового года"
-
-msgid "Start Picking"
-msgstr ""
 
 msgid "Start Time"
 msgstr "Время начала"
@@ -8090,9 +8098,6 @@ msgstr "Всего минут"
 msgid "Total Price"
 msgstr "Общая цена"
 
-msgid "Total Qty"
-msgstr ""
-
 msgid "Total Quantity"
 msgstr "Общее количество"
 
@@ -8281,6 +8286,9 @@ msgstr "Отменить связь"
 
 msgid "Unlink job from sales order?"
 msgstr "Отменить связь задания с заказом на продажу?"
+
+msgid "Unpick"
+msgstr ""
 
 msgid "Unsaved changes"
 msgstr "Несохранённые изменения"
@@ -8539,6 +8547,9 @@ msgstr "Просмотр проблемы"
 
 msgid "View Item Master"
 msgstr "Просмотр основных данных товара"
+
+msgid "View Lists"
+msgstr ""
 
 msgid "View maintenance dispatch"
 msgstr "Просмотр заказа на техническое обслуживание"

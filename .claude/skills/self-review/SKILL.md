@@ -1,3 +1,8 @@
+---
+name: self-review
+description: Critically review your own PR work before or just after opening the PR. Use when finishing a branch, before opening or merging a PR, or to sanity-check a diff against main. Produces Must fix / Risks / Suggested improvements.
+---
+
 Critically review your own PR work before or just after opening the PR.
 
 Review the full branch diff, not just the most recent commit. If there is already an open PR for the current branch, use `gh pr view` and `gh pr diff`. If there is not, diff the current branch against `main` instead. If you already know the PR is open from earlier in the session, do not waste time re-proving it unless you need the PR number or metadata.

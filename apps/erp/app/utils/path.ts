@@ -1742,8 +1742,9 @@ export const path = {
       generatePath(`${x}/warehouse-transfer/${transferId}/lines`),
     warehouseTransferLine: (transferId: string, lineId: string) =>
       generatePath(`${x}/warehouse-transfer/${transferId}/details/${lineId}`),
-    pickingSchedule: `${x}/picking-list`,
     pickingLists: `${x}/picking-list`,
+    pickingSchedule: `${x}/picking-list/schedule`,
+    pickingListsTable: `${x}/picking-list/lists`,
     newPickingList: `${x}/picking-list/new`,
     pickingList: (id: string) => generatePath(`${x}/picking-list/${id}`),
     pickingListDetails: (id: string) =>
@@ -1754,6 +1755,8 @@ export const path = {
       generatePath(`${x}/picking-list/${id}/delete`),
     pickingListLine: (pickingListId: string, lineId: string) =>
       generatePath(`${x}/picking-list/${pickingListId}/details/${lineId}`),
+    pickingListLineQuantity: (id: string) =>
+      generatePath(`${x}/picking-list/${id}/line/quantity`),
     shippingMethods: `${x}/inventory/shipping-methods`,
     supplier: (id: string) => generatePath(`${x}/supplier/${id}`),
     supplierApproval: (id: string) =>

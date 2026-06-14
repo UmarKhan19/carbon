@@ -3870,6 +3870,9 @@ msgstr "Stunden/1000 Stück"
 msgid "Hours/Piece"
 msgstr "Stunden/Stück"
 
+msgid "How many were actually picked?"
+msgstr ""
+
 msgid "How the resolved price was calculated."
 msgstr "Wie der aufgelöste Preis berechnet wurde."
 
@@ -4615,6 +4618,9 @@ msgstr "Lot als teilweise markieren?"
 
 msgid "Mark Partial"
 msgstr "Teilweise markieren"
+
+msgid "Mark Short"
+msgstr ""
 
 msgid "Mark to delete"
 msgstr "Zum Löschen markieren"
@@ -5814,6 +5820,9 @@ msgstr "Wählen Sie ein Datum oder lassen Sie es leer, um es zu löschen."
 msgid "Pick List"
 msgstr "Pickliste"
 
+msgid "Picked quantity"
+msgstr ""
+
 msgid "Picking Lines"
 msgstr ""
 
@@ -5821,6 +5830,9 @@ msgid "Picking List"
 msgstr ""
 
 msgid "Picking List ID"
+msgstr ""
+
+msgid "Picking List Notes"
 msgstr ""
 
 msgid "Picking Lists"
@@ -6942,18 +6954,11 @@ msgstr "Sekunden/Stück"
 msgid "Select"
 msgstr "Auswählen"
 
-#. placeholder {0}: item.jobReadableId
-msgid "Select {0}"
-msgstr ""
-
 msgid "Select a assignee"
 msgstr "Wählen Sie einen Bevollmächtigten"
 
 msgid "Select a default approver"
 msgstr "Wählen Sie einen Standard-Genehmiger"
-
-msgid "Select a location to view the picking schedule"
-msgstr ""
 
 msgid "Select a new owner"
 msgstr "Wählen Sie einen neuen Eigentümer"
@@ -7291,8 +7296,14 @@ msgstr "Versand:"
 msgid "Shop Floor"
 msgstr "Shopfloor"
 
+msgid "Short"
+msgstr ""
+
 msgid "Short Description"
 msgstr "Kurzbeschreibung"
+
+msgid "Short pick {itemName}"
+msgstr ""
 
 msgid "Shortcuts"
 msgstr "Tastenkombinationen"
@@ -7477,9 +7488,6 @@ msgstr "Beginn des Geschäftsjahres"
 
 msgid "Start of Tax Year"
 msgstr "Beginn des Steuerjahres"
-
-msgid "Start Picking"
-msgstr ""
 
 msgid "Start Time"
 msgstr "Startzeit"
@@ -8090,9 +8098,6 @@ msgstr "Gesamtminuten"
 msgid "Total Price"
 msgstr "Gesamtpreis"
 
-msgid "Total Qty"
-msgstr ""
-
 msgid "Total Quantity"
 msgstr "Gesamtmenge"
 
@@ -8281,6 +8286,9 @@ msgstr "Verknüpfung aufheben"
 
 msgid "Unlink job from sales order?"
 msgstr "Auftrag von Verkaufsauftrag trennen?"
+
+msgid "Unpick"
+msgstr ""
 
 msgid "Unsaved changes"
 msgstr "Nicht gespeicherte Änderungen"
@@ -8539,6 +8547,9 @@ msgstr "Problem anzeigen"
 
 msgid "View Item Master"
 msgstr "Artikelstamm anzeigen"
+
+msgid "View Lists"
+msgstr ""
 
 msgid "View maintenance dispatch"
 msgstr "Wartungseinsatz anzeigen"

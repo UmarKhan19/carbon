@@ -1,5 +1,6 @@
 import type { Database } from "@carbon/database";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { isPickingListLocked } from "~/services/models";
 
 export async function getAssignedPickingLists(
   client: SupabaseClient<Database>,
@@ -28,7 +29,7 @@ export async function getPickingListForExecution(
   const { data: lines, error: lineError } = await client
     .from("pickingListLine")
     .select(
-      "*, item:item(name, readableId), job:job(jobId), jobOperation:jobOperation(order, processId, workCenterId, process:process(name), workCenter:workCenter(name)), storageUnit:storageUnit(name)"
+      "*, item:item(name, readableId), job:job(jobId), jobOperation:jobOperation(order, processId, workCenterId, process:process(name), workCenter:workCenter(name)), storageUnit:storageUnit!pickingListLine_storageUnitId_fkey(name), toStorageUnit:storageUnit!pickingListLine_toStorageUnitId_fkey(name)"
     )
     .eq("pickingListId", pickingListId)
     .order("jobOperationId")
@@ -63,7 +64,8 @@ export async function updatePickingListStatus(
   client: SupabaseClient<Database>,
   pickingListId: string,
   status: Database["public"]["Enums"]["pickingListStatus"],
-  updatedBy: string
+  updatedBy: string,
+  companyId: string
 ) {
   return client
     .from("pickingList")
@@ -72,28 +74,41 @@ export async function updatePickingListStatus(
       updatedBy,
       updatedAt: new Date().toISOString()
     })
-    .eq("id", pickingListId);
+    .eq("id", pickingListId)
+    .eq("companyId", companyId);
 }
 
-export async function confirmPickingListLine(
+function getPostPickingErrorMessage(error: unknown): string {
+  return (error as { message?: string })?.message ?? "Failed to pick material";
+}
+
+/**
+ * Set the picked quantity on a picking line (pick, short, or unpick).
+ *
+ * A pick TRANSFERS the material from its warehouse source shelf to the work
+ * center's lineside shelf via the `post-picking` edge function (consumption
+ * happens later at production). `quantity <= 0` reverses a prior pick. "Short"
+ * just records the status with no inventory movement — the kitter couldn't
+ * fully pick it, and production handles the shortfall. The picking list header
+ * status is maintained by the `update_picking_list_status` trigger.
+ */
+export async function setPickingListLineQuantity(
   client: SupabaseClient<Database>,
   args: {
     pickingListLineId: string;
-    quantityPicked: number;
-    trackedEntities?: Array<{
-      trackedEntityId: string;
-      quantityPicked: number;
-    }>;
+    quantity: number;
+    markShort?: boolean;
     userId: string;
+    companyId: string;
   }
 ) {
-  // 1. Get the line with jobMaterial join
   const lineResult = await client
     .from("pickingListLine")
     .select(
-      "*, jobMaterial:jobMaterial!pickingListLine_jobMaterialId_fkey(id, jobId, itemId, quantityIssued, storageUnitId), pickingList(locationId, companyId)"
+      "*, pickingList(locationId, companyId, status), item(itemTrackingType)"
     )
     .eq("id", args.pickingListLineId)
+    .eq("companyId", args.companyId)
     .single();
 
   if (lineResult.error || !lineResult.data) {
@@ -101,99 +116,92 @@ export async function confirmPickingListLine(
   }
 
   const line = lineResult.data;
-  const jobMaterial = line.jobMaterial;
-  const pickingList = line.pickingList;
+  const pickingList = line.pickingList as {
+    locationId: string;
+    companyId: string;
+    status: string;
+  } | null;
+  const item = line.item as { itemTrackingType: string } | null;
 
-  if (!jobMaterial || !pickingList) {
+  if (!pickingList) {
     return { data: null, error: "Missing related data" };
   }
 
-  const quantityToPick = Number(line.quantityToPick);
-
-  // 2. Determine line status
-  const lineStatus: "Picked" | "Short" =
-    args.quantityPicked >= quantityToPick ? "Picked" : "Short";
-
-  // Update line quantityPicked and status
-  const lineUpdate = await client
-    .from("pickingListLine")
-    .update({
-      quantityPicked: args.quantityPicked,
-      status: lineStatus,
-      updatedBy: args.userId,
-      updatedAt: new Date().toISOString()
-    })
-    .eq("id", args.pickingListLineId);
-
-  if (lineUpdate.error) {
-    return { data: null, error: lineUpdate.error };
+  if (isPickingListLocked(pickingList.status)) {
+    return {
+      data: null,
+      error: "This picking list is closed. Reopen it from the ERP to continue."
+    };
   }
 
-  // 3. Update tracked entity quantities if applicable
-  if (args.trackedEntities?.length) {
-    for (const te of args.trackedEntities) {
-      await client
-        .from("pickingListLineTrackedEntity")
-        .update({ quantityPicked: te.quantityPicked })
-        .eq("pickingListLineId", args.pickingListLineId)
-        .eq("trackedEntityId", te.trackedEntityId);
+  if (
+    item?.itemTrackingType === "Serial" ||
+    item?.itemTrackingType === "Batch"
+  ) {
+    return {
+      data: null,
+      error: "Tracked items must be picked via the scan flow"
+    };
+  }
+
+  // The DELTA between the desired picked quantity and what's already picked is
+  // what moves: positive transfers in, negative reverses. Pick = full quantity,
+  // Unpick = 0, Short = whatever was actually picked (markShort).
+  const previousPicked = Number(line.quantityPicked ?? 0);
+  const target = Math.max(0, args.quantity);
+  const delta = target - previousPicked;
+
+  if (delta !== 0) {
+    if (delta > 0 && !line.toStorageUnitId) {
+      return {
+        data: null,
+        error: "No lineside destination is set for this line"
+      };
+    }
+
+    const body =
+      delta > 0
+        ? {
+            type: "inventory",
+            pickingListId: line.pickingListId,
+            pickingListLineId: line.id,
+            quantity: delta,
+            locationId: pickingList.locationId,
+            userId: args.userId,
+            companyId: pickingList.companyId
+          }
+        : {
+            type: "unpickInventory",
+            pickingListId: line.pickingListId,
+            pickingListLineId: line.id,
+            quantity: -delta,
+            locationId: pickingList.locationId,
+            userId: args.userId,
+            companyId: pickingList.companyId
+          };
+
+    const result = await client.functions.invoke("post-picking", { body });
+
+    if (result.error) {
+      return { data: null, error: getPostPickingErrorMessage(result.error) };
     }
   }
 
-  // 4. Create itemLedger consumption entry
-  if (args.quantityPicked > 0) {
-    await client.from("itemLedger").insert([
-      {
-        entryType: "Consumption" as const,
-        documentType:
-          "Job Consumption" as Database["public"]["Enums"]["itemLedgerDocumentType"],
-        documentId: jobMaterial.jobId,
-        itemId: line.itemId,
-        locationId: pickingList.locationId,
-        storageUnitId: line.storageUnitId,
-        quantity: -args.quantityPicked,
-        companyId: pickingList.companyId,
-        createdBy: args.userId
-      }
-    ]);
-  }
-
-  // 5. Update jobMaterial.quantityIssued
-  const currentIssued = Number(jobMaterial.quantityIssued ?? 0);
-  await client
-    .from("jobMaterial")
-    .update({
-      quantityIssued: currentIssued + args.quantityPicked,
-      updatedBy: args.userId,
-      updatedAt: new Date().toISOString()
-    })
-    .eq("id", jobMaterial.id);
-
-  // 6. Check if all lines resolved — auto-complete the picking list
-  const allLines = await client
-    .from("pickingListLine")
-    .select("id, status")
-    .eq("pickingListId", line.pickingListId);
-
-  if (!allLines.error && allLines.data) {
-    const allResolved = allLines.data.every(
-      (l) =>
-        l.status === "Picked" ||
-        l.status === "Short" ||
-        l.status === "Cancelled"
-    );
-    if (allResolved) {
-      await updatePickingListStatus(
-        client,
-        line.pickingListId,
-        "Completed",
-        args.userId
-      );
+  // Short overrides the status the edge function derived from quantities.
+  if (args.markShort) {
+    const update = await client
+      .from("pickingListLine")
+      .update({
+        status: "Short",
+        quantityPicked: target,
+        updatedBy: args.userId,
+        updatedAt: new Date().toISOString()
+      })
+      .eq("id", args.pickingListLineId);
+    if (update.error) {
+      return { data: null, error: update.error };
     }
   }
 
-  return {
-    data: { id: args.pickingListLineId, status: lineStatus },
-    error: null
-  };
+  return { data: { id: args.pickingListLineId }, error: null };
 }

@@ -26,6 +26,7 @@ import type {
   storageUnitValidator,
   warehouseTransferValidator
 } from "./inventory.models";
+import { isPickingListLocked } from "./inventory.models";
 
 export async function deleteBatchProperty(
   client: SupabaseClient<Database>,
@@ -2165,7 +2166,10 @@ export async function getPickingLists(
   }
 
   if (args.status) {
-    query = query.eq("status", args.status);
+    query = query.eq(
+      "status",
+      args.status as "Draft" | "In Progress" | "Completed" | "Cancelled"
+    );
   }
 
   if (args.assignee) {
@@ -2202,7 +2206,7 @@ export async function getPickingListLines(
   return client
     .from("pickingListLine")
     .select(
-      "*, item(name, readableId), job(jobId), jobOperation(order, processId, workCenterId, process:process(name), workCenter:workCenter(name)), storageUnit(name, locationId)"
+      "*, item(name, readableId, itemTrackingType), job(jobId), jobOperation(order, processId, workCenterId, process:process(name), workCenter:workCenter(name)), storageUnit:storageUnit!pickingListLine_storageUnitId_fkey(name, locationId), toStorageUnit:storageUnit!pickingListLine_toStorageUnitId_fkey(name, locationId)"
     )
     .eq("pickingListId", pickingListId)
     .order("jobOperationId")
@@ -2216,7 +2220,7 @@ export async function getPickingListLine(
   return client
     .from("pickingListLine")
     .select(
-      "*, item(name, readableId), job(jobId), jobOperation(order, processId, workCenterId, process:process(name), workCenter:workCenter(name)), storageUnit(name, locationId), pickingList(pickingListId, status)"
+      "*, item(name, readableId), job(jobId), jobOperation(order, processId, workCenterId, process:process(name), workCenter:workCenter(name)), storageUnit:storageUnit!pickingListLine_storageUnitId_fkey(name, locationId), toStorageUnit:storageUnit!pickingListLine_toStorageUnitId_fkey(name, locationId), pickingList(pickingListId, status)"
     )
     .eq("id", lineId)
     .single();
@@ -2331,15 +2335,13 @@ export async function getPickingSchedule(
   args: {
     locationId: string;
     companyId: string;
-    workCenterId?: string | null;
     search?: string | null;
   }
 ) {
   return client.rpc("get_picking_schedule", {
     p_location_id: args.locationId,
     p_company_id: args.companyId,
-    p_work_center_id: args.workCenterId ?? null,
-    p_search: args.search ?? null
+    p_search: args.search ?? undefined
   });
 }
 
@@ -2405,7 +2407,58 @@ export async function generatePickingList(
     return { data: null, error: materials.error };
   }
 
-  let linesCreated = 0;
+  // Map each operation to its work center, then lazily resolve (and cache) the
+  // lineside destination per work center. A pick is a transfer from the
+  // warehouse source to this lineside shelf; production later consumes from it.
+  const operations = await client
+    .from("jobOperation")
+    .select("id, workCenterId")
+    .in("id", args.jobOperationIds);
+
+  const workCenterByOperation = new Map<string, string | null>();
+  for (const op of operations.data ?? []) {
+    workCenterByOperation.set(op.id, op.workCenterId ?? null);
+  }
+
+  const linesideByWorkCenter = new Map<string, string | null>();
+  const resolveLineside = async (
+    workCenterId: string | null
+  ): Promise<string | null> => {
+    if (!workCenterId) return null;
+    if (linesideByWorkCenter.has(workCenterId)) {
+      return linesideByWorkCenter.get(workCenterId) ?? null;
+    }
+    const result = await client.rpc("get_or_create_work_center_lineside", {
+      p_work_center_id: workCenterId,
+      p_company_id: args.companyId,
+      p_user_id: args.createdBy
+    });
+    const linesideId = (result.data as string | null) ?? null;
+    linesideByWorkCenter.set(workCenterId, linesideId);
+    return linesideId;
+  };
+
+  // Accumulate all line rows and per-material FIFO allocations first, then write
+  // them in atomic batch inserts. On any insert error we delete the header,
+  // which cascades to lines and tracked-entity allocations (ON DELETE CASCADE),
+  // so a partially-built picking list can never survive.
+  const lineRows: Array<{
+    pickingListId: string;
+    jobId: string;
+    jobMaterialId: string;
+    jobOperationId: string | null;
+    itemId: string;
+    quantityToPick: number;
+    storageUnitId: string | null;
+    toStorageUnitId: string | null;
+    companyId: string;
+    createdBy: string;
+  }> = [];
+  // jobMaterialId -> FIFO tracked-entity allocations for that material's line
+  const allocationsByMaterial = new Map<
+    string,
+    Array<{ trackedEntityId: string; quantity: number }>
+  >();
 
   for (const mat of materials.data ?? []) {
     const quantityToIssue = Number(mat.quantityToIssue ?? 0);
@@ -2420,31 +2473,26 @@ export async function generatePickingList(
       if (effectiveWc.data) continue;
     }
 
-    // 5. Determine source storage unit
+    // 5. Determine source (warehouse) and destination (lineside) storage units
     const sourceStorageUnitId = mat.storageUnitId ?? null;
+    const toStorageUnitId = await resolveLineside(
+      mat.jobOperationId
+        ? (workCenterByOperation.get(mat.jobOperationId) ?? null)
+        : null
+    );
 
-    // Create the picking list line
-    const lineInsert = await client
-      .from("pickingListLine")
-      .insert([
-        {
-          pickingListId: plId,
-          jobId: mat.jobId,
-          jobMaterialId: mat.id,
-          jobOperationId: mat.jobOperationId,
-          itemId: mat.itemId,
-          quantityToPick: quantityToIssue,
-          storageUnitId: sourceStorageUnitId,
-          companyId: args.companyId,
-          createdBy: args.createdBy
-        }
-      ])
-      .select("id")
-      .single();
-
-    if (lineInsert.error) continue;
-
-    linesCreated++;
+    lineRows.push({
+      pickingListId: plId,
+      jobId: mat.jobId,
+      jobMaterialId: mat.id,
+      jobOperationId: mat.jobOperationId,
+      itemId: mat.itemId,
+      quantityToPick: quantityToIssue,
+      storageUnitId: sourceStorageUnitId,
+      toStorageUnitId,
+      companyId: args.companyId,
+      createdBy: args.createdBy
+    });
 
     // 6. For batch/serial tracked items, allocate tracked entities (FIFO)
     if (mat.requiresBatchTracking || mat.requiresSerialTracking) {
@@ -2460,28 +2508,27 @@ export async function generatePickingList(
 
       if (!trackedEntities.error && trackedEntities.data) {
         let remaining = quantityToIssue;
+        const allocations: Array<{
+          trackedEntityId: string;
+          quantity: number;
+        }> = [];
         for (const te of trackedEntities.data) {
           if (remaining <= 0) break;
           const teQty = Number(te.quantity ?? 0);
           const allocateQty = Math.min(remaining, teQty);
           if (allocateQty <= 0) continue;
-
-          await client.from("pickingListLineTrackedEntity").insert([
-            {
-              pickingListLineId: lineInsert.data.id,
-              trackedEntityId: te.id,
-              quantity: allocateQty
-            }
-          ]);
-
+          allocations.push({ trackedEntityId: te.id, quantity: allocateQty });
           remaining -= allocateQty;
+        }
+        if (allocations.length > 0) {
+          allocationsByMaterial.set(mat.id, allocations);
         }
       }
     }
   }
 
-  // 7. If no lines created, delete the empty picking list and return error
-  if (linesCreated === 0) {
+  // 7. If no lines to pick, delete the empty header and report.
+  if (lineRows.length === 0) {
     await client.from("pickingList").delete().eq("id", plId);
     return {
       data: null,
@@ -2489,7 +2536,49 @@ export async function generatePickingList(
     };
   }
 
-  // 8. Return the created picking list
+  // 8. Atomic batch insert of all lines; read ids back to map allocations.
+  const linesInsert = await client
+    .from("pickingListLine")
+    .insert(lineRows)
+    .select("id, jobMaterialId");
+
+  if (linesInsert.error || !linesInsert.data) {
+    await client.from("pickingList").delete().eq("id", plId); // cascade cleanup
+    return { data: null, error: linesInsert.error ?? "Failed to create lines" };
+  }
+
+  // 9. Build and batch-insert tracked-entity allocations using the new line ids.
+  const lineIdByMaterial = new Map(
+    linesInsert.data.map((l) => [l.jobMaterialId, l.id])
+  );
+  const trackedRows: Array<{
+    pickingListLineId: string;
+    trackedEntityId: string;
+    quantity: number;
+  }> = [];
+  for (const [jobMaterialId, allocations] of allocationsByMaterial) {
+    const lineId = lineIdByMaterial.get(jobMaterialId);
+    if (!lineId) continue;
+    for (const allocation of allocations) {
+      trackedRows.push({
+        pickingListLineId: lineId,
+        trackedEntityId: allocation.trackedEntityId,
+        quantity: allocation.quantity
+      });
+    }
+  }
+
+  if (trackedRows.length > 0) {
+    const trackedInsert = await client
+      .from("pickingListLineTrackedEntity")
+      .insert(trackedRows);
+    if (trackedInsert.error) {
+      await client.from("pickingList").delete().eq("id", plId); // cascade cleanup
+      return { data: null, error: trackedInsert.error };
+    }
+  }
+
+  // 10. Return the created picking list
   return {
     data: {
       id: plId,
@@ -2499,23 +2588,30 @@ export async function generatePickingList(
   };
 }
 
-export async function confirmPickingListLine(
+/**
+ * Pick, partial-pick (short), or unpick a picking line. A pick TRANSFERS the
+ * material from its warehouse source shelf to the work center's lineside shelf
+ * via the `post-picking` edge function (consumption happens later at
+ * production). The DELTA between the desired picked quantity and what's already
+ * picked is what moves: positive transfers in, negative reverses.
+ *   - Pick (full):  quantity = quantityToPick
+ *   - Unpick:       quantity = 0
+ *   - Short:        quantity = whatever was actually picked, markShort = true
+ * Tracked items go through the scan flow and are rejected here.
+ */
+export async function pickPickingListLine(
   client: SupabaseClient<Database>,
   args: {
     pickingListLineId: string;
-    quantityPicked: number;
-    trackedEntities?: Array<{
-      trackedEntityId: string;
-      quantityPicked: number;
-    }>;
+    quantity: number;
+    markShort?: boolean;
     userId: string;
   }
 ) {
-  // 1. Get the line with jobMaterial join
   const lineResult = await client
     .from("pickingListLine")
     .select(
-      "*, jobMaterial:jobMaterial!pickingListLine_jobMaterialId_fkey(id, jobId, itemId, quantityIssued, storageUnitId), pickingList(locationId, companyId)"
+      "*, pickingList(locationId, companyId, status), item(itemTrackingType)"
     )
     .eq("id", args.pickingListLineId)
     .single();
@@ -2525,102 +2621,105 @@ export async function confirmPickingListLine(
   }
 
   const line = lineResult.data;
-  const jobMaterial = line.jobMaterial;
-  const pickingList = line.pickingList;
+  const pickingList = line.pickingList as {
+    locationId: string;
+    companyId: string;
+    status: string;
+  } | null;
+  const item = line.item as { itemTrackingType: string } | null;
 
-  if (!jobMaterial || !pickingList) {
+  if (!pickingList) {
     return { data: null, error: "Missing related data" };
   }
 
-  const quantityToPick = Number(line.quantityToPick);
-
-  // 2. Determine line status
-  const lineStatus: "Picked" | "Short" =
-    args.quantityPicked >= quantityToPick ? "Picked" : "Short";
-
-  // Update line quantityPicked and status
-  const lineUpdate = await client
-    .from("pickingListLine")
-    .update({
-      quantityPicked: args.quantityPicked,
-      status: lineStatus,
-      updatedBy: args.userId,
-      updatedAt: new Date().toISOString()
-    })
-    .eq("id", args.pickingListLineId);
-
-  if (lineUpdate.error) {
-    return { data: null, error: lineUpdate.error };
+  if (isPickingListLocked(pickingList.status)) {
+    return {
+      data: null,
+      error: "This picking list is closed. Reopen it to make changes."
+    };
   }
 
-  // 3. Update tracked entity quantities if applicable
-  if (args.trackedEntities?.length) {
-    for (const te of args.trackedEntities) {
-      await client
-        .from("pickingListLineTrackedEntity")
-        .update({ quantityPicked: te.quantityPicked })
-        .eq("pickingListLineId", args.pickingListLineId)
-        .eq("trackedEntityId", te.trackedEntityId);
+  if (
+    item?.itemTrackingType === "Serial" ||
+    item?.itemTrackingType === "Batch"
+  ) {
+    return {
+      data: null,
+      error: "Tracked items must be picked via the scan flow"
+    };
+  }
+
+  const previouslyPicked = Number(line.quantityPicked ?? 0);
+  const target = Math.max(0, args.quantity);
+  const delta = target - previouslyPicked;
+
+  if (delta !== 0) {
+    if (delta > 0 && !line.toStorageUnitId) {
+      return {
+        data: null,
+        error: "No lineside destination is set for this line"
+      };
     }
-  }
 
-  // 4. Create itemLedger consumption entry
-  if (args.quantityPicked > 0) {
-    await client.from("itemLedger").insert([
-      {
-        entryType: "Consumption" as const,
-        documentType:
-          "Job Consumption" as Database["public"]["Enums"]["itemLedgerDocumentType"],
-        documentId: jobMaterial.jobId,
-        itemId: line.itemId,
-        locationId: pickingList.locationId,
-        storageUnitId: line.storageUnitId,
-        quantity: -args.quantityPicked,
-        companyId: pickingList.companyId,
-        createdBy: args.userId
+    const body =
+      delta > 0
+        ? {
+            type: "inventory",
+            pickingListId: line.pickingListId,
+            pickingListLineId: line.id,
+            quantity: delta,
+            locationId: pickingList.locationId,
+            userId: args.userId,
+            companyId: pickingList.companyId
+          }
+        : {
+            type: "unpickInventory",
+            pickingListId: line.pickingListId,
+            pickingListLineId: line.id,
+            quantity: -delta,
+            locationId: pickingList.locationId,
+            userId: args.userId,
+            companyId: pickingList.companyId
+          };
+
+    const result = await client.functions.invoke("post-picking", { body });
+
+    if (result.error) {
+      const ctx = (result.error as { context?: Response })?.context;
+      let message = "Failed to pick material";
+      if (ctx && typeof ctx.json === "function") {
+        try {
+          const parsed = await ctx.clone().json();
+          if (parsed?.message) message = parsed.message;
+        } catch {
+          /* fall through */
+        }
+      } else if ((result.error as { message?: string }).message) {
+        message = (result.error as { message: string }).message;
       }
-    ]);
-  }
-
-  // 5. Update jobMaterial.quantityIssued
-  const currentIssued = Number(jobMaterial.quantityIssued ?? 0);
-  await client
-    .from("jobMaterial")
-    .update({
-      quantityIssued: currentIssued + args.quantityPicked,
-      updatedBy: args.userId,
-      updatedAt: new Date().toISOString()
-    })
-    .eq("id", jobMaterial.id);
-
-  // 6. Check if all lines resolved — auto-complete the picking list
-  const allLines = await client
-    .from("pickingListLine")
-    .select("id, status")
-    .eq("pickingListId", line.pickingListId);
-
-  if (!allLines.error && allLines.data) {
-    const allResolved = allLines.data.every(
-      (l) =>
-        l.status === "Picked" ||
-        l.status === "Short" ||
-        l.status === "Cancelled"
-    );
-    if (allResolved) {
-      await updatePickingListStatus(
-        client,
-        line.pickingListId,
-        "Completed",
-        args.userId
-      );
+      return { data: null, error: message };
     }
   }
 
-  return {
-    data: { id: args.pickingListLineId, status: lineStatus },
-    error: null
-  };
+  // Short overrides the status the edge function derived from quantities.
+  if (args.markShort) {
+    const update = await client
+      .from("pickingListLine")
+      .update({
+        status: "Short",
+        quantityPicked: target,
+        updatedBy: args.userId,
+        updatedAt: new Date().toISOString()
+      })
+      .eq("id", line.id);
+    if (update.error) {
+      return { data: null, error: update.error };
+    }
+  }
+
+  return { data: { id: line.id }, error: null };
 }
+
 export async function insertStockTransfer(
   client: SupabaseClient<Database>,
   input: {

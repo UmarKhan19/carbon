@@ -131,6 +131,9 @@ msgstr "By signing in, you agree to the <0>Terms of Service</0> and <1>Privacy P
 msgid "Cancel"
 msgstr "Cancel"
 
+msgid "Cancelled"
+msgstr "Cancelled"
+
 msgid "Carbon Logo"
 msgstr "Carbon Logo"
 
@@ -193,9 +196,6 @@ msgstr "Complete All"
 
 msgid "Completed"
 msgstr "Completed"
-
-msgid "Confirm"
-msgstr "Confirm"
 
 msgid "Console"
 msgstr "Console"
@@ -271,6 +271,9 @@ msgstr "Download"
 
 msgid "Download Labels"
 msgstr "Download Labels"
+
+msgid "Draft"
+msgstr "Draft"
 
 msgid "Drag and drop a file here, or click to select a file"
 msgstr "Drag and drop a file here, or click to select a file"
@@ -366,14 +369,14 @@ msgstr "Finish Anyways"
 msgid "Forgot to Clock Out?"
 msgstr "Forgot to Clock Out?"
 
-msgid "From"
-msgstr "From"
-
 msgid "Go back to operation"
 msgstr "Go back to operation"
 
 msgid "Have a technical issue? Contact <0>Carbon Support.</0>"
 msgstr "Have a technical issue? Contact <0>Carbon Support.</0>"
+
+msgid "How many were actually picked?"
+msgstr "How many were actually picked?"
 
 msgid "I understand and want to complete without issuing"
 msgstr "I understand and want to complete without issuing"
@@ -450,6 +453,9 @@ msgstr "Leave this page"
 msgid "Let's build something"
 msgstr "Let's build something"
 
+msgid "lines"
+msgstr "lines"
+
 msgid "Loading item details..."
 msgstr "Loading item details..."
 
@@ -497,6 +503,9 @@ msgstr "Manually add items to inventory"
 
 msgid "Manually remove items from inventory"
 msgstr "Manually remove items from inventory"
+
+msgid "Mark Short"
+msgstr "Mark Short"
 
 msgid "matches"
 msgstr "matches"
@@ -674,6 +683,12 @@ msgstr "Passed Inspection"
 msgid "Pause"
 msgstr "Pause"
 
+msgid "Pick"
+msgstr "Pick"
+
+msgid "Picked quantity"
+msgstr "Picked quantity"
+
 #. placeholder {0}: startColumn?.title
 #. placeholder {1}: startIndex + 1
 #. placeholder {2}: columnOrder.length
@@ -724,9 +739,6 @@ msgstr "Processes"
 
 msgid "Progress"
 msgstr "Progress"
-
-msgid "Qty"
-msgstr "Qty"
 
 msgid "Quality Issue"
 msgstr "Quality Issue"
@@ -882,6 +894,9 @@ msgstr "Setup"
 msgid "Short"
 msgstr "Short"
 
+msgid "Short pick {itemName}"
+msgstr "Short pick {itemName}"
+
 msgid "Sign in with Email"
 msgstr "Sign in with Email"
 
@@ -994,14 +1009,14 @@ msgstr "Tracking"
 msgid "Type a message..."
 msgstr "Type a message..."
 
-msgid "Ungrouped"
-msgstr "Ungrouped"
-
 msgid "Unissued serial/batch materials"
 msgstr "Unissued serial/batch materials"
 
 msgid "Unknown"
 msgstr "Unknown"
+
+msgid "Unpick"
+msgstr "Unpick"
 
 msgid "Unsaved changes"
 msgstr "Unsaved changes"

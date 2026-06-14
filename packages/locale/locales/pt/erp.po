@@ -3870,6 +3870,9 @@ msgstr "Horas/1000 Peças"
 msgid "Hours/Piece"
 msgstr "Horas/Peça"
 
+msgid "How many were actually picked?"
+msgstr ""
+
 msgid "How the resolved price was calculated."
 msgstr "Como o preço resolvido foi calculado."
 
@@ -4615,6 +4618,9 @@ msgstr "Marcar lote como parcial?"
 
 msgid "Mark Partial"
 msgstr "Marcar como Parcial"
+
+msgid "Mark Short"
+msgstr ""
 
 msgid "Mark to delete"
 msgstr "Marcar para eliminar"
@@ -5814,6 +5820,9 @@ msgstr "Escolha uma data ou deixe em branco para limpar."
 msgid "Pick List"
 msgstr "Lista de Coleta"
 
+msgid "Picked quantity"
+msgstr ""
+
 msgid "Picking Lines"
 msgstr ""
 
@@ -5821,6 +5830,9 @@ msgid "Picking List"
 msgstr ""
 
 msgid "Picking List ID"
+msgstr ""
+
+msgid "Picking List Notes"
 msgstr ""
 
 msgid "Picking Lists"
@@ -6942,18 +6954,11 @@ msgstr "Segundos/Peça"
 msgid "Select"
 msgstr "Selecionar"
 
-#. placeholder {0}: item.jobReadableId
-msgid "Select {0}"
-msgstr ""
-
 msgid "Select a assignee"
 msgstr "Selecione um responsável"
 
 msgid "Select a default approver"
 msgstr "Selecione um aprovador padrão"
-
-msgid "Select a location to view the picking schedule"
-msgstr ""
 
 msgid "Select a new owner"
 msgstr "Selecione um novo proprietário"
@@ -7291,8 +7296,14 @@ msgstr "Envio:"
 msgid "Shop Floor"
 msgstr "Chão de Fábrica"
 
+msgid "Short"
+msgstr ""
+
 msgid "Short Description"
 msgstr "Descrição Breve"
+
+msgid "Short pick {itemName}"
+msgstr ""
 
 msgid "Shortcuts"
 msgstr "Atalhos"
@@ -7477,9 +7488,6 @@ msgstr "Início do Ano Fiscal"
 
 msgid "Start of Tax Year"
 msgstr "Início do Ano Fiscal"
-
-msgid "Start Picking"
-msgstr ""
 
 msgid "Start Time"
 msgstr "Hora de Início"
@@ -8090,9 +8098,6 @@ msgstr "Total de Minutos"
 msgid "Total Price"
 msgstr "Preço Total"
 
-msgid "Total Qty"
-msgstr ""
-
 msgid "Total Quantity"
 msgstr "Quantidade Total"
 
@@ -8281,6 +8286,9 @@ msgstr "Desvinculação"
 
 msgid "Unlink job from sales order?"
 msgstr "Desassociar trabalho da ordem de venda?"
+
+msgid "Unpick"
+msgstr ""
 
 msgid "Unsaved changes"
 msgstr "Alterações não salvas"
@@ -8539,6 +8547,9 @@ msgstr "Ver Problema"
 
 msgid "View Item Master"
 msgstr "Ver Mestre do Item"
+
+msgid "View Lists"
+msgstr ""
 
 msgid "View maintenance dispatch"
 msgstr "Ver despacho de manutenção"

@@ -4,6 +4,7 @@ import { flash } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import {
+  isPickingListLocked,
   pickingListStatusType,
   updatePickingListStatus
 } from "~/modules/inventory";
@@ -28,6 +29,19 @@ export async function action({ request, params }: ActionFunctionArgs) {
       path.to.pickingList(id),
       await flash(request, error(null, "Invalid status"))
     );
+  }
+
+  // Reopening a closed (Completed/Cancelled) picking list requires the stronger
+  // inventory `delete` permission — it unlocks completed inventory moves.
+  const current = await client
+    .from("pickingList")
+    .select("status")
+    .eq("id", id)
+    .single();
+  const isReopen =
+    isPickingListLocked(current.data?.status) && !isPickingListLocked(status);
+  if (isReopen) {
+    await requirePermissions(request, { delete: "inventory" });
   }
 
   const update = await updatePickingListStatus(client, id, status, userId);
