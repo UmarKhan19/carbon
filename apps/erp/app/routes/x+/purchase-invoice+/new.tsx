@@ -112,9 +112,18 @@ export async function action({ request }: ActionFunctionArgs) {
     }
   }
 
+  const extractedTaxAmountStr = formData.get("extractedTaxAmount") as string;
+  const extractedTaxAmount = Number.parseFloat(extractedTaxAmountStr) || 0;
+
   if (extractedLineItems.length > 0) {
+    let taxApplied = false;
+
     for (const item of extractedLineItems) {
       if (!item.description && !item.partNumber) continue;
+
+      const lineTax = !taxApplied ? extractedTaxAmount : 0;
+      taxApplied = true;
+
       await upsertPurchaseInvoiceLine(client, {
         invoiceId: result.data.id,
         invoiceLineType: "Comment",
@@ -122,7 +131,7 @@ export async function action({ request }: ActionFunctionArgs) {
         quantity: item.quantity || 1,
         supplierUnitPrice: item.unitPrice || 0,
         supplierShippingCost: 0,
-        supplierTaxAmount: 0,
+        supplierTaxAmount: lineTax,
         locationId: d.locationId,
         companyId,
         createdBy: userId,

@@ -73,6 +73,7 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
     countryCode?: string | null;
   }>();
   const [extractedLineItems, setExtractedLineItems] = useState<any[]>([]);
+  const [extractedTaxAmount, setExtractedTaxAmount] = useState<number>(0);
 
   const [formKey, setFormKey] = useState(0);
   const [currentValues, setCurrentValues] = useState(initialValues);
@@ -306,6 +307,10 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
       setExtractedLineItems(data.lineItems);
     }
 
+    if (data.taxAmount) {
+      setExtractedTaxAmount(data.taxAmount);
+    }
+
     setFormKey((prev) => prev + 1);
   };
 
@@ -447,6 +452,11 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
             type="hidden"
             name="extractedLineItems"
             value={JSON.stringify(extractedLineItems)}
+          />
+          <input
+            type="hidden"
+            name="extractedTaxAmount"
+            value={extractedTaxAmount}
           />
           {currentValues.supplierShippingCost !== undefined && (
             <input
