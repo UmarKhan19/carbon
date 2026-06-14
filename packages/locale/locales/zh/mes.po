@@ -44,7 +44,7 @@ msgstr "{0} 已报废"
 
 #. js-lingui-explicit-id
 msgid "error.notFound"
-msgstr ""
+msgstr "未找到{entity}"
 
 msgid "About"
 msgstr "关于"
@@ -78,7 +78,7 @@ msgstr "全部"
 
 #. js-lingui-explicit-id
 msgid "error.externalService"
-msgstr ""
+msgstr "外部服务当前不可用"
 
 msgid "Are you sure you want to delete this step?"
 msgstr "确定要删除此步骤吗？"
@@ -895,7 +895,7 @@ msgstr "大小"
 
 #. js-lingui-explicit-id
 msgid "error.database"
-msgstr ""
+msgstr "保存更改时出错"
 
 msgid "Source"
 msgstr "来源"
@@ -957,11 +957,11 @@ msgstr "物料清单中有序列号或批次追踪的物料尚未完全发放。
 
 #. js-lingui-explicit-id
 msgid "error.conflict"
-msgstr ""
+msgstr "此操作与当前状态冲突"
 
 #. js-lingui-explicit-id
 msgid "error.businessRule"
-msgstr ""
+msgstr "此操作违反业务规则，不被允许"
 
 msgid "Thumbnail"
 msgstr "缩略图"
@@ -1021,7 +1021,7 @@ msgstr "正在上传 {0}"
 
 #. js-lingui-explicit-id
 msgid "error.validation"
-msgstr ""
+msgstr "验证失败"
 
 msgid "View maintenance dispatch"
 msgstr "查看维护工单"

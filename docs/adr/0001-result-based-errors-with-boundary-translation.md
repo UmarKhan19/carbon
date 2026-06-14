@@ -2,7 +2,7 @@
 
 Status: accepted
 
-Service-layer errors were untyped (generic `Error` or raw Supabase `PostgrestError` passthrough) and user-facing flash messages were hardcoded English, invisible to Lingui despite 11 supported locales. We decided that service functions return `Result<T, E>` (the `better-result` library, re-exported through `@carbon/result` as the sole import surface) where `E` is a tagged error carrying a Lingui `MessageDescriptor` plus interpolation values. Translation happens at the action boundary: `errorFlash(error, i18n)` in `@carbon/auth` resolves the descriptor with the request-scoped i18n instance and emits a `FlashResult`, so flash messages are translated at write time in the requester's locale.
+Service-layer errors were untyped (generic `Error` or raw Supabase `PostgrestError` passthrough) and user-facing flash messages were hardcoded English, invisible to Lingui despite 11 supported locales. We decided that service functions return `Result<T, E>` (the `better-result` library, re-exported through `@carbon/result` as the sole import surface) where `E` is a tagged error carrying a Lingui `MessageDescriptor` plus interpolation values. Translation happens at the action boundary: the existing `error(err, i18n)` / `success(msg, i18n)` helpers in `@carbon/auth` accept a tagged error (or descriptor) plus the request-scoped i18n instance, resolve the descriptor in the requester's locale, and emit a `FlashResult` — so flash messages are translated at write time. The helpers keep their legacy `(value, string)` overload, so un-migrated call sites are unaffected.
 
 ## Considered Options
 

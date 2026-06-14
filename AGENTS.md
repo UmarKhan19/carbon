@@ -108,7 +108,7 @@ and the glossary in [CONTEXT.md](CONTEXT.md).
   Kysely transactions with `fromTransaction(db, fn)` from `@carbon/database/result`.
   Never return a raw `PostgrestError` to a caller.
 - **Boundary:** in the action/loader, convert a failed Result with
-  `errorFlash(error, i18n)` (and `successFlash`) from `@carbon/auth`, building the
+  `error(err, i18n)` (and `success(msg, i18n)`) from `@carbon/auth`, building the
   request i18n with `getRequestI18n(request)`. Translation happens here, at write
   time, in the requester's locale.
 - **Defects** (raw throws, better-result `Panic`) bypass Result/flash and surface

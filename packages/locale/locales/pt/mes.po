@@ -44,7 +44,7 @@ msgstr "{0} Refugado(s)"
 
 #. js-lingui-explicit-id
 msgid "error.notFound"
-msgstr ""
+msgstr "{entity} não encontrado"
 
 msgid "About"
 msgstr "Sobre"
@@ -78,7 +78,7 @@ msgstr "Todos"
 
 #. js-lingui-explicit-id
 msgid "error.externalService"
-msgstr ""
+msgstr "Um serviço externo está indisponível no momento"
 
 msgid "Are you sure you want to delete this step?"
 msgstr "Tem certeza de que deseja excluir esta etapa?"
@@ -895,7 +895,7 @@ msgstr "Tamanho"
 
 #. js-lingui-explicit-id
 msgid "error.database"
-msgstr ""
+msgstr "Algo deu errado ao salvar suas alterações"
 
 msgid "Source"
 msgstr "Origem"
@@ -957,11 +957,11 @@ msgstr "Existem materiais rastreados por série ou lote na lista de materiais qu
 
 #. js-lingui-explicit-id
 msgid "error.conflict"
-msgstr ""
+msgstr "Esta ação entra em conflito com o estado atual"
 
 #. js-lingui-explicit-id
 msgid "error.businessRule"
-msgstr ""
+msgstr "Esta ação não é permitida por uma regra de negócio"
 
 msgid "Thumbnail"
 msgstr "Miniatura"
@@ -1021,7 +1021,7 @@ msgstr "Enviando {0}"
 
 #. js-lingui-explicit-id
 msgid "error.validation"
-msgstr ""
+msgstr "Falha na validação"
 
 msgid "View maintenance dispatch"
 msgstr "Ver despacho de manutenção"

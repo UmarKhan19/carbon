@@ -52,7 +52,7 @@ msgstr "{0}が正常にアップロードされました"
 
 #. js-lingui-explicit-id
 msgid "error.notFound"
-msgstr ""
+msgstr "{entity}が見つかりません"
 
 msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB制限"
@@ -474,7 +474,7 @@ msgstr "金額タイプ"
 
 #. js-lingui-explicit-id
 msgid "error.externalService"
-msgstr ""
+msgstr "外部サービスが現在利用できません"
 
 msgid "An item cannot be added to itself."
 msgstr "アイテムをそれ自体に追加することはできません。"
@@ -550,7 +550,7 @@ msgstr "この金額以上で次のルールの最小値までの承認が必要
 
 #. js-lingui-explicit-id
 msgid "approvals.notPending"
-msgstr ""
+msgstr "承認リクエストは保留中ではありません"
 
 msgid "Approval Requirements"
 msgstr "承認要件"
@@ -5468,7 +5468,7 @@ msgstr "保管ユニット上"
 
 #. js-lingui-explicit-id
 msgid "approvals.onlyRequesterCanCancel"
-msgstr ""
+msgstr "承認リクエストをキャンセルできるのは申請者のみです"
 
 msgid "Onshape Status"
 msgstr "Onshape ステータス"
@@ -7341,7 +7341,7 @@ msgstr "スキップ"
 
 #. js-lingui-explicit-id
 msgid "error.database"
-msgstr ""
+msgstr "変更の保存中に問題が発生しました"
 
 msgid "Something went wrong. Please try again."
 msgstr "何か問題が発生しました。もう一度お試しください。"
@@ -7892,11 +7892,11 @@ msgstr "これらのジョブにはこのワークセンターに割り当てら
 
 #. js-lingui-explicit-id
 msgid "error.conflict"
-msgstr ""
+msgstr "この操作は現在の状態と競合しています"
 
 #. js-lingui-explicit-id
 msgid "error.businessRule"
-msgstr ""
+msgstr "この操作はビジネスルールにより許可されていません"
 
 msgid "This information will be used on document headers"
 msgstr "この情報はドキュメントヘッダーで使用されます"
@@ -8452,7 +8452,7 @@ msgstr "ジョブを検証中..."
 
 #. js-lingui-explicit-id
 msgid "error.validation"
-msgstr ""
+msgstr "検証に失敗しました"
 
 msgid "Value"
 msgstr "値"

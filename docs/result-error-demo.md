@@ -12,7 +12,7 @@ pnpm --filter @carbon/result demo
 
 This instantiates every core error (plus a domain-style override that mirrors
 the approvals pilot) and resolves each one through the **same path
-`errorFlash` uses** — so the output is exactly what a user would see in a toast.
+`error()` uses** — so the output is exactly what a user would see in a toast.
 It prints a table in English (the source / expected text), Spanish, and German,
 and the assertions encode the "what's expected" spec.
 

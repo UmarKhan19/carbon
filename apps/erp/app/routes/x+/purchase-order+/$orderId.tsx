@@ -1,4 +1,4 @@
-import { assertIsPost, error, errorFlash, success } from "@carbon/auth";
+import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
@@ -128,7 +128,7 @@ export async function action(args: ActionFunctionArgs) {
     const i18n = await getRequestI18n(request);
     throw redirect(
       path.to.purchaseOrder(orderId),
-      await flash(request, errorFlash(result.error, i18n))
+      await flash(request, error(result.error, i18n))
     );
   }
 

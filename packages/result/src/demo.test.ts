@@ -17,7 +17,7 @@ import {
  *   pnpm --filter @carbon/result demo
  *
  * It instantiates each core error (plus a domain-style override that mirrors the
- * approvals pilot), resolves each one through the SAME path `errorFlash` uses,
+ * approvals pilot), resolves each one through the SAME path `error()` uses,
  * and prints a table of what a user would see in English, Spanish, and German.
  * The `expect`s double as the "what's expected" specification.
  */
@@ -58,7 +58,7 @@ const english = i18nFor("en", {});
 const spanish = i18nFor("es", SPANISH);
 const german = i18nFor("de", GERMAN);
 
-/** Resolve an error exactly as `errorFlash` does (descriptor + interpolation). */
+/** Resolve an error exactly as `error()` does (descriptor + interpolation). */
 function render(error: TranslatableError, i18n: I18n): string {
   return i18n._({
     ...error.messageDescriptor,

@@ -2,7 +2,7 @@ import { ConflictError, DatabaseError, NotFoundError } from "@carbon/result";
 import { setupI18n } from "@lingui/core";
 import { msg } from "@lingui/core/macro";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { errorFlash, successFlash } from "./result";
+import { error, success } from "./result";
 
 // A small inline catalog standing in for the real compiled `es` catalog.
 function spanishI18n() {
@@ -21,10 +21,10 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe("errorFlash", () => {
+describe("error (typed Result errors)", () => {
   it("translates the default descriptor with interpolation and marks a failure", () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
-    const flash = errorFlash(
+    const flash = error(
       new NotFoundError({ entity: "Approval request" }),
       spanishI18n()
     );
@@ -34,7 +34,7 @@ describe("errorFlash", () => {
 
   it("translates a call-site descriptor override", () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
-    const flash = errorFlash(
+    const flash = error(
       new ConflictError({
         entity: "Approval request",
         descriptor: msg({
@@ -53,7 +53,7 @@ describe("errorFlash", () => {
       code: "23505",
       message: 'duplicate key value violates unique constraint "supplier_pkey"'
     };
-    const flash = errorFlash(
+    const flash = error(
       new DatabaseError({ operation: "insert", cause: raw }),
       spanishI18n()
     );
@@ -64,7 +64,7 @@ describe("errorFlash", () => {
   it("logs the raw cause for on-call debugging (parity with the legacy helper)", () => {
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
     const raw = { code: "23505", message: "duplicate key" };
-    errorFlash(
+    error(
       new DatabaseError({ operation: "insert", cause: raw }),
       spanishI18n()
     );
@@ -74,11 +74,26 @@ describe("errorFlash", () => {
       cause: raw
     });
   });
+
+  it("falls back to the English source when no i18n is given", () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const flash = error(new NotFoundError({ entity: "Approval request" }));
+    expect(flash.message).toBe("Approval request not found");
+  });
+
+  it("keeps the legacy (value, string) path working unchanged", () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const flash = error({ code: "X" }, "Failed to process approval decision");
+    expect(flash).toEqual({
+      success: false,
+      message: "Failed to process approval decision"
+    });
+  });
 });
 
-describe("successFlash", () => {
+describe("success", () => {
   it("translates a descriptor and marks a success", () => {
-    const flash = successFlash(
+    const flash = success(
       msg({ id: "approvals.approved", message: "Approval request approved" }),
       spanishI18n()
     );
@@ -87,7 +102,7 @@ describe("successFlash", () => {
   });
 
   it("passes a plain string through unchanged", () => {
-    const flash = successFlash("Saved", spanishI18n());
+    const flash = success("Saved");
     expect(flash).toEqual({ success: true, message: "Saved" });
   });
 });

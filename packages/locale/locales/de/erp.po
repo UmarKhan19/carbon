@@ -52,7 +52,7 @@ msgstr "{0} erfolgreich hochgeladen"
 
 #. js-lingui-explicit-id
 msgid "error.notFound"
-msgstr ""
+msgstr "{entity} nicht gefunden"
 
 msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB-Limit"
@@ -474,7 +474,7 @@ msgstr "Betragtyp"
 
 #. js-lingui-explicit-id
 msgid "error.externalService"
-msgstr ""
+msgstr "Ein externer Dienst ist derzeit nicht verfügbar"
 
 msgid "An item cannot be added to itself."
 msgstr "Ein Element kann nicht zu sich selbst hinzugefügt werden."
@@ -550,7 +550,7 @@ msgstr "Genehmigung ist erforderlich bei oder über diesem Betrag, bis zum Minim
 
 #. js-lingui-explicit-id
 msgid "approvals.notPending"
-msgstr ""
+msgstr "Die Genehmigungsanfrage ist nicht ausstehend"
 
 msgid "Approval Requirements"
 msgstr "Genehmigungsanforderungen"
@@ -5468,7 +5468,7 @@ msgstr "Auf Lagereinheit"
 
 #. js-lingui-explicit-id
 msgid "approvals.onlyRequesterCanCancel"
-msgstr ""
+msgstr "Nur der Antragsteller kann eine Genehmigungsanfrage stornieren"
 
 msgid "Onshape Status"
 msgstr "Onshape-Status"
@@ -7341,7 +7341,7 @@ msgstr "Übersprungen"
 
 #. js-lingui-explicit-id
 msgid "error.database"
-msgstr ""
+msgstr "Beim Speichern Ihrer Änderungen ist etwas schiefgelaufen"
 
 msgid "Something went wrong. Please try again."
 msgstr "Etwas ist schief gelaufen. Bitte versuchen Sie es erneut."
@@ -7892,11 +7892,11 @@ msgstr "Diese Aufträge haben Operationen, die diesem Arbeitszentrum zugewiesen 
 
 #. js-lingui-explicit-id
 msgid "error.conflict"
-msgstr ""
+msgstr "Diese Aktion steht im Konflikt mit dem aktuellen Zustand"
 
 #. js-lingui-explicit-id
 msgid "error.businessRule"
-msgstr ""
+msgstr "Diese Aktion ist durch eine Geschäftsregel nicht erlaubt"
 
 msgid "This information will be used on document headers"
 msgstr "Diese Informationen werden in Dokumentkopfzeilen verwendet"
@@ -8452,7 +8452,7 @@ msgstr "Auftrag wird validiert..."
 
 #. js-lingui-explicit-id
 msgid "error.validation"
-msgstr ""
+msgstr "Validierung fehlgeschlagen"
 
 msgid "Value"
 msgstr "Wert"

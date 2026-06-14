@@ -44,7 +44,7 @@ msgstr "{0} Scartati"
 
 #. js-lingui-explicit-id
 msgid "error.notFound"
-msgstr ""
+msgstr "{entity} non trovato"
 
 msgid "About"
 msgstr "Informazioni"
@@ -78,7 +78,7 @@ msgstr "Tutti"
 
 #. js-lingui-explicit-id
 msgid "error.externalService"
-msgstr ""
+msgstr "Un servizio esterno non è al momento disponibile"
 
 msgid "Are you sure you want to delete this step?"
 msgstr "Sei sicuro di voler eliminare questa fase?"
@@ -895,7 +895,7 @@ msgstr "Dimensione"
 
 #. js-lingui-explicit-id
 msgid "error.database"
-msgstr ""
+msgstr "Si è verificato un problema durante il salvataggio delle modifiche"
 
 msgid "Source"
 msgstr "Origine"
@@ -957,11 +957,11 @@ msgstr "Ci sono materiali tracciati per numero di serie o lotto nella distinta b
 
 #. js-lingui-explicit-id
 msgid "error.conflict"
-msgstr ""
+msgstr "Questa azione è in conflitto con lo stato attuale"
 
 #. js-lingui-explicit-id
 msgid "error.businessRule"
-msgstr ""
+msgstr "Questa azione non è consentita da una regola aziendale"
 
 msgid "Thumbnail"
 msgstr "Miniatura"
@@ -1021,7 +1021,7 @@ msgstr "Caricamento di {0}"
 
 #. js-lingui-explicit-id
 msgid "error.validation"
-msgstr ""
+msgstr "Convalida non riuscita"
 
 msgid "View maintenance dispatch"
 msgstr "Visualizza intervento di manutenzione"

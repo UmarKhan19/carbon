@@ -44,7 +44,7 @@ msgstr "{0} Odrzuconych"
 
 #. js-lingui-explicit-id
 msgid "error.notFound"
-msgstr ""
+msgstr "Nie znaleziono: {entity}"
 
 msgid "About"
 msgstr "O programie"
@@ -78,7 +78,7 @@ msgstr "Wszystkie"
 
 #. js-lingui-explicit-id
 msgid "error.externalService"
-msgstr ""
+msgstr "Usługa zewnętrzna jest obecnie niedostępna"
 
 msgid "Are you sure you want to delete this step?"
 msgstr "Czy na pewno chcesz usunąć ten krok?"
@@ -895,7 +895,7 @@ msgstr "Rozmiar"
 
 #. js-lingui-explicit-id
 msgid "error.database"
-msgstr ""
+msgstr "Coś poszło nie tak podczas zapisywania zmian"
 
 msgid "Source"
 msgstr "Źródło"
@@ -957,11 +957,11 @@ msgstr "Na liście materiałowej znajdują się materiały śledzone seryjnie lu
 
 #. js-lingui-explicit-id
 msgid "error.conflict"
-msgstr ""
+msgstr "Ta akcja jest sprzeczna z bieżącym stanem"
 
 #. js-lingui-explicit-id
 msgid "error.businessRule"
-msgstr ""
+msgstr "Ta akcja jest niedozwolona przez regułę biznesową"
 
 msgid "Thumbnail"
 msgstr "Miniatura"
@@ -1021,7 +1021,7 @@ msgstr "Przesyłanie {0}"
 
 #. js-lingui-explicit-id
 msgid "error.validation"
-msgstr ""
+msgstr "Walidacja nie powiodła się"
 
 msgid "View maintenance dispatch"
 msgstr "Wyświetl zlecenie utrzymania ruchu"

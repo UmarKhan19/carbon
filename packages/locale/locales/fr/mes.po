@@ -44,7 +44,7 @@ msgstr "{0} Rebuté(s)"
 
 #. js-lingui-explicit-id
 msgid "error.notFound"
-msgstr ""
+msgstr "{entity} introuvable"
 
 msgid "About"
 msgstr "À propos"
@@ -78,7 +78,7 @@ msgstr "Tout"
 
 #. js-lingui-explicit-id
 msgid "error.externalService"
-msgstr ""
+msgstr "Un service externe est actuellement indisponible"
 
 msgid "Are you sure you want to delete this step?"
 msgstr "Êtes-vous sûr de vouloir supprimer cette étape ?"
@@ -895,7 +895,7 @@ msgstr "Taille"
 
 #. js-lingui-explicit-id
 msgid "error.database"
-msgstr ""
+msgstr "Une erreur s'est produite lors de l'enregistrement de vos modifications"
 
 msgid "Source"
 msgstr "Source"
@@ -957,11 +957,11 @@ msgstr "Il existe des matériaux suivis par numéro de série ou par lot dans la
 
 #. js-lingui-explicit-id
 msgid "error.conflict"
-msgstr ""
+msgstr "Cette action est en conflit avec l'état actuel"
 
 #. js-lingui-explicit-id
 msgid "error.businessRule"
-msgstr ""
+msgstr "Cette action n'est pas autorisée par une règle métier"
 
 msgid "Thumbnail"
 msgstr "Miniature"
@@ -1021,7 +1021,7 @@ msgstr "Téléversement de {0}"
 
 #. js-lingui-explicit-id
 msgid "error.validation"
-msgstr ""
+msgstr "Échec de la validation"
 
 msgid "View maintenance dispatch"
 msgstr "Voir l'intervention de maintenance"

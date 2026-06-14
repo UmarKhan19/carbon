@@ -21,7 +21,7 @@ export async function loadLinguiCatalogForRequest(
 
 /**
  * Builds an activated, request-scoped i18n instance for the requester's locale.
- * Used at the action boundary by `errorFlash`/`successFlash` to translate error
+ * Used at the action boundary by `error`/`success` to translate error
  * messages at write time. Server-only — never activates the global singleton.
  */
 export async function getRequestI18n(request: Request): Promise<I18n> {

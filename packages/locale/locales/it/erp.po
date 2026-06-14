@@ -52,7 +52,7 @@ msgstr "{0} caricato con successo"
 
 #. js-lingui-explicit-id
 msgid "error.notFound"
-msgstr ""
+msgstr "{entity} non trovato"
 
 msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB limite"
@@ -474,7 +474,7 @@ msgstr "Tipo di Importo"
 
 #. js-lingui-explicit-id
 msgid "error.externalService"
-msgstr ""
+msgstr "Un servizio esterno non è al momento disponibile"
 
 msgid "An item cannot be added to itself."
 msgstr "Un articolo non può essere aggiunto a se stesso."
@@ -550,7 +550,7 @@ msgstr "L'approvazione è richiesta a questo importo o superiore, fino al minimo
 
 #. js-lingui-explicit-id
 msgid "approvals.notPending"
-msgstr ""
+msgstr "La richiesta di approvazione non è in sospeso"
 
 msgid "Approval Requirements"
 msgstr "Requisiti di Approvazione"
@@ -5468,7 +5468,7 @@ msgstr "Su Unità di Stoccaggio"
 
 #. js-lingui-explicit-id
 msgid "approvals.onlyRequesterCanCancel"
-msgstr ""
+msgstr "Solo il richiedente può annullare una richiesta di approvazione"
 
 msgid "Onshape Status"
 msgstr "Stato Onshape"
@@ -7341,7 +7341,7 @@ msgstr "Saltato"
 
 #. js-lingui-explicit-id
 msgid "error.database"
-msgstr ""
+msgstr "Si è verificato un problema durante il salvataggio delle modifiche"
 
 msgid "Something went wrong. Please try again."
 msgstr "Qualcosa è andato storto. Riprova."
@@ -7892,11 +7892,11 @@ msgstr "Questi lavori hanno operazioni assegnate a questo centro di lavoro:"
 
 #. js-lingui-explicit-id
 msgid "error.conflict"
-msgstr ""
+msgstr "Questa azione è in conflitto con lo stato attuale"
 
 #. js-lingui-explicit-id
 msgid "error.businessRule"
-msgstr ""
+msgstr "Questa azione non è consentita da una regola aziendale"
 
 msgid "This information will be used on document headers"
 msgstr "Queste informazioni verranno utilizzate nelle intestazioni dei documenti"
@@ -8452,7 +8452,7 @@ msgstr "Convalida processo..."
 
 #. js-lingui-explicit-id
 msgid "error.validation"
-msgstr ""
+msgstr "Convalida non riuscita"
 
 msgid "Value"
 msgstr "Valore"

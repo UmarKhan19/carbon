@@ -52,7 +52,7 @@ msgstr "{0} 上传成功"
 
 #. js-lingui-explicit-id
 msgid "error.notFound"
-msgstr ""
+msgstr "未找到{entity}"
 
 msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB 限制"
@@ -474,7 +474,7 @@ msgstr "金额类型"
 
 #. js-lingui-explicit-id
 msgid "error.externalService"
-msgstr ""
+msgstr "外部服务当前不可用"
 
 msgid "An item cannot be added to itself."
 msgstr "一个项目不能添加到自身。"
@@ -550,7 +550,7 @@ msgstr "在此金额或以上需要批准，直到下一条规则的最低金额
 
 #. js-lingui-explicit-id
 msgid "approvals.notPending"
-msgstr ""
+msgstr "审批请求未处于待处理状态"
 
 msgid "Approval Requirements"
 msgstr "批准要求"
@@ -5468,7 +5468,7 @@ msgstr "在存储单元上"
 
 #. js-lingui-explicit-id
 msgid "approvals.onlyRequesterCanCancel"
-msgstr ""
+msgstr "只有申请人可以取消审批请求"
 
 msgid "Onshape Status"
 msgstr "Onshape 状态"
@@ -7341,7 +7341,7 @@ msgstr "已跳过"
 
 #. js-lingui-explicit-id
 msgid "error.database"
-msgstr ""
+msgstr "保存更改时出错"
 
 msgid "Something went wrong. Please try again."
 msgstr "出现问题。请重试。"
@@ -7892,11 +7892,11 @@ msgstr "这些工作有分配给此工作中心的操作："
 
 #. js-lingui-explicit-id
 msgid "error.conflict"
-msgstr ""
+msgstr "此操作与当前状态冲突"
 
 #. js-lingui-explicit-id
 msgid "error.businessRule"
-msgstr ""
+msgstr "此操作违反业务规则，不被允许"
 
 msgid "This information will be used on document headers"
 msgstr "此信息将用于文档标题"
@@ -8452,7 +8452,7 @@ msgstr "正在验证工作..."
 
 #. js-lingui-explicit-id
 msgid "error.validation"
-msgstr ""
+msgstr "验证失败"
 
 msgid "Value"
 msgstr "值"

@@ -44,7 +44,7 @@ msgstr "{0} スクラップ"
 
 #. js-lingui-explicit-id
 msgid "error.notFound"
-msgstr ""
+msgstr "{entity}が見つかりません"
 
 msgid "About"
 msgstr "バージョン情報"
@@ -78,7 +78,7 @@ msgstr "すべて"
 
 #. js-lingui-explicit-id
 msgid "error.externalService"
-msgstr ""
+msgstr "外部サービスが現在利用できません"
 
 msgid "Are you sure you want to delete this step?"
 msgstr "このステップを削除してもよろしいですか？"
@@ -895,7 +895,7 @@ msgstr "サイズ"
 
 #. js-lingui-explicit-id
 msgid "error.database"
-msgstr ""
+msgstr "変更の保存中に問題が発生しました"
 
 msgid "Source"
 msgstr "ソース"
@@ -957,11 +957,11 @@ msgstr "部品表にシリアルまたはバッチ追跡対象の材料が完全
 
 #. js-lingui-explicit-id
 msgid "error.conflict"
-msgstr ""
+msgstr "この操作は現在の状態と競合しています"
 
 #. js-lingui-explicit-id
 msgid "error.businessRule"
-msgstr ""
+msgstr "この操作はビジネスルールにより許可されていません"
 
 msgid "Thumbnail"
 msgstr "サムネイル"
@@ -1021,7 +1021,7 @@ msgstr "{0} をアップロード中"
 
 #. js-lingui-explicit-id
 msgid "error.validation"
-msgstr ""
+msgstr "検証に失敗しました"
 
 msgid "View maintenance dispatch"
 msgstr "メンテナンスディスパッチを表示"

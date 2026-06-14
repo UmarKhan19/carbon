@@ -44,7 +44,7 @@ msgstr "{0} Списано"
 
 #. js-lingui-explicit-id
 msgid "error.notFound"
-msgstr ""
+msgstr "{entity} не найдено"
 
 msgid "About"
 msgstr "О системе"
@@ -78,7 +78,7 @@ msgstr "Все"
 
 #. js-lingui-explicit-id
 msgid "error.externalService"
-msgstr ""
+msgstr "Внешняя служба сейчас недоступна"
 
 msgid "Are you sure you want to delete this step?"
 msgstr "Вы уверены, что хотите удалить этот шаг?"
@@ -895,7 +895,7 @@ msgstr "Размер"
 
 #. js-lingui-explicit-id
 msgid "error.database"
-msgstr ""
+msgstr "Произошла ошибка при сохранении изменений"
 
 msgid "Source"
 msgstr "Источник"
@@ -957,11 +957,11 @@ msgstr "В спецификации есть материалы с серийн�
 
 #. js-lingui-explicit-id
 msgid "error.conflict"
-msgstr ""
+msgstr "Это действие конфликтует с текущим состоянием"
 
 #. js-lingui-explicit-id
 msgid "error.businessRule"
-msgstr ""
+msgstr "Это действие запрещено бизнес-правилом"
 
 msgid "Thumbnail"
 msgstr "Миниатюра"
@@ -1021,7 +1021,7 @@ msgstr "Загрузка {0}"
 
 #. js-lingui-explicit-id
 msgid "error.validation"
-msgstr ""
+msgstr "Проверка не пройдена"
 
 msgid "View maintenance dispatch"
 msgstr "Просмотреть наряд на обслуживание"

@@ -52,7 +52,7 @@ msgstr "{0} przesłano pomyślnie"
 
 #. js-lingui-explicit-id
 msgid "error.notFound"
-msgstr ""
+msgstr "Nie znaleziono: {entity}"
 
 msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB limit"
@@ -474,7 +474,7 @@ msgstr "Typ kwoty"
 
 #. js-lingui-explicit-id
 msgid "error.externalService"
-msgstr ""
+msgstr "Usługa zewnętrzna jest obecnie niedostępna"
 
 msgid "An item cannot be added to itself."
 msgstr "Przedmiot nie może być dodany do siebie."
@@ -550,7 +550,7 @@ msgstr "Zatwierdzenie jest wymagane przy tej kwocie lub wyższej, aż do minimum
 
 #. js-lingui-explicit-id
 msgid "approvals.notPending"
-msgstr ""
+msgstr "Wniosek o zatwierdzenie nie oczekuje na rozpatrzenie"
 
 msgid "Approval Requirements"
 msgstr "Wymagania zatwierdzenia"
@@ -5468,7 +5468,7 @@ msgstr "Na jednostce magazynowej"
 
 #. js-lingui-explicit-id
 msgid "approvals.onlyRequesterCanCancel"
-msgstr ""
+msgstr "Tylko wnioskodawca może anulować wniosek o zatwierdzenie"
 
 msgid "Onshape Status"
 msgstr "Status Onshape"
@@ -7341,7 +7341,7 @@ msgstr "Pominięte"
 
 #. js-lingui-explicit-id
 msgid "error.database"
-msgstr ""
+msgstr "Coś poszło nie tak podczas zapisywania zmian"
 
 msgid "Something went wrong. Please try again."
 msgstr "Coś poszło nie tak. Spróbuj ponownie."
@@ -7892,11 +7892,11 @@ msgstr "Te zadania mają operacje przypisane do tego centrum pracy:"
 
 #. js-lingui-explicit-id
 msgid "error.conflict"
-msgstr ""
+msgstr "Ta akcja jest sprzeczna z bieżącym stanem"
 
 #. js-lingui-explicit-id
 msgid "error.businessRule"
-msgstr ""
+msgstr "Ta akcja jest niedozwolona przez regułę biznesową"
 
 msgid "This information will be used on document headers"
 msgstr "Te informacje będą używane w nagłówkach dokumentów"
@@ -8452,7 +8452,7 @@ msgstr "Walidacja zadania..."
 
 #. js-lingui-explicit-id
 msgid "error.validation"
-msgstr ""
+msgstr "Walidacja nie powiodła się"
 
 msgid "Value"
 msgstr "Wartość"

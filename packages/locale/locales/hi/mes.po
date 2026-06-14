@@ -44,7 +44,7 @@ msgstr "{0} स्क्रैप किया गया"
 
 #. js-lingui-explicit-id
 msgid "error.notFound"
-msgstr ""
+msgstr "{entity} नहीं मिला"
 
 msgid "About"
 msgstr "के बारे में"
@@ -78,7 +78,7 @@ msgstr "सभी"
 
 #. js-lingui-explicit-id
 msgid "error.externalService"
-msgstr ""
+msgstr "एक बाहरी सेवा अभी अनुपलब्ध है"
 
 msgid "Are you sure you want to delete this step?"
 msgstr "क्या आप सुनिश्चित हैं कि आप इस चरण को हटाना चाहते हैं?"
@@ -895,7 +895,7 @@ msgstr "आकार"
 
 #. js-lingui-explicit-id
 msgid "error.database"
-msgstr ""
+msgstr "आपके परिवर्तनों को सहेजते समय कुछ गलत हो गया"
 
 msgid "Source"
 msgstr "स्रोत"
@@ -957,11 +957,11 @@ msgstr "बिल ऑफ मेटेरियल पर सीरियल य�
 
 #. js-lingui-explicit-id
 msgid "error.conflict"
-msgstr ""
+msgstr "यह क्रिया वर्तमान स्थिति से टकराव में है"
 
 #. js-lingui-explicit-id
 msgid "error.businessRule"
-msgstr ""
+msgstr "यह क्रिया किसी व्यावसायिक नियम द्वारा अनुमत नहीं है"
 
 msgid "Thumbnail"
 msgstr "थंबनेल"
@@ -1021,7 +1021,7 @@ msgstr "अपलोड किया जा रहा है {0}"
 
 #. js-lingui-explicit-id
 msgid "error.validation"
-msgstr ""
+msgstr "सत्यापन विफल"
 
 msgid "View maintenance dispatch"
 msgstr "रखरखाव डिस्पैच देखें"

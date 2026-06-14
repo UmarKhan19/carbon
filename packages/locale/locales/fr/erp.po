@@ -52,7 +52,7 @@ msgstr "{0} téléchargé avec succès"
 
 #. js-lingui-explicit-id
 msgid "error.notFound"
-msgstr ""
+msgstr "{entity} introuvable"
 
 msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB limite"
@@ -474,7 +474,7 @@ msgstr "Type de montant"
 
 #. js-lingui-explicit-id
 msgid "error.externalService"
-msgstr ""
+msgstr "Un service externe est actuellement indisponible"
 
 msgid "An item cannot be added to itself."
 msgstr "Un article ne peut pas être ajouté à lui-même."
@@ -550,7 +550,7 @@ msgstr "L'approbation est requise à partir de ce montant ou au-delà, jusqu'au 
 
 #. js-lingui-explicit-id
 msgid "approvals.notPending"
-msgstr ""
+msgstr "La demande d'approbation n'est pas en attente"
 
 msgid "Approval Requirements"
 msgstr "Exigences d'approbation"
@@ -5468,7 +5468,7 @@ msgstr "Sur l'unité de stockage"
 
 #. js-lingui-explicit-id
 msgid "approvals.onlyRequesterCanCancel"
-msgstr ""
+msgstr "Seul le demandeur peut annuler une demande d'approbation"
 
 msgid "Onshape Status"
 msgstr "Statut Onshape"
@@ -7341,7 +7341,7 @@ msgstr "Ignoré"
 
 #. js-lingui-explicit-id
 msgid "error.database"
-msgstr ""
+msgstr "Une erreur s'est produite lors de l'enregistrement de vos modifications"
 
 msgid "Something went wrong. Please try again."
 msgstr "Quelque chose s'est mal passé. Veuillez réessayer."
@@ -7892,11 +7892,11 @@ msgstr "Ces travaux ont des opérations assignées à ce centre de travail :"
 
 #. js-lingui-explicit-id
 msgid "error.conflict"
-msgstr ""
+msgstr "Cette action est en conflit avec l'état actuel"
 
 #. js-lingui-explicit-id
 msgid "error.businessRule"
-msgstr ""
+msgstr "Cette action n'est pas autorisée par une règle métier"
 
 msgid "This information will be used on document headers"
 msgstr "Ces informations seront utilisées dans les en-têtes de document"
@@ -8452,7 +8452,7 @@ msgstr "Validation du travail en cours..."
 
 #. js-lingui-explicit-id
 msgid "error.validation"
-msgstr ""
+msgstr "Échec de la validation"
 
 msgid "Value"
 msgstr "Valeur"
