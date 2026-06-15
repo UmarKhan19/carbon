@@ -107,7 +107,12 @@ const SupplierLocation = ({
         ref={triggerRef}
         options={options}
         {...props}
-        extractedValue={extractedAddress?.addressLine1 ?? undefined}
+        extractedValue={
+          extractedAddress?.addressLine1 ??
+          extractedAddress?.city ??
+          extractedAddress?.postalCode ??
+          undefined
+        }
         inline={inline ? SupplierLocationPreview : undefined}
         label={props?.label ?? "Supplier Location"}
         onChange={onChange}

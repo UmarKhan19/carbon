@@ -173,8 +173,13 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
       resolvedCurrencyCode = data.currencyCode;
     }
 
-    if (data.supplierContactName && !resolvedContactId) {
-      setExtractedContactName(data.supplierContactName);
+    if (
+      (data.supplierContactName || data.supplierContactEmail) &&
+      !resolvedContactId
+    ) {
+      setExtractedContactName(
+        data.supplierContactName || data.supplierContactEmail
+      );
     } else {
       setExtractedContactName(undefined);
     }
@@ -191,7 +196,10 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
       setExtractedContactPhone(undefined);
     }
 
-    if (data.supplierAddressLine1 && !resolvedLocationId) {
+    if (
+      (data.supplierAddressLine1 || data.supplierCity) &&
+      !resolvedLocationId
+    ) {
       setExtractedAddress({
         addressLine1: data.supplierAddressLine1,
         addressLine2: data.supplierAddressLine2,
