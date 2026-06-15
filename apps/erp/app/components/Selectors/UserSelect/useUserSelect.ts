@@ -253,7 +253,19 @@ export default function useUserSelect(props: UserSelectProps) {
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   useEffect(() => {
-    setFilteredOptionGroups(makeFilteredOptionGroups());
+    // Rebuild the visible list when the underlying options change (e.g. after a
+    // group's members are lazily fetched), but preserve each group's expanded
+    // state so a group does not collapse the moment its members load.
+    setFilteredOptionGroups((previousGroups) => {
+      const expandedByUid = new Map(
+        previousGroups.map((group) => [group.uid, group.expanded])
+      );
+      return makeFilteredOptionGroups().map((group) =>
+        expandedByUid.has(group.uid)
+          ? { ...group, expanded: expandedByUid.get(group.uid)! }
+          : group
+      );
+    });
   }, [optionGroups, makeFilteredOptionGroups, setFilteredOptionGroups]);
 
   /* Event Handlers */

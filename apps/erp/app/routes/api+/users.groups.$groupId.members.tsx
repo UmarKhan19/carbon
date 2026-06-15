@@ -17,12 +17,18 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     throw new Response("Group ID is required", { status: 400 });
   }
 
+  // The `groups` view fans out into one row per parent path (it groups by
+  // `parentId`), so a nested group matches multiple rows for the same `id`.
+  // Every row carries that group's own members, so any single row is correct;
+  // `.limit(1).maybeSingle()` avoids the PGRST116 ".single()" error and also
+  // tolerates a group with no rows.
   const query = await client
     .from("groups")
     .select("users")
     .eq("id", groupId)
     .eq("companyId", companyId)
-    .single();
+    .limit(1)
+    .maybeSingle();
 
   if (query.error) {
     return data(
@@ -31,7 +37,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return { users: query.data.users ?? [] };
+  return { users: query.data?.users ?? [] };
 }
 
 export async function clientLoader({
