@@ -589,11 +589,11 @@ msgstr "无已分配工序"
 msgid "No available filters"
 msgstr "无可用筛选条件"
 
-msgid "No available lots found"
-msgstr ""
-
 msgid "No available serial numbers found"
 msgstr "未找到可用的序列号"
+
+msgid "No available tracked entities found"
+msgstr ""
 
 msgid "No dispatches assigned to you"
 msgstr "没有分配给您的工单"

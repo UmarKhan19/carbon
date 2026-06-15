@@ -1332,8 +1332,14 @@ msgstr "चैट"
 msgid "Check your email"
 msgstr "अपना ईमेल जांचें"
 
+msgid "Choose a batch number"
+msgstr ""
+
 msgid "Choose a company"
 msgstr "कंपनी चुनें"
+
+msgid "Choose a serial number"
+msgstr ""
 
 msgid "Choose another file"
 msgstr "दूसरी फ़ाइल चुनें"
@@ -2239,6 +2245,9 @@ msgstr "डिफ़ॉल्ट विधि"
 
 msgid "Default Method Type"
 msgstr "डिफ़ॉल्ट विधि प्रकार"
+
+msgid "Default order when picking serial or batch lots of this item. Pickers can still override it."
+msgstr ""
 
 msgid "Default Permissions"
 msgstr "डिफ़ॉल्ट अनुमतियाँ"
@@ -5232,7 +5241,7 @@ msgstr "कोई अनुलग्नक नहीं।"
 msgid "No available filters"
 msgstr "कोई उपलब्ध फ़िल्टर नहीं"
 
-msgid "No available lots found"
+msgid "No available tracked entities found"
 msgstr ""
 
 msgid "No BOM input has a shelf-life policy"
@@ -5849,6 +5858,9 @@ msgstr "एक तारीख चुनें या इसे साफ कर
 
 msgid "Pick List"
 msgstr "पिक लिस्ट"
+
+msgid "Pick Order"
+msgstr ""
 
 msgid "Pick tracked item"
 msgstr ""

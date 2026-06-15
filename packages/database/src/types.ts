@@ -27267,6 +27267,7 @@ export type Database = {
           defaultStorageUnitId: string | null
           itemId: string
           locationId: string
+          sortMethod: Database["public"]["Enums"]["pickMethodSortMethod"]
           updatedAt: string | null
           updatedBy: string | null
         }
@@ -27278,6 +27279,7 @@ export type Database = {
           defaultStorageUnitId?: string | null
           itemId: string
           locationId: string
+          sortMethod?: Database["public"]["Enums"]["pickMethodSortMethod"]
           updatedAt?: string | null
           updatedBy?: string | null
         }
@@ -27289,6 +27291,7 @@ export type Database = {
           defaultStorageUnitId?: string | null
           itemId?: string
           locationId?: string
+          sortMethod?: Database["public"]["Enums"]["pickMethodSortMethod"]
           updatedAt?: string | null
           updatedBy?: string | null
         }
@@ -39221,7 +39224,7 @@ export type Database = {
           },
         ]
       }
-      searchIndex_d8mo58ngo0h02bp1f7rg: {
+      searchIndex_d8nlqei680h02ctl3jt0: {
         Row: {
           createdAt: string
           description: string | null
@@ -39263,7 +39266,7 @@ export type Database = {
         }
         Relationships: []
       }
-      searchIndex_PMZBgR2ziNiHeJGLkw39nK: {
+      searchIndex_Lk5DVhpLGA5fxtFQYdhWY3: {
         Row: {
           createdAt: string
           description: string | null
@@ -60488,14 +60491,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["shipmentCountryCode"]
+            columns: ["invoiceCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["invoiceCountryCode"]
+            columns: ["shipmentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -64753,6 +64756,26 @@ export type Database = {
           tableName: string
         }[]
       }
+      get_available_tracked_entities: {
+        Args: {
+          p_company_id: string
+          p_exclude_allocated?: boolean
+          p_exclude_line_id?: string
+          p_exclude_lineside?: boolean
+          p_item_id: string
+          p_location_id: string
+        }
+        Returns: {
+          availableQuantity: number
+          createdAt: string
+          expirationDate: string
+          readableId: string
+          status: string
+          storageUnitId: string
+          storageUnitName: string
+          trackedEntityId: string
+        }[]
+      }
       get_claims: { Args: { company: string; uid: string }; Returns: Json }
       get_companies_with_any_role: { Args: never; Returns: string[] }
       get_companies_with_employee_permission: {
@@ -65483,6 +65506,13 @@ export type Database = {
       get_period_end_date: { Args: { period: string }; Returns: string }
       get_period_start_date: { Args: { period: string }; Returns: string }
       get_permission_companies: { Args: { claim: string }; Returns: string[] }
+      get_picking_list_availability: {
+        Args: { p_picking_list_id: string }
+        Returns: {
+          availableQuantity: number
+          pickingListLineId: string
+        }[]
+      }
       get_picking_schedule: {
         Args: { p_company_id: string; p_location_id: string; p_search?: string }
         Returns: {
@@ -66962,6 +66992,7 @@ export type Database = {
       periodType: "Week" | "Day" | "Month"
       pickingListLineStatus: "Pending" | "Picked" | "Short" | "Cancelled"
       pickingListStatus: "Draft" | "In Progress" | "Completed" | "Cancelled"
+      pickMethodSortMethod: "Default" | "FEFO" | "FIFO" | "LIFO"
       pricingRuleAmountType: "Percentage" | "Fixed"
       pricingRuleType: "Discount" | "Markup"
       procedureStatus: "Draft" | "Active" | "Archived"
@@ -68268,6 +68299,7 @@ export const Constants = {
       periodType: ["Week", "Day", "Month"],
       pickingListLineStatus: ["Pending", "Picked", "Short", "Cancelled"],
       pickingListStatus: ["Draft", "In Progress", "Completed", "Cancelled"],
+      pickMethodSortMethod: ["Default", "FEFO", "FIFO", "LIFO"],
       pricingRuleAmountType: ["Percentage", "Fixed"],
       pricingRuleType: ["Discount", "Markup"],
       procedureStatus: ["Draft", "Active", "Archived"],

@@ -46,6 +46,7 @@ import {
   type methodMaterialValidator,
   type methodOperationValidator,
   type partValidator,
+  type pickMethodSortMethods,
   type pickMethodValidator,
   type serviceValidator,
   type shelfLifeModes,
@@ -2455,6 +2456,7 @@ export async function upsertPickMethodWithShelfLife(
     itemId: string;
     locationId: string;
     defaultStorageUnitId?: string | null;
+    sortMethod?: (typeof pickMethodSortMethods)[number];
     customFields?: Json;
     userId: string;
     shelfLife: {
@@ -2473,6 +2475,9 @@ export async function upsertPickMethodWithShelfLife(
       .updateTable("pickMethod")
       .set({
         defaultStorageUnitId: args.defaultStorageUnitId ?? null,
+        // Only overwrite when the caller surfaced the field; the column is
+        // NOT NULL DEFAULT 'Default' so we never set it null.
+        ...(args.sortMethod ? { sortMethod: args.sortMethod } : {}),
         customFields: args.customFields ?? null,
         updatedBy: args.userId,
         updatedAt

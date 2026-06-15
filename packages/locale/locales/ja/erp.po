@@ -1332,8 +1332,14 @@ msgstr "チャット"
 msgid "Check your email"
 msgstr "メールを確認してください"
 
+msgid "Choose a batch number"
+msgstr ""
+
 msgid "Choose a company"
 msgstr "会社を選択"
+
+msgid "Choose a serial number"
+msgstr ""
 
 msgid "Choose another file"
 msgstr "別のファイルを選択"
@@ -2239,6 +2245,9 @@ msgstr "デフォルト方法"
 
 msgid "Default Method Type"
 msgstr "デフォルトメソッドタイプ"
+
+msgid "Default order when picking serial or batch lots of this item. Pickers can still override it."
+msgstr ""
 
 msgid "Default Permissions"
 msgstr "デフォルト権限"
@@ -5232,7 +5241,7 @@ msgstr "添付ファイルがありません。"
 msgid "No available filters"
 msgstr "利用可能なフィルターがありません"
 
-msgid "No available lots found"
+msgid "No available tracked entities found"
 msgstr ""
 
 msgid "No BOM input has a shelf-life policy"
@@ -5849,6 +5858,9 @@ msgstr "日付を選択するか、空白のままにしてクリアしてくだ
 
 msgid "Pick List"
 msgstr "ピッキングリスト"
+
+msgid "Pick Order"
+msgstr ""
 
 msgid "Pick tracked item"
 msgstr ""

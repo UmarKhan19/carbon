@@ -1,6 +1,7 @@
 import * as cookie from "cookie";
 import { parseAcceptLanguage } from "intl-parse-accept-language";
-import type { OperatingSystemPlatform } from "./OperatingSystem";
+
+type OperatingSystemPlatform = "mac" | "windows";
 
 export const getPreferenceHeaders = (request: Request) => {
   const acceptLanguage = request.headers.get("accept-language");

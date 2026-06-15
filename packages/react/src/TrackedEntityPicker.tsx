@@ -43,6 +43,27 @@ export type TrackedEntityOption = {
 
 export type TrackedEntityPickOrder = "smart" | "fefo" | "fifo" | "lifo";
 
+/**
+ * Maps a stored pick-method sort config (the capitalized `pickMethodSortMethod`
+ * DB enum) to the picker's internal order. Defaults to "smart" for unknown /
+ * unset values so a missing pickMethod row still gets the smart default.
+ */
+export function pickOrderFromConfig(
+  method: string | null | undefined
+): TrackedEntityPickOrder {
+  switch (method) {
+    case "FEFO":
+      return "fefo";
+    case "FIFO":
+      return "fifo";
+    case "LIFO":
+      return "lifo";
+    case "Default":
+    default:
+      return "smart";
+  }
+}
+
 export type TrackedEntitySelection = {
   trackedEntityId: string;
   quantity: number;
@@ -188,12 +209,12 @@ export function TrackedEntityPicker({
         <ModalBody>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="scan">
-                <LuQrCode className="mr-2" />
+              <TabsTrigger value="scan" className="leading-none">
+                <LuQrCode className="mr-2 shrink-0" />
                 {t`Scan`}
               </TabsTrigger>
-              <TabsTrigger value="select">
-                <LuList className="mr-2" />
+              <TabsTrigger value="select" className="leading-none">
+                <LuList className="mr-2 shrink-0" />
                 {t`Select`}
               </TabsTrigger>
             </TabsList>
@@ -250,8 +271,8 @@ export function TrackedEntityPicker({
                 <ScrollArea className="max-h-[44dvh] w-full">
                   <VStack spacing={2} className="w-full">
                     {ordered.length === 0 ? (
-                      <p className="text-center text-muted-foreground py-6">
-                        {t`No available lots found`}
+                      <p className="w-full text-center text-muted-foreground text-xs py-6">
+                        {t`No available tracked entities found`}
                       </p>
                     ) : (
                       ordered.map((e) => {

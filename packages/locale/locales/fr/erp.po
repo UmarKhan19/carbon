@@ -1332,8 +1332,14 @@ msgstr "Chat"
 msgid "Check your email"
 msgstr "Vérifiez votre email"
 
+msgid "Choose a batch number"
+msgstr ""
+
 msgid "Choose a company"
 msgstr "Choisir une entreprise"
+
+msgid "Choose a serial number"
+msgstr ""
 
 msgid "Choose another file"
 msgstr "Choisir un autre fichier"
@@ -2239,6 +2245,9 @@ msgstr "Méthode par défaut"
 
 msgid "Default Method Type"
 msgstr "Type de méthode par défaut"
+
+msgid "Default order when picking serial or batch lots of this item. Pickers can still override it."
+msgstr ""
 
 msgid "Default Permissions"
 msgstr "Permissions par défaut"
@@ -5232,7 +5241,7 @@ msgstr "Aucune pièce jointe."
 msgid "No available filters"
 msgstr "Aucun filtre disponible"
 
-msgid "No available lots found"
+msgid "No available tracked entities found"
 msgstr ""
 
 msgid "No BOM input has a shelf-life policy"
@@ -5849,6 +5858,9 @@ msgstr "Choisissez une date ou laissez vide pour l'effacer."
 
 msgid "Pick List"
 msgstr "Liste de prélèvement"
+
+msgid "Pick Order"
+msgstr ""
 
 msgid "Pick tracked item"
 msgstr ""

@@ -561,6 +561,7 @@ function PickLineItem({
           expiredEntityPolicy={
             trackedFetcher.data?.expiredEntityPolicy ?? "Warn"
           }
+          defaultOrder={trackedFetcher.data?.defaultOrder}
           onSelect={pickTracked}
           onClose={() => setPickerOpen(false)}
         />

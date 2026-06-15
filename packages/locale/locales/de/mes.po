@@ -589,11 +589,11 @@ msgstr "Keine zugewiesenen Arbeitsgänge"
 msgid "No available filters"
 msgstr "Keine verfügbaren Filter"
 
-msgid "No available lots found"
-msgstr ""
-
 msgid "No available serial numbers found"
 msgstr "Keine verfügbaren Seriennummern gefunden"
+
+msgid "No available tracked entities found"
+msgstr ""
 
 msgid "No dispatches assigned to you"
 msgstr "Keine Einsätze an Sie zugewiesen"

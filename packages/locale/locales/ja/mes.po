@@ -589,11 +589,11 @@ msgstr "割り当てられた工程はありません"
 msgid "No available filters"
 msgstr "利用可能なフィルターはありません"
 
-msgid "No available lots found"
-msgstr ""
-
 msgid "No available serial numbers found"
 msgstr "利用可能なシリアル番号が見つかりません"
+
+msgid "No available tracked entities found"
+msgstr ""
 
 msgid "No dispatches assigned to you"
 msgstr "あなたに割り当てられたディスパッチはありません"

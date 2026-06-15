@@ -589,11 +589,11 @@ msgstr "Нет назначенных операций"
 msgid "No available filters"
 msgstr "Нет доступных фильтров"
 
-msgid "No available lots found"
-msgstr ""
-
 msgid "No available serial numbers found"
 msgstr "Доступные серийные номера не найдены"
+
+msgid "No available tracked entities found"
+msgstr ""
 
 msgid "No dispatches assigned to you"
 msgstr "Нет нарядов, назначенных вам"

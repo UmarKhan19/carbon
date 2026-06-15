@@ -589,11 +589,11 @@ msgstr "No hay operaciones asignadas"
 msgid "No available filters"
 msgstr "No hay filtros disponibles"
 
-msgid "No available lots found"
-msgstr ""
-
 msgid "No available serial numbers found"
 msgstr "No se encontraron números de serie disponibles"
+
+msgid "No available tracked entities found"
+msgstr ""
 
 msgid "No dispatches assigned to you"
 msgstr "No hay despachos asignados a usted"

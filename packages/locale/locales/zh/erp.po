@@ -1332,8 +1332,14 @@ msgstr "聊天"
 msgid "Check your email"
 msgstr "检查您的电子邮件"
 
+msgid "Choose a batch number"
+msgstr ""
+
 msgid "Choose a company"
 msgstr "选择公司"
+
+msgid "Choose a serial number"
+msgstr ""
 
 msgid "Choose another file"
 msgstr "选择另一个文件"
@@ -2239,6 +2245,9 @@ msgstr "默认方法"
 
 msgid "Default Method Type"
 msgstr "默认方法类型"
+
+msgid "Default order when picking serial or batch lots of this item. Pickers can still override it."
+msgstr ""
 
 msgid "Default Permissions"
 msgstr "默认权限"
@@ -5232,7 +5241,7 @@ msgstr "没有附件。"
 msgid "No available filters"
 msgstr "没有可用的筛选器"
 
-msgid "No available lots found"
+msgid "No available tracked entities found"
 msgstr ""
 
 msgid "No BOM input has a shelf-life policy"
@@ -5849,6 +5858,9 @@ msgstr "选择日期或留空以清除。"
 
 msgid "Pick List"
 msgstr "拣货单"
+
+msgid "Pick Order"
+msgstr ""
 
 msgid "Pick tracked item"
 msgstr ""

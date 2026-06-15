@@ -1,5 +1,5 @@
 {
-  "generated": "2026-06-15T03:08:31.715Z",
+  "generated": "2026-06-15T19:13:52.415Z",
   "totalTools": 1204,
   "modules": 15,
   "tools": [
@@ -11094,7 +11094,7 @@
       "module": "items",
       "classification": "WRITE",
       "description": "upsert pick method with shelf life",
-      "paramCount": 5,
+      "paramCount": 6,
       "serviceParams": [
         "db",
         "args"
@@ -11118,6 +11118,9 @@
               "string",
               "null"
             ]
+          },
+          "sortMethod": {
+            "type": "string"
           },
           "customFields": {},
           "shelfLife: {\n      mode": {
@@ -11289,7 +11292,7 @@
       "module": "items",
       "classification": "WRITE",
       "description": "upsert pick method",
-      "paramCount": 3,
+      "paramCount": 4,
       "serviceParams": [
         "client",
         "pickMethod"
@@ -11309,6 +11312,9 @@
             "type": "string"
           },
           "defaultStorageUnitId": {
+            "type": "string"
+          },
+          "sortMethod": {
             "type": "string"
           }
         },

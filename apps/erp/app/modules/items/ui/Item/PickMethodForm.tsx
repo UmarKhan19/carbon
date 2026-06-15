@@ -40,6 +40,7 @@ import {
   CustomFormFields,
   Hidden,
   NumberControlled,
+  Select,
   ShelfLifeStartProcess,
   ShelfLifeStartTiming,
   Submit
@@ -101,7 +102,10 @@ const PickMethodForm = ({
     value: location.id
   }));
 
-  const shelfLifeApplicable =
+  // Serial/Batch items have per-unit tracked entities, so both the pick-order
+  // default and the shelf-life policy only apply to them. Fungible tracking
+  // types have no lots to order or expire.
+  const isTracked =
     itemTrackingType === "Serial" || itemTrackingType === "Batch";
   const { trigger: shelfLifeHistoryTrigger, drawer: shelfLifeHistoryDrawer } =
     useAuditLog({
@@ -188,7 +192,21 @@ const PickMethodForm = ({
               className="w-full"
             />
 
-            {shelfLifeApplicable && (
+            {isTracked && (
+              <Select
+                name="sortMethod"
+                label={t`Pick Order`}
+                helperText={t`Default order when picking serial or batch lots of this item. Pickers can still override it.`}
+                options={[
+                  { value: "Default", label: t`Default` },
+                  { value: "FEFO", label: t`Expiring first` },
+                  { value: "FIFO", label: t`Oldest first` },
+                  { value: "LIFO", label: t`Newest first` }
+                ]}
+              />
+            )}
+
+            {isTracked && (
               <ShelfLifeFields
                 replenishmentSystem={replenishmentSystem}
                 itemId={initialValues.itemId}

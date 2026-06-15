@@ -26,7 +26,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
-import { Trans } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useMemo, useState } from "react";
 import {
   LuChevronDown,
@@ -196,6 +196,7 @@ function PickingListLineItem({
   isLocked: boolean;
 }) {
   const permissions = usePermissions();
+  const { t } = useLingui();
   const [items] = useItems();
   const fetcher = useFetcher<{ success: boolean; message?: string }>();
   const isPending = fetcher.state !== "idle";
@@ -460,13 +461,18 @@ function PickingListLineItem({
           entities={trackedFetcher.data?.entities ?? []}
           quantityRequired={Math.max(0, quantityToPick - quantityPicked)}
           title={`Pick ${itemName}`}
-          description="Choose a lot to pick — expiring/oldest first."
+          description={
+            item?.itemTrackingType === "Serial"
+              ? t`Choose a serial number`
+              : t`Choose a batch number`
+          }
           nearExpiryWarningDays={
             trackedFetcher.data?.nearExpiryWarningDays ?? 0
           }
           expiredEntityPolicy={
             trackedFetcher.data?.expiredEntityPolicy ?? "Warn"
           }
+          defaultOrder={trackedFetcher.data?.defaultOrder}
           onSelect={pickTracked}
           onClose={() => setPickerOpen(false)}
         />

@@ -589,11 +589,11 @@ msgstr "कोई नियुक्त ऑपरेशन नहीं"
 msgid "No available filters"
 msgstr "कोई उपलब्ध फ़िल्टर नहीं"
 
-msgid "No available lots found"
-msgstr ""
-
 msgid "No available serial numbers found"
 msgstr "कोई उपलब्ध सीरियल नंबर नहीं मिला"
+
+msgid "No available tracked entities found"
+msgstr ""
 
 msgid "No dispatches assigned to you"
 msgstr "आपको कोई डिस्पैच असाइन नहीं किया गया है"
