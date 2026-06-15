@@ -35,8 +35,16 @@ export type CreatableLookup = (typeof creatableLookups)[number];
 
 // Rich lookups need more than a name (Net days, carrier, ...), so during a CSV
 // import they are created through their existing form modal, pre-filled with
-// the typed value. Client-only: maps a field to the form it opens.
+// the typed value. Client-only: maps a field to the form it opens and the
+// module whose create permission gates it.
 export type CreatableForm = "paymentTerm" | "shippingMethod";
+export const creatableFormPermissions: Record<
+  CreatableForm,
+  "accounting" | "inventory"
+> = {
+  paymentTerm: "accounting",
+  shippingMethod: "inventory"
+};
 
 // Shared supplier-part import fields. Spread into every item-type entry
 // (part / material / tool / fixture / consumable) so a single CSV row can
