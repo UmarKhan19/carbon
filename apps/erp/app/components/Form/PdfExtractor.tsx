@@ -23,12 +23,20 @@ export function PdfExtractor({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [extractionId, setExtractionId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [notifiedExtractionId, setNotifiedExtractionId] = useState<
+    string | null
+  >(null);
 
   const { extraction } = useDocumentExtraction(extractionId);
 
   // When extraction completes, notify parent
   useEffect(() => {
-    if (extraction?.status === "completed" && extraction.filteredData) {
+    if (
+      extraction?.status === "completed" &&
+      extraction.filteredData &&
+      extractionId !== notifiedExtractionId
+    ) {
+      setNotifiedExtractionId(extractionId);
       onExtractionComplete({
         ...extraction.filteredData,
         _storagePath: extraction.storagePath
@@ -38,7 +46,9 @@ export function PdfExtractor({
     extraction?.status,
     extraction?.filteredData,
     extraction?.storagePath,
-    onExtractionComplete
+    onExtractionComplete,
+    extractionId,
+    notifiedExtractionId
   ]);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
