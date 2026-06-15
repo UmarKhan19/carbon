@@ -253,9 +253,8 @@ export default function useUserSelect(props: UserSelectProps) {
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   useEffect(() => {
-    // Rebuild the visible list when the underlying options change (e.g. after a
-    // group's members are lazily fetched), but preserve each group's expanded
-    // state so a group does not collapse the moment its members load.
+    // Preserve each group's expanded state so it doesn't collapse when its
+    // lazily-fetched members arrive.
     setFilteredOptionGroups((previousGroups) => {
       const expandedByUid = new Map(
         previousGroups.map((group) => [group.uid, group.expanded])

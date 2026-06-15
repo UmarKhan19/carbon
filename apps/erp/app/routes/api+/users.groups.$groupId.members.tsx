@@ -17,11 +17,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     throw new Response("Group ID is required", { status: 400 });
   }
 
-  // The `groups` view fans out into one row per parent path (it groups by
-  // `parentId`), so a nested group matches multiple rows for the same `id`.
-  // Every row carries that group's own members, so any single row is correct;
-  // `.limit(1).maybeSingle()` avoids the PGRST116 ".single()" error and also
-  // tolerates a group with no rows.
+  // The `groups` view returns multiple rows per id for nested groups (members
+  // are identical), so take one row instead of erroring with `.single()`.
   const query = await client
     .from("groups")
     .select("users")
