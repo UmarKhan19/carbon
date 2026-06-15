@@ -31,10 +31,10 @@ import {
   UnitOfMeasure
 } from "~/components/Form";
 import CustomFormInlineFields from "~/components/Form/CustomFormInlineFields";
-import { ReplenishmentSystemIcon } from "~/components/Icons";
+import { ReplenishmentSystemIcon, SourcingTypeIcon } from "~/components/Icons";
 import { ItemThumbnailUpload } from "~/components/ItemThumnailUpload";
 import { useRouteData } from "~/hooks";
-import { methodType } from "~/modules/shared";
+import { methodType, sourcingType } from "~/modules/shared";
 import type { action } from "~/routes/x+/items+/update";
 import { useSuppliers } from "~/stores";
 import type { ListItem } from "~/types";
@@ -113,6 +113,7 @@ const PartProperties = ({ data }: PartPropertiesProps) => {
       field:
         | "active"
         | "defaultMethodType"
+        | "sourcingType"
         | "itemTrackingType"
         | "itemPostingGroupId"
         | "partId"
@@ -483,6 +484,41 @@ const PartProperties = ({ data }: PartPropertiesProps) => {
           }}
         />
       </ValidatedForm>
+
+      {routeData?.partSummary?.replenishmentSystem === "Buy and Make" && (
+        <ValidatedForm
+          defaultValues={{
+            sourcingType: routeData?.partSummary?.sourcingType ?? undefined
+          }}
+          validator={z.object({
+            sourcingType: z.string()
+          })}
+          className="w-full"
+        >
+          <Select
+            name="sourcingType"
+            label={t`Sourcing`}
+            inline={(value) => (
+              <Badge variant="secondary">
+                <SourcingTypeIcon type={value} className="mr-2" />
+                <span>{value}</span>
+              </Badge>
+            )}
+            options={sourcingType.map((type) => ({
+              value: type,
+              label: (
+                <span className="flex items-center gap-2">
+                  <SourcingTypeIcon type={type} />
+                  {type}
+                </span>
+              )
+            }))}
+            onChange={(value) => {
+              onUpdate("sourcingType", value?.value ?? null);
+            }}
+          />
+        </ValidatedForm>
+      )}
 
       <ValidatedForm
         defaultValues={{

@@ -20,10 +20,10 @@ import { zfd } from "zod-form-data";
 import { MethodBadge, MethodIcon, TrackingTypeIcon } from "~/components";
 import { Boolean, ItemPostingGroup, Tags } from "~/components/Form";
 import CustomFormInlineFields from "~/components/Form/CustomFormInlineFields";
-import { ReplenishmentSystemIcon } from "~/components/Icons";
+import { ReplenishmentSystemIcon, SourcingTypeIcon } from "~/components/Icons";
 import { ItemThumbnailUpload } from "~/components/ItemThumnailUpload";
 import { useRouteData } from "~/hooks";
-import { methodType } from "~/modules/shared";
+import { methodType, sourcingType } from "~/modules/shared";
 import type { action } from "~/routes/x+/items+/update";
 import { useSuppliers } from "~/stores";
 import type { ListItem } from "~/types";
@@ -104,6 +104,7 @@ const ToolProperties = ({ data }: ToolPropertiesProps) => {
         | "description"
         | "replenishmentSystem"
         | "defaultMethodType"
+        | "sourcingType"
         | "itemTrackingType"
         | "itemPostingGroupId"
         | "toolId"
@@ -461,6 +462,41 @@ const ToolProperties = ({ data }: ToolPropertiesProps) => {
           }}
         />
       </ValidatedForm>
+
+      {routeData?.toolSummary?.replenishmentSystem === "Buy and Make" && (
+        <ValidatedForm
+          defaultValues={{
+            sourcingType: routeData?.toolSummary?.sourcingType ?? undefined
+          }}
+          validator={z.object({
+            sourcingType: z.string()
+          })}
+          className="w-full"
+        >
+          <Select
+            name="sourcingType"
+            label={t`Sourcing`}
+            inline={(value) => (
+              <Badge variant="secondary">
+                <SourcingTypeIcon type={value} className="mr-2" />
+                <span>{value}</span>
+              </Badge>
+            )}
+            options={sourcingType.map((type) => ({
+              value: type,
+              label: (
+                <span className="flex items-center gap-2">
+                  <SourcingTypeIcon type={type} />
+                  {type}
+                </span>
+              )
+            }))}
+            onChange={(value) => {
+              onUpdate("sourcingType", value?.value ?? null);
+            }}
+          />
+        </ValidatedForm>
+      )}
 
       <VStack spacing={2}>
         <h3 className="text-xs text-muted-foreground">

@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-13T02:22:15.288Z",
-  "totalTools": 1188,
+  "generated": "2026-06-15T18:30:30.387Z",
+  "totalTools": 1189,
   "modules": 15,
   "tools": [
     {
@@ -10621,6 +10621,36 @@
         "required": [
           "itemIds",
           "newType"
+        ]
+      }
+    },
+    {
+      "name": "items_cascadeItemSourcingAndMethodType",
+      "module": "items",
+      "classification": "WRITE",
+      "description": "cascade item sourcing and method type",
+      "paramCount": 3,
+      "serviceParams": [
+        "db",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "itemIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "newSourcingType": {},
+          "newMethodType": {}
+        },
+        "required": [
+          "itemIds"
         ]
       }
     },

@@ -7117,6 +7117,9 @@ msgstr "Imposta percentuali di markup predefinite per ogni categoria di costo su
 msgid "Set due date"
 msgstr "Imposta data di scadenza"
 
+msgid "Set on the item in the Properties panel"
+msgstr ""
+
 msgid "Set Pricing"
 msgstr "Imposta Prezzi"
 
@@ -7372,6 +7375,9 @@ msgstr "Metodo Sorgente"
 
 msgid "Source Version"
 msgstr "Versione Sorgente"
+
+msgid "Sourcing"
+msgstr ""
 
 msgid "Sourcing Type"
 msgstr "Tipo di approvvigionamento"

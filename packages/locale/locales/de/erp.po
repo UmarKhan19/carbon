@@ -7117,6 +7117,9 @@ msgstr "Legen Sie standardmäßige Aufschlagsprozentsätze für jede Kostenkateg
 msgid "Set due date"
 msgstr "Fälligkeitsdatum festlegen"
 
+msgid "Set on the item in the Properties panel"
+msgstr ""
+
 msgid "Set Pricing"
 msgstr "Preisgestaltung festlegen"
 
@@ -7372,6 +7375,9 @@ msgstr "Quellmethode"
 
 msgid "Source Version"
 msgstr "Quellversion"
+
+msgid "Sourcing"
+msgstr ""
 
 msgid "Sourcing Type"
 msgstr "Beschaffungstyp"

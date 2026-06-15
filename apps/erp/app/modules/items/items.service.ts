@@ -15,7 +15,9 @@ import type {
 } from "../shared";
 import {
   lookupBuyPriceFromMap,
+  type MethodType,
   type PriceBreak,
+  type SourcingType,
   type SupplierPriceMap
 } from "../shared";
 import {
@@ -1316,7 +1318,9 @@ export async function getMethodMaterialsByMakeMethod(
 ) {
   return client
     .from("methodMaterial")
-    .select("*, item(name, itemTrackingType, replenishmentSystem)")
+    .select(
+      "*, item(name, itemTrackingType, replenishmentSystem, defaultMethodType, sourcingType)"
+    )
     .eq("makeMethodId", makeMethodId)
     .order("order", { ascending: true });
 }
@@ -2719,6 +2723,93 @@ export async function cascadeItemTrackingType(
   });
 }
 
+/**
+ * Cascades an item-level sourcing/method type change to every methodMaterial
+ * that references the item. Both fields are item-level properties; method
+ * materials are read-only mirrors, so they must stay in sync when the item
+ * changes. Only method materials on Draft make methods are touched — Active
+ * and Archived methods are frozen.
+ */
+export async function cascadeItemSourcingAndMethodType(
+  db: Kysely<KyselyDatabase>,
+  args: {
+    itemIds: string[];
+    companyId: string;
+    userId: string;
+    newSourcingType?: SourcingType;
+    newMethodType?: MethodType;
+  }
+) {
+  if (args.itemIds.length === 0) return;
+  if (!args.newSourcingType && !args.newMethodType) return;
+
+  const updatedAt = now(getLocalTimeZone()).toAbsoluteString();
+
+  return db.transaction().execute(async (trx) => {
+    // Restrict to method materials whose make method is still Draft.
+    const onDraftMakeMethod = (eb: any) =>
+      eb(
+        "makeMethodId",
+        "in",
+        eb
+          .selectFrom("makeMethod")
+          .select("id")
+          .where("companyId", "=", args.companyId)
+          .where("status", "=", "Draft")
+      );
+
+    const baseSet: {
+      updatedBy: string;
+      updatedAt: string;
+      sourcingType?: SourcingType;
+    } = {
+      updatedBy: args.userId,
+      updatedAt
+    };
+    if (args.newSourcingType) baseSet.sourcingType = args.newSourcingType;
+
+    if (args.newMethodType === "Make to Order") {
+      // materialMakeMethodId points at the component item's active make method
+      // (mirrors upsertMethodMaterial). Resolve it per item; if there's no
+      // active make method, leave it null rather than aborting.
+      for (const itemId of args.itemIds) {
+        const activeMakeMethod = await trx
+          .selectFrom("activeMakeMethods")
+          .select("id")
+          .where("itemId", "=", itemId)
+          .where("companyId", "=", args.companyId)
+          .executeTakeFirst();
+
+        await trx
+          .updateTable("methodMaterial")
+          .set({
+            ...baseSet,
+            methodType: "Make to Order",
+            materialMakeMethodId: activeMakeMethod?.id ?? null
+          })
+          .where("itemId", "=", itemId)
+          .where("companyId", "=", args.companyId)
+          .where(onDraftMakeMethod)
+          .execute();
+      }
+      return;
+    }
+
+    await trx
+      .updateTable("methodMaterial")
+      .set({
+        ...baseSet,
+        ...(args.newMethodType
+          ? { methodType: args.newMethodType, materialMakeMethodId: null }
+          : {})
+      })
+      .where("itemId", "in", args.itemIds)
+      .where("companyId", "=", args.companyId)
+      .where(onDraftMakeMethod)
+      .execute();
+  });
+}
+
 export async function upsertConsumable(
   client: SupabaseClient<Database>,
   consumable:
@@ -3312,6 +3403,22 @@ export async function upsertMethodMaterial(
         customFields?: Json;
       })
 ) {
+  // sourcingType and methodType are item-level properties (edited in the
+  // item's Properties sidebar). A methodMaterial is a read-only mirror of its
+  // component item, so derive both from the item rather than trusting the
+  // submitted form values.
+  if (methodMaterial.itemId) {
+    const item = await client
+      .from("item")
+      .select("defaultMethodType, sourcingType")
+      .eq("id", methodMaterial.itemId)
+      .single();
+
+    if (item.error) return item;
+    methodMaterial.methodType = item.data.defaultMethodType;
+    methodMaterial.sourcingType = item.data.sourcingType;
+  }
+
   let materialMakeMethodId: string | null = null;
   if (methodMaterial.methodType === "Make to Order") {
     const makeMethod = await client

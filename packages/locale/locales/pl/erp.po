@@ -7117,6 +7117,9 @@ msgstr "Ustaw domyślne procenty marż dla każdej kategorii kosztów w nowych w
 msgid "Set due date"
 msgstr "Ustaw datę terminu"
 
+msgid "Set on the item in the Properties panel"
+msgstr ""
+
 msgid "Set Pricing"
 msgstr "Ustaw ceny"
 
@@ -7372,6 +7375,9 @@ msgstr "Metoda źródłowa"
 
 msgid "Source Version"
 msgstr "Wersja źródłowa"
+
+msgid "Sourcing"
+msgstr ""
 
 msgid "Sourcing Type"
 msgstr "Typ pozyskiwania"

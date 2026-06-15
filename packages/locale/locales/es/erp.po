@@ -7117,6 +7117,9 @@ msgstr "Establecer porcentajes de margen predeterminados para cada categoría de
 msgid "Set due date"
 msgstr "Establecer fecha de vencimiento"
 
+msgid "Set on the item in the Properties panel"
+msgstr ""
+
 msgid "Set Pricing"
 msgstr "Establecer Precio"
 
@@ -7372,6 +7375,9 @@ msgstr "Método de Origen"
 
 msgid "Source Version"
 msgstr "Versión de Origen"
+
+msgid "Sourcing"
+msgstr ""
 
 msgid "Sourcing Type"
 msgstr "Tipo de Abastecimiento"

@@ -3,9 +3,12 @@ import type { Database } from "@carbon/database";
 import { getMaterialDescription, getMaterialId } from "@carbon/utils";
 import type { ActionFunctionArgs } from "react-router";
 import type { InventoryItemType } from "~/modules/items";
-
-import { cascadeItemTrackingType } from "~/modules/items/items.service";
+import {
+  cascadeItemSourcingAndMethodType,
+  cascadeItemTrackingType
+} from "~/modules/items/items.service";
 import { getCompanySettings } from "~/modules/settings";
+import type { MethodType, SourcingType } from "~/modules/shared";
 import { getDatabaseClient } from "~/services/database.server";
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -59,27 +62,37 @@ export async function action({ request }: ActionFunctionArgs) {
     case "name":
     case "description":
     case "replenishmentSystem":
-    case "unitOfMeasureCode":
+    case "unitOfMeasureCode": {
+      // Track the resulting defaultMethodType so it can be cascaded to the
+      // method materials that mirror this item.
+      let cascadeMethodType: MethodType | undefined;
+      let result;
+
       if (field === "replenishmentSystem" && value !== "Buy and Make") {
-        return await client
+        const defaultMethodType =
+          value === "Make"
+            ? "Make to Order"
+            : value === "Buy"
+              ? "Purchase to Order"
+              : "Pull from Inventory";
+        cascadeMethodType = defaultMethodType as MethodType;
+        result = await client
           .from("item")
           .update({
             // @ts-expect-error
             [field]: value,
-            defaultMethodType:
-              value === "Make"
-                ? "Make to Order"
-                : value === "Buy"
-                  ? "Purchase to Order"
-                  : "Pull from Inventory",
+            defaultMethodType,
             updatedBy: userId,
             updatedAt: new Date().toISOString()
           })
           .in("id", items as string[])
           .eq("companyId", companyId);
-      }
-      if (field === "defaultMethodType" && value !== "Pull from Inventory") {
-        return await client
+      } else if (
+        field === "defaultMethodType" &&
+        value !== "Pull from Inventory"
+      ) {
+        cascadeMethodType = value as MethodType;
+        result = await client
           .from("item")
           .update({
             // @ts-expect-error - value is a valid method type
@@ -95,16 +108,84 @@ export async function action({ request }: ActionFunctionArgs) {
           })
           .in("id", items as string[])
           .eq("companyId", companyId);
+      } else {
+        if (field === "defaultMethodType")
+          cascadeMethodType = value as MethodType;
+        result = await client
+          .from("item")
+          .update({
+            [field]: value,
+            updatedBy: userId,
+            updatedAt: new Date().toISOString()
+          })
+          .in("id", items as string[])
+          .eq("companyId", companyId);
       }
-      return await client
+
+      if (result.error) return result;
+
+      if (cascadeMethodType) {
+        try {
+          await cascadeItemSourcingAndMethodType(getDatabaseClient(), {
+            itemIds: items as string[],
+            companyId,
+            userId,
+            newMethodType: cascadeMethodType
+          });
+        } catch (err) {
+          console.error(err);
+          return {
+            error: { message: "Failed to cascade method type" },
+            data: null
+          };
+        }
+      }
+
+      return result;
+    }
+    case "sourcingType": {
+      const sourcing = value as SourcingType;
+      // Sourcing drives method type (the same mapping the BOM editor used):
+      // Drop Ship → Purchase to Order, Ship from Inventory → Pull from
+      // Inventory, Specified → leave method type as-is.
+      const mappedMethodType: MethodType | undefined =
+        sourcing === "Drop Ship"
+          ? "Purchase to Order"
+          : sourcing === "Ship from Inventory"
+            ? "Pull from Inventory"
+            : undefined;
+
+      const result = await client
         .from("item")
         .update({
-          [field]: value,
+          sourcingType: sourcing,
+          ...(mappedMethodType ? { defaultMethodType: mappedMethodType } : {}),
           updatedBy: userId,
           updatedAt: new Date().toISOString()
         })
         .in("id", items as string[])
         .eq("companyId", companyId);
+
+      if (result.error) return result;
+
+      try {
+        await cascadeItemSourcingAndMethodType(getDatabaseClient(), {
+          itemIds: items as string[],
+          companyId,
+          userId,
+          newSourcingType: sourcing,
+          newMethodType: mappedMethodType
+        });
+      } catch (err) {
+        console.error(err);
+        return {
+          error: { message: "Failed to cascade sourcing type" },
+          data: null
+        };
+      }
+
+      return result;
+    }
     case "gradeId":
     case "dimensionId":
     case "finishId":

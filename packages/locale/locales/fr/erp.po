@@ -7117,6 +7117,9 @@ msgstr "Définir les pourcentages de majoration par défaut pour chaque catégor
 msgid "Set due date"
 msgstr "Définir la date d'échéance"
 
+msgid "Set on the item in the Properties panel"
+msgstr ""
+
 msgid "Set Pricing"
 msgstr "Définir la tarification"
 
@@ -7372,6 +7375,9 @@ msgstr "Méthode source"
 
 msgid "Source Version"
 msgstr "Version source"
+
+msgid "Sourcing"
+msgstr ""
 
 msgid "Sourcing Type"
 msgstr "Type d'approvisionnement"
