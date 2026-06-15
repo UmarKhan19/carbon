@@ -38,7 +38,11 @@ const CustomerLocationPreview = (
   return <span>{location.label}</span>;
 };
 
-const CustomerLocation = (props: CustomerLocationSelectProps) => {
+const CustomerLocation = ({
+  customer,
+  extractedLocation,
+  ...props
+}: CustomerLocationSelectProps) => {
   const { t } = useLingui();
   const customerLocationsFetcher =
     useFetcher<Awaited<ReturnType<typeof getCustomerLocations>>>();
@@ -49,12 +53,10 @@ const CustomerLocation = (props: CustomerLocationSelectProps) => {
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   useEffect(() => {
-    if (props?.customer) {
-      customerLocationsFetcher.load(
-        path.to.api.customerLocations(props.customer)
-      );
+    if (customer) {
+      customerLocationsFetcher.load(path.to.api.customerLocations(customer));
     }
-  }, [props.customer]);
+  }, [customer]);
 
   const options = useMemo(
     () =>
@@ -97,11 +99,11 @@ const CustomerLocation = (props: CustomerLocationSelectProps) => {
           setCreated(option);
         }}
         extractedValue={
-          props.extractedLocation?.addressLine1 || props.extractedLocation?.city
+          extractedLocation?.addressLine1 || extractedLocation?.city
             ? [
-                props.extractedLocation.addressLine1,
-                props.extractedLocation.city,
-                props.extractedLocation.stateProvince
+                extractedLocation.addressLine1,
+                extractedLocation.city,
+                extractedLocation.stateProvince
               ]
                 .filter(Boolean)
                 .join(", ")
@@ -110,7 +112,7 @@ const CustomerLocation = (props: CustomerLocationSelectProps) => {
       />
       {newLocationModal.isOpen && (
         <CustomerLocationForm
-          customerId={props.customer!}
+          customerId={customer!}
           type="modal"
           onClose={() => {
             setCreated("");
@@ -119,12 +121,12 @@ const CustomerLocation = (props: CustomerLocationSelectProps) => {
           }}
           initialValues={{
             name: created,
-            addressLine1: props.extractedLocation?.addressLine1 || "",
-            addressLine2: props.extractedLocation?.addressLine2 || "",
-            city: props.extractedLocation?.city || "",
-            stateProvince: props.extractedLocation?.stateProvince || "",
-            postalCode: props.extractedLocation?.postalCode || "",
-            countryCode: props.extractedLocation?.countryCode || ""
+            addressLine1: extractedLocation?.addressLine1 || "",
+            addressLine2: extractedLocation?.addressLine2 || "",
+            city: extractedLocation?.city || "",
+            stateProvince: extractedLocation?.stateProvince || "",
+            postalCode: extractedLocation?.postalCode || "",
+            countryCode: extractedLocation?.countryCode || ""
           }}
         />
       )}

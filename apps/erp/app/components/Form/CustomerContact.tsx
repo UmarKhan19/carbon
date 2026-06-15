@@ -45,7 +45,11 @@ const CustomerContactPreview = (
   );
 };
 
-const CustomerContact = (props: CustomerContactSelectProps) => {
+const CustomerContact = ({
+  customer,
+  extractedContact,
+  ...props
+}: CustomerContactSelectProps) => {
   const { t } = useLingui();
   const newContactModal = useDisclosure();
   const [created, setCreated] = useState<string>("");
@@ -53,7 +57,7 @@ const CustomerContact = (props: CustomerContactSelectProps) => {
 
   const [firstName, ...lastName] = created.split(" ");
 
-  const { options, data } = useCustomerContacts(props.customer);
+  const { options, data } = useCustomerContacts(customer);
 
   const onChange = (
     newValue: { label: string | JSX.Element; value: string } | null
@@ -79,19 +83,16 @@ const CustomerContact = (props: CustomerContactSelectProps) => {
           setCreated(option);
         }}
         extractedValue={
-          props.extractedContact?.firstName || props.extractedContact?.email
-            ? [
-                props.extractedContact.firstName,
-                props.extractedContact.lastName
-              ]
+          extractedContact?.firstName || extractedContact?.email
+            ? [extractedContact.firstName, extractedContact.lastName]
                 .filter(Boolean)
-                .join(" ") || props.extractedContact.email!
+                .join(" ") || extractedContact.email!
             : undefined
         }
       />
       {newContactModal.isOpen && (
         <CustomerContactForm
-          customerId={props.customer!}
+          customerId={customer!}
           type="modal"
           onClose={() => {
             setCreated("");
@@ -99,11 +100,10 @@ const CustomerContact = (props: CustomerContactSelectProps) => {
             triggerRef.current?.click();
           }}
           initialValues={{
-            email: props.extractedContact?.email || "",
-            firstName: props.extractedContact?.firstName || firstName || "",
-            lastName:
-              props.extractedContact?.lastName || lastName.join(" ") || "",
-            mobilePhone: props.extractedContact?.phone || ""
+            email: extractedContact?.email || "",
+            firstName: extractedContact?.firstName || firstName || "",
+            lastName: extractedContact?.lastName || lastName.join(" ") || "",
+            mobilePhone: extractedContact?.phone || ""
           }}
         />
       )}
