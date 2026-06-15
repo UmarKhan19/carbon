@@ -4,7 +4,11 @@ import { flash } from "@carbon/auth/session.server";
 import { msg } from "@lingui/core/macro";
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useParams } from "react-router";
-import { getPickingList, getPickingListLines } from "~/modules/inventory";
+import {
+  getPickingList,
+  getPickingListAvailability,
+  getPickingListLines
+} from "~/modules/inventory";
 import { PickingListHeader } from "~/modules/inventory/ui/PickingLists";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
@@ -22,9 +26,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { pickingListId } = params;
   if (!pickingListId) throw new Response("Not found", { status: 404 });
 
-  const [pickingList, pickingListLines] = await Promise.all([
+  const [pickingList, pickingListLines, availability] = await Promise.all([
     getPickingList(client, pickingListId),
-    getPickingListLines(client, pickingListId)
+    getPickingListLines(client, pickingListId),
+    getPickingListAvailability(client, pickingListId)
   ]);
 
   if (pickingList.error) {
@@ -49,7 +54,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   return {
     pickingList: pickingList.data,
-    pickingListLines: pickingListLines.data ?? []
+    pickingListLines: (pickingListLines.data ?? []).map((line) => ({
+      ...line,
+      availableQuantity: availability.get(line.id) ?? 0
+    }))
   };
 }
 

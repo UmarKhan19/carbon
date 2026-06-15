@@ -313,6 +313,25 @@ serve(async (req: Request) => {
             .where("companyId", "=", companyId)
             .execute();
 
+          // Record which lot this line picked (drives the line's picked-lot
+          // display, unpick, and the allocation-dedup in the picker).
+          await trx
+            .insertInto("pickingListLineTrackedEntity")
+            .values({
+              pickingListLineId,
+              trackedEntityId,
+              quantity: 1,
+              quantityPicked: 1
+            })
+            .onConflict((oc) =>
+              oc.columns(["pickingListLineId", "trackedEntityId"]).doUpdateSet({
+                quantity: (eb) => eb("pickingListLineTrackedEntity.quantity", "+", 1),
+                quantityPicked: (eb) =>
+                  eb("pickingListLineTrackedEntity.quantityPicked", "+", 1)
+              })
+            )
+            .execute();
+
           await pointJobMaterialAtLineside(trx, line, userId);
         });
         break;
@@ -553,6 +572,30 @@ serve(async (req: Request) => {
             .where("companyId", "=", companyId)
             .execute();
 
+          // Record which lot this line picked (drives picked-lot display,
+          // unpick, and the picker's allocation-dedup).
+          await trx
+            .insertInto("pickingListLineTrackedEntity")
+            .values({
+              pickingListLineId,
+              trackedEntityId,
+              quantity: transferQuantity,
+              quantityPicked: transferQuantity
+            })
+            .onConflict((oc) =>
+              oc.columns(["pickingListLineId", "trackedEntityId"]).doUpdateSet({
+                quantity: (eb) =>
+                  eb("pickingListLineTrackedEntity.quantity", "+", transferQuantity),
+                quantityPicked: (eb) =>
+                  eb(
+                    "pickingListLineTrackedEntity.quantityPicked",
+                    "+",
+                    transferQuantity
+                  )
+              })
+            )
+            .execute();
+
           await pointJobMaterialAtLineside(trx, line, userId);
         });
         break;
@@ -653,6 +696,13 @@ serve(async (req: Request) => {
             })
             .where("id", "=", pickingListLineId)
             .where("companyId", "=", companyId)
+            .execute();
+
+          // Drop the recorded lot so it's pickable again + display clears.
+          await trx
+            .deleteFrom("pickingListLineTrackedEntity")
+            .where("pickingListLineId", "=", pickingListLineId)
+            .where("trackedEntityId", "=", trackedEntityId)
             .execute();
 
           await restoreJobMaterialSource(trx, line, userId);

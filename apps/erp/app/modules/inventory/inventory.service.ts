@@ -516,15 +516,49 @@ export async function getSerialNumbersForItem(
     companyId: string;
   }
 ) {
+  // Smart default order: expiring soonest first (FEFO, nulls last), then oldest
+  // first (FIFO). Surfaces that don't use the TrackedEntityPicker still get a
+  // sensible pick order; the picker re-sorts client-side when the user switches.
   let query = client
     .from("trackedEntity")
     .select("*")
     .eq("sourceDocument", "Item")
     .eq("sourceDocumentId", args.itemId)
     .eq("companyId", args.companyId)
-    .eq("quantity", 1);
+    .eq("quantity", 1)
+    .order("expirationDate", { ascending: true, nullsFirst: false })
+    .order("createdAt", { ascending: true });
 
   return query;
+}
+
+/**
+ * Available tracked entities for an item at a location, one row per entity, with
+ * its bin, on-hand, and FEFO/FIFO order keys — for the shared TrackedEntityPicker.
+ * `excludeLineside` drops lineside (work-center) bins (picking sources from the
+ * warehouse). `excludeAllocated` nets out quantities already allocated to other
+ * non-cancelled picking lines so the same lot is never recommended twice;
+ * `excludeLineId` keeps the current line's own allocation visible.
+ */
+export async function getAvailableTrackedEntities(
+  client: SupabaseClient<Database>,
+  args: {
+    itemId: string;
+    companyId: string;
+    locationId: string;
+    excludeLineside?: boolean;
+    excludeAllocated?: boolean;
+    excludeLineId?: string | null;
+  }
+) {
+  return client.rpc("get_available_tracked_entities", {
+    p_item_id: args.itemId,
+    p_company_id: args.companyId,
+    p_location_id: args.locationId,
+    p_exclude_lineside: args.excludeLineside ?? false,
+    p_exclude_allocated: args.excludeAllocated ?? false,
+    p_exclude_line_id: args.excludeLineId ?? undefined
+  });
 }
 
 export async function getBatchNumbersForItem(
@@ -541,7 +575,9 @@ export async function getBatchNumbersForItem(
     .eq("sourceDocument", "Item")
     .eq("sourceDocumentId", args.itemId)
     .eq("companyId", args.companyId)
-    .gte("quantity", 1);
+    .gte("quantity", 1)
+    .order("expirationDate", { ascending: true, nullsFirst: false })
+    .order("createdAt", { ascending: true });
 }
 
 export async function getStorageUnitsList(
@@ -2206,11 +2242,35 @@ export async function getPickingListLines(
   return client
     .from("pickingListLine")
     .select(
-      "*, item(name, readableId, itemTrackingType), job(jobId), jobOperation(order, processId, workCenterId, process:process(name), workCenter:workCenter(name)), storageUnit:storageUnit!pickingListLine_storageUnitId_fkey(name, locationId), toStorageUnit:storageUnit!pickingListLine_toStorageUnitId_fkey(name, locationId)"
+      "*, item(name, readableId, itemTrackingType), job(jobId), jobOperation(order, processId, workCenterId, process:process(name), workCenter:workCenter(name)), storageUnit:storageUnit!pickingListLine_storageUnitId_fkey(name, locationId), toStorageUnit:storageUnit!pickingListLine_toStorageUnitId_fkey(name, locationId), trackedEntities:pickingListLineTrackedEntity(trackedEntityId, quantity, quantityPicked, trackedEntity(readableId))"
     )
     .eq("pickingListId", pickingListId)
     .order("jobOperationId")
     .order("itemId");
+}
+
+/**
+ * Per-line WAREHOUSE (non-lineside, incl. the unassigned/null bin) on-hand for
+ * a picking list's items — drives the "No Stock" warning. Returns a map of
+ * pickingListLineId → availableQuantity.
+ */
+export async function getPickingListAvailability(
+  client: SupabaseClient<Database>,
+  pickingListId: string
+): Promise<Map<string, number>> {
+  const result = await client.rpc("get_picking_list_availability", {
+    p_picking_list_id: pickingListId
+  });
+  const map = new Map<string, number>();
+  for (const row of result.data ?? []) {
+    map.set(
+      (row as { pickingListLineId: string }).pickingListLineId,
+      Number(
+        (row as { availableQuantity?: number | null }).availableQuantity ?? 0
+      )
+    );
+  }
+  return map;
 }
 
 export async function getPickingListLine(
@@ -2234,6 +2294,107 @@ export async function getPickingListLineTrackedEntities(
     .from("pickingListLineTrackedEntity")
     .select("*, trackedEntity(readableId, quantity, expirationDate)")
     .eq("pickingListLineId", lineId);
+}
+
+/**
+ * Pick (or unpick) a tracked (serial/batch) lot for a picking line. A pick
+ * MOVES the chosen lot from its warehouse bin to the line's lineside shelf via
+ * the `post-picking` edge function (serial/batch), records it on the line, and
+ * points the job material at lineside. `unpick` reverses it.
+ */
+export async function setPickingListLineTrackedEntity(
+  client: SupabaseClient<Database>,
+  args: {
+    pickingListLineId: string;
+    trackedEntityId: string;
+    fromStorageUnitId?: string | null;
+    quantity?: number;
+    unpick?: boolean;
+    userId: string;
+  }
+) {
+  const lineResult = await client
+    .from("pickingListLine")
+    .select(
+      "*, pickingList(locationId, companyId, status), item(itemTrackingType)"
+    )
+    .eq("id", args.pickingListLineId)
+    .single();
+
+  if (lineResult.error || !lineResult.data) {
+    return { data: null, error: lineResult.error ?? "Line not found" };
+  }
+
+  const line = lineResult.data;
+  const pickingList = line.pickingList as {
+    locationId: string;
+    companyId: string;
+    status: string;
+  } | null;
+  const item = line.item as { itemTrackingType: string } | null;
+
+  if (!pickingList) {
+    return { data: null, error: "Missing related data" };
+  }
+  if (isPickingListLocked(pickingList.status)) {
+    return {
+      data: null,
+      error: "This picking list is closed. Reopen it to make changes."
+    };
+  }
+
+  const isSerial = item?.itemTrackingType === "Serial";
+  const isBatch = item?.itemTrackingType === "Batch";
+  if (!isSerial && !isBatch) {
+    return { data: null, error: "This line is not a tracked item" };
+  }
+  if (!args.unpick && !line.toStorageUnitId) {
+    return {
+      data: null,
+      error: "No lineside destination is set for this line"
+    };
+  }
+
+  const type = args.unpick
+    ? isSerial
+      ? "unpickSerial"
+      : "unpickBatch"
+    : isSerial
+      ? "serial"
+      : "batch";
+
+  const body: Record<string, unknown> = {
+    type,
+    pickingListId: line.pickingListId,
+    pickingListLineId: line.id,
+    trackedEntityId: args.trackedEntityId,
+    locationId: pickingList.locationId,
+    userId: args.userId,
+    companyId: pickingList.companyId
+  };
+  if (!args.unpick) {
+    body.fromStorageUnitId = args.fromStorageUnitId ?? null;
+    if (isBatch) body.quantity = Math.max(1, args.quantity ?? 1);
+  }
+
+  const result = await client.functions.invoke("post-picking", { body });
+  if (result.error) {
+    const ctx = (result.error as { context?: Response })?.context;
+    let message = "Failed to pick material";
+    if (ctx && typeof ctx.json === "function") {
+      try {
+        const parsed = await ctx.clone().json();
+        if (parsed?.message) message = parsed.message;
+      } catch {
+        /* fall through */
+      }
+    } else if ((result.error as { message?: string }).message) {
+      message = (result.error as { message: string }).message;
+    }
+    return { data: null, error: message };
+  }
+
+  return { data: { id: args.pickingListLineId }, error: null };
 }
 
 export async function upsertPickingList(
@@ -2345,6 +2506,63 @@ export async function getPickingSchedule(
   });
 }
 
+/**
+ * On-hand of an item at a location, aggregated per storage unit (bin).
+ *
+ * `getItemStorageUnitQuantities` can return a row per tracked entity, so we sum
+ * to one figure per bin. Computed once per material and reused to (a) decide
+ * whether the op's lineside bin is already stocked and (b) resolve a warehouse
+ * source by on-hand.
+ */
+async function getItemOnHandByStorageUnit(
+  client: SupabaseClient<Database>,
+  args: { itemId: string; locationId: string; companyId: string }
+): Promise<Map<string, number>> {
+  const quantities = await getItemStorageUnitQuantities(
+    client,
+    args.itemId,
+    args.companyId,
+    args.locationId
+  );
+
+  const byUnit = new Map<string, number>();
+  for (const row of quantities.data ?? []) {
+    const unitId = (row as { storageUnitId?: string | null }).storageUnitId;
+    if (!unitId) continue;
+    const qty = Number((row as { quantity?: number | null }).quantity ?? 0);
+    byUnit.set(unitId, (byUnit.get(unitId) ?? 0) + qty);
+  }
+  return byUnit;
+}
+
+/**
+ * Resolve a WAREHOUSE (non-lineside) source storage unit for a pick by on-hand.
+ *
+ * Returns the non-lineside storage unit holding the most on-hand of the item at
+ * the location, or null when no warehouse stock exists (a shortage — we never
+ * source a pick from another work center's lineside bin). A storage unit is
+ * "lineside" when it resolves to a work center via `get_effective_work_center_id`.
+ */
+async function resolveWarehouseSource(
+  client: SupabaseClient<Database>,
+  onHandByUnit: Map<string, number>
+): Promise<string | null> {
+  // Consider candidates highest-on-hand first.
+  const candidates = Array.from(onHandByUnit.entries())
+    .filter(([, qty]) => qty > 0)
+    .sort((a, b) => b[1] - a[1]);
+
+  for (const [storageUnitId] of candidates) {
+    const effectiveWc = await client.rpc("get_effective_work_center_id", {
+      p_storage_unit_id: storageUnitId
+    });
+    // First non-lineside bin (no work center) with the most on-hand wins.
+    if (!effectiveWc.data) return storageUnitId;
+  }
+
+  return null;
+}
+
 export async function generatePickingList(
   client: SupabaseClient<Database>,
   args: {
@@ -2454,32 +2672,52 @@ export async function generatePickingList(
     companyId: string;
     createdBy: string;
   }> = [];
-  // jobMaterialId -> FIFO tracked-entity allocations for that material's line
-  const allocationsByMaterial = new Map<
-    string,
-    Array<{ trackedEntityId: string; quantity: number }>
-  >();
-
   for (const mat of materials.data ?? []) {
     const quantityToIssue = Number(mat.quantityToIssue ?? 0);
     if (quantityToIssue <= 0) continue;
 
-    // 4. Check if source storage unit is lineside — skip if lineside
+    const opWorkCenterId = mat.jobOperationId
+      ? (workCenterByOperation.get(mat.jobOperationId) ?? null)
+      : null;
+
+    // 4. Resolve the destination: the operation's work-center lineside shelf.
+    const toStorageUnitId = await resolveLineside(opWorkCenterId);
+
+    // On-hand of this item per bin at the location (computed once, reused below
+    // for both the already-staged skip and warehouse-source resolution).
+    const onHandByUnit = await getItemOnHandByStorageUnit(client, {
+      itemId: mat.itemId,
+      locationId: args.locationId,
+      companyId: args.companyId
+    });
+
+    // Skip when the op's lineside bin already stocks enough to cover the issue —
+    // it's already staged here, so there's nothing to pick. We test the ACTUAL
+    // on-hand at that bin, not merely whether the jobMaterial's recorded shelf
+    // points there: a part can be line-stocked at this work center while the
+    // jobMaterial still points at the warehouse (or another line).
+    if (
+      toStorageUnitId &&
+      (onHandByUnit.get(toStorageUnitId) ?? 0) >= quantityToIssue
+    ) {
+      continue;
+    }
+
+    // 5. Determine the source (warehouse) shelf. Use the jobMaterial's shelf
+    // only when it's a warehouse (non-lineside) shelf; otherwise resolve a
+    // warehouse source by on-hand — never rob another work center's lineside.
+    // A null source = a shortage the kitter/planner must resolve.
+    let materialEffectiveWc: string | null = null;
     if (mat.storageUnitId) {
       const effectiveWc = await client.rpc("get_effective_work_center_id", {
         p_storage_unit_id: mat.storageUnitId
       });
-      // If the storage unit resolves to a work center, it's lineside — skip
-      if (effectiveWc.data) continue;
+      materialEffectiveWc = (effectiveWc.data as string | null) ?? null;
     }
-
-    // 5. Determine source (warehouse) and destination (lineside) storage units
-    const sourceStorageUnitId = mat.storageUnitId ?? null;
-    const toStorageUnitId = await resolveLineside(
-      mat.jobOperationId
-        ? (workCenterByOperation.get(mat.jobOperationId) ?? null)
-        : null
-    );
+    const sourceStorageUnitId =
+      mat.storageUnitId && !materialEffectiveWc
+        ? mat.storageUnitId
+        : await resolveWarehouseSource(client, onHandByUnit);
 
     lineRows.push({
       pickingListId: plId,
@@ -2493,38 +2731,10 @@ export async function generatePickingList(
       companyId: args.companyId,
       createdBy: args.createdBy
     });
-
-    // 6. For batch/serial tracked items, allocate tracked entities (FIFO)
-    if (mat.requiresBatchTracking || mat.requiresSerialTracking) {
-      const trackedEntities = await client
-        .from("trackedEntity")
-        .select("id, quantity")
-        .eq("sourceDocument", "Item")
-        .eq("sourceDocumentId", mat.itemId)
-        .eq("companyId", args.companyId)
-        .gt("quantity", 0)
-        .in("status", ["Available"])
-        .order("createdAt", { ascending: true });
-
-      if (!trackedEntities.error && trackedEntities.data) {
-        let remaining = quantityToIssue;
-        const allocations: Array<{
-          trackedEntityId: string;
-          quantity: number;
-        }> = [];
-        for (const te of trackedEntities.data) {
-          if (remaining <= 0) break;
-          const teQty = Number(te.quantity ?? 0);
-          const allocateQty = Math.min(remaining, teQty);
-          if (allocateQty <= 0) continue;
-          allocations.push({ trackedEntityId: te.id, quantity: allocateQty });
-          remaining -= allocateQty;
-        }
-        if (allocations.length > 0) {
-          allocationsByMaterial.set(mat.id, allocations);
-        }
-      }
-    }
+    // Tracked (serial/batch) lots are intentionally NOT pre-allocated here — the
+    // kitter selects them at pick time via the TrackedEntityPicker (smart-ordered,
+    // deduped), and the pick records pickingListLineTrackedEntity. Pre-allocating
+    // would show un-picked lots as if already picked.
   }
 
   // 7. If no lines to pick, delete the empty header and report.
@@ -2536,49 +2746,19 @@ export async function generatePickingList(
     };
   }
 
-  // 8. Atomic batch insert of all lines; read ids back to map allocations.
+  // 8. Atomic batch insert of all lines. Tracked lots are not pre-allocated;
+  // they're chosen at pick time via the TrackedEntityPicker.
   const linesInsert = await client
     .from("pickingListLine")
     .insert(lineRows)
-    .select("id, jobMaterialId");
+    .select("id");
 
   if (linesInsert.error || !linesInsert.data) {
     await client.from("pickingList").delete().eq("id", plId); // cascade cleanup
     return { data: null, error: linesInsert.error ?? "Failed to create lines" };
   }
 
-  // 9. Build and batch-insert tracked-entity allocations using the new line ids.
-  const lineIdByMaterial = new Map(
-    linesInsert.data.map((l) => [l.jobMaterialId, l.id])
-  );
-  const trackedRows: Array<{
-    pickingListLineId: string;
-    trackedEntityId: string;
-    quantity: number;
-  }> = [];
-  for (const [jobMaterialId, allocations] of allocationsByMaterial) {
-    const lineId = lineIdByMaterial.get(jobMaterialId);
-    if (!lineId) continue;
-    for (const allocation of allocations) {
-      trackedRows.push({
-        pickingListLineId: lineId,
-        trackedEntityId: allocation.trackedEntityId,
-        quantity: allocation.quantity
-      });
-    }
-  }
-
-  if (trackedRows.length > 0) {
-    const trackedInsert = await client
-      .from("pickingListLineTrackedEntity")
-      .insert(trackedRows);
-    if (trackedInsert.error) {
-      await client.from("pickingList").delete().eq("id", plId); // cascade cleanup
-      return { data: null, error: trackedInsert.error };
-    }
-  }
-
-  // 10. Return the created picking list
+  // 9. Return the created picking list
   return {
     data: {
       id: plId,
@@ -2654,6 +2834,9 @@ export async function pickPickingListLine(
   const delta = target - previouslyPicked;
 
   if (delta !== 0) {
+    // A null source is allowed: the kitter can pick material the system shows no
+    // stock for (counts are often wrong) — on-hand simply goes negative at the
+    // source until it's reconciled. Only the lineside destination is required.
     if (delta > 0 && !line.toStorageUnitId) {
       return {
         data: null,

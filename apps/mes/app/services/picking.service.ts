@@ -46,11 +46,27 @@ export async function getPickingListForExecution(
           .in("pickingListLineId", lineIds)
       : { data: [] };
 
+  // Warehouse on-hand per line (incl. the unassigned/null bin) → drives the
+  // "No Stock" warning. A null source bin is not a shortage if there's on-hand.
+  const availabilityResult = await client.rpc("get_picking_list_availability", {
+    p_picking_list_id: pickingListId
+  });
+  const availability = new Map<string, number>();
+  for (const row of availabilityResult.data ?? []) {
+    availability.set(
+      (row as { pickingListLineId: string }).pickingListLineId,
+      Number(
+        (row as { availableQuantity?: number | null }).availableQuantity ?? 0
+      )
+    );
+  }
+
   return {
     data: {
       ...pickingList,
       lines: lines?.map((line) => ({
         ...line,
+        availableQuantity: availability.get(line.id) ?? 0,
         trackedEntities:
           trackedEntities?.filter((te) => te.pickingListLineId === line.id) ??
           []
@@ -152,6 +168,9 @@ export async function setPickingListLineQuantity(
   const delta = target - previousPicked;
 
   if (delta !== 0) {
+    // A null source is allowed: the kitter can pick material the system shows no
+    // stock for (counts are often wrong) — on-hand simply goes negative at the
+    // source until it's reconciled. Only the lineside destination is required.
     if (delta > 0 && !line.toStorageUnitId) {
       return {
         data: null,
@@ -201,6 +220,94 @@ export async function setPickingListLineQuantity(
     if (update.error) {
       return { data: null, error: update.error };
     }
+  }
+
+  return { data: { id: args.pickingListLineId }, error: null };
+}
+
+/**
+ * Pick (or unpick) a tracked (serial/batch) lot for a picking line. Mirrors the
+ * ERP service: moves the chosen lot warehouse→lineside via `post-picking`,
+ * records it on the line, points the job material at lineside. `unpick` reverses.
+ */
+export async function setPickingListLineTrackedEntity(
+  client: SupabaseClient<Database>,
+  args: {
+    pickingListLineId: string;
+    trackedEntityId: string;
+    fromStorageUnitId?: string | null;
+    quantity?: number;
+    unpick?: boolean;
+    userId: string;
+  }
+) {
+  const lineResult = await client
+    .from("pickingListLine")
+    .select(
+      "*, pickingList(locationId, companyId, status), item(itemTrackingType)"
+    )
+    .eq("id", args.pickingListLineId)
+    .single();
+
+  if (lineResult.error || !lineResult.data) {
+    return { data: null, error: lineResult.error ?? "Line not found" };
+  }
+
+  const line = lineResult.data;
+  const pickingList = line.pickingList as {
+    locationId: string;
+    companyId: string;
+    status: string;
+  } | null;
+  const item = line.item as { itemTrackingType: string } | null;
+
+  if (!pickingList) {
+    return { data: null, error: "Missing related data" };
+  }
+  if (isPickingListLocked(pickingList.status)) {
+    return {
+      data: null,
+      error: "This picking list is closed. Reopen it from the ERP to continue."
+    };
+  }
+
+  const isSerial = item?.itemTrackingType === "Serial";
+  const isBatch = item?.itemTrackingType === "Batch";
+  if (!isSerial && !isBatch) {
+    return { data: null, error: "This line is not a tracked item" };
+  }
+  if (!args.unpick && !line.toStorageUnitId) {
+    return {
+      data: null,
+      error: "No lineside destination is set for this line"
+    };
+  }
+
+  const type = args.unpick
+    ? isSerial
+      ? "unpickSerial"
+      : "unpickBatch"
+    : isSerial
+      ? "serial"
+      : "batch";
+
+  const body: Record<string, unknown> = {
+    type,
+    pickingListId: line.pickingListId,
+    pickingListLineId: line.id,
+    trackedEntityId: args.trackedEntityId,
+    locationId: pickingList.locationId,
+    userId: args.userId,
+    companyId: pickingList.companyId
+  };
+  if (!args.unpick) {
+    body.fromStorageUnitId = args.fromStorageUnitId ?? null;
+    if (isBatch) body.quantity = Math.max(1, args.quantity ?? 1);
+  }
+
+  const result = await client.functions.invoke("post-picking", { body });
+  if (result.error) {
+    return { data: null, error: getPostPickingErrorMessage(result.error) };
   }
 
   return { data: { id: args.pickingListLineId }, error: null };

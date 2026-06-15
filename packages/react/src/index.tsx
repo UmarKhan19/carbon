@@ -324,6 +324,14 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from "./Tooltip";
+import type {
+  ExpiredEntityPolicy,
+  TrackedEntityOption,
+  TrackedEntityPickerProps,
+  TrackedEntityPickOrder,
+  TrackedEntitySelection
+} from "./TrackedEntityPicker";
+import { TrackedEntityPicker } from "./TrackedEntityPicker";
 import { TruncatedTooltipText } from "./TruncatedTooltipText";
 import { cn } from "./utils/cn";
 import { copyToClipboard } from "./utils/dom";
@@ -596,6 +604,7 @@ export {
   Toggle,
   ToggleGroup,
   ToggleGroupItem,
+  TrackedEntityPicker,
   TruncatedTooltipText,
   Tooltip,
   TooltipContent,
@@ -634,5 +643,10 @@ export type {
   OperatingSystemPlatform,
   Shortcut,
   ShortcutDefinition,
-  TextareaProps
+  TextareaProps,
+  ExpiredEntityPolicy,
+  TrackedEntityOption,
+  TrackedEntityPickOrder,
+  TrackedEntityPickerProps,
+  TrackedEntitySelection
 };

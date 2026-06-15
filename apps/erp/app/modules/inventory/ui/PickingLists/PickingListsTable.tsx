@@ -3,10 +3,10 @@ import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo, useState } from "react";
 import {
+  LuBookmark,
   LuCalendar,
   LuCirclePlus,
   LuClock,
-  LuHash,
   LuMapPin,
   LuPencil,
   LuTrash,
@@ -61,7 +61,7 @@ const PickingListsTable = memo(({ data, count }: PickingListsTableProps) => {
           </Hyperlink>
         ),
         meta: {
-          icon: <LuHash />
+          icon: <LuBookmark />
         }
       },
       {

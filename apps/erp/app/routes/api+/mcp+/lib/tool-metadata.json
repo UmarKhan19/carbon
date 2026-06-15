@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-14T05:18:45.138Z",
-  "totalTools": 1201,
+  "generated": "2026-06-15T03:08:31.715Z",
+  "totalTools": 1204,
   "modules": 15,
   "tools": [
     {
@@ -4166,6 +4166,47 @@
       }
     },
     {
+      "name": "inventory_getAvailableTrackedEntities",
+      "module": "inventory",
+      "classification": "READ",
+      "description": "get available tracked entities",
+      "paramCount": 5,
+      "serviceParams": [
+        "client",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "excludeLineside": {
+            "type": "boolean"
+          },
+          "excludeAllocated": {
+            "type": "boolean"
+          },
+          "excludeLineId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "itemId",
+          "locationId"
+        ]
+      }
+    },
+    {
       "name": "inventory_getBatchNumbersForItem",
       "module": "inventory",
       "classification": "READ",
@@ -6072,6 +6113,31 @@
       }
     },
     {
+      "name": "inventory_getPickingListAvailability",
+      "module": "inventory",
+      "classification": "READ",
+      "description": "get picking list availability",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "pickingListId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "pickingListId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "pickingListId"
+        ]
+      }
+    },
+    {
       "name": "inventory_getPickingListLine",
       "module": "inventory",
       "classification": "READ",
@@ -6118,6 +6184,48 @@
         },
         "required": [
           "lineId"
+        ]
+      }
+    },
+    {
+      "name": "inventory_setPickingListLineTrackedEntity",
+      "module": "inventory",
+      "classification": "WRITE",
+      "description": "set picking list line tracked entity",
+      "paramCount": 5,
+      "serviceParams": [
+        "client",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId",
+        "updatedBy"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "pickingListLineId": {
+            "type": "string"
+          },
+          "trackedEntityId": {
+            "type": "string"
+          },
+          "fromStorageUnitId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "unpick": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "pickingListLineId",
+          "trackedEntityId"
         ]
       }
     },

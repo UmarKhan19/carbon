@@ -1,4 +1,8 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
+import type {
+  TrackedEntityOption,
+  TrackedEntitySelection
+} from "@carbon/react";
 import {
   Badge,
   BarProgress,
@@ -10,9 +14,18 @@ import {
   CardTitle,
   Count,
   cn,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuIcon,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
   Heading,
   HStack,
   SidebarTrigger,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TrackedEntityPicker,
   toast,
   VStack
 } from "@carbon/react";
@@ -20,9 +33,11 @@ import { Trans } from "@lingui/react/macro";
 import { useEffect, useMemo, useState } from "react";
 import {
   LuCheck,
+  LuChevronDown,
   LuCirclePlus,
   LuPlay,
   LuQrCode,
+  LuTriangleAlert,
   LuUndo2
 } from "react-icons/lu";
 import type { LoaderFunctionArgs } from "react-router";
@@ -179,7 +194,7 @@ function PickingListControls({
       )}
       {status === "In Progress" && (
         <Button
-          size="lg"
+          size="md"
           leftIcon={<LuCheck />}
           isLoading={isSubmitting}
           isDisabled={isSubmitting}
@@ -267,6 +282,14 @@ function PickLineItem({
   const fetcher = useFetcher<{ success: boolean; message?: string }>();
   const isSubmitting = fetcher.state !== "idle";
   const [shortOpen, setShortOpen] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const trackedFetcher = useFetcher<{
+    entities: TrackedEntityOption[];
+    trackingType: "Serial" | "Batch";
+    quantityRequired: number;
+    nearExpiryWarningDays: number;
+    expiredEntityPolicy: "Warn" | "Block" | "BlockWithOverride";
+  }>();
 
   useEffect(() => {
     if (fetcher.data && fetcher.data.success === false) {
@@ -278,9 +301,23 @@ function PickLineItem({
   const item = items.find((i) => i.id === line.itemId);
   const itemName = item?.name ?? lineItem?.name ?? "";
   const source = (line.storageUnit as { name?: string } | null)?.name;
+  const availableQuantity = Number(
+    (line as { availableQuantity?: number }).availableQuantity ?? 0
+  );
+  const isShortStock = availableQuantity <= 0;
   const quantityToPick = Number(line.quantityToPick ?? 0);
   const quantityPicked = Number(line.quantityPicked ?? 0);
-  const isTracked = (line.trackedEntities?.length ?? 0) > 0;
+  const isTracked =
+    item?.itemTrackingType === "Serial" || item?.itemTrackingType === "Batch";
+  // Only lots actually PICKED (quantityPicked > 0) count as picked, not mere
+  // allocations.
+  const pickedLots = (
+    (line.trackedEntities ?? []) as Array<{
+      trackedEntityId: string;
+      quantityPicked?: number | null;
+      trackedEntity?: { readableId?: string | null } | null;
+    }>
+  ).filter((t) => Number(t.quantityPicked ?? 0) > 0);
 
   const isFullyPicked = quantityToPick > 0 && quantityPicked >= quantityToPick;
   const isShort = line.status === "Short";
@@ -294,6 +331,35 @@ function PickLineItem({
     fetcher.submit(formData, {
       method: "post",
       action: path.to.pickingLineQuantity(pickingListId)
+    });
+  };
+
+  const openPicker = () => {
+    setPickerOpen(true);
+    trackedFetcher.load(path.to.pickingTracked(pickingListId, line.id));
+  };
+
+  const pickTracked = (selection: TrackedEntitySelection) => {
+    const formData = new FormData();
+    formData.append("trackedEntityId", selection.trackedEntityId);
+    formData.append("quantity", String(selection.quantity));
+    if (selection.storageUnitId) {
+      formData.append("fromStorageUnitId", selection.storageUnitId);
+    }
+    fetcher.submit(formData, {
+      method: "post",
+      action: path.to.pickingTracked(pickingListId, line.id)
+    });
+    setPickerOpen(false);
+  };
+
+  const unpickTracked = (trackedEntityId: string) => {
+    const formData = new FormData();
+    formData.append("trackedEntityId", trackedEntityId);
+    formData.append("unpick", "true");
+    fetcher.submit(formData, {
+      method: "post",
+      action: path.to.pickingTracked(pickingListId, line.id)
     });
   };
 
@@ -320,22 +386,56 @@ function PickLineItem({
       </HStack>
 
       <HStack spacing={6} className="shrink-0">
-        {source && (
+        {source ? (
           <div className="text-base font-medium whitespace-nowrap">
             {source}
           </div>
+        ) : isShortStock && !isFullyPicked ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Badge
+                variant="yellow"
+                className="gap-1 py-2 px-3 text-sm cursor-default"
+              >
+                <LuTriangleAlert />
+                <Trans>No stock</Trans>
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-[260px]">
+              <Trans>
+                No warehouse stock is on record for this item. You can still
+                pick it — on-hand will go negative until the count is
+                reconciled.
+              </Trans>
+            </TooltipContent>
+          </Tooltip>
+        ) : null}
+        {isTracked ? (
+          <Badge
+            className={cn(
+              "text-white text-base tabular-nums",
+              isFullyPicked
+                ? "bg-emerald-600"
+                : quantityPicked > 0
+                  ? "bg-orange-500"
+                  : "bg-red-600"
+            )}
+          >
+            {quantityPicked}/{quantityToPick}
+          </Badge>
+        ) : (
+          <Count
+            count={isShort ? quantityPicked : quantityToPick}
+            className={cn(
+              "text-white text-base tabular-nums",
+              isFullyPicked
+                ? "bg-emerald-600"
+                : isShort
+                  ? "bg-orange-500"
+                  : "bg-red-600"
+            )}
+          />
         )}
-        <Count
-          count={isShort ? quantityPicked : quantityToPick}
-          className={cn(
-            "text-white text-base tabular-nums",
-            isFullyPicked
-              ? "bg-emerald-600"
-              : isShort
-                ? "bg-orange-500"
-                : "bg-red-600"
-          )}
-        />
         {isLocked ? (
           isCancelled ? (
             <Badge variant="red">
@@ -347,14 +447,59 @@ function PickLineItem({
             <Trans>Cancelled</Trans>
           </Badge>
         ) : isTracked ? (
-          <Button
-            size="lg"
-            variant="secondary"
-            leftIcon={<LuQrCode />}
-            isDisabled
-          >
-            <Trans>Scan</Trans>
-          </Button>
+          <HStack spacing={1}>
+            {pickedLots.length === 1 ? (
+              <Button
+                size="lg"
+                variant="secondary"
+                leftIcon={<LuUndo2 />}
+                onClick={() => unpickTracked(pickedLots[0].trackedEntityId)}
+                isDisabled={isSubmitting}
+              >
+                {pickedLots[0].trackedEntity?.readableId ? (
+                  <Trans>Unpick {pickedLots[0].trackedEntity.readableId}</Trans>
+                ) : (
+                  <Trans>Unpick</Trans>
+                )}
+              </Button>
+            ) : pickedLots.length > 1 ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    size="lg"
+                    variant="secondary"
+                    leftIcon={<LuUndo2 />}
+                    rightIcon={<LuChevronDown />}
+                    isDisabled={isSubmitting}
+                  >
+                    <Trans>Unpick</Trans>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {pickedLots.map((lot) => (
+                    <DropdownMenuItem
+                      key={lot.trackedEntityId}
+                      onClick={() => unpickTracked(lot.trackedEntityId)}
+                    >
+                      <DropdownMenuIcon icon={<LuUndo2 />} />
+                      {lot.trackedEntity?.readableId ?? lot.trackedEntityId}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : null}
+            {!isFullyPicked && (
+              <Button
+                size="lg"
+                variant="secondary"
+                leftIcon={<LuQrCode />}
+                onClick={openPicker}
+                isDisabled={isSubmitting}
+              >
+                <Trans>Scan</Trans>
+              </Button>
+            )}
+          </HStack>
         ) : isFullyPicked ? (
           <Button
             size="lg"
@@ -397,6 +542,27 @@ function PickLineItem({
           quantityToPick={quantityToPick}
           quantityPicked={quantityPicked}
           onClose={() => setShortOpen(false)}
+        />
+      )}
+
+      {pickerOpen && (
+        <TrackedEntityPicker
+          size="lg"
+          trackingType={
+            item?.itemTrackingType === "Serial" ? "Serial" : "Batch"
+          }
+          entities={trackedFetcher.data?.entities ?? []}
+          quantityRequired={Math.max(0, quantityToPick - quantityPicked)}
+          title={`Pick ${itemName}`}
+          description="Choose a lot to pick — expiring/oldest first."
+          nearExpiryWarningDays={
+            trackedFetcher.data?.nearExpiryWarningDays ?? 0
+          }
+          expiredEntityPolicy={
+            trackedFetcher.data?.expiredEntityPolicy ?? "Warn"
+          }
+          onSelect={pickTracked}
+          onClose={() => setPickerOpen(false)}
         />
       )}
     </div>

@@ -1037,6 +1037,9 @@ msgstr "当扫描看板时自动释放作业"
 msgid "Automatically start the job when the kanban is scanned"
 msgstr "当扫描看板时自动启动作业"
 
+msgid "available"
+msgstr ""
+
 msgid "Available"
 msgstr "可用"
 
@@ -2216,6 +2219,9 @@ msgstr "截止日期类型"
 msgid "Decide what an operator sees if they try to issue a batch or serial that's already expired."
 msgstr "决定操作员在尝试发放已过期的批次或序列号时看到的内容。"
 
+msgid "Default"
+msgstr ""
+
 msgid "Default Accounts"
 msgstr "默认账户"
 
@@ -3256,6 +3262,9 @@ msgstr "过期日期（适用于此行上的所有序列号）"
 msgid "Expired"
 msgstr "已过期"
 
+msgid "Expired {date}"
+msgstr ""
+
 msgid "Expired batch"
 msgstr "过期批次"
 
@@ -3265,8 +3274,14 @@ msgstr "过期批次"
 msgid "Expires"
 msgstr "过期"
 
+msgid "Expires {date}"
+msgstr ""
+
 msgid "Expires At (optional)"
 msgstr "过期时间（可选）"
+
+msgid "Expiring first"
+msgstr ""
 
 msgid "Expiry"
 msgstr "过期"
@@ -5155,6 +5170,9 @@ msgstr "新建 Webhook"
 msgid "New Work Center"
 msgstr "新工作中心"
 
+msgid "Newest first"
+msgstr ""
+
 msgid "Next"
 msgstr "下一步"
 
@@ -5213,6 +5231,9 @@ msgstr "没有附件。"
 
 msgid "No available filters"
 msgstr "没有可用的筛选器"
+
+msgid "No available lots found"
+msgstr ""
 
 msgid "No BOM input has a shelf-life policy"
 msgstr "没有物料清单输入具有保质期政策"
@@ -5376,6 +5397,9 @@ msgstr "还没有检查任何样品。"
 msgid "No sorts applied to this view"
 msgstr "此视图未应用排序"
 
+msgid "No stock"
+msgstr ""
+
 msgid "No time entries for this week"
 msgstr "本周没有时间条目"
 
@@ -5384,6 +5408,9 @@ msgstr "不需要值"
 
 msgid "No values available"
 msgstr "没有可用的值"
+
+msgid "No warehouse stock is on record for this item. You can still pick it — on-hand will go negative until the count is reconciled."
+msgstr ""
 
 msgid "No work center utilization data within range"
 msgstr "范围内没有工作中心利用率数据"
@@ -5462,6 +5489,9 @@ msgstr "的"
 
 msgid "OK"
 msgstr "确定"
+
+msgid "Oldest first"
+msgstr ""
 
 msgid "On Hand"
 msgstr "现有"
@@ -5819,6 +5849,9 @@ msgstr "选择日期或留空以清除。"
 
 msgid "Pick List"
 msgstr "拣货单"
+
+msgid "Pick tracked item"
+msgstr ""
 
 msgid "Picked quantity"
 msgstr ""
@@ -6848,6 +6881,9 @@ msgstr "扫描标签或按项目 ID 或跟踪 ID 搜索。"
 
 msgid "Scan or enter tracked entity ID, serial, or batch"
 msgstr "扫描或输入跟踪实体ID、序列号或批次号"
+
+msgid "Scan or enter tracking number"
+msgstr ""
 
 msgid "Scan or search..."
 msgstr "扫描或搜索..."
@@ -7945,6 +7981,9 @@ msgstr "此工作将被接收到库存中。它将不再在车间可用。"
 msgid "This job will no longer be available on the shop floor."
 msgstr "此工作将不再在车间可用。"
 
+msgid "This lot is expired and can't be picked."
+msgstr ""
+
 msgid "This sales order has associated jobs. Choose what to do with them."
 msgstr "此销售订单有关联的工作。选择如何处理它们。"
 
@@ -8288,6 +8327,10 @@ msgid "Unlink job from sales order?"
 msgstr "从销售订单取消关联工作？"
 
 msgid "Unpick"
+msgstr ""
+
+#. placeholder {0}: pickedLots[0].trackedEntity.readableId
+msgid "Unpick {0}"
 msgstr ""
 
 msgid "Unsaved changes"

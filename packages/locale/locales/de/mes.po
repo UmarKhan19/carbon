@@ -102,6 +102,9 @@ msgstr "Datei anhängen"
 msgid "Authentication Error"
 msgstr "Authentifizierungsfehler"
 
+msgid "available"
+msgstr ""
+
 msgid "Batch"
 msgstr "Charge"
 
@@ -232,6 +235,9 @@ msgstr "Datum"
 msgid "Deadline"
 msgstr "Frist"
 
+msgid "Default"
+msgstr ""
+
 msgid "Default Storage Unit"
 msgstr "Standardlagereinheit"
 
@@ -321,6 +327,18 @@ msgstr "Fehler"
 
 msgid "Estimated"
 msgstr "Soll"
+
+msgid "Expired"
+msgstr ""
+
+msgid "Expired {date}"
+msgstr ""
+
+msgid "Expires {date}"
+msgstr ""
+
+msgid "Expiring first"
+msgstr ""
 
 msgid "Failed to complete inventory adjustment"
 msgstr "Bestandskorrektur konnte nicht abgeschlossen werden"
@@ -553,6 +571,9 @@ msgstr "Neu"
 msgid "New Record"
 msgstr "Neuer Datensatz"
 
+msgid "Newest first"
+msgstr ""
+
 msgid "Next"
 msgstr "Weiter"
 
@@ -567,6 +588,9 @@ msgstr "Keine zugewiesenen Arbeitsgänge"
 
 msgid "No available filters"
 msgstr "Keine verfügbaren Filter"
+
+msgid "No available lots found"
+msgstr ""
 
 msgid "No available serial numbers found"
 msgstr "Keine verfügbaren Seriennummern gefunden"
@@ -628,8 +652,14 @@ msgstr "Keine Seriennummern gefunden"
 msgid "No spare parts added yet"
 msgstr "Noch keine Ersatzteile hinzugefügt"
 
+msgid "No stock"
+msgstr ""
+
 msgid "No time entries for this week"
 msgstr "Keine Zeiteinträge für diese Woche"
+
+msgid "No warehouse stock is on record for this item. You can still pick it — on-hand will go negative until the count is reconciled."
+msgstr ""
 
 msgid "No work centers are blocked"
 msgstr "Keine Arbeitsplätze sind blockiert"
@@ -645,6 +675,9 @@ msgstr "OEE-Auswirkung"
 
 msgid "OEM Required"
 msgstr "OEM erforderlich"
+
+msgid "Oldest first"
+msgstr ""
 
 #. placeholder {0}: batch.quantity
 msgid "Only {0} available"
@@ -684,6 +717,9 @@ msgid "Pause"
 msgstr "Pause"
 
 msgid "Pick"
+msgstr ""
+
+msgid "Pick tracked item"
 msgstr ""
 
 msgid "Picked quantity"
@@ -794,6 +830,9 @@ msgstr "Scannen"
 
 msgid "Scan or enter serial number"
 msgstr "Seriennummer scannen oder eingeben"
+
+msgid "Scan or enter tracking number"
+msgstr ""
 
 msgid "Scan or search serial number..."
 msgstr "Seriennummer scannen oder suchen..."
@@ -976,6 +1015,9 @@ msgstr "Die abgeschlossene Menge für diesen Arbeitsgang ist geringer als die er
 msgid "There are serial or batch tracked materials on the bill of material that have not been fully issued. Completing without issuing may result in incorrect traceability records."
 msgstr "Es gibt serien- oder chargenverfolgte Materialien in der Stückliste, die noch nicht vollständig ausgegeben wurden. Ein Abschluss ohne Ausgabe kann zu fehlerhaften Rückverfolgbarkeitsdaten führen."
 
+msgid "This lot is expired and can't be picked."
+msgstr ""
+
 msgid "Thumbnail"
 msgstr "Vorschaubild"
 
@@ -1016,6 +1058,10 @@ msgid "Unknown"
 msgstr "Unbekannt"
 
 msgid "Unpick"
+msgstr ""
+
+#. placeholder {0}: pickedLots[0].trackedEntity.readableId
+msgid "Unpick {0}"
 msgstr ""
 
 msgid "Unsaved changes"

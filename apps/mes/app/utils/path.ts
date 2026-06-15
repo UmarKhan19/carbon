@@ -159,6 +159,8 @@ export const path = {
     pickingDetail: (id: string) => generatePath(`${x}/picking/${id}`),
     pickingLineQuantity: (id: string) =>
       generatePath(`${x}/picking/${id}/line/quantity`),
+    pickingTracked: (id: string, lineId: string) =>
+      generatePath(`${x}/picking/${id}/tracked/${lineId}`),
     pickingStatus: (id: string) => generatePath(`${x}/picking/${id}/status`),
     workCenter: (workCenter: string) =>
       generatePath(`${x}/operations/${workCenter}`),

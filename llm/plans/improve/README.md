@@ -14,7 +14,7 @@ session — everything needed is inlined in each plan file.
 | Plan | Title | Priority | Effort | Depends on | Status |
 |------|-------|----------|--------|------------|--------|
 | 001  | Tenant-scope the MES picking service-role write paths | P1 | S | — | DONE (applied to working tree 2026-06-14; typecheck+lint clean) |
-| 002  | Tie `pickingListLineTrackedEntity` writes to create/update/delete permission | P2 | S | — | DONE — migration `20260614092317_picking-tracked-entity-rls.sql` written; **user must apply it** |
+| 002  | Tie `pickingListLineTrackedEntity` writes to create/update/delete permission | P2 | S | — | DONE — migration `20260614092317_picking-tracked-entity-rls.sql` **applied & verified** in dev DB (all 4 policies confirmed); committed in `bf97ed3e3` |
 | 003  | Make `generatePickingList` atomic and stop swallowing insert errors | P2 | M | — | DONE (applied to working tree 2026-06-14; typecheck+lint clean) |
 
 ## Execution notes (2026-06-14)

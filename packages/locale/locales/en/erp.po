@@ -1037,6 +1037,9 @@ msgstr "Automatically release the job when the kanban is scanned"
 msgid "Automatically start the job when the kanban is scanned"
 msgstr "Automatically start the job when the kanban is scanned"
 
+msgid "available"
+msgstr "available"
+
 msgid "Available"
 msgstr "Available"
 
@@ -2216,6 +2219,9 @@ msgstr "Deadline Type"
 msgid "Decide what an operator sees if they try to issue a batch or serial that's already expired."
 msgstr "Decide what an operator sees if they try to issue a batch or serial that's already expired."
 
+msgid "Default"
+msgstr "Default"
+
 msgid "Default Accounts"
 msgstr "Default Accounts"
 
@@ -3256,6 +3262,9 @@ msgstr "Expiration Date (applies to all serials on this line)"
 msgid "Expired"
 msgstr "Expired"
 
+msgid "Expired {date}"
+msgstr "Expired {date}"
+
 msgid "Expired batch"
 msgstr "Expired batch"
 
@@ -3265,8 +3274,14 @@ msgstr "Expired Batches"
 msgid "Expires"
 msgstr "Expires"
 
+msgid "Expires {date}"
+msgstr "Expires {date}"
+
 msgid "Expires At (optional)"
 msgstr "Expires At (optional)"
+
+msgid "Expiring first"
+msgstr "Expiring first"
 
 msgid "Expiry"
 msgstr "Expiry"
@@ -5155,6 +5170,9 @@ msgstr "New Webhook"
 msgid "New Work Center"
 msgstr "New Work Center"
 
+msgid "Newest first"
+msgstr "Newest first"
+
 msgid "Next"
 msgstr "Next"
 
@@ -5213,6 +5231,9 @@ msgstr "No attachments."
 
 msgid "No available filters"
 msgstr "No available filters"
+
+msgid "No available lots found"
+msgstr "No available lots found"
 
 msgid "No BOM input has a shelf-life policy"
 msgstr "No BOM input has a shelf-life policy"
@@ -5376,6 +5397,9 @@ msgstr "No samples inspected yet."
 msgid "No sorts applied to this view"
 msgstr "No sorts applied to this view"
 
+msgid "No stock"
+msgstr "No stock"
+
 msgid "No time entries for this week"
 msgstr "No time entries for this week"
 
@@ -5384,6 +5408,9 @@ msgstr "No value needed"
 
 msgid "No values available"
 msgstr "No values available"
+
+msgid "No warehouse stock is on record for this item. You can still pick it — on-hand will go negative until the count is reconciled."
+msgstr "No warehouse stock is on record for this item. You can still pick it — on-hand will go negative until the count is reconciled."
 
 msgid "No work center utilization data within range"
 msgstr "No work center utilization data within range"
@@ -5462,6 +5489,9 @@ msgstr "of"
 
 msgid "OK"
 msgstr "OK"
+
+msgid "Oldest first"
+msgstr "Oldest first"
 
 msgid "On Hand"
 msgstr "On Hand"
@@ -5819,6 +5849,9 @@ msgstr "Pick a date or leave blank to clear it."
 
 msgid "Pick List"
 msgstr "Pick List"
+
+msgid "Pick tracked item"
+msgstr "Pick tracked item"
 
 msgid "Picked quantity"
 msgstr "Picked quantity"
@@ -6848,6 +6881,9 @@ msgstr "Scan a label or search by item ID or tracking ID."
 
 msgid "Scan or enter tracked entity ID, serial, or batch"
 msgstr "Scan or enter tracked entity ID, serial, or batch"
+
+msgid "Scan or enter tracking number"
+msgstr "Scan or enter tracking number"
 
 msgid "Scan or search..."
 msgstr "Scan or search..."
@@ -7945,6 +7981,9 @@ msgstr "This job will be received to inventory. It will no longer be available o
 msgid "This job will no longer be available on the shop floor."
 msgstr "This job will no longer be available on the shop floor."
 
+msgid "This lot is expired and can't be picked."
+msgstr "This lot is expired and can't be picked."
+
 msgid "This sales order has associated jobs. Choose what to do with them."
 msgstr "This sales order has associated jobs. Choose what to do with them."
 
@@ -8289,6 +8328,10 @@ msgstr "Unlink job from sales order?"
 
 msgid "Unpick"
 msgstr "Unpick"
+
+#. placeholder {0}: pickedLots[0].trackedEntity.readableId
+msgid "Unpick {0}"
+msgstr "Unpick {0}"
 
 msgid "Unsaved changes"
 msgstr "Unsaved changes"

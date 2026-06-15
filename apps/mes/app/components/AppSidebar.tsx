@@ -159,7 +159,7 @@ export function TeamSwitcher({ company }: { company: Company }) {
           asChild
         >
           <a href={ERP_URL}>
-            <div className="flex aspect-square size-8 items-center justify-center rounded-lg text-foreground">
+            <div className="flex aspect-square size-10 items-center justify-center rounded-lg text-foreground">
               {companyLogo ? (
                 <img
                   src={companyLogo}
@@ -167,7 +167,7 @@ export function TeamSwitcher({ company }: { company: Company }) {
                   className="h-full w-full rounded object-contain"
                 />
               ) : (
-                <BsFillHexagonFill />
+                <BsFillHexagonFill className="size-6" />
               )}
             </div>
             <div className="grid flex-1 text-left text-sm leading-tight">

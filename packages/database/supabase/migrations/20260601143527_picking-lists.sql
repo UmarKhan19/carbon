@@ -178,7 +178,9 @@ CREATE UNIQUE INDEX IF NOT EXISTS "storageUnit_workCenterDefault_uniq"
 -- ============================================================================
 -- Function: get_or_create_work_center_lineside
 -- Returns the work center's lineside storage unit, lazily creating a canonical
--- default ("<work center> Lineside") when none exists. Idempotent + race-safe.
+-- default named after the work center when none exists. Idempotent + race-safe.
+-- The shelf name mirrors the work center name exactly (no suffix) so it stays
+-- internationalization-friendly.
 -- ============================================================================
 
 CREATE OR REPLACE FUNCTION get_or_create_work_center_lineside(
@@ -216,7 +218,7 @@ BEGIN
 
   -- Omit "id" so the table default (id('sh')) generates the prefixed id.
   INSERT INTO "storageUnit" ("name", "locationId", "workCenterId", "isWorkCenterDefault", "companyId", "createdBy")
-  VALUES (v_name || ' Lineside', v_location_id, p_work_center_id, true, p_company_id, p_user_id)
+  VALUES (v_name, v_location_id, p_work_center_id, true, p_company_id, p_user_id)
   ON CONFLICT ("workCenterId", "companyId") WHERE "isWorkCenterDefault" DO NOTHING;
 
   SELECT "id" INTO v_storage_unit_id
@@ -232,7 +234,8 @@ $$;
 
 -- ============================================================================
 -- Trigger: keep the auto-created lineside unit's name in sync with its work
--- center's name (only touches the system-managed default unit).
+-- center's name (only touches the system-managed default unit). The shelf name
+-- mirrors the work center name exactly (no suffix) for internationalization.
 -- ============================================================================
 
 CREATE OR REPLACE FUNCTION sync_work_center_lineside_name()
@@ -240,7 +243,7 @@ RETURNS TRIGGER AS $$
 BEGIN
   IF NEW."name" IS DISTINCT FROM OLD."name" THEN
     UPDATE "storageUnit"
-    SET "name" = NEW."name" || ' Lineside'
+    SET "name" = NEW."name"
     WHERE "workCenterId" = NEW."id" AND "isWorkCenterDefault";
   END IF;
   RETURN NEW;
@@ -332,51 +335,43 @@ LANGUAGE sql
 STABLE
 SECURITY INVOKER
 AS $$
-  WITH RECURSIVE
-  -- Resolve the effective (lineside) work center for only the storage units
-  -- actually referenced by outstanding job materials, then walk each one up
-  -- its parent chain, stopping at the first ancestor that carries a
-  -- workCenterId. Computed in a single pass instead of a recursive function
-  -- call per jobMaterial row.
-  su_walk AS (
-    SELECT su."id" AS storage_unit_id, su."parentId", su."workCenterId"
-    FROM "storageUnit" su
-    WHERE su."companyId" = p_company_id
-      AND su."id" IN (
-        SELECT DISTINCT jm."storageUnitId"
-        FROM "jobMaterial" jm
-        WHERE jm."companyId" = p_company_id
-          AND jm."quantityToIssue" > 0
-          AND jm."storageUnitId" IS NOT NULL
-      )
-
-    UNION ALL
-
-    SELECT w.storage_unit_id, su."parentId", su."workCenterId"
-    FROM "storageUnit" su
-    JOIN su_walk w
-      ON su."id" = w."parentId"
-     AND w."workCenterId" IS NULL
-  ),
-  su_effective AS (
-    SELECT
-      storage_unit_id,
-      (array_remove(array_agg("workCenterId"), NULL))[1] AS effective_work_center_id
-    FROM su_walk
-    GROUP BY storage_unit_id
-  ),
-  -- Outstanding, non-lineside picks aggregated per operation.
+  WITH
+  -- Outstanding picks aggregated per operation. A material needs picking unless
+  -- the operation's OWN work-center lineside bin already stocks enough on-hand
+  -- to cover it. We test the ACTUAL on-hand at that bin rather than whether the
+  -- jobMaterial's recorded shelf points there: a part can be line-stocked at
+  -- this work center while the jobMaterial still points at the warehouse (or
+  -- another line) — that is already staged, not an outstanding pick.
   picks AS (
     SELECT
       jm."jobOperationId",
       COUNT(*) AS "partsToPickCount",
       SUM(jm."quantityToIssue") AS "totalQuantityToPick"
     FROM "jobMaterial" jm
-    LEFT JOIN su_effective se ON se.storage_unit_id = jm."storageUnitId"
+    JOIN "jobOperation" jo2 ON jo2."id" = jm."jobOperationId"
+    -- The operation's work-center lineside bin (managed default first, else
+    -- oldest), mirroring get_or_create_work_center_lineside's selection.
+    LEFT JOIN LATERAL (
+      SELECT su."id"
+      FROM "storageUnit" su
+      WHERE su."workCenterId" = jo2."workCenterId"
+        AND su."companyId" = p_company_id
+      ORDER BY su."isWorkCenterDefault" DESC, su."createdAt" ASC
+      LIMIT 1
+    ) wcl ON true
+    -- On-hand of this item already staged at that lineside bin.
+    LEFT JOIN LATERAL (
+      SELECT COALESCE(SUM(il."quantity"), 0) AS qty
+      FROM "itemLedger" il
+      WHERE il."itemId" = jm."itemId"
+        AND il."companyId" = p_company_id
+        AND il."storageUnitId" = wcl."id"
+    ) staged ON true
     WHERE jm."companyId" = p_company_id
       AND jm."jobOperationId" IS NOT NULL
       AND jm."quantityToIssue" > 0
-      AND (jm."storageUnitId" IS NULL OR se.effective_work_center_id IS NULL)
+      -- Needs picking unless the lineside bin already covers the issue qty.
+      AND (wcl."id" IS NULL OR staged.qty < jm."quantityToIssue")
       -- Exclude operations already on a non-cancelled picking list (no dupes).
       AND NOT EXISTS (
         SELECT 1 FROM "pickingListLine" pll
