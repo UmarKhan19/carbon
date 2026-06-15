@@ -136,6 +136,18 @@ Return your response ONLY as a valid JSON object matching this schema. Do not in
 Schema structure:
 {
   "customerName": { "value": string or null, "confidence": number },
+  "purchasingContactName": { "value": string or null, "confidence": number },
+  "purchasingContactEmail": { "value": string or null, "confidence": number },
+  "purchasingContactPhone": { "value": string or null, "confidence": number },
+  "engineeringContactName": { "value": string or null, "confidence": number },
+  "engineeringContactEmail": { "value": string or null, "confidence": number },
+  "engineeringContactPhone": { "value": string or null, "confidence": number },
+  "customerAddressLine1": { "value": string or null, "confidence": number },
+  "customerAddressLine2": { "value": string or null, "confidence": number },
+  "customerCity": { "value": string or null, "confidence": number },
+  "customerStateProvince": { "value": string or null, "confidence": number },
+  "customerPostalCode": { "value": string or null, "confidence": number },
+  "customerCountry": { "value": string or null, "confidence": number },
   "rfqNumber": { "value": string or null, "confidence": number },
   "rfqDate": { "value": string or null, "confidence": number },
   "dueDate": { "value": string or null, "confidence": number },
