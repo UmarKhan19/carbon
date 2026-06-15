@@ -134,13 +134,11 @@ export const ImportCSVModal = ({ table, onClose }: ImportCSVModalProps) => {
                         {fetcher.data.skipped} row(s) were skipped:
                       </p>
                       <ul className="mt-2 max-h-48 overflow-auto text-sm text-muted-foreground">
-                        {(fetcher.data.errors ?? []).map(
-                          (e: { row: number; reason: string }) => (
-                            <li key={e.row}>
-                              Row {e.row + 1}: {e.reason}
-                            </li>
-                          )
-                        )}
+                        {(fetcher.data.errors ?? []).map((e) => (
+                          <li key={e.row}>
+                            Row {e.row + 1}: {e.reason}
+                          </li>
+                        ))}
                       </ul>
                       <Button
                         className="mt-3"

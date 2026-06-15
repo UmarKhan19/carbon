@@ -43,7 +43,7 @@ import type {
   CreatableLookup,
   importSchemas
 } from "~/modules/shared";
-import { fieldMappings } from "~/modules/shared";
+import { creatableFormPermissions, fieldMappings } from "~/modules/shared";
 import type { action } from "~/routes/api+/ai+/csv+/$table.columns";
 import type { ListItem } from "~/types";
 import { path } from "~/utils/path";
@@ -525,10 +525,8 @@ function EnumMappingStep({
   const creatableForm = enumData.creatableForm;
   const permissions = usePermissions();
   const canCreateViaForm =
-    (creatableForm === "paymentTerm" &&
-      permissions.can("create", "accounting")) ||
-    (creatableForm === "shippingMethod" &&
-      permissions.can("create", "inventory"));
+    !!creatableForm &&
+    permissions.can("create", creatableFormPermissions[creatableForm]);
   const formModal = useDisclosure();
   const [formCreatedName, setFormCreatedName] = useState("");
   const pendingFormCsvValueRef = useRef<string | null>(null);
@@ -603,11 +601,11 @@ function EnumMappingStep({
           };
           return (
             <Fragment key={csvValue}>
-              <div className="relative flex min-w-0 items-center gap-2">
-                <div>{csvValue}</div>
-                <div className="flex items-center justify-end">
-                  <LuMoveRight className="text-muted-foreground" />
+              <div className="flex min-w-0 items-center justify-between gap-2">
+                <div className="min-w-0 truncate" title={csvValue}>
+                  {csvValue}
                 </div>
+                <LuMoveRight className="flex-shrink-0 text-muted-foreground" />
               </div>
               {creatableLookup ? (
                 <CreatableCombobox
