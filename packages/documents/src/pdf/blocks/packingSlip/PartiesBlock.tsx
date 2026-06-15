@@ -1,10 +1,11 @@
 import { formatDate } from "@carbon/utils";
 import { Text, View } from "@react-pdf/renderer";
-import { tw } from "../tw";
+import { useTw } from "../tw";
 import type { PackingSlipData } from "./types";
 
 /** Ship-To address + Shipment details (date, source doc, customer PO, tracking). */
 export function PartiesBlock({ data }: { data: PackingSlipData }) {
+  const tw = useTw();
   const {
     customer,
     shippingAddress,

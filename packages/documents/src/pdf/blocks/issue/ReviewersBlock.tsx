@@ -1,11 +1,12 @@
 import type { JSONContent } from "@carbon/react";
 import { Text, View } from "@react-pdf/renderer";
 import { Note } from "../../components";
-import { tw } from "../tw";
+import { useTw } from "../tw";
 import type { IssueData } from "./types";
 
 /** MRB reviewer list with per-reviewer status + notes. Empty → nothing. */
 export function ReviewersBlock({ data }: { data: IssueData }) {
+  const tw = useTw();
   const { reviewers } = data;
   if (reviewers.length === 0) return null;
 

@@ -1,10 +1,11 @@
 import { formatDate } from "@carbon/utils";
 import { Text, View } from "@react-pdf/renderer";
-import { tw } from "../tw";
+import { useTw } from "../tw";
 import type { IssueData } from "./types";
 
 /** Two-column issue metadata box (name/type/status/initiator + dates). */
 export function IssueDetailsBlock({ data }: { data: IssueData }) {
+  const tw = useTw();
   const { nonConformance, nonConformanceTypes, assignees, locale } = data;
   const ncType = nonConformanceTypes.find(
     (type) => type.id === nonConformance.nonConformanceTypeId

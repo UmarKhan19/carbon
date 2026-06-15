@@ -1,7 +1,7 @@
 import { Text, View } from "@react-pdf/renderer";
 import type { KeyValueBlock as KeyValueBlockType } from "../../template";
 import { interpolateString } from "../../template";
-import { tw } from "./tw";
+import { useTw } from "./tw";
 
 /** Extension block — doc-agnostic. Takes only the merge-field `vars`. */
 export function KeyValueBlock({
@@ -11,6 +11,7 @@ export function KeyValueBlock({
   block: KeyValueBlockType;
   vars: Record<string, string>;
 }) {
+  const tw = useTw();
   const rows = block.rows ?? [];
   if (rows.length === 0 && !block.title) return null;
 

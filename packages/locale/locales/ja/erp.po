@@ -50,6 +50,10 @@ msgstr "{0}個の未サンプリングエンティティが利用可能にリリ
 msgid "{0} uploaded successfully"
 msgstr "{0}が正常にアップロードされました"
 
+#. placeholder {0}: unmatchedValues.length
+msgid "{0} values missing"
+msgstr ""
+
 msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB制限"
 
@@ -1831,6 +1835,10 @@ msgstr "作成"
 #. placeholder {0}: search.trim() === "" ? label : search
 msgid "Create {0}"
 msgstr "{0}を作成"
+
+#. placeholder {0}: unmatchedValues.length
+msgid "Create {0} values"
+msgstr ""
 
 msgid "Create a new kanban card for scan-based replenishment."
 msgstr "スキャンベースの補充用に新しいかんばんカードを作成します。"
@@ -8496,6 +8504,9 @@ msgstr "アイテムマスターを表示"
 
 msgid "View maintenance dispatch"
 msgstr "メンテナンスディスパッチを表示"
+
+msgid "View missing values"
+msgstr ""
 
 msgid "View Open"
 msgstr "開く"

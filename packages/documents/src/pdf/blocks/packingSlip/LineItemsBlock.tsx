@@ -8,7 +8,7 @@ import {
   type LineItemsBlock as LineItemsBlockType
 } from "../../../template";
 import { itemTextOverflowStyle } from "../itemText";
-import { tw } from "../tw";
+import { useTw } from "../tw";
 import type { PackingSlipData } from "./types";
 
 type ShipmentLine = Database["public"]["Views"]["shipmentLines"]["Row"];
@@ -32,7 +32,8 @@ export function LineItemsBlock({
   block: LineItemsBlockType;
   data: PackingSlipData;
 }) {
-  const { shipmentLines, trackedEntities, thumbnails } = data;
+  const tw = useTw();
+  const { shipmentLines, trackedEntities, thumbnails, theme } = data;
   const opts = { ...DEFAULT_LINE_ITEMS_OPTIONS, ...block.options };
   const overflow = itemTextOverflowStyle(opts);
   const hasTrackedEntities = trackedEntities.length > 0;
@@ -41,9 +42,10 @@ export function LineItemsBlock({
   return (
     <View style={tw("mb-4")}>
       <View
-        style={tw(
-          "flex flex-row bg-gray-800 py-2 px-3 text-white text-[9px] font-bold"
-        )}
+        style={[
+          tw("flex flex-row py-2 px-3 text-[9px] font-bold"),
+          { backgroundColor: theme.accent, color: theme.accentForeground }
+        ]}
       >
         <Text style={tw(`w-${hasTrackedEntities ? "5/12" : "7/12"} text-left`)}>
           Description

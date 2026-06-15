@@ -3,9 +3,30 @@ import {
   ADDABLE_BLOCK_TYPES,
   BLOCK_META,
   DEFAULT_SALES_INVOICE_TEMPLATE,
+  documentThemeColors,
   resolveTemplate
 } from "./defaults";
 import { blockSchema, documentTemplateSchema } from "./schema";
+
+describe("documentThemeColors", () => {
+  it("gives table documents the full color set", () => {
+    expect(documentThemeColors("salesInvoice")).toEqual([
+      "accent",
+      "accentForeground",
+      "heading",
+      "text"
+    ]);
+  });
+
+  it("gives the issue document headings + body only (no accent bar)", () => {
+    expect(documentThemeColors("issue")).toEqual(["heading", "text"]);
+  });
+
+  it("gives labels and the job traveler no theme colors", () => {
+    expect(documentThemeColors("trackingLabel")).toEqual([]);
+    expect(documentThemeColors("jobTraveler")).toEqual([]);
+  });
+});
 
 describe("resolveTemplate", () => {
   it("falls back to the default template when nothing is stored", () => {

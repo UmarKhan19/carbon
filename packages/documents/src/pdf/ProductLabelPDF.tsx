@@ -10,7 +10,7 @@ import {
   buildLabelVars,
   trackingLabelBlockRegistry
 } from "./blocks/trackingLabel";
-import Footer from "./components/Footer";
+import { getLabelPdfGeometry } from "./components/labelGeometry";
 
 interface ProductLabelProps {
   items: ProductLabelItem[];
@@ -65,44 +65,36 @@ const ProductLabelPDF = ({
   const effectiveLabelWidthPt = rotated ? labelHeightPt : labelWidthPt;
   const effectiveLabelHeightPt = rotated ? labelWidthPt : labelHeightPt;
 
-  // Always print on a standard letter sheet, so a single label looks the same
-  // as a multi-up sheet (top-left on a full page) rather than a tiny
-  // label-sized page.
-  const pageWidth = LETTER_WIDTH;
-  const pageHeight = LETTER_HEIGHT;
+  // A single label prints on a page sized exactly to the label, with no
+  // margins, so it feeds correctly on a thermal/label printer. Multi-up sheets
+  // (rows × columns, e.g. Avery) print on a standard letter sheet with the
+  // grid centred.
+  const isMultiUp = rows > 1 || columns > 1;
+  const pageWidth = isMultiUp ? LETTER_WIDTH : effectiveLabelWidthPt;
+  const pageHeight = isMultiUp ? LETTER_HEIGHT : effectiveLabelHeightPt;
 
-  // Calculate font sizes based on label height
-  // Base sizes are optimized for labelSize.height = 1
-  // Scale up proportionally as height increases, with a cap at height = 4
-  const scaleFactor = Math.min(labelSize.height, 4);
-  const titleFontSize = 10 * Math.sqrt(scaleFactor);
-  const descriptionFontSize = 7 * Math.sqrt(scaleFactor);
-
-  // QR code size based on effective label dimensions accounting for rotation
-  const qrCodeSize = Math.min(
-    effectiveLabelHeightPt * 0.7,
-    effectiveLabelWidthPt * 0.33
-  );
+  // Font + QR sizing comes from the shared label geometry (203dpi, 2"x1"
+  // baseline, unit-matched to the ZPL output) so the PDF and ZPL prints look
+  // alike and scale continuously across stock sizes.
+  const geometry = getLabelPdfGeometry(labelSize);
+  const titleFontSize = geometry.titleFontSize;
+  const descriptionFontSize = geometry.descFontSize;
+  const qrCodeSize = geometry.qrSize;
 
   // Calculate how many pages we need
   const labelsPerPage = rows * columns;
   const pageCount = Math.ceil(items.length / labelsPerPage);
 
-  // Reserve space for the footer (page number) at the bottom
-  const footerHeight = 35;
-
-  // Multi-up sheets center their grid; a single label sits at the top-left.
-  const isMultiUp = rows > 1 || columns > 1;
-  const singleLabelMargin = 24;
-  const availableHeight = pageHeight - footerHeight;
+  // Labels never carry a footer (no page numbers / registration line) — every
+  // millimetre of the stock is for the label content. Multi-up sheets centre
+  // their grid on the letter page; a single label fills its label-sized page
+  // edge-to-edge (no margins).
   const horizontalMargin = isMultiUp
     ? (pageWidth - columns * effectiveLabelWidthPt) / 2
-    : singleLabelMargin;
+    : 0;
   const verticalMargin = isMultiUp
-    ? (availableHeight - rows * effectiveLabelHeightPt) / 2
-    : singleLabelMargin;
-
-  const showFooter = resolved.footerSectionId !== null;
+    ? (pageHeight - rows * effectiveLabelHeightPt) / 2
+    : 0;
 
   return (
     <Document>
@@ -224,13 +216,6 @@ const ProductLabelPDF = ({
               })}
             </View>
           ))}
-          {showFooter && (
-            <Footer
-              showPageNumbers={resolved.settings.showPageNumbers}
-              pageNumberFormat={resolved.settings.pageNumberFormat}
-              showRegistrationLine={resolved.settings.showRegistrationLine}
-            />
-          )}
         </Page>
       ))}
     </Document>

@@ -2,10 +2,11 @@ import { formatDate, isEoriCountry, pluralize } from "@carbon/utils";
 import { getLocalTimeZone, today } from "@internationalized/date";
 import { Text, View } from "@react-pdf/renderer";
 import { AddressBlock } from "../../components";
-import { tw } from "../tw";
+import { useTw } from "../tw";
 import type { QuoteData } from "./types";
 
 export function PartiesBlock({ data }: { data: QuoteData }) {
+  const tw = useTw();
   const {
     quote,
     quoteCustomerDetails,

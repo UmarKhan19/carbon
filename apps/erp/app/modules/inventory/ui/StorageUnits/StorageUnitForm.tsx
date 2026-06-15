@@ -20,12 +20,12 @@ import {
   Input,
   Location,
   StorageTypes,
-  StorageUnit,
   Submit
 } from "~/components/Form";
 import { usePermissions } from "~/hooks";
 import { storageUnitValidator } from "~/modules/inventory";
 import { path } from "~/utils/path";
+import { StorageUnitParentSelect } from "./StorageUnitParentSelect";
 
 type StorageUnitFormProps = {
   locationId: string;
@@ -93,7 +93,7 @@ const StorageUnitForm = ({
                   name="locationId"
                   label={t`Location`}
                 />
-                <StorageUnit
+                <StorageUnitParentSelect
                   name="parentId"
                   label={t`Parent Storage Unit`}
                   locationId={locationId}
