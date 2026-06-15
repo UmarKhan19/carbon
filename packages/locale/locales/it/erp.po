@@ -50,6 +50,10 @@ msgstr "{0} entità non campionate verranno rilasciate a Disponibile. I campioni
 msgid "{0} uploaded successfully"
 msgstr "{0} caricato con successo"
 
+#. placeholder {0}: unmatchedValues.length
+msgid "{0} values missing"
+msgstr ""
+
 msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB limite"
 
@@ -1831,6 +1835,10 @@ msgstr "Crea"
 #. placeholder {0}: search.trim() === "" ? label : search
 msgid "Create {0}"
 msgstr "Crea {0}"
+
+#. placeholder {0}: unmatchedValues.length
+msgid "Create {0} values"
+msgstr ""
 
 msgid "Create a new kanban card for scan-based replenishment."
 msgstr "Crea una nuova scheda kanban per il rifornimento basato su scansione."
@@ -8496,6 +8504,9 @@ msgstr "Visualizza Anagrafica Articolo"
 
 msgid "View maintenance dispatch"
 msgstr "Visualizza manutenzione dispatch"
+
+msgid "View missing values"
+msgstr ""
 
 msgid "View Open"
 msgstr "Visualizza Aperto"

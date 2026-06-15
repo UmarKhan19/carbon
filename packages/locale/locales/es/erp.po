@@ -50,6 +50,10 @@ msgstr "{0} entidades no muestreadas serán liberadas a Disponible. Los pases mu
 msgid "{0} uploaded successfully"
 msgstr "{0} cargado exitosamente"
 
+#. placeholder {0}: unmatchedValues.length
+msgid "{0} values missing"
+msgstr ""
+
 msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB límite"
 
@@ -1831,6 +1835,10 @@ msgstr "Crear"
 #. placeholder {0}: search.trim() === "" ? label : search
 msgid "Create {0}"
 msgstr "Crear {0}"
+
+#. placeholder {0}: unmatchedValues.length
+msgid "Create {0} values"
+msgstr ""
 
 msgid "Create a new kanban card for scan-based replenishment."
 msgstr "Crea una nueva tarjeta kanban para reabastecimiento basado en escaneo."
@@ -8496,6 +8504,9 @@ msgstr "Ver Maestro de Artículos"
 
 msgid "View maintenance dispatch"
 msgstr "Ver despacho de mantenimiento"
+
+msgid "View missing values"
+msgstr ""
 
 msgid "View Open"
 msgstr "Ver Abiertos"

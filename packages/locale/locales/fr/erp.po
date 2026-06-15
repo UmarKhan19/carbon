@@ -50,6 +50,10 @@ msgstr "{0} entités non échantillonnées seront libérées en Disponible. Les 
 msgid "{0} uploaded successfully"
 msgstr "{0} téléchargé avec succès"
 
+#. placeholder {0}: unmatchedValues.length
+msgid "{0} values missing"
+msgstr ""
+
 msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB limite"
 
@@ -1831,6 +1835,10 @@ msgstr "Créer"
 #. placeholder {0}: search.trim() === "" ? label : search
 msgid "Create {0}"
 msgstr "Créer {0}"
+
+#. placeholder {0}: unmatchedValues.length
+msgid "Create {0} values"
+msgstr ""
 
 msgid "Create a new kanban card for scan-based replenishment."
 msgstr "Créer une nouvelle carte kanban pour le réapprovisionnement basé sur la numérisation."
@@ -8496,6 +8504,9 @@ msgstr "Afficher la fiche article"
 
 msgid "View maintenance dispatch"
 msgstr "Afficher la dépêche de maintenance"
+
+msgid "View missing values"
+msgstr ""
 
 msgid "View Open"
 msgstr "Afficher les ouvertes"

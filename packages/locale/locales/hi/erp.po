@@ -50,6 +50,10 @@ msgstr "{0} नमूना न किए गए इकाइयों को �
 msgid "{0} uploaded successfully"
 msgstr "{0} सफलतापूर्वक अपलोड हो गया"
 
+#. placeholder {0}: unmatchedValues.length
+msgid "{0} values missing"
+msgstr ""
+
 msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB सीमा"
 
@@ -1831,6 +1835,10 @@ msgstr "बनाएं"
 #. placeholder {0}: search.trim() === "" ? label : search
 msgid "Create {0}"
 msgstr "{0} बनाएं"
+
+#. placeholder {0}: unmatchedValues.length
+msgid "Create {0} values"
+msgstr ""
 
 msgid "Create a new kanban card for scan-based replenishment."
 msgstr "स्कैन-आधारित पुनःपूर्ति के लिए एक नया कानबन कार्ड बनाएं।"
@@ -8496,6 +8504,9 @@ msgstr "आइटम मास्टर देखें"
 
 msgid "View maintenance dispatch"
 msgstr "रखरखाव डिस्पैच देखें"
+
+msgid "View missing values"
+msgstr ""
 
 msgid "View Open"
 msgstr "खुला देखें"

@@ -8,6 +8,7 @@ import { corsHeaders } from "../lib/headers.ts";
 import { requirePermissions } from "../lib/supabase.ts";
 import { Database } from "../lib/types.ts";
 import { getReadableIdWithRevision } from "../lib/utils.ts";
+import { classifyImportRow } from "./classify-import-row.ts";
 
 const pool = getConnectionPool(1);
 const db = getDatabaseClient<DB>(pool);
@@ -256,14 +257,17 @@ async function upsertCsvMappings(
   cId: string,
   userId: string
 ): Promise<void> {
-  if (mappings.length === 0) return;
+  // Skip blank external ids: they carry no match value, and multiple "" rows
+  // would collide on the ON CONFLICT key and abort the entire batch insert.
+  const valid = mappings.filter((m) => m.externalId);
+  if (valid.length === 0) return;
 
   const now = new Date().toISOString();
 
   await trx
     .insertInto("externalIntegrationMapping")
     .values(
-      mappings.map((m) => ({
+      valid.map((m) => ({
         entityType,
         entityId: m.entityId,
         integration: EXTERNAL_ID_KEY,
@@ -861,6 +865,12 @@ serve(async (req: Request) => {
       });
     }
 
+    const summary = {
+      inserted: 0,
+      updated: 0,
+      errors: [] as Array<{ row: number; reason: string }>,
+    };
+
     switch (table) {
       case "customer": {
         const externalIdMap = await getCsvExternalIdMap("customer", companyId);
@@ -872,7 +882,7 @@ serve(async (req: Request) => {
           )
         );
         const nameMap = await getNameMap("customer", companyId, csvNames);
-        const customerIds = new Set();
+        const customerIds = new Set<string>();
         // Tracks names queued for INSERT in this batch so a second CSV row
         // with the same name doesn't trip the (name, companyId) unique
         // constraint at flush time. The customer table enforces one record
@@ -907,13 +917,7 @@ serve(async (req: Request) => {
             ext: PartnerExtensionData;
           }> = [];
 
-          const isCustomerValid = (
-            record: Record<string, string>
-          ): record is { name: string } => {
-            return typeof record.name === "string" && record.name.trim() !== "";
-          };
-
-          for (const record of mappedRecords) {
+          for (const [rowIndex, record] of mappedRecords.entries()) {
             const ext = extractPartnerExtensions(record);
             const {
               id,
@@ -931,42 +935,46 @@ serve(async (req: Request) => {
               incotermLocation: _icl,
               ...rest
             } = record;
-            const matchedByCsvId = externalIdMap.get(id);
-            const matchedByName =
-              matchedByCsvId === undefined && rest.name
-                ? nameMap.get(rest.name)
-                : undefined;
-            const existingEntityId = matchedByCsvId ?? matchedByName;
+            const matchedByCsvId = id ? externalIdMap.get(id) : undefined;
+            const decision = classifyImportRow({
+              id,
+              name: rest.name,
+              externalIdMap,
+              nameMap,
+              seenIds: customerIds,
+              seenNames: namesQueuedForInsert,
+            });
 
-            if (existingEntityId !== undefined) {
-              if (isCustomerValid(rest) && !customerIds.has(id)) {
-                customerIds.add(id);
-                customerUpdates.push({
-                  id: existingEntityId,
-                  data: {
-                    ...nullifyEmptyStrings(rest),
-                    updatedAt: new Date().toISOString(),
-                    updatedBy: userId,
-                  },
+            if (decision.action === "skip") {
+              summary.errors.push({ row: rowIndex, reason: decision.reason });
+              continue;
+            }
+
+            if (id) customerIds.add(id);
+            if (decision.action === "insert") namesQueuedForInsert.add(rest.name);
+
+            if (decision.action === "update") {
+              customerUpdates.push({
+                id: decision.entityId,
+                data: {
+                  ...nullifyEmptyStrings(rest),
+                  updatedAt: new Date().toISOString(),
+                  updatedBy: userId,
+                },
+              });
+              customerTaxUpdates.push({ entityId: decision.entityId, taxId });
+              extForUpdates.push({ entityId: decision.entityId, ext });
+              // Only attach a CSV->entity mapping when there is a real external id.
+              if (matchedByCsvId === undefined && id) {
+                csvIdsForNameMatchedUpdates.push({
+                  entityId: decision.entityId,
+                  externalId: id,
                 });
-                customerTaxUpdates.push({ entityId: existingEntityId, taxId });
-                extForUpdates.push({ entityId: existingEntityId, ext });
-                if (matchedByCsvId === undefined) {
-                  csvIdsForNameMatchedUpdates.push({
-                    entityId: existingEntityId,
-                    externalId: id,
-                  });
-                }
               }
-            } else if (isCustomerValid(rest) && !customerIds.has(id)) {
-              if (namesQueuedForInsert.has(rest.name)) continue;
-              customerIds.add(id);
-              namesQueuedForInsert.add(rest.name);
+            } else {
               customerInserts.push({
                 ...nullifyEmptyStrings(rest),
-                // Use the CSV's Unique ID as the readableId; trigger no-ops
-                // when readableId is non-null.
-                readableId: id,
+                readableId: id || null,
                 companyId,
                 createdAt: new Date().toISOString(),
                 createdBy: userId,
@@ -982,6 +990,8 @@ serve(async (req: Request) => {
             customerInserts: customerInserts.length,
             customerUpdates: customerUpdates.length,
           });
+          summary.inserted += customerInserts.length;
+          summary.updated += customerUpdates.length;
 
           if (customerInserts.length > 0) {
             const inserted = await trx
@@ -1075,7 +1085,7 @@ serve(async (req: Request) => {
           )
         );
         const nameMap = await getNameMap("supplier", companyId, csvNames);
-        const supplierIds = new Set();
+        const supplierIds = new Set<string>();
         const namesQueuedForInsert = new Set<string>();
 
         await db.transaction().execute(async (trx) => {
@@ -1106,13 +1116,7 @@ serve(async (req: Request) => {
             ext: PartnerExtensionData;
           }> = [];
 
-          const isSupplierValid = (
-            record: Record<string, string>
-          ): record is { name: string } => {
-            return typeof record.name === "string" && record.name.trim() !== "";
-          };
-
-          for (const record of mappedRecords) {
+          for (const [rowIndex, record] of mappedRecords.entries()) {
             const ext = extractPartnerExtensions(record);
             const {
               id,
@@ -1130,42 +1134,46 @@ serve(async (req: Request) => {
               incotermLocation: _icl,
               ...rest
             } = record;
-            const matchedByCsvId = externalIdMap.get(id);
-            const matchedByName =
-              matchedByCsvId === undefined && rest.name
-                ? nameMap.get(rest.name)
-                : undefined;
-            const existingEntityId = matchedByCsvId ?? matchedByName;
+            const matchedByCsvId = id ? externalIdMap.get(id) : undefined;
+            const decision = classifyImportRow({
+              id,
+              name: rest.name,
+              externalIdMap,
+              nameMap,
+              seenIds: supplierIds,
+              seenNames: namesQueuedForInsert,
+            });
 
-            if (existingEntityId !== undefined && !supplierIds.has(id)) {
-              supplierIds.add(id);
-              if (isSupplierValid(rest)) {
-                supplierUpdates.push({
-                  id: existingEntityId,
-                  data: {
-                    ...nullifyEmptyStrings(rest),
-                    updatedAt: new Date().toISOString(),
-                    updatedBy: userId,
-                  },
+            if (decision.action === "skip") {
+              summary.errors.push({ row: rowIndex, reason: decision.reason });
+              continue;
+            }
+
+            if (id) supplierIds.add(id);
+            if (decision.action === "insert") namesQueuedForInsert.add(rest.name);
+
+            if (decision.action === "update") {
+              supplierUpdates.push({
+                id: decision.entityId,
+                data: {
+                  ...nullifyEmptyStrings(rest),
+                  updatedAt: new Date().toISOString(),
+                  updatedBy: userId,
+                },
+              });
+              supplierTaxUpdates.push({ entityId: decision.entityId, taxId });
+              extForUpdates.push({ entityId: decision.entityId, ext });
+              // Only attach a CSV->entity mapping when there is a real external id.
+              if (matchedByCsvId === undefined && id) {
+                csvIdsForNameMatchedUpdates.push({
+                  entityId: decision.entityId,
+                  externalId: id,
                 });
-                supplierTaxUpdates.push({ entityId: existingEntityId, taxId });
-                extForUpdates.push({ entityId: existingEntityId, ext });
-                if (matchedByCsvId === undefined) {
-                  csvIdsForNameMatchedUpdates.push({
-                    entityId: existingEntityId,
-                    externalId: id,
-                  });
-                }
               }
-            } else if (isSupplierValid(rest) && !supplierIds.has(id)) {
-              if (namesQueuedForInsert.has(rest.name)) continue;
-              supplierIds.add(id);
-              namesQueuedForInsert.add(rest.name);
+            } else {
               supplierInserts.push({
                 ...nullifyEmptyStrings(rest),
-                // Use the CSV's Unique ID as the readableId; trigger no-ops
-                // when readableId is non-null.
-                readableId: id,
+                readableId: id || null,
                 companyId,
                 createdAt: new Date().toISOString(),
                 createdBy: userId,
@@ -1181,6 +1189,8 @@ serve(async (req: Request) => {
             supplierInserts: supplierInserts.length,
             supplierUpdates: supplierUpdates.length,
           });
+          summary.inserted += supplierInserts.length;
+          summary.updated += supplierUpdates.length;
 
           if (supplierInserts.length > 0) {
             const inserted = await trx
@@ -1714,7 +1724,7 @@ serve(async (req: Request) => {
             );
           };
 
-          for (const record of mappedRecords) {
+          for (const [rowIndex, record] of mappedRecords.entries()) {
             const { id, companyId: customerId, ...contactData } = record;
 
             if (externalContactIdMap.has(id)) {
@@ -1746,8 +1756,18 @@ serve(async (req: Request) => {
                 customerId: existingCustomerId,
                 customFields: {},
               });
+            } else {
+              summary.errors.push({
+                row: rowIndex,
+                reason: isContactValid(contactData)
+                  ? `No customer found for External Company ID "${customerId}"`
+                  : "Invalid contact (missing required fields)",
+              });
             }
           }
+
+          summary.inserted += contactInserts.length;
+          summary.updated += contactUpdates.length;
 
           console.log({
             totalRecords: mappedRecords.length,
@@ -1825,7 +1845,7 @@ serve(async (req: Request) => {
             );
           };
 
-          for (const record of mappedRecords) {
+          for (const [rowIndex, record] of mappedRecords.entries()) {
             const { id, companyId: supplierId, ...contactData } = record;
 
             if (externalContactIdMap.has(id)) {
@@ -1856,8 +1876,18 @@ serve(async (req: Request) => {
                 supplierId: existingSupplierId,
                 customFields: {},
               });
+            } else {
+              summary.errors.push({
+                row: rowIndex,
+                reason: isContactValid(contactData)
+                  ? `No supplier found for External Company ID "${supplierId}"`
+                  : "Invalid contact (missing required fields)",
+              });
             }
           }
+
+          summary.inserted += contactInserts.length;
+          summary.updated += contactUpdates.length;
 
           console.log({
             totalRecords: mappedRecords.length,
@@ -2109,6 +2139,10 @@ serve(async (req: Request) => {
     return new Response(
       JSON.stringify({
         success: true,
+        inserted: summary.inserted,
+        updated: summary.updated,
+        skipped: summary.errors.length,
+        errors: summary.errors,
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
