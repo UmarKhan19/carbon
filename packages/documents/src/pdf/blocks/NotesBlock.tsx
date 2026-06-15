@@ -1,10 +1,11 @@
 import type { JSONContent } from "@carbon/react";
 import { Text, View } from "@react-pdf/renderer";
 import { Note } from "../components";
-import { tw } from "./tw";
+import { useTw } from "./tw";
 import type { SalesInvoiceData } from "./types";
 
 export function NotesBlock({ data }: { data: SalesInvoiceData }) {
+  const tw = useTw();
   const { salesInvoice } = data;
   return (
     <View style={tw("border border-gray-200 mb-4")}>

@@ -136,6 +136,7 @@ const JobTravelerPDF = ({
 
   return (
     <Template
+      theme={resolved.theme}
       title={title}
       meta={{
         author: meta?.author ?? "Carbon",

@@ -7,7 +7,7 @@ import {
   type LineItemsBlock as LineItemsBlockType
 } from "../../../template";
 import { itemTextOverflowStyle } from "../itemText";
-import { tw } from "../tw";
+import { useTw } from "../tw";
 import type { StockTransferData } from "./types";
 
 async function generateBarcode(text: string): Promise<string> {
@@ -29,6 +29,7 @@ export function LineItemsBlock({
   block: LineItemsBlockType;
   data: StockTransferData;
 }) {
+  const tw = useTw();
   const { stockTransferLines, thumbnails, theme } = data;
   const opts = { ...DEFAULT_LINE_ITEMS_OPTIONS, ...block.options };
   const overflow = itemTextOverflowStyle(opts);

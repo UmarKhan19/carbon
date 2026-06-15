@@ -129,6 +129,7 @@ const SalesInvoicePDF = ({
 
   return (
     <Template
+      theme={theme}
       title={title}
       meta={{
         author: meta?.author ?? "Carbon",

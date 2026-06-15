@@ -220,6 +220,7 @@ const QuotePDF = ({
 
   return (
     <Template
+      theme={theme}
       title={title}
       meta={{
         author: meta?.author ?? "Carbon",

@@ -2,7 +2,7 @@ import { Text, View } from "@react-pdf/renderer";
 import type { RichTextBlock as RichTextBlockType } from "../../template";
 import { interpolateContent } from "../../template";
 import { Note } from "../components";
-import { tw } from "./tw";
+import { useTw } from "./tw";
 
 /**
  * Extension block — doc-agnostic. Takes only the merge-field `vars` so any
@@ -15,6 +15,7 @@ export function RichTextBlock({
   block: RichTextBlockType;
   vars: Record<string, string>;
 }) {
+  const tw = useTw();
   const hasContent =
     block.content &&
     typeof block.content === "object" &&
