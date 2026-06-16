@@ -7210,9 +7210,6 @@ msgstr "为新报价行中的每个成本类别设置默认加价百分比"
 msgid "Set due date"
 msgstr "设置截止日期"
 
-msgid "Set on the item in the Properties panel"
-msgstr "在属性面板中的项目上设置"
-
 msgid "Set Pricing"
 msgstr "设置定价"
 

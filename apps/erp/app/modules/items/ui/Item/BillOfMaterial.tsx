@@ -889,7 +889,6 @@ function MaterialForm({
               label={t`Sourcing Type`}
               value={itemData.sourcingType}
               isReadOnly
-              helperText={t`Set on the item in the Properties panel`}
               options={sourcingType.map((s) => ({
                 value: s,
                 label: (
@@ -975,7 +974,6 @@ function MaterialForm({
             label={t`Method Type`}
             value={itemData.methodType}
             isReadOnly
-            helperText={t`Set on the item in the Properties panel`}
             isConfigured={rulesByField.has(key("methodType"))}
             onConfigure={
               configurable && !temporaryItems[item.id]

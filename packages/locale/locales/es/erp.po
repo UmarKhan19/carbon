@@ -7210,9 +7210,6 @@ msgstr "Establecer porcentajes de margen predeterminados para cada categoría de
 msgid "Set due date"
 msgstr "Establecer fecha de vencimiento"
 
-msgid "Set on the item in the Properties panel"
-msgstr "Establecer en el elemento en el panel Propiedades"
-
 msgid "Set Pricing"
 msgstr "Establecer Precio"
 

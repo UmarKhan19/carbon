@@ -1,6 +1,11 @@
 import type { Database, Json } from "@carbon/database";
 import { fetchAllFromTable } from "@carbon/database";
-import type { Kysely, KyselyDatabase } from "@carbon/database/client";
+import type {
+  ExpressionBuilder,
+  Kysely,
+  KyselyDatabase,
+  KyselyTx
+} from "@carbon/database/client";
 import { getLocalTimeZone, now, today } from "@internationalized/date";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { nanoid } from "nanoid";
@@ -2729,14 +2734,61 @@ export async function cascadeItemTrackingType(
 }
 
 /**
- * Cascades an item-level sourcing/method type change to every methodMaterial
- * that references the item. Both fields are item-level properties; method
- * materials are read-only mirrors, so they must stay in sync when the item
- * changes. Only method materials on Draft make methods are touched — Active
- * and Archived methods are frozen.
+ * Updates item-level method/sourcing columns and mirrors the change down to
+ * every methodMaterial that references the item — in a single transaction, so
+ * the item and its mirrors can never be left half-applied.
+ *
+ * sourcingType and defaultMethodType are item-level properties; method
+ * materials are read-only mirrors. Only mirrors on Draft make methods are
+ * touched — Active and Archived methods are frozen.
  */
-export async function cascadeItemSourcingAndMethodType(
+export async function updateItemMethodAndSourcing(
   db: Kysely<KyselyDatabase>,
+  args: {
+    itemIds: string[];
+    companyId: string;
+    userId: string;
+    itemUpdate: {
+      replenishmentSystem?: Database["public"]["Enums"]["itemReplenishmentSystem"];
+      defaultMethodType?: MethodType;
+      sourcingType?: SourcingType;
+    };
+    cascade: {
+      sourcingType?: SourcingType;
+      methodType?: MethodType;
+    };
+  }
+) {
+  if (args.itemIds.length === 0) return;
+
+  const updatedAt = now(getLocalTimeZone()).toAbsoluteString();
+
+  return db.transaction().execute(async (trx) => {
+    await trx
+      .updateTable("item")
+      .set({ ...args.itemUpdate, updatedBy: args.userId, updatedAt })
+      .where("id", "in", args.itemIds)
+      .where("companyId", "=", args.companyId)
+      .execute();
+
+    await cascadeSourcingAndMethodTypeToMethodMaterials(trx, {
+      itemIds: args.itemIds,
+      companyId: args.companyId,
+      userId: args.userId,
+      newSourcingType: args.cascade.sourcingType,
+      newMethodType: args.cascade.methodType
+    });
+  });
+}
+
+/**
+ * Mirrors an item's sourcingType/methodType onto every methodMaterial that
+ * references it. Operates on a caller-supplied transaction so it composes with
+ * the item update above. Only method materials on Draft make methods are
+ * touched.
+ */
+async function cascadeSourcingAndMethodTypeToMethodMaterials(
+  trx: KyselyTx,
   args: {
     itemIds: string[];
     companyId: string;
@@ -2750,69 +2802,60 @@ export async function cascadeItemSourcingAndMethodType(
 
   const updatedAt = now(getLocalTimeZone()).toAbsoluteString();
 
-  return db.transaction().execute(async (trx) => {
-    // Restrict to method materials whose make method is still Draft.
-    const onDraftMakeMethod = (eb: any) =>
-      eb(
-        "makeMethodId",
-        "in",
-        eb
-          .selectFrom("makeMethod")
-          .select("id")
-          .where("companyId", "=", args.companyId)
-          .where("status", "=", "Draft")
-      );
+  // Restrict to method materials whose make method is still Draft.
+  const onDraftMakeMethod = (
+    eb: ExpressionBuilder<KyselyDatabase, "methodMaterial">
+  ) =>
+    eb(
+      "makeMethodId",
+      "in",
+      eb
+        .selectFrom("makeMethod")
+        .select("id")
+        .where("companyId", "=", args.companyId)
+        .where("status", "=", "Draft")
+    );
 
-    const baseSet: {
-      updatedBy: string;
-      updatedAt: string;
-      sourcingType?: SourcingType;
-    } = {
-      updatedBy: args.userId,
-      updatedAt
-    };
-    if (args.newSourcingType) baseSet.sourcingType = args.newSourcingType;
+  const baseSet: {
+    updatedBy: string;
+    updatedAt: string;
+    sourcingType?: SourcingType;
+  } = {
+    updatedBy: args.userId,
+    updatedAt
+  };
+  if (args.newSourcingType) baseSet.sourcingType = args.newSourcingType;
 
-    if (args.newMethodType === "Make to Order") {
-      // materialMakeMethodId points at the component item's active make method
-      // (mirrors upsertMethodMaterial). Resolve it per item; if there's no
-      // active make method, leave it null rather than aborting.
-      for (const itemId of args.itemIds) {
-        const activeMakeMethod = await trx
-          .selectFrom("activeMakeMethods")
-          .select("id")
-          .where("itemId", "=", itemId)
-          .where("companyId", "=", args.companyId)
-          .executeTakeFirst();
-
-        await trx
-          .updateTable("methodMaterial")
-          .set({
-            ...baseSet,
-            methodType: "Make to Order",
-            materialMakeMethodId: activeMakeMethod?.id ?? null
-          })
-          .where("itemId", "=", itemId)
-          .where("companyId", "=", args.companyId)
-          .where(onDraftMakeMethod)
-          .execute();
-      }
-      return;
-    }
-
-    await trx
-      .updateTable("methodMaterial")
-      .set({
-        ...baseSet,
-        ...(args.newMethodType
+  await trx
+    .updateTable("methodMaterial")
+    .set((eb) => ({
+      ...baseSet,
+      ...(args.newMethodType === "Make to Order"
+        ? {
+            methodType: "Make to Order" as const,
+            // materialMakeMethodId points at the component item's active make
+            // method (mirrors upsertMethodMaterial). Resolved with a correlated
+            // subquery so a single statement covers every item; null when the
+            // component has no active make method.
+            materialMakeMethodId: eb
+              .selectFrom("activeMakeMethods")
+              .select("id")
+              .whereRef(
+                "activeMakeMethods.itemId",
+                "=",
+                "methodMaterial.itemId"
+              )
+              .where("activeMakeMethods.companyId", "=", args.companyId)
+              .limit(1)
+          }
+        : args.newMethodType
           ? { methodType: args.newMethodType, materialMakeMethodId: null }
           : {})
-      })
-      .where("itemId", "in", args.itemIds)
-      .where("companyId", "=", args.companyId)
-      .where(onDraftMakeMethod)
-      .execute();
-  });
+    }))
+    .where("itemId", "in", args.itemIds)
+    .where("companyId", "=", args.companyId)
+    .where(onDraftMakeMethod)
+    .execute();
 }
 
 export async function upsertConsumable(

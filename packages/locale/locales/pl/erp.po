@@ -7210,9 +7210,6 @@ msgstr "Ustaw domyślne procenty marż dla każdej kategorii kosztów w nowych w
 msgid "Set due date"
 msgstr "Ustaw datę terminu"
 
-msgid "Set on the item in the Properties panel"
-msgstr "Ustaw na elemencie w panelu Właściwości"
-
 msgid "Set Pricing"
 msgstr "Ustaw ceny"
 

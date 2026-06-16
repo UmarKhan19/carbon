@@ -7210,9 +7210,6 @@ msgstr "Legen Sie standardmäßige Aufschlagsprozentsätze für jede Kostenkateg
 msgid "Set due date"
 msgstr "Fälligkeitsdatum festlegen"
 
-msgid "Set on the item in the Properties panel"
-msgstr "Im Element im Bereich \"Eigenschaften\" festlegen"
-
 msgid "Set Pricing"
 msgstr "Preisgestaltung festlegen"
 

@@ -31,7 +31,10 @@ WHERE i.id = sub."itemId" AND i."companyId" = sub."companyId";
 -- =============================================================================
 -- get_part_details (recreated to expose "sourcingType")
 -- Body unchanged from 20260515120000 aside from the new column.
+-- DROP first: adding a column to the RETURNS TABLE changes the function's
+-- result row type, which CREATE OR REPLACE cannot do (SQLSTATE 42P13).
 -- =============================================================================
+DROP FUNCTION IF EXISTS get_part_details(TEXT);
 CREATE OR REPLACE FUNCTION get_part_details(item_id TEXT)
 RETURNS TABLE (
     "active" BOOLEAN,
@@ -145,7 +148,10 @@ $$ LANGUAGE plpgsql;
 -- =============================================================================
 -- get_tool_details (recreated to expose "sourcingType")
 -- Body unchanged from 20260515120000 aside from the new column.
+-- DROP first: adding a column to the RETURNS TABLE changes the function's
+-- result row type, which CREATE OR REPLACE cannot do (SQLSTATE 42P13).
 -- =============================================================================
+DROP FUNCTION IF EXISTS get_tool_details(TEXT);
 CREATE OR REPLACE FUNCTION get_tool_details(item_id TEXT)
 RETURNS TABLE (
     "active" BOOLEAN,
@@ -260,8 +266,11 @@ $$ LANGUAGE plpgsql;
 -- tools (view) — recreated to expose "sourcingType".
 -- The Tool properties sidebar's `Tool` type derives from this view.
 -- Body unchanged from 20260419130000 aside from the new column.
+-- DROP first: "sourcingType" is inserted mid-list (after "defaultMethodType"),
+-- and CREATE OR REPLACE VIEW can only append columns at the end.
 -- =============================================================================
-CREATE OR REPLACE VIEW "tools" WITH (SECURITY_INVOKER=true) AS
+DROP VIEW IF EXISTS "tools";
+CREATE VIEW "tools" WITH (SECURITY_INVOKER=true) AS
 WITH latest_items AS (
   SELECT DISTINCT ON (i."readableId", i."companyId")
     i.*,
@@ -347,6 +356,115 @@ SELECT
 FROM "tool" t
   INNER JOIN latest_items li ON li."readableId" = t."id" AND li."companyId" = t."companyId"
 LEFT JOIN item_revisions ir ON ir."readableId" = t."id" AND ir."companyId" = li."companyId"
+LEFT JOIN (
+  SELECT
+    "itemId",
+    "companyId",
+    string_agg(ps."supplierPartId", ',') AS "supplierIds"
+  FROM "supplierPart" ps
+  GROUP BY "itemId", "companyId"
+) ps ON ps."itemId" = li."id" AND ps."companyId" = li."companyId"
+LEFT JOIN "unitOfMeasure" uom ON uom.code = li."unitOfMeasureCode" AND uom."companyId" = li."companyId"
+LEFT JOIN "itemCost" ic ON ic."itemId" = li.id;
+
+
+-- =============================================================================
+-- parts (view) — recreated to expose "sourcingType".
+-- Kept in lockstep with the "tools" view: both list views already carry
+-- "defaultMethodType", so "sourcingType" belongs on both.
+-- Body unchanged from 20260419130000 aside from the new column.
+-- DROP first: "sourcingType" is inserted mid-list (after "defaultMethodType"),
+-- and CREATE OR REPLACE VIEW can only append columns at the end.
+-- =============================================================================
+DROP VIEW IF EXISTS "parts";
+CREATE VIEW "parts" WITH (SECURITY_INVOKER=true) AS
+WITH latest_items AS (
+  SELECT DISTINCT ON (i."readableId", i."companyId")
+    i.*,
+    mu.id as "modelUploadId",
+
+    mu."modelPath",
+    mu."thumbnailPath" as "modelThumbnailPath",
+    mu."name" as "modelName",
+    mu."size" as "modelSize"
+  FROM "item" i
+  LEFT JOIN "modelUpload" mu ON mu.id = i."modelUploadId"
+  WHERE i."type" = 'Part'
+  ORDER BY i."readableId", i."companyId",
+    CASE WHEN i."revision" = '0' OR i."revision" = '' OR i."revision" IS NULL THEN 0 ELSE 1 END DESC,
+    i."createdAt" DESC NULLS LAST
+),
+item_revisions AS (
+  SELECT
+    i."readableId",
+    i."companyId",
+    json_agg(
+      json_build_object(
+        'id', i.id,
+        'revision', i."revision",
+        'name', i."name",
+        'description', i."description",
+        'active', i."active",
+        'createdAt', i."createdAt"
+      ) ORDER BY
+        CASE WHEN i."revision" = '0' OR i."revision" = '' OR i."revision" IS NULL THEN 0 ELSE 1 END,
+        i."createdAt"
+      ) as "revisions"
+  FROM "item" i
+  WHERE i."type" = 'Part'
+  GROUP BY i."readableId", i."companyId"
+)
+SELECT
+  li."active",
+  li."assignee",
+  li."defaultMethodType",
+  li."sourcingType",
+  li."description",
+  li."itemTrackingType",
+  li."name",
+  li."replenishmentSystem",
+  li."unitOfMeasureCode",
+  li."notes",
+  li."revision",
+  li."readableId",
+  li."readableIdWithRevision",
+  li."id",
+  li."companyId",
+  CASE
+    WHEN li."thumbnailPath" IS NULL AND li."modelThumbnailPath" IS NOT NULL THEN li."modelThumbnailPath"
+    ELSE li."thumbnailPath"
+  END as "thumbnailPath",
+
+  li."modelPath",
+  li."modelName",
+  li."modelSize",
+  ps."supplierIds",
+  uom.name as "unitOfMeasure",
+  ir."revisions",
+  p."customFields",
+  p."tags",
+  ic."itemPostingGroupId",
+  (
+    SELECT COALESCE(
+      jsonb_object_agg(
+        eim."integration",
+        CASE
+          WHEN eim."metadata" IS NOT NULL THEN eim."metadata"
+          ELSE to_jsonb(eim."externalId")
+        END
+      ) FILTER (WHERE eim."externalId" IS NOT NULL OR eim."metadata" IS NOT NULL),
+      '{}'::jsonb
+    )
+    FROM "externalIntegrationMapping" eim
+    WHERE eim."entityType" = 'item' AND eim."entityId" = li.id
+  ) AS "externalId",
+  li."createdBy",
+  li."createdAt",
+  li."updatedBy",
+  li."updatedAt"
+FROM "part" p
+INNER JOIN latest_items li ON li."readableId" = p."id" AND li."companyId" = p."companyId"
+LEFT JOIN item_revisions ir ON ir."readableId" = p."id" AND ir."companyId" = p."companyId"
 LEFT JOIN (
   SELECT
     "itemId",

@@ -7210,9 +7210,6 @@ msgstr "Set default markup percentages for each cost category on new quote lines
 msgid "Set due date"
 msgstr "Set due date"
 
-msgid "Set on the item in the Properties panel"
-msgstr "Set on the item in the Properties panel"
-
 msgid "Set Pricing"
 msgstr "Set Pricing"
 

@@ -4,12 +4,92 @@ import { getMaterialDescription, getMaterialId } from "@carbon/utils";
 import type { ActionFunctionArgs } from "react-router";
 import type { InventoryItemType } from "~/modules/items";
 import {
-  cascadeItemSourcingAndMethodType,
-  cascadeItemTrackingType
+  cascadeItemTrackingType,
+  updateItemMethodAndSourcing
 } from "~/modules/items/items.service";
 import { getCompanySettings } from "~/modules/settings";
 import type { MethodType, SourcingType } from "~/modules/shared";
 import { getDatabaseClient } from "~/services/database.server";
+
+type ItemReplenishmentSystem =
+  Database["public"]["Enums"]["itemReplenishmentSystem"];
+
+/**
+ * Maps an inline edit of one of the three interlocked item-level fields
+ * (replenishmentSystem, defaultMethodType, sourcingType) to the columns that
+ * should be written on the item and the values that should be mirrored down to
+ * its method materials. Pure — no DB access — so the relationships between the
+ * fields live in one readable place instead of being scattered across branches.
+ */
+function deriveItemMethodUpdate(
+  field: "replenishmentSystem" | "defaultMethodType" | "sourcingType",
+  value: string
+): {
+  itemUpdate: {
+    replenishmentSystem?: ItemReplenishmentSystem;
+    defaultMethodType?: MethodType;
+    sourcingType?: SourcingType;
+  };
+  cascade: { sourcingType?: SourcingType; methodType?: MethodType };
+} {
+  switch (field) {
+    case "replenishmentSystem": {
+      const replenishmentSystem = value as ItemReplenishmentSystem;
+      // Picking a concrete replenishment system pins the default method type.
+      if (value !== "Buy and Make") {
+        const defaultMethodType: MethodType =
+          value === "Make"
+            ? "Make to Order"
+            : value === "Buy"
+              ? "Purchase to Order"
+              : "Pull from Inventory";
+        return {
+          itemUpdate: { replenishmentSystem, defaultMethodType },
+          cascade: { methodType: defaultMethodType }
+        };
+      }
+      return { itemUpdate: { replenishmentSystem }, cascade: {} };
+    }
+    case "defaultMethodType": {
+      const defaultMethodType = value as MethodType;
+      // A concrete method type pins the replenishment system to match.
+      if (value !== "Pull from Inventory") {
+        const replenishmentSystem: ItemReplenishmentSystem =
+          value === "Make to Order"
+            ? "Make"
+            : value === "Purchase to Order"
+              ? "Buy"
+              : "Buy and Make";
+        return {
+          itemUpdate: { defaultMethodType, replenishmentSystem },
+          cascade: { methodType: defaultMethodType }
+        };
+      }
+      return {
+        itemUpdate: { defaultMethodType },
+        cascade: { methodType: defaultMethodType }
+      };
+    }
+    case "sourcingType": {
+      const sourcingType = value as SourcingType;
+      // Sourcing drives method type: Drop Ship → Purchase to Order, Ship from
+      // Inventory → Pull from Inventory, Specified → leave method type as-is.
+      const methodType: MethodType | undefined =
+        value === "Drop Ship"
+          ? "Purchase to Order"
+          : value === "Ship from Inventory"
+            ? "Pull from Inventory"
+            : undefined;
+      return {
+        itemUpdate: {
+          sourcingType,
+          ...(methodType ? { defaultMethodType: methodType } : {})
+        },
+        cascade: { sourcingType, methodType }
+      };
+    }
+  }
+}
 
 export async function action({ request }: ActionFunctionArgs) {
   const { client, companyId, userId } = await requirePermissions(request, {
@@ -58,133 +138,38 @@ export async function action({ request }: ActionFunctionArgs) {
 
       return result;
     }
-    case "defaultMethodType":
     case "name":
     case "description":
-    case "replenishmentSystem":
-    case "unitOfMeasureCode": {
-      // Track the resulting defaultMethodType so it can be cascaded to the
-      // method materials that mirror this item.
-      let cascadeMethodType: MethodType | undefined;
-      let result;
-
-      if (field === "replenishmentSystem" && value !== "Buy and Make") {
-        const defaultMethodType =
-          value === "Make"
-            ? "Make to Order"
-            : value === "Buy"
-              ? "Purchase to Order"
-              : "Pull from Inventory";
-        cascadeMethodType = defaultMethodType as MethodType;
-        result = await client
-          .from("item")
-          .update({
-            // @ts-expect-error
-            [field]: value,
-            defaultMethodType,
-            updatedBy: userId,
-            updatedAt: new Date().toISOString()
-          })
-          .in("id", items as string[])
-          .eq("companyId", companyId);
-      } else if (
-        field === "defaultMethodType" &&
-        value !== "Pull from Inventory"
-      ) {
-        cascadeMethodType = value as MethodType;
-        result = await client
-          .from("item")
-          .update({
-            // @ts-expect-error - value is a valid method type
-            defaultMethodType: value,
-            replenishmentSystem:
-              value === "Make to Order"
-                ? "Make"
-                : value === "Purchase to Order"
-                  ? "Buy"
-                  : "Buy and Make",
-            updatedBy: userId,
-            updatedAt: new Date().toISOString()
-          })
-          .in("id", items as string[])
-          .eq("companyId", companyId);
-      } else {
-        if (field === "defaultMethodType")
-          cascadeMethodType = value as MethodType;
-        result = await client
-          .from("item")
-          .update({
-            [field]: value,
-            updatedBy: userId,
-            updatedAt: new Date().toISOString()
-          })
-          .in("id", items as string[])
-          .eq("companyId", companyId);
-      }
-
-      if (result.error) return result;
-
-      if (cascadeMethodType) {
-        try {
-          await cascadeItemSourcingAndMethodType(getDatabaseClient(), {
-            itemIds: items as string[],
-            companyId,
-            userId,
-            newMethodType: cascadeMethodType
-          });
-        } catch (err) {
-          console.error(err);
-          return {
-            error: { message: "Failed to cascade method type" },
-            data: null
-          };
-        }
-      }
-
-      return result;
-    }
-    case "sourcingType": {
-      const sourcing = value as SourcingType;
-      // Sourcing drives method type (the same mapping the BOM editor used):
-      // Drop Ship → Purchase to Order, Ship from Inventory → Pull from
-      // Inventory, Specified → leave method type as-is.
-      const mappedMethodType: MethodType | undefined =
-        sourcing === "Drop Ship"
-          ? "Purchase to Order"
-          : sourcing === "Ship from Inventory"
-            ? "Pull from Inventory"
-            : undefined;
-
-      const result = await client
+    case "unitOfMeasureCode":
+      return await client
         .from("item")
         .update({
-          sourcingType: sourcing,
-          ...(mappedMethodType ? { defaultMethodType: mappedMethodType } : {}),
+          [field]: value,
           updatedBy: userId,
           updatedAt: new Date().toISOString()
         })
         .in("id", items as string[])
         .eq("companyId", companyId);
-
-      if (result.error) return result;
-
+    case "replenishmentSystem":
+    case "defaultMethodType":
+    case "sourcingType": {
+      // These three fields are interlocked and each mirror down to the item's
+      // method materials. updateItemMethodAndSourcing applies the item write
+      // and the cascade in one transaction, so they can't be left half-applied.
+      const { itemUpdate, cascade } = deriveItemMethodUpdate(field, value);
       try {
-        await cascadeItemSourcingAndMethodType(getDatabaseClient(), {
+        await updateItemMethodAndSourcing(getDatabaseClient(), {
           itemIds: items as string[],
           companyId,
           userId,
-          newSourcingType: sourcing,
-          newMethodType: mappedMethodType
+          itemUpdate,
+          cascade
         });
       } catch (err) {
         console.error(err);
-        return {
-          error: { message: "Failed to cascade sourcing type" },
-          data: null
-        };
+        return { error: { message: "Failed to update item" }, data: null };
       }
-
-      return result;
+      return { data: null, error: null };
     }
     case "gradeId":
     case "dimensionId":

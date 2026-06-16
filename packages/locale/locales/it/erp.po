@@ -7210,9 +7210,6 @@ msgstr "Imposta percentuali di markup predefinite per ogni categoria di costo su
 msgid "Set due date"
 msgstr "Imposta data di scadenza"
 
-msgid "Set on the item in the Properties panel"
-msgstr "Impostare sull'elemento nel pannello Proprietà"
-
 msgid "Set Pricing"
 msgstr "Imposta Prezzi"
 

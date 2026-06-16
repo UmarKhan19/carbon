@@ -7210,9 +7210,6 @@ msgstr "Установите процентные надбавки по умол
 msgid "Set due date"
 msgstr "Установить срок"
 
-msgid "Set on the item in the Properties panel"
-msgstr "Установить на элементе в панели свойств"
-
 msgid "Set Pricing"
 msgstr "Установить цену"
 

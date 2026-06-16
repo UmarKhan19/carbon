@@ -7210,9 +7210,6 @@ msgstr "Définir les pourcentages de majoration par défaut pour chaque catégor
 msgid "Set due date"
 msgstr "Définir la date d'échéance"
 
-msgid "Set on the item in the Properties panel"
-msgstr "Défini sur l'article dans le panneau Propriétés"
-
 msgid "Set Pricing"
 msgstr "Définir la tarification"
 

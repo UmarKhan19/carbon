@@ -7210,9 +7210,6 @@ msgstr "Defina percentuais de margem padrão para cada categoria de custo em nov
 msgid "Set due date"
 msgstr "Definir data de vencimento"
 
-msgid "Set on the item in the Properties panel"
-msgstr "Definir no item no painel Propriedades"
-
 msgid "Set Pricing"
 msgstr "Definir Preço"
 

@@ -55471,6 +55471,7 @@ export type Database = {
             | null
           revision: string | null
           revisions: Json | null
+          sourcingType: Database["public"]["Enums"]["sourcingType"] | null
           supplierIds: string | null
           tags: string[] | null
           thumbnailPath: string | null
