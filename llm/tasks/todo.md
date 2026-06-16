@@ -31,5 +31,10 @@
 - Upload PDF → auto-fill form invoice (supplier, currency, dates, payment terms, line items)
 - Upload PDF → auto-fill form RFQ (customer, contacts, location, line items)
 - Supplier baru dibuat dari invoice → currency pre-fill dari invoice (bukan hardcode USD)
-- AI extraction lebih tahan timeout (60s, 5 retries)
+## Typecheck fixes
+
+- [x] Remove unused `// @ts-expect-error` at line 286 of `apps/erp/app/routes/api+/kanban.$id.tsx`. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+- [x] Remove `setupPrice: 0` at line 295 of `apps/erp/app/routes/api+/kanban.$id.tsx`. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+- [x] Verify that typechecking compiles successfully. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+
 
