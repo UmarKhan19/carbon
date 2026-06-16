@@ -1,6 +1,7 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import type {
   TrackedEntityOption,
+  TrackedEntityPickOrder,
   TrackedEntitySelection
 } from "@carbon/react";
 import {
@@ -289,6 +290,7 @@ function PickLineItem({
     quantityRequired: number;
     nearExpiryWarningDays: number;
     expiredEntityPolicy: "Warn" | "Block" | "BlockWithOverride";
+    defaultOrder: TrackedEntityPickOrder;
   }>();
 
   useEffect(() => {
