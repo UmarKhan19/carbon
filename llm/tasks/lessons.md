@@ -89,6 +89,16 @@ Patterns learned from corrections. Review at the start of each session.
 - **ALWAYS** implement dynamic database lookups (e.g., using `ilike` name matching on `supplier`, `customer`, or `paymentTerm` tables) on the frontend form side when the extraction completes.
 - Once the entity ID is resolved, update the related states and fetch secondary dependent information (like supplier contact, location, and billing settings) to fully populate the form, matching the behavior of a manual selection.
 
+## Committing Best Practices
+
+- **Do not commit local environment configuration files:** Files that contain local development configurations (like `docker-compose.yml`, `docker-compose.dev.yml`, `packages/dev/src/env.ts`, `packages/dev/src/services/apps.ts`, and `packages/dev/src/worktree.ts`) must remain local and unstaged. Avoid committing them unless the user explicitly requests it.
 
 
 
+## Exchange Rate Calculations
+
+- **Direction of exchange rate conversions**: Always verify whether the exchange rate represents `1 base currency = X transaction currency` or `1 transaction currency = X base currency`. In Carbon, exchange rates represent how many transaction currency units make up 1 base currency unit (e.g. 1 USD = 15,000 IDR).
+  - To convert from transaction currency (supplier currency) to base currency (company currency), **divide** by the exchange rate: `supplierUnitPrice / exchangeRate`.
+  - To convert from base currency to transaction currency, **multiply** by the exchange rate: `unitPrice * exchangeRate`.
+  - Stored generated columns in the database (like `"unitPrice"` on `"purchaseInvoiceLine"` and `"purchaseOrderLine"`) use division (`"supplierUnitPrice" / exchangeRate`). Therefore, frontend shipping/tax calculations and any custom fallback code must align with this logic to avoid displaying identical base/transaction values or incorrect multipliers.
+- **Trigger Propagation**: Ensure Postgres triggers propagating `exchangeRate` from documents (`purchaseInvoice`) to lines (`purchaseInvoiceLine`) use the correct line-item column names (e.g., `invoiceId` instead of `purchaseInvoiceId`). Always write migrations to backfill historical line-item values when correcting trigger issues.
