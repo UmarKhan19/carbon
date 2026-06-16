@@ -173,13 +173,20 @@ Schema structure:
 
         const provider = createOpenAI({
           apiKey: aiApiKey,
-          baseURL: aiBaseUrl
+          baseURL: aiBaseUrl,
+          fetch: async (url, init) => {
+            return fetch(url, {
+              ...init,
+              signal: AbortSignal.timeout(60_000)
+            });
+          }
         });
 
         const model = provider.chat(aiModelName);
 
         const result = await generateText({
           model,
+          maxRetries: 5,
           messages: [
             {
               role: "user",
