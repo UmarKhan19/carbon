@@ -1,4 +1,4 @@
-import { error, useCarbon } from "@carbon/auth";
+import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import {
@@ -10,45 +10,35 @@ import {
   ValidatedForm,
   validator
 } from "@carbon/form";
-import type { JSONContent } from "@carbon/react";
 import {
-  Badge,
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
   cn,
-  generateHTML,
   Heading,
   HStack,
   Label,
   ScrollArea,
   Switch,
   toast,
-  useDebounce,
   VStack
 } from "@carbon/react";
-import { Editor } from "@carbon/react/Editor";
-import { getLocalTimeZone, today } from "@internationalized/date";
 import { msg } from "@lingui/core/macro";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect, useState } from "react";
-import { LuCircleCheck } from "react-icons/lu";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
 import { EmailRecipients, Users } from "~/components/Form";
 import Country from "~/components/Form/Country";
-import { usePermissions, useUser } from "~/hooks";
 import {
   accountsReceivableBillingAddressValidator,
   defaultCustomerCcValidator,
   digitalQuoteValidator,
   getAccountsReceivableBillingAddress,
   getCompanySettings,
-  getTerms,
   quoteLineCategoryMarkupsSettingsValidator,
   rfqReadyValidator,
   updateAccountsReceivableAddressSetting,
@@ -57,7 +47,6 @@ import {
   updateDigitalQuoteSetting,
   updateQuoteLineCategoryMarkups,
   updateRfqReadySetting,
-  updateSalesPdfThumbnails,
   updateShowCustomerReadableIdSetting
 } from "~/modules/settings";
 import type { Handle } from "~/utils/handle";
@@ -73,9 +62,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     view: "settings"
   });
 
-  const [companySettings, terms, arBillingAddress] = await Promise.all([
+  const [companySettings, arBillingAddress] = await Promise.all([
     getCompanySettings(client, companyId),
-    getTerms(client, companyId),
     getAccountsReceivableBillingAddress(client, companyId)
   ]);
   if (!companySettings.data)
@@ -88,7 +76,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     );
   return {
     companySettings: companySettings.data,
-    terms: terms.data,
     arBillingAddress: arBillingAddress.data
   };
 }
@@ -156,20 +143,6 @@ export async function action({ request }: ActionFunctionArgs) {
         return { success: false, message: digitalQuote.error.message };
 
       return { success: true, message: "Digital quote setting updated" };
-
-    case "pdfs": {
-      const pdfEnabled = formData.get("enabled") === "true";
-      const thumbnailsResult = await updateSalesPdfThumbnails(
-        client,
-        companyId,
-        pdfEnabled
-      );
-
-      if (thumbnailsResult.error)
-        return { success: false, message: thumbnailsResult.error.message };
-
-      return { success: true, message: "PDF settings updated" };
-    }
 
     case "rfq":
       const rfqValidation =
@@ -274,8 +247,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function SalesSettingsRoute() {
   const { t } = useLingui();
-  const { companySettings, terms, arBillingAddress } =
-    useLoaderData<typeof loader>();
+  const { companySettings, arBillingAddress } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
   const toggleFetcher = useFetcher<typeof action>();
   const [arAddressEnabled, setArAddressEnabled] = useState(
@@ -333,46 +305,6 @@ export default function SalesSettingsRoute() {
     }
   }, [toggleFetcher.data?.message, toggleFetcher.data?.success]);
 
-  const permissions = usePermissions();
-  const { carbon } = useCarbon();
-  const {
-    id: userId,
-    company: { id: companyId }
-  } = useUser();
-
-  const [salesTermsStatus, setSalesTermsStatus] = useState<"saved" | "draft">(
-    "saved"
-  );
-
-  const handleUpdateSalesTerms = (content: JSONContent) => {
-    setSalesTermsStatus("draft");
-    onUpdateSalesTerms(content);
-  };
-
-  const onUpdateSalesTerms = useDebounce(
-    async (content: JSONContent) => {
-      setSalesTermsStatus("draft");
-      await carbon
-        ?.from("terms")
-        .update({
-          salesTerms: content,
-          updatedAt: today(getLocalTimeZone()).toString(),
-          updatedBy: userId
-        })
-        .eq("id", companyId);
-      setSalesTermsStatus("saved");
-    },
-    2500,
-    true
-  );
-
-  const onUploadImage = async (file: File) => {
-    // Implement image upload logic here
-    // This is a placeholder function
-    console.error("Image upload not implemented", file);
-    return "";
-  };
-
   return (
     <ScrollArea className="w-full h-[calc(100dvh-49px)]">
       <VStack
@@ -386,46 +318,6 @@ export default function SalesSettingsRoute() {
         <p className="mt-4 text-xxs text-foreground/70 uppercase font-light tracking-wide">
           <Trans>Documents</Trans>
         </p>
-
-        <Card>
-          <HStack className="justify-between items-start">
-            <CardHeader>
-              <CardTitle>
-                <Trans>Sales Terms &amp; Conditions</Trans>
-              </CardTitle>
-              <CardDescription>
-                <Trans>
-                  Define the terms and conditions for quotes and sales orders
-                </Trans>
-              </CardDescription>
-            </CardHeader>
-            <CardAction className="py-6">
-              {salesTermsStatus === "draft" ? (
-                <Badge variant="secondary">
-                  <Trans>Draft</Trans>
-                </Badge>
-              ) : (
-                <LuCircleCheck className="w-4 h-4 text-emerald-500" />
-              )}
-            </CardAction>
-          </HStack>
-          <CardContent>
-            {permissions.can("update", "settings") ? (
-              <Editor
-                initialValue={(terms?.salesTerms ?? {}) as JSONContent}
-                onUpload={onUploadImage}
-                onChange={handleUpdateSalesTerms}
-              />
-            ) : (
-              <div
-                className="prose dark:prose-invert"
-                dangerouslySetInnerHTML={{
-                  __html: generateHTML(terms?.salesTerms as JSONContent)
-                }}
-              />
-            )}
-          </CardContent>
-        </Card>
 
         <Card>
           <ValidatedForm
@@ -549,34 +441,6 @@ export default function SalesSettingsRoute() {
             </ValidatedForm>
           </Card>
         )}
-        <Card>
-          <CardHeader>
-            <HStack className="justify-between items-center">
-              <div>
-                <CardTitle>
-                  <Trans>Include Thumbnails on Sales Documents</Trans>
-                </CardTitle>
-                <CardDescription>
-                  <Trans>
-                    Show part thumbnails on quotes, sales orders, invoices, and
-                    shipments.
-                  </Trans>
-                </CardDescription>
-              </div>
-              <Switch
-                checked={companySettings.includeThumbnailsOnSalesPdfs ?? true}
-                onCheckedChange={(checked) => {
-                  toggleFetcher.submit(
-                    { intent: "pdfs", enabled: String(checked) },
-                    { method: "POST" }
-                  );
-                }}
-                disabled={toggleFetcher.state !== "idle"}
-              />
-            </HStack>
-          </CardHeader>
-        </Card>
-
         <p className="mt-4 text-xxs text-foreground/70 uppercase font-light tracking-wide">
           <Trans>Customers</Trans>
         </p>

@@ -674,6 +674,33 @@ export async function getStorageUnitChildren(
     .order("name");
 }
 
+// Descendants of the given root ids, from just below the roots (depth > 1) down
+// to `maxDepth` inclusive. A node is a descendant of a root when that root
+// appears in its ancestorPath, so a single `overlaps` query returns the
+// subtrees in one round trip. Used to render the tree expanded by default;
+// the depth cap keeps very deep trees from loading their entire subtree
+// eagerly — anything below `maxDepth` still lazy-loads on demand.
+export async function getStorageUnitSubtrees(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  locationId: string,
+  rootIds: string[],
+  maxDepth: number
+) {
+  if (rootIds.length === 0) {
+    return { data: [] as any[], error: null };
+  }
+  return client
+    .from("storageUnits_recursive")
+    .select("*")
+    .eq("companyId", companyId)
+    .eq("locationId", locationId)
+    .gt("depth", 1)
+    .lte("depth", maxDepth)
+    .overlaps("ancestorPath", rootIds)
+    .order("name");
+}
+
 // Set of storageUnit ids that have at least one child in the given location.
 // Drives whether the table renders an expand chevron on a row.
 export async function getStorageUnitParentIdsWithChildren(

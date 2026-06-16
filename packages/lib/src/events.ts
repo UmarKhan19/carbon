@@ -277,6 +277,26 @@ export type Events = {
     };
   };
 
+  // Print job events
+  "carbon/print-job": {
+    data: {
+      sourceDocument: string;
+      sourceDocumentId: string;
+      companyId: string;
+      userId: string;
+      locationId?: string;
+      workCenterId?: string;
+      printerRouteId?: string;
+    };
+  };
+
+  "carbon/print-job-deliver": {
+    data: {
+      printJobId: string;
+      companyId: string;
+    };
+  };
+
   // Cleanup tasks
   "carbon/cleanup": {
     data: Record<string, never>;

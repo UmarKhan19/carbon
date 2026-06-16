@@ -24,6 +24,7 @@ import {
   LuTrash
 } from "react-icons/lu";
 import { useFetcher, useParams } from "react-router";
+import { PrintButton } from "~/components";
 import Assignee, { useOptimisticAssignment } from "~/components/Assignee";
 import { useAuditLog } from "~/components/AuditLog";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
@@ -97,6 +98,10 @@ const StockTransferHeader = () => {
     (line) => line.pickedQuantity && line.pickedQuantity > 0
   );
 
+  const hasTrackedLines = routeData?.stockTransferLines.some(
+    (line) => !!line.trackedEntityId
+  );
+
   return (
     <>
       <div className="flex flex-shrink-0 items-center justify-between px-4 py-2 bg-card border-b border-border h-[50px] overflow-x-auto scrollbar-hide dark:border-none dark:shadow-[inset_0_0_1px_rgb(255_255_255_/_0.24),_0_0_0_0.5px_rgb(0,0,0,1)]">
@@ -167,6 +172,18 @@ const StockTransferHeader = () => {
               table="stockTransfer"
               isReadOnly={!permissions.can("update", "inventory")}
             />
+            {hasTrackedLines && (
+              <PrintButton
+                sourceDocument="StockTransfer"
+                sourceDocumentId={id}
+                locationId={routeData?.stockTransfer?.locationId ?? undefined}
+                context="inventory"
+                fileRoutes={{
+                  pdf: path.to.file.stockTransferLabelsPdf,
+                  zpl: path.to.file.stockTransferLabelsZpl
+                }}
+              />
+            )}
             <Button variant="secondary" leftIcon={<LuBarcode />} asChild>
               <a
                 target="_blank"

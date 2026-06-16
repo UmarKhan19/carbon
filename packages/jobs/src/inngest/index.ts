@@ -43,6 +43,8 @@ import {
   modelThumbnailFunction,
   onboardFunction,
   postTransactionFunction,
+  printJobDeliverFunction,
+  printJobFunction,
   recalculateFunction,
   rescheduleJobFunction,
   updatePermissionsFunction,
@@ -71,6 +73,8 @@ export const functions = [
   postTransactionFunction,
   rescheduleJobFunction,
   onboardFunction,
+  printJobFunction,
+  printJobDeliverFunction,
   // Scheduled
   cleanupFunction,
   dispatchFunction,

@@ -12,6 +12,9 @@ import {
   updateCompanySession
 } from "@carbon/auth/session.server";
 import { isAuditLogEnabled } from "@carbon/database/audit";
+import type { PrintingSettings } from "@carbon/printing";
+import { getPrinterRoutes } from "@carbon/printing";
+import { PrintingProvider } from "@carbon/printing/ui";
 import {
   ItarPopup,
   TooltipProvider,
@@ -113,7 +116,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     groups,
     defaults,
     auditLogEnabled,
-    modulePreferences
+    modulePreferences,
+    printerRoutes
   ] = await Promise.all([
     getCompanies(client, userId),
     getEmployeeCompanies(client, userId),
@@ -127,7 +131,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     getUserGroups(client, userId),
     getUserDefaults(client, userId, companyId),
     isAuditLogEnabled(client, companyId),
-    getModulePreferences(client, userId, companyId)
+    getModulePreferences(client, userId, companyId),
+    getPrinterRoutes(client, companyId)
   ]);
 
   if (!claims || user.error || !user.data || !groups.data) {
@@ -203,6 +208,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     user: user.data,
     modulePreferences: modulePreferences.data ?? [],
     savedViews: savedViews.data ?? [],
+    printerRoutes: printerRoutes.data ?? [],
     supplierApprovalRequired: isApprovalRequired(client, "supplier", companyId),
     openClockEntry: companySettings.data?.timeCardEnabled
       ? getOpenClockEntry(client, userId, companyId)
@@ -211,7 +217,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function AuthenticatedRoute() {
-  const { session, user, companySettings, openClockEntry } =
+  const { session, user, companySettings, openClockEntry, printerRoutes } =
     useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const { isOpen, training, dismiss } = useTrainingPanel();
@@ -247,42 +253,53 @@ export default function AuthenticatedRoute() {
         />
       ) : (
         <CarbonProvider session={session}>
-          <RealtimeDataProvider>
-            <TooltipProvider>
-              <div className="flex flex-col h-screen">
-                <Topbar />
-                <div className="flex flex-1 h-[calc(100vh-49px)] relative">
-                  <PrimaryNavigation />
-                  <main className="flex-1 overflow-y-auto scrollbar-hide border-l border-t bg-muted sm:rounded-tl-2xl relative z-10">
-                    <Outlet />
-                  </main>
+          <PrintingProvider
+            value={{
+              printing:
+                (companySettings?.printing as PrintingSettings | null) ?? null,
+              printerRoutes,
+              useMetric: Boolean(companySettings?.useMetric),
+              printPath: path.to.manualPrint,
+              settingsPath: path.to.printingSettings
+            }}
+          >
+            <RealtimeDataProvider>
+              <TooltipProvider>
+                <div className="flex flex-col h-screen">
+                  <Topbar />
+                  <div className="flex flex-1 h-[calc(100vh-49px)] relative">
+                    <PrimaryNavigation />
+                    <main className="flex-1 overflow-y-auto scrollbar-hide border-l border-t bg-muted sm:rounded-tl-2xl relative z-10">
+                      <Outlet />
+                    </main>
+                  </div>
                 </div>
-              </div>
-              <TrainingPanel
-                training={training}
-                isOpen={isOpen}
-                onDismiss={dismiss}
-              />
-              {companySettings?.timeCardEnabled && (
-                <Suspense fallback={null}>
-                  <Await resolve={openClockEntry}>
-                    {(resolved) => (
-                      <TimeCardWarning
-                        openClockEntry={
-                          resolved?.data
-                            ? {
-                                id: resolved.data.id,
-                                clockIn: resolved.data.clockIn
-                              }
-                            : null
-                        }
-                      />
-                    )}
-                  </Await>
-                </Suspense>
-              )}
-            </TooltipProvider>
-          </RealtimeDataProvider>
+                <TrainingPanel
+                  training={training}
+                  isOpen={isOpen}
+                  onDismiss={dismiss}
+                />
+                {companySettings?.timeCardEnabled && (
+                  <Suspense fallback={null}>
+                    <Await resolve={openClockEntry}>
+                      {(resolved) => (
+                        <TimeCardWarning
+                          openClockEntry={
+                            resolved?.data
+                              ? {
+                                  id: resolved.data.id,
+                                  clockIn: resolved.data.clockIn
+                                }
+                              : null
+                          }
+                        />
+                      )}
+                    </Await>
+                  </Suspense>
+                )}
+              </TooltipProvider>
+            </RealtimeDataProvider>
+          </PrintingProvider>
         </CarbonProvider>
       )}
     </div>

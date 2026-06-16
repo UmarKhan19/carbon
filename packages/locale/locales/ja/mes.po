@@ -21,10 +21,6 @@ msgstr "{0} - セット {1}"
 msgid "{0} Active"
 msgstr "{0} アクティブ"
 
-#. placeholder {0}: batch.quantity
-msgid "{0} available"
-msgstr "{0} 利用可能"
-
 #. placeholder {0}: operation.quantityComplete
 #. placeholder {0}: serialIndex + 1
 #. placeholder {1}: operation.operationQuantity
@@ -63,6 +59,9 @@ msgstr "追加"
 
 msgid "Add & Issue"
 msgstr "追加して払出"
+
+msgid "Add a printer in the printing settings to print labels directly."
+msgstr "印刷設定でプリンターを追加して、ラベルを直接印刷します。"
 
 msgid "Add Inventory"
 msgstr "在庫追加"
@@ -105,11 +104,6 @@ msgstr "認証エラー"
 
 msgid "Batch"
 msgstr "バッチ"
-
-#. placeholder {0}: batch.readableId
-#. placeholder {1}: batch.quantity
-msgid "Batch {0} ({1} available)"
-msgstr "バッチ {0}（{1} 利用可能）"
 
 msgid "Batch is not available"
 msgstr "バッチは利用できません"
@@ -272,6 +266,9 @@ msgstr "停止"
 msgid "Download"
 msgstr "ダウンロード"
 
+msgid "Download Labels"
+msgstr "ラベルをダウンロード"
+
 msgid "Drag and drop a file here, or click to select a file"
 msgstr "ファイルをここにドラッグ＆ドロップするか、クリックしてファイルを選択してください"
 
@@ -387,6 +384,9 @@ msgstr "アイデア、提案、または問題はありますか？"
 msgid "Impact"
 msgstr "影響"
 
+msgid "Imperial"
+msgstr "インペリアル"
+
 msgid "In Progress"
 msgstr "進行中"
 
@@ -501,6 +501,9 @@ msgstr "材料"
 msgid "Maximum number of records reached"
 msgstr "レコードの最大数に達しました"
 
+msgid "Metric"
+msgstr "メートル法"
+
 msgid "Model"
 msgstr "モデル"
 
@@ -579,6 +582,9 @@ msgstr "オプションが見つかりません。"
 
 msgid "No options found."
 msgstr "オプションが見つかりません。"
+
+msgid "No printer configured"
+msgstr "プリンターが設定されていません"
 
 msgid "No recent operations"
 msgstr "最近の工程はありません"
@@ -682,6 +688,12 @@ msgstr "前へ"
 
 msgid "Preventive"
 msgstr "予防保全"
+
+msgid "Print"
+msgstr "印刷"
+
+msgid "Printer Settings"
+msgstr "プリンター設定"
 
 msgid "Priority"
 msgstr "優先度"
@@ -808,6 +820,9 @@ msgstr "品目を選択..."
 msgid "Select Batch {0}"
 msgstr "バッチ {0} を選択"
 
+msgid "Select Printer"
+msgstr "プリンターを選択"
+
 #. placeholder {0}: index + 1
 msgid "Select Serial {0}"
 msgstr "シリアル {0} を選択"
@@ -823,10 +838,6 @@ msgstr "送信"
 
 msgid "Serial"
 msgstr "シリアル"
-
-#. placeholder {0}: sn.readableId
-msgid "Serial {0}"
-msgstr "シリアル {0}"
 
 #. placeholder {0}: index + 1
 msgid "Serial Number {0}"
@@ -961,9 +972,6 @@ msgstr "合計: {0}"
 
 msgid "Tracking"
 msgstr "追跡"
-
-msgid "Tracking Labels"
-msgstr "追跡ラベル"
 
 msgid "Type a message..."
 msgstr "メッセージを入力..."

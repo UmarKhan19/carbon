@@ -44,7 +44,7 @@ import {
   ShelfLifeStartTiming,
   Submit
 } from "~/components/Form";
-import { StorageUnitDrillSelectField } from "~/components/Form/StorageUnitDrillSelect";
+import StorageUnit from "~/components/Form/StorageUnit";
 import { usePermissions, useSettings, useUser } from "~/hooks";
 import type { ListItem } from "~/types";
 import { path } from "~/utils/path";
@@ -181,11 +181,10 @@ const PickMethodForm = ({
           <Hidden name="itemId" />
           <Hidden name="locationId" />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-4 w-full">
-            <StorageUnitDrillSelectField
+            <StorageUnit
               name="defaultStorageUnitId"
               label={t`Default Storage Unit`}
               locationId={initialValues.locationId}
-              className="w-full"
             />
 
             {shelfLifeApplicable && (

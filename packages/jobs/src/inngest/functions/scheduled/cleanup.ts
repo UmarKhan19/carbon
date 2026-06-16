@@ -278,7 +278,44 @@ export const cleanupFunction = inngest.createFunction(
         console.log("No gauges going out of calibration found");
       }
 
-      console.log(`Cleanup tasks completed: ${new Date().toISOString()}`);
+      // Clean up old print jobs:
+      // - Completed jobs older than 30 days (served their purpose)
+      // - Failed jobs older than 90 days (retained longer for diagnostics)
+      // - Jobs in generating, queued, or printing status are never cleaned up
+      console.log("Cleaning up old print jobs...");
+      const thirtyDaysAgo = new Date(
+        Date.now() - 30 * 24 * 60 * 60 * 1000
+      ).toISOString();
+      const ninetyDaysAgo = new Date(
+        Date.now() - 90 * 24 * 60 * 60 * 1000
+      ).toISOString();
+
+      const [completedCleanup, failedCleanup] = await Promise.all([
+        serviceRole
+          .from("printJob")
+          .delete()
+          .eq("status", "completed")
+          .lt("completedAt", thirtyDaysAgo),
+        serviceRole
+          .from("printJob")
+          .delete()
+          .eq("status", "failed")
+          .lt("createdAt", ninetyDaysAgo)
+      ]);
+
+      if (completedCleanup.error) {
+        console.error(
+          `Error cleaning up completed print jobs: ${JSON.stringify(completedCleanup.error)}`
+        );
+      }
+      if (failedCleanup.error) {
+        console.error(
+          `Error cleaning up failed print jobs: ${JSON.stringify(failedCleanup.error)}`
+        );
+      }
+      console.log("Print job cleanup completed");
+
+      console.log(`🧹 Cleanup tasks completed: ${new Date().toISOString()}`);
     });
   }
 );

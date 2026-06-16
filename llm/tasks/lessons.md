@@ -102,3 +102,15 @@ Patterns learned from corrections. Review at the start of each session.
   - To convert from base currency to transaction currency, **multiply** by the exchange rate: `unitPrice * exchangeRate`.
   - Stored generated columns in the database (like `"unitPrice"` on `"purchaseInvoiceLine"` and `"purchaseOrderLine"`) use division (`"supplierUnitPrice" / exchangeRate`). Therefore, frontend shipping/tax calculations and any custom fallback code must align with this logic to avoid displaying identical base/transaction values or incorrect multipliers.
 - **Trigger Propagation**: Ensure Postgres triggers propagating `exchangeRate` from documents (`purchaseInvoice`) to lines (`purchaseInvoiceLine`) use the correct line-item column names (e.g., `invoiceId` instead of `purchaseInvoiceId`). Always write migrations to backfill historical line-item values when correcting trigger issues.
+
+## Verify which component a callsite actually renders before calling it "broken"
+
+- When auditing a shared component's callsites, confirm the JSX tag resolves to
+  the import you think it does. A name like `<StorageUnit>` can be a *local*
+  function in the same file (ShipmentLines defines its own `StorageUnit` over
+  `useStorageUnits` + `Combobox`), not the shared shim. I wrongly concluded the
+  shim was "broken" and edited the callsite, breaking the type (`storageUnit`
+  was a `string` there, not `ListItem`).
+- Rule: before claiming a callsite is broken or changing its `onChange` shape,
+  grep the file for a local `function <Name>` / `const <Name> =` shadowing the
+  import, and check the actual prop/callback types at that callsite.
