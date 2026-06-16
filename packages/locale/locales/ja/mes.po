@@ -103,7 +103,7 @@ msgid "Authentication Error"
 msgstr "認証エラー"
 
 msgid "available"
-msgstr ""
+msgstr "利用可能"
 
 msgid "Batch"
 msgstr "バッチ"
@@ -135,7 +135,7 @@ msgid "Cancel"
 msgstr "キャンセル"
 
 msgid "Cancelled"
-msgstr ""
+msgstr "キャンセル済み"
 
 msgid "Carbon Logo"
 msgstr "Carbonロゴ"
@@ -236,7 +236,7 @@ msgid "Deadline"
 msgstr "期限"
 
 msgid "Default"
-msgstr ""
+msgstr "デフォルト"
 
 msgid "Default Storage Unit"
 msgstr "デフォルト保管ユニット"
@@ -279,7 +279,7 @@ msgid "Download Labels"
 msgstr "ラベルをダウンロード"
 
 msgid "Draft"
-msgstr ""
+msgstr "下書き"
 
 msgid "Drag and drop a file here, or click to select a file"
 msgstr "ファイルをここにドラッグ＆ドロップするか、クリックしてファイルを選択してください"
@@ -329,16 +329,16 @@ msgid "Estimated"
 msgstr "見積"
 
 msgid "Expired"
-msgstr ""
+msgstr "期限切れ"
 
 msgid "Expired {date}"
-msgstr ""
+msgstr "期限切れ {date}"
 
 msgid "Expires {date}"
-msgstr ""
+msgstr "有効期限 {date}"
 
 msgid "Expiring first"
-msgstr ""
+msgstr "最初に期限切れ"
 
 msgid "Failed to complete inventory adjustment"
 msgstr "在庫調整の完了に失敗しました"
@@ -394,7 +394,7 @@ msgid "Have a technical issue? Contact <0>Carbon Support.</0>"
 msgstr "技術的な問題がありますか？<0>Carbonサポート</0>にお問い合わせください。"
 
 msgid "How many were actually picked?"
-msgstr ""
+msgstr "実際にはいくつ選ばれましたか？"
 
 msgid "I understand and want to complete without issuing"
 msgstr "理解した上で払出なしで完了します"
@@ -472,7 +472,7 @@ msgid "Let's build something"
 msgstr "さあ、何かを作りましょう"
 
 msgid "lines"
-msgstr ""
+msgstr "行"
 
 msgid "Loading item details..."
 msgstr "品目詳細を読み込み中..."
@@ -523,7 +523,7 @@ msgid "Manually remove items from inventory"
 msgstr "手動で在庫から品目を削除"
 
 msgid "Mark Short"
-msgstr ""
+msgstr "短い数量をマーク"
 
 msgid "matches"
 msgstr "が一致"
@@ -572,7 +572,7 @@ msgid "New Record"
 msgstr "新規レコード"
 
 msgid "Newest first"
-msgstr ""
+msgstr "最新順"
 
 msgid "Next"
 msgstr "次へ"
@@ -593,7 +593,7 @@ msgid "No available serial numbers found"
 msgstr "利用可能なシリアル番号が見つかりません"
 
 msgid "No available tracked entities found"
-msgstr ""
+msgstr "利用可能な追跡対象エンティティが見つかりません"
 
 msgid "No dispatches assigned to you"
 msgstr "あなたに割り当てられたディスパッチはありません"
@@ -623,7 +623,7 @@ msgid "No options found."
 msgstr "オプションが見つかりません。"
 
 msgid "No picking lists assigned"
-msgstr ""
+msgstr "ピッキングリストが割り当てられていません"
 
 msgid "No printer configured"
 msgstr "プリンターが設定されていません"
@@ -653,13 +653,13 @@ msgid "No spare parts added yet"
 msgstr "スペアパーツはまだ追加されていません"
 
 msgid "No stock"
-msgstr ""
+msgstr "在庫なし"
 
 msgid "No time entries for this week"
 msgstr "今週のタイムエントリーはありません"
 
 msgid "No warehouse stock is on record for this item. You can still pick it — on-hand will go negative until the count is reconciled."
-msgstr ""
+msgstr "このアイテムの倉庫在庫は記録されていません。それでも選択できます。在庫数が負になるまで、実在庫は負のままになります。"
 
 msgid "No work centers are blocked"
 msgstr "ブロックされているワークセンターはありません"
@@ -677,7 +677,7 @@ msgid "OEM Required"
 msgstr "OEM対応必要"
 
 msgid "Oldest first"
-msgstr ""
+msgstr "最も古い順"
 
 #. placeholder {0}: batch.quantity
 msgid "Only {0} available"
@@ -717,13 +717,13 @@ msgid "Pause"
 msgstr "一時停止"
 
 msgid "Pick"
-msgstr ""
+msgstr "ピック"
 
 msgid "Pick tracked item"
-msgstr ""
+msgstr "追跡品目をピック"
 
 msgid "Picked quantity"
-msgstr ""
+msgstr "ピック数量"
 
 #. placeholder {0}: startColumn?.title
 #. placeholder {1}: startIndex + 1
@@ -732,7 +732,7 @@ msgid "Picked up Column {0} at position: {1} of {2}"
 msgstr "カラム {0} を位置 {1}/{2} で選択しました"
 
 msgid "Picking"
-msgstr ""
+msgstr "ピッキング"
 
 msgid "Pin Out"
 msgstr "ピンアウト"
@@ -832,7 +832,7 @@ msgid "Scan or enter serial number"
 msgstr "シリアル番号をスキャンまたは入力"
 
 msgid "Scan or enter tracking number"
-msgstr ""
+msgstr "スキャンまたは追跡番号を入力"
 
 msgid "Scan or search serial number..."
 msgstr "シリアル番号をスキャンまたは検索..."
@@ -931,10 +931,10 @@ msgid "Setup"
 msgstr "段取り"
 
 msgid "Short"
-msgstr ""
+msgstr "不足"
 
 msgid "Short pick {itemName}"
-msgstr ""
+msgstr "短いピック {itemName}"
 
 msgid "Sign in with Email"
 msgstr "メールでサインイン"
@@ -1016,7 +1016,7 @@ msgid "There are serial or batch tracked materials on the bill of material that 
 msgstr "部品表にシリアルまたはバッチ追跡対象の材料が完全に払い出されていません。払出なしで完了すると、トレーサビリティ記録が不正確になる可能性があります。"
 
 msgid "This lot is expired and can't be picked."
-msgstr ""
+msgstr "このロットは期限切れであり、ピックできません。"
 
 msgid "Thumbnail"
 msgstr "サムネイル"
@@ -1058,11 +1058,11 @@ msgid "Unknown"
 msgstr "不明"
 
 msgid "Unpick"
-msgstr ""
+msgstr "ピッキング解除"
 
 #. placeholder {0}: pickedLots[0].trackedEntity.readableId
 msgid "Unpick {0}"
-msgstr ""
+msgstr "ピック解除 {0}"
 
 msgid "Unsaved changes"
 msgstr "未保存の変更"

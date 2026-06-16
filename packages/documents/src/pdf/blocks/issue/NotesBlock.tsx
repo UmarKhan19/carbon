@@ -1,11 +1,12 @@
 import type { JSONContent } from "@carbon/react";
 import { Text, View } from "@react-pdf/renderer";
 import { Note } from "../../components";
-import { tw } from "../tw";
+import { useTw } from "../tw";
 import type { IssueData } from "./types";
 
 /** Description of the issue (rich text). Renders nothing when empty. */
 export function NotesBlock({ data }: { data: IssueData }) {
+  const tw = useTw();
   const { nonConformance } = data;
   if (Object.keys(nonConformance.content ?? {}).length === 0) return null;
 

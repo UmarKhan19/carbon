@@ -561,6 +561,24 @@ export async function getAvailableTrackedEntities(
   });
 }
 
+/**
+ * The configured tracked-entity pick order for an item at a location, used as
+ * the picker's default sort. Falls back to "Default" (smart) when unset.
+ */
+export async function getPickOrder(
+  client: SupabaseClient<Database>,
+  args: { itemId: string; locationId: string; companyId: string }
+): Promise<Database["public"]["Enums"]["pickMethodSortMethod"]> {
+  const { data } = await client
+    .from("pickMethod")
+    .select("sortMethod")
+    .eq("itemId", args.itemId)
+    .eq("locationId", args.locationId)
+    .eq("companyId", args.companyId)
+    .maybeSingle();
+  return data?.sortMethod ?? "Default";
+}
+
 export async function getBatchNumbersForItem(
   client: SupabaseClient<Database>,
   args: {
@@ -720,6 +738,33 @@ export async function getStorageUnitChildren(
     .from("storageUnits_recursive")
     .select("*")
     .eq("parentId", parentId)
+    .order("name");
+}
+
+// Descendants of the given root ids, from just below the roots (depth > 1) down
+// to `maxDepth` inclusive. A node is a descendant of a root when that root
+// appears in its ancestorPath, so a single `overlaps` query returns the
+// subtrees in one round trip. Used to render the tree expanded by default;
+// the depth cap keeps very deep trees from loading their entire subtree
+// eagerly — anything below `maxDepth` still lazy-loads on demand.
+export async function getStorageUnitSubtrees(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  locationId: string,
+  rootIds: string[],
+  maxDepth: number
+) {
+  if (rootIds.length === 0) {
+    return { data: [] as any[], error: null };
+  }
+  return client
+    .from("storageUnits_recursive")
+    .select("*")
+    .eq("companyId", companyId)
+    .eq("locationId", locationId)
+    .gt("depth", 1)
+    .lte("depth", maxDepth)
+    .overlaps("ancestorPath", rootIds)
     .order("name");
 }
 

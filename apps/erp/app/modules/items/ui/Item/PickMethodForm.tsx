@@ -20,6 +20,7 @@ import {
   IconButton,
   Label,
   Switch,
+  usePickOrderOptions,
   VStack
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
@@ -45,7 +46,7 @@ import {
   ShelfLifeStartTiming,
   Submit
 } from "~/components/Form";
-import { StorageUnitDrillSelectField } from "~/components/Form/StorageUnitDrillSelect";
+import StorageUnit from "~/components/Form/StorageUnit";
 import { usePermissions, useSettings, useUser } from "~/hooks";
 import type { ListItem } from "~/types";
 import { path } from "~/utils/path";
@@ -107,6 +108,7 @@ const PickMethodForm = ({
   // types have no lots to order or expire.
   const isTracked =
     itemTrackingType === "Serial" || itemTrackingType === "Batch";
+  const pickOrderOptions = usePickOrderOptions();
   const { trigger: shelfLifeHistoryTrigger, drawer: shelfLifeHistoryDrawer } =
     useAuditLog({
       entityType: "itemShelfLife",
@@ -185,11 +187,10 @@ const PickMethodForm = ({
           <Hidden name="itemId" />
           <Hidden name="locationId" />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-4 w-full">
-            <StorageUnitDrillSelectField
+            <StorageUnit
               name="defaultStorageUnitId"
               label={t`Default Storage Unit`}
               locationId={initialValues.locationId}
-              className="w-full"
             />
 
             {isTracked && (
@@ -197,12 +198,7 @@ const PickMethodForm = ({
                 name="sortMethod"
                 label={t`Pick Order`}
                 helperText={t`Default order when picking serial or batch lots of this item. Pickers can still override it.`}
-                options={[
-                  { value: "Default", label: t`Default` },
-                  { value: "FEFO", label: t`Expiring first` },
-                  { value: "FIFO", label: t`Oldest first` },
-                  { value: "LIFO", label: t`Newest first` }
-                ]}
+                options={pickOrderOptions}
               />
             )}
 

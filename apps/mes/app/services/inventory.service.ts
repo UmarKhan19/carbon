@@ -178,6 +178,24 @@ export async function getAvailableTrackedEntities(
   });
 }
 
+/**
+ * The configured tracked-entity pick order for an item at a location, used as
+ * the picker's default sort. Falls back to "Default" (smart) when unset.
+ */
+export async function getPickOrder(
+  client: SupabaseClient<Database>,
+  args: { itemId: string; locationId: string; companyId: string }
+): Promise<Database["public"]["Enums"]["pickMethodSortMethod"]> {
+  const { data } = await client
+    .from("pickMethod")
+    .select("sortMethod")
+    .eq("itemId", args.itemId)
+    .eq("locationId", args.locationId)
+    .eq("companyId", args.companyId)
+    .maybeSingle();
+  return data?.sortMethod ?? "Default";
+}
+
 export async function insertManualInventoryAdjustment(
   client: SupabaseClient<Database>,
   inventoryAdjustment: z.infer<typeof inventoryAdjustmentValidator> & {

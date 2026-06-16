@@ -50,6 +50,10 @@ msgstr "{0}個の未サンプリングエンティティが利用可能にリリ
 msgid "{0} uploaded successfully"
 msgstr "{0}が正常にアップロードされました"
 
+#. placeholder {0}: unmatchedValues.length
+msgid "{0} values missing"
+msgstr "{0}個の値が見つかりません"
+
 msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB制限"
 
@@ -963,7 +967,7 @@ msgid "Assignments"
 msgstr "割り当て"
 
 msgid "Assigns this storage unit to a work center (lineside)"
-msgstr ""
+msgstr "このストレージユニットをワークセンター（ラインサイド）に割り当てます"
 
 msgid "At least one condition must match"
 msgstr "少なくとも1つの条件が一致する必要があります"
@@ -1038,7 +1042,7 @@ msgid "Automatically start the job when the kanban is scanned"
 msgstr "カンバンがスキャンされたときに自動的にジョブを開始します"
 
 msgid "available"
-msgstr ""
+msgstr "利用可能"
 
 msgid "Available"
 msgstr "利用可能"
@@ -1333,13 +1337,13 @@ msgid "Check your email"
 msgstr "メールを確認してください"
 
 msgid "Choose a batch number"
-msgstr ""
+msgstr "バッチ番号を選択"
 
 msgid "Choose a company"
 msgstr "会社を選択"
 
 msgid "Choose a serial number"
-msgstr ""
+msgstr "シリアル番号を選択"
 
 msgid "Choose another file"
 msgstr "別のファイルを選択"
@@ -1844,6 +1848,10 @@ msgstr "作成"
 msgid "Create {0}"
 msgstr "{0}を作成"
 
+#. placeholder {0}: unmatchedValues.length
+msgid "Create {0} values"
+msgstr "{0}個の値を作成"
+
 msgid "Create a new kanban card for scan-based replenishment."
 msgstr "スキャンベースの補充用に新しいかんばんカードを作成します。"
 
@@ -2126,7 +2134,7 @@ msgid "Customers"
 msgstr "顧客"
 
 msgid "Customize the layout of your PDF documents — reorder sections, hide what you don't need, and add your own blocks."
-msgstr ""
+msgstr "PDFドキュメントのレイアウトをカスタマイズ — セクションを並べ替え、不要な部分を非表示にし、独自のブロックを追加できます。"
 
 msgid "Daily Usage"
 msgstr "日次使用量"
@@ -2226,7 +2234,7 @@ msgid "Decide what an operator sees if they try to issue a batch or serial that'
 msgstr "オペレーターが既に期限切れのバッチまたはシリアルを発行しようとした場合に表示される内容を決定します。"
 
 msgid "Default"
-msgstr ""
+msgstr "デフォルト"
 
 msgid "Default Accounts"
 msgstr "デフォルトアカウント"
@@ -2247,7 +2255,7 @@ msgid "Default Method Type"
 msgstr "デフォルトメソッドタイプ"
 
 msgid "Default order when picking serial or batch lots of this item. Pickers can still override it."
-msgstr ""
+msgstr "このアイテムのシリアルまたはバッチロットをピッキングする際のデフォルト順序。ピッカーはそれでも上書きできます。"
 
 msgid "Default Permissions"
 msgstr "デフォルト権限"
@@ -2379,7 +2387,7 @@ msgid "Delete Payment Term"
 msgstr "支払い条件を削除"
 
 msgid "Delete Picking List"
-msgstr ""
+msgstr "ピッキングリストを削除"
 
 msgid "Delete Portal"
 msgstr "ポータルを削除"
@@ -2622,7 +2630,7 @@ msgid "Document Control"
 msgstr "ドキュメント管理"
 
 msgid "Document Templates"
-msgstr ""
+msgstr "ドキュメントテンプレート"
 
 msgid "Document:"
 msgstr "ドキュメント:"
@@ -2875,7 +2883,7 @@ msgid "Edit Permissions"
 msgstr "編集権限"
 
 msgid "Edit Picking List"
-msgstr ""
+msgstr "ピッキングリストを編集"
 
 msgid "Edit Portal"
 msgstr "ポータルを編集"
@@ -3272,7 +3280,7 @@ msgid "Expired"
 msgstr "期限切れ"
 
 msgid "Expired {date}"
-msgstr ""
+msgstr "期限切れ {date}"
 
 msgid "Expired batch"
 msgstr "期限切れバッチ"
@@ -3284,13 +3292,13 @@ msgid "Expires"
 msgstr "有効期限"
 
 msgid "Expires {date}"
-msgstr ""
+msgstr "有効期限 {date}"
 
 msgid "Expires At (optional)"
 msgstr "有効期限（オプション）"
 
 msgid "Expiring first"
-msgstr ""
+msgstr "最初に期限切れ"
 
 msgid "Expiry"
 msgstr "有効期限"
@@ -3808,7 +3816,7 @@ msgid "Generate new PIN"
 msgstr "新しいPINを生成"
 
 msgid "Generate Picking List"
-msgstr ""
+msgstr "ピッキングリストを生成"
 
 msgid "Generated IDs are disabled"
 msgstr "生成されたIDは無効です"
@@ -3895,7 +3903,7 @@ msgid "Hours/Piece"
 msgstr "時間/個"
 
 msgid "How many were actually picked?"
-msgstr ""
+msgstr "実際にはいくつ選ばれましたか？"
 
 msgid "How the resolved price was calculated."
 msgstr "解決された価格がどのように計算されたかを示します。"
@@ -4009,7 +4017,7 @@ msgid "Inherit From Materials"
 msgstr "材料から継承"
 
 msgid "Inherited from parent"
-msgstr ""
+msgstr "親から継承"
 
 msgid "Insert rows"
 msgstr "行を挿入"
@@ -4644,7 +4652,7 @@ msgid "Mark Partial"
 msgstr "部分的にマーク"
 
 msgid "Mark Short"
-msgstr ""
+msgstr "短い数量をマーク"
 
 msgid "Mark to delete"
 msgstr "削除対象にマーク"
@@ -5069,7 +5077,7 @@ msgid "New Payment Term"
 msgstr "新しい支払い条件"
 
 msgid "New Picking List"
-msgstr ""
+msgstr "新しいピッキングリスト"
 
 msgid "New PIN"
 msgstr "新しいPIN"
@@ -5180,7 +5188,7 @@ msgid "New Work Center"
 msgstr "新しい作業センター"
 
 msgid "Newest first"
-msgstr ""
+msgstr "最新順"
 
 msgid "Next"
 msgstr "次へ"
@@ -5242,7 +5250,7 @@ msgid "No available filters"
 msgstr "利用可能なフィルターがありません"
 
 msgid "No available tracked entities found"
-msgstr ""
+msgstr "利用可能な追跡対象エンティティが見つかりません"
 
 msgid "No BOM input has a shelf-life policy"
 msgstr "BOMインプットに棚卸資産有効期限ポリシーがありません"
@@ -5335,7 +5343,7 @@ msgid "No notes"
 msgstr "ノートなし"
 
 msgid "No operations require picking at this location"
-msgstr ""
+msgstr "この場所でのピッキングが必要な操作はありません"
 
 msgid "No operators."
 msgstr "オペレーターがありません。"
@@ -5407,7 +5415,7 @@ msgid "No sorts applied to this view"
 msgstr "このビューに適用されたソートはありません"
 
 msgid "No stock"
-msgstr ""
+msgstr "在庫なし"
 
 msgid "No time entries for this week"
 msgstr "今週のタイムエントリがありません"
@@ -5419,7 +5427,7 @@ msgid "No values available"
 msgstr "利用可能な値がありません"
 
 msgid "No warehouse stock is on record for this item. You can still pick it — on-hand will go negative until the count is reconciled."
-msgstr ""
+msgstr "このアイテムの倉庫在庫は記録されていません。それでも選択できます。実在庫がマイナスになり、数量が調整されるまで続きます。"
 
 msgid "No work center utilization data within range"
 msgstr "範囲内に作業センターの稼働率データがありません"
@@ -5500,7 +5508,7 @@ msgid "OK"
 msgstr "OK"
 
 msgid "Oldest first"
-msgstr ""
+msgstr "最も古いものから"
 
 msgid "On Hand"
 msgstr "手持在庫"
@@ -5860,28 +5868,28 @@ msgid "Pick List"
 msgstr "ピッキングリスト"
 
 msgid "Pick Order"
-msgstr ""
+msgstr "ピック順序"
 
 msgid "Pick tracked item"
-msgstr ""
+msgstr "追跡品目をピック"
 
 msgid "Picked quantity"
-msgstr ""
+msgstr "ピック数量"
 
 msgid "Picking Lines"
-msgstr ""
+msgstr "ピッキングラインス"
 
 msgid "Picking List"
-msgstr ""
+msgstr "ピッキングリスト"
 
 msgid "Picking List ID"
-msgstr ""
+msgstr "ピッキングリストID"
 
 msgid "Picking List Notes"
-msgstr ""
+msgstr "ピッキングリストノート"
 
 msgid "Picking Lists"
-msgstr ""
+msgstr "ピッキングリスト"
 
 msgid "Pieces/Hour"
 msgstr "個/時間"
@@ -6895,7 +6903,7 @@ msgid "Scan or enter tracked entity ID, serial, or batch"
 msgstr "スキャンするか、追跡対象エンティティID、シリアル番号、またはバッチ番号を入力してください"
 
 msgid "Scan or enter tracking number"
-msgstr ""
+msgstr "スキャンまたは追跡番号を入力"
 
 msgid "Scan or search..."
 msgstr "スキャンまたは検索..."
@@ -7252,7 +7260,7 @@ msgid "Share Quote"
 msgstr "見積もりを共有"
 
 msgid "Shared Sections"
-msgstr ""
+msgstr "共有セクション"
 
 msgid "Shelf life"
 msgstr "棚卸し期間"
@@ -7345,13 +7353,13 @@ msgid "Shop Floor"
 msgstr "ショップフロア"
 
 msgid "Short"
-msgstr ""
+msgstr "不足"
 
 msgid "Short Description"
 msgstr "短い説明"
 
 msgid "Short pick {itemName}"
-msgstr ""
+msgstr "短いピック {itemName}"
 
 msgid "Shortcuts"
 msgstr "ショートカット"
@@ -7426,7 +7434,7 @@ msgid "Something went wrong. Please try again."
 msgstr "何か問題が発生しました。もう一度お試しください。"
 
 msgid "Soon"
-msgstr ""
+msgstr "もうすぐ"
 
 msgid "Soonest expiry across every material sets the finished good."
 msgstr "最も早い有効期限が完成品を決定します。"
@@ -7871,7 +7879,7 @@ msgid "Template ID"
 msgstr "テンプレートID"
 
 msgid "Templates"
-msgstr ""
+msgstr "テンプレート"
 
 msgid "Terms and Privacy"
 msgstr "利用規約とプライバシー"
@@ -7994,7 +8002,7 @@ msgid "This job will no longer be available on the shop floor."
 msgstr "このジョブはショップフロアで利用できなくなります。"
 
 msgid "This lot is expired and can't be picked."
-msgstr ""
+msgstr "このロットは期限切れであり、ピックできません。"
 
 msgid "This sales order has associated jobs. Choose what to do with them."
 msgstr "この販売注文には関連するジョブがあります。それらをどうするかを選択してください。"
@@ -8339,11 +8347,11 @@ msgid "Unlink job from sales order?"
 msgstr "販売注文からジョブのリンクを解除しますか？"
 
 msgid "Unpick"
-msgstr ""
+msgstr "ピック解除"
 
 #. placeholder {0}: pickedLots[0].trackedEntity.readableId
 msgid "Unpick {0}"
-msgstr ""
+msgstr "ピック解除 {0}"
 
 msgid "Unsaved changes"
 msgstr "未保存の変更"
@@ -8604,10 +8612,13 @@ msgid "View Item Master"
 msgstr "アイテムマスターを表示"
 
 msgid "View Lists"
-msgstr ""
+msgstr "リストを表示"
 
 msgid "View maintenance dispatch"
 msgstr "メンテナンスディスパッチを表示"
+
+msgid "View missing values"
+msgstr "欠落値を表示"
 
 msgid "View Open"
 msgstr "開く"
@@ -8631,7 +8642,7 @@ msgid "View Permissions"
 msgstr "表示権限"
 
 msgid "View Picking List"
-msgstr ""
+msgstr "ピッキングリストを表示"
 
 msgid "View Prints"
 msgstr "プリントを表示"

@@ -103,7 +103,7 @@ msgid "Authentication Error"
 msgstr "प्रमाणीकरण त्रुटि"
 
 msgid "available"
-msgstr ""
+msgstr "उपलब्ध"
 
 msgid "Batch"
 msgstr "बैच"
@@ -135,7 +135,7 @@ msgid "Cancel"
 msgstr "रद्द करें"
 
 msgid "Cancelled"
-msgstr ""
+msgstr "रद्द किया गया"
 
 msgid "Carbon Logo"
 msgstr "कार्बन लोगो"
@@ -236,7 +236,7 @@ msgid "Deadline"
 msgstr "समय सीमा"
 
 msgid "Default"
-msgstr ""
+msgstr "डिफ़ॉल्ट"
 
 msgid "Default Storage Unit"
 msgstr "डिफ़ॉल्ट स्टोरेज यूनिट"
@@ -279,7 +279,7 @@ msgid "Download Labels"
 msgstr "लेबल डाउनलोड करें"
 
 msgid "Draft"
-msgstr ""
+msgstr "ड्राफ्ट"
 
 msgid "Drag and drop a file here, or click to select a file"
 msgstr "यहाँ एक फ़ाइल को ड्रैग और ड्रॉप करें, या फ़ाइल चुनने के लिए क्लिक करें"
@@ -329,16 +329,16 @@ msgid "Estimated"
 msgstr "अनुमानित"
 
 msgid "Expired"
-msgstr ""
+msgstr "समाप्त"
 
 msgid "Expired {date}"
-msgstr ""
+msgstr "समाप्त {date}"
 
 msgid "Expires {date}"
-msgstr ""
+msgstr "समाप्त होता है {date}"
 
 msgid "Expiring first"
-msgstr ""
+msgstr "पहले समाप्त होने वाले"
 
 msgid "Failed to complete inventory adjustment"
 msgstr "इन्वेंटरी समायोजन पूरा करने में विफल"
@@ -394,7 +394,7 @@ msgid "Have a technical issue? Contact <0>Carbon Support.</0>"
 msgstr "क्या आपको कोई तकनीकी समस्या है? <0>Carbon Support</0> से संपर्क करें।"
 
 msgid "How many were actually picked?"
-msgstr ""
+msgstr "वास्तव में कितने चुने गए?"
 
 msgid "I understand and want to complete without issuing"
 msgstr "मैं समझता हूँ और बिना जारी किए पूरा करना चाहता हूँ"
@@ -472,7 +472,7 @@ msgid "Let's build something"
 msgstr "चलिए कुछ बनाते हैं"
 
 msgid "lines"
-msgstr ""
+msgstr "लाइनें"
 
 msgid "Loading item details..."
 msgstr "आइटम विवरण लोड हो रहे हैं..."
@@ -523,7 +523,7 @@ msgid "Manually remove items from inventory"
 msgstr "इन्वेंटरी से आइटम को मैन्युअली हटाएं"
 
 msgid "Mark Short"
-msgstr ""
+msgstr "कम चिह्नित करें"
 
 msgid "matches"
 msgstr "मेल खाता है"
@@ -572,7 +572,7 @@ msgid "New Record"
 msgstr "नया रिकॉर्ड"
 
 msgid "Newest first"
-msgstr ""
+msgstr "सबसे नया पहले"
 
 msgid "Next"
 msgstr "अगला"
@@ -593,7 +593,7 @@ msgid "No available serial numbers found"
 msgstr "कोई उपलब्ध सीरियल नंबर नहीं मिला"
 
 msgid "No available tracked entities found"
-msgstr ""
+msgstr "कोई उपलब्ध ट्रैक किए गए इकाइयां नहीं मिलीं"
 
 msgid "No dispatches assigned to you"
 msgstr "आपको कोई डिस्पैच असाइन नहीं किया गया है"
@@ -623,7 +623,7 @@ msgid "No options found."
 msgstr "कोई विकल्प नहीं मिला।"
 
 msgid "No picking lists assigned"
-msgstr ""
+msgstr "कोई पिकिंग सूची असाइन नहीं की गई"
 
 msgid "No printer configured"
 msgstr "कोई प्रिंटर कॉन्फ़िगर नहीं किया गया"
@@ -653,13 +653,13 @@ msgid "No spare parts added yet"
 msgstr "अभी तक कोई स्पेयर पार्ट्स नहीं जोड़े गए हैं"
 
 msgid "No stock"
-msgstr ""
+msgstr "कोई स्टॉक नहीं"
 
 msgid "No time entries for this week"
 msgstr "इस सप्ताह के लिए कोई समय प्रविष्टि नहीं"
 
 msgid "No warehouse stock is on record for this item. You can still pick it — on-hand will go negative until the count is reconciled."
-msgstr ""
+msgstr "इस आइटम के लिए कोई गोदाम स्टॉक रिकॉर्ड पर नहीं है। आप इसे अभी भी चुन सकते हैं — ऑन-हैंड नकारात्मक हो जाएगा जब तक गिनती समेकित नहीं हो जाती।"
 
 msgid "No work centers are blocked"
 msgstr "कोई कार्य केंद्र अवरुद्ध नहीं हैं"
@@ -677,7 +677,7 @@ msgid "OEM Required"
 msgstr "OEM आवश्यक"
 
 msgid "Oldest first"
-msgstr ""
+msgstr "सबसे पुराना पहले"
 
 #. placeholder {0}: batch.quantity
 msgid "Only {0} available"
@@ -717,13 +717,13 @@ msgid "Pause"
 msgstr "रोकें"
 
 msgid "Pick"
-msgstr ""
+msgstr "चुनें"
 
 msgid "Pick tracked item"
-msgstr ""
+msgstr "ट्रैक किए गए आइटम को चुनें"
 
 msgid "Picked quantity"
-msgstr ""
+msgstr "चुना गया मात्रा"
 
 #. placeholder {0}: startColumn?.title
 #. placeholder {1}: startIndex + 1
@@ -732,7 +732,7 @@ msgid "Picked up Column {0} at position: {1} of {2}"
 msgstr "कॉलम {0} को स्थिति {1} पर उठाया गया: {2} में से"
 
 msgid "Picking"
-msgstr ""
+msgstr "पिकिंग"
 
 msgid "Pin Out"
 msgstr "पिन आउट"
@@ -832,7 +832,7 @@ msgid "Scan or enter serial number"
 msgstr "स्कैन करें या सीरियल नंबर दर्ज करें"
 
 msgid "Scan or enter tracking number"
-msgstr ""
+msgstr "स्कैन करें या ट्रैकिंग नंबर दर्ज करें"
 
 msgid "Scan or search serial number..."
 msgstr "सीरियल नंबर स्कैन या खोजें..."
@@ -931,10 +931,10 @@ msgid "Setup"
 msgstr "सेटअप"
 
 msgid "Short"
-msgstr ""
+msgstr "कम"
 
 msgid "Short pick {itemName}"
-msgstr ""
+msgstr "Short pick {itemName}"
 
 msgid "Sign in with Email"
 msgstr "ईमेल के साथ साइन इन करें"
@@ -1016,7 +1016,7 @@ msgid "There are serial or batch tracked materials on the bill of material that 
 msgstr "बिल ऑफ मेटेरियल पर सीरियल या बैच ट्रैक किए गए मेटेरियल हैं जो पूरी तरह से जारी नहीं किए गए हैं। जारी किए बिना पूरा करने से गलत ट्रेसेबिलिटी रिकॉर्ड हो सकते हैं।"
 
 msgid "This lot is expired and can't be picked."
-msgstr ""
+msgstr "यह लॉट समाप्त हो गया है और इसे चुना नहीं जा सकता।"
 
 msgid "Thumbnail"
 msgstr "थंबनेल"
@@ -1058,11 +1058,11 @@ msgid "Unknown"
 msgstr "अज्ञात"
 
 msgid "Unpick"
-msgstr ""
+msgstr "अनपिक करें"
 
 #. placeholder {0}: pickedLots[0].trackedEntity.readableId
 msgid "Unpick {0}"
-msgstr ""
+msgstr "अनपिक {0}"
 
 msgid "Unsaved changes"
 msgstr "असहेजे परिवर्तन"

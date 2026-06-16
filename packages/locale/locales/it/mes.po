@@ -103,7 +103,7 @@ msgid "Authentication Error"
 msgstr "Errore di Autenticazione"
 
 msgid "available"
-msgstr ""
+msgstr "disponibile"
 
 msgid "Batch"
 msgstr "Lotto"
@@ -135,7 +135,7 @@ msgid "Cancel"
 msgstr "Annulla"
 
 msgid "Cancelled"
-msgstr ""
+msgstr "Annullato"
 
 msgid "Carbon Logo"
 msgstr "Logo Carbon"
@@ -236,7 +236,7 @@ msgid "Deadline"
 msgstr "Scadenza"
 
 msgid "Default"
-msgstr ""
+msgstr "Predefinito"
 
 msgid "Default Storage Unit"
 msgstr "Unità di Archiviazione Predefinita"
@@ -279,7 +279,7 @@ msgid "Download Labels"
 msgstr "Scarica Etichette"
 
 msgid "Draft"
-msgstr ""
+msgstr "Bozza"
 
 msgid "Drag and drop a file here, or click to select a file"
 msgstr "Trascina e rilascia un file qui, o clicca per selezionare un file"
@@ -329,16 +329,16 @@ msgid "Estimated"
 msgstr "Stimato"
 
 msgid "Expired"
-msgstr ""
+msgstr "Scaduto"
 
 msgid "Expired {date}"
-msgstr ""
+msgstr "Scaduto {date}"
 
 msgid "Expires {date}"
-msgstr ""
+msgstr "Scade {date}"
 
 msgid "Expiring first"
-msgstr ""
+msgstr "Scadenza prima"
 
 msgid "Failed to complete inventory adjustment"
 msgstr "Impossibile completare la rettifica dell'inventario"
@@ -394,7 +394,7 @@ msgid "Have a technical issue? Contact <0>Carbon Support.</0>"
 msgstr "Hai un problema tecnico? Contatta il <0>Supporto Carbon.</0>"
 
 msgid "How many were actually picked?"
-msgstr ""
+msgstr "Quanti sono stati effettivamente prelevati?"
 
 msgid "I understand and want to complete without issuing"
 msgstr "Comprendo e desidero completare senza prelevare"
@@ -472,7 +472,7 @@ msgid "Let's build something"
 msgstr "Costruiamo qualcosa"
 
 msgid "lines"
-msgstr ""
+msgstr "righe"
 
 msgid "Loading item details..."
 msgstr "Caricamento dettagli articolo..."
@@ -523,7 +523,7 @@ msgid "Manually remove items from inventory"
 msgstr "Rimuovi manualmente articoli dall'inventario"
 
 msgid "Mark Short"
-msgstr ""
+msgstr "Segna Mancante"
 
 msgid "matches"
 msgstr "corrisponde a"
@@ -572,7 +572,7 @@ msgid "New Record"
 msgstr "Nuova Registrazione"
 
 msgid "Newest first"
-msgstr ""
+msgstr "Più recenti prima"
 
 msgid "Next"
 msgstr "Successivo"
@@ -593,7 +593,7 @@ msgid "No available serial numbers found"
 msgstr "Nessun numero di serie disponibile trovato"
 
 msgid "No available tracked entities found"
-msgstr ""
+msgstr "Nessuna entità tracciata disponibile trovata"
 
 msgid "No dispatches assigned to you"
 msgstr "Nessun intervento assegnato a te"
@@ -623,7 +623,7 @@ msgid "No options found."
 msgstr "Nessuna opzione trovata."
 
 msgid "No picking lists assigned"
-msgstr ""
+msgstr "Nessun elenco di prelievo assegnato"
 
 msgid "No printer configured"
 msgstr "Nessuna stampante configurata"
@@ -653,13 +653,13 @@ msgid "No spare parts added yet"
 msgstr "Nessun ricambio ancora aggiunto"
 
 msgid "No stock"
-msgstr ""
+msgstr "Nessun stock"
 
 msgid "No time entries for this week"
 msgstr "Nessuna registrazione oraria per questa settimana"
 
 msgid "No warehouse stock is on record for this item. You can still pick it — on-hand will go negative until the count is reconciled."
-msgstr ""
+msgstr "Nessun stock di magazzino è registrato per questo articolo. Puoi comunque prelevarlo — la giacenza disponibile diventerà negativa fino al riconciliamento del conteggio."
 
 msgid "No work centers are blocked"
 msgstr "Nessun centro di lavoro bloccato"
@@ -677,7 +677,7 @@ msgid "OEM Required"
 msgstr "Richiesto OEM"
 
 msgid "Oldest first"
-msgstr ""
+msgstr "Più vecchio prima"
 
 #. placeholder {0}: batch.quantity
 msgid "Only {0} available"
@@ -717,13 +717,13 @@ msgid "Pause"
 msgstr "Pausa"
 
 msgid "Pick"
-msgstr ""
+msgstr "Preleva"
 
 msgid "Pick tracked item"
-msgstr ""
+msgstr "Seleziona articolo tracciato"
 
 msgid "Picked quantity"
-msgstr ""
+msgstr "Quantità prelevata"
 
 #. placeholder {0}: startColumn?.title
 #. placeholder {1}: startIndex + 1
@@ -732,7 +732,7 @@ msgid "Picked up Column {0} at position: {1} of {2}"
 msgstr "Colonna {0} presa dalla posizione: {1} di {2}"
 
 msgid "Picking"
-msgstr ""
+msgstr "Prelievo"
 
 msgid "Pin Out"
 msgstr "Disconnetti"
@@ -832,7 +832,7 @@ msgid "Scan or enter serial number"
 msgstr "Scansiona o inserisci il numero di serie"
 
 msgid "Scan or enter tracking number"
-msgstr ""
+msgstr "Scansiona o inserisci numero di tracciamento"
 
 msgid "Scan or search serial number..."
 msgstr "Scansiona o cerca numero di serie..."
@@ -931,10 +931,10 @@ msgid "Setup"
 msgstr "Attrezzaggio"
 
 msgid "Short"
-msgstr ""
+msgstr "Carente"
 
 msgid "Short pick {itemName}"
-msgstr ""
+msgstr "Prelievo breve {itemName}"
 
 msgid "Sign in with Email"
 msgstr "Accedi con Email"
@@ -1016,7 +1016,7 @@ msgid "There are serial or batch tracked materials on the bill of material that 
 msgstr "Ci sono materiali tracciati per numero di serie o lotto nella distinta base che non sono stati completamente prelevati. Completare senza prelevare potrebbe causare registrazioni di tracciabilità errate."
 
 msgid "This lot is expired and can't be picked."
-msgstr ""
+msgstr "Questo lotto è scaduto e non può essere prelevato."
 
 msgid "Thumbnail"
 msgstr "Miniatura"
@@ -1058,11 +1058,11 @@ msgid "Unknown"
 msgstr "Sconosciuto"
 
 msgid "Unpick"
-msgstr ""
+msgstr "Annulla prelievo"
 
 #. placeholder {0}: pickedLots[0].trackedEntity.readableId
 msgid "Unpick {0}"
-msgstr ""
+msgstr "Annulla prelievo {0}"
 
 msgid "Unsaved changes"
 msgstr "Modifiche non salvate"

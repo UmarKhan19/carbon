@@ -1,10 +1,10 @@
 import { assertIsPost } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
-import { pickOrderFromConfig } from "@carbon/react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   getAvailableTrackedEntities,
+  getPickOrder,
   setPickingListLineTrackedEntity
 } from "~/modules/inventory";
 import { getCompanySettings } from "~/modules/settings";
@@ -56,18 +56,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     expiredEntityPolicy?: "Warn" | "Block" | "BlockWithOverride";
   };
 
-  // The item's configured pick order (per location) sets the picker's default
-  // sort. Falls back to "smart" when no pickMethod row exists.
-  const pickMethod = locationId
-    ? await client
-        .from("pickMethod")
-        .select("sortMethod")
-        .eq("itemId", line.itemId)
-        .eq("locationId", locationId)
-        .eq("companyId", companyId)
-        .maybeSingle()
-    : { data: null };
-
   return {
     entities: entities.data ?? [],
     trackingType,
@@ -77,7 +65,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     ),
     nearExpiryWarningDays: shelfLife.nearExpiryWarningDays ?? 0,
     expiredEntityPolicy: shelfLife.expiredEntityPolicy ?? "Warn",
-    defaultOrder: pickOrderFromConfig(pickMethod.data?.sortMethod)
+    defaultOrder: locationId
+      ? await getPickOrder(client, {
+          itemId: line.itemId,
+          locationId,
+          companyId
+        })
+      : "Default"
   };
 }
 

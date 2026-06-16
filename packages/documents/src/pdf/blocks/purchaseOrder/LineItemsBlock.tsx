@@ -13,7 +13,7 @@ import {
 import { formatTaxPercent } from "../../../utils/shared";
 import { Note } from "../../components";
 import { itemTextOverflowStyle } from "../itemText";
-import { tw } from "../tw";
+import { useTw } from "../tw";
 import type { PurchaseOrderData } from "./types";
 
 const INDIRECT_TYPES = new Set([
@@ -32,6 +32,7 @@ export function LineItemsBlock({
   block: LineItemsBlockType;
   data: PurchaseOrderData;
 }) {
+  const tw = useTw();
   const {
     purchaseOrder,
     purchaseOrderLines,

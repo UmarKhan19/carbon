@@ -1,13 +1,13 @@
 import { Text, View } from "@react-pdf/renderer";
-import { tw } from "../tw";
+import { useTw } from "../tw";
 import type { QuoteData } from "./types";
 
-const ROW = [
-  tw("flex flex-row py-1.5 px-3 text-[9px]"),
-  { backgroundColor: "rgba(249, 250, 251, 0.6)" }
-];
-
 export function QuoteSummaryBlock({ data }: { data: QuoteData }) {
+  const tw = useTw();
+  const ROW = [
+    tw("flex flex-row py-1.5 px-3 text-[9px]"),
+    { backgroundColor: "rgba(249, 250, 251, 0.6)" }
+  ];
   const { hasSinglePricePerLine, totals, currencyCode, numberFormatter } = data;
 
   // The Quote summary only renders when every line has a single price.

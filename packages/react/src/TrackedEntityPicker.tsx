@@ -41,27 +41,29 @@ export type TrackedEntityOption = {
   createdAt?: string | null;
 };
 
-export type TrackedEntityPickOrder = "smart" | "fefo" | "fifo" | "lifo";
+// Values match the `pickMethodSortMethod` DB enum so a stored pick order can be
+// passed straight to `defaultOrder` with no translation. "Default" = the smart
+// order (expiring soonest first, then oldest).
+export type TrackedEntityPickOrder = "Default" | "FEFO" | "FIFO" | "LIFO";
 
 /**
- * Maps a stored pick-method sort config (the capitalized `pickMethodSortMethod`
- * DB enum) to the picker's internal order. Defaults to "smart" for unknown /
- * unset values so a missing pickMethod row still gets the smart default.
+ * Pick-order options (value + translated label), shared by the picker's order
+ * dropdown and the item's pick-method form so the two can never drift.
  */
-export function pickOrderFromConfig(
-  method: string | null | undefined
-): TrackedEntityPickOrder {
-  switch (method) {
-    case "FEFO":
-      return "fefo";
-    case "FIFO":
-      return "fifo";
-    case "LIFO":
-      return "lifo";
-    case "Default":
-    default:
-      return "smart";
-  }
+export function usePickOrderOptions(): {
+  value: TrackedEntityPickOrder;
+  label: string;
+}[] {
+  const { t } = useLingui();
+  return useMemo(
+    () => [
+      { value: "Default", label: t`Default` },
+      { value: "FEFO", label: t`Expiring first` },
+      { value: "FIFO", label: t`Oldest first` },
+      { value: "LIFO", label: t`Newest first` }
+    ],
+    [t]
+  );
 }
 
 export type TrackedEntitySelection = {
@@ -128,14 +130,14 @@ function sortEntities(
 
   const copy = [...entities];
   switch (order) {
-    case "fefo":
+    case "FEFO":
       return copy.sort((a, b) => byExpiry(a, b) || byCreated(1)(a, b));
-    case "fifo":
+    case "FIFO":
       return copy.sort(byCreated(1));
-    case "lifo":
+    case "LIFO":
       return copy.sort(byCreated(-1));
     default:
-      // smart: expiring soonest first, then oldest first
+      // Default: expiring soonest first, then oldest first
       return copy.sort((a, b) => byExpiry(a, b) || byCreated(1)(a, b));
   }
 }
@@ -149,7 +151,7 @@ export function TrackedEntityPicker({
   size = "md",
   nearExpiryWarningDays = 0,
   expiredEntityPolicy = "Warn",
-  defaultOrder = "smart",
+  defaultOrder = "Default",
   onSelect,
   onClose
 }: TrackedEntityPickerProps) {
@@ -158,15 +160,7 @@ export function TrackedEntityPicker({
   const [order, setOrder] = useState<TrackedEntityPickOrder>(defaultOrder);
   const [scan, setScan] = useState("");
 
-  const orderOptions = useMemo(
-    () => [
-      { value: "smart", label: t`Default` },
-      { value: "fefo", label: t`Expiring first` },
-      { value: "fifo", label: t`Oldest first` },
-      { value: "lifo", label: t`Newest first` }
-    ],
-    [t]
-  );
+  const orderOptions = usePickOrderOptions();
 
   const ordered = useMemo(
     () => sortEntities(entities, order),
@@ -264,7 +258,7 @@ export function TrackedEntityPicker({
                     value={order}
                     options={orderOptions}
                     onChange={(value) =>
-                      setOrder((value as TrackedEntityPickOrder) ?? "smart")
+                      setOrder((value as TrackedEntityPickOrder) ?? "Default")
                     }
                   />
                 </div>

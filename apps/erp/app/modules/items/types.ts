@@ -1,5 +1,4 @@
 import type { Database } from "@carbon/database";
-import type { pickMethodSortMethods } from "./items.models";
 import type {
   getConfigurationParameters,
   getConfigurationRules,
@@ -85,10 +84,6 @@ export type ItemCostHistory = NonNullable<
 
 export type ItemCostingMethod =
   Database["public"]["Enums"]["itemCostingMethod"];
-
-// Derived from the const (not Database["Enums"]) so app code compiles before
-// the generated DB types are regenerated for the pickMethodSortMethod enum.
-export type PickMethodSortMethod = (typeof pickMethodSortMethods)[number];
 
 export type ItemFile = NonNullable<
   Awaited<ReturnType<typeof getItemFiles>>

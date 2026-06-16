@@ -332,8 +332,8 @@ import type {
   TrackedEntitySelection
 } from "./TrackedEntityPicker";
 import {
-  pickOrderFromConfig,
-  TrackedEntityPicker
+  TrackedEntityPicker,
+  usePickOrderOptions
 } from "./TrackedEntityPicker";
 import { TruncatedTooltipText } from "./TruncatedTooltipText";
 import { cn } from "./utils/cn";
@@ -606,8 +606,8 @@ export {
   Toggle,
   ToggleGroup,
   ToggleGroupItem,
-  pickOrderFromConfig,
   TrackedEntityPicker,
+  usePickOrderOptions,
   TruncatedTooltipText,
   Tooltip,
   TooltipContent,

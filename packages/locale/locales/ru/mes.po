@@ -103,7 +103,7 @@ msgid "Authentication Error"
 msgstr "Ошибка аутентификации"
 
 msgid "available"
-msgstr ""
+msgstr "доступно"
 
 msgid "Batch"
 msgstr "Партия"
@@ -135,7 +135,7 @@ msgid "Cancel"
 msgstr "Отмена"
 
 msgid "Cancelled"
-msgstr ""
+msgstr "Отменено"
 
 msgid "Carbon Logo"
 msgstr "Логотип Carbon"
@@ -236,7 +236,7 @@ msgid "Deadline"
 msgstr "Срок"
 
 msgid "Default"
-msgstr ""
+msgstr "По умолчанию"
 
 msgid "Default Storage Unit"
 msgstr "Хранилище по умолчанию"
@@ -279,7 +279,7 @@ msgid "Download Labels"
 msgstr "Загрузить этикетки"
 
 msgid "Draft"
-msgstr ""
+msgstr "Черновик"
 
 msgid "Drag and drop a file here, or click to select a file"
 msgstr "Перетащите файл сюда или нажмите для выбора файла"
@@ -329,16 +329,16 @@ msgid "Estimated"
 msgstr "План"
 
 msgid "Expired"
-msgstr ""
+msgstr "Истекло"
 
 msgid "Expired {date}"
-msgstr ""
+msgstr "Истекло {date}"
 
 msgid "Expires {date}"
-msgstr ""
+msgstr "Истекает {date}"
 
 msgid "Expiring first"
-msgstr ""
+msgstr "Истекает первым"
 
 msgid "Failed to complete inventory adjustment"
 msgstr "Не удалось выполнить корректировку запасов"
@@ -394,7 +394,7 @@ msgid "Have a technical issue? Contact <0>Carbon Support.</0>"
 msgstr "Возникла техническая проблема? Обратитесь в <0>службу поддержки Carbon.</0>"
 
 msgid "How many were actually picked?"
-msgstr ""
+msgstr "Сколько было фактически собрано?"
 
 msgid "I understand and want to complete without issuing"
 msgstr "Я понимаю и хочу завершить без выдачи"
@@ -472,7 +472,7 @@ msgid "Let's build something"
 msgstr "Давайте создадим что-то"
 
 msgid "lines"
-msgstr ""
+msgstr "строки"
 
 msgid "Loading item details..."
 msgstr "Загрузка данных номенклатуры..."
@@ -523,7 +523,7 @@ msgid "Manually remove items from inventory"
 msgstr "Списать номенклатуру со склада вручную"
 
 msgid "Mark Short"
-msgstr ""
+msgstr "Отметить как недостача"
 
 msgid "matches"
 msgstr "соответствует"
@@ -572,7 +572,7 @@ msgid "New Record"
 msgstr "Новая запись"
 
 msgid "Newest first"
-msgstr ""
+msgstr "Новые в первую очередь"
 
 msgid "Next"
 msgstr "Далее"
@@ -593,7 +593,7 @@ msgid "No available serial numbers found"
 msgstr "Доступные серийные номера не найдены"
 
 msgid "No available tracked entities found"
-msgstr ""
+msgstr "Не найдено доступных отслеживаемых объектов"
 
 msgid "No dispatches assigned to you"
 msgstr "Нет нарядов, назначенных вам"
@@ -623,7 +623,7 @@ msgid "No options found."
 msgstr "Варианты не найдены."
 
 msgid "No picking lists assigned"
-msgstr ""
+msgstr "Нет назначенных списков комплектации"
 
 msgid "No printer configured"
 msgstr "Принтер не настроен"
@@ -653,13 +653,13 @@ msgid "No spare parts added yet"
 msgstr "Запасные части ещё не добавлены"
 
 msgid "No stock"
-msgstr ""
+msgstr "Нет запасов"
 
 msgid "No time entries for this week"
 msgstr "Нет записей учёта времени за эту неделю"
 
 msgid "No warehouse stock is on record for this item. You can still pick it — on-hand will go negative until the count is reconciled."
-msgstr ""
+msgstr "На складе нет записей о наличии этого товара. Вы все равно можете его подобрать — количество в наличии станет отрицательным до тех пор, пока инвентаризация не будет согласована."
 
 msgid "No work centers are blocked"
 msgstr "Нет заблокированных рабочих центров"
@@ -677,7 +677,7 @@ msgid "OEM Required"
 msgstr "Требуется OEM"
 
 msgid "Oldest first"
-msgstr ""
+msgstr "Самые старые первыми"
 
 #. placeholder {0}: batch.quantity
 msgid "Only {0} available"
@@ -717,13 +717,13 @@ msgid "Pause"
 msgstr "Пауза"
 
 msgid "Pick"
-msgstr ""
+msgstr "Выбрать"
 
 msgid "Pick tracked item"
-msgstr ""
+msgstr "Выбрать отслеживаемый товар"
 
 msgid "Picked quantity"
-msgstr ""
+msgstr "Выбранное количество"
 
 #. placeholder {0}: startColumn?.title
 #. placeholder {1}: startIndex + 1
@@ -732,7 +732,7 @@ msgid "Picked up Column {0} at position: {1} of {2}"
 msgstr "Столбец {0} взят с позиции: {1} из {2}"
 
 msgid "Picking"
-msgstr ""
+msgstr "Комплектация"
 
 msgid "Pin Out"
 msgstr "Выход по PIN"
@@ -832,7 +832,7 @@ msgid "Scan or enter serial number"
 msgstr "Сканируйте или введите серийный номер"
 
 msgid "Scan or enter tracking number"
-msgstr ""
+msgstr "Отсканируйте или введите номер отслеживания"
 
 msgid "Scan or search serial number..."
 msgstr "Сканируйте или ищите серийный номер..."
@@ -931,10 +931,10 @@ msgid "Setup"
 msgstr "Наладка"
 
 msgid "Short"
-msgstr ""
+msgstr "Недостача"
 
 msgid "Short pick {itemName}"
-msgstr ""
+msgstr "Короткий отбор {itemName}"
 
 msgid "Sign in with Email"
 msgstr "Войти по электронной почте"
@@ -1016,7 +1016,7 @@ msgid "There are serial or batch tracked materials on the bill of material that 
 msgstr "В спецификации есть материалы с серийным или партионным учётом, которые не были полностью выданы. Завершение без выдачи может привести к некорректным записям прослеживаемости."
 
 msgid "This lot is expired and can't be picked."
-msgstr ""
+msgstr "Эта партия истекла и не может быть выбрана."
 
 msgid "Thumbnail"
 msgstr "Миниатюра"
@@ -1058,11 +1058,11 @@ msgid "Unknown"
 msgstr "Неизвестно"
 
 msgid "Unpick"
-msgstr ""
+msgstr "Отменить выбор"
 
 #. placeholder {0}: pickedLots[0].trackedEntity.readableId
 msgid "Unpick {0}"
-msgstr ""
+msgstr "Отменить выбор {0}"
 
 msgid "Unsaved changes"
 msgstr "Несохранённые изменения"

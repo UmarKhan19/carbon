@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-15T19:13:52.415Z",
-  "totalTools": 1204,
+  "generated": "2026-06-16T11:37:18.308Z",
+  "totalTools": 1206,
   "modules": 15,
   "tools": [
     {
@@ -4207,6 +4207,35 @@
       }
     },
     {
+      "name": "inventory_getPickOrder",
+      "module": "inventory",
+      "classification": "READ",
+      "description": "get pick order",
+      "paramCount": 2,
+      "serviceParams": [
+        "client",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "itemId",
+          "locationId"
+        ]
+      }
+    },
+    {
       "name": "inventory_getBatchNumbersForItem",
       "module": "inventory",
       "classification": "READ",
@@ -4470,6 +4499,45 @@
         },
         "required": [
           "parentId"
+        ]
+      }
+    },
+    {
+      "name": "inventory_getStorageUnitSubtrees",
+      "module": "inventory",
+      "classification": "READ",
+      "description": "get storage unit subtrees",
+      "paramCount": 3,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "locationId",
+        "rootIds",
+        "maxDepth"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string"
+          },
+          "rootIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "maxDepth": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "locationId",
+          "rootIds",
+          "maxDepth"
         ]
       }
     },

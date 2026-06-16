@@ -1,10 +1,11 @@
 import type { JSONContent } from "@carbon/react";
 import { Text, View } from "@react-pdf/renderer";
 import { Note } from "../../components";
-import { tw } from "../tw";
+import { useTw } from "../tw";
 import type { QuoteData } from "./types";
 
 export function NotesBlock({ data }: { data: QuoteData }) {
+  const tw = useTw();
   const notes = (data.quote?.externalNotes ?? {}) as JSONContent;
   const hasNotes = Object.keys(notes).length > 0;
 
