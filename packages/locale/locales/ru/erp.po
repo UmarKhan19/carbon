@@ -7211,7 +7211,7 @@ msgid "Set due date"
 msgstr "Установить срок"
 
 msgid "Set on the item in the Properties panel"
-msgstr ""
+msgstr "Установить на элементе в панели свойств"
 
 msgid "Set Pricing"
 msgstr "Установить цену"
@@ -7476,7 +7476,7 @@ msgid "Source Version"
 msgstr "Исходная версия"
 
 msgid "Sourcing"
-msgstr ""
+msgstr "Источник"
 
 msgid "Sourcing Type"
 msgstr "Тип источника"

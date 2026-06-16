@@ -7211,7 +7211,7 @@ msgid "Set due date"
 msgstr "Imposta data di scadenza"
 
 msgid "Set on the item in the Properties panel"
-msgstr ""
+msgstr "Impostare sull'elemento nel pannello Proprietà"
 
 msgid "Set Pricing"
 msgstr "Imposta Prezzi"
@@ -7476,7 +7476,7 @@ msgid "Source Version"
 msgstr "Versione Sorgente"
 
 msgid "Sourcing"
-msgstr ""
+msgstr "Approvvigionamento"
 
 msgid "Sourcing Type"
 msgstr "Tipo di approvvigionamento"

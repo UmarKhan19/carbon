@@ -7211,7 +7211,7 @@ msgid "Set due date"
 msgstr "देय तारीख सेट करें"
 
 msgid "Set on the item in the Properties panel"
-msgstr ""
+msgstr "Properties पैनल में आइटम पर सेट करें"
 
 msgid "Set Pricing"
 msgstr "मूल्य निर्धारण सेट करें"
@@ -7476,7 +7476,7 @@ msgid "Source Version"
 msgstr "स्रोत संस्करण"
 
 msgid "Sourcing"
-msgstr ""
+msgstr "सोर्सिंग"
 
 msgid "Sourcing Type"
 msgstr "सोर्सिंग प्रकार"

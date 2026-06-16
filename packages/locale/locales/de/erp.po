@@ -7211,7 +7211,7 @@ msgid "Set due date"
 msgstr "Fälligkeitsdatum festlegen"
 
 msgid "Set on the item in the Properties panel"
-msgstr ""
+msgstr "Im Element im Bereich \"Eigenschaften\" festlegen"
 
 msgid "Set Pricing"
 msgstr "Preisgestaltung festlegen"
@@ -7476,7 +7476,7 @@ msgid "Source Version"
 msgstr "Quellversion"
 
 msgid "Sourcing"
-msgstr ""
+msgstr "Beschaffung"
 
 msgid "Sourcing Type"
 msgstr "Beschaffungstyp"

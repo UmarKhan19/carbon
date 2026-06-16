@@ -7211,7 +7211,7 @@ msgid "Set due date"
 msgstr "设置截止日期"
 
 msgid "Set on the item in the Properties panel"
-msgstr ""
+msgstr "在属性面板中的项目上设置"
 
 msgid "Set Pricing"
 msgstr "设置定价"
@@ -7476,7 +7476,7 @@ msgid "Source Version"
 msgstr "源版本"
 
 msgid "Sourcing"
-msgstr ""
+msgstr "采购"
 
 msgid "Sourcing Type"
 msgstr "采购类型"

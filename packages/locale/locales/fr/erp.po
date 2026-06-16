@@ -7211,7 +7211,7 @@ msgid "Set due date"
 msgstr "Définir la date d'échéance"
 
 msgid "Set on the item in the Properties panel"
-msgstr ""
+msgstr "Défini sur l'article dans le panneau Propriétés"
 
 msgid "Set Pricing"
 msgstr "Définir la tarification"
@@ -7476,7 +7476,7 @@ msgid "Source Version"
 msgstr "Version source"
 
 msgid "Sourcing"
-msgstr ""
+msgstr "Approvisionnement"
 
 msgid "Sourcing Type"
 msgstr "Type d'approvisionnement"

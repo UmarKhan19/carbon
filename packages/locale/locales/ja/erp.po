@@ -7211,7 +7211,7 @@ msgid "Set due date"
 msgstr "期限を設定"
 
 msgid "Set on the item in the Properties panel"
-msgstr ""
+msgstr "プロパティパネルでアイテムに設定します"
 
 msgid "Set Pricing"
 msgstr "価格設定"
@@ -7476,7 +7476,7 @@ msgid "Source Version"
 msgstr "ソースバージョン"
 
 msgid "Sourcing"
-msgstr ""
+msgstr "ソーシング"
 
 msgid "Sourcing Type"
 msgstr "調達タイプ"
