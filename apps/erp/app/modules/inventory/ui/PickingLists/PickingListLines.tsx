@@ -1,5 +1,6 @@
 import type {
   TrackedEntityOption,
+  TrackedEntityPickOrder,
   TrackedEntitySelection
 } from "@carbon/react";
 import {
@@ -208,6 +209,7 @@ function PickingListLineItem({
     quantityRequired: number;
     nearExpiryWarningDays: number;
     expiredEntityPolicy: "Warn" | "Block" | "BlockWithOverride";
+    defaultOrder: TrackedEntityPickOrder;
   }>();
 
   useEffect(() => {
