@@ -3415,7 +3415,8 @@ export async function upsertMethodMaterial(
       .single();
 
     if (item.error) return item;
-    methodMaterial.methodType = item.data.defaultMethodType;
+    methodMaterial.methodType =
+      item.data.defaultMethodType ?? methodMaterial.methodType;
     methodMaterial.sourcingType = item.data.sourcingType;
   }
 

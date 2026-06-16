@@ -13020,6 +13020,7 @@ export type Database = {
           replenishmentSystem: Database["public"]["Enums"]["itemReplenishmentSystem"]
           requiresInspection: boolean
           revision: string | null
+          sourcingType: Database["public"]["Enums"]["sourcingType"]
           thumbnailPath: string | null
           trackingMethod: string | null
           type: Database["public"]["Enums"]["itemType"]
@@ -13046,6 +13047,7 @@ export type Database = {
           replenishmentSystem?: Database["public"]["Enums"]["itemReplenishmentSystem"]
           requiresInspection?: boolean
           revision?: string | null
+          sourcingType?: Database["public"]["Enums"]["sourcingType"]
           thumbnailPath?: string | null
           trackingMethod?: string | null
           type: Database["public"]["Enums"]["itemType"]
@@ -13072,6 +13074,7 @@ export type Database = {
           replenishmentSystem?: Database["public"]["Enums"]["itemReplenishmentSystem"]
           requiresInspection?: boolean
           revision?: string | null
+          sourcingType?: Database["public"]["Enums"]["sourcingType"]
           thumbnailPath?: string | null
           trackingMethod?: string | null
           type?: Database["public"]["Enums"]["itemType"]
@@ -63037,6 +63040,7 @@ export type Database = {
             | null
           revision: string | null
           revisions: Json | null
+          sourcingType: Database["public"]["Enums"]["sourcingType"] | null
           supplierIds: string | null
           tags: string[] | null
           thumbnailPath: string | null
@@ -64709,6 +64713,7 @@ export type Database = {
           requiresInspection: boolean
           revision: string
           revisions: Json
+          sourcingType: Database["public"]["Enums"]["sourcingType"]
           tags: string[]
           thumbnailPath: string
           unitOfMeasure: string
@@ -65176,6 +65181,7 @@ export type Database = {
           requiresInspection: boolean
           revision: string
           revisions: Json
+          sourcingType: Database["public"]["Enums"]["sourcingType"]
           tags: string[]
           thumbnailPath: string
           unitOfMeasure: string
