@@ -1,7 +1,11 @@
 import { ValidatedForm } from "@carbon/form";
 import {
   Button,
+  FormControl,
+  FormHelperText,
+  FormLabel,
   HStack,
+  Input as InputBase,
   ModalDrawer,
   ModalDrawerBody,
   ModalDrawerContent,
@@ -20,7 +24,8 @@ import {
   Input,
   Location,
   StorageTypes,
-  Submit
+  Submit,
+  WorkCenter
 } from "~/components/Form";
 import { usePermissions } from "~/hooks";
 import { storageUnitValidator } from "~/modules/inventory";
@@ -33,6 +38,10 @@ type StorageUnitFormProps = {
   type?: "modal" | "drawer";
   open?: boolean;
   onClose: () => void;
+  inheritedWorkCenter?: {
+    workCenterId: string;
+    workCenterName: string | null;
+  } | null;
 };
 
 const StorageUnitForm = ({
@@ -40,7 +49,8 @@ const StorageUnitForm = ({
   initialValues,
   open = true,
   type = "drawer",
-  onClose
+  onClose,
+  inheritedWorkCenter
 }: StorageUnitFormProps) => {
   const fetcher = useFetcher<{}>();
   const { t } = useLingui();
@@ -106,6 +116,28 @@ const StorageUnitForm = ({
                   label={t`Storage Types`}
                   isOptional
                 />
+                {inheritedWorkCenter ? (
+                  <FormControl>
+                    <FormLabel htmlFor="workCenterId-inherited">
+                      {t`Work Center`}
+                    </FormLabel>
+                    <InputBase
+                      id="workCenterId-inherited"
+                      value={inheritedWorkCenter.workCenterName ?? t`Unknown`}
+                      isReadOnly
+                      className="text-muted-foreground"
+                    />
+                    <FormHelperText>{t`Inherited from parent`}</FormHelperText>
+                  </FormControl>
+                ) : (
+                  <WorkCenter
+                    name="workCenterId"
+                    label={t`Work Center`}
+                    locationId={locationId}
+                    isOptional
+                    helperText={t`Assigns this storage unit to a work center (lineside)`}
+                  />
+                )}
               </VStack>
             </ModalDrawerBody>
             <ModalDrawerFooter>

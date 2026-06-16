@@ -36,6 +36,19 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
+  // Reopening a Completed stock transfer requires the stronger inventory
+  // `delete` permission — it unlocks completed inventory moves.
+  if (status !== "Completed") {
+    const current = await client
+      .from("stockTransfer")
+      .select("status")
+      .eq("id", id)
+      .single();
+    if (current.data?.status === "Completed") {
+      await requirePermissions(request, { delete: "inventory" });
+    }
+  }
+
   // Item Rule evaluation at "go" transitions — Released is the user's
   // commitment to the transfer plan; pre-flight here so violations surface
   // before any picking happens. Completed kept as a defense-in-depth gate.

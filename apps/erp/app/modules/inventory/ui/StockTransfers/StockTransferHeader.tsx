@@ -130,7 +130,7 @@ const StockTransferHeader = () => {
                       routeData?.stockTransfer?.status ?? ""
                     ) ||
                     statusFetcher.state !== "idle" ||
-                    !permissions.can("update", "purchasing")
+                    !permissions.can("delete", "inventory")
                   }
                   onClick={() => {
                     statusFetcher.submit(

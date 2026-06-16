@@ -52,7 +52,7 @@ msgstr "{0} 上传成功"
 
 #. placeholder {0}: unmatchedValues.length
 msgid "{0} values missing"
-msgstr ""
+msgstr "{0} 个值缺失"
 
 msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB 限制"
@@ -639,9 +639,9 @@ msgstr "你确定要从此操作中删除 {0} 吗？此操作无法撤销。"
 msgid "Are you sure you want to delete {0}?"
 msgstr "你确定要删除 {0} 吗？"
 
+#. placeholder {0}: pickingList.pickingListId
 #. placeholder {0}: routeData?.consumableSummary?.readableIdWithRevision
 #. placeholder {0}: routeData?.customer?.name!
-#. placeholder {0}: routeData?.document?.name
 msgid "Are you sure you want to delete {0}? This cannot be undone."
 msgstr "您确定要删除 {0} 吗？此操作无法撤销。"
 
@@ -966,6 +966,9 @@ msgstr "分配"
 msgid "Assignments"
 msgstr "分配"
 
+msgid "Assigns this storage unit to a work center (lineside)"
+msgstr "将此存储单元分配给工作中心（线边）"
+
 msgid "At least one condition must match"
 msgstr "至少一个条件必须匹配"
 
@@ -1037,6 +1040,9 @@ msgstr "当扫描看板时自动释放作业"
 
 msgid "Automatically start the job when the kanban is scanned"
 msgstr "当扫描看板时自动启动作业"
+
+msgid "available"
+msgstr "可用"
 
 msgid "Available"
 msgstr "可用"
@@ -1330,8 +1336,14 @@ msgstr "聊天"
 msgid "Check your email"
 msgstr "检查您的电子邮件"
 
+msgid "Choose a batch number"
+msgstr "选择批号"
+
 msgid "Choose a company"
 msgstr "选择公司"
+
+msgid "Choose a serial number"
+msgstr "选择序列号"
 
 msgid "Choose another file"
 msgstr "选择另一个文件"
@@ -1838,7 +1850,7 @@ msgstr "创建 {0}"
 
 #. placeholder {0}: unmatchedValues.length
 msgid "Create {0} values"
-msgstr ""
+msgstr "创建 {0} 个值"
 
 msgid "Create a new kanban card for scan-based replenishment."
 msgstr "为扫描式补货创建新的看板卡。"
@@ -2122,7 +2134,7 @@ msgid "Customers"
 msgstr "客户"
 
 msgid "Customize the layout of your PDF documents — reorder sections, hide what you don't need, and add your own blocks."
-msgstr ""
+msgstr "自定义您的 PDF 文档布局 — 重新排列部分、隐藏不需要的内容，并添加您自己的块。"
 
 msgid "Daily Usage"
 msgstr "日常使用"
@@ -2221,6 +2233,9 @@ msgstr "截止日期类型"
 msgid "Decide what an operator sees if they try to issue a batch or serial that's already expired."
 msgstr "决定操作员在尝试发放已过期的批次或序列号时看到的内容。"
 
+msgid "Default"
+msgstr "默认"
+
 msgid "Default Accounts"
 msgstr "默认账户"
 
@@ -2238,6 +2253,9 @@ msgstr "默认方法"
 
 msgid "Default Method Type"
 msgstr "默认方法类型"
+
+msgid "Default order when picking serial or batch lots of this item. Pickers can still override it."
+msgstr "拣选此物品的序列号或批次时的默认顺序。拣选员仍可以覆盖它。"
 
 msgid "Default Permissions"
 msgstr "默认权限"
@@ -2367,6 +2385,9 @@ msgstr "删除合作伙伴"
 
 msgid "Delete Payment Term"
 msgstr "删除付款条款"
+
+msgid "Delete Picking List"
+msgstr "删除拣货单"
 
 msgid "Delete Portal"
 msgstr "删除门户"
@@ -2609,7 +2630,7 @@ msgid "Document Control"
 msgstr "文件控制"
 
 msgid "Document Templates"
-msgstr ""
+msgstr "文档模板"
 
 msgid "Document:"
 msgstr "文档："
@@ -2860,6 +2881,9 @@ msgstr "编辑付款条款"
 
 msgid "Edit Permissions"
 msgstr "编辑权限"
+
+msgid "Edit Picking List"
+msgstr "编辑拣货单"
 
 msgid "Edit Portal"
 msgstr "编辑门户"
@@ -3255,6 +3279,9 @@ msgstr "过期日期（适用于此行上的所有序列号）"
 msgid "Expired"
 msgstr "已过期"
 
+msgid "Expired {date}"
+msgstr "已过期 {date}"
+
 msgid "Expired batch"
 msgstr "过期批次"
 
@@ -3264,8 +3291,14 @@ msgstr "过期批次"
 msgid "Expires"
 msgstr "过期"
 
+msgid "Expires {date}"
+msgstr "过期时间 {date}"
+
 msgid "Expires At (optional)"
 msgstr "过期时间（可选）"
+
+msgid "Expiring first"
+msgstr "先到期"
 
 msgid "Expiry"
 msgstr "过期"
@@ -3782,6 +3815,9 @@ msgstr "根据材料的属性生成材料ID和描述。"
 msgid "Generate new PIN"
 msgstr "生成新PIN"
 
+msgid "Generate Picking List"
+msgstr "生成拣货单"
+
 msgid "Generated IDs are disabled"
 msgstr "生成的ID已禁用"
 
@@ -3865,6 +3901,9 @@ msgstr "小时/1000件"
 
 msgid "Hours/Piece"
 msgstr "小时/件"
+
+msgid "How many were actually picked?"
+msgstr "实际上捡了多少件？"
 
 msgid "How the resolved price was calculated."
 msgstr "已解决价格的计算方式。"
@@ -3976,6 +4015,9 @@ msgstr "基础设施"
 
 msgid "Inherit From Materials"
 msgstr "从材料继承"
+
+msgid "Inherited from parent"
+msgstr "从父级继承"
 
 msgid "Insert rows"
 msgstr "插入行"
@@ -4609,6 +4651,9 @@ msgstr "将批次标记为部分？"
 msgid "Mark Partial"
 msgstr "标记为部分"
 
+msgid "Mark Short"
+msgstr "标记短缺"
+
 msgid "Mark to delete"
 msgstr "标记删除"
 
@@ -5031,6 +5076,9 @@ msgstr "新密码"
 msgid "New Payment Term"
 msgstr "新付款条款"
 
+msgid "New Picking List"
+msgstr "新拣货单"
+
 msgid "New PIN"
 msgstr "新PIN"
 
@@ -5139,6 +5187,9 @@ msgstr "新建 Webhook"
 msgid "New Work Center"
 msgstr "新工作中心"
 
+msgid "Newest first"
+msgstr "最新优先"
+
 msgid "Next"
 msgstr "下一步"
 
@@ -5197,6 +5248,9 @@ msgstr "没有附件。"
 
 msgid "No available filters"
 msgstr "没有可用的筛选器"
+
+msgid "No available tracked entities found"
+msgstr "未找到可用的追踪实体"
 
 msgid "No BOM input has a shelf-life policy"
 msgstr "没有物料清单输入具有保质期政策"
@@ -5288,6 +5342,9 @@ msgstr "没有新通知"
 msgid "No notes"
 msgstr "没有备注"
 
+msgid "No operations require picking at this location"
+msgstr "此位置不需要进行任何操作拣选"
+
 msgid "No operators."
 msgstr "没有运算符。"
 
@@ -5357,6 +5414,9 @@ msgstr "还没有检查任何样品。"
 msgid "No sorts applied to this view"
 msgstr "此视图未应用排序"
 
+msgid "No stock"
+msgstr "无库存"
+
 msgid "No time entries for this week"
 msgstr "本周没有时间条目"
 
@@ -5365,6 +5425,9 @@ msgstr "不需要值"
 
 msgid "No values available"
 msgstr "没有可用的值"
+
+msgid "No warehouse stock is on record for this item. You can still pick it — on-hand will go negative until the count is reconciled."
+msgstr "此项目没有仓库库存记录。您仍然可以拣选它——现有库存将变为负数，直到库存被核对。"
 
 msgid "No work center utilization data within range"
 msgstr "范围内没有工作中心利用率数据"
@@ -5443,6 +5506,9 @@ msgstr "的"
 
 msgid "OK"
 msgstr "确定"
+
+msgid "Oldest first"
+msgstr "最早优先"
 
 msgid "On Hand"
 msgstr "现有"
@@ -5799,6 +5865,30 @@ msgid "Pick a date or leave blank to clear it."
 msgstr "选择日期或留空以清除。"
 
 msgid "Pick List"
+msgstr "拣货单"
+
+msgid "Pick Order"
+msgstr "拣选顺序"
+
+msgid "Pick tracked item"
+msgstr "拣选追踪项目"
+
+msgid "Picked quantity"
+msgstr "已拣选数量"
+
+msgid "Picking Lines"
+msgstr "拣货行"
+
+msgid "Picking List"
+msgstr "拣货单"
+
+msgid "Picking List ID"
+msgstr "拣货单ID"
+
+msgid "Picking List Notes"
+msgstr "拣货单备注"
+
+msgid "Picking Lists"
 msgstr "拣货单"
 
 msgid "Pieces/Hour"
@@ -6812,6 +6902,9 @@ msgstr "扫描标签或按项目 ID 或跟踪 ID 搜索。"
 msgid "Scan or enter tracked entity ID, serial, or batch"
 msgstr "扫描或输入跟踪实体ID、序列号或批次号"
 
+msgid "Scan or enter tracking number"
+msgstr "扫描或输入追踪号"
+
 msgid "Scan or search..."
 msgstr "扫描或搜索..."
 
@@ -7170,7 +7263,7 @@ msgid "Share Quote"
 msgstr "分享报价"
 
 msgid "Shared Sections"
-msgstr ""
+msgstr "共享部分"
 
 msgid "Shelf life"
 msgstr "保质期"
@@ -7262,8 +7355,14 @@ msgstr "运费："
 msgid "Shop Floor"
 msgstr "车间"
 
+msgid "Short"
+msgstr "缺货"
+
 msgid "Short Description"
 msgstr "简短描述"
+
+msgid "Short pick {itemName}"
+msgstr "短缺拣货 {itemName}"
 
 msgid "Shortcuts"
 msgstr "快捷键"
@@ -7338,7 +7437,7 @@ msgid "Something went wrong. Please try again."
 msgstr "出现问题。请重试。"
 
 msgid "Soon"
-msgstr ""
+msgstr "即将推出"
 
 msgid "Soonest expiry across every material sets the finished good."
 msgstr "最早的过期日期决定了成品的保质期。"
@@ -7786,7 +7885,7 @@ msgid "Template ID"
 msgstr "模板 ID"
 
 msgid "Templates"
-msgstr ""
+msgstr "模板"
 
 msgid "Terms and Privacy"
 msgstr "条款和隐私"
@@ -7907,6 +8006,9 @@ msgstr "此工作将被接收到库存中。它将不再在车间可用。"
 
 msgid "This job will no longer be available on the shop floor."
 msgstr "此工作将不再在车间可用。"
+
+msgid "This lot is expired and can't be picked."
+msgstr "此批次已过期，无法领取。"
 
 msgid "This sales order has associated jobs. Choose what to do with them."
 msgstr "此销售订单有关联的工作。选择如何处理它们。"
@@ -8250,6 +8352,13 @@ msgstr "取消链接"
 msgid "Unlink job from sales order?"
 msgstr "从销售订单取消关联工作？"
 
+msgid "Unpick"
+msgstr "取消拣选"
+
+#. placeholder {0}: pickedLots[0].trackedEntity.readableId
+msgid "Unpick {0}"
+msgstr "取消拣选 {0}"
+
 msgid "Unsaved changes"
 msgstr "未保存的更改"
 
@@ -8508,11 +8617,14 @@ msgstr "查看问题"
 msgid "View Item Master"
 msgstr "查看物料主数据"
 
+msgid "View Lists"
+msgstr "查看列表"
+
 msgid "View maintenance dispatch"
 msgstr "查看维护派遣"
 
 msgid "View missing values"
-msgstr ""
+msgstr "查看缺失值"
 
 msgid "View Open"
 msgstr "查看开放"
@@ -8534,6 +8646,9 @@ msgstr "查看未结束的询价单"
 
 msgid "View Permissions"
 msgstr "查看权限"
+
+msgid "View Picking List"
+msgstr "查看拣货单"
 
 msgid "View Prints"
 msgstr "查看打印"

@@ -333,6 +333,10 @@ const PurchaseOrderLineForm = ({
       case "Material":
       case "Part":
       case "Tool":
+      // @ts-expect-error
+      case "Service":
+      // @ts-expect-error
+      case "Fixture":
         const [item, supplierPart, inventory] = await Promise.all([
           carbon
             .from("item")
@@ -646,7 +650,9 @@ const PurchaseOrderLineForm = ({
                           "Part",
                           "Material",
                           "Consumable",
-                          "Tool"
+                          "Tool",
+                          "Service",
+                          "Fixture"
                         ].includes(itemType) && (
                           <>
                             <UnitOfMeasure
@@ -699,7 +705,8 @@ const PurchaseOrderLineForm = ({
                           "Service",
                           "Material",
                           "Tool",
-                          "Consumable"
+                          "Consumable",
+                          "Fixture"
                         ].includes(itemType) &&
                           !isOutsideProcessing && (
                             <Location
@@ -715,7 +722,8 @@ const PurchaseOrderLineForm = ({
                           "Service",
                           "Material",
                           "Tool",
-                          "Consumable"
+                          "Consumable",
+                          "Fixture"
                         ].includes(itemType) &&
                           !isOutsideProcessing && (
                             <StorageUnit

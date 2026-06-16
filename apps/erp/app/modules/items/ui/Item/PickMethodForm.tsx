@@ -20,6 +20,7 @@ import {
   IconButton,
   Label,
   Switch,
+  usePickOrderOptions,
   VStack
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
@@ -40,6 +41,7 @@ import {
   CustomFormFields,
   Hidden,
   NumberControlled,
+  Select,
   ShelfLifeStartProcess,
   ShelfLifeStartTiming,
   Submit
@@ -101,8 +103,12 @@ const PickMethodForm = ({
     value: location.id
   }));
 
-  const shelfLifeApplicable =
+  // Serial/Batch items have per-unit tracked entities, so both the pick-order
+  // default and the shelf-life policy only apply to them. Fungible tracking
+  // types have no lots to order or expire.
+  const isTracked =
     itemTrackingType === "Serial" || itemTrackingType === "Batch";
+  const pickOrderOptions = usePickOrderOptions();
   const { trigger: shelfLifeHistoryTrigger, drawer: shelfLifeHistoryDrawer } =
     useAuditLog({
       entityType: "itemShelfLife",
@@ -187,7 +193,16 @@ const PickMethodForm = ({
               locationId={initialValues.locationId}
             />
 
-            {shelfLifeApplicable && (
+            {isTracked && (
+              <Select
+                name="sortMethod"
+                label={t`Pick Order`}
+                helperText={t`Default order when picking serial or batch lots of this item. Pickers can still override it.`}
+                options={pickOrderOptions}
+              />
+            )}
+
+            {isTracked && (
               <ShelfLifeFields
                 replenishmentSystem={replenishmentSystem}
                 itemId={initialValues.itemId}
