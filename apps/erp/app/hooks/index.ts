@@ -1,10 +1,11 @@
+import { usePrinting } from "@carbon/printing/ui";
 import {
   useNanoStore,
   useOptimisticLocation,
   useRouteData,
   useUrlParams
 } from "@carbon/react";
-
+import { useCompanySettings } from "./useCompanySettings";
 import { useCurrencyFormatter } from "./useCurrencyFormatter";
 import { useDateFormatter } from "./useDateFormatter";
 import { useFlags } from "./useFlags";
@@ -25,6 +26,7 @@ import { useTrainingPanel } from "./useTrainingPanel";
 import { useUser } from "./useUser";
 
 export {
+  useCompanySettings,
   useCurrencyFormatter,
   useDateFormatter,
   useFlags,
@@ -41,6 +43,7 @@ export {
   usePercentFormatter,
   usePermissions,
   usePlanGate,
+  usePrinting,
   useRealtime,
   useRouteData,
   useScrollPosition,

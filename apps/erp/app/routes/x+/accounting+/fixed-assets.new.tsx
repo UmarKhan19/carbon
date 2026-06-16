@@ -4,9 +4,8 @@ import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect, useNavigate } from "react-router";
-import { fixedAssetValidator, upsertFixedAsset } from "~/modules/accounting";
+import { fixedAssetValidator, insertFixedAsset } from "~/modules/accounting";
 import { FixedAssetForm } from "~/modules/accounting/ui/FixedAssets";
-import { getNextSequence } from "~/modules/settings";
 import { path } from "~/utils/path";
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -24,28 +23,14 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const { id: _id, ...d } = validation.data;
 
-  const nextSequence = await getNextSequence(client, "fixedAsset", companyId);
-  if (nextSequence.error) {
-    return redirect(
-      path.to.fixedAssets,
-      await flash(
-        request,
-        error(nextSequence.error, "Failed to generate asset ID")
-      )
-    );
-  }
-
-  const status = "Draft";
-
-  const result = await upsertFixedAsset(client, {
+  const result = await insertFixedAsset(client, {
     ...d,
-    fixedAssetId: nextSequence.data,
-    status,
+    status: "Draft",
     companyId,
     createdBy: userId
   });
 
-  if (result.error) {
+  if (result.error || !result.data) {
     return redirect(
       path.to.fixedAssets,
       await flash(request, error(result.error, "Failed to create fixed asset"))

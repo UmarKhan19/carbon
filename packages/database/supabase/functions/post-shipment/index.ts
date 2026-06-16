@@ -4,7 +4,7 @@ import { nanoid } from "https://deno.land/x/nanoid@v3.0.0/mod.ts";
 import { z } from "https://deno.land/x/zod@v3.21.4/mod.ts";
 import { DB, getConnectionPool, getDatabaseClient } from "../lib/database.ts";
 import { corsHeaders } from "../lib/headers.ts";
-import { getSupabaseServiceRole } from "../lib/supabase.ts";
+import { requirePermissions } from "../lib/supabase.ts";
 import type { Database, Json } from "../lib/types.ts";
 import { TrackedEntityAttributes, credit, debit, journalReference } from "../lib/utils.ts";
 import { calculateCOGS } from "../shared/calculate-cogs.ts";
@@ -42,11 +42,7 @@ serve(async (req: Request) => {
       companyId,
     });
 
-    const client = await getSupabaseServiceRole(
-      req.headers.get("Authorization"),
-      req.headers.get("carbon-key") ?? "",
-      companyId
-    );
+    const client = await requirePermissions(req, companyId, userId, { update: "inventory" });
 
     const [shipment, shipmentLines, shipmentLineTracking] = await Promise.all([
       client.from("shipment").select("*").eq("id", shipmentId).single(),
@@ -104,6 +100,8 @@ serve(async (req: Request) => {
     if (jobs.error) {
       throw new Error("Failed to fetch jobs");
     }
+
+    const splitEntityIds: string[] = [];
 
     switch (type) {
       case "post": {
@@ -689,6 +687,7 @@ serve(async (req: Request) => {
                 originalQuantity: number;
                 shippedQuantity: number;
                 remainingQuantity: number;
+                readableId: string | null;
                 attributes: TrackedEntityAttributes;
                 sourceDocument: string;
                 sourceDocumentId: string;
@@ -726,6 +725,7 @@ serve(async (req: Request) => {
                     shippedQuantity: shipmentLine.shippedQuantity,
                     remainingQuantity:
                       trackedEntity.quantity - shipmentLine.shippedQuantity,
+                    readableId: trackedEntity.readableId,
                     attributes:
                       trackedEntity.attributes as TrackedEntityAttributes,
                     sourceDocument: trackedEntity.sourceDocument,
@@ -883,6 +883,7 @@ serve(async (req: Request) => {
                   const newTrackedEntity = await trx
                     .insertInto("trackedEntity")
                     .values({
+                      readableId: splitInfo.readableId,
                       quantity: splitInfo.remainingQuantity,
                       status: "Available",
                       sourceDocument: splitInfo.sourceDocument,
@@ -900,6 +901,7 @@ serve(async (req: Request) => {
                     .execute();
 
                   const newTrackedEntityId = newTrackedEntity[0].id!;
+                  splitEntityIds.push(newTrackedEntityId);
 
                   // Update the original entity's attributes to include the split entity ID
                   const originalEntity = await trx
@@ -1377,6 +1379,7 @@ serve(async (req: Request) => {
                 originalQuantity: number;
                 shippedQuantity: number;
                 remainingQuantity: number;
+                readableId: string | null;
                 attributes: TrackedEntityAttributes;
                 sourceDocument: string;
                 sourceDocumentId: string;
@@ -1414,6 +1417,7 @@ serve(async (req: Request) => {
                     shippedQuantity: shipmentLine.shippedQuantity,
                     remainingQuantity:
                       trackedEntity.quantity - shipmentLine.shippedQuantity,
+                    readableId: trackedEntity.readableId,
                     attributes:
                       trackedEntity.attributes as TrackedEntityAttributes,
                     sourceDocument: trackedEntity.sourceDocument,
@@ -1519,6 +1523,7 @@ serve(async (req: Request) => {
                   const newTrackedEntity = await trx
                     .insertInto("trackedEntity")
                     .values({
+                      readableId: splitInfo.readableId,
                       quantity: splitInfo.remainingQuantity,
                       status: "Available",
                       sourceDocument: splitInfo.sourceDocument,
@@ -1536,6 +1541,7 @@ serve(async (req: Request) => {
                     .execute();
 
                   const newTrackedEntityId = newTrackedEntity[0].id!;
+                  splitEntityIds.push(newTrackedEntityId);
 
                   // Update the original entity's attributes to include the split entity ID
                   const originalEntity = await trx
@@ -2838,6 +2844,7 @@ serve(async (req: Request) => {
     return new Response(
       JSON.stringify({
         success: true,
+        splitEntityIds,
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -2846,11 +2853,7 @@ serve(async (req: Request) => {
   } catch (err) {
     console.error(err);
     if ("shipmentId" in payload) {
-      const client = await getSupabaseServiceRole(
-        req.headers.get("Authorization"),
-        req.headers.get("carbon-key") ?? "",
-        payload.companyId
-      );
+      const client = await requirePermissions(req, payload.companyId, payload.userId, { update: "inventory" });
       await client
         .from("shipment")
         .update({ status: "Draft" })

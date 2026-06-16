@@ -46,6 +46,7 @@ import {
   type methodMaterialValidator,
   type methodOperationValidator,
   type partValidator,
+  type pickMethodSortMethods,
   type pickMethodValidator,
   type serviceValidator,
   type shelfLifeModes,
@@ -111,7 +112,15 @@ export async function copyMakeMethod(
       sourceId: args.sourceId,
       targetId: args.targetId,
       companyId: args.companyId,
-      userId: args.userId
+      userId: args.userId,
+      parts: {
+        billOfMaterial: args.billOfMaterial,
+        billOfProcess: args.billOfProcess,
+        parameters: args.parameters,
+        tools: args.tools,
+        steps: args.steps,
+        workInstructions: args.workInstructions
+      }
     }
   });
 }
@@ -296,6 +305,13 @@ export async function assertMethodOperationIsDraft(
       `Cannot modify steps on a method version with status "${status}". Only Draft versions can be modified.`
     );
   }
+}
+
+export async function deleteMethodOperation(
+  client: SupabaseClient<Database>,
+  methodOperationId: string
+) {
+  return client.from("methodOperation").delete().eq("id", methodOperationId);
 }
 
 export async function deleteMethodOperationStep(
@@ -531,6 +547,99 @@ export async function getItemDemand(
   };
 }
 
+export type DemandForecastSourceRow = {
+  itemId: string;
+  locationId: string | null;
+  periodId: string;
+  sourceType: "Job Material" | "Sales Order" | "Demand Projection";
+  quantity: number;
+  jobId: string | null;
+  salesOrderLineId: string | null;
+  demandProjectionId: string | null;
+  parentItemId: string;
+  parentItem: { id: string; readableId: string; name: string } | null;
+  job: {
+    id: string;
+    jobId: string;
+    dueDate: string | null;
+    status: string | null;
+  } | null;
+  salesOrderLine: {
+    id: string;
+    salesOrderId: string;
+    promisedDate: string | null;
+    salesOrder: { id: string; salesOrderId: string } | null;
+  } | null;
+  demandProjection: {
+    id: string;
+    forecastQuantity: number;
+    forecastMethod: string | null;
+    confidence: number | null;
+    notes: string | null;
+    createdBy: string;
+    createdAt: string;
+    period: { startDate: string } | null;
+  } | null;
+};
+
+export async function getDemandForecastSources(
+  client: SupabaseClient<Database>,
+  {
+    itemId,
+    locationId,
+    periods,
+    companyId
+  }: {
+    itemId: string;
+    locationId: string;
+    periods: string[];
+    companyId: string;
+  }
+) {
+  const result = await client
+    .from("demandForecastSource")
+    .select(
+      `
+        itemId,
+        locationId,
+        periodId,
+        sourceType,
+        quantity,
+        jobId,
+        salesOrderLineId,
+        demandProjectionId,
+        parentItemId,
+        parentItem:item!demandForecastSource_parentItemId_fkey(id, readableId, name),
+        job:job!demandForecastSource_jobId_fkey(id, jobId, dueDate, status),
+        salesOrderLine:salesOrderLine!demandForecastSource_salesOrderLineId_fkey(
+          id,
+          salesOrderId,
+          promisedDate,
+          salesOrder:salesOrder(id, salesOrderId)
+        ),
+        demandProjection:demandProjection!demandForecastSource_demandProjectionId_fkey(
+          id,
+          forecastQuantity,
+          forecastMethod,
+          confidence,
+          notes,
+          period(startDate),
+          createdBy,
+          createdAt
+        )
+      `
+    )
+    .eq("itemId", itemId)
+    .eq("locationId", locationId)
+    .eq("companyId", companyId)
+    .in("periodId", periods);
+
+  return {
+    data: result.data ?? [],
+    error: result.error
+  };
+}
+
 export async function getItemFiles(
   client: SupabaseClient<Database>,
   itemId: string,
@@ -706,6 +815,39 @@ export async function getItemUnitSalePrice(
     .single();
 }
 
+export async function getJobMaterialUsageForItem(
+  client: SupabaseClient<Database>,
+  { itemId, companyId }: { itemId: string; companyId: string }
+): Promise<{
+  byMaterialId: Record<string, number>;
+  byJobId: Record<string, number>;
+}> {
+  const [materials, jobs] = await Promise.all([
+    client
+      .from("jobMaterial")
+      .select("id, estimatedQuantity")
+      .eq("itemId", itemId)
+      .eq("companyId", companyId),
+    client
+      .from("job")
+      .select("id, quantity")
+      .eq("itemId", itemId)
+      .eq("companyId", companyId)
+  ]);
+
+  const byMaterialId: Record<string, number> = {};
+  for (const row of materials.data ?? []) {
+    if (row.id) byMaterialId[row.id] = row.estimatedQuantity ?? 0;
+  }
+
+  const byJobId: Record<string, number> = {};
+  for (const row of jobs.data ?? []) {
+    if (row.id) byJobId[row.id] = row.quantity ?? 0;
+  }
+
+  return { byMaterialId, byJobId };
+}
+
 export async function getMaterialUsedIn(
   client: SupabaseClient<Database>,
   itemId: string,
@@ -721,7 +863,8 @@ export async function getMaterialUsedIn(
     quoteMaterials,
     salesOrderLines,
     shipmentLines,
-    supplierQuotes
+    supplierQuotes,
+    jobMaterialUsage
   ] = await Promise.all([
     client
       .from("nonConformanceItem")
@@ -803,7 +946,8 @@ export async function getMaterialUsedIn(
       )
       .eq("itemId", itemId)
       .eq("companyId", companyId)
-      .limit(100)
+      .limit(100),
+    getJobMaterialUsageForItem(client, { itemId, companyId })
   ]);
 
   return {
@@ -816,7 +960,8 @@ export async function getMaterialUsedIn(
     quoteMaterials: quoteMaterials.data ?? [],
     salesOrderLines: salesOrderLines.data ?? [],
     shipmentLines: shipmentLines.data ?? [],
-    supplierQuotes: supplierQuotes.data ?? []
+    supplierQuotes: supplierQuotes.data ?? [],
+    jobMaterialUsage
   };
 }
 
@@ -1441,7 +1586,8 @@ export async function getPartUsedIn(
     quoteMaterials,
     salesOrderLines,
     shipmentLines,
-    supplierQuotes
+    supplierQuotes,
+    jobMaterialUsage
   ] = await Promise.all([
     client
       .from("nonConformanceItem")
@@ -1541,7 +1687,8 @@ export async function getPartUsedIn(
       )
       .eq("itemId", itemId)
       .eq("companyId", companyId)
-      .limit(100)
+      .limit(100),
+    getJobMaterialUsageForItem(client, { itemId, companyId })
   ]);
 
   return {
@@ -1556,7 +1703,8 @@ export async function getPartUsedIn(
     quoteMaterials: quoteMaterials.data ?? [],
     salesOrderLines: salesOrderLines.data ?? [],
     shipmentLines: shipmentLines.data ?? [],
-    supplierQuotes: supplierQuotes.data ?? []
+    supplierQuotes: supplierQuotes.data ?? [],
+    jobMaterialUsage
   };
 }
 
@@ -2308,6 +2456,7 @@ export async function upsertPickMethodWithShelfLife(
     itemId: string;
     locationId: string;
     defaultStorageUnitId?: string | null;
+    sortMethod?: (typeof pickMethodSortMethods)[number];
     customFields?: Json;
     userId: string;
     shelfLife: {
@@ -2326,6 +2475,9 @@ export async function upsertPickMethodWithShelfLife(
       .updateTable("pickMethod")
       .set({
         defaultStorageUnitId: args.defaultStorageUnitId ?? null,
+        // Only overwrite when the caller surfaced the field; the column is
+        // NOT NULL DEFAULT 'Default' so we never set it null.
+        ...(args.sortMethod ? { sortMethod: args.sortMethod } : {}),
         customFields: args.customFields ?? null,
         updatedBy: args.userId,
         updatedAt
@@ -2591,6 +2743,7 @@ export async function upsertConsumable(
       .insert({
         readableId: consumable.id,
         name: consumable.name,
+        description: consumable.description,
         type: "Consumable",
         replenishmentSystem: consumable.replenishmentSystem,
         defaultMethodType: consumable.defaultMethodType,
@@ -2732,6 +2885,7 @@ export async function upsertPart(
         readableId: part.id,
         revision: part.revision ?? "0",
         name: part.name,
+        description: part.description,
         type: "Part",
         replenishmentSystem: part.replenishmentSystem,
         defaultMethodType: part.defaultMethodType,
@@ -3363,6 +3517,7 @@ export async function upsertMaterial(
             .insert({
               readableId: material.id,
               name: material.name,
+              description: material.description,
               type: "Material",
               replenishmentSystem: material.replenishmentSystem,
               defaultMethodType: material.defaultMethodType,
@@ -3408,6 +3563,7 @@ export async function upsertMaterial(
         .insert({
           readableId: material.id,
           name: material.name,
+          description: material.description,
           type: "Material",
           replenishmentSystem: material.replenishmentSystem,
           defaultMethodType: material.defaultMethodType,
@@ -3928,6 +4084,7 @@ export async function upsertTool(
         readableId: tool.id,
         revision: tool.revision ?? "0",
         name: tool.name,
+        description: tool.description,
         type: "Tool",
         replenishmentSystem: tool.replenishmentSystem,
         defaultMethodType: tool.defaultMethodType,

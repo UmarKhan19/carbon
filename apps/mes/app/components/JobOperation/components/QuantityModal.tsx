@@ -20,7 +20,7 @@ import {
   VStack
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { LuTriangleAlert } from "react-icons/lu";
 import { useFetcher } from "react-router";
 import {
@@ -66,12 +66,20 @@ export function QuantityModal({
   const fetcher = useFetcher<ProductionQuantity>();
   const [quantity, setQuantity] = useState(parentIsSerial ? 1 : 0);
   const [confirmedUnissued, setConfirmedUnissued] = useState(false);
+  const submitted = useRef(false);
+  const isSubmitting = fetcher.state !== "idle";
+
+  useEffect(() => {
+    if (submitted.current && fetcher.state === "idle") {
+      onClose();
+    }
+  }, [fetcher.state, onClose]);
 
   const titleMap = {
     scrap: t`Log scrap for ${operation.itemReadableId}`,
     rework: t`Log rework for ${operation.itemReadableId}`,
     complete: t`Log completed for ${operation.itemReadableId}`,
-    finish: t`Close out ${operation.itemReadableId}`
+    finish: t`Finish ${operation.itemReadableId}`
   };
 
   const isOperationComplete =
@@ -81,7 +89,7 @@ export function QuantityModal({
     scrap: t`Select a scrap quantity and reason`,
     rework: t`Select a rework quantity`,
     complete: t`Select a completion quantity`,
-    finish: t`Are you sure you want to close out this operation? This will end all active production events for this operation.`
+    finish: t`Are you sure you want to finish this operation? This will end all active production events for this operation.`
   };
 
   const actionMap = {
@@ -95,7 +103,7 @@ export function QuantityModal({
     scrap: t`Log Scrap`,
     rework: t`Log Rework`,
     complete: t`Log Completed`,
-    finish: isOperationComplete ? t`Close` : t`Close Anyways`
+    finish: isOperationComplete ? t`Finish` : t`Finish Anyways`
   };
 
   const validatorMap = {
@@ -152,7 +160,7 @@ export function QuantityModal({
           }}
           fetcher={fetcher}
           onSubmit={() => {
-            onClose();
+            submitted.current = true;
           }}
         >
           <ModalHeader>
@@ -192,6 +200,7 @@ export function QuantityModal({
                       onCheckedChange={(checked) =>
                         setConfirmedUnissued(checked === true)
                       }
+                      className="bg-primary"
                     />
                     <span className="text-sm">
                       <Trans>
@@ -239,17 +248,19 @@ export function QuantityModal({
                       onChange={setQuantity}
                       isReadOnly={parentIsSerial}
                       minValue={0}
+                      size="lg"
                     />
                   </div>
                   {type === "complete" && !parentIsSerial && (
                     <Button
                       variant="secondary"
-                      size="md"
-                      className="h-10"
+                      size="lg"
+                      className="h-12"
                       onClick={() =>
                         setQuantity(
                           operation.operationQuantity -
-                            operation.quantityComplete
+                            operation.quantityComplete -
+                            (operation.quantityReworked ?? 0)
                         )
                       }
                     >
@@ -260,14 +271,19 @@ export function QuantityModal({
               )}
               {type === "scrap" ? (
                 <>
-                  <ScrapReason name="scrapReasonId" label={t`Scrap Reason`} />
-                  <TextArea label={t`Notes`} name="notes" />
+                  <ScrapReason
+                    name="scrapReasonId"
+                    label={t`Scrap Reason`}
+                    size="lg"
+                  />
+                  <TextArea label={t`Notes`} name="notes" size="lg" />
                 </>
               ) : (
                 <>
                   <NumberControlled
                     name="totalQuantity"
                     label={t`Total Quantity`}
+                    size="lg"
                     value={
                       quantity +
                       (type === "rework"
@@ -281,21 +297,24 @@ export function QuantityModal({
             </VStack>
           </ModalBody>
           <ModalFooter>
-            <Button variant="secondary" onClick={onClose}>
+            <Button variant="secondary" size="lg" onClick={onClose}>
               <Trans>Cancel</Trans>
             </Button>
 
             <Button
+              size="lg"
               variant={
                 type === "scrap" || (!isOperationComplete && type === "finish")
                   ? "destructive"
                   : "primary"
               }
               type="submit"
+              isLoading={isSubmitting}
               disabled={
-                type === "complete" &&
-                hasUnissuedTrackedMaterials &&
-                !confirmedUnissued
+                isSubmitting ||
+                (type === "complete" &&
+                  hasUnissuedTrackedMaterials &&
+                  !confirmedUnissued)
               }
             >
               {actionButtonMap[type]}

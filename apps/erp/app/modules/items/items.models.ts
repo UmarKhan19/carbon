@@ -641,10 +641,21 @@ export const partValidator = applyStorageAndShelfLifeRefines(
   )
 );
 
+// Tracked-entity pick order surfaced on the item's per-location Inventory
+// card. 'Default' = the picker's smart order (expiring soonest, then oldest).
+// Mirrors "pickMethodSortMethod" Postgres enum.
+export const pickMethodSortMethods = [
+  "Default",
+  "FEFO",
+  "FIFO",
+  "LIFO"
+] as const;
+
 export const pickMethodValidator = z.object({
   itemId: z.string().min(1, { message: "Item ID is required" }),
   locationId: z.string().min(1, { message: "Location is required" }),
-  defaultStorageUnitId: zfd.text(z.string().optional())
+  defaultStorageUnitId: zfd.text(z.string().optional()),
+  sortMethod: z.enum(pickMethodSortMethods).optional()
 });
 
 // pickMethod form + shelf-life policy in one submit. Shelf-life itself is
@@ -748,6 +759,7 @@ export const supplierPartValidator = z.object({
   supplierPartId: z.string().optional(),
   supplierUnitOfMeasureCode: zfd.text(z.string().optional()),
   minimumOrderQuantity: zfd.numeric(z.number().min(0)),
+  orderMultiple: zfd.numeric(z.number().min(1)).optional(),
   conversionFactor: zfd.numeric(z.number().min(0)),
   unitPrice: zfd.numeric(z.number().min(0).optional())
 });

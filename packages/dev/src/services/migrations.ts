@@ -218,6 +218,55 @@ async function repairStaleMigrations(
 }
 
 // ---------------------------------------------------------------------------
+// Smoke-test user
+// ---------------------------------------------------------------------------
+
+const SMOKE_TEST_EMAIL = "test@carbon.ms";
+
+export async function ensureSmokeTestUser(
+  root: string,
+  dbPort: number,
+  apiPort: number
+): Promise<{ seeded: boolean }> {
+  const exists = await withClient(dbPort, async (c) => {
+    const r = await c.query<{ count: string }>(
+      `SELECT count(*)::text FROM "user" WHERE email = $1`,
+      [SMOKE_TEST_EMAIL]
+    );
+    return Number(r.rows[0]?.count) > 0;
+  });
+
+  if (exists) return { seeded: false };
+
+  const dbUrl = `postgresql://postgres:postgres@localhost:${dbPort}/postgres`;
+  const supabaseUrl = `http://localhost:${apiPort}`;
+  await execa(
+    "pnpm",
+    [
+      "--filter",
+      "@carbon/database",
+      "run",
+      "db:seed:dev",
+      "--",
+      "--email",
+      SMOKE_TEST_EMAIL
+    ],
+    {
+      cwd: root,
+      env: {
+        ...process.env,
+        SUPABASE_DB_URL: dbUrl,
+        SUPABASE_URL: supabaseUrl,
+        NODE_TLS_REJECT_UNAUTHORIZED: "0"
+      },
+      stdio: "pipe"
+    }
+  );
+
+  return { seeded: true };
+}
+
+// ---------------------------------------------------------------------------
 // Private helpers
 // ---------------------------------------------------------------------------
 

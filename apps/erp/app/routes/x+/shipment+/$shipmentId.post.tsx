@@ -6,7 +6,9 @@ import {
   dedupeViolations,
   evaluateLinesForSurface,
   isBlocked
-} from "@carbon/ee/custom-rules.server";
+} from "@carbon/ee/storage-rules.server";
+import { trigger } from "@carbon/jobs";
+import { getCachedPrinterConfig } from "@carbon/printing/printing.server";
 import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
@@ -75,17 +77,19 @@ export async function action({ request, params }: ActionFunctionArgs) {
     Object.assign(allRuleNames, ruleNames);
   }
 
-  // Storage-unit pass — pick side of the shipment.
-  const storageUnitSurfaces: ("pick" | "warehouseTransfer")[] = ["pick"];
+  // Pick pass — the bin side of the shipment. Same lines, same item target;
+  // item rules own the `pick` surface. Transfers double-up via the
+  // warehouseTransfer surface (dedupe collapses the overlap).
+  const pickSurfaces: ("pick" | "warehouseTransfer")[] = ["pick"];
   if (shipmentForSurface?.sourceDocument === "Outbound Transfer") {
-    storageUnitSurfaces.push("warehouseTransfer");
+    pickSurfaces.push("warehouseTransfer");
   }
-  for (const surface of storageUnitSurfaces) {
+  for (const surface of pickSurfaces) {
     const { violations, ruleNames } = await evaluateLinesForSurface({
       client: serviceRole,
       companyId,
       userId,
-      targetType: "storageUnit",
+      targetType: "item",
       surface,
       lines: evalLines
     });
@@ -268,8 +272,54 @@ export async function action({ request, params }: ActionFunctionArgs) {
         )
       );
     }
-    // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration
-  } catch (error) {
+
+    // Auto-print labels if enabled
+    try {
+      const { data: shipmentForPrint } = await serviceRole
+        .from("shipment")
+        .select("locationId")
+        .eq("id", shipmentId)
+        .single();
+      const locationId = shipmentForPrint?.locationId as string | undefined;
+      if (locationId) {
+        const config = await getCachedPrinterConfig(
+          serviceRole,
+          companyId,
+          locationId,
+          "shipping"
+        );
+        if (config?.autoPrint ?? true) {
+          await trigger("print-job", {
+            sourceDocument: "Shipment",
+            sourceDocumentId: shipmentId,
+            companyId,
+            userId,
+            locationId
+          });
+        }
+      }
+    } catch (e) {
+      console.error("Auto-print failed:", e);
+    }
+
+    // Auto-print labels for batch split entities
+    const splitEntityIds = postShipment.data?.splitEntityIds || [];
+    if (splitEntityIds.length > 0) {
+      try {
+        for (const entityId of splitEntityIds) {
+          await trigger("print-job", {
+            sourceDocument: "Split",
+            sourceDocumentId: entityId,
+            companyId,
+            userId
+          });
+        }
+      } catch (e) {
+        console.error("Auto-print for split entities failed:", e);
+      }
+    }
+  } catch (thrown) {
+    if (thrown instanceof Response) throw thrown;
     await client
       .from("shipment")
       .update({

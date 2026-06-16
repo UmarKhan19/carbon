@@ -6,6 +6,7 @@ const api = "/api"; // from ~/routes/api+ folder
 const file = "/file"; // from ~/routes/file+ folder
 const share = "/share"; // from ~/routes/shared+ folder
 const onboarding = "/onboarding"; // from ~/routes/onboarding+ folder
+const selectCompany = "/select-company"; // from ~/routes/select-company+ folder
 export const MES_URL = getMESUrl();
 export const ERP_URL = getAppUrl();
 
@@ -51,6 +52,7 @@ export const path = {
       emptyPermissions: `${api}/users/empty-permissions`,
       failureModes: `${api}/resources/failure-modes`,
       gauges: `${api}/quality/gauges`,
+      createCsvLookup: `${api}/csv/create-lookup`,
       generateCsvColumns: (table: string) =>
         generatePath(`${api}/ai/csv/${table}/columns`),
       inspectionDocumentBalloonAnalyze: (inspectionDocumentId: string) =>
@@ -59,6 +61,14 @@ export const path = {
         ),
       groupsByType: (type?: string) =>
         generatePath(`${api}/users/groups?type=${type}`),
+      groupsByTypeWithUsers: (type?: string) =>
+        generatePath(`${api}/users/groups?type=${type}&include=users`),
+      groupMembers: (groupId: string) =>
+        generatePath(`${api}/users/groups/${groupId}/members`),
+      usersSearch: (q: string) =>
+        generatePath(`${api}/users/search?q=${encodeURIComponent(q)}`),
+      usersBatch: (ids: string[]) =>
+        generatePath(`${api}/users/batch?ids=${ids.join(",")}`),
       item: (type: string) => generatePath(`${api}/item/${type}`),
       itemCostRecalculate: (itemId: string) =>
         generatePath(`${api}/items/${itemId}/recalculate-cost`),
@@ -371,8 +381,56 @@ export const path = {
 
         return generatePath(url);
       },
+      storageUnitLabelsZpl: (
+        ids: string | string[],
+        opts?: { labelSize?: string }
+      ) => {
+        const idString = Array.isArray(ids) ? ids.join(",") : ids;
+        let url = `${file}/storage-unit/labels.zpl?ids=${idString}`;
+        if (opts?.labelSize) url += `&labelSize=${opts.labelSize}`;
+        return url;
+      },
+      storageUnitLabelsPdf: (
+        ids: string | string[],
+        opts?: { labelSize?: string }
+      ) => {
+        const idString = Array.isArray(ids) ? ids.join(",") : ids;
+        let url = `${file}/storage-unit/labels.pdf?ids=${idString}`;
+        if (opts?.labelSize) url += `&labelSize=${opts.labelSize}`;
+        return url;
+      },
       stockTransfer: (id: string) =>
         generatePath(`${file}/stock-transfer/${id}.pdf`),
+      stockTransferLabelsPdf: (
+        id: string,
+        { labelSize, lineId }: { labelSize?: string; lineId?: string } = {}
+      ) => {
+        let url = `${file}/stock-transfer/${id}/labels.pdf`;
+        const params = new URLSearchParams();
+
+        if (labelSize) params.append("labelSize", labelSize);
+        if (lineId) params.append("lineId", lineId);
+
+        const queryString = params.toString();
+        if (queryString) url += `?${queryString}`;
+
+        return generatePath(url);
+      },
+      stockTransferLabelsZpl: (
+        id: string,
+        { labelSize, lineId }: { labelSize?: string; lineId?: string } = {}
+      ) => {
+        let url = `${file}/stock-transfer/${id}/labels.zpl`;
+        const params = new URLSearchParams();
+
+        if (labelSize) params.append("labelSize", labelSize);
+        if (lineId) params.append("lineId", lineId);
+
+        const queryString = params.toString();
+        if (queryString) url += `?${queryString}`;
+
+        return generatePath(url);
+      },
       quote: (id: string) => generatePath(`${file}/quote/${id}.pdf`)
     },
     legal: {
@@ -388,6 +446,7 @@ export const path = {
       user: `${onboarding}/user`
     },
     authenticatedRoot: x,
+    selectCompany,
     acknowledge: `${x}/acknowledge`,
     approvalRules: `${x}/settings/approval-rules`,
     approvalRule: (id: string) =>
@@ -999,7 +1058,10 @@ export const path = {
     jobStatus: (id: string) => generatePath(`${x}/job/${id}/status`),
     kanban: (id: string) => generatePath(`${x}/inventory/kanbans/${id}`),
     kanbans: `${x}/inventory/kanbans`,
-    labelsSettings: `${x}/settings/labels`,
+    documentTemplates: `${x}/templates`,
+    documentSections: `${x}/templates/shared`,
+    documentTemplate: (type: string) => generatePath(`${x}/templates/${type}`),
+    manualPrint: `${x}/print`,
     location: (id: string) => generatePath(`${x}/resources/locations/${id}`),
     locations: `${x}/resources/locations`,
     login: "/login",
@@ -1269,6 +1331,7 @@ export const path = {
       generatePath(`${x}/sales/no-quote-reasons/${id}`),
     notificationSettings: `${x}/account/notifications`,
     part: (id: string) => generatePath(`${x}/part/${id}`),
+    itemProperties: (id: string) => generatePath(`${x}/items/${id}/properties`),
     partCosting: (id: string) => generatePath(`${x}/part/${id}/costing`),
     partDetails: (id: string) => generatePath(`${x}/part/${id}/details`),
     partMake: (id: string, makeMethodId: string) =>
@@ -1288,25 +1351,19 @@ export const path = {
     consumableRules: (id: string) =>
       generatePath(`${x}/consumable/${id}/rules`),
     toolRules: (id: string) => generatePath(`${x}/tool/${id}/rules`),
-    customRules: `${x}/settings/custom-rules`,
-    customRule: (id: string) =>
-      generatePath(`${x}/settings/custom-rules/${id}`),
-    newCustomRule: `${x}/settings/custom-rules/new`,
-    deleteCustomRule: (id: string) =>
-      generatePath(`${x}/settings/custom-rules/${id}/delete`),
-    customRuleAssignItem: (itemId: string) =>
+    storageRules: `${x}/inventory/storage-rules`,
+    storageRule: (id: string) =>
+      generatePath(`${x}/inventory/storage-rules/${id}`),
+    newStorageRule: `${x}/inventory/storage-rules/new`,
+    deleteStorageRule: (id: string) =>
+      generatePath(`${x}/inventory/storage-rules/${id}/delete`),
+    storageRuleAssignItem: (itemId: string) =>
       generatePath(`${x}/items/rules/assign/${itemId}`),
-    customRuleUnassignItem: (itemId: string, ruleId: string) =>
+    storageRuleUnassignItem: (itemId: string, ruleId: string) =>
       generatePath(`${x}/items/rules/unassign/${itemId}/${ruleId}`),
-    customRuleAssignStorageUnit: (id: string) =>
-      generatePath(`${x}/inventory/storage-units/rules/assign/${id}`),
-    customRuleUnassignStorageUnit: (id: string, ruleId: string) =>
-      generatePath(
-        `${x}/inventory/storage-units/rules/unassign/${id}/${ruleId}`
-      ),
-    customRuleAssignWorkCenter: (id: string) =>
+    storageRuleAssignWorkCenter: (id: string) =>
       generatePath(`${x}/resources/work-centers/rules/assign/${id}`),
-    customRuleUnassignWorkCenter: (id: string, ruleId: string) =>
+    storageRuleUnassignWorkCenter: (id: string, ruleId: string) =>
       generatePath(
         `${x}/resources/work-centers/rules/unassign/${id}/${ruleId}`
       ),
@@ -1371,6 +1428,10 @@ export const path = {
       generatePath(`${x}/resources/processes/activate/${id}`),
     processDeactivate: (id: string) =>
       generatePath(`${x}/resources/processes/deactivate/${id}`),
+    printingSettings: `${x}/settings/printing`,
+    printingSettingsJobs: `${x}/settings/printing/jobs`,
+    deletePrinterRoute: (id: string) =>
+      generatePath(`${x}/settings/printing/${id}/delete`),
     production: `${x}/production`,
     productionPlanning: `${x}/production/planning`,
     productionPlanningItem: (itemId: string) =>
@@ -1400,6 +1461,8 @@ export const path = {
       generatePath(`${x}/purchase-invoice/${id}/void`),
     purchaseInvoices: `${x}/purchasing/invoices`,
     purchaseOrder: (id: string) => generatePath(`${x}/purchase-order/${id}`),
+    purchaseOrderDuplicate: (id: string) =>
+      generatePath(`${x}/purchase-order/${id}/duplicate`),
     purchaseOrderDelivery: (id: string) =>
       generatePath(`${x}/purchase-order/${id}/delivery`),
     purchaseOrderDetails: (id: string) =>
@@ -1567,6 +1630,8 @@ export const path = {
       generatePath(`${x}/sales-order/${id}/release`),
     salesOrderStatus: (id: string) =>
       generatePath(`${x}/sales-order/${id}/status`),
+    salesOrderCancelPreview: (id: string) =>
+      generatePath(`${x}/sales-order/${id}/cancel-preview`),
     salesOrders: `${x}/sales/orders`,
     salesPriceList: `${x}/sales/price-list`,
     deletePriceOverride: (id: string) =>
@@ -1655,8 +1720,6 @@ export const path = {
     sequences: `${x}/settings/sequences`,
     storageUnit: (id: string) =>
       generatePath(`${x}/inventory/storage-units/${id}`),
-    storageUnitRules: (id: string) =>
-      generatePath(`${x}/inventory/storage-units/${id}/rules`),
     storageUnits: `${x}/inventory/storage-units`,
     storageType: (id: string) =>
       generatePath(`${x}/inventory/storage-types/${id}`),
@@ -1692,6 +1755,23 @@ export const path = {
       generatePath(`${x}/warehouse-transfer/${transferId}/lines`),
     warehouseTransferLine: (transferId: string, lineId: string) =>
       generatePath(`${x}/warehouse-transfer/${transferId}/details/${lineId}`),
+    pickingLists: `${x}/inventory/picking-lists`,
+    pickingSchedule: `${x}/picking-list/schedule`,
+    pickingListsTable: `${x}/inventory/picking-lists`,
+    newPickingList: `${x}/picking-list/new`,
+    pickingList: (id: string) => generatePath(`${x}/picking-list/${id}`),
+    pickingListDetails: (id: string) =>
+      generatePath(`${x}/picking-list/${id}/details`),
+    pickingListStatus: (id: string) =>
+      generatePath(`${x}/picking-list/${id}/status`),
+    pickingListDelete: (id: string) =>
+      generatePath(`${x}/picking-list/${id}/delete`),
+    pickingListLine: (pickingListId: string, lineId: string) =>
+      generatePath(`${x}/picking-list/${pickingListId}/details/${lineId}`),
+    pickingListTracked: (pickingListId: string, lineId: string) =>
+      generatePath(`${x}/picking-list/${pickingListId}/tracked/${lineId}`),
+    pickingListLineQuantity: (id: string) =>
+      generatePath(`${x}/picking-list/${id}/line/quantity`),
     shippingMethods: `${x}/inventory/shipping-methods`,
     supplier: (id: string) => generatePath(`${x}/supplier/${id}`),
     supplierApproval: (id: string) =>

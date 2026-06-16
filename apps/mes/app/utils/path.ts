@@ -115,6 +115,7 @@ export const path = {
     issueTrackedEntity: `${x}/issue-tracked-entity`,
     qualityIssueNew: `${x}/quality-issue/new`,
     location: `${x}/location`,
+    manualPrint: `${x}/print`,
     login: "/login",
     logout: "/logout",
     maintenance: `${x}/maintenance`,
@@ -127,6 +128,7 @@ export const path = {
     messagingNotify: `${x}/proxy/api/messaging/notify`,
     newMaintenanceDispatch: `${x}/dispatch/new`,
     onboarding: `${ERP_URL}/onboarding`,
+    printingSettings: `${ERP_URL}/x/settings/printing`,
     operation: (id: string) => generatePath(`${x}/operation/${id}`),
     operations: `${x}/operations?saved=1`,
     productionEvent: `${x}/event`,
@@ -136,6 +138,9 @@ export const path = {
     refreshSession: "/refresh-session",
     requestAccess: "/request-access",
     rework: `${x}/rework`,
+    reworkTargets: (operationId: string) =>
+      generatePath(`${x}/rework-targets/${operationId}`),
+    triggerRework: `${x}/trigger-rework`,
     root: "/",
     scrap: `${x}/scrap`,
     scrapReasons: `${api}/scrap-reasons`,
@@ -150,6 +155,13 @@ export const path = {
     timecard: `${api}/timecard`,
     timeCardPage: `${x}/timecard`,
     unconsume: `${x}/unconsume`,
+    picking: `${x}/picking`,
+    pickingDetail: (id: string) => generatePath(`${x}/picking/${id}`),
+    pickingLineQuantity: (id: string) =>
+      generatePath(`${x}/picking/${id}/line/quantity`),
+    pickingTracked: (id: string, lineId: string) =>
+      generatePath(`${x}/picking/${id}/tracked/${lineId}`),
+    pickingStatus: (id: string) => generatePath(`${x}/picking/${id}/status`),
     workCenter: (workCenter: string) =>
       generatePath(`${x}/operations/${workCenter}`),
     itemMaster: (itemId: string, type: string) =>

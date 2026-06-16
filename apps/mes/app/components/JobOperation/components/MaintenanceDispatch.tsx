@@ -105,8 +105,7 @@ export function MaintenanceDispatch({
     if (isOpen) {
       failureModeFetcher.load(path.to.api.failureModes);
     }
-    // biome-ignore lint/correctness/useExhaustiveDependencies: ignore
-  }, [isOpen]);
+  }, [isOpen, failureModeFetcher.load]);
 
   const handleClose = () => {
     setContent({});
@@ -121,7 +120,7 @@ export function MaintenanceDispatch({
       handleClose();
     }
     // biome-ignore lint/correctness/useExhaustiveDependencies: ignore
-  }, [fetcher.state, fetcher.data]);
+  }, [fetcher.state, fetcher.data, handleClose]);
 
   const onUploadImage = async (file: File) => {
     const fileType = file.name.split(".").pop();
@@ -188,6 +187,7 @@ export function MaintenanceDispatch({
                 <Select
                   name="priority"
                   label="Priority"
+                  size="lg"
                   options={maintenanceDispatchPriority.map((priority) => ({
                     value: priority,
                     label: (
@@ -201,6 +201,7 @@ export function MaintenanceDispatch({
                 <Select
                   name="severity"
                   label="Severity"
+                  size="lg"
                   options={maintenanceSeverity.map((s) => ({
                     value: s,
                     label: getSeverityLabel(s)
@@ -215,13 +216,22 @@ export function MaintenanceDispatch({
                 />
                 {severity === "Operator Performed" && (
                   <>
-                    <DateTimePicker name="actualStartTime" label="Start Time" />
-                    <DateTimePicker name="actualEndTime" label="End Time" />
+                    <DateTimePicker
+                      name="actualStartTime"
+                      label="Start Time"
+                      size="lg"
+                    />
+                    <DateTimePicker
+                      name="actualEndTime"
+                      label="End Time"
+                      size="lg"
+                    />
                   </>
                 )}
                 <Select
                   name="oeeImpact"
                   label="OEE Impact"
+                  size="lg"
                   options={oeeImpact.map((impact) => ({
                     value: impact,
                     label: impact
@@ -240,6 +250,7 @@ export function MaintenanceDispatch({
                     <Select
                       name="actualFailureModeId"
                       label="Actual Failure Mode"
+                      size="lg"
                       options={failureModes.map((mode) => ({
                         value: mode.id,
                         label: mode.name
@@ -250,6 +261,7 @@ export function MaintenanceDispatch({
                     <Select
                       name="suspectedFailureModeId"
                       label="Suspected Failure Mode"
+                      size="lg"
                       options={failureModes.map((mode) => ({
                         value: mode.id,
                         label: mode.name
@@ -262,10 +274,10 @@ export function MaintenanceDispatch({
           </ModalBody>
           <ModalFooter>
             <HStack>
-              <Button variant="secondary" onClick={handleClose}>
+              <Button variant="secondary" size="lg" onClick={handleClose}>
                 Cancel
               </Button>
-              <Submit>Create Dispatch</Submit>
+              <Submit size="lg">Create Dispatch</Submit>
             </HStack>
           </ModalFooter>
         </ValidatedForm>

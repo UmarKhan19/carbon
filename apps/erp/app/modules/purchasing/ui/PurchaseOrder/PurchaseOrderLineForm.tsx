@@ -119,6 +119,7 @@ const PurchaseOrderLineForm = ({
     purchaseUom: string;
     requiredDate: string | null;
     storageUnitId: string | null;
+    supplierPartId: string;
     supplierShippingCost: number;
     supplierTaxAmount: number;
     supplierUnitPrice: number;
@@ -135,6 +136,7 @@ const PurchaseOrderLineForm = ({
     priceBreaks: [],
     requiredDate: initialValues?.requiredDate ?? null,
     storageUnitId: initialValues.storageUnitId ?? "",
+    supplierPartId: initialValues.supplierPartId ?? "",
     supplierShippingCost: initialValues.supplierShippingCost ?? 0,
     supplierTaxAmount: initialValues.supplierTaxAmount ?? 0,
     supplierUnitPrice: initialValues.supplierUnitPrice ?? 0,
@@ -314,6 +316,7 @@ const PurchaseOrderLineForm = ({
       purchaseUom: "",
       requiredDate: null,
       storageUnitId: "",
+      supplierPartId: "",
       supplierShippingCost: 0,
       supplierTaxAmount: 0,
       supplierUnitPrice: 0,
@@ -330,6 +333,10 @@ const PurchaseOrderLineForm = ({
       case "Material":
       case "Part":
       case "Tool":
+      // @ts-expect-error
+      case "Service":
+      // @ts-expect-error
+      case "Fixture":
         const [item, supplierPart, inventory] = await Promise.all([
           carbon
             .from("item")
@@ -395,6 +402,7 @@ const PurchaseOrderLineForm = ({
               ? null
               : today(getLocalTimeZone()).add({ days: leadTime }).toString(),
           storageUnitId: inventory.data?.defaultStorageUnitId ?? null,
+          supplierPartId: supplierPart?.data?.supplierPartId ?? "",
           supplierTaxAmount: 0,
           taxPercent: 0,
           priceBreaks: breaks,
@@ -588,6 +596,18 @@ const PurchaseOrderLineForm = ({
                           isOptional={false}
                         />
 
+                        <InputControlled
+                          name="supplierPartId"
+                          label={t`Supplier Part Number`}
+                          value={itemData.supplierPartId}
+                          onChange={(value) =>
+                            setItemData((d) => ({
+                              ...d,
+                              supplierPartId: value
+                            }))
+                          }
+                        />
+
                         {isOutsideProcessing && (
                           <JobOperationSelect jobId={initialValues.jobId} />
                         )}
@@ -630,7 +650,9 @@ const PurchaseOrderLineForm = ({
                           "Part",
                           "Material",
                           "Consumable",
-                          "Tool"
+                          "Tool",
+                          "Service",
+                          "Fixture"
                         ].includes(itemType) && (
                           <>
                             <UnitOfMeasure
@@ -683,7 +705,8 @@ const PurchaseOrderLineForm = ({
                           "Service",
                           "Material",
                           "Tool",
-                          "Consumable"
+                          "Consumable",
+                          "Fixture"
                         ].includes(itemType) &&
                           !isOutsideProcessing && (
                             <Location
@@ -699,7 +722,8 @@ const PurchaseOrderLineForm = ({
                           "Service",
                           "Material",
                           "Tool",
-                          "Consumable"
+                          "Consumable",
+                          "Fixture"
                         ].includes(itemType) &&
                           !isOutsideProcessing && (
                             <StorageUnit

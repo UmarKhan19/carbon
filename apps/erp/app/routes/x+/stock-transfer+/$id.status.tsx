@@ -3,10 +3,9 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import {
-  dedupeViolations,
   evaluateLinesForSurface,
   isBlocked
-} from "@carbon/ee/custom-rules.server";
+} from "@carbon/ee/storage-rules.server";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import {
@@ -37,6 +36,19 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
+  // Reopening a Completed stock transfer requires the stronger inventory
+  // `delete` permission — it unlocks completed inventory moves.
+  if (status !== "Completed") {
+    const current = await client
+      .from("stockTransfer")
+      .select("status")
+      .eq("id", id)
+      .single();
+    if (current.data?.status === "Completed") {
+      await requirePermissions(request, { delete: "inventory" });
+    }
+  }
+
   // Item Rule evaluation at "go" transitions — Released is the user's
   // commitment to the transfer plan; pre-flight here so violations surface
   // before any picking happens. Completed kept as a defense-in-depth gate.
@@ -59,7 +71,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       locationId: null
     }));
 
-    const itemPass = await evaluateLinesForSurface({
+    const { violations, ruleNames } = await evaluateLinesForSurface({
       client: serviceRole,
       companyId,
       userId,
@@ -68,26 +80,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
       // Evaluate against the destination side — that's where stock is landing.
       lines: evalLines
     });
-    const storagePass = await evaluateLinesForSurface({
-      client: serviceRole,
-      companyId,
-      userId,
-      targetType: "storageUnit",
-      surface: "stockTransfer",
-      lines: evalLines
-    });
 
-    const combined = dedupeViolations([
-      ...itemPass.violations,
-      ...storagePass.violations
-    ]);
-    const ruleNames = { ...itemPass.ruleNames, ...storagePass.ruleNames };
-
-    if (combined.length > 0 && isBlocked(combined, acknowledged)) {
+    if (violations.length > 0 && isBlocked(violations, acknowledged)) {
       return {
         error: null,
         data: null,
-        violations: combined,
+        violations,
         ruleNames
       };
     }

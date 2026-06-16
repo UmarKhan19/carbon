@@ -41,6 +41,34 @@ export const jobOperationStatus = [
   "Canceled"
 ] as const;
 
+export const pickingListStatus = [
+  "Draft",
+  "In Progress",
+  "Completed",
+  "Cancelled"
+] as const;
+
+export const pickingListLineStatus = [
+  "Pending",
+  "Picked",
+  "Short",
+  "Cancelled"
+] as const;
+
+export const pickQuantityValidator = z.object({
+  pickingListLineId: z.string().min(1),
+  quantity: zfd.numeric(z.number().min(0)),
+  markShort: zfd.text(z.string().optional())
+});
+
+// A picking list locks once Completed or Cancelled. Reopening is ERP-only
+// (requires the inventory `delete` permission), so MES must never unlock one.
+export function isPickingListLocked(
+  status: string | null | undefined
+): boolean {
+  return status === "Completed" || status === "Cancelled";
+}
+
 export const maintenanceDispatchPriority = [
   "Low",
   "Medium",
@@ -161,6 +189,19 @@ export const nonScrapQuantityValidator = baseQuantityValidator;
 export const scrapQuantityValidator = baseQuantityValidator.extend({
   scrapReasonId: zfd.text(z.string()),
   notes: zfd.text(z.string().optional())
+});
+
+export const triggerReworkValidator = z.object({
+  jobId: z.string().min(1),
+  triggeredAtJobOperationId: z.string().min(1),
+  targetJobOperationId: z
+    .string()
+    .min(1, { message: "Target operation is required" }),
+  reason: z.string().min(1, { message: "Reason is required" }),
+  quantity: zfd.numeric(
+    z.number().positive({ message: "Quantity must be greater than 0" })
+  ),
+  trackedEntityIds: zfd.text(z.string().optional())
 });
 
 export const maintenanceDispatchValidator = z.object({
