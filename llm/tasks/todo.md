@@ -37,4 +37,3 @@
 - [x] Remove `setupPrice: 0` at line 295 of `apps/erp/app/routes/api+/kanban.$id.tsx`. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
 - [x] Verify that typechecking compiles successfully. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
 
-
