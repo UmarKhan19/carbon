@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-17T03:35:29.972Z",
-  "totalTools": 1206,
+  "generated": "2026-06-17T03:39:51.828Z",
+  "totalTools": 1207,
   "modules": 15,
   "tools": [
     {
@@ -11231,6 +11231,37 @@
         "required": [
           "itemIds",
           "newType"
+        ]
+      }
+    },
+    {
+      "name": "items_updateItemMethodAndSourcing",
+      "module": "items",
+      "classification": "WRITE",
+      "description": "update item method and sourcing",
+      "paramCount": 3,
+      "serviceParams": [
+        "db",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId",
+        "updatedBy"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "itemIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "itemUpdate: {\n      replenishmentSystem": {},
+          "cascade: {\n      sourcingType": {}
+        },
+        "required": [
+          "itemIds"
         ]
       }
     },

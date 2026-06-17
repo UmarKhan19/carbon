@@ -7480,6 +7480,9 @@ msgstr "Исходный метод"
 msgid "Source Version"
 msgstr "Исходная версия"
 
+msgid "Sourcing"
+msgstr "Источник"
+
 msgid "Sourcing Type"
 msgstr "Тип источника"
 

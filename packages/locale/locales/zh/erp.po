@@ -7480,6 +7480,9 @@ msgstr "源方法"
 msgid "Source Version"
 msgstr "源版本"
 
+msgid "Sourcing"
+msgstr "采购"
+
 msgid "Sourcing Type"
 msgstr "采购类型"
 

@@ -7480,6 +7480,9 @@ msgstr "Metodo Sorgente"
 msgid "Source Version"
 msgstr "Versione Sorgente"
 
+msgid "Sourcing"
+msgstr "Approvvigionamento"
+
 msgid "Sourcing Type"
 msgstr "Tipo di approvvigionamento"
 

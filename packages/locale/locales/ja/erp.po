@@ -7480,6 +7480,9 @@ msgstr "ソース方法"
 msgid "Source Version"
 msgstr "ソースバージョン"
 
+msgid "Sourcing"
+msgstr "ソーシング"
+
 msgid "Sourcing Type"
 msgstr "調達タイプ"
 

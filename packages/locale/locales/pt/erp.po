@@ -7480,6 +7480,9 @@ msgstr "Método de Origem"
 msgid "Source Version"
 msgstr "Versão de Origem"
 
+msgid "Sourcing"
+msgstr "Fornecimento"
+
 msgid "Sourcing Type"
 msgstr "Tipo de Fornecimento"
 

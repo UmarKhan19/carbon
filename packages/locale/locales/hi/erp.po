@@ -7480,6 +7480,9 @@ msgstr "स्रोत विधि"
 msgid "Source Version"
 msgstr "स्रोत संस्करण"
 
+msgid "Sourcing"
+msgstr "सोर्सिंग"
+
 msgid "Sourcing Type"
 msgstr "सोर्सिंग प्रकार"
 
