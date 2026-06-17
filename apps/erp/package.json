@@ -22,6 +22,7 @@
     "@carbon/lib": "workspace:*",
     "@carbon/locale": "workspace:*",
     "@carbon/notifications": "workspace:*",
+    "@carbon/printing": "workspace:*",
     "@carbon/react": "workspace:*",
     "@carbon/stripe": "workspace:*",
     "@carbon/utils": "workspace:*",

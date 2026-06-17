@@ -40,7 +40,7 @@ import type {
   SupplierPart,
   Tool
 } from "../../types";
-import { FileBadge, ItemDescription } from "../Item";
+import { FileBadge, ItemDescription, SourcingTypeProperty } from "../Item";
 
 type ToolPropertiesProps = {
   data?: {
@@ -104,6 +104,7 @@ const ToolProperties = ({ data }: ToolPropertiesProps) => {
         | "description"
         | "replenishmentSystem"
         | "defaultMethodType"
+        | "sourcingType"
         | "itemTrackingType"
         | "itemPostingGroupId"
         | "toolId"
@@ -461,6 +462,12 @@ const ToolProperties = ({ data }: ToolPropertiesProps) => {
           }}
         />
       </ValidatedForm>
+
+      <SourcingTypeProperty
+        replenishmentSystem={routeData?.toolSummary?.replenishmentSystem}
+        value={routeData?.toolSummary?.sourcingType}
+        onChange={(value) => onUpdate("sourcingType", value)}
+      />
 
       <VStack spacing={2}>
         <h3 className="text-xs text-muted-foreground">

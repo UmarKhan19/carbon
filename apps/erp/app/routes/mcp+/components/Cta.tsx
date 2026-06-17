@@ -32,16 +32,12 @@ export function Cta() {
           Bring your manufacturing system into every AI assistant.
         </p>
         <div className="flex gap-[10px] flex-wrap justify-center">
-          <Button asChild variant="primary" size="lg">
-            <a
-              href="#quickstart"
-              onClick={(e) => {
-                e.preventDefault();
-                goToQuickstart("Claude Code");
-              }}
-            >
-              Connect to Claude
-            </a>
+          <Button
+            variant="primary"
+            size="lg"
+            onClick={() => goToQuickstart("Claude Code")}
+          >
+            Connect to Claude
           </Button>
           <Button asChild variant="secondary" size="lg">
             <a

@@ -31,27 +31,15 @@ export function Lede({ total }: { total: number }) {
         />
       </div>
       <div className="flex gap-[10px] flex-wrap">
-        <Button asChild variant="primary" size="lg">
-          <a
-            href="#quickstart"
-            onClick={(e) => {
-              e.preventDefault();
-              goToQuickstart();
-            }}
-          >
-            Get started
-          </a>
+        <Button variant="primary" size="lg" onClick={() => goToQuickstart()}>
+          Get started
         </Button>
-        <Button asChild variant="secondary" size="lg">
-          <a
-            href="#quickstart"
-            onClick={(e) => {
-              e.preventDefault();
-              goToQuickstart("Claude Code");
-            }}
-          >
-            Connect to Claude
-          </a>
+        <Button
+          variant="secondary"
+          size="lg"
+          onClick={() => goToQuickstart("Claude Code")}
+        >
+          Connect to Claude
         </Button>
       </div>
     </div>

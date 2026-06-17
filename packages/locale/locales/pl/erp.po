@@ -17,7 +17,7 @@ msgstr "Dostawca to firma lub osoba, która sprzedaje Ci części lub usługi."
 
 #. placeholder {0}: fieldDef?.label ?? condition.field
 msgid "\"{0}\" isn't available on the selected surface(s). Pick another field."
-msgstr ""
+msgstr "\"{0}\" nie jest dostępne na wybranej powierzchni/powierzchniach. Wybierz inne pole."
 
 msgid "\"{storageUnitName}\" has {childCount} direct nested storage units. Deleting it will also delete them and anything underneath them. This cannot be undone."
 msgstr "„{storageUnitName}\" ma {childCount} bezpośrednio zagnieżdżonych jednostek magazynowych. Usunięcie go spowoduje również usunięcie ich i wszystkiego pod nimi. Tej operacji nie można cofnąć."
@@ -49,6 +49,10 @@ msgstr "{0} nieprzetestowane jednostki zostaną zwolnione do Dostępne. Przebada
 #. placeholder {0}: file.name
 msgid "{0} uploaded successfully"
 msgstr "{0} przesłano pomyślnie"
+
+#. placeholder {0}: unmatchedValues.length
+msgid "{0} values missing"
+msgstr "{0} brakujących wartości"
 
 msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB limit"
@@ -270,6 +274,9 @@ msgstr "Dodaj kolumnę poniżej, aby posortować widok"
 msgid "Add a comment..."
 msgstr "Dodaj komentarz..."
 
+msgid "Add a printer in the printing settings to print labels directly."
+msgstr "Dodaj drukarkę w ustawieniach drukowania, aby drukować etykiety bezpośrednio."
+
 msgid "Add Actions"
 msgstr "Dodaj Działania"
 
@@ -338,6 +345,9 @@ msgstr "Dodaj partnera"
 
 msgid "Add Permissions"
 msgstr "Dodaj uprawnienia"
+
+msgid "Add Printer"
+msgstr "Dodaj drukarkę"
 
 msgid "Add Property"
 msgstr "Dodaj właściwość"
@@ -466,7 +476,7 @@ msgid "An item cannot be added to itself."
 msgstr "Przedmiot nie może być dodany do siebie."
 
 msgid "AND"
-msgstr ""
+msgstr "I"
 
 msgid "and {remaining} more"
 msgstr "i {remaining} więcej"
@@ -487,10 +497,10 @@ msgid "Annotation updated"
 msgstr "Adnotacja zaktualizowana"
 
 msgid "Any item group"
-msgstr ""
+msgstr "Dowolna grupa artykułów"
 
 msgid "Any item type"
-msgstr ""
+msgstr "Dowolny typ przedmiotu"
 
 msgid "API and Webhooks"
 msgstr "API i Webhooks"
@@ -629,9 +639,9 @@ msgstr "Czy na pewno chcesz usunąć {0} z tej operacji? Tej czynności nie moż
 msgid "Are you sure you want to delete {0}?"
 msgstr "Czy na pewno chcesz usunąć {0}?"
 
+#. placeholder {0}: pickingList.pickingListId
 #. placeholder {0}: routeData?.consumableSummary?.readableIdWithRevision
 #. placeholder {0}: routeData?.customer?.name!
-#. placeholder {0}: routeData?.document?.name
 msgid "Are you sure you want to delete {0}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć {0}? Tej operacji nie można cofnąć."
 
@@ -758,6 +768,10 @@ msgstr "Czy na pewno chcesz usunąć termin płatności: {0}? Tej czynności nie
 #. placeholder {0}: pricingRule.name
 msgid "Are you sure you want to delete the pricing rule: {0}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć regułę cenową: {0}? Tej czynności nie można cofnąć."
+
+#. placeholder {0}: printerToDelete.name
+msgid "Are you sure you want to delete the printer \"{0}\"? Any assignments referencing this printer will be cleared. This cannot be undone."
+msgstr "Czy na pewno chcesz usunąć drukarkę „{0}\"? Wszystkie przypisania odwołujące się do tej drukarki zostaną wyczyszczone. Tej operacji nie można cofnąć."
 
 #. placeholder {0}: purchaseInvoiceLine.quantity ?? 0
 #. placeholder {1}: purchaseInvoiceLine.description ?? ""
@@ -928,6 +942,9 @@ msgstr "Klasy aktywów"
 msgid "Assets"
 msgstr "Aktywa"
 
+msgid "Assign printers to locations. Shipping, receiving, and work centers inherit the location default unless overridden."
+msgstr "Przypisz drukarki do lokalizacji. Wysyłka, odbiór i centra pracy dziedziczą domyślne ustawienia lokalizacji, chyba że zostaną zastąpione."
+
 msgid "Assign To"
 msgstr "Przypisz do"
 
@@ -948,6 +965,9 @@ msgstr "Przypisanie"
 
 msgid "Assignments"
 msgstr "Przypisania"
+
+msgid "Assigns this storage unit to a work center (lineside)"
+msgstr "Przypisuje tę jednostkę magazynową do centrum pracy (lineside)"
 
 msgid "At least one condition must match"
 msgstr "Co najmniej jeden warunek musi się zgadzać"
@@ -1020,6 +1040,9 @@ msgstr "Automatycznie zwolnij zadanie po zeskanowaniu kanban"
 
 msgid "Automatically start the job when the kanban is scanned"
 msgstr "Automatycznie uruchom zadanie po zeskanowaniu kanban"
+
+msgid "available"
+msgstr "dostępne"
 
 msgid "Available"
 msgstr "Dostępne"
@@ -1188,22 +1211,22 @@ msgid "Cancel Job"
 msgstr "Anuluj zadanie"
 
 msgid "Cancel Sales Order"
-msgstr ""
+msgstr "Anuluj Zamówienie Sprzedaży"
 
 msgid "Cancel SO"
-msgstr ""
+msgstr "Anuluj SO"
 
 #. placeholder {0}: selectedIds.length
 #. placeholder {1}: selectedIds.length === 1 ? "" : "s"
 msgid "Cancel SO + {0} job{1}"
-msgstr ""
+msgstr "Anuluj ZS + {0} zadanie{1}"
 
 #. placeholder {0}: selectedIds.length
 msgid "Cancel SO + {0} selected"
-msgstr ""
+msgstr "Anuluj SO + {0} wybranych"
 
 msgid "Cancel SO only"
-msgstr ""
+msgstr "Anuluj tylko SO"
 
 msgid "Canceled"
 msgstr "Anulowano"
@@ -1313,8 +1336,14 @@ msgstr "Czat"
 msgid "Check your email"
 msgstr "Sprawdź swoją pocztę"
 
+msgid "Choose a batch number"
+msgstr "Wybierz numer partii"
+
 msgid "Choose a company"
-msgstr ""
+msgstr "Wybierz firmę"
+
+msgid "Choose a serial number"
+msgstr "Wybierz numer seryjny"
 
 msgid "Choose another file"
 msgstr "Wybierz inny plik"
@@ -1411,7 +1440,7 @@ msgid "Columns"
 msgstr "Kolumny"
 
 msgid "Combine filters"
-msgstr ""
+msgstr "Połącz filtry"
 
 msgid "Coming soon"
 msgstr "Wkrótce"
@@ -1520,9 +1549,6 @@ msgstr "Skonfiguruj powiadomienia dla dyspozycji konserwacyjnych tworzonych z ha
 
 msgid "Configure notifications for when new suggestions are submitted."
 msgstr "Skonfiguruj powiadomienia dla nowych przesłanych sugestii."
-
-msgid "Configure the content displayed on job traveler PDFs."
-msgstr "Skonfiguruj zawartość wyświetlaną w plikach PDF podróżnika zadania."
 
 msgid "Configure the default accounts used for various transaction types across your system"
 msgstr "Skonfiguruj domyślne konta używane dla różnych typów transakcji w całym systemie"
@@ -1650,6 +1676,9 @@ msgstr "Skopiuj wszystkie pozycje i ceny do innego klienta lub typu."
 
 msgid "Copy API Key"
 msgstr "Skopiuj klucz API"
+
+msgid "Copy company unique identifier"
+msgstr "Skopiuj unikalny identyfikator firmy"
 
 msgid "Copy consumable number"
 msgstr "Skopiuj numer artykułu zużywalnego"
@@ -1818,6 +1847,10 @@ msgstr "Utwórz"
 #. placeholder {0}: search.trim() === "" ? label : search
 msgid "Create {0}"
 msgstr "Utwórz {0}"
+
+#. placeholder {0}: unmatchedValues.length
+msgid "Create {0} values"
+msgstr "Utwórz {0} wartości"
 
 msgid "Create a new kanban card for scan-based replenishment."
 msgstr "Utwórz nową kartę kanban do uzupełniania opartego na skanowaniu."
@@ -2100,6 +2133,9 @@ msgstr "Typy klientów"
 msgid "Customers"
 msgstr "Klienci"
 
+msgid "Customize the layout of your PDF documents — reorder sections, hide what you don't need, and add your own blocks."
+msgstr "Dostosuj układ swoich dokumentów PDF — zmień kolejność sekcji, ukryj to, czego nie potrzebujesz, i dodaj własne bloki."
+
 msgid "Daily Usage"
 msgstr "Dzienne użycie"
 
@@ -2197,6 +2233,9 @@ msgstr "Typ terminu"
 msgid "Decide what an operator sees if they try to issue a batch or serial that's already expired."
 msgstr "Zdecyduj, co operator widzi, jeśli spróbuje wydać partię lub numer seryjny, który już wygasł."
 
+msgid "Default"
+msgstr "Domyślnie"
+
 msgid "Default Accounts"
 msgstr "Konta domyślne"
 
@@ -2214,6 +2253,9 @@ msgstr "Metoda domyślna"
 
 msgid "Default Method Type"
 msgstr "Domyślny typ metody"
+
+msgid "Default order when picking serial or batch lots of this item. Pickers can still override it."
+msgstr "Domyślna kolejność podczas wybierania partii seryjnych lub zbiorczych tego artykułu. Pracownicy mogą ją nadal zmienić."
 
 msgid "Default Permissions"
 msgstr "Uprawnienia domyślne"
@@ -2235,15 +2277,6 @@ msgstr "Jednostka domyślna"
 
 msgid "Defaults"
 msgstr "Ustawienia domyślne"
-
-msgid "Define the default size of the product label. Used for tracking items in inventory."
-msgstr "Zdefiniuj domyślny rozmiar etykiety produktu. Używane do śledzenia przedmiotów w magazynie."
-
-msgid "Define the terms and conditions for purchase orders"
-msgstr "Zdefiniuj warunki i zasady dla zamówień zakupu"
-
-msgid "Define the terms and conditions for quotes and sales orders"
-msgstr "Zdefiniuj warunki i zasady dla ofert i zamówień sprzedaży"
 
 msgid "Defines how many tracked entities are inspected per lot, and how many failures are tolerated before the lot is rejected."
 msgstr "Określa, ile śledzonych jednostek jest sprawdzanych na partię i ile błędów jest tolerowanych przed odrzuceniem partii."
@@ -2352,6 +2385,9 @@ msgstr "Usuń partnera"
 
 msgid "Delete Payment Term"
 msgstr "Usuń Warunki Płatności"
+
+msgid "Delete Picking List"
+msgstr "Usuń listę pobrania"
 
 msgid "Delete Portal"
 msgstr "Usuń Portal"
@@ -2593,6 +2629,9 @@ msgstr "Dokument"
 msgid "Document Control"
 msgstr "Kontrola dokumentów"
 
+msgid "Document Templates"
+msgstr "Szablony dokumentów"
+
 msgid "Document:"
 msgstr "Dokument:"
 
@@ -2610,6 +2649,9 @@ msgstr "Pobierz"
 
 msgid "Download CSV"
 msgstr "Pobierz CSV"
+
+msgid "Download Labels"
+msgstr "Pobierz Etykiety"
 
 msgid "Download PDF"
 msgstr "Pobierz PDF"
@@ -2698,6 +2740,9 @@ msgstr "Czas trwania"
 
 msgid "e.g. DWG-1234"
 msgstr "np. DWG-1234"
+
+msgid "e.g. Zebra 2x1"
+msgstr "np. Zebra 2x1"
 
 msgid "Edit"
 msgstr "Edytuj"
@@ -2836,6 +2881,9 @@ msgstr "Edytuj Warunki Płatności"
 
 msgid "Edit Permissions"
 msgstr "Uprawnienia do edycji"
+
+msgid "Edit Picking List"
+msgstr "Edytuj listę pobrania"
 
 msgid "Edit Portal"
 msgstr "Edytuj Portal"
@@ -2985,7 +3033,7 @@ msgid "Employees"
 msgstr "Pracownicy"
 
 msgid "Empty = match every item"
-msgstr ""
+msgstr "Puste = dopasuj każdy element"
 
 msgid "Empty work centers"
 msgstr "Puste centra pracy"
@@ -3025,9 +3073,6 @@ msgstr "Włącz, aby skonfigurować metody amortyzacji specyficzne dla podatku n
 
 msgid "Enable to generate IDs and descriptions for raw materials."
 msgstr "Włącz, aby generować identyfikatory i opisy dla surowców."
-
-msgid "Enable to include work instructions on job traveler PDFs."
-msgstr "Włącz, aby dołączyć instrukcje pracy do plików PDF podróżnika zadania."
 
 msgid "Enable to start tracking changes to your data."
 msgstr "Włącz, aby rozpocząć śledzenie zmian w Twoich danych."
@@ -3234,6 +3279,9 @@ msgstr "Data wygaśnięcia (dotyczy wszystkich numerów seryjnych w tej linii)"
 msgid "Expired"
 msgstr "Wygasło"
 
+msgid "Expired {date}"
+msgstr "Wygasło {date}"
+
 msgid "Expired batch"
 msgstr "Wygasła partia"
 
@@ -3243,8 +3291,14 @@ msgstr "Wygasłe partie"
 msgid "Expires"
 msgstr "Wygasa"
 
+msgid "Expires {date}"
+msgstr "Wygasa {date}"
+
 msgid "Expires At (optional)"
 msgstr "Wygasa (opcjonalnie)"
+
+msgid "Expiring first"
+msgstr "Wygasające pierwsze"
 
 msgid "Expiry"
 msgstr "Wygaśnięcie"
@@ -3761,6 +3815,9 @@ msgstr "Generuj identyfikatory materiałów i opisy na podstawie właściwości 
 msgid "Generate new PIN"
 msgstr "Wygeneruj nowy PIN"
 
+msgid "Generate Picking List"
+msgstr "Generuj listę pobrania"
+
 msgid "Generated IDs are disabled"
 msgstr "Wygenerowane identyfikatory są wyłączone"
 
@@ -3845,6 +3902,9 @@ msgstr "Godziny/1000 Sztuk"
 msgid "Hours/Piece"
 msgstr "Godziny/Sztuka"
 
+msgid "How many were actually picked?"
+msgstr "Ile faktycznie pobrano?"
+
 msgid "How the resolved price was calculated."
 msgstr "Jak została obliczona ostateczna cena."
 
@@ -3874,6 +3934,9 @@ msgstr "Jeśli elementy już istnieją"
 
 msgid "If you wish to change the part numbers, please click Cancel and manually assign the parts for each line item before converting."
 msgstr "Jeśli chcesz zmienić numery części, kliknij Anuluj i ręcznie przypisz części dla każdej pozycji wiersza przed konwersją."
+
+msgid "Imperial"
+msgstr "Imperialny"
 
 msgid "Implementation Support"
 msgstr "Wsparcie wdrażania"
@@ -3926,12 +3989,6 @@ msgstr "Dołącz dodatkowe części do wysyłki"
 msgid "Include Inactive"
 msgstr "Uwzględnij nieaktywne"
 
-msgid "Include Thumbnails on Purchasing Documents"
-msgstr "Dołącz miniatury w dokumentach zakupowych"
-
-msgid "Include Thumbnails on Sales Documents"
-msgstr "Dołącz miniatury do dokumentów sprzedaży"
-
 msgid "Includes tax and shipping costs"
 msgstr "Obejmuje podatki i koszty wysyłki"
 
@@ -3958,6 +4015,9 @@ msgstr "Infrastruktura"
 
 msgid "Inherit From Materials"
 msgstr "Dziedzicz z Materiałów"
+
+msgid "Inherited from parent"
+msgstr "Odziedziczone z elementu nadrzędnego"
 
 msgid "Insert rows"
 msgstr "Wstaw wiersze"
@@ -4053,7 +4113,7 @@ msgid "Invite"
 msgstr "Zaproś"
 
 msgid "Invited"
-msgstr ""
+msgstr "Zaproszony"
 
 msgid "Invoice"
 msgstr "Faktura"
@@ -4158,13 +4218,13 @@ msgid "Item {scannedItem} is not the same as the item {expectedItem}"
 msgstr "Pozycja {scannedItem} nie jest taka sama jak pozycja {expectedItem}"
 
 msgid "Item filters"
-msgstr ""
+msgstr "Filtry elementów"
 
 msgid "Item Group"
 msgstr "Grupa Pozycji"
 
 msgid "Item groups"
-msgstr ""
+msgstr "Grupy artykułów"
 
 msgid "Item Groups"
 msgstr "Grupy Pozycji"
@@ -4176,10 +4236,10 @@ msgid "Item Master"
 msgstr "Główny element"
 
 msgid "Item must match a selected type AND a selected group"
-msgstr ""
+msgstr "Element musi pasować do wybranego typu I wybranej grupy"
 
 msgid "Item must match a selected type OR a selected group"
-msgstr ""
+msgstr "Element musi pasować do wybranego typu LUB wybranej grupy"
 
 msgid "Item Scope"
 msgstr "Zakres Pozycji"
@@ -4188,7 +4248,7 @@ msgid "Item Type"
 msgstr "Typ przedmiotu"
 
 msgid "Item types"
-msgstr ""
+msgstr "Typy przedmiotów"
 
 msgid "items"
 msgstr "elementy"
@@ -4216,12 +4276,6 @@ msgstr "Operacja zadania"
 
 msgid "Job Operations"
 msgstr "Operacje Zadań"
-
-msgid "Job Traveler"
-msgstr "Dokument Podróży Pracy"
-
-msgid "Job traveler PDFs include work instructions."
-msgstr "Pliki PDF podróżnika zadania zawierają instrukcje pracy."
 
 msgid "Jobs"
 msgstr "Zadania"
@@ -4334,6 +4388,9 @@ msgstr "Dowiedz się więcej"
 msgid "Leave any related receipts untouched"
 msgstr "Pozostaw wszelkie powiązane paragony bez zmian"
 
+msgid "Leave blank for built-in"
+msgstr "Pozostaw puste dla wbudowanego"
+
 msgid "Leave empty for exact match"
 msgstr "Pozostaw puste dla dokładnego dopasowania"
 
@@ -4415,7 +4472,7 @@ msgid "Load Templates"
 msgstr "Załaduj szablony"
 
 msgid "Loading associated jobs..."
-msgstr ""
+msgstr "Ładowanie powiązanych zadań..."
 
 msgid "Loading item details..."
 msgstr "Ładowanie szczegółów przedmiotu..."
@@ -4594,6 +4651,9 @@ msgstr "Oznaczyć partię jako częściową?"
 msgid "Mark Partial"
 msgstr "Oznacz jako częściowe"
 
+msgid "Mark Short"
+msgstr "Oznacz jako brakujące"
+
 msgid "Mark to delete"
 msgstr "Oznacz do usunięcia"
 
@@ -4604,13 +4664,13 @@ msgid "Match all"
 msgstr "Dopasuj wszystkie"
 
 msgid "Match all (AND)"
-msgstr ""
+msgstr "Dopasuj wszystkie (AND)"
 
 msgid "Match any"
 msgstr "Dopasuj dowolny"
 
 msgid "Match any (OR)"
-msgstr ""
+msgstr "Dopasuj dowolny (LUB)"
 
 msgid "Match none"
 msgstr "Nie dopasuj żaden"
@@ -4710,6 +4770,9 @@ msgstr "Średni czas naprawy"
 
 msgid "Measurement Standard"
 msgstr "Standard Pomiaru"
+
+msgid "Media Size"
+msgstr "Rozmiar nośnika"
 
 msgid "Members"
 msgstr "Członkowie"
@@ -5013,6 +5076,9 @@ msgstr "Nowe Hasło"
 msgid "New Payment Term"
 msgstr "Nowy Termin Płatności"
 
+msgid "New Picking List"
+msgstr "Nowa Lista Pobrania"
+
 msgid "New PIN"
 msgstr "Nowy PIN"
 
@@ -5121,6 +5187,9 @@ msgstr "Nowy Webhook"
 msgid "New Work Center"
 msgstr "Nowe Centrum Pracy"
 
+msgid "Newest first"
+msgstr "Najnowsze najpierw"
+
 msgid "Next"
 msgstr "Dalej"
 
@@ -5159,7 +5228,7 @@ msgid "No action needed"
 msgstr "Brak wymaganych działań"
 
 msgid "No active jobs found for this sales order. The order will be cancelled directly."
-msgstr ""
+msgstr "Nie znaleziono aktywnych zadań dla tego zamówienia sprzedaży. Zamówienie zostanie anulowane bezpośrednio."
 
 msgid "No active plan"
 msgstr "Brak aktywnego planu"
@@ -5179,6 +5248,9 @@ msgstr "Brak załączników."
 
 msgid "No available filters"
 msgstr "Brak dostępnych filtrów"
+
+msgid "No available tracked entities found"
+msgstr "Nie znaleziono dostępnych śledzonych jednostek"
 
 msgid "No BOM input has a shelf-life policy"
 msgstr "Żadne wejście BOM nie ma polityki przydatności do spożycia"
@@ -5252,6 +5324,9 @@ msgstr "Brak obrazu"
 msgid "No issue types configured"
 msgstr "Brak skonfigurowanych typów problemów"
 
+msgid "No locations found."
+msgstr "Nie znaleziono lokalizacji."
+
 msgid "No logo uploaded"
 msgstr "Nie przesłano logo"
 
@@ -5266,6 +5341,9 @@ msgstr "Brak nowych powiadomień"
 
 msgid "No notes"
 msgstr "Brak notek"
+
+msgid "No operations require picking at this location"
+msgstr "Żadne operacje nie wymagają pobrania w tej lokalizacji"
 
 msgid "No operators."
 msgstr "Brak operatorów."
@@ -5303,6 +5381,12 @@ msgstr "Brak cen dla wybranej ilości"
 msgid "No pricing options found"
 msgstr "Nie znaleziono opcji cenowych"
 
+msgid "No printer configured"
+msgstr "Brak skonfigurowanej drukarki"
+
+msgid "No printers configured. Click \"Add Printer\" to create one."
+msgstr "Brak skonfigurowanych drukarek. Kliknij „Dodaj drukarkę\", aby utworzyć jedną."
+
 msgid "No Quote"
 msgstr "Brak oferty"
 
@@ -5330,6 +5414,9 @@ msgstr "Brak próbek do sprawdzenia."
 msgid "No sorts applied to this view"
 msgstr "Brak zastosowanych sortowań w tym widoku"
 
+msgid "No stock"
+msgstr "Brak zapasu"
+
 msgid "No time entries for this week"
 msgstr "Brak wpisów czasu pracy w tym tygodniu"
 
@@ -5338,6 +5425,9 @@ msgstr "Wartość nie jest wymagana"
 
 msgid "No values available"
 msgstr "Brak dostępnych wartości"
+
+msgid "No warehouse stock is on record for this item. You can still pick it — on-hand will go negative until the count is reconciled."
+msgstr "Brak zapasu w magazynie dla tego artykułu. Możesz go mimo tego pobrać — dostępna ilość będzie ujemna do czasu uzgodnienia stanu."
 
 msgid "No work center utilization data within range"
 msgstr "Brak danych wykorzystania centrum pracy w zakresie"
@@ -5379,7 +5469,7 @@ msgid "Not started training for"
 msgstr "Nie rozpoczęto szkolenia dla"
 
 msgid "Not you?"
-msgstr ""
+msgstr "To nie ty?"
 
 msgid "Note"
 msgstr "Notatka"
@@ -5416,6 +5506,9 @@ msgstr "z"
 
 msgid "OK"
 msgstr "OK"
+
+msgid "Oldest first"
+msgstr "Najstarsze najpierw"
 
 msgid "On Hand"
 msgstr "W magazynie"
@@ -5538,7 +5631,7 @@ msgid "Options"
 msgstr "Opcje"
 
 msgid "OR"
-msgstr ""
+msgstr "LUB"
 
 msgid "Order"
 msgstr "Zamówienie"
@@ -5572,6 +5665,9 @@ msgstr "Zamówienia"
 
 msgid "Orders submitted"
 msgstr "Zamówienia przesłane"
+
+msgid "Origin"
+msgstr "Pochodzenie"
 
 msgid "Other Type"
 msgstr "Inny typ"
@@ -5705,11 +5801,17 @@ msgstr "Warunki Płatności"
 msgid "PDF"
 msgstr "PDF"
 
+msgid "PDF (Document)"
+msgstr "PDF (Dokument)"
+
 msgid "PDF downloaded"
 msgstr "PDF pobrany"
 
 msgid "PDF pages"
 msgstr "Strony PDF"
+
+msgid "PDF Preview"
+msgstr "Podgląd PDF"
 
 msgid "PDF Watermark"
 msgstr "Znak wodny PDF"
@@ -5750,6 +5852,9 @@ msgstr "Zdjęcie usunięte pomyślnie"
 msgid "Photo uploaded successfully"
 msgstr "Zdjęcie przesłane pomyślnie"
 
+msgid "Physical printers available for assignment."
+msgstr "Drukarki fizyczne dostępne do przypisania."
+
 msgid "Pick"
 msgstr "Wybierz"
 
@@ -5764,6 +5869,30 @@ msgstr "Wybierz datę lub pozostaw puste pole, aby je wyczyścić."
 
 msgid "Pick List"
 msgstr "Lista pobrania"
+
+msgid "Pick Order"
+msgstr "Kolejność pobrania"
+
+msgid "Pick tracked item"
+msgstr "Wybierz śledzony element"
+
+msgid "Picked quantity"
+msgstr "Pobrana ilość"
+
+msgid "Picking Lines"
+msgstr "Linie pobrania"
+
+msgid "Picking List"
+msgstr "Lista pobrania"
+
+msgid "Picking List ID"
+msgstr "ID listy pobrań"
+
+msgid "Picking List Notes"
+msgstr "Notatki listy pobrania"
+
+msgid "Picking Lists"
+msgstr "Listy pobrań"
 
 msgid "Pieces/Hour"
 msgstr "Sztuk/Godzina"
@@ -5900,6 +6029,9 @@ msgstr "Poprz"
 msgid "Preview"
 msgstr "Podgląd"
 
+msgid "Preview failed: {error}"
+msgstr "Podgląd nie powiódł się: {error}"
+
 msgid "Preview Quantity"
 msgstr "Ilość podglądu"
 
@@ -5942,8 +6074,34 @@ msgstr "Reguły cenowe"
 msgid "Pricing Trace"
 msgstr "Śledzenie cen"
 
+msgid "Print"
+msgstr "Drukuj"
+
+#. placeholder {0}: selectedIds.size
+msgid "Print {0} Labels"
+msgstr "Drukuj {0} etykiet"
+
+msgid "Print Jobs"
+msgstr "Zadania drukowania"
+
 msgid "Print Label"
 msgstr "Drukuj etykietę"
+
+#. placeholder {0}: viewContent.contentType?.toUpperCase()
+msgid "Print Output ({0})"
+msgstr "Wydruk ({0})"
+
+msgid "Printer Settings"
+msgstr "Ustawienia drukarki"
+
+msgid "Printer URL"
+msgstr "URL drukarki"
+
+msgid "Printers"
+msgstr "Drukarki"
+
+msgid "Printing"
+msgstr "Drukowanie"
 
 msgid "Priorities"
 msgstr "Priorytety"
@@ -5974,9 +6132,6 @@ msgstr "Typ procesu"
 
 msgid "Processes"
 msgstr "Procesy"
-
-msgid "Product Label Size"
-msgstr "Rozmiar etykiety produktu"
 
 msgid "Production"
 msgstr "Produkcja"
@@ -6097,9 +6252,6 @@ msgstr "Zakupy"
 
 msgid "Purchasing Contact"
 msgstr "Kontakt ds. Zakupów"
-
-msgid "Purchasing Terms & Conditions"
-msgstr "Warunki zakupu i dostawy"
 
 msgid "Purchasing Unit of Measure"
 msgstr "Jednostka miary zakupu"
@@ -6408,6 +6560,9 @@ msgstr "Usuń ten typ magazynu ze wszystkich jednostek magazynowych, które się
 msgid "Remove Transfer"
 msgstr "Usuń transfer"
 
+msgid "Rendering label preview..."
+msgstr "Renderowanie podglądu etykiety..."
+
 msgid "Reopen"
 msgstr "Ponownie otwórz"
 
@@ -6464,6 +6619,9 @@ msgstr "Raport"
 
 msgid "Reports"
 msgstr "Raporty"
+
+msgid "Reprint"
+msgstr "Wydruk ponownie"
 
 msgid "Request Approval"
 msgstr "Poproś o zatwierdzenie"
@@ -6708,9 +6866,6 @@ msgstr "Pracownik sprzedaży"
 msgid "Sales Revenue"
 msgstr "Przychód ze sprzedaży"
 
-msgid "Sales Terms & Conditions"
-msgstr "Warunki sprzedaży"
-
 msgid "Sample"
 msgstr "Próbka"
 
@@ -6756,6 +6911,9 @@ msgstr "Skanuj etykietę lub wyszukaj po ID artykułu lub ID śledzenia."
 
 msgid "Scan or enter tracked entity ID, serial, or batch"
 msgstr "Skanuj lub wprowadź identyfikator śledzonej jednostki, numer seryjny lub partię"
+
+msgid "Scan or enter tracking number"
+msgstr "Skanuj lub wpisz numer śledzenia"
 
 msgid "Scan or search..."
 msgstr "Skanuj lub wyszukaj..."
@@ -6894,7 +7052,7 @@ msgid "Select a team"
 msgstr "Wybierz zespół"
 
 msgid "Select all"
-msgstr ""
+msgstr "Zaznacz wszystko"
 
 msgid "Select an assignee"
 msgstr "Wybierz osobę przydzieloną"
@@ -6952,6 +7110,9 @@ msgstr "Wybierz typ elementu"
 
 msgid "Select items"
 msgstr "Wybierz artykuły"
+
+msgid "Select Printer"
+msgstr "Wybierz drukarkę"
 
 msgid "Select Quantities"
 msgstr "Wybierz ilości"
@@ -7108,6 +7269,9 @@ msgstr "Udostępnij Link"
 msgid "Share Quote"
 msgstr "Udostępnij Ofertę"
 
+msgid "Shared Sections"
+msgstr "Sekcje wspólne"
+
 msgid "Shelf life"
 msgstr "Okres przydatności"
 
@@ -7198,8 +7362,14 @@ msgstr "Wysyłka:"
 msgid "Shop Floor"
 msgstr "Hala produkcyjna"
 
+msgid "Short"
+msgstr "Brakuje"
+
 msgid "Short Description"
 msgstr "Krótki opis"
+
+msgid "Short pick {itemName}"
+msgstr "Niedozbór {itemName}"
 
 msgid "Shortcuts"
 msgstr "Skróty"
@@ -7218,12 +7388,6 @@ msgstr "Pokaż czasy trwania"
 
 msgid "Show parent items"
 msgstr "Pokaż elementy nadrzędne"
-
-msgid "Show part thumbnails on purchase order PDFs."
-msgstr "Pokaż miniatury części na plikach PDF zamówień zakupu."
-
-msgid "Show part thumbnails on quotes, sales orders, invoices, and shipments."
-msgstr "Pokaż miniatury części na ofertach, zamówieniach sprzedaży, fakturach i wysyłkach."
 
 msgid "Show Supplier IDs"
 msgstr "Pokaż identyfikatory dostawców"
@@ -7279,6 +7443,9 @@ msgstr "Pominięte"
 msgid "Something went wrong. Please try again."
 msgstr "Coś poszło nie tak. Spróbuj ponownie."
 
+msgid "Soon"
+msgstr "Wkrótce"
+
 msgid "Soonest expiry across every material sets the finished good."
 msgstr "Najwcześniejsza data wygaśnięcia spośród wszystkich materiałów określa produkt gotowy."
 
@@ -7314,6 +7481,9 @@ msgstr "Metoda źródłowa"
 
 msgid "Source Version"
 msgstr "Wersja źródłowa"
+
+msgid "Sourcing"
+msgstr "Pozyskiwanie"
 
 msgid "Sourcing Type"
 msgstr "Typ pozyskiwania"
@@ -7446,7 +7616,7 @@ msgid "Storage client not available"
 msgstr "Klient magazynu niedostępny"
 
 msgid "Storage Rules"
-msgstr ""
+msgstr "Reguły przechowywania"
 
 msgid "Storage Type"
 msgstr "Typ magazynu"
@@ -7722,11 +7892,20 @@ msgstr "Podatek:"
 msgid "Temperature"
 msgstr "Temperatura"
 
+msgid "Template ID"
+msgstr "Identyfikator szablonu"
+
+msgid "Templates"
+msgstr "Szablony"
+
 msgid "Terms and Privacy"
 msgstr "Regulamin i prywatnosc"
 
 msgid "Terms of Service"
 msgstr "Warunki korzystania"
+
+msgid "Test"
+msgstr "Testuj"
 
 msgid "Test Value"
 msgstr "Wartość testowa"
@@ -7845,8 +8024,11 @@ msgstr "To zadanie zostanie przyjęte do magazynu. Nie będzie już dostępne na
 msgid "This job will no longer be available on the shop floor."
 msgstr "Ta praca nie będzie już dostępna na hali produkcyjnej."
 
+msgid "This lot is expired and can't be picked."
+msgstr "Ta partia wygasła i nie można jej pobrać."
+
 msgid "This sales order has associated jobs. Choose what to do with them."
-msgstr ""
+msgstr "To zamówienie sprzedaży ma powiązane zadania. Wybierz, co z nimi zrobić."
 
 msgid "This sales order has lines that require jobs to be created"
 msgstr "To zamówienie sprzedaży zawiera linie, które wymagają utworzenia zadań"
@@ -8046,9 +8228,6 @@ msgstr "Śledzenie"
 msgid "Tracking ID"
 msgstr "ID śledzenia"
 
-msgid "Tracking Labels"
-msgstr "Etykiety śledzenia"
-
 msgid "Tracking Number"
 msgstr "Numer śledzenia"
 
@@ -8189,6 +8368,13 @@ msgstr "Odłącz"
 
 msgid "Unlink job from sales order?"
 msgstr "Odłączyć zadanie od zamówienia sprzedaży?"
+
+msgid "Unpick"
+msgstr "Cofnij pobranie"
+
+#. placeholder {0}: pickedLots[0].trackedEntity.readableId
+msgid "Unpick {0}"
+msgstr "Cofnij {0}"
 
 msgid "Unsaved changes"
 msgstr "Niezapisane zmiany"
@@ -8448,8 +8634,14 @@ msgstr "Wyświetl Problem"
 msgid "View Item Master"
 msgstr "Wyświetl Główny Katalog Pozycji"
 
+msgid "View Lists"
+msgstr "Wyświetl listy"
+
 msgid "View maintenance dispatch"
 msgstr "Wyświetl dyspozycję konserwacji"
+
+msgid "View missing values"
+msgstr "Wyświetl brakujące wartości"
 
 msgid "View Open"
 msgstr "Wyświetl Otwarte"
@@ -8471,6 +8663,12 @@ msgstr "Wyświetl otwarte zapytania ofertowe"
 
 msgid "View Permissions"
 msgstr "Uprawnienia do wyświetlania"
+
+msgid "View Picking List"
+msgstr "Wyświetl listę pobrań"
+
+msgid "View Prints"
+msgstr "Wyświetl wydruki"
 
 msgid "View Production Events"
 msgstr "Wyświetl zdarzenia produkcji"
@@ -8694,12 +8892,6 @@ msgstr "Centra pracy"
 msgid "Work Instructions"
 msgstr "Instrukcje pracy"
 
-msgid "Work instructions are included"
-msgstr "Instrukcje pracy są dołączone"
-
-msgid "Work instructions are not included"
-msgstr "Instrukcje pracy nie są uwzględnione"
-
 msgid "Work Phone"
 msgstr "Telefon służbowy"
 
@@ -8731,7 +8923,7 @@ msgid "Yes, Update IDs"
 msgstr "Tak, Aktualizuj identyfikatory"
 
 msgid "You belong to more than one company. Pick where to work."
-msgstr ""
+msgstr "Należysz do więcej niż jednej firmy. Wybierz, gdzie chcesz pracować."
 
 msgid "You can change the UI style any time through the theme setting"
 msgstr "Możesz zmienić styl interfejsu użytkownika w dowolnym momencie za pośrednictwem ustawień motywu"
@@ -8787,3 +8979,9 @@ msgstr "Powiększ"
 
 msgid "Zoom out"
 msgstr "Zmniejsz"
+
+msgid "ZPL (Thermal Label)"
+msgstr "ZPL (Etykieta termiczna)"
+
+msgid "ZPL Label Preview"
+msgstr "Podgląd etykiety ZPL"

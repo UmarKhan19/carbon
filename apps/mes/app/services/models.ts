@@ -41,6 +41,34 @@ export const jobOperationStatus = [
   "Canceled"
 ] as const;
 
+export const pickingListStatus = [
+  "Draft",
+  "In Progress",
+  "Completed",
+  "Cancelled"
+] as const;
+
+export const pickingListLineStatus = [
+  "Pending",
+  "Picked",
+  "Short",
+  "Cancelled"
+] as const;
+
+export const pickQuantityValidator = z.object({
+  pickingListLineId: z.string().min(1),
+  quantity: zfd.numeric(z.number().min(0)),
+  markShort: zfd.text(z.string().optional())
+});
+
+// A picking list locks once Completed or Cancelled. Reopening is ERP-only
+// (requires the inventory `delete` permission), so MES must never unlock one.
+export function isPickingListLocked(
+  status: string | null | undefined
+): boolean {
+  return status === "Completed" || status === "Cancelled";
+}
+
 export const maintenanceDispatchPriority = [
   "Low",
   "Medium",

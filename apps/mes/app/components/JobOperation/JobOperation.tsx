@@ -28,7 +28,6 @@ import {
   ScrollArea,
   Separator,
   SidebarTrigger,
-  SplitButton,
   Table,
   Tabs,
   TabsContent,
@@ -46,6 +45,7 @@ import {
   useDisclosure,
   useKeyboardWedge,
   useMode,
+  useRouteData,
   VStack
 } from "@carbon/react";
 import type { TrackedEntityAttributes } from "@carbon/utils";
@@ -53,8 +53,7 @@ import {
   convertDateStringToIsoString,
   convertKbToString,
   formatDurationMilliseconds,
-  getItemReadableId,
-  labelSizes
+  getItemReadableId
 } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestSingleResponse } from "@supabase/supabase-js";
@@ -78,7 +77,6 @@ import {
   LuGitPullRequest,
   LuHammer,
   LuHardHat,
-  LuPrinter,
   LuQrCode,
   LuSquareUser,
   LuTimer,
@@ -90,7 +88,8 @@ import {
   DeadlineIcon,
   FileIcon,
   FilePreview,
-  OperationStatusIcon
+  OperationStatusIcon,
+  PrintButton
 } from "~/components";
 import {
   MethodIcon,
@@ -386,36 +385,10 @@ export const JobOperation = ({
     attributeRecordDeleteModal.onClose();
   };
 
-  const navigateToTrackingLabels = (
-    zpl?: boolean,
-    {
-      labelSize,
-      trackedEntityId
-    }: { labelSize?: string; trackedEntityId?: string } = {}
-  ) => {
-    if (!window) return;
-    if (!operationId) return;
-
-    if (zpl) {
-      window.open(
-        window.location.origin +
-          path.to.file.operationLabelsZpl(operationId, {
-            labelSize,
-            trackedEntityId
-          }),
-        "_blank"
-      );
-    } else {
-      window.open(
-        window.location.origin +
-          path.to.file.operationLabelsPdf(operationId, {
-            labelSize,
-            trackedEntityId
-          }),
-        "_blank"
-      );
-    }
-  };
+  const layoutData = useRouteData<{ location: string }>(
+    path.to.authenticatedRoot
+  );
+  const locationId = layoutData?.location;
 
   const completeFetcher = useFetcher<Result>();
   useKeyboardWedge({
@@ -1010,19 +983,19 @@ export const JobOperation = ({
 
                       return (
                         <>
-                          <Table className="w-full">
+                          <Table className="w-full text-base">
                             <Thead>
                               <Tr>
-                                <Th>
+                                <Th className="text-sm">
                                   <Trans>Part</Trans>
                                 </Th>
-                                <Th className="lg:table-cell hidden">
+                                <Th className="text-sm lg:table-cell hidden">
                                   <Trans>Source</Trans>
                                 </Th>
-                                <Th>
+                                <Th className="text-sm">
                                   <Trans>Estimated</Trans>
                                 </Th>
-                                <Th>
+                                <Th className="text-sm">
                                   <Trans>Actual</Trans>
                                 </Th>
                                 <Th className="text-right" />
@@ -1061,6 +1034,7 @@ export const JobOperation = ({
                                       <Tr
                                         key={`material-${material.id}`}
                                         className={cn(
+                                          "[&>td]:py-3",
                                           !isRelatedToOperation &&
                                             "opacity-50 hover:opacity-100"
                                         )}
@@ -1071,13 +1045,13 @@ export const JobOperation = ({
                                             className="justify-between"
                                           >
                                             <VStack spacing={0}>
-                                              <span className="font-semibold">
+                                              <span className="font-semibold text-base">
                                                 {getItemReadableId(
                                                   items,
                                                   material.itemId ?? ""
                                                 )}
                                               </span>
-                                              <span className="text-muted-foreground text-xs">
+                                              <span className="text-muted-foreground text-sm">
                                                 {material.description}
                                               </span>
                                             </VStack>
@@ -1206,6 +1180,7 @@ export const JobOperation = ({
                                             material.requiresSerialTracking) && (
                                             <Button
                                               className="flex-shrink-0"
+                                              size="lg"
                                               variant={
                                                 someRelatedMaterialIsIssued ||
                                                 !isRelatedToOperation
@@ -1388,6 +1363,8 @@ export const JobOperation = ({
                             <IssueMaterialModal
                               operationId={operation.id}
                               expiredEntityPolicy={expiredEntityPolicy}
+                              locationId={locationId}
+                              workCenterId={operation.workCenterId ?? undefined}
                               material={selectedMaterial ?? undefined}
                               parentId={trackedEntityId ?? ""}
                               parentIdIsSerialized={
@@ -1427,13 +1404,13 @@ export const JobOperation = ({
                 >
                   <Await resolve={files}>
                     {(resolvedFiles) => (
-                      <Table className="w-full">
+                      <Table className="w-full text-base">
                         <Thead>
                           <Tr>
-                            <Th>
+                            <Th className="text-sm">
                               <Trans>Name</Trans>
                             </Th>
-                            <Th>
+                            <Th className="text-sm">
                               <Trans>Size</Trans>
                             </Th>
                             <Th></Th>
@@ -1452,14 +1429,14 @@ export const JobOperation = ({
                           ) : (
                             <>
                               {modelUpload?.modelName && (
-                                <Tr>
+                                <Tr className="[&>td]:py-3">
                                   <Td>
                                     <HStack>
                                       <LuAxis3D className="text-emerald-500 w-6 h-6" />
                                       <span>{modelUpload.modelName}</span>
                                     </HStack>
                                   </Td>
-                                  <Td className="text-xs font-mono">
+                                  <Td className="text-sm font-mono">
                                     {modelUpload.modelSize
                                       ? convertKbToString(
                                           Math.floor(
@@ -1498,7 +1475,10 @@ export const JobOperation = ({
                               {resolvedFiles.map((file) => {
                                 const type = getFileType(file.name);
                                 return (
-                                  <Tr key={`file-${file.id}`}>
+                                  <Tr
+                                    key={`file-${file.id}`}
+                                    className="[&>td]:py-3"
+                                  >
                                     <Td>
                                       <HStack>
                                         <FileIcon type={type} />
@@ -1534,7 +1514,7 @@ export const JobOperation = ({
                                         </span>
                                       </HStack>
                                     </Td>
-                                    <Td className="text-xs font-mono">
+                                    <Td className="text-sm font-mono">
                                       {convertKbToString(
                                         Math.floor(
                                           (file.metadata?.size ?? 0) / 1024
@@ -1588,21 +1568,17 @@ export const JobOperation = ({
                       </Heading>
                       {trackedEntities?.length > 0 && (
                         <HStack>
-                          <SplitButton
-                            leftIcon={<LuQrCode />}
-                            size="lg"
-                            dropdownItems={labelSizes.map((size) => ({
-                              label: size.name,
-                              onClick: () =>
-                                navigateToTrackingLabels(!!size.zpl, {
-                                  labelSize: size.id
-                                })
-                            }))}
-                            // TODO: if we knew the preferred label size, we could use that here
-                            onClick={() => navigateToTrackingLabels(false)}
-                          >
-                            <Trans>Tracking Labels</Trans>
-                          </SplitButton>
+                          <PrintButton
+                            sourceDocument="Operation"
+                            sourceDocumentId={operationId!}
+                            locationId={locationId}
+                            context="workCenter"
+                            workCenterId={operation.workCenterId ?? undefined}
+                            fileRoutes={{
+                              pdf: path.to.file.operationLabelsPdf,
+                              zpl: path.to.file.operationLabelsZpl
+                            }}
+                          />
                           <Button
                             variant="secondary"
                             size="lg"
@@ -1614,10 +1590,10 @@ export const JobOperation = ({
                       )}
                     </HStack>
 
-                    <Table className="w-full">
+                    <Table className="w-full text-base">
                       <Thead>
                         <Tr>
-                          <Th>
+                          <Th className="text-sm">
                             <Trans>Serial</Trans>
                           </Th>
                           <Th className="text-right" />
@@ -1636,31 +1612,38 @@ export const JobOperation = ({
                           </Tr>
                         ) : (
                           trackedEntities?.map((entity) => (
-                            <Tr key={`serial-${entity.id}`}>
-                              <Td className="flex gap-2 items-center">
-                                <span>{entity.id}</span>
-                                {entity.id === trackedEntityId && (
-                                  <LuCheck className="text-emerald-500 size-4" />
-                                )}
-                                <Copy text={entity.id} />
+                            <Tr
+                              key={`serial-${entity.id}`}
+                              className="[&>td]:py-3"
+                            >
+                              <Td>
+                                <div className="flex gap-2 items-center">
+                                  <span>{entity.id}</span>
+                                  {entity.id === trackedEntityId && (
+                                    <LuCheck className="text-emerald-500 size-4" />
+                                  )}
+                                  <Copy text={entity.id} />
+                                </div>
                               </Td>
 
                               <Td className="text-right">
                                 <div className="flex justify-end gap-2">
-                                  <IconButton
-                                    aria-label="Print Label"
-                                    size="sm"
-                                    icon={<LuPrinter />}
-                                    variant="secondary"
-                                    onClick={() => {
-                                      navigateToTrackingLabels(false, {
-                                        trackedEntityId: entity.id
-                                      });
+                                  <PrintButton
+                                    sourceDocument="Entity"
+                                    sourceDocumentId={entity.id}
+                                    locationId={locationId}
+                                    context="workCenter"
+                                    workCenterId={
+                                      operation.workCenterId ?? undefined
+                                    }
+                                    fileRoutes={{
+                                      pdf: path.to.file.trackedEntityLabelPdf,
+                                      zpl: path.to.file.trackedEntityLabelZpl
                                     }}
                                   />
                                   <Button
                                     variant="secondary"
-                                    size="sm"
+                                    size="lg"
                                     isDisabled={entity.id === trackedEntityId}
                                     onClick={() => {
                                       const entityIndex =

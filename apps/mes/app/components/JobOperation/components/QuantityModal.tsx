@@ -20,7 +20,7 @@ import {
   VStack
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { LuTriangleAlert } from "react-icons/lu";
 import { useFetcher } from "react-router";
 import {
@@ -66,6 +66,14 @@ export function QuantityModal({
   const fetcher = useFetcher<ProductionQuantity>();
   const [quantity, setQuantity] = useState(parentIsSerial ? 1 : 0);
   const [confirmedUnissued, setConfirmedUnissued] = useState(false);
+  const submitted = useRef(false);
+  const isSubmitting = fetcher.state !== "idle";
+
+  useEffect(() => {
+    if (submitted.current && fetcher.state === "idle") {
+      onClose();
+    }
+  }, [fetcher.state, onClose]);
 
   const titleMap = {
     scrap: t`Log scrap for ${operation.itemReadableId}`,
@@ -152,7 +160,7 @@ export function QuantityModal({
           }}
           fetcher={fetcher}
           onSubmit={() => {
-            onClose();
+            submitted.current = true;
           }}
         >
           <ModalHeader>
@@ -192,6 +200,7 @@ export function QuantityModal({
                       onCheckedChange={(checked) =>
                         setConfirmedUnissued(checked === true)
                       }
+                      className="bg-primary"
                     />
                     <span className="text-sm">
                       <Trans>
@@ -300,10 +309,12 @@ export function QuantityModal({
                   : "primary"
               }
               type="submit"
+              isLoading={isSubmitting}
               disabled={
-                type === "complete" &&
-                hasUnissuedTrackedMaterials &&
-                !confirmedUnissued
+                isSubmitting ||
+                (type === "complete" &&
+                  hasUnissuedTrackedMaterials &&
+                  !confirmedUnissued)
               }
             >
               {actionButtonMap[type]}
