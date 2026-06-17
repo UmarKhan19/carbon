@@ -1,5 +1,5 @@
 {
-  "generated": "2026-06-15T19:58:06.067Z",
+  "generated": "2026-06-13T02:22:15.288Z",
   "totalTools": 1188,
   "modules": 15,
   "tools": [
@@ -2028,7 +2028,7 @@
           "description": {
             "type": "string"
           },
-          "lines: Array<{\r\n      accountId: string;\r\n      description": {}
+          "lines: Array<{\n      accountId: string;\n      description": {}
         },
         "required": [
           "journalEntryId",
@@ -2605,7 +2605,7 @@
           "periodEnd": {
             "type": "string"
           },
-          "lines: Array<{\r\n      fixedAssetId: string;\r\n      amount: number;\r\n      taxAmount": {}
+          "lines: Array<{\n      fixedAssetId: string;\n      amount: number;\n      taxAmount": {}
         },
         "required": [
           "periodEnd"
@@ -8305,7 +8305,7 @@
       "paramCount": 3,
       "serviceParams": [
         "client",
-        "{\r\n    itemId,\r\n    locationId,\r\n    periods,\r\n    companyId\r\n  }"
+        "{\n    itemId,\n    locationId,\n    periods,\n    companyId\n  }"
       ],
       "injectAuth": [
         "companyId"
@@ -8341,7 +8341,7 @@
       "paramCount": 3,
       "serviceParams": [
         "client",
-        "{\r\n    itemId,\r\n    locationId,\r\n    periods,\r\n    companyId\r\n  }"
+        "{\n    itemId,\n    locationId,\n    periods,\n    companyId\n  }"
       ],
       "injectAuth": [
         "companyId"
@@ -8630,7 +8630,7 @@
       "paramCount": 3,
       "serviceParams": [
         "client",
-        "{\r\n    itemId,\r\n    locationId,\r\n    periods,\r\n    companyId\r\n  }"
+        "{\n    itemId,\n    locationId,\n    periods,\n    companyId\n  }"
       ],
       "injectAuth": [
         "companyId"
@@ -9529,7 +9529,7 @@
       "paramCount": 2,
       "serviceParams": [
         "client",
-        "{\r\n    itemId,\r\n    companyId,\r\n    locationId\r\n  }"
+        "{\n    itemId,\n    companyId,\n    locationId\n  }"
       ],
       "injectAuth": [
         "companyId"
@@ -9558,7 +9558,7 @@
       "paramCount": 2,
       "serviceParams": [
         "client",
-        "{\r\n    itemId,\r\n    companyId,\r\n    locationId\r\n  }"
+        "{\n    itemId,\n    companyId,\n    locationId\n  }"
       ],
       "injectAuth": [
         "companyId"
@@ -9587,7 +9587,7 @@
       "paramCount": 2,
       "serviceParams": [
         "client",
-        "{\r\n    itemId,\r\n    companyId,\r\n    locationId\r\n  }"
+        "{\n    itemId,\n    companyId,\n    locationId\n  }"
       ],
       "injectAuth": [
         "companyId"
@@ -9616,7 +9616,7 @@
       "paramCount": 2,
       "serviceParams": [
         "client",
-        "{\r\n    itemId,\r\n    companyId,\r\n    locationId\r\n  }"
+        "{\n    itemId,\n    companyId,\n    locationId\n  }"
       ],
       "injectAuth": [
         "companyId"
@@ -10584,7 +10584,7 @@
             ]
           },
           "customFields": {},
-          "shelfLife: {\r\n      mode": {
+          "shelfLife: {\n      mode": {
             "type": "string"
           }
         },
@@ -13130,7 +13130,7 @@
       "paramCount": 1,
       "serviceParams": [
         "client",
-        "{\r\n    orderId,\r\n    companyId,\r\n    userId\r\n  }"
+        "{\n    orderId,\n    companyId,\n    userId\n  }"
       ],
       "injectAuth": [
         "companyId",
@@ -13167,7 +13167,7 @@
           "jobId": {
             "type": "string"
           },
-          "// Optional - if updating an existing job\r\n    dueDate": {
+          "// Optional - if updating an existing job\n    dueDate": {
             "type": [
               "string",
               "null"
@@ -13181,7 +13181,7 @@
           }
         },
         "required": [
-          "// Optional - if updating an existing job\r\n    dueDate",
+          "// Optional - if updating an existing job\n    dueDate",
           "deadlineType",
           "locationId"
         ]
@@ -15702,13 +15702,13 @@
           "id": {
             "type": "string"
           },
-          "// job id\r\n    companyId": {
+          "// job id\n    companyId": {
             "type": "string"
           }
         },
         "required": [
           "id",
-          "// job id\r\n    companyId"
+          "// job id\n    companyId"
         ]
       }
     },
@@ -15732,13 +15732,13 @@
           "id": {
             "type": "string"
           },
-          "// job make method id\r\n    companyId": {
+          "// job make method id\n    companyId": {
             "type": "string"
           }
         },
         "required": [
           "id",
-          "// job make method id\r\n    companyId"
+          "// job make method id\n    companyId"
         ]
       }
     },
@@ -17507,7 +17507,7 @@
       "paramCount": 1,
       "serviceParams": [
         "client",
-        "{\r\n    sourcePurchaseOrderId,\r\n    companyId,\r\n    companyGroupId,\r\n    userId\r\n  }"
+        "{\n    sourcePurchaseOrderId,\n    companyId,\n    companyGroupId,\n    userId\n  }"
       ],
       "injectAuth": [
         "companyId",
@@ -18915,7 +18915,7 @@
           "name": {
             "type": "string"
           },
-          "address: {\r\n      addressLine1": {},
+          "address: {\n      addressLine1": {},
           "customFields": {}
         },
         "required": [
@@ -19175,7 +19175,7 @@
           "name": {
             "type": "string"
           },
-          "address: {\r\n      addressLine1": {},
+          "address: {\n      addressLine1": {},
           "customFields": {}
         },
         "required": [
@@ -22056,7 +22056,7 @@
               },
               "status": {},
               "source": {},
-              "// might be needed later for filtering by assignee\r\n    assignee": {
+              "// might be needed later for filtering by assignee\n    assignee": {
                 "type": "array",
                 "items": {
                   "type": "string"
@@ -29621,7 +29621,7 @@
           "name": {
             "type": "string"
           },
-          "address: {\r\n      addressLine1": {},
+          "address: {\n      addressLine1": {},
           "customFields": {}
         },
         "required": [
@@ -30103,7 +30103,7 @@
           "name": {
             "type": "string"
           },
-          "address: {\r\n      addressLine1": {},
+          "address: {\n      addressLine1": {},
           "customFields": {}
         },
         "required": [
@@ -33638,18 +33638,18 @@
       "schema": {
         "type": "object",
         "properties": {
-          "/** undefined disables expiry badges company-wide. */\r\n    nearExpiryWarningDays": {},
-          "/** Seed for the \"Shelf-life (days)\" input on new items. */\r\n    defaultShelfLifeDays": {
+          "/** undefined disables expiry badges company-wide. */\n    nearExpiryWarningDays": {},
+          "/** Seed for the \"Shelf-life (days)\" input on new items. */\n    defaultShelfLifeDays": {
             "type": "number"
           },
-          "/** MIN expiry scope for Calculated-mode finished products. */\r\n    calculatedInputScope": {
+          "/** MIN expiry scope for Calculated-mode finished products. */\n    calculatedInputScope": {
             "type": "string",
             "enum": [
               "AllInputs",
               "ManagedInputsOnly"
             ]
           },
-          "/** Policy enforced when an operator consumes an expired entity. */\r\n    expiredEntityPolicy": {
+          "/** Policy enforced when an operator consumes an expired entity. */\n    expiredEntityPolicy": {
             "type": "string",
             "enum": [
               "Warn",
@@ -33659,10 +33659,10 @@
           }
         },
         "required": [
-          "/** undefined disables expiry badges company-wide. */\r\n    nearExpiryWarningDays",
-          "/** Seed for the \"Shelf-life (days)\" input on new items. */\r\n    defaultShelfLifeDays",
-          "/** MIN expiry scope for Calculated-mode finished products. */\r\n    calculatedInputScope",
-          "/** Policy enforced when an operator consumes an expired entity. */\r\n    expiredEntityPolicy"
+          "/** undefined disables expiry badges company-wide. */\n    nearExpiryWarningDays",
+          "/** Seed for the \"Shelf-life (days)\" input on new items. */\n    defaultShelfLifeDays",
+          "/** MIN expiry scope for Calculated-mode finished products. */\n    calculatedInputScope",
+          "/** Policy enforced when an operator consumes an expired entity. */\n    expiredEntityPolicy"
         ]
       }
     },
@@ -36694,7 +36694,7 @@
       "paramCount": 2,
       "serviceParams": [
         "client",
-        "{\r\n    id,\r\n    name,\r\n    companyId\r\n  }"
+        "{\n    id,\n    name,\n    companyId\n  }"
       ],
       "injectAuth": [
         "companyId",
