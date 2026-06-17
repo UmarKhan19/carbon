@@ -1,5 +1,5 @@
 import { useCarbon, useRealtimeChannel } from "@carbon/react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useUser } from "./useUser";
 
 type ExtractionStatus = "pending" | "processing" | "completed" | "failed";
@@ -12,10 +12,19 @@ type DocumentExtractionState = {
   storagePath: string | null;
 };
 
+const TERMINAL_STATUSES: ExtractionStatus[] = ["completed", "failed"];
+const POLL_INTERVAL_MS = 3_000;
+
 /**
  * Subscribes to realtime updates on a documentExtraction row.
  * Returns the latest extraction state, including the filtered
  * (confidence-gated) data once completed.
+ *
+ * Uses two complementary strategies:
+ *  1. Supabase Realtime postgres_changes — instant push when available.
+ *  2. Polling fallback every 3 s while extraction is in-progress — ensures
+ *     the UI never stalls if the realtime event is missed or the channel
+ *     takes time to subscribe.
  */
 export function useDocumentExtraction(extractionId: string | null) {
   const { company } = useUser();
@@ -24,8 +33,16 @@ export function useDocumentExtraction(extractionId: string | null) {
     null
   );
   const [isLoading, setIsLoading] = useState(false);
+  const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Initial fetch when extractionId is set
+  const clearPoll = useCallback(() => {
+    if (pollTimerRef.current) {
+      clearTimeout(pollTimerRef.current);
+      pollTimerRef.current = null;
+    }
+  }, []);
+
+  // Fetch latest row and schedule next poll if still in-progress
   const fetchInitial = useCallback(async () => {
     if (!extractionId || !supabase) return;
     setIsLoading(true);
@@ -36,17 +53,45 @@ export function useDocumentExtraction(extractionId: string | null) {
       .single();
 
     if (data) {
-      setExtraction(data as unknown as DocumentExtractionState);
+      const row = data as unknown as DocumentExtractionState;
+      setExtraction(row);
+
+      // Schedule next poll if extraction is still in-progress
+      if (!TERMINAL_STATUSES.includes(row.status)) {
+        clearPoll();
+        pollTimerRef.current = setTimeout(() => {
+          pollTimerRef.current = null;
+          void fetchInitial();
+        }, POLL_INTERVAL_MS);
+      } else {
+        clearPoll();
+      }
     }
     setIsLoading(false);
-  }, [extractionId, supabase]);
+  }, [extractionId, supabase, clearPoll]);
+
+  // Stop polling when we get a terminal status via realtime
+  const handleRealtimeUpdate = useCallback(
+    (row: DocumentExtractionState) => {
+      setExtraction(row);
+      if (TERMINAL_STATUSES.includes(row.status)) {
+        clearPoll();
+      }
+    },
+    [clearPoll]
+  );
+
+  // Cleanup polling on unmount or extractionId change
+  useEffect(() => {
+    return () => clearPoll();
+  }, [extractionId, clearPoll]);
 
   // Subscribe to realtime changes
   useRealtimeChannel({
     topic: `extraction:${extractionId ?? "none"}`,
     dependencies: [extractionId, company.id],
     setup(channel) {
-      // Fetch initial data on subscribe
+      // Fetch initial data on subscribe (also starts polling if in-progress)
       fetchInitial();
 
       return channel.on(
@@ -61,7 +106,7 @@ export function useDocumentExtraction(extractionId: string | null) {
           const row = payload.new as Record<string, unknown>;
           if (row.companyId !== company.id) return;
 
-          setExtraction({
+          handleRealtimeUpdate({
             id: row.id as string,
             status: row.status as ExtractionStatus,
             filteredData: row.filteredData as Record<string, unknown> | null,
