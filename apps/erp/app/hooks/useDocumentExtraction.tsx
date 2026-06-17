@@ -81,10 +81,10 @@ export function useDocumentExtraction(extractionId: string | null) {
     [clearPoll]
   );
 
-  // Cleanup polling on unmount or extractionId change
+  // Cleanup polling on unmount
   useEffect(() => {
     return () => clearPoll();
-  }, [extractionId, clearPoll]);
+  }, [clearPoll]);
 
   // Subscribe to realtime changes
   useRealtimeChannel({

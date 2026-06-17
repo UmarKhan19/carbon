@@ -300,7 +300,7 @@ const SalesRFQForm = ({ initialValues }: SalesRFQFormProps) => {
       }));
     }
 
-    setCurrentValues((prev) => ({
+    setCurrentValues((prev: any) => ({
       ...prev,
       customerId: resolvedCustomerId || prev.customerId,
       customerReference: data.rfqNumber || prev.customerReference,
@@ -309,7 +309,7 @@ const SalesRFQForm = ({ initialValues }: SalesRFQFormProps) => {
       customerContactId: finalPurchasingContactId || prev.customerContactId,
       customerEngineeringContactId:
         resolvedEngineeringContactId || prev.customerEngineeringContactId,
-      locationId: finalLocationId || prev.locationId
+      customerLocationId: finalLocationId || prev.customerLocationId
     }));
 
     setFormKey((prev) => prev + 1);

@@ -144,6 +144,7 @@ export default function SalesRFQNewRoute() {
   const customerId = params.get("customerId");
   const initialValues = {
     customerContactId: "",
+    customerLocationId: "",
     customerId: customerId ?? "",
     customerReference: "",
     expirationDate: "",
