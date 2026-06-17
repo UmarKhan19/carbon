@@ -24,6 +24,7 @@ import {
 } from "~/services/operations.service";
 import type { OperationWithDetails } from "~/services/types";
 import { makeDurations } from "~/utils/durations";
+import { resolveOperationView } from "~/utils/operationView";
 import { path } from "~/utils/path";
 
 type ExpiredEntityPolicy = "Warn" | "Block" | "BlockWithOverride";
@@ -57,6 +58,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const op = operation.data?.[0];
   if (!op) throw redirect(path.to.operations);
+
+  // Redirect guard (ADR-0005): only Assembly operations render here. Anything else goes
+  // back to the operation route (which renders its own view, or redirects again). Guards
+  // only redirect kinds they don't serve, so no loop.
+  if (resolveOperationView(op.operationKind) !== "assembly") {
+    throw redirect(path.to.operation(operationId) + url.search);
+  }
 
   const [
     thumbnailPath,

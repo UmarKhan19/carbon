@@ -4,6 +4,7 @@ import {
   methodItemType,
   methodOperationOrders,
   methodType,
+  operationKinds,
   operationTypes,
   sourcingType,
   standardFactorType
@@ -393,6 +394,7 @@ export const methodOperationValidator = z
         message: "Operation type is required"
       })
     }),
+    operationKind: z.enum(operationKinds).optional().default("Operation"),
     processId: z.string().min(1, { message: "Process is required" }),
     workCenterId: zfd.text(z.string().optional()),
     procedureId: zfd.text(z.string().optional()),

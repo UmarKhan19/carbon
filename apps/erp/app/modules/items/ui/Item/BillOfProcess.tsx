@@ -112,6 +112,7 @@ import type {
 } from "~/modules/shared";
 import {
   methodOperationOrders,
+  operationKinds,
   operationParameterValidator,
   operationStepValidator,
   operationToolValidator,
@@ -187,6 +188,7 @@ const initialOperation: Omit<
   machineUnit: "Minutes/Piece",
   operationOrder: "After Previous",
   operationType: "Inside",
+  operationKind: "Operation",
   processId: "",
   procedureId: "",
   setupTime: 0,
@@ -955,6 +957,7 @@ function OperationForm({
     machineUnit: string;
     machineUnitHint: string;
     operationType: string;
+    operationKind: string;
     operationOrder: string;
     processId: string;
     procedureId: string;
@@ -975,6 +978,7 @@ function OperationForm({
     machineUnitHint: getUnitHint(item.data.machineUnit),
     operationOrder: item.data.operationOrder ?? "After Previous",
     operationType: item.data.operationType ?? "Inside",
+    operationKind: item.data.operationKind ?? "Operation",
     processId: item.data.processId ?? "",
     procedureId: item.data.procedureId ?? "",
     workCenterId: item.data.workCenterId ?? "",
@@ -1158,6 +1162,23 @@ function OperationForm({
                 }
               : undefined
           }
+        />
+
+        <SelectControlled
+          name="operationKind"
+          label="Operation Kind"
+          placeholder="Operation Kind"
+          options={operationKinds.map((o) => ({
+            value: o,
+            label: o
+          }))}
+          value={processData.operationKind}
+          onChange={(value) => {
+            setProcessData((d) => ({
+              ...d,
+              operationKind: (value?.value as string) ?? "Operation"
+            }));
+          }}
         />
 
         <InputControlled

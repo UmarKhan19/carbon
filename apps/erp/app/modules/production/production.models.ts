@@ -4,6 +4,7 @@ import {
   methodItemType,
   methodOperationOrders,
   methodType,
+  operationKinds,
   operationTypes,
   procedureStepType,
   standardFactorType
@@ -255,6 +256,7 @@ export const baseJobOperationValidator = z.object({
       message: "Operation type is required"
     })
   }),
+  operationKind: z.enum(operationKinds).optional().default("Operation"),
   processId: z.string().min(1, { message: "Process is required" }),
   procedureId: zfd.text(z.string().optional()),
   description: zfd.text(

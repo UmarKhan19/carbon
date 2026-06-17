@@ -18,7 +18,8 @@ import {
   useDisclosure,
   useKeyboardWedge,
   useMode,
-  useRealtimeChannel
+  useRealtimeChannel,
+  useRouteData
 } from "@carbon/react";
 import { formatDurationMilliseconds } from "@carbon/utils";
 import { getLocalTimeZone } from "@internationalized/date";
@@ -67,6 +68,7 @@ import type {
   ProductionEvent as ProductionEventType
 } from "~/services/types";
 import { getPrivateUrl, path } from "~/utils/path";
+import { deriveUnits } from "~/utils/units";
 
 type StepRecord = {
   id: string;
@@ -357,48 +359,6 @@ export function AssemblyView({
     active: !!kanban?.id
   });
 
-  // Lazily create an Inspection step for each NCR action that doesn't have one
-  // yet (mirrors the operation view; idempotent — skips ones already created).
-  const inspectionFetcher = useFetcher();
-  // biome-ignore lint/correctness/useExhaustiveDependencies: run on data change
-  useEffect(() => {
-    if (nonConformanceActions.length === 0) return;
-    const attrs = procedure.attributes ?? [];
-    const existing = new Set(
-      attrs
-        .filter(
-          (s) =>
-            s.type === "Inspection" &&
-            (s as { nonConformanceActionId?: string | null })
-              .nonConformanceActionId != null
-        )
-        .map(
-          (s) =>
-            (s as { nonConformanceActionId?: string | null })
-              .nonConformanceActionId
-        )
-    );
-    let maxSort = Math.max(0, ...attrs.map((s) => s.sortOrder ?? 0));
-    const newSteps = nonConformanceActions
-      .filter((a) => a.id && !existing.has(a.id))
-      .map((a) => ({
-        companyId: user.company.id,
-        createdBy: user.id,
-        operationId,
-        name: `${a.actionTypeName} - ${a.nonConformanceId}`,
-        type: "Inspection" as const,
-        sortOrder: ++maxSort,
-        nonConformanceActionId: a.id
-      }));
-    if (newSteps.length > 0) {
-      inspectionFetcher.submit(JSON.stringify(newSteps), {
-        method: "post",
-        action: path.to.inspectionSteps,
-        encType: "application/json"
-      });
-    }
-  }, [nonConformanceActions, procedure, operationId]);
-
   // Which work types this operation actually uses (only show/select these).
   const workTypes = (
     [
@@ -417,9 +377,26 @@ export function AssemblyView({
 
   const isTracked = requiresSerialTracking || requiresBatchTracking;
 
-  const steps = (procedure.attributes ?? []).toSorted(
-    (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
+  // Source location for material issuing — same source the Operation view uses. FIX-7:
+  // the issue modal needs it (and the work center) to resolve a stock source, which most
+  // affects Inventory/Non-Inventory components.
+  const layoutData = useRouteData<{ location: string }>(
+    path.to.authenticatedRoot
   );
+  const locationId = layoutData?.location;
+
+  // Real build steps only. NCR actions are surfaced through the dedicated "Open NCRs"
+  // sidebar + Flag-issue affordance, never injected as synthetic build steps (story 20).
+  const steps = (procedure.attributes ?? [])
+    .filter(
+      (s) =>
+        !(
+          s.type === "Inspection" &&
+          (s as { nonConformanceActionId?: string | null })
+            .nonConformanceActionId != null
+        )
+    )
+    .toSorted((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
   const parameters = procedure.parameters ?? [];
 
   // Group materials by their REAL item type (Part / Material / Consumable / …).
@@ -447,49 +424,52 @@ export function AssemblyView({
     rawMaterials.find((m) => isTrackedMat(m) && remainingToIssue(m) > 0) ??
     rawMaterials.find(isTrackedMat);
 
-  const torqueParam = parameters.find((p) =>
-    p.key?.toLowerCase().includes("torque")
-  );
-
-  // How many units this operation produces — matches the operation view's
-  // "X of N" (it uses operationQuantity, NOT the raw serial count). A job can
-  // have extra pre-generated serials beyond the quantity (e.g. 25 serials for a
-  // qty-1 job), so the navigable set is capped to the operation quantity.
+  // FIX-1: quantity-centric unit axis — pages "Unit X of N" for EVERY tracking type.
+  // operationQuantity is the unit count; unit i carries trackedEntities[i] ?? null, so
+  // Serial binds a serial per unit, Batch binds the lot to unit 0, and Inventory binds
+  // none — all still page 1..N with per-unit step records. A job can pre-generate more
+  // serials than the quantity, so the count caps the entity list.
+  // See apps/mes/app/utils/units.ts + CONTEXT.md ("unit axis").
   const unitCount = Math.max(
     1,
     Math.round(operation?.operationQuantity ?? trackedEntities.length)
   );
+  const units = deriveUnits(unitCount, trackedEntities);
+  // The tracked entities within the navigable set (for the serial picker; empty when
+  // the parent is untracked).
   const unitEntities = trackedEntities.slice(0, unitCount);
-  const isSerial = isTracked && unitEntities.length > 0;
 
-  // The unit being worked on: the URL entity if it's within the navigable set,
-  // else the first unit. (Stale/pool serials beyond the quantity fall back.)
-  const currentEntity =
-    (trackedEntityId
-      ? unitEntities.find((te) => te.id === trackedEntityId)
-      : undefined) ?? unitEntities[0];
+  // Resolve the current unit: by tracked entity from the URL when present, else by the
+  // ?unit index — untracked parents have no entity to key off. (FIX-3 / FIX-4)
+  const unitParam = Number.parseInt(searchParams.get("unit") ?? "", 10);
+  const currentUnitIndex = (() => {
+    if (trackedEntityId) {
+      const i = units.findIndex((u) => u.entity?.id === trackedEntityId);
+      if (i >= 0) return i;
+    }
+    if (
+      Number.isInteger(unitParam) &&
+      unitParam >= 0 &&
+      unitParam < units.length
+    )
+      return unitParam;
+    return 0;
+  })();
+  const currentUnit = units[currentUnitIndex] ?? units[0];
+  const currentEntity = currentUnit?.entity ?? undefined;
 
-  // Step records are stored against the unit's position in the full serial list
-  // (how the operation view writes them), so activeIndex uses the full index.
-  const currentEntityIndex = currentEntity
-    ? Math.max(
-        0,
-        trackedEntities.findIndex((te) => te.id === currentEntity.id)
-      )
-    : 0;
+  // FIX-2: the old `isSerial` was true for batch and false for untracked — it actually
+  // means "there is more than one unit to page through", for any tracking type.
+  const hasUnits = units.length > 1;
 
-  const navIndex = currentEntity
-    ? unitEntities.findIndex((te) => te.id === currentEntity.id)
-    : -1;
-  const displayUnitIndex = navIndex >= 0 ? navIndex : 0;
-  const prevEntity = navIndex > 0 ? unitEntities[navIndex - 1] : null;
-  const nextEntity =
-    navIndex >= 0 && navIndex < unitEntities.length - 1
-      ? unitEntities[navIndex + 1]
-      : null;
+  // Step records key off the unit index for ALL tracking types, identical to the
+  // Operation view (FIX-1 / FIX-5) — this is what isolates unit i's records.
+  const activeIndex = currentUnitIndex;
+  const displayUnitIndex = currentUnitIndex;
 
-  // The record "index" axis: per-unit when tracked, single pass (0) otherwise.
-  const activeIndex = isTracked ? currentEntityIndex : 0;
+  const prevUnit = currentUnitIndex > 0 ? units[currentUnitIndex - 1] : null;
+  const nextUnit =
+    currentUnitIndex < units.length - 1 ? units[currentUnitIndex + 1] : null;
 
   const isStepDone = (step: Step) =>
     (step.jobOperationStepRecord ?? []).some((r) => r.index === activeIndex);
@@ -559,7 +539,30 @@ export function AssemblyView({
   function navigateEntity(entity: { id: string }) {
     const url = new URL(window.location.href);
     url.searchParams.set("trackedEntityId", entity.id);
+    url.searchParams.delete("unit");
     navigate(url.pathname + url.search);
+  }
+
+  // Navigate to a unit by its axis position. Tracked units key off their entity (the
+  // loader refetches that entity's materials); untracked units key off ?unit (no entity
+  // to scan — FIX-3/FIX-4), which the loader resolves without a tracked entity.
+  function navigateToUnit(unit: {
+    index: number;
+    entity: { id: string } | null;
+  }) {
+    if (unit.entity) {
+      navigateEntity(unit.entity);
+      return;
+    }
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.set("unit", String(unit.index));
+        next.delete("trackedEntityId");
+        return next;
+      },
+      { replace: true, preventScrollReset: true }
+    );
   }
 
   const companyLogo =
@@ -598,20 +601,18 @@ export function AssemblyView({
           ) : null}
         </div>
 
-        {isSerial && (
+        {hasUnits && (
           <div className="flex h-full shrink-0 items-center gap-1.5 border-r border-border px-2 md:gap-3 md:px-5">
             <span className="whitespace-nowrap text-sm font-medium">
               Unit <span className="font-bold">{displayUnitIndex + 1}</span>{" "}
-              <span className="text-muted-foreground">
-                of {unitEntities.length}
-              </span>
+              <span className="text-muted-foreground">of {units.length}</span>
             </span>
             <div className="hidden h-[18px] items-end gap-0.5 md:flex">
               {SIGNAL_HEIGHTS.map((h, i) => {
                 const filled =
                   i <=
                   Math.floor(
-                    ((displayUnitIndex + 1) / unitEntities.length) *
+                    ((displayUnitIndex + 1) / units.length) *
                       SIGNAL_HEIGHTS.length
                   );
                 return (
@@ -632,8 +633,8 @@ export function AssemblyView({
                 size="sm"
                 isIcon
                 aria-label="Previous unit"
-                isDisabled={!prevEntity}
-                onClick={() => prevEntity && navigateEntity(prevEntity)}
+                isDisabled={!prevUnit}
+                onClick={() => prevUnit && navigateToUnit(prevUnit)}
               >
                 <LuChevronLeft />
               </Button>
@@ -642,39 +643,45 @@ export function AssemblyView({
                 size="sm"
                 isIcon
                 aria-label="Next unit"
-                isDisabled={!nextEntity}
-                onClick={() => nextEntity && navigateEntity(nextEntity)}
+                isDisabled={!nextUnit}
+                onClick={() => nextUnit && navigateToUnit(nextUnit)}
               >
                 <LuChevronRight />
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                isIcon
-                aria-label="Select unit"
-                className="hidden sm:inline-flex"
-                onClick={serialModal.onOpen}
-              >
-                <LuBarcode />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                isIcon
-                aria-label="Print label"
-                className="hidden sm:inline-flex"
-                onClick={() =>
-                  window.open(
-                    window.location.origin +
-                      path.to.file.operationLabelsPdf(operationId, {
-                        trackedEntityId: currentEntity?.id
-                      }),
-                    "_blank"
-                  )
-                }
-              >
-                <LuPrinter />
-              </Button>
+              {/* Scan + print-label are entity-specific — hidden when the current unit
+                  has no tracked identity (untracked parents). */}
+              {currentEntity && (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    isIcon
+                    aria-label="Select unit"
+                    className="hidden sm:inline-flex"
+                    onClick={serialModal.onOpen}
+                  >
+                    <LuBarcode />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    isIcon
+                    aria-label="Print label"
+                    className="hidden sm:inline-flex"
+                    onClick={() =>
+                      window.open(
+                        window.location.origin +
+                          path.to.file.operationLabelsPdf(operationId, {
+                            trackedEntityId: currentEntity?.id
+                          }),
+                        "_blank"
+                      )
+                    }
+                  >
+                    <LuPrinter />
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         )}
@@ -770,7 +777,7 @@ export function AssemblyView({
                 {operation.itemDescription}
               </p>
             )}
-            {isSerial && currentEntity && (
+            {currentEntity && (
               <div className="mt-1.5 flex items-center gap-1.5">
                 <Badge variant="secondary" className="font-mono text-[10px]">
                   S/N
@@ -1073,7 +1080,7 @@ export function AssemblyView({
           )}
         </main>
 
-        {/* ── SIDEBAR: materials, tools, NCRs, torque ── */}
+        {/* ── SIDEBAR: materials, tools, NCRs, parameters ── */}
         <aside className="flex w-full shrink-0 flex-col border-t border-border bg-card lg:w-[280px] lg:overflow-hidden lg:border-l lg:border-t-0 xl:w-[320px]">
           <div className="flex flex-col lg:min-h-0 lg:flex-1 lg:overflow-hidden">
             {groupEntries.length > 0 ? (
@@ -1156,21 +1163,7 @@ export function AssemblyView({
               </SidebarSection>
             )}
 
-            {torqueParam ? (
-              <SidebarSection title="Torque">
-                <div className="flex items-baseline justify-between">
-                  <span>
-                    <span className="text-2xl font-bold">
-                      {torqueParam.value}
-                    </span>
-                    <span className="ml-1 text-sm text-muted-foreground">
-                      Nm
-                    </span>
-                  </span>
-                  <span className="text-xs text-muted-foreground">±5%</span>
-                </div>
-              </SidebarSection>
-            ) : parameters.length > 0 ? (
+            {parameters.length > 0 ? (
               <SidebarSection title="Parameters">
                 {parameters.map((p, i) => (
                   <div
@@ -1216,8 +1209,10 @@ export function AssemblyView({
         <IssueMaterialModal
           operationId={operationId}
           expiredEntityPolicy={expiredEntityPolicy}
+          locationId={locationId}
+          workCenterId={operation?.workCenterId ?? undefined}
           material={selectedMaterial ?? undefined}
-          parentId={currentEntity?.id ?? trackedEntityId ?? ""}
+          parentId={currentEntity?.id ?? ""}
           parentIdIsSerialized={requiresSerialTracking}
           trackedInputs={materials?.trackedInputs ?? []}
           onClose={() => {

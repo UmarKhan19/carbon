@@ -27,6 +27,7 @@ import type { OperationWithDetails } from "~/services/types";
 type ExpiredEntityPolicy = "Warn" | "Block" | "BlockWithOverride";
 
 import { makeDurations } from "~/utils/durations";
+import { resolveOperationView } from "~/utils/operationView";
 import { path } from "~/utils/path";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -69,6 +70,15 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       path.to.operations,
       await flash(request, error("Item ID is required", "Failed to fetch item"))
     );
+  }
+
+  const op = operation.data?.[0];
+
+  // Redirect guard (ADR-0005): each view has its own route. If this operation is an
+  // Assembly, send it to the assembly route. Inspection falls through to the Operation
+  // view until its route ships (Phase 3) — never redirect it here, or we'd loop.
+  if (resolveOperationView(op?.operationKind) === "assembly") {
+    throw redirect(path.to.assembly(operationId) + url.search);
   }
 
   const [
