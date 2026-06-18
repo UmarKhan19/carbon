@@ -1,41 +1,14 @@
--- Issue #448: make "In Progress" a real, filterable status on the salesOrders view.
--- "In Progress" was previously only computed in SalesStatus.tsx, so the DB never
--- had any row with that status and the filter could not match anything.
--- This rewrites the view to override the forwarded s.status with a CASE expression
--- that returns 'In Progress' when the order has any unfinished Make-to-Order line
--- (and is not Closed/Cancelled), mirroring hasIncompleteJobs() in packages/utils.
+-- Issue #448: expose a computed "displayStatus" column on the salesOrders view
+-- so that filtering by "In Progress" returns orders that have at least one
+-- unfinished Make-to-Order line. The raw "status" column is preserved so
+-- filtering and sorting by the underlying enum (Confirmed, To Ship, etc.)
+-- still works. The CASE mirrors hasIncompleteJobs() in
+-- packages/utils/src/status.ts.
 
 DROP VIEW IF EXISTS "salesOrders";
 CREATE OR REPLACE VIEW "salesOrders" WITH(SECURITY_INVOKER=true) AS
   SELECT
-    s."id",
-    s."salesOrderId",
-    s."revisionId",
-    s."orderDate",
-    s."customerId",
-    s."customerLocationId",
-    s."customerContactId",
-    s."customerEngineeringContactId",
-    s."customerReference",
-    s."currencyCode",
-    s."exchangeRate",
-    s."exchangeRateUpdatedAt",
-    s."assignee",
-    s."salesPersonId",
-    s."opportunityId",
-    s."locationId",
-    s."companyId",
-    s."closedAt",
-    s."closedBy",
-    s."completedDate",
-    s."sentCompleteDate",
-    s."customFields",
-    s."internalNotes",
-    s."externalNotes",
-    s."createdAt",
-    s."createdBy",
-    s."updatedAt",
-    s."updatedBy",
+    s.*,
     CASE
       WHEN s."status" NOT IN ('Closed', 'Cancelled')
        AND EXISTS (
@@ -52,7 +25,7 @@ CREATE OR REPLACE VIEW "salesOrders" WITH(SECURITY_INVOKER=true) AS
        )
       THEN 'In Progress'::"salesOrderStatus"
       ELSE s."status"
-    END AS "status",
+    END AS "displayStatus",
     sl."thumbnailPath",
     sl."itemType",
     sl."orderTotal" + COALESCE(ss."shippingCost", 0) AS "orderTotal",

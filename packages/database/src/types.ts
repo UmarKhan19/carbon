@@ -61106,6 +61106,7 @@ export type Database = {
           customerLocationId: string | null
           customerReference: string | null
           customFields: Json | null
+          displayStatus: Database["public"]["Enums"]["salesOrderStatus"] | null
           dropShipment: boolean | null
           exchangeRate: number | null
           exchangeRateUpdatedAt: string | null
