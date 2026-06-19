@@ -9,7 +9,6 @@ import { validator } from "@carbon/form";
 import { LocaleProvider, resolveLanguage } from "@carbon/locale";
 import {
   Button,
-  getPreferenceHeaders,
   Heading,
   OperatingSystemContextProvider,
   Toaster,
@@ -18,7 +17,7 @@ import {
   useMount
 } from "@carbon/react";
 import type { Theme } from "@carbon/utils";
-import { modeValidator, themes } from "@carbon/utils";
+import { getPreferenceHeaders, modeValidator, themes } from "@carbon/utils";
 import { I18nProvider } from "@react-aria/i18n";
 import { QueryClient } from "@tanstack/react-query";
 import { Analytics } from "@vercel/analytics/react";

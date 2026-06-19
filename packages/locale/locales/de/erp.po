@@ -50,6 +50,10 @@ msgstr "{0} nicht beprobte Entitäten werden freigegeben. Beprobte Annahmen blei
 msgid "{0} uploaded successfully"
 msgstr "{0} erfolgreich hochgeladen"
 
+#. placeholder {0}: unmatchedValues.length
+msgid "{0} values missing"
+msgstr "{0} Werte fehlen"
+
 msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB-Limit"
 
@@ -65,6 +69,9 @@ msgstr "/Monat/Benutzer"
 #. placeholder {0}: allItems.length - 3
 msgid "+{0} more"
 msgstr "+{0} weitere"
+
+msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
+msgstr ""
 
 msgid "<0>delete</0> lets you delete rows. <1>delete</1> will match all rows by default, so remember to specify your filters!"
 msgstr "<0>delete</0> ermöglicht es dir, Zeilen zu löschen. <1>delete</1> stimmt standardmäßig mit allen Zeilen überein, also denke daran, deine Filter anzugeben!"
@@ -635,9 +642,9 @@ msgstr "Sind Sie sicher, dass Sie {0} aus diesem Vorgang löschen möchten? Dies
 msgid "Are you sure you want to delete {0}?"
 msgstr "Sind Sie sicher, dass Sie {0} löschen möchten?"
 
+#. placeholder {0}: pickingList.pickingListId
 #. placeholder {0}: routeData?.consumableSummary?.readableIdWithRevision
 #. placeholder {0}: routeData?.customer?.name!
-#. placeholder {0}: routeData?.document?.name
 msgid "Are you sure you want to delete {0}? This cannot be undone."
 msgstr "Sind Sie sicher, dass Sie {0} löschen möchten? Dies kann nicht rückgängig gemacht werden."
 
@@ -962,6 +969,9 @@ msgstr "Aufgabe"
 msgid "Assignments"
 msgstr "Zuweisungen"
 
+msgid "Assigns this storage unit to a work center (lineside)"
+msgstr "Weist diese Lagereinheit einem Arbeitszentrum zu (Linienseite)"
+
 msgid "At least one condition must match"
 msgstr "Mindestens eine Bedingung muss erfüllt sein"
 
@@ -1033,6 +1043,9 @@ msgstr "Den Auftrag automatisch freigeben, wenn der Kanban gescannt wird"
 
 msgid "Automatically start the job when the kanban is scanned"
 msgstr "Starten Sie den Job automatisch, wenn der Kanban gescannt wird"
+
+msgid "available"
+msgstr "verfügbar"
 
 msgid "Available"
 msgstr "Verfügbar"
@@ -1329,8 +1342,14 @@ msgstr "Chat"
 msgid "Check your email"
 msgstr "Überprüfen Sie Ihre E-Mail"
 
+msgid "Choose a batch number"
+msgstr "Wählen Sie eine Chargennummer"
+
 msgid "Choose a company"
 msgstr "Wählen Sie ein Unternehmen"
+
+msgid "Choose a serial number"
+msgstr "Wählen Sie eine Seriennummer"
 
 msgid "Choose another file"
 msgstr "Wählen Sie eine andere Datei"
@@ -1835,6 +1854,10 @@ msgstr "Erstellen"
 msgid "Create {0}"
 msgstr "Erstelle {0}"
 
+#. placeholder {0}: unmatchedValues.length
+msgid "Create {0} values"
+msgstr "Erstelle {0} Werte"
+
 msgid "Create a new kanban card for scan-based replenishment."
 msgstr "Erstellen Sie eine neue Kanban-Karte für scan-basierte Nachschubversorgung."
 
@@ -2117,7 +2140,7 @@ msgid "Customers"
 msgstr "Kunden"
 
 msgid "Customize the layout of your PDF documents — reorder sections, hide what you don't need, and add your own blocks."
-msgstr ""
+msgstr "Passen Sie das Layout Ihrer PDF-Dokumente an — ordnen Sie Abschnitte neu an, blenden Sie aus, was Sie nicht benötigen, und fügen Sie Ihre eigenen Blöcke hinzu."
 
 msgid "Daily Usage"
 msgstr "Tägliche Nutzung"
@@ -2216,6 +2239,9 @@ msgstr "Deadline-Typ"
 msgid "Decide what an operator sees if they try to issue a batch or serial that's already expired."
 msgstr "Entscheiden Sie, was ein Bediener sieht, wenn er versucht, einen Batch oder eine Seriennummer auszugeben, die bereits abgelaufen ist."
 
+msgid "Default"
+msgstr "Standard"
+
 msgid "Default Accounts"
 msgstr "Standardkonten"
 
@@ -2233,6 +2259,9 @@ msgstr "Standardmethode"
 
 msgid "Default Method Type"
 msgstr "Standardmethodentyp"
+
+msgid "Default order when picking serial or batch lots of this item. Pickers can still override it."
+msgstr "Standardreihenfolge beim Kommissionieren von Serien- oder Chargenlosen dieses Artikels. Kommissionierer können diese noch überschreiben."
 
 msgid "Default Permissions"
 msgstr "Standardberechtigungen"
@@ -2362,6 +2391,9 @@ msgstr "Partner löschen"
 
 msgid "Delete Payment Term"
 msgstr "Zahlungsbedingung löschen"
+
+msgid "Delete Picking List"
+msgstr "Kommissionierliste löschen"
 
 msgid "Delete Portal"
 msgstr "Portal löschen"
@@ -2604,7 +2636,7 @@ msgid "Document Control"
 msgstr "Dokumentenkontrolle"
 
 msgid "Document Templates"
-msgstr ""
+msgstr "Dokumentvorlagen"
 
 msgid "Document:"
 msgstr "Dokument:"
@@ -2855,6 +2887,9 @@ msgstr "Zahlungsbedingung bearbeiten"
 
 msgid "Edit Permissions"
 msgstr "Berechtigungen bearbeiten"
+
+msgid "Edit Picking List"
+msgstr "Kommissionierliste bearbeiten"
 
 msgid "Edit Portal"
 msgstr "Portal bearbeiten"
@@ -3250,6 +3285,9 @@ msgstr "Verfallsdatum (gilt für alle Seriennummern in dieser Zeile)"
 msgid "Expired"
 msgstr "Abgelaufen"
 
+msgid "Expired {date}"
+msgstr "Abgelaufen {date}"
+
 msgid "Expired batch"
 msgstr "Abgelaufener Charge"
 
@@ -3259,8 +3297,14 @@ msgstr "Abgelaufene Chargen"
 msgid "Expires"
 msgstr "Verfällt"
 
+msgid "Expires {date}"
+msgstr "Verfällt {date}"
+
 msgid "Expires At (optional)"
 msgstr "Verfällt am (optional)"
+
+msgid "Expiring first"
+msgstr "Verfällt zuerst"
 
 msgid "Expiry"
 msgstr "Ablaufdatum"
@@ -3777,6 +3821,9 @@ msgstr "Generieren Sie Material-IDs und Beschreibungen basierend auf den Eigensc
 msgid "Generate new PIN"
 msgstr "Neue PIN generieren"
 
+msgid "Generate Picking List"
+msgstr "Kommissionierliste generieren"
+
 msgid "Generated IDs are disabled"
 msgstr "Generierte IDs sind deaktiviert"
 
@@ -3860,6 +3907,9 @@ msgstr "Stunden/1000 Stück"
 
 msgid "Hours/Piece"
 msgstr "Stunden/Stück"
+
+msgid "How many were actually picked?"
+msgstr "Wie viele wurden tatsächlich gepickt?"
 
 msgid "How the material is sourced (make, purchase, or pull from inventory) and the storage unit it's pulled from."
 msgstr ""
@@ -3974,6 +4024,9 @@ msgstr "Infrastruktur"
 
 msgid "Inherit From Materials"
 msgstr "Von Materialien erben"
+
+msgid "Inherited from parent"
+msgstr "Geerbt vom übergeordneten Element"
 
 msgid "Insert rows"
 msgstr "Zeilen einfügen"
@@ -4607,6 +4660,9 @@ msgstr "Lot als teilweise markieren?"
 msgid "Mark Partial"
 msgstr "Teilweise markieren"
 
+msgid "Mark Short"
+msgstr "Als kurz markieren"
+
 msgid "Mark to delete"
 msgstr "Zum Löschen markieren"
 
@@ -5032,6 +5088,9 @@ msgstr "Neues Passwort"
 msgid "New Payment Term"
 msgstr "Neuer Zahlungsbegriff"
 
+msgid "New Picking List"
+msgstr "Neue Kommissionierliste"
+
 msgid "New PIN"
 msgstr "Neue PIN"
 
@@ -5140,6 +5199,9 @@ msgstr "Neuer Webhook"
 msgid "New Work Center"
 msgstr "Neues Arbeitszentrum"
 
+msgid "Newest first"
+msgstr "Neueste zuerst"
+
 msgid "Next"
 msgstr "Weiter"
 
@@ -5198,6 +5260,9 @@ msgstr "Keine Anhänge."
 
 msgid "No available filters"
 msgstr "Keine verfügbaren Filter"
+
+msgid "No available tracked entities found"
+msgstr "Keine verfügbaren verfolgten Entitäten gefunden"
 
 msgid "No BOM input has a shelf-life policy"
 msgstr "Keine BOM-Eingabe hat eine Shelf-Life-Richtlinie"
@@ -5289,6 +5354,9 @@ msgstr "Keine neuen Benachrichtigungen"
 msgid "No notes"
 msgstr "Keine Notizen"
 
+msgid "No operations require picking at this location"
+msgstr "Keine Operationen erfordern Kommissionierung an diesem Standort"
+
 msgid "No operators."
 msgstr "Keine Operatoren."
 
@@ -5358,6 +5426,12 @@ msgstr "Noch keine Muster inspiziert."
 msgid "No sorts applied to this view"
 msgstr "Keine Sortierungen auf diese Ansicht angewendet"
 
+msgid "No stock"
+msgstr "Kein Bestand"
+
+msgid "No suppliers yet"
+msgstr ""
+
 msgid "No time entries for this week"
 msgstr "Keine Zeiteinträge für diese Woche"
 
@@ -5366,6 +5440,9 @@ msgstr "Kein Wert erforderlich"
 
 msgid "No values available"
 msgstr "Keine Werte verfügbar"
+
+msgid "No warehouse stock is on record for this item. You can still pick it — on-hand will go negative until the count is reconciled."
+msgstr "Kein Lagerbestand für diesen Artikel ist erfasst. Sie können ihn trotzdem kommissionieren — der verfügbare Bestand wird negativ, bis die Inventur abgestimmt ist."
 
 msgid "No work center utilization data within range"
 msgstr "Keine Daten zur Auslastung des Arbeitszentrums im angegebenen Bereich"
@@ -5444,6 +5521,9 @@ msgstr "von"
 
 msgid "OK"
 msgstr "OK"
+
+msgid "Oldest first"
+msgstr "Älteste zuerst"
 
 msgid "On Hand"
 msgstr "Verfügbar"
@@ -5808,6 +5888,30 @@ msgstr "Wählen Sie ein Datum oder lassen Sie es leer, um es zu löschen."
 
 msgid "Pick List"
 msgstr "Pickliste"
+
+msgid "Pick Order"
+msgstr "Entnahmereihenfol­ge"
+
+msgid "Pick tracked item"
+msgstr "Verfolgtes Element auswählen"
+
+msgid "Picked quantity"
+msgstr "Gepickte Menge"
+
+msgid "Picking Lines"
+msgstr "Kommissionierungszeilen"
+
+msgid "Picking List"
+msgstr "Kommissionierliste"
+
+msgid "Picking List ID"
+msgstr "Kommissionierlisten-ID"
+
+msgid "Picking List Notes"
+msgstr "Kommissionierlisten-Notizen"
+
+msgid "Picking Lists"
+msgstr "Kommissionierlisten"
 
 msgid "Pieces/Hour"
 msgstr "Stück/Stunde"
@@ -6844,6 +6948,9 @@ msgstr "Scannen Sie ein Etikett oder suchen Sie nach Artikel-ID oder Tracking-ID
 msgid "Scan or enter tracked entity ID, serial, or batch"
 msgstr "Scannen oder geben Sie die Kennung der verfolgten Entität, Seriennummer oder Chargennummer ein"
 
+msgid "Scan or enter tracking number"
+msgstr "Scannen oder Verfolgungsnummer eingeben"
+
 msgid "Scan or search..."
 msgstr "Scannen oder suchen..."
 
@@ -7192,6 +7299,9 @@ msgstr "Formen"
 msgid "Share"
 msgstr "Teilen"
 
+msgid "Share a branded portal link so customers can track their orders and documents."
+msgstr ""
+
 msgid "Share Link"
 msgstr "Link teilen"
 
@@ -7199,7 +7309,7 @@ msgid "Share Quote"
 msgstr "Angebot teilen"
 
 msgid "Shared Sections"
-msgstr ""
+msgstr "Gemeinsame Abschnitte"
 
 msgid "Shelf life"
 msgstr "Haltbarkeit"
@@ -7291,8 +7401,14 @@ msgstr "Versand:"
 msgid "Shop Floor"
 msgstr "Shopfloor"
 
+msgid "Short"
+msgstr "Mangel"
+
 msgid "Short Description"
 msgstr "Kurzbeschreibung"
+
+msgid "Short pick {itemName}"
+msgstr "Kurzbestand {itemName}"
 
 msgid "Shortcuts"
 msgstr "Tastenkombinationen"
@@ -7367,7 +7483,7 @@ msgid "Something went wrong. Please try again."
 msgstr "Etwas ist schief gelaufen. Bitte versuchen Sie es erneut."
 
 msgid "Soon"
-msgstr ""
+msgstr "Bald"
 
 msgid "Soonest expiry across every material sets the finished good."
 msgstr "Früheste Verfallsdatum über alle Materialien bestimmt das Fertigprodukt."
@@ -7404,6 +7520,9 @@ msgstr "Quellmethode"
 
 msgid "Source Version"
 msgstr "Quellversion"
+
+msgid "Sourcing"
+msgstr "Beschaffung"
 
 msgid "Sourcing Type"
 msgstr "Beschaffungstyp"
@@ -7812,7 +7931,7 @@ msgid "Template ID"
 msgstr "Vorlagen-ID"
 
 msgid "Templates"
-msgstr ""
+msgstr "Vorlagen"
 
 msgid "Terms and Privacy"
 msgstr "Bedingungen und Datenschutz"
@@ -7936,6 +8055,9 @@ msgstr "Dieser Auftrag ist auf der Werkstatt nicht mehr verfügbar."
 
 msgid "This job's own required quantity for the material."
 msgstr ""
+
+msgid "This lot is expired and can't be picked."
+msgstr "Dieses Los ist abgelaufen und kann nicht entnommen werden."
 
 msgid "This sales order has associated jobs. Choose what to do with them."
 msgstr "Diese Bestellung hat zugeordnete Aufträge. Wählen Sie, was damit geschehen soll."
@@ -8285,6 +8407,13 @@ msgstr "Verknüpfung aufheben"
 msgid "Unlink job from sales order?"
 msgstr "Auftrag von Verkaufsauftrag trennen?"
 
+msgid "Unpick"
+msgstr "Entfernen"
+
+#. placeholder {0}: pickedLots[0].trackedEntity.readableId
+msgid "Unpick {0}"
+msgstr "Entnahme rückgängig machen {0}"
+
 msgid "Unsaved changes"
 msgstr "Nicht gespeicherte Änderungen"
 
@@ -8543,8 +8672,14 @@ msgstr "Problem anzeigen"
 msgid "View Item Master"
 msgstr "Artikelstamm anzeigen"
 
+msgid "View Lists"
+msgstr "Listen anzeigen"
+
 msgid "View maintenance dispatch"
 msgstr "Wartungseinsatz anzeigen"
+
+msgid "View missing values"
+msgstr "Fehlende Werte anzeigen"
 
 msgid "View Open"
 msgstr "Offene anzeigen"
@@ -8566,6 +8701,9 @@ msgstr "Offene Anfragen anzeigen"
 
 msgid "View Permissions"
 msgstr "Anzeigeberechtigungen"
+
+msgid "View Picking List"
+msgstr "Kommissionierliste anzeigen"
 
 msgid "View Prints"
 msgstr "Drucke anzeigen"

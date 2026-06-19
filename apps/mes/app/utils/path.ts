@@ -155,6 +155,13 @@ export const path = {
     timecard: `${api}/timecard`,
     timeCardPage: `${x}/timecard`,
     unconsume: `${x}/unconsume`,
+    picking: `${x}/picking`,
+    pickingDetail: (id: string) => generatePath(`${x}/picking/${id}`),
+    pickingLineQuantity: (id: string) =>
+      generatePath(`${x}/picking/${id}/line/quantity`),
+    pickingTracked: (id: string, lineId: string) =>
+      generatePath(`${x}/picking/${id}/tracked/${lineId}`),
+    pickingStatus: (id: string) => generatePath(`${x}/picking/${id}/status`),
     workCenter: (workCenter: string) =>
       generatePath(`${x}/operations/${workCenter}`),
     itemMaster: (itemId: string, type: string) =>

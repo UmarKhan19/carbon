@@ -24,12 +24,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     getTrackedEntitiesByOperationId(client, id)
   ]);
 
-  // Get the label size from query params or default to avery5160
+  // Get the label size from query params or default to avery5163
   const url = new URL(request.url);
   const labelParam = url.searchParams.get("labelSize");
   const trackedEntityIdParam = url.searchParams.get("trackedEntityId");
   const labelSizeId =
-    labelParam || companySettings.data?.productLabelSize || "avery5160";
+    labelParam || companySettings.data?.productLabelSize || "avery5163";
 
   // Find the label size configuration
   let labelSize = labelSizes.find((size) => size.id === labelSizeId);

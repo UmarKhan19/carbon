@@ -15,7 +15,6 @@ import { validator } from "@carbon/form";
 import {
   Button,
   cn,
-  getPreferenceHeaders,
   Heading,
   IconButton,
   OperatingSystemContextProvider,
@@ -25,7 +24,7 @@ import {
   useDisclosure,
   useMode
 } from "@carbon/react";
-import { modeValidator } from "@carbon/utils";
+import { getPreferenceHeaders, modeValidator } from "@carbon/utils";
 import { I18nProvider } from "@react-aria/i18n";
 import { Analytics } from "@vercel/analytics/react";
 import { motion } from "framer-motion";

@@ -1,7 +1,7 @@
 import { Text, View } from "@react-pdf/renderer";
 import type { SummaryBlock as SummaryBlockType } from "../../../template";
 import { getTotal } from "../../../utils/purchase-order";
-import { tw } from "../tw";
+import { useTw } from "../tw";
 import type { PurchaseOrderData } from "./types";
 
 export function SummaryBlock({
@@ -11,6 +11,7 @@ export function SummaryBlock({
   block: SummaryBlockType;
   data: PurchaseOrderData;
 }) {
+  const tw = useTw();
   const { purchaseOrderLines, purchaseOrder, currencyCode, numberFormatter } =
     data;
   const taxLabel = block.options?.taxLabel?.trim() || "Tax";

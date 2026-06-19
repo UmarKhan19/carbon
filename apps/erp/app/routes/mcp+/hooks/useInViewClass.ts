@@ -6,7 +6,11 @@ export function useInViewClass<T extends HTMLElement>(threshold = 0.12) {
     const el = ref.current;
     if (!el) return;
     const io = new IntersectionObserver(
-      (es) => es.forEach((e) => e.isIntersecting && el.classList.add("in")),
+      (es) => {
+        es.forEach((e) => {
+          if (e.isIntersecting) el.classList.add("in");
+        });
+      },
       { threshold }
     );
     io.observe(el);

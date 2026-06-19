@@ -32,7 +32,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const labelParam = url.searchParams.get("labelSize");
   const labelSizeId =
-    labelParam || companySettings?.data?.productLabelSize || "avery5160";
+    labelParam || companySettings?.data?.productLabelSize || "avery5163";
 
   const labelSize = labelSizes.find((size) => size.id === labelSizeId);
 

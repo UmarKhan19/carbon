@@ -50,6 +50,10 @@ msgstr "{0} un-sampled entities will be released to Available. Sampled passes st
 msgid "{0} uploaded successfully"
 msgstr "{0} uploaded successfully"
 
+#. placeholder {0}: unmatchedValues.length
+msgid "{0} values missing"
+msgstr "{0} values missing"
+
 msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB limit"
 
@@ -65,6 +69,9 @@ msgstr "/month/user"
 #. placeholder {0}: allItems.length - 3
 msgid "+{0} more"
 msgstr "+{0} more"
+
+msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
+msgstr "<0>Add a supplier part</0> for this item to set a preferred supplier."
 
 msgid "<0>delete</0> lets you delete rows. <1>delete</1> will match all rows by default, so remember to specify your filters!"
 msgstr "<0>delete</0> lets you delete rows. <1>delete</1> will match all rows by default, so remember to specify your filters!"
@@ -635,9 +642,9 @@ msgstr "Are you sure you want to delete {0} from this operation? This cannot be 
 msgid "Are you sure you want to delete {0}?"
 msgstr "Are you sure you want to delete {0}?"
 
+#. placeholder {0}: pickingList.pickingListId
 #. placeholder {0}: routeData?.consumableSummary?.readableIdWithRevision
 #. placeholder {0}: routeData?.customer?.name!
-#. placeholder {0}: routeData?.document?.name
 msgid "Are you sure you want to delete {0}? This cannot be undone."
 msgstr "Are you sure you want to delete {0}? This cannot be undone."
 
@@ -962,6 +969,9 @@ msgstr "Assignment"
 msgid "Assignments"
 msgstr "Assignments"
 
+msgid "Assigns this storage unit to a work center (lineside)"
+msgstr "Assigns this storage unit to a work center (lineside)"
+
 msgid "At least one condition must match"
 msgstr "At least one condition must match"
 
@@ -1033,6 +1043,9 @@ msgstr "Automatically release the job when the kanban is scanned"
 
 msgid "Automatically start the job when the kanban is scanned"
 msgstr "Automatically start the job when the kanban is scanned"
+
+msgid "available"
+msgstr "available"
 
 msgid "Available"
 msgstr "Available"
@@ -1329,8 +1342,14 @@ msgstr "Chat"
 msgid "Check your email"
 msgstr "Check your email"
 
+msgid "Choose a batch number"
+msgstr "Choose a batch number"
+
 msgid "Choose a company"
 msgstr "Choose a company"
+
+msgid "Choose a serial number"
+msgstr "Choose a serial number"
 
 msgid "Choose another file"
 msgstr "Choose another file"
@@ -1835,6 +1854,10 @@ msgstr "Create"
 msgid "Create {0}"
 msgstr "Create {0}"
 
+#. placeholder {0}: unmatchedValues.length
+msgid "Create {0} values"
+msgstr "Create {0} values"
+
 msgid "Create a new kanban card for scan-based replenishment."
 msgstr "Create a new kanban card for scan-based replenishment."
 
@@ -2216,6 +2239,9 @@ msgstr "Deadline Type"
 msgid "Decide what an operator sees if they try to issue a batch or serial that's already expired."
 msgstr "Decide what an operator sees if they try to issue a batch or serial that's already expired."
 
+msgid "Default"
+msgstr "Default"
+
 msgid "Default Accounts"
 msgstr "Default Accounts"
 
@@ -2233,6 +2259,9 @@ msgstr "Default Method"
 
 msgid "Default Method Type"
 msgstr "Default Method Type"
+
+msgid "Default order when picking serial or batch lots of this item. Pickers can still override it."
+msgstr "Default order when picking serial or batch lots of this item. Pickers can still override it."
 
 msgid "Default Permissions"
 msgstr "Default Permissions"
@@ -2362,6 +2391,9 @@ msgstr "Delete Partner"
 
 msgid "Delete Payment Term"
 msgstr "Delete Payment Term"
+
+msgid "Delete Picking List"
+msgstr "Delete Picking List"
 
 msgid "Delete Portal"
 msgstr "Delete Portal"
@@ -2856,6 +2888,9 @@ msgstr "Edit Payment Term"
 msgid "Edit Permissions"
 msgstr "Edit Permissions"
 
+msgid "Edit Picking List"
+msgstr "Edit Picking List"
+
 msgid "Edit Portal"
 msgstr "Edit Portal"
 
@@ -3250,6 +3285,9 @@ msgstr "Expiration Date (applies to all serials on this line)"
 msgid "Expired"
 msgstr "Expired"
 
+msgid "Expired {date}"
+msgstr "Expired {date}"
+
 msgid "Expired batch"
 msgstr "Expired batch"
 
@@ -3259,8 +3297,14 @@ msgstr "Expired Batches"
 msgid "Expires"
 msgstr "Expires"
 
+msgid "Expires {date}"
+msgstr "Expires {date}"
+
 msgid "Expires At (optional)"
 msgstr "Expires At (optional)"
+
+msgid "Expiring first"
+msgstr "Expiring first"
 
 msgid "Expiry"
 msgstr "Expiry"
@@ -3777,6 +3821,9 @@ msgstr "Generate material IDs and descriptions based on the properties of the ma
 msgid "Generate new PIN"
 msgstr "Generate new PIN"
 
+msgid "Generate Picking List"
+msgstr "Generate Picking List"
+
 msgid "Generated IDs are disabled"
 msgstr "Generated IDs are disabled"
 
@@ -3860,6 +3907,9 @@ msgstr "Hours/1000 Pieces"
 
 msgid "Hours/Piece"
 msgstr "Hours/Piece"
+
+msgid "How many were actually picked?"
+msgstr "How many were actually picked?"
 
 msgid "How the material is sourced (make, purchase, or pull from inventory) and the storage unit it's pulled from."
 msgstr "How the material is sourced (make, purchase, or pull from inventory) and the storage unit it's pulled from."
@@ -3974,6 +4024,9 @@ msgstr "Infrastructure"
 
 msgid "Inherit From Materials"
 msgstr "Inherit From Materials"
+
+msgid "Inherited from parent"
+msgstr "Inherited from parent"
 
 msgid "Insert rows"
 msgstr "Insert rows"
@@ -4607,6 +4660,9 @@ msgstr "Mark lot as partial?"
 msgid "Mark Partial"
 msgstr "Mark Partial"
 
+msgid "Mark Short"
+msgstr "Mark Short"
+
 msgid "Mark to delete"
 msgstr "Mark to delete"
 
@@ -5032,6 +5088,9 @@ msgstr "New Password"
 msgid "New Payment Term"
 msgstr "New Payment Term"
 
+msgid "New Picking List"
+msgstr "New Picking List"
+
 msgid "New PIN"
 msgstr "New PIN"
 
@@ -5140,6 +5199,9 @@ msgstr "New Webhook"
 msgid "New Work Center"
 msgstr "New Work Center"
 
+msgid "Newest first"
+msgstr "Newest first"
+
 msgid "Next"
 msgstr "Next"
 
@@ -5198,6 +5260,9 @@ msgstr "No attachments."
 
 msgid "No available filters"
 msgstr "No available filters"
+
+msgid "No available tracked entities found"
+msgstr "No available tracked entities found"
 
 msgid "No BOM input has a shelf-life policy"
 msgstr "No BOM input has a shelf-life policy"
@@ -5289,6 +5354,9 @@ msgstr "No new notifications"
 msgid "No notes"
 msgstr "No notes"
 
+msgid "No operations require picking at this location"
+msgstr "No operations require picking at this location"
+
 msgid "No operators."
 msgstr "No operators."
 
@@ -5358,6 +5426,12 @@ msgstr "No samples inspected yet."
 msgid "No sorts applied to this view"
 msgstr "No sorts applied to this view"
 
+msgid "No stock"
+msgstr "No stock"
+
+msgid "No suppliers yet"
+msgstr "No suppliers yet"
+
 msgid "No time entries for this week"
 msgstr "No time entries for this week"
 
@@ -5366,6 +5440,9 @@ msgstr "No value needed"
 
 msgid "No values available"
 msgstr "No values available"
+
+msgid "No warehouse stock is on record for this item. You can still pick it — on-hand will go negative until the count is reconciled."
+msgstr "No warehouse stock is on record for this item. You can still pick it — on-hand will go negative until the count is reconciled."
 
 msgid "No work center utilization data within range"
 msgstr "No work center utilization data within range"
@@ -5444,6 +5521,9 @@ msgstr "of"
 
 msgid "OK"
 msgstr "OK"
+
+msgid "Oldest first"
+msgstr "Oldest first"
 
 msgid "On Hand"
 msgstr "On Hand"
@@ -5808,6 +5888,30 @@ msgstr "Pick a date or leave blank to clear it."
 
 msgid "Pick List"
 msgstr "Pick List"
+
+msgid "Pick Order"
+msgstr "Pick Order"
+
+msgid "Pick tracked item"
+msgstr "Pick tracked item"
+
+msgid "Picked quantity"
+msgstr "Picked quantity"
+
+msgid "Picking Lines"
+msgstr "Picking Lines"
+
+msgid "Picking List"
+msgstr "Picking List"
+
+msgid "Picking List ID"
+msgstr "Picking List ID"
+
+msgid "Picking List Notes"
+msgstr "Picking List Notes"
+
+msgid "Picking Lists"
+msgstr "Picking Lists"
 
 msgid "Pieces/Hour"
 msgstr "Pieces/Hour"
@@ -6844,6 +6948,9 @@ msgstr "Scan a label or search by item ID or tracking ID."
 msgid "Scan or enter tracked entity ID, serial, or batch"
 msgstr "Scan or enter tracked entity ID, serial, or batch"
 
+msgid "Scan or enter tracking number"
+msgstr "Scan or enter tracking number"
+
 msgid "Scan or search..."
 msgstr "Scan or search..."
 
@@ -7192,6 +7299,9 @@ msgstr "Shapes"
 msgid "Share"
 msgstr "Share"
 
+msgid "Share a branded portal link so customers can track their orders and documents."
+msgstr "Share a branded portal link so customers can track their orders and documents."
+
 msgid "Share Link"
 msgstr "Share Link"
 
@@ -7291,8 +7401,14 @@ msgstr "Shipping:"
 msgid "Shop Floor"
 msgstr "Shop Floor"
 
+msgid "Short"
+msgstr "Short"
+
 msgid "Short Description"
 msgstr "Short Description"
+
+msgid "Short pick {itemName}"
+msgstr "Short pick {itemName}"
 
 msgid "Shortcuts"
 msgstr "Shortcuts"
@@ -7404,6 +7520,9 @@ msgstr "Source Method"
 
 msgid "Source Version"
 msgstr "Source Version"
+
+msgid "Sourcing"
+msgstr "Sourcing"
 
 msgid "Sourcing Type"
 msgstr "Sourcing Type"
@@ -7937,6 +8056,9 @@ msgstr "This job will no longer be available on the shop floor."
 msgid "This job's own required quantity for the material."
 msgstr "This job's own required quantity for the material."
 
+msgid "This lot is expired and can't be picked."
+msgstr "This lot is expired and can't be picked."
+
 msgid "This sales order has associated jobs. Choose what to do with them."
 msgstr "This sales order has associated jobs. Choose what to do with them."
 
@@ -8285,6 +8407,13 @@ msgstr "Unlink"
 msgid "Unlink job from sales order?"
 msgstr "Unlink job from sales order?"
 
+msgid "Unpick"
+msgstr "Unpick"
+
+#. placeholder {0}: pickedLots[0].trackedEntity.readableId
+msgid "Unpick {0}"
+msgstr "Unpick {0}"
+
 msgid "Unsaved changes"
 msgstr "Unsaved changes"
 
@@ -8543,8 +8672,14 @@ msgstr "View Issue"
 msgid "View Item Master"
 msgstr "View Item Master"
 
+msgid "View Lists"
+msgstr "View Lists"
+
 msgid "View maintenance dispatch"
 msgstr "View maintenance dispatch"
+
+msgid "View missing values"
+msgstr "View missing values"
 
 msgid "View Open"
 msgstr "View Open"
@@ -8566,6 +8701,9 @@ msgstr "View Open RFQs"
 
 msgid "View Permissions"
 msgstr "View Permissions"
+
+msgid "View Picking List"
+msgstr "View Picking List"
 
 msgid "View Prints"
 msgstr "View Prints"

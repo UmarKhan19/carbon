@@ -51,7 +51,7 @@ import type {
   PickMethod,
   SupplierPart
 } from "../../types";
-import { FileBadge, ItemDescription } from "../Item";
+import { FileBadge, ItemDescription, SourcingTypeProperty } from "../Item";
 
 type PartPropertiesProps = {
   data?: {
@@ -113,6 +113,7 @@ const PartProperties = ({ data }: PartPropertiesProps) => {
       field:
         | "active"
         | "defaultMethodType"
+        | "sourcingType"
         | "itemTrackingType"
         | "itemPostingGroupId"
         | "partId"
@@ -483,6 +484,12 @@ const PartProperties = ({ data }: PartPropertiesProps) => {
           }}
         />
       </ValidatedForm>
+
+      <SourcingTypeProperty
+        replenishmentSystem={routeData?.partSummary?.replenishmentSystem}
+        value={routeData?.partSummary?.sourcingType}
+        onChange={(value) => onUpdate("sourcingType", value)}
+      />
 
       <ValidatedForm
         defaultValues={{

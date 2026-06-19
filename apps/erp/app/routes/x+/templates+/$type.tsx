@@ -21,9 +21,12 @@ import { usePermissions } from "~/hooks";
 import {
   documentTemplateValidator,
   getCompany,
+  getCompanySettings,
   getDocumentSections,
   getDocumentTemplate,
   getTerms,
+  resolveSections,
+  upsertDocumentSection,
   upsertDocumentTemplate
 } from "~/modules/settings";
 import { listPreviewEntities } from "~/modules/settings/documentPreview.server";
@@ -49,7 +52,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     customFieldSchemas,
     previewEntities,
     terms,
-    company
+    company,
+    companySettings
   ] = await Promise.all([
     getDocumentTemplate(client, companyId, documentType),
     getDocumentSections(client, companyId),
@@ -60,7 +64,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     listPreviewEntities(client, companyId, documentType),
     // Company terms setting — seeds the Terms block when it has no content.
     getTerms(client, companyId),
-    getCompany(client, companyId)
+    getCompany(client, companyId),
+    // Company's configured label stock — seeds the label-size preview picker.
+    getCompanySettings(client, companyId)
   ]);
 
   // Map the document type to the relevant company terms setting (the Terms
@@ -118,7 +124,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     termsSeed,
     hasWatermark: Boolean(
       (company.data as { logoWatermark?: string | null } | null)?.logoWatermark
-    )
+    ),
+    initialLabelSizeId:
+      documentType === "trackingLabel"
+        ? ((companySettings.data as { productLabelSize?: string } | null)
+            ?.productLabelSize ?? undefined)
+        : undefined
   };
 }
 
@@ -142,8 +153,35 @@ export async function action({ request }: ActionFunctionArgs) {
     theme,
     settings,
     headerSectionId,
-    footerSectionId
+    footerSectionId,
+    headerConfig
   } = validation.data;
+
+  // The logo/header layout is edited inline but lives on the (company-global)
+  // header section. Persist it onto that section first, preserving its current
+  // name/content, so the change applies wherever the header is referenced.
+  if (headerConfig && headerSectionId) {
+    const resolved = await resolveSections(client, companyId, [
+      headerSectionId
+    ]);
+    const header = resolved[headerSectionId];
+    const section = await upsertDocumentSection(client, {
+      id: headerSectionId,
+      companyId,
+      name: header?.name ?? "Default Header",
+      placement: "header",
+      content: (header?.content ?? { type: "doc", content: [] }) as JSONContent,
+      config: headerConfig as Record<string, unknown>,
+      createdBy: userId,
+      updatedBy: userId
+    });
+    if (section.error) {
+      return data(
+        { success: false },
+        await flash(request, error(section.error, "Failed to save header"))
+      );
+    }
+  }
 
   const upsert = await upsertDocumentTemplate(client, {
     companyId,
@@ -187,7 +225,8 @@ export default function DocumentTemplateRoute() {
     customFields,
     previewEntities,
     termsSeed,
-    hasWatermark
+    hasWatermark,
+    initialLabelSizeId
   } = useLoaderData<typeof loader>();
   const permissions = usePermissions();
 
@@ -206,6 +245,7 @@ export default function DocumentTemplateRoute() {
       previewEntities={previewEntities}
       termsSeed={termsSeed as JSONContent | undefined}
       hasWatermark={hasWatermark}
+      initialLabelSizeId={initialLabelSizeId}
       canEdit={permissions.can("update", "settings")}
     />
   );

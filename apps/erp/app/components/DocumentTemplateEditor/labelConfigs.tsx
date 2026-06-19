@@ -15,7 +15,6 @@ import {
   SelectTrigger,
   SelectValue
 } from "@carbon/react";
-import { useEffect, useState } from "react";
 import { useUser } from "~/hooks";
 import { ToggleRow } from "./configHelpers";
 import { useDocumentTemplate } from "./context";
@@ -138,28 +137,13 @@ export function LabelBarcodeConfig({ block }: { block: LabelBarcodeBlock }) {
 }
 
 /**
- * The document header logo, edited inline (no dialog). Local draft for snappy
- * UI; persists to the header section (debounced) so the crop drag doesn't spam
- * the server. The preview refreshes once the section save revalidates.
+ * The document header logo, edited inline (no dialog). Edits live in the editor
+ * store (`headerConfig`), so the preview reflects them instantly and they
+ * persist with the template on Save.
  */
 export function HeaderLogoConfig() {
   const { company } = useUser();
-  const { section, config, submit } = useHeaderConfig();
-  const [draft, setDraft] = useState(config);
-
-  // Re-seed when the persisted config changes (revalidation / external edit).
-  // biome-ignore lint/correctness/useExhaustiveDependencies: seed on server value only
-  useEffect(() => {
-    setDraft(config);
-  }, [JSON.stringify(config)]);
-
-  // Debounced persist — only when the draft actually diverges from the server
-  // value, so re-seeding after a save can't loop back into another submit.
-  useEffect(() => {
-    if (JSON.stringify(draft) === JSON.stringify(config)) return;
-    const t = setTimeout(() => submit(draft), 400);
-    return () => clearTimeout(t);
-  }, [draft, config, submit]);
+  const { section, config, patch } = useHeaderConfig();
 
   if (!section) {
     return (
@@ -169,17 +153,15 @@ export function HeaderLogoConfig() {
     );
   }
 
-  const variant = draft.logoVariant ?? "mark";
+  const variant = config.logoVariant ?? "mark";
   const src =
     variant === "icon"
       ? (company?.logoLightIcon ?? company?.logoLight)
       : (company?.logoLight ?? company?.logoLightIcon);
-  const set = (patch: Partial<typeof draft>) =>
-    setDraft((prev) => ({ ...prev, ...patch }));
 
   return (
     <div className="flex flex-col gap-3">
-      {!draft.showLogo && (
+      {!config.showLogo && (
         <p className="text-xs text-muted-foreground">
           Logo is hidden — turn it on with the eye toggle in the list.
         </p>
@@ -190,8 +172,8 @@ export function HeaderLogoConfig() {
           value={variant}
           onValueChange={(value) =>
             // Switching source invalidates the crop aspect.
-            set({
-              logoVariant: value as typeof draft.logoVariant,
+            patch({
+              logoVariant: value as typeof config.logoVariant,
               logoCrop: undefined
             })
           }
@@ -208,8 +190,8 @@ export function HeaderLogoConfig() {
       {src ? (
         <LogoCropper
           src={src}
-          crop={draft.logoCrop}
-          onChange={(crop) => set({ logoCrop: crop })}
+          crop={config.logoCrop}
+          onChange={(crop) => patch({ logoCrop: crop })}
         />
       ) : (
         <p className="text-xs text-muted-foreground">
@@ -220,8 +202,8 @@ export function HeaderLogoConfig() {
         label="Height (pt)"
         minValue={16}
         maxValue={120}
-        value={draft.logoHeight ?? DEFAULT_HEADER_OPTIONS.logoHeight}
-        onChange={(v) => set({ logoHeight: v })}
+        value={config.logoHeight ?? DEFAULT_HEADER_OPTIONS.logoHeight}
+        onChange={(v) => patch({ logoHeight: v })}
       />
     </div>
   );

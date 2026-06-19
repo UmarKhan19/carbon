@@ -2,7 +2,7 @@ import { Text, View } from "@react-pdf/renderer";
 import type { TermsBlock as TermsBlockType } from "../../../template";
 import { Note } from "../../components";
 import { hasContent, resolveTerms } from "../resolveTerms";
-import { tw } from "../tw";
+import { useTw } from "../tw";
 import type { SalesOrderData } from "./types";
 
 export function TermsBlock({
@@ -12,6 +12,7 @@ export function TermsBlock({
   block: TermsBlockType;
   data: SalesOrderData;
 }) {
+  const tw = useTw();
   const { theme, vars } = data;
   const terms = resolveTerms(block, data.terms, vars);
   if (!hasContent(terms)) return null;

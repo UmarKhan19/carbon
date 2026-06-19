@@ -367,7 +367,13 @@ export const documentTemplateValidator = zfd.formData({
   theme: jsonField(themeSchema, "Invalid document theme"),
   settings: jsonField(documentSettingsSchema, "Invalid document settings"),
   headerSectionId: zfd.text(z.string().optional()),
-  footerSectionId: zfd.text(z.string().optional())
+  footerSectionId: zfd.text(z.string().optional()),
+  // Header layout config (logo) is edited inline and saved with the template;
+  // the action upserts it onto the referenced header section.
+  headerConfig: jsonField(
+    sectionConfigSchema,
+    "Invalid header config"
+  ).optional()
 });
 
 export const documentSectionValidator = zfd.formData({

@@ -52,6 +52,7 @@ export const path = {
       emptyPermissions: `${api}/users/empty-permissions`,
       failureModes: `${api}/resources/failure-modes`,
       gauges: `${api}/quality/gauges`,
+      createCsvLookup: `${api}/csv/create-lookup`,
       generateCsvColumns: (table: string) =>
         generatePath(`${api}/ai/csv/${table}/columns`),
       inspectionDocumentBalloonAnalyze: (inspectionDocumentId: string) =>
@@ -60,6 +61,14 @@ export const path = {
         ),
       groupsByType: (type?: string) =>
         generatePath(`${api}/users/groups?type=${type}`),
+      groupsByTypeWithUsers: (type?: string) =>
+        generatePath(`${api}/users/groups?type=${type}&include=users`),
+      groupMembers: (groupId: string) =>
+        generatePath(`${api}/users/groups/${groupId}/members`),
+      usersSearch: (q: string) =>
+        generatePath(`${api}/users/search?q=${encodeURIComponent(q)}`),
+      usersBatch: (ids: string[]) =>
+        generatePath(`${api}/users/batch?ids=${ids.join(",")}`),
       item: (type: string) => generatePath(`${api}/item/${type}`),
       itemCostRecalculate: (itemId: string) =>
         generatePath(`${api}/items/${itemId}/recalculate-cost`),
@@ -1734,6 +1743,23 @@ export const path = {
       generatePath(`${x}/warehouse-transfer/${transferId}/lines`),
     warehouseTransferLine: (transferId: string, lineId: string) =>
       generatePath(`${x}/warehouse-transfer/${transferId}/details/${lineId}`),
+    pickingLists: `${x}/inventory/picking-lists`,
+    pickingSchedule: `${x}/picking-list/schedule`,
+    pickingListsTable: `${x}/inventory/picking-lists`,
+    newPickingList: `${x}/picking-list/new`,
+    pickingList: (id: string) => generatePath(`${x}/picking-list/${id}`),
+    pickingListDetails: (id: string) =>
+      generatePath(`${x}/picking-list/${id}/details`),
+    pickingListStatus: (id: string) =>
+      generatePath(`${x}/picking-list/${id}/status`),
+    pickingListDelete: (id: string) =>
+      generatePath(`${x}/picking-list/${id}/delete`),
+    pickingListLine: (pickingListId: string, lineId: string) =>
+      generatePath(`${x}/picking-list/${pickingListId}/details/${lineId}`),
+    pickingListTracked: (pickingListId: string, lineId: string) =>
+      generatePath(`${x}/picking-list/${pickingListId}/tracked/${lineId}`),
+    pickingListLineQuantity: (id: string) =>
+      generatePath(`${x}/picking-list/${id}/line/quantity`),
     shippingMethods: `${x}/inventory/shipping-methods`,
     supplier: (id: string) => generatePath(`${x}/supplier/${id}`),
     supplierApproval: (id: string) =>

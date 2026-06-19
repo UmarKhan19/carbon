@@ -5,7 +5,7 @@ import type {
 } from "../../template";
 import { interpolateContent } from "../../template";
 import { Note } from "../components";
-import { tw } from "./tw";
+import { useTw } from "./tw";
 
 /** Extension block — doc-agnostic. Takes resolved sections + merge `vars`. */
 export function SharedBlock({
@@ -17,6 +17,7 @@ export function SharedBlock({
   sections: Record<string, ResolvedSection>;
   vars: Record<string, string>;
 }) {
+  const tw = useTw();
   const section = sections[block.sectionId];
   if (!section) return null;
 

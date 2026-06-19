@@ -1,6 +1,6 @@
 import { Spinner } from "@carbon/react";
 import { useEffect, useRef, useState } from "react";
-import { useDocumentTemplate } from "./context";
+import { useDocumentTemplate, useEditorStore } from "./context";
 
 const PREVIEW_DEBOUNCE_MS = 500;
 
@@ -17,14 +17,16 @@ export function TemplatePreview({ previewPath }: { previewPath: string }) {
     settings,
     headerSectionId,
     footerSectionId,
-    sections,
+    headerConfig,
     previewId
   } = useDocumentTemplate();
+  const previewNonce = useEditorStore((s) => s.previewNonce);
+  const labelSizeId = useEditorStore((s) => s.labelSizeId);
   const [url, setUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const urlRef = useRef<string | null>(null);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: `sections` is intentionally a dep so editing a header/footer section re-renders the preview.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `previewNonce` is a manual retrigger — bumped by the toolbar refresh button to re-run the fetch.
   useEffect(() => {
     const controller = new AbortController();
     const handle = setTimeout(async () => {
@@ -36,6 +38,8 @@ export function TemplatePreview({ previewPath }: { previewPath: string }) {
         formData.append("settings", JSON.stringify(settings));
         formData.append("headerSectionId", headerSectionId ?? "");
         formData.append("footerSectionId", footerSectionId ?? "");
+        formData.append("headerConfig", JSON.stringify(headerConfig));
+        formData.append("labelSizeId", labelSizeId);
         if (previewId) formData.append("previewId", previewId);
         const response = await fetch(previewPath, {
           method: "post",
@@ -59,17 +63,19 @@ export function TemplatePreview({ previewPath }: { previewPath: string }) {
       controller.abort();
       clearTimeout(handle);
     };
-    // `sections` is included so editing a header/footer section (which the
-    // preview route resolves server-side) retriggers a fresh render.
+    // `headerConfig` is a dep so logo/header edits (sent in the payload and
+    // applied server-side) retrigger a fresh render without a save round-trip.
   }, [
     blocks,
     theme,
     settings,
     headerSectionId,
     footerSectionId,
-    sections,
+    headerConfig,
     previewId,
-    previewPath
+    previewPath,
+    previewNonce,
+    labelSizeId
   ]);
 
   // Revoke the last object URL on unmount.

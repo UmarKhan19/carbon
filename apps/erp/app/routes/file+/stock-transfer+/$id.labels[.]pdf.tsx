@@ -3,6 +3,8 @@ import { ProductLabelPDF } from "@carbon/documents/pdf";
 import { labelSizes } from "@carbon/utils";
 import { renderToStream } from "@react-pdf/renderer";
 import type { LoaderFunctionArgs } from "react-router";
+import { getCompany, getDocumentTemplateConfig } from "~/modules/settings";
+import { resolveLabelLogo } from "~/modules/settings/labelLogo.server";
 import { getCompanySettings } from "~/modules/settings/settings.service";
 import { getStockTransferLabelItems } from "./labels.server";
 
@@ -44,8 +46,24 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
+  // Apply the tracking-label template + company logo, same as the other label
+  // routes — stock-transfer labels should match the configured layout/branding.
+  const template = await getDocumentTemplateConfig(
+    client,
+    companyId,
+    "trackingLabel"
+  );
+  const company = await getCompany(client, companyId);
+  const logo = await resolveLabelLogo(company.data, template, labelSize);
+
   const stream = await renderToStream(
-    <ProductLabelPDF items={items} labelSize={labelSize} />
+    <ProductLabelPDF
+      items={items}
+      labelSize={labelSize}
+      template={template}
+      company={company.data as never}
+      logo={logo}
+    />
   );
 
   const body: Buffer = await new Promise((resolve, reject) => {

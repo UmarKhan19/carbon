@@ -1,11 +1,12 @@
 import type { JSONContent } from "@carbon/react";
 import { Text, View } from "@react-pdf/renderer";
 import { Note } from "../../components";
-import { tw } from "../tw";
+import { useTw } from "../tw";
 import type { IssueData } from "./types";
 
 /** Repeating action-task blocks, each with optional nested inspections. */
 export function ActionTasksBlock({ data }: { data: IssueData }) {
+  const tw = useTw();
   const {
     actionTasks,
     requiredActions,

@@ -1,7 +1,9 @@
 import type { JSONContent } from "@carbon/react";
 import { Document, Font, Page, StyleSheet, View } from "@react-pdf/renderer";
-import type { PropsWithChildren } from "react";
+import { type PropsWithChildren, useMemo } from "react";
+import { DEFAULT_THEME, type DocumentTheme } from "../../template";
 import type { Meta } from "../../types";
+import { DocStyleProvider, makeDocTw } from "../blocks/tw";
 import Footer from "./Footer";
 import Note from "./Note";
 
@@ -21,6 +23,8 @@ type TemplateProps = PropsWithChildren<{
   headerContent?: JSONContent | null;
   /** Shared-section content repeated in the footer of every page. */
   footerContent?: JSONContent | null;
+  /** Document theme — drives the block palette (headings, body text). */
+  theme?: DocumentTheme;
 }>;
 
 const Template = ({
@@ -35,8 +39,10 @@ const Template = ({
   fontFamily = "Inter",
   headerContent,
   footerContent,
+  theme = DEFAULT_THEME,
   children
 }: TemplateProps) => {
+  const docStyle = useMemo(() => ({ tw: makeDocTw(theme), theme }), [theme]);
   const hasHeader =
     headerContent &&
     typeof headerContent === "object" &&
@@ -99,22 +105,24 @@ const Template = ({
       title={title}
     >
       <Page size="A4" style={styles.body}>
-        {hasHeader && (
-          <View fixed style={{ marginBottom: 8 }}>
-            <Note content={headerContent} />
-          </View>
-        )}
-        {children}
-        {showFooter && (
-          <Footer
-            label={footerLabel}
-            documentId={footerDocumentId}
-            content={footerContent}
-            showPageNumbers={showPageNumbers}
-            pageNumberFormat={pageNumberFormat}
-            showRegistrationLine={showRegistrationLine}
-          />
-        )}
+        <DocStyleProvider value={docStyle}>
+          {hasHeader && (
+            <View fixed style={{ marginBottom: 8 }}>
+              <Note content={headerContent} />
+            </View>
+          )}
+          {children}
+          {showFooter && (
+            <Footer
+              label={footerLabel}
+              documentId={footerDocumentId}
+              content={footerContent}
+              showPageNumbers={showPageNumbers}
+              pageNumberFormat={pageNumberFormat}
+              showRegistrationLine={showRegistrationLine}
+            />
+          )}
+        </DocStyleProvider>
       </Page>
     </Document>
   );

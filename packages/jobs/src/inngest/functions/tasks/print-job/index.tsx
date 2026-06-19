@@ -270,7 +270,13 @@ async function processDocumentType(
           format
         );
       } else if (hasBuiltInRenderer) {
-        content = await renderItemBuiltIn(client, doc, format, mediaSizeId);
+        content = await renderItemBuiltIn(
+          client,
+          companyId,
+          doc,
+          format,
+          mediaSizeId
+        );
       } else {
         await updatePrintJobStatus(client, jobId, companyId, "failed", {
           error: `Document type "${documentTypeId}" requires a BinderyPress template.`

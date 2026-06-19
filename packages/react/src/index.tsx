@@ -324,6 +324,17 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from "./Tooltip";
+import type {
+  ExpiredEntityPolicy,
+  TrackedEntityOption,
+  TrackedEntityPickerProps,
+  TrackedEntityPickOrder,
+  TrackedEntitySelection
+} from "./TrackedEntityPicker";
+import {
+  TrackedEntityPicker,
+  usePickOrderOptions
+} from "./TrackedEntityPicker";
 import { TruncatedTooltipText } from "./TruncatedTooltipText";
 import { cn } from "./utils/cn";
 import { copyToClipboard } from "./utils/dom";
@@ -331,7 +342,6 @@ import { getValidChildren, reactNodeToString } from "./utils/react";
 import { VStack } from "./VStack";
 
 export * from "./Acknowledge";
-export * from "./getPreferenceHeaders";
 export * from "./hooks";
 export {
   Accordion,
@@ -596,6 +606,8 @@ export {
   Toggle,
   ToggleGroup,
   ToggleGroupItem,
+  TrackedEntityPicker,
+  usePickOrderOptions,
   TruncatedTooltipText,
   Tooltip,
   TooltipContent,
@@ -634,5 +646,10 @@ export type {
   OperatingSystemPlatform,
   Shortcut,
   ShortcutDefinition,
-  TextareaProps
+  TextareaProps,
+  ExpiredEntityPolicy,
+  TrackedEntityOption,
+  TrackedEntityPickOrder,
+  TrackedEntityPickerProps,
+  TrackedEntitySelection
 };
