@@ -1132,6 +1132,9 @@ msgstr "阻止保存直到解决"
 msgid "BoM"
 msgstr "物料清单"
 
+msgid "BOM"
+msgstr ""
+
 msgid "BoM + BoP"
 msgstr "BoM + BoP"
 
@@ -5776,6 +5779,9 @@ msgstr "合作伙伴"
 
 msgid "Parts"
 msgstr "零件"
+
+msgid "Parts with Methods"
+msgstr ""
 
 msgid "Pass"
 msgstr "通过"

@@ -9,6 +9,7 @@ import { requirePermissions } from "../lib/supabase.ts";
 import { Database } from "../lib/types.ts";
 import { getReadableIdWithRevision } from "../lib/utils.ts";
 import { classifyImportRow } from "./classify-import-row.ts";
+import { importMethods } from "./method-import.ts";
 
 const pool = getConnectionPool(1);
 const db = getDatabaseClient<DB>(pool);
@@ -20,7 +21,9 @@ const importCsvValidator = z.object({
     "customerContact",
     "fixture",
     "material",
-    "methodMaterial",
+    "bom",
+    "operations",
+    "partWithMethod",
     "part",
     "supplier",
     "supplierContact",
@@ -2128,8 +2131,17 @@ serve(async (req: Request) => {
         });
         break;
       }
-      case "methodMaterial": {
-        throw new Error("Not implemented");
+      case "bom":
+      case "operations":
+      case "partWithMethod": {
+        await importMethods(db, {
+          table,
+          mappedRecords,
+          companyId,
+          userId,
+          summary,
+        });
+        break;
       }
       default: {
         throw new Error(`Invalid table: ${table}`);

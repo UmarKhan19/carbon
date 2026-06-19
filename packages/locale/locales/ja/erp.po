@@ -1132,6 +1132,9 @@ msgstr "解決されるまで保存をブロックします"
 msgid "BoM"
 msgstr "BoM"
 
+msgid "BOM"
+msgstr ""
+
 msgid "BoM + BoP"
 msgstr "BoM + BoP"
 
@@ -5776,6 +5779,9 @@ msgstr "パートナー"
 
 msgid "Parts"
 msgstr "部品"
+
+msgid "Parts with Methods"
+msgstr ""
 
 msgid "Pass"
 msgstr "合格"

@@ -1132,6 +1132,9 @@ msgstr "Blokuje zapis do czasu rozwiązania"
 msgid "BoM"
 msgstr "BoM"
 
+msgid "BOM"
+msgstr ""
+
 msgid "BoM + BoP"
 msgstr "BoM + BoP"
 
@@ -5776,6 +5779,9 @@ msgstr "Partnerzy"
 
 msgid "Parts"
 msgstr "Części"
+
+msgid "Parts with Methods"
+msgstr ""
 
 msgid "Pass"
 msgstr "Zatwierdź"

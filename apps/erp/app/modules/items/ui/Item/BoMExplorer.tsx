@@ -411,7 +411,7 @@ const BoMExplorer = ({
       </VStack>
       {importBomDisclosure.isOpen && (
         <ImportCSVModal
-          table={"methodMaterial"}
+          table={"bom"}
           onClose={() => importBomDisclosure.onClose()}
         />
       )}
