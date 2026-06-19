@@ -7259,6 +7259,9 @@ msgstr "Kształty"
 msgid "Share"
 msgstr "Udostępnij"
 
+msgid "Share a branded portal link so customers can track their orders and documents."
+msgstr ""
+
 msgid "Share Link"
 msgstr "Udostępnij Link"
 

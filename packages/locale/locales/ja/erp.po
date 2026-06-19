@@ -7259,6 +7259,9 @@ msgstr "形状"
 msgid "Share"
 msgstr "共有"
 
+msgid "Share a branded portal link so customers can track their orders and documents."
+msgstr ""
+
 msgid "Share Link"
 msgstr "リンクを共有"
 

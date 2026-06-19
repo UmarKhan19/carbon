@@ -1,4 +1,5 @@
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
+import { companyHasPlan } from "@carbon/ee/plan.server";
 import { Avatar } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
 import { useLocale, useNumberFormatter } from "@react-aria/i18n";
@@ -58,6 +59,13 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   if (!customer.data.customerId) {
     console.error(customer.error);
     throw new Error("Customer not found");
+  }
+
+  const hasPlan = await companyHasPlan(serviceRole, customer.data.companyId, {
+    feature: "CUSTOMER_PORTALS"
+  });
+  if (!hasPlan) {
+    throw new Response("Not found", { status: 404 });
   }
 
   const url = new URL(request.url);
