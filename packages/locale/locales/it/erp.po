@@ -4900,6 +4900,9 @@ msgstr "Necessario entro"
 msgid "Need the right columns?"
 msgstr "Hai bisogno delle colonne giuste?"
 
+msgid "Needs ordering"
+msgstr ""
+
 msgid "Negative Adjustment"
 msgstr "Rettifica Negativa"
 
@@ -5568,7 +5571,8 @@ msgstr "O"
 msgid "Order"
 msgstr "Ordine"
 
-msgid "Order {jobQuantity} for this job"
+#. placeholder {0}: status.shortfall
+msgid "Order {0} for this job"
 msgstr ""
 
 msgid "Order by"
@@ -5819,6 +5823,9 @@ msgstr "Piano"
 
 msgid "Plan Type"
 msgstr "Tipo di Piano"
+
+msgid "Planned"
+msgstr ""
 
 msgid "Planned End"
 msgstr "Fine pianificata"

@@ -20,9 +20,9 @@ import type { JobMethodTreeItem } from "~/modules/production";
 import {
   getJob,
   getJobDocuments,
-  getJobMaterialPurchaseOrderLines,
   getJobMaterialsWithQuantityOnHand,
   getJobMethodTree,
+  getJobOrderStatusMap,
   getTrackedEntitiesByJobId
 } from "~/modules/production";
 import {
@@ -44,7 +44,8 @@ async function getJobOrderStatus(
   client: Parameters<typeof getJob>[0],
   jobId: string,
   companyId: string,
-  locationId: string
+  locationId: string,
+  jobStatus: string | null | undefined
 ): Promise<JobOrderStatusData> {
   const materials = await getJobMaterialsWithQuantityOnHand(
     client,
@@ -53,14 +54,14 @@ async function getJobOrderStatus(
     locationId
   );
 
-  return {
-    materials: materials.data ?? [],
-    purchaseOrderLines: await getJobMaterialPurchaseOrderLines(
-      client,
-      materials.data ?? [],
-      locationId
-    )
-  };
+  return getJobOrderStatusMap(
+    client,
+    jobId,
+    companyId,
+    locationId,
+    jobStatus,
+    materials.data ?? []
+  );
 }
 
 export const handle: Handle = {
@@ -104,7 +105,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       client,
       jobId,
       companyId,
-      job.data.locationId ?? ""
+      job.data.locationId ?? "",
+      job.data.status
     ), // returns a promise
     configurationParameters: getConfigurationParameters(
       client,

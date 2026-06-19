@@ -1,3 +1,4 @@
+export * from "./jobOrderStatus";
 export * from "./production.models";
 export * from "./production.service";
 // @ts-ignore

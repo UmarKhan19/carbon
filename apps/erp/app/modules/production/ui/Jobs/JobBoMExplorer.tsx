@@ -56,30 +56,14 @@ import { useIntegrations } from "~/hooks/useIntegrations";
 import { getLinkToItemDetails } from "~/modules/items/ui/Item/ItemForm";
 import { generateBomIds } from "~/utils/bom";
 import { path } from "~/utils/path";
-import type {
-  getJobMaterialsWithQuantityOnHand,
-  JobMethod
-} from "../../production.service";
-import {
-  getJobMaterialOrderStatus,
-  type ItemOrderStatus,
-  JobOrderStatusBadge,
-  type JobPurchaseOrderLine
-} from "./JobOrderStatus";
+import type { ItemOrderStatus } from "../../jobOrderStatus";
+import type { JobMethod } from "../../production.service";
+import { JobOrderStatusBadge } from "./JobOrderStatus";
 
-type JobMaterialQuantity = NonNullable<
-  Awaited<ReturnType<typeof getJobMaterialsWithQuantityOnHand>>["data"]
->[number];
+// Keyed by material id (= the tree node's methodMaterialId); built by the loader.
+export type JobOrderStatusData = Record<string, ItemOrderStatus>;
 
-// Raw data fetched by the job route loader.
-export type JobOrderStatusData = {
-  materials: JobMaterialQuantity[];
-  purchaseOrderLines: JobPurchaseOrderLine[];
-};
-
-const OrderStatusContext = createContext<Map<string, ItemOrderStatus>>(
-  new Map()
-);
+const OrderStatusContext = createContext<JobOrderStatusData>({});
 
 type JobBoMExplorerProps = {
   method: FlatTree<JobMethod>;
@@ -100,8 +84,7 @@ const JobBoMExplorer = ({ method, orderStatus }: JobBoMExplorerProps) => {
   const [orderStatusData, setOrderStatusData] =
     useState<JobOrderStatusData | null>(null);
 
-  // The loader streams order status as a promise so the tree renders
-  // immediately; resolve it here and let the badges fill in afterwards.
+  // Streamed as a promise so the tree renders before the badges resolve.
   useEffect(() => {
     if (!orderStatus) return;
     const promise = orderStatus;
@@ -119,33 +102,6 @@ const JobBoMExplorer = ({ method, orderStatus }: JobBoMExplorerProps) => {
       active = false;
     };
   }, [orderStatus]);
-
-  // Keyed by jobMaterial id (= the tree node's methodMaterialId).
-  const orderStatusByMaterialId = useMemo(() => {
-    const map = new Map<string, ItemOrderStatus>();
-    if (!orderStatusData) return map;
-
-    const { materials, purchaseOrderLines } = orderStatusData;
-
-    // Group purchase order lines by item.
-    const linesByItemId = new Map<string, JobPurchaseOrderLine[]>();
-    for (const line of purchaseOrderLines) {
-      if (!line.itemId) continue;
-      const lines = linesByItemId.get(line.itemId) ?? [];
-      lines.push(line);
-      linesByItemId.set(line.itemId, lines);
-    }
-
-    for (const material of materials) {
-      if (!material.id) continue;
-      const poLines = material.jobMaterialItemId
-        ? (linesByItemId.get(material.jobMaterialItemId) ?? [])
-        : [];
-      map.set(material.id, getJobMaterialOrderStatus(material, poLines));
-    }
-
-    return map;
-  }, [orderStatusData]);
 
   const fetchers = useFetchers();
   const getMethodFetcher = fetchers.find(
@@ -235,7 +191,7 @@ const JobBoMExplorer = ({ method, orderStatus }: JobBoMExplorerProps) => {
   }, [selectedMaterialId, methodId, location.pathname, jobId]);
 
   return (
-    <OrderStatusContext.Provider value={orderStatusByMaterialId}>
+    <OrderStatusContext.Provider value={orderStatusData ?? {}}>
       <VStack className="flex-1 h-full w-full">
         {isLoading ? (
           <div className="flex items-center justify-center py-8 w-full">
@@ -540,7 +496,7 @@ function NodeData({ node }: { node: FlatTreeItem<JobMethod> }) {
   // purchased, pulled from inventory, or a buy-and-make part. Materials with no
   // shortfall and no PO (e.g. a make-to-order part) render nothing.
   const orderStatus = node.data.methodMaterialId
-    ? orderStatusByMaterialId.get(node.data.methodMaterialId)
+    ? orderStatusByMaterialId[node.data.methodMaterialId]
     : undefined;
 
   return (
@@ -557,10 +513,7 @@ function NodeData({ node }: { node: FlatTreeItem<JobMethod> }) {
         {node.data.quantity}
       </Badge>
       {onShapeState && <OnshapeStatus status={onShapeState} />}
-      <JobOrderStatusBadge
-        status={orderStatus}
-        jobQuantity={node.data.quantity}
-      />
+      <JobOrderStatusBadge status={orderStatus} />
     </HStack>
   );
 }

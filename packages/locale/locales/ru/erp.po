@@ -4900,6 +4900,9 @@ msgstr "Требуется к"
 msgid "Need the right columns?"
 msgstr "Нужны правильные столбцы?"
 
+msgid "Needs ordering"
+msgstr ""
+
 msgid "Negative Adjustment"
 msgstr "Отрицательная корректировка"
 
@@ -5568,7 +5571,8 @@ msgstr "ИЛИ"
 msgid "Order"
 msgstr "Заказ"
 
-msgid "Order {jobQuantity} for this job"
+#. placeholder {0}: status.shortfall
+msgid "Order {0} for this job"
 msgstr ""
 
 msgid "Order by"
@@ -5819,6 +5823,9 @@ msgstr "План"
 
 msgid "Plan Type"
 msgstr "Тип плана"
+
+msgid "Planned"
+msgstr ""
 
 msgid "Planned End"
 msgstr "Запланированное окончание"

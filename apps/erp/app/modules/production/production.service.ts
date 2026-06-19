@@ -7,7 +7,7 @@ import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 import type { z } from "zod";
 import type { StorageItem } from "~/types";
 import type { GenericQueryFilters } from "~/utils/query";
-import { setGenericQueryFilters } from "~/utils/query";
+import { getGenericFilter, setGenericQueryFilters } from "~/utils/query";
 import { sanitize } from "~/utils/supabase";
 import { getDefaultStorageUnitForJob } from "../inventory";
 import { getEmployeeJob } from "../people";
@@ -16,6 +16,12 @@ import type {
   operationStepValidator,
   operationToolValidator
 } from "../shared";
+import {
+  ACTIVE_JOB_STATUSES,
+  getJobOrderStatusByMaterial,
+  type ItemOrderStatus,
+  isJobOrderStatusHidden
+} from "./jobOrderStatus";
 import type {
   deadlineTypes,
   failureModeValidator,
@@ -930,7 +936,7 @@ export async function getJobMaterialsWithQuantityOnHand(
   locationId: string,
   args?: { search: string | null } & GenericQueryFilters
 ) {
-  return client.rpc(
+  let query = client.rpc(
     "get_job_quantity_on_hand",
     {
       job_id: jobId,
@@ -940,6 +946,161 @@ export async function getJobMaterialsWithQuantityOnHand(
     {
       count: "exact"
     }
+  );
+
+  if (args?.search) {
+    query = query.or(
+      `itemReadableId.ilike.%${args.search}%,name.ilike.%${args.search}%,description.ilike.%${args.search}%`
+    );
+  }
+
+  // Pagination/sorting intentionally skipped — the page loads every material so
+  // the stock-transfer session can pre-scan the full list. (orderStatus is
+  // stripped in the loader; it isn't a column the function returns.)
+  args?.filters?.forEach((filter) => {
+    if (!filter.value) return;
+    query = getGenericFilter(
+      query,
+      filter.column,
+      filter.operator,
+      filter.value
+    );
+  });
+
+  return query;
+}
+
+// Distinct item ids on a job — scopes the Materials-page Item filter.
+export async function getJobMaterialItemIds(
+  client: SupabaseClient<Database>,
+  jobId: string,
+  companyId: string
+) {
+  return client
+    .from("jobMaterial")
+    .select("itemId")
+    .eq("jobId", jobId)
+    .eq("companyId", companyId);
+}
+
+type JobItemAvailability = {
+  jobMaterialItemId: string | null;
+  quantityOnHandInStorageUnit: number | null;
+  quantityOnHandNotInStorageUnit: number | null;
+  quantityOnPurchaseOrder: number | null;
+  quantityOnProductionOrder: number | null;
+};
+
+// Per-item shortfall for one job: its remaining need (quantityToIssue) minus its
+// share of the available pool (on hand + incoming), handed out to jobs by
+// priority (job.priority ascending). Stock is shared with no per-job
+// reservation, so allocation order matters.
+export async function getJobMaterialShortfallByItem(
+  client: SupabaseClient<Database>,
+  jobId: string,
+  companyId: string,
+  locationId: string,
+  materials: JobItemAvailability[]
+): Promise<Record<string, number>> {
+  // On hand + incoming per item (the RPC repeats these item-level values).
+  const availableByItem = new Map<string, number>();
+  for (const material of materials) {
+    const itemId = material.jobMaterialItemId;
+    if (!itemId || availableByItem.has(itemId)) continue;
+    availableByItem.set(
+      itemId,
+      (material.quantityOnHandInStorageUnit ?? 0) +
+        (material.quantityOnHandNotInStorageUnit ?? 0) +
+        (material.quantityOnPurchaseOrder ?? 0) +
+        (material.quantityOnProductionOrder ?? 0)
+    );
+  }
+  const itemIds = Array.from(availableByItem.keys());
+  if (itemIds.length === 0) return {};
+
+  // Remaining demand for those items across every active job at this location.
+  const { data } = await client
+    .from("jobMaterial")
+    .select(
+      "itemId, jobId, quantityToIssue, job!inner(priority, status, locationId)"
+    )
+    .in("itemId", itemIds)
+    .eq("companyId", companyId)
+    .neq("methodType", "Make to Order")
+    .in("job.status", ACTIVE_JOB_STATUSES)
+    .eq("job.locationId", locationId);
+
+  type Demand = { jobId: string; priority: number; remaining: number };
+  const demandByItem = new Map<string, Map<string, Demand>>();
+  for (const row of data ?? []) {
+    const itemId = row.itemId;
+    const rowJobId = row.jobId;
+    const remaining = row.quantityToIssue ?? 0;
+    if (!itemId || !rowJobId || remaining <= 0) continue;
+    const job = (Array.isArray(row.job) ? row.job[0] : row.job) as {
+      priority: number | null;
+    } | null;
+    const priority = job?.priority ?? Number.POSITIVE_INFINITY;
+
+    let jobs = demandByItem.get(itemId);
+    if (!jobs) {
+      jobs = new Map();
+      demandByItem.set(itemId, jobs);
+    }
+    const existing = jobs.get(rowJobId);
+    if (existing) existing.remaining += remaining;
+    else jobs.set(rowJobId, { jobId: rowJobId, priority, remaining });
+  }
+
+  // Allocate each item's pool by priority (lower first), record this job's gap.
+  const shortfallByItem: Record<string, number> = {};
+  for (const [itemId, jobsMap] of demandByItem) {
+    let available = availableByItem.get(itemId) ?? 0;
+    const jobs = Array.from(jobsMap.values()).sort(
+      (a, b) =>
+        a.priority - b.priority ||
+        (a.jobId < b.jobId ? -1 : a.jobId > b.jobId ? 1 : 0)
+    );
+    for (const job of jobs) {
+      const take = Math.min(job.remaining, Math.max(available, 0));
+      available -= take;
+      if (job.jobId === jobId && job.remaining - take > 0) {
+        shortfallByItem[itemId] = job.remaining - take;
+      }
+    }
+  }
+  return shortfallByItem;
+}
+
+// One status per material id for a job — the single source the table and tree
+// both consume. Empty for jobs that show no indicators.
+export async function getJobOrderStatusMap(
+  client: SupabaseClient<Database>,
+  jobId: string,
+  companyId: string,
+  locationId: string,
+  jobStatus: string | null | undefined,
+  materials: NonNullable<
+    Awaited<ReturnType<typeof getJobMaterialsWithQuantityOnHand>>["data"]
+  >
+): Promise<Record<string, ItemOrderStatus>> {
+  if (isJobOrderStatusHidden(jobStatus)) return {};
+
+  const [purchaseOrderLines, shortfallByItemId] = await Promise.all([
+    getJobMaterialPurchaseOrderLines(client, materials, locationId),
+    getJobMaterialShortfallByItem(
+      client,
+      jobId,
+      companyId,
+      locationId,
+      materials
+    )
+  ]);
+
+  return getJobOrderStatusByMaterial(
+    materials,
+    purchaseOrderLines,
+    shortfallByItemId
   );
 }
 

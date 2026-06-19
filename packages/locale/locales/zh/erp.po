@@ -4900,6 +4900,9 @@ msgstr "需要日期"
 msgid "Need the right columns?"
 msgstr "需要正确的列吗？"
 
+msgid "Needs ordering"
+msgstr ""
+
 msgid "Negative Adjustment"
 msgstr "负调整"
 
@@ -5568,7 +5571,8 @@ msgstr "或"
 msgid "Order"
 msgstr "订单"
 
-msgid "Order {jobQuantity} for this job"
+#. placeholder {0}: status.shortfall
+msgid "Order {0} for this job"
 msgstr ""
 
 msgid "Order by"
@@ -5819,6 +5823,9 @@ msgstr "计划"
 
 msgid "Plan Type"
 msgstr "计划类型"
+
+msgid "Planned"
+msgstr ""
 
 msgid "Planned End"
 msgstr "计划结束"
