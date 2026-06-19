@@ -17,7 +17,7 @@ type SalesOrderStatusProps = {
   }>;
 };
 
-const STATUS_COLOR_MAP: Record<
+export const SALES_STATUS_COLOR_MAP: Record<
   Database["public"]["Enums"]["salesOrderStatus"],
   "gray" | "yellow" | "orange" | "blue" | "green" | "red"
 > = {
@@ -51,7 +51,7 @@ const SalesStatus = ({ status, jobs, lines }: SalesOrderStatusProps) => {
     );
   }
 
-  const color = STATUS_COLOR_MAP[status];
+  const color = SALES_STATUS_COLOR_MAP[status];
   if (!color) return null;
 
   return <Status color={color}>{status}</Status>;

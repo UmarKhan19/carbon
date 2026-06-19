@@ -6,7 +6,7 @@ type JobStatusProps = {
   className?: string;
 };
 
-const STATUS_COLOR_MAP: Record<
+export const JOB_STATUS_COLOR_MAP: Record<
   (typeof jobStatus)[number],
   "gray" | "yellow" | "blue" | "orange" | "green" | "red"
 > = {
@@ -25,7 +25,7 @@ const STATUS_COLOR_MAP: Record<
 function JobStatus({ status, className }: JobStatusProps) {
   if (!status) return null;
 
-  const color = STATUS_COLOR_MAP[status];
+  const color = JOB_STATUS_COLOR_MAP[status];
   if (!color) return null;
 
   const displayText = status === "Ready" ? "Released" : status;
