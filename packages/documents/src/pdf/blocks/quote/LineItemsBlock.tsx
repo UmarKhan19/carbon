@@ -12,7 +12,7 @@ import {
 } from "../../../utils/quote";
 import { Note } from "../../components";
 import { itemTextOverflowStyle } from "../itemText";
-import { tw } from "../tw";
+import { useTw } from "../tw";
 import type { QuoteData } from "./types";
 
 type QuoteLinePrice = Database["public"]["Tables"]["quoteLinePrice"]["Row"];
@@ -24,6 +24,7 @@ export function LineItemsBlock({
   block: LineItemsBlockType;
   data: QuoteData;
 }) {
+  const tw = useTw();
   const {
     quoteLines,
     pricesByLine,

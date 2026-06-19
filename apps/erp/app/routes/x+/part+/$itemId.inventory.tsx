@@ -200,6 +200,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       itemId,
       locationId: pickMethodFields.locationId,
       defaultStorageUnitId: pickMethodFields.defaultStorageUnitId,
+      sortMethod: pickMethodFields.sortMethod,
       customFields: setCustomFields(formData),
       userId,
       shelfLife: {

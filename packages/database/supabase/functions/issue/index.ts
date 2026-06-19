@@ -1464,7 +1464,7 @@ serve(async (req: Request) => {
                 methodType: "Pull from Inventory",
                 quantity: 0,
                 quantityIssued: Number(quantity ?? 0),
-                unitCost: itemCost?.unitCost,
+                unitCost: itemCost?.unitCost ?? 0,
               })
               .executeTakeFirst();
 
@@ -1882,7 +1882,7 @@ serve(async (req: Request) => {
                   quantityIssued: totalChildQuantity,
                   requiresBatchTracking: jobMaterial.requiresBatchTracking,
                   requiresSerialTracking: jobMaterial.requiresSerialTracking,
-                  unitCost: itemCost?.unitCost,
+                  unitCost: itemCost?.unitCost ?? 0,
                 })
                 .returning("id")
                 .executeTakeFirstOrThrow();
@@ -1945,7 +1945,7 @@ serve(async (req: Request) => {
                 quantityIssued: totalChildQuantity,
                 requiresBatchTracking: item.itemTrackingType === "Batch",
                 requiresSerialTracking: item.itemTrackingType === "Serial",
-                unitCost: itemCost?.unitCost,
+                unitCost: itemCost?.unitCost ?? 0,
               })
               .returning("id")
               .executeTakeFirstOrThrow();

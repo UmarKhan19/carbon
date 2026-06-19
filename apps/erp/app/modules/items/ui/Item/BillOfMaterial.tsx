@@ -110,6 +110,8 @@ type Material = z.infer<typeof methodMaterialValidator> & {
     name: string;
     itemTrackingType: Database["public"]["Enums"]["itemTrackingType"];
     replenishmentSystem: string | null;
+    defaultMethodType: Database["public"]["Enums"]["methodType"];
+    sourcingType: Database["public"]["Enums"]["sourcingType"];
   };
 };
 
@@ -208,7 +210,10 @@ const BillOfMaterial = ({
         item: {
           name: "",
           itemTrackingType: "Inventory",
-          replenishmentSystem: "Buy and Make"
+          replenishmentSystem: "Buy and Make",
+          defaultMethodType:
+            pendingMaterial.methodType ?? "Pull from Inventory",
+          sourcingType: pendingMaterial.sourcingType ?? "Specified"
         }
       });
     } else {
@@ -703,7 +708,7 @@ function MaterialForm({
     const item = await carbon
       .from("item")
       .select(
-        "name, readableIdWithRevision, type, unitOfMeasureCode, defaultMethodType, replenishmentSystem"
+        "name, readableIdWithRevision, type, unitOfMeasureCode, defaultMethodType, sourcingType, replenishmentSystem"
       )
       .eq("id", itemId)
       .eq("companyId", company.id)
@@ -714,12 +719,15 @@ function MaterialForm({
       return;
     }
 
+    // Method type and sourcing are item-level properties; mirror them here so
+    // the read-only display matches the item the moment it's selected.
     setItemData((d) => ({
       ...d,
       itemId,
       description: item.data?.name ?? "",
       unitOfMeasureCode: item.data?.unitOfMeasureCode ?? "EA",
       methodType: item.data?.defaultMethodType ?? "Pull from Inventory",
+      sourcingType: item.data?.sourcingType ?? "Specified",
       kit: false,
       itemReplenishmentSystem: item.data?.replenishmentSystem ?? "Buy"
     }));
@@ -754,7 +762,7 @@ function MaterialForm({
           name="storageUnitIds"
           value={JSON.stringify(itemData.storageUnitIds)}
         />
-        {replenishmentSystem !== "Buy and Make" && (
+        {itemData.itemReplenishmentSystem !== "Buy and Make" && (
           <Hidden name="sourcingType" value={itemData.sourcingType} />
         )}
       </div>
@@ -844,7 +852,7 @@ function MaterialForm({
           helperText={t`Used on builds on/before this date (blank = always)`}
         />
       </div>
-      {replenishmentSystem === "Buy and Make" && (
+      {itemData.itemReplenishmentSystem === "Buy and Make" && (
         <div className="border border-border rounded-md shadow-sm p-4 flex flex-col gap-4 w-full">
           <HStack
             className="w-full justify-between cursor-pointer"
@@ -886,10 +894,13 @@ function MaterialForm({
               sourcingDisclosure.isOpen ? "" : "hidden"
             }`}
           >
+            {/* Read-only: sourcing is set at the item level (Properties
+                sidebar) and mirrored here. */}
             <Select
               name="sourcingType"
               label={t`Sourcing Type`}
               value={itemData.sourcingType}
+              isReadOnly
               options={sourcingType.map((s) => ({
                 value: s,
                 label: (
@@ -899,20 +910,6 @@ function MaterialForm({
                   </span>
                 )
               }))}
-              onChange={(value) => {
-                const newSourcingType = value?.value as SourcingType;
-                setItemData((d) => {
-                  const updates: Partial<typeof d> = {
-                    sourcingType: newSourcingType
-                  };
-                  if (newSourcingType === "Drop Ship") {
-                    updates.methodType = "Purchase to Order";
-                  } else if (newSourcingType === "Ship from Inventory") {
-                    updates.methodType = "Pull from Inventory";
-                  }
-                  return { ...d, ...updates };
-                });
-              }}
             />
           </div>
         </div>
@@ -982,16 +979,13 @@ function MaterialForm({
             sourceDisclosure.isOpen ? "" : "hidden"
           }`}
         >
+          {/* Read-only: method type is the item's default method type
+              (Properties sidebar) and mirrored here. */}
           <DefaultMethodType
             name="methodType"
             label={t`Method Type`}
             value={itemData.methodType}
-            onChange={(value) => {
-              setItemData((d) => ({
-                ...d,
-                methodType: value?.value as MethodType
-              }));
-            }}
+            isReadOnly
             isConfigured={rulesByField.has(key("methodType"))}
             onConfigure={
               configurable && !temporaryItems[item.id]

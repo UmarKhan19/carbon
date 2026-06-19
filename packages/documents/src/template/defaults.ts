@@ -642,39 +642,56 @@ export interface DocumentCatalogEntry {
   supported: boolean;
   /** Defaults to "all". */
   extensions?: ExtensionSupport;
+  /**
+   * Which theme colors apply (drives the editor's Colors tab + the rendered
+   * palette). "full" = accent bar + headings + body; "text" = headings + body
+   * only (no accent bar); omitted = none (labels, fixed-palette internal docs).
+   */
+  themeColors?: "full" | "text";
 }
 
 export const DOCUMENT_CATALOG: DocumentCatalogEntry[] = [
-  { type: "quote", label: "Quote", group: "Sales", supported: true },
+  {
+    type: "quote",
+    label: "Quote",
+    group: "Sales",
+    supported: true,
+    themeColors: "full"
+  },
   {
     type: "salesOrder",
     label: "Sales Order",
     group: "Sales",
-    supported: true
+    supported: true,
+    themeColors: "full"
   },
   {
     type: "salesInvoice",
     label: "Sales Invoice",
     group: "Sales",
-    supported: true
+    supported: true,
+    themeColors: "full"
   },
   {
     type: "purchaseOrder",
     label: "Purchase Order",
     group: "Purchasing",
-    supported: true
+    supported: true,
+    themeColors: "full"
   },
   {
     type: "packingSlip",
     label: "Packing Slip",
     group: "Inventory",
-    supported: true
+    supported: true,
+    themeColors: "full"
   },
   {
     type: "stockTransfer",
     label: "Stock Transfer",
     group: "Inventory",
-    supported: true
+    supported: true,
+    themeColors: "full"
   },
   {
     type: "jobTraveler",
@@ -682,7 +699,13 @@ export const DOCUMENT_CATALOG: DocumentCatalogEntry[] = [
     group: "Production",
     supported: true
   },
-  { type: "issue", label: "Issue", group: "Quality", supported: true },
+  {
+    type: "issue",
+    label: "Issue",
+    group: "Quality",
+    supported: true,
+    themeColors: "text"
+  },
   {
     type: "trackingLabel",
     label: "Tracking Label",
@@ -705,4 +728,24 @@ export function extensionSupport(documentType: string): ExtensionSupport {
     DOCUMENT_CATALOG.find((entry) => entry.type === documentType)?.extensions ??
     "all"
   );
+}
+
+/**
+ * The theme color keys that apply to a document, in display order — driven by
+ * the catalog's `themeColors` policy. "full" docs get the accent bar; "text"
+ * docs only headings + body; the rest (labels, fixed-palette internal docs) get
+ * none. Drives which swatches the editor shows so users only see colors that
+ * take effect.
+ */
+export function documentThemeColors(
+  documentType: DocumentTemplateType
+): (keyof DocumentTheme)[] {
+  const mode = DOCUMENT_CATALOG.find(
+    (entry) => entry.type === documentType
+  )?.themeColors;
+  if (!mode) return [];
+  const keys: (keyof DocumentTheme)[] = [];
+  if (mode === "full") keys.push("accent", "accentForeground");
+  keys.push("heading", "text");
+  return keys;
 }

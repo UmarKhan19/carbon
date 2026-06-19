@@ -1,13 +1,13 @@
 import { Text, View } from "@react-pdf/renderer";
-import { tw } from "../tw";
+import { useTw } from "../tw";
 import type { Associations, IssueData } from "./types";
-
-const rowStyle = tw(
-  "flex flex-row gap-2 text-[10px] py-1 border-b border-gray-200"
-);
 
 /** A single labeled association row (label + readable id). */
 function Row({ label, value }: { label: string; value: string }) {
+  const tw = useTw();
+  const rowStyle = tw(
+    "flex flex-row gap-2 text-[10px] py-1 border-b border-gray-200"
+  );
   return (
     <View style={rowStyle}>
       <Text style={tw("w-1/4 font-bold text-gray-600")}>{label}:</Text>
@@ -30,6 +30,10 @@ const SIMPLE_GROUPS: { key: keyof Associations; label: string }[] = [
 
 /** Related entities grouped by type. Renders nothing when there are none. */
 export function AssociationsBlock({ data }: { data: IssueData }) {
+  const tw = useTw();
+  const rowStyle = tw(
+    "flex flex-row gap-2 text-[10px] py-1 border-b border-gray-200"
+  );
   const { associations } = data;
   if (!associations) return null;
 

@@ -4,7 +4,7 @@ import {
   type SummaryBlock as SummaryBlockType
 } from "../../template";
 import { getLineTaxableSubtotal, getTotal } from "../../utils/sales-invoice";
-import { tw } from "./tw";
+import { useTw } from "./tw";
 import type { SalesInvoiceData } from "./types";
 
 export function SummaryBlock({
@@ -14,6 +14,7 @@ export function SummaryBlock({
   block: SummaryBlockType;
   data: SalesInvoiceData;
 }) {
+  const tw = useTw();
   const {
     salesInvoiceLines,
     salesInvoice,

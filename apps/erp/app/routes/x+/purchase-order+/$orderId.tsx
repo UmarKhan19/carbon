@@ -336,6 +336,7 @@ export async function action(args: ActionFunctionArgs) {
             body: {
               purchaseOrderId: orderId,
               companyId,
+              userId,
               source: "purchaseOrder",
               updatePrices: true,
               updateLeadTimes: false

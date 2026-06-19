@@ -12,7 +12,7 @@ import {
 } from "../../../utils/sales-order";
 import { Note } from "../../components";
 import { itemTextOverflowStyle } from "../itemText";
-import { tw } from "../tw";
+import { useTw } from "../tw";
 import type { SalesOrderData } from "./types";
 
 export function LineItemsBlock({
@@ -22,6 +22,7 @@ export function LineItemsBlock({
   block: LineItemsBlockType;
   data: SalesOrderData;
 }) {
+  const tw = useTw();
   const { salesOrderLines, thumbnails, numberFormatter, theme } = data;
   const opts = { ...DEFAULT_LINE_ITEMS_OPTIONS, ...block.options };
   const overflow = itemTextOverflowStyle(opts);

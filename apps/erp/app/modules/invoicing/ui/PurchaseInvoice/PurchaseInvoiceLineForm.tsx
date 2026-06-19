@@ -302,6 +302,10 @@ const PurchaseInvoiceLineForm = ({
       case "Material":
       case "Part":
       case "Tool":
+      // @ts-expect-error
+      case "Service":
+      // @ts-expect-error
+      case "Fixture":
         const [item, supplierPart, inventory] = await Promise.all([
           carbon
             .from("item")
@@ -562,7 +566,9 @@ const PurchaseInvoiceLineForm = ({
                         "Part",
                         "Material",
                         "Tool",
-                        "Consumable"
+                        "Consumable",
+                        "Service",
+                        "Fixture"
                       ].includes(itemType) && (
                         <>
                           <NumberControlled

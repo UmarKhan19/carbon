@@ -17,6 +17,7 @@ import ItemSupersessionForm, {
 import MakeMethodTools from "./MakeMethodTools";
 import PickMethodForm from "./PickMethodForm";
 import { SelectedItemProperties } from "./SelectedItemProperties";
+import { SourcingTypeProperty } from "./SourcingTypeProperty";
 import SupplierPartForm from "./SupplierPartForm";
 import SupplierParts from "./SupplierParts";
 
@@ -40,6 +41,7 @@ export {
   MakeMethodTools,
   PickMethodForm,
   SelectedItemProperties,
+  SourcingTypeProperty,
   SupplierPartForm,
   SupplierParts
 };

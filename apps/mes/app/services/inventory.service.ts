@@ -61,13 +61,17 @@ export async function getBatchNumbersForItem(
     }
   }
 
+  // Smart default order: expiring soonest first (FEFO, nulls last), then oldest
+  // first (FIFO).
   return client
     .from("trackedEntity")
     .select("*")
     .eq("sourceDocument", "Item")
     .in("sourceDocumentId", itemIds)
     .eq("companyId", args.companyId)
-    .gt("quantity", 0);
+    .gt("quantity", 0)
+    .order("expirationDate", { ascending: true, nullsFirst: false })
+    .order("createdAt", { ascending: true });
 }
 
 export async function getCompanySettings(
@@ -133,6 +137,8 @@ export async function getSerialNumbersForItem(
     }
   }
 
+  // Smart default order: expiring soonest first (FEFO, nulls last), then oldest
+  // first (FIFO).
   return client
     .from("trackedEntity")
     .select("*")
@@ -140,7 +146,54 @@ export async function getSerialNumbersForItem(
     .in("sourceDocumentId", itemIds)
     .eq("companyId", args.companyId)
     .eq("status", "Available")
-    .gt("quantity", 0);
+    .gt("quantity", 0)
+    .order("expirationDate", { ascending: true, nullsFirst: false })
+    .order("createdAt", { ascending: true });
+}
+
+/**
+ * Available tracked entities for an item at a location, one row per entity, with
+ * its bin, on-hand, and FEFO/FIFO order keys — for the shared TrackedEntityPicker.
+ * `excludeLineside` drops lineside (work-center) bins; `excludeAllocated` nets out
+ * quantities already allocated to other non-cancelled picking lines.
+ */
+export async function getAvailableTrackedEntities(
+  client: SupabaseClient<Database>,
+  args: {
+    itemId: string;
+    companyId: string;
+    locationId: string;
+    excludeLineside?: boolean;
+    excludeAllocated?: boolean;
+    excludeLineId?: string | null;
+  }
+) {
+  return client.rpc("get_available_tracked_entities", {
+    p_item_id: args.itemId,
+    p_company_id: args.companyId,
+    p_location_id: args.locationId,
+    p_exclude_lineside: args.excludeLineside ?? false,
+    p_exclude_allocated: args.excludeAllocated ?? false,
+    p_exclude_line_id: args.excludeLineId ?? undefined
+  });
+}
+
+/**
+ * The configured tracked-entity pick order for an item at a location, used as
+ * the picker's default sort. Falls back to "Default" (smart) when unset.
+ */
+export async function getPickOrder(
+  client: SupabaseClient<Database>,
+  args: { itemId: string; locationId: string; companyId: string }
+): Promise<Database["public"]["Enums"]["pickMethodSortMethod"]> {
+  const { data } = await client
+    .from("pickMethod")
+    .select("sortMethod")
+    .eq("itemId", args.itemId)
+    .eq("locationId", args.locationId)
+    .eq("companyId", args.companyId)
+    .maybeSingle();
+  return data?.sortMethod ?? "Default";
 }
 
 export async function insertManualInventoryAdjustment(

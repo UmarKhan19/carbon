@@ -1,7 +1,7 @@
 import { Text, View } from "@react-pdf/renderer";
 import type { FieldBlock as FieldBlockType } from "../../template";
 import { interpolateString } from "../../template";
-import { tw } from "./tw";
+import { useTw } from "./tw";
 
 /**
  * Extension block — doc-agnostic. A single line of plain text: an optional
@@ -16,6 +16,7 @@ export function FieldBlock({
   block: FieldBlockType;
   vars: Record<string, string>;
 }) {
+  const tw = useTw();
   const value = interpolateString(block.value ?? "", vars);
   if (!value && !block.label) return null;
 

@@ -25,7 +25,7 @@ import { useLocations } from "~/components/Form/Location";
 import {
   type StorageUnitTreeRow,
   useStorageUnitsTree
-} from "~/components/Form/StorageUnitDrillSelect";
+} from "~/components/Form/StorageUnit";
 import MultiValueCombobox from "./MultiValueCombobox";
 import type { ValueOption } from "./useValueOptions";
 import ValueCombobox from "./ValueCombobox";

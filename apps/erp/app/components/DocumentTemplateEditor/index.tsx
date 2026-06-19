@@ -26,11 +26,11 @@ import {
 } from "@carbon/react";
 import { labelSizes } from "@carbon/utils";
 import { type ReactNode, useState } from "react";
-import { LuArrowLeft, LuPalette, LuRefreshCw } from "react-icons/lu";
+import { LuArrowLeft, LuPalette, LuRefreshCw, LuType } from "react-icons/lu";
 import { Link } from "react-router";
 import { path } from "~/utils/path";
 import { BlockConfig } from "./BlockConfig";
-import { BlockList } from "./BlockList";
+import { AddBlockMenu, BlockList } from "./BlockList";
 import type { CustomFieldRef, PreviewEntity, SectionRef } from "./context";
 import {
   DocumentTemplateProvider,
@@ -39,7 +39,7 @@ import {
 } from "./context";
 import { FontConfig } from "./FontConfig";
 import { TemplatePreview } from "./TemplatePreview";
-import { ThemeConfig } from "./ThemeConfig";
+import { hasThemeColors, ThemeConfig } from "./ThemeConfig";
 import { useTemplateConflict } from "./useTemplateConflict";
 
 export function DocumentTemplateEditor({
@@ -154,47 +154,75 @@ const PICKER_LABEL =
   "text-[10px] font-medium uppercase tracking-wide text-muted-foreground";
 
 /**
- * Left rail: block layers (incl. the Header block + Footer row) and a Page /
- * Theme tab group for document-wide settings. The contextual Configure panel
- * lives in its own right rail.
+ * Left rail: block layers (incl. the Header block + Footer row) and a tab group
+ * for document-wide Style (typography) and Colors. The contextual Configure
+ * panel lives in its own right rail.
  */
 function ControlRail() {
-  const [tab, setTab] = useState<"style">("style");
-  // Labels render on thermal stock with fixed printer fonts and no color —
-  // typography and theme don't apply, so the whole Style tab is hidden.
-  const isLabel = useEditorStore((s) => s.documentType === "trackingLabel");
+  const [tab, setTab] = useState<"style" | "colors">("style");
+  const documentType = useEditorStore((s) => s.documentType);
+  // Labels render on thermal stock with fixed printer fonts — no style tab.
+  const isLabel = documentType === "trackingLabel";
+  // Only show Colors when the document actually uses theme colors.
+  const showColors = hasThemeColors(documentType);
 
   return (
-    <ScrollArea className="h-full bg-card">
-      <div className="flex flex-col gap-4 p-3">
-        <section className="flex flex-col gap-1.5">
-          <h2 className={RAIL_HEADING}>Blocks</h2>
-          <BlockList />
-        </section>
+    <div className="flex h-full flex-col bg-card">
+      {/* Fixed Blocks header with the inline add-block button. */}
+      <div className="flex shrink-0 items-center justify-between px-3 pt-3 pb-1">
+        <h2 className={RAIL_HEADING}>Blocks</h2>
+        <AddBlockMenu />
+      </div>
 
-        {!isLabel && (
-          <Tabs
-            value={tab}
-            onValueChange={(v) => setTab(v as "style")}
-            className="border-t pt-1"
-          >
-            <TabsList className="h-auto w-full justify-start gap-1 rounded-none border-b bg-transparent p-0 shadow-none">
-              <UnderlineTab value="style" icon={<LuPalette />} label="Style" />
-            </TabsList>
-            <TabsContent value="style" className="flex flex-col gap-5 pt-4">
+      {/* Block rows — capped at half the panel, scrolling past that. */}
+      <div className="min-h-0 max-h-[50%]">
+        <ScrollArea className="h-full">
+          <div className="px-3 pb-1">
+            <BlockList />
+          </div>
+        </ScrollArea>
+      </div>
+
+      {!isLabel && (
+        <Tabs
+          value={tab}
+          onValueChange={(v) => setTab(v as "style" | "colors")}
+          className="flex shrink-0 flex-col border-t"
+        >
+          <TabsList className="h-auto w-full justify-start gap-1 rounded-none border-b bg-transparent p-0 px-3 shadow-none">
+            <UnderlineTab value="style" icon={<LuType />} label="Style" />
+            {showColors && (
+              <UnderlineTab
+                value="colors"
+                icon={<LuPalette />}
+                label="Colors"
+              />
+            )}
+          </TabsList>
+          {/* Tab body scrolls within a bounded height so it never starves the
+              blocks list above. */}
+          <ScrollArea className="max-h-[45vh]">
+            <TabsContent value="style" className="flex flex-col gap-5 p-3 pt-4">
               <section className="flex flex-col gap-3">
                 <h3 className={RAIL_HEADING}>Typography</h3>
                 <FontConfig />
               </section>
-              <section className="flex flex-col gap-2">
-                <h3 className={RAIL_HEADING}>Theme colors</h3>
-                <ThemeConfig />
-              </section>
             </TabsContent>
-          </Tabs>
-        )}
-      </div>
-    </ScrollArea>
+            {showColors && (
+              <TabsContent
+                value="colors"
+                className="flex flex-col gap-5 p-3 pt-4"
+              >
+                <section className="flex flex-col gap-2">
+                  <h3 className={RAIL_HEADING}>Theme colors</h3>
+                  <ThemeConfig />
+                </section>
+              </TabsContent>
+            )}
+          </ScrollArea>
+        </Tabs>
+      )}
+    </div>
   );
 }
 
