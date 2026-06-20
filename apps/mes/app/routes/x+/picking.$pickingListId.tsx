@@ -422,7 +422,7 @@ function PickLineItem({
       <div className="flex items-start justify-between gap-4 min-w-0 sm:flex-1">
         <HStack spacing={4} className="min-w-0">
           <ItemThumbnail
-            size="lg"
+            size="xl"
             thumbnailPath={null}
             type={(item?.type as "Part") ?? "Part"}
           />
