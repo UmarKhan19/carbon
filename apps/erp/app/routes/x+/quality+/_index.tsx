@@ -38,7 +38,6 @@ import { Trans, useLingui } from "@lingui/react/macro";
 import { useLocale } from "@react-aria/i18n";
 import type { DateRange } from "@react-types/datepicker";
 import { Suspense, useEffect, useMemo, useState } from "react";
-import { CSVLink } from "react-csv";
 import {
   LuArrowUpRight,
   LuCalendarClock,
@@ -69,6 +68,7 @@ import {
   YAxis
 } from "recharts";
 import { DateSelect, Empty, Hyperlink } from "~/components";
+import { CSVLink } from "~/components/CSVLink";
 import { getIssueTypesList, QualityKPIs } from "~/modules/quality";
 import IssueStatus from "~/modules/quality/ui/Issue/IssueStatus";
 import { getCompanySettings } from "~/modules/settings";
