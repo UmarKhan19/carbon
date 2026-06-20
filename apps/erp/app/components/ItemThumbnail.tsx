@@ -8,7 +8,7 @@ import { MethodItemTypeIcon } from "./Icons";
 interface ItemThumbnailProps {
   thumbnailPath?: string | null;
   type?: MethodItemType;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
 }
 
 const itemVariants = cva(
