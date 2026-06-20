@@ -1,5 +1,6 @@
 import type { Database, Json } from "@carbon/database";
 import { fetchAllFromTable } from "@carbon/database";
+import type { TrackedEntityAttributes } from "@carbon/utils";
 import { getLocalTimeZone, now, today } from "@internationalized/date";
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 import { nanoid } from "nanoid";
@@ -26,7 +27,10 @@ import type {
   storageUnitValidator,
   warehouseTransferValidator
 } from "./inventory.models";
-import { isPickingListLocked } from "./inventory.models";
+import {
+  isPickingListLocked,
+  reconcileReceiptLineSerials
+} from "./inventory.models";
 
 export async function deleteBatchProperty(
   client: SupabaseClient<Database>,
@@ -469,6 +473,65 @@ export async function getReceiptLineTracking(
     .select("*")
     .eq("attributes ->> Receipt Line", receiptLineId)
     .eq("companyId", companyId);
+}
+
+/**
+ * Deletes stale serial tracked entities for a receipt's serial-tracked lines
+ * before posting. Post-receipt flips one serial per index in
+ * [0, receivedQuantity) to Available; orphaned (reduced quantity) or duplicate
+ * (edited serial) entities would otherwise become phantom Available serials.
+ * The keep/delete decision is owned by `reconcileReceiptLineSerials` so it
+ * stays in lockstep with the post-time validation in ReceiptPostModal.
+ */
+export async function reconcileReceiptSerialEntities(
+  client: SupabaseClient<Database>,
+  args: {
+    receiptId: string;
+    companyId: string;
+    lines: {
+      id: string;
+      receivedQuantity: number | null;
+      requiresSerialTracking?: boolean | null;
+    }[];
+  }
+) {
+  const serialLines = args.lines.filter((line) => line.requiresSerialTracking);
+  if (serialLines.length === 0) return;
+
+  const { data: serialEntities } = await client
+    .from("trackedEntity")
+    .select("id, attributes, createdAt, readableId")
+    .eq("attributes ->> Receipt", args.receiptId)
+    .eq("companyId", args.companyId);
+
+  const idsToDelete = serialLines.flatMap((line) => {
+    const entities = (serialEntities ?? [])
+      .filter(
+        (e) =>
+          (e.attributes as TrackedEntityAttributes)?.["Receipt Line"] ===
+          line.id
+      )
+      .map((e) => ({
+        id: e.id,
+        index: (e.attributes as TrackedEntityAttributes)?.[
+          "Receipt Line Index"
+        ],
+        hasSerial: !!e.readableId,
+        createdAt: e.createdAt
+      }));
+    return reconcileReceiptLineSerials(
+      entities,
+      Number(line.receivedQuantity ?? 0)
+    ).surplusEntityIds;
+  });
+
+  if (idsToDelete.length > 0) {
+    await client
+      .from("trackedEntity")
+      .delete()
+      .in("id", idsToDelete)
+      .eq("companyId", args.companyId);
+  }
 }
 
 export async function getReceiptFiles(
