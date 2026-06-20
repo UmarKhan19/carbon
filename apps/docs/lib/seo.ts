@@ -1,8 +1,14 @@
 import type { Metadata } from "next";
 
-/** Canonical site origin. Matches `metadataBase` in the root layout. */
+/**
+ * Canonical site origin — the host these docs are actually served from, used as
+ * `metadataBase` in the root layout. It MUST be the docs subdomain, not the
+ * marketing root (`carbon.ms`): relative URLs (the `/og` card, canonicals) resolve
+ * against this, and `carbon.ms` is a separate app with no working `/og` route, so
+ * pointing here at the root would make every shared link's embed image 404/500.
+ */
 export const SITE = {
-  url: "https://carbon.ms",
+  url: "https://docs.carbon.ms",
   name: "Carbon",
 } as const;
 
