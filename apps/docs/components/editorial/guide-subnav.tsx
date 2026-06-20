@@ -26,7 +26,7 @@ export function GuideSubnav() {
 
   return (
     <div
-      className="fixed inset-x-0 top-[64px] z-[55]"
+      className="fixed inset-x-0 top-[64px] z-[55] hidden min-[1000px]:block"
       style={{ background: "#F5F5F2", borderBottom: "1px solid #E8E7E6", boxShadow: "0 1px 0 0 #fff" }}
     >
       <div className="mx-auto flex h-[52px] w-full max-w-[1440px] items-center overflow-x-auto px-[24px] scrollbar-none md:px-[32px]">

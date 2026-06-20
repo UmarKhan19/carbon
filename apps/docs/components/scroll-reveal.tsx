@@ -1,9 +1,11 @@
-"use client";
-
 /**
  * ScrollReveal — fade + gentle rise as a section enters the viewport, once.
- * Wrap Guide sections to pace a long page. Honors prefers-reduced-motion:
- * when the user opts out, it renders the final state with no animation.
+ * Wrap sections to pace a long page.
+ *
+ * CSS-only via a scroll-driven `animation-timeline: view()` (see `.scroll-reveal`
+ * in global.css). No JS and no motion library: the content is in the SSR HTML and
+ * visible by default, so it never blocks LCP. Browsers without scroll-timeline
+ * (Safari/Firefox) and reduced-motion users just see the final state.
  *
  * Usage in MDX:
  *   <ScrollReveal>
@@ -11,7 +13,6 @@
  *   ...
  *   </ScrollReveal>
  */
-import { motion, useReducedMotion } from "framer-motion";
 import type { ReactNode } from "react";
 
 export function ScrollReveal({
@@ -21,19 +22,5 @@ export function ScrollReveal({
   children: ReactNode;
   className?: string;
 }) {
-  const reduce = useReducedMotion();
-
-  if (reduce) return <div className={className}>{children}</div>;
-
-  return (
-    <motion.div
-      className={className}
-      initial={{ opacity: 0, y: 12 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "0px 0px -12% 0px" }}
-      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-    >
-      {children}
-    </motion.div>
-  );
+  return <div className={`scroll-reveal${className ? ` ${className}` : ""}`}>{children}</div>;
 }

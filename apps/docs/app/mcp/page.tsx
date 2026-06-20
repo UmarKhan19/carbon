@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { CodeBlock } from "@/components/api/code-block";
 import { McpEndpoint } from "@/components/api/config-inline";
 import {
@@ -13,12 +12,15 @@ import {
 import { Faq, type FaqEntry } from "@/components/api/faq";
 import { ContentFooter } from "@/components/api/page-footer";
 import { highlight } from "@/lib/highlight";
+import { pageSeo, SEO } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "MCP — Carbon",
-  description:
-    "Connect Carbon's MCP server from Claude Code, Claude Desktop, Cursor, and other AI clients."
-};
+export const metadata = pageSeo({
+  title: `${SEO.mcp.intro.title} — Carbon`,
+  ogTitle: SEO.mcp.intro.title,
+  description: SEO.mcp.intro.description,
+  path: "/mcp",
+  eyebrow: "MCP"
+});
 
 const ENDPOINT = "https://app.carbon.ms/api/mcp";
 

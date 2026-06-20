@@ -6,7 +6,7 @@ import type { ComponentProps } from "react";
 import { MdxCodeBlock } from "@/components/api/mdx-code-block";
 import { Checklist, Check } from "@/components/checklist";
 // Editorial Callout/Card so the Reference matches the Guide (not Fumadocs defaults).
-import { Callout, Card, Cards, EnvVar, EnvVars } from "@/components/editorial/reference-components";
+import { Callout, Card, Cards, EnvVar, EnvVars, PlanBadge } from "@/components/editorial/reference-components";
 import { FeatureCallout } from "@/components/feature-callout";
 import { Frame } from "@/components/frame";
 import { Eyebrow } from "@/components/prose";
@@ -19,11 +19,22 @@ export function getMDXComponents(components?: MDXComponents) {
     pre: ({ title, children }: ComponentProps<"pre">) => (
       <MdxCodeBlock title={typeof title === "string" ? title : undefined}>{children}</MdxCodeBlock>
     ),
+    // Reference tables can be wide (many columns). On a phone the prose column is
+    // ~330px, so wrap every table in a horizontal scroller — it keeps the rounded
+    // frame and lets the table scroll instead of forcing the page to.
+    table: ({ children, ...props }: ComponentProps<"table">) => (
+      <div className="-mx-[2px] my-[20px] overflow-x-auto overscroll-x-contain">
+        <table {...props} className="!my-0 min-w-full">
+          {children}
+        </table>
+      </div>
+    ),
     Card,
     Cards,
     Callout,
     EnvVar,
     EnvVars,
+    PlanBadge,
     Step,
     Steps,
     Tab,

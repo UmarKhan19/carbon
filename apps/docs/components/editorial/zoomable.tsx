@@ -1,27 +1,51 @@
 "use client";
 
 /* Click-to-enlarge for guide figures and screenshots. The thumbnail and the
- * fullscreen overlay share a Framer Motion `layoutId`, so opening morphs the image
- * up into a centered lightbox and closing morphs it back — no cut, no reload. Esc or
- * a backdrop click closes it; body scroll is locked while open. */
+ * fullscreen overlay share a `view-transition-name`, so opening morphs the image up
+ * into a centered lightbox and closing morphs it back — the native View Transitions
+ * API does the shared-element morph (no animation library). Esc or a backdrop click
+ * closes it; body scroll is locked while open. Browsers without View Transitions, and
+ * reduced-motion users, get an instant open/close. */
 
-import { AnimatePresence, motion } from "framer-motion";
-import { type ReactNode, useEffect, useId, useState } from "react";
-import { createPortal } from "react-dom";
+import { type ReactNode, useCallback, useEffect, useId, useState } from "react";
+import { createPortal, flushSync } from "react-dom";
 
-const spring = { type: "spring", stiffness: 280, damping: 32 } as const;
+type ViewTransitionLike = { finished?: Promise<unknown>; ready?: Promise<unknown> };
+type DocWithVT = Document & {
+  startViewTransition?: (cb: () => void) => ViewTransitionLike;
+};
+
+/** Swallow the benign "transition aborted" rejection (fires on .ready and/or
+ *  .finished when a transition is interrupted) so it isn't an unhandled rejection. */
+function ignoreAbort(t: ViewTransitionLike | undefined) {
+  t?.finished?.catch(() => {});
+  t?.ready?.catch(() => {});
+}
 
 export function Zoomable({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const id = useId();
+  // useId() contains characters illegal in a CSS ident (":"); strip them.
+  const name = `zoom-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
 
   useEffect(() => setMounted(true), []);
+
+  // Animate the open/close through a view transition when available; the shared
+  // view-transition-name on the thumbnail and the overlay image makes it a morph.
+  const set = useCallback((next: boolean) => {
+    const doc = document as DocWithVT;
+    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (!reduce && typeof doc.startViewTransition === "function") {
+      ignoreAbort(doc.startViewTransition(() => flushSync(() => setOpen(next))));
+    } else {
+      setOpen(next);
+    }
+  }, []);
 
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") set(false);
     };
     window.addEventListener("keydown", onKey);
     const prev = document.body.style.overflow;
@@ -30,19 +54,19 @@ export function Zoomable({ children }: { children: ReactNode }) {
       window.removeEventListener("keydown", onKey);
       document.body.style.overflow = prev;
     };
-  }, [open]);
+  }, [open, set]);
 
   return (
     <>
-      <motion.button
+      <button
         type="button"
-        layoutId={id}
-        transition={spring}
-        onClick={() => setOpen(true)}
-        aria-label="Enlarge"
-        style={{ opacity: open ? 0 : 1 }}
+        onClick={() => set(true)}
+        // The morph target lives on whichever of the two is currently shown.
+        style={{ viewTransitionName: open ? "none" : name, opacity: open ? 0 : 1 }}
         className="group relative block w-full cursor-zoom-in appearance-none border-0 bg-transparent p-0 text-left"
       >
+        {/* Accessible name; prefixing keeps any visible caption in the name (Label in Name). */}
+        <span className="sr-only">Enlarge: </span>
         {children}
         <span className="pointer-events-none absolute right-[14px] top-[14px] flex h-[28px] w-[28px] items-center justify-center rounded-[8px] border border-[#E7E7E3] bg-[#FBFBF8]/90 opacity-0 shadow-sm backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100">
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
@@ -55,36 +79,25 @@ export function Zoomable({ children }: { children: ReactNode }) {
             />
           </svg>
         </span>
-      </motion.button>
+      </button>
 
       {mounted &&
+        open &&
         createPortal(
-          <AnimatePresence>
-            {open && (
-              <motion.div
-                key="zoom-overlay"
-                className="fixed inset-0 z-[300] flex items-center justify-center p-[20px] md:p-[56px]"
-                onClick={() => setOpen(false)}
-              >
-                <motion.div
-                  aria-hidden
-                  className="absolute inset-0 bg-[rgba(38,35,35,0.55)] backdrop-blur-[3px]"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                />
-                <motion.div
-                  layoutId={id}
-                  transition={spring}
-                  onClick={(e) => e.stopPropagation()}
-                  className="relative z-10 w-full max-w-[min(1100px,92vw)] max-h-[88vh] cursor-zoom-out overflow-auto"
-                >
-                  {children}
-                </motion.div>
-              </motion.div>
-            )}
-          </AnimatePresence>,
+          <div
+            className="fixed inset-0 z-[300] flex items-center justify-center p-[20px] md:p-[56px]"
+            onClick={() => set(false)}
+          >
+            {/* Backdrop fades in/out via the root view transition (or instantly without VT). */}
+            <div aria-hidden className="absolute inset-0 bg-[rgba(38,35,35,0.55)] backdrop-blur-[3px]" />
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{ viewTransitionName: name }}
+              className="relative z-10 max-h-[88vh] w-full max-w-[min(1100px,92vw)] cursor-zoom-out overflow-auto"
+            >
+              {children}
+            </div>
+          </div>,
           document.body,
         )}
     </>

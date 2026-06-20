@@ -50,6 +50,25 @@ export function Callout({
   );
 }
 
+/* Plan gate marker — flags a feature that needs a paid plan. Carbon's gated
+ * features (`packages/ee/src/plan.ts`) all require the Business or Partner plan, so
+ * the badge reads "Business plan" by default. Drop it at the top of a gated page, or
+ * right under the heading of a gated section. */
+export function PlanBadge({ plan = "Business", className = "" }: { plan?: string; className?: string }) {
+  return (
+    <span
+      title={`Available on the ${plan} and Partner plans`}
+      className={`inline-flex items-center gap-[6px] whitespace-nowrap rounded-[100px] border border-[#E6CFA3] bg-[#FFF2D8] px-[10px] py-[3.5px] font-[family-name:var(--font-mono)] text-[10.5px] font-[600] uppercase tracking-[0.04em] text-[#9C7136] ${className}`}
+    >
+      <svg width="11" height="11" viewBox="0 0 14 14" fill="none" aria-hidden="true" className="shrink-0">
+        <rect x="2.6" y="6.3" width="8.8" height="5.6" rx="1.4" stroke="currentColor" strokeWidth="1.3" />
+        <path d="M4.5 6.3V4.7a2.5 2.5 0 0 1 5 0v1.6" stroke="currentColor" strokeWidth="1.3" />
+      </svg>
+      {plan} plan
+    </span>
+  );
+}
+
 export function Cards({ children }: { children?: ReactNode }) {
   return <div className="my-[28px] grid gap-[14px] sm:grid-cols-2">{children}</div>;
 }

@@ -19,10 +19,10 @@ function ImageGlyph() {
 }
 
 const badgeToneClasses: Record<string, string> = {
-  neutral: "border-[#DADAD5] bg-[#EFEFEB] text-[rgba(38,35,35,0.55)]",
-  blue: "border-[#A9DAF3] bg-[#DFF5FF] text-[#3583A8]",
-  green: "border-[#A8DB91] bg-[#E4F8DA] text-[#4F9140]",
-  amber: "border-[#E6CFA3] bg-[#FFF2D8] text-[#9C7136]",
+  neutral: "border-[#DADAD5] bg-[#EFEFEB] text-[rgba(38,35,35,0.72)]",
+  blue: "border-[#A9DAF3] bg-[#DFF5FF] text-[#2A6A8A]",
+  green: "border-[#A8DB91] bg-[#E4F8DA] text-[#3F7A33]",
+  amber: "border-[#E6CFA3] bg-[#FFF2D8] text-[#835F20]",
 };
 
 function Badge({ children, tone = "neutral" }: { children: ReactNode; tone?: string }) {
@@ -70,10 +70,10 @@ export function Screenshot({
         >
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-[10px] px-6 text-center">
             <ImageGlyph />
-            <span className="font-[family-name:var(--font-mono)] text-[10px] tracking-[0.08em] uppercase text-[rgba(38,35,35,0.42)]">
+            <span className="font-[family-name:var(--font-mono)] text-[10px] tracking-[0.08em] uppercase text-[rgba(38,35,35,0.7)]">
               Carbon screenshot
             </span>
-            <span className="text-[14px] font-[500] text-[rgba(38,35,35,0.68)] max-w-[360px]">{label}</span>
+            <span className="text-[14px] font-[500] text-[rgba(38,35,35,0.78)] max-w-[360px]">{label}</span>
           </div>
         </div>
       </Zoomable>
@@ -139,19 +139,58 @@ function ListItem({ children, ...props }: ComponentPropsWithoutRef<"li">) {
   );
 }
 
-// `##` section headings — the big editorial title each rail item links to. Spread
-// props first so rehype-slug's injected `id` survives (anchors + scrollspy need it).
-function Heading2(props: ComponentPropsWithoutRef<"h2">) {
+/** Hover anchor on a heading — deep-links to the section, matching the Reference.
+ *  Native `#id` jump; `scroll-mt` on the heading clears the fixed chrome. */
+function HeadingAnchor({ id }: { id: string }) {
   return (
-    <h2
-      {...props}
-      className="scroll-mt-[32px] m-0 pt-[50px] text-[32px] md:text-[40px] font-normal leading-[115%] text-ink"
-    />
+    <a
+      href={`#${id}`}
+      aria-label="Link to this section"
+      className="ml-[12px] inline-flex items-center align-middle text-ink-faint no-underline opacity-0 transition-[opacity,color] duration-150 hover:text-[#1E84B0] group-hover:opacity-100"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden
+        className="h-[0.46em] w-[0.46em]"
+      >
+        <path d="M9.5 13.5a4 4 0 0 0 6 .4l2.5-2.5a4 4 0 0 0-5.7-5.7L11 7" />
+        <path d="M14.5 10.5a4 4 0 0 0-6-.4L6 12.6a4 4 0 0 0 5.7 5.7L13 17" />
+      </svg>
+    </a>
   );
 }
 
-function Heading3(props: ComponentPropsWithoutRef<"h3">) {
-  return <h3 {...props} className="m-0 mt-[48px] text-[24px] font-[530] leading-[140%] tracking-[0.24px] text-ink" />;
+// `##` section headings — the big editorial title each rail item links to. `group`
+// reveals the hover anchor; `id` (from rehype-slug) drives anchors + scrollspy.
+function Heading2({ id, children, ...props }: ComponentPropsWithoutRef<"h2">) {
+  return (
+    <h2
+      {...props}
+      id={id}
+      className="group scroll-mt-[120px] m-0 pt-[50px] text-[32px] md:text-[40px] font-normal leading-[115%] text-ink"
+    >
+      {children}
+      {id ? <HeadingAnchor id={id} /> : null}
+    </h2>
+  );
+}
+
+function Heading3({ id, children, ...props }: ComponentPropsWithoutRef<"h3">) {
+  return (
+    <h3
+      {...props}
+      id={id}
+      className="group m-0 mt-[48px] scroll-mt-[120px] text-[24px] font-[530] leading-[140%] tracking-[0.24px] text-ink"
+    >
+      {children}
+      {id ? <HeadingAnchor id={id} /> : null}
+    </h3>
+  );
 }
 
 function Heading4(props: ComponentPropsWithoutRef<"h4">) {
@@ -168,7 +207,14 @@ function Blockquote(props: ComponentPropsWithoutRef<"blockquote">) {
 }
 
 function Anchor(props: ComponentPropsWithoutRef<"a">) {
-  return <a {...props} className="text-[#1E84B0] no-underline hover:underline" />;
+  // Underlined by default: in a text block a link must be distinguishable by more than
+  // color alone (WCAG 1.4.1) — the underline is the non-color cue.
+  return (
+    <a
+      {...props}
+      className="text-[#17729B] underline decoration-[rgba(23,114,155,0.4)] underline-offset-[3px] transition-colors hover:decoration-[#17729B]"
+    />
+  );
 }
 
 function HorizontalRule() {

@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { CodeBlock } from "@/components/api/code-block";
 import {
@@ -14,12 +13,15 @@ import {
 } from "@/components/api/doc";
 import { ContentFooter } from "@/components/api/page-footer";
 import { highlight } from "@/lib/highlight";
+import { pageSeo, SEO } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Authentication — Carbon API",
-  description:
-    "Create a scoped API key and authenticate requests with a bearer token."
-};
+export const metadata = pageSeo({
+  title: `${SEO.api.auth.title} — Carbon`,
+  ogTitle: SEO.api.auth.title,
+  description: SEO.api.auth.description,
+  path: "/api-reference/authentication",
+  eyebrow: "API reference"
+});
 
 const REQUEST = `curl 'https://rest.carbon.ms/item?limit=1' \\
   -H "Authorization: Bearer <api-key>"`;

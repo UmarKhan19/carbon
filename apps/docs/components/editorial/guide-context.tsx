@@ -36,6 +36,7 @@ export type GuideChapter = {
   flow: string;
   flowName: string;
   flowIndex: number;
+  readingTime: number;
   items: GuideItem[];
 };
 
@@ -66,13 +67,20 @@ type Pos = { chapter: number; item: number };
 type GuideCtx = {
   active: Pos;
   goTo: (pos: Pos) => void;
-  registerScrollEl: (el: HTMLDivElement | null) => void;
   chapters: GuideChapter[];
 };
 
 const Ctx = createContext<GuideCtx | null>(null);
 
-type DocWithVT = Document & { startViewTransition?: (cb: () => void) => unknown };
+type ViewTransitionLike = { finished?: Promise<unknown>; ready?: Promise<unknown> };
+type DocWithVT = Document & {
+  startViewTransition?: (cb: () => void) => ViewTransitionLike;
+};
+
+/** Fixed chrome above the scrolling content: 64px header + 52px subnav (desktop) or
+ *  mobile context bar. The reader scrolls the window, so anchors and the scrollspy
+ *  offset by this to land headings just below the chrome. */
+const CHROME = 116;
 
 export function GuideProvider({
   chapters,
@@ -92,22 +100,15 @@ export function GuideProvider({
   const activeRef = useRef(active);
   activeRef.current = active;
 
-  const scrollElRef = useRef<HTMLDivElement | null>(null);
   const isUserScrolling = useRef(false);
   const guardTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const registerScrollEl = useCallback((el: HTMLDivElement | null) => {
-    scrollElRef.current = el;
-  }, []);
-
   const scrollToAnchor = useCallback((id: string, smooth: boolean) => {
-    const el = scrollElRef.current;
-    if (!el || !id) return;
-    const target = el.querySelector(`#${CSS.escape(id)}`);
-    if (!(target instanceof HTMLElement)) return;
-    const top =
-      target.getBoundingClientRect().top - el.getBoundingClientRect().top + el.scrollTop - 32;
-    el.scrollTo({ top: Math.max(0, top), behavior: smooth ? "smooth" : "auto" });
+    if (!id) return;
+    const target = document.getElementById(id);
+    if (!target) return;
+    const top = target.getBoundingClientRect().top + window.scrollY - CHROME - 16;
+    window.scrollTo({ top: Math.max(0, top), behavior: smooth ? "smooth" : "auto" });
   }, []);
 
   const goTo = useCallback(
@@ -145,7 +146,10 @@ export function GuideProvider({
       const doc = document as DocWithVT;
 
       if (!reduce && typeof doc.startViewTransition === "function") {
-        doc.startViewTransition(apply);
+        // Swallow the benign "transition aborted" rejection on fast chapter switches.
+        const t = doc.startViewTransition(apply);
+        t?.finished?.catch(() => {});
+        t?.ready?.catch(() => {});
       } else {
         apply();
       }
@@ -155,34 +159,41 @@ export function GuideProvider({
     [chapters, scrollToAnchor],
   );
 
-  // Scrollspy: update the active section as the reader scrolls.
+  // The header wordmark fires `carbon:home` (a plain <Link href="/"> can't reset the
+  // reader — replaceState has desynced Next's router from the real URL). Reset to the
+  // first chapter so the logo always returns to the start of the guide.
   useEffect(() => {
-    const el = scrollElRef.current;
-    if (!el) return;
+    const home = () => goTo({ chapter: 0, item: 0 });
+    window.addEventListener("carbon:home", home);
+    return () => window.removeEventListener("carbon:home", home);
+  }, [goTo]);
 
+  // Scrollspy: update the active section as the reader scrolls the window. A section
+  // becomes active once its heading passes just under the fixed chrome.
+  useEffect(() => {
     const handleScroll = () => {
       if (isUserScrolling.current) return;
-      const rect = el.getBoundingClientRect();
-      const threshold = rect.top + rect.height * 0.4;
       const chapter = chapters[activeRef.current.chapter];
       if (!chapter) return;
 
+      const threshold = CHROME + 48;
       let closestItem = 0;
       for (let i = 0; i < chapter.items.length; i++) {
-        const heading = el.querySelector(`#${CSS.escape(chapter.items[i].id)}`);
-        if (heading instanceof HTMLElement && heading.getBoundingClientRect().top <= threshold) {
+        const heading = document.getElementById(chapter.items[i].id);
+        if (heading && heading.getBoundingClientRect().top <= threshold) {
           closestItem = i;
         }
       }
       setActive((p) => (p.item === closestItem ? p : { ...p, item: closestItem }));
     };
 
-    el.addEventListener("scroll", handleScroll, { passive: true });
-    return () => el.removeEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [chapters, active.chapter]);
 
   return (
-    <Ctx.Provider value={{ active, goTo, registerScrollEl, chapters }}>{children}</Ctx.Provider>
+    <Ctx.Provider value={{ active, goTo, chapters }}>{children}</Ctx.Provider>
   );
 }
 

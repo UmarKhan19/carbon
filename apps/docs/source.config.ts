@@ -1,8 +1,16 @@
-import { defineConfig, defineDocs, frontmatterSchema } from "fumadocs-mdx/config";
+import { pageSchema } from "fumadocs-core/source/schema";
+import { defineConfig, defineDocs } from "fumadocs-mdx/config";
 import { z } from "zod";
 
 export const docs = defineDocs({
   dir: "content/docs",
+  docs: {
+    // Optional `plan` frontmatter — when set (e.g. "Business"), the page template
+    // renders a PlanBadge inline with the title to flag a paid-tier feature.
+    schema: pageSchema.extend({
+      plan: z.string().optional(),
+    }),
+  },
 });
 
 // The editorial Guide. Same MDX pipeline as the Reference, but each file is a
@@ -10,7 +18,7 @@ export const docs = defineDocs({
 export const guide = defineDocs({
   dir: "content/guides",
   docs: {
-    schema: frontmatterSchema.extend({
+    schema: pageSchema.extend({
       label: z.string(),
       index: z.number(),
       // Each chapter belongs to a flow (a self-contained tour). `flow` is the

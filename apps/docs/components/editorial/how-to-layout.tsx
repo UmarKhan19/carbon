@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { PageFeedback } from "@/components/api/page-feedback";
-import { ScrollArea } from "./custom-scrollbar";
+import { ReadingProgress } from "@/components/reading-progress";
 import { chaptersInFlow, useGuide } from "./guide-context";
 import { SidebarNav } from "./sidebar-nav";
 
@@ -33,7 +33,7 @@ function ChapterCard({ dir, title, onSelect }: { dir: "prev" | "next"; title: st
     >
       <FooterChevron dir={next ? "right" : "left"} />
       <span className="flex min-w-0 flex-1 flex-col">
-        <span className="font-[family-name:var(--font-mono)] text-[10.5px] font-[600] uppercase tracking-[0.08em] text-[rgba(38,35,35,0.5)]">
+        <span className="font-[family-name:var(--font-mono)] text-[10.5px] font-[600] uppercase tracking-[0.08em] text-[rgba(38,35,35,0.72)]">
           {next ? "Next" : "Previous"}
         </span>
         <span className="truncate text-[15px] font-[560] text-ink-ui transition-colors group-hover:text-[#262323]">
@@ -44,8 +44,66 @@ function ChapterCard({ dir, title, onSelect }: { dir: "prev" | "next"; title: st
   );
 }
 
+function PanelIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" className="shrink-0">
+      <rect x="1.75" y="2.75" width="12.5" height="10.5" rx="2.2" stroke="rgba(38,35,35,0.5)" strokeWidth="1.3" />
+      <path d="M6.25 3v10" stroke="rgba(38,35,35,0.5)" strokeWidth="1.3" />
+    </svg>
+  );
+}
+
+/** Mobile-only context bar — takes the slot the flow subnav holds on desktop. Shows
+ *  where you are (flow / chapter) and opens the nav drawer the header hamburger uses,
+ *  so the whole guide is one tap away without a row of chips. */
+function MobileContextBar({ flowName, title }: { flowName: string; title: string }) {
+  return (
+    <button
+      type="button"
+      onClick={() => window.dispatchEvent(new CustomEvent("carbon:open-mobile-nav"))}
+      className="fixed inset-x-0 top-[64px] z-[55] flex h-[52px] items-center min-[1000px]:hidden"
+      style={{ background: "#F5F5F2", borderBottom: "1px solid #E8E7E6", boxShadow: "0 1px 0 0 #fff" }}
+    >
+      {/* sr-only prefix keeps the visible flow/title text in the accessible name (Label in Name). */}
+      <span className="sr-only">Open contents: </span>
+      <span className="mx-auto flex w-full max-w-[1440px] items-center gap-[11px] px-[24px]">
+        <PanelIcon />
+        <span className="min-w-0 flex-1 truncate text-left text-[14px] font-[460] tracking-[0.15px] text-ink-ui">
+          <span className="text-ink-faint">{flowName}</span>
+          <span className="mx-[7px] text-[rgba(38,35,35,0.3)]">/</span>
+          {title}
+        </span>
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true" className="shrink-0">
+          <path
+            d="M3.5 5.5L7 9l3.5-3.5"
+            stroke="rgba(38,35,35,0.45)"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </span>
+    </button>
+  );
+}
+
+function ClockIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true" className="shrink-0">
+      <circle cx="7" cy="7" r="5.25" stroke="rgba(38,35,35,0.42)" strokeWidth="1.2" />
+      <path
+        d="M7 4.2V7l1.9 1.15"
+        stroke="rgba(38,35,35,0.42)"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export function HowToLayout({ bodies }: { bodies: ReactNode[] }) {
-  const { active, goTo, registerScrollEl, chapters } = useGuide();
+  const { active, goTo, chapters } = useGuide();
 
   const currentChapter = chapters[active.chapter];
   if (!currentChapter) return null;
@@ -58,91 +116,75 @@ export function HowToLayout({ bodies }: { bodies: ReactNode[] }) {
   const nextInFlow = flowChapters[posInFlow + 1];
 
   return (
-    <main
-      className="bg-[#F5F5F2] overflow-hidden min-h-0"
-      style={{ height: "100dvh", paddingTop: "116px" }}
-    >
-      <div className="mx-auto w-full max-w-[1440px] px-[20px] flex h-full min-h-0 overflow-hidden">
-        {/* Sidebar (desktop) */}
-        <div className="hidden min-[1000px]:flex shrink-0 w-[260px] flex-col overflow-y-auto scrollbar-hidden-until-scroll nav-scroll-fade pl-[50px] pr-[10px] pt-[40px] pb-[40px]">
+    <main className="min-h-screen bg-[#F5F5F2]" style={{ paddingTop: "116px" }}>
+      <MobileContextBar flowName={currentChapter.flowName} title={currentChapter.title} />
+      <div className="mx-auto flex w-full max-w-[1440px] px-[20px]">
+        {/* Sidebar (desktop) — sticky, self-start so it tracks the page scroll instead
+            of stretching; scrolls internally only if it outgrows the viewport. */}
+        <aside className="sticky top-[116px] hidden max-h-[calc(100dvh-116px)] w-[260px] shrink-0 self-start overflow-y-auto scrollbar-hidden-until-scroll nav-scroll-fade pb-[40px] pl-[50px] pr-[10px] pt-[40px] min-[1000px]:block">
           <SidebarNav chapters={chapters} active={active} onActiveChange={goTo} />
-        </div>
+        </aside>
 
-        {/* Content area */}
-        <div className="flex-1 min-w-0 flex flex-col min-h-0">
-          {/* Mobile chapter selector */}
-          <div className="min-[1000px]:hidden px-[20px] pt-[20px] pb-[10px]">
-            <div className="flex gap-[8px] overflow-x-auto scrollbar-none">
-              {flowChapters.map(({ chapter, index }) => (
-                <button
-                  key={chapter.slug}
-                  type="button"
-                  onClick={() => goTo({ chapter: index, item: 0 })}
-                  className={`shrink-0 whitespace-nowrap px-[14px] py-[8px] rounded-[8px] border-none cursor-pointer text-[14px] font-[460] tracking-[0.14px] transition-all duration-200 ${
-                    active.chapter === index
-                      ? "bg-[rgba(231,231,227,0.80)] text-ink-ui"
-                      : "bg-transparent text-ink-faint hover:bg-[rgba(231,231,227,0.40)]"
-                  }`}
-                >
-                  {chapter.title}
-                </button>
-              ))}
+        {/* Content — natural document flow. The window scrolls, so the footer only
+            appears once the reader reaches the true end of the chapter. The big left
+            indent eases off at xl, where the right-rail TOC fills that space instead. */}
+        <div className="min-w-0 flex-1 pb-[80px] pt-[28px] min-[476px]:pl-[32px] min-[640px]:pb-[120px] min-[640px]:pt-[44px] min-[1000px]:pl-[130px] min-[1000px]:pr-[20px] xl:pl-[80px] xl:pr-[40px]">
+          <div className="max-w-[620px]">
+            <div className="flex flex-wrap items-center gap-[12px]">
+              <span
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-[100px] px-[8px] py-[4px] font-[family-name:var(--font-mono)] text-[12px] font-medium leading-[16px] text-[rgba(38,35,35,0.72)]"
+                style={{
+                  background:
+                    "linear-gradient(180deg, rgba(251, 251, 248, 0.50) 0%, rgba(251, 251, 248, 0.00) 100%)",
+                  boxShadow:
+                    "0 0 0 1px #FFF inset, 0 0 0 1px rgba(0, 0, 0, 0.12), 0 2px 2px 0 rgba(0, 0, 0, 0.02)",
+                }}
+              >
+                {currentChapter.label} — {currentChapter.slug.toUpperCase()}
+              </span>
+              <span className="inline-flex items-center gap-[5px] font-[family-name:var(--font-mono)] text-[12px] leading-[16px] text-[rgba(38,35,35,0.42)]">
+                <ClockIcon />
+                {currentChapter.readingTime} min read
+              </span>
             </div>
-          </div>
 
-          {/* Main content with custom scrollbar */}
-          <div className="flex-1 min-h-0 flex">
-            <ScrollArea scrollbarOffset={20} onScrollElement={registerScrollEl}>
-              <div className="px-[20px] min-[476px]:pl-[32px] min-[1000px]:pl-[130px] min-[1000px]:pr-[20px] pb-[100px]">
-                <div className="max-w-[620px]">
-                  <div className="pt-[44px]">
-                    <span
-                      className="inline-flex items-center justify-center rounded-[100px] px-[8px] py-[4px] font-[family-name:var(--font-mono)] text-[12px] font-medium leading-[16px] text-[rgba(38,35,35,0.5)] whitespace-nowrap"
-                      style={{
-                        background:
-                          "linear-gradient(180deg, rgba(251, 251, 248, 0.50) 0%, rgba(251, 251, 248, 0.00) 100%)",
-                        boxShadow:
-                          "0 0 0 1px #FFF inset, 0 0 0 1px rgba(0, 0, 0, 0.12), 0 2px 2px 0 rgba(0, 0, 0, 0.02)",
-                      }}
-                    >
-                      {currentChapter.label} — {currentChapter.slug.toUpperCase()}
-                    </span>
-                  </div>
+            {/* MDX body for the active chapter */}
+            {bodies[active.chapter]}
 
-                  {/* MDX body for the active chapter */}
-                  {bodies[active.chapter]}
-
-                  {/* Footer — feedback + within-flow prev/next, matching the docs pages. */}
-                  <footer className="mt-[64px] border-t border-[rgba(38,35,35,0.12)] pt-[26px]">
-                    <PageFeedback key={active.chapter} variant="editorial" />
-                    {(prevInFlow || nextInFlow) && (
-                      <nav className="mt-[22px] grid grid-cols-1 gap-[12px] sm:grid-cols-2">
-                        <div>
-                          {prevInFlow && (
-                            <ChapterCard
-                              dir="prev"
-                              title={prevInFlow.chapter.title}
-                              onSelect={() => goTo({ chapter: prevInFlow.index, item: 0 })}
-                            />
-                          )}
-                        </div>
-                        <div>
-                          {nextInFlow && (
-                            <ChapterCard
-                              dir="next"
-                              title={nextInFlow.chapter.title}
-                              onSelect={() => goTo({ chapter: nextInFlow.index, item: 0 })}
-                            />
-                          )}
-                        </div>
-                      </nav>
+            {/* Footer — feedback + within-flow prev/next, matching the docs pages. */}
+            <footer className="mt-[64px] border-t border-[rgba(38,35,35,0.12)] pt-[26px]">
+              <PageFeedback key={active.chapter} variant="editorial" />
+              {(prevInFlow || nextInFlow) && (
+                <nav className="mt-[22px] grid grid-cols-1 gap-[12px] sm:grid-cols-2">
+                  <div>
+                    {prevInFlow && (
+                      <ChapterCard
+                        dir="prev"
+                        title={prevInFlow.chapter.title}
+                        onSelect={() => goTo({ chapter: prevInFlow.index, item: 0 })}
+                      />
                     )}
-                  </footer>
-                </div>
-              </div>
-            </ScrollArea>
+                  </div>
+                  <div>
+                    {nextInFlow && (
+                      <ChapterCard
+                        dir="next"
+                        title={nextInFlow.chapter.title}
+                        onSelect={() => goTo({ chapter: nextInFlow.index, item: 0 })}
+                      />
+                    )}
+                  </div>
+                </nav>
+              )}
+            </footer>
           </div>
         </div>
+
+        {/* Right-rail reading-progress ruler (≥xl). Stretches with the row so the
+            sticky ruler inside tracks scroll; the left sidebar keeps section nav. */}
+        <aside className="hidden w-[72px] shrink-0 justify-end pl-[16px] xl:flex">
+          <ReadingProgress />
+        </aside>
       </div>
     </main>
   );

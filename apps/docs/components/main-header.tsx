@@ -1,5 +1,8 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
+import { MobileNav } from "./mobile-nav";
 import { SearchCommand } from "./search/search-command";
+import { SiteLogo } from "./site-logo";
 
 const NAV = [
   { key: "guides", label: "Guides", href: "/guides/order" },
@@ -10,18 +13,21 @@ const NAV = [
 
 type Active = (typeof NAV)[number]["key"];
 
-/** The single site-wide header: Carbon · Guide · Reference · API · Open Carbon. */
-export function MainHeader({ active }: { active?: Active }) {
+/** The single site-wide header: Carbon · Guide · Reference · API · Open Carbon.
+ *  `mobileNav` is the current surface's section tree, surfaced in the hamburger
+ *  drawer below `lg` where the desktop sidebar is hidden. */
+export function MainHeader({ active, mobileNav }: { active?: Active; mobileNav?: ReactNode }) {
   return (
     <header
-      className="fixed inset-x-0 top-0 z-[60] flex h-[64px] items-center justify-between px-[24px] md:px-[32px]"
+      className="fixed inset-x-0 top-0 z-[60] h-[64px]"
       style={{ background: "#F5F5F2", borderBottom: "1px solid #E8E7E6", boxShadow: "0 1px 0 0 #fff" }}
     >
-      <div className="flex items-center gap-[26px]">
-        <Link href="/" className="flex shrink-0 items-center no-underline" aria-label="Carbon home">
-          <img src="/carbon-word-light.svg" alt="Carbon" width={99} height={24} className="block" />
-        </Link>
-        <nav className="hidden items-center gap-[2px] md:flex">
+      {/* Inner row capped to the content width so the logo/CTA don't drift to the
+          screen edges on large displays — aligns with the docs/api/mcp containers. */}
+      <div className="mx-auto flex h-full w-full max-w-[1480px] items-center justify-between px-[24px] md:px-[32px]">
+        <div className="flex items-center gap-[26px]">
+        <SiteLogo />
+        <nav className="hidden items-center gap-[2px] lg:flex">
           {NAV.map((item) => (
             <Link
               key={item.key}
@@ -42,7 +48,7 @@ export function MainHeader({ active }: { active?: Active }) {
       <div className="flex items-center gap-[10px]">
         <SearchCommand />
         <a
-          className="group relative inline-flex h-[40px] items-center justify-center rounded-[8px] px-[16px] no-underline"
+          className="group relative hidden h-[40px] items-center justify-center rounded-[8px] px-[16px] no-underline sm:inline-flex"
           href="https://app.carbon.ms"
         >
           <span aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-[8px] cta-btn-dark" />
@@ -52,6 +58,8 @@ export function MainHeader({ active }: { active?: Active }) {
           />
           <span className="text-on-dark relative z-10 text-[14px] font-[460] tracking-[0.15px]">Open Carbon</span>
         </a>
+        <MobileNav active={active}>{mobileNav}</MobileNav>
+        </div>
       </div>
     </header>
   );
