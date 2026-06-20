@@ -33,6 +33,7 @@
     "build": "turbo run build",
     "build:erp": "turbo run build --filter=erp",
     "build:mes": "turbo run build --filter=mes",
+    "build:docs": "turbo run build --filter=docs",
     "ci:migrations": "pnpm --filter ci ci:migrations",
     "ci:deploy": "pnpm --filter ci ci:deploy",
     "clean": "turbo run clean && rimraf ./node_modules && rimraf ./pnpm-lock.yaml",
