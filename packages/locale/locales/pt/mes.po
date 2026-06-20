@@ -722,6 +722,9 @@ msgstr "Apanhar"
 msgid "Pick tracked item"
 msgstr "Selecionar item rastreado"
 
+msgid "Picked"
+msgstr "Apanhado"
+
 msgid "Picked quantity"
 msgstr "Quantidade colhida"
 

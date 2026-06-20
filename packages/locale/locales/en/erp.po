@@ -2257,9 +2257,6 @@ msgstr "Default Method"
 msgid "Default Method Type"
 msgstr "Default Method Type"
 
-msgid "Default order when picking serial or batch lots of this item. Pickers can still override it."
-msgstr "Default order when picking serial or batch lots of this item. Pickers can still override it."
-
 msgid "Default Permissions"
 msgstr "Default Permissions"
 
@@ -5549,6 +5546,9 @@ msgstr "Open"
 msgid "Open Actions"
 msgstr "Open Actions"
 
+msgid "Open an NCR for MRB disposition"
+msgstr "Open an NCR for MRB disposition"
+
 msgid "Open Audit Log"
 msgstr "Open Audit Log"
 
@@ -6469,6 +6469,9 @@ msgstr "Record"
 msgid "Record deleted"
 msgstr "Record deleted"
 
+msgid "Record the inspection result for this sample."
+msgstr "Record the inspection result for this sample."
+
 msgid "Records"
 msgstr "Records"
 
@@ -6868,6 +6871,10 @@ msgstr "Sales Revenue"
 
 msgid "Sample"
 msgstr "Sample"
+
+#. placeholder {0}: idx + 1
+msgid "Sample {0}"
+msgstr "Sample {0}"
 
 msgid "Sample Size"
 msgstr "Sample Size"
@@ -7568,8 +7575,12 @@ msgstr "State / Province"
 
 #. placeholder {0}: lotEntities.length
 #. placeholder {1}: Math.max(0, lotEntities.length - inspected)
-msgid "Statistical acceptance failed, so the entire lot is considered non-conforming (ISO 9001:2015 §8.7). All {0} entities — {passes} sampled pass(es), {fails} failure(s), and {1} un-inspected — will be marked Rejected. An NCR will be opened automatically for MRB disposition."
-msgstr "Statistical acceptance failed, so the entire lot is considered non-conforming (ISO 9001:2015 §8.7). All {0} entities — {passes} sampled pass(es), {fails} failure(s), and {1} un-inspected — will be marked Rejected. An NCR will be opened automatically for MRB disposition."
+msgid "Statistical acceptance failed, so the entire lot is considered non-conforming (ISO 9001:2015 §8.7). All {0} entities — {passes} sampled pass(es), {fails} failure(s), and {1} un-inspected — will be marked Rejected."
+msgstr "Statistical acceptance failed, so the entire lot is considered non-conforming (ISO 9001:2015 §8.7). All {0} entities — {passes} sampled pass(es), {fails} failure(s), and {1} un-inspected — will be marked Rejected."
+
+#. placeholder {0}: inspection.lotSize
+msgid "Statistical acceptance failed, so the entire lot of {0} is considered non-conforming (ISO 9001:2015 §8.7) — {passes} sampled pass(es) and {fails} failure(s)."
+msgstr "Statistical acceptance failed, so the entire lot of {0} is considered non-conforming (ISO 9001:2015 §8.7) — {passes} sampled pass(es) and {fails} failure(s)."
 
 msgid "Status"
 msgstr "Status"
@@ -7932,8 +7943,14 @@ msgstr "The following line items are missing prices or lead times:"
 msgid "The latest date to place this PO so it arrives by the need-by date, given the supplier's lead time."
 msgstr "The latest date to place this PO so it arrives by the need-by date, given the supplier's lead time."
 
-msgid "The lot will still be rejected, but an NCR cannot be auto-created until at least one Issue Type is configured."
-msgstr "The lot will still be rejected, but an NCR cannot be auto-created until at least one Issue Type is configured."
+msgid "The lot stays open so you can keep inspecting and disposition later. Sampled outcomes are preserved."
+msgstr "The lot stays open so you can keep inspecting and disposition later. Sampled outcomes are preserved."
+
+msgid "The lot will be marked Passed. {fails} sampled failure(s) are recorded for your records."
+msgstr "The lot will be marked Passed. {fails} sampled failure(s) are recorded for your records."
+
+msgid "The lot will still be rejected, but an NCR cannot be created until at least one Issue Type is configured."
+msgstr "The lot will still be rejected, but an NCR cannot be created until at least one Issue Type is configured."
 
 msgid "The new version number of the method"
 msgstr "The new version number of the method"

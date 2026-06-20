@@ -549,8 +549,7 @@ const ToolProperties = ({ data }: ToolPropertiesProps) => {
           }}
         />
       </ValidatedForm>
-      {(routeData?.toolSummary?.itemTrackingType === "Serial" ||
-        routeData?.toolSummary?.itemTrackingType === "Batch") && (
+      {routeData?.toolSummary?.replenishmentSystem?.includes("Buy") && (
         <ValidatedForm
           defaultValues={{
             requiresInspection:

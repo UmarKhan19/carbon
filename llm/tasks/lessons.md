@@ -3,10 +3,27 @@
 Patterns learned from corrections. Review at the start of each session.
 
 ## A "word"/wordmark logo SVG may be a full lockup (mark + text), not text-only
-
 - Don't infer an SVG's composition by diffing path `d=` strings. An embedded mark inside a lockup has **different coordinates** than the standalone mark file, so a substring match returns "no mark" even when the mark IS present. Hit this with `apps/docs/public/carbon-word-light.svg`: its first path is the hexagon mark (at different coords than `carbon-mark-light.svg`), followed by 6 letter paths for "carbon". I concluded "text-only", paired it with a separate mark `<img>`, and produced a **double mark** in the header.
 - Verify what an SVG actually renders by **viewing/rendering it**, not by reasoning over path data.
 - Carbon brand assets in `apps/docs/public/`: `carbon-mark-*` = hexagon only; `carbon-word-*` = full lockup (mark + "carbon" wordmark). `*-light` = dark ink `#101A24` (use on light backgrounds); `*-dark` = light ink `#E6E6E6` (use on dark backgrounds).
+
+## Cancelling a pickingList does NOT cascade `Cancelled` to its lines
+- Symptom: a "picked X/Y" rollup over `pickingListLine` summed too high — a
+  Cancelled picking list's lines were still `status = 'Pending'` and got counted.
+- Root cause: cancelling the LIST leaves each `pickingListLine.status` unchanged.
+- Rule: when aggregating `pickingListLine` (picked qty, allocations, availability),
+  filter by the PARENT `pickingList.status` (count only `In Progress`/`Completed`),
+  not just the line's own status. A line-level `status <> 'Cancelled'` check is
+  NOT sufficient. Likely also relevant to `getAvailableTrackedEntities`
+  (excludeAllocated) and the `get_picking_list_*` RPCs.
+
+## Verify data-scope bugs against the real DB before guessing
+- The local dev DB for `*.picking-list.dev` is Postgres on the port in
+  `.env.local` `SUPABASE_DB_URL` (e.g. 56332). `PGPASSWORD=postgres psql -h
+  localhost -p <port> -U postgres -d postgres` to inspect rows directly — far
+  faster than the browser for confirming a counting/scope discrepancy.
+- Inbucket (dev email catcher) web/API is a docker port-mapped 9000 → find with
+  `docker ps | grep inbucket` (e.g. localhost:56335). Use it for magic-link login.
 
 ## `*.picking-list.dev` is the LOCAL dev server (crbn + portless)
 

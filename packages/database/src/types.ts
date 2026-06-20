@@ -12142,7 +12142,7 @@ export type Database = {
           inspectedBy: string | null
           notes: string | null
           status: Database["public"]["Enums"]["inboundInspectionSampleStatus"]
-          trackedEntityId: string
+          trackedEntityId: string | null
           updatedAt: string | null
           updatedBy: string | null
         }
@@ -12156,7 +12156,7 @@ export type Database = {
           inspectedBy?: string | null
           notes?: string | null
           status?: Database["public"]["Enums"]["inboundInspectionSampleStatus"]
-          trackedEntityId: string
+          trackedEntityId?: string | null
           updatedAt?: string | null
           updatedBy?: string | null
         }
@@ -12170,7 +12170,7 @@ export type Database = {
           inspectedBy?: string | null
           notes?: string | null
           status?: Database["public"]["Enums"]["inboundInspectionSampleStatus"]
-          trackedEntityId?: string
+          trackedEntityId?: string | null
           updatedAt?: string | null
           updatedBy?: string | null
         }
@@ -65520,6 +65520,19 @@ export type Database = {
           pickingListLineId: string
         }[]
       }
+      get_picking_list_tracked_available: {
+        Args: { p_picking_list_id: string }
+        Returns: {
+          availableQuantity: number
+          createdAt: string
+          expirationDate: string
+          itemId: string
+          readableId: string
+          storageUnitId: string
+          storageUnitName: string
+          trackedEntityId: string
+        }[]
+      }
       get_picking_schedule: {
         Args: { p_company_id: string; p_location_id: string; p_search?: string }
         Returns: {
@@ -66827,6 +66840,7 @@ export type Database = {
         | "Purchase Order"
         | "Maintenance Consumption"
         | "Non-Conformance"
+        | "Inbound Inspection"
       itemLedgerType:
         | "Purchase"
         | "Sale"
@@ -68116,6 +68130,7 @@ export const Constants = {
         "Purchase Order",
         "Maintenance Consumption",
         "Non-Conformance",
+        "Inbound Inspection",
       ],
       itemLedgerType: [
         "Purchase",
