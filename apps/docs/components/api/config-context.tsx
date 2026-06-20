@@ -106,8 +106,8 @@ export function applyConfig(text: string, base: string, apiKey: string, html = f
   if (apiKey) {
     if (html) {
       const keyEsc = escapeHtml(apiKey);
-      // Shiki may encode the placeholder's angle brackets as hex (&#x3C;), decimal
-      // (&#60;), or named (&lt;) entities — substitute whichever form is present.
+      // Shiki encodes the placeholder's angle brackets as hex entities (&#x3C;);
+      // also cover decimal (&#60;) and named (&lt;) so substitution is encoding-proof.
       for (const needle of ["&#x3C;api-key&#x3E;", "&#60;api-key&#62;", "&lt;api-key&gt;"]) {
         out = out.split(needle).join(keyEsc);
       }
