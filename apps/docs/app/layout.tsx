@@ -117,7 +117,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: jsonLd }}
-          />
+        />
         <link
           rel="icon"
           type="image/svg+xml"
