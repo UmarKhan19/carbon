@@ -722,6 +722,9 @@ msgstr "Pick"
 msgid "Pick tracked item"
 msgstr "Pick tracked item"
 
+msgid "Picked"
+msgstr "Picked"
+
 msgid "Picked quantity"
 msgstr "Picked quantity"
 

@@ -71,7 +71,7 @@ msgid "+{0} more"
 msgstr "+{0} mais"
 
 msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
-msgstr ""
+msgstr "<0>Adicionar uma peça de fornecedor</0> para este item para definir um fornecedor preferido."
 
 msgid "<0>delete</0> lets you delete rows. <1>delete</1> will match all rows by default, so remember to specify your filters!"
 msgstr "<0>delete</0> permite que você delete linhas. <1>delete</1> corresponderá a todas as linhas por padrão, então lembre-se de especificar seus filtros!"
@@ -2256,9 +2256,6 @@ msgstr "Método Padrão"
 
 msgid "Default Method Type"
 msgstr "Tipo de Método Padrão"
-
-msgid "Default order when picking serial or batch lots of this item. Pickers can still override it."
-msgstr "Ordem padrão ao selecionar lotes seriais ou em lote deste item. Os operadores ainda podem substituí-la."
 
 msgid "Default Permissions"
 msgstr "Permissões Padrão"
@@ -5421,7 +5418,7 @@ msgid "No stock"
 msgstr "Sem stock"
 
 msgid "No suppliers yet"
-msgstr ""
+msgstr "Nenhum fornecedor ainda"
 
 msgid "No time entries for this week"
 msgstr "Sem registros de tempo para esta semana"
@@ -7258,6 +7255,9 @@ msgstr "Formas"
 
 msgid "Share"
 msgstr "Partilhar"
+
+msgid "Share a branded portal link so customers can track their orders and documents."
+msgstr "Compartilhe um link de portal personalizado para que os clientes possam rastrear seus pedidos e documentos."
 
 msgid "Share Link"
 msgstr "Compartilhar Link"

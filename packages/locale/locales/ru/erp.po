@@ -71,7 +71,7 @@ msgid "+{0} more"
 msgstr "+{0} ещё"
 
 msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
-msgstr ""
+msgstr "<0>Добавить поставщика</0> для этого товара, чтобы установить предпочтительного поставщика."
 
 msgid "<0>delete</0> lets you delete rows. <1>delete</1> will match all rows by default, so remember to specify your filters!"
 msgstr "<0>delete</0> позволяет удалять строки. <1>delete</1> по умолчанию совпадает со всеми строками, поэтому не забудьте указать фильтры!"
@@ -2256,9 +2256,6 @@ msgstr "Метод по умолчанию"
 
 msgid "Default Method Type"
 msgstr "Тип метода по умолчанию"
-
-msgid "Default order when picking serial or batch lots of this item. Pickers can still override it."
-msgstr "Порядок по умолчанию при выборе серийных или партионных лотов этого товара. Комплектовщики могут переопределить его."
 
 msgid "Default Permissions"
 msgstr "Разрешения по умолчанию"
@@ -5421,7 +5418,7 @@ msgid "No stock"
 msgstr "Нет запасов"
 
 msgid "No suppliers yet"
-msgstr ""
+msgstr "Поставщиков еще нет"
 
 msgid "No time entries for this week"
 msgstr "Нет записей о времени на эту неделю"
@@ -7258,6 +7255,9 @@ msgstr "Формы"
 
 msgid "Share"
 msgstr "Поделиться"
+
+msgid "Share a branded portal link so customers can track their orders and documents."
+msgstr "Поделитесь ссылкой на фирменный портал, чтобы клиенты могли отслеживать свои заказы и документы."
 
 msgid "Share Link"
 msgstr "Поделиться ссылкой"

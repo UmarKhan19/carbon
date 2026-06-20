@@ -663,6 +663,8 @@ function MaterialForm({
     quantity: number;
     kit: boolean;
     storageUnitIds: Record<string, string>;
+    requiresBatchTracking: boolean;
+    requiresSerialTracking: boolean;
     itemReplenishmentSystem: string;
   }>({
     itemId: item.data.itemId ?? "",
@@ -674,6 +676,8 @@ function MaterialForm({
     quantity: item.data.quantity ?? 1,
     kit: item.data.kit ?? false,
     storageUnitIds: item.data.storageUnitIds ?? {},
+    requiresBatchTracking: item.data.item?.itemTrackingType === "Batch",
+    requiresSerialTracking: item.data.item?.itemTrackingType === "Serial",
     itemReplenishmentSystem:
       item.data.item?.replenishmentSystem ?? replenishmentSystem ?? "Buy"
   });
@@ -692,6 +696,8 @@ function MaterialForm({
       kit: false,
       storageUnitIds: {},
       methodOperationId: undefined,
+      requiresBatchTracking: false,
+      requiresSerialTracking: false,
       itemReplenishmentSystem: replenishmentSystem ?? "Buy"
     });
   };
@@ -706,7 +712,7 @@ function MaterialForm({
     const item = await carbon
       .from("item")
       .select(
-        "name, readableIdWithRevision, type, unitOfMeasureCode, defaultMethodType, sourcingType, replenishmentSystem"
+        "name, readableIdWithRevision, type, unitOfMeasureCode, defaultMethodType, sourcingType, replenishmentSystem, itemTrackingType"
       )
       .eq("id", itemId)
       .eq("companyId", company.id)
@@ -727,6 +733,8 @@ function MaterialForm({
       methodType: item.data?.defaultMethodType ?? "Pull from Inventory",
       sourcingType: item.data?.sourcingType ?? "Specified",
       kit: false,
+      requiresBatchTracking: item.data?.itemTrackingType === "Batch",
+      requiresSerialTracking: item.data?.itemTrackingType === "Serial",
       itemReplenishmentSystem: item.data?.replenishmentSystem ?? "Buy"
     }));
     if (item.data?.type) {
@@ -735,6 +743,9 @@ function MaterialForm({
   };
 
   const key = (field: string) => getFieldKey(field, item.id);
+
+  const isTracked =
+    itemData.requiresBatchTracking || itemData.requiresSerialTracking;
 
   return (
     <ValidatedForm
@@ -1026,7 +1037,7 @@ function MaterialForm({
         >
           <HStack>
             <LuGitPullRequestCreateArrow />
-            <Label>Backflush</Label>
+            <Label>{isTracked ? t`Operation` : t`Backflush`}</Label>
           </HStack>
           <HStack>
             <Badge
@@ -1045,8 +1056,8 @@ function MaterialForm({
               icon={<LuChevronRight />}
               aria-label={
                 backflushDisclosure.isOpen
-                  ? "Collapse Backflush"
-                  : "Expand Backflush"
+                  ? "Collapse Operation"
+                  : "Expand Operation"
               }
               variant="ghost"
               size="md"
