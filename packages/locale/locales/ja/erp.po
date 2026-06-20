@@ -2254,9 +2254,6 @@ msgstr "デフォルト方法"
 msgid "Default Method Type"
 msgstr "デフォルトメソッドタイプ"
 
-msgid "Default order when picking serial or batch lots of this item. Pickers can still override it."
-msgstr "このアイテムのシリアルまたはバッチロットをピッキングする際のデフォルト順序。ピッカーはそれでも上書きできます。"
-
 msgid "Default Permissions"
 msgstr "デフォルト権限"
 

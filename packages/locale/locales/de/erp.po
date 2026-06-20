@@ -2254,9 +2254,6 @@ msgstr "Standardmethode"
 msgid "Default Method Type"
 msgstr "Standardmethodentyp"
 
-msgid "Default order when picking serial or batch lots of this item. Pickers can still override it."
-msgstr "Standardreihenfolge beim Kommissionieren von Serien- oder Chargenlosen dieses Artikels. Kommissionierer können diese noch überschreiben."
-
 msgid "Default Permissions"
 msgstr "Standardberechtigungen"
 

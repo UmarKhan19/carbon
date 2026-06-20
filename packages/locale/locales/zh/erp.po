@@ -2254,9 +2254,6 @@ msgstr "默认方法"
 msgid "Default Method Type"
 msgstr "默认方法类型"
 
-msgid "Default order when picking serial or batch lots of this item. Pickers can still override it."
-msgstr "拣选此物品的序列号或批次时的默认顺序。拣选员仍可以覆盖它。"
-
 msgid "Default Permissions"
 msgstr "默认权限"
 

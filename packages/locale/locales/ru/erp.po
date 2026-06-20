@@ -2254,9 +2254,6 @@ msgstr "Метод по умолчанию"
 msgid "Default Method Type"
 msgstr "Тип метода по умолчанию"
 
-msgid "Default order when picking serial or batch lots of this item. Pickers can still override it."
-msgstr "Порядок по умолчанию при выборе серийных или партионных лотов этого товара. Комплектовщики могут переопределить его."
-
 msgid "Default Permissions"
 msgstr "Разрешения по умолчанию"
 

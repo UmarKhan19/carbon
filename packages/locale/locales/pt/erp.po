@@ -2254,9 +2254,6 @@ msgstr "Método Padrão"
 msgid "Default Method Type"
 msgstr "Tipo de Método Padrão"
 
-msgid "Default order when picking serial or batch lots of this item. Pickers can still override it."
-msgstr "Ordem padrão ao selecionar lotes seriais ou em lote deste item. Os operadores ainda podem substituí-la."
-
 msgid "Default Permissions"
 msgstr "Permissões Padrão"
 

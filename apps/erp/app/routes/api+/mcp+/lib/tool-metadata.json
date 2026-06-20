@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-16T19:30:33.494Z",
-  "totalTools": 1207,
+  "generated": "2026-06-20T00:13:41.606Z",
+  "totalTools": 1208,
   "modules": 15,
   "tools": [
     {
@@ -6185,6 +6185,31 @@
       "module": "inventory",
       "classification": "READ",
       "description": "get picking list availability",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "pickingListId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "pickingListId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "pickingListId"
+        ]
+      }
+    },
+    {
+      "name": "inventory_getPickingListRecommendations",
+      "module": "inventory",
+      "classification": "READ",
+      "description": "get picking list recommendations",
       "paramCount": 1,
       "serviceParams": [
         "client",

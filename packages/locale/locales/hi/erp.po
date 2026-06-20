@@ -2254,9 +2254,6 @@ msgstr "डिफ़ॉल्ट विधि"
 msgid "Default Method Type"
 msgstr "डिफ़ॉल्ट विधि प्रकार"
 
-msgid "Default order when picking serial or batch lots of this item. Pickers can still override it."
-msgstr "इस आइटम के सीरियल या बैच लॉट्स को चुनते समय डिफ़ॉल्ट ऑर्डर। पिकर्स इसे अभी भी ओवरराइड कर सकते हैं।"
-
 msgid "Default Permissions"
 msgstr "डिफ़ॉल्ट अनुमतियाँ"
 

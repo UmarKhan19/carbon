@@ -2254,9 +2254,6 @@ msgstr "Default Method"
 msgid "Default Method Type"
 msgstr "Default Method Type"
 
-msgid "Default order when picking serial or batch lots of this item. Pickers can still override it."
-msgstr "Default order when picking serial or batch lots of this item. Pickers can still override it."
-
 msgid "Default Permissions"
 msgstr "Default Permissions"
 

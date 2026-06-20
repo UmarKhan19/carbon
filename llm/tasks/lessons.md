@@ -2,6 +2,24 @@
 
 Patterns learned from corrections. Review at the start of each session.
 
+## Cancelling a pickingList does NOT cascade `Cancelled` to its lines
+- Symptom: a "picked X/Y" rollup over `pickingListLine` summed too high — a
+  Cancelled picking list's lines were still `status = 'Pending'` and got counted.
+- Root cause: cancelling the LIST leaves each `pickingListLine.status` unchanged.
+- Rule: when aggregating `pickingListLine` (picked qty, allocations, availability),
+  filter by the PARENT `pickingList.status` (count only `In Progress`/`Completed`),
+  not just the line's own status. A line-level `status <> 'Cancelled'` check is
+  NOT sufficient. Likely also relevant to `getAvailableTrackedEntities`
+  (excludeAllocated) and the `get_picking_list_*` RPCs.
+
+## Verify data-scope bugs against the real DB before guessing
+- The local dev DB for `*.picking-list.dev` is Postgres on the port in
+  `.env.local` `SUPABASE_DB_URL` (e.g. 56332). `PGPASSWORD=postgres psql -h
+  localhost -p <port> -U postgres -d postgres` to inspect rows directly — far
+  faster than the browser for confirming a counting/scope discrepancy.
+- Inbucket (dev email catcher) web/API is a docker port-mapped 9000 → find with
+  `docker ps | grep inbucket` (e.g. localhost:56335). Use it for magic-link login.
+
 ## `*.picking-list.dev` is the LOCAL dev server (crbn + portless)
 
 - The domains `erp.picking-list.dev`, `mes.picking-list.dev`, `api.picking-list.dev`, and `mail.picking-list.dev` (Inbucket) are **not** a remote/preview deployment. They are the **local** dev server that the `crbn` dev CLI spins up for the branch and exposes via **portless** (which maps the branch's local dev processes to those domains).
