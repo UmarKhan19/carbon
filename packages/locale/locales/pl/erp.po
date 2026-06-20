@@ -71,7 +71,7 @@ msgid "+{0} more"
 msgstr "+{0} więcej"
 
 msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
-msgstr ""
+msgstr "<0>Dodaj część dostawcy</0> dla tego artykułu, aby ustawić preferowanego dostawcę."
 
 msgid "<0>delete</0> lets you delete rows. <1>delete</1> will match all rows by default, so remember to specify your filters!"
 msgstr "<0>delete</0> pozwala usuwać wiersze. <1>delete</1> domyślnie będzie pasować do wszystkich wierszy, więc pamiętaj, aby określić swoje filtry!"
@@ -5421,7 +5421,7 @@ msgid "No stock"
 msgstr "Brak zapasu"
 
 msgid "No suppliers yet"
-msgstr ""
+msgstr "Brak dostawców"
 
 msgid "No time entries for this week"
 msgstr "Brak wpisów czasu pracy w tym tygodniu"
@@ -5550,7 +5550,7 @@ msgid "Open Actions"
 msgstr "Otwarte Działania"
 
 msgid "Open an NCR for MRB disposition"
-msgstr ""
+msgstr "Otwórz NCR do dyspozycji MRB"
 
 msgid "Open Audit Log"
 msgstr "Otwórz dziennik audytu"
@@ -6473,7 +6473,7 @@ msgid "Record deleted"
 msgstr "Rekord usunięty"
 
 msgid "Record the inspection result for this sample."
-msgstr ""
+msgstr "Zarejestruj wynik inspekcji dla tej próbki."
 
 msgid "Records"
 msgstr "Rekordy"
@@ -6877,7 +6877,7 @@ msgstr "Próbka"
 
 #. placeholder {0}: idx + 1
 msgid "Sample {0}"
-msgstr ""
+msgstr "Próbka {0}"
 
 msgid "Sample Size"
 msgstr "Rozmiar próbki"
@@ -7270,7 +7270,7 @@ msgid "Share"
 msgstr "Udostępnij"
 
 msgid "Share a branded portal link so customers can track their orders and documents."
-msgstr ""
+msgstr "Udostępnij link do portalu ze swoją marką, aby klienci mogli śledzić swoje zamówienia i dokumenty."
 
 msgid "Share Link"
 msgstr "Udostępnij Link"
@@ -7579,11 +7579,11 @@ msgstr "Stan / Prowincja"
 #. placeholder {0}: lotEntities.length
 #. placeholder {1}: Math.max(0, lotEntities.length - inspected)
 msgid "Statistical acceptance failed, so the entire lot is considered non-conforming (ISO 9001:2015 §8.7). All {0} entities — {passes} sampled pass(es), {fails} failure(s), and {1} un-inspected — will be marked Rejected."
-msgstr ""
+msgstr "Akceptacja statystyczna nie powiodła się, dlatego cała partia jest uważana za niezgodną (ISO 9001:2015 §8.7). Wszystkie {0} jednostki — {passes} przebadane pozytywnie, {fails} niepowodzenie(nia) i {1} niezbadane — zostaną oznaczone jako Odrzucone."
 
 #. placeholder {0}: inspection.lotSize
 msgid "Statistical acceptance failed, so the entire lot of {0} is considered non-conforming (ISO 9001:2015 §8.7) — {passes} sampled pass(es) and {fails} failure(s)."
-msgstr ""
+msgstr "Akceptacja statystyczna nie powiodła się, dlatego cała partia {0} jest uważana za niezgodną (ISO 9001:2015 §8.7) — {passes} przebadanych pozytywnie i {fails} niepowodzenie(ń)."
 
 msgid "Status"
 msgstr "Status"
@@ -7947,13 +7947,13 @@ msgid "The latest date to place this PO so it arrives by the need-by date, given
 msgstr "Najnowsza data złożenia tego zamówienia, aby dotarło do daty wymaganej, biorąc pod uwagę czas realizacji dostawcy."
 
 msgid "The lot stays open so you can keep inspecting and disposition later. Sampled outcomes are preserved."
-msgstr ""
+msgstr "Partia pozostaje otwarta, aby można było kontynuować inspekcję i podjąć decyzję później. Wyniki próbek są zachowywane."
 
 msgid "The lot will be marked Passed. {fails} sampled failure(s) are recorded for your records."
-msgstr ""
+msgstr "Lot zostanie oznaczony jako Zaakceptowany. {fails} próbkowanych niepowodzeń zostało zarejestrowanych dla Twoich rejestrów."
 
 msgid "The lot will still be rejected, but an NCR cannot be created until at least one Issue Type is configured."
-msgstr ""
+msgstr "Partia będzie nadal odrzucona, ale nie można utworzyć NCR, dopóki nie zostanie skonfigurowany co najmniej jeden typ problemu."
 
 msgid "The new version number of the method"
 msgstr "Nowy numer wersji metody"
