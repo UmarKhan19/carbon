@@ -119,6 +119,9 @@ export function GuideProvider({
       const prev = activeRef.current;
       const isNewChapter = pos.chapter !== prev.chapter;
       const anchor = chapter.items[pos.item]?.id ?? "";
+      // Mirror the active section in the URL so a sidebar click is shareable: land on
+      // /guides/<slug>#<section-id> (or bare /guides/<slug> for a chapter with no ##).
+      const url = anchor ? `/guides/${chapter.slug}#${anchor}` : `/guides/${chapter.slug}`;
 
       // Suppress the scrollspy while we drive the scroll programmatically.
       isUserScrolling.current = true;
@@ -130,6 +133,7 @@ export function GuideProvider({
       if (!isNewChapter) {
         // Same chapter — just glide to the section, no transition.
         setActive(pos);
+        window.history.replaceState(null, "", url);
         requestAnimationFrame(() => scrollToAnchor(anchor, true));
         return;
       }
@@ -154,7 +158,7 @@ export function GuideProvider({
         apply();
       }
 
-      window.history.replaceState(null, "", `/guides/${chapter.slug}`);
+      window.history.replaceState(null, "", url);
     },
     [chapters, scrollToAnchor],
   );
