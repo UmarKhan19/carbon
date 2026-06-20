@@ -71,7 +71,7 @@ msgid "+{0} more"
 msgstr "+{0} de plus"
 
 msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
-msgstr ""
+msgstr "<0>Ajouter une pièce fournisseur</0> pour cet article afin de définir un fournisseur préféré."
 
 msgid "<0>delete</0> lets you delete rows. <1>delete</1> will match all rows by default, so remember to specify your filters!"
 msgstr "<0>delete</0> vous permet de supprimer des lignes. <1>delete</1> correspondra à toutes les lignes par défaut, alors n'oubliez pas de spécifier vos filtres !"
@@ -5418,7 +5418,7 @@ msgid "No stock"
 msgstr "Aucun stock"
 
 msgid "No suppliers yet"
-msgstr ""
+msgstr "Aucun fournisseur pour le moment"
 
 msgid "No time entries for this week"
 msgstr "Aucune entrée de temps pour cette semaine"
@@ -7257,7 +7257,7 @@ msgid "Share"
 msgstr "Partager"
 
 msgid "Share a branded portal link so customers can track their orders and documents."
-msgstr ""
+msgstr "Partagez un lien de portail personnalisé pour que les clients puissent suivre leurs commandes et documents."
 
 msgid "Share Link"
 msgstr "Lien de partage"

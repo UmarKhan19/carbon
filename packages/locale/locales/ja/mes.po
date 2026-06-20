@@ -723,7 +723,7 @@ msgid "Pick tracked item"
 msgstr "追跡品目をピック"
 
 msgid "Picked"
-msgstr ""
+msgstr "ピック済み"
 
 msgid "Picked quantity"
 msgstr "ピック数量"

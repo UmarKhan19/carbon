@@ -71,7 +71,7 @@ msgid "+{0} more"
 msgstr "+{0} 件以上"
 
 msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
-msgstr ""
+msgstr "<0>サプライヤー部品を追加</0>このアイテムの優先サプライヤーを設定します。"
 
 msgid "<0>delete</0> lets you delete rows. <1>delete</1> will match all rows by default, so remember to specify your filters!"
 msgstr "<0>delete</0>を使用すると行を削除できます。<1>delete</1>はデフォルトではすべての行にマッチするため、フィルターを指定することを忘れないでください。"
@@ -5418,7 +5418,7 @@ msgid "No stock"
 msgstr "在庫なし"
 
 msgid "No suppliers yet"
-msgstr ""
+msgstr "まだサプライヤーがありません"
 
 msgid "No time entries for this week"
 msgstr "今週のタイムエントリがありません"
@@ -7257,7 +7257,7 @@ msgid "Share"
 msgstr "共有"
 
 msgid "Share a branded portal link so customers can track their orders and documents."
-msgstr ""
+msgstr "ブランド化されたポータルリンクを共有して、顧客が注文と書類を追跡できるようにします。"
 
 msgid "Share Link"
 msgstr "リンクを共有"

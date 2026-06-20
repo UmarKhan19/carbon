@@ -723,7 +723,7 @@ msgid "Pick tracked item"
 msgstr "Выбрать отслеживаемый товар"
 
 msgid "Picked"
-msgstr ""
+msgstr "Подобрано"
 
 msgid "Picked quantity"
 msgstr "Выбранное количество"

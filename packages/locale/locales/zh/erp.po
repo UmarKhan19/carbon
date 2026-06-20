@@ -71,7 +71,7 @@ msgid "+{0} more"
 msgstr "+{0} 更多"
 
 msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
-msgstr ""
+msgstr "<0>为此项目添加供应商零件</0>以设置首选供应商。"
 
 msgid "<0>delete</0> lets you delete rows. <1>delete</1> will match all rows by default, so remember to specify your filters!"
 msgstr "<0>delete</0> 让您删除行。<1>delete</1> 默认会匹配所有行，所以请记住指定您的过滤条件！"
@@ -5418,7 +5418,7 @@ msgid "No stock"
 msgstr "无库存"
 
 msgid "No suppliers yet"
-msgstr ""
+msgstr "还没有供应商"
 
 msgid "No time entries for this week"
 msgstr "本周没有时间条目"
@@ -7257,7 +7257,7 @@ msgid "Share"
 msgstr "分享"
 
 msgid "Share a branded portal link so customers can track their orders and documents."
-msgstr ""
+msgstr "分享品牌门户链接，让客户可以跟踪他们的订单和文档。"
 
 msgid "Share Link"
 msgstr "分享链接"
