@@ -1,154 +1,119 @@
-# Phase 5 — Component catalog
+# Component catalog (real, current)
 
-The vocabulary you write docs *with*. Two sets: Fumadocs built-ins (use for the Reference surface and
-standard needs) and the Carbon bespoke components (use for the editorial Guide surface). Register both in
-`mdx-components.tsx` so authors can use them in any `.mdx` page without per-file imports.
+The MDX vocabulary, per surface. These are the components that **actually ship** in `apps/docs` — read the
+live source if anything here looks off (`components/editorial/mdx.tsx`, `components/editorial/reference-components.tsx`,
+`components/mdx.tsx`, `components/editorial/illustrations.tsx`). The Guide and Reference surfaces have
+**different** component sets and even a **different `Callout` API** — don't mix them.
 
-## Registering components globally
+> Legacy note: the old version of this file listed `ReadingProgress`, `ChapterNav`, `ScrollReveal`,
+> `FeatureCallout`, `Checklist`, `Frame`, `TypeTable`, `Eyebrow`. **None of those are used by the shipped
+> docs.** Ignore them; use what's below.
 
-```tsx
-// mdx-components.tsx
-import defaultComponents from "fumadocs-ui/mdx";
-import { Card, Cards } from "fumadocs-ui/components/card";
-import { Callout } from "fumadocs-ui/components/callout";
-import { Tab, Tabs } from "fumadocs-ui/components/tabs";
-import { Step, Steps } from "fumadocs-ui/components/steps";
-import { Accordion, Accordions } from "fumadocs-ui/components/accordion";
-import { TypeTable } from "fumadocs-ui/components/type-table";
-// Carbon bespoke (assets/templates/components/*)
-import { ReadingProgress } from "@/components/reading-progress";
-import { ScrollReveal } from "@/components/scroll-reveal";
-import { ChapterNav } from "@/components/chapter-nav";
-import { FeatureCallout } from "@/components/feature-callout";
-import { Checklist, Check } from "@/components/checklist";
-import { Frame } from "@/components/frame";
-import { Eyebrow } from "@/components/prose";
+---
 
-export function getMDXComponents(components) {
-  return {
-    ...defaultComponents,
-    Card, Cards, Callout, Tab, Tabs, Step, Steps, Accordion, Accordions, TypeTable,
-    ScrollReveal, FeatureCallout, Checklist, Check, Frame, Eyebrow,
-    ...components,
-  };
-}
+## Guide surface — `content/guides/*.mdx`
+
+Registered in `components/editorial/mdx.tsx` (markdown elements get warm-paper prose styling; these four
+carry the structured pieces). **No code fences in guides.**
+
+### `<Figure>`
+SVG diagram from the illustration registry.
+```mdx
+<Figure illustration="flow-overview" caption="The path one order travels through Carbon." />
 ```
+- `illustration: IllustrationKey` (**required, must be a real key**), `caption?: string`.
+- Valid keys (`components/editorial/illustrations.tsx`): `flow-overview`, `order-split`, `bom-tree`,
+  `demand-forecast`, `planning-engine`, `shopfloor-loop`, `eight-d`, `traceability-graph`, `method-types`,
+  `kit-vs-subassembly`, `reorder-policy`, `outside-processing`, `mes-station`, `issue-workflow`,
+  `schedule-board`, `get-method`, `conversion-factor`.
+- A non-existent key renders **nothing, silently**. If no key fits your topic, use `<Screenshot>` instead —
+  do not invent keys, and don't author a new SVG unless asked (they're hand-built components).
 
-(`ReadingProgress` and `ChapterNav` are layout pieces — mount them in the Guide layout, not inside MDX.)
+### `<Screenshot>`
+Placeholder frame for a real Carbon screen — no image asset required.
+```mdx
+<Screenshot label="Sales order dashboard" caption="The 90-unit robot order, with its three-week schedule." ratio="wide" />
+```
+- `label: string` (required), `caption?: string`, `ratio?: "wide" | "tall" | "square"` (default `wide` = 16/9).
+- This is the default visual in new content — most new chapters lean on `<Screenshot>` + `<Callout>` and use
+  `<Figure>` only where a registry key genuinely fits.
 
-## Fumadocs built-ins — use for Reference + standard needs
+### `<Callout>` (Guide API — tone + badge)
+The workhorse. Carry the **Carbon-specific truth a generic description gets wrong**.
+```mdx
+<Callout tone="amber" badge="POSTING ≠ CREATING" title="Posting moves inventory and the order — and stops there.">
+A posted shipment decrements stock and advances the order; it does **not** create the invoice. Fulfillment
+and billing are deliberately separate steps.
+</Callout>
+```
+- `tone: "neutral" | "blue" | "green" | "amber"`, `badge: string` (short, SCREAMING-CASE), `title: string`,
+  `children`.
+- Tone usage: **blue** = explanatory "why" / context; **green** = good-to-know / outcome; **amber** =
+  caution / contrast / gotcha; **neutral** = definitional.
+- Body is wrapped in a `<div>` (not `<p>`) — fine to use **one** paragraph of children. Title is a *claim*,
+  body is the *why*.
 
-**Cards / Card** — overview fan-out and link grids. The backbone of every Overview page.
+### `<Divider />`
+Hairline rule. Used once near the end of a chapter, before the wrap-up sentence.
+
+**Rail:** every `##` heading becomes a sidebar entry. Structure a chapter as 3–5 `##` sections + a short
+intro; `###` is for sub-structure (not in the rail).
+
+---
+
+## Reference surface — `content/docs/**/*.mdx`
+
+Registered via `components/mdx.tsx` + `components/editorial/reference-components.tsx`.
+
+### `<Callout>` (Reference API — type, NOT tone+badge)
+```mdx
+<Callout type="note">**Replenishment system** is the high-level strategy; **default method type** is the line-level default it allows.</Callout>
+```
+- `type: "info" | "note" | "warn" | "warning" | "error" | "success" | "tip"`, `title?`, `children`.
+- type → badge/tone: `info`/`note` → NOTE / blue; `warn`/`warning`/`error` → HEADS UP / amber;
+  `success`/`tip` → GOOD TO KNOW / green.
+- **Different from the Guide `Callout`** — here you pass `type`, not `tone`+`badge`.
+
+### `<Cards>` / `<Card>`
+Link-card grid — overview fan-out and cross-surface navigation.
 ```mdx
 <Cards>
-  <Card title="Items & BOMs" href="/erp/items" icon={<Package />}>
-    Parts, assemblies, and the bills of materials that connect them.
-  </Card>
-  <Card title="Routings" href="/erp/routings" icon={<GitBranch />}>
-    The operations and work centers a part flows through.
-  </Card>
+  <Card title="Methods & sourcing" href="/docs/reference/methods">How an item's BOM and routing are defined.</Card>
+  <Card title="Inside the build" href="/guides/build">The same ideas in the story of a robot build.</Card>
 </Cards>
 ```
+- `Card`: `title?`, `href?`, `icon?`, `children`. `Cards` wraps them in a 2-col grid.
 
-**Callout** — break the reader's flow for something that matters. Don't overuse — three callouts on a page
-means none of them land.
+### `<EnvVars>` / `<EnvVar>`
+Field / parameter / option rows (hairline-divided).
 ```mdx
-<Callout type="warn">Issuing material is irreversible once the job is started.</Callout>
-<Callout type="info">Work orders inherit the routing from the item's default revision.</Callout>
+<EnvVars>
+  <EnvVar name="CARBON_API_KEY" type="string" required={true}>The PostgREST API key for the instance.</EnvVar>
+  <EnvVar name="exchangeRate" type="number" default="1">FX rate stamped on the line at creation.</EnvVar>
+</EnvVars>
 ```
-Types: `info` / `note` (neutral), `tip` (accent), `warn` (destructive), `error`. Map to Carbon semantic
-tokens in Phase 2.
+- `EnvVar`: `name: string`, `type?`, `default?`, `required?: boolean`, `children` (description).
 
-**Steps / Step** — ordered procedures in the Reference (the Guide uses the chapter rail for top-level
-sequence, but `Steps` is great for a sub-procedure within a page).
-```mdx
-<Steps>
-  <Step>Open the sales order and click **Convert to Job**.</Step>
-  <Step>Confirm the routing and quantity.</Step>
-  <Step>Release the job to the shop floor.</Step>
-</Steps>
-```
+### Standard
+- `<Steps>/<Step>`, `<Tabs>/<Tab>` (fumadocs-ui) for sub-procedures and alternative paths.
+- **Markdown tables** for field references (`| Field | Type | Description |`).
+- **Code fences** render in the dark API-playground panel (`MdxCodeBlock`). Reference pages *may* use fences
+  — but mind the shiki theme gotcha (SKILL.md).
 
-**Tabs / Tab** — alternative paths (e.g. "ERP UI" vs "API", or OS-specific). Keep tab labels parallel.
+---
 
-**Accordions / Accordion** — FAQs and progressive detail a reader can skip. Not a place to hide essential
-steps.
+## Choosing a component
 
-**TypeTable** — the right tool for reference field/parameter documentation; renders a typed table with
-name, type, default, description. Use it for API payloads, config options, and entity field references
-instead of hand-built tables.
+| You want to… | Guide | Reference |
+|---|---|---|
+| Show a real Carbon screen | `<Screenshot>` | `<Screenshot>` works, but Reference usually uses tables/cards |
+| Show a conceptual diagram | `<Figure>` (real key only) | — |
+| Flag a must-not-miss truth / gotcha | `<Callout tone badge title>` | `<Callout type>` |
+| Fan out to related pages | inline links | `<Cards>` |
+| Document fields/params | (prose) | markdown table or `<EnvVars>` |
+| A short ordered procedure | (narrate it) | `<Steps>` |
+| Alternative paths | — | `<Tabs>` |
 
-**CodeBlock** — fenced code with language, optional `title`, and line highlighting. Carbon already
-standardizes on Shiki with the `github-dark-default` theme (see `@carbon/react`'s `CodeBlock`); match it so code in
-the docs looks like code in the app. Use ```ts title="example.ts" {2-3}``` syntax.
-
-**ImageZoom / Files** — zoomable images and file-tree diagrams when useful. Prefer `Frame` (below) for
-primary screenshots so they get the editorial treatment.
-
-## Carbon bespoke — use for the Guide
-
-These create the signature touches. Code lives in `assets/templates/components/`; design intent is in
-`references/design-language.md`. Copy them into `apps/docs/components/`.
-
-**`<ReadingProgress />`** — the right-edge tick ruler. Mount once in the Guide layout; it reads scroll
-position and fills with the accent. No props for the common case.
-
-**`<ChapterNav />`** — the roman-numeral chapter + connected step-dot rail. Mount in the Guide layout; it
-derives chapters/steps from the Fumadocs page tree (the `meta.json` order) so it stays in sync with the
-sidebar. The current page's dot is filled.
-
-**`<ScrollReveal>`** — wrap a section to have it fade/rise in on scroll. Honors `prefers-reduced-motion`.
-```mdx
-<ScrollReveal>
-## Why routings matter
-A routing is the recipe the shop floor follows…
-</ScrollReveal>
-```
-
-**`<FeatureCallout>`** — the two-column "bridge to product" card: explanation + muted aside + CTA. Use it
-whenever a concept has a direct action in Carbon.
-```mdx
-<FeatureCallout title="Try in Carbon" href="https://app.carbon.ms" cta="Open Carbon →"
-  aside="Routings can be templated per item revision, so you set them once.">
-Use the routing builder to lay out operations and assign each to a work center. Carbon estimates run
-time from the work center's rates so your job schedule is realistic from day one.
-</FeatureCallout>
-```
-
-**`<Checklist>` / `<Check>`** — stateful, tickable checklist (persists per page in `localStorage`,
-checked items strike through). For "before you do X, confirm…" moments.
-```mdx
-<Checklist>
-  <Check>Item has an active revision</Check>
-  <Check>Routing has at least one operation</Check>
-  <Check>Required materials are in the BOM</Check>
-</Checklist>
-```
-
-**`<Frame>`** — wraps a screenshot/diagram in a rounded, hairline-bordered frame with an optional caption.
-```mdx
-<Frame caption="The routing builder, mid-edit.">
-  ![Routing builder](/screens/routing-builder.png)
-</Frame>
-```
-
-## Choosing a component (quick guide)
-
-- Linking to several child pages → **Cards**.
-- A short ordered procedure inside a page → **Steps**.
-- A thing the reader must not miss → **Callout** (one, maybe two, per page).
-- Documenting fields/params/options → **TypeTable**.
-- Showing the same task two ways → **Tabs**.
-- A concept that maps to a product action → **FeatureCallout**.
-- A "confirm these before proceeding" list → **Checklist**.
-- Any primary screenshot or diagram → **Frame**.
-- A long Guide section that should breathe → wrap in **ScrollReveal**.
-
-When a built-in and a bespoke component overlap, pick by surface: Reference → Fumadocs built-in; Guide →
-bespoke. Don't stack both on one page — coherence beats variety.
-
-## Diagrams
-
-Carbon's domain (material flow, routings, order→job→ship) is diagram-friendly. Fumadocs supports Mermaid
-via a code block; render flow/sequence diagrams inline and wrap them in `<Frame>` for consistent framing.
-Keep diagrams in the foreground color on transparent background so they work in both themes.
+Coherence beats variety: a Guide chapter is mostly prose + 2–4 callouts + a few screenshots/figures; a
+Reference page is mostly tables/cards + a couple of `type` callouts. Don't stack Guide and Reference
+components on one page.

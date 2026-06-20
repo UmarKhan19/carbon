@@ -1,5 +1,10 @@
 # Phase 1 — Scaffold `apps/docs` (Next.js + Fumadocs)
 
+> **Historical — `apps/docs` already exists.** You will almost never re-run this; it's the record of how
+> the app was first stood up (Next.js + Fumadocs, React 19 pinned, pnpm/Biome). For *authoring or editing*
+> docs, ignore this and start from `SKILL.md`. The decisions here are mostly still accurate, but the live
+> app is the source of truth — don't re-scaffold over it.
+
 Goal: a new app at `apps/docs` that builds with the monorepo's tooling and renders one Guide page and
 one Reference page. Get this thin slice working before doing anything else.
 

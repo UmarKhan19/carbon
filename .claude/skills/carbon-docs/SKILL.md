@@ -1,156 +1,178 @@
 ---
 name: carbon-docs
 description: >-
-  Build a beautiful, comprehensive documentation website AND write the documentation that
-  lives in it, for the Carbon manufacturing platform — modeled on the editorial guide + structured
-  reference patterns of cofounder.co/how-to and docs.cofounder.co. Use this whenever the user
-  wants to create or improve docs, a docs site, a documentation portal, a "how-to" or onboarding
-  guide, a getting-started flow, API/feature reference pages, or anything destined for docs.carbon.ms
-  — and also when they ask to "document this feature", scaffold a Fumadocs/Next.js docs app, design
-  a docs information architecture, or write MDX guides. Trigger even if the user doesn't say the word
-  "docs" but clearly wants explanatory, reader-facing written material about how Carbon works.
+  Author, edit, or extend the Carbon documentation site at `apps/docs` (a built Fumadocs + Next.js
+  app). Use whenever creating or changing reader-facing docs for Carbon: editorial Guide chapters,
+  Reference/entity pages, the docs IA, or "document this feature" requests — anything destined for
+  the docs site. Covers the grounded-in-source authoring workflow, the flow-based Guide architecture,
+  the real MDX components for each surface, the warm-paper house style, and the build verification
+  loop. Trigger even if the user doesn't say "docs" but clearly wants explanatory, reader-facing
+  written material about how Carbon works.
 ---
 
 # Carbon Docs
 
-Build documentation for Carbon that people actually *want* to read: a site that feels designed,
-prose that respects the reader's time, and an architecture organized around what the reader is
-trying to accomplish — not around how the codebase happens to be laid out.
+`apps/docs` is a **built, opinionated** documentation site — Fumadocs + Next.js (React 19), **light-only**,
+warm-paper aesthetic. It is no longer scaffolded; it exists and ships content. This skill is how to add
+or change docs **in that system, in its house style, grounded in real Carbon code.**
 
-The north star is [cofounder.co/how-to/build](https://cofounder.co/how-to/build) (an editorial,
-book-like **guide**) paired with [docs.cofounder.co](https://docs.cofounder.co) (a clean,
-searchable **reference**). This skill teaches you to produce both surfaces, tailored to the Carbon
-monorepo, using **Fumadocs** (Next.js + MDX).
+> The single biggest mistake is writing plausible ERP-generic prose. Carbon's behavior is specific and
+> often counterintuitive (WIP is a GL balance not a table; payment is a field not an entity; overhead is
+> not absorbed; fixed-asset disposal is scrapping-only). **Every claim is grounded in source.** See the
+> prime directive below — it overrides everything.
 
-## Two surfaces, one site
+## The prime directive — ground everything in source
 
-Great docs are not one undifferentiated wall of pages. They are two complementary modes, and almost
-every confusing docs site fails because it blends them:
+The **holy source of truth is the actual source code + the LATEST database migrations**
+(`packages/database/supabase/migrations/`, newest by timestamp) — NOT ERP/CMMS general knowledge, NOT
+`llm/cache/` alone (it is often stale).
 
-1. **The Guide** — editorial, narrative, opinionated. Walks a reader through a journey
-   ("How to build a product," "Run your first job"). Long-form, sequenced, illustrated, with a
-   strong voice that tells you *what matters, what people get wrong, and how Carbon handles it.*
-   This is the surface that makes docs feel *beautiful and thoughtful*. It is the harder one to get
-   right and the one most teams skip.
+- **Verify before you write.** Every entity, status enum *value*, and transition named in docs must exist
+  in real code. Confirm exact strings (`"To Ship and Invoice"`, `"Fully Depreciated"`), the actions that
+  drive them (service fns, routes, edge functions in `packages/database/supabase/functions/`), and what
+  posts/gates (e.g. `companySettings.accountingEnabled`).
+- **Read the newest migration, not the first.** Timestamps order them; a 2026 refactor may have rebuilt a
+  subsystem the cache still describes the old way.
+- **Document only real, ACTIVE features.** Omit placeholders / inactive / not-yet-shipped things (e.g.
+  integration registry entries with `active: false` like QuickBooks/Sage/Zapier). Don't surface them.
+- **When code and cache disagree, code wins** — and note the drift.
+- **Method:** dispatch a research subagent per feature → return verified facts with `file:line` refs →
+  then write. This is how every flow in the Guide was built. Don't skip it for anything non-trivial.
 
-2. **The Reference** — structured, scannable, comprehensive. One page per concept/feature/endpoint.
-   Cards, callouts, tables, parameter lists. Optimized for a reader who already knows what they want
-   and needs to look it up fast.
+## Three surfaces (know which you're touching)
 
-A reader moves between them: a Guide page links into Reference pages for detail; a Reference page
-links back to the Guide for the "why." Hold this distinction in your head the entire time — it
-drives every IA, design, and writing decision below.
+| Surface | Path / route | What it is | Authored? |
+|---|---|---|---|
+| **Guides** | `content/guides/*.mdx` → `/guides` | Editorial narrative *tours*, grouped into **flows**. Second-person, opinionated, illustrated. The journey + the "why". | Hand-written MDX |
+| **Reference** | `content/docs/**/*.mdx` → `/docs` | One page per entity/concept. Scannable: tables, cards, field rows. The "what". | Hand-written MDX |
+| **API reference** | `app/api-reference/[module]/[resource]` | PostgREST endpoint docs, **generated at build** from the swagger. | **Generated — do NOT hand-edit.** Edit `scripts/generate-api-docs.mjs` or the swagger schema. |
 
-## How to use this skill
+Interlink across surfaces and flows: a Guide links into Reference for detail; Reference links back to the
+Guide for the story. (Guide chapters were given 12 cross-flow links — interlinking is expected, not optional.)
 
-Work in phases. Each phase has a dedicated reference file — **read it when you reach that phase**,
-don't preload everything. The references are the substance; this file is the map.
+## Authoring workflow (every change)
 
-| Phase | Goal | Read |
-|-------|------|------|
-| 0. Orient | Decide what's being built and what already exists | this file |
-| 1. Scaffold | Create the `apps/docs` Fumadocs app in the monorepo | `references/scaffold.md` |
-| 2. Brand | Make it look unmistakably like Carbon | `references/brand-integration.md` |
-| 3. Design | Apply the cofounder-grade visual language + signature touches | `references/design-language.md` |
-| 4. Architect | Lay out the navigation and page taxonomy | `references/information-architecture.md` |
-| 5. Components | Reach for the right MDX component for each idea | `references/components.md` |
-| 6. Write | Author content in the Carbon editorial voice | `references/writing-guide.md` |
-| 7. Verify | Prove it builds and looks right | this file (Verification) |
+1. **Research (grounded).** Subagent verifies the feature vs source + newest migrations. Get exact
+   table/column/enum/transition names + `file:line`. Flag what a generic description would get wrong.
+2. **Pick the surface + placement.** Guide flow + frontmatter, or Reference folder + `meta.json` order.
+3. **Write in the house voice** with the surface's real components (below). Lead with a concrete example.
+4. **Verify (always).** Regenerate, typecheck, build, and grep the prerendered HTML:
+   ```bash
+   cd apps/docs
+   pnpm exec fumadocs-mdx                 # regen .source — REQUIRED after frontmatter/schema changes
+   npx tsc --noEmit                       # or: pnpm --filter docs typecheck
+   pnpm --filter docs build               # expect "✓ Generating static pages (N/N)"
+   grep -o "your new heading" .next/server/app/guides/<slug>.html   # confirm it rendered
+   ```
 
-Bundled, ready-to-use code lives in `assets/templates/` — a turnkey `global.css`, Fumadocs config
-files, and the bespoke React components that create the signature touches (reading-progress ruler,
-scroll-reveal, chapter/step rail, feature callout, interactive checklist, media frame). Copy these in
-rather than writing them from scratch; they already encode the Carbon brand and the cofounder
-aesthetic. Adapt, don't reinvent.
+## Guides — the flow architecture
 
-## Phase 0 — Orient before you build
+Frontmatter (`source.config.ts` schema):
 
-Two questions decide everything:
+```yaml
+---
+title: From quote to order
+description: An RFQ becomes a quote; an accepted quote becomes a sales order.
+label: "(I)"          # display marker, roman numeral, per-flow
+index: 0              # order WITHIN the flow (0,1,2…)
+flow: quote-to-cash   # flow id (omit → defaults to "make-to-order")
+flowName: Quote to cash   # flow tab label
+flowIndex: 1          # order of the flow in the subnav (0 = first)
+---
+```
 
-**Is this a new docs site, or content for an existing one?**
-- Carbon has *no* in-repo docs site today (the live `docs.carbon.ms` is hosted elsewhere; the repo's
-  `docs/` folder is just brainstorms). So "build the docs site" means scaffolding `apps/docs` →
-  start at Phase 1.
-- If `apps/docs` already exists when you read this, skip to Phase 4/6 and just add content. Always
-  check first: `ls apps/docs` and look for `apps/docs/source.config.ts`.
+- Chapters sort by `(flowIndex, index)`. The **subnav is a flow switcher**; the **sidebar + mobile selector
+  + "read next" are scoped to the active flow**. The original 5 chapters (order/build/plan/floor/ship) carry
+  no flow fields and fold into `make-to-order` (flowIndex 0) via defaults.
+- **Add a chapter to a flow:** same `flow`/`flowName`/`flowIndex`, next `index` + `label`.
+- **Add a flow:** new `flowIndex` + `flowName`; its chapters start at `index: 0`, `label: "(I)"`.
+- All chapter bodies render server-side on every page (the reader cross-fades, no route nav), so links to
+  `/guides/<slug>` resolve. **No code fences in guides** (prose + components only).
 
-**Guide, Reference, or both?**
-- Most real requests are "both, eventually." Build the Reference skeleton first (it's the load-bearing
-  structure), then layer Guide chapters on top. But if the user explicitly wants the *beautiful*
-  onboarding narrative, lead with one polished Guide chapter — it sets the quality bar for everything
-  after it.
+**Components** (`components/editorial/mdx.tsx`):
 
-Do not over-plan. Scaffold a thin vertical slice (one Guide page + one Reference page that build and
-render), confirm it looks right, *then* scale out. A docs site that renders one gorgeous page beats a
-fully-architected skeleton that renders nothing.
+- `<Figure illustration="flow-overview" caption="…" />` — SVG from the registry. **`illustration` MUST be a
+  real key** from `components/editorial/illustrations.tsx` (else it silently renders nothing). Valid keys:
+  `flow-overview, order-split, bom-tree, demand-forecast, planning-engine, shopfloor-loop, eight-d,
+  traceability-graph, method-types, kit-vs-subassembly, reorder-policy, outside-processing, mes-station,
+  issue-workflow, schedule-board, get-method, conversion-factor`. For anything without a fitting key, use
+  `<Screenshot>` instead — don't invent keys.
+- `<Screenshot label="Sales order dashboard" caption="…" ratio="wide|tall|square" />` — placeholder frame,
+  free-text label (no image asset needed). Default `ratio="wide"`.
+- `<Callout tone="neutral|blue|green|amber" badge="WHY BATCH" title="…">body</Callout>` — the workhorse.
+  Use it to carry the **Carbon-specific truth a generic description gets wrong**. Tones: blue = explanatory
+  "why", green = good-to-know/outcome, amber = caution/contrast, neutral = definitional.
+- `<Divider />` — closes a chapter before its wrap-up line.
 
-## Carbon non-negotiables
+Each `##` heading becomes a sidebar rail entry — so structure chapters as 3–5 `##` sections.
 
-These are what make it *Carbon's* docs and not a generic Fumadocs template. Details in
-`references/brand-integration.md`; the rules:
+## Reference — entity pages
 
-- **Location & tooling.** The app is `apps/docs`, registered by the existing `apps/*` workspace glob.
-  Package manager is **pnpm** (catalog protocol — reuse `catalog:` versions, don't invent new ones).
-  Lint/format is **Biome** (`biome.jsonc` at root) — no ESLint/Prettier. Turbo's generic `dev`/`build`
-  tasks pick the app up automatically once it has those scripts; `.next/**` is already a build output.
-- **React 18.** The monorepo's catalog pins `react@18.3.1`, and `@carbon/react` peer-depends on it.
-  Use a Next.js version that runs on React 18 so you can reuse Carbon UI primitives. Don't drag the
-  repo to React 19 for a docs app.
-- **Brand by shared tokens, not hardcoded colors.** Import `@carbon/config/tailwind/theme.css` and the
-  Geist fonts (`non.geist`), then *bake the default "Modern" theme's HSL values* into the docs app's
-  CSS — Carbon's apps inject those at runtime via a React Router root route that a Next app doesn't
-  have. The turnkey `assets/templates/global.css` already does this. Map Fumadocs' own CSS variables
-  onto Carbon's tokens so the whole site shares one palette and one dark mode.
-- **Reuse the design system.** Prefer `@carbon/react` primitives (Card, Alert, Tabs, CodeBlock,
-  Accordion, Badge…) and existing patterns over new `bg-*`/`text-*` classes — same rule as the rest of
-  the repo. Wrap client-only components with `"use client"` where Next requires it.
-- **Geist + tight tracking.** Headings and body are Geist Variable; mono is Geist Mono; letter-spacing
-  is `-0.02em`. This is already in the theme — just don't override it with a different font.
+- Frontmatter: `title` + `description` only.
+- **Nav = `meta.json` `pages` arrays** (ordered). Folders: `content/docs/{reference,platform,integrate}/`.
+  Root order in `content/docs/meta.json`; a folder's order + sidebar title in its own `meta.json`
+  (`{ "title": "Product reference", "defaultOpen": true, "pages": [...] }`). Add a page → add its slug to
+  the folder's `pages`.
+- **Components** (`components/editorial/reference-components.tsx` + `components/mdx.tsx`):
+  - `<Callout type="info|note|warn|warning|error|success|tip" title?>…</Callout>` — type → badge+tone
+    (`info/note`→NOTE/blue, `warn/warning/error`→HEADS UP/amber, `success/tip`→GOOD TO KNOW/green). Note this
+    is a **different Callout API** than the Guides one (type vs tone+badge).
+  - `<Cards><Card title href icon?>…</Card></Cards>` — link-card grid (cross-surface navigation).
+  - `<EnvVars><EnvVar name type? default? required?>…</EnvVar></EnvVars>` — field/parameter rows.
+  - `<Steps>/<Step>`, `<Tabs>/<Tab>` (fumadocs-ui), markdown tables, and code fences (dark panel).
+- Voice is more technical/scannable than the Guides — fields, constraints, tables — but still names the
+  gotcha and links back to the Guide for the narrative.
 
-## The signature touches
+## House voice
 
-This is the checklist that separates "a docs site" from the thing the user actually asked for —
-*beautiful, comprehensive, super thoughtful*. Each is drawn from the cofounder pages and implemented
-in `assets/templates/`. A finished Guide chapter should hit most of these; a Reference page hits the
-calmer subset (search, TOC, cards, callouts, code).
+- **Second person, concrete, narrative.** Anchor in the running example (the 90-unit humanoid-robot order).
+  "Open the sales order dashboard." / "You don't build 90 robots as one monolithic job."
+- **Quote real status names exactly**, in quotes: `**"To Ship and Invoice"**`, `**"Posted"**`, `**"Open"**`.
+- **Callouts carry the counterintuitive truth** — the thing people get wrong. Title is a claim, body is the
+  why. ("Quotes are optional — the opportunity is the thread.")
+- **Explain the why, name the mistake, point to the next step.** If a paragraph does none of those, cut it.
+- **Interlink** at natural seams (`[make-to-order tour](/guides/order)`).
 
-- **Reading-progress ruler.** A thin tick-marked progress indicator down the right edge of Guide
-  pages that fills as you scroll. Tells the reader "you're 40% through, this is finite." (`reading-progress.tsx`)
-- **Scroll-reveal.** Sections fade/rise in as they enter the viewport — calm, not flashy. Makes long
-  pages feel alive and paced. Respect `prefers-reduced-motion`. (`scroll-reveal.tsx`)
-- **Chapter + step rail.** The Guide sidebar is a *journey*: roman-numeral chapters, each a vertical
-  line of connected step-dots, the current step filled. Reads like a course, not a file tree. (`chapter-nav.tsx`)
-- **Feature callouts.** A distinct two-column card ("Try in Carbon →") that bridges explanation to
-  product action — main text on the left, a muted side-note on the right, a clear CTA. (`feature-callout.tsx`)
-- **Interactive checklists.** For "do these N things" moments, render real checkboxes the reader can
-  tick (state persists per page); checked items strike through. Turns reading into doing. (`checklist.tsx`)
-- **Framed media.** Screenshots/diagrams sit in a rounded, subtly-bordered frame so they read as
-  deliberate artifacts, never raw pasted images. Carbon's domain (machines, routings, work orders)
-  rewards good diagrams. (`frame.tsx`)
-- **Editorial measure & rhythm.** Guide prose is set at a comfortable reading measure (~68ch), with
-  generous vertical spacing, real hanging punctuation where possible, and tabular numerals in tables.
-- **Search & "On this page."** ⌘K search and a right-hand anchor TOC on Reference pages — table stakes,
-  but they must be present and styled to match.
+## Design / styling
 
-When you finish a page, walk this list and ask which touches it's missing. The gap between "fine" and
-"thoughtful" is usually three of these.
+- **Light-only.** Warm-paper palette: page bg `#FBFBF9` / `#F5F5F2`; ink `#262323` (+ `rgba(38,35,35,0.x)`
+  for faint); accent `#1E84B0` (links) / `#00B0FF` (focus/brand); hairlines `#E7E7E3` / `#E3E3DF`.
+- **Inline Tailwind arbitrary values** (`text-[15px]`, `bg-[#FBFBF9]`, `border-[#E7E7E3]`) — this app is
+  standalone (NOT `@carbon/react`, NOT the ERP theme). Match the surrounding component's density and colors;
+  don't introduce a new palette.
+- Fonts: DM Sans (body), Fira Code (mono). Callout tone fills/borders: neutral `#EFEFEB/#DADAD5`,
+  blue `#DFF5FF/#A9DAF3`, green `#E4F8DA/#A8DB91`, amber `#FFF2D8/#E6CFA3`.
 
-## Verification
+## Gotchas (hard-won)
 
-Never declare docs "done" without rendering them. A staff engineer reviewing this would expect:
+- **Shiki theme** (`source.config.ts` → `rehypeCodeOptions.themes`): set **both** `light` and `dark` to the
+  same `"github-dark-default"`. A single `theme` (or a missing `github-light`) breaks the build for any
+  `content/docs` file with a code fence (`ShikiError: Theme github-light not found`). Guides have no fences,
+  so they're immune — handy for isolating a red build to the Reference side.
+- **Regen `.source` before typecheck** after any frontmatter/schema change (the schema is baked into
+  `.source/` at generate time).
+- **Figure keys must exist** — see the list above; a typo renders nothing, silently.
+- **`Write` blocks on existing files** — natural collision protection when a parallel session co-writes the
+  docs. Just write the next uncovered gap; don't pause to coordinate unless asked.
+- **`curl` GET can 405 in this sandbox** (a method-less request reads as POST) — use the WebFetch tool for
+  external pages; the pnpm registry works fine.
+- **Don't hand-edit the API reference** (generated) — change the generator/schema and rebuild.
 
-1. **It builds.** From repo root: `pnpm --filter docs build` (or the app's exact name) completes with
-   no type or MDX errors. `pnpm --filter docs dev` serves locally.
-2. **It looks right — actually look.** Use the browser (Chrome MCP / the `login` + browser tooling
-   already in this repo's skills) to load the dev server and screenshot a Guide page and a Reference
-   page in *both* light and dark mode. Compare against the cofounder reference mentally: serif-grade
-   typographic care, calm spacing, the signature touches present.
-3. **Navigation works.** Sidebar groups expand, prev/next flow in reading order, search returns the new
-   pages, every internal link resolves.
-4. **Brand holds.** Geist everywhere, Carbon palette in both themes, no stray default-Fumadocs purple.
-5. **Prose earns its place.** Re-read as a newcomer to Carbon. Does each page say what matters, name the
-   common mistake, and point to the next step? If a paragraph doesn't do one of those, cut it.
+## Deep-dive references (read when you reach the relevant phase)
 
-Then, and only then, update `llm/tasks/todo.md` with a review section noting what was built and what's
-deferred. After the work is committed, update `llm/cache/` to record that `apps/docs` exists and how
-it's structured — never before it's committed.
+- `references/components.md` — full component APIs for both surfaces + the illustration registry.
+- `references/writing-guide.md` — the voice, the grounding rule, worked examples.
+- `references/information-architecture.md` — the flow IA and the Reference `meta.json` nav.
+- `references/design-language.md` — palette, fonts, the inline-Tailwind convention.
+
+> Note: `references/scaffold.md`, `references/brand-integration.md`, and `assets/templates/*` are
+> **scaffolding-era** (how the app was first stood up, with Geist/`@carbon/react`/signature-touch templates).
+> The app diverged from them. **The live components in `apps/docs/components/{editorial,api}/` are the source
+> of truth** — read those, not the templates, when in doubt.
+
+## Verification bar
+
+Never declare docs done without: a green `pnpm --filter docs build`, `tsc` clean, the new content present in
+the prerendered HTML, every internal link resolving, names matching real code, and a re-read that confirms
+each page says what matters / names the mistake / points onward. Then record progress (this loop tracks it in
+`llm/tasks/` and the `project_docs_guide_flows` memory; the live API-reference/search work tracks its own).

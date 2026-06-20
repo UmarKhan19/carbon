@@ -1,175 +1,139 @@
-# Phase 6 — Writing guide
+# Writing guide
 
-A beautiful site with mediocre prose is still mediocre docs. This is how to write the words so they're
-worth the design. The voice is modeled on cofounder.co's guides — and it's a *voice*, a deliberate one,
-not the flat neutral tone most docs default to.
+How to write Carbon docs so the prose earns the design. The voice is deliberate — opinionated, concrete,
+second-person — not the flat neutral tone most docs default to. But before any of that:
+
+## Rule 0 — ground every claim in source (non-negotiable)
+
+The holy source of truth is **the actual source code + the LATEST database migrations**, never ERP-generic
+knowledge, never `llm/cache/` alone. A confidently-wrong sentence is worse than no sentence.
+
+- **Verify before writing.** Every entity, **status enum value** (exact string), and **transition** must
+  exist in real code. Dispatch a research subagent → get `file:line` refs → then write.
+- **Newest migration wins.** Read by timestamp, newest first; a 2026 refactor may have rebuilt the subsystem.
+- **Only real, ACTIVE features.** Omit placeholders / `active: false` / not-yet-shipped. Don't tease a flow
+  that won't exist.
+- **Carbon is specific and counterintuitive** — that specificity *is* the value. The best sentences are the
+  ones a generic ERP guide would get wrong: "WIP isn't a table — it's a GL balance"; "payment is a field,
+  not an entity"; "overhead is not absorbed into job cost"; "disposal is scrapping-only, always a loss."
 
 ## The voice in three moves
 
-Read how cofounder writes a section. Almost every one makes the same three moves:
+Almost every good section makes the same three moves:
 
-1. **Say what actually matters** — lead with the real point, not preamble.
-2. **Name the mistake** — call out what people get wrong, specifically.
-3. **Show how the product handles it** — bridge to the action.
+1. **Say what actually matters** — lead with the real point, no preamble.
+2. **Name the mistake** — call out what people get wrong, specifically. Often the highest-value sentence.
+3. **Show how Carbon handles it** — bridge to the concrete behavior.
 
-> *"Setting up an engineering department is more than just writing code… Most first-time founders
-> dramatically underestimate this; they think 'building' means opening a code editor and hacking until
-> something works. That approach gets you a prototype. It does not get you a company."*
-
-That's all three moves in three sentences: what matters, the mistake, the consequence. Notice it's
-**opinionated** ("It does not get you a company"), **concrete**, and **second person**. Do this.
-
-The other hallmark is **ruthless specificity**:
-
-> *"Be ruthlessly specific. 'Helping people manage their finances' is not a problem statement.
-> 'Freelancers lose track of quarterly tax estimates because existing tools assume W-2 employment' is."*
-
-Always prefer the concrete example over the abstract description. In Carbon's domain that means real
-nouns and numbers: *"A routing with no operations can't be scheduled — the job sits in Planned forever,"*
-not *"Ensure your routing is configured correctly."*
+Opinionated, concrete, second person. ✓ "You don't build 90 robots as one monolithic job." Not ✗ "Jobs
+can be split into batches."
 
 ## Voice principles
 
-- **Second person, active, present tense.** "You create a job from the sales order." Not "A job is
-  created" or "One would create."
-- **Lead with the point.** First sentence of every section states the takeaway. A reader who stops there
-  should still have learned the main thing.
-- **Be opinionated where it helps.** Tell the reader the right default and why. "Start with one work
-  center per machine, not per operator — you'll thank yourself when you schedule." Docs that refuse to
-  recommend anything make the reader do all the work.
-- **Name the common mistake.** You know what trips people up. Say it out loud. This is the single highest-
-  value sentence on most pages.
-- **Short paragraphs.** 2–4 sentences. One idea each. White space is part of the writing.
-- **Concrete over abstract, always.** Real item numbers, real quantities, a real shop scenario. The
-  manufacturing domain is full of specifics — use them.
-- **Respect the reader's time.** If a sentence doesn't teach, warn, or move them forward, cut it. No "In
-  this section, we will explore…" throat-clearing. No restating the heading.
-- **Plain words.** Prefer "make" to "utilize," "use" to "leverage." Technical terms are exact (a *work
-  order* is not a *job* is not an *operation* — pick the right one and stay consistent).
+- **Second person, active, present tense.** "You create a shipment against the order." Not "A shipment is created."
+- **Lead with the point.** First sentence of each `##` states the takeaway; a reader who stops there still learns the main thing.
+- **Anchor in a running example.** The Guides follow one shop — an OEM building humanoid robots, a 90-unit
+  order split 30/30/30. Reuse concrete nouns and numbers; they make abstract mechanics legible.
+- **Quote real status names exactly, in bold-quotes.** `**"To Ship and Invoice"**`, `**"Posted"**`,
+  `**"Fully Depreciated"**`, `**"Open"**`. These are verified strings — getting one wrong reads as not
+  knowing the product.
+- **Name the common mistake.** Say the thing people trip on out loud.
+- **Short paragraphs** (2–4 sentences, one idea). White space is part of the writing.
+- **Plain words.** "make" not "utilize", "use" not "leverage". Technical terms are exact and consistent.
+- **Respect the reader's time.** No "In this section we will…" throat-clearing, no restating the heading.
 
 ## Terminology: one word per concept
 
-Carbon's `apps/academy` already teaches this vocabulary (Modules → Courses → Topics → Lessons in
-`config.tsx`). The docs must use the *same words* for the same things as the app UI and the academy
-courses. Before writing a chapter, list the domain nouns it touches and pin the exact term (item vs part,
-job vs work order, routing vs process). Inconsistent terminology is the fastest way to lose a reader's
-trust. When in doubt, match the label in the ERP/MES UI.
+Match the **ERP/MES UI labels and the verified code** — same word for the same thing everywhere. A *work
+order* is not a *job* is not an *operation*. Method types are exactly `Make to Order` / `Pull from Inventory`
+/ `Purchase to Order` (not "Make/Buy/Pull"). Before a chapter, list its domain nouns and pin each to the
+real term. Inconsistent terminology is the fastest way to lose trust.
 
-## Page templates
+## Callouts carry the gotcha
 
-### Guide chapter intro (the editorial opener)
+A `<Callout>` is where the counterintuitive Carbon truth lives — the title is a claim, the body is the why.
+Don't waste them on restating prose. 2–4 per Guide chapter; if every paragraph is a callout, none land.
+
+```mdx
+<Callout tone="neutral" badge="NO RIGID CHAIN" title="Quotes are optional — the opportunity is the thread.">
+A sales order does not require a quote, and a quote does not require an RFQ. Each document links back to the
+same opportunity, so you can enter the flow at whatever point a deal actually starts.
+</Callout>
+```
+
+## Interlink at the seams
+
+Connect flows where they naturally touch: `[make-to-order tour](/guides/order)`,
+`[quote-to-cash](/guides/order-to-cash)`. Link the *noun*, inline — never "click here". A Guide links into
+Reference for fields; Reference links back to the Guide for the story.
+
+## Real page templates
+
+### Guide chapter (editorial, in a flow)
 ```mdx
 ---
-title: Run production
-description: From a confirmed order to a finished part on the dock.
+title: From quote to order
+description: An RFQ becomes a quote; an accepted quote becomes a sales order.
+label: "(I)"
+index: 0
+flow: quote-to-cash
+flowName: Quote to cash
+flowIndex: 1
 ---
 
-<Eyebrow>Chapter III</Eyebrow>
+## Introduction
 
-# Run production
+The make-to-order tour started at a confirmed sales order. This flow rewinds to where that order comes
+from: a customer asking for a price, a quote that answers it, an acceptance that turns it into work.
 
-Everything so far has been setup. This is where Carbon earns its keep: turning a confirmed order into
-work the floor can actually do, tracking it as it happens, and shipping it.
+## One opportunity, many documents
 
-This chapter walks the whole path — order → job → schedule → execute → ship — and at each step flags the
-decisions that quietly determine whether your due dates mean anything.
+In Carbon, an RFQ, a quote, and a sales order aren't a rigid chain — they hang off a single **opportunity**…
 
-<Frame caption="A job moving across the shop-floor board.">
-  ![Shop floor board](/screens/mes-board.png)
-</Frame>
+<Callout tone="neutral" badge="NO RIGID CHAIN" title="Quotes are optional — the opportunity is the thread.">
+…
+</Callout>
+
+<Screenshot label="Quote builder" caption="A multi-line quote with quantity-break pricing." ratio="wide" />
 ```
-Then each step is its own page, narrated, ending by pointing at the next step.
+Each chapter ends pointing onward (the reader auto-gets a "read next" within the flow); the final chapter of
+a flow ends with a `<Divider />` + one wrap-up line.
 
-### Tutorial (first-time, one happy path)
+### Reference (entity page)
 ```mdx
-# Create your first work order
+---
+title: Sales orders
+description: The confirmed customer order that production, shipment, and invoicing all key off.
+---
 
-By the end of this you'll have a job on the shop floor, scheduled, with material reserved. ~10 minutes.
+A **sales order** is … (lead with what it is and why it's load-bearing).
 
-## Before you start
-<Checklist>
-  <Check>An item with an active revision</Check>
-  <Check>A routing with at least one operation</Check>
-</Checklist>
+## Statuses
 
-## 1. Start from the sales order
-…one path, no branching, every click named…
+| Status | Meaning |
+|---|---|
+| `Draft` | … |
+| `To Ship and Invoice` | open until every line is both shipped and invoiced |
 
-## You're done
-You just turned an order into runnable work. Next: **[schedule the job](/guides/run-production/scheduling)**.
+<Callout type="note">The list shows a computed **display status** that can read `In Progress` while the stored status is `To Ship and Invoice` — make-to-order lines with open jobs.</Callout>
+
+<Cards>
+  <Card title="Ship, invoice, get paid" href="/guides/order-to-cash">The story of fulfilling this order.</Card>
+</Cards>
 ```
-
-### How-to (task, assumes context)
-```mdx
-# Reserve material for a job
-
-**Goal:** guarantee the parts a job needs are set aside before it starts.
-
-Steps … (terse, numbered)
-
-<Callout type="warn">Reserving doesn't issue — material still has to be issued at the operation.</Callout>
-```
-
-### Concept (explanation)
-```mdx
-# Routings
-
-A routing is the recipe the shop floor follows to make a part: the ordered operations and the work center
-each runs on. It's what turns "we have an order" into "here's exactly what happens, in what order, where."
-
-## Why it matters
-Without a routing, a job can't be scheduled or costed…
-
-## How Carbon models it
-…link to the reference page for fields…
-
-<FeatureCallout title="Try in Carbon" href="https://app.carbon.ms" cta="Open the routing builder →"
-  aside="Templated per item revision.">
-Lay out operations and assign work centers; Carbon estimates run time from each center's rates.
-</FeatureCallout>
-```
-
-### Reference (exhaustive, scannable)
-```mdx
-# Work order fields
-
-<TypeTable type={{
-  quantity: { type: "number", description: "Units to produce." },
-  dueDate: { type: "date", description: "Promised completion." },
-  status: { type: "enum", description: "Planned · Released · In progress · Done." }
-}} />
-```
-
-## Sentence-level craft
-
-- **Openers**: state the takeaway. ✗ "This section covers routings." ✓ "A routing is the recipe the floor
-  follows."
-- **Transitions**: short and forward. "Now the job exists — schedule it."
-- **Lists**: parallel grammar; each item a full, useful thought. Don't pad to reach a round number.
-- **Numbers**: numerals for quantities ("3 operations"), tabular alignment in tables.
-- **Links**: link the *noun*, inline. "Assign each operation to a **[work center](/erp/work-centers)**."
-  Never "click [here]".
-- **Headings**: descriptive, not cute. A reader scanning only the headings should understand the page's
-  arc.
 
 ## The "earn its place" test
 
-Before you ship a page, read it as a newcomer and check each paragraph does at least one of:
-- **teaches** something they didn't know,
-- **warns** them about a mistake, or
-- **moves** them to the next step.
+Before shipping a page, read it as a Carbon newcomer. Each paragraph must **teach**, **warn**, or **move
+forward** — cut anything that does none. Then the page as a whole:
+- First paragraph states what matters?
+- Common mistake named?
+- Clear next step / link at the end?
+- Could a real example replace an abstract sentence? Replace it.
+- **Every status/name/transition checked against source?** (Rule 0.)
 
-Cut anything that does none of the three. Then check the page as a whole:
-- Does the first paragraph state what matters?
-- Is the common mistake named?
-- Is there a clear next step at the end?
-- Could a real example replace any abstract sentence? If so, replace it.
+## Tone calibration
 
-If a page passes that, it's cofounder-grade. That's the bar.
-
-## Tone calibration for Carbon
-
-cofounder writes to startup founders; Carbon writes to manufacturers, shop managers, and the engineers
-configuring their system. Keep the opinionated, specific, time-respecting voice — but the expertise is
-operational, not startup-y. Sound like a sharp manufacturing systems consultant who has set up a hundred
-shops and knows exactly where they go wrong: confident, concrete, never condescending, never padded.
+You're writing to manufacturers, shop managers, and the engineers configuring their system. Sound like a
+sharp manufacturing-systems consultant who has set up a hundred shops and knows exactly where they go wrong:
+confident, concrete, never padded, never condescending — and never guessing about how Carbon actually behaves.
