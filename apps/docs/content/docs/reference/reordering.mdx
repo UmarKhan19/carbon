@@ -1,0 +1,43 @@
+---
+title: Reordering policy
+description: How each part decides when and how much to replenish — the policy and the numbers that drive planning.
+---
+
+Every part carries a **reordering policy** that tells planning how to replenish it. The policy decides
+*when and how much*; the **replenishment system** decides whether that becomes a purchase order or a job.
+
+## Policies
+
+| Policy | Triggers when | Orders |
+| --- | --- | --- |
+| Manual Reorder | never automatically | nothing — you order by hand |
+| Demand-Based Reorder | demand appears | exactly what demand needs, grouped by the demand accumulation period |
+| Fixed Reorder Quantity | on-hand falls to the reorder point | a fixed reorder quantity |
+| Maximum Quantity | on-hand falls to the reorder point | enough to reach the maximum inventory quantity |
+
+## Fields
+
+| Field | Applies to | Description |
+| --- | --- | --- |
+| Reorder point | Fixed Reorder Quantity, Maximum Quantity | On-hand level that triggers a new order. |
+| Reorder quantity | Fixed Reorder Quantity | Fixed amount to order each time. |
+| Maximum inventory quantity | Maximum Quantity | Level to top stock back up to. |
+| Minimum / maximum order quantity | all | Clamp each suggested order into an orderable range. |
+| Lot size | all | Round an order up to a multiple. |
+| Demand accumulation period | Demand-Based Reorder | Window that groups demand into a single order. |
+
+<Callout type="info">
+Policies are set per part, and planning can run per location — so the same part can use demand-based
+reorder at one site and simple min/max at another.
+</Callout>
+
+## Related
+
+<Cards>
+  <Card title="Plan ahead" href="/guides/plan">
+    See reordering policies feed the planning run that proposes jobs and POs.
+  </Card>
+  <Card title="Methods & sourcing" href="/docs/reference/methods">
+    The replenishment system that decides buy vs make.
+  </Card>
+</Cards>

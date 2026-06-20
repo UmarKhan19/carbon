@@ -1,0 +1,43 @@
+---
+title: Receipts
+description: Goods coming in — receiving against a purchase order and posting to inventory.
+---
+
+A **receipt** brings goods in. Like shipments, one receipt model serves several sources — most often a purchase order, but also inbound transfers — and posting is what turns a delivery into stock on hand.
+
+## Why it matters
+
+A receipt line soft-links back to the purchase order line it fulfills. Posting adds the quantity to inventory, raises the order line's received quantity, and advances the order — and, when accounting is enabled, debits inventory (or work-in-process, for outside processing) against a goods-received-not-invoiced accrual that the supplier invoice later clears.
+
+## Fields
+
+| Field | Type | Description |
+| --- | --- | --- |
+| Source document | reference | The purchase order (or transfer) being received. |
+| Received quantity | number | Units on this receipt, per line. |
+| Conversion factor | number | Converts the supplier's purchase unit to the stock unit. |
+| Location | reference | Where the goods land. |
+
+## Status
+
+| Status | Meaning |
+| --- | --- |
+| Draft | Being prepared; nothing posted. |
+| Pending | Queued to post. |
+| Posted | Inventory increased and the order advanced. |
+| Voided | Reversed after posting. |
+
+<Callout type="info">
+Receive an item flagged for inspection and its units land **On Hold**, with an inbound inspection opened at *Pending* — they don't become available stock until the inspection clears.
+</Callout>
+
+## Related
+
+<Cards>
+  <Card title="Receive, match, bill" href="/guides/receive-and-bill">
+    Posting a receipt in the RFQ-to-bill flow.
+  </Card>
+  <Card title="Purchase orders" href="/docs/reference/purchase-orders">
+    The document a receipt advances.
+  </Card>
+</Cards>

@@ -1,0 +1,184 @@
+/* Carbon docs — Tailwind v4 + Geist + Carbon tokens + Fumadocs UI.
+ * See .claude/skills/carbon-docs/references/brand-integration.md for the why. */
+
+@import "tailwindcss";
+
+/* Geist (Carbon's typeface) */
+@import "non.geist";
+@import "non.geist/mono";
+
+/* Carbon's token → utility mapping (@theme inline) + @plugins */
+@import "@carbon/config/tailwind/theme.css";
+
+/* Fumadocs UI base + a neutral preset we override with Carbon tokens below */
+@import "fumadocs-ui/css/neutral.css";
+@import "fumadocs-ui/css/preset.css";
+
+/* Scan the docs app's own files for utility classes */
+@source "../";
+
+/* Swap the site typeface to DM Sans / IBM Plex Mono (matches the editorial Guide).
+ * This overrides Carbon theme.css's Geist font-sans utility site-wide. */
+@theme {
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Fira Code", ui-monospace, monospace;
+}
+
+/* Raw token values for the default "Modern" (zinc) theme, baked in because a
+ * Next app has no React Router root route to inject them at runtime. */
+:root {
+  /* Warm paper editorial palette — matches the Guide (#F5F5F2 paper, #262323 ink). */
+  --background: 60 11% 95%;
+  --foreground: 0 4% 14%;
+  --card: 60 33% 98%;
+  --card-foreground: 0 4% 14%;
+  --popover: 60 20% 99%;
+  --popover-foreground: 0 4% 14%;
+  --active: 60 8% 90%;
+  --active-foreground: 0 4% 14%;
+  --primary: 0 4% 14%;
+  --primary-foreground: 60 11% 96%;
+  --secondary: 60 9% 93%;
+  --secondary-foreground: 0 4% 14%;
+  --muted: 60 9% 93%;
+  --muted-foreground: 24 4% 44%;
+  --accent: 60 8% 90%;
+  --accent-foreground: 0 4% 14%;
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 60 8% 90%;
+  --input: 60 8% 90%;
+  --ring: 0 4% 30%;
+  --success: 142 60% 40%;
+  --success-foreground: 0 0% 98%;
+  --radius: 0.5rem;
+
+  /* Editorial highlight accent — the clone's #00B0FF blue */
+  --brand: 199 100% 50%;
+}
+
+.dark {
+  --background: 0 0% 0%;
+  --foreground: 0 0% 93%;
+  --card: 0 0% 4%;
+  --card-foreground: 0 0% 93%;
+  --popover: 0 0% 7%;
+  --popover-foreground: 0 0% 93%;
+  --active: 0 0% 10%;
+  --active-foreground: 0 0% 100%;
+  --primary: 0 0% 100%;
+  --primary-foreground: 0 0% 0%;
+  --secondary: 0 0% 7%;
+  --secondary-foreground: 0 0% 93%;
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 63%;
+  --accent: 0 0% 10%;
+  --accent-foreground: 0 0% 93%;
+  --destructive: 0 100% 64%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 0 0% 15%;
+  --input: 0 0% 15%;
+  --ring: 0 0% 35%;
+  --success: 152 72% 53%;
+  --success-foreground: 0 0% 0%;
+
+  --brand: 213 94% 68%;
+}
+
+/* Expose --brand as Tailwind color utilities (text-brand, bg-brand, bg-brand/10) */
+@theme inline {
+  --color-brand: hsl(var(--brand));
+}
+
+/* Map Fumadocs' own theme variables onto Carbon tokens — one palette everywhere */
+:root,
+.dark {
+  --color-fd-background: hsl(var(--background));
+  --color-fd-foreground: hsl(var(--foreground));
+  --color-fd-muted: hsl(var(--muted));
+  --color-fd-muted-foreground: hsl(var(--muted-foreground));
+  --color-fd-popover: hsl(var(--popover));
+  --color-fd-popover-foreground: hsl(var(--popover-foreground));
+  --color-fd-card: hsl(var(--card));
+  --color-fd-card-foreground: hsl(var(--card-foreground));
+  --color-fd-border: hsl(var(--border));
+  --color-fd-primary: hsl(var(--primary));
+  --color-fd-primary-foreground: hsl(var(--primary-foreground));
+  --color-fd-secondary: hsl(var(--secondary));
+  --color-fd-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-fd-accent: hsl(var(--accent));
+  --color-fd-accent-foreground: hsl(var(--accent-foreground));
+  --color-fd-ring: hsl(var(--ring));
+}
+
+/* Carbon's theme.css pulls in @tailwindcss/typography, whose `.prose` rules
+ * collide with Fumadocs' content (also `.prose`) and apply fixed grays that
+ * don't adapt to dark mode. Point Typography's color vars at Carbon tokens so
+ * prose text is theme-aware (near-white on dark, near-black on light). */
+.prose {
+  --tw-prose-body: hsl(var(--foreground));
+  --tw-prose-headings: hsl(var(--foreground));
+  --tw-prose-lead: hsl(var(--muted-foreground));
+  --tw-prose-links: hsl(var(--primary));
+  --tw-prose-bold: hsl(var(--foreground));
+  --tw-prose-counters: hsl(var(--muted-foreground));
+  --tw-prose-bullets: hsl(var(--border));
+  --tw-prose-hr: hsl(var(--border));
+  --tw-prose-quotes: hsl(var(--foreground));
+  --tw-prose-quote-borders: hsl(var(--border));
+  --tw-prose-captions: hsl(var(--muted-foreground));
+  --tw-prose-code: hsl(var(--foreground));
+  --tw-prose-pre-code: hsl(var(--foreground));
+  --tw-prose-pre-bg: hsl(var(--muted));
+  --tw-prose-th-borders: hsl(var(--border));
+  --tw-prose-td-borders: hsl(var(--border));
+  font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Kill Tailwind Typography's default underlines. Heading anchors never underline;
+ * body links underline only on hover. (This was the "underlines everywhere" issue.) */
+.prose a {
+  text-decoration: none;
+  font-weight: inherit;
+}
+.prose p a:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.prose :where(h1, h2, h3, h4, h5, h6) a {
+  color: inherit;
+}
+
+@layer base {
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: var(--font-sans);
+    letter-spacing: var(--tracking-normal);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Editorial reading rhythm for the Guide surface (.guide-prose on the article) */
+  .guide-prose p,
+  .guide-prose li {
+    font-size: 1.0625rem;
+    line-height: 1.75;
+  }
+  .guide-prose h1 {
+    font-size: clamp(2.25rem, 5vw, 2.75rem);
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    font-weight: 600;
+  }
+  .guide-prose h2 {
+    margin-top: 3rem;
+    font-size: 1.5rem;
+    letter-spacing: -0.02em;
+    font-weight: 600;
+  }
+
+  table {
+    font-variant-numeric: tabular-nums;
+  }
+}

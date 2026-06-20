@@ -1,0 +1,47 @@
+---
+title: App connections
+description: Connect Carbon to your accounting, CAD, project-management, and messaging tools.
+---
+
+Carbon ships a set of first-party **integrations** to third-party apps. Each one is enabled per company under **Settings → Integrations**, where you flip it on and supply its credentials or settings.
+
+## Available integrations
+
+| Integration | Category | What it does |
+| --- | --- | --- |
+| Email | Email | Sends outbound email — Carbon-managed via Resend, or your own SMTP server. |
+| Exchange Rates | Accounting | Keeps currency exchange rates up to date automatically. |
+| Xero | Accounting | Posts sales and purchase invoices to Xero, with account mapping and an initial backfill. |
+| Slack | Assistant | Brings the Carbon Assistant into Slack and sends nonconformance notifications. |
+| Onshape | CAD | Syncs CAD data from Onshape. |
+| Paperless Parts | Estimating & Quoting | Syncs quotes and BOMs with Paperless Parts. |
+| Jira | Project Management | Links quality issues to Jira. |
+| Linear | Project Management | Syncs issues with Linear. |
+
+<Callout type="note">
+Xero, Slack, Onshape, and Jira authenticate over OAuth; Exchange Rates, Linear, and Paperless Parts use an API key; Email is configured with provider settings. A few connectors need server-side credentials to appear at all — **Jira** and **Onshape** require their OAuth client to be configured, and **Slack** is unavailable in controlled (ITAR) environments.
+</Callout>
+
+## How configuration works
+
+An integration has two parts: a system-wide definition and a per-company activation.
+
+- The **definition** carries a JSON schema describing the fields that integration needs (API keys, OAuth tokens, mapping options).
+- The **activation** is a `companyIntegration` row — an `active` flag plus a `metadata` object holding your credentials and settings. Carbon validates that metadata against the integration's schema, so an integration can't be switched on with incomplete configuration.
+
+That's the whole model: turning an integration on is writing a validated `metadata` blob and setting `active = true` for your company.
+
+## How syncing works
+
+Integrations that mirror data — Xero, Linear, Jira, Paperless Parts — keep a mapping between each Carbon record and its counterpart in the external system, so a Carbon customer, item, or invoice always resolves to the same remote id on the next sync. The work itself runs in the background: an initial backfill when you connect, then continuous syncing as records change.
+
+## Related
+
+<Cards>
+  <Card title="Webhooks" href="/docs/integrate/webhooks">
+    Push record changes to your own endpoints instead of a packaged integration.
+  </Card>
+  <Card title="Environment variables" href="/docs/platform/environment-variables">
+    The server-side credentials that gate OAuth integrations.
+  </Card>
+</Cards>

@@ -1,0 +1,24 @@
+{
+  "title": "Product reference",
+  "defaultOpen": true,
+  "pages": [
+    "items",
+    "methods",
+    "routings",
+    "work-centers",
+    "jobs",
+    "reordering",
+    "planning",
+    "quotes",
+    "sales-orders",
+    "purchase-orders",
+    "shipments",
+    "receipts",
+    "invoices",
+    "accounting",
+    "quality",
+    "suppliers-and-customers",
+    "inventory",
+    "traceability"
+  ]
+}

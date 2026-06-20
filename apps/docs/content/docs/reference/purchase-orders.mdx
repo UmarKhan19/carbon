@@ -1,0 +1,48 @@
+---
+title: Purchase orders
+description: A commitment to a supplier — what to receive, and what you'll be billed for.
+---
+
+A **purchase order** is a commitment to buy from a supplier. It may come from comparing supplier quotes or be raised directly, and it's the document receipts and supplier invoices reconcile against.
+
+## Why it matters
+
+Like a sales order in reverse, a purchase order line keeps two independent counters — how much has been received, and how much has been invoiced — and only closes when both are satisfied. Receiving and billing advance the same order along separate axes.
+
+## Line fields
+
+| Field | Type | Description |
+| --- | --- | --- |
+| Item | reference | What's being bought. |
+| Purchase quantity | number | Ordered quantity. |
+| Quantity received | number | Received so far; `quantity to receive` is the remainder. |
+| Quantity invoiced | number | Billed so far; `quantity to invoice` is the remainder. |
+| Conversion factor | number | Converts the supplier's purchase unit to the stock unit. |
+
+## Types
+
+A purchase order is one of three kinds: a plain **Purchase**, a **Return** to the supplier, or **Outside Processing** — sending parts out to a vendor for a production step, where the line links to a job operation.
+
+## Status
+
+The status is computed from the state of its lines, never set by hand.
+
+| Status | Meaning |
+| --- | --- |
+| Draft / Planned | Being built, or suggested by planning. |
+| Needs Approval | Held for sign-off (amount-gated); rejection lands on *Rejected*. |
+| To Receive and Invoice | Confirmed; nothing received or billed yet. |
+| To Receive | Fully invoiced, still owes receipt. |
+| To Invoice | Fully received, still owes invoice. |
+| Completed / Closed | Fully received and invoiced, or ended. |
+
+## Related
+
+<Cards>
+  <Card title="RFQ to bill" href="/guides/rfq-to-po">
+    Shop suppliers, place the order, receive and bill against it.
+  </Card>
+  <Card title="Receipts" href="/docs/reference/receipts">
+    How goods are received against a purchase order.
+  </Card>
+</Cards>
