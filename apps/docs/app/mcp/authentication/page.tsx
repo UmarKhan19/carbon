@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
+import { ApiKeysLink, AuthHeader } from "@/components/api/config-inline";
 import {
   Code,
   DocEyebrow,
-  DocLink,
   DocPage,
   DocTitle,
   H2,
@@ -40,13 +40,9 @@ export default function McpAuthenticationPage() {
       <H2 id="api-key">API key</H2>
       <P>
         Claude Code, Cursor, VS Code, Codex, and any headless or CI client send
-        a scoped key as a bearer token:{" "}
-        <Code>Authorization: Bearer crbn_…</Code>. Create one in{" "}
-        <DocLink href="https://app.carbon.ms/x/settings/api-keys">
-          Settings → API Keys
-        </DocLink>
-        ; the key carries its own scopes. stdio-only clients bridge through{" "}
-        <Code>mcp-remote</Code>.
+        a scoped key as a bearer token: <AuthHeader />. Create one in{" "}
+        <ApiKeysLink>Settings → API Keys</ApiKeysLink>; the key carries its own
+        scopes. stdio-only clients bridge through <Code>mcp-remote</Code>.
       </P>
 
       <H2 id="permissions">Permissions</H2>

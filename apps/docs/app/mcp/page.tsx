@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { CodeBlock } from "@/components/api/code-block";
+import { McpEndpoint } from "@/components/api/config-inline";
 import {
-  Code,
   DocEyebrow,
   DocLink,
   DocPage,
@@ -102,7 +102,7 @@ export default async function McpPage() {
         language.
       </Lead>
       <P>
-        The server lives at <Code>{ENDPOINT}</Code>. Connect it one of two ways,
+        The server lives at <McpEndpoint />. Connect it one of two ways,
         depending on your client.
       </P>
 

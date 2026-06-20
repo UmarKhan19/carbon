@@ -73,15 +73,22 @@ export function applyBase(text: string, base: string): string {
 // host (rest.carbon.ms) the configurator controls. Derive the instance's MCP
 // endpoint from the configured base by swapping the `rest.` subdomain for `app.`.
 export const DEFAULT_MCP_ENDPOINT = "https://app.carbon.ms/api/mcp";
-function mcpEndpointFor(base: string): string {
-  if (base === DEFAULT_API_BASE) return DEFAULT_MCP_ENDPOINT;
+
+/** App host for the configured instance (where Settings and the MCP server live).
+ *  The configurator controls the REST host (rest.*); the app host swaps that subdomain. */
+export function appOrigin(base: string): string {
+  if (base === DEFAULT_API_BASE) return "https://app.carbon.ms";
   try {
     const u = new URL(base);
     u.hostname = u.hostname.replace(/^rest\./, "app.");
-    return `${u.origin}/api/mcp`;
+    return u.origin;
   } catch {
-    return DEFAULT_MCP_ENDPOINT;
+    return "https://app.carbon.ms";
   }
+}
+
+function mcpEndpointFor(base: string): string {
+  return `${appOrigin(base)}/api/mcp`;
 }
 
 function escapeHtml(s: string): string {
@@ -97,8 +104,16 @@ export function applyConfig(text: string, base: string, apiKey: string, html = f
   let out = applyBase(text, base);
   out = out.split(DEFAULT_MCP_ENDPOINT).join(mcpEndpointFor(base));
   if (apiKey) {
-    const needle = html ? escapeHtml(API_KEY_PLACEHOLDER) : API_KEY_PLACEHOLDER;
-    out = out.split(needle).join(html ? escapeHtml(apiKey) : apiKey);
+    if (html) {
+      const keyEsc = escapeHtml(apiKey);
+      // Shiki may encode the placeholder's angle brackets as hex (&#x3C;), decimal
+      // (&#60;), or named (&lt;) entities — substitute whichever form is present.
+      for (const needle of ["&#x3C;api-key&#x3E;", "&#60;api-key&#62;", "&lt;api-key&gt;"]) {
+        out = out.split(needle).join(keyEsc);
+      }
+    } else {
+      out = out.split(API_KEY_PLACEHOLDER).join(apiKey);
+    }
   }
   return out;
 }
