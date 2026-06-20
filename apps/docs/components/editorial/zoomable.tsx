@@ -25,6 +25,8 @@ function ignoreAbort(t: ViewTransitionLike | undefined) {
 export function Zoomable({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  // True only while a zoom open/close transition is in flight — see `set`.
+  const [morphing, setMorphing] = useState(false);
   // useId() contains characters illegal in a CSS ident (":"); strip them.
   const name = `zoom-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
 
@@ -36,7 +38,14 @@ export function Zoomable({ children }: { children: ReactNode }) {
     const doc = document as DocWithVT;
     const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     if (!reduce && typeof doc.startViewTransition === "function") {
-      ignoreAbort(doc.startViewTransition(() => flushSync(() => setOpen(next))));
+      // Attach the morph name only for the life of this transition. Left on permanently,
+      // the thumbnail is promoted into *every* view transition on the page — including the
+      // chapter-nav crossfade — where a named group paints in the top layer, above the
+      // fixed header. flushSync commits the name before the API captures the old snapshot.
+      flushSync(() => setMorphing(true));
+      const t = doc.startViewTransition(() => flushSync(() => setOpen(next)));
+      ignoreAbort(t);
+      t?.finished?.finally?.(() => setMorphing(false));
     } else {
       setOpen(next);
     }
@@ -61,8 +70,9 @@ export function Zoomable({ children }: { children: ReactNode }) {
       <button
         type="button"
         onClick={() => set(true)}
-        // The morph target lives on whichever of the two is currently shown.
-        style={{ viewTransitionName: open ? "none" : name, opacity: open ? 0 : 1 }}
+        // The morph name is present only mid-transition (and only on the visible one of the
+        // pair), so the thumbnail never joins unrelated transitions like the chapter swap.
+        style={{ viewTransitionName: morphing && !open ? name : "none", opacity: open ? 0 : 1 }}
         className="group relative block w-full cursor-zoom-in appearance-none border-0 bg-transparent p-0 text-left"
       >
         {/* Accessible name; prefixing keeps any visible caption in the name (Label in Name). */}

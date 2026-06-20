@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import { DocsNav, type DocsNavNode } from "@/components/api/docs-nav";
+import { TableOfContents } from "@/components/api/toc";
 import { MainHeader } from "@/components/main-header";
 import { NavScrollChevron } from "@/components/nav-scroll-chevron";
-import { ReadingProgress } from "@/components/reading-progress";
 import { ScrollHints } from "@/components/scroll-hints";
 import { source } from "@/lib/source";
 import "../reference.css";
@@ -54,8 +54,8 @@ export default function ReferenceLayout({ children }: { children: ReactNode }) {
         <main className="min-w-0 flex-1 px-[24px] pb-[140px] pt-[40px] lg:px-[56px]">
           {children}
         </main>
-        <aside className="hidden w-[72px] shrink-0 justify-end pl-[16px] xl:flex">
-          <ReadingProgress top={88} />
+        <aside className="hidden w-[232px] shrink-0 px-[28px] pt-[40px] xl:block">
+          <TableOfContents />
         </aside>
       </div>
 

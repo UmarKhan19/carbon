@@ -21,6 +21,12 @@ or change docs **in that system, in its house style, grounded in real Carbon cod
 > not absorbed; fixed-asset disposal is scrapping-only). **Every claim is grounded in source.** See the
 > prime directive below — it overrides everything.
 
+> **What Carbon is:** a manufacturing system — **ERP** (the office) + **MES** (the floor), one platform over
+> one data model. **Academy is *not* a third product pillar**: it just hosts training **video lessons**, not a
+> SaaS app a customer buys. Never frame Carbon as "ERP, MES, and training/Academy"; site, meta, and landing
+> copy stay **ERP + MES**. (The `academy` app can appear in an architecture/monorepo listing — fine; describe
+> it as video-lesson hosting, not a pillar.)
+
 ## The prime directive — ground everything in source
 
 The **holy source of truth is the actual source code + the LATEST database migrations**
@@ -56,14 +62,16 @@ Guide for the story. (Guide chapters were given 12 cross-flow links — interlin
    table/column/enum/transition names + `file:line`. Flag what a generic description would get wrong.
 2. **Pick the surface + placement.** Guide flow + frontmatter, or Reference folder + `meta.json` order.
 3. **Write in the house voice** with the surface's real components (below). Lead with a concrete example.
-4. **Verify (always).** Regenerate, typecheck, build, and grep the prerendered HTML:
+4. **Verify — against the user's running dev server, read-only.** They usually have `pnpm --filter docs dev`
+   up. **Never** `pkill`/restart it, run `next build`, or `rm .next` under it — verify by fetching pages:
    ```bash
    cd apps/docs
-   pnpm exec fumadocs-mdx                 # regen .source — REQUIRED after frontmatter/schema changes
-   npx tsc --noEmit                       # or: pnpm --filter docs typecheck
-   pnpm --filter docs build               # expect "✓ Generating static pages (N/N)"
-   grep -o "your new heading" .next/server/app/guides/<slug>.html   # confirm it rendered
+   pnpm exec fumadocs-mdx                 # regen .source if a content/frontmatter change didn't HMR
+   curl -sS -X GET http://localhost:3002/docs/<slug> | grep -o "your new heading"   # confirm it rendered
    ```
+   A green `pnpm --filter docs build` (`✓ Generating static pages N/N`) is the gold standard — but only in a
+   clean checkout / when no dev server is running. `tsc` is noisy (a React 18/19 `@types` skew that
+   `next.config` ignores) — grep your own files out of the errors rather than expecting zero.
 
 ## Guides — the flow architecture
 
@@ -112,13 +120,20 @@ Each `##` heading becomes a sidebar rail entry — so structure chapters as 3–
 - **Nav = `meta.json` `pages` arrays** (ordered). Folders: `content/docs/{reference,platform,integrate}/`.
   Root order in `content/docs/meta.json`; a folder's order + sidebar title in its own `meta.json`
   (`{ "title": "Product reference", "defaultOpen": true, "pages": [...] }`). Add a page → add its slug to
-  the folder's `pages`.
+  the folder's `pages`. **Don't list `index` in `pages`** — fumadocs treats `index.mdx` as the folder index
+  and the nav renders it as **"Overview"**; listing it duplicates the title as a sibling. Integrations are
+  their own top-level section (`content/docs/integrations/`) grouped by category — document only `active`
+  integrations (omit `active: false` placeholders + commented-out ones).
 - **Components** (`components/editorial/reference-components.tsx` + `components/mdx.tsx`):
   - `<Callout type="info|note|warn|warning|error|success|tip" title?>…</Callout>` — type → badge+tone
     (`info/note`→NOTE/blue, `warn/warning/error`→HEADS UP/amber, `success/tip`→GOOD TO KNOW/green). Note this
     is a **different Callout API** than the Guides one (type vs tone+badge).
   - `<Cards><Card title href icon?>…</Card></Cards>` — link-card grid (cross-surface navigation).
   - `<EnvVars><EnvVar name type? default? required?>…</EnvVar></EnvVars>` — field/parameter rows.
+  - `<PlanBadge plan="Business" />` — flags a paid-tier feature. Whole-page gate → set `plan: Business` in
+    frontmatter (renders inline with the page title); section gate → drop `<PlanBadge>` in-body. Gated
+    features = `packages/ee/src/plan.ts` (Business/Partner). **Don't** badge free ones (email, exchange-rates).
+    The gate is **Cloud-only** — self-hosted isn't plan-gated; note that where it matters.
   - `<Steps>/<Step>`, `<Tabs>/<Tab>` (fumadocs-ui), markdown tables, and code fences (dark panel).
 - Voice is more technical/scannable than the Guides — fields, constraints, tables — but still names the
   gotcha and links back to the Guide for the narrative.
@@ -132,6 +147,12 @@ Each `##` heading becomes a sidebar rail entry — so structure chapters as 3–
   why. ("Quotes are optional — the opportunity is the thread.")
 - **Explain the why, name the mistake, point to the next step.** If a paragraph does none of those, cut it.
 - **Interlink** at natural seams (`[make-to-order tour](/guides/order)`).
+- **Lead, don't label.** Don't open a page with a generic, repeated heading — no `## Introduction` on guide
+  chapters (the chapter title is rendered for you) and no `## Why it matters` on reference pages. Open with
+  1–2 substantive lead sentences, then go straight to the real sections. A heading that's identical on every
+  page is filler. Landing/index pages are **"Overview"**, never "Introduction".
+- **Name things as they are now.** Use a feature's current name; never narrate rename/removal history
+  ("formerly item rules", "storage units used to…"). When an old name and the code disagree, the code wins.
 
 ## Design / styling
 
@@ -152,6 +173,8 @@ Each `##` heading becomes a sidebar rail entry — so structure chapters as 3–
 - **Regen `.source` before typecheck** after any frontmatter/schema change (the schema is baked into
   `.source/` at generate time).
 - **Figure keys must exist** — see the list above; a typo renders nothing, silently.
+- **Bare `{…}` in MDX is a JS expression.** A token in prose like `{item.id}` (e.g. inside an example rule
+  message) fails the build with `item is not defined`. Wrap any literal braces/tokens in backticks: `` `{item.id}` ``.
 - **`Write` blocks on existing files** — natural collision protection when a parallel session co-writes the
   docs. Just write the next uncovered gap; don't pause to coordinate unless asked.
 - **`curl` GET can 405 in this sandbox** (a method-less request reads as POST) — use the WebFetch tool for
@@ -172,7 +195,7 @@ Each `##` heading becomes a sidebar rail entry — so structure chapters as 3–
 
 ## Verification bar
 
-Never declare docs done without: a green `pnpm --filter docs build`, `tsc` clean, the new content present in
-the prerendered HTML, every internal link resolving, names matching real code, and a re-read that confirms
-each page says what matters / names the mistake / points onward. Then record progress (this loop tracks it in
-`llm/tasks/` and the `project_docs_guide_flows` memory; the live API-reference/search work tracks its own).
+Never declare docs done without: the new content rendering (in the user's running dev server, or a clean
+`pnpm --filter docs build`), every internal link resolving, names matching real code, **no generic repeated
+headings**, and a re-read that confirms each page says what matters / names the mistake / points onward. Then
+record progress (`llm/tasks/` + memory). **Don't kill or rebuild under the user's running dev server.**

@@ -5,8 +5,6 @@ description: Goods coming in — receiving against a purchase order and posting 
 
 A **receipt** brings goods in. Like shipments, one receipt model serves several sources — most often a purchase order, but also inbound transfers — and posting is what turns a delivery into stock on hand.
 
-## Why it matters
-
 A receipt line soft-links back to the purchase order line it fulfills. Posting adds the quantity to inventory, raises the order line's received quantity, and advances the order — and, when accounting is enabled, debits inventory (or work-in-process, for outside processing) against a goods-received-not-invoiced accrual that the supplier invoice later clears.
 
 ## Fields

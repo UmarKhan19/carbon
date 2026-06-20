@@ -147,6 +147,12 @@
 }
 
 @layer base {
+  /* Anchor + reader scrolls glide; the reduced-motion block below forces this back to
+   * `auto`, so motion-sensitive users get an instant jump without any JS branch. */
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));

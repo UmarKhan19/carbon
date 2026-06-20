@@ -5,8 +5,6 @@ description: A commitment to a supplier — what to receive, and what you'll be 
 
 A **purchase order** is a commitment to buy from a supplier. It may come from comparing supplier quotes or be raised directly, and it's the document receipts and supplier invoices reconcile against.
 
-## Why it matters
-
 Like a sales order in reverse, a purchase order line keeps two independent counters — how much has been received, and how much has been invoiced — and only closes when both are satisfied. Receiving and billing advance the same order along separate axes.
 
 ## Line fields
@@ -44,5 +42,8 @@ The status is computed from the state of its lines, never set by hand.
   </Card>
   <Card title="Receipts" href="/docs/reference/receipts">
     How goods are received against a purchase order.
+  </Card>
+  <Card title="Approvals" href="/docs/reference/approvals">
+    Orders at or above a set amount wait for sign-off before they can be sent.
   </Card>
 </Cards>

@@ -20,7 +20,7 @@ const METHOD_ABBR: Record<string, string> = {
 };
 
 const REST_API = [
-  { label: "Introduction", href: "/api-reference" },
+  { label: "Overview", href: "/api-reference" },
   { label: "Authentication", href: "/api-reference/authentication" },
 ];
 

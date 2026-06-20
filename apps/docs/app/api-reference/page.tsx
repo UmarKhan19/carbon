@@ -43,7 +43,7 @@ export default async function ApiIntroPage() {
   return (
     <DocPage>
       <DocEyebrow>REST API</DocEyebrow>
-      <DocTitle>Introduction</DocTitle>
+      <DocTitle>Overview</DocTitle>
       <Lead>
         The Carbon API is a REST interface over your manufacturing data — every
         table and view is an endpoint, with full read and write access.

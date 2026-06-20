@@ -103,12 +103,20 @@ export function GuideProvider({
   const isUserScrolling = useRef(false);
   const guardTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Smooth scrolls omit `behavior`, deferring to the `scroll-behavior: smooth` on <html>
+  // — so reduced-motion users get an instant jump for free (their media query forces it
+  // back to `auto`). Chapter swaps pass smooth=false to land instantly under the view
+  // transition, where a glide would just fight the crossfade.
   const scrollToAnchor = useCallback((id: string, smooth: boolean) => {
     if (!id) return;
     const target = document.getElementById(id);
     if (!target) return;
-    const top = target.getBoundingClientRect().top + window.scrollY - CHROME - 16;
-    window.scrollTo({ top: Math.max(0, top), behavior: smooth ? "smooth" : "auto" });
+    const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - CHROME - 16);
+    window.scrollTo(smooth ? { top } : { top, behavior: "auto" });
+  }, []);
+
+  const scrollToTop = useCallback((smooth: boolean) => {
+    window.scrollTo(smooth ? { top: 0 } : { top: 0, behavior: "auto" });
   }, []);
 
   const goTo = useCallback(
@@ -118,9 +126,13 @@ export function GuideProvider({
 
       const prev = activeRef.current;
       const isNewChapter = pos.chapter !== prev.chapter;
-      const anchor = chapter.items[pos.item]?.id ?? "";
+      // Only an explicit deeper section (item > 0) is a scroll target. Item 0 is the
+      // chapter's opening — landing there means the top of the page (its title + intro),
+      // not the first ## heading. Flow switches, prev/next, and Home all pass item 0, so
+      // they start at the top, and only a real section puts a #hash in the URL.
+      const anchor = pos.item > 0 ? (chapter.items[pos.item]?.id ?? "") : "";
       // Mirror the active section in the URL so a sidebar click is shareable: land on
-      // /guides/<slug>#<section-id> (or bare /guides/<slug> for a chapter with no ##).
+      // /guides/<slug>#<section-id> (or bare /guides/<slug> for the chapter top).
       const url = anchor ? `/guides/${chapter.slug}#${anchor}` : `/guides/${chapter.slug}`;
 
       // Suppress the scrollspy while we drive the scroll programmatically.
@@ -131,17 +143,19 @@ export function GuideProvider({
       }, 700);
 
       if (!isNewChapter) {
-        // Same chapter — just glide to the section, no transition.
+        // Same chapter — glide to the targeted section, or back up to the top.
         setActive(pos);
         window.history.replaceState(null, "", url);
-        requestAnimationFrame(() => scrollToAnchor(anchor, true));
+        requestAnimationFrame(() => (anchor ? scrollToAnchor(anchor, true) : scrollToTop(true)));
         return;
       }
 
-      // New chapter — swap content + jump to its top inside a view transition.
+      // New chapter — swap content inside a view transition and land instantly: at the
+      // targeted section, or the top of the page when no section is targeted.
       const apply = () => {
         flushSync(() => setActive(pos));
-        scrollToAnchor(anchor, false);
+        if (anchor) scrollToAnchor(anchor, false);
+        else scrollToTop(false);
       };
 
       const reduce =
@@ -160,7 +174,7 @@ export function GuideProvider({
 
       window.history.replaceState(null, "", url);
     },
-    [chapters, scrollToAnchor],
+    [chapters, scrollToAnchor, scrollToTop],
   );
 
   // The header wordmark fires `carbon:home` (a plain <Link href="/"> can't reset the

@@ -74,7 +74,7 @@ export default function McpAuthenticationPage() {
         />
       </Table>
 
-      <ContentFooter prev={{ label: "Introduction", url: "/mcp" }} />
+      <ContentFooter prev={{ label: "Overview", url: "/mcp" }} />
     </DocPage>
   );
 }

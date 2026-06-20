@@ -5,8 +5,6 @@ description: Goods going out — one posting model serving sales orders, returns
 
 A **shipment** moves goods out the door. One shipment model serves several source documents — a sales order, a purchase return, an outbound transfer — each tagged by what it came from, so the same posting logic handles them all.
 
-## Why it matters
-
 Creating a shipment changes nothing on hand. **Posting** it is the event that matters: it relieves inventory, advances the source document, and — when accounting is enabled — books the cost of what left. A shipment can be partial, so an order can go out in several.
 
 ## Fields

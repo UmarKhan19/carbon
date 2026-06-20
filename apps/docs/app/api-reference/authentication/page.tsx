@@ -189,7 +189,7 @@ export default async function AuthenticationPage() {
         />
       </Table>
 
-      <ContentFooter prev={{ label: "Introduction", url: "/api-reference" }} />
+      <ContentFooter prev={{ label: "Overview", url: "/api-reference" }} />
     </DocPage>
   );
 }

@@ -54,9 +54,9 @@ function PanelIcon() {
 }
 
 /** Mobile-only context bar — takes the slot the flow subnav holds on desktop. Shows
- *  where you are (flow / chapter) and opens the nav drawer the header hamburger uses,
- *  so the whole guide is one tap away without a row of chips. */
-function MobileContextBar({ flowName, title }: { flowName: string; title: string }) {
+ *  where you are (chapter / current section, the section tracking the scrollspy) and
+ *  opens the nav drawer, so the whole guide is one tap away without a row of chips. */
+function MobileContextBar({ chapter, section }: { chapter: string; section?: string }) {
   return (
     <button
       type="button"
@@ -69,9 +69,13 @@ function MobileContextBar({ flowName, title }: { flowName: string; title: string
       <span className="mx-auto flex w-full max-w-[1440px] items-center gap-[11px] px-[24px]">
         <PanelIcon />
         <span className="min-w-0 flex-1 truncate text-left text-[14px] font-[460] tracking-[0.15px] text-ink-ui">
-          <span className="text-ink-faint">{flowName}</span>
-          <span className="mx-[7px] text-[rgba(38,35,35,0.3)]">/</span>
-          {title}
+          <span className={section ? "text-ink-faint" : undefined}>{chapter}</span>
+          {section ? (
+            <>
+              <span className="mx-[7px] text-[rgba(38,35,35,0.3)]">/</span>
+              {section}
+            </>
+          ) : null}
         </span>
         <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true" className="shrink-0">
           <path
@@ -116,8 +120,8 @@ export function HowToLayout({ bodies }: { bodies: ReactNode[] }) {
   const nextInFlow = flowChapters[posInFlow + 1];
 
   return (
-    <main className="min-h-screen bg-[#F5F5F2]" style={{ paddingTop: "116px" }}>
-      <MobileContextBar flowName={currentChapter.flowName} title={currentChapter.title} />
+    <main className="min-h-screen bg-[#FBFBF9]" style={{ paddingTop: "116px" }}>
+      <MobileContextBar chapter={currentChapter.title} section={currentChapter.items[active.item]?.title} />
       <div className="mx-auto flex w-full max-w-[1440px] px-[20px]">
         {/* Sidebar (desktop) — sticky, self-start so it tracks the page scroll instead
             of stretching; scrolls internally only if it outgrows the viewport. */}
@@ -128,7 +132,7 @@ export function HowToLayout({ bodies }: { bodies: ReactNode[] }) {
         {/* Content — natural document flow. The window scrolls, so the footer only
             appears once the reader reaches the true end of the chapter. The big left
             indent eases off at xl, where the right-rail TOC fills that space instead. */}
-        <div className="min-w-0 flex-1 pb-[80px] pt-[28px] min-[476px]:pl-[32px] min-[640px]:pb-[120px] min-[640px]:pt-[44px] min-[1000px]:pl-[130px] min-[1000px]:pr-[20px] xl:pl-[80px] xl:pr-[40px]">
+        <div className="min-w-0 flex-1 pb-[80px] pt-[28px] min-[640px]:pl-[32px] min-[640px]:pb-[120px] min-[640px]:pt-[44px] min-[1000px]:pl-[130px] min-[1000px]:pr-[20px] xl:pl-[80px] xl:pr-[40px]">
           <div className="max-w-[620px]">
             <div className="flex flex-wrap items-center gap-[12px]">
               <span
@@ -147,6 +151,10 @@ export function HowToLayout({ bodies }: { bodies: ReactNode[] }) {
                 {currentChapter.readingTime} min read
               </span>
             </div>
+
+            <h1 className="mt-[18px] text-[32px] font-normal leading-[112%] text-ink md:text-[40px]">
+              {currentChapter.title}
+            </h1>
 
             {/* MDX body for the active chapter */}
             {bodies[active.chapter]}

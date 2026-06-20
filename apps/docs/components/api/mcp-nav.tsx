@@ -12,7 +12,7 @@ const CLASS_DOT: Record<string, string> = {
 };
 
 const MCP_LINKS = [
-  { label: "Introduction", href: "/mcp" },
+  { label: "Overview", href: "/mcp" },
   { label: "Authentication", href: "/mcp/authentication" },
   { label: "Tools", href: "/mcp/tools" },
 ];

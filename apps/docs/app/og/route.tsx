@@ -49,7 +49,7 @@ export async function GET(request: Request) {
         width: "100%",
         height: "100%",
         padding: "76px 80px",
-        background: "#F5F5F2",
+        background: "#FBFBF9",
         fontFamily: "DM Sans"
       }}
     >

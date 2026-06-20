@@ -118,7 +118,7 @@ function Paragraph(props: ComponentPropsWithoutRef<"p">) {
   return (
     <p
       {...props}
-      className="m-0 mt-[20px] text-[15px] font-[460] leading-[160%] tracking-[0.15px] text-[rgba(38,35,35,0.70)]"
+      className="m-0 mt-[20px] text-[0.97rem] font-normal leading-[1.72] tracking-[-0.32px] text-[rgba(38,35,35,0.78)]"
     />
   );
 }
@@ -131,7 +131,7 @@ function ListItem({ children, ...props }: ComponentPropsWithoutRef<"li">) {
   return (
     <li
       {...props}
-      className="flex gap-[12px] items-start text-[15px] font-[460] leading-[160%] tracking-[0.15px] text-[rgba(38,35,35,0.70)]"
+      className="flex gap-[12px] items-start text-[0.97rem] font-normal leading-[1.72] tracking-[-0.32px] text-[rgba(38,35,35,0.78)]"
     >
       <span className="mt-[8px] shrink-0 w-[8px] h-[8px] rounded-[24px] border-[1.5px] border-[rgba(190,190,190,0.50)] bg-[#F5F5F2] shadow-[0_1px_1px_0_#FFF,inset_0_0_0.357px_1.071px_#FFF,inset_0_0_0.357px_1.071px_rgba(255,255,255,0.35),inset_0_1.429px_0_0_#FFF]" />
       <span className="flex-1">{children}</span>
