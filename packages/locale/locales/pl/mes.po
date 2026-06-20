@@ -722,6 +722,9 @@ msgstr "Pobierz"
 msgid "Pick tracked item"
 msgstr "Wybierz śledzony element"
 
+msgid "Picked"
+msgstr "Pobrane"
+
 msgid "Picked quantity"
 msgstr "Pobrana ilość"
 

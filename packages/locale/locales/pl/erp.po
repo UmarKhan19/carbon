@@ -2257,9 +2257,6 @@ msgstr "Metoda domyślna"
 msgid "Default Method Type"
 msgstr "Domyślny typ metody"
 
-msgid "Default order when picking serial or batch lots of this item. Pickers can still override it."
-msgstr "Domyślna kolejność podczas wybierania partii seryjnych lub zbiorczych tego artykułu. Pracownicy mogą ją nadal zmienić."
-
 msgid "Default Permissions"
 msgstr "Uprawnienia domyślne"
 

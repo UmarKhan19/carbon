@@ -6235,6 +6235,31 @@
       }
     },
     {
+      "name": "inventory_getPickingListRecommendations",
+      "module": "inventory",
+      "classification": "READ",
+      "description": "get picking list recommendations",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "pickingListId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "pickingListId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "pickingListId"
+        ]
+      }
+    },
+    {
       "name": "inventory_getPickingListLine",
       "module": "inventory",
       "classification": "READ",

@@ -2257,9 +2257,6 @@ msgstr "Método Predeterminado"
 msgid "Default Method Type"
 msgstr "Tipo de Método Predeterminado"
 
-msgid "Default order when picking serial or batch lots of this item. Pickers can still override it."
-msgstr "Orden predeterminada al seleccionar lotes seriales o por lotes de este artículo. Los recolectores aún pueden anularla."
-
 msgid "Default Permissions"
 msgstr "Permisos Predeterminados"
 

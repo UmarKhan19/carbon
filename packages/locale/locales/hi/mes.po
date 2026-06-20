@@ -722,6 +722,9 @@ msgstr "चुनें"
 msgid "Pick tracked item"
 msgstr "ट्रैक किए गए आइटम को चुनें"
 
+msgid "Picked"
+msgstr "उठाया गया"
+
 msgid "Picked quantity"
 msgstr "चुना गया मात्रा"
 
