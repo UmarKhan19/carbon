@@ -1,0 +1,32 @@
+---
+title: Estimating & quoting
+plan: Business
+description: Pull quotes and bills of material from Paperless Parts into Carbon.
+---
+
+## Paperless Parts
+
+Connect with an **API key** plus a **webhook signing secret** (Paperless calls Carbon when something
+changes, and the secret verifies those calls). On connect you also set the defaults Carbon applies to items
+it imports.
+
+| Setting | What it controls |
+| --- | --- |
+| API key | Authenticates Carbon to Paperless Parts. |
+| Webhook signing secret | Verifies inbound webhooks from Paperless Parts. |
+| Method type | Default for imported items — **Purchase to Order** or **Pull from Inventory**. |
+| Tracking type | Default for imported items — **Inventory**, **Non-Inventory**, or **Batch**. |
+| Use Paperless order number | Whether to carry the Paperless order number onto the Carbon document. |
+
+Imported quotes and BOMs land as Carbon records, ready to turn into sales orders and jobs.
+
+## Related
+
+<Cards>
+  <Card title="Quotes" href="/docs/reference/quotes">
+    Where an imported estimate becomes a Carbon quote.
+  </Card>
+  <Card title="Methods & sourcing" href="/docs/reference/methods">
+    The bill of materials a Paperless import populates.
+  </Card>
+</Cards>

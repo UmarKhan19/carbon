@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import {
   Code,
   DocEyebrow,
@@ -10,12 +9,15 @@ import {
   Row,
   Table
 } from "@/components/api/doc";
+import { pageSeo, SEO } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "MCP Tools — Carbon",
-  description:
-    "Carbon's MCP server exposes 1,200+ tools through a lean discovery pattern."
-};
+export const metadata = pageSeo({
+  title: `${SEO.mcp.tools.title} — Carbon`,
+  ogTitle: SEO.mcp.tools.title,
+  description: SEO.mcp.tools.description,
+  path: "/mcp/tools",
+  eyebrow: "MCP"
+});
 
 const MODULES: [string, number][] = [
   ["Sales", 181],

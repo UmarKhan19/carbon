@@ -75,7 +75,7 @@ export function SiteFooter() {
               ))}
             </div>
             <div className="mt-[2px]">
-              <p className="m-0 text-[13px] text-white/45">System Status:</p>
+              <p className="m-0 text-[13px] text-white/60">System Status:</p>
               <a
                 href="https://status.carbon.ms"
                 target="_blank"
@@ -92,7 +92,7 @@ export function SiteFooter() {
           <div className="flex flex-1 flex-wrap gap-x-[56px] gap-y-[32px] lg:justify-center">
             {COLUMNS.map((col) => (
               <nav key={col.heading} className="flex min-w-[120px] flex-col gap-[12px]">
-                <p className="m-0 text-[13px] font-medium text-white/40">{col.heading}</p>
+                <p className="m-0 text-[13px] font-medium text-white/60">{col.heading}</p>
                 {col.links.map((link) => (
                   <a
                     key={link.label}
@@ -123,7 +123,7 @@ export function SiteFooter() {
 
         {/* Copyright */}
         <div className="mt-[40px] border-t border-white/10 pt-[20px]">
-          <p className="m-0 text-[13px] text-white/40">
+          <p className="m-0 text-[13px] text-white/60">
             © {year} Carbon Manufacturing Systems Corp. All rights reserved.
           </p>
         </div>

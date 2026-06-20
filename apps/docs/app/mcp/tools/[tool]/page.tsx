@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { Breadcrumb } from "@/components/api/breadcrumb";
 import { CodeBlock } from "@/components/api/code-block";
-import { Code, DocEyebrow, DocPage, H2, P } from "@/components/api/doc";
+import { Code, DocPage, H2, P } from "@/components/api/doc";
 import { highlight } from "@/lib/highlight";
+import { pageSeo } from "@/lib/seo";
 import { allToolParams, getTool, type ToolClass } from "@/lib/tools-data";
 
 type Params = { params: Promise<{ tool: string }> };
@@ -14,10 +16,13 @@ export function generateStaticParams() {
 export async function generateMetadata(props: Params): Promise<Metadata> {
   const { tool } = await props.params;
   const found = getTool(tool);
-  return {
+  return pageSeo({
     title: found ? `${found.tool.name} — Carbon MCP` : "Carbon MCP",
-    description: found?.tool.description
-  };
+    ogTitle: found?.tool.name ?? "Carbon MCP",
+    description: found?.tool.description,
+    path: `/mcp/tools/${tool}`,
+    eyebrow: found ? `MCP · ${found.module.name}` : "MCP"
+  });
 }
 
 const BADGE: Record<ToolClass, string> = {
@@ -137,7 +142,9 @@ export default async function ToolPage(props: Params) {
 
   return (
     <DocPage>
-      <DocEyebrow>MCP · {mod.name}</DocEyebrow>
+      <Breadcrumb
+        items={[{ label: "MCP", href: "/mcp" }, { label: mod.name }]}
+      />
       <div className="mt-[8px] flex flex-wrap items-center gap-[12px]">
         <h1 className="m-0 break-all font-[family-name:var(--font-mono)] text-[25px] font-[560] leading-[120%] text-[#262323]">
           {t.name}

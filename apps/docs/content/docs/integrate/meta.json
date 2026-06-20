@@ -1,5 +1,5 @@
 {
-  "title": "Integrate",
+  "title": "Building",
   "defaultOpen": true,
-  "pages": ["app-connections", "webhooks"]
+  "pages": ["webhooks"]
 }

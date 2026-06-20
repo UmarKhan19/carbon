@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import { DocsNav, type DocsNavNode } from "@/components/api/docs-nav";
-import { TableOfContents } from "@/components/api/toc";
 import { MainHeader } from "@/components/main-header";
 import { NavScrollChevron } from "@/components/nav-scroll-chevron";
+import { ReadingProgress } from "@/components/reading-progress";
 import { ScrollHints } from "@/components/scroll-hints";
 import { source } from "@/lib/source";
 import "../reference.css";
@@ -44,7 +44,7 @@ export default function ReferenceLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen w-full bg-[#FBFBF9]">
-      <MainHeader active="reference" />
+      <MainHeader active="reference" mobileNav={<DocsNav tree={tree} />} />
 
       <div className="mx-auto flex w-full max-w-[1480px] pt-[64px]">
         <aside className="nav-scroll-fade sticky top-[64px] hidden h-[calc(100dvh-64px)] w-[280px] shrink-0 overflow-y-auto border-r border-[#E7E7E3] px-[20px] py-[28px] scrollbar-hidden-until-scroll lg:block">
@@ -54,8 +54,8 @@ export default function ReferenceLayout({ children }: { children: ReactNode }) {
         <main className="min-w-0 flex-1 px-[24px] pb-[140px] pt-[40px] lg:px-[56px]">
           {children}
         </main>
-        <aside className="hidden w-[232px] shrink-0 px-[28px] pt-[40px] xl:block">
-          <TableOfContents />
+        <aside className="hidden w-[72px] shrink-0 justify-end pl-[16px] xl:flex">
+          <ReadingProgress top={88} />
         </aside>
       </div>
 

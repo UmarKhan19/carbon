@@ -21,6 +21,8 @@
     "quality",
     "suppliers-and-customers",
     "inventory",
+    "storage-rules",
+    "shelf-life",
     "traceability"
   ]
 }

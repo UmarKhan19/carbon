@@ -9,7 +9,7 @@
 
 /* ── Title + description (Fumadocs <DocsTitle>/<DocsDescription>) ───────────── */
 .reference-title {
-  font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-sans);
   font-size: clamp(2rem, 4vw, 2.5rem) !important;
   line-height: 1.12 !important;
   letter-spacing: -0.005em;
@@ -24,7 +24,7 @@
 
 /* ── Body headings ─────────────────────────────────────────────────────────── */
 .prose :where(h2):not(:where([class~="not-prose"] *)) {
-  font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-sans);
   font-size: 1.5rem;
   font-weight: 560;
   letter-spacing: 0.005em;
@@ -73,7 +73,7 @@
  * dozen identifiers per line; a solid dark fill turns that into a ransom note, so
  * inline stays quiet (ink on a whisper tint) while code blocks carry the dark. ── */
 .prose :not(pre) > code {
-  font-family: "Fira Code", ui-monospace, monospace;
+  font-family: var(--font-mono);
   font-size: 0.82em;
   font-weight: 450;
   color: #2b2825;
@@ -96,7 +96,7 @@
   padding: 11px 16px !important;
   padding-right: 64px !important;
   background: transparent !important;
-  font-family: "Fira Code", ui-monospace, monospace !important;
+  font-family: var(--font-mono) !important;
   font-size: 12.5px !important;
   line-height: 1.55 !important;
   scrollbar-width: none;
@@ -186,7 +186,7 @@
 #nd-sidebar,
 #nd-subnav,
 #nd-toc {
-  font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-sans);
 }
 
 /* MainHeader is fixed at 64px. Reserve that height via Fumadocs' own variable so the
@@ -255,7 +255,7 @@
 /* Table of contents: mono eyebrow heading + brand-accented active line */
 #nd-toc [data-toc] > p,
 #nd-toc h3 {
-  font-family: "IBM Plex Mono", ui-monospace, monospace !important;
+  font-family: var(--font-mono) !important;
   font-size: 10px !important;
   letter-spacing: 0.08em;
   text-transform: uppercase;

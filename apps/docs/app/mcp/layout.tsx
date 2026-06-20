@@ -2,14 +2,14 @@ import type { ReactNode } from "react";
 import { ApiConfigProvider } from "@/components/api/config-context";
 import { Configurator } from "@/components/api/configurator";
 import { McpNav } from "@/components/api/mcp-nav";
-import { TableOfContents } from "@/components/api/toc";
 import { MainHeader } from "@/components/main-header";
+import { ReadingProgress } from "@/components/reading-progress";
 import { toolsNavTree } from "@/lib/tools-data";
 
 export default function McpLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen w-full bg-[#FBFBF9]">
-      <MainHeader active="mcp" />
+      <MainHeader active="mcp" mobileNav={<McpNav tools={toolsNavTree} />} />
 
       <ApiConfigProvider>
         <div className="mx-auto flex w-full max-w-[1480px] pt-[64px]">
@@ -20,8 +20,8 @@ export default function McpLayout({ children }: { children: ReactNode }) {
           <main className="min-w-0 flex-1 px-[24px] pb-[140px] pt-[40px] lg:px-[56px]">
             {children}
           </main>
-          <aside className="hidden w-[232px] shrink-0 px-[28px] pt-[40px] xl:block">
-            <TableOfContents />
+          <aside className="hidden w-[72px] shrink-0 justify-end pl-[16px] xl:flex">
+            <ReadingProgress top={88} />
           </aside>
         </div>
       </ApiConfigProvider>

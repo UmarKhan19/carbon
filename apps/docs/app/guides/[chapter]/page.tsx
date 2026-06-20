@@ -3,10 +3,12 @@ import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import type { GuideChapter } from "@/components/editorial/guide-context";
 import { GuideProvider } from "@/components/editorial/guide-context";
+import { GuideMobileNav } from "@/components/editorial/guide-mobile-nav";
 import { GuideSubnav } from "@/components/editorial/guide-subnav";
 import { HowToLayout } from "@/components/editorial/how-to-layout";
 import { editorialMdxComponents } from "@/components/editorial/mdx";
 import { MainHeader } from "@/components/main-header";
+import { pageSeo, SEO } from "@/lib/seo";
 import { guideSource } from "@/lib/source";
 
 type Params = { params: Promise<{ chapter: string }> };
@@ -23,6 +25,20 @@ function tocText(node: ReactNode): string {
     );
   }
   return "";
+}
+
+// Rough reading time (~200 wpm) from the chapter's indexed text — the same
+// `structuredData` the search index already produces, so no extra parsing.
+function readingMinutes(structured?: {
+  contents?: { content: string }[];
+  headings?: { content: string }[];
+}): number {
+  const text = [
+    ...(structured?.contents ?? []).map((c) => c.content),
+    ...(structured?.headings ?? []).map((h) => h.content)
+  ].join(" ");
+  const words = text.trim().split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.round(words / 200));
 }
 
 // Chapters in reading order: flows are ordered by `flowIndex`, chapters within a
@@ -45,10 +61,19 @@ export function generateStaticParams() {
 export async function generateMetadata(props: Params): Promise<Metadata> {
   const { chapter } = await props.params;
   const page = orderedPages().find((p) => p.slugs[0] === chapter);
-  return {
-    title: page ? `${page.data.title} — Carbon` : "Carbon Docs",
-    description: page?.data.description
-  };
+  // Guide titles read as the guide (flow), not the chapter — so a shared chapter
+  // unfurls as "Make to order", not a stray line. Description is the guide's blurb.
+  return pageSeo({
+    title: page
+      ? `${page.data.label} ${page.data.flowName} — Carbon`
+      : "Carbon Docs",
+    ogTitle: page?.data.flowName ?? "Carbon Docs",
+    description: page
+      ? (SEO.guides[page.data.flow]?.description ?? page.data.description)
+      : SEO.site.description,
+    path: `/guides/${chapter}`,
+    eyebrow: "Guide"
+  });
 }
 
 export default async function GuidePage(props: Params) {
@@ -67,6 +92,7 @@ export default async function GuidePage(props: Params) {
     flow: p.data.flow,
     flowName: p.data.flowName,
     flowIndex: p.data.flowIndex,
+    readingTime: readingMinutes(p.data.structuredData),
     items: p.data.toc
       .filter((t) => t.depth === 2)
       .map((t) => ({
@@ -84,7 +110,7 @@ export default async function GuidePage(props: Params) {
 
   return (
     <GuideProvider chapters={chapters} initialSlug={chapter}>
-      <MainHeader active="guides" />
+      <MainHeader active="guides" mobileNav={<GuideMobileNav />} />
       <GuideSubnav />
       <HowToLayout bodies={bodies} />
     </GuideProvider>

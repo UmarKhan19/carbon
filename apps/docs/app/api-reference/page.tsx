@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { CodeBlock } from "@/components/api/code-block";
 import {
   Code,
@@ -14,11 +13,15 @@ import { ContentFooter } from "@/components/api/page-footer";
 import { SdkCards } from "@/components/api/sdk-cards";
 import { apiBase } from "@/lib/api-data";
 import { highlight } from "@/lib/highlight";
+import { pageSeo, SEO } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Introduction — Carbon API",
-  description: "The Carbon REST API — every table and view is an endpoint."
-};
+export const metadata = pageSeo({
+  title: `${SEO.api.intro.title} — Carbon`,
+  ogTitle: SEO.api.intro.title,
+  description: SEO.api.intro.description,
+  path: "/api-reference",
+  eyebrow: "API reference"
+});
 
 const ENV = `# .env
 CARBON_API_URL=${apiBase}

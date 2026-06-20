@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { ApiKeysLink, AuthHeader } from "@/components/api/config-inline";
 import {
   Code,
@@ -12,12 +11,15 @@ import {
   Table
 } from "@/components/api/doc";
 import { ContentFooter } from "@/components/api/page-footer";
+import { pageSeo, SEO } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "MCP Authentication — Carbon",
-  description:
-    "How MCP clients authenticate — connector OAuth or a scoped API key."
-};
+export const metadata = pageSeo({
+  title: `${SEO.mcp.auth.title} — Carbon`,
+  ogTitle: SEO.mcp.auth.title,
+  description: SEO.mcp.auth.description,
+  path: "/mcp/authentication",
+  eyebrow: "MCP"
+});
 
 export default function McpAuthenticationPage() {
   return (

@@ -3,10 +3,6 @@
 
 @import "tailwindcss";
 
-/* Geist (Carbon's typeface) */
-@import "non.geist";
-@import "non.geist/mono";
-
 /* Carbon's token → utility mapping (@theme inline) + @plugins */
 @import "@carbon/config/tailwind/theme.css";
 
@@ -17,11 +13,12 @@
 /* Scan the docs app's own files for utility classes */
 @source "../";
 
-/* Swap the site typeface to DM Sans / IBM Plex Mono (matches the editorial Guide).
- * This overrides Carbon theme.css's Geist font-sans utility site-wide. */
+/* Swap the site typeface to DM Sans / Fira Code (matches the editorial Guide), self-hosted
+ * via next/font (see app/layout.tsx). This overrides Carbon theme.css's Geist font utilities
+ * site-wide. The --font-dm-sans / --font-fira-code vars are set on <html> by next/font. */
 @theme {
-  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Fira Code", ui-monospace, monospace;
+  --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-fira-code), ui-monospace, monospace;
 }
 
 /* Raw token values for the default "Modern" (zinc) theme, baked in because a
@@ -132,7 +129,7 @@
   --tw-prose-pre-bg: hsl(var(--muted));
   --tw-prose-th-borders: hsl(var(--border));
   --tw-prose-td-borders: hsl(var(--border));
-  font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-sans);
 }
 
 /* Kill Tailwind Typography's default underlines. Heading anchors never underline;
@@ -180,5 +177,60 @@
 
   table {
     font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Honor reduced-motion globally: near-instant transitions/animations everywhere,
+ * including third-party (Radix, Fumadocs). Individual components (View Transitions,
+ * scroll-reveal, the lightbox) also opt out in their own code; this is the backstop. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Scroll-driven reveal + reading-progress — CSS-only, replacing the motion library.
+ * Content is in the SSR HTML and visible by default (never blocks LCP); these are
+ * pure enhancements where scroll-timeline is supported, and off under reduced-motion.
+ * `.reading-progress-fill` defaults to height:0 so unsupported browsers show no fill. */
+.reading-progress-fill {
+  height: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .scroll-reveal {
+      animation: scroll-reveal-in linear both;
+      animation-timeline: view();
+      animation-range: entry 2% entry 36%;
+    }
+  }
+  @supports (animation-timeline: scroll()) {
+    .reading-progress-fill {
+      animation: reading-progress-fill linear both;
+      animation-timeline: scroll(root block);
+    }
+  }
+}
+@keyframes scroll-reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes reading-progress-fill {
+  from {
+    height: 0%;
+  }
+  to {
+    height: 100%;
   }
 }
