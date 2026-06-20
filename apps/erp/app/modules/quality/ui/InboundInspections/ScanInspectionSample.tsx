@@ -1,5 +1,6 @@
 import { ValidatedForm } from "@carbon/form";
 import {
+  BarProgress,
   Button,
   HStack,
   Input,
@@ -39,6 +40,10 @@ type Props = {
   inspectionId: string;
   isSerial: boolean;
   remaining: InspectionTrackedEntity[];
+  inspected: number;
+  sampleSize: number;
+  fails: number;
+  acceptanceNumber: number;
   onClose: () => void;
 };
 
@@ -46,6 +51,10 @@ export default function ScanInspectionSample({
   inspectionId,
   isSerial,
   remaining,
+  inspected,
+  sampleSize,
+  fails,
+  acceptanceNumber,
   onClose
 }: Props) {
   const { t } = useLingui();
@@ -129,7 +138,21 @@ export default function ScanInspectionSample({
           }}
         >
           <ModalBody>
+            <Hidden name="inspectionId" value={inspectionId} />
+            <Hidden name="trackedEntityId" value={selected?.id ?? ""} />
+            <Hidden name="status" value={pendingStatus} />
+
             <VStack spacing={4} className="w-full">
+              <BarProgress
+                label={t`Progress`}
+                value={`${inspected} / ${sampleSize} · ${fails} ${fails === 1 ? "failure" : "failures"} · Ac ${acceptanceNumber}`}
+                progress={inspected}
+                max={Math.max(1, sampleSize)}
+                activeClassName={
+                  fails > acceptanceNumber ? "bg-red-500" : "bg-emerald-500"
+                }
+              />
+
               {isSerial && (
                 <Tabs defaultValue="scan" className="w-full">
                   <TabsList className="grid w-full grid-cols-2 mb-4">
@@ -226,10 +249,6 @@ export default function ScanInspectionSample({
                   </TabsContent>
                 </Tabs>
               )}
-
-              <Hidden name="inspectionId" value={inspectionId} />
-              <Hidden name="trackedEntityId" value={selected?.id ?? ""} />
-              <Hidden name="status" value={pendingStatus} />
 
               <TextArea name="notes" label={t`Notes`} isDisabled={!canRecord} />
             </VStack>

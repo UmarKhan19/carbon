@@ -586,25 +586,27 @@ const PartProperties = ({ data }: PartPropertiesProps) => {
           }}
         />
       </ValidatedForm>
-      <ValidatedForm
-        defaultValues={{
-          requiresInspection:
-            routeData?.partSummary?.requiresInspection ?? false
-        }}
-        validator={z.object({
-          requiresInspection: zfd.checkbox()
-        })}
-        className="w-full"
-      >
-        <Boolean
-          label={t`Requires Inspection`}
-          name="requiresInspection"
-          variant="small"
-          onChange={(value) => {
-            onUpdate("requiresInspection", value ? "on" : "off");
+      {routeData?.partSummary?.replenishmentSystem?.includes("Buy") && (
+        <ValidatedForm
+          defaultValues={{
+            requiresInspection:
+              routeData?.partSummary?.requiresInspection ?? false
           }}
-        />
-      </ValidatedForm>
+          validator={z.object({
+            requiresInspection: zfd.checkbox()
+          })}
+          className="w-full"
+        >
+          <Boolean
+            label={t`Requires Inspection`}
+            name="requiresInspection"
+            variant="small"
+            onChange={(value) => {
+              onUpdate("requiresInspection", value ? "on" : "off");
+            }}
+          />
+        </ValidatedForm>
+      )}
       <ValidatedForm
         defaultValues={{
           tags: routeData?.partSummary?.tags ?? []

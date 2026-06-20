@@ -213,6 +213,7 @@ export async function dispositionInboundInspection(
           "receiptLineId",
           "receiptId",
           "itemId",
+          "status",
           "supplierId",
           "samplingStandard",
           "severity",
@@ -225,6 +226,20 @@ export async function dispositionInboundInspection(
         .where("companyId", "=", args.companyId)
         .executeTakeFirst();
       if (!inspection) throw new Error("Inspection not found");
+
+      const item = await trx
+        .selectFrom("item")
+        .select(["itemTrackingType"])
+        .where("id", "=", inspection.itemId)
+        .where("companyId", "=", args.companyId)
+        .executeTakeFirst();
+
+      const receiptLine = await trx
+        .selectFrom("receiptLine")
+        .select(["locationId"])
+        .where("id", "=", inspection.receiptLineId)
+        .where("companyId", "=", args.companyId)
+        .executeTakeFirst();
 
       const lotEntities = await trx
         .selectFrom("trackedEntity")
@@ -280,6 +295,35 @@ export async function dispositionInboundInspection(
           .set({ status: flipStatus })
           .where("id", "in", idsToFlip)
           .where("companyId", "=", args.companyId)
+          .execute();
+      }
+
+      // Non-tracked (Inventory) items have no tracked entities to flip, so the
+      // received quantity sits in itemLedger with no per-row status to exclude
+      // it from on-hand. Rejecting the lot must post a compensating
+      // Negative Adjmt. to reverse the full received quantity. Tracked items
+      // are already handled by the status flip above; Non-Inventory items never
+      // posted a ledger entry at receipt, so neither needs this.
+      if (
+        args.decision === "Reject" &&
+        inspection.status !== "Failed" &&
+        item?.itemTrackingType === "Inventory" &&
+        inspection.lotSize > 0
+      ) {
+        await trx
+          .insertInto("itemLedger")
+          .values({
+            itemId: inspection.itemId,
+            locationId: receiptLine?.locationId ?? null,
+            entryType: "Negative Adjmt.",
+            documentType: "Inbound Inspection",
+            documentId: inspection.id,
+            quantity: -inspection.lotSize,
+            trackedEntityId: null,
+            companyId: args.companyId,
+            createdBy: args.dispositionedBy,
+            comment: "Inbound inspection lot rejected"
+          })
           .execute();
       }
 

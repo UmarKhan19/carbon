@@ -367,6 +367,10 @@ export default function InboundInspectionLotView({
           inspectionId={inspection.id}
           isSerial={isSerial}
           remaining={remaining}
+          inspected={inspected}
+          sampleSize={inspection.sampleSize}
+          fails={fails}
+          acceptanceNumber={inspection.acceptanceNumber}
           onClose={scannerDisclosure.onClose}
         />
       )}
