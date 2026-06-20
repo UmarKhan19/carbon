@@ -368,12 +368,17 @@ function PickLineItem({
   return (
     <div
       className={cn(
-        "flex items-center justify-between gap-6 p-4 border-b transition-opacity duration-150",
-        isLast && "border-none",
-        isResolved && "opacity-50 hover:opacity-100"
+        "group flex items-center justify-between gap-6 p-4 border-b",
+        isLast && "border-none"
       )}
     >
-      <HStack spacing={4} className="min-w-0 flex-1">
+      <HStack
+        spacing={4}
+        className={cn(
+          "min-w-0 flex-1 transition-opacity duration-150",
+          isResolved && "opacity-50 group-hover:opacity-100"
+        )}
+      >
         <ItemThumbnail
           size="lg"
           thumbnailPath={null}
@@ -414,28 +419,18 @@ function PickLineItem({
         ) : null}
         {isTracked ? (
           <Badge
-            className={cn(
-              "text-white text-base tabular-nums",
-              isFullyPicked
-                ? "bg-emerald-600"
-                : quantityPicked > 0
-                  ? "bg-orange-500"
-                  : "bg-red-600"
-            )}
+            variant={
+              isFullyPicked ? "green" : quantityPicked > 0 ? "orange" : "red"
+            }
+            className="text-base tabular-nums"
           >
             {quantityPicked}/{quantityToPick}
           </Badge>
         ) : (
           <Count
             count={isShort ? quantityPicked : quantityToPick}
-            className={cn(
-              "text-white text-base tabular-nums",
-              isFullyPicked
-                ? "bg-emerald-600"
-                : isShort
-                  ? "bg-orange-500"
-                  : "bg-red-600"
-            )}
+            variant={isFullyPicked ? "green" : isShort ? "orange" : "red"}
+            className="text-base tabular-nums"
           />
         )}
         {isLocked ? (

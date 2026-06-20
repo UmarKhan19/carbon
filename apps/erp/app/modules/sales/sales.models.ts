@@ -678,7 +678,7 @@ export const salesOrderLineType = [
 
 export const salesOrderStatusType = [
   "Draft",
-  // "In Progress",
+  "In Progress",
   "Needs Approval",
   // "Confirmed",
   "To Ship and Invoice",
