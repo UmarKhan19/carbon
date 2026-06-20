@@ -1,6 +1,11 @@
 import type { Database, Json } from "@carbon/database";
 import { fetchAllFromTable } from "@carbon/database";
-import type { Kysely, KyselyDatabase } from "@carbon/database/client";
+import type {
+  ExpressionBuilder,
+  Kysely,
+  KyselyDatabase,
+  KyselyTx
+} from "@carbon/database/client";
 import { getLocalTimeZone, now, today } from "@internationalized/date";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { nanoid } from "nanoid";
@@ -15,7 +20,9 @@ import type {
 } from "../shared";
 import {
   lookupBuyPriceFromMap,
+  type MethodType,
   type PriceBreak,
+  type SourcingType,
   type SupplierPriceMap
 } from "../shared";
 import {
@@ -46,6 +53,7 @@ import {
   type methodMaterialValidator,
   type methodOperationValidator,
   type partValidator,
+  type pickMethodSortMethods,
   type pickMethodValidator,
   type serviceValidator,
   type shelfLifeModes,
@@ -1316,7 +1324,9 @@ export async function getMethodMaterialsByMakeMethod(
 ) {
   return client
     .from("methodMaterial")
-    .select("*, item(name, itemTrackingType, replenishmentSystem)")
+    .select(
+      "*, item(name, itemTrackingType, replenishmentSystem, defaultMethodType, sourcingType)"
+    )
     .eq("makeMethodId", makeMethodId)
     .order("order", { ascending: true });
 }
@@ -2455,6 +2465,7 @@ export async function upsertPickMethodWithShelfLife(
     itemId: string;
     locationId: string;
     defaultStorageUnitId?: string | null;
+    sortMethod?: (typeof pickMethodSortMethods)[number];
     customFields?: Json;
     userId: string;
     shelfLife: {
@@ -2473,6 +2484,9 @@ export async function upsertPickMethodWithShelfLife(
       .updateTable("pickMethod")
       .set({
         defaultStorageUnitId: args.defaultStorageUnitId ?? null,
+        // Only overwrite when the caller surfaced the field; the column is
+        // NOT NULL DEFAULT 'Default' so we never set it null.
+        ...(args.sortMethod ? { sortMethod: args.sortMethod } : {}),
         customFields: args.customFields ?? null,
         updatedBy: args.userId,
         updatedAt
@@ -2717,6 +2731,131 @@ export async function cascadeItemTrackingType(
       )
       .execute();
   });
+}
+
+/**
+ * Updates item-level method/sourcing columns and mirrors the change down to
+ * every methodMaterial that references the item — in a single transaction, so
+ * the item and its mirrors can never be left half-applied.
+ *
+ * sourcingType and defaultMethodType are item-level properties; method
+ * materials are read-only mirrors. Only mirrors on Draft make methods are
+ * touched — Active and Archived methods are frozen.
+ */
+export async function updateItemMethodAndSourcing(
+  db: Kysely<KyselyDatabase>,
+  args: {
+    itemIds: string[];
+    companyId: string;
+    userId: string;
+    itemUpdate: {
+      replenishmentSystem?: Database["public"]["Enums"]["itemReplenishmentSystem"];
+      defaultMethodType?: MethodType;
+      sourcingType?: SourcingType;
+    };
+    cascade: {
+      sourcingType?: SourcingType;
+      methodType?: MethodType;
+    };
+  }
+) {
+  if (args.itemIds.length === 0) return;
+
+  const updatedAt = now(getLocalTimeZone()).toAbsoluteString();
+
+  return db.transaction().execute(async (trx) => {
+    await trx
+      .updateTable("item")
+      .set({ ...args.itemUpdate, updatedBy: args.userId, updatedAt })
+      .where("id", "in", args.itemIds)
+      .where("companyId", "=", args.companyId)
+      .execute();
+
+    await cascadeSourcingAndMethodTypeToMethodMaterials(trx, {
+      itemIds: args.itemIds,
+      companyId: args.companyId,
+      userId: args.userId,
+      newSourcingType: args.cascade.sourcingType,
+      newMethodType: args.cascade.methodType
+    });
+  });
+}
+
+/**
+ * Mirrors an item's sourcingType/methodType onto every methodMaterial that
+ * references it. Operates on a caller-supplied transaction so it composes with
+ * the item update above. Only method materials on Draft make methods are
+ * touched.
+ */
+async function cascadeSourcingAndMethodTypeToMethodMaterials(
+  trx: KyselyTx,
+  args: {
+    itemIds: string[];
+    companyId: string;
+    userId: string;
+    newSourcingType?: SourcingType;
+    newMethodType?: MethodType;
+  }
+) {
+  if (args.itemIds.length === 0) return;
+  if (!args.newSourcingType && !args.newMethodType) return;
+
+  const updatedAt = now(getLocalTimeZone()).toAbsoluteString();
+
+  // Restrict to method materials whose make method is still Draft.
+  const onDraftMakeMethod = (
+    eb: ExpressionBuilder<KyselyDatabase, "methodMaterial">
+  ) =>
+    eb(
+      "makeMethodId",
+      "in",
+      eb
+        .selectFrom("makeMethod")
+        .select("id")
+        .where("companyId", "=", args.companyId)
+        .where("status", "=", "Draft")
+    );
+
+  const baseSet: {
+    updatedBy: string;
+    updatedAt: string;
+    sourcingType?: SourcingType;
+  } = {
+    updatedBy: args.userId,
+    updatedAt
+  };
+  if (args.newSourcingType) baseSet.sourcingType = args.newSourcingType;
+
+  await trx
+    .updateTable("methodMaterial")
+    .set((eb) => ({
+      ...baseSet,
+      ...(args.newMethodType === "Make to Order"
+        ? {
+            methodType: "Make to Order" as const,
+            // materialMakeMethodId points at the component item's active make
+            // method (mirrors upsertMethodMaterial). Resolved with a correlated
+            // subquery so a single statement covers every item; null when the
+            // component has no active make method.
+            materialMakeMethodId: eb
+              .selectFrom("activeMakeMethods")
+              .select("id")
+              .whereRef(
+                "activeMakeMethods.itemId",
+                "=",
+                "methodMaterial.itemId"
+              )
+              .where("activeMakeMethods.companyId", "=", args.companyId)
+              .limit(1)
+          }
+        : args.newMethodType
+          ? { methodType: args.newMethodType, materialMakeMethodId: null }
+          : {})
+    }))
+    .where("itemId", "in", args.itemIds)
+    .where("companyId", "=", args.companyId)
+    .where(onDraftMakeMethod)
+    .execute();
 }
 
 export async function upsertConsumable(
@@ -3312,6 +3451,23 @@ export async function upsertMethodMaterial(
         customFields?: Json;
       })
 ) {
+  // sourcingType and methodType are item-level properties (edited in the
+  // item's Properties sidebar). A methodMaterial is a read-only mirror of its
+  // component item, so derive both from the item rather than trusting the
+  // submitted form values.
+  if (methodMaterial.itemId) {
+    const item = await client
+      .from("item")
+      .select("defaultMethodType, sourcingType")
+      .eq("id", methodMaterial.itemId)
+      .single();
+
+    if (item.error) return item;
+    methodMaterial.methodType =
+      item.data.defaultMethodType ?? methodMaterial.methodType;
+    methodMaterial.sourcingType = item.data.sourcingType;
+  }
+
   let materialMakeMethodId: string | null = null;
   if (methodMaterial.methodType === "Make to Order") {
     const makeMethod = await client

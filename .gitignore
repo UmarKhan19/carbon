@@ -68,4 +68,5 @@ docs/superpowers
 docs/e2e
 llm/tasks
 apps/*/portless.json
-packages/database/supabase/snippets/**.superpowers/
+packages/database/supabase/snippets/**
+.pr-review

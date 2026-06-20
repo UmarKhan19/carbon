@@ -76,6 +76,8 @@ async function resolve(
       return path.to.procedure(documentId);
     case NotificationEvent.StockTransferAssignment:
       return path.to.stockTransfer(documentId);
+    case NotificationEvent.PickingListAssignment:
+      return path.to.pickingList(documentId);
     case NotificationEvent.SuggestionResponse:
       return path.to.suggestion(documentId);
     case NotificationEvent.ApprovalApproved:

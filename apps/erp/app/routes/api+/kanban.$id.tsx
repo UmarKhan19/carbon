@@ -283,7 +283,6 @@ async function handleKanban({
 
     const createPurchaseOrderLine = await upsertPurchaseOrderLine(client, {
       purchaseOrderId: purchaseOrderId!,
-      // @ts-expect-error
       purchaseOrderLineType: item.data?.type,
       itemId: kanban.data.itemId!,
       purchaseQuantity: kanban.data.quantity!,
@@ -292,7 +291,6 @@ async function handleKanban({
       supplierShippingCost: 0,
       supplierTaxAmount: 0,
       exchangeRate: 1,
-      setupPrice: 0,
       purchaseUnitOfMeasureCode: kanban.data.purchaseUnitOfMeasureCode!,
       inventoryUnitOfMeasureCode:
         item.data?.unitOfMeasureCode || kanban.data.purchaseUnitOfMeasureCode!,

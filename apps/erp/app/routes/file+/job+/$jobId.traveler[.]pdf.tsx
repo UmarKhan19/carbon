@@ -12,8 +12,11 @@ import {
   toDocumentTemplate
 } from "@carbon/documents/template";
 import type { JSONContent } from "@carbon/react";
-import { getPreferenceHeaders } from "@carbon/react";
-import { flattenTree, generateBomIds } from "@carbon/utils";
+import {
+  flattenTree,
+  generateBomIds,
+  getPreferenceHeaders
+} from "@carbon/utils";
 import {
   Document,
   Font,
