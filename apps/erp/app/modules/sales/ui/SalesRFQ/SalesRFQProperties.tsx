@@ -305,7 +305,7 @@ const SalesRFQProperties = () => {
       >
         <DatePicker
           name="expirationDate"
-          label={t`Expiration Date`}
+          label={t`Due Date`}
           inline
           onChange={(date) => {
             onUpdate("expirationDate", date);
