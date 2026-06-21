@@ -287,6 +287,29 @@ Both customers and suppliers support:
 - Change tracking for all updates
 - User attribution for all modifications
 
+## Frontend: Customer Selection Dropdowns
+
+- Customer/supplier selection comboboxes are driven by client-side nanostores
+  (`useCustomers` / `useSuppliers` in `apps/erp/app/stores/`), NOT by an API
+  loader. The stores are hydrated and kept in sync by
+  `apps/erp/app/components/RealtimeDataProvider.tsx` (initial `fetchAllFromTable`
+  on the base `customer`/`supplier` table + `postgres_changes` realtime
+  handlers).
+- The `customer` store row carries `id, name, website, readableId,
+  customerStatusId`. (Supplier differs: the `supplier` table has a denormalized
+  `supplierStatus` *name* column, so the supplier store stores the status name
+  directly; customer status is FK-only via `customerStatusId`.)
+- **Inactive customers are excluded from selection inputs.** `Form/Customer.tsx`
+  (single) and `Form/Customers.tsx` (multi) filter out customers whose
+  `customerStatusId` matches the built-in "Inactive" status, resolved by
+  `useInactiveCustomerStatusId()` in `Form/CustomerStatus.tsx` (matches the
+  status named exactly "Inactive"). All other statuses — Active, Lead, On Hold,
+  Cancelled, custom — remain selectable, as do customers with no status.
+- The store still holds ALL customers (including inactive), so `CustomerAvatar`
+  lookups and table *filter* dropdowns (e.g. `SalesOrdersTable`, `QuotesTable`)
+  continue to show inactive customers — those operate over existing records and
+  are intentionally not filtered. Only the new-record selection inputs filter.
+
 ## Migration History
 
 Key migrations that built this schema:
