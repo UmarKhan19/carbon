@@ -312,7 +312,8 @@ const RealtimeDataProvider = ({ children }: { children: React.ReactNode }) => {
                           name: updated.name,
                           website: updated.website,
                           readableId: updated.readableId ?? undefined,
-                          customerStatusId: updated.customerStatusId ?? undefined
+                          customerStatusId:
+                            updated.customerStatusId ?? undefined
                         };
                       }
                       return p;
