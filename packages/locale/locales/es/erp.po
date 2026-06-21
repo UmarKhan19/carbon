@@ -7931,6 +7931,12 @@ msgstr "La fecha en que el cliente espera recibir los bienes"
 msgid "The date the item is required on-site to cover the period's projected demand."
 msgstr "La fecha en que se requiere el artículo en el sitio para cubrir la demanda proyectada del período."
 
+msgid "The date you received this RFQ from the customer. Defaults to today."
+msgstr ""
+
+msgid "The deadline to send your quote to the customer."
+msgstr ""
+
 msgid "The endpoint that receives a POST request with the updated data when the table is updated"
 msgstr "El endpoint que recibe una solicitud POST con los datos actualizados cuando la tabla se actualiza"
 

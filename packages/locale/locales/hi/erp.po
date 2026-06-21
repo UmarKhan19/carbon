@@ -7931,6 +7931,12 @@ msgstr "वह तारीख जिस दिन ग्राहक को स
 msgid "The date the item is required on-site to cover the period's projected demand."
 msgstr "वह तारीख जिस दिन आइटम साइट पर आवश्यक है ताकि अवधि की अनुमानित मांग को पूरा किया जा सके।"
 
+msgid "The date you received this RFQ from the customer. Defaults to today."
+msgstr ""
+
+msgid "The deadline to send your quote to the customer."
+msgstr ""
+
 msgid "The endpoint that receives a POST request with the updated data when the table is updated"
 msgstr "वह एंडपॉइंट जो तालिका अपडेट होने पर अपडेट किए गए डेटा के साथ POST अनुरोध प्राप्त करता है"
 

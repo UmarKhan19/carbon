@@ -7931,6 +7931,12 @@ msgstr "顧客が商品を受け取ることを期待する日付"
 msgid "The date the item is required on-site to cover the period's projected demand."
 msgstr "その期間の予想需要をカバーするために、アイテムがオンサイトで必要とされる日付。"
 
+msgid "The date you received this RFQ from the customer. Defaults to today."
+msgstr ""
+
+msgid "The deadline to send your quote to the customer."
+msgstr ""
+
 msgid "The endpoint that receives a POST request with the updated data when the table is updated"
 msgstr "テーブルが更新されたときに、更新されたデータを含むPOSTリクエストを受け取るエンドポイント"
 

@@ -7931,6 +7931,12 @@ msgstr "客户期望收到货物的日期"
 msgid "The date the item is required on-site to cover the period's projected demand."
 msgstr "该项目需要在现场到达的日期，以满足该期间的预计需求。"
 
+msgid "The date you received this RFQ from the customer. Defaults to today."
+msgstr ""
+
+msgid "The deadline to send your quote to the customer."
+msgstr ""
+
 msgid "The endpoint that receives a POST request with the updated data when the table is updated"
 msgstr "接收表格更新时包含更新数据的POST请求的端点"
 
