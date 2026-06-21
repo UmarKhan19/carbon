@@ -351,6 +351,7 @@ const initialOperation: Omit<
   operationLeadTime: 0,
   operationOrder: "After Previous",
   operationType: "Inside",
+  operationKind: "Operation",
   overheadRate: 0,
   processId: "",
   procedureId: "",

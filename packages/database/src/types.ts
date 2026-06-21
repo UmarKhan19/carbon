@@ -15888,6 +15888,7 @@ export type Database = {
           operationOrder: Database["public"]["Enums"]["methodOperationOrder"]
           operationQuantity: number | null
           operationSupplierProcessId: string | null
+          operationKind: Database["public"]["Enums"]["operationKind"]
           operationType: Database["public"]["Enums"]["operationType"]
           operationUnitCost: number
           order: number
@@ -21193,6 +21194,7 @@ export type Database = {
           operationMinimumCost: number | null
           operationOrder: Database["public"]["Enums"]["methodOperationOrder"]
           operationSupplierProcessId: string | null
+          operationKind: Database["public"]["Enums"]["operationKind"]
           operationType: Database["public"]["Enums"]["operationType"]
           operationUnitCost: number | null
           order: number
@@ -34252,6 +34254,7 @@ export type Database = {
           operationMinimumCost: number
           operationOrder: Database["public"]["Enums"]["methodOperationOrder"]
           operationSupplierProcessId: string | null
+          operationKind: Database["public"]["Enums"]["operationKind"]
           operationType: Database["public"]["Enums"]["operationType"]
           operationUnitCost: number
           order: number
@@ -65164,6 +65167,7 @@ export type Database = {
           setupUnit: Database["public"]["Enums"]["factor"]
           targetQuantity: number
           workCenterId: string
+          operationKind: Database["public"]["Enums"]["operationKind"]
           workInstruction: Json
         }[]
       }
@@ -66998,6 +67002,7 @@ export type Database = {
         | "Completed"
         | "Skipped"
       oeeImpact: "Down" | "Planned" | "Impact" | "No Impact"
+      operationKind: "Operation" | "Assembly" | "Inspection"
       operationType: "Inside" | "Outside"
       payableLineType:
         | "Comment"
