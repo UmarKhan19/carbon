@@ -7,7 +7,13 @@ import {
   CardTitle
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { forwardRef, useImperativeHandle, useRef, useState } from "react";
+import {
+  forwardRef,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState
+} from "react";
 import { useFetcher, useParams } from "react-router";
 import type { z } from "zod";
 import {
@@ -15,16 +21,21 @@ import {
   Hidden,
   Input,
   Location,
-  Number,
   Select,
   ShippingMethod,
   Submit
 } from "~/components/Form";
-import { usePermissions, useRouteData, useUser } from "~/hooks";
+import { usePermissions, useRouteData } from "~/hooks";
+import { useCurrencyFormatter } from "~/hooks/useCurrencyFormatter";
 import { incoterms } from "~/modules/shared";
 import { path } from "~/utils/path";
 import { isQuoteLocked, quoteShipmentValidator } from "../../sales.models";
-import type { Quotation } from "../../types";
+import type {
+  Quotation,
+  QuotationLine,
+  QuotationPrice,
+  SalesOrderLine
+} from "../../types";
 
 type QuoteShipmentFormProps = {
   initialValues: z.infer<typeof quoteShipmentValidator>;
@@ -47,7 +58,7 @@ const QuoteShipmentForm = forwardRef<
     initialValues.incoterm || undefined
   );
 
-  const shippingCostRef = useRef<HTMLInputElement>(null);
+  const shippingCostRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
 
   useImperativeHandle(ref, () => ({
@@ -66,12 +77,59 @@ const QuoteShipmentForm = forwardRef<
   if (!quoteId) throw new Error("quoteId not found");
   const routeData = useRouteData<{
     quote: Quotation;
+    lines: QuotationLine[];
+    prices: QuotationPrice[];
+    salesOrderLines: SalesOrderLine[];
   }>(path.to.quote(quoteId));
 
   const isLocked = isQuoteLocked(routeData?.quote?.status);
   const isEditable = !isLocked;
 
-  const { company } = useUser();
+  const currencyFormatter = useCurrencyFormatter();
+
+  // Derive the shipping cost from the per-quantity line pricing so the Shipping
+  // section reflects what was entered on the quote instead of always showing $0.
+  // - Once the quote is ordered, use the ordered quantity's shipping cost.
+  // - Otherwise, if every line resolves to a single shipping cost, sum them.
+  // - If shipping varies across quantity options, it's ambiguous (null -> "—").
+  const derivedShippingCost = useMemo<number | null>(() => {
+    const lines = routeData?.lines ?? [];
+    const prices = routeData?.prices ?? [];
+    const salesOrderLines = routeData?.salesOrderLines ?? [];
+    const isOrdered =
+      Array.isArray(salesOrderLines) && salesOrderLines.length > 0;
+
+    let total = initialValues.shippingCost ?? 0;
+    for (const line of lines) {
+      if (!line.id) continue;
+      const linePrices = prices.filter((p) => p.quoteLineId === line.id);
+      if (linePrices.length === 0) continue;
+
+      if (isOrdered) {
+        const salesOrderLine = salesOrderLines.find(
+          (sol) => sol.id === line.id
+        );
+        if (!salesOrderLine) continue; // line wasn't ordered
+        const price = linePrices.find(
+          (p) => p.quantity === salesOrderLine.saleQuantity
+        );
+        total += price?.shippingCost ?? 0;
+      } else {
+        const relevant = linePrices.filter((p) =>
+          line.quantity?.includes(p.quantity)
+        );
+        const distinct = new Set(relevant.map((p) => p.shippingCost ?? 0));
+        if (distinct.size > 1) return null; // varies by quantity
+        total += relevant[0]?.shippingCost ?? 0;
+      }
+    }
+    return total;
+  }, [
+    routeData?.lines,
+    routeData?.prices,
+    routeData?.salesOrderLines,
+    initialValues.shippingCost
+  ]);
 
   return (
     <Card
@@ -96,17 +154,20 @@ const QuoteShipmentForm = forwardRef<
         </CardHeader>
         <CardContent>
           <Hidden name="id" />
+          <Hidden name="shippingCost" />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-4 w-full">
-            <Number
-              name="shippingCost"
-              label={t`Shipping Cost`}
-              formatOptions={{
-                style: "currency",
-                currency: company?.baseCurrencyCode
-              }}
-              minValue={0}
-              ref={shippingCostRef}
-            />
+            <div className="flex flex-col gap-2">
+              <span className="text-sm">{t`Shipping Cost`}</span>
+              <div
+                ref={shippingCostRef}
+                tabIndex={-1}
+                className="flex h-9 items-center text-sm"
+              >
+                {derivedShippingCost === null
+                  ? "—"
+                  : currencyFormatter.format(derivedShippingCost)}
+              </div>
+            </div>
             <Location
               name="locationId"
               label={t`Shipment Location`}
