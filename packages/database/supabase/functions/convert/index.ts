@@ -493,9 +493,10 @@ serve(async (req: Request) => {
             .execute();
 
           // Consolidate the per-quantity line shipping costs into the
-          // order-level shipping cost so they show in (and are editable from)
-          // the sales order's Shipping section. The line-level shipping cost is
-          // zeroed below to avoid double-counting it in the order total.
+          // order-level shipping cost so they appear in (and are editable from)
+          // the sales order's Shipping section. The per-line shippingCost is
+          // zeroed below so the order total isn't double-counted (the line
+          // shipping is otherwise included in the order subtotal).
           const totalLineShippingCost = Object.values(selectedLines ?? {}).reduce(
             (acc, line) =>
               acc + (line.quantity > 0 ? line.shippingCost ?? 0 : 0),
@@ -575,7 +576,7 @@ serve(async (req: Request) => {
                 exchangeRate: quote.data.exchangeRate ?? 1,
                 taxPercent: line.taxPercent,
                 // Shipping is consolidated into salesOrderShipment.shippingCost
-                // (see above) to avoid double-counting it in the order total.
+                // (above) to avoid double-counting it in the order total.
                 shippingCost: 0,
                 sortOrder: line.sortOrder ?? 1,
               };

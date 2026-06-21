@@ -79,7 +79,7 @@ const QuoteShipmentForm = forwardRef<
     quote: Quotation;
     lines: QuotationLine[];
     prices: QuotationPrice[];
-    salesOrderLines: SalesOrderLine[];
+    salesOrderLines: SalesOrderLine[] | null;
   }>(path.to.quote(quoteId));
 
   const isLocked = isQuoteLocked(routeData?.quote?.status);
@@ -87,11 +87,13 @@ const QuoteShipmentForm = forwardRef<
 
   const currencyFormatter = useCurrencyFormatter();
 
-  // Derive the shipping cost from the per-quantity line pricing so the Shipping
-  // section reflects what was entered on the quote instead of always showing $0.
+  // The shipping cost the user enters lives on the per-quantity line pricing
+  // (quoteLinePrice.shippingCost). Surface it here so the Shipping section
+  // reflects what was entered instead of always showing the flat $0 field.
   // - Once the quote is ordered, use the ordered quantity's shipping cost.
   // - Otherwise, if every line resolves to a single shipping cost, sum them.
-  // - If shipping varies across quantity options, it's ambiguous (null -> "—").
+  // - If shipping varies across the quantity options, show "—" (null), since
+  //   the amount isn't known until a quantity is chosen.
   const derivedShippingCost = useMemo<number | null>(() => {
     const lines = routeData?.lines ?? [];
     const prices = routeData?.prices ?? [];
@@ -99,7 +101,9 @@ const QuoteShipmentForm = forwardRef<
     const isOrdered =
       Array.isArray(salesOrderLines) && salesOrderLines.length > 0;
 
+    // Start from any flat shipping cost stored on the quote shipment.
     let total = initialValues.shippingCost ?? 0;
+
     for (const line of lines) {
       if (!line.id) continue;
       const linePrices = prices.filter((p) => p.quoteLineId === line.id);
@@ -123,6 +127,7 @@ const QuoteShipmentForm = forwardRef<
         total += relevant[0]?.shippingCost ?? 0;
       }
     }
+
     return total;
   }, [
     routeData?.lines,
@@ -154,18 +159,22 @@ const QuoteShipmentForm = forwardRef<
         </CardHeader>
         <CardContent>
           <Hidden name="id" />
+          {/* Preserve any flat shipping cost stored on the quote shipment.
+              The displayed value is derived from the line pricing (above). */}
           <Hidden name="shippingCost" />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-4 w-full">
             <div className="flex flex-col gap-2">
-              <span className="text-sm">{t`Shipping Cost`}</span>
+              <span className="text-sm font-medium">{t`Shipping Cost`}</span>
               <div
                 ref={shippingCostRef}
                 tabIndex={-1}
-                className="flex h-9 items-center text-sm"
+                className="flex h-9 w-full items-center rounded-md border border-input bg-muted/40 px-3 text-sm"
               >
-                {derivedShippingCost === null
-                  ? "—"
-                  : currencyFormatter.format(derivedShippingCost)}
+                {derivedShippingCost === null ? (
+                  <span className="text-muted-foreground">—</span>
+                ) : (
+                  currencyFormatter.format(derivedShippingCost)
+                )}
               </div>
             </div>
             <Location
