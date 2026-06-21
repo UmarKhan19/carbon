@@ -215,3 +215,35 @@ Patterns learned from corrections. Review at the start of each session.
 - The index builds at module load from `source.getPages()`; after renaming a content dir (`content/guide` →
   `content/guides`) or changing `defineDocs({ dir })`, run `pnpm exec fumadocs-mdx` to regenerate `.source`, and
   the search index only reflects it after the dev server rebuilds the route.
+
+## PR previews (Vercel) do NOT redeploy Supabase edge functions
+- Symptom: changed the quote→sales-order conversion in
+  `packages/database/supabase/functions/convert/index.ts`, but testing the
+  Vercel PR preview showed no change (sales order shipping still $0), making a
+  correct fix look "buggy / regressed."
+- Root cause: a Vercel preview only deploys the frontend apps. The `convert`
+  edge function (and other `supabase/functions/*`) runs on Supabase and is NOT
+  redeployed for a PR preview — conversions in the preview use the OLD function.
+- Rule: when a change spans an edge function + frontend, call this out
+  explicitly. Edge-function behavior can only be verified after deploy, not in
+  the PR preview. Don't assume "preview didn't change" means the code is wrong.
+
+## Match the spec's editable-vs-display intent for a field
+- Correction: I rewrote the quote Shipping field as read-only. The original ask
+  said the field "should still be editable," but ALSO "show '--' when there are
+  multiple options" — an editable number input cannot render "—".
+- Rule: when a field must show a non-numeric placeholder (—/N/A/Varies) it has
+  to be a display, not an editable input. If editability is also required,
+  separate the two surfaces (e.g. read-only reflection on the quote where the
+  amount is qty-dependent; editable, pre-filled field on the sales order where a
+  single quantity is chosen). Make this tradeoff explicit rather than silently
+  dropping editability.
+
+## Carbon shipping is split: per-line (taxed, in subtotal) + flat order-level (untaxed, added on top)
+- Quote/SO totals add BOTH `*.shippingCost` (per line, in subtotal, taxed) and
+  the order-level `*Shipment.shippingCost` (a separate flat charge, added after
+  subtotal, NOT taxed). They are additive, not duplicates.
+- Consequence: you cannot surface per-line shipping in the order-level "Shipping
+  section" by simply copying it — that double-counts. Consolidating (sum into
+  order-level, zero the lines) preserves the PRE-TAX total but drops tax on
+  shipping, since the order-level field is untaxed. Flag the tax implication.
