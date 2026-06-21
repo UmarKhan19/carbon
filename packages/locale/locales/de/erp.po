@@ -5546,6 +5546,9 @@ msgstr "Öffnen"
 msgid "Open Actions"
 msgstr "Offene Maßnahmen"
 
+msgid "Open an NCR for MRB disposition"
+msgstr "Öffnen Sie eine NCR zur MRB-Disposition"
+
 msgid "Open Audit Log"
 msgstr "Audit-Protokoll öffnen"
 
@@ -6466,6 +6469,9 @@ msgstr "Aufnahme"
 msgid "Record deleted"
 msgstr "Datensatz gelöscht"
 
+msgid "Record the inspection result for this sample."
+msgstr "Inspektionsergebnis für diese Stichprobe aufzeichnen."
+
 msgid "Records"
 msgstr "Aufzeichnungen"
 
@@ -6865,6 +6871,10 @@ msgstr "Verkaufsumsatz"
 
 msgid "Sample"
 msgstr "Probe"
+
+#. placeholder {0}: idx + 1
+msgid "Sample {0}"
+msgstr "Muster {0}"
 
 msgid "Sample Size"
 msgstr "Stichprobengröße"
@@ -7565,8 +7575,12 @@ msgstr "Bundesland / Provinz"
 
 #. placeholder {0}: lotEntities.length
 #. placeholder {1}: Math.max(0, lotEntities.length - inspected)
-msgid "Statistical acceptance failed, so the entire lot is considered non-conforming (ISO 9001:2015 §8.7). All {0} entities — {passes} sampled pass(es), {fails} failure(s), and {1} un-inspected — will be marked Rejected. An NCR will be opened automatically for MRB disposition."
-msgstr "Statistische Annahme fehlgeschlagen, daher wird die gesamte Charge als nicht konform betrachtet (ISO 9001:2015 §8.7). Alle {0} Entitäten — {passes} geprüfte Bestätigung(en), {fails} Fehler und {1} nicht geprüfte — werden als Abgelehnt markiert. Ein NCR wird automatisch zur MRB-Disposition eröffnet."
+msgid "Statistical acceptance failed, so the entire lot is considered non-conforming (ISO 9001:2015 §8.7). All {0} entities — {passes} sampled pass(es), {fails} failure(s), and {1} un-inspected — will be marked Rejected."
+msgstr "Statistische Annahme fehlgeschlagen, daher wird die gesamte Charge als nicht konform betrachtet (ISO 9001:2015 §8.7). Alle {0} Entitäten — {passes} geprüfte Bestätigung(en), {fails} Fehler und {1} nicht geprüfte — werden als Abgelehnt markiert."
+
+#. placeholder {0}: inspection.lotSize
+msgid "Statistical acceptance failed, so the entire lot of {0} is considered non-conforming (ISO 9001:2015 §8.7) — {passes} sampled pass(es) and {fails} failure(s)."
+msgstr "Statistische Annahme fehlgeschlagen, daher wird die gesamte Charge von {0} als nicht konform betrachtet (ISO 9001:2015 §8.7) — {passes} geprüfte Annahme(n) und {fails} Fehler."
 
 msgid "Status"
 msgstr "Status"
@@ -7929,8 +7943,14 @@ msgstr "Die folgenden Positionen haben keine Preise oder Lieferzeiten:"
 msgid "The latest date to place this PO so it arrives by the need-by date, given the supplier's lead time."
 msgstr "Das späteste Datum, um diese Bestellung aufzugeben, damit sie bis zum erforderlichen Datum ankommt, unter Berücksichtigung der Lieferzeit des Lieferanten."
 
-msgid "The lot will still be rejected, but an NCR cannot be auto-created until at least one Issue Type is configured."
-msgstr "Das Los wird weiterhin abgelehnt, aber ein NCR kann nicht automatisch erstellt werden, bis mindestens ein Problemtyp konfiguriert ist."
+msgid "The lot stays open so you can keep inspecting and disposition later. Sampled outcomes are preserved."
+msgstr "Die Charge bleibt offen, damit Sie weiterhin inspizieren und später disponieren können. Inspektionsergebnisse werden beibehalten."
+
+msgid "The lot will be marked Passed. {fails} sampled failure(s) are recorded for your records."
+msgstr "Das Los wird als Bestanden markiert. {fails} erfasste Fehler werden für Ihre Unterlagen aufgezeichnet."
+
+msgid "The lot will still be rejected, but an NCR cannot be created until at least one Issue Type is configured."
+msgstr "Das Los wird immer noch abgelehnt, aber ein NCR kann nicht erstellt werden, bis mindestens ein Problemtyp konfiguriert ist."
 
 msgid "The new version number of the method"
 msgstr "Die neue Versionsnummer der Methode"

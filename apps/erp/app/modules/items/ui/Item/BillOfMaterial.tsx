@@ -771,6 +771,11 @@ function MaterialForm({
           name="storageUnitIds"
           value={JSON.stringify(itemData.storageUnitIds)}
         />
+        {/* methodType and sourcingType are item-level properties; the fields
+            above are read-only mirrors. They're still submitted to satisfy
+            methodMaterialValidator, but upsertMethodMaterial re-derives both
+            from the component item, so the submitted values are display-only —
+            don't treat them as the source of truth. */}
         {itemData.itemReplenishmentSystem !== "Buy and Make" && (
           <Hidden name="sourcingType" value={itemData.sourcingType} />
         )}

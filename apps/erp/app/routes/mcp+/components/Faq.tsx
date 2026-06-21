@@ -25,7 +25,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
       <div
         className={cn(
           "text-muted-foreground text-[0.84rem] overflow-hidden transition-[max-height,margin] duration-300 ease-in-out",
-          open ? "max-h-[150px] mt-[9px]" : "max-h-0"
+          open ? "max-h-[260px] mt-[9px]" : "max-h-0"
         )}
       >
         {a}

@@ -446,8 +446,7 @@ const ConsumableProperties = ({ data }: ConsumablePropertiesProps) => {
           }}
         />
       </ValidatedForm>
-      {(routeData?.consumableSummary?.itemTrackingType === "Serial" ||
-        routeData?.consumableSummary?.itemTrackingType === "Batch") && (
+      {routeData?.consumableSummary?.replenishmentSystem?.includes("Buy") && (
         <ValidatedForm
           defaultValues={{
             requiresInspection:

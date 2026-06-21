@@ -1,5 +1,5 @@
 {
-  "generated": "2026-06-20T00:13:41.606Z",
+  "generated": "2026-06-20T04:19:09.766Z",
   "totalTools": 1208,
   "modules": 15,
   "tools": [
@@ -4108,6 +4108,35 @@
         },
         "required": [
           "receiptLineId"
+        ]
+      }
+    },
+    {
+      "name": "inventory_reconcileReceiptSerialEntities",
+      "module": "inventory",
+      "classification": "WRITE",
+      "description": "reconcile receipt serial entities",
+      "paramCount": 2,
+      "serviceParams": [
+        "client",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "receiptId": {
+            "type": "string"
+          },
+          "lines: {\n      id: string;\n      receivedQuantity: number | null;\n      requiresSerialTracking": {
+            "type": "array",
+            "items": {}
+          }
+        },
+        "required": [
+          "receiptId"
         ]
       }
     },

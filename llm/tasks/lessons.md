@@ -2,6 +2,11 @@
 
 Patterns learned from corrections. Review at the start of each session.
 
+## A "word"/wordmark logo SVG may be a full lockup (mark + text), not text-only
+- Don't infer an SVG's composition by diffing path `d=` strings. An embedded mark inside a lockup has **different coordinates** than the standalone mark file, so a substring match returns "no mark" even when the mark IS present. Hit this with `apps/docs/public/carbon-word-light.svg`: its first path is the hexagon mark (at different coords than `carbon-mark-light.svg`), followed by 6 letter paths for "carbon". I concluded "text-only", paired it with a separate mark `<img>`, and produced a **double mark** in the header.
+- Verify what an SVG actually renders by **viewing/rendering it**, not by reasoning over path data.
+- Carbon brand assets in `apps/docs/public/`: `carbon-mark-*` = hexagon only; `carbon-word-*` = full lockup (mark + "carbon" wordmark). `*-light` = dark ink `#101A24` (use on light backgrounds); `*-dark` = light ink `#E6E6E6` (use on dark backgrounds).
+
 ## Cancelling a pickingList does NOT cascade `Cancelled` to its lines
 - Symptom: a "picked X/Y" rollup over `pickingListLine` summed too high — a
   Cancelled picking list's lines were still `status = 'Pending'` and got counted.
@@ -130,3 +135,83 @@ Patterns learned from corrections. Review at the start of each session.
 - Rule: before claiming a callsite is broken or changing its `onChange` shape,
   grep the file for a local `function <Name>` / `const <Name> =` shadowing the
   import, and check the actual prop/callback types at that callsite.
+
+## Setting up an unfamiliar framework: read its llms.txt first
+
+- When scaffolding/configuring a tool I don't have current knowledge of (e.g. Fumadocs), fetch its
+  `llms.txt` / `llms-full.txt` and the specific setup pages for *authoritative, current* file contents
+  before relying on memory or fighting an interactive `create-*` CLI. I burned time PTY-scripting
+  `create-fumadocs-app` past its prompts and got shallow WebFetch results; the user pointed me to
+  `fumadocs.dev/llms.txt`, which gave the exact verbatim setup and unblocked a clean hand-build.
+- Corollary: don't over-invest in automating an interactive CLI. If two attempts at non-interactive
+  flags / PTY-driving don't work, pivot to hand-creating files from the docs.
+
+## Always smoke-test docs/UI in dark mode specifically
+
+- A docs build can pass and look perfect in light mode while content is *invisible* in dark mode. Cause
+  here: `@tailwindcss/typography`'s `.prose` (pulled in by `packages/config/tailwind/theme.css`) applies
+  fixed gray colors that collide with another `.prose` consumer (Fumadocs) and don't adapt to `.dark`.
+  Fix = point `--tw-prose-*` at theme tokens. Lesson: verify both themes, not just the default.
+
+## The cache can be stale — verify feature EXISTENCE against code, never assert absence from cache alone
+
+- `llm/cache/` is curated and usually right, but it lags the code. It told me (via subagents) that
+  **Kits don't exist** and that **"backflushing" isn't Carbon terminology** — both **wrong**. Code proves
+  it: `kit BOOLEAN` on items with a Subassembly/Kit toggle in `BillOfMaterial.tsx`; `backflush_job_materials()`
+  RPC + a "Backflush" section in the BoM + a `Backflush` locale string. The user had to correct me twice.
+- Rule: before telling the user a feature/term **doesn't exist**, grep the real source of truth —
+  `packages/database/supabase/migrations/*.sql` (enum/`CREATE TYPE`/column names), `packages/locale/locales/en/erp.po`
+  (UI strings), and the relevant `apps/*/app/modules/**` models/components. Cache is a *starting* point for
+  existence claims, not the *authority*. A subagent that only read the cache will confidently repeat its gaps.
+- Also: don't trust a single agent's "X isn't real" conclusion. The agent claimed "8D" wasn't a Carbon term;
+  code shows it IS (a configurable Issue **workflow** — `IssueWorkflowForm.tsx` names "an 8D workflow"), over the
+  `nonConformance` model whose required actions are `Containment`/`Corrective`/`Preventive`/`Verification`/`Communication`.
+- Corollary for docs: I had **fabricated** a finite-capacity "Capacity" planning section; scheduling is actually
+  infinite-capacity Kanban (work-center columns + date columns, drag gated by process, not capacity). Don't invent
+  plausible-sounding mechanics — verify each claimed behavior against code, then write only what's real.
+
+## Carbon manufacturing facts (code-verified, for the docs guide)
+
+- `methodType` CURRENT values are `Make to Order` / `Purchase to Order` / `Pull from Inventory` — the column
+  literally stores these (`mes/operations.service.ts` filters `methodType = "Make to Order"`; `en/erp.po` has these
+  msgids; `MethodIcon` in `Icons.tsx` switches on them). The 2023 `parts.sql` enum (`Make`/`Buy`/`Pick`) was RENAMED
+  — do NOT use the short forms in docs/UI. (Bit me: I shipped guide copy saying "Make, Buy, Pick" by reading the
+  oldest migration. See [[feedback_timestamped_migrations_read_newest]].) Lives on the **item**; BoM material rows
+  mirror it read-only (cascades to Draft methods).
+- `itemReplenishmentSystem`: `Buy` / `Make` / `Buy and Make` — a SEPARATE axis from `methodType` (decides planning queue).
+- `itemReorderingPolicy`: `Manual Reorder` / `Demand-Based Reorder` / `Fixed Reorder Quantity` / `Maximum Quantity`,
+  with `reorderPoint`, `reorderQuantity`, `minimumOrderQuantity`/`maximumOrderQuantity`, `maximumInventoryQuantity`,
+  `lotSize`, `demandAccumulationPeriod` (migration `20230330024716_parts.sql`, planning cols in `20260324120000_*`).
+- **Kit vs Subassembly**: a Make-to-Order BoM item toggles between `Subassembly` (own job + routing) and `Kit`
+  (components issued together into the parent job, no separate build; `isKitComponent` on MES, `issue` fn filters `kit=true`).
+- **Get Method**: jobs get a copied `jobMakeMethod` (not a live link to the part's `makeMethod`); push-up via
+  `production_upsertMakeMethodFromJobMethod`. Method `status`: `Draft`/`Active`/`Archived`, only Draft mutable.
+- **Schedule** = Kanban (`Kanban.tsx` work-center columns / `DateKanban.tsx` date columns), infinite capacity,
+  `/x/scheduling/gantt` is mock-only. **Outside operations** (`operationType` `Inside`/`Outside`) raise an
+  "Outside Processing" PO via `supplierProcess`. MES Controls = `Setup`/`Labor`/`Machine` toggles (`productionEvent`),
+  `Issue Material`, `Log Completed/Scrap/Rework`, `Finish` (no "Close Out" button in live code).
+
+## Method-less `curl` sent POST here — always test GET endpoints with `-X GET`
+
+- Spent a long debugging loop on a "405 Method Not Allowed" from a Next route that exported `{ GET }`
+  correctly. Root cause was NOT the route: in this environment a plain `curl "<url>"` (no `-X`) was hitting
+  the server as **POST** (dev log showed `POST /api/search ... 405`), even with **no `~/.curlrc`**. The route's
+  GET worked the whole time — `curl -X GET` returned 200. I wrongly blamed stale `.next` chunks and restarted
+  the dev server chasing a ghost.
+- Rule: when smoke-testing an HTTP GET endpoint via Bash curl, **always pass `-X GET` explicitly** and confirm
+  the dev server's own request log shows the method you intended before concluding the handler is broken. A fast
+  405 (no recompile time) = method mismatch, not a dead module; a module-eval throw shows as **500**, not 405.
+
+## Fumadocs search: use the canonical `export const { GET }`, cap on the client, parse `<mark>` from content
+
+- Server route: always `export const { GET } = createSearchAPI('advanced', { language, indexes })` (or
+  `createFromSource`). Do NOT hand-roll `export async function GET`. `initAdvancedSearch` is only for non-Next
+  backends (Express/Elysia) where you call `.search()` yourself. The client `fetchClient` uses **GET**.
+- Multi-surface search = one combined `indexes` array, each entry `tag`ged; the `tag` query param filters. There
+  is **no server-side result limit** in fumadocs — cap on the client (results come back grouped by page).
+- Result `content` from the fetch client carries **literal `<mark>…</mark>`** highlight tags (entity-escaped to
+  `&lt;mark&gt;` inside shiki HTML, raw `<mark>` in plain result text). `contentWithHighlights` is NOT populated —
+  split `content` on `/(<mark>|<\/mark>)/` and style the marked parts yourself.
+- The index builds at module load from `source.getPages()`; after renaming a content dir (`content/guide` →
+  `content/guides`) or changing `defineDocs({ dir })`, run `pnpm exec fumadocs-mdx` to regenerate `.source`, and
+  the search index only reflects it after the dev server rebuilds the route.
