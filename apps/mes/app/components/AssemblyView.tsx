@@ -434,10 +434,13 @@ export function AssemblyView({
     1,
     Math.round(operation?.operationQuantity ?? trackedEntities.length)
   );
-  const units = deriveUnits(unitCount, trackedEntities);
+  // Only serial/batch parents bind entities to the unit axis; inventory/non-inventory
+  // page purely by index, so stray inventory entities must not surface as units or "S/N".
+  const axisEntities = isTracked ? trackedEntities : [];
+  const units = deriveUnits(unitCount, axisEntities);
   // The tracked entities within the navigable set (for the serial picker; empty when
   // the parent is untracked).
-  const unitEntities = trackedEntities.slice(0, unitCount);
+  const unitEntities = axisEntities.slice(0, unitCount);
 
   // Resolve the current unit: by tracked entity from the URL when present, else by the
   // ?unit index — untracked parents have no entity to key off. (FIX-3 / FIX-4)
@@ -780,7 +783,7 @@ export function AssemblyView({
             {currentEntity && (
               <div className="mt-1.5 flex items-center gap-1.5">
                 <Badge variant="secondary" className="font-mono text-[10px]">
-                  S/N
+                  {requiresBatchTracking ? "Batch" : "S/N"}
                 </Badge>
                 <span className="truncate font-mono text-[10px] text-muted-foreground">
                   {currentEntity.readableId ?? currentEntity.id.slice(-8)}

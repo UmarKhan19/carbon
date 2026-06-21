@@ -113,20 +113,32 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const expiredEntityPolicy: ExpiredEntityPolicy =
     inventoryShelfLife?.expiredEntityPolicy ?? "Block";
 
-  // Resolve the unit the materials/consume target key off. Navigable units are
-  // capped to the operation quantity (a job can have extra pre-generated serials
-  // beyond the quantity). Use the URL entity if it's within that set, else the
-  // first unit — so the materials filter and the view agree on the same unit.
+  // Resolve the unit the materials/consume target key off. Only serial/batch parents
+  // bind per-unit tracked entities; inventory/non-inventory parents page purely by index,
+  // so their stray inventory entities must NOT seed the unit axis. Navigable units are
+  // capped to the operation quantity (a job can pre-generate extra serials). An explicit
+  // ?trackedEntityId wins; otherwise honor the ?unit index, so client navigation to an
+  // untracked unit isn't snapped back to unit 0.
   const allEntities = trackedEntities.data ?? [];
   const opQty = Math.max(
     1,
     Math.round((op.operationQuantity as number) ?? allEntities.length)
   );
-  const navEntities = allEntities.slice(0, opQty);
-  const effectiveEntityId =
-    (trackedEntityId
-      ? navEntities.find((te) => te.id === trackedEntityId)?.id
-      : undefined) ?? navEntities[0]?.id;
+  const isParentTracked =
+    (jobMakeMethod.data?.requiresSerialTracking ?? false) ||
+    (jobMakeMethod.data?.requiresBatchTracking ?? false);
+  const navEntities = isParentTracked ? allEntities.slice(0, opQty) : [];
+  const unitParam = Number.parseInt(url.searchParams.get("unit") ?? "", 10);
+  const entityIndex = trackedEntityId
+    ? navEntities.findIndex((te) => te.id === trackedEntityId)
+    : -1;
+  const unitIndex =
+    entityIndex >= 0
+      ? entityIndex
+      : Number.isInteger(unitParam) && unitParam >= 0 && unitParam < opQty
+        ? unitParam
+        : 0;
+  const effectiveEntityId = navEntities[unitIndex]?.id;
 
   const [materials, openEvent] = await Promise.all([
     getJobMaterialsByOperationId(serviceRole, {
@@ -153,9 +165,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     operation: makeDurations(op) as OperationWithDetails,
     thumbnailPath,
     trackedEntities: trackedEntities.data ?? [],
-    // The resolved real unit (not the raw URL value) so the component's current
-    // unit, consume target and step counts match the loaded materials.
-    trackedEntityId: effectiveEntityId ?? trackedEntityId,
+    // The resolved entity for the current unit, or null for untracked units, so the
+    // component falls back to the ?unit index instead of snapping back to unit 0.
+    trackedEntityId: effectiveEntityId ?? null,
     materials,
     procedure,
     tools: tools.data ?? [],
