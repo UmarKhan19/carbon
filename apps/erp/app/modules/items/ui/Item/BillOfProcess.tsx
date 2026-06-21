@@ -108,6 +108,7 @@ import { useTags } from "~/hooks/useTags";
 import type {
   OperationParameter,
   OperationStep,
+  OperationStepSlide,
   OperationTool
 } from "~/modules/shared";
 import {
@@ -2455,6 +2456,9 @@ function AttributesListItem({
           </div>
         </div>
       )}
+      {!disclosure.isOpen && (
+        <StepSlides step={attribute} isDisabled={isDisabled} />
+      )}
       {deleteModalDisclosure.isOpen && (
         <ConfirmDelete
           action={path.to.deleteMethodOperationStep(id)}
@@ -2468,6 +2472,151 @@ function AttributesListItem({
             deleteModalDisclosure.onClose();
           }}
         />
+      )}
+    </div>
+  );
+}
+
+// Reference images ("slides") for a step — upload (one image/slide to the private
+// bucket), caption, delete. Persisted via the slide routes; copied to job/quote by
+// get-method. See PRD-step-reference-images.
+function StepSlides({
+  step,
+  isDisabled
+}: {
+  step: OperationStep;
+  isDisabled: boolean;
+}) {
+  const { t } = useLingui();
+  const fetcher = useFetcher();
+  const captionFetcher = useFetcher();
+  const { carbon } = useCarbon();
+  const {
+    company: { id: companyId }
+  } = useUser();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const slides = ((step.methodOperationStepSlide ?? []) as OperationStepSlide[])
+    .slice()
+    .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+
+  const onAddFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !carbon || !step.id) return;
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const fileName = `${companyId}/parts/${nanoid()}.${ext}`;
+      const result = await carbon.storage
+        .from("private")
+        .upload(fileName, file);
+      if (result.error || !result.data) {
+        toast.error(t`Failed to upload image`);
+        return;
+      }
+      const fd = new FormData();
+      fd.append("stepId", step.id);
+      fd.append("imagePath", result.data.path);
+      fd.append(
+        "sortOrder",
+        String(slides.reduce((m, s) => Math.max(m, s.sortOrder ?? 0), 0) + 1)
+      );
+      fetcher.submit(fd, {
+        method: "post",
+        action: path.to.newMethodOperationStepSlide
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  function saveCaption(slide: OperationStepSlide, caption: string) {
+    if ((slide.caption ?? "") === caption) return;
+    const fd = new FormData();
+    fd.append("id", slide.id);
+    fd.append("stepId", slide.stepId);
+    fd.append("imagePath", slide.imagePath);
+    fd.append("caption", caption);
+    fd.append("sortOrder", String(slide.sortOrder ?? 1));
+    captionFetcher.submit(fd, {
+      method: "post",
+      action: path.to.newMethodOperationStepSlide
+    });
+  }
+
+  if (isDisabled && slides.length === 0) return null;
+
+  return (
+    <div className="mt-4 flex flex-col gap-2 border-t pt-4">
+      <div className="flex items-center justify-between">
+        <Label className="text-xs text-muted-foreground">Slides</Label>
+        {!isDisabled && (
+          <>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={onAddFile}
+            />
+            <Button
+              variant="secondary"
+              size="sm"
+              leftIcon={<LuCirclePlus />}
+              isLoading={uploading || fetcher.state !== "idle"}
+              isDisabled={uploading || fetcher.state !== "idle"}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              Add slide
+            </Button>
+          </>
+        )}
+      </div>
+      {slides.length === 0 ? (
+        <p className="text-xs text-muted-foreground">No slides</p>
+      ) : (
+        <div className="flex flex-wrap gap-3">
+          {slides.map((slide) => (
+            <div
+              key={slide.id}
+              className="flex w-40 flex-col gap-1 rounded-lg border p-2"
+            >
+              <div className="relative">
+                <img
+                  src={getPrivateUrl(slide.imagePath)}
+                  alt={slide.caption ?? "Slide"}
+                  className="h-24 w-full rounded-md object-cover"
+                />
+                {!isDisabled && (
+                  <IconButton
+                    aria-label={t`Remove slide`}
+                    icon={<LuX />}
+                    variant="secondary"
+                    size="sm"
+                    className="absolute right-1 top-1"
+                    onClick={() =>
+                      fetcher.submit(null, {
+                        method: "post",
+                        action: path.to.deleteMethodOperationStepSlide(slide.id)
+                      })
+                    }
+                  />
+                )}
+              </div>
+              <input
+                type="text"
+                aria-label={t`Caption`}
+                placeholder={t`Caption`}
+                defaultValue={slide.caption ?? ""}
+                disabled={isDisabled}
+                onBlur={(e) => saveCaption(slide, e.target.value)}
+                className="w-full rounded-md border bg-transparent px-2 py-1 text-xs"
+              />
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

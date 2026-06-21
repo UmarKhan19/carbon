@@ -15,6 +15,7 @@ import { setGenericQueryFilters } from "~/utils/query";
 import { sanitize } from "~/utils/supabase";
 import type {
   operationParameterValidator,
+  operationStepSlideValidator,
   operationStepValidator,
   operationToolValidator
 } from "../shared";
@@ -326,6 +327,13 @@ export async function deleteMethodOperationStep(
   id: string
 ) {
   return client.from("methodOperationStep").delete().eq("id", id);
+}
+
+export async function deleteMethodOperationStepSlide(
+  client: SupabaseClient<Database>,
+  id: string
+) {
+  return client.from("methodOperationStepSlide").delete().eq("id", id);
 }
 
 export async function deleteMethodOperationParameter(
@@ -1366,7 +1374,7 @@ export async function getMethodOperationsByMakeMethodId(
   return client
     .from("methodOperation")
     .select(
-      "*, methodOperationTool(*), methodOperationParameter(*), methodOperationStep(*)"
+      "*, methodOperationTool(*), methodOperationParameter(*), methodOperationStep(*, methodOperationStepSlide(*))"
     )
     .eq("makeMethodId", makeMethodId)
     .order("order", { ascending: true });
@@ -3579,6 +3587,35 @@ export async function upsertMethodOperationStep(
     .from("methodOperationStep")
     .update(sanitize(methodOperationStep))
     .eq("id", methodOperationStep.id)
+    .select("id")
+    .single();
+}
+
+export async function upsertMethodOperationStepSlide(
+  client: SupabaseClient<Database>,
+  slide:
+    | (Omit<z.infer<typeof operationStepSlideValidator>, "id"> & {
+        companyId: string;
+        createdBy: string;
+      })
+    | (Omit<z.infer<typeof operationStepSlideValidator>, "id"> & {
+        id: string;
+        updatedBy: string;
+        updatedAt: string;
+      })
+) {
+  if ("createdBy" in slide) {
+    return client
+      .from("methodOperationStepSlide")
+      .insert(slide)
+      .select("id")
+      .single();
+  }
+
+  return client
+    .from("methodOperationStepSlide")
+    .update(sanitize(slide))
+    .eq("id", slide.id)
     .select("id")
     .single();
 }

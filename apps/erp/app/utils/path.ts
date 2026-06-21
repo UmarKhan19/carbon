@@ -769,6 +769,8 @@ export const path = {
       generatePath(`${x}/items/methods/material/delete/${id}`),
     deleteMethodOperationStep: (id: string) =>
       generatePath(`${x}/items/methods/operation/step/delete/${id}`),
+    deleteMethodOperationStepSlide: (id: string) =>
+      generatePath(`${x}/items/methods/operation/step/slide/delete/${id}`),
     deleteMethodOperationParameter: (id: string) =>
       generatePath(`${x}/items/methods/operation/parameter/delete/${id}`),
     deleteMethodOperationTool: (id: string) =>
@@ -1229,6 +1231,7 @@ export const path = {
     newMethodMaterial: `${x}/items/methods/material/new`,
     newMethodOperation: `${x}/items/methods/operation/new`,
     newMethodOperationStep: `${x}/items/methods/operation/step/new`,
+    newMethodOperationStepSlide: `${x}/items/methods/operation/step/slide/new`,
     newMethodOperationTool: `${x}/items/methods/operation/tool/new`,
     newMethodOperationParameter: `${x}/items/methods/operation/parameter/new`,
     newMaterialDimension: `${x}/items/dimensions/new`,

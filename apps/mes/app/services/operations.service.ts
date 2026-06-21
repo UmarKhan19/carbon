@@ -307,7 +307,7 @@ export async function getJobOperationProcedure(
   const [attributes, parameters] = await Promise.all([
     client
       .from("jobOperationStep")
-      .select("*, jobOperationStepRecord(*)")
+      .select("*, jobOperationStepRecord(*), jobOperationStepSlide(*)")
       .eq("operationId", operationId),
     client
       .from("jobOperationParameter")

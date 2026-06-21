@@ -80,6 +80,13 @@ type StepRecord = {
   createdBy?: string | null;
 };
 
+type Slide = {
+  id: string;
+  imagePath: string;
+  caption?: string | null;
+  sortOrder?: number | null;
+};
+
 type Step = {
   id: string;
   name?: string | null;
@@ -91,6 +98,7 @@ type Step = {
   maxValue?: number | null;
   listValues?: string[] | null;
   jobOperationStepRecord?: StepRecord[];
+  jobOperationStepSlide?: Slide[];
 };
 
 type ProductionEvent = {
@@ -176,8 +184,6 @@ const TYPE_ORDER = [
 const pluralize = (type: string) =>
   !type ? "Items" : type.endsWith("s") ? type : `${type}s`;
 
-const THUMB_SLOTS = ["slot-a", "slot-b", "slot-c"];
-
 // Increasing bar heights for the unit-progress "signal" flourish in the header.
 const SIGNAL_HEIGHTS = [
   "h-1.5",
@@ -205,21 +211,8 @@ function richTextToPlainText(doc: unknown): string {
   return parts.join(" ").replace(/\s+/g, " ").trim();
 }
 
-// Collect image srcs embedded in a TipTap description (image nodes).
-function extractImages(doc: unknown): string[] {
-  if (!doc || typeof doc !== "object") return [];
-  const out: string[] = [];
-  const walk = (node: any) => {
-    if (!node || typeof node !== "object") return;
-    if (node.type === "image" && typeof node.attrs?.src === "string")
-      out.push(node.attrs.src);
-    if (Array.isArray(node.content)) node.content.forEach(walk);
-  };
-  walk(doc);
-  return out;
-}
-
-// Strip image nodes so the prose shows text only — images become the slots.
+// Strip any inline image nodes so the prose shows text only — reference imagery
+// now lives in first-class slides, not embedded in the description.
 function stripImages(doc: any): any {
   if (!doc || typeof doc !== "object") return doc;
   if (Array.isArray(doc.content)) {
@@ -510,23 +503,21 @@ export function AssemblyView({
       : "";
   const isLastStep = steps.length === 0 || currentStep >= steps.length - 1;
 
-  // The 3 slots = this step's reference photos; "Completed assy" = the finished
-  // product (the assembly item's thumbnail).
-  // POC: the reference art on these jobs is placeholder/junk, so we ignore it
-  // and render the empty-state placeholder. Flip to `true` once real reference
-  // images are attached to the steps/item.
-  const SHOW_REFERENCE_IMAGES = false;
-  const stepImages = SHOW_REFERENCE_IMAGES
-    ? extractImages(step?.description)
-    : [];
-  const assemblyImage =
-    SHOW_REFERENCE_IMAGES && thumbnailPath
-      ? getPrivateUrl(thumbnailPath)
-      : null;
+  // Reference slides for this step (first-class media, ordered) + "Completed assy"
+  // = the finished product (the assembly item's thumbnail). See PRD-step-reference-images.
+  const stepSlides = (step?.jobOperationStepSlide ?? [])
+    .slice()
+    .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+  const stepImages = stepSlides.map((s) => getPrivateUrl(s.imagePath));
+  const assemblyImage = thumbnailPath ? getPrivateUrl(thumbnailPath) : null;
   const mainImage =
     selected === "assy"
       ? assemblyImage
       : (stepImages[selected] ?? assemblyImage);
+  const selectedCaption =
+    typeof selected === "number"
+      ? (stepSlides[selected]?.caption ?? null)
+      : null;
 
   function goToStep(n: number) {
     setSearchParams(
@@ -991,37 +982,35 @@ export function AssemblyView({
                   )}
                 </div>
 
-                {/* Slots = this step's photos · "Completed assy" = the finished product. */}
+                {selectedCaption && (
+                  <p className="shrink-0 truncate text-center text-xs text-muted-foreground">
+                    {selectedCaption}
+                  </p>
+                )}
+
+                {/* Slots = this step's slides · "Completed assy" = the finished product. */}
                 <div className="flex shrink-0 items-center gap-2">
-                  {THUMB_SLOTS.map((slotKey, i) => {
-                    const src = stepImages[i] ?? null;
-                    return (
-                      <button
-                        key={slotKey}
-                        type="button"
-                        disabled={!src}
-                        aria-label={`Step image ${i + 1}`}
-                        onClick={() => src && setSelected(i)}
-                        className={cn(
-                          "flex h-12 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md border-2 bg-muted/40",
-                          src && selected === i
-                            ? "border-foreground"
-                            : "border-transparent",
-                          !src && "cursor-default"
-                        )}
-                      >
-                        {src ? (
-                          <img
-                            src={src}
-                            alt=""
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <LuImage className="size-4 text-muted-foreground" />
-                        )}
-                      </button>
-                    );
-                  })}
+                  {stepSlides.map((slide, i) => (
+                    <button
+                      key={slide.id}
+                      type="button"
+                      aria-label={slide.caption || `Slide ${i + 1}`}
+                      title={slide.caption ?? undefined}
+                      onClick={() => setSelected(i)}
+                      className={cn(
+                        "flex h-12 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md border-2 bg-muted/40",
+                        selected === i
+                          ? "border-foreground"
+                          : "border-transparent"
+                      )}
+                    >
+                      <img
+                        src={stepImages[i]}
+                        alt=""
+                        className="h-full w-full object-cover"
+                      />
+                    </button>
+                  ))}
                   <div className="flex-1" />
                   <Button
                     variant={selected === "assy" ? "primary" : "outline"}

@@ -41,6 +41,57 @@ import {
 const pool = getConnectionPool(1);
 const db = getDatabaseClient<DB>(pool);
 
+// Copy an operation step's reference slides (grandchild) when a method/job/quote is
+// copied. Source slides are queried by their (old) step ids and remapped onto the freshly
+// inserted step ids — a bulk insert preserves order, so insertedStepIds[i] ↔ sourceSteps[i].
+// Guarded: a no-op when there are no slides, so it can never break step copying.
+// See PRD-step-reference-images.
+async function copyStepSlides(
+  trx: Transaction<DB>,
+  client: SupabaseClient<Database>,
+  sourceSteps: Array<{ id?: string | null }>,
+  insertedStepIds: Array<{ id: string }>,
+  sourceTable:
+    | "methodOperationStepSlide"
+    | "jobOperationStepSlide"
+    | "quoteOperationStepSlide",
+  targetTable:
+    | "methodOperationStepSlide"
+    | "jobOperationStepSlide"
+    | "quoteOperationStepSlide",
+  companyId: string,
+  userId: string,
+) {
+  const sourceStepIds = sourceSteps
+    .map((s) => s.id)
+    .filter((id): id is string => !!id);
+  if (sourceStepIds.length === 0) return;
+
+  const { data: srcSlides } = await client
+    .from(sourceTable)
+    .select("stepId, imagePath, caption, sortOrder")
+    .in("stepId", sourceStepIds);
+
+  const inserts = (srcSlides ?? []).flatMap((sl) => {
+    const idx = sourceSteps.findIndex((s) => s.id === sl.stepId);
+    const newStepId = insertedStepIds[idx]?.id;
+    if (!newStepId) return [];
+    return [{
+      stepId: newStepId,
+      imagePath: sl.imagePath,
+      caption: sl.caption,
+      sortOrder: sl.sortOrder,
+      companyId,
+      createdBy: userId,
+    }];
+  });
+
+  if (inserts.length > 0) {
+    // deno-lint-ignore no-explicit-any
+    await trx.insertInto(targetTable as any).values(inserts as any).execute();
+  }
+}
+
 const partsValidator = z.object({
   billOfMaterial: z.boolean().default(true),
   billOfProcess: z.boolean().default(true),
@@ -281,7 +332,7 @@ serve(async (req: Request) => {
                   Array.isArray(methodOperationStep) &&
                   methodOperationStep.length > 0
                 ) {
-                  await trx
+                  const insertedSteps = await trx
                     .insertInto("methodOperationStep")
                     .values(
                       methodOperationStep.map(({ id: _id, ...attribute }) => ({
@@ -292,7 +343,19 @@ serve(async (req: Request) => {
                         createdBy: userId,
                       }))
                     )
+                    .returning(["id"])
                     .execute();
+
+                  await copyStepSlides(
+                    trx,
+                    client,
+                    methodOperationStep,
+                    insertedSteps,
+                    "methodOperationStepSlide",
+                    "methodOperationStepSlide",
+                    companyId,
+                    userId,
+                  );
                 }
               }
             }
@@ -775,10 +838,22 @@ serve(async (req: Request) => {
                         )
                       );
 
-                      await trx
+                      const insertedSteps = await trx
                         .insertInto("jobOperationStep")
                         .values(attributes)
+                        .returning(["id"])
                         .execute();
+
+                      await copyStepSlides(
+                        trx,
+                        client,
+                        methodOperationStep,
+                        insertedSteps,
+                        "methodOperationStepSlide",
+                        "jobOperationStepSlide",
+                        companyId,
+                        userId,
+                      );
                     }
                   }
                 }
@@ -1346,7 +1421,7 @@ serve(async (req: Request) => {
                       Array.isArray(methodOperationStep) &&
                       methodOperationStep.length > 0
                     ) {
-                      await trx
+                      const insertedSteps = await trx
                         .insertInto("jobOperationStep")
                         .values(
                           methodOperationStep.map(
@@ -1359,7 +1434,19 @@ serve(async (req: Request) => {
                             })
                           )
                         )
+                        .returning(["id"])
                         .execute();
+
+                      await copyStepSlides(
+                        trx,
+                        client,
+                        methodOperationStep,
+                        insertedSteps,
+                        "methodOperationStepSlide",
+                        "jobOperationStepSlide",
+                        companyId,
+                        userId,
+                      );
                     }
                   }
                 }
@@ -1988,10 +2075,22 @@ serve(async (req: Request) => {
                         )
                       );
 
-                      await trx
+                      const insertedSteps = await trx
                         .insertInto("quoteOperationStep")
                         .values(attributes)
+                        .returning(["id"])
                         .execute();
+
+                      await copyStepSlides(
+                        trx,
+                        client,
+                        methodOperationStep,
+                        insertedSteps,
+                        "methodOperationStepSlide",
+                        "quoteOperationStepSlide",
+                        companyId,
+                        userId,
+                      );
                     }
                   }
                 }
@@ -2476,7 +2575,7 @@ serve(async (req: Request) => {
                       Array.isArray(methodOperationStep) &&
                       methodOperationStep.length > 0
                     ) {
-                      await trx
+                      const insertedSteps = await trx
                         .insertInto("quoteOperationStep")
                         .values(
                           methodOperationStep.map(
@@ -2489,7 +2588,19 @@ serve(async (req: Request) => {
                             })
                           )
                         )
+                        .returning(["id"])
                         .execute();
+
+                      await copyStepSlides(
+                        trx,
+                        client,
+                        methodOperationStep,
+                        insertedSteps,
+                        "methodOperationStepSlide",
+                        "quoteOperationStepSlide",
+                        companyId,
+                        userId,
+                      );
                     }
                   }
                 }
@@ -2868,7 +2979,7 @@ serve(async (req: Request) => {
                     Array.isArray(jobOperationStep) &&
                     jobOperationStep.length > 0
                   ) {
-                    await trx
+                    const insertedSteps = await trx
                       .insertInto("jobOperationStep")
                       .values(
                         jobOperationStep.map(({ id: _id, ...attribute }) => ({
@@ -2879,7 +2990,19 @@ serve(async (req: Request) => {
                           createdBy: userId,
                         }))
                       )
+                      .returning(["id"])
                       .execute();
+
+                    await copyStepSlides(
+                      trx,
+                      client,
+                      jobOperationStep,
+                      insertedSteps,
+                      "jobOperationStepSlide",
+                      "jobOperationStepSlide",
+                      companyId,
+                      userId,
+                    );
                   }
                 }
               }
@@ -3171,7 +3294,7 @@ serve(async (req: Request) => {
                     Array.isArray(jobOperationStep) &&
                     jobOperationStep.length > 0
                   ) {
-                    await trx
+                    const insertedSteps = await trx
                       .insertInto("methodOperationStep")
                       .values(
                         jobOperationStep.map((step) => ({
@@ -3190,7 +3313,19 @@ serve(async (req: Request) => {
                           createdBy: userId,
                         }))
                       )
+                      .returning(["id"])
                       .execute();
+
+                    await copyStepSlides(
+                      trx,
+                      client,
+                      jobOperationStep,
+                      insertedSteps,
+                      "jobOperationStepSlide",
+                      "methodOperationStepSlide",
+                      companyId,
+                      userId,
+                    );
                   }
                 }
               }
@@ -3361,7 +3496,7 @@ serve(async (req: Request) => {
                   Array.isArray(methodOperationStep) &&
                   methodOperationStep.length > 0
                 ) {
-                  await trx
+                  const insertedSteps = await trx
                     .insertInto("methodOperationStep")
                     .values(
                       methodOperationStep.map(({ id: _id, ...attribute }) => ({
@@ -3372,7 +3507,19 @@ serve(async (req: Request) => {
                         createdBy: userId,
                       }))
                     )
+                    .returning(["id"])
                     .execute();
+
+                  await copyStepSlides(
+                    trx,
+                    client,
+                    methodOperationStep,
+                    insertedSteps,
+                    "methodOperationStepSlide",
+                    "methodOperationStepSlide",
+                    companyId,
+                    userId,
+                  );
                 }
               }
             }
@@ -3794,7 +3941,7 @@ serve(async (req: Request) => {
                     Array.isArray(quoteOperationStep) &&
                     quoteOperationStep.length > 0
                   ) {
-                    await trx
+                    const insertedSteps = await trx
                       .insertInto("methodOperationStep")
                       .values(
                         quoteOperationStep.map(({ id: _id, ...attribute }) => ({
@@ -3805,7 +3952,19 @@ serve(async (req: Request) => {
                           createdBy: userId,
                         }))
                       )
+                      .returning(["id"])
                       .execute();
+
+                    await copyStepSlides(
+                      trx,
+                      client,
+                      quoteOperationStep,
+                      insertedSteps,
+                      "quoteOperationStepSlide",
+                      "methodOperationStepSlide",
+                      companyId,
+                      userId,
+                    );
                   }
                 }
               }
@@ -4095,7 +4254,7 @@ serve(async (req: Request) => {
                     Array.isArray(quoteOperationStep) &&
                     quoteOperationStep.length > 0
                   ) {
-                    await trx
+                    const insertedSteps = await trx
                       .insertInto("methodOperationStep")
                       .values(
                         quoteOperationStep.map(({ id: _id, ...attribute }) => ({
@@ -4106,7 +4265,19 @@ serve(async (req: Request) => {
                           createdBy: userId,
                         }))
                       )
+                      .returning(["id"])
                       .execute();
+
+                    await copyStepSlides(
+                      trx,
+                      client,
+                      quoteOperationStep,
+                      insertedSteps,
+                      "quoteOperationStepSlide",
+                      "methodOperationStepSlide",
+                      companyId,
+                      userId,
+                    );
                   }
                 }
               }
@@ -4525,7 +4696,7 @@ serve(async (req: Request) => {
                     Array.isArray(quoteOperationStep) &&
                     quoteOperationStep.length > 0
                   ) {
-                    await trx
+                    const insertedSteps = await trx
                       .insertInto("jobOperationStep")
                       .values(
                         quoteOperationStep.map(({ id: _id, ...attribute }) => ({
@@ -4536,7 +4707,19 @@ serve(async (req: Request) => {
                           createdBy: userId,
                         }))
                       )
+                      .returning(["id"])
                       .execute();
+
+                    await copyStepSlides(
+                      trx,
+                      client,
+                      quoteOperationStep,
+                      insertedSteps,
+                      "quoteOperationStepSlide",
+                      "jobOperationStepSlide",
+                      companyId,
+                      userId,
+                    );
                   }
                 }
               }
@@ -4828,7 +5011,7 @@ serve(async (req: Request) => {
                   Array.isArray(quoteOperationStep) &&
                   quoteOperationStep.length > 0
                 ) {
-                  await trx
+                  const insertedSteps = await trx
                     .insertInto("quoteOperationStep")
                     .values(
                       quoteOperationStep.map(({ id: _id, ...attribute }) => ({
@@ -4839,7 +5022,19 @@ serve(async (req: Request) => {
                         createdBy: userId,
                       }))
                     )
+                    .returning(["id"])
                     .execute();
+
+                  await copyStepSlides(
+                    trx,
+                    client,
+                    quoteOperationStep,
+                    insertedSteps,
+                    "quoteOperationStepSlide",
+                    "quoteOperationStepSlide",
+                    companyId,
+                    userId,
+                  );
                 }
               }
             }
@@ -5310,7 +5505,7 @@ serve(async (req: Request) => {
                     Array.isArray(quoteOperationStep) &&
                     quoteOperationStep.length > 0
                   ) {
-                    await trx
+                    const insertedSteps = await trx
                       .insertInto("quoteOperationStep")
                       .values(
                         quoteOperationStep.map(({ id: _id, ...attribute }) => ({
@@ -5321,7 +5516,19 @@ serve(async (req: Request) => {
                           createdBy: userId,
                         }))
                       )
+                      .returning(["id"])
                       .execute();
+
+                    await copyStepSlides(
+                      trx,
+                      client,
+                      quoteOperationStep,
+                      insertedSteps,
+                      "quoteOperationStepSlide",
+                      "quoteOperationStepSlide",
+                      companyId,
+                      userId,
+                    );
                   }
                 }
               }

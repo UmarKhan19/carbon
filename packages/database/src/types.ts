@@ -16804,6 +16804,74 @@ export type Database = {
           },
         ]
       }
+      jobOperationStepSlide: {
+        Row: {
+          caption: string | null
+          companyId: string
+          createdAt: string
+          createdBy: string
+          id: string
+          imagePath: string
+          sortOrder: number
+          stepId: string
+          updatedAt: string | null
+          updatedBy: string | null
+        }
+        Insert: {
+          caption?: string | null
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          id?: string
+          imagePath: string
+          sortOrder?: number
+          stepId: string
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Update: {
+          caption?: string | null
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          id?: string
+          imagePath?: string
+          sortOrder?: number
+          stepId?: string
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "jobOperationStepSlide_stepId_fkey"
+            columns: ["stepId"]
+            isOneToOne: false
+            referencedRelation: "jobOperationStep"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "jobOperationStepSlide_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "jobOperationStepSlide_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "jobOperationStepSlide_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       jobOperationStepRecord: {
         Row: {
           booleanValue: boolean | null
@@ -21714,6 +21782,74 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
+          },
+        ]
+      }
+      methodOperationStepSlide: {
+        Row: {
+          caption: string | null
+          companyId: string
+          createdAt: string
+          createdBy: string
+          id: string
+          imagePath: string
+          sortOrder: number
+          stepId: string
+          updatedAt: string | null
+          updatedBy: string | null
+        }
+        Insert: {
+          caption?: string | null
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          id?: string
+          imagePath: string
+          sortOrder?: number
+          stepId: string
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Update: {
+          caption?: string | null
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          id?: string
+          imagePath?: string
+          sortOrder?: number
+          stepId?: string
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "methodOperationStepSlide_stepId_fkey"
+            columns: ["stepId"]
+            isOneToOne: false
+            referencedRelation: "methodOperationStep"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "methodOperationStepSlide_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "methodOperationStepSlide_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "methodOperationStepSlide_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -34830,6 +34966,74 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
+          },
+        ]
+      }
+      quoteOperationStepSlide: {
+        Row: {
+          caption: string | null
+          companyId: string
+          createdAt: string
+          createdBy: string
+          id: string
+          imagePath: string
+          sortOrder: number
+          stepId: string
+          updatedAt: string | null
+          updatedBy: string | null
+        }
+        Insert: {
+          caption?: string | null
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          id?: string
+          imagePath: string
+          sortOrder?: number
+          stepId: string
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Update: {
+          caption?: string | null
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          id?: string
+          imagePath?: string
+          sortOrder?: number
+          stepId?: string
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quoteOperationStepSlide_stepId_fkey"
+            columns: ["stepId"]
+            isOneToOne: false
+            referencedRelation: "quoteOperationStep"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quoteOperationStepSlide_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quoteOperationStepSlide_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quoteOperationStepSlide_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
           },
         ]
       }

@@ -295,6 +295,16 @@ export const operationStepValidator = z
     }
   );
 
+// A reference image ("slide") attached to an operation step. Authored on the method and
+// copied to job/quote by get-method. One image per slide; caption + order optional.
+export const operationStepSlideValidator = z.object({
+  id: zfd.text(z.string().optional()),
+  stepId: z.string().min(1, { message: "Step is required" }),
+  imagePath: z.string().min(1, { message: "Image is required" }),
+  caption: zfd.text(z.string().optional()),
+  sortOrder: zfd.numeric(z.number().min(0).optional())
+});
+
 export const operationToolValidator = z.object({
   id: zfd.text(z.string().optional()),
   operationId: z.string().min(1, { message: "Operation is required" }),

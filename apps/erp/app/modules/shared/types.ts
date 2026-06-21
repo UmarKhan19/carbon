@@ -99,11 +99,20 @@ export type Note = NonNullable<
   Awaited<ReturnType<typeof getNotes>>["data"]
 >[number];
 
+export type OperationStepSlide = {
+  id: string;
+  stepId: string;
+  imagePath: string;
+  caption: string | null;
+  sortOrder: number;
+};
+
 export type OperationStep = z.infer<typeof operationStepValidator> & {
   createdBy: string;
   createdAt: string;
   updatedBy: string | null;
   updatedAt: string | null;
+  methodOperationStepSlide?: OperationStepSlide[];
 };
 
 export type OperationTool = z.infer<typeof operationToolValidator> & {
