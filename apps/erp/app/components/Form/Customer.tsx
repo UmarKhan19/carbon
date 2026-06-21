@@ -7,6 +7,7 @@ import { useUser } from "~/hooks";
 import CustomerForm from "~/modules/sales/ui/Customer/CustomerForm";
 import { useCustomers } from "~/stores";
 import CustomerAvatar from "../CustomerAvatar";
+import { useInactiveCustomerStatusId } from "./CustomerStatus";
 
 type CustomerSelectProps = Omit<
   CreatableComboboxProps,
@@ -26,16 +27,21 @@ const CustomerPreview = (
 const Customer = (props: CustomerSelectProps) => {
   const { t } = useLingui();
   const [customers] = useCustomers();
+  const inactiveStatusId = useInactiveCustomerStatusId();
   const newCustomersModal = useDisclosure();
   const [created, setCreated] = useState<string>("");
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   const options = useMemo(() => {
-    const all = customers.map((c) => ({ value: c.id, label: c.name }));
+    const all = customers
+      .filter(
+        (c) => !inactiveStatusId || c.customerStatusId !== inactiveStatusId
+      )
+      .map((c) => ({ value: c.id, label: c.name }));
     return props.exclude?.length
       ? all.filter((o) => !props.exclude!.includes(o.value))
       : all;
-  }, [customers, props.exclude]);
+  }, [customers, props.exclude, inactiveStatusId]);
 
   const { company } = useUser();
 

@@ -6,6 +6,7 @@ const $customersStore = atom<
   (ListItem & {
     website?: string | null;
     readableId?: string | null;
+    customerStatusId?: string | null;
   })[]
 >([]);
 export const useCustomers = () => useNanoStore($customersStore, "customers");

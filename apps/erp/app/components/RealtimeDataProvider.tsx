@@ -132,8 +132,12 @@ const RealtimeDataProvider = ({ children }: { children: React.ReactNode }) => {
         name: string;
         website: string;
         readableId: string;
-      }>(carbon, "customer", "id, name, website, readableId", (query) =>
-        query.eq("companyId", companyId).order("name")
+        customerStatusId: string | null;
+      }>(
+        carbon,
+        "customer",
+        "id, name, website, readableId, customerStatusId",
+        (query) => query.eq("companyId", companyId).order("name")
       ),
       fetchAllFromTable<{
         id: string;
@@ -291,7 +295,8 @@ const RealtimeDataProvider = ({ children }: { children: React.ReactNode }) => {
                       id: inserted.id,
                       name: inserted.name,
                       website: inserted.website,
-                      readableId: inserted.readableId ?? undefined
+                      readableId: inserted.readableId ?? undefined,
+                      customerStatusId: inserted.customerStatusId ?? undefined
                     }
                   ].sort((a, b) => a.name.localeCompare(b.name))
                 );
@@ -306,7 +311,8 @@ const RealtimeDataProvider = ({ children }: { children: React.ReactNode }) => {
                           ...p,
                           name: updated.name,
                           website: updated.website,
-                          readableId: updated.readableId ?? undefined
+                          readableId: updated.readableId ?? undefined,
+                          customerStatusId: updated.customerStatusId ?? undefined
                         };
                       }
                       return p;
