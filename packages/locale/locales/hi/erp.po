@@ -1095,6 +1095,9 @@ msgstr "बैलेंस शीट"
 msgid "Balloon"
 msgstr "गुब्बारा"
 
+msgid "Bars show each week's flow: <0>supply</0> pushes inventory up, <1>demand</1> pulls it down. The <2>line</2> is your projected on-hand inventory — when it dips below <3>safety stock</3> you're at risk, and below zero is a <4>stockout</4>."
+msgstr ""
+
 msgid "Base Currency"
 msgstr "आधार मुद्रा"
 
@@ -1124,6 +1127,9 @@ msgstr "बैच आकार"
 
 msgid "Batch Tracking"
 msgstr "बैच ट्रैकिंग"
+
+msgid "Below safety stock"
+msgstr ""
 
 msgid "Beta"
 msgstr "बीटा"
@@ -1613,6 +1619,12 @@ msgstr "आयात की पुष्टि करें"
 
 msgid "Confirm Password"
 msgstr "पासवर्ड की पुष्टि करें"
+
+msgid "Confirmed incoming stock — purchase & production orders (bars above zero)."
+msgstr ""
+
+msgid "Confirmed outgoing stock — sales orders & job materials (bars below zero)."
+msgstr ""
 
 msgid "Connect Carbon to your accounting, project management, and CAD tools and much more."
 msgstr "Carbon को अपने लेखांकन, परियोजना प्रबंधन, और CAD उपकरणों और बहुत कुछ से जोड़ें।"
@@ -3959,6 +3971,9 @@ msgstr "हल की गई कीमत की गणना कैसे क�
 msgid "How this price was calculated"
 msgstr "इस कीमत की गणना कैसे की गई"
 
+msgid "How to read this chart"
+msgstr ""
+
 msgid "Humidity"
 msgstr "आर्द्रता"
 
@@ -5471,6 +5486,9 @@ msgstr "इस दृश्य पर कोई सॉर्ट लागू न
 msgid "No stock"
 msgstr "स्टॉक नहीं"
 
+msgid "No stockout projected in the next 48 weeks"
+msgstr ""
+
 msgid "No suppliers yet"
 msgstr "अभी तक कोई आपूर्तिकर्ता नहीं"
 
@@ -5969,6 +5987,9 @@ msgstr "योजना"
 msgid "Plan Type"
 msgstr "योजना प्रकार"
 
+msgid "Planned"
+msgstr ""
+
 msgid "Planned End"
 msgstr "नियोजित अंत"
 
@@ -6220,8 +6241,28 @@ msgstr "प्रगति"
 msgid "Project"
 msgstr "प्रोजेक्ट"
 
+msgid "Projected demand exploded from BOMs and forecasts."
+msgstr ""
+
+msgid "Projected inventory"
+msgstr ""
+
+msgid "Projected on hand"
+msgstr ""
+
 msgid "Projected stock"
 msgstr "अनुमानित स्टॉक"
+
+#. placeholder {0}: formatWeek(stockoutDate)
+msgid "Projected stockout the week of {0}"
+msgstr ""
+
+#. placeholder {0}: formatWeek(belowSafetyDate)
+msgid "Projected to drop below safety stock the week of {0}"
+msgstr ""
+
+msgid "Projected to stay above safety stock"
+msgstr ""
 
 msgid "Projection"
 msgstr "प्रक्षेपण"
@@ -6869,6 +6910,9 @@ msgstr "नियम"
 msgid "Run Test"
 msgstr "टेस्ट चलाएं"
 
+msgid "Running inventory after each week's supply and demand — the line."
+msgstr ""
+
 msgid "Running Total"
 msgstr "कुल चल रहा है"
 
@@ -6877,6 +6921,10 @@ msgstr "सुरक्षा स्टॉक"
 
 msgid "Safety Stock"
 msgstr "सुरक्षा स्टॉक"
+
+#. placeholder {0}: numberFormatter.format(safetyStockValue)
+msgid "Safety stock ({0})"
+msgstr ""
 
 msgid "Safety Stock:"
 msgstr "सुरक्षा स्टॉक:"
@@ -7681,6 +7729,9 @@ msgstr "स्टॉक ट्रांसफर विज़ार्ड"
 msgid "Stock Transfers"
 msgstr "स्टॉक ट्रांसफर"
 
+msgid "Stockout"
+msgstr ""
+
 msgid "Storage client not available"
 msgstr "स्टोरेज क्लाइंट उपलब्ध नहीं है"
 
@@ -7758,6 +7809,9 @@ msgstr "सफलतापूर्वक एक नया संशोधन �
 
 msgid "Suffix"
 msgstr "प्रत्यय"
+
+msgid "Suggested orders you haven't placed yet."
+msgstr ""
 
 msgid "Suggestion"
 msgstr "सुझाव"
@@ -7987,6 +8041,9 @@ msgstr "गणना विधि के बाद के दिनों की
 
 msgid "The amount of days after the calculation method that the payment is due"
 msgstr "गणना विधि के बाद दिनों की संख्या जिसके बाद भुगतान देय है"
+
+msgid "The dashed threshold you don't want inventory to fall below."
+msgstr ""
 
 msgid "The date the customer expects to receive the goods"
 msgstr "वह तारीख जिस दिन ग्राहक को सामान प्राप्त होने की उम्मीद है"
@@ -8876,6 +8933,10 @@ msgstr "वेबसाइट"
 
 msgid "Wednesday"
 msgstr "बुधवार"
+
+#. placeholder {0}: dateFormatter.format(parseDate(d.startDate).toDate(getLocalTimeZone()))
+msgid "Week of {0}"
+msgstr ""
 
 msgid "Weeks Open"
 msgstr "हफ्ते खुले"
