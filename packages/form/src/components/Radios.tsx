@@ -11,7 +11,7 @@ import { useFormStateContext } from "../internal/formStateContext";
 
 type RadiosProps = {
   name: string;
-  label?: string;
+  label?: React.ReactNode;
   options: { label: string; value: string }[];
   orientation?: "horizontal" | "vertical";
 };

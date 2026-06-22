@@ -35,7 +35,7 @@ export type CreatableMultiSelectProps = Omit<
   }[];
   selected?: string[];
   isReadOnly?: boolean;
-  label?: string;
+  label?: React.ReactNode;
   createLabel?: string;
   placeholder?: string;
   maxPreview?: number;
@@ -201,7 +201,11 @@ const CreatableMultiSelect = forwardRef<
               onCreateOption={onCreateOption}
               itemHeight={itemHeight}
               setOpen={setOpen}
-              label={label}
+              // Used inside a templated "Create ${label}" hint string, so we
+              // can only pass it through when `label` is plain text. JSX labels
+              // (e.g. `<LabelWithHelp>…</LabelWithHelp>`) fall back to the
+              // bare "Create" hint — acceptable tradeoff to keep one prop.
+              label={typeof label === "string" ? label : undefined}
               createLabel={createLabel}
               search={search}
               setSearch={setSearch}

@@ -24,7 +24,7 @@ import { useFieldArray } from "../internal/state/fieldArray";
 
 type FormArrayNumericProps = InputProps & {
   name: string;
-  label?: string;
+  label?: React.ReactNode;
   isRequired?: boolean;
   defaults?: number[];
 };

@@ -20,7 +20,7 @@ import { useFormStateContext } from "../internal/formStateContext";
 type FormNumberProps = NumberFieldProps & {
   name: string;
   size?: "sm" | "md" | "lg";
-  label?: string;
+  label?: React.ReactNode;
   isConfigured?: boolean;
   isOptional?: boolean;
   isRequired?: boolean;

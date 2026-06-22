@@ -32,7 +32,7 @@ const PhoneInputComponent = ReactPhoneInput.default;
 
 type PhoneInputProps = InputProps & {
   name: string;
-  label?: string;
+  label?: React.ReactNode;
   isRequired?: boolean;
 } & Omit<InputHTMLAttributes<HTMLInputElement>, "onChange" | "value"> &
   Omit<ReactPhoneInput.Props<typeof ReactPhoneInput.default>, "onChange"> & {

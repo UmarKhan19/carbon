@@ -32,7 +32,7 @@ export type CreatableComboboxProps = Omit<
   selected?: string[];
   isClearable?: boolean;
   isReadOnly?: boolean;
-  label?: string;
+  label?: React.ReactNode;
   placeholder?: string;
   inline?: (
     value: string,
@@ -172,7 +172,11 @@ const CreatableCombobox = forwardRef<HTMLButtonElement, CreatableComboboxProps>(
             }}
           >
             <VirtualizedCommand
-              label={label}
+              // Used inside a templated "Create ${label}" hint string, so we
+              // can only pass it through when `label` is plain text. JSX labels
+              // (e.g. `<LabelWithHelp>…</LabelWithHelp>`) fall back to the
+              // bare "Create" hint — acceptable tradeoff to keep one prop.
+              label={typeof label === "string" ? label : undefined}
               options={options}
               selected={selected}
               value={value}

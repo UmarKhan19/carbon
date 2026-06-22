@@ -13,7 +13,7 @@ import { useFormStateContext } from "../internal/formStateContext";
 
 export type ComboboxProps = Omit<ComboboxBaseProps, "onChange"> & {
   name: string;
-  label?: string;
+  label?: React.ReactNode;
   isLoading?: boolean;
   isOptional?: boolean;
   isRequired?: boolean;

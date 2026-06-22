@@ -16,7 +16,7 @@ import { useFormStateContext } from "../internal/formStateContext";
 
 type DatePickerProps = {
   name: string;
-  label?: string;
+  label?: React.ReactNode;
   isDisabled?: boolean;
   isRequired?: boolean;
   minValue?: CalendarDate;

@@ -17,7 +17,7 @@ export type MultiSelectProps = Omit<
   "onChange" | "value" | "inline"
 > & {
   name: string;
-  label?: string;
+  label?: React.ReactNode;
   helperText?: string;
   value?: string[];
   onChange?: (newValue: { value: string; label: string }[]) => void;

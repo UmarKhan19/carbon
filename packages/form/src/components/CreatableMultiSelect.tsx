@@ -16,7 +16,7 @@ export type CreatableMultiSelectProps = Omit<
   "onChange" | "value"
 > & {
   name: string;
-  label?: string;
+  label?: React.ReactNode;
   helperText?: string;
   isOptional?: boolean;
   value?: string[];

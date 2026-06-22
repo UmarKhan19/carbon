@@ -13,7 +13,7 @@ import { useFormStateContext } from "../internal/formStateContext";
 
 type FormTextAreaControlledProps = Omit<TextareaProps, "value" | "onChange"> & {
   name: string;
-  label?: string;
+  label?: React.ReactNode;
   characterLimit?: number;
   isOptional?: boolean;
   isRequired?: boolean;

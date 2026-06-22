@@ -12,7 +12,7 @@ import { useFormStateContext } from "../internal/formStateContext";
 
 type FormTextArea = TextareaProps & {
   name: string;
-  label?: string;
+  label?: React.ReactNode;
   size?: "sm" | "md" | "lg";
   characterLimit?: number;
   isRequired?: boolean;

@@ -15,7 +15,7 @@ import { useFormStateContext } from "../internal/formStateContext";
 
 type FormPasswordProps = InputProps & {
   name: string;
-  label?: string;
+  label?: React.ReactNode;
   isRequired?: boolean;
 };
 

@@ -20,7 +20,7 @@ export type ChoiceCardOption<V extends string = string> = {
 
 type ChoiceCardGroupProps<V extends string = string> = {
   /** Optional small label rendered above the stack of cards. */
-  label?: string;
+  label?: React.ReactNode;
   /** Currently selected value. */
   value: V;
   /** Called with the new value when the user picks a different card. */

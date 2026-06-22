@@ -1,0 +1,33 @@
+{
+  "name": "@carbon/field-help",
+  "private": true,
+  "version": "0.0.0",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@carbon/glossary": "workspace:*"
+  },
+  "peerDependencies": {
+    "@carbon/react": "workspace:*",
+    "react": "catalog:",
+    "react-icons": "catalog:"
+  },
+  "devDependencies": {
+    "@carbon/config": "workspace:*",
+    "@carbon/react": "workspace:*",
+    "@types/react": "catalog:",
+    "react": "catalog:",
+    "react-icons": "catalog:",
+    "rimraf": "catalog:",
+    "tsup": "catalog:",
+    "typescript": "catalog:"
+  },
+  "scripts": {
+    "clean": "rimraf .turbo node_modules dist",
+    "dev": "tsup src/index.ts --format esm,cjs --watch --dts --external react",
+    "lint": "biome lint --write ",
+    "typecheck": "tsgo --noEmit"
+  }
+}

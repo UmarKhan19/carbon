@@ -16,7 +16,7 @@ import { useFormStateContext } from "../internal/formStateContext";
 type FormBooleanProps = {
   name: string;
   variant?: "large" | "small";
-  label?: string;
+  label?: React.ReactNode;
   value?: boolean;
   helperText?: string;
   isDisabled?: boolean;
@@ -85,7 +85,11 @@ const Boolean = forwardRef<HTMLInputElement, FormBooleanProps>(
                 setValue(checked);
                 onChange?.(checked);
               }}
-              aria-label={label}
+              // `aria-label` requires a plain string; when `label` is JSX
+              // (e.g. wrapped in a `<LabelWithHelp>`), there's no sensible
+              // single-string accessible name to derive — fall back to the
+              // associated `<FormLabel>` for accessibility.
+              aria-label={typeof label === "string" ? label : undefined}
               {...props}
             />
           </HStack>
@@ -115,7 +119,7 @@ const Boolean = forwardRef<HTMLInputElement, FormBooleanProps>(
               setValue(checked);
               onChange?.(checked);
             }}
-            aria-label={label}
+            aria-label={typeof label === "string" ? label : undefined}
             {...props}
           />
           {description && (

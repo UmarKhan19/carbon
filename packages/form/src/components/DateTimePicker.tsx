@@ -21,7 +21,7 @@ import { useFormStateContext } from "../internal/formStateContext";
 
 type DateTimePickerProps = {
   name: string;
-  label?: string;
+  label?: React.ReactNode;
   size?: "sm" | "md" | "lg";
   isDisabled?: boolean;
   minValue?: CalendarDateTime;

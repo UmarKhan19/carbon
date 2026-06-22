@@ -23,7 +23,7 @@ import { useFormStateContext } from "../internal/formStateContext";
 
 export type SelectProps = Omit<SelectBaseProps, "onChange"> & {
   name: string;
-  label?: string;
+  label?: React.ReactNode;
   helperText?: string;
   isConfigured?: boolean;
   isOptional?: boolean;

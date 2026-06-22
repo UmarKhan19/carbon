@@ -16,7 +16,7 @@ import { useFormStateContext } from "../internal/formStateContext";
 
 type TimePickerProps = {
   name: string;
-  label?: string;
+  label?: React.ReactNode;
   minValue?: TimeValue;
   maxValue?: TimeValue;
   onChange?: (time: TimeValue) => void;

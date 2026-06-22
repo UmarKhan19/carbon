@@ -1,3 +1,4 @@
+import { LabelWithHelp } from "@carbon/field-help";
 import { ValidatedForm } from "@carbon/form";
 import {
   Button,
@@ -99,11 +100,19 @@ const CostCenterForm = ({
                 <Input name="name" label="Cost Center Name" />
                 <CostCenter
                   name="parentCostCenterId"
-                  label="Parent Cost Center"
+                  label={
+                    <LabelWithHelp termId="parent-cost-center">
+                      Parent Cost Center
+                    </LabelWithHelp>
+                  }
                 />
                 <Employee
                   name="ownerId"
-                  label="Owner"
+                  label={
+                    <LabelWithHelp termId="cost-center-owner">
+                      Owner
+                    </LabelWithHelp>
+                  }
                   isOptional={!approvalsActive}
                 />
                 <CustomFormFields table="costCenter" />

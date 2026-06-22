@@ -1,7 +1,7 @@
 import "server-only";
 import type { AdvancedIndex } from "fumadocs-core/search/server";
 import { apiModules } from "@/lib/api-data";
-import { glossaryEntries, termSlug } from "@/lib/glossary";
+import { glossaryEntries, termSlug } from "@carbon/glossary";
 import { guideSource, source } from "@/lib/source";
 import { toolModules } from "@/lib/tools-data";
 
