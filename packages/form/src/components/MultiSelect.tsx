@@ -10,6 +10,7 @@ import {
   MultiSelect as MultiSelectBase
 } from "@carbon/react";
 
+import type { ReactNode } from "react";
 import { useEffect } from "react";
 import { useControlField, useField } from "../hooks";
 import { useFormStateContext } from "../internal/formStateContext";
@@ -22,6 +23,7 @@ export type MultiSelectProps = Omit<
   label?: string;
   termId?: TermId;
   helperText?: string;
+  emptyMessage?: ReactNode;
   value?: string[];
   onChange?: (newValue: { value: string; label: string }[]) => void;
   inline?: boolean;
@@ -68,6 +70,7 @@ const MultiSelect = ({
   termId,
   helperText,
   maxPreview,
+  emptyMessage,
   ...props
 }: MultiSelectProps) => {
   const { error, isOptional: fieldIsOptional } = useField(name);
@@ -101,17 +104,21 @@ const MultiSelect = ({
         />
       ))}
 
-      <MultiSelectBase
-        {...props}
-        value={(value ?? []).filter(Boolean)}
-        inline={props.inline ? MultiSelectPreview : undefined}
-        onChange={(newValue) => {
-          setValue(newValue ?? []);
-          onChange(newValue ?? []);
-        }}
-        isReadOnly={isReadOnly}
-        className="w-full"
-      />
+      {emptyMessage && (props.options?.length ?? 0) === 0 ? (
+        emptyMessage
+      ) : (
+        <MultiSelectBase
+          {...props}
+          value={(value ?? []).filter(Boolean)}
+          inline={props.inline ? MultiSelectPreview : undefined}
+          onChange={(newValue) => {
+            setValue(newValue ?? []);
+            onChange(newValue ?? []);
+          }}
+          isReadOnly={isReadOnly}
+          className="w-full"
+        />
+      )}
 
       {error ? (
         <FormErrorMessage>{error}</FormErrorMessage>

@@ -70,9 +70,6 @@ msgstr "/Monat/Benutzer"
 msgid "+{0} more"
 msgstr "+{0} weitere"
 
-msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
-msgstr "<0>Fügen Sie einen Lieferantenteil hinzu</0>, um für diesen Artikel einen bevorzugten Lieferanten festzulegen."
-
 msgid "<0>delete</0> lets you delete rows. <1>delete</1> will match all rows by default, so remember to specify your filters!"
 msgstr "<0>delete</0> ermöglicht es dir, Zeilen zu löschen. <1>delete</1> stimmt standardmäßig mit allen Zeilen überein, also denke daran, deine Filter anzugeben!"
 
@@ -160,8 +157,14 @@ msgstr "Ein Werkzeug ist ein physischer Gegenstand, der zur Herstellung eines Te
 msgid "A user records the expiry date on each batch or serial when the goods are received. Use when suppliers ship lots with different expiry dates."
 msgstr "Ein Benutzer erfasst das Verfallsdatum für jede Charge oder Seriennummer, wenn die Waren eingehen. Verwenden Sie dies, wenn Lieferanten Chargen mit unterschiedlichen Verfallsdaten versenden."
 
+msgid "abilities"
+msgstr ""
+
 msgid "Abilities"
 msgstr "Fähigkeiten"
+
+msgid "ability"
+msgstr ""
 
 msgid "About"
 msgstr "Über"
@@ -189,6 +192,9 @@ msgstr "Kontoeinstellungen"
 
 msgid "Account Type"
 msgstr "Kontotyp"
+
+msgid "accounting"
+msgstr ""
 
 msgid "Accounting"
 msgstr "Buchhaltung"
@@ -268,6 +274,10 @@ msgstr "Tatsächlicher Start"
 msgid "Add"
 msgstr "Hinzufügen"
 
+#. placeholder {0}: copy.noun
+msgid "Add {0}"
+msgstr ""
+
 msgid "Add & Issue"
 msgstr "Hinzufügen & Ausgeben"
 
@@ -279,6 +289,12 @@ msgstr "Einen Kommentar hinzufügen..."
 
 msgid "Add a printer in the printing settings to print labels directly."
 msgstr "Fügen Sie einen Drucker in den Druckeinstellungen hinzu, um Etiketten direkt zu drucken."
+
+msgid "Add a supplier part"
+msgstr ""
+
+msgid "Add a supplier part for this item to set a preferred supplier."
+msgstr ""
 
 msgid "Add Actions"
 msgstr "Aktionen hinzufügen"
@@ -396,6 +412,10 @@ msgstr "Zeitkarte hinzufügen"
 
 msgid "Add to stock for future use"
 msgstr "Zum zukünftigen Gebrauch in den Bestand aufnehmen"
+
+#. placeholder {0}: copy.noun
+msgid "Add your first {0} so you can assign it here."
+msgstr ""
 
 msgid "Add-On"
 msgstr "Add-On"
@@ -933,11 +953,22 @@ msgstr "Als Unternehmenseigentümer können Sie das Eigentum an einen anderen Mi
 msgid "Ascending"
 msgstr "Aufsteigend"
 
+#. placeholder {0}: copy.moduleLabel
+#. placeholder {1}: copy.noun
+msgid "Ask an admin with {0} permission to add the first {1}."
+msgstr ""
+
 msgid "Assembly:"
 msgstr "Baugruppe:"
 
 msgid "Asset"
 msgstr "Anlage"
+
+msgid "asset class"
+msgstr ""
+
+msgid "asset classes"
+msgstr ""
 
 msgid "Asset Classes"
 msgstr "Anlageklassen"
@@ -1611,6 +1642,9 @@ msgstr "Konsolenmodus ist aktiviert"
 msgid "Console Operator"
 msgstr "Konsolenoperator"
 
+msgid "consumable"
+msgstr ""
+
 msgid "Consumable"
 msgstr "Verbrauchsmaterial"
 
@@ -1619,6 +1653,9 @@ msgstr "Verbrauchsmaterial-Details"
 
 msgid "Consumable ID"
 msgstr "Verbrauchsmaterial-ID"
+
+msgid "consumables"
+msgstr ""
 
 msgid "Consumables"
 msgstr "Verbrauchsmaterialien"
@@ -1806,8 +1843,14 @@ msgstr "Richtige Antwort"
 msgid "Correct Answers"
 msgstr "Richtige Antworten"
 
+msgid "cost center"
+msgstr ""
+
 msgid "Cost Center"
 msgstr "Kostenstelle"
+
+msgid "cost centers"
+msgstr ""
 
 msgid "Cost Centers"
 msgstr "Kostenstellen"
@@ -2058,6 +2101,9 @@ msgstr "Benutzerdefiniertes Feld"
 msgid "Custom Fields"
 msgstr "Benutzerdefinierte Felder"
 
+msgid "customer"
+msgstr ""
+
 msgid "Customer"
 msgstr "Kunde"
 
@@ -2121,17 +2167,32 @@ msgstr "Kundenanfrage"
 msgid "Customer Scope"
 msgstr "Kundenbereich"
 
+msgid "customer status"
+msgstr ""
+
 msgid "Customer Status"
 msgstr "Kundenstatus"
+
+msgid "customer statuses"
+msgstr ""
 
 msgid "Customer Statuses"
 msgstr "Kundenstatuse"
 
+msgid "customer type"
+msgstr ""
+
 msgid "Customer Type"
 msgstr "Kundentyp"
 
+msgid "customer types"
+msgstr ""
+
 msgid "Customer Types"
 msgstr "Kundentypen"
+
+msgid "customers"
+msgstr ""
 
 msgid "Customers"
 msgstr "Kunden"
@@ -2536,11 +2597,17 @@ msgstr "Nachfrageprojektionen"
 msgid "Demand-Based"
 msgstr "Nachfragebasiert"
 
+msgid "department"
+msgstr ""
+
 msgid "Department"
 msgstr "Abteilung"
 
 msgid "Department Name"
 msgstr "Abteilungsname"
+
+msgid "departments"
+msgstr ""
 
 msgid "Departments"
 msgstr "Abteilungen"
@@ -3017,6 +3084,9 @@ msgstr "E-Mails"
 msgid "Emoji"
 msgstr "Emoji"
 
+msgid "employee"
+msgstr ""
+
 msgid "Employee"
 msgstr "Mitarbeiter"
 
@@ -3028,6 +3098,9 @@ msgstr "Mitarbeitertyp"
 
 msgid "Employee Types"
 msgstr "Mitarbeitertypen"
+
+msgid "employees"
+msgstr ""
 
 msgid "Employees"
 msgstr "Mitarbeiter"
@@ -4085,6 +4158,9 @@ msgstr "Inv"
 msgid "Invalid Invite"
 msgstr "Ungültige Einladung"
 
+msgid "inventory"
+msgstr ""
+
 msgid "Inventory"
 msgstr "Bestand"
 
@@ -4220,8 +4296,14 @@ msgstr "Artikel {scannedItem} ist nicht derselbe wie der Artikel {expectedItem}"
 msgid "Item filters"
 msgstr "Artikelfilter"
 
+msgid "item group"
+msgstr ""
+
 msgid "Item Group"
 msgstr "Artikelgruppe"
+
+msgid "item groups"
+msgstr ""
 
 msgid "Item groups"
 msgstr "Artikelgruppen"
@@ -4483,11 +4565,17 @@ msgstr "Wird geladen..."
 msgid "Loading…"
 msgstr "Wird geladen…"
 
+msgid "location"
+msgstr ""
+
 msgid "Location"
 msgstr "Standort"
 
 msgid "Location Name"
 msgstr "Standortname"
+
+msgid "locations"
+msgstr ""
 
 msgid "Locations"
 msgstr "Standorte"
@@ -4681,6 +4769,9 @@ msgstr "entspricht"
 msgid "Matching Pairs"
 msgstr "Zuordnungspaare"
 
+msgid "material"
+msgstr ""
+
 msgid "Material"
 msgstr "Material"
 
@@ -4729,11 +4820,20 @@ msgstr "Materialstoff"
 msgid "Material Substances"
 msgstr "Materialsubstanzen"
 
+msgid "material type"
+msgstr ""
+
 msgid "Material Type"
 msgstr "Materialtyp"
 
+msgid "material types"
+msgstr ""
+
 msgid "Material Types"
 msgstr "Materialtypen"
+
+msgid "materials"
+msgstr ""
 
 msgid "Materials"
 msgstr "Materialien"
@@ -5217,6 +5317,10 @@ msgstr "Nein"
 #. placeholder {0}: node.name.toLowerCase()
 msgid "No {0} found"
 msgstr "Keine {0} gefunden"
+
+#. placeholder {0}: copy.pluralNoun
+msgid "No {0} yet"
+msgstr ""
 
 msgid "No abilities added"
 msgstr "Keine Fähigkeiten hinzugefügt"
@@ -5759,6 +5863,9 @@ msgstr "Übergeordnete Lagereinheit"
 msgid "Pareto by Type"
 msgstr "Pareto nach Typ"
 
+msgid "part"
+msgstr ""
+
 msgid "Part"
 msgstr "Teil"
 
@@ -5780,6 +5887,9 @@ msgstr "Partner"
 msgid "Partners"
 msgstr "Partner"
 
+msgid "parts"
+msgstr ""
+
 msgid "Parts"
 msgstr "Teile"
 
@@ -5795,8 +5905,14 @@ msgstr "Zahlung"
 msgid "Payment Method"
 msgstr "Zahlungsmethode"
 
+msgid "payment term"
+msgstr ""
+
 msgid "Payment Term"
 msgstr "Zahlungsbedingung"
+
+msgid "payment terms"
+msgstr ""
 
 msgid "Payment Terms"
 msgstr "Zahlungsbedingungen"
@@ -5821,6 +5937,9 @@ msgstr "PDF-Wasserzeichen"
 
 msgid "Pending"
 msgstr "Ausstehend"
+
+msgid "people"
+msgstr ""
 
 msgid "People"
 msgstr "Personen"
@@ -6118,11 +6237,20 @@ msgstr "Datenschutzrichtlinie"
 msgid "Private"
 msgstr "Privat"
 
+msgid "procedure"
+msgstr ""
+
 msgid "Procedure"
 msgstr "Verfahren"
 
+msgid "procedures"
+msgstr ""
+
 msgid "Procedures"
 msgstr "Verfahren"
+
+msgid "process"
+msgstr ""
 
 msgid "Process"
 msgstr "Prozess"
@@ -6133,8 +6261,14 @@ msgstr "Prozessname"
 msgid "Process Type"
 msgstr "Prozesstyp"
 
+msgid "processes"
+msgstr ""
+
 msgid "Processes"
 msgstr "Prozesse"
+
+msgid "production"
+msgstr ""
 
 msgid "Production"
 msgstr "Produktion"
@@ -6249,6 +6383,9 @@ msgstr "Kaufeinheit:"
 
 msgid "Purchased"
 msgstr "Gekauft"
+
+msgid "purchasing"
+msgstr ""
 
 msgid "Purchasing"
 msgstr "Beschaffung"
@@ -6688,6 +6825,9 @@ msgstr "Beheben Sie diese vor Abschluss des NCR: Jede Zeile muss eine nicht auss
 msgid "Resolved Price"
 msgstr "Aufgelöster Preis"
 
+msgid "resources"
+msgstr ""
+
 msgid "Resources"
 msgstr "Ressourcen"
 
@@ -6823,6 +6963,9 @@ msgstr "Sicherheitsbestand:"
 
 msgid "Sale Price"
 msgstr "Verkaufspreis"
+
+msgid "sales"
+msgstr ""
 
 msgid "Sales"
 msgstr "Verkauf"
@@ -6963,8 +7106,14 @@ msgstr "Verschrottungsmenge"
 msgid "Scrap Quantity Per Job"
 msgstr "Ausschussmenge pro Auftrag"
 
+msgid "scrap reason"
+msgstr ""
+
 msgid "Scrap Reason"
 msgstr "Verschrottungsgrund"
+
+msgid "scrap reasons"
+msgstr ""
 
 msgid "Scrap Reasons"
 msgstr "Verschrottungsgründe"
@@ -7208,6 +7357,12 @@ msgstr "Seriennummernverfolgung"
 msgid "Serial/Batch #"
 msgstr "Seriennummer/Chargennummer #"
 
+msgid "service"
+msgstr ""
+
+msgid "services"
+msgstr ""
+
 msgid "Set Clock Out"
 msgstr "Abmeldung festlegen"
 
@@ -7293,11 +7448,17 @@ msgstr "Haltbarkeit"
 msgid "Shelf-Life History"
 msgstr "Haltbarkeitsverlauf"
 
+msgid "shift"
+msgstr ""
+
 msgid "Shift"
 msgstr "Schicht"
 
 msgid "Shift Name"
 msgstr "Schichtname"
+
+msgid "shifts"
+msgstr ""
 
 msgid "Shifts"
 msgstr "Schichten"
@@ -7350,8 +7511,14 @@ msgstr "Versandkunde"
 msgid "Shipping Location"
 msgstr "Versandort"
 
+msgid "shipping method"
+msgstr ""
+
 msgid "Shipping Method"
 msgstr "Versandmethode"
+
+msgid "shipping methods"
+msgstr ""
 
 msgid "Shipping Methods"
 msgstr "Versandmethoden"
@@ -7624,8 +7791,14 @@ msgstr "Speicherclient nicht verfügbar"
 msgid "Storage Rules"
 msgstr "Lagerungsregeln"
 
+msgid "storage type"
+msgstr ""
+
 msgid "Storage Type"
 msgstr "Lagertyp"
+
+msgid "storage types"
+msgstr ""
 
 msgid "Storage Types"
 msgstr "Speichertypen"
@@ -7714,6 +7887,9 @@ msgstr "Supabase bietet eine breite Palette von Filtern."
 msgid "Supabase provides realtime functionality and broadcasts database changes to authorized users depending on Row Level Security (RLS) policies."
 msgstr "Supabase bietet Echtzeit-Funktionalität und sendet Datenbankänderungen an autorisierte Benutzer, abhängig von Row Level Security (RLS)-Richtlinien."
 
+msgid "supplier"
+msgstr ""
+
 msgid "Supplier"
 msgstr "Lieferant"
 
@@ -7783,8 +7959,14 @@ msgstr "Lieferantenreferenz"
 msgid "Supplier Status"
 msgstr "Lieferantenstatus"
 
+msgid "supplier type"
+msgstr ""
+
 msgid "Supplier Type"
 msgstr "Lieferantentyp"
+
+msgid "supplier types"
+msgstr ""
 
 msgid "Supplier Types"
 msgstr "Lieferantentypen"
@@ -7797,6 +7979,9 @@ msgstr "Lieferant aktualisiert"
 
 msgid "Supplier:"
 msgstr "Lieferant:"
+
+msgid "suppliers"
+msgstr ""
 
 msgid "Suppliers"
 msgstr "Lieferanten"
@@ -8168,6 +8353,9 @@ msgstr "Tol+"
 msgid "Tolerance (+/-)"
 msgstr "Toleranz (+/-)"
 
+msgid "tool"
+msgstr ""
+
 msgid "Tool"
 msgstr "Werkzeug"
 
@@ -8176,6 +8364,9 @@ msgstr "Werkzeugdetails"
 
 msgid "Tool ID"
 msgstr "Werkzeug-ID"
+
+msgid "tools"
+msgstr ""
 
 msgid "Tools"
 msgstr "Werkzeuge"
@@ -8553,6 +8744,9 @@ msgstr "Wird verwendet, um Artikel für Berichterstellung und Analyse zu kategor
 msgid "User"
 msgstr "Benutzer"
 
+msgid "users"
+msgstr ""
+
 msgid "Users"
 msgstr "Benutzer"
 
@@ -8892,11 +9086,17 @@ msgstr "Wortmarke Dunkelmodus"
 msgid "Wordmark Light Mode"
 msgstr "Wortmarke Hellmodus"
 
+msgid "work center"
+msgstr ""
+
 msgid "Work Center"
 msgstr "Arbeitszentrum"
 
 msgid "Work Center Utilization"
 msgstr "Auslastung des Arbeitszentrums"
+
+msgid "work centers"
+msgstr ""
 
 msgid "Work Centers"
 msgstr "Arbeitszentren"

@@ -8,6 +8,7 @@ import {
   FormLabel,
   LabelWithHelp
 } from "@carbon/react";
+import type { ReactNode } from "react";
 import { forwardRef, useEffect, useMemo } from "react";
 
 import { useControlField, useField } from "../hooks";
@@ -22,6 +23,7 @@ export type CreatableMultiSelectProps = Omit<
   termId?: TermId;
   helperText?: string;
   isOptional?: boolean;
+  emptyMessage?: ReactNode;
   value?: string[];
   onChange?: (newValue: string[]) => void;
 };
@@ -31,7 +33,16 @@ const CreatableMultiSelect = forwardRef<
   CreatableMultiSelectProps
 >(
   (
-    { name, label, termId, helperText, isOptional, options = [], ...props },
+    {
+      name,
+      label,
+      termId,
+      helperText,
+      isOptional,
+      emptyMessage,
+      options = [],
+      ...props
+    },
     ref
   ) => {
     const { error, isOptional: fieldIsOptional } = useField(name);
@@ -84,19 +95,23 @@ const CreatableMultiSelect = forwardRef<
             value={selection}
           />
         ))}
-        <CreatableMultiSelectBase
-          ref={ref}
-          {...props}
-          options={sortedOptions}
-          value={value ?? []}
-          onChange={(newValue) => {
-            setValue(newValue ?? []);
-            onChange(newValue ?? []);
-          }}
-          isReadOnly={isReadOnly}
-          label={label}
-          className="w-full"
-        />
+        {emptyMessage && options.length === 0 ? (
+          emptyMessage
+        ) : (
+          <CreatableMultiSelectBase
+            ref={ref}
+            {...props}
+            options={sortedOptions}
+            value={value ?? []}
+            onChange={(newValue) => {
+              setValue(newValue ?? []);
+              onChange(newValue ?? []);
+            }}
+            isReadOnly={isReadOnly}
+            label={label}
+            className="w-full"
+          />
+        )}
 
         {error ? (
           <FormErrorMessage>{error}</FormErrorMessage>

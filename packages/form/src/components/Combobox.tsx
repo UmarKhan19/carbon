@@ -8,6 +8,7 @@ import {
   FormLabel,
   LabelWithHelp
 } from "@carbon/react";
+import type { ReactNode } from "react";
 import { useEffect } from "react";
 import { flushSync } from "react-dom";
 import { useControlField, useField } from "../hooks";
@@ -21,6 +22,7 @@ export type ComboboxProps = Omit<ComboboxBaseProps, "onChange"> & {
   isOptional?: boolean;
   isRequired?: boolean;
   helperText?: string;
+  emptyMessage?: ReactNode;
   onChange?: (
     newValue: { value: string; label: string | React.ReactNode } | null
   ) => void;
@@ -42,6 +44,7 @@ const Combobox = ({
   isOptional,
   isRequired,
   helperText,
+  emptyMessage,
   ...props
 }: ComboboxProps) => {
   const { getInputProps, error, isOptional: fieldIsOptional } = useField(name);
@@ -81,20 +84,24 @@ const Combobox = ({
         id={name}
         value={value}
       />
-      <ComboboxBase
-        {...props}
-        value={value}
-        onChange={(newValue) => {
-          flushSync(() => {
-            setValue(newValue?.replace(/"/g, '\\"') ?? "");
-          });
-          onChange(newValue?.replace(/"/g, '\\"') ?? "");
-        }}
-        isClearable={resolvedIsOptional && !isReadOnly}
-        isReadOnly={isReadOnly}
-        isLoading={isLoading}
-        className="w-full"
-      />
+      {emptyMessage && (props.options?.length ?? 0) === 0 && !isLoading ? (
+        emptyMessage
+      ) : (
+        <ComboboxBase
+          {...props}
+          value={value}
+          onChange={(newValue) => {
+            flushSync(() => {
+              setValue(newValue?.replace(/"/g, '\\"') ?? "");
+            });
+            onChange(newValue?.replace(/"/g, '\\"') ?? "");
+          }}
+          isClearable={resolvedIsOptional && !isReadOnly}
+          isReadOnly={isReadOnly}
+          isLoading={isLoading}
+          className="w-full"
+        />
+      )}
       {error ? (
         <FormErrorMessage>{error}</FormErrorMessage>
       ) : (

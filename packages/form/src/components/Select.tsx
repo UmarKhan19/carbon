@@ -53,6 +53,7 @@ const Select = ({
   isLoading,
   options,
   onConfigure,
+  emptyMessage,
   ...props
 }: SelectProps) => {
   const { getInputProps, error, isOptional: fieldIsOptional } = useField(name);
@@ -97,20 +98,24 @@ const Select = ({
         id={name}
         value={value ?? undefined}
       />
-      <SelectBase
-        {...props}
-        options={options}
-        value={value}
-        onChange={(newValue) => {
-          setValue(newValue ?? "");
-          onChange(newValue ?? "");
-        }}
-        isClearable={resolvedIsOptional && !isReadOnly}
-        isDisabled={isDisabled}
-        isReadOnly={isReadOnly}
-        isLoading={isLoading}
-        className="w-full"
-      />
+      {emptyMessage && options.length === 0 && !isLoading ? (
+        emptyMessage
+      ) : (
+        <SelectBase
+          {...props}
+          options={options}
+          value={value}
+          onChange={(newValue) => {
+            setValue(newValue ?? "");
+            onChange(newValue ?? "");
+          }}
+          isClearable={resolvedIsOptional && !isReadOnly}
+          isDisabled={isDisabled}
+          isReadOnly={isReadOnly}
+          isLoading={isLoading}
+          className="w-full"
+        />
+      )}
 
       {error ? (
         <FormErrorMessage>{error}</FormErrorMessage>

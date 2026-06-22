@@ -8,6 +8,7 @@ import {
   FormLabel,
   LabelWithHelp
 } from "@carbon/react";
+import type { ReactNode } from "react";
 import { forwardRef, useEffect } from "react";
 
 import { flushSync } from "react-dom";
@@ -27,6 +28,7 @@ export type CreatableComboboxProps = Omit<
   isConfigured?: boolean;
   isOptional?: boolean;
   isRequired?: boolean;
+  emptyMessage?: ReactNode;
   inline?: (
     value: string,
     options: { value: string; label: string | JSX.Element; helper?: string }[]
@@ -49,6 +51,7 @@ const CreatableCombobox = forwardRef<HTMLButtonElement, CreatableComboboxProps>(
       isConfigured = false,
       isOptional,
       isRequired,
+      emptyMessage,
       onConfigure,
       ...props
     },
@@ -110,21 +113,25 @@ const CreatableCombobox = forwardRef<HTMLButtonElement, CreatableComboboxProps>(
           name={name}
           id={name}
         />
-        <CreatableComboboxBase
-          ref={ref}
-          {...props}
-          value={value?.replace(/"/g, '\\"')}
-          isClearable={isClearable ?? (resolvedIsOptional && !isReadOnly)}
-          isReadOnly={isReadOnly}
-          label={label}
-          className="w-full"
-          onChange={(newValue) => {
-            flushSync(() => {
-              setValue(newValue?.replace(/"/g, '\\"') ?? "");
-            });
-            onChange(newValue?.replace(/"/g, '\\"') ?? "");
-          }}
-        />
+        {emptyMessage && (props.options?.length ?? 0) === 0 ? (
+          emptyMessage
+        ) : (
+          <CreatableComboboxBase
+            ref={ref}
+            {...props}
+            value={value?.replace(/"/g, '\\"')}
+            isClearable={isClearable ?? (resolvedIsOptional && !isReadOnly)}
+            isReadOnly={isReadOnly}
+            label={label}
+            className="w-full"
+            onChange={(newValue) => {
+              flushSync(() => {
+                setValue(newValue?.replace(/"/g, '\\"') ?? "");
+              });
+              onChange(newValue?.replace(/"/g, '\\"') ?? "");
+            }}
+          />
+        )}
         {error ? (
           <FormErrorMessage>{error}</FormErrorMessage>
         ) : (
