@@ -68,7 +68,12 @@ import {
   LuTriangleAlert,
   LuX
 } from "react-icons/lu";
-import { useFetcher, useFetchers, useParams } from "react-router";
+import {
+  useFetcher,
+  useFetchers,
+  useParams,
+  useRevalidator
+} from "react-router";
 import { z } from "zod";
 import {
   DirectionAwareTabs,
@@ -1822,9 +1827,17 @@ function AttributesForm({
   );
 
   const { carbon } = useCarbon();
-  const {
-    company: { id: companyId }
-  } = useUser();
+  const user = useUser();
+  const companyId = user.company.id;
+  const revalidator = useRevalidator();
+
+  // Slides chosen while creating a step are buffered here (the step has no id yet);
+  // they're attached to the new step right after it's created. See the effect below.
+  const [draftSlides, setDraftSlides] = useState<
+    { id: string; imagePath: string; caption: string }[]
+  >([]);
+  const [draftUploading, setDraftUploading] = useState(false);
+  const draftFileInputRef = useRef<HTMLInputElement>(null);
 
   const onUploadImage = async (file: File) => {
     const fileType = file.name.split(".").pop();
@@ -1843,6 +1856,62 @@ function AttributesForm({
 
     return getPrivateUrl(result.data.path);
   };
+
+  // Upload a chosen image to storage immediately and buffer it as a draft slide.
+  const onAddDraftSlide = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !carbon) return;
+    setDraftUploading(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const fileName = `${companyId}/parts/${nanoid()}.${ext}`;
+      const result = await carbon.storage
+        .from("private")
+        .upload(fileName, file);
+      if (result.error || !result.data) {
+        toast.error(t`Failed to upload image`);
+        return;
+      }
+      setDraftSlides((prev) => [
+        ...prev,
+        { id: nanoid(), imagePath: result.data.path, caption: "" }
+      ]);
+    } finally {
+      setDraftUploading(false);
+    }
+  };
+
+  // When the new step is created, attach any buffered slides to it, then revalidate so
+  // they show on the step and reset the buffer for the next step.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: keyed off the created step id
+  useEffect(() => {
+    const newStepId = (fetcher.data as { id?: string | null } | undefined)?.id;
+    if (!newStepId || draftSlides.length === 0 || !carbon) return;
+    let cancelled = false;
+    (async () => {
+      const { error } = await carbon.from("methodOperationStepSlide").insert(
+        draftSlides.map((slide, index) => ({
+          stepId: newStepId,
+          imagePath: slide.imagePath,
+          caption: slide.caption || null,
+          sortOrder: index + 1,
+          companyId,
+          createdBy: user.id
+        }))
+      );
+      if (cancelled) return;
+      if (error) {
+        toast.error(t`Failed to save slides`);
+        return;
+      }
+      setDraftSlides([]);
+      revalidator.revalidate();
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [fetcher.data]);
 
   if (isDisabled && temporaryItems[operationId]) {
     return (
@@ -1972,6 +2041,28 @@ function AttributesForm({
               {type === "List" && (
                 <ArrayInput name="listValues" label={t`List Options`} />
               )}
+
+              <SlidesEditor
+                slides={draftSlides.map((slide) => ({
+                  key: slide.id,
+                  imagePath: slide.imagePath,
+                  caption: slide.caption
+                }))}
+                isDisabled={isDisabled}
+                busy={draftUploading}
+                fileInputRef={draftFileInputRef}
+                onFileChange={onAddDraftSlide}
+                onRemove={(index) =>
+                  setDraftSlides((prev) => prev.filter((_, i) => i !== index))
+                }
+                onCaptionBlur={(index, caption) =>
+                  setDraftSlides((prev) =>
+                    prev.map((slide, i) =>
+                      i === index ? { ...slide, caption } : slide
+                    )
+                  )
+                }
+              />
 
               <Submit
                 leftIcon={<LuCirclePlus />}
@@ -2308,6 +2399,7 @@ function AttributesListItem({
             {type === "List" && (
               <ArrayInput name="listValues" label={t`List Options`} />
             )}
+            <StepSlides step={attribute} isDisabled={isDisabled} />
             <HStack className="w-full justify-end" spacing={2}>
               <Button variant="secondary" onClick={disclosure.onClose}>
                 Cancel
@@ -2456,9 +2548,6 @@ function AttributesListItem({
           </div>
         </div>
       )}
-      {!disclosure.isOpen && (
-        <StepSlides step={attribute} isDisabled={isDisabled} />
-      )}
       {deleteModalDisclosure.isOpen && (
         <ConfirmDelete
           action={path.to.deleteMethodOperationStep(id)}
@@ -2477,9 +2566,102 @@ function AttributesListItem({
   );
 }
 
-// Reference images ("slides") for a step — upload (one image/slide to the private
-// bucket), caption, delete. Persisted via the slide routes; copied to job/quote by
-// get-method. See PRD-step-reference-images.
+// Presentational slides grid — header + "Add slide" + cards (image · caption · remove).
+// Shared by the create form (draft buffer, attached after the step is saved) and the
+// edit form (persisted immediately via the slide routes). See PRD-step-reference-images.
+function SlidesEditor({
+  slides,
+  isDisabled,
+  busy,
+  fileInputRef,
+  onFileChange,
+  onRemove,
+  onCaptionBlur
+}: {
+  slides: { key: string; imagePath: string; caption: string | null }[];
+  isDisabled: boolean;
+  busy: boolean;
+  fileInputRef: React.RefObject<HTMLInputElement>;
+  onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onRemove: (index: number) => void;
+  onCaptionBlur: (index: number, caption: string) => void;
+}) {
+  const { t } = useLingui();
+
+  if (isDisabled && slides.length === 0) return null;
+
+  return (
+    <VStack spacing={2} className="w-full col-span-2 border-t pt-4">
+      <div className="flex w-full items-center justify-between">
+        <Label className="text-xs text-muted-foreground">Slides</Label>
+        {!isDisabled && (
+          <>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={onFileChange}
+            />
+            <Button
+              variant="secondary"
+              size="sm"
+              leftIcon={<LuCirclePlus />}
+              isLoading={busy}
+              isDisabled={busy}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              Add slide
+            </Button>
+          </>
+        )}
+      </div>
+      {slides.length === 0 ? (
+        <p className="w-full text-xs text-muted-foreground">No slides</p>
+      ) : (
+        <div className="flex w-full flex-wrap gap-3">
+          {slides.map((slide, index) => (
+            <div
+              key={slide.key}
+              className="flex w-40 flex-col gap-1 rounded-lg border p-2"
+            >
+              <div className="relative">
+                <img
+                  src={getPrivateUrl(slide.imagePath)}
+                  alt={slide.caption ?? "Slide"}
+                  className="h-24 w-full rounded-md object-cover"
+                />
+                {!isDisabled && (
+                  <IconButton
+                    aria-label={t`Remove slide`}
+                    icon={<LuX />}
+                    variant="secondary"
+                    size="sm"
+                    className="absolute right-1 top-1"
+                    onClick={() => onRemove(index)}
+                  />
+                )}
+              </div>
+              <input
+                type="text"
+                aria-label={t`Caption`}
+                placeholder={t`Caption`}
+                defaultValue={slide.caption ?? ""}
+                disabled={isDisabled}
+                onBlur={(e) => onCaptionBlur(index, e.target.value)}
+                className="w-full rounded-md border bg-transparent px-2 py-1 text-xs"
+              />
+            </div>
+          ))}
+        </div>
+      )}
+    </VStack>
+  );
+}
+
+// Reference images ("slides") for an EXISTING step — upload (one image/slide to the
+// private bucket), caption, delete, persisted immediately via the slide routes. Copied
+// to job/quote by get-method. See PRD-step-reference-images.
 function StepSlides({
   step,
   isDisabled
@@ -2546,79 +2728,30 @@ function StepSlides({
     });
   }
 
-  if (isDisabled && slides.length === 0) return null;
-
   return (
-    <div className="mt-4 flex flex-col gap-2 border-t pt-4">
-      <div className="flex items-center justify-between">
-        <Label className="text-xs text-muted-foreground">Slides</Label>
-        {!isDisabled && (
-          <>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={onAddFile}
-            />
-            <Button
-              variant="secondary"
-              size="sm"
-              leftIcon={<LuCirclePlus />}
-              isLoading={uploading || fetcher.state !== "idle"}
-              isDisabled={uploading || fetcher.state !== "idle"}
-              onClick={() => fileInputRef.current?.click()}
-            >
-              Add slide
-            </Button>
-          </>
-        )}
-      </div>
-      {slides.length === 0 ? (
-        <p className="text-xs text-muted-foreground">No slides</p>
-      ) : (
-        <div className="flex flex-wrap gap-3">
-          {slides.map((slide) => (
-            <div
-              key={slide.id}
-              className="flex w-40 flex-col gap-1 rounded-lg border p-2"
-            >
-              <div className="relative">
-                <img
-                  src={getPrivateUrl(slide.imagePath)}
-                  alt={slide.caption ?? "Slide"}
-                  className="h-24 w-full rounded-md object-cover"
-                />
-                {!isDisabled && (
-                  <IconButton
-                    aria-label={t`Remove slide`}
-                    icon={<LuX />}
-                    variant="secondary"
-                    size="sm"
-                    className="absolute right-1 top-1"
-                    onClick={() =>
-                      fetcher.submit(null, {
-                        method: "post",
-                        action: path.to.deleteMethodOperationStepSlide(slide.id)
-                      })
-                    }
-                  />
-                )}
-              </div>
-              <input
-                type="text"
-                aria-label={t`Caption`}
-                placeholder={t`Caption`}
-                defaultValue={slide.caption ?? ""}
-                disabled={isDisabled}
-                onBlur={(e) => saveCaption(slide, e.target.value)}
-                className="w-full rounded-md border bg-transparent px-2 py-1 text-xs"
-              />
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+    <SlidesEditor
+      slides={slides.map((s) => ({
+        key: s.id,
+        imagePath: s.imagePath,
+        caption: s.caption
+      }))}
+      isDisabled={isDisabled}
+      busy={uploading || fetcher.state !== "idle"}
+      fileInputRef={fileInputRef}
+      onFileChange={onAddFile}
+      onRemove={(index) => {
+        const slide = slides[index];
+        if (!slide) return;
+        fetcher.submit(null, {
+          method: "post",
+          action: path.to.deleteMethodOperationStepSlide(slide.id)
+        });
+      }}
+      onCaptionBlur={(index, caption) => {
+        const slide = slides[index];
+        if (slide) saveCaption(slide, caption);
+      }}
+    />
   );
 }
 

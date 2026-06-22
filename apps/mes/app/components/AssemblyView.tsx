@@ -490,10 +490,6 @@ export function AssemblyView({
   );
   const step = steps[currentStep] ?? null;
 
-  // Reset to the finished-assembly image whenever the step changes.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: reset on step change
-  useEffect(() => setSelected("assy"), [currentStep]);
-
   const stepHasDescription = richTextToPlainText(step?.description).length > 0;
   const stepDescriptionHtml =
     step && stepHasDescription
@@ -518,6 +514,14 @@ export function AssemblyView({
     typeof selected === "number"
       ? (stepSlides[selected]?.caption ?? null)
       : null;
+
+  // On step change, default the main panel to the step's first slide so reference art
+  // shows immediately; only fall back to the finished-assembly image when the step has
+  // no slides.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: keyed off the current step
+  useEffect(() => {
+    setSelected(stepSlides.length > 0 ? 0 : "assy");
+  }, [currentStep, stepSlides.length]);
 
   function goToStep(n: number) {
     setSearchParams(

@@ -135,6 +135,7 @@ import type {
 } from "~/modules/shared";
 import {
   methodOperationOrders,
+  operationKinds,
   operationParameterValidator,
   operationStepValidator,
   operationToolValidator,
@@ -2172,6 +2173,7 @@ function OperationForm({
     operationMinimumCost: number;
     operationLeadTime: number;
     operationType: string;
+    operationKind: string;
     operationUnitCost: number;
     overheadRate: number;
     processId: string;
@@ -2192,6 +2194,7 @@ function OperationForm({
     operationMinimumCost: item.data.operationMinimumCost ?? 0,
     operationLeadTime: item.data.operationLeadTime ?? 0,
     operationType: item.data.operationType ?? "Inside",
+    operationKind: item.data.operationKind ?? "Operation",
     operationUnitCost: item.data.operationUnitCost ?? 0,
     overheadRate: item.data.overheadRate ?? 0,
     processId: item.data.processId ?? "",
@@ -2367,6 +2370,23 @@ function OperationForm({
               laborUnit: "Minutes/Piece",
               machineUnit: "Minutes/Piece",
               operationType: value?.value as string
+            }));
+          }}
+        />
+
+        <SelectControlled
+          name="operationKind"
+          label={t`Operation Kind`}
+          placeholder={t`Operation Kind`}
+          options={operationKinds.map((o) => ({
+            value: o,
+            label: o
+          }))}
+          value={processData.operationKind}
+          onChange={(value) => {
+            setProcessData((d) => ({
+              ...d,
+              operationKind: (value?.value as string) ?? "Operation"
             }));
           }}
         />
