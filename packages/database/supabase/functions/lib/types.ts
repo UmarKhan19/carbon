@@ -60243,7 +60243,7 @@ export type Database = {
         }
         Relationships: []
       }
-      searchIndex_d8qm3pgpq0gg0ffdn8i0: {
+      searchIndex_d8si0s07g0h0io7dn8i0: {
         Row: {
           createdAt: string
           description: string | null
@@ -116103,14 +116103,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["shipmentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["shipmentCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
