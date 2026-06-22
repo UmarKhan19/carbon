@@ -7988,6 +7988,9 @@ msgstr "Il servizio di archiviazione non ha risposto in tempo. Riprova."
 msgid "The unit price of the item at the time of the purchase"
 msgstr "Il prezzo unitario dell'articolo al momento dell'acquisto"
 
+msgid "The value Carbon assigns when this field's cell is empty or doesn't match any value above. Clear the selection to leave those rows blank."
+msgstr ""
+
 msgid "Theme"
 msgstr "Tema"
 
