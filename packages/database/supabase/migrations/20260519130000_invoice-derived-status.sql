@@ -27,11 +27,11 @@ DROP VIEW IF EXISTS "purchaseInvoices";
 -- ============================================================
 -- Phase 2: Drop the cached `balance` column from the base tables
 -- ============================================================
--- App-code grep across apps/erp/app/modules/invoicing/, both
--- invoice route trees, and post-{sales,purchase}-invoice/index.ts
--- found ZERO direct readers of the base column. The views were
--- the only consumers, and they're recreated below with a derived
--- balance.
+-- The views were the only consumers in apps/erp; they're recreated
+-- below with a derived balance. The convert edge function and the
+-- packages/ee Xero sync providers (bill.ts / invoice.ts) also
+-- touched the base column directly and were updated alongside this
+-- migration to insert without it / read it from the views.
 
 ALTER TABLE "salesInvoice" DROP COLUMN IF EXISTS "balance";
 ALTER TABLE "purchaseInvoice" DROP COLUMN IF EXISTS "balance";
@@ -188,7 +188,7 @@ CREATE OR REPLACE VIEW "salesInvoices" WITH(SECURITY_INVOKER=true) AS
         ELSE i."thumbnailPath"
       END) AS "thumbnailPath",
       SUM(
-        DISTINCT (1+COALESCE(sil."taxPercent", 0))*(COALESCE(sil."quantity", 0)*(COALESCE(sil."unitPrice", 0)) + COALESCE(sil."shippingCost", 0) + COALESCE(sil."addOnCost", 0))
+        DISTINCT (1+COALESCE(sil."taxPercent", 0))*(COALESCE(sil."quantity", 0)*(COALESCE(sil."unitPrice", 0)) + COALESCE(sil."shippingCost", 0) + COALESCE(sil."addOnCost", 0)) + COALESCE(sil."nonTaxableAddOnCost", 0)
       ) AS "invoiceTotal",
       SUM(COALESCE(sil."shippingCost", 0)) AS "shippingCost",
       MIN(i."type") AS "itemType",

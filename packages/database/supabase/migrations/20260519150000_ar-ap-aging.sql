@@ -57,7 +57,9 @@ AS $$
         JOIN "payment" p ON p."id" = pa."paymentId"
         WHERE pa."salesInvoiceId" = si."id"
           AND p."status" = 'Posted'
-          AND pa."appliedDate" <= _as_of_date
+          -- Reconcile on payment.postingDate (matches the tie-out report),
+          -- not the free-form appliedDate.
+          AND p."postingDate" <= _as_of_date
       ), 0)) * si."exchangeRate" AS open_base
     FROM "salesInvoice" si
     WHERE si."companyId" = _company_id
@@ -95,7 +97,6 @@ AS $$
           SELECT SUM(pa."appliedAmount")
           FROM "paymentApplication" pa
           WHERE pa."paymentId" = p."id"
-            AND pa."appliedDate" <= _as_of_date
         ), 0)) * p."exchangeRate"
       ), 0) AS "unapplied"
     FROM "payment" p
@@ -166,7 +167,8 @@ AS $$
         JOIN "payment" p ON p."id" = pa."paymentId"
         WHERE pa."purchaseInvoiceId" = pi."id"
           AND p."status" = 'Posted'
-          AND pa."appliedDate" <= _as_of_date
+          -- See AR note: reconcile on payment.postingDate, not appliedDate.
+          AND p."postingDate" <= _as_of_date
       ), 0)) * pi."exchangeRate" AS open_base
     FROM "purchaseInvoice" pi
     WHERE pi."companyId" = _company_id
@@ -204,7 +206,6 @@ AS $$
           SELECT SUM(pa."appliedAmount")
           FROM "paymentApplication" pa
           WHERE pa."paymentId" = p."id"
-            AND pa."appliedDate" <= _as_of_date
         ), 0)) * p."exchangeRate"
       ), 0) AS "unapplied"
     FROM "payment" p

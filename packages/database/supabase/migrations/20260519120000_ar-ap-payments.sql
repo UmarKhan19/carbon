@@ -131,6 +131,8 @@ CREATE TYPE "paymentType" AS ENUM ('Receipt', 'Disbursement');
 CREATE TYPE "paymentStatus" AS ENUM ('Draft', 'Posted', 'Voided');
 
 ALTER TYPE "journalLineDocumentType" ADD VALUE IF NOT EXISTS 'Payment';
+-- journal.sourceType uses this enum; post-payment writes 'Payment' journals.
+ALTER TYPE "journalEntrySourceType" ADD VALUE IF NOT EXISTS 'Payment';
 
 
 -- ============================================================
@@ -252,8 +254,13 @@ CREATE TABLE "paymentApplication" (
   "writeOffAmount" NUMERIC(19,4) NOT NULL DEFAULT 0,
   "invoiceExchangeRate" NUMERIC(19,8) NOT NULL,
   "paymentExchangeRate" NUMERIC(19,8) NOT NULL,
+  -- Realized FX on this application, in base currency. FX accrues only on the
+  -- cash-settled principal (appliedAmount): discount and write-off are
+  -- invoice-currency reliefs booked at the invoice rate and carry no FX. Must
+  -- match the FX plug booked by post-payment exactly so the subledger
+  -- reconciles to the GL foreign-exchange accounts.
   "fxGainLossAmount" NUMERIC(19,4) GENERATED ALWAYS AS (
-    ("appliedAmount" + "discountAmount") * ("paymentExchangeRate" - "invoiceExchangeRate")
+    "appliedAmount" * ("paymentExchangeRate" - "invoiceExchangeRate")
   ) STORED,
   "appliedDate" DATE NOT NULL,
   "companyId" TEXT NOT NULL,

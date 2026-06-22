@@ -9,10 +9,11 @@ import {
   getSalesInvoice,
   PaymentForm,
   paymentValidator,
-  upsertPayment,
-  upsertPaymentApplication
+  replacePaymentApplications,
+  upsertPayment
 } from "~/modules/invoicing";
 import { getNextSequence } from "~/modules/settings";
+import { getDatabaseClient } from "~/services/database.server";
 import { path } from "~/utils/path";
 
 // Loader pre-fills the form when navigated from an invoice header.
@@ -104,8 +105,13 @@ export async function action({ request }: ActionFunctionArgs) {
     paymentId = next.data;
   }
 
+  // The form posts a hidden `id` as "" which validates to null. The create
+  // branch must omit it so the table's xid() default generates the id;
+  // passing id: null would violate the NOT NULL constraint.
+  const { id: _omitId, ...paymentData } = validation.data;
+
   const insert = await upsertPayment(client, {
-    ...validation.data,
+    ...paymentData,
     paymentId,
     companyId,
     createdBy: userId
@@ -123,19 +129,36 @@ export async function action({ request }: ActionFunctionArgs) {
   if (typeof seedInvoiceId === "string" && seedInvoiceId.length > 0) {
     const isReceipt = validation.data.paymentType === "Receipt";
     const invRate = Number(seedInvoiceExchangeRate) || 1;
-    await upsertPaymentApplication(client, {
-      paymentId: insert.data.id,
-      salesInvoiceId: isReceipt ? seedInvoiceId : undefined,
-      purchaseInvoiceId: isReceipt ? undefined : seedInvoiceId,
-      appliedAmount: Number(validation.data.totalAmount),
-      discountAmount: 0,
-      writeOffAmount: 0,
-      invoiceExchangeRate: invRate,
-      paymentExchangeRate: Number(validation.data.exchangeRate) || 1,
-      appliedDate: validation.data.paymentDate,
-      companyId,
-      createdBy: userId
-    });
+    try {
+      await replacePaymentApplications(getDatabaseClient(), {
+        paymentId: insert.data.id,
+        companyId,
+        createdBy: userId,
+        applications: [
+          {
+            salesInvoiceId: isReceipt ? seedInvoiceId : undefined,
+            purchaseInvoiceId: isReceipt ? undefined : seedInvoiceId,
+            appliedAmount: Number(validation.data.totalAmount),
+            discountAmount: 0,
+            writeOffAmount: 0,
+            invoiceExchangeRate: invRate,
+            paymentExchangeRate: Number(validation.data.exchangeRate) || 1,
+            appliedDate: validation.data.paymentDate
+          }
+        ]
+      });
+    } catch (e) {
+      // The payment was created (a Draft with no applications is a valid
+      // state), but seeding the application failed. Send the user to the
+      // detail page to apply manually instead of reporting a clean success.
+      throw redirect(
+        path.to.payment(insert.data.id),
+        await flash(
+          request,
+          error(e, "Payment created, but applying it to the invoice failed")
+        )
+      );
+    }
   }
 
   throw redirect(

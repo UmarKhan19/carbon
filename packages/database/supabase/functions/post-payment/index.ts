@@ -117,7 +117,7 @@ serve(async (req: Request) => {
               .returning(["id"])
               .executeTakeFirstOrThrow();
 
-            await trx
+            const voidLineResults = await trx
               .insertInto("journalLine")
               .values(
                 originalLines.map((line) => ({
@@ -133,7 +133,37 @@ serve(async (req: Request) => {
                   companyId,
                 }))
               )
+              .returning(["id"])
               .execute();
+
+            // Carry the original lines' dimensions onto the reversing lines so
+            // dimension-filtered balances net to zero after the void.
+            const origDimensions = await trx
+              .selectFrom("journalLineDimension")
+              .select(["journalLineId", "dimensionId", "valueId"])
+              .where(
+                "journalLineId",
+                "in",
+                originalLines.map((l) => l.id)
+              )
+              .execute();
+            if (origDimensions.length > 0) {
+              const idxByOriginalId = new Map(
+                originalLines.map((l, i) => [l.id, i])
+              );
+              await trx
+                .insertInto("journalLineDimension")
+                .values(
+                  origDimensions.map((d) => ({
+                    journalLineId:
+                      voidLineResults[idxByOriginalId.get(d.journalLineId)!].id,
+                    dimensionId: d.dimensionId,
+                    valueId: d.valueId,
+                    companyId,
+                  }))
+                )
+                .execute();
+            }
           }
         }
 
@@ -167,8 +197,10 @@ serve(async (req: Request) => {
       throw new Error("Payment exchange rate must be > 0");
     }
 
-    // Lock and validate invoices referenced by applications. Lock prevents
-    // a concurrent post-payment from over-applying the same invoice.
+    // Invoice ids referenced by this payment's applications. The lock +
+    // validation against invoice state (existence, counterparty, active
+    // status, over-settlement cap) happens inside the commit transaction
+    // below, NOT here — see the note on the application-level checks.
     const salesInvoiceIds = applications.data
       .filter((a) => a.salesInvoiceId)
       .map((a) => a.salesInvoiceId as string);
@@ -183,84 +215,14 @@ serve(async (req: Request) => {
       throw new Error("Disbursement cannot apply to sales invoices");
     }
 
-    const [salesInvoices, purchaseInvoices, openAppliedSums] = await Promise.all([
-      salesInvoiceIds.length
-        ? client.from("salesInvoice").select("id, status, totalAmount, exchangeRate").in("id", salesInvoiceIds)
-        : Promise.resolve({ data: [], error: null }),
-      purchaseInvoiceIds.length
-        ? client.from("purchaseInvoice").select("id, status, totalAmount, exchangeRate").in("id", purchaseInvoiceIds)
-        : Promise.resolve({ data: [], error: null }),
-      // Existing settled amount on each invoice from prior posted payments.
-      // We sum applied+discount+writeOff across applications whose parent
-      // payment is Posted; this excludes the current draft.
-      client
-        .from("paymentApplication")
-        .select("salesInvoiceId, purchaseInvoiceId, appliedAmount, discountAmount, writeOffAmount, payment!inner(status)")
-        .eq("payment.status", "Posted")
-        .in(
-          isReceipt ? "salesInvoiceId" : "purchaseInvoiceId",
-          isReceipt ? (salesInvoiceIds.length ? salesInvoiceIds : ["__none__"]) : (purchaseInvoiceIds.length ? purchaseInvoiceIds : ["__none__"])
-        ),
-    ]);
-
-    if (salesInvoices.error) throw new Error("Failed to fetch sales invoices");
-    if (purchaseInvoices.error) throw new Error("Failed to fetch purchase invoices");
-    if (openAppliedSums.error) throw new Error("Failed to fetch prior applications");
-
-    const invoiceById = new Map<string, { status: string; totalAmount: number; exchangeRate: number }>();
-    for (const si of salesInvoices.data ?? []) {
-      invoiceById.set(si.id, { status: si.status, totalAmount: Number(si.totalAmount), exchangeRate: Number(si.exchangeRate) });
-    }
-    for (const pi of purchaseInvoices.data ?? []) {
-      invoiceById.set(pi.id, { status: pi.status, totalAmount: Number(pi.totalAmount), exchangeRate: Number(pi.exchangeRate) });
-    }
-
-    const priorSettledByInvoice = new Map<string, number>();
-    for (const row of openAppliedSums.data ?? []) {
-      const invId = (isReceipt ? row.salesInvoiceId : row.purchaseInvoiceId) as string | null;
-      if (!invId) continue;
-      priorSettledByInvoice.set(
-        invId,
-        (priorSettledByInvoice.get(invId) ?? 0) +
-          Number(row.appliedAmount) + Number(row.discountAmount) + Number(row.writeOffAmount)
-      );
-    }
-
-    // Validate each application. Active state name differs per side
-    // (Submitted for sales, Open for purchase — both mean "posted to GL,
-    // available for settlement").
-    const activeStatus = isReceipt ? "Submitted" : "Open";
-    let totalApplied = 0; // in invoice currency, summed across applications
-    const currentSettledByInvoice = new Map<string, number>();
+    // Application-level checks that need no invoice state. The invoice-
+    // dependent checks run INSIDE the transaction below, after the invoice
+    // rows are locked — otherwise two concurrent posts could both read the
+    // same prior-settled total and both slip past the over-settlement cap.
     for (const app of applications.data) {
-      const invId = (isReceipt ? app.salesInvoiceId : app.purchaseInvoiceId) as string;
-      const inv = invoiceById.get(invId);
-      if (!inv) throw new Error(`Invoice ${invId} not found`);
-      if (inv.status !== activeStatus) {
-        throw new Error(
-          `Cannot apply payment to invoice ${invId} in status ${inv.status} (must be ${activeStatus})`
-        );
-      }
       if (app.invoiceExchangeRate <= 0 || app.paymentExchangeRate <= 0) {
         throw new Error("Application exchange rates must be > 0");
       }
-
-      const settledByThisApp =
-        Number(app.appliedAmount) + Number(app.discountAmount) + Number(app.writeOffAmount);
-      currentSettledByInvoice.set(
-        invId,
-        (currentSettledByInvoice.get(invId) ?? 0) + settledByThisApp
-      );
-
-      const remainingOpen = inv.totalAmount - (priorSettledByInvoice.get(invId) ?? 0);
-      const wouldSettle = currentSettledByInvoice.get(invId)!;
-      if (wouldSettle > remainingOpen + 0.0001) {
-        throw new Error(
-          `Application total (${wouldSettle}) exceeds remaining open amount (${remainingOpen}) on invoice ${invId}`
-        );
-      }
-
-      totalApplied += Number(app.appliedAmount);
     }
 
     // Cash balance: sum of applied principals × paymentRate must not exceed
@@ -285,14 +247,89 @@ serve(async (req: Request) => {
       ? await getCurrentAccountingPeriod(client, companyId, db)
       : null;
 
-    let createdJournalId: string | null = null;
-    if (accountingEnabled && accountDefaults.data) {
+    const journalLineInserts: JournalLineInsert[] = [];
+    // Running balance in true debit(+)/credit(−) space. A balanced double
+    // entry sums to ~0 here. (The stored `amount` is natural-balance signed —
+    // credit("asset") is negative — so it does NOT sum to zero; we track the
+    // debit/credit balance separately so we can self-check below.)
+    let signedDebitTotal = 0;
+    // Dimension applied to every journal line: the customer type (Receipt) or
+    // supplier type (Disbursement), mirroring how invoice posting tags lines
+    // so AR/AP can be reported by counterparty type. Resolved below.
+    // Dimensions to tag on every payment journal line so AR/AP can be reported
+    // by counterparty. We tag both the counterparty *type* (CustomerType /
+    // SupplierType) and the specific counterparty *entity* (Customer / Supplier).
+    const partyDimensions: { dimensionId: string; valueId: string }[] = [];
+
+    if (accountingEnabled) {
+      if (!accountDefaults.data) {
+        throw new Error(
+          "Accounting is enabled but this company has no account defaults configured"
+        );
+      }
       const ad = accountDefaults.data;
       const journalLineReference = nanoid();
-      const journalLineInserts: JournalLineInsert[] = [];
 
-      const bankAccountId = payment.data.bankAccount;
-      const controlAccountId = isReceipt ? ad.receivablesAccount : ad.payablesAccount;
+      // Resolve the counterparty type + entity dimensions for this payment.
+      const companyRecord = await client
+        .from("company")
+        .select("companyGroupId")
+        .eq("id", companyId)
+        .single();
+      const companyGroupId = companyRecord.data?.companyGroupId ?? null;
+      const partyId = isReceipt
+        ? (payment.data.customerId as string | null)
+        : (payment.data.supplierId as string | null);
+      const typeEntityType = isReceipt ? "CustomerType" : "SupplierType";
+      const entityEntityType = isReceipt ? "Customer" : "Supplier";
+      if (companyGroupId && partyId) {
+        const [partyRow, dimRows] = await Promise.all([
+          isReceipt
+            ? client
+                .from("customer")
+                .select("customerTypeId")
+                .eq("id", partyId)
+                .maybeSingle()
+            : client
+                .from("supplier")
+                .select("supplierTypeId")
+                .eq("id", partyId)
+                .maybeSingle(),
+          client
+            .from("dimension")
+            .select("id, entityType")
+            .eq("companyGroupId", companyGroupId)
+            .eq("active", true)
+            .in("entityType", [typeEntityType, entityEntityType]),
+        ]);
+        const dimByEntityType = new Map<string, string>();
+        for (const d of dimRows.data ?? []) {
+          if (d.entityType) dimByEntityType.set(d.entityType, d.id);
+        }
+        // deno-lint-ignore no-explicit-any
+        const party = partyRow.data as any;
+        const partyTypeId = isReceipt
+          ? (party?.customerTypeId ?? null)
+          : (party?.supplierTypeId ?? null);
+        const typeDimensionId = dimByEntityType.get(typeEntityType);
+        if (typeDimensionId && partyTypeId) {
+          partyDimensions.push({
+            dimensionId: typeDimensionId,
+            valueId: partyTypeId,
+          });
+        }
+        const entityDimensionId = dimByEntityType.get(entityEntityType);
+        if (entityDimensionId) {
+          partyDimensions.push({
+            dimensionId: entityDimensionId,
+            valueId: partyId,
+          });
+        }
+      }
+
+      const controlAccountId = isReceipt
+        ? ad.receivablesAccount
+        : ad.payablesAccount;
       const discountAccountId = isReceipt
         ? ad.customerPaymentDiscountAccount
         : ad.supplierPaymentDiscountAccount;
@@ -302,181 +339,318 @@ serve(async (req: Request) => {
       const fxGainAccountId = ad.realizedExchangeGainAccount;
       const fxLossAccountId = ad.realizedExchangeLossAccount;
 
-      // 1) Cash: DR Bank (Receipt) or CR Bank (Disbursement) for full
-      //    totalAmount in base currency.
+      if (!controlAccountId) {
+        throw new Error(
+          `Missing ${isReceipt ? "receivables" : "payables"} account default; cannot post payment to GL`
+        );
+      }
+
+      // Push a line and keep the debit/credit running balance in sync.
+      const pushLine = (
+        side: "debit" | "credit",
+        accountType: "asset" | "liability" | "equity" | "revenue" | "expense",
+        magnitude: number,
+        fields: {
+          accountId: string;
+          description: string;
+          documentLineReference?: string;
+        }
+      ) => {
+        signedDebitTotal += side === "debit" ? magnitude : -magnitude;
+        journalLineInserts.push({
+          accountId: fields.accountId,
+          description: fields.description,
+          amount:
+            side === "debit"
+              ? debit(accountType, magnitude)
+              : credit(accountType, magnitude),
+          quantity: 1,
+          documentType: "Payment",
+          documentId: paymentId,
+          documentLineReference: fields.documentLineReference,
+          journalLineReference,
+          companyId,
+        });
+      };
+
+      // 1) Cash: DR Bank (Receipt) / CR Bank (Disbursement), full cash in base.
       const cashBase = round4(
         Number(payment.data.totalAmount) * Number(payment.data.exchangeRate)
       );
-      journalLineInserts.push({
-        accountId: bankAccountId,
+      pushLine(isReceipt ? "debit" : "credit", "asset", cashBase, {
+        accountId: payment.data.bankAccount,
         description: "Bank / Cash",
-        amount: isReceipt ? debit("asset", cashBase) : credit("asset", cashBase),
-        quantity: 1,
-        documentType: "Payment",
-        documentId: paymentId,
-        journalLineReference,
-        companyId,
       });
 
-      // 2) Per-application: CR/DR control account at INVOICE rate,
-      //    DR/CR discount and write-off at PAYMENT rate.
-      let totalFxImpact = 0; // in base currency; +ve = gain for AR, loss for AP
+      // 2) Per application: control at INVOICE rate; discount / write-off at
+      //    PAYMENT rate. FX is accumulated and plugged once below.
+      let totalFxImpact = 0; // base ccy; +ve = gain for AR, loss for AP
       for (const app of applications.data) {
-        const invId = (isReceipt ? app.salesInvoiceId : app.purchaseInvoiceId) as string;
+        const invId = (isReceipt
+          ? app.salesInvoiceId
+          : app.purchaseInvoiceId) as string;
         const applied = Number(app.appliedAmount);
         const discount = Number(app.discountAmount);
         const writeOff = Number(app.writeOffAmount);
         const invRate = Number(app.invoiceExchangeRate);
         const payRate = Number(app.paymentExchangeRate);
 
-        // Control account: at invoice rate (original AR/AP booking).
-        const controlBase = round4((applied + discount + writeOff) * invRate);
-        journalLineInserts.push({
-          accountId: controlAccountId,
-          description: isReceipt ? "Accounts Receivable" : "Accounts Payable",
-          amount: isReceipt
-            ? credit("asset", controlBase)
-            : debit("liability", controlBase),
-          quantity: 1,
-          documentType: "Payment",
-          documentId: paymentId,
-          documentLineReference: invId,
-          journalLineReference,
-          companyId,
-        });
-
-        // Discount: at payment rate. AR side debits (we forgo revenue);
-        // AP side credits (vendor allowance reduces our cost).
-        if (discount > 0) {
-          const discountBase = round4(discount * payRate);
-          journalLineInserts.push({
-            accountId: discountAccountId,
-            description: isReceipt
-              ? "Customer Payment Discount"
-              : "Supplier Payment Discount",
-            amount: isReceipt
-              ? debit("expense", discountBase)
-              : credit("expense", discountBase),
-            quantity: 1,
-            documentType: "Payment",
-            documentId: paymentId,
+        // Control account: at invoice rate (mirrors the original AR/AP booking).
+        pushLine(
+          isReceipt ? "credit" : "debit",
+          isReceipt ? "asset" : "liability",
+          round4((applied + discount + writeOff) * invRate),
+          {
+            accountId: controlAccountId,
+            description: isReceipt ? "Accounts Receivable" : "Accounts Payable",
             documentLineReference: invId,
-            journalLineReference,
-            companyId,
-          });
-        }
-
-        // Write-off: at payment rate. AR is bad debt (expense); AP is
-        // vendor write-off (income — class=Revenue).
-        if (writeOff > 0) {
-          const writeOffBase = round4(writeOff * payRate);
-          journalLineInserts.push({
-            accountId: writeOffAccountId,
-            description: isReceipt ? "Bad Debt Expense" : "Vendor Write-Off Income",
-            amount: isReceipt
-              ? debit("expense", writeOffBase)
-              : credit("revenue", writeOffBase),
-            quantity: 1,
-            documentType: "Payment",
-            documentId: paymentId,
-            documentLineReference: invId,
-            journalLineReference,
-            companyId,
-          });
-        }
-
-        // FX impact on this application: (applied + discount + writeOff)
-        // × (paymentRate - invoiceRate). For AR, +ve = gain. For AP, +ve = loss.
-        // (The migration's fxGainLossAmount column excludes writeOff; the
-        // journal includes it for full balance — small accounting deltas
-        // would otherwise spill into the journal imbalance.)
-        const fxDelta = (applied + discount + writeOff) * (payRate - invRate);
-        totalFxImpact += isReceipt ? fxDelta : -fxDelta;
-      }
-
-      // 3) Unapplied cash: control account takes the remainder so the
-      //    customer/supplier's overall balance moves by the full cash amount.
-      //    Booked at payment rate since there's no invoice anchor.
-      if (unappliedInPaymentCcy > 0.0001) {
-        const unappliedBase = round4(
-          unappliedInPaymentCcy * Number(payment.data.exchangeRate)
+          }
         );
-        journalLineInserts.push({
-          accountId: controlAccountId,
-          description: isReceipt
-            ? "Accounts Receivable (on-account credit)"
-            : "Accounts Payable (on-account credit)",
-          amount: isReceipt
-            ? credit("asset", unappliedBase)
-            : debit("liability", unappliedBase),
-          quantity: 1,
-          documentType: "Payment",
-          documentId: paymentId,
-          journalLineReference,
-          companyId,
-        });
+
+        // Discount: at INVOICE rate (an invoice-currency relief, not cash, so
+        // it carries no FX). AR debits (forgone revenue); AP credits (vendor
+        // allowance reduces our cost).
+        if (discount > 0) {
+          if (!discountAccountId) {
+            throw new Error(
+              `Missing ${isReceipt ? "customer" : "supplier"} payment discount account default`
+            );
+          }
+          pushLine(
+            isReceipt ? "debit" : "credit",
+            "expense",
+            round4(discount * invRate),
+            {
+              accountId: discountAccountId,
+              description: isReceipt
+                ? "Customer Payment Discount"
+                : "Supplier Payment Discount",
+              documentLineReference: invId,
+            }
+          );
+        }
+
+        // Write-off: at INVOICE rate (an invoice-currency relief, not cash, so
+        // it carries no FX). AR is bad debt (expense); AP is vendor write-off
+        // (income — class=Revenue).
+        if (writeOff > 0) {
+          if (!writeOffAccountId) {
+            throw new Error(
+              `Missing ${isReceipt ? "customer" : "supplier"} write-off account default`
+            );
+          }
+          pushLine(
+            isReceipt ? "debit" : "credit",
+            isReceipt ? "expense" : "revenue",
+            round4(writeOff * invRate),
+            {
+              accountId: writeOffAccountId,
+              description: isReceipt
+                ? "Bad Debt Expense"
+                : "Vendor Write-Off Income",
+              documentLineReference: invId,
+            }
+          );
+        }
+
+        // Realized FX on the cash-settled principal only: applied × (paymentRate
+        // − invoiceRate). Discount and write-off are invoice-currency reliefs
+        // booked at the invoice rate above, so they carry no FX. For AR, +ve =
+        // gain; for AP, +ve = loss. Matches the stored
+        // paymentApplication.fxGainLossAmount so the subledger reconciles.
+        totalFxImpact += (isReceipt ? 1 : -1) * applied * (payRate - invRate);
       }
 
-      // 4) FX plug. Single line, no per-application breakdown.
+      // 3) Unapplied cash → control account (no invoice anchor), payment rate.
+      if (unappliedInPaymentCcy > 0.0001) {
+        pushLine(
+          isReceipt ? "credit" : "debit",
+          isReceipt ? "asset" : "liability",
+          round4(unappliedInPaymentCcy * Number(payment.data.exchangeRate)),
+          {
+            accountId: controlAccountId,
+            description: isReceipt
+              ? "Accounts Receivable (on-account credit)"
+              : "Accounts Payable (on-account credit)",
+          }
+        );
+      }
+
+      // 4) FX plug (single line).
       if (Math.abs(totalFxImpact) > 0.0001) {
         const fxBase = round4(Math.abs(totalFxImpact));
         if (totalFxImpact > 0) {
-          journalLineInserts.push({
+          if (!fxGainAccountId) {
+            throw new Error("Missing realized FX gain account default");
+          }
+          pushLine("credit", "revenue", fxBase, {
             accountId: fxGainAccountId,
             description: "Realized FX Gain",
-            amount: credit("revenue", fxBase),
-            quantity: 1,
-            documentType: "Payment",
-            documentId: paymentId,
-            journalLineReference,
-            companyId,
           });
         } else {
-          journalLineInserts.push({
+          if (!fxLossAccountId) {
+            throw new Error("Missing realized FX loss account default");
+          }
+          pushLine("debit", "expense", fxBase, {
             accountId: fxLossAccountId,
             description: "Realized FX Loss",
-            amount: debit("expense", fxBase),
-            quantity: 1,
-            documentType: "Payment",
-            documentId: paymentId,
-            journalLineReference,
-            companyId,
           });
         }
       }
 
-      // Sanity check: journal must balance to within rounding tolerance.
-      const total = journalLineInserts.reduce(
-        (sum, l) => sum + Number(l.amount),
-        0
-      );
-      if (Math.abs(total) > 0.01) {
+      // Self-check: the entry must balance in true debit/credit space. The FX
+      // plug (same formula as the stored fxGainLossAmount) should make this
+      // ~0; a larger residual means a logic/rounding bug, so we refuse to post
+      // rather than write an unbalanced journal to the GL.
+      if (Math.abs(signedDebitTotal) > 0.01) {
         throw new Error(
-          `Payment journal does not balance: net ${total} (expected ~0)`
+          `Payment journal does not balance (off by ${round4(signedDebitTotal)} in base currency); refusing to post`
         );
       }
+    }
 
-      await db.transaction().execute(async (trx) => {
-        // Lock invoice rows for the duration of the transaction so a
-        // concurrent post-payment can't over-apply.
-        if (salesInvoiceIds.length > 0) {
-          await trx
-            .selectFrom("salesInvoice")
-            .select("id")
-            .where("id", "in", salesInvoiceIds)
-            .forUpdate()
-            .execute();
-        }
-        if (purchaseInvoiceIds.length > 0) {
-          await trx
-            .selectFrom("purchaseInvoice")
-            .select("id")
-            .where("id", "in", purchaseInvoiceIds)
-            .forUpdate()
-            .execute();
-        }
+    // --------------------------------------------------------------
+    // Commit: lock + validate the invoices under the transaction, then post.
+    // --------------------------------------------------------------
+    const paymentPartyId = isReceipt
+      ? payment.data.customerId
+      : payment.data.supplierId;
+    const activeStatus = isReceipt ? "Submitted" : "Open";
 
-        const journalEntryId = await getNextSequence(trx, "journalEntry", companyId);
+    let createdJournalId: string | null = null;
+    await db.transaction().execute(async (trx) => {
+      // Lock + read the target invoices in one shot. Holding the row locks for
+      // the rest of the transaction serializes concurrent posts so the
+      // over-settlement cap below can't be raced (TOCTOU).
+      const invoiceById = new Map<
+        string,
+        { status: string; totalAmount: number; partyId: string | null }
+      >();
+      if (isReceipt && salesInvoiceIds.length > 0) {
+        const rows = await trx
+          .selectFrom("salesInvoice")
+          .select(["id", "status", "totalAmount", "customerId"])
+          .where("id", "in", salesInvoiceIds)
+          .forUpdate()
+          .execute();
+        for (const r of rows) {
+          invoiceById.set(r.id, {
+            status: r.status as string,
+            totalAmount: Number(r.totalAmount),
+            partyId: r.customerId,
+          });
+        }
+      }
+      if (!isReceipt && purchaseInvoiceIds.length > 0) {
+        const rows = await trx
+          .selectFrom("purchaseInvoice")
+          .select(["id", "status", "totalAmount", "supplierId"])
+          .where("id", "in", purchaseInvoiceIds)
+          .forUpdate()
+          .execute();
+        for (const r of rows) {
+          invoiceById.set(r.id, {
+            status: r.status as string,
+            totalAmount: Number(r.totalAmount),
+            partyId: r.supplierId,
+          });
+        }
+      }
+
+      // Prior settled from OTHER posted payments, read under the same lock.
+      const priorSettledByInvoice = new Map<string, number>();
+      if (isReceipt && salesInvoiceIds.length > 0) {
+        const rows = await trx
+          .selectFrom("paymentApplication as pa")
+          .innerJoin("payment as p", "p.id", "pa.paymentId")
+          .select([
+            "pa.salesInvoiceId as invId",
+            "pa.appliedAmount",
+            "pa.discountAmount",
+            "pa.writeOffAmount",
+          ])
+          .where("p.status", "=", "Posted")
+          .where("pa.salesInvoiceId", "in", salesInvoiceIds)
+          .execute();
+        for (const r of rows) {
+          if (!r.invId) continue;
+          priorSettledByInvoice.set(
+            r.invId,
+            (priorSettledByInvoice.get(r.invId) ?? 0) +
+              Number(r.appliedAmount) +
+              Number(r.discountAmount) +
+              Number(r.writeOffAmount)
+          );
+        }
+      } else if (!isReceipt && purchaseInvoiceIds.length > 0) {
+        const rows = await trx
+          .selectFrom("paymentApplication as pa")
+          .innerJoin("payment as p", "p.id", "pa.paymentId")
+          .select([
+            "pa.purchaseInvoiceId as invId",
+            "pa.appliedAmount",
+            "pa.discountAmount",
+            "pa.writeOffAmount",
+          ])
+          .where("p.status", "=", "Posted")
+          .where("pa.purchaseInvoiceId", "in", purchaseInvoiceIds)
+          .execute();
+        for (const r of rows) {
+          if (!r.invId) continue;
+          priorSettledByInvoice.set(
+            r.invId,
+            (priorSettledByInvoice.get(r.invId) ?? 0) +
+              Number(r.appliedAmount) +
+              Number(r.discountAmount) +
+              Number(r.writeOffAmount)
+          );
+        }
+      }
+
+      // Validate each application against the locked invoice state.
+      const currentSettledByInvoice = new Map<string, number>();
+      for (const app of applications.data) {
+        const invId = (isReceipt
+          ? app.salesInvoiceId
+          : app.purchaseInvoiceId) as string;
+        const inv = invoiceById.get(invId);
+        if (!inv) throw new Error(`Invoice ${invId} not found`);
+        if (inv.partyId !== paymentPartyId) {
+          throw new Error(
+            `Invoice ${invId} belongs to a different ${isReceipt ? "customer" : "supplier"} than the payment`
+          );
+        }
+        if (inv.status !== activeStatus) {
+          throw new Error(
+            `Cannot apply payment to invoice ${invId} in status ${inv.status} (must be ${activeStatus})`
+          );
+        }
+        const settledByThisApp =
+          Number(app.appliedAmount) +
+          Number(app.discountAmount) +
+          Number(app.writeOffAmount);
+        currentSettledByInvoice.set(
+          invId,
+          (currentSettledByInvoice.get(invId) ?? 0) + settledByThisApp
+        );
+        const remainingOpen =
+          inv.totalAmount - (priorSettledByInvoice.get(invId) ?? 0);
+        const wouldSettle = currentSettledByInvoice.get(invId)!;
+        if (wouldSettle > remainingOpen + 0.0001) {
+          throw new Error(
+            `Application total (${wouldSettle}) exceeds remaining open amount (${remainingOpen}) on invoice ${invId}`
+          );
+        }
+      }
+
+      // GL journal (only when accounting is enabled).
+      let journalId: string | null = null;
+      if (accountingEnabled) {
+        const journalEntryId = await getNextSequence(
+          trx,
+          "journalEntry",
+          companyId
+        );
         const journalResult = await trx
           .insertInto("journal")
           .values({
@@ -493,10 +667,10 @@ serve(async (req: Request) => {
           })
           .returning(["id"])
           .executeTakeFirstOrThrow();
-        createdJournalId = journalResult.id;
+        journalId = journalResult.id;
 
         if (journalLineInserts.length > 0) {
-          await trx
+          const journalLineResults = await trx
             .insertInto("journalLine")
             .values(
               journalLineInserts.map((line) => ({
@@ -504,40 +678,44 @@ serve(async (req: Request) => {
                 journalId: journalResult.id,
               }))
             )
+            .returning(["id"])
             .execute();
-        }
 
-        await trx
-          .updateTable("payment")
-          .set({
-            status: "Posted",
-            postingDate: today,
-            journalId: journalResult.id,
-            postedAt: new Date().toISOString(),
-            postedBy: userId,
-            updatedAt: new Date().toISOString(),
-            updatedBy: userId,
-          })
-          .where("id", "=", paymentId)
-          .execute();
-      });
-    } else {
-      // Accounting disabled: still flip status to Posted, no GL impact.
-      await db.transaction().execute(async (trx) => {
-        await trx
-          .updateTable("payment")
-          .set({
-            status: "Posted",
-            postingDate: today,
-            postedAt: new Date().toISOString(),
-            postedBy: userId,
-            updatedAt: new Date().toISOString(),
-            updatedBy: userId,
-          })
-          .where("id", "=", paymentId)
-          .execute();
-      });
-    }
+          // Tag every line with the counterparty dimensions (type + entity).
+          if (partyDimensions.length > 0) {
+            await trx
+              .insertInto("journalLineDimension")
+              .values(
+                journalLineResults.flatMap((jl) =>
+                  partyDimensions.map((d) => ({
+                    journalLineId: jl.id,
+                    dimensionId: d.dimensionId,
+                    valueId: d.valueId,
+                    companyId,
+                  }))
+                )
+              )
+              .execute();
+          }
+        }
+      }
+
+      await trx
+        .updateTable("payment")
+        .set({
+          status: "Posted",
+          postingDate: today,
+          journalId,
+          postedAt: new Date().toISOString(),
+          postedBy: userId,
+          updatedAt: new Date().toISOString(),
+          updatedBy: userId,
+        })
+        .where("id", "=", paymentId)
+        .execute();
+
+      createdJournalId = journalId;
+    });
 
     return new Response(
       JSON.stringify({ success: true, journalId: createdJournalId }),

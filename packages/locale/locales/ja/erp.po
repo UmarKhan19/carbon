@@ -4658,9 +4658,6 @@ msgstr "製造品は直接請求できません。方法をピックに変更し
 msgid "Make Method Version"
 msgstr "製造方法バージョン"
 
-msgid "Make Payment"
-msgstr ""
-
 #. placeholder {0}: selectedRevision.revision
 msgid "Make revision {0} default?"
 msgstr "リビジョン {0} をデフォルトにしますか？"
@@ -6552,9 +6549,6 @@ msgstr "受け取る"
 #. placeholder {0}: job.jobId
 msgid "Receive {0} to Inventory"
 msgstr "{0}を在庫に受け取る"
-
-msgid "Receive Payment"
-msgstr ""
 
 msgid "Receive to Inventory"
 msgstr "在庫に受け取る"

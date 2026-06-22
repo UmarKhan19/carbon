@@ -4658,9 +4658,6 @@ msgstr "Make items cannot be invoiced directly. Change method to Pick to continu
 msgid "Make Method Version"
 msgstr "Make Method Version"
 
-msgid "Make Payment"
-msgstr "Make Payment"
-
 #. placeholder {0}: selectedRevision.revision
 msgid "Make revision {0} default?"
 msgstr "Make revision {0} default?"
@@ -6552,9 +6549,6 @@ msgstr "Receive"
 #. placeholder {0}: job.jobId
 msgid "Receive {0} to Inventory"
 msgstr "Receive {0} to Inventory"
-
-msgid "Receive Payment"
-msgstr "Receive Payment"
 
 msgid "Receive to Inventory"
 msgstr "Receive to Inventory"

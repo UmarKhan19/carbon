@@ -16,6 +16,9 @@ export const dimensions = [
   { name: "Work Center", entityType: "WorkCenter" },
   { name: "Process", entityType: "Process" },
   { name: "Asset Class", entityType: "FixedAssetClass" },
+  { name: "Customer", entityType: "Customer" },
+  { name: "Supplier", entityType: "Supplier" },
+  { name: "Item", entityType: "Item" },
 ] as const;
 
 export const supplierStatuses = [
@@ -393,6 +396,15 @@ export const sequences = [
     next: 0,
     size: 6,
     step: 1
+  },
+  {
+    table: "payment",
+    name: "Payment",
+    prefix: "PAY-%{yyyy}-%{mm}-",
+    suffix: null,
+    next: 0,
+    size: 6,
+    step: 1
   }
 ] as const;
 
@@ -619,6 +631,7 @@ export const accounts = [
   { key: "other-income", number: null, name: "Other Income", isGroup: true, parentKey: "income-statement", accountType: "Other Income", incomeBalance: "Income Statement", class: "Revenue", consolidatedRate: "Average", createdBy: "system" },
   { key: "4110", number: "4110", name: "Scrap Sales", isGroup: false, parentKey: "other-income", accountType: "Other Income", incomeBalance: "Income Statement", class: "Revenue", consolidatedRate: "Average", createdBy: "system" },
   { key: "4120", number: "4120", name: "Foreign Exchange Gains", isGroup: false, parentKey: "other-income", accountType: "Other Income", incomeBalance: "Income Statement", class: "Revenue", consolidatedRate: "Average", createdBy: "system" },
+  { key: "4130", number: "4130", name: "Vendor Write-Off Income", isGroup: false, parentKey: "other-income", accountType: "Other Income", incomeBalance: "Income Statement", class: "Revenue", consolidatedRate: "Average", createdBy: "system" },
 
   // ─── 5000-5999: COST OF GOODS SOLD ───
   { key: "cogs", number: null, name: "Cost of Goods Sold", isGroup: true, parentKey: "income-statement", accountType: "Cost of Goods Sold", incomeBalance: "Income Statement", class: "Expense", consolidatedRate: "Average", createdBy: "system" },
@@ -711,6 +724,10 @@ export const accountDefaults = {
   reverseChargeSalesTaxPayableAccount: "2230",
   retainedEarningsAccount: "3100",
   currencyTranslationAccount: "3200",
+  customerWriteOffAccount: "6050",
+  supplierWriteOffAccount: "4130",
+  realizedExchangeGainAccount: "4120",
+  realizedExchangeLossAccount: "7060",
   deferredTaxLiabilityAccountId: "2420",
   deferredTaxExpenseAccountId: "7090",
 } as const;

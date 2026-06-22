@@ -358,9 +358,9 @@ const SalesInvoiceHeader = () => {
               <Trans>Post</Trans>
             </Button>
             {canReceivePayment && (
-              <Button variant="secondary" leftIcon={<LuDollarSign />} asChild>
+              <Button variant="primary" leftIcon={<LuDollarSign />} asChild>
                 <Link to={receivePaymentHref}>
-                  <Trans>Receive Payment</Trans>
+                  <Trans>Payment</Trans>
                 </Link>
               </Button>
             )}

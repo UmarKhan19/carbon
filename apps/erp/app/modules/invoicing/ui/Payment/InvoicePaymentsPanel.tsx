@@ -53,9 +53,7 @@ const InvoicePaymentsPanel = ({ rows }: InvoicePaymentsPanelProps) => {
       <CardHeader>
         <CardTitle>
           <Trans>Payments</Trans>{" "}
-          <span className="text-muted-foreground text-base">
-            ({rows.length})
-          </span>
+          <span className="text-muted-foreground text-base">{rows.length}</span>
         </CardTitle>
         <CardDescription>
           <Trans>

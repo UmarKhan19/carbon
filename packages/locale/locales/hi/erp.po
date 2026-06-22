@@ -4658,9 +4658,6 @@ msgstr "Make आइटम्स को सीधे इनवॉइस नही
 msgid "Make Method Version"
 msgstr "मेक मेथड संस्करण"
 
-msgid "Make Payment"
-msgstr ""
-
 #. placeholder {0}: selectedRevision.revision
 msgid "Make revision {0} default?"
 msgstr "संशोधन {0} को डिफ़ॉल्ट बनाएं?"
@@ -6552,9 +6549,6 @@ msgstr "प्राप्त करें"
 #. placeholder {0}: job.jobId
 msgid "Receive {0} to Inventory"
 msgstr "{0} को इन्वेंटरी में प्राप्त करें"
-
-msgid "Receive Payment"
-msgstr ""
 
 msgid "Receive to Inventory"
 msgstr "इन्वेंटरी में प्राप्त करें"

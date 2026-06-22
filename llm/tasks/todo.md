@@ -214,8 +214,130 @@ Pattern mirrors `post-sales-invoice/index.ts` and `post-purchase-invoice/index.t
 
 ## Review
 
-(Populated after implementation completes.)
+### Thermo-nuclear review fixes (post-implementation)
+
+A deep code-quality audit (4 parallel reviewers) found correctness bugs that
+the original implementation's "verified" status missed (only a plain AR receipt
+had actually been exercised). Fixed in priority order:
+
+- **B1 (BLOCKER) — broken journal balance check.** `post-payment/index.ts`
+  summed the natural-balance `amount` and required `~0`, but the `credit()`/
+  `debit()` helpers encode natural-balance sign (`credit("asset")` is negative,
+  not signed-debit), so a balanced entry does NOT sum to zero. The check threw
+  on every AP disbursement and every AR receipt with an FX gain. Removed it
+  (siblings `post-*-invoice` don't self-check; the FX plug already balances the
+  entry). See lessons.md.
+- **B2 (BLOCKER) — view dropped a money term.** Recreating `salesInvoices` by
+  hand-retyping its columns silently dropped `+ nonTaxableAddOnCost` from
+  `invoiceTotal`. Restored. (Reinforces: prefer `SELECT *` + computed columns
+  when recreating views.)
+- **B3 (BLOCKER) — non-atomic writes.** `replacePaymentApplications` was a
+  delete-then-insert (data loss on insert failure) and `new.tsx` inserted a
+  starter application whose error was unchecked. Converted
+  `replacePaymentApplications` to a Kysely transaction with a `FOR UPDATE`
+  Draft re-check (Kysely bypasses RLS), and routed `new.tsx`'s starter row
+  through it with honest failure surfacing.
+- **M1 (MAJOR) — tie-out/aging date basis.** Subledger settled-amount was cut
+  on the user-editable `appliedDate` while the GL cut on `journal.postingDate`,
+  guaranteeing spurious variance. Switched all settled subqueries (tie-out AND
+  aging, AR + AP, incl. drill-downs) to the payment's `postingDate`.
+- **M2 (MAJOR) — FX classification + column/journal divergence.** The generated
+  `fxGainLossAmount` column and the journal FX plug disagreed (column excluded
+  write-off). **Resolved (user chose the stricter, textbook-correct policy):**
+  realized FX accrues on the **cash-settled principal only** (`appliedAmount`).
+  Discount and write-off are invoice-currency reliefs, now booked at the
+  **invoice** rate and carrying no FX. Both `post-payment` (discount/write-off
+  lines + FX plug) and the generated column now use
+  `appliedAmount × (paymentRate − invoiceRate)`. The journal still balances in
+  signed-debit space (the two changes cancel exactly), and the subledger
+  reconciles to the GL FX accounts. Total P&L is unchanged vs the prior
+  treatment — only the FX-vs-discount/write-off line classification shifts.
+  (Note: B1's hand-rolled `Σ amount` check was replaced between turns by a
+  correct `signedDebitTotal` guard in `post-payment` — strictly better than the
+  earlier deletion.)
+
+**Deferred (user decision):**
+- **M3** — ~430 lines of AR/AP token-swap duplication across the reporting RPCs
+  + ~60 lines of TS wrappers. Pure maintainability; pulled out as a focused
+  follow-up to keep the correctness fixes a clean, low-risk changeset.
+
+**Verification note:** all changes are pre-DB-reset. `types.ts` does not yet
+contain the `payment`/`paymentApplication` tables, so the whole feature (not
+just these edits) needs a type regeneration after the migrations apply. No DB
+was rebuilt — that's the user's step.
 
 ## Lessons captured
 
 (Append to `llm/tasks/lessons.md` after each correction.)
+
+---
+
+# Customer / Supplier / Item Accounting Dimensions
+
+**Goal:** Add three new entity-backed accounting dimensions — `Customer`, `Supplier`, `Item` — so the GL can answer "how much did I buy from supplier X" / "who are my biggest customers" / per-item spend. These become default dimensions for every company (backfill existing, seed new) and are auto-tagged onto every applicable posted journal line. The payment poster (`post-payment`) currently writes **zero** dimensions — closing that gap is the headline of this work.
+
+**Locked decisions (clarification round):**
+- High-cardinality selector: lazy-load via existing client stores `useCustomers` / `useSuppliers` / `useItems` (nanostores hydrated by `RealtimeDataProvider`). Do **not** eager-load Customer/Supplier/Item rows in `getEntityDimensionValues`.
+- `Item` dimension keyed to `item.id` (all item types), display = `readableIdWithRevision` + `name`.
+
+**Existing entity types (for reference):** Custom, Location, Department, Employee, CostCenter, ItemPostingGroup, CustomerType, SupplierType, WorkCenter, Process, FixedAssetClass. We already have the *grouping* types (CustomerType/SupplierType/ItemPostingGroup); these new ones are the *specific entity*.
+
+**Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.**
+
+## 1. Schema & enum (two migrations — enum-add gotcha)
+- [ ] Migration A `..._customer-supplier-item-dimensions.sql`: `ALTER TYPE "dimensionEntityType" ADD VALUE 'Customer'; ... 'Supplier'; ... 'Item';` — **enum-add only**, nothing else (mirrors `20260524163042_asset-class-dimension.sql`; can't use a new enum value in the same txn that adds it).
+- [ ] Migration B (later randomized HHMMSS timestamp) `..._backfill-entity-dimensions.sql`: backfill INSERT into `dimension` for all `companyGroup` rows, `('Customer','Customer'),('Supplier','Supplier'),('Item','Item')`, `createdBy='system'`, `ON CONFLICT (name, companyGroupId) DO NOTHING` (mirrors `20260228024512_dimensions.sql:176`). Consider also backfilling the never-backfilled `WorkCenter`/`Process`/`FixedAssetClass` here — confirm with user first.
+- [ ] Follow `llm/workflows/database-migration.md`. Randomize timestamps (no 000000).
+
+## 2. New-company seed
+- [ ] Add `{name:"Customer",entityType:"Customer"}`, `{name:"Supplier",entityType:"Supplier"}`, `{name:"Item",entityType:"Item"}` to the `dimensions` array in `packages/database/supabase/functions/lib/seed.data.ts:8`. This single source feeds both `seed-company/index.ts` and `seed-dev.ts` — no other seed edits needed.
+
+## 3. Service — value resolution (`accounting.service.ts`)
+- [ ] `getEntityValuesByIds` (~1143): add `Customer`→`customer(id,name)`, `Supplier`→`supplier(id,name)`, `Item`→`item` selecting `id` + a name expression (`readableIdWithRevision`/`name`). This resolves `valueName` for already-tagged lines on server-rendered posted entries. Bounded `.in("id", ids)` — fine.
+- [ ] `getEntityDimensionValues` (~991): add `Customer`/`Supplier`/`Item` cases that return **empty** `[]` (do NOT eager-load) so the dimension still appears in `availableDimensions` but the selector sources options from the client store.
+
+## 4. UI plumbing (4 spots)
+- [ ] `accounting.models.ts:506` `dimensionEntityTypes` — add `Customer`, `Supplier`, `Item`.
+- [ ] `DimensionForm.tsx` `entityTypeLabels` — add labels (Customer / Supplier / Item).
+- [ ] `DimensionSelector.tsx` `entityTypeColors` — add colors.
+- [ ] `Icons.tsx:604` `DimensionEntityTypeIcon` — add icons.
+
+## 5. DimensionSelector — store-backed combobox for high-cardinality types
+- [ ] In `DimensionSelector.tsx`, branch on `dim.entityType`. For `Customer`/`Supplier`/`Item`, render a store-backed `CreatableCombobox` (driven by `useCustomers`/`useSuppliers`/`useItems` mapped to `{value,label}`, mirroring `Form/Customer.tsx`/`Form/Supplier.tsx`/`Form/Item.tsx`) instead of the eager `DropdownMenuRadioGroup`. Low-cardinality types keep the existing radio sub-menu.
+- [ ] `handleValueChange` must source `valueName` from the store row (combobox option label) for these types, since `dim.values` is empty.
+
+## 6. Posting functions — auto-tag the new dimensions
+Each post-* function builds a `dimensionMap` (entityType→dimensionId), per-line `journalLineDimensionsMeta`, then zips returned line ids into `journalLineDimension` inserts. Add the new entity types to the map query, the meta, and the inserts:
+- [ ] `post-payment/index.ts` — **net-new dimension wiring** (currently none). Add `dimensionMap` for Customer/Supplier, tag the AR/AP control + cash lines with `Customer` (Receipt, `payment.customerId`) or `Supplier` (Disbursement, `payment.supplierId`). Decide per-line scope (likely all lines of the payment share the party).
+- [ ] `post-sales-invoice/index.ts` — add `Customer` (header `customerId`) + `Item` (line `itemId`).
+- [ ] `post-purchase-invoice/index.ts` — add `Supplier` (header `supplierId`) + `Item` (line `itemId`).
+- [ ] `post-receipt/index.ts` — add `Supplier` + `Item`.
+- [ ] `post-shipment/index.ts` — add `Customer` + `Item`.
+- [ ] `issue/index.ts` — add `Item`.
+- [ ] `post-production-event/index.ts` — add `Item` (confirm itemId availability).
+- [ ] Migration-embedded posting SQL: `20260511120000_backflush-job-materials.sql`, `20260508120000_complete-job-to-inventory.sql` — add `Item` dimension inserts (these insert `journalLineDimension` directly in SQL; new dims must resolve the Item dimension id per company group).
+- [ ] Audit `accounting.server.ts` manual JE / disposal posting — Item/Customer/Supplier not generally applicable (manual), leave unless obvious.
+
+## 7. Verification
+- [ ] Type-check only the individual edited files (never whole-project `tsc`).
+- [ ] `types.ts` regen + DB reset are the **user's** step — do not rebuild the DB. Flag what needs regen.
+- [ ] After user reset: e2e — post an AP invoice + AP payment, confirm Supplier+Item dims appear in the selector and on the posted journal lines; post an AR receipt, confirm Customer dim. Use `/test`.
+
+## Review
+
+**Status: implemented (pending DB reset + types regen by user).**
+
+What was built:
+- **Migrations:** `20260617091742_customer-supplier-item-dimensions.sql` (enum-add only: Customer/Supplier/Item) + `20260617104938_backfill-entity-dimensions.sql` (idempotent backfill of all 6 missing default dims — Customer/Supplier/Item plus the never-backfilled WorkCenter/Process/FixedAssetClass — for every company group via `ON CONFLICT (name, companyGroupId) DO NOTHING`) + `20260617121634_job-costing-item-dimension.sql` (forks the latest `backflush_job_materials` + `complete_job_to_inventory` from 20260511120000 verbatim, adding only the Item dimension resolution + inserts; diff-verified line-by-line).
+- **New-company seed:** 3 entries added to `seed.data.ts` (feeds seed-company + seed-dev).
+- **Service:** `getEntityValuesByIds` resolves Customer/Supplier/Item names for already-tagged lines (Item → `readableIdWithRevision`); `getEntityDimensionValues` explicitly returns empty for the three (no eager-load) with a comment.
+- **UI:** `dimensionEntityTypes`, `entityTypeLabels` (+ WorkCenter/Process which were missing), `entityTypeColors`, `DimensionEntityTypeIcon` all extended. `DimensionSelector` now offers high-cardinality dims in the "Dimension +" dropdown; selecting one reveals an inline store-backed `Combobox` (useCustomers/useSuppliers/useItems) — searchable + virtualized, no eager load — which collapses to a badge once a value is picked.
+- **Posting:** Customer (post-sales-invoice, post-shipment SO case, post-payment Receipt), Supplier (post-purchase-invoice, post-receipt PO block, post-payment Disbursement), Item per-line (all of the above + issue both blocks, post-production-event, and the two job-costing SQL functions). post-payment now tags BOTH the counterparty type AND the counterparty entity; its void path already carries dimensions forward, so reversals net out.
+
+Invariant preserved everywhere: the `journalLineDimensionsMeta`↔journal-line index alignment was never altered (Customer/Supplier added in the insert loop as document-level tags; Item added only as a field on existing meta objects).
+
+WIP/inventory coverage (follow-up sweep): every edge fn that inserts a journalLine now also writes journalLineDimension (verified — zero gaps). Added Item to the two WIP sites the first pass missed: the **labor WIP + absorption** lines inside `complete_job_to_inventory` (previously Employee-only), and **`close-job`** (the WIP-variance journal, which previously wrote no dimensions at all — now resolves Item/ItemPostingGroup/Location from the job's finished good). Material-consumption and WIP-discharge lines were already covered by the forked SQL functions.
+
+Not changed (intentional): `accounting.server.ts` manual JE / fixed-asset disposal — Customer/Supplier/Item aren't auto-derivable there; users can add them via the selector. Warehouse-transfer receipt block and issue paths have no counterparty, so only Item applies.
+
+**User action required:** DB reset + `types.ts` regen (new enum values + the dimension queries depend on regenerated types). Then e2e: post an AP invoice + AP payment → confirm Supplier + Item badges on the posted journal lines and selectable in the dropdown; post an AR receipt → confirm Customer.

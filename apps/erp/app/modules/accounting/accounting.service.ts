@@ -1042,6 +1042,12 @@ function getEntityDimensionValues(
         .select("id, name")
         .eq("companyId", companyId)
         .order("name");
+    // Customer / Supplier / Item are high-cardinality: intentionally NOT
+    // eager-loaded here. The DimensionSelector sources their options lazily
+    // from the client stores (useCustomers / useSuppliers / useItems).
+    case "Customer":
+    case "Supplier":
+    case "Item":
     default:
       return Promise.resolve({
         data: [] as { id: string; name: string }[],
@@ -1162,6 +1168,16 @@ function getEntityValuesByIds(
       return client.from("costCenter").select("id, name").in("id", ids);
     case "FixedAssetClass":
       return client.from("fixedAssetClass").select("id, name").in("id", ids);
+    case "Customer":
+      return client.from("customer").select("id, name").in("id", ids);
+    case "Supplier":
+      return client.from("supplier").select("id, name").in("id", ids);
+    case "Item":
+      // The human-friendly label for an item is its readableId-with-revision.
+      return client
+        .from("item")
+        .select("id, name:readableIdWithRevision")
+        .in("id", ids);
     default:
       return Promise.resolve({
         data: [] as { id: string; name: string }[],

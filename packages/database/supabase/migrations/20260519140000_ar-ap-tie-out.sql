@@ -53,7 +53,10 @@ AS $$
           JOIN "payment" p ON p."id" = pa."paymentId"
           WHERE pa."salesInvoiceId" = si."id"
             AND p."status" = 'Posted'
-            AND pa."appliedDate" <= _as_of_date
+            -- Cut on the payment's posting date (= the journal postingDate
+            -- the GL side uses), NOT the free-form appliedDate, so the
+            -- subledger and GL reconcile as of the same clock.
+            AND p."postingDate" <= _as_of_date
         ), 0) AS open_inv_ccy
       FROM "salesInvoice" si
       WHERE si."companyId" = _company_id
@@ -70,7 +73,6 @@ AS $$
           SELECT SUM(pa."appliedAmount")
           FROM "paymentApplication" pa
           WHERE pa."paymentId" = p."id"
-            AND pa."appliedDate" <= _as_of_date
         ), 0) AS unapplied_pay_ccy
       FROM "payment" p
       WHERE p."companyId" = _company_id
@@ -137,7 +139,8 @@ AS $$
           JOIN "payment" p ON p."id" = pa."paymentId"
           WHERE pa."purchaseInvoiceId" = pi."id"
             AND p."status" = 'Posted'
-            AND pa."appliedDate" <= _as_of_date
+            -- See AR note: reconcile on payment.postingDate, not appliedDate.
+            AND p."postingDate" <= _as_of_date
         ), 0) AS open_inv_ccy
       FROM "purchaseInvoice" pi
       WHERE pi."companyId" = _company_id
@@ -153,7 +156,6 @@ AS $$
           SELECT SUM(pa."appliedAmount")
           FROM "paymentApplication" pa
           WHERE pa."paymentId" = p."id"
-            AND pa."appliedDate" <= _as_of_date
         ), 0) AS unapplied_pay_ccy
       FROM "payment" p
       WHERE p."companyId" = _company_id
@@ -232,7 +234,7 @@ AS $$
     JOIN "payment" p ON p."id" = pa."paymentId"
     WHERE pa."salesInvoiceId" = si."id"
       AND p."status" = 'Posted'
-      AND pa."appliedDate" <= _as_of_date
+      AND p."postingDate" <= _as_of_date
   ) s ON true
   WHERE si."companyId" = _company_id
     AND si."postingDate" <= _as_of_date
@@ -283,7 +285,7 @@ AS $$
     JOIN "payment" p ON p."id" = pa."paymentId"
     WHERE pa."purchaseInvoiceId" = pi."id"
       AND p."status" = 'Posted'
-      AND pa."appliedDate" <= _as_of_date
+      AND p."postingDate" <= _as_of_date
   ) s ON true
   WHERE pi."companyId" = _company_id
     AND pi."postingDate" <= _as_of_date

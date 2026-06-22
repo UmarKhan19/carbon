@@ -8,6 +8,7 @@ import {
   paymentApplicationValidator,
   replacePaymentApplications
 } from "~/modules/invoicing";
+import { getDatabaseClient } from "~/services/database.server";
 import { path } from "~/utils/path";
 
 // Apply-table submits the full list of applications as one JSON payload.
@@ -21,7 +22,7 @@ const setApplicationsValidator = z.object({
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, companyId, userId } = await requirePermissions(request, {
+  const { companyId, userId } = await requirePermissions(request, {
     update: "invoicing"
   });
 
@@ -87,17 +88,17 @@ export async function action({ request, params }: ActionFunctionArgs) {
     applications.push(rest);
   }
 
-  const result = await replacePaymentApplications(client, {
-    paymentId,
-    companyId,
-    createdBy: userId,
-    applications
-  });
-
-  if (result.error) {
+  try {
+    await replacePaymentApplications(getDatabaseClient(), {
+      paymentId,
+      companyId,
+      createdBy: userId,
+      applications
+    });
+  } catch (e) {
     throw redirect(
       path.to.payment(paymentId),
-      await flash(request, error(result.error, "Failed to save applications"))
+      await flash(request, error(e, "Failed to save applications"))
     );
   }
 

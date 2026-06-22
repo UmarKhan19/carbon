@@ -342,9 +342,9 @@ const PurchaseInvoiceHeader = () => {
             </Button>
 
             {canMakePayment && (
-              <Button variant="secondary" leftIcon={<LuHandCoins />} asChild>
+              <Button variant="primary" leftIcon={<LuHandCoins />} asChild>
                 <Link to={makePaymentHref}>
-                  <Trans>Make Payment</Trans>
+                  <Trans>Payment</Trans>
                 </Link>
               </Button>
             )}

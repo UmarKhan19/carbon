@@ -375,7 +375,3 @@ export const paymentApplicationValidator = z
       path: ["appliedAmount"]
     }
   );
-
-export const paymentPostValidator = z.object({
-  id: z.string().min(1)
-});

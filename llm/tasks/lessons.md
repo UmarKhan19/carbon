@@ -36,6 +36,35 @@ Patterns learned from corrections. Review at the start of each session.
 ## Flat-route parent must render `<Outlet/>`
 
 - In the dot-style flat routes (`apps/*/app/routes/x+/`), a file like `picking.tsx` becomes the **parent layout** of `picking.$pickingListId.tsx`. If `picking.tsx` renders page content (a dashboard) with **no `<Outlet/>`**, the child route silently never renders — navigating to `/x/picking/<id>` shows the parent's content instead. Fix: make `picking.tsx` a pure layout (`<Outlet/>`) and move the index content to `picking._index.tsx`. (Hit this on the MES picking execution route.)
+- Inverse trap: if `$id.tsx` already renders the page content directly (no `<Outlet/>`), do **not** also keep a `$id._index.tsx` that does `throw redirect(path.to.thing(id))` where `path.to.thing(id)` resolves to the **same** `/x/.../$id` URL — that's an infinite self-redirect (`ERR_TOO_MANY_REDIRECTS`). That `_index` pattern is copied from layouts whose `_index` redirects to a separate `.details` child; if there's no details child, just delete the `_index` and let `$id.tsx` serve the page. (Hit on the AR/AP payment detail route.)
+
+## New sequence-backed entity → add to BOTH seed.data.ts AND a migration
+
+- A readable id from `getNextSequence(client, "<table>", companyId)` requires a `sequence` row for that table+company. Two independent code paths seed it and you must update **both**: (1) the `sequences` array in `packages/database/supabase/functions/lib/seed.data.ts` (used by `seed-company` for NEW companies and by `seed-dev.ts`), and (2) a migration `INSERT INTO "sequence" … SELECT … FROM "company"` for EXISTING companies. On a fresh DB build, migrations run on an empty DB (the `SELECT FROM company` is a no-op) and the company is then created from `seed.data.ts` — so if the entry is missing from `seed.data.ts`, every freshly-seeded company lacks the sequence and creation fails with "Failed to allocate <id>". (The `payment` sequence was in the migration but missing from `seed.data.ts`.)
+
+## Edge-function hot reload is unreliable — restart the container to be sure
+
+- The local Supabase edge runtime is supposed to hot-reload edited functions, but it can serve a STALE module for much longer than the ~5–10s lessons suggest (observed: a void-path edit still ran old code after 10s, and a fresh test posted fine because the OLDER edit was already loaded — masking it). When a function edit "doesn't take" but the call still succeeds, `docker restart carbon-<worktree>-edge-runtime-1` and wait ~12s, then retest. Don't conclude your code is wrong before ruling out the cache.
+
+## Journal dimensions: attach on post AND copy on void
+
+- Journal-line dimensions live in `journalLineDimension` (journalLineId, dimensionId, valueId, companyId), not on `journalLine`. Posting functions attach them by `.returning(["id"])` on the journalLine insert and inserting parallel dimension rows. For payments the available dimension is the counterparty type (`customer.customerTypeId` → `CustomerType` dimension; `supplier.supplierTypeId` → `SupplierType`), resolved via `dimension` where `entityType` + `companyGroupId` + `active`. CRITICAL: the VOID path must also copy the original lines' dimensions onto the reversing lines (read journalLineDimension for the original line ids, re-insert against the new line ids) — otherwise dimension-filtered AR/AP balances don't net to zero after a void.
+
+## New journal `sourceType` → extend BOTH enums
+
+- A GL journal has two enum-typed columns that must accept a new document kind: `journalLine.documentType` (enum `journalLineDocumentType`) AND `journal.sourceType` (enum `journalEntrySourceType`). The AR/AP payments migration added `'Payment'` to `journalLineDocumentType` but forgot `journalEntrySourceType`, so `post-payment` failed with `invalid input value for enum "journalEntrySourceType": "Payment"` — but ONLY once `accountingEnabled` was on (the journal insert is skipped when accounting is off, so the bug hid during accounting-disabled testing). When adding a posting source, `ALTER TYPE ... ADD VALUE IF NOT EXISTS` on BOTH enums, and test with accounting enabled.
+
+## Verify GL journals balance in true debit/credit space, not by summing `amount`
+
+- `journalLine.amount` is **natural-balance signed** (`credit("asset")` is negative, `debit("liability")` is negative) — see `functions/lib/utils.ts`. A balanced entry does NOT sum to zero. To check balance (in code or SQL), convert to true debit-signed: `amount * (class IN ('Asset','Expense') ? +1 : -1)` and sum → must be ~0. The post-payment self-check tracks a parallel debit/credit accumulator as it builds lines for exactly this reason.
+
+## Validate against locked rows INSIDE the transaction (TOCTOU)
+
+- When a check (e.g. over-settlement cap) depends on rows you also lock with `FOR UPDATE`, do the read+check INSIDE the transaction after the lock — not in a pre-transaction `client` read. The original post-payment read prior-settled before the txn and only locked invoices inside it, so two concurrent posts could both pass the cap. Fix: `selectFrom(invoice).forUpdate()` to lock+read, then re-read prior-settled via `trx`, then validate, all in one transaction.
+
+## Don't spread a validated `id: ""` into a create insert
+
+- Carbon "new" forms post a hidden `id` as `""`, which `zfd.text` validates to `null` (not `undefined`). `sanitize()` deliberately leaves `id` alone (`key !== "id"`), so spreading `...validation.data` into an `.insert()` sends `id: null` — which **overrides** the table's `id … DEFAULT xid()` and throws `null value in column "id" … violates not-null constraint` (23502). On the create path, destructure `id` out: `const { id: _omit, ...data } = validation.data;`. (Direct PostgREST/psql inserts that simply omit `id` work, which is why it only fails through the app.)
 
 ## `issue` edge function: "Set Quantity" reverses consumption cleanly
 
@@ -112,3 +141,24 @@ Patterns learned from corrections. Review at the start of each session.
 - Rule: before claiming a callsite is broken or changing its `onChange` shape,
   grep the file for a local `function <Name>` / `const <Name> =` shadowing the
   import, and check the actual prop/callback types at that callsite.
+
+## Journal `amount` is natural-balance signed — a balanced entry does NOT sum to zero
+
+- The edge-function `credit()` / `debit()` helpers (`functions/lib/utils.ts`) return a **natural-balance signed** amount, not a signed-debit: `debit("asset")=+x` but `debit("liability")=-x`, `credit("revenue")=+x`. The `journalLine.amount` column stores this value. Consequence: `Σ amount` over a correctly balanced journal is generally **non-zero** (e.g. `post-sales-invoice` books DR AR +X / CR Sales +X → sum `+2X`). The GL has no global sum-to-zero invariant in this representation; it aggregates per account.
+- **Never** add a `Math.abs(Σ amount) < ε` "does this balance?" guard to a posting function — it will throw on legitimate entries (it broke every AP payment and every AR payment with an FX gain in `post-payment`). None of the sibling `post-*` functions self-check; don't either. If you genuinely need a balance assertion, sum *signed-debit* (`isDebit ? base : -base`), tracked as you build the lines, not the `amount` field.
+- Postgres NUMERIC still comes back as a **string** in Deno/Kysely — `Number(...)` before arithmetic (see the separate string-concatenation lesson above).
+
+## Recreating a Postgres view by hand-retyping columns silently drops terms
+
+- When a migration recreates a view to change one thing (e.g. swap a `balance` column for a derived expression), **do not** hand-transcribe the other ~25 columns/aggregates — it's how `salesInvoices.invoiceTotal` silently lost its `+ COALESCE(nonTaxableAddOnCost, 0)` term (an undetected money regression on every sales invoice with a non-taxable add-on). Prefer `SELECT base.*` plus the new computed columns, or diff the recreated body against the prior definition (`git grep` the latest prior `CREATE ... VIEW`) before committing. Reinforces [[feedback_view_redefinition]].
+
+## Subledger↔GL reconciliation must key on the SAME date as the GL
+
+- AR/AP tie-out and aging "settled / open as-of" math must cut on the **payment's `postingDate`** (= the `journal.postingDate` the GL side filters on), never a user-editable field like `paymentApplication.appliedDate`. Keying the two sides on different clocks produces a non-zero variance for a perfectly correct ledger and defeats the report. A payment is settled atomically at post time, so all its applications count as-of its `postingDate`; correlated subqueries whose outer `payment` is already `postingDate`-filtered should NOT re-filter by `appliedDate`.
+
+## Service/model files are 1-to-1 with the MODULE, never per-submodule
+
+- Module files (`*.service.ts`, `*.models.ts`, `*.queries.ts`) map **one-to-one to the module**, not to a feature/submodule inside it. There is exactly one `invoicing.service.ts`, one `invoicing.models.ts`, etc. per module.
+- Do **not** create a new file for a sub-feature. The AR/AP payments work belongs in `invoicing.service.ts` / `invoicing.models.ts` (or `accounting.*` for the accounting pieces) — **never** a `payments.service.ts` / `payments.models.ts`. The original plan named `payments.*` files; the correct implementation folds those functions into the existing module files.
+- This applies only to the service/model/query layer. UI components still live in their own component folders (e.g. `modules/invoicing/ui/Payment/…` is fine — that's a component directory, not a service file).
+- Rule: when adding service/validator code for a new feature, pick the module it belongs to and append to that module's existing `*.service.ts` / `*.models.ts`. If you find yourself about to create `<feature>.service.ts`, stop — it goes in `<module>.service.ts`.

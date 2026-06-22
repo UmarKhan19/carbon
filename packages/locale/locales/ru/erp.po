@@ -4658,9 +4658,6 @@ msgstr "Товары типа \"Make\" не могут быть выставле
 msgid "Make Method Version"
 msgstr "Версия метода производства"
 
-msgid "Make Payment"
-msgstr ""
-
 #. placeholder {0}: selectedRevision.revision
 msgid "Make revision {0} default?"
 msgstr "Сделать редакцию {0} по умолчанию?"
@@ -6552,9 +6549,6 @@ msgstr "Получить"
 #. placeholder {0}: job.jobId
 msgid "Receive {0} to Inventory"
 msgstr "Получить {0} в инвентарь"
-
-msgid "Receive Payment"
-msgstr ""
 
 msgid "Receive to Inventory"
 msgstr "Получить в инвентарь"

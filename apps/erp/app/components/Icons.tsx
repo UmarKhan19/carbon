@@ -619,6 +619,12 @@ export const DimensionEntityTypeIcon = ({
       return <LuContainer className={className} />;
     case "CustomerType":
       return <LuUsers className={className} />;
+    case "Customer":
+      return <LuUser className={className} />;
+    case "Supplier":
+      return <LuContainer className={className} />;
+    case "Item":
+      return <LuPackage className={className} />;
     case "Department":
       return <LuBuilding className={className} />;
     case "Employee":

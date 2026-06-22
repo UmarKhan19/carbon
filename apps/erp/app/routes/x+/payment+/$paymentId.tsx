@@ -24,6 +24,7 @@ import type { LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
 import { CustomerAvatar, SupplierAvatar } from "~/components";
 import { Enumerable } from "~/components/Enumerable";
+import { useAccounts } from "~/components/Form/Account";
 import {
   useCurrencyFormatter,
   useDateFormatter,
@@ -112,6 +113,13 @@ export default function PaymentDetailRoute() {
   const { formatDate } = useDateFormatter();
   const locked = isPaymentLocked(payment.status);
   const canMutate = permissions.can("update", "invoicing");
+
+  // Resolve the bank account id to a readable "number name" label.
+  const accounts = useAccounts(["Asset"]);
+  const bankAccount = accounts.find((a) => a.id === payment.bankAccount);
+  const bankAccountLabel = bankAccount
+    ? `${bankAccount.number} ${bankAccount.name}`
+    : payment.bankAccount;
 
   const totalApplied = applications.reduce(
     (sum, a) =>
@@ -228,7 +236,7 @@ export default function PaymentDetailRoute() {
                 <Td>
                   <Trans>Bank Account</Trans>
                 </Td>
-                <Td className="text-right">{payment.bankAccount}</Td>
+                <Td className="text-right">{bankAccountLabel}</Td>
               </Tr>
               <Tr>
                 <Td>

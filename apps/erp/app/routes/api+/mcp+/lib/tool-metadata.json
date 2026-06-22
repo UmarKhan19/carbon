@@ -1,5 +1,5 @@
 {
-  "generated": "2026-06-16T18:16:59.622Z",
+  "generated": "2026-06-22T11:52:58.468Z",
   "totalTools": 1223,
   "modules": 15,
   "tools": [
@@ -8332,7 +8332,7 @@
       "description": "replace payment applications",
       "paramCount": 2,
       "serviceParams": [
-        "client",
+        "db",
         "args"
       ],
       "injectAuth": [

@@ -4658,9 +4658,6 @@ msgstr "Artykuły Make nie mogą być fakturowane bezpośrednio. Zmień metodę 
 msgid "Make Method Version"
 msgstr "Wersja metody produkcji"
 
-msgid "Make Payment"
-msgstr ""
-
 #. placeholder {0}: selectedRevision.revision
 msgid "Make revision {0} default?"
 msgstr "Uczynić wersję {0} domyślną?"
@@ -6552,9 +6549,6 @@ msgstr "Odbierz"
 #. placeholder {0}: job.jobId
 msgid "Receive {0} to Inventory"
 msgstr "Odbierz {0} do Magazynu"
-
-msgid "Receive Payment"
-msgstr ""
 
 msgid "Receive to Inventory"
 msgstr "Odbierz do Magazynu"

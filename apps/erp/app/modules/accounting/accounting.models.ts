@@ -473,7 +473,8 @@ export const journalEntrySourceTypes = [
   "Production Event",
   "Job Close",
   "Asset Depreciation",
-  "Asset Disposal"
+  "Asset Disposal",
+  "Payment"
 ] as const;
 
 export const journalEntryStatuses = ["Draft", "Posted", "Reversed"] as const;
@@ -505,13 +506,16 @@ export const journalEntryLineValidator = z
 export const dimensionEntityTypes = [
   "CostCenter",
   "Custom",
+  "Customer",
   "CustomerType",
   "Department",
   "Employee",
   "FixedAssetClass",
+  "Item",
   "ItemPostingGroup",
   "Location",
   "Process",
+  "Supplier",
   "SupplierType",
   "WorkCenter"
 ] as const;

@@ -4658,9 +4658,6 @@ msgstr "Los artículos de fabricación no se pueden facturar directamente. Cambi
 msgid "Make Method Version"
 msgstr "Versión del Método de Fabricación"
 
-msgid "Make Payment"
-msgstr ""
-
 #. placeholder {0}: selectedRevision.revision
 msgid "Make revision {0} default?"
 msgstr "¿Hacer la revisión {0} predeterminada?"
@@ -6552,9 +6549,6 @@ msgstr "Recibir"
 #. placeholder {0}: job.jobId
 msgid "Receive {0} to Inventory"
 msgstr "Recibir {0} al Inventario"
-
-msgid "Receive Payment"
-msgstr ""
 
 msgid "Receive to Inventory"
 msgstr "Recibir al Inventario"

@@ -417,7 +417,9 @@ serve(async (req: Request) => {
           .eq("active", true)
           .in("entityType", [
             "SupplierType",
+            "Supplier",
             "ItemPostingGroup",
+            "Item",
             "Location",
             "CostCenter",
             "Process",
@@ -534,6 +536,7 @@ serve(async (req: Request) => {
     const journalLineDimensionsMeta: {
       supplierTypeId: string | null;
       itemPostingGroupId: string | null;
+      itemId: string | null;
       locationId: string | null;
       costCenterId: string | null;
       processId: string | null;
@@ -818,6 +821,7 @@ serve(async (req: Request) => {
                 const itemDimMeta = {
                   supplierTypeId: supplier.data.supplierTypeId ?? null,
                   itemPostingGroupId: lineItemPostingGroupId,
+                  itemId: invoiceLine.itemId ?? null,
                   locationId: invoiceLine.locationId ?? null,
                   costCenterId: null,
                   processId: null,
@@ -1008,6 +1012,7 @@ serve(async (req: Request) => {
                 const reverseDimMeta = {
                   supplierTypeId: supplier.data.supplierTypeId ?? null,
                   itemPostingGroupId: reverseLineItemPostingGroupId,
+                  itemId: invoiceLine.itemId ?? null,
                   locationId: invoiceLine.locationId ?? null,
                   costCenterId: null,
                   processId: lineProcessId,
@@ -1077,6 +1082,7 @@ serve(async (req: Request) => {
                 const accrualDimMeta = {
                   supplierTypeId: supplier.data.supplierTypeId ?? null,
                   itemPostingGroupId: accrualLineItemPostingGroupId,
+                  itemId: invoiceLine.itemId ?? null,
                   locationId: invoiceLine.locationId ?? null,
                   costCenterId: null,
                   processId: accrualProcessId,
@@ -1292,6 +1298,7 @@ serve(async (req: Request) => {
             const assetDimMeta = {
               supplierTypeId: supplier.data.supplierTypeId ?? null,
               itemPostingGroupId: null,
+              itemId: null,
               locationId: invoiceLine.locationId ?? purchaseOrderLine?.locationId ?? faLocationId,
               costCenterId: null,
               processId: null,
@@ -1357,6 +1364,7 @@ serve(async (req: Request) => {
             const glDimMeta = {
               supplierTypeId: null,
               itemPostingGroupId: null,
+              itemId: null,
               locationId: invoiceLine.locationId ?? null,
               costCenterId: invoiceLine.costCenterId ?? null,
               processId: null,
@@ -1570,6 +1578,25 @@ serve(async (req: Request) => {
                 journalLineId: jl.id,
                 dimensionId: dimensionMap.get("ItemPostingGroup")!,
                 valueId: meta.itemPostingGroupId,
+                companyId,
+              });
+            }
+            if (meta.itemId && dimensionMap.has("Item")) {
+              journalLineDimensionInserts.push({
+                journalLineId: jl.id,
+                dimensionId: dimensionMap.get("Item")!,
+                valueId: meta.itemId,
+                companyId,
+              });
+            }
+            if (
+              purchaseInvoice.data?.supplierId &&
+              dimensionMap.has("Supplier")
+            ) {
+              journalLineDimensionInserts.push({
+                journalLineId: jl.id,
+                dimensionId: dimensionMap.get("Supplier")!,
+                valueId: purchaseInvoice.data.supplierId,
                 companyId,
               });
             }

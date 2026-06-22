@@ -1269,6 +1269,7 @@ export async function getOpenSalesInvoicesForCustomer(
     .eq("companyId", companyId)
     .eq("customerId", customerId)
     .in("status", ["Submitted", "Partially Paid", "Overdue"])
+    .gt("balance", 0)
     .order("dateDue", { ascending: true });
 }
 
@@ -1285,6 +1286,7 @@ export async function getOpenPurchaseInvoicesForSupplier(
     .eq("companyId", companyId)
     .eq("supplierId", supplierId)
     .in("status", ["Open", "Partially Paid", "Overdue"])
+    .gt("balance", 0)
     .order("dateDue", { ascending: true });
 }
 
@@ -1360,10 +1362,13 @@ export async function deletePaymentApplication(
   return client.from("paymentApplication").delete().eq("id", id);
 }
 
-// Replace-all for the apply table. RLS rejects this if the payment is
-// not Draft; the rejection surfaces as an error on the delete.
+// Replace-all for the apply table. The delete + insert run in a single
+// transaction so a failed insert can never leave the payment with its
+// applications wiped and nothing in their place. Kysely bypasses RLS, so we
+// re-assert the payment is Draft inside the txn — the FOR UPDATE lock also
+// serializes this against a concurrent post/void of the same payment.
 export async function replacePaymentApplications(
-  client: SupabaseClient<Database>,
+  db: Kysely<KyselyDatabase>,
   args: {
     paymentId: string;
     companyId: string;
@@ -1374,24 +1379,50 @@ export async function replacePaymentApplications(
     >[];
   }
 ) {
-  const del = await client
-    .from("paymentApplication")
-    .delete()
-    .eq("paymentId", args.paymentId);
-  if (del.error) return del;
+  return db.transaction().execute(async (trx) => {
+    const payment = await trx
+      .selectFrom("payment")
+      .select(["id", "status"])
+      .where("id", "=", args.paymentId)
+      .where("companyId", "=", args.companyId)
+      .forUpdate()
+      .executeTakeFirst();
 
-  if (args.applications.length === 0) {
-    return { data: [], error: null };
-  }
+    if (!payment) {
+      throw new Error("Payment not found");
+    }
+    if (payment.status !== "Draft") {
+      throw new Error(
+        "Applications can only be edited while the payment is Draft"
+      );
+    }
 
-  return client.from("paymentApplication").insert(
-    args.applications.map((a) => ({
-      ...sanitize(a),
-      paymentId: args.paymentId,
-      companyId: args.companyId,
-      createdBy: args.createdBy
-    }))
-  );
+    await trx
+      .deleteFrom("paymentApplication")
+      .where("paymentId", "=", args.paymentId)
+      .execute();
+
+    if (args.applications.length === 0) return;
+
+    await trx
+      .insertInto("paymentApplication")
+      .values(
+        args.applications.map((a) => ({
+          paymentId: args.paymentId,
+          companyId: args.companyId,
+          createdBy: args.createdBy,
+          salesInvoiceId: a.salesInvoiceId ?? null,
+          purchaseInvoiceId: a.purchaseInvoiceId ?? null,
+          appliedAmount: a.appliedAmount,
+          discountAmount: a.discountAmount,
+          writeOffAmount: a.writeOffAmount,
+          invoiceExchangeRate: a.invoiceExchangeRate,
+          paymentExchangeRate: a.paymentExchangeRate,
+          appliedDate: a.appliedDate
+        }))
+      )
+      .execute();
+  });
 }
 
 // Tie-out RPCs (migration 20260519140000_ar-ap-tie-out)
