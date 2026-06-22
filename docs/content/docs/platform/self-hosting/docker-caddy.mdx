@@ -3,12 +3,12 @@ title: Docker with Caddy
 description: Self-host the full Carbon stack on a single Linux VPS with a Docker Swarm and an automatic-HTTPS Caddy reverse proxy.
 ---
 
-Run all of Carbon on **one Linux VPS**: a single-node [Docker Swarm](https://docs.docker.com/engine/swarm/) running the ERP and MES apps, the full Supabase data plane, Redis, and Inngest, behind a [Caddy](https://caddyserver.com/docs/) reverse proxy that handles TLS for you. Secrets are real **Docker Swarm secrets**, and only ports **80/443** are exposed — everything else stays on a private overlay network.
+Run all of Carbon on **one Linux VPS**: a single-node [Docker Swarm](https://docs.docker.com/engine/swarm/) running the ERP and MES apps, the full Supabase data plane, Redis, and Inngest, behind a [Caddy](https://caddyserver.com/docs/) reverse proxy that handles TLS for you. Secrets are real **Docker Swarm secrets**, and only ports **80/443** are exposed. Everything else stays on a private overlay network.
 
 Everything for this recipe lives in [`contrib/deploying/simple-docker-caddy`](https://github.com/crbnos/carbon/tree/main/contrib/deploying/simple-docker-caddy). The `deploy.sh` script wraps the whole lifecycle.
 
 <Callout type="tip" title="Don't want to run any of this?">
-[Carbon Cloud](https://app.carbon.ms) is the hosted edition — we run the whole stack for you, with scaling, backups, upgrades, and uptime handled. Sign up and you're in: no servers to provision, no Supabase to run, no infrastructure to babysit. Self-host only if you specifically need Carbon on your own hardware.
+[Carbon Cloud](https://app.carbon.ms) is the hosted edition. We run the whole stack for you, with scaling, backups, upgrades, and uptime handled. Sign up and you're in: no servers to provision, no Supabase to run, no infrastructure to babysit. Self-host only if you specifically need Carbon on your own hardware.
 </Callout>
 
 ## What runs
@@ -19,7 +19,7 @@ Everything for this recipe lives in [`contrib/deploying/simple-docker-caddy`](ht
 | `erp`, `mes` | The Carbon apps, built from the repo. Reached at `erp.<domain>` and `mes.<domain>`. |
 | `postgres` | Supabase Postgres, tuned on first boot (`pg_stat_statements`, connection limits). |
 | `gotrue`, `postgrest`, `realtime`, `storage`, `meta`, `kong` | The Supabase data plane, fronted by Kong at `api.<domain>`. |
-| `studio` | Supabase Studio (DB admin) — internal-only by default. |
+| `studio` | Supabase Studio (DB admin), internal-only by default. |
 | `edge-runtime` | Supabase Edge Functions. |
 | `redis` | Cache, rate limiting, session state. |
 | `inngest` | Background jobs for both apps. |
@@ -28,7 +28,7 @@ Everything for this recipe lives in [`contrib/deploying/simple-docker-caddy`](ht
 
 | Requirement | Details |
 | --- | --- |
-| VPS | Ubuntu 22.04+, **≥ 4 GB RAM** to run the stack. Building images on the host needs **~8 GB** — add swap or build elsewhere. |
+| VPS | Ubuntu 22.04+, **≥ 4 GB RAM** to run the stack. Building images on the host needs **~8 GB**. Add swap or build elsewhere. |
 | Docker | Docker Engine with the Compose plugin. |
 | OpenSSL | `deploy.sh` uses `openssl` to generate secrets and the Supabase JWT keys (usually already present). |
 | DNS | `A`/`AAAA` records for your ERP, MES, and Supabase hosts pointing at the VPS (needed for Let's Encrypt). |
@@ -59,7 +59,7 @@ Everything for this recipe lives in [`contrib/deploying/simple-docker-caddy`](ht
   <Step>
   ### Configure
 
-  Edit `.env` — set `CARBON_REPO`, your `*_HOST` / `*_URL` hostnames, `ACME_EMAIL`, and SMTP settings.
+  Edit `.env`: set `CARBON_REPO`, your `*_HOST` / `*_URL` hostnames, `ACME_EMAIL`, and SMTP settings.
 
   ```bash
   $EDITOR .env
@@ -96,12 +96,12 @@ Everything for this recipe lives in [`contrib/deploying/simple-docker-caddy`](ht
 </Steps>
 
 <Callout type="note">
-First boot applies hundreds of migrations. The apps may restart a few times until the schema exists, then settle healthy — watch `./deploy.sh logs erp`.
+First boot applies hundreds of migrations. The apps may restart a few times until the schema exists, then settle healthy. Watch `./deploy.sh logs erp`.
 </Callout>
 
 ## How secrets work
 
-Swarm delivers secrets as files under `/run/secrets/`, but the images read configuration from **environment variables** — several of them Postgres connection strings that embed the password. A small entrypoint shim bridges the two: it replaces `__SECRET_NAME__` placeholders in the environment with the contents of the matching secret file, then starts the service.
+Swarm delivers secrets as files under `/run/secrets/`, but the images read configuration from **environment variables**, several of them Postgres connection strings that embed the password. A small entrypoint shim bridges the two: it replaces `__SECRET_NAME__` placeholders in the environment with the contents of the matching secret file, then starts the service.
 
 ```yaml
 PGRST_DB_URI: postgres://authenticator:__POSTGRES_PASSWORD__@postgres:5432/postgres
@@ -111,7 +111,7 @@ GOTRUE_JWT_SECRET: __JWT_SECRET__
 `deploy.sh init` generates `postgres_password`, `session_secret`, the Inngest keys, and the Supabase key trio (`jwt_secret`, `anon_key`, `service_role_key`). You supply `resend_api_key` and `smtp_password`.
 
 <Callout type="warn">
-`inngest_signing_key` must be **plain hex** — the self-hosted Inngest server rejects the `signkey-` prefix. `init` generates it correctly.
+`inngest_signing_key` must be **plain hex**. The self-hosted Inngest server rejects the `signkey-` prefix. `init` generates it correctly.
 </Callout>
 
 ## Operating

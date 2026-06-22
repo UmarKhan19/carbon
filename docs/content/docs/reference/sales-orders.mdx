@@ -1,11 +1,11 @@
 ---
 title: Sales orders
-description: A confirmed customer commitment — what to ship and invoice, tracked line by line.
+description: "A confirmed customer commitment: what to ship and invoice, tracked line by line."
 ---
 
-A **sales order** is a confirmed commitment to deliver items to a customer. It may begin as a <Term>quote</Term>, or be entered directly; either way it's the document the rest of fulfillment keys off — <Term id="shipment">shipments</Term>, <Term id="invoice">invoices</Term>, and any make-to-order jobs all trace back to its lines.
+A **sales order** is a confirmed commitment to deliver items to a customer. It may begin as a <Term>quote</Term>, or be entered directly; either way it's the document the rest of fulfillment keys off: <Term id="shipment">shipments</Term>, <Term id="invoice">invoices</Term>, and any make-to-order jobs all trace back to its lines.
 
-The order line is where fulfillment is scored. Each line tracks how much was sold against how much has shipped and how much has been invoiced, and it stays open until both are complete — which is what lets one order be delivered and billed in batches without losing the remainder.
+The order line is where fulfillment is scored. Each line tracks how much was sold against how much has shipped and how much has been invoiced, and it stays open until both are complete, which is what lets one order be delivered and billed in batches without losing the remainder.
 
 ## Line fields
 
@@ -15,7 +15,7 @@ The order line is where fulfillment is scored. Each line tracks how much was sol
   <Field name="Quantity sent" type="number">Shipped so far; `quantity to send` is the remainder.</Field>
   <Field name="Quantity invoiced" type="number">Billed so far; `quantity to invoice` is the remainder.</Field>
   <Field name="Unit price" type="number">Price per unit, net of discounts.</Field>
-  <Field name="Method" type="enum">How the line is fulfilled — *Make to Order*, *Pull from Inventory*, or *Purchase to Order*.</Field>
+  <Field name="Method" type="enum">How the line is fulfilled: *Make to Order*, *Pull from Inventory*, or *Purchase to Order*.</Field>
 </FieldTable>
 
 ## Status

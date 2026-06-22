@@ -15,7 +15,7 @@ every edition and plan.
 
 An integration has two parts: a system-wide **definition** and a per-company **activation**.
 
-- The **definition** describes the fields that integration needs — API keys, OAuth tokens, mapping options.
+- The **definition** describes the fields that integration needs: API keys, OAuth tokens, mapping options.
 - The **activation** is a `companyIntegration` record: an `active` flag plus a `metadata` object holding
   your credentials and settings. Carbon validates that metadata against the definition, so an integration
   can't be switched on with incomplete configuration.
@@ -29,7 +29,7 @@ Connections are established one of three ways, depending on the app:
 | OAuth | Xero, Jira, Onshape, Slack | Authorize Carbon with the provider; tokens are stored for you. |
 
 <Callout type="note">
-Disconnecting an integration sets `active = false` but **keeps your stored credentials** — reconnecting
+Disconnecting an integration sets `active = false` but **keeps your stored credentials**. Reconnecting
 doesn't make you re-enter them. To remove credentials entirely, clear the integration's settings before you
 disconnect.
 </Callout>
@@ -37,8 +37,8 @@ disconnect.
 ## What's available depends on your deployment
 
 <Callout type="warn">
-Which integrations even appear depends on how Carbon is deployed. The OAuth connectors — **Xero**, **Jira**,
-and **Onshape** — only show up when their OAuth client is configured server-side (see
+Which integrations even appear depends on how Carbon is deployed. The OAuth connectors, **Xero**, **Jira**,
+and **Onshape**, only show up when their OAuth client is configured server-side (see
 [Environment variables](/docs/platform/self-hosting/environment-variables)), and **Slack** is hidden in controlled (ITAR)
 environments. So the same Carbon build can offer a different set of integrations depending on its
 configuration.

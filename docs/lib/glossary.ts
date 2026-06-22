@@ -48,6 +48,11 @@ export function glossaryEntries(): GlossaryEntry[] {
 }
 
 export const glossary: Record<string, GlossaryEntry> = {
+  oem: {
+    term: "OEM (original equipment manufacturer)",
+    definition:
+      "A company that designs and builds its own finished products end to end (here, the shop building humanoid robots) rather than making parts to another company's specification.",
+  },
   "method-type": {
     term: "Method type",
     definition:
@@ -75,7 +80,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   "replenishment-system": {
     term: "Replenishment system",
     definition:
-      "How an item is replenished overall — Buy, Make, or Buy and Make — set per item, unlike the per-line method type.",
+      "How an item is replenished overall (Buy, Make, or Buy and Make), set per item, unlike the per-line method type.",
     href: "/docs/reference/methods#method-type-vs-replenishment-system",
   },
   method: {
@@ -175,7 +180,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   "get-method": {
     term: "Get Method",
     definition:
-      "The action that copies a saved method — its materials, operations, and work instructions — onto a job or quote line.",
+      "The action that copies a saved method (its materials, operations, and work instructions) onto a job or quote line.",
     href: "/docs/reference/methods#get-method",
   },
   scrap: {
@@ -222,6 +227,12 @@ export const glossary: Record<string, GlossaryEntry> = {
     definition:
       "The thread linking a sales RFQ, its quote, and the resulting sales order — a join, not a document with its own status.",
     href: "/guides/quote-to-cash#one-opportunity-many-documents",
+  },
+  "quote-to-cash": {
+    term: "Quote to cash",
+    definition:
+      "The end-to-end commercial flow from quoting a customer to collecting payment: RFQ to quote to sales order, then shipment, invoice, and settled payment.",
+    href: "/guides/quote-to-cash",
   },
   "drop-ship": {
     term: "Drop-ship",
@@ -310,7 +321,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   receipt: {
     term: "Receipt",
     definition:
-      "The inbound posting document that takes goods into stock — from a PO, transfer, or job output — and creates any tracked entities.",
+      "The inbound posting document that takes goods into stock (from a PO, transfer, or job output) and creates any tracked entities.",
     href: "/docs/reference/receipts",
   },
   shipment: {
@@ -381,7 +392,7 @@ export const glossary: Record<string, GlossaryEntry> = {
   "accounting-period": {
     term: "Accounting period",
     definition:
-      "A dated window postings fall into — Active or Inactive, not open or closed — opened automatically when needed.",
+      "A dated window postings fall into (Active or Inactive, not open or closed), opened automatically when needed.",
     href: "/docs/reference/accounting#periods",
   },
 

@@ -5,7 +5,7 @@ description: Every variable that configures a Carbon instance, grouped by concer
 
 Carbon reads its configuration from environment variables. The registry lives in `packages/env`;
 `.env.example` is the template; infrastructure-only variables are read by `sst.config.ts`. A minimal
-instance needs the Supabase connection, a session secret, and Redis — everything else activates features
+instance needs the Supabase connection, a session secret, and Redis. Everything else activates features
 as you need them.
 
 ## Core
@@ -13,7 +13,7 @@ as you need them.
 Platform-wide behavior and edition.
 
 <EnvVars>
-<EnvVar name="CARBON_EDITION" type="enum">One of `community`, `cloud`, `enterprise`, or `test` — gates edition-specific features.</EnvVar>
+<EnvVar name="CARBON_EDITION" type="enum">One of `community`, `cloud`, `enterprise`, or `test`. Gates edition-specific features.</EnvVar>
 <EnvVar name="CONTROLLED_ENVIRONMENT" type="boolean">Enables ITAR / controlled-environment restrictions.</EnvVar>
 <EnvVar name="AUTH_PROVIDERS" type="enum[]">Allowed sign-in methods: `email`, `google`, `azure`, `passkey`.</EnvVar>
 <EnvVar name="DOMAIN" type="string">Base domain the apps are served from.</EnvVar>
@@ -29,8 +29,8 @@ Carbon's single Postgres database. All five are required.
 
 <EnvVars>
 <EnvVar name="SUPABASE_URL" type="url" required>Supabase project URL.</EnvVar>
-<EnvVar name="SUPABASE_ANON_KEY" type="string" required>Public anon key — browser-safe.</EnvVar>
-<EnvVar name="SUPABASE_SERVICE_ROLE_KEY" type="string" required>Service-role key — server only, never exposed to the client.</EnvVar>
+<EnvVar name="SUPABASE_ANON_KEY" type="string" required>Public anon key, browser-safe.</EnvVar>
+<EnvVar name="SUPABASE_SERVICE_ROLE_KEY" type="string" required>Service-role key, server only, never exposed to the client.</EnvVar>
 <EnvVar name="SUPABASE_DB_URL" type="url" required>Direct Postgres connection string.</EnvVar>
 <EnvVar name="SUPABASE_JWT_SECRET" type="string" required>Secret used to sign and verify session JWTs.</EnvVar>
 </EnvVars>
@@ -43,7 +43,7 @@ Carbon's single Postgres database. All five are required.
 <EnvVar name="SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_SECRET" type="string">Google OAuth client secret.</EnvVar>
 <EnvVar name="SUPABASE_AUTH_EXTERNAL_AZURE_CLIENT_ID" type="string">Azure OAuth client id, when `azure` is enabled.</EnvVar>
 <EnvVar name="SUPABASE_AUTH_EXTERNAL_AZURE_CLIENT_SECRET" type="string">Azure OAuth client secret.</EnvVar>
-<EnvVar name="DEV_BYPASS_EMAIL" type="string">Local only — sign in as this email without a magic link.</EnvVar>
+<EnvVar name="DEV_BYPASS_EMAIL" type="string">Local only. Sign in as this email without a magic link.</EnvVar>
 </EnvVars>
 
 Sign-in bot protection uses Cloudflare Turnstile: `CLOUDFLARE_TURNSTILE_SITE_KEY` and
@@ -63,7 +63,7 @@ Sign-in bot protection uses Cloudflare Turnstile: `CLOUDFLARE_TURNSTILE_SITE_KEY
 <EnvVars>
 <EnvVar name="RESEND_API_KEY" type="string">Resend API key for transactional email.</EnvVar>
 <EnvVar name="RESEND_DOMAIN" type="string">Verified sending domain.</EnvVar>
-<EnvVar name="STRIPE_SECRET_KEY" type="string">Stripe secret key — Cloud / Enterprise billing.</EnvVar>
+<EnvVar name="STRIPE_SECRET_KEY" type="string">Stripe secret key, Cloud / Enterprise billing.</EnvVar>
 <EnvVar name="STRIPE_WEBHOOK_SECRET" type="string">Verifies inbound Stripe webhooks.</EnvVar>
 </EnvVars>
 
@@ -78,7 +78,7 @@ Sign-in bot protection uses Cloudflare Turnstile: `CLOUDFLARE_TURNSTILE_SITE_KEY
 
 ## Integrations
 
-OAuth credentials for each connector — all optional, set only the ones you use.
+OAuth credentials for each connector, all optional, set only the ones you use.
 
 <EnvVars>
 <EnvVar name="XERO_CLIENT_ID" type="string">Xero OAuth client id.</EnvVar>
@@ -106,11 +106,11 @@ Read by `sst.config.ts` at deploy time, not by the app.
 <EnvVar name="IMAGE_TAG" type="string" required>ECR image tag to deploy.</EnvVar>
 <EnvVar name="CERT_ARN_ERP" type="string">ACM certificate ARN for the ERP domain.</EnvVar>
 <EnvVar name="CERT_ARN_MES" type="string">ACM certificate ARN for the MES domain.</EnvVar>
-<EnvVar name="URL_ERP" type="url">Custom ERP domain — overrides the default.</EnvVar>
-<EnvVar name="URL_MES" type="url">Custom MES domain — overrides the default.</EnvVar>
+<EnvVar name="URL_ERP" type="url">Custom ERP domain, overrides the default.</EnvVar>
+<EnvVar name="URL_MES" type="url">Custom MES domain, overrides the default.</EnvVar>
 </EnvVars>
 
 <Callout type="warn">
-Older notes list `TRIGGER_*` (Trigger.dev) and `UPSTASH_REDIS_*` variables — those are gone. Jobs run on
+Older notes list `TRIGGER_*` (Trigger.dev) and `UPSTASH_REDIS_*` variables. Those are gone. Jobs run on
 Inngest and the cache uses a plain `REDIS_URL`.
 </Callout>
