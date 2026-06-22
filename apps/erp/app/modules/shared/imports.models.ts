@@ -20,6 +20,10 @@ const itemTrackingTypes = [
   "Serial",
   "Batch"
 ] as const;
+// Shared so the four-value explanation stays in one place (it had drifted to a
+// stale two-value description duplicated across every item type).
+const itemTrackingTypeDescription =
+  "How the item's stock is tracked: Inventory (stocked and counted), Non-Inventory (not stocked, e.g. services), Batch (tracked by lot), or Serial (tracked per individual unit).";
 const supplierStatusTypes = [
   "Active",
   "Inactive",
@@ -136,6 +140,17 @@ const supplierPartImportFields = {
 const itemPurchasingImportFields = {
   leadTime: {
     label: "Lead Time (Days)",
+    required: false,
+    type: "string"
+  }
+} as const;
+
+// Item-level cost. Spread into every real item-type entry; written to the
+// item's "itemCost" row (auto-created by the create_item_related_records
+// trigger) in the edge function's post-pass.
+const itemCostImportFields = {
+  unitCost: {
+    label: "Unit Cost",
     required: false,
     type: "string"
   }
@@ -492,7 +507,7 @@ const partImportFields = {
     required: false,
     type: "enum",
     enumData: {
-      description: "Whether a part is tracked as inventory or not",
+      description: itemTrackingTypeDescription,
       options: itemTrackingTypes,
       default: "Inventory"
     }
@@ -925,7 +940,8 @@ export const fieldMappings = {
     }
   },
   part: {
-    ...partImportFields
+    ...partImportFields,
+    ...itemCostImportFields
   },
   tool: {
     id: {
@@ -981,7 +997,7 @@ export const fieldMappings = {
       required: false,
       type: "enum",
       enumData: {
-        description: "Whether a part is tracked as inventory or not",
+        description: itemTrackingTypeDescription,
         options: itemTrackingTypes,
         default: "Inventory"
       }
@@ -1016,7 +1032,8 @@ export const fieldMappings = {
       }
     },
     ...supplierPartImportFields,
-    ...itemPurchasingImportFields
+    ...itemPurchasingImportFields,
+    ...itemCostImportFields
   },
   fixture: {
     id: {
@@ -1072,7 +1089,7 @@ export const fieldMappings = {
       required: false,
       type: "enum",
       enumData: {
-        description: "Whether a part is tracked as inventory or not",
+        description: itemTrackingTypeDescription,
         options: itemTrackingTypes,
         default: "Inventory"
       }
@@ -1107,7 +1124,8 @@ export const fieldMappings = {
       }
     },
     ...supplierPartImportFields,
-    ...itemPurchasingImportFields
+    ...itemPurchasingImportFields,
+    ...itemCostImportFields
   },
   consumable: {
     id: {
@@ -1163,7 +1181,7 @@ export const fieldMappings = {
       required: false,
       type: "enum",
       enumData: {
-        description: "Whether a part is tracked as inventory or not",
+        description: itemTrackingTypeDescription,
         options: itemTrackingTypes,
         default: "Inventory"
       }
@@ -1198,7 +1216,8 @@ export const fieldMappings = {
       }
     },
     ...supplierPartImportFields,
-    ...itemPurchasingImportFields
+    ...itemPurchasingImportFields,
+    ...itemCostImportFields
   },
   material: {
     id: {
@@ -1281,7 +1300,7 @@ export const fieldMappings = {
       required: false,
       type: "enum",
       enumData: {
-        description: "Whether a part is tracked as inventory or not",
+        description: itemTrackingTypeDescription,
         options: itemTrackingTypes,
         default: "Inventory"
       }
@@ -1331,7 +1350,8 @@ export const fieldMappings = {
       }
     },
     ...supplierPartImportFields,
-    ...itemPurchasingImportFields
+    ...itemPurchasingImportFields,
+    ...itemCostImportFields
   },
   // Focused BOM file — BOM lines against parts that already exist. Every row is a
   // BOM line (rowType defaults to BOM), keyed to its parent part.
@@ -1867,7 +1887,8 @@ export const importSchemas: Record<
     orderMultiple: z.string().optional(),
     conversionFactor: z.string().optional(),
     unitPrice: z.string().optional(),
-    leadTime: z.string().optional()
+    leadTime: z.string().optional(),
+    unitCost: z.string().optional()
   }),
   tool: z.object({
     id: z
@@ -1910,7 +1931,8 @@ export const importSchemas: Record<
     orderMultiple: z.string().optional(),
     conversionFactor: z.string().optional(),
     unitPrice: z.string().optional(),
-    leadTime: z.string().optional()
+    leadTime: z.string().optional(),
+    unitCost: z.string().optional()
   }),
   fixture: z.object({
     id: z
@@ -1953,7 +1975,8 @@ export const importSchemas: Record<
     orderMultiple: z.string().optional(),
     conversionFactor: z.string().optional(),
     unitPrice: z.string().optional(),
-    leadTime: z.string().optional()
+    leadTime: z.string().optional(),
+    unitCost: z.string().optional()
   }),
   consumable: z.object({
     id: z
@@ -1996,7 +2019,8 @@ export const importSchemas: Record<
     orderMultiple: z.string().optional(),
     conversionFactor: z.string().optional(),
     unitPrice: z.string().optional(),
-    leadTime: z.string().optional()
+    leadTime: z.string().optional(),
+    unitCost: z.string().optional()
   }),
   material: z.object({
     id: z
@@ -2046,7 +2070,8 @@ export const importSchemas: Record<
     orderMultiple: z.string().optional(),
     conversionFactor: z.string().optional(),
     unitPrice: z.string().optional(),
-    leadTime: z.string().optional()
+    leadTime: z.string().optional(),
+    unitCost: z.string().optional()
   }),
   bom: z.object({
     ...methodParentKeySchema,
