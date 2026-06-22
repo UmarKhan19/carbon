@@ -281,22 +281,21 @@ services:
 
   postgrest:
     image: postgrest/postgrest:v13.0.8
-    entrypoint: ["/usr/local/bin/carbon-secrets-entrypoint.sh"]
-    command: ["postgrest"]
+    # PostgREST's image is FROM scratch (no shell), so it can't run the
+    # secrets-entrypoint shim the other services use. Instead it reads each value
+    # straight from its secret file via PostgREST's native @file syntax.
     networks: [internal]
     secrets:
-      - postgres_password
+      - postgrest_db_uri
       - jwt_secret
     environment:
-      PGRST_DB_URI: postgres://authenticator:__POSTGRES_PASSWORD__@postgres:5432/postgres
+      PGRST_DB_URI: "@/run/secrets/postgrest_db_uri"
       PGRST_DB_SCHEMAS: public,storage,graphql_public
       PGRST_DB_ANON_ROLE: anon
-      PGRST_JWT_SECRET: __JWT_SECRET__
+      PGRST_JWT_SECRET: "@/run/secrets/jwt_secret"
       PGRST_DB_USE_LEGACY_GUCS: "false"
-      PGRST_APP_SETTINGS_JWT_SECRET: __JWT_SECRET__
+      PGRST_APP_SETTINGS_JWT_SECRET: "@/run/secrets/jwt_secret"
       PGRST_APP_SETTINGS_JWT_EXP: "3600"
-    volumes:
-      - *shim
     deploy:
       <<: *restart
       replicas: 1
@@ -562,6 +561,8 @@ volumes:
 
 secrets:
   postgres_password:
+    external: true
+  postgrest_db_uri:
     external: true
   jwt_secret:
     external: true

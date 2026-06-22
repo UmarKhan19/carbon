@@ -67,19 +67,31 @@ cmd_init() {
     chmod +x "$HERE/bin/secrets-entrypoint.sh" "$HERE/postgres/"*.sh
     
     log "Creating Docker secrets (skipping any that already exist)"
-    local s
+    local s pgpw=""
     for s in $GENERATED_SECRETS; do
         if secret_exists "$s" && [ "$force" -ne 1 ]; then log "secret '$s' exists — skip"; continue; fi
         secret_exists "$s" && docker secret rm "$s" >/dev/null
         case "$s" in
-            postgres_password) create_secret "$s" "$(openssl rand -hex 24)" ;;
+            postgres_password) pgpw="$(openssl rand -hex 24)"; create_secret "$s" "$pgpw" ;;
             session_secret)    create_secret "$s" "$(openssl rand -hex 32)" ;;
             # Inngest self-host rejects the signkey- prefix — plain hex only.
             inngest_signing_key) create_secret "$s" "$(openssl rand -hex 32)" ;;
             inngest_event_key)   create_secret "$s" "$(openssl rand -hex 16)" ;;
         esac
     done
-    
+
+    # PostgREST's image has no shell, so it can't use the secrets-entrypoint shim.
+    # It reads any value from a file when prefixed with @, so it gets the full
+    # connection URI (password and all) as its own secret, minted from pgpw above.
+    if secret_exists postgrest_db_uri && [ "$force" -ne 1 ]; then
+        log "secret 'postgrest_db_uri' exists — skip"
+    elif [ -n "$pgpw" ]; then
+        secret_exists postgrest_db_uri && docker secret rm postgrest_db_uri >/dev/null
+        create_secret postgrest_db_uri "postgres://authenticator:${pgpw}@postgres:5432/postgres"
+    else
+        warn "postgres_password already existed — can't regenerate 'postgrest_db_uri'. Use '$SCRIPT_NAME init --force' to rotate both."
+    fi
+
     # Supabase key trio — must be minted together (anon/service signed by jwt_secret).
     if secret_exists jwt_secret && [ "$force" -ne 1 ]; then
         log "secret 'jwt_secret' exists — skipping Supabase trio"
