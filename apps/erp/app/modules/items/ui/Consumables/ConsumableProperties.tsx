@@ -330,6 +330,7 @@ const ConsumableProperties = ({ data }: ConsumablePropertiesProps) => {
         <Select
           name="itemTrackingType"
           label={t`Tracking Type`}
+          termId="tracked-entity"
           inline={(value) => (
             <Badge variant="secondary">
               <TrackingTypeIcon type={value} className="mr-2" />
@@ -364,6 +365,7 @@ const ConsumableProperties = ({ data }: ConsumablePropertiesProps) => {
         <Select
           name="defaultMethodType"
           label={t`Default Method Type`}
+          termId="method-type"
           inline={(value) => (
             <Badge variant="secondary">
               <MethodIcon type={value} className="mr-2" />

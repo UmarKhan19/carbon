@@ -571,6 +571,9 @@ importers:
       '@carbon/form':
         specifier: workspace:*
         version: link:../../packages/form
+      '@carbon/glossary':
+        specifier: workspace:*
+        version: link:../../packages/glossary
       '@carbon/jobs':
         specifier: workspace:*
         version: link:../../packages/jobs
@@ -1606,6 +1609,9 @@ importers:
 
   docs:
     dependencies:
+      '@carbon/glossary':
+        specifier: workspace:*
+        version: link:../packages/glossary
       '@carbon/utils':
         specifier: workspace:*
         version: link:../packages/utils
@@ -2151,6 +2157,9 @@ importers:
 
   packages/form:
     dependencies:
+      '@carbon/glossary':
+        specifier: workspace:*
+        version: link:../glossary
       '@carbon/react':
         specifier: workspace:*
         version: link:../react
@@ -2233,6 +2242,24 @@ importers:
       tsconfig:
         specifier: '*'
         version: 7.0.0
+      typescript:
+        specifier: 'catalog:'
+        version: 5.8.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.12.2)(vite@8.0.10(@types/node@24.12.2)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.3))
+
+  packages/glossary:
+    devDependencies:
+      '@carbon/config':
+        specifier: workspace:*
+        version: link:../config
+      rimraf:
+        specifier: 'catalog:'
+        version: 5.0.10
+      tsup:
+        specifier: 'catalog:'
+        version: 8.5.1(jiti@2.7.0)(postcss@8.5.15)(tsx@4.21.0)(typescript@5.8.3)(yaml@2.8.3)
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
@@ -2565,6 +2592,9 @@ importers:
       '@carbon/env':
         specifier: workspace:*
         version: link:../env
+      '@carbon/glossary':
+        specifier: workspace:*
+        version: link:../glossary
       '@carbon/tiptap':
         specifier: workspace:*
         version: link:../tiptap
@@ -27491,7 +27521,7 @@ snapshots:
       source-map: 0.7.6
       sucrase: 3.35.1
       tinyexec: 0.3.2
-      tinyglobby: 0.2.16
+      tinyglobby: 0.2.17
       tree-kill: 1.2.2
     optionalDependencies:
       postcss: 8.5.15
@@ -27519,7 +27549,7 @@ snapshots:
       source-map: 0.7.6
       sucrase: 3.35.1
       tinyexec: 0.3.2
-      tinyglobby: 0.2.16
+      tinyglobby: 0.2.17
       tree-kill: 1.2.2
     optionalDependencies:
       postcss: 8.5.15

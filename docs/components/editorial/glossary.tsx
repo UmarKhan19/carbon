@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { glossaryEntries, termSlug } from "@/lib/glossary";
+import { glossaryEntries, termSlug } from "@carbon/glossary";
 
 /**
  * Glossary — the whole `lib/glossary.ts` rendered as one reference page, in the

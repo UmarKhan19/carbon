@@ -15,7 +15,7 @@
 import * as Popover from "@radix-ui/react-popover";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { glossary } from "@/lib/glossary";
+import { lookupEntry } from "@carbon/glossary";
 
 function slugify(text: string) {
   return text
@@ -27,7 +27,7 @@ function slugify(text: string) {
 
 export function Term({ id, children }: { id?: string; children: ReactNode }) {
   const key = id ?? (typeof children === "string" ? slugify(children) : "");
-  const entry = glossary[key];
+  const entry = lookupEntry(key);
 
   if (!entry) return <>{children}</>;
 

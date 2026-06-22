@@ -427,11 +427,13 @@ const InventoryStorageUnits = ({
                       <Input
                         name="readableId"
                         label={isSerial ? t`Serial Number` : t`Batch Number`}
+                        termId={isSerial ? "serial" : "batch"}
                       />
                       {showExpirationField && (
                         <DatePicker
                           name="expirationDate"
                           label={t`Expiration Date`}
+                          termId="shelf-life"
                         />
                       )}
                     </>

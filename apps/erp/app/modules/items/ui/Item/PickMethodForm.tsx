@@ -413,6 +413,7 @@ function ShelfLifeFields({
           <NumberControlled
             name="shelfLifeDays"
             label={t`Shelf Life (Days)`}
+            termId="shelf-life"
             minValue={1}
             value={shelfLifeDays ?? defaultShelfLifeDays}
           />
@@ -439,6 +440,7 @@ function ShelfLifeFields({
                 <Boolean
                   name="shelfLifeCalculateFromBom"
                   label={t`Calculate from BOM`}
+                  termId="bom"
                   description={t`Output never outlasts its raw materials. Falls back to the fixed duration when no input has an expiry date.`}
                   value={!!shelfLifeCalculateFromBom}
                   onChange={(v) => setShelfLifeCalculateFromBom(v)}
