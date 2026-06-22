@@ -1267,6 +1267,9 @@ msgstr "Невозможно загрузить — взаимодействие
 msgid "Cannot upload to parts bucket without item ID"
 msgstr "Невозможно загрузить в корзину деталей без ID элемента"
 
+msgid "Caption"
+msgstr ""
+
 msgid "Carbon client is not available"
 msgstr "Клиент Carbon недоступен"
 
@@ -3563,6 +3566,9 @@ msgstr "Ошибка при сохранении правила конфигур
 msgid "Failed to save diagram"
 msgstr "Не удалось сохранить диаграмму"
 
+msgid "Failed to save slides"
+msgstr ""
+
 msgid "Failed to update batch property"
 msgstr "Не удалось обновить свойство партии"
 
@@ -5594,6 +5600,9 @@ msgstr "Открыть детали задачи"
 msgid "Operation"
 msgstr "Операция"
 
+msgid "Operation Kind"
+msgstr ""
+
 msgid "Operation Order"
 msgstr "Порядок операции"
 
@@ -6553,6 +6562,9 @@ msgstr "Удалить заказ"
 
 msgid "Remove pair"
 msgstr "Удалить пару"
+
+msgid "Remove slide"
+msgstr ""
 
 msgid "Remove sort by column"
 msgstr "Удалить сортировку по столбцу"
@@ -7930,6 +7942,12 @@ msgstr "Дата, когда клиент ожидает получить тов
 
 msgid "The date the item is required on-site to cover the period's projected demand."
 msgstr "Дата, когда товар должен быть доставлен на объект для покрытия прогнозируемого спроса за период."
+
+msgid "The date you received this RFQ from the customer. Defaults to today."
+msgstr ""
+
+msgid "The deadline to send your quote to the customer."
+msgstr ""
 
 msgid "The endpoint that receives a POST request with the updated data when the table is updated"
 msgstr "Конечная точка, которая получает POST-запрос с обновленными данными при обновлении таблицы"

@@ -1267,6 +1267,9 @@ msgstr "Impossibile caricare — interazione fornitore non ancora creata"
 msgid "Cannot upload to parts bucket without item ID"
 msgstr "Impossibile caricare nel bucket delle parti senza ID elemento"
 
+msgid "Caption"
+msgstr ""
+
 msgid "Carbon client is not available"
 msgstr "Il client Carbon non è disponibile"
 
@@ -3563,6 +3566,9 @@ msgstr "Impossibile salvare la regola di configurazione"
 msgid "Failed to save diagram"
 msgstr "Impossibile salvare il diagramma"
 
+msgid "Failed to save slides"
+msgstr ""
+
 msgid "Failed to update batch property"
 msgstr "Impossibile aggiornare la proprietà batch"
 
@@ -5594,6 +5600,9 @@ msgstr "Apri dettagli attività"
 msgid "Operation"
 msgstr "Operazione"
 
+msgid "Operation Kind"
+msgstr ""
+
 msgid "Operation Order"
 msgstr "Ordine Operazione"
 
@@ -6553,6 +6562,9 @@ msgstr "Rimuovi Ordine"
 
 msgid "Remove pair"
 msgstr "Rimuovi coppia"
+
+msgid "Remove slide"
+msgstr ""
 
 msgid "Remove sort by column"
 msgstr "Rimuovi ordinamento per colonna"
@@ -7930,6 +7942,12 @@ msgstr "La data in cui il cliente si aspetta di ricevere la merce"
 
 msgid "The date the item is required on-site to cover the period's projected demand."
 msgstr "La data in cui l'articolo è richiesto in loco per coprire la domanda prevista del periodo."
+
+msgid "The date you received this RFQ from the customer. Defaults to today."
+msgstr ""
+
+msgid "The deadline to send your quote to the customer."
+msgstr ""
 
 msgid "The endpoint that receives a POST request with the updated data when the table is updated"
 msgstr "L'endpoint che riceve una richiesta POST con i dati aggiornati quando la tabella viene aggiornata"

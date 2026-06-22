@@ -1267,6 +1267,9 @@ msgstr "Nie można przesłać — interakcja z dostawcą nie została jeszcze ut
 msgid "Cannot upload to parts bucket without item ID"
 msgstr "Nie można przesłać do zasobnika części bez identyfikatora elementu"
 
+msgid "Caption"
+msgstr ""
+
 msgid "Carbon client is not available"
 msgstr "Klient Carbon jest niedostępny"
 
@@ -3563,6 +3566,9 @@ msgstr "Nie udało się zapisać reguły konfiguracji"
 msgid "Failed to save diagram"
 msgstr "Nie udało się zapisać diagramu"
 
+msgid "Failed to save slides"
+msgstr ""
+
 msgid "Failed to update batch property"
 msgstr "Nie udało się zaktualizować właściwości partii"
 
@@ -5594,6 +5600,9 @@ msgstr "Otwórz szczegóły zadania"
 msgid "Operation"
 msgstr "Operacja"
 
+msgid "Operation Kind"
+msgstr ""
+
 msgid "Operation Order"
 msgstr "Kolejność operacji"
 
@@ -6553,6 +6562,9 @@ msgstr "Usuń zamówienie"
 
 msgid "Remove pair"
 msgstr "Usuń parę"
+
+msgid "Remove slide"
+msgstr ""
 
 msgid "Remove sort by column"
 msgstr "Usuń sortowanie według kolumny"
@@ -7930,6 +7942,12 @@ msgstr "Data, w której klient spodziewa się otrzymać towary"
 
 msgid "The date the item is required on-site to cover the period's projected demand."
 msgstr "Data, do której towar musi być dostępny na miejscu, aby pokryć prognozowany popyt w danym okresie."
+
+msgid "The date you received this RFQ from the customer. Defaults to today."
+msgstr ""
+
+msgid "The deadline to send your quote to the customer."
+msgstr ""
 
 msgid "The endpoint that receives a POST request with the updated data when the table is updated"
 msgstr "Punkt końcowy, który odbiera żądanie POST z zaktualizowanymi danymi, gdy tabela jest aktualizowana"

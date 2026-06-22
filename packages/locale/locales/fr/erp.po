@@ -1267,6 +1267,9 @@ msgstr "Impossible de télécharger — l'interaction fournisseur n'a pas encore
 msgid "Cannot upload to parts bucket without item ID"
 msgstr "Impossible de télécharger vers le compartiment des pièces sans ID d'article"
 
+msgid "Caption"
+msgstr ""
+
 msgid "Carbon client is not available"
 msgstr "Le client Carbon n'est pas disponible"
 
@@ -3563,6 +3566,9 @@ msgstr "Échec de l'enregistrement de la règle de configuration"
 msgid "Failed to save diagram"
 msgstr "Impossible d'enregistrer le diagramme"
 
+msgid "Failed to save slides"
+msgstr ""
+
 msgid "Failed to update batch property"
 msgstr "Échec de la mise à jour de la propriété de lot"
 
@@ -5594,6 +5600,9 @@ msgstr "Ouvrir les détails de la tâche"
 msgid "Operation"
 msgstr "Opération"
 
+msgid "Operation Kind"
+msgstr ""
+
 msgid "Operation Order"
 msgstr "Ordre d'opération"
 
@@ -6553,6 +6562,9 @@ msgstr "Supprimer la commande"
 
 msgid "Remove pair"
 msgstr "Supprimer la paire"
+
+msgid "Remove slide"
+msgstr ""
 
 msgid "Remove sort by column"
 msgstr "Supprimer le tri par colonne"
@@ -7930,6 +7942,12 @@ msgstr "La date à laquelle le client s'attend à recevoir les marchandises"
 
 msgid "The date the item is required on-site to cover the period's projected demand."
 msgstr "La date à laquelle l'article doit être disponible sur site pour couvrir la demande projetée de la période."
+
+msgid "The date you received this RFQ from the customer. Defaults to today."
+msgstr ""
+
+msgid "The deadline to send your quote to the customer."
+msgstr ""
 
 msgid "The endpoint that receives a POST request with the updated data when the table is updated"
 msgstr "Le point de terminaison qui reçoit une requête POST avec les données mises à jour lorsque la table est mise à jour"
