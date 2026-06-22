@@ -591,6 +591,11 @@ type ItemPurchasingLeadTime = {
   leadTime: string;
 };
 
+type ItemUnitCost = {
+  itemId: string;
+  unitCost: string;
+};
+
 type ItemPlanningOrderMultiple = {
   itemId: string;
   orderMultiple: string;
@@ -689,6 +694,34 @@ async function writeItemPurchasingLeadTimes(
       .updateTable("itemReplenishment")
       .set({
         leadTime: numericLeadTime,
+        updatedAt: now,
+        updatedBy: userId,
+      })
+      .where("itemId", "=", entry.itemId)
+      .where("companyId", "=", companyId)
+      .execute();
+  }
+}
+
+// Set the item-level unit cost (the "Costing" tab field). The itemCost row is
+// created by the create_item_related_records AFTER INSERT trigger on item, so
+// within this transaction the row already exists for every item we upserted —
+// we only need to UPDATE it. Non-numeric/blank values are skipped.
+async function writeItemUnitCosts(
+  trx: typeof db,
+  entries: ItemUnitCost[],
+  companyId: string,
+  userId: string
+): Promise<void> {
+  if (entries.length === 0) return;
+  const now = new Date().toISOString();
+  for (const entry of entries) {
+    const numericUnitCost = Number.parseFloat(entry.unitCost);
+    if (Number.isNaN(numericUnitCost)) continue;
+    await trx
+      .updateTable("itemCost")
+      .set({
+        unitCost: numericUnitCost,
         updatedAt: now,
         updatedBy: userId,
       })
@@ -1323,6 +1356,9 @@ serve(async (req: Request) => {
           // known (immediately for updates, post-insert for new items).
           const leadTimeForInserts: Array<string | undefined> = [];
           const purchasingLeadTimes: ItemPurchasingLeadTime[] = [];
+          // Item-level unit cost — same parallel-array pattern as lead time.
+          const unitCostForInserts: Array<string | undefined> = [];
+          const itemUnitCosts: ItemUnitCost[] = [];
           // Same shape for the item-level planning order multiple. CSV's
           // "Order Multiple" column populates both supplierPart.orderMultiple
           // (per-supplier case-pack) and itemPlanning.orderMultiple
@@ -1358,11 +1394,53 @@ serve(async (req: Request) => {
             gradeId: z.string().optional(),
           });
 
-          for (const record of mappedRecords) {
+          // Rows on the INSERT path whose Unique ID already exists in this
+          // company's catalog (e.g. a re-import after the item was deleted,
+          // which frees the Unique ID to collide on the un-onConflict'd
+          // sub-table inserts) would otherwise abort the whole transaction with
+          // an opaque 500. Detect them up front so we can report a clear per-row
+          // reason and skip just those rows while the rest still import.
+          const candidateReadableIds = [
+            ...new Set(
+              mappedRecords
+                .map((r) => r.readableId)
+                .filter((id): id is string => !!id && id.trim() !== "")
+            ),
+          ];
+          const existingItemKeys = new Set<string>();
+          if (candidateReadableIds.length > 0) {
+            const existingItems = await trx
+              .selectFrom("item")
+              .select(["readableId", "revision"])
+              .where("companyId", "=", companyId)
+              .where(
+                "type",
+                "=",
+                capitalize(table) as
+                  | "Part"
+                  | "Service"
+                  | "Material"
+                  | "Tool"
+                  | "Fixture"
+                  | "Consumable"
+              )
+              .where("readableId", "in", candidateReadableIds)
+              .execute();
+            for (const existing of existingItems) {
+              existingItemKeys.add(
+                getReadableIdWithRevision(existing.readableId, existing.revision)
+              );
+            }
+          }
+
+          for (const [rowIndex, record] of mappedRecords.entries()) {
             const item = itemValidator.safeParse(record);
 
             if (!item.success) {
-              console.error(item.error.message);
+              summary.errors.push({
+                row: rowIndex,
+                reason: item.error.issues[0]?.message ?? "Invalid row",
+              });
               continue;
             }
 
@@ -1416,6 +1494,13 @@ serve(async (req: Request) => {
                 });
               }
 
+              if (record.unitCost) {
+                itemUnitCosts.push({
+                  itemId: existingEntityId,
+                  unitCost: record.unitCost,
+                });
+              }
+
               if (record.orderMultiple) {
                 itemPlanningOrderMultiples.push({
                   itemId: existingEntityId,
@@ -1444,6 +1529,13 @@ serve(async (req: Request) => {
               }
             } else if (!readableIds.has(readableIdWithRevision)) {
               readableIds.add(readableIdWithRevision);
+              if (existingItemKeys.has(readableIdWithRevision)) {
+                summary.errors.push({
+                  row: rowIndex,
+                  reason: `An item with Unique ID "${item.data.readableId}" already exists. Change the Unique ID (and Name) or delete the existing item, then re-import.`,
+                });
+                continue;
+              }
               const newItem = {
                 ...rest,
                 replenishmentSystem: rest.replenishmentSystem ?? "Buy",
@@ -1479,11 +1571,17 @@ serve(async (req: Request) => {
               });
               leadTimeForInserts.push(record.leadTime);
               orderMultipleForInserts.push(record.orderMultiple);
+              unitCostForInserts.push(record.unitCost);
 
               if (table === "material") {
                 const material = materialValidator.safeParse(record);
                 if (!material.success) {
-                  console.error(material.error.message);
+                  summary.errors.push({
+                    row: rowIndex,
+                    reason:
+                      material.error.issues[0]?.message ??
+                      "Invalid material row",
+                  });
                   continue;
                 }
                 if (material.success) {
@@ -1608,6 +1706,13 @@ serve(async (req: Request) => {
                   orderMultiple,
                 });
               }
+              const unitCost = unitCostForInserts[i];
+              if (unitCost && insertedItems[i].id) {
+                itemUnitCosts.push({
+                  itemId: insertedItems[i].id!,
+                  unitCost,
+                });
+              }
             }
           }
 
@@ -1689,6 +1794,14 @@ serve(async (req: Request) => {
             companyId,
             userId
           );
+
+          await writeItemUnitCosts(trx, itemUnitCosts, companyId, userId);
+
+          // Items were silently uncounted before — only customer/supplier
+          // incremented the summary. Count inserts/updates here so the toast
+          // reports the real totals instead of "Imported 0, Updated 0".
+          summary.inserted += itemInserts.length;
+          summary.updated += itemUpdates.length;
         });
 
         break;
