@@ -32,8 +32,10 @@ jobs:
             packages/*/node_modules
           key: node-modules-${{ hashFiles('pnpm-lock.yaml') }}
 
-      - if: steps.node-modules-cache.outputs.cache-hit != 'true'
-        run: pnpm install --frozen-lockfile
+        # Always run install (not just on cache miss) so the root postinstall
+        # runs in every job — it generates packages/documents/src/pdf/fonts.data.ts
+        # (gitignored), which typecheck/build need. node_modules cache keeps it fast.
+      - run: pnpm install --frozen-lockfile
 
   lint:
     name: Lint
@@ -57,8 +59,10 @@ jobs:
             packages/*/node_modules
           key: node-modules-${{ hashFiles('pnpm-lock.yaml') }}
 
-      - if: steps.node-modules-cache.outputs.cache-hit != 'true'
-        run: pnpm install --frozen-lockfile
+        # Always run install (not just on cache miss) so the root postinstall
+        # runs in every job — it generates packages/documents/src/pdf/fonts.data.ts
+        # (gitignored), which typecheck/build need. node_modules cache keeps it fast.
+      - run: pnpm install --frozen-lockfile
 
       - run: pnpm exec biome check
 
@@ -84,8 +88,10 @@ jobs:
             packages/*/node_modules
           key: node-modules-${{ hashFiles('pnpm-lock.yaml') }}
 
-      - if: steps.node-modules-cache.outputs.cache-hit != 'true'
-        run: pnpm install --frozen-lockfile
+        # Always run install (not just on cache miss) so the root postinstall
+        # runs in every job — it generates packages/documents/src/pdf/fonts.data.ts
+        # (gitignored), which typecheck/build need. node_modules cache keeps it fast.
+      - run: pnpm install --frozen-lockfile
 
       - run: pnpm run typegen
       - run: pnpm run typecheck
@@ -112,8 +118,10 @@ jobs:
             packages/*/node_modules
           key: node-modules-${{ hashFiles('pnpm-lock.yaml') }}
 
-      - if: steps.node-modules-cache.outputs.cache-hit != 'true'
-        run: pnpm install --frozen-lockfile
+        # Always run install (not just on cache miss) so the root postinstall
+        # runs in every job — it generates packages/documents/src/pdf/fonts.data.ts
+        # (gitignored), which typecheck/build need. node_modules cache keeps it fast.
+      - run: pnpm install --frozen-lockfile
 
       - run: pnpm run lingui:check
 
@@ -139,8 +147,10 @@ jobs:
             packages/*/node_modules
           key: node-modules-${{ hashFiles('pnpm-lock.yaml') }}
 
-      - if: steps.node-modules-cache.outputs.cache-hit != 'true'
-        run: pnpm install --frozen-lockfile
+        # Always run install (not just on cache miss) so the root postinstall
+        # runs in every job — it generates packages/documents/src/pdf/fonts.data.ts
+        # (gitignored), which typecheck/build need. node_modules cache keeps it fast.
+      - run: pnpm install --frozen-lockfile
 
       - run: pnpm test
 
