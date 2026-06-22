@@ -115,30 +115,22 @@ export async function action({ request }: ActionFunctionArgs) {
     }
   }
 
-  const extractedTaxAmountStr = formData.get("extractedTaxAmount") as string;
-  const extractedTaxAmount = Number.parseFloat(extractedTaxAmountStr) || 0;
-
   const promises: Promise<any>[] = [];
 
   if (extractedLineItems.length > 0) {
-    let taxApplied = false;
-
+    // Extracted lines can't be priced without a matching item or G/L account, so
+    // they're recorded as description-only Comment lines — preserving what the PDF
+    // listed WITHOUT the phantom quantity/price/tax that previously corrupted the
+    // invoice total (and dumped all the tax onto line 1). Turning these into real
+    // priced Part/G-L lines is the line-item review-grid follow-up (needs mapping).
     for (const item of extractedLineItems) {
-      if (!item.description && !item.partNumber) continue;
-
-      const lineTax = !taxApplied ? extractedTaxAmount : 0;
-      taxApplied = true;
-
+      const description = (item.description || item.partNumber || "").trim();
+      if (!description) continue;
       promises.push(
         upsertPurchaseInvoiceLine(client, {
           invoiceId: result.data.id,
           invoiceLineType: "Comment",
-          description: item.description || item.partNumber || "Line Item",
-          quantity: item.quantity || 1,
-          supplierUnitPrice: item.unitPrice || 0,
-          supplierShippingCost: 0,
-          supplierTaxAmount: lineTax,
-          locationId: d.locationId,
+          description,
           companyId,
           createdBy: userId,
           customFields: {}

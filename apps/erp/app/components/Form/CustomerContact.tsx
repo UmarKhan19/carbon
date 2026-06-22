@@ -20,12 +20,6 @@ type CustomerContactSelectProps = Omit<
     customer: { id: string; contact: CustomerContactType["contact"] } | null
   ) => void;
   inline?: boolean;
-  extractedContact?: {
-    firstName?: string | null;
-    lastName?: string | null;
-    email?: string | null;
-    phone?: string | null;
-  };
 };
 
 const CustomerContactPreview = (
@@ -45,11 +39,7 @@ const CustomerContactPreview = (
   );
 };
 
-const CustomerContact = ({
-  customer,
-  extractedContact,
-  ...props
-}: CustomerContactSelectProps) => {
+const CustomerContact = (props: CustomerContactSelectProps) => {
   const { t } = useLingui();
   const newContactModal = useDisclosure();
   const [created, setCreated] = useState<string>("");
@@ -57,7 +47,7 @@ const CustomerContact = ({
 
   const [firstName, ...lastName] = created.split(" ");
 
-  const { options, data } = useCustomerContacts(customer);
+  const { options, data } = useCustomerContacts(props.customer);
 
   const onChange = (
     newValue: { label: string | JSX.Element; value: string } | null
@@ -82,17 +72,10 @@ const CustomerContact = ({
           newContactModal.onOpen();
           setCreated(option);
         }}
-        extractedValue={
-          extractedContact?.firstName || extractedContact?.email
-            ? [extractedContact.firstName, extractedContact.lastName]
-                .filter(Boolean)
-                .join(" ") || extractedContact.email!
-            : undefined
-        }
       />
       {newContactModal.isOpen && (
         <CustomerContactForm
-          customerId={customer!}
+          customerId={props.customer!}
           type="modal"
           onClose={() => {
             setCreated("");
@@ -100,10 +83,9 @@ const CustomerContact = ({
             triggerRef.current?.click();
           }}
           initialValues={{
-            email: extractedContact?.email || "",
-            firstName: extractedContact?.firstName || firstName || "",
-            lastName: extractedContact?.lastName || lastName.join(" ") || "",
-            mobilePhone: extractedContact?.phone || ""
+            email: "",
+            firstName: firstName,
+            lastName: lastName.join(" ")
           }}
         />
       )}

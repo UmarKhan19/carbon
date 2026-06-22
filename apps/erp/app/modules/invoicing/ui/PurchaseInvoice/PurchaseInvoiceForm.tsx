@@ -2,12 +2,14 @@ import { useCarbon } from "@carbon/auth";
 import { ValidatedForm } from "@carbon/form";
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
   cn,
+  HStack,
   toast,
   VStack
 } from "@carbon/react";
@@ -29,8 +31,8 @@ import {
   SupplierContact,
   SupplierLocation
 } from "~/components/Form";
+import { Autofill, type AutofillResult } from "~/components/Form/Autofill";
 import PaymentTerm from "~/components/Form/PaymentTerm";
-import { PdfExtractor } from "~/components/Form/PdfExtractor";
 import {
   usePermissions,
   useRouteData,
@@ -58,272 +60,47 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
     invoiceId ? path.to.purchaseInvoice(invoiceId) : ""
   );
   const isLocked = isPurchaseInvoiceLocked(routeData?.purchaseInvoice?.status);
-  const [extractedSupplierName, setExtractedSupplierName] = useState<
-    string | undefined
-  >();
-  const [extractedContactName, setExtractedContactName] = useState<string>();
-  const [extractedContactEmail, setExtractedContactEmail] = useState<string>();
-  const [extractedContactPhone, setExtractedContactPhone] = useState<string>();
-  const [extractedAddress, setExtractedAddress] = useState<{
-    addressLine1?: string | null;
-    addressLine2?: string | null;
-    city?: string | null;
-    stateProvince?: string | null;
-    postalCode?: string | null;
-    countryCode?: string | null;
-  }>();
-  const [extractedLineItems, setExtractedLineItems] = useState<any[]>([]);
-  const [extractedTaxAmount, setExtractedTaxAmount] = useState<number>(0);
+  const [extractedLineItems, setExtractedLineItems] = useState<unknown[]>([]);
   const [extractedStoragePath, setExtractedStoragePath] = useState<string>();
 
   const [formKey, setFormKey] = useState(0);
   const [currentValues, setCurrentValues] = useState(initialValues);
 
-  const handleExtractionComplete = async (data: Record<string, any>) => {
-    let resolvedSupplierId = currentValues.supplierId;
-    let resolvedPaymentTermId = currentValues.paymentTermId;
-    let resolvedCurrencyCode = currentValues.currencyCode;
+  // Apply the modal's fully-resolved autofill result. The Autofill modal has
+  // already matched/created every entity, so this is a straight merge — no DB
+  // lookups or fuzzy matching here.
+  const applyAutofill = (result: AutofillResult) => {
+    const v = result.values;
+    const supplierId =
+      (v.supplierId as string | undefined) ?? currentValues.supplierId;
 
-    let foundSupplierInDb = false;
-    let resolvedContactId: string | undefined = undefined;
-    let resolvedLocationId: string | undefined = undefined;
-
-    if (carbon) {
-      if (data.supplierName) {
-        const { data: supplierData } = await carbon
-          .from("supplier")
-          .select("id, currencyCode")
-          .ilike("name", `%${data.supplierName.trim()}%`)
-          .limit(1);
-
-        if (supplierData && supplierData.length > 0) {
-          resolvedSupplierId = supplierData[0].id;
-          resolvedCurrencyCode =
-            supplierData[0].currencyCode ?? resolvedCurrencyCode;
-          foundSupplierInDb = true;
-        }
-      }
-
-      if (data.paymentTerms) {
-        const { data: termData } = await carbon
-          .from("paymentTerm")
-          .select("id")
-          .ilike("name", `%${data.paymentTerms}%`)
-          .limit(1);
-
-        if (termData && termData.length > 0) {
-          resolvedPaymentTermId = termData[0].id;
-        }
-      }
-
-      if (resolvedSupplierId) {
-        const [contactResult, locationResult] = await Promise.all([
-          carbon
-            .from("supplierContact")
-            .select("id, contact(id, fullName, email)")
-            .eq("supplierId", resolvedSupplierId),
-          carbon
-            .from("supplierLocation")
-            .select("id, address(id, addressLine1)")
-            .eq("supplierId", resolvedSupplierId)
-        ]);
-
-        if (contactResult.data) {
-          const contactNameLower = data.supplierContactName
-            ?.trim()
-            .toLowerCase();
-          const contactEmailLower = data.supplierContactEmail
-            ?.trim()
-            .toLowerCase();
-
-          const matchedContact = contactResult.data.find((c: any) => {
-            const dbEmail = c.contact?.email?.trim().toLowerCase();
-            const dbName = c.contact?.fullName?.trim().toLowerCase();
-            if (contactEmailLower && dbEmail === contactEmailLower) return true;
-            if (contactNameLower && dbName === contactNameLower) return true;
-            return false;
-          });
-
-          if (matchedContact) {
-            resolvedContactId = matchedContact.id;
-          }
-        }
-
-        if (locationResult.data) {
-          const addressLower = data.supplierAddressLine1?.trim().toLowerCase();
-          if (addressLower) {
-            const matchedLocation = locationResult.data.find((l: any) => {
-              const dbAddress = l.address?.addressLine1?.trim().toLowerCase();
-              if (!dbAddress) return false;
-              return (
-                addressLower.includes(dbAddress) ||
-                dbAddress.includes(addressLower)
-              );
-            });
-
-            if (matchedLocation) {
-              resolvedLocationId = matchedLocation.id;
-            }
-          }
-        }
-      }
-    }
-
-    if (data.currencyCode) {
-      resolvedCurrencyCode = data.currencyCode;
-    }
-
-    if (
-      (data.supplierContactName || data.supplierContactEmail) &&
-      !resolvedContactId
-    ) {
-      setExtractedContactName(
-        data.supplierContactName || data.supplierContactEmail
-      );
-    } else {
-      setExtractedContactName(undefined);
-    }
-
-    if (data.supplierContactEmail && !resolvedContactId) {
-      setExtractedContactEmail(data.supplierContactEmail);
-    } else {
-      setExtractedContactEmail(undefined);
-    }
-
-    if (data.supplierContactPhone && !resolvedContactId) {
-      setExtractedContactPhone(data.supplierContactPhone);
-    } else {
-      setExtractedContactPhone(undefined);
-    }
-
-    if (
-      (data.supplierAddressLine1 || data.supplierCity) &&
-      !resolvedLocationId
-    ) {
-      setExtractedAddress({
-        addressLine1: data.supplierAddressLine1,
-        addressLine2: data.supplierAddressLine2,
-        city: data.supplierCity,
-        stateProvince: data.supplierStateProvince,
-        postalCode: data.supplierPostalCode,
-        countryCode: data.supplierCountry
-      });
-    } else {
-      setExtractedAddress(undefined);
-    }
-
-    let finalContactId = resolvedContactId;
-    let finalLocationId = resolvedLocationId;
-
-    if (resolvedSupplierId && resolvedSupplierId !== invoiceSupplier.id) {
-      flushSync(() => {
-        setSupplier({ id: resolvedSupplierId });
-        setInvoiceSupplier({
-          id: resolvedSupplierId,
-          currencyCode: resolvedCurrencyCode ?? undefined,
-          paymentTermId: resolvedPaymentTermId ?? undefined,
-          invoiceSupplierContactId: resolvedContactId,
-          invoiceSupplierLocationId: resolvedLocationId
-        });
-      });
-
-      const [supplierDetails, paymentTermData] = await Promise.all([
-        carbon
-          ?.from("supplier")
-          .select(
-            "currencyCode, purchasingContactId, supplierShipping!supplierId(shippingSupplierLocationId)"
-          )
-          .eq("id", resolvedSupplierId)
-          .single(),
-        carbon
-          ?.from("supplierPayment")
-          .select("*")
-          .eq("supplierId", resolvedSupplierId)
-          .single()
-      ]);
-
-      if (
-        supplierDetails &&
-        !supplierDetails.error &&
-        paymentTermData &&
-        !paymentTermData.error
-      ) {
-        finalContactId =
-          resolvedContactId ??
-          paymentTermData.data.invoiceSupplierContactId ??
-          supplierDetails.data.purchasingContactId ??
-          undefined;
-        finalLocationId =
-          resolvedLocationId ??
-          paymentTermData.data.invoiceSupplierLocationId ??
-          supplierDetails.data.supplierShipping?.shippingSupplierLocationId ??
-          undefined;
-
-        setInvoiceSupplier((prev) => ({
-          ...prev,
-          invoiceSupplierContactId: finalContactId,
-          invoiceSupplierLocationId: finalLocationId,
-          currencyCode:
-            resolvedCurrencyCode ??
-            supplierDetails.data.currencyCode ??
-            undefined,
-          paymentTermId:
-            resolvedPaymentTermId ??
-            paymentTermData.data.paymentTermId ??
-            undefined
-        }));
-      }
-    } else {
-      finalContactId =
-        resolvedContactId ?? invoiceSupplier.invoiceSupplierContactId;
-      finalLocationId =
-        resolvedLocationId ?? invoiceSupplier.invoiceSupplierLocationId;
-
-      setInvoiceSupplier((prev) => ({
-        ...prev,
-        currencyCode: resolvedCurrencyCode ?? prev.currencyCode,
-        paymentTermId: resolvedPaymentTermId ?? prev.paymentTermId,
-        invoiceSupplierContactId: finalContactId,
-        invoiceSupplierLocationId: finalLocationId
-      }));
-    }
-
-    setCurrentValues((prev) => ({
+    setSupplier({ id: supplierId });
+    setInvoiceSupplier((prev) => ({
       ...prev,
-      supplierId: resolvedSupplierId || prev.supplierId,
-      invoiceSupplierId: resolvedSupplierId || prev.invoiceSupplierId,
-      supplierReference: data.invoiceNumber || prev.supplierReference,
-      dateIssued: data.invoiceDate || prev.dateIssued,
-      dateDue: data.dueDate || prev.dateDue,
-      currencyCode: resolvedCurrencyCode || prev.currencyCode,
-      paymentTermId: resolvedPaymentTermId || prev.paymentTermId,
-      supplierShippingCost: data.shippingCost || prev.supplierShippingCost,
-      invoiceSupplierContactId: finalContactId || prev.invoiceSupplierContactId,
+      id: (v.invoiceSupplierId as string | undefined) ?? supplierId ?? prev.id,
+      invoiceSupplierContactId:
+        (v.invoiceSupplierContactId as string | undefined) ??
+        prev.invoiceSupplierContactId,
       invoiceSupplierLocationId:
-        finalLocationId || prev.invoiceSupplierLocationId
+        (v.invoiceSupplierLocationId as string | undefined) ??
+        prev.invoiceSupplierLocationId,
+      currencyCode: (v.currencyCode as string | undefined) ?? prev.currencyCode,
+      paymentTermId:
+        (v.paymentTermId as string | undefined) ?? prev.paymentTermId
     }));
 
-    if (data.supplierName && !foundSupplierInDb) {
-      setExtractedSupplierName(data.supplierName);
-      toast.info(
-        t`Extracted supplier "${data.supplierName}" was not found. Please create it or select an existing one.`
-      );
-    } else {
-      setExtractedSupplierName(undefined);
-    }
+    setCurrentValues((prev) => {
+      const next = { ...prev };
+      for (const [key, value] of Object.entries(v)) {
+        if (value !== undefined && value !== null && value !== "") {
+          (next as Record<string, unknown>)[key] = value;
+        }
+      }
+      return next;
+    });
 
-    if (data.lineItems && Array.isArray(data.lineItems)) {
-      setExtractedLineItems(data.lineItems);
-    }
-
-    if (data.taxAmount) {
-      setExtractedTaxAmount(data.taxAmount);
-    }
-
-    if (data._storagePath) {
-      setExtractedStoragePath(data._storagePath);
-    }
-
+    setExtractedLineItems(result.lineItems ?? []);
+    if (result.storagePath) setExtractedStoragePath(result.storagePath);
     setFormKey((prev) => prev + 1);
   };
 
@@ -398,13 +175,6 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
       if (supplierData.error || paymentTermData.error) {
         toast.error(t`Error fetching supplier data`);
       } else {
-        if (supplierData.data.name !== extractedSupplierName) {
-          setExtractedContactName(undefined);
-          setExtractedContactEmail(undefined);
-          setExtractedContactPhone(undefined);
-          setExtractedAddress(undefined);
-        }
-
         setInvoiceSupplier((prev) => ({
           ...prev,
           id: newValue.value,
@@ -440,36 +210,38 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
       isDisabled={isEditing && isLocked}
     >
       <Card>
-        <CardHeader>
-          <CardTitle>
-            {isEditing ? "Purchase Invoice" : "New Purchase Invoice"}
-          </CardTitle>
+        <HStack className="w-full justify-between items-start">
+          <CardHeader>
+            <CardTitle>
+              {isEditing ? "Purchase Invoice" : "New Purchase Invoice"}
+            </CardTitle>
+            {!isEditing && (
+              <CardDescription>
+                <Trans>
+                  A purchase invoice is a document that specifies the products
+                  or services purchased by a customer and the corresponding
+                  cost.
+                </Trans>
+              </CardDescription>
+            )}
+          </CardHeader>
           {!isEditing && (
-            <CardDescription>
-              <Trans>
-                A purchase invoice is a document that specifies the products or
-                services purchased by a customer and the corresponding cost.
-              </Trans>
-            </CardDescription>
+            <CardAction>
+              <Autofill
+                documentType="purchaseInvoice"
+                sourceDocument="Purchase Invoice"
+                sourceDocumentId={initialValues.id}
+                onApply={applyAutofill}
+              />
+            </CardAction>
           )}
-        </CardHeader>
+        </HStack>
         <CardContent>
-          <PdfExtractor
-            documentType="purchaseInvoice"
-            sourceDocument="Purchase Invoice"
-            sourceDocumentId={initialValues.id}
-            onExtractionComplete={handleExtractionComplete}
-          />
           <Hidden name="id" />
           <input
             type="hidden"
             name="extractedLineItems"
             value={JSON.stringify(extractedLineItems)}
-          />
-          <input
-            type="hidden"
-            name="extractedTaxAmount"
-            value={extractedTaxAmount}
           />
           {extractedStoragePath && (
             <input
@@ -505,7 +277,6 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
               <Supplier
                 name="supplierId"
                 label={t`Supplier`}
-                extractedValue={extractedSupplierName}
                 defaultCurrencyCode={invoiceSupplier.currencyCode}
                 onChange={onSupplierChange}
                 onlyApproved={supplierApprovalRequired}
@@ -518,7 +289,6 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
               <Supplier
                 name="invoiceSupplierId"
                 label={t`Invoice Supplier`}
-                extractedValue={extractedSupplierName}
                 value={invoiceSupplier.id}
                 defaultCurrencyCode={invoiceSupplier.currencyCode}
                 onChange={onInvoiceSupplierChange}
@@ -529,7 +299,6 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
                 label={t`Invoice Supplier Location`}
                 supplier={supplier.id}
                 value={invoiceSupplier.invoiceSupplierLocationId}
-                extractedAddress={extractedAddress}
                 onChange={(newValue) => {
                   if (newValue?.id) {
                     setInvoiceSupplier((prevSupplier) => ({
@@ -544,9 +313,6 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
                 label={t`Invoice Supplier Contact`}
                 supplier={supplier.id}
                 value={invoiceSupplier.invoiceSupplierContactId}
-                extractedValue={extractedContactName}
-                extractedEmail={extractedContactEmail}
-                extractedPhone={extractedContactPhone}
                 onChange={(newValue) => {
                   if (newValue?.id) {
                     setInvoiceSupplier((prevSupplier) => ({
