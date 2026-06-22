@@ -102,10 +102,10 @@ const RealtimeDataProvider = ({ children }: { children: React.ReactNode }) => {
           readableIdWithRevision: string;
           unitOfMeasureCode: string;
           name: string;
-          type: string;
-          replenishmentSystem: string;
+          type: Database["public"]["Enums"]["itemType"];
+          replenishmentSystem: Database["public"]["Enums"]["itemReplenishmentSystem"];
           active: boolean;
-          itemTrackingType: string;
+          itemTrackingType: Database["public"]["Enums"]["itemTrackingType"];
         }>(
           carbon,
           "item",
@@ -179,11 +179,9 @@ const RealtimeDataProvider = ({ children }: { children: React.ReactNode }) => {
       supersessionMode: supersessionByItem.get(i.id)?.supersessionMode ?? null,
       successorItemId: supersessionByItem.get(i.id)?.successorItemId ?? null
     }));
-    // @ts-ignore
     setItems(itemsWithLifecycle);
     setSuppliers(suppliers.data ?? []);
     setCustomers(customers.data ?? []);
-    // @ts-ignore
     setPeople(people.data ?? []);
 
     await Promise.all([
