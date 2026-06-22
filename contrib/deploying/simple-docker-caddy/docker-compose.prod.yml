@@ -131,17 +131,23 @@ services:
   caddy:
     image: caddy:2-alpine
     networks: [internal]
+    # mode: host (NOT ingress): caddy binds :80/:443 directly on the host NIC. The
+    # Swarm ingress mesh (IPVS) needs seconds to converge after a (re)start, but
+    # caddy fires ACME immediately — so with ingress the Let's Encrypt validator hits
+    # :80 before it routes and gets "connection refused", failing every cert. host
+    # mode makes the port live the instant caddy starts. Single-node, single-replica,
+    # so there is no multi-node routing to lose.
     ports:
       - target: 80
         published: 80
-        mode: ingress
+        mode: host
       - target: 443
         published: 443
-        mode: ingress
+        mode: host
       - target: 443
         published: 443
         protocol: udp
-        mode: ingress
+        mode: host
     environment:
       ERP_HOST: ${ERP_HOST}
       MES_HOST: ${MES_HOST}
@@ -167,6 +173,11 @@ services:
     deploy:
       <<: *restart
       replicas: 1
+      # stop-first: with host-mode ports a new task can't bind :80/:443 while the old
+      # one still holds them, so the default start-first rollout would deadlock. Brief
+      # ingress blip on redeploy is acceptable for a single-node proxy.
+      update_config:
+        order: stop-first
       resources:
         limits:
           memory: 256M
