@@ -708,8 +708,7 @@ const MaterialProperties = ({ data }: MaterialPropertiesProps) => {
             }}
           />
         </ValidatedForm>
-        {(routeData?.materialSummary?.itemTrackingType === "Serial" ||
-          routeData?.materialSummary?.itemTrackingType === "Batch") && (
+        {routeData?.materialSummary?.replenishmentSystem?.includes("Buy") && (
           <ValidatedForm
             defaultValues={{
               requiresInspection:

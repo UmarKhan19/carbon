@@ -70,6 +70,9 @@ msgstr "/mois/utilisateur"
 msgid "+{0} more"
 msgstr "+{0} de plus"
 
+msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
+msgstr "<0>Ajouter une pièce fournisseur</0> pour cet article afin de définir un fournisseur préféré."
+
 msgid "<0>delete</0> lets you delete rows. <1>delete</1> will match all rows by default, so remember to specify your filters!"
 msgstr "<0>delete</0> vous permet de supprimer des lignes. <1>delete</1> correspondra à toutes les lignes par défaut, alors n'oubliez pas de spécifier vos filtres !"
 
@@ -2253,9 +2256,6 @@ msgstr "Méthode par défaut"
 
 msgid "Default Method Type"
 msgstr "Type de méthode par défaut"
-
-msgid "Default order when picking serial or batch lots of this item. Pickers can still override it."
-msgstr "Ordre par défaut lors du prélèvement de lots en série ou par lot de cet article. Les préleveurs peuvent toujours le modifier."
 
 msgid "Default Permissions"
 msgstr "Permissions par défaut"
@@ -5417,6 +5417,9 @@ msgstr "Aucun tri appliqué à cette vue"
 msgid "No stock"
 msgstr "Aucun stock"
 
+msgid "No suppliers yet"
+msgstr "Aucun fournisseur pour le moment"
+
 msgid "No time entries for this week"
 msgstr "Aucune entrée de temps pour cette semaine"
 
@@ -5542,6 +5545,9 @@ msgstr "Ouvrir"
 
 msgid "Open Actions"
 msgstr "Actions ouvertes"
+
+msgid "Open an NCR for MRB disposition"
+msgstr "Ouvrir un NCR pour la disposition MRB"
 
 msgid "Open Audit Log"
 msgstr "Ouvrir le journal d'audit"
@@ -6463,6 +6469,9 @@ msgstr "Enregistrer"
 msgid "Record deleted"
 msgstr "Enregistrement supprimé"
 
+msgid "Record the inspection result for this sample."
+msgstr "Enregistrez le résultat de l'inspection pour cet échantillon."
+
 msgid "Records"
 msgstr "Enregistrements"
 
@@ -6863,6 +6872,10 @@ msgstr "Chiffre d'affaires"
 msgid "Sample"
 msgstr "Échantillon"
 
+#. placeholder {0}: idx + 1
+msgid "Sample {0}"
+msgstr "Échantillon {0}"
+
 msgid "Sample Size"
 msgstr "Taille de l'échantillon"
 
@@ -7253,6 +7266,9 @@ msgstr "Formes"
 msgid "Share"
 msgstr "Partager"
 
+msgid "Share a branded portal link so customers can track their orders and documents."
+msgstr "Partagez un lien de portail personnalisé pour que les clients puissent suivre leurs commandes et documents."
+
 msgid "Share Link"
 msgstr "Lien de partage"
 
@@ -7559,8 +7575,12 @@ msgstr "État / Province"
 
 #. placeholder {0}: lotEntities.length
 #. placeholder {1}: Math.max(0, lotEntities.length - inspected)
-msgid "Statistical acceptance failed, so the entire lot is considered non-conforming (ISO 9001:2015 §8.7). All {0} entities — {passes} sampled pass(es), {fails} failure(s), and {1} un-inspected — will be marked Rejected. An NCR will be opened automatically for MRB disposition."
-msgstr "L'acceptation statistique a échoué, de sorte que l'ensemble du lot est considéré comme non conforme (ISO 9001:2015 §8.7). Toutes les {0} entités — {passes} passage(s) échantillonné(s), {fails} défaillance(s) et {1} non inspectée(s) — seront marquées comme Rejetées. Un NCR sera ouvert automatiquement pour la disposition du MRB."
+msgid "Statistical acceptance failed, so the entire lot is considered non-conforming (ISO 9001:2015 §8.7). All {0} entities — {passes} sampled pass(es), {fails} failure(s), and {1} un-inspected — will be marked Rejected."
+msgstr "L'acceptation statistique a échoué, de sorte que l'ensemble du lot est considéré comme non-conforme (ISO 9001:2015 §8.7). Toutes les {0} entités — {passes} passage(s) échantillonné(s), {fails} défaut(s) et {1} non inspectés — seront marqués comme Rejetés."
+
+#. placeholder {0}: inspection.lotSize
+msgid "Statistical acceptance failed, so the entire lot of {0} is considered non-conforming (ISO 9001:2015 §8.7) — {passes} sampled pass(es) and {fails} failure(s)."
+msgstr "L'acceptation statistique a échoué, donc l'ensemble du lot de {0} est considéré comme non-conforme (ISO 9001:2015 §8.7) — {passes} passage(s) échantillonné(s) et {fails} défaut(s)."
 
 msgid "Status"
 msgstr "Statut"
@@ -7911,6 +7931,12 @@ msgstr "La date à laquelle le client s'attend à recevoir les marchandises"
 msgid "The date the item is required on-site to cover the period's projected demand."
 msgstr "La date à laquelle l'article doit être disponible sur site pour couvrir la demande projetée de la période."
 
+msgid "The date you received this RFQ from the customer. Defaults to today."
+msgstr ""
+
+msgid "The deadline to send your quote to the customer."
+msgstr ""
+
 msgid "The endpoint that receives a POST request with the updated data when the table is updated"
 msgstr "Le point de terminaison qui reçoit une requête POST avec les données mises à jour lorsque la table est mise à jour"
 
@@ -7923,8 +7949,14 @@ msgstr "Les articles de ligne suivants n'ont pas de prix ou de délais de livrai
 msgid "The latest date to place this PO so it arrives by the need-by date, given the supplier's lead time."
 msgstr "La date limite pour passer cette commande afin qu'elle arrive à la date requise, compte tenu du délai de livraison du fournisseur."
 
-msgid "The lot will still be rejected, but an NCR cannot be auto-created until at least one Issue Type is configured."
-msgstr "Le lot sera toujours rejeté, mais une NCR ne peut pas être créée automatiquement tant qu'au moins un type de problème n'est pas configuré."
+msgid "The lot stays open so you can keep inspecting and disposition later. Sampled outcomes are preserved."
+msgstr "Le lot reste ouvert pour que vous puissiez continuer l'inspection et disposer plus tard. Les résultats d'échantillonnage sont conservés."
+
+msgid "The lot will be marked Passed. {fails} sampled failure(s) are recorded for your records."
+msgstr "Le lot sera marqué comme Accepté. {fails} défaut(s) échantillonné(s) sont enregistrés pour vos dossiers."
+
+msgid "The lot will still be rejected, but an NCR cannot be created until at least one Issue Type is configured."
+msgstr "Le lot sera toujours rejeté, mais un NCR ne peut pas être créé tant qu'au moins un type de problème n'est pas configuré."
 
 msgid "The new version number of the method"
 msgstr "Le nouveau numéro de version de la méthode"

@@ -16,28 +16,48 @@ export const SPECIFICITY = {
 
 export const FAQ: { q: string; a: string }[] = [
   {
+    q: "What can the assistant actually do?",
+    a: "Read and write across every module the identity can reach — query orders and inventory, create jobs, draft quotes, update statuses. It acts as that user, so it can only touch what you've granted."
+  },
+  {
     q: "Do I need an API key?",
-    a: "Not for connector clients — add the URL and authorize in your browser. Keys are for CLI/config clients and headless or CI use."
+    a: "Not for connector clients — Claude.ai, Claude Desktop, and ChatGPT add the URL and authorize in your browser. Keys are for command and config clients (Claude Code, Cursor, VS Code, Codex) and any headless or CI use."
+  },
+  {
+    q: "Which clients are supported?",
+    a: "Any MCP client that speaks HTTP. Connector clients authorize over OAuth; command clients send the key as a bearer header; stdio-only clients bridge through mcp-remote."
   },
   {
     q: "Does it respect my Carbon permissions?",
-    a: "Yes. A connector inherits the role and company of whoever authorizes it; an API key carries its own scopes. The assistant can only do what that identity can."
+    a: "Yes — there's no way around them. A connector inherits the role and company of whoever authorized it; a key carries its own scopes. The assistant can never do what that identity can't."
+  },
+  {
+    q: "Can I give it read-only access?",
+    a: "Yes. Scope a key to only the modules and actions it needs — View with no Create, Update, or Delete makes it read-only. Use a separate key per client so you can re-scope or revoke one without touching the rest."
+  },
+  {
+    q: "Where does my data go?",
+    a: "Carbon doesn't send it anywhere new — your MCP client does, to whatever model provider it runs on, under that provider's terms. Scope keys tightly and prefer a read-only key when you only need to read."
+  },
+  {
+    q: "Is MCP available on my plan?",
+    a: "On Carbon Cloud, API and MCP access is a Business-plan feature — Starter keys are rejected with 403. Self-hosted instances aren't gated."
+  },
+  {
+    q: "Is there a rate limit?",
+    a: "Each key has its own limit and window, set in Settings → API Keys. Go over it and calls return 429 with X-RateLimit-* headers telling the client when to retry."
   },
   {
     q: "I'm getting 401 Unauthorized",
     a: "Key clients: the key is missing, malformed, expired, or deleted — recreate it in Settings → API Keys and update the Authorization header. Connector clients: re-authorize the connection from your client."
   },
   {
+    q: "I'm getting 403 Forbidden",
+    a: "The identity is authenticated but lacks the module permission for that action — or, on Cloud, the company is on the Starter plan. Grant the scope, or switch to a key that has it."
+  },
+  {
     q: "How do I manage or revoke a key?",
-    a: "Each key in Settings → API Keys shows its scopes, rate limit, expiry, and who created it. Delete a key to revoke it; use a separate key per client so revoking one doesn't break the rest."
-  },
-  {
-    q: "Which clients are supported?",
-    a: "Any MCP client that speaks HTTP. Claude.ai, Claude Desktop, and ChatGPT authorize over OAuth; Claude Code, Cursor, VS Code, and Codex send a key header; stdio-only clients bridge through mcp-remote."
-  },
-  {
-    q: "Why can't the assistant see every tool at once?",
-    a: "By design. Three discovery meta-tools — search_tools, describe_tool, and call_tool — let the model find and load only the tools a task needs, keeping its context lean."
+    a: "Each key in Settings → API Keys shows its scopes, rate limit, expiry, and who created it. Delete a key to revoke it instantly; nothing else breaks if you key each client separately."
   }
 ];
 

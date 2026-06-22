@@ -586,8 +586,7 @@ const PartProperties = ({ data }: PartPropertiesProps) => {
           }}
         />
       </ValidatedForm>
-      {(routeData?.partSummary?.itemTrackingType === "Serial" ||
-        routeData?.partSummary?.itemTrackingType === "Batch") && (
+      {routeData?.partSummary?.replenishmentSystem?.includes("Buy") && (
         <ValidatedForm
           defaultValues={{
             requiresInspection:

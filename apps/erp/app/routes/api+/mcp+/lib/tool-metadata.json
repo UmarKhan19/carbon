@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-17T03:39:51.828Z",
-  "totalTools": 1207,
+  "generated": "2026-06-21T22:03:32.744Z",
+  "totalTools": 1209,
   "modules": 15,
   "tools": [
     {
@@ -4112,6 +4112,35 @@
       }
     },
     {
+      "name": "inventory_reconcileReceiptSerialEntities",
+      "module": "inventory",
+      "classification": "WRITE",
+      "description": "reconcile receipt serial entities",
+      "paramCount": 2,
+      "serviceParams": [
+        "client",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "receiptId": {
+            "type": "string"
+          },
+          "lines: {\n      id: string;\n      receivedQuantity: number | null;\n      requiresSerialTracking": {
+            "type": "array",
+            "items": {}
+          }
+        },
+        "required": [
+          "receiptId"
+        ]
+      }
+    },
+    {
       "name": "inventory_getReceiptFiles",
       "module": "inventory",
       "classification": "READ",
@@ -6206,6 +6235,31 @@
       }
     },
     {
+      "name": "inventory_getPickingListRecommendations",
+      "module": "inventory",
+      "classification": "READ",
+      "description": "get picking list recommendations",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "pickingListId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "pickingListId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "pickingListId"
+        ]
+      }
+    },
+    {
       "name": "inventory_getPickingListLine",
       "module": "inventory",
       "classification": "READ",
@@ -7372,7 +7426,7 @@
       "module": "invoicing",
       "classification": "WRITE",
       "description": "insert purchase invoice",
-      "paramCount": 15,
+      "paramCount": 14,
       "serviceParams": [
         "client",
         "input"
@@ -7423,9 +7477,6 @@
           },
           "exchangeRateUpdatedAt": {
             "type": "string"
-          },
-          "supplierShippingCost": {
-            "type": "number"
           },
           "customFields": {}
         },

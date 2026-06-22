@@ -722,6 +722,9 @@ msgstr "拣选"
 msgid "Pick tracked item"
 msgstr "拣选追踪项目"
 
+msgid "Picked"
+msgstr "已拣选"
+
 msgid "Picked quantity"
 msgstr "已拣选数量"
 
