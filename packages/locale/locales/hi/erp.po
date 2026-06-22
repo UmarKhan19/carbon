@@ -71,7 +71,7 @@ msgid "+{0} more"
 msgstr "+{0} और"
 
 msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
-msgstr ""
+msgstr "<0>एक आपूर्तिकर्ता भाग जोड़ें</0> इस आइटम के लिए एक पसंदीदा आपूर्तिकर्ता सेट करने के लिए।"
 
 msgid "<0>delete</0> lets you delete rows. <1>delete</1> will match all rows by default, so remember to specify your filters!"
 msgstr "<0>delete</0> आपको पंक्तियों को हटाने देता है। <1>delete</1> डिफ़ॉल्ट रूप से सभी पंक्तियों से मेल खाएगा, इसलिए अपने फ़िल्टर निर्दिष्ट करना याद रखें!"
@@ -2259,9 +2259,6 @@ msgstr "डिफ़ॉल्ट विधि"
 
 msgid "Default Method Type"
 msgstr "डिफ़ॉल्ट विधि प्रकार"
-
-msgid "Default order when picking serial or batch lots of this item. Pickers can still override it."
-msgstr "इस आइटम के सीरियल या बैच लॉट्स को चुनते समय डिफ़ॉल्ट ऑर्डर। पिकर्स इसे अभी भी ओवरराइड कर सकते हैं।"
 
 msgid "Default Permissions"
 msgstr "डिफ़ॉल्ट अनुमतियाँ"
@@ -5430,7 +5427,7 @@ msgid "No stock"
 msgstr "स्टॉक नहीं"
 
 msgid "No suppliers yet"
-msgstr ""
+msgstr "अभी तक कोई आपूर्तिकर्ता नहीं"
 
 msgid "No time entries for this week"
 msgstr "इस सप्ताह के लिए कोई समय प्रविष्टि नहीं"
@@ -5560,6 +5557,9 @@ msgstr "खोलें"
 
 msgid "Open Actions"
 msgstr "खुली कार्रवाइयाँ"
+
+msgid "Open an NCR for MRB disposition"
+msgstr "MRB निपटान के लिए एक NCR खोलें"
 
 msgid "Open Audit Log"
 msgstr "ऑडिट लॉग खोलें"
@@ -6509,6 +6509,9 @@ msgstr "रिकॉर्ड करें"
 msgid "Record deleted"
 msgstr "रिकॉर्ड हटाया गया"
 
+msgid "Record the inspection result for this sample."
+msgstr "इस नमूने के लिए निरीक्षण परिणाम दर्ज करें।"
+
 msgid "Records"
 msgstr "रिकॉर्ड"
 
@@ -6909,6 +6912,10 @@ msgstr "बिक्रय राजस्व"
 msgid "Sample"
 msgstr "नमूना"
 
+#. placeholder {0}: idx + 1
+msgid "Sample {0}"
+msgstr "नमूना {0}"
+
 msgid "Sample Size"
 msgstr "नमूना आकार"
 
@@ -7300,7 +7307,7 @@ msgid "Share"
 msgstr "साझा करें"
 
 msgid "Share a branded portal link so customers can track their orders and documents."
-msgstr ""
+msgstr "एक ब्रांडेड पोर्टल लिंक साझा करें ताकि ग्राहक अपने ऑर्डर और दस्तावेज़ों को ट्रैक कर सकें।"
 
 msgid "Share Link"
 msgstr "लिंक साझा करें"
@@ -7608,8 +7615,12 @@ msgstr "राज्य / प्रांत"
 
 #. placeholder {0}: lotEntities.length
 #. placeholder {1}: Math.max(0, lotEntities.length - inspected)
-msgid "Statistical acceptance failed, so the entire lot is considered non-conforming (ISO 9001:2015 §8.7). All {0} entities — {passes} sampled pass(es), {fails} failure(s), and {1} un-inspected — will be marked Rejected. An NCR will be opened automatically for MRB disposition."
-msgstr "सांख्यिकीय स्वीकृति विफल हुई, इसलिए पूरा लॉट गैर-अनुरूप माना जाता है (ISO 9001:2015 §8.7)। सभी {0} इकाइयां — {passes} नमूना पास, {fails} विफलता(एं), और {1} निरीक्षण न किए गए — को अस्वीकृत के रूप में चिह्नित किया जाएगा। एक NCR स्वचालित रूप से MRB निपटान के लिए खोला जाएगा।"
+msgid "Statistical acceptance failed, so the entire lot is considered non-conforming (ISO 9001:2015 §8.7). All {0} entities — {passes} sampled pass(es), {fails} failure(s), and {1} un-inspected — will be marked Rejected."
+msgstr "सांख्यिकीय स्वीकृति विफल हुई, इसलिए पूरा लॉट गैर-अनुरूप माना जाता है (ISO 9001:2015 §8.7)। सभी {0} इकाइयां — {passes} नमूना पास, {fails} विफलता(एं), और {1} निरीक्षण न किए गए — को अस्वीकृत के रूप में चिह्नित किया जाएगा।"
+
+#. placeholder {0}: inspection.lotSize
+msgid "Statistical acceptance failed, so the entire lot of {0} is considered non-conforming (ISO 9001:2015 §8.7) — {passes} sampled pass(es) and {fails} failure(s)."
+msgstr "सांख्यिकीय स्वीकृति विफल हुई, इसलिए {0} का पूरा लॉट गैर-अनुरूप माना जाता है (ISO 9001:2015 §8.7) — {passes} नमूना पास और {fails} विफलता(एं)।"
 
 msgid "Status"
 msgstr "स्थिति"
@@ -7960,6 +7971,12 @@ msgstr "वह तारीख जिस दिन ग्राहक को स
 msgid "The date the item is required on-site to cover the period's projected demand."
 msgstr "वह तारीख जिस दिन आइटम साइट पर आवश्यक है ताकि अवधि की अनुमानित मांग को पूरा किया जा सके।"
 
+msgid "The date you received this RFQ from the customer. Defaults to today."
+msgstr ""
+
+msgid "The deadline to send your quote to the customer."
+msgstr ""
+
 msgid "The endpoint that receives a POST request with the updated data when the table is updated"
 msgstr "वह एंडपॉइंट जो तालिका अपडेट होने पर अपडेट किए गए डेटा के साथ POST अनुरोध प्राप्त करता है"
 
@@ -7972,8 +7989,14 @@ msgstr "निम्नलिखित लाइन आइटम कीमते
 msgid "The latest date to place this PO so it arrives by the need-by date, given the supplier's lead time."
 msgstr "इस PO को रखने की नवीनतम तारीख ताकि यह आवश्यकता की तारीख तक पहुंचे, आपूर्तिकर्ता के लीड समय को देखते हुए।"
 
-msgid "The lot will still be rejected, but an NCR cannot be auto-created until at least one Issue Type is configured."
-msgstr "लॉट अभी भी अस्वीकार कर दिया जाएगा, लेकिन कम से कम एक Issue Type कॉन्फ़िगर होने तक NCR स्वचालित रूप से नहीं बनाया जा सकता।"
+msgid "The lot stays open so you can keep inspecting and disposition later. Sampled outcomes are preserved."
+msgstr "लॉट खुला रहता है ताकि आप निरीक्षण जारी रख सकें और बाद में निपटान कर सकें। नमूने के परिणाम संरक्षित रहते हैं।"
+
+msgid "The lot will be marked Passed. {fails} sampled failure(s) are recorded for your records."
+msgstr "लॉट को पास के रूप में चिह्नित किया जाएगा। {fails} नमूना विफलता(एं) आपके रिकॉर्ड के लिए दर्ज की गई हैं।"
+
+msgid "The lot will still be rejected, but an NCR cannot be created until at least one Issue Type is configured."
+msgstr "लॉट अभी भी अस्वीकृत कर दिया जाएगा, लेकिन कम से कम एक Issue Type कॉन्फ़िगर होने तक NCR नहीं बनाया जा सकता।"
 
 msgid "The new version number of the method"
 msgstr "विधि का नया संस्करण संख्या"

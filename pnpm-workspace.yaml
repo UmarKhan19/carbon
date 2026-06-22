@@ -1,7 +1,8 @@
 packages:
   - apps/*
   - ci
-  - examples/*
+  - docs
+  - contrib/building/examples/*
   - packages/*
 
 minimumReleaseAge: 4320

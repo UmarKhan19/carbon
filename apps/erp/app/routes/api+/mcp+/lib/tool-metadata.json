@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-19T19:44:32.262Z",
-  "totalTools": 1211,
+  "generated": "2026-06-22T10:54:37.032Z",
+  "totalTools": 1213,
   "modules": 15,
   "tools": [
     {
@@ -4112,6 +4112,35 @@
       }
     },
     {
+      "name": "inventory_reconcileReceiptSerialEntities",
+      "module": "inventory",
+      "classification": "WRITE",
+      "description": "reconcile receipt serial entities",
+      "paramCount": 2,
+      "serviceParams": [
+        "client",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "receiptId": {
+            "type": "string"
+          },
+          "lines: {\n      id: string;\n      receivedQuantity: number | null;\n      requiresSerialTracking": {
+            "type": "array",
+            "items": {}
+          }
+        },
+        "required": [
+          "receiptId"
+        ]
+      }
+    },
+    {
       "name": "inventory_getReceiptFiles",
       "module": "inventory",
       "classification": "READ",
@@ -6185,6 +6214,31 @@
       "module": "inventory",
       "classification": "READ",
       "description": "get picking list availability",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "pickingListId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "pickingListId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "pickingListId"
+        ]
+      }
+    },
+    {
+      "name": "inventory_getPickingListRecommendations",
+      "module": "inventory",
+      "classification": "READ",
+      "description": "get picking list recommendations",
       "paramCount": 1,
       "serviceParams": [
         "client",

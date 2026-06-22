@@ -722,6 +722,9 @@ msgstr "Kommissionieren"
 msgid "Pick tracked item"
 msgstr "Verfolgtes Element auswählen"
 
+msgid "Picked"
+msgstr "Gepickt"
+
 msgid "Picked quantity"
 msgstr "Gepickte Menge"
 

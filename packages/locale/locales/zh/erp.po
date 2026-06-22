@@ -71,7 +71,7 @@ msgid "+{0} more"
 msgstr "+{0} 更多"
 
 msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
-msgstr ""
+msgstr "<0>为此项目添加供应商零件</0>以设置首选供应商。"
 
 msgid "<0>delete</0> lets you delete rows. <1>delete</1> will match all rows by default, so remember to specify your filters!"
 msgstr "<0>delete</0> 让您删除行。<1>delete</1> 默认会匹配所有行，所以请记住指定您的过滤条件！"
@@ -2259,9 +2259,6 @@ msgstr "默认方法"
 
 msgid "Default Method Type"
 msgstr "默认方法类型"
-
-msgid "Default order when picking serial or batch lots of this item. Pickers can still override it."
-msgstr "拣选此物品的序列号或批次时的默认顺序。拣选员仍可以覆盖它。"
 
 msgid "Default Permissions"
 msgstr "默认权限"
@@ -5430,7 +5427,7 @@ msgid "No stock"
 msgstr "无库存"
 
 msgid "No suppliers yet"
-msgstr ""
+msgstr "还没有供应商"
 
 msgid "No time entries for this week"
 msgstr "本周没有时间条目"
@@ -5560,6 +5557,9 @@ msgstr "打开"
 
 msgid "Open Actions"
 msgstr "开放操作"
+
+msgid "Open an NCR for MRB disposition"
+msgstr "为MRB处置打开NCR"
 
 msgid "Open Audit Log"
 msgstr "打开审计日志"
@@ -6509,6 +6509,9 @@ msgstr "录音"
 msgid "Record deleted"
 msgstr "记录已删除"
 
+msgid "Record the inspection result for this sample."
+msgstr "记录此样本的检验结果。"
+
 msgid "Records"
 msgstr "记录"
 
@@ -6909,6 +6912,10 @@ msgstr "销售收入"
 msgid "Sample"
 msgstr "样本"
 
+#. placeholder {0}: idx + 1
+msgid "Sample {0}"
+msgstr "样本 {0}"
+
 msgid "Sample Size"
 msgstr "样本量"
 
@@ -7300,7 +7307,7 @@ msgid "Share"
 msgstr "分享"
 
 msgid "Share a branded portal link so customers can track their orders and documents."
-msgstr ""
+msgstr "分享品牌门户链接，让客户可以跟踪他们的订单和文档。"
 
 msgid "Share Link"
 msgstr "分享链接"
@@ -7608,8 +7615,12 @@ msgstr "州/省"
 
 #. placeholder {0}: lotEntities.length
 #. placeholder {1}: Math.max(0, lotEntities.length - inspected)
-msgid "Statistical acceptance failed, so the entire lot is considered non-conforming (ISO 9001:2015 §8.7). All {0} entities — {passes} sampled pass(es), {fails} failure(s), and {1} un-inspected — will be marked Rejected. An NCR will be opened automatically for MRB disposition."
-msgstr "统计验收失败，因此整个批次被视为不符合要求 (ISO 9001:2015 §8.7)。所有 {0} 个实体 — {passes} 个抽样合格品、{fails} 个不合格品和 {1} 个未检验品 — 将被标记为已拒收。不符合项报告 (NCR) 将自动开启以供物料评审委员会 (MRB) 处置。"
+msgid "Statistical acceptance failed, so the entire lot is considered non-conforming (ISO 9001:2015 §8.7). All {0} entities — {passes} sampled pass(es), {fails} failure(s), and {1} un-inspected — will be marked Rejected."
+msgstr "统计验收失败，因此整个批次被视为不符合要求 (ISO 9001:2015 §8.7)。所有 {0} 个实体 — {passes} 个抽样合格品、{fails} 个不合格品和 {1} 个未检验品 — 将被标记为拒收。"
+
+#. placeholder {0}: inspection.lotSize
+msgid "Statistical acceptance failed, so the entire lot of {0} is considered non-conforming (ISO 9001:2015 §8.7) — {passes} sampled pass(es) and {fails} failure(s)."
+msgstr "统计验收失败，因此整个批次 {0} 被视为不符合要求 (ISO 9001:2015 §8.7) — {passes} 个抽样合格品和 {fails} 个不合格品。"
 
 msgid "Status"
 msgstr "状态"
@@ -7960,6 +7971,12 @@ msgstr "客户期望收到货物的日期"
 msgid "The date the item is required on-site to cover the period's projected demand."
 msgstr "该项目需要在现场到达的日期，以满足该期间的预计需求。"
 
+msgid "The date you received this RFQ from the customer. Defaults to today."
+msgstr ""
+
+msgid "The deadline to send your quote to the customer."
+msgstr ""
+
 msgid "The endpoint that receives a POST request with the updated data when the table is updated"
 msgstr "接收表格更新时包含更新数据的POST请求的端点"
 
@@ -7972,8 +7989,14 @@ msgstr "以下行项目缺少价格或交货期："
 msgid "The latest date to place this PO so it arrives by the need-by date, given the supplier's lead time."
 msgstr "最迟下达此采购订单的日期，以便在考虑供应商交货期的情况下按需求日期前送达。"
 
-msgid "The lot will still be rejected, but an NCR cannot be auto-created until at least one Issue Type is configured."
-msgstr "该批次仍将被拒收，但在至少配置一个问题类型之前，无法自动创建NCR。"
+msgid "The lot stays open so you can keep inspecting and disposition later. Sampled outcomes are preserved."
+msgstr "该批次保持开放状态，您可以继续检验并稍后进行处置。已取样的结果将被保留。"
+
+msgid "The lot will be marked Passed. {fails} sampled failure(s) are recorded for your records."
+msgstr "该批次将被标记为通过。{fails} 个抽样失败已记录在案。"
+
+msgid "The lot will still be rejected, but an NCR cannot be created until at least one Issue Type is configured."
+msgstr "该批次仍将被拒收，但在至少配置一个问题类型之前，无法创建NCR。"
 
 msgid "The new version number of the method"
 msgstr "该方法的新版本号"
