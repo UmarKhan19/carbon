@@ -12142,7 +12142,7 @@ export type Database = {
           inspectedBy: string | null
           notes: string | null
           status: Database["public"]["Enums"]["inboundInspectionSampleStatus"]
-          trackedEntityId: string
+          trackedEntityId: string | null
           updatedAt: string | null
           updatedBy: string | null
         }
@@ -12156,7 +12156,7 @@ export type Database = {
           inspectedBy?: string | null
           notes?: string | null
           status?: Database["public"]["Enums"]["inboundInspectionSampleStatus"]
-          trackedEntityId: string
+          trackedEntityId?: string | null
           updatedAt?: string | null
           updatedBy?: string | null
         }
@@ -12170,7 +12170,7 @@ export type Database = {
           inspectedBy?: string | null
           notes?: string | null
           status?: Database["public"]["Enums"]["inboundInspectionSampleStatus"]
-          trackedEntityId?: string
+          trackedEntityId?: string | null
           updatedAt?: string | null
           updatedBy?: string | null
         }
@@ -12283,7 +12283,7 @@ export type Database = {
           {
             foreignKeyName: "inboundInspectionSample_trackedEntityId_fkey"
             columns: ["trackedEntityId"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "trackedEntity"
             referencedColumns: ["id"]
           },
@@ -13011,6 +13011,7 @@ export type Database = {
           replenishmentSystem: Database["public"]["Enums"]["itemReplenishmentSystem"]
           requiresInspection: boolean
           revision: string | null
+          sourcingType: Database["public"]["Enums"]["sourcingType"]
           thumbnailPath: string | null
           trackingMethod: string | null
           type: Database["public"]["Enums"]["itemType"]
@@ -13037,6 +13038,7 @@ export type Database = {
           replenishmentSystem?: Database["public"]["Enums"]["itemReplenishmentSystem"]
           requiresInspection?: boolean
           revision?: string | null
+          sourcingType?: Database["public"]["Enums"]["sourcingType"]
           thumbnailPath?: string | null
           trackingMethod?: string | null
           type: Database["public"]["Enums"]["itemType"]
@@ -13063,6 +13065,7 @@ export type Database = {
           replenishmentSystem?: Database["public"]["Enums"]["itemReplenishmentSystem"]
           requiresInspection?: boolean
           revision?: string | null
+          sourcingType?: Database["public"]["Enums"]["sourcingType"]
           thumbnailPath?: string | null
           trackingMethod?: string | null
           type?: Database["public"]["Enums"]["itemType"]
@@ -31521,7 +31524,7 @@ export type Database = {
           employeeId: string | null
           expirationDate: string | null
           id: string
-          internalNotes: string | null
+          internalNotes: Json | null
           locationId: string | null
           notes: Json | null
           revisionId: number
@@ -31540,7 +31543,7 @@ export type Database = {
           employeeId?: string | null
           expirationDate?: string | null
           id?: string
-          internalNotes?: string | null
+          internalNotes?: Json | null
           locationId?: string | null
           notes?: Json | null
           revisionId?: number
@@ -31559,7 +31562,7 @@ export type Database = {
           employeeId?: string | null
           expirationDate?: string | null
           id?: string
-          internalNotes?: string | null
+          internalNotes?: Json | null
           locationId?: string | null
           notes?: Json | null
           revisionId?: number
@@ -39224,7 +39227,7 @@ export type Database = {
           },
         ]
       }
-      searchIndex_d8nlqei680h02ctl3jt0: {
+      searchIndex_d8lth5d460h02afg19og: {
         Row: {
           createdAt: string
           description: string | null
@@ -39266,7 +39269,7 @@ export type Database = {
         }
         Relationships: []
       }
-      searchIndex_Lk5DVhpLGA5fxtFQYdhWY3: {
+      searchIndex_M3T8GH5QxJoQYRZ3nQzQMQ: {
         Row: {
           createdAt: string
           description: string | null
@@ -55468,6 +55471,7 @@ export type Database = {
             | null
           revision: string | null
           revisions: Json | null
+          sourcingType: Database["public"]["Enums"]["sourcingType"] | null
           supplierIds: string | null
           tags: string[] | null
           thumbnailPath: string | null
@@ -57058,14 +57062,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["supplierCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["supplierCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -57655,7 +57659,7 @@ export type Database = {
           expirationDate: string | null
           favorite: boolean | null
           id: string | null
-          internalNotes: string | null
+          internalNotes: Json | null
           locationId: string | null
           locationName: string | null
           notes: Json | null
@@ -60491,6 +60495,13 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
+            columns: ["customerCountryCode"]
+            isOneToOne: false
+            referencedRelation: "country"
+            referencedColumns: ["alpha2"]
+          },
+          {
+            foreignKeyName: "address_countryCode_fkey"
             columns: ["invoiceCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
@@ -60499,13 +60510,6 @@ export type Database = {
           {
             foreignKeyName: "address_countryCode_fkey"
             columns: ["shipmentCountryCode"]
-            isOneToOne: false
-            referencedRelation: "country"
-            referencedColumns: ["alpha2"]
-          },
-          {
-            foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -61102,6 +61106,7 @@ export type Database = {
           customerLocationId: string | null
           customerReference: string | null
           customFields: Json | null
+          displayStatus: Database["public"]["Enums"]["salesOrderStatus"] | null
           dropShipment: boolean | null
           exchangeRate: number | null
           exchangeRateUpdatedAt: string | null
@@ -63791,6 +63796,7 @@ export type Database = {
             | null
           revision: string | null
           revisions: Json | null
+          sourcingType: Database["public"]["Enums"]["sourcingType"] | null
           supplierIds: string | null
           tags: string[] | null
           thumbnailPath: string | null
@@ -65495,6 +65501,7 @@ export type Database = {
           requiresInspection: boolean
           revision: string
           revisions: Json
+          sourcingType: Database["public"]["Enums"]["sourcingType"]
           tags: string[]
           thumbnailPath: string
           unitOfMeasure: string
@@ -65511,6 +65518,19 @@ export type Database = {
         Returns: {
           availableQuantity: number
           pickingListLineId: string
+        }[]
+      }
+      get_picking_list_tracked_available: {
+        Args: { p_picking_list_id: string }
+        Returns: {
+          availableQuantity: number
+          createdAt: string
+          expirationDate: string
+          itemId: string
+          readableId: string
+          storageUnitId: string
+          storageUnitName: string
+          trackedEntityId: string
         }[]
       }
       get_picking_schedule: {
@@ -66009,6 +66029,7 @@ export type Database = {
           requiresInspection: boolean
           revision: string
           revisions: Json
+          sourcingType: Database["public"]["Enums"]["sourcingType"]
           tags: string[]
           thumbnailPath: string
           unitOfMeasure: string
@@ -66819,6 +66840,7 @@ export type Database = {
         | "Purchase Order"
         | "Maintenance Consumption"
         | "Non-Conformance"
+        | "Inbound Inspection"
       itemLedgerType:
         | "Purchase"
         | "Sale"
@@ -68108,6 +68130,7 @@ export const Constants = {
         "Purchase Order",
         "Maintenance Consumption",
         "Non-Conformance",
+        "Inbound Inspection",
       ],
       itemLedgerType: [
         "Purchase",

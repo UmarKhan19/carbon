@@ -1095,6 +1095,9 @@ msgstr "Bilanço"
 msgid "Balloon"
 msgstr "Balon"
 
+msgid "Bars show each week's flow: <0>supply</0> pushes inventory up, <1>demand</1> pulls it down. The <2>line</2> is your projected on-hand inventory — when it dips below <3>safety stock</3> you're at risk, and below zero is a <4>stockout</4>."
+msgstr ""
+
 msgid "Base Currency"
 msgstr "Temel Para Birimi"
 
@@ -1124,6 +1127,9 @@ msgstr "Lot Boyutu"
 
 msgid "Batch Tracking"
 msgstr "Lot Takibi"
+
+msgid "Below safety stock"
+msgstr ""
 
 msgid "Beta"
 msgstr "Beta"
@@ -1613,6 +1619,12 @@ msgstr "İçe Aktarmayı Onayla"
 
 msgid "Confirm Password"
 msgstr "Şifreyi Onayla"
+
+msgid "Confirmed incoming stock — purchase & production orders (bars above zero)."
+msgstr ""
+
+msgid "Confirmed outgoing stock — sales orders & job materials (bars below zero)."
+msgstr ""
 
 msgid "Connect Carbon to your accounting, project management, and CAD tools and much more."
 msgstr "Carbon'ı muhasebe, proje yönetimi ve CAD araçlarınızla ve çok daha fazlasıyla bağlayın."
@@ -3959,6 +3971,9 @@ msgstr "Çözülen fiyatın nasıl hesaplandığı."
 msgid "How this price was calculated"
 msgstr "Bu fiyat nasıl hesaplandı"
 
+msgid "How to read this chart"
+msgstr ""
+
 msgid "Humidity"
 msgstr "Nemlilik"
 
@@ -5471,6 +5486,9 @@ msgstr "Bu görünüme herhangi bir sıralama uygulanmadı"
 msgid "No stock"
 msgstr "Stok yok"
 
+msgid "No stockout projected in the next 48 weeks"
+msgstr ""
+
 msgid "No suppliers yet"
 msgstr "Henüz tedarikçi yok"
 
@@ -5969,6 +5987,9 @@ msgstr "Plan"
 msgid "Plan Type"
 msgstr "Plan Türü"
 
+msgid "Planned"
+msgstr ""
+
 msgid "Planned End"
 msgstr "Planlanan Bitiş"
 
@@ -6220,8 +6241,28 @@ msgstr "İlerleme"
 msgid "Project"
 msgstr "Proje"
 
+msgid "Projected demand exploded from BOMs and forecasts."
+msgstr ""
+
+msgid "Projected inventory"
+msgstr ""
+
+msgid "Projected on hand"
+msgstr ""
+
 msgid "Projected stock"
 msgstr "Tahmini stok"
+
+#. placeholder {0}: formatWeek(stockoutDate)
+msgid "Projected stockout the week of {0}"
+msgstr ""
+
+#. placeholder {0}: formatWeek(belowSafetyDate)
+msgid "Projected to drop below safety stock the week of {0}"
+msgstr ""
+
+msgid "Projected to stay above safety stock"
+msgstr ""
 
 msgid "Projection"
 msgstr "Projeksiyon"
@@ -6869,6 +6910,9 @@ msgstr "Kurallar"
 msgid "Run Test"
 msgstr "Testi Çalıştır"
 
+msgid "Running inventory after each week's supply and demand — the line."
+msgstr ""
+
 msgid "Running Total"
 msgstr "Kümülatif Toplam"
 
@@ -6877,6 +6921,10 @@ msgstr "Güvenlik stoğu"
 
 msgid "Safety Stock"
 msgstr "Güvenlik Stoğu"
+
+#. placeholder {0}: numberFormatter.format(safetyStockValue)
+msgid "Safety stock ({0})"
+msgstr ""
 
 msgid "Safety Stock:"
 msgstr "Güvenlik Stoğu:"
@@ -7681,6 +7729,9 @@ msgstr "Stok Transfer Sihirbazı"
 msgid "Stock Transfers"
 msgstr "Stok Transferleri"
 
+msgid "Stockout"
+msgstr ""
+
 msgid "Storage client not available"
 msgstr "Depolama istemcisi kullanılamıyor"
 
@@ -7758,6 +7809,9 @@ msgstr "Başarıyla yeni bir revizyon oluşturuldu"
 
 msgid "Suffix"
 msgstr "Sonek"
+
+msgid "Suggested orders you haven't placed yet."
+msgstr ""
 
 msgid "Suggestion"
 msgstr "Öneri"
@@ -7987,6 +8041,9 @@ msgstr "Nakit indirimi için mevcut olan gün sayısı hesaplama yönteminden it
 
 msgid "The amount of days after the calculation method that the payment is due"
 msgstr "Ödeme vadesinin hesaplama yönteminden sonraki gün sayısı"
+
+msgid "The dashed threshold you don't want inventory to fall below."
+msgstr ""
 
 msgid "The date the customer expects to receive the goods"
 msgstr "Müşterinin malı almayı beklediği tarih"
@@ -8876,6 +8933,10 @@ msgstr "Web Sitesi"
 
 msgid "Wednesday"
 msgstr "Çarşamba"
+
+#. placeholder {0}: dateFormatter.format(parseDate(d.startDate).toDate(getLocalTimeZone()))
+msgid "Week of {0}"
+msgstr ""
 
 msgid "Weeks Open"
 msgstr "Açık Haftalar"

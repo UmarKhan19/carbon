@@ -12283,7 +12283,7 @@ export type Database = {
           {
             foreignKeyName: "inboundInspectionSample_trackedEntityId_fkey"
             columns: ["trackedEntityId"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "trackedEntity"
             referencedColumns: ["id"]
           },
@@ -31524,7 +31524,7 @@ export type Database = {
           employeeId: string | null
           expirationDate: string | null
           id: string
-          internalNotes: string | null
+          internalNotes: Json | null
           locationId: string | null
           notes: Json | null
           revisionId: number
@@ -31543,7 +31543,7 @@ export type Database = {
           employeeId?: string | null
           expirationDate?: string | null
           id?: string
-          internalNotes?: string | null
+          internalNotes?: Json | null
           locationId?: string | null
           notes?: Json | null
           revisionId?: number
@@ -31562,7 +31562,7 @@ export type Database = {
           employeeId?: string | null
           expirationDate?: string | null
           id?: string
-          internalNotes?: string | null
+          internalNotes?: Json | null
           locationId?: string | null
           notes?: Json | null
           revisionId?: number
@@ -39227,7 +39227,7 @@ export type Database = {
           },
         ]
       }
-      searchIndex_d8nlqei680h02ctl3jt0: {
+      searchIndex_d8lth5d460h02afg19og: {
         Row: {
           createdAt: string
           description: string | null
@@ -39269,7 +39269,7 @@ export type Database = {
         }
         Relationships: []
       }
-      searchIndex_Lk5DVhpLGA5fxtFQYdhWY3: {
+      searchIndex_M3T8GH5QxJoQYRZ3nQzQMQ: {
         Row: {
           createdAt: string
           description: string | null
@@ -57062,14 +57062,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["supplierCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["supplierCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -57659,7 +57659,7 @@ export type Database = {
           expirationDate: string | null
           favorite: boolean | null
           id: string | null
-          internalNotes: string | null
+          internalNotes: Json | null
           locationId: string | null
           locationName: string | null
           notes: Json | null
@@ -60495,6 +60495,13 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
+            columns: ["customerCountryCode"]
+            isOneToOne: false
+            referencedRelation: "country"
+            referencedColumns: ["alpha2"]
+          },
+          {
+            foreignKeyName: "address_countryCode_fkey"
             columns: ["invoiceCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
@@ -60503,13 +60510,6 @@ export type Database = {
           {
             foreignKeyName: "address_countryCode_fkey"
             columns: ["shipmentCountryCode"]
-            isOneToOne: false
-            referencedRelation: "country"
-            referencedColumns: ["alpha2"]
-          },
-          {
-            foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
