@@ -197,7 +197,6 @@ const PickMethodForm = ({
               <Select
                 name="sortMethod"
                 label={t`Pick Order`}
-                helperText={t`Default order when picking serial or batch lots of this item. Pickers can still override it.`}
                 options={pickOrderOptions}
               />
             )}

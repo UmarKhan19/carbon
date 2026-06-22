@@ -143,6 +143,7 @@ export default function IssueDetailsRoute() {
   return (
     <VStack spacing={2}>
       <IssueContent
+        key={id}
         id={id}
         title={t`Description of Issue`}
         subTitle={nonConformance?.name}
