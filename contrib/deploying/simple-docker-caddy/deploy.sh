@@ -11,7 +11,7 @@
 #   ./deploy.sh deploy            # docker stack deploy
 #   ./deploy.sh up                # build + deploy + wait + migrate (one shot)
 #   ./deploy.sh migrate           # (re)apply DB migrations only
-#   ./deploy.sh secret <name>     # create/rotate one secret from stdin
+#   ./deploy.sh secret <name> <value>   # create/rotate one secret
 #   ./deploy.sh status            # services + tasks
 #   ./deploy.sh logs <service>    # follow a service's logs (e.g. erp, caddy)
 #   ./deploy.sh down [--volumes]  # remove the stack (--volumes also wipes data)
@@ -121,7 +121,7 @@ cmd_init() {
     log "Secrets ready."
     warn "Next:"
     warn "  1. Edit $ENV_FILE — set CARBON_REPO, the *_HOST/*_URL, ACME_EMAIL, SMTP."
-    warn "  2. Set real secrets:  $SCRIPT_NAME secret resend_api_key   (then smtp_password)"
+    warn "  2. Set real secrets:  $SCRIPT_NAME secret resend_api_key re_xxx   (then smtp_password)"
     warn "  3. $SCRIPT_NAME up"
 }
 
@@ -198,16 +198,22 @@ cmd_up() {
     log "Stack up. Check: $SCRIPT_NAME status"
 }
 
-# ── secret (create or rotate one secret from stdin) ─────────────────────────────
+# ── secret (create or rotate one secret) ────────────────────────────────────────
+# Value comes from the argument, or from stdin when piped:
+#   deploy.sh secret resend_api_key re_xxx
+#   printf '%s' "$VALUE" | deploy.sh secret resend_api_key
 cmd_secret() {
     require_cmds docker
-    local name="${1:?usage: $SCRIPT_NAME secret <name> (value read from stdin)}"
-    local val; val=$(cat)
-    [ -n "$val" ] || error "empty value on stdin"
+    local name="${1:?usage: $SCRIPT_NAME secret <name> <value>}"
+    local val
+    if [ "$#" -ge 2 ]; then val="$2"
+    elif [ ! -t 0 ]; then val=$(cat)
+    else error "usage: $SCRIPT_NAME secret $name <value>  (or pipe the value on stdin)"
+    fi
+    [ -n "$val" ] || error "empty value for secret '$name'"
     if secret_exists "$name"; then
-        warn "secret '$name' exists. Rotating requires services to re-read it:"
-        warn "  $SCRIPT_NAME down && $SCRIPT_NAME secret $name && $SCRIPT_NAME up"
-        docker secret rm "$name" >/dev/null 2>&1 || error "secret '$name' is in use — bring the stack down first"
+        docker secret rm "$name" >/dev/null 2>&1 \
+            || error "secret '$name' is in use — run '$SCRIPT_NAME down' first, then set it"
     fi
     create_secret "$name" "$val"
 }
