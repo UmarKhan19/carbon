@@ -172,15 +172,16 @@ services:
   postgres:
     image: supabase/postgres:15.14.1.112
     entrypoint: ["/usr/local/bin/carbon-secrets-entrypoint.sh"]
-    # Original entrypoint+cmd, plus production tuning. shared_preload_libraries
-    # must be a server flag (it cannot be set via ALTER SYSTEM at runtime).
+    # Image's own entrypoint+cmd. Do NOT override shared_preload_libraries here:
+    # the image's postgresql.conf already preloads the full set Carbon needs
+    # (pg_stat_statements, pg_net, pg_cron, pgsodium, supabase_vault, …). Passing
+    # -c shared_preload_libraries=… would REPLACE that list and break extensions
+    # (e.g. the webhooks migration's `CREATE EXTENSION pg_net`).
     command:
       - docker-entrypoint.sh
       - postgres
       - -c
       - config_file=/etc/postgresql/postgresql.conf
-      - -c
-      - shared_preload_libraries=pg_stat_statements
     networks:
       internal:
         aliases: [db]
