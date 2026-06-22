@@ -82,7 +82,7 @@ services:
     volumes:
       - *shim
     healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
       interval: 15s
       timeout: 6s
       retries: 5
@@ -121,7 +121,7 @@ services:
     volumes:
       - *shim
     healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
       interval: 15s
       timeout: 6s
       retries: 5
@@ -156,7 +156,10 @@ services:
       - caddy-data:/data
       - caddy-config:/config
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:2019/config/"]
+      # 127.0.0.1, NOT localhost: /etc/hosts resolves localhost to ::1 (IPv6) but
+      # caddy's admin API listens on 127.0.0.1 only, and busybox wget won't fall
+      # back — using localhost makes this check always fail and flaps caddy.
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:2019/config/"]
       interval: 20s
       timeout: 5s
       retries: 5
@@ -217,7 +220,7 @@ services:
         target: /docker-entrypoint-initdb.d/zz-carbon-02-performance.sh
         read_only: true
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "postgres", "-h", "localhost"]
+      test: ["CMD", "pg_isready", "-U", "postgres", "-h", "127.0.0.1"]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -373,7 +376,7 @@ services:
         - CMD
         - node
         - -e
-        - "fetch('http://localhost:5000/status').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+        - "fetch('http://127.0.0.1:5000/status').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
       interval: 5s
       timeout: 5s
       retries: 30
@@ -427,6 +430,15 @@ services:
       SUPABASE_SERVICE_KEY: __SERVICE_ROLE_KEY__
     volumes:
       - *shim
+    # The image's built-in healthcheck demands HTTP 200 from /api/platform/profile
+    # with no start_period, which SIGKILLs a studio that is in fact serving. Override
+    # with a lenient check (server answers at all) on 127.0.0.1 + a boot grace period.
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/platform/profile').then(()=>process.exit(0)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
     # Internal admin UI. Not published. Reach it via the optional studio.* route
     # in the Caddyfile (behind basic_auth) or an SSH tunnel — never expose openly.
     deploy:
