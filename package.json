@@ -58,6 +58,7 @@
     "lingui:compile": "lingui compile --namespace es",
     "lingui:extract": "lingui extract --clean",
     "lingui:clean": "node ./scripts/strip-po-headers.mjs",
+    "postinstall": "pnpm --filter @carbon/documents generate:fonts",
     "prepare": "pnpm exec husky install",
     "test": "turbo run test",
     "tool:new": "tsx scripts/create-tool.ts",
