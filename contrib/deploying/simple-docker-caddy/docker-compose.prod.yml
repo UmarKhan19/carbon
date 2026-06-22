@@ -420,6 +420,10 @@ services:
       - anon_key
       - service_role_key
     environment:
+      # Next.js standalone binds to $HOSTNAME, which Docker sets to the container ID
+      # (→ the overlay IP only). Force 0.0.0.0 so it also listens on 127.0.0.1 for the
+      # healthcheck and on the service VIP for kong/caddy.
+      HOSTNAME: 0.0.0.0
       STUDIO_PG_META_URL: http://meta:8080
       POSTGRES_PASSWORD: __POSTGRES_PASSWORD__
       DEFAULT_ORGANIZATION_NAME: Carbon
