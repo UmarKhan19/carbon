@@ -593,17 +593,37 @@ function EnumMappingStep({
             name: `${name}-${csvValue}`,
             value: mappings[csvValue],
             options,
+            // Optional so the combobox shows a clear (×) affordance. Clearing
+            // resets the row to empty — this lets a mis-pick be undone, and
+            // clearing the Default row sets the field back to "leave blank".
+            isOptional: true,
             onChange: (value: { value: string; label: ReactNode } | null) => {
-              if (value?.value) {
-                onEnumMappingChange(name, csvValue, value.value);
-              }
+              onEnumMappingChange(name, csvValue, value?.value ?? "");
             }
           };
           return (
             <Fragment key={csvValue}>
               <div className="flex min-w-0 items-center justify-between gap-2">
-                <div className="min-w-0 truncate" title={csvValue}>
-                  {csvValue}
+                <div className="flex min-w-0 items-center gap-1.5">
+                  <div className="min-w-0 truncate" title={csvValue}>
+                    {csvValue}
+                  </div>
+                  {csvValue === "Default" && (
+                    <TooltipProvider delayDuration={50}>
+                      <Tooltip>
+                        <TooltipTrigger className="flex-shrink-0">
+                          <LuInfo className="text-muted-foreground" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-64 p-2 text-sm">
+                          <Trans>
+                            The value Carbon assigns when this field's cell is
+                            empty or doesn't match any value above. Clear the
+                            selection to leave those rows blank.
+                          </Trans>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
                 </div>
                 <LuMoveRight className="flex-shrink-0 text-muted-foreground" />
               </div>

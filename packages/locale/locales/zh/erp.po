@@ -7988,6 +7988,9 @@ msgstr "存储服务未及时响应。请重试。"
 msgid "The unit price of the item at the time of the purchase"
 msgstr "购买时该商品的单价"
 
+msgid "The value Carbon assigns when this field's cell is empty or doesn't match any value above. Clear the selection to leave those rows blank."
+msgstr ""
+
 msgid "Theme"
 msgstr "主题"
 

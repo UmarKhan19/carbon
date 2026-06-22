@@ -7988,6 +7988,9 @@ msgstr "Usługa magazynowania nie odpowiedziała w czasie. Spróbuj ponownie."
 msgid "The unit price of the item at the time of the purchase"
 msgstr "Cena jednostkowa towaru w momencie zakupu"
 
+msgid "The value Carbon assigns when this field's cell is empty or doesn't match any value above. Clear the selection to leave those rows blank."
+msgstr ""
+
 msgid "Theme"
 msgstr "Motyw"
 
