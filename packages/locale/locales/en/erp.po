@@ -205,6 +205,9 @@ msgstr "Accumulation Period (Weeks)"
 msgid "Accumulation Period:"
 msgstr "Accumulation Period:"
 
+msgid "Action"
+msgstr "Action"
+
 msgid "Action Items"
 msgstr "Action Items"
 
@@ -1577,6 +1580,9 @@ msgstr "Confirm ID Change"
 
 msgid "Confirm Import"
 msgstr "Confirm Import"
+
+msgid "Confirm Mapping"
+msgstr "Confirm Mapping"
 
 msgid "Confirm Password"
 msgstr "Confirm Password"
@@ -3340,6 +3346,9 @@ msgstr "External Reference"
 msgid "Extracted customer \"{0}\" was not found. Please create it or select an existing one."
 msgstr "Extracted customer \"{0}\" was not found. Please create it or select an existing one."
 
+msgid "Extracted Part Number"
+msgstr "Extracted Part Number"
+
 #. placeholder {0}: data.supplierName
 msgid "Extracted supplier \"{0}\" was not found. Please create it or select an existing one."
 msgstr "Extracted supplier \"{0}\" was not found. Please create it or select an existing one."
@@ -4485,6 +4494,9 @@ msgstr "Loading associated jobs..."
 msgid "Loading item details..."
 msgstr "Loading item details..."
 
+msgid "Loading suggestions..."
+msgstr "Loading suggestions..."
+
 msgid "Loading..."
 msgstr "Loading..."
 
@@ -4637,6 +4649,12 @@ msgstr "Manufacturer"
 
 msgid "Manufacturing"
 msgstr "Manufacturing"
+
+msgid "Map Extracted Lines"
+msgstr "Map Extracted Lines"
+
+msgid "Map Lines Now"
+msgstr "Map Lines Now"
 
 msgid "Mark as Planned"
 msgstr "Mark as Planned"
@@ -7438,6 +7456,9 @@ msgstr "Skip scheduled maintenance on company holidays"
 msgid "Skipped"
 msgstr "Skipped"
 
+msgid "Some lines extracted from the PDF could not be automatically mapped to your inventory items. Please map them below."
+msgstr "Some lines extracted from the PDF could not be automatically mapped to your inventory items. Please map them below."
+
 msgid "Something went wrong. Please try again."
 msgstr "Something went wrong. Please try again."
 
@@ -8357,6 +8378,9 @@ msgstr "Unlink"
 msgid "Unlink job from sales order?"
 msgstr "Unlink job from sales order?"
 
+msgid "Unmapped Extracted Lines"
+msgstr "Unmapped Extracted Lines"
+
 msgid "Unpick"
 msgstr "Unpick"
 
@@ -8856,6 +8880,9 @@ msgstr "Why is the expiration being changed?"
 msgid "Why is this included?"
 msgstr "Why is this included?"
 
+msgid "Will remain as comment line"
+msgstr "Will remain as comment line"
+
 msgid "WIP"
 msgstr "WIP"
 
@@ -8935,6 +8962,10 @@ msgstr ""
 "                        {0} than the\n"
 "                        ordered quantity of {1}. What would you like\n"
 "                        to do with the extra parts?"
+
+#. placeholder {0}: unmappedLines.length
+msgid "You have {0} lines extracted from a PDF that are not mapped to any inventory items."
+msgstr "You have {0} lines extracted from a PDF that are not mapped to any inventory items."
 
 msgid "You haven't created any contacts yet."
 msgstr "You haven't created any contacts yet."

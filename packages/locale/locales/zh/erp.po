@@ -205,6 +205,9 @@ msgstr "累积期（周）"
 msgid "Accumulation Period:"
 msgstr "累积期间："
 
+msgid "Action"
+msgstr ""
+
 msgid "Action Items"
 msgstr "操作项"
 
@@ -1577,6 +1580,9 @@ msgstr "确认ID更改"
 
 msgid "Confirm Import"
 msgstr "确认导入"
+
+msgid "Confirm Mapping"
+msgstr ""
 
 msgid "Confirm Password"
 msgstr "确认密码"
@@ -3340,6 +3346,9 @@ msgstr "外部参考"
 msgid "Extracted customer \"{0}\" was not found. Please create it or select an existing one."
 msgstr ""
 
+msgid "Extracted Part Number"
+msgstr ""
+
 #. placeholder {0}: data.supplierName
 msgid "Extracted supplier \"{0}\" was not found. Please create it or select an existing one."
 msgstr ""
@@ -4485,6 +4494,9 @@ msgstr "正在加载关联的工作..."
 msgid "Loading item details..."
 msgstr "正在加载项目详情..."
 
+msgid "Loading suggestions..."
+msgstr ""
+
 msgid "Loading..."
 msgstr "加载中..."
 
@@ -4637,6 +4649,12 @@ msgstr "制造商"
 
 msgid "Manufacturing"
 msgstr "制造"
+
+msgid "Map Extracted Lines"
+msgstr ""
+
+msgid "Map Lines Now"
+msgstr ""
 
 msgid "Mark as Planned"
 msgstr "标记为已计划"
@@ -7438,6 +7456,9 @@ msgstr "跳过公司假期的计划维护"
 msgid "Skipped"
 msgstr "已跳过"
 
+msgid "Some lines extracted from the PDF could not be automatically mapped to your inventory items. Please map them below."
+msgstr ""
+
 msgid "Something went wrong. Please try again."
 msgstr "出现问题。请重试。"
 
@@ -8357,6 +8378,9 @@ msgstr "取消链接"
 msgid "Unlink job from sales order?"
 msgstr "从销售订单取消关联工作？"
 
+msgid "Unmapped Extracted Lines"
+msgstr ""
+
 msgid "Unpick"
 msgstr "取消拣选"
 
@@ -8856,6 +8880,9 @@ msgstr "为什么要更改过期日期？"
 msgid "Why is this included?"
 msgstr "为什么包括这个？"
 
+msgid "Will remain as comment line"
+msgstr ""
+
 msgid "WIP"
 msgstr "在制品"
 
@@ -8931,6 +8958,10 @@ msgid ""
 "                        ordered quantity of {1}. What would you like\n"
 "                        to do with the extra parts?"
 msgstr "您完成了 {leftoverQuantity} 个以上的 {0}，超过了订购数量 {1}。您想如何处理这些额外的零件？"
+
+#. placeholder {0}: unmappedLines.length
+msgid "You have {0} lines extracted from a PDF that are not mapped to any inventory items."
+msgstr ""
 
 msgid "You haven't created any contacts yet."
 msgstr "你还没有创建任何联系人。"

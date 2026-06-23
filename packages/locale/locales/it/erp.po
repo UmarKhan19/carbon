@@ -205,6 +205,9 @@ msgstr "Periodo di Accumulo (Settimane)"
 msgid "Accumulation Period:"
 msgstr "Periodo di Accumulo:"
 
+msgid "Action"
+msgstr ""
+
 msgid "Action Items"
 msgstr "Elementi di azione"
 
@@ -1577,6 +1580,9 @@ msgstr "Conferma cambio ID"
 
 msgid "Confirm Import"
 msgstr "Conferma importazione"
+
+msgid "Confirm Mapping"
+msgstr ""
 
 msgid "Confirm Password"
 msgstr "Conferma Password"
@@ -3340,6 +3346,9 @@ msgstr "Riferimento Esterno"
 msgid "Extracted customer \"{0}\" was not found. Please create it or select an existing one."
 msgstr ""
 
+msgid "Extracted Part Number"
+msgstr ""
+
 #. placeholder {0}: data.supplierName
 msgid "Extracted supplier \"{0}\" was not found. Please create it or select an existing one."
 msgstr ""
@@ -4485,6 +4494,9 @@ msgstr "Caricamento dei lavori associati..."
 msgid "Loading item details..."
 msgstr "Caricamento dettagli articolo..."
 
+msgid "Loading suggestions..."
+msgstr ""
+
 msgid "Loading..."
 msgstr "Caricamento..."
 
@@ -4637,6 +4649,12 @@ msgstr "Produttore"
 
 msgid "Manufacturing"
 msgstr "Produzione"
+
+msgid "Map Extracted Lines"
+msgstr ""
+
+msgid "Map Lines Now"
+msgstr ""
 
 msgid "Mark as Planned"
 msgstr "Contrassegna come Pianificato"
@@ -7438,6 +7456,9 @@ msgstr "Salta la manutenzione programmata durante le festività aziendali"
 msgid "Skipped"
 msgstr "Saltato"
 
+msgid "Some lines extracted from the PDF could not be automatically mapped to your inventory items. Please map them below."
+msgstr ""
+
 msgid "Something went wrong. Please try again."
 msgstr "Qualcosa è andato storto. Riprova."
 
@@ -8357,6 +8378,9 @@ msgstr "Scollega"
 msgid "Unlink job from sales order?"
 msgstr "Scollega il lavoro dall'ordine di vendita?"
 
+msgid "Unmapped Extracted Lines"
+msgstr ""
+
 msgid "Unpick"
 msgstr "Annulla prelievo"
 
@@ -8856,6 +8880,9 @@ msgstr "Perché la data di scadenza viene modificata?"
 msgid "Why is this included?"
 msgstr "Perché è incluso?"
 
+msgid "Will remain as comment line"
+msgstr ""
+
 msgid "WIP"
 msgstr "WIP"
 
@@ -8931,6 +8958,10 @@ msgid ""
 "                        ordered quantity of {1}. What would you like\n"
 "                        to do with the extra parts?"
 msgstr "Hai completato {leftoverQuantity} {0} in più rispetto alla quantità ordinata di {1}. Cosa vorresti fare con le parti extra?"
+
+#. placeholder {0}: unmappedLines.length
+msgid "You have {0} lines extracted from a PDF that are not mapped to any inventory items."
+msgstr ""
 
 msgid "You haven't created any contacts yet."
 msgstr "Non hai ancora creato alcun contatto."
