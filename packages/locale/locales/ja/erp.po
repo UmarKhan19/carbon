@@ -73,21 +73,6 @@ msgstr "+{0} 件以上"
 msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
 msgstr "<0>サプライヤー部品を追加</0>このアイテムの優先サプライヤーを設定します。"
 
-msgid "<0>delete</0> lets you delete rows. <1>delete</1> will match all rows by default, so remember to specify your filters!"
-msgstr "<0>delete</0>を使用すると行を削除できます。<1>delete</1>はデフォルトではすべての行にマッチするため、フィルターを指定することを忘れないでください。"
-
-msgid "<0>insert</0> lets you insert into your tables. You can also insert in bulk and do UPSERT."
-msgstr "<0>insert</0>を使用すると、テーブルにデータを挿入できます。一括挿入やUPSERTも実行できます。"
-
-msgid "<0>insert</0> will also return the replaced values for UPSERT."
-msgstr "<0>insert</0>はUPSERTの置き換えられた値も返します。"
-
-msgid "<0>update</0> lets you update rows. <1>update</1> will match all rows by default. You can update specific rows using horizontal filters, e.g. <2>eq</2>, <3>lt</3>, and <4>is</4>."
-msgstr "<0>update</0>を使用すると行を更新できます。<1>update</1>はデフォルトではすべての行にマッチします。水平フィルターを使用して特定の行を更新できます。例えば<2>eq</2>、<3>lt</3>、および<4>is</4>です。"
-
-msgid "<0>update</0> will also return the replaced values for UPDATE."
-msgstr "<0>update</0>は、UPDATEの置き換えられた値も返します。"
-
 msgid "0-4 weeks"
 msgstr ""
 
@@ -1469,9 +1454,6 @@ msgstr "段取りを折りたたむ"
 msgid "Collapse subtree"
 msgstr "サブツリーを折りたたむ"
 
-msgid "Column"
-msgstr "カラム"
-
 msgid "Column visibility and order"
 msgstr "列の表示と順序"
 
@@ -2487,9 +2469,6 @@ msgstr "RFQを削除"
 
 msgid "Delete Risk"
 msgstr "リスクを削除"
-
-msgid "Delete rows"
-msgstr "行を削除"
 
 msgid "Delete Rule"
 msgstr "ルールを削除"
@@ -3760,9 +3739,6 @@ msgstr "ここに添付されたファイルは、このサプライヤーに送
 msgid "Filter"
 msgstr "フィルター"
 
-msgid "Filtering"
-msgstr "フィルタリング"
-
 msgid "Finalize"
 msgstr "確定"
 
@@ -4081,9 +4057,6 @@ msgstr "材料から継承"
 
 msgid "Inherited from parent"
 msgstr "親から継承"
-
-msgid "Insert rows"
-msgstr "行を挿入"
 
 msgid "Insert token"
 msgstr "トークンを挿入"
@@ -4444,9 +4417,6 @@ msgstr "リードタイム（日数）"
 
 msgid "Lead Time:"
 msgstr "リードタイム:"
-
-msgid "Learn more"
-msgstr "詳細を見る"
 
 msgid "Leave any related receipts untouched"
 msgstr "関連するすべての領収書はそのままにしておく"
@@ -6488,9 +6458,6 @@ msgstr "レート制限"
 msgid "Reactivate"
 msgstr "再度有効化"
 
-msgid "Read rows"
-msgstr "行を読む"
-
 msgid "Ready for Quote"
 msgstr "見積もり準備完了"
 
@@ -7783,9 +7750,6 @@ msgstr "検査を送信"
 msgid "Submitted By"
 msgstr "提出者"
 
-msgid "Subscribe to changes"
-msgstr "変更を購読"
-
 msgid "Substance"
 msgstr "物質"
 
@@ -7824,12 +7788,6 @@ msgstr "提案"
 
 msgid "Sunday"
 msgstr "日曜日"
-
-msgid "Supabase provides a wide range of filters."
-msgstr "Supabaseは幅広いフィルター機能を提供しています。"
-
-msgid "Supabase provides realtime functionality and broadcasts database changes to authorized users depending on Row Level Security (RLS) policies."
-msgstr "Supabaseはリアルタイム機能を提供し、行レベルセキュリティ(RLS)ポリシーに基づいて、認可されたユーザーにデータベースの変更をブロードキャストします。"
 
 msgid "Supplier"
 msgstr "サプライヤー"
@@ -8231,9 +8189,6 @@ msgstr "タイトル"
 msgid "To Location"
 msgstr "到着地"
 
-msgid "To read rows in <0>{resourceId}</0>, use the <1>select</1> method."
-msgstr "<0>{resourceId}</0>内の行を読み取るには、<1>select</1>メソッドを使用します。"
-
 msgid "To Receive"
 msgstr "受け取り予定"
 
@@ -8549,9 +8504,6 @@ msgstr "権限を更新"
 
 msgid "Update Quantity"
 msgstr "数量を更新"
-
-msgid "Update rows"
-msgstr "行を更新"
 
 msgid "Update Rule"
 msgstr "ルールを更新"

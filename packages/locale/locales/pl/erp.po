@@ -73,21 +73,6 @@ msgstr "+{0} więcej"
 msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
 msgstr "<0>Dodaj część dostawcy</0> dla tego artykułu, aby ustawić preferowanego dostawcę."
 
-msgid "<0>delete</0> lets you delete rows. <1>delete</1> will match all rows by default, so remember to specify your filters!"
-msgstr "<0>delete</0> pozwala usuwać wiersze. <1>delete</1> domyślnie będzie pasować do wszystkich wierszy, więc pamiętaj, aby określić swoje filtry!"
-
-msgid "<0>insert</0> lets you insert into your tables. You can also insert in bulk and do UPSERT."
-msgstr "<0>insert</0> pozwala wstawiać dane do tabel. Możesz również wstawiać zbiorczo i wykonywać operacje UPSERT."
-
-msgid "<0>insert</0> will also return the replaced values for UPSERT."
-msgstr "<0>insert</0> zwróci również zastąpione wartości dla UPSERT."
-
-msgid "<0>update</0> lets you update rows. <1>update</1> will match all rows by default. You can update specific rows using horizontal filters, e.g. <2>eq</2>, <3>lt</3>, and <4>is</4>."
-msgstr "<0>update</0> pozwala na aktualizowanie wierszy. <1>update</1> domyślnie będzie pasować do wszystkich wierszy. Możesz aktualizować określone wiersze za pomocą filtrów poziomych, np. <2>eq</2>, <3>lt</3> i <4>is</4>."
-
-msgid "<0>update</0> will also return the replaced values for UPDATE."
-msgstr "<0>update</0> zwróci również zastąpione wartości dla UPDATE."
-
 msgid "0-4 weeks"
 msgstr ""
 
@@ -1469,9 +1454,6 @@ msgstr "Zwiń Setup"
 msgid "Collapse subtree"
 msgstr "Zwiń poddrzewo"
 
-msgid "Column"
-msgstr "Kolumna"
-
 msgid "Column visibility and order"
 msgstr "Widoczność i kolejność kolumn"
 
@@ -2487,9 +2469,6 @@ msgstr "Usuń ZZO"
 
 msgid "Delete Risk"
 msgstr "Usuń ryzyko"
-
-msgid "Delete rows"
-msgstr "Usuń wiersze"
 
 msgid "Delete Rule"
 msgstr "Usuń regułę"
@@ -3760,9 +3739,6 @@ msgstr "Pliki dołączone tutaj są wysyłane wraz z każdym emailem zamówienia
 msgid "Filter"
 msgstr "Filtr"
 
-msgid "Filtering"
-msgstr "Filtrowanie"
-
 msgid "Finalize"
 msgstr "Sfinalizuj"
 
@@ -4081,9 +4057,6 @@ msgstr "Dziedzicz z Materiałów"
 
 msgid "Inherited from parent"
 msgstr "Odziedziczone z elementu nadrzędnego"
-
-msgid "Insert rows"
-msgstr "Wstaw wiersze"
 
 msgid "Insert token"
 msgstr "Wstaw token"
@@ -4444,9 +4417,6 @@ msgstr "Czas realizacji (dni)"
 
 msgid "Lead Time:"
 msgstr "Czas dostawy:"
-
-msgid "Learn more"
-msgstr "Dowiedz się więcej"
 
 msgid "Leave any related receipts untouched"
 msgstr "Pozostaw wszelkie powiązane paragony bez zmian"
@@ -6488,9 +6458,6 @@ msgstr "Limit Szybkości"
 msgid "Reactivate"
 msgstr "Ponownie aktywuj"
 
-msgid "Read rows"
-msgstr "Odczytaj wiersze"
-
 msgid "Ready for Quote"
 msgstr "Gotowy do wyceny"
 
@@ -7783,9 +7750,6 @@ msgstr "Prześlij Inspekcję"
 msgid "Submitted By"
 msgstr "Przesłane przez"
 
-msgid "Subscribe to changes"
-msgstr "Subskrybuj zmiany"
-
 msgid "Substance"
 msgstr "Substancja"
 
@@ -7824,12 +7788,6 @@ msgstr "Sugestie"
 
 msgid "Sunday"
 msgstr "Niedziela"
-
-msgid "Supabase provides a wide range of filters."
-msgstr "Supabase zapewnia szeroki zakres filtrów."
-
-msgid "Supabase provides realtime functionality and broadcasts database changes to authorized users depending on Row Level Security (RLS) policies."
-msgstr "Supabase zapewnia funkcjonalność czasu rzeczywistego i transmituje zmiany bazy danych do autoryzowanych użytkowników w zależności od zasad Row Level Security (RLS)."
 
 msgid "Supplier"
 msgstr "Dostawca"
@@ -8231,9 +8189,6 @@ msgstr "Tytuł"
 msgid "To Location"
 msgstr "Do lokalizacji"
 
-msgid "To read rows in <0>{resourceId}</0>, use the <1>select</1> method."
-msgstr "Aby odczytać wiersze w <0>{resourceId}</0>, użyj metody <1>select</1>."
-
 msgid "To Receive"
 msgstr "Do Odebrania"
 
@@ -8549,9 +8504,6 @@ msgstr "Aktualizuj Uprawnienia"
 
 msgid "Update Quantity"
 msgstr "Aktualizuj ilość"
-
-msgid "Update rows"
-msgstr "Aktualizuj wiersze"
 
 msgid "Update Rule"
 msgstr "Zaktualizuj regułę"

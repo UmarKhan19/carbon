@@ -73,21 +73,6 @@ msgstr "+{0} 更多"
 msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
 msgstr "<0>为此项目添加供应商零件</0>以设置首选供应商。"
 
-msgid "<0>delete</0> lets you delete rows. <1>delete</1> will match all rows by default, so remember to specify your filters!"
-msgstr "<0>delete</0> 让您删除行。<1>delete</1> 默认会匹配所有行，所以请记住指定您的过滤条件！"
-
-msgid "<0>insert</0> lets you insert into your tables. You can also insert in bulk and do UPSERT."
-msgstr "<0>insert</0>让您可以插入到表中。您也可以批量插入和执行UPSERT。"
-
-msgid "<0>insert</0> will also return the replaced values for UPSERT."
-msgstr "<0>insert</0>还会返回UPSERT的替换值。"
-
-msgid "<0>update</0> lets you update rows. <1>update</1> will match all rows by default. You can update specific rows using horizontal filters, e.g. <2>eq</2>, <3>lt</3>, and <4>is</4>."
-msgstr "<0>update</0>让您更新行。<1>update</1>默认将匹配所有行。您可以使用水平过滤器更新特定行，例如<2>eq</2>、<3>lt</3>和<4>is</4>。"
-
-msgid "<0>update</0> will also return the replaced values for UPDATE."
-msgstr "<0>update</0>也会返回UPDATE的替换值。"
-
 msgid "0-4 weeks"
 msgstr ""
 
@@ -1469,9 +1454,6 @@ msgstr "折叠设置"
 msgid "Collapse subtree"
 msgstr "折叠子树"
 
-msgid "Column"
-msgstr "列"
-
 msgid "Column visibility and order"
 msgstr "列的可见性和顺序"
 
@@ -2487,9 +2469,6 @@ msgstr "删除询价单"
 
 msgid "Delete Risk"
 msgstr "删除风险"
-
-msgid "Delete rows"
-msgstr "删除行"
 
 msgid "Delete Rule"
 msgstr "删除规则"
@@ -3760,9 +3739,6 @@ msgstr "此处附加的文件将随附在发送给此供应商的每份采购订
 msgid "Filter"
 msgstr "筛选"
 
-msgid "Filtering"
-msgstr "筛选"
-
 msgid "Finalize"
 msgstr "完成"
 
@@ -4081,9 +4057,6 @@ msgstr "从材料继承"
 
 msgid "Inherited from parent"
 msgstr "从父级继承"
-
-msgid "Insert rows"
-msgstr "插入行"
 
 msgid "Insert token"
 msgstr "插入令牌"
@@ -4444,9 +4417,6 @@ msgstr "交期（天）"
 
 msgid "Lead Time:"
 msgstr "交货时间："
-
-msgid "Learn more"
-msgstr "了解更多"
 
 msgid "Leave any related receipts untouched"
 msgstr "保留任何相关收据不变"
@@ -6488,9 +6458,6 @@ msgstr "速率限制"
 msgid "Reactivate"
 msgstr "重新激活"
 
-msgid "Read rows"
-msgstr "读取行"
-
 msgid "Ready for Quote"
 msgstr "准备报价"
 
@@ -7783,9 +7750,6 @@ msgstr "提交检验"
 msgid "Submitted By"
 msgstr "提交者"
 
-msgid "Subscribe to changes"
-msgstr "订阅更改"
-
 msgid "Substance"
 msgstr "物质"
 
@@ -7824,12 +7788,6 @@ msgstr "建议"
 
 msgid "Sunday"
 msgstr "星期日"
-
-msgid "Supabase provides a wide range of filters."
-msgstr "Supabase 提供了广泛的过滤器。"
-
-msgid "Supabase provides realtime functionality and broadcasts database changes to authorized users depending on Row Level Security (RLS) policies."
-msgstr "Supabase 提供实时功能，并根据行级安全 (RLS) 策略向授权用户广播数据库更改。"
 
 msgid "Supplier"
 msgstr "供应商"
@@ -8231,9 +8189,6 @@ msgstr "标题"
 msgid "To Location"
 msgstr "至位置"
 
-msgid "To read rows in <0>{resourceId}</0>, use the <1>select</1> method."
-msgstr "要读取 <0>{resourceId}</0> 中的行，请使用 <1>select</1> 方法。"
-
 msgid "To Receive"
 msgstr "待接收"
 
@@ -8549,9 +8504,6 @@ msgstr "更新权限"
 
 msgid "Update Quantity"
 msgstr "更新数量"
-
-msgid "Update rows"
-msgstr "更新行"
 
 msgid "Update Rule"
 msgstr "更新规则"

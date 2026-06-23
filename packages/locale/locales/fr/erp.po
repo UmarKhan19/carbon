@@ -73,21 +73,6 @@ msgstr "+{0} de plus"
 msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
 msgstr "<0>Ajouter une pièce fournisseur</0> pour cet article afin de définir un fournisseur préféré."
 
-msgid "<0>delete</0> lets you delete rows. <1>delete</1> will match all rows by default, so remember to specify your filters!"
-msgstr "<0>delete</0> vous permet de supprimer des lignes. <1>delete</1> correspondra à toutes les lignes par défaut, alors n'oubliez pas de spécifier vos filtres !"
-
-msgid "<0>insert</0> lets you insert into your tables. You can also insert in bulk and do UPSERT."
-msgstr "<0>insert</0> vous permet d'insérer des données dans vos tables. Vous pouvez également insérer en masse et effectuer des UPSERT."
-
-msgid "<0>insert</0> will also return the replaced values for UPSERT."
-msgstr "<0>insert</0> retournera également les valeurs remplacées pour UPSERT."
-
-msgid "<0>update</0> lets you update rows. <1>update</1> will match all rows by default. You can update specific rows using horizontal filters, e.g. <2>eq</2>, <3>lt</3>, and <4>is</4>."
-msgstr "<0>update</0> vous permet de mettre à jour des lignes. <1>update</1> correspondra à toutes les lignes par défaut. Vous pouvez mettre à jour des lignes spécifiques en utilisant des filtres horizontaux, par exemple <2>eq</2>, <3>lt</3>, et <4>is</4>."
-
-msgid "<0>update</0> will also return the replaced values for UPDATE."
-msgstr "<0>update</0> retournera également les valeurs remplacées pour UPDATE."
-
 msgid "0-4 weeks"
 msgstr ""
 
@@ -1469,9 +1454,6 @@ msgstr "Réduire la configuration"
 msgid "Collapse subtree"
 msgstr "Réduire le sous-arbre"
 
-msgid "Column"
-msgstr "Colonne"
-
 msgid "Column visibility and order"
 msgstr "Visibilité et ordre des colonnes"
 
@@ -2487,9 +2469,6 @@ msgstr "Supprimer RFQ"
 
 msgid "Delete Risk"
 msgstr "Supprimer le risque"
-
-msgid "Delete rows"
-msgstr "Supprimer les lignes"
 
 msgid "Delete Rule"
 msgstr "Supprimer la règle"
@@ -3760,9 +3739,6 @@ msgstr "Les fichiers joints ici sont inclus dans chaque email de bon de commande
 msgid "Filter"
 msgstr "Filtre"
 
-msgid "Filtering"
-msgstr "Filtrage"
-
 msgid "Finalize"
 msgstr "Finaliser"
 
@@ -4081,9 +4057,6 @@ msgstr "Hériter des matériaux"
 
 msgid "Inherited from parent"
 msgstr "Hérité du parent"
-
-msgid "Insert rows"
-msgstr "Insérer des lignes"
 
 msgid "Insert token"
 msgstr "Insérer un jeton"
@@ -4444,9 +4417,6 @@ msgstr "Délai de livraison (jours)"
 
 msgid "Lead Time:"
 msgstr "Délai de livraison :"
-
-msgid "Learn more"
-msgstr "En savoir plus"
 
 msgid "Leave any related receipts untouched"
 msgstr "Laisser les reçus connexes intacts"
@@ -6488,9 +6458,6 @@ msgstr "Limite de débit"
 msgid "Reactivate"
 msgstr "Réactiver"
 
-msgid "Read rows"
-msgstr "Lire les lignes"
-
 msgid "Ready for Quote"
 msgstr "Prêt pour devis"
 
@@ -7783,9 +7750,6 @@ msgstr "Soumettre l'inspection"
 msgid "Submitted By"
 msgstr "Soumis par"
 
-msgid "Subscribe to changes"
-msgstr "S'abonner aux modifications"
-
 msgid "Substance"
 msgstr "Substance"
 
@@ -7824,12 +7788,6 @@ msgstr "Suggestions"
 
 msgid "Sunday"
 msgstr "Dimanche"
-
-msgid "Supabase provides a wide range of filters."
-msgstr "Supabase fournit une large gamme de filtres."
-
-msgid "Supabase provides realtime functionality and broadcasts database changes to authorized users depending on Row Level Security (RLS) policies."
-msgstr "Supabase fournit une fonctionnalité en temps réel et diffuse les modifications de la base de données aux utilisateurs autorisés en fonction des politiques de sécurité au niveau des lignes (RLS)."
 
 msgid "Supplier"
 msgstr "Fournisseur"
@@ -8231,9 +8189,6 @@ msgstr "Titre"
 msgid "To Location"
 msgstr "Vers l'emplacement"
 
-msgid "To read rows in <0>{resourceId}</0>, use the <1>select</1> method."
-msgstr "Pour lire les lignes dans <0>{resourceId}</0>, utilisez la méthode <1>select</1>."
-
 msgid "To Receive"
 msgstr "À recevoir"
 
@@ -8549,9 +8504,6 @@ msgstr "Mettre à jour les autorisations"
 
 msgid "Update Quantity"
 msgstr "Mettre à jour la quantité"
-
-msgid "Update rows"
-msgstr "Mettre à jour les lignes"
 
 msgid "Update Rule"
 msgstr "Mettre à jour la règle"

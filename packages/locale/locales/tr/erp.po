@@ -73,21 +73,6 @@ msgstr "+{0} daha fazla"
 msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
 msgstr "<0>Bir tedarikçi parça ekle</0> bu öğe için tercih edilen bir tedarikçi belirlemek amacıyla."
 
-msgid "<0>delete</0> lets you delete rows. <1>delete</1> will match all rows by default, so remember to specify your filters!"
-msgstr "<0>silkele</0> satırları silmenizi sağlar. <1>silkele</1> varsayılan olarak tüm satırlara eşleşeceği için filtrelerinizi belirtmeyi unutmayın!"
-
-msgid "<0>insert</0> lets you insert into your tables. You can also insert in bulk and do UPSERT."
-msgstr "<0>eklemek</0> ile tablolarınıza veri ekleyebilirsiniz. Ayrıca toplu olarak ekleme yapabilir ve UPSERT işlemi gerçekleştirebilirsiniz."
-
-msgid "<0>insert</0> will also return the replaced values for UPSERT."
-msgstr "<0>insert</0> ifadesi ayrıca UPSERT için değiştirilen değerleri de döndürecektir."
-
-msgid "<0>update</0> lets you update rows. <1>update</1> will match all rows by default. You can update specific rows using horizontal filters, e.g. <2>eq</2>, <3>lt</3>, and <4>is</4>."
-msgstr "<0>güncelleme</0> satırları güncellemenizi sağlar. <1>güncelleme</1> varsayılan olarak tüm satırlara eşleşecektir. Belirli satırları yatay filtreler kullanarak güncelleyebilirsiniz, örn: <2>eq</2>, <3>lt</3> ve <4>is</4>."
-
-msgid "<0>update</0> will also return the replaced values for UPDATE."
-msgstr "<0>güncelleme</0> aynı zamanda UPSERT için değiştirilen değerleri de döndürecektir."
-
 msgid "0-4 weeks"
 msgstr "0-4 hafta"
 
@@ -1469,9 +1454,6 @@ msgstr "Kurulumu Daralt"
 msgid "Collapse subtree"
 msgstr "Alt ağacı daralt"
 
-msgid "Column"
-msgstr "Sütun"
-
 msgid "Column visibility and order"
 msgstr "Sütun görünürlüğü ve sırası"
 
@@ -2487,9 +2469,6 @@ msgstr "RFQ'yu Sil"
 
 msgid "Delete Risk"
 msgstr "Riski Sil"
-
-msgid "Delete rows"
-msgstr "Satırları sil"
 
 msgid "Delete Rule"
 msgstr "Kuralı Sil"
@@ -3760,9 +3739,6 @@ msgstr "Buraya eklenen dosyalar, bu tedarikçiye gönderilen her satın alma sip
 msgid "Filter"
 msgstr "Filtre"
 
-msgid "Filtering"
-msgstr "Filtreleme"
-
 msgid "Finalize"
 msgstr "Onayla"
 
@@ -4081,9 +4057,6 @@ msgstr "Malzemelerden Devral"
 
 msgid "Inherited from parent"
 msgstr "Ebeveyn'den miras alındı"
-
-msgid "Insert rows"
-msgstr "Satır ekle"
 
 msgid "Insert token"
 msgstr "Token ekle"
@@ -4444,9 +4417,6 @@ msgstr "Teslim Süresi (Gün)"
 
 msgid "Lead Time:"
 msgstr "Teslim Süresi:"
-
-msgid "Learn more"
-msgstr "Daha fazla bilgi edinin"
 
 msgid "Leave any related receipts untouched"
 msgstr "İlgili tüm makbuzları dokunulmamış bırakır"
@@ -6488,9 +6458,6 @@ msgstr "Hız Sınırı"
 msgid "Reactivate"
 msgstr "Yeniden etkinleştir"
 
-msgid "Read rows"
-msgstr "Satırları Oku"
-
 msgid "Ready for Quote"
 msgstr "Teklif İçin Hazır"
 
@@ -7783,9 +7750,6 @@ msgstr "Muayene Et"
 msgid "Submitted By"
 msgstr "Gönderen"
 
-msgid "Subscribe to changes"
-msgstr "Değişikliklere abone ol"
-
 msgid "Substance"
 msgstr "Madde"
 
@@ -7824,12 +7788,6 @@ msgstr "Öneriler"
 
 msgid "Sunday"
 msgstr "Pazar"
-
-msgid "Supabase provides a wide range of filters."
-msgstr "Supabase geniş bir filtre yelpazesi sunar."
-
-msgid "Supabase provides realtime functionality and broadcasts database changes to authorized users depending on Row Level Security (RLS) policies."
-msgstr "Supabase, satır düzeyinde güvenlik (RLS) politikalarına bağlı olarak gerçek zamanlı işlevsellik sağlar ve veritabanı değişikliklerini yetkili kullanıcılara yayınlar."
 
 msgid "Supplier"
 msgstr "Tedarikçi"
@@ -8231,9 +8189,6 @@ msgstr "Unvan"
 msgid "To Location"
 msgstr "Varış Konumu"
 
-msgid "To read rows in <0>{resourceId}</0>, use the <1>select</1> method."
-msgstr "Satırları okumak için <0>{resourceId}</0>'de <1>select</1> yöntemini kullanın."
-
 msgid "To Receive"
 msgstr "Alınacak"
 
@@ -8549,9 +8504,6 @@ msgstr "İzinleri Güncelle"
 
 msgid "Update Quantity"
 msgstr "Miktarı Güncelle"
-
-msgid "Update rows"
-msgstr "Satırları güncelle"
 
 msgid "Update Rule"
 msgstr "Kuralı Güncelle"

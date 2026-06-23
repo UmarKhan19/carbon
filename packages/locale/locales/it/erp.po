@@ -73,21 +73,6 @@ msgstr "+{0} altri"
 msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
 msgstr "<0>Aggiungi una parte fornitore</0> per questo articolo per impostare un fornitore preferito."
 
-msgid "<0>delete</0> lets you delete rows. <1>delete</1> will match all rows by default, so remember to specify your filters!"
-msgstr "<0>delete</0> ti permette di eliminare righe. <1>delete</1> corrisponderà a tutte le righe per impostazione predefinita, quindi ricordati di specificare i tuoi filtri!"
-
-msgid "<0>insert</0> lets you insert into your tables. You can also insert in bulk and do UPSERT."
-msgstr "<0>insert</0> ti consente di inserire dati nelle tue tabelle. Puoi anche inserire in blocco ed eseguire UPSERT."
-
-msgid "<0>insert</0> will also return the replaced values for UPSERT."
-msgstr "<0>insert</0> restituirà anche i valori sostituiti per UPSERT."
-
-msgid "<0>update</0> lets you update rows. <1>update</1> will match all rows by default. You can update specific rows using horizontal filters, e.g. <2>eq</2>, <3>lt</3>, and <4>is</4>."
-msgstr "<0>update</0> ti consente di aggiornare le righe. <1>update</1> corrisponderà a tutte le righe per impostazione predefinita. Puoi aggiornare righe specifiche utilizzando filtri orizzontali, ad es. <2>eq</2>, <3>lt</3> e <4>is</4>."
-
-msgid "<0>update</0> will also return the replaced values for UPDATE."
-msgstr "<0>update</0> restituirà anche i valori sostituiti per UPDATE."
-
 msgid "0-4 weeks"
 msgstr ""
 
@@ -1469,9 +1454,6 @@ msgstr "Comprimi preparazione"
 msgid "Collapse subtree"
 msgstr "Comprimi sottostruttura"
 
-msgid "Column"
-msgstr "Colonna"
-
 msgid "Column visibility and order"
 msgstr "Visibilità e ordine delle colonne"
 
@@ -2487,9 +2469,6 @@ msgstr "Elimina RFQ"
 
 msgid "Delete Risk"
 msgstr "Elimina Rischio"
-
-msgid "Delete rows"
-msgstr "Elimina righe"
 
 msgid "Delete Rule"
 msgstr "Elimina Regola"
@@ -3760,9 +3739,6 @@ msgstr "I file allegati qui vengono inclusi in ogni email di ordine d'acquisto i
 msgid "Filter"
 msgstr "Filtro"
 
-msgid "Filtering"
-msgstr "Filtro"
-
 msgid "Finalize"
 msgstr "Finalizza"
 
@@ -4081,9 +4057,6 @@ msgstr "Eredita dai Materiali"
 
 msgid "Inherited from parent"
 msgstr "Ereditato dal genitore"
-
-msgid "Insert rows"
-msgstr "Inserisci righe"
 
 msgid "Insert token"
 msgstr "Inserisci token"
@@ -4444,9 +4417,6 @@ msgstr "Tempo di consegna (Giorni)"
 
 msgid "Lead Time:"
 msgstr "Tempo di consegna:"
-
-msgid "Learn more"
-msgstr "Scopri di più"
 
 msgid "Leave any related receipts untouched"
 msgstr "Lasciare le ricevute correlate intatte"
@@ -6488,9 +6458,6 @@ msgstr "Limite di Velocità"
 msgid "Reactivate"
 msgstr "Riattiva"
 
-msgid "Read rows"
-msgstr "Leggi righe"
-
 msgid "Ready for Quote"
 msgstr "Pronto per Preventivo"
 
@@ -7783,9 +7750,6 @@ msgstr "Invia Ispezione"
 msgid "Submitted By"
 msgstr "Inviato da"
 
-msgid "Subscribe to changes"
-msgstr "Iscriviti alle modifiche"
-
 msgid "Substance"
 msgstr "Sostanza"
 
@@ -7824,12 +7788,6 @@ msgstr "Suggerimenti"
 
 msgid "Sunday"
 msgstr "Domenica"
-
-msgid "Supabase provides a wide range of filters."
-msgstr "Supabase fornisce un'ampia gamma di filtri."
-
-msgid "Supabase provides realtime functionality and broadcasts database changes to authorized users depending on Row Level Security (RLS) policies."
-msgstr "Supabase fornisce funzionalità in tempo reale e trasmette le modifiche del database agli utenti autorizzati in base alle politiche di Row Level Security (RLS)."
 
 msgid "Supplier"
 msgstr "Fornitore"
@@ -8231,9 +8189,6 @@ msgstr "Titolo"
 msgid "To Location"
 msgstr "Ubicazione di destinazione"
 
-msgid "To read rows in <0>{resourceId}</0>, use the <1>select</1> method."
-msgstr "Per leggere righe in <0>{resourceId}</0>, utilizza il metodo <1>select</1>."
-
 msgid "To Receive"
 msgstr "Da Ricevere"
 
@@ -8549,9 +8504,6 @@ msgstr "Aggiorna Autorizzazioni"
 
 msgid "Update Quantity"
 msgstr "Aggiorna Quantità"
-
-msgid "Update rows"
-msgstr "Aggiorna righe"
 
 msgid "Update Rule"
 msgstr "Aggiorna Regola"
