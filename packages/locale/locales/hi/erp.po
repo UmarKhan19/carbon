@@ -67,7 +67,7 @@ msgid "/month/user"
 msgstr "/माह/उपयोगकर्ता"
 
 msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
-msgstr "<0>एक आपूर्तिकर्ता भाग जोड़ें</0> इस आइटम के लिए एक पसंदीदा आपूर्तिकर्ता सेट करने के लिए।"
+msgstr ""
 
 msgid "0-4 weeks"
 msgstr ""
@@ -165,8 +165,14 @@ msgstr "एक उपकरण एक भौतिक वस्तु है ज
 msgid "A user records the expiry date on each batch or serial when the goods are received. Use when suppliers ship lots with different expiry dates."
 msgstr "एक उपयोगकर्ता प्रत्येक बैच या सीरीज पर समाप्ति तिथि दर्ज करता है जब माल प्राप्त होता है। जब आपूर्तिकर्ता विभिन्न समाप्ति तिथियों के साथ लॉट भेजते हैं तो इसका उपयोग करें।"
 
+msgid "abilities"
+msgstr ""
+
 msgid "Abilities"
 msgstr "क्षमताएं"
+
+msgid "ability"
+msgstr ""
 
 msgid "About"
 msgstr "के बारे में"
@@ -194,6 +200,9 @@ msgstr "खाता सेटिंग्स"
 
 msgid "Account Type"
 msgstr "खाता प्रकार"
+
+msgid "accounting"
+msgstr ""
 
 msgid "Accounting"
 msgstr "लेखांकन"
@@ -398,6 +407,10 @@ msgstr "टाइमकार्ड जोड़ें"
 
 msgid "Add to stock for future use"
 msgstr "भविष्य के उपयोग के लिए स्टॉक में जोड़ें"
+
+#. placeholder {0}: copy.noun
+msgid "Add your first {0}"
+msgstr ""
 
 msgid "Add-On"
 msgstr "ऐड-ऑन"
@@ -935,11 +948,22 @@ msgstr "कंपनी के मालिक के रूप में, आ�
 msgid "Ascending"
 msgstr "आरोही"
 
+#. placeholder {0}: copy.moduleLabel
+#. placeholder {1}: copy.noun
+msgid "Ask an admin with {0} permission to add the first {1}."
+msgstr ""
+
 msgid "Assembly:"
 msgstr "असेंबली:"
 
 msgid "Asset"
 msgstr "संपत्ति"
+
+msgid "asset class"
+msgstr ""
+
+msgid "asset classes"
+msgstr ""
 
 msgid "Asset Classes"
 msgstr "संपत्ति वर्ग"
@@ -1628,6 +1652,9 @@ msgstr "कंसोल मोड सक्षम है"
 msgid "Console Operator"
 msgstr "कंसोल ऑपरेटर"
 
+msgid "consumable"
+msgstr ""
+
 msgid "Consumable"
 msgstr "उपभोग्य"
 
@@ -1637,17 +1664,26 @@ msgstr "उपभोग्य विवरण"
 msgid "Consumable ID"
 msgstr "उपभोग्य ID"
 
+msgid "consumables"
+msgstr ""
+
 msgid "Consumables"
 msgstr "उपभोग्य"
 
 msgid "Consumed"
 msgstr "उपभोग किया गया"
 
+msgid "contact"
+msgstr ""
+
 msgid "Contact"
 msgstr "संपर्क"
 
 msgid "Contact (optional)"
 msgstr "संपर्क (वैकल्पिक)"
+
+msgid "contacts"
+msgstr ""
 
 msgid "Contacts"
 msgstr "संपर्क"
@@ -1823,8 +1859,14 @@ msgstr "सही उत्तर"
 msgid "Correct Answers"
 msgstr "सही उत्तर"
 
+msgid "cost center"
+msgstr ""
+
 msgid "Cost Center"
 msgstr "लागत केंद्र"
+
+msgid "cost centers"
+msgstr ""
 
 msgid "Cost Centers"
 msgstr "लागत केंद्र"
@@ -2084,6 +2126,9 @@ msgstr "कस्टम फील्ड"
 msgid "Custom Fields"
 msgstr "कस्टम फील्ड्स"
 
+msgid "customer"
+msgstr ""
+
 msgid "Customer"
 msgstr "ग्राहक"
 
@@ -2147,17 +2192,32 @@ msgstr "ग्राहक RFQ"
 msgid "Customer Scope"
 msgstr "ग्राहक स्कोप"
 
+msgid "customer status"
+msgstr ""
+
 msgid "Customer Status"
 msgstr "ग्राहक स्थिति"
+
+msgid "customer statuses"
+msgstr ""
 
 msgid "Customer Statuses"
 msgstr "ग्राहक स्थितियाँ"
 
+msgid "customer type"
+msgstr ""
+
 msgid "Customer Type"
 msgstr "ग्राहक प्रकार"
 
+msgid "customer types"
+msgstr ""
+
 msgid "Customer Types"
 msgstr "ग्राहक प्रकार"
+
+msgid "customers"
+msgstr ""
 
 msgid "Customers"
 msgstr "ग्राहक"
@@ -2562,11 +2622,17 @@ msgstr "मांग प्रक्षेपण"
 msgid "Demand-Based"
 msgstr "मांग-आधारित"
 
+msgid "department"
+msgstr ""
+
 msgid "Department"
 msgstr "विभाग"
 
 msgid "Department Name"
 msgstr "विभाग का नाम"
+
+msgid "departments"
+msgstr ""
 
 msgid "Departments"
 msgstr "विभाग"
@@ -2598,8 +2664,14 @@ msgstr "डिजिटल उद्धरण"
 msgid "Digital Quotes"
 msgstr "डिजिटल उद्धरण"
 
+msgid "dimension"
+msgstr ""
+
 msgid "Dimension"
 msgstr "आयाम"
+
+msgid "dimensions"
+msgstr ""
 
 msgid "Dimensions"
 msgstr "आयाम"
@@ -3043,6 +3115,9 @@ msgstr "ईमेल"
 msgid "Emoji"
 msgstr "इमोजी"
 
+msgid "employee"
+msgstr ""
+
 msgid "Employee"
 msgstr "कर्मचारी"
 
@@ -3054,6 +3129,9 @@ msgstr "कर्मचारी प्रकार"
 
 msgid "Employee Types"
 msgstr "कर्मचारी प्रकार"
+
+msgid "employees"
+msgstr ""
 
 msgid "Employees"
 msgstr "कर्मचारी"
@@ -3735,11 +3813,17 @@ msgstr "फ़िल्टर"
 msgid "Finalize"
 msgstr "अंतिम रूप दें"
 
+msgid "finish"
+msgstr ""
+
 msgid "Finish"
 msgstr "फिनिश"
 
 msgid "Finish To"
 msgstr "समाप्त करने के लिए"
+
+msgid "finishes"
+msgstr ""
 
 msgid "Finishes"
 msgstr "फिनिशेस"
@@ -3808,6 +3892,9 @@ msgstr "स्टोरेज यूनिट से"
 msgid "Fully trained for"
 msgstr "पूरी तरह प्रशिक्षित"
 
+msgid "gauge"
+msgstr ""
+
 msgid "Gauge"
 msgstr "गेज"
 
@@ -3825,6 +3912,9 @@ msgstr "गेज प्रकार"
 
 msgid "Gauge Types"
 msgstr "गेज प्रकार"
+
+msgid "gauges"
+msgstr ""
 
 msgid "Gauges"
 msgstr "गेज"
@@ -3871,8 +3961,14 @@ msgstr "शुभ प्रभात, {0}"
 msgid "Google Places API key not configured"
 msgstr "Google Places API key कॉन्फ़िगर नहीं है"
 
+msgid "grade"
+msgstr ""
+
 msgid "Grade"
 msgstr "ग्रेड"
+
+msgid "grades"
+msgstr ""
 
 msgid "Grades"
 msgstr "ग्रेड"
@@ -4120,6 +4216,9 @@ msgstr "इन्व"
 msgid "Invalid Invite"
 msgstr "अमान्य निमंत्रण"
 
+msgid "inventory"
+msgstr ""
+
 msgid "Inventory"
 msgstr "इन्वेंटरी"
 
@@ -4243,6 +4342,9 @@ msgstr "जारी तारीख"
 msgid "Issues"
 msgstr "समस्याएं"
 
+msgid "item"
+msgstr "आइटम"
+
 msgid "Item"
 msgstr "आइटम"
 
@@ -4252,8 +4354,14 @@ msgstr "आइटम {scannedItem} आइटम {expectedItem} के समा�
 msgid "Item filters"
 msgstr "आइटम फ़िल्टर"
 
+msgid "item group"
+msgstr ""
+
 msgid "Item Group"
 msgstr "आइटम समूह"
+
+msgid "item groups"
+msgstr ""
 
 msgid "Item groups"
 msgstr "आइटम समूह"
@@ -4281,6 +4389,9 @@ msgstr "आइटम प्रकार"
 
 msgid "Item types"
 msgstr "आइटम प्रकार"
+
+msgid "items"
+msgstr "आइटम"
 
 msgid "Items"
 msgstr "वस्तुएं"
@@ -4512,11 +4623,17 @@ msgstr "लोड हो रहा है..."
 msgid "Loading…"
 msgstr "लोड हो रहा है…"
 
+msgid "location"
+msgstr ""
+
 msgid "Location"
 msgstr "स्थान"
 
 msgid "Location Name"
 msgstr "स्थान का नाम"
+
+msgid "locations"
+msgstr ""
 
 msgid "Locations"
 msgstr "स्थान"
@@ -4713,6 +4830,9 @@ msgstr "मेल खाता है"
 msgid "Matching Pairs"
 msgstr "मिलान जोड़े"
 
+msgid "material"
+msgstr ""
+
 msgid "Material"
 msgstr "सामग्री"
 
@@ -4761,11 +4881,20 @@ msgstr "सामग्री पदार्थ"
 msgid "Material Substances"
 msgstr "सामग्री पदार्थ"
 
+msgid "material type"
+msgstr ""
+
 msgid "Material Type"
 msgstr "सामग्री प्रकार"
 
+msgid "material types"
+msgstr ""
+
 msgid "Material Types"
 msgstr "सामग्री प्रकार"
+
+msgid "materials"
+msgstr ""
 
 msgid "Materials"
 msgstr "सामग्री"
@@ -5252,6 +5381,10 @@ msgstr "नहीं"
 #. placeholder {0}: node.name.toLowerCase()
 msgid "No {0} found"
 msgstr "कोई {0} नहीं मिला"
+
+#. placeholder {0}: copy.pluralNoun
+msgid "No {0} yet"
+msgstr ""
 
 msgid "No abilities added"
 msgstr "कोई क्षमता जोड़ी नहीं गई"
@@ -5804,6 +5937,9 @@ msgstr "पैरेंट स्टोरेज यूनिट"
 msgid "Pareto by Type"
 msgstr "प्रकार के अनुसार पेरेटो"
 
+msgid "part"
+msgstr ""
+
 msgid "Part"
 msgstr "पार्ट"
 
@@ -5825,6 +5961,9 @@ msgstr "साथी"
 msgid "Partners"
 msgstr "भागीदार"
 
+msgid "parts"
+msgstr ""
+
 msgid "Parts"
 msgstr "पार्ट्स"
 
@@ -5840,8 +5979,14 @@ msgstr "भुगतान"
 msgid "Payment Method"
 msgstr "भुगतान विधि"
 
+msgid "payment term"
+msgstr ""
+
 msgid "Payment Term"
 msgstr "भुगतान अवधि"
+
+msgid "payment terms"
+msgstr ""
 
 msgid "Payment Terms"
 msgstr "भुगतान शर्तें"
@@ -5866,6 +6011,9 @@ msgstr "PDF वॉटरमार्क"
 
 msgid "Pending"
 msgstr "लंबित"
+
+msgid "people"
+msgstr ""
 
 msgid "People"
 msgstr "लोग"
@@ -6172,11 +6320,20 @@ msgstr "गोपनीयता नीति"
 msgid "Private"
 msgstr "निजी"
 
+msgid "procedure"
+msgstr ""
+
 msgid "Procedure"
 msgstr "प्रक्रिया"
 
+msgid "procedures"
+msgstr ""
+
 msgid "Procedures"
 msgstr "प्रक्रियाएं"
+
+msgid "process"
+msgstr ""
 
 msgid "Process"
 msgstr "प्रक्रिया"
@@ -6187,10 +6344,16 @@ msgstr "प्रक्रिया नाम"
 msgid "Process Type"
 msgstr "प्रक्रिया प्रकार"
 
+msgid "processes"
+msgstr ""
+
 msgid "Processes"
 msgstr "प्रक्रियाएं"
 
 msgid "Procurement status — needs ordering, planned, on order, or received. The same indicator shown in the BoM tree."
+msgstr ""
+
+msgid "production"
 msgstr ""
 
 msgid "Production"
@@ -6333,6 +6496,9 @@ msgstr "खरीद इकाई:"
 msgid "Purchased"
 msgstr "खरीदा गया"
 
+msgid "purchasing"
+msgstr ""
+
 msgid "Purchasing"
 msgstr "क्रय"
 
@@ -6369,6 +6535,9 @@ msgstr "मात्रा। पुनः कार्य किया गय�
 
 msgid "Qty. Scrapped"
 msgstr "मात्रा। स्क्रैप किया गया"
+
+msgid "quality"
+msgstr ""
 
 msgid "Quality"
 msgstr "गुणवत्ता"
@@ -6779,6 +6948,9 @@ msgstr "इसे NCR पूरा करने से पहले हल क�
 msgid "Resolved Price"
 msgstr "समाधान की गई कीमत"
 
+msgid "resources"
+msgstr ""
+
 msgid "Resources"
 msgstr "संसाधन"
 
@@ -6922,6 +7094,9 @@ msgstr "सुरक्षा स्टॉक:"
 msgid "Sale Price"
 msgstr "विक्रय मूल्य"
 
+msgid "sales"
+msgstr ""
+
 msgid "Sales"
 msgstr "बिक्रय"
 
@@ -7061,8 +7236,14 @@ msgstr "स्क्रैप मात्रा"
 msgid "Scrap Quantity Per Job"
 msgstr "प्रति जॉब स्क्रैप मात्रा"
 
+msgid "scrap reason"
+msgstr ""
+
 msgid "Scrap Reason"
 msgstr "स्क्रैप कारण"
+
+msgid "scrap reasons"
+msgstr ""
 
 msgid "Scrap Reasons"
 msgstr "स्क्रैप कारण"
@@ -7212,6 +7393,9 @@ msgstr "आइटम प्रकार चुनें"
 msgid "Select items"
 msgstr "आइटम चुनें"
 
+msgid "Select method..."
+msgstr ""
+
 msgid "Select Printer"
 msgstr "प्रिंटर चुनें"
 
@@ -7306,6 +7490,12 @@ msgstr "सीरियल ट्रैकिंग"
 msgid "Serial/Batch #"
 msgstr "सीरीज़/बैच #"
 
+msgid "service"
+msgstr ""
+
+msgid "services"
+msgstr ""
+
 msgid "Set Clock Out"
 msgstr "क्लॉक आउट सेट करें"
 
@@ -7355,8 +7545,14 @@ msgstr "गंभीरताएं"
 msgid "Severity"
 msgstr "गंभीरता"
 
+msgid "shape"
+msgstr ""
+
 msgid "Shape"
 msgstr "आकार"
+
+msgid "shapes"
+msgstr ""
 
 msgid "Shapes"
 msgstr "आकार"
@@ -7391,11 +7587,17 @@ msgstr "शेल्फ-लाइफ"
 msgid "Shelf-Life History"
 msgstr "शेल्फ-लाइफ इतिहास"
 
+msgid "shift"
+msgstr ""
+
 msgid "Shift"
 msgstr "शिफ्ट"
 
 msgid "Shift Name"
 msgstr "शिफ्ट का नाम"
+
+msgid "shifts"
+msgstr ""
 
 msgid "Shifts"
 msgstr "शिफ्ट"
@@ -7448,8 +7650,14 @@ msgstr "शिपिंग ग्राहक"
 msgid "Shipping Location"
 msgstr "शिपिंग स्थान"
 
+msgid "shipping method"
+msgstr ""
+
 msgid "Shipping Method"
 msgstr "शिपिंग विधि"
+
+msgid "shipping methods"
+msgstr ""
 
 msgid "Shipping Methods"
 msgstr "शिपिंग विधियां"
@@ -7543,6 +7751,9 @@ msgstr "कंपनी की छुट्टियों पर निर्�
 
 msgid "Skipped"
 msgstr "छोड़ा गया"
+
+msgid "so you can assign it here."
+msgstr ""
 
 msgid "Something went wrong"
 msgstr ""
@@ -7725,14 +7936,26 @@ msgstr "स्टोरेज क्लाइंट उपलब्ध नही
 msgid "Storage Rules"
 msgstr "भंडारण नियम"
 
+msgid "storage type"
+msgstr ""
+
 msgid "Storage Type"
 msgstr "स्टोरेज प्रकार"
+
+msgid "storage types"
+msgstr ""
 
 msgid "Storage Types"
 msgstr "स्टोरेज प्रकार"
 
+msgid "storage unit"
+msgstr ""
+
 msgid "Storage Unit"
 msgstr "भंडारण इकाई"
+
+msgid "storage units"
+msgstr ""
 
 msgid "Storage Units"
 msgstr "भंडारण इकाइयाँ"
@@ -7770,8 +7993,14 @@ msgstr "निरीक्षण जमा करें"
 msgid "Submitted By"
 msgstr "द्वारा प्रस्तुत"
 
+msgid "substance"
+msgstr ""
+
 msgid "Substance"
 msgstr "पदार्थ"
+
+msgid "substances"
+msgstr ""
 
 msgid "Substances"
 msgstr "पदार्थ"
@@ -7808,6 +8037,9 @@ msgstr "सुझाव"
 
 msgid "Sunday"
 msgstr "रविवार"
+
+msgid "supplier"
+msgstr ""
 
 msgid "Supplier"
 msgstr "आपूर्तिकर्ता"
@@ -7848,6 +8080,12 @@ msgstr "आपूर्तिकर्ता भाग संख्या"
 msgid "Supplier Parts"
 msgstr "आपूर्तिकर्ता पार्ट्स"
 
+msgid "supplier process"
+msgstr ""
+
+msgid "supplier processes"
+msgstr ""
+
 msgid "Supplier Processes"
 msgstr "आपूर्तिकर्ता प्रक्रियाएं"
 
@@ -7878,8 +8116,14 @@ msgstr "आपूर्तिकर्ता संदर्भ"
 msgid "Supplier Status"
 msgstr "आपूर्तिकर्ता स्थिति"
 
+msgid "supplier type"
+msgstr ""
+
 msgid "Supplier Type"
 msgstr "आपूर्तिकर्ता प्रकार"
+
+msgid "supplier types"
+msgstr ""
 
 msgid "Supplier Types"
 msgstr "आपूर्तिकर्ता प्रकार"
@@ -7892,6 +8136,9 @@ msgstr "आपूर्तिकर्ता अपडेट किया गय
 
 msgid "Supplier:"
 msgstr "आपूर्तिकर्ता:"
+
+msgid "suppliers"
+msgstr ""
 
 msgid "Suppliers"
 msgstr "आपूर्तिकर्ता"
@@ -8266,6 +8513,9 @@ msgstr "Tol+"
 msgid "Tolerance (+/-)"
 msgstr "सहनशीलता (+/-)"
 
+msgid "tool"
+msgstr ""
+
 msgid "Tool"
 msgstr "उपकरण"
 
@@ -8274,6 +8524,9 @@ msgstr "उपकरण विवरण"
 
 msgid "Tool ID"
 msgstr "टूल आईडी"
+
+msgid "tools"
+msgstr ""
 
 msgid "Tools"
 msgstr "उपकरण"
@@ -8449,6 +8702,9 @@ msgstr "इकाई"
 msgid "Unit Cost"
 msgstr "इकाई लागत"
 
+msgid "unit of measure"
+msgstr ""
+
 msgid "Unit of Measure"
 msgstr "माप की इकाई"
 
@@ -8466,6 +8722,9 @@ msgstr "यूनिट विक्रय मूल्य"
 
 msgid "Units"
 msgstr "इकाइयाँ"
+
+msgid "units of measure"
+msgstr ""
 
 msgid "Unknown"
 msgstr "अज्ञात"
@@ -8650,6 +8909,9 @@ msgstr "रिपोर्टिंग और विश्लेषण के �
 
 msgid "User"
 msgstr "उपयोगकर्ता"
+
+msgid "users"
+msgstr ""
 
 msgid "Users"
 msgstr "उपयोगकर्ता"
@@ -8994,11 +9256,17 @@ msgstr "वर्डमार्क डार्क मोड"
 msgid "Wordmark Light Mode"
 msgstr "वर्डमार्क लाइट मोड"
 
+msgid "work center"
+msgstr ""
+
 msgid "Work Center"
 msgstr "कार्य केंद्र"
 
 msgid "Work Center Utilization"
 msgstr "कार्य केंद्र उपयोग"
+
+msgid "work centers"
+msgstr ""
 
 msgid "Work Centers"
 msgstr "कार्य केंद्र"

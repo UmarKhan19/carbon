@@ -67,7 +67,7 @@ msgid "/month/user"
 msgstr "/ay/kullanıcı"
 
 msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
-msgstr "<0>Bir tedarikçi parça ekle</0> bu öğe için tercih edilen bir tedarikçi belirlemek amacıyla."
+msgstr ""
 
 msgid "0-4 weeks"
 msgstr "0-4 hafta"
@@ -165,8 +165,14 @@ msgstr "Bir takım, birden fazla işte kullanılabilecek bir parça yapmak için
 msgid "A user records the expiry date on each batch or serial when the goods are received. Use when suppliers ship lots with different expiry dates."
 msgstr "Kullanıcı, mallar alındığında her parti veya seri için son kullanma tarihini kaydeder. Tedarikçiler farklı son kullanma tarihlerine sahip partiler gönderdiğinde kullanılır."
 
+msgid "abilities"
+msgstr ""
+
 msgid "Abilities"
 msgstr "Yetenekler"
+
+msgid "ability"
+msgstr ""
 
 msgid "About"
 msgstr "Hakkında"
@@ -194,6 +200,9 @@ msgstr "Hesap Ayarları"
 
 msgid "Account Type"
 msgstr "Hesap Türü"
+
+msgid "accounting"
+msgstr ""
 
 msgid "Accounting"
 msgstr "Muhasebe"
@@ -398,6 +407,10 @@ msgstr "Zaman Kartı Ekle"
 
 msgid "Add to stock for future use"
 msgstr "Gelecekteki kullanım için stoğa ekle"
+
+#. placeholder {0}: copy.noun
+msgid "Add your first {0}"
+msgstr ""
 
 msgid "Add-On"
 msgstr "Ek Üzerine Ek"
@@ -935,11 +948,22 @@ msgstr "Şirket sahibi olarak, sahipliği başka bir çalışana devredebilirsin
 msgid "Ascending"
 msgstr "Artan"
 
+#. placeholder {0}: copy.moduleLabel
+#. placeholder {1}: copy.noun
+msgid "Ask an admin with {0} permission to add the first {1}."
+msgstr ""
+
 msgid "Assembly:"
 msgstr "Montaj:"
 
 msgid "Asset"
 msgstr "Varlık"
+
+msgid "asset class"
+msgstr ""
+
+msgid "asset classes"
+msgstr ""
 
 msgid "Asset Classes"
 msgstr "Varlık Sınıfları"
@@ -1628,6 +1652,9 @@ msgstr "Konsol modu etkinleştirildi"
 msgid "Console Operator"
 msgstr "Konsol Operatörü"
 
+msgid "consumable"
+msgstr ""
+
 msgid "Consumable"
 msgstr "Sarflama"
 
@@ -1637,17 +1664,26 @@ msgstr "Sarflama Detayları"
 msgid "Consumable ID"
 msgstr "Tüketilebilir Ürün Kodu"
 
+msgid "consumables"
+msgstr ""
+
 msgid "Consumables"
 msgstr "Sarflar"
 
 msgid "Consumed"
 msgstr "Tüketildi"
 
+msgid "contact"
+msgstr ""
+
 msgid "Contact"
 msgstr "İletişim"
 
 msgid "Contact (optional)"
 msgstr "İletişim (isteğe bağlı)"
+
+msgid "contacts"
+msgstr ""
 
 msgid "Contacts"
 msgstr "Kişiler"
@@ -1823,8 +1859,14 @@ msgstr "Doğru Cevap"
 msgid "Correct Answers"
 msgstr "Doğru Cevaplar"
 
+msgid "cost center"
+msgstr ""
+
 msgid "Cost Center"
 msgstr "Maliyet Merkezi"
+
+msgid "cost centers"
+msgstr ""
 
 msgid "Cost Centers"
 msgstr "Maliyet Merkezleri"
@@ -2084,6 +2126,9 @@ msgstr "Özel Alan"
 msgid "Custom Fields"
 msgstr "Özel Alanlar"
 
+msgid "customer"
+msgstr ""
+
 msgid "Customer"
 msgstr "Müşteri"
 
@@ -2147,17 +2192,32 @@ msgstr "Müşteri RFQ"
 msgid "Customer Scope"
 msgstr "Müşteri Kapsamı"
 
+msgid "customer status"
+msgstr ""
+
 msgid "Customer Status"
 msgstr "Müşteri Durumu"
+
+msgid "customer statuses"
+msgstr ""
 
 msgid "Customer Statuses"
 msgstr "Müşteri Durumları"
 
+msgid "customer type"
+msgstr ""
+
 msgid "Customer Type"
 msgstr "Müşteri Türü"
 
+msgid "customer types"
+msgstr ""
+
 msgid "Customer Types"
 msgstr "Müşteri Tipleri"
+
+msgid "customers"
+msgstr ""
 
 msgid "Customers"
 msgstr "Müşteriler"
@@ -2562,11 +2622,17 @@ msgstr "Talep Tahminleri"
 msgid "Demand-Based"
 msgstr "Talep Tabanlı"
 
+msgid "department"
+msgstr ""
+
 msgid "Department"
 msgstr "Departman"
 
 msgid "Department Name"
 msgstr "Departman Adı"
+
+msgid "departments"
+msgstr ""
 
 msgid "Departments"
 msgstr "Departmanlar"
@@ -2598,8 +2664,14 @@ msgstr "Dijital Teklif"
 msgid "Digital Quotes"
 msgstr "Dijital Teklifler"
 
+msgid "dimension"
+msgstr ""
+
 msgid "Dimension"
 msgstr "Boyut"
+
+msgid "dimensions"
+msgstr ""
 
 msgid "Dimensions"
 msgstr "Boyutlar"
@@ -3043,6 +3115,9 @@ msgstr "E-posta Adresleri"
 msgid "Emoji"
 msgstr "Emoji"
 
+msgid "employee"
+msgstr ""
+
 msgid "Employee"
 msgstr "Çalışan"
 
@@ -3054,6 +3129,9 @@ msgstr "Çalışan Türü"
 
 msgid "Employee Types"
 msgstr "Çalışan Tipleri"
+
+msgid "employees"
+msgstr ""
 
 msgid "Employees"
 msgstr "Çalışanlar"
@@ -3735,11 +3813,17 @@ msgstr "Filtre"
 msgid "Finalize"
 msgstr "Onayla"
 
+msgid "finish"
+msgstr ""
+
 msgid "Finish"
 msgstr "Bitiş"
 
 msgid "Finish To"
 msgstr "Bitirmek İçin"
+
+msgid "finishes"
+msgstr ""
 
 msgid "Finishes"
 msgstr "Kaplamalar"
@@ -3808,6 +3892,9 @@ msgstr "Kaynak Depo Birimi"
 msgid "Fully trained for"
 msgstr "Tamamen eğitilmiş"
 
+msgid "gauge"
+msgstr ""
+
 msgid "Gauge"
 msgstr "Kalibratör"
 
@@ -3825,6 +3912,9 @@ msgstr "Kalibrasyon Tipi"
 
 msgid "Gauge Types"
 msgstr "Ölçüm Tipleri"
+
+msgid "gauges"
+msgstr ""
 
 msgid "Gauges"
 msgstr "Kalibratörler"
@@ -3871,8 +3961,14 @@ msgstr "Günaydın, {0}"
 msgid "Google Places API key not configured"
 msgstr "Google Yerler API anahtarı yapılandırılmamış"
 
+msgid "grade"
+msgstr ""
+
 msgid "Grade"
 msgstr "Derece"
+
+msgid "grades"
+msgstr ""
 
 msgid "Grades"
 msgstr "Dereceler"
@@ -4120,6 +4216,9 @@ msgstr "stok"
 msgid "Invalid Invite"
 msgstr "Geçersiz Davetiye"
 
+msgid "inventory"
+msgstr ""
+
 msgid "Inventory"
 msgstr "Stok"
 
@@ -4243,6 +4342,9 @@ msgstr "Düzenlenme Tarihi"
 msgid "Issues"
 msgstr "Sorunlar"
 
+msgid "item"
+msgstr "öğe"
+
 msgid "Item"
 msgstr "Ürün"
 
@@ -4252,8 +4354,14 @@ msgstr "Ürün {scannedItem}, ürün {expectedItem} ile aynı değil"
 msgid "Item filters"
 msgstr "Ürün filtreleri"
 
+msgid "item group"
+msgstr ""
+
 msgid "Item Group"
 msgstr "Ürün Grubu"
+
+msgid "item groups"
+msgstr ""
 
 msgid "Item groups"
 msgstr "Ürün grupları"
@@ -4281,6 +4389,9 @@ msgstr "Ürün Tipi"
 
 msgid "Item types"
 msgstr "Ürün tipleri"
+
+msgid "items"
+msgstr "öğeler"
 
 msgid "Items"
 msgstr "Ürünler"
@@ -4512,11 +4623,17 @@ msgstr "Yükleniyor..."
 msgid "Loading…"
 msgstr "Yükleniyor..."
 
+msgid "location"
+msgstr ""
+
 msgid "Location"
 msgstr "Konum"
 
 msgid "Location Name"
 msgstr "Konum Adı"
+
+msgid "locations"
+msgstr ""
 
 msgid "Locations"
 msgstr "Lokasyonlar"
@@ -4713,6 +4830,9 @@ msgstr "eşleşir"
 msgid "Matching Pairs"
 msgstr "Eşleştirme Çiftleri"
 
+msgid "material"
+msgstr ""
+
 msgid "Material"
 msgstr "Malzeme"
 
@@ -4761,11 +4881,20 @@ msgstr "Malzeme Maddesi"
 msgid "Material Substances"
 msgstr "Malzeme Maddeleri"
 
+msgid "material type"
+msgstr ""
+
 msgid "Material Type"
 msgstr "Malzeme Tipi"
 
+msgid "material types"
+msgstr ""
+
 msgid "Material Types"
 msgstr "Malzeme Tipleri"
+
+msgid "materials"
+msgstr ""
 
 msgid "Materials"
 msgstr "Malzemeler"
@@ -5252,6 +5381,10 @@ msgstr "Hayır"
 #. placeholder {0}: node.name.toLowerCase()
 msgid "No {0} found"
 msgstr "Hiç {0} bulunamadı"
+
+#. placeholder {0}: copy.pluralNoun
+msgid "No {0} yet"
+msgstr ""
 
 msgid "No abilities added"
 msgstr "Ek yetenek eklenmedi"
@@ -5804,6 +5937,9 @@ msgstr "Üst Depolama Birimi"
 msgid "Pareto by Type"
 msgstr "Tür Tipine Göre Pareto"
 
+msgid "part"
+msgstr ""
+
 msgid "Part"
 msgstr "Parça"
 
@@ -5825,6 +5961,9 @@ msgstr "İş Ortağı"
 msgid "Partners"
 msgstr "Ortaklar"
 
+msgid "parts"
+msgstr ""
+
 msgid "Parts"
 msgstr "Parçalar"
 
@@ -5840,8 +5979,14 @@ msgstr "Ödeme"
 msgid "Payment Method"
 msgstr "Ödeme Yöntemi"
 
+msgid "payment term"
+msgstr ""
+
 msgid "Payment Term"
 msgstr "Ödeme Vadesi"
+
+msgid "payment terms"
+msgstr ""
 
 msgid "Payment Terms"
 msgstr "Ödeme Koşulları"
@@ -5866,6 +6011,9 @@ msgstr "PDF Filigranı"
 
 msgid "Pending"
 msgstr "Beklemede"
+
+msgid "people"
+msgstr ""
 
 msgid "People"
 msgstr "Kişiler"
@@ -6172,11 +6320,20 @@ msgstr "Gizlilik Politikası"
 msgid "Private"
 msgstr "Gizli"
 
+msgid "procedure"
+msgstr ""
+
 msgid "Procedure"
 msgstr "Prosedür"
 
+msgid "procedures"
+msgstr ""
+
 msgid "Procedures"
 msgstr "Prosedürler"
+
+msgid "process"
+msgstr ""
 
 msgid "Process"
 msgstr "Proses"
@@ -6187,10 +6344,16 @@ msgstr "İşlem Adı"
 msgid "Process Type"
 msgstr "İşlem Türü"
 
+msgid "processes"
+msgstr ""
+
 msgid "Processes"
 msgstr "Süreçler"
 
 msgid "Procurement status — needs ordering, planned, on order, or received. The same indicator shown in the BoM tree."
+msgstr ""
+
+msgid "production"
 msgstr ""
 
 msgid "Production"
@@ -6333,6 +6496,9 @@ msgstr "Satın Alma Birimi:"
 msgid "Purchased"
 msgstr "Satın Alındı"
 
+msgid "purchasing"
+msgstr ""
+
 msgid "Purchasing"
 msgstr "Satın Alma"
 
@@ -6369,6 +6535,9 @@ msgstr "Revize Edilen Miktar"
 
 msgid "Qty. Scrapped"
 msgstr "Hur. Hurda"
+
+msgid "quality"
+msgstr ""
 
 msgid "Quality"
 msgstr "Kalite"
@@ -6779,6 +6948,9 @@ msgstr "Bu NC'yi tamamlamadan önce bunları çözün: her satırın Geçici Olm
 msgid "Resolved Price"
 msgstr "Belirlenmiş Fiyat"
 
+msgid "resources"
+msgstr ""
+
 msgid "Resources"
 msgstr "Kaynaklar"
 
@@ -6922,6 +7094,9 @@ msgstr "Güvenlik Stoğu:"
 msgid "Sale Price"
 msgstr "Satış Fiyatı"
 
+msgid "sales"
+msgstr ""
+
 msgid "Sales"
 msgstr "Satışlar"
 
@@ -7061,8 +7236,14 @@ msgstr "Hurda Miktarı"
 msgid "Scrap Quantity Per Job"
 msgstr "İş Başına Hurda Miktarı"
 
+msgid "scrap reason"
+msgstr ""
+
 msgid "Scrap Reason"
 msgstr "Hurda Nedeni"
+
+msgid "scrap reasons"
+msgstr ""
 
 msgid "Scrap Reasons"
 msgstr "Hurdaya Nega"
@@ -7212,6 +7393,9 @@ msgstr "Ürün Türü Seçin"
 msgid "Select items"
 msgstr "Öğeler seçin"
 
+msgid "Select method..."
+msgstr ""
+
 msgid "Select Printer"
 msgstr "Yazıcı Seçin"
 
@@ -7306,6 +7490,12 @@ msgstr "Seri Takibi"
 msgid "Serial/Batch #"
 msgstr "Seri/Parti No"
 
+msgid "service"
+msgstr ""
+
+msgid "services"
+msgstr ""
+
 msgid "Set Clock Out"
 msgstr "Çıkış Saati Belirle"
 
@@ -7355,8 +7545,14 @@ msgstr "Şiddetler"
 msgid "Severity"
 msgstr "Şiddet"
 
+msgid "shape"
+msgstr ""
+
 msgid "Shape"
 msgstr "Şekil"
+
+msgid "shapes"
+msgstr ""
 
 msgid "Shapes"
 msgstr "Şekiller"
@@ -7391,11 +7587,17 @@ msgstr "Raf Ömrü"
 msgid "Shelf-Life History"
 msgstr "Raf Ömrü Geçmişi"
 
+msgid "shift"
+msgstr ""
+
 msgid "Shift"
 msgstr "Vardiya"
 
 msgid "Shift Name"
 msgstr "Vardiya Adı"
+
+msgid "shifts"
+msgstr ""
 
 msgid "Shifts"
 msgstr "Vardiyalar"
@@ -7448,8 +7650,14 @@ msgstr "Gönderici Müşteri"
 msgid "Shipping Location"
 msgstr "Teslimat Adresi"
 
+msgid "shipping method"
+msgstr ""
+
 msgid "Shipping Method"
 msgstr "Nakliye Yöntemi"
+
+msgid "shipping methods"
+msgstr ""
 
 msgid "Shipping Methods"
 msgstr "Kargo Yöntemleri"
@@ -7543,6 +7751,9 @@ msgstr "Şirket tatillerinde planlanmış bakımı atla"
 
 msgid "Skipped"
 msgstr "Atlanmış"
+
+msgid "so you can assign it here."
+msgstr ""
 
 msgid "Something went wrong"
 msgstr "Bir şeyler yanlış gitti"
@@ -7725,14 +7936,26 @@ msgstr "Depolama istemcisi kullanılamıyor"
 msgid "Storage Rules"
 msgstr "Depolama Kuralları"
 
+msgid "storage type"
+msgstr ""
+
 msgid "Storage Type"
 msgstr "Depolama Türü"
+
+msgid "storage types"
+msgstr ""
 
 msgid "Storage Types"
 msgstr "Depolama Türleri"
 
+msgid "storage unit"
+msgstr ""
+
 msgid "Storage Unit"
 msgstr "Depolama Birimi"
+
+msgid "storage units"
+msgstr ""
 
 msgid "Storage Units"
 msgstr "Depolama Birimleri"
@@ -7770,8 +7993,14 @@ msgstr "Muayene Et"
 msgid "Submitted By"
 msgstr "Gönderen"
 
+msgid "substance"
+msgstr ""
+
 msgid "Substance"
 msgstr "Madde"
+
+msgid "substances"
+msgstr ""
 
 msgid "Substances"
 msgstr "Madde Maddeleri"
@@ -7808,6 +8037,9 @@ msgstr "Öneriler"
 
 msgid "Sunday"
 msgstr "Pazar"
+
+msgid "supplier"
+msgstr ""
 
 msgid "Supplier"
 msgstr "Tedarikçi"
@@ -7848,6 +8080,12 @@ msgstr "Tedarikçi Parça Numarası"
 msgid "Supplier Parts"
 msgstr "Tedarikçi Parçaları"
 
+msgid "supplier process"
+msgstr ""
+
+msgid "supplier processes"
+msgstr ""
+
 msgid "Supplier Processes"
 msgstr "Tedarikçi Süreçleri"
 
@@ -7878,8 +8116,14 @@ msgstr "Tedarikçi Referansı"
 msgid "Supplier Status"
 msgstr "Tedarikçi Durumu"
 
+msgid "supplier type"
+msgstr ""
+
 msgid "Supplier Type"
 msgstr "Tedarikçi Türü"
+
+msgid "supplier types"
+msgstr ""
 
 msgid "Supplier Types"
 msgstr "Tedarikçi Türleri"
@@ -7892,6 +8136,9 @@ msgstr "Tedarikçi güncellendi"
 
 msgid "Supplier:"
 msgstr "Tedarikçi:"
+
+msgid "suppliers"
+msgstr ""
 
 msgid "Suppliers"
 msgstr "Tedarikçiler"
@@ -8266,6 +8513,9 @@ msgstr "Tolerans+"
 msgid "Tolerance (+/-)"
 msgstr "Tolerans (+/-)"
 
+msgid "tool"
+msgstr ""
+
 msgid "Tool"
 msgstr "Alet"
 
@@ -8274,6 +8524,9 @@ msgstr "Alet Detayları"
 
 msgid "Tool ID"
 msgstr "Alet Kimliği"
+
+msgid "tools"
+msgstr ""
 
 msgid "Tools"
 msgstr "Araçlar"
@@ -8449,6 +8702,9 @@ msgstr "Birim"
 msgid "Unit Cost"
 msgstr "Birim Maliyeti"
 
+msgid "unit of measure"
+msgstr ""
+
 msgid "Unit of Measure"
 msgstr "Birim"
 
@@ -8466,6 +8722,9 @@ msgstr "Birim Satış Fiyatı"
 
 msgid "Units"
 msgstr "Birimler"
+
+msgid "units of measure"
+msgstr ""
 
 msgid "Unknown"
 msgstr "Bilinmeyen"
@@ -8650,6 +8909,9 @@ msgstr "Raporlama ve analiz için ürünleri kategorize etmek amacıyla kullanı
 
 msgid "User"
 msgstr "Kullanıcı"
+
+msgid "users"
+msgstr ""
 
 msgid "Users"
 msgstr "Kullanıcılar"
@@ -8994,11 +9256,17 @@ msgstr "Sözlük Karanlık Mod"
 msgid "Wordmark Light Mode"
 msgstr "Marka Açık Mod"
 
+msgid "work center"
+msgstr ""
+
 msgid "Work Center"
 msgstr "İş Merkezi"
 
 msgid "Work Center Utilization"
 msgstr "İş Merkezi Kullanımı"
+
+msgid "work centers"
+msgstr ""
 
 msgid "Work Centers"
 msgstr "İş Merkezleri"

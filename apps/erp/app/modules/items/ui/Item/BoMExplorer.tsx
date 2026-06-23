@@ -310,7 +310,7 @@ const BoMExplorer = ({
                     <div
                       key={node.id}
                       className={cn(
-                        "flex h-8 cursor-pointer items-center overflow-hidden rounded-sm pr-2 gap-1 group/node",
+                        "flex h-8 cursor-pointer items-center overflow-hidden rounded-sm pr-3 gap-1 group/node",
                         state.selected
                           ? "bg-muted hover:bg-accent"
                           : "bg-transparent hover:bg-accent",
@@ -390,7 +390,10 @@ const BoMExplorer = ({
                         </div>
                         <div className="flex flex-shrink-0 items-center gap-1">
                           {node.data.isRoot ? (
-                            <Badge variant="outline">
+                            <Badge
+                              variant="outline"
+                              className="whitespace-nowrap"
+                            >
                               V{makeMethodVersion}
                             </Badge>
                           ) : (
