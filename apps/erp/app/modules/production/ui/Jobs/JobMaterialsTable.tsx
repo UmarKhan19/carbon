@@ -7,7 +7,6 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-  useMount,
   VStack
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
@@ -20,11 +19,11 @@ import {
   LuArrowUp,
   LuBookMarked,
   LuCalendarX,
+  LuFactory,
   LuFlag,
   LuHash,
   LuRefreshCcwDot,
-  LuShoppingCart,
-  LuTruck
+  LuShoppingCart
 } from "react-icons/lu";
 import { useFetcher, useParams } from "react-router";
 import {
@@ -36,13 +35,7 @@ import {
 } from "~/components";
 import { useFilters } from "~/components/Table/components/Filter/useFilters";
 import { usePermissions, useRouteData, useUrlParams } from "~/hooks";
-import { useItems } from "~/stores";
-import {
-  addToStockTransferSession,
-  removeFromStockTransferSession,
-  useStockTransferSession,
-  useStockTransferSessionItemsCount
-} from "~/stores/stock-transfer";
+import { type Item, useItems } from "~/stores";
 import { path } from "~/utils/path";
 import {
   ACTIVE_JOB_STATUSES,
@@ -51,7 +44,6 @@ import {
 } from "../../jobOrderStatus";
 import type { Job, JobMaterial } from "../../types";
 import { JobOrderStatusBadge } from "./JobOrderStatus";
-import { StockTransferSessionWidget } from "./StockTransferSessionWidget";
 
 type JobMaterialsTableProps = {
   data: JobMaterial[];
@@ -112,101 +104,15 @@ const JobMaterialsTable = memo(
     const [items] = useItems();
     const [, setSearchParams] = useUrlParams();
 
-    const sessionItemsCount = useStockTransferSessionItemsCount();
-    const [session, setStockTransferSession] = useStockTransferSession();
-
-    useMount(() => {
-      // Pre-populate stock transfer session with all parts that need transferred or ordered
-      const itemsToAdd: Array<{
-        id: string; // Job material ID
-        itemId: string; // Actual item ID
-        itemReadableId: string;
-        description: string;
-        action: "transfer" | "order";
-        quantity: number;
-        requiresSerialTracking: boolean;
-        requiresBatchTracking: boolean;
-        storageUnitId?: string;
-      }> = [];
-
-      data.forEach((material) => {
-        if (
-          material.itemTrackingType === "Non-Inventory" ||
-          material.methodType === "Make to Order" ||
-          !material.id
-        ) {
-          return;
-        }
-
-        const quantityRequiredByStorageUnit = isRequired
-          ? material.quantityFromProductionOrderInStorageUnit
-          : material.quantityFromProductionOrderInStorageUnit +
-            material.estimatedQuantity;
-
-        // Check if transfer is needed. Only propose moving what actually exists
-        // in OTHER storage units (quantityOnHandNotInStorageUnit) — a transfer
-        // can't source stock that isn't there. Any remaining gap is a genuine
-        // shortage, handled by the order path below.
-        const quantityOnHandInStorageUnit =
-          material.quantityOnHandInStorageUnit;
-        const quantityInTransitToStorageUnit =
-          material.quantityInTransitToStorageUnit;
-        const transferQuantity = Math.min(
-          quantityRequiredByStorageUnit -
-            (quantityOnHandInStorageUnit + quantityInTransitToStorageUnit),
-          material.quantityOnHandNotInStorageUnit
-        );
-
-        if (transferQuantity > 0) {
-          itemsToAdd.push({
-            id: material.id, // Job material ID
-            itemId: material.jobMaterialItemId, // Actual item ID
-            itemReadableId: material.itemReadableId,
-            description: material.description,
-            action: "transfer",
-            quantity: transferQuantity,
-            requiresSerialTracking: material.itemTrackingType === "Serial",
-            requiresBatchTracking: material.itemTrackingType === "Batch",
-            storageUnitId: material.storageUnitId
-          });
-        }
-
-        // Check if order is needed
-        const quantityOnHand =
-          material.quantityOnHandInStorageUnit +
-          material.quantityOnHandNotInStorageUnit;
-
-        const incoming =
-          material.quantityOnPurchaseOrder + material.quantityOnProductionOrder;
-
-        const required =
-          material.quantityFromProductionOrderInStorageUnit +
-          material.quantityFromProductionOrderNotInStorageUnit +
-          material.quantityOnSalesOrder;
-
-        const hasTotalQuantityFlag = quantityOnHand + incoming - required < 0;
-
-        if (hasTotalQuantityFlag) {
-          itemsToAdd.push({
-            id: material.id, // Job material ID
-            itemId: material.jobMaterialItemId, // Actual item ID
-            itemReadableId: material.itemReadableId,
-            description: material.description,
-            action: "order",
-            quantity:
-              (material.estimatedQuantity ?? 0) -
-              (quantityOnHand + incoming - required),
-            requiresSerialTracking: material.itemTrackingType === "Serial",
-            requiresBatchTracking: material.itemTrackingType === "Batch",
-            storageUnitId: material.storageUnitId
-          });
-        }
-      });
-
-      if (itemsToAdd.length > 0) {
-        setStockTransferSession({ items: itemsToAdd });
+    // Whether each item is bought, made, or both — drives where the row's
+    // dropdown sends the user for planning (purchasing vs production).
+    const replenishmentByItemId = useMemo(() => {
+      const map = new Map<string, Item["replenishmentSystem"]>();
+      for (const item of items) {
+        map.set(item.id, item.replenishmentSystem);
       }
-    });
+      return map;
+    }, [items]);
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
     const columns = useMemo<ColumnDef<JobMaterial>[]>(() => {
@@ -299,9 +205,14 @@ const JobMaterialsTable = memo(
               options: [
                 { value: "needsOrder", label: t`Needs ordering` },
                 { value: "planned", label: t`Planned` },
+                { value: "plannedJob", label: t`Planned job` },
                 { value: "awaitingApproval", label: t`Awaiting approval` },
                 { value: "onOrder", label: t`On order` },
-                { value: "received", label: t`Received` }
+                { value: "received", label: t`Pending` },
+                // `completed` category covers both a finished job ("Completed"
+                // badge) and a need met from on-hand stock ("In stock"). On an
+                // active job it's always the latter, so label it "In stock".
+                { value: "completed", label: t`In stock` }
               ]
             }
           }
@@ -593,135 +504,82 @@ const JobMaterialsTable = memo(
       setSearchParams,
       isRequired,
       formatter,
-      sessionItemsCount,
       jobItemIdSet,
       orderStatusByMaterialId
     ]);
 
     const renderContextMenu = useMemo(() => {
       return (row: JobMaterial) => {
-        // Skip non-inventory items and make items
-        if (
-          row.itemTrackingType === "Non-Inventory" ||
-          row.methodType === "Make to Order" ||
-          !row.id
-        ) {
-          return null;
-        }
+        // Route by how the item is replenished, not the job's method type:
+        // buy items plan in Purchasing, make items in Production. "Buy and Make"
+        // items can go to either.
+        const replenishment = replenishmentByItemId.get(row.jobMaterialItemId);
+        const canPurchase =
+          replenishment === "Buy" || replenishment === "Buy and Make";
+        const canProduce =
+          replenishment === "Make" || replenishment === "Buy and Make";
 
-        const quantityRequiredByStorageUnit = isRequired
-          ? row.quantityFromProductionOrderInStorageUnit
-          : row.quantityFromProductionOrderInStorageUnit +
-            row.estimatedQuantity;
+        if (!canPurchase && !canProduce) return null;
 
-        const quantityOnHandInStorageUnit = row.quantityOnHandInStorageUnit;
-
-        const quantityOnHand =
-          row.quantityOnHandInStorageUnit + row.quantityOnHandNotInStorageUnit;
-        const incoming =
-          row.quantityOnPurchaseOrder + row.quantityOnProductionOrder;
-        const required =
-          row.quantityFromProductionOrderInStorageUnit +
-          row.quantityFromProductionOrderNotInStorageUnit +
-          row.quantityOnSalesOrder;
-
-        // Check if items are already in session
-        const isInSessionForTransfer = session.items.some(
-          (item) => item.id === row.id && item.action === "transfer"
-        );
-        const isInSessionForOrder = session.items.some(
-          (item) => item.id === row.id && item.action === "order"
-        );
+        const search = encodeURIComponent(row.itemReadableId);
 
         return (
           <>
-            <MenuItem
-              destructive={isInSessionForTransfer}
-              onClick={() => {
-                if (isInSessionForTransfer) {
-                  removeFromStockTransferSession(row.id!, "transfer");
-                } else {
-                  addToStockTransferSession({
-                    id: row.id!, // Job material ID
-                    itemId: row.jobMaterialItemId, // Actual item ID
-                    itemReadableId: row.itemReadableId,
-                    description: row.description,
-                    action: "transfer",
-                    quantity:
-                      quantityRequiredByStorageUnit -
-                      quantityOnHandInStorageUnit,
-                    requiresSerialTracking: row.itemTrackingType === "Serial",
-                    requiresBatchTracking: row.itemTrackingType === "Batch",
-                    storageUnitId: row.storageUnitId
-                  });
-                }
-              }}
-            >
-              <MenuIcon icon={<LuTruck />} />
-              {isInSessionForTransfer ? t`Remove Transfer` : t`Transfer`}
-            </MenuItem>
-            <MenuItem
-              destructive={isInSessionForOrder}
-              onClick={() => {
-                if (isInSessionForOrder) {
-                  removeFromStockTransferSession(row.id!, "order");
-                } else {
-                  addToStockTransferSession({
-                    id: row.id!, // Job material ID
-                    itemId: row.jobMaterialItemId, // Actual item ID
-                    itemReadableId: row.itemReadableId,
-                    description: row.description,
-                    action: "order",
-                    quantity:
-                      (row.estimatedQuantity ?? 0) -
-                      (quantityOnHand + incoming - required),
-                    requiresSerialTracking: row.itemTrackingType === "Serial",
-                    requiresBatchTracking: row.itemTrackingType === "Batch",
-                    storageUnitId: row.storageUnitId
-                  });
-                }
-              }}
-            >
-              <MenuIcon icon={<LuShoppingCart />} />
-              {isInSessionForOrder ? t`Remove Order` : t`Order`}
-            </MenuItem>
+            {canPurchase && (
+              <MenuItem asChild>
+                <a
+                  href={`${path.to.purchasingPlanning}?search=${search}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <MenuIcon icon={<LuShoppingCart />} />
+                  {t`Purchase planning`}
+                </a>
+              </MenuItem>
+            )}
+            {canProduce && (
+              <MenuItem asChild>
+                <a
+                  href={`${path.to.productionPlanning}?search=${search}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <MenuIcon icon={<LuFactory />} />
+                  {t`Production planning`}
+                </a>
+              </MenuItem>
+            )}
           </>
         );
       };
-    }, [isRequired, session.items, t]);
+    }, [t, replenishmentByItemId]);
 
     const permissions = usePermissions();
 
     return (
-      <>
-        <Table<JobMaterial>
-          compact
-          count={orderStatusFilterKey ? filteredData.length : count}
-          columns={columns}
-          data={filteredData}
-          primaryAction={
-            data.length > 0 && permissions.can("update", "production") ? (
-              <fetcher.Form
-                action={path.to.jobRecalculate(jobId)}
-                method="post"
+      <Table<JobMaterial>
+        compact
+        count={orderStatusFilterKey ? filteredData.length : count}
+        columns={columns}
+        data={filteredData}
+        primaryAction={
+          data.length > 0 && permissions.can("update", "production") ? (
+            <fetcher.Form action={path.to.jobRecalculate(jobId)} method="post">
+              <Button
+                leftIcon={<LuRefreshCcwDot />}
+                isLoading={fetcher.state !== "idle"}
+                isDisabled={fetcher.state !== "idle"}
+                type="submit"
+                variant="secondary"
               >
-                <Button
-                  leftIcon={<LuRefreshCcwDot />}
-                  isLoading={fetcher.state !== "idle"}
-                  isDisabled={fetcher.state !== "idle"}
-                  type="submit"
-                  variant="secondary"
-                >
-                  <Trans>Recalculate</Trans>
-                </Button>
-              </fetcher.Form>
-            ) : undefined
-          }
-          renderContextMenu={renderContextMenu}
-          title={t`Materials`}
-        />
-        <StockTransferSessionWidget jobId={jobId} />
-      </>
+                <Trans>Recalculate</Trans>
+              </Button>
+            </fetcher.Form>
+          ) : undefined
+        }
+        renderContextMenu={renderContextMenu}
+        title={t`Materials`}
+      />
     );
   }
 );

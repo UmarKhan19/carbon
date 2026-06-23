@@ -66,10 +66,6 @@ msgstr "{scopeCount} permissões"
 msgid "/month/user"
 msgstr "/mês/utilizador"
 
-#. placeholder {0}: allItems.length - 3
-msgid "+{0} more"
-msgstr "+{0} mais"
-
 msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
 msgstr "<0>Adicionar uma peça de fornecedor</0> para este item para definir um fornecedor preferido."
 
@@ -216,9 +212,6 @@ msgstr "Período de Acumulação (Semanas)"
 
 msgid "Accumulation Period:"
 msgstr "Período de Acumulação:"
-
-msgid "Action Items"
-msgstr "Itens de Ação"
 
 msgid "Action Status"
 msgstr "Status da Ação"
@@ -1386,9 +1379,6 @@ msgstr "Classe"
 
 msgid "Clear"
 msgstr "Limpar"
-
-msgid "Clear All"
-msgstr "Limpar Tudo"
 
 msgid "Clear due date"
 msgstr "Limpar data de vencimento"
@@ -4010,6 +4000,9 @@ msgstr "Em Andamento"
 msgid "in selected period"
 msgstr "no período selecionado"
 
+msgid "In stock"
+msgstr ""
+
 msgid "Inactive"
 msgstr "Inativo"
 
@@ -4250,9 +4243,6 @@ msgstr "Data de Emissão"
 msgid "Issues"
 msgstr "Problemas"
 
-msgid "item"
-msgstr "item"
-
 msgid "Item"
 msgstr "Item"
 
@@ -4292,9 +4282,6 @@ msgstr "Tipo de Item"
 msgid "Item types"
 msgstr "Tipos de item"
 
-msgid "items"
-msgstr "itens"
-
 msgid "Items"
 msgstr "Itens"
 
@@ -4306,6 +4293,9 @@ msgstr "Trabalho"
 
 msgid "Job ID"
 msgstr "ID da Tarefa"
+
+msgid "Job in progress"
+msgstr ""
 
 msgid "Job Location"
 msgstr "Localização do Trabalho"
@@ -4857,9 +4847,6 @@ msgstr "Unidades métricas ativadas"
 
 msgid "Min Qty"
 msgstr "Qtd Mín"
-
-msgid "Minimize"
-msgstr "Minimizar"
 
 msgid "Minimum"
 msgstr "Mínimo"
@@ -5417,9 +5404,6 @@ msgstr "Nenhuma fonte pai registrada ainda. Clique em Recalcular na página de p
 msgid "No part ID"
 msgstr "Sem ID de peça"
 
-msgid "No parts added yet"
-msgstr "Nenhuma peça adicionada ainda"
-
 msgid "No planning data"
 msgstr "Sem dados de planejamento"
 
@@ -5696,7 +5680,7 @@ msgstr "OU"
 msgid "Order"
 msgstr "Pedido"
 
-#. placeholder {0}: status.shortfall
+#. placeholder {0}: status?.shortfall
 msgid "Order {0} for this job"
 msgstr ""
 
@@ -5982,6 +5966,9 @@ msgstr "Fim Planejado"
 msgid "Planned End Time"
 msgstr "Hora de Término Planejada"
 
+msgid "Planned job"
+msgstr ""
+
 msgid "Planned Order"
 msgstr "Ordem Planejada"
 
@@ -6215,6 +6202,9 @@ msgstr "Evento de Produção"
 msgid "Production Events"
 msgstr "Eventos de Produção"
 
+msgid "Production planning"
+msgstr ""
+
 msgid "Production Qty"
 msgstr "Qtd. Produção"
 
@@ -6324,6 +6314,9 @@ msgstr "Pedidos de Compra"
 
 msgid "Purchase orders required"
 msgstr "Ordens de compra necessárias"
+
+msgid "Purchase planning"
+msgstr ""
 
 msgid "Purchase Qty"
 msgstr "Qtd. de Compra"
@@ -6541,7 +6534,9 @@ msgstr "Receber {0} para Inventário"
 msgid "Receive to Inventory"
 msgstr "Receber para Inventário"
 
-msgid "Received"
+#. placeholder {0}: status?.received
+#. placeholder {1}: status?.ordered
+msgid "Received {0} of {1}"
 msgstr ""
 
 msgid "Received At"
@@ -6552,9 +6547,6 @@ msgstr "Recebido Por"
 
 msgid "Received Qty"
 msgstr "Qtd. Recebida"
-
-msgid "Receiving"
-msgstr ""
 
 msgid "Receiving Location"
 msgstr "Local de Recebimento"
@@ -6653,9 +6645,6 @@ msgstr "Remover item"
 msgid "Remove order"
 msgstr "Remover pedido"
 
-msgid "Remove Order"
-msgstr "Remover Pedido"
-
 msgid "Remove pair"
 msgstr "Remover par"
 
@@ -6664,9 +6653,6 @@ msgstr "Remover ordenação por coluna"
 
 msgid "Remove this storage type from all referencing storage units and delete it. This cannot be undone."
 msgstr "Remova este tipo de armazenamento de todas as unidades de armazenamento que o referenciam e o delete. Isto não pode ser desfeito."
-
-msgid "Remove Transfer"
-msgstr "Remover Transferência"
 
 msgid "Rendering label preview..."
 msgstr "Renderizando visualização de etiqueta..."
@@ -7652,9 +7638,6 @@ msgstr "Iniciar"
 msgid "Start {0} Day Free Trial"
 msgstr "Iniciar Teste Gratuito de {0} Dias"
 
-msgid "Start adding parts to your stock transfer"
-msgstr "Comece a adicionar peças à sua transferência de estoque"
-
 msgid "Start Date"
 msgstr "Data de Início"
 
@@ -8405,9 +8388,6 @@ msgstr "Transferir a propriedade desta empresa para outro usuário"
 
 msgid "Transfer To"
 msgstr "Transferir Para"
-
-msgid "Transfers"
-msgstr "Transferências"
 
 msgid "Trash"
 msgstr "Lixo"

@@ -110,6 +110,13 @@ export type JobMaterialPurchaseOrderLine = {
   status: Database["public"]["Enums"]["purchaseOrderStatus"] | null;
 };
 
+// An active job that produces a (manufactured) material item — the supply-side
+// counterpart to JobMaterialPurchaseOrderLine.
+export type JobMaterialSupplyJobLine = {
+  itemId: string | null;
+  status: Database["public"]["Enums"]["jobStatus"] | null;
+};
+
 export type ProductionEvent = NonNullable<
   Awaited<ReturnType<typeof getProductionEvents>>["data"]
 >[number];

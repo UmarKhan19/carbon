@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-22T10:54:37.032Z",
-  "totalTools": 1213,
+  "generated": "2026-06-23T19:28:18.113Z",
+  "totalTools": 1214,
   "modules": 15,
   "tools": [
     {
@@ -15029,13 +15029,14 @@
       "module": "production",
       "classification": "READ",
       "description": "get job material shortfall by item",
-      "paramCount": 3,
+      "paramCount": 4,
       "serviceParams": [
         "client",
         "jobId",
         "companyId",
         "locationId",
-        "materials"
+        "materials",
+        "purchaseOrderLines"
       ],
       "injectAuth": [
         "companyId"
@@ -15052,12 +15053,17 @@
           "materials": {
             "type": "array",
             "items": {}
+          },
+          "purchaseOrderLines": {
+            "type": "array",
+            "items": {}
           }
         },
         "required": [
           "jobId",
           "locationId",
-          "materials"
+          "materials",
+          "purchaseOrderLines"
         ]
       }
     },
@@ -18198,6 +18204,35 @@
       "serviceParams": [
         "client",
         "materials",
+        "locationId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "materials": {},
+          "locationId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "materials",
+          "locationId"
+        ]
+      }
+    },
+    {
+      "name": "production_getJobMaterialSupplyJobLines",
+      "module": "production",
+      "classification": "READ",
+      "description": "get job material supply job lines",
+      "paramCount": 2,
+      "serviceParams": [
+        "client",
+        "materials",
+        "companyId",
         "locationId"
       ],
       "injectAuth": [

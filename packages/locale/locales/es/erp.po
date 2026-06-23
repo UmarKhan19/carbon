@@ -66,10 +66,6 @@ msgstr "{scopeCount} permisos"
 msgid "/month/user"
 msgstr "/mes/usuario"
 
-#. placeholder {0}: allItems.length - 3
-msgid "+{0} more"
-msgstr "+{0} más"
-
 msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
 msgstr "<0>Agregar una parte de proveedor</0> para este artículo para establecer un proveedor preferido."
 
@@ -216,9 +212,6 @@ msgstr "Período de Acumulación (Semanas)"
 
 msgid "Accumulation Period:"
 msgstr "Período de Acumulación:"
-
-msgid "Action Items"
-msgstr "Elementos de Acción"
 
 msgid "Action Status"
 msgstr "Estado de la Acción"
@@ -1386,9 +1379,6 @@ msgstr "Clase"
 
 msgid "Clear"
 msgstr "Limpiar"
-
-msgid "Clear All"
-msgstr "Limpiar todo"
 
 msgid "Clear due date"
 msgstr "Borrar fecha de vencimiento"
@@ -4010,6 +4000,9 @@ msgstr "En Progreso"
 msgid "in selected period"
 msgstr "en el período seleccionado"
 
+msgid "In stock"
+msgstr ""
+
 msgid "Inactive"
 msgstr "Inactivo"
 
@@ -4250,9 +4243,6 @@ msgstr "Fecha de Emisión"
 msgid "Issues"
 msgstr "Problemas"
 
-msgid "item"
-msgstr "artículo"
-
 msgid "Item"
 msgstr "Artículo"
 
@@ -4292,9 +4282,6 @@ msgstr "Tipo de Artículo"
 msgid "Item types"
 msgstr "Tipos de artículo"
 
-msgid "items"
-msgstr "artículos"
-
 msgid "Items"
 msgstr "Artículos"
 
@@ -4306,6 +4293,9 @@ msgstr "Trabajo"
 
 msgid "Job ID"
 msgstr "ID de Trabajo"
+
+msgid "Job in progress"
+msgstr ""
 
 msgid "Job Location"
 msgstr "Ubicación del Trabajo"
@@ -4857,9 +4847,6 @@ msgstr "Las unidades métricas están habilitadas"
 
 msgid "Min Qty"
 msgstr "Cant. Mín"
-
-msgid "Minimize"
-msgstr "Minimizar"
 
 msgid "Minimum"
 msgstr "Mínimo"
@@ -5417,9 +5404,6 @@ msgstr "No hay fuentes principales registradas aún. Haz clic en Recalcular en l
 msgid "No part ID"
 msgstr "Sin ID de pieza"
 
-msgid "No parts added yet"
-msgstr "No hay piezas añadidas aún"
-
 msgid "No planning data"
 msgstr "Sin datos de planificación"
 
@@ -5696,7 +5680,7 @@ msgstr "O"
 msgid "Order"
 msgstr "Pedido"
 
-#. placeholder {0}: status.shortfall
+#. placeholder {0}: status?.shortfall
 msgid "Order {0} for this job"
 msgstr ""
 
@@ -5982,6 +5966,9 @@ msgstr "Fin Planificada"
 msgid "Planned End Time"
 msgstr "Hora de finalización planeada"
 
+msgid "Planned job"
+msgstr ""
+
 msgid "Planned Order"
 msgstr "Orden Planificada"
 
@@ -6215,6 +6202,9 @@ msgstr "Evento de Producción"
 msgid "Production Events"
 msgstr "Eventos de Producción"
 
+msgid "Production planning"
+msgstr ""
+
 msgid "Production Qty"
 msgstr "Cantidad de Producción"
 
@@ -6324,6 +6314,9 @@ msgstr "Órdenes de Compra"
 
 msgid "Purchase orders required"
 msgstr "Órdenes de compra requeridas"
+
+msgid "Purchase planning"
+msgstr ""
 
 msgid "Purchase Qty"
 msgstr "Cantidad de Compra"
@@ -6541,7 +6534,9 @@ msgstr "Recibir {0} al Inventario"
 msgid "Receive to Inventory"
 msgstr "Recibir al Inventario"
 
-msgid "Received"
+#. placeholder {0}: status?.received
+#. placeholder {1}: status?.ordered
+msgid "Received {0} of {1}"
 msgstr ""
 
 msgid "Received At"
@@ -6552,9 +6547,6 @@ msgstr "Recibido Por"
 
 msgid "Received Qty"
 msgstr "Cantidad Recibida"
-
-msgid "Receiving"
-msgstr ""
 
 msgid "Receiving Location"
 msgstr "Ubicación de Recepción"
@@ -6653,9 +6645,6 @@ msgstr "Eliminar artículo"
 msgid "Remove order"
 msgstr "Eliminar orden"
 
-msgid "Remove Order"
-msgstr "Eliminar Pedido"
-
 msgid "Remove pair"
 msgstr "Eliminar par"
 
@@ -6664,9 +6653,6 @@ msgstr "Eliminar ordenamiento por columna"
 
 msgid "Remove this storage type from all referencing storage units and delete it. This cannot be undone."
 msgstr "Elimina este tipo de almacenamiento de todas las unidades de almacenamiento que lo referencian y elimínalo. Esto no se puede deshacer."
-
-msgid "Remove Transfer"
-msgstr "Eliminar transferencia"
 
 msgid "Rendering label preview..."
 msgstr "Renderizando vista previa de etiqueta..."
@@ -7652,9 +7638,6 @@ msgstr "Iniciar"
 msgid "Start {0} Day Free Trial"
 msgstr "Iniciar prueba gratuita de {0} días"
 
-msgid "Start adding parts to your stock transfer"
-msgstr "Comienza a agregar piezas a tu transferencia de inventario"
-
 msgid "Start Date"
 msgstr "Fecha de Inicio"
 
@@ -8405,9 +8388,6 @@ msgstr "Transferir la propiedad de esta empresa a otro usuario"
 
 msgid "Transfer To"
 msgstr "Transferir a"
-
-msgid "Transfers"
-msgstr "Transferencias"
 
 msgid "Trash"
 msgstr "Papelera"

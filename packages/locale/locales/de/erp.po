@@ -66,10 +66,6 @@ msgstr "{scopeCount} Berechtigungen"
 msgid "/month/user"
 msgstr "/Monat/Benutzer"
 
-#. placeholder {0}: allItems.length - 3
-msgid "+{0} more"
-msgstr "+{0} weitere"
-
 msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
 msgstr "<0>Fügen Sie einen Lieferantenteil hinzu</0>, um für diesen Artikel einen bevorzugten Lieferanten festzulegen."
 
@@ -216,9 +212,6 @@ msgstr "Akkumulationszeitraum (Wochen)"
 
 msgid "Accumulation Period:"
 msgstr "Akkumulationszeitraum:"
-
-msgid "Action Items"
-msgstr "Aktionselemente"
 
 msgid "Action Status"
 msgstr "Aktionsstatus"
@@ -1386,9 +1379,6 @@ msgstr "Klasse"
 
 msgid "Clear"
 msgstr "Löschen"
-
-msgid "Clear All"
-msgstr "Alles löschen"
 
 msgid "Clear due date"
 msgstr "Fälligkeitsdatum löschen"
@@ -4010,6 +4000,9 @@ msgstr "In Bearbeitung"
 msgid "in selected period"
 msgstr "im ausgewählten Zeitraum"
 
+msgid "In stock"
+msgstr ""
+
 msgid "Inactive"
 msgstr "Inaktiv"
 
@@ -4250,9 +4243,6 @@ msgstr "Ausstellungsdatum"
 msgid "Issues"
 msgstr "Probleme"
 
-msgid "item"
-msgstr "Artikel"
-
 msgid "Item"
 msgstr "Artikel"
 
@@ -4292,9 +4282,6 @@ msgstr "Artikeltyp"
 msgid "Item types"
 msgstr "Artikeltypen"
 
-msgid "items"
-msgstr "Artikel"
-
 msgid "Items"
 msgstr "Artikel"
 
@@ -4306,6 +4293,9 @@ msgstr "Job"
 
 msgid "Job ID"
 msgstr "Auftrags-ID"
+
+msgid "Job in progress"
+msgstr ""
 
 msgid "Job Location"
 msgstr "Auftragsort"
@@ -4857,9 +4847,6 @@ msgstr "Metrische Einheiten sind aktiviert"
 
 msgid "Min Qty"
 msgstr "Min. Menge"
-
-msgid "Minimize"
-msgstr "Minimieren"
 
 msgid "Minimum"
 msgstr "Minimum"
@@ -5417,9 +5404,6 @@ msgstr "Noch keine übergeordneten Quellen aufgezeichnet. Klicken Sie auf der Pl
 msgid "No part ID"
 msgstr "Keine Teile-ID"
 
-msgid "No parts added yet"
-msgstr "Noch keine Teile hinzugefügt"
-
 msgid "No planning data"
 msgstr "Keine Planungsdaten"
 
@@ -5696,7 +5680,7 @@ msgstr "ODER"
 msgid "Order"
 msgstr "Bestellung"
 
-#. placeholder {0}: status.shortfall
+#. placeholder {0}: status?.shortfall
 msgid "Order {0} for this job"
 msgstr ""
 
@@ -5982,6 +5966,9 @@ msgstr "Geplantes Ende"
 msgid "Planned End Time"
 msgstr "Geplante Endzeit"
 
+msgid "Planned job"
+msgstr ""
+
 msgid "Planned Order"
 msgstr "Geplante Bestellung"
 
@@ -6215,6 +6202,9 @@ msgstr "Produktionsereignis"
 msgid "Production Events"
 msgstr "Produktionsereignisse"
 
+msgid "Production planning"
+msgstr ""
+
 msgid "Production Qty"
 msgstr "Produktionsmenge"
 
@@ -6324,6 +6314,9 @@ msgstr "Bestellungen"
 
 msgid "Purchase orders required"
 msgstr "Bestellungen erforderlich"
+
+msgid "Purchase planning"
+msgstr ""
 
 msgid "Purchase Qty"
 msgstr "Kaufmenge"
@@ -6541,7 +6534,9 @@ msgstr "Empfangen Sie {0} im Bestand"
 msgid "Receive to Inventory"
 msgstr "In Bestand empfangen"
 
-msgid "Received"
+#. placeholder {0}: status?.received
+#. placeholder {1}: status?.ordered
+msgid "Received {0} of {1}"
 msgstr ""
 
 msgid "Received At"
@@ -6552,9 +6547,6 @@ msgstr "Empfangen von"
 
 msgid "Received Qty"
 msgstr "Empfangene Menge"
-
-msgid "Receiving"
-msgstr ""
 
 msgid "Receiving Location"
 msgstr "Empfangsort"
@@ -6653,9 +6645,6 @@ msgstr "Element entfernen"
 msgid "Remove order"
 msgstr "Bestellung entfernen"
 
-msgid "Remove Order"
-msgstr "Bestellung entfernen"
-
 msgid "Remove pair"
 msgstr "Paar entfernen"
 
@@ -6664,9 +6653,6 @@ msgstr "Sortierung nach Spalte entfernen"
 
 msgid "Remove this storage type from all referencing storage units and delete it. This cannot be undone."
 msgstr "Entfernen Sie diesen Speichertyp aus allen referenzierenden Speichereinheiten und löschen Sie ihn. Dies kann nicht rückgängig gemacht werden."
-
-msgid "Remove Transfer"
-msgstr "Transfer entfernen"
 
 msgid "Rendering label preview..."
 msgstr "Label-Vorschau wird gerendert..."
@@ -7652,9 +7638,6 @@ msgstr "Starten"
 msgid "Start {0} Day Free Trial"
 msgstr "Starten Sie die {0}-tägige kostenlose Testversion"
 
-msgid "Start adding parts to your stock transfer"
-msgstr "Beginnen Sie, Teile zu Ihrer Bestandsübertragung hinzuzufügen"
-
 msgid "Start Date"
 msgstr "Startdatum"
 
@@ -8405,9 +8388,6 @@ msgstr "Übertragen Sie das Eigentum dieses Unternehmens auf einen anderen Benut
 
 msgid "Transfer To"
 msgstr "Übertragung zu"
-
-msgid "Transfers"
-msgstr "Transfers"
 
 msgid "Trash"
 msgstr "Papierkorb"

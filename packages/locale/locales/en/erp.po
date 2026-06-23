@@ -66,10 +66,6 @@ msgstr "{scopeCount} permissions"
 msgid "/month/user"
 msgstr "/month/user"
 
-#. placeholder {0}: allItems.length - 3
-msgid "+{0} more"
-msgstr "+{0} more"
-
 msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
 msgstr "<0>Add a supplier part</0> for this item to set a preferred supplier."
 
@@ -216,9 +212,6 @@ msgstr "Accumulation Period (Weeks)"
 
 msgid "Accumulation Period:"
 msgstr "Accumulation Period:"
-
-msgid "Action Items"
-msgstr "Action Items"
 
 msgid "Action Status"
 msgstr "Action Status"
@@ -1386,9 +1379,6 @@ msgstr "Class"
 
 msgid "Clear"
 msgstr "Clear"
-
-msgid "Clear All"
-msgstr "Clear All"
 
 msgid "Clear due date"
 msgstr "Clear due date"
@@ -4010,6 +4000,9 @@ msgstr "In Progress"
 msgid "in selected period"
 msgstr "in selected period"
 
+msgid "In stock"
+msgstr "In stock"
+
 msgid "Inactive"
 msgstr "Inactive"
 
@@ -4250,9 +4243,6 @@ msgstr "Issued Date"
 msgid "Issues"
 msgstr "Issues"
 
-msgid "item"
-msgstr "item"
-
 msgid "Item"
 msgstr "Item"
 
@@ -4292,9 +4282,6 @@ msgstr "Item Type"
 msgid "Item types"
 msgstr "Item types"
 
-msgid "items"
-msgstr "items"
-
 msgid "Items"
 msgstr "Items"
 
@@ -4306,6 +4293,9 @@ msgstr "Job"
 
 msgid "Job ID"
 msgstr "Job ID"
+
+msgid "Job in progress"
+msgstr "Job in progress"
 
 msgid "Job Location"
 msgstr "Job Location"
@@ -4857,9 +4847,6 @@ msgstr "Metric units are enabled"
 
 msgid "Min Qty"
 msgstr "Min Qty"
-
-msgid "Minimize"
-msgstr "Minimize"
 
 msgid "Minimum"
 msgstr "Minimum"
@@ -5417,9 +5404,6 @@ msgstr "No parent sources recorded yet. Click Recalculate on the planning page t
 msgid "No part ID"
 msgstr "No part ID"
 
-msgid "No parts added yet"
-msgstr "No parts added yet"
-
 msgid "No planning data"
 msgstr "No planning data"
 
@@ -5696,7 +5680,7 @@ msgstr "OR"
 msgid "Order"
 msgstr "Order"
 
-#. placeholder {0}: status.shortfall
+#. placeholder {0}: status?.shortfall
 msgid "Order {0} for this job"
 msgstr "Order {0} for this job"
 
@@ -5982,6 +5966,9 @@ msgstr "Planned End"
 msgid "Planned End Time"
 msgstr "Planned End Time"
 
+msgid "Planned job"
+msgstr "Planned job"
+
 msgid "Planned Order"
 msgstr "Planned Order"
 
@@ -6215,6 +6202,9 @@ msgstr "Production Event"
 msgid "Production Events"
 msgstr "Production Events"
 
+msgid "Production planning"
+msgstr "Production planning"
+
 msgid "Production Qty"
 msgstr "Production Qty"
 
@@ -6324,6 +6314,9 @@ msgstr "Purchase Orders"
 
 msgid "Purchase orders required"
 msgstr "Purchase orders required"
+
+msgid "Purchase planning"
+msgstr "Purchase planning"
 
 msgid "Purchase Qty"
 msgstr "Purchase Qty"
@@ -6541,8 +6534,10 @@ msgstr "Receive {0} to Inventory"
 msgid "Receive to Inventory"
 msgstr "Receive to Inventory"
 
-msgid "Received"
-msgstr "Received"
+#. placeholder {0}: status?.received
+#. placeholder {1}: status?.ordered
+msgid "Received {0} of {1}"
+msgstr "Received {0} of {1}"
 
 msgid "Received At"
 msgstr "Received At"
@@ -6552,9 +6547,6 @@ msgstr "Received By"
 
 msgid "Received Qty"
 msgstr "Received Qty"
-
-msgid "Receiving"
-msgstr "Receiving"
 
 msgid "Receiving Location"
 msgstr "Receiving Location"
@@ -6653,9 +6645,6 @@ msgstr "Remove item"
 msgid "Remove order"
 msgstr "Remove order"
 
-msgid "Remove Order"
-msgstr "Remove Order"
-
 msgid "Remove pair"
 msgstr "Remove pair"
 
@@ -6664,9 +6653,6 @@ msgstr "Remove sort by column"
 
 msgid "Remove this storage type from all referencing storage units and delete it. This cannot be undone."
 msgstr "Remove this storage type from all referencing storage units and delete it. This cannot be undone."
-
-msgid "Remove Transfer"
-msgstr "Remove Transfer"
 
 msgid "Rendering label preview..."
 msgstr "Rendering label preview..."
@@ -7652,9 +7638,6 @@ msgstr "Start"
 msgid "Start {0} Day Free Trial"
 msgstr "Start {0} Day Free Trial"
 
-msgid "Start adding parts to your stock transfer"
-msgstr "Start adding parts to your stock transfer"
-
 msgid "Start Date"
 msgstr "Start Date"
 
@@ -8405,9 +8388,6 @@ msgstr "Transfer ownership of this company to another user"
 
 msgid "Transfer To"
 msgstr "Transfer To"
-
-msgid "Transfers"
-msgstr "Transfers"
 
 msgid "Trash"
 msgstr "Trash"

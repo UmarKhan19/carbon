@@ -66,10 +66,6 @@ msgstr "{scopeCount} 個の権限"
 msgid "/month/user"
 msgstr "/月/ユーザー"
 
-#. placeholder {0}: allItems.length - 3
-msgid "+{0} more"
-msgstr "+{0} 件以上"
-
 msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
 msgstr "<0>サプライヤー部品を追加</0>このアイテムの優先サプライヤーを設定します。"
 
@@ -216,9 +212,6 @@ msgstr "蓄積期間（週）"
 
 msgid "Accumulation Period:"
 msgstr "蓄積期間:"
-
-msgid "Action Items"
-msgstr "アクション項目"
 
 msgid "Action Status"
 msgstr "アクション状態"
@@ -1386,9 +1379,6 @@ msgstr "クラス"
 
 msgid "Clear"
 msgstr "クリア"
-
-msgid "Clear All"
-msgstr "すべてクリア"
 
 msgid "Clear due date"
 msgstr "期限をクリア"
@@ -4010,6 +4000,9 @@ msgstr "進行中"
 msgid "in selected period"
 msgstr "選択された期間内"
 
+msgid "In stock"
+msgstr ""
+
 msgid "Inactive"
 msgstr "非アクティブ"
 
@@ -4250,9 +4243,6 @@ msgstr "発行日"
 msgid "Issues"
 msgstr "問題"
 
-msgid "item"
-msgstr "アイテム"
-
 msgid "Item"
 msgstr "アイテム"
 
@@ -4292,9 +4282,6 @@ msgstr "アイテムタイプ"
 msgid "Item types"
 msgstr "アイテムタイプ"
 
-msgid "items"
-msgstr "アイテム"
-
 msgid "Items"
 msgstr "アイテム"
 
@@ -4306,6 +4293,9 @@ msgstr "ジョブ"
 
 msgid "Job ID"
 msgstr "ジョブID"
+
+msgid "Job in progress"
+msgstr ""
 
 msgid "Job Location"
 msgstr "ジョブロケーション"
@@ -4857,9 +4847,6 @@ msgstr "メートル法単位が有効です"
 
 msgid "Min Qty"
 msgstr "最小数量"
-
-msgid "Minimize"
-msgstr "最小化"
 
 msgid "Minimum"
 msgstr "最小"
@@ -5417,9 +5404,6 @@ msgstr "親ソースはまだ記録されていません。計画ページの「
 msgid "No part ID"
 msgstr "パーツIDなし"
 
-msgid "No parts added yet"
-msgstr "まだパーツが追加されていません"
-
 msgid "No planning data"
 msgstr "計画データなし"
 
@@ -5696,7 +5680,7 @@ msgstr "または"
 msgid "Order"
 msgstr "注文"
 
-#. placeholder {0}: status.shortfall
+#. placeholder {0}: status?.shortfall
 msgid "Order {0} for this job"
 msgstr ""
 
@@ -5982,6 +5966,9 @@ msgstr "計画終了"
 msgid "Planned End Time"
 msgstr "計画終了時刻"
 
+msgid "Planned job"
+msgstr ""
+
 msgid "Planned Order"
 msgstr "計画注文"
 
@@ -6215,6 +6202,9 @@ msgstr "生産イベント"
 msgid "Production Events"
 msgstr "本番イベント"
 
+msgid "Production planning"
+msgstr ""
+
 msgid "Production Qty"
 msgstr "生産数量"
 
@@ -6324,6 +6314,9 @@ msgstr "購入注文"
 
 msgid "Purchase orders required"
 msgstr "購入注文が必要です"
+
+msgid "Purchase planning"
+msgstr ""
 
 msgid "Purchase Qty"
 msgstr "購入数量"
@@ -6541,7 +6534,9 @@ msgstr "{0}を在庫に受け取る"
 msgid "Receive to Inventory"
 msgstr "在庫に受け取る"
 
-msgid "Received"
+#. placeholder {0}: status?.received
+#. placeholder {1}: status?.ordered
+msgid "Received {0} of {1}"
 msgstr ""
 
 msgid "Received At"
@@ -6552,9 +6547,6 @@ msgstr "受け取った人"
 
 msgid "Received Qty"
 msgstr "受け取り数量"
-
-msgid "Receiving"
-msgstr ""
 
 msgid "Receiving Location"
 msgstr "受取場所"
@@ -6653,9 +6645,6 @@ msgstr "アイテムを削除"
 msgid "Remove order"
 msgstr "注文を削除"
 
-msgid "Remove Order"
-msgstr "注文を削除"
-
 msgid "Remove pair"
 msgstr "ペアを削除"
 
@@ -6664,9 +6653,6 @@ msgstr "列でソートを削除"
 
 msgid "Remove this storage type from all referencing storage units and delete it. This cannot be undone."
 msgstr "このストレージタイプをすべての参照ストレージユニットから削除し、削除します。これは元に戻すことはできません。"
-
-msgid "Remove Transfer"
-msgstr "転送を削除"
 
 msgid "Rendering label preview..."
 msgstr "ラベルプレビューをレンダリング中..."
@@ -7652,9 +7638,6 @@ msgstr "開始"
 msgid "Start {0} Day Free Trial"
 msgstr "{0}日間の無料トライアルを開始"
 
-msgid "Start adding parts to your stock transfer"
-msgstr "在库存转移中开始添加零件"
-
 msgid "Start Date"
 msgstr "開始日"
 
@@ -8405,9 +8388,6 @@ msgstr "このカンパニーの所有権を別のユーザーに譲渡する"
 
 msgid "Transfer To"
 msgstr "転送先"
-
-msgid "Transfers"
-msgstr "転送"
 
 msgid "Trash"
 msgstr "ゴミ箱"
