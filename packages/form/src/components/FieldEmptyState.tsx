@@ -8,7 +8,6 @@ export type FieldEmptyStateProps = {
   className?: string;
 };
 
-
 export const fieldEmptyStateLinkClassName =
   "font-medium text-primary underline decoration-primary/30 underline-offset-2 transition-colors hover:decoration-primary";
 
