@@ -8,11 +8,11 @@ export const meta: MetaFunction = () => {
 };
 
 export const handle: Handle = {
-  breadcrumb: "Payments",
-  to: path.to.payments,
+  breadcrumb: "Invoicing",
+  to: path.to.invoicing,
   module: "invoicing"
 };
 
-export default function PaymentRoute() {
+export default function PaymentsRoute() {
   return <Outlet />;
 }

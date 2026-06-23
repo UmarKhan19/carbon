@@ -2,6 +2,7 @@ import { useRouteData } from "@carbon/react";
 import { useLingui } from "@lingui/react/macro";
 import {
   LuBox,
+  LuCreditCard,
   LuCrown,
   LuFactory,
   LuFiles,
@@ -65,6 +66,13 @@ function useModuleDefinitions(): ModuleDefinition[] {
       name: t`Inventory`,
       to: path.to.inventory,
       icon: LuBox
+    },
+    {
+      key: "invoicing",
+      permission: "invoicing",
+      name: t`Invoicing`,
+      to: path.to.invoicing,
+      icon: LuCreditCard
     },
     {
       key: "parts",

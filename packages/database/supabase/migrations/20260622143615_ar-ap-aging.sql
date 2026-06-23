@@ -22,6 +22,8 @@
 -- AR aging
 -- ============================================================
 
+DROP FUNCTION IF EXISTS get_ar_aging(TEXT, DATE, TEXT, INTEGER, INTEGER, INTEGER);
+
 CREATE OR REPLACE FUNCTION get_ar_aging(
   _company_id TEXT,
   _as_of_date DATE,
@@ -32,6 +34,7 @@ CREATE OR REPLACE FUNCTION get_ar_aging(
 )
 RETURNS TABLE (
   "customerId" TEXT,
+  "paymentTerm" TEXT,
   "current" NUMERIC,
   "bucket1" NUMERIC,
   "bucket2" NUMERIC,
@@ -109,6 +112,7 @@ AS $$
   )
   SELECT
     COALESCE(ib."customerId", u."customerId") AS "customerId",
+    pt."name" AS "paymentTerm",
     COALESCE(ib."current", 0) AS "current",
     COALESCE(ib."bucket1", 0) AS "bucket1",
     COALESCE(ib."bucket2", 0) AS "bucket2",
@@ -120,6 +124,10 @@ AS $$
       + COALESCE(ib."bucket4", 0) + COALESCE(u."unapplied", 0) AS "total"
   FROM invoice_buckets ib
   FULL OUTER JOIN unapplied u ON u."customerId" = ib."customerId"
+  LEFT JOIN "customerPayment" cp
+    ON cp."customerId" = COALESCE(ib."customerId", u."customerId")
+    AND cp."companyId" = _company_id
+  LEFT JOIN "paymentTerm" pt ON pt."id" = cp."paymentTermId"
   WHERE
     COALESCE(ib."current", 0) + COALESCE(ib."bucket1", 0)
       + COALESCE(ib."bucket2", 0) + COALESCE(ib."bucket3", 0)
@@ -132,6 +140,8 @@ $$;
 -- AP aging (mirror — supplier + purchaseInvoice + Disbursement)
 -- ============================================================
 
+DROP FUNCTION IF EXISTS get_ap_aging(TEXT, DATE, TEXT, INTEGER, INTEGER, INTEGER);
+
 CREATE OR REPLACE FUNCTION get_ap_aging(
   _company_id TEXT,
   _as_of_date DATE,
@@ -142,6 +152,7 @@ CREATE OR REPLACE FUNCTION get_ap_aging(
 )
 RETURNS TABLE (
   "supplierId" TEXT,
+  "paymentTerm" TEXT,
   "current" NUMERIC,
   "bucket1" NUMERIC,
   "bucket2" NUMERIC,
@@ -218,6 +229,7 @@ AS $$
   )
   SELECT
     COALESCE(ib."supplierId", u."supplierId") AS "supplierId",
+    pt."name" AS "paymentTerm",
     COALESCE(ib."current", 0) AS "current",
     COALESCE(ib."bucket1", 0) AS "bucket1",
     COALESCE(ib."bucket2", 0) AS "bucket2",
@@ -229,6 +241,10 @@ AS $$
       + COALESCE(ib."bucket4", 0) + COALESCE(u."unapplied", 0) AS "total"
   FROM invoice_buckets ib
   FULL OUTER JOIN unapplied u ON u."supplierId" = ib."supplierId"
+  LEFT JOIN "supplierPayment" sp
+    ON sp."supplierId" = COALESCE(ib."supplierId", u."supplierId")
+    AND sp."companyId" = _company_id
+  LEFT JOIN "paymentTerm" pt ON pt."id" = sp."paymentTermId"
   WHERE
     COALESCE(ib."current", 0) + COALESCE(ib."bucket1", 0)
       + COALESCE(ib."bucket2", 0) + COALESCE(ib."bucket3", 0)

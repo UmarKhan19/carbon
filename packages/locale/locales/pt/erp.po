@@ -25,6 +25,10 @@ msgstr "\"{storageUnitName}\" tem {childCount} unidades de armazenamento aninhad
 msgid "\"{storageUnitName}\" has 1 direct nested storage unit. Deleting it will also delete that unit and anything underneath it. This cannot be undone."
 msgstr "\"{storageUnitName}\" tem 1 unidade de armazenamento aninhada direta. Deletá-la também excluirá essa unidade e tudo abaixo dela. Isso não pode ser desfeito."
 
+#. placeholder {0}: ar.count
+msgid "{0} customers with a balance"
+msgstr ""
+
 #. placeholder {0}: rule.escalationDays
 msgid "{0} days"
 msgstr "{0} dias"
@@ -42,6 +46,10 @@ msgstr "{0} pedidos"
 msgid "{0} Processes"
 msgstr "{0} Processos"
 
+#. placeholder {0}: ap.count
+msgid "{0} suppliers with a balance"
+msgstr ""
+
 #. placeholder {0}: lotEntities.length - inspected
 msgid "{0} un-sampled entities will be released to Available. Sampled passes stay Available and sampled failures stay Rejected."
 msgstr "{0} entidades não amostradas serão liberadas para Disponível. Passes amostradas permanecem Disponível e falhas amostradas permanecem Rejeitadas."
@@ -53,6 +61,12 @@ msgstr "{0} enviado com sucesso"
 #. placeholder {0}: unmatchedValues.length
 msgid "{0} values missing"
 msgstr "{0} valores ausentes"
+
+msgid "{apOverduePct}% of payables"
+msgstr ""
+
+msgid "{arOverduePct}% of receivables"
+msgstr ""
 
 msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB limit"
@@ -430,12 +444,6 @@ msgstr "Avançado"
 msgid "After"
 msgstr "Após"
 
-msgid "Aging"
-msgstr ""
-
-msgid "Aging by Counterparty"
-msgstr ""
-
 msgid "AI Tokens"
 msgstr "Tokens de IA"
 
@@ -517,10 +525,10 @@ msgstr "Qualquer grupo de itens"
 msgid "Any item type"
 msgstr "Qualquer tipo de item"
 
-msgid "AP Aging"
+msgid "AP Outstanding"
 msgstr ""
 
-msgid "AP Tie-Out"
+msgid "AP Overdue"
 msgstr ""
 
 msgid "API and Webhooks"
@@ -592,10 +600,10 @@ msgstr "Aprovado Por"
 msgid "AQL"
 msgstr "AQL"
 
-msgid "AR Aging"
+msgid "AR Outstanding"
 msgstr ""
 
-msgid "AR Tie-Out"
+msgid "AR Overdue"
 msgstr ""
 
 msgid "Archive"
@@ -678,9 +686,9 @@ msgstr "Tem a certeza de que deseja eliminar {0} desta operação? Isto não pod
 msgid "Are you sure you want to delete {0}?"
 msgstr "Tem a certeza de que deseja eliminar {0}?"
 
+#. placeholder {0}: initialValues.paymentId
 #. placeholder {0}: pickingList.pickingListId
 #. placeholder {0}: routeData?.consumableSummary?.readableIdWithRevision
-#. placeholder {0}: routeData?.customer?.name!
 msgid "Are you sure you want to delete {0}? This cannot be undone."
 msgstr "Tem a certeza de que deseja eliminar {0}? Esta ação não pode ser desfeita."
 
@@ -1107,13 +1115,13 @@ msgstr "Descarga Automática"
 msgid "Balance Sheet"
 msgstr "Balanço Patrimonial"
 
+msgid "Balanced"
+msgstr ""
+
 msgid "Balloon"
 msgstr "Balão"
 
 msgid "Bank / Cash Account"
-msgstr ""
-
-msgid "Bank Account"
 msgstr ""
 
 msgid "Base Currency"
@@ -1191,9 +1199,6 @@ msgstr "BOM sincronizado com sucesso"
 
 msgid "Breadcrumb"
 msgstr "Migalha de pão"
-
-msgid "Break"
-msgstr ""
 
 msgid "Browse library"
 msgstr "Procurar biblioteca"
@@ -1471,6 +1476,9 @@ msgstr "Hospedado na Nuvem"
 
 msgid "Code"
 msgstr "Código"
+
+msgid "Collapse"
+msgstr ""
 
 msgid "Collapse all"
 msgstr "Recolher tudo"
@@ -1932,6 +1940,9 @@ msgstr "Criar uma cotação com um novo ID de cotação"
 
 msgid "Create Account"
 msgstr "Criar Conta"
+
+msgid "Create adjusting entry"
+msgstr ""
 
 msgid "Create an account"
 msgstr "Criar uma conta"
@@ -2446,6 +2457,9 @@ msgstr "Eliminar Peça"
 msgid "Delete Partner"
 msgstr "Eliminar Parceiro"
 
+msgid "Delete Payment"
+msgstr ""
+
 msgid "Delete Payment Term"
 msgstr "Eliminar Termo de Pagamento"
 
@@ -2939,6 +2953,9 @@ msgstr "Editar Peça"
 msgid "Edit Partner"
 msgstr "Editar Parceiro"
 
+msgid "Edit Payment"
+msgstr ""
+
 msgid "Edit Payment Term"
 msgstr "Editar Termo de Pagamento"
 
@@ -3295,9 +3312,6 @@ msgstr "Excede {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB no total — remova alguns anex
 
 msgid "Exchange Rate"
 msgstr "Taxa de Câmbio"
-
-msgid "Exchange Rate (to base)"
-msgstr ""
 
 msgid "Exchange Rates"
 msgstr "Taxas de Câmbio"
@@ -3839,6 +3853,9 @@ msgstr "Frequência"
 msgid "Friday"
 msgstr "Sexta-feira"
 
+msgid "From customer"
+msgstr ""
+
 msgid "From Location"
 msgstr "De Localização"
 
@@ -3896,10 +3913,16 @@ msgstr "IDs gerados estão ativados"
 msgid "Get Method"
 msgstr "Obter Método"
 
+msgid "GL"
+msgstr ""
+
 msgid "GL Account"
 msgstr "Conta Contábil"
 
-msgid "GL Control Account"
+msgid "GL tie-out"
+msgstr ""
+
+msgid "GL Tie-Out"
 msgstr ""
 
 #. placeholder {0}: user.firstName
@@ -4237,6 +4260,9 @@ msgstr "Estados Faturados"
 
 msgid "Invoices"
 msgstr "Faturas"
+
+msgid "Invoicing"
+msgstr ""
 
 msgid "is"
 msgstr "é"
@@ -4657,6 +4683,13 @@ msgstr "Itens de fabricação não podem ser faturados diretamente. Altere o mé
 
 msgid "Make Method Version"
 msgstr "Versão do Método de Fabricação"
+
+msgid "Make Payment"
+msgstr ""
+
+#. placeholder {0}: selectedInvoices.length
+msgid "Make Payment · {0} invoices"
+msgstr ""
 
 #. placeholder {0}: selectedRevision.revision
 msgid "Make revision {0} default?"
@@ -5459,6 +5492,12 @@ msgstr "Sem ID de peça"
 msgid "No parts added yet"
 msgstr "Nenhuma peça adicionada ainda"
 
+msgid "No payables"
+msgstr ""
+
+msgid "No payments yet."
+msgstr ""
+
 msgid "No planning data"
 msgstr "Sem dados de planejamento"
 
@@ -5482,6 +5521,9 @@ msgstr "Sem Motivo de Cotação"
 
 msgid "No Quote Reasons"
 msgstr "Sem Motivos de Cotação"
+
+msgid "No receivables"
+msgstr ""
 
 msgid "No remaining entities to inspect."
 msgstr "Nenhuma entidade restante para inspecionar."
@@ -5630,12 +5672,6 @@ msgstr "Oops! O link que está tentando acessar não é válido."
 msgid "Open"
 msgstr "Abrir"
 
-msgid "Open (Base)"
-msgstr ""
-
-msgid "Open (Local)"
-msgstr ""
-
 msgid "Open Actions"
 msgstr "Ações Abertas"
 
@@ -5653,9 +5689,6 @@ msgstr "Despachos Abertos"
 
 msgid "Open in MES"
 msgstr "Abrir no MES"
-
-msgid "Open Invoices"
-msgstr ""
 
 msgid "Open Issues"
 msgstr "Problemas Abertos"
@@ -5889,6 +5922,12 @@ msgid "Path"
 msgstr "Caminho"
 
 msgid "Pay Rate"
+msgstr ""
+
+msgid "Payables"
+msgstr ""
+
+msgid "Payables aging"
 msgstr ""
 
 msgid "Payment"
@@ -6370,6 +6409,9 @@ msgstr "Compras"
 msgid "Purchasing Contact"
 msgstr "Contacto de Compras"
 
+msgid "Purchasing Invoices"
+msgstr ""
+
 msgid "Purchasing Unit of Measure"
 msgstr "Unidade de Medida de Compra"
 
@@ -6549,12 +6591,25 @@ msgstr "Data de Recebimento Solicitada"
 msgid "Receipts"
 msgstr "Recibos"
 
+msgid "Receivables"
+msgstr ""
+
+msgid "Receivables aging"
+msgstr ""
+
 msgid "Receive"
 msgstr "Receber"
 
 #. placeholder {0}: job.jobId
 msgid "Receive {0} to Inventory"
 msgstr "Receber {0} para Inventário"
+
+msgid "Receive Payment"
+msgstr ""
+
+#. placeholder {0}: selectedInvoices.length
+msgid "Receive Payment · {0} invoices"
+msgstr ""
 
 msgid "Receive to Inventory"
 msgstr "Receber para Inventário"
@@ -6574,11 +6629,11 @@ msgstr "Local de Recebimento"
 msgid "Recent"
 msgstr "Recente"
 
+msgid "Recent payments"
+msgstr ""
+
 msgid "Recently Created"
 msgstr "Criado Recentemente"
-
-msgid "Reconciled"
-msgstr ""
 
 msgid "Record"
 msgstr "Gravar"
@@ -7231,6 +7286,12 @@ msgstr "Selecionar Medidor"
 msgid "Select groups or individuals"
 msgstr "Selecione grupos ou indivíduos"
 
+msgid "Select invoices from a single counterparty"
+msgstr ""
+
+msgid "Select invoices in a single currency"
+msgstr ""
+
 msgid "Select Item Type"
 msgstr "Selecionar Tipo de Item"
 
@@ -7361,9 +7422,6 @@ msgstr "Defina sua localização padrão nas configurações de perfil para esco
 
 msgid "Settings"
 msgstr "Configurações"
-
-msgid "Settled"
-msgstr ""
 
 msgid "Setup"
 msgstr "Configuração"
@@ -8258,6 +8316,9 @@ msgstr "Para Enviar e Receber"
 msgid "To Storage Unit"
 msgstr "Para Unidade de Armazenamento"
 
+msgid "To supplier"
+msgstr ""
+
 msgid "Today"
 msgstr "Hoje"
 
@@ -8323,9 +8384,6 @@ msgstr "Total de Horas"
 
 msgid "Total Minutes"
 msgstr "Total de Minutos"
-
-msgid "Total Outstanding"
-msgstr ""
 
 msgid "Total Price"
 msgstr "Preço Total"
@@ -8822,6 +8880,9 @@ msgstr "Ver Cotações Abertas"
 
 msgid "View Open RFQs"
 msgstr "Ver RFQs Abertos"
+
+msgid "View Payment"
+msgstr ""
 
 msgid "View Permissions"
 msgstr "Permissões de Visualização"

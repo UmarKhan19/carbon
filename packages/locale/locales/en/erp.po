@@ -25,6 +25,10 @@ msgstr "\"{storageUnitName}\" has {childCount} direct nested storage units. Dele
 msgid "\"{storageUnitName}\" has 1 direct nested storage unit. Deleting it will also delete that unit and anything underneath it. This cannot be undone."
 msgstr "\"{storageUnitName}\" has 1 direct nested storage unit. Deleting it will also delete that unit and anything underneath it. This cannot be undone."
 
+#. placeholder {0}: ar.count
+msgid "{0} customers with a balance"
+msgstr "{0} customers with a balance"
+
 #. placeholder {0}: rule.escalationDays
 msgid "{0} days"
 msgstr "{0} days"
@@ -42,6 +46,10 @@ msgstr "{0} orders"
 msgid "{0} Processes"
 msgstr "{0} Processes"
 
+#. placeholder {0}: ap.count
+msgid "{0} suppliers with a balance"
+msgstr "{0} suppliers with a balance"
+
 #. placeholder {0}: lotEntities.length - inspected
 msgid "{0} un-sampled entities will be released to Available. Sampled passes stay Available and sampled failures stay Rejected."
 msgstr "{0} un-sampled entities will be released to Available. Sampled passes stay Available and sampled failures stay Rejected."
@@ -53,6 +61,12 @@ msgstr "{0} uploaded successfully"
 #. placeholder {0}: unmatchedValues.length
 msgid "{0} values missing"
 msgstr "{0} values missing"
+
+msgid "{apOverduePct}% of payables"
+msgstr "{apOverduePct}% of payables"
+
+msgid "{arOverduePct}% of receivables"
+msgstr "{arOverduePct}% of receivables"
 
 msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB limit"
@@ -430,12 +444,6 @@ msgstr "Advanced"
 msgid "After"
 msgstr "After"
 
-msgid "Aging"
-msgstr "Aging"
-
-msgid "Aging by Counterparty"
-msgstr "Aging by Counterparty"
-
 msgid "AI Tokens"
 msgstr "AI Tokens"
 
@@ -517,11 +525,11 @@ msgstr "Any item group"
 msgid "Any item type"
 msgstr "Any item type"
 
-msgid "AP Aging"
-msgstr "AP Aging"
+msgid "AP Outstanding"
+msgstr "AP Outstanding"
 
-msgid "AP Tie-Out"
-msgstr "AP Tie-Out"
+msgid "AP Overdue"
+msgstr "AP Overdue"
 
 msgid "API and Webhooks"
 msgstr "API and Webhooks"
@@ -592,11 +600,11 @@ msgstr "Approved By"
 msgid "AQL"
 msgstr "AQL"
 
-msgid "AR Aging"
-msgstr "AR Aging"
+msgid "AR Outstanding"
+msgstr "AR Outstanding"
 
-msgid "AR Tie-Out"
-msgstr "AR Tie-Out"
+msgid "AR Overdue"
+msgstr "AR Overdue"
 
 msgid "Archive"
 msgstr "Archive"
@@ -678,9 +686,9 @@ msgstr "Are you sure you want to delete {0} from this operation? This cannot be 
 msgid "Are you sure you want to delete {0}?"
 msgstr "Are you sure you want to delete {0}?"
 
+#. placeholder {0}: initialValues.paymentId
 #. placeholder {0}: pickingList.pickingListId
 #. placeholder {0}: routeData?.consumableSummary?.readableIdWithRevision
-#. placeholder {0}: routeData?.customer?.name!
 msgid "Are you sure you want to delete {0}? This cannot be undone."
 msgstr "Are you sure you want to delete {0}? This cannot be undone."
 
@@ -1107,14 +1115,14 @@ msgstr "Backflush"
 msgid "Balance Sheet"
 msgstr "Balance Sheet"
 
+msgid "Balanced"
+msgstr "Balanced"
+
 msgid "Balloon"
 msgstr "Balloon"
 
 msgid "Bank / Cash Account"
 msgstr "Bank / Cash Account"
-
-msgid "Bank Account"
-msgstr "Bank Account"
 
 msgid "Base Currency"
 msgstr "Base Currency"
@@ -1191,9 +1199,6 @@ msgstr "BOM synced successfully"
 
 msgid "Breadcrumb"
 msgstr "Breadcrumb"
-
-msgid "Break"
-msgstr "Break"
 
 msgid "Browse library"
 msgstr "Browse library"
@@ -1471,6 +1476,9 @@ msgstr "Cloud-Hosted"
 
 msgid "Code"
 msgstr "Code"
+
+msgid "Collapse"
+msgstr "Collapse"
 
 msgid "Collapse all"
 msgstr "Collapse all"
@@ -1932,6 +1940,9 @@ msgstr "Create a quote with a new quote ID"
 
 msgid "Create Account"
 msgstr "Create Account"
+
+msgid "Create adjusting entry"
+msgstr "Create adjusting entry"
 
 msgid "Create an account"
 msgstr "Create an account"
@@ -2446,6 +2457,9 @@ msgstr "Delete Part"
 msgid "Delete Partner"
 msgstr "Delete Partner"
 
+msgid "Delete Payment"
+msgstr "Delete Payment"
+
 msgid "Delete Payment Term"
 msgstr "Delete Payment Term"
 
@@ -2939,6 +2953,9 @@ msgstr "Edit Part"
 msgid "Edit Partner"
 msgstr "Edit Partner"
 
+msgid "Edit Payment"
+msgstr "Edit Payment"
+
 msgid "Edit Payment Term"
 msgstr "Edit Payment Term"
 
@@ -3295,9 +3312,6 @@ msgstr "Exceeds {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB total — remove some attachme
 
 msgid "Exchange Rate"
 msgstr "Exchange Rate"
-
-msgid "Exchange Rate (to base)"
-msgstr "Exchange Rate (to base)"
 
 msgid "Exchange Rates"
 msgstr "Exchange Rates"
@@ -3839,6 +3853,9 @@ msgstr "Frequency"
 msgid "Friday"
 msgstr "Friday"
 
+msgid "From customer"
+msgstr "From customer"
+
 msgid "From Location"
 msgstr "From Location"
 
@@ -3896,11 +3913,17 @@ msgstr "Generated IDs are enabled"
 msgid "Get Method"
 msgstr "Get Method"
 
+msgid "GL"
+msgstr "GL"
+
 msgid "GL Account"
 msgstr "GL Account"
 
-msgid "GL Control Account"
-msgstr "GL Control Account"
+msgid "GL tie-out"
+msgstr "GL tie-out"
+
+msgid "GL Tie-Out"
+msgstr "GL Tie-Out"
 
 #. placeholder {0}: user.firstName
 msgid "Good afternoon, {0}"
@@ -4237,6 +4260,9 @@ msgstr "Invoiced Statuses"
 
 msgid "Invoices"
 msgstr "Invoices"
+
+msgid "Invoicing"
+msgstr "Invoicing"
 
 msgid "is"
 msgstr "is"
@@ -4657,6 +4683,13 @@ msgstr "Make items cannot be invoiced directly. Change method to Pick to continu
 
 msgid "Make Method Version"
 msgstr "Make Method Version"
+
+msgid "Make Payment"
+msgstr "Make Payment"
+
+#. placeholder {0}: selectedInvoices.length
+msgid "Make Payment · {0} invoices"
+msgstr "Make Payment · {0} invoices"
 
 #. placeholder {0}: selectedRevision.revision
 msgid "Make revision {0} default?"
@@ -5459,6 +5492,12 @@ msgstr "No part ID"
 msgid "No parts added yet"
 msgstr "No parts added yet"
 
+msgid "No payables"
+msgstr "No payables"
+
+msgid "No payments yet."
+msgstr "No payments yet."
+
 msgid "No planning data"
 msgstr "No planning data"
 
@@ -5482,6 +5521,9 @@ msgstr "No Quote Reason"
 
 msgid "No Quote Reasons"
 msgstr "No Quote Reasons"
+
+msgid "No receivables"
+msgstr "No receivables"
 
 msgid "No remaining entities to inspect."
 msgstr "No remaining entities to inspect."
@@ -5630,12 +5672,6 @@ msgstr "Oops! The link you're trying to access is not valid."
 msgid "Open"
 msgstr "Open"
 
-msgid "Open (Base)"
-msgstr "Open (Base)"
-
-msgid "Open (Local)"
-msgstr "Open (Local)"
-
 msgid "Open Actions"
 msgstr "Open Actions"
 
@@ -5653,9 +5689,6 @@ msgstr "Open Dispatches"
 
 msgid "Open in MES"
 msgstr "Open in MES"
-
-msgid "Open Invoices"
-msgstr "Open Invoices"
 
 msgid "Open Issues"
 msgstr "Open Issues"
@@ -5890,6 +5923,12 @@ msgstr "Path"
 
 msgid "Pay Rate"
 msgstr "Pay Rate"
+
+msgid "Payables"
+msgstr "Payables"
+
+msgid "Payables aging"
+msgstr "Payables aging"
 
 msgid "Payment"
 msgstr "Payment"
@@ -6370,6 +6409,9 @@ msgstr "Purchasing"
 msgid "Purchasing Contact"
 msgstr "Purchasing Contact"
 
+msgid "Purchasing Invoices"
+msgstr "Purchasing Invoices"
+
 msgid "Purchasing Unit of Measure"
 msgstr "Purchasing Unit of Measure"
 
@@ -6549,12 +6591,25 @@ msgstr "Receipt Requested Date"
 msgid "Receipts"
 msgstr "Receipts"
 
+msgid "Receivables"
+msgstr "Receivables"
+
+msgid "Receivables aging"
+msgstr "Receivables aging"
+
 msgid "Receive"
 msgstr "Receive"
 
 #. placeholder {0}: job.jobId
 msgid "Receive {0} to Inventory"
 msgstr "Receive {0} to Inventory"
+
+msgid "Receive Payment"
+msgstr "Receive Payment"
+
+#. placeholder {0}: selectedInvoices.length
+msgid "Receive Payment · {0} invoices"
+msgstr "Receive Payment · {0} invoices"
 
 msgid "Receive to Inventory"
 msgstr "Receive to Inventory"
@@ -6574,11 +6629,11 @@ msgstr "Receiving Location"
 msgid "Recent"
 msgstr "Recent"
 
+msgid "Recent payments"
+msgstr "Recent payments"
+
 msgid "Recently Created"
 msgstr "Recently Created"
-
-msgid "Reconciled"
-msgstr "Reconciled"
 
 msgid "Record"
 msgstr "Record"
@@ -7231,6 +7286,12 @@ msgstr "Select Gauge"
 msgid "Select groups or individuals"
 msgstr "Select groups or individuals"
 
+msgid "Select invoices from a single counterparty"
+msgstr "Select invoices from a single counterparty"
+
+msgid "Select invoices in a single currency"
+msgstr "Select invoices in a single currency"
+
 msgid "Select Item Type"
 msgstr "Select Item Type"
 
@@ -7361,9 +7422,6 @@ msgstr "Set your default location in profile settings to pick a storage unit."
 
 msgid "Settings"
 msgstr "Settings"
-
-msgid "Settled"
-msgstr "Settled"
 
 msgid "Setup"
 msgstr "Setup"
@@ -8258,6 +8316,9 @@ msgstr "To Ship and Receive"
 msgid "To Storage Unit"
 msgstr "To Storage Unit"
 
+msgid "To supplier"
+msgstr "To supplier"
+
 msgid "Today"
 msgstr "Today"
 
@@ -8323,9 +8384,6 @@ msgstr "Total Hours"
 
 msgid "Total Minutes"
 msgstr "Total Minutes"
-
-msgid "Total Outstanding"
-msgstr "Total Outstanding"
 
 msgid "Total Price"
 msgstr "Total Price"
@@ -8822,6 +8880,9 @@ msgstr "View Open Quotes"
 
 msgid "View Open RFQs"
 msgstr "View Open RFQs"
+
+msgid "View Payment"
+msgstr "View Payment"
 
 msgid "View Permissions"
 msgstr "View Permissions"

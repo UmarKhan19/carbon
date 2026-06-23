@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { zfd } from "zod-form-data";
+import { path } from "~/utils/path";
 import { incoterms, methodItemType, methodType } from "../shared";
 
 export const purchaseInvoiceLineType = [
@@ -375,3 +376,32 @@ export const paymentApplicationValidator = z
       path: ["appliedAmount"]
     }
   );
+
+// An invoice is payable when it's posted with an outstanding balance — i.e. not
+// draft/pending, voided, or already fully paid. Shared by the sales (AR) and
+// purchase (AP) invoice headers; the caller AND-s in the permission check.
+export function isInvoicePayable(
+  status: string | null | undefined,
+  balance: number | null | undefined
+): boolean {
+  return (
+    !["Voided", "Draft", "Pending", "Paid"].includes(status ?? "") &&
+    Number(balance ?? 0) > 0
+  );
+}
+
+// Builds the "new payment" URL pre-filled from an invoice. side "ar" seeds the
+// customer (→ Receipt); "ap" seeds the supplier (→ Disbursement).
+export function getPayInvoiceHref(args: {
+  side: "ar" | "ap";
+  partyId: string | null | undefined;
+  invoiceId: string;
+  balance: number | null | undefined;
+}): string {
+  const partyParam = args.side === "ar" ? "customerId" : "supplierId";
+  return `${path.to.paymentNew}?${partyParam}=${encodeURIComponent(
+    args.partyId ?? ""
+  )}&invoiceId=${encodeURIComponent(
+    args.invoiceId
+  )}&amount=${encodeURIComponent(String(args.balance ?? 0))}`;
+}

@@ -14,7 +14,6 @@ import {
   LuHandCoins,
   LuLayers,
   LuScale,
-  LuScale3D,
   LuSheet,
   LuTrendingUp
 } from "react-icons/lu";
@@ -27,10 +26,6 @@ const accountingOnlyRoutes = new Set<string>([
   path.to.balanceSheet,
   path.to.incomeStatement,
   path.to.trialBalance,
-  path.to.arAging,
-  path.to.apAging,
-  path.to.arTieOut,
-  path.to.apTieOut,
   path.to.intercompany,
   path.to.accountingJournals,
   path.to.fixedAssets,
@@ -61,30 +56,6 @@ export default function useAccountingSubmodules() {
             to: path.to.trialBalance,
             role: "employee",
             icon: <LuFileSpreadsheet />
-          },
-          {
-            name: t`AR Aging`,
-            to: path.to.arAging,
-            role: "employee",
-            icon: <LuClock />
-          },
-          {
-            name: t`AP Aging`,
-            to: path.to.apAging,
-            role: "employee",
-            icon: <LuClock />
-          },
-          {
-            name: t`AR Tie-Out`,
-            to: path.to.arTieOut,
-            role: "employee",
-            icon: <LuScale3D />
-          },
-          {
-            name: t`AP Tie-Out`,
-            to: path.to.apTieOut,
-            role: "employee",
-            icon: <LuScale3D />
           }
         ]
       },

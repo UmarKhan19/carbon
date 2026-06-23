@@ -7,22 +7,17 @@ import {
   CardHeader,
   CardTitle,
   Checkbox,
-  HStack,
-  NumberField,
-  NumberInput,
-  Table,
-  Tbody,
-  Td,
-  Tfoot,
-  Th,
-  Thead,
-  Tr
+  HStack
 } from "@carbon/react";
-import { Trans } from "@lingui/react/macro";
-import { useMemo, useState } from "react";
+import { Trans, useLingui } from "@lingui/react/macro";
+import type { PostgrestSingleResponse } from "@supabase/supabase-js";
+import type { ColumnDef } from "@tanstack/react-table";
+import { useCallback, useMemo, useState } from "react";
 import { LuListChecks, LuRotateCcw, LuSave } from "react-icons/lu";
 import { useFetcher } from "react-router";
+import { EditableNumber } from "~/components/Editable";
 import { Enumerable } from "~/components/Enumerable";
+import Grid from "~/components/Grid";
 import {
   useCurrencyFormatter,
   useDateFormatter,
@@ -31,7 +26,7 @@ import {
 import { path } from "~/utils/path";
 
 // One row in the apply table — an open invoice for the payment's
-// counterparty, plus the user's selection state.
+// counterparty, plus the user's selection + entered amounts.
 type OpenInvoice = {
   id: string;
   invoiceId: string;
@@ -54,7 +49,14 @@ type ExistingApplication = {
   appliedDate: string;
 };
 
-type RowState = {
+// Grid row: the invoice's read-only fields plus the editable selection state.
+type ApplyRow = {
+  id: string;
+  invoiceId: string;
+  dateDue: string | null;
+  currencyCode: string;
+  exchangeRate: number;
+  balance: number;
   checked: boolean;
   appliedAmount: number;
   discountAmount: number;
@@ -71,6 +73,10 @@ type PaymentApplyTableProps = {
   existingApplications: ExistingApplication[];
 };
 
+function round4(n: number): number {
+  return Math.round(n * 10000) / 10000;
+}
+
 const PaymentApplyTable = ({
   paymentId,
   paymentType,
@@ -80,130 +86,139 @@ const PaymentApplyTable = ({
   openInvoices,
   existingApplications
 }: PaymentApplyTableProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const fetcher = useFetcher();
   const currencyFormatter = useCurrencyFormatter({ currency: paymentCurrency });
   const { formatDate } = useDateFormatter();
   const today = new Date().toISOString().slice(0, 10);
   const isReceipt = paymentType === "Receipt";
+  const canEdit = permissions.can("update", "invoicing");
 
-  // Seed row state from existing applications so users see what's
-  // already applied when they reopen a Draft payment.
-  const seed = useMemo(() => {
+  // Seed rows from existing applications so users see what's already
+  // applied when they reopen a Draft payment.
+  const seed = useMemo<ApplyRow[]>(() => {
     const byInvoice = new Map<string, ExistingApplication>();
     for (const a of existingApplications) {
       const id = isReceipt ? a.salesInvoiceId : a.purchaseInvoiceId;
       if (id) byInvoice.set(id, a);
     }
-    const initial: Record<string, RowState> = {};
-    for (const inv of openInvoices) {
+    return openInvoices.map((inv) => {
       const existing = byInvoice.get(inv.id);
-      initial[inv.id] = existing
-        ? {
-            checked: true,
-            appliedAmount: existing.appliedAmount,
-            discountAmount: existing.discountAmount,
-            writeOffAmount: existing.writeOffAmount
-          }
-        : {
-            checked: false,
-            appliedAmount: 0,
-            discountAmount: 0,
-            writeOffAmount: 0
-          };
-    }
-    return initial;
+      return {
+        id: inv.id,
+        invoiceId: inv.invoiceId,
+        dateDue: inv.dateDue,
+        currencyCode: inv.currencyCode,
+        exchangeRate: inv.exchangeRate,
+        balance: inv.balance,
+        checked: Boolean(existing),
+        appliedAmount: existing?.appliedAmount ?? 0,
+        discountAmount: existing?.discountAmount ?? 0,
+        writeOffAmount: existing?.writeOffAmount ?? 0
+      };
+    });
   }, [openInvoices, existingApplications, isReceipt]);
 
-  const [rows, setRows] = useState<Record<string, RowState>>(seed);
+  const [rows, setRows] = useState<ApplyRow[]>(seed);
 
-  const updateRow = (id: string, patch: Partial<RowState>) =>
-    setRows((prev) => ({ ...prev, [id]: { ...prev[id], ...patch } }));
-
-  const _totalApplied = useMemo(
-    () =>
-      Object.values(rows).reduce(
-        (sum, r) =>
-          r.checked
-            ? sum + r.appliedAmount + r.discountAmount + r.writeOffAmount
-            : sum,
-        0
-      ),
-    [rows]
-  );
   const totalCash = useMemo(
-    () =>
-      Object.values(rows).reduce(
-        (sum, r) => (r.checked ? sum + r.appliedAmount : sum),
-        0
-      ),
+    () => rows.reduce((sum, r) => (r.checked ? sum + r.appliedAmount : sum), 0),
     [rows]
   );
   const unapplied = paymentTotal - totalCash;
   const overApplied = totalCash > paymentTotal + 0.0001;
 
-  const onAutoApply = () => {
-    // Distribute payment cash oldest-first (openInvoices is already
-    // sorted by dateDue ascending from the loader).
+  const toggleRow = useCallback(
+    (id: string, checked: boolean) =>
+      setRows((prev) =>
+        prev.map((r) => {
+          if (r.id !== id) return r;
+          // Checking an empty row auto-fills the applied amount with the
+          // open balance (capped at the payment total). Unchecking zeroes it.
+          if (checked) {
+            return {
+              ...r,
+              checked: true,
+              appliedAmount:
+                r.appliedAmount === 0
+                  ? round4(Math.min(r.balance, paymentTotal))
+                  : r.appliedAmount
+            };
+          }
+          return {
+            ...r,
+            checked: false,
+            appliedAmount: 0,
+            discountAmount: 0,
+            writeOffAmount: 0
+          };
+        })
+      ),
+    [paymentTotal]
+  );
+
+  // Grid cell edits flow back here. Entering any amount auto-checks the row
+  // so it's included on save (mirrors the check-to-apply affordance).
+  const onDataChange = useCallback(
+    (next: ApplyRow[]) =>
+      setRows(
+        next.map((r) => ({
+          ...r,
+          checked:
+            r.checked ||
+            r.appliedAmount + r.discountAmount + r.writeOffAmount > 0
+        }))
+      ),
+    []
+  );
+
+  const onAutoApply = useCallback(() => {
+    // Distribute payment cash oldest-first (openInvoices is already sorted by
+    // dateDue ascending from the loader).
     let remaining = paymentTotal;
-    const next: Record<string, RowState> = {};
-    for (const inv of openInvoices) {
-      if (remaining <= 0) {
-        next[inv.id] = {
+    setRows((prev) =>
+      prev.map((r) => {
+        if (remaining <= 0) {
+          return { ...r, checked: false, appliedAmount: 0 };
+        }
+        const take = Math.min(remaining, r.balance);
+        remaining = round4(remaining - take);
+        return { ...r, checked: true, appliedAmount: round4(take) };
+      })
+    );
+  }, [paymentTotal]);
+
+  const onClear = useCallback(
+    () =>
+      setRows((prev) =>
+        prev.map((r) => ({
+          ...r,
           checked: false,
           appliedAmount: 0,
           discountAmount: 0,
           writeOffAmount: 0
-        };
-        continue;
-      }
-      const take = Math.min(remaining, inv.balance);
-      next[inv.id] = {
-        checked: true,
-        appliedAmount: round4(take),
-        discountAmount: 0,
-        writeOffAmount: 0
-      };
-      remaining = round4(remaining - take);
-    }
-    setRows(next);
-  };
-
-  const onClear = () => {
-    const next: Record<string, RowState> = {};
-    for (const inv of openInvoices) {
-      next[inv.id] = {
-        checked: false,
-        appliedAmount: 0,
-        discountAmount: 0,
-        writeOffAmount: 0
-      };
-    }
-    setRows(next);
-  };
+        }))
+      ),
+    []
+  );
 
   const onSave = () => {
-    const applications = openInvoices
-      .filter((inv) => {
-        const r = rows[inv.id];
-        return (
-          r?.checked &&
-          r.appliedAmount + r.discountAmount + r.writeOffAmount > 0
-        );
-      })
-      .map((inv) => {
-        const r = rows[inv.id];
-        return {
-          salesInvoiceId: isReceipt ? inv.id : undefined,
-          purchaseInvoiceId: isReceipt ? undefined : inv.id,
-          appliedAmount: r.appliedAmount,
-          discountAmount: r.discountAmount,
-          writeOffAmount: r.writeOffAmount,
-          invoiceExchangeRate: inv.exchangeRate || 1,
-          paymentExchangeRate: paymentExchangeRate || 1,
-          appliedDate: today
-        };
-      });
+    const applications = rows
+      .filter(
+        (r) =>
+          r.checked && r.appliedAmount + r.discountAmount + r.writeOffAmount > 0
+      )
+      .map((r) => ({
+        salesInvoiceId: isReceipt ? r.id : undefined,
+        purchaseInvoiceId: isReceipt ? undefined : r.id,
+        appliedAmount: r.appliedAmount,
+        discountAmount: r.discountAmount,
+        writeOffAmount: r.writeOffAmount,
+        invoiceExchangeRate: r.exchangeRate || 1,
+        paymentExchangeRate: paymentExchangeRate || 1,
+        appliedDate: today
+      }));
 
     const formData = new FormData();
     formData.set("applications", JSON.stringify(applications));
@@ -213,7 +228,108 @@ const PaymentApplyTable = ({
     });
   };
 
-  const canEdit = permissions.can("update", "invoicing");
+  const noOpMutation = useCallback(
+    async (_accessorKey: string, _newValue: unknown, _row: ApplyRow) =>
+      ({
+        data: null,
+        error: null,
+        count: null,
+        status: 200,
+        statusText: "OK"
+      }) as PostgrestSingleResponse<unknown>,
+    []
+  );
+
+  const editableComponents = useMemo(
+    () => ({
+      appliedAmount: EditableNumber<ApplyRow>(noOpMutation, {
+        minValue: 0,
+        formatOptions: { minimumFractionDigits: 2, maximumFractionDigits: 4 }
+      }),
+      discountAmount: EditableNumber<ApplyRow>(noOpMutation, {
+        minValue: 0,
+        formatOptions: { minimumFractionDigits: 2, maximumFractionDigits: 4 }
+      }),
+      writeOffAmount: EditableNumber<ApplyRow>(noOpMutation, {
+        minValue: 0,
+        formatOptions: { minimumFractionDigits: 2, maximumFractionDigits: 4 }
+      })
+    }),
+    [noOpMutation]
+  );
+
+  const columns = useMemo<ColumnDef<ApplyRow>[]>(
+    () => [
+      {
+        accessorKey: "checked",
+        header: "",
+        cell: ({ row }) => (
+          <Checkbox
+            checked={row.original.checked}
+            onCheckedChange={(checked) =>
+              toggleRow(row.original.id, Boolean(checked))
+            }
+            onClick={(e) => e.stopPropagation()}
+            disabled={!canEdit}
+          />
+        )
+      },
+      {
+        accessorKey: "invoiceId",
+        header: t`Invoice`,
+        cell: ({ row }) => row.original.invoiceId
+      },
+      {
+        accessorKey: "dateDue",
+        header: t`Due`,
+        cell: ({ row }) =>
+          row.original.dateDue ? formatDate(row.original.dateDue) : "—"
+      },
+      {
+        accessorKey: "currencyCode",
+        header: t`Currency`,
+        cell: ({ row }) => <Enumerable value={row.original.currencyCode} />
+      },
+      {
+        accessorKey: "balance",
+        header: t`Open`,
+        cell: ({ row }) => (
+          <span className="tabular-nums">
+            {currencyFormatter.format(Number(row.original.balance))}
+          </span>
+        )
+      },
+      {
+        accessorKey: "appliedAmount",
+        header: t`Applied`,
+        cell: ({ row }) => (
+          <span className="tabular-nums">
+            {currencyFormatter.format(Number(row.original.appliedAmount))}
+          </span>
+        )
+      },
+      {
+        accessorKey: "discountAmount",
+        header: t`Discount`,
+        cell: ({ row }) => (
+          <span className="tabular-nums">
+            {currencyFormatter.format(Number(row.original.discountAmount))}
+          </span>
+        )
+      },
+      {
+        accessorKey: "writeOffAmount",
+        header: t`Write-Off`,
+        cell: ({ row }) => (
+          <span className="tabular-nums">
+            {currencyFormatter.format(Number(row.original.writeOffAmount))}
+          </span>
+        )
+      }
+    ],
+    [canEdit, toggleRow, formatDate, t, currencyFormatter]
+  );
+
   const isSaving = fetcher.state !== "idle";
 
   return (
@@ -252,135 +368,47 @@ const PaymentApplyTable = ({
         </HStack>
       </CardHeader>
       <CardContent>
-        <Table>
-          <Thead>
-            <Tr>
-              <Th className="w-[40px]" />
-              <Th>
-                <Trans>Invoice</Trans>
-              </Th>
-              <Th>
-                <Trans>Due</Trans>
-              </Th>
-              <Th>
-                <Trans>Currency</Trans>
-              </Th>
-              <Th className="text-right">
-                <Trans>Open</Trans>
-              </Th>
-              <Th className="text-right">
-                <Trans>Applied</Trans>
-              </Th>
-              <Th className="text-right">
-                <Trans>Discount</Trans>
-              </Th>
-              <Th className="text-right">
-                <Trans>Write-Off</Trans>
-              </Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {openInvoices.length === 0 ? (
-              <Tr>
-                <Td colSpan={8} className="text-center text-muted-foreground">
-                  <Trans>
-                    No open invoices for this counterparty. Payment will be
-                    on-account.
-                  </Trans>
-                </Td>
-              </Tr>
-            ) : (
-              openInvoices.map((inv) => {
-                const r = rows[inv.id] ?? {
-                  checked: false,
-                  appliedAmount: 0,
-                  discountAmount: 0,
-                  writeOffAmount: 0
-                };
-                return (
-                  <Tr key={inv.id}>
-                    <Td>
-                      <Checkbox
-                        checked={r.checked}
-                        onCheckedChange={(checked) =>
-                          updateRow(inv.id, {
-                            checked: Boolean(checked),
-                            appliedAmount:
-                              checked && r.appliedAmount === 0
-                                ? round4(Math.min(inv.balance, paymentTotal))
-                                : r.appliedAmount
-                          })
-                        }
-                        disabled={!canEdit}
-                      />
-                    </Td>
-                    <Td>{inv.invoiceId}</Td>
-                    <Td>{inv.dateDue ? formatDate(inv.dateDue) : "—"}</Td>
-                    <Td>
-                      <Enumerable value={inv.currencyCode} />
-                    </Td>
-                    <Td className="text-right tabular-nums">
-                      {Number(inv.balance).toFixed(2)}
-                    </Td>
-                    <Td className="text-right">
-                      <NumericCell
-                        value={r.appliedAmount}
-                        onChange={(v) =>
-                          updateRow(inv.id, { appliedAmount: v })
-                        }
-                        isDisabled={!canEdit || !r.checked}
-                      />
-                    </Td>
-                    <Td className="text-right">
-                      <NumericCell
-                        value={r.discountAmount}
-                        onChange={(v) =>
-                          updateRow(inv.id, { discountAmount: v })
-                        }
-                        isDisabled={!canEdit || !r.checked}
-                      />
-                    </Td>
-                    <Td className="text-right">
-                      <NumericCell
-                        value={r.writeOffAmount}
-                        onChange={(v) =>
-                          updateRow(inv.id, { writeOffAmount: v })
-                        }
-                        isDisabled={!canEdit || !r.checked}
-                      />
-                    </Td>
-                  </Tr>
-                );
-              })
-            )}
-          </Tbody>
-          <Tfoot>
-            <Tr>
-              <Td colSpan={5} className="text-right font-semibold">
-                <Trans>Totals</Trans>
-              </Td>
-              <Td className="text-right tabular-nums font-semibold">
-                {currencyFormatter.format(totalCash)}
-              </Td>
-              <Td colSpan={2} className="text-right text-muted-foreground">
-                {overApplied ? (
-                  <span className="text-destructive font-semibold">
-                    <Trans>Over-applied by</Trans>{" "}
-                    {currencyFormatter.format(totalCash - paymentTotal)}
-                  </span>
-                ) : (
-                  <>
-                    <Trans>Unapplied:</Trans>{" "}
-                    {currencyFormatter.format(unapplied)}
-                  </>
-                )}
-              </Td>
-            </Tr>
-          </Tfoot>
-        </Table>
+        {openInvoices.length === 0 ? (
+          <p className="text-center text-muted-foreground py-6">
+            <Trans>
+              No open invoices for this counterparty. Payment will be
+              on-account.
+            </Trans>
+          </p>
+        ) : (
+          <Grid<ApplyRow>
+            data={rows}
+            columns={columns}
+            canEdit={canEdit}
+            editableComponents={editableComponents}
+            onDataChange={onDataChange}
+            withSimpleSorting={false}
+            contained={false}
+          />
+        )}
       </CardContent>
       <CardFooter>
-        <HStack className="justify-end w-full">
+        <HStack className="justify-between w-full">
+          <span className="text-muted-foreground">
+            {overApplied ? (
+              <span className="text-destructive font-semibold">
+                <Trans>Over-applied by</Trans>{" "}
+                {currencyFormatter.format(totalCash - paymentTotal)}
+              </span>
+            ) : (
+              <>
+                <Trans>Applied</Trans>{" "}
+                <span className="tabular-nums font-semibold text-foreground">
+                  {currencyFormatter.format(totalCash)}
+                </span>
+                {" · "}
+                <Trans>Unapplied</Trans>{" "}
+                <span className="tabular-nums">
+                  {currencyFormatter.format(unapplied)}
+                </span>
+              </>
+            )}
+          </span>
           <Button
             leftIcon={<LuSave />}
             onClick={onSave}
@@ -394,34 +422,5 @@ const PaymentApplyTable = ({
     </Card>
   );
 };
-
-function NumericCell({
-  value,
-  onChange,
-  isDisabled
-}: {
-  value: number;
-  onChange: (next: number) => void;
-  isDisabled?: boolean;
-}) {
-  return (
-    <NumberField
-      value={value}
-      onChange={(v) => onChange(Number.isFinite(v) ? v : 0)}
-      isDisabled={isDisabled}
-      minValue={0}
-      formatOptions={{
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 4
-      }}
-    >
-      <NumberInput className="text-right tabular-nums" />
-    </NumberField>
-  );
-}
-
-function round4(n: number): number {
-  return Math.round(n * 10000) / 10000;
-}
 
 export default PaymentApplyTable;

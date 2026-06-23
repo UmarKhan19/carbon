@@ -25,6 +25,10 @@ msgstr "\"{storageUnitName}\" के {childCount} सीधे नेस्ट�
 msgid "\"{storageUnitName}\" has 1 direct nested storage unit. Deleting it will also delete that unit and anything underneath it. This cannot be undone."
 msgstr "\"{storageUnitName}\" के पास 1 सीधी नेस्टेड स्टोरेज यूनिट है। इसे हटाने से वह यूनिट और इसके अंदर की कोई भी चीज़ भी हटा दी जाएगी। यह पूर्ववत नहीं किया जा सकता।"
 
+#. placeholder {0}: ar.count
+msgid "{0} customers with a balance"
+msgstr ""
+
 #. placeholder {0}: rule.escalationDays
 msgid "{0} days"
 msgstr "{0} दिन"
@@ -42,6 +46,10 @@ msgstr "{0} ऑर्डर"
 msgid "{0} Processes"
 msgstr "{0} प्रक्रियाएं"
 
+#. placeholder {0}: ap.count
+msgid "{0} suppliers with a balance"
+msgstr ""
+
 #. placeholder {0}: lotEntities.length - inspected
 msgid "{0} un-sampled entities will be released to Available. Sampled passes stay Available and sampled failures stay Rejected."
 msgstr "{0} नमूना न किए गए इकाइयों को उपलब्ध में जारी किया जाएगा। नमूना किए गए पास उपलब्ध रहेंगे और नमूना किए गए विफलताएं अस्वीकृत रहेंगी।"
@@ -53,6 +61,12 @@ msgstr "{0} सफलतापूर्वक अपलोड हो गया"
 #. placeholder {0}: unmatchedValues.length
 msgid "{0} values missing"
 msgstr "{0} मान गायब हैं"
+
+msgid "{apOverduePct}% of payables"
+msgstr ""
+
+msgid "{arOverduePct}% of receivables"
+msgstr ""
 
 msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB सीमा"
@@ -430,12 +444,6 @@ msgstr "उन्नत"
 msgid "After"
 msgstr "के बाद"
 
-msgid "Aging"
-msgstr ""
-
-msgid "Aging by Counterparty"
-msgstr ""
-
 msgid "AI Tokens"
 msgstr "एआई टोकन"
 
@@ -517,10 +525,10 @@ msgstr "कोई भी आइटम समूह"
 msgid "Any item type"
 msgstr "किसी भी आइटम प्रकार"
 
-msgid "AP Aging"
+msgid "AP Outstanding"
 msgstr ""
 
-msgid "AP Tie-Out"
+msgid "AP Overdue"
 msgstr ""
 
 msgid "API and Webhooks"
@@ -592,10 +600,10 @@ msgstr "द्वारा अनुमोदित"
 msgid "AQL"
 msgstr "AQL"
 
-msgid "AR Aging"
+msgid "AR Outstanding"
 msgstr ""
 
-msgid "AR Tie-Out"
+msgid "AR Overdue"
 msgstr ""
 
 msgid "Archive"
@@ -678,9 +686,9 @@ msgstr "क्या आप सुनिश्चित हैं कि आप 
 msgid "Are you sure you want to delete {0}?"
 msgstr "क्या आप {0} को हटाना सुनिश्चित हैं?"
 
+#. placeholder {0}: initialValues.paymentId
 #. placeholder {0}: pickingList.pickingListId
 #. placeholder {0}: routeData?.consumableSummary?.readableIdWithRevision
-#. placeholder {0}: routeData?.customer?.name!
 msgid "Are you sure you want to delete {0}? This cannot be undone."
 msgstr "क्या आप सुनिश्चित हैं कि आप {0} को हटाना चाहते हैं? यह पूर्ववत नहीं किया जा सकता।"
 
@@ -1107,13 +1115,13 @@ msgstr "बैकफ्लश"
 msgid "Balance Sheet"
 msgstr "बैलेंस शीट"
 
+msgid "Balanced"
+msgstr ""
+
 msgid "Balloon"
 msgstr "गुब्बारा"
 
 msgid "Bank / Cash Account"
-msgstr ""
-
-msgid "Bank Account"
 msgstr ""
 
 msgid "Base Currency"
@@ -1191,9 +1199,6 @@ msgstr "BOM सफलतापूर्वक सिंक हो गया"
 
 msgid "Breadcrumb"
 msgstr "ब्रेडक्रम्ब"
-
-msgid "Break"
-msgstr ""
 
 msgid "Browse library"
 msgstr "लाइब्रेरी ब्राउज़ करें"
@@ -1471,6 +1476,9 @@ msgstr "क्लाउड-होस्टेड"
 
 msgid "Code"
 msgstr "कोड"
+
+msgid "Collapse"
+msgstr ""
 
 msgid "Collapse all"
 msgstr "सभी को संक्षिप्त करें"
@@ -1932,6 +1940,9 @@ msgstr "एक नई उद्धरण ID के साथ एक उद्ध
 
 msgid "Create Account"
 msgstr "खाता बनाएं"
+
+msgid "Create adjusting entry"
+msgstr ""
 
 msgid "Create an account"
 msgstr "एक खाता बनाएं"
@@ -2446,6 +2457,9 @@ msgstr "भाग हटाएं"
 msgid "Delete Partner"
 msgstr "पार्टनर हटाएं"
 
+msgid "Delete Payment"
+msgstr ""
+
 msgid "Delete Payment Term"
 msgstr "भुगतान अवधि हटाएं"
 
@@ -2939,6 +2953,9 @@ msgstr "भाग संपादित करें"
 msgid "Edit Partner"
 msgstr "पार्टनर संपादित करें"
 
+msgid "Edit Payment"
+msgstr ""
+
 msgid "Edit Payment Term"
 msgstr "भुगतान शर्त संपादित करें"
 
@@ -3295,9 +3312,6 @@ msgstr "{PO_EMAIL_ATTACHMENT_LIMIT_MB} MB से अधिक है — भे�
 
 msgid "Exchange Rate"
 msgstr "विनिमय दर"
-
-msgid "Exchange Rate (to base)"
-msgstr ""
 
 msgid "Exchange Rates"
 msgstr "विनिमय दरें"
@@ -3839,6 +3853,9 @@ msgstr "आवृत्ति"
 msgid "Friday"
 msgstr "शुक्रवार"
 
+msgid "From customer"
+msgstr ""
+
 msgid "From Location"
 msgstr "स्थान से"
 
@@ -3896,10 +3913,16 @@ msgstr "जेनरेट की गई आईडी सक्षम हैं"
 msgid "Get Method"
 msgstr "विधि प्राप्त करें"
 
+msgid "GL"
+msgstr ""
+
 msgid "GL Account"
 msgstr "जीएल खाता"
 
-msgid "GL Control Account"
+msgid "GL tie-out"
+msgstr ""
+
+msgid "GL Tie-Out"
 msgstr ""
 
 #. placeholder {0}: user.firstName
@@ -4237,6 +4260,9 @@ msgstr "चालान किए गए स्थितियां"
 
 msgid "Invoices"
 msgstr "चालान"
+
+msgid "Invoicing"
+msgstr ""
 
 msgid "is"
 msgstr "है"
@@ -4657,6 +4683,13 @@ msgstr "Make आइटम्स को सीधे इनवॉइस नही
 
 msgid "Make Method Version"
 msgstr "मेक मेथड संस्करण"
+
+msgid "Make Payment"
+msgstr ""
+
+#. placeholder {0}: selectedInvoices.length
+msgid "Make Payment · {0} invoices"
+msgstr ""
 
 #. placeholder {0}: selectedRevision.revision
 msgid "Make revision {0} default?"
@@ -5459,6 +5492,12 @@ msgstr "कोई भाग ID नहीं"
 msgid "No parts added yet"
 msgstr "अभी तक कोई पार्ट जोड़ा नहीं गया"
 
+msgid "No payables"
+msgstr ""
+
+msgid "No payments yet."
+msgstr ""
+
 msgid "No planning data"
 msgstr "कोई योजना डेटा नहीं"
 
@@ -5482,6 +5521,9 @@ msgstr "कोई उद्धरण कारण नहीं"
 
 msgid "No Quote Reasons"
 msgstr "कोई उद्धरण कारण नहीं"
+
+msgid "No receivables"
+msgstr ""
 
 msgid "No remaining entities to inspect."
 msgstr "निरीक्षण के लिए कोई शेष इकाई नहीं है।"
@@ -5630,12 +5672,6 @@ msgstr "अरे! आप जिस लिंक को एक्सेस क�
 msgid "Open"
 msgstr "खोलें"
 
-msgid "Open (Base)"
-msgstr ""
-
-msgid "Open (Local)"
-msgstr ""
-
 msgid "Open Actions"
 msgstr "खुली कार्रवाइयाँ"
 
@@ -5653,9 +5689,6 @@ msgstr "खुली डिस्पैच"
 
 msgid "Open in MES"
 msgstr "MES में खोलें"
-
-msgid "Open Invoices"
-msgstr ""
 
 msgid "Open Issues"
 msgstr "खुले मुद्दे"
@@ -5889,6 +5922,12 @@ msgid "Path"
 msgstr "पथ"
 
 msgid "Pay Rate"
+msgstr ""
+
+msgid "Payables"
+msgstr ""
+
+msgid "Payables aging"
 msgstr ""
 
 msgid "Payment"
@@ -6370,6 +6409,9 @@ msgstr "क्रय"
 msgid "Purchasing Contact"
 msgstr "क्रय संपर्क"
 
+msgid "Purchasing Invoices"
+msgstr ""
+
 msgid "Purchasing Unit of Measure"
 msgstr "क्रय माप की इकाई"
 
@@ -6549,12 +6591,25 @@ msgstr "प्राप्ति अनुरोधित तारीख"
 msgid "Receipts"
 msgstr "रसीदें"
 
+msgid "Receivables"
+msgstr ""
+
+msgid "Receivables aging"
+msgstr ""
+
 msgid "Receive"
 msgstr "प्राप्त करें"
 
 #. placeholder {0}: job.jobId
 msgid "Receive {0} to Inventory"
 msgstr "{0} को इन्वेंटरी में प्राप्त करें"
+
+msgid "Receive Payment"
+msgstr ""
+
+#. placeholder {0}: selectedInvoices.length
+msgid "Receive Payment · {0} invoices"
+msgstr ""
 
 msgid "Receive to Inventory"
 msgstr "इन्वेंटरी में प्राप्त करें"
@@ -6574,11 +6629,11 @@ msgstr "प्राप्ति स्थान"
 msgid "Recent"
 msgstr "हाल ही में"
 
+msgid "Recent payments"
+msgstr ""
+
 msgid "Recently Created"
 msgstr "हाल ही में बनाया गया"
-
-msgid "Reconciled"
-msgstr ""
 
 msgid "Record"
 msgstr "रिकॉर्ड करें"
@@ -7231,6 +7286,12 @@ msgstr "गेज चुनें"
 msgid "Select groups or individuals"
 msgstr "समूह या व्यक्तियों का चयन करें"
 
+msgid "Select invoices from a single counterparty"
+msgstr ""
+
+msgid "Select invoices in a single currency"
+msgstr ""
+
 msgid "Select Item Type"
 msgstr "आइटम प्रकार चुनें"
 
@@ -7361,9 +7422,6 @@ msgstr "अपनी डिफ़ॉल्ट स्थान को प्र�
 
 msgid "Settings"
 msgstr "सेटिंग्स"
-
-msgid "Settled"
-msgstr ""
 
 msgid "Setup"
 msgstr "सेटअप"
@@ -8258,6 +8316,9 @@ msgstr "भेजने और प्राप्त करने के लि�
 msgid "To Storage Unit"
 msgstr "स्टोरेज यूनिट को"
 
+msgid "To supplier"
+msgstr ""
+
 msgid "Today"
 msgstr "आज"
 
@@ -8323,9 +8384,6 @@ msgstr "कुल घंटे"
 
 msgid "Total Minutes"
 msgstr "कुल मिनट"
-
-msgid "Total Outstanding"
-msgstr ""
 
 msgid "Total Price"
 msgstr "कुल मूल्य"
@@ -8822,6 +8880,9 @@ msgstr "खुली उद्धरणें देखें"
 
 msgid "View Open RFQs"
 msgstr "खुले RFQ देखें"
+
+msgid "View Payment"
+msgstr ""
 
 msgid "View Permissions"
 msgstr "देखने की अनुमतियाँ"

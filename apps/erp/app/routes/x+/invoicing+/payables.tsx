@@ -1,15 +1,19 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import type { LoaderFunctionArgs } from "react-router";
 import { useLoaderData } from "react-router";
-import { AgingReport } from "~/modules/accounting/ui/Reports";
-import { getArAging } from "~/modules/invoicing";
+import {
+  ARAPWorkbench,
+  getApAging,
+  getApOpenBySupplier,
+  getApTieOut
+} from "~/modules/invoicing";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "AR Aging",
-  to: path.to.arAging,
-  module: "accounting"
+  breadcrumb: "Payables",
+  to: path.to.payables,
+  module: "invoicing"
 };
 
 function parseBuckets(raw: string | null): [number, number, number] {
@@ -22,7 +26,7 @@ function parseBuckets(raw: string | null): [number, number, number] {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { client, companyId } = await requirePermissions(request, {
-    view: "accounting"
+    view: "invoicing"
   });
 
   const url = new URL(request.url);
@@ -34,26 +38,31 @@ export async function loader({ request }: LoaderFunctionArgs) {
       : "dueDate";
   const bucketDays = parseBuckets(url.searchParams.get("bucketDays"));
 
-  const aging = await getArAging(client, companyId, asOfDate, {
-    agingMethod,
-    bucketDays
-  });
+  const [tieOut, aging, open] = await Promise.all([
+    getApTieOut(client, companyId, asOfDate),
+    getApAging(client, companyId, asOfDate, { agingMethod, bucketDays }),
+    getApOpenBySupplier(client, companyId, asOfDate)
+  ]);
 
   return {
     asOfDate,
     agingMethod,
     bucketDays,
-    rows: aging.data ?? []
+    result: tieOut.data ?? null,
+    aging: aging.data ?? [],
+    open: open.data ?? []
   };
 }
 
-export default function ArAgingRoute() {
-  const { asOfDate, agingMethod, bucketDays, rows } =
+export default function PayablesRoute() {
+  const { asOfDate, agingMethod, bucketDays, result, aging, open } =
     useLoaderData<typeof loader>();
   return (
-    <AgingReport
-      side="ar"
-      rows={rows}
+    <ARAPWorkbench
+      side="ap"
+      result={result}
+      aging={aging}
+      open={open}
       asOfDate={asOfDate}
       agingMethod={agingMethod}
       bucketDays={bucketDays}

@@ -19,4 +19,8 @@ CROSS JOIN (
     ('Process', 'Process'),
     ('Asset Class', 'FixedAssetClass')
 ) AS d("name", "entityType")
-ON CONFLICT ("name", "companyGroupId") DO NOTHING;
+-- The unique constraint on (name, companyGroupId) was replaced by a PARTIAL
+-- unique index `WHERE active = true` in 20260524143827_fixed-assets.sql, so the
+-- conflict target must repeat that predicate to match (matches the sibling
+-- backfills in that migration). Inserted rows default active = true.
+ON CONFLICT ("name", "companyGroupId") WHERE "active" = true DO NOTHING;

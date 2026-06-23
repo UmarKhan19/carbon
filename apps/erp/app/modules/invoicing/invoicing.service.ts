@@ -1184,9 +1184,13 @@ export async function getPaymentApplications(
   client: SupabaseClient<Database>,
   paymentId: string
 ) {
+  // Embed the invoice's human-readable id (salesInvoice/purchaseInvoice.invoiceId)
+  // so the UI can show "AP000001" rather than the raw FK id.
   return client
     .from("paymentApplication")
-    .select("*")
+    .select(
+      "*, salesInvoice:salesInvoiceId(invoiceId), purchaseInvoice:purchaseInvoiceId(invoiceId)"
+    )
     .eq("paymentId", paymentId)
     .order("appliedDate", { ascending: true });
 }

@@ -38,6 +38,7 @@ import ConfirmDelete from "~/components/Modals/ConfirmDelete";
 import { usePermissions, useRouteData, useUser } from "~/hooks";
 import { ShipmentStatus } from "~/modules/inventory/ui/Shipments";
 import type { SalesInvoice, SalesInvoiceLine } from "~/modules/invoicing";
+import { getPayInvoiceHref, isInvoicePayable } from "~/modules/invoicing";
 // status mutation route still exists for the manual Draft -> Pending ->
 // Submitted transitions, but the dropdown in this header no longer
 // drives it.
@@ -175,16 +176,14 @@ const SalesInvoiceHeader = () => {
   // invoice — NetSuite's Accept Payment pattern. Hidden once the
   // invoice is fully settled, voided, or pre-posting.
   const canReceivePayment =
-    !["Voided", "Draft", "Pending", "Paid"].includes(
-      salesInvoice.status ?? ""
-    ) &&
-    Number(salesInvoice.balance ?? 0) > 0 &&
+    isInvoicePayable(salesInvoice.status, salesInvoice.balance) &&
     permissions.can("create", "invoicing");
-  const receivePaymentHref = `${path.to.paymentNew}?customerId=${encodeURIComponent(
-    salesInvoice.customerId ?? ""
-  )}&invoiceId=${encodeURIComponent(invoiceId)}&amount=${encodeURIComponent(
-    String(salesInvoice.balance ?? 0)
-  )}`;
+  const receivePaymentHref = getPayInvoiceHref({
+    side: "ar",
+    partyId: salesInvoice.customerId,
+    invoiceId,
+    balance: salesInvoice.balance
+  });
 
   return (
     <>

@@ -39,7 +39,11 @@ import {
   useUser
 } from "~/hooks";
 import type { PurchaseInvoice, PurchaseInvoiceLine } from "~/modules/invoicing";
-import { PurchaseInvoicingStatus } from "~/modules/invoicing";
+import {
+  getPayInvoiceHref,
+  isInvoicePayable,
+  PurchaseInvoicingStatus
+} from "~/modules/invoicing";
 import { useItems } from "~/stores";
 import { useSuppliers } from "~/stores/suppliers";
 import { path } from "~/utils/path";
@@ -184,16 +188,14 @@ const PurchaseInvoiceHeader = () => {
   // Status is derived from paymentApplication rows (migration
   // 20260519130000); manual mutation removed.
   const canMakePayment =
-    !["Voided", "Draft", "Pending", "Paid"].includes(
-      purchaseInvoice.status ?? ""
-    ) &&
-    Number(purchaseInvoice.balance ?? 0) > 0 &&
+    isInvoicePayable(purchaseInvoice.status, purchaseInvoice.balance) &&
     permissions.can("create", "invoicing");
-  const makePaymentHref = `${path.to.paymentNew}?supplierId=${encodeURIComponent(
-    purchaseInvoice.supplierId ?? ""
-  )}&invoiceId=${encodeURIComponent(invoiceId)}&amount=${encodeURIComponent(
-    String(purchaseInvoice.balance ?? 0)
-  )}`;
+  const makePaymentHref = getPayInvoiceHref({
+    side: "ap",
+    partyId: purchaseInvoice.supplierId,
+    invoiceId,
+    balance: purchaseInvoice.balance
+  });
 
   return (
     <>

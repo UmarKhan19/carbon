@@ -1,58 +1,19 @@
-import { error } from "@carbon/auth";
-import { requirePermissions } from "@carbon/auth/auth.server";
-import { flash } from "@carbon/auth/session.server";
 import { VStack } from "@carbon/react";
 import { msg } from "@lingui/core/macro";
-import type { LoaderFunctionArgs } from "react-router";
-import { Outlet, redirect, useLoaderData } from "react-router";
-import { getSalesInvoices } from "~/modules/invoicing";
+import { Outlet, useLoaderData } from "react-router";
 import SalesInvoicesTable from "~/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable";
+import type { loader } from "~/routes/x+/invoicing+/sales";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
-import { getGenericQueryFilters } from "~/utils/query";
+
+// Single source of truth lives in the invoicing module route to avoid drift;
+// this Sales-module route is the same list under the Sales sidebar.
+export { loader } from "~/routes/x+/invoicing+/sales";
 
 export const handle: Handle = {
   breadcrumb: msg`Invoices`,
   to: path.to.salesInvoices
 };
-
-export async function loader({ request }: LoaderFunctionArgs) {
-  const { client, companyId } = await requirePermissions(request, {
-    view: "invoicing"
-  });
-
-  const url = new URL(request.url);
-  const searchParams = new URLSearchParams(url.search);
-  const search = searchParams.get("search");
-  const customerId = searchParams.get("customerId");
-
-  const { limit, offset, sorts, filters } =
-    getGenericQueryFilters(searchParams);
-
-  const salesInvoices = await getSalesInvoices(client, companyId, {
-    search,
-    customerId,
-    limit,
-    offset,
-    sorts,
-    filters
-  });
-
-  if (salesInvoices.error) {
-    redirect(
-      path.to.invoicing,
-      await flash(
-        request,
-        error(salesInvoices.error, "Failed to fetch sales invoices")
-      )
-    );
-  }
-
-  return {
-    count: salesInvoices.count ?? 0,
-    salesInvoices: salesInvoices.data ?? []
-  };
-}
 
 export default function SalesInvoicesSearchRoute() {
   const { count, salesInvoices } = useLoaderData<typeof loader>();

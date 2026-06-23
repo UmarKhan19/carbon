@@ -25,6 +25,10 @@ msgstr "« ${storageUnitName} » possède ${childCount} unités de stockage imbr
 msgid "\"{storageUnitName}\" has 1 direct nested storage unit. Deleting it will also delete that unit and anything underneath it. This cannot be undone."
 msgstr "« ${storageUnitName} » possède 1 unité de stockage imbriquée directe. La supprimer supprimera également cette unité et tout ce qui se trouve en dessous. Cette action ne peut pas être annulée."
 
+#. placeholder {0}: ar.count
+msgid "{0} customers with a balance"
+msgstr ""
+
 #. placeholder {0}: rule.escalationDays
 msgid "{0} days"
 msgstr "{0} jours"
@@ -42,6 +46,10 @@ msgstr "{0} commandes"
 msgid "{0} Processes"
 msgstr "{0} Processus"
 
+#. placeholder {0}: ap.count
+msgid "{0} suppliers with a balance"
+msgstr ""
+
 #. placeholder {0}: lotEntities.length - inspected
 msgid "{0} un-sampled entities will be released to Available. Sampled passes stay Available and sampled failures stay Rejected."
 msgstr "{0} entités non échantillonnées seront libérées en Disponible. Les passes échantillonnées restent Disponible et les défaillances échantillonnées restent Rejetées."
@@ -53,6 +61,12 @@ msgstr "{0} téléchargé avec succès"
 #. placeholder {0}: unmatchedValues.length
 msgid "{0} values missing"
 msgstr "{0} valeurs manquantes"
+
+msgid "{apOverduePct}% of payables"
+msgstr ""
+
+msgid "{arOverduePct}% of receivables"
+msgstr ""
 
 msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB limite"
@@ -430,12 +444,6 @@ msgstr "Avancé"
 msgid "After"
 msgstr "Après"
 
-msgid "Aging"
-msgstr ""
-
-msgid "Aging by Counterparty"
-msgstr ""
-
 msgid "AI Tokens"
 msgstr "Jetons IA"
 
@@ -517,10 +525,10 @@ msgstr "Tout groupe d'articles"
 msgid "Any item type"
 msgstr "Tout type d'article"
 
-msgid "AP Aging"
+msgid "AP Outstanding"
 msgstr ""
 
-msgid "AP Tie-Out"
+msgid "AP Overdue"
 msgstr ""
 
 msgid "API and Webhooks"
@@ -592,10 +600,10 @@ msgstr "Approuvé par"
 msgid "AQL"
 msgstr "AQL"
 
-msgid "AR Aging"
+msgid "AR Outstanding"
 msgstr ""
 
-msgid "AR Tie-Out"
+msgid "AR Overdue"
 msgstr ""
 
 msgid "Archive"
@@ -678,9 +686,9 @@ msgstr "Êtes-vous sûr de vouloir supprimer {0} de cette opération ? Cette act
 msgid "Are you sure you want to delete {0}?"
 msgstr "Êtes-vous sûr de vouloir supprimer {0} ?"
 
+#. placeholder {0}: initialValues.paymentId
 #. placeholder {0}: pickingList.pickingListId
 #. placeholder {0}: routeData?.consumableSummary?.readableIdWithRevision
-#. placeholder {0}: routeData?.customer?.name!
 msgid "Are you sure you want to delete {0}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer {0} ? Cette action ne peut pas être annulée."
 
@@ -1107,13 +1115,13 @@ msgstr "Retrait automatique"
 msgid "Balance Sheet"
 msgstr "Bilan"
 
+msgid "Balanced"
+msgstr ""
+
 msgid "Balloon"
 msgstr "Ballon"
 
 msgid "Bank / Cash Account"
-msgstr ""
-
-msgid "Bank Account"
 msgstr ""
 
 msgid "Base Currency"
@@ -1191,9 +1199,6 @@ msgstr "BOM synchronisé avec succès"
 
 msgid "Breadcrumb"
 msgstr "Fil d'Ariane"
-
-msgid "Break"
-msgstr ""
 
 msgid "Browse library"
 msgstr "Parcourir la bibliothèque"
@@ -1471,6 +1476,9 @@ msgstr "Hébergé dans le cloud"
 
 msgid "Code"
 msgstr "Code"
+
+msgid "Collapse"
+msgstr ""
 
 msgid "Collapse all"
 msgstr "Réduire tout"
@@ -1932,6 +1940,9 @@ msgstr "Créer un devis avec un nouvel identifiant de devis"
 
 msgid "Create Account"
 msgstr "Créer un compte"
+
+msgid "Create adjusting entry"
+msgstr ""
 
 msgid "Create an account"
 msgstr "Créer un compte"
@@ -2446,6 +2457,9 @@ msgstr "Supprimer la pièce"
 msgid "Delete Partner"
 msgstr "Supprimer le partenaire"
 
+msgid "Delete Payment"
+msgstr ""
+
 msgid "Delete Payment Term"
 msgstr "Supprimer le délai de paiement"
 
@@ -2939,6 +2953,9 @@ msgstr "Modifier la pièce"
 msgid "Edit Partner"
 msgstr "Modifier le partenaire"
 
+msgid "Edit Payment"
+msgstr ""
+
 msgid "Edit Payment Term"
 msgstr "Modifier le délai de paiement"
 
@@ -3295,9 +3312,6 @@ msgstr "Dépasse {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB au total — supprimez certai
 
 msgid "Exchange Rate"
 msgstr "Taux de change"
-
-msgid "Exchange Rate (to base)"
-msgstr ""
 
 msgid "Exchange Rates"
 msgstr "Taux de change"
@@ -3839,6 +3853,9 @@ msgstr "Fréquence"
 msgid "Friday"
 msgstr "Vendredi"
 
+msgid "From customer"
+msgstr ""
+
 msgid "From Location"
 msgstr "De l'emplacement"
 
@@ -3896,10 +3913,16 @@ msgstr "Les IDs générés sont activés"
 msgid "Get Method"
 msgstr "Obtenir la méthode"
 
+msgid "GL"
+msgstr ""
+
 msgid "GL Account"
 msgstr "Compte GL"
 
-msgid "GL Control Account"
+msgid "GL tie-out"
+msgstr ""
+
+msgid "GL Tie-Out"
 msgstr ""
 
 #. placeholder {0}: user.firstName
@@ -4237,6 +4260,9 @@ msgstr "Statuts facturés"
 
 msgid "Invoices"
 msgstr "Factures"
+
+msgid "Invoicing"
+msgstr ""
 
 msgid "is"
 msgstr "est"
@@ -4657,6 +4683,13 @@ msgstr "Les articles de fabrication ne peuvent pas être facturés directement. 
 
 msgid "Make Method Version"
 msgstr "Version de la méthode de fabrication"
+
+msgid "Make Payment"
+msgstr ""
+
+#. placeholder {0}: selectedInvoices.length
+msgid "Make Payment · {0} invoices"
+msgstr ""
 
 #. placeholder {0}: selectedRevision.revision
 msgid "Make revision {0} default?"
@@ -5459,6 +5492,12 @@ msgstr "Aucun ID de pièce"
 msgid "No parts added yet"
 msgstr "Aucune pièce ajoutée pour le moment"
 
+msgid "No payables"
+msgstr ""
+
+msgid "No payments yet."
+msgstr ""
+
 msgid "No planning data"
 msgstr "Aucune donnée de planification"
 
@@ -5482,6 +5521,9 @@ msgstr "Aucune raison de devis"
 
 msgid "No Quote Reasons"
 msgstr "Aucune raison de devis"
+
+msgid "No receivables"
+msgstr ""
 
 msgid "No remaining entities to inspect."
 msgstr "Aucune entité restante à inspecter."
@@ -5630,12 +5672,6 @@ msgstr "Oups ! Le lien auquel vous essayez d'accéder n'est pas valide."
 msgid "Open"
 msgstr "Ouvrir"
 
-msgid "Open (Base)"
-msgstr ""
-
-msgid "Open (Local)"
-msgstr ""
-
 msgid "Open Actions"
 msgstr "Actions ouvertes"
 
@@ -5653,9 +5689,6 @@ msgstr "Dépannages Ouverts"
 
 msgid "Open in MES"
 msgstr "Ouvrir dans MES"
-
-msgid "Open Invoices"
-msgstr ""
 
 msgid "Open Issues"
 msgstr "Problèmes ouverts"
@@ -5889,6 +5922,12 @@ msgid "Path"
 msgstr "Chemin"
 
 msgid "Pay Rate"
+msgstr ""
+
+msgid "Payables"
+msgstr ""
+
+msgid "Payables aging"
 msgstr ""
 
 msgid "Payment"
@@ -6370,6 +6409,9 @@ msgstr "Approvisionnement"
 msgid "Purchasing Contact"
 msgstr "Contact d'achat"
 
+msgid "Purchasing Invoices"
+msgstr ""
+
 msgid "Purchasing Unit of Measure"
 msgstr "Unité de mesure d'achat"
 
@@ -6549,12 +6591,25 @@ msgstr "Date de réception demandée"
 msgid "Receipts"
 msgstr "Reçus"
 
+msgid "Receivables"
+msgstr ""
+
+msgid "Receivables aging"
+msgstr ""
+
 msgid "Receive"
 msgstr "Recevoir"
 
 #. placeholder {0}: job.jobId
 msgid "Receive {0} to Inventory"
 msgstr "Recevoir {0} à l'inventaire"
+
+msgid "Receive Payment"
+msgstr ""
+
+#. placeholder {0}: selectedInvoices.length
+msgid "Receive Payment · {0} invoices"
+msgstr ""
 
 msgid "Receive to Inventory"
 msgstr "Recevoir en inventaire"
@@ -6574,11 +6629,11 @@ msgstr "Lieu de réception"
 msgid "Recent"
 msgstr "Récent"
 
+msgid "Recent payments"
+msgstr ""
+
 msgid "Recently Created"
 msgstr "Récemment créé"
-
-msgid "Reconciled"
-msgstr ""
 
 msgid "Record"
 msgstr "Enregistrer"
@@ -7231,6 +7286,12 @@ msgstr "Sélectionner un calibre"
 msgid "Select groups or individuals"
 msgstr "Sélectionner des groupes ou des individus"
 
+msgid "Select invoices from a single counterparty"
+msgstr ""
+
+msgid "Select invoices in a single currency"
+msgstr ""
+
 msgid "Select Item Type"
 msgstr "Sélectionner le type d'article"
 
@@ -7361,9 +7422,6 @@ msgstr "Définissez votre emplacement par défaut dans les paramètres de profil
 
 msgid "Settings"
 msgstr "Paramètres"
-
-msgid "Settled"
-msgstr ""
 
 msgid "Setup"
 msgstr "Configuration"
@@ -8258,6 +8316,9 @@ msgstr "À expédier et recevoir"
 msgid "To Storage Unit"
 msgstr "Vers l'unité de stockage"
 
+msgid "To supplier"
+msgstr ""
+
 msgid "Today"
 msgstr "Aujourd'hui"
 
@@ -8323,9 +8384,6 @@ msgstr "Heures totales"
 
 msgid "Total Minutes"
 msgstr "Minutes totales"
-
-msgid "Total Outstanding"
-msgstr ""
 
 msgid "Total Price"
 msgstr "Prix Total"
@@ -8822,6 +8880,9 @@ msgstr "Afficher les devis ouverts"
 
 msgid "View Open RFQs"
 msgstr "Afficher les demandes de devis ouvertes"
+
+msgid "View Payment"
+msgstr ""
 
 msgid "View Permissions"
 msgstr "Autorisations d'affichage"

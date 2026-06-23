@@ -1,60 +1,19 @@
-import { error } from "@carbon/auth";
-import { requirePermissions } from "@carbon/auth/auth.server";
-import { flash } from "@carbon/auth/session.server";
 import { VStack } from "@carbon/react";
 import { msg } from "@lingui/core/macro";
-import type { LoaderFunctionArgs } from "react-router";
-import { Outlet, redirect, useLoaderData } from "react-router";
-import {
-  getPurchaseInvoices,
-  PurchaseInvoicesTable
-} from "~/modules/invoicing";
+import { Outlet, useLoaderData } from "react-router";
+import { PurchaseInvoicesTable } from "~/modules/invoicing";
+import type { loader } from "~/routes/x+/invoicing+/purchasing";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
-import { getGenericQueryFilters } from "~/utils/query";
+
+// Single source of truth lives in the invoicing module route to avoid drift;
+// this Purchasing-module route is the same list under the Purchasing sidebar.
+export { loader } from "~/routes/x+/invoicing+/purchasing";
 
 export const handle: Handle = {
   breadcrumb: msg`Invoices`,
   to: path.to.purchaseInvoices
 };
-
-export async function loader({ request }: LoaderFunctionArgs) {
-  const { client, companyId } = await requirePermissions(request, {
-    view: "invoicing"
-  });
-
-  const url = new URL(request.url);
-  const searchParams = new URLSearchParams(url.search);
-  const search = searchParams.get("search");
-  const supplierId = searchParams.get("supplierId");
-
-  const { limit, offset, sorts, filters } =
-    getGenericQueryFilters(searchParams);
-
-  const purchaseInvoices = await getPurchaseInvoices(client, companyId, {
-    search,
-    supplierId,
-    limit,
-    offset,
-    sorts,
-    filters
-  });
-
-  if (purchaseInvoices.error) {
-    redirect(
-      path.to.invoicing,
-      await flash(
-        request,
-        error(purchaseInvoices.error, "Failed to fetch purchase invoices")
-      )
-    );
-  }
-
-  return {
-    count: purchaseInvoices.count ?? 0,
-    purchaseInvoices: purchaseInvoices.data ?? []
-  };
-}
 
 export default function PurchaseInvoicesSearchRoute() {
   const { count, purchaseInvoices } = useLoaderData<typeof loader>();

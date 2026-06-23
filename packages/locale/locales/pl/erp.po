@@ -25,6 +25,10 @@ msgstr "„{storageUnitName}\" ma {childCount} bezpośrednio zagnieżdżonych je
 msgid "\"{storageUnitName}\" has 1 direct nested storage unit. Deleting it will also delete that unit and anything underneath it. This cannot be undone."
 msgstr "„${storageUnitName}\" ma 1 bezpośrednią zagnieżdżoną jednostkę magazynową. Usunięcie jej spowoduje również usunięcie tej jednostki i wszystkiego pod nią. Tej operacji nie można cofnąć."
 
+#. placeholder {0}: ar.count
+msgid "{0} customers with a balance"
+msgstr ""
+
 #. placeholder {0}: rule.escalationDays
 msgid "{0} days"
 msgstr "{0} dni"
@@ -42,6 +46,10 @@ msgstr "{0} zamówień"
 msgid "{0} Processes"
 msgstr "{0} Procesy"
 
+#. placeholder {0}: ap.count
+msgid "{0} suppliers with a balance"
+msgstr ""
+
 #. placeholder {0}: lotEntities.length - inspected
 msgid "{0} un-sampled entities will be released to Available. Sampled passes stay Available and sampled failures stay Rejected."
 msgstr "{0} nieprzetestowane jednostki zostaną zwolnione do Dostępne. Przebadane pozytywne pozostają Dostępne, a przebadane negatywne pozostają Odrzucone."
@@ -53,6 +61,12 @@ msgstr "{0} przesłano pomyślnie"
 #. placeholder {0}: unmatchedValues.length
 msgid "{0} values missing"
 msgstr "{0} brakujących wartości"
+
+msgid "{apOverduePct}% of payables"
+msgstr ""
+
+msgid "{arOverduePct}% of receivables"
+msgstr ""
 
 msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB limit"
@@ -430,12 +444,6 @@ msgstr "Zaawansowane"
 msgid "After"
 msgstr "Po"
 
-msgid "Aging"
-msgstr ""
-
-msgid "Aging by Counterparty"
-msgstr ""
-
 msgid "AI Tokens"
 msgstr "Tokeny AI"
 
@@ -517,10 +525,10 @@ msgstr "Dowolna grupa artykułów"
 msgid "Any item type"
 msgstr "Dowolny typ przedmiotu"
 
-msgid "AP Aging"
+msgid "AP Outstanding"
 msgstr ""
 
-msgid "AP Tie-Out"
+msgid "AP Overdue"
 msgstr ""
 
 msgid "API and Webhooks"
@@ -592,10 +600,10 @@ msgstr "Zatwierdzone przez"
 msgid "AQL"
 msgstr "AQL"
 
-msgid "AR Aging"
+msgid "AR Outstanding"
 msgstr ""
 
-msgid "AR Tie-Out"
+msgid "AR Overdue"
 msgstr ""
 
 msgid "Archive"
@@ -678,9 +686,9 @@ msgstr "Czy na pewno chcesz usunąć {0} z tej operacji? Tej czynności nie moż
 msgid "Are you sure you want to delete {0}?"
 msgstr "Czy na pewno chcesz usunąć {0}?"
 
+#. placeholder {0}: initialValues.paymentId
 #. placeholder {0}: pickingList.pickingListId
 #. placeholder {0}: routeData?.consumableSummary?.readableIdWithRevision
-#. placeholder {0}: routeData?.customer?.name!
 msgid "Are you sure you want to delete {0}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć {0}? Tej operacji nie można cofnąć."
 
@@ -1107,13 +1115,13 @@ msgstr "Cofnięcie"
 msgid "Balance Sheet"
 msgstr "Bilans"
 
+msgid "Balanced"
+msgstr ""
+
 msgid "Balloon"
 msgstr "Balon"
 
 msgid "Bank / Cash Account"
-msgstr ""
-
-msgid "Bank Account"
 msgstr ""
 
 msgid "Base Currency"
@@ -1191,9 +1199,6 @@ msgstr "BOM zsynchronizowany pomyślnie"
 
 msgid "Breadcrumb"
 msgstr "Nawigacja"
-
-msgid "Break"
-msgstr ""
 
 msgid "Browse library"
 msgstr "Przeglądaj bibliotekę"
@@ -1471,6 +1476,9 @@ msgstr "Hostowane w chmurze"
 
 msgid "Code"
 msgstr "Kod"
+
+msgid "Collapse"
+msgstr ""
 
 msgid "Collapse all"
 msgstr "Zwiń wszystko"
@@ -1932,6 +1940,9 @@ msgstr "Utwórz ofertę z nowym identyfikatorem oferty"
 
 msgid "Create Account"
 msgstr "Utwórz konto"
+
+msgid "Create adjusting entry"
+msgstr ""
 
 msgid "Create an account"
 msgstr "Utwórz konto"
@@ -2446,6 +2457,9 @@ msgstr "Usuń część"
 msgid "Delete Partner"
 msgstr "Usuń partnera"
 
+msgid "Delete Payment"
+msgstr ""
+
 msgid "Delete Payment Term"
 msgstr "Usuń Warunki Płatności"
 
@@ -2939,6 +2953,9 @@ msgstr "Edytuj Część"
 msgid "Edit Partner"
 msgstr "Edytuj Partnera"
 
+msgid "Edit Payment"
+msgstr ""
+
 msgid "Edit Payment Term"
 msgstr "Edytuj Warunki Płatności"
 
@@ -3295,9 +3312,6 @@ msgstr "Przekracza {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB łącznie — usuń niektó
 
 msgid "Exchange Rate"
 msgstr "Kurs wymiany"
-
-msgid "Exchange Rate (to base)"
-msgstr ""
 
 msgid "Exchange Rates"
 msgstr "Kursy wymiany"
@@ -3839,6 +3853,9 @@ msgstr "Częstotliwość"
 msgid "Friday"
 msgstr "Piątek"
 
+msgid "From customer"
+msgstr ""
+
 msgid "From Location"
 msgstr "Z lokalizacji"
 
@@ -3896,10 +3913,16 @@ msgstr "Wygenerowane identyfikatory są włączone"
 msgid "Get Method"
 msgstr "Pobierz metodę"
 
+msgid "GL"
+msgstr ""
+
 msgid "GL Account"
 msgstr "Konto księgi głównej"
 
-msgid "GL Control Account"
+msgid "GL tie-out"
+msgstr ""
+
+msgid "GL Tie-Out"
 msgstr ""
 
 #. placeholder {0}: user.firstName
@@ -4237,6 +4260,9 @@ msgstr "Statusy Zafakturowane"
 
 msgid "Invoices"
 msgstr "Faktury"
+
+msgid "Invoicing"
+msgstr ""
 
 msgid "is"
 msgstr "jest"
@@ -4657,6 +4683,13 @@ msgstr "Artykuły Make nie mogą być fakturowane bezpośrednio. Zmień metodę 
 
 msgid "Make Method Version"
 msgstr "Wersja metody produkcji"
+
+msgid "Make Payment"
+msgstr ""
+
+#. placeholder {0}: selectedInvoices.length
+msgid "Make Payment · {0} invoices"
+msgstr ""
 
 #. placeholder {0}: selectedRevision.revision
 msgid "Make revision {0} default?"
@@ -5459,6 +5492,12 @@ msgstr "Brak identyfikatora części"
 msgid "No parts added yet"
 msgstr "Nie dodano jeszcze żadnych części"
 
+msgid "No payables"
+msgstr ""
+
+msgid "No payments yet."
+msgstr ""
+
 msgid "No planning data"
 msgstr "Brak danych planowania"
 
@@ -5482,6 +5521,9 @@ msgstr "Brak powodu oferty"
 
 msgid "No Quote Reasons"
 msgstr "Brak powodów oferty"
+
+msgid "No receivables"
+msgstr ""
 
 msgid "No remaining entities to inspect."
 msgstr "Brak pozostałych jednostek do sprawdzenia."
@@ -5630,12 +5672,6 @@ msgstr "Ups! Link, do którego próbujesz uzyskać dostęp, jest nieprawidłowy.
 msgid "Open"
 msgstr "Otwórz"
 
-msgid "Open (Base)"
-msgstr ""
-
-msgid "Open (Local)"
-msgstr ""
-
 msgid "Open Actions"
 msgstr "Otwarte Działania"
 
@@ -5653,9 +5689,6 @@ msgstr "Otwarte Dyspozycje"
 
 msgid "Open in MES"
 msgstr "Otwórz w MES"
-
-msgid "Open Invoices"
-msgstr ""
 
 msgid "Open Issues"
 msgstr "Otwarte problemy"
@@ -5889,6 +5922,12 @@ msgid "Path"
 msgstr "Ścieżka"
 
 msgid "Pay Rate"
+msgstr ""
+
+msgid "Payables"
+msgstr ""
+
+msgid "Payables aging"
 msgstr ""
 
 msgid "Payment"
@@ -6370,6 +6409,9 @@ msgstr "Zakupy"
 msgid "Purchasing Contact"
 msgstr "Kontakt ds. Zakupów"
 
+msgid "Purchasing Invoices"
+msgstr ""
+
 msgid "Purchasing Unit of Measure"
 msgstr "Jednostka miary zakupu"
 
@@ -6549,12 +6591,25 @@ msgstr "Data żądanego odbioru"
 msgid "Receipts"
 msgstr "Paragony"
 
+msgid "Receivables"
+msgstr ""
+
+msgid "Receivables aging"
+msgstr ""
+
 msgid "Receive"
 msgstr "Odbierz"
 
 #. placeholder {0}: job.jobId
 msgid "Receive {0} to Inventory"
 msgstr "Odbierz {0} do Magazynu"
+
+msgid "Receive Payment"
+msgstr ""
+
+#. placeholder {0}: selectedInvoices.length
+msgid "Receive Payment · {0} invoices"
+msgstr ""
 
 msgid "Receive to Inventory"
 msgstr "Odbierz do Magazynu"
@@ -6574,11 +6629,11 @@ msgstr "Lokalizacja odbioru"
 msgid "Recent"
 msgstr "Ostatnie"
 
+msgid "Recent payments"
+msgstr ""
+
 msgid "Recently Created"
 msgstr "Niedawno utworzone"
-
-msgid "Reconciled"
-msgstr ""
 
 msgid "Record"
 msgstr "Nagrywaj"
@@ -7231,6 +7286,12 @@ msgstr "Wybierz Miernik"
 msgid "Select groups or individuals"
 msgstr "Wybierz grupy lub osoby"
 
+msgid "Select invoices from a single counterparty"
+msgstr ""
+
+msgid "Select invoices in a single currency"
+msgstr ""
+
 msgid "Select Item Type"
 msgstr "Wybierz typ elementu"
 
@@ -7361,9 +7422,6 @@ msgstr "Ustaw swoją domyślną lokalizację w ustawieniach profilu, aby wybrać
 
 msgid "Settings"
 msgstr "Ustawienia"
-
-msgid "Settled"
-msgstr ""
 
 msgid "Setup"
 msgstr "Konfiguracja"
@@ -8258,6 +8316,9 @@ msgstr "Do wysłania i odebrania"
 msgid "To Storage Unit"
 msgstr "Do jednostki magazynowej"
 
+msgid "To supplier"
+msgstr ""
+
 msgid "Today"
 msgstr "Dzisiaj"
 
@@ -8323,9 +8384,6 @@ msgstr "Łącznie godzin"
 
 msgid "Total Minutes"
 msgstr "Łącznie minut"
-
-msgid "Total Outstanding"
-msgstr ""
 
 msgid "Total Price"
 msgstr "Cena całkowita"
@@ -8822,6 +8880,9 @@ msgstr "Wyświetl otwarte oferty"
 
 msgid "View Open RFQs"
 msgstr "Wyświetl otwarte zapytania ofertowe"
+
+msgid "View Payment"
+msgstr ""
 
 msgid "View Permissions"
 msgstr "Uprawnienia do wyświetlania"

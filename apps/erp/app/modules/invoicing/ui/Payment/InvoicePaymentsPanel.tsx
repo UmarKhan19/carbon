@@ -13,7 +13,6 @@ import {
 } from "@carbon/react";
 import { Trans } from "@lingui/react/macro";
 import { Link } from "react-router";
-import { Enumerable } from "~/components/Enumerable";
 import { useCurrencyFormatter, useDateFormatter } from "~/hooks";
 import { path } from "~/utils/path";
 
@@ -42,8 +41,7 @@ type InvoicePaymentsPanelProps = {
 
 const InvoicePaymentsPanel = ({ rows }: InvoicePaymentsPanelProps) => {
   const { formatDate } = useDateFormatter();
-  // Payment currency varies row-to-row; use the base formatter and let
-  // the currency column display the code for clarity.
+  // FX gain/loss is recorded in base currency.
   const currencyFormatter = useCurrencyFormatter();
 
   if (rows.length === 0) return null;
@@ -52,8 +50,7 @@ const InvoicePaymentsPanel = ({ rows }: InvoicePaymentsPanelProps) => {
     <Card>
       <CardHeader>
         <CardTitle>
-          <Trans>Payments</Trans>{" "}
-          <span className="text-muted-foreground text-base">{rows.length}</span>
+          <Trans>Payments</Trans>
         </CardTitle>
         <CardDescription>
           <Trans>
@@ -71,9 +68,6 @@ const InvoicePaymentsPanel = ({ rows }: InvoicePaymentsPanelProps) => {
               </Th>
               <Th>
                 <Trans>Payment</Trans>
-              </Th>
-              <Th>
-                <Trans>Currency</Trans>
               </Th>
               <Th className="text-right">
                 <Trans>Applied</Trans>
@@ -101,17 +95,14 @@ const InvoicePaymentsPanel = ({ rows }: InvoicePaymentsPanelProps) => {
                     {r.payment.paymentId}
                   </Link>
                 </Td>
-                <Td>
-                  <Enumerable value={r.payment.currencyCode} />
+                <Td className="text-right tabular-nums">
+                  {currencyFormatter.format(Number(r.appliedAmount))}
                 </Td>
                 <Td className="text-right tabular-nums">
-                  {Number(r.appliedAmount).toFixed(2)}
+                  {currencyFormatter.format(Number(r.discountAmount))}
                 </Td>
                 <Td className="text-right tabular-nums">
-                  {Number(r.discountAmount).toFixed(2)}
-                </Td>
-                <Td className="text-right tabular-nums">
-                  {Number(r.writeOffAmount).toFixed(2)}
+                  {currencyFormatter.format(Number(r.writeOffAmount))}
                 </Td>
                 <Td className="text-right tabular-nums">
                   {currencyFormatter.format(Number(r.fxGainLossAmount ?? 0))}
