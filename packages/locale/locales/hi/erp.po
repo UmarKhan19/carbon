@@ -70,6 +70,9 @@ msgstr "/माह/उपयोगकर्ता"
 msgid "+{0} more"
 msgstr "+{0} और"
 
+msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
+msgstr ""
+
 msgid "0-4 weeks"
 msgstr ""
 
@@ -283,10 +286,6 @@ msgstr "वास्तविक शुरुआत"
 msgid "Add"
 msgstr "जोड़ें"
 
-#. placeholder {0}: copy.noun
-msgid "Add {0}"
-msgstr ""
-
 msgid "Add & Issue"
 msgstr "जोड़ें और जारी करें"
 
@@ -298,12 +297,6 @@ msgstr "एक टिप्पणी जोड़ें..."
 
 msgid "Add a printer in the printing settings to print labels directly."
 msgstr "प्रिंटिंग सेटिंग्स में एक प्रिंटर जोड़ें ताकि लेबल सीधे प्रिंट कर सकें।"
-
-msgid "Add a supplier part"
-msgstr ""
-
-msgid "Add a supplier part for this item to set a preferred supplier."
-msgstr ""
 
 msgid "Add Actions"
 msgstr "कार्य जोड़ें"
@@ -423,7 +416,7 @@ msgid "Add to stock for future use"
 msgstr "भविष्य के उपयोग के लिए स्टॉक में जोड़ें"
 
 #. placeholder {0}: copy.noun
-msgid "Add your first {0} so you can assign it here."
+msgid "Add your first {0}"
 msgstr ""
 
 msgid "Add-On"
@@ -7687,6 +7680,9 @@ msgstr "कंपनी की छुट्टियों पर निर्�
 
 msgid "Skipped"
 msgstr "छोड़ा गया"
+
+msgid "so you can assign it here."
+msgstr ""
 
 msgid "Something went wrong"
 msgstr ""

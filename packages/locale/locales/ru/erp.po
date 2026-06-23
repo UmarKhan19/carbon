@@ -70,6 +70,9 @@ msgstr "/месяц/пользователь"
 msgid "+{0} more"
 msgstr "+{0} ещё"
 
+msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
+msgstr ""
+
 msgid "0-4 weeks"
 msgstr ""
 
@@ -283,10 +286,6 @@ msgstr "Фактическое начало"
 msgid "Add"
 msgstr "Добавить"
 
-#. placeholder {0}: copy.noun
-msgid "Add {0}"
-msgstr ""
-
 msgid "Add & Issue"
 msgstr "Добавить и выдать"
 
@@ -298,12 +297,6 @@ msgstr "Добавить комментарий..."
 
 msgid "Add a printer in the printing settings to print labels directly."
 msgstr "Добавьте принтер в параметры печати, чтобы печатать этикетки напрямую."
-
-msgid "Add a supplier part"
-msgstr ""
-
-msgid "Add a supplier part for this item to set a preferred supplier."
-msgstr ""
 
 msgid "Add Actions"
 msgstr "Добавить действия"
@@ -423,7 +416,7 @@ msgid "Add to stock for future use"
 msgstr "Добавить в запас для будущего использования"
 
 #. placeholder {0}: copy.noun
-msgid "Add your first {0} so you can assign it here."
+msgid "Add your first {0}"
 msgstr ""
 
 msgid "Add-On"
@@ -7687,6 +7680,9 @@ msgstr "Пропускать запланированное техническо
 
 msgid "Skipped"
 msgstr "Пропущено"
+
+msgid "so you can assign it here."
+msgstr ""
 
 msgid "Something went wrong"
 msgstr ""

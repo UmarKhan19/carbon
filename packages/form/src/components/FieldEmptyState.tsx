@@ -1,26 +1,19 @@
-import { Button, cn } from "@carbon/react";
+import { cn } from "@carbon/react";
 import type { ReactNode } from "react";
-import { Link } from "react-router";
-
-type FieldEmptyStateAction =
-  | { kind: "link"; to: string; label: ReactNode }
-  | { kind: "button"; onClick: () => void; label: ReactNode };
 
 export type FieldEmptyStateProps = {
   title: ReactNode;
   description: ReactNode;
-  action?: FieldEmptyStateAction;
   icon?: ReactNode;
   className?: string;
 };
 
-const linkClassName =
+export const fieldEmptyStateLinkClassName =
   "text-primary font-medium underline decoration-dashed underline-offset-4 hover:decoration-solid";
 
 const FieldEmptyState = ({
   title,
   description,
-  action,
   icon,
   className
 }: FieldEmptyStateProps) => {
@@ -36,21 +29,6 @@ const FieldEmptyState = ({
       <p className="text-xs text-muted-foreground max-w-[240px] leading-relaxed">
         {description}
       </p>
-      {action?.kind === "link" && (
-        <Link to={action.to} className={cn(linkClassName, "mt-2 text-xs")}>
-          {action.label}
-        </Link>
-      )}
-      {action?.kind === "button" && (
-        <Button
-          variant="primary"
-          size="sm"
-          className="mt-2"
-          onClick={action.onClick}
-        >
-          {action.label}
-        </Button>
-      )}
     </div>
   );
 };

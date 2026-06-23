@@ -70,6 +70,9 @@ msgstr "/miesiąc/użytkownik"
 msgid "+{0} more"
 msgstr "+{0} więcej"
 
+msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
+msgstr ""
+
 msgid "0-4 weeks"
 msgstr ""
 
@@ -283,10 +286,6 @@ msgstr "Rzeczywisty początek"
 msgid "Add"
 msgstr "Dodaj"
 
-#. placeholder {0}: copy.noun
-msgid "Add {0}"
-msgstr ""
-
 msgid "Add & Issue"
 msgstr "Dodaj i wydaj"
 
@@ -298,12 +297,6 @@ msgstr "Dodaj komentarz..."
 
 msgid "Add a printer in the printing settings to print labels directly."
 msgstr "Dodaj drukarkę w ustawieniach drukowania, aby drukować etykiety bezpośrednio."
-
-msgid "Add a supplier part"
-msgstr ""
-
-msgid "Add a supplier part for this item to set a preferred supplier."
-msgstr ""
 
 msgid "Add Actions"
 msgstr "Dodaj Działania"
@@ -423,7 +416,7 @@ msgid "Add to stock for future use"
 msgstr "Dodaj do zapasów do przyszłego użytku"
 
 #. placeholder {0}: copy.noun
-msgid "Add your first {0} so you can assign it here."
+msgid "Add your first {0}"
 msgstr ""
 
 msgid "Add-On"
@@ -7687,6 +7680,9 @@ msgstr "Pomiń zaplanowaną konserwację w dni świąt firmowych"
 
 msgid "Skipped"
 msgstr "Pominięte"
+
+msgid "so you can assign it here."
+msgstr ""
 
 msgid "Something went wrong"
 msgstr ""

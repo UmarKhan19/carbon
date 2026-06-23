@@ -70,6 +70,9 @@ msgstr "/month/user"
 msgid "+{0} more"
 msgstr "+{0} more"
 
+msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
+msgstr "<0>Add a supplier part</0> for this item to set a preferred supplier."
+
 msgid "0-4 weeks"
 msgstr "0-4 weeks"
 
@@ -283,10 +286,6 @@ msgstr "Actual Start"
 msgid "Add"
 msgstr "Add"
 
-#. placeholder {0}: copy.noun
-msgid "Add {0}"
-msgstr "Add {0}"
-
 msgid "Add & Issue"
 msgstr "Add & Issue"
 
@@ -298,12 +297,6 @@ msgstr "Add a comment..."
 
 msgid "Add a printer in the printing settings to print labels directly."
 msgstr "Add a printer in the printing settings to print labels directly."
-
-msgid "Add a supplier part"
-msgstr "Add a supplier part"
-
-msgid "Add a supplier part for this item to set a preferred supplier."
-msgstr "Add a supplier part for this item to set a preferred supplier."
 
 msgid "Add Actions"
 msgstr "Add Actions"
@@ -423,8 +416,8 @@ msgid "Add to stock for future use"
 msgstr "Add to stock for future use"
 
 #. placeholder {0}: copy.noun
-msgid "Add your first {0} so you can assign it here."
-msgstr "Add your first {0} so you can assign it here."
+msgid "Add your first {0}"
+msgstr "Add your first {0}"
 
 msgid "Add-On"
 msgstr "Add-On"
@@ -7687,6 +7680,9 @@ msgstr "Skip scheduled maintenance on company holidays"
 
 msgid "Skipped"
 msgstr "Skipped"
+
+msgid "so you can assign it here."
+msgstr "so you can assign it here."
 
 msgid "Something went wrong"
 msgstr "Something went wrong"

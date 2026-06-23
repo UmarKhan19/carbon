@@ -104,21 +104,18 @@ const MultiSelect = ({
         />
       ))}
 
-      {emptyMessage && (props.options?.length ?? 0) === 0 ? (
-        emptyMessage
-      ) : (
-        <MultiSelectBase
-          {...props}
-          value={(value ?? []).filter(Boolean)}
-          inline={props.inline ? MultiSelectPreview : undefined}
-          onChange={(newValue) => {
-            setValue(newValue ?? []);
-            onChange(newValue ?? []);
-          }}
-          isReadOnly={isReadOnly}
-          className="w-full"
-        />
-      )}
+      <MultiSelectBase
+        {...props}
+        value={(value ?? []).filter(Boolean)}
+        inline={props.inline ? MultiSelectPreview : undefined}
+        onChange={(newValue) => {
+          setValue(newValue ?? []);
+          onChange(newValue ?? []);
+        }}
+        isReadOnly={isReadOnly}
+        emptyMessage={emptyMessage}
+        className="w-full"
+      />
 
       {error ? (
         <FormErrorMessage>{error}</FormErrorMessage>

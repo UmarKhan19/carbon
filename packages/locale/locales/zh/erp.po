@@ -70,6 +70,9 @@ msgstr "/月/用户"
 msgid "+{0} more"
 msgstr "+{0} 更多"
 
+msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
+msgstr ""
+
 msgid "0-4 weeks"
 msgstr ""
 
@@ -283,10 +286,6 @@ msgstr "实际开始"
 msgid "Add"
 msgstr "添加"
 
-#. placeholder {0}: copy.noun
-msgid "Add {0}"
-msgstr ""
-
 msgid "Add & Issue"
 msgstr "添加并发放"
 
@@ -298,12 +297,6 @@ msgstr "添加评论..."
 
 msgid "Add a printer in the printing settings to print labels directly."
 msgstr "在打印设置中添加打印机以直接打印标签。"
-
-msgid "Add a supplier part"
-msgstr ""
-
-msgid "Add a supplier part for this item to set a preferred supplier."
-msgstr ""
 
 msgid "Add Actions"
 msgstr "添加操作"
@@ -423,7 +416,7 @@ msgid "Add to stock for future use"
 msgstr "添加到库存以供将来使用"
 
 #. placeholder {0}: copy.noun
-msgid "Add your first {0} so you can assign it here."
+msgid "Add your first {0}"
 msgstr ""
 
 msgid "Add-On"
@@ -7687,6 +7680,9 @@ msgstr "跳过公司假期的计划维护"
 
 msgid "Skipped"
 msgstr "已跳过"
+
+msgid "so you can assign it here."
+msgstr ""
 
 msgid "Something went wrong"
 msgstr ""

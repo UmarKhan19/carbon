@@ -113,25 +113,22 @@ const CreatableCombobox = forwardRef<HTMLButtonElement, CreatableComboboxProps>(
           name={name}
           id={name}
         />
-        {emptyMessage && (props.options?.length ?? 0) === 0 ? (
-          emptyMessage
-        ) : (
-          <CreatableComboboxBase
-            ref={ref}
-            {...props}
-            value={value?.replace(/"/g, '\\"')}
-            isClearable={isClearable ?? (resolvedIsOptional && !isReadOnly)}
-            isReadOnly={isReadOnly}
-            label={label}
-            className="w-full"
-            onChange={(newValue) => {
-              flushSync(() => {
-                setValue(newValue?.replace(/"/g, '\\"') ?? "");
-              });
-              onChange(newValue?.replace(/"/g, '\\"') ?? "");
-            }}
-          />
-        )}
+        <CreatableComboboxBase
+          ref={ref}
+          {...props}
+          value={value?.replace(/"/g, '\\"')}
+          isClearable={isClearable ?? (resolvedIsOptional && !isReadOnly)}
+          isReadOnly={isReadOnly}
+          label={label}
+          emptyMessage={emptyMessage}
+          className="w-full"
+          onChange={(newValue) => {
+            flushSync(() => {
+              setValue(newValue?.replace(/"/g, '\\"') ?? "");
+            });
+            onChange(newValue?.replace(/"/g, '\\"') ?? "");
+          }}
+        />
         {error ? (
           <FormErrorMessage>{error}</FormErrorMessage>
         ) : (

@@ -84,24 +84,21 @@ const Combobox = ({
         id={name}
         value={value}
       />
-      {emptyMessage && (props.options?.length ?? 0) === 0 && !isLoading ? (
-        emptyMessage
-      ) : (
-        <ComboboxBase
-          {...props}
-          value={value}
-          onChange={(newValue) => {
-            flushSync(() => {
-              setValue(newValue?.replace(/"/g, '\\"') ?? "");
-            });
-            onChange(newValue?.replace(/"/g, '\\"') ?? "");
-          }}
-          isClearable={resolvedIsOptional && !isReadOnly}
-          isReadOnly={isReadOnly}
-          isLoading={isLoading}
-          className="w-full"
-        />
-      )}
+      <ComboboxBase
+        {...props}
+        value={value}
+        onChange={(newValue) => {
+          flushSync(() => {
+            setValue(newValue?.replace(/"/g, '\\"') ?? "");
+          });
+          onChange(newValue?.replace(/"/g, '\\"') ?? "");
+        }}
+        isClearable={resolvedIsOptional && !isReadOnly}
+        isReadOnly={isReadOnly}
+        isLoading={isLoading}
+        emptyMessage={isLoading ? undefined : emptyMessage}
+        className="w-full"
+      />
       {error ? (
         <FormErrorMessage>{error}</FormErrorMessage>
       ) : (

@@ -1,4 +1,9 @@
-import { FieldEmptyState, Select, ValidatedForm } from "@carbon/form";
+import {
+  FieldEmptyState,
+  fieldEmptyStateLinkClassName,
+  Select,
+  ValidatedForm
+} from "@carbon/form";
 import {
   Card,
   CardContent,
@@ -8,7 +13,7 @@ import {
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
-import { useParams } from "react-router";
+import { Link, useParams } from "react-router";
 import type { z } from "zod";
 import {
   ConversionFactor,
@@ -84,15 +89,12 @@ const ItemPurchasingForm = ({
                   title={<Trans>No suppliers yet</Trans>}
                   description={
                     <Trans>
-                      Add a supplier part for this item to set a preferred
-                      supplier.
+                      <Link to="new" className={fieldEmptyStateLinkClassName}>
+                        Add a supplier part
+                      </Link>{" "}
+                      for this item to set a preferred supplier.
                     </Trans>
                   }
-                  action={{
-                    kind: "link",
-                    to: "new",
-                    label: <Trans>Add a supplier part</Trans>
-                  }}
                 />
               }
             />

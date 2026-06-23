@@ -95,23 +95,20 @@ const CreatableMultiSelect = forwardRef<
             value={selection}
           />
         ))}
-        {emptyMessage && options.length === 0 ? (
-          emptyMessage
-        ) : (
-          <CreatableMultiSelectBase
-            ref={ref}
-            {...props}
-            options={sortedOptions}
-            value={value ?? []}
-            onChange={(newValue) => {
-              setValue(newValue ?? []);
-              onChange(newValue ?? []);
-            }}
-            isReadOnly={isReadOnly}
-            label={label}
-            className="w-full"
-          />
-        )}
+        <CreatableMultiSelectBase
+          ref={ref}
+          {...props}
+          options={sortedOptions}
+          value={value ?? []}
+          onChange={(newValue) => {
+            setValue(newValue ?? []);
+            onChange(newValue ?? []);
+          }}
+          isReadOnly={isReadOnly}
+          label={label}
+          emptyMessage={emptyMessage}
+          className="w-full"
+        />
 
         {error ? (
           <FormErrorMessage>{error}</FormErrorMessage>

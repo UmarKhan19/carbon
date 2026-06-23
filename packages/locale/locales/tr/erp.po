@@ -70,6 +70,9 @@ msgstr "/ay/kullanıcı"
 msgid "+{0} more"
 msgstr "+{0} daha fazla"
 
+msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
+msgstr ""
+
 msgid "0-4 weeks"
 msgstr "0-4 hafta"
 
@@ -283,10 +286,6 @@ msgstr "Gerçek Başlangıç"
 msgid "Add"
 msgstr "Ekle"
 
-#. placeholder {0}: copy.noun
-msgid "Add {0}"
-msgstr ""
-
 msgid "Add & Issue"
 msgstr "Ekle ve Çıkış Yap"
 
@@ -298,12 +297,6 @@ msgstr "Bir yorum ekle..."
 
 msgid "Add a printer in the printing settings to print labels directly."
 msgstr "Etiketleri doğrudan yazdırmak için yazdırma ayarlarında bir yazıcı ekleyin."
-
-msgid "Add a supplier part"
-msgstr ""
-
-msgid "Add a supplier part for this item to set a preferred supplier."
-msgstr ""
 
 msgid "Add Actions"
 msgstr "Eylemler Ekle"
@@ -423,7 +416,7 @@ msgid "Add to stock for future use"
 msgstr "Gelecekteki kullanım için stoğa ekle"
 
 #. placeholder {0}: copy.noun
-msgid "Add your first {0} so you can assign it here."
+msgid "Add your first {0}"
 msgstr ""
 
 msgid "Add-On"
@@ -7687,6 +7680,9 @@ msgstr "Şirket tatillerinde planlanmış bakımı atla"
 
 msgid "Skipped"
 msgstr "Atlanmış"
+
+msgid "so you can assign it here."
+msgstr ""
 
 msgid "Something went wrong"
 msgstr "Bir şeyler yanlış gitti"

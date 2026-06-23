@@ -98,24 +98,21 @@ const Select = ({
         id={name}
         value={value ?? undefined}
       />
-      {emptyMessage && options.length === 0 && !isLoading ? (
-        emptyMessage
-      ) : (
-        <SelectBase
-          {...props}
-          options={options}
-          value={value}
-          onChange={(newValue) => {
-            setValue(newValue ?? "");
-            onChange(newValue ?? "");
-          }}
-          isClearable={resolvedIsOptional && !isReadOnly}
-          isDisabled={isDisabled}
-          isReadOnly={isReadOnly}
-          isLoading={isLoading}
-          className="w-full"
-        />
-      )}
+      <SelectBase
+        {...props}
+        options={options}
+        value={value}
+        onChange={(newValue) => {
+          setValue(newValue ?? "");
+          onChange(newValue ?? "");
+        }}
+        isClearable={resolvedIsOptional && !isReadOnly}
+        isDisabled={isDisabled}
+        isReadOnly={isReadOnly}
+        isLoading={isLoading}
+        emptyMessage={isLoading ? undefined : emptyMessage}
+        className="w-full"
+      />
 
       {error ? (
         <FormErrorMessage>{error}</FormErrorMessage>

@@ -1,6 +1,7 @@
-import { FieldEmptyState } from "@carbon/form";
+import { FieldEmptyState, fieldEmptyStateLinkClassName } from "@carbon/form";
 import { useLingui } from "@lingui/react/macro";
 import type { ReactNode } from "react";
+import { Link } from "react-router";
 import { usePermissions } from "~/hooks";
 import { path } from "~/utils/path";
 
@@ -304,22 +305,28 @@ export const useEmptyState = (
     );
   }
 
+  const ctaLabel = t`Add your first ${copy.noun}`;
+  const cta = opts?.onCreate ? (
+    <button
+      type="button"
+      onClick={opts.onCreate}
+      className={fieldEmptyStateLinkClassName}
+    >
+      {ctaLabel}
+    </button>
+  ) : (
+    <Link to={copy.route} className={fieldEmptyStateLinkClassName}>
+      {ctaLabel}
+    </Link>
+  );
+
   return (
     <FieldEmptyState
       title={t`No ${copy.pluralNoun} yet`}
-      description={t`Add your first ${copy.noun} so you can assign it here.`}
-      action={
-        opts?.onCreate
-          ? {
-              kind: "button",
-              onClick: opts.onCreate,
-              label: t`Add ${copy.noun}`
-            }
-          : {
-              kind: "link",
-              to: copy.route,
-              label: t`Add ${copy.noun}`
-            }
+      description={
+        <>
+          {cta} {t`so you can assign it here.`}
+        </>
       }
     />
   );
