@@ -8,8 +8,9 @@ export type FieldEmptyStateProps = {
   className?: string;
 };
 
+
 export const fieldEmptyStateLinkClassName =
-  "text-primary font-medium underline decoration-dashed underline-offset-4 hover:decoration-solid";
+  "font-medium text-primary underline decoration-primary/30 underline-offset-2 transition-colors hover:decoration-primary";
 
 const FieldEmptyState = ({
   title,
@@ -20,15 +21,23 @@ const FieldEmptyState = ({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center py-5 px-4 text-center",
+        "flex flex-col items-center justify-center gap-3 px-5 py-7 text-center",
         className
       )}
     >
-      {icon && <div className="mb-2 text-muted-foreground">{icon}</div>}
-      <p className="text-sm font-medium text-foreground mb-1">{title}</p>
-      <p className="text-xs text-muted-foreground max-w-[240px] leading-relaxed">
-        {description}
-      </p>
+      {icon && (
+        <div className="text-muted-foreground/70 [&_svg]:size-5 [&_svg]:shrink-0">
+          {icon}
+        </div>
+      )}
+      <div className="flex flex-col gap-1">
+        <p className="text-sm font-medium text-foreground text-balance">
+          {title}
+        </p>
+        <p className="mx-auto max-w-[15rem] text-[0.8125rem] leading-5 text-muted-foreground text-pretty">
+          {description}
+        </p>
+      </div>
     </div>
   );
 };
