@@ -981,6 +981,7 @@ function MaterialForm({
               }));
             }}
             replenishmentSystem={itemData.itemReplenishmentSystem}
+            termId="method-type"
           />
           <StorageUnit
             name="storageUnitId"
@@ -1050,6 +1051,7 @@ function MaterialForm({
                 quoteOperationId: newValue?.value as string
               }));
             }}
+            termId="operation"
           />
         </div>
       </div>

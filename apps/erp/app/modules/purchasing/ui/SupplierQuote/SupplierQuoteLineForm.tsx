@@ -405,6 +405,7 @@ const SupplierQuoteLineForm = ({
                           <CostCenter
                             name="costCenterId"
                             label={t`Cost Center`}
+                            termId="cost-center"
                             isOptional
                           />
                           <DatePicker

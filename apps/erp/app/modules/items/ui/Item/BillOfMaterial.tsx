@@ -988,6 +988,7 @@ function MaterialForm({
           <DefaultMethodType
             name="methodType"
             label={t`Method Type`}
+            termId="method-type"
             value={itemData.methodType}
             isReadOnly
             isConfigured={rulesByField.has(key("methodType"))}
