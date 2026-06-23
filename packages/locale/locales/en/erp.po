@@ -7189,6 +7189,9 @@ msgstr "Select Item Type"
 msgid "Select items"
 msgstr "Select items"
 
+msgid "Select method..."
+msgstr "Select method..."
+
 msgid "Select Printer"
 msgstr "Select Printer"
 

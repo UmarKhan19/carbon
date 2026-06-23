@@ -7189,6 +7189,9 @@ msgstr "Ürün Türü Seçin"
 msgid "Select items"
 msgstr "Öğeler seçin"
 
+msgid "Select method..."
+msgstr ""
+
 msgid "Select Printer"
 msgstr "Yazıcı Seçin"
 

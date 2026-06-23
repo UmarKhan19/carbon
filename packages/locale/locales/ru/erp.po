@@ -7189,6 +7189,9 @@ msgstr "Выберите тип элемента"
 msgid "Select items"
 msgstr "Выберите товары"
 
+msgid "Select method..."
+msgstr ""
+
 msgid "Select Printer"
 msgstr "Выберите принтер"
 
