@@ -34,6 +34,11 @@ msgstr "{0} days"
 msgid "{0} deleted successfully"
 msgstr "{0} deleted successfully"
 
+#. placeholder {0}: result.inserted
+#. placeholder {1}: result.updated
+msgid "{0} inserted, {1} updated — {errorCount} row(s) need fixing."
+msgstr "{0} inserted, {1} updated — {errorCount} row(s) need fixing."
+
 #. placeholder {0}: history.length
 msgid "{0} orders"
 msgstr "{0} orders"
@@ -438,6 +443,12 @@ msgstr "AI Tokens"
 
 msgid "All"
 msgstr "All"
+
+#. placeholder {0}: rows.length
+#. placeholder {1}: result.inserted
+#. placeholder {2}: result.updated
+msgid "All {0} row(s) imported — {1} inserted, {2} updated."
+msgstr "All {0} row(s) imported — {1} inserted, {2} updated."
 
 msgid "All Audit Logs"
 msgstr "All Audit Logs"
@@ -2680,6 +2691,9 @@ msgstr "Done"
 msgid "Download"
 msgstr "Download"
 
+msgid "Download {errorCount} invalid row(s)"
+msgstr "Download {errorCount} invalid row(s)"
+
 msgid "Download CSV"
 msgstr "Download CSV"
 
@@ -3226,6 +3240,9 @@ msgstr "Error validating serial number"
 
 msgid "Error!"
 msgstr "Error!"
+
+msgid "Errors"
+msgstr "Errors"
 
 msgid "Escalation"
 msgstr "Escalation"
@@ -3982,6 +3999,12 @@ msgstr "Implementation Support"
 
 msgid "Import {label} CSV"
 msgstr "Import {label} CSV"
+
+msgid "Import results"
+msgstr "Import results"
+
+msgid "Imported"
+msgstr "Imported"
 
 msgid "In order to convert this RFQ to a quote, all lines must have an internal part number."
 msgstr "In order to convert this RFQ to a quote, all lines must have an internal part number."
@@ -5443,6 +5466,9 @@ msgstr "No results"
 
 msgid "No results found"
 msgstr "No results found"
+
+msgid "No rows to show."
+msgstr "No rows to show."
 
 msgid "No rules assigned"
 msgstr "No rules assigned"
@@ -8636,6 +8662,9 @@ msgstr "Users can update this value for themselves"
 
 msgid "Users to Update"
 msgstr "Users to Update"
+
+msgid "Valid"
+msgstr "Valid"
 
 msgid "Valid From"
 msgstr "Valid From"

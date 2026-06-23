@@ -34,6 +34,11 @@ msgstr "{0}日"
 msgid "{0} deleted successfully"
 msgstr "{0}が正常に削除されました"
 
+#. placeholder {0}: result.inserted
+#. placeholder {1}: result.updated
+msgid "{0} inserted, {1} updated — {errorCount} row(s) need fixing."
+msgstr ""
+
 #. placeholder {0}: history.length
 msgid "{0} orders"
 msgstr "{0}件の注文"
@@ -438,6 +443,12 @@ msgstr "AIトークン"
 
 msgid "All"
 msgstr "すべて"
+
+#. placeholder {0}: rows.length
+#. placeholder {1}: result.inserted
+#. placeholder {2}: result.updated
+msgid "All {0} row(s) imported — {1} inserted, {2} updated."
+msgstr ""
 
 msgid "All Audit Logs"
 msgstr "すべての監査ログ"
@@ -2680,6 +2691,9 @@ msgstr "完了"
 msgid "Download"
 msgstr "ダウンロード"
 
+msgid "Download {errorCount} invalid row(s)"
+msgstr ""
+
 msgid "Download CSV"
 msgstr "CSVをダウンロード"
 
@@ -3225,6 +3239,9 @@ msgid "Error validating serial number"
 msgstr "シリアル番号の検証エラー"
 
 msgid "Error!"
+msgstr ""
+
+msgid "Errors"
 msgstr ""
 
 msgid "Escalation"
@@ -3982,6 +3999,12 @@ msgstr "実装サポート"
 
 msgid "Import {label} CSV"
 msgstr "{label} CSV をインポート"
+
+msgid "Import results"
+msgstr ""
+
+msgid "Imported"
+msgstr ""
 
 msgid "In order to convert this RFQ to a quote, all lines must have an internal part number."
 msgstr "このRFQを見積に変換するには、すべての行に内部部品番号が必要です。"
@@ -5443,6 +5466,9 @@ msgstr "結果がありません"
 
 msgid "No results found"
 msgstr "検索結果が見つかりません"
+
+msgid "No rows to show."
+msgstr ""
 
 msgid "No rules assigned"
 msgstr "ルールが割り当てられていません"
@@ -8636,6 +8662,9 @@ msgstr "ユーザーは自分でこの値を更新できます"
 
 msgid "Users to Update"
 msgstr "更新するユーザー"
+
+msgid "Valid"
+msgstr ""
 
 msgid "Valid From"
 msgstr "有効期間開始"

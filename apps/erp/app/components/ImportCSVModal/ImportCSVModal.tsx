@@ -1,5 +1,5 @@
 import { Hidden, ValidatedForm } from "@carbon/form";
-import { Button, Modal, ModalContent, toast } from "@carbon/react";
+import { Modal, ModalContent, toast } from "@carbon/react";
 import { useEffect, useState } from "react";
 import { flushSync } from "react-dom";
 import { useFetcher } from "react-router";
@@ -10,6 +10,7 @@ import type { action } from "~/routes/x+/shared+/import.$tableId";
 import { path } from "~/utils/path";
 import { AnimatedSizeContainer } from "../AnimatedSizeContainer";
 import { FieldMapping } from "./FieldMappings";
+import { ImportResultsModal } from "./ImportResultsModal";
 import { UploadCSV } from "./UploadCSV";
 import { ImportCsvContext } from "./useCsvContext";
 
@@ -46,14 +47,14 @@ export const ImportCSVModal = ({ table, onClose }: ImportCSVModalProps) => {
       const inserted = fetcher.data.inserted ?? 0;
       const updated = fetcher.data.updated ?? 0;
       const skipped = fetcher.data.skipped ?? 0;
+      // The results modal renders next (see the early return below); just
+      // surface a quick toast summary here.
       if (skipped > 0) {
-        // Leave the modal open so the user sees which rows were skipped.
         toast.info(
           `Imported ${inserted}, updated ${updated}, skipped ${skipped} row(s).`
         );
       } else {
         toast.success(`Imported ${inserted}, updated ${updated}.`);
-        onClose();
       }
     } else if (fetcher.data?.success === false) {
       toast.error(fetcher.data.message);
@@ -66,6 +67,26 @@ export const ImportCSVModal = ({ table, onClose }: ImportCSVModalProps) => {
       setPage(ImportCSVPage.FieldMappings);
     }
   }, [file, fileColumns, page]);
+
+  // After a successful import, swap the wizard for the bigger results modal:
+  // every parsed row marked valid/error, filterable, with an errors-only CSV
+  // download (firstRows holds the full file, so no re-parse needed).
+  if (fetcher.data?.success === true && firstRows && fileColumns) {
+    return (
+      <ImportResultsModal
+        table={table}
+        result={{
+          inserted: fetcher.data.inserted ?? 0,
+          updated: fetcher.data.updated ?? 0,
+          skipped: fetcher.data.skipped ?? 0,
+          errors: fetcher.data.errors ?? []
+        }}
+        rows={firstRows}
+        columns={fileColumns}
+        onClose={onClose}
+      />
+    );
+  }
 
   return (
     <Modal
@@ -127,28 +148,6 @@ export const ImportCSVModal = ({ table, onClose }: ImportCSVModalProps) => {
                     />
                   )}
                 </ValidatedForm>
-                {fetcher.data?.success === true &&
-                  (fetcher.data.skipped ?? 0) > 0 && (
-                    <div className="mt-4 rounded-md border border-border p-3">
-                      <p className="text-sm font-medium">
-                        {fetcher.data.skipped} row(s) were skipped:
-                      </p>
-                      <ul className="mt-2 max-h-48 overflow-auto text-sm text-muted-foreground">
-                        {(fetcher.data.errors ?? []).map((e) => (
-                          <li key={e.row}>
-                            Row {e.row + 1}: {e.reason}
-                          </li>
-                        ))}
-                      </ul>
-                      <Button
-                        className="mt-3"
-                        variant="secondary"
-                        onClick={onClose}
-                      >
-                        Done
-                      </Button>
-                    </div>
-                  )}
               </div>
             </ImportCsvContext.Provider>
           </AnimatedSizeContainer>

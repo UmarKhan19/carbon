@@ -34,6 +34,11 @@ msgstr "{0} jours"
 msgid "{0} deleted successfully"
 msgstr "{0} supprimé avec succès"
 
+#. placeholder {0}: result.inserted
+#. placeholder {1}: result.updated
+msgid "{0} inserted, {1} updated — {errorCount} row(s) need fixing."
+msgstr ""
+
 #. placeholder {0}: history.length
 msgid "{0} orders"
 msgstr "{0} commandes"
@@ -438,6 +443,12 @@ msgstr "Jetons IA"
 
 msgid "All"
 msgstr "Tous"
+
+#. placeholder {0}: rows.length
+#. placeholder {1}: result.inserted
+#. placeholder {2}: result.updated
+msgid "All {0} row(s) imported — {1} inserted, {2} updated."
+msgstr ""
 
 msgid "All Audit Logs"
 msgstr "Tous les journaux d'audit"
@@ -2680,6 +2691,9 @@ msgstr "Terminé"
 msgid "Download"
 msgstr "Télécharger"
 
+msgid "Download {errorCount} invalid row(s)"
+msgstr ""
+
 msgid "Download CSV"
 msgstr "Télécharger CSV"
 
@@ -3225,6 +3239,9 @@ msgid "Error validating serial number"
 msgstr "Erreur lors de la validation du numéro de série"
 
 msgid "Error!"
+msgstr ""
+
+msgid "Errors"
 msgstr ""
 
 msgid "Escalation"
@@ -3982,6 +3999,12 @@ msgstr "Support à la mise en œuvre"
 
 msgid "Import {label} CSV"
 msgstr "Importer {label} CSV"
+
+msgid "Import results"
+msgstr ""
+
+msgid "Imported"
+msgstr ""
 
 msgid "In order to convert this RFQ to a quote, all lines must have an internal part number."
 msgstr "Pour convertir cette demande de devis en devis, toutes les lignes doivent avoir un numéro de pièce interne."
@@ -5443,6 +5466,9 @@ msgstr "Aucun résultat"
 
 msgid "No results found"
 msgstr "Aucun résultat trouvé"
+
+msgid "No rows to show."
+msgstr ""
 
 msgid "No rules assigned"
 msgstr "Aucune règle assignée"
@@ -8636,6 +8662,9 @@ msgstr "Les utilisateurs peuvent mettre à jour cette valeur pour eux-mêmes"
 
 msgid "Users to Update"
 msgstr "Utilisateurs à mettre à jour"
+
+msgid "Valid"
+msgstr ""
 
 msgid "Valid From"
 msgstr "Valide à partir du"

@@ -1370,10 +1370,15 @@ serve(async (req: Request) => {
           const itemPlanningOrderMultiples: ItemPlanningOrderMultiple[] = [];
 
           const itemValidator = z.object({
-            id: z.string(),
-            readableId: z.string(),
+            // Unique ID is the external-integration mapping key and the upsert
+            // key (externalIdMap), so a blank one is broken data, not a new row.
+            // Part Number / Description are likewise required for a usable item.
+            id: z.string().min(1, { message: "Unique ID is required" }),
+            readableId: z
+              .string()
+              .min(1, { message: "Part Number is required" }),
             revision: z.string().optional(),
-            name: z.string(),
+            name: z.string().min(1, { message: "Description is required" }),
             description: z.string().optional(),
             active: z.string().optional(),
             unitOfMeasureCode: z.string().optional(),

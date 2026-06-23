@@ -34,6 +34,11 @@ msgstr "{0} дней"
 msgid "{0} deleted successfully"
 msgstr "{0} успешно удален"
 
+#. placeholder {0}: result.inserted
+#. placeholder {1}: result.updated
+msgid "{0} inserted, {1} updated — {errorCount} row(s) need fixing."
+msgstr ""
+
 #. placeholder {0}: history.length
 msgid "{0} orders"
 msgstr "{0} заказов"
@@ -438,6 +443,12 @@ msgstr "Токены ИИ"
 
 msgid "All"
 msgstr "Все"
+
+#. placeholder {0}: rows.length
+#. placeholder {1}: result.inserted
+#. placeholder {2}: result.updated
+msgid "All {0} row(s) imported — {1} inserted, {2} updated."
+msgstr ""
 
 msgid "All Audit Logs"
 msgstr "Все журналы аудита"
@@ -2680,6 +2691,9 @@ msgstr "Готово"
 msgid "Download"
 msgstr "Скачать"
 
+msgid "Download {errorCount} invalid row(s)"
+msgstr ""
+
 msgid "Download CSV"
 msgstr "Загрузить CSV"
 
@@ -3225,6 +3239,9 @@ msgid "Error validating serial number"
 msgstr "Ошибка при проверке серийного номера"
 
 msgid "Error!"
+msgstr ""
+
+msgid "Errors"
 msgstr ""
 
 msgid "Escalation"
@@ -3982,6 +3999,12 @@ msgstr "Поддержка внедрения"
 
 msgid "Import {label} CSV"
 msgstr "Импорт {label} CSV"
+
+msgid "Import results"
+msgstr ""
+
+msgid "Imported"
+msgstr ""
 
 msgid "In order to convert this RFQ to a quote, all lines must have an internal part number."
 msgstr "Чтобы преобразовать это РЗП в предложение, все строки должны иметь внутренний номер детали."
@@ -5443,6 +5466,9 @@ msgstr "Нет результатов"
 
 msgid "No results found"
 msgstr "Результатов не найдено"
+
+msgid "No rows to show."
+msgstr ""
 
 msgid "No rules assigned"
 msgstr "Нет назначенных правил"
@@ -8636,6 +8662,9 @@ msgstr "Пользователи могут обновлять это значе
 
 msgid "Users to Update"
 msgstr "Пользователи для обновления"
+
+msgid "Valid"
+msgstr ""
 
 msgid "Valid From"
 msgstr "Действительно с"

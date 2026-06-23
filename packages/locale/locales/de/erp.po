@@ -34,6 +34,11 @@ msgstr "{0} Tage"
 msgid "{0} deleted successfully"
 msgstr "{0} erfolgreich gelöscht"
 
+#. placeholder {0}: result.inserted
+#. placeholder {1}: result.updated
+msgid "{0} inserted, {1} updated — {errorCount} row(s) need fixing."
+msgstr ""
+
 #. placeholder {0}: history.length
 msgid "{0} orders"
 msgstr "{0} Bestellungen"
@@ -438,6 +443,12 @@ msgstr "KI-Token"
 
 msgid "All"
 msgstr "Alle"
+
+#. placeholder {0}: rows.length
+#. placeholder {1}: result.inserted
+#. placeholder {2}: result.updated
+msgid "All {0} row(s) imported — {1} inserted, {2} updated."
+msgstr ""
 
 msgid "All Audit Logs"
 msgstr "Alle Audit-Protokolle"
@@ -2680,6 +2691,9 @@ msgstr "Fertig"
 msgid "Download"
 msgstr "Herunterladen"
 
+msgid "Download {errorCount} invalid row(s)"
+msgstr ""
+
 msgid "Download CSV"
 msgstr "CSV herunterladen"
 
@@ -3225,6 +3239,9 @@ msgid "Error validating serial number"
 msgstr "Fehler beim Validieren der Seriennummer"
 
 msgid "Error!"
+msgstr ""
+
+msgid "Errors"
 msgstr ""
 
 msgid "Escalation"
@@ -3982,6 +3999,12 @@ msgstr "Implementierungsunterstützung"
 
 msgid "Import {label} CSV"
 msgstr "Importiere {label} CSV"
+
+msgid "Import results"
+msgstr ""
+
+msgid "Imported"
+msgstr ""
 
 msgid "In order to convert this RFQ to a quote, all lines must have an internal part number."
 msgstr "Um diese Anfrage in ein Angebot umzuwandeln, müssen alle Positionen eine interne Teilenummer haben."
@@ -5443,6 +5466,9 @@ msgstr "Keine Ergebnisse"
 
 msgid "No results found"
 msgstr "Keine Ergebnisse gefunden"
+
+msgid "No rows to show."
+msgstr ""
 
 msgid "No rules assigned"
 msgstr "Keine Regeln zugewiesen"
@@ -8636,6 +8662,9 @@ msgstr "Benutzer können diesen Wert für sich selbst aktualisieren"
 
 msgid "Users to Update"
 msgstr "Benutzer zum Aktualisieren"
+
+msgid "Valid"
+msgstr ""
 
 msgid "Valid From"
 msgstr "Gültig ab"

@@ -34,6 +34,11 @@ msgstr "{0} 天"
 msgid "{0} deleted successfully"
 msgstr "{0} 已成功删除"
 
+#. placeholder {0}: result.inserted
+#. placeholder {1}: result.updated
+msgid "{0} inserted, {1} updated — {errorCount} row(s) need fixing."
+msgstr ""
+
 #. placeholder {0}: history.length
 msgid "{0} orders"
 msgstr "{0} 个订单"
@@ -438,6 +443,12 @@ msgstr "AI 代币"
 
 msgid "All"
 msgstr "全部"
+
+#. placeholder {0}: rows.length
+#. placeholder {1}: result.inserted
+#. placeholder {2}: result.updated
+msgid "All {0} row(s) imported — {1} inserted, {2} updated."
+msgstr ""
 
 msgid "All Audit Logs"
 msgstr "所有审计日志"
@@ -2680,6 +2691,9 @@ msgstr "完成"
 msgid "Download"
 msgstr "下载"
 
+msgid "Download {errorCount} invalid row(s)"
+msgstr ""
+
 msgid "Download CSV"
 msgstr "下载 CSV"
 
@@ -3225,6 +3239,9 @@ msgid "Error validating serial number"
 msgstr "验证序列号时出错"
 
 msgid "Error!"
+msgstr ""
+
+msgid "Errors"
 msgstr ""
 
 msgid "Escalation"
@@ -3982,6 +3999,12 @@ msgstr "实施支持"
 
 msgid "Import {label} CSV"
 msgstr "导入 {label} CSV"
+
+msgid "Import results"
+msgstr ""
+
+msgid "Imported"
+msgstr ""
 
 msgid "In order to convert this RFQ to a quote, all lines must have an internal part number."
 msgstr "为了将此RFQ转换为报价，所有行必须具有内部零件编号。"
@@ -5443,6 +5466,9 @@ msgstr "无结果"
 
 msgid "No results found"
 msgstr "未找到结果"
+
+msgid "No rows to show."
+msgstr ""
 
 msgid "No rules assigned"
 msgstr "未分配规则"
@@ -8636,6 +8662,9 @@ msgstr "用户可以自行更新此值"
 
 msgid "Users to Update"
 msgstr "要更新的用户"
+
+msgid "Valid"
+msgstr ""
 
 msgid "Valid From"
 msgstr "有效期开始"

@@ -34,6 +34,11 @@ msgstr "{0} दिन"
 msgid "{0} deleted successfully"
 msgstr "{0} सफलतापूर्वक हटाया गया"
 
+#. placeholder {0}: result.inserted
+#. placeholder {1}: result.updated
+msgid "{0} inserted, {1} updated — {errorCount} row(s) need fixing."
+msgstr ""
+
 #. placeholder {0}: history.length
 msgid "{0} orders"
 msgstr "{0} ऑर्डर"
@@ -438,6 +443,12 @@ msgstr "एआई टोकन"
 
 msgid "All"
 msgstr "सभी"
+
+#. placeholder {0}: rows.length
+#. placeholder {1}: result.inserted
+#. placeholder {2}: result.updated
+msgid "All {0} row(s) imported — {1} inserted, {2} updated."
+msgstr ""
 
 msgid "All Audit Logs"
 msgstr "सभी ऑडिट लॉग"
@@ -2680,6 +2691,9 @@ msgstr "पूर्ण"
 msgid "Download"
 msgstr "डाउनलोड करें"
 
+msgid "Download {errorCount} invalid row(s)"
+msgstr ""
+
 msgid "Download CSV"
 msgstr "CSV डाउनलोड करें"
 
@@ -3225,6 +3239,9 @@ msgid "Error validating serial number"
 msgstr "सीरियल नंबर को मान्य करने में त्रुटि"
 
 msgid "Error!"
+msgstr ""
+
+msgid "Errors"
 msgstr ""
 
 msgid "Escalation"
@@ -3982,6 +3999,12 @@ msgstr "कार्यान्वयन समर्थन"
 
 msgid "Import {label} CSV"
 msgstr "{label} CSV आयात करें"
+
+msgid "Import results"
+msgstr ""
+
+msgid "Imported"
+msgstr ""
 
 msgid "In order to convert this RFQ to a quote, all lines must have an internal part number."
 msgstr "इस RFQ को उद्धरण में परिवर्तित करने के लिए, सभी पंक्तियों के पास एक आंतरिक भाग संख्या होनी चाहिए।"
@@ -5443,6 +5466,9 @@ msgstr "कोई परिणाम नहीं"
 
 msgid "No results found"
 msgstr "कोई परिणाम नहीं मिला"
+
+msgid "No rows to show."
+msgstr ""
 
 msgid "No rules assigned"
 msgstr "कोई नियम असाइन नहीं किया गया"
@@ -8636,6 +8662,9 @@ msgstr "उपयोगकर्ता स्वयं के लिए इस �
 
 msgid "Users to Update"
 msgstr "अपडेट करने के लिए उपयोगकर्ता"
+
+msgid "Valid"
+msgstr ""
 
 msgid "Valid From"
 msgstr "वैध से"
