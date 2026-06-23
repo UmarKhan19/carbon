@@ -17,9 +17,6 @@ export type ItemOrderStatus = {
   // supply-side counterpart to `status`; lets a planned/in-flight job surface a
   // positive indicator instead of a bare "needs order" dot.
   supplyJobStatus: JobStatus | null;
-  // The owning job is Completed — procurement status is moot, so every material
-  // shows a single "Completed" badge instead of per-material indicators.
-  jobCompleted: boolean;
   // This job's full requirement is met from on-hand stock (after priority
   // allocation) — i.e. the parts are already in inventory, not merely on order.
   // Lets a fulfilled high-priority job show "in stock" while a lower-priority job
@@ -36,7 +33,7 @@ export type JobOrderStatusCategory =
   | "awaitingApproval"
   | "onOrder"
   | "received"
-  | "completed";
+  | "inStock";
 
 // Must match the demand window in get_job_quantity_on_hand and the scheduling
 // sequence.
@@ -139,25 +136,9 @@ export function getJobMaterialOrderStatus(
     shortfall,
     status,
     supplyJobStatus,
-    jobCompleted: false,
     coveredByOnHand,
     ordered,
     received
-  };
-}
-
-// A uniform "Completed" status for every material of a finished job. Skips the
-// PO/supply/shortfall math — procurement state is irrelevant once the job is done.
-export function getCompletedJobOrderStatus(): ItemOrderStatus {
-  return {
-    needsOrder: false,
-    shortfall: 0,
-    status: null,
-    supplyJobStatus: null,
-    jobCompleted: true,
-    coveredByOnHand: false,
-    ordered: 0,
-    received: 0
   };
 }
 
@@ -168,14 +149,11 @@ export function getCompletedJobOrderStatus(): ItemOrderStatus {
 export function getJobOrderStatusCategory(
   status: ItemOrderStatus | undefined
 ): JobOrderStatusCategory | null {
-  if (status?.jobCompleted) return "completed";
-
   // A still-unmet, priority-adjusted shortfall outranks the supply indicators —
   // see JobOrderStatusBadge for why.
   if (status?.needsOrder) return "needsOrder";
 
-  // On-hand coverage shares the "completed" category (same green check).
-  if (status?.coveredByOnHand) return "completed";
+  if (status?.coveredByOnHand) return "inStock";
 
   switch (status?.status) {
     case "Planned":

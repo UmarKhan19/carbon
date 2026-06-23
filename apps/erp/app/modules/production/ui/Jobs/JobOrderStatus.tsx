@@ -29,14 +29,10 @@ export function JobOrderStatusBadge({
   const category = getJobOrderStatusCategory(status);
 
   switch (category) {
-    case "completed":
+    case "inStock":
       return badge(
         <LuCircleCheck className="text-emerald-600" />,
-        status?.jobCompleted ? (
-          <Trans>Completed</Trans>
-        ) : (
-          <Trans>In stock</Trans>
-        )
+        <Trans>In stock</Trans>
       );
     case "needsOrder":
       return badge(

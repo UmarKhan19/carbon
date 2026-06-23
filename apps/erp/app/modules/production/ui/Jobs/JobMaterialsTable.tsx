@@ -207,8 +207,7 @@ const JobMaterialsTable = memo(
                 { value: "awaitingApproval", label: t`Awaiting approval` },
                 { value: "onOrder", label: t`On order` },
                 { value: "received", label: t`Pending` },
-                // `completed` is "In stock" on an active job, "Completed" once done.
-                { value: "completed", label: t`In stock` }
+                { value: "inStock", label: t`In stock` }
               ]
             }
           }

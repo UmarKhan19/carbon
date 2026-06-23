@@ -18,7 +18,6 @@ import type {
 } from "../shared";
 import {
   ACTIVE_JOB_STATUSES,
-  getCompletedJobOrderStatus,
   getJobOrderStatusByMaterial,
   type ItemOrderStatus,
   type ItemShortfall,
@@ -1129,17 +1128,7 @@ export async function getJobOrderStatusMap(
     Awaited<ReturnType<typeof getJobMaterialsWithQuantityOnHand>>["data"]
   >
 ): Promise<Record<string, ItemOrderStatus>> {
-  // A completed job shows a uniform "Completed" badge on every material instead
-  // of per-material procurement indicators (no PO/supply/shortfall lookups).
-  if (jobStatus === "Completed") {
-    const byMaterialId: Record<string, ItemOrderStatus> = {};
-    for (const material of materials) {
-      if (!material.id) continue;
-      byMaterialId[material.id] = getCompletedJobOrderStatus();
-    }
-    return byMaterialId;
-  }
-
+  // Completed/Draft/Cancelled/Closed jobs show no procurement indicators.
   if (isJobOrderStatusHidden(jobStatus)) return {};
 
   const [purchaseOrderLines, supplyJobLines] = await Promise.all([
