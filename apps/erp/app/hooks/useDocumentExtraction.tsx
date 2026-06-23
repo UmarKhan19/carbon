@@ -8,8 +8,6 @@ type DocumentExtractionState = {
   id: string;
   status: ExtractionStatus;
   filteredData: Record<string, unknown> | null;
-  /** Raw AI output with per-field { value, confidence } — drives the confidence bands. */
-  extractedData: Record<string, unknown> | null;
   error: string | null;
   storagePath: string | null;
 };
@@ -50,7 +48,7 @@ export function useDocumentExtraction(extractionId: string | null) {
     setIsLoading(true);
     const { data } = await supabase
       .from("documentExtraction")
-      .select("id, status, filteredData, extractedData, error, storagePath")
+      .select("id, status, filteredData, error, storagePath")
       .eq("id", extractionId)
       .single();
 
@@ -112,7 +110,6 @@ export function useDocumentExtraction(extractionId: string | null) {
             id: row.id as string,
             status: row.status as ExtractionStatus,
             filteredData: row.filteredData as Record<string, unknown> | null,
-            extractedData: row.extractedData as Record<string, unknown> | null,
             error: row.error as string | null,
             storagePath: row.storagePath as string | null
           });

@@ -1,23 +1,33 @@
-import type { ComboboxProps } from "@carbon/form";
+import type { CreatableComboboxProps } from "@carbon/form";
 import { CreatableCombobox } from "@carbon/form";
 import { useDisclosure } from "@carbon/react";
 import { formatAddress } from "@carbon/utils";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 import type {
   getSupplierLocations,
   SupplierLocation as SupplierLocationType
 } from "~/modules/purchasing";
 import { SupplierLocationForm } from "~/modules/purchasing/ui/Supplier";
+import { useSuppliers } from "~/stores";
 import { path } from "~/utils/path";
+import { useCountries } from "./Country";
 
 type SupplierLocationSelectProps = Omit<
-  ComboboxProps,
+  CreatableComboboxProps,
   "options" | "onChange" | "inline"
 > & {
   supplier?: string;
   inline?: boolean;
   onChange?: (supplier: SupplierLocationType | null) => void;
+  extractedAddress?: {
+    addressLine1?: string | null;
+    addressLine2?: string | null;
+    city?: string | null;
+    stateProvince?: string | null;
+    postalCode?: string | null;
+    countryCode?: string | null;
+  };
 };
 
 const SupplierLocationPreview = (
@@ -29,21 +39,41 @@ const SupplierLocationPreview = (
   return <span>{location.label}</span>;
 };
 
-const SupplierLocation = (props: SupplierLocationSelectProps) => {
+const SupplierLocation = ({
+  extractedAddress,
+  onChange: propsOnChange,
+  inline,
+  supplier,
+  ...props
+}: SupplierLocationSelectProps) => {
   const newLocationModal = useDisclosure();
-  // const [created, setCreated] = useState<string>("");
+  const [created, setCreated] = useState<string>("");
   const triggerRef = useRef<HTMLButtonElement>(null);
   const supplierLocationsFetcher =
     useFetcher<Awaited<ReturnType<typeof getSupplierLocations>>>();
+  const [suppliers] = useSuppliers();
+  const supplierName =
+    suppliers.find((s) => s.id === supplier)?.name ?? "Main Location";
+
+  const countries = useCountries();
+  const mappedCountryCode = useMemo(() => {
+    if (!extractedAddress?.countryCode) return "";
+    const raw = extractedAddress.countryCode;
+    if (raw.length === 2) return raw.toUpperCase();
+    const match = countries.find(
+      (c) =>
+        c.label.toLowerCase().includes(raw.toLowerCase()) ||
+        raw.toLowerCase().includes(c.label.toLowerCase())
+    );
+    return match ? match.value : raw;
+  }, [extractedAddress?.countryCode, countries]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   useEffect(() => {
-    if (props?.supplier) {
-      supplierLocationsFetcher.load(
-        path.to.api.supplierLocations(props.supplier)
-      );
+    if (supplier) {
+      supplierLocationsFetcher.load(path.to.api.supplierLocations(supplier));
     }
-  }, [props.supplier]);
+  }, [supplier]);
 
   const options = useMemo(
     () =>
@@ -68,7 +98,7 @@ const SupplierLocation = (props: SupplierLocationSelectProps) => {
         (location) => location.id === newValue?.value
       ) ?? null;
 
-    props.onChange?.(location as SupplierLocationType | null);
+    propsOnChange?.(location as SupplierLocationType | null);
   };
 
   return (
@@ -77,24 +107,38 @@ const SupplierLocation = (props: SupplierLocationSelectProps) => {
         ref={triggerRef}
         options={options}
         {...props}
-        inline={props?.inline ? SupplierLocationPreview : undefined}
+        extractedValue={
+          extractedAddress?.addressLine1 ??
+          extractedAddress?.city ??
+          extractedAddress?.postalCode ??
+          undefined
+        }
+        inline={inline ? SupplierLocationPreview : undefined}
         label={props?.label ?? "Supplier Location"}
         onChange={onChange}
         onCreateOption={(option) => {
           newLocationModal.onOpen();
-          // setCreated(option);
+          setCreated(option);
         }}
       />
       {newLocationModal.isOpen && (
         <SupplierLocationForm
-          supplierId={props.supplier!}
+          supplierId={supplier!}
           type="modal"
           onClose={() => {
-            // setCreated("");
+            setCreated("");
             newLocationModal.onClose();
             triggerRef.current?.click();
           }}
-          initialValues={{ name: "" }}
+          initialValues={{
+            name: supplierName,
+            addressLine1: extractedAddress?.addressLine1 || created || "",
+            addressLine2: extractedAddress?.addressLine2 || "",
+            city: extractedAddress?.city || "",
+            stateProvince: extractedAddress?.stateProvince || "",
+            postalCode: extractedAddress?.postalCode || "",
+            countryCode: mappedCountryCode
+          }}
         />
       )}
     </>

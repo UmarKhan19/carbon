@@ -3336,6 +3336,14 @@ msgstr "Ref. Externa"
 msgid "External Reference"
 msgstr "Referencia Externa"
 
+#. placeholder {0}: data.customerName
+msgid "Extracted customer \"{0}\" was not found. Please create it or select an existing one."
+msgstr ""
+
+#. placeholder {0}: data.supplierName
+msgid "Extracted supplier \"{0}\" was not found. Please create it or select an existing one."
+msgstr ""
+
 msgid "Fail"
 msgstr "Fallar"
 
