@@ -268,6 +268,9 @@ msgstr ""
 msgid "Account"
 msgstr "账户"
 
+msgid "Account & Details"
+msgstr ""
+
 msgid "Account for advance payments made before goods or services are received"
 msgstr ""
 
@@ -2314,6 +2317,9 @@ msgstr ""
 msgid "Create Production Quantity"
 msgstr ""
 
+msgid "Create Projection"
+msgstr ""
+
 msgid "Create Quote Revision"
 msgstr "创建报价修订"
 
@@ -3557,6 +3563,9 @@ msgstr "编辑流程"
 msgid "Edit Production Event"
 msgstr ""
 
+msgid "Edit Production Projection"
+msgstr ""
+
 msgid "Edit Production Quantity"
 msgstr ""
 
@@ -4486,6 +4495,12 @@ msgstr "固定重新订购"
 
 msgid "Fixed Shelf Life"
 msgstr "固定保质期"
+
+msgid "Fixture"
+msgstr ""
+
+msgid "Fixture ID"
+msgstr ""
 
 msgid "For growing businesses that need support"
 msgstr "适合需要支持的成长型企业"
@@ -6256,6 +6271,9 @@ msgstr ""
 msgid "New Process"
 msgstr "新流程"
 
+msgid "New Production Projection"
+msgstr ""
+
 msgid "New Quality Document"
 msgstr ""
 
@@ -6833,9 +6851,6 @@ msgid "Optional context for this rule"
 msgstr "此规则的可选上下文"
 
 msgid "Optional fixed rate used when translating equity balances per IAS 21 (instead of the period rate)."
-msgstr ""
-
-msgid "Optional tags (cost center, project, etc.) that let you slice this posting in reports."
 msgstr ""
 
 msgid "Options"
@@ -8734,6 +8749,9 @@ msgstr "序列号/批次 #"
 msgid "service"
 msgstr "服务"
 
+msgid "Service"
+msgstr ""
+
 msgid "Service Charges"
 msgstr "服务费"
 
@@ -8757,6 +8775,9 @@ msgstr "设置控制台PIN"
 
 msgid "Set default markup percentages for each cost category on new quote lines"
 msgstr "为新报价行中的每个成本类别设置默认加价百分比"
+
+msgid "Set demand projection values for each week"
+msgstr ""
 
 msgid "Set due date"
 msgstr "设置截止日期"
@@ -10574,6 +10595,9 @@ msgstr "更新密码"
 msgid "Update Permissions"
 msgstr "更新权限"
 
+msgid "Update Projection"
+msgstr ""
+
 msgid "Update Quantity"
 msgstr "更新数量"
 
@@ -11005,6 +11029,10 @@ msgstr "网站"
 
 msgid "Wednesday"
 msgstr "星期三"
+
+#. placeholder {0}: i + 1
+msgid "Week {0} ({formattedDate})"
+msgstr ""
 
 #. placeholder {0}: dateFormatter.format(parseDate(d.startDate).toDate(getLocalTimeZone()))
 msgid "Week of {0}"

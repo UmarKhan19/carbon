@@ -268,6 +268,9 @@ msgstr ""
 msgid "Account"
 msgstr "Hesap"
 
+msgid "Account & Details"
+msgstr ""
+
 msgid "Account for advance payments made before goods or services are received"
 msgstr ""
 
@@ -2314,6 +2317,9 @@ msgstr ""
 msgid "Create Production Quantity"
 msgstr ""
 
+msgid "Create Projection"
+msgstr ""
+
 msgid "Create Quote Revision"
 msgstr "Teklif Revizyonu Oluştur"
 
@@ -3557,6 +3563,9 @@ msgstr "İşlemi Düzenle"
 msgid "Edit Production Event"
 msgstr ""
 
+msgid "Edit Production Projection"
+msgstr ""
+
 msgid "Edit Production Quantity"
 msgstr ""
 
@@ -4486,6 +4495,12 @@ msgstr "Sabit Yeniden Sipariş"
 
 msgid "Fixed Shelf Life"
 msgstr "Sabit Raf Ömrü"
+
+msgid "Fixture"
+msgstr ""
+
+msgid "Fixture ID"
+msgstr ""
 
 msgid "For growing businesses that need support"
 msgstr "Destek ihtiyacı olan büyüyen işletmeler için"
@@ -6256,6 +6271,9 @@ msgstr ""
 msgid "New Process"
 msgstr "Yeni Süreç"
 
+msgid "New Production Projection"
+msgstr ""
+
 msgid "New Quality Document"
 msgstr ""
 
@@ -6833,9 +6851,6 @@ msgid "Optional context for this rule"
 msgstr "Bu kural için isteğe bağlı bağlam"
 
 msgid "Optional fixed rate used when translating equity balances per IAS 21 (instead of the period rate)."
-msgstr ""
-
-msgid "Optional tags (cost center, project, etc.) that let you slice this posting in reports."
 msgstr ""
 
 msgid "Options"
@@ -8734,6 +8749,9 @@ msgstr "Seri/Parti No"
 msgid "service"
 msgstr "hizmet"
 
+msgid "Service"
+msgstr ""
+
 msgid "Service Charges"
 msgstr "Hizmet ücretleri"
 
@@ -8757,6 +8775,9 @@ msgstr "Konsol PIN Ayarla"
 
 msgid "Set default markup percentages for each cost category on new quote lines"
 msgstr "Yeni teklif satırları için her maliyet kategorisi için varsayılan artırım yüzdelerini belirleyin"
+
+msgid "Set demand projection values for each week"
+msgstr ""
 
 msgid "Set due date"
 msgstr "Son son tarihi belirle"
@@ -10574,6 +10595,9 @@ msgstr "Şifreyi Güncelle"
 msgid "Update Permissions"
 msgstr "İzinleri Güncelle"
 
+msgid "Update Projection"
+msgstr ""
+
 msgid "Update Quantity"
 msgstr "Miktarı Güncelle"
 
@@ -11005,6 +11029,10 @@ msgstr "Web Sitesi"
 
 msgid "Wednesday"
 msgstr "Çarşamba"
+
+#. placeholder {0}: i + 1
+msgid "Week {0} ({formattedDate})"
+msgstr ""
 
 #. placeholder {0}: dateFormatter.format(parseDate(d.startDate).toDate(getLocalTimeZone()))
 msgid "Week of {0}"

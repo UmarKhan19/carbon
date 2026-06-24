@@ -35,6 +35,7 @@ import {
   SequenceOrCustomId,
   Submit
 } from "~/components/Form";
+import { itemTypeLabel } from "~/components/Form/itemTypeLabel";
 import { usePermissions, useUser } from "~/hooks";
 import type {
   ConfigurationParameter,
@@ -63,7 +64,7 @@ type JobFormProps = {
 
 const JobForm = ({ initialValues }: JobFormProps) => {
   const permissions = usePermissions();
-  const { t } = useLingui();
+  const { t, i18n } = useLingui();
   const { company } = useUser();
   const { carbon } = useCarbon();
   const [type, setType] = useState<MethodItemType>(
@@ -278,7 +279,7 @@ const JobForm = ({ initialValues }: JobFormProps) => {
 
                       <Item
                         name="itemId"
-                        label={type}
+                        label={i18n._(itemTypeLabel(type))}
                         type={type}
                         value={itemData.itemId}
                         locationId={initialValues.locationId ?? undefined}
@@ -431,7 +432,7 @@ const JobForm = ({ initialValues }: JobFormProps) => {
                       >
                         <Item
                           name="itemId"
-                          label={type}
+                          label={i18n._(itemTypeLabel(type))}
                           type={type}
                           value={itemData.itemId}
                           locationId={initialValues.locationId ?? undefined}

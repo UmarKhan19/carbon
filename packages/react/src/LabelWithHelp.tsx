@@ -16,7 +16,6 @@ const DOCS_BASE_URL = "https://docs.carbon.ms";
 type LabelWithHelpProps = {
   termId: TermId | undefined;
   children: ReactNode;
-  description?: ReactNode;
   className?: string;
   tooltipDelayDuration?: number;
   /**
@@ -31,7 +30,6 @@ type LabelWithHelpProps = {
 export function LabelWithHelp({
   termId,
   children,
-  description,
   className,
   tooltipDelayDuration = 200,
   variant = "stacked"
@@ -42,8 +40,8 @@ export function LabelWithHelp({
   const entry = getEntry(termId);
 
   const translatedTerm = i18n._(entry.term);
-  const translatedDefinition = description ?? i18n._(entry.definition);
-  const showLearnMore = description === undefined && entry.href !== undefined;
+  const translatedDefinition = i18n._(entry.definition);
+  const showLearnMore = entry.href !== undefined;
   const isInline = variant === "inline";
 
   const trigger = (

@@ -32,11 +32,11 @@ import {
   TextArea,
   UnitOfMeasure
 } from "~/components/Form";
+import { itemTypeIdLabel } from "~/components/Form/itemTypeLabel";
 import { ReplenishmentSystemIcon } from "~/components/Icons";
 import { usePermissions } from "~/hooks";
 import type { MethodItemType } from "~/modules/shared";
 import { path } from "~/utils/path";
-import { capitalize } from "~/utils/string";
 import {
   itemReplenishmentSystems,
   itemTrackingTypes,
@@ -50,7 +50,7 @@ type ItemFormProps = {
 
 const ItemForm = ({ initialValues, type }: ItemFormProps) => {
   const permissions = usePermissions();
-  const { t } = useLingui();
+  const { t, i18n } = useLingui();
   const fetcher = useFetcher<{}>();
 
   const translateItemTrackingType = (v: string) =>
@@ -78,18 +78,7 @@ const ItemForm = ({ initialValues, type }: ItemFormProps) => {
   const [defaultMethodType, setDefaultMethodType] = useState<string>(
     initialValues.defaultMethodType ?? "Purchase to Order"
   );
-  const readableIdLabel =
-    type === "Part"
-      ? t`Part ID`
-      : type === "Tool"
-        ? t`Tool ID`
-        : type === "Material"
-          ? t`Material ID`
-          : type === "Consumable"
-            ? t`Consumable ID`
-            : type === "Service"
-              ? t`Service ID`
-              : `${capitalize(type)} ID`;
+  const readableIdLabel = i18n._(itemTypeIdLabel(type));
 
   const itemReplenishmentSystemOptions =
     itemReplenishmentSystems.map((itemReplenishmentSystem) => ({

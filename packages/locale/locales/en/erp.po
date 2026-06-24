@@ -268,6 +268,9 @@ msgstr "Acceptable Quality Level — the highest defect rate that's still consid
 msgid "Account"
 msgstr "Account"
 
+msgid "Account & Details"
+msgstr "Account & Details"
+
 msgid "Account for advance payments made before goods or services are received"
 msgstr "Account for advance payments made before goods or services are received"
 
@@ -2314,6 +2317,9 @@ msgstr "Create Production Event"
 msgid "Create Production Quantity"
 msgstr "Create Production Quantity"
 
+msgid "Create Projection"
+msgstr "Create Projection"
+
 msgid "Create Quote Revision"
 msgstr "Create Quote Revision"
 
@@ -3557,6 +3563,9 @@ msgstr "Edit Process"
 msgid "Edit Production Event"
 msgstr "Edit Production Event"
 
+msgid "Edit Production Projection"
+msgstr "Edit Production Projection"
+
 msgid "Edit Production Quantity"
 msgstr "Edit Production Quantity"
 
@@ -4486,6 +4495,12 @@ msgstr "Fixed Reorder"
 
 msgid "Fixed Shelf Life"
 msgstr "Fixed Shelf Life"
+
+msgid "Fixture"
+msgstr "Fixture"
+
+msgid "Fixture ID"
+msgstr "Fixture ID"
 
 msgid "For growing businesses that need support"
 msgstr "For growing businesses that need support"
@@ -6256,6 +6271,9 @@ msgstr "New Procedure"
 msgid "New Process"
 msgstr "New Process"
 
+msgid "New Production Projection"
+msgstr "New Production Projection"
+
 msgid "New Quality Document"
 msgstr "New Quality Document"
 
@@ -6834,9 +6852,6 @@ msgstr "Optional context for this rule"
 
 msgid "Optional fixed rate used when translating equity balances per IAS 21 (instead of the period rate)."
 msgstr "Optional fixed rate used when translating equity balances per IAS 21 (instead of the period rate)."
-
-msgid "Optional tags (cost center, project, etc.) that let you slice this posting in reports."
-msgstr "Optional tags (cost center, project, etc.) that let you slice this posting in reports."
 
 msgid "Options"
 msgstr "Options"
@@ -8734,6 +8749,9 @@ msgstr "Serial/Batch #"
 msgid "service"
 msgstr "service"
 
+msgid "Service"
+msgstr "Service"
+
 msgid "Service Charges"
 msgstr "Service Charges"
 
@@ -8757,6 +8775,9 @@ msgstr "Set Console PIN"
 
 msgid "Set default markup percentages for each cost category on new quote lines"
 msgstr "Set default markup percentages for each cost category on new quote lines"
+
+msgid "Set demand projection values for each week"
+msgstr "Set demand projection values for each week"
 
 msgid "Set due date"
 msgstr "Set due date"
@@ -10574,6 +10595,9 @@ msgstr "Update Password"
 msgid "Update Permissions"
 msgstr "Update Permissions"
 
+msgid "Update Projection"
+msgstr "Update Projection"
+
 msgid "Update Quantity"
 msgstr "Update Quantity"
 
@@ -11005,6 +11029,10 @@ msgstr "Website"
 
 msgid "Wednesday"
 msgstr "Wednesday"
+
+#. placeholder {0}: i + 1
+msgid "Week {0} ({formattedDate})"
+msgstr "Week {0} ({formattedDate})"
 
 #. placeholder {0}: dateFormatter.format(parseDate(d.startDate).toDate(getLocalTimeZone()))
 msgid "Week of {0}"

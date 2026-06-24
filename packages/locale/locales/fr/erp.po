@@ -268,6 +268,9 @@ msgstr ""
 msgid "Account"
 msgstr "Compte"
 
+msgid "Account & Details"
+msgstr ""
+
 msgid "Account for advance payments made before goods or services are received"
 msgstr ""
 
@@ -2314,6 +2317,9 @@ msgstr ""
 msgid "Create Production Quantity"
 msgstr ""
 
+msgid "Create Projection"
+msgstr ""
+
 msgid "Create Quote Revision"
 msgstr "Créer une révision de devis"
 
@@ -3557,6 +3563,9 @@ msgstr "Modifier le processus"
 msgid "Edit Production Event"
 msgstr ""
 
+msgid "Edit Production Projection"
+msgstr ""
+
 msgid "Edit Production Quantity"
 msgstr ""
 
@@ -4486,6 +4495,12 @@ msgstr "Réapprovisionnement Fixe"
 
 msgid "Fixed Shelf Life"
 msgstr "Durée de conservation fixe"
+
+msgid "Fixture"
+msgstr ""
+
+msgid "Fixture ID"
+msgstr ""
 
 msgid "For growing businesses that need support"
 msgstr "Pour les entreprises en croissance qui ont besoin de support"
@@ -6256,6 +6271,9 @@ msgstr ""
 msgid "New Process"
 msgstr "Nouveau Processus"
 
+msgid "New Production Projection"
+msgstr ""
+
 msgid "New Quality Document"
 msgstr ""
 
@@ -6833,9 +6851,6 @@ msgid "Optional context for this rule"
 msgstr "Contexte optionnel pour cette règle"
 
 msgid "Optional fixed rate used when translating equity balances per IAS 21 (instead of the period rate)."
-msgstr ""
-
-msgid "Optional tags (cost center, project, etc.) that let you slice this posting in reports."
 msgstr ""
 
 msgid "Options"
@@ -8734,6 +8749,9 @@ msgstr "Numéro de série/lot"
 msgid "service"
 msgstr "service"
 
+msgid "Service"
+msgstr ""
+
 msgid "Service Charges"
 msgstr "Frais de service"
 
@@ -8757,6 +8775,9 @@ msgstr "Définir le PIN Console"
 
 msgid "Set default markup percentages for each cost category on new quote lines"
 msgstr "Définir les pourcentages de majoration par défaut pour chaque catégorie de coûts sur les nouvelles lignes de devis"
+
+msgid "Set demand projection values for each week"
+msgstr ""
 
 msgid "Set due date"
 msgstr "Définir la date d'échéance"
@@ -10574,6 +10595,9 @@ msgstr "Mettre à jour le mot de passe"
 msgid "Update Permissions"
 msgstr "Mettre à jour les autorisations"
 
+msgid "Update Projection"
+msgstr ""
+
 msgid "Update Quantity"
 msgstr "Mettre à jour la quantité"
 
@@ -11005,6 +11029,10 @@ msgstr "Site web"
 
 msgid "Wednesday"
 msgstr "Mercredi"
+
+#. placeholder {0}: i + 1
+msgid "Week {0} ({formattedDate})"
+msgstr ""
 
 #. placeholder {0}: dateFormatter.format(parseDate(d.startDate).toDate(getLocalTimeZone()))
 msgid "Week of {0}"

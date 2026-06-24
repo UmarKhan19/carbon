@@ -52,6 +52,7 @@ import {
   Submit,
   UnitOfMeasure
 } from "~/components/Form";
+import { itemTypeLabel } from "~/components/Form/itemTypeLabel";
 import {
   useCurrencyFormatter,
   usePercentFormatter,
@@ -85,7 +86,7 @@ const PurchaseOrderLineForm = ({
   type,
   onClose
 }: PurchaseOrderLineFormProps) => {
-  const { t } = useLingui();
+  const { t, i18n } = useLingui();
   const permissions = usePermissions();
   const { carbon } = useCarbon();
   const [items] = useItems();
@@ -577,7 +578,7 @@ const PurchaseOrderLineForm = ({
                       <div className="grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3">
                         <Item
                           name="itemId"
-                          label={itemType}
+                          label={i18n._(itemTypeLabel(itemType))}
                           type={itemType}
                           locationId={locationId}
                           replenishmentSystem={

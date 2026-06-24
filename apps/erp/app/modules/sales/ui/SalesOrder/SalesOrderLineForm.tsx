@@ -66,6 +66,7 @@ import {
   StorageUnit,
   Submit
 } from "~/components/Form";
+import { itemTypeLabel } from "~/components/Form/itemTypeLabel";
 import {
   useCurrencyFormatter,
   usePercentFormatter,
@@ -104,7 +105,7 @@ const SalesOrderLineForm = ({
   type,
   onClose
 }: SalesOrderLineFormProps) => {
-  const { t } = useLingui();
+  const { t, i18n } = useLingui();
   const permissions = usePermissions();
   const { carbon } = useCarbon();
   const { company } = useUser();
@@ -560,7 +561,7 @@ const SalesOrderLineForm = ({
                       <div className="grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3">
                         <Item
                           name="itemId"
-                          label={lineType}
+                          label={i18n._(itemTypeLabel(lineType as "Part"))}
                           type={lineType as "Part"}
                           typeFieldName="salesOrderLineType"
                           value={itemData.itemId}

@@ -780,10 +780,6 @@ export const terms = {
     term: msg`Credit`,
     definition: msg`Amount that increases liabilities/equity/revenue or decreases assets/expenses on this line.`
   },
-  "journal-line-dimensions": {
-    term: msg`Dimensions`,
-    definition: msg`Optional tags (cost center, project, etc.) that let you slice this posting in reports.`
-  },
 
   // ── Payment terms ───────────────────────────────────────────────────────
   "payment-term-calculation-method": {
