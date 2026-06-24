@@ -106,7 +106,7 @@ msgid "available"
 msgstr "disponible"
 
 msgid "Back Home"
-msgstr ""
+msgstr "Retour à la maison"
 
 msgid "Batch"
 msgstr "Lot"
@@ -472,7 +472,7 @@ msgid "Labor"
 msgstr "Main-d'œuvre"
 
 msgid "Learn more"
-msgstr ""
+msgstr "En savoir plus"
 
 msgid "Leave this page"
 msgstr "Quitter cette page"
@@ -1103,7 +1103,7 @@ msgid "We've sent you a magic link to sign in to your account."
 msgstr "Nous vous avons envoyé un lien magique pour vous connecter à votre compte."
 
 msgid "What is {translatedTerm}?"
-msgstr ""
+msgstr "Qu'est-ce que {translatedTerm} ?"
 
 msgid "WIP"
 msgstr "En-cours"

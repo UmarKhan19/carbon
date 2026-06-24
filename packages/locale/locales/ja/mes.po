@@ -106,7 +106,7 @@ msgid "available"
 msgstr "利用可能"
 
 msgid "Back Home"
-msgstr ""
+msgstr "ホームに戻る"
 
 msgid "Batch"
 msgstr "バッチ"
@@ -472,7 +472,7 @@ msgid "Labor"
 msgstr "作業"
 
 msgid "Learn more"
-msgstr ""
+msgstr "詳細情報"
 
 msgid "Leave this page"
 msgstr "このページを離れる"
@@ -1103,7 +1103,7 @@ msgid "We've sent you a magic link to sign in to your account."
 msgstr "アカウントにサインインするためのマジックリンクをお送りしました。"
 
 msgid "What is {translatedTerm}?"
-msgstr ""
+msgstr "{translatedTerm}とは何ですか?"
 
 msgid "WIP"
 msgstr "仕掛品"

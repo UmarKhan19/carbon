@@ -106,7 +106,7 @@ msgid "available"
 msgstr "доступно"
 
 msgid "Back Home"
-msgstr ""
+msgstr "Вернуться домой"
 
 msgid "Batch"
 msgstr "Партия"
@@ -472,7 +472,7 @@ msgid "Labor"
 msgstr "Трудозатраты"
 
 msgid "Learn more"
-msgstr ""
+msgstr "Узнать больше"
 
 msgid "Leave this page"
 msgstr "Покинуть эту страницу"
@@ -1103,7 +1103,7 @@ msgid "We've sent you a magic link to sign in to your account."
 msgstr "Мы отправили вам ссылку для входа в ваш аккаунт."
 
 msgid "What is {translatedTerm}?"
-msgstr ""
+msgstr "Что такое {translatedTerm}?"
 
 msgid "WIP"
 msgstr "НЗП"
