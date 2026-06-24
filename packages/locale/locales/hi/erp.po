@@ -54,6 +54,11 @@ msgstr "{0} सफलतापूर्वक अपलोड हो गया"
 msgid "{0} values missing"
 msgstr "{0} मान गायब हैं"
 
+#. placeholder {0}: errors.length
+#. placeholder {1}: skipped.length
+msgid "{inserted} inserted, {updated} updated, {0} need fixing, {1} skipped."
+msgstr ""
+
 msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB सीमा"
 
@@ -619,6 +624,9 @@ msgstr "सभी नौकरियां पूरी हुईं"
 
 msgid "All members of selected groups and selected individuals will be able to approve requests"
 msgstr "चयनित समूहों के सभी सदस्य और चयनित व्यक्ति अनुरोधों को मंजूरी दे सकेंगे"
+
+msgid "All rows imported — {inserted} inserted, {updated} updated."
+msgstr ""
 
 msgid "All Suppliers"
 msgstr "सभी आपूर्तिकर्ता"
@@ -3274,6 +3282,10 @@ msgstr "पूर्ण"
 msgid "Download"
 msgstr "डाउनलोड करें"
 
+#. placeholder {0}: errors.length
+msgid "Download {0} row(s) to fix"
+msgstr ""
+
 msgid "Download CSV"
 msgstr "CSV डाउनलोड करें"
 
@@ -3919,6 +3931,9 @@ msgstr "घटनाएं"
 
 msgid "Every condition must match"
 msgstr "हर शर्त मेल खानी चाहिए"
+
+msgid "Every row was imported successfully."
+msgstr ""
 
 msgid "Everything from Starter"
 msgstr "स्टार्टर से सब कुछ"
@@ -4931,6 +4946,9 @@ msgstr "कार्यान्वयन समर्थन"
 
 msgid "Import {label} CSV"
 msgstr "{label} CSV आयात करें"
+
+msgid "Import results"
+msgstr ""
 
 msgid "In order to convert this RFQ to a quote, all lines must have an internal part number."
 msgstr "इस RFQ को उद्धरण में परिवर्तित करने के लिए, सभी पंक्तियों के पास एक आंतरिक भाग संख्या होनी चाहिए।"
@@ -6097,6 +6115,9 @@ msgstr "आवश्यकता की तारीख"
 msgid "Need the right columns?"
 msgstr "क्या आपको सही कॉलम चाहिए?"
 
+msgid "Needs fixing"
+msgstr ""
+
 msgid "Negative Adjustment"
 msgstr "नकारात्मक समायोजन"
 
@@ -6594,6 +6615,9 @@ msgstr "कोई परिणाम नहीं"
 
 msgid "No results found"
 msgstr "कोई परिणाम नहीं मिला"
+
+msgid "No rows here."
+msgstr ""
 
 msgid "No rules assigned"
 msgstr "कोई नियम असाइन नहीं किया गया"
@@ -10718,6 +10742,9 @@ msgstr "होम स्क्रीन पर डार्क मोड मे�
 msgid "Used to categorize items for reporting and analysis"
 msgstr "रिपोर्टिंग और विश्लेषण के लिए आइटम को वर्गीकृत करने के लिए उपयोग किया जाता है"
 
+msgid "Used when a cell is empty or doesn't match an option above. Clear it to leave those rows blank."
+msgstr ""
+
 msgid "Useful Life (default)"
 msgstr ""
 
@@ -10997,8 +11024,8 @@ msgstr "चेतावनी"
 msgid "Watch full video"
 msgstr "पूरा वीडियो देखें"
 
-msgid "We've mapped each column to what we believe is correct, but please review the data below to confirm it's accurate."
-msgstr "हमने प्रत्येक कॉलम को मैप किया है जो हमें सही लगता है, लेकिन कृपया नीचे दिए गए डेटा की समीक्षा करें और पुष्टि करें कि यह सटीक है।"
+msgid "We auto-matched each column. Review the values below before continuing."
+msgstr ""
 
 msgid "We've sent a verification code to {email}"
 msgstr "हमने {email} को एक सत्यापन कोड भेजा है"
