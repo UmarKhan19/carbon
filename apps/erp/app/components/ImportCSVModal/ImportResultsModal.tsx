@@ -144,7 +144,7 @@ export const ImportResultsModal = ({
               </div>
 
               <div className="mt-4 w-full min-w-0 max-h-[420px] overflow-auto rounded-md border border-border">
-                <table className="w-full border-collapse text-sm">
+                <table className="w-max min-w-full border-collapse text-sm">
                   <thead className="sticky top-0 z-10 bg-card">
                     <tr className="border-b border-border text-left text-muted-foreground">
                       <th className="w-10 px-3 py-2 font-medium" />
@@ -180,13 +180,13 @@ export const ImportResultsModal = ({
                         {columns.map((column) => (
                           <td
                             key={column}
-                            className="max-w-48 truncate px-3 py-2 align-top"
+                            className="max-w-48 truncate whitespace-nowrap px-3 py-2 align-top"
                             title={row.values[column]}
                           >
                             {row.values[column]}
                           </td>
                         ))}
-                        <td className="px-3 py-2 align-top">
+                        <td className="min-w-[16rem] px-3 py-2 align-top">
                           <span
                             className={cn(
                               bucket === "errors"
