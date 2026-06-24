@@ -1,5 +1,5 @@
 import { readdir, readFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
+import { dirname, join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { gunzipSync } from "node:zlib";
 import { createClient } from "@supabase/supabase-js";
@@ -11,6 +11,10 @@ dotenv.config();
 
 const TEMPLATE_BUCKET = "company-templates";
 const BACKUP_SUFFIX = ".carbon.json.gz";
+// A backup's storage files live in a sibling `<industryId>.assets/` folder
+// (generation 2: assets are no longer base64-embedded in the gz). Must match
+// `BACKUP_GZ_SUFFIX` / `backupAssetPrefix` in @carbon/jobs company-backup.ts.
+const ASSETS_SUFFIX = ".assets";
 
 // The bucket the app serves per-company assets (3D models, …) from, and the
 // shared prefix within it where each template's assets live ONCE per workspace.
@@ -95,43 +99,64 @@ async function loadTemplates(): Promise<Template[]> {
         fileName,
         industryId,
         bytes,
-        assets: extractTemplateAssets(industryId, bytes)
+        assets: await extractTemplateAssets(industryId, bytes)
       };
     })
   );
 }
 
-// A template gz embeds its storage assets keyed by the source company's path
-// (`{sourceCompanyId}/models/{id}.stl`). Pull them out and rekey to the shared
-// `_templates/{industryId}/…` location so a referenced import can point at them
-// without copying. Mirrors `rewriteToTemplateAssetPath` in @carbon/jobs.
-function extractTemplateAssets(
+/** Every file under a directory, recursing into subfolders (absolute paths). */
+async function walkFiles(dir: string): Promise<string[]> {
+  let entries: Awaited<ReturnType<typeof readdir>>;
+  try {
+    entries = await readdir(dir, { withFileTypes: true });
+  } catch {
+    return [];
+  }
+  const out: string[] = [];
+  for (const entry of entries) {
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      out.push(...(await walkFiles(full)));
+    } else {
+      out.push(full);
+    }
+  }
+  return out;
+}
+
+// A template's storage assets live in a committed `<industryId>.assets/` folder
+// next to the gz, mirroring the source path (`{sourceCompanyId}/models/{id}.stl`).
+// Rekey them to the shared `_templates/{industryId}/…` location so a referenced
+// import can point at them without copying. Mirrors `rewriteToTemplateAssetPath`
+// in @carbon/jobs. The gz itself carries only the manifest + data.
+async function extractTemplateAssets(
   industryId: string,
   gzBytes: Buffer
-): TemplateAsset[] {
-  let backup: {
-    manifest?: { sourceCompanyId?: string };
-    storage?: Record<string, string>;
-  };
+): Promise<TemplateAsset[]> {
+  let sourceCompanyId: string | undefined;
   try {
-    backup = JSON.parse(gunzipSync(gzBytes).toString());
+    const backup = JSON.parse(gunzipSync(gzBytes).toString()) as {
+      manifest?: { sourceCompanyId?: string };
+    };
+    sourceCompanyId = backup.manifest?.sourceCompanyId;
   } catch (err) {
     console.error(`🔴 ${industryId}: failed to read template gz`, err);
     return [];
   }
+  if (!sourceCompanyId) return [];
 
-  const sourceCompanyId = backup.manifest?.sourceCompanyId;
-  const storage = backup.storage;
-  if (!sourceCompanyId || !storage) return [];
-
+  const assetsDir = join(BACKUPS_DIR, `${industryId}${ASSETS_SUFFIX}`);
   const assets: TemplateAsset[] = [];
-  for (const [path, base64] of Object.entries(storage)) {
-    const rest = path.startsWith(`${sourceCompanyId}/`)
-      ? path.slice(sourceCompanyId.length + 1)
-      : path;
+  for (const file of await walkFiles(assetsDir)) {
+    // Path within the assets folder, e.g. `{sourceCompanyId}/models/x.stl`.
+    const rel = relative(assetsDir, file).split(sep).join("/");
+    const rest = rel.startsWith(`${sourceCompanyId}/`)
+      ? rel.slice(sourceCompanyId.length + 1)
+      : rel;
     assets.push({
       path: `${TEMPLATE_ASSET_PREFIX}/${industryId}/${rest}`,
-      bytes: Buffer.from(base64, "base64")
+      bytes: await readFile(file)
     });
   }
   return assets;

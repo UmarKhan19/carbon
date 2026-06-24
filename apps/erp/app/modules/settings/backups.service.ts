@@ -6,6 +6,45 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 // enqueued server-side (see backups.server.ts) and tracked via the
 // externalIntegrationMapping marker (getCompanyRestoreRuns).
 
+// A backup is the gz plus its sibling `<name>.assets/` folder of copied storage
+// files. Must match `BACKUP_GZ_SUFFIX` / `backupAssetPrefix` in
+// packages/jobs/src/inngest/functions/tasks/company-backup.ts.
+const BACKUP_GZ_SUFFIX = ".carbon.json.gz";
+
+function backupAssetPrefix(filePath: string) {
+  const base = filePath.endsWith(BACKUP_GZ_SUFFIX)
+    ? filePath.slice(0, -BACKUP_GZ_SUFFIX.length)
+    : filePath;
+  return `${base}.assets`;
+}
+
+/**
+ * Remove every object under a prefix (recursing into folders) so a deleted
+ * backup actually releases its bucket space rather than orphaning files.
+ */
+async function removeStoragePrefix(
+  client: SupabaseClient<Database>,
+  bucket: string,
+  prefix: string
+) {
+  const { data } = await client.storage
+    .from(bucket)
+    .list(prefix, { limit: 1000 });
+  if (!data) return;
+  const files: string[] = [];
+  for (const entry of data) {
+    const path = `${prefix}/${entry.name}`;
+    if (entry.id === null) {
+      await removeStoragePrefix(client, bucket, path);
+    } else {
+      files.push(path);
+    }
+  }
+  if (files.length > 0) {
+    await client.storage.from(bucket).remove(files);
+  }
+}
+
 export async function exportCompanyBackup(
   client: SupabaseClient<Database>,
   args: {
@@ -41,6 +80,9 @@ export async function deleteCompanyBackupExport(
   companyId: string,
   filePath: string
 ) {
+  // Release the backup's asset folder first, then the gz, so the bucket space
+  // is fully reclaimed (the .assets/ files are the bulk of a backup).
+  await removeStoragePrefix(client, companyId, backupAssetPrefix(filePath));
   return client.storage.from(companyId).remove([filePath]);
 }
 

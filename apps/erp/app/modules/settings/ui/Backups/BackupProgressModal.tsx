@@ -88,15 +88,18 @@ function StepChecklist({
 }
 
 // Stepped progress for export / restore / revert. Restore & revert track the real
-// job via the status poll; export has no signal, so its steps simulate then
-// settle and refresh the list. Shows working → success | failed.
+// job via the status poll; export polls the backup list (via `completed`, set by
+// the parent once the new backup actually appears). Shows working → success | failed.
 export function JobProgressModal({
   mode,
   runId,
+  completed,
   onClose
 }: {
   mode: "export" | "restore" | "revert";
   runId?: string;
+  /** Export only: true once the new backup has actually landed in the list. */
+  completed?: boolean;
   onClose: () => void;
 }) {
   const isExport = mode === "export";
@@ -115,8 +118,7 @@ export function JobProgressModal({
   const revertDone = isRevert && raw === "gone";
 
   const [step, setStep] = useState(0);
-  const [simDone, setSimDone] = useState(false);
-  const success = restoreReady || revertDone || (isExport && simDone);
+  const success = restoreReady || revertDone || (isExport && !!completed);
   const done = success || failed;
 
   const rows = statusFetcher.data?.rows ?? 0;
@@ -150,6 +152,18 @@ export function JobProgressModal({
     return () => clearInterval(id);
   }, [isExport, runId, done, load, revalidator]);
 
+  // Export has no status marker — poll by revalidating the backups list until the
+  // new backup actually appears (the parent flips `completed` when it does). The
+  // dialog never claims success before the file exists.
+  useEffect(() => {
+    if (!isExport || done) return;
+    const id = setInterval(() => {
+      revalidator.revalidate();
+      setTicks((t) => t + 1);
+    }, 2000);
+    return () => clearInterval(id);
+  }, [isExport, done, revalidator]);
+
   // Advance the visible steps on a cadence while the job runs.
   useEffect(() => {
     if (done) {
@@ -162,17 +176,6 @@ export function JobProgressModal({
     );
     return () => clearInterval(id);
   }, [done, steps.length]);
-
-  // Export has no completion signal — once the steps have played, settle and
-  // refresh so the new backup shows in the list.
-  useEffect(() => {
-    if (!isExport || done || step < steps.length - 1) return;
-    const t = setTimeout(() => {
-      setSimDone(true);
-      revalidator.revalidate();
-    }, 900);
-    return () => clearTimeout(t);
-  }, [isExport, done, step, steps.length, revalidator]);
 
   const workingTitle = isExport
     ? "Creating backup…"

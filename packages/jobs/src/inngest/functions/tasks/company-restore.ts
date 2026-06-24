@@ -1,8 +1,3 @@
-import { promisify } from "node:util";
-import { gunzip } from "node:zlib";
-
-const gunzipAsync = promisify(gunzip);
-
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { chunkArray } from "@carbon/utils";
 import { sql } from "kysely";
@@ -17,14 +12,17 @@ import {
   assertBackupImportable,
   assertWipeSafe,
   BACKUP_KIND,
+  backupAssetPrefix,
   bindValue,
   canSetReplicationRole,
+  deserializeBackup,
   getCompanyTableCatalog,
   getJobDatabaseClient,
   newIdForTable,
   RESTORE_INTEGRATION,
+  removeStoragePrefix,
+  restoreAssetsFromBackup,
   rewriteStoragePath,
-  STORAGE_BUCKET,
   STORAGE_PATH_COLUMNS,
   selectWipeableTables,
   wipeScopedData
@@ -52,11 +50,7 @@ async function downloadBackup(
       `Failed to download backup ${filePath}: ${download.error?.message}`
     );
   }
-  const backup = JSON.parse(
-    (
-      await gunzipAsync(Buffer.from(await download.data.arrayBuffer()))
-    ).toString()
-  ) as CompanyBackup;
+  const backup = await deserializeBackup(await download.data.arrayBuffer());
   if (backup.manifest?.kind !== BACKUP_KIND) {
     throw new Error("File is not a Carbon company backup");
   }
@@ -282,37 +276,6 @@ async function wipeAndLoad(
   });
 
   return { rows: inserted, idRewrite };
-}
-
-/** Restore the backup's storage files into the shared private bucket. Same
- *  company, so paths are unchanged. Outside the transaction — failures warn. */
-async function restoreStorage(
-  client: ServiceRole,
-  backup: CompanyBackup,
-  ctx: { companyId: string; idRewrite: Map<string, string> }
-): Promise<void> {
-  if (!backup.storage) return;
-  const sourceCompanyId = backup.manifest.sourceCompanyId;
-  for (const [path, base64] of Object.entries(backup.storage)) {
-    // Own backup → path unchanged (same company, empty idRewrite). Foreign →
-    // rewritten to this company's prefix with the remapped ids, matching the
-    // path columns rewritten in wipeAndLoad.
-    const targetPath = rewriteStoragePath(
-      path,
-      sourceCompanyId,
-      ctx.companyId,
-      ctx.idRewrite
-    );
-    const upload = await client.storage
-      .from(STORAGE_BUCKET)
-      .upload(targetPath, Buffer.from(base64, "base64"), { upsert: true });
-    if (upload.error) {
-      console.warn("Failed to restore storage file", {
-        path: targetPath,
-        error: upload.error.message
-      });
-    }
-  }
 }
 
 type RestoreStatus = "running" | "ready" | "failed" | "reverting";
@@ -553,21 +516,22 @@ export const companyRestoreFunction = inngest.createFunction(
           targetGroupId
         });
 
-        // 3. Terminal: mark ready as soon as the data is committed — BEFORE the
-        //    (best-effort, non-transactional) file restore, so a storage hiccup
-        //    can't flip a committed restore back to "failed".
-        await writeRestoreMarker(client, {
-          companyId,
-          userId,
-          restoreRunId,
-          patch: { status: "ready", rows }
-        });
-
-        // Files are optional, and the data is already committed — never let a
-        // file error fail the run. A revert restores files from the snapshot.
+        // 3. Files (best-effort, non-transactional) — copied BEFORE marking ready
+        //    so the progress dialog only reports "complete" once the data AND the
+        //    files are actually in place, never sooner. The data txn already
+        //    committed above and the copy never throws (per-file warnings only),
+        //    so a storage hiccup still can't flip a committed restore to "failed".
+        //    A revert restores files from the snapshot.
         if (includeStorage === "all") {
           try {
-            await restoreStorage(client, backup, { companyId, idRewrite });
+            await restoreAssetsFromBackup(client, {
+              files: backup.manifest.storage,
+              srcBucket: companyId,
+              srcPrefix: backupAssetPrefix(filePath),
+              sourceCompanyId: backup.manifest.sourceCompanyId,
+              companyId,
+              idRewrite
+            });
           } catch (storageErr) {
             console.warn("Restore: file restore failed (data is intact)", {
               restoreRunId,
@@ -578,6 +542,14 @@ export const companyRestoreFunction = inngest.createFunction(
             });
           }
         }
+
+        // 4. Terminal: data committed and files copied — the run is fully done.
+        await writeRestoreMarker(client, {
+          companyId,
+          userId,
+          restoreRunId,
+          patch: { status: "ready", rows }
+        });
 
         console.log("Company restore complete — pending keep/revert", {
           companyId,
@@ -630,6 +602,11 @@ export const companyRestoreFinalizeFunction = inngest.createFunction(
 
       if (snapshotPath) {
         await client.storage.from(companyId).remove([snapshotPath]);
+        await removeStoragePrefix(
+          client,
+          companyId,
+          backupAssetPrefix(snapshotPath)
+        );
       }
       await deleteRestoreMarker(client, companyId, restoreRunId);
 
@@ -692,9 +669,21 @@ export const companyRestoreRevertFunction = inngest.createFunction(
           includeGroup: marker?.metadata.includeGroup ?? false,
           targetGroupId
         });
-        await restoreStorage(client, snapshot, { companyId, idRewrite });
+        await restoreAssetsFromBackup(client, {
+          files: snapshot.manifest.storage,
+          srcBucket: companyId,
+          srcPrefix: backupAssetPrefix(snapshotPath),
+          sourceCompanyId: companyId,
+          companyId,
+          idRewrite
+        });
 
         await client.storage.from(companyId).remove([snapshotPath]);
+        await removeStoragePrefix(
+          client,
+          companyId,
+          backupAssetPrefix(snapshotPath)
+        );
         await deleteRestoreMarker(client, companyId, restoreRunId);
 
         console.log("Company restore reverted", {

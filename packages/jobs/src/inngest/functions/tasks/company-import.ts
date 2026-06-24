@@ -1,28 +1,25 @@
-import { promisify } from "node:util";
-import { gunzip } from "node:zlib";
-
-const gunzipAsync = promisify(gunzip);
-
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { chunkArray } from "@carbon/utils";
 import { sql } from "kysely";
 import { inngest } from "../../client";
-import type { ColumnInfo, CompanyBackup, TableInfo } from "./company-backup";
+import type { ColumnInfo, TableInfo } from "./company-backup";
 import {
   assertBackupImportable,
   BACKUP_INTEGRATION,
   BACKUP_KIND,
+  backupAssetPrefix,
   bindValue,
   canSetReplicationRole,
+  deserializeBackup,
   filterUnpopulated,
   getCompanyTableCatalog,
   getJobDatabaseClient,
   newIdForTable,
   RESEED_SKIPPED_TABLES,
+  restoreAssetsFromBackup,
   rewriteStoragePath,
   rewriteToTemplateAssetPath,
   SECRET_TABLES,
-  STORAGE_BUCKET,
   STORAGE_PATH_COLUMNS
 } from "./company-backup";
 
@@ -86,11 +83,7 @@ export const companyImportFunction = inngest.createFunction(
         );
       }
 
-      const backup = JSON.parse(
-        (
-          await gunzipAsync(Buffer.from(await download.data.arrayBuffer()))
-        ).toString()
-      ) as CompanyBackup;
+      const backup = await deserializeBackup(await download.data.arrayBuffer());
 
       if (backup.manifest?.kind !== BACKUP_KIND) {
         throw new Error("File is not a Carbon company backup");
@@ -449,39 +442,27 @@ export const companyImportFunction = inngest.createFunction(
         );
       }
 
-      // Storage files travel outside the transaction — failures here leave
-      // the imported rows intact and are surfaced as warnings. Restore into the
-      // shared `private` bucket with the path rewritten for the target company
-      // (and remapped ids on reseed), matching the path columns rewritten above.
+      // Storage files travel outside the transaction — failures here leave the
+      // imported rows intact and are surfaced as warnings. Copy them server-side
+      // from the artifact's `.assets/` folder into the shared `private` bucket,
+      // with the path rewritten for the target company (and remapped ids on
+      // reseed) to match the path columns rewritten above.
       //
       // A referenced template skips this entirely: its assets already live once
       // per workspace at `_templates/<industryId>/` (the path columns above now
       // point there), so copying them into `{companyId}/` would defeat the
-      // purpose. The embedded bytes in the gz are ignored here — they exist for
-      // the deploy step that seeds the shared prefix.
+      // purpose.
       let storageUploaded = 0;
-      if (backup.storage && !referencedTemplate) {
-        for (const [path, base64] of Object.entries(backup.storage)) {
-          const targetPath = rewriteStoragePath(
-            path,
-            sourceCompanyId,
-            companyId,
-            idRewrite
-          );
-          const upload = await client.storage
-            .from(STORAGE_BUCKET)
-            .upload(targetPath, Buffer.from(base64, "base64"), {
-              upsert: true
-            });
-          if (upload.error) {
-            console.warn("Failed to upload storage file", {
-              path: targetPath,
-              error: upload.error.message
-            });
-          } else {
-            storageUploaded++;
-          }
-        }
+      if (!referencedTemplate) {
+        const assets = await restoreAssetsFromBackup(client, {
+          files: backup.manifest.storage,
+          srcBucket: companyId,
+          srcPrefix: backupAssetPrefix(filePath),
+          sourceCompanyId,
+          companyId,
+          idRewrite
+        });
+        storageUploaded = assets.copied;
       }
 
       // Onboarding-from-a-backup commits immediately — no human review — so

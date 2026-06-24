@@ -1,8 +1,3 @@
-import { promisify } from "node:util";
-import { gzip } from "node:zlib";
-
-const gzipAsync = promisify(gzip);
-
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { sql } from "kysely";
 import { inngest } from "../../client";
@@ -11,17 +6,23 @@ import {
   BACKUP_INTEGRATION,
   BACKUP_KIND,
   BACKUP_VERSION,
+  backupAssetPrefix,
+  copyAssetsToBackup,
   EXPORTS_PREFIX,
   encodeValue,
   getCompanyTableCatalog,
   getJobDatabaseClient,
   SECRET_TABLES,
-  STORAGE_BUCKET
+  STORAGE_BUCKET,
+  serializeBackup
 } from "./company-backup";
 
-/** Per-file and total caps for embedded storage files (base64 inflates ~33%). */
-const MAX_STORAGE_FILE_BYTES = 25 * 1024 * 1024;
-const MAX_STORAGE_TOTAL_BYTES = 200 * 1024 * 1024;
+// Assets are copied server-side into the backup's `.assets/` folder (no bytes
+// pass through this process), so there's no memory reason to cap a single file —
+// the bucket already bounds uploads (120MB CAD models, 50MB docs). The only
+// bound is a storage-cost guard on the whole backup: each export duplicates the
+// bundled bytes, so cap the total at 1GB.
+const MAX_STORAGE_TOTAL_BYTES = 1024 * 1024 * 1024;
 
 type ServiceRole = ReturnType<typeof getCarbonServiceRole>;
 type JobDatabase = ReturnType<typeof getJobDatabaseClient>;
@@ -39,7 +40,13 @@ export async function buildCompanyBackup(
     label?: string | null;
     includeStorage: "none" | "all";
   }
-): Promise<{ compressed: Buffer; manifest: Manifest; rows: number }> {
+): Promise<{
+  compressed: Buffer;
+  manifest: Manifest;
+  rows: number;
+  /** `private`-bucket paths to copy into the backup's `.assets/` folder. */
+  assetSourcePaths: string[];
+}> {
   const { companyId, userId, includeStorage } = opts;
   const label = opts.label ?? null;
 
@@ -109,15 +116,16 @@ export async function buildCompanyBackup(
     });
   }
 
-  // Optionally embed the company's storage assets so the backup is a
-  // self-contained unit. These live in the shared `private` bucket under a
-  // `{companyId}/` prefix (3D models, item thumbnails, attachments) — NOT in
-  // the per-company bucket. Skip anything over the size caps.
+  // Decide which storage assets are in scope. They live in the shared `private`
+  // bucket under a `{companyId}/` prefix (3D models, item thumbnails,
+  // attachments). They are NOT embedded here — the caller copies the included
+  // files server-side into the backup's sibling `.assets/` folder, so a large
+  // asset set costs no memory and the gz stays small. Skip anything over the
+  // size caps.
   const storageManifest: Manifest["storage"] = [];
-  let storageFiles: Record<string, string> | undefined;
+  const assetSourcePaths: string[] = [];
 
   if (includeStorage === "all") {
-    storageFiles = {};
     let totalBytes = 0;
     const paths = await listBucketFilesRecursive(
       client,
@@ -126,28 +134,11 @@ export async function buildCompanyBackup(
     );
 
     for (const file of paths) {
-      let included =
-        file.size <= MAX_STORAGE_FILE_BYTES &&
-        totalBytes + file.size <= MAX_STORAGE_TOTAL_BYTES;
-
+      const included = totalBytes + file.size <= MAX_STORAGE_TOTAL_BYTES;
       if (included) {
-        const download = await client.storage
-          .from(STORAGE_BUCKET)
-          .download(file.path);
-        if (download.error || !download.data) {
-          console.error("Failed to download storage file", {
-            path: file.path,
-            error: download.error
-          });
-          included = false;
-        } else {
-          storageFiles[file.path] = Buffer.from(
-            await download.data.arrayBuffer()
-          ).toString("base64");
-          totalBytes += file.size;
-        }
+        assetSourcePaths.push(file.path);
+        totalBytes += file.size;
       }
-
       storageManifest.push({ path: file.path, size: file.size, included });
     }
   }
@@ -168,10 +159,10 @@ export async function buildCompanyBackup(
     excludedTables
   };
 
-  const backup: CompanyBackup = { manifest, data, storage: storageFiles };
-  const compressed = await gzipAsync(Buffer.from(JSON.stringify(backup)));
+  const backup: CompanyBackup = { manifest, data };
+  const compressed = await serializeBackup(backup);
   const rows = tableManifest.reduce((sum, t) => sum + t.rows, 0);
-  return { compressed, manifest, rows };
+  return { compressed, manifest, rows, assetSourcePaths };
 }
 
 export const companyExportFunction = inngest.createFunction(
@@ -188,11 +179,13 @@ export const companyExportFunction = inngest.createFunction(
       const client = getCarbonServiceRole();
       const db = getJobDatabaseClient(1);
 
-      const { compressed, manifest, rows } = await buildCompanyBackup(
-        client,
-        db,
-        { companyId, userId, label, includeStorage }
-      );
+      const { compressed, manifest, rows, assetSourcePaths } =
+        await buildCompanyBackup(client, db, {
+          companyId,
+          userId,
+          label,
+          includeStorage
+        });
 
       const timestamp = manifest.exportedAt.replace(/[:.]/g, "-");
       const slug = label
@@ -211,12 +204,22 @@ export const companyExportFunction = inngest.createFunction(
         });
       if (upload.error) throw new Error(upload.error.message);
 
+      // Copy the in-scope assets server-side into the backup's `.assets/` folder.
+      // Best-effort (matches restore/import): the data gz is already committed.
+      const assets = await copyAssetsToBackup(client, {
+        sourcePaths: assetSourcePaths,
+        destBucket: companyId,
+        destPrefix: backupAssetPrefix(path)
+      });
+
       console.log("Company export complete", {
         companyId,
         path,
         tables: manifest.tables.length,
         rows,
-        bytes: compressed.byteLength
+        bytes: compressed.byteLength,
+        assetsCopied: assets.copied,
+        assetsFailed: assets.failed
       });
 
       return { path, tables: manifest.tables.length, rows };

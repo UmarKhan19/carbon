@@ -26,7 +26,7 @@ import {
 } from "@carbon/react";
 import { convertKbToString, isInternalEmail } from "@carbon/utils";
 import { msg } from "@lingui/core/macro";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { data, Form, redirect, useFetcher, useLoaderData } from "react-router";
 import { z } from "zod";
@@ -272,7 +272,17 @@ export default function BackupsRoute() {
   const [active, setActive] = useState<{
     runId?: string;
     mode: "export" | "restore" | "revert";
+    /** Export only: the backup paths present when the export started. The run is
+     *  done once a path outside this set appears in the (revalidated) list. */
+    exportBaseline?: Set<string>;
   } | null>(null);
+  // Latest list, read without re-triggering the fetcher effect when it changes.
+  const filesRef = useRef(files);
+  filesRef.current = files;
+  const exportCompleted =
+    active?.mode === "export" &&
+    !!active.exportBaseline &&
+    files.some((f) => !active.exportBaseline!.has(f.path));
   const startRevert = (runId: string) => {
     fetcher.submit(
       { intent: "revert", restoreRunId: runId },
@@ -287,7 +297,10 @@ export default function BackupsRoute() {
     // Export and restore open a progress modal — let it own the feedback instead
     // of also firing a toast. Everything else (keep/revert/dismiss/errors) toasts.
     if (result.success && result.started === "export") {
-      setActive({ mode: "export" });
+      setActive({
+        mode: "export",
+        exportBaseline: new Set(filesRef.current.map((f) => f.path))
+      });
       return;
     }
     if (result.success && result.restoreRunId) {
@@ -413,6 +426,7 @@ export default function BackupsRoute() {
           <JobProgressModal
             mode={active.mode}
             runId={active.runId}
+            completed={exportCompleted}
             onClose={() => setActive(null)}
           />
         )}

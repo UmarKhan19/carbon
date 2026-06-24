@@ -1,10 +1,9 @@
-import { assertIsPost, CarbonEdition } from "@carbon/auth";
+import { assertIsPost } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { setCompanyId } from "@carbon/auth/company.server";
 import { updateCompanySession } from "@carbon/auth/session.server";
 import { ValidatedForm, validationError, validator } from "@carbon/form";
-import { trigger } from "@carbon/jobs";
 import {
   Button,
   Card,
@@ -18,8 +17,7 @@ import {
   cn,
   HStack
 } from "@carbon/react";
-import { Edition } from "@carbon/utils";
-import { getLocalTimeZone } from "@internationalized/date";
+import { isInternalEmail } from "@carbon/utils";
 import { type ReactNode, useState } from "react";
 import {
   LuBot,
@@ -40,25 +38,21 @@ import {
 import { z } from "zod";
 import { Hidden, Submit } from "~/components/Form";
 import { useOnboarding } from "~/hooks";
-import { insertEmployeeJob } from "~/modules/people";
-import { getLocationsList, upsertLocation } from "~/modules/resources";
 import {
-  getCompanies,
   getCompany,
   getIndustries,
-  insertCompany,
-  onboardingCompanyValidator,
-  updateCompany
+  onboardingCompanyValidator
 } from "~/modules/settings";
 import {
   fetchTemplateBackup,
-  provisionCompanyData
+  provisionOnboardingCompany
 } from "~/services/onboarding.server";
 import {
   clearOnboardingDraft,
   getOnboardingDraft,
   type OnboardingDraft
 } from "~/services/onboarding-draft.server";
+import { path } from "~/utils/path";
 
 type DataChoice = "template" | "import" | "none";
 
@@ -93,7 +87,13 @@ function appendDraftCompany(
 }
 
 export async function loader({ request }: ActionFunctionArgs) {
-  const { client, companyId } = await requirePermissions(request, {});
+  const { client, companyId, email } = await requirePermissions(request, {});
+
+  // The data-choice step is internal-only; public signups create their company
+  // in the company step. Guard direct navigation to this route.
+  if (!isInternalEmail(email)) {
+    throw redirect(path.to.onboarding.company);
+  }
 
   const company = await getCompany(client, companyId);
   const draft = await getOnboardingDraft(request);
@@ -108,7 +108,12 @@ export async function loader({ request }: ActionFunctionArgs) {
 
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, userId } = await requirePermissions(request, {});
+  const { client, userId, email } = await requirePermissions(request, {});
+
+  // Internal-only step — reject direct POSTs from public signups.
+  if (!isInternalEmail(email)) {
+    throw redirect(path.to.onboarding.company);
+  }
 
   // Get draft data from previous step (company)
   const draft = await getOnboardingDraft(request);
@@ -144,136 +149,35 @@ export async function action({ request }: ActionFunctionArgs) {
     industryId: d.industryId || null
   };
 
-  let companyId: string | undefined;
+  // A demo template and "restore from a backup" both resolve to a backup file;
+  // "none" → a clean seed. Only a template references shared assets; a user's
+  // own uploaded backup ("import") stays self-contained and is copied per company.
+  const backupFile = formData.get("backup");
+  const backup: Blob | null =
+    dataChoice === "import" && backupFile instanceof File && backupFile.size > 0
+      ? backupFile
+      : dataChoice === "template"
+        ? await fetchTemplateBackup(serviceRole, finalIndustryId)
+        : null;
 
-  const companies = await getCompanies(client, userId);
-  const company = companies?.data?.[0];
-
-  const locations = await getLocationsList(client, company?.id ?? "");
-  const location = locations?.data?.[0];
-
-  // Extract address data for location
-  const addressData = {
-    addressLine1: d.addressLine1,
-    addressLine2: d.addressLine2,
-    city: d.city,
-    stateProvince: d.stateProvince,
-    postalCode: d.postalCode,
-    countryCode: d.countryCode
-  };
-
-  if (company && location) {
-    // Update existing company and location
-    const [companyUpdate, locationUpdate] = await Promise.all([
-      updateCompany(serviceRole, company.id!, {
-        ...companyData,
-        updatedBy: userId
-      }),
-      upsertLocation(serviceRole, {
-        ...location,
-        ...addressData,
-        timezone: getLocalTimeZone(),
-        updatedBy: userId
-      })
-    ]);
-    if (companyUpdate.error) {
-      console.error(companyUpdate.error);
-      throw new Error("Fatal: failed to update company");
-    }
-    if (locationUpdate.error) {
-      console.error(locationUpdate.error);
-      throw new Error("Fatal: failed to update location");
-    }
-
-    companyId = company.id!;
-  } else {
-    // Create new company.
-    const companyInsert = await insertCompany(serviceRole, companyData);
-    if (companyInsert.error) {
-      console.error(companyInsert.error);
-      throw new Error("Fatal: failed to insert company");
-    }
-    companyId = companyInsert.data?.id;
-    if (!companyId) {
-      throw new Error("Fatal: failed to get company ID");
-    }
-
-    // A demo template and "restore from a backup" both resolve to a backup
-    // file; "none" → a clean seed. provisionCompanyData imports it or seeds.
-    const backupFile = formData.get("backup");
-    const backup: Blob | null =
-      dataChoice === "import" &&
-      backupFile instanceof File &&
-      backupFile.size > 0
-        ? backupFile
-        : dataChoice === "template"
-          ? await fetchTemplateBackup(serviceRole, finalIndustryId)
-          : null;
-
-    await provisionCompanyData(serviceRole, {
-      companyId,
-      userId,
-      backup,
-      // Only a demo template references shared assets; a user's own uploaded
-      // backup ("import") stays self-contained and is copied per company.
-      templateIndustryId: dataChoice === "template" ? finalIndustryId : null
-    });
-
-    if (CarbonEdition === Edition.Cloud) {
-      trigger("onboard", {
-        type: "lead",
-        companyId,
-        userId
-      });
-    }
-
-    // Create location
-    const [locationInsert] = await Promise.all([
-      upsertLocation(serviceRole, {
-        ...addressData,
-        name: "Headquarters",
-        companyId,
-        timezone: getLocalTimeZone(),
-        createdBy: userId
-      })
-    ]);
-
-    if (locationInsert.error) {
-      console.error(locationInsert.error);
-      throw new Error("Fatal: failed to insert location");
-    }
-
-    const locationId = locationInsert.data?.id;
-    if (!locationId) {
-      throw new Error("Fatal: failed to get location ID");
-    }
-
-    // Create employee job
-    const [job] = await Promise.all([
-      insertEmployeeJob(serviceRole, {
-        id: userId,
-        companyId,
-        locationId
-      })
-    ]);
-
-    if (job.error) {
-      console.error(job.error);
-      throw new Error("Fatal: failed to insert job");
-    }
-  }
+  const companyId = await provisionOnboardingCompany(serviceRole, client, {
+    userId,
+    companyData,
+    backup,
+    templateIndustryId: dataChoice === "template" ? finalIndustryId : null
+  });
 
   const companyRecord = await serviceRole
     .from("company")
     .select("companyGroupId")
-    .eq("id", companyId!)
+    .eq("id", companyId)
     .single();
   const sessionCookie = await updateCompanySession(
     request,
-    companyId!,
+    companyId,
     companyRecord.data?.companyGroupId ?? ""
   );
-  const companyIdCookie = setCompanyId(companyId!);
+  const companyIdCookie = setCompanyId(companyId);
   const clearDraftCookie = await clearOnboardingDraft(request);
 
   throw redirect(next, {

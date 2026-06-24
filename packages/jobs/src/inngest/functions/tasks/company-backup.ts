@@ -1,9 +1,13 @@
 import { randomUUID } from "node:crypto";
+import { createInterface } from "node:readline";
+import { Readable } from "node:stream";
+import { createGunzip, createGzip } from "node:zlib";
 import {
   getPostgresClient,
   getPostgresConnectionPool,
   type KyselyDatabase
 } from "@carbon/database/client";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { type Kysely, PostgresDriver, sql } from "kysely";
 import { nanoid } from "nanoid";
 
@@ -16,18 +20,40 @@ import { nanoid } from "nanoid";
  */
 
 export const BACKUP_KIND = "carbon-company-backup";
+// The gz is NDJSON: line 1 is `{ manifest }`, every later line is a single
+// `{ t, r }` table row. Read/written a line at a time (see (de)serializeBackup)
+// so a large backup never materializes as one >512MB string (V8's max) or one
+// giant JSON.parse. Storage assets travel as real files in a sibling `.assets/`
+// folder (server-side copied), not in the gz.
 export const BACKUP_VERSION = 1;
 export const BACKUP_INTEGRATION = "company-backup";
 export const EXPORTS_PREFIX = "exports";
 /** Shared, env-agnostic bucket holding the onboarding backup templates. */
 export const TEMPLATE_BUCKET = "company-templates";
 
+/** Suffix of a backup gz object (its sibling asset folder swaps it for `.assets`). */
+export const BACKUP_GZ_SUFFIX = ".carbon.json.gz";
+
 /**
  * The bucket the app stores per-company assets in (3D models, item thumbnails,
- * document attachments), all under a `{companyId}/` prefix. A self-contained
- * backup must embed these — they are NOT in the per-company bucket.
+ * document attachments), all under a `{companyId}/` prefix. A backup copies
+ * these into its own `.assets/` folder (see `copyAssetsToBackup`); they are NOT
+ * in the per-company bucket.
  */
 export const STORAGE_BUCKET = "private";
+
+/**
+ * The asset folder that travels with a backup gz. A backup at
+ * `exports/<name>.carbon.json.gz` keeps its storage files under
+ * `exports/<name>.assets/<originalPath>` in the same per-company bucket. Derived
+ * from the gz path, so it never needs to be stored in the manifest.
+ */
+export function backupAssetPrefix(gzPath: string): string {
+  const base = gzPath.endsWith(BACKUP_GZ_SUFFIX)
+    ? gzPath.slice(0, -BACKUP_GZ_SUFFIX.length)
+    : gzPath;
+  return `${base}.assets`;
+}
 
 /**
  * TEXT columns that hold a storage path (`{companyId}/…/{id}.ext`). On reseed
@@ -214,9 +240,78 @@ export type Manifest = {
 export type CompanyBackup = {
   manifest: Manifest;
   data: Record<string, Record<string, unknown>[]>;
-  /** path within the company bucket -> base64 contents */
-  storage?: Record<string, string>;
 };
+
+/** One NDJSON line: either the single manifest line, or one table row. */
+type BackupLine =
+  | { manifest: Manifest }
+  | { t: string; r: Record<string, unknown> };
+
+/**
+ * Serialize a backup to a gzipped NDJSON buffer. Each row is written as its own
+ * line straight into the gzip stream, so we never build a single >512MB string
+ * (V8's max string length) the way `JSON.stringify(wholeBackup)` would — large
+ * companies serialize at flat memory.
+ */
+export async function serializeBackup(backup: CompanyBackup): Promise<Buffer> {
+  const gzip = createGzip();
+  const chunks: Buffer[] = [];
+  gzip.on("data", (c: Buffer) => chunks.push(c));
+  const finished = new Promise<void>((resolve, reject) => {
+    gzip.on("end", resolve);
+    gzip.on("error", reject);
+  });
+
+  const writeLine = (line: BackupLine) =>
+    new Promise<void>((resolve, reject) => {
+      gzip.write(`${JSON.stringify(line)}\n`, (err) =>
+        err ? reject(err) : resolve()
+      );
+    });
+
+  await writeLine({ manifest: backup.manifest });
+  for (const [table, rows] of Object.entries(backup.data)) {
+    for (const row of rows) await writeLine({ t: table, r: row });
+  }
+
+  gzip.end();
+  await finished;
+  return Buffer.concat(chunks);
+}
+
+/**
+ * Parse a gzipped NDJSON backup. Streams the gunzip output line by line, so the
+ * uncompressed payload (which can exceed V8's max string length for a large
+ * company) is never decoded into one string nor passed to a single JSON.parse.
+ * Reconstructs the in-memory `CompanyBackup` the rest of the pipeline expects.
+ */
+export async function deserializeBackup(
+  bytes: ArrayBuffer
+): Promise<CompanyBackup> {
+  const gunzip = createGunzip();
+  Readable.from(Buffer.from(bytes)).pipe(gunzip);
+  const rl = createInterface({
+    input: gunzip,
+    crlfDelay: Number.POSITIVE_INFINITY
+  });
+
+  let manifest: Manifest | undefined;
+  const data: CompanyBackup["data"] = {};
+  for await (const line of rl) {
+    if (!line) continue;
+    const parsed = JSON.parse(line) as BackupLine;
+    if ("manifest" in parsed) {
+      manifest = parsed.manifest;
+      continue;
+    }
+    (data[parsed.t] ??= []).push(parsed.r);
+  }
+
+  if (!manifest) {
+    throw new Error("Backup is missing its manifest line");
+  }
+  return { manifest, data };
+}
 
 export function getJobDatabaseClient(size = 1) {
   const pool = getPostgresConnectionPool(size);
@@ -641,5 +736,149 @@ export async function wipeScopedData(
       DELETE FROM ${sql.id(table.name)}
       WHERE ${sql.id(table.scopeColumn)} = ${value}
     `.execute(trx);
+  }
+}
+
+/**
+ * Copy one storage object server-side, overwriting the destination if it already
+ * exists. `copy` has no upsert, so on a duplicate we remove the destination and
+ * retry — the bytes never pass through this process either way.
+ */
+async function copyStorageObject(
+  client: SupabaseClient,
+  args: {
+    srcBucket: string;
+    srcPath: string;
+    destBucket: string;
+    destPath: string;
+  }
+): Promise<{ ok: boolean; error?: string }> {
+  const { srcBucket, srcPath, destBucket, destPath } = args;
+  const run = () =>
+    client.storage
+      .from(srcBucket)
+      .copy(srcPath, destPath, { destinationBucket: destBucket });
+
+  let { error } = await run();
+  if (error && /exist|duplicate|409/i.test(error.message)) {
+    await client.storage.from(destBucket).remove([destPath]);
+    ({ error } = await run());
+  }
+  return { ok: !error, error: error?.message };
+}
+
+/**
+ * Copy a company's storage assets (shared `private` bucket, under `{companyId}/`)
+ * into a backup's own `.assets/` folder in the per-company bucket. Server-side —
+ * no bytes pass through this process, so a 200MB asset set costs no memory.
+ * Best-effort: a per-file failure warns and continues, matching the
+ * non-transactional storage semantics of restore/import.
+ */
+export async function copyAssetsToBackup(
+  client: SupabaseClient,
+  args: { sourcePaths: string[]; destBucket: string; destPrefix: string }
+): Promise<{ copied: number; failed: number }> {
+  const { sourcePaths, destBucket, destPrefix } = args;
+  let copied = 0;
+  let failed = 0;
+  for (const path of sourcePaths) {
+    const { ok, error } = await copyStorageObject(client, {
+      srcBucket: STORAGE_BUCKET,
+      srcPath: path,
+      destBucket,
+      destPath: `${destPrefix}/${path}`
+    });
+    if (ok) {
+      copied++;
+    } else {
+      failed++;
+      console.warn("Failed to copy backup asset", { path, error });
+    }
+  }
+  return { copied, failed };
+}
+
+/**
+ * Copy a backup's stored assets back into the shared `private` bucket for the
+ * target company, rewriting each path for a foreign/reseed restore (no-op for an
+ * own restore). Server-side, best-effort. Every write is guarded to the target
+ * company's own `{companyId}/` prefix so a malformed path can never land in
+ * another tenant's space.
+ */
+export async function restoreAssetsFromBackup(
+  client: SupabaseClient,
+  args: {
+    files: Array<{ path: string; included: boolean }>;
+    srcBucket: string;
+    srcPrefix: string;
+    sourceCompanyId: string;
+    companyId: string;
+    idRewrite: Map<string, string>;
+  }
+): Promise<{ copied: number; failed: number }> {
+  const { files, srcBucket, srcPrefix, sourceCompanyId, companyId, idRewrite } =
+    args;
+  let copied = 0;
+  let failed = 0;
+  for (const file of files) {
+    if (!file.included) continue;
+    const targetPath = rewriteStoragePath(
+      file.path,
+      sourceCompanyId,
+      companyId,
+      idRewrite
+    );
+    if (!targetPath.startsWith(`${companyId}/`)) {
+      console.warn("Skipping backup asset outside target company prefix", {
+        path: file.path,
+        targetPath
+      });
+      continue;
+    }
+    const { ok, error } = await copyStorageObject(client, {
+      srcBucket,
+      srcPath: `${srcPrefix}/${file.path}`,
+      destBucket: STORAGE_BUCKET,
+      destPath: targetPath
+    });
+    if (ok) {
+      copied++;
+    } else {
+      failed++;
+      console.warn("Failed to restore backup asset", {
+        path: file.path,
+        targetPath,
+        error
+      });
+    }
+  }
+  return { copied, failed };
+}
+
+/**
+ * Remove every object under a prefix in a bucket (e.g. a backup's `.assets/`
+ * folder), recursing into subfolders, so deleting a backup or snapshot leaves no
+ * orphaned files.
+ */
+export async function removeStoragePrefix(
+  client: SupabaseClient,
+  bucket: string,
+  prefix: string
+): Promise<void> {
+  const { data, error } = await client.storage
+    .from(bucket)
+    .list(prefix, { limit: 1000 });
+  if (error || !data) return;
+  const files: string[] = [];
+  for (const entry of data) {
+    const path = `${prefix}/${entry.name}`;
+    if (entry.id === null) {
+      await removeStoragePrefix(client, bucket, path);
+    } else {
+      files.push(path);
+    }
+  }
+  if (files.length > 0) {
+    await client.storage.from(bucket).remove(files);
   }
 }
