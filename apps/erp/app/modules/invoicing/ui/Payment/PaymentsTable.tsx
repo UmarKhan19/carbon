@@ -28,7 +28,9 @@ import {
   useDateFormatter,
   usePermissions
 } from "~/hooks";
+import { useCustomers, useSuppliers } from "~/stores";
 import { path } from "~/utils/path";
+import { paymentStatus, paymentType } from "../../invoicing.models";
 import PaymentStatus from "./PaymentStatus";
 
 type PaymentRow = Database["public"]["Tables"]["payment"]["Row"];
@@ -44,6 +46,8 @@ const PaymentsTable = memo(({ data, count }: PaymentsTableProps) => {
   const navigate = useNavigate();
   const currencyFormatter = useCurrencyFormatter();
   const { formatDate } = useDateFormatter();
+  const [customers] = useCustomers();
+  const [suppliers] = useSuppliers();
   const deleteModal = useDisclosure();
   const [selectedPayment, setSelectedPayment] = useState<PaymentRow | null>(
     null
@@ -94,7 +98,17 @@ const PaymentsTable = memo(({ data, count }: PaymentsTableProps) => {
         accessorKey: "paymentType",
         header: t`Type`,
         cell: ({ row }) => <Enumerable value={row.original.paymentType} />,
-        meta: { icon: <LuCircleDot /> }
+        meta: {
+          icon: <LuCircleDot />,
+          filter: {
+            type: "static",
+            options: paymentType.map((type) => ({
+              value: type,
+              label: <Enumerable value={type} />
+            }))
+          },
+          pluralHeader: t`Types`
+        }
       },
       {
         id: "counterparty",
@@ -105,7 +119,25 @@ const PaymentsTable = memo(({ data, count }: PaymentsTableProps) => {
           ) : row.original.supplierId ? (
             <SupplierAvatar supplierId={row.original.supplierId} />
           ) : null,
-        meta: { icon: <LuUser /> }
+        meta: {
+          icon: <LuUser />,
+          filter: {
+            type: "static",
+            // Combined customer + supplier options; the loader maps the chosen
+            // ids onto customerId OR supplierId.
+            options: [
+              ...(customers ?? []).map((c) => ({
+                value: c.id,
+                label: c.name
+              })),
+              ...(suppliers ?? []).map((s) => ({
+                value: s.id,
+                label: s.name
+              }))
+            ]
+          },
+          pluralHeader: t`Counterparties`
+        }
       },
       {
         accessorKey: "paymentDate",
@@ -136,7 +168,17 @@ const PaymentsTable = memo(({ data, count }: PaymentsTableProps) => {
         accessorKey: "status",
         header: t`Status`,
         cell: ({ row }) => <PaymentStatus status={row.original.status} />,
-        meta: { icon: <LuCircleDot /> }
+        meta: {
+          icon: <LuCircleDot />,
+          filter: {
+            type: "static",
+            options: paymentStatus.map((status) => ({
+              value: status,
+              label: <PaymentStatus status={status} />
+            }))
+          },
+          pluralHeader: t`Statuses`
+        }
       },
       {
         accessorKey: "reference",
@@ -144,7 +186,7 @@ const PaymentsTable = memo(({ data, count }: PaymentsTableProps) => {
         cell: ({ row }) => row.original.reference ?? null
       }
     ],
-    [t, formatDate, currencyFormatter]
+    [t, formatDate, currencyFormatter, customers, suppliers]
   );
 
   return (

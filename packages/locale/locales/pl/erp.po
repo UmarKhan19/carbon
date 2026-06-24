@@ -555,6 +555,10 @@ msgstr ""
 msgid "Applied"
 msgstr ""
 
+#. placeholder {0}: r.invoiceId
+msgid "Applied amount for {0}"
+msgstr ""
+
 msgid "Applied Date"
 msgstr ""
 
@@ -573,7 +577,7 @@ msgstr "Zastosuj reguły cenowe"
 msgid "Apply To"
 msgstr "Zastosuj do"
 
-msgid "Apply To Invoices"
+msgid "Apply to invoices"
 msgstr ""
 
 msgid "Approaching {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB cap."
@@ -1064,7 +1068,7 @@ msgstr "Dzienniki audytu"
 msgid "Authentication Error"
 msgstr "Błąd uwierzytelniania"
 
-msgid "Auto Apply"
+msgid "Auto apply"
 msgstr ""
 
 msgid "Auto Release"
@@ -1397,9 +1401,6 @@ msgstr "Plan kont"
 
 msgid "Chat"
 msgstr "Czat"
-
-msgid "Check the invoices this payment settles. Discount and write-off are in invoice currency."
-msgstr ""
 
 msgid "Check your email"
 msgstr "Sprawdź swoją pocztę"
@@ -1907,6 +1908,9 @@ msgstr "Nie można przygotować obrazu regionu do analizy"
 
 msgid "Couldn't load documents"
 msgstr "Nie udało się załadować dokumentów"
+
+msgid "Counterparties"
+msgstr ""
 
 msgid "Counterparty"
 msgstr ""
@@ -2670,6 +2674,10 @@ msgstr "Rabat"
 msgid "Discount Days after {selectedCalculationMethod}"
 msgstr "Dni rabatu po {selectedCalculationMethod}"
 
+#. placeholder {0}: r.invoiceId
+msgid "Discount for {0}"
+msgstr ""
+
 msgid "Discount Percent"
 msgstr "Procent rabatu"
 
@@ -2759,6 +2767,9 @@ msgstr "Przeciągnij, aby zmienić rozmiar diagramu i funkcji"
 
 msgid "Drag to zoom"
 msgstr "Przeciągnij, aby powiększyć"
+
+msgid "Drawing"
+msgstr ""
 
 msgid "Drawing Number"
 msgstr "Numer rysunku"
@@ -3858,6 +3869,9 @@ msgstr ""
 
 msgid "From Location"
 msgstr "Z lokalizacji"
+
+msgid "from on-account credit"
+msgstr ""
 
 msgid "From Storage Unit"
 msgstr "Z jednostki magazynowej"
@@ -5459,7 +5473,7 @@ msgstr "Brak nowych powiadomień"
 msgid "No notes"
 msgstr "Brak notek"
 
-msgid "No open invoices for this counterparty. Payment will be on-account."
+msgid "No open invoices"
 msgstr ""
 
 msgid "No operations require picking at this location"
@@ -5659,6 +5673,9 @@ msgstr "Na zamówieniu sprzedaży"
 
 msgid "On Storage Unit"
 msgstr "Na jednostce magazynowej"
+
+msgid "On-account credit available"
+msgstr ""
 
 msgid "Onshape Status"
 msgstr "Status Onshape"
@@ -7072,7 +7089,7 @@ msgstr "Zapisz i zamknij"
 msgid "Save and Overwrite"
 msgstr "Zapisz i Zastąp"
 
-msgid "Save Applications"
+msgid "Save applications"
 msgstr ""
 
 msgid "Save Method"
@@ -7321,6 +7338,9 @@ msgstr "Wybierz powierzchnie"
 
 msgid "Select the groups that should complete this training"
 msgstr "Wybierz grupy, które powinny ukończyć to szkolenie"
+
+msgid "Select the invoices this payment settles. Discount and write-off are in invoice currency."
+msgstr ""
 
 msgid "Select value"
 msgstr "Wybierz wartość"
@@ -8198,6 +8218,9 @@ msgstr "Te adresy e-mail będą automatycznie dodawane w polu DW do wszystkich w
 
 msgid "These jobs have operations assigned to this work center:"
 msgstr "Te zadania mają operacje przypisane do tego centrum pracy:"
+
+msgid "This counterparty has nothing outstanding — the payment will be recorded on-account."
+msgstr ""
 
 msgid "This information will be used on document headers"
 msgstr "Te informacje będą używane w nagłówkach dokumentów"
@@ -9127,7 +9150,14 @@ msgstr "Przepływ pracy"
 msgid "Worst Performing Machines"
 msgstr "Maszyny o najgorszych wynikach"
 
+msgid "Write-off"
+msgstr ""
+
 msgid "Write-Off"
+msgstr ""
+
+#. placeholder {0}: r.invoiceId
+msgid "Write-off for {0}"
 msgstr ""
 
 msgid "Year"

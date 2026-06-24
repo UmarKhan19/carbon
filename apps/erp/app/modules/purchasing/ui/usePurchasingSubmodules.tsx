@@ -1,10 +1,10 @@
 import { useLingui } from "@lingui/react/macro";
 import {
   LuContainer,
-  LuCreditCard,
   LuFileText,
   LuLayoutList,
   LuPackageSearch,
+  LuReceiptText,
   LuSquareChartGantt,
   LuStar
 } from "react-icons/lu";
@@ -49,7 +49,7 @@ export default function usePurchasingSubmodules() {
         {
           name: t`Invoices`,
           to: path.to.purchaseInvoices,
-          icon: <LuCreditCard />,
+          icon: <LuReceiptText />,
           table: "purchaseInvoice",
           permission: "invoicing"
         }

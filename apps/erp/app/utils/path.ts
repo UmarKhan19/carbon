@@ -1383,7 +1383,7 @@ export const path = {
     paymentNew: `${x}/payments/new`,
     paymentPost: (id: string) => generatePath(`${x}/payments/${id}/post`),
     paymentVoid: (id: string) => generatePath(`${x}/payments/${id}/void`),
-    payments: `${x}/payments`,
+    payments: `${x}/invoicing/payments`,
     receivables: `${x}/invoicing/receivables`,
     receivablesAdjust: `${x}/invoicing/receivables/adjust`,
     payables: `${x}/invoicing/payables`,

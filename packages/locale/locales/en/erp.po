@@ -555,6 +555,10 @@ msgstr "Applications"
 msgid "Applied"
 msgstr "Applied"
 
+#. placeholder {0}: r.invoiceId
+msgid "Applied amount for {0}"
+msgstr "Applied amount for {0}"
+
 msgid "Applied Date"
 msgstr "Applied Date"
 
@@ -573,8 +577,8 @@ msgstr "Apply pricing rules"
 msgid "Apply To"
 msgstr "Apply To"
 
-msgid "Apply To Invoices"
-msgstr "Apply To Invoices"
+msgid "Apply to invoices"
+msgstr "Apply to invoices"
 
 msgid "Approaching {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB cap."
 msgstr "Approaching {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB cap."
@@ -1064,8 +1068,8 @@ msgstr "Audit Logs"
 msgid "Authentication Error"
 msgstr "Authentication Error"
 
-msgid "Auto Apply"
-msgstr "Auto Apply"
+msgid "Auto apply"
+msgstr "Auto apply"
 
 msgid "Auto Release"
 msgstr "Auto Release"
@@ -1397,9 +1401,6 @@ msgstr "Chart of Accounts"
 
 msgid "Chat"
 msgstr "Chat"
-
-msgid "Check the invoices this payment settles. Discount and write-off are in invoice currency."
-msgstr "Check the invoices this payment settles. Discount and write-off are in invoice currency."
 
 msgid "Check your email"
 msgstr "Check your email"
@@ -1907,6 +1908,9 @@ msgstr "Could not prepare region image for analysis"
 
 msgid "Couldn't load documents"
 msgstr "Couldn't load documents"
+
+msgid "Counterparties"
+msgstr "Counterparties"
 
 msgid "Counterparty"
 msgstr "Counterparty"
@@ -2670,6 +2674,10 @@ msgstr "Discount"
 msgid "Discount Days after {selectedCalculationMethod}"
 msgstr "Discount Days after {selectedCalculationMethod}"
 
+#. placeholder {0}: r.invoiceId
+msgid "Discount for {0}"
+msgstr "Discount for {0}"
+
 msgid "Discount Percent"
 msgstr "Discount Percent"
 
@@ -2759,6 +2767,9 @@ msgstr "Drag to resize diagram and features"
 
 msgid "Drag to zoom"
 msgstr "Drag to zoom"
+
+msgid "Drawing"
+msgstr "Drawing"
 
 msgid "Drawing Number"
 msgstr "Drawing Number"
@@ -3858,6 +3869,9 @@ msgstr "From customer"
 
 msgid "From Location"
 msgstr "From Location"
+
+msgid "from on-account credit"
+msgstr "from on-account credit"
 
 msgid "From Storage Unit"
 msgstr "From Storage Unit"
@@ -5459,8 +5473,8 @@ msgstr "No new notifications"
 msgid "No notes"
 msgstr "No notes"
 
-msgid "No open invoices for this counterparty. Payment will be on-account."
-msgstr "No open invoices for this counterparty. Payment will be on-account."
+msgid "No open invoices"
+msgstr "No open invoices"
 
 msgid "No operations require picking at this location"
 msgstr "No operations require picking at this location"
@@ -5659,6 +5673,9 @@ msgstr "On Sales Order"
 
 msgid "On Storage Unit"
 msgstr "On Storage Unit"
+
+msgid "On-account credit available"
+msgstr "On-account credit available"
 
 msgid "Onshape Status"
 msgstr "Onshape Status"
@@ -7072,8 +7089,8 @@ msgstr "Save & Close"
 msgid "Save and Overwrite"
 msgstr "Save and Overwrite"
 
-msgid "Save Applications"
-msgstr "Save Applications"
+msgid "Save applications"
+msgstr "Save applications"
 
 msgid "Save Method"
 msgstr "Save Method"
@@ -7321,6 +7338,9 @@ msgstr "Select surfaces"
 
 msgid "Select the groups that should complete this training"
 msgstr "Select the groups that should complete this training"
+
+msgid "Select the invoices this payment settles. Discount and write-off are in invoice currency."
+msgstr "Select the invoices this payment settles. Discount and write-off are in invoice currency."
 
 msgid "Select value"
 msgstr "Select value"
@@ -8198,6 +8218,9 @@ msgstr "These email addresses will be automatically CC'd on all quote emails sen
 
 msgid "These jobs have operations assigned to this work center:"
 msgstr "These jobs have operations assigned to this work center:"
+
+msgid "This counterparty has nothing outstanding — the payment will be recorded on-account."
+msgstr "This counterparty has nothing outstanding — the payment will be recorded on-account."
 
 msgid "This information will be used on document headers"
 msgstr "This information will be used on document headers"
@@ -9127,8 +9150,15 @@ msgstr "Workflow"
 msgid "Worst Performing Machines"
 msgstr "Worst Performing Machines"
 
+msgid "Write-off"
+msgstr "Write-off"
+
 msgid "Write-Off"
 msgstr "Write-Off"
+
+#. placeholder {0}: r.invoiceId
+msgid "Write-off for {0}"
+msgstr "Write-off for {0}"
 
 msgid "Year"
 msgstr "Year"

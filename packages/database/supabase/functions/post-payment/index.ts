@@ -5,12 +5,15 @@ import z from "npm:zod@^3.24.1";
 import { DB, getConnectionPool, getDatabaseClient } from "../lib/database.ts";
 import { corsHeaders } from "../lib/headers.ts";
 import { getSupabaseServiceRole } from "../lib/supabase.ts";
-import type { Database } from "../lib/types.ts";
 
-import { credit, debit } from "../lib/utils.ts";
 import { getCurrentAccountingPeriod } from "../shared/get-accounting-period.ts";
 import { getNextSequence } from "../shared/get-next-sequence.ts";
 import { getDefaultPostingGroup } from "../shared/get-posting-group.ts";
+import {
+  buildPaymentJournal,
+  round4,
+  type PaymentJournalLine,
+} from "./build-payment-journal.ts";
 
 const pool = getConnectionPool(1);
 const db = getDatabaseClient<DB>(pool);
@@ -21,12 +24,6 @@ const payloadValidator = z.object({
   userId: z.string(),
   companyId: z.string(),
 });
-
-// Round to 4 decimal places to match NUMERIC(19,4) storage and prevent
-// floating-point cruft from making the journal fail its balance check.
-const round4 = (n: number) => Math.round(n * 10000) / 10000;
-
-type JournalLineInsert = Database["public"]["Tables"]["journalLine"]["Insert"];
 
 serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
@@ -225,20 +222,16 @@ serve(async (req: Request) => {
       }
     }
 
-    // Cash balance: sum of applied principals × paymentRate must not exceed
-    // total cash moved. Excess is "on-account" / unapplied — legitimate.
+    // Cash vs applied (base ccy). When applied < cash the remainder is new
+    // on-account credit; when applied > cash the excess must be funded by the
+    // party's existing on-account credit (validated under lock inside the
+    // commit transaction below, where prior posted payments are serialized).
     const totalAppliedBase = applications.data.reduce(
       (sum, a) => sum + Number(a.appliedAmount) * Number(a.paymentExchangeRate),
       0
     );
     const paymentTotalBase = Number(payment.data.totalAmount) * Number(payment.data.exchangeRate);
-    if (totalAppliedBase > paymentTotalBase + 0.0001) {
-      throw new Error(
-        `Total applied (${totalAppliedBase}) exceeds payment total (${paymentTotalBase}) in base currency`
-      );
-    }
-    const unappliedInPaymentCcy = Number(payment.data.totalAmount) -
-      applications.data.reduce((sum, a) => sum + Number(a.appliedAmount), 0);
+    const overAppliedBase = round4(totalAppliedBase - paymentTotalBase);
 
     // --------------------------------------------------------------
     // Build journal lines (in base currency)
@@ -247,15 +240,7 @@ serve(async (req: Request) => {
       ? await getCurrentAccountingPeriod(client, companyId, db)
       : null;
 
-    const journalLineInserts: JournalLineInsert[] = [];
-    // Running balance in true debit(+)/credit(−) space. A balanced double
-    // entry sums to ~0 here. (The stored `amount` is natural-balance signed —
-    // credit("asset") is negative — so it does NOT sum to zero; we track the
-    // debit/credit balance separately so we can self-check below.)
-    let signedDebitTotal = 0;
-    // Dimension applied to every journal line: the customer type (Receipt) or
-    // supplier type (Disbursement), mirroring how invoice posting tags lines
-    // so AR/AP can be reported by counterparty type. Resolved below.
+    const journalLineInserts: PaymentJournalLine[] = [];
     // Dimensions to tag on every payment journal line so AR/AP can be reported
     // by counterparty. We tag both the counterparty *type* (CustomerType /
     // SupplierType) and the specific counterparty *entity* (Customer / Supplier).
@@ -327,186 +312,42 @@ serve(async (req: Request) => {
         }
       }
 
-      const controlAccountId = isReceipt
-        ? ad.receivablesAccount
-        : ad.payablesAccount;
-      const discountAccountId = isReceipt
-        ? ad.customerPaymentDiscountAccount
-        : ad.supplierPaymentDiscountAccount;
-      const writeOffAccountId = isReceipt
-        ? ad.customerWriteOffAccount
-        : ad.supplierWriteOffAccount;
-      const fxGainAccountId = ad.realizedExchangeGainAccount;
-      const fxLossAccountId = ad.realizedExchangeLossAccount;
-
-      if (!controlAccountId) {
-        throw new Error(
-          `Missing ${isReceipt ? "receivables" : "payables"} account default; cannot post payment to GL`
-        );
-      }
-
-      // Push a line and keep the debit/credit running balance in sync.
-      const pushLine = (
-        side: "debit" | "credit",
-        accountType: "asset" | "liability" | "equity" | "revenue" | "expense",
-        magnitude: number,
-        fields: {
-          accountId: string;
-          description: string;
-          documentLineReference?: string;
-        }
-      ) => {
-        signedDebitTotal += side === "debit" ? magnitude : -magnitude;
-        journalLineInserts.push({
-          accountId: fields.accountId,
-          description: fields.description,
-          amount:
-            side === "debit"
-              ? debit(accountType, magnitude)
-              : credit(accountType, magnitude),
-          quantity: 1,
-          documentType: "Payment",
-          documentId: paymentId,
-          documentLineReference: fields.documentLineReference,
-          journalLineReference,
-          companyId,
-        });
-      };
-
-      // 1) Cash: DR Bank (Receipt) / CR Bank (Disbursement), full cash in base.
-      const cashBase = round4(
-        Number(payment.data.totalAmount) * Number(payment.data.exchangeRate)
-      );
-      pushLine(isReceipt ? "debit" : "credit", "asset", cashBase, {
-        accountId: payment.data.bankAccount,
-        description: "Bank / Cash",
+      // Build the balanced double-entry. Account-id resolution, the per-
+      // application control/discount/write-off lines, the on-account-credit
+      // line, the single FX plug, and the balance self-check all live in the
+      // pure `buildPaymentJournal` so they are unit-tested (post-payment.test.ts).
+      const { lines } = buildPaymentJournal({
+        paymentId,
+        companyId,
+        isReceipt,
+        totalAmount: Number(payment.data.totalAmount),
+        exchangeRate: Number(payment.data.exchangeRate),
+        bankAccount: payment.data.bankAccount,
+        journalLineReference,
+        applications: applications.data.map((a) => ({
+          salesInvoiceId: a.salesInvoiceId,
+          purchaseInvoiceId: a.purchaseInvoiceId,
+          appliedAmount: Number(a.appliedAmount),
+          discountAmount: Number(a.discountAmount),
+          writeOffAmount: Number(a.writeOffAmount),
+          invoiceExchangeRate: Number(a.invoiceExchangeRate),
+          paymentExchangeRate: Number(a.paymentExchangeRate),
+        })),
+        accounts: {
+          controlAccountId: isReceipt
+            ? ad.receivablesAccount
+            : ad.payablesAccount,
+          discountAccountId: isReceipt
+            ? ad.customerPaymentDiscountAccount
+            : ad.supplierPaymentDiscountAccount,
+          writeOffAccountId: isReceipt
+            ? ad.customerWriteOffAccount
+            : ad.supplierWriteOffAccount,
+          fxGainAccountId: ad.realizedExchangeGainAccount,
+          fxLossAccountId: ad.realizedExchangeLossAccount,
+        },
       });
-
-      // 2) Per application: control at INVOICE rate; discount / write-off at
-      //    PAYMENT rate. FX is accumulated and plugged once below.
-      let totalFxImpact = 0; // base ccy; +ve = gain for AR, loss for AP
-      for (const app of applications.data) {
-        const invId = (isReceipt
-          ? app.salesInvoiceId
-          : app.purchaseInvoiceId) as string;
-        const applied = Number(app.appliedAmount);
-        const discount = Number(app.discountAmount);
-        const writeOff = Number(app.writeOffAmount);
-        const invRate = Number(app.invoiceExchangeRate);
-        const payRate = Number(app.paymentExchangeRate);
-
-        // Control account: at invoice rate (mirrors the original AR/AP booking).
-        pushLine(
-          isReceipt ? "credit" : "debit",
-          isReceipt ? "asset" : "liability",
-          round4((applied + discount + writeOff) * invRate),
-          {
-            accountId: controlAccountId,
-            description: isReceipt ? "Accounts Receivable" : "Accounts Payable",
-            documentLineReference: invId,
-          }
-        );
-
-        // Discount: at INVOICE rate (an invoice-currency relief, not cash, so
-        // it carries no FX). AR debits (forgone revenue); AP credits (vendor
-        // allowance reduces our cost).
-        if (discount > 0) {
-          if (!discountAccountId) {
-            throw new Error(
-              `Missing ${isReceipt ? "customer" : "supplier"} payment discount account default`
-            );
-          }
-          pushLine(
-            isReceipt ? "debit" : "credit",
-            "expense",
-            round4(discount * invRate),
-            {
-              accountId: discountAccountId,
-              description: isReceipt
-                ? "Customer Payment Discount"
-                : "Supplier Payment Discount",
-              documentLineReference: invId,
-            }
-          );
-        }
-
-        // Write-off: at INVOICE rate (an invoice-currency relief, not cash, so
-        // it carries no FX). AR is bad debt (expense); AP is vendor write-off
-        // (income — class=Revenue).
-        if (writeOff > 0) {
-          if (!writeOffAccountId) {
-            throw new Error(
-              `Missing ${isReceipt ? "customer" : "supplier"} write-off account default`
-            );
-          }
-          pushLine(
-            isReceipt ? "debit" : "credit",
-            isReceipt ? "expense" : "revenue",
-            round4(writeOff * invRate),
-            {
-              accountId: writeOffAccountId,
-              description: isReceipt
-                ? "Bad Debt Expense"
-                : "Vendor Write-Off Income",
-              documentLineReference: invId,
-            }
-          );
-        }
-
-        // Realized FX on the cash-settled principal only: applied × (paymentRate
-        // − invoiceRate). Discount and write-off are invoice-currency reliefs
-        // booked at the invoice rate above, so they carry no FX. For AR, +ve =
-        // gain; for AP, +ve = loss. Matches the stored
-        // paymentApplication.fxGainLossAmount so the subledger reconciles.
-        totalFxImpact += (isReceipt ? 1 : -1) * applied * (payRate - invRate);
-      }
-
-      // 3) Unapplied cash → control account (no invoice anchor), payment rate.
-      if (unappliedInPaymentCcy > 0.0001) {
-        pushLine(
-          isReceipt ? "credit" : "debit",
-          isReceipt ? "asset" : "liability",
-          round4(unappliedInPaymentCcy * Number(payment.data.exchangeRate)),
-          {
-            accountId: controlAccountId,
-            description: isReceipt
-              ? "Accounts Receivable (on-account credit)"
-              : "Accounts Payable (on-account credit)",
-          }
-        );
-      }
-
-      // 4) FX plug (single line).
-      if (Math.abs(totalFxImpact) > 0.0001) {
-        const fxBase = round4(Math.abs(totalFxImpact));
-        if (totalFxImpact > 0) {
-          if (!fxGainAccountId) {
-            throw new Error("Missing realized FX gain account default");
-          }
-          pushLine("credit", "revenue", fxBase, {
-            accountId: fxGainAccountId,
-            description: "Realized FX Gain",
-          });
-        } else {
-          if (!fxLossAccountId) {
-            throw new Error("Missing realized FX loss account default");
-          }
-          pushLine("debit", "expense", fxBase, {
-            accountId: fxLossAccountId,
-            description: "Realized FX Loss",
-          });
-        }
-      }
-
-      // Self-check: the entry must balance in true debit/credit space. The FX
-      // plug (same formula as the stored fxGainLossAmount) should make this
-      // ~0; a larger residual means a logic/rounding bug, so we refuse to post
-      // rather than write an unbalanced journal to the GL.
-      if (Math.abs(signedDebitTotal) > 0.01) {
-        throw new Error(
-          `Payment journal does not balance (off by ${round4(signedDebitTotal)} in base currency); refusing to post`
-        );
-      }
+      journalLineInserts.push(...lines);
     }
 
     // --------------------------------------------------------------
@@ -526,17 +367,34 @@ serve(async (req: Request) => {
         string,
         { status: string; totalAmount: number; partyId: string | null }
       >();
+      // The stored base "totalAmount" is deprecated (always 0 for invoices
+      // posted after migration 20260604120000); the live total lives in the
+      // salesInvoices/purchaseInvoices views. We can't lock a view (it joins +
+      // aggregates), so we lock the base row FOR UPDATE — which serializes
+      // concurrent posts and gives the raw posting status/party — and read the
+      // live total from the view separately. Status MUST come from the base
+      // row, not the view: the view derives 'Partially Paid'/'Paid', which
+      // would wrongly fail the activeStatus check on a partially-settled
+      // invoice.
       if (isReceipt && salesInvoiceIds.length > 0) {
         const rows = await trx
           .selectFrom("salesInvoice")
-          .select(["id", "status", "totalAmount", "customerId"])
+          .select(["id", "status", "customerId"])
           .where("id", "in", salesInvoiceIds)
           .forUpdate()
           .execute();
+        const totals = await trx
+          .selectFrom("salesInvoices")
+          .select(["id", "totalAmount"])
+          .where("id", "in", salesInvoiceIds)
+          .execute();
+        const totalById = new Map(
+          totals.map((t) => [t.id, Number(t.totalAmount)])
+        );
         for (const r of rows) {
           invoiceById.set(r.id, {
             status: r.status as string,
-            totalAmount: Number(r.totalAmount),
+            totalAmount: totalById.get(r.id) ?? 0,
             partyId: r.customerId,
           });
         }
@@ -544,14 +402,22 @@ serve(async (req: Request) => {
       if (!isReceipt && purchaseInvoiceIds.length > 0) {
         const rows = await trx
           .selectFrom("purchaseInvoice")
-          .select(["id", "status", "totalAmount", "supplierId"])
+          .select(["id", "status", "supplierId"])
           .where("id", "in", purchaseInvoiceIds)
           .forUpdate()
           .execute();
+        const totals = await trx
+          .selectFrom("purchaseInvoices")
+          .select(["id", "totalAmount"])
+          .where("id", "in", purchaseInvoiceIds)
+          .execute();
+        const totalById = new Map(
+          totals.map((t) => [t.id, Number(t.totalAmount)])
+        );
         for (const r of rows) {
           invoiceById.set(r.id, {
             status: r.status as string,
-            totalAmount: Number(r.totalAmount),
+            totalAmount: totalById.get(r.id) ?? 0,
             partyId: r.supplierId,
           });
         }
@@ -639,6 +505,59 @@ serve(async (req: Request) => {
         if (wouldSettle > remainingOpen + 0.0001) {
           throw new Error(
             `Application total (${wouldSettle}) exceeds remaining open amount (${remainingOpen}) on invoice ${invId}`
+          );
+        }
+      }
+
+      // When this payment applies more than its cash, the excess draws down the
+      // party's available on-account credit — the net unapplied cash left on
+      // their OTHER posted payments. Lock those payments FOR UPDATE so two
+      // concurrent credit-consuming posts can't both spend the same credit.
+      if (overAppliedBase > 0.0001) {
+        const postedPayments = await (isReceipt
+          ? trx
+              .selectFrom("payment")
+              .select(["id", "totalAmount", "exchangeRate"])
+              .where("companyId", "=", companyId)
+              .where("status", "=", "Posted")
+              .where("customerId", "=", paymentPartyId)
+              .forUpdate()
+              .execute()
+          : trx
+              .selectFrom("payment")
+              .select(["id", "totalAmount", "exchangeRate"])
+              .where("companyId", "=", companyId)
+              .where("status", "=", "Posted")
+              .where("supplierId", "=", paymentPartyId)
+              .forUpdate()
+              .execute());
+
+        let availableCreditBase = 0;
+        if (postedPayments.length > 0) {
+          const postedIds = postedPayments.map((p) => p.id);
+          const priorApps = await trx
+            .selectFrom("paymentApplication")
+            .select(["paymentId", "appliedAmount", "paymentExchangeRate"])
+            .where("paymentId", "in", postedIds)
+            .execute();
+          const appliedBaseByPayment = new Map<string, number>();
+          for (const a of priorApps) {
+            appliedBaseByPayment.set(
+              a.paymentId,
+              (appliedBaseByPayment.get(a.paymentId) ?? 0) +
+                Number(a.appliedAmount) * Number(a.paymentExchangeRate)
+            );
+          }
+          for (const p of postedPayments) {
+            availableCreditBase +=
+              Number(p.totalAmount) * Number(p.exchangeRate) -
+              (appliedBaseByPayment.get(p.id) ?? 0);
+          }
+        }
+
+        if (overAppliedBase > round4(availableCreditBase) + 0.0001) {
+          throw new Error(
+            `Applied exceeds payment cash by ${overAppliedBase} in base currency, but only ${round4(availableCreditBase)} of on-account credit is available for this ${isReceipt ? "customer" : "supplier"}`
           );
         }
       }

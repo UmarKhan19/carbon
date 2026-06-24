@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-23T03:39:50.528Z",
-  "totalTools": 1226,
+  "generated": "2026-06-24T05:20:56.679Z",
+  "totalTools": 1227,
   "modules": 15,
   "tools": [
     {
@@ -8111,7 +8111,7 @@
       "module": "invoicing",
       "classification": "READ",
       "description": "get payments",
-      "paramCount": 7,
+      "paramCount": 8,
       "serviceParams": [
         "client",
         "companyId",
@@ -8162,6 +8162,15 @@
                   "string",
                   "null"
                 ]
+              },
+              "// Combined counterparty filter (customer OR supplier ids) from the table's\n    // \"Counterparty\" filter, which sources options from both stores.\n    counterpartyIds": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
               }
             }
           }
@@ -8276,6 +8285,30 @@
         },
         "required": [
           "supplierId"
+        ]
+      }
+    },
+    {
+      "name": "invoicing_getAvailableOnAccountCredit",
+      "module": "invoicing",
+      "classification": "READ",
+      "description": "get available on account credit",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "party"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "party": {}
+        },
+        "required": [
+          "party"
         ]
       }
     },

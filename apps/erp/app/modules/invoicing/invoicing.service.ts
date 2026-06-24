@@ -1151,6 +1151,9 @@ export async function getPayments(
     status: PaymentStatusType | null;
     customerId: string | null;
     supplierId: string | null;
+    // Combined counterparty filter (customer OR supplier ids) from the table's
+    // "Counterparty" filter, which sources options from both stores.
+    counterpartyIds?: string[] | null;
   }
 ) {
   let query = client
@@ -1173,9 +1176,18 @@ export async function getPayments(
   if (args.supplierId) {
     query = query.eq("supplierId", args.supplierId);
   }
+  if (args.counterpartyIds && args.counterpartyIds.length > 0) {
+    // A payment carries either customerId or supplierId; match the selected
+    // ids against both columns (customer/supplier id spaces don't overlap).
+    const csv = args.counterpartyIds.join(",");
+    query = query.or(`customerId.in.(${csv}),supplierId.in.(${csv})`);
+  }
 
+  // Default to newest first by the sequential paymentId (PAY-yyyy-mm-NNNNNN),
+  // matching the sales/purchase invoice lists (invoiceId desc) and guaranteeing
+  // the most recently created payment is at the top (paymentDate ties otherwise).
   query = setGenericQueryFilters(query, args, [
-    { column: "paymentDate", ascending: false }
+    { column: "paymentId", ascending: false }
   ]);
   return query;
 }
@@ -1292,6 +1304,60 @@ export async function getOpenPurchaseInvoicesForSupplier(
     .in("status", ["Open", "Partially Paid", "Overdue"])
     .gt("balance", 0)
     .order("dateDue", { ascending: true });
+}
+
+// The party's available on-account credit in BASE currency: the net unapplied
+// cash across their posted payments (Σ cash − Σ applied). This is the pool a new
+// payment may draw on when it applies more than its own cash. Mirrors the
+// authoritative check in the post-payment edge function; returns 0 on any read
+// error (conservative — posting re-validates under lock). Returns base currency;
+// callers convert to the payment's currency for display via the exchange rate.
+export async function getAvailableOnAccountCredit(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  party:
+    | { paymentType: "Receipt"; customerId: string }
+    | { paymentType: "Disbursement"; supplierId: string }
+): Promise<number> {
+  let query = client
+    .from("payment")
+    .select("id, totalAmount, exchangeRate")
+    .eq("companyId", companyId)
+    .eq("status", "Posted")
+    .eq("paymentType", party.paymentType);
+  query =
+    party.paymentType === "Receipt"
+      ? query.eq("customerId", party.customerId)
+      : query.eq("supplierId", party.supplierId);
+
+  const payments = await query;
+  if (payments.error || !payments.data || payments.data.length === 0) return 0;
+
+  const apps = await client
+    .from("paymentApplication")
+    .select("paymentId, appliedAmount, paymentExchangeRate")
+    .in(
+      "paymentId",
+      payments.data.map((p) => p.id)
+    );
+  if (apps.error) return 0;
+
+  const appliedBaseByPayment = new Map<string, number>();
+  for (const a of apps.data ?? []) {
+    appliedBaseByPayment.set(
+      a.paymentId,
+      (appliedBaseByPayment.get(a.paymentId) ?? 0) +
+        Number(a.appliedAmount) * Number(a.paymentExchangeRate)
+    );
+  }
+
+  let baseCredit = 0;
+  for (const p of payments.data) {
+    baseCredit +=
+      Number(p.totalAmount) * Number(p.exchangeRate) -
+      (appliedBaseByPayment.get(p.id) ?? 0);
+  }
+  return Math.max(0, Math.round(baseCredit * 10000) / 10000);
 }
 
 export async function upsertPayment(

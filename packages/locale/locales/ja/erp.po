@@ -555,6 +555,10 @@ msgstr ""
 msgid "Applied"
 msgstr ""
 
+#. placeholder {0}: r.invoiceId
+msgid "Applied amount for {0}"
+msgstr ""
+
 msgid "Applied Date"
 msgstr ""
 
@@ -573,7 +577,7 @@ msgstr "価格設定ルールを適用"
 msgid "Apply To"
 msgstr "適用対象"
 
-msgid "Apply To Invoices"
+msgid "Apply to invoices"
 msgstr ""
 
 msgid "Approaching {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB cap."
@@ -1064,7 +1068,7 @@ msgstr "監査ログ"
 msgid "Authentication Error"
 msgstr "認証エラー"
 
-msgid "Auto Apply"
+msgid "Auto apply"
 msgstr ""
 
 msgid "Auto Release"
@@ -1397,9 +1401,6 @@ msgstr "勘定科目表"
 
 msgid "Chat"
 msgstr "チャット"
-
-msgid "Check the invoices this payment settles. Discount and write-off are in invoice currency."
-msgstr ""
 
 msgid "Check your email"
 msgstr "メールを確認してください"
@@ -1907,6 +1908,9 @@ msgstr "分析用の領域画像を準備できませんでした"
 
 msgid "Couldn't load documents"
 msgstr "ドキュメントを読み込めませんでした"
+
+msgid "Counterparties"
+msgstr ""
 
 msgid "Counterparty"
 msgstr ""
@@ -2670,6 +2674,10 @@ msgstr "割引"
 msgid "Discount Days after {selectedCalculationMethod}"
 msgstr "{selectedCalculationMethod}後の割引日数"
 
+#. placeholder {0}: r.invoiceId
+msgid "Discount for {0}"
+msgstr ""
+
 msgid "Discount Percent"
 msgstr "割引率"
 
@@ -2759,6 +2767,9 @@ msgstr "図と機能をリサイズするにはドラッグしてください"
 
 msgid "Drag to zoom"
 msgstr "ズームするにはドラッグしてください"
+
+msgid "Drawing"
+msgstr ""
 
 msgid "Drawing Number"
 msgstr "図面番号"
@@ -3858,6 +3869,9 @@ msgstr ""
 
 msgid "From Location"
 msgstr "出発地"
+
+msgid "from on-account credit"
+msgstr ""
 
 msgid "From Storage Unit"
 msgstr "保管場所から"
@@ -5459,7 +5473,7 @@ msgstr "新しい通知はありません"
 msgid "No notes"
 msgstr "ノートなし"
 
-msgid "No open invoices for this counterparty. Payment will be on-account."
+msgid "No open invoices"
 msgstr ""
 
 msgid "No operations require picking at this location"
@@ -5659,6 +5673,9 @@ msgstr "販売注文中"
 
 msgid "On Storage Unit"
 msgstr "保管ユニット上"
+
+msgid "On-account credit available"
+msgstr ""
 
 msgid "Onshape Status"
 msgstr "Onshape ステータス"
@@ -7072,7 +7089,7 @@ msgstr "保存して閉じる"
 msgid "Save and Overwrite"
 msgstr "保存して上書き"
 
-msgid "Save Applications"
+msgid "Save applications"
 msgstr ""
 
 msgid "Save Method"
@@ -7321,6 +7338,9 @@ msgstr "サーフェスを選択"
 
 msgid "Select the groups that should complete this training"
 msgstr "このトレーニングを完了する必要があるグループを選択してください"
+
+msgid "Select the invoices this payment settles. Discount and write-off are in invoice currency."
+msgstr ""
 
 msgid "Select value"
 msgstr "値を選択"
@@ -8198,6 +8218,9 @@ msgstr "これらのメールアドレスは、顧客に送信されるすべて
 
 msgid "These jobs have operations assigned to this work center:"
 msgstr "これらのジョブにはこのワークセンターに割り当てられた操作があります:"
+
+msgid "This counterparty has nothing outstanding — the payment will be recorded on-account."
+msgstr ""
 
 msgid "This information will be used on document headers"
 msgstr "この情報はドキュメントヘッダーで使用されます"
@@ -9127,7 +9150,14 @@ msgstr "ワークフロー"
 msgid "Worst Performing Machines"
 msgstr "最も性能が低い機械"
 
+msgid "Write-off"
+msgstr ""
+
 msgid "Write-Off"
+msgstr ""
+
+#. placeholder {0}: r.invoiceId
+msgid "Write-off for {0}"
 msgstr ""
 
 msgid "Year"

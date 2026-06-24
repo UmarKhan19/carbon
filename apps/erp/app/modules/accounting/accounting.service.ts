@@ -1,5 +1,10 @@
 import type { Database, Json } from "@carbon/database";
-import { getDateNYearsAgo, toStoredAmount } from "@carbon/utils";
+import {
+  getDateNYearsAgo,
+  toDisplayCredit,
+  toDisplayDebit,
+  toStoredAmount
+} from "@carbon/utils";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { z } from "zod";
 import { getNextSequence } from "~/modules/settings";
@@ -1854,10 +1859,31 @@ export async function postJournalEntry(
     return { data: null, error: { message: "Journal entry has no lines" } };
   }
 
-  // 2. Validate balance (sum of amounts should be 0)
-  const total = lines.reduce((sum, l) => sum + Number(l.amount), 0);
+  // 2. Validate balance. journalLine.amount is a class-signed *natural balance*
+  // (e.g. a liability credit and an expense debit are both positive), so a
+  // balanced entry does NOT sum to zero — it has equal total debits and
+  // credits once each amount is decoded by its account class.
+  let totalDebit = 0;
+  let totalCredit = 0;
+  for (const l of lines) {
+    const account = l.account as
+      | { class?: string }
+      | { class?: string }[]
+      | null;
+    const accountClass = (
+      Array.isArray(account) ? account[0]?.class : account?.class
+    ) as Parameters<typeof toDisplayDebit>[1] | undefined;
+    if (!accountClass) {
+      return {
+        data: null,
+        error: { message: "A journal line is missing its account class" }
+      };
+    }
+    totalDebit += toDisplayDebit(Number(l.amount), accountClass);
+    totalCredit += toDisplayCredit(Number(l.amount), accountClass);
+  }
 
-  if (Math.abs(total) > 0.001) {
+  if (Math.abs(totalDebit - totalCredit) > 0.001) {
     return {
       data: null,
       error: { message: "Total debits must equal total credits" }

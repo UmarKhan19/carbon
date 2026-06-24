@@ -515,6 +515,15 @@ function useGroupedSubmodules() {
     "my account": account
   };
 
+  // Sales & purchase invoices live in both their origin module (Sales /
+  // Purchasing) and the dedicated Invoicing module, so without dedup they'd
+  // appear twice in search. Keep the first occurrence by entity (table is the
+  // stable identity — the two purchase-invoice entries even resolve to
+  // different routes), which in alphabetical module order lands them under
+  // Invoicing. Only salesInvoice/purchaseInvoice are shared across modules;
+  // every other table is unique, so non-invoice entries are never affected.
+  const seenTables = new Set<string>();
+
   const shortcuts = modules.reduce<
     Record<string, (Route & { iconElement?: React.ReactNode })[]>
   >((acc, module) => {
@@ -524,14 +533,20 @@ function useGroupedSubmodules() {
       const groups = groupedSubmodules[moduleName].groups;
       acc = {
         ...acc,
-        [module.name]: groups.flatMap((group) =>
-          group.routes.map((route) => ({
+        [module.name]: groups
+          .flatMap((group) => group.routes)
+          .filter((route) => {
+            if (!route.table) return true;
+            if (seenTables.has(route.table)) return false;
+            seenTables.add(route.table);
+            return true;
+          })
+          .map((route) => ({
             to: route.to,
             name: route.name,
             icon: module.icon,
             iconElement: route.icon
           }))
-        )
       };
     } else if (
       moduleName in ungroupedSubmodules ||

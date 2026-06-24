@@ -1,10 +1,9 @@
 import { useLingui } from "@lingui/react/macro";
+import { LuBanknote, LuCreditCard, LuReceiptText } from "react-icons/lu";
 import {
-  LuArrowDownLeft,
-  LuArrowUpRight,
-  LuBanknote,
-  LuCreditCard
-} from "react-icons/lu";
+  BanknoteArrowDown,
+  BanknoteArrowUp
+} from "~/assets/icons/BanknoteArrows";
 import { usePermissions } from "~/hooks";
 import { useSavedViews } from "~/hooks/useSavedViews";
 import type { AuthenticatedRouteGroup } from "~/types";
@@ -22,13 +21,13 @@ export default function useInvoicingSubmodules() {
         {
           name: t`Payables`,
           to: path.to.payables,
-          icon: <LuArrowUpRight />,
+          icon: <BanknoteArrowUp />,
           permission: "invoicing"
         },
         {
           name: t`Purchasing Invoices`,
           to: path.to.invoicingPurchasing,
-          icon: <LuCreditCard />,
+          icon: <LuReceiptText />,
           table: "purchaseInvoice",
           permission: "invoicing"
         }
@@ -40,7 +39,7 @@ export default function useInvoicingSubmodules() {
         {
           name: t`Receivables`,
           to: path.to.receivables,
-          icon: <LuArrowDownLeft />,
+          icon: <BanknoteArrowDown />,
           permission: "invoicing"
         },
         {

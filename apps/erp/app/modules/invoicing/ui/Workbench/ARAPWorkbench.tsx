@@ -28,7 +28,7 @@ import {
   LuTriangleAlert,
   LuUser
 } from "react-icons/lu";
-import { Form, useNavigate } from "react-router";
+import { useFetcher, useNavigate } from "react-router";
 import { CustomerAvatar, SupplierAvatar, Table } from "~/components";
 import { Enumerable } from "~/components/Enumerable";
 import { IndeterminateCheckbox } from "~/components/Table/components";
@@ -109,6 +109,7 @@ export function ARAPWorkbench({
   const { t } = useLingui();
   const [, setParams] = useUrlParams();
   const navigate = useNavigate();
+  const adjustFetcher = useFetcher();
   const permissions = usePermissions();
   const currencyFormatter = useCurrencyFormatter();
   const { formatDate } = useDateFormatter();
@@ -436,7 +437,7 @@ export function ARAPWorkbench({
                 </span>
               </div>
               {hasVariance && canAdjust ? (
-                <Form
+                <adjustFetcher.Form
                   method="post"
                   action={
                     side === "ar"
@@ -445,10 +446,16 @@ export function ARAPWorkbench({
                   }
                 >
                   <input type="hidden" name="asOfDate" value={asOfDate} />
-                  <Button type="submit" variant="secondary" className="w-full">
+                  <Button
+                    type="submit"
+                    variant="secondary"
+                    className="w-full"
+                    isLoading={adjustFetcher.state !== "idle"}
+                    isDisabled={adjustFetcher.state !== "idle"}
+                  >
                     <Trans>Create adjusting entry</Trans>
                   </Button>
-                </Form>
+                </adjustFetcher.Form>
               ) : null}
             </div>
           </PopoverContent>
