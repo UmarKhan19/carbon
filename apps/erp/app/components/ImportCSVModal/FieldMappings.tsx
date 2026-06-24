@@ -232,7 +232,7 @@ export function FieldMapping({
 
         <ModalDescription>
           {currentStep === 0
-            ? t`We've mapped each column to what we believe is correct, but please review the data below to confirm it's accurate.`
+            ? t`We auto-matched each column. Review the values below before continuing.`
             : enumFields[currentStep - 1][1].enumData.description}
         </ModalDescription>
       </ModalHeader>
@@ -616,9 +616,8 @@ function EnumMappingStep({
                         </TooltipTrigger>
                         <TooltipContent className="max-w-64 p-2 text-sm">
                           <Trans>
-                            The value Carbon assigns when this field's cell is
-                            empty or doesn't match any value above. Clear the
-                            selection to leave those rows blank.
+                            Used when a cell is empty or doesn't match an option
+                            above. Clear it to leave those rows blank.
                           </Trans>
                         </TooltipContent>
                       </Tooltip>

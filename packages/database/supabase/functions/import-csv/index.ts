@@ -1654,6 +1654,16 @@ serve(async (req: Request) => {
               await trx
                 .insertInto(table)
                 .values(specificInserts as unknown as never)
+                // Hard-deleting an item does NOT remove its type row: the type
+                // tables (part/tool/fixture/consumable) key on readableId and have
+                // no FK back to item, so the row is orphaned by (id, companyId).
+                // Re-importing that Part Number would otherwise collide on the PK
+                // and abort the whole import (the "deleted then re-imported and it
+                // failed" case). The orphan already represents this Part Number, so
+                // keep it.
+                .onConflict((oc: any) =>
+                  oc.columns(["id", "companyId"]).doNothing()
+                )
                 .execute();
             }
 
@@ -1685,6 +1695,10 @@ serve(async (req: Request) => {
               await trx
                 .insertInto("material")
                 .values(materialInserts)
+                // Same orphan-after-delete case as the type insert above: the
+                // material row survives an item delete, so re-import must not
+                // collide on the (id, companyId) PK.
+                .onConflict((oc) => oc.columns(["id", "companyId"]).doNothing())
                 .execute();
             }
 

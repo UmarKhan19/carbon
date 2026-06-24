@@ -34,11 +34,6 @@ msgstr "{0} giorni"
 msgid "{0} deleted successfully"
 msgstr "{0} eliminato con successo"
 
-#. placeholder {0}: result.inserted
-#. placeholder {1}: result.updated
-msgid "{0} inserted, {1} updated — {errorCount} row(s) need fixing."
-msgstr ""
-
 #. placeholder {0}: history.length
 msgid "{0} orders"
 msgstr "{0} ordini"
@@ -58,6 +53,11 @@ msgstr "{0} caricato con successo"
 #. placeholder {0}: unmatchedValues.length
 msgid "{0} values missing"
 msgstr "{0} valori mancanti"
+
+#. placeholder {0}: errors.length
+#. placeholder {1}: skipped.length
+msgid "{inserted} inserted, {updated} updated, {0} need fixing, {1} skipped."
+msgstr ""
 
 msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB limite"
@@ -444,12 +444,6 @@ msgstr "Token AI"
 msgid "All"
 msgstr "Tutti"
 
-#. placeholder {0}: rows.length
-#. placeholder {1}: result.inserted
-#. placeholder {2}: result.updated
-msgid "All {0} row(s) imported — {1} inserted, {2} updated."
-msgstr ""
-
 msgid "All Audit Logs"
 msgstr "Tutti i registri di audit"
 
@@ -470,6 +464,9 @@ msgstr "Tutti i lavori completati"
 
 msgid "All members of selected groups and selected individuals will be able to approve requests"
 msgstr "Tutti i membri dei gruppi selezionati e gli individui selezionati potranno approvare le richieste"
+
+msgid "All rows imported — {inserted} inserted, {updated} updated."
+msgstr ""
 
 msgid "All Suppliers"
 msgstr "Tutti i fornitori"
@@ -2691,7 +2688,8 @@ msgstr "Fatto"
 msgid "Download"
 msgstr "Scarica"
 
-msgid "Download {errorCount} invalid row(s)"
+#. placeholder {0}: errors.length
+msgid "Download {0} row(s) to fix"
 msgstr ""
 
 msgid "Download CSV"
@@ -3241,9 +3239,6 @@ msgstr "Errore durante la convalida del numero di serie"
 msgid "Error!"
 msgstr ""
 
-msgid "Errors"
-msgstr ""
-
 msgid "Escalation"
 msgstr "Escalation"
 
@@ -3276,6 +3271,9 @@ msgstr "Eventi"
 
 msgid "Every condition must match"
 msgstr "Ogni condizione deve corrispondere"
+
+msgid "Every row was imported successfully."
+msgstr ""
 
 msgid "Everything from Starter"
 msgstr "Tutto da Starter"
@@ -4001,9 +3999,6 @@ msgid "Import {label} CSV"
 msgstr "Importa {label} CSV"
 
 msgid "Import results"
-msgstr ""
-
-msgid "Imported"
 msgstr ""
 
 msgid "In order to convert this RFQ to a quote, all lines must have an internal part number."
@@ -5009,6 +5004,9 @@ msgstr "Necessario entro"
 msgid "Need the right columns?"
 msgstr "Hai bisogno delle colonne giuste?"
 
+msgid "Needs fixing"
+msgstr ""
+
 msgid "Negative Adjustment"
 msgstr "Rettifica Negativa"
 
@@ -5467,7 +5465,7 @@ msgstr "Nessun risultato"
 msgid "No results found"
 msgstr "Nessun risultato trovato"
 
-msgid "No rows to show."
+msgid "No rows here."
 msgstr ""
 
 msgid "No rules assigned"
@@ -8092,9 +8090,6 @@ msgstr "Il servizio di archiviazione non ha risposto in tempo. Riprova."
 msgid "The unit price of the item at the time of the purchase"
 msgstr "Il prezzo unitario dell'articolo al momento dell'acquisto"
 
-msgid "The value Carbon assigns when this field's cell is empty or doesn't match any value above. Clear the selection to leave those rows blank."
-msgstr ""
-
 msgid "Theme"
 msgstr "Tema"
 
@@ -8651,6 +8646,9 @@ msgstr "Utilizzato nella schermata iniziale in modalità scura"
 msgid "Used to categorize items for reporting and analysis"
 msgstr "Utilizzato per categorizzare gli articoli per la reportistica e l'analisi"
 
+msgid "Used when a cell is empty or doesn't match an option above. Clear it to leave those rows blank."
+msgstr ""
+
 msgid "User"
 msgstr "Utente"
 
@@ -8662,9 +8660,6 @@ msgstr "Gli utenti possono aggiornare questo valore per se stessi"
 
 msgid "Users to Update"
 msgstr "Utenti da aggiornare"
-
-msgid "Valid"
-msgstr ""
 
 msgid "Valid From"
 msgstr "Valido da"
@@ -8885,8 +8880,8 @@ msgstr "Avvertenza"
 msgid "Watch full video"
 msgstr "Guarda il video completo"
 
-msgid "We've mapped each column to what we believe is correct, but please review the data below to confirm it's accurate."
-msgstr "Abbiamo mappato ogni colonna a quello che riteniamo sia corretto, ma ti preghiamo di rivedere i dati sottostanti per confermare che sia accurato."
+msgid "We auto-matched each column. Review the values below before continuing."
+msgstr ""
 
 msgid "We've sent a verification code to {email}"
 msgstr "Abbiamo inviato un codice di verifica a {email}"

@@ -34,11 +34,6 @@ msgstr "{0} days"
 msgid "{0} deleted successfully"
 msgstr "{0} deleted successfully"
 
-#. placeholder {0}: result.inserted
-#. placeholder {1}: result.updated
-msgid "{0} inserted, {1} updated — {errorCount} row(s) need fixing."
-msgstr "{0} inserted, {1} updated — {errorCount} row(s) need fixing."
-
 #. placeholder {0}: history.length
 msgid "{0} orders"
 msgstr "{0} orders"
@@ -58,6 +53,11 @@ msgstr "{0} uploaded successfully"
 #. placeholder {0}: unmatchedValues.length
 msgid "{0} values missing"
 msgstr "{0} values missing"
+
+#. placeholder {0}: errors.length
+#. placeholder {1}: skipped.length
+msgid "{inserted} inserted, {updated} updated, {0} need fixing, {1} skipped."
+msgstr "{inserted} inserted, {updated} updated, {0} need fixing, {1} skipped."
 
 msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB limit"
@@ -444,12 +444,6 @@ msgstr "AI Tokens"
 msgid "All"
 msgstr "All"
 
-#. placeholder {0}: rows.length
-#. placeholder {1}: result.inserted
-#. placeholder {2}: result.updated
-msgid "All {0} row(s) imported — {1} inserted, {2} updated."
-msgstr "All {0} row(s) imported — {1} inserted, {2} updated."
-
 msgid "All Audit Logs"
 msgstr "All Audit Logs"
 
@@ -470,6 +464,9 @@ msgstr "All jobs completed"
 
 msgid "All members of selected groups and selected individuals will be able to approve requests"
 msgstr "All members of selected groups and selected individuals will be able to approve requests"
+
+msgid "All rows imported — {inserted} inserted, {updated} updated."
+msgstr "All rows imported — {inserted} inserted, {updated} updated."
 
 msgid "All Suppliers"
 msgstr "All Suppliers"
@@ -2691,8 +2688,9 @@ msgstr "Done"
 msgid "Download"
 msgstr "Download"
 
-msgid "Download {errorCount} invalid row(s)"
-msgstr "Download {errorCount} invalid row(s)"
+#. placeholder {0}: errors.length
+msgid "Download {0} row(s) to fix"
+msgstr "Download {0} row(s) to fix"
 
 msgid "Download CSV"
 msgstr "Download CSV"
@@ -3241,9 +3239,6 @@ msgstr "Error validating serial number"
 msgid "Error!"
 msgstr "Error!"
 
-msgid "Errors"
-msgstr "Errors"
-
 msgid "Escalation"
 msgstr "Escalation"
 
@@ -3276,6 +3271,9 @@ msgstr "Events"
 
 msgid "Every condition must match"
 msgstr "Every condition must match"
+
+msgid "Every row was imported successfully."
+msgstr "Every row was imported successfully."
 
 msgid "Everything from Starter"
 msgstr "Everything from Starter"
@@ -4002,9 +4000,6 @@ msgstr "Import {label} CSV"
 
 msgid "Import results"
 msgstr "Import results"
-
-msgid "Imported"
-msgstr "Imported"
 
 msgid "In order to convert this RFQ to a quote, all lines must have an internal part number."
 msgstr "In order to convert this RFQ to a quote, all lines must have an internal part number."
@@ -5009,6 +5004,9 @@ msgstr "Need by"
 msgid "Need the right columns?"
 msgstr "Need the right columns?"
 
+msgid "Needs fixing"
+msgstr "Needs fixing"
+
 msgid "Negative Adjustment"
 msgstr "Negative Adjustment"
 
@@ -5467,8 +5465,8 @@ msgstr "No results"
 msgid "No results found"
 msgstr "No results found"
 
-msgid "No rows to show."
-msgstr "No rows to show."
+msgid "No rows here."
+msgstr "No rows here."
 
 msgid "No rules assigned"
 msgstr "No rules assigned"
@@ -8092,9 +8090,6 @@ msgstr "The storage service didn't respond in time. Please try again."
 msgid "The unit price of the item at the time of the purchase"
 msgstr "The unit price of the item at the time of the purchase"
 
-msgid "The value Carbon assigns when this field's cell is empty or doesn't match any value above. Clear the selection to leave those rows blank."
-msgstr "The value Carbon assigns when this field's cell is empty or doesn't match any value above. Clear the selection to leave those rows blank."
-
 msgid "Theme"
 msgstr "Theme"
 
@@ -8651,6 +8646,9 @@ msgstr "Used on the home screen in dark mode"
 msgid "Used to categorize items for reporting and analysis"
 msgstr "Used to categorize items for reporting and analysis"
 
+msgid "Used when a cell is empty or doesn't match an option above. Clear it to leave those rows blank."
+msgstr "Used when a cell is empty or doesn't match an option above. Clear it to leave those rows blank."
+
 msgid "User"
 msgstr "User"
 
@@ -8662,9 +8660,6 @@ msgstr "Users can update this value for themselves"
 
 msgid "Users to Update"
 msgstr "Users to Update"
-
-msgid "Valid"
-msgstr "Valid"
 
 msgid "Valid From"
 msgstr "Valid From"
@@ -8885,8 +8880,8 @@ msgstr "Warning"
 msgid "Watch full video"
 msgstr "Watch full video"
 
-msgid "We've mapped each column to what we believe is correct, but please review the data below to confirm it's accurate."
-msgstr "We've mapped each column to what we believe is correct, but please review the data below to confirm it's accurate."
+msgid "We auto-matched each column. Review the values below before continuing."
+msgstr "We auto-matched each column. Review the values below before continuing."
 
 msgid "We've sent a verification code to {email}"
 msgstr "We've sent a verification code to {email}"

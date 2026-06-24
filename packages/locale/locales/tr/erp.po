@@ -34,11 +34,6 @@ msgstr "{0} gün"
 msgid "{0} deleted successfully"
 msgstr "{0} başarıyla silindi"
 
-#. placeholder {0}: result.inserted
-#. placeholder {1}: result.updated
-msgid "{0} inserted, {1} updated — {errorCount} row(s) need fixing."
-msgstr ""
-
 #. placeholder {0}: history.length
 msgid "{0} orders"
 msgstr "{0} sipariş"
@@ -58,6 +53,11 @@ msgstr "{0} başarıyla yüklendi"
 #. placeholder {0}: unmatchedValues.length
 msgid "{0} values missing"
 msgstr "{0} değeri eksik"
+
+#. placeholder {0}: errors.length
+#. placeholder {1}: skipped.length
+msgid "{inserted} inserted, {updated} updated, {0} need fixing, {1} skipped."
+msgstr ""
 
 msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB sınırı"
@@ -444,12 +444,6 @@ msgstr "Yapay Zeka Jetonları"
 msgid "All"
 msgstr "Tümü"
 
-#. placeholder {0}: rows.length
-#. placeholder {1}: result.inserted
-#. placeholder {2}: result.updated
-msgid "All {0} row(s) imported — {1} inserted, {2} updated."
-msgstr ""
-
 msgid "All Audit Logs"
 msgstr "Tüm Denetim Kayıtları"
 
@@ -470,6 +464,9 @@ msgstr "Tüm işler tamamlandı"
 
 msgid "All members of selected groups and selected individuals will be able to approve requests"
 msgstr "Seçilen gruplardaki ve bireylerdeki tüm üyeler talepleri onaylayabilecektir"
+
+msgid "All rows imported — {inserted} inserted, {updated} updated."
+msgstr ""
 
 msgid "All Suppliers"
 msgstr "Tüm Tedarikçiler"
@@ -2691,7 +2688,8 @@ msgstr "Tamamlandı"
 msgid "Download"
 msgstr "İndir"
 
-msgid "Download {errorCount} invalid row(s)"
+#. placeholder {0}: errors.length
+msgid "Download {0} row(s) to fix"
 msgstr ""
 
 msgid "Download CSV"
@@ -3241,9 +3239,6 @@ msgstr "Seri numarası doğrulama hatası"
 msgid "Error!"
 msgstr "Hata!"
 
-msgid "Errors"
-msgstr ""
-
 msgid "Escalation"
 msgstr "Yükseltme"
 
@@ -3276,6 +3271,9 @@ msgstr "Etkinlikler"
 
 msgid "Every condition must match"
 msgstr "Her koşul eşleşmelidir"
+
+msgid "Every row was imported successfully."
+msgstr ""
 
 msgid "Everything from Starter"
 msgstr "Başlangıç'tan her şey"
@@ -4001,9 +3999,6 @@ msgid "Import {label} CSV"
 msgstr "İçe aktarılacak {label} CSV"
 
 msgid "Import results"
-msgstr ""
-
-msgid "Imported"
 msgstr ""
 
 msgid "In order to convert this RFQ to a quote, all lines must have an internal part number."
@@ -5009,6 +5004,9 @@ msgstr "Gerektiğinde"
 msgid "Need the right columns?"
 msgstr "Doğru sütunlara ihtiyacınız var mı?"
 
+msgid "Needs fixing"
+msgstr ""
+
 msgid "Negative Adjustment"
 msgstr "Negatif Ayarlama"
 
@@ -5467,7 +5465,7 @@ msgstr "Sonuç bulunamadı"
 msgid "No results found"
 msgstr "Sonuç bulunamadı"
 
-msgid "No rows to show."
+msgid "No rows here."
 msgstr ""
 
 msgid "No rules assigned"
@@ -8092,9 +8090,6 @@ msgstr "Depolama hizmeti zamanında yanıt vermedi. Lütfen tekrar deneyin."
 msgid "The unit price of the item at the time of the purchase"
 msgstr "Satın alma zamanındaki birim fiyat"
 
-msgid "The value Carbon assigns when this field's cell is empty or doesn't match any value above. Clear the selection to leave those rows blank."
-msgstr ""
-
 msgid "Theme"
 msgstr "Tema"
 
@@ -8651,6 +8646,9 @@ msgstr "Karanlık modda ana ekranda kullanılır"
 msgid "Used to categorize items for reporting and analysis"
 msgstr "Raporlama ve analiz için ürünleri kategorize etmek amacıyla kullanılır"
 
+msgid "Used when a cell is empty or doesn't match an option above. Clear it to leave those rows blank."
+msgstr ""
+
 msgid "User"
 msgstr "Kullanıcı"
 
@@ -8662,9 +8660,6 @@ msgstr "Kullanıcılar bu değeri kendileri için güncelleyebilir"
 
 msgid "Users to Update"
 msgstr "Güncellenecek Kullanıcılar"
-
-msgid "Valid"
-msgstr ""
 
 msgid "Valid From"
 msgstr "Geçerli Tarih"
@@ -8885,8 +8880,8 @@ msgstr "Uyarı"
 msgid "Watch full video"
 msgstr "Tüm videoyu izle"
 
-msgid "We've mapped each column to what we believe is correct, but please review the data below to confirm it's accurate."
-msgstr "Her kolonunu doğru olduğuna inandığımız şeye eşledik, ancak doğruluğunu onaylamak için lütfen aşağıdaki verileri gözden geçirin."
+msgid "We auto-matched each column. Review the values below before continuing."
+msgstr ""
 
 msgid "We've sent a verification code to {email}"
 msgstr "Doğrulama kodunu {email} adresine gönderdik"

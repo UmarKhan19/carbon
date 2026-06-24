@@ -84,7 +84,7 @@ export const ImportResultsModal = ({
       }}
     >
       <ModalContent
-        size="xxlarge"
+        size={allClean ? "medium" : "xxlarge"}
         onInteractOutside={(e) => e.preventDefault()}
         className="min-w-0"
       >
@@ -145,9 +145,13 @@ export const ImportResultsModal = ({
 
               <div className="mt-4 w-full min-w-0 max-h-[420px] overflow-auto rounded-md border border-border">
                 <table className="w-max min-w-full border-collapse text-sm">
-                  <thead className="sticky top-0 z-10 bg-card">
+                  <thead className="sticky top-0 z-20 bg-card">
                     <tr className="border-b border-border text-left text-muted-foreground">
-                      <th className="w-10 px-3 py-2 font-medium" />
+                      {/* Frozen status + reason: stays readable while the (often
+                          wide, e.g. BOP) data columns scroll horizontally. */}
+                      <th className="sticky left-0 z-30 min-w-[220px] border-r border-border bg-card px-3 py-2 font-medium">
+                        <Trans>Reason</Trans>
+                      </th>
                       {columns.map((column) => (
                         <th
                           key={column}
@@ -156,9 +160,6 @@ export const ImportResultsModal = ({
                           {column}
                         </th>
                       ))}
-                      <th className="whitespace-nowrap px-3 py-2 font-medium">
-                        <Trans>Reason</Trans>
-                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -170,12 +171,23 @@ export const ImportResultsModal = ({
                           bucket === "errors" && "bg-destructive/5"
                         )}
                       >
-                        <td className="px-3 py-2 align-top">
-                          {bucket === "errors" ? (
-                            <LuCircleX className="h-4 w-4 text-destructive" />
-                          ) : (
-                            <LuInfo className="h-4 w-4 text-muted-foreground" />
-                          )}
+                        <td className="sticky left-0 z-10 min-w-[220px] max-w-[360px] border-r border-border bg-background px-3 py-2 align-top">
+                          <div className="flex items-start gap-2">
+                            {bucket === "errors" ? (
+                              <LuCircleX className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
+                            ) : (
+                              <LuInfo className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                            )}
+                            <span
+                              className={cn(
+                                bucket === "errors"
+                                  ? "text-destructive"
+                                  : "text-muted-foreground"
+                              )}
+                            >
+                              {row.reason}
+                            </span>
+                          </div>
                         </td>
                         {columns.map((column) => (
                           <td
@@ -186,23 +198,12 @@ export const ImportResultsModal = ({
                             {row.values[column]}
                           </td>
                         ))}
-                        <td className="min-w-[16rem] px-3 py-2 align-top">
-                          <span
-                            className={cn(
-                              bucket === "errors"
-                                ? "text-destructive"
-                                : "text-muted-foreground"
-                            )}
-                          >
-                            {row.reason}
-                          </span>
-                        </td>
                       </tr>
                     ))}
                     {rows.length === 0 && (
                       <tr>
                         <td
-                          colSpan={columns.length + 2}
+                          colSpan={columns.length + 1}
                           className="px-3 py-8 text-center text-muted-foreground"
                         >
                           <Trans>No rows here.</Trans>
