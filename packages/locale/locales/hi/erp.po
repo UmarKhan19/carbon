@@ -230,6 +230,9 @@ msgstr "एक बिक्रय RFQ (एक ग्राहक आपको �
 msgid "A separate schedule for tax reporting when tax rules require a method different from book depreciation."
 msgstr "कर रिपोर्टिंग के लिए एक अलग अनुसूची जब कर नियम पुस्तक मूल्यह्रास से अलग विधि की आवश्यकता होती है।"
 
+msgid "A set of companies under one owner that share group-scoped configuration — the chart of accounts, currencies, and dimensions — so the same accounting setup spans every company in the group."
+msgstr ""
+
 msgid "A shipment line sent straight from supplier to customer, bypassing your warehouse — set per line, not on the header."
 msgstr "एक शिपमेंट लाइन जो सीधे आपूर्तिकर्ता से ग्राहक को भेजी जाती है, आपके गोदाम को दरकिनार करते हुए — प्रति लाइन सेट, हेडर पर नहीं।"
 
@@ -1796,6 +1799,9 @@ msgstr "कंपनियां"
 
 msgid "Company"
 msgstr "कंपनी"
+
+msgid "Company group"
+msgstr ""
 
 msgid "Company Name"
 msgstr "कंपनी का नाम"

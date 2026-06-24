@@ -230,6 +230,9 @@ msgstr "销售RFQ（客户要求您报价）或采购RFQ（您要求供应商）
 msgid "A separate schedule for tax reporting when tax rules require a method different from book depreciation."
 msgstr "当税收规则要求与账面折旧不同的方法时，用于税务报告的单独时间表。"
 
+msgid "A set of companies under one owner that share group-scoped configuration — the chart of accounts, currencies, and dimensions — so the same accounting setup spans every company in the group."
+msgstr ""
+
 msgid "A shipment line sent straight from supplier to customer, bypassing your warehouse — set per line, not on the header."
 msgstr "从供应商直接发送给客户，绕过您仓库的装运行——按行设置，而不是在标题上。"
 
@@ -1796,6 +1799,9 @@ msgstr "公司"
 
 msgid "Company"
 msgstr "公司"
+
+msgid "Company group"
+msgstr ""
 
 msgid "Company Name"
 msgstr "公司名称"

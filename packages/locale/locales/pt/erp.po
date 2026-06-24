@@ -230,6 +230,9 @@ msgstr "Um RFQ de venda (um cliente pede para você fazer uma cotação) ou um R
 msgid "A separate schedule for tax reporting when tax rules require a method different from book depreciation."
 msgstr "Um cronograma separado para fins de declaração de impostos quando as regras fiscais exigem um método diferente da depreciação contábil."
 
+msgid "A set of companies under one owner that share group-scoped configuration — the chart of accounts, currencies, and dimensions — so the same accounting setup spans every company in the group."
+msgstr ""
+
 msgid "A shipment line sent straight from supplier to customer, bypassing your warehouse — set per line, not on the header."
 msgstr "Uma linha de remessa enviada diretamente do fornecedor ao cliente, contornando seu armazém — definida por linha, não no cabeçalho."
 
@@ -1796,6 +1799,9 @@ msgstr "Empresas"
 
 msgid "Company"
 msgstr "Empresa"
+
+msgid "Company group"
+msgstr ""
 
 msgid "Company Name"
 msgstr "Nome da Empresa"

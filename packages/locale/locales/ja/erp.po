@@ -230,6 +230,9 @@ msgstr "販売RFQ（顧客が見積りを依頼）または購買RFQ（仕入先
 msgid "A separate schedule for tax reporting when tax rules require a method different from book depreciation."
 msgstr "税務規則が帳簿折旧と異なる方法を要求する場合の税務報告用の別個のスケジュール。"
 
+msgid "A set of companies under one owner that share group-scoped configuration — the chart of accounts, currencies, and dimensions — so the same accounting setup spans every company in the group."
+msgstr ""
+
 msgid "A shipment line sent straight from supplier to customer, bypassing your warehouse — set per line, not on the header."
 msgstr "仕入先からお客様に直接送られる出荷ラインで、倉庫をバイパスします。行ごとに設定され、ヘッダーではありません。"
 
@@ -1796,6 +1799,9 @@ msgstr "企業"
 
 msgid "Company"
 msgstr "会社"
+
+msgid "Company group"
+msgstr ""
 
 msgid "Company Name"
 msgstr "会社名"

@@ -230,6 +230,9 @@ msgstr "Bir satış RFQ (müşteri sizi alıntı yapmak için ister) veya satın
 msgid "A separate schedule for tax reporting when tax rules require a method different from book depreciation."
 msgstr "Vergi kuralları defter amortismanından farklı bir yöntem gerektirdiğinde vergi raporlaması için ayrı bir zaman çizelgesi."
 
+msgid "A set of companies under one owner that share group-scoped configuration — the chart of accounts, currencies, and dimensions — so the same accounting setup spans every company in the group."
+msgstr ""
+
 msgid "A shipment line sent straight from supplier to customer, bypassing your warehouse — set per line, not on the header."
 msgstr "Deponuzu atlayarak doğrudan tedarikçiden müşteriye gönderilen bir gönderim satırı — satır başına ayarlanır, başlıkta değil."
 
@@ -1796,6 +1799,9 @@ msgstr "Şirketler"
 
 msgid "Company"
 msgstr "Şirket"
+
+msgid "Company group"
+msgstr ""
 
 msgid "Company Name"
 msgstr "Şirket Adı"
