@@ -153,3 +153,7 @@ Patterns learned from corrections. Review at the start of each session.
 - Rule: before claiming a callsite is broken or changing its `onChange` shape,
   grep the file for a local `function <Name>` / `const <Name> =` shadowing the
   import, and check the actual prop/callback types at that callsite.
+
+## Inngest Dev Server Sync URL Host Matching: localhost vs 127.0.0.1
+
+- When running the Inngest dev server command (e.g. `npx inngest-cli dev`), always prefer `localhost` instead of `127.0.0.1` as the host domain. Some systems/framework configurations resolve `localhost` and `127.0.0.1` differently (e.g. CORS, allowed hosts, or server binds), which can prevent the Inngest dev server from successfully registering/syncing the application's event functions (such as `carbon/extract-document`). Always use `http://localhost:3000/api/inngest` for the `-u` endpoint parameter.
