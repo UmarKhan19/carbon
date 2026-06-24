@@ -71,10 +71,6 @@ msgstr "{scopeCount} 個の権限"
 msgid "/month/user"
 msgstr "/月/ユーザー"
 
-#. placeholder {0}: allItems.length - 3
-msgid "+{0} more"
-msgstr "+{0} 件以上"
-
 msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
 msgstr ""
 
@@ -230,9 +226,6 @@ msgstr "蓄積期間（週）"
 
 msgid "Accumulation Period:"
 msgstr "蓄積期間:"
-
-msgid "Action Items"
-msgstr "アクション項目"
 
 msgid "Action Status"
 msgstr "アクション状態"
@@ -1094,6 +1087,9 @@ msgstr "利用可能"
 msgid "Avg Days to Close"
 msgstr "平均クローズ日数"
 
+msgid "Awaiting approval"
+msgstr ""
+
 msgid "Back"
 msgstr "戻る"
 
@@ -1418,9 +1414,6 @@ msgstr "クラス"
 
 msgid "Clear"
 msgstr "クリア"
-
-msgid "Clear All"
-msgstr "すべてクリア"
 
 msgid "Clear due date"
 msgstr "期限をクリア"
@@ -4055,6 +4048,9 @@ msgstr "時間/個"
 msgid "How many were actually picked?"
 msgstr "実際にはいくつ選ばれましたか？"
 
+msgid "How the material is sourced (make, purchase, or pull from inventory) and the storage unit it's pulled from."
+msgstr ""
+
 msgid "How the resolved price was calculated."
 msgstr "解決された価格がどのように計算されたかを示します。"
 
@@ -4120,6 +4116,9 @@ msgstr "進行中"
 
 msgid "in selected period"
 msgstr "選択された期間内"
+
+msgid "In stock"
+msgstr ""
 
 msgid "Inactive"
 msgstr "非アクティブ"
@@ -4426,6 +4425,9 @@ msgstr "ジョブ"
 
 msgid "Job ID"
 msgstr "ジョブID"
+
+msgid "Job in progress"
+msgstr ""
 
 msgid "Job Location"
 msgstr "ジョブロケーション"
@@ -4996,9 +4998,6 @@ msgstr "メートル法単位が有効です"
 msgid "Min Qty"
 msgstr "最小数量"
 
-msgid "Minimize"
-msgstr "最小化"
-
 msgid "Minimum"
 msgstr "最小"
 
@@ -5131,6 +5130,9 @@ msgid "Need the right columns?"
 msgstr "正しい列が必要ですか？"
 
 msgid "Needs fixing"
+msgstr ""
+
+msgid "Needs ordering"
 msgstr ""
 
 msgid "Negative Adjustment"
@@ -5559,9 +5561,6 @@ msgstr "親ソースはまだ記録されていません。計画ページの「
 msgid "No part ID"
 msgstr "パーツIDなし"
 
-msgid "No parts added yet"
-msgstr "まだパーツが追加されていません"
-
 msgid "No planning data"
 msgstr "計画データなし"
 
@@ -5715,6 +5714,9 @@ msgstr "保留中"
 msgid "On Jobs"
 msgstr "ジョブ上"
 
+msgid "On order"
+msgstr ""
+
 msgid "On Purchase Order"
 msgstr "購買注文中"
 
@@ -5834,6 +5836,10 @@ msgstr "または"
 
 msgid "Order"
 msgstr "注文"
+
+#. placeholder {0}: status?.shortfall
+msgid "Order {0} for this job"
+msgstr ""
 
 msgid "Order by"
 msgstr "注文日"
@@ -6132,11 +6138,17 @@ msgstr "計画終了"
 msgid "Planned End Time"
 msgstr "計画終了時刻"
 
+msgid "Planned job"
+msgstr ""
+
 msgid "Planned Order"
 msgstr "計画注文"
 
 msgid "Planned order = MRP suggestion to cover projected demand based on the item's reorder policy (or manually added)."
 msgstr "計画注文 = 品目の発注ポリシー（または手動で追加）に基づいて予測需要をカバーするためのMRP提案。"
+
+msgid "Planned purchase order"
+msgstr ""
 
 msgid "Planned Start"
 msgstr "計画開始"
@@ -6362,6 +6374,9 @@ msgstr ""
 msgid "Processes"
 msgstr "プロセス"
 
+msgid "Procurement status — needs ordering, planned, on order, or received. The same indicator shown in the BoM tree."
+msgstr ""
+
 msgid "production"
 msgstr ""
 
@@ -6373,6 +6388,9 @@ msgstr "生産イベント"
 
 msgid "Production Events"
 msgstr "本番イベント"
+
+msgid "Production planning"
+msgstr ""
 
 msgid "Production Qty"
 msgstr "生産数量"
@@ -6484,6 +6502,9 @@ msgstr "購入注文"
 msgid "Purchase orders required"
 msgstr "購入注文が必要です"
 
+msgid "Purchase planning"
+msgstr ""
+
 msgid "Purchase Qty"
 msgstr "購入数量"
 
@@ -6560,8 +6581,14 @@ msgstr "数量"
 msgid "Quantity"
 msgstr "数量"
 
+msgid "Quantity arriving — on open purchase orders plus on production (make) orders."
+msgstr ""
+
 msgid "Quantity Completed"
 msgstr "完了数量"
+
+msgid "Quantity in transit to the storage unit via open stock transfers."
+msgstr ""
 
 msgid "Quantity is derived from completed serials/batches in MES and cannot be edited."
 msgstr "数量はMESで完了したシリアル/バッチから導出されており、編集することはできません。"
@@ -6586,6 +6613,9 @@ msgstr "ジョブあたりの数量"
 
 msgid "Quantity per Parent"
 msgstr "親あたりの数量"
+
+msgid "Quantity physically on the material's assigned storage unit (shelf). Turns red when it's below what that unit needs to supply."
+msgstr ""
 
 msgid "Quantity Type"
 msgstr "数量タイプ"
@@ -6697,6 +6727,11 @@ msgstr "{0}を在庫に受け取る"
 msgid "Receive to Inventory"
 msgstr "在庫に受け取る"
 
+#. placeholder {0}: status?.received
+#. placeholder {1}: status?.ordered
+msgid "Received {0} of {1}"
+msgstr ""
+
 msgid "Received At"
 msgstr "受け取った日時"
 
@@ -6803,9 +6838,6 @@ msgstr "アイテムを削除"
 msgid "Remove order"
 msgstr "注文を削除"
 
-msgid "Remove Order"
-msgstr "注文を削除"
-
 msgid "Remove pair"
 msgstr "ペアを削除"
 
@@ -6814,9 +6846,6 @@ msgstr "列でソートを削除"
 
 msgid "Remove this storage type from all referencing storage units and delete it. This cannot be undone."
 msgstr "このストレージタイプをすべての参照ストレージユニットから削除し、削除します。これは元に戻すことはできません。"
-
-msgid "Remove Transfer"
-msgstr "転送を削除"
 
 msgid "Rendering label preview..."
 msgstr "ラベルプレビューをレンダリング中..."
@@ -7844,9 +7873,6 @@ msgstr "開始"
 msgid "Start {0} Day Free Trial"
 msgstr "{0}日間の無料トライアルを開始"
 
-msgid "Start adding parts to your stock transfer"
-msgstr "在库存转移中开始添加零件"
-
 msgid "Start Date"
 msgstr "開始日"
 
@@ -8379,6 +8405,9 @@ msgstr "このジョブはインベントリに受け取られます。ショッ
 msgid "This job will no longer be available on the shop floor."
 msgstr "このジョブはショップフロアで利用できなくなります。"
 
+msgid "This job's own required quantity for the material."
+msgstr ""
+
 msgid "This lot is expired and can't be picked."
 msgstr "このロットは期限切れであり、ピックできません。"
 
@@ -8541,6 +8570,12 @@ msgstr "合計価格"
 msgid "Total Quantity"
 msgstr "合計数量"
 
+msgid "Total quantity on hand for the item across all storage units at this location. Turns red when on hand plus incoming can't cover total demand."
+msgstr ""
+
+msgid "Total quantity required across all active jobs and sales orders at this location — not just this job."
+msgstr ""
+
 msgid "Total:"
 msgstr "合計:"
 
@@ -8630,9 +8665,6 @@ msgstr "このカンパニーの所有権を別のユーザーに譲渡する"
 
 msgid "Transfer To"
 msgstr "転送先"
-
-msgid "Transfers"
-msgstr "転送"
 
 msgid "Trash"
 msgstr "ゴミ箱"

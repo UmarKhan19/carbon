@@ -71,10 +71,6 @@ msgstr "{scopeCount} izinleri"
 msgid "/month/user"
 msgstr "/ay/kullanıcı"
 
-#. placeholder {0}: allItems.length - 3
-msgid "+{0} more"
-msgstr "+{0} daha fazla"
-
 msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
 msgstr ""
 
@@ -230,9 +226,6 @@ msgstr "Biriktirme Süresi (Hafta)"
 
 msgid "Accumulation Period:"
 msgstr "Biriktirme Dönemi:"
-
-msgid "Action Items"
-msgstr "Eylem Öğeleri"
 
 msgid "Action Status"
 msgstr "Aksiyon Durumu"
@@ -1094,6 +1087,9 @@ msgstr "Mevcut"
 msgid "Avg Days to Close"
 msgstr "Kapatma Ortalama Günler"
 
+msgid "Awaiting approval"
+msgstr ""
+
 msgid "Back"
 msgstr "Geri"
 
@@ -1418,9 +1414,6 @@ msgstr "Sınıf"
 
 msgid "Clear"
 msgstr "Temizle"
-
-msgid "Clear All"
-msgstr "Tümünü Temizle"
 
 msgid "Clear due date"
 msgstr "Vade tarihini temizle"
@@ -4055,6 +4048,9 @@ msgstr "Saat/Adet"
 msgid "How many were actually picked?"
 msgstr "Gerçekte kaç tane toplandı?"
 
+msgid "How the material is sourced (make, purchase, or pull from inventory) and the storage unit it's pulled from."
+msgstr ""
+
 msgid "How the resolved price was calculated."
 msgstr "Çözülen fiyatın nasıl hesaplandığı."
 
@@ -4120,6 +4116,9 @@ msgstr "Devam Ediyor"
 
 msgid "in selected period"
 msgstr "seçilen dönemde"
+
+msgid "In stock"
+msgstr ""
 
 msgid "Inactive"
 msgstr "Pasif"
@@ -4426,6 +4425,9 @@ msgstr "İş"
 
 msgid "Job ID"
 msgstr "İş Emri Kimliği"
+
+msgid "Job in progress"
+msgstr ""
 
 msgid "Job Location"
 msgstr "İş Yeri Konumu"
@@ -4996,9 +4998,6 @@ msgstr "Metrik birimler etkinleştirilmiş"
 msgid "Min Qty"
 msgstr "Min Miktar"
 
-msgid "Minimize"
-msgstr "Küçült"
-
 msgid "Minimum"
 msgstr "Minimum"
 
@@ -5131,6 +5130,9 @@ msgid "Need the right columns?"
 msgstr "Doğru sütunlara ihtiyacınız var mı?"
 
 msgid "Needs fixing"
+msgstr ""
+
+msgid "Needs ordering"
 msgstr ""
 
 msgid "Negative Adjustment"
@@ -5559,9 +5561,6 @@ msgstr "Henüz üst kaynaklar kaydedilmedi. Atıfı yenilemek için planlama say
 msgid "No part ID"
 msgstr "Parça kimliği yok"
 
-msgid "No parts added yet"
-msgstr "Henüz parça eklenmedi"
-
 msgid "No planning data"
 msgstr "Planlama verisi yok"
 
@@ -5715,6 +5714,9 @@ msgstr "Askıda"
 msgid "On Jobs"
 msgstr "Üretimde"
 
+msgid "On order"
+msgstr ""
+
 msgid "On Purchase Order"
 msgstr "Satın Alma Siparişinde"
 
@@ -5834,6 +5836,10 @@ msgstr "VEYA"
 
 msgid "Order"
 msgstr "Sipariş"
+
+#. placeholder {0}: status?.shortfall
+msgid "Order {0} for this job"
+msgstr ""
 
 msgid "Order by"
 msgstr "Sipariş tarihi"
@@ -6132,11 +6138,17 @@ msgstr "Planlanan Bitiş"
 msgid "Planned End Time"
 msgstr "Planlan Bitiş Zamanı"
 
+msgid "Planned job"
+msgstr ""
+
 msgid "Planned Order"
 msgstr "Planlanmış Sipariş"
 
 msgid "Planned order = MRP suggestion to cover projected demand based on the item's reorder policy (or manually added)."
 msgstr "Planlanan sipariş = Ürünün yeniden sipariş politikasına göre öngörülen talebi karşılamak için MRP önerisi (veya manuel olarak eklenmiştir)."
+
+msgid "Planned purchase order"
+msgstr ""
 
 msgid "Planned Start"
 msgstr "Planlanan Başlangıç"
@@ -6362,6 +6374,9 @@ msgstr ""
 msgid "Processes"
 msgstr "Süreçler"
 
+msgid "Procurement status — needs ordering, planned, on order, or received. The same indicator shown in the BoM tree."
+msgstr ""
+
 msgid "production"
 msgstr ""
 
@@ -6373,6 +6388,9 @@ msgstr "Üretim Olayı"
 
 msgid "Production Events"
 msgstr "Üretim Etkinlikleri"
+
+msgid "Production planning"
+msgstr ""
 
 msgid "Production Qty"
 msgstr "Üretim Miktarı"
@@ -6484,6 +6502,9 @@ msgstr "Satın Alma Siparişleri"
 msgid "Purchase orders required"
 msgstr "Satın alma siparişleri gerekli"
 
+msgid "Purchase planning"
+msgstr ""
+
 msgid "Purchase Qty"
 msgstr "Satın Alma Miktarı"
 
@@ -6560,8 +6581,14 @@ msgstr "Miktarlar"
 msgid "Quantity"
 msgstr "Miktar"
 
+msgid "Quantity arriving — on open purchase orders plus on production (make) orders."
+msgstr ""
+
 msgid "Quantity Completed"
 msgstr "Tamamlanan Miktar"
+
+msgid "Quantity in transit to the storage unit via open stock transfers."
+msgstr ""
 
 msgid "Quantity is derived from completed serials/batches in MES and cannot be edited."
 msgstr "Miktar, MES'deki tamamlanmış seri numaraları/partilerinden türetilmiştir ve düzenlenemez."
@@ -6586,6 +6613,9 @@ msgstr "İş Başına Miktar"
 
 msgid "Quantity per Parent"
 msgstr "Ana Ürüne Göre Miktar"
+
+msgid "Quantity physically on the material's assigned storage unit (shelf). Turns red when it's below what that unit needs to supply."
+msgstr ""
 
 msgid "Quantity Type"
 msgstr "Miktar Türü"
@@ -6697,6 +6727,11 @@ msgstr "{0}'yi Envantere Al"
 msgid "Receive to Inventory"
 msgstr "Envantere Al"
 
+#. placeholder {0}: status?.received
+#. placeholder {1}: status?.ordered
+msgid "Received {0} of {1}"
+msgstr ""
+
 msgid "Received At"
 msgstr "Alındığı Tarih"
 
@@ -6803,9 +6838,6 @@ msgstr "Ürünü kaldır"
 msgid "Remove order"
 msgstr "Siparişi kaldır"
 
-msgid "Remove Order"
-msgstr "Siparişi Kaldır"
-
 msgid "Remove pair"
 msgstr "Çifti kaldır"
 
@@ -6814,9 +6846,6 @@ msgstr "Sıralamayı kaldır"
 
 msgid "Remove this storage type from all referencing storage units and delete it. This cannot be undone."
 msgstr "Bu depolama türünü tüm referans veren depolama birimlerinden kaldırır ve siler. Bu geri alınamaz."
-
-msgid "Remove Transfer"
-msgstr "Transferi Kaldır"
 
 msgid "Rendering label preview..."
 msgstr "Etiket önizlemesi oluşturuluyor..."
@@ -7844,9 +7873,6 @@ msgstr "Başlat"
 msgid "Start {0} Day Free Trial"
 msgstr "{0} Gün Ücretsiz Deneme Başlat"
 
-msgid "Start adding parts to your stock transfer"
-msgstr "Parçaları stok transferinize eklemeye başlayın"
-
 msgid "Start Date"
 msgstr "Başlangıç Tarihi"
 
@@ -8379,6 +8405,9 @@ msgstr "Bu iş envantere alınacak. Artık atölyede bulunmayacaktır."
 msgid "This job will no longer be available on the shop floor."
 msgstr "Bu iş artık atölyede bulunmayacak."
 
+msgid "This job's own required quantity for the material."
+msgstr ""
+
 msgid "This lot is expired and can't be picked."
 msgstr "Bu parti süresi dolmuş ve alınamaz."
 
@@ -8541,6 +8570,12 @@ msgstr "Toplam Fiyat"
 msgid "Total Quantity"
 msgstr "Toplam Miktar"
 
+msgid "Total quantity on hand for the item across all storage units at this location. Turns red when on hand plus incoming can't cover total demand."
+msgstr ""
+
+msgid "Total quantity required across all active jobs and sales orders at this location — not just this job."
+msgstr ""
+
 msgid "Total:"
 msgstr "Toplam:"
 
@@ -8630,9 +8665,6 @@ msgstr "Bu şirketin sahipliğini başka bir kullanıcıya aktarın"
 
 msgid "Transfer To"
 msgstr "Aktarılacak Lokasyon"
-
-msgid "Transfers"
-msgstr "Transferler"
 
 msgid "Trash"
 msgstr "Çöp Kutusu"

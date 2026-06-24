@@ -71,10 +71,6 @@ msgstr "{scopeCount} permissões"
 msgid "/month/user"
 msgstr "/mês/utilizador"
 
-#. placeholder {0}: allItems.length - 3
-msgid "+{0} more"
-msgstr "+{0} mais"
-
 msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
 msgstr ""
 
@@ -230,9 +226,6 @@ msgstr "Período de Acumulação (Semanas)"
 
 msgid "Accumulation Period:"
 msgstr "Período de Acumulação:"
-
-msgid "Action Items"
-msgstr "Itens de Ação"
 
 msgid "Action Status"
 msgstr "Status da Ação"
@@ -1094,6 +1087,9 @@ msgstr "Disponível"
 msgid "Avg Days to Close"
 msgstr "Dias Médios para Fechar"
 
+msgid "Awaiting approval"
+msgstr ""
+
 msgid "Back"
 msgstr "Voltar"
 
@@ -1418,9 +1414,6 @@ msgstr "Classe"
 
 msgid "Clear"
 msgstr "Limpar"
-
-msgid "Clear All"
-msgstr "Limpar Tudo"
 
 msgid "Clear due date"
 msgstr "Limpar data de vencimento"
@@ -4055,6 +4048,9 @@ msgstr "Horas/Peça"
 msgid "How many were actually picked?"
 msgstr "Quantos foram realmente apanhados?"
 
+msgid "How the material is sourced (make, purchase, or pull from inventory) and the storage unit it's pulled from."
+msgstr ""
+
 msgid "How the resolved price was calculated."
 msgstr "Como o preço resolvido foi calculado."
 
@@ -4120,6 +4116,9 @@ msgstr "Em Andamento"
 
 msgid "in selected period"
 msgstr "no período selecionado"
+
+msgid "In stock"
+msgstr ""
 
 msgid "Inactive"
 msgstr "Inativo"
@@ -4426,6 +4425,9 @@ msgstr "Trabalho"
 
 msgid "Job ID"
 msgstr "ID da Tarefa"
+
+msgid "Job in progress"
+msgstr ""
 
 msgid "Job Location"
 msgstr "Localização do Trabalho"
@@ -4996,9 +4998,6 @@ msgstr "Unidades métricas ativadas"
 msgid "Min Qty"
 msgstr "Qtd Mín"
 
-msgid "Minimize"
-msgstr "Minimizar"
-
 msgid "Minimum"
 msgstr "Mínimo"
 
@@ -5131,6 +5130,9 @@ msgid "Need the right columns?"
 msgstr "Precisa das colunas certas?"
 
 msgid "Needs fixing"
+msgstr ""
+
+msgid "Needs ordering"
 msgstr ""
 
 msgid "Negative Adjustment"
@@ -5559,9 +5561,6 @@ msgstr "Nenhuma fonte pai registrada ainda. Clique em Recalcular na página de p
 msgid "No part ID"
 msgstr "Sem ID de peça"
 
-msgid "No parts added yet"
-msgstr "Nenhuma peça adicionada ainda"
-
 msgid "No planning data"
 msgstr "Sem dados de planejamento"
 
@@ -5715,6 +5714,9 @@ msgstr "Em Espera"
 msgid "On Jobs"
 msgstr "Em Trabalhos"
 
+msgid "On order"
+msgstr ""
+
 msgid "On Purchase Order"
 msgstr "Em Ordem de Compra"
 
@@ -5834,6 +5836,10 @@ msgstr "OU"
 
 msgid "Order"
 msgstr "Pedido"
+
+#. placeholder {0}: status?.shortfall
+msgid "Order {0} for this job"
+msgstr ""
 
 msgid "Order by"
 msgstr "Encomendar até"
@@ -6132,11 +6138,17 @@ msgstr "Fim Planejado"
 msgid "Planned End Time"
 msgstr "Hora de Término Planejada"
 
+msgid "Planned job"
+msgstr ""
+
 msgid "Planned Order"
 msgstr "Ordem Planejada"
 
 msgid "Planned order = MRP suggestion to cover projected demand based on the item's reorder policy (or manually added)."
 msgstr "Ordem planejada = sugestão de MRP para cobrir a demanda projetada com base na política de reabastecimento do item (ou adicionada manualmente)."
+
+msgid "Planned purchase order"
+msgstr ""
 
 msgid "Planned Start"
 msgstr "Início Planejado"
@@ -6362,6 +6374,9 @@ msgstr ""
 msgid "Processes"
 msgstr "Processos"
 
+msgid "Procurement status — needs ordering, planned, on order, or received. The same indicator shown in the BoM tree."
+msgstr ""
+
 msgid "production"
 msgstr ""
 
@@ -6373,6 +6388,9 @@ msgstr "Evento de Produção"
 
 msgid "Production Events"
 msgstr "Eventos de Produção"
+
+msgid "Production planning"
+msgstr ""
 
 msgid "Production Qty"
 msgstr "Qtd. Produção"
@@ -6484,6 +6502,9 @@ msgstr "Pedidos de Compra"
 msgid "Purchase orders required"
 msgstr "Ordens de compra necessárias"
 
+msgid "Purchase planning"
+msgstr ""
+
 msgid "Purchase Qty"
 msgstr "Qtd. de Compra"
 
@@ -6560,8 +6581,14 @@ msgstr "Quantidades"
 msgid "Quantity"
 msgstr "Quantidade"
 
+msgid "Quantity arriving — on open purchase orders plus on production (make) orders."
+msgstr ""
+
 msgid "Quantity Completed"
 msgstr "Quantidade Concluída"
+
+msgid "Quantity in transit to the storage unit via open stock transfers."
+msgstr ""
 
 msgid "Quantity is derived from completed serials/batches in MES and cannot be edited."
 msgstr "A quantidade é derivada de seriais/lotes concluídos no MES e não pode ser editada."
@@ -6586,6 +6613,9 @@ msgstr "Quantidade Por Trabalho"
 
 msgid "Quantity per Parent"
 msgstr "Quantidade por Pai"
+
+msgid "Quantity physically on the material's assigned storage unit (shelf). Turns red when it's below what that unit needs to supply."
+msgstr ""
 
 msgid "Quantity Type"
 msgstr "Tipo de Quantidade"
@@ -6697,6 +6727,11 @@ msgstr "Receber {0} para Inventário"
 msgid "Receive to Inventory"
 msgstr "Receber para Inventário"
 
+#. placeholder {0}: status?.received
+#. placeholder {1}: status?.ordered
+msgid "Received {0} of {1}"
+msgstr ""
+
 msgid "Received At"
 msgstr "Recebido em"
 
@@ -6803,9 +6838,6 @@ msgstr "Remover item"
 msgid "Remove order"
 msgstr "Remover pedido"
 
-msgid "Remove Order"
-msgstr "Remover Pedido"
-
 msgid "Remove pair"
 msgstr "Remover par"
 
@@ -6814,9 +6846,6 @@ msgstr "Remover ordenação por coluna"
 
 msgid "Remove this storage type from all referencing storage units and delete it. This cannot be undone."
 msgstr "Remova este tipo de armazenamento de todas as unidades de armazenamento que o referenciam e o delete. Isto não pode ser desfeito."
-
-msgid "Remove Transfer"
-msgstr "Remover Transferência"
 
 msgid "Rendering label preview..."
 msgstr "Renderizando visualização de etiqueta..."
@@ -7844,9 +7873,6 @@ msgstr "Iniciar"
 msgid "Start {0} Day Free Trial"
 msgstr "Iniciar Teste Gratuito de {0} Dias"
 
-msgid "Start adding parts to your stock transfer"
-msgstr "Comece a adicionar peças à sua transferência de estoque"
-
 msgid "Start Date"
 msgstr "Data de Início"
 
@@ -8379,6 +8405,9 @@ msgstr "Este trabalho será recebido no inventário. Não estará mais disponív
 msgid "This job will no longer be available on the shop floor."
 msgstr "Este trabalho não estará mais disponível no chão de fábrica."
 
+msgid "This job's own required quantity for the material."
+msgstr ""
+
 msgid "This lot is expired and can't be picked."
 msgstr "Este lote expirou e não pode ser selecionado."
 
@@ -8541,6 +8570,12 @@ msgstr "Preço Total"
 msgid "Total Quantity"
 msgstr "Quantidade Total"
 
+msgid "Total quantity on hand for the item across all storage units at this location. Turns red when on hand plus incoming can't cover total demand."
+msgstr ""
+
+msgid "Total quantity required across all active jobs and sales orders at this location — not just this job."
+msgstr ""
+
 msgid "Total:"
 msgstr "Total:"
 
@@ -8630,9 +8665,6 @@ msgstr "Transferir a propriedade desta empresa para outro usuário"
 
 msgid "Transfer To"
 msgstr "Transferir Para"
-
-msgid "Transfers"
-msgstr "Transferências"
 
 msgid "Trash"
 msgstr "Lixo"
