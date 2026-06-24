@@ -71,7 +71,7 @@ const CustomerContact = ({
 
   const emptyMessage = useEmptyState(
     "customerContact",
-    props.customer ? { onCreate: () => newContactModal.onOpen() } : undefined
+    customer ? { onCreate: () => newContactModal.onOpen() } : undefined
   );
 
   return (

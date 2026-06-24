@@ -104,7 +104,7 @@ const SupplierLocation = ({
 
   const emptyMessage = useEmptyState(
     "supplierLocation",
-    props.supplier ? { onCreate: () => newLocationModal.onOpen() } : undefined
+    supplier ? { onCreate: () => newLocationModal.onOpen() } : undefined
   );
 
   return (

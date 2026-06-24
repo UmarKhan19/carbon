@@ -101,7 +101,7 @@ const CustomerLocation = ({
 
   const emptyMessage = useEmptyState(
     "customerLocation",
-    props.customer ? { onCreate: () => newLocationModal.onOpen() } : undefined
+    customer ? { onCreate: () => newLocationModal.onOpen() } : undefined
   );
 
   return (

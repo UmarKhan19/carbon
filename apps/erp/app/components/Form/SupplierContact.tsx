@@ -97,7 +97,7 @@ const SupplierContact = ({
 
   const emptyMessage = useEmptyState(
     "supplierContact",
-    props.supplier ? { onCreate: () => newContactModal.onOpen() } : undefined
+    supplier ? { onCreate: () => newContactModal.onOpen() } : undefined
   );
 
   return (
