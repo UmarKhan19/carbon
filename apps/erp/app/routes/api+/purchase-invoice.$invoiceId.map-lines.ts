@@ -138,7 +138,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         .from("purchaseInvoiceLine")
         .update({
           itemId: finalItemId,
-          invoiceLineType: "Item",
+          invoiceLineType: "Part",
           updatedBy: userId
         })
         .eq("id", map.lineId);
