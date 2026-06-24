@@ -2,7 +2,6 @@
 import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import type { Database } from "@carbon/database";
 import {
   Hidden,
   Input,
@@ -27,7 +26,6 @@ import {
 } from "@carbon/react";
 import { convertKbToString, isInternalEmail } from "@carbon/utils";
 import { msg } from "@lingui/core/macro";
-import type { SupabaseClient } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { data, Form, redirect, useFetcher, useLoaderData } from "react-router";
@@ -83,43 +81,18 @@ const restoreValidator = z.object({
   includeStorage: z.enum(["none", "all"])
 });
 
-async function requireOwner(
-  request: Request,
-  client: SupabaseClient<Database>,
-  companyGroupId: string | null,
-  userId: string,
-  email: string | null
-) {
+function requireInternal(email: string | null) {
   // Internal-only while multi-tenant hardening is pending.
   if (!isInternalEmail(email)) {
     throw redirect(path.to.settings);
   }
-
-  const group = companyGroupId
-    ? await client
-        .from("companyGroup")
-        .select("ownerId")
-        .eq("id", companyGroupId)
-        .single()
-    : null;
-
-  if (group?.data?.ownerId !== userId) {
-    throw redirect(
-      path.to.settings,
-      await flash(
-        request,
-        error(null, "Only the company owner can access backups")
-      )
-    );
-  }
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const { client, companyId, companyGroupId, userId, email } =
-    await requirePermissions(request, {
-      update: "settings"
-    });
-  await requireOwner(request, client, companyGroupId, userId, email);
+  const { client, companyId, email } = await requirePermissions(request, {
+    update: "settings"
+  });
+  requireInternal(email);
 
   const [exportsList, restoreRuns] = await Promise.all([
     listCompanyBackupExports(client, companyId),
@@ -156,11 +129,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, companyId, companyGroupId, userId, email } =
-    await requirePermissions(request, {
+  const { client, companyId, userId, email } = await requirePermissions(
+    request,
+    {
       update: "settings"
-    });
-  await requireOwner(request, client, companyGroupId, userId, email);
+    }
+  );
+  requireInternal(email);
 
   const formData = await request.formData();
   const intent = formData.get("intent");
