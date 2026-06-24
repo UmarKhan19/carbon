@@ -117,6 +117,35 @@ export type JobMaterialSupplyJobLine = {
   status: Database["public"]["Enums"]["jobStatus"] | null;
 };
 
+export type PurchaseOrderStatus =
+  Database["public"]["Enums"]["purchaseOrderStatus"];
+
+export type JobStatus = Database["public"]["Enums"]["jobStatus"];
+
+export type ItemOrderStatus = {
+  needsOrder: boolean;
+  shortfall: number;
+  status: PurchaseOrderStatus | null;
+  supplyJobStatus: JobStatus | null;
+  coveredByOnHand: boolean;
+  ordered: number;
+  received: number;
+};
+
+export type JobOrderStatusCategory =
+  | "needsOrder"
+  | "planned"
+  | "plannedJob"
+  | "awaitingApproval"
+  | "onOrder"
+  | "received"
+  | "inStock";
+
+export type ItemShortfall = {
+  shortfall: number;
+  coveredByOnHand: boolean;
+};
+
 export type ProductionEvent = NonNullable<
   Awaited<ReturnType<typeof getProductionEvents>>["data"]
 >[number];

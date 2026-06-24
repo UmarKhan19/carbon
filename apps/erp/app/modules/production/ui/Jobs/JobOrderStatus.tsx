@@ -5,10 +5,8 @@ import { LuCircleAlert, LuCircleCheck, LuClock, LuStamp } from "react-icons/lu";
 import { AlmostDoneIcon } from "~/assets/icons/AlmostDoneIcon";
 import { InProgressStatusIcon } from "~/assets/icons/InProgressStatusIcon";
 import { TodoStatusIcon } from "~/assets/icons/TodoStatusIcon";
-import {
-  getJobOrderStatusCategory,
-  type ItemOrderStatus
-} from "../../jobOrderStatus";
+import { getJobOrderStatusCategory } from "../../production.models";
+import type { ItemOrderStatus } from "../../types";
 
 // Presentation only — precedence lives in getJobOrderStatusCategory (shared with
 // the status filter); this maps the resolved category to an icon + label.

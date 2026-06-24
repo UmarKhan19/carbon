@@ -16,13 +16,6 @@ import type {
   operationStepValidator,
   operationToolValidator
 } from "../shared";
-import {
-  ACTIVE_JOB_STATUSES,
-  getJobOrderStatusByMaterial,
-  type ItemOrderStatus,
-  type ItemShortfall,
-  isJobOrderStatusHidden
-} from "./jobOrderStatus";
 import type {
   deadlineTypes,
   failureModeValidator,
@@ -45,7 +38,15 @@ import type {
   productionQuantityValidator,
   scrapReasonValidator
 } from "./production.models";
+import {
+  ACTIVE_JOB_STATUSES,
+  isJobOrderStatusHidden,
+  JOB_SUPPLY_STATUS_PRIORITY,
+  PO_STATUS_PRIORITY
+} from "./production.models";
 import type {
+  ItemOrderStatus,
+  ItemShortfall,
   Job,
   JobMaterialPurchaseOrderLine,
   JobMaterialSupplyJobLine
@@ -1097,6 +1098,108 @@ export async function getJobMaterialShortfallByItem(
     }
   }
   return shortfallByItem;
+}
+
+type OrderStatusMaterial = {
+  itemTrackingType: string | null;
+  methodType: string | null;
+};
+
+type OrderStatusBuildMaterial = OrderStatusMaterial & {
+  id: string | null;
+  jobMaterialItemId: string | null;
+};
+
+// Builds one material's ItemOrderStatus from its PO lines, supply jobs, and
+// priority-adjusted shortfall. Pure — all DB reads happen in the callers.
+function getJobMaterialOrderStatus(
+  material: OrderStatusMaterial,
+  poLines: JobMaterialPurchaseOrderLine[],
+  supplyJobLines: JobMaterialSupplyJobLine[],
+  shortfall: number,
+  coveredByOnHand: boolean
+): ItemOrderStatus {
+  const needsOrder =
+    material.itemTrackingType !== "Non-Inventory" &&
+    material.methodType !== "Make to Order" &&
+    shortfall > 0;
+
+  const status =
+    PO_STATUS_PRIORITY.find((candidate) =>
+      poLines.some((line) => line.status === candidate)
+    ) ?? null;
+
+  const supplyJobStatus =
+    JOB_SUPPLY_STATUS_PRIORITY.find((candidate) =>
+      supplyJobLines.some((line) => line.status === candidate)
+    ) ?? null;
+
+  let ordered = 0;
+  let received = 0;
+  if (status) {
+    for (const line of poLines) {
+      if (line.status !== status) continue;
+      ordered += line.purchaseQuantity ?? 0;
+      received += line.quantityReceived ?? 0;
+    }
+  }
+
+  return {
+    needsOrder,
+    shortfall,
+    status,
+    supplyJobStatus,
+    coveredByOnHand,
+    ordered,
+    received
+  };
+}
+
+// One ItemOrderStatus per material id (= the tree node's methodMaterialId) — the
+// single source the table, tree, and filter all read from.
+function getJobOrderStatusByMaterial(
+  materials: OrderStatusBuildMaterial[],
+  purchaseOrderLines: JobMaterialPurchaseOrderLine[],
+  supplyJobLines: JobMaterialSupplyJobLine[],
+  shortfallByItemId: Record<string, ItemShortfall>
+): Record<string, ItemOrderStatus> {
+  const linesByItemId = new Map<string, JobMaterialPurchaseOrderLine[]>();
+  for (const line of purchaseOrderLines) {
+    if (!line.itemId) continue;
+    const lines = linesByItemId.get(line.itemId) ?? [];
+    lines.push(line);
+    linesByItemId.set(line.itemId, lines);
+  }
+
+  const jobLinesByItemId = new Map<string, JobMaterialSupplyJobLine[]>();
+  for (const line of supplyJobLines) {
+    if (!line.itemId) continue;
+    const lines = jobLinesByItemId.get(line.itemId) ?? [];
+    lines.push(line);
+    jobLinesByItemId.set(line.itemId, lines);
+  }
+
+  const byMaterialId: Record<string, ItemOrderStatus> = {};
+  for (const material of materials) {
+    if (!material.id) continue;
+    const poLines = material.jobMaterialItemId
+      ? (linesByItemId.get(material.jobMaterialItemId) ?? [])
+      : [];
+    const jobLines = material.jobMaterialItemId
+      ? (jobLinesByItemId.get(material.jobMaterialItemId) ?? [])
+      : [];
+    const itemShortfall = material.jobMaterialItemId
+      ? shortfallByItemId[material.jobMaterialItemId]
+      : undefined;
+    byMaterialId[material.id] = getJobMaterialOrderStatus(
+      material,
+      poLines,
+      jobLines,
+      itemShortfall?.shortfall ?? 0,
+      itemShortfall?.coveredByOnHand ?? false
+    );
+  }
+  return byMaterialId;
 }
 
 // One status per material id for a job — the single source the table and tree

@@ -39,10 +39,9 @@ import { type Item, useItems } from "~/stores";
 import { path } from "~/utils/path";
 import {
   ACTIVE_JOB_STATUSES,
-  getJobOrderStatusCategory,
-  type ItemOrderStatus
-} from "../../jobOrderStatus";
-import type { Job, JobMaterial } from "../../types";
+  getJobOrderStatusCategory
+} from "../../production.models";
+import type { ItemOrderStatus, Job, JobMaterial } from "../../types";
 import { JobOrderStatusBadge } from "./JobOrderStatus";
 
 type JobMaterialsTableProps = {
