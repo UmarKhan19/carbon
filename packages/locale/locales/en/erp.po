@@ -4818,6 +4818,9 @@ msgstr "How an item is replenished: Manual Reorder, Demand-Based Reorder, Fixed 
 msgid "How an item's unit cost is valued: Standard, Average, FIFO, or LIFO. Set per item."
 msgstr "How an item's unit cost is valued: Standard, Average, FIFO, or LIFO. Set per item."
 
+msgid "How long one execution of this schedule typically takes; scheduling blocks the work center for this many minutes on each scheduled instance."
+msgstr "How long one execution of this schedule typically takes; scheduling blocks the work center for this many minutes on each scheduled instance."
+
 msgid "How many days a serial or batch of this item stays usable after its start event; the shelf-life policy decides what happens past this date."
 msgstr "How many days a serial or batch of this item stays usable after its start event; the shelf-life policy decides what happens past this date."
 
@@ -4848,6 +4851,9 @@ msgstr "How many were actually picked?"
 msgid "How often this gauge must be recalibrated; combined with Last Calibration Date to recompute Next Calibration Date automatically."
 msgstr "How often this gauge must be recalibrated; combined with Last Calibration Date to recompute Next Calibration Date automatically."
 
+msgid "How often this maintenance recurs — Daily, Weekly, Monthly, On Cycle Count; Daily reveals the day-of-week selector, the others use simpler interval math."
+msgstr "How often this maintenance recurs — Daily, Weekly, Monthly, On Cycle Count; Daily reveals the day-of-week selector, the others use simpler interval math."
+
 msgid "How strict the Due Date is — Hard Deadline blocks scheduling past it, Soft Deadline lets planning push out with a warning, No Deadline ignores it entirely."
 msgstr "How strict the Due Date is — Hard Deadline blocks scheduling past it, Soft Deadline lets planning push out with a warning, No Deadline ignores it entirely."
 
@@ -4865,6 +4871,9 @@ msgstr "How this price was calculated"
 
 msgid "How to read this chart"
 msgstr "How to read this chart"
+
+msgid "How urgent this dispatch is — Low / Medium / High / Critical; combined with Priority and OEE Impact to decide schedule slot."
+msgstr "How urgent this dispatch is — Low / Medium / High / Critical; combined with Priority and OEE Impact to decide schedule slot."
 
 msgid "Humidity"
 msgstr "Humidity"
@@ -9436,6 +9445,9 @@ msgstr "Suspected Failure Mode"
 msgid "Switch"
 msgstr "Switch"
 
+msgid "Switching the employee's type here doesn't change their existing permissions; the modal that follows asks whether to overwrite the current set with the new type's defaults."
+msgstr "Switching the employee's type here doesn't change their existing permissions; the modal that follows asks whether to overwrite the current set with the new type's defaults."
+
 msgid "Sync"
 msgstr "Sync"
 
@@ -9640,8 +9652,14 @@ msgstr "The category this supplier belongs to (raw-material, services, contract-
 msgid "The code printed on the kanban card that operators scan to mark the job complete; auto-generated when left blank."
 msgstr "The code printed on the kanban card that operators scan to mark the job complete; auto-generated when left blank."
 
+msgid "The contractor's expected weekly availability; scheduling uses this as the upper bound when assigning this contractor to operations across the week."
+msgstr "The contractor's expected weekly availability; scheduling uses this as the upper bound when assigning this contractor to operations across the week."
+
 msgid "The corrected expiration for this lot/serial; existing on-hand stock is re-evaluated against shelf-life policy after the change."
 msgstr "The corrected expiration for this lot/serial; existing on-hand stock is re-evaluated against shelf-life policy after the change."
+
+msgid "The customer record this portal account links to; only contacts already on that customer can be selected as the account holder below."
+msgstr "The customer record this portal account links to; only contacts already on that customer can be selected as the account holder below."
 
 msgid "The customer that goods are delivered to, when different from the customer being invoiced (e.g. invoice to HQ, ship to branch)."
 msgstr "The customer that goods are delivered to, when different from the customer being invoiced (e.g. invoice to HQ, ship to branch)."
@@ -9751,6 +9769,15 @@ msgstr "The GL account charges for this carrier post to (freight expense, freigh
 msgid "The group account this account rolls up to; determines its type, class, and statement placement."
 msgstr "The group account this account rolls up to; determines its type, class, and statement placement."
 
+msgid "The hourly cost of operator labor on this work center; combined with logged labor hours to charge labor cost into a job's WIP."
+msgstr "The hourly cost of operator labor on this work center; combined with logged labor hours to charge labor cost into a job's WIP."
+
+msgid "The hourly cost of running the machinery on this work center; combined with logged machine hours to charge machine cost into a job's WIP."
+msgstr "The hourly cost of running the machinery on this work center; combined with logged machine hours to charge machine cost into a job's WIP."
+
+msgid "The hourly indirect-cost burden applied to this work center; the difference between labor + machine and the full quoting rate is what overhead absorbs."
+msgstr "The hourly indirect-cost burden applied to this work center; the difference between labor + machine and the full quoting rate is what overhead absorbs."
+
 msgid "The identifier the customer uses for this part on their POs; Carbon resolves it to our internal Part ID on order import."
 msgstr "The identifier the customer uses for this part on their POs; Carbon resolves it to our internal Part ID on order import."
 
@@ -9802,6 +9829,12 @@ msgstr "The lifecycle state of this customer — Active, Prospect, Inactive, etc
 msgid "The lifecycle state of this supplier — Active, Inactive, Pending Approval, etc.; only Active suppliers appear in PO / quote selectors."
 msgstr "The lifecycle state of this supplier — Active, Inactive, Pending Approval, etc.; only Active suppliers appear in PO / quote selectors."
 
+msgid "The local timezone this location reports time in; schedules, timecards, and shift hours at this location are interpreted in this zone regardless of the user's browser locale."
+msgstr "The local timezone this location reports time in; schedules, timecards, and shift hours at this location are interpreted in this zone regardless of the user's browser locale."
+
+msgid "The location this employee defaults to; drives timezone interpretation on their timecards and the default shift selectors on their job record."
+msgstr "The location this employee defaults to; drives timezone interpretation on their timecards and the default shift selectors on their job record."
+
 msgid "The location this order will fulfill from; per-line locations override this when set."
 msgstr "The location this order will fulfill from; per-line locations override this when set."
 
@@ -9837,6 +9870,9 @@ msgstr "The month your financial year begins; periods are numbered from this mon
 
 msgid "The month your tax year begins; may differ from the fiscal year in some jurisdictions."
 msgstr "The month your tax year begins; may differ from the fiscal year in some jurisdictions."
+
+msgid "The most likely failure mode the requester suspects; the technician confirms or replaces this on close-out, and the difference between suspected and actual feeds reliability reports."
+msgstr "The most likely failure mode the requester suspects; the technician confirms or replaces this on close-out, and the difference between suspected and actual feeds reliability reports."
 
 msgid "The negotiated price per unit on this line; the inline trace icon shows which pricing rule or override produced it."
 msgstr "The negotiated price per unit on this line; the inline trace icon shows which pricing rule or override produced it."
@@ -9877,6 +9913,9 @@ msgstr "The ordered sequence of operations a job runs through, copied from the m
 msgid "The outbound posting document that takes goods out of stock to a customer, posting COGS as it goes."
 msgstr "The outbound posting document that takes goods out of stock to a customer, posting COGS as it goes."
 
+msgid "The outside suppliers that perform this process; each gets a row of pricing and lead-time inputs on the supplier process form."
+msgstr "The outside suppliers that perform this process; each gets a row of pricing and lead-time inputs on the supplier process form."
+
 msgid "The parent-child chain of tracked entities — what a unit was built from and what it became."
 msgstr "The parent-child chain of tracked entities — what a unit was built from and what it became."
 
@@ -9889,6 +9928,9 @@ msgstr "The part is taken from existing stock when its parent is built — no ne
 msgid "The percentage of the cash discount. Use 0 for no discount."
 msgstr "The percentage of the cash discount. Use 0 for no discount."
 
+msgid "The permission set new employees of this type receive automatically; editing here changes the template for future hires only — existing employees keep what they have unless explicitly bulk-updated."
+msgstr "The permission set new employees of this type receive automatically; editing here changes the template for future hires only — existing employees keep what they have unless explicitly bulk-updated."
+
 msgid "The posting group that decides which GL accounts post for receipts, shipments, COGS, and inventory on this item."
 msgstr "The posting group that decides which GL accounts post for receipts, shipments, COGS, and inventory on this item."
 
@@ -9897,6 +9939,12 @@ msgstr "The preset bundle of tasks and approval requirements applied to this iss
 
 msgid "The probability rating that the risk occurs (1 = rare to 5 = almost certain); paired with Severity to compute the risk score."
 msgstr "The probability rating that the risk occurs (1 = rare to 5 = almost certain); paired with Severity to compute the risk score."
+
+msgid "The procedure technicians follow when this maintenance is performed; replacing it after schedules have already been generated only affects future instances."
+msgstr "The procedure technicians follow when this maintenance is performed; replacing it after schedules have already been generated only affects future instances."
+
+msgid "The processes this work center can run; appears in process-pickers when scheduling operations, and limits which jobs can route through this work center."
+msgstr "The processes this work center can run; appears in process-pickers when scheduling operations, and limits which jobs can route through this work center."
 
 msgid "The quantity breakpoints this line is priced at; each column carries its own per-unit price for buyer–supplier negotiation and for converting to downstream documents."
 msgstr "The quantity breakpoints this line is priced at; each column carries its own per-unit price for buyer–supplier negotiation and for converting to downstream documents."
@@ -9934,6 +9982,12 @@ msgstr "The size of the part"
 msgid "The smallest quantity this supplier will accept on a PO line for this part; planning rounds up to it."
 msgstr "The smallest quantity this supplier will accept on a PO line for this part; planning rounds up to it."
 
+msgid "The specific contact on the selected customer who will own this portal account; their email becomes the sign-in identifier."
+msgstr "The specific contact on the selected customer who will own this portal account; their email becomes the sign-in identifier."
+
+msgid "The specific contact on the selected supplier who will own this portal account; their email becomes the sign-in identifier."
+msgstr "The specific contact on the selected supplier who will own this portal account; their email becomes the sign-in identifier."
+
 msgid "The specific operation on the job above that this PO line is purchasing; only operations marked outside-processing are selectable."
 msgstr "The specific operation on the job above that this PO line is purchasing; only operations marked outside-processing are selectable."
 
@@ -9942,6 +9996,12 @@ msgstr "The specific PO, return, or transfer this receipt posts against; availab
 
 msgid "The specific SO, transfer, or RMA this shipment posts against; available IDs depend on the source document type above."
 msgstr "The specific SO, transfer, or RMA this shipment posts against; available IDs depend on the source document type above."
+
+msgid "The standard factor (hours, minutes, pieces) operations on this work center are measured in by default; per-operation overrides win when set."
+msgstr "The standard factor (hours, minutes, pieces) operations on this work center are measured in by default; per-operation overrides win when set."
+
+msgid "The standard factor used to measure this process — hours, minutes, pieces, square feet — when its operations are estimated and costed."
+msgstr "The standard factor used to measure this process — hours, minutes, pieces, square feet — when its operations are estimated and costed."
 
 msgid "The state of this quote line — Draft, No Quote, Complete; No Quote reveals the Reason field and excludes the line from the quote total."
 msgstr "The state of this quote line — Draft, No Quote, Complete; No Quote reveals the Reason field and excludes the line from the quote total."
@@ -9960,6 +10020,9 @@ msgstr "The storage service didn't respond in time. Please try again."
 
 msgid "The supplier planning suggests first when this item needs to be bought; other suppliers stay available in the dropdown on each PO line."
 msgstr "The supplier planning suggests first when this item needs to be bought; other suppliers stay available in the dropdown on each PO line."
+
+msgid "The supplier record this portal account links to; only contacts already on that supplier can be selected as the account holder below."
+msgstr "The supplier record this portal account links to; only contacts already on that supplier can be selected as the account holder below."
 
 msgid "The supplier's own quote / proposal number; recorded for traceability on the PO that converts from this quote."
 msgstr "The supplier's own quote / proposal number; recorded for traceability on the PO that converts from this quote."
@@ -9982,6 +10045,9 @@ msgstr "The total to make across all jobs created in this bulk batch; combined w
 msgid "The traceable reference (e.g. NIST standard, master gauge serial) the calibration values were compared against."
 msgstr "The traceable reference (e.g. NIST standard, master gauge serial) the calibration values were compared against."
 
+msgid "The type controls which default permissions the new employee receives; selecting it here pre-fills the permission matrix from the type's template."
+msgstr "The type controls which default permissions the new employee receives; selecting it here pre-fills the permission matrix from the type's template."
+
 msgid "The typical number of days between sending work to this supplier for this process and getting it back; planning offsets demand by this much when picking a supplier."
 msgstr "The typical number of days between sending work to this supplier for this process and getting it back; planning offsets demand by this much when picking a supplier."
 
@@ -9999,6 +10065,9 @@ msgstr "The unit suppliers price and ship this item in, when different from the 
 
 msgid "The US tax depreciation system with IRS property-class tables, run as a separate tax schedule alongside the book schedule."
 msgstr "The US tax depreciation system with IRS property-class tables, run as a separate tax schedule alongside the book schedule."
+
+msgid "The users in this group; group-scoped permissions and notifications apply to each member, and users may belong to multiple groups (effective permissions are the union)."
+msgstr "The users in this group; group-scoped permissions and notifications apply to each member, and users may belong to multiple groups (effective permissions are the union)."
 
 msgid "The version of the new document"
 msgstr "The version of the new document"
@@ -10953,6 +11022,9 @@ msgstr "Weighted average cost over last year calculated when the invoice is post
 msgid "Welcome to Carbon"
 msgstr "Welcome to Carbon"
 
+msgid "What category of failure this is — Mechanical, Electrical, Software, Operator, Material, etc.; rolls up into the failure-mode pareto report so the category breakdown is meaningful."
+msgstr "What category of failure this is — Mechanical, Electrical, Software, Operator, Material, etc.; rolls up into the failure-mode pareto report so the category breakdown is meaningful."
+
 msgid "What is {translatedTerm}?"
 msgstr "What is {translatedTerm}?"
 
@@ -11006,6 +11078,9 @@ msgstr "When on, employees can edit this attribute's value on their own profile;
 
 msgid "When on, pricing rules (volume discounts, promotions) still apply on top of this override; when off, this override is the final price."
 msgstr "When on, pricing rules (volume discounts, promotions) still apply on top of this override; when off, this override is the final price."
+
+msgid "When on, scanning this process's operation barcode reports all remaining open quantity as complete in one action; turn off when operators routinely report partials."
+msgstr "When on, scanning this process's operation barcode reports all remaining open quantity as complete in one action; turn off when operators routinely report partials."
 
 msgid "When on, this party's invoices skip tax calculation; the party is responsible for keeping the exemption certificate current."
 msgstr "When on, this party's invoices skip tax calculation; the party is responsible for keeping the exemption certificate current."
@@ -11085,6 +11160,9 @@ msgstr "Where this issue was raised from — internal QA, customer complaint, su
 msgid "Where this line's goods land in stock on receipt; if blank, receipts use the item's Default Storage Unit."
 msgstr "Where this line's goods land in stock on receipt; if blank, receipts use the item's Default Storage Unit."
 
+msgid "Where this maintenance request originated — operator-reported, scheduled, condition-monitoring trigger, post-job inspection; drives the source breakdown in maintenance reports."
+msgstr "Where this maintenance request originated — operator-reported, scheduled, condition-monitoring trigger, post-job inspection; drives the source breakdown in maintenance reports."
+
 msgid "Whether Amount is interpreted as a percentage of the line price or as a fixed currency amount."
 msgstr "Whether Amount is interpreted as a percentage of the line price or as a fixed currency amount."
 
@@ -11096,6 +11174,15 @@ msgstr "Whether the clock starts when the chosen process begins or when it compl
 
 msgid "Whether this lot/serial passes inspection (Pass) or fails (Fail); a Fail blocks the stock from being received into available inventory."
 msgstr "Whether this lot/serial passes inspection (Pass) or fails (Fail); a Fail blocks the stock from being received into available inventory."
+
+msgid "Whether this process runs on internal work centers (Inside), outside suppliers (Outside), or both (Both); reveals different downstream fields and changes how planning routes work for this process."
+msgstr "Whether this process runs on internal work centers (Inside), outside suppliers (Outside), or both (Both); reveals different downstream fields and changes how planning routes work for this process."
+
+msgid "Whether this work blocks production (Down), degrades it (Impact), is on a planned downtime window (Planned), or has no production impact (No Impact); informs scheduling and customer-facing downtime communication."
+msgstr "Whether this work blocks production (Down), degrades it (Impact), is on a planned downtime window (Planned), or has no production impact (No Impact); informs scheduling and customer-facing downtime communication."
+
+msgid "Whether to Add the selected permissions on top of what each user already has, or Update by replacing each user's permission set wholesale with the selection below."
+msgstr "Whether to Add the selected permissions on top of what each user already has, or Update by replacing each user's permission set wholesale with the selection below."
 
 msgid "Which manufacturing event starts the shelf-life clock — for example, fill, seal, or final QC."
 msgstr "Which manufacturing event starts the shelf-life clock — for example, fill, seal, or final QC."

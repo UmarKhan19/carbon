@@ -1580,5 +1580,149 @@ export const terms = {
   "sales-rfq-expiration-date": {
     term: msg`Expiration Date`,
     definition: msg`When the customer's request stops being current; past this date the RFQ is auto-closed and won't accept quote responses unless re-opened.`
+  },
+
+  // ── Resources: Failure modes (FailureModeForm) ──────────────────────────
+  "failure-mode-type": {
+    term: msg`Type`,
+    definition: msg`What category of failure this is — Mechanical, Electrical, Software, Operator, Material, etc.; rolls up into the failure-mode pareto report so the category breakdown is meaningful.`
+  },
+
+  // ── Resources: Locations (LocationForm) ─────────────────────────────────
+  "location-timezone": {
+    term: msg`Timezone`,
+    definition: msg`The local timezone this location reports time in; schedules, timecards, and shift hours at this location are interpreted in this zone regardless of the user's browser locale.`
+  },
+
+  // ── Resources: Contractors (ContractorForm) ─────────────────────────────
+  "contractor-hours-per-week": {
+    term: msg`Hours per Week`,
+    definition: msg`The contractor's expected weekly availability; scheduling uses this as the upper bound when assigning this contractor to operations across the week.`
+  },
+
+  // ── Resources: Processes (ProcessForm) ──────────────────────────────────
+  "process-type": {
+    term: msg`Process Type`,
+    definition: msg`Whether this process runs on internal work centers (Inside), outside suppliers (Outside), or both (Both); reveals different downstream fields and changes how planning routes work for this process.`
+  },
+  "process-default-unit": {
+    term: msg`Default Unit`,
+    definition: msg`The standard factor used to measure this process — hours, minutes, pieces, square feet — when its operations are estimated and costed.`
+  },
+  "process-suppliers": {
+    term: msg`Suppliers`,
+    definition: msg`The outside suppliers that perform this process; each gets a row of pricing and lead-time inputs on the supplier process form.`
+  },
+  "process-complete-all-on-scan": {
+    term: msg`Complete all quantities on barcode scan`,
+    definition: msg`When on, scanning this process's operation barcode reports all remaining open quantity as complete in one action; turn off when operators routinely report partials.`
+  },
+
+  // ── Resources: Work centers (WorkCenterForm) ────────────────────────────
+  "work-center-processes": {
+    term: msg`Processes`,
+    definition: msg`The processes this work center can run; appears in process-pickers when scheduling operations, and limits which jobs can route through this work center.`
+  },
+  "work-center-labor-rate": {
+    term: msg`Labor Rate (Hourly)`,
+    definition: msg`The hourly cost of operator labor on this work center; combined with logged labor hours to charge labor cost into a job's WIP.`
+  },
+  "work-center-machine-rate": {
+    term: msg`Machine Rate (Hourly)`,
+    definition: msg`The hourly cost of running the machinery on this work center; combined with logged machine hours to charge machine cost into a job's WIP.`
+  },
+  "work-center-overhead-rate": {
+    term: msg`Overhead Rate (Hourly)`,
+    definition: msg`The hourly indirect-cost burden applied to this work center; the difference between labor + machine and the full quoting rate is what overhead absorbs.`
+  },
+  "work-center-default-unit": {
+    term: msg`Default Unit`,
+    definition: msg`The standard factor (hours, minutes, pieces) operations on this work center are measured in by default; per-operation overrides win when set.`
+  },
+
+  // ── Resources: Maintenance dispatch (MaintenanceDispatchForm) ───────────
+  "maintenance-dispatch-source": {
+    term: msg`Source`,
+    definition: msg`Where this maintenance request originated — operator-reported, scheduled, condition-monitoring trigger, post-job inspection; drives the source breakdown in maintenance reports.`
+  },
+  "maintenance-dispatch-severity": {
+    term: msg`Severity`,
+    definition: msg`How urgent this dispatch is — Low / Medium / High / Critical; combined with Priority and OEE Impact to decide schedule slot.`
+  },
+  "maintenance-dispatch-oee-impact": {
+    term: msg`OEE Impact`,
+    definition: msg`Whether this work blocks production (Down), degrades it (Impact), is on a planned downtime window (Planned), or has no production impact (No Impact); informs scheduling and customer-facing downtime communication.`
+  },
+  "maintenance-dispatch-suspected-failure-mode": {
+    term: msg`Suspected Failure Mode`,
+    definition: msg`The most likely failure mode the requester suspects; the technician confirms or replaces this on close-out, and the difference between suspected and actual feeds reliability reports.`
+  },
+
+  // ── Resources: Maintenance schedule (MaintenanceScheduleForm) ───────────
+  "maintenance-schedule-frequency": {
+    term: msg`Frequency`,
+    definition: msg`How often this maintenance recurs — Daily, Weekly, Monthly, On Cycle Count; Daily reveals the day-of-week selector, the others use simpler interval math.`
+  },
+  "maintenance-schedule-estimated-duration": {
+    term: msg`Estimated Duration (minutes)`,
+    definition: msg`How long one execution of this schedule typically takes; scheduling blocks the work center for this many minutes on each scheduled instance.`
+  },
+  "maintenance-schedule-procedure": {
+    term: msg`Procedure`,
+    definition: msg`The procedure technicians follow when this maintenance is performed; replacing it after schedules have already been generated only affects future instances.`
+  },
+
+  // ── Users: Groups (GroupsForm) ──────────────────────────────────────────
+  "group-members": {
+    term: msg`Group Members`,
+    definition: msg`The users in this group; group-scoped permissions and notifications apply to each member, and users may belong to multiple groups (effective permissions are the union).`
+  },
+
+  // ── Users: Employee types (EmployeeTypeForm) ────────────────────────────
+  "employee-type-default-permissions": {
+    term: msg`Default Permissions`,
+    definition: msg`The permission set new employees of this type receive automatically; editing here changes the template for future hires only — existing employees keep what they have unless explicitly bulk-updated.`
+  },
+
+  // ── Users: Employee permissions (EmployeePermissionsForm) ───────────────
+  "employee-permissions-employee-type-override": {
+    term: msg`Employee Type`,
+    definition: msg`Switching the employee's type here doesn't change their existing permissions; the modal that follows asks whether to overwrite the current set with the new type's defaults.`
+  },
+
+  // ── Users: Bulk permissions (BulkEditPermissionsForm) ───────────────────
+  "bulk-permissions-update-type": {
+    term: msg`Type of Permission Update`,
+    definition: msg`Whether to Add the selected permissions on top of what each user already has, or Update by replacing each user's permission set wholesale with the selection below.`
+  },
+
+  // ── Users: Customer account (CreateCustomerModal) ───────────────────────
+  "create-customer-account-customer": {
+    term: msg`Customer`,
+    definition: msg`The customer record this portal account links to; only contacts already on that customer can be selected as the account holder below.`
+  },
+  "create-customer-account-contact": {
+    term: msg`Customer Contact`,
+    definition: msg`The specific contact on the selected customer who will own this portal account; their email becomes the sign-in identifier.`
+  },
+
+  // ── Users: Supplier account (CreateSupplierModal) ───────────────────────
+  "create-supplier-account-supplier": {
+    term: msg`Supplier`,
+    definition: msg`The supplier record this portal account links to; only contacts already on that supplier can be selected as the account holder below.`
+  },
+  "create-supplier-account-contact": {
+    term: msg`Supplier Contact`,
+    definition: msg`The specific contact on the selected supplier who will own this portal account; their email becomes the sign-in identifier.`
+  },
+
+  // ── Users: Create employee (CreateEmployeeModal) ────────────────────────
+  "create-employee-employee-type": {
+    term: msg`Employee Type`,
+    definition: msg`The type controls which default permissions the new employee receives; selecting it here pre-fills the permission matrix from the type's template.`
+  },
+  "create-employee-location": {
+    term: msg`Location`,
+    definition: msg`The location this employee defaults to; drives timezone interpretation on their timecards and the default shift selectors on their job record.`
   }
 } as const satisfies Record<string, GlossaryEntry>;

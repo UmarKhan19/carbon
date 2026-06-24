@@ -4818,6 +4818,9 @@ msgstr ""
 msgid "How an item's unit cost is valued: Standard, Average, FIFO, or LIFO. Set per item."
 msgstr ""
 
+msgid "How long one execution of this schedule typically takes; scheduling blocks the work center for this many minutes on each scheduled instance."
+msgstr ""
+
 msgid "How many days a serial or batch of this item stays usable after its start event; the shelf-life policy decides what happens past this date."
 msgstr ""
 
@@ -4848,6 +4851,9 @@ msgstr "实际上捡了多少件？"
 msgid "How often this gauge must be recalibrated; combined with Last Calibration Date to recompute Next Calibration Date automatically."
 msgstr ""
 
+msgid "How often this maintenance recurs — Daily, Weekly, Monthly, On Cycle Count; Daily reveals the day-of-week selector, the others use simpler interval math."
+msgstr ""
+
 msgid "How strict the Due Date is — Hard Deadline blocks scheduling past it, Soft Deadline lets planning push out with a warning, No Deadline ignores it entirely."
 msgstr ""
 
@@ -4864,6 +4870,9 @@ msgid "How this price was calculated"
 msgstr "此价格是如何计算的"
 
 msgid "How to read this chart"
+msgstr ""
+
+msgid "How urgent this dispatch is — Low / Medium / High / Critical; combined with Priority and OEE Impact to decide schedule slot."
 msgstr ""
 
 msgid "Humidity"
@@ -9436,6 +9445,9 @@ msgstr "疑似故障模式"
 msgid "Switch"
 msgstr "切换"
 
+msgid "Switching the employee's type here doesn't change their existing permissions; the modal that follows asks whether to overwrite the current set with the new type's defaults."
+msgstr ""
+
 msgid "Sync"
 msgstr "同步"
 
@@ -9640,7 +9652,13 @@ msgstr ""
 msgid "The code printed on the kanban card that operators scan to mark the job complete; auto-generated when left blank."
 msgstr ""
 
+msgid "The contractor's expected weekly availability; scheduling uses this as the upper bound when assigning this contractor to operations across the week."
+msgstr ""
+
 msgid "The corrected expiration for this lot/serial; existing on-hand stock is re-evaluated against shelf-life policy after the change."
+msgstr ""
+
+msgid "The customer record this portal account links to; only contacts already on that customer can be selected as the account holder below."
 msgstr ""
 
 msgid "The customer that goods are delivered to, when different from the customer being invoiced (e.g. invoice to HQ, ship to branch)."
@@ -9751,6 +9769,15 @@ msgstr ""
 msgid "The group account this account rolls up to; determines its type, class, and statement placement."
 msgstr "该账户汇总到的集团账户；确定其类型、级别和报表中的位置。"
 
+msgid "The hourly cost of operator labor on this work center; combined with logged labor hours to charge labor cost into a job's WIP."
+msgstr ""
+
+msgid "The hourly cost of running the machinery on this work center; combined with logged machine hours to charge machine cost into a job's WIP."
+msgstr ""
+
+msgid "The hourly indirect-cost burden applied to this work center; the difference between labor + machine and the full quoting rate is what overhead absorbs."
+msgstr ""
+
 msgid "The identifier the customer uses for this part on their POs; Carbon resolves it to our internal Part ID on order import."
 msgstr ""
 
@@ -9802,6 +9829,12 @@ msgstr ""
 msgid "The lifecycle state of this supplier — Active, Inactive, Pending Approval, etc.; only Active suppliers appear in PO / quote selectors."
 msgstr ""
 
+msgid "The local timezone this location reports time in; schedules, timecards, and shift hours at this location are interpreted in this zone regardless of the user's browser locale."
+msgstr ""
+
+msgid "The location this employee defaults to; drives timezone interpretation on their timecards and the default shift selectors on their job record."
+msgstr ""
+
 msgid "The location this order will fulfill from; per-line locations override this when set."
 msgstr ""
 
@@ -9837,6 +9870,9 @@ msgstr "财政年度开始的月份；期间从该月份开始编号。"
 
 msgid "The month your tax year begins; may differ from the fiscal year in some jurisdictions."
 msgstr "税务年度开始的月份；在某些司法管辖区可能与财政年度不同。"
+
+msgid "The most likely failure mode the requester suspects; the technician confirms or replaces this on close-out, and the difference between suspected and actual feeds reliability reports."
+msgstr ""
 
 msgid "The negotiated price per unit on this line; the inline trace icon shows which pricing rule or override produced it."
 msgstr ""
@@ -9877,6 +9913,9 @@ msgstr ""
 msgid "The outbound posting document that takes goods out of stock to a customer, posting COGS as it goes."
 msgstr ""
 
+msgid "The outside suppliers that perform this process; each gets a row of pricing and lead-time inputs on the supplier process form."
+msgstr ""
+
 msgid "The parent-child chain of tracked entities — what a unit was built from and what it became."
 msgstr ""
 
@@ -9889,6 +9928,9 @@ msgstr ""
 msgid "The percentage of the cash discount. Use 0 for no discount."
 msgstr "现金折扣的百分比。使用 0 表示无折扣。"
 
+msgid "The permission set new employees of this type receive automatically; editing here changes the template for future hires only — existing employees keep what they have unless explicitly bulk-updated."
+msgstr ""
+
 msgid "The posting group that decides which GL accounts post for receipts, shipments, COGS, and inventory on this item."
 msgstr ""
 
@@ -9896,6 +9938,12 @@ msgid "The preset bundle of tasks and approval requirements applied to this issu
 msgstr ""
 
 msgid "The probability rating that the risk occurs (1 = rare to 5 = almost certain); paired with Severity to compute the risk score."
+msgstr ""
+
+msgid "The procedure technicians follow when this maintenance is performed; replacing it after schedules have already been generated only affects future instances."
+msgstr ""
+
+msgid "The processes this work center can run; appears in process-pickers when scheduling operations, and limits which jobs can route through this work center."
 msgstr ""
 
 msgid "The quantity breakpoints this line is priced at; each column carries its own per-unit price for buyer–supplier negotiation and for converting to downstream documents."
@@ -9934,6 +9982,12 @@ msgstr "零件的尺寸"
 msgid "The smallest quantity this supplier will accept on a PO line for this part; planning rounds up to it."
 msgstr ""
 
+msgid "The specific contact on the selected customer who will own this portal account; their email becomes the sign-in identifier."
+msgstr ""
+
+msgid "The specific contact on the selected supplier who will own this portal account; their email becomes the sign-in identifier."
+msgstr ""
+
 msgid "The specific operation on the job above that this PO line is purchasing; only operations marked outside-processing are selectable."
 msgstr ""
 
@@ -9941,6 +9995,12 @@ msgid "The specific PO, return, or transfer this receipt posts against; availabl
 msgstr ""
 
 msgid "The specific SO, transfer, or RMA this shipment posts against; available IDs depend on the source document type above."
+msgstr ""
+
+msgid "The standard factor (hours, minutes, pieces) operations on this work center are measured in by default; per-operation overrides win when set."
+msgstr ""
+
+msgid "The standard factor used to measure this process — hours, minutes, pieces, square feet — when its operations are estimated and costed."
 msgstr ""
 
 msgid "The state of this quote line — Draft, No Quote, Complete; No Quote reveals the Reason field and excludes the line from the quote total."
@@ -9959,6 +10019,9 @@ msgid "The storage service didn't respond in time. Please try again."
 msgstr "存储服务未及时响应。请重试。"
 
 msgid "The supplier planning suggests first when this item needs to be bought; other suppliers stay available in the dropdown on each PO line."
+msgstr ""
+
+msgid "The supplier record this portal account links to; only contacts already on that supplier can be selected as the account holder below."
 msgstr ""
 
 msgid "The supplier's own quote / proposal number; recorded for traceability on the PO that converts from this quote."
@@ -9982,6 +10045,9 @@ msgstr ""
 msgid "The traceable reference (e.g. NIST standard, master gauge serial) the calibration values were compared against."
 msgstr ""
 
+msgid "The type controls which default permissions the new employee receives; selecting it here pre-fills the permission matrix from the type's template."
+msgstr ""
+
 msgid "The typical number of days between sending work to this supplier for this process and getting it back; planning offsets demand by this much when picking a supplier."
 msgstr ""
 
@@ -9998,6 +10064,9 @@ msgid "The unit suppliers price and ship this item in, when different from the i
 msgstr ""
 
 msgid "The US tax depreciation system with IRS property-class tables, run as a separate tax schedule alongside the book schedule."
+msgstr ""
+
+msgid "The users in this group; group-scoped permissions and notifications apply to each member, and users may belong to multiple groups (effective permissions are the union)."
 msgstr ""
 
 msgid "The version of the new document"
@@ -10953,6 +11022,9 @@ msgstr "去年加权平均成本，在发票过账时计算"
 msgid "Welcome to Carbon"
 msgstr "欢迎来到 Carbon"
 
+msgid "What category of failure this is — Mechanical, Electrical, Software, Operator, Material, etc.; rolls up into the failure-mode pareto report so the category breakdown is meaningful."
+msgstr ""
+
 msgid "What is {translatedTerm}?"
 msgstr ""
 
@@ -11005,6 +11077,9 @@ msgid "When on, employees can edit this attribute's value on their own profile; 
 msgstr ""
 
 msgid "When on, pricing rules (volume discounts, promotions) still apply on top of this override; when off, this override is the final price."
+msgstr ""
+
+msgid "When on, scanning this process's operation barcode reports all remaining open quantity as complete in one action; turn off when operators routinely report partials."
 msgstr ""
 
 msgid "When on, this party's invoices skip tax calculation; the party is responsible for keeping the exemption certificate current."
@@ -11085,6 +11160,9 @@ msgstr ""
 msgid "Where this line's goods land in stock on receipt; if blank, receipts use the item's Default Storage Unit."
 msgstr ""
 
+msgid "Where this maintenance request originated — operator-reported, scheduled, condition-monitoring trigger, post-job inspection; drives the source breakdown in maintenance reports."
+msgstr ""
+
 msgid "Whether Amount is interpreted as a percentage of the line price or as a fixed currency amount."
 msgstr ""
 
@@ -11095,6 +11173,15 @@ msgid "Whether the clock starts when the chosen process begins or when it comple
 msgstr ""
 
 msgid "Whether this lot/serial passes inspection (Pass) or fails (Fail); a Fail blocks the stock from being received into available inventory."
+msgstr ""
+
+msgid "Whether this process runs on internal work centers (Inside), outside suppliers (Outside), or both (Both); reveals different downstream fields and changes how planning routes work for this process."
+msgstr ""
+
+msgid "Whether this work blocks production (Down), degrades it (Impact), is on a planned downtime window (Planned), or has no production impact (No Impact); informs scheduling and customer-facing downtime communication."
+msgstr ""
+
+msgid "Whether to Add the selected permissions on top of what each user already has, or Update by replacing each user's permission set wholesale with the selection below."
 msgstr ""
 
 msgid "Which manufacturing event starts the shelf-life clock — for example, fill, seal, or final QC."
