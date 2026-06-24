@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-24T14:25:29.083Z",
-  "totalTools": 1214,
+  "generated": "2026-06-24T19:39:26.536Z",
+  "totalTools": 1215,
   "modules": 15,
   "tools": [
     {
@@ -33466,6 +33466,23 @@
       "serviceParams": [
         "client",
         "userId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "settings_getIndustries",
+      "module": "settings",
+      "classification": "READ",
+      "description": "get industries",
+      "paramCount": 0,
+      "serviceParams": [
+        "client"
       ],
       "injectAuth": [
         "companyId"

@@ -1102,6 +1102,9 @@ msgstr "Zurück zur Rückverfolgbarkeit"
 msgid "Backflush"
 msgstr "Rücklauf"
 
+msgid "Backups"
+msgstr ""
+
 msgid "Balance Sheet"
 msgstr "Bilanz"
 
@@ -5683,9 +5686,6 @@ msgstr "Benachrichtigung"
 
 msgid "Notifications"
 msgstr "Benachrichtigungen"
-
-msgid "Now let's set up your company"
-msgstr "Richten wir jetzt dein Unternehmen ein"
 
 msgid "Number"
 msgstr "Zahl"

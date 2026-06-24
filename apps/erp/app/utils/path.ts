@@ -439,6 +439,7 @@ export const path = {
     },
     onboarding: {
       company: `${onboarding}/company`,
+      industry: `${onboarding}/industry`,
       location: `${onboarding}/location`,
       plan: `${onboarding}/plan`,
       root: `${onboarding}`,
@@ -574,6 +575,7 @@ export const path = {
     company: `${x}/settings/company`,
     companySwitch: (companyId: string) =>
       generatePath(`${x}/settings/company/switch/${companyId}`),
+    backups: `${x}/settings/backups`,
     companies: `${x}/settings/companies`,
     completeTrainingAssignment: (id: string) =>
       generatePath(`${share}/training/${id}`),
@@ -1863,6 +1865,7 @@ export const onboardingSequence = [
   path.to.onboarding.theme,
   path.to.onboarding.user,
   path.to.onboarding.company,
+  path.to.onboarding.industry,
   path.to.onboarding.plan
 ] as const;
 

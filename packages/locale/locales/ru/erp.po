@@ -1102,6 +1102,9 @@ msgstr "Вернуться к отслеживанию"
 msgid "Backflush"
 msgstr "Обратный отвод"
 
+msgid "Backups"
+msgstr ""
+
 msgid "Balance Sheet"
 msgstr "Баланс"
 
@@ -5683,9 +5686,6 @@ msgstr "Уведомление"
 
 msgid "Notifications"
 msgstr "Уведомления"
-
-msgid "Now let's set up your company"
-msgstr "Теперь давайте настроим вашу компанию"
 
 msgid "Number"
 msgstr "Число"

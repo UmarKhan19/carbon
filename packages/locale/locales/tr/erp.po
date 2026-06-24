@@ -1102,6 +1102,9 @@ msgstr "İzlenebilirliğe geri dön"
 msgid "Backflush"
 msgstr "Geri Akış"
 
+msgid "Backups"
+msgstr ""
+
 msgid "Balance Sheet"
 msgstr "Bilanço"
 
@@ -5683,9 +5686,6 @@ msgstr "Bildirim"
 
 msgid "Notifications"
 msgstr "Bildirimler"
-
-msgid "Now let's set up your company"
-msgstr "Şimdi şirketinizi kuralım"
 
 msgid "Number"
 msgstr "Numara"
