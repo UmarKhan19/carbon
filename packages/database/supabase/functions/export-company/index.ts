@@ -1,16 +1,12 @@
 import { serve } from "https://deno.land/std@0.175.0/http/server.ts";
-import {
-  errorResponse,
-  jsonResponse,
-  requireCompanyOwner
-} from "../lib/company-backup.ts";
+import { errorResponse, jsonResponse } from "../lib/company-backup.ts";
 import { corsHeaders } from "../lib/headers.ts";
 import { sendInngestEvent } from "../lib/inngest.ts";
 import { requirePermissions } from "../lib/supabase.ts";
 
 /**
- * Thin auth boundary for company backup exports. Validates the caller is
- * the company owner, then hands the heavy lifting to the
+ * Thin auth boundary for company backup exports. Validates the caller has
+ * settings update permission, then hands the heavy lifting to the
  * `carbon/company-export` inngest job. The backup lands in the company's
  * bucket under `exports/`.
  */
@@ -28,10 +24,9 @@ serve(async (req: Request) => {
       throw new Error("includeStorage must be 'none' or 'all'");
     }
 
-    const client = await requirePermissions(req, companyId, userId, {
+    await requirePermissions(req, companyId, userId, {
       update: "settings"
     });
-    await requireCompanyOwner(client, companyId, userId);
 
     await sendInngestEvent("carbon/company-export", {
       companyId,

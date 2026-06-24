@@ -25,13 +25,14 @@ from a committed demo template. **Inngest tasks, NOT edge functions** — the ol
 is the replacement. Reader-facing docs: `docs/content/docs/platform/backups.mdx`
 (kept deliberately impl-free — keep internals here, not there).
 
-User-facing rules of the feature: backups are **company-owner only**
-(`group.ownerId === userId` check in the route), exclude secrets, and a restore is
+User-facing rules of the feature: backups require `settings` update permission
+(no owner gate — the old `group.ownerId === userId` check was removed from both the
+route and the `export-company` edge function), exclude secrets, and a restore is
 reversible via an auto-snapshot.
 
 **Currently internal-only** (`isInternalEmail`, `@carbon/utils`) while the
 multi-tenant caveats below are unhardened: the nav entry is in `internalOnlyRoutes`
-(`useSettingsSubmodules.tsx`), and `requireOwner` (route loader/action) plus both
+(`useSettingsSubmodules.tsx`), and `requireInternal` (route loader/action) plus both
 `api+/settings.backup-*` loaders 404/redirect non-internal users. Internal =
 `@carbon.ms` / `@carbon.us.org`. Drop the gates to ship publicly.
 
@@ -141,9 +142,9 @@ snapshotPath, foreign, includeGroup }`. `revert` reads the marker and reloads
 - `backups.server.ts` — server-only trigger wrappers (`startCompanyRestore`,
   `finalizeCompanyRestore`, `revertCompanyRestore`) — kept off the client to avoid
   `Buffer`-in-client.
-- `routes/x+/settings+/backups.tsx` — **owner-gated** loader/action (export /
-  restore / keep / dismiss / revert / delete intents). `filePath` is forced under
-  `exports/`.
+- `routes/x+/settings+/backups.tsx` — **internal-gated** (`requireInternal`)
+  loader/action (export / restore / keep / dismiss / revert / delete intents).
+  `filePath` is forced under `exports/`.
 - `routes/api+/settings.backup-summary.ts` — lazy "what's in a backup" counts,
   grouped, per-entity `scope: company|group`.
 - `routes/api+/settings.backup-restore-status.$restoreRunId.ts` — poll; `companyId`
