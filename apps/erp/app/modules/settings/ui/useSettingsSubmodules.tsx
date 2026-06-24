@@ -83,8 +83,7 @@ export default function useSettingsSubmodules() {
             name: t`Backups`,
             to: path.to.backups,
             role: "employee",
-            icon: <LuDatabase />,
-            requiresOwnership: true
+            icon: <LuDatabase />
           },
           {
             name: t`Printing`,
