@@ -15,6 +15,7 @@
 --     app-side PENDING_PO_SUPPLY_STATUSES so the Incoming column and shortfall
 --     agree and the purchase-unit conversion is applied.
 
+DROP FUNCTION IF EXISTS get_job_quantity_on_hand;
 CREATE OR REPLACE FUNCTION get_job_quantity_on_hand(job_id TEXT, company_id TEXT, location_id TEXT)
   RETURNS TABLE (
     "id" TEXT,
