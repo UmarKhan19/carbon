@@ -198,6 +198,9 @@ msgstr "Un preventivo di vendita con prezzo; Bozza → Inviato → Ordinato, o t
 msgid "A purchase invoice is a document that specifies the products or services purchased by a customer and the corresponding cost."
 msgstr "Una fattura di acquisto è un documento che specifica i prodotti o i servizi acquistati da un cliente e il costo corrispondente."
 
+msgid "A quality issue — a logged deviation or defect with a configurable workflow of investigation and action tasks."
+msgstr ""
+
 msgid "A quantity of identical units shares one tracked entity and batch number — one entity, many units."
 msgstr "Una quantità di unità identiche condivide un'entità tracciata e il numero di lotto — un'entità, molte unità."
 
@@ -1590,16 +1593,13 @@ msgstr "Logo Carbon"
 msgid "Carbon Value"
 msgstr "Valore Carbon"
 
-msgid "Carbon's name for a bill of materials: the components plus the operations that make a part."
+msgid "Carbon's name for a bill of material and bill of process (routing): the components plus the operations that make a part."
 msgstr ""
 
 msgid "Carbon's planning run nets supply against demand and explodes methods, surfacing shortfalls — but it creates no orders itself."
 msgstr ""
 
 msgid "Carbon's production order — one job builds a quantity of one item from its own copied method and routing."
-msgstr ""
-
-msgid "Carbon's quality issue — a logged deviation or defect with a configurable workflow of investigation and action tasks."
 msgstr ""
 
 msgid "Cards"
@@ -4836,13 +4836,13 @@ msgstr "Ore/1000 Pezzi"
 msgid "Hours/Piece"
 msgstr "Ore/Pezzo"
 
-msgid "How a part gets into its parent, set per line: Make to Order, Purchase to Order, or Pull from Inventory."
-msgstr ""
-
 msgid "How an item is replenished overall (Buy, Make, or Buy and Make), set per item, unlike the per-line method type."
 msgstr ""
 
 msgid "How an item is replenished: Manual Reorder, Demand-Based Reorder, Fixed Reorder Quantity, or Maximum Quantity."
+msgstr ""
+
+msgid "How an item is sourced when added to a method or BOM line."
 msgstr ""
 
 msgid "How an item's unit cost is valued: Standard, Average, FIFO, or LIFO. Set per item."
@@ -6664,6 +6664,9 @@ msgstr "Costo Nominale"
 msgid "Non Conformance Type"
 msgstr "Tipo di Non Conformità"
 
+msgid "Non-conformance (issue)"
+msgstr ""
+
 msgid "Non-Inventory"
 msgstr "Non-Inventario"
 
@@ -6672,9 +6675,6 @@ msgstr "Tracciamento Non-Inventario"
 
 msgid "Non-Taxable Add-On Cost"
 msgstr "Costo Add-On Non Tassabile"
-
-msgid "Nonconformance (issue)"
-msgstr ""
 
 msgid "None"
 msgstr "Nessuno"
@@ -9634,6 +9634,9 @@ msgstr "Valore di Test"
 msgid "Text size"
 msgstr "Dimensione testo"
 
+msgid "The accounting dimension that categorizes items for reporting and analysis."
+msgstr ""
+
 msgid "The action that copies a saved method (its materials, operations, and work instructions) onto a job or quote line."
 msgstr "L'azione che copia un metodo salvato (i suoi materiali, operazioni e istruzioni di lavoro) su una riga di lavoro o preventivo."
 
@@ -9907,9 +9910,6 @@ msgstr ""
 msgid "The material is purchased from a supplier for that specific order, rather than made or pulled from stock."
 msgstr "Il materiale viene acquistato da un fornitore per quella specifica ordinazione, anziché essere fabbricato o prelevato dalle scorte."
 
-msgid "The method used when this item is added as a component on a method or BOM line, until overridden on that line."
-msgstr ""
-
 msgid "The month your financial year begins; periods are numbered from this month."
 msgstr "Il mese in cui inizia il vostro anno fiscale; i periodi sono numerati a partire da questo mese."
 
@@ -9974,9 +9974,6 @@ msgid "The percentage of the cash discount. Use 0 for no discount."
 msgstr "La percentuale dello sconto in contanti. Usa 0 per nessuno sconto."
 
 msgid "The permission set new employees of this type receive automatically; editing here changes the template for future hires only — existing employees keep what they have unless explicitly bulk-updated."
-msgstr ""
-
-msgid "The posting group that decides which GL accounts post for receipts, shipments, COGS, and inventory on this item."
 msgstr ""
 
 msgid "The preset bundle of tasks and approval requirements applied to this issue; overrides the issue type's default workflow when set."
@@ -11116,9 +11113,6 @@ msgstr "Quando la durata di conservazione di un prodotto finito è impostata su 
 msgid "When a serial or batch expires, and what happens if used after — a company policy can Warn, Block, or BlockWithOverride."
 msgstr ""
 
-msgid "When Carbon committed to deliver; planning treats this as the demand-due-date for fulfillment."
-msgstr ""
-
 msgid "When Carbon committed to having the goods arrive; combined with the shipping method's transit days, this drives Ship Date back-calc."
 msgstr ""
 
@@ -11164,7 +11158,7 @@ msgstr ""
 msgid "When the customer asked to receive the goods."
 msgstr ""
 
-msgid "When the customer submitted this RFQ to Carbon; the response clock starts from this date."
+msgid "When the customer submitted this RFQ; the response clock starts from this date."
 msgstr ""
 
 msgid "When the customer's request stops being current; past this date the RFQ is auto-closed and won't accept quote responses unless re-opened."
@@ -11197,6 +11191,9 @@ msgstr ""
 msgid "When this specific lot/serial expires; drives FEFO picking and the shelf-life policy on consumption."
 msgstr ""
 
+msgid "When you committed to deliver; planning treats this as the demand-due-date for fulfillment."
+msgstr ""
+
 msgid "Where an operation runs; carries labor and quoting rates, with overhead the difference between them."
 msgstr ""
 
@@ -11221,7 +11218,7 @@ msgstr ""
 msgid "Whether Amount is interpreted as a percentage of the line price or as a fixed currency amount."
 msgstr ""
 
-msgid "Whether Carbon follows each unit (Serial), each lot (Batch), or doesn't track stock movements individually (Off)."
+msgid "Whether Carbon follows each unit (Serial), each lot (Batch), the quantity (Inventory), or no tracking (Non-Inventory)."
 msgstr ""
 
 msgid "Whether the clock starts when the chosen process begins or when it completes."

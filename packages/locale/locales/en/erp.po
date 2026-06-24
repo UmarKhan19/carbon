@@ -198,6 +198,9 @@ msgstr "A priced sales quotation; Draft → Sent → Ordered, or ends Lost, Expi
 msgid "A purchase invoice is a document that specifies the products or services purchased by a customer and the corresponding cost."
 msgstr "A purchase invoice is a document that specifies the products or services purchased by a customer and the corresponding cost."
 
+msgid "A quality issue — a logged deviation or defect with a configurable workflow of investigation and action tasks."
+msgstr "A quality issue — a logged deviation or defect with a configurable workflow of investigation and action tasks."
+
 msgid "A quantity of identical units shares one tracked entity and batch number — one entity, many units."
 msgstr "A quantity of identical units shares one tracked entity and batch number — one entity, many units."
 
@@ -1590,17 +1593,14 @@ msgstr "Carbon Logo"
 msgid "Carbon Value"
 msgstr "Carbon Value"
 
-msgid "Carbon's name for a bill of materials: the components plus the operations that make a part."
-msgstr "Carbon's name for a bill of materials: the components plus the operations that make a part."
+msgid "Carbon's name for a bill of material and bill of process (routing): the components plus the operations that make a part."
+msgstr "Carbon's name for a bill of material and bill of process (routing): the components plus the operations that make a part."
 
 msgid "Carbon's planning run nets supply against demand and explodes methods, surfacing shortfalls — but it creates no orders itself."
 msgstr "Carbon's planning run nets supply against demand and explodes methods, surfacing shortfalls — but it creates no orders itself."
 
 msgid "Carbon's production order — one job builds a quantity of one item from its own copied method and routing."
 msgstr "Carbon's production order — one job builds a quantity of one item from its own copied method and routing."
-
-msgid "Carbon's quality issue — a logged deviation or defect with a configurable workflow of investigation and action tasks."
-msgstr "Carbon's quality issue — a logged deviation or defect with a configurable workflow of investigation and action tasks."
 
 msgid "Cards"
 msgstr "Cards"
@@ -4836,14 +4836,14 @@ msgstr "Hours/1000 Pieces"
 msgid "Hours/Piece"
 msgstr "Hours/Piece"
 
-msgid "How a part gets into its parent, set per line: Make to Order, Purchase to Order, or Pull from Inventory."
-msgstr "How a part gets into its parent, set per line: Make to Order, Purchase to Order, or Pull from Inventory."
-
 msgid "How an item is replenished overall (Buy, Make, or Buy and Make), set per item, unlike the per-line method type."
 msgstr "How an item is replenished overall (Buy, Make, or Buy and Make), set per item, unlike the per-line method type."
 
 msgid "How an item is replenished: Manual Reorder, Demand-Based Reorder, Fixed Reorder Quantity, or Maximum Quantity."
 msgstr "How an item is replenished: Manual Reorder, Demand-Based Reorder, Fixed Reorder Quantity, or Maximum Quantity."
+
+msgid "How an item is sourced when added to a method or BOM line."
+msgstr "How an item is sourced when added to a method or BOM line."
 
 msgid "How an item's unit cost is valued: Standard, Average, FIFO, or LIFO. Set per item."
 msgstr "How an item's unit cost is valued: Standard, Average, FIFO, or LIFO. Set per item."
@@ -6664,6 +6664,9 @@ msgstr "Nominal Cost"
 msgid "Non Conformance Type"
 msgstr "Non Conformance Type"
 
+msgid "Non-conformance (issue)"
+msgstr "Non-conformance (issue)"
+
 msgid "Non-Inventory"
 msgstr "Non-Inventory"
 
@@ -6672,9 +6675,6 @@ msgstr "Non-Inventory Tracking"
 
 msgid "Non-Taxable Add-On Cost"
 msgstr "Non-Taxable Add-On Cost"
-
-msgid "Nonconformance (issue)"
-msgstr "Nonconformance (issue)"
 
 msgid "None"
 msgstr "None"
@@ -9634,6 +9634,9 @@ msgstr "Test Value"
 msgid "Text size"
 msgstr "Text size"
 
+msgid "The accounting dimension that categorizes items for reporting and analysis."
+msgstr "The accounting dimension that categorizes items for reporting and analysis."
+
 msgid "The action that copies a saved method (its materials, operations, and work instructions) onto a job or quote line."
 msgstr "The action that copies a saved method (its materials, operations, and work instructions) onto a job or quote line."
 
@@ -9907,9 +9910,6 @@ msgstr "The lowest amount this supplier will charge for this process, regardless
 msgid "The material is purchased from a supplier for that specific order, rather than made or pulled from stock."
 msgstr "The material is purchased from a supplier for that specific order, rather than made or pulled from stock."
 
-msgid "The method used when this item is added as a component on a method or BOM line, until overridden on that line."
-msgstr "The method used when this item is added as a component on a method or BOM line, until overridden on that line."
-
 msgid "The month your financial year begins; periods are numbered from this month."
 msgstr "The month your financial year begins; periods are numbered from this month."
 
@@ -9975,9 +9975,6 @@ msgstr "The percentage of the cash discount. Use 0 for no discount."
 
 msgid "The permission set new employees of this type receive automatically; editing here changes the template for future hires only — existing employees keep what they have unless explicitly bulk-updated."
 msgstr "The permission set new employees of this type receive automatically; editing here changes the template for future hires only — existing employees keep what they have unless explicitly bulk-updated."
-
-msgid "The posting group that decides which GL accounts post for receipts, shipments, COGS, and inventory on this item."
-msgstr "The posting group that decides which GL accounts post for receipts, shipments, COGS, and inventory on this item."
 
 msgid "The preset bundle of tasks and approval requirements applied to this issue; overrides the issue type's default workflow when set."
 msgstr "The preset bundle of tasks and approval requirements applied to this issue; overrides the issue type's default workflow when set."
@@ -11116,9 +11113,6 @@ msgstr "When a finished product's shelf life is set to Calculated, pick which co
 msgid "When a serial or batch expires, and what happens if used after — a company policy can Warn, Block, or BlockWithOverride."
 msgstr "When a serial or batch expires, and what happens if used after — a company policy can Warn, Block, or BlockWithOverride."
 
-msgid "When Carbon committed to deliver; planning treats this as the demand-due-date for fulfillment."
-msgstr "When Carbon committed to deliver; planning treats this as the demand-due-date for fulfillment."
-
 msgid "When Carbon committed to having the goods arrive; combined with the shipping method's transit days, this drives Ship Date back-calc."
 msgstr "When Carbon committed to having the goods arrive; combined with the shipping method's transit days, this drives Ship Date back-calc."
 
@@ -11164,8 +11158,8 @@ msgstr "When the customer asked to receive the goods; the quote commits to this 
 msgid "When the customer asked to receive the goods."
 msgstr "When the customer asked to receive the goods."
 
-msgid "When the customer submitted this RFQ to Carbon; the response clock starts from this date."
-msgstr "When the customer submitted this RFQ to Carbon; the response clock starts from this date."
+msgid "When the customer submitted this RFQ; the response clock starts from this date."
+msgstr "When the customer submitted this RFQ; the response clock starts from this date."
 
 msgid "When the customer's request stops being current; past this date the RFQ is auto-closed and won't accept quote responses unless re-opened."
 msgstr "When the customer's request stops being current; past this date the RFQ is auto-closed and won't accept quote responses unless re-opened."
@@ -11197,6 +11191,9 @@ msgstr "When this specific line is promised to ship; per-line override of the or
 msgid "When this specific lot/serial expires; drives FEFO picking and the shelf-life policy on consumption."
 msgstr "When this specific lot/serial expires; drives FEFO picking and the shelf-life policy on consumption."
 
+msgid "When you committed to deliver; planning treats this as the demand-due-date for fulfillment."
+msgstr "When you committed to deliver; planning treats this as the demand-due-date for fulfillment."
+
 msgid "Where an operation runs; carries labor and quoting rates, with overhead the difference between them."
 msgstr "Where an operation runs; carries labor and quoting rates, with overhead the difference between them."
 
@@ -11221,8 +11218,8 @@ msgstr "Where this maintenance request originated — operator-reported, schedul
 msgid "Whether Amount is interpreted as a percentage of the line price or as a fixed currency amount."
 msgstr "Whether Amount is interpreted as a percentage of the line price or as a fixed currency amount."
 
-msgid "Whether Carbon follows each unit (Serial), each lot (Batch), or doesn't track stock movements individually (Off)."
-msgstr "Whether Carbon follows each unit (Serial), each lot (Batch), or doesn't track stock movements individually (Off)."
+msgid "Whether Carbon follows each unit (Serial), each lot (Batch), the quantity (Inventory), or no tracking (Non-Inventory)."
+msgstr "Whether Carbon follows each unit (Serial), each lot (Batch), the quantity (Inventory), or no tracking (Non-Inventory)."
 
 msgid "Whether the clock starts when the chosen process begins or when it completes."
 msgstr "Whether the clock starts when the chosen process begins or when it completes."

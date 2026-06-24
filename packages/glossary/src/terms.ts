@@ -32,7 +32,7 @@ export const terms = {
   },
   "method-type": {
     term: msg`Method type`,
-    definition: msg`How a part gets into its parent, set per line: Make to Order, Purchase to Order, or Pull from Inventory.`,
+    definition: msg`How an item is sourced when added to a method or BOM line.`,
     href: "/docs/reference/methods#method-type"
   },
   "make-to-order": {
@@ -57,7 +57,7 @@ export const terms = {
   },
   method: {
     term: msg`Method`,
-    definition: msg`Carbon's name for a bill of materials: the components plus the operations that make a part.`,
+    definition: msg`Carbon's name for a bill of material and bill of process (routing): the components plus the operations that make a part.`,
     href: "/docs/reference/methods"
   },
   bom: {
@@ -262,8 +262,8 @@ export const terms = {
     href: "/docs/reference/planning"
   },
   nonconformance: {
-    term: msg`Nonconformance (issue)`,
-    definition: msg`Carbon's quality issue — a logged deviation or defect with a configurable workflow of investigation and action tasks.`,
+    term: msg`Non-conformance (issue)`,
+    definition: msg`A quality issue — a logged deviation or defect with a configurable workflow of investigation and action tasks.`,
     href: "/docs/reference/quality#issues"
   },
   "8d": {
@@ -919,15 +919,15 @@ export const terms = {
   // ── Items: core (Part/Tool/Material/Consumable/Item forms) ──────────────
   "item-tracking-type": {
     term: msg`Tracking Type`,
-    definition: msg`Whether Carbon follows each unit (Serial), each lot (Batch), or doesn't track stock movements individually (Off).`
+    definition: msg`Whether Carbon follows each unit (Serial), each lot (Batch), the quantity (Inventory), or no tracking (Non-Inventory).`
   },
   "item-default-method-type": {
     term: msg`Default Method Type`,
-    definition: msg`The method used when this item is added as a component on a method or BOM line, until overridden on that line.`
+    definition: msg`How an item is sourced when added to a method or BOM line.`
   },
   "item-group": {
     term: msg`Item Group`,
-    definition: msg`The posting group that decides which GL accounts post for receipts, shipments, COGS, and inventory on this item.`
+    definition: msg`The accounting dimension that categorizes items for reporting and analysis.`
   },
   "part-batch-size": {
     term: msg`Batch Size`,
@@ -1505,7 +1505,7 @@ export const terms = {
   },
   "sales-order-promised-date": {
     term: msg`Promised Date`,
-    definition: msg`When Carbon committed to deliver; planning treats this as the demand-due-date for fulfillment.`
+    definition: msg`When you committed to deliver; planning treats this as the demand-due-date for fulfillment.`
   },
   "sales-order-fulfillment-location": {
     term: msg`Fulfillment Location`,
@@ -1567,7 +1567,7 @@ export const terms = {
   // ── Sales: Sales RFQ (SalesRFQForm) ─────────────────────────────────────
   "rfq-date": {
     term: msg`RFQ Date`,
-    definition: msg`When the customer submitted this RFQ to Carbon; the response clock starts from this date.`
+    definition: msg`When the customer submitted this RFQ; the response clock starts from this date.`
   },
   "rfq-receiving-location": {
     term: msg`Receiving Location`,
