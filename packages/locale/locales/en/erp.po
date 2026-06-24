@@ -3346,6 +3346,9 @@ msgstr "External Reference"
 msgid "Extracted customer \"{0}\" was not found. Please create it or select an existing one."
 msgstr "Extracted customer \"{0}\" was not found. Please create it or select an existing one."
 
+msgid "Extracted Description"
+msgstr "Extracted Description"
+
 msgid "Extracted Part Number"
 msgstr "Extracted Part Number"
 
@@ -4649,6 +4652,9 @@ msgstr "Manufacturer"
 
 msgid "Manufacturing"
 msgstr "Manufacturing"
+
+msgid "Map Extracted Invoice Lines"
+msgstr "Map Extracted Invoice Lines"
 
 msgid "Map Extracted Lines"
 msgstr "Map Extracted Lines"
@@ -6291,6 +6297,9 @@ msgstr "QR Code to start the next operation for this kanban"
 
 msgid "Qty"
 msgstr "Qty"
+
+msgid "Qty / Price"
+msgstr "Qty / Price"
 
 msgid "Qty to Order"
 msgstr "Qty to Order"

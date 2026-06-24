@@ -3346,6 +3346,9 @@ msgstr "Внешняя ссылка"
 msgid "Extracted customer \"{0}\" was not found. Please create it or select an existing one."
 msgstr ""
 
+msgid "Extracted Description"
+msgstr ""
+
 msgid "Extracted Part Number"
 msgstr ""
 
@@ -4649,6 +4652,9 @@ msgstr "Производитель"
 
 msgid "Manufacturing"
 msgstr "Производство"
+
+msgid "Map Extracted Invoice Lines"
+msgstr ""
 
 msgid "Map Extracted Lines"
 msgstr ""
@@ -6291,6 +6297,9 @@ msgstr "QR-код для начала следующей операции для
 
 msgid "Qty"
 msgstr "Кол-во"
+
+msgid "Qty / Price"
+msgstr ""
 
 msgid "Qty to Order"
 msgstr "Кол-во для заказа"
