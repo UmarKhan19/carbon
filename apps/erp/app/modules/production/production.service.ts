@@ -21,8 +21,7 @@ import {
   getJobOrderStatusByMaterial,
   type ItemOrderStatus,
   type ItemShortfall,
-  isJobOrderStatusHidden,
-  PENDING_PO_SUPPLY_STATUSES
+  isJobOrderStatusHidden
 } from "./jobOrderStatus";
 import type {
   deadlineTypes,
@@ -1006,13 +1005,15 @@ export async function getJobMaterialShortfallByItem(
   jobId: string,
   companyId: string,
   locationId: string,
-  materials: JobItemAvailability[],
-  purchaseOrderLines: JobMaterialPurchaseOrderLine[]
+  materials: JobItemAvailability[]
 ): Promise<Record<string, ItemShortfall>> {
   // Two pools per item, kept separate so allocation can hand out already-received
   // on-hand stock BEFORE incoming supply — that's what lets a fulfilled
   // high-priority job read "in stock" while a lower-priority job sharing the same
   // partially-received PO reads "receiving". (The RPC repeats item-level values.)
+  // quantityOnPurchaseOrder / quantityOnProductionOrder already include
+  // planned/pending POs and planned jobs (conversion-factor applied), so incoming
+  // supply is taken straight from the RPC here.
   const onHandByItem = new Map<string, number>();
   const incomingByItem = new Map<string, number>();
   for (const material of materials) {
@@ -1027,24 +1028,6 @@ export async function getJobMaterialShortfallByItem(
       itemId,
       (material.quantityOnPurchaseOrder ?? 0) +
         (material.quantityOnProductionOrder ?? 0)
-    );
-  }
-
-  // quantityOnPurchaseOrder (from the RPC) only counts 'To Receive' /
-  // 'To Receive and Invoice'. Add planned/pending PO quantity to the incoming
-  // pool so it's allocated by priority too — otherwise a planned PO covers no job
-  // and every consumer shows a needs-order dot. Guarded to items the job uses.
-  for (const line of purchaseOrderLines) {
-    if (!line.itemId || !line.status) continue;
-    if (!PENDING_PO_SUPPLY_STATUSES.includes(line.status)) continue;
-    if (!incomingByItem.has(line.itemId)) continue;
-    const incoming = Math.max(
-      (line.purchaseQuantity ?? 0) - (line.quantityReceived ?? 0),
-      0
-    );
-    incomingByItem.set(
-      line.itemId,
-      (incomingByItem.get(line.itemId) ?? 0) + incoming
     );
   }
 
@@ -1131,21 +1114,20 @@ export async function getJobOrderStatusMap(
   // Completed/Draft/Cancelled/Closed jobs show no procurement indicators.
   if (isJobOrderStatusHidden(jobStatus)) return {};
 
-  const [purchaseOrderLines, supplyJobLines] = await Promise.all([
-    getJobMaterialPurchaseOrderLines(client, materials, locationId),
-    getJobMaterialSupplyJobLines(client, materials, companyId, locationId)
-  ]);
-
-  // Shortfall depends on the PO lines (planned/pending PO quantity feeds the
-  // allocation pool), so it runs after they're fetched.
-  const shortfallByItemId = await getJobMaterialShortfallByItem(
-    client,
-    jobId,
-    companyId,
-    locationId,
-    materials,
-    purchaseOrderLines
-  );
+  // PO lines + supply jobs drive the badge's status/supply indicators; the
+  // shortfall reads incoming supply from the RPC totals, so all three run together.
+  const [purchaseOrderLines, supplyJobLines, shortfallByItemId] =
+    await Promise.all([
+      getJobMaterialPurchaseOrderLines(client, materials, locationId),
+      getJobMaterialSupplyJobLines(client, materials, companyId, locationId),
+      getJobMaterialShortfallByItem(
+        client,
+        jobId,
+        companyId,
+        locationId,
+        materials
+      )
+    ]);
 
   return getJobOrderStatusByMaterial(
     materials,

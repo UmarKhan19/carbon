@@ -71,19 +71,6 @@ export const PO_STATUS_PRIORITY: PurchaseOrderStatus[] = [
   "Completed"
 ];
 
-// PO statuses whose quantity is NOT yet counted in `quantityOnPurchaseOrder`
-// (the get_job_quantity_on_hand RPC only counts 'To Receive' /
-// 'To Receive and Invoice'), but which still represent incoming supply the badge
-// treats as coverage. The shortfall allocator adds these so a planned PO is
-// handed out to the highest-priority job first — matching how planned *jobs*
-// already count (the RPC's production CTE includes 'Planned'). 'To Invoice' /
-// 'Completed' are excluded — those goods are received and already in on-hand.
-export const PENDING_PO_SUPPLY_STATUSES: PurchaseOrderStatus[] = [
-  "Planned",
-  "Needs Approval",
-  "To Review"
-];
-
 type OrderStatusMaterial = {
   itemTrackingType: string | null;
   methodType: string | null;

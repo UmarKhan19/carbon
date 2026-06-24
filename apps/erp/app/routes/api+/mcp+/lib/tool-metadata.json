@@ -1,5 +1,5 @@
 {
-  "generated": "2026-06-23T22:34:05.399Z",
+  "generated": "2026-06-24T06:20:49.542Z",
   "totalTools": 1214,
   "modules": 15,
   "tools": [
@@ -15029,14 +15029,13 @@
       "module": "production",
       "classification": "READ",
       "description": "get job material shortfall by item",
-      "paramCount": 4,
+      "paramCount": 3,
       "serviceParams": [
         "client",
         "jobId",
         "companyId",
         "locationId",
-        "materials",
-        "purchaseOrderLines"
+        "materials"
       ],
       "injectAuth": [
         "companyId"
@@ -15053,17 +15052,12 @@
           "materials": {
             "type": "array",
             "items": {}
-          },
-          "purchaseOrderLines": {
-            "type": "array",
-            "items": {}
           }
         },
         "required": [
           "jobId",
           "locationId",
-          "materials",
-          "purchaseOrderLines"
+          "materials"
         ]
       }
     },

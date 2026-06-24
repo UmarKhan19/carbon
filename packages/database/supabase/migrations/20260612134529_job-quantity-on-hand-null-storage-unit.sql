@@ -1,19 +1,19 @@
--- Fix get_job_quantity_on_hand dropping stock / demand that has no storage unit.
+-- get_job_quantity_on_hand: per-material on-hand, demand, and incoming supply for
+-- one job's materials, scoped to the job's company + location. Feeds the Materials
+-- page (on-hand/incoming/required columns) and the order-status badge/shortfall.
 --
--- On-hand and production demand are split into two buckets: "in the material's
--- storage unit" and "not in it". The "not in" join used
---   (jm.storageUnitId IS NULL OR jm.storageUnitId != x.storageUnitId)
--- which, when the material IS pinned to a storage unit but the ledger/demand row
--- has a NULL storageUnitId, evaluates `'unit' != NULL` -> NULL (not true). So the
--- row matched neither bucket and silently disappeared, reporting on-hand (and
--- required) as 0. That produced false "needs ordering" flags (and false
--- "create order for N items" counts on the Materials page) for any item whose
--- stock isn't assigned to a shelf.
---
--- Fix: treat a NULL storageUnitId on the ledger/demand row as "not in the unit",
--- by adding `x.storageUnitId IS NULL OR` to both "not in storage unit" joins.
--- The "in storage unit" joins are unchanged, so storage-unit-specific columns
--- (e.g. the Materials page "On Storage Unit" indicator) keep the same behavior.
+-- This revision:
+--  1. NULL storage unit: a ledger/demand row with NULL storageUnitId now counts in
+--     the "not in storage unit" bucket (was dropped, reporting 0 -> false
+--     "needs ordering"). Added `x.storageUnitId IS NULL OR` to both "not in" joins.
+--  2. open_jobs (production supply): include 'Planned' jobs and scope to
+--     company + location. Was Ready/In Progress/Paused and unscoped, so planned
+--     (MRP) supply was ignored while planned demand counted, and other locations'
+--     production leaked in.
+--  3. open_purchase_orders: include planned/pending POs ('Planned',
+--     'Needs Approval', 'To Review') with COALESCE(conversionFactor, 1). Replaces
+--     app-side PENDING_PO_SUPPLY_STATUSES so the Incoming column and shortfall
+--     agree and the purchase-unit conversion is applied.
 
 CREATE OR REPLACE FUNCTION get_job_quantity_on_hand(job_id TEXT, company_id TEXT, location_id TEXT)
   RETURNS TABLE (
@@ -65,7 +65,7 @@ WITH
   open_purchase_orders AS (
     SELECT
       pol."itemId" AS "purchaseOrderItemId",
-      SUM(pol."quantityToReceive" * pol."conversionFactor") AS "quantityOnPurchaseOrder"
+      SUM(pol."quantityToReceive" * COALESCE(pol."conversionFactor", 1)) AS "quantityOnPurchaseOrder"
     FROM
       "purchaseOrder" po
       INNER JOIN "purchaseOrderLine" pol
@@ -74,6 +74,9 @@ WITH
         ON jm."itemId" = pol."itemId"
     WHERE
       po."status" IN (
+        'Planned',
+        'Needs Approval',
+        'To Review',
         'To Receive',
         'To Receive and Invoice'
       )
@@ -143,10 +146,13 @@ WITH
       SUM(j."productionQuantity" + j."scrapQuantity" - j."quantityReceivedToInventory" - j."quantityShipped") AS "quantityOnProductionOrder"
     FROM job j
     WHERE j."status" IN (
+      'Planned',
       'Ready',
       'In Progress',
       'Paused'
     )
+    AND j."companyId" = company_id
+    AND j."locationId" = location_id
     GROUP BY j."itemId"
   ),
   open_job_requirements AS (
