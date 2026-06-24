@@ -12,6 +12,7 @@ import {
 } from "./Command";
 import { HStack } from "./HStack";
 import { IconButton } from "./IconButton";
+import { InactiveOptionIndicator } from "./InactiveOptionIndicator";
 import { Popover, PopoverContent, PopoverTrigger } from "./Popover";
 import { TruncatedTooltipText } from "./TruncatedTooltipText";
 import { cn } from "./utils/cn";
@@ -28,6 +29,8 @@ export type CreatableComboboxProps = Omit<
     value: string;
     helper?: string;
     helperRight?: string;
+    disabled?: boolean;
+    disabledReason?: string;
   }[];
   selected?: string[];
   isClearable?: boolean;
@@ -252,10 +255,16 @@ function VirtualizedCommand({
       );
     });
 
+    // Sink disabled options to the bottom before appending the "Create" row so
+    // it always stays last (stable sort preserves order within each group).
+    const ordered = [...filtered].sort(
+      (a, b) => Number(!!a.disabled) - Number(!!b.disabled)
+    );
+
     return isExactMatch
-      ? filtered
+      ? ordered
       : [
-          ...filtered,
+          ...ordered,
           {
             label: t`New`,
             value: "create"
@@ -306,16 +315,23 @@ function VirtualizedCommand({
 
               const isSelected = !!selected?.includes(item.value);
               const isCreateOption = item.value === "create";
+              const isChosen = isSelected || item.value === value;
+              // A currently-selected option stays selectable; disabled only
+              // blocks selecting a *new* option (never the "Create" row).
+              const effectiveDisabled =
+                !!item.disabled && !isChosen && !isCreateOption;
 
               return (
                 <CommandItem
                   key={item.value}
+                  aria-disabled={effectiveDisabled || undefined}
                   value={
                     typeof item.label === "string"
                       ? CSS.escape(item.label) + CSS.escape(item.helper ?? "")
                       : undefined
                   }
                   onSelect={() => {
+                    if (effectiveDisabled) return;
                     if (isCreateOption) {
                       onCreateOption?.(search);
                     } else if (!isSelected) {
@@ -332,7 +348,11 @@ function VirtualizedCommand({
                     height: `${itemHeight}px`,
                     transform: `translateY(${virtualRow.start}px)`
                   }}
-                  className="flex items-center justify-between min-w-0"
+                  className={cn(
+                    "flex items-center justify-between min-w-0",
+                    item.disabled && !isCreateOption && "opacity-50",
+                    effectiveDisabled && "cursor-not-allowed"
+                  )}
                 >
                   {isCreateOption ? (
                     <div className="flex items-center min-w-0 flex-1">
@@ -374,6 +394,9 @@ function VirtualizedCommand({
                     >
                       {item.label}
                     </TruncatedTooltipText>
+                  )}
+                  {effectiveDisabled && (
+                    <InactiveOptionIndicator reason={item.disabledReason} />
                   )}
                   {!isCreateOption && (
                     <LuCheck

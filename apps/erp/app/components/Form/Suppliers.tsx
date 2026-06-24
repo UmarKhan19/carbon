@@ -20,7 +20,9 @@ const Suppliers = (props: SupplierSelectProps) => {
     return (
       suppliers.map((c) => ({
         value: c.id,
-        label: c.name
+        label: c.name,
+        disabled: c.supplierStatus === "Inactive",
+        disabledReason: "This supplier is inactive"
       })) ?? []
     );
   }, [suppliers]);

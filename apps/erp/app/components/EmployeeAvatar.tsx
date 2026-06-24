@@ -1,5 +1,5 @@
 import type { AvatarProps } from "@carbon/react";
-import { HStack } from "@carbon/react";
+import { cn, HStack } from "@carbon/react";
 import { Trans } from "@lingui/react/macro";
 import { usePeople } from "~/stores";
 import Avatar from "./Avatar";
@@ -39,6 +39,8 @@ const EmployeeAvatar = ({
     return <Avatar size={size ?? "xs"} path={undefined} />;
   }
 
+  const isInactive = person.active === false;
+
   return (
     <HStack className="truncate no-underline hover:no-underline">
       <Avatar
@@ -46,7 +48,11 @@ const EmployeeAvatar = ({
         path={person.avatarUrl ?? undefined}
         name={person?.name ?? ""}
       />
-      {withName && <span>{person.name}</span>}
+      {withName && (
+        <span className={cn(isInactive && "text-red-600 dark:text-red-400")}>
+          {person.name}
+        </span>
+      )}
     </HStack>
   );
 };

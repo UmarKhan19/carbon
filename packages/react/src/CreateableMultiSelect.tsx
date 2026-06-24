@@ -17,6 +17,7 @@ import {
 } from "./Command";
 import { HStack } from "./HStack";
 import { IconButton } from "./IconButton";
+import { InactiveOptionIndicator } from "./InactiveOptionIndicator";
 import { Popover, PopoverContent, PopoverTrigger } from "./Popover";
 import { TruncatedTooltipText } from "./TruncatedTooltipText";
 import { cn } from "./utils/cn";
@@ -32,6 +33,8 @@ export type CreatableMultiSelectProps = Omit<
     label: string;
     value: string;
     helper?: string;
+    disabled?: boolean;
+    disabledReason?: string;
   }[];
   selected?: string[];
   isReadOnly?: boolean;
@@ -265,13 +268,19 @@ function VirtualizedCommand({
       )
     );
 
+    // Sink disabled options to the bottom before appending the "Create" row so
+    // it always stays last (stable sort preserves order within each group).
+    const ordered = [...filtered].sort(
+      (a, b) => Number(!!a.disabled) - Number(!!b.disabled)
+    );
+
     const trimmedSearch = search.trim();
     if (isExactMatch || (trimmedSearch === "" && !showCreateOptionOnEmpty)) {
-      return filtered;
+      return ordered;
     }
 
     return [
-      ...filtered,
+      ...ordered,
       {
         label: t`New`,
         value: "create"
@@ -315,6 +324,10 @@ function VirtualizedCommand({
             const item = filteredOptions[virtualRow.index]!;
             const isSelected = selected.includes(item.value);
             const isCreateOption = item.value === "create";
+            // Disabled blocks adding a new option, not removing an already
+            // selected one (and never the "Create" row).
+            const effectiveDisabled =
+              !!item.disabled && !isSelected && !isCreateOption;
             const itemHoverText = [item.label, item.helper]
               .filter(Boolean)
               .join(" - ");
@@ -322,6 +335,11 @@ function VirtualizedCommand({
             return (
               <CommandItem
                 key={item.value}
+                aria-disabled={effectiveDisabled || undefined}
+                className={cn(
+                  item.disabled && !isCreateOption && "opacity-50",
+                  effectiveDisabled && "cursor-not-allowed"
+                )}
                 value={
                   typeof item.label === "string"
                     ? item.label.replace(/"/g, '\\"') +
@@ -329,6 +347,7 @@ function VirtualizedCommand({
                     : undefined
                 }
                 onSelect={() => {
+                  if (effectiveDisabled) return;
                   if (isCreateOption) {
                     onCreateOption?.(search);
                     setSearch("");
@@ -389,6 +408,9 @@ function VirtualizedCommand({
                     </>
                   )}
                 </div>
+                {effectiveDisabled && (
+                  <InactiveOptionIndicator reason={item.disabledReason} />
+                )}
               </CommandItem>
             );
           })}
@@ -409,9 +431,10 @@ function SelectedOption({
   options: CreatableMultiSelectProps["options"];
   onUnselect: (item: string) => void;
 }) {
+  const option = options.find((o) => o.value === item);
   return (
     <Badge key={item} variant="secondary" className="border border-card">
-      {options.find((option) => option.value === item)?.label}
+      {option?.label}
       <BadgeCloseButton
         disabled={isReadOnly}
         tabIndex={-1}

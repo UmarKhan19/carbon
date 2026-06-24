@@ -1,5 +1,5 @@
 import type { AvatarProps } from "@carbon/react";
-import { HStack } from "@carbon/react";
+import { cn, HStack } from "@carbon/react";
 import { getFaviconUrl } from "@carbon/utils";
 import { useSuppliers } from "~/stores";
 import Avatar from "./Avatar";
@@ -22,12 +22,14 @@ const SupplierAvatar = ({
   const supplier = suppliers.find((s) => s.id === supplierId) ?? {
     name: "",
     id: "",
-    website: null
+    website: null,
+    supplierStatus: null
   };
 
   const imageUrl = supplier.website
     ? getFaviconUrl(supplier.website)
     : undefined;
+  const isInactive = supplier.supplierStatus === "Inactive";
 
   return (
     <HStack className="truncate ">
@@ -37,7 +39,14 @@ const SupplierAvatar = ({
         name={supplier?.name ?? ""}
         imageUrl={imageUrl}
       />
-      <span className={className}>{supplier.name}</span>
+      <span
+        className={cn(
+          className,
+          isInactive && "text-red-600 dark:text-red-400"
+        )}
+      >
+        {supplier.name}
+      </span>
     </HStack>
   );
 };

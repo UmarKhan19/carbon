@@ -4,8 +4,7 @@ import { useDisclosure } from "@carbon/react";
 import { useMemo, useRef, useState } from "react";
 import { useUser } from "~/hooks";
 import CustomerForm from "~/modules/sales/ui/Customer/CustomerForm";
-import { useCustomers } from "~/stores";
-import { useInactiveCustomerStatusId } from "./CustomerStatus";
+import { useCustomers, useInactiveCustomerStatusId } from "~/stores";
 
 type CustomerSelectProps = Omit<CreatableMultiSelectProps, "options">;
 
@@ -16,19 +15,17 @@ const Customers = (props: CustomerSelectProps) => {
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   const [customers] = useCustomers();
-  const inactiveStatusId = useInactiveCustomerStatusId();
+  const [inactiveStatusId] = useInactiveCustomerStatusId();
   const { company } = useUser();
 
   const options = useMemo(
     () =>
-      customers
-        .filter(
-          (c) => !inactiveStatusId || c.customerStatusId !== inactiveStatusId
-        )
-        .map((c) => ({
-          value: c.id,
-          label: c.name
-        })) ?? [],
+      customers.map((c) => ({
+        value: c.id,
+        label: c.name,
+        disabled: !!inactiveStatusId && c.customerStatusId === inactiveStatusId,
+        disabledReason: "This customer is inactive"
+      })) ?? [],
     [customers, inactiveStatusId]
   );
 

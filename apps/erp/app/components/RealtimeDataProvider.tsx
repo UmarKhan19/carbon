@@ -5,7 +5,13 @@ import { fetchAllFromTable } from "@carbon/database";
 import { useInterval, useRealtimeChannel } from "@carbon/react";
 import { useEffect } from "react";
 import { useUser } from "~/hooks";
-import { useCustomers, useItems, usePeople, useSuppliers } from "~/stores";
+import {
+  useCustomers,
+  useInactiveCustomerStatusId,
+  useItems,
+  usePeople,
+  useSuppliers
+} from "~/stores";
 import type { Item } from "~/stores/items";
 import type { ListItem } from "~/types";
 
@@ -32,6 +38,7 @@ const RealtimeDataProvider = ({ children }: { children: React.ReactNode }) => {
   const [, setSuppliers] = useSuppliers();
   const [, setCustomers] = useCustomers();
   const [, setPeople] = usePeople();
+  const [, setInactiveCustomerStatusId] = useInactiveCustomerStatusId();
 
   const fetchQuantities = async () => {
     if (!carbon || !companyId) return;
@@ -144,7 +151,8 @@ const RealtimeDataProvider = ({ children }: { children: React.ReactNode }) => {
         name: string;
         email: string;
         avatarUrl: string;
-      }>(carbon, "employees", "id, name, email, avatarUrl", (query) =>
+        active: boolean | null;
+      }>(carbon, "employees", "id, name, email, avatarUrl, active", (query) =>
         query.eq("companyId", companyId).order("name")
       )
     ]);
@@ -170,6 +178,18 @@ const RealtimeDataProvider = ({ children }: { children: React.ReactNode }) => {
     setCustomers(customers.data ?? []);
     // @ts-ignore
     setPeople(people.data ?? []);
+
+    // Resolve the "Inactive" customer status id once so display chips/selects
+    // can flag inactive customers (the customer store only holds the FK).
+    const { data: customerStatuses } = await fetchAllFromTable<{
+      id: string;
+      name: string;
+    }>(carbon, "customerStatus", "id, name", (query) =>
+      query.eq("companyId", companyId)
+    );
+    setInactiveCustomerStatusId(
+      customerStatuses?.find((s) => s.name === "Inactive")?.id ?? null
+    );
 
     await Promise.all([
       idb.setItem("items", items.data),
@@ -405,7 +425,7 @@ const RealtimeDataProvider = ({ children }: { children: React.ReactNode }) => {
             // from our list of employees. So for now we just refetch.
             const { data } = await carbon
               .from("employees")
-              .select("id, name, avatarUrl")
+              .select("id, name, avatarUrl, active")
               .eq("companyId", companyId)
               .order("name");
             if (data) {

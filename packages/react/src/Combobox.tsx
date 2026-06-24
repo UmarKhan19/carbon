@@ -13,6 +13,7 @@ import {
 } from "./Command";
 import { HStack } from "./HStack";
 import { IconButton } from "./IconButton";
+import { InactiveOptionIndicator } from "./InactiveOptionIndicator";
 import { Popover, PopoverContent, PopoverTrigger } from "./Popover";
 import { Spinner } from "./Spinner";
 import { TruncatedTooltipText } from "./TruncatedTooltipText";
@@ -31,6 +32,8 @@ export type ComboboxProps = Omit<
     value: string;
     helper?: string;
     helperRight?: string;
+    disabled?: boolean;
+    disabledReason?: string;
   }[];
   isClearable?: boolean;
   isLoading?: boolean;
@@ -209,7 +212,7 @@ function VirtualizedCommand({
   const parentRef = useRef<HTMLDivElement>(null);
 
   const filteredOptions = useMemo(() => {
-    return search
+    const filtered = search
       ? options.filter((option) => {
           const value =
             typeof option.label === "string"
@@ -219,6 +222,12 @@ function VirtualizedCommand({
           return value.toLowerCase().includes(search.toLowerCase());
         })
       : options;
+
+    // Sink disabled options to the bottom (stable sort preserves order within
+    // each group).
+    return [...filtered].sort(
+      (a, b) => Number(!!a.disabled) - Number(!!b.disabled)
+    );
   }, [options, search]);
 
   const virtualizer = useVirtualizer({
@@ -265,16 +274,26 @@ function VirtualizedCommand({
                 : [reactNodeToString(item.label), item.helper]
                     .filter(Boolean)
                     .join(" - ");
+            const isSelected = item.value === value;
+            // A currently-selected option stays selectable (so it can be
+            // re-picked); disabled only blocks selecting a *new* option.
+            const effectiveDisabled = !!item.disabled && !isSelected;
 
             return (
               <CommandItem
                 key={item.value}
+                aria-disabled={effectiveDisabled || undefined}
+                className={cn(
+                  item.disabled && "opacity-50",
+                  effectiveDisabled && "cursor-not-allowed"
+                )}
                 value={
                   typeof item.label === "string"
                     ? CSS.escape(item.label) + CSS.escape(item.helper ?? "")
                     : reactNodeToString(item.label)
                 }
                 onSelect={() => {
+                  if (effectiveDisabled) return;
                   onChange?.(item.value);
                   setSearch("");
                   setOpen(false);
@@ -322,6 +341,9 @@ function VirtualizedCommand({
                   >
                     {item.label}
                   </TruncatedTooltipText>
+                )}
+                {effectiveDisabled && (
+                  <InactiveOptionIndicator reason={item.disabledReason} />
                 )}
                 <LuCheck
                   className={cn(

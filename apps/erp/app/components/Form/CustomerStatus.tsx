@@ -94,14 +94,3 @@ export const useCustomerStatuses = () => {
 
   return options;
 };
-
-// Resolves the id of the built-in "Inactive" customer status (if present) so
-// that inactive customers can be excluded from selection dropdowns. Any other
-// status (Active, Lead, On Hold, Cancelled, or custom statuses) is unaffected.
-export const useInactiveCustomerStatusId = () => {
-  const options = useCustomerStatuses();
-  return useMemo(
-    () => options.find((o) => o.label === "Inactive")?.value ?? null,
-    [options]
-  );
-};

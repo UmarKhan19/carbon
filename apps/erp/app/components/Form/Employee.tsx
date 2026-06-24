@@ -34,7 +34,9 @@ const Employee = ({ type, inline, ...props }: EmployeeSelectProps) => {
             <Avatar name={person.name} path={person.avatarUrl} size="xs" />
             <span>{person.name}</span>
           </div>
-        )
+        ),
+        disabled: person.active === false,
+        disabledReason: "This employee is inactive"
       })) ?? [];
 
     if (type === "assignee") {

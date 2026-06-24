@@ -10,3 +10,11 @@ const $customersStore = atom<
   })[]
 >([]);
 export const useCustomers = () => useNanoStore($customersStore, "customers");
+
+// The id of the built-in "Inactive" customer status, resolved once app-wide by
+// RealtimeDataProvider. The customer store only carries the status FK
+// (`customerStatusId`), so this lets selects and display chips tell whether a
+// customer is inactive without each instance fetching the status list.
+const $inactiveCustomerStatusId = atom<string | null>(null);
+export const useInactiveCustomerStatusId = () =>
+  useNanoStore($inactiveCustomerStatusId, "inactiveCustomerStatusId");

@@ -41,7 +41,9 @@ const Supplier = ({
         .filter((s) => !onlyApproved || s.supplierStatus === "Active")
         .map((c) => ({
           value: c.id,
-          label: c.name
+          label: c.name,
+          disabled: c.supplierStatus === "Inactive",
+          disabledReason: "This supplier is inactive"
         })) ?? [],
     [suppliers, allowedSuppliers, onlyApproved]
   );

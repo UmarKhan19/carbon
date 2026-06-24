@@ -17,6 +17,7 @@ import {
 } from "./Command";
 import { HStack } from "./HStack";
 import { IconButton } from "./IconButton";
+import { InactiveOptionIndicator } from "./InactiveOptionIndicator";
 import { Popover, PopoverContent, PopoverTrigger } from "./Popover";
 import { cn } from "./utils/cn";
 import { reactNodeToString } from "./utils/react";
@@ -31,6 +32,8 @@ export type MultiSelectProps = Omit<
     label: string;
     value: string;
     helper?: string;
+    disabled?: boolean;
+    disabledReason?: string;
   }[];
   isReadOnly?: boolean;
   isClearable?: boolean;
@@ -141,37 +144,37 @@ const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
                 <div>
                   {hasSelections ? (
                     <div className="flex gap-1 flex-wrap">
-                      {value.map((item) => (
-                        <Badge
-                          key={item}
-                          variant="secondary"
-                          className="border border-card"
-                        >
-                          {
-                            options.find((option) => option.value === item)
-                              ?.label
-                          }
-                          <BadgeCloseButton
-                            disabled={isReadOnly}
-                            type="button"
-                            tabIndex={-1}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter" && !isReadOnly) {
-                                handleUnselect(item);
-                              }
-                            }}
-                            onMouseDown={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                            }}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              if (!isReadOnly) handleUnselect(item);
-                            }}
-                          />
-                        </Badge>
-                      ))}
+                      {value.map((item) => {
+                        const option = options.find((o) => o.value === item);
+                        return (
+                          <Badge
+                            key={item}
+                            variant="secondary"
+                            className="border border-card"
+                          >
+                            {option?.label}
+                            <BadgeCloseButton
+                              disabled={isReadOnly}
+                              type="button"
+                              tabIndex={-1}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter" && !isReadOnly) {
+                                  handleUnselect(item);
+                                }
+                              }}
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                              }}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (!isReadOnly) handleUnselect(item);
+                              }}
+                            />
+                          </Badge>
+                        );
+                      })}
                     </div>
                   ) : (
                     <span className="text-muted-foreground">
@@ -241,7 +244,7 @@ function VirtualizedCommand({
   const parentRef = useRef<HTMLDivElement>(null);
 
   const filteredOptions = useMemo(() => {
-    return search
+    const filtered = search
       ? options.filter((option) => {
           const value =
             typeof option.label === "string"
@@ -251,6 +254,12 @@ function VirtualizedCommand({
           return value.toLowerCase().includes(search.toLowerCase());
         })
       : options;
+
+    // Sink disabled options to the bottom (stable sort preserves order within
+    // each group).
+    return [...filtered].sort(
+      (a, b) => Number(!!a.disabled) - Number(!!b.disabled)
+    );
   }, [options, search]);
 
   const virtualizer = useVirtualizer({
@@ -288,10 +297,18 @@ function VirtualizedCommand({
           {items.map((virtualRow) => {
             const option = filteredOptions[virtualRow.index]!;
             const isSelected = value.includes(option.value);
+            // Disabled blocks adding a new option, not removing an already
+            // selected one.
+            const effectiveDisabled = !!option.disabled && !isSelected;
 
             return (
               <CommandItem
                 key={option.value}
+                aria-disabled={effectiveDisabled || undefined}
+                className={cn(
+                  option.disabled && "opacity-50",
+                  effectiveDisabled && "cursor-not-allowed"
+                )}
                 value={
                   typeof option.label === "string"
                     ? option.label.replace(/"/g, '\\"') +
@@ -299,6 +316,7 @@ function VirtualizedCommand({
                     : undefined
                 }
                 onSelect={() => {
+                  if (effectiveDisabled) return;
                   onChange(
                     isSelected
                       ? value.filter((item) => item !== option.value)
@@ -332,6 +350,9 @@ function VirtualizedCommand({
                     <span className="line-clamp-1">{option.label}</span>
                   )}
                 </div>
+                {effectiveDisabled && (
+                  <InactiveOptionIndicator reason={option.disabledReason} />
+                )}
               </CommandItem>
             );
           })}
