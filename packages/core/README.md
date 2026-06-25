@@ -13,3 +13,8 @@ grandfathered in `src/conformance/baseline.json`; only **new** violations fail C
 - Run the gate: `pnpm --filter @carbon/core test`
 
 Each check records `provenance` (the transition event that retired the old pattern).
+
+**Grandfathering granularity** is per `(checkId, file, snippet)`, not per occurrence:
+adding a *second* occurrence of an already-baselined pattern to an already-baselined
+file is not flagged. This is acceptable because shipped migrations are immutable /
+append-only — new migration files, and new check types in old files, are always caught.
