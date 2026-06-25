@@ -8,8 +8,10 @@ describe("noNumericPrecision", () => {
       "amount NUMERIC(18, 4) NOT NULL"
     );
     expect(v).toHaveLength(1);
-    expect(v[0].line).toBe(1);
-    expect(v[0].snippet.toLowerCase().replace(/\s/g, "")).toBe("numeric(18,4)");
+    expect(v[0]?.line).toBe(1);
+    expect(v[0]?.snippet.toLowerCase().replace(/\s/g, "")).toBe(
+      "numeric(18,4)"
+    );
   });
 
   it("allows bare NUMERIC", () => {
@@ -21,7 +23,7 @@ describe("noNumericPrecision", () => {
     const sql = ["id uuid,", "price NUMERIC(10,2),", "qty NUMERIC"].join("\n");
     const v = noNumericPrecision.scan("a.sql", sql);
     expect(v).toHaveLength(1);
-    expect(v[0].line).toBe(2);
+    expect(v[0]?.line).toBe(2);
   });
 
   it("is case-insensitive", () => {

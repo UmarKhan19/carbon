@@ -6,7 +6,7 @@ describe("noLegacyRls", () => {
     const sql = "USING (has_company_permission('view', \"companyId\"))";
     const v = noLegacyRls.scan("p.sql", sql);
     expect(v).toHaveLength(1);
-    expect(v[0].line).toBe(1);
+    expect(v[0]?.line).toBe(1);
   });
 
   it("allows the current get_companies_with_employee_permission helper", () => {

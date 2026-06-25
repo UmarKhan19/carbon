@@ -12,6 +12,6 @@ describe("loadSqlFiles", () => {
     writeFileSync(join(dir, "notes.txt"), "ignore me");
     const files = loadSqlFiles(dir);
     expect(files.map((f) => f.file)).toEqual(["a.sql", "b.sql"]);
-    expect(files[0].contents).toBe("SELECT 1;");
+    expect(files[0]?.contents).toBe("SELECT 1;");
   });
 });
