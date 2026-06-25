@@ -18,7 +18,7 @@ The target runtime is **autonomous overnight loops on a production ERP, every re
 
 Today it cannot. There are ~13 test files across the whole monorepo, so a loop can produce a change that type-checks, lints, builds, and looks fine in the UI while silently corrupting financials or leaking tenant data. **The gate is the product.** This system invests in the verification substrate first and treats orchestration as the easy, partly-built part.
 
-## 3. The spine: anchor to concrete proven artifacts, never to abstractions
+## 3. The core: anchor to concrete proven artifacts, never to abstractions
 
 One principle unifies the whole system, on both the generation and verification sides:
 
@@ -34,7 +34,7 @@ It manifests as three seeded, compounding libraries:
 
 All three reject "design/verify from rules" in favor of "anchor to a proven concrete artifact." The invariant net is the safety floor; the exemplar registry is the UI-consistency floor; **research is the domain-correctness floor — mandatory for ERP-domain features so domain logic is never invented from concepts.**
 
-**Critical qualifier: "proven" means *current*, not merely *present*.** The repo is stratified across eras, so any artifact in it may be a fossil — and frequency actively misleads (the deprecated RLS pattern outnumbers the current one 95→69 files; `NUMERIC(x,y)` survives in 80 files). Anchoring is therefore by **recency + transition events + executable conformance**, never by majority vote or static documentation (which rots — cf. the abandoned `llm/cache`). See §5.7. **The spine keeps *itself* current and correct — as version-controlled, CI-run, human-ratified code rather than a knowledge base; see §5.8, the system's existential mechanism.**
+**Critical qualifier: "proven" means *current*, not merely *present*.** The repo is stratified across eras, so any artifact in it may be a fossil — and frequency actively misleads (the deprecated RLS pattern outnumbers the current one 95→69 files; `NUMERIC(x,y)` survives in 80 files). Anchoring is therefore by **recency + transition events + executable conformance**, never by majority vote or static documentation (which rots — cf. the abandoned `llm/cache`). See §5.7. **The core keeps *itself* current and correct — as version-controlled, CI-run, human-ratified code rather than a knowledge base; see §5.8, the system's existential mechanism.**
 
 ## 4. Architecture: one conductor, declarative bindings
 
@@ -166,31 +166,31 @@ Standards drift and the codebase is a stratified mix of eras, so naive "read the
 
 1. **Recency, not frequency.** The current standard is what the *newest* code does — established by git time and transition events — never by majority vote.
 
-2. **Encode the deprecated pattern as a failing gate; don't document the new one.** A prose "use bare `NUMERIC`" rots and is ignored; a check that *fails* on `NUMERIC(x,y)` runs every loop and makes copying the fossil impossible. This is the **conformance net** — the code-standard sibling of the invariant net: executable checks that reject deprecated patterns, run on every code-touching loop, **seeded from transition events** (the refactor commit/migration that flipped a standard names both the new canonical form *and* the old form to forbid), human-ratified, compounding. Same spine as invariants — *executable beats prose; the moment-of-change is the signal.*
+2. **Encode the deprecated pattern as a failing gate; don't document the new one.** A prose "use bare `NUMERIC`" rots and is ignored; a check that *fails* on `NUMERIC(x,y)` runs every loop and makes copying the fossil impossible. This is the **conformance net** — the code-standard sibling of the invariant net: executable checks that reject deprecated patterns, run on every code-touching loop, **seeded from transition events** (the refactor commit/migration that flipped a standard names both the new canonical form *and* the old form to forbid), human-ratified, compounding. Same core as invariants — *executable beats prose; the moment-of-change is the signal.*
 
 3. **Live validated pointers, never snapshots.** Exemplars and domain patterns are stored as pointers to the current canonical file + transition commit + "validated-against-HEAD @sha" stamp, cheaply re-checked — not prose that drifts out of sync.
 
 Because standards keep moving, a standing **drift-detection loop** (scheduled) compares the newest commits against the encoded conformance gates and exemplar pointers; divergence is surfaced for human ratification, which forbids the now-old form, repoints the exemplar, and re-stamps freshness. "The standard changed again" becomes a first-class recurring event — the actual antidote to `llm/cache`-style rot.
 
-### 5.8 Governing the spine — staying current and correct over time
+### 5.8 Governing the core — staying current and correct over time
 
-The spine is load-bearing for everything, so its own currency and correctness are the system's existential question. These are **two different problems**:
+The core is load-bearing for everything, so its own currency and correctness are the system's existential question. These are **two different problems**:
 
 - **Currency** (consistency with HEAD) is *mechanical*.
 - **Correctness** (consistency with intent) is *social + scored* — CI alone can't provide it; a mis-specified invariant can be perfectly current yet still wrong.
 
-**Root stance — the spine is code, not a knowledge base.** This is the entire reason it won't become `llm/cache`. That cache rotted because it was prose in a folder: ambient, unowned, un-runnable, and it *lies quietly* when stale. The spine is the opposite — executable artifacts and live pointers, version-controlled, PR-reviewed, CI-tested, with provenance in git. No novel trust mechanism is invented; it is held to exactly the bar we already trust for source.
+**Root stance — the core is code, not a knowledge base.** This is the entire reason it won't become `llm/cache`. That cache rotted because it was prose in a folder: ambient, unowned, un-runnable, and it *lies quietly* when stale. The core is the opposite — executable artifacts and live pointers, version-controlled, PR-reviewed, CI-tested, with provenance in git. No novel trust mechanism is invented; it is held to exactly the bar we already trust for source.
 
-**Currency — rot breaks loudly.** Because every anchor is executable or pointer-backed, staleness announces itself: an invariant throws when a referenced column is renamed; a conformance gate matching zero files is self-evidently suspect; an exemplar pointer to a deleted file fails. **The entire spine runs against HEAD in CI on every commit** — a green run *is* the freshness guarantee. No human writes a "still valid" stamp; a test asserts it. (Prose can't do this; code can — the crux of why `llm/cache` rotted and the spine won't.)
+**Currency — rot breaks loudly.** Because every anchor is executable or pointer-backed, staleness announces itself: an invariant throws when a referenced column is renamed; a conformance gate matching zero files is self-evidently suspect; an exemplar pointer to a deleted file fails. **The entire core runs against HEAD in CI on every commit** — a green run *is* the freshness guarantee. No human writes a "still valid" stamp; a test asserts it. (Prose can't do this; code can — the crux of why `llm/cache` rotted and the core won't.)
 
-**Correctness — detect → propose → ratify → compile.** Machines detect drift/gaps/contradictions (cheap, constant); humans are the authority on what the standard should be (rare, necessary). So loops open a **PR proposing** a spine change → a human **ratifies** (the only trust gate) → ratification **compiles into a new executable artifact**. Agents never silently mutate the spine. No infinite regress ("who validates the validator?") — the buck stops at human review, identical to all other code. The owner's job is *ratification, not authoring or detection.*
+**Correctness — detect → propose → ratify → compile.** Machines detect drift/gaps/contradictions (cheap, constant); humans are the authority on what the standard should be (rare, necessary). So loops open a **PR proposing** a core change → a human **ratifies** (the only trust gate) → ratification **compiles into a new executable artifact**. Agents never silently mutate the core. No infinite regress ("who validates the validator?") — the buck stops at human review, identical to all other code. The owner's job is *ratification, not authoring or detection.*
 
 **Staying honest over time:**
-- **Scored entries (calibration).** Each gate tracks true-positives (caught a real issue) vs false-positives (blocked a legit change). High-FP → mis-specified → flag to fix/relax. Never-fires in N commits → prune candidate, or already covered by a schema constraint. The spine earns its place by outcomes.
-- **Bounded growth.** A standing prune/consolidate pass (template: the `consolidate-memory` skill) retires redundant/superseded entries so the spine stays *small and load-bearing* — never a wall of stale text. This is the specific failure that killed `llm/cache`.
+- **Scored entries (calibration).** Each gate tracks true-positives (caught a real issue) vs false-positives (blocked a legit change). High-FP → mis-specified → flag to fix/relax. Never-fires in N commits → prune candidate, or already covered by a schema constraint. The core earns its place by outcomes.
+- **Bounded growth.** A standing prune/consolidate pass (template: the `consolidate-memory` skill) retires redundant/superseded entries so the core stays *small and load-bearing* — never a wall of stale text. This is the specific failure that killed `llm/cache`.
 - **Contradiction check.** CI asserts the libraries are mutually consistent — e.g. every exemplar must itself pass the conformance gates; invariants don't conflict.
 
-**Self-maintained by the machinery it powers.** The drift loop, harvest-from-prod-bug loop, and ratify-flipped-standard loop are themselves loops built from the same doer/checker/ledger primitives. **The spine is the system's first and permanent customer:** if the loops can't keep their own spine honest, they can't be trusted downstream — a forcing function and a continuous proof-of-life. A named owner (or rotation) is the root of trust.
+**Self-maintained by the machinery it powers.** The drift loop, harvest-from-prod-bug loop, and ratify-flipped-standard loop are themselves loops built from the same doer/checker/ledger primitives. **The core is the system's first and permanent customer:** if the loops can't keep their own core honest, they can't be trusted downstream — a forcing function and a continuous proof-of-life. A named owner (or rotation) is the root of trust.
 
 ### 5.9 Full-stack type chain — prevention for shape/contract errors (Carbon's existing asset)
 
@@ -224,7 +224,7 @@ Every skill — doer or checker — returns **structured output, not prose**. Ch
 
 Our conductor specifies *what* to verify; Attractor's NLSpecs specify *how to execute a multi-step agentic pipeline deterministically, resumably, and with human gates*. We adopt its **abstractions and contracts** — not the whole DOT engine (see §10):
 
-- **Interviewer pattern (keystone).** Every human decision — approve a risky step, ratify a spine change (§5.8), choose between options — is one abstraction `Interviewer.ask(Question)` with pluggable implementations. This unifies our supervised↔autonomous spectrum and risk policy: **swap the implementation, never the loop.**
+- **Interviewer pattern (keystone).** Every human decision — approve a risky step, ratify a core change (§5.8), choose between options — is one abstraction `Interviewer.ask(Question)` with pluggable implementations. This unifies our supervised↔autonomous spectrum and risk policy: **swap the implementation, never the loop.**
   - `Console` → supervised crawl-phase runs.
   - `Policy` → autonomous: auto-approves low-risk classes, **escalates** high-risk (migration/accounting/infra) to a queued human ask. Replaces the ad-hoc "risk: high → stop."
   - `Queue` → deterministic replay for testing loops.
@@ -266,7 +266,7 @@ Parallel tracks run a few milestones behind the data track:
 - **Domain track** — mandatory `research` → domain-pattern library → domain-conformance gate; enters when the first ERP-domain *feature* loop runs (≈M4–M5).
 - **Knowledge-sync track** — `carbon-docs`-driven curated docs + glossary gate; enters ≈M4 (codegen sync is already automatic and needs no new work).
 - **Conformance track** — the standards/anti-pattern net (sibling to the invariant net): seed conformance gates from transition events, encode deprecated patterns (old RLS, `NUMERIC(x,y)`, …) as failing checks. Pairs with M1 (both are executable checks from transition events); the standing drift-detection loop enters ≈M4.
-- **Spine-governance track (§5.8)** — from M1, the spine runs against HEAD in CI (currency is mechanical). The detect→propose→ratify→compile maintenance loop, entry scoring/calibration, and the prune/consolidate pass enter ≈M4–M5; the spine is the system's first permanent customer. Names an owner (root of trust for ratification).
+- **Core-governance track (§5.8)** — from M1, the core runs against HEAD in CI (currency is mechanical). The detect→propose→ratify→compile maintenance loop, entry scoring/calibration, and the prune/consolidate pass enter ≈M4–M5; the core is the system's first permanent customer. Names an owner (root of trust for ratification).
 
 ## 10. Non-goals (YAGNI)
 
@@ -284,5 +284,5 @@ Parallel tracks run a few milestones behind the data track:
 - **Judge calibration cold-start** — early judging is uncalibrated; mitigated by M2–M4 supervision before trusting it overnight.
 - **Playbook flakiness** — agent-browser gates are slower/flakier; behavior gate is layered, not the floor.
 - **Conformance tooling & recency signal** — where conformance gates live (biome custom rules for TS, a SQL linter / grep-AST pass for migrations) and the cheapest reliable recency ranking (git blame/log date vs. explicit transition-event detection). Also: drift-loop cadence.
-- **Spine governance (§5.8)** — who is the named owner / ratification root; where per-entry provenance + scoring (true/false-positive counts, last-validated) is stored (frontmatter on each entry vs. a sidecar store); cadence of the maintenance + prune loops.
+- **Core governance (§5.8)** — who is the named owner / ratification root; where per-entry provenance + scoring (true/false-positive counts, last-validated) is stored (frontmatter on each entry vs. a sidecar store); cadence of the maintenance + prune loops.
 - **Attractor adoption depth (§7.1)** — how much of the engine to build vs. adopt incrementally; whether feature pipelines use literal Graphviz DOT or a lighter internal graph representation; whether to vendor a minimal checkpoint/Interviewer library or implement directly against Claude Code's session primitives.
