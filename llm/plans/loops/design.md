@@ -176,6 +176,12 @@ Standards drift and the codebase is a stratified mix of eras, so naive "read the
 
 Because standards keep moving, a standing **drift-detection loop** (scheduled) compares the newest commits against the encoded conformance gates and exemplar pointers; divergence is surfaced for human ratification, which forbids the now-old form, repoints the exemplar, and re-stamps freshness. "The standard changed again" becomes a first-class recurring event — the actual antidote to `llm/cache`-style rot.
 
+**Lifecycle of a conformance check (governance §5.8 applied):**
+- **Grow** — a transition (a deprecated pattern) is detected by the drift loop or proposed by a human/loop → a PR adds the check **and re-baselines** (grandfathers existing violations of the *new* check) → a human ratifies → merged. Never added silently.
+- **Update** — refined by its calibration score (§5.8): high false-positive → loosen; misses → tighten.
+- **Baseline = a monotonically *shrinking* debt ledger.** For an existing check the baseline may only shrink (legacy violations removed as they're migrated away); it grows only when a brand-new check is introduced. CI can enforce "baseline did not grow for existing checks" — silently re-accepting a regression is itself a failure.
+- **Promote / retire** — where the pattern can be prevented more strongly (Biome rule, TS type, DB constraint), promote it there (§5.1 funnel); once it's gone everywhere and natively prevented, prune the check (§5.8).
+
 ### 5.8 Governing the core — staying current and correct over time
 
 The core is load-bearing for everything, so its own currency and correctness are the system's existential question. These are **two different problems**:
@@ -239,6 +245,15 @@ Our conductor specifies *what* to verify; Attractor's NLSpecs specify *how to ex
 - **Typed status contract (concretizes §6).** Each node returns `{ outcome, context_updates, suggested_next, notes }`; edges route on a minimal condition language (`outcome=success && context.tests_passed=true`).
 - **Model stylesheet.** A CSS-like map selects the model per node class (adversarial `judge` on a strong model, routine codegen cheaper) — the concrete mechanism for our doer/judge split.
 - **Thrash detection.** If recent tool calls cycle (same 1–3 calls repeating), inject a "try a different approach" steering message — the intra-loop complement to cross-iteration plateau detection.
+
+### 7.2 The PR is the human design-review gate
+
+**Design is never shipped silently.** Any loop that introduces or changes a *design* — new UI, a schema/API shape, an architectural approach — surfaces it for human **approve / comment / improve**. The PR is that gate, and it is the design twin of core ratification (§5.8: machine proposes, human approves/improves; nothing design-bearing auto-merges).
+
+- **Net-new work PRs include screenshots** of the new/changed UI, captured by `agent-browser` driving the app on the loop's own `crbn` stack. Design becomes reviewable at a glance, not buried in a diff.
+- The PR body states the **design rationale** — the precedent cited (§5.2) and any research (§5.5) — and which gate proves each acceptance criterion.
+- For high-uncertainty net-new design, the loop may stop at a mid-loop **design checkpoint** (an Interviewer ask, §7.1) and queue for async human review *before* building — cheaper to redirect than to rebuild.
+- **All GitHub operations use the `gh` CLI** (`gh pr create`, screenshot attachment, comments).
 
 ## 8. New vs. improved skills
 
