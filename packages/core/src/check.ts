@@ -26,3 +26,17 @@ export type ConformanceCheck = {
   };
   scan(file: string, contents: string): Violation[];
 };
+
+/** A module folder and its top-level entry names. */
+export type ModuleDir = { name: string; dir: string; entries: string[] };
+
+/**
+ * A structure check inspects a directory's layout (not file text).
+ * `inspect` is PURE: same module in → same violations out. No I/O.
+ */
+export type StructureCheck = {
+  id: string;
+  description: string;
+  provenance: { deprecates: string; replacedBy: string; since?: string };
+  inspect(module: ModuleDir): Violation[];
+};
