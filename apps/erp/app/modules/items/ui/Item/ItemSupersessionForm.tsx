@@ -14,6 +14,7 @@ import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { LuTriangleAlert } from "react-icons/lu";
 import type { z } from "zod";
+import { Enumerable } from "~/components/Enumerable";
 import {
   DatePicker,
   Hidden,
@@ -152,10 +153,11 @@ const ItemSupersessionForm = ({
               <SelectForm
                 name="supersessionMode"
                 label={t`Supersession Mode`}
+                termId="supersession-mode"
                 placeholder={t`None`}
                 helperText={mode ? modeDescriptions[mode] : undefined}
                 options={supersessionModes.map((value) => ({
-                  label: value,
+                  label: <Enumerable value={value} />,
                   value
                 }))}
                 onChange={(selected) => {

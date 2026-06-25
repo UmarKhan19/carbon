@@ -2047,6 +2047,9 @@ msgstr "Yüklenici"
 msgid "Contractors"
 msgstr "Yükleniciler"
 
+msgid "Controls how planning handles a discontinued item: Consume First exhausts on-hand before switching to the successor, Prefer New redirects new demand to the successor immediately, Stock Only keeps only a minimum service reserve, and No Stock drops the item from planning entirely."
+msgstr ""
+
 msgid "Convention"
 msgstr "Sözleşme"
 
@@ -7195,6 +7198,9 @@ msgstr "Kalıcı Olarak Sil"
 
 msgid "Permissions"
 msgstr "İzinler"
+
+msgid "Phasing out an item in favor of a successor part, so planning redirects the old item's demand — times a conversion factor — to the new one."
+msgstr ""
 
 msgid "Phone"
 msgstr "Telefon"
