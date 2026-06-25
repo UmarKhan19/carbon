@@ -1,0 +1,66 @@
+// @ts-nocheck
+import * as __fd_glob_53 from "../content/docs/reference/work-centers.mdx?collection=docs"
+import * as __fd_glob_52 from "../content/docs/reference/traceability.mdx?collection=docs"
+import * as __fd_glob_51 from "../content/docs/reference/suppliers-and-customers.mdx?collection=docs"
+import * as __fd_glob_50 from "../content/docs/reference/storage-rules.mdx?collection=docs"
+import * as __fd_glob_49 from "../content/docs/reference/shipments.mdx?collection=docs"
+import * as __fd_glob_48 from "../content/docs/reference/shelf-life.mdx?collection=docs"
+import * as __fd_glob_47 from "../content/docs/reference/sales-orders.mdx?collection=docs"
+import * as __fd_glob_46 from "../content/docs/reference/routings.mdx?collection=docs"
+import * as __fd_glob_45 from "../content/docs/reference/reordering.mdx?collection=docs"
+import * as __fd_glob_44 from "../content/docs/reference/receipts.mdx?collection=docs"
+import * as __fd_glob_43 from "../content/docs/reference/quotes.mdx?collection=docs"
+import * as __fd_glob_42 from "../content/docs/reference/quality.mdx?collection=docs"
+import * as __fd_glob_41 from "../content/docs/reference/purchase-orders.mdx?collection=docs"
+import * as __fd_glob_40 from "../content/docs/reference/planning.mdx?collection=docs"
+import * as __fd_glob_39 from "../content/docs/reference/methods.mdx?collection=docs"
+import * as __fd_glob_38 from "../content/docs/reference/maintenance.mdx?collection=docs"
+import * as __fd_glob_37 from "../content/docs/reference/jobs.mdx?collection=docs"
+import * as __fd_glob_36 from "../content/docs/reference/items.mdx?collection=docs"
+import * as __fd_glob_35 from "../content/docs/reference/invoices.mdx?collection=docs"
+import * as __fd_glob_34 from "../content/docs/reference/inventory.mdx?collection=docs"
+import * as __fd_glob_33 from "../content/docs/reference/fixed-assets.mdx?collection=docs"
+import * as __fd_glob_32 from "../content/docs/reference/approvals.mdx?collection=docs"
+import * as __fd_glob_31 from "../content/docs/reference/accounting.mdx?collection=docs"
+import * as __fd_glob_30 from "../content/docs/platform/local-development.mdx?collection=docs"
+import * as __fd_glob_29 from "../content/docs/platform/environment-variables.mdx?collection=docs"
+import * as __fd_glob_28 from "../content/docs/platform/deployment.mdx?collection=docs"
+import * as __fd_glob_27 from "../content/docs/platform/architecture.mdx?collection=docs"
+import * as __fd_glob_26 from "../content/docs/integrations/project-management.mdx?collection=docs"
+import * as __fd_glob_25 from "../content/docs/integrations/index.mdx?collection=docs"
+import * as __fd_glob_24 from "../content/docs/integrations/estimating.mdx?collection=docs"
+import * as __fd_glob_23 from "../content/docs/integrations/email.mdx?collection=docs"
+import * as __fd_glob_22 from "../content/docs/integrations/cad.mdx?collection=docs"
+import * as __fd_glob_21 from "../content/docs/integrations/assistant.mdx?collection=docs"
+import * as __fd_glob_20 from "../content/docs/integrations/accounting.mdx?collection=docs"
+import * as __fd_glob_19 from "../content/docs/integrate/webhooks.mdx?collection=docs"
+import * as __fd_glob_18 from "../content/docs/index.mdx?collection=docs"
+import { default as __fd_glob_17 } from "../content/docs/reference/meta.json?collection=docs"
+import { default as __fd_glob_16 } from "../content/docs/platform/meta.json?collection=docs"
+import { default as __fd_glob_15 } from "../content/docs/integrations/meta.json?collection=docs"
+import { default as __fd_glob_14 } from "../content/docs/integrate/meta.json?collection=docs"
+import { default as __fd_glob_13 } from "../content/docs/meta.json?collection=docs"
+import * as __fd_glob_12 from "../content/guides/ship.mdx?collection=guide"
+import * as __fd_glob_11 from "../content/guides/rfq-to-po.mdx?collection=guide"
+import * as __fd_glob_10 from "../content/guides/receive-and-bill.mdx?collection=guide"
+import * as __fd_glob_9 from "../content/guides/quote-to-cash.mdx?collection=guide"
+import * as __fd_glob_8 from "../content/guides/plan.mdx?collection=guide"
+import * as __fd_glob_7 from "../content/guides/order.mdx?collection=guide"
+import * as __fd_glob_6 from "../content/guides/order-to-cash.mdx?collection=guide"
+import * as __fd_glob_5 from "../content/guides/job-finish-close.mdx?collection=guide"
+import * as __fd_glob_4 from "../content/guides/job-costing.mdx?collection=guide"
+import * as __fd_glob_3 from "../content/guides/floor.mdx?collection=guide"
+import * as __fd_glob_2 from "../content/guides/fixed-assets-sell.mdx?collection=guide"
+import * as __fd_glob_1 from "../content/guides/fixed-assets-acquire.mdx?collection=guide"
+import * as __fd_glob_0 from "../content/guides/build.mdx?collection=guide"
+import { server } from 'fumadocs-mdx/runtime/server';
+import type * as Config from '../source.config';
+
+const create = server<typeof Config, import("fumadocs-mdx/runtime/types").InternalTypeConfig & {
+  DocData: {
+  }
+}>({"doc":{"passthroughs":["extractedReferences"]}});
+
+export const docs = await create.docs("docs", "content/docs", {"meta.json": __fd_glob_13, "integrate/meta.json": __fd_glob_14, "integrations/meta.json": __fd_glob_15, "platform/meta.json": __fd_glob_16, "reference/meta.json": __fd_glob_17, }, {"index.mdx": __fd_glob_18, "integrate/webhooks.mdx": __fd_glob_19, "integrations/accounting.mdx": __fd_glob_20, "integrations/assistant.mdx": __fd_glob_21, "integrations/cad.mdx": __fd_glob_22, "integrations/email.mdx": __fd_glob_23, "integrations/estimating.mdx": __fd_glob_24, "integrations/index.mdx": __fd_glob_25, "integrations/project-management.mdx": __fd_glob_26, "platform/architecture.mdx": __fd_glob_27, "platform/deployment.mdx": __fd_glob_28, "platform/environment-variables.mdx": __fd_glob_29, "platform/local-development.mdx": __fd_glob_30, "reference/accounting.mdx": __fd_glob_31, "reference/approvals.mdx": __fd_glob_32, "reference/fixed-assets.mdx": __fd_glob_33, "reference/inventory.mdx": __fd_glob_34, "reference/invoices.mdx": __fd_glob_35, "reference/items.mdx": __fd_glob_36, "reference/jobs.mdx": __fd_glob_37, "reference/maintenance.mdx": __fd_glob_38, "reference/methods.mdx": __fd_glob_39, "reference/planning.mdx": __fd_glob_40, "reference/purchase-orders.mdx": __fd_glob_41, "reference/quality.mdx": __fd_glob_42, "reference/quotes.mdx": __fd_glob_43, "reference/receipts.mdx": __fd_glob_44, "reference/reordering.mdx": __fd_glob_45, "reference/routings.mdx": __fd_glob_46, "reference/sales-orders.mdx": __fd_glob_47, "reference/shelf-life.mdx": __fd_glob_48, "reference/shipments.mdx": __fd_glob_49, "reference/storage-rules.mdx": __fd_glob_50, "reference/suppliers-and-customers.mdx": __fd_glob_51, "reference/traceability.mdx": __fd_glob_52, "reference/work-centers.mdx": __fd_glob_53, });
+
+export const guide = await create.docs("guide", "content/guides", {}, {"build.mdx": __fd_glob_0, "fixed-assets-acquire.mdx": __fd_glob_1, "fixed-assets-sell.mdx": __fd_glob_2, "floor.mdx": __fd_glob_3, "job-costing.mdx": __fd_glob_4, "job-finish-close.mdx": __fd_glob_5, "order-to-cash.mdx": __fd_glob_6, "order.mdx": __fd_glob_7, "plan.mdx": __fd_glob_8, "quote-to-cash.mdx": __fd_glob_9, "receive-and-bill.mdx": __fd_glob_10, "rfq-to-po.mdx": __fd_glob_11, "ship.mdx": __fd_glob_12, });
