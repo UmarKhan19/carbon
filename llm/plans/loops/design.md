@@ -170,6 +170,10 @@ Standards drift and the codebase is a stratified mix of eras, so naive "read the
 
 3. **Live validated pointers, never snapshots.** Exemplars and domain patterns are stored as pointers to the current canonical file + transition commit + "validated-against-HEAD @sha" stamp, cheaply re-checked — not prose that drifts out of sync.
 
+**The conformance net spans multiple source types**, and the `ConformanceCheck` contract is a discriminated union over source (`text` | `structure` | later `ts-ast`); each new rule is just another check in the library — the net grows without redesign. Seed checks:
+- **text** (migration SQL): forbid `NUMERIC(x,y)` and the legacy RLS helper.
+- **structure** (module folders, `apps/erp/app/modules/*`): each module has exactly one `<module>.service.ts`, one `<module>.models.ts`, one `types.ts`, one `ui/`, one `index.ts`; `*.server.ts` (server-only) and utils/tests allowed; the flagged mistake is **extra scattered `*.service.ts`/`*.models.ts` files**. Existing deviations (`settings`, `shared`, `storage-rules`) are baselined; only new ones fail. (Enforces the long-standing "one service/models per module" rule.)
+
 Because standards keep moving, a standing **drift-detection loop** (scheduled) compares the newest commits against the encoded conformance gates and exemplar pointers; divergence is surfaced for human ratification, which forbids the now-old form, repoints the exemplar, and re-stamps freshness. "The standard changed again" becomes a first-class recurring event — the actual antidote to `llm/cache`-style rot.
 
 ### 5.8 Governing the core — staying current and correct over time
