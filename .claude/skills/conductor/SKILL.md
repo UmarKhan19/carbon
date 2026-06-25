@@ -9,9 +9,15 @@ You are conducting a **supervised loop**: iterate doer→gate→keep/revert→le
 
 This is the execution layer of the loop system (`llm/plans/loops/design.md`). The deterministic helpers live in `@carbon/harness`; the checker is the four `@carbon/checks` checks.
 
-## 0. Safety preconditions (do these first)
-- **Never run on `main`.** Confirm `git branch --show-current` is a feature branch; if on `main`, create one first.
-- Confirm the working tree is clean (or that pending changes are intended to be part of this loop).
+## 0. Isolated worktree off `origin/main` (do this first)
+- Every loop runs in its **own worktree, branched off the latest `origin/main`** — never stacked on another feature branch. Create it non-interactively:
+  ```
+  git fetch origin main
+  crbn new loop/<id> --base origin/main --yes
+  ```
+  `crbn new --yes` skips all prompts (base defaults to `origin/main`) and prints the new worktree path; `cd` into it and do all the loop's work there.
+- **Never run on `main`.** The loop's branch is `loop/<id>`.
+- *(This assumes the loop system — `@carbon/harness` + `@carbon/checks` — is on `main`. Until that merges, the gate tooling only exists on the loop-system branch, so base off that branch instead.)*
 
 ## 1. Bind the work item
 - If given a binding path (`llm/loops/<id>.loop.md`), read it. Otherwise write one from the request (see `llm/loops/README.md` for the format) and save it to `llm/loops/<id>.loop.md`.
@@ -51,6 +57,7 @@ For each iteration:
   - attach the **screenshots** for UI work,
   - summarize the **ledger** (iterations, what was kept/reverted and why).
 - **Surface every design decision for the human to approve / comment / improve** — design is never shipped silently.
+- **Loop artifacts stay out of source.** `llm/loops/` (bindings, ledger, screenshots) is gitignored *runtime* — never commit it to the working branch. The **ledger summary goes in the PR body**, and **screenshots are hosted on the PR** (attach to the PR/a comment, or a non-merging artifacts branch referenced by raw URL) — not in the product tree.
 
 ## Guardrails (non-negotiable)
 - **A UI/user-facing change is never done without passing visual e2e verification in the running app (§2b).** If the stack can't boot, the loop is BLOCKED — stop and surface, not "done."

@@ -99,17 +99,45 @@ const main = defineCommand({
         args.force ? reset() : migrate({ regen: args.regen !== false })
     }),
     new: defineCommand({
-      meta: { description: "Interactive: create a worktree on a fresh branch" },
+      meta: {
+        description:
+          "Create a worktree on a fresh branch (interactive, or non-interactive with --yes)"
+      },
       args: {
         branch: {
           type: "positional",
           required: false,
           description: "Branch name (pre-fills the prompt)"
+        },
+        base: {
+          type: "string",
+          description:
+            "Base ref to branch from (with --yes; defaults to origin/main)"
+        },
+        dir: {
+          type: "string",
+          description: "Worktree directory name (with --yes; default derived)"
+        },
+        "copy-env": {
+          type: "boolean",
+          default: true,
+          description:
+            "Copy .env from the current checkout (--no-copy-env to skip)"
+        },
+        yes: {
+          type: "boolean",
+          default: false,
+          description:
+            "Non-interactive: skip prompts, use flags/defaults (base defaults to origin/main)"
         }
       },
       run: ({ args }) =>
         newWorktree({
-          branch: typeof args.branch === "string" ? args.branch : undefined
+          branch: typeof args.branch === "string" ? args.branch : undefined,
+          base: typeof args.base === "string" ? args.base : undefined,
+          dir: typeof args.dir === "string" ? args.dir : undefined,
+          copyEnv: args["copy-env"] !== false,
+          yes: args.yes === true
         })
     }),
     list: defineCommand({
