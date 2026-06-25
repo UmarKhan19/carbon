@@ -1,4 +1,4 @@
-# @carbon/core
+# @carbon/checks
 
 Executable checks for the loop system's "core" (see `llm/plans/loops/design.md`).
 
@@ -9,8 +9,8 @@ grandfathered in `src/conformance/baseline.json`; only **new** violations fail C
 
 - Add a check: implement a `ConformanceCheck` under `src/conformance/`, add it to
   `CONFORMANCE_CHECKS` in `src/run.ts`, then re-baseline.
-- Re-baseline (after intentionally accepting current state): `pnpm --filter @carbon/core baseline`
-- Run the gate: `pnpm --filter @carbon/core test`
+- Re-baseline (after intentionally accepting current state): `pnpm --filter @carbon/checks baseline`
+- Run the gate: `pnpm --filter @carbon/checks test`
 
 Each check records `provenance` (the transition event that retired the old pattern).
 
@@ -27,7 +27,7 @@ redefinition" that will silently overwrite whichever side merges last.
 
 - **What counts as a clobber:** `CREATE OR REPLACE VIEW`, `CREATE OR REPLACE FUNCTION`,
   or `attach_event_trigger(...)` targeting the same object name on both sides.
-- **Run at PR time:** `pnpm --filter @carbon/core clobbers`
+- **Run at PR time:** `pnpm --filter @carbon/checks clobbers`
   (needs `origin/main` fetched — run `git fetch origin main` first if needed).
 - **Grow coverage:** add a `{ kind, re }` row to `OBJECT_PATTERNS` in
   `src/clobber.ts` — the `objectRefs` and `findClobbers` functions pick it up
@@ -43,7 +43,7 @@ Runnable database assertions. Each invariant is a `.sql` file in `src/invariants
 that SELECTs the rows which **violate** the rule (empty result = healthy).
 
 - Add an invariant: drop a `.sql` file in `src/invariants/` — no code or registration.
-- Run against a database: `DATABASE_URL=<conn> pnpm --filter @carbon/core invariants`
+- Run against a database: `DATABASE_URL=<conn> pnpm --filter @carbon/checks invariants`
   (exits non-zero if any invariant returns rows).
 - Invariants run against a **live DB** (a loop's worktree DB, or nightly against prod),
   NOT the static CI `test` job. The runner is DB-agnostic (injected query), so the

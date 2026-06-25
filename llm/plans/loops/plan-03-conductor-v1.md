@@ -4,7 +4,7 @@
 
 **Goal:** A supervised loop conductor. A thin, unit-testable `@carbon/harness` package (binding parser, ledger, floor-gate runner, status) + a `build` skill that drives the doer→gate→keep/revert→ledger→finish cycle while a human watches, landing a gated PR.
 
-**Architecture:** The deterministic substrate is code in `@carbon/harness`; the non-deterministic orchestration is the `build` skill. The harness's gate runner shells out to the four `@carbon/core` checks (the *checker*); the skill is the *doer + decision*. v1 gate ladder = **floor** (lint + conformance + clobbers) + a **judge** self-review subagent. Supervised: the human is the final approver; no scheduling/worktree-fanout/autonomy yet.
+**Architecture:** The deterministic substrate is code in `@carbon/harness`; the non-deterministic orchestration is the `build` skill. The harness's gate runner shells out to the four `@carbon/checks` checks (the *checker*); the skill is the *doer + decision*. v1 gate ladder = **floor** (lint + conformance + clobbers) + a **judge** self-review subagent. Supervised: the human is the final approver; no scheduling/worktree-fanout/autonomy yet.
 
 **Grow-friendliness:** gates are a data list (`FLOOR_GATES`), binding fields are frontmatter, the runner takes an injected `exec` so it's pure/testable. Add a gate = one array entry. Add a binding field = one frontmatter key. TDD/behavior/judge gates and autonomy grow later without reshaping this.
 
@@ -31,7 +31,7 @@ llm/loops/                                # binding + ledger home (created on fi
 ---
 
 ## Task 0: Scaffold `@carbon/harness`
-Mirror `@carbon/core`'s scaffold exactly (it is the known-good template).
+Mirror `@carbon/checks`'s scaffold exactly (it is the known-good template).
 - [ ] **Step 1:** Create `packages/harness/package.json`:
 ```json
 {
@@ -251,11 +251,11 @@ export type Gate = { id: string; cmd: string };
 export type GateResult = { id: string; passed: boolean; output: string };
 export type Exec = (cmd: string) => { ok: boolean; output: string };
 
-/** The v1 floor: cheap, deterministic, reuses the @carbon/core checks. Add a row to grow. */
+/** The v1 floor: cheap, deterministic, reuses the @carbon/checks checks. Add a row to grow. */
 export const FLOOR_GATES: Gate[] = [
   { id: "lint", cmd: "pnpm exec biome check" },
-  { id: "conformance", cmd: "pnpm --filter @carbon/core test" },
-  { id: "clobbers", cmd: "pnpm --filter @carbon/core clobbers" }
+  { id: "conformance", cmd: "pnpm --filter @carbon/checks test" },
+  { id: "clobbers", cmd: "pnpm --filter @carbon/checks clobbers" }
 ];
 
 export function runGates(gates: Gate[], exec: Exec): GateResult[] {

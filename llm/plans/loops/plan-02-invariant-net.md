@@ -2,7 +2,7 @@
 
 > **For agentic workers:** Use superpowers:subagent-driven-development. Steps use `- [ ]`.
 
-**Goal:** Add the invariant net to `@carbon/core`: runnable database assertions that must hold after any change. Each invariant is a `.sql` file returning *violating* rows (empty = healthy). The runner is DB-agnostic (injected `query`), so the core is fully unit-testable without a database; a thin CLI binds it to Postgres.
+**Goal:** Add the invariant net to `@carbon/checks`: runnable database assertions that must hold after any change. Each invariant is a `.sql` file returning *violating* rows (empty = healthy). The runner is DB-agnostic (injected `query`), so the core is fully unit-testable without a database; a thin CLI binds it to Postgres.
 
 **Architecture:** `src/invariants/*.sql` (data — the rules) → `loadInvariants()` (read files) → `runInvariants(invariants, query)` (pure, injected query) → results. A CLI (`scripts/run-invariants.ts`) supplies a real `pg`-backed `query` from a connection string and exits non-zero on any violation. Mirrors the conformance net's "one file per check, register-and-go" growability.
 
@@ -16,7 +16,7 @@
 
 ## File Structure
 ```
-packages/core/src/
+packages/checks/src/
 ├── invariants/
 │   ├── tracked-entity-readable-id.sql   # NEW seed invariant (data)
 │   └── <fixtures used only in tests are made in tmp dirs>
@@ -30,7 +30,7 @@ packages/core/src/
 
 ## Task 1: Invariant format + loader + runner (no DB)
 
-**Files:** Create `packages/core/src/invariant.ts` + `packages/core/src/invariant.test.ts`.
+**Files:** Create `packages/checks/src/invariant.ts` + `packages/checks/src/invariant.test.ts`.
 
 - [ ] **Step 1: Write the failing test** `src/invariant.test.ts`:
 ```typescript
@@ -79,7 +79,7 @@ describe("runInvariants", () => {
 });
 ```
 
-- [ ] **Step 2:** Run `pnpm --filter '@carbon/core' test -- src/invariant.test.ts` → FAIL (cannot resolve `./invariant`).
+- [ ] **Step 2:** Run `pnpm --filter '@carbon/checks' test -- src/invariant.test.ts` → FAIL (cannot resolve `./invariant`).
 
 - [ ] **Step 3: Write `src/invariant.ts`**:
 ```typescript
@@ -132,13 +132,13 @@ export async function runInvariants(
 ```
 
 - [ ] **Step 4:** Run the test → PASS (3 tests).
-- [ ] **Step 5:** `pnpm --filter '@carbon/core' typecheck` → clean. Commit: `git add packages/core/src/invariant.ts packages/core/src/invariant.test.ts && git commit -m "feat(core): invariant format + DB-agnostic runner"`.
+- [ ] **Step 5:** `pnpm --filter '@carbon/checks' typecheck` → clean. Commit: `git add packages/checks/src/invariant.ts packages/checks/src/invariant.test.ts && git commit -m "feat(core): invariant format + DB-agnostic runner"`.
 
 ---
 
 ## Task 2: First seed invariant (data, schema-verified)
 
-**Files:** Create `packages/core/src/invariants/tracked-entity-readable-id.sql`.
+**Files:** Create `packages/checks/src/invariants/tracked-entity-readable-id.sql`.
 
 - [ ] **Step 1: Verify the real schema** before writing the SQL. Confirm the table/columns exist (do not guess):
 `grep -rl "trackedEntity" packages/database/supabase/migrations | head` and inspect the create-table to confirm the exact table name (`trackedEntity`) and that it has `readableId` and `companyId` columns. If the names differ, use the real ones. (Invariant rationale: every tracked entity must have a `readableId` — a known Carbon rule.)
@@ -159,26 +159,26 @@ import { join } from "node:path";
 
 describe("seed invariants", () => {
   it("loads the committed invariants directory", () => {
-    const dir = join(repoRoot(), "packages/core/src/invariants");
+    const dir = join(repoRoot(), "packages/checks/src/invariants");
     const inv = loadInvariants(dir);
     expect(inv.length).toBeGreaterThanOrEqual(1);
     expect(inv.some((i) => i.id === "tracked-entity-readable-id")).toBe(true);
   });
 });
 ```
-Run `pnpm --filter '@carbon/core' test -- src/invariant.test.ts` → PASS. (Note: `join`/`repoRoot` may already be imported — avoid duplicate imports.)
+Run `pnpm --filter '@carbon/checks' test -- src/invariant.test.ts` → PASS. (Note: `join`/`repoRoot` may already be imported — avoid duplicate imports.)
 
-- [ ] **Step 4:** Commit: `git add packages/core/src/invariants/tracked-entity-readable-id.sql packages/core/src/invariant.test.ts && git commit -m "feat(core): seed invariant — tracked entity readableId"`.
+- [ ] **Step 4:** Commit: `git add packages/checks/src/invariants/tracked-entity-readable-id.sql packages/checks/src/invariant.test.ts && git commit -m "feat(core): seed invariant — tracked entity readableId"`.
 
 ---
 
 ## Task 3: The Postgres CLI (live-DB layer)
 
-**Files:** Create `packages/core/src/scripts/run-invariants.ts`; modify `packages/core/package.json` (add `pg` dep + `invariants` script).
+**Files:** Create `packages/checks/src/scripts/run-invariants.ts`; modify `packages/checks/package.json` (add `pg` dep + `invariants` script).
 
 > This is the only DB-touching code. It is verified manually against a live DB (see Step 4), NOT in the static CI `test` job.
 
-- [ ] **Step 1: Add `pg` to `packages/core/package.json`.** Add to `devDependencies`: `"pg": "<version>"` and `"@types/pg": "<version>"` — use the versions already used by `@carbon/database` (inspect its package.json) or the catalog. Add a script: `"invariants": "tsx src/scripts/run-invariants.ts"`. Run `pnpm install`.
+- [ ] **Step 1: Add `pg` to `packages/checks/package.json`.** Add to `devDependencies`: `"pg": "<version>"` and `"@types/pg": "<version>"` — use the versions already used by `@carbon/database` (inspect its package.json) or the catalog. Add a script: `"invariants": "tsx src/scripts/run-invariants.ts"`. Run `pnpm install`.
 
 - [ ] **Step 2: Write `src/scripts/run-invariants.ts`**:
 ```typescript
@@ -197,7 +197,7 @@ async function main() {
   await client.connect();
   const query: Query = async (sql) => (await client.query(sql)).rows;
   try {
-    const dir = join(repoRoot(), "packages/core/src/invariants");
+    const dir = join(repoRoot(), "packages/checks/src/invariants");
     const results = await runInvariants(loadInvariants(dir), query);
     let failed = 0;
     for (const r of results) {
@@ -218,19 +218,19 @@ async function main() {
 void main();
 ```
 
-- [ ] **Step 3:** `pnpm --filter '@carbon/core' typecheck` → clean. `lint` → clean.
+- [ ] **Step 3:** `pnpm --filter '@carbon/checks' typecheck` → clean. `lint` → clean.
 
 - [ ] **Step 4: Manual live-DB check (only if a Postgres is reachable).** If a local `crbn` DB or any Carbon Postgres is available, run:
-`DATABASE_URL=<conn> pnpm --filter '@carbon/core' invariants`
+`DATABASE_URL=<conn> pnpm --filter '@carbon/checks' invariants`
 Expected: prints PASS/FAIL per invariant and a summary; exits 0 if healthy. **If no DB is reachable in this environment, SKIP the live run and report it as a documented manual step** — do not fake it.
 
-- [ ] **Step 5:** Commit: `git add packages/core/package.json packages/core/src/scripts/run-invariants.ts pnpm-lock.yaml && git commit -m "feat(core): invariant CLI (pg-backed)"`.
+- [ ] **Step 5:** Commit: `git add packages/checks/package.json packages/checks/src/scripts/run-invariants.ts pnpm-lock.yaml && git commit -m "feat(core): invariant CLI (pg-backed)"`.
 
 ---
 
 ## Task 4: Barrel + README + verify
 
-**Files:** Modify `packages/core/src/index.ts`, `packages/core/README.md`.
+**Files:** Modify `packages/checks/src/index.ts`, `packages/checks/README.md`.
 
 - [ ] **Step 1: Append to `src/index.ts`:**
 ```typescript
@@ -242,8 +242,8 @@ export {
   runInvariants
 } from "./invariant";
 ```
-- [ ] **Step 2: Add a README section** documenting: invariants are `.sql` files returning violating rows; add one by dropping a file in `src/invariants/`; run via `DATABASE_URL=... pnpm --filter @carbon/core invariants`; they run against a live DB (loop worktree / nightly), not the static CI gate.
-- [ ] **Step 3:** `pnpm --filter '@carbon/core' typecheck` (clean), `lint` (clean), `test` (all green — invariant unit tests + all prior).
+- [ ] **Step 2: Add a README section** documenting: invariants are `.sql` files returning violating rows; add one by dropping a file in `src/invariants/`; run via `DATABASE_URL=... pnpm --filter @carbon/checks invariants`; they run against a live DB (loop worktree / nightly), not the static CI gate.
+- [ ] **Step 3:** `pnpm --filter '@carbon/checks' typecheck` (clean), `lint` (clean), `test` (all green — invariant unit tests + all prior).
 - [ ] **Step 4:** Commit: `git commit -am "feat(core): export invariants + README"` (index.ts + README).
 
 ---

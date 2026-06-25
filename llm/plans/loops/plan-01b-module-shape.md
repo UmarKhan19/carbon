@@ -2,7 +2,7 @@
 
 > **For agentic workers:** Use superpowers:subagent-driven-development to execute task-by-task. Steps use `- [ ]`.
 
-**Goal:** Extend `@carbon/core` with a second *source type* — `structure` checks over directory layout — and ship the first one: a module-shape check enforcing the canonical `apps/erp/app/modules/*` shape. Reuses Plan 1's baseline + gate verbatim.
+**Goal:** Extend `@carbon/checks` with a second *source type* — `structure` checks over directory layout — and ship the first one: a module-shape check enforcing the canonical `apps/erp/app/modules/*` shape. Reuses Plan 1's baseline + gate verbatim.
 
 **Architecture:** Add a `StructureCheck` type (parallel to the text-scan `ConformanceCheck`), a module-folder loader, and one data-driven `moduleShape` check. The runner gains a `scanModules` pipeline; `newViolations()` unions text + structure findings; the existing baseline + gate test cover both with zero change. Two parallel registries (`CONFORMANCE_CHECKS` for text, `STRUCTURE_CHECKS` for structure) keep each check type trivially simple — no discriminated-union narrowing.
 
@@ -16,7 +16,7 @@
 
 ## File Structure
 ```
-packages/core/src/
+packages/checks/src/
 ├── check.ts                       # MODIFY: add ModuleDir + StructureCheck types
 ├── sources/modules.ts             # NEW: modulesDir(), loadModules()
 ├── sources/modules.test.ts        # NEW
@@ -32,7 +32,7 @@ packages/core/src/
 
 ## Task 1: Add `ModuleDir` + `StructureCheck` types
 
-**Files:** Modify `packages/core/src/check.ts` (append; do not change existing `Violation`/`ConformanceCheck`).
+**Files:** Modify `packages/checks/src/check.ts` (append; do not change existing `Violation`/`ConformanceCheck`).
 
 - [ ] **Step 1: Append to `src/check.ts`**
 ```typescript
@@ -51,14 +51,14 @@ export type StructureCheck = {
 };
 ```
 
-- [ ] **Step 2:** `pnpm --filter '@carbon/core' typecheck` → clean.
+- [ ] **Step 2:** `pnpm --filter '@carbon/checks' typecheck` → clean.
 - [ ] **Step 3:** Commit: `git commit -am "feat(core): add StructureCheck contract"` (only check.ts).
 
 ---
 
 ## Task 2: Module-folder loader
 
-**Files:** Create `packages/core/src/sources/modules.ts` + `.test.ts`.
+**Files:** Create `packages/checks/src/sources/modules.ts` + `.test.ts`.
 
 - [ ] **Step 1: Write the failing test** `src/sources/modules.test.ts`:
 ```typescript
@@ -106,7 +106,7 @@ export function loadModules(dir: string): ModuleDir[] {
 
 - [ ] **Step 4:** Run test → PASS.
 - [ ] **Step 5: Sanity check against the real tree:**
-`pnpm --filter '@carbon/core' exec tsx -e "import {repoRoot} from './src/sources/migrations.ts'; import {modulesDir,loadModules} from './src/sources/modules.ts'; const m=loadModules(modulesDir(repoRoot())); console.log('modules:', m.length, m.map(x=>x.name).join(','));"`
+`pnpm --filter '@carbon/checks' exec tsx -e "import {repoRoot} from './src/sources/migrations.ts'; import {modulesDir,loadModules} from './src/sources/modules.ts'; const m=loadModules(modulesDir(repoRoot())); console.log('modules:', m.length, m.map(x=>x.name).join(','));"`
 Expected: ~16 modules including `accounting,sales,inventory,settings,shared,storage-rules`. If not, report.
 - [ ] **Step 6:** Commit (the two files): `git commit -m "feat(core): module-folder loader"`.
 
@@ -114,7 +114,7 @@ Expected: ~16 modules including `accounting,sales,inventory,settings,shared,stor
 
 ## Task 3: The `moduleShape` structure check (data-driven)
 
-**Files:** Create `packages/core/src/conformance/module-shape.ts` + `.test.ts`.
+**Files:** Create `packages/checks/src/conformance/module-shape.ts` + `.test.ts`.
 
 - [ ] **Step 1: Write the failing test** `src/conformance/module-shape.test.ts`:
 ```typescript
@@ -234,7 +234,7 @@ export const moduleShape: StructureCheck = {
 
 ## Task 4: Wire into runner + baseline; verify gate
 
-**Files:** Modify `packages/core/src/run.ts`, `packages/core/src/scripts/generate-baseline.ts`; regenerate `baseline.json`.
+**Files:** Modify `packages/checks/src/run.ts`, `packages/checks/src/scripts/generate-baseline.ts`; regenerate `baseline.json`.
 
 - [ ] **Step 1: Edit `src/run.ts`** — add imports and the structure pipeline, and union both in `newViolations()`. Add:
 ```typescript
@@ -290,17 +290,17 @@ writeBaseline(keys);
 console.log(`Wrote ${keys.length} baselined conformance violations.`);
 ```
 
-- [ ] **Step 3: Typecheck + unit tests** `pnpm --filter '@carbon/core' typecheck` (clean) and `pnpm --filter '@carbon/core' test` (all green — the gate test will still pass only AFTER re-baseline in Step 4; if it fails here naming module-shape violations for settings/shared/storage-rules, that is EXPECTED before re-baselining).
+- [ ] **Step 3: Typecheck + unit tests** `pnpm --filter '@carbon/checks' typecheck` (clean) and `pnpm --filter '@carbon/checks' test` (all green — the gate test will still pass only AFTER re-baseline in Step 4; if it fails here naming module-shape violations for settings/shared/storage-rules, that is EXPECTED before re-baselining).
 
-- [ ] **Step 4: Re-baseline** `pnpm --filter '@carbon/core' baseline`. Expect the count to grow from 194 by ~4 (the structure deviations: `module-shape::settings::extra-service:backups.service.ts`, `module-shape::shared::extra-models:imports.models.ts`, `module-shape::shared::missing:ui`, `module-shape::storage-rules::missing:types.ts`). Inspect: `grep module-shape packages/core/src/conformance/baseline.json`.
+- [ ] **Step 4: Re-baseline** `pnpm --filter '@carbon/checks' baseline`. Expect the count to grow from 194 by ~4 (the structure deviations: `module-shape::settings::extra-service:backups.service.ts`, `module-shape::shared::extra-models:imports.models.ts`, `module-shape::shared::missing:ui`, `module-shape::storage-rules::missing:types.ts`). Inspect: `grep module-shape packages/checks/src/conformance/baseline.json`.
 
-- [ ] **Step 5: Gate green** `pnpm --filter '@carbon/core' test` → all pass; confirm `newViolations()` is 0 via the gate test.
+- [ ] **Step 5: Gate green** `pnpm --filter '@carbon/checks' test` → all pass; confirm `newViolations()` is 0 via the gate test.
 
 - [ ] **Step 6: Regression-replay (prove the structure gate works)** — temporarily add an extra service file to a real module:
 ```bash
 touch apps/erp/app/modules/sales/extra.service.ts
 ```
-Run `pnpm --filter '@carbon/core' test -- src/run.test.ts` → the gate FAILS naming `module-shape sales ... extra-service:extra.service.ts`. Capture the output (proof). Then:
+Run `pnpm --filter '@carbon/checks' test -- src/run.test.ts` → the gate FAILS naming `module-shape sales ... extra-service:extra.service.ts`. Capture the output (proof). Then:
 ```bash
 rm apps/erp/app/modules/sales/extra.service.ts
 ```
@@ -312,7 +312,7 @@ Re-run → PASS. Confirm `git status --short` shows no `extra.service.ts`.
 
 ## Task 5: Barrel + verify
 
-**Files:** Modify `packages/core/src/index.ts`.
+**Files:** Modify `packages/checks/src/index.ts`.
 
 - [ ] **Step 1: Add to the barrel:**
 ```typescript
@@ -321,7 +321,7 @@ export { moduleShape } from "./conformance/module-shape";
 export { loadModules, modulesDir } from "./sources/modules";
 export { STRUCTURE_CHECKS, scanModules } from "./run";
 ```
-- [ ] **Step 2:** `pnpm --filter '@carbon/core' typecheck` (clean), `lint` (clean), `test` (all green).
+- [ ] **Step 2:** `pnpm --filter '@carbon/checks' typecheck` (clean), `lint` (clean), `test` (all green).
 - [ ] **Step 3: Commit** `git commit -am "feat(core): export module-shape symbols"` (only index.ts).
 
 ---

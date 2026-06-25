@@ -4,7 +4,7 @@
 
 **Goal:** Build the reusable executable-check harness (the "core"), delivered through the first anchor — a **conformance net** that fails CI when *new* migrations introduce a deprecated pattern (legacy `NUMERIC(x,y)`, legacy RLS helpers), while grandfathering existing violations via a baseline.
 
-**Architecture:** A new `@carbon/core` package holds typed `ConformanceCheck`s (pure functions over file contents) and a baseline-aware runner. A CI-facing vitest test scans the real `packages/database/supabase/migrations/*.sql`, subtracts a committed baseline of pre-existing violations, and fails on any *new* one. Because root `pnpm test` → `turbo run test` auto-discovers package `test` scripts, the gate runs in the existing `check.yml` `test` job with no workflow edits.
+**Architecture:** A new `@carbon/checks` package holds typed `ConformanceCheck`s (pure functions over file contents) and a baseline-aware runner. A CI-facing vitest test scans the real `packages/database/supabase/migrations/*.sql`, subtracts a committed baseline of pre-existing violations, and fails on any *new* one. Because root `pnpm test` → `turbo run test` auto-discovers package `test` scripts, the gate runs in the existing `check.yml` `test` job with no workflow edits.
 
 **Tech Stack:** TypeScript, Vitest v4 (no globals — import `describe/it/expect`), Biome (lint/format), `tsx` (scripts), pnpm workspaces + Turborepo. Package scope `@carbon/*`.
 
@@ -15,8 +15,8 @@
 ## File Structure
 
 ```
-packages/core/
-├── package.json                              # @carbon/core, mirrors @carbon/utils (trimmed, no React)
+packages/checks/
+├── package.json                              # @carbon/checks, mirrors @carbon/utils (trimmed, no React)
 ├── tsconfig.json                             # extends @carbon/config/tsconfig/react-library.json
 ├── vitest.config.ts                          # re-export @carbon/config/vitest
 ├── README.md                                 # what the core is; how to add a check; how to re-baseline
@@ -37,27 +37,27 @@ packages/core/
     ├── run.ts                                # CONFORMANCE_CHECKS, scanAll(), newViolations()
     ├── run.test.ts                           # CI-facing gate: zero NEW violations
     └── scripts/
-        └── generate-baseline.ts              # `pnpm --filter @carbon/core baseline`
+        └── generate-baseline.ts              # `pnpm --filter @carbon/checks baseline`
 ```
 
 Each file has one responsibility: `check.ts` = the typed contract; `conformance/*` = one deprecated-pattern scanner each (pure); `sources/*` = reading SQL off disk; `baseline.ts` = grandfathering; `run.ts` = composition; `run.test.ts` = the gate.
 
 ---
 
-## Task 0: Scaffold the `@carbon/core` package
+## Task 0: Scaffold the `@carbon/checks` package
 
 **Files:**
-- Create: `packages/core/package.json`
-- Create: `packages/core/tsconfig.json`
-- Create: `packages/core/vitest.config.ts`
-- Create: `packages/core/src/index.ts`
-- Create: `packages/core/src/smoke.test.ts`
+- Create: `packages/checks/package.json`
+- Create: `packages/checks/tsconfig.json`
+- Create: `packages/checks/vitest.config.ts`
+- Create: `packages/checks/src/index.ts`
+- Create: `packages/checks/src/smoke.test.ts`
 
 - [ ] **Step 1: Write `package.json`**
 
 ```json
 {
-  "name": "@carbon/core",
+  "name": "@carbon/checks",
   "version": "0.0.0",
   "private": true,
   "sideEffects": false,
@@ -111,7 +111,7 @@ export {};
 ```typescript
 import { describe, expect, it } from "vitest";
 
-describe("@carbon/core", () => {
+describe("@carbon/checks", () => {
   it("runs", () => {
     expect(true).toBe(true);
   });
@@ -121,14 +121,14 @@ describe("@carbon/core", () => {
 - [ ] **Step 6: Install + verify the package is wired up**
 
 Run: `pnpm install`
-Then: `pnpm --filter '@carbon/core' test`
-Expected: 1 passing test (`@carbon/core > runs`). If `pnpm --filter` reports "No projects matched", the workspace glob `packages/*` did not pick it up — confirm `packages/core/package.json` exists and re-run `pnpm install`.
+Then: `pnpm --filter '@carbon/checks' test`
+Expected: 1 passing test (`@carbon/checks > runs`). If `pnpm --filter` reports "No projects matched", the workspace glob `packages/*` did not pick it up — confirm `packages/checks/package.json` exists and re-run `pnpm install`.
 
 - [ ] **Step 7: Commit**
 
 ```bash
-git add packages/core pnpm-lock.yaml
-git commit -m "feat(core): scaffold @carbon/core package"
+git add packages/checks pnpm-lock.yaml
+git commit -m "feat(core): scaffold @carbon/checks package"
 ```
 
 ---
@@ -136,7 +136,7 @@ git commit -m "feat(core): scaffold @carbon/core package"
 ## Task 1: The typed contract (`Violation`, `ConformanceCheck`)
 
 **Files:**
-- Create: `packages/core/src/check.ts`
+- Create: `packages/checks/src/check.ts`
 
 This is data-only (types + a key helper later). No test of its own; it's exercised by every check test.
 
@@ -175,13 +175,13 @@ export type ConformanceCheck = {
 
 - [ ] **Step 2: Typecheck**
 
-Run: `pnpm --filter '@carbon/core' typecheck`
+Run: `pnpm --filter '@carbon/checks' typecheck`
 Expected: no errors.
 
 - [ ] **Step 3: Commit**
 
 ```bash
-git add packages/core/src/check.ts
+git add packages/checks/src/check.ts
 git commit -m "feat(core): add ConformanceCheck typed contract"
 ```
 
@@ -190,8 +190,8 @@ git commit -m "feat(core): add ConformanceCheck typed contract"
 ## Task 2: Conformance check — forbid `NUMERIC(x,y)`
 
 **Files:**
-- Create: `packages/core/src/conformance/no-numeric-precision.ts`
-- Test: `packages/core/src/conformance/no-numeric-precision.test.ts`
+- Create: `packages/checks/src/conformance/no-numeric-precision.ts`
+- Test: `packages/checks/src/conformance/no-numeric-precision.test.ts`
 
 - [ ] **Step 1: Write the failing test**
 
@@ -228,7 +228,7 @@ describe("noNumericPrecision", () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm --filter '@carbon/core' test -- src/conformance/no-numeric-precision.test.ts`
+Run: `pnpm --filter '@carbon/checks' test -- src/conformance/no-numeric-precision.test.ts`
 Expected: FAIL — cannot resolve `./no-numeric-precision`.
 
 - [ ] **Step 3: Write the implementation**
@@ -266,13 +266,13 @@ export const noNumericPrecision: ConformanceCheck = {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm --filter '@carbon/core' test -- src/conformance/no-numeric-precision.test.ts`
+Run: `pnpm --filter '@carbon/checks' test -- src/conformance/no-numeric-precision.test.ts`
 Expected: PASS (4 tests).
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/core/src/conformance/no-numeric-precision.ts packages/core/src/conformance/no-numeric-precision.test.ts
+git add packages/checks/src/conformance/no-numeric-precision.ts packages/checks/src/conformance/no-numeric-precision.test.ts
 git commit -m "feat(core): conformance check forbidding NUMERIC(x,y)"
 ```
 
@@ -281,8 +281,8 @@ git commit -m "feat(core): conformance check forbidding NUMERIC(x,y)"
 ## Task 3: Conformance check — forbid legacy RLS helper
 
 **Files:**
-- Create: `packages/core/src/conformance/no-legacy-rls.ts`
-- Test: `packages/core/src/conformance/no-legacy-rls.test.ts`
+- Create: `packages/checks/src/conformance/no-legacy-rls.ts`
+- Test: `packages/checks/src/conformance/no-legacy-rls.test.ts`
 
 > Rationale: the current RLS pattern is `get_companies_with_employee_permission(...)`; the deprecated one used `has_role(...) AND has_company_permission(...)`. We key on `has_company_permission(` as the unambiguous deprecated marker (spec §5.7; transition event `20250201181148_rls-refactor.sql`).
 
@@ -315,7 +315,7 @@ describe("noLegacyRls", () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm --filter '@carbon/core' test -- src/conformance/no-legacy-rls.test.ts`
+Run: `pnpm --filter '@carbon/checks' test -- src/conformance/no-legacy-rls.test.ts`
 Expected: FAIL — cannot resolve `./no-legacy-rls`.
 
 - [ ] **Step 3: Write the implementation**
@@ -354,13 +354,13 @@ export const noLegacyRls: ConformanceCheck = {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm --filter '@carbon/core' test -- src/conformance/no-legacy-rls.test.ts`
+Run: `pnpm --filter '@carbon/checks' test -- src/conformance/no-legacy-rls.test.ts`
 Expected: PASS (3 tests).
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/core/src/conformance/no-legacy-rls.ts packages/core/src/conformance/no-legacy-rls.test.ts
+git add packages/checks/src/conformance/no-legacy-rls.ts packages/checks/src/conformance/no-legacy-rls.test.ts
 git commit -m "feat(core): conformance check forbidding legacy RLS helper"
 ```
 
@@ -369,8 +369,8 @@ git commit -m "feat(core): conformance check forbidding legacy RLS helper"
 ## Task 4: Migration source loader
 
 **Files:**
-- Create: `packages/core/src/sources/migrations.ts`
-- Test: `packages/core/src/sources/migrations.test.ts`
+- Create: `packages/checks/src/sources/migrations.ts`
+- Test: `packages/checks/src/sources/migrations.test.ts`
 
 - [ ] **Step 1: Write the failing test** (fixture-based, no dependency on the real repo tree)
 
@@ -396,7 +396,7 @@ describe("loadSqlFiles", () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm --filter '@carbon/core' test -- src/sources/migrations.test.ts`
+Run: `pnpm --filter '@carbon/checks' test -- src/sources/migrations.test.ts`
 Expected: FAIL — cannot resolve `./migrations`.
 
 - [ ] **Step 3: Write the implementation**
@@ -409,7 +409,7 @@ export type SqlFile = { file: string; contents: string };
 
 const MIGRATIONS_REL = "packages/database/supabase/migrations";
 
-/** Repo root, resolved from the package cwd (Vitest/Turbo run with cwd = packages/core). */
+/** Repo root, resolved from the package cwd (Vitest/Turbo run with cwd = packages/checks). */
 export function repoRoot(): string {
   const root = resolve(process.cwd(), "../..");
   if (!existsSync(join(root, MIGRATIONS_REL))) {
@@ -434,13 +434,13 @@ export function loadSqlFiles(dir: string): SqlFile[] {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm --filter '@carbon/core' test -- src/sources/migrations.test.ts`
+Run: `pnpm --filter '@carbon/checks' test -- src/sources/migrations.test.ts`
 Expected: PASS.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/core/src/sources/migrations.ts packages/core/src/sources/migrations.test.ts
+git add packages/checks/src/sources/migrations.ts packages/checks/src/sources/migrations.test.ts
 git commit -m "feat(core): migration SQL file loader"
 ```
 
@@ -449,8 +449,8 @@ git commit -m "feat(core): migration SQL file loader"
 ## Task 5: Baseline (grandfather existing violations)
 
 **Files:**
-- Create: `packages/core/src/baseline.ts`
-- Test: `packages/core/src/baseline.test.ts`
+- Create: `packages/checks/src/baseline.ts`
+- Test: `packages/checks/src/baseline.test.ts`
 
 - [ ] **Step 1: Write the failing test**
 
@@ -491,7 +491,7 @@ describe("baseline", () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm --filter '@carbon/core' test -- src/baseline.test.ts`
+Run: `pnpm --filter '@carbon/checks' test -- src/baseline.test.ts`
 Expected: FAIL — cannot resolve `./baseline`.
 
 - [ ] **Step 3: Write the implementation**
@@ -535,13 +535,13 @@ export function writeBaseline(keys: BaselineKey[], path = BASELINE_PATH): void {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm --filter '@carbon/core' test -- src/baseline.test.ts`
+Run: `pnpm --filter '@carbon/checks' test -- src/baseline.test.ts`
 Expected: PASS (3 tests).
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/core/src/baseline.ts packages/core/src/baseline.test.ts
+git add packages/checks/src/baseline.ts packages/checks/src/baseline.test.ts
 git commit -m "feat(core): line-independent violation baseline"
 ```
 
@@ -550,9 +550,9 @@ git commit -m "feat(core): line-independent violation baseline"
 ## Task 6: Runner + baseline generation script
 
 **Files:**
-- Create: `packages/core/src/run.ts`
-- Create: `packages/core/src/scripts/generate-baseline.ts`
-- Test: `packages/core/src/run.test.ts` (unit portion first; the real-migrations gate is Task 7)
+- Create: `packages/checks/src/run.ts`
+- Create: `packages/checks/src/scripts/generate-baseline.ts`
+- Test: `packages/checks/src/run.test.ts` (unit portion first; the real-migrations gate is Task 7)
 
 - [ ] **Step 1: Write the failing test for `scanAll` (pure composition)**
 
@@ -577,7 +577,7 @@ describe("scanAll", () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm --filter '@carbon/core' test -- src/run.test.ts`
+Run: `pnpm --filter '@carbon/checks' test -- src/run.test.ts`
 Expected: FAIL — cannot resolve `./run`.
 
 - [ ] **Step 3: Write `src/run.ts`**
@@ -621,7 +621,7 @@ export function newViolations(): Finding[] {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm --filter '@carbon/core' test -- src/run.test.ts`
+Run: `pnpm --filter '@carbon/checks' test -- src/run.test.ts`
 Expected: PASS (the `scanAll` test).
 
 - [ ] **Step 5: Write the baseline generation script `src/scripts/generate-baseline.ts`**
@@ -639,14 +639,14 @@ console.log(`Wrote ${keys.length} baselined conformance violations.`);
 
 - [ ] **Step 6: Generate the baseline against the real migrations**
 
-Run: `pnpm --filter '@carbon/core' baseline`
-Expected: prints e.g. `Wrote <N> baselined conformance violations.` and creates `packages/core/src/conformance/baseline.json`. `N` should be large (hundreds — the legacy `NUMERIC(x,y)` and RLS occurrences). Sanity-check it is non-empty:
-`head -5 packages/core/src/conformance/baseline.json`
+Run: `pnpm --filter '@carbon/checks' baseline`
+Expected: prints e.g. `Wrote <N> baselined conformance violations.` and creates `packages/checks/src/conformance/baseline.json`. `N` should be large (hundreds — the legacy `NUMERIC(x,y)` and RLS occurrences). Sanity-check it is non-empty:
+`head -5 packages/checks/src/conformance/baseline.json`
 
 - [ ] **Step 7: Commit**
 
 ```bash
-git add packages/core/src/run.ts packages/core/src/run.test.ts packages/core/src/scripts/generate-baseline.ts packages/core/src/conformance/baseline.json
+git add packages/checks/src/run.ts packages/checks/src/run.test.ts packages/checks/src/scripts/generate-baseline.ts packages/checks/src/conformance/baseline.json
 git commit -m "feat(core): conformance runner + generated baseline"
 ```
 
@@ -655,7 +655,7 @@ git commit -m "feat(core): conformance runner + generated baseline"
 ## Task 7: The CI-facing gate test (zero NEW violations)
 
 **Files:**
-- Modify: `packages/core/src/run.test.ts` (append the gate test)
+- Modify: `packages/checks/src/run.test.ts` (append the gate test)
 
 - [ ] **Step 1: Append the gate test to `src/run.test.ts`**
 
@@ -678,7 +678,7 @@ describe("conformance gate (real migrations vs baseline)", () => {
 
 - [ ] **Step 2: Run the whole package suite — the gate must be GREEN now**
 
-Run: `pnpm --filter '@carbon/core' test`
+Run: `pnpm --filter '@carbon/checks' test`
 Expected: ALL tests pass, including the gate (because every current violation is in the baseline → `newViolations()` is empty).
 
 - [ ] **Step 3: Prove the gate actually catches a NEW violation (regression-replay)**
@@ -687,20 +687,20 @@ Create a throwaway migration with a forbidden pattern:
 ```bash
 printf 'CREATE TABLE core_probe (amount NUMERIC(10,2));\n' > packages/database/supabase/migrations/29990101000000_core_probe.sql
 ```
-Run: `pnpm --filter '@carbon/core' test -- src/run.test.ts`
+Run: `pnpm --filter '@carbon/checks' test -- src/run.test.ts`
 Expected: the gate test FAILS, naming `29990101000000_core_probe.sql` with a `numeric(10,2)` snippet. This is the proof the gate works.
 
 Now delete the probe:
 ```bash
 rm packages/database/supabase/migrations/29990101000000_core_probe.sql
 ```
-Re-run: `pnpm --filter '@carbon/core' test -- src/run.test.ts`
+Re-run: `pnpm --filter '@carbon/checks' test -- src/run.test.ts`
 Expected: PASS again.
 
 - [ ] **Step 4: Commit**
 
 ```bash
-git add packages/core/src/run.test.ts
+git add packages/checks/src/run.test.ts
 git commit -m "feat(core): CI gate failing on new conformance violations"
 ```
 
@@ -709,8 +709,8 @@ git commit -m "feat(core): CI gate failing on new conformance violations"
 ## Task 8: Barrel export, README, and CI verification
 
 **Files:**
-- Modify: `packages/core/src/index.ts`
-- Create: `packages/core/README.md`
+- Modify: `packages/checks/src/index.ts`
+- Create: `packages/checks/README.md`
 
 - [ ] **Step 1: Write the barrel `src/index.ts`**
 
@@ -724,7 +724,7 @@ export { CONFORMANCE_CHECKS, type Finding, newViolations, scanAll } from "./run"
 - [ ] **Step 2: Write `README.md`**
 
 ```markdown
-# @carbon/core
+# @carbon/checks
 
 Executable checks for the loop system's "core" (see `llm/plans/loops/design.md`).
 
@@ -735,30 +735,30 @@ grandfathered in `src/conformance/baseline.json`; only **new** violations fail C
 
 - Add a check: implement a `ConformanceCheck` under `src/conformance/`, add it to
   `CONFORMANCE_CHECKS` in `src/run.ts`, then re-baseline.
-- Re-baseline (after intentionally accepting current state): `pnpm --filter @carbon/core baseline`
-- Run the gate: `pnpm --filter @carbon/core test`
+- Re-baseline (after intentionally accepting current state): `pnpm --filter @carbon/checks baseline`
+- Run the gate: `pnpm --filter @carbon/checks test`
 
 Each check records `provenance` (the transition event that retired the old pattern).
 ```
 
 - [ ] **Step 3: Verify typecheck, lint, and the full suite pass**
 
-Run: `pnpm --filter '@carbon/core' typecheck`
+Run: `pnpm --filter '@carbon/checks' typecheck`
 Expected: no errors.
-Run: `pnpm --filter '@carbon/core' lint`
+Run: `pnpm --filter '@carbon/checks' lint`
 Expected: no errors (Biome may auto-format).
-Run: `pnpm --filter '@carbon/core' test`
+Run: `pnpm --filter '@carbon/checks' test`
 Expected: all pass.
 
 - [ ] **Step 4: Verify it runs as part of the monorepo gate (what CI does)**
 
 Run: `pnpm test`
-Expected: Turbo runs `@carbon/core`'s `test` script among the others and it passes. This confirms `check.yml`'s `test` job (which runs `pnpm test`) now includes the conformance gate — **no workflow edit required.**
+Expected: Turbo runs `@carbon/checks`'s `test` script among the others and it passes. This confirms `check.yml`'s `test` job (which runs `pnpm test`) now includes the conformance gate — **no workflow edit required.**
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/core/src/index.ts packages/core/README.md
+git add packages/checks/src/index.ts packages/checks/README.md
 git commit -m "feat(core): barrel exports + README"
 ```
 
@@ -769,12 +769,12 @@ git commit -m "feat(core): barrel exports + README"
 - **Spec coverage:** §5.7 conformance net → Tasks 2,3,7 (deprecated-pattern gates + transition-event provenance); §6 typed contracts → Task 1 (`ConformanceCheck`/`Violation`); §5.8 "core runs against HEAD in CI" → Tasks 7,8 (gate runs in `check.yml` `test` job). Baselining (legacy grandfathering) → Tasks 5,6. *Not covered here (by design):* invariant net (Plan 2), reproduce-fix conductor (Plan 3), drift-detection loop / scoring / promotion-to-constraint (later milestones).
 - **Placeholder scan:** none — every step has concrete code/commands.
 - **Type consistency:** `Violation`, `ConformanceCheck`, `Finding`, `keyOf`, `scanAll`, `newViolations`, `loadSqlFiles`, `migrationsDir`, `repoRoot`, `loadBaseline`/`parseBaseline`/`writeBaseline` are defined once and used with identical signatures across Tasks 1–8.
-- **Risk:** the only file touched outside `packages/core` is the temporary probe migration in Task 7 step 3, which is created and deleted within the same task.
+- **Risk:** the only file touched outside `packages/checks` is the temporary probe migration in Task 7 step 3, which is created and deleted within the same task.
 
 ---
 
 ## Open items to confirm during execution
 
 - Catalog entries for `tsx`, `rimraf`, `@types/node` (Task 0 note). If absent, copy the exact version from `@carbon/utils`/root.
-- `tsgo` is the typecheck binary used by `@carbon/utils`; if `pnpm --filter '@carbon/core' typecheck` cannot find it, ensure `@carbon/config` (which provides it) is in `devDependencies` (it is, per Task 0).
+- `tsgo` is the typecheck binary used by `@carbon/utils`; if `pnpm --filter '@carbon/checks' typecheck` cannot find it, ensure `@carbon/config` (which provides it) is in `devDependencies` (it is, per Task 0).
 - Whether the team wants the conformance gate as its own named CI job (clearer failure signal) rather than folded into `test`. Default here: folded in (zero workflow edits). Promoting to a dedicated job is a 6-line addition to `check.yml` mirroring the existing `test` job.

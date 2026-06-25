@@ -5,7 +5,7 @@ export type SqlFile = { file: string; contents: string };
 
 const MIGRATIONS_REL = "packages/database/supabase/migrations";
 
-/** Repo root, resolved from the package cwd (Vitest/Turbo run with cwd = packages/core). */
+/** Repo root, resolved from the package cwd (Vitest/Turbo run with cwd = packages/checks). */
 export function repoRoot(): string {
   const root = resolve(process.cwd(), "../..");
   if (!existsSync(join(root, MIGRATIONS_REL))) {

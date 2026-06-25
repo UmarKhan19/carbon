@@ -44,7 +44,7 @@ describe("runInvariants", () => {
 
 describe("seed invariants", () => {
   it("loads the committed invariants directory", () => {
-    const dir = `${repoRoot()}/packages/core/src/invariants`;
+    const dir = `${repoRoot()}/packages/checks/src/invariants`;
     const inv = loadInvariants(dir);
     expect(inv.length).toBeGreaterThanOrEqual(1);
     expect(inv.some((i) => i.id === "tracked-entity-readable-id")).toBe(true);

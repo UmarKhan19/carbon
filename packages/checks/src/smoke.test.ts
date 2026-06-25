@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-describe("@carbon/core", () => {
+describe("@carbon/checks", () => {
   it("runs", () => {
     expect(true).toBe(true);
   });

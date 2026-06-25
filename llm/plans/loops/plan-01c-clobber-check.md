@@ -2,7 +2,7 @@
 
 > **For agentic workers:** Use superpowers:subagent-driven-development. Steps use `- [ ]`.
 
-**Goal:** Add a "clobber" check to `@carbon/core` that flags any full-redefinition DB object (view, function, `attach_event_trigger`, RLS policy) redefined on **both** the PR branch and `main` since their merge-base — the silent regression where two branches each add a separate migration redefining the same object, git merges cleanly, and the later apply clobbers the earlier.
+**Goal:** Add a "clobber" check to `@carbon/checks` that flags any full-redefinition DB object (view, function, `attach_event_trigger`, RLS policy) redefined on **both** the PR branch and `main` since their merge-base — the silent regression where two branches each add a separate migration redefining the same object, git merges cleanly, and the later apply clobbers the earlier.
 
 **Architecture:** Pure core — `objectRefs(sql)` extracts redefined object identifiers (data-driven regex list), `findClobbers(branchFiles, mainFiles)` returns the intersection — unit-tested with inline fixtures, no git. A thin git CLI (`scripts/check-clobbers.ts`) computes the merge-base with `origin/main`, gathers the migration files changed on each side, reads their contents, and runs `findClobbers`. Mirrors the invariant net's pure-core + thin-IO-wrapper split.
 
@@ -16,7 +16,7 @@
 
 ## File Structure
 ```
-packages/core/src/
+packages/checks/src/
 ├── clobber.ts                 # NEW: objectRefs(), findClobbers()  (pure)
 ├── clobber.test.ts            # NEW: unit tests, inline fixtures
 ├── scripts/check-clobbers.ts  # NEW: git-aware CLI
@@ -27,7 +27,7 @@ packages/core/src/
 
 ## Task 1: Pure core — `objectRefs` + `findClobbers`
 
-**Files:** Create `packages/core/src/clobber.ts` + `packages/core/src/clobber.test.ts`. Reuses `Violation` from `./check`.
+**Files:** Create `packages/checks/src/clobber.ts` + `packages/checks/src/clobber.test.ts`. Reuses `Violation` from `./check`.
 
 - [ ] **Step 1: Write the failing test** `src/clobber.test.ts`:
 ```typescript
@@ -70,7 +70,7 @@ describe("findClobbers", () => {
 });
 ```
 
-- [ ] **Step 2:** Run `pnpm --filter '@carbon/core' test -- src/clobber.test.ts` → FAIL.
+- [ ] **Step 2:** Run `pnpm --filter '@carbon/checks' test -- src/clobber.test.ts` → FAIL.
 
 - [ ] **Step 3: Write `src/clobber.ts`**:
 ```typescript
@@ -137,16 +137,16 @@ export function findClobbers(
 }
 ```
 
-- [ ] **Step 4:** Run test → PASS (4 tests). Then `pnpm --filter '@carbon/core' typecheck` (clean).
+- [ ] **Step 4:** Run test → PASS (4 tests). Then `pnpm --filter '@carbon/checks' typecheck` (clean).
 - [ ] **Step 5:** Commit the two files: `git commit -m "feat(core): clobber-detection core (concurrent redefinition)"`.
 
 ---
 
 ## Task 2: The git CLI
 
-**Files:** Create `packages/core/src/scripts/check-clobbers.ts`; add a `clobbers` script to `packages/core/package.json`.
+**Files:** Create `packages/checks/src/scripts/check-clobbers.ts`; add a `clobbers` script to `packages/checks/package.json`.
 
-- [ ] **Step 1: Add script** to `packages/core/package.json`: `"clobbers": "tsx src/scripts/check-clobbers.ts"`.
+- [ ] **Step 1: Add script** to `packages/checks/package.json`: `"clobbers": "tsx src/scripts/check-clobbers.ts"`.
 
 - [ ] **Step 2: Write `src/scripts/check-clobbers.ts`**:
 ```typescript
@@ -204,11 +204,11 @@ function main() {
 main();
 ```
 
-- [ ] **Step 3:** `pnpm --filter '@carbon/core' typecheck` (clean), `lint` (clean).
+- [ ] **Step 3:** `pnpm --filter '@carbon/checks' typecheck` (clean), `lint` (clean).
 
-- [ ] **Step 4: Live smoke run** (we are on a real branch with `origin/main`): `pnpm --filter '@carbon/core' clobbers`. Expected on `feat/loops`: `No clobber risks vs origin/main ...` (this branch adds no view/function redefinitions). If `origin/main` isn't present, run `git fetch origin main` first. Report the output. (This proves the git plumbing works end-to-end; the *detection* itself is proven by the unit tests.)
+- [ ] **Step 4: Live smoke run** (we are on a real branch with `origin/main`): `pnpm --filter '@carbon/checks' clobbers`. Expected on `feat/loops`: `No clobber risks vs origin/main ...` (this branch adds no view/function redefinitions). If `origin/main` isn't present, run `git fetch origin main` first. Report the output. (This proves the git plumbing works end-to-end; the *detection* itself is proven by the unit tests.)
 
-- [ ] **Step 5:** Commit: `git add packages/core/package.json packages/core/src/scripts/check-clobbers.ts && git commit -m "feat(core): clobber-check git CLI"`.
+- [ ] **Step 5:** Commit: `git add packages/checks/package.json packages/checks/src/scripts/check-clobbers.ts && git commit -m "feat(core): clobber-check git CLI"`.
 
 ---
 
@@ -218,8 +218,8 @@ main();
 ```typescript
 export { findClobbers, objectRefs, type SourceFile } from "./clobber";
 ```
-- [ ] **Step 2: Add a README section** documenting: clobber = same object redefined on branch + main since merge-base; run via `pnpm --filter @carbon/core clobbers`; grow coverage by adding to `OBJECT_PATTERNS`; runs at PR time, not the static gate.
-- [ ] **Step 3:** `pnpm --filter '@carbon/core' typecheck` (clean), `lint` (clean), `test` (all green).
+- [ ] **Step 2: Add a README section** documenting: clobber = same object redefined on branch + main since merge-base; run via `pnpm --filter @carbon/checks clobbers`; grow coverage by adding to `OBJECT_PATTERNS`; runs at PR time, not the static gate.
+- [ ] **Step 3:** `pnpm --filter '@carbon/checks' typecheck` (clean), `lint` (clean), `test` (all green).
 - [ ] **Step 4:** Commit: `git commit -am "feat(core): export clobber check + README"`.
 
 ---

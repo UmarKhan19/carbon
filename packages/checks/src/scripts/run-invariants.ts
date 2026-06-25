@@ -16,7 +16,7 @@ async function main() {
   await client.connect();
   const query: Query = async (sql) => (await client.query(sql)).rows;
   try {
-    const dir = join(repoRoot(), "packages/core/src/invariants");
+    const dir = join(repoRoot(), "packages/checks/src/invariants");
     const results = await runInvariants(loadInvariants(dir), query);
     let failed = 0;
     for (const r of results) {

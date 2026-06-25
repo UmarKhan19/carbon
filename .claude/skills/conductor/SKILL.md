@@ -1,13 +1,13 @@
 ---
 name: conductor
-description: Supervised loop conductor — drive a single work item (a bug, a usability tweak, a small feature) through a doer→gate→keep-or-revert→ledger cycle to a gated PR, while the human watches. Use when asked to "conduct", "build", "fix", or "loop on" a specific item with the conductor. Supervised only — not autonomous/overnight (not yet supported). Backed by @carbon/harness + the @carbon/core checks.
+description: Supervised loop conductor — drive a single work item (a bug, a usability tweak, a small feature) through a doer→gate→keep-or-revert→ledger cycle to a gated PR, while the human watches. Use when asked to "conduct", "build", "fix", or "loop on" a specific item with the conductor. Supervised only — not autonomous/overnight (not yet supported). Backed by @carbon/harness + the @carbon/checks checks.
 ---
 
 # conductor — supervised loop conductor
 
 You are conducting a **supervised loop**: iterate doer→gate→keep/revert→ledger until the acceptance criteria are met, with the human watching and giving the final approval. Land a **gated PR** — never auto-merge.
 
-This is the execution layer of the loop system (`llm/plans/loops/design.md`). The deterministic helpers live in `@carbon/harness`; the checker is the four `@carbon/core` checks.
+This is the execution layer of the loop system (`llm/plans/loops/design.md`). The deterministic helpers live in `@carbon/harness`; the checker is the four `@carbon/checks` checks.
 
 ## 0. Safety preconditions (do these first)
 - **Never run on `main`.** Confirm `git branch --show-current` is a feature branch; if on `main`, create one first.
@@ -28,7 +28,7 @@ For each iteration:
    - **Schema/migration changes:** after the change, regenerate types (`pnpm run generate:types`) BEFORE typechecking — a typecheck against stale types is a false green.
    - **Module code:** keep one `<module>.service.ts` and one `<module>.models.ts` per module; never scatter new service/models files.
 
-2. **Gate — run the floor gates.** `pnpm --filter @carbon/harness gates` (lint + `@carbon/core` conformance + clobbers). Also run `typecheck` for each package you touched (per-package, never whole-repo). For a bug/feature, also satisfy the acceptance criteria via the **reproduce→fix→same-path** test where one applies (a unit test, or an agent-browser playbook via the `test` skill) — write the test that fails on the bug, fix, watch the same test pass.
+2. **Gate — run the floor gates.** `pnpm --filter @carbon/harness gates` (lint + `@carbon/checks` conformance + clobbers). Also run `typecheck` for each package you touched (per-package, never whole-repo). For a bug/feature, also satisfy the acceptance criteria via the **reproduce→fix→same-path** test where one applies (a unit test, or an agent-browser playbook via the `test` skill) — write the test that fails on the bug, fix, watch the same test pass.
    - If any gate fails: fix it, or revert this iteration's change.
 
 3. **Judge — dispatch a separate review subagent** (NOT yourself) to check the diff against the acceptance criteria and the design rules. It may send work back. Do not grade your own homework.
