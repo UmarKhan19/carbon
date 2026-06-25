@@ -3541,9 +3541,6 @@ msgstr "材料タイプを編集"
 msgid "Edit Non Conformance Type"
 msgstr "不適合タイプを編集"
 
-msgid "Edit notes"
-msgstr ""
-
 msgid "Edit Part"
 msgstr "パーツを編集"
 

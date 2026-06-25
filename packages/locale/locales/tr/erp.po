@@ -3541,9 +3541,6 @@ msgstr "Malzeme Tipini Düzenle"
 msgid "Edit Non Conformance Type"
 msgstr "Uygunsuzluk Türünü Düzenle"
 
-msgid "Edit notes"
-msgstr ""
-
 msgid "Edit Part"
 msgstr "Parç Düzenle"
 

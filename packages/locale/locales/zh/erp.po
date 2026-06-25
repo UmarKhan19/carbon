@@ -3541,9 +3541,6 @@ msgstr "编辑材料类型"
 msgid "Edit Non Conformance Type"
 msgstr "编辑不符合项类型"
 
-msgid "Edit notes"
-msgstr ""
-
 msgid "Edit Part"
 msgstr "编辑零件"
 

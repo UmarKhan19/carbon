@@ -3541,9 +3541,6 @@ msgstr "Material Type bearbeiten"
 msgid "Edit Non Conformance Type"
 msgstr "Nichtkonformitätstyp bearbeiten"
 
-msgid "Edit notes"
-msgstr ""
-
 msgid "Edit Part"
 msgstr "Teil bearbeiten"
 

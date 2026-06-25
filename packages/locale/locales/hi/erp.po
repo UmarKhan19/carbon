@@ -3541,9 +3541,6 @@ msgstr "सामग्री प्रकार संपादित करे
 msgid "Edit Non Conformance Type"
 msgstr "गैर अनुरूपता प्रकार संपादित करें"
 
-msgid "Edit notes"
-msgstr ""
-
 msgid "Edit Part"
 msgstr "भाग संपादित करें"
 

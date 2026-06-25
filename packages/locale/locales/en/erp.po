@@ -3541,9 +3541,6 @@ msgstr "Edit Material Type"
 msgid "Edit Non Conformance Type"
 msgstr "Edit Non Conformance Type"
 
-msgid "Edit notes"
-msgstr "Edit notes"
-
 msgid "Edit Part"
 msgstr "Edit Part"
 
