@@ -10,7 +10,7 @@
 
 **Tech Stack:** TypeScript, Vitest globals-off, Biome, tsx, `node:child_process`. `noUncheckedIndexedAccess` ON. Dependency-free binding parser (no YAML lib).
 
-**Scope boundary (v1 NOT included):** autonomous/overnight scheduling, `crbn` worktree fan-out, risk-policy Interviewer, declarative DOT pipelines for features, checkpoint/resume, TDD/behavior gates. Those are later plans; v1 is the smallest *runnable* supervised loop.
+**Scope boundary (v1 NOT included):** autonomous/overnight scheduling, `crbn` worktree fan-out, risk-policy Interviewer, declarative DOT pipelines for features, checkpoint/resume, TDD-mandatory + calibrated-judge gates. Those are later plans; v1 is the smallest *runnable* supervised loop. **Visual e2e behavior verification IS in v1** — a UI change is never done without booting the stack and confirming it in the running app (mandatory behavior gate; see the conductor skill §2b).
 
 ---
 
