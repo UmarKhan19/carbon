@@ -7,8 +7,8 @@ import {
   BACKUP_KIND,
   BACKUP_VERSION,
   backupAssetsDir,
-  backupManifestPath,
   backupTablePath,
+  buildScopeFilter,
   copyAssetsToBackup,
   encodeValue,
   getCompanyTableCatalog,
@@ -16,7 +16,8 @@ import {
   mapWithConcurrency,
   SECRET_TABLES,
   STORAGE_BUCKET,
-  serializeTable
+  serializeTable,
+  writeBackupManifest
 } from "./company-backup";
 
 // Assets are copied server-side into the backup's `assets/` folder (no bytes pass
@@ -95,24 +96,24 @@ export async function buildCompanyBackup(
     .filter((t) => secretTables.has(t.name))
     .map((t) => t.name);
   const exportable = catalog.tables.filter((t) => !secretTables.has(t.name));
+  const byName = new Map(catalog.tables.map((t) => [t.name, t]));
 
   // Dump each non-empty table to its own `tables/<table>.ndjson.gz`, in parallel.
   const tableManifest: Manifest["tables"] = [];
   await mapWithConcurrency(exportable, TABLE_CONCURRENCY, async (table) => {
-    // companyGroup-scoped tables (chart of accounts, currencies, …) are filtered
-    // by the company's group; everything else by companyId.
-    const scopeValue =
-      table.scopeColumn === "companyGroupId" ? companyGroupId : companyId;
     const columns = table.columns.filter((c) => !c.isGenerated);
     // a prior import's revert ledger must never travel in an artifact
     const ledgerFilter =
       table.name === "externalIntegrationMapping"
         ? sql` AND ${sql.id("integration")} != ${BACKUP_INTEGRATION}`
         : sql``;
+    // Direct-scoped tables filter by their companyId/companyGroupId column;
+    // transitively-scoped child tables (contacts, line prices, …) filter through
+    // their parent FK — see buildScopeFilter.
     const result = await sql<Record<string, unknown>>`
       SELECT ${sql.join(columns.map((c) => sql.id(c.name)))}
       FROM ${sql.id(table.name)}
-      WHERE ${sql.id(table.scopeColumn)} = ${scopeValue}${ledgerFilter}
+      WHERE ${buildScopeFilter(table, byName, companyId, companyGroupId)}${ledgerFilter}
     `.execute(db);
 
     if (result.rows.length === 0) return; // empty tables get no file
@@ -181,16 +182,8 @@ export async function buildCompanyBackup(
     excludedTables
   };
 
-  const manifestUpload = await client.storage
-    .from(companyId)
-    .upload(backupManifestPath(name), Buffer.from(JSON.stringify(manifest)), {
-      contentType: "application/json",
-      upsert: true
-    });
-  if (manifestUpload.error) {
-    throw new Error(`manifest: ${manifestUpload.error.message}`);
-  }
-
+  // The manifest is NOT written here — the caller writes it LAST (after assets)
+  // via writeBackupManifest, so its presence marks the backup as complete.
   const rows = tableManifest.reduce((sum, t) => sum + t.rows, 0);
   return { name, manifest, rows, assetSourcePaths };
 }
@@ -218,13 +211,17 @@ export const companyExportFunction = inngest.createFunction(
         });
 
       // Copy the in-scope assets server-side into the backup's `assets/` folder.
-      // Best-effort (matches restore/import): the table files + manifest are
-      // already committed.
+      // Best-effort (matches restore/import): the table files are already
+      // committed; per-file copy failures only warn.
       const assets = await copyAssetsToBackup(client, {
         sourcePaths: assetSourcePaths,
         destBucket: companyId,
         destPrefix: backupAssetsDir(name)
       });
+
+      // Manifest LAST — its presence marks the backup complete, so the list never
+      // shows a half-written backup as ready.
+      await writeBackupManifest(client, companyId, name, manifest);
 
       console.log("Company export complete", {
         companyId,

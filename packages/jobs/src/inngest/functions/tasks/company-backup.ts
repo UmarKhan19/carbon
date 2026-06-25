@@ -8,7 +8,7 @@ import {
   type KyselyDatabase
 } from "@carbon/database/client";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { type Kysely, PostgresDriver, sql } from "kysely";
+import { type Kysely, PostgresDriver, type RawBuilder, sql } from "kysely";
 import { nanoid } from "nanoid";
 
 /**
@@ -187,13 +187,30 @@ export type ForeignKey = {
   refColumn: string;
 };
 
+/**
+ * How a table's rows are scoped to a company:
+ * - `direct`: the table itself has a `companyId`/`companyGroupId` column.
+ * - `via`: the table has no scope column but a FK (`column` → `parent.refColumn`)
+ *   to a table that IS scoped (possibly transitively). It inherits that scope —
+ *   e.g. `customerContact.customerId → customer`. Resolved from the FK graph so
+ *   child tables (contacts, locations, line prices, history) travel with their
+ *   parent without a hand-maintained list.
+ */
+export type Scope =
+  | { kind: "direct"; column: "companyId" | "companyGroupId" }
+  | { kind: "via"; column: string; refColumn: string; parent: string };
+
 export type TableInfo = {
   name: string;
   columns: ColumnInfo[];
+  /** How the table is scoped to a company (direct column or via a parent FK). */
+  scope: Scope;
   /**
-   * The tenant column the rows are filtered/stamped by. Most data is
-   * `companyId`-scoped; the chart of accounts and other shared config
-   * (account, currency, dimension, …) is `companyGroupId`-scoped.
+   * The resolved ROOT tenant column the rows ultimately belong to — `companyId`
+   * for most data, `companyGroupId` for shared config (chart of accounts,
+   * currencies, …). For a `via` table it's the root ancestor's column. Used for
+   * the "which tenant" decisions (wipe/reseed scope); the actual row filter is
+   * built by `buildScopeFilter`.
    */
   scopeColumn: "companyId" | "companyGroupId";
   /** primary key column names (empty when the table has no PK) */
@@ -270,6 +287,27 @@ export function backupTablesDir(name: string): string {
 }
 export function backupAssetsDir(name: string): string {
   return `${EXPORTS_PREFIX}/${name}/assets`;
+}
+
+/**
+ * Write `manifest.json` — the LAST thing written for a backup, after every table
+ * file and asset is in place. Its presence is the "backup is complete" marker:
+ * the UI lists a folder without a manifest as still-preparing (no size yet), and
+ * restore/import refuse to read one until its manifest exists.
+ */
+export async function writeBackupManifest(
+  client: SupabaseClient,
+  companyId: string,
+  name: string,
+  manifest: Manifest
+): Promise<void> {
+  const up = await client.storage
+    .from(companyId)
+    .upload(backupManifestPath(name), Buffer.from(JSON.stringify(manifest)), {
+      contentType: "application/json",
+      upsert: true
+    });
+  if (up.error) throw new Error(`manifest: ${up.error.message}`);
 }
 
 /**
@@ -407,7 +445,6 @@ export async function getCompanyTableCatalog(
       scopeByTable.set(r.name, "companyGroupId");
     }
   }
-  const tableSet = new Set(scopeByTable.keys());
 
   const columns = await sql<{
     table_name: string;
@@ -460,6 +497,49 @@ export async function getCompanyTableCatalog(
     WHERE con.contype = 'f' AND nsp.nspname = 'public'
   `.execute(db);
 
+  // FK graph for EVERY table (not just the directly-scoped ones), so scope can
+  // be resolved transitively below.
+  const allFksByTable = new Map<string, ForeignKey[]>();
+  for (const f of foreignKeys.rows) {
+    const list = allFksByTable.get(f.table_name) ?? [];
+    list.push({
+      column: f.column_name,
+      refTable: f.ref_table,
+      refColumn: f.ref_column
+    });
+    allFksByTable.set(f.table_name, list);
+  }
+
+  // Resolve scope transitively: a table with no companyId/companyGroupId column
+  // but a FK to an already-scoped table inherits that scope (nearest scoped
+  // parent wins — BFS by passes converges on the shortest path). This pulls in
+  // child tables (contacts, locations, line prices, status history, …) without a
+  // hand-maintained list.
+  const scope = new Map<string, Scope>();
+  const scopeRoot = new Map<string, "companyId" | "companyGroupId">();
+  for (const [name, column] of scopeByTable) {
+    scope.set(name, { kind: "direct", column });
+    scopeRoot.set(name, column);
+  }
+  let resolvedMore = true;
+  while (resolvedMore) {
+    resolvedMore = false;
+    for (const [name, fks] of allFksByTable) {
+      if (scope.has(name) || structural.has(name)) continue;
+      const fk = fks.find((f) => f.refTable !== name && scope.has(f.refTable));
+      if (!fk) continue;
+      scope.set(name, {
+        kind: "via",
+        column: fk.column,
+        refColumn: fk.refColumn,
+        parent: fk.refTable
+      });
+      scopeRoot.set(name, scopeRoot.get(fk.refTable)!);
+      resolvedMore = true;
+    }
+  }
+  const tableSet = new Set(scope.keys());
+
   let schemaVersion = "unknown";
   try {
     const migration = await sql<{ version: string }>`
@@ -511,7 +591,8 @@ export async function getCompanyTableCatalog(
     return {
       name,
       columns: columnsByTable.get(name) ?? [],
-      scopeColumn: scopeByTable.get(name)!,
+      scope: scope.get(name)!,
+      scopeColumn: scopeRoot.get(name)!,
       pkColumns,
       hasId: pkColumns.length === 1 && pkColumns[0] === "id",
       foreignKeys: fksByTable.get(name) ?? []
@@ -669,6 +750,41 @@ export function bindValue(value: unknown, col: ColumnInfo): unknown {
 }
 
 /**
+ * A SQL predicate scoping a table's rows to one company. For a directly-scoped
+ * table it's `companyId = $`; for a `via` table it's
+ * `fk IN (SELECT parent.refColumn FROM parent WHERE <parent's predicate>)`,
+ * recursing to the scoped root. The subquery is NOT correlated (it lists the
+ * parent's ids for the company), so it stays a cheap semi-join. `byName` must
+ * hold every catalog table so parents resolve.
+ */
+export function buildScopeFilter(
+  table: TableInfo,
+  byName: Map<string, TableInfo>,
+  companyId: string,
+  companyGroupId: string | null
+): RawBuilder<unknown> {
+  if (table.scope.kind === "direct") {
+    const value =
+      table.scope.column === "companyGroupId" ? companyGroupId : companyId;
+    return sql`${sql.id(table.scope.column)} = ${value}`;
+  }
+  const parent = byName.get(table.scope.parent);
+  if (!parent) {
+    throw new Error(
+      `Scope parent "${table.scope.parent}" of "${table.name}" is not in the catalog`
+    );
+  }
+  return sql`${sql.id(table.scope.column)} IN (SELECT ${sql.id(
+    table.scope.refColumn
+  )} FROM ${sql.id(table.scope.parent)} WHERE ${buildScopeFilter(
+    parent,
+    byName,
+    companyId,
+    companyGroupId
+  )})`;
+}
+
+/**
  * Of the given tables, return only those the target has NOT yet populated in
  * its scope (companyId or companyGroupId). Reseed import uses this so it
  * never overwrites data the target already owns — a bare clone keeps every
@@ -677,18 +793,16 @@ export function bindValue(value: unknown, col: ColumnInfo): unknown {
 export async function filterUnpopulated(
   db: Kysely<KyselyDatabase>,
   tables: TableInfo[],
+  byName: Map<string, TableInfo>,
   companyId: string,
   companyGroupId: string | null
 ): Promise<TableInfo[]> {
   const isEmpty = await Promise.all(
     tables.map(async (t) => {
-      const scopeValue =
-        t.scopeColumn === "companyGroupId" ? companyGroupId : companyId;
-      if (scopeValue === null) return true;
       const result = await sql<{ present: boolean }>`
         SELECT EXISTS(
           SELECT 1 FROM ${sql.id(t.name)}
-          WHERE ${sql.id(t.scopeColumn)} = ${scopeValue}
+          WHERE ${buildScopeFilter(t, byName, companyId, companyGroupId)}
         ) AS present
       `.execute(db);
       return !result.rows[0]?.present;
@@ -799,17 +913,16 @@ export function assertWipeSafe(
 export async function wipeScopedData(
   trx: Kysely<KyselyDatabase>,
   tables: TableInfo[],
+  byName: Map<string, TableInfo>,
   scope: { companyId: string; companyGroupId: string | null }
 ): Promise<void> {
   for (const table of [...tables].reverse()) {
-    const value =
-      table.scopeColumn === "companyGroupId"
-        ? scope.companyGroupId
-        : scope.companyId;
-    if (value == null) continue;
+    // buildScopeFilter scopes by parent FK for `via` tables; a null
+    // companyGroupId yields `= NULL` (no match), so group data is left untouched
+    // when the company has no group.
     await sql`
       DELETE FROM ${sql.id(table.name)}
-      WHERE ${sql.id(table.scopeColumn)} = ${value}
+      WHERE ${buildScopeFilter(table, byName, scope.companyId, scope.companyGroupId)}
     `.execute(trx);
   }
 }

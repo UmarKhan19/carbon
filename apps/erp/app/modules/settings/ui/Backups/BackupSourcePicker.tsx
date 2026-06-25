@@ -26,7 +26,7 @@ const triggerClass =
 export function BackupSourcePicker({
   backups
 }: {
-  backups: { name: string; exportedAt: string | null }[];
+  backups: { name: string; label: string | null; exportedAt: string | null }[];
 }) {
   const revalidator = useRevalidator();
   const [value, setValue] = useControlField<string>("source");
@@ -38,7 +38,7 @@ export function BackupSourcePicker({
   const label = useMemo(() => {
     if (current.startsWith("backup:")) {
       const match = backups.find((b) => `backup:${b.name}` === current);
-      return match ? formatBackupName(match.name) : "Backup";
+      return match ? match.label || formatBackupName(match.name) : "Backup";
     }
     return "";
   }, [current, backups]);
@@ -117,7 +117,7 @@ export function BackupSourcePicker({
                     >
                       <LuArchive className="mr-2 h-4 w-4 shrink-0 opacity-60" />
                       <span className="flex flex-col">
-                        <span>{formatBackupName(b.name)}</span>
+                        <span>{b.label || formatBackupName(b.name)}</span>
                         <span className="text-xs text-muted-foreground">
                           {formatBackupDate(b.exportedAt, false)}
                         </span>

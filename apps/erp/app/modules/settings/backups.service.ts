@@ -54,6 +54,9 @@ export async function exportCompanyBackup(
 export type CompanyBackupSummary = {
   /** Backup folder name (also the restore `source` identifier). */
   name: string;
+  /** "ready" once manifest.json (the last-written commit marker) exists;
+   *  "pending" while the export is still writing the folder. */
+  status: "ready" | "pending";
   exportedAt: string | null;
   label: string | null;
   rows: number;
@@ -83,6 +86,7 @@ export async function listCompanyBackups(
     folders.map(async (folder): Promise<CompanyBackupSummary> => {
       const summary: CompanyBackupSummary = {
         name: folder.name,
+        status: "pending",
         exportedAt: null,
         label: null,
         rows: 0,
@@ -99,6 +103,7 @@ export async function listCompanyBackups(
             tables?: Array<{ rows?: number }>;
             storage?: Array<{ size?: number; included?: boolean }>;
           };
+          summary.status = "ready";
           summary.exportedAt = m.exportedAt ?? null;
           summary.label = m.label ?? null;
           summary.rows = (m.tables ?? []).reduce(
@@ -109,8 +114,8 @@ export async function listCompanyBackups(
             .filter((x) => x.included)
             .reduce((sum, x) => sum + (x.size ?? 0), 0);
         } catch {
-          // A folder without a readable manifest is a partial/aborted export —
-          // still list it (by name) so the user can delete it.
+          // Manifest present but unreadable — treat as a partial/aborted export
+          // (stays "pending"); still listed by name so the user can delete it.
         }
       }
       return summary;

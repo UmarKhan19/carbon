@@ -147,11 +147,13 @@ export const companyImportFunction = inngest.createFunction(
       // are non-empty replaces every hand-maintained "skip" list and is
       // correct in both cases: a bare clone imports everything, an
       // identity-seeded onboard skips exactly what's already there.
+      const byName = new Map(catalog.tables.map((t) => [t.name, t]));
       const importTables =
         mode === "reseed"
           ? await filterUnpopulated(
               db,
               candidateTables,
+              byName,
               companyId,
               targetGroupId
             )

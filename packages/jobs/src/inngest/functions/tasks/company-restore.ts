@@ -26,7 +26,8 @@ import {
   rewriteStoragePath,
   STORAGE_PATH_COLUMNS,
   selectWipeableTables,
-  wipeScopedData
+  wipeScopedData,
+  writeBackupManifest
 } from "./company-backup";
 import { buildCompanyBackup } from "./company-export";
 
@@ -147,6 +148,7 @@ async function wipeAndLoad(
 
   // Wipe every restorable table (so tables empty in the backup end up empty);
   // reload only those the backup actually has rows for.
+  const byName = new Map(catalog.tables.map((t) => [t.name, t]));
   const wipeTables = selectWipeableTables(catalog, { includeGroup });
   const loadTables = wipeTables.filter(
     (t) => (backup.data[t.name]?.length ?? 0) > 0
@@ -186,7 +188,7 @@ async function wipeAndLoad(
       await sql`SET LOCAL session_replication_role = 'replica'`.execute(trx);
     }
 
-    await wipeScopedData(trx, wipeTables, {
+    await wipeScopedData(trx, wipeTables, byName, {
       companyId,
       companyGroupId: targetGroupId
     });
@@ -459,16 +461,23 @@ export const companyRestoreFunction = inngest.createFunction(
         //    capture the WIPED state and overwrite the real pre-restore copy.
         let snapshotPath = existing?.metadata.snapshotPath ?? undefined;
         if (!snapshotPath) {
-          // buildCompanyBackup writes the snapshot folder (tables + manifest)
-          // directly; the marker stores the folder name.
+          // buildCompanyBackup writes the snapshot's table files; the manifest is
+          // written last (its presence marks the snapshot complete). The marker
+          // stores the folder name.
           snapshotPath = `_pre-restore-${restoreRunId}`;
-          await buildCompanyBackup(client, db, {
+          const snapshot = await buildCompanyBackup(client, db, {
             companyId,
             userId,
             label: `Pre-restore ${restoreRunId}`,
             includeStorage: "all",
             name: snapshotPath
           });
+          await writeBackupManifest(
+            client,
+            companyId,
+            snapshotPath,
+            snapshot.manifest
+          );
           await writeRestoreMarker(client, {
             companyId,
             userId,
