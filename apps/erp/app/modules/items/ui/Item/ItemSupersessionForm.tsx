@@ -31,38 +31,40 @@ import {
 
 type SupersessionMode = (typeof supersessionModes)[number];
 
-const modeDescriptions: Record<SupersessionMode, string> = {
-  "Consume First": "Use remaining stock before switching to the successor",
-  "Prefer New": "Default to the successor; old part as fallback only",
-  "Stock Only": "Hold a minimum reserve for service; no production use",
-  "No Stock": "Fully obsolete — do not plan or stock"
-};
-
-const modeStatusColor: Record<
+// Single source of truth for how each supersession mode is presented — the same
+// color is used everywhere the mode shows up (the mode picker options and the
+// item lifecycle badge), so the two never drift.
+const supersessionModeMeta: Record<
   SupersessionMode,
-  "green" | "blue" | "orange" | "red"
+  { color: "green" | "blue" | "orange" | "red"; description: string }
 > = {
-  "Consume First": "green",
-  "Prefer New": "blue",
-  "Stock Only": "orange",
-  "No Stock": "red"
+  "Consume First": {
+    color: "green",
+    description: "Use remaining stock before switching to the successor"
+  },
+  "Prefer New": {
+    color: "blue",
+    description: "Default to the successor; old part as fallback only"
+  },
+  "Stock Only": {
+    color: "orange",
+    description: "Hold a minimum reserve for service; no production use"
+  },
+  "No Stock": {
+    color: "red",
+    description: "Fully obsolete — do not plan or stock"
+  }
 };
 
 // Derived lifecycle status shown on the item header (PRD: Active has no badge).
+// Labelled with the mode name so it matches the mode picker exactly.
 export function getItemLifecycleStatus(
   mode: SupersessionMode | null | undefined
-): { label: string; color: "orange" | "gray" | "red" } | null {
-  switch (mode) {
-    case "Consume First":
-    case "Prefer New":
-      return { label: "Phase-out", color: "orange" };
-    case "Stock Only":
-      return { label: "Spares only", color: "gray" };
-    case "No Stock":
-      return { label: "Obsolete", color: "red" };
-    default:
-      return null;
-  }
+): { label: string; color: "green" | "blue" | "orange" | "red" } | null {
+  if (!mode) return null;
+  const meta = supersessionModeMeta[mode];
+  if (!meta) return null;
+  return { label: mode, color: meta.color };
 }
 
 type SupersessionChainLink = {
@@ -165,10 +167,14 @@ const ItemSupersessionForm = ({
                 label={t`Supersession Mode`}
                 termId="supersession-mode"
                 placeholder={t`None`}
-                helperText={mode ? modeDescriptions[mode] : undefined}
+                helperText={
+                  mode ? supersessionModeMeta[mode].description : undefined
+                }
                 options={supersessionModes.map((value) => ({
                   label: (
-                    <Status color={modeStatusColor[value]}>{value}</Status>
+                    <Status color={supersessionModeMeta[value].color}>
+                      {value}
+                    </Status>
                   ),
                   value
                 }))}

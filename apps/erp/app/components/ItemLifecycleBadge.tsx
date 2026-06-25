@@ -1,9 +1,9 @@
 import { Status } from "@carbon/react";
 import { getItemLifecycleStatus } from "~/modules/items/ui/Item/ItemSupersessionForm";
 
-// Small supersession lifecycle badge (Phase-out / Spares only / Obsolete),
-// reused wherever an item is selected or displayed. Renders nothing for parts
-// with no supersession set.
+// Small supersession lifecycle badge showing the item's supersession mode
+// (Consume First / Prefer New / Stock Only / No Stock), reused wherever an item
+// is selected or displayed. Renders nothing for parts with no supersession set.
 export function ItemLifecycleBadge({
   mode
 }: {
