@@ -11,15 +11,16 @@ import type {
 import {
   assertBackupImportable,
   assertWipeSafe,
-  BACKUP_KIND,
-  backupAssetPrefix,
+  backupAssetsDir,
+  backupDir,
+  backupNameFromSource,
   bindValue,
   canSetReplicationRole,
-  deserializeBackup,
   getCompanyTableCatalog,
   getJobDatabaseClient,
   newIdForTable,
   RESTORE_INTEGRATION,
+  readBackup,
   removeStoragePrefix,
   restoreAssetsFromBackup,
   rewriteStoragePath,
@@ -30,32 +31,12 @@ import {
 import { buildCompanyBackup } from "./company-export";
 
 const INSERT_CHUNK_SIZE = 200;
-const EXPORTS_PREFIX = "exports";
 
 /** FKs to these collapse to the importing user when re-stamping a foreign backup. */
 const USER_REF_TABLES = new Set(["user", "employee"]);
 
 type ServiceRole = ReturnType<typeof getCarbonServiceRole>;
 type JobDatabase = ReturnType<typeof getJobDatabaseClient>;
-
-/** Parse + structurally validate a gzipped backup blob. */
-async function downloadBackup(
-  client: ServiceRole,
-  companyId: string,
-  filePath: string
-): Promise<CompanyBackup> {
-  const download = await client.storage.from(companyId).download(filePath);
-  if (download.error || !download.data) {
-    throw new Error(
-      `Failed to download backup ${filePath}: ${download.error?.message}`
-    );
-  }
-  const backup = await deserializeBackup(await download.data.arrayBuffer());
-  if (backup.manifest?.kind !== BACKUP_KIND) {
-    throw new Error("File is not a Carbon company backup");
-  }
-  return backup;
-}
 
 type Transform = (value: unknown) => unknown;
 
@@ -430,7 +411,8 @@ export const companyRestoreFunction = inngest.createFunction(
       });
 
       try {
-        const backup = await downloadBackup(client, companyId, filePath);
+        const name = backupNameFromSource(filePath);
+        const backup = await readBackup(client, companyId, name);
         const targetGroupId = await getCompanyGroupId(client, companyId);
 
         // Group-scoped data (chart of accounts, currencies, dimensions) is shared
@@ -477,24 +459,16 @@ export const companyRestoreFunction = inngest.createFunction(
         //    capture the WIPED state and overwrite the real pre-restore copy.
         let snapshotPath = existing?.metadata.snapshotPath ?? undefined;
         if (!snapshotPath) {
-          const snapshot = await buildCompanyBackup(client, db, {
+          // buildCompanyBackup writes the snapshot folder (tables + manifest)
+          // directly; the marker stores the folder name.
+          snapshotPath = `_pre-restore-${restoreRunId}`;
+          await buildCompanyBackup(client, db, {
             companyId,
             userId,
             label: `Pre-restore ${restoreRunId}`,
-            includeStorage: "all"
+            includeStorage: "all",
+            name: snapshotPath
           });
-          snapshotPath = `${EXPORTS_PREFIX}/_pre-restore-${restoreRunId}.carbon.json.gz`;
-          const snapshotUpload = await client.storage
-            .from(companyId)
-            .upload(snapshotPath, snapshot.compressed, {
-              contentType: "application/gzip",
-              upsert: true
-            });
-          if (snapshotUpload.error) {
-            throw new Error(
-              `Failed to snapshot before restore: ${snapshotUpload.error.message}`
-            );
-          }
           await writeRestoreMarker(client, {
             companyId,
             userId,
@@ -527,7 +501,7 @@ export const companyRestoreFunction = inngest.createFunction(
             await restoreAssetsFromBackup(client, {
               files: backup.manifest.storage,
               srcBucket: companyId,
-              srcPrefix: backupAssetPrefix(filePath),
+              srcPrefix: backupAssetsDir(name),
               sourceCompanyId: backup.manifest.sourceCompanyId,
               companyId,
               idRewrite
@@ -601,12 +575,7 @@ export const companyRestoreFinalizeFunction = inngest.createFunction(
       const snapshotPath = marker?.metadata.snapshotPath;
 
       if (snapshotPath) {
-        await client.storage.from(companyId).remove([snapshotPath]);
-        await removeStoragePrefix(
-          client,
-          companyId,
-          backupAssetPrefix(snapshotPath)
-        );
+        await removeStoragePrefix(client, companyId, backupDir(snapshotPath));
       }
       await deleteRestoreMarker(client, companyId, restoreRunId);
 
@@ -659,7 +628,7 @@ export const companyRestoreRevertFunction = inngest.createFunction(
         // check). Wipe + reload the SAME scope the forward restore touched so the
         // undo is exact — including group data (chart of accounts) when the
         // forward run covered it.
-        const snapshot = await downloadBackup(client, companyId, snapshotPath);
+        const snapshot = await readBackup(client, companyId, snapshotPath);
         const targetGroupId = await getCompanyGroupId(client, companyId);
         const catalog = await getCompanyTableCatalog(db);
         const { rows, idRewrite } = await wipeAndLoad(db, catalog, snapshot, {
@@ -672,18 +641,13 @@ export const companyRestoreRevertFunction = inngest.createFunction(
         await restoreAssetsFromBackup(client, {
           files: snapshot.manifest.storage,
           srcBucket: companyId,
-          srcPrefix: backupAssetPrefix(snapshotPath),
+          srcPrefix: backupAssetsDir(snapshotPath),
           sourceCompanyId: companyId,
           companyId,
           idRewrite
         });
 
-        await client.storage.from(companyId).remove([snapshotPath]);
-        await removeStoragePrefix(
-          client,
-          companyId,
-          backupAssetPrefix(snapshotPath)
-        );
+        await removeStoragePrefix(client, companyId, backupDir(snapshotPath));
         await deleteRestoreMarker(client, companyId, restoreRunId);
 
         console.log("Company restore reverted", {

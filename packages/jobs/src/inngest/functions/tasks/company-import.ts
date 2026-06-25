@@ -6,17 +6,17 @@ import type { ColumnInfo, TableInfo } from "./company-backup";
 import {
   assertBackupImportable,
   BACKUP_INTEGRATION,
-  BACKUP_KIND,
-  backupAssetPrefix,
+  backupAssetsDir,
+  backupNameFromSource,
   bindValue,
   canSetReplicationRole,
-  deserializeBackup,
   filterUnpopulated,
   getCompanyTableCatalog,
   getJobDatabaseClient,
   isUserScopedIdentityTable,
   newIdForTable,
   RESEED_SKIPPED_TABLES,
+  readBackup,
   restoreAssetsFromBackup,
   rewriteStoragePath,
   rewriteToTemplateAssetPath,
@@ -77,18 +77,9 @@ export const companyImportFunction = inngest.createFunction(
         return { importRunId, skipped: true };
       }
 
-      const download = await client.storage.from(companyId).download(filePath);
-      if (download.error || !download.data) {
-        throw new Error(
-          `Failed to download artifact ${filePath}: ${download.error?.message}`
-        );
-      }
+      const name = backupNameFromSource(filePath);
+      const backup = await readBackup(client, companyId, name);
 
-      const backup = await deserializeBackup(await download.data.arrayBuffer());
-
-      if (backup.manifest?.kind !== BACKUP_KIND) {
-        throw new Error("File is not a Carbon company backup");
-      }
       if (
         mode === "preserve" &&
         backup.manifest.sourceCompanyId !== companyId
@@ -461,7 +452,7 @@ export const companyImportFunction = inngest.createFunction(
         const assets = await restoreAssetsFromBackup(client, {
           files: backup.manifest.storage,
           srcBucket: companyId,
-          srcPrefix: backupAssetPrefix(filePath),
+          srcPrefix: backupAssetsDir(name),
           sourceCompanyId,
           companyId,
           idRewrite

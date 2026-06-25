@@ -31,11 +31,10 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { data, Form, redirect, useFetcher, useLoaderData } from "react-router";
 import { z } from "zod";
 import {
-  deleteCompanyBackupExport,
+  deleteCompanyBackup,
   exportCompanyBackup,
-  getCompanyBackupSignedUrl,
   getCompanyRestoreRuns,
-  listCompanyBackupExports
+  listCompanyBackups
 } from "~/modules/settings";
 import {
   finalizeCompanyRestore,
@@ -61,10 +60,6 @@ export const handle: Handle = {
   breadcrumb: msg`Backups`,
   to: path.to.backups
 };
-
-// Hidden pre-restore snapshots are named `_pre-restore-<runId>` — never shown
-// in the backups list or offered as a restore source.
-const SNAPSHOT_PREFIX = "_pre-restore-";
 
 const exportValidator = z.object({
   intent: z.literal("export"),
@@ -94,35 +89,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
   requireInternal(email);
 
-  const [exportsList, restoreRuns] = await Promise.all([
-    listCompanyBackupExports(client, companyId),
+  const [backupsList, restoreRuns] = await Promise.all([
+    listCompanyBackups(client, companyId),
     getCompanyRestoreRuns(client, companyId)
   ]);
 
-  const files = await Promise.all(
-    (exportsList.data ?? [])
-      // Drop folders and the hidden pre-restore snapshots.
-      .filter((f) => f.id !== null && !f.name.startsWith(SNAPSHOT_PREFIX))
-      .map(async (f) => {
-        const filePath = `exports/${f.name}`;
-        const signed = await getCompanyBackupSignedUrl(
-          client,
-          companyId,
-          filePath
-        );
-        return {
-          name: f.name,
-          path: filePath,
-          createdAt: f.created_at,
-          size: (f.metadata as { size?: number } | null)?.size ?? 0,
-          url: signed.data?.signedUrl ?? null
-        };
-      })
-  );
-
   return {
     companyId,
-    files,
+    files: backupsList.data ?? [],
     restoreRuns: restoreRuns.data ?? []
   };
 }
@@ -174,8 +148,10 @@ export async function action({ request }: ActionFunctionArgs) {
       const validation = await validator(restoreValidator).validate(formData);
       if (validation.error) return validationError(validation.error);
 
-      const filePath = validation.data.source.replace(/^backup:/, "");
-      if (!filePath.startsWith("exports/")) {
+      // The source is the backup folder name. Reject anything with a path
+      // separator (traversal / legacy gz paths).
+      const source = validation.data.source.replace(/^backup:/, "");
+      if (!source || source.includes("/")) {
         return { success: false, message: "Choose one of your backups" };
       }
 
@@ -193,9 +169,9 @@ export async function action({ request }: ActionFunctionArgs) {
         const restoreRunId = await startCompanyRestore({
           companyId,
           userId,
-          filePath,
+          filePath: source,
           includeStorage: validation.data.includeStorage,
-          label: filePath.split("/").pop()
+          label: source
         });
         return { success: true, message: "Restore started", restoreRunId };
       } catch (err) {
@@ -239,15 +215,11 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     case "delete": {
-      const filePath = String(formData.get("filePath") ?? "");
-      if (!filePath.startsWith("exports/"))
-        return data({}, await flash(request, error(null, "Invalid file path")));
+      const name = String(formData.get("name") ?? "");
+      if (!name || name.includes("/"))
+        return data({}, await flash(request, error(null, "Invalid backup")));
 
-      const result = await deleteCompanyBackupExport(
-        client,
-        companyId,
-        filePath
-      );
+      const result = await deleteCompanyBackup(client, companyId, name);
       if (result.error)
         return data(
           {},
@@ -262,7 +234,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function BackupsRoute() {
-  const { companyId, files, restoreRuns } = useLoaderData<typeof loader>();
+  const { files, restoreRuns } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<{
     success?: boolean;
     message?: string;
@@ -282,7 +254,7 @@ export default function BackupsRoute() {
   const exportCompleted =
     active?.mode === "export" &&
     !!active.exportBaseline &&
-    files.some((f) => !active.exportBaseline!.has(f.path));
+    files.some((f) => !active.exportBaseline!.has(f.name));
 
   // keep / dismiss / revert finalize the run via an async Inngest job, so the
   // marker is still present on the next revalidation. Hide the row optimistically
@@ -311,7 +283,7 @@ export default function BackupsRoute() {
     if (result.success && result.started === "export") {
       setActive({
         mode: "export",
-        exportBaseline: new Set(filesRef.current.map((f) => f.path))
+        exportBaseline: new Set(filesRef.current.map((f) => f.name))
       });
       return;
     }
@@ -384,7 +356,7 @@ export default function BackupsRoute() {
                 <div className="flex flex-col gap-6">
                   <div className="flex flex-col gap-1.5">
                     <span className="text-sm">Source</span>
-                    <BackupSourcePicker backups={files} companyId={companyId} />
+                    <BackupSourcePicker backups={files} />
                   </div>
                   <div className="flex flex-col gap-1.5">
                     <span className="text-sm">Include</span>
@@ -459,7 +431,7 @@ export default function BackupsRoute() {
               <VStack spacing={2}>
                 {files.map((file) => (
                   <HStack
-                    key={file.path}
+                    key={file.name}
                     className="w-full justify-between border rounded-lg p-3"
                   >
                     <VStack spacing={0}>
@@ -467,30 +439,31 @@ export default function BackupsRoute() {
                         {formatBackupName(file.name)}
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        {formatBackupDate(file.createdAt)}
-                        {file.size ? (
+                        {formatBackupDate(file.exportedAt)}
+                        {file.sizeBytes ? (
                           <>
                             {" · "}
-                            {convertKbToString(Math.round(file.size / 1024))}
+                            {convertKbToString(
+                              Math.round(file.sizeBytes / 1024)
+                            )}
                           </>
                         ) : null}
                       </span>
                     </VStack>
                     <HStack spacing={2}>
-                      {file.url && (
-                        <Button asChild variant="secondary">
-                          <a href={file.url} download>
-                            Download
-                          </a>
-                        </Button>
-                      )}
+                      <Button asChild variant="secondary">
+                        <a
+                          href={`/api/settings/backup-archive/${encodeURIComponent(
+                            file.name
+                          )}`}
+                          download
+                        >
+                          Download
+                        </a>
+                      </Button>
                       <Form method="post">
                         <input type="hidden" name="intent" value="delete" />
-                        <input
-                          type="hidden"
-                          name="filePath"
-                          value={file.path}
-                        />
+                        <input type="hidden" name="name" value={file.name} />
                         <Button type="submit" variant="destructive">
                           Delete
                         </Button>

@@ -20,40 +20,25 @@ import { nanoid } from "nanoid";
  */
 
 export const BACKUP_KIND = "carbon-company-backup";
-// The gz is NDJSON: line 1 is `{ manifest }`, every later line is a single
-// `{ t, r }` table row. Read/written a line at a time (see (de)serializeBackup)
-// so a large backup never materializes as one >512MB string (V8's max) or one
-// giant JSON.parse. Storage assets travel as real files in a sibling `.assets/`
-// folder (server-side copied), not in the gz.
+// A backup is a folder `exports/<name>/` of small objects: `manifest.json`, one
+// `tables/<table>.ndjson.gz` per non-empty table (dumped + loaded in parallel),
+// and `assets/<path>` files. Each object stays under the bucket size cap; the
+// whole folder bundles into one `.carbon.tar.gz` for cross-environment transfer.
+// Per-table NDJSON is read/written a line at a time, so a huge table never
+// materializes as one >512MB string (V8's max) or one giant JSON.parse.
 export const BACKUP_VERSION = 1;
 export const BACKUP_INTEGRATION = "company-backup";
 export const EXPORTS_PREFIX = "exports";
 /** Shared, env-agnostic bucket holding the onboarding backup templates. */
 export const TEMPLATE_BUCKET = "company-templates";
 
-/** Suffix of a backup gz object (its sibling asset folder swaps it for `.assets`). */
-export const BACKUP_GZ_SUFFIX = ".carbon.json.gz";
-
 /**
  * The bucket the app stores per-company assets in (3D models, item thumbnails,
- * document attachments), all under a `{companyId}/` prefix. A backup copies
- * these into its own `.assets/` folder (see `copyAssetsToBackup`); they are NOT
- * in the per-company bucket.
+ * document attachments), all under a `{companyId}/` prefix. A backup copies these
+ * into its own `assets/` folder (see `copyAssetsToBackup`); they are NOT in the
+ * per-company bucket.
  */
 export const STORAGE_BUCKET = "private";
-
-/**
- * The asset folder that travels with a backup gz. A backup at
- * `exports/<name>.carbon.json.gz` keeps its storage files under
- * `exports/<name>.assets/<originalPath>` in the same per-company bucket. Derived
- * from the gz path, so it never needs to be stored in the manifest.
- */
-export function backupAssetPrefix(gzPath: string): string {
-  const base = gzPath.endsWith(BACKUP_GZ_SUFFIX)
-    ? gzPath.slice(0, -BACKUP_GZ_SUFFIX.length)
-    : gzPath;
-  return `${base}.assets`;
-}
 
 /**
  * TEXT columns that hold a storage path (`{companyId}/…/{id}.ext`). On reseed
@@ -245,18 +230,55 @@ export type CompanyBackup = {
   data: Record<string, Record<string, unknown>[]>;
 };
 
-/** One NDJSON line: either the single manifest line, or one table row. */
-type BackupLine =
-  | { manifest: Manifest }
-  | { t: string; r: Record<string, unknown> };
+// ── File-per-table layout ──────────────────────────────────────────────────
+// A backup is a folder `exports/<name>/` of small objects (each under the bucket
+// size cap): `manifest.json`, one `tables/<table>.ndjson.gz` per non-empty table
+// (dumped + loaded in parallel), and `assets/<path>` files. Bundled as one
+// `.carbon.tar.gz` for cross-environment download / upload.
+
+export function backupDir(name: string): string {
+  return `${EXPORTS_PREFIX}/${name}`;
+}
+export function backupManifestPath(name: string): string {
+  return `${EXPORTS_PREFIX}/${name}/manifest.json`;
+}
+
+/** Run `fn` over `items` with at most `limit` in flight. */
+export async function mapWithConcurrency<T>(
+  items: T[],
+  limit: number,
+  fn: (item: T) => Promise<void>
+): Promise<void> {
+  let next = 0;
+  const workers = Array.from(
+    { length: Math.min(limit, items.length) },
+    async () => {
+      while (next < items.length) {
+        const item = items[next++];
+        if (item === undefined) break;
+        await fn(item);
+      }
+    }
+  );
+  await Promise.all(workers);
+}
+export function backupTablePath(name: string, table: string): string {
+  return `${EXPORTS_PREFIX}/${name}/tables/${table}.ndjson.gz`;
+}
+export function backupTablesDir(name: string): string {
+  return `${EXPORTS_PREFIX}/${name}/tables`;
+}
+export function backupAssetsDir(name: string): string {
+  return `${EXPORTS_PREFIX}/${name}/assets`;
+}
 
 /**
- * Serialize a backup to a gzipped NDJSON buffer. Each row is written as its own
- * line straight into the gzip stream, so we never build a single >512MB string
- * (V8's max string length) the way `JSON.stringify(wholeBackup)` would — large
- * companies serialize at flat memory.
+ * Gzip one table's rows as NDJSON (one JSON object per line). Streamed, so a huge
+ * table never builds a `>512MB` string.
  */
-export async function serializeBackup(backup: CompanyBackup): Promise<Buffer> {
+export async function serializeTable(
+  rows: Record<string, unknown>[]
+): Promise<Buffer> {
   const gzip = createGzip();
   const chunks: Buffer[] = [];
   gzip.on("data", (c: Buffer) => chunks.push(c));
@@ -264,55 +286,86 @@ export async function serializeBackup(backup: CompanyBackup): Promise<Buffer> {
     gzip.on("end", resolve);
     gzip.on("error", reject);
   });
-
-  const writeLine = (line: BackupLine) =>
-    new Promise<void>((resolve, reject) => {
-      gzip.write(`${JSON.stringify(line)}\n`, (err) =>
+  for (const row of rows) {
+    await new Promise<void>((resolve, reject) => {
+      gzip.write(`${JSON.stringify(row)}\n`, (err) =>
         err ? reject(err) : resolve()
       );
     });
-
-  await writeLine({ manifest: backup.manifest });
-  for (const [table, rows] of Object.entries(backup.data)) {
-    for (const row of rows) await writeLine({ t: table, r: row });
   }
-
   gzip.end();
   await finished;
   return Buffer.concat(chunks);
 }
 
 /**
- * Parse a gzipped NDJSON backup. Streams the gunzip output line by line, so the
- * uncompressed payload (which can exceed V8's max string length for a large
- * company) is never decoded into one string nor passed to a single JSON.parse.
- * Reconstructs the in-memory `CompanyBackup` the rest of the pipeline expects.
+ * Parse a `tables/<table>.ndjson.gz` into rows. Streams the gunzip line by line,
+ * so a huge table is never one giant string nor a single JSON.parse.
  */
-export async function deserializeBackup(
+export async function deserializeTable(
   bytes: ArrayBuffer
-): Promise<CompanyBackup> {
+): Promise<Record<string, unknown>[]> {
   const gunzip = createGunzip();
   Readable.from(Buffer.from(bytes)).pipe(gunzip);
   const rl = createInterface({
     input: gunzip,
     crlfDelay: Number.POSITIVE_INFINITY
   });
-
-  let manifest: Manifest | undefined;
-  const data: CompanyBackup["data"] = {};
+  const rows: Record<string, unknown>[] = [];
   for await (const line of rl) {
-    if (!line) continue;
-    const parsed = JSON.parse(line) as BackupLine;
-    if ("manifest" in parsed) {
-      manifest = parsed.manifest;
-      continue;
-    }
-    (data[parsed.t] ??= []).push(parsed.r);
+    if (line) rows.push(JSON.parse(line));
+  }
+  return rows;
+}
+
+/** How many table files to dump/load concurrently. */
+export const BACKUP_TABLE_CONCURRENCY = 6;
+
+/** A restore/import `source` is the backup folder name. Bridge legacy single-gz
+ *  sources (`exports/<name>.carbon.json.gz`) to the folder name during the
+ *  transition. */
+export function backupNameFromSource(source: string): string {
+  return source.replace(/^exports\//, "").replace(/\.carbon\.json\.gz$/, "");
+}
+
+/**
+ * Read a backup folder `exports/<name>/`: its manifest, then every table file in
+ * parallel, into the in-memory `CompanyBackup` the load pipeline expects.
+ */
+export async function readBackup(
+  client: SupabaseClient,
+  companyId: string,
+  name: string
+): Promise<CompanyBackup> {
+  const mf = await client.storage
+    .from(companyId)
+    .download(backupManifestPath(name));
+  if (mf.error || !mf.data) {
+    throw new Error(
+      `Failed to download backup manifest ${name}: ${mf.error?.message}`
+    );
+  }
+  const manifest = JSON.parse(await mf.data.text()) as Manifest;
+  if (manifest.kind !== BACKUP_KIND) {
+    throw new Error("Not a Carbon company backup");
   }
 
-  if (!manifest) {
-    throw new Error("Backup is missing its manifest line");
-  }
+  const data: CompanyBackup["data"] = {};
+  await mapWithConcurrency(
+    manifest.tables,
+    BACKUP_TABLE_CONCURRENCY,
+    async (t) => {
+      const f = await client.storage
+        .from(companyId)
+        .download(backupTablePath(name, t.name));
+      if (f.error || !f.data) {
+        throw new Error(
+          `Failed to download table ${t.name} for ${name}: ${f.error?.message}`
+        );
+      }
+      data[t.name] = await deserializeTable(await f.data.arrayBuffer());
+    }
+  );
   return { manifest, data };
 }
 

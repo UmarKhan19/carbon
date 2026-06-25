@@ -1,35 +1,44 @@
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { sql } from "kysely";
 import { inngest } from "../../client";
-import type { CompanyBackup, Manifest } from "./company-backup";
+import type { Manifest } from "./company-backup";
 import {
   BACKUP_INTEGRATION,
   BACKUP_KIND,
   BACKUP_VERSION,
-  backupAssetPrefix,
+  backupAssetsDir,
+  backupManifestPath,
+  backupTablePath,
   copyAssetsToBackup,
-  EXPORTS_PREFIX,
   encodeValue,
   getCompanyTableCatalog,
   getJobDatabaseClient,
+  mapWithConcurrency,
   SECRET_TABLES,
   STORAGE_BUCKET,
-  serializeBackup
+  serializeTable
 } from "./company-backup";
 
-// Assets are copied server-side into the backup's `.assets/` folder (no bytes
-// pass through this process), so there's no memory reason to cap a single file —
-// the bucket already bounds uploads (120MB CAD models, 50MB docs). The only
-// bound is a storage-cost guard on the whole backup: each export duplicates the
-// bundled bytes, so cap the total at 1GB.
+// Assets are copied server-side into the backup's `assets/` folder (no bytes pass
+// through this process), so there's no memory reason to cap a single file — the
+// bucket already bounds uploads (120MB CAD models, 50MB docs). The only bound is a
+// storage-cost guard on the whole backup: each export duplicates the bundled
+// bytes, so cap the total at 1GB.
 const MAX_STORAGE_TOTAL_BYTES = 1024 * 1024 * 1024;
+
+// How many tables to dump concurrently (query + gzip + upload). Matched by the
+// export job's connection pool size.
+const TABLE_CONCURRENCY = 6;
 
 type ServiceRole = ReturnType<typeof getCarbonServiceRole>;
 type JobDatabase = ReturnType<typeof getJobDatabaseClient>;
 
 /**
- * Build a gzipped company backup (data + optional storage files). Exported so
- * the same logic that backs the export job can author onboarding templates.
+ * Build a company backup as a folder of small objects under `exports/<name>/`:
+ * one `tables/<table>.ndjson.gz` per non-empty table (dumped in parallel), a
+ * `manifest.json`, and (via the caller) `assets/<path>` files. Returns the folder
+ * name. Exported so the same logic backs the export job, snapshots and onboarding
+ * templates.
  */
 export async function buildCompanyBackup(
   client: ServiceRole,
@@ -39,12 +48,14 @@ export async function buildCompanyBackup(
     userId: string;
     label?: string | null;
     includeStorage: "none" | "all";
+    /** Override the generated folder name (snapshots pass their own). */
+    name?: string;
   }
 ): Promise<{
-  compressed: Buffer;
+  name: string;
   manifest: Manifest;
   rows: number;
-  /** `private`-bucket paths to copy into the backup's `.assets/` folder. */
+  /** `private`-bucket paths to copy into the backup's `assets/` folder. */
   assetSourcePaths: string[];
 }> {
   const { companyId, userId, includeStorage } = opts;
@@ -69,24 +80,29 @@ export async function buildCompanyBackup(
     );
   }
 
+  const exportedAt = new Date().toISOString();
+  const slug = label
+    ? `_${label
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .slice(0, 40)}`
+    : "";
+  const name = opts.name ?? `${exportedAt.replace(/[:.]/g, "-")}${slug}`;
+
   const catalog = await getCompanyTableCatalog(db);
   const secretTables = new Set(SECRET_TABLES);
+  const excludedTables = catalog.tables
+    .filter((t) => secretTables.has(t.name))
+    .map((t) => t.name);
+  const exportable = catalog.tables.filter((t) => !secretTables.has(t.name));
 
-  const data: CompanyBackup["data"] = {};
+  // Dump each non-empty table to its own `tables/<table>.ndjson.gz`, in parallel.
   const tableManifest: Manifest["tables"] = [];
-  const excludedTables: string[] = [];
-
-  for (const table of catalog.tables) {
-    if (secretTables.has(table.name)) {
-      excludedTables.push(table.name);
-      continue;
-    }
-
-    // companyGroup-scoped tables (chart of accounts, currencies, …) are
-    // filtered by the company's group; everything else by companyId.
+  await mapWithConcurrency(exportable, TABLE_CONCURRENCY, async (table) => {
+    // companyGroup-scoped tables (chart of accounts, currencies, …) are filtered
+    // by the company's group; everything else by companyId.
     const scopeValue =
       table.scopeColumn === "companyGroupId" ? companyGroupId : companyId;
-
     const columns = table.columns.filter((c) => !c.isGenerated);
     // a prior import's revert ledger must never travel in an artifact
     const ledgerFilter =
@@ -99,29 +115,36 @@ export async function buildCompanyBackup(
       WHERE ${sql.id(table.scopeColumn)} = ${scopeValue}${ledgerFilter}
     `.execute(db);
 
-    if (result.rows.length === 0) continue;
+    if (result.rows.length === 0) return; // empty tables get no file
 
-    data[table.name] = result.rows.map((row) => {
+    const rows = result.rows.map((row) => {
       const encoded: Record<string, unknown> = {};
       for (const col of columns) {
         encoded[col.name] = encodeValue(row[col.name], col);
       }
       return encoded;
     });
+    const buf = await serializeTable(rows);
+    const up = await client.storage
+      .from(companyId)
+      .upload(backupTablePath(name, table.name), buf, {
+        contentType: "application/gzip",
+        upsert: true
+      });
+    if (up.error) throw new Error(`table ${table.name}: ${up.error.message}`);
 
     tableManifest.push({
       name: table.name,
       rows: result.rows.length,
       columns: columns.map((c) => c.name)
     });
-  }
+  });
 
   // Decide which storage assets are in scope. They live in the shared `private`
   // bucket under a `{companyId}/` prefix (3D models, item thumbnails,
-  // attachments). They are NOT embedded here — the caller copies the included
-  // files server-side into the backup's sibling `.assets/` folder, so a large
-  // asset set costs no memory and the gz stays small. Skip anything over the
-  // size caps.
+  // attachments). They are NOT embedded — the caller copies the included files
+  // server-side into the backup's `assets/` folder, so a large asset set costs no
+  // memory. Skip anything over the total size guard.
   const storageManifest: Manifest["storage"] = [];
   const assetSourcePaths: string[] = [];
 
@@ -132,7 +155,6 @@ export async function buildCompanyBackup(
       STORAGE_BUCKET,
       companyId
     );
-
     for (const file of paths) {
       const included = totalBytes + file.size <= MAX_STORAGE_TOTAL_BYTES;
       if (included) {
@@ -150,7 +172,7 @@ export async function buildCompanyBackup(
     sourceCompanyId: companyId,
     sourceCompanyGroupId: companyGroupId,
     sourceCompanyName: company.data?.name ?? null,
-    exportedAt: new Date().toISOString(),
+    exportedAt,
     exportedBy: userId,
     label,
     includeStorage,
@@ -159,10 +181,18 @@ export async function buildCompanyBackup(
     excludedTables
   };
 
-  const backup: CompanyBackup = { manifest, data };
-  const compressed = await serializeBackup(backup);
+  const manifestUpload = await client.storage
+    .from(companyId)
+    .upload(backupManifestPath(name), Buffer.from(JSON.stringify(manifest)), {
+      contentType: "application/json",
+      upsert: true
+    });
+  if (manifestUpload.error) {
+    throw new Error(`manifest: ${manifestUpload.error.message}`);
+  }
+
   const rows = tableManifest.reduce((sum, t) => sum + t.rows, 0);
-  return { compressed, manifest, rows, assetSourcePaths };
+  return { name, manifest, rows, assetSourcePaths };
 }
 
 export const companyExportFunction = inngest.createFunction(
@@ -177,9 +207,9 @@ export const companyExportFunction = inngest.createFunction(
 
     return await step.run("export-company", async () => {
       const client = getCarbonServiceRole();
-      const db = getJobDatabaseClient(1);
+      const db = getJobDatabaseClient(TABLE_CONCURRENCY);
 
-      const { compressed, manifest, rows, assetSourcePaths } =
+      const { name, manifest, rows, assetSourcePaths } =
         await buildCompanyBackup(client, db, {
           companyId,
           userId,
@@ -187,42 +217,25 @@ export const companyExportFunction = inngest.createFunction(
           includeStorage
         });
 
-      const timestamp = manifest.exportedAt.replace(/[:.]/g, "-");
-      const slug = label
-        ? `_${label
-            .toLowerCase()
-            .replace(/[^a-z0-9]+/g, "-")
-            .slice(0, 40)}`
-        : "";
-      const path = `${EXPORTS_PREFIX}/${timestamp}${slug}.carbon.json.gz`;
-
-      const upload = await client.storage
-        .from(companyId)
-        .upload(path, compressed, {
-          contentType: "application/gzip",
-          upsert: false
-        });
-      if (upload.error) throw new Error(upload.error.message);
-
-      // Copy the in-scope assets server-side into the backup's `.assets/` folder.
-      // Best-effort (matches restore/import): the data gz is already committed.
+      // Copy the in-scope assets server-side into the backup's `assets/` folder.
+      // Best-effort (matches restore/import): the table files + manifest are
+      // already committed.
       const assets = await copyAssetsToBackup(client, {
         sourcePaths: assetSourcePaths,
         destBucket: companyId,
-        destPrefix: backupAssetPrefix(path)
+        destPrefix: backupAssetsDir(name)
       });
 
       console.log("Company export complete", {
         companyId,
-        path,
+        name,
         tables: manifest.tables.length,
         rows,
-        bytes: compressed.byteLength,
         assetsCopied: assets.copied,
         assetsFailed: assets.failed
       });
 
-      return { path, tables: manifest.tables.length, rows };
+      return { name, tables: manifest.tables.length, rows };
     });
   }
 );
