@@ -5273,6 +5273,9 @@ msgstr "問題ワークフロー"
 msgid "Issue workflows defined the preset values for an issue. For example, you can have an 8D workflow or a containment workflow."
 msgstr "問題ワークフローは、問題の事前設定値を定義しました。例えば、8Dワークフローまたは封じ込めワークフローを使用できます。"
 
+msgid "Issued"
+msgstr ""
+
 msgid "Issued Date"
 msgstr "発行日"
 
@@ -6125,6 +6128,9 @@ msgstr "正しい列が必要ですか？"
 
 msgid "Needs fixing"
 msgstr "修理が必要です"
+
+msgid "Needs job"
+msgstr ""
 
 msgid "Needs ordering"
 msgstr "発注が必要"

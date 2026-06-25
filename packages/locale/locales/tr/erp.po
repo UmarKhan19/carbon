@@ -5273,6 +5273,9 @@ msgstr "İş Akışları"
 msgid "Issue workflows defined the preset values for an issue. For example, you can have an 8D workflow or a containment workflow."
 msgstr "Sorun iş akışları bir sorun için önceden ayarlanmış değerleri tanımladı. Örneğin, 8D iş akışına veya kapsama iş akışına sahip olabilirsiniz."
 
+msgid "Issued"
+msgstr ""
+
 msgid "Issued Date"
 msgstr "Düzenlenme Tarihi"
 
@@ -6125,6 +6128,9 @@ msgstr "Doğru sütunlara ihtiyacınız var mı?"
 
 msgid "Needs fixing"
 msgstr "Onarılması gerekir"
+
+msgid "Needs job"
+msgstr ""
 
 msgid "Needs ordering"
 msgstr "Sipariş gerekli"
