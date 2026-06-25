@@ -236,7 +236,7 @@ const DocumentsTable = memo(
           id: "labels",
           header: t`Labels`,
           cell: ({ row }) => (
-            <HStack spacing={1}>
+            <HStack spacing={0} className="flex-wrap gap-1">
               {row.original.labels?.map((label: string) => (
                 <Badge
                   key={label}
