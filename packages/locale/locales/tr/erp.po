@@ -54,6 +54,10 @@ msgstr "{0} başarıyla yüklendi"
 msgid "{0} values missing"
 msgstr "{0} değeri eksik"
 
+#. js-lingui-explicit-id
+msgid "error.notFound"
+msgstr "{entity} bulunamadı"
+
 #. placeholder {0}: errors.length
 #. placeholder {1}: skipped.length
 msgid "{inserted} inserted, {updated} updated, {0} need fixing, {1} skipped."
@@ -666,6 +670,10 @@ msgstr "Harcama yerine amorti ettiğiniz kapitalize edilmiş bir öğe için bir
 msgid "An asset's acquisition cost minus accumulated depreciation — what it's still worth on the books, and the figure it's disposed at."
 msgstr "Bir varlığın satın alma maliyeti eksi birikmiş amortisman — kitaplarda halen değeri olan ve imha edildiği tutar."
 
+#. js-lingui-explicit-id
+msgid "error.externalService"
+msgstr "Harici bir hizmet şu anda kullanılamıyor"
+
 msgid "An item cannot be added to itself."
 msgstr "Bir öğe kendisine eklenemez."
 
@@ -749,6 +757,10 @@ msgstr "Onay Tarihi"
 
 msgid "Approval is required at or above this amount, up to the next rule's minimum"
 msgstr "Onay, bu tutar veya daha yüksek bir tutarda ve sonraki kuralın minimumuna kadar gereklidir"
+
+#. js-lingui-explicit-id
+msgid "approvals.notPending"
+msgstr "Onay isteği beklemede değil"
 
 msgid "Approval Requirements"
 msgstr "Onay Gereksinimleri"
@@ -6774,6 +6786,10 @@ msgstr "Carbon'un bireysel olarak takip ettiği bir seri birim veya bir batch, s
 msgid "One step in a job's routing, naming a process and a work center and carrying its own setup, labor, and machine times and rates."
 msgstr "Bir işin yönlendirilmesinde bir adım, bir süreci ve bir iş merkezini adlandırır ve kendi kurulum, işçilik ve makine sürelerini ve oranlarını taşır."
 
+#. js-lingui-explicit-id
+msgid "approvals.onlyRequesterCanCancel"
+msgstr "Yalnızca talep eden kişi bir onay isteğini iptal edebilir"
+
 msgid "Onshape Status"
 msgstr "Onshape Durumu"
 
@@ -9097,6 +9113,10 @@ msgstr "burada atayabilmeniz için."
 msgid "Something went wrong"
 msgstr "Bir şeyler yanlış gitti"
 
+#. js-lingui-explicit-id
+msgid "error.database"
+msgstr "Değişiklikleriniz kaydedilirken bir sorun oluştu"
+
 msgid "Something went wrong. Please try again."
 msgstr "Bir şeyler ters gitti. Lütfen tekrar deneyin."
 
@@ -10185,6 +10205,14 @@ msgstr "Bu e-posta adresleri, müşterilere gönderilen tüm teklif e-postaları
 msgid "These jobs have operations assigned to this work center:"
 msgstr "Bu işler bu iş merkezine atanmış işlemlere sahiptir:"
 
+#. js-lingui-explicit-id
+msgid "error.conflict"
+msgstr "Bu işlem mevcut durumla çakışıyor"
+
+#. js-lingui-explicit-id
+msgid "error.businessRule"
+msgstr "Bu işleme bir iş kuralı tarafından izin verilmiyor"
+
 msgid "This information will be used on document headers"
 msgstr "Bu bilgiler belge başlıklarında kullanılacaktır"
 
@@ -10821,6 +10849,10 @@ msgstr "Geçerli Tarih"
 
 msgid "Validating job..."
 msgstr "İş doğrulanıyor..."
+
+#. js-lingui-explicit-id
+msgid "error.validation"
+msgstr "Doğrulama başarısız oldu"
 
 msgid "Value"
 msgstr "Değer"

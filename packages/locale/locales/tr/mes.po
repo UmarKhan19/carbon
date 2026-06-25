@@ -42,6 +42,10 @@ msgstr "{0} adet tamamlandı"
 msgid "{0} Scrapped"
 msgstr "{0} Hurdaya Çıkarılmış"
 
+#. js-lingui-explicit-id
+msgid "error.notFound"
+msgstr "{entity} bulunamadı"
+
 msgid "About"
 msgstr "Hakkında"
 
@@ -71,6 +75,10 @@ msgstr "Yedek Parça Ekle"
 
 msgid "All"
 msgstr "Tümü"
+
+#. js-lingui-explicit-id
+msgid "error.externalService"
+msgstr "Harici bir hizmet şu anda kullanılamıyor"
 
 msgid "Are you sure you want to delete this step?"
 msgstr "Bu adımı silmek istediğinizden emin misiniz?"
@@ -972,6 +980,10 @@ msgstr "Boyut"
 msgid "Something went wrong"
 msgstr "Bir şeyler yanlış gitti"
 
+#. js-lingui-explicit-id
+msgid "error.database"
+msgstr "Değişiklikleriniz kaydedilirken bir sorun oluştu"
+
 msgid "Source"
 msgstr "Kaynak"
 
@@ -1029,6 +1041,14 @@ msgstr "Bu işlem için tamamlanan miktar, gerekli miktar olan {0}'dan azdır."
 
 msgid "There are serial or batch tracked materials on the bill of material that have not been fully issued. Completing without issuing may result in incorrect traceability records."
 msgstr "Malzeme listesindeki seri veya parti takipli malzemeler tam olarak verilmemiş. Vermeden tamamlamak, yanlış izlenebilirlik kayıtlarına neden olabilir."
+
+#. js-lingui-explicit-id
+msgid "error.conflict"
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "error.businessRule"
+msgstr ""
 
 msgid "This lot is expired and can't be picked."
 msgstr "Bu parti süresi dolmuş ve alınamaz."
@@ -1095,6 +1115,10 @@ msgstr "Yüklendi: {0}"
 #. placeholder {0}: fileUpload.name
 msgid "Uploading {0}"
 msgstr "Yükleniyor {0}"
+
+#. js-lingui-explicit-id
+msgid "error.validation"
+msgstr "Doğrulama başarısız oldu"
 
 msgid "View maintenance dispatch"
 msgstr "Bakım sevkıyatını görüntüle"

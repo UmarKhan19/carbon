@@ -1,5 +1,5 @@
 {
-  "generated": "2026-06-25T05:27:31.359Z",
+  "generated": "2026-06-25T14:43:55.340Z",
   "totalTools": 1215,
   "modules": 15,
   "tools": [
@@ -4130,7 +4130,7 @@
           "receiptId": {
             "type": "string"
           },
-          "lines: {\n      id: string;\n      receivedQuantity: number | null;\n      requiresSerialTracking": {
+          "lines: {\r\n      id: string;\r\n      receivedQuantity: number | null;\r\n      requiresSerialTracking": {
             "type": "array",
             "items": {}
           }
@@ -11308,8 +11308,8 @@
               "type": "string"
             }
           },
-          "itemUpdate: {\n      replenishmentSystem": {},
-          "cascade: {\n      sourcingType": {}
+          "itemUpdate: {\r\n      replenishmentSystem": {},
+          "cascade: {\r\n      sourcingType": {}
         },
         "required": [
           "itemIds"

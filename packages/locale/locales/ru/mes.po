@@ -44,7 +44,7 @@ msgstr "{0} Списано"
 
 #. js-lingui-explicit-id
 msgid "error.notFound"
-msgstr "{entity} не найдено"
+msgstr "Не удалось найти {entity}"
 
 msgid "About"
 msgstr "О системе"
@@ -300,8 +300,8 @@ msgid "Dragging {0} cancelled."
 msgstr "Перетаскивание {0} отменено."
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
-#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
+#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
 msgid "Due {0}"
 msgstr "Срок {0}"
 
@@ -980,6 +980,10 @@ msgstr "Размер"
 msgid "Something went wrong"
 msgstr "Что-то пошло не так"
 
+#. js-lingui-explicit-id
+msgid "error.database"
+msgstr "Произошла ошибка при сохранении изменений"
+
 msgid "Source"
 msgstr "Источник"
 
@@ -1037,6 +1041,14 @@ msgstr "Количество готовой продукции по этой о�
 
 msgid "There are serial or batch tracked materials on the bill of material that have not been fully issued. Completing without issuing may result in incorrect traceability records."
 msgstr "В спецификации есть материалы с серийным или партионным учётом, которые не были полностью выданы. Завершение без выдачи может привести к некорректным записям прослеживаемости."
+
+#. js-lingui-explicit-id
+msgid "error.conflict"
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "error.businessRule"
+msgstr ""
 
 msgid "This lot is expired and can't be picked."
 msgstr "Эта партия истекла и не может быть выбрана."
@@ -1106,7 +1118,7 @@ msgstr "Загрузка {0}"
 
 #. js-lingui-explicit-id
 msgid "error.validation"
-msgstr "Проверка не пройдена"
+msgstr "Ошибка проверки"
 
 msgid "View maintenance dispatch"
 msgstr "Просмотреть наряд на обслуживание"

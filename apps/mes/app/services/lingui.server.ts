@@ -1,5 +1,5 @@
 import { resolveLanguage } from "@carbon/locale";
-import { getPreferenceHeaders } from "@carbon/react";
+import { getPreferenceHeaders } from "@carbon/utils";
 import { type I18n, type Messages, setupI18n } from "@lingui/core";
 
 const catalogLoaders = import.meta.glob(

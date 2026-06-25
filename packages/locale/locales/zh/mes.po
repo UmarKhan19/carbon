@@ -300,8 +300,8 @@ msgid "Dragging {0} cancelled."
 msgstr "拖拽 {0} 已取消。"
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
-#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
+#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
 msgid "Due {0}"
 msgstr "截止 {0}"
 
@@ -980,6 +980,10 @@ msgstr "大小"
 msgid "Something went wrong"
 msgstr "出错了"
 
+#. js-lingui-explicit-id
+msgid "error.database"
+msgstr "保存更改时出错"
+
 msgid "Source"
 msgstr "来源"
 
@@ -1037,6 +1041,14 @@ msgstr "此工序的完成数量小于所需数量 {0}。"
 
 msgid "There are serial or batch tracked materials on the bill of material that have not been fully issued. Completing without issuing may result in incorrect traceability records."
 msgstr "物料清单中有序列号或批次追踪的物料尚未完全发放。不发放即完成可能导致追溯记录不正确。"
+
+#. js-lingui-explicit-id
+msgid "error.conflict"
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "error.businessRule"
+msgstr ""
 
 msgid "This lot is expired and can't be picked."
 msgstr "此批次已过期，无法领取。"

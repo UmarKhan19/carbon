@@ -54,6 +54,10 @@ msgstr "{0} caricato con successo"
 msgid "{0} values missing"
 msgstr "{0} valori mancanti"
 
+#. js-lingui-explicit-id
+msgid "error.notFound"
+msgstr "Impossibile trovare {entity}"
+
 #. placeholder {0}: errors.length
 #. placeholder {1}: skipped.length
 msgid "{inserted} inserted, {updated} updated, {0} need fixing, {1} skipped."
@@ -665,6 +669,10 @@ msgstr "Un record contabile per un elemento capitalizzato che ammortizzi anzich�
 
 msgid "An asset's acquisition cost minus accumulated depreciation — what it's still worth on the books, and the figure it's disposed at."
 msgstr "Il costo di acquisizione di un asset meno l'ammortamento cumulato — quello che vale ancora sui libri e l'importo a cui viene ceduto."
+
+#. js-lingui-explicit-id
+msgid "error.externalService"
+msgstr "Un servizio esterno non è attualmente disponibile"
 
 msgid "An item cannot be added to itself."
 msgstr "Un articolo non può essere aggiunto a se stesso."
@@ -6778,6 +6786,10 @@ msgstr "Un'unità seriale o un lotto che Carbon segue individualmente, portando 
 msgid "One step in a job's routing, naming a process and a work center and carrying its own setup, labor, and machine times and rates."
 msgstr "Un passaggio nel routing di un lavoro, che denomina un processo e un centro di lavoro e porta i suoi propri tempi e tariffe di configurazione, lavoro e macchina."
 
+#. js-lingui-explicit-id
+msgid "approvals.onlyRequesterCanCancel"
+msgstr "Solo il richiedente può annullare la richiesta di approvazione"
+
 msgid "Onshape Status"
 msgstr "Stato Onshape"
 
@@ -9100,6 +9112,10 @@ msgstr "così puoi assegnarlo qui."
 
 msgid "Something went wrong"
 msgstr "Qualcosa è andato storto"
+
+#. js-lingui-explicit-id
+msgid "error.database"
+msgstr "Si è verificato un errore durante il salvataggio delle modifiche"
 
 msgid "Something went wrong. Please try again."
 msgstr "Qualcosa è andato storto. Riprova."

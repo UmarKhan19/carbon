@@ -54,6 +54,10 @@ msgstr "{0} téléchargé avec succès"
 msgid "{0} values missing"
 msgstr "{0} valeurs manquantes"
 
+#. js-lingui-explicit-id
+msgid "error.notFound"
+msgstr "{entity} introuvable"
+
 #. placeholder {0}: errors.length
 #. placeholder {1}: skipped.length
 msgid "{inserted} inserted, {updated} updated, {0} need fixing, {1} skipped."
@@ -665,6 +669,10 @@ msgstr "Un enregistrement comptable pour un élément capitalisé que vous amort
 
 msgid "An asset's acquisition cost minus accumulated depreciation — what it's still worth on the books, and the figure it's disposed at."
 msgstr "Le coût d'acquisition d'un actif moins l'amortissement cumulé — ce qu'il vaut encore sur les livres et le montant auquel il est cédé."
+
+#. js-lingui-explicit-id
+msgid "error.externalService"
+msgstr "Un service externe est actuellement indisponible"
 
 msgid "An item cannot be added to itself."
 msgstr "Un article ne peut pas être ajouté à lui-même."
@@ -6778,6 +6786,10 @@ msgstr "Une unité de série ou un lot que Carbon suit individuellement, portant
 msgid "One step in a job's routing, naming a process and a work center and carrying its own setup, labor, and machine times and rates."
 msgstr "Une étape de l'itinéraire d'une tâche, nommant un processus et un centre de travail et portant ses propres temps et taux de configuration, de travail et de machine."
 
+#. js-lingui-explicit-id
+msgid "approvals.onlyRequesterCanCancel"
+msgstr "Seul le demandeur peut annuler la demande d'approbation"
+
 msgid "Onshape Status"
 msgstr "Statut Onshape"
 
@@ -9100,6 +9112,10 @@ msgstr "pour que vous puissiez l'assigner ici."
 
 msgid "Something went wrong"
 msgstr "Une erreur s'est produite"
+
+#. js-lingui-explicit-id
+msgid "error.database"
+msgstr "Une erreur s'est produite lors de l'enregistrement de vos modifications"
 
 msgid "Something went wrong. Please try again."
 msgstr "Quelque chose s'est mal passé. Veuillez réessayer."

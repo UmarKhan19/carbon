@@ -54,6 +54,10 @@ msgstr "{0} सफलतापूर्वक अपलोड हो गया"
 msgid "{0} values missing"
 msgstr "{0} मान गायब हैं"
 
+#. js-lingui-explicit-id
+msgid "error.notFound"
+msgstr "{entity} नहीं मिला"
+
 #. placeholder {0}: errors.length
 #. placeholder {1}: skipped.length
 msgid "{inserted} inserted, {updated} updated, {0} need fixing, {1} skipped."
@@ -665,6 +669,10 @@ msgstr "एक पूंजीकृत वस्तु के लिए एक 
 
 msgid "An asset's acquisition cost minus accumulated depreciation — what it's still worth on the books, and the figure it's disposed at."
 msgstr "एक संपत्ति की अधिग्रहण लागत माइनस संचयी मूल्यह्रास — यह किताबों पर अभी भी क्या मूल्य है और राशि जिस पर इसे निपटाया जाता है।"
+
+#. js-lingui-explicit-id
+msgid "error.externalService"
+msgstr "एक बाहरी सेवा वर्तमान में अनुपलब्ध है"
 
 msgid "An item cannot be added to itself."
 msgstr "एक आइटम को स्वयं में नहीं जोड़ा जा सकता।"
@@ -6778,6 +6786,10 @@ msgstr "एक सीरीज यूनिट या एक बैच जो Ca
 msgid "One step in a job's routing, naming a process and a work center and carrying its own setup, labor, and machine times and rates."
 msgstr "एक काम के मार्ग में एक कदम, एक प्रक्रिया और एक कार्य केंद्र का नाम देता है और अपने स्वयं के सेटअप, श्रम और मशीन समय और दरें लेता है।"
 
+#. js-lingui-explicit-id
+msgid "approvals.onlyRequesterCanCancel"
+msgstr "केवल अनुरोधकर्ता ही अनुमोदन अनुरोध रद्द कर सकता है"
+
 msgid "Onshape Status"
 msgstr "Onshape स्थिति"
 
@@ -9101,6 +9113,10 @@ msgstr "ताकि आप इसे यहां असाइन कर सक
 msgid "Something went wrong"
 msgstr "कुछ गलत हो गया"
 
+#. js-lingui-explicit-id
+msgid "error.database"
+msgstr "आपके परिवर्तन सहेजते समय कुछ गलत हो गया"
+
 msgid "Something went wrong. Please try again."
 msgstr "कुछ गलत हो गया। कृपया पुनः प्रयास करें।"
 
@@ -10191,11 +10207,11 @@ msgstr "इन कार्यों के पास इस कार्य क
 
 #. js-lingui-explicit-id
 msgid "error.conflict"
-msgstr "यह क्रिया वर्तमान स्थिति से टकराव में है"
+msgstr "यह कार्रवाई वर्तमान स्थिति के साथ टकराव में है"
 
 #. js-lingui-explicit-id
 msgid "error.businessRule"
-msgstr "यह क्रिया किसी व्यावसायिक नियम द्वारा अनुमत नहीं है"
+msgstr "यह कार्रवाई किसी व्यावसायिक नियम के अनुसार अनुमत नहीं है"
 
 msgid "This information will be used on document headers"
 msgstr "यह जानकारी दस्तावेज़ शीर्षलेख पर उपयोग की जाएगी"
@@ -10836,7 +10852,7 @@ msgstr "नौकरी को मान्य कर रहे हैं..."
 
 #. js-lingui-explicit-id
 msgid "error.validation"
-msgstr "सत्यापन विफल"
+msgstr "सत्यापन विफल रहा"
 
 msgid "Value"
 msgstr "मान"

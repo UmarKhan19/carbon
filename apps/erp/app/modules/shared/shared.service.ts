@@ -274,18 +274,15 @@ export async function cancelApprovalRequest(
     NotFoundError | ConflictError | BusinessRuleError | DatabaseError
   >
 > {
-  const existing = await fromQuery<{
-    id: string;
-    status: string;
-    requestedBy: string | null;
-  }>(
-    client
-      .from("approvalRequest")
-      .select("id, status, requestedBy")
-      .eq("id", id)
-      .single(),
-    { entity: "Approval request", id }
-  );
+  const existingQuery = client
+    .from("approvalRequest")
+    .select("id, status, requestedBy")
+    .eq("id", id)
+    .single();
+  const existing = await fromQuery(existingQuery, {
+    entity: "Approval request",
+    id
+  });
 
   if (existing.isErr()) {
     return existing;
@@ -308,19 +305,17 @@ export async function cancelApprovalRequest(
     );
   }
 
-  return fromQuery<{ id: string }>(
-    client
-      .from("approvalRequest")
-      .update({
-        status: "Cancelled",
-        updatedBy: userId,
-        updatedAt: new Date().toISOString()
-      })
-      .eq("id", id)
-      .select("id")
-      .single(),
-    { entity: "Approval request", id }
-  );
+  const cancelQuery = client
+    .from("approvalRequest")
+    .update({
+      status: "Cancelled",
+      updatedBy: userId,
+      updatedAt: new Date().toISOString()
+    })
+    .eq("id", id)
+    .select("id")
+    .single();
+  return fromQuery(cancelQuery, { entity: "Approval request", id });
 }
 
 export async function canViewApprovalRequest(

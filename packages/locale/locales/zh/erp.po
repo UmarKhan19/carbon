@@ -54,6 +54,10 @@ msgstr "{0} 上传成功"
 msgid "{0} values missing"
 msgstr "{0} 个值缺失"
 
+#. js-lingui-explicit-id
+msgid "error.notFound"
+msgstr "未找到{entity}"
+
 #. placeholder {0}: errors.length
 #. placeholder {1}: skipped.length
 msgid "{inserted} inserted, {updated} updated, {0} need fixing, {1} skipped."
@@ -665,6 +669,10 @@ msgstr "资本化项目的会计记录，您要贬值而不是支出；草稿→
 
 msgid "An asset's acquisition cost minus accumulated depreciation — what it's still worth on the books, and the figure it's disposed at."
 msgstr "资产的收购成本减去累计折旧—仍在账簿上的价值和处置的金额。"
+
+#. js-lingui-explicit-id
+msgid "error.externalService"
+msgstr "外部服务当前不可用"
 
 msgid "An item cannot be added to itself."
 msgstr "一个项目不能添加到自身。"
@@ -6778,6 +6786,10 @@ msgstr "Carbon单独跟踪的一个序列号单位或一个批次，具有自己
 msgid "One step in a job's routing, naming a process and a work center and carrying its own setup, labor, and machine times and rates."
 msgstr "工作路线中的一个步骤，命名流程和工作中心，并携带自己的设置、劳动和机器时间以及费率。"
 
+#. js-lingui-explicit-id
+msgid "approvals.onlyRequesterCanCancel"
+msgstr "只有申请人可以取消审批请求"
+
 msgid "Onshape Status"
 msgstr "Onshape 状态"
 
@@ -9101,6 +9113,10 @@ msgstr "这样你可以在这里分配它。"
 msgid "Something went wrong"
 msgstr "出错了"
 
+#. js-lingui-explicit-id
+msgid "error.database"
+msgstr "保存更改时出错"
+
 msgid "Something went wrong. Please try again."
 msgstr "出现问题。请重试。"
 
@@ -10195,7 +10211,7 @@ msgstr "此操作与当前状态冲突"
 
 #. js-lingui-explicit-id
 msgid "error.businessRule"
-msgstr "此操作违反业务规则，不被允许"
+msgstr "此操作不符合业务规则，无法执行"
 
 msgid "This information will be used on document headers"
 msgstr "此信息将用于文档标题"

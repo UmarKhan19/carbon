@@ -44,7 +44,7 @@ msgstr "{0} Refugado(s)"
 
 #. js-lingui-explicit-id
 msgid "error.notFound"
-msgstr "{entity} não encontrado"
+msgstr "Não foi possível encontrar {entity}"
 
 msgid "About"
 msgstr "Sobre"
@@ -300,8 +300,8 @@ msgid "Dragging {0} cancelled."
 msgstr "Arraste de {0} cancelado."
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
-#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
+#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
 msgid "Due {0}"
 msgstr "Vencimento {0}"
 
@@ -980,6 +980,10 @@ msgstr "Tamanho"
 msgid "Something went wrong"
 msgstr "Algo deu errado"
 
+#. js-lingui-explicit-id
+msgid "error.database"
+msgstr "Ocorreu um erro ao salvar suas alterações"
+
 msgid "Source"
 msgstr "Origem"
 
@@ -1037,6 +1041,14 @@ msgstr "A quantidade concluída para esta operação é menor que a quantidade r
 
 msgid "There are serial or batch tracked materials on the bill of material that have not been fully issued. Completing without issuing may result in incorrect traceability records."
 msgstr "Existem materiais rastreados por série ou lote na lista de materiais que não foram totalmente emitidos. Concluir sem emitir pode resultar em registros de rastreabilidade incorretos."
+
+#. js-lingui-explicit-id
+msgid "error.conflict"
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "error.businessRule"
+msgstr ""
 
 msgid "This lot is expired and can't be picked."
 msgstr "Este lote expirou e não pode ser selecionado."

@@ -44,7 +44,7 @@ msgstr "{0} Scartati"
 
 #. js-lingui-explicit-id
 msgid "error.notFound"
-msgstr "{entity} non trovato"
+msgstr "Impossibile trovare {entity}"
 
 msgid "About"
 msgstr "Informazioni"
@@ -78,7 +78,7 @@ msgstr "Tutti"
 
 #. js-lingui-explicit-id
 msgid "error.externalService"
-msgstr "Un servizio esterno non è al momento disponibile"
+msgstr "Un servizio esterno non è attualmente disponibile"
 
 msgid "Are you sure you want to delete this step?"
 msgstr "Sei sicuro di voler eliminare questa fase?"
@@ -300,8 +300,8 @@ msgid "Dragging {0} cancelled."
 msgstr "Trascinamento di {0} annullato."
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
-#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
+#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
 msgid "Due {0}"
 msgstr "Scadenza {0}"
 
@@ -980,6 +980,10 @@ msgstr "Dimensione"
 msgid "Something went wrong"
 msgstr "Qualcosa è andato storto"
 
+#. js-lingui-explicit-id
+msgid "error.database"
+msgstr "Si è verificato un errore durante il salvataggio delle modifiche"
+
 msgid "Source"
 msgstr "Origine"
 
@@ -1037,6 +1041,14 @@ msgstr "La quantità completata per questa operazione è inferiore alla quantit�
 
 msgid "There are serial or batch tracked materials on the bill of material that have not been fully issued. Completing without issuing may result in incorrect traceability records."
 msgstr "Ci sono materiali tracciati per numero di serie o lotto nella distinta base che non sono stati completamente prelevati. Completare senza prelevare potrebbe causare registrazioni di tracciabilità errate."
+
+#. js-lingui-explicit-id
+msgid "error.conflict"
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "error.businessRule"
+msgstr ""
 
 msgid "This lot is expired and can't be picked."
 msgstr "Questo lotto è scaduto e non può essere prelevato."

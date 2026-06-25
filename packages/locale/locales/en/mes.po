@@ -300,8 +300,8 @@ msgid "Dragging {0} cancelled."
 msgstr "Dragging {0} cancelled."
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
-#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
+#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
 msgid "Due {0}"
 msgstr "Due {0}"
 
@@ -980,6 +980,10 @@ msgstr "Size"
 msgid "Something went wrong"
 msgstr "Something went wrong"
 
+#. js-lingui-explicit-id
+msgid "error.database"
+msgstr "Something went wrong while saving your changes"
+
 msgid "Source"
 msgstr "Source"
 
@@ -1037,6 +1041,14 @@ msgstr "The completed quantity for this operation is less than the required quan
 
 msgid "There are serial or batch tracked materials on the bill of material that have not been fully issued. Completing without issuing may result in incorrect traceability records."
 msgstr "There are serial or batch tracked materials on the bill of material that have not been fully issued. Completing without issuing may result in incorrect traceability records."
+
+#. js-lingui-explicit-id
+msgid "error.conflict"
+msgstr "This action conflicts with the current state"
+
+#. js-lingui-explicit-id
+msgid "error.businessRule"
+msgstr "This action is not allowed by a business rule"
 
 msgid "This lot is expired and can't be picked."
 msgstr "This lot is expired and can't be picked."

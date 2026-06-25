@@ -54,6 +54,10 @@ msgstr "{0} przesłano pomyślnie"
 msgid "{0} values missing"
 msgstr "{0} brakujących wartości"
 
+#. js-lingui-explicit-id
+msgid "error.notFound"
+msgstr "Nie znaleziono: {entity}"
+
 #. placeholder {0}: errors.length
 #. placeholder {1}: skipped.length
 msgid "{inserted} inserted, {updated} updated, {0} need fixing, {1} skipped."
@@ -665,6 +669,10 @@ msgstr "Zapis księżowy dla elementu kapitalizowanego, który deprecjonujesz za
 
 msgid "An asset's acquisition cost minus accumulated depreciation — what it's still worth on the books, and the figure it's disposed at."
 msgstr "Koszt nabycia zasobu minus skumulowana amortyzacja — ile warte jest wciąż w księgach i kwota, za którą jest zbywany."
+
+#. js-lingui-explicit-id
+msgid "error.externalService"
+msgstr "Usługa zewnętrzna jest obecnie niedostępna"
 
 msgid "An item cannot be added to itself."
 msgstr "Przedmiot nie może być dodany do siebie."
@@ -6778,6 +6786,10 @@ msgstr "Jedna jednostka szeregowa lub jedna partia, którą Carbon śledzi indyw
 msgid "One step in a job's routing, naming a process and a work center and carrying its own setup, labor, and machine times and rates."
 msgstr "Jeden krok w trasie pracy, który wymienia proces i centrum pracy i nosi własne czasy i stawki instalacji, pracy i maszyny."
 
+#. js-lingui-explicit-id
+msgid "approvals.onlyRequesterCanCancel"
+msgstr "Tylko wnioskodawca może anulować wniosek o zatwierdzenie"
+
 msgid "Onshape Status"
 msgstr "Status Onshape"
 
@@ -9100,6 +9112,10 @@ msgstr "abyś mógł go tutaj przypisać."
 
 msgid "Something went wrong"
 msgstr "Coś poszło nie tak"
+
+#. js-lingui-explicit-id
+msgid "error.database"
+msgstr "Wystąpił błąd podczas zapisywania zmian"
 
 msgid "Something went wrong. Please try again."
 msgstr "Coś poszło nie tak. Spróbuj ponownie."
