@@ -86,8 +86,8 @@ finish → knowledge-sync (curated docs + glossary via carbon-docs; codegen arti
 | **usability** | floor → behavior (agent-browser) → precedent-conformance → knowledge-sync* → judge |
 | **copy** | floor → precedent-conformance → knowledge-sync* → judge |
 
-- **floor** — per-package `typecheck + lint + build` **+ conformance** (rejects deprecated patterns — old RLS, `NUMERIC(x,y)`, …; §5.7); dodges the whole-project `tsc` OOM. Always on for code.
-- **correctness** — failing-test-first; manufactures the signal the ~13 test files don't provide.
+- **floor** — per-package `typecheck + lint + build` **+ conformance** (§5.7). For any schema/migration change the floor is specifically **migrate → `pnpm generate:types` → typecheck**: regenerating first propagates the new schema through `.service` queries and `types.ts` to the frontend, so a breaking change fails typecheck (§5.9). A typecheck against *stale* generated types is a false green. Per-package (dodges the whole-project `tsc` OOM). Always on for code.
+- **correctness** — the **reproduce → fix → same-path** protocol: first write a test that *replicates* the bug / defines the behavior on the exact path (a unit test for logic, an agent-browser **playbook** via the `/test` skill for UI) and watch it fail; fix; the **same** artifact must then pass. The artifact is kept as a permanent regression guard, so every loop grows the suite (healing thin coverage organically). This — not the invariant net — is the per-item proof that a change is *correct*.
 - **behavior** — agent-browser driving the app on the loop's own `crbn` stack.
 - **invariant net** — the global safety net; runs on *every* loop regardless of kind (see §5.1).
 - **precedent-conformance** — the UI consistency gate (see §5.2).
@@ -97,13 +97,17 @@ finish → knowledge-sync (curated docs + glossary via carbon-docs; codegen arti
 
 ### 4.4 bug ↔ feature is recursion (depth is data, not different code)
 
-A `feature` binding compiles into a **phase graph**; each phase is a **child loop** with its own compiled gates; PRs stack (via `pr-splitter`). A bug is a single ~1–3 iteration loop. A 9-phase feature (the shape `consolidation/` already has) is one parent binding spawning 9 child loops → 9 stacked gated PRs. Same typed contract at every depth.
+A `feature` binding compiles into a **phase graph** — concretely an Attractor-style constrained-DOT pipeline (§7.1); each phase is a **child loop** with its own compiled gates; PRs stack (via `pr-splitter`). A bug is a single ~1–3 iteration loop on the implicit simple cycle (no graph). A 9-phase feature (the shape `consolidation/` already has) is one parent pipeline spawning 9 child loops → 9 stacked gated PRs. Same typed contract at every depth.
 
 ## 5. The verification substrate (the high-value core)
 
 ### 5.1 Invariant net — global safety net
 
 A library of **runnable assertions** over the database that must hold after *any* change. Its job is specifically the invariants **Postgres can't already enforce** — cross-table, aggregate, and temporal — since single-column/row constraints are already guaranteed by the schema.
+
+**Scope — the net is the *global backstop*, not the per-item verifier.** Proving a specific change is correct is the job of the reproduce→fix→same-path test (§4.3 *correctness*). The net's distinct job is catching what a targeted test *can't see*: a regression in code the change didn't touch, or a data-integrity break with no UI symptom. It is the minimum global tripwire that **unattended, overnight autonomy on financial/inventory data** requires — not a claim to be the best correctness mechanism in general. Under human supervision, the per-item protocol covers most work; the net is the price of sleeping through the run.
+
+**Detection is the weakest of the three correctness strategies (prevent > verify > detect); the net is therefore a *funnel*, not a destination.** Each invariant is tagged `promotable-to-constraint? / property-testable? / irreducible`. Where it can become a `CHECK/NOT NULL/FK` constraint it is **promoted to prevention** (Postgres enforces it on every write, in prod, not just when a loop runs) — a constraint-adding migration is literally that promotion. What permanently remains in the net is only the irreducible cross-table/aggregate/temporal set.
 
 **Candidate generation (content signals, never filenames).** Filename conventions like `fix-` are untrustworthy: of 758 migrations, the `fix` filename matches both pure UI/view noise *and* misses ~418 migrations whose bodies add constraints or repair data. Mine instead, in descending order of trust:
 1. **Live schema constraints** — every `CHECK/NOT NULL/UNIQUE/FK` Postgres currently enforces is an already-guaranteed invariant; this defines what's *covered* so we don't duplicate it.
@@ -188,15 +192,49 @@ The spine is load-bearing for everything, so its own currency and correctness ar
 
 **Self-maintained by the machinery it powers.** The drift loop, harvest-from-prod-bug loop, and ratify-flipped-standard loop are themselves loops built from the same doer/checker/ledger primitives. **The spine is the system's first and permanent customer:** if the loops can't keep their own spine honest, they can't be trusted downstream — a forcing function and a continuous proof-of-life. A named owner (or rotation) is the root of trust.
 
+### 5.9 Full-stack type chain — prevention for shape/contract errors (Carbon's existing asset)
+
+The strongest correctness layer for *shape/contract* errors already exists and is free: Carbon's **database→frontend type chain**.
+
+- A migration changes the schema → `pnpm run generate:types` (`scripts/generate-db-types.ts`) regenerates DB types from the live schema → `.service` queries are typed from those → `types.ts` re-exports them via `Awaited<ReturnType<typeof serviceFn>>` → the frontend consumes the same types. A schema change that breaks any downstream consumer **fails `typecheck`** — the bug *cannot be merged*.
+
+This is **prevention** (compile-time, deterministic) — the strongest of prevent > verify > detect — and already wired. The loop only has to *exercise* it correctly: after any schema change, **regenerate types before typecheck** (a typecheck against stale types is a false green; see the floor gate §4.3). The doer must keep the chain *connected* — propagate types via `Awaited<ReturnType<…>>` in `types.ts`, never hand-write frontend types that duplicate the DB shape (a candidate `conformance` check, §5.7).
+
+**The three correctness layers, by error class — complementary, not competing:**
+
+| Layer | Catches | Mechanism | Cost |
+|---|---|---|---|
+| **Prevent** | shape / contract (renamed column, changed/removed field) | the type chain (regen → typecheck) + schema constraints | free, compile-time, already built |
+| **Verify** | behavior (does the feature do the thing) | reproduce → fix → same-path test (§4.3 *correctness*) | per-item, accretes |
+| **Detect** | value / semantic invariants (debits = credits, inventory conserved) — which types *cannot* express | the invariant net (§5.1) | global backstop |
+
+Types can't know "debits = credits"; an invariant can't know a TS interface drifted. Each layer owns a class the others can't see.
+
 ## 6. Typed contracts everywhere
 
-Every skill — doer or checker — returns **structured output, not prose**. Checker: `{verdict, score, failures[], evidence[], nextStep}`. Doer: `{change, filesTouched, criteriaAddressed[], precedentCited, risk}`. The conductor gates on data and never parses paragraphs. This is why existing skills must be *improved* — they were built to be read by a human.
+Every skill — doer or checker — returns **structured output, not prose**. Checker: `{verdict, score, failures[], evidence[], nextStep}`. Doer: `{change, filesTouched, criteriaAddressed[], precedentCited, risk}`. The conductor gates on data and never parses paragraphs. This is why existing skills must be *improved* — they were built to be read by a human. Concrete on-the-wire schema for routing: the Attractor **status contract** `{outcome, context_updates, suggested_next, notes}` (§7.1).
 
 ## 7. Runtime (overnight, autonomous, gated)
 
 - A nightly `schedule` routine selects top-N `ready` bindings by priority/risk → spawns each loop in its own `crbn` worktree (own full stack) → runs to a gated PR → tears down. Bounded concurrency and per-loop budgets.
-- **Risk policy is declarative** (a small policy file). High-risk classes — DB migrations, accounting, infra/IaC — run **research + plan only and stop for a human**; they never self-execute. Everything else runs auto-to-PR.
+- **Risk policy is declarative**, implemented as a `Policy` Interviewer (§7.1): high-risk classes — DB migrations, accounting, infra/IaC — escalate to a human and run **research + plan only**; everything else auto-approves to PR.
 - Every result lands as a PR behind `check.yml` + human review. Nothing auto-merges.
+
+### 7.1 Execution engine — Attractor-derived (`strongdm/attractor`)
+
+Our conductor specifies *what* to verify; Attractor's NLSpecs specify *how to execute a multi-step agentic pipeline deterministically, resumably, and with human gates*. We adopt its **abstractions and contracts** — not the whole DOT engine (see §10):
+
+- **Interviewer pattern (keystone).** Every human decision — approve a risky step, ratify a spine change (§5.8), choose between options — is one abstraction `Interviewer.ask(Question)` with pluggable implementations. This unifies our supervised↔autonomous spectrum and risk policy: **swap the implementation, never the loop.**
+  - `Console` → supervised crawl-phase runs.
+  - `Policy` → autonomous: auto-approves low-risk classes, **escalates** high-risk (migration/accounting/infra) to a queued human ask. Replaces the ad-hoc "risk: high → stop."
+  - `Queue` → deterministic replay for testing loops.
+  - `Recording` → wraps any of the above for a complete audit trail.
+- **Goal gates + `retry_target` (formalizes the gate ladder + termination).** Each gate is a `goal_gate` node that must reach SUCCESS before the loop may exit; an unmet gate routes back to a `retry_target` (iterate-until-green) under a bounded retry policy (our budget/plateau). "Loop until gates green or stop" becomes a precise, resumable circuit-breaker.
+- **Checkpoint / resume.** State is serialized after each node, so an overnight loop survives a crash/transient failure and resumes from the last checkpoint instead of restarting — essential for long unattended runs. The checkpoint + per-node artifacts (`prompt.md` / `response.md` / `status.json`) are the on-disk form of the ledger (§5.4).
+- **Declarative pipeline for complex loops only.** A *feature* binding compiles to a small constrained-DOT graph of task/gate/conditional/parallel nodes — the concrete form of "feature = phase graph → child loops" (§4.4). A *bug* stays on the implicit simple cycle; we pay for the graph only where complexity warrants it.
+- **Typed status contract (concretizes §6).** Each node returns `{ outcome, context_updates, suggested_next, notes }`; edges route on a minimal condition language (`outcome=success && context.tests_passed=true`).
+- **Model stylesheet.** A CSS-like map selects the model per node class (adversarial `judge` on a strong model, routine codegen cheaper) — the concrete mechanism for our doer/judge split.
+- **Thrash detection.** If recent tool calls cycle (same 1–3 calls repeating), inject a "try a different approach" steering message — the intra-loop complement to cross-iteration plateau detection.
 
 ## 8. New vs. improved skills
 
@@ -236,6 +274,7 @@ Parallel tracks run a few milestones behind the data track:
 - Auto-merge — never; always human review.
 - Speculative pre-building of tournament/calibration/cross-run learning before runs demand them (M5 is evidence-gated).
 - Replacing the existing rule/convention docs — they survive as *secondary polish*, demoted below precedent.
+- Building Attractor's full DOT engine, handler taxonomy, or the Unified-LLM-Client spec up front (§7.1). We adopt its *contracts* — Interviewer, goal gates + `retry_target`, checkpoint/resume, status schema, model stylesheet — and use a declarative graph only for complex feature loops. Claude Code is the agent runtime; we do not reimplement the loop engine.
 
 ## 11. Open questions / risks
 
@@ -246,3 +285,4 @@ Parallel tracks run a few milestones behind the data track:
 - **Playbook flakiness** — agent-browser gates are slower/flakier; behavior gate is layered, not the floor.
 - **Conformance tooling & recency signal** — where conformance gates live (biome custom rules for TS, a SQL linter / grep-AST pass for migrations) and the cheapest reliable recency ranking (git blame/log date vs. explicit transition-event detection). Also: drift-loop cadence.
 - **Spine governance (§5.8)** — who is the named owner / ratification root; where per-entry provenance + scoring (true/false-positive counts, last-validated) is stored (frontmatter on each entry vs. a sidecar store); cadence of the maintenance + prune loops.
+- **Attractor adoption depth (§7.1)** — how much of the engine to build vs. adopt incrementally; whether feature pipelines use literal Graphviz DOT or a lighter internal graph representation; whether to vendor a minimal checkpoint/Interviewer library or implement directly against Claude Code's session primitives.
