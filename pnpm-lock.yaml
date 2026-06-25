@@ -1838,6 +1838,12 @@ importers:
       '@types/node':
         specifier: ^22
         version: 22.19.7
+      '@types/pg':
+        specifier: 8.15.6
+        version: 8.15.6
+      pg:
+        specifier: 8.20.0
+        version: 8.20.0
       rimraf:
         specifier: 'catalog:'
         version: 5.0.10
