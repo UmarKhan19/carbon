@@ -8,7 +8,7 @@ import {
   type KyselyDatabase
 } from "@carbon/database/client";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { type Kysely, PostgresDriver, sql } from "kysely";
+import { type Kysely, PostgresDriver, type RawBuilder, sql } from "kysely";
 import { nanoid } from "nanoid";
 
 /**
@@ -20,40 +20,25 @@ import { nanoid } from "nanoid";
  */
 
 export const BACKUP_KIND = "carbon-company-backup";
-// The gz is NDJSON: line 1 is `{ manifest }`, every later line is a single
-// `{ t, r }` table row. Read/written a line at a time (see (de)serializeBackup)
-// so a large backup never materializes as one >512MB string (V8's max) or one
-// giant JSON.parse. Storage assets travel as real files in a sibling `.assets/`
-// folder (server-side copied), not in the gz.
+// A backup is a folder `exports/<name>/` of small objects: `manifest.json`, one
+// `tables/<table>.ndjson.gz` per non-empty table (dumped + loaded in parallel),
+// and `assets/<path>` files. Each object stays under the bucket size cap; the
+// whole folder bundles into one `.carbon.tar.gz` for cross-environment transfer.
+// Per-table NDJSON is read/written a line at a time, so a huge table never
+// materializes as one >512MB string (V8's max) or one giant JSON.parse.
 export const BACKUP_VERSION = 1;
 export const BACKUP_INTEGRATION = "company-backup";
 export const EXPORTS_PREFIX = "exports";
 /** Shared, env-agnostic bucket holding the onboarding backup templates. */
 export const TEMPLATE_BUCKET = "company-templates";
 
-/** Suffix of a backup gz object (its sibling asset folder swaps it for `.assets`). */
-export const BACKUP_GZ_SUFFIX = ".carbon.json.gz";
-
 /**
  * The bucket the app stores per-company assets in (3D models, item thumbnails,
- * document attachments), all under a `{companyId}/` prefix. A backup copies
- * these into its own `.assets/` folder (see `copyAssetsToBackup`); they are NOT
- * in the per-company bucket.
+ * document attachments), all under a `{companyId}/` prefix. A backup copies these
+ * into its own `assets/` folder (see `copyAssetsToBackup`); they are NOT in the
+ * per-company bucket.
  */
 export const STORAGE_BUCKET = "private";
-
-/**
- * The asset folder that travels with a backup gz. A backup at
- * `exports/<name>.carbon.json.gz` keeps its storage files under
- * `exports/<name>.assets/<originalPath>` in the same per-company bucket. Derived
- * from the gz path, so it never needs to be stored in the manifest.
- */
-export function backupAssetPrefix(gzPath: string): string {
-  const base = gzPath.endsWith(BACKUP_GZ_SUFFIX)
-    ? gzPath.slice(0, -BACKUP_GZ_SUFFIX.length)
-    : gzPath;
-  return `${base}.assets`;
-}
 
 /**
  * TEXT columns that hold a storage path (`{companyId}/…/{id}.ext`). On reseed
@@ -153,6 +138,9 @@ export const STRUCTURAL_TABLES = ["company"];
  * Additional tables skipped in `reseed` mode — memberships, invites and
  * integration state belong to the source company's users, not to a copy.
  * The importing company already has its admin membership from onboarding.
+ * (Tables whose PK is keyed by a user/employee FK — employeeJob, customer/
+ * supplierAccount — are skipped automatically via `isUserScopedIdentityTable`,
+ * so they don't need listing here.)
  */
 export const RESEED_SKIPPED_TABLES = [
   "userToCompany",
@@ -199,17 +187,42 @@ export type ForeignKey = {
   refColumn: string;
 };
 
+/**
+ * How a table's rows are scoped to a company:
+ * - `direct`: the table itself has a `companyId`/`companyGroupId` column.
+ * - `via`: the table has no scope column but a FK (`column` → `parent.refColumn`)
+ *   to a table that IS scoped (possibly transitively). It inherits that scope —
+ *   e.g. `customerContact.customerId → customer`. Resolved from the FK graph so
+ *   child tables (contacts, locations, line prices, history) travel with their
+ *   parent without a hand-maintained list.
+ */
+export type Scope =
+  | { kind: "direct"; column: "companyId" | "companyGroupId" }
+  | { kind: "via"; column: string; refColumn: string; parent: string };
+
 export type TableInfo = {
   name: string;
   columns: ColumnInfo[];
+  /** How the table is scoped to a company (direct column or via a parent FK). */
+  scope: Scope;
   /**
-   * The tenant column the rows are filtered/stamped by. Most data is
-   * `companyId`-scoped; the chart of accounts and other shared config
-   * (account, currency, dimension, …) is `companyGroupId`-scoped.
+   * The resolved ROOT tenant column the rows ultimately belong to — `companyId`
+   * for most data, `companyGroupId` for shared config (chart of accounts,
+   * currencies, …). For a `via` table it's the root ancestor's column. Used for
+   * the "which tenant" decisions (wipe/reseed scope); the actual row filter is
+   * built by `buildScopeFilter`.
    */
   scopeColumn: "companyId" | "companyGroupId";
   /** primary key column names (empty when the table has no PK) */
   pkColumns: string[];
+  /**
+   * Every column that participates in ANY uniqueness constraint — primary key,
+   * unique constraint, or bare unique index (deduped). A foreign restore that
+   * collapses a user FK in one of these would collide, so it's the signal for
+   * `isUserScopedIdentityTable` (PK alone misses unique-index keys like
+   * `trainingCompletion(trainingAssignmentId, employeeId, period)`).
+   */
+  uniqueColumns: string[];
   /** true when the primary key is exactly the single column "id" */
   hasId: boolean;
   foreignKeys: ForeignKey[];
@@ -242,18 +255,76 @@ export type CompanyBackup = {
   data: Record<string, Record<string, unknown>[]>;
 };
 
-/** One NDJSON line: either the single manifest line, or one table row. */
-type BackupLine =
-  | { manifest: Manifest }
-  | { t: string; r: Record<string, unknown> };
+// ── File-per-table layout ──────────────────────────────────────────────────
+// A backup is a folder `exports/<name>/` of small objects (each under the bucket
+// size cap): `manifest.json`, one `tables/<table>.ndjson.gz` per non-empty table
+// (dumped + loaded in parallel), and `assets/<path>` files. Bundled as one
+// `.carbon.tar.gz` for cross-environment download / upload.
+
+export function backupDir(name: string): string {
+  return `${EXPORTS_PREFIX}/${name}`;
+}
+export function backupManifestPath(name: string): string {
+  return `${EXPORTS_PREFIX}/${name}/manifest.json`;
+}
+
+/** Run `fn` over `items` with at most `limit` in flight. */
+export async function mapWithConcurrency<T>(
+  items: T[],
+  limit: number,
+  fn: (item: T) => Promise<void>
+): Promise<void> {
+  let next = 0;
+  const workers = Array.from(
+    { length: Math.min(limit, items.length) },
+    async () => {
+      while (next < items.length) {
+        const item = items[next++];
+        if (item === undefined) break;
+        await fn(item);
+      }
+    }
+  );
+  await Promise.all(workers);
+}
+export function backupTablePath(name: string, table: string): string {
+  return `${EXPORTS_PREFIX}/${name}/tables/${table}.ndjson.gz`;
+}
+export function backupTablesDir(name: string): string {
+  return `${EXPORTS_PREFIX}/${name}/tables`;
+}
+export function backupAssetsDir(name: string): string {
+  return `${EXPORTS_PREFIX}/${name}/assets`;
+}
 
 /**
- * Serialize a backup to a gzipped NDJSON buffer. Each row is written as its own
- * line straight into the gzip stream, so we never build a single >512MB string
- * (V8's max string length) the way `JSON.stringify(wholeBackup)` would — large
- * companies serialize at flat memory.
+ * Write `manifest.json` — the LAST thing written for a backup, after every table
+ * file and asset is in place. Its presence is the "backup is complete" marker:
+ * the UI lists a folder without a manifest as still-preparing (no size yet), and
+ * restore/import refuse to read one until its manifest exists.
  */
-export async function serializeBackup(backup: CompanyBackup): Promise<Buffer> {
+export async function writeBackupManifest(
+  client: SupabaseClient,
+  companyId: string,
+  name: string,
+  manifest: Manifest
+): Promise<void> {
+  const up = await client.storage
+    .from(companyId)
+    .upload(backupManifestPath(name), Buffer.from(JSON.stringify(manifest)), {
+      contentType: "application/json",
+      upsert: true
+    });
+  if (up.error) throw new Error(`manifest: ${up.error.message}`);
+}
+
+/**
+ * Gzip one table's rows as NDJSON (one JSON object per line). Streamed, so a huge
+ * table never builds a `>512MB` string.
+ */
+export async function serializeTable(
+  rows: Record<string, unknown>[]
+): Promise<Buffer> {
   const gzip = createGzip();
   const chunks: Buffer[] = [];
   gzip.on("data", (c: Buffer) => chunks.push(c));
@@ -261,55 +332,86 @@ export async function serializeBackup(backup: CompanyBackup): Promise<Buffer> {
     gzip.on("end", resolve);
     gzip.on("error", reject);
   });
-
-  const writeLine = (line: BackupLine) =>
-    new Promise<void>((resolve, reject) => {
-      gzip.write(`${JSON.stringify(line)}\n`, (err) =>
+  for (const row of rows) {
+    await new Promise<void>((resolve, reject) => {
+      gzip.write(`${JSON.stringify(row)}\n`, (err) =>
         err ? reject(err) : resolve()
       );
     });
-
-  await writeLine({ manifest: backup.manifest });
-  for (const [table, rows] of Object.entries(backup.data)) {
-    for (const row of rows) await writeLine({ t: table, r: row });
   }
-
   gzip.end();
   await finished;
   return Buffer.concat(chunks);
 }
 
 /**
- * Parse a gzipped NDJSON backup. Streams the gunzip output line by line, so the
- * uncompressed payload (which can exceed V8's max string length for a large
- * company) is never decoded into one string nor passed to a single JSON.parse.
- * Reconstructs the in-memory `CompanyBackup` the rest of the pipeline expects.
+ * Parse a `tables/<table>.ndjson.gz` into rows. Streams the gunzip line by line,
+ * so a huge table is never one giant string nor a single JSON.parse.
  */
-export async function deserializeBackup(
+export async function deserializeTable(
   bytes: ArrayBuffer
-): Promise<CompanyBackup> {
+): Promise<Record<string, unknown>[]> {
   const gunzip = createGunzip();
   Readable.from(Buffer.from(bytes)).pipe(gunzip);
   const rl = createInterface({
     input: gunzip,
     crlfDelay: Number.POSITIVE_INFINITY
   });
-
-  let manifest: Manifest | undefined;
-  const data: CompanyBackup["data"] = {};
+  const rows: Record<string, unknown>[] = [];
   for await (const line of rl) {
-    if (!line) continue;
-    const parsed = JSON.parse(line) as BackupLine;
-    if ("manifest" in parsed) {
-      manifest = parsed.manifest;
-      continue;
-    }
-    (data[parsed.t] ??= []).push(parsed.r);
+    if (line) rows.push(JSON.parse(line));
+  }
+  return rows;
+}
+
+/** How many table files to dump/load concurrently. */
+export const BACKUP_TABLE_CONCURRENCY = 6;
+
+/** A restore/import `source` is the backup folder name. Bridge legacy single-gz
+ *  sources (`exports/<name>.carbon.json.gz`) to the folder name during the
+ *  transition. */
+export function backupNameFromSource(source: string): string {
+  return source.replace(/^exports\//, "").replace(/\.carbon\.json\.gz$/, "");
+}
+
+/**
+ * Read a backup folder `exports/<name>/`: its manifest, then every table file in
+ * parallel, into the in-memory `CompanyBackup` the load pipeline expects.
+ */
+export async function readBackup(
+  client: SupabaseClient,
+  companyId: string,
+  name: string
+): Promise<CompanyBackup> {
+  const mf = await client.storage
+    .from(companyId)
+    .download(backupManifestPath(name));
+  if (mf.error || !mf.data) {
+    throw new Error(
+      `Failed to download backup manifest ${name}: ${mf.error?.message}`
+    );
+  }
+  const manifest = JSON.parse(await mf.data.text()) as Manifest;
+  if (manifest.kind !== BACKUP_KIND) {
+    throw new Error("Not a Carbon company backup");
   }
 
-  if (!manifest) {
-    throw new Error("Backup is missing its manifest line");
-  }
+  const data: CompanyBackup["data"] = {};
+  await mapWithConcurrency(
+    manifest.tables,
+    BACKUP_TABLE_CONCURRENCY,
+    async (t) => {
+      const f = await client.storage
+        .from(companyId)
+        .download(backupTablePath(name, t.name));
+      if (f.error || !f.data) {
+        throw new Error(
+          `Failed to download table ${t.name} for ${name}: ${f.error?.message}`
+        );
+      }
+      data[t.name] = await deserializeTable(await f.data.arrayBuffer());
+    }
+  );
   return { manifest, data };
 }
 
@@ -351,7 +453,6 @@ export async function getCompanyTableCatalog(
       scopeByTable.set(r.name, "companyGroupId");
     }
   }
-  const tableSet = new Set(scopeByTable.keys());
 
   const columns = await sql<{
     table_name: string;
@@ -383,6 +484,18 @@ export async function getCompanyTableCatalog(
     ORDER BY tc.table_name, kcu.ordinal_position
   `.execute(db);
 
+  // Columns in ANY unique index (covers PKs, unique constraints, and bare
+  // CREATE UNIQUE INDEX — the last is how training tables key their employee).
+  // `attnum = ANY(indkey)` skips expression-index entries (attnum 0).
+  const uniqueColumns = await sql<{ table_name: string; column_name: string }>`
+    SELECT t.relname AS table_name, a.attname AS column_name
+    FROM pg_index ix
+    JOIN pg_class t ON t.oid = ix.indrelid
+    JOIN pg_namespace nsp ON nsp.oid = t.relnamespace
+    JOIN pg_attribute a ON a.attrelid = t.oid AND a.attnum = ANY (ix.indkey)
+    WHERE ix.indisunique AND nsp.nspname = 'public'
+  `.execute(db);
+
   const foreignKeys = await sql<{
     table_name: string;
     column_name: string;
@@ -403,6 +516,49 @@ export async function getCompanyTableCatalog(
       ON tatt.attrelid = tgt.oid AND tatt.attnum = u.fattnum
     WHERE con.contype = 'f' AND nsp.nspname = 'public'
   `.execute(db);
+
+  // FK graph for EVERY table (not just the directly-scoped ones), so scope can
+  // be resolved transitively below.
+  const allFksByTable = new Map<string, ForeignKey[]>();
+  for (const f of foreignKeys.rows) {
+    const list = allFksByTable.get(f.table_name) ?? [];
+    list.push({
+      column: f.column_name,
+      refTable: f.ref_table,
+      refColumn: f.ref_column
+    });
+    allFksByTable.set(f.table_name, list);
+  }
+
+  // Resolve scope transitively: a table with no companyId/companyGroupId column
+  // but a FK to an already-scoped table inherits that scope (nearest scoped
+  // parent wins — BFS by passes converges on the shortest path). This pulls in
+  // child tables (contacts, locations, line prices, status history, …) without a
+  // hand-maintained list.
+  const scope = new Map<string, Scope>();
+  const scopeRoot = new Map<string, "companyId" | "companyGroupId">();
+  for (const [name, column] of scopeByTable) {
+    scope.set(name, { kind: "direct", column });
+    scopeRoot.set(name, column);
+  }
+  let resolvedMore = true;
+  while (resolvedMore) {
+    resolvedMore = false;
+    for (const [name, fks] of allFksByTable) {
+      if (scope.has(name) || structural.has(name)) continue;
+      const fk = fks.find((f) => f.refTable !== name && scope.has(f.refTable));
+      if (!fk) continue;
+      scope.set(name, {
+        kind: "via",
+        column: fk.column,
+        refColumn: fk.refColumn,
+        parent: fk.refTable
+      });
+      scopeRoot.set(name, scopeRoot.get(fk.refTable)!);
+      resolvedMore = true;
+    }
+  }
+  const tableSet = new Set(scope.keys());
 
   let schemaVersion = "unknown";
   try {
@@ -438,6 +594,13 @@ export async function getCompanyTableCatalog(
     pkColumnsByTable.set(p.table_name, list);
   }
 
+  const uniqueColumnsByTable = new Map<string, Set<string>>();
+  for (const u of uniqueColumns.rows) {
+    const set = uniqueColumnsByTable.get(u.table_name) ?? new Set<string>();
+    set.add(u.column_name);
+    uniqueColumnsByTable.set(u.table_name, set);
+  }
+
   const fksByTable = new Map<string, ForeignKey[]>();
   for (const f of foreignKeys.rows) {
     if (!tableSet.has(f.table_name)) continue;
@@ -455,8 +618,10 @@ export async function getCompanyTableCatalog(
     return {
       name,
       columns: columnsByTable.get(name) ?? [],
-      scopeColumn: scopeByTable.get(name)!,
+      scope: scope.get(name)!,
+      scopeColumn: scopeRoot.get(name)!,
       pkColumns,
+      uniqueColumns: [...(uniqueColumnsByTable.get(name) ?? [])],
       hasId: pkColumns.length === 1 && pkColumns[0] === "id",
       foreignKeys: fksByTable.get(name) ?? []
     };
@@ -526,6 +691,201 @@ export function assertBackupImportable(
     }
   }
   return { ok: true };
+}
+
+/** FKs to these collapse to the importing user when re-stamping a foreign backup. */
+export const USER_REF_TABLES = new Set(["user", "employee"]);
+
+/**
+ * FK targets a restore resolves WITHOUT the referenced row being in the backup:
+ * `user` (global identity table, never in the catalog) and `company` (structural),
+ * plus `employee` (collapsed to the importer) and `companyGroup` (re-stamped to the
+ * target group). A FK to any of these can't be a closure gap.
+ */
+export const RETAINED_REF_TABLES = new Set([
+  "user",
+  "employee",
+  "company",
+  "companyGroup"
+]);
+
+export type DanglingRef = {
+  table: string;
+  column: string;
+  refTable: string;
+  /** false → restore nulls it (warning); true → NOT NULL, restore cannot resolve. */
+  fatal: boolean;
+  sampleValue: string;
+  count: number;
+};
+
+/**
+ * Find FK values that point at a scoped row the backup does NOT contain — the exact
+ * gap that makes a restore dangle. A backup is "referentially closed" when this
+ * returns no `fatal` entries. Pure (no DB), so the SAME check runs as a unit test
+ * AND as the pre-wipe restore guard — there is one definition of closure, not two
+ * that can drift. Skips refs to `RETAINED_REF_TABLES` (resolved by collapse/identity)
+ * and to non-scoped global tables (`currency`, `country`, … — stable ids present in
+ * every target), since neither is a gap.
+ */
+export function findDanglingReferences(
+  catalog: Catalog,
+  dataByTable: Record<string, Array<{ [col: string]: unknown }>>
+): DanglingRef[] {
+  const catalogNames = new Set(catalog.tables.map((t) => t.name));
+  const idsByTable = new Map<string, Set<unknown>>();
+  for (const t of catalog.tables) {
+    if (!t.hasId) continue;
+    const ids = new Set<unknown>();
+    for (const row of dataByTable[t.name] ?? []) ids.add(row.id);
+    idsByTable.set(t.name, ids);
+  }
+
+  const found = new Map<string, DanglingRef>();
+  for (const t of catalog.tables) {
+    const rows = dataByTable[t.name];
+    if (!rows?.length) continue;
+    const colByName = new Map(t.columns.map((c) => [c.name, c]));
+    for (const fk of t.foreignKeys) {
+      if (fk.refColumn !== "id") continue;
+      if (RETAINED_REF_TABLES.has(fk.refTable)) continue;
+      if (!catalogNames.has(fk.refTable)) continue; // non-scoped global → stable ids
+      const col = colByName.get(fk.column);
+      if (!col) continue;
+      const refIds = idsByTable.get(fk.refTable) ?? new Set();
+      for (const row of rows) {
+        const v = row[fk.column];
+        if (v == null) continue;
+        if (refIds.has(v)) continue;
+        const key = `${t.name}.${fk.column}->${fk.refTable}`;
+        const existing = found.get(key);
+        if (existing) {
+          existing.count++;
+        } else {
+          found.set(key, {
+            table: t.name,
+            column: fk.column,
+            refTable: fk.refTable,
+            fatal: !col.isNullable,
+            sampleValue: String(v),
+            count: 1
+          });
+        }
+      }
+    }
+  }
+  return [...found.values()];
+}
+
+/**
+ * Pre-wipe restore guard: refuse a backup that isn't referentially closed. A
+ * NOT-NULL FK pointing at a missing row would commit under relaxed FK checks and
+ * corrupt the restore, so this reports EVERY fatal gap at once — the whole list is
+ * surfaced before any data is touched, instead of one throw at a time mid-load.
+ */
+export function assertReferentiallyClosed(
+  catalog: Catalog,
+  backup: CompanyBackup
+): { ok: true } | { ok: false; reason: string } {
+  const fatal = findDanglingReferences(catalog, backup.data).filter(
+    (d) => d.fatal
+  );
+  if (fatal.length === 0) return { ok: true };
+  const lines = fatal
+    .map(
+      (d) =>
+        `  ${d.table}.${d.column} → ${d.refTable} (${d.count} row${
+          d.count === 1 ? "" : "s"
+        }, e.g. ${d.sampleValue})`
+    )
+    .join("\n");
+  return {
+    ok: false,
+    reason: `the backup is not self-contained — ${fatal.length} reference${
+      fatal.length === 1 ? "" : "s"
+    } point at rows it doesn't include:\n${lines}`
+  };
+}
+
+export type RowTransform = (value: unknown) => unknown;
+
+/**
+ * Per-column transforms used when re-stamping a FOREIGN backup onto this company:
+ * every id is remapped to a fresh one, companyId/companyGroupId point at the
+ * target, FKs follow the id remap, user refs collapse to the importing user, and
+ * storage paths are rewritten. For an OWN backup (remap=false) every column is
+ * identity — ids and scope already belong here. Pure (no DB), so it lives here
+ * with the other catalog helpers and is unit-tested directly.
+ */
+export function buildRowTransforms(
+  table: TableInfo,
+  columns: ColumnInfo[],
+  ctx: {
+    remap: boolean;
+    companyId: string;
+    userId: string;
+    targetGroupId: string | null;
+    sourceCompanyId: string;
+    idMaps: Map<string, Map<string, string>>;
+    idRewrite: Map<string, string>;
+  }
+): RowTransform[] {
+  const identity: RowTransform = (v) => v;
+  if (!ctx.remap) return columns.map(() => identity);
+
+  const fkByColumn = new Map(table.foreignKeys.map((fk) => [fk.column, fk]));
+  return columns.map((col) => {
+    const fk = fkByColumn.get(col.name);
+    // Only id-keyed tables with a text/uuid id get an idMap (int/serial ids reuse
+    // verbatim — see idMaps build). Gate on the map's presence, not `hasId`, or an
+    // int-id table dereferences an undefined map.
+    const idMap = ctx.idMaps.get(table.name);
+    if (col.name === "id" && idMap) {
+      return (v) => idMap.get(v as string) ?? v;
+    }
+    if (col.name === "companyId") return () => ctx.companyId;
+    if (col.name === "companyGroupId") return () => ctx.targetGroupId;
+    if (STORAGE_PATH_COLUMNS.has(col.name)) {
+      return (v) =>
+        typeof v === "string"
+          ? rewriteStoragePath(
+              v,
+              ctx.sourceCompanyId,
+              ctx.companyId,
+              ctx.idRewrite
+            )
+          : v;
+    }
+    if (fk) {
+      if (USER_REF_TABLES.has(fk.refTable)) {
+        return (v) => (v == null ? v : ctx.userId);
+      }
+      if (fk.refTable === "company") {
+        return (v) => (v === ctx.sourceCompanyId ? ctx.companyId : v);
+      }
+      if (fk.refTable === "companyGroup") {
+        return (v) => (v == null ? v : ctx.targetGroupId);
+      }
+      if (fk.refColumn === "id" && ctx.idMaps.has(fk.refTable)) {
+        const map = ctx.idMaps.get(fk.refTable)!;
+        return (v) => {
+          if (v == null) return v;
+          const mapped = map.get(v as string);
+          if (mapped) return mapped;
+          // The referenced row isn't in the backup. Keeping the stale id would
+          // dangle (FK checks are relaxed during load, so it would commit and
+          // only fail later in MRP/etc). Drop it when nullable; otherwise abort
+          // the whole restore — never commit a corrupt reference.
+          if (col.isNullable) return null;
+          throw new Error(
+            `Backup is inconsistent: ${table.name}.${col.name} references a ` +
+              `${fk.refTable} (${String(v)}) that isn't in the backup.`
+          );
+        };
+      }
+    }
+    return identity;
+  });
 }
 
 /**
@@ -613,6 +973,102 @@ export function bindValue(value: unknown, col: ColumnInfo): unknown {
 }
 
 /**
+ * A SQL predicate scoping a table's rows to one company. For a directly-scoped
+ * table it's `companyId = $`; for a `via` table it's
+ * `fk IN (SELECT parent.refColumn FROM parent WHERE <parent's predicate>)`,
+ * recursing to the scoped root. The subquery is NOT correlated (it lists the
+ * parent's ids for the company), so it stays a cheap semi-join. `byName` must
+ * hold every catalog table so parents resolve.
+ */
+export function buildScopeFilter(
+  table: TableInfo,
+  byName: Map<string, TableInfo>,
+  companyId: string,
+  companyGroupId: string | null
+): RawBuilder<unknown> {
+  if (table.scope.kind === "direct") {
+    const value =
+      table.scope.column === "companyGroupId" ? companyGroupId : companyId;
+    return sql`${sql.id(table.scope.column)} = ${value}`;
+  }
+  const parent = byName.get(table.scope.parent);
+  if (!parent) {
+    throw new Error(
+      `Scope parent "${table.scope.parent}" of "${table.name}" is not in the catalog`
+    );
+  }
+  return sql`${sql.id(table.scope.column)} IN (SELECT ${sql.id(
+    table.scope.refColumn
+  )} FROM ${sql.id(table.scope.parent)} WHERE ${buildScopeFilter(
+    parent,
+    byName,
+    companyId,
+    companyGroupId
+  )})`;
+}
+
+/**
+ * Export-time closure guard — refuse to PRODUCE a backup that could never be
+ * restored. For each NOT-NULL FK from an exportable scoped table to another
+ * exportable scoped table, count rows in this company's export scope whose
+ * reference falls OUTSIDE the referenced table's export scope (a cross-company /
+ * out-of-scope ref: the child row would be dumped but its parent would not).
+ * DB-level and count-only, so no rows are held in memory. This is the export
+ * mirror of the restore-side `assertReferentiallyClosed`. Skips nullable FKs
+ * (restore nulls a missing nullable ref) and refs to retained/global/secret
+ * tables (`user`, `company`, …, and anything not exported).
+ */
+export async function findExportScopeViolations(
+  db: Kysely<KyselyDatabase>,
+  exportable: TableInfo[],
+  byName: Map<string, TableInfo>,
+  companyId: string,
+  companyGroupId: string | null
+): Promise<string[]> {
+  const exportableNames = new Set(exportable.map((t) => t.name));
+  const checks: Array<{ desc: string; query: RawBuilder<{ n: string }> }> = [];
+  for (const t of exportable) {
+    const colByName = new Map(t.columns.map((c) => [c.name, c]));
+    for (const fk of t.foreignKeys) {
+      if (fk.refColumn !== "id") continue;
+      if (RETAINED_REF_TABLES.has(fk.refTable)) continue;
+      if (!exportableNames.has(fk.refTable)) continue; // global/secret → not in closure
+      const col = colByName.get(fk.column);
+      if (!col || col.isNullable) continue; // nullable → restore nulls a missing ref
+      const parent = byName.get(fk.refTable)!;
+      const childScope = buildScopeFilter(t, byName, companyId, companyGroupId);
+      const parentScope = buildScopeFilter(
+        parent,
+        byName,
+        companyId,
+        companyGroupId
+      );
+      checks.push({
+        desc: `${t.name}.${fk.column} → ${fk.refTable}`,
+        query: sql<{ n: string }>`
+          SELECT count(*)::text AS n
+          FROM ${sql.id(t.name)}
+          WHERE ${childScope}
+            AND ${sql.id(fk.column)} IS NOT NULL
+            AND ${sql.id(fk.column)} NOT IN (
+              SELECT ${sql.id(fk.refColumn)}
+              FROM ${sql.id(parent.name)}
+              WHERE ${parentScope}
+            )`
+      });
+    }
+  }
+
+  const violations: string[] = [];
+  await mapWithConcurrency(checks, 6, async (c) => {
+    const r = await c.query.execute(db);
+    const n = Number(r.rows[0]?.n ?? 0);
+    if (n > 0) violations.push(`${c.desc} (${n} row${n === 1 ? "" : "s"})`);
+  });
+  return violations;
+}
+
+/**
  * Of the given tables, return only those the target has NOT yet populated in
  * its scope (companyId or companyGroupId). Reseed import uses this so it
  * never overwrites data the target already owns — a bare clone keeps every
@@ -621,18 +1077,16 @@ export function bindValue(value: unknown, col: ColumnInfo): unknown {
 export async function filterUnpopulated(
   db: Kysely<KyselyDatabase>,
   tables: TableInfo[],
+  byName: Map<string, TableInfo>,
   companyId: string,
   companyGroupId: string | null
 ): Promise<TableInfo[]> {
   const isEmpty = await Promise.all(
     tables.map(async (t) => {
-      const scopeValue =
-        t.scopeColumn === "companyGroupId" ? companyGroupId : companyId;
-      if (scopeValue === null) return true;
       const result = await sql<{ present: boolean }>`
         SELECT EXISTS(
           SELECT 1 FROM ${sql.id(t.name)}
-          WHERE ${sql.id(t.scopeColumn)} = ${scopeValue}
+          WHERE ${buildScopeFilter(t, byName, companyId, companyGroupId)}
         ) AS present
       `.execute(db);
       return !result.rows[0]?.present;
@@ -670,14 +1124,45 @@ export async function canSetReplicationRole(
  * The full set is WIPED (so a table empty in the backup ends up empty, matching
  * the snapshot exactly); only the subset with rows in the backup is reloaded.
  */
+/**
+ * A table whose primary key is keyed by a `user`/`employee` FK (e.g. `employeeJob`,
+ * `customerAccount`, `supplierAccount`, `userToCompany`) is per-source-user
+ * identity. A foreign restore / reseed collapses every user FK onto the single
+ * importing user, so all such rows would collide on whatever uniqueness constraint
+ * the user column participates in — a composite PK like `(id, companyId)`, OR a
+ * unique index like `trainingCompletion(trainingAssignmentId, employeeId, period)`.
+ * They can never be meaningfully copied to another company — skip them on both load
+ * paths (the source's belong to the source's users; the target keeps its own).
+ * Keys off every unique column (not just the PK) so a table that keys its user via
+ * a unique index is covered automatically rather than silently colliding on load.
+ */
+export function isUserScopedIdentityTable(table: TableInfo): boolean {
+  const uniqueCols = new Set(
+    table.uniqueColumns.length > 0 ? table.uniqueColumns : table.pkColumns
+  );
+  return table.foreignKeys.some(
+    (fk) =>
+      uniqueCols.has(fk.column) &&
+      (fk.refTable === "user" || fk.refTable === "employee")
+  );
+}
+
 export function selectWipeableTables(
   catalog: Catalog,
-  opts: { includeGroup?: boolean } = {}
+  opts: { includeGroup?: boolean; remap?: boolean } = {}
 ): TableInfo[] {
   const skip = new Set([...SECRET_TABLES, ...IN_PLACE_SKIPPED_TABLES]);
   return catalog.tables.filter(
     (t) =>
       !skip.has(t.name) &&
+      // Identity tables (per-source-user rows) are normally KEPT. But a FOREIGN
+      // restore (remap) re-keys their parents' ids, and `ON DELETE CASCADE` does
+      // NOT fire under `session_replication_role='replica'` — so a kept child would
+      // be left dangling at a deleted/remapped parent. On remap we therefore WIPE
+      // them (reverse-topo wipe clears children before parents) and never reload
+      // them (the load set drops them separately). On an own restore parent ids are
+      // stable, so keeping them is safe.
+      (opts.remap === true || !isUserScopedIdentityTable(t)) &&
       (t.scopeColumn === "companyId" ||
         (opts.includeGroup === true && t.scopeColumn === "companyGroupId"))
   );
@@ -724,17 +1209,16 @@ export function assertWipeSafe(
 export async function wipeScopedData(
   trx: Kysely<KyselyDatabase>,
   tables: TableInfo[],
+  byName: Map<string, TableInfo>,
   scope: { companyId: string; companyGroupId: string | null }
 ): Promise<void> {
   for (const table of [...tables].reverse()) {
-    const value =
-      table.scopeColumn === "companyGroupId"
-        ? scope.companyGroupId
-        : scope.companyId;
-    if (value == null) continue;
+    // buildScopeFilter scopes by parent FK for `via` tables; a null
+    // companyGroupId yields `= NULL` (no match), so group data is left untouched
+    // when the company has no group.
     await sql`
       DELETE FROM ${sql.id(table.name)}
-      WHERE ${sql.id(table.scopeColumn)} = ${value}
+      WHERE ${buildScopeFilter(table, byName, scope.companyId, scope.companyGroupId)}
     `.execute(trx);
   }
 }

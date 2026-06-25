@@ -1,3 +1,4 @@
+import { Readable } from "node:stream";
 import { CarbonEdition } from "@carbon/auth";
 import type { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { Database } from "@carbon/database";
@@ -16,56 +17,26 @@ import {
   seedCompany,
   updateCompany
 } from "~/modules/settings";
+import { unpackBackupArchive } from "~/modules/settings/backups-archive.server";
 
 type ServiceRole = ReturnType<typeof getCarbonServiceRole>;
 
-/** Pull the onboarding backup template for an industry from the shared
- *  company-templates bucket, or null when none is committed yet for that
- *  industry (caller falls back to a clean company). Templates are uploaded at
- *  deploy from packages/database/supabase/backups/<industryId>.carbon.json.gz. */
-export async function fetchTemplateBackup(
-  serviceRole: ServiceRole,
-  industryId: string | null
-): Promise<Blob | null> {
-  if (!industryId) return null;
-  const download = await serviceRole.storage
-    .from("company-templates")
-    .download(`templates/${industryId}.carbon.json.gz`);
-  if (download.error) {
-    // A missing template is expected (none authored for this industry yet) and
-    // falls back to a clean seed. Log so a transient storage failure isn't
-    // silently swallowed into an empty company.
-    console.warn(
-      `No backup template for industry "${industryId}":`,
-      download.error.message
-    );
-    return null;
-  }
-  return download.data ?? null;
-}
-
 /**
- * Provision a freshly-created company's data. Demo and "bring your own data"
- * both resolve to a backup that's reseed-imported on top of an identity-only
- * seed (the backup carries the chart of accounts + business data). With no
- * backup — a clean choice, or a demo with nothing published yet — fall back to
- * a full clean seed.
+ * Provision a freshly-created company's data. "Restore from a backup" resolves
+ * to the user's uploaded `.carbon.tar.gz`, reseed-imported on top of an
+ * identity-only seed (the backup carries the chart of accounts + business data).
+ * With no backup — a clean choice — fall back to a full clean seed.
  */
 export async function provisionCompanyData(
   serviceRole: ServiceRole,
   {
     companyId,
     userId,
-    backup,
-    templateIndustryId
+    backup
   }: {
     companyId: string;
     userId: string;
     backup: Blob | null;
-    /** Set when `backup` is a demo template (vs a user's own uploaded backup).
-     *  Makes the import reference the template's shared assets instead of
-     *  copying its files into this company's storage prefix. */
-    templateIndustryId?: string | null;
   }
 ): Promise<void> {
   if (!backup) {
@@ -85,17 +56,18 @@ export async function provisionCompanyData(
     throw new Error("Fatal: failed to seed company");
   }
 
-  const filePath = "exports/onboarding-import.carbon.json.gz";
-  const upload = await serviceRole.storage
-    .from(companyId)
-    .upload(filePath, backup, {
-      upsert: true,
-      contentType: "application/gzip"
-    });
-  if (upload.error) {
-    console.error(upload.error);
-    throw new Error("Fatal: failed to upload import file");
-  }
+  // The user's `.carbon.tar.gz`: unpack into a fresh `exports/<name>/` folder so
+  // it imports like any other backup. Uploading the archive as one object would
+  // exceed the bucket's per-object size cap (413) for a real prod backup carrying
+  // media. The import reads the folder via readBackup(<name>).
+  const source = Readable.fromWeb(
+    backup.stream() as Parameters<typeof Readable.fromWeb>[0]
+  );
+  const { name: filePath } = await unpackBackupArchive(
+    serviceRole,
+    companyId,
+    source
+  );
 
   // Kick off the import. The job runs asynchronously (the company's data
   // populates shortly after onboarding finishes), but the *enqueue* is awaited
@@ -109,8 +81,7 @@ export async function provisionCompanyData(
       filePath,
       mode: "reseed",
       importRunId: nanoid(),
-      autoFinalize: true,
-      ...(templateIndustryId ? { templateIndustryId } : {})
+      autoFinalize: true
     });
   } catch (err) {
     console.error(err);
@@ -122,7 +93,7 @@ export async function provisionCompanyData(
  * Insert-or-update the onboarding company, provision its data, and create the
  * headquarters location plus the owner's employee job. Returns the companyId.
  * Shared by the public company step (clean seed, `backup: null`) and the
- * internal data-choice step (demo template / backup import).
+ * internal data-choice step (restore from an uploaded backup).
  */
 export async function provisionOnboardingCompany(
   serviceRole: ServiceRole,
@@ -130,8 +101,7 @@ export async function provisionOnboardingCompany(
   {
     userId,
     companyData,
-    backup,
-    templateIndustryId
+    backup
   }: {
     userId: string;
     companyData: z.infer<typeof companyValidator> & {
@@ -139,7 +109,6 @@ export async function provisionOnboardingCompany(
       customIndustryDescription?: string | null;
     };
     backup: Blob | null;
-    templateIndustryId?: string | null;
   }
 ): Promise<string> {
   const companies = await getCompanies(client, userId);
@@ -195,8 +164,7 @@ export async function provisionOnboardingCompany(
   await provisionCompanyData(serviceRole, {
     companyId,
     userId,
-    backup,
-    templateIndustryId
+    backup
   });
 
   if (CarbonEdition === Edition.Cloud) {

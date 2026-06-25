@@ -2,137 +2,35 @@ import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { chunkArray } from "@carbon/utils";
 import { sql } from "kysely";
 import { inngest } from "../../client";
-import type {
-  Catalog,
-  ColumnInfo,
-  CompanyBackup,
-  TableInfo
-} from "./company-backup";
+import type { Catalog, CompanyBackup } from "./company-backup";
 import {
   assertBackupImportable,
+  assertReferentiallyClosed,
   assertWipeSafe,
-  BACKUP_KIND,
-  backupAssetPrefix,
+  backupAssetsDir,
+  backupDir,
+  backupNameFromSource,
   bindValue,
+  buildRowTransforms,
   canSetReplicationRole,
-  deserializeBackup,
   getCompanyTableCatalog,
   getJobDatabaseClient,
+  isUserScopedIdentityTable,
   newIdForTable,
   RESTORE_INTEGRATION,
+  readBackup,
   removeStoragePrefix,
   restoreAssetsFromBackup,
-  rewriteStoragePath,
-  STORAGE_PATH_COLUMNS,
   selectWipeableTables,
-  wipeScopedData
+  wipeScopedData,
+  writeBackupManifest
 } from "./company-backup";
 import { buildCompanyBackup } from "./company-export";
 
 const INSERT_CHUNK_SIZE = 200;
-const EXPORTS_PREFIX = "exports";
-
-/** FKs to these collapse to the importing user when re-stamping a foreign backup. */
-const USER_REF_TABLES = new Set(["user", "employee"]);
 
 type ServiceRole = ReturnType<typeof getCarbonServiceRole>;
 type JobDatabase = ReturnType<typeof getJobDatabaseClient>;
-
-/** Parse + structurally validate a gzipped backup blob. */
-async function downloadBackup(
-  client: ServiceRole,
-  companyId: string,
-  filePath: string
-): Promise<CompanyBackup> {
-  const download = await client.storage.from(companyId).download(filePath);
-  if (download.error || !download.data) {
-    throw new Error(
-      `Failed to download backup ${filePath}: ${download.error?.message}`
-    );
-  }
-  const backup = await deserializeBackup(await download.data.arrayBuffer());
-  if (backup.manifest?.kind !== BACKUP_KIND) {
-    throw new Error("File is not a Carbon company backup");
-  }
-  return backup;
-}
-
-type Transform = (value: unknown) => unknown;
-
-/**
- * Per-column transforms used when re-stamping a FOREIGN backup onto this company:
- * every id is remapped to a fresh one, companyId/companyGroupId point at the
- * target, FKs follow the id remap, user refs collapse to the importing user, and
- * storage paths are rewritten. For an OWN backup (remap=false) every column is
- * identity — ids and scope already belong here.
- */
-function buildRowTransforms(
-  table: TableInfo,
-  columns: ColumnInfo[],
-  ctx: {
-    remap: boolean;
-    companyId: string;
-    userId: string;
-    targetGroupId: string | null;
-    sourceCompanyId: string;
-    idMaps: Map<string, Map<string, string>>;
-    idRewrite: Map<string, string>;
-  }
-): Transform[] {
-  const identity: Transform = (v) => v;
-  if (!ctx.remap) return columns.map(() => identity);
-
-  const fkByColumn = new Map(table.foreignKeys.map((fk) => [fk.column, fk]));
-  return columns.map((col) => {
-    const fk = fkByColumn.get(col.name);
-    if (col.name === "id" && table.hasId) {
-      const map = ctx.idMaps.get(table.name)!;
-      return (v) => map.get(v as string) ?? v;
-    }
-    if (col.name === "companyId") return () => ctx.companyId;
-    if (col.name === "companyGroupId") return () => ctx.targetGroupId;
-    if (STORAGE_PATH_COLUMNS.has(col.name)) {
-      return (v) =>
-        typeof v === "string"
-          ? rewriteStoragePath(
-              v,
-              ctx.sourceCompanyId,
-              ctx.companyId,
-              ctx.idRewrite
-            )
-          : v;
-    }
-    if (fk) {
-      if (USER_REF_TABLES.has(fk.refTable)) {
-        return (v) => (v == null ? v : ctx.userId);
-      }
-      if (fk.refTable === "company") {
-        return (v) => (v === ctx.sourceCompanyId ? ctx.companyId : v);
-      }
-      if (fk.refTable === "companyGroup") {
-        return (v) => (v == null ? v : ctx.targetGroupId);
-      }
-      if (fk.refColumn === "id" && ctx.idMaps.has(fk.refTable)) {
-        const map = ctx.idMaps.get(fk.refTable)!;
-        return (v) => {
-          if (v == null) return v;
-          const mapped = map.get(v as string);
-          if (mapped) return mapped;
-          // The referenced row isn't in the backup. Keeping the stale id would
-          // dangle (FK checks are relaxed during load, so it would commit and
-          // only fail later in MRP/etc). Drop it when nullable; otherwise abort
-          // the whole restore — never commit a corrupt reference.
-          if (col.isNullable) return null;
-          throw new Error(
-            `Backup is inconsistent: ${table.name}.${col.name} references a ` +
-              `${fk.refTable} (${String(v)}) that isn't in the backup.`
-          );
-        };
-      }
-    }
-    return identity;
-  });
-}
 
 /**
  * Wipe the company's restorable tables and reload them from `backup`. Two modes:
@@ -165,10 +63,15 @@ async function wipeAndLoad(
   }
 
   // Wipe every restorable table (so tables empty in the backup end up empty);
-  // reload only those the backup actually has rows for.
-  const wipeTables = selectWipeableTables(catalog, { includeGroup });
+  // reload only those the backup actually has rows for. On a foreign restore the
+  // wipe set also includes user-scoped identity tables (so their stale rows can't
+  // dangle at remapped parents — cascade won't clear them under replica mode), but
+  // they are NEVER reloaded: their source rows belong to the source's users.
+  const byName = new Map(catalog.tables.map((t) => [t.name, t]));
+  const wipeTables = selectWipeableTables(catalog, { includeGroup, remap });
   const loadTables = wipeTables.filter(
-    (t) => (backup.data[t.name]?.length ?? 0) > 0
+    (t) =>
+      !isUserScopedIdentityTable(t) && (backup.data[t.name]?.length ?? 0) > 0
   );
   const backupColumns = new Map(
     backup.manifest.tables.map((t) => [t.name, new Set(t.columns)])
@@ -205,7 +108,7 @@ async function wipeAndLoad(
       await sql`SET LOCAL session_replication_role = 'replica'`.execute(trx);
     }
 
-    await wipeScopedData(trx, wipeTables, {
+    await wipeScopedData(trx, wipeTables, byName, {
       companyId,
       companyGroupId: targetGroupId
     });
@@ -430,7 +333,8 @@ export const companyRestoreFunction = inngest.createFunction(
       });
 
       try {
-        const backup = await downloadBackup(client, companyId, filePath);
+        const name = backupNameFromSource(filePath);
+        const backup = await readBackup(client, companyId, name);
         const targetGroupId = await getCompanyGroupId(client, companyId);
 
         // Group-scoped data (chart of accounts, currencies, dimensions) is shared
@@ -471,30 +375,38 @@ export const companyRestoreFunction = inngest.createFunction(
           );
         }
 
+        // Referential-closure preflight — BEFORE the snapshot/wipe so a backup
+        // that would dangle a NOT-NULL FK fails with the complete list of gaps
+        // and leaves the company's data untouched, rather than throwing on the
+        // first bad row partway through the load.
+        const closure = assertReferentiallyClosed(catalog, backup);
+        if (!closure.ok) {
+          throw new Error(`This backup can't be restored: ${closure.reason}`);
+        }
+
         // 1. Snapshot current state (incl. storage) so a revert can undo this.
         //    IDEMPOTENT: if a prior attempt already recorded a snapshot, reuse
         //    it — never re-snapshot, or a retry after the wipe committed would
         //    capture the WIPED state and overwrite the real pre-restore copy.
         let snapshotPath = existing?.metadata.snapshotPath ?? undefined;
         if (!snapshotPath) {
+          // buildCompanyBackup writes the snapshot's table files; the manifest is
+          // written last (its presence marks the snapshot complete). The marker
+          // stores the folder name.
+          snapshotPath = `_pre-restore-${restoreRunId}`;
           const snapshot = await buildCompanyBackup(client, db, {
             companyId,
             userId,
             label: `Pre-restore ${restoreRunId}`,
-            includeStorage: "all"
+            includeStorage: "all",
+            name: snapshotPath
           });
-          snapshotPath = `${EXPORTS_PREFIX}/_pre-restore-${restoreRunId}.carbon.json.gz`;
-          const snapshotUpload = await client.storage
-            .from(companyId)
-            .upload(snapshotPath, snapshot.compressed, {
-              contentType: "application/gzip",
-              upsert: true
-            });
-          if (snapshotUpload.error) {
-            throw new Error(
-              `Failed to snapshot before restore: ${snapshotUpload.error.message}`
-            );
-          }
+          await writeBackupManifest(
+            client,
+            companyId,
+            snapshotPath,
+            snapshot.manifest
+          );
           await writeRestoreMarker(client, {
             companyId,
             userId,
@@ -527,7 +439,7 @@ export const companyRestoreFunction = inngest.createFunction(
             await restoreAssetsFromBackup(client, {
               files: backup.manifest.storage,
               srcBucket: companyId,
-              srcPrefix: backupAssetPrefix(filePath),
+              srcPrefix: backupAssetsDir(name),
               sourceCompanyId: backup.manifest.sourceCompanyId,
               companyId,
               idRewrite
@@ -601,12 +513,7 @@ export const companyRestoreFinalizeFunction = inngest.createFunction(
       const snapshotPath = marker?.metadata.snapshotPath;
 
       if (snapshotPath) {
-        await client.storage.from(companyId).remove([snapshotPath]);
-        await removeStoragePrefix(
-          client,
-          companyId,
-          backupAssetPrefix(snapshotPath)
-        );
+        await removeStoragePrefix(client, companyId, backupDir(snapshotPath));
       }
       await deleteRestoreMarker(client, companyId, restoreRunId);
 
@@ -659,7 +566,7 @@ export const companyRestoreRevertFunction = inngest.createFunction(
         // check). Wipe + reload the SAME scope the forward restore touched so the
         // undo is exact — including group data (chart of accounts) when the
         // forward run covered it.
-        const snapshot = await downloadBackup(client, companyId, snapshotPath);
+        const snapshot = await readBackup(client, companyId, snapshotPath);
         const targetGroupId = await getCompanyGroupId(client, companyId);
         const catalog = await getCompanyTableCatalog(db);
         const { rows, idRewrite } = await wipeAndLoad(db, catalog, snapshot, {
@@ -672,18 +579,13 @@ export const companyRestoreRevertFunction = inngest.createFunction(
         await restoreAssetsFromBackup(client, {
           files: snapshot.manifest.storage,
           srcBucket: companyId,
-          srcPrefix: backupAssetPrefix(snapshotPath),
+          srcPrefix: backupAssetsDir(snapshotPath),
           sourceCompanyId: companyId,
           companyId,
           idRewrite
         });
 
-        await client.storage.from(companyId).remove([snapshotPath]);
-        await removeStoragePrefix(
-          client,
-          companyId,
-          backupAssetPrefix(snapshotPath)
-        );
+        await removeStoragePrefix(client, companyId, backupDir(snapshotPath));
         await deleteRestoreMarker(client, companyId, restoreRunId);
 
         console.log("Company restore reverted", {

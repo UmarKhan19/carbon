@@ -6,16 +6,17 @@ import type { ColumnInfo, TableInfo } from "./company-backup";
 import {
   assertBackupImportable,
   BACKUP_INTEGRATION,
-  BACKUP_KIND,
-  backupAssetPrefix,
+  backupAssetsDir,
+  backupNameFromSource,
   bindValue,
   canSetReplicationRole,
-  deserializeBackup,
   filterUnpopulated,
   getCompanyTableCatalog,
   getJobDatabaseClient,
+  isUserScopedIdentityTable,
   newIdForTable,
   RESEED_SKIPPED_TABLES,
+  readBackup,
   restoreAssetsFromBackup,
   rewriteStoragePath,
   rewriteToTemplateAssetPath,
@@ -76,18 +77,9 @@ export const companyImportFunction = inngest.createFunction(
         return { importRunId, skipped: true };
       }
 
-      const download = await client.storage.from(companyId).download(filePath);
-      if (download.error || !download.data) {
-        throw new Error(
-          `Failed to download artifact ${filePath}: ${download.error?.message}`
-        );
-      }
+      const name = backupNameFromSource(filePath);
+      const backup = await readBackup(client, companyId, name);
 
-      const backup = await deserializeBackup(await download.data.arrayBuffer());
-
-      if (backup.manifest?.kind !== BACKUP_KIND) {
-        throw new Error("File is not a Carbon company backup");
-      }
       if (
         mode === "preserve" &&
         backup.manifest.sourceCompanyId !== companyId
@@ -142,7 +134,10 @@ export const companyImportFunction = inngest.createFunction(
         backup.manifest.tables.map((t) => [t.name, new Set(t.columns)])
       );
       const candidateTables = catalog.tables.filter(
-        (t) => !skipped.has(t.name) && (backup.data[t.name]?.length ?? 0) > 0
+        (t) =>
+          !skipped.has(t.name) &&
+          !isUserScopedIdentityTable(t) &&
+          (backup.data[t.name]?.length ?? 0) > 0
       );
 
       // Reseed is additive into a fresh company: never touch a table the
@@ -152,11 +147,13 @@ export const companyImportFunction = inngest.createFunction(
       // are non-empty replaces every hand-maintained "skip" list and is
       // correct in both cases: a bare clone imports everything, an
       // identity-seeded onboard skips exactly what's already there.
+      const byName = new Map(catalog.tables.map((t) => [t.name, t]));
       const importTables =
         mode === "reseed"
           ? await filterUnpopulated(
               db,
               candidateTables,
+              byName,
               companyId,
               targetGroupId
             )
@@ -225,9 +222,9 @@ export const companyImportFunction = inngest.createFunction(
           let base = identity;
           const fk = fkByColumn.get(col.name);
 
-          if (col.name === "id" && table.hasId) {
-            const map = idMaps.get(table.name)!;
-            base = (v) => map.get(v as string) ?? v;
+          const idMap = idMaps.get(table.name);
+          if (col.name === "id" && idMap) {
+            base = (v) => idMap.get(v as string) ?? v;
           } else if (col.name === "companyId") {
             base = () => companyId;
           } else if (col.name === "companyGroupId") {
@@ -457,7 +454,7 @@ export const companyImportFunction = inngest.createFunction(
         const assets = await restoreAssetsFromBackup(client, {
           files: backup.manifest.storage,
           srcBucket: companyId,
-          srcPrefix: backupAssetPrefix(filePath),
+          srcPrefix: backupAssetsDir(name),
           sourceCompanyId,
           companyId,
           idRewrite

@@ -1,4 +1,3 @@
-import { useCarbon } from "@carbon/auth";
 import { useControlField } from "@carbon/form";
 import {
   Command,
@@ -25,13 +24,10 @@ const triggerClass =
 // One control combining your backups + upload new. Selecting one sets the
 // hidden `source` field the restore form submits.
 export function BackupSourcePicker({
-  backups,
-  companyId
+  backups
 }: {
-  backups: { path: string; name: string; createdAt: string | null }[];
-  companyId: string;
+  backups: { name: string; label: string | null; exportedAt: string | null }[];
 }) {
-  const { carbon } = useCarbon();
   const revalidator = useRevalidator();
   const [value, setValue] = useControlField<string>("source");
   const [open, setOpen] = useState(false);
@@ -41,8 +37,8 @@ export function BackupSourcePicker({
 
   const label = useMemo(() => {
     if (current.startsWith("backup:")) {
-      const match = backups.find((b) => `backup:${b.path}` === current);
-      return match ? formatBackupName(match.name) : "Backup";
+      const match = backups.find((b) => `backup:${b.name}` === current);
+      return match ? match.label || formatBackupName(match.name) : "Backup";
     }
     return "";
   }, [current, backups]);
@@ -51,27 +47,30 @@ export function BackupSourcePicker({
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
-    if (!carbon) {
-      toast.error("Carbon client not found");
-      return;
-    }
-    if (!file.name.endsWith(".gz")) {
-      toast.error("Select a .carbon.json.gz backup");
+    if (!file.name.endsWith(".tar.gz") && !file.name.endsWith(".tgz")) {
+      toast.error("Select a .carbon.tar.gz backup");
       return;
     }
     setUploading(true);
     toast.info(`Uploading ${file.name}`);
-    const { error: uploadError } = await carbon.storage
-      .from(companyId)
-      .upload(`exports/${file.name}`, file, { upsert: true });
-    setUploading(false);
-    if (uploadError) {
-      toast.error(`Failed to upload: ${uploadError.message}`);
-      return;
+    try {
+      // The server unpacks the archive into a fresh `exports/<name>/` folder so a
+      // cross-environment import has the data + media. Returns the folder name.
+      const res = await fetch("/api/settings/backup-upload", {
+        method: "POST",
+        body: file
+      });
+      if (!res.ok) {
+        toast.error(`Failed to upload: ${await res.text()}`);
+        return;
+      }
+      const { name } = (await res.json()) as { name: string };
+      setValue(`backup:${name}`);
+      toast.success("Backup uploaded");
+      revalidator.revalidate();
+    } finally {
+      setUploading(false);
     }
-    setValue(`backup:exports/${file.name}`);
-    toast.success("Backup uploaded");
-    revalidator.revalidate();
   };
 
   return (
@@ -80,7 +79,7 @@ export function BackupSourcePicker({
       <input
         ref={fileRef}
         type="file"
-        accept=".gz,application/gzip"
+        accept=".tar.gz,.tgz,application/gzip"
         className="hidden"
         onChange={onUpload}
       />
@@ -109,18 +108,18 @@ export function BackupSourcePicker({
                 <CommandGroup heading="Your backups">
                   {backups.map((b) => (
                     <CommandItem
-                      key={b.path}
+                      key={b.name}
                       value={`backup ${b.name}`}
                       onSelect={() => {
-                        setValue(`backup:${b.path}`);
+                        setValue(`backup:${b.name}`);
                         setOpen(false);
                       }}
                     >
                       <LuArchive className="mr-2 h-4 w-4 shrink-0 opacity-60" />
                       <span className="flex flex-col">
-                        <span>{formatBackupName(b.name)}</span>
+                        <span>{b.label || formatBackupName(b.name)}</span>
                         <span className="text-xs text-muted-foreground">
-                          {formatBackupDate(b.createdAt, false)}
+                          {formatBackupDate(b.exportedAt, false)}
                         </span>
                       </span>
                     </CommandItem>

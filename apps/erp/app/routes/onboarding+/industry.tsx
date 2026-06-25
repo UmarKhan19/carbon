@@ -33,7 +33,8 @@ import {
   Form,
   Link,
   redirect,
-  useLoaderData
+  useLoaderData,
+  useNavigation
 } from "react-router";
 import { z } from "zod";
 import { Hidden, Submit } from "~/components/Form";
@@ -43,10 +44,7 @@ import {
   getIndustries,
   onboardingCompanyValidator
 } from "~/modules/settings";
-import {
-  fetchTemplateBackup,
-  provisionOnboardingCompany
-} from "~/services/onboarding.server";
+import { provisionOnboardingCompany } from "~/services/onboarding.server";
 import {
   clearOnboardingDraft,
   getOnboardingDraft,
@@ -129,8 +127,7 @@ export async function action({ request }: ActionFunctionArgs) {
     return validationError(industryValidation.error);
   }
 
-  const { industryId, dataChoice } = industryValidation.data;
-  const finalIndustryId = industryId || null;
+  const { dataChoice } = industryValidation.data;
 
   // Carry forward the company data captured in the previous (company) step.
   if (draft?.company) appendDraftCompany(formData, draft.company);
@@ -149,22 +146,18 @@ export async function action({ request }: ActionFunctionArgs) {
     industryId: d.industryId || null
   };
 
-  // A demo template and "restore from a backup" both resolve to a backup file;
-  // "none" → a clean seed. Only a template references shared assets; a user's
-  // own uploaded backup ("import") stays self-contained and is copied per company.
+  // "Restore from a backup" → the user's uploaded `.carbon.tar.gz`; every other
+  // choice → a clean seed (no backup).
   const backupFile = formData.get("backup");
   const backup: Blob | null =
     dataChoice === "import" && backupFile instanceof File && backupFile.size > 0
       ? backupFile
-      : dataChoice === "template"
-        ? await fetchTemplateBackup(serviceRole, finalIndustryId)
-        : null;
+      : null;
 
   const companyId = await provisionOnboardingCompany(serviceRole, client, {
     userId,
     companyData,
-    backup,
-    templateIndustryId: dataChoice === "template" ? finalIndustryId : null
+    backup
   });
 
   const companyRecord = await serviceRole
@@ -206,6 +199,10 @@ export default function OnboardingIndustry() {
   const [step, setStep] = useState<Step>(getInitialStep);
   const [dataChoice, setDataChoice] = useState<DataChoice>("template");
   const [importFile, setImportFile] = useState<File | null>(null);
+  const navigation = useNavigation();
+  // Provisioning (unpack + seed + enqueue import) runs in the action and can take
+  // a while for a real backup — keep the button busy so the user doesn't re-submit.
+  const isSubmitting = navigation.state !== "idle";
   const [selectedIndustryId, setSelectedIndustryId] = useState<string>(
     company?.industryId ?? ""
   );
@@ -284,14 +281,14 @@ export default function OnboardingIndustry() {
                     Choose your backup file
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    A Carbon backup (.carbon.json.gz)
+                    A Carbon backup (.carbon.tar.gz)
                   </span>
                 </>
               )}
               <input
                 type="file"
                 name="backup"
-                accept=".gz,application/gzip"
+                accept=".tar.gz,.tgz,application/gzip"
                 className="sr-only"
                 onChange={(e) => setImportFile(e.target.files?.[0] ?? null)}
               />
@@ -303,6 +300,7 @@ export default function OnboardingIndustry() {
                 variant="solid"
                 size="md"
                 type="button"
+                isDisabled={isSubmitting}
                 onClick={() => setStep("data-question")}
               >
                 Previous
@@ -311,9 +309,10 @@ export default function OnboardingIndustry() {
                 variant="primary"
                 size="md"
                 type="submit"
-                isDisabled={!importFile}
+                isLoading={isSubmitting}
+                isDisabled={!importFile || isSubmitting}
               >
-                Create company
+                {isSubmitting ? "Setting up…" : "Create company"}
               </Button>
             </HStack>
           </CardFooter>

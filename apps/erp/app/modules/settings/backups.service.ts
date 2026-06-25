@@ -6,17 +6,11 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 // enqueued server-side (see backups.server.ts) and tracked via the
 // externalIntegrationMapping marker (getCompanyRestoreRuns).
 
-// A backup is the gz plus its sibling `<name>.assets/` folder of copied storage
-// files. Must match `BACKUP_GZ_SUFFIX` / `backupAssetPrefix` in
-// packages/jobs/src/inngest/functions/tasks/company-backup.ts.
-const BACKUP_GZ_SUFFIX = ".carbon.json.gz";
-
-function backupAssetPrefix(filePath: string) {
-  const base = filePath.endsWith(BACKUP_GZ_SUFFIX)
-    ? filePath.slice(0, -BACKUP_GZ_SUFFIX.length)
-    : filePath;
-  return `${base}.assets`;
-}
+// A backup is a folder `exports/<name>/` of small objects: `manifest.json`, one
+// `tables/<table>.ndjson.gz` per table, and `assets/<path>` files. Pre-restore
+// snapshots use the same layout under a `_pre-restore-*` name. Must match the
+// `backup*Path` helpers in packages/jobs/.../company-backup.ts.
+const SNAPSHOT_PREFIX = "_pre-restore-";
 
 /**
  * Remove every object under a prefix (recursing into folders) so a deleted
@@ -57,33 +51,91 @@ export async function exportCompanyBackup(
   return client.functions.invoke("export-company", { body: args });
 }
 
-export async function listCompanyBackupExports(
+export type CompanyBackupSummary = {
+  /** Backup folder name (also the restore `source` identifier). */
+  name: string;
+  /** "ready" once manifest.json (the last-written commit marker) exists;
+   *  "pending" while the export is still writing the folder. */
+  status: "ready" | "pending";
+  exportedAt: string | null;
+  label: string | null;
+  rows: number;
+  /** Total bundled asset bytes (the bulk of a backup's footprint). */
+  sizeBytes: number;
+};
+
+/**
+ * List a company's backups (the `exports/<name>/` folders, snapshots excluded),
+ * reading each manifest for its metadata. Manifests are tiny, so the per-backup
+ * reads run in parallel.
+ */
+export async function listCompanyBackups(
   client: SupabaseClient<Database>,
   companyId: string
-) {
-  return client.storage.from(companyId).list("exports", {
-    limit: 25,
-    sortBy: { column: "created_at", order: "desc" }
-  });
+): Promise<{ data: CompanyBackupSummary[] | null; error: Error | null }> {
+  const { data, error } = await client.storage
+    .from(companyId)
+    .list("exports", { limit: 100 });
+  if (error) return { data: null, error };
+
+  const folders = (data ?? []).filter(
+    (e) => e.id === null && !e.name.startsWith(SNAPSHOT_PREFIX)
+  );
+
+  const backups = await Promise.all(
+    folders.map(async (folder): Promise<CompanyBackupSummary> => {
+      const summary: CompanyBackupSummary = {
+        name: folder.name,
+        status: "pending",
+        exportedAt: null,
+        label: null,
+        rows: 0,
+        sizeBytes: 0
+      };
+      const mf = await client.storage
+        .from(companyId)
+        .download(`exports/${folder.name}/manifest.json`);
+      if (mf.data) {
+        try {
+          const m = JSON.parse(await mf.data.text()) as {
+            exportedAt?: string;
+            label?: string | null;
+            tables?: Array<{ rows?: number }>;
+            storage?: Array<{ size?: number; included?: boolean }>;
+          };
+          summary.status = "ready";
+          summary.exportedAt = m.exportedAt ?? null;
+          summary.label = m.label ?? null;
+          summary.rows = (m.tables ?? []).reduce(
+            (sum, t) => sum + (t.rows ?? 0),
+            0
+          );
+          summary.sizeBytes = (m.storage ?? [])
+            .filter((x) => x.included)
+            .reduce((sum, x) => sum + (x.size ?? 0), 0);
+        } catch {
+          // Manifest present but unreadable — treat as a partial/aborted export
+          // (stays "pending"); still listed by name so the user can delete it.
+        }
+      }
+      return summary;
+    })
+  );
+
+  backups.sort((a, b) =>
+    (b.exportedAt ?? "").localeCompare(a.exportedAt ?? "")
+  );
+  return { data: backups, error: null };
 }
 
-export async function getCompanyBackupSignedUrl(
+/** Delete a backup — the whole `exports/<name>/` folder (data + manifest + assets). */
+export async function deleteCompanyBackup(
   client: SupabaseClient<Database>,
   companyId: string,
-  filePath: string
+  name: string
 ) {
-  return client.storage.from(companyId).createSignedUrl(filePath, 60 * 60);
-}
-
-export async function deleteCompanyBackupExport(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  filePath: string
-) {
-  // Release the backup's asset folder first, then the gz, so the bucket space
-  // is fully reclaimed (the .assets/ files are the bulk of a backup).
-  await removeStoragePrefix(client, companyId, backupAssetPrefix(filePath));
-  return client.storage.from(companyId).remove([filePath]);
+  await removeStoragePrefix(client, companyId, `exports/${name}`);
+  return { error: null as Error | null };
 }
 
 /**
