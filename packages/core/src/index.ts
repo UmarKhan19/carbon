@@ -4,6 +4,7 @@ export type {
   StructureCheck,
   Violation
 } from "./check";
+export { findClobbers, objectRefs, type SourceFile } from "./clobber";
 export { moduleShape } from "./conformance/module-shape";
 export { noLegacyRls } from "./conformance/no-legacy-rls";
 export { noNumericPrecision } from "./conformance/no-numeric-precision";
