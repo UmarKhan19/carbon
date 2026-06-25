@@ -1044,11 +1044,11 @@ msgstr "物料清单中有序列号或批次追踪的物料尚未完全发放。
 
 #. js-lingui-explicit-id
 msgid "error.conflict"
-msgstr ""
+msgstr "此操作与当前状态冲突"
 
 #. js-lingui-explicit-id
 msgid "error.businessRule"
-msgstr ""
+msgstr "此操作不符合业务规则，无法执行"
 
 msgid "This lot is expired and can't be picked."
 msgstr "此批次已过期，无法领取。"

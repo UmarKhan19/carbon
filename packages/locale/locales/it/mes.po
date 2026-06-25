@@ -1044,11 +1044,11 @@ msgstr "Ci sono materiali tracciati per numero di serie o lotto nella distinta b
 
 #. js-lingui-explicit-id
 msgid "error.conflict"
-msgstr ""
+msgstr "Questa azione è in conflitto con lo stato attuale"
 
 #. js-lingui-explicit-id
 msgid "error.businessRule"
-msgstr ""
+msgstr "Questa azione non è consentita da una regola aziendale"
 
 msgid "This lot is expired and can't be picked."
 msgstr "Questo lotto è scaduto e non può essere prelevato."

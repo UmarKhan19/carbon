@@ -1044,11 +1044,11 @@ msgstr "Existem materiais rastreados por série ou lote na lista de materiais qu
 
 #. js-lingui-explicit-id
 msgid "error.conflict"
-msgstr ""
+msgstr "Esta ação entra em conflito com o estado atual"
 
 #. js-lingui-explicit-id
 msgid "error.businessRule"
-msgstr ""
+msgstr "Esta ação não é permitida por uma regra de negócio"
 
 msgid "This lot is expired and can't be picked."
 msgstr "Este lote expirou e não pode ser selecionado."

@@ -1044,11 +1044,11 @@ msgstr "Hay materiales con seguimiento de serie o lote en la lista de materiales
 
 #. js-lingui-explicit-id
 msgid "error.conflict"
-msgstr ""
+msgstr "Esta acción entra en conflicto con el estado actual"
 
 #. js-lingui-explicit-id
 msgid "error.businessRule"
-msgstr ""
+msgstr "Esta acción no está permitida por una regla de negocio"
 
 msgid "This lot is expired and can't be picked."
 msgstr "Este lote ha expirado y no se puede seleccionar."

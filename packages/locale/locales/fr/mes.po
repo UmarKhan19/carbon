@@ -1044,11 +1044,11 @@ msgstr "Il existe des matériaux suivis par numéro de série ou par lot dans la
 
 #. js-lingui-explicit-id
 msgid "error.conflict"
-msgstr ""
+msgstr "Cette action est en conflit avec l'état actuel"
 
 #. js-lingui-explicit-id
 msgid "error.businessRule"
-msgstr ""
+msgstr "Cette action n'est pas autorisée par une règle métier"
 
 msgid "This lot is expired and can't be picked."
 msgstr "Ce lot est expiré et ne peut pas être prélevé."

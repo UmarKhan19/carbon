@@ -1044,11 +1044,11 @@ msgstr "部品表にシリアルまたはバッチ追跡対象の材料が完全
 
 #. js-lingui-explicit-id
 msgid "error.conflict"
-msgstr ""
+msgstr "この操作は現在の状態と競合しています"
 
 #. js-lingui-explicit-id
 msgid "error.businessRule"
-msgstr ""
+msgstr "この操作はビジネスルールにより許可されていません"
 
 msgid "This lot is expired and can't be picked."
 msgstr "このロットは期限切れであり、ピックできません。"

@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-25T14:43:55.340Z",
-  "totalTools": 1215,
+  "generated": "2026-06-25T14:58:22.579Z",
+  "totalTools": 1219,
   "modules": 15,
   "tools": [
     {
@@ -8963,7 +8963,7 @@
       "paramCount": 3,
       "serviceParams": [
         "client",
-        "{\r\n    itemId,\r\n    locationId,\r\n    periods,\r\n    companyId\r\n  }"
+        "{\n    itemId,\n    locationId,\n    periods,\n    companyId\n  }"
       ],
       "injectAuth": [
         "companyId"
@@ -8999,7 +8999,7 @@
       "paramCount": 3,
       "serviceParams": [
         "client",
-        "{\r\n    itemId,\r\n    locationId,\r\n    periods,\r\n    companyId\r\n  }"
+        "{\n    itemId,\n    locationId,\n    periods,\n    companyId\n  }"
       ],
       "injectAuth": [
         "companyId"
@@ -9250,6 +9250,84 @@
       }
     },
     {
+      "name": "items_getItemSupersession",
+      "module": "items",
+      "classification": "READ",
+      "description": "get item supersession",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "itemId",
+        "companyId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "itemId"
+        ]
+      }
+    },
+    {
+      "name": "items_getItemSupersededBy",
+      "module": "items",
+      "classification": "READ",
+      "description": "get item superseded by",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "itemId",
+        "companyId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "itemId"
+        ]
+      }
+    },
+    {
+      "name": "items_getSupersessionChain",
+      "module": "items",
+      "classification": "READ",
+      "description": "get supersession chain",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "itemId",
+        "companyId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "itemId"
+        ]
+      }
+    },
+    {
       "name": "items_getItemStorageUnitQuantities",
       "module": "items",
       "classification": "READ",
@@ -9288,7 +9366,7 @@
       "paramCount": 3,
       "serviceParams": [
         "client",
-        "{\r\n    itemId,\r\n    locationId,\r\n    periods,\r\n    companyId\r\n  }"
+        "{\n    itemId,\n    locationId,\n    periods,\n    companyId\n  }"
       ],
       "injectAuth": [
         "companyId"
@@ -10187,7 +10265,7 @@
       "paramCount": 2,
       "serviceParams": [
         "client",
-        "{\r\n    itemId,\r\n    companyId,\r\n    locationId\r\n  }"
+        "{\n    itemId,\n    companyId,\n    locationId\n  }"
       ],
       "injectAuth": [
         "companyId"
@@ -10216,7 +10294,7 @@
       "paramCount": 2,
       "serviceParams": [
         "client",
-        "{\r\n    itemId,\r\n    companyId,\r\n    locationId\r\n  }"
+        "{\n    itemId,\n    companyId,\n    locationId\n  }"
       ],
       "injectAuth": [
         "companyId"
@@ -10245,7 +10323,7 @@
       "paramCount": 2,
       "serviceParams": [
         "client",
-        "{\r\n    itemId,\r\n    companyId,\r\n    locationId\r\n  }"
+        "{\n    itemId,\n    companyId,\n    locationId\n  }"
       ],
       "injectAuth": [
         "companyId"
@@ -10274,7 +10352,7 @@
       "paramCount": 2,
       "serviceParams": [
         "client",
-        "{\r\n    itemId,\r\n    companyId,\r\n    locationId\r\n  }"
+        "{\n    itemId,\n    companyId,\n    locationId\n  }"
       ],
       "injectAuth": [
         "companyId"
@@ -11245,7 +11323,7 @@
             "type": "string"
           },
           "customFields": {},
-          "shelfLife: {\r\n      mode": {
+          "shelfLife: {\n      mode": {
             "type": "string"
           }
         },
@@ -11308,8 +11386,8 @@
               "type": "string"
             }
           },
-          "itemUpdate: {\r\n      replenishmentSystem": {},
-          "cascade: {\r\n      sourcingType": {}
+          "itemUpdate: {\n      replenishmentSystem": {},
+          "cascade: {\n      sourcingType": {}
         },
         "required": [
           "itemIds"
@@ -11577,6 +11655,31 @@
         },
         "required": [
           "itemId"
+        ]
+      }
+    },
+    {
+      "name": "items_upsertItemSupersession",
+      "module": "items",
+      "classification": "WRITE",
+      "description": "upsert item supersession",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "itemSupersession"
+      ],
+      "injectAuth": [
+        "companyId",
+        "createdBy",
+        "updatedBy"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "itemSupersession": {}
+        },
+        "required": [
+          "itemSupersession"
         ]
       }
     },

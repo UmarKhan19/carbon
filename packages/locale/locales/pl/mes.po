@@ -1044,11 +1044,11 @@ msgstr "Na liście materiałowej znajdują się materiały śledzone seryjnie lu
 
 #. js-lingui-explicit-id
 msgid "error.conflict"
-msgstr ""
+msgstr "Ta akcja jest sprzeczna z bieżącym stanem"
 
 #. js-lingui-explicit-id
 msgid "error.businessRule"
-msgstr ""
+msgstr "Ta akcja jest niedozwolona przez regułę biznesową"
 
 msgid "This lot is expired and can't be picked."
 msgstr "Ta partia wygasła i nie można jej pobrać."

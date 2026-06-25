@@ -1044,11 +1044,11 @@ msgstr "Es gibt serien- oder chargenverfolgte Materialien in der Stückliste, di
 
 #. js-lingui-explicit-id
 msgid "error.conflict"
-msgstr ""
+msgstr "Diese Aktion steht im Konflikt mit dem aktuellen Zustand"
 
 #. js-lingui-explicit-id
 msgid "error.businessRule"
-msgstr ""
+msgstr "Diese Aktion ist aufgrund einer Geschäftsregel nicht zulässig"
 
 msgid "This lot is expired and can't be picked."
 msgstr "Dieses Los ist abgelaufen und kann nicht entnommen werden."
