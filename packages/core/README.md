@@ -18,3 +18,15 @@ Each check records `provenance` (the transition event that retired the old patte
 adding a *second* occurrence of an already-baselined pattern to an already-baselined
 file is not flagged. This is acceptable because shipped migrations are immutable /
 append-only — new migration files, and new check types in old files, are always caught.
+
+## Invariant net
+
+Runnable database assertions. Each invariant is a `.sql` file in `src/invariants/`
+that SELECTs the rows which **violate** the rule (empty result = healthy).
+
+- Add an invariant: drop a `.sql` file in `src/invariants/` — no code or registration.
+- Run against a database: `DATABASE_URL=<conn> pnpm --filter @carbon/core invariants`
+  (exits non-zero if any invariant returns rows).
+- Invariants run against a **live DB** (a loop's worktree DB, or nightly against prod),
+  NOT the static CI `test` job. The runner is DB-agnostic (injected query), so the
+  logic is unit-tested without a database.
