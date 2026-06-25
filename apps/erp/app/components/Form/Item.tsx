@@ -202,6 +202,22 @@ const Item = ({
     ? items.find((i) => i.id === selectedItem.successorItemId)
     : null;
 
+  // Prefer an explicit label (e.g. "Successor Part") for the field label; fall
+  // back to the item-type name. Standard type-name labels are translated so the
+  // wording matches the type.
+  const fieldLabel =
+    label === "Item"
+      ? t`Item`
+      : label === "Part"
+        ? t`Part`
+        : label === "Material"
+          ? t`Material`
+          : label === "Tool"
+            ? t`Tool`
+            : label === "Consumable"
+              ? t`Consumable`
+              : (label ?? translateItemType(type));
+
   return (
     <>
       <FormControl isInvalid={!!error} className="w-full">
@@ -212,7 +228,7 @@ const Item = ({
             isOptional={resolvedIsOptional}
             onConfigure={onConfigure}
           >
-            {translateItemType(type)}
+            {fieldLabel}
           </FormLabel>
         )}
         <input
