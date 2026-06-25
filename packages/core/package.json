@@ -12,7 +12,8 @@
     "test": "vitest run",
     "typecheck": "tsgo --noEmit",
     "baseline": "tsx src/scripts/generate-baseline.ts",
-    "invariants": "tsx src/scripts/run-invariants.ts"
+    "invariants": "tsx src/scripts/run-invariants.ts",
+    "clobbers": "tsx src/scripts/check-clobbers.ts"
   },
   "devDependencies": {
     "@carbon/config": "workspace:*",
