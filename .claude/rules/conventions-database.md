@@ -85,6 +85,26 @@ ALTER TABLE "entityName" ADD CONSTRAINT "entityName_companyId_name_key"
 | Indexes | Index `companyId` and **every** FK (e.g. `createdBy`) |
 | Never | An `itemReadableId` column; decimal places in a `NUMERIC` (use bare `NUMERIC`) |
 
+#### Child / join tables need their OWN `companyId` too
+
+A table that belongs to a company **must carry its own `companyId` column** — even a
+join/child table that could derive it from a parent FK (e.g. `customerContact`,
+`quoteLinePrice`, `pickingListLineTrackedEntity`). Do **not** rely solely on
+parent-derived RLS. Two reasons:
+
+1. **Backup/export coverage.** The company export catalog (`getCompanyTableCatalog`)
+   includes a table **only if it has its own `companyId`/`companyGroupId` column**. A
+   child table without one is silently skipped — its rows never get backed up, so a
+   restore loses them (this is exactly how contact/location links and line prices were
+   lost; fixed in `20260625101500_add-companyid-to-child-tables.sql`).
+2. **RLS consistency + performance** — a direct `companyId` predicate beats a parent join.
+
+If the column can't be set by app insert code, populate it from the parent with a
+`BEFORE INSERT` trigger (`set_company_id_from_parent(parent_table, fk_column)`), backfill
+existing rows, then `SET NOT NULL`. Group-shared data (chart of accounts, currencies,
+dimensions) uses `companyGroupId` instead — but the rule is the same: a real scope column,
+never parent-derived-only.
+
 <!-- UNVERIFIED: the prefix→entity mapping (e.g. which short prefix a given new table
      should use) is by convention, not enforced; pick a short prefix or use bare id(). -->
 
