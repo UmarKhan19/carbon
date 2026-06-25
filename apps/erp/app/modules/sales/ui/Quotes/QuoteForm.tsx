@@ -168,7 +168,11 @@ const QuoteForm = ({ initialValues }: QuoteFormProps) => {
                   }
                 }}
               />
-              <Input name="customerReference" label={t`Customer RFQ`} />
+              <Input
+                name="customerReference"
+                label={t`Customer RFQ`}
+                termId="customer-document-reference"
+              />
               <CustomerContact
                 name="customerContactId"
                 label={t`Purchasing Contact`}
@@ -195,7 +199,11 @@ const QuoteForm = ({ initialValues }: QuoteFormProps) => {
                 isOptional
               />
               <Employee name="estimatorId" label={t`Estimator`} isOptional />
-              <Location name="locationId" label={t`Quote Location`} />
+              <Location
+                name="locationId"
+                label={t`Quote Location`}
+                termId="quote-fulfillment-location"
+              />
               <DatePicker
                 name="dueDate"
                 label={t`Due Date`}
@@ -205,6 +213,7 @@ const QuoteForm = ({ initialValues }: QuoteFormProps) => {
                 name="expirationDate"
                 label={t`Expiration Date`}
                 isDisabled={isCustomer}
+                termId="quote-expiration-date"
               />
               <Currency
                 name="currencyCode"

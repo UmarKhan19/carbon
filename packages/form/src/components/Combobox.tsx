@@ -1,11 +1,14 @@
+import type { TermId } from "@carbon/glossary";
 import type { ComboboxProps as ComboboxBaseProps } from "@carbon/react";
 import {
   Combobox as ComboboxBase,
   FormControl,
   FormErrorMessage,
   FormHelperText,
-  FormLabel
+  FormLabel,
+  LabelWithHelp
 } from "@carbon/react";
+import type { ReactNode } from "react";
 import { useEffect } from "react";
 import { flushSync } from "react-dom";
 import { useControlField, useField } from "../hooks";
@@ -14,10 +17,12 @@ import { useFormStateContext } from "../internal/formStateContext";
 export type ComboboxProps = Omit<ComboboxBaseProps, "onChange"> & {
   name: string;
   label?: string;
+  termId?: TermId;
   isLoading?: boolean;
   isOptional?: boolean;
   isRequired?: boolean;
   helperText?: string;
+  emptyMessage?: ReactNode;
   onChange?: (
     newValue: { value: string; label: string | React.ReactNode } | null
   ) => void;
@@ -34,10 +39,12 @@ export type ComboboxProps = Omit<ComboboxBaseProps, "onChange"> & {
 const Combobox = ({
   name,
   label,
+  termId,
   isLoading = false,
   isOptional,
   isRequired,
   helperText,
+  emptyMessage,
   ...props
 }: ComboboxProps) => {
   const { getInputProps, error, isOptional: fieldIsOptional } = useField(name);
@@ -65,7 +72,7 @@ const Combobox = ({
     <FormControl isInvalid={!!error} isRequired={isRequired}>
       {label && (
         <FormLabel htmlFor={name} isOptional={resolvedIsOptional}>
-          {label}
+          <LabelWithHelp termId={termId}>{label}</LabelWithHelp>
         </FormLabel>
       )}
       <input
@@ -89,6 +96,7 @@ const Combobox = ({
         isClearable={resolvedIsOptional && !isReadOnly}
         isReadOnly={isReadOnly}
         isLoading={isLoading}
+        emptyMessage={isLoading ? undefined : emptyMessage}
         className="w-full"
       />
       {error ? (

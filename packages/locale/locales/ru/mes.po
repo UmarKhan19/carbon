@@ -105,6 +105,9 @@ msgstr "Ошибка аутентификации"
 msgid "available"
 msgstr "доступно"
 
+msgid "Back Home"
+msgstr "Вернуться домой"
+
 msgid "Batch"
 msgstr "Партия"
 
@@ -325,6 +328,9 @@ msgstr "Введите PIN для {0}"
 msgid "Error"
 msgstr "Ошибка"
 
+msgid "Error!"
+msgstr "Ошибка!"
+
 msgid "Estimated"
 msgstr "План"
 
@@ -464,6 +470,9 @@ msgstr "Комплект"
 
 msgid "Labor"
 msgstr "Трудозатраты"
+
+msgid "Learn more"
+msgstr "Узнать больше"
 
 msgid "Leave this page"
 msgstr "Покинуть эту страницу"
@@ -960,6 +969,9 @@ msgstr "Вход выполнен как {stationName}"
 msgid "Size"
 msgstr "Размер"
 
+msgid "Something went wrong"
+msgstr "Что-то пошло не так"
+
 msgid "Source"
 msgstr "Источник"
 
@@ -1089,6 +1101,9 @@ msgstr "Просмотреть наряд на обслуживание"
 
 msgid "We've sent you a magic link to sign in to your account."
 msgstr "Мы отправили вам ссылку для входа в ваш аккаунт."
+
+msgid "What is {translatedTerm}?"
+msgstr "Что такое {translatedTerm}?"
 
 msgid "WIP"
 msgstr "НЗП"

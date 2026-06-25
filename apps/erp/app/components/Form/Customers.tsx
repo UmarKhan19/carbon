@@ -5,6 +5,7 @@ import { useMemo, useRef, useState } from "react";
 import { useUser } from "~/hooks";
 import CustomerForm from "~/modules/sales/ui/Customer/CustomerForm";
 import { useCustomers, useInactiveCustomerStatusId } from "~/stores";
+import { useEmptyState } from "./emptyStates";
 
 type CustomerSelectProps = Omit<CreatableMultiSelectProps, "options">;
 
@@ -29,6 +30,10 @@ const Customers = (props: CustomerSelectProps) => {
     [customers, inactiveStatusId]
   );
 
+  const emptyMessage = useEmptyState("customer", {
+    onCreate: () => newCustomerModal.onOpen()
+  });
+
   return (
     <>
       <CreatableMultiSelect
@@ -36,6 +41,7 @@ const Customers = (props: CustomerSelectProps) => {
         options={options}
         {...props}
         label={props?.label ?? "Customers"}
+        emptyMessage={emptyMessage}
         onCreateOption={(option) => {
           newCustomerModal.onOpen();
           setCreated(option);

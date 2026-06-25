@@ -7,6 +7,7 @@ import { useUser } from "~/hooks";
 import CustomerForm from "~/modules/sales/ui/Customer/CustomerForm";
 import { useCustomers, useInactiveCustomerStatusId } from "~/stores";
 import CustomerAvatar from "../CustomerAvatar";
+import { useEmptyState } from "./emptyStates";
 
 type CustomerSelectProps = Omit<
   CreatableComboboxProps,
@@ -45,11 +46,16 @@ const Customer = (props: CustomerSelectProps) => {
 
   const { company } = useUser();
 
+  const emptyMessage = useEmptyState("customer", {
+    onCreate: () => newCustomersModal.onOpen()
+  });
+
   return (
     <>
       <CreatableCombobox
         ref={triggerRef}
         options={options}
+        emptyMessage={emptyMessage}
         {...props}
         label={props?.label ?? t`Customer`}
         placeholder={props?.placeholder ?? t`Select`}

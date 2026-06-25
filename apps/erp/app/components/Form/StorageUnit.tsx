@@ -11,6 +11,7 @@
 // Storage Unit form.
 
 import { CreatableCombobox } from "@carbon/form";
+import type { TermId } from "@carbon/glossary";
 import {
   CreatableCombobox as CreatableComboboxBase,
   useDisclosure
@@ -22,6 +23,7 @@ import type { getStorageUnitsList } from "~/modules/inventory";
 import StorageUnitForm from "~/modules/inventory/ui/StorageUnits/StorageUnitForm";
 import type { ListItem } from "~/types";
 import { path } from "~/utils/path";
+import { useEmptyState } from "./emptyStates";
 
 // ---------------------------------------------------------------------------
 // Data hooks (shared)
@@ -215,7 +217,7 @@ function useNewStorageUnitModal(locationId?: string | null) {
     modal.onOpen();
   };
 
-  return { triggerRef, onCreateOption, node };
+  return { triggerRef, onCreateOption, onOpen: modal.onOpen, node };
 }
 
 const storageUnitPreview = (
@@ -248,6 +250,8 @@ type StorageUnitProps = {
   onClick?: MouseEventHandler<HTMLButtonElement>;
   locationId?: string | null;
   itemId?: string;
+  /** Glossary term wired to a `<LabelWithHelp>` info icon next to the label. */
+  termId?: TermId;
   /** Render a compact inline preview (table cells) once a value is set. */
   inline?: boolean;
   /** Show the "+ New storage unit" create option. Defaults to `true`. */
@@ -273,14 +277,20 @@ function StorageUnit({
   onClick,
   locationId,
   itemId,
+  termId,
   inline,
   allowCreate = true,
   onChange
 }: StorageUnitProps) {
   const options = useStorageUnitLeafOptions(locationId, itemId);
-  const { triggerRef, onCreateOption, node } =
+  const { triggerRef, onCreateOption, onOpen, node } =
     useNewStorageUnitModal(locationId);
   const readOnly = isReadOnly || disabled;
+
+  const emptyMessage = useEmptyState(
+    "storageUnit",
+    allowCreate && locationId ? { onCreate: onOpen } : undefined
+  );
 
   if (name) {
     return (
@@ -291,6 +301,7 @@ function StorageUnit({
           value={value ?? undefined}
           options={options}
           label={label ?? "Storage Unit"}
+          termId={termId}
           helperText={helperText}
           placeholder={placeholder}
           isReadOnly={readOnly}
@@ -298,6 +309,7 @@ function StorageUnit({
           className={className}
           onClick={onClick}
           inline={inline ? storageUnitPreview : undefined}
+          emptyMessage={emptyMessage}
           onCreateOption={allowCreate ? onCreateOption : undefined}
           onChange={(option) =>
             onChange?.(
@@ -325,6 +337,7 @@ function StorageUnit({
         placeholder={placeholder}
         className={className}
         onClick={onClick}
+        emptyMessage={emptyMessage}
         onCreateOption={allowCreate ? onCreateOption : undefined}
         onChange={(selected) =>
           onChange?.(selected ? toListItem(selected, options) : null)

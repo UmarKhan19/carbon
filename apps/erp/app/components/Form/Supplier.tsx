@@ -6,6 +6,7 @@ import { useSupplierApprovalRequired, useUser } from "~/hooks";
 import { SupplierForm } from "~/modules/purchasing/ui/Supplier";
 import { useSuppliers } from "~/stores";
 import SupplierAvatar from "../SupplierAvatar";
+import { useEmptyState } from "./emptyStates";
 
 type SupplierSelectProps = Omit<
   CreatableComboboxProps,
@@ -50,11 +51,16 @@ const Supplier = ({
 
   const { company } = useUser();
 
+  const emptyMessage = useEmptyState("supplier", {
+    onCreate: () => newSuppliersModal.onOpen()
+  });
+
   return (
     <>
       <CreatableCombobox
         ref={triggerRef}
         options={options}
+        emptyMessage={emptyMessage}
         {...props}
         label={props?.label ?? "Supplier"}
         inline={props?.inline ? SupplierPreview : undefined}

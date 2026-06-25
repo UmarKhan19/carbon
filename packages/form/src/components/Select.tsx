@@ -1,3 +1,4 @@
+import type { TermId } from "@carbon/glossary";
 import {
   buttonVariants,
   Select as CarbonSelect,
@@ -8,6 +9,7 @@ import {
   FormLabel,
   HStack,
   IconButton,
+  LabelWithHelp,
   SelectContent,
   SelectItem,
   SelectTrigger,
@@ -24,6 +26,7 @@ import { useFormStateContext } from "../internal/formStateContext";
 export type SelectProps = Omit<SelectBaseProps, "onChange"> & {
   name: string;
   label?: string;
+  termId?: TermId;
   helperText?: string;
   isConfigured?: boolean;
   isOptional?: boolean;
@@ -42,6 +45,7 @@ export type SelectProps = Omit<SelectBaseProps, "onChange"> & {
 const Select = ({
   name,
   label,
+  termId,
   helperText,
   isConfigured = false,
   isOptional,
@@ -49,6 +53,7 @@ const Select = ({
   isLoading,
   options,
   onConfigure,
+  emptyMessage,
   ...props
 }: SelectProps) => {
   const { getInputProps, error, isOptional: fieldIsOptional } = useField(name);
@@ -80,7 +85,7 @@ const Select = ({
           isConfigured={isConfigured}
           onConfigure={onConfigure}
         >
-          {label}
+          <LabelWithHelp termId={termId}>{label}</LabelWithHelp>
         </FormLabel>
       )}
 
@@ -105,6 +110,7 @@ const Select = ({
         isDisabled={isDisabled}
         isReadOnly={isReadOnly}
         isLoading={isLoading}
+        emptyMessage={isLoading ? undefined : emptyMessage}
         className="w-full"
       />
 

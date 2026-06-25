@@ -6,7 +6,7 @@ second-person — not the flat neutral tone most docs default to. But before any
 ## Rule 0 — ground every claim in source (non-negotiable)
 
 The holy source of truth is **the actual source code + the LATEST database migrations**, never ERP-generic
-knowledge, never `llm/cache/` alone. A confidently-wrong sentence is worse than no sentence.
+knowledge, never `.claude/rules/` alone. A confidently-wrong sentence is worse than no sentence.
 
 - **Verify before writing.** Every entity, **status enum value** (exact string), and **transition** must
   exist in real code. Dispatch a research subagent → get `file:line` refs → then write.
@@ -70,7 +70,7 @@ Two mechanisms, both every time you touch a page:
   (`[make-to-order tour](/guides/order)`, `[quote-to-cash](/guides/order-to-cash)`).
 - **`<Term>` carries *definitions*.** Wrap a term a reader hits cold (method type, replenishment system, WIP,
   outside operation…) so a click glosses it in place. First occurrence per page only; definitions live in
-  `apps/docs/lib/glossary.ts`, grounded in source — add the entry before you use a new term.
+  `docs/lib/glossary.ts`, grounded in source — add the entry before you use a new term.
 
 When you create or edit a page, end with an **enrichment pass**: gloss first-occurrence jargon with `<Term>`,
 add cross-links at the seams, top up the glossary. Internal linking compounds — make it a habit.
