@@ -1,4 +1,8 @@
 [
+  "module-shape::settings::extra-service:backups.service.ts",
+  "module-shape::shared::extra-models:imports.models.ts",
+  "module-shape::shared::missing:ui",
+  "module-shape::storage-rules::missing:types.ts",
   "no-legacy-rls::20230123004206_claims.sql::has_company_permission(",
   "no-legacy-rls::20230123004317_companies-rls.sql::has_company_permission(",
   "no-legacy-rls::20230123004339_employee-types.sql::has_company_permission(",

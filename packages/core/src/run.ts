@@ -1,5 +1,11 @@
 import { keyOf, loadBaseline } from "./baseline";
-import type { ConformanceCheck, Violation } from "./check";
+import type {
+  ConformanceCheck,
+  ModuleDir,
+  StructureCheck,
+  Violation
+} from "./check";
+import { moduleShape } from "./conformance/module-shape";
 import { noLegacyRls } from "./conformance/no-legacy-rls";
 import { noNumericPrecision } from "./conformance/no-numeric-precision";
 import {
@@ -8,11 +14,14 @@ import {
   repoRoot,
   type SqlFile
 } from "./sources/migrations";
+import { loadModules, modulesDir } from "./sources/modules";
 
 export const CONFORMANCE_CHECKS: ConformanceCheck[] = [
   noNumericPrecision,
   noLegacyRls
 ];
+
+export const STRUCTURE_CHECKS: StructureCheck[] = [moduleShape];
 
 export type Finding = { checkId: string; violation: Violation };
 
@@ -31,11 +40,28 @@ export function scanAll(
   return out;
 }
 
-/** Findings in the real migrations that are NOT grandfathered by the baseline. */
+export function scanModules(
+  modules: ModuleDir[],
+  checks: StructureCheck[] = STRUCTURE_CHECKS
+): Finding[] {
+  const out: Finding[] = [];
+  for (const m of modules) {
+    for (const check of checks) {
+      for (const violation of check.inspect(m)) {
+        out.push({ checkId: check.id, violation });
+      }
+    }
+  }
+  return out;
+}
+
+/** Findings in the real migrations/modules that are NOT grandfathered by the baseline. */
 export function newViolations(): Finding[] {
-  const files = loadSqlFiles(migrationsDir(repoRoot()));
+  const root = repoRoot();
+  const findings = [
+    ...scanAll(loadSqlFiles(migrationsDir(root))),
+    ...scanModules(loadModules(modulesDir(root)))
+  ];
   const baseline = loadBaseline();
-  return scanAll(files).filter(
-    (f) => !baseline.has(keyOf(f.checkId, f.violation))
-  );
+  return findings.filter((f) => !baseline.has(keyOf(f.checkId, f.violation)));
 }
