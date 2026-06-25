@@ -1,11 +1,12 @@
 import { formatDate } from "@carbon/utils";
 import { View } from "@react-pdf/renderer";
 import { Summary } from "../../components";
-import { tw } from "../tw";
+import { useTw } from "../tw";
 import type { StockTransferData } from "./types";
 
 /** Company + transfer metadata (date, id, location, assignee). */
 export function DetailsBlock({ data }: { data: StockTransferData }) {
+  const tw = useTw();
   const { company, stockTransfer, location, locale } = data;
 
   const items: { label: string; value: string | null | undefined }[] = [

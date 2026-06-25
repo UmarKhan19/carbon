@@ -122,6 +122,7 @@ const PurchaseOrderPDF = ({
 
   return (
     <Template
+      theme={theme}
       title={headerTitle}
       meta={{
         author: meta?.author ?? "Carbon",

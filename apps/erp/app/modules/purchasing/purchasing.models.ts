@@ -2,8 +2,7 @@ import { getLocalTimeZone, today } from "@internationalized/date";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 import { address, contact } from "~/types/validators";
-import { taxExemptionReasons } from "../sales/sales.models";
-import { incoterms, methodItemType } from "../shared";
+import { incoterms, methodItemType, taxExemptionReasons } from "../shared";
 
 export const KPIs = [
   {
@@ -208,7 +207,7 @@ export const purchaseOrderLineValidator = z
     id: zfd.text(z.string().optional()),
     purchaseOrderId: z.string().min(1, { message: "Order is required" }),
     purchaseOrderLineType: z.enum(
-      [...methodItemType, "G/L Account", "Fixed Asset"],
+      [...methodItemType, "Service", "Fixture", "G/L Account", "Fixed Asset"],
       {
         errorMap: (issue, ctx) => ({
           message: "Type is required"

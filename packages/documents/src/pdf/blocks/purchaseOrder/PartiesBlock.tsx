@@ -1,10 +1,11 @@
 import { formatDate, isEoriCountry } from "@carbon/utils";
 import { Text, View } from "@react-pdf/renderer";
 import { AddressBlock } from "../../components";
-import { tw } from "../tw";
+import { useTw } from "../tw";
 import type { PurchaseOrderData } from "./types";
 
 export function PartiesBlock({ data }: { data: PurchaseOrderData }) {
+  const tw = useTw();
   const {
     purchaseOrder,
     purchaseOrderLocations,

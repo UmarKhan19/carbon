@@ -10,8 +10,7 @@ import {
   sectionConfigSchema,
   themeSchema
 } from "@carbon/documents/template";
-import { getPreferenceHeaders } from "@carbon/react";
-import { labelSizes } from "@carbon/utils";
+import { getPreferenceHeaders, labelSizes } from "@carbon/utils";
 import { renderToStream } from "@react-pdf/renderer";
 import type { ActionFunctionArgs } from "react-router";
 import { z } from "zod";

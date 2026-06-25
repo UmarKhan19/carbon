@@ -286,7 +286,11 @@ export const DEFAULT_THEME = {
   /** Strong brand color — fills the line-items header bar. */
   accent: "#1f2937",
   /** Text/icons drawn on top of the accent color. */
-  accentForeground: "#ffffff"
+  accentForeground: "#ffffff",
+  /** Section headings (BILL TO, INVOICE DETAILS, NOTES…). Maps gray-600. */
+  heading: "#4b5563",
+  /** Body text: addresses, line-item values, the document title. Maps gray-800. */
+  text: "#1f2937"
 } as const;
 
 export const themeSchema = z.object({
@@ -294,20 +298,18 @@ export const themeSchema = z.object({
   accentForeground: z
     .string()
     .regex(HEX_COLOR)
-    .default(DEFAULT_THEME.accentForeground)
+    .default(DEFAULT_THEME.accentForeground),
+  heading: z.string().regex(HEX_COLOR).default(DEFAULT_THEME.heading),
+  text: z.string().regex(HEX_COLOR).default(DEFAULT_THEME.text)
 });
 
-/**
- * Document body fonts. "Inter" is registered in Template; the rest are the
- * react-pdf built-in PDF standard fonts (no registration needed).
- */
+// Body fonts offered in the editor. Helvetica/Times/Courier are PDF built-ins; the
+// rest are bundled (see pdf/fonts.ts).
 export const DOCUMENT_FONTS = [
-  // Inter is registered in Template; Helvetica/Times/Courier are PDF built-ins.
   { value: "Inter", label: "Inter", kind: "Sans" },
   { value: "Helvetica", label: "Helvetica", kind: "Sans" },
   { value: "Times-Roman", label: "Times", kind: "Serif" },
   { value: "Courier", label: "Courier", kind: "Mono" },
-  // Google fonts — registered on demand at render (see pdf/fonts.ts).
   { value: "Roboto", label: "Roboto", kind: "Sans" },
   { value: "Open Sans", label: "Open Sans", kind: "Sans" },
   { value: "Lato", label: "Lato", kind: "Sans" },

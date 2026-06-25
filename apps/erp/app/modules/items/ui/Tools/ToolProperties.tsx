@@ -40,7 +40,7 @@ import type {
   SupplierPart,
   Tool
 } from "../../types";
-import { FileBadge, ItemDescription } from "../Item";
+import { FileBadge, ItemDescription, SourcingTypeProperty } from "../Item";
 
 type ToolPropertiesProps = {
   data?: {
@@ -104,6 +104,7 @@ const ToolProperties = ({ data }: ToolPropertiesProps) => {
         | "description"
         | "replenishmentSystem"
         | "defaultMethodType"
+        | "sourcingType"
         | "itemTrackingType"
         | "itemPostingGroupId"
         | "toolId"
@@ -332,6 +333,7 @@ const ToolProperties = ({ data }: ToolPropertiesProps) => {
         <Select
           name="replenishmentSystem"
           label={t`Replenishment`}
+          termId="replenishment-system"
           inline={(value) => (
             <Badge variant="secondary">
               <ReplenishmentSystemIcon type={value} className="mr-2" />
@@ -376,6 +378,7 @@ const ToolProperties = ({ data }: ToolPropertiesProps) => {
         <Select
           name="itemTrackingType"
           label={t`Tracking Type`}
+          termId="item-tracking-type"
           inline={(value) => (
             <Badge variant="secondary">
               <TrackingTypeIcon type={value} className="mr-2" />
@@ -424,6 +427,7 @@ const ToolProperties = ({ data }: ToolPropertiesProps) => {
         <Select
           name="defaultMethodType"
           label={t`Default Method Type`}
+          termId="item-default-method-type"
           inline={(value) => (
             <Badge variant="secondary">
               <MethodIcon type={value} className="mr-2" />
@@ -461,6 +465,12 @@ const ToolProperties = ({ data }: ToolPropertiesProps) => {
           }}
         />
       </ValidatedForm>
+
+      <SourcingTypeProperty
+        replenishmentSystem={routeData?.toolSummary?.replenishmentSystem}
+        value={routeData?.toolSummary?.sourcingType}
+        onChange={(value) => onUpdate("sourcingType", value)}
+      />
 
       <VStack spacing={2}>
         <h3 className="text-xs text-muted-foreground">
@@ -542,8 +552,7 @@ const ToolProperties = ({ data }: ToolPropertiesProps) => {
           }}
         />
       </ValidatedForm>
-      {(routeData?.toolSummary?.itemTrackingType === "Serial" ||
-        routeData?.toolSummary?.itemTrackingType === "Batch") && (
+      {routeData?.toolSummary?.replenishmentSystem?.includes("Buy") && (
         <ValidatedForm
           defaultValues={{
             requiresInspection:

@@ -1,3 +1,4 @@
+import type { TermId } from "@carbon/glossary";
 import {
   buttonVariants,
   Select as CarbonSelect,
@@ -8,6 +9,7 @@ import {
   FormLabel,
   HStack,
   IconButton,
+  LabelWithHelp,
   SelectContent,
   SelectItem,
   SelectTrigger,
@@ -15,7 +17,7 @@ import {
   Spinner
 } from "@carbon/react";
 
-import type { ComponentPropsWithoutRef } from "react";
+import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import { forwardRef } from "react";
 import { LuPlus, LuSettings2, LuX } from "react-icons/lu";
 import { useControlField, useField } from "../hooks";
@@ -24,6 +26,7 @@ import { useFormStateContext } from "../internal/formStateContext";
 export type SelectProps = Omit<SelectBaseProps, "onChange"> & {
   name: string;
   label?: string;
+  termId?: TermId;
   helperText?: string;
   isConfigured?: boolean;
   isOptional?: boolean;
@@ -32,6 +35,7 @@ export type SelectProps = Omit<SelectBaseProps, "onChange"> & {
     newValue: { value: string; label: string | JSX.Element } | null
   ) => void;
   onConfigure?: () => void;
+  emptyMessage?: ReactNode;
   inline?: (
     value: string,
     options: { value: string; label: string | JSX.Element }[]
@@ -41,6 +45,7 @@ export type SelectProps = Omit<SelectBaseProps, "onChange"> & {
 const Select = ({
   name,
   label,
+  termId,
   helperText,
   isConfigured = false,
   isOptional,
@@ -48,6 +53,7 @@ const Select = ({
   isLoading,
   options,
   onConfigure,
+  emptyMessage,
   ...props
 }: SelectProps) => {
   const { getInputProps, error, isOptional: fieldIsOptional } = useField(name);
@@ -79,7 +85,7 @@ const Select = ({
           isConfigured={isConfigured}
           onConfigure={onConfigure}
         >
-          {label}
+          <LabelWithHelp termId={termId}>{label}</LabelWithHelp>
         </FormLabel>
       )}
 
@@ -104,6 +110,7 @@ const Select = ({
         isDisabled={isDisabled}
         isReadOnly={isReadOnly}
         isLoading={isLoading}
+        emptyMessage={isLoading ? undefined : emptyMessage}
         className="w-full"
       />
 
@@ -138,6 +145,7 @@ export type SelectBaseProps = Omit<
   isLoading?: boolean;
   isReadOnly?: boolean;
   placeholder?: string;
+  emptyMessage?: ReactNode;
   inline?: (
     value: string,
     options: { value: string; label: string | JSX.Element }[]
@@ -156,6 +164,7 @@ export const SelectBase = forwardRef<HTMLButtonElement, SelectBaseProps>(
       isLoading,
       isReadOnly,
       placeholder,
+      emptyMessage,
       inline,
       onChange,
       ...props
@@ -217,17 +226,17 @@ export const SelectBase = forwardRef<HTMLButtonElement, SelectBaseProps>(
             )}
           </SelectTrigger>
           <SelectContent>
-            {options.length === 0 ? (
-              <div className="py-6 text-center text-sm text-muted-foreground">
-                No options available
-              </div>
-            ) : (
-              options.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))
-            )}
+            {options.length === 0
+              ? (emptyMessage ?? (
+                  <div className="py-6 text-center text-sm text-muted-foreground">
+                    No options available
+                  </div>
+                ))
+              : options.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
           </SelectContent>
         </CarbonSelect>
         {isClearable && !isNonInteractive && value && (

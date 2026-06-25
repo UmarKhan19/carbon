@@ -252,6 +252,10 @@ const SalesInvoiceLineForm = ({
       case "Material":
       case "Part":
       case "Tool":
+      // @ts-expect-error
+      case "Service":
+      // @ts-expect-error
+      case "Fixture":
         const [item, inventory] = await Promise.all([
           carbon
             .from("item")
@@ -517,13 +521,16 @@ const SalesInvoiceLineForm = ({
                         "Part",
                         "Material",
                         "Tool",
-                        "Consumable"
+                        "Consumable",
+                        "Service",
+                        "Fixture"
                       ].includes(itemType) && (
                         <>
                           <div className="space-y-2">
                             <SelectControlled
                               name="methodType"
                               label={t`Method`}
+                              termId="method-type"
                               options={
                                 methodType.map((m) => ({
                                   label: (
@@ -603,7 +610,9 @@ const SalesInvoiceLineForm = ({
                       "Part",
                       "Material",
                       "Tool",
-                      "Consumable"
+                      "Consumable",
+                      "Service",
+                      "Fixture"
                     ].includes(itemType) && (
                       <div className="w-full">
                         <div className="w-full border border-border rounded-md shadow-sm p-4 flex flex-col gap-4 mt-4">
@@ -770,6 +779,7 @@ const SalesInvoiceLineForm = ({
                         <Combobox
                           name="assetId"
                           label={t`Fixed Asset`}
+                          termId="fixed-asset"
                           isOptional={false}
                           options={assetOptions}
                           value={assetData.assetId}

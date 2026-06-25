@@ -78,6 +78,7 @@ const StockTransferPDF = ({
 
   return (
     <Template
+      theme={theme}
       title={title}
       meta={{
         author: "Carbon",

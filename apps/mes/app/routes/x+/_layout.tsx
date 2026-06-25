@@ -265,7 +265,7 @@ export default function AuthenticatedRoute() {
             }}
           >
             <RealtimeDataProvider>
-              <SidebarProvider defaultOpen={false}>
+              <SidebarProvider defaultOpen={false} touch>
                 <TooltipProvider delayDuration={0}>
                   <AppSidebar
                     activeEvents={activeEvents}

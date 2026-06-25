@@ -110,6 +110,12 @@ msgstr "Anexar Arquivo"
 msgid "Authentication Error"
 msgstr "Erro de Autenticação"
 
+msgid "available"
+msgstr "disponível"
+
+msgid "Back Home"
+msgstr "Voltar para casa"
+
 msgid "Batch"
 msgstr "Lote"
 
@@ -138,6 +144,9 @@ msgstr "Ao entrar, você concorda com os <0>Termos de Serviço</0> e a <1>Polít
 
 msgid "Cancel"
 msgstr "Cancelar"
+
+msgid "Cancelled"
+msgstr "Cancelado"
 
 msgid "Carbon Logo"
 msgstr "Logo Carbon"
@@ -237,6 +246,9 @@ msgstr "Data"
 msgid "Deadline"
 msgstr "Prazo"
 
+msgid "Default"
+msgstr "Padrão"
+
 msgid "Default Storage Unit"
 msgstr "Unidade de Armazenamento Padrão"
 
@@ -276,6 +288,9 @@ msgstr "Baixar"
 
 msgid "Download Labels"
 msgstr "Baixar Etiquetas"
+
+msgid "Draft"
+msgstr "Rascunho"
 
 msgid "Drag and drop a file here, or click to select a file"
 msgstr "Arraste e solte um arquivo aqui ou clique para selecionar um arquivo"
@@ -321,8 +336,23 @@ msgstr "Insira o PIN de {0}"
 msgid "Error"
 msgstr "Erro"
 
+msgid "Error!"
+msgstr "Erro!"
+
 msgid "Estimated"
 msgstr "Estimado"
+
+msgid "Expired"
+msgstr "Expirado"
+
+msgid "Expired {date}"
+msgstr "Expirado {date}"
+
+msgid "Expires {date}"
+msgstr "Expira {date}"
+
+msgid "Expiring first"
+msgstr "Expirando primeiro"
 
 msgid "Failed to complete inventory adjustment"
 msgstr "Falha ao concluir ajuste de estoque"
@@ -376,6 +406,9 @@ msgstr "Voltar para operação"
 
 msgid "Have a technical issue? Contact <0>Carbon Support.</0>"
 msgstr "Tem um problema técnico? Entre em contato com o <0>Suporte Carbon.</0>"
+
+msgid "How many were actually picked?"
+msgstr "Quantos foram realmente apanhados?"
 
 msgid "I understand and want to complete without issuing"
 msgstr "Eu entendo e desejo concluir sem emitir"
@@ -446,11 +479,17 @@ msgstr "Kit"
 msgid "Labor"
 msgstr "Mão de Obra"
 
+msgid "Learn more"
+msgstr "Saiba mais"
+
 msgid "Leave this page"
 msgstr "Sair desta página"
 
 msgid "Let's build something"
 msgstr "Vamos construir algo"
+
+msgid "lines"
+msgstr "linhas"
 
 msgid "Loading item details..."
 msgstr "Carregando detalhes do item..."
@@ -500,6 +539,9 @@ msgstr "Adicionar itens ao estoque manualmente"
 msgid "Manually remove items from inventory"
 msgstr "Remover itens do estoque manualmente"
 
+msgid "Mark Short"
+msgstr "Marcar como Falta"
+
 msgid "matches"
 msgstr "corresponde"
 
@@ -546,6 +588,9 @@ msgstr "Novo"
 msgid "New Record"
 msgstr "Novo Registro"
 
+msgid "Newest first"
+msgstr "Mais recente primeiro"
+
 msgid "Next"
 msgstr "Próximo"
 
@@ -563,6 +608,9 @@ msgstr "Nenhum filtro disponível"
 
 msgid "No available serial numbers found"
 msgstr "Nenhum número de série disponível encontrado"
+
+msgid "No available tracked entities found"
+msgstr "Nenhuma entidade rastreada disponível encontrada"
 
 msgid "No dispatches assigned to you"
 msgstr "Nenhum despacho atribuído a você"
@@ -591,6 +639,9 @@ msgstr "Nenhuma opção encontrada."
 msgid "No options found."
 msgstr "Nenhuma opção encontrada."
 
+msgid "No picking lists assigned"
+msgstr "Nenhuma lista de picking atribuída"
+
 msgid "No printer configured"
 msgstr "Nenhuma impressora configurada"
 
@@ -618,8 +669,14 @@ msgstr "Nenhum número de série encontrado"
 msgid "No spare parts added yet"
 msgstr "Nenhuma peça sobressalente adicionada ainda"
 
+msgid "No stock"
+msgstr "Sem stock"
+
 msgid "No time entries for this week"
 msgstr "Nenhum registro de horas nesta semana"
+
+msgid "No warehouse stock is on record for this item. You can still pick it — on-hand will go negative until the count is reconciled."
+msgstr "Nenhum estoque de armazém está registrado para este item. Você ainda pode coletá-lo — o estoque disponível ficará negativo até que a contagem seja reconciliada."
 
 msgid "No work centers are blocked"
 msgstr "Nenhum centro de trabalho está bloqueado"
@@ -635,6 +692,9 @@ msgstr "Impacto OEE"
 
 msgid "OEM Required"
 msgstr "OEM Necessário"
+
+msgid "Oldest first"
+msgstr "Mais antigo primeiro"
 
 #. placeholder {0}: batch.quantity
 msgid "Only {0} available"
@@ -673,11 +733,26 @@ msgstr "Aprovado na Inspeção"
 msgid "Pause"
 msgstr "Pausar"
 
+msgid "Pick"
+msgstr "Apanhar"
+
+msgid "Pick tracked item"
+msgstr "Selecionar item rastreado"
+
+msgid "Picked"
+msgstr "Apanhado"
+
+msgid "Picked quantity"
+msgstr "Quantidade colhida"
+
 #. placeholder {0}: startColumn?.title
 #. placeholder {1}: startIndex + 1
 #. placeholder {2}: columnOrder.length
 msgid "Picked up Column {0} at position: {1} of {2}"
 msgstr "Coluna {0} selecionada na posição: {1} de {2}"
+
+msgid "Picking"
+msgstr "Separação"
 
 msgid "Pin Out"
 msgstr "Desconectar"
@@ -776,6 +851,9 @@ msgstr "Escanear"
 msgid "Scan or enter serial number"
 msgstr "Escanear ou inserir número de série"
 
+msgid "Scan or enter tracking number"
+msgstr "Digitalize ou insira o número de rastreamento"
+
 msgid "Scan or search serial number..."
 msgstr "Digitalize ou procure número de série..."
 
@@ -872,6 +950,12 @@ msgstr "Definir horário de saída"
 msgid "Setup"
 msgstr "Setup"
 
+msgid "Short"
+msgstr "Falta"
+
+msgid "Short pick {itemName}"
+msgstr "Colheita curta {itemName}"
+
 msgid "Sign in with Email"
 msgstr "Entrar com E-mail"
 
@@ -893,9 +977,8 @@ msgstr "Conectado como {stationName}"
 msgid "Size"
 msgstr "Tamanho"
 
-#. js-lingui-explicit-id
-msgid "error.database"
-msgstr "Algo deu errado ao salvar suas alterações"
+msgid "Something went wrong"
+msgstr "Algo deu errado"
 
 msgid "Source"
 msgstr "Origem"
@@ -955,13 +1038,8 @@ msgstr "A quantidade concluída para esta operação é menor que a quantidade r
 msgid "There are serial or batch tracked materials on the bill of material that have not been fully issued. Completing without issuing may result in incorrect traceability records."
 msgstr "Existem materiais rastreados por série ou lote na lista de materiais que não foram totalmente emitidos. Concluir sem emitir pode resultar em registros de rastreabilidade incorretos."
 
-#. js-lingui-explicit-id
-msgid "error.conflict"
-msgstr "Esta ação entra em conflito com o estado atual"
-
-#. js-lingui-explicit-id
-msgid "error.businessRule"
-msgstr "Esta ação não é permitida por uma regra de negócio"
+msgid "This lot is expired and can't be picked."
+msgstr "Este lote expirou e não pode ser selecionado."
 
 msgid "Thumbnail"
 msgstr "Miniatura"
@@ -1002,6 +1080,13 @@ msgstr "Materiais de série/lote não emitidos"
 msgid "Unknown"
 msgstr "Desconhecido"
 
+msgid "Unpick"
+msgstr "Desmarcar"
+
+#. placeholder {0}: pickedLots[0].trackedEntity.readableId
+msgid "Unpick {0}"
+msgstr "Desmarcar {0}"
+
 msgid "Unsaved changes"
 msgstr "Alterações não salvas"
 
@@ -1028,6 +1113,9 @@ msgstr "Ver despacho de manutenção"
 
 msgid "We've sent you a magic link to sign in to your account."
 msgstr "Enviamos um link mágico para você entrar na sua conta."
+
+msgid "What is {translatedTerm}?"
+msgstr "O que é {translatedTerm}?"
 
 msgid "WIP"
 msgstr "WIP"

@@ -1,9 +1,10 @@
 import { Text, View } from "@react-pdf/renderer";
-import { tw } from "../tw";
+import { useTw } from "../tw";
 import type { PackingSlipData } from "./types";
 
 /** Shipping method + Payment terms box. */
 export function DetailsBlock({ data }: { data: PackingSlipData }) {
+  const tw = useTw();
   const { shippingMethod, paymentTerm } = data;
 
   return (

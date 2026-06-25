@@ -76,13 +76,13 @@ function DailyScheduleOptions() {
           <Trans>Days</Trans>
         </FormLabel>
         <VStack>
-          <Boolean name="monday" description="Monday" />
-          <Boolean name="tuesday" description="Tuesday" />
-          <Boolean name="wednesday" description="Wednesday" />
-          <Boolean name="thursday" description="Thursday" />
-          <Boolean name="friday" description="Friday" />
-          <Boolean name="saturday" description="Saturday" />
-          <Boolean name="sunday" description="Sunday" />
+          <Boolean name="monday" description={t`Monday`} />
+          <Boolean name="tuesday" description={t`Tuesday`} />
+          <Boolean name="wednesday" description={t`Wednesday`} />
+          <Boolean name="thursday" description={t`Thursday`} />
+          <Boolean name="friday" description={t`Friday`} />
+          <Boolean name="saturday" description={t`Saturday`} />
+          <Boolean name="sunday" description={t`Sunday`} />
         </VStack>
       </FormControl>
       <Boolean
@@ -164,11 +164,16 @@ const MaintenanceScheduleForm = ({
               <Hidden name="type" value={type} />
               <VStack spacing={4}>
                 <Input name="name" label={t`Schedule Name`} />
-                <WorkCenter name="workCenterId" label={t`Work Center`} />
+                <WorkCenter
+                  name="workCenterId"
+                  label={t`Work Center`}
+                  termId="work-center"
+                />
                 <Location name="locationId" label={t`Location`} />
                 <Select
                   name="frequency"
                   label={t`Frequency`}
+                  termId="maintenance-schedule-frequency"
                   options={maintenanceFrequency.map((freq) => ({
                     value: freq,
                     label: <Enumerable value={freq} />
@@ -190,9 +195,14 @@ const MaintenanceScheduleForm = ({
                 <Number
                   name="estimatedDuration"
                   label={t`Estimated Duration (minutes)`}
+                  termId="maintenance-schedule-estimated-duration"
                   minValue={0}
                 />
-                <Procedure name="procedureId" />
+                <Procedure
+                  name="procedureId"
+                  label={t`Procedure`}
+                  termId="maintenance-schedule-procedure"
+                />
                 <Boolean name="active" label={t`Active`} />
                 <DailyScheduleOptions />
               </VStack>

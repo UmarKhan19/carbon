@@ -52,6 +52,7 @@ export const path = {
       emptyPermissions: `${api}/users/empty-permissions`,
       failureModes: `${api}/resources/failure-modes`,
       gauges: `${api}/quality/gauges`,
+      createCsvLookup: `${api}/csv/create-lookup`,
       generateCsvColumns: (table: string) =>
         generatePath(`${api}/ai/csv/${table}/columns`),
       inspectionDocumentBalloonAnalyze: (inspectionDocumentId: string) =>
@@ -438,6 +439,7 @@ export const path = {
     },
     onboarding: {
       company: `${onboarding}/company`,
+      industry: `${onboarding}/industry`,
       location: `${onboarding}/location`,
       plan: `${onboarding}/plan`,
       root: `${onboarding}`,
@@ -518,10 +520,8 @@ export const path = {
       generatePath(`${x}/quality/gauges/activate/${id}`),
     attribute: (id: string) => generatePath(`${x}/people/attribute/${id}`),
     attributes: `${x}/people/attributes`,
-    apiIntroduction: `/docs/api/js/intro`,
-    apiIntro: (lang: string) => generatePath(`/docs/api/${lang}/intro/`),
-    apiTable: (lang: string, table: string) =>
-      generatePath(`/docs/api/${lang}/table/${table}`),
+    apiDocs: "https://docs.carbon.ms/api-reference",
+    mcpDocs: "https://docs.carbon.ms/mcp",
     apiKey: (id: string) => generatePath(`${x}/settings/api-keys/${id}`),
     apiKeys: `${x}/settings/api-keys`,
     attributeCategory: (id: string) =>
@@ -575,6 +575,7 @@ export const path = {
     company: `${x}/settings/company`,
     companySwitch: (companyId: string) =>
       generatePath(`${x}/settings/company/switch/${companyId}`),
+    backups: `${x}/settings/backups`,
     companies: `${x}/settings/companies`,
     completeTrainingAssignment: (id: string) =>
       generatePath(`${share}/training/${id}`),
@@ -1217,8 +1218,6 @@ export const path = {
     newJobOperationStep: `${x}/job/methods/operation/step/new`,
     newJobOperationParameter: `${x}/job/methods/operation/parameter/new`,
     newJobOperationTool: `${x}/job/methods/operation/tool/new`,
-    newJobMaterialsSession: (jobId: string) =>
-      generatePath(`${x}/job/${jobId}/materials/session/new`),
     newKanban: `${x}/inventory/kanbans/new`,
     newLocation: `${x}/resources/locations/new`,
     newMaintenanceDispatch: `${x}/maintenance/new`,
@@ -1742,6 +1741,23 @@ export const path = {
       generatePath(`${x}/warehouse-transfer/${transferId}/lines`),
     warehouseTransferLine: (transferId: string, lineId: string) =>
       generatePath(`${x}/warehouse-transfer/${transferId}/details/${lineId}`),
+    pickingLists: `${x}/inventory/picking-lists`,
+    pickingSchedule: `${x}/picking-list/schedule`,
+    pickingListsTable: `${x}/inventory/picking-lists`,
+    newPickingList: `${x}/picking-list/new`,
+    pickingList: (id: string) => generatePath(`${x}/picking-list/${id}`),
+    pickingListDetails: (id: string) =>
+      generatePath(`${x}/picking-list/${id}/details`),
+    pickingListStatus: (id: string) =>
+      generatePath(`${x}/picking-list/${id}/status`),
+    pickingListDelete: (id: string) =>
+      generatePath(`${x}/picking-list/${id}/delete`),
+    pickingListLine: (pickingListId: string, lineId: string) =>
+      generatePath(`${x}/picking-list/${pickingListId}/details/${lineId}`),
+    pickingListTracked: (pickingListId: string, lineId: string) =>
+      generatePath(`${x}/picking-list/${pickingListId}/tracked/${lineId}`),
+    pickingListLineQuantity: (id: string) =>
+      generatePath(`${x}/picking-list/${id}/line/quantity`),
     shippingMethods: `${x}/inventory/shipping-methods`,
     supplier: (id: string) => generatePath(`${x}/supplier/${id}`),
     supplierApproval: (id: string) =>
@@ -1849,6 +1865,7 @@ export const onboardingSequence = [
   path.to.onboarding.theme,
   path.to.onboarding.user,
   path.to.onboarding.company,
+  path.to.onboarding.industry,
   path.to.onboarding.plan
 ] as const;
 

@@ -17,12 +17,15 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     throw new Response("Group ID is required", { status: 400 });
   }
 
+  // The `groups` view returns multiple rows per id for nested groups (members
+  // are identical), so take one row instead of erroring with `.single()`.
   const query = await client
     .from("groups")
     .select("users")
     .eq("id", groupId)
     .eq("companyId", companyId)
-    .single();
+    .limit(1)
+    .maybeSingle();
 
   if (query.error) {
     return data(
@@ -31,7 +34,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return { users: query.data.users ?? [] };
+  return { users: query.data?.users ?? [] };
 }
 
 export async function clientLoader({

@@ -1,7 +1,7 @@
 import { useLingui } from "@lingui/react/macro";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { CommandEmpty } from "cmdk";
-import type { ComponentPropsWithoutRef } from "react";
+import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import { forwardRef, useId, useMemo, useRef, useState } from "react";
 import { FaRegSquare, FaSquareCheck } from "react-icons/fa6";
 import { LuCirclePlus, LuSettings2 } from "react-icons/lu";
@@ -38,6 +38,7 @@ export type CreatableMultiSelectProps = Omit<
   label?: string;
   createLabel?: string;
   placeholder?: string;
+  emptyMessage?: ReactNode;
   maxPreview?: number;
   itemHeight?: number;
   showCreateOptionOnEmpty?: boolean;
@@ -63,6 +64,7 @@ const CreatableMultiSelect = forwardRef<
       selected,
       isReadOnly,
       placeholder,
+      emptyMessage,
       label,
       createLabel,
       className,
@@ -185,6 +187,8 @@ const CreatableMultiSelect = forwardRef<
           </PopoverTrigger>
           <PopoverContent
             align="end"
+            onWheel={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
             className="min-w-[var(--radix-popover-trigger-width)] max-w-[min(560px,calc(100vw-2rem))] p-1"
             style={{
               width: dropdownContentWidthCh
@@ -192,19 +196,23 @@ const CreatableMultiSelect = forwardRef<
                 : "var(--radix-popover-trigger-width)"
             }}
           >
-            <VirtualizedCommand
-              options={options}
-              selected={value}
-              onChange={onChange}
-              onCreateOption={onCreateOption}
-              itemHeight={itemHeight}
-              setOpen={setOpen}
-              label={label}
-              createLabel={createLabel}
-              search={search}
-              setSearch={setSearch}
-              showCreateOptionOnEmpty={showCreateOptionOnEmpty}
-            />
+            {emptyMessage && options.length === 0 ? (
+              emptyMessage
+            ) : (
+              <VirtualizedCommand
+                options={options}
+                selected={value}
+                onChange={onChange}
+                onCreateOption={onCreateOption}
+                itemHeight={itemHeight}
+                setOpen={setOpen}
+                label={label}
+                createLabel={createLabel}
+                search={search}
+                setSearch={setSearch}
+                showCreateOptionOnEmpty={showCreateOptionOnEmpty}
+              />
+            )}
           </PopoverContent>
         </Popover>
       </HStack>
@@ -296,7 +304,7 @@ function VirtualizedCommand({
       />
       <div
         ref={parentRef}
-        className="overflow-auto pt-1"
+        className="overflow-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent pt-1"
         style={{
           height: `${Math.min(filteredOptions.length, 6) * itemHeight + 4}px`
         }}

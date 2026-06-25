@@ -1,11 +1,14 @@
+import type { TermId } from "@carbon/glossary";
 import type { CreatableComboboxProps as CreatableComboboxBaseProps } from "@carbon/react";
 import {
   CreatableCombobox as CreatableComboboxBase,
   FormControl,
   FormErrorMessage,
   FormHelperText,
-  FormLabel
+  FormLabel,
+  LabelWithHelp
 } from "@carbon/react";
+import type { ReactNode } from "react";
 import { forwardRef, useEffect } from "react";
 
 import { flushSync } from "react-dom";
@@ -19,11 +22,13 @@ export type CreatableComboboxProps = Omit<
   autoSelectSingleOption?: boolean;
   isClearable?: boolean;
   name: string;
-  label?: string | JSX.Element;
+  label?: string;
+  termId?: TermId;
   helperText?: string;
   isConfigured?: boolean;
   isOptional?: boolean;
   isRequired?: boolean;
+  emptyMessage?: ReactNode;
   inline?: (
     value: string,
     options: { value: string; label: string | JSX.Element; helper?: string }[]
@@ -41,10 +46,12 @@ const CreatableCombobox = forwardRef<HTMLButtonElement, CreatableComboboxProps>(
       isClearable,
       name,
       label,
+      termId,
       helperText,
       isConfigured = false,
       isOptional,
       isRequired,
+      emptyMessage,
       onConfigure,
       ...props
     },
@@ -94,7 +101,7 @@ const CreatableCombobox = forwardRef<HTMLButtonElement, CreatableComboboxProps>(
             onConfigure={onConfigure}
             isOptional={resolvedIsOptional}
           >
-            {label}
+            <LabelWithHelp termId={termId}>{label}</LabelWithHelp>
           </FormLabel>
         )}
         <input
@@ -113,6 +120,7 @@ const CreatableCombobox = forwardRef<HTMLButtonElement, CreatableComboboxProps>(
           isClearable={isClearable ?? (resolvedIsOptional && !isReadOnly)}
           isReadOnly={isReadOnly}
           label={label}
+          emptyMessage={emptyMessage}
           className="w-full"
           onChange={(newValue) => {
             flushSync(() => {

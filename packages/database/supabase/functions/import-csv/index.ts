@@ -8,6 +8,8 @@ import { corsHeaders } from "../lib/headers.ts";
 import { requirePermissions } from "../lib/supabase.ts";
 import { Database } from "../lib/types.ts";
 import { getReadableIdWithRevision } from "../lib/utils.ts";
+import { classifyImportRow } from "./classify-import-row.ts";
+import { importMethods } from "./method-import.ts";
 
 const pool = getConnectionPool(1);
 const db = getDatabaseClient<DB>(pool);
@@ -19,7 +21,8 @@ const importCsvValidator = z.object({
     "customerContact",
     "fixture",
     "material",
-    "methodMaterial",
+    "bom",
+    "operations",
     "part",
     "supplier",
     "supplierContact",
@@ -256,14 +259,17 @@ async function upsertCsvMappings(
   cId: string,
   userId: string
 ): Promise<void> {
-  if (mappings.length === 0) return;
+  // Skip blank external ids: they carry no match value, and multiple "" rows
+  // would collide on the ON CONFLICT key and abort the entire batch insert.
+  const valid = mappings.filter((m) => m.externalId);
+  if (valid.length === 0) return;
 
   const now = new Date().toISOString();
 
   await trx
     .insertInto("externalIntegrationMapping")
     .values(
-      mappings.map((m) => ({
+      valid.map((m) => ({
         entityType,
         entityId: m.entityId,
         integration: EXTERNAL_ID_KEY,
@@ -587,6 +593,11 @@ type ItemPurchasingLeadTime = {
   leadTime: string;
 };
 
+type ItemUnitCost = {
+  itemId: string;
+  unitCost: string;
+};
+
 type ItemPlanningOrderMultiple = {
   itemId: string;
   orderMultiple: string;
@@ -685,6 +696,34 @@ async function writeItemPurchasingLeadTimes(
       .updateTable("itemReplenishment")
       .set({
         leadTime: numericLeadTime,
+        updatedAt: now,
+        updatedBy: userId,
+      })
+      .where("itemId", "=", entry.itemId)
+      .where("companyId", "=", companyId)
+      .execute();
+  }
+}
+
+// Set the item-level unit cost (the "Costing" tab field). The itemCost row is
+// created by the create_item_related_records AFTER INSERT trigger on item, so
+// within this transaction the row already exists for every item we upserted —
+// we only need to UPDATE it. Non-numeric/blank values are skipped.
+async function writeItemUnitCosts(
+  trx: typeof db,
+  entries: ItemUnitCost[],
+  companyId: string,
+  userId: string
+): Promise<void> {
+  if (entries.length === 0) return;
+  const now = new Date().toISOString();
+  for (const entry of entries) {
+    const numericUnitCost = Number.parseFloat(entry.unitCost);
+    if (Number.isNaN(numericUnitCost)) continue;
+    await trx
+      .updateTable("itemCost")
+      .set({
+        unitCost: numericUnitCost,
         updatedAt: now,
         updatedBy: userId,
       })
@@ -861,6 +900,15 @@ serve(async (req: Request) => {
       });
     }
 
+    const summary = {
+      inserted: 0,
+      updated: 0,
+      // Rows the user should fix and re-import (validation / missing required data).
+      errors: [] as Array<{ row: number; reason: string }>,
+      // Rows intentionally not written (duplicates, already-existing) — informational.
+      skipped: [] as Array<{ row: number; reason: string }>,
+    };
+
     switch (table) {
       case "customer": {
         const externalIdMap = await getCsvExternalIdMap("customer", companyId);
@@ -872,7 +920,7 @@ serve(async (req: Request) => {
           )
         );
         const nameMap = await getNameMap("customer", companyId, csvNames);
-        const customerIds = new Set();
+        const customerIds = new Set<string>();
         // Tracks names queued for INSERT in this batch so a second CSV row
         // with the same name doesn't trip the (name, companyId) unique
         // constraint at flush time. The customer table enforces one record
@@ -907,13 +955,7 @@ serve(async (req: Request) => {
             ext: PartnerExtensionData;
           }> = [];
 
-          const isCustomerValid = (
-            record: Record<string, string>
-          ): record is { name: string } => {
-            return typeof record.name === "string" && record.name.trim() !== "";
-          };
-
-          for (const record of mappedRecords) {
+          for (const [rowIndex, record] of mappedRecords.entries()) {
             const ext = extractPartnerExtensions(record);
             const {
               id,
@@ -931,42 +973,48 @@ serve(async (req: Request) => {
               incotermLocation: _icl,
               ...rest
             } = record;
-            const matchedByCsvId = externalIdMap.get(id);
-            const matchedByName =
-              matchedByCsvId === undefined && rest.name
-                ? nameMap.get(rest.name)
-                : undefined;
-            const existingEntityId = matchedByCsvId ?? matchedByName;
+            const matchedByCsvId = id ? externalIdMap.get(id) : undefined;
+            const decision = classifyImportRow({
+              id,
+              name: rest.name,
+              externalIdMap,
+              nameMap,
+              seenIds: customerIds,
+              seenNames: namesQueuedForInsert,
+            });
 
-            if (existingEntityId !== undefined) {
-              if (isCustomerValid(rest) && !customerIds.has(id)) {
-                customerIds.add(id);
-                customerUpdates.push({
-                  id: existingEntityId,
-                  data: {
-                    ...nullifyEmptyStrings(rest),
-                    updatedAt: new Date().toISOString(),
-                    updatedBy: userId,
-                  },
+            if (decision.action === "skip") {
+              const bucket =
+                decision.category === "error" ? summary.errors : summary.skipped;
+              bucket.push({ row: rowIndex, reason: decision.reason });
+              continue;
+            }
+
+            if (id) customerIds.add(id);
+            if (decision.action === "insert") namesQueuedForInsert.add(rest.name);
+
+            if (decision.action === "update") {
+              customerUpdates.push({
+                id: decision.entityId,
+                data: {
+                  ...nullifyEmptyStrings(rest),
+                  updatedAt: new Date().toISOString(),
+                  updatedBy: userId,
+                },
+              });
+              customerTaxUpdates.push({ entityId: decision.entityId, taxId });
+              extForUpdates.push({ entityId: decision.entityId, ext });
+              // Only attach a CSV->entity mapping when there is a real external id.
+              if (matchedByCsvId === undefined && id) {
+                csvIdsForNameMatchedUpdates.push({
+                  entityId: decision.entityId,
+                  externalId: id,
                 });
-                customerTaxUpdates.push({ entityId: existingEntityId, taxId });
-                extForUpdates.push({ entityId: existingEntityId, ext });
-                if (matchedByCsvId === undefined) {
-                  csvIdsForNameMatchedUpdates.push({
-                    entityId: existingEntityId,
-                    externalId: id,
-                  });
-                }
               }
-            } else if (isCustomerValid(rest) && !customerIds.has(id)) {
-              if (namesQueuedForInsert.has(rest.name)) continue;
-              customerIds.add(id);
-              namesQueuedForInsert.add(rest.name);
+            } else {
               customerInserts.push({
                 ...nullifyEmptyStrings(rest),
-                // Use the CSV's Unique ID as the readableId; trigger no-ops
-                // when readableId is non-null.
-                readableId: id,
+                readableId: id || null,
                 companyId,
                 createdAt: new Date().toISOString(),
                 createdBy: userId,
@@ -982,6 +1030,8 @@ serve(async (req: Request) => {
             customerInserts: customerInserts.length,
             customerUpdates: customerUpdates.length,
           });
+          summary.inserted += customerInserts.length;
+          summary.updated += customerUpdates.length;
 
           if (customerInserts.length > 0) {
             const inserted = await trx
@@ -1075,7 +1125,7 @@ serve(async (req: Request) => {
           )
         );
         const nameMap = await getNameMap("supplier", companyId, csvNames);
-        const supplierIds = new Set();
+        const supplierIds = new Set<string>();
         const namesQueuedForInsert = new Set<string>();
 
         await db.transaction().execute(async (trx) => {
@@ -1106,13 +1156,7 @@ serve(async (req: Request) => {
             ext: PartnerExtensionData;
           }> = [];
 
-          const isSupplierValid = (
-            record: Record<string, string>
-          ): record is { name: string } => {
-            return typeof record.name === "string" && record.name.trim() !== "";
-          };
-
-          for (const record of mappedRecords) {
+          for (const [rowIndex, record] of mappedRecords.entries()) {
             const ext = extractPartnerExtensions(record);
             const {
               id,
@@ -1130,42 +1174,48 @@ serve(async (req: Request) => {
               incotermLocation: _icl,
               ...rest
             } = record;
-            const matchedByCsvId = externalIdMap.get(id);
-            const matchedByName =
-              matchedByCsvId === undefined && rest.name
-                ? nameMap.get(rest.name)
-                : undefined;
-            const existingEntityId = matchedByCsvId ?? matchedByName;
+            const matchedByCsvId = id ? externalIdMap.get(id) : undefined;
+            const decision = classifyImportRow({
+              id,
+              name: rest.name,
+              externalIdMap,
+              nameMap,
+              seenIds: supplierIds,
+              seenNames: namesQueuedForInsert,
+            });
 
-            if (existingEntityId !== undefined && !supplierIds.has(id)) {
-              supplierIds.add(id);
-              if (isSupplierValid(rest)) {
-                supplierUpdates.push({
-                  id: existingEntityId,
-                  data: {
-                    ...nullifyEmptyStrings(rest),
-                    updatedAt: new Date().toISOString(),
-                    updatedBy: userId,
-                  },
+            if (decision.action === "skip") {
+              const bucket =
+                decision.category === "error" ? summary.errors : summary.skipped;
+              bucket.push({ row: rowIndex, reason: decision.reason });
+              continue;
+            }
+
+            if (id) supplierIds.add(id);
+            if (decision.action === "insert") namesQueuedForInsert.add(rest.name);
+
+            if (decision.action === "update") {
+              supplierUpdates.push({
+                id: decision.entityId,
+                data: {
+                  ...nullifyEmptyStrings(rest),
+                  updatedAt: new Date().toISOString(),
+                  updatedBy: userId,
+                },
+              });
+              supplierTaxUpdates.push({ entityId: decision.entityId, taxId });
+              extForUpdates.push({ entityId: decision.entityId, ext });
+              // Only attach a CSV->entity mapping when there is a real external id.
+              if (matchedByCsvId === undefined && id) {
+                csvIdsForNameMatchedUpdates.push({
+                  entityId: decision.entityId,
+                  externalId: id,
                 });
-                supplierTaxUpdates.push({ entityId: existingEntityId, taxId });
-                extForUpdates.push({ entityId: existingEntityId, ext });
-                if (matchedByCsvId === undefined) {
-                  csvIdsForNameMatchedUpdates.push({
-                    entityId: existingEntityId,
-                    externalId: id,
-                  });
-                }
               }
-            } else if (isSupplierValid(rest) && !supplierIds.has(id)) {
-              if (namesQueuedForInsert.has(rest.name)) continue;
-              supplierIds.add(id);
-              namesQueuedForInsert.add(rest.name);
+            } else {
               supplierInserts.push({
                 ...nullifyEmptyStrings(rest),
-                // Use the CSV's Unique ID as the readableId; trigger no-ops
-                // when readableId is non-null.
-                readableId: id,
+                readableId: id || null,
                 companyId,
                 createdAt: new Date().toISOString(),
                 createdBy: userId,
@@ -1181,6 +1231,8 @@ serve(async (req: Request) => {
             supplierInserts: supplierInserts.length,
             supplierUpdates: supplierUpdates.length,
           });
+          summary.inserted += supplierInserts.length;
+          summary.updated += supplierUpdates.length;
 
           if (supplierInserts.length > 0) {
             const inserted = await trx
@@ -1313,6 +1365,9 @@ serve(async (req: Request) => {
           // known (immediately for updates, post-insert for new items).
           const leadTimeForInserts: Array<string | undefined> = [];
           const purchasingLeadTimes: ItemPurchasingLeadTime[] = [];
+          // Item-level unit cost — same parallel-array pattern as lead time.
+          const unitCostForInserts: Array<string | undefined> = [];
+          const itemUnitCosts: ItemUnitCost[] = [];
           // Same shape for the item-level planning order multiple. CSV's
           // "Order Multiple" column populates both supplierPart.orderMultiple
           // (per-supplier case-pack) and itemPlanning.orderMultiple
@@ -1321,10 +1376,15 @@ serve(async (req: Request) => {
           const itemPlanningOrderMultiples: ItemPlanningOrderMultiple[] = [];
 
           const itemValidator = z.object({
-            id: z.string(),
-            readableId: z.string(),
+            // Unique ID is the external-integration mapping key and the upsert
+            // key (externalIdMap), so a blank one is broken data, not a new row.
+            // Part Number / Description are likewise required for a usable item.
+            id: z.string().min(1, { message: "Unique ID is required" }),
+            readableId: z
+              .string()
+              .min(1, { message: "Part Number is required" }),
             revision: z.string().optional(),
-            name: z.string(),
+            name: z.string().min(1, { message: "Description is required" }),
             description: z.string().optional(),
             active: z.string().optional(),
             unitOfMeasureCode: z.string().optional(),
@@ -1348,11 +1408,53 @@ serve(async (req: Request) => {
             gradeId: z.string().optional(),
           });
 
-          for (const record of mappedRecords) {
+          // Rows on the INSERT path whose Unique ID already exists in this
+          // company's catalog (e.g. a re-import after the item was deleted,
+          // which frees the Unique ID to collide on the un-onConflict'd
+          // sub-table inserts) would otherwise abort the whole transaction with
+          // an opaque 500. Detect them up front so we can report a clear per-row
+          // reason and skip just those rows while the rest still import.
+          const candidateReadableIds = [
+            ...new Set(
+              mappedRecords
+                .map((r) => r.readableId)
+                .filter((id): id is string => !!id && id.trim() !== "")
+            ),
+          ];
+          const existingItemKeys = new Set<string>();
+          if (candidateReadableIds.length > 0) {
+            const existingItems = await trx
+              .selectFrom("item")
+              .select(["readableId", "revision"])
+              .where("companyId", "=", companyId)
+              .where(
+                "type",
+                "=",
+                capitalize(table) as
+                  | "Part"
+                  | "Service"
+                  | "Material"
+                  | "Tool"
+                  | "Fixture"
+                  | "Consumable"
+              )
+              .where("readableId", "in", candidateReadableIds)
+              .execute();
+            for (const existing of existingItems) {
+              existingItemKeys.add(
+                getReadableIdWithRevision(existing.readableId, existing.revision)
+              );
+            }
+          }
+
+          for (const [rowIndex, record] of mappedRecords.entries()) {
             const item = itemValidator.safeParse(record);
 
             if (!item.success) {
-              console.error(item.error.message);
+              summary.errors.push({
+                row: rowIndex,
+                reason: item.error.issues[0]?.message ?? "Invalid row",
+              });
               continue;
             }
 
@@ -1406,6 +1508,13 @@ serve(async (req: Request) => {
                 });
               }
 
+              if (record.unitCost) {
+                itemUnitCosts.push({
+                  itemId: existingEntityId,
+                  unitCost: record.unitCost,
+                });
+              }
+
               if (record.orderMultiple) {
                 itemPlanningOrderMultiples.push({
                   itemId: existingEntityId,
@@ -1434,6 +1543,13 @@ serve(async (req: Request) => {
               }
             } else if (!readableIds.has(readableIdWithRevision)) {
               readableIds.add(readableIdWithRevision);
+              if (existingItemKeys.has(readableIdWithRevision)) {
+                summary.errors.push({
+                  row: rowIndex,
+                  reason: `An item with Unique ID "${item.data.readableId}" already exists. Change the Unique ID (and Name) or delete the existing item, then re-import.`,
+                });
+                continue;
+              }
               const newItem = {
                 ...rest,
                 replenishmentSystem: rest.replenishmentSystem ?? "Buy",
@@ -1469,11 +1585,17 @@ serve(async (req: Request) => {
               });
               leadTimeForInserts.push(record.leadTime);
               orderMultipleForInserts.push(record.orderMultiple);
+              unitCostForInserts.push(record.unitCost);
 
               if (table === "material") {
                 const material = materialValidator.safeParse(record);
                 if (!material.success) {
-                  console.error(material.error.message);
+                  summary.errors.push({
+                    row: rowIndex,
+                    reason:
+                      material.error.issues[0]?.message ??
+                      "Invalid material row",
+                  });
                   continue;
                 }
                 if (material.success) {
@@ -1532,6 +1654,16 @@ serve(async (req: Request) => {
               await trx
                 .insertInto(table)
                 .values(specificInserts as unknown as never)
+                // Hard-deleting an item does NOT remove its type row: the type
+                // tables (part/tool/fixture/consumable) key on readableId and have
+                // no FK back to item, so the row is orphaned by (id, companyId).
+                // Re-importing that Part Number would otherwise collide on the PK
+                // and abort the whole import (the "deleted then re-imported and it
+                // failed" case). The orphan already represents this Part Number, so
+                // keep it.
+                .onConflict((oc: any) =>
+                  oc.columns(["id", "companyId"]).doNothing()
+                )
                 .execute();
             }
 
@@ -1563,6 +1695,10 @@ serve(async (req: Request) => {
               await trx
                 .insertInto("material")
                 .values(materialInserts)
+                // Same orphan-after-delete case as the type insert above: the
+                // material row survives an item delete, so re-import must not
+                // collide on the (id, companyId) PK.
+                .onConflict((oc) => oc.columns(["id", "companyId"]).doNothing())
                 .execute();
             }
 
@@ -1596,6 +1732,13 @@ serve(async (req: Request) => {
                 itemPlanningOrderMultiples.push({
                   itemId: insertedItems[i].id!,
                   orderMultiple,
+                });
+              }
+              const unitCost = unitCostForInserts[i];
+              if (unitCost && insertedItems[i].id) {
+                itemUnitCosts.push({
+                  itemId: insertedItems[i].id!,
+                  unitCost,
                 });
               }
             }
@@ -1679,6 +1822,14 @@ serve(async (req: Request) => {
             companyId,
             userId
           );
+
+          await writeItemUnitCosts(trx, itemUnitCosts, companyId, userId);
+
+          // Items were silently uncounted before — only customer/supplier
+          // incremented the summary. Count inserts/updates here so the toast
+          // reports the real totals instead of "Imported 0, Updated 0".
+          summary.inserted += itemInserts.length;
+          summary.updated += itemUpdates.length;
         });
 
         break;
@@ -1714,7 +1865,7 @@ serve(async (req: Request) => {
             );
           };
 
-          for (const record of mappedRecords) {
+          for (const [rowIndex, record] of mappedRecords.entries()) {
             const { id, companyId: customerId, ...contactData } = record;
 
             if (externalContactIdMap.has(id)) {
@@ -1746,8 +1897,18 @@ serve(async (req: Request) => {
                 customerId: existingCustomerId,
                 customFields: {},
               });
+            } else {
+              summary.errors.push({
+                row: rowIndex,
+                reason: isContactValid(contactData)
+                  ? `No customer found for External Company ID "${customerId}"`
+                  : "Invalid contact (missing required fields)",
+              });
             }
           }
+
+          summary.inserted += contactInserts.length;
+          summary.updated += contactUpdates.length;
 
           console.log({
             totalRecords: mappedRecords.length,
@@ -1825,7 +1986,7 @@ serve(async (req: Request) => {
             );
           };
 
-          for (const record of mappedRecords) {
+          for (const [rowIndex, record] of mappedRecords.entries()) {
             const { id, companyId: supplierId, ...contactData } = record;
 
             if (externalContactIdMap.has(id)) {
@@ -1856,8 +2017,18 @@ serve(async (req: Request) => {
                 supplierId: existingSupplierId,
                 customFields: {},
               });
+            } else {
+              summary.errors.push({
+                row: rowIndex,
+                reason: isContactValid(contactData)
+                  ? `No supplier found for External Company ID "${supplierId}"`
+                  : "Invalid contact (missing required fields)",
+              });
             }
           }
+
+          summary.inserted += contactInserts.length;
+          summary.updated += contactUpdates.length;
 
           console.log({
             totalRecords: mappedRecords.length,
@@ -2098,17 +2269,36 @@ serve(async (req: Request) => {
         });
         break;
       }
-      case "methodMaterial": {
-        throw new Error("Not implemented");
+      case "bom":
+      case "operations": {
+        await importMethods(db, {
+          table,
+          mappedRecords,
+          companyId,
+          userId,
+          summary,
+        });
+        break;
       }
       default: {
         throw new Error(`Invalid table: ${table}`);
       }
     }
 
+    // Attach each failed/skipped row's original CSV cells (keyed by the user's
+    // headers) so the results UI renders the exact rows the server parsed — no
+    // dependence on a second, client-side parse. `row` is the 0-based index into
+    // parsedCsv for both the standard and method importers.
+    const withValues = (issues: Array<{ row: number; reason: string }>) =>
+      issues.map((issue) => ({ ...issue, values: parsedCsv[issue.row] ?? {} }));
+
     return new Response(
       JSON.stringify({
         success: true,
+        inserted: summary.inserted,
+        updated: summary.updated,
+        errors: withValues(summary.errors),
+        skipped: withValues(summary.skipped),
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

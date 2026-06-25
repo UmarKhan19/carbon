@@ -2,7 +2,7 @@
 
 import { useCarbon } from "@carbon/auth";
 import type { Database } from "@carbon/database";
-import { Combobox, useFormContext } from "@carbon/form";
+import { Combobox, CreatableCombobox, useFormContext } from "@carbon/form";
 import {
   Button,
   ModalBody,
@@ -13,32 +13,63 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-  toast
+  toast,
+  useDisclosure
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse, SupabaseClient } from "@supabase/supabase-js";
-import { Fragment, useCallback, useEffect, useRef, useState } from "react";
-import { LuInfo, LuMoveRight } from "react-icons/lu";
+import {
+  Fragment,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState
+} from "react";
+import { LuInfo, LuListPlus, LuMoveRight, LuPlus } from "react-icons/lu";
 import { useFetcher } from "react-router";
 import { Submit } from "~/components/Form";
-import { useCurrencyFormatter, useDateFormatter, useUser } from "~/hooks";
-import type { importSchemas } from "~/modules/shared";
-import { fieldMappings } from "~/modules/shared";
+import {
+  useCompanySettings,
+  useCurrencyFormatter,
+  useDateFormatter,
+  usePermissions,
+  useUser
+} from "~/hooks";
+import PaymentTermForm from "~/modules/accounting/ui/PaymentTerms/PaymentTermForm";
+import { ShippingMethodForm } from "~/modules/inventory";
+import type {
+  CreatableForm,
+  CreatableLookup,
+  importSchemas
+} from "~/modules/shared";
+import { creatableFormPermissions, fieldMappings } from "~/modules/shared";
 import type { action } from "~/routes/api+/ai+/csv+/$table.columns";
 import type { ListItem } from "~/types";
 import { path } from "~/utils/path";
 import { capitalize } from "~/utils/string";
+import {
+  buildOptionLookup,
+  type MatchableOption,
+  matchCsvValue,
+  toMatchableOption
+} from "./enumMatch";
+import { useCreateLookup } from "./useCreateLookup";
 import { useCsvContext } from "./useCsvContext";
 
 type EnumData =
   | {
       default: string;
       description: string;
+      creatableLookup?: CreatableLookup;
+      creatableForm?: CreatableForm;
       options: readonly string[];
     }
   | {
       default: string;
       description: string;
+      creatableLookup?: CreatableLookup;
+      creatableForm?: CreatableForm;
       fetcher: (
         client: SupabaseClient<Database>,
         companyId: string
@@ -192,11 +223,16 @@ export function FieldMapping({
               ? t`Field Mapping`
               : enumFields[currentStep - 1][1].label}
           </ModalTitle>
+          {steps > 1 && (
+            <span className="ml-auto text-sm text-muted-foreground whitespace-nowrap">
+              {t`Step`} {currentStep + 1} {t`of`} {steps}
+            </span>
+          )}
         </div>
 
         <ModalDescription>
           {currentStep === 0
-            ? t`We've mapped each column to what we believe is correct, but please review the data below to confirm it's accurate.`
+            ? t`We auto-matched each column. Review the values below before continuing.`
             : enumFields[currentStep - 1][1].enumData.description}
         </ModalDescription>
       </ModalHeader>
@@ -403,20 +439,19 @@ function EnumMappingStep({
 }) {
   const { carbon } = useCarbon();
   const { company } = useUser();
-  const [options, setOptions] = useState<{ label: string; value: string }[]>(
-    () => {
-      if ("options" in enumData) {
-        return (
-          enumData.options.map((option) => ({
-            label: option,
-            value: option
-          })) || []
-        );
-      } else {
-        return [];
-      }
+  const showReadableId = useCompanySettings()?.showSupplierReadableId ?? false;
+  const [options, setOptions] = useState<MatchableOption[]>(() => {
+    if ("options" in enumData) {
+      return (
+        enumData.options.map((option) => ({
+          label: option,
+          value: option
+        })) || []
+      );
+    } else {
+      return [];
     }
-  );
+  });
 
   const uniqueValues = Array.from(
     new Set(
@@ -432,17 +467,10 @@ function EnumMappingStep({
       if (error) {
         toast.error(error.message);
       } else {
-        // Use email as label when present (employees) so auto-match keys on
-        // email; falls back to name for lookups without an email column.
-        setOptions(
-          data.map((item) => ({
-            label: item.email ?? item.name,
-            value: item.id
-          }))
-        );
+        setOptions(data.map((item) => toMatchableOption(item, showReadableId)));
       }
     }
-  }, [enumData, carbon, company.id]);
+  }, [enumData, carbon, company.id, showReadableId]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   useEffect(() => {
@@ -459,19 +487,99 @@ function EnumMappingStep({
     if (autoMatchedRef.current) return;
     if (options.length === 0 || uniqueValues.length === 0) return;
 
-    const lookup = new Map(
-      options.map((o) => [o.label.toLowerCase().trim(), o.value])
-    );
+    const lookup = buildOptionLookup(options);
     for (const csvValue of uniqueValues) {
       if (mappings[csvValue]) continue;
-      const matched = lookup.get(csvValue.toLowerCase().trim());
+      const matched = matchCsvValue(lookup, csvValue);
       if (matched) onEnumMappingChange(name, csvValue, matched);
     }
     autoMatchedRef.current = true;
   }, [options, mappedColumn]);
 
+  // Inline create-and-link for name-only lookups (e.g. supplier type). Created
+  // ids flow through onEnumMappingChange into enumMappings, so the import
+  // payload is unchanged — the edge function only ever sees real ids. The same
+  // batch path serves both the per-value combobox create and the "create all
+  // missing" banner; the route is idempotent, so values that already exist are
+  // linked instead of duplicated.
+  const creatableLookup = enumData.creatableLookup;
+  const { create: createMissingValues, isCreating } = useCreateLookup({
+    lookup: creatableLookup,
+    onLinked: (csvValue, id, label) => {
+      setOptions((prev) =>
+        prev.some((o) => o.value === id)
+          ? prev
+          : [...prev, { label, value: id }]
+      );
+      onEnumMappingChange(name, csvValue, id);
+    }
+  });
+
+  const unmatchedValues = creatableLookup
+    ? uniqueValues.filter((csvValue) => !mappings[csvValue])
+    : [];
+
+  // Rich lookups (payment term, shipping method) need more than a name, so
+  // "create" opens the existing form modal pre-filled with the typed value.
+  // Once the refreshed options contain it, the pending CSV value is linked.
+  const creatableForm = enumData.creatableForm;
+  const permissions = usePermissions();
+  const canCreateViaForm =
+    !!creatableForm &&
+    permissions.can("create", creatableFormPermissions[creatableForm]);
+  const formModal = useDisclosure();
+  const [formCreatedName, setFormCreatedName] = useState("");
+  const pendingFormCsvValueRef = useRef<string | null>(null);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: link once options refresh
+  useEffect(() => {
+    const csvValue = pendingFormCsvValueRef.current;
+    if (csvValue === null || !formCreatedName) return;
+    const matched = matchCsvValue(buildOptionLookup(options), formCreatedName);
+    if (matched) {
+      onEnumMappingChange(name, csvValue, matched);
+      pendingFormCsvValueRef.current = null;
+      setFormCreatedName("");
+    }
+  }, [options]);
+
   return (
     <div>
+      {creatableLookup && unmatchedValues.length > 0 && (
+        <div className="mt-1 mb-4 flex items-center justify-between gap-4 rounded-md border bg-muted/40 px-4 py-3">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md border bg-background">
+              <LuListPlus className="h-4 w-4 text-muted-foreground" />
+            </div>
+            <div className="flex min-w-0 flex-col">
+              <span className="text-sm font-medium">
+                <Trans>{unmatchedValues.length} values missing</Trans>
+              </span>
+              <TooltipProvider delayDuration={50}>
+                <Tooltip>
+                  <TooltipTrigger className="w-fit text-left text-xs text-muted-foreground">
+                    <Trans>View missing values</Trans>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-64 p-2 text-sm">
+                    {unmatchedValues.join(", ")}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          </div>
+          <Button
+            variant="secondary"
+            size="md"
+            leftIcon={<LuPlus />}
+            disabled={isCreating}
+            onClick={() =>
+              createMissingValues(unmatchedValues, unmatchedValues)
+            }
+          >
+            <Trans>Create {unmatchedValues.length} values</Trans>
+          </Button>
+        </div>
+      )}
       <div className="grid grid-cols-2 gap-4">
         <div className="font-medium ">
           {`${capitalize(mappedColumn ?? "CSV")} Value`}
@@ -481,28 +589,95 @@ function EnumMappingStep({
         </div>
 
         {[...new Set([...uniqueValues, "Default"])].map((csvValue) => {
+          const comboboxProps = {
+            name: `${name}-${csvValue}`,
+            value: mappings[csvValue],
+            options,
+            // Optional so the combobox shows a clear (×) affordance. Clearing
+            // resets the row to empty — this lets a mis-pick be undone, and
+            // clearing the Default row sets the field back to "leave blank".
+            isOptional: true,
+            onChange: (value: { value: string; label: ReactNode } | null) => {
+              onEnumMappingChange(name, csvValue, value?.value ?? "");
+            }
+          };
           return (
             <Fragment key={csvValue}>
-              <div className="relative flex min-w-0 items-center gap-2">
-                <div>{csvValue}</div>
-                <div className="flex items-center justify-end">
-                  <LuMoveRight className="text-muted-foreground" />
+              <div className="flex min-w-0 items-center justify-between gap-2">
+                <div className="flex min-w-0 items-center gap-1.5">
+                  <div className="min-w-0 truncate" title={csvValue}>
+                    {csvValue}
+                  </div>
+                  {csvValue === "Default" && (
+                    <TooltipProvider delayDuration={50}>
+                      <Tooltip>
+                        <TooltipTrigger className="flex-shrink-0">
+                          <LuInfo className="text-muted-foreground" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-64 p-2 text-sm">
+                          <Trans>
+                            Used when a cell is empty or doesn't match an option
+                            above. Clear it to leave those rows blank.
+                          </Trans>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
                 </div>
+                <LuMoveRight className="flex-shrink-0 text-muted-foreground" />
               </div>
-              <Combobox
-                name={`${name}-${csvValue}`}
-                onChange={(value) => {
-                  if (value?.value) {
-                    onEnumMappingChange(name, csvValue, value.value);
+              {creatableLookup ? (
+                <CreatableCombobox
+                  {...comboboxProps}
+                  onCreateOption={(inputValue) =>
+                    createMissingValues([csvValue], [inputValue])
                   }
-                }}
-                value={mappings[csvValue]}
-                options={options}
-              />
+                />
+              ) : canCreateViaForm ? (
+                <CreatableCombobox
+                  {...comboboxProps}
+                  onCreateOption={(inputValue) => {
+                    setFormCreatedName(inputValue);
+                    pendingFormCsvValueRef.current = csvValue;
+                    formModal.onOpen();
+                  }}
+                />
+              ) : (
+                <Combobox {...comboboxProps} />
+              )}
             </Fragment>
           );
         })}
       </div>
+      {formModal.isOpen && creatableForm === "paymentTerm" && (
+        <PaymentTermForm
+          type="modal"
+          onClose={() => {
+            formModal.onClose();
+            fetchOptions();
+          }}
+          initialValues={{
+            name: formCreatedName,
+            calculationMethod: "Net" as const,
+            daysDue: 0,
+            discountPercentage: 0,
+            daysDiscount: 0
+          }}
+        />
+      )}
+      {formModal.isOpen && creatableForm === "shippingMethod" && (
+        <ShippingMethodForm
+          type="modal"
+          onClose={() => {
+            formModal.onClose();
+            fetchOptions();
+          }}
+          initialValues={{
+            name: formCreatedName,
+            carrier: "" as "FedEx"
+          }}
+        />
+      )}
     </div>
   );
 }

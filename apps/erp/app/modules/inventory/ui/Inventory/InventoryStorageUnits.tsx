@@ -38,8 +38,10 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
+import { formatDate } from "@carbon/utils";
 import { getLocalTimeZone, today } from "@internationalized/date";
 import { Trans, useLingui } from "@lingui/react/macro";
+import { useLocale } from "@react-aria/i18n";
 import { nanoid } from "nanoid";
 import { useMemo, useState } from "react";
 import {
@@ -53,7 +55,7 @@ import { Outlet, useFetcher } from "react-router";
 import type { z } from "zod";
 import { Enumerable } from "~/components/Enumerable";
 import { Input, Location, Select, TextArea } from "~/components/Form";
-import { StorageUnitDrillSelectField } from "~/components/Form/StorageUnitDrillSelect";
+import StorageUnit from "~/components/Form/StorageUnit";
 import { useUnitOfMeasure } from "~/components/Form/UnitOfMeasure";
 import { usePermissions, usePrinting } from "~/hooks";
 import type {
@@ -88,6 +90,7 @@ const InventoryStorageUnits = ({
 }: InventoryStorageUnitsProps) => {
   const permissions = usePermissions();
   const { t } = useLingui();
+  const { locale } = useLocale();
   const adjustmentModal = useDisclosure();
   const ruleViolations = useStorageRuleViolations({
     action: path.to.inventoryItemAdjustment(pickMethod.itemId),
@@ -103,6 +106,20 @@ const InventoryStorageUnits = ({
 
   const isSerial = itemTrackingType === "Serial";
   const isBatch = itemTrackingType === "Batch";
+
+  const visibleStorageUnitQuantities = useMemo(
+    () => itemStorageUnitQuantities.filter((item) => item.quantity !== 0),
+    [itemStorageUnitQuantities]
+  );
+
+  const showExpirationColumn = useMemo(
+    () =>
+      visibleStorageUnitQuantities.some(
+        (item) =>
+          item.trackedEntityId && trackedEntityExpirations[item.trackedEntityId]
+      ),
+    [visibleStorageUnitQuantities, trackedEntityExpirations]
+  );
 
   const [quantity, setQuantity] = useState(1);
   const [selectedStorageUnitId, setSelectedStorageUnitId] = useState<
@@ -239,72 +256,89 @@ const InventoryStorageUnits = ({
                 <Th>
                   <Trans>Tracking ID</Trans>
                 </Th>
+                {showExpirationColumn && (
+                  <Th>
+                    <Trans>Expiration Date</Trans>
+                  </Th>
+                )}
                 <Th className="flex flex-shrink-0 justify-end" />
               </Tr>
             </Thead>
             <Tbody>
-              {itemStorageUnitQuantities
-                .filter((item) => item.quantity !== 0)
-                .map((item, index) => (
-                  <Tr key={index}>
-                    <Td>
-                      {storageUnits.find((s) => s.value === item.storageUnitId)
-                        ?.label || item.storageUnitId}
-                    </Td>
+              {visibleStorageUnitQuantities.map((item, index) => (
+                <Tr key={index}>
+                  <Td>
+                    {storageUnits.find((s) => s.value === item.storageUnitId)
+                      ?.label || item.storageUnitId}
+                  </Td>
 
+                  <Td>
+                    <span>{item.quantity}</span>
+                  </Td>
+                  <Td>
+                    {item.trackedEntityId && (
+                      <HStack>
+                        {item.readableId && <span>{item.readableId}</span>}
+                        <Copy
+                          icon={<LuQrCode />}
+                          text={item.trackedEntityId}
+                          withTextInTooltip
+                        />
+                      </HStack>
+                    )}
+                  </Td>
+                  {showExpirationColumn && (
                     <Td>
-                      <span>{item.quantity}</span>
+                      {item.trackedEntityId &&
+                        trackedEntityExpirations[item.trackedEntityId] && (
+                          <span>
+                            {formatDate(
+                              trackedEntityExpirations[item.trackedEntityId],
+                              undefined,
+                              locale
+                            )}
+                          </span>
+                        )}
                     </Td>
-                    <Td>
-                      {item.trackedEntityId && (
-                        <HStack>
-                          {item.readableId && <span>{item.readableId}</span>}
-                          <Copy
-                            icon={<LuQrCode />}
-                            text={item.trackedEntityId}
-                            withTextInTooltip
-                          />
-                        </HStack>
-                      )}
-                    </Td>
-                    <Td className="flex flex-shrink-0 justify-end items-center">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <IconButton
-                            aria-label={t`Actions`}
-                            variant="ghost"
-                            icon={<LuEllipsisVertical />}
-                          />
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-56">
+                  )}
+                  <Td className="flex flex-shrink-0 justify-end items-center">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <IconButton
+                          aria-label={t`Actions`}
+                          variant="ghost"
+                          icon={<LuEllipsisVertical />}
+                        />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-56">
+                        <DropdownMenuItem
+                          onClick={() =>
+                            openAdjustmentModal(
+                              item.storageUnitId,
+                              item.trackedEntityId,
+                              item.readableId,
+                              item.quantity
+                            )
+                          }
+                        >
+                          <DropdownMenuIcon icon={<LuPencil />} />
+                          <Trans>Update Quantity</Trans>
+                        </DropdownMenuItem>
+                        {item.trackedEntityId && (
                           <DropdownMenuItem
                             onClick={() =>
-                              openAdjustmentModal(
-                                item.storageUnitId,
-                                item.trackedEntityId,
-                                item.readableId,
-                                item.quantity
-                              )
+                              handlePrintLabel(item.trackedEntityId!)
                             }
                           >
-                            <DropdownMenuIcon icon={<LuPencil />} />
-                            <Trans>Update Quantity</Trans>
+                            <DropdownMenuIcon icon={<LuPrinter />} />
+                            <Trans>Print Label</Trans>
                           </DropdownMenuItem>
-                          {item.trackedEntityId && (
-                            <DropdownMenuItem
-                              onClick={() =>
-                                handlePrintLabel(item.trackedEntityId!)
-                              }
-                            >
-                              <DropdownMenuIcon icon={<LuPrinter />} />
-                              <Trans>Print Label</Trans>
-                            </DropdownMenuItem>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </Td>
-                  </Tr>
-                ))}
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </Td>
+                </Tr>
+              ))}
             </Tbody>
           </Table>
         </CardContent>
@@ -349,7 +383,7 @@ const InventoryStorageUnits = ({
 
                 <VStack spacing={2}>
                   <Location name="locationId" label={t`Location`} isReadOnly />
-                  <StorageUnitDrillSelectField
+                  <StorageUnit
                     name="storageUnitId"
                     locationId={pickMethod.locationId}
                     label={t`Storage Unit`}
@@ -358,6 +392,7 @@ const InventoryStorageUnits = ({
                   <Select
                     name="adjustmentType"
                     label={t`Adjustment Type`}
+                    termId="inventory-adjustment-type"
                     options={
                       isEditing && (isSerial || isBatch)
                         ? [
@@ -393,11 +428,17 @@ const InventoryStorageUnits = ({
                       <Input
                         name="readableId"
                         label={isSerial ? t`Serial Number` : t`Batch Number`}
+                        termId={
+                          isSerial
+                            ? "inventory-adjustment-serial-number"
+                            : "inventory-adjustment-batch-number"
+                        }
                       />
                       {showExpirationField && (
                         <DatePicker
                           name="expirationDate"
                           label={t`Expiration Date`}
+                          termId="inventory-adjustment-expiration-date"
                         />
                       )}
                     </>

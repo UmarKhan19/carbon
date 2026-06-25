@@ -4,7 +4,7 @@ import {
   type SummaryBlock as SummaryBlockType
 } from "../../../template";
 import { getLineTaxableSubtotal, getTotal } from "../../../utils/sales-order";
-import { tw } from "../tw";
+import { useTw } from "../tw";
 import type { SalesOrderData } from "./types";
 
 export function SummaryBlock({
@@ -14,6 +14,7 @@ export function SummaryBlock({
   block: SummaryBlockType;
   data: SalesOrderData;
 }) {
+  const tw = useTw();
   const { salesOrderLines, salesOrder, currencyCode, numberFormatter } = data;
   const opts = { ...DEFAULT_SUMMARY_OPTIONS, ...block.options };
   const taxLabel = opts.taxLabel?.trim() || DEFAULT_SUMMARY_OPTIONS.taxLabel;

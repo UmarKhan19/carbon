@@ -110,6 +110,12 @@ msgstr "附加文件"
 msgid "Authentication Error"
 msgstr "认证错误"
 
+msgid "available"
+msgstr "可用"
+
+msgid "Back Home"
+msgstr "返回主页"
+
 msgid "Batch"
 msgstr "批次"
 
@@ -138,6 +144,9 @@ msgstr "登录即表示您同意<0>服务条款</0>和<1>隐私政策。</1>"
 
 msgid "Cancel"
 msgstr "取消"
+
+msgid "Cancelled"
+msgstr "已取消"
 
 msgid "Carbon Logo"
 msgstr "Carbon 标志"
@@ -237,6 +246,9 @@ msgstr "日期"
 msgid "Deadline"
 msgstr "截止日期"
 
+msgid "Default"
+msgstr "默认"
+
 msgid "Default Storage Unit"
 msgstr "默认存储单位"
 
@@ -276,6 +288,9 @@ msgstr "下载"
 
 msgid "Download Labels"
 msgstr "下载标签"
+
+msgid "Draft"
+msgstr "草稿"
 
 msgid "Drag and drop a file here, or click to select a file"
 msgstr "拖放文件到此处，或点击选择文件"
@@ -321,8 +336,23 @@ msgstr "输入 {0} 的 PIN 码"
 msgid "Error"
 msgstr "错误"
 
+msgid "Error!"
+msgstr "错误!"
+
 msgid "Estimated"
 msgstr "估计"
+
+msgid "Expired"
+msgstr "已过期"
+
+msgid "Expired {date}"
+msgstr "已过期 {date}"
+
+msgid "Expires {date}"
+msgstr "过期时间 {date}"
+
+msgid "Expiring first"
+msgstr "即将过期优先"
 
 msgid "Failed to complete inventory adjustment"
 msgstr "库存调整失败"
@@ -376,6 +406,9 @@ msgstr "返回操作"
 
 msgid "Have a technical issue? Contact <0>Carbon Support.</0>"
 msgstr "遇到技术问题？联系<0>Carbon 支持。</0>"
+
+msgid "How many were actually picked?"
+msgstr "实际上捡了多少个？"
 
 msgid "I understand and want to complete without issuing"
 msgstr "我理解并希望在不发放物料的情况下完成"
@@ -446,11 +479,17 @@ msgstr "套件"
 msgid "Labor"
 msgstr "人工"
 
+msgid "Learn more"
+msgstr "了解更多"
+
 msgid "Leave this page"
 msgstr "离开此页面"
 
 msgid "Let's build something"
 msgstr "让我们开始构建"
+
+msgid "lines"
+msgstr "行"
 
 msgid "Loading item details..."
 msgstr "正在加载物料详情..."
@@ -500,6 +539,9 @@ msgstr "手动添加物料到库存"
 msgid "Manually remove items from inventory"
 msgstr "手动从库存中移除物料"
 
+msgid "Mark Short"
+msgstr "标记短缺"
+
 msgid "matches"
 msgstr "匹配"
 
@@ -546,6 +588,9 @@ msgstr "新建"
 msgid "New Record"
 msgstr "新记录"
 
+msgid "Newest first"
+msgstr "最新优先"
+
 msgid "Next"
 msgstr "下一个"
 
@@ -563,6 +608,9 @@ msgstr "无可用筛选条件"
 
 msgid "No available serial numbers found"
 msgstr "未找到可用的序列号"
+
+msgid "No available tracked entities found"
+msgstr "未找到可用的追踪实体"
 
 msgid "No dispatches assigned to you"
 msgstr "没有分配给您的工单"
@@ -591,6 +639,9 @@ msgstr "未找到选项。"
 msgid "No options found."
 msgstr "未找到选项。"
 
+msgid "No picking lists assigned"
+msgstr "未分配拣货单"
+
 msgid "No printer configured"
 msgstr "未配置打印机"
 
@@ -618,8 +669,14 @@ msgstr "未找到序列号"
 msgid "No spare parts added yet"
 msgstr "尚未添加备件"
 
+msgid "No stock"
+msgstr "无库存"
+
 msgid "No time entries for this week"
 msgstr "本周无考勤记录"
+
+msgid "No warehouse stock is on record for this item. You can still pick it — on-hand will go negative until the count is reconciled."
+msgstr "此项目没有仓库库存记录。您仍然可以领取它——现有库存将变为负数，直到库存被核对。"
 
 msgid "No work centers are blocked"
 msgstr "无工作中心被阻塞"
@@ -635,6 +692,9 @@ msgstr "OEE 影响"
 
 msgid "OEM Required"
 msgstr "需要 OEM"
+
+msgid "Oldest first"
+msgstr "最早优先"
 
 #. placeholder {0}: batch.quantity
 msgid "Only {0} available"
@@ -673,11 +733,26 @@ msgstr "检验通过"
 msgid "Pause"
 msgstr "暂停"
 
+msgid "Pick"
+msgstr "拣选"
+
+msgid "Pick tracked item"
+msgstr "拣选追踪项目"
+
+msgid "Picked"
+msgstr "已拣选"
+
+msgid "Picked quantity"
+msgstr "已拣选数量"
+
 #. placeholder {0}: startColumn?.title
 #. placeholder {1}: startIndex + 1
 #. placeholder {2}: columnOrder.length
 msgid "Picked up Column {0} at position: {1} of {2}"
 msgstr "已拾取列 {0}，位于第 {1} 个位置（共 {2} 个）"
+
+msgid "Picking"
+msgstr "拣选"
 
 msgid "Pin Out"
 msgstr "退出登录"
@@ -776,6 +851,9 @@ msgstr "扫描"
 msgid "Scan or enter serial number"
 msgstr "扫描或输入序列号"
 
+msgid "Scan or enter tracking number"
+msgstr "扫描或输入追踪号"
+
 msgid "Scan or search serial number..."
 msgstr "扫描或搜索序列号..."
 
@@ -872,6 +950,12 @@ msgstr "设置下班打卡时间"
 msgid "Setup"
 msgstr "设置"
 
+msgid "Short"
+msgstr "缺货"
+
+msgid "Short pick {itemName}"
+msgstr "短缺拣货 {itemName}"
+
 msgid "Sign in with Email"
 msgstr "使用邮箱登录"
 
@@ -893,9 +977,8 @@ msgstr "已登录为 {stationName}"
 msgid "Size"
 msgstr "大小"
 
-#. js-lingui-explicit-id
-msgid "error.database"
-msgstr "保存更改时出错"
+msgid "Something went wrong"
+msgstr "出错了"
 
 msgid "Source"
 msgstr "来源"
@@ -955,13 +1038,8 @@ msgstr "此工序的完成数量小于所需数量 {0}。"
 msgid "There are serial or batch tracked materials on the bill of material that have not been fully issued. Completing without issuing may result in incorrect traceability records."
 msgstr "物料清单中有序列号或批次追踪的物料尚未完全发放。不发放即完成可能导致追溯记录不正确。"
 
-#. js-lingui-explicit-id
-msgid "error.conflict"
-msgstr "此操作与当前状态冲突"
-
-#. js-lingui-explicit-id
-msgid "error.businessRule"
-msgstr "此操作违反业务规则，不被允许"
+msgid "This lot is expired and can't be picked."
+msgstr "此批次已过期，无法领取。"
 
 msgid "Thumbnail"
 msgstr "缩略图"
@@ -1002,6 +1080,13 @@ msgstr "未发放的序列号/批次物料"
 msgid "Unknown"
 msgstr "未知"
 
+msgid "Unpick"
+msgstr "取消拣选"
+
+#. placeholder {0}: pickedLots[0].trackedEntity.readableId
+msgid "Unpick {0}"
+msgstr "取消拣选 {0}"
+
 msgid "Unsaved changes"
 msgstr "未保存的更改"
 
@@ -1028,6 +1113,9 @@ msgstr "查看维护工单"
 
 msgid "We've sent you a magic link to sign in to your account."
 msgstr "我们已向您发送了登录链接，请查收。"
+
+msgid "What is {translatedTerm}?"
+msgstr "{translatedTerm}是什么?"
 
 msgid "WIP"
 msgstr "在制品"

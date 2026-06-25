@@ -51,7 +51,7 @@ import type {
   PickMethod,
   SupplierPart
 } from "../../types";
-import { FileBadge, ItemDescription } from "../Item";
+import { FileBadge, ItemDescription, SourcingTypeProperty } from "../Item";
 
 type PartPropertiesProps = {
   data?: {
@@ -113,6 +113,7 @@ const PartProperties = ({ data }: PartPropertiesProps) => {
       field:
         | "active"
         | "defaultMethodType"
+        | "sourcingType"
         | "itemTrackingType"
         | "itemPostingGroupId"
         | "partId"
@@ -354,6 +355,7 @@ const PartProperties = ({ data }: PartPropertiesProps) => {
         <Select
           name="replenishmentSystem"
           label={t`Replenishment`}
+          termId="replenishment-system"
           inline={(value) => (
             <Badge variant="secondary">
               <ReplenishmentSystemIcon type={value} className="mr-2" />
@@ -398,6 +400,7 @@ const PartProperties = ({ data }: PartPropertiesProps) => {
         <Select
           name="itemTrackingType"
           label={t`Tracking Type`}
+          termId="item-tracking-type"
           inline={(value) => (
             <Badge variant="secondary">
               <TrackingTypeIcon type={value} className="mr-2" />
@@ -446,6 +449,7 @@ const PartProperties = ({ data }: PartPropertiesProps) => {
         <Select
           name="defaultMethodType"
           label={t`Default Method Type`}
+          termId="item-default-method-type"
           inline={(value) => (
             <Badge variant="secondary">
               <MethodIcon type={value} className="mr-2" />
@@ -483,6 +487,12 @@ const PartProperties = ({ data }: PartPropertiesProps) => {
           }}
         />
       </ValidatedForm>
+
+      <SourcingTypeProperty
+        replenishmentSystem={routeData?.partSummary?.replenishmentSystem}
+        value={routeData?.partSummary?.sourcingType}
+        onChange={(value) => onUpdate("sourcingType", value)}
+      />
 
       <ValidatedForm
         defaultValues={{
@@ -579,8 +589,7 @@ const PartProperties = ({ data }: PartPropertiesProps) => {
           }}
         />
       </ValidatedForm>
-      {(routeData?.partSummary?.itemTrackingType === "Serial" ||
-        routeData?.partSummary?.itemTrackingType === "Batch") && (
+      {routeData?.partSummary?.replenishmentSystem?.includes("Buy") && (
         <ValidatedForm
           defaultValues={{
             requiresInspection:

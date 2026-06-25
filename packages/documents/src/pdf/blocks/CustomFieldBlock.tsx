@@ -1,6 +1,6 @@
 import { Text, View } from "@react-pdf/renderer";
 import type { CustomFieldBlock as CustomFieldBlockType } from "../../template";
-import { tw } from "./tw";
+import { useTw } from "./tw";
 
 function formatValue(raw: unknown): string {
   if (raw === "on" || raw === true) return "Yes";
@@ -17,6 +17,7 @@ export function CustomFieldBlock({
   block: CustomFieldBlockType;
   customFields: Record<string, unknown>;
 }) {
+  const tw = useTw();
   const value = formatValue(customFields[block.fieldId]);
 
   return (
