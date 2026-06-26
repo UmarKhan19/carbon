@@ -11,6 +11,25 @@ Read these first (they are the full design — this plan only covers *box setup*
 - `llm/outer-loop/02-repo-changes.md` — the dispatch contract the harness exposes.
 - `.claude/skills/conductor/SKILL.md` + `packages/harness/` — the inner loop you will invoke.
 
+## Agent runtime: Claude Code is the agent; OpenClaw is the runtime
+
+**OpenClaw is used purely as the runtime** — heartbeat, webhooks, cron, channels, SQLite state, and the sandbox box. It does **not** do the reasoning. The agent that does all the judgment (triage, binding synthesis, dispatch, grooming, PR-feedback) is **Claude Code, headless**, invoked each wake as:
+
+```
+claude -p --dangerously-skip-permissions "<outer-loop prompt or skill invocation>"
+```
+
+This is the natural fit because the inner loop is *already* Claude Code: the harness shells out to `claude -p` for the doer/judge/behavior steps. So the layering is Claude Code top to bottom, with OpenClaw as the scheduler/sandbox/IO around it:
+
+```
+OpenClaw runtime  (heartbeat · webhooks · cron · channels · SQLite · sandbox)
+  └─ claude -p --dangerously-skip-permissions   ← the agent (outer-loop reasoning)
+        └─ crbn up --run 'pnpm --filter @carbon/harness loop …'   ← dispatch
+              └─ harness spawns claude -p  (doer / judge / behavior)   ← inner-loop reasoning
+```
+
+`--dangerously-skip-permissions` removes Claude's *own* permission prompts (required for unattended runs), so **the sandbox + the scoped `carbon-agent` token are your guardrails** — never run it bypassed on the bare host. This box runs **non-root**, which is what makes the flag usable (Claude Code refuses bypass-permissions as root). Budget the nested claude sessions (`--max-turns`, the harness's per-step `$`/turn caps) so a tick can't spin. OpenClaw's own native agent/LLM is unused for reasoning.
+
 ---
 
 ## Phase 0 — Discover the current setup (do this before changing anything)
@@ -39,11 +58,11 @@ The inner loop runs `crbn up --run '… harness loop …'`, which boots a full D
 
 - **If builds run in this sandbox:** it needs Docker. OpenClaw sandboxes are Docker containers, so this is Docker-in-Docker (or a mounted host Docker socket) — confirm which your install supports and that `docker ps` works from where the loop will run. If neither is acceptable, provision a **separate builder host** the agent SSHes into and run `crbn up --run` there. (See `01-openclaw-plan.md` §2 — the orchestrator/builder split exists precisely because of this.)
 - Clone `crbnos/carbon`, install the toolchain (`pnpm install`), and verify a cold `crbn up --run 'echo ok' --volumes` boots → runs → tears down (and prunes volumes).
-- Install/verify **`claude` CLI** (inner-loop doer/judge/behavior) and **`agent-browser`** (behavior gate). The behavior gate reads `DEV_BYPASS_EMAIL` from the worktree's `.env.local` (which `crbn up` writes) — confirm it's present so UI verification can log in.
+- Install/verify **`claude` CLI** — it's both the outer agent (the wake invokes `claude -p --dangerously-skip-permissions …`, see "Agent runtime" above) and the inner-loop doer/judge/behavior. Confirm `claude -p --dangerously-skip-permissions "echo ok"` runs unattended **as the non-root sandbox user** (it refuses bypass-permissions as root). Also install **`agent-browser`** (behavior gate); the gate reads `DEV_BYPASS_EMAIL` from the worktree's `.env.local` (which `crbn up` writes) — confirm it's present so UI verification can log in.
 
-## Phase 3 — The agent's operating instructions
+## Phase 3 — The agent's operating instructions (the outer-loop prompt)
 
-Encode the role into the agent's system prompt / `AGENTS.md` (whatever this OpenClaw uses as standing instructions). It must state:
+These are the instructions the headless `claude -p` agent runs each wake (a prompt file or a Claude Code skill in the Carbon checkout — *not* OpenClaw's native-agent config; see "Agent runtime" above). It must state:
 
 - **Behavior:** issue assigned to `carbon-agent` → build it; nothing assigned → groom one backlog issue. Finish in-flight PR feedback before starting new builds. (Full wake order in `01-openclaw-plan.md` §5.)
 - **Dispatch recipe** (the mechanical core — paste verbatim):
@@ -61,7 +80,7 @@ Encode the role into the agent's system prompt / `AGENTS.md` (whatever this Open
 
 ## Phase 4 — `HEARTBEAT.md` (the wake loop)
 
-Make the heartbeat body the tick from `01-openclaw-plan.md` §5, in order: **reconcile leases → PR feedback → assigned issue → else groom one → GC + report**. Keep build concurrency at `N` with a SQLite semaphore, **default `N=1`** (one full stack at a time on this box; raise only if the box grows). Reconcile reads GitHub (`agent:working` issues assigned to you: open PR? → in review; no PR + no live build? → drop the label, re-pickable).
+The heartbeat (and each webhook hook) does one thing: invoke the agent — `claude -p --dangerously-skip-permissions "<Phase-3 outer-loop prompt>"` in the Carbon checkout. The *body* of the tick (what that prompt tells Claude to do) is the wake loop from `01-openclaw-plan.md` §5, in order: **reconcile leases → PR feedback → assigned issue → else groom one → GC + report**. Keep build concurrency at `N` with a SQLite semaphore, **default `N=1`** (one full stack at a time on this box; raise only if the box grows). Reconcile reads GitHub (`agent:working` issues assigned to you: open PR? → in review; no PR + no live build? → drop the label, re-pickable). Bound each wake's turns/budget so a tick can't spin.
 
 ## Phase 5 — Webhook ingestion (outbound WebSocket relay)
 
@@ -110,6 +129,7 @@ Only after this passes end-to-end should the heartbeat run unattended — and ev
 ## Definition of done for box setup
 
 - [ ] `gh` authed as `carbon-agent` (write to `crbnos/carbon`); git identity set; token outside worktrees.
+- [ ] `claude -p --dangerously-skip-permissions "echo ok"` runs unattended as the non-root sandbox user (Claude Code is the agent; OpenClaw is runtime).
 - [ ] `crbn up --run 'echo ok' --volumes` boots → runs → tears down + prunes volumes; `claude` + `agent-browser` present; `DEV_BYPASS_EMAIL` available.
 - [ ] Agent instructions encode: assign-to-build / idle-groom, the dispatch recipe, synthesis-with-refusal, and the hard safety rails (never merge, assigned-only, budget, kill switch).
 - [ ] `HEARTBEAT.md` runs the wake loop; concurrency semaphore `N=1`.
