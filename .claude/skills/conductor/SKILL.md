@@ -7,7 +7,7 @@ description: Supervised loop conductor — drive a single work item (a bug, a us
 
 You are conducting a **supervised loop**: iterate doer→gate→keep/revert→ledger until the acceptance criteria are met, with the human watching and giving the final approval. Land a **gated PR** — never auto-merge.
 
-This is the execution layer of the loop system (`llm/plans/loops/design.md`). The deterministic helpers live in `@carbon/harness`; the checker is the four `@carbon/checks` checks.
+This is the execution layer of the loop system. The deterministic helpers live in `@carbon/harness`; the checker is the four `@carbon/checks` checks.
 
 ## 0. Isolated worktree off `origin/main` (do this first)
 - Every loop runs in its **own worktree, branched off the latest `origin/main`** — never stacked on another feature branch. Create it non-interactively:

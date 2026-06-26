@@ -1,6 +1,6 @@
 # @carbon/checks
 
-Executable checks for the loop system's "core" (see `llm/plans/loops/design.md`).
+Executable checks for the loop system's "core".
 
 ## Conformance net
 
