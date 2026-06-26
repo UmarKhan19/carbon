@@ -1126,6 +1126,10 @@ export async function wipeScopedData(
   }
 }
 
+// Asset copies are server-side bucket→bucket (no bytes through this process), so
+// they're I/O-bound — run them concurrently rather than one at a time.
+const ASSET_COPY_CONCURRENCY = 8;
+
 /**
  * Copy one storage object server-side, overwriting the destination if it already
  * exists. `copy` has no upsert, so on a duplicate we remove the destination and
@@ -1167,23 +1171,29 @@ export async function copyAssetsToBackup(
   onProgress?: (done: number, total: number) => Promise<void>
 ): Promise<{ copied: number; failed: number }> {
   const { sourcePaths, destBucket, destPrefix } = args;
+  const total = sourcePaths.length;
   let copied = 0;
   let failed = 0;
-  for (const path of sourcePaths) {
-    const { ok, error } = await copyStorageObject(client, {
-      srcBucket: STORAGE_BUCKET,
-      srcPath: path,
-      destBucket,
-      destPath: `${destPrefix}/${path}`
-    });
-    if (ok) {
-      copied++;
-    } else {
-      failed++;
-      console.warn("Failed to copy backup asset", { path, error });
+  let done = 0;
+  await mapWithConcurrency(
+    sourcePaths,
+    ASSET_COPY_CONCURRENCY,
+    async (path) => {
+      const { ok, error } = await copyStorageObject(client, {
+        srcBucket: STORAGE_BUCKET,
+        srcPath: path,
+        destBucket,
+        destPath: `${destPrefix}/${path}`
+      });
+      if (ok) {
+        copied++;
+      } else {
+        failed++;
+        console.warn("Failed to copy backup asset", { path, error });
+      }
+      await onProgress?.(++done, total);
     }
-    await onProgress?.(copied + failed, sourcePaths.length);
-  }
+  );
   return { copied, failed };
 }
 
@@ -1208,12 +1218,12 @@ export async function restoreAssetsFromBackup(
 ): Promise<{ copied: number; failed: number }> {
   const { files, srcBucket, srcPrefix, sourceCompanyId, companyId, idRewrite } =
     args;
-  const total = files.filter((f) => f.included).length;
+  const included = files.filter((f) => f.included);
+  const total = included.length;
   let copied = 0;
   let failed = 0;
-  let processed = 0;
-  for (const file of files) {
-    if (!file.included) continue;
+  let done = 0;
+  await mapWithConcurrency(included, ASSET_COPY_CONCURRENCY, async (file) => {
     const targetPath = rewriteStoragePath(
       file.path,
       sourceCompanyId,
@@ -1225,8 +1235,8 @@ export async function restoreAssetsFromBackup(
         path: file.path,
         targetPath
       });
-      await onProgress?.(++processed, total);
-      continue;
+      await onProgress?.(++done, total);
+      return;
     }
     const { ok, error } = await copyStorageObject(client, {
       srcBucket,
@@ -1244,8 +1254,8 @@ export async function restoreAssetsFromBackup(
         error
       });
     }
-    await onProgress?.(++processed, total);
-  }
+    await onProgress?.(++done, total);
+  });
   return { copied, failed };
 }
 
