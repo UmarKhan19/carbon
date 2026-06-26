@@ -236,7 +236,7 @@ const DocumentsTable = memo(
           id: "labels",
           header: t`Labels`,
           cell: ({ row }) => (
-            <HStack spacing={1}>
+            <HStack spacing={1} className="flex-wrap gap-y-1">
               {row.original.labels?.map((label: string) => (
                 <Badge
                   key={label}
@@ -282,6 +282,9 @@ const DocumentsTable = memo(
           ),
           meta: {
             icon: <LuTag />,
+            // Let label chips wrap onto multiple lines (4+ labels) instead of
+            // overflowing horizontally and clipping the remove button.
+            cellClassName: "whitespace-normal",
             filter: {
               type: "static",
               options: labelOptions,

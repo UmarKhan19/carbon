@@ -6,7 +6,7 @@ import { memo, useState } from "react";
 import { LuPencil } from "react-icons/lu";
 import type { EditableTableCellComponent } from "~/components/Editable";
 import { useMovingCellRef } from "~/hooks";
-import { getAccessorKey } from "../utils";
+import { getAccessorKey, getCellClipClassName } from "../utils";
 
 type CellProps<T> = {
   cell: CellType<T, unknown>;
@@ -63,7 +63,10 @@ const Cell = <T extends object>({
   return (
     <Td
       className={cn(
-        "group/cell relative py-2 whitespace-nowrap text-sm outline-none max-w-[30dvw] truncate",
+        "group/cell relative py-2 text-sm outline-none max-w-[30dvw]",
+        // Default cells clip to a single line; a column can opt out via
+        // meta.cellClassName (e.g. to wrap chips onto multiple lines).
+        getCellClipClassName(cell.column.columnDef.meta?.cellClassName),
         cell.column.id === "Select" ? "px-2" : "px-4",
         wasEdited && "bg-yellow-100 dark:bg-yellow-900",
         isEditMode && !hasEditableTableCellComponent && "bg-muted/50",
