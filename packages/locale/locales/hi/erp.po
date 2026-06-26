@@ -5304,6 +5304,9 @@ msgstr "समस्या वर्कफ़्लो"
 msgid "Issue workflows defined the preset values for an issue. For example, you can have an 8D workflow or a containment workflow."
 msgstr "समस्या वर्कफ़्लो ने किसी समस्या के लिए पूर्वनिर्धारित मान परिभाषित किए। उदाहरण के लिए, आपके पास 8D वर्कफ़्लो या निरोध वर्कफ़्लो हो सकता है।"
 
+msgid "Issued"
+msgstr ""
+
 msgid "Issued Date"
 msgstr "जारी तारीख"
 
@@ -6162,6 +6165,9 @@ msgstr "क्या आपको सही कॉलम चाहिए?"
 
 msgid "Needs fixing"
 msgstr "मरम्मत की आवश्यकता है"
+
+msgid "Needs job"
+msgstr ""
 
 msgid "Needs ordering"
 msgstr "ऑर्डर करने की आवश्यकता"

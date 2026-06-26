@@ -5304,6 +5304,9 @@ msgstr "Problemablauf-Workflows"
 msgid "Issue workflows defined the preset values for an issue. For example, you can have an 8D workflow or a containment workflow."
 msgstr "Problemarbeitsabläufe definierten die voreingestellten Werte für ein Problem. Beispielsweise können Sie einen 8D-Arbeitsablauf oder einen Eindämmungsarbeitsablauf haben."
 
+msgid "Issued"
+msgstr ""
+
 msgid "Issued Date"
 msgstr "Ausstellungsdatum"
 
@@ -6162,6 +6165,9 @@ msgstr "Benötigen Sie die richtigen Spalten?"
 
 msgid "Needs fixing"
 msgstr "Muss behoben werden"
+
+msgid "Needs job"
+msgstr ""
 
 msgid "Needs ordering"
 msgstr "Bestellung erforderlich"

@@ -5304,6 +5304,9 @@ msgstr "Рабочие процессы проблем"
 msgid "Issue workflows defined the preset values for an issue. For example, you can have an 8D workflow or a containment workflow."
 msgstr "Рабочие процессы проблем определили предустановленные значения для проблемы. Например, у вас может быть рабочий процесс 8D или рабочий процесс сдерживания."
 
+msgid "Issued"
+msgstr ""
+
 msgid "Issued Date"
 msgstr "Дата выпуска"
 
@@ -6162,6 +6165,9 @@ msgstr "Нужны правильные столбцы?"
 
 msgid "Needs fixing"
 msgstr "Требуется исправление"
+
+msgid "Needs job"
+msgstr ""
 
 msgid "Needs ordering"
 msgstr "Требуется заказ"

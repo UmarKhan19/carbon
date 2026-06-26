@@ -5304,6 +5304,9 @@ msgstr "Issue Workflows"
 msgid "Issue workflows defined the preset values for an issue. For example, you can have an 8D workflow or a containment workflow."
 msgstr "Issue workflows defined the preset values for an issue. For example, you can have an 8D workflow or a containment workflow."
 
+msgid "Issued"
+msgstr "Issued"
+
 msgid "Issued Date"
 msgstr "Issued Date"
 
@@ -6162,6 +6165,9 @@ msgstr "Need the right columns?"
 
 msgid "Needs fixing"
 msgstr "Needs fixing"
+
+msgid "Needs job"
+msgstr "Needs job"
 
 msgid "Needs ordering"
 msgstr "Needs ordering"
