@@ -90,7 +90,17 @@ const ApiKeysTable = memo(({ data, count }: ApiKeysTableProps) => {
           );
         },
         meta: {
-          icon: <LuShield />
+          icon: <LuShield />,
+          exportValue: (row) => {
+            const scopes = (row as any).scopes as Record<
+              string,
+              string[]
+            > | null;
+            const scopeCount = getScopeCount(scopes);
+            return scopeCount === 0
+              ? t`No Access`
+              : t`${scopeCount} permissions`;
+          }
         }
       },
       {
