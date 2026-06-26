@@ -17,6 +17,7 @@ export {
 } from "./invariant";
 export {
   CONFORMANCE_CHECKS,
+  collectFindings,
   type Finding,
   newViolations,
   STRUCTURE_CHECKS,

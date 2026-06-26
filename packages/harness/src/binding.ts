@@ -10,7 +10,16 @@ export type Binding = {
 
 const KINDS: LoopKind[] = ["bug", "feature", "usability", "copy"];
 
-/** Parse the YAML-ish frontmatter of a `.loop.md` binding. No YAML dependency. */
+/** Trim surrounding whitespace and a single pair of wrapping quotes. */
+function unquote(value: string): string {
+  return value.trim().replace(/^(["'])(.*)\1$/, "$2");
+}
+
+/**
+ * Parse the YAML-ish frontmatter of a `.loop.md` binding. No YAML dependency.
+ * Scalars may be quoted or bare. The `acceptance` list must be contiguous
+ * (one `- item` per line) — a blank line or another key ends it.
+ */
 export function parseBinding(md: string): Binding {
   const match = md.match(/^---\n([\s\S]*?)\n---/);
   if (!match || !match[1]) throw new Error("Binding has no frontmatter block.");
@@ -24,21 +33,22 @@ export function parseBinding(md: string): Binding {
       continue;
     }
     if (inAcceptance && /^\s*-\s+/.test(line)) {
-      acceptance.push(line.replace(/^\s*-\s+/, "").trim());
+      acceptance.push(unquote(line.replace(/^\s*-\s+/, "")));
       continue;
     }
     inAcceptance = false;
     const kv = line.match(/^([a-zA-Z]+):\s*(.*)$/);
-    if (kv && kv[1] && kv[2] !== undefined) scalars[kv[1]] = kv[2].trim();
+    if (kv?.[1]) scalars[kv[1]] = unquote(kv[2] ?? "");
   }
   const id = scalars.id;
-  const kind = scalars.kind as LoopKind;
   if (!id) throw new Error("Binding missing required field: id");
-  if (!kind || !KINDS.includes(kind))
+  const kind = scalars.kind;
+  if (!kind || !KINDS.includes(kind as LoopKind)) {
     throw new Error(`Binding kind must be one of ${KINDS.join("|")}`);
+  }
   return {
     id,
-    kind,
+    kind: kind as LoopKind,
     title: scalars.title ?? "",
     risk: (scalars.risk as Binding["risk"]) ?? "low",
     acceptance

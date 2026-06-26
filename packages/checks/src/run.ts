@@ -55,13 +55,18 @@ export function scanModules(
   return out;
 }
 
-/** Findings in the real migrations/modules that are NOT grandfathered by the baseline. */
-export function newViolations(): Finding[] {
-  const root = repoRoot();
-  const findings = [
+/** Every finding across the real migrations (text) + modules (structure) under `root`. */
+export function collectFindings(root: string = repoRoot()): Finding[] {
+  return [
     ...scanAll(loadSqlFiles(migrationsDir(root))),
     ...scanModules(loadModules(modulesDir(root)))
   ];
+}
+
+/** Findings in the real migrations/modules that are NOT grandfathered by the baseline. */
+export function newViolations(): Finding[] {
   const baseline = loadBaseline();
-  return findings.filter((f) => !baseline.has(keyOf(f.checkId, f.violation)));
+  return collectFindings().filter(
+    (f) => !baseline.has(keyOf(f.checkId, f.violation))
+  );
 }

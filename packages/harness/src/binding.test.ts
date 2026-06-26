@@ -28,4 +28,14 @@ describe("parseBinding", () => {
   it("throws on missing required fields", () => {
     expect(() => parseBinding("---\nkind: bug\n---")).toThrow(/id/);
   });
+
+  it("strips surrounding quotes from scalars and acceptance items", () => {
+    const b = parseBinding(
+      `---\nid: "q-1"\nkind: 'bug'\ntitle: "Fix: the thing"\nacceptance:\n- "centers at <640px"\n---`
+    );
+    expect(b.id).toBe("q-1");
+    expect(b.kind).toBe("bug");
+    expect(b.title).toBe("Fix: the thing");
+    expect(b.acceptance).toEqual(["centers at <640px"]);
+  });
 });

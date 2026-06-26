@@ -1,10 +1,16 @@
 import { readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import type { Violation } from "./check";
 
 export type BaselineKey = string;
 
-const BASELINE_PATH = join(process.cwd(), "src/conformance/baseline.json");
+// Resolve from this source file (packages/checks/src/baseline.ts), not cwd, so
+// the baseline is found regardless of where the process is invoked from.
+const BASELINE_PATH = join(
+  dirname(fileURLToPath(import.meta.url)),
+  "conformance/baseline.json"
+);
 
 export function keyOf(checkId: string, v: Violation): BaselineKey {
   return `${checkId}::${v.file}::${v.snippet}`;
