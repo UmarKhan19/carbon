@@ -36,28 +36,28 @@ For each iteration:
 
 2. **Gate.** Run these in order; every applicable one must be green:
    - **a. Floor gates** — `pnpm --filter @carbon/harness gates` (lint + `@carbon/checks` conformance + clobbers), plus `typecheck` for each package you touched (per-package, never whole-repo).
-   - **b. Behavior gate — MANDATORY for ANY UI / user-facing change. A UI change is NOT solved until you have seen it work in the running app.** Boot the app (`crbn up` if it isn't already running), `/login`, and drive the affected screen with `agent-browser` (use the `/test` skill): **reproduce the exact failing condition the binding describes** (e.g. a record with 4+ labels), confirm the fix actually works, and **capture screenshots**. The change cannot be kept or finished until this gate is green. This is not optional and not deferrable to PR time.
+   - **b. Behavior gate — MANDATORY for ANY UI / user-facing change. A UI change is NOT solved until you have seen it work in the running app.** Boot the app (`crbn up` if it isn't already running), `/login`, and drive the affected screen with `agent-browser` (use the `/test` skill): **reproduce the exact failing condition the binding describes** (e.g. a record with 4+ labels) and **capture a BEFORE screenshot showing the bug**, then **confirm the fix works and capture an AFTER screenshot**. A UI change requires the **before/after pair** as proof — both go in the PR. The change cannot be kept or finished until this gate is green. This is not optional and not deferrable to PR time.
      - **If the stack cannot be brought up, the loop is BLOCKED** — stop and surface to the human. Do NOT proceed to keep/finish, and do NOT open a "done" PR with visual verification "pending." Reaching a "should I screenshot?" question is itself a failure of this gate.
    - **c. Correctness (logic bug/feature)** — the **reproduce→fix→same-path** test: write a test that fails on the bug, fix, watch the *same* test pass (a unit test, or the agent-browser playbook recorded in step b).
    - If any gate fails: fix it, or revert this iteration's change.
 
 3. **Judge — dispatch a separate review subagent** (NOT yourself) to check the diff against the acceptance criteria and the design rules. It may send work back. Do not grade your own homework.
 
-4. **Decide + ledger.** Keep the change iff **every gate is green — including the behavior gate (§2b) for UI work, with screenshots captured proving the fix** — AND the judge approves; otherwise revert it. Append one entry to `llm/loops/<id>/ledger.jsonl`:
+4. **Decide + ledger.** Keep the change iff **every gate is green — including the behavior gate (§2b) for UI work, with before/after screenshots proving the fix** — AND the judge approves; otherwise revert it. Append one entry to `llm/loops/<id>/ledger.jsonl`:
    `pnpm --filter @carbon/harness exec tsx -e "import {appendLedger} from '@carbon/harness'; appendLedger('llm/loops/<id>/ledger.jsonl', {iteration: <n>, change: '<summary>', gates: {<gate>: <bool>}, decision: '<keep|revert>', reason: '<why>', at: new Date().toISOString()})"`
    (The harness has no clock — you supply `at`.)
 
 5. **Terminate?** If every acceptance criterion is met and provable → go to Finish. If you plateau (no progress across iterations) or the human stops → stop and report.
 
 ## 3. Finish — land a gated PR
-- Attach the **screenshots captured by the behavior gate (§2b)**. A UI PR without them means the loop wasn't actually verified — do not open it.
+- Embed the **before/after screenshots captured by the behavior gate (§2b)** in the PR body. A UI PR without them means the loop wasn't actually verified — do not open it.
 - Open a **gated PR via the `gh` CLI** (`gh pr create`). Never merge. The PR body must:
   - state the **design rationale** (the precedent you copied; any `research`),
   - list, per acceptance criterion, **which gate proves it**,
-  - attach the **screenshots** for UI work,
+  - embed the **before/after screenshots** for any UI change,
   - summarize the **ledger** (iterations, what was kept/reverted and why).
 - **Surface every design decision for the human to approve / comment / improve** — design is never shipped silently.
-- **Loop artifacts stay out of source.** `llm/loops/` (bindings, ledger, screenshots) is gitignored *runtime* — never commit it to the working branch. The **ledger summary goes in the PR body**, and **screenshots are hosted on the PR** (attach to the PR/a comment, or a non-merging artifacts branch referenced by raw URL) — not in the product tree.
+- **Loop artifacts stay out of source.** `llm/loops/` (bindings, ledger, screenshots) is gitignored *runtime* — never commit it to the working branch. The **ledger summary goes in the PR body**, and **before/after screenshots are embedded in the PR body** from a shared, non-merging **`loop-artifacts`** branch (under `llm/loops/<id>/screenshots/`, referenced by raw URL) — never committed to the product tree. (`@carbon/harness`'s `openPr` does this hosting automatically.)
 
 ## Guardrails (non-negotiable)
 - **A UI/user-facing change is never done without passing visual e2e verification in the running app (§2b).** If the stack can't boot, the loop is BLOCKED — stop and surface, not "done."

@@ -52,6 +52,11 @@ const main = defineCommand({
           default: true,
           description:
             "Use portless .dev URLs (use --no-portless for localhost mode)"
+        },
+        run: {
+          type: "string",
+          description:
+            "Boot apps, wait until reachable, run this command, then tear the stack down (scopes the stack's lifetime to the command — for headless/CI use)"
         }
       },
       run: ({ args }) =>
@@ -61,7 +66,8 @@ const main = defineCommand({
           apps: args.apps !== false,
           pull: args.pull === true,
           borrow: args.borrow === true,
-          portless: args.portless !== false
+          portless: args.portless !== false,
+          run: typeof args.run === "string" ? args.run : undefined
         })
     }),
     down: defineCommand({

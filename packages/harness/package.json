@@ -11,7 +11,8 @@
     "lint": "biome lint --write ",
     "test": "vitest run",
     "typecheck": "tsgo --noEmit",
-    "gates": "tsx src/scripts/run-gates.ts"
+    "gates": "tsx src/scripts/run-gates.ts",
+    "loop": "tsx src/scripts/run-loop.ts"
   },
   "devDependencies": {
     "@carbon/config": "workspace:*",
