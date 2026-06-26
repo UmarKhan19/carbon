@@ -122,6 +122,10 @@ export function rewriteStoragePath(
  */
 export const SECRET_TABLES = [
   "apiKey",
+  // Worthless without its (secret, stripped) apiKey, which it references via a
+  // NOT-NULL FK — exporting it alone dangles every row on restore. It's also an
+  // UNLOGGED operational rate-limit counter, never user data.
+  "apiKeyRateLimit",
   "companyIntegration",
   "webhook",
   "oauthClient",
@@ -149,6 +153,36 @@ export const COMPANY_SINGLETON_TABLES = [
  * from the catalog entirely.
  */
 export const STRUCTURAL_TABLES = ["company"];
+
+/**
+ * MRP planning output — the `mrp` edge function deletes then re-inserts these
+ * wholesale per company on every run, and nothing else writes them. They hold
+ * no user-authored data, so a backup must not carry them: restoring stale
+ * projections is pure bloat (the next MRP run rebuilds them), and
+ * `demandForecastSource`'s discriminator CHECK (`sourceType` ↔ which FK is
+ * non-null) makes a remapped restore brittle — the FK-nulling dangling-ref
+ * policy silently violates it. Excluded from the catalog entirely, so they are
+ * never exported, wiped, or loaded. (`demandForecast` is deliberately NOT here:
+ * it also has a user-forecast write path and carries no such CHECK.)
+ */
+export const TRANSIENT_TABLES = [
+  "demandForecastSource",
+  "demandActual",
+  "supplyForecast",
+  "supplyActual"
+] as const satisfies readonly TableName[];
+
+/**
+ * Tables deliberately kept out of the catalog: the company shell + MRP planning
+ * output. The catalog skips them so they're never exported/wiped/loaded, and
+ * `assertBackupImportable` skips them too — an older backup that still carries
+ * one of these (made before it was excluded) is NOT schema drift; its rows are
+ * simply ignored on load (the next MRP run rebuilds the data).
+ */
+export const CATALOG_EXCLUDED_TABLES = new Set<string>([
+  ...STRUCTURAL_TABLES,
+  ...TRANSIENT_TABLES
+]);
 
 /**
  * Additional tables skipped in `reseed` mode — memberships, invites and
@@ -465,7 +499,9 @@ export async function getCompanyTableCatalog(
   `.execute(db);
 
   // companyId wins when a table carries both columns.
-  const structural = new Set(STRUCTURAL_TABLES);
+  // Excluded from the catalog entirely: the company shell + MRP planning output
+  // (regenerated every run, never user data — see CATALOG_EXCLUDED_TABLES).
+  const structural = CATALOG_EXCLUDED_TABLES;
   const scopeByTable = new Map<string, "companyId" | "companyGroupId">();
   for (const r of scopeRows.rows) {
     if (structural.has(r.name)) continue;
@@ -700,6 +736,9 @@ export function assertBackupImportable(
 
   const liveByName = new Map(catalog.tables.map((t) => [t.name, t]));
   for (const backupTable of manifest.tables) {
+    // A backup table the catalog now excludes by design (MRP output, the company
+    // shell) is not schema drift — skip it; its rows are ignored on load.
+    if (CATALOG_EXCLUDED_TABLES.has(backupTable.name)) continue;
     const live = liveByName.get(backupTable.name);
     if (!live) {
       return {
