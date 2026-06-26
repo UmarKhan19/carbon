@@ -31,6 +31,7 @@ Write findings to your durable memory so later phases build on facts, not guesse
 - Authenticate `gh` as the dedicated machine user **`carbon-agent`** with write to `crbnos/carbon`. Store the token in the agent's auth store — **never** inside a worktree or a committed file. (Long-term: migrate to a GitHub App with a per-repo install; a PAT is fine to start.)
 - Set git identity for commits: `git config user.name "carbon-agent"` / `user.email <agent email>` so PR commits attribute cleanly to the bot, distinct from humans.
 - Confirm: `gh auth status`, and that `gh pr view`/`gh issue list` work against `crbnos/carbon`.
+- Ensure the `agent:*` labels exist (idempotent — safe if already created): run `.github/scripts/setup-agent-labels.sh` from a Carbon checkout, or trigger the **Agent Labels** workflow from the repo's Actions tab.
 
 ## Phase 2 — Build environment readiness
 

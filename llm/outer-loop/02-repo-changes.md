@@ -101,12 +101,26 @@ With this, re-entry needs **no new command** — the orchestrator just runs the 
 
 ---
 
-### E. Docs + label definitions (trivia)
+### E. Labels + webhook-event contract ✅ DONE (this branch)
 
-- Document the `agent:*` label set and the webhook event list (`issues`, `pull_request_review`, `pull_request_review_comment`) — a short note here and/or a `.github` labeler config so the labels exist in the repo.
-- Note where the `carbon-agent` HMAC/webhook secret is configured (it lives with the orchestrator; the repo just documents the event contract).
+The `agent:*` labels are now declared and applied from the repo:
 
-**Size:** docs only. **Risk:** none.
+- **`.github/scripts/setup-agent-labels.sh`** — idempotent (`gh label create --force`) source of truth for the five labels. Run once: `.github/scripts/setup-agent-labels.sh [owner/repo]`.
+- **`.github/workflows/agent-labels.yml`** — `workflow_dispatch` only (no push trigger → no noise); runs the script from the Actions tab.
+
+| Label | Color | Meaning |
+|---|---|---|
+| `agent:working` | blue | lease held — a loop is in flight |
+| `agent:needs-grooming` | yellow | candidate for the groomer |
+| `agent:groomed` | green | spec proposed; safe to assign |
+| `agent:needs-decomposition` | orange | epic-sized; breakdown proposed |
+| `agent:blocked` | red | loop blocked/error or synth refused — needs a human |
+
+(The build trigger is **assignment to `carbon-agent`**, not a label — see §4 of the plan.)
+
+**Webhook event contract** (consumed by the orchestrator's outbound-WS relay, §3 of the plan): `issues` (assigned/labeled), `pull_request_review`, `pull_request_review_comment`.
+
+**Secret:** the webhook HMAC secret lives **with the orchestrator** (the OpenClaw box), not in this repo — the repo only declares the event set. No repo secret is added.
 
 ---
 
@@ -132,12 +146,12 @@ With this, re-entry needs **no new command** — the orchestrator just runs the 
 | B | Persist binding to run dir | `scripts/run-loop.ts`, `layout.ts` | ✅ done | none | self-describing runs / re-entry |
 | C | Idempotent PR open (create-or-update) | `runner/pr.ts` | ✅ done | low | **PR-feedback re-entry** (build step 3) |
 | D | Optional `Closes #<issue>` linkage | `binding.ts`, `runner/pr.ts` | ✅ done | none | merge → auto-close → GitHub state machine |
-| E | Label + webhook-event docs | `llm/outer-loop/`, `.github/` | pending | none | clarity |
+| E | `agent:*` labels + webhook-event contract | `.github/scripts/`, `.github/workflows/agent-labels.yml` | ✅ done | none | the labels the orchestrator drives |
 | F | `crbn down --volumes` teardown | `dev/commands/down.ts`, `up.ts`, `main.ts` | ✅ done | low | box resource hygiene |
 
 ## Status
 
-**0, A, B, C, D, F are landed.** Only **E** (label + webhook-event docs / `.github` labeler) remains, and it's documentation that pairs naturally with building the OpenClaw orchestrator.
+**All repo-side work (0, A–F) is landed.** What remains is entirely in the OpenClaw orchestrator (deliverable 1) — the repo exposes a complete, deterministic dispatch contract and the `agent:*` labels it drives.
 
 - **C** — `openPr` now checks `gh pr view` and updates the existing PR (`gh pr edit`) instead of failing `gh pr create`, so re-running the loop in the same worktree (PR-feedback re-entry) just lands new commits on the open PR. Covered by `pr.test.ts`.
 - **D** — `Binding` gained an optional numeric `issue`; when set, the PR body carries `Closes #<n>`. Covered by `binding.test.ts`.
