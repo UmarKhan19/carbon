@@ -62,7 +62,7 @@ The inner loop runs `crbn up --run '… harness loop …'`, which boots a full D
 
 ## Phase 3 — The agent's operating instructions (the outer-loop prompt)
 
-These are the instructions the headless `claude -p` agent runs each wake (a prompt file or a Claude Code skill in the Carbon checkout — *not* OpenClaw's native-agent config; see "Agent runtime" above). It must state:
+The canonical prompt the headless `claude -p` agent runs each wake is **[`llm/outer-loop/agent-prompt.md`](agent-prompt.md)** — wire the heartbeat/hook to run it (it's *not* OpenClaw's native-agent config; see "Agent runtime" above). Review/adapt it for this box (the `$` budget, channel, base branch). It states:
 
 - **Behavior:** issue assigned to `carbon-agent` → build it; nothing assigned → groom one backlog issue. Finish in-flight PR feedback before starting new builds. (Full wake order in `01-openclaw-plan.md` §5.)
 - **Dispatch recipe** (the mechanical core — paste verbatim):
@@ -80,7 +80,7 @@ These are the instructions the headless `claude -p` agent runs each wake (a prom
 
 ## Phase 4 — `HEARTBEAT.md` (the wake loop)
 
-The heartbeat (and each webhook hook) does one thing: invoke the agent — `claude -p --dangerously-skip-permissions "<Phase-3 outer-loop prompt>"` in the Carbon checkout. The *body* of the tick (what that prompt tells Claude to do) is the wake loop from `01-openclaw-plan.md` §5, in order: **reconcile leases → PR feedback → assigned issue → else groom one → GC + report**. Keep build concurrency at `N` with a SQLite semaphore, **default `N=1`** (one full stack at a time on this box; raise only if the box grows). Reconcile reads GitHub (`agent:working` issues assigned to you: open PR? → in review; no PR + no live build? → drop the label, re-pickable). Bound each wake's turns/budget so a tick can't spin.
+The heartbeat (and each webhook hook) does one thing: invoke the agent — `claude -p --dangerously-skip-permissions "$(cat llm/outer-loop/agent-prompt.md)"` in the Carbon checkout. The *body* of the tick (what that prompt tells Claude to do) is the wake loop from `01-openclaw-plan.md` §5, in order: **reconcile leases → PR feedback → assigned issue → else groom one → GC + report**. Keep build concurrency at `N` with a SQLite semaphore, **default `N=1`** (one full stack at a time on this box; raise only if the box grows). Reconcile reads GitHub (`agent:working` issues assigned to you: open PR? → in review; no PR + no live build? → drop the label, re-pickable). Bound each wake's turns/budget so a tick can't spin.
 
 ## Phase 5 — Webhook ingestion (outbound WebSocket relay)
 

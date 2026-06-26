@@ -1,6 +1,8 @@
 # Deliverable 1 — The Outer Loop on OpenClaw
 
-The outer loop is an **OpenClaw skill/plugin** (the orchestrator) plus an **ephemeral builder**. It manufactures Bindings from GitHub issues, dispatches the inner loop, and shepherds the resulting PR through review — all under a dedicated machine user (`carbon-agent`) that **never merges**.
+The outer loop runs on **OpenClaw as the runtime** (heartbeat, webhooks, cron, channels, SQLite state, sandbox) with a **headless Claude Code agent** doing all the reasoning, plus an **ephemeral builder**. It manufactures Bindings from GitHub issues, dispatches the inner loop, and shepherds the resulting PR through review — all under a dedicated machine user (`carbon-agent`) that **never merges**.
+
+> **Agent runtime.** OpenClaw does *not* do the thinking. Each wake it invokes `claude -p --dangerously-skip-permissions "<outer-loop prompt>"` in the Carbon checkout — Claude Code is the agent for triage, binding synthesis, dispatch, grooming, and PR-feedback. This is the natural fit because the inner loop is *already* Claude Code (the harness shells out to `claude -p` for doer/judge/behavior), so it's Claude Code top to bottom with OpenClaw as the scheduler/sandbox around it. The box runs non-root, so the bypass-permissions flag works (Claude Code refuses it as root); the sandbox + scoped `carbon-agent` token are the guardrails. Full setup in [03-openclaw-box-setup.md](03-openclaw-box-setup.md).
 
 ---
 
@@ -9,7 +11,7 @@ The outer loop is an **OpenClaw skill/plugin** (the orchestrator) plus an **ephe
 The inner loop is `Binding → gated PR`. So the outer loop owns everything *around* that:
 
 ```
-              ┌──────────────────────── OpenClaw orchestrator (in the tailnet) ─────────────────────────┐
+              ┌─── OpenClaw runtime (in the tailnet) · each wake invokes `claude -p` as the agent ───────┐
  GitHub  ◀──▶ │  webhooks (outbound WS relay)   +   periodic heartbeat                                  │
  (truth)      │        │                                  │                                              │
               │        ▼                                  ▼                                              │
@@ -34,7 +36,7 @@ OpenClaw runs agents in Docker (one container per agent). But the inner loop nee
 
 So **don't**. Two roles:
 
-- **Orchestrator** = the OpenClaw agent. Light, always-on. Heartbeat/webhooks + SQLite + GitHub I/O + channel reports. It *decides and dispatches*; it never builds.
+- **Orchestrator** = the OpenClaw runtime + the headless Claude Code agent it invokes each wake. Light, always-on. Heartbeat/webhooks + SQLite + GitHub I/O + channel reports. It *decides and dispatches*; it never builds.
 - **Builder** = a worker with Docker + the Carbon repo. The orchestrator shells in to run one `crbn up --run '… loop …'` per dispatch. Stateless and ephemeral by design.
 
 Bonus: if the orchestrator restarts, in-flight builds aren't killed, and it reconciles state from GitHub (below).
@@ -112,7 +114,7 @@ on wake:
 
 When an issue is assigned:
 
-1. **Binding synthesis (judgment, in OpenClaw)** — read the issue (title/body/comments) and emit a `Binding` (`kind`, `risk`, concrete testable `acceptance[]`). This is the agent's core judgment call and stays in OpenClaw, never in the repo.
+1. **Binding synthesis (judgment, by the headless Claude Code agent)** — read the issue (title/body/comments) and emit a `Binding` (`kind`, `risk`, concrete testable `acceptance[]`). This is the agent's core judgment call and lives in the agent on the OpenClaw box, never in the repo.
    - **Refusal path:** if you can't write crisp acceptance criteria, or it smells epic-sized (`#942 Inventory Counts` is a whole module), don't dispatch. Apply `agent:needs-decomposition`, comment a proposed breakdown, and stop. Belt-and-suspenders against an epic slipping past the human's assign gesture.
 2. **Take the lease** — apply `agent:working` (leave the human's assignment intact), record the dispatch handle in SQLite.
 3. **Dispatch on the builder:**

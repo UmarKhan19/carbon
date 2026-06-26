@@ -2,7 +2,7 @@
 
 ## Guiding principle
 
-The repo stays a **deterministic, judgment-free dispatch primitive**. Everything that requires *judgment about GitHub* — reading an issue, synthesizing a Binding, deciding priority, parsing review feedback — lives in the OpenClaw orchestrator, **not here**. The repo's only job is to expose a clean, machine-readable, re-enterable contract: *given a Binding and a worktree, run the loop and report a structured result.*
+The repo stays a **deterministic, judgment-free dispatch primitive**. Everything that requires *judgment about GitHub* — reading an issue, synthesizing a Binding, deciding priority, parsing review feedback — lives in the orchestrator (the headless Claude Code agent on the OpenClaw box), **not here**. The repo's only job is to expose a clean, machine-readable, re-enterable contract: *given a Binding and a worktree, run the loop and report a structured result.*
 
 This mirrors the inner loop's own split (deterministic harness, narrow model calls) and keeps the repo from growing a GitHub dependency.
 
