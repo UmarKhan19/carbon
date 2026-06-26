@@ -20,7 +20,7 @@ This is the execution layer of the loop system. The deterministic helpers live i
 - *(This assumes the loop system — `@carbon/harness` + `@carbon/checks` — is on `main`. Until that merges, the gate tooling only exists on the loop-system branch, so base off that branch instead.)*
 
 ## 1. Bind the work item
-- If given a binding path (`llm/loops/<id>.loop.md`), read it. Otherwise write one from the request (see `llm/loops/README.md` for the format) and save it to `llm/loops/<id>.loop.md`.
+- If given a binding path, read it. Otherwise write one from the request (see `llm/loops/README.md` for the format) and save it to `llm/loops/runs/<id>/binding.loop.md` (run-loop also persists the binding there automatically).
 - Parse it to validate the shape:
   `pnpm --filter @carbon/harness exec tsx -e "import {parseBinding} from '@carbon/harness'; import {readFileSync} from 'node:fs'; console.log(JSON.stringify(parseBinding(readFileSync('<path>','utf8'))))"`
 - The binding has `id`, `kind` (bug|feature|usability|copy), `title`, `risk`, and an `acceptance` list. **Each acceptance criterion is the definition of done** — you are not finished until each is satisfied and provable.
@@ -43,8 +43,8 @@ For each iteration:
 
 3. **Judge — dispatch a separate review subagent** (NOT yourself) to check the diff against the acceptance criteria and the design rules. It may send work back. Do not grade your own homework.
 
-4. **Decide + ledger.** Keep the change iff **every gate is green — including the behavior gate (§2b) for UI work, with before/after screenshots proving the fix** — AND the judge approves; otherwise revert it. Append one entry to `llm/loops/<id>/ledger.jsonl`:
-   `pnpm --filter @carbon/harness exec tsx -e "import {appendLedger} from '@carbon/harness'; appendLedger('llm/loops/<id>/ledger.jsonl', {iteration: <n>, change: '<summary>', gates: {<gate>: <bool>}, decision: '<keep|revert>', reason: '<why>', at: new Date().toISOString()})"`
+4. **Decide + ledger.** Keep the change iff **every gate is green — including the behavior gate (§2b) for UI work, with before/after screenshots proving the fix** — AND the judge approves; otherwise revert it. Append one entry to `llm/loops/runs/<id>/ledger.jsonl`:
+   `pnpm --filter @carbon/harness exec tsx -e "import {appendLedger} from '@carbon/harness'; appendLedger('llm/loops/runs/<id>/ledger.jsonl', {iteration: <n>, change: '<summary>', gates: {<gate>: <bool>}, decision: '<keep|revert>', reason: '<why>', at: new Date().toISOString()})"`
    (The harness has no clock — you supply `at`.)
 
 5. **Terminate?** If every acceptance criterion is met and provable → go to Finish. If you plateau (no progress across iterations) or the human stops → stop and report.
@@ -57,7 +57,7 @@ For each iteration:
   - embed the **before/after screenshots** for any UI change,
   - summarize the **ledger** (iterations, what was kept/reverted and why).
 - **Surface every design decision for the human to approve / comment / improve** — design is never shipped silently.
-- **Loop artifacts stay out of source.** `llm/loops/` (bindings, ledger, screenshots) is gitignored *runtime* — never commit it to the working branch. The **ledger summary goes in the PR body**, and **before/after screenshots are embedded in the PR body** from a shared, non-merging **`loop-artifacts`** branch (under `llm/loops/<id>/screenshots/`, referenced by raw URL) — never committed to the product tree. (`@carbon/harness`'s `openPr` does this hosting automatically.)
+- **Loop artifacts stay out of source.** `llm/loops/runs/` (bindings, ledger, outcome, screenshots) is gitignored *runtime* — never commit it to the working branch. The **ledger summary goes in the PR body**, and **before/after screenshots are embedded in the PR body** from a shared, non-merging **`loop-artifacts`** branch (under `llm/loops/runs/<id>/screenshots/`, referenced by raw URL) — never committed to the product tree. (`@carbon/harness`'s `openPr` does this hosting automatically.)
 
 ## Guardrails (non-negotiable)
 - **A UI/user-facing change is never done without passing visual e2e verification in the running app (§2b).** If the stack can't boot, the loop is BLOCKED — stop and surface, not "done."

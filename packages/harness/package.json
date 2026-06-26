@@ -12,7 +12,8 @@
     "test": "vitest run",
     "typecheck": "tsgo --noEmit",
     "gates": "tsx src/scripts/run-gates.ts",
-    "loop": "tsx src/scripts/run-loop.ts"
+    "loop": "tsx src/scripts/run-loop.ts",
+    "gc": "tsx src/scripts/prune-runs.ts"
   },
   "devDependencies": {
     "@carbon/config": "workspace:*",

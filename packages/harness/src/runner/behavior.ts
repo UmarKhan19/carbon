@@ -1,6 +1,7 @@
 import { mkdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Binding } from "../binding";
+import { screenshotsDir } from "../layout";
 import { tryExtractJson } from "./prompts";
 import { sq } from "./shell";
 import type { BehaviorResult, RunnerConfig, RunnerDeps, Shell } from "./types";
@@ -191,7 +192,7 @@ export function behaviorGate(
   }
 
   const email = readEnvVar(cfg.cwd, "DEV_BYPASS_EMAIL") ?? "test@carbon.ms";
-  const shotDir = join(cfg.cwd, `llm/loops/${binding.id}/screenshots`);
+  const shotDir = screenshotsDir(cfg.cwd, binding.id);
   mkdirSync(shotDir, { recursive: true });
 
   // BEFORE (best-effort): show the bug with the fix reverted, then restore it.
