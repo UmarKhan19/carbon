@@ -10,6 +10,9 @@ declare module "@tanstack/react-table" {
     filterHeader?: string;
     pluralHeader?: string;
     icon?: ReactElement;
+    // Override the body cell's default clipping classes (whitespace-nowrap +
+    // truncate) for this column — e.g. to let chips wrap onto multiple lines.
+    cellClassName?: string;
     renderTotal?: boolean;
     formatter?: (
       val:

@@ -1,5 +1,13 @@
 import type { ColumnDef } from "@tanstack/react-table";
 
+// Resolve the body cell's clipping classes. Cells clip to a single line by
+// default (whitespace-nowrap + truncate); a column may opt out via
+// meta.cellClassName — e.g. to let label chips wrap onto multiple lines so the
+// remove (×) button stays visible with 4+ labels.
+export function getCellClipClassName(cellClassName?: string) {
+  return cellClassName ?? "whitespace-nowrap truncate";
+}
+
 export function getAccessorKey<T>(columnDef: ColumnDef<T, unknown>) {
   return "accessorKey" in columnDef
     ? columnDef?.accessorKey.toString()
