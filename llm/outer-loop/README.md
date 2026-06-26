@@ -1,31 +1,18 @@
-# Outer Loop — the agentic-employee intake brain
+# llm/outer-loop
 
-Carbon's "agentic employee" is **two loops**:
+Scratch space for the **outer loop** — the autonomous "agentic employee" that watches GitHub, dispatches the conductor inner loop, and shepherds gated PRs through review. It runs on **OpenClaw** (the runtime) with a **headless Claude Code agent** (`claude -p --dangerously-skip-permissions`) doing the reasoning — *not* in this repo.
 
-- **Inner loop** (`/conductor` skill + `@carbon/harness` + `@carbon/checks`) — already built. A pure-ish function: given a **Binding** (one well-scoped work item), iterate doer→gate→judge→keep/revert until the acceptance criteria are met, and land a **gated PR**. Never merges.
-- **Outer loop** (this design — runs on **OpenClaw**, not in this repo) — everything that *manufactures* well-scoped Bindings and *reacts* to what comes back: it watches GitHub, decides what to work on, dispatches the inner loop, and shepherds the resulting PR through review feedback. **OpenClaw is just the runtime** (heartbeat, webhooks, cron, channels, state, sandbox); the agent that reasons is **Claude Code, headless** (`claude -p --dangerously-skip-permissions`), invoked each wake — the same `claude -p` the inner loop already uses.
+**This folder is gitignored except this README** (like `llm/loops/`). The design plans and the box's operating prompt are intentionally kept out of the product tree, matching the loop system's "code + skill = source of truth" convention:
 
-The inner loop's contract is the entire seam between them:
-
-```
-Binding { id, kind, title, risk, acceptance[] }
-   ──(crbn up --run 'harness loop')──▶  outcome.json { state, prUrl, reason } + a gated PR
-```
+- **Design history** (the full plan, repo-change list, box setup): in the PR that introduced this — [crbnos/carbon#957](https://github.com/crbnos/carbon/pull/957) and its commits.
+- **Operating prompt** (the literal prompt the box runs each wake): lives on the **OpenClaw box**, where it runs.
 
 ## The one-sentence interface
 
-**Assign a GitHub issue to `carbon-agent` → it builds it. Assign nothing → it grooms the backlog so there's good work ready to assign.**
+**Assign a GitHub issue to `carbon-agent` → it builds it. Assign nothing → it grooms the backlog so there's good work ready to assign.** OpenClaw is just the runtime (heartbeat, webhooks, cron, channels, state, sandbox); Claude Code is the agent — the same `claude -p` the inner loop already uses.
 
-## Deliverables
+## What's actually in this repo (the functional contract the outer loop consumes)
 
-1. **[01-openclaw-plan.md](01-openclaw-plan.md)** — the outer loop itself, implemented on OpenClaw. The orchestrator/builder split, the assign-to-build / idle-grooms behavior, egress-only webhooks (so it works behind Tailscale), GitHub-as-state-store, the wake loop, safety rails, and a build order.
-2. **[02-repo-changes.md](02-repo-changes.md)** — the small, specific set of changes *this repo* needs to expose a clean headless dispatch contract for an external orchestrator. (Deliberately minimal: all GitHub/judgment logic stays in the agent on the OpenClaw box; the repo stays deterministic.) **All repo-side work (0, A–F) is landed.**
-3. **[03-openclaw-box-setup.md](03-openclaw-box-setup.md)** — a self-contained setup plan to hand to the Claude running *inside* the OpenClaw box, to adapt that install for this role: identity/credentials, build environment, the heartbeat wake loop, egress-only webhooks, scratch + durable memory, safety rails, and a supervised smoke test.
-4. **[agent-prompt.md](agent-prompt.md)** — the literal **operating prompt** the box runs each wake (`claude -p --dangerously-skip-permissions "$(cat …/agent-prompt.md)"`): the wake loop, dispatch recipe, re-entry, grooming, safety rails. This is what you actually pass to OpenClaw to run; deliverable 3 is the one-time *setup*, this is the recurring *tick*.
-
-## Design principles carried over from the inner loop
-
-- **Claude Code is the agent; OpenClaw is the runtime.** The reasoning happens in headless `claude -p`; OpenClaw only schedules, sandboxes, and carries I/O. One agent runtime top to bottom (the inner loop already runs on `claude -p`).
-- **Deterministic spine, narrow judgment calls.** The inner loop made the harness a deterministic state machine and invoked the model only for doer/judge/behavior. The outer loop mirrors this one level up: a deterministic shell (GitHub state, leases, budget, audit, the human gate) that invokes the agent only for judgment (triage, prioritize, scope, react to feedback).
-- **Never auto-merge.** The terminal artifact is always a gated PR awaiting a human, at both loop levels.
-- **GitHub is the source of truth**, not a private database. Labels + assignment + PR state encode everything durable; the bot keeps only scratch (cursor/budget) locally.
+- **`@carbon/harness`** — `crbn up --run 'pnpm --filter @carbon/harness loop <binding> --cwd .'` drives a `Binding` to a gated PR and writes `llm/loops/runs/<id>/outcome.json` (`{ state, prUrl, reason }`). `openPr` is idempotent (PR-feedback re-entry on the same branch); optional `Binding.issue` → `Closes #<n>`. GC stale runs with `pnpm --filter @carbon/harness run gc`.
+- **`crbn down --volumes`** / **`crbn up --run … --volumes`** — prune the stack's Docker volumes on teardown (headless boxes don't leak volumes).
+- **`.github/scripts/setup-agent-labels.sh`** + the **Agent Labels** workflow — the `agent:*` labels the orchestrator drives (`working`, `needs-grooming`, `groomed`, `needs-decomposition`, `blocked`).

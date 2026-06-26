@@ -72,3 +72,8 @@ packages/database/supabase/snippets/**
 # All per-run output lives under llm/loops/runs/; everything else in llm/ is docs.
 # The ledger summary goes in the PR body; screenshots are hosted on the PR.
 llm/loops/runs/
+
+# Outer-loop scratch (design plans, the box's operating prompt) — kept out of the
+# product tree; the design lives in PR history and the prompt lives on the OpenClaw box.
+llm/outer-loop/*
+!llm/outer-loop/README.md
