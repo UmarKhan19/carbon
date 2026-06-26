@@ -20,6 +20,7 @@ Binding { id, kind, title, risk, acceptance[] }
 
 1. **[01-openclaw-plan.md](01-openclaw-plan.md)** — the outer loop itself, implemented on OpenClaw. The orchestrator/builder split, the assign-to-build / idle-grooms behavior, egress-only webhooks (so it works behind Tailscale), GitHub-as-state-store, the wake loop, safety rails, and a build order.
 2. **[02-repo-changes.md](02-repo-changes.md)** — the small, specific set of changes *this repo* needs to expose a clean headless dispatch contract for an external orchestrator. (Deliberately minimal: all GitHub/judgment logic stays in OpenClaw; the repo stays deterministic.)
+3. **[03-openclaw-box-setup.md](03-openclaw-box-setup.md)** — a self-contained setup plan to hand to the Claude running *inside* the OpenClaw box, to adapt that install for this role: identity/credentials, build environment, the heartbeat wake loop, egress-only webhooks, scratch + durable memory, safety rails, and a supervised smoke test.
 
 ## Design principles carried over from the inner loop
 
