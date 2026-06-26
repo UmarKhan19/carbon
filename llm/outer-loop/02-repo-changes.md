@@ -130,13 +130,17 @@ With this, re-entry needs **no new command** — the orchestrator just runs the 
 | 0 | `llm/` layout + GC codified in harness | `layout.ts`, `runs.ts`, `scripts/prune-runs.ts`, `.gitignore`, docs | ✅ done | none | clean `llm/`; janitor GC; absorbs A & B |
 | A | `prUrl` in outcome + `outcome.json` | `scripts/run-loop.ts`, `layout.ts` | ✅ done | none | reliable dispatch parsing (build step 1) |
 | B | Persist binding to run dir | `scripts/run-loop.ts`, `layout.ts` | ✅ done | none | self-describing runs / re-entry |
-| C | Idempotent PR open (create-or-update) | `runner/pr.ts` | pending | low | **PR-feedback re-entry** (build step 3) |
-| D | Optional `Closes #<issue>` linkage | `binding.ts`, `runner/pr.ts` | pending | none | merge → auto-close → GitHub state machine |
+| C | Idempotent PR open (create-or-update) | `runner/pr.ts` | ✅ done | low | **PR-feedback re-entry** (build step 3) |
+| D | Optional `Closes #<issue>` linkage | `binding.ts`, `runner/pr.ts` | ✅ done | none | merge → auto-close → GitHub state machine |
 | E | Label + webhook-event docs | `llm/outer-loop/`, `.github/` | pending | none | clarity |
-| F | `crbn down --volumes` teardown | `dev/commands/down.ts`, `up.ts` | pending | low | box resource hygiene |
+| F | `crbn down --volumes` teardown | `dev/commands/down.ts`, `up.ts`, `main.ts` | ✅ done | low | box resource hygiene |
 
-## Suggested order
+## Status
 
-**0 + A + B** are landed. Next: **D** (cheap, makes the GitHub state machine close cleanly), then **C** when wiring PR-feedback re-entry (build step 3), **F** when the orchestrator's resource janitor goes in, **E** anytime.
+**0, A, B, C, D, F are landed.** Only **E** (label + webhook-event docs / `.github` labeler) remains, and it's documentation that pairs naturally with building the OpenClaw orchestrator.
+
+- **C** — `openPr` now checks `gh pr view` and updates the existing PR (`gh pr edit`) instead of failing `gh pr create`, so re-running the loop in the same worktree (PR-feedback re-entry) just lands new commits on the open PR. Covered by `pr.test.ts`.
+- **D** — `Binding` gained an optional numeric `issue`; when set, the PR body carries `Closes #<n>`. Covered by `binding.test.ts`.
+- **F** — `crbn down --volumes` (and `crbn up --run --volumes`) prune the stack's Docker volumes on teardown via the existing `stopStack(…, withVolumes)`; default behavior unchanged.
 
 No GitHub dependency enters the repo; the deterministic boundary holds.

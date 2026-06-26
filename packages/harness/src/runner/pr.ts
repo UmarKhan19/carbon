@@ -153,6 +153,7 @@ export function openPr(
     "",
     `**Kind:** ${binding.kind} · **Risk:** ${binding.risk}`,
     "",
+    ...(binding.issue ? [`Closes #${binding.issue}`, ""] : []),
     "### Acceptance",
     ...binding.acceptance.map((c) => `- [x] ${c}`),
     "",
@@ -172,6 +173,15 @@ export function openPr(
   const push = shell("git push -u origin HEAD", { cwd });
   if (!push.ok) throw new Error(`git push failed: ${push.output}`);
 
+  // Idempotent: a PR may already exist for this branch (re-entry — addressing
+  // review feedback in the same worktree). Update its body and return it rather
+  // than failing on `gh pr create`. `gh pr view` errors (ok:false) when none.
+  const existing = shell("gh pr view --json url --jq .url", { cwd });
+  if (existing.ok && existing.output.trim().startsWith("http")) {
+    shell(`gh pr edit --body-file ${sq(bodyFile)}`, { cwd });
+    return firstHttpUrl(existing.output);
+  }
+
   const title = `loop(${binding.id}): ${binding.title}`;
   const baseArg = base ? ` --base ${sq(base)}` : "";
   const r = shell(
@@ -180,11 +190,16 @@ export function openPr(
   );
   if (!r.ok) throw new Error(`gh pr create failed: ${r.output}`);
 
+  return firstHttpUrl(r.output);
+}
+
+/** The last `http…` line in command output (gh prints the URL last). */
+function firstHttpUrl(output: string): string {
   return (
-    r.output
+    output
       .split("\n")
       .map((l) => l.trim())
       .filter((l) => l.startsWith("http"))
-      .at(-1) ?? r.output.trim()
+      .at(-1) ?? output.trim()
   );
 }

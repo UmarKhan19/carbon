@@ -57,6 +57,12 @@ const main = defineCommand({
           type: "string",
           description:
             "Boot apps, wait until reachable, run this command, then tear the stack down (scopes the stack's lifetime to the command — for headless/CI use)"
+        },
+        volumes: {
+          type: "boolean",
+          default: false,
+          description:
+            "With --run, also remove Docker volumes on teardown (headless: don't leak data volumes across dispatches)"
         }
       },
       run: ({ args }) =>
@@ -67,12 +73,20 @@ const main = defineCommand({
           pull: args.pull === true,
           borrow: args.borrow === true,
           portless: args.portless !== false,
-          run: typeof args.run === "string" ? args.run : undefined
+          run: typeof args.run === "string" ? args.run : undefined,
+          volumes: args.volumes === true
         })
     }),
     down: defineCommand({
       meta: { description: "Stop the compose stack (volumes preserved)" },
-      run: () => down()
+      args: {
+        volumes: {
+          type: "boolean",
+          default: false,
+          description: "Also remove Docker volumes (the stack's data is wiped)"
+        }
+      },
+      run: ({ args }) => down({ volumes: args.volumes === true })
     }),
     reset: defineCommand({
       meta: { description: "Wipe volumes + flush redis db, then `up`" },
