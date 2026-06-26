@@ -254,7 +254,9 @@ export default function BackupsRoute() {
   const exportCompleted =
     active?.mode === "export" &&
     !!active.exportBaseline &&
-    files.some((f) => !active.exportBaseline!.has(f.name));
+    files.some(
+      (f) => f.status === "ready" && !active.exportBaseline!.has(f.name)
+    );
 
   // keep / dismiss / revert finalize the run via an async Inngest job, so the
   // marker is still present on the next revalidation. Hide the row optimistically
@@ -356,7 +358,9 @@ export default function BackupsRoute() {
                 <div className="flex flex-col gap-6">
                   <div className="flex flex-col gap-1.5">
                     <span className="text-sm">Source</span>
-                    <BackupSourcePicker backups={files} />
+                    <BackupSourcePicker
+                      backups={files.filter((f) => f.status === "ready")}
+                    />
                   </div>
                   <div className="flex flex-col gap-1.5">
                     <span className="text-sm">Include</span>
@@ -432,35 +436,49 @@ export default function BackupsRoute() {
                 {files.map((file) => (
                   <HStack
                     key={file.name}
-                    className="w-full justify-between border rounded-lg p-3"
+                    className={`w-full justify-between border rounded-lg p-3 ${
+                      file.status === "pending" ? "opacity-70" : ""
+                    }`}
                   >
                     <VStack spacing={0}>
                       <span className="text-sm font-medium">
-                        {formatBackupName(file.name)}
+                        {file.label || formatBackupName(file.name)}
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        {formatBackupDate(file.exportedAt)}
-                        {file.sizeBytes ? (
+                        {file.status === "pending" ? (
+                          <span className="animate-pulse">Preparing…</span>
+                        ) : (
                           <>
-                            {" · "}
-                            {convertKbToString(
-                              Math.round(file.sizeBytes / 1024)
-                            )}
+                            {formatBackupDate(file.exportedAt)}
+                            {file.sizeBytes ? (
+                              <>
+                                {" · "}
+                                {convertKbToString(
+                                  Math.round(file.sizeBytes / 1024)
+                                )}
+                              </>
+                            ) : null}
                           </>
-                        ) : null}
+                        )}
                       </span>
                     </VStack>
                     <HStack spacing={2}>
-                      <Button asChild variant="secondary">
-                        <a
-                          href={`/api/settings/backup-archive/${encodeURIComponent(
-                            file.name
-                          )}`}
-                          download
-                        >
+                      {file.status === "ready" ? (
+                        <Button asChild variant="secondary">
+                          <a
+                            href={`/api/settings/backup-archive/${encodeURIComponent(
+                              file.name
+                            )}`}
+                            download
+                          >
+                            Download
+                          </a>
+                        </Button>
+                      ) : (
+                        <Button variant="secondary" isDisabled>
                           Download
-                        </a>
-                      </Button>
+                        </Button>
+                      )}
                       <Form method="post">
                         <input type="hidden" name="intent" value="delete" />
                         <input type="hidden" name="name" value={file.name} />

@@ -54,6 +54,9 @@ export async function exportCompanyBackup(
 export type CompanyBackupSummary = {
   /** Backup folder name (also the restore `source` identifier). */
   name: string;
+  /** "ready" once manifest.json (the last-written commit marker) exists;
+   *  "pending" while the export is still writing the folder. */
+  status: "ready" | "pending";
   exportedAt: string | null;
   label: string | null;
   rows: number;
@@ -83,6 +86,7 @@ export async function listCompanyBackups(
     folders.map(async (folder): Promise<CompanyBackupSummary> => {
       const summary: CompanyBackupSummary = {
         name: folder.name,
+        status: "pending",
         exportedAt: null,
         label: null,
         rows: 0,
@@ -99,6 +103,7 @@ export async function listCompanyBackups(
             tables?: Array<{ rows?: number }>;
             storage?: Array<{ size?: number; included?: boolean }>;
           };
+          summary.status = "ready";
           summary.exportedAt = m.exportedAt ?? null;
           summary.label = m.label ?? null;
           summary.rows = (m.tables ?? []).reduce(
@@ -109,8 +114,8 @@ export async function listCompanyBackups(
             .filter((x) => x.included)
             .reduce((sum, x) => sum + (x.size ?? 0), 0);
         } catch {
-          // A folder without a readable manifest is a partial/aborted export —
-          // still list it (by name) so the user can delete it.
+          // Manifest present but unreadable — treat as a partial/aborted export
+          // (stays "pending"); still listed by name so the user can delete it.
         }
       }
       return summary;
@@ -158,6 +163,8 @@ export async function getCompanyRestoreRuns(
       rows?: number;
       label?: string | null;
       error?: string | null;
+      startedAt?: string;
+      progress?: { phase: string; done: number; total: number };
     };
     return {
       restoreRunId: meta.restoreRunId ?? m.entityId,
@@ -165,9 +172,49 @@ export async function getCompanyRestoreRuns(
       rows: meta.rows ?? 0,
       label: meta.label ?? null,
       error: meta.error ?? null,
-      startedAt: m.createdAt
+      progress: meta.progress ?? null,
+      startedAt: meta.startedAt ?? m.createdAt
     };
   });
 
   return { data: runs, error: null };
+}
+
+/**
+ * The in-flight export's live progress, or null when none is running. One marker
+ * per company (integration = 'company-export'), written by the export job and
+ * cleared when it finishes — so its absence means "not running" (the new backup
+ * appearing in the list is what signals completion).
+ */
+export async function getCompanyExportRun(
+  client: SupabaseClient<Database>,
+  companyId: string
+): Promise<{
+  data: {
+    progress: { phase: string; done: number; total: number } | null;
+    startedAt: string | null;
+  } | null;
+  error: Error | null;
+}> {
+  const marker = await client
+    .from("externalIntegrationMapping")
+    .select("metadata, createdAt")
+    .eq("integration", "company-export")
+    .eq("companyId", companyId)
+    .maybeSingle();
+
+  if (marker.error) return { data: null, error: marker.error };
+  if (!marker.data) return { data: null, error: null };
+
+  const meta = (marker.data.metadata ?? {}) as {
+    startedAt?: string;
+    progress?: { phase: string; done: number; total: number };
+  };
+  return {
+    data: {
+      progress: meta.progress ?? null,
+      startedAt: meta.startedAt ?? marker.data.createdAt
+    },
+    error: null
+  };
 }

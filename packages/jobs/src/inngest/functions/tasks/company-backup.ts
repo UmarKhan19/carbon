@@ -2,13 +2,14 @@ import { randomUUID } from "node:crypto";
 import { createInterface } from "node:readline";
 import { Readable } from "node:stream";
 import { createGunzip, createGzip } from "node:zlib";
+import type { TableName } from "@carbon/database/audit.config";
 import {
   getPostgresClient,
   getPostgresConnectionPool,
   type KyselyDatabase
 } from "@carbon/database/client";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { type Kysely, PostgresDriver, sql } from "kysely";
+import { type Kysely, PostgresDriver, type RawBuilder, sql } from "kysely";
 import { nanoid } from "nanoid";
 
 /**
@@ -121,6 +122,10 @@ export function rewriteStoragePath(
  */
 export const SECRET_TABLES = [
   "apiKey",
+  // Worthless without its (secret, stripped) apiKey, which it references via a
+  // NOT-NULL FK — exporting it alone dangles every row on restore. It's also an
+  // UNLOGGED operational rate-limit counter, never user data.
+  "apiKeyRateLimit",
   "companyIntegration",
   "webhook",
   "oauthClient",
@@ -128,11 +133,56 @@ export const SECRET_TABLES = [
 ];
 
 /**
+ * Company-singleton config tables: one row per company, keyed by `id` (the row's
+ * `id` IS the company id, via an `id -> company` FK), with no `companyId` column.
+ * They're a company's data, so the catalog includes them scoped by `id` directly
+ * (`WHERE id = companyId`) — no redundant `companyId` column needed. `companyPlan`
+ * is a singleton too but is deliberately NOT listed: it's billing/Stripe identity
+ * tied to the target company and must never travel.
+ */
+export const COMPANY_SINGLETON_TABLES = [
+  "companySettings",
+  "terms",
+  "companyAccountsPayableBillingAddress",
+  "companyAccountsReceivableBillingAddress"
+] as const satisfies readonly TableName[];
+
+/**
  * Tenant-root tables that carry a scope column but are NOT tenant data — the
  * company shell itself is created by onboarding, never imported. Excluded
  * from the catalog entirely.
  */
 export const STRUCTURAL_TABLES = ["company"];
+
+/**
+ * MRP planning output — the `mrp` edge function deletes then re-inserts these
+ * wholesale per company on every run, and nothing else writes them. They hold
+ * no user-authored data, so a backup must not carry them: restoring stale
+ * projections is pure bloat (the next MRP run rebuilds them), and
+ * `demandForecastSource`'s discriminator CHECK (`sourceType` ↔ which FK is
+ * non-null) makes a remapped restore brittle — the FK-nulling dangling-ref
+ * policy silently violates it. Excluded from the catalog entirely, so they are
+ * never exported, wiped, or loaded. (`demandForecast` is deliberately NOT here:
+ * it also has a user-forecast write path and carries no such CHECK.)
+ */
+export const TRANSIENT_TABLES = [
+  "demandForecastSource",
+  "demandActual",
+  "supplyForecast",
+  "supplyActual"
+] as const satisfies readonly TableName[];
+
+/**
+ * Tables deliberately kept out of the catalog: the company shell + MRP planning
+ * output. The catalog skips them so they're never exported/wiped/loaded, and
+ * `assertBackupImportable` skips them too — an older backup that still carries
+ * one of these (made before it was excluded) is NOT schema drift; its rows are
+ * simply ignored on load (the next MRP run rebuilds the data).
+ */
+export const CATALOG_EXCLUDED_TABLES = new Set<string>([
+  ...STRUCTURAL_TABLES,
+  ...TRANSIENT_TABLES
+]);
 
 /**
  * Additional tables skipped in `reseed` mode — memberships, invites and
@@ -187,17 +237,44 @@ export type ForeignKey = {
   refColumn: string;
 };
 
+/**
+ * How a table's rows are scoped to a company:
+ * - `direct`: the table itself has a scope column — `companyId`/`companyGroupId`,
+ *   or `id` for a company-singleton (whose `id` IS the company id, see
+ *   {@link COMPANY_SINGLETON_TABLES}).
+ * - `via`: the table has no scope column but a FK (`column` → `parent.refColumn`)
+ *   to a table that IS scoped (possibly transitively). It inherits that scope —
+ *   e.g. `customerContact.customerId → customer`. Resolved from the FK graph so
+ *   child tables (contacts, locations, line prices, history) travel with their
+ *   parent without a hand-maintained list.
+ */
+export type Scope =
+  | { kind: "direct"; column: "companyId" | "companyGroupId" | "id" }
+  | { kind: "via"; column: string; refColumn: string; parent: string };
+
 export type TableInfo = {
   name: string;
   columns: ColumnInfo[];
+  /** How the table is scoped to a company (direct column or via a parent FK). */
+  scope: Scope;
   /**
-   * The tenant column the rows are filtered/stamped by. Most data is
-   * `companyId`-scoped; the chart of accounts and other shared config
-   * (account, currency, dimension, …) is `companyGroupId`-scoped.
+   * The resolved ROOT tenant column the rows ultimately belong to — `companyId`
+   * for most data, `companyGroupId` for shared config (chart of accounts,
+   * currencies, …). For a `via` table it's the root ancestor's column. Used for
+   * the "which tenant" decisions (wipe/reseed scope); the actual row filter is
+   * built by `buildScopeFilter`.
    */
   scopeColumn: "companyId" | "companyGroupId";
   /** primary key column names (empty when the table has no PK) */
   pkColumns: string[];
+  /**
+   * Every column that participates in ANY uniqueness constraint — primary key,
+   * unique constraint, or bare unique index (deduped). A foreign restore that
+   * collapses a user FK in one of these would collide, so it's the signal for
+   * `isUserScopedIdentityTable` (PK alone misses unique-index keys like
+   * `trainingCompletion(trainingAssignmentId, employeeId, period)`).
+   */
+  uniqueColumns: string[];
   /** true when the primary key is exactly the single column "id" */
   hasId: boolean;
   foreignKeys: ForeignKey[];
@@ -273,6 +350,27 @@ export function backupAssetsDir(name: string): string {
 }
 
 /**
+ * Write `manifest.json` — the LAST thing written for a backup, after every table
+ * file and asset is in place. Its presence is the "backup is complete" marker:
+ * the UI lists a folder without a manifest as still-preparing (no size yet), and
+ * restore/import refuse to read one until its manifest exists.
+ */
+export async function writeBackupManifest(
+  client: SupabaseClient,
+  companyId: string,
+  name: string,
+  manifest: Manifest
+): Promise<void> {
+  const up = await client.storage
+    .from(companyId)
+    .upload(backupManifestPath(name), Buffer.from(JSON.stringify(manifest)), {
+      contentType: "application/json",
+      upsert: true
+    });
+  if (up.error) throw new Error(`manifest: ${up.error.message}`);
+}
+
+/**
  * Gzip one table's rows as NDJSON (one JSON object per line). Streamed, so a huge
  * table never builds a `>512MB` string.
  */
@@ -342,7 +440,9 @@ export async function readBackup(
     .download(backupManifestPath(name));
   if (mf.error || !mf.data) {
     throw new Error(
-      `Failed to download backup manifest ${name}: ${mf.error?.message}`
+      `Failed to download backup manifest ${name}: ${
+        mf.error?.message || JSON.stringify(mf.error) || "not found"
+      }`
     );
   }
   const manifest = JSON.parse(await mf.data.text()) as Manifest;
@@ -360,7 +460,9 @@ export async function readBackup(
         .download(backupTablePath(name, t.name));
       if (f.error || !f.data) {
         throw new Error(
-          `Failed to download table ${t.name} for ${name}: ${f.error?.message}`
+          `Failed to download table ${t.name} for ${name}: ${
+            f.error?.message || JSON.stringify(f.error) || "not found"
+          }`
         );
       }
       data[t.name] = await deserializeTable(await f.data.arrayBuffer());
@@ -397,7 +499,9 @@ export async function getCompanyTableCatalog(
   `.execute(db);
 
   // companyId wins when a table carries both columns.
-  const structural = new Set(STRUCTURAL_TABLES);
+  // Excluded from the catalog entirely: the company shell + MRP planning output
+  // (regenerated every run, never user data — see CATALOG_EXCLUDED_TABLES).
+  const structural = CATALOG_EXCLUDED_TABLES;
   const scopeByTable = new Map<string, "companyId" | "companyGroupId">();
   for (const r of scopeRows.rows) {
     if (structural.has(r.name)) continue;
@@ -407,7 +511,6 @@ export async function getCompanyTableCatalog(
       scopeByTable.set(r.name, "companyGroupId");
     }
   }
-  const tableSet = new Set(scopeByTable.keys());
 
   const columns = await sql<{
     table_name: string;
@@ -439,6 +542,18 @@ export async function getCompanyTableCatalog(
     ORDER BY tc.table_name, kcu.ordinal_position
   `.execute(db);
 
+  // Columns in ANY unique index (covers PKs, unique constraints, and bare
+  // CREATE UNIQUE INDEX — the last is how training tables key their employee).
+  // `attnum = ANY(indkey)` skips expression-index entries (attnum 0).
+  const uniqueColumns = await sql<{ table_name: string; column_name: string }>`
+    SELECT t.relname AS table_name, a.attname AS column_name
+    FROM pg_index ix
+    JOIN pg_class t ON t.oid = ix.indrelid
+    JOIN pg_namespace nsp ON nsp.oid = t.relnamespace
+    JOIN pg_attribute a ON a.attrelid = t.oid AND a.attnum = ANY (ix.indkey)
+    WHERE ix.indisunique AND nsp.nspname = 'public'
+  `.execute(db);
+
   const foreignKeys = await sql<{
     table_name: string;
     column_name: string;
@@ -459,6 +574,59 @@ export async function getCompanyTableCatalog(
       ON tatt.attrelid = tgt.oid AND tatt.attnum = u.fattnum
     WHERE con.contype = 'f' AND nsp.nspname = 'public'
   `.execute(db);
+
+  // FK graph for EVERY table (not just the directly-scoped ones), so scope can
+  // be resolved transitively below.
+  const allFksByTable = new Map<string, ForeignKey[]>();
+  for (const f of foreignKeys.rows) {
+    const list = allFksByTable.get(f.table_name) ?? [];
+    list.push({
+      column: f.column_name,
+      refTable: f.ref_table,
+      refColumn: f.ref_column
+    });
+    allFksByTable.set(f.table_name, list);
+  }
+
+  // Resolve scope transitively: a table with no companyId/companyGroupId column
+  // but a FK to an already-scoped table inherits that scope (nearest scoped
+  // parent wins — BFS by passes converges on the shortest path). This pulls in
+  // child tables (contacts, locations, line prices, status history, …) without a
+  // hand-maintained list.
+  const scope = new Map<string, Scope>();
+  const scopeRoot = new Map<string, "companyId" | "companyGroupId">();
+  for (const [name, column] of scopeByTable) {
+    scope.set(name, { kind: "direct", column });
+    scopeRoot.set(name, column);
+  }
+  // Company-singletons: keyed by `id` (= the company id via an id->company FK),
+  // with no companyId column. Scope them by `id` directly — a company's data
+  // without a redundant column. Inject BEFORE via-resolution so a FK to a scoped
+  // table (e.g. a notification-group ref) can't mis-scope them through it.
+  const existingTables = new Set(columns.rows.map((c) => c.table_name));
+  for (const name of COMPANY_SINGLETON_TABLES) {
+    if (!existingTables.has(name) || scope.has(name)) continue;
+    scope.set(name, { kind: "direct", column: "id" });
+    scopeRoot.set(name, "companyId");
+  }
+  let resolvedMore = true;
+  while (resolvedMore) {
+    resolvedMore = false;
+    for (const [name, fks] of allFksByTable) {
+      if (scope.has(name) || structural.has(name)) continue;
+      const fk = fks.find((f) => f.refTable !== name && scope.has(f.refTable));
+      if (!fk) continue;
+      scope.set(name, {
+        kind: "via",
+        column: fk.column,
+        refColumn: fk.refColumn,
+        parent: fk.refTable
+      });
+      scopeRoot.set(name, scopeRoot.get(fk.refTable)!);
+      resolvedMore = true;
+    }
+  }
+  const tableSet = new Set(scope.keys());
 
   let schemaVersion = "unknown";
   try {
@@ -494,6 +662,13 @@ export async function getCompanyTableCatalog(
     pkColumnsByTable.set(p.table_name, list);
   }
 
+  const uniqueColumnsByTable = new Map<string, Set<string>>();
+  for (const u of uniqueColumns.rows) {
+    const set = uniqueColumnsByTable.get(u.table_name) ?? new Set<string>();
+    set.add(u.column_name);
+    uniqueColumnsByTable.set(u.table_name, set);
+  }
+
   const fksByTable = new Map<string, ForeignKey[]>();
   for (const f of foreignKeys.rows) {
     if (!tableSet.has(f.table_name)) continue;
@@ -511,8 +686,10 @@ export async function getCompanyTableCatalog(
     return {
       name,
       columns: columnsByTable.get(name) ?? [],
-      scopeColumn: scopeByTable.get(name)!,
+      scope: scope.get(name)!,
+      scopeColumn: scopeRoot.get(name)!,
       pkColumns,
+      uniqueColumns: [...(uniqueColumnsByTable.get(name) ?? [])],
       hasId: pkColumns.length === 1 && pkColumns[0] === "id",
       foreignKeys: fksByTable.get(name) ?? []
     };
@@ -559,6 +736,9 @@ export function assertBackupImportable(
 
   const liveByName = new Map(catalog.tables.map((t) => [t.name, t]));
   for (const backupTable of manifest.tables) {
+    // A backup table the catalog now excludes by design (MRP output, the company
+    // shell) is not schema drift — skip it; its rows are ignored on load.
+    if (CATALOG_EXCLUDED_TABLES.has(backupTable.name)) continue;
     const live = liveByName.get(backupTable.name);
     if (!live) {
       return {
@@ -583,6 +763,19 @@ export function assertBackupImportable(
   }
   return { ok: true };
 }
+
+/**
+ * FK targets a restore resolves WITHOUT the referenced row being in the backup:
+ * `user` (global identity table, never in the catalog) and `company` (structural),
+ * plus `employee` (collapsed to the importer) and `companyGroup` (re-stamped to the
+ * target group). A FK to any of these can't be a closure gap.
+ */
+export const RETAINED_REF_TABLES = new Set([
+  "user",
+  "employee",
+  "company",
+  "companyGroup"
+]);
 
 /**
  * Kahn's algorithm over in-set FK edges (referenced tables first). Cycles
@@ -669,6 +862,112 @@ export function bindValue(value: unknown, col: ColumnInfo): unknown {
 }
 
 /**
+ * A SQL predicate scoping a table's rows to one company. For a directly-scoped
+ * table it's `companyId = $`; for a `via` table it's
+ * `fk IN (SELECT parent.refColumn FROM parent WHERE <parent's predicate>)`,
+ * recursing to the scoped root. The subquery is NOT correlated (it lists the
+ * parent's ids for the company), so it stays a cheap semi-join. `byName` must
+ * hold every catalog table so parents resolve.
+ */
+export function buildScopeFilter(
+  table: TableInfo,
+  byName: Map<string, TableInfo>,
+  companyId: string,
+  companyGroupId: string | null
+): RawBuilder<unknown> {
+  if (table.scope.kind === "direct") {
+    const value =
+      table.scope.column === "companyGroupId" ? companyGroupId : companyId;
+    return sql`${sql.id(table.scope.column)} = ${value}`;
+  }
+  const parent = byName.get(table.scope.parent);
+  if (!parent) {
+    throw new Error(
+      `Scope parent "${table.scope.parent}" of "${table.name}" is not in the catalog`
+    );
+  }
+  return sql`${sql.id(table.scope.column)} IN (SELECT ${sql.id(
+    table.scope.refColumn
+  )} FROM ${sql.id(table.scope.parent)} WHERE ${buildScopeFilter(
+    parent,
+    byName,
+    companyId,
+    companyGroupId
+  )})`;
+}
+
+/**
+ * Export-time closure guard — refuse to PRODUCE a backup that could never be
+ * restored. For each NOT-NULL FK from an exportable scoped table to another
+ * exportable scoped table, count rows in this company's export scope whose
+ * reference falls OUTSIDE the referenced table's export scope (a cross-company /
+ * out-of-scope ref: the child row would be dumped but its parent would not).
+ * DB-level and count-only, so no rows are held in memory. This is the export
+ * mirror of the restore-side `assertReferentiallyClosed`. Skips nullable FKs
+ * (restore nulls a missing nullable ref) and refs to retained/global/secret
+ * tables (`user`, `company`, …, and anything not exported).
+ */
+export async function findExportScopeViolations(
+  db: Kysely<KyselyDatabase>,
+  exportable: TableInfo[],
+  byName: Map<string, TableInfo>,
+  companyId: string,
+  companyGroupId: string | null
+): Promise<string[]> {
+  const exportableNames = new Set(exportable.map((t) => t.name));
+  const checks: Array<{ desc: string; query: RawBuilder<{ n: string }> }> = [];
+  for (const t of exportable) {
+    const colByName = new Map(t.columns.map((c) => [c.name, c]));
+    for (const fk of t.foreignKeys) {
+      if (fk.refColumn !== "id") continue;
+      if (RETAINED_REF_TABLES.has(fk.refTable)) continue;
+      if (!exportableNames.has(fk.refTable)) continue; // global/secret → not in closure
+      const col = colByName.get(fk.column);
+      if (!col || col.isNullable) continue; // nullable → restore nulls a missing ref
+      const parent = byName.get(fk.refTable)!;
+      const childScope = buildScopeFilter(t, byName, companyId, companyGroupId);
+      const parentScope = buildScopeFilter(
+        parent,
+        byName,
+        companyId,
+        companyGroupId
+      );
+      // A NOT-NULL FK is only a real gap when it points at ANOTHER company's row.
+      // A `companyId IS NULL` row is shared substrate (seeded `material*`,
+      // currencies, …) present in every target, so it is never a gap — widen the
+      // existence set to include it. A ref to a row owned by a different company
+      // (scopeCol = some other value) is still NOT matched, so it still surfaces.
+      // This is the one cross-tenant rule, no per-table allow-list.
+      const parentExistence =
+        parent.scope.kind === "direct"
+          ? sql`${parentScope} OR ${sql.id(parent.scope.column)} IS NULL`
+          : parentScope;
+      checks.push({
+        desc: `${t.name}.${fk.column} → ${fk.refTable}`,
+        query: sql<{ n: string }>`
+          SELECT count(*)::text AS n
+          FROM ${sql.id(t.name)}
+          WHERE ${childScope}
+            AND ${sql.id(fk.column)} IS NOT NULL
+            AND ${sql.id(fk.column)} NOT IN (
+              SELECT ${sql.id(fk.refColumn)}
+              FROM ${sql.id(parent.name)}
+              WHERE ${parentExistence}
+            )`
+      });
+    }
+  }
+
+  const violations: string[] = [];
+  await mapWithConcurrency(checks, 6, async (c) => {
+    const r = await c.query.execute(db);
+    const n = Number(r.rows[0]?.n ?? 0);
+    if (n > 0) violations.push(`${c.desc} (${n} row${n === 1 ? "" : "s"})`);
+  });
+  return violations;
+}
+
+/**
  * Of the given tables, return only those the target has NOT yet populated in
  * its scope (companyId or companyGroupId). Reseed import uses this so it
  * never overwrites data the target already owns — a bare clone keeps every
@@ -677,18 +976,16 @@ export function bindValue(value: unknown, col: ColumnInfo): unknown {
 export async function filterUnpopulated(
   db: Kysely<KyselyDatabase>,
   tables: TableInfo[],
+  byName: Map<string, TableInfo>,
   companyId: string,
   companyGroupId: string | null
 ): Promise<TableInfo[]> {
   const isEmpty = await Promise.all(
     tables.map(async (t) => {
-      const scopeValue =
-        t.scopeColumn === "companyGroupId" ? companyGroupId : companyId;
-      if (scopeValue === null) return true;
       const result = await sql<{ present: boolean }>`
         SELECT EXISTS(
           SELECT 1 FROM ${sql.id(t.name)}
-          WHERE ${sql.id(t.scopeColumn)} = ${scopeValue}
+          WHERE ${buildScopeFilter(t, byName, companyId, companyGroupId)}
         ) AS present
       `.execute(db);
       return !result.rows[0]?.present;
@@ -730,29 +1027,41 @@ export async function canSetReplicationRole(
  * A table whose primary key is keyed by a `user`/`employee` FK (e.g. `employeeJob`,
  * `customerAccount`, `supplierAccount`, `userToCompany`) is per-source-user
  * identity. A foreign restore / reseed collapses every user FK onto the single
- * importing user, so all such rows would land on the same `(id, companyId)` PK and
- * collide. They can never be meaningfully copied to another company — skip them on
- * both load paths (the source's belong to the source's users; the target keeps its
- * own). Derived from the catalog so a new table of this shape is covered
- * automatically rather than silently reintroducing the collision.
+ * importing user, so all such rows would collide on whatever uniqueness constraint
+ * the user column participates in — a composite PK like `(id, companyId)`, OR a
+ * unique index like `trainingCompletion(trainingAssignmentId, employeeId, period)`.
+ * They can never be meaningfully copied to another company — skip them on both load
+ * paths (the source's belong to the source's users; the target keeps its own).
+ * Keys off every unique column (not just the PK) so a table that keys its user via
+ * a unique index is covered automatically rather than silently colliding on load.
  */
 export function isUserScopedIdentityTable(table: TableInfo): boolean {
+  const uniqueCols = new Set(
+    table.uniqueColumns.length > 0 ? table.uniqueColumns : table.pkColumns
+  );
   return table.foreignKeys.some(
     (fk) =>
-      table.pkColumns.includes(fk.column) &&
+      uniqueCols.has(fk.column) &&
       (fk.refTable === "user" || fk.refTable === "employee")
   );
 }
 
 export function selectWipeableTables(
   catalog: Catalog,
-  opts: { includeGroup?: boolean } = {}
+  opts: { includeGroup?: boolean; remap?: boolean } = {}
 ): TableInfo[] {
   const skip = new Set([...SECRET_TABLES, ...IN_PLACE_SKIPPED_TABLES]);
   return catalog.tables.filter(
     (t) =>
       !skip.has(t.name) &&
-      !isUserScopedIdentityTable(t) &&
+      // Identity tables (per-source-user rows) are normally KEPT. But a FOREIGN
+      // restore (remap) re-keys their parents' ids, and `ON DELETE CASCADE` does
+      // NOT fire under `session_replication_role='replica'` — so a kept child would
+      // be left dangling at a deleted/remapped parent. On remap we therefore WIPE
+      // them (reverse-topo wipe clears children before parents) and never reload
+      // them (the load set drops them separately). On an own restore parent ids are
+      // stable, so keeping them is safe.
+      (opts.remap === true || !isUserScopedIdentityTable(t)) &&
       (t.scopeColumn === "companyId" ||
         (opts.includeGroup === true && t.scopeColumn === "companyGroupId"))
   );
@@ -799,18 +1108,21 @@ export function assertWipeSafe(
 export async function wipeScopedData(
   trx: Kysely<KyselyDatabase>,
   tables: TableInfo[],
-  scope: { companyId: string; companyGroupId: string | null }
+  byName: Map<string, TableInfo>,
+  scope: { companyId: string; companyGroupId: string | null },
+  onProgress?: (done: number, total: number) => Promise<void>
 ): Promise<void> {
-  for (const table of [...tables].reverse()) {
-    const value =
-      table.scopeColumn === "companyGroupId"
-        ? scope.companyGroupId
-        : scope.companyId;
-    if (value == null) continue;
+  const ordered = [...tables].reverse();
+  for (let i = 0; i < ordered.length; i++) {
+    const table = ordered[i]!;
+    // buildScopeFilter scopes by parent FK for `via` tables; a null
+    // companyGroupId yields `= NULL` (no match), so group data is left untouched
+    // when the company has no group.
     await sql`
       DELETE FROM ${sql.id(table.name)}
-      WHERE ${sql.id(table.scopeColumn)} = ${value}
+      WHERE ${buildScopeFilter(table, byName, scope.companyId, scope.companyGroupId)}
     `.execute(trx);
+    await onProgress?.(i + 1, ordered.length);
   }
 }
 
@@ -851,7 +1163,8 @@ async function copyStorageObject(
  */
 export async function copyAssetsToBackup(
   client: SupabaseClient,
-  args: { sourcePaths: string[]; destBucket: string; destPrefix: string }
+  args: { sourcePaths: string[]; destBucket: string; destPrefix: string },
+  onProgress?: (done: number, total: number) => Promise<void>
 ): Promise<{ copied: number; failed: number }> {
   const { sourcePaths, destBucket, destPrefix } = args;
   let copied = 0;
@@ -869,6 +1182,7 @@ export async function copyAssetsToBackup(
       failed++;
       console.warn("Failed to copy backup asset", { path, error });
     }
+    await onProgress?.(copied + failed, sourcePaths.length);
   }
   return { copied, failed };
 }
@@ -889,12 +1203,15 @@ export async function restoreAssetsFromBackup(
     sourceCompanyId: string;
     companyId: string;
     idRewrite: Map<string, string>;
-  }
+  },
+  onProgress?: (done: number, total: number) => Promise<void>
 ): Promise<{ copied: number; failed: number }> {
   const { files, srcBucket, srcPrefix, sourceCompanyId, companyId, idRewrite } =
     args;
+  const total = files.filter((f) => f.included).length;
   let copied = 0;
   let failed = 0;
+  let processed = 0;
   for (const file of files) {
     if (!file.included) continue;
     const targetPath = rewriteStoragePath(
@@ -908,6 +1225,7 @@ export async function restoreAssetsFromBackup(
         path: file.path,
         targetPath
       });
+      await onProgress?.(++processed, total);
       continue;
     }
     const { ok, error } = await copyStorageObject(client, {
@@ -926,6 +1244,7 @@ export async function restoreAssetsFromBackup(
         error
       });
     }
+    await onProgress?.(++processed, total);
   }
   return { copied, failed };
 }
