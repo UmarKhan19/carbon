@@ -30,6 +30,7 @@ import {
   LuChevronLeft,
   LuChevronRight,
   LuEllipsisVertical,
+  LuExpand,
   LuFlag,
   LuGitBranchPlus,
   LuGitPullRequest,
@@ -60,6 +61,7 @@ import { QuantityModal } from "~/components/JobOperation/components/QuantityModa
 import { ReworkModal } from "~/components/JobOperation/components/ReworkModal";
 import { SerialSelectorModal } from "~/components/JobOperation/components/SerialSelectorModal";
 import { RecordModal } from "~/components/JobOperation/components/Step";
+import { ImageZoomViewer } from "~/components/ImageZoomViewer";
 import { useUser } from "~/hooks";
 import type {
   JobMaterial,
@@ -289,9 +291,10 @@ export function AssemblyView({
   const maintenanceModal = useDisclosure();
   const serialModal = useDisclosure();
   const actionsSheet = useDisclosure();
+  const imageViewer = useDisclosure();
   // Which reference image fills the main panel: a step photo (index) or the
-  // finished-assembly image ("assy").
-  const [selected, setSelected] = useState<number | "assy">("assy");
+  // finished-product image ("finished").
+  const [selected, setSelected] = useState<number | "finished">("finished");
   // For non-tracked material inline issue
   const [selectedMaterial, setSelectedMaterial] = useState<any | null>(null);
 
@@ -499,7 +502,7 @@ export function AssemblyView({
       : "";
   const isLastStep = steps.length === 0 || currentStep >= steps.length - 1;
 
-  // Reference slides for this step (first-class media, ordered) + "Completed assy"
+  // Reference slides for this step (first-class media, ordered) + "Completed item"
   // = the finished product (the assembly item's thumbnail). See PRD-step-reference-images.
   const stepSlides = (step?.jobOperationStepSlide ?? [])
     .slice()
@@ -507,7 +510,7 @@ export function AssemblyView({
   const stepImages = stepSlides.map((s) => getPrivateUrl(s.imagePath));
   const assemblyImage = thumbnailPath ? getPrivateUrl(thumbnailPath) : null;
   const mainImage =
-    selected === "assy"
+    selected === "finished"
       ? assemblyImage
       : (stepImages[selected] ?? assemblyImage);
   const selectedCaption =
@@ -520,7 +523,7 @@ export function AssemblyView({
   // no slides.
   // biome-ignore lint/correctness/useExhaustiveDependencies: keyed off the current step
   useEffect(() => {
-    setSelected(stepSlides.length > 0 ? 0 : "assy");
+    setSelected(stepSlides.length > 0 ? 0 : "finished");
   }, [currentStep, stepSlides.length]);
 
   function goToStep(n: number) {
@@ -628,7 +631,7 @@ export function AssemblyView({
             <div className="flex">
               <Button
                 variant="ghost"
-                size="sm"
+                size="md"
                 isIcon
                 aria-label="Previous unit"
                 isDisabled={!prevUnit}
@@ -638,7 +641,7 @@ export function AssemblyView({
               </Button>
               <Button
                 variant="ghost"
-                size="sm"
+                size="md"
                 isIcon
                 aria-label="Next unit"
                 isDisabled={!nextUnit}
@@ -652,7 +655,7 @@ export function AssemblyView({
                 <>
                   <Button
                     variant="ghost"
-                    size="sm"
+                    size="md"
                     isIcon
                     aria-label="Select unit"
                     className="hidden sm:inline-flex"
@@ -662,7 +665,7 @@ export function AssemblyView({
                   </Button>
                   <Button
                     variant="ghost"
-                    size="sm"
+                    size="md"
                     isIcon
                     aria-label="Print label"
                     className="hidden sm:inline-flex"
@@ -689,7 +692,7 @@ export function AssemblyView({
         <div className="flex h-full shrink-0 items-center gap-1 border-l border-border px-2 md:gap-2 md:px-4">
           <Button
             variant="outline"
-            size="sm"
+            size="lg"
             leftIcon={<LuFlag />}
             className="hidden lg:flex"
             onClick={qualityModal.onOpen}
@@ -699,7 +702,7 @@ export function AssemblyView({
           {operation ? (
             <Button
               variant="primary"
-              size="sm"
+              size="lg"
               leftIcon={<LuCheck />}
               onClick={completeModal.onOpen}
             >
@@ -710,7 +713,7 @@ export function AssemblyView({
           {operation ? (
             <Button
               variant="ghost"
-              size="sm"
+              size="md"
               isIcon
               aria-label="More actions"
               onClick={actionsSheet.onOpen}
@@ -971,13 +974,25 @@ export function AssemblyView({
           ) : (
             <>
               <div className="flex h-[42vh] shrink-0 flex-col gap-2 border-b border-border p-4 lg:h-auto lg:min-h-0 lg:grow-[7] lg:basis-0">
-                <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/40">
+                <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/40">
                   {mainImage ? (
-                    <img
-                      src={mainImage}
-                      alt="Assembly reference"
-                      className="max-h-full max-w-full object-contain"
-                    />
+                    <>
+                      <button
+                        type="button"
+                        aria-label="View image full screen"
+                        onClick={imageViewer.onOpen}
+                        className="flex h-full w-full items-center justify-center"
+                      >
+                        <img
+                          src={mainImage}
+                          alt="Assembly reference"
+                          className="max-h-full max-w-full object-contain"
+                        />
+                      </button>
+                      <span className="pointer-events-none absolute right-2 top-2 flex items-center justify-center rounded-md bg-background/80 p-1.5 text-muted-foreground shadow-sm">
+                        <LuExpand className="size-4" />
+                      </span>
+                    </>
                   ) : (
                     <div className="flex flex-col items-center gap-2 text-muted-foreground">
                       <LuImage className="size-8" />
@@ -992,7 +1007,7 @@ export function AssemblyView({
                   </p>
                 )}
 
-                {/* Slots = this step's slides · "Completed assy" = the finished product. */}
+                {/* Slots = this step's slides · "Completed item" = the finished product. */}
                 <div className="flex shrink-0 items-center gap-2">
                   {stepSlides.map((slide, i) => (
                     <button
@@ -1017,11 +1032,11 @@ export function AssemblyView({
                   ))}
                   <div className="flex-1" />
                   <Button
-                    variant={selected === "assy" ? "primary" : "outline"}
-                    size="sm"
+                    variant={selected === "finished" ? "primary" : "outline"}
+                    size="lg"
                     className="gap-2"
                     isDisabled={!assemblyImage}
-                    onClick={() => setSelected("assy")}
+                    onClick={() => setSelected("finished")}
                   >
                     {assemblyImage ? (
                       <span className="flex h-7 w-9 items-center justify-center overflow-hidden rounded bg-muted/40">
@@ -1034,7 +1049,7 @@ export function AssemblyView({
                     ) : (
                       <LuImage className="size-4" />
                     )}
-                    Completed assy
+                    Completed item
                   </Button>
                 </div>
               </div>
@@ -1127,6 +1142,7 @@ export function AssemblyView({
               <SidebarSection title="Scan Part">
                 <Button
                   variant="primary"
+                  size="lg"
                   className="w-full"
                   leftIcon={<LuQrCode />}
                   onClick={() => {
@@ -1357,6 +1373,13 @@ export function AssemblyView({
           </BottomSheetBody>
         </BottomSheetContent>
       </BottomSheet>
+
+      <ImageZoomViewer
+        open={imageViewer.isOpen}
+        src={mainImage}
+        caption={selectedCaption}
+        onClose={imageViewer.onClose}
+      />
     </div>
   );
 }
@@ -1446,7 +1469,7 @@ function TimerControl({
         <Button
           type="submit"
           variant="ghost"
-          size="sm"
+          size="md"
           isIcon
           aria-label={active ? "Pause timer" : "Start timer"}
         >
@@ -1545,12 +1568,12 @@ function MaterialRow({
             type="button"
             aria-label={isTracked ? "Scan material" : "Issue material"}
             onClick={onIssue}
-            className="ml-0.5 flex size-5 items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+            className="ml-0.5 flex size-9 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors active:scale-[0.96]"
           >
             {isTracked ? (
-              <LuQrCode className="size-3" />
+              <LuQrCode className="size-4" />
             ) : (
-              <LuGitBranchPlus className="size-3" />
+              <LuGitBranchPlus className="size-4" />
             )}
           </button>
         )}
