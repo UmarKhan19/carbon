@@ -292,6 +292,7 @@ const SalesRFQProperties = () => {
           onChange={(date) => {
             onUpdate("rfqDate", date);
           }}
+          termId="rfq"
         />
       </ValidatedForm>
 
@@ -332,6 +333,7 @@ const SalesRFQProperties = () => {
               onUpdate("locationId", value.value);
             }
           }}
+          termId="rfq"
         />
       </ValidatedForm>
 

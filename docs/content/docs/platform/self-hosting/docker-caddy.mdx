@@ -71,8 +71,8 @@ Everything for this recipe lives in [`contrib/deploying/simple-docker-caddy`](ht
   `init` seeds placeholders so the stack deploys; replace them with real values. ERP **fails to boot** with an empty Resend key.
 
   ```bash
-  printf '%s' 're_xxxxxxxx'        | ./deploy.sh secret resend_api_key
-  printf '%s' 'your-smtp-password' | ./deploy.sh secret smtp_password
+  ./deploy.sh secret resend_api_key re_xxxxxxxx
+  ./deploy.sh secret smtp_password 'your-smtp-password'
   ```
   </Step>
   <Step>
@@ -124,13 +124,19 @@ GOTRUE_JWT_SECRET: __JWT_SECRET__
 | Back up | `./scripts/backup.sh` (Postgres dump + storage archive) |
 | Stop | `./deploy.sh down` (add `--volumes` to also wipe data) |
 
-**Database admin.** Studio is internal-only by default. Reach the database over SSH with `docker exec -it $(docker ps -qf name=carbon_postgres) psql -U postgres`, or expose Studio behind HTTP basic-auth by setting `STUDIO_HOST` and uncommenting the studio block in the `Caddyfile`.
+**Database admin.** Studio is internal-only by default. Reach the database over SSH with:
+
+```bash
+docker exec -it $(docker ps -qf name=carbon_postgres.1) psql -U postgres
+```
+
+The `.1` avoids also matching `carbon_postgrest`. Or expose Studio behind HTTP basic-auth by setting `STUDIO_HOST` and uncommenting the studio block in the `Caddyfile`.
 
 **Rotate a secret.** Swarm secrets are immutable while in use, so bring the stack down first:
 
 ```bash
 ./deploy.sh down
-printf '%s' 'new-value' | ./deploy.sh secret <name>
+./deploy.sh secret <name> 'new-value'
 ./deploy.sh up
 ```
 

@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-22T07:13:33.423Z",
-  "totalTools": 1211,
+  "generated": "2026-06-27T18:42:22.983Z",
+  "totalTools": 1223,
   "modules": 15,
   "tools": [
     {
@@ -2028,7 +2028,7 @@
           "description": {
             "type": "string"
           },
-          "lines: Array<{\r\n      accountId: string;\r\n      description": {}
+          "lines: Array<{\n      accountId: string;\n      description": {}
         },
         "required": [
           "journalEntryId",
@@ -2605,7 +2605,7 @@
           "periodEnd": {
             "type": "string"
           },
-          "lines: Array<{\r\n      fixedAssetId: string;\r\n      amount: number;\r\n      taxAmount": {}
+          "lines: Array<{\n      fixedAssetId: string;\n      amount: number;\n      taxAmount": {}
         },
         "required": [
           "periodEnd"
@@ -3599,6 +3599,48 @@
       }
     },
     {
+      "name": "inventory_getItemLedgerActivity",
+      "module": "inventory",
+      "classification": "READ",
+      "description": "get item ledger activity",
+      "paramCount": 5,
+      "serviceParams": [
+        "client",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "omit to start from the newest entry. */\n    entryNumber": {
+            "type": "number"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "older",
+              "newer"
+            ]
+          },
+          "/** include the cursor row itself (used for the anchored first load). */\n    inclusive": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "itemId",
+          "locationId"
+        ]
+      }
+    },
+    {
       "name": "inventory_getBatchProperties",
       "module": "inventory",
       "classification": "READ",
@@ -4130,7 +4172,7 @@
           "receiptId": {
             "type": "string"
           },
-          "lines: {\r\n      id: string;\r\n      receivedQuantity: number | null;\r\n      requiresSerialTracking": {
+          "lines: {\n      id: string;\n      receivedQuantity: number | null;\n      requiresSerialTracking": {
             "type": "array",
             "items": {}
           }
@@ -4625,6 +4667,45 @@
           "locationId",
           "search"
         ]
+      }
+    },
+    {
+      "name": "inventory_getStockMovements",
+      "module": "inventory",
+      "classification": "READ",
+      "description": "get stock movements",
+      "paramCount": 3,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "args": {
+            "type": "object",
+            "properties": {
+              "limit": {
+                "type": "integer",
+                "default": 100
+              },
+              "offset": {
+                "type": "integer",
+                "default": 0
+              },
+              "search": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        }
       }
     },
     {
@@ -6654,7 +6735,7 @@
           "locationId": {
             "type": "string"
           },
-          "lines: Array<{\r\n      itemId: string;\r\n      fromStorageUnitId": {},
+          "lines: Array<{\n      itemId: string;\n      fromStorageUnitId": {},
           "stockTransferId": {
             "type": "string"
           },
@@ -9275,6 +9356,84 @@
       }
     },
     {
+      "name": "items_getItemSupersession",
+      "module": "items",
+      "classification": "READ",
+      "description": "get item supersession",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "itemId",
+        "companyId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "itemId"
+        ]
+      }
+    },
+    {
+      "name": "items_getItemSupersededBy",
+      "module": "items",
+      "classification": "READ",
+      "description": "get item superseded by",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "itemId",
+        "companyId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "itemId"
+        ]
+      }
+    },
+    {
+      "name": "items_getSupersessionChain",
+      "module": "items",
+      "classification": "READ",
+      "description": "get supersession chain",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "itemId",
+        "companyId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "itemId"
+        ]
+      }
+    },
+    {
       "name": "items_getItemStorageUnitQuantities",
       "module": "items",
       "classification": "READ",
@@ -11606,6 +11765,31 @@
       }
     },
     {
+      "name": "items_upsertItemSupersession",
+      "module": "items",
+      "classification": "WRITE",
+      "description": "upsert item supersession",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "itemSupersession"
+      ],
+      "injectAuth": [
+        "companyId",
+        "createdBy",
+        "updatedBy"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "itemSupersession": {}
+        },
+        "required": [
+          "itemSupersession"
+        ]
+      }
+    },
+    {
       "name": "items_upsertItemPostingGroup",
       "module": "items",
       "classification": "WRITE",
@@ -13875,7 +14059,7 @@
       "paramCount": 1,
       "serviceParams": [
         "client",
-        "{\r\n    orderId,\r\n    companyId,\r\n    userId\r\n  }"
+        "{\n    orderId,\n    companyId,\n    userId\n  }"
       ],
       "injectAuth": [
         "companyId",
@@ -13912,7 +14096,7 @@
           "jobId": {
             "type": "string"
           },
-          "// Optional - if updating an existing job\r\n    dueDate": {
+          "// Optional - if updating an existing job\n    dueDate": {
             "type": [
               "string",
               "null"
@@ -13926,7 +14110,7 @@
           }
         },
         "required": [
-          "// Optional - if updating an existing job\r\n    dueDate",
+          "// Optional - if updating an existing job\n    dueDate",
           "deadlineType",
           "locationId"
         ]
@@ -15045,6 +15229,106 @@
         "required": [
           "jobId",
           "locationId"
+        ]
+      }
+    },
+    {
+      "name": "production_getJobMaterialItemIds",
+      "module": "production",
+      "classification": "READ",
+      "description": "get job material item ids",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "jobId",
+        "companyId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "jobId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "jobId"
+        ]
+      }
+    },
+    {
+      "name": "production_getJobMaterialShortfallByItem",
+      "module": "production",
+      "classification": "READ",
+      "description": "get job material shortfall by item",
+      "paramCount": 3,
+      "serviceParams": [
+        "client",
+        "jobId",
+        "companyId",
+        "locationId",
+        "materials"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "jobId": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "materials": {
+            "type": "array",
+            "items": {}
+          }
+        },
+        "required": [
+          "jobId",
+          "locationId",
+          "materials"
+        ]
+      }
+    },
+    {
+      "name": "production_getJobOrderStatusMap",
+      "module": "production",
+      "classification": "READ",
+      "description": "get job order status map",
+      "paramCount": 4,
+      "serviceParams": [
+        "client",
+        "jobId",
+        "companyId",
+        "locationId",
+        "jobStatus",
+        "materials"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "jobId": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "jobStatus": {},
+          "materials": {}
+        },
+        "required": [
+          "jobId",
+          "locationId",
+          "jobStatus",
+          "materials"
         ]
       }
     },
@@ -16447,13 +16731,13 @@
           "id": {
             "type": "string"
           },
-          "// job id\r\n    companyId": {
+          "// job id\n    companyId": {
             "type": "string"
           }
         },
         "required": [
           "id",
-          "// job id\r\n    companyId"
+          "// job id\n    companyId"
         ]
       }
     },
@@ -16477,13 +16761,13 @@
           "id": {
             "type": "string"
           },
-          "// job make method id\r\n    companyId": {
+          "// job make method id\n    companyId": {
             "type": "string"
           }
         },
         "required": [
           "id",
-          "// job make method id\r\n    companyId"
+          "// job make method id\n    companyId"
         ]
       }
     },
@@ -18136,6 +18420,63 @@
           "jobId",
           "mode",
           "direction"
+        ]
+      }
+    },
+    {
+      "name": "production_getJobMaterialPurchaseOrderLines",
+      "module": "production",
+      "classification": "READ",
+      "description": "get job material purchase order lines",
+      "paramCount": 2,
+      "serviceParams": [
+        "client",
+        "materials",
+        "locationId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "materials": {},
+          "locationId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "materials",
+          "locationId"
+        ]
+      }
+    },
+    {
+      "name": "production_getJobMaterialSupplyJobLines",
+      "module": "production",
+      "classification": "READ",
+      "description": "get job material supply job lines",
+      "paramCount": 2,
+      "serviceParams": [
+        "client",
+        "materials",
+        "companyId",
+        "locationId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "materials": {},
+          "locationId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "materials",
+          "locationId"
         ]
       }
     },
@@ -33369,6 +33710,23 @@
       }
     },
     {
+      "name": "settings_getIndustries",
+      "module": "settings",
+      "classification": "READ",
+      "description": "get industries",
+      "paramCount": 0,
+      "serviceParams": [
+        "client"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
       "name": "settings_getCompany",
       "module": "settings",
       "classification": "READ",
@@ -34383,18 +34741,18 @@
       "schema": {
         "type": "object",
         "properties": {
-          "/** undefined disables expiry badges company-wide. */\r\n    nearExpiryWarningDays": {},
-          "/** Seed for the \"Shelf-life (days)\" input on new items. */\r\n    defaultShelfLifeDays": {
+          "/** undefined disables expiry badges company-wide. */\n    nearExpiryWarningDays": {},
+          "/** Seed for the \"Shelf-life (days)\" input on new items. */\n    defaultShelfLifeDays": {
             "type": "number"
           },
-          "/** MIN expiry scope for Calculated-mode finished products. */\r\n    calculatedInputScope": {
+          "/** MIN expiry scope for Calculated-mode finished products. */\n    calculatedInputScope": {
             "type": "string",
             "enum": [
               "AllInputs",
               "ManagedInputsOnly"
             ]
           },
-          "/** Policy enforced when an operator consumes an expired entity. */\r\n    expiredEntityPolicy": {
+          "/** Policy enforced when an operator consumes an expired entity. */\n    expiredEntityPolicy": {
             "type": "string",
             "enum": [
               "Warn",
@@ -34404,10 +34762,10 @@
           }
         },
         "required": [
-          "/** undefined disables expiry badges company-wide. */\r\n    nearExpiryWarningDays",
-          "/** Seed for the \"Shelf-life (days)\" input on new items. */\r\n    defaultShelfLifeDays",
-          "/** MIN expiry scope for Calculated-mode finished products. */\r\n    calculatedInputScope",
-          "/** Policy enforced when an operator consumes an expired entity. */\r\n    expiredEntityPolicy"
+          "/** undefined disables expiry badges company-wide. */\n    nearExpiryWarningDays",
+          "/** Seed for the \"Shelf-life (days)\" input on new items. */\n    defaultShelfLifeDays",
+          "/** MIN expiry scope for Calculated-mode finished products. */\n    calculatedInputScope",
+          "/** Policy enforced when an operator consumes an expired entity. */\n    expiredEntityPolicy"
         ]
       }
     },

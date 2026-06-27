@@ -105,6 +105,9 @@ msgstr "Authentication Error"
 msgid "available"
 msgstr "available"
 
+msgid "Back Home"
+msgstr "Back Home"
+
 msgid "Batch"
 msgstr "Batch"
 
@@ -325,6 +328,9 @@ msgstr "Enter PIN for {0}"
 msgid "Error"
 msgstr "Error"
 
+msgid "Error!"
+msgstr "Error!"
+
 msgid "Estimated"
 msgstr "Estimated"
 
@@ -464,6 +470,9 @@ msgstr "Kit"
 
 msgid "Labor"
 msgstr "Labor"
+
+msgid "Learn more"
+msgstr "Learn more"
 
 msgid "Leave this page"
 msgstr "Leave this page"
@@ -960,6 +969,9 @@ msgstr "Signed in as {stationName}"
 msgid "Size"
 msgstr "Size"
 
+msgid "Something went wrong"
+msgstr "Something went wrong"
+
 msgid "Source"
 msgstr "Source"
 
@@ -1089,6 +1101,9 @@ msgstr "View maintenance dispatch"
 
 msgid "We've sent you a magic link to sign in to your account."
 msgstr "We've sent you a magic link to sign in to your account."
+
+msgid "What is {translatedTerm}?"
+msgstr "What is {translatedTerm}?"
 
 msgid "WIP"
 msgstr "WIP"

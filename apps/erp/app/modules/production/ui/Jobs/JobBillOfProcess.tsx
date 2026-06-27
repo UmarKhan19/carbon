@@ -2463,6 +2463,7 @@ function OperationForm({
           <WorkCenter
             name="workCenterId"
             label={t`Work Center`}
+            termId="work-center"
             autoSelectSingleOption={Boolean(processData.processId)}
             locationId={locationId}
             isOptional={["Draft", "Planned"].includes(job?.status ?? "")}

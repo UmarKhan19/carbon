@@ -22,13 +22,14 @@ export function getTheme(request: Request): Theme {
 }
 
 export function setTheme(theme: string) {
+  const cookieDomain = getCookieDomain(DOMAIN);
   const cookieOptions: cookie.SerializeOptions = {
     path: "/",
+    sameSite: "lax",
+    secure: !!cookieDomain,
+    domain: cookieDomain,
     maxAge: 31536000
   };
-
-  const cookieDomain = getCookieDomain(DOMAIN);
-  if (cookieDomain) cookieOptions.domain = cookieDomain;
 
   return cookie.serialize(cookieName, theme, cookieOptions);
 }

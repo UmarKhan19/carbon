@@ -1271,6 +1271,7 @@ function OperationForm({
             <WorkCenter
               name="workCenterId"
               label={t`Work Center`}
+              termId="work-center"
               isOptional
               processId={processData.processId}
               isConfigured={rulesByField.has(key("workCenterId"))}

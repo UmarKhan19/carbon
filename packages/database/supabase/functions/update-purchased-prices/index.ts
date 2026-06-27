@@ -139,7 +139,8 @@ serve(async (req: Request) => {
               documentId: purchaseOrderId,
               itemId: line.itemId!,
               quantity: line.quantity,
-              cost: line.quantity * line.unitPrice,
+              cost:
+                (line.quantity / (line.conversionFactor ?? 1)) * line.unitPrice,
               remainingQuantity: line.quantity,
               supplierId,
               companyId,
