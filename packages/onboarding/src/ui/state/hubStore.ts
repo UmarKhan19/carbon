@@ -8,12 +8,16 @@
 // the cycle repeats. `setData` is the authoritative writer of business fields —
 // only the provider calls it, and it always rebuilds from the server snapshot.
 //
-// One exception, for responsiveness: `dispatch` applies an OPTIMISTIC patch to
-// `checkMap` for `setCheck` toggles (checkboxes/gates) before the round-trip, so
-// a tick reflects instantly instead of after the full submit→revalidate cycle.
-// This is self-reconciling — the next `setData` rebuilds `checkMap` from server
-// truth, so a rejected or differing write reverts on its own. No other intent is
-// patched locally; everything else waits for the loader.
+// One exception, for responsiveness: `dispatch` records an OPTIMISTIC override
+// for `setCheck` toggles (checkboxes/gates) in `optimisticChecks` before the
+// round-trip, so a tick reflects instantly instead of after the full
+// submit→revalidate cycle. `checkMap` is always the server state with these
+// overrides layered on top. Each override is held until the loader actually
+// reports the value we wrote, then released — so it survives stale/early
+// revalidations (whose snapshot doesn't yet reflect the write, and which would
+// otherwise flash the toggle back) and reconciles to server truth once the write
+// lands. No other intent is patched locally; everything else waits for the
+// loader.
 //
 // `checkMap` / `fieldMap` are cheap derived lookups rebuilt on hydration so view
 // components do O(1) reads instead of each rebuilding a Map per render.
@@ -35,6 +39,18 @@ import type {
   Tier
 } from "../../types";
 import type { HubMutation } from "./mutations";
+
+// Server check state with the pending optimistic overrides layered on top.
+// `checkMap` is always derived through here so an in-flight toggle wins until the
+// loader catches up.
+function mergeChecks(
+  checkStates: CheckStateRow[],
+  optimistic: Map<string, string>
+): Map<string, string> {
+  const map = stateMap(checkStates);
+  for (const [key, value] of optimistic) map.set(key, value);
+  return map;
+}
 
 // The per-company server data the hub renders from (all loader-sourced).
 export interface HubData {
@@ -64,7 +80,12 @@ export type ResolveScreenUrl = (appKey: string) => string | undefined;
 export interface HubState extends HubData, HubFlags {
   checkMap: Map<string, string>;
   fieldMap: Map<string, string>;
-  // Public write path: optimistic checkMap patch (setCheck only) + round-trip.
+  // Pending optimistic check overrides (itemKey -> value), layered over the
+  // server checkMap. Each is held until the loader reports the value we wrote,
+  // so an in-flight toggle never flashes back when a stale/early revalidation
+  // lands before the write does. Internal; views read checkMap.
+  optimisticChecks: Map<string, string>;
+  // Public write path: optimistic check override (setCheck only) + round-trip.
   dispatch: (m: HubMutation) => void;
   // The raw server round-trip the route injects; `dispatch` wraps it.
   serverDispatch: (m: HubMutation) => void;
@@ -110,16 +131,21 @@ export function createHubStore(initial: Partial<HubData & HubFlags> = {}) {
   const seed = { ...HUB_INITIAL, ...initial };
   return createStore<HubState>()((set, get) => ({
     ...seed,
+    optimisticChecks: new Map(),
     checkMap: stateMap(seed.checkStates),
     fieldMap: fieldMap(seed.fieldValues),
-    // Stable wrapper, created once. Optimistically reflects a checkbox/gate toggle
-    // in checkMap so the UI updates instantly, then round-trips. The next setData
-    // rebuilds checkMap from server truth, reconciling (or reverting) the patch.
+    // Stable wrapper, created once. Records an optimistic override for a
+    // checkbox/gate toggle so the UI updates instantly, then round-trips. The
+    // override is layered over the server checkMap and released by setData once
+    // the loader confirms the written value (see below).
     dispatch: (m) => {
       if (m.intent === "setCheck") {
-        const checkMap = new Map(get().checkMap);
-        checkMap.set(m.itemKey, m.value);
-        set({ checkMap });
+        const optimisticChecks = new Map(get().optimisticChecks);
+        optimisticChecks.set(m.itemKey, m.value);
+        set({
+          optimisticChecks,
+          checkMap: mergeChecks(get().checkStates, optimisticChecks)
+        });
       }
       get().serverDispatch(m);
     },
@@ -127,15 +153,35 @@ export function createHubStore(initial: Partial<HubData & HubFlags> = {}) {
     serverDispatch: () => undefined,
     resolveScreenUrl: () => undefined,
     resolveVideoUrl: () => undefined,
-    setData: (data, flags, serverDispatch, resolveScreenUrl, resolveVideoUrl) =>
+    setData: (
+      data,
+      flags,
+      serverDispatch,
+      resolveScreenUrl,
+      resolveVideoUrl
+    ) => {
+      // Reconcile per key: drop an override only once the loader actually reports
+      // the value we wrote (row absence = effective "todo"). This holds the
+      // override through any number of stale/early revalidations whose snapshot
+      // doesn't yet reflect the write — so the toggle never flickers back — and
+      // releases it the moment the server confirms. (upsertCheckState always
+      // writes the value, including "todo", so a confirmed write always matches.)
+      const serverMap = stateMap(data.checkStates);
+      const optimisticChecks = new Map(get().optimisticChecks);
+      for (const [key, value] of optimisticChecks) {
+        if ((serverMap.get(key) ?? "todo") === value)
+          optimisticChecks.delete(key);
+      }
       set({
         ...data,
         ...flags,
-        checkMap: stateMap(data.checkStates),
+        optimisticChecks,
+        checkMap: mergeChecks(data.checkStates, optimisticChecks),
         fieldMap: fieldMap(data.fieldValues),
         serverDispatch,
         resolveScreenUrl,
         resolveVideoUrl
-      })
+      });
+    }
   }));
 }
