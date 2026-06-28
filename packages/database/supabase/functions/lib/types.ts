@@ -16462,6 +16462,7 @@ export type Database = {
       }
       jobMaterial: {
         Row: {
+          jobOperationStepId: string | null
           companyId: string
           createdAt: string
           createdBy: string
@@ -16494,6 +16495,7 @@ export type Database = {
           updatedBy: string | null
         }
         Insert: {
+          jobOperationStepId?: string | null
           companyId: string
           createdAt?: string
           createdBy: string
@@ -16526,6 +16528,7 @@ export type Database = {
           updatedBy?: string | null
         }
         Update: {
+          jobOperationStepId?: string | null
           companyId?: string
           createdAt?: string
           createdBy?: string
@@ -17953,6 +17956,7 @@ export type Database = {
       }
       jobOperationTool: {
         Row: {
+          jobOperationStepId: string | null
           companyId: string
           createdAt: string
           createdBy: string
@@ -17964,6 +17968,7 @@ export type Database = {
           updatedBy: string | null
         }
         Insert: {
+          jobOperationStepId?: string | null
           companyId: string
           createdAt?: string
           createdBy: string
@@ -17975,6 +17980,7 @@ export type Database = {
           updatedBy?: string | null
         }
         Update: {
+          jobOperationStepId?: string | null
           companyId?: string
           createdAt?: string
           createdBy?: string
@@ -21854,6 +21860,7 @@ export type Database = {
       }
       methodMaterial: {
         Row: {
+          methodOperationStepId: string | null
           companyId: string
           createdAt: string
           createdBy: string
@@ -21880,6 +21887,7 @@ export type Database = {
           updatedBy: string | null
         }
         Insert: {
+          methodOperationStepId?: string | null
           companyId: string
           createdAt?: string
           createdBy: string
@@ -21906,6 +21914,7 @@ export type Database = {
           updatedBy?: string | null
         }
         Update: {
+          methodOperationStepId?: string | null
           companyId?: string
           createdAt?: string
           createdBy?: string
@@ -22732,6 +22741,7 @@ export type Database = {
       }
       methodOperationTool: {
         Row: {
+          methodOperationStepId: string | null
           companyId: string
           createdAt: string
           createdBy: string
@@ -22743,6 +22753,7 @@ export type Database = {
           updatedBy: string | null
         }
         Insert: {
+          methodOperationStepId?: string | null
           companyId: string
           createdAt?: string
           createdBy: string
@@ -22754,6 +22765,7 @@ export type Database = {
           updatedBy?: string | null
         }
         Update: {
+          methodOperationStepId?: string | null
           companyId?: string
           createdAt?: string
           createdBy?: string
@@ -34945,6 +34957,7 @@ export type Database = {
       }
       quoteMaterial: {
         Row: {
+          quoteOperationStepId: string | null
           companyId: string
           createdAt: string
           createdBy: string
@@ -34971,6 +34984,7 @@ export type Database = {
           updatedBy: string | null
         }
         Insert: {
+          quoteOperationStepId?: string | null
           companyId: string
           createdAt?: string
           createdBy: string
@@ -34997,6 +35011,7 @@ export type Database = {
           updatedBy?: string | null
         }
         Update: {
+          quoteOperationStepId?: string | null
           companyId?: string
           createdAt?: string
           createdBy?: string
@@ -35894,6 +35909,7 @@ export type Database = {
       }
       quoteOperationTool: {
         Row: {
+          quoteOperationStepId: string | null
           companyId: string
           createdAt: string
           createdBy: string
@@ -35905,6 +35921,7 @@ export type Database = {
           updatedBy: string | null
         }
         Insert: {
+          quoteOperationStepId?: string | null
           companyId: string
           createdAt?: string
           createdBy: string
@@ -35916,6 +35933,7 @@ export type Database = {
           updatedBy?: string | null
         }
         Update: {
+          quoteOperationStepId?: string | null
           companyId?: string
           createdAt?: string
           createdBy?: string

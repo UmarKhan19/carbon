@@ -470,6 +470,24 @@ export async function getJobMaterialsByOperationId(
     materials.data = [...(materials.data ?? []), ...processedKittedMaterials];
   }
 
+  // Step assignment (Phase 2: part ↔ step). The make-method view doesn't carry the new
+  // jobOperationStepId FK, so look it up from the base table and attach it. NULL = the
+  // material applies to the whole operation (shown on every step); a set value scopes it
+  // to one step so the MES can show only the parts involved in the current step.
+  const stepLinks = await client
+    .from("jobMaterial")
+    .select("id, jobOperationStepId")
+    .eq("jobMakeMethodId", operation.jobMakeMethodId);
+  const stepByMaterialId = new Map(
+    (stepLinks.data ?? []).map((r) => [r.id, r.jobOperationStepId])
+  );
+  if (materials.data) {
+    materials.data = materials.data.map((m) => ({
+      ...m,
+      jobOperationStepId: stepByMaterialId.get(m.id ?? "") ?? null
+    }));
+  }
+
   // The descendant rpc doesn't return expirationDate, so look it up from
   // trackedEntity for the consumed inputs in one batched call. This lets
   // us flag materials whose CONSUMED stock is now past expiry — useful

@@ -395,8 +395,26 @@ export function AssemblyView({
     .toSorted((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
   const parameters = procedure.parameters ?? [];
 
+  // Current step, computed early so materials/tools can be filtered to it. Mirrors the
+  // clamp reused below for slides and step records.
+  const currentStep = Math.max(
+    0,
+    Math.min(
+      Number.parseInt(searchParams.get("step") ?? "0", 10) || 0,
+      Math.max(0, steps.length - 1)
+    )
+  );
+  const step = steps[currentStep] ?? null;
+
   // Group materials by their REAL item type (Part / Material / Consumable / …).
-  const rawMaterials: any[] = materials?.materials ?? [];
+  // Phase 2 (part ↔ step): show only the parts involved in the current step — a material
+  // scoped to a step (jobOperationStepId) appears only on that step; operation-level
+  // materials (null) appear on every step. Backward compatible: with no assignments, all
+  // materials are operation-level and show everywhere.
+  const rawMaterials: any[] = (materials?.materials ?? []).filter(
+    (m: any) =>
+      m.jobOperationStepId == null || m.jobOperationStepId === (step?.id ?? null)
+  );
   const materialGroups = new Map<string, any[]>();
   for (const m of rawMaterials) {
     const t = m.itemType ?? "Other";
@@ -483,15 +501,6 @@ export function AssemblyView({
     (events.find((e) => e.type === type && !e.endTime) ?? undefined) as
       | ProductionEventType
       | undefined;
-
-  const currentStep = Math.max(
-    0,
-    Math.min(
-      Number.parseInt(searchParams.get("step") ?? "0", 10) || 0,
-      Math.max(0, steps.length - 1)
-    )
-  );
-  const step = steps[currentStep] ?? null;
 
   const stepHasDescription = richTextToPlainText(step?.description).length > 0;
   const stepDescriptionHtml =
