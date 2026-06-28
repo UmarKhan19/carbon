@@ -27,9 +27,15 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const { id: _id, ...d } = validation.data;
 
+  // Optional per-step assignment (Phase 2). Read from formData directly so the shared
+  // operationToolValidator stays tier-agnostic (job/quote tools use a different column).
+  const methodOperationStepId =
+    (formData.get("methodOperationStepId") as string) || null;
+
   const update = await upsertMethodOperationTool(client, {
     id,
     ...d,
+    methodOperationStepId,
     companyId,
     updatedBy: userId,
     updatedAt: new Date().toISOString()

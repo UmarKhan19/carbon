@@ -20,8 +20,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return validationError(validation.error);
   }
 
+  // Optional per-step assignment (Phase 2). Read from formData directly so the shared
+  // operationToolValidator stays tier-agnostic (job/quote tools use a different column).
+  const methodOperationStepId =
+    (formData.get("methodOperationStepId") as string) || null;
+
   const insert = await upsertMethodOperationTool(client, {
     ...validation.data,
+    methodOperationStepId,
     companyId,
     createdBy: userId
   });

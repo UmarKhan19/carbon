@@ -3810,11 +3810,13 @@ export async function upsertMethodOperationTool(
     | (Omit<z.infer<typeof operationToolValidator>, "id"> & {
         companyId: string;
         createdBy: string;
+        methodOperationStepId?: string | null;
       })
     | (Omit<z.infer<typeof operationToolValidator>, "id"> & {
         id: string;
         updatedBy: string;
         updatedAt: string;
+        methodOperationStepId?: string | null;
       })
 ) {
   if ("createdBy" in methodOperationTool) {

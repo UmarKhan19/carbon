@@ -694,6 +694,7 @@ const BillOfProcess = ({
           <div className="flex w-full flex-col py-4">
             <ToolsForm
               tools={tools}
+              steps={steps}
               operationId={item.id!}
               temporaryItems={temporaryItems}
               isDisabled={
@@ -3056,11 +3057,13 @@ function ToolsForm({
   operationId,
   isDisabled,
   tools,
+  steps,
   temporaryItems
 }: {
   operationId: string;
   isDisabled: boolean;
   tools: OperationTool[];
+  steps: OperationStep[];
   temporaryItems: TemporaryItems;
 }) {
   const { t } = useLingui();
@@ -3108,6 +3111,20 @@ function ToolsForm({
                 />
                 <Number name="quantity" label={t`Quantity`} />
               </div>
+
+              {/* Optionally scope this tool to a single step (Phase 2). Empty = the
+                  whole operation, shown on every step in the MES. */}
+              {steps.length > 0 && (
+                <Select
+                  name="methodOperationStepId"
+                  label={t`Step`}
+                  isOptional
+                  options={steps.map((s) => ({
+                    value: s.id ?? "",
+                    label: s.name ?? t`Step`
+                  }))}
+                />
+              )}
 
               <Submit
                 leftIcon={<LuCirclePlus />}
