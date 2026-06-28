@@ -1,13 +1,15 @@
 import { error, notFound, useCarbon } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { Button } from "@carbon/react";
 import { Trans } from "@lingui/react/macro";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
+import { LuChevronUp } from "react-icons/lu";
 import type { LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData } from "react-router";
 import InfiniteScroll from "~/components/InfiniteScroll";
 import type { ItemLedger } from "~/modules/inventory";
-import { getItemLedgerPage, InventoryActivity } from "~/modules/inventory";
+import { getItemLedgerActivity, InventoryActivity } from "~/modules/inventory";
 import { getLocationsList } from "~/modules/resources";
 import { getUserDefaults } from "~/modules/users/users.server";
 import { path } from "~/utils/path";
@@ -23,6 +25,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const searchParams = new URLSearchParams(url.search);
   let locationId = searchParams.get("location");
+  const highlightId = searchParams.get("highlight");
 
   if (!locationId) {
     const userDefaults = await getUserDefaults(client, userId, companyId);
@@ -53,84 +56,174 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     locationId = locations.data?.[0].id as string;
   }
 
-  const itemLedgerRecords = await getItemLedgerPage(
-    client,
-    itemId,
-    companyId,
-    locationId,
-    true
-  );
-  if (itemLedgerRecords.error || !itemLedgerRecords.data) {
+  // When arriving via a `highlight` param, anchor the first page directly on
+  // that entry (load it + older below) so it's on screen no matter how old it
+  // is — instead of paging from newest until we reach it.
+  let anchorEntryNumber: number | null = null;
+  if (highlightId) {
+    const anchor = await client
+      .from("itemLedger")
+      .select("entryNumber")
+      .eq("id", highlightId)
+      .eq("companyId", companyId)
+      .maybeSingle();
+    anchorEntryNumber = anchor.data?.entryNumber ?? null;
+  }
+
+  // The activity page and the "is there anything newer than the anchor?"
+  // existence check both depend only on `anchorEntryNumber`, not on each other —
+  // run them in parallel to save a roundtrip on highlight navigations.
+  const [itemLedgerRecords, newer] = await Promise.all([
+    getItemLedgerActivity(client, {
+      itemId,
+      companyId,
+      locationId,
+      entryNumber: anchorEntryNumber ?? undefined,
+      direction: "older",
+      inclusive: anchorEntryNumber !== null
+    }),
+    anchorEntryNumber !== null
+      ? client
+          .from("itemLedger")
+          .select("id")
+          .eq("itemId", itemId)
+          .eq("companyId", companyId)
+          .eq("locationId", locationId)
+          .gt("entryNumber", anchorEntryNumber)
+          .limit(1)
+      : Promise.resolve({ data: [] as { id: string }[] })
+  ]);
+  if (itemLedgerRecords.error) {
     throw redirect(
       path.to.inventory,
       await flash(
         request,
-        error(itemLedgerRecords, "Failed to load item inventory activity")
+        error(itemLedgerRecords.error, "Failed to load item inventory activity")
       )
     );
   }
+
+  // Only offer "Load newer" when entries actually exist above the anchor.
+  const hasNewer = (newer.data?.length ?? 0) > 0;
 
   return {
     initialItemLedgers: itemLedgerRecords.data,
     itemId,
     companyId,
-    locationId
+    locationId,
+    highlightId,
+    hasOlder: itemLedgerRecords.hasMore,
+    hasNewer
   };
 }
 
 export default function ItemInventoryActivityRoute() {
-  const { initialItemLedgers, itemId, companyId, locationId } =
-    useLoaderData<typeof loader>();
+  const {
+    initialItemLedgers,
+    itemId,
+    companyId,
+    locationId,
+    highlightId,
+    hasOlder: initialHasOlder,
+    hasNewer: initialHasNewer
+  } = useLoaderData<typeof loader>();
 
   const { carbon } = useCarbon();
 
   const [itemLedgers, setItemLedgers] =
     useState<ItemLedger[]>(initialItemLedgers);
-  const [page, setPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
+  const [hasOlder, setHasOlder] = useState(initialHasOlder);
+  const [hasNewer, setHasNewer] = useState(initialHasNewer);
+  const [isLoadingNewer, setIsLoadingNewer] = useState(false);
 
-  const loadMoreItemLedgers = useCallback(async () => {
-    if (isLoading || !hasMore) return;
+  // Mirror the values the paging callbacks read into refs so the callbacks stay
+  // referentially stable across appends — otherwise InfiniteScroll's
+  // IntersectionObserver effect re-subscribes on every loaded page.
+  const oldestEntryNumber = useRef<number | null>(
+    initialItemLedgers[initialItemLedgers.length - 1]?.entryNumber ?? null
+  );
+  const newestEntryNumber = useRef<number | null>(
+    initialItemLedgers[0]?.entryNumber ?? null
+  );
+  const loadingOlder = useRef(false);
+  const loadingNewer = useRef(false);
+  const hasOlderRef = useRef(initialHasOlder);
+  const hasNewerRef = useRef(initialHasNewer);
 
-    setIsLoading(true);
+  const loadOlder = useCallback(async () => {
+    const cursor = oldestEntryNumber.current;
+    if (loadingOlder.current || !hasOlderRef.current || cursor === null) return;
+    loadingOlder.current = true;
 
-    const newItemLedgers = await getItemLedgerPage(
-      carbon!,
+    const result = await getItemLedgerActivity(carbon!, {
       itemId,
       companyId,
       locationId,
-      true,
-      page + 1
-    );
+      entryNumber: cursor,
+      direction: "older"
+    });
 
-    if (newItemLedgers.data && newItemLedgers.data.length > 0) {
-      setItemLedgers((prevItemLedgers) => [
-        ...prevItemLedgers,
-        ...newItemLedgers.data
-      ]);
-      setPage((prevPage) => prevPage + 1);
-    } else {
-      setHasMore(false);
+    if (result.data.length > 0) {
+      oldestEntryNumber.current =
+        result.data[result.data.length - 1].entryNumber;
+      setItemLedgers((prev) => [...prev, ...result.data]);
     }
+    hasOlderRef.current = result.hasMore;
+    setHasOlder(result.hasMore);
+    loadingOlder.current = false;
+  }, [carbon, itemId, companyId, locationId]);
 
-    setIsLoading(false);
-  }, [page, carbon, companyId, locationId, itemId, isLoading, hasMore]);
+  const loadNewer = useCallback(async () => {
+    const cursor = newestEntryNumber.current;
+    if (loadingNewer.current || !hasNewerRef.current || cursor === null) return;
+    loadingNewer.current = true;
+    setIsLoadingNewer(true);
+
+    const result = await getItemLedgerActivity(carbon!, {
+      itemId,
+      companyId,
+      locationId,
+      entryNumber: cursor,
+      direction: "newer"
+    });
+
+    if (result.data.length > 0) {
+      newestEntryNumber.current = result.data[0].entryNumber;
+      setItemLedgers((prev) => [...result.data, ...prev]);
+    }
+    hasNewerRef.current = result.hasMore;
+    setHasNewer(result.hasMore);
+    loadingNewer.current = false;
+    setIsLoadingNewer(false);
+  }, [carbon, itemId, companyId, locationId]);
 
   return (
-    <>
-      <div className="w-full space-y-4 pt-6 px-4">
-        <h2 className="text-2xl font-semibold mb-4">
-          <Trans>Activity</Trans>
-        </h2>
+    <div className="w-full space-y-4 pt-6 px-4">
+      <h2 className="text-2xl font-semibold mb-4">
+        <Trans>Activity</Trans>
+      </h2>
 
-        <InfiniteScroll
-          component={InventoryActivity}
-          items={itemLedgers}
-          loadMore={loadMoreItemLedgers}
-          hasMore={hasMore}
-        />
-      </div>
-    </>
+      {hasNewer && (
+        <div className="flex justify-center">
+          <Button
+            variant="secondary"
+            leftIcon={<LuChevronUp />}
+            isLoading={isLoadingNewer}
+            isDisabled={isLoadingNewer}
+            onClick={loadNewer}
+          >
+            <Trans>Load newer</Trans>
+          </Button>
+        </div>
+      )}
+
+      <InfiniteScroll
+        component={InventoryActivity}
+        items={itemLedgers}
+        loadMore={loadOlder}
+        hasMore={hasOlder}
+        highlightId={highlightId ?? undefined}
+      />
+    </div>
   );
 }

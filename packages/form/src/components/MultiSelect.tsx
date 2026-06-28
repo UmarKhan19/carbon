@@ -1,3 +1,4 @@
+import type { TermId } from "@carbon/glossary";
 import type { MultiSelectProps as MultiSelectBaseProps } from "@carbon/react";
 import {
   Badge,
@@ -5,9 +6,11 @@ import {
   FormErrorMessage,
   FormHelperText,
   FormLabel,
+  LabelWithHelp,
   MultiSelect as MultiSelectBase
 } from "@carbon/react";
 
+import type { ReactNode } from "react";
 import { useEffect } from "react";
 import { useControlField, useField } from "../hooks";
 import { useFormStateContext } from "../internal/formStateContext";
@@ -18,7 +21,9 @@ export type MultiSelectProps = Omit<
 > & {
   name: string;
   label?: string;
+  termId?: TermId;
   helperText?: string;
+  emptyMessage?: ReactNode;
   value?: string[];
   onChange?: (newValue: { value: string; label: string }[]) => void;
   inline?: boolean;
@@ -62,8 +67,10 @@ const MultiSelectPreview = (
 const MultiSelect = ({
   name,
   label,
+  termId,
   helperText,
   maxPreview,
+  emptyMessage,
   ...props
 }: MultiSelectProps) => {
   const { error, isOptional: fieldIsOptional } = useField(name);
@@ -85,7 +92,7 @@ const MultiSelect = ({
     <FormControl isInvalid={!!error}>
       {label && (
         <FormLabel htmlFor={name} isOptional={fieldIsOptional ?? false}>
-          {label}
+          <LabelWithHelp termId={termId}>{label}</LabelWithHelp>
         </FormLabel>
       )}
       {(value ?? []).filter(Boolean).map((selection, index) => (
@@ -106,6 +113,7 @@ const MultiSelect = ({
           onChange(newValue ?? []);
         }}
         isReadOnly={isReadOnly}
+        emptyMessage={emptyMessage}
         className="w-full"
       />
 

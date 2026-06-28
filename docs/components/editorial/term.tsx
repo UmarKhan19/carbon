@@ -15,7 +15,7 @@
 import * as Popover from "@radix-ui/react-popover";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { glossary } from "@/lib/glossary";
+import { getDefinitionText, getTermText, lookupEntry } from "@carbon/glossary";
 
 function slugify(text: string) {
   return text
@@ -27,7 +27,7 @@ function slugify(text: string) {
 
 export function Term({ id, children }: { id?: string; children: ReactNode }) {
   const key = id ?? (typeof children === "string" ? slugify(children) : "");
-  const entry = glossary[key];
+  const entry = lookupEntry(key);
 
   if (!entry) return <>{children}</>;
 
@@ -49,9 +49,11 @@ export function Term({ id, children }: { id?: string; children: ReactNode }) {
           collisionPadding={16}
           className="z-50 w-75 max-w-[calc(100vw-32px)] rounded-[10px] border border-ed-warm-300 bg-white px-[15px] py-3.5 shadow-[0_4px_20px_rgba(38,35,35,0.10)]"
         >
-          <div className="text-ed-13 font-medium text-ed-ink">{entry.term}</div>
+          <div className="text-ed-13 font-medium text-ed-ink">
+            {getTermText(entry)}
+          </div>
           <div className="mt-[5px] text-ed-13 leading-[1.55] text-ed-ink/72">
-            {entry.definition}
+            {getDefinitionText(entry)}
           </div>
           {entry.href && (
             <div className="mt-[11px] border-t border-ed-warm-150 pt-2.5">

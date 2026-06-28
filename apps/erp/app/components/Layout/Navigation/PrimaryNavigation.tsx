@@ -11,11 +11,13 @@ import {
   SortableContext,
   verticalListSortingStrategy
 } from "@dnd-kit/sortable";
+import { Trans } from "@lingui/react/macro";
 import type { AnchorHTMLAttributes } from "react";
 import { forwardRef, memo, useEffect } from "react";
 import { LuSettings2 } from "react-icons/lu";
 import { Link, useMatches } from "react-router";
 import { useModules, useOptimisticLocation, useSettingsModule } from "~/hooks";
+import { useImplementationNavItem } from "~/hooks/useImplementationNavItem";
 import type { Authenticated, NavItem } from "~/types";
 import { HiddenModulesPopover } from "./HiddenModulesPopover";
 import { NavigationEditBar } from "./NavigationEditBar";
@@ -28,6 +30,7 @@ const PrimaryNavigation = () => {
   const currentModule = getModule(location.pathname);
   const links = useModules();
   const settingsModule = useSettingsModule();
+  const implementationNav = useImplementationNavItem();
   const matchedModules = useMatches().reduce((acc, match) => {
     const handle = match.handle as { module?: string } | undefined;
 
@@ -74,6 +77,14 @@ const PrimaryNavigation = () => {
           className="flex flex-col justify-between h-full px-2"
         >
           <VStack spacing={1}>
+            {!editMode.isEditing && implementationNav ? (
+              <NavigationIconLink
+                link={implementationNav}
+                isActive={currentModule === "get-started"}
+                isOpen={isOpen}
+                onClick={navigationPanel.onClose}
+              />
+            ) : null}
             {editMode.isEditing ? (
               <DndContext
                 sensors={sensors}
@@ -170,7 +181,7 @@ const PrimaryNavigation = () => {
                     "opacity-0 group-data-[state=expanded]:opacity-100"
                   )}
                 >
-                  Customize
+                  <Trans>Customize</Trans>
                 </span>
               </button>
             )}
@@ -224,6 +235,12 @@ const NavigationIconLink = forwardRef<
       prefetch="intent"
     >
       <link.icon className={cn(...iconClasses)} />
+
+      {link.tag ? (
+        <span className="absolute top-1 right-1 min-w-4 h-4 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-medium leading-4 text-center tabular-nums">
+          {link.tag}
+        </span>
+      ) : null}
 
       <span
         aria-hidden={isOpen || undefined}

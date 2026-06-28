@@ -26,6 +26,7 @@ import {
   Submit,
   UnitOfMeasure
 } from "~/components/Form";
+import { itemTypeLabel } from "~/components/Form/itemTypeLabel";
 import { usePermissions, useUrlParams } from "~/hooks";
 import { lookupBuyPrice as lookupBuyPriceAsync } from "~/modules/items";
 import type { MethodItemType, MethodType } from "~/modules/shared";
@@ -46,7 +47,7 @@ const QuoteMaterialForm = ({
   initialValues,
   operations
 }: QuoteMaterialFormProps) => {
-  const { t } = useLingui();
+  const { t, i18n } = useLingui();
   const fetcher = useFetcher<{ id: string; methodType: MethodType }>();
   const { carbon } = useCarbon();
   const permissions = usePermissions();
@@ -216,7 +217,7 @@ const QuoteMaterialForm = ({
             <div className="grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3">
               <Item
                 name="itemId"
-                label={itemType}
+                label={i18n._(itemTypeLabel(itemType))}
                 type={itemType}
                 includeInactive
                 onChange={(value) => {
@@ -240,6 +241,7 @@ const QuoteMaterialForm = ({
                   value: o.id!,
                   label: o.description
                 }))}
+                termId="operation"
               />
 
               <DefaultMethodType
@@ -247,6 +249,7 @@ const QuoteMaterialForm = ({
                 label={t`Method Type`}
                 value={itemData.methodType}
                 replenishmentSystem={itemData.itemReplenishmentSystem}
+                termId="method-type"
               />
               <NumberControlled
                 name="quantity"

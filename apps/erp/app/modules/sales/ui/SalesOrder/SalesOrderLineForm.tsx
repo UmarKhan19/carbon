@@ -3,6 +3,7 @@ import { useCarbon } from "@carbon/auth";
 import { Combobox, ValidatedForm } from "@carbon/form";
 import {
   Badge,
+  Select as CarbonSelect,
   CardAction,
   cn,
   DropdownMenu,
@@ -16,6 +17,7 @@ import {
   IconButton,
   Input,
   Label,
+  LabelWithHelp,
   ModalCard,
   ModalCardBody,
   ModalCardContent,
@@ -24,6 +26,10 @@ import {
   ModalCardHeader,
   ModalCardProvider,
   ModalCardTitle,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Tabs,
   TabsContent,
   TabsList,
@@ -47,7 +53,7 @@ import {
 } from "react-icons/lu";
 import { useParams } from "react-router";
 import type { z } from "zod";
-import { MethodIcon } from "~/components";
+import { ItemLifecycleBadge, MethodIcon } from "~/components";
 import {
   CustomFormFields,
   DatePicker,
@@ -57,10 +63,10 @@ import {
   Location,
   Number,
   NumberControlled,
-  SelectControlled,
   StorageUnit,
   Submit
 } from "~/components/Form";
+import { itemTypeLabel } from "~/components/Form/itemTypeLabel";
 import {
   useCurrencyFormatter,
   usePercentFormatter,
@@ -99,7 +105,7 @@ const SalesOrderLineForm = ({
   type,
   onClose
 }: SalesOrderLineFormProps) => {
-  const { t } = useLingui();
+  const { t, i18n } = useLingui();
   const permissions = usePermissions();
   const { carbon } = useCarbon();
   const { company } = useUser();
@@ -115,6 +121,7 @@ const SalesOrderLineForm = ({
   const isEditable = !isLocked;
 
   const baseCurrency = company?.baseCurrencyCode ?? "USD";
+  const [items] = useItems();
 
   const [lineType, setLineType] = useState(initialValues.salesOrderLineType);
   const [locationId, setLocationId] = useState(initialValues.locationId ?? "");
@@ -231,6 +238,12 @@ const SalesOrderLineForm = ({
   const onTypeChange = (t: SalesOrderLineType) => {
     // @ts-ignore
     setLineType(t);
+    // Clear itemData only when the new filter excludes the currently selected
+    // item — otherwise a stale itemId of the old type would post with the new
+    // salesOrderLineType. "Item" is the "All Items" filter, always compatible.
+    if (!itemData.itemId || t === ("Item" as SalesOrderLineType)) return;
+    const currentType = items.find((i) => i.id === itemData.itemId)?.type;
+    if (currentType && currentType === t) return;
     setItemData({
       itemId: "",
       description: "",
@@ -380,7 +393,6 @@ const SalesOrderLineForm = ({
   const costsDisclosure = useDisclosure();
   const assetCostsDisclosure = useDisclosure();
   const deleteDisclosure = useDisclosure();
-  const [items] = useItems();
 
   return (
     <>
@@ -426,11 +438,24 @@ const SalesOrderLineForm = ({
                           "text-muted-foreground"
                       )}
                     >
-                      {isEditing
-                        ? isFixedAsset
-                          ? initialValues.assetReadableId || "Fixed Asset"
-                          : getItemReadableId(items, itemData?.itemId) || "..."
-                        : t`New Sales Order Line`}
+                      {isEditing ? (
+                        isFixedAsset ? (
+                          initialValues.assetReadableId || "Fixed Asset"
+                        ) : (
+                          <span className="inline-flex items-center gap-2">
+                            {getItemReadableId(items, itemData?.itemId) ||
+                              "..."}
+                            <ItemLifecycleBadge
+                              mode={
+                                items.find((i) => i.id === itemData?.itemId)
+                                  ?.supersessionMode
+                              }
+                            />
+                          </span>
+                        )
+                      ) : (
+                        t`New Sales Order Line`
+                      )}
                     </ModalCardTitle>
                     <ModalCardDescription>
                       {isEditing ? (
@@ -516,6 +541,10 @@ const SalesOrderLineForm = ({
                 <ModalCardBody>
                   <Hidden name="id" />
                   <Hidden name="salesOrderId" />
+                  {/* Lives outside TabsContent so the value survives Item↔Asset
+                      tab toggles — TabsContent unmounts inactive children, and
+                      useControlField's unregister cleanup resets the field. */}
+                  <Hidden name="methodType" value={itemData.methodType ?? ""} />
 
                   <TabsContent value="item">
                     {!isEditing && (
@@ -545,7 +574,7 @@ const SalesOrderLineForm = ({
                       <div className="grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3">
                         <Item
                           name="itemId"
-                          label={lineType}
+                          label={i18n._(itemTypeLabel(lineType as "Part"))}
                           type={lineType as "Part"}
                           typeFieldName="salesOrderLineType"
                           value={itemData.itemId}
@@ -572,29 +601,39 @@ const SalesOrderLineForm = ({
 
                         {lineType !== "Comment" && (
                           <>
-                            <SelectControlled
-                              name="methodType"
-                              label={t`Method`}
-                              options={
-                                methodType.map((m) => ({
-                                  label: (
-                                    <span className="flex items-center gap-2">
-                                      <MethodIcon type={m} />
-                                      {m}
-                                    </span>
-                                  ),
-                                  value: m
-                                })) ?? []
-                              }
-                              value={itemData.methodType}
-                              onChange={(newValue) => {
-                                if (newValue)
+                            <FormControl>
+                              <FormLabel htmlFor="methodTypePicker">
+                                {t`Method`}
+                              </FormLabel>
+                              <CarbonSelect
+                                value={itemData.methodType || undefined}
+                                onValueChange={(v) =>
                                   setItemData((d) => ({
                                     ...d,
-                                    methodType: newValue?.value
-                                  }));
-                              }}
-                            />
+                                    methodType: v
+                                  }))
+                                }
+                              >
+                                <SelectTrigger
+                                  id="methodTypePicker"
+                                  className="w-full"
+                                >
+                                  <SelectValue
+                                    placeholder={t`Select method...`}
+                                  />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {methodType.map((m) => (
+                                    <SelectItem key={m} value={m}>
+                                      <span className="flex items-center gap-2">
+                                        <MethodIcon type={m} />
+                                        {m}
+                                      </span>
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </CarbonSelect>
+                            </FormControl>
                             <NumberControlled
                               name="saleQuantity"
                               label={t`Quantity`}
@@ -604,7 +643,12 @@ const SalesOrderLineForm = ({
                             <div className="flex flex-col gap-y-2 w-full">
                               <div className="flex items-center justify-between min-h-[16px]">
                                 <span className="text-xs font-medium text-muted-foreground">
-                                  Unit Price
+                                  <LabelWithHelp
+                                    termId="sales-order-line-unit-price"
+                                    variant="inline"
+                                  >
+                                    <Trans>Unit Price</Trans>
+                                  </LabelWithHelp>
                                 </span>
                                 <PriceTracePopover
                                   trace={itemData.priceTrace}
@@ -629,6 +673,7 @@ const SalesOrderLineForm = ({
                             <DatePicker
                               name="promisedDate"
                               label={t`Promised Date`}
+                              termId="sales-order-line-promised-date"
                             />
                             {[
                               "Part",
@@ -641,6 +686,7 @@ const SalesOrderLineForm = ({
                                 name="locationId"
                                 label={t`Shipping Location`}
                                 onChange={onLocationChange}
+                                termId="sales-order-line-fulfillment-location"
                               />
                             )}
                             {[
@@ -664,6 +710,7 @@ const SalesOrderLineForm = ({
                                     }));
                                   }
                                 }}
+                                termId="sales-order-line-storage-unit"
                               />
                             )}
                           </>
@@ -766,6 +813,7 @@ const SalesOrderLineForm = ({
                                   style: "currency",
                                   currency: baseCurrency
                                 }}
+                                termId="sales-order-line-shipping"
                               />
                               <Number
                                 name="addOnCost"
@@ -774,6 +822,7 @@ const SalesOrderLineForm = ({
                                   style: "currency",
                                   currency: baseCurrency
                                 }}
+                                termId="sales-order-line-add-on-cost"
                               />
                               <Number
                                 name="nonTaxableAddOnCost"
@@ -782,6 +831,7 @@ const SalesOrderLineForm = ({
                                   style: "currency",
                                   currency: baseCurrency
                                 }}
+                                termId="sales-order-line-non-taxable-add-on-cost"
                               />
                             </div>
                           </div>
@@ -811,11 +861,13 @@ const SalesOrderLineForm = ({
                                 assetId: (selected?.value as string) ?? ""
                               }));
                             }}
+                            termId="sales-order-line-asset"
                           />
                           <Location
                             name="locationId"
                             label={t`Shipping Location`}
                             onChange={onLocationChange}
+                            termId="sales-order-line-fulfillment-location"
                           />
                           <FormControl>
                             <FormLabel>
@@ -834,6 +886,7 @@ const SalesOrderLineForm = ({
                           <DatePicker
                             name="promisedDate"
                             label={t`Promised Date`}
+                            termId="sales-order-line-promised-date"
                           />
                           <NumberControlled
                             name="saleQuantity"
@@ -858,6 +911,7 @@ const SalesOrderLineForm = ({
                                 unitPrice: value
                               }))
                             }
+                            termId="sales-order-line-unit-price"
                           />
                           <CustomFormFields table="salesOrderLine" />
                         </div>
@@ -950,6 +1004,7 @@ const SalesOrderLineForm = ({
                                   shippingCost: value
                                 }))
                               }
+                              termId="sales-order-line-shipping"
                             />
                             <NumberControlled
                               name="addOnCost"
@@ -965,6 +1020,7 @@ const SalesOrderLineForm = ({
                                   addOnCost: value
                                 }))
                               }
+                              termId="sales-order-line-add-on-cost"
                             />
                             <NumberControlled
                               name="nonTaxableAddOnCost"
@@ -980,6 +1036,7 @@ const SalesOrderLineForm = ({
                                   nonTaxableAddOnCost: value
                                 }))
                               }
+                              termId="sales-order-line-non-taxable-add-on-cost"
                             />
                           </div>
                         </div>

@@ -5,6 +5,8 @@ import { useMemo, useRef, useState } from "react";
 import type { ItemReplenishmentSystem } from "~/modules/items";
 import PartForm from "~/modules/items/ui/Parts/PartForm";
 import { useParts } from "~/stores";
+import { ItemLifecycleBadge } from "../ItemLifecycleBadge";
+import { useEmptyState } from "./emptyStates";
 
 type PartSelectProps = Omit<ComboboxProps, "options"> & {
   itemReplenishmentSystem?: ItemReplenishmentSystem;
@@ -20,17 +22,29 @@ const Part = ({ itemReplenishmentSystem, ...props }: PartSelectProps) => {
     () =>
       parts.map((part) => ({
         value: part.id,
-        label: part.id,
+        label: part.supersessionMode ? (
+          <span className="flex items-center gap-1.5">
+            {part.id}
+            <ItemLifecycleBadge mode={part.supersessionMode} />
+          </span>
+        ) : (
+          part.id
+        ),
         helper: part.name
       })) ?? [],
     [parts]
   );
+
+  const emptyMessage = useEmptyState("part", {
+    onCreate: () => newPartsModal.onOpen()
+  });
 
   return (
     <>
       <CreatableCombobox
         ref={triggerRef}
         options={options}
+        emptyMessage={emptyMessage}
         {...props}
         label={props?.label ?? "Part"}
         onCreateOption={(option) => {

@@ -126,6 +126,7 @@ const SalesOrderShipmentForm = forwardRef<
               label={t`Shipment Location`}
               isReadOnly={isCustomer}
               isClearable
+              termId="sales-order-shipment-from-location"
             />
             <ShippingMethod
               name="shippingMethodId"
@@ -137,14 +138,27 @@ const SalesOrderShipmentForm = forwardRef<
               isClearable
               options={incoterms.map((i) => ({ value: i, label: i }))}
               onChange={(v) => setIncoterm(v?.value as string)}
+              termId="customer-incoterm"
             />
             {incoterm && (
               <Input name="incotermLocation" label={t`Incoterm Location`} />
             )}
 
-            <DatePicker name="receiptRequestedDate" label={t`Requested Date`} />
-            <DatePicker name="receiptPromisedDate" label={t`Promised Date`} />
-            <DatePicker name="shipmentDate" label={t`Shipment Date`} />
+            <DatePicker
+              name="receiptRequestedDate"
+              label={t`Requested Date`}
+              termId="sales-order-shipment-receipt-requested-date"
+            />
+            <DatePicker
+              name="receiptPromisedDate"
+              label={t`Promised Date`}
+              termId="sales-order-shipment-receipt-promised-date"
+            />
+            <DatePicker
+              name="shipmentDate"
+              label={t`Shipment Date`}
+              termId="sales-order-shipment-date"
+            />
 
             <Input name="trackingNumber" label={t`Tracking Number`} />
             <div className="col-span-3">
@@ -153,6 +167,7 @@ const SalesOrderShipmentForm = forwardRef<
                 label={t`Drop Shipment`}
                 bordered
                 onChange={setDropShip}
+                termId="drop-ship"
               />
             </div>
             {dropShip && (
