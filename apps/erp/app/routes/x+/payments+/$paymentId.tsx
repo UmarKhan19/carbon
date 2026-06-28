@@ -6,11 +6,13 @@ import { VStack } from "@carbon/react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { data, redirect, useLoaderData } from "react-router";
 import {
+  AvailableCreditsTable,
+  getAvailableCreditsForParty,
   getAvailableOnAccountCredit,
+  getInvoiceSettlements,
   getOpenPurchaseInvoicesForSupplier,
   getOpenSalesInvoicesForCustomer,
   getPayment,
-  getPaymentApplications,
   isPaymentLocked,
   PaymentApplications,
   PaymentApplyTable,
@@ -34,7 +36,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const [payment, applications] = await Promise.all([
     getPayment(client, paymentId),
-    getPaymentApplications(client, paymentId)
+    getInvoiceSettlements(client, paymentId)
   ]);
 
   if (payment.error || !payment.data) {
@@ -61,11 +63,22 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   };
   // Available on-account credit (base ccy) the counterparty can draw on when
   // this payment applies more than its cash. Only needed while editing a Draft.
+  // Posted credits (balance-reducing memos) the party can apply to open invoices
+  // alongside this payment's cash — the credits half of the settlement composer.
+  type AvailableCreditRow = {
+    id: string;
+    memoId: string;
+    direction: string;
+    currencyCode: string;
+    exchangeRate: number;
+    remaining: number;
+  };
   let availableCreditBase = 0;
   let openInvoices: OpenInvoiceRow[] = [];
+  let availableCredits: AvailableCreditRow[] = [];
   if (payment.data.status === "Draft") {
     if (payment.data.customerId) {
-      const [res, credit] = await Promise.all([
+      const [res, credit, credits] = await Promise.all([
         getOpenSalesInvoicesForCustomer(
           client,
           companyId,
@@ -74,12 +87,17 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         getAvailableOnAccountCredit(client, companyId, {
           paymentType: "Receipt",
           customerId: payment.data.customerId
+        }),
+        getAvailableCreditsForParty(client, companyId, {
+          side: "sales",
+          customerId: payment.data.customerId
         })
       ]);
       openInvoices = (res.data ?? []) as OpenInvoiceRow[];
       availableCreditBase = credit;
+      availableCredits = (credits.data ?? []) as AvailableCreditRow[];
     } else if (payment.data.supplierId) {
-      const [res, credit] = await Promise.all([
+      const [res, credit, credits] = await Promise.all([
         getOpenPurchaseInvoicesForSupplier(
           client,
           companyId,
@@ -88,10 +106,15 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         getAvailableOnAccountCredit(client, companyId, {
           paymentType: "Disbursement",
           supplierId: payment.data.supplierId
+        }),
+        getAvailableCreditsForParty(client, companyId, {
+          side: "purchase",
+          supplierId: payment.data.supplierId
         })
       ]);
       openInvoices = (res.data ?? []) as OpenInvoiceRow[];
       availableCreditBase = credit;
+      availableCredits = (credits.data ?? []) as AvailableCreditRow[];
     }
   }
 
@@ -99,7 +122,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     payment: payment.data,
     applications: applications.data ?? [],
     openInvoices: openInvoices ?? [],
-    availableCreditBase
+    availableCreditBase,
+    availableCredits
   };
 }
 
@@ -152,9 +176,15 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function PaymentDetailRoute() {
-  const { payment, applications, openInvoices, availableCreditBase } =
-    useLoaderData<typeof loader>();
+  const {
+    payment,
+    applications,
+    openInvoices,
+    availableCreditBase,
+    availableCredits
+  } = useLoaderData<typeof loader>();
   const locked = isPaymentLocked(payment.status);
+  const side: "sales" | "purchase" = payment.customerId ? "sales" : "purchase";
 
   // Convert the base-currency credit pool into the payment's currency so the
   // apply table can compare it against amounts entered in payment currency.
@@ -204,14 +234,36 @@ export default function PaymentDetailRoute() {
             status: inv.status
           }))}
           existingApplications={applications.map((a) => ({
-            salesInvoiceId: a.salesInvoiceId,
-            purchaseInvoiceId: a.purchaseInvoiceId,
+            targetSalesInvoiceId: a.targetSalesInvoiceId,
+            targetPurchaseInvoiceId: a.targetPurchaseInvoiceId,
             appliedAmount: Number(a.appliedAmount),
             discountAmount: Number(a.discountAmount),
             writeOffAmount: Number(a.writeOffAmount),
-            invoiceExchangeRate: Number(a.invoiceExchangeRate),
-            paymentExchangeRate: Number(a.paymentExchangeRate),
+            targetExchangeRate: Number(a.targetExchangeRate),
+            sourceExchangeRate: Number(a.sourceExchangeRate),
             appliedDate: a.appliedDate
+          }))}
+        />
+      )}
+
+      {!locked && availableCredits.length > 0 && (
+        <AvailableCreditsTable
+          paymentId={payment.id}
+          side={side}
+          currency={payment.currencyCode}
+          credits={availableCredits.map((c) => ({
+            id: c.id,
+            memoId: c.memoId,
+            direction: c.direction,
+            currencyCode: c.currencyCode,
+            exchangeRate: Number(c.exchangeRate),
+            remaining: Number(c.remaining)
+          }))}
+          openInvoices={(openInvoices ?? []).map((inv) => ({
+            id: inv.id,
+            invoiceId: inv.invoiceId ?? inv.id,
+            exchangeRate: Number(inv.exchangeRate ?? 1),
+            balance: Number(inv.balance ?? 0)
           }))}
         />
       )}

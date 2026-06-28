@@ -17,7 +17,7 @@ import type {
   PurchaseInvoiceLine
 } from "~/modules/invoicing";
 import {
-  getPaymentApplicationsForInvoice,
+  getInvoiceSettlementsForInvoice,
   getPurchaseInvoice,
   InvoicePaymentsPanel,
   isPurchaseInvoiceLocked,
@@ -46,7 +46,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const [invoice, applications] = await Promise.all([
     getPurchaseInvoice(client, invoiceId),
-    getPaymentApplicationsForInvoice(client, "purchase", invoiceId)
+    getInvoiceSettlementsForInvoice(client, "purchase", invoiceId)
   ]);
   if (invoice.error) {
     throw redirect(

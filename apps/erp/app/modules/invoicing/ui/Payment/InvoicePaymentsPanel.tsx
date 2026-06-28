@@ -13,33 +13,18 @@ import {
 } from "@carbon/react";
 import { Trans } from "@lingui/react/macro";
 import { Link } from "react-router";
+import { Enumerable } from "~/components/Enumerable";
 import { useCurrencyFormatter, useDateFormatter } from "~/hooks";
+import type { InvoiceSettlementForInvoice } from "~/modules/invoicing";
 import { path } from "~/utils/path";
 
-// Row shape returned by getPaymentApplicationsForInvoice (after the
-// service's two-step merge).
-type InvoicePaymentRow = {
-  id: string;
-  paymentId: string;
-  appliedAmount: number;
-  discountAmount: number;
-  writeOffAmount: number;
-  fxGainLossAmount: number | null;
-  appliedDate: string;
-  payment: {
-    id: string;
-    paymentId: string;
-    status: string | null;
-    paymentDate: string | null;
-    currencyCode: string;
-  };
+type InvoiceSettlementsPanelProps = {
+  rows: InvoiceSettlementForInvoice[];
 };
 
-type InvoicePaymentsPanelProps = {
-  rows: InvoicePaymentRow[];
-};
-
-const InvoicePaymentsPanel = ({ rows }: InvoicePaymentsPanelProps) => {
+// Everything applied to the invoice — cash payments AND credit/debit memos —
+// in one list. (Export name kept as InvoicePaymentsPanel for its callers.)
+const InvoicePaymentsPanel = ({ rows }: InvoiceSettlementsPanelProps) => {
   const { formatDate } = useDateFormatter();
   // FX gain/loss is recorded in base currency.
   const currencyFormatter = useCurrencyFormatter();
@@ -50,12 +35,12 @@ const InvoicePaymentsPanel = ({ rows }: InvoicePaymentsPanelProps) => {
     <Card>
       <CardHeader>
         <CardTitle>
-          <Trans>Payments</Trans>
+          <Trans>Applied</Trans>
         </CardTitle>
         <CardDescription>
           <Trans>
-            Posted payments that have applied to this invoice. Click a row to
-            open the payment.
+            Payments and credits applied to this invoice. Click a row to open
+            the source document.
           </Trans>
         </CardDescription>
       </CardHeader>
@@ -67,7 +52,10 @@ const InvoicePaymentsPanel = ({ rows }: InvoicePaymentsPanelProps) => {
                 <Trans>Date</Trans>
               </Th>
               <Th>
-                <Trans>Payment</Trans>
+                <Trans>Type</Trans>
+              </Th>
+              <Th>
+                <Trans>Source</Trans>
               </Th>
               <Th className="text-right">
                 <Trans>Applied</Trans>
@@ -88,11 +76,22 @@ const InvoicePaymentsPanel = ({ rows }: InvoicePaymentsPanelProps) => {
               <Tr key={r.id}>
                 <Td>{formatDate(r.appliedDate)}</Td>
                 <Td>
+                  <Enumerable
+                    value={
+                      r.source.type === "payment" ? "Cash" : r.source.direction
+                    }
+                  />
+                </Td>
+                <Td>
                   <Link
-                    to={path.to.payment(r.payment.id)}
+                    to={
+                      r.source.type === "payment"
+                        ? path.to.payment(r.source.id)
+                        : path.to.memo(r.source.id)
+                    }
                     className="text-primary hover:underline"
                   >
-                    {r.payment.paymentId}
+                    {r.source.readableId}
                   </Link>
                 </Td>
                 <Td className="text-right tabular-nums">

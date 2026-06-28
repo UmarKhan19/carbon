@@ -1,3 +1,4 @@
+export { default as AvailableCreditsTable } from "./AvailableCreditsTable";
 export { default as InvoicePaymentsPanel } from "./InvoicePaymentsPanel";
 export { default as PaymentApplications } from "./PaymentApplications";
 export { default as PaymentApplyTable } from "./PaymentApplyTable";

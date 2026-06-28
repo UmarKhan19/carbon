@@ -12,7 +12,7 @@ import {
   getOpenSalesInvoicesForCustomer,
   PaymentForm,
   paymentValidator,
-  replacePaymentApplications,
+  replaceInvoiceSettlements,
   upsertPayment
 } from "~/modules/invoicing";
 import { getCompany, getNextSequence } from "~/modules/settings";
@@ -171,18 +171,18 @@ export async function action({ request }: ActionFunctionArgs) {
         : [];
       const selected = open.filter((inv) => seedInvoiceIds.includes(inv.id));
       if (selected.length > 0) {
-        await replacePaymentApplications(getDatabaseClient(), {
+        await replaceInvoiceSettlements(getDatabaseClient(), {
           paymentId: insert.data.id,
           companyId,
           createdBy: userId,
           applications: selected.map((inv) => ({
-            salesInvoiceId: isReceipt ? inv.id : undefined,
-            purchaseInvoiceId: isReceipt ? undefined : inv.id,
+            targetSalesInvoiceId: isReceipt ? inv.id : undefined,
+            targetPurchaseInvoiceId: isReceipt ? undefined : inv.id,
             appliedAmount: Number(inv.balance ?? 0),
             discountAmount: 0,
             writeOffAmount: 0,
-            invoiceExchangeRate: Number(inv.exchangeRate ?? 1),
-            paymentExchangeRate: Number(validation.data.exchangeRate) || 1,
+            targetExchangeRate: Number(inv.exchangeRate ?? 1),
+            sourceExchangeRate: Number(validation.data.exchangeRate) || 1,
             appliedDate: validation.data.paymentDate
           }))
         });

@@ -5,15 +5,16 @@ import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { z } from "zod";
 import {
-  paymentApplicationValidator,
-  replacePaymentApplications
+  invoiceSettlementBase,
+  invoiceSettlementValidator,
+  replaceInvoiceSettlements
 } from "~/modules/invoicing";
 import { getDatabaseClient } from "~/services/database.server";
 import { path } from "~/utils/path";
 
 // Apply-table submits the full list of applications as one JSON payload.
-// Each row is validated against paymentApplicationValidator (with the
-// paymentId injected from the URL), then replacePaymentApplications
+// Each row is validated against invoiceSettlementValidator (with the
+// paymentId injected from the URL), then replaceInvoiceSettlements
 // runs a delete-then-insert under RLS (Draft-only via the parent
 // payment policy).
 const setApplicationsValidator = z.object({
@@ -54,10 +55,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   // injected so the validator's required-field check passes without
   // depending on the client to send it on every row.
   const rowsValidator = z.array(
-    paymentApplicationValidator
-      .innerType()
-      .innerType()
-      .omit({ paymentId: true })
+    invoiceSettlementBase.omit({ paymentId: true })
   );
   const rowsResult = rowsValidator.safeParse(parsed);
   if (!rowsResult.success) {
@@ -71,7 +69,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   // paymentId is present.
   const applications = [];
   for (const row of rowsResult.data) {
-    const validated = paymentApplicationValidator.safeParse({
+    const validated = invoiceSettlementValidator.safeParse({
       ...row,
       paymentId
     });
@@ -89,7 +87,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   try {
-    await replacePaymentApplications(getDatabaseClient(), {
+    await replaceInvoiceSettlements(getDatabaseClient(), {
       paymentId,
       companyId,
       createdBy: userId,

@@ -301,6 +301,48 @@ export const salesInvoiceLineValidator = z
   );
 
 // ----------------------------------------------------------------------
+// Credit / Debit Memos — payment-shaped documents (the `memo` table). A memo is
+// a party + amount + reason GL account, applied to invoices via
+// invoiceSettlement exactly like a payment, but the offset is a GL account
+// (returns/allowance/adjustment) instead of cash. NOT an invoice row.
+//
+// The four combos = party (customer/supplier) × direction (Credit/Debit):
+//   Customer Credit -> AR down,  Customer Debit -> AR up
+//   Supplier Debit  -> AP down,  Supplier Credit -> AP up
+// ----------------------------------------------------------------------
+
+export const memoDirection = ["Credit", "Debit"] as const;
+export const memoStatus = ["Draft", "Posted", "Voided"] as const;
+
+export type MemoDirection = (typeof memoDirection)[number];
+export type MemoStatusType = (typeof memoStatus)[number];
+
+export function isMemoLocked(status: string | null | undefined): boolean {
+  return status !== null && status !== undefined && status !== "Draft";
+}
+
+export const memoValidator = z
+  .object({
+    id: zfd.text(z.string().optional()),
+    memoId: zfd.text(z.string().optional()),
+    direction: z.enum(memoDirection, {
+      errorMap: () => ({ message: "Direction is required" })
+    }),
+    customerId: zfd.text(z.string().optional()),
+    supplierId: zfd.text(z.string().optional()),
+    memoDate: z.string().min(1, { message: "Date is required" }),
+    currencyCode: z.string().min(1, { message: "Currency is required" }),
+    exchangeRate: zfd.numeric(z.number().positive().default(1)),
+    amount: zfd.numeric(z.number().positive({ message: "Amount must be > 0" })),
+    reference: zfd.text(z.string().optional()),
+    notes: zfd.text(z.string().optional())
+  })
+  .refine((d) => Boolean(d.customerId) !== Boolean(d.supplierId), {
+    message: "A memo is for exactly one party (customer or supplier)",
+    path: ["customerId"]
+  });
+
+// ----------------------------------------------------------------------
 // Payments (AR receipts + AP disbursements + applications)
 // ----------------------------------------------------------------------
 
@@ -326,8 +368,10 @@ export const paymentValidator = z
     paymentDate: z.string().min(1, { message: "Payment date is required" }),
     currencyCode: z.string().min(1, { message: "Currency is required" }),
     exchangeRate: zfd.numeric(z.number().positive().default(1)),
+    // Cash may be 0: a receipt/payment can be a pure credit-application (apply
+    // the party's posted credits to invoices with no cash changing hands).
     totalAmount: zfd.numeric(
-      z.number().positive({ message: "Total amount must be > 0" })
+      z.number().nonnegative({ message: "Total amount cannot be negative" })
     ),
     bankAccount: z.string().min(1, { message: "Bank account is required" }),
     reference: zfd.text(z.string().optional()),
@@ -344,27 +388,49 @@ export const paymentValidator = z
     }
   );
 
-export const paymentApplicationValidator = z
-  .object({
-    id: zfd.text(z.string().optional()),
-    paymentId: z.string().min(1, { message: "Payment is required" }),
-    salesInvoiceId: zfd.text(z.string().optional()),
-    purchaseInvoiceId: zfd.text(z.string().optional()),
-    appliedAmount: zfd.numeric(z.number().nonnegative().default(0)),
-    discountAmount: zfd.numeric(z.number().nonnegative().default(0)),
-    writeOffAmount: zfd.numeric(z.number().nonnegative().default(0)),
-    invoiceExchangeRate: zfd.numeric(
-      z.number().positive({ message: "Invoice exchange rate must be > 0" })
-    ),
-    paymentExchangeRate: zfd.numeric(
-      z.number().positive({ message: "Payment exchange rate must be > 0" })
-    ),
-    appliedDate: z.string().min(1, { message: "Applied date is required" })
+// The raw object schema (no refinements). Routes that need to `.omit()` a source
+// key before injecting it from the URL use THIS — peeling `.refine()` layers off
+// the refined validator below with `.innerType()` is brittle (it breaks whenever
+// a refinement is added/removed).
+export const invoiceSettlementBase = z.object({
+  id: zfd.text(z.string().optional()),
+  // Source: exactly one of a payment or a memo settles the target.
+  paymentId: zfd.text(z.string().optional()),
+  memoId: zfd.text(z.string().optional()),
+  // Target: exactly one of a sales invoice, purchase invoice, or memo.
+  targetSalesInvoiceId: zfd.text(z.string().optional()),
+  targetPurchaseInvoiceId: zfd.text(z.string().optional()),
+  targetMemoId: zfd.text(z.string().optional()),
+  appliedAmount: zfd.numeric(z.number().nonnegative().default(0)),
+  discountAmount: zfd.numeric(z.number().nonnegative().default(0)),
+  writeOffAmount: zfd.numeric(z.number().nonnegative().default(0)),
+  targetExchangeRate: zfd.numeric(
+    z.number().positive({ message: "Target exchange rate must be > 0" })
+  ),
+  sourceExchangeRate: zfd.numeric(
+    z.number().positive({ message: "Source exchange rate must be > 0" })
+  ),
+  appliedDate: z.string().min(1, { message: "Applied date is required" })
+});
+
+export const invoiceSettlementValidator = invoiceSettlementBase
+  .refine((d) => Boolean(d.paymentId) !== Boolean(d.memoId), {
+    message: "A settlement must have exactly one source (payment or memo)",
+    path: ["paymentId"]
   })
-  .refine((d) => Boolean(d.salesInvoiceId) !== Boolean(d.purchaseInvoiceId), {
-    message: "Application must target exactly one invoice (sales OR purchase)",
-    path: ["salesInvoiceId"]
-  })
+  .refine(
+    (d) =>
+      [
+        d.targetSalesInvoiceId,
+        d.targetPurchaseInvoiceId,
+        d.targetMemoId
+      ].filter(Boolean).length === 1,
+    {
+      message:
+        "Application must target exactly one document (sales invoice, purchase invoice, or memo)",
+      path: ["targetSalesInvoiceId"]
+    }
+  )
   .refine(
     (d) =>
       Number(d.appliedAmount) +
@@ -404,4 +470,17 @@ export function getPayInvoiceHref(args: {
   )}&invoiceId=${encodeURIComponent(
     args.invoiceId
   )}&amount=${encodeURIComponent(String(args.balance ?? 0))}`;
+}
+
+// Builds the "apply credit" URL: a $0 receipt/payment for the party, so the
+// settlement composer opens with no cash and the party's posted credits ready to
+// apply. No invoiceId (that would seed a cash amount from the invoice balance).
+export function getApplyCreditHref(args: {
+  side: "ar" | "ap";
+  partyId: string | null | undefined;
+}): string {
+  const partyParam = args.side === "ar" ? "customerId" : "supplierId";
+  return `${path.to.paymentNew}?${partyParam}=${encodeURIComponent(
+    args.partyId ?? ""
+  )}&amount=0`;
 }

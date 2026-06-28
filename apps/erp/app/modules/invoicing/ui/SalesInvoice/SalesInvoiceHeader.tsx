@@ -11,6 +11,7 @@ import {
   Heading,
   HStack,
   IconButton,
+  SplitButton,
   useDisclosure
 } from "@carbon/react";
 import { getItemReadableId } from "@carbon/utils";
@@ -26,19 +27,24 @@ import {
   LuFile,
   LuPanelLeft,
   LuPanelRight,
+  LuTicketCheck,
   LuTicketX,
   LuTrash,
   LuTruck
 } from "react-icons/lu";
 import { RiProgress8Line } from "react-icons/ri";
-import { Link, useFetcher, useParams } from "react-router";
+import { Link, useFetcher, useNavigate, useParams } from "react-router";
 import { useAuditLog } from "~/components/AuditLog";
 import { usePanels } from "~/components/Layout/Panels";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
 import { usePermissions, useRouteData, useUser } from "~/hooks";
 import { ShipmentStatus } from "~/modules/inventory/ui/Shipments";
 import type { SalesInvoice, SalesInvoiceLine } from "~/modules/invoicing";
-import { getPayInvoiceHref, isInvoicePayable } from "~/modules/invoicing";
+import {
+  getApplyCreditHref,
+  getPayInvoiceHref,
+  isInvoicePayable
+} from "~/modules/invoicing";
 // status mutation route still exists for the manual Draft -> Pending ->
 // Submitted transitions, but the dropdown in this header no longer
 // drives it.
@@ -54,6 +60,7 @@ const SalesInvoiceHeader = () => {
   const permissions = usePermissions();
   const { invoiceId } = useParams();
   const { company } = useUser();
+  const navigate = useNavigate();
   const postingModal = useDisclosure();
   const voidModal = useDisclosure();
   const deleteModal = useDisclosure();
@@ -84,6 +91,7 @@ const SalesInvoiceHeader = () => {
     salesInvoice: SalesInvoice;
     salesInvoiceLines: SalesInvoiceLine[];
     defaultCc: string[];
+    orgHasCredits: boolean;
   }>(path.to.salesInvoice(invoiceId));
 
   if (!routeData?.salesInvoice) throw new Error("salesInvoice not found");
@@ -170,7 +178,7 @@ const SalesInvoiceHeader = () => {
     postingModal.onOpen();
   };
 
-  // Status is now derived from paymentApplication rows (see migration
+  // Status is now derived from invoiceSettlement rows (see migration
   // 20260519130000); manual status mutation has been removed.
   // "Receive Payment" launches the payment form pre-filled for this
   // invoice — NetSuite's Accept Payment pattern. Hidden once the
@@ -183,6 +191,12 @@ const SalesInvoiceHeader = () => {
     partyId: salesInvoice.customerId,
     invoiceId,
     balance: salesInvoice.balance
+  });
+  // Offer "Apply Credit" only when the org actually has open credits to apply.
+  const canApplyCredit = canReceivePayment && routeData?.orgHasCredits;
+  const applyCreditHref = getApplyCreditHref({
+    side: "ar",
+    partyId: salesInvoice.customerId
   });
 
   return (
@@ -356,13 +370,29 @@ const SalesInvoiceHeader = () => {
             >
               <Trans>Post</Trans>
             </Button>
-            {canReceivePayment && (
-              <Button variant="primary" leftIcon={<LuDollarSign />} asChild>
-                <Link to={receivePaymentHref}>
+            {canReceivePayment &&
+              (canApplyCredit ? (
+                <SplitButton
+                  variant="primary"
+                  leftIcon={<LuDollarSign />}
+                  onClick={() => navigate(receivePaymentHref)}
+                  dropdownItems={[
+                    {
+                      label: <Trans>Apply Credit</Trans>,
+                      icon: <LuTicketCheck />,
+                      onClick: () => navigate(applyCreditHref)
+                    }
+                  ]}
+                >
                   <Trans>Payment</Trans>
-                </Link>
-              </Button>
-            )}
+                </SplitButton>
+              ) : (
+                <Button variant="primary" leftIcon={<LuDollarSign />} asChild>
+                  <Link to={receivePaymentHref}>
+                    <Trans>Payment</Trans>
+                  </Link>
+                </Button>
+              ))}
             <IconButton
               aria-label={t`Toggle Properties`}
               icon={<LuPanelRight />}

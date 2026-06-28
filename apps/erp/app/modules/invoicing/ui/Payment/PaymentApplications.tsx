@@ -15,11 +15,11 @@ import { Trans } from "@lingui/react/macro";
 import { useNumberFormatter } from "@react-aria/i18n";
 import { Hyperlink } from "~/components";
 import { useCurrencyFormatter, useDateFormatter } from "~/hooks";
-import type { getPaymentApplications } from "~/modules/invoicing";
+import type { getInvoiceSettlements } from "~/modules/invoicing";
 import { path } from "~/utils/path";
 
 type PaymentApplication = NonNullable<
-  Awaited<ReturnType<typeof getPaymentApplications>>["data"]
+  Awaited<ReturnType<typeof getInvoiceSettlements>>["data"]
 >[number];
 
 type PaymentApplicationsProps = {
@@ -28,7 +28,7 @@ type PaymentApplicationsProps = {
 };
 
 // The applied invoice's human-readable id comes from the embedded
-// salesInvoice/purchaseInvoice relation (getPaymentApplications); fall back to
+// salesInvoice/purchaseInvoice relation (getInvoiceSettlements); fall back to
 // the raw FK id if the relation didn't resolve.
 function invoiceLabel(a: PaymentApplication) {
   const rec = a as unknown as {
@@ -40,16 +40,16 @@ function invoiceLabel(a: PaymentApplication) {
       | { invoiceId?: string | null }
       | { invoiceId?: string | null }[]
       | null;
-    salesInvoiceId?: string | null;
-    purchaseInvoiceId?: string | null;
+    targetSalesInvoiceId?: string | null;
+    targetPurchaseInvoiceId?: string | null;
   };
   const pick = (x: typeof rec.salesInvoice) =>
     Array.isArray(x) ? x[0]?.invoiceId : x?.invoiceId;
   return (
     pick(rec.salesInvoice) ??
     pick(rec.purchaseInvoice) ??
-    rec.salesInvoiceId ??
-    rec.purchaseInvoiceId
+    rec.targetSalesInvoiceId ??
+    rec.targetPurchaseInvoiceId
   );
 }
 
@@ -80,7 +80,7 @@ const PaymentApplications = ({
     <Card className="w-full">
       <CardHeader>
         <CardTitle>
-          <Trans>Applications</Trans>
+          <Trans>Payment Applications</Trans>
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -124,13 +124,15 @@ const PaymentApplications = ({
               applications.map((a) => (
                 <Tr key={a.id}>
                   <Td>
-                    {a.salesInvoiceId ? (
-                      <Hyperlink to={path.to.salesInvoice(a.salesInvoiceId)}>
+                    {a.targetSalesInvoiceId ? (
+                      <Hyperlink
+                        to={path.to.salesInvoice(a.targetSalesInvoiceId)}
+                      >
                         {invoiceLabel(a)}
                       </Hyperlink>
-                    ) : a.purchaseInvoiceId ? (
+                    ) : a.targetPurchaseInvoiceId ? (
                       <Hyperlink
-                        to={path.to.purchaseInvoice(a.purchaseInvoiceId)}
+                        to={path.to.purchaseInvoice(a.targetPurchaseInvoiceId)}
                       >
                         {invoiceLabel(a)}
                       </Hyperlink>
@@ -148,10 +150,10 @@ const PaymentApplications = ({
                     {currencyFormatter.format(Number(a.writeOffAmount))}
                   </Td>
                   <Td className="text-right tabular-nums">
-                    {rateFormatter.format(Number(a.invoiceExchangeRate))}
+                    {rateFormatter.format(Number(a.targetExchangeRate))}
                   </Td>
                   <Td className="text-right tabular-nums">
-                    {rateFormatter.format(Number(a.paymentExchangeRate))}
+                    {rateFormatter.format(Number(a.sourceExchangeRate))}
                   </Td>
                   <Td className="text-right tabular-nums">
                     {currencyFormatter.format(Number(a.fxGainLossAmount ?? 0))}

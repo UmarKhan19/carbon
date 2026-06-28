@@ -492,6 +492,10 @@ msgstr "Toujours"
 msgid "Amount"
 msgstr "Montant"
 
+#. placeholder {0}: r.memoId
+msgid "Amount to apply for {0}"
+msgstr ""
+
 msgid "Amount Type"
 msgstr "Type de montant"
 
@@ -549,9 +553,6 @@ msgstr "Clés API"
 msgid "API keys for programmatic access to your Carbon data."
 msgstr "Clés API pour un accès programmatique à vos données Carbon."
 
-msgid "Applications"
-msgstr ""
-
 msgid "Applied"
 msgstr ""
 
@@ -571,11 +572,23 @@ msgstr "S'applique à tous"
 msgid "Applies to all work centers"
 msgstr "S'applique à tous les centres de travail"
 
+msgid "Apply available credits"
+msgstr ""
+
+msgid "Apply Credit"
+msgstr ""
+
+msgid "Apply credits"
+msgstr ""
+
 msgid "Apply pricing rules"
 msgstr "Appliquer les règles de tarification"
 
 msgid "Apply To"
 msgstr "Appliquer à"
+
+msgid "Apply to invoice"
+msgstr ""
 
 msgid "Apply to invoices"
 msgstr ""
@@ -690,9 +703,9 @@ msgstr "Êtes-vous sûr de vouloir supprimer {0} de cette opération ? Cette act
 msgid "Are you sure you want to delete {0}?"
 msgstr "Êtes-vous sûr de vouloir supprimer {0} ?"
 
+#. placeholder {0}: initialValues.memoId
 #. placeholder {0}: initialValues.paymentId
 #. placeholder {0}: pickingList.pickingListId
-#. placeholder {0}: routeData?.consumableSummary?.readableIdWithRevision
 msgid "Are you sure you want to delete {0}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer {0} ? Cette action ne peut pas être annulée."
 
@@ -1447,6 +1460,9 @@ msgstr "Effacer la recherche"
 msgid "Clear search query"
 msgstr "Effacer la requête de recherche"
 
+msgid "Clear this invoice with the party's posted credits as well as cash. Credits apply directly — no posting needed."
+msgstr ""
+
 msgid "Click to upload a PDF drawing"
 msgstr "Cliquez pour télécharger un dessin PDF"
 
@@ -2103,6 +2119,18 @@ msgstr "Centre de travail créé"
 msgid "Creating part..."
 msgstr "Création de la pièce..."
 
+msgid "Credit"
+msgstr ""
+
+msgid "Credit / Debit Memos"
+msgstr ""
+
+msgid "Credits & Debits"
+msgstr ""
+
+msgid "Credits applied"
+msgstr ""
+
 msgid "CSV column"
 msgstr "Colonne CSV"
 
@@ -2455,6 +2483,9 @@ msgstr "Supprimer la forme de matériau"
 msgid "Delete Material Type"
 msgstr "Supprimer le type de matériau"
 
+msgid "Delete Memo"
+msgstr ""
+
 msgid "Delete Part"
 msgstr "Supprimer la pièce"
 
@@ -2661,6 +2692,12 @@ msgstr "Dimensions"
 
 msgid "Direct"
 msgstr "Direct"
+
+msgid "Direction"
+msgstr ""
+
+msgid "Directions"
+msgstr ""
 
 msgid "Disabled"
 msgstr "Désactivé"
@@ -2954,6 +2991,9 @@ msgstr "Modifier la substance matérielle"
 
 msgid "Edit Material Type"
 msgstr "Modifier le type de matériau"
+
+msgid "Edit Memo"
+msgstr ""
 
 msgid "Edit Non Conformance Type"
 msgstr "Modifier le type de non-conformité"
@@ -4902,6 +4942,12 @@ msgstr "Membres"
 msgid "Memo"
 msgstr ""
 
+msgid "Memo Date"
+msgstr ""
+
+msgid "Memo ID"
+msgstr ""
+
 msgid "MES"
 msgstr "MES"
 
@@ -5104,6 +5150,9 @@ msgstr "Nouveau consommable"
 
 msgid "New Contractor"
 msgstr "Nouveau Contractant"
+
+msgid "New Credit / Debit Memo"
+msgstr ""
 
 msgid "New Custom Field"
 msgstr "Nouveau champ personnalisé"
@@ -5932,6 +5981,9 @@ msgstr "Partenaires"
 msgid "Parts"
 msgstr "Pièces"
 
+msgid "Party Type"
+msgstr ""
+
 msgid "Pass"
 msgstr "Réussir"
 
@@ -5950,6 +6002,9 @@ msgstr ""
 msgid "Payment"
 msgstr "Paiement"
 
+msgid "Payment Applications"
+msgstr ""
+
 msgid "Payment Date"
 msgstr ""
 
@@ -5966,6 +6021,9 @@ msgid "Payment Terms"
 msgstr "Conditions de paiement"
 
 msgid "Payments"
+msgstr ""
+
+msgid "Payments and credits applied to this invoice. Click a row to open the source document."
 msgstr ""
 
 msgid "PDF"
@@ -6174,9 +6232,6 @@ msgstr "Publié"
 
 msgid "Posted By"
 msgstr "Publié par"
-
-msgid "Posted payments that have applied to this invoice. Click a row to open the payment."
-msgstr ""
 
 msgid "Posting Date"
 msgstr "Date de publication"
@@ -6572,6 +6627,9 @@ msgstr "Prêt pour devis"
 msgid "Reason"
 msgstr "Raison"
 
+msgid "Reason Account"
+msgstr ""
+
 msgid "Reason for declining (Optional)"
 msgstr "Raison du refus (Facultatif)"
 
@@ -6655,6 +6713,9 @@ msgstr "Récemment créé"
 msgid "Record"
 msgstr "Enregistrer"
 
+msgid "Record a credit or debit memo against a customer or supplier. Applications to specific invoices are added after the memo is created."
+msgstr ""
+
 msgid "Record cash received from a customer (Receipt) or paid to a supplier (Disbursement). Applications to specific invoices are added after the payment is created."
 msgstr ""
 
@@ -6705,6 +6766,9 @@ msgstr "Lancer le travail"
 
 msgid "Released"
 msgstr "Libéré"
+
+msgid "Remaining"
+msgstr ""
 
 msgid "Remaining after split stays on the original row."
 msgstr "Le reste après la division reste sur la ligne d'origine."
@@ -7302,6 +7366,9 @@ msgstr "Sélectionner un calibre"
 
 msgid "Select groups or individuals"
 msgstr "Sélectionner des groupes ou des individus"
+
+msgid "Select invoice"
+msgstr ""
 
 msgid "Select invoices from a single counterparty"
 msgstr ""
@@ -8207,6 +8274,9 @@ msgstr "Il n'y a pas de devis fournisseurs actifs à comparer pour cette demande
 msgid "There are outside operations associated with this job that have no suppliers. Please assign a supplier to each outside operation before releasing it."
 msgstr "Il y a des opérations externes associées à ce travail qui n'ont pas de fournisseurs. Veuillez assigner un fournisseur à chaque opération externe avant de le lancer."
 
+msgid "There's nothing outstanding to apply these credits to."
+msgstr ""
+
 msgid "These custom fields will only be available for entities with the same tags"
 msgstr "Ces champs personnalisés ne seront disponibles que pour les entités ayant les mêmes balises"
 
@@ -8882,6 +8952,9 @@ msgstr "Afficher les listes"
 
 msgid "View maintenance dispatch"
 msgstr "Afficher la dépêche de maintenance"
+
+msgid "View Memo"
+msgstr ""
 
 msgid "View missing values"
 msgstr "Afficher les valeurs manquantes"

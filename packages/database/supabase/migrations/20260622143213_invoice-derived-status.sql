@@ -1,11 +1,11 @@
 -- ============================================================
--- Invoice status + balance derived from paymentApplication
+-- Invoice status + balance derived from invoiceSettlement
 --
 -- Today `balance` is a cached NUMERIC column on salesInvoice and
 -- purchaseInvoice that is never decremented by anything, and the
 -- `Paid` / `Partially Paid` status values are set by hand via
 -- updateSalesInvoiceStatus / updatePurchaseInvoiceStatus. The
--- payment + paymentApplication tables now make this derivable: a
+-- payment + invoiceSettlement tables now make this derivable: a
 -- Posted payment's applications sum exactly equals the AR/AP
 -- reduction. This migration drops the cached column and recomputes
 -- balance + status in the views.
@@ -57,12 +57,12 @@ ALTER TABLE "purchaseInvoice" DROP COLUMN IF EXISTS "balance";
 CREATE OR REPLACE VIEW "salesInvoices" WITH(SECURITY_INVOKER=true) AS
   WITH settled AS (
     SELECT
-      pa."salesInvoiceId",
+      pa."targetSalesInvoiceId",
       SUM(pa."appliedAmount" + pa."discountAmount" + pa."writeOffAmount") AS amount
-    FROM "paymentApplication" pa
+    FROM "invoiceSettlement" pa
     JOIN "payment" p ON p."id" = pa."paymentId"
-    WHERE p."status" = 'Posted' AND pa."salesInvoiceId" IS NOT NULL
-    GROUP BY pa."salesInvoiceId"
+    WHERE p."status" = 'Posted' AND pa."targetSalesInvoiceId" IS NOT NULL
+    GROUP BY pa."targetSalesInvoiceId"
   )
   SELECT
     si."id",
@@ -147,7 +147,7 @@ CREATE OR REPLACE VIEW "salesInvoices" WITH(SECURITY_INVOKER=true) AS
     GROUP BY sil."invoiceId"
   ) sil ON sil."invoiceId" = si."id"
   JOIN "salesInvoiceShipment" ss ON ss."id" = si."id"
-  LEFT JOIN settled s ON s."salesInvoiceId" = si."id";
+  LEFT JOIN settled s ON s."targetSalesInvoiceId" = si."id";
 
 
 -- ============================================================
@@ -160,12 +160,12 @@ CREATE OR REPLACE VIEW "salesInvoices" WITH(SECURITY_INVOKER=true) AS
 CREATE OR REPLACE VIEW "purchaseInvoices" WITH(SECURITY_INVOKER=true) AS
   WITH settled AS (
     SELECT
-      pa."purchaseInvoiceId",
+      pa."targetPurchaseInvoiceId",
       SUM(pa."appliedAmount" + pa."discountAmount" + pa."writeOffAmount") AS amount
-    FROM "paymentApplication" pa
+    FROM "invoiceSettlement" pa
     JOIN "payment" p ON p."id" = pa."paymentId"
-    WHERE p."status" = 'Posted' AND pa."purchaseInvoiceId" IS NOT NULL
-    GROUP BY pa."purchaseInvoiceId"
+    WHERE p."status" = 'Posted' AND pa."targetPurchaseInvoiceId" IS NOT NULL
+    GROUP BY pa."targetPurchaseInvoiceId"
   )
   SELECT
     pi."id",
@@ -185,10 +185,10 @@ CREATE OR REPLACE VIEW "purchaseInvoices" WITH(SECURITY_INVOKER=true) AS
     pi."currencyCode",
     pi."exchangeRate",
     pi."exchangeRateUpdatedAt",
-    COALESCE(pl."subtotal", 0)::numeric(10,2) AS "subtotal",
+    COALESCE(pl."subtotal", 0) AS "subtotal",
     pi."totalDiscount",
-    (COALESCE(pl."orderTotal", 0) + COALESCE(pid."supplierShippingCost", 0) * CASE WHEN pi."exchangeRate" = 0 THEN 1 ELSE pi."exchangeRate" END)::numeric(10,2) AS "totalAmount",
-    COALESCE(pl."totalTax", 0)::numeric(10,2) AS "totalTax",
+    (COALESCE(pl."orderTotal", 0) + COALESCE(pid."supplierShippingCost", 0) * CASE WHEN pi."exchangeRate" = 0 THEN 1 ELSE pi."exchangeRate" END) AS "totalAmount",
+    COALESCE(pl."totalTax", 0) AS "totalTax",
     (pi."totalAmount" - COALESCE(s.amount, 0)) AS "balance",
     pi."assignee",
     pi."createdBy",
@@ -233,4 +233,4 @@ CREATE OR REPLACE VIEW "purchaseInvoices" WITH(SECURITY_INVOKER=true) AS
   ) pl ON pl."invoiceId" = pi."id"
   LEFT JOIN "paymentTerm" pt ON pt."id" = pi."paymentTermId"
   LEFT JOIN "purchaseInvoiceDelivery" pid ON pid."id" = pi."id"
-  LEFT JOIN settled s ON s."purchaseInvoiceId" = pi."id";
+  LEFT JOIN settled s ON s."targetPurchaseInvoiceId" = pi."id";

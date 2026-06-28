@@ -8,6 +8,7 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useParams } from "react-router";
 import { PanelProvider, ResizablePanels } from "~/components/Layout";
 import {
+  getCompanyHasOpenCredits,
   getSalesInvoice,
   getSalesInvoiceLines,
   getSalesInvoiceShipment
@@ -55,15 +56,17 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 
   const serviceRole = getCarbonServiceRole();
-  const [customer, opportunity, companySettings] = await Promise.all([
-    salesInvoice.data?.customerId
-      ? getCustomer(client, salesInvoice.data.customerId)
-      : null,
-    salesInvoice.data?.opportunityId
-      ? getOpportunity(client, salesInvoice.data.opportunityId)
-      : null,
-    getCompanySettings(serviceRole, companyId)
-  ]);
+  const [customer, opportunity, companySettings, orgHasCredits] =
+    await Promise.all([
+      salesInvoice.data?.customerId
+        ? getCustomer(client, salesInvoice.data.customerId)
+        : null,
+      salesInvoice.data?.opportunityId
+        ? getOpportunity(client, salesInvoice.data.opportunityId)
+        : null,
+      getCompanySettings(serviceRole, companyId),
+      getCompanyHasOpenCredits(client, companyId, "sales")
+    ]);
 
   const defaultCc = customer?.data?.defaultCc?.length
     ? customer.data.defaultCc
@@ -80,7 +83,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     ),
     opportunity: opportunity?.data ?? null,
     customer: customer?.data ?? null,
-    defaultCc
+    defaultCc,
+    orgHasCredits
   };
 }
 

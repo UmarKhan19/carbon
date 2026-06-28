@@ -29,19 +29,20 @@ const arBase = (
 ): BuildPaymentJournalInput => ({
   paymentId: "pay_1",
   companyId: "co_1",
-  isReceipt: true,
+  isAR: true,
+  cashIn: true,
   totalAmount: 100,
   exchangeRate: 1,
   bankAccount: "bank",
   journalLineReference: "ref_1",
   applications: [
     {
-      salesInvoiceId: "si_1",
+      targetSalesInvoiceId: "si_1",
       appliedAmount: 100,
       discountAmount: 0,
       writeOffAmount: 0,
-      invoiceExchangeRate: 1,
-      paymentExchangeRate: 1,
+      targetExchangeRate: 1,
+      sourceExchangeRate: 1,
     },
   ],
   accounts: { ...ACCOUNTS },
@@ -52,15 +53,16 @@ const apBase = (
   over: Partial<BuildPaymentJournalInput> = {}
 ): BuildPaymentJournalInput => ({
   ...arBase(),
-  isReceipt: false,
+  isAR: false,
+  cashIn: false,
   applications: [
     {
-      purchaseInvoiceId: "pi_1",
+      targetPurchaseInvoiceId: "pi_1",
       appliedAmount: 100,
       discountAmount: 0,
       writeOffAmount: 0,
-      invoiceExchangeRate: 1,
-      paymentExchangeRate: 1,
+      targetExchangeRate: 1,
+      sourceExchangeRate: 1,
     },
   ],
   ...over,
@@ -140,12 +142,12 @@ Deno.test("AR discount: bank 90 / receivables 100 / discount expense 10", () => 
       totalAmount: 90,
       applications: [
         {
-          salesInvoiceId: "si_1",
+          targetSalesInvoiceId: "si_1",
           appliedAmount: 90,
           discountAmount: 10,
           writeOffAmount: 0,
-          invoiceExchangeRate: 1,
-          paymentExchangeRate: 1,
+          targetExchangeRate: 1,
+          sourceExchangeRate: 1,
         },
       ],
     })
@@ -165,12 +167,12 @@ Deno.test("AR write-off: bad debt expense debited", () => {
       totalAmount: 90,
       applications: [
         {
-          salesInvoiceId: "si_1",
+          targetSalesInvoiceId: "si_1",
           appliedAmount: 90,
           discountAmount: 0,
           writeOffAmount: 10,
-          invoiceExchangeRate: 1,
-          paymentExchangeRate: 1,
+          targetExchangeRate: 1,
+          sourceExchangeRate: 1,
         },
       ],
     })
@@ -188,12 +190,12 @@ Deno.test("AP write-off: vendor write-off income credited (revenue)", () => {
       totalAmount: 90,
       applications: [
         {
-          purchaseInvoiceId: "pi_1",
+          targetPurchaseInvoiceId: "pi_1",
           appliedAmount: 90,
           discountAmount: 0,
           writeOffAmount: 10,
-          invoiceExchangeRate: 1,
-          paymentExchangeRate: 1,
+          targetExchangeRate: 1,
+          sourceExchangeRate: 1,
         },
       ],
     })
@@ -216,12 +218,12 @@ Deno.test("AR collected above booked rate → FX Gain (credit revenue)", () => {
       exchangeRate: 1.2,
       applications: [
         {
-          salesInvoiceId: "si_1",
+          targetSalesInvoiceId: "si_1",
           appliedAmount: 100,
           discountAmount: 0,
           writeOffAmount: 0,
-          invoiceExchangeRate: 1.0,
-          paymentExchangeRate: 1.2,
+          targetExchangeRate: 1.0,
+          sourceExchangeRate: 1.2,
         },
       ],
     })
@@ -242,12 +244,12 @@ Deno.test("AR collected below booked rate → FX Loss (debit expense)", () => {
       exchangeRate: 0.8,
       applications: [
         {
-          salesInvoiceId: "si_1",
+          targetSalesInvoiceId: "si_1",
           appliedAmount: 100,
           discountAmount: 0,
           writeOffAmount: 0,
-          invoiceExchangeRate: 1.0,
-          paymentExchangeRate: 0.8,
+          targetExchangeRate: 1.0,
+          sourceExchangeRate: 0.8,
         },
       ],
     })
@@ -268,12 +270,12 @@ Deno.test("AP paid ABOVE booked rate → FX Loss (debit expense)", () => {
       exchangeRate: 1.2,
       applications: [
         {
-          purchaseInvoiceId: "pi_1",
+          targetPurchaseInvoiceId: "pi_1",
           appliedAmount: 100,
           discountAmount: 0,
           writeOffAmount: 0,
-          invoiceExchangeRate: 1.0,
-          paymentExchangeRate: 1.2,
+          targetExchangeRate: 1.0,
+          sourceExchangeRate: 1.2,
         },
       ],
     })
@@ -293,12 +295,12 @@ Deno.test("AP paid BELOW booked rate → FX Gain (credit revenue)", () => {
       exchangeRate: 0.8,
       applications: [
         {
-          purchaseInvoiceId: "pi_1",
+          targetPurchaseInvoiceId: "pi_1",
           appliedAmount: 100,
           discountAmount: 0,
           writeOffAmount: 0,
-          invoiceExchangeRate: 1.0,
-          paymentExchangeRate: 0.8,
+          targetExchangeRate: 1.0,
+          sourceExchangeRate: 0.8,
         },
       ],
     })
@@ -321,12 +323,12 @@ Deno.test("AR partial: unapplied cash builds on-account credit", () => {
       totalAmount: 100,
       applications: [
         {
-          salesInvoiceId: "si_1",
+          targetSalesInvoiceId: "si_1",
           appliedAmount: 60,
           discountAmount: 0,
           writeOffAmount: 0,
-          invoiceExchangeRate: 1,
-          paymentExchangeRate: 1,
+          targetExchangeRate: 1,
+          sourceExchangeRate: 1,
         },
       ],
     })
@@ -346,12 +348,12 @@ Deno.test("AR over-application draws down existing credit (inverse side)", () =>
       totalAmount: 80,
       applications: [
         {
-          salesInvoiceId: "si_1",
+          targetSalesInvoiceId: "si_1",
           appliedAmount: 100,
           discountAmount: 0,
           writeOffAmount: 0,
-          invoiceExchangeRate: 1,
-          paymentExchangeRate: 1,
+          targetExchangeRate: 1,
+          sourceExchangeRate: 1,
         },
       ],
     })
@@ -375,20 +377,20 @@ Deno.test("AR two invoices with discount and FX all balance", () => {
       totalAmount: 190,
       applications: [
         {
-          salesInvoiceId: "si_1",
+          targetSalesInvoiceId: "si_1",
           appliedAmount: 100,
           discountAmount: 0,
           writeOffAmount: 0,
-          invoiceExchangeRate: 1.0,
-          paymentExchangeRate: 1.1,
+          targetExchangeRate: 1.0,
+          sourceExchangeRate: 1.1,
         },
         {
-          salesInvoiceId: "si_2",
+          targetSalesInvoiceId: "si_2",
           appliedAmount: 90,
           discountAmount: 10,
           writeOffAmount: 0,
-          invoiceExchangeRate: 1.0,
-          paymentExchangeRate: 1.1,
+          targetExchangeRate: 1.0,
+          sourceExchangeRate: 1.1,
         },
       ],
     })
@@ -424,12 +426,12 @@ Deno.test("throws when a discount is taken but no discount account is set", () =
           accounts: { ...ACCOUNTS, discountAccountId: null },
           applications: [
             {
-              salesInvoiceId: "si_1",
+              targetSalesInvoiceId: "si_1",
               appliedAmount: 90,
               discountAmount: 10,
               writeOffAmount: 0,
-              invoiceExchangeRate: 1,
-              paymentExchangeRate: 1,
+              targetExchangeRate: 1,
+              sourceExchangeRate: 1,
             },
           ],
         })
@@ -448,12 +450,12 @@ Deno.test("throws when an FX gain arises but no FX gain account is set", () => {
           accounts: { ...ACCOUNTS, fxGainAccountId: null },
           applications: [
             {
-              salesInvoiceId: "si_1",
+              targetSalesInvoiceId: "si_1",
               appliedAmount: 100,
               discountAmount: 0,
               writeOffAmount: 0,
-              invoiceExchangeRate: 1.0,
-              paymentExchangeRate: 1.2,
+              targetExchangeRate: 1.0,
+              sourceExchangeRate: 1.2,
             },
           ],
         })
@@ -472,12 +474,12 @@ Deno.test("throws when a write-off arises but no write-off account is set", () =
           accounts: { ...ACCOUNTS, writeOffAccountId: null },
           applications: [
             {
-              purchaseInvoiceId: "pi_1",
+              targetPurchaseInvoiceId: "pi_1",
               appliedAmount: 90,
               discountAmount: 0,
               writeOffAmount: 10,
-              invoiceExchangeRate: 1,
-              paymentExchangeRate: 1,
+              targetExchangeRate: 1,
+              sourceExchangeRate: 1,
             },
           ],
         })
@@ -532,12 +534,12 @@ Deno.test("sub-dust unapplied (< 0.0001) emits no on-account line", () => {
       totalAmount: 100,
       applications: [
         {
-          salesInvoiceId: "si_1",
+          targetSalesInvoiceId: "si_1",
           appliedAmount: 99.99995, // unapplied 0.00005 < threshold
           discountAmount: 0,
           writeOffAmount: 0,
-          invoiceExchangeRate: 1,
-          paymentExchangeRate: 1,
+          targetExchangeRate: 1,
+          sourceExchangeRate: 1,
         },
       ],
     })
@@ -555,9 +557,9 @@ Deno.test("AR three invoices fully settled: one cash + three control lines", () 
     arBase({
       totalAmount: 60,
       applications: [
-        { salesInvoiceId: "si_1", appliedAmount: 10, discountAmount: 0, writeOffAmount: 0, invoiceExchangeRate: 1, paymentExchangeRate: 1 },
-        { salesInvoiceId: "si_2", appliedAmount: 20, discountAmount: 0, writeOffAmount: 0, invoiceExchangeRate: 1, paymentExchangeRate: 1 },
-        { salesInvoiceId: "si_3", appliedAmount: 30, discountAmount: 0, writeOffAmount: 0, invoiceExchangeRate: 1, paymentExchangeRate: 1 },
+        { targetSalesInvoiceId: "si_1", appliedAmount: 10, discountAmount: 0, writeOffAmount: 0, targetExchangeRate: 1, sourceExchangeRate: 1 },
+        { targetSalesInvoiceId: "si_2", appliedAmount: 20, discountAmount: 0, writeOffAmount: 0, targetExchangeRate: 1, sourceExchangeRate: 1 },
+        { targetSalesInvoiceId: "si_3", appliedAmount: 30, discountAmount: 0, writeOffAmount: 0, targetExchangeRate: 1, sourceExchangeRate: 1 },
       ],
     })
   );
@@ -576,8 +578,8 @@ Deno.test("AR overpayment across multiple invoices: single draw-down line", () =
     arBase({
       totalAmount: 150,
       applications: [
-        { salesInvoiceId: "si_1", appliedAmount: 100, discountAmount: 0, writeOffAmount: 0, invoiceExchangeRate: 1, paymentExchangeRate: 1 },
-        { salesInvoiceId: "si_2", appliedAmount: 80, discountAmount: 0, writeOffAmount: 0, invoiceExchangeRate: 1, paymentExchangeRate: 1 },
+        { targetSalesInvoiceId: "si_1", appliedAmount: 100, discountAmount: 0, writeOffAmount: 0, targetExchangeRate: 1, sourceExchangeRate: 1 },
+        { targetSalesInvoiceId: "si_2", appliedAmount: 80, discountAmount: 0, writeOffAmount: 0, targetExchangeRate: 1, sourceExchangeRate: 1 },
       ],
     })
   );
@@ -594,8 +596,8 @@ Deno.test("AP underpayment across multiple invoices builds credit", () => {
     apBase({
       totalAmount: 200,
       applications: [
-        { purchaseInvoiceId: "pi_1", appliedAmount: 60, discountAmount: 0, writeOffAmount: 0, invoiceExchangeRate: 1, paymentExchangeRate: 1 },
-        { purchaseInvoiceId: "pi_2", appliedAmount: 60, discountAmount: 0, writeOffAmount: 0, invoiceExchangeRate: 1, paymentExchangeRate: 1 },
+        { targetPurchaseInvoiceId: "pi_1", appliedAmount: 60, discountAmount: 0, writeOffAmount: 0, targetExchangeRate: 1, sourceExchangeRate: 1 },
+        { targetPurchaseInvoiceId: "pi_2", appliedAmount: 60, discountAmount: 0, writeOffAmount: 0, targetExchangeRate: 1, sourceExchangeRate: 1 },
       ],
     })
   );
@@ -617,12 +619,12 @@ Deno.test("AR discount + write-off + FX on one invoice all coexist, balanced", (
       totalAmount: 80, // pays 80 cash; 10 discount + 10 write-off settle a 100 invoice
       applications: [
         {
-          salesInvoiceId: "si_1",
+          targetSalesInvoiceId: "si_1",
           appliedAmount: 80,
           discountAmount: 10,
           writeOffAmount: 10,
-          invoiceExchangeRate: 1.0,
-          paymentExchangeRate: 1.2,
+          targetExchangeRate: 1.0,
+          sourceExchangeRate: 1.2,
         },
       ],
     })
@@ -643,12 +645,12 @@ Deno.test("FX accrues on applied principal only, never on discount/write-off", (
       totalAmount: 0,
       applications: [
         {
-          salesInvoiceId: "si_1",
+          targetSalesInvoiceId: "si_1",
           appliedAmount: 0,
           discountAmount: 50,
           writeOffAmount: 0,
-          invoiceExchangeRate: 1.0,
-          paymentExchangeRate: 1.5,
+          targetExchangeRate: 1.0,
+          sourceExchangeRate: 1.5,
         },
       ],
     })
@@ -665,8 +667,8 @@ Deno.test("opposing per-invoice FX nets to zero → no FX plug line", () => {
       exchangeRate: 1.0,
       totalAmount: 200,
       applications: [
-        { salesInvoiceId: "si_1", appliedAmount: 100, discountAmount: 0, writeOffAmount: 0, invoiceExchangeRate: 1.0, paymentExchangeRate: 1.1 }, // +10
-        { salesInvoiceId: "si_2", appliedAmount: 100, discountAmount: 0, writeOffAmount: 0, invoiceExchangeRate: 1.0, paymentExchangeRate: 0.9 }, // −10
+        { targetSalesInvoiceId: "si_1", appliedAmount: 100, discountAmount: 0, writeOffAmount: 0, targetExchangeRate: 1.0, sourceExchangeRate: 1.1 }, // +10
+        { targetSalesInvoiceId: "si_2", appliedAmount: 100, discountAmount: 0, writeOffAmount: 0, targetExchangeRate: 1.0, sourceExchangeRate: 0.9 }, // −10
       ],
     })
   );
@@ -692,12 +694,12 @@ Deno.test("magnitudes round to 4 dp and the entry still balances", () => {
       totalAmount: 100,
       applications: [
         {
-          salesInvoiceId: "si_1",
+          targetSalesInvoiceId: "si_1",
           appliedAmount: 100,
           discountAmount: 0,
           writeOffAmount: 0,
-          invoiceExchangeRate: 1.0,
-          paymentExchangeRate: 1.11111,
+          targetExchangeRate: 1.0,
+          sourceExchangeRate: 1.11111,
         },
       ],
     })
@@ -730,12 +732,12 @@ Deno.test("control posting ties out to subledger settled per invoice (AR & AP)",
       exchangeRate: 1.0,
       totalAmount: apps.reduce((s, a) => s + a.applied, 0),
       applications: apps.map((a, i) => ({
-        [isReceipt ? "salesInvoiceId" : "purchaseInvoiceId"]: `inv_${i}`,
+        [isReceipt ? "targetSalesInvoiceId" : "targetPurchaseInvoiceId"]: `inv_${i}`,
         appliedAmount: a.applied,
         discountAmount: a.discount,
         writeOffAmount: a.writeOff,
-        invoiceExchangeRate: a.invRate,
-        paymentExchangeRate: 1.0,
+        targetExchangeRate: a.invRate,
+        sourceExchangeRate: 1.0,
       })),
     });
 
@@ -775,12 +777,12 @@ Deno.test("matrix: every scenario balances with the correct FX side", () => {
             totalAmount: applied,
             applications: [
               {
-                [isReceipt ? "salesInvoiceId" : "purchaseInvoiceId"]: "inv",
+                [isReceipt ? "targetSalesInvoiceId" : "targetPurchaseInvoiceId"]: "inv",
                 appliedAmount: applied,
                 discountAmount: relief.discount,
                 writeOffAmount: relief.writeOff,
-                invoiceExchangeRate: invRate,
-                paymentExchangeRate: payRate,
+                targetExchangeRate: invRate,
+                sourceExchangeRate: payRate,
               },
             ],
           });

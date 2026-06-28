@@ -2,9 +2,16 @@
 -- AR & AP Payments and Cash Application
 --
 -- Replaces the unused purchasePayment/purchaseInvoicePaymentRelation
--- stubs with a unified payment + paymentApplication model
--- (type-discriminated for AR vs AP, NetSuite-style applications
+-- stubs with a unified payment + invoiceSettlement model
+-- (type-discriminated for AR vs AP, NetSuite-style settlements
 -- carrying principal/discount/write-off, multi-currency-aware).
+--
+-- invoiceSettlement is the ONE settlement primitive: it nets a funding
+-- source (a cash payment OR a credit/debit memo) against a target document
+-- (an invoice, or a memo when settling/refunding an increaser memo).
+-- A memo is its own payment-shaped document (the `memo` table) — party +
+-- amount + reason GL account — NOT an invoice row. Applying a balance-reducing
+-- memo to an invoice is a subledger row here (GL-neutral except realized FX).
 --
 -- Also adds four new accountDefault columns (customer/supplier
 -- write-off, realized FX gain/loss) and one new chart-of-accounts
@@ -130,9 +137,21 @@ ALTER TABLE "accountDefault"
 CREATE TYPE "paymentType" AS ENUM ('Receipt', 'Disbursement');
 CREATE TYPE "paymentStatus" AS ENUM ('Draft', 'Posted', 'Voided');
 
+-- A credit/debit memo is a standalone, payment-shaped document (Phase 5b) — NOT
+-- an invoice row. `direction` is whether it credits or debits the party's
+-- control account (Credit ⇒ DR reason / CR control; Debit ⇒ DR control / CR
+-- reason); status mirrors payment's lifecycle.
+CREATE TYPE "memoDirection" AS ENUM ('Credit', 'Debit');
+CREATE TYPE "memoStatus" AS ENUM ('Draft', 'Posted', 'Voided');
+
 ALTER TYPE "journalLineDocumentType" ADD VALUE IF NOT EXISTS 'Payment';
--- journal.sourceType uses this enum; post-payment writes 'Payment' journals.
+-- post-memo writes its journal lines with documentType 'Memo'.
+ALTER TYPE "journalLineDocumentType" ADD VALUE IF NOT EXISTS 'Memo';
+-- journal.sourceType: post-payment writes 'Payment'; post-memo writes
+-- 'Credit Memo' / 'Debit Memo'.
 ALTER TYPE "journalEntrySourceType" ADD VALUE IF NOT EXISTS 'Payment';
+ALTER TYPE "journalEntrySourceType" ADD VALUE IF NOT EXISTS 'Credit Memo';
+ALTER TYPE "journalEntrySourceType" ADD VALUE IF NOT EXISTS 'Debit Memo';
 
 
 -- ============================================================
@@ -152,8 +171,8 @@ CREATE TABLE "payment" (
   "paymentDate" DATE NOT NULL,
   "postingDate" DATE,
   "currencyCode" TEXT NOT NULL,
-  "exchangeRate" NUMERIC(19,8) NOT NULL DEFAULT 1,
-  "totalAmount" NUMERIC(19,4) NOT NULL,
+  "exchangeRate" NUMERIC NOT NULL DEFAULT 1,
+  "totalAmount" NUMERIC NOT NULL,
   "bankAccount" TEXT NOT NULL,
   "reference" TEXT,
   "memo" TEXT,
@@ -169,11 +188,17 @@ CREATE TABLE "payment" (
   "updatedAt" TIMESTAMP WITH TIME ZONE,
   "customFields" JSONB,
 
+  -- Exactly one counterparty. Direction (paymentType) is intentionally decoupled
+  -- from the party so refunds work: a Disbursement can pay a CUSTOMER (refund of
+  -- an AR credit) and a Receipt can come from a SUPPLIER (refund of an AP debit).
+  -- The per-flow type↔party↔target pairing is enforced by the posting functions.
   CONSTRAINT "payment_party_check" CHECK (
-    ("paymentType" = 'Receipt'      AND "customerId" IS NOT NULL AND "supplierId" IS NULL) OR
-    ("paymentType" = 'Disbursement' AND "supplierId" IS NOT NULL AND "customerId" IS NULL)
+    ("customerId" IS NOT NULL AND "supplierId" IS NULL) OR
+    ("customerId" IS NULL AND "supplierId" IS NOT NULL)
   ),
-  CONSTRAINT "payment_totalAmount_check" CHECK ("totalAmount" > 0),
+  -- 0 is allowed: a receipt/payment can be a pure credit-application (apply the
+  -- party's posted credits to invoices with no cash changing hands).
+  CONSTRAINT "payment_totalAmount_check" CHECK ("totalAmount" >= 0),
   CONSTRAINT "payment_exchangeRate_check" CHECK ("exchangeRate" > 0),
   CONSTRAINT "payment_paymentId_companyId_key" UNIQUE ("paymentId", "companyId"),
 
@@ -232,105 +257,241 @@ FOR DELETE USING (
 
 
 -- ============================================================
--- Phase 6: paymentApplication table
+-- Phase 5b: memo table (credit / debit memos — payment-shaped)
 -- ============================================================
--- The join between a payment and an invoice. Carries principal,
--- discount, and write-off components in invoice currency. fxGainLoss
--- is a stored generated column computed from the rate delta on the
--- applied principal (discount/write-off use invoice rate by convention,
--- since they represent invoice-currency relief, not cash movement).
---
--- salesInvoiceId xor purchaseInvoiceId; matches the parent payment's
--- type via app-level validation (no SQL trigger needed — the post-payment
--- edge function rejects mismatched applications).
+-- A non-cash adjustment to a party's AR/AP balance. Mirrors `payment` but the
+-- offset is a GL account instead of a bank account. The offset account is NOT a
+-- user choice: it's derived deterministically at posting from the company's
+-- account defaults by party side (customer -> salesDiscountAccount, supplier ->
+-- supplierPaymentDiscountAccount), and stored on `reasonAccount` for audit. The
+-- four combos:
+--   Customer + Credit  -> AR down  (DR reason / CR receivables)
+--   Customer + Debit   -> AR up    (DR receivables / CR reason)
+--   Supplier + Debit   -> AP down  (DR payables / CR reason)
+--   Supplier + Credit  -> AP up    (DR reason / CR payables)
+-- Balance-reducing memos (Customer Credit, Supplier Debit) are applied to open
+-- invoices via invoiceSettlement (source = memoId). Balance-increasing memos are
+-- themselves open items, settled via invoiceSettlement (target = targetMemoId).
 
-CREATE TABLE "paymentApplication" (
+CREATE TABLE "memo" (
   "id" TEXT NOT NULL PRIMARY KEY DEFAULT xid(),
-  "paymentId" TEXT NOT NULL,
-  "salesInvoiceId" TEXT,
-  "purchaseInvoiceId" TEXT,
-  "appliedAmount" NUMERIC(19,4) NOT NULL,
-  "discountAmount" NUMERIC(19,4) NOT NULL DEFAULT 0,
-  "writeOffAmount" NUMERIC(19,4) NOT NULL DEFAULT 0,
-  "invoiceExchangeRate" NUMERIC(19,8) NOT NULL,
-  "paymentExchangeRate" NUMERIC(19,8) NOT NULL,
-  -- Realized FX on this application, in base currency. FX accrues only on the
-  -- cash-settled principal (appliedAmount): discount and write-off are
-  -- invoice-currency reliefs booked at the invoice rate and carry no FX. Must
-  -- match the FX plug booked by post-payment exactly so the subledger
-  -- reconciles to the GL foreign-exchange accounts.
-  "fxGainLossAmount" NUMERIC(19,4) GENERATED ALWAYS AS (
-    "appliedAmount" * ("paymentExchangeRate" - "invoiceExchangeRate")
+  "memoId" TEXT NOT NULL,
+  "direction" "memoDirection" NOT NULL,
+  "status" "memoStatus" NOT NULL DEFAULT 'Draft',
+  "customerId" TEXT,
+  "supplierId" TEXT,
+  "memoDate" DATE NOT NULL,
+  "postingDate" DATE,
+  "currencyCode" TEXT NOT NULL,
+  "exchangeRate" NUMERIC NOT NULL DEFAULT 1,
+  "amount" NUMERIC NOT NULL,
+  -- Derived at posting from account defaults (party side); null while Draft.
+  "reasonAccount" TEXT,
+  "reference" TEXT,
+  "notes" TEXT,
+  "journalId" TEXT,
+  "postedAt" TIMESTAMP WITH TIME ZONE,
+  "postedBy" TEXT,
+  "voidedAt" TIMESTAMP WITH TIME ZONE,
+  "voidedBy" TEXT,
+  "companyId" TEXT NOT NULL,
+  "createdBy" TEXT NOT NULL,
+  "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  "updatedBy" TEXT,
+  "updatedAt" TIMESTAMP WITH TIME ZONE,
+  "customFields" JSONB,
+
+  CONSTRAINT "memo_party_check" CHECK (
+    ("customerId" IS NOT NULL AND "supplierId" IS NULL) OR
+    ("customerId" IS NULL AND "supplierId" IS NOT NULL)
+  ),
+  CONSTRAINT "memo_amount_check" CHECK ("amount" > 0),
+  CONSTRAINT "memo_exchangeRate_check" CHECK ("exchangeRate" > 0),
+  CONSTRAINT "memo_memoId_companyId_key" UNIQUE ("memoId", "companyId"),
+
+  CONSTRAINT "memo_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "customer"("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT "memo_supplierId_fkey" FOREIGN KEY ("supplierId") REFERENCES "supplier"("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT "memo_currencyCode_fkey" FOREIGN KEY ("currencyCode") REFERENCES "currencyCode"("code") ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT "memo_reasonAccount_fkey" FOREIGN KEY ("reasonAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT "memo_journalId_fkey" FOREIGN KEY ("journalId") REFERENCES "journal"("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT "memo_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "memo_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT "memo_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT "memo_postedBy_fkey" FOREIGN KEY ("postedBy") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT "memo_voidedBy_fkey" FOREIGN KEY ("voidedBy") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+CREATE INDEX "memo_companyId_idx" ON "memo" ("companyId");
+CREATE INDEX "memo_customerId_idx" ON "memo" ("customerId") WHERE "customerId" IS NOT NULL;
+CREATE INDEX "memo_supplierId_idx" ON "memo" ("supplierId") WHERE "supplierId" IS NOT NULL;
+CREATE INDEX "memo_status_idx" ON "memo" ("status");
+CREATE INDEX "memo_memoDate_idx" ON "memo" ("memoDate");
+
+ALTER TABLE "memo" ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "SELECT" ON "public"."memo"
+FOR SELECT USING (
+  "companyId" = ANY ((SELECT get_companies_with_employee_role())::text[])
+);
+
+CREATE POLICY "INSERT" ON "public"."memo"
+FOR INSERT WITH CHECK (
+  "companyId" = ANY ((SELECT get_companies_with_employee_permission('invoicing_create'))::text[])
+);
+
+CREATE POLICY "UPDATE" ON "public"."memo"
+FOR UPDATE USING (
+  "companyId" = ANY ((SELECT get_companies_with_employee_permission('invoicing_update'))::text[])
+);
+
+-- DELETE allowed only on Draft (Posted memos must be voided).
+CREATE POLICY "DELETE" ON "public"."memo"
+FOR DELETE USING (
+  "status" = 'Draft' AND
+  "companyId" = ANY ((SELECT get_companies_with_employee_permission('invoicing_delete'))::text[])
+);
+
+
+-- ============================================================
+-- Phase 6: invoiceSettlement table (unified settlement primitive)
+-- ============================================================
+-- ONE table nets a funding SOURCE against a TARGET document:
+--   * source = exactly one of:
+--       - paymentId (a cash receipt/disbursement), or
+--       - memoId    (a credit/debit memo).
+--   * target = exactly one of targetSalesInvoiceId / targetPurchaseInvoiceId /
+--     targetMemoId (the open item being settled — an invoice, or a
+--     balance-increasing memo being paid/credited down).
+--
+-- Carries principal/discount/write-off in the source/target currency.
+-- fxGainLoss is a stored generated column on the settled principal
+-- (appliedAmount): discount/write-off are invoice-currency reliefs that carry
+-- no FX, and only cash payments carry them (memos do not).
+--
+-- Party/side consistency (an AR source only settles AR targets, same
+-- counterparty) is enforced by the posting/apply functions — the source's
+-- AR/AP side lives in the payment/memo row, not structurally here.
+
+CREATE TABLE "invoiceSettlement" (
+  "id" TEXT NOT NULL PRIMARY KEY DEFAULT xid(),
+  -- funding source (exactly one): a cash payment OR a memo
+  "paymentId" TEXT,
+  "memoId" TEXT,
+  -- target document (exactly one): an invoice, or a memo (settling / refunding
+  -- a balance-increasing memo)
+  "targetSalesInvoiceId" TEXT,
+  "targetPurchaseInvoiceId" TEXT,
+  "targetMemoId" TEXT,
+  "appliedAmount" NUMERIC NOT NULL,
+  "discountAmount" NUMERIC NOT NULL DEFAULT 0,
+  "writeOffAmount" NUMERIC NOT NULL DEFAULT 0,
+  -- rate of the funding source and of the target invoice at application time
+  "sourceExchangeRate" NUMERIC NOT NULL,
+  "targetExchangeRate" NUMERIC NOT NULL,
+  -- Realized FX on this settlement, in base currency. FX accrues only on the
+  -- settled principal (appliedAmount): discount and write-off are
+  -- invoice-currency reliefs booked at the target rate and carry no FX. Bare
+  -- NUMERIC keeps this exact so it reconciles to the GL FX plug with no
+  -- fixed-scale rounding drift. Presentation rounds at the edge, not in storage.
+  "fxGainLossAmount" NUMERIC GENERATED ALWAYS AS (
+    "appliedAmount" * ("sourceExchangeRate" - "targetExchangeRate")
   ) STORED,
   "appliedDate" DATE NOT NULL,
   "companyId" TEXT NOT NULL,
   "createdBy" TEXT NOT NULL,
   "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
 
-  CONSTRAINT "paymentApplication_invoice_check" CHECK (
-    ("salesInvoiceId" IS NOT NULL AND "purchaseInvoiceId" IS NULL) OR
-    ("salesInvoiceId" IS NULL AND "purchaseInvoiceId" IS NOT NULL)
+  CONSTRAINT "invoiceSettlement_source_check" CHECK (
+    (("paymentId" IS NOT NULL)::int + ("memoId" IS NOT NULL)::int) = 1
   ),
-  CONSTRAINT "paymentApplication_amounts_nonnegative" CHECK (
+  CONSTRAINT "invoiceSettlement_target_check" CHECK (
+    (("targetSalesInvoiceId" IS NOT NULL)::int
+      + ("targetPurchaseInvoiceId" IS NOT NULL)::int
+      + ("targetMemoId" IS NOT NULL)::int) = 1
+  ),
+  -- A memo cannot settle itself. (Party/side consistency between the source's
+  -- AR/AP side and the target — e.g. an AR memo can only settle an AR invoice or
+  -- AR memo — is enforced by the posting/apply functions, since the memo's party
+  -- lives in the `memo` table and isn't structurally visible here.)
+  CONSTRAINT "invoiceSettlement_self_check" CHECK (
+    NOT ("memoId" IS NOT NULL AND "memoId" = "targetMemoId")
+  ),
+  -- Discount/write-off are cash-payment reliefs; memo sources carry neither.
+  CONSTRAINT "invoiceSettlement_memoSource_noReliefs_check" CHECK (
+    "paymentId" IS NOT NULL OR ("discountAmount" = 0 AND "writeOffAmount" = 0)
+  ),
+  CONSTRAINT "invoiceSettlement_amounts_nonnegative" CHECK (
     "appliedAmount" >= 0 AND "discountAmount" >= 0 AND "writeOffAmount" >= 0
   ),
-  CONSTRAINT "paymentApplication_anyComponent_check" CHECK (
+  CONSTRAINT "invoiceSettlement_anyComponent_check" CHECK (
     "appliedAmount" + "discountAmount" + "writeOffAmount" > 0
   ),
-  CONSTRAINT "paymentApplication_invoiceExchangeRate_check" CHECK ("invoiceExchangeRate" > 0),
-  CONSTRAINT "paymentApplication_paymentExchangeRate_check" CHECK ("paymentExchangeRate" > 0),
+  CONSTRAINT "invoiceSettlement_sourceExchangeRate_check" CHECK ("sourceExchangeRate" > 0),
+  CONSTRAINT "invoiceSettlement_targetExchangeRate_check" CHECK ("targetExchangeRate" > 0),
 
-  CONSTRAINT "paymentApplication_paymentId_fkey" FOREIGN KEY ("paymentId") REFERENCES "payment"("id") ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT "paymentApplication_salesInvoiceId_fkey" FOREIGN KEY ("salesInvoiceId") REFERENCES "salesInvoice"("id") ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT "paymentApplication_purchaseInvoiceId_fkey" FOREIGN KEY ("purchaseInvoiceId") REFERENCES "purchaseInvoice"("id") ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT "paymentApplication_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT "paymentApplication_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE
+  CONSTRAINT "invoiceSettlement_paymentId_fkey" FOREIGN KEY ("paymentId") REFERENCES "payment"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "invoiceSettlement_memoId_fkey" FOREIGN KEY ("memoId") REFERENCES "memo"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "invoiceSettlement_targetSalesInvoiceId_fkey" FOREIGN KEY ("targetSalesInvoiceId") REFERENCES "salesInvoice"("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT "invoiceSettlement_targetPurchaseInvoiceId_fkey" FOREIGN KEY ("targetPurchaseInvoiceId") REFERENCES "purchaseInvoice"("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT "invoiceSettlement_targetMemoId_fkey" FOREIGN KEY ("targetMemoId") REFERENCES "memo"("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT "invoiceSettlement_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "invoiceSettlement_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
-CREATE INDEX "paymentApplication_paymentId_idx" ON "paymentApplication" ("paymentId");
-CREATE INDEX "paymentApplication_salesInvoiceId_idx" ON "paymentApplication" ("salesInvoiceId") WHERE "salesInvoiceId" IS NOT NULL;
-CREATE INDEX "paymentApplication_purchaseInvoiceId_idx" ON "paymentApplication" ("purchaseInvoiceId") WHERE "purchaseInvoiceId" IS NOT NULL;
-CREATE INDEX "paymentApplication_appliedDate_idx" ON "paymentApplication" ("appliedDate");
-CREATE INDEX "paymentApplication_companyId_idx" ON "paymentApplication" ("companyId");
+CREATE INDEX "invoiceSettlement_paymentId_idx" ON "invoiceSettlement" ("paymentId") WHERE "paymentId" IS NOT NULL;
+CREATE INDEX "invoiceSettlement_memoId_idx" ON "invoiceSettlement" ("memoId") WHERE "memoId" IS NOT NULL;
+CREATE INDEX "invoiceSettlement_targetSalesInvoiceId_idx" ON "invoiceSettlement" ("targetSalesInvoiceId") WHERE "targetSalesInvoiceId" IS NOT NULL;
+CREATE INDEX "invoiceSettlement_targetPurchaseInvoiceId_idx" ON "invoiceSettlement" ("targetPurchaseInvoiceId") WHERE "targetPurchaseInvoiceId" IS NOT NULL;
+CREATE INDEX "invoiceSettlement_targetMemoId_idx" ON "invoiceSettlement" ("targetMemoId") WHERE "targetMemoId" IS NOT NULL;
+CREATE INDEX "invoiceSettlement_appliedDate_idx" ON "invoiceSettlement" ("appliedDate");
+CREATE INDEX "invoiceSettlement_companyId_idx" ON "invoiceSettlement" ("companyId");
 
-ALTER TABLE "paymentApplication" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "invoiceSettlement" ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "SELECT" ON "public"."paymentApplication"
+CREATE POLICY "SELECT" ON "public"."invoiceSettlement"
 FOR SELECT USING (
   "companyId" = ANY (
     (SELECT get_companies_with_employee_role())::text[]
   )
 );
 
--- INSERT/UPDATE/DELETE allowed only while parent payment.status='Draft'.
-CREATE POLICY "INSERT" ON "public"."paymentApplication"
+-- Settlement rows are staged while their parent source (payment OR memo) is
+-- Draft; the post-payment / post-memo edge function then posts them. Exactly one
+-- of paymentId/memoId is set, so the other gate is a NULL no-op.
+CREATE POLICY "INSERT" ON "public"."invoiceSettlement"
 FOR INSERT WITH CHECK (
-  EXISTS (
-    SELECT 1 FROM "payment" p
-    WHERE p.id = "paymentId" AND p.status = 'Draft'
-  ) AND
+  ("paymentId" IS NULL OR EXISTS (
+    SELECT 1 FROM "payment" p WHERE p.id = "paymentId" AND p.status = 'Draft'
+  )) AND
+  ("memoId" IS NULL OR EXISTS (
+    SELECT 1 FROM "memo" m WHERE m.id = "memoId" AND m.status = 'Draft'
+  )) AND
   "companyId" = ANY (
     (SELECT get_companies_with_employee_permission('invoicing_create'))::text[]
   )
 );
 
-CREATE POLICY "UPDATE" ON "public"."paymentApplication"
+CREATE POLICY "UPDATE" ON "public"."invoiceSettlement"
 FOR UPDATE USING (
-  EXISTS (
-    SELECT 1 FROM "payment" p
-    WHERE p.id = "paymentId" AND p.status = 'Draft'
-  ) AND
+  ("paymentId" IS NULL OR EXISTS (
+    SELECT 1 FROM "payment" p WHERE p.id = "paymentId" AND p.status = 'Draft'
+  )) AND
+  ("memoId" IS NULL OR EXISTS (
+    SELECT 1 FROM "memo" m WHERE m.id = "memoId" AND m.status = 'Draft'
+  )) AND
   "companyId" = ANY (
     (SELECT get_companies_with_employee_permission('invoicing_update'))::text[]
   )
 );
 
-CREATE POLICY "DELETE" ON "public"."paymentApplication"
+CREATE POLICY "DELETE" ON "public"."invoiceSettlement"
 FOR DELETE USING (
-  EXISTS (
-    SELECT 1 FROM "payment" p
-    WHERE p.id = "paymentId" AND p.status = 'Draft'
-  ) AND
+  ("paymentId" IS NULL OR EXISTS (
+    SELECT 1 FROM "payment" p WHERE p.id = "paymentId" AND p.status = 'Draft'
+  )) AND
+  ("memoId" IS NULL OR EXISTS (
+    SELECT 1 FROM "memo" m WHERE m.id = "memoId" AND m.status = 'Draft'
+  )) AND
   "companyId" = ANY (
     (SELECT get_companies_with_employee_permission('invoicing_delete'))::text[]
   )
@@ -343,7 +504,8 @@ FOR DELETE USING (
 
 INSERT INTO "customFieldTable" ("table", "name", "module") VALUES
   ('payment', 'Payment', 'Invoicing'),
-  ('paymentApplication', 'Payment Application', 'Invoicing')
+  ('memo', 'Memo', 'Invoicing'),
+  ('invoiceSettlement', 'Invoice Settlement', 'Invoicing')
 ON CONFLICT ("table") DO NOTHING;
 
 
@@ -355,5 +517,17 @@ ON CONFLICT ("table") DO NOTHING;
 
 INSERT INTO "sequence" ("table", "name", "prefix", "suffix", "next", "size", "step", "companyId")
 SELECT 'payment', 'Payment', 'PAY-%{yyyy}-%{mm}-', NULL, 0, 6, 1, c.id
+FROM "company" c
+ON CONFLICT DO NOTHING;
+
+-- Credit/debit memos number independently; the insert path picks the sequence
+-- by direction (Credit -> CR-, Debit -> DR-).
+INSERT INTO "sequence" ("table", "name", "prefix", "suffix", "next", "size", "step", "companyId")
+SELECT 'creditMemo', 'Credit Memo', 'CR-%{yyyy}-%{mm}-', NULL, 0, 6, 1, c.id
+FROM "company" c
+ON CONFLICT DO NOTHING;
+
+INSERT INTO "sequence" ("table", "name", "prefix", "suffix", "next", "size", "step", "companyId")
+SELECT 'debitMemo', 'Debit Memo', 'DR-%{yyyy}-%{mm}-', NULL, 0, 6, 1, c.id
 FROM "company" c
 ON CONFLICT DO NOTHING;

@@ -11,6 +11,7 @@ import {
   Heading,
   HStack,
   IconButton,
+  SplitButton,
   Status,
   useDisclosure
 } from "@carbon/react";
@@ -25,10 +26,11 @@ import {
   LuPanelLeft,
   LuPanelRight,
   LuShoppingCart,
+  LuTicketCheck,
   LuTicketX,
   LuTrash
 } from "react-icons/lu";
-import { Link, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import { useAuditLog } from "~/components/AuditLog";
 import { usePanels } from "~/components/Layout/Panels";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
@@ -40,6 +42,7 @@ import {
 } from "~/hooks";
 import type { PurchaseInvoice, PurchaseInvoiceLine } from "~/modules/invoicing";
 import {
+  getApplyCreditHref,
   getPayInvoiceHref,
   isInvoicePayable,
   PurchaseInvoicingStatus
@@ -54,6 +57,7 @@ import PurchaseInvoiceVoidModal from "./PurchaseInvoiceVoidModal";
 const PurchaseInvoiceHeader = () => {
   const { t } = useLingui();
   const permissions = usePermissions();
+  const navigate = useNavigate();
   const supplierApprovalRequired = useSupplierApprovalRequired();
   const { invoiceId } = useParams();
   const { company } = useUser();
@@ -85,6 +89,7 @@ const PurchaseInvoiceHeader = () => {
   const routeData = useRouteData<{
     purchaseInvoice: PurchaseInvoice;
     purchaseInvoiceLines: PurchaseInvoiceLine[];
+    orgHasCredits: boolean;
   }>(path.to.purchaseInvoice(invoiceId));
 
   const isSupplierApproved = useMemo(
@@ -185,7 +190,7 @@ const PurchaseInvoiceHeader = () => {
     postingModal.onOpen();
   };
 
-  // Status is derived from paymentApplication rows (migration
+  // Status is derived from invoiceSettlement rows (migration
   // 20260519130000); manual mutation removed.
   const canMakePayment =
     isInvoicePayable(purchaseInvoice.status, purchaseInvoice.balance) &&
@@ -195,6 +200,12 @@ const PurchaseInvoiceHeader = () => {
     partyId: purchaseInvoice.supplierId,
     invoiceId,
     balance: purchaseInvoice.balance
+  });
+  // Offer "Apply Credit" only when the org has open debit memos to apply.
+  const canApplyCredit = canMakePayment && routeData?.orgHasCredits;
+  const applyCreditHref = getApplyCreditHref({
+    side: "ap",
+    partyId: purchaseInvoice.supplierId
   });
 
   return (
@@ -343,13 +354,29 @@ const PurchaseInvoiceHeader = () => {
               <Trans>Post</Trans>
             </Button>
 
-            {canMakePayment && (
-              <Button variant="primary" leftIcon={<LuHandCoins />} asChild>
-                <Link to={makePaymentHref}>
+            {canMakePayment &&
+              (canApplyCredit ? (
+                <SplitButton
+                  variant="primary"
+                  leftIcon={<LuHandCoins />}
+                  onClick={() => navigate(makePaymentHref)}
+                  dropdownItems={[
+                    {
+                      label: <Trans>Apply Credit</Trans>,
+                      icon: <LuTicketCheck />,
+                      onClick: () => navigate(applyCreditHref)
+                    }
+                  ]}
+                >
                   <Trans>Payment</Trans>
-                </Link>
-              </Button>
-            )}
+                </SplitButton>
+              ) : (
+                <Button variant="primary" leftIcon={<LuHandCoins />} asChild>
+                  <Link to={makePaymentHref}>
+                    <Trans>Payment</Trans>
+                  </Link>
+                </Button>
+              ))}
 
             <IconButton
               aria-label={t`Toggle Properties`}

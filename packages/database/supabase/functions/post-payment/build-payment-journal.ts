@@ -7,24 +7,32 @@
 // FX-gain/loss × unapplied-credit permutation — the lines that hit the general
 // ledger must be provably correct, not merely inspected.
 //
+// TWO independent axes (decoupled so REFUNDS work — a refund is cash flowing the
+// "wrong" way for its ledger):
+//   * isAR   — does this payment settle AR (customer) or AP (supplier)? Drives
+//              account SELECTION (receivables vs payables, customer vs supplier
+//              discount/write-off) and the realized-FX gain/loss DIRECTION.
+//   * cashIn — does cash come INTO our bank (Receipt) or leave it (Disbursement)?
+//              Drives the debit/credit SIDE of every line.
+// Normal receipt: isAR && cashIn. Normal disbursement: !isAR && !cashIn.
+// AR refund (cash out to a customer against a credit memo): isAR && !cashIn.
+// AP refund (cash in from a supplier against a debit memo): !isAR && cashIn.
+//
 // Posting model (all amounts converted to base currency):
-//   1) Cash      — DR Bank (Receipt) / CR Bank (Disbursement) for the full cash.
-//   2) Per app   — control account (AR/AP) at the INVOICE rate so it reverses the
-//                  original invoice booking exactly; discount and write-off (also
-//                  invoice-currency reliefs) at the invoice rate; realized FX on
+//   1) Cash      — DR Bank (cashIn) / CR Bank (!cashIn) for the full cash.
+//   2) Per app   — control account (AR/AP) at the TARGET rate so it reverses the
+//                  original booking exactly; discount and write-off (also
+//                  invoice-currency reliefs) at the target rate; realized FX on
 //                  the cash-settled principal accumulated for a single plug.
 //   3) Unapplied — cash beyond what was applied becomes new on-account credit;
 //                  applying more than the cash draws down existing credit (the
 //                  inverse posting side).
 //   4) FX plug   — one Realized FX Gain / Loss line for the accumulated FX.
 //
-// FX sign convention: `totalFxImpact` is normalized by the (isReceipt ? 1 : -1)
+// FX sign convention: `totalFxImpact` is normalized by the (isAR ? 1 : -1)
 // factor so a POSITIVE value ALWAYS means a gain and a NEGATIVE value ALWAYS
-// means a loss, for both Receipts and Disbursements. (A Receipt collected at a
-// higher rate than booked is a gain; a Disbursement paid at a higher rate than
-// booked is a loss — the factor unifies the two.) This is the same quantity the
-// stored `paymentApplication.fxGainLossAmount` captures, so the subledger
-// reconciles to the GL.
+// means a loss, for both AR and AP. This is the same quantity the stored
+// `invoiceSettlement.fxGainLossAmount` captures, so the subledger reconciles.
 
 import { credit, debit } from "../lib/utils.ts";
 
@@ -51,13 +59,13 @@ export interface PaymentJournalLine {
 export const round4 = (n: number) => Math.round(n * 10000) / 10000;
 
 export interface PaymentJournalApplicationInput {
-  salesInvoiceId?: string | null;
-  purchaseInvoiceId?: string | null;
+  targetSalesInvoiceId?: string | null;
+  targetPurchaseInvoiceId?: string | null;
   appliedAmount: number;
   discountAmount: number;
   writeOffAmount: number;
-  invoiceExchangeRate: number;
-  paymentExchangeRate: number;
+  targetExchangeRate: number;
+  sourceExchangeRate: number;
 }
 
 export interface PaymentJournalAccounts {
@@ -72,7 +80,9 @@ export interface BuildPaymentJournalInput {
   // Internal payment record id — becomes `documentId` on every line.
   paymentId: string;
   companyId: string;
-  isReceipt: boolean;
+  // See the two-axis note at the top of the file.
+  isAR: boolean;
+  cashIn: boolean;
   totalAmount: number;
   exchangeRate: number;
   bankAccount: string;
@@ -101,7 +111,8 @@ export function buildPaymentJournal(
   const {
     paymentId,
     companyId,
-    isReceipt,
+    isAR,
+    cashIn,
     totalAmount,
     exchangeRate,
     bankAccount,
@@ -120,7 +131,7 @@ export function buildPaymentJournal(
 
   if (!controlAccountId) {
     throw new Error(
-      `Missing ${isReceipt ? "receivables" : "payables"} account default; cannot post payment to GL`
+      `Missing ${isAR ? "receivables" : "payables"} account default; cannot post payment to GL`
     );
   }
 
@@ -157,83 +168,84 @@ export function buildPaymentJournal(
     });
   };
 
-  // 1) Cash: DR Bank (Receipt) / CR Bank (Disbursement), full cash in base.
+  // 1) Cash: DR Bank (cash in) / CR Bank (cash out), full cash in base.
   const cashBase = round4(totalAmount * exchangeRate);
-  pushLine(isReceipt ? "debit" : "credit", "asset", cashBase, {
+  pushLine(cashIn ? "debit" : "credit", "asset", cashBase, {
     accountId: bankAccount,
     description: "Bank / Cash",
   });
 
-  // 2) Per application: control at INVOICE rate; discount / write-off at invoice
+  // 2) Per application: control at TARGET rate; discount / write-off at target
   //    rate. FX is accumulated and plugged once below.
   let totalFxImpact = 0; // base ccy; +ve = gain, −ve = loss (both AR and AP)
   for (const app of applications) {
-    const invId = (isReceipt
-      ? app.salesInvoiceId
-      : app.purchaseInvoiceId) as string;
+    const invId = (isAR
+      ? app.targetSalesInvoiceId
+      : app.targetPurchaseInvoiceId) as string;
     const applied = Number(app.appliedAmount);
     const discount = Number(app.discountAmount);
     const writeOff = Number(app.writeOffAmount);
-    const invRate = Number(app.invoiceExchangeRate);
-    const payRate = Number(app.paymentExchangeRate);
+    const invRate = Number(app.targetExchangeRate);
+    const payRate = Number(app.sourceExchangeRate);
 
-    // Control account: at invoice rate (mirrors the original AR/AP booking).
+    // Control account (AR/AP): at target rate (mirrors the original booking).
+    // Side follows the cash direction so it offsets the bank line.
     pushLine(
-      isReceipt ? "credit" : "debit",
-      isReceipt ? "asset" : "liability",
+      cashIn ? "credit" : "debit",
+      isAR ? "asset" : "liability",
       round4((applied + discount + writeOff) * invRate),
       {
         accountId: controlAccountId,
-        description: isReceipt ? "Accounts Receivable" : "Accounts Payable",
+        description: isAR ? "Accounts Receivable" : "Accounts Payable",
         documentLineReference: invId,
       }
     );
 
-    // Discount: at INVOICE rate (an invoice-currency relief, not cash, so it
+    // Discount: at TARGET rate (an invoice-currency relief, not cash, so it
     // carries no FX). AR debits (forgone revenue); AP credits (vendor allowance
     // reduces our cost).
     if (discount > 0) {
       if (!discountAccountId) {
         throw new Error(
-          `Missing ${isReceipt ? "customer" : "supplier"} payment discount account default`
+          `Missing ${isAR ? "customer" : "supplier"} payment discount account default`
         );
       }
-      pushLine(isReceipt ? "debit" : "credit", "expense", round4(discount * invRate), {
+      pushLine(cashIn ? "debit" : "credit", "expense", round4(discount * invRate), {
         accountId: discountAccountId,
-        description: isReceipt
+        description: isAR
           ? "Customer Payment Discount"
           : "Supplier Payment Discount",
         documentLineReference: invId,
       });
     }
 
-    // Write-off: at INVOICE rate (an invoice-currency relief, not cash, so it
+    // Write-off: at TARGET rate (an invoice-currency relief, not cash, so it
     // carries no FX). AR is bad debt (expense); AP is vendor write-off (income —
     // class=Revenue).
     if (writeOff > 0) {
       if (!writeOffAccountId) {
         throw new Error(
-          `Missing ${isReceipt ? "customer" : "supplier"} write-off account default`
+          `Missing ${isAR ? "customer" : "supplier"} write-off account default`
         );
       }
       pushLine(
-        isReceipt ? "debit" : "credit",
-        isReceipt ? "expense" : "revenue",
+        cashIn ? "debit" : "credit",
+        isAR ? "expense" : "revenue",
         round4(writeOff * invRate),
         {
           accountId: writeOffAccountId,
-          description: isReceipt ? "Bad Debt Expense" : "Vendor Write-Off Income",
+          description: isAR ? "Bad Debt Expense" : "Vendor Write-Off Income",
           documentLineReference: invId,
         }
       );
     }
 
-    // Realized FX on the cash-settled principal only: applied × (paymentRate −
-    // invoiceRate). Discount and write-off are invoice-currency reliefs booked at
-    // the invoice rate above, so they carry no FX. The (isReceipt ? 1 : −1)
-    // factor normalizes the sign so +ve is always a gain. Matches the stored
-    // paymentApplication.fxGainLossAmount so the subledger reconciles.
-    totalFxImpact += (isReceipt ? 1 : -1) * applied * (payRate - invRate);
+    // Realized FX on the cash-settled principal only: applied × (sourceRate −
+    // targetRate). Discount and write-off are invoice-currency reliefs booked at
+    // the target rate above, so they carry no FX. The (isAR ? 1 : −1) factor
+    // normalizes the sign so +ve is always a gain. Matches the stored
+    // invoiceSettlement.fxGainLossAmount so the subledger reconciles.
+    totalFxImpact += (isAR ? 1 : -1) * applied * (payRate - invRate);
   }
 
   // 3) Unapplied cash → control account (no invoice anchor), payment rate.
@@ -245,12 +257,12 @@ export function buildPaymentJournal(
   if (Math.abs(unappliedInPaymentCcy) > 0.0001) {
     const buildingCredit = unappliedInPaymentCcy > 0;
     pushLine(
-      isReceipt === buildingCredit ? "credit" : "debit",
-      isReceipt ? "asset" : "liability",
+      cashIn === buildingCredit ? "credit" : "debit",
+      isAR ? "asset" : "liability",
       round4(Math.abs(unappliedInPaymentCcy) * exchangeRate),
       {
         accountId: controlAccountId,
-        description: isReceipt
+        description: isAR
           ? buildingCredit
             ? "Accounts Receivable (on-account credit)"
             : "Accounts Receivable (credit applied)"

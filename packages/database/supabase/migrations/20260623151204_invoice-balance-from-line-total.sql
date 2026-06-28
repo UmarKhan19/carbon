@@ -1,31 +1,36 @@
 -- ============================================================
--- Fix: derive invoice balance + Paid status from the LIVE line total
+-- Derive invoice balance + Paid status from the LIVE line total, on the unified
+-- invoiceSettlement model.
 --
 -- Migration 20260604120000 deprecated the stored
--- salesInvoice/purchaseInvoice.{subtotal,totalTax,totalAmount} columns
--- (dropping the recompute interceptors) and moved totals into the views.
--- But 20260622143213 then derived `balance` and the 'Paid' status from the
--- now-unmaintained STORED `*.totalAmount`. For invoices posted after that
--- change the stored column is 0, so a posted invoice with a real GL balance
--- shows balance = 0 — hiding the "Receive/Make Payment" button and breaking
--- settlement.
+-- salesInvoice/purchaseInvoice.{subtotal,totalTax,totalAmount} columns and moved
+-- totals into the views. `balance` and the 'Paid' status derive from the live
+-- line total (exposed as totalAmount/invoiceTotal/orderTotal), not the stored
+-- column.
 --
--- These views already compute the authoritative total from the lines (exposed
--- as `totalAmount`/`invoiceTotal`/`orderTotal`). Point `balance` and the 'Paid'
--- check at that live total instead of the stored column. No column shape
--- changes — only the two expressions per view.
+-- An invoice is reduced ("consumed") by rows in "invoiceSettlement" that TARGET
+-- it: cash payments once Posted, and credit/debit memos once Posted. Memos are
+-- their own `memo` documents (not invoice rows), so an ordinary invoice is never
+-- a settlement SOURCE — there is no "credit handed out" term here.
 -- ============================================================
 
 CREATE OR REPLACE VIEW "salesInvoices" WITH(SECURITY_INVOKER=true) AS
   WITH settled AS (
+    -- Amount applied TO this invoice (as the settlement target): Posted cash
+    -- payments and Posted credit memos.
     SELECT
-      pa."salesInvoiceId",
-      SUM(pa."appliedAmount" + pa."discountAmount" + pa."writeOffAmount") AS amount,
-      MAX(p."postingDate") AS "lastPaymentDate"
-    FROM "paymentApplication" pa
-    JOIN "payment" p ON p."id" = pa."paymentId"
-    WHERE p."status" = 'Posted' AND pa."salesInvoiceId" IS NOT NULL
-    GROUP BY pa."salesInvoiceId"
+      s."targetSalesInvoiceId" AS "salesInvoiceId",
+      SUM(s."appliedAmount" + s."discountAmount" + s."writeOffAmount") AS amount,
+      MAX(COALESCE(p."postingDate", m."postingDate")) AS "lastPaymentDate"
+    FROM "invoiceSettlement" s
+    LEFT JOIN "payment" p ON p."id" = s."paymentId"
+    LEFT JOIN "memo" m ON m."id" = s."memoId"
+    WHERE s."targetSalesInvoiceId" IS NOT NULL
+      AND (
+        (s."paymentId" IS NOT NULL AND p."status" = 'Posted')
+        OR (s."memoId" IS NOT NULL AND m."status" = 'Posted')
+      )
+    GROUP BY s."targetSalesInvoiceId"
   )
   SELECT
     si."id",
@@ -47,10 +52,9 @@ CREATE OR REPLACE VIEW "salesInvoices" WITH(SECURITY_INVOKER=true) AS
     si."postingDate",
     si."dateIssued",
     si."dateDue",
-    -- A fully-settled invoice's "Paid" status is derived from the live total +
-    -- posted applications, but the base datePaid column is never written, so it
-    -- stays NULL. Derive it from the latest posted application date when the
-    -- invoice is fully settled; otherwise pass the base column through.
+    -- A fully-settled invoice's "Paid" status is derived; the base datePaid
+    -- column is never written, so derive it from the latest posted settlement
+    -- date when fully settled, otherwise pass the base column through.
     CASE
       WHEN COALESCE(s.amount, 0) >= (COALESCE(sil."subtotal", 0) + COALESCE(sil."totalTax", 0) + COALESCE(ss."shippingCost", 0))
         AND (COALESCE(sil."subtotal", 0) + COALESCE(sil."totalTax", 0) + COALESCE(ss."shippingCost", 0)) > 0
@@ -126,13 +130,18 @@ CREATE OR REPLACE VIEW "salesInvoices" WITH(SECURITY_INVOKER=true) AS
 CREATE OR REPLACE VIEW "purchaseInvoices" WITH(SECURITY_INVOKER=true) AS
   WITH settled AS (
     SELECT
-      pa."purchaseInvoiceId",
-      SUM(pa."appliedAmount" + pa."discountAmount" + pa."writeOffAmount") AS amount,
-      MAX(p."postingDate") AS "lastPaymentDate"
-    FROM "paymentApplication" pa
-    JOIN "payment" p ON p."id" = pa."paymentId"
-    WHERE p."status" = 'Posted' AND pa."purchaseInvoiceId" IS NOT NULL
-    GROUP BY pa."purchaseInvoiceId"
+      s."targetPurchaseInvoiceId" AS "purchaseInvoiceId",
+      SUM(s."appliedAmount" + s."discountAmount" + s."writeOffAmount") AS amount,
+      MAX(COALESCE(p."postingDate", m."postingDate")) AS "lastPaymentDate"
+    FROM "invoiceSettlement" s
+    LEFT JOIN "payment" p ON p."id" = s."paymentId"
+    LEFT JOIN "memo" m ON m."id" = s."memoId"
+    WHERE s."targetPurchaseInvoiceId" IS NOT NULL
+      AND (
+        (s."paymentId" IS NOT NULL AND p."status" = 'Posted')
+        OR (s."memoId" IS NOT NULL AND m."status" = 'Posted')
+      )
+    GROUP BY s."targetPurchaseInvoiceId"
   )
   SELECT
     pi."id",
@@ -147,8 +156,6 @@ CREATE OR REPLACE VIEW "purchaseInvoices" WITH(SECURITY_INVOKER=true) AS
     pi."postingDate",
     pi."dateIssued",
     pi."dateDue",
-    -- See salesInvoices: derive datePaid for fully-settled invoices whose base
-    -- column was never written; otherwise pass the base column through.
     CASE
       WHEN COALESCE(s.amount, 0) >= (COALESCE(pl."orderTotal", 0) + COALESCE(pid."supplierShippingCost", 0) * CASE WHEN pi."exchangeRate" = 0 THEN 1 ELSE pi."exchangeRate" END)
         AND (COALESCE(pl."orderTotal", 0) + COALESCE(pid."supplierShippingCost", 0) * CASE WHEN pi."exchangeRate" = 0 THEN 1 ELSE pi."exchangeRate" END) > 0
@@ -159,10 +166,10 @@ CREATE OR REPLACE VIEW "purchaseInvoices" WITH(SECURITY_INVOKER=true) AS
     pi."currencyCode",
     pi."exchangeRate",
     pi."exchangeRateUpdatedAt",
-    COALESCE(pl."subtotal", 0)::numeric(10,2) AS "subtotal",
+    COALESCE(pl."subtotal", 0) AS "subtotal",
     pi."totalDiscount",
-    (COALESCE(pl."orderTotal", 0) + COALESCE(pid."supplierShippingCost", 0) * CASE WHEN pi."exchangeRate" = 0 THEN 1 ELSE pi."exchangeRate" END)::numeric(10,2) AS "totalAmount",
-    COALESCE(pl."totalTax", 0)::numeric(10,2) AS "totalTax",
+    (COALESCE(pl."orderTotal", 0) + COALESCE(pid."supplierShippingCost", 0) * CASE WHEN pi."exchangeRate" = 0 THEN 1 ELSE pi."exchangeRate" END) AS "totalAmount",
+    COALESCE(pl."totalTax", 0) AS "totalTax",
     ((COALESCE(pl."orderTotal", 0) + COALESCE(pid."supplierShippingCost", 0) * CASE WHEN pi."exchangeRate" = 0 THEN 1 ELSE pi."exchangeRate" END) - COALESCE(s.amount, 0)) AS "balance",
     pi."assignee",
     pi."createdBy",

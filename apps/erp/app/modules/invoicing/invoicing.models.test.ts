@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  paymentApplicationValidator,
+  invoiceSettlementValidator,
   paymentValidator
 } from "./invoicing.models";
 
@@ -72,50 +72,50 @@ describe("paymentValidator", () => {
   });
 });
 
-describe("paymentApplicationValidator", () => {
+describe("invoiceSettlementValidator", () => {
   const validApp = {
     paymentId: "p1",
-    salesInvoiceId: "si1",
+    targetSalesInvoiceId: "si1",
     appliedAmount: 50,
     discountAmount: 0,
     writeOffAmount: 0,
-    invoiceExchangeRate: 1,
-    paymentExchangeRate: 1,
+    targetExchangeRate: 1,
+    sourceExchangeRate: 1,
     appliedDate: "2026-05-19"
   };
 
   it("accepts an application against a sales invoice", () => {
-    const r = paymentApplicationValidator.safeParse(validApp);
+    const r = invoiceSettlementValidator.safeParse(validApp);
     expect(r.success).toBe(true);
   });
 
   it("accepts an application against a purchase invoice", () => {
-    const r = paymentApplicationValidator.safeParse({
+    const r = invoiceSettlementValidator.safeParse({
       ...validApp,
-      salesInvoiceId: undefined,
-      purchaseInvoiceId: "pi1"
+      targetSalesInvoiceId: undefined,
+      targetPurchaseInvoiceId: "pi1"
     });
     expect(r.success).toBe(true);
   });
 
   it("rejects when both sales and purchase ids set", () => {
-    const r = paymentApplicationValidator.safeParse({
+    const r = invoiceSettlementValidator.safeParse({
       ...validApp,
-      purchaseInvoiceId: "pi1"
+      targetPurchaseInvoiceId: "pi1"
     });
     expect(r.success).toBe(false);
   });
 
   it("rejects when neither sales nor purchase id set", () => {
-    const r = paymentApplicationValidator.safeParse({
+    const r = invoiceSettlementValidator.safeParse({
       ...validApp,
-      salesInvoiceId: undefined
+      targetSalesInvoiceId: undefined
     });
     expect(r.success).toBe(false);
   });
 
   it("rejects when all three components are zero", () => {
-    const r = paymentApplicationValidator.safeParse({
+    const r = invoiceSettlementValidator.safeParse({
       ...validApp,
       appliedAmount: 0,
       discountAmount: 0,
@@ -125,7 +125,7 @@ describe("paymentApplicationValidator", () => {
   });
 
   it("accepts a discount-only application (no cash applied)", () => {
-    const r = paymentApplicationValidator.safeParse({
+    const r = invoiceSettlementValidator.safeParse({
       ...validApp,
       appliedAmount: 0,
       discountAmount: 5
@@ -134,7 +134,7 @@ describe("paymentApplicationValidator", () => {
   });
 
   it("accepts a write-off-only application", () => {
-    const r = paymentApplicationValidator.safeParse({
+    const r = invoiceSettlementValidator.safeParse({
       ...validApp,
       appliedAmount: 0,
       writeOffAmount: 5
@@ -143,17 +143,17 @@ describe("paymentApplicationValidator", () => {
   });
 
   it("rejects a zero invoice exchange rate", () => {
-    const r = paymentApplicationValidator.safeParse({
+    const r = invoiceSettlementValidator.safeParse({
       ...validApp,
-      invoiceExchangeRate: 0
+      targetExchangeRate: 0
     });
     expect(r.success).toBe(false);
   });
 
   it("rejects a negative payment exchange rate", () => {
-    const r = paymentApplicationValidator.safeParse({
+    const r = invoiceSettlementValidator.safeParse({
       ...validApp,
-      paymentExchangeRate: -1
+      sourceExchangeRate: -1
     });
     expect(r.success).toBe(false);
   });

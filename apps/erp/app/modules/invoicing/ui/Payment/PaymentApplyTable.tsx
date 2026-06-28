@@ -39,13 +39,13 @@ type OpenInvoice = {
 };
 
 type ExistingApplication = {
-  salesInvoiceId: string | null;
-  purchaseInvoiceId: string | null;
+  targetSalesInvoiceId: string | null;
+  targetPurchaseInvoiceId: string | null;
   appliedAmount: number;
   discountAmount: number;
   writeOffAmount: number;
-  invoiceExchangeRate: number;
-  paymentExchangeRate: number;
+  targetExchangeRate: number;
+  sourceExchangeRate: number;
   appliedDate: string;
 };
 
@@ -136,7 +136,7 @@ const PaymentApplyTable = ({
   const seed = useMemo<ApplyRow[]>(() => {
     const byInvoice = new Map<string, ExistingApplication>();
     for (const a of existingApplications) {
-      const id = isReceipt ? a.salesInvoiceId : a.purchaseInvoiceId;
+      const id = isReceipt ? a.targetSalesInvoiceId : a.targetPurchaseInvoiceId;
       if (id) byInvoice.set(id, a);
     }
     return openInvoices.map((inv) => {
@@ -258,13 +258,13 @@ const PaymentApplyTable = ({
           r.checked && r.appliedAmount + r.discountAmount + r.writeOffAmount > 0
       )
       .map((r) => ({
-        salesInvoiceId: isReceipt ? r.id : undefined,
-        purchaseInvoiceId: isReceipt ? undefined : r.id,
+        targetSalesInvoiceId: isReceipt ? r.id : undefined,
+        targetPurchaseInvoiceId: isReceipt ? undefined : r.id,
         appliedAmount: r.appliedAmount,
         discountAmount: r.discountAmount,
         writeOffAmount: r.writeOffAmount,
-        invoiceExchangeRate: r.exchangeRate || 1,
-        paymentExchangeRate: paymentExchangeRate || 1,
+        targetExchangeRate: r.exchangeRate || 1,
+        sourceExchangeRate: paymentExchangeRate || 1,
         appliedDate: today
       }));
 

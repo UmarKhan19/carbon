@@ -61,6 +61,13 @@ export default function useInvoicingSubmodules() {
           icon: <LuBanknote />,
           table: "payment",
           permission: "invoicing"
+        },
+        {
+          name: t`Credits & Debits`,
+          to: path.to.memos,
+          icon: <LuCreditCard />,
+          table: "memo",
+          permission: "invoicing"
         }
       ]
     }

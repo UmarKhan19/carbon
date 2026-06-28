@@ -18,8 +18,9 @@ import {
   getCustomerShipping
 } from "../sales/sales.service";
 import type {
+  invoiceSettlementValidator,
+  memoValidator,
   PaymentStatusType,
-  paymentApplicationValidator,
   paymentValidator,
   purchaseInvoiceDeliveryValidator,
   purchaseInvoiceLineValidator,
@@ -333,7 +334,7 @@ export async function updatePurchaseInvoiceStatus(
   }
 ) {
   // Paid / Partially Paid / Overdue are derived in the purchaseInvoices view
-  // from paymentApplication. Rejecting them here ensures status integrity.
+  // from invoiceSettlement. Rejecting them here ensures status integrity.
   if (
     update.status === "Paid" ||
     update.status === "Partially Paid" ||
@@ -376,7 +377,7 @@ export async function updateSalesInvoiceStatus(
   }
 ) {
   // Paid / Partially Paid / Overdue are derived in the salesInvoices view
-  // from paymentApplication. Rejecting them here ensures status integrity.
+  // from invoiceSettlement. Rejecting them here ensures status integrity.
   if (
     update.status === "Paid" ||
     update.status === "Partially Paid" ||
@@ -1192,58 +1193,74 @@ export async function getPayments(
   return query;
 }
 
-export async function getPaymentApplications(
+export async function getInvoiceSettlements(
   client: SupabaseClient<Database>,
   paymentId: string
 ) {
   // Embed the invoice's human-readable id (salesInvoice/purchaseInvoice.invoiceId)
   // so the UI can show "AP000001" rather than the raw FK id.
   return client
-    .from("paymentApplication")
+    .from("invoiceSettlement")
     .select(
-      "*, salesInvoice:salesInvoiceId(invoiceId), purchaseInvoice:purchaseInvoiceId(invoiceId)"
+      "*, salesInvoice:targetSalesInvoiceId(invoiceId), purchaseInvoice:targetPurchaseInvoiceId(invoiceId)"
     )
     .eq("paymentId", paymentId)
     .order("appliedDate", { ascending: true });
 }
 
-export type PaymentApplicationForInvoice = {
+// A settlement against an invoice can be sourced by either a cash payment or a
+// credit/debit memo — both are invoiceSettlement rows. The panel shows them
+// together, so the source is a tagged union.
+export type InvoiceSettlementSource =
+  | {
+      type: "payment";
+      id: string;
+      readableId: string;
+      status: string | null;
+      date: string | null;
+      currencyCode: string;
+    }
+  | {
+      type: "memo";
+      id: string;
+      readableId: string;
+      status: string | null;
+      date: string | null;
+      currencyCode: string;
+      direction: string;
+    };
+
+export type InvoiceSettlementForInvoice = {
   id: string;
-  paymentId: string;
   appliedAmount: number;
   discountAmount: number;
   writeOffAmount: number;
   fxGainLossAmount: number | null;
-  invoiceExchangeRate: number;
-  paymentExchangeRate: number;
+  targetExchangeRate: number;
+  sourceExchangeRate: number;
   appliedDate: string;
-  payment: {
-    id: string;
-    paymentId: string;
-    status: string | null;
-    paymentDate: string | null;
-    currencyCode: string;
-  };
+  source: InvoiceSettlementSource;
 };
 
-// Posted applications against a specific invoice. Used by the "Payments"
-// panel on the sales/purchase invoice detail page. Two-step query (apps
-// then their parent payments) dodges the supabase JS type depth limit
-// that a !inner join hits, and lets the caller filter out Voided
-// payments cleanly.
-export async function getPaymentApplicationsForInvoice(
+// Posted settlements against a specific invoice — BOTH cash payments and applied
+// credit/debit memos. Used by the "Applied" panel on the sales/purchase invoice
+// detail page. Two-step query (settlements, then their parent payments/memos)
+// dodges the supabase JS type depth limit a !inner join hits, and lets us drop
+// settlements whose source is still Draft/Voided.
+export async function getInvoiceSettlementsForInvoice(
   client: SupabaseClient<Database>,
   side: "sales" | "purchase",
   invoiceId: string
 ): Promise<{
-  data: PaymentApplicationForInvoice[] | null;
+  data: InvoiceSettlementForInvoice[] | null;
   error: unknown;
 }> {
-  const column = side === "sales" ? "salesInvoiceId" : "purchaseInvoiceId";
+  const column =
+    side === "sales" ? "targetSalesInvoiceId" : "targetPurchaseInvoiceId";
   const apps = await client
-    .from("paymentApplication")
+    .from("invoiceSettlement")
     .select(
-      "id, paymentId, appliedAmount, discountAmount, writeOffAmount, fxGainLossAmount, invoiceExchangeRate, paymentExchangeRate, appliedDate"
+      "id, paymentId, memoId, appliedAmount, discountAmount, writeOffAmount, fxGainLossAmount, targetExchangeRate, sourceExchangeRate, appliedDate"
     )
     .eq(column, invoiceId)
     .order("appliedDate", { ascending: false });
@@ -1251,21 +1268,83 @@ export async function getPaymentApplicationsForInvoice(
   if (apps.error) return { data: null, error: apps.error };
   if (!apps.data || apps.data.length === 0) return { data: [], error: null };
 
-  const paymentIds = apps.data.map((a) => a.paymentId);
-  const payments = await client
-    .from("payment")
-    .select("id, paymentId, status, paymentDate, currencyCode")
-    .in("id", paymentIds)
-    .eq("status", "Posted");
+  const paymentIds = apps.data
+    .map((a) => a.paymentId)
+    .filter((id): id is string => Boolean(id));
+  const memoIds = apps.data
+    .map((a) => (a as { memoId: string | null }).memoId)
+    .filter((id): id is string => Boolean(id));
 
-  if (payments.error) {
-    return { data: null, error: payments.error };
+  const [payments, memos] = await Promise.all([
+    paymentIds.length > 0
+      ? client
+          .from("payment")
+          .select("id, paymentId, status, paymentDate, currencyCode")
+          .in("id", paymentIds)
+          .eq("status", "Posted")
+      : Promise.resolve({ data: [], error: null }),
+    memoIds.length > 0
+      ? client
+          .from("memo")
+          .select(
+            "id, memoId, status, postingDate, memoDate, currencyCode, direction"
+          )
+          .in("id", memoIds)
+          .eq("status", "Posted")
+      : Promise.resolve({ data: [], error: null })
+  ]);
+
+  if (payments.error) return { data: null, error: payments.error };
+  if (memos.error) return { data: null, error: memos.error };
+
+  // deno-lint-ignore no-explicit-any
+  const paymentById = new Map(
+    ((payments.data ?? []) as any[]).map((p) => [p.id, p])
+  );
+  // deno-lint-ignore no-explicit-any
+  const memoById = new Map(((memos.data ?? []) as any[]).map((m) => [m.id, m]));
+
+  const merged: InvoiceSettlementForInvoice[] = [];
+  for (const a of apps.data) {
+    const memoId = (a as { memoId: string | null }).memoId;
+    let source: InvoiceSettlementSource | null = null;
+    if (a.paymentId && paymentById.has(a.paymentId)) {
+      const p = paymentById.get(a.paymentId);
+      source = {
+        type: "payment",
+        id: p.id,
+        readableId: p.paymentId,
+        status: p.status,
+        date: p.paymentDate,
+        currencyCode: p.currencyCode
+      };
+    } else if (memoId && memoById.has(memoId)) {
+      const m = memoById.get(memoId);
+      source = {
+        type: "memo",
+        id: m.id,
+        readableId: m.memoId,
+        status: m.status,
+        date: m.postingDate ?? m.memoDate,
+        currencyCode: m.currencyCode,
+        direction: m.direction
+      };
+    }
+    // Skip settlements whose source isn't Posted (a Draft/Voided payment/memo).
+    if (!source) continue;
+    merged.push({
+      id: a.id,
+      appliedAmount: Number(a.appliedAmount),
+      discountAmount: Number(a.discountAmount),
+      writeOffAmount: Number(a.writeOffAmount),
+      fxGainLossAmount:
+        a.fxGainLossAmount == null ? null : Number(a.fxGainLossAmount),
+      targetExchangeRate: Number(a.targetExchangeRate),
+      sourceExchangeRate: Number(a.sourceExchangeRate),
+      appliedDate: a.appliedDate,
+      source
+    });
   }
-
-  const paymentById = new Map(payments.data.map((p) => [p.id, p]));
-  const merged = apps.data
-    .filter((a) => paymentById.has(a.paymentId))
-    .map((a) => ({ ...a, payment: paymentById.get(a.paymentId)! }));
 
   return { data: merged, error: null };
 }
@@ -1334,8 +1413,8 @@ export async function getAvailableOnAccountCredit(
   if (payments.error || !payments.data || payments.data.length === 0) return 0;
 
   const apps = await client
-    .from("paymentApplication")
-    .select("paymentId, appliedAmount, paymentExchangeRate")
+    .from("invoiceSettlement")
+    .select("paymentId, appliedAmount, sourceExchangeRate")
     .in(
       "paymentId",
       payments.data.map((p) => p.id)
@@ -1347,7 +1426,7 @@ export async function getAvailableOnAccountCredit(
     appliedBaseByPayment.set(
       a.paymentId,
       (appliedBaseByPayment.get(a.paymentId) ?? 0) +
-        Number(a.appliedAmount) * Number(a.paymentExchangeRate)
+        Number(a.appliedAmount) * Number(a.sourceExchangeRate)
     );
   }
 
@@ -1398,26 +1477,26 @@ export async function deletePayment(
   return client.from("payment").delete().eq("id", id);
 }
 
-export async function upsertPaymentApplication(
+export async function upsertInvoiceSettlement(
   client: SupabaseClient<Database>,
   app:
-    | (Omit<z.infer<typeof paymentApplicationValidator>, "id"> & {
+    | (Omit<z.infer<typeof invoiceSettlementValidator>, "id"> & {
         companyId: string;
         createdBy: string;
       })
-    | (Omit<z.infer<typeof paymentApplicationValidator>, "id"> & {
+    | (Omit<z.infer<typeof invoiceSettlementValidator>, "id"> & {
         id: string;
       })
 ) {
   if ("createdBy" in app) {
     return client
-      .from("paymentApplication")
+      .from("invoiceSettlement")
       .insert([sanitize(app)])
       .select("id")
       .single();
   }
   return client
-    .from("paymentApplication")
+    .from("invoiceSettlement")
     .update(sanitize(app))
     .eq("id", app.id)
     .select("id")
@@ -1425,11 +1504,11 @@ export async function upsertPaymentApplication(
 }
 
 // RLS DELETE policy requires parent payment.status='Draft'.
-export async function deletePaymentApplication(
+export async function deleteInvoiceSettlement(
   client: SupabaseClient<Database>,
   id: string
 ) {
-  return client.from("paymentApplication").delete().eq("id", id);
+  return client.from("invoiceSettlement").delete().eq("id", id);
 }
 
 // Replace-all for the apply table. The delete + insert run in a single
@@ -1437,14 +1516,14 @@ export async function deletePaymentApplication(
 // applications wiped and nothing in their place. Kysely bypasses RLS, so we
 // re-assert the payment is Draft inside the txn — the FOR UPDATE lock also
 // serializes this against a concurrent post/void of the same payment.
-export async function replacePaymentApplications(
+export async function replaceInvoiceSettlements(
   db: Kysely<KyselyDatabase>,
   args: {
     paymentId: string;
     companyId: string;
     createdBy: string;
     applications: Omit<
-      z.infer<typeof paymentApplicationValidator>,
+      z.infer<typeof invoiceSettlementValidator>,
       "id" | "paymentId"
     >[];
   }
@@ -1468,27 +1547,361 @@ export async function replacePaymentApplications(
     }
 
     await trx
-      .deleteFrom("paymentApplication")
+      .deleteFrom("invoiceSettlement")
       .where("paymentId", "=", args.paymentId)
       .execute();
 
     if (args.applications.length === 0) return;
 
     await trx
-      .insertInto("paymentApplication")
+      .insertInto("invoiceSettlement")
       .values(
         args.applications.map((a) => ({
           paymentId: args.paymentId,
           companyId: args.companyId,
           createdBy: args.createdBy,
-          salesInvoiceId: a.salesInvoiceId ?? null,
-          purchaseInvoiceId: a.purchaseInvoiceId ?? null,
+          targetSalesInvoiceId: a.targetSalesInvoiceId ?? null,
+          targetPurchaseInvoiceId: a.targetPurchaseInvoiceId ?? null,
           appliedAmount: a.appliedAmount,
           discountAmount: a.discountAmount,
           writeOffAmount: a.writeOffAmount,
-          invoiceExchangeRate: a.invoiceExchangeRate,
-          paymentExchangeRate: a.paymentExchangeRate,
+          targetExchangeRate: a.targetExchangeRate,
+          sourceExchangeRate: a.sourceExchangeRate,
           appliedDate: a.appliedDate
+        }))
+      )
+      .execute();
+  });
+}
+
+// Memos (credit/debit). A memo is payment-shaped: a party (customer XOR
+// supplier), a signed amount against a reason GL account, and a set of
+// invoiceSettlement applications (memo as SOURCE) to open invoices of the same
+// party. Direction (Credit/Debit) is the discriminator; numbering uses the
+// creditMemo / debitMemo sequences. Posting is handled by the post-memo edge
+// function; the apply table is editable only while the memo is Draft.
+
+export async function getMemo(client: SupabaseClient<Database>, id: string) {
+  return client.from("memo").select("*").eq("id", id).single();
+}
+
+export async function getMemos(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  args: GenericQueryFilters & {
+    search: string | null;
+    direction: string | null;
+    status: string | null;
+    counterpartyIds: string[] | null;
+  }
+) {
+  let query = client
+    .from("memo")
+    .select("*", { count: "exact" })
+    .eq("companyId", companyId);
+
+  if (args.search) {
+    query = query.ilike("memoId", `%${args.search}%`);
+  }
+  if (args.direction) {
+    query = query.eq("direction", args.direction);
+  }
+  if (args.status) {
+    query = query.eq("status", args.status);
+  }
+  if (args.counterpartyIds && args.counterpartyIds.length > 0) {
+    // A memo carries either customerId or supplierId; match the selected ids
+    // against both columns (customer/supplier id spaces don't overlap).
+    const csv = args.counterpartyIds.join(",");
+    query = query.or(`customerId.in.(${csv}),supplierId.in.(${csv})`);
+  }
+
+  // Newest first by the sequential memoId (CR-/DR-yyyy-mm-NNNNNN), matching the
+  // payments and invoice lists.
+  query = setGenericQueryFilters(query, args, [
+    { column: "memoId", ascending: false }
+  ]);
+  return query;
+}
+
+export async function upsertMemo(
+  client: SupabaseClient<Database>,
+  memo:
+    | (Omit<z.infer<typeof memoValidator>, "id" | "memoId"> & {
+        memoId: string;
+        companyId: string;
+        createdBy: string;
+        customFields?: Json;
+      })
+    | (Omit<z.infer<typeof memoValidator>, "id"> & {
+        id: string;
+        updatedBy: string;
+        customFields?: Json;
+      })
+) {
+  if ("createdBy" in memo) {
+    return client
+      .from("memo")
+      .insert([sanitize(memo)])
+      .select("id, memoId")
+      .single();
+  }
+  return client
+    .from("memo")
+    .update(sanitize(memo))
+    .eq("id", memo.id)
+    .select("id, memoId")
+    .single();
+}
+
+// RLS DELETE policy on memo restricts to status='Draft'.
+export async function deleteMemo(client: SupabaseClient<Database>, id: string) {
+  return client.from("memo").delete().eq("id", id);
+}
+
+// The party's available credit to draw on when clearing invoices alongside cash:
+// their POSTED, balance-reducing memos with credit remaining. A customer's Credit
+// memos reduce AR (apply to sales invoices); a supplier's Debit memos reduce AP
+// (apply to purchase invoices). `remaining` = amount − Σ already applied (memo as
+// settlement source). Drives the credits section of the invoice "Receive Payment"
+// composer.
+export async function getAvailableCreditsForParty(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  party:
+    | { side: "sales"; customerId: string }
+    | { side: "purchase"; supplierId: string }
+): Promise<{
+  data:
+    | {
+        id: string;
+        memoId: string;
+        direction: string;
+        currencyCode: string;
+        exchangeRate: number;
+        amount: number;
+        remaining: number;
+      }[]
+    | null;
+  error: unknown;
+}> {
+  const direction = party.side === "sales" ? "Credit" : "Debit";
+  let query = client
+    .from("memo")
+    .select("id, memoId, direction, currencyCode, exchangeRate, amount")
+    .eq("companyId", companyId)
+    .eq("status", "Posted")
+    .eq("direction", direction);
+  query =
+    party.side === "sales"
+      ? query.eq("customerId", party.customerId)
+      : query.eq("supplierId", party.supplierId);
+
+  const memos = await query;
+  if (memos.error) return { data: null, error: memos.error };
+  if (!memos.data || memos.data.length === 0) return { data: [], error: null };
+
+  // deno-lint-ignore no-explicit-any
+  const rows = memos.data as any[];
+  const ids = rows.map((m) => m.id as string);
+  const apps = await client
+    .from("invoiceSettlement")
+    .select("memoId, appliedAmount")
+    .in("memoId", ids);
+  if (apps.error) return { data: null, error: apps.error };
+
+  const appliedByMemo = new Map<string, number>();
+  for (const a of apps.data ?? []) {
+    if (!a.memoId) continue;
+    appliedByMemo.set(
+      a.memoId,
+      (appliedByMemo.get(a.memoId) ?? 0) + Number(a.appliedAmount)
+    );
+  }
+
+  const result = rows
+    .map((m) => {
+      const remaining =
+        Math.round(
+          (Number(m.amount) - (appliedByMemo.get(m.id) ?? 0)) * 10000
+        ) / 10000;
+      return {
+        id: m.id as string,
+        memoId: m.memoId as string,
+        direction: m.direction as string,
+        currencyCode: m.currencyCode as string,
+        exchangeRate: Number(m.exchangeRate),
+        amount: Number(m.amount),
+        remaining
+      };
+    })
+    .filter((m) => m.remaining > 0.0001);
+
+  return { data: result, error: null };
+}
+
+// Does the company have ANY open credits to apply on this side? (sales → posted
+// customer Credit memos; purchase → posted supplier Debit memos, each with credit
+// remaining.) Cheap org-level gate for the invoice "Apply Credit" action — we
+// don't surface it at all unless there's something to apply.
+export async function getCompanyHasOpenCredits(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  side: "sales" | "purchase"
+): Promise<boolean> {
+  const direction = side === "sales" ? "Credit" : "Debit";
+  const memos = await client
+    .from("memo")
+    .select("id, amount")
+    .eq("companyId", companyId)
+    .eq("status", "Posted")
+    .eq("direction", direction);
+  if (memos.error || !memos.data || memos.data.length === 0) return false;
+
+  // deno-lint-ignore no-explicit-any
+  const rows = memos.data as any[];
+  const ids = rows.map((m) => m.id as string);
+  const apps = await client
+    .from("invoiceSettlement")
+    .select("memoId, appliedAmount")
+    .in("memoId", ids);
+  if (apps.error) return false;
+
+  const appliedByMemo = new Map<string, number>();
+  for (const a of apps.data ?? []) {
+    if (!a.memoId) continue;
+    appliedByMemo.set(
+      a.memoId,
+      (appliedByMemo.get(a.memoId) ?? 0) + Number(a.appliedAmount)
+    );
+  }
+  return rows.some(
+    (m) => Number(m.amount) - (appliedByMemo.get(m.id) ?? 0) > 0.0001
+  );
+}
+
+// Apply posted credits to invoices — additive insert of memo-sourced
+// invoiceSettlement rows (the credits half of the "Receive Payment" composer).
+// GL-neutral (the memos already posted their own journals), so no journal here;
+// caps are validated under FOR UPDATE locks. Each application matches the memo's
+// exchange rate to the invoice's (v1 requires equal rates — no cross-rate FX on
+// credit application).
+export async function applyCreditsToInvoices(
+  db: Kysely<KyselyDatabase>,
+  args: {
+    companyId: string;
+    createdBy: string;
+    appliedDate: string;
+    side: "sales" | "purchase";
+    applications: { memoId: string; invoiceId: string; amount: number }[];
+  }
+) {
+  const isSales = args.side === "sales";
+  const activeStatuses = isSales
+    ? ["Submitted", "Partially Paid", "Overdue"]
+    : ["Open", "Partially Paid", "Overdue"];
+
+  return db.transaction().execute(async (trx) => {
+    if (args.applications.length === 0) return;
+
+    const memoIds = [...new Set(args.applications.map((a) => a.memoId))];
+    const invoiceIds = [...new Set(args.applications.map((a) => a.invoiceId))];
+
+    // Lock the memos + read their remaining credit (amount − Σ prior applied).
+    const memos = await trx
+      .selectFrom("memo")
+      .select(["id", "status", "exchangeRate", "amount"])
+      .where("id", "in", memoIds)
+      .where("companyId", "=", args.companyId)
+      .forUpdate()
+      .execute();
+    const priorByMemo = await trx
+      .selectFrom("invoiceSettlement")
+      .select(["memoId", "appliedAmount"])
+      .where("memoId", "in", memoIds)
+      .execute();
+    const priorApplied = new Map<string, number>();
+    for (const p of priorByMemo) {
+      if (!p.memoId) continue;
+      priorApplied.set(
+        p.memoId,
+        (priorApplied.get(p.memoId) ?? 0) + Number(p.appliedAmount)
+      );
+    }
+    const memoById = new Map(memos.map((m) => [m.id, m]));
+
+    // Lock the invoices + read their open balance + status from the view.
+    const invoiceTable = isSales ? "salesInvoice" : "purchaseInvoice";
+    const invoiceView = isSales ? "salesInvoices" : "purchaseInvoices";
+    const lockedInvoices = await trx
+      .selectFrom(invoiceTable)
+      .select(["id", "status", "exchangeRate"])
+      .where("id", "in", invoiceIds)
+      .where("companyId", "=", args.companyId)
+      .forUpdate()
+      .execute();
+    const invoiceBalances = await trx
+      .selectFrom(invoiceView)
+      .select(["id", "balance"])
+      .where("id", "in", invoiceIds)
+      .execute();
+    const balById = new Map(invoiceBalances.map((b) => [b.id, b]));
+    const invById = new Map(lockedInvoices.map((i) => [i.id, i]));
+
+    // Validate each application, accumulating per-memo and per-invoice caps.
+    const memoUse = new Map<string, number>();
+    const invoiceUse = new Map<string, number>();
+    for (const app of args.applications) {
+      if (app.amount <= 0)
+        throw new Error("Applied amount must be greater than 0");
+      const memo = memoById.get(app.memoId);
+      if (!memo) throw new Error(`Credit memo ${app.memoId} not found`);
+      if (memo.status !== "Posted")
+        throw new Error("Only posted credits can be applied");
+      const inv = invById.get(app.invoiceId);
+      if (!inv) throw new Error(`Invoice ${app.invoiceId} not found`);
+      if (!activeStatuses.includes(String(inv.status)))
+        throw new Error(`Invoice ${app.invoiceId} is not open`);
+      if (Number(memo.exchangeRate) !== Number(inv.exchangeRate))
+        throw new Error(
+          "Applying a credit requires matching exchange rates (cross-rate FX not yet supported)"
+        );
+
+      memoUse.set(app.memoId, (memoUse.get(app.memoId) ?? 0) + app.amount);
+      invoiceUse.set(
+        app.invoiceId,
+        (invoiceUse.get(app.invoiceId) ?? 0) + app.amount
+      );
+
+      const memoRemaining =
+        Number(memo.amount) - (priorApplied.get(app.memoId) ?? 0);
+      if (memoUse.get(app.memoId)! > memoRemaining + 0.0001)
+        throw new Error(
+          `Applied (${memoUse.get(app.memoId)}) exceeds the credit's remaining balance (${memoRemaining})`
+        );
+
+      const invoiceOpen = Number(balById.get(app.invoiceId)?.balance ?? 0);
+      if (invoiceUse.get(app.invoiceId)! > invoiceOpen + 0.0001)
+        throw new Error(
+          `Applied (${invoiceUse.get(app.invoiceId)}) exceeds invoice ${app.invoiceId} open balance (${invoiceOpen})`
+        );
+    }
+
+    await trx
+      .insertInto("invoiceSettlement")
+      .values(
+        args.applications.map((app) => ({
+          memoId: app.memoId,
+          companyId: args.companyId,
+          createdBy: args.createdBy,
+          targetSalesInvoiceId: isSales ? app.invoiceId : null,
+          targetPurchaseInvoiceId: isSales ? null : app.invoiceId,
+          appliedAmount: app.amount,
+          discountAmount: 0,
+          writeOffAmount: 0,
+          sourceExchangeRate: Number(memoById.get(app.memoId)!.exchangeRate),
+          targetExchangeRate: Number(invById.get(app.invoiceId)!.exchangeRate),
+          appliedDate: args.appliedDate
         }))
       )
       .execute();

@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-24T05:20:56.679Z",
-  "totalTools": 1227,
+  "generated": "2026-06-28T04:19:21.070Z",
+  "totalTools": 1234,
   "modules": 15,
   "tools": [
     {
@@ -8178,10 +8178,10 @@
       }
     },
     {
-      "name": "invoicing_getPaymentApplications",
+      "name": "invoicing_getInvoiceSettlements",
       "module": "invoicing",
       "classification": "READ",
-      "description": "get payment applications",
+      "description": "get invoice settlements",
       "paramCount": 1,
       "serviceParams": [
         "client",
@@ -8203,10 +8203,10 @@
       }
     },
     {
-      "name": "invoicing_getPaymentApplicationsForInvoice",
+      "name": "invoicing_getInvoiceSettlementsForInvoice",
       "module": "invoicing",
       "classification": "READ",
-      "description": "get payment applications for invoice",
+      "description": "get invoice settlements for invoice",
       "paramCount": 2,
       "serviceParams": [
         "client",
@@ -8363,10 +8363,10 @@
       }
     },
     {
-      "name": "invoicing_upsertPaymentApplication",
+      "name": "invoicing_upsertInvoiceSettlement",
       "module": "invoicing",
       "classification": "WRITE",
-      "description": "upsert payment application",
+      "description": "upsert invoice settlement",
       "paramCount": 1,
       "serviceParams": [
         "client",
@@ -8388,10 +8388,10 @@
       }
     },
     {
-      "name": "invoicing_deletePaymentApplication",
+      "name": "invoicing_deleteInvoiceSettlement",
       "module": "invoicing",
       "classification": "DESTRUCTIVE",
-      "description": "delete payment application",
+      "description": "delete invoice settlement",
       "paramCount": 1,
       "serviceParams": [
         "client",
@@ -8413,10 +8413,10 @@
       }
     },
     {
-      "name": "invoicing_replacePaymentApplications",
+      "name": "invoicing_replaceInvoiceSettlements",
       "module": "invoicing",
       "classification": "WRITE",
-      "description": "replace payment applications",
+      "description": "replace invoice settlements",
       "paramCount": 2,
       "serviceParams": [
         "db",
@@ -8438,6 +8438,251 @@
         },
         "required": [
           "paymentId",
+          "applications"
+        ]
+      }
+    },
+    {
+      "name": "invoicing_getMemo",
+      "module": "invoicing",
+      "classification": "READ",
+      "description": "get memo",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "id"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "name": "invoicing_getMemos",
+      "module": "invoicing",
+      "classification": "READ",
+      "description": "get memos",
+      "paramCount": 6,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "args": {
+            "type": "object",
+            "properties": {
+              "limit": {
+                "type": "integer",
+                "default": 100
+              },
+              "offset": {
+                "type": "integer",
+                "default": 0
+              },
+              "search": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "direction": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "status": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "counterpartyIds": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "invoicing_upsertMemo",
+      "module": "invoicing",
+      "classification": "WRITE",
+      "description": "upsert memo",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "memo"
+      ],
+      "injectAuth": [
+        "companyId",
+        "createdBy",
+        "updatedBy"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "memo": {}
+        },
+        "required": [
+          "memo"
+        ]
+      }
+    },
+    {
+      "name": "invoicing_deleteMemo",
+      "module": "invoicing",
+      "classification": "DESTRUCTIVE",
+      "description": "delete memo",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "id"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "name": "invoicing_getAvailableCreditsForParty",
+      "module": "invoicing",
+      "classification": "READ",
+      "description": "get available credits for party",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "party"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "party": {}
+        },
+        "required": [
+          "party"
+        ]
+      }
+    },
+    {
+      "name": "invoicing_getCompanyHasOpenCredits",
+      "module": "invoicing",
+      "classification": "READ",
+      "description": "get company has open credits",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "side"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "side": {
+            "type": "string",
+            "enum": [
+              "sales",
+              "purchase"
+            ]
+          }
+        },
+        "required": [
+          "side"
+        ]
+      }
+    },
+    {
+      "name": "invoicing_applyCreditsToInvoices",
+      "module": "invoicing",
+      "classification": "WRITE",
+      "description": "apply credits to invoices",
+      "paramCount": 3,
+      "serviceParams": [
+        "db",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "appliedDate": {
+            "type": "string"
+          },
+          "side": {
+            "type": "string",
+            "enum": [
+              "sales",
+              "purchase"
+            ]
+          },
+          "applications": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "memoId": {
+                  "type": "string"
+                },
+                "invoiceId": {
+                  "type": "string"
+                },
+                "amount": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "memoId",
+                "invoiceId",
+                "amount"
+              ]
+            }
+          }
+        },
+        "required": [
+          "appliedDate",
+          "side",
           "applications"
         ]
       }

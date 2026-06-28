@@ -1,7 +1,7 @@
 -- ============================================================
 -- AR & AP subledger-to-GL tie-out RPCs
 --
--- The subledger (payment + paymentApplication + invoice) must
+-- The subledger (payment + invoiceSettlement + invoice) must
 -- equal the GL control account balance for the same as-of date.
 -- These RPCs return that comparison.
 --
@@ -49,9 +49,9 @@ AS $$
         si."exchangeRate",
         si."totalAmount" - COALESCE((
           SELECT SUM(pa."appliedAmount" + pa."discountAmount" + pa."writeOffAmount")
-          FROM "paymentApplication" pa
+          FROM "invoiceSettlement" pa
           JOIN "payment" p ON p."id" = pa."paymentId"
-          WHERE pa."salesInvoiceId" = si."id"
+          WHERE pa."targetSalesInvoiceId" = si."id"
             AND p."status" = 'Posted'
             -- Cut on the payment's posting date (= the journal postingDate
             -- the GL side uses), NOT the free-form appliedDate, so the
@@ -71,7 +71,7 @@ AS $$
         p."exchangeRate",
         p."totalAmount" - COALESCE((
           SELECT SUM(pa."appliedAmount")
-          FROM "paymentApplication" pa
+          FROM "invoiceSettlement" pa
           WHERE pa."paymentId" = p."id"
         ), 0) AS unapplied_pay_ccy
       FROM "payment" p
@@ -135,9 +135,9 @@ AS $$
         pi."exchangeRate",
         pi."totalAmount" - COALESCE((
           SELECT SUM(pa."appliedAmount" + pa."discountAmount" + pa."writeOffAmount")
-          FROM "paymentApplication" pa
+          FROM "invoiceSettlement" pa
           JOIN "payment" p ON p."id" = pa."paymentId"
-          WHERE pa."purchaseInvoiceId" = pi."id"
+          WHERE pa."targetPurchaseInvoiceId" = pi."id"
             AND p."status" = 'Posted'
             -- See AR note: reconcile on payment.postingDate, not appliedDate.
             AND p."postingDate" <= _as_of_date
@@ -154,7 +154,7 @@ AS $$
         p."exchangeRate",
         p."totalAmount" - COALESCE((
           SELECT SUM(pa."appliedAmount")
-          FROM "paymentApplication" pa
+          FROM "invoiceSettlement" pa
           WHERE pa."paymentId" = p."id"
         ), 0) AS unapplied_pay_ccy
       FROM "payment" p
@@ -230,9 +230,9 @@ AS $$
   FROM "salesInvoice" si
   LEFT JOIN LATERAL (
     SELECT SUM(pa."appliedAmount" + pa."discountAmount" + pa."writeOffAmount") AS settled
-    FROM "paymentApplication" pa
+    FROM "invoiceSettlement" pa
     JOIN "payment" p ON p."id" = pa."paymentId"
-    WHERE pa."salesInvoiceId" = si."id"
+    WHERE pa."targetSalesInvoiceId" = si."id"
       AND p."status" = 'Posted'
       AND p."postingDate" <= _as_of_date
   ) s ON true
@@ -281,9 +281,9 @@ AS $$
   FROM "purchaseInvoice" pi
   LEFT JOIN LATERAL (
     SELECT SUM(pa."appliedAmount" + pa."discountAmount" + pa."writeOffAmount") AS settled
-    FROM "paymentApplication" pa
+    FROM "invoiceSettlement" pa
     JOIN "payment" p ON p."id" = pa."paymentId"
-    WHERE pa."purchaseInvoiceId" = pi."id"
+    WHERE pa."targetPurchaseInvoiceId" = pi."id"
       AND p."status" = 'Posted'
       AND p."postingDate" <= _as_of_date
   ) s ON true

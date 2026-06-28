@@ -1379,6 +1379,8 @@ export const path = {
     payment: (id: string) => generatePath(`${x}/payments/${id}`),
     paymentApplicationsSet: (id: string) =>
       generatePath(`${x}/payments/${id}/applications/set`),
+    paymentCreditsSet: (id: string) =>
+      generatePath(`${x}/payments/${id}/credits/set`),
     paymentDelete: (id: string) => generatePath(`${x}/payments/${id}/delete`),
     paymentNew: `${x}/payments/new`,
     paymentPost: (id: string) => generatePath(`${x}/payments/${id}/post`),
@@ -1604,6 +1606,14 @@ export const path = {
     salesInvoiceVoid: (id: string) =>
       generatePath(`${x}/sales-invoice/${id}/void`),
     salesInvoices: `${x}/sales/invoices`,
+    // Credit / Debit memos — payment-shaped documents (the `memo` table). The
+    // list lives in the invoicing nav beside Payments; details mirror payments.
+    memo: (id: string) => generatePath(`${x}/credits/${id}`),
+    memoDelete: (id: string) => generatePath(`${x}/credits/${id}/delete`),
+    memoNew: `${x}/credits/new`,
+    memoPost: (id: string) => generatePath(`${x}/credits/${id}/post`),
+    memoVoid: (id: string) => generatePath(`${x}/credits/${id}/void`),
+    memos: `${x}/invoicing/credits`,
     salesOrder: (id: string) => generatePath(`${x}/sales-order/${id}`),
     salesOrderConfirm: (id: string) =>
       generatePath(`${x}/sales-order/${id}/confirm`),

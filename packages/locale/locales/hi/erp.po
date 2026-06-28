@@ -492,6 +492,10 @@ msgstr "हमेशा"
 msgid "Amount"
 msgstr "रकम"
 
+#. placeholder {0}: r.memoId
+msgid "Amount to apply for {0}"
+msgstr ""
+
 msgid "Amount Type"
 msgstr "राशि प्रकार"
 
@@ -549,9 +553,6 @@ msgstr "एपीआई कुंजियाँ"
 msgid "API keys for programmatic access to your Carbon data."
 msgstr "आपके Carbon डेटा के लिए प्रोग्रामेटिक एक्सेस के लिए API कुंजियाँ।"
 
-msgid "Applications"
-msgstr ""
-
 msgid "Applied"
 msgstr ""
 
@@ -571,11 +572,23 @@ msgstr "सभी पर लागू होता है"
 msgid "Applies to all work centers"
 msgstr "सभी कार्य केंद्रों पर लागू होता है"
 
+msgid "Apply available credits"
+msgstr ""
+
+msgid "Apply Credit"
+msgstr ""
+
+msgid "Apply credits"
+msgstr ""
+
 msgid "Apply pricing rules"
 msgstr "मूल्य निर्धारण नियम लागू करें"
 
 msgid "Apply To"
 msgstr "लागू करें"
+
+msgid "Apply to invoice"
+msgstr ""
 
 msgid "Apply to invoices"
 msgstr ""
@@ -690,9 +703,9 @@ msgstr "क्या आप सुनिश्चित हैं कि आप 
 msgid "Are you sure you want to delete {0}?"
 msgstr "क्या आप {0} को हटाना सुनिश्चित हैं?"
 
+#. placeholder {0}: initialValues.memoId
 #. placeholder {0}: initialValues.paymentId
 #. placeholder {0}: pickingList.pickingListId
-#. placeholder {0}: routeData?.consumableSummary?.readableIdWithRevision
 msgid "Are you sure you want to delete {0}? This cannot be undone."
 msgstr "क्या आप सुनिश्चित हैं कि आप {0} को हटाना चाहते हैं? यह पूर्ववत नहीं किया जा सकता।"
 
@@ -1447,6 +1460,9 @@ msgstr "खोज साफ़ करें"
 msgid "Clear search query"
 msgstr "खोज क्वेरी साफ़ करें"
 
+msgid "Clear this invoice with the party's posted credits as well as cash. Credits apply directly — no posting needed."
+msgstr ""
+
 msgid "Click to upload a PDF drawing"
 msgstr "PDF ड्राइंग अपलोड करने के लिए क्लिक करें"
 
@@ -2103,6 +2119,18 @@ msgstr "कार्य केंद्र बनाया गया"
 msgid "Creating part..."
 msgstr "भाग बनाया जा रहा है..."
 
+msgid "Credit"
+msgstr ""
+
+msgid "Credit / Debit Memos"
+msgstr ""
+
+msgid "Credits & Debits"
+msgstr ""
+
+msgid "Credits applied"
+msgstr ""
+
 msgid "CSV column"
 msgstr "CSV कॉलम"
 
@@ -2455,6 +2483,9 @@ msgstr "सामग्री आकार हटाएं"
 msgid "Delete Material Type"
 msgstr "सामग्री प्रकार हटाएं"
 
+msgid "Delete Memo"
+msgstr ""
+
 msgid "Delete Part"
 msgstr "भाग हटाएं"
 
@@ -2661,6 +2692,12 @@ msgstr "आयाम"
 
 msgid "Direct"
 msgstr "सीधा"
+
+msgid "Direction"
+msgstr ""
+
+msgid "Directions"
+msgstr ""
 
 msgid "Disabled"
 msgstr "अक्षम"
@@ -2954,6 +2991,9 @@ msgstr "सामग्री पदार्थ संपादित करे
 
 msgid "Edit Material Type"
 msgstr "सामग्री प्रकार संपादित करें"
+
+msgid "Edit Memo"
+msgstr ""
 
 msgid "Edit Non Conformance Type"
 msgstr "गैर अनुरूपता प्रकार संपादित करें"
@@ -4902,6 +4942,12 @@ msgstr "सदस्य"
 msgid "Memo"
 msgstr ""
 
+msgid "Memo Date"
+msgstr ""
+
+msgid "Memo ID"
+msgstr ""
+
 msgid "MES"
 msgstr "MES"
 
@@ -5104,6 +5150,9 @@ msgstr "नया उपभोग्य"
 
 msgid "New Contractor"
 msgstr "नया ठेकेदार"
+
+msgid "New Credit / Debit Memo"
+msgstr ""
 
 msgid "New Custom Field"
 msgstr "नया कस्टम फील्ड"
@@ -5932,6 +5981,9 @@ msgstr "भागीदार"
 msgid "Parts"
 msgstr "पार्ट्स"
 
+msgid "Party Type"
+msgstr ""
+
 msgid "Pass"
 msgstr "पास"
 
@@ -5950,6 +6002,9 @@ msgstr ""
 msgid "Payment"
 msgstr "भुगतान"
 
+msgid "Payment Applications"
+msgstr ""
+
 msgid "Payment Date"
 msgstr ""
 
@@ -5966,6 +6021,9 @@ msgid "Payment Terms"
 msgstr "भुगतान शर्तें"
 
 msgid "Payments"
+msgstr ""
+
+msgid "Payments and credits applied to this invoice. Click a row to open the source document."
 msgstr ""
 
 msgid "PDF"
@@ -6174,9 +6232,6 @@ msgstr "पोस्ट किया गया"
 
 msgid "Posted By"
 msgstr "द्वारा पोस्ट किया गया"
-
-msgid "Posted payments that have applied to this invoice. Click a row to open the payment."
-msgstr ""
 
 msgid "Posting Date"
 msgstr "पोस्टिंग तारीख"
@@ -6572,6 +6627,9 @@ msgstr "उद्धरण के लिए तैयार"
 msgid "Reason"
 msgstr "कारण"
 
+msgid "Reason Account"
+msgstr ""
+
 msgid "Reason for declining (Optional)"
 msgstr "अस्वीकार करने का कारण (वैकल्पिक)"
 
@@ -6655,6 +6713,9 @@ msgstr "हाल ही में बनाया गया"
 msgid "Record"
 msgstr "रिकॉर्ड करें"
 
+msgid "Record a credit or debit memo against a customer or supplier. Applications to specific invoices are added after the memo is created."
+msgstr ""
+
 msgid "Record cash received from a customer (Receipt) or paid to a supplier (Disbursement). Applications to specific invoices are added after the payment is created."
 msgstr ""
 
@@ -6705,6 +6766,9 @@ msgstr "जॉब रिलीज़ करें"
 
 msgid "Released"
 msgstr "जारी किया गया"
+
+msgid "Remaining"
+msgstr ""
 
 msgid "Remaining after split stays on the original row."
 msgstr "विभाजन के बाद शेष मूल पंक्ति पर रहता है।"
@@ -7302,6 +7366,9 @@ msgstr "गेज चुनें"
 
 msgid "Select groups or individuals"
 msgstr "समूह या व्यक्तियों का चयन करें"
+
+msgid "Select invoice"
+msgstr ""
 
 msgid "Select invoices from a single counterparty"
 msgstr ""
@@ -8207,6 +8274,9 @@ msgstr "इस RFQ के लिए तुलना करने के लि�
 msgid "There are outside operations associated with this job that have no suppliers. Please assign a supplier to each outside operation before releasing it."
 msgstr "इस नौकरी से जुड़े बाहरी संचालन हैं जिनके पास कोई आपूर्तिकर्ता नहीं है। इसे जारी करने से पहले कृपया प्रत्येक बाहरी संचालन को एक आपूर्तिकर्ता असाइन करें।"
 
+msgid "There's nothing outstanding to apply these credits to."
+msgstr ""
+
 msgid "These custom fields will only be available for entities with the same tags"
 msgstr "ये कस्टम फ़ील्ड केवल समान टैग वाली संस्थाओं के लिए उपलब्ध होंगी"
 
@@ -8882,6 +8952,9 @@ msgstr "सूचियाँ देखें"
 
 msgid "View maintenance dispatch"
 msgstr "रखरखाव डिस्पैच देखें"
+
+msgid "View Memo"
+msgstr ""
 
 msgid "View missing values"
 msgstr "लापता मानों को देखें"

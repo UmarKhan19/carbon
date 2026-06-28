@@ -54,7 +54,7 @@ serve(async (req: Request) => {
 
     const [payment, applications, accountDefaults] = await Promise.all([
       client.from("payment").select("*").eq("id", paymentId).single(),
-      client.from("paymentApplication").select("*").eq("paymentId", paymentId),
+      client.from("invoiceSettlement").select("*").eq("paymentId", paymentId),
       getDefaultPostingGroup(client, companyId),
     ]);
 
@@ -63,7 +63,12 @@ serve(async (req: Request) => {
     if (accountingEnabled && accountDefaults.error)
       throw new Error("Failed to fetch account defaults");
 
-    const isReceipt = payment.data.paymentType === "Receipt";
+    // cashIn: direction of cash (Receipt = into our bank). isAR: which ledger
+    // this settles (a customer → AR, a supplier → AP). Decoupled so refunds work
+    // (a Disbursement to a customer is an AR refund; a Receipt from a supplier is
+    // an AP refund). See build-payment-journal's two-axis note.
+    const cashIn = payment.data.paymentType === "Receipt";
+    const isAR = payment.data.customerId != null;
 
     // --------------------------------------------------------------
     // VOID
@@ -199,16 +204,16 @@ serve(async (req: Request) => {
     // status, over-settlement cap) happens inside the commit transaction
     // below, NOT here — see the note on the application-level checks.
     const salesInvoiceIds = applications.data
-      .filter((a) => a.salesInvoiceId)
-      .map((a) => a.salesInvoiceId as string);
+      .filter((a) => a.targetSalesInvoiceId)
+      .map((a) => a.targetSalesInvoiceId as string);
     const purchaseInvoiceIds = applications.data
-      .filter((a) => a.purchaseInvoiceId)
-      .map((a) => a.purchaseInvoiceId as string);
+      .filter((a) => a.targetPurchaseInvoiceId)
+      .map((a) => a.targetPurchaseInvoiceId as string);
 
-    if (isReceipt && purchaseInvoiceIds.length > 0) {
+    if (isAR && purchaseInvoiceIds.length > 0) {
       throw new Error("Receipt cannot apply to purchase invoices");
     }
-    if (!isReceipt && salesInvoiceIds.length > 0) {
+    if (!isAR && salesInvoiceIds.length > 0) {
       throw new Error("Disbursement cannot apply to sales invoices");
     }
 
@@ -217,7 +222,7 @@ serve(async (req: Request) => {
     // rows are locked — otherwise two concurrent posts could both read the
     // same prior-settled total and both slip past the over-settlement cap.
     for (const app of applications.data) {
-      if (app.invoiceExchangeRate <= 0 || app.paymentExchangeRate <= 0) {
+      if (app.targetExchangeRate <= 0 || app.sourceExchangeRate <= 0) {
         throw new Error("Application exchange rates must be > 0");
       }
     }
@@ -227,7 +232,7 @@ serve(async (req: Request) => {
     // party's existing on-account credit (validated under lock inside the
     // commit transaction below, where prior posted payments are serialized).
     const totalAppliedBase = applications.data.reduce(
-      (sum, a) => sum + Number(a.appliedAmount) * Number(a.paymentExchangeRate),
+      (sum, a) => sum + Number(a.appliedAmount) * Number(a.sourceExchangeRate),
       0
     );
     const paymentTotalBase = Number(payment.data.totalAmount) * Number(payment.data.exchangeRate);
@@ -262,14 +267,14 @@ serve(async (req: Request) => {
         .eq("id", companyId)
         .single();
       const companyGroupId = companyRecord.data?.companyGroupId ?? null;
-      const partyId = isReceipt
+      const partyId = isAR
         ? (payment.data.customerId as string | null)
         : (payment.data.supplierId as string | null);
-      const typeEntityType = isReceipt ? "CustomerType" : "SupplierType";
-      const entityEntityType = isReceipt ? "Customer" : "Supplier";
+      const typeEntityType = isAR ? "CustomerType" : "SupplierType";
+      const entityEntityType = isAR ? "Customer" : "Supplier";
       if (companyGroupId && partyId) {
         const [partyRow, dimRows] = await Promise.all([
-          isReceipt
+          isAR
             ? client
                 .from("customer")
                 .select("customerTypeId")
@@ -293,7 +298,7 @@ serve(async (req: Request) => {
         }
         // deno-lint-ignore no-explicit-any
         const party = partyRow.data as any;
-        const partyTypeId = isReceipt
+        const partyTypeId = isAR
           ? (party?.customerTypeId ?? null)
           : (party?.supplierTypeId ?? null);
         const typeDimensionId = dimByEntityType.get(typeEntityType);
@@ -319,28 +324,29 @@ serve(async (req: Request) => {
       const { lines } = buildPaymentJournal({
         paymentId,
         companyId,
-        isReceipt,
+        isAR,
+        cashIn,
         totalAmount: Number(payment.data.totalAmount),
         exchangeRate: Number(payment.data.exchangeRate),
         bankAccount: payment.data.bankAccount,
         journalLineReference,
         applications: applications.data.map((a) => ({
-          salesInvoiceId: a.salesInvoiceId,
-          purchaseInvoiceId: a.purchaseInvoiceId,
+          targetSalesInvoiceId: a.targetSalesInvoiceId,
+          targetPurchaseInvoiceId: a.targetPurchaseInvoiceId,
           appliedAmount: Number(a.appliedAmount),
           discountAmount: Number(a.discountAmount),
           writeOffAmount: Number(a.writeOffAmount),
-          invoiceExchangeRate: Number(a.invoiceExchangeRate),
-          paymentExchangeRate: Number(a.paymentExchangeRate),
+          targetExchangeRate: Number(a.targetExchangeRate),
+          sourceExchangeRate: Number(a.sourceExchangeRate),
         })),
         accounts: {
-          controlAccountId: isReceipt
+          controlAccountId: isAR
             ? ad.receivablesAccount
             : ad.payablesAccount,
-          discountAccountId: isReceipt
+          discountAccountId: isAR
             ? ad.customerPaymentDiscountAccount
             : ad.supplierPaymentDiscountAccount,
-          writeOffAccountId: isReceipt
+          writeOffAccountId: isAR
             ? ad.customerWriteOffAccount
             : ad.supplierWriteOffAccount,
           fxGainAccountId: ad.realizedExchangeGainAccount,
@@ -353,10 +359,10 @@ serve(async (req: Request) => {
     // --------------------------------------------------------------
     // Commit: lock + validate the invoices under the transaction, then post.
     // --------------------------------------------------------------
-    const paymentPartyId = isReceipt
+    const paymentPartyId = isAR
       ? payment.data.customerId
       : payment.data.supplierId;
-    const activeStatus = isReceipt ? "Submitted" : "Open";
+    const activeStatus = isAR ? "Submitted" : "Open";
 
     let createdJournalId: string | null = null;
     await db.transaction().execute(async (trx) => {
@@ -365,7 +371,13 @@ serve(async (req: Request) => {
       // over-settlement cap below can't be raced (TOCTOU).
       const invoiceById = new Map<
         string,
-        { status: string; totalAmount: number; partyId: string | null }
+        {
+          status: string;
+          totalAmount: number;
+          // View balance = remaining open amount on the invoice.
+          balance: number;
+          partyId: string | null;
+        }
       >();
       // The stored base "totalAmount" is deprecated (always 0 for invoices
       // posted after migration 20260604120000); the live total lives in the
@@ -376,7 +388,7 @@ serve(async (req: Request) => {
       // row, not the view: the view derives 'Partially Paid'/'Paid', which
       // would wrongly fail the activeStatus check on a partially-settled
       // invoice.
-      if (isReceipt && salesInvoiceIds.length > 0) {
+      if (isAR && salesInvoiceIds.length > 0) {
         const rows = await trx
           .selectFrom("salesInvoice")
           .select(["id", "status", "customerId"])
@@ -385,21 +397,21 @@ serve(async (req: Request) => {
           .execute();
         const totals = await trx
           .selectFrom("salesInvoices")
-          .select(["id", "totalAmount"])
+          .select(["id", "totalAmount", "balance"])
           .where("id", "in", salesInvoiceIds)
           .execute();
-        const totalById = new Map(
-          totals.map((t) => [t.id, Number(t.totalAmount)])
-        );
+        const viewById = new Map(totals.map((t) => [t.id, t]));
         for (const r of rows) {
+          const v = viewById.get(r.id);
           invoiceById.set(r.id, {
             status: r.status as string,
-            totalAmount: totalById.get(r.id) ?? 0,
+            totalAmount: Number(v?.totalAmount ?? 0),
+            balance: Number(v?.balance ?? 0),
             partyId: r.customerId,
           });
         }
       }
-      if (!isReceipt && purchaseInvoiceIds.length > 0) {
+      if (!isAR && purchaseInvoiceIds.length > 0) {
         const rows = await trx
           .selectFrom("purchaseInvoice")
           .select(["id", "status", "supplierId"])
@@ -408,87 +420,32 @@ serve(async (req: Request) => {
           .execute();
         const totals = await trx
           .selectFrom("purchaseInvoices")
-          .select(["id", "totalAmount"])
+          .select(["id", "totalAmount", "balance"])
           .where("id", "in", purchaseInvoiceIds)
           .execute();
-        const totalById = new Map(
-          totals.map((t) => [t.id, Number(t.totalAmount)])
-        );
+        const viewById = new Map(totals.map((t) => [t.id, t]));
         for (const r of rows) {
+          const v = viewById.get(r.id);
           invoiceById.set(r.id, {
             status: r.status as string,
-            totalAmount: totalById.get(r.id) ?? 0,
+            totalAmount: Number(v?.totalAmount ?? 0),
+            balance: Number(v?.balance ?? 0),
             partyId: r.supplierId,
           });
-        }
-      }
-
-      // Prior settled from OTHER posted payments, read under the same lock.
-      const priorSettledByInvoice = new Map<string, number>();
-      if (isReceipt && salesInvoiceIds.length > 0) {
-        const rows = await trx
-          .selectFrom("paymentApplication as pa")
-          .innerJoin("payment as p", "p.id", "pa.paymentId")
-          .select([
-            "pa.salesInvoiceId as invId",
-            "pa.appliedAmount",
-            "pa.discountAmount",
-            "pa.writeOffAmount",
-          ])
-          .where("p.status", "=", "Posted")
-          .where("pa.salesInvoiceId", "in", salesInvoiceIds)
-          .execute();
-        for (const r of rows) {
-          if (!r.invId) continue;
-          priorSettledByInvoice.set(
-            r.invId,
-            (priorSettledByInvoice.get(r.invId) ?? 0) +
-              Number(r.appliedAmount) +
-              Number(r.discountAmount) +
-              Number(r.writeOffAmount)
-          );
-        }
-      } else if (!isReceipt && purchaseInvoiceIds.length > 0) {
-        const rows = await trx
-          .selectFrom("paymentApplication as pa")
-          .innerJoin("payment as p", "p.id", "pa.paymentId")
-          .select([
-            "pa.purchaseInvoiceId as invId",
-            "pa.appliedAmount",
-            "pa.discountAmount",
-            "pa.writeOffAmount",
-          ])
-          .where("p.status", "=", "Posted")
-          .where("pa.purchaseInvoiceId", "in", purchaseInvoiceIds)
-          .execute();
-        for (const r of rows) {
-          if (!r.invId) continue;
-          priorSettledByInvoice.set(
-            r.invId,
-            (priorSettledByInvoice.get(r.invId) ?? 0) +
-              Number(r.appliedAmount) +
-              Number(r.discountAmount) +
-              Number(r.writeOffAmount)
-          );
         }
       }
 
       // Validate each application against the locked invoice state.
       const currentSettledByInvoice = new Map<string, number>();
       for (const app of applications.data) {
-        const invId = (isReceipt
-          ? app.salesInvoiceId
-          : app.purchaseInvoiceId) as string;
+        const invId = (isAR
+          ? app.targetSalesInvoiceId
+          : app.targetPurchaseInvoiceId) as string;
         const inv = invoiceById.get(invId);
         if (!inv) throw new Error(`Invoice ${invId} not found`);
         if (inv.partyId !== paymentPartyId) {
           throw new Error(
-            `Invoice ${invId} belongs to a different ${isReceipt ? "customer" : "supplier"} than the payment`
-          );
-        }
-        if (inv.status !== activeStatus) {
-          throw new Error(
-            `Cannot apply payment to invoice ${invId} in status ${inv.status} (must be ${activeStatus})`
+            `Invoice ${invId} belongs to a different ${isAR ? "customer" : "supplier"} than the payment`
           );
         }
         const settledByThisApp =
@@ -499,9 +456,19 @@ serve(async (req: Request) => {
           invId,
           (currentSettledByInvoice.get(invId) ?? 0) + settledByThisApp
         );
-        const remainingOpen =
-          inv.totalAmount - (priorSettledByInvoice.get(invId) ?? 0);
         const wouldSettle = currentSettledByInvoice.get(invId)!;
+
+        if (inv.status !== activeStatus) {
+          throw new Error(
+            `Cannot apply payment to invoice ${invId} in status ${inv.status} (must be ${activeStatus})`
+          );
+        }
+        // The view balance nets ALL posted settlements against this invoice —
+        // cash AND credit/debit memos — so it's the true remaining open. (The
+        // current Draft payment isn't posted, so its own applications aren't in
+        // it yet.) Capping against it prevents over-settling an invoice already
+        // (partly) cleared by a memo.
+        const remainingOpen = inv.balance;
         if (wouldSettle > remainingOpen + 0.0001) {
           throw new Error(
             `Application total (${wouldSettle}) exceeds remaining open amount (${remainingOpen}) on invoice ${invId}`
@@ -514,7 +481,7 @@ serve(async (req: Request) => {
       // their OTHER posted payments. Lock those payments FOR UPDATE so two
       // concurrent credit-consuming posts can't both spend the same credit.
       if (overAppliedBase > 0.0001) {
-        const postedPayments = await (isReceipt
+        const postedPayments = await (isAR
           ? trx
               .selectFrom("payment")
               .select(["id", "totalAmount", "exchangeRate"])
@@ -536,8 +503,8 @@ serve(async (req: Request) => {
         if (postedPayments.length > 0) {
           const postedIds = postedPayments.map((p) => p.id);
           const priorApps = await trx
-            .selectFrom("paymentApplication")
-            .select(["paymentId", "appliedAmount", "paymentExchangeRate"])
+            .selectFrom("invoiceSettlement")
+            .select(["paymentId", "appliedAmount", "sourceExchangeRate"])
             .where("paymentId", "in", postedIds)
             .execute();
           const appliedBaseByPayment = new Map<string, number>();
@@ -545,7 +512,7 @@ serve(async (req: Request) => {
             appliedBaseByPayment.set(
               a.paymentId,
               (appliedBaseByPayment.get(a.paymentId) ?? 0) +
-                Number(a.appliedAmount) * Number(a.paymentExchangeRate)
+                Number(a.appliedAmount) * Number(a.sourceExchangeRate)
             );
           }
           for (const p of postedPayments) {
@@ -557,7 +524,7 @@ serve(async (req: Request) => {
 
         if (overAppliedBase > round4(availableCreditBase) + 0.0001) {
           throw new Error(
-            `Applied exceeds payment cash by ${overAppliedBase} in base currency, but only ${round4(availableCreditBase)} of on-account credit is available for this ${isReceipt ? "customer" : "supplier"}`
+            `Applied exceeds payment cash by ${overAppliedBase} in base currency, but only ${round4(availableCreditBase)} of on-account credit is available for this ${isAR ? "customer" : "supplier"}`
           );
         }
       }

@@ -7,6 +7,7 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useParams } from "react-router";
 import { PanelProvider, ResizablePanels } from "~/components/Layout";
 import {
+  getCompanyHasOpenCredits,
   getPurchaseInvoice,
   getPurchaseInvoiceDelivery,
   getPurchaseInvoiceLines,
@@ -52,7 +53,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  const [supplier, interaction, files] = await Promise.all([
+  const [supplier, interaction, files, orgHasCredits] = await Promise.all([
     purchaseInvoice.data?.supplierId
       ? getSupplier(client, purchaseInvoice.data.supplierId)
       : null,
@@ -61,7 +62,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       client,
       companyId,
       purchaseInvoice.data.supplierInteractionId!
-    )
+    ),
+    getCompanyHasOpenCredits(client, companyId, "purchase")
   ]);
 
   return {
@@ -70,7 +72,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     purchaseInvoiceDelivery: purchaseInvoiceDelivery.data,
     files,
     interaction: interaction.data,
-    supplier: supplier?.data ?? null
+    supplier: supplier?.data ?? null,
+    orgHasCredits
   };
 }
 

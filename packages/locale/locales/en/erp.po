@@ -492,6 +492,10 @@ msgstr "Always"
 msgid "Amount"
 msgstr "Amount"
 
+#. placeholder {0}: r.memoId
+msgid "Amount to apply for {0}"
+msgstr "Amount to apply for {0}"
+
 msgid "Amount Type"
 msgstr "Amount Type"
 
@@ -549,9 +553,6 @@ msgstr "API Keys"
 msgid "API keys for programmatic access to your Carbon data."
 msgstr "API keys for programmatic access to your Carbon data."
 
-msgid "Applications"
-msgstr "Applications"
-
 msgid "Applied"
 msgstr "Applied"
 
@@ -571,11 +572,23 @@ msgstr "Applies to all"
 msgid "Applies to all work centers"
 msgstr "Applies to all work centers"
 
+msgid "Apply available credits"
+msgstr "Apply available credits"
+
+msgid "Apply Credit"
+msgstr "Apply Credit"
+
+msgid "Apply credits"
+msgstr "Apply credits"
+
 msgid "Apply pricing rules"
 msgstr "Apply pricing rules"
 
 msgid "Apply To"
 msgstr "Apply To"
+
+msgid "Apply to invoice"
+msgstr "Apply to invoice"
 
 msgid "Apply to invoices"
 msgstr "Apply to invoices"
@@ -690,9 +703,9 @@ msgstr "Are you sure you want to delete {0} from this operation? This cannot be 
 msgid "Are you sure you want to delete {0}?"
 msgstr "Are you sure you want to delete {0}?"
 
+#. placeholder {0}: initialValues.memoId
 #. placeholder {0}: initialValues.paymentId
 #. placeholder {0}: pickingList.pickingListId
-#. placeholder {0}: routeData?.consumableSummary?.readableIdWithRevision
 msgid "Are you sure you want to delete {0}? This cannot be undone."
 msgstr "Are you sure you want to delete {0}? This cannot be undone."
 
@@ -1447,6 +1460,9 @@ msgstr "Clear search"
 msgid "Clear search query"
 msgstr "Clear search query"
 
+msgid "Clear this invoice with the party's posted credits as well as cash. Credits apply directly — no posting needed."
+msgstr "Clear this invoice with the party's posted credits as well as cash. Credits apply directly — no posting needed."
+
 msgid "Click to upload a PDF drawing"
 msgstr "Click to upload a PDF drawing"
 
@@ -2103,6 +2119,18 @@ msgstr "Created work center"
 msgid "Creating part..."
 msgstr "Creating part..."
 
+msgid "Credit"
+msgstr "Credit"
+
+msgid "Credit / Debit Memos"
+msgstr "Credit / Debit Memos"
+
+msgid "Credits & Debits"
+msgstr "Credits & Debits"
+
+msgid "Credits applied"
+msgstr "Credits applied"
+
 msgid "CSV column"
 msgstr "CSV column"
 
@@ -2455,6 +2483,9 @@ msgstr "Delete Material Shape"
 msgid "Delete Material Type"
 msgstr "Delete Material Type"
 
+msgid "Delete Memo"
+msgstr "Delete Memo"
+
 msgid "Delete Part"
 msgstr "Delete Part"
 
@@ -2661,6 +2692,12 @@ msgstr "Dimensions"
 
 msgid "Direct"
 msgstr "Direct"
+
+msgid "Direction"
+msgstr "Direction"
+
+msgid "Directions"
+msgstr "Directions"
 
 msgid "Disabled"
 msgstr "Disabled"
@@ -2954,6 +2991,9 @@ msgstr "Edit Material Substance"
 
 msgid "Edit Material Type"
 msgstr "Edit Material Type"
+
+msgid "Edit Memo"
+msgstr "Edit Memo"
 
 msgid "Edit Non Conformance Type"
 msgstr "Edit Non Conformance Type"
@@ -4902,6 +4942,12 @@ msgstr "Members"
 msgid "Memo"
 msgstr "Memo"
 
+msgid "Memo Date"
+msgstr "Memo Date"
+
+msgid "Memo ID"
+msgstr "Memo ID"
+
 msgid "MES"
 msgstr "MES"
 
@@ -5104,6 +5150,9 @@ msgstr "New Consumable"
 
 msgid "New Contractor"
 msgstr "New Contractor"
+
+msgid "New Credit / Debit Memo"
+msgstr "New Credit / Debit Memo"
 
 msgid "New Custom Field"
 msgstr "New Custom Field"
@@ -5932,6 +5981,9 @@ msgstr "Partners"
 msgid "Parts"
 msgstr "Parts"
 
+msgid "Party Type"
+msgstr "Party Type"
+
 msgid "Pass"
 msgstr "Pass"
 
@@ -5950,6 +6002,9 @@ msgstr "Payables aging"
 msgid "Payment"
 msgstr "Payment"
 
+msgid "Payment Applications"
+msgstr "Payment Applications"
+
 msgid "Payment Date"
 msgstr "Payment Date"
 
@@ -5967,6 +6022,9 @@ msgstr "Payment Terms"
 
 msgid "Payments"
 msgstr "Payments"
+
+msgid "Payments and credits applied to this invoice. Click a row to open the source document."
+msgstr "Payments and credits applied to this invoice. Click a row to open the source document."
 
 msgid "PDF"
 msgstr "PDF"
@@ -6174,9 +6232,6 @@ msgstr "Posted"
 
 msgid "Posted By"
 msgstr "Posted By"
-
-msgid "Posted payments that have applied to this invoice. Click a row to open the payment."
-msgstr "Posted payments that have applied to this invoice. Click a row to open the payment."
 
 msgid "Posting Date"
 msgstr "Posting Date"
@@ -6572,6 +6627,9 @@ msgstr "Ready for Quote"
 msgid "Reason"
 msgstr "Reason"
 
+msgid "Reason Account"
+msgstr "Reason Account"
+
 msgid "Reason for declining (Optional)"
 msgstr "Reason for declining (Optional)"
 
@@ -6655,6 +6713,9 @@ msgstr "Recently Created"
 msgid "Record"
 msgstr "Record"
 
+msgid "Record a credit or debit memo against a customer or supplier. Applications to specific invoices are added after the memo is created."
+msgstr "Record a credit or debit memo against a customer or supplier. Applications to specific invoices are added after the memo is created."
+
 msgid "Record cash received from a customer (Receipt) or paid to a supplier (Disbursement). Applications to specific invoices are added after the payment is created."
 msgstr "Record cash received from a customer (Receipt) or paid to a supplier (Disbursement). Applications to specific invoices are added after the payment is created."
 
@@ -6705,6 +6766,9 @@ msgstr "Release Job"
 
 msgid "Released"
 msgstr "Released"
+
+msgid "Remaining"
+msgstr "Remaining"
 
 msgid "Remaining after split stays on the original row."
 msgstr "Remaining after split stays on the original row."
@@ -7302,6 +7366,9 @@ msgstr "Select Gauge"
 
 msgid "Select groups or individuals"
 msgstr "Select groups or individuals"
+
+msgid "Select invoice"
+msgstr "Select invoice"
 
 msgid "Select invoices from a single counterparty"
 msgstr "Select invoices from a single counterparty"
@@ -8207,6 +8274,9 @@ msgstr "There are no active supplier quotes to compare for this RFQ."
 msgid "There are outside operations associated with this job that have no suppliers. Please assign a supplier to each outside operation before releasing it."
 msgstr "There are outside operations associated with this job that have no suppliers. Please assign a supplier to each outside operation before releasing it."
 
+msgid "There's nothing outstanding to apply these credits to."
+msgstr "There's nothing outstanding to apply these credits to."
+
 msgid "These custom fields will only be available for entities with the same tags"
 msgstr "These custom fields will only be available for entities with the same tags"
 
@@ -8882,6 +8952,9 @@ msgstr "View Lists"
 
 msgid "View maintenance dispatch"
 msgstr "View maintenance dispatch"
+
+msgid "View Memo"
+msgstr "View Memo"
 
 msgid "View missing values"
 msgstr "View missing values"

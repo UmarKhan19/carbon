@@ -2,7 +2,7 @@
 -- AR & AP aging reports
 --
 -- Per-counterparty bucketed open amounts derived from the same
--- paymentApplication subledger the tie-out uses. Buckets and the
+-- invoiceSettlement subledger the tie-out uses. Buckets and the
 -- age basis (due date vs document date) are parameters so the UI
 -- can offer the standard NetSuite/SAP toggles without a schema
 -- change.
@@ -56,9 +56,9 @@ AS $$
       END AS age_date,
       (si."totalAmount" - COALESCE((
         SELECT SUM(pa."appliedAmount" + pa."discountAmount" + pa."writeOffAmount")
-        FROM "paymentApplication" pa
+        FROM "invoiceSettlement" pa
         JOIN "payment" p ON p."id" = pa."paymentId"
-        WHERE pa."salesInvoiceId" = si."id"
+        WHERE pa."targetSalesInvoiceId" = si."id"
           AND p."status" = 'Posted'
           -- Reconcile on payment.postingDate (matches the tie-out report),
           -- not the free-form appliedDate.
@@ -98,7 +98,7 @@ AS $$
       -COALESCE(SUM(
         (p."totalAmount" - COALESCE((
           SELECT SUM(pa."appliedAmount")
-          FROM "paymentApplication" pa
+          FROM "invoiceSettlement" pa
           WHERE pa."paymentId" = p."id"
         ), 0)) * p."exchangeRate"
       ), 0) AS "unapplied"
@@ -174,9 +174,9 @@ AS $$
       END AS age_date,
       (pi."totalAmount" - COALESCE((
         SELECT SUM(pa."appliedAmount" + pa."discountAmount" + pa."writeOffAmount")
-        FROM "paymentApplication" pa
+        FROM "invoiceSettlement" pa
         JOIN "payment" p ON p."id" = pa."paymentId"
-        WHERE pa."purchaseInvoiceId" = pi."id"
+        WHERE pa."targetPurchaseInvoiceId" = pi."id"
           AND p."status" = 'Posted'
           -- See AR note: reconcile on payment.postingDate, not appliedDate.
           AND p."postingDate" <= _as_of_date
@@ -215,7 +215,7 @@ AS $$
       -COALESCE(SUM(
         (p."totalAmount" - COALESCE((
           SELECT SUM(pa."appliedAmount")
-          FROM "paymentApplication" pa
+          FROM "invoiceSettlement" pa
           WHERE pa."paymentId" = p."id"
         ), 0)) * p."exchangeRate"
       ), 0) AS "unapplied"
