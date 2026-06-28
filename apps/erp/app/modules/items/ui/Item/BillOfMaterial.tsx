@@ -115,7 +115,11 @@ type Material = z.infer<typeof methodMaterialValidator> & {
   };
 };
 
-type Operation = z.infer<typeof methodOperationValidator>;
+type Operation = z.infer<typeof methodOperationValidator> & {
+  // The same operations data BillOfProcess gets — carries its steps at runtime, so the
+  // BoM editor can offer a per-step assignment (Phase 2). Narrow type, optional here.
+  methodOperationStep?: { id: string; name: string | null }[];
+};
 
 type ItemWithData = SortableItem & {
   data: Material;
@@ -662,6 +666,7 @@ function MaterialForm({
     description: string;
     unitOfMeasureCode: string;
     methodOperationId: string | undefined;
+    methodOperationStepId?: string | undefined;
     quantity: number;
     kit: boolean;
     storageUnitIds: Record<string, string>;
@@ -675,6 +680,7 @@ function MaterialForm({
     description: item.data.description ?? "",
     unitOfMeasureCode: item.data.unitOfMeasureCode ?? "EA",
     methodOperationId: item.data.methodOperationId ?? undefined,
+    methodOperationStepId: item.data.methodOperationStepId ?? undefined,
     quantity: item.data.quantity ?? 1,
     kit: item.data.kit ?? false,
     storageUnitIds: item.data.storageUnitIds ?? {},
@@ -1105,10 +1111,39 @@ function MaterialForm({
             onChange={(value) => {
               setItemData((d) => ({
                 ...d,
-                methodOperationId: value?.value
+                methodOperationId: value?.value,
+                // Step belongs to an operation — clear it when the operation changes.
+                methodOperationStepId: undefined
               }));
             }}
           />
+          {/* Phase 2 (part ↔ step): scope this material to a single step of the chosen
+              operation so the MES shows only the parts involved in that step. Empty =
+              whole operation. */}
+          {(() => {
+            const operationSteps =
+              methodOperations.find(
+                (o) => o.id === itemData.methodOperationId
+              )?.methodOperationStep ?? [];
+            if (operationSteps.length === 0) return null;
+            return (
+              <Select
+                name="methodOperationStepId"
+                label={t`Step`}
+                isOptional
+                options={operationSteps.map((s) => ({
+                  value: s.id,
+                  label: s.name ?? t`Step`
+                }))}
+                onChange={(value) =>
+                  setItemData((d) => ({
+                    ...d,
+                    methodOperationStepId: value?.value
+                  }))
+                }
+              />
+            );
+          })()}
         </div>
       </div>
 
