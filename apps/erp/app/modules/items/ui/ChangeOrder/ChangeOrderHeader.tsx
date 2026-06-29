@@ -50,7 +50,7 @@ const ChangeOrderHeader = () => {
 
   const isLocked = isChangeOrderLocked(status);
   const canDecide =
-    status === "In Review" && permissions.can("update", "plm");
+    status === "In Review" && permissions.can("update", "production");
 
   return (
     <>
@@ -83,7 +83,7 @@ const ChangeOrderHeader = () => {
                 <DropdownMenuItem
                   destructive
                   disabled={
-                    !permissions.can("delete", "plm") ||
+                    !permissions.can("delete", "production") ||
                     !permissions.is("employee") ||
                     isLocked
                   }
@@ -110,7 +110,7 @@ const ChangeOrderHeader = () => {
               isDisabled={
                 status !== "Draft" ||
                 statusFetcher.state !== "idle" ||
-                !permissions.can("update", "plm")
+                !permissions.can("update", "production")
               }
               isLoading={
                 statusFetcher.state !== "idle" &&
@@ -152,7 +152,7 @@ const ChangeOrderHeader = () => {
               isDisabled={
                 status !== "Approved" ||
                 releaseFetcher.state !== "idle" ||
-                !permissions.can("update", "plm")
+                !permissions.can("update", "production")
               }
               isLoading={releaseFetcher.state !== "idle"}
             >

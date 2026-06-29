@@ -26,7 +26,7 @@ export const handle: Handle = {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { client, companyId } = await requirePermissions(request, {
-    view: "plm"
+    view: "production"
   });
 
   const [types, workflows] = await Promise.all([
@@ -51,7 +51,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
   const { companyId, userId } = await requirePermissions(request, {
-    create: "plm"
+    create: "production"
   });
 
   const serviceRole = await getCarbonServiceRole();

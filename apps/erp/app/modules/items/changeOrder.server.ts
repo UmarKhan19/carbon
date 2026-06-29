@@ -398,9 +398,7 @@ async function flattenMaterials(
       itemReadableId: m.itemId,
       description: m.item?.name ?? null,
       quantity: m.quantity,
-      unitOfMeasureCode: m.unitOfMeasureCode,
-      referenceDesignators: m.referenceDesignators ?? null,
-      itemNumber: m.itemNumber ?? null
+      unitOfMeasureCode: m.unitOfMeasureCode
     });
 
     if (m.materialMakeMethodId) {

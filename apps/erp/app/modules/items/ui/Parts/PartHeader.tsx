@@ -72,7 +72,7 @@ const PartHeader = () => {
               <DropdownMenuContent>
                 {auditLogTrigger}
                 <DropdownMenuItem
-                  disabled={!permissions.can("create", "plm")}
+                  disabled={!permissions.can("create", "production")}
                   onClick={() =>
                     navigate(`${path.to.newChangeOrder}?itemId=${itemId}`)
                   }

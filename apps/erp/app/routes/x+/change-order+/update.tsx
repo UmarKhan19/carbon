@@ -5,7 +5,7 @@ import { requireUnlockedBulk } from "~/utils/lockedGuard.server";
 
 export async function action({ request }: ActionFunctionArgs) {
   const { client, userId } = await requirePermissions(request, {
-    update: "plm"
+    update: "production"
   });
 
   const formData = await request.formData();

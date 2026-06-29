@@ -22,8 +22,6 @@ export type Material = {
   description?: string | null;
   quantity?: number | null;
   unitOfMeasureCode?: string | null;
-  referenceDesignators?: string | null;
-  itemNumber?: string | null;
 };
 
 export type Operation = {
@@ -65,7 +63,8 @@ const ROW_CLASSES: Record<DiffKind, string> = {
   added:
     "bg-emerald-100/50 dark:bg-emerald-500/10 border-l-2 border-emerald-500/60",
   removed: "bg-red-100/50 dark:bg-red-500/10 border-l-2 border-red-500/60",
-  changed: "bg-yellow-100/50 dark:bg-yellow-500/10 border-l-2 border-yellow-500/60",
+  changed:
+    "bg-yellow-100/50 dark:bg-yellow-500/10 border-l-2 border-yellow-500/60",
   unchanged: "border-l-2 border-transparent"
 };
 
@@ -86,7 +85,9 @@ function materialTitle(m: Material): string {
 }
 
 function operationTitle(o: Operation): string {
-  return o.description ?? (o.order != null ? `Operation ${o.order}` : "Operation");
+  return (
+    o.description ?? (o.order != null ? `Operation ${o.order}` : "Operation")
+  );
 }
 
 function buildField(
@@ -177,18 +178,6 @@ function buildMaterialRows(
         kind
       ),
       buildField(
-        "Item No.",
-        fmt(before?.itemNumber),
-        fmt(after?.itemNumber),
-        kind
-      ),
-      buildField(
-        "Ref Des",
-        fmt(before?.referenceDesignators),
-        fmt(after?.referenceDesignators),
-        kind
-      ),
-      buildField(
         "Description",
         fmt(before?.description),
         fmt(after?.description),
@@ -209,12 +198,7 @@ function buildOperationRows(
     (o) => `${o.order ?? ""}|${o.description ?? ""}`,
     operationTitle,
     (before, after, kind) => [
-      buildField(
-        "Sequence",
-        fmt(before?.order),
-        fmt(after?.order),
-        kind
-      ),
+      buildField("Sequence", fmt(before?.order), fmt(after?.order), kind),
       buildField(
         "Work Center",
         fmt(before?.workCenter),
@@ -398,8 +382,14 @@ export default function RedlineDiff({
       </div>
       {hasChanges ? (
         <div className="flex flex-col">
-          <DiffSection title={<Trans>Materials (BOM)</Trans>} rows={materialRows} />
-          <DiffSection title={<Trans>Operations (BOP)</Trans>} rows={operationRows} />
+          <DiffSection
+            title={<Trans>Materials (BOM)</Trans>}
+            rows={materialRows}
+          />
+          <DiffSection
+            title={<Trans>Operations (BOP)</Trans>}
+            rows={operationRows}
+          />
         </div>
       ) : (
         <div className="px-3 py-4 text-sm text-muted-foreground text-center">

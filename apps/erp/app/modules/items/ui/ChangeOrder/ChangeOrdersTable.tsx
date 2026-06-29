@@ -1,5 +1,11 @@
 import { OnshapeLogo } from "@carbon/ee";
-import { Button, HStack, MenuIcon, MenuItem, useDisclosure } from "@carbon/react";
+import {
+  Button,
+  HStack,
+  MenuIcon,
+  MenuItem,
+  useDisclosure
+} from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo, useState } from "react";
@@ -207,7 +213,7 @@ const ChangeOrdersTable = memo(({ data, count }: ChangeOrdersTableProps) => {
       return (
         <>
           <MenuItem
-            disabled={!permissions.can("update", "plm")}
+            disabled={!permissions.can("update", "production")}
             onClick={() => {
               navigate(`${path.to.changeOrder(row.id!)}`);
             }}
@@ -217,7 +223,7 @@ const ChangeOrdersTable = memo(({ data, count }: ChangeOrdersTableProps) => {
           </MenuItem>
           <MenuItem
             destructive
-            disabled={!permissions.can("delete", "plm")}
+            disabled={!permissions.can("delete", "production")}
             onClick={() => {
               flushSync(() => {
                 setSelectedChangeOrder(row);
@@ -241,7 +247,7 @@ const ChangeOrdersTable = memo(({ data, count }: ChangeOrdersTableProps) => {
         columns={columns}
         count={count}
         primaryAction={
-          permissions.can("create", "plm") && (
+          permissions.can("create", "production") && (
             <HStack spacing={2}>
               <Button
                 variant="secondary"

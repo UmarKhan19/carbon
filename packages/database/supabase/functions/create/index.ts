@@ -129,7 +129,7 @@ serve(async (req: Request) => {
 
   const permissionsByType: Record<string, { view?: string | string[]; create?: string | string[]; update?: string | string[]; delete?: string | string[] }> = {
     nonConformanceTasks: { update: "quality" },
-    changeOrderTasks: { update: "plm" },
+    changeOrderTasks: { update: "production" },
     purchaseOrderFromJob: { create: ["purchasing", "production"] },
     receiptDefault: { create: "inventory" },
     receiptFromPurchaseOrder: { create: "inventory" },

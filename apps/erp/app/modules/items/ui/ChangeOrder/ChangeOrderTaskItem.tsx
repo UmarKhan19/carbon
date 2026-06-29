@@ -1,9 +1,9 @@
 import {
   BarProgress,
   Button,
+  cn,
   HStack,
   IconButton,
-  cn,
   useDisclosure
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
@@ -133,7 +133,8 @@ function useChangeOrderTaskStatus({
   );
 
   return {
-    currentStatus: (optimisticStatus ?? task.status) as ChangeOrderTaskStatusEnum,
+    currentStatus: (optimisticStatus ??
+      task.status) as ChangeOrderTaskStatusEnum,
     onStatusChange
   };
 }
@@ -151,7 +152,7 @@ export function ChangeOrderTaskItem({
   const permissions = usePermissions();
   const disclosure = useDisclosure({ defaultIsOpen: false });
 
-  const canEdit = permissions.can("update", "plm") && !isDisabled;
+  const canEdit = permissions.can("update", "production") && !isDisabled;
   const { currentStatus, onStatusChange } = useChangeOrderTaskStatus({
     task,
     type,

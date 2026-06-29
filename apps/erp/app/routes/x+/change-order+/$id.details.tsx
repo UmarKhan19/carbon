@@ -8,9 +8,9 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  generateHTML,
   Spinner,
-  VStack,
-  generateHTML
+  VStack
 } from "@carbon/react";
 import { Suspense } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
@@ -39,7 +39,7 @@ export const handle: Handle = {
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { client, companyId } = await requirePermissions(request, {
-    view: "plm",
+    view: "production",
     bypassRls: true
   });
 
@@ -62,14 +62,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
   const { client, userId } = await requirePermissions(request, {
-    update: "plm"
+    update: "production"
   });
 
   const { id } = params;
   if (!id) throw new Error("Could not find id");
 
   const { client: viewClient, companyId } = await requirePermissions(request, {
-    view: "plm"
+    view: "production"
   });
   const changeOrder = await getChangeOrder(viewClient, id, companyId);
   await requireUnlocked({
@@ -110,10 +110,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   if (result.error) {
     throw redirect(
       path.to.changeOrder(id),
-      await flash(
-        request,
-        error(result.error, "Failed to update change order")
-      )
+      await flash(request, error(result.error, "Failed to update change order"))
     );
   }
 

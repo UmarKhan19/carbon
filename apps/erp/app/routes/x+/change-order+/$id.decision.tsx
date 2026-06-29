@@ -14,7 +14,7 @@ import { notifyChangeOrderTransition } from "~/modules/items/changeOrder.server"
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
   const { client, userId, companyId } = await requirePermissions(request, {
-    update: "plm"
+    update: "production"
   });
 
   const { id } = params;
@@ -45,7 +45,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
       { success: false },
       await flash(
         request,
-        error(result.error, result.error?.message ?? "Failed to record decision")
+        error(
+          result.error,
+          result.error?.message ?? "Failed to record decision"
+        )
       )
     );
   }

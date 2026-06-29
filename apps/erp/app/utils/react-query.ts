@@ -37,11 +37,6 @@ export const accountsQuery = (companyId: string | null) => ({
   staleTime: RefreshRate.Low
 });
 
-export const categoriesQuery = (companyId: string | null) => ({
-  queryKey: ["categories", companyId ?? "null"],
-  staleTime: RefreshRate.Low
-});
-
 export const countriesQuery = () => ({
   queryKey: ["countries"],
   staleTime: RefreshRate.Never

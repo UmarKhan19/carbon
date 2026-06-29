@@ -1,11 +1,11 @@
 import type { Json } from "@carbon/database";
+import { OnshapeLogo } from "@carbon/ee";
 import {
   DatePicker,
   InputControlled,
   Select,
   ValidatedForm
 } from "@carbon/form";
-import { OnshapeLogo } from "@carbon/ee";
 import {
   Badge,
   Button,
@@ -145,7 +145,7 @@ const ChangeOrderProperties = () => {
   );
 
   const disableStructureUpdate =
-    !permissions.can("delete", "plm") || isStarted || isLocked;
+    !permissions.can("delete", "production") || isStarted || isLocked;
 
   return (
     <VStack
@@ -188,9 +188,7 @@ const ChangeOrderProperties = () => {
                   size="sm"
                   className="p-1"
                   onClick={() =>
-                    copyToClipboard(
-                      routeData?.changeOrder?.changeOrderId ?? ""
-                    )
+                    copyToClipboard(routeData?.changeOrder?.changeOrderId ?? "")
                   }
                 >
                   <LuKeySquare className="w-3 h-3" />
@@ -210,9 +208,7 @@ const ChangeOrderProperties = () => {
                   size="sm"
                   className="p-1"
                   onClick={() =>
-                    copyToClipboard(
-                      routeData?.changeOrder?.changeOrderId ?? ""
-                    )
+                    copyToClipboard(routeData?.changeOrder?.changeOrderId ?? "")
                   }
                 >
                   <LuCopy className="w-3 h-3" />
@@ -266,7 +262,7 @@ const ChangeOrderProperties = () => {
           table="changeOrder"
           size="sm"
           value={assignee ?? ""}
-          isReadOnly={!permissions.can("update", "plm")}
+          isReadOnly={!permissions.can("update", "production")}
         />
       </VStack>
 
@@ -402,7 +398,7 @@ const ChangeOrderProperties = () => {
           name="openDate"
           label={t`Open Date`}
           inline
-          isDisabled={!permissions.can("update", "plm") || isLocked}
+          isDisabled={!permissions.can("update", "production") || isLocked}
           onChange={(date) => {
             onUpdate("openDate", date);
           }}
@@ -449,7 +445,7 @@ const ChangeOrderProperties = () => {
           name="dueDate"
           label={t`Due Date`}
           inline
-          isDisabled={!permissions.can("update", "plm") || isLocked}
+          isDisabled={!permissions.can("update", "production") || isLocked}
           onChange={(date) => {
             onUpdate("dueDate", date);
           }}
@@ -471,7 +467,7 @@ const ChangeOrderProperties = () => {
           name="effectiveDate"
           label={t`Effective Date`}
           inline
-          isDisabled={!permissions.can("update", "plm") || isLocked}
+          isDisabled={!permissions.can("update", "production") || isLocked}
           onChange={(date) => {
             onUpdate("effectiveDate", date);
           }}

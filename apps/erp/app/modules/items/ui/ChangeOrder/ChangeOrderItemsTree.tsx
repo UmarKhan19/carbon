@@ -1,7 +1,7 @@
 import {
   Badge,
-  cn,
   Count,
+  cn,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuIcon,
@@ -70,8 +70,8 @@ export default function ChangeOrderItemsTree({
     null
   );
 
-  const canCreate = permissions.can("update", "plm") && !isDisabled;
-  const canDelete = permissions.can("delete", "plm") && !isDisabled;
+  const canCreate = permissions.can("update", "production") && !isDisabled;
+  const canDelete = permissions.can("delete", "production") && !isDisabled;
 
   const onDelete = (item: ChangeOrderItem) => {
     flushSync(() => {

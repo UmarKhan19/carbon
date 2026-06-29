@@ -18,7 +18,7 @@ import { changeOrderTypesQuery, getCompanyId } from "~/utils/react-query";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await requirePermissions(request, {
-    create: "plm"
+    create: "production"
   });
 
   return null;
@@ -27,7 +27,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
   const { client, companyId, userId } = await requirePermissions(request, {
-    create: "plm"
+    create: "production"
   });
 
   const formData = await request.formData();
@@ -54,10 +54,7 @@ export async function action({ request }: ActionFunctionArgs) {
       {},
       await flash(
         request,
-        error(
-          insertChangeOrderType.error,
-          "Failed to insert change order type"
-        )
+        error(insertChangeOrderType.error, "Failed to insert change order type")
       )
     );
   }

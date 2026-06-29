@@ -12,7 +12,7 @@ import {
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
   const { client, companyId, userId } = await requirePermissions(request, {
-    update: "plm"
+    update: "production"
   });
 
   const formData = await request.formData();
@@ -29,7 +29,11 @@ export async function action({ request }: ActionFunctionArgs) {
         return { error: { message: "Item is required" }, data: null };
       }
 
-      const changeOrder = await getChangeOrder(client, changeOrderId, companyId);
+      const changeOrder = await getChangeOrder(
+        client,
+        changeOrderId,
+        companyId
+      );
       if (changeOrder.error || !changeOrder.data) {
         return { error: { message: "Change order not found" }, data: null };
       }

@@ -15,7 +15,7 @@ import { path } from "~/utils/path";
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
   const { client, companyId, userId } = await requirePermissions(request, {
-    create: "plm"
+    create: "production"
   });
   const formData = await request.formData();
   const validation = await validator(changeOrderWorkflowValidator).validate(

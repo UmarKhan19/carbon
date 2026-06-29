@@ -16,7 +16,7 @@ import { path, requestReferrer } from "~/utils/path";
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
   const { client, userId, companyId } = await requirePermissions(request, {
-    update: "plm"
+    update: "production"
   });
 
   const { id } = params;
@@ -67,10 +67,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         requestReferrer(request) ?? path.to.changeOrderDetails(id),
         await flash(
           request,
-          error(
-            null,
-            "Add at least one approver before submitting for review"
-          )
+          error(null, "Add at least one approver before submitting for review")
         )
       );
     }

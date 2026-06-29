@@ -9,7 +9,7 @@ import { removeAffectedItem } from "~/modules/items";
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
   const { client, companyId } = await requirePermissions(request, {
-    delete: "plm"
+    delete: "production"
   });
 
   const { coItemId } = params;

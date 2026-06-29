@@ -51,7 +51,7 @@ const ChangeOrderTypesTable = memo(
         return (
           <>
             <MenuItem
-              disabled={!permissions.can("update", "plm")}
+              disabled={!permissions.can("update", "production")}
               onClick={() => {
                 navigate(
                   `${path.to.changeOrderType(row.id)}?${params.toString()}`
@@ -63,7 +63,7 @@ const ChangeOrderTypesTable = memo(
             </MenuItem>
             <MenuItem
               destructive
-              disabled={!permissions.can("delete", "plm")}
+              disabled={!permissions.can("delete", "production")}
               onClick={() => {
                 navigate(
                   `${path.to.deleteChangeOrderType(row.id)}?${params.toString()}`
@@ -85,7 +85,7 @@ const ChangeOrderTypesTable = memo(
         columns={columns}
         count={count}
         primaryAction={
-          permissions.can("create", "plm") && (
+          permissions.can("create", "production") && (
             <New
               label={t`Type`}
               to={`${path.to.newChangeOrderType}?${params.toString()}`}

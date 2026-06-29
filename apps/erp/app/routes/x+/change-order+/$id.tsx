@@ -32,7 +32,7 @@ export const handle: Handle = {
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { client, companyId } = await requirePermissions(request, {
-    view: "plm",
+    view: "production",
     bypassRls: true
   });
 

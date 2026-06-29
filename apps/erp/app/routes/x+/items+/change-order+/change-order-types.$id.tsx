@@ -19,7 +19,7 @@ import { changeOrderTypesQuery, getCompanyId } from "~/utils/react-query";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { client } = await requirePermissions(request, {
-    view: "plm",
+    view: "production",
     role: "employee"
   });
 
@@ -36,7 +36,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
   const { client, userId } = await requirePermissions(request, {
-    update: "plm"
+    update: "production"
   });
 
   const { id } = params;
@@ -62,10 +62,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       {},
       await flash(
         request,
-        error(
-          updateChangeOrderType.error,
-          "Failed to update change order type"
-        )
+        error(updateChangeOrderType.error, "Failed to update change order type")
       )
     );
   }

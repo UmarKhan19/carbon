@@ -15,7 +15,7 @@ import { notifyChangeOrderTransition } from "~/modules/items/changeOrder.server"
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
   const { client, userId, companyId } = await requirePermissions(request, {
-    update: "plm"
+    update: "production"
   });
 
   const formData = await request.formData();
@@ -95,7 +95,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
   // peer-review threshold whenever a reviewer row reaches Completed, so any
   // reviewer completion can advance the CO to Approved regardless of entry
   // point. Best-effort — never blocks the response.
-  if (type === "review" && status === "Completed" && update.data?.changeOrderId) {
+  if (
+    type === "review" &&
+    status === "Completed" &&
+    update.data?.changeOrderId
+  ) {
     const changeOrderId = update.data.changeOrderId;
     const reeval = await reevaluateChangeOrderApproval(
       client,

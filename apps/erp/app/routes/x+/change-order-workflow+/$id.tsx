@@ -30,7 +30,7 @@ export const handle: Handle = {
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { client } = await requirePermissions(request, {
-    view: "plm",
+    view: "production",
     role: "employee",
     bypassRls: true
   });
@@ -58,7 +58,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
   const { client, userId } = await requirePermissions(request, {
-    update: "plm"
+    update: "production"
   });
   const formData = await request.formData();
   const validation = await validator(changeOrderWorkflowValidator).validate(
@@ -123,7 +123,10 @@ export default function ChangeOrderWorkflowRoute() {
 
   return (
     <ScrollArea className="w-full h-[calc(100dvh-49px)] bg-card">
-      <ChangeOrderWorkflowForm initialValues={initialValues} onClose={onClose} />
+      <ChangeOrderWorkflowForm
+        initialValues={initialValues}
+        onClose={onClose}
+      />
     </ScrollArea>
   );
 }

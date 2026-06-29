@@ -36,7 +36,7 @@ export const handle: Handle = {
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { client, companyId } = await requirePermissions(request, {
-    view: "plm",
+    view: "production",
     bypassRls: true
   });
 
@@ -87,7 +87,7 @@ export default function ChangeOrderAffectedItemRoute() {
     useLoaderData<typeof loader>();
   const fetcher = useFetcher<{ error?: { message: string } | null }>();
 
-  const canEdit = permissions.can("update", "plm");
+  const canEdit = permissions.can("update", "production");
 
   useEffect(() => {
     if (fetcher.data?.error) {

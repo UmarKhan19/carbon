@@ -121,9 +121,7 @@ export const path = {
           `${api}/integrations/onshape/d/${documentId}/v/${versionId}/elements`
         ),
       onShapeReleasedRevisions: (documentId: string) =>
-        generatePath(
-          `${api}/integrations/onshape/d/${documentId}/revisions`
-        ),
+        generatePath(`${api}/integrations/onshape/d/${documentId}/revisions`),
       onShapeSync: `${api}/integrations/onshape/sync`,
       onShapeImport: `${api}/integrations/onshape/import`,
       linearCreateIssue: `${api}/integrations/linear/issue/create`,
@@ -501,9 +499,6 @@ export const path = {
     updateChangeOrderItem: `${x}/change-order/item/update`,
     deleteChangeOrderItem: (coItemId: string) =>
       generatePath(`${x}/change-order/item/delete/${coItemId}`),
-    splitChangeOrderItem: `${x}/change-order/item/split`,
-    assignChangeOrderItemEntities: `${x}/change-order/item/assign-entities`,
-    bulkUpdateChangeOrderWorkflow: `${x}/change-order-workflow/update`,
     bulkUpdatePurchaseOrder: `${x}/purchase-order/update`,
     bulkUpdatePurchasingRfq: `${x}/purchasing-rfq/update`,
     bulkUpdatePurchaseInvoice: `${x}/purchase-invoice/update`,

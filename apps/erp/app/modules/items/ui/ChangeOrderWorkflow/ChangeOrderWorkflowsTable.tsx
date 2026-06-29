@@ -50,7 +50,8 @@ const ChangeOrderWorkflowsTable = memo(
           id: "priority",
           header: t`Default Priority`,
           cell: ({ row }) =>
-            parseChangeOrderWorkflowContent(row.original.content).priority ?? "—",
+            parseChangeOrderWorkflowContent(row.original.content).priority ??
+            "—",
           meta: {
             icon: <LuChartNoAxesColumnIncreasing />
           }
@@ -59,8 +60,8 @@ const ChangeOrderWorkflowsTable = memo(
           id: "approvalType",
           header: t`Approval Type`,
           cell: ({ row }) =>
-            parseChangeOrderWorkflowContent(row.original.content).approvalType ??
-            "—",
+            parseChangeOrderWorkflowContent(row.original.content)
+              .approvalType ?? "—",
           meta: {
             icon: <LuShieldCheck />
           }
@@ -73,7 +74,7 @@ const ChangeOrderWorkflowsTable = memo(
         return (
           <>
             <MenuItem
-              disabled={!permissions.can("update", "plm")}
+              disabled={!permissions.can("update", "production")}
               onClick={() => {
                 navigate(path.to.changeOrderWorkflow(row.id));
               }}
@@ -83,7 +84,7 @@ const ChangeOrderWorkflowsTable = memo(
             </MenuItem>
             <MenuItem
               destructive
-              disabled={!permissions.can("delete", "plm")}
+              disabled={!permissions.can("delete", "production")}
               onClick={() => {
                 flushSync(() => {
                   setSelectedWorkflow(row);
@@ -107,7 +108,7 @@ const ChangeOrderWorkflowsTable = memo(
           columns={columns}
           count={count}
           primaryAction={
-            permissions.can("create", "plm") && (
+            permissions.can("create", "production") && (
               <New label={t`Workflow`} to={path.to.newChangeOrderWorkflow} />
             )
           }

@@ -375,9 +375,7 @@ export const methodMaterialValidator = z.object({
     } catch {
       return {};
     }
-  }),
-  referenceDesignators: zfd.text(z.string().optional()),
-  itemNumber: zfd.text(z.string().optional())
+  })
 });
 
 export const methodOperationValidator = z

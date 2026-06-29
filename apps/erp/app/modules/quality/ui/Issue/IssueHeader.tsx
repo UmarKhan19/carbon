@@ -72,7 +72,7 @@ const IssueHeader = () => {
                 />
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                {permissions.can("create", "plm") && (
+                {permissions.can("create", "production") && (
                   <DropdownMenuItem asChild>
                     <Link
                       to={`${path.to.newChangeOrder}?sourceType=nonConformance&sourceId=${id}&name=${encodeURIComponent(

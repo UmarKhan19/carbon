@@ -66967,7 +66967,6 @@ export type Database = {
         | "Settings"
         | "Users"
         | "Quality"
-        | "PLM"
       month:
         | "January"
         | "February"
@@ -68278,7 +68277,6 @@ export const Constants = {
         "Settings",
         "Users",
         "Quality",
-        "PLM",
       ],
       month: [
         "January",

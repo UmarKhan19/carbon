@@ -41,8 +41,8 @@ const ChangeOrderTypeForm = ({
 
   const isEditing = initialValues.id !== undefined;
   const isDisabled = isEditing
-    ? !permissions.can("update", "plm")
-    : !permissions.can("create", "plm");
+    ? !permissions.can("update", "production")
+    : !permissions.can("create", "production");
 
   useEffect(() => {
     if (type !== "modal") return;

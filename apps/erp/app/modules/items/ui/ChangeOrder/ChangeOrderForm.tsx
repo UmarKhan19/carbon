@@ -202,9 +202,7 @@ const ChangeOrderForm = ({
                     setWorkflow((prev) => ({
                       ...prev,
                       approvers: selections.map((item) =>
-                        "users" in item
-                          ? `group_${item.id}`
-                          : `user_${item.id}`
+                        "users" in item ? `group_${item.id}` : `user_${item.id}`
                       )
                     }));
                   }}
@@ -233,8 +231,8 @@ const ChangeOrderForm = ({
           <Submit
             isDisabled={
               isEditing
-                ? !permissions.can("update", "plm")
-                : !permissions.can("create", "plm")
+                ? !permissions.can("update", "production")
+                : !permissions.can("create", "production")
             }
           >
             Save
