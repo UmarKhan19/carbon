@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-26T04:49:29.455Z",
-  "totalTools": 1219,
+  "generated": "2026-06-29T10:40:00.802Z",
+  "totalTools": 1221,
   "modules": 15,
   "tools": [
     {
@@ -3599,6 +3599,48 @@
       }
     },
     {
+      "name": "inventory_getItemLedgerActivity",
+      "module": "inventory",
+      "classification": "READ",
+      "description": "get item ledger activity",
+      "paramCount": 5,
+      "serviceParams": [
+        "client",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "omit to start from the newest entry. */\n    entryNumber": {
+            "type": "number"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "older",
+              "newer"
+            ]
+          },
+          "/** include the cursor row itself (used for the anchored first load). */\n    inclusive": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "itemId",
+          "locationId"
+        ]
+      }
+    },
+    {
       "name": "inventory_getBatchProperties",
       "module": "inventory",
       "classification": "READ",
@@ -4625,6 +4667,45 @@
           "locationId",
           "search"
         ]
+      }
+    },
+    {
+      "name": "inventory_getStockMovements",
+      "module": "inventory",
+      "classification": "READ",
+      "description": "get stock movements",
+      "paramCount": 3,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "args": {
+            "type": "object",
+            "properties": {
+              "limit": {
+                "type": "integer",
+                "default": 100
+              },
+              "offset": {
+                "type": "integer",
+                "default": 0
+              },
+              "search": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        }
       }
     },
     {

@@ -78,6 +78,9 @@ type UpOpts = {
    * `crbn up` exits with the command's exit code. No detached daemon to reap.
    */
   run?: string;
+  /** With --run, also remove Docker volumes on teardown (headless: don't leak
+   *  data volumes across dispatches on a long-lived box). */
+  volumes?: boolean;
 };
 
 type Ctx = {
@@ -209,7 +212,8 @@ export async function up(opts: UpOpts = {}) {
       ctx.ports,
       portless,
       opts.run,
-      stripeChild
+      stripeChild,
+      opts.volumes ?? false
     );
     return;
   }
@@ -614,7 +618,8 @@ async function runAppsThenCommand(
   ports: PortMap,
   portless: boolean,
   command: string,
-  stripeChild?: ExecaChildProcess
+  stripeChild?: ExecaChildProcess,
+  cleanVolumes = false
 ) {
   const controller = new AbortController();
   const appsDone = spawnApps({
@@ -642,7 +647,7 @@ async function runAppsThenCommand(
     controller.abort(); // stop the app supervisors
     await appsDone;
     killStripe(stripeChild);
-    await down({ silent: true });
+    await down({ silent: true, volumes: cleanVolumes });
     detach();
   }
   process.exitCode = exitCode;

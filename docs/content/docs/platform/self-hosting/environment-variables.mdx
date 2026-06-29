@@ -53,10 +53,14 @@ Sign-in bot protection uses Cloudflare Turnstile: `CLOUDFLARE_TURNSTILE_SITE_KEY
 
 <EnvVars>
 <EnvVar name="REDIS_URL" type="url" required>Redis connection (ioredis URL) for the permission cache and queues.</EnvVar>
-<EnvVar name="INNGEST_SIGNING_KEY" type="string">Signs requests to the Inngest jobs runner.</EnvVar>
-<EnvVar name="INNGEST_EVENT_KEY" type="string">Key for sending events to Inngest.</EnvVar>
+<EnvVar name="INNGEST_SIGNING_KEY" type="string">Signs requests to the Inngest jobs runner. Required in production.</EnvVar>
+<EnvVar name="INNGEST_EVENT_KEY" type="string">Key for sending events to Inngest. Required in production.</EnvVar>
 <EnvVar name="INNGEST_BASE_URL" type="url">Override the Inngest endpoint (self-hosted or dev).</EnvVar>
 </EnvVars>
+
+<Callout type="warn" title="Inngest keys are required in production">
+`INNGEST_SIGNING_KEY` and `INNGEST_EVENT_KEY` are only optional in development, where `INNGEST_DEV=1` is set. Without `INNGEST_DEV`, the app fails to boot if either is missing, and no background jobs (MRP, scheduling, notifications, integration syncs) or queued events run. A self-hosted Inngest server supplies both. The Docker with Caddy recipe generates them for you.
+</Callout>
 
 ## Email & billing
 

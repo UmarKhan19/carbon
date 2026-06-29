@@ -1,15 +1,15 @@
 import { mkdtempSync, readdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { join } from "node:path";
 import type { Binding } from "../binding";
+import { hostedScreenshotPath, screenshotsDir } from "../layout";
 import { readLedger } from "../ledger";
 import { sq } from "./shell";
 import type { Shell } from "./types";
 
 /** Screenshot files the behavior gate captured for this loop, if any. */
-function screenshots(ledgerPath: string): string[] {
+function screenshots(dir: string): string[] {
   try {
-    const dir = join(dirname(ledgerPath), "screenshots");
     return readdirSync(dir)
       .filter((f) => /\.(png|jpe?g|gif)$/i.test(f))
       .map((f) => join(dir, f))
@@ -25,7 +25,7 @@ const ARTIFACTS_BRANCH = "loop-artifacts";
  * Host the loop's screenshots so they render inline in the PR. Loop artifacts
  * must not pollute the product tree (the conductor guardrail), so they live on
  * ONE shared, non-merging `loop-artifacts` branch (gh-pages style) under
- * `llm/loops/<id>/screenshots/` — appended via a temp index on the branch tip so
+ * `llm/loops/runs/<id>/screenshots/` — appended via a temp index on the branch tip so
  * earlier loops' artifacts survive. All git plumbing, no checkout / working-tree
  * change. Returns raw URLs GitHub renders, or null on any failure so the caller
  * falls back to listing paths rather than failing the PR.
@@ -59,7 +59,7 @@ function hostScreenshots(
     const h = shell(`git hash-object -w ${sq(path)}`, { cwd });
     if (!h.ok || !h.output.trim()) return null;
     const name = path.split("/").pop() ?? "shot.png";
-    const repoPath = `llm/loops/${id}/screenshots/${name}`;
+    const repoPath = hostedScreenshotPath(id, name);
     const add = withIdx(
       `git update-index --add --cacheinfo 100644,${h.output.trim()},${repoPath}`
     );
@@ -144,7 +144,7 @@ export function openPr(
 ): string {
   const ledger = readLedger(ledgerPath);
   const kept = ledger.filter((e) => e.decision === "keep").length;
-  const shots = screenshots(ledgerPath);
+  const shots = screenshots(screenshotsDir(cwd, binding.id));
   const hosted =
     shots.length > 0 ? hostScreenshots(binding.id, shots, shell, cwd) : null;
 
@@ -153,6 +153,7 @@ export function openPr(
     "",
     `**Kind:** ${binding.kind} · **Risk:** ${binding.risk}`,
     "",
+    ...(binding.issue ? [`Closes #${binding.issue}`, ""] : []),
     "### Acceptance",
     ...binding.acceptance.map((c) => `- [x] ${c}`),
     "",
@@ -172,6 +173,15 @@ export function openPr(
   const push = shell("git push -u origin HEAD", { cwd });
   if (!push.ok) throw new Error(`git push failed: ${push.output}`);
 
+  // Idempotent: a PR may already exist for this branch (re-entry — addressing
+  // review feedback in the same worktree). Update its body and return it rather
+  // than failing on `gh pr create`. `gh pr view` errors (ok:false) when none.
+  const existing = shell("gh pr view --json url --jq .url", { cwd });
+  if (existing.ok && existing.output.trim().startsWith("http")) {
+    shell(`gh pr edit --body-file ${sq(bodyFile)}`, { cwd });
+    return firstHttpUrl(existing.output);
+  }
+
   const title = `loop(${binding.id}): ${binding.title}`;
   const baseArg = base ? ` --base ${sq(base)}` : "";
   const r = shell(
@@ -180,11 +190,16 @@ export function openPr(
   );
   if (!r.ok) throw new Error(`gh pr create failed: ${r.output}`);
 
+  return firstHttpUrl(r.output);
+}
+
+/** The last `http…` line in command output (gh prints the URL last). */
+function firstHttpUrl(output: string): string {
   return (
-    r.output
+    output
       .split("\n")
       .map((l) => l.trim())
       .filter((l) => l.startsWith("http"))
-      .at(-1) ?? r.output.trim()
+      .at(-1) ?? output.trim()
   );
 }

@@ -6,6 +6,17 @@ export {
   type GateResult,
   runGates
 } from "./gates";
+export {
+  bindingPath,
+  hostedScreenshotPath,
+  LOOPS_DIR,
+  ledgerPath,
+  logPath,
+  outcomePath,
+  RUNS_DIR,
+  runDir,
+  screenshotsDir
+} from "./layout";
 export { appendLedger, type LedgerEntry, readLedger } from "./ledger";
 export {
   behaviorGate,
@@ -34,3 +45,10 @@ export {
   type Shell,
   type TerminalState
 } from "./runner/types";
+export {
+  listRuns,
+  type PrunePolicy,
+  pruneRuns,
+  type RunSummary,
+  readOutcome
+} from "./runs";

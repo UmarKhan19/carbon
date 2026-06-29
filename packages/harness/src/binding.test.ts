@@ -29,6 +29,16 @@ describe("parseBinding", () => {
     expect(() => parseBinding("---\nkind: bug\n---")).toThrow(/id/);
   });
 
+  it("parses an optional numeric issue, omits it when absent or non-numeric", () => {
+    expect(parseBinding(`${MD}`).issue).toBeUndefined();
+    expect(parseBinding("---\nid: x\nkind: bug\nissue: 450\n---").issue).toBe(
+      450
+    );
+    expect(
+      parseBinding("---\nid: x\nkind: bug\nissue: not-a-number\n---").issue
+    ).toBeUndefined();
+  });
+
   it("strips surrounding quotes from scalars and acceptance items", () => {
     const b = parseBinding(
       `---\nid: "q-1"\nkind: 'bug'\ntitle: "Fix: the thing"\nacceptance:\n- "centers at <640px"\n---`

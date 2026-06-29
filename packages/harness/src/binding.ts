@@ -6,6 +6,9 @@ export type Binding = {
   title: string;
   risk: "low" | "med" | "high";
   acceptance: string[];
+  /** GitHub issue this loop addresses. When set, the PR body gets `Closes #<n>`
+   *  so merging auto-closes the issue (the outer-loop state machine). */
+  issue?: number;
 };
 
 const KINDS: LoopKind[] = ["bug", "feature", "usability", "copy"];
@@ -46,11 +49,16 @@ export function parseBinding(md: string): Binding {
   if (!kind || !KINDS.includes(kind as LoopKind)) {
     throw new Error(`Binding kind must be one of ${KINDS.join("|")}`);
   }
+  const issue =
+    scalars.issue && /^\d+$/.test(scalars.issue)
+      ? Number(scalars.issue)
+      : undefined;
   return {
     id,
     kind: kind as LoopKind,
     title: scalars.title ?? "",
     risk: (scalars.risk as Binding["risk"]) ?? "low",
-    acceptance
+    acceptance,
+    ...(issue !== undefined ? { issue } : {})
   };
 }
