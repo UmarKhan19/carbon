@@ -75,7 +75,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       paymentType,
       partyId
     );
-    const selected = open.filter((inv) => invoiceIds.includes(inv.id));
+    const selected = open.filter((inv) => invoiceIds.includes(inv.id ?? ""));
     if (selected.length > 0) {
       currencyCode = selected[0].currencyCode ?? currencyCode;
       exchangeRate = Number(selected[0].exchangeRate ?? 1);
@@ -169,15 +169,19 @@ export async function action({ request }: ActionFunctionArgs) {
             partyId
           )
         : [];
-      const selected = open.filter((inv) => seedInvoiceIds.includes(inv.id));
+      const selected = open.filter((inv) =>
+        seedInvoiceIds.includes(inv.id ?? "")
+      );
       if (selected.length > 0) {
         await replaceInvoiceSettlements(getDatabaseClient(), {
           paymentId: insert.data.id,
           companyId,
           createdBy: userId,
           applications: selected.map((inv) => ({
-            targetSalesInvoiceId: isReceipt ? inv.id : undefined,
-            targetPurchaseInvoiceId: isReceipt ? undefined : inv.id,
+            targetSalesInvoiceId: isReceipt ? (inv.id ?? undefined) : undefined,
+            targetPurchaseInvoiceId: isReceipt
+              ? undefined
+              : (inv.id ?? undefined),
             appliedAmount: Number(inv.balance ?? 0),
             discountAmount: 0,
             writeOffAmount: 0,

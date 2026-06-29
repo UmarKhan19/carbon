@@ -1,5 +1,5 @@
 {
-  "generated": "2026-06-28T19:12:46.352Z",
+  "generated": "2026-06-29T00:39:58.453Z",
   "totalTools": 1246,
   "modules": 15,
   "tools": [
@@ -8586,12 +8586,21 @@
                 "type": [
                   "string",
                   "null"
+                ],
+                "enum": [
+                  "Credit",
+                  "Debit"
                 ]
               },
               "status": {
                 "type": [
                   "string",
                   "null"
+                ],
+                "enum": [
+                  "Draft",
+                  "Posted",
+                  "Voided"
                 ]
               },
               "counterpartyIds": {

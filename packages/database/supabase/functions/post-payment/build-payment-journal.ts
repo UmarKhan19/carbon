@@ -38,7 +38,7 @@ import { credit, debit } from "../lib/utils.ts";
 
 // A journal line this builder emits. Deliberately self-contained — a pure unit
 // shouldn't depend on the generated DB types, and `journalLine.documentType`'s
-// "Payment" enum value (migration 20260622143012) isn't in the generated
+// "Payment" enum value (migration 20260628143012) isn't in the generated
 // lib/types.ts until the DB is rebuilt and `db:types` is regenerated. The driver
 // spreads `journalId` on before the Kysely insert.
 export interface PaymentJournalLine {

@@ -50,7 +50,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
     bucketDays,
     result: tieOut.data ?? null,
     aging: aging.data ?? [],
-    open: open.data ?? []
+    open: (open.data ?? []).map((r) => ({
+      ...r,
+      invoiceId: r.documentId,
+      invoiceNumber: r.documentNumber
+    }))
   };
 }
 

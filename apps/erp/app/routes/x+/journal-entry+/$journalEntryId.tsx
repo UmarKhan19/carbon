@@ -102,7 +102,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         .maybeSingle();
       if (doc.data) {
         sourceDocument = {
-          readableId: (doc.data as Record<string, string>)[spec.column],
+          readableId: (doc.data as unknown as Record<string, string>)[
+            spec.column
+          ],
           to: spec.to(documentId)
         };
       }

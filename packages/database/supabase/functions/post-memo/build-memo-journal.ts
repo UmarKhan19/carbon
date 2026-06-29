@@ -51,7 +51,7 @@ export function accountTypeFromClass(glClass: string): AccountType {
 
 // A journal line this builder emits. Self-contained — a pure unit shouldn't
 // depend on the generated DB types, and `journalLine.documentType`'s "Memo" enum
-// value (migration 20260622143012) isn't in the generated lib/types.ts until the
+// value (migration 20260628143012) isn't in the generated lib/types.ts until the
 // DB is rebuilt. The driver spreads `journalId` on before the Kysely insert.
 export interface MemoJournalLine {
   accountId: string;

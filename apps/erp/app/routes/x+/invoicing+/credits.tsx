@@ -29,8 +29,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
     | "Voided"
     | null;
 
-  const { limit, offset, sorts, filters } =
-    getGenericQueryFilters(searchParams);
+  const {
+    limit,
+    offset,
+    sorts,
+    filters = []
+  } = getGenericQueryFilters(searchParams);
 
   // The "Counterparty" column filter spans two columns (customerId OR
   // supplierId), so pull it out of the generic filters and hand it to getMemos,

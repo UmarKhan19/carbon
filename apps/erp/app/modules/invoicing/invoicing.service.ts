@@ -1423,6 +1423,7 @@ export async function getAvailableOnAccountCredit(
 
   const appliedBaseByPayment = new Map<string, number>();
   for (const a of apps.data ?? []) {
+    if (!a.paymentId) continue;
     appliedBaseByPayment.set(
       a.paymentId,
       (appliedBaseByPayment.get(a.paymentId) ?? 0) +
@@ -1590,8 +1591,8 @@ export async function getMemos(
   companyId: string,
   args: GenericQueryFilters & {
     search: string | null;
-    direction: string | null;
-    status: string | null;
+    direction: "Credit" | "Debit" | null;
+    status: "Draft" | "Posted" | "Voided" | null;
     counterpartyIds: string[] | null;
   }
 ) {
