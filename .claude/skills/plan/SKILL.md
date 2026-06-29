@@ -29,11 +29,7 @@ If no spec exists, suggest running `/brainstorm` first.
 
 ## Step 1: Load the Design Spec
 
-<<<<<<< HEAD
-Read the design spec from `claude/plans/[feature-name]-design.md`.
-=======
 Read the design spec from `.claude/scratch/research/[feature-name]-design.md`.
->>>>>>> origin/main
 
 Extract:
 - Data model changes
@@ -163,11 +159,7 @@ Save to `.claude/scratch/plans/[feature-name]-plan.md`:
 # [Feature] Implementation Plan
 
 ## Overview
-<<<<<<< HEAD
-- **Design Spec:** `claude/plans/[feature-name]-design.md`
-=======
 - **Design Spec:** `.claude/scratch/research/[feature-name]-design.md`
->>>>>>> origin/main
 - **Tasks:** N tasks, estimated M minutes
 - **Dependencies:** [diagram or list]
 
