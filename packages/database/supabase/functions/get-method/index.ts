@@ -604,6 +604,8 @@ serve(async (req: Request) => {
             }:${node.data.isRoot ? "undefined" : node.data.methodMaterialId}`;
 
             let methodOperationsToJobOperations: Record<string, string> = {};
+            // method step id -> new job step id, for copying the part ↔ step link (Phase 2)
+            const methodStepsToJobSteps: Record<string, string> = {};
 
             // For child nodes, always include operations regardless of parts flags
             if (!node.data.isRoot || parts.billOfProcess) {
@@ -859,6 +861,16 @@ serve(async (req: Request) => {
                         .returning(["id"])
                         .execute();
 
+                      // Bulk insert preserves order, so insertedSteps[i] ↔
+                      // methodOperationStep[i]: record each method step -> new job step so
+                      // materials can carry the part ↔ step link onto the job (Phase 2).
+                      (methodOperationStep as Array<{ id?: string }>).forEach(
+                        (s, i) => {
+                          const newStepId = insertedSteps[i]?.id;
+                          if (s?.id && newStepId)
+                            methodStepsToJobSteps[s.id] = newStepId;
+                        }
+                      );
                       await copyStepSlides(
                         trx,
                         client,
@@ -1005,6 +1017,11 @@ serve(async (req: Request) => {
                 jobMakeMethodId: parentJobMakeMethodId!,
                 jobOperationId:
                   methodOperationsToJobOperations[child.data.operationId],
+                jobOperationStepId:
+                  methodStepsToJobSteps[
+                    (child.data as { methodOperationStepId?: string | null })
+                      .methodOperationStepId ?? ""
+                  ] ?? null,
                 itemId,
                 itemType,
                 kit: child.data.kit,
@@ -1402,6 +1419,8 @@ serve(async (req: Request) => {
               })) ?? [];
 
             let methodOperationsToJobOperations: Record<string, string> = {};
+            // method step id -> new job step id, for copying the part ↔ step link (Phase 2)
+            const methodStepsToJobSteps: Record<string, string> = {};
 
             if (parts.billOfProcess) {
             if (jobOperationsInserts?.length > 0) {
@@ -1491,6 +1510,16 @@ serve(async (req: Request) => {
                         .returning(["id"])
                         .execute();
 
+                      // Bulk insert preserves order, so insertedSteps[i] ↔
+                      // methodOperationStep[i]: record each method step -> new job step so
+                      // materials can carry the part ↔ step link onto the job (Phase 2).
+                      (methodOperationStep as Array<{ id?: string }>).forEach(
+                        (s, i) => {
+                          const newStepId = insertedSteps[i]?.id;
+                          if (s?.id && newStepId)
+                            methodStepsToJobSteps[s.id] = newStepId;
+                        }
+                      );
                       await copyStepSlides(
                         trx,
                         client,
@@ -1554,6 +1583,11 @@ serve(async (req: Request) => {
                 jobMakeMethodId: parentJobMakeMethodId!,
                 jobOperationId:
                   methodOperationsToJobOperations[child.data.operationId],
+                jobOperationStepId:
+                  methodStepsToJobSteps[
+                    (child.data as { methodOperationStepId?: string | null })
+                      .methodOperationStepId ?? ""
+                  ] ?? null,
                 itemId: child.data.itemId,
                 kit: child.data.kit,
                 itemType: child.data.itemType,
