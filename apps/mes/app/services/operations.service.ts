@@ -696,28 +696,25 @@ export async function getProductionQuantitiesForJobOperation(
     .eq("jobOperationId", operationId);
 }
 
-export async function getToolsByProcessId(
+export async function getToolsByOperationId(
   client: SupabaseClient<Database>,
-  processId: string
+  operationId: string
 ) {
   type Tool = {
     quantity: number;
+    jobOperationStepId: string | null;
     item: { id: string; name: string; type: string } | null;
   };
 
-  const methodOp = await client
-    .from("methodOperation")
-    .select("id")
-    .eq("processId", processId)
-    .limit(1)
-    .maybeSingle();
-
-  if (!methodOp.data) return { data: [] as Tool[], error: null };
-
+  // Read the job's OWN tools (jobOperationTool), not the method template. This carries
+  // jobOperationStepId (Phase 2: tool ↔ step), copied from the method by get-method, so
+  // the assembly view can show only the tools relevant to the current step. NULL = the
+  // tool applies to the whole operation (shown on every step). Mirrors the per-step
+  // material filter.
   const result = await client
-    .from("methodOperationTool")
-    .select("quantity, item:toolId(id, name, type)")
-    .eq("operationId", methodOp.data.id);
+    .from("jobOperationTool")
+    .select("quantity, jobOperationStepId, item:toolId(id, name, type)")
+    .eq("operationId", operationId);
 
   return {
     data: (result.data ?? []) as unknown as Tool[],

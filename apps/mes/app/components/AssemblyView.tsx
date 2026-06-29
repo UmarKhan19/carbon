@@ -152,6 +152,7 @@ type Props = {
   procedure: { attributes: Step[]; parameters: any[] };
   tools: {
     quantity: number;
+    jobOperationStepId?: string | null;
     item: { id: string; name: string; type: string } | null;
   }[];
   ncrs: any[];
@@ -426,6 +427,16 @@ export function AssemblyView({
     const bi = TYPE_ORDER.indexOf(b[0]);
     return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi);
   });
+
+  // Phase 2 (tool ↔ step): show only the tools involved in the current step — a tool
+  // scoped to a step (jobOperationStepId) appears only on that step; operation-level tools
+  // (null) appear on every step. Backward compatible: with no assignments, every tool is
+  // operation-level and shows everywhere. Mirrors the per-step material filter above.
+  const stepTools = tools.filter(
+    (t) =>
+      t.jobOperationStepId == null ||
+      t.jobOperationStepId === (step?.id ?? null)
+  );
 
   // Material the generic "Scan" button pre-selects. Prefer a tracked material
   // that still NEEDS issuing (otherwise the modal opens straight into the
@@ -1126,9 +1137,9 @@ export function AssemblyView({
               </SidebarSection>
             )}
 
-            {tools.length > 0 && (
+            {stepTools.length > 0 && (
               <SidebarSection title="Tools" scrollable>
-                {tools.map((t, i) => (
+                {stepTools.map((t, i) => (
                   <div
                     key={t.item?.id ?? i}
                     className="flex items-center gap-2 py-1"

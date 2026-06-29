@@ -120,6 +120,10 @@ export type OperationTool = z.infer<typeof operationToolValidator> & {
   createdAt: string;
   updatedBy: string | null;
   updatedAt: string | null;
+  // Phase 2 (tool ↔ step): optional step scope. NULL = the whole operation. Not part of
+  // the tier-agnostic validator (job/quote tools use their own column), so it's declared
+  // here and read straight off the loaded methodOperationTool row.
+  methodOperationStepId?: string | null;
 };
 
 export type OperationParameter = z.infer<typeof operationParameterValidator> & {

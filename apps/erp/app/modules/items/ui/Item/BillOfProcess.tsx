@@ -3149,6 +3149,7 @@ function ToolsForm({
                 key={t.id}
                 tool={t}
                 operationId={operationId}
+                steps={steps}
                 className={index === tools.length - 1 ? "border-none" : ""}
                 isDisabled={isDisabled}
               />
@@ -3165,13 +3166,24 @@ function ToolsForm({
 }
 
 function ToolsListItem({
-  tool: { toolId, quantity, id, updatedBy, updatedAt, createdBy, createdAt },
+  tool: {
+    toolId,
+    quantity,
+    id,
+    methodOperationStepId,
+    updatedBy,
+    updatedAt,
+    createdBy,
+    createdAt
+  },
   operationId,
+  steps,
   className,
   isDisabled = false
 }: {
   tool: OperationTool;
   operationId: string;
+  steps: OperationStep[];
   className?: string;
   isDisabled?: boolean;
 }) {
@@ -3214,7 +3226,11 @@ function ToolsListItem({
             id: id,
             toolId: toolId ?? "",
             quantity: quantity ?? 1,
-            operationId
+            operationId,
+            // methodOperationStepId isn't in the tier-agnostic validator; spread it in
+            // (bypasses excess-property check) so the Step picker pre-selects the
+            // tool's current step. The edit route reads it from formData directly.
+            ...(methodOperationStepId ? { methodOperationStepId } : {})
           }}
           className="w-full"
         >
@@ -3224,6 +3240,21 @@ function ToolsListItem({
               <Tool name="toolId" label={t`Tool`} autoFocus />
               <Number name="quantity" label={t`Quantity`} />
             </div>
+
+            {/* Optionally scope this tool to a single step (Phase 2). Empty = the
+                whole operation, shown on every step in the MES. Mirrors the add form. */}
+            {steps.length > 0 && (
+              <Select
+                name="methodOperationStepId"
+                label={t`Step`}
+                isOptional
+                options={steps.map((s) => ({
+                  value: s.id ?? "",
+                  label: s.name ?? t`Step`
+                }))}
+              />
+            )}
+
             <HStack className="w-full justify-end" spacing={2}>
               <Button variant="secondary" onClick={disclosure.onClose}>
                 Cancel

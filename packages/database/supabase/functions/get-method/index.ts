@@ -776,25 +776,6 @@ serve(async (req: Request) => {
                     procedureId,
                   } = operation;
 
-                  if (
-                    (!node.data.isRoot || parts.tools) &&
-                    Array.isArray(methodOperationTool) &&
-                    methodOperationTool.length > 0
-                  ) {
-                    await trx
-                      .insertInto("jobOperationTool")
-                      .values(
-                        methodOperationTool.map((tool) => ({
-                          toolId: tool.toolId,
-                          quantity: tool.quantity,
-                          operationId,
-                          companyId,
-                          createdBy: userId,
-                        }))
-                      )
-                      .execute();
-                  }
-
                   if (procedureId) {
                     await insertProcedureDataForJobOperation(trx, client, {
                       operationId,
@@ -882,6 +863,33 @@ serve(async (req: Request) => {
                         userId,
                       );
                     }
+                  }
+
+                  // Tools after steps (Phase 2): the method-step -> job-step map is now
+                  // populated, so a tool scoped to a step carries that link onto the job
+                  // via jobOperationStepId. Null (unscoped) = the whole operation, shown on
+                  // every step in the MES. Mirrors the material part ↔ step copy above.
+                  if (
+                    (!node.data.isRoot || parts.tools) &&
+                    Array.isArray(methodOperationTool) &&
+                    methodOperationTool.length > 0
+                  ) {
+                    await trx
+                      .insertInto("jobOperationTool")
+                      .values(
+                        methodOperationTool.map((tool) => ({
+                          toolId: tool.toolId,
+                          quantity: tool.quantity,
+                          operationId,
+                          jobOperationStepId: tool.methodOperationStepId
+                            ? methodStepsToJobSteps[tool.methodOperationStepId] ??
+                              null
+                            : null,
+                          companyId,
+                          createdBy: userId,
+                        }))
+                      )
+                      .execute();
                   }
                 }
               }
@@ -1443,25 +1451,6 @@ serve(async (req: Request) => {
                     procedureId,
                   } = operation;
 
-                  if (
-                    parts.tools &&
-                    Array.isArray(methodOperationTool) &&
-                    methodOperationTool.length > 0
-                  ) {
-                    await trx
-                      .insertInto("jobOperationTool")
-                      .values(
-                        methodOperationTool.map((tool) => ({
-                          toolId: tool.toolId,
-                          quantity: tool.quantity,
-                          operationId,
-                          companyId,
-                          createdBy: userId,
-                        }))
-                      )
-                      .execute();
-                  }
-
                   if (procedureId) {
                     await insertProcedureDataForJobOperation(trx, client, {
                       operationId,
@@ -1531,6 +1520,33 @@ serve(async (req: Request) => {
                         userId,
                       );
                     }
+                  }
+
+                  // Tools after steps (Phase 2): the method-step -> job-step map is now
+                  // populated, so a tool scoped to a step carries that link onto the job
+                  // via jobOperationStepId. Null (unscoped) = the whole operation, shown on
+                  // every step in the MES. Mirrors the material part ↔ step copy above.
+                  if (
+                    parts.tools &&
+                    Array.isArray(methodOperationTool) &&
+                    methodOperationTool.length > 0
+                  ) {
+                    await trx
+                      .insertInto("jobOperationTool")
+                      .values(
+                        methodOperationTool.map((tool) => ({
+                          toolId: tool.toolId,
+                          quantity: tool.quantity,
+                          operationId,
+                          jobOperationStepId: tool.methodOperationStepId
+                            ? methodStepsToJobSteps[tool.methodOperationStepId] ??
+                              null
+                            : null,
+                          companyId,
+                          createdBy: userId,
+                        }))
+                      )
+                      .execute();
                   }
                 }
               }

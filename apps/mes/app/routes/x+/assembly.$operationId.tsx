@@ -18,7 +18,7 @@ import {
   getProductionEventsForJobOperation,
   getProductionQuantitiesForJobOperation,
   getThumbnailPathByItemId,
-  getToolsByProcessId,
+  getToolsByOperationId,
   getTrackedEntitiesByMakeMethodId,
   getWorkCenter
 } from "~/services/operations.service";
@@ -80,7 +80,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     getTrackedEntitiesByMakeMethodId(serviceRole, op.jobMakeMethodId),
     getJobMakeMethod(serviceRole, op.jobMakeMethodId),
     getJobOperationProcedure(serviceRole, operationId),
-    getToolsByProcessId(serviceRole, op.processId),
+    getToolsByOperationId(serviceRole, operationId),
     getNcrsByJobOperationId(serviceRole, operationId),
     getProductionEventsForJobOperation(serviceRole, { operationId, userId }),
     getNonConformanceActions(serviceRole, {
