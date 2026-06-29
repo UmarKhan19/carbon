@@ -33,4 +33,34 @@ Container images are pulled from **ECR** (`carbon/erp` and `carbon/mes`), built 
 The WAF web ACL must be **manually associated** with the application load balancer after the first deploy. SST creates it but does not attach it.
 </Callout>
 
+## Deploy
+
+SST drives the deploy from `sst.config.ts`. Run it from the repo root with the [infrastructure variables](/docs/platform/self-hosting/environment-variables#infrastructure-sst) exported.
+
+<Steps>
+  <Step>
+  ### Set the environment
+
+  Export the SST variables (`AWS_REGION`, `AWS_ACCOUNT_ID`, `IMAGE_TAG`, the `CERT_ARN_*`, and any `URL_*`) plus the app config the services read at runtime. The [Supabase instance](/docs/platform/self-hosting/environment-variables#database-supabase) is provisioned out of band.
+  </Step>
+  <Step>
+  ### Deploy the stack
+
+  ```bash
+  npx sst deploy --stage prod
+  ```
+
+  This provisions the VPC, cluster, both Fargate services, and the WAF, pulling the ECR images tagged `IMAGE_TAG`. The `prod` stage retains resources on removal; any other stage removes them.
+  </Step>
+  <Step>
+  ### Associate the WAF
+
+  Attach `AppAlbWebAcl` to the application load balancer in the AWS console (or with the CLI). SST creates the web ACL but does not attach it.
+  </Step>
+</Steps>
+
+<Callout type="note">
+SST does not build the container images. CI builds and pushes `carbon/erp` and `carbon/mes` to ECR; the deploy pulls the tag named by `IMAGE_TAG`.
+</Callout>
+
 See [Environment variables](/docs/platform/self-hosting/environment-variables) for the full configuration surface, the [Docker with Caddy](/docs/platform/self-hosting/docker-caddy) recipe for a single VPS, or [Local development](/docs/building/local-development) to run Carbon locally with the `crbn` CLI.

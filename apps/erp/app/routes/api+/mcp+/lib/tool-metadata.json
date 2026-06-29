@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-25T05:27:31.359Z",
-  "totalTools": 1215,
+  "generated": "2026-06-29T04:47:22.319Z",
+  "totalTools": 1221,
   "modules": 15,
   "tools": [
     {
@@ -3599,6 +3599,48 @@
       }
     },
     {
+      "name": "inventory_getItemLedgerActivity",
+      "module": "inventory",
+      "classification": "READ",
+      "description": "get item ledger activity",
+      "paramCount": 5,
+      "serviceParams": [
+        "client",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "omit to start from the newest entry. */\n    entryNumber": {
+            "type": "number"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "older",
+              "newer"
+            ]
+          },
+          "/** include the cursor row itself (used for the anchored first load). */\n    inclusive": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "itemId",
+          "locationId"
+        ]
+      }
+    },
+    {
       "name": "inventory_getBatchProperties",
       "module": "inventory",
       "classification": "READ",
@@ -4625,6 +4667,45 @@
           "locationId",
           "search"
         ]
+      }
+    },
+    {
+      "name": "inventory_getStockMovements",
+      "module": "inventory",
+      "classification": "READ",
+      "description": "get stock movements",
+      "paramCount": 3,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "args": {
+            "type": "object",
+            "properties": {
+              "limit": {
+                "type": "integer",
+                "default": 100
+              },
+              "offset": {
+                "type": "integer",
+                "default": 0
+              },
+              "search": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        }
       }
     },
     {
@@ -9250,6 +9331,84 @@
       }
     },
     {
+      "name": "items_getItemSupersession",
+      "module": "items",
+      "classification": "READ",
+      "description": "get item supersession",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "itemId",
+        "companyId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "itemId"
+        ]
+      }
+    },
+    {
+      "name": "items_getItemSupersededBy",
+      "module": "items",
+      "classification": "READ",
+      "description": "get item superseded by",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "itemId",
+        "companyId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "itemId"
+        ]
+      }
+    },
+    {
+      "name": "items_getSupersessionChain",
+      "module": "items",
+      "classification": "READ",
+      "description": "get supersession chain",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "itemId",
+        "companyId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "itemId"
+        ]
+      }
+    },
+    {
       "name": "items_getItemStorageUnitQuantities",
       "module": "items",
       "classification": "READ",
@@ -11577,6 +11736,31 @@
         },
         "required": [
           "itemId"
+        ]
+      }
+    },
+    {
+      "name": "items_upsertItemSupersession",
+      "module": "items",
+      "classification": "WRITE",
+      "description": "upsert item supersession",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "itemSupersession"
+      ],
+      "injectAuth": [
+        "companyId",
+        "createdBy",
+        "updatedBy"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "itemSupersession": {}
+        },
+        "required": [
+          "itemSupersession"
         ]
       }
     },
