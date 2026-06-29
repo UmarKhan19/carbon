@@ -27,7 +27,7 @@ import {
 } from "~/modules/items";
 import { PickMethodForm } from "~/modules/items/ui/Item";
 import { getLocationsList } from "~/modules/resources";
-import RuleAssignmentsList from "~/modules/storageRules/ui/RuleAssignmentsList";
+import RuleAssignmentsList from "~/modules/storage-rules/ui/RuleAssignmentsList";
 import { getUserDefaults } from "~/modules/users/users.server";
 import { getDatabaseClient } from "~/services/database.server";
 import { useItems } from "~/stores/items";
@@ -207,6 +207,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       itemId,
       locationId: pickMethodFields.locationId,
       defaultStorageUnitId: pickMethodFields.defaultStorageUnitId,
+      sortMethod: pickMethodFields.sortMethod,
       customFields: setCustomFields(formData),
       userId,
       shelfLife: {

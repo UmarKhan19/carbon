@@ -58,7 +58,7 @@ const useEmailOptions = (type: "employee" | "supplier" | "customer") => {
   const groupsFetcher = useFetcher<{ groups: Group[] }>();
 
   useMount(() => {
-    groupsFetcher.load(path.to.api.groupsByType(type));
+    groupsFetcher.load(path.to.api.groupsByTypeWithUsers(type));
   });
 
   const options = useMemo<Option[]>(() => {

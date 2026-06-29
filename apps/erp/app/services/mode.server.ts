@@ -14,17 +14,18 @@ export function getMode(request: Request): Mode | null {
 }
 
 export function setMode(mode: Mode | "system") {
-  if (mode === "system") {
-    return cookie.serialize(cookieName, "", { path: "/", maxAge: -1 });
-  } else {
-    const cookieOptions: cookie.SerializeOptions = {
-      path: "/",
-      maxAge: 31536000
-    };
+  const cookieDomain = getCookieDomain(DOMAIN);
+  const cookieOptions: cookie.SerializeOptions = {
+    path: "/",
+    sameSite: "lax",
+    secure: !!cookieDomain,
+    domain: cookieDomain,
+    maxAge: mode === "system" ? -1 : 31536000
+  };
 
-    const cookieDomain = getCookieDomain(DOMAIN);
-    if (cookieDomain) cookieOptions.domain = cookieDomain;
-
-    return cookie.serialize(cookieName, mode, cookieOptions);
-  }
+  return cookie.serialize(
+    cookieName,
+    mode === "system" ? "" : mode,
+    cookieOptions
+  );
 }

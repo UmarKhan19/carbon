@@ -29,7 +29,6 @@ import {
   ModalTitle,
   NumberField,
   NumberInput,
-  SplitButton,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
@@ -37,7 +36,7 @@ import {
   VStack
 } from "@carbon/react";
 import type { TrackedEntityAttributes } from "@carbon/utils";
-import { getItemReadableId, labelSizes } from "@carbon/utils";
+import { getItemReadableId } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -57,7 +56,7 @@ import {
   useParams,
   useSubmit
 } from "react-router";
-import { Empty, ItemThumbnail } from "~/components";
+import { Empty, ItemThumbnail, PrintButton } from "~/components";
 import { Enumerable } from "~/components/Enumerable";
 import { useStorageUnits } from "~/components/Form/StorageUnit";
 import { useUnitOfMeasure } from "~/components/Form/UnitOfMeasure";
@@ -269,10 +268,7 @@ const ShipmentLines = () => {
                         routeData?.shipmentLineTracking?.some((t) => {
                           const attributes =
                             t.attributes as TrackedEntityAttributes;
-                          return (
-                            attributes["Shipment Line"] === line.id &&
-                            attributes["Split Entity ID"]
-                          );
+                          return attributes["Shipment Line"] === line.id;
                         }) ?? false
                       }
                       isReadOnly={isReadOnly}
@@ -458,7 +454,7 @@ function ShipmentLineItem({
                 aria-label={t`Line options`}
                 variant="secondary"
                 icon={<LuEllipsisVertical />}
-                size="sm"
+                size="md"
               />
             </DropdownMenuTrigger>
             <DropdownMenuContent>
@@ -629,6 +625,7 @@ function ShipmentLineItem({
         <SerialForm
           shipment={shipment}
           line={line}
+          hasTrackingLabel={hasTrackingLabel}
           serialNumbers={serialNumbers}
           isReadOnly={isReadOnly}
           onSerialNumbersChange={onSerialNumbersChange}
@@ -870,46 +867,29 @@ function BatchForm({
     });
   };
 
-  const navigateToLineTrackingLabels = (zpl?: boolean, labelSize?: string) => {
-    if (!window) return;
-    if (zpl) {
-      window.open(
-        window.location.origin +
-          path.to.file.shipmentLabelsZpl(shipment?.id ?? "", {
-            lineId: line.id!,
-            labelSize
-          }),
-        "_blank"
-      );
-    } else {
-      window.open(
-        window.location.origin +
-          path.to.file.shipmentLabelsPdf(shipment?.id ?? "", {
-            lineId: line.id!,
-            labelSize
-          }),
-        "_blank"
-      );
-    }
-  };
-
   return (
     <div className="flex flex-col gap-6 w-full p-6 border rounded-lg">
       <div className="flex justify-between items-center gap-4">
         <Heading size="h4">Tracking Number</Heading>
         {hasTrackingLabel && (
-          <SplitButton
-            size="sm"
-            leftIcon={<LuQrCode />}
-            dropdownItems={labelSizes.map((size) => ({
-              label: size.name,
-              onClick: () => navigateToLineTrackingLabels(!!size.zpl, size.id)
-            }))}
-            onClick={() => navigateToLineTrackingLabels(false)}
-            variant="primary"
-          >
-            Tracking Labels
-          </SplitButton>
+          <PrintButton
+            sourceDocument="Shipment"
+            sourceDocumentId={shipment?.id ?? ""}
+            locationId={shipment?.locationId ?? undefined}
+            context="shipping"
+            fileRoutes={{
+              pdf: (id, opts) =>
+                path.to.file.shipmentLabelsPdf(id, {
+                  ...opts,
+                  lineId: line.id!
+                }),
+              zpl: (id, opts) =>
+                path.to.file.shipmentLabelsZpl(id, {
+                  ...opts,
+                  lineId: line.id!
+                })
+            }}
+          />
         )}
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 ">
@@ -973,12 +953,14 @@ function BatchForm({
 function SerialForm({
   line,
   shipment,
+  hasTrackingLabel,
   serialNumbers,
   isReadOnly,
   onSerialNumbersChange
 }: {
   line: ShipmentLine;
   shipment?: Shipment;
+  hasTrackingLabel: boolean;
   serialNumbers: { index: number; id: string }[];
   isReadOnly: boolean;
   onSerialNumbersChange: (
@@ -1139,7 +1121,29 @@ function SerialForm({
 
   return (
     <div className="flex flex-col gap-6 p-6 border rounded-lg">
-      <Heading size="h4">Tracking Numbers</Heading>
+      <div className="flex justify-between items-center gap-4">
+        <Heading size="h4">Tracking Numbers</Heading>
+        {hasTrackingLabel && (
+          <PrintButton
+            sourceDocument="Shipment"
+            sourceDocumentId={shipment?.id ?? ""}
+            locationId={shipment?.locationId ?? undefined}
+            context="shipping"
+            fileRoutes={{
+              pdf: (id, opts) =>
+                path.to.file.shipmentLabelsPdf(id, {
+                  ...opts,
+                  lineId: line.id!
+                }),
+              zpl: (id, opts) =>
+                path.to.file.shipmentLabelsZpl(id, {
+                  ...opts,
+                  lineId: line.id!
+                })
+            }}
+          />
+        )}
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-4 gap-y-3">
         {serialNumbers.map((serialNumber, index) => {

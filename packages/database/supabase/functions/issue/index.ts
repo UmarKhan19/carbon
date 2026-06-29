@@ -1159,34 +1159,33 @@ serve(async (req: Request) => {
           }
 
           if (trackedEntity.status !== "Consumed") {
-            // const activityId = nanoid();
-            // await trx
-            //   .insertInto("trackedActivity")
-            //   .values({
-            //     id: activityId,
-            //     type: "Complete",
-            //     sourceDocument: "Job Operation",
-            //     sourceDocumentId: row.jobOperationId,
-            //     attributes: {
-            //       "Job Operation": row.jobOperationId,
-            //       Employee: userId,
-            //     },
-            //     companyId,
-            //     createdBy: userId,
-            //   })
-            //   .execute();
+            const activityId = nanoid();
+            await trx
+              .insertInto("trackedActivity")
+              .values({
+                id: activityId,
+                type: "Complete",
+                sourceDocument: "Job Operation",
+                sourceDocumentId: row.jobOperationId,
+                attributes: {
+                  "Job Operation": row.jobOperationId,
+                  Employee: userId,
+                },
+                companyId,
+                createdBy: userId,
+              })
+              .execute();
 
-            // await trx
-            //   .insertInto("trackedActivityOutput")
-            //   .values({
-            //     trackedActivityId: activityId,
-            //     trackedEntityId: trackedEntityId,
-            //     quantity: 1,
-            //     companyId,
-            //     createdBy: userId,
-            //   })
-            //   .execute();
-            // Update the current trackedEntity to Complete
+            await trx
+              .insertInto("trackedActivityOutput")
+              .values({
+                trackedActivityId: activityId,
+                trackedEntityId: trackedEntityId,
+                quantity: 1,
+                companyId,
+                createdBy: userId,
+              })
+              .execute();
             await trx
               .updateTable("trackedEntity")
               .set({
@@ -1465,7 +1464,7 @@ serve(async (req: Request) => {
                 methodType: "Pull from Inventory",
                 quantity: 0,
                 quantityIssued: Number(quantity ?? 0),
-                unitCost: itemCost?.unitCost,
+                unitCost: itemCost?.unitCost ?? 0,
               })
               .executeTakeFirst();
 
@@ -1883,7 +1882,7 @@ serve(async (req: Request) => {
                   quantityIssued: totalChildQuantity,
                   requiresBatchTracking: jobMaterial.requiresBatchTracking,
                   requiresSerialTracking: jobMaterial.requiresSerialTracking,
-                  unitCost: itemCost?.unitCost,
+                  unitCost: itemCost?.unitCost ?? 0,
                 })
                 .returning("id")
                 .executeTakeFirstOrThrow();
@@ -1946,7 +1945,7 @@ serve(async (req: Request) => {
                 quantityIssued: totalChildQuantity,
                 requiresBatchTracking: item.itemTrackingType === "Batch",
                 requiresSerialTracking: item.itemTrackingType === "Serial",
-                unitCost: itemCost?.unitCost,
+                unitCost: itemCost?.unitCost ?? 0,
               })
               .returning("id")
               .executeTakeFirstOrThrow();
@@ -2107,6 +2106,7 @@ serve(async (req: Request) => {
                 .insertInto("trackedEntity")
                 .values({
                   id: newTrackedEntityId,
+                  readableId: trackedEntity.readableId,
                   sourceDocumentId: trackedEntity.sourceDocumentId,
                   sourceDocument: "Item",
                   sourceDocumentReadableId:
@@ -3152,6 +3152,7 @@ serve(async (req: Request) => {
                 .insertInto("trackedEntity")
                 .values({
                   id: newTrackedEntityId,
+                  readableId: trackedEntity.readableId,
                   sourceDocumentId: trackedEntity.sourceDocumentId,
                   sourceDocument: "Item",
                   sourceDocumentReadableId:

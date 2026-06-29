@@ -1,6 +1,6 @@
 import { box, intro, log, outro, progress, tasks } from "@clack/prompts";
 import { config as loadDotenv } from "dotenv";
-import { execa } from "execa";
+import { type ExecaChildProcess, execa } from "execa";
 import { join } from "pathe";
 import type { AppId } from "../constants.js";
 import { renderEnv, syncAppPortlessConfigs, writeEnv } from "../env.js";
@@ -19,6 +19,7 @@ import {
   bootStack,
   type Container,
   devComposeImageRefs,
+  ensureDockerRunning,
   listComposeServices,
   listContainers,
   pullStack,
@@ -71,6 +72,21 @@ type UpOpts = {
   borrow?: boolean;
   /** When false, skip portless proxy and use localhost URLs. */
   portless?: boolean;
+  /**
+   * Boot apps, wait until reachable, run this shell command, then tear the
+   * stack down. Scopes the stack's lifetime to the command (headless/CI use):
+   * `crbn up` exits with the command's exit code. No detached daemon to reap.
+   */
+  run?: string;
+  /** With --run, also remove Docker volumes on teardown (headless: don't leak
+   *  data volumes across dispatches on a long-lived box). */
+  volumes?: boolean;
+  /**
+   * Skip non-essential services (Studio, Postgres-Meta, Inbucket) to reduce
+   * memory footprint. Useful for headless/CI builds on memory-constrained
+   * hosts where the Supabase dashboard and email testing UI aren't needed.
+   */
+  minimal?: boolean;
 };
 
 type Ctx = {
@@ -88,6 +104,7 @@ export async function up(opts: UpOpts = {}) {
   // were skipped, schema is unchanged — skip regen too.
   const shouldRegen = shouldMigrate && (opts.regen ?? true);
   const shouldBorrow = opts.borrow === true;
+  const minimal = opts.minimal ?? false;
   // Services-only mode: boot compose stack + portless aliases (api/studio/
   // mail/inngest URLs still useful), skip spawnApps + auto-`down` on Ctrl+C.
   // Triggered by --no-apps OR by deselecting everything in the picker.
@@ -107,7 +124,23 @@ export async function up(opts: UpOpts = {}) {
       ? opts.portless
       : process.env.CARBON_PORTLESS !== "0";
 
-  intro("Carbon · dev up");
+  intro(minimal ? "Carbon · dev up (minimal)" : "Carbon · dev up");
+  // Fail fast with a clear message instead of a cryptic daemon error deep in
+  // the boot (after prompts + sudo).
+  await ensureDockerRunning();
+
+  // During the long pre-apps phase (image pulls, migrations, sudo prompts) a
+  // Ctrl+C would otherwise kill crbn and orphan half-booted containers. Tear
+  // them down on interrupt; detached once apps take over teardown (below).
+  let stripeChild: ExecaChildProcess | undefined;
+  let interrupted = false;
+  const detachEarly = onShutdown(() => {
+    if (interrupted) return;
+    interrupted = true;
+    process.stderr.write("\ninterrupted — stopping partial stack…\n");
+    killStripe(stripeChild);
+    void down({ silent: true }).finally(() => process.exit(130));
+  });
 
   if (portless) {
     await ensurePortlessInstalled();
@@ -147,8 +180,8 @@ export async function up(opts: UpOpts = {}) {
   if (borrowedEntry) {
     await waitForServices(ctx);
   } else {
-    await pullImages(ctx, { force: opts.pull === true });
-    await bootDockerStack(ctx);
+    await pullImages(ctx, { force: opts.pull === true, minimal });
+    await bootDockerStack(ctx, { minimal });
     await waitForServices(ctx);
   }
   await runDatabaseMigrations(ctx, { shouldMigrate, shouldRegen });
@@ -159,7 +192,7 @@ export async function up(opts: UpOpts = {}) {
   }
 
   if (process.env.CARBON_EDITION === "cloud") {
-    spawnStripeListener(root);
+    stripeChild = spawnStripeListener(root);
     log.info("stripe listener spawned (CARBON_EDITION=cloud)");
   }
 
@@ -172,12 +205,54 @@ export async function up(opts: UpOpts = {}) {
     `Carbon dev — ${slug}`
   );
 
+  // Startup done — hand teardown ownership to the app supervisor (or, for
+  // services-only, to a later manual `crbn down`).
+  detachEarly();
+
+  // --run: scope the stack's lifetime to a command (headless/CI). Boot apps,
+  // wait until reachable, run it, then tear everything down. No daemon to reap.
+  if (opts.run !== undefined) {
+    outro("apps starting, then running command");
+    await runAppsThenCommand(
+      root,
+      selectedApps,
+      ctx.ports,
+      portless,
+      opts.run,
+      stripeChild,
+      opts.volumes ?? false
+    );
+    return;
+  }
+
   if (selectedApps.length === 0) {
+    // Services-only: the stack stays up after crbn exits, so let the stripe
+    // listener outlive us too (apps mode kills it on teardown instead).
+    stripeChild?.unref();
     outro("services up (run `crbn down` to stop)");
     return;
   }
   outro("apps starting (Ctrl+C to stop)");
-  await runAppsThenTeardown(root, selectedApps, ctx.ports, portless);
+  await runAppsThenTeardown(
+    root,
+    selectedApps,
+    ctx.ports,
+    portless,
+    stripeChild
+  );
+}
+
+// Kill the detached stripe listener's whole process group (apps-mode teardown).
+function killStripe(child?: ExecaChildProcess) {
+  if (!child?.pid) return;
+  try {
+    process.kill(-child.pid, "SIGTERM");
+  } catch {
+    try {
+      child.kill("SIGTERM");
+      // biome-ignore lint/suspicious/noEmptyBlockStatements: best-effort kill
+    } catch {}
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -269,7 +344,7 @@ async function provisionSlot(
     {
       title: "Boot shared redis",
       task: async () => {
-        await bootSharedRedis(root);
+        await bootSharedRedis();
         return `shared redis on :${SHARED_REDIS_PORT} (index ${ctx.redisDb})`;
       }
     }
@@ -280,24 +355,38 @@ async function provisionSlot(
 // Pull images outside `tasks()` so we can use clack's progress bar (one
 // tick per `<service> Pulled` event). Spinner subtitle inside `tasks()`
 // can't render a bar, only a single line of text.
-async function pullImages(ctx: Ctx, opts: { force: boolean }) {
+async function pullImages(
+  ctx: Ctx,
+  opts: { force: boolean; minimal: boolean }
+) {
   if (!opts.force) {
-    const refs = await devComposeImageRefs(ctx.root, ctx.slug);
+    const refs = await devComposeImageRefs(ctx.root, ctx.slug, {
+      minimal: opts.minimal
+    });
     if (refs && (await allImagesPresentLocally(refs))) {
       log.info("docker images already present — skipping compose pull");
       return;
     }
   }
 
-  const services = await listComposeServices(ctx.root, ctx.slug);
+  const services = await listComposeServices(ctx.root, ctx.slug, {
+    minimal: opts.minimal
+  });
   const max = Math.max(services.length, 1);
   const bar = progress({ style: "heavy", max });
-  bar.start("Pulling docker images");
+  bar.start(
+    opts.minimal ? "Pulling docker images (minimal)" : "Pulling docker images"
+  );
   try {
-    await pullStack(ctx.root, ctx.slug, (line) => {
-      bar.message(line.slice(0, 80));
-      if (/ Pulled$/.test(line)) bar.advance(1);
-    });
+    await pullStack(
+      ctx.root,
+      ctx.slug,
+      (line) => {
+        bar.message(line.slice(0, 80));
+        if (/ Pulled$/.test(line)) bar.advance(1);
+      },
+      { minimal: opts.minimal }
+    );
     bar.stop("images up to date");
   } catch (err) {
     bar.stop("pull failed");
@@ -305,13 +394,17 @@ async function pullImages(ctx: Ctx, opts: { force: boolean }) {
   }
 }
 
-async function bootDockerStack(ctx: Ctx) {
+async function bootDockerStack(ctx: Ctx, opts: { minimal: boolean }) {
+  const serviceCount = opts.minimal ? 8 : 11;
+  const label = opts.minimal
+    ? "Boot docker compose stack (minimal — no studio/meta/inbucket)"
+    : "Boot docker compose stack";
   await tasks([
     {
-      title: "Boot docker compose stack",
+      title: label,
       task: async (msg) => {
-        msg("starting 12 services");
-        await bootStack(ctx.root, ctx.slug);
+        msg(`starting ${serviceCount} services`);
+        await bootStack(ctx.root, ctx.slug, { minimal: opts.minimal });
         return "containers up";
       }
     }
@@ -434,12 +527,14 @@ async function setupPortless(ctx: Ctx, _selectedApps: AppId[]) {
     {
       title: "Register service aliases",
       task: async () => {
-        const count = await registerAliases(
+        const { registered, total } = await registerAliases(
           ctx.root,
           ctx.branchPrefix,
           ctx.ports
         );
-        return `${count} aliases registered`;
+        return registered === total
+          ? `${registered} aliases registered`
+          : `${registered}/${total} aliases registered (${total - registered} failed)`;
       }
     }
   ]);
@@ -472,7 +567,8 @@ async function runAppsThenTeardown(
   root: string,
   selectedApps: AppId[],
   ports: PortMap,
-  portless: boolean
+  portless: boolean,
+  stripeChild?: ExecaChildProcess
 ) {
   await spawnApps({ root, apps: selectedApps, ports, portless });
 
@@ -483,11 +579,103 @@ async function runAppsThenTeardown(
     process.stderr.write("\nfinishing teardown — please wait\n");
   });
   try {
+    // Kill the stripe listener too — it's detached and would otherwise survive.
+    killStripe(stripeChild);
     // silent: post-SIGINT stdin raw-mode triggers EIO in clack's spinner.
     await down({ silent: true });
   } finally {
     detach();
   }
+}
+
+// Port each app's dev server binds (mirrors apps.ts APP_PORT_KEYS).
+const APP_PORT_KEY: Partial<Record<AppId, keyof PortMap>> = {
+  erp: "PORT_ERP",
+  mes: "PORT_MES"
+};
+
+/** A single readiness probe — any HTTP status means the dev server is up. */
+async function appResponds(port: number): Promise<boolean> {
+  try {
+    const res = await fetch(`http://127.0.0.1:${port}/`, {
+      signal: AbortSignal.timeout(4000)
+    });
+    return res.status > 0;
+  } catch {
+    return false;
+  }
+}
+
+/** Poll each selected app's port until it serves (or the deadline passes). */
+async function waitForApps(
+  selectedApps: AppId[],
+  ports: PortMap,
+  timeoutMs = 180_000
+): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+  for (const id of selectedApps) {
+    const key = APP_PORT_KEY[id];
+    const port = key ? ports[key] : undefined;
+    if (port === undefined) continue;
+    let up = false;
+    while (Date.now() < deadline) {
+      if (await appResponds(port)) {
+        up = true;
+        break;
+      }
+      await new Promise((r) => setTimeout(r, 1500));
+    }
+    if (up) log.info(`${id} reachable on :${port}`);
+    else log.warn(`${id} not reachable on :${port} — running command anyway`);
+  }
+}
+
+/**
+ * Boot apps in the background, wait until reachable, run `command`, then tear
+ * the whole stack down. The stack's lifetime is exactly the command's — the
+ * headless/CI counterpart to the interactive Ctrl+C flow. Reuses the
+ * AbortSignal teardown `spawnApps` already exposes, so there's no detached
+ * daemon to track or reap. `crbn up` exits with the command's exit code.
+ */
+async function runAppsThenCommand(
+  root: string,
+  selectedApps: AppId[],
+  ports: PortMap,
+  portless: boolean,
+  command: string,
+  stripeChild?: ExecaChildProcess,
+  cleanVolumes = false
+) {
+  const controller = new AbortController();
+  const appsDone = spawnApps({
+    root,
+    apps: selectedApps,
+    ports,
+    portless,
+    signal: controller.signal
+    // biome-ignore lint/suspicious/noEmptyBlockStatements: supervisor errors surface via teardown
+  }).catch(() => {});
+  const detach = onShutdown(() => controller.abort());
+
+  let exitCode = 0;
+  try {
+    await waitForApps(selectedApps, ports);
+    log.step(`running: ${command}`);
+    const res = await execa(command, {
+      cwd: root,
+      shell: true,
+      stdio: "inherit",
+      reject: false
+    });
+    exitCode = res.exitCode ?? 0;
+  } finally {
+    controller.abort(); // stop the app supervisors
+    await appsDone;
+    killStripe(stripeChild);
+    await down({ silent: true, volumes: cleanVolumes });
+    detach();
+  }
+  process.exitCode = exitCode;
 }
 
 // ---------------------------------------------------------------------------

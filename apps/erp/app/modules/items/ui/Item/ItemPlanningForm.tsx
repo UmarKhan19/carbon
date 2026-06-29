@@ -85,6 +85,7 @@ const ItemPlanningForm = ({
             <SelectForm
               name="reorderingPolicy"
               label={t`Reordering Policy`}
+              termId="reordering-policy"
               options={itemReorderingPolicies.map((policy) => ({
                 label: <ItemReorderPolicy reorderingPolicy={policy} />,
                 value: policy
@@ -99,11 +100,13 @@ const ItemPlanningForm = ({
                 <Number
                   name="reorderPoint"
                   label={t`Reorder Point`}
+                  termId="reorder-point"
                   minValue={0}
                 />
                 <Number
                   name="maximumInventoryQuantity"
                   label={t`Maximum Inventory Quantity`}
+                  termId="item-max-inventory-quantity"
                   minValue={0}
                 />
               </>
@@ -114,11 +117,13 @@ const ItemPlanningForm = ({
                 <Number
                   name="demandAccumulationPeriod"
                   label={t`Accumulation Period (Weeks)`}
+                  termId="item-accumulation-period-weeks"
                   minValue={0}
                 />
                 <Number
                   name="demandAccumulationSafetyStock"
                   label={t`Safety Stock`}
+                  termId="item-safety-stock"
                   minValue={0}
                 />
               </>
@@ -128,11 +133,13 @@ const ItemPlanningForm = ({
                 <Number
                   name="reorderPoint"
                   label={t`Reorder Point`}
+                  termId="reorder-point"
                   minValue={0}
                 />
                 <Number
                   name="reorderQuantity"
                   label={t`Reorder Quantity`}
+                  termId="item-reorder-quantity"
                   minValue={0}
                 />
               </>
@@ -142,16 +149,19 @@ const ItemPlanningForm = ({
                 <Number
                   name="orderMultiple"
                   label={t`Order Multiple`}
+                  termId="item-planning-order-multiple"
                   minValue={0}
                 />
                 <Number
                   name="minimumOrderQuantity"
                   label={t`Minimum Order Quantity`}
+                  termId="item-planning-moq"
                   minValue={0}
                 />
                 <Number
                   name="maximumOrderQuantity"
                   label={t`Maximum Order Quantity`}
+                  termId="item-planning-max-order-quantity"
                   minValue={0}
                 />
               </>

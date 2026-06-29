@@ -9,6 +9,7 @@ import {
   Heading,
   HStack,
   IconButton,
+  Status,
   useDisclosure,
   VStack
 } from "@carbon/react";
@@ -25,6 +26,7 @@ import ConfirmDelete from "~/components/Modals/ConfirmDelete";
 import { usePermissions, useRouteData, useUser } from "~/hooks";
 import { path } from "~/utils/path";
 import type { PartSummary } from "../../types";
+import { getItemLifecycleStatus } from "../Item/ItemSupersessionForm";
 import { usePartNavigation } from "./usePartNavigation";
 
 const PartHeader = () => {
@@ -44,8 +46,19 @@ const PartHeader = () => {
     variant: "dropdown"
   });
 
-  const routeData = useRouteData<{ partSummary: PartSummary }>(
-    path.to.part(itemId)
+  const routeData = useRouteData<{
+    partSummary: PartSummary;
+    supersession: {
+      supersessionMode:
+        | "Consume First"
+        | "Prefer New"
+        | "Stock Only"
+        | "No Stock";
+    } | null;
+  }>(path.to.part(itemId));
+
+  const lifecycleStatus = getItemLifecycleStatus(
+    routeData?.supersession?.supersessionMode
   );
 
   return (
@@ -60,6 +73,11 @@ const PartHeader = () => {
               </Heading>
             </Link>
             <Copy text={routeData?.partSummary?.readableIdWithRevision ?? ""} />
+            {lifecycleStatus && (
+              <Status color={lifecycleStatus.color}>
+                {lifecycleStatus.label}
+              </Status>
+            )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <IconButton

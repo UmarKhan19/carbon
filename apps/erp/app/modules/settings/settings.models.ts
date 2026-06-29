@@ -1,3 +1,11 @@
+import {
+  blockSchema,
+  documentSectionPlacementSchema,
+  documentSettingsSchema,
+  documentTemplateTypeSchema,
+  sectionConfigSchema,
+  themeSchema
+} from "@carbon/documents/template";
 import { labelSizes } from "@carbon/utils";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
@@ -57,9 +65,8 @@ export const apiKeyValidator = z.object({
   )
 });
 
-const company = {
+const companyAddress = {
   name: z.string().min(1, { message: "Name is required" }),
-  taxId: zfd.text(z.string().optional()),
   addressLine1: z.string().min(1, { message: "Address is required" }),
   addressLine2: zfd.text(z.string().optional()),
   city: z.string().min(1, { message: "City is required" }),
@@ -67,17 +74,34 @@ const company = {
   postalCode: z.string().min(1, { message: "Postal Code is required" }),
   countryCode: z.string().min(1, { message: "Country is required" }),
   baseCurrencyCode: zfd.text(z.string()),
+  website: zfd.text(z.string().optional())
+};
+
+const company = {
+  ...companyAddress,
+  taxId: zfd.text(z.string().optional()),
   phone: zfd.text(z.string().optional()),
   fax: zfd.text(z.string().optional()),
   email: zfd.text(z.string().optional()),
-  website: zfd.text(z.string().optional()),
   vatNumber: zfd.text(z.string().optional()),
   eori: zfd.text(z.string().optional())
 };
 
 export const companyValidator = z.object(company);
+
+// The onboarding company step collects only the address; the industry choice
+// comes from the dedicated industry step that follows.
+export const addressValidator = z.object({
+  ...companyAddress,
+  next: z.string().min(1, { message: "Next is required" })
+});
+
+// Onboarding-only: the industry fields live on the company row but are not part
+// of the general company validator (kept off the settings forms).
 export const onboardingCompanyValidator = z.object({
   ...company,
+  industryId: zfd.text(z.string().optional()),
+  customIndustryDescription: z.string().optional(),
   next: z.string().min(1, { message: "Next is required" })
 });
 
@@ -184,6 +208,11 @@ export const materialUnitsValidator = z.object({
   useMetric: zfd.checkbox()
 });
 
+export {
+  printerRouteValidator,
+  updateAssignmentValidator
+} from "@carbon/printing";
+
 export const productLabelSizeValidator = z.object({
   productLabelSize: z.enum(
     labelSizes.map((size) => size.id) as [string, ...string[]],
@@ -191,14 +220,6 @@ export const productLabelSizeValidator = z.object({
       message: "Product label size is required"
     }
   )
-});
-
-export const includeThumbnailsOnPurchasingPdfsValidator = z.object({
-  includeThumbnailsOnPurchasingPdfs: zfd.checkbox()
-});
-
-export const includeThumbnailsOnSalesPdfsValidator = z.object({
-  includeThumbnailsOnSalesPdfs: zfd.checkbox()
 });
 
 export const rfqReadyValidator = z.object({
@@ -306,10 +327,6 @@ export const webhookValidator = z
     }
   );
 
-export const jobTravelerSettingsValidator = z.object({
-  jobTravelerIncludeWorkInstructions: zfd.checkbox()
-});
-
 export const consoleSettingsValidator = z.object({
   consoleEnabled: zfd.checkbox()
 });
@@ -344,4 +361,41 @@ export const accountsReceivableBillingAddressValidator =
 
 export const timeCardSettingsValidator = z.object({
   timeCardEnabled: zfd.checkbox()
+});
+
+// The editor submits the block list as a JSON string in a hidden field; we
+// parse it and validate every block against the shared schema.
+const jsonField = <T>(schema: z.ZodType<T>, message: string) =>
+  zfd.text(
+    z.string().transform((value, ctx) => {
+      try {
+        return schema.parse(JSON.parse(value));
+      } catch {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message });
+        return z.NEVER;
+      }
+    })
+  );
+
+export const documentTemplateValidator = zfd.formData({
+  documentType: zfd.text(documentTemplateTypeSchema),
+  blocks: jsonField(z.array(blockSchema), "Invalid document template blocks"),
+  theme: jsonField(themeSchema, "Invalid document theme"),
+  settings: jsonField(documentSettingsSchema, "Invalid document settings"),
+  headerSectionId: zfd.text(z.string().optional()),
+  footerSectionId: zfd.text(z.string().optional()),
+  // Header layout config (logo) is edited inline and saved with the template;
+  // the action upserts it onto the referenced header section.
+  headerConfig: jsonField(
+    sectionConfigSchema,
+    "Invalid header config"
+  ).optional()
+});
+
+export const documentSectionValidator = zfd.formData({
+  id: zfd.text(z.string().optional()),
+  name: zfd.text(z.string().min(1)),
+  placement: zfd.text(documentSectionPlacementSchema),
+  content: jsonField(z.any(), "Invalid section content"),
+  config: jsonField(sectionConfigSchema, "Invalid section config").optional()
 });

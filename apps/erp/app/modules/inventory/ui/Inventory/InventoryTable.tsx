@@ -47,7 +47,7 @@ import {
 } from "~/components";
 import { Enumerable } from "~/components/Enumerable";
 import { useLocations } from "~/components/Form/Location";
-import { StorageUnitDrillSelect } from "~/components/Form/StorageUnitDrillSelect";
+import StorageUnit from "~/components/Form/StorageUnit";
 import { useUnitOfMeasure } from "~/components/Form/UnitOfMeasure";
 import { useFilters } from "~/components/Table/components/Filter/useFilters";
 import { useUrlParams } from "~/hooks";
@@ -269,7 +269,7 @@ const InventoryTable = memo(
         },
         {
           accessorKey: "quantityOnProductionDemand",
-          header: t`On Jobs`,
+          header: t`On Production Demand`,
           cell: ({ row }) =>
             formatNumber(row.original.quantityOnProductionDemand),
           meta: {
@@ -564,11 +564,11 @@ const InventoryTable = memo(
                         )}
                       </div>
                     )}
-                    <StorageUnitDrillSelect
+                    <StorageUnit
                       locationId={locationId}
                       value={null}
-                      onChange={(id) => {
-                        if (id) toggle(id);
+                      onChange={(storageUnit) => {
+                        if (storageUnit) toggle(storageUnit.id);
                       }}
                       allowCreate={false}
                     />
@@ -652,7 +652,7 @@ const InventoryTable = memo(
             />
             <mrpFetcher.Form method="post" action={path.to.api.mrp(locationId)}>
               <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger asChild>
                   <Button
                     type="submit"
                     variant="secondary"

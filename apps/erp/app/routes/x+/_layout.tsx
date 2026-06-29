@@ -13,6 +13,14 @@ import {
 } from "@carbon/auth/session.server";
 import { isAuditLogEnabled } from "@carbon/database/audit";
 import {
+  detectImplementationSignals,
+  getImplementationCheckStates,
+  getImplementationHub
+} from "@carbon/onboarding/server";
+import type { PrintingSettings } from "@carbon/printing";
+import { getPrinterRoutes } from "@carbon/printing";
+import { PrintingProvider } from "@carbon/printing/ui";
+import {
   ItarPopup,
   TooltipProvider,
   useKeyboardWedge,
@@ -70,6 +78,7 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
     currentUrl.pathname.startsWith("/x/users") ||
     currentUrl.pathname.startsWith("/refresh-session") ||
     currentUrl.pathname.startsWith("/x/acknowledge") ||
+    currentUrl.pathname.startsWith("/x/get-started") ||
     currentUrl.pathname.startsWith("/x/shared/views")
   ) {
     return true;
@@ -113,7 +122,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     groups,
     defaults,
     auditLogEnabled,
-    modulePreferences
+    modulePreferences,
+    printerRoutes,
+    implementationHub,
+    implementationCheckStates
   ] = await Promise.all([
     getCompanies(client, userId),
     getEmployeeCompanies(client, userId),
@@ -127,7 +139,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     getUserGroups(client, userId),
     getUserDefaults(client, userId, companyId),
     isAuditLogEnabled(client, companyId),
-    getModulePreferences(client, userId, companyId)
+    getModulePreferences(client, userId, companyId),
+    getPrinterRoutes(client, companyId),
+    getImplementationHub(client, companyId),
+    getImplementationCheckStates(client, companyId)
   ]);
 
   if (!claims || user.error || !user.data || !groups.data) {
@@ -183,6 +198,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
     throw redirect(path.to.onboarding.root);
   }
 
+  // Only probe product signals when the company is actually enrolled, so the
+  // home card + nav badge count gates the same way the hub page does.
+  const implementationSignals = implementationHub.data
+    ? await detectImplementationSignals(client, companyId)
+    : null;
+
   return data({
     session: {
       accessToken,
@@ -203,6 +224,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     user: user.data,
     modulePreferences: modulePreferences.data ?? [],
     savedViews: savedViews.data ?? [],
+    printerRoutes: printerRoutes.data ?? [],
+    implementationHub: implementationHub.data ?? null,
+    implementationCheckStates: implementationCheckStates.data ?? [],
+    implementationSignals,
     supplierApprovalRequired: isApprovalRequired(client, "supplier", companyId),
     openClockEntry: companySettings.data?.timeCardEnabled
       ? getOpenClockEntry(client, userId, companyId)
@@ -211,7 +236,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function AuthenticatedRoute() {
-  const { session, user, companySettings, openClockEntry } =
+  const { session, user, companySettings, openClockEntry, printerRoutes } =
     useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const { isOpen, training, dismiss } = useTrainingPanel();
@@ -247,42 +272,53 @@ export default function AuthenticatedRoute() {
         />
       ) : (
         <CarbonProvider session={session}>
-          <RealtimeDataProvider>
-            <TooltipProvider>
-              <div className="flex flex-col h-screen">
-                <Topbar />
-                <div className="flex flex-1 h-[calc(100vh-49px)] relative">
-                  <PrimaryNavigation />
-                  <main className="flex-1 overflow-y-auto scrollbar-hide border-l border-t bg-muted sm:rounded-tl-2xl relative z-10">
-                    <Outlet />
-                  </main>
+          <PrintingProvider
+            value={{
+              printing:
+                (companySettings?.printing as PrintingSettings | null) ?? null,
+              printerRoutes,
+              useMetric: Boolean(companySettings?.useMetric),
+              printPath: path.to.manualPrint,
+              settingsPath: path.to.printingSettings
+            }}
+          >
+            <RealtimeDataProvider>
+              <TooltipProvider>
+                <div className="flex flex-col h-screen">
+                  <Topbar />
+                  <div className="flex flex-1 h-[calc(100vh-49px)] relative">
+                    <PrimaryNavigation />
+                    <main className="flex-1 overflow-y-auto scrollbar-hide border-l border-t bg-muted sm:rounded-tl-2xl relative z-10">
+                      <Outlet />
+                    </main>
+                  </div>
                 </div>
-              </div>
-              <TrainingPanel
-                training={training}
-                isOpen={isOpen}
-                onDismiss={dismiss}
-              />
-              {companySettings?.timeCardEnabled && (
-                <Suspense fallback={null}>
-                  <Await resolve={openClockEntry}>
-                    {(resolved) => (
-                      <TimeCardWarning
-                        openClockEntry={
-                          resolved?.data
-                            ? {
-                                id: resolved.data.id,
-                                clockIn: resolved.data.clockIn
-                              }
-                            : null
-                        }
-                      />
-                    )}
-                  </Await>
-                </Suspense>
-              )}
-            </TooltipProvider>
-          </RealtimeDataProvider>
+                <TrainingPanel
+                  training={training}
+                  isOpen={isOpen}
+                  onDismiss={dismiss}
+                />
+                {companySettings?.timeCardEnabled && (
+                  <Suspense fallback={null}>
+                    <Await resolve={openClockEntry}>
+                      {(resolved) => (
+                        <TimeCardWarning
+                          openClockEntry={
+                            resolved?.data
+                              ? {
+                                  id: resolved.data.id,
+                                  clockIn: resolved.data.clockIn
+                                }
+                              : null
+                          }
+                        />
+                      )}
+                    </Await>
+                  </Suspense>
+                )}
+              </TooltipProvider>
+            </RealtimeDataProvider>
+          </PrintingProvider>
         </CarbonProvider>
       )}
     </div>

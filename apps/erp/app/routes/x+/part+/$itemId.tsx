@@ -33,6 +33,8 @@ import { flattenTree } from "~/components/TreeView";
 import type { ItemFile, PartSummary } from "~/modules/items";
 import {
   getItemFiles,
+  getItemSupersededBy,
+  getItemSupersession,
   getMakeMethodById,
   getMakeMethods,
   getMethodTree,
@@ -70,14 +72,23 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { itemId } = params;
   if (!itemId) throw new Error("Could not find itemId");
 
-  const [partSummary, supplierParts, pickMethods, tags, openChangeOrder] =
-    await Promise.all([
-      getPart(client, itemId, companyId),
-      getSupplierParts(client, itemId, companyId),
-      getPickMethods(client, itemId, companyId),
-      getTagsList(client, companyId, "part"),
-      getOpenChangeOrderForItem(client, { itemId, companyId })
-    ]);
+  const [
+    partSummary,
+    supplierParts,
+    pickMethods,
+    tags,
+    supersession,
+    supersededBy,
+    openChangeOrder
+  ] = await Promise.all([
+    getPart(client, itemId, companyId),
+    getSupplierParts(client, itemId, companyId),
+    getPickMethods(client, itemId, companyId),
+    getTagsList(client, companyId, "part"),
+    getItemSupersession(client, itemId, companyId),
+    getItemSupersededBy(client, itemId, companyId),
+    getOpenChangeOrderForItem(client, { itemId, companyId })
+  ]);
 
   if (partSummary.data?.companyId !== companyId) {
     throw redirect(path.to.items);
@@ -128,6 +139,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   return {
     partSummary: partSummary.data,
+    supersession: supersession.data,
+    supersededBy: supersededBy.data ?? [],
     files: getItemFiles(client, itemId, companyId),
     supplierParts: supplierParts.data ?? [],
     pickMethods: pickMethods.data ?? [],
@@ -169,8 +182,8 @@ export default function PartRoute() {
             <LuTriangleAlert />
             <AlertTitle>
               <Trans>
-                This item is under change order {openChangeOrder.changeOrderId} (
-                {openChangeOrder.status})
+                This item is under change order {openChangeOrder.changeOrderId}{" "}
+                ({openChangeOrder.status})
               </Trans>
             </AlertTitle>
           </Alert>

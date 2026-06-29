@@ -9,7 +9,6 @@ import { validator } from "@carbon/form";
 import { LocaleProvider, resolveLanguage } from "@carbon/locale";
 import {
   Button,
-  getPreferenceHeaders,
   Heading,
   OperatingSystemContextProvider,
   Toaster,
@@ -18,7 +17,8 @@ import {
   useMount
 } from "@carbon/react";
 import type { Theme } from "@carbon/utils";
-import { modeValidator, themes } from "@carbon/utils";
+import { getPreferenceHeaders, modeValidator, themes } from "@carbon/utils";
+import { Trans } from "@lingui/react/macro";
 import { I18nProvider } from "@react-aria/i18n";
 import { QueryClient } from "@tanstack/react-query";
 import { Analytics } from "@vercel/analytics/react";
@@ -37,7 +37,8 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  useLoaderData
+  useLoaderData,
+  useRouteLoaderData
 } from "react-router";
 import SonnerStyle from "sonner/dist/styles.css?url";
 import { loadLinguiCatalogForRequest } from "~/services/lingui.server";
@@ -91,10 +92,10 @@ export const links: LinksFunction = () => {
   ];
 };
 
-export const meta: MetaFunction = () => {
+export const meta: MetaFunction = ({ error }) => {
   return [
     {
-      title: "Carbon"
+      title: error ? "Carbon | Error" : "Carbon"
     }
   ];
 };
@@ -190,13 +191,11 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export function Document({
   children,
-  title = "Carbon",
   lang = "en",
   mode = "light",
   theme = "zinc"
 }: {
   children: React.ReactNode;
-  title?: string;
   lang?: string;
   mode?: "light" | "dark";
   theme?: string;
@@ -242,7 +241,6 @@ export function Document({
           content="width=device-width, initial-scale=1, maximum-scale=1"
         />
         <Meta />
-        <title>{title}</title>
         <Links />
       </head>
       <body className="h-full bg-background antialiased selection:bg-primary/10 selection:text-primary">
@@ -300,6 +298,23 @@ export default function App() {
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
+  // The ErrorBoundary renders in place of <App />, so it is outside the
+  // LocaleProvider mounted there. Re-establish it from the root loader data
+  // (falling back to defaults if the loader itself threw) so the boundary can
+  // use the same lingui catalog as the rest of the app.
+  const rootLoaderData = useRouteLoaderData<typeof loader>("root");
+
+  return (
+    <LocaleProvider
+      locale={rootLoaderData?.preferences?.locale}
+      catalog={rootLoaderData?.linguiCatalog}
+    >
+      <ErrorBoundaryContent error={error} />
+    </LocaleProvider>
+  );
+}
+
+function ErrorBoundaryContent({ error }: { error: unknown }) {
   const message = isRouteErrorResponse(error)
     ? (error.data.message ?? error.data)
     : error instanceof Error
@@ -307,7 +322,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
       : String(error);
 
   return (
-    <Document title="Error!">
+    <Document>
       <div className="light">
         <div className="flex flex-col w-full h-screen items-center justify-center space-y-4 ">
           <img
@@ -320,10 +335,12 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
             alt="Carbon Logo"
             className="max-w-[60px] hidden dark:block"
           />
-          <Heading size="h1">Something went wrong</Heading>
+          <Heading size="h1">
+            <Trans>Something went wrong</Trans>
+          </Heading>
           <p className="text-muted-foreground max-w-2xl">{message}</p>
           <Button onClick={() => (window.location.href = "/")}>
-            Back Home
+            <Trans>Back Home</Trans>
           </Button>
         </div>
       </div>

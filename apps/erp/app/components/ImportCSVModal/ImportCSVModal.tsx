@@ -10,6 +10,7 @@ import type { action } from "~/routes/x+/shared+/import.$tableId";
 import { path } from "~/utils/path";
 import { AnimatedSizeContainer } from "../AnimatedSizeContainer";
 import { FieldMapping } from "./FieldMappings";
+import { ImportResultsModal } from "./ImportResultsModal";
 import { UploadCSV } from "./UploadCSV";
 import { ImportCsvContext } from "./useCsvContext";
 
@@ -43,8 +44,23 @@ export const ImportCSVModal = ({ table, onClose }: ImportCSVModalProps) => {
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   useEffect(() => {
     if (fetcher.data?.success === true) {
-      toast.success("Import successful.");
-      onClose();
+      const inserted = fetcher.data.inserted ?? 0;
+      const updated = fetcher.data.updated ?? 0;
+      const errorCount = fetcher.data.errors?.length ?? 0;
+      const skippedCount = fetcher.data.skipped?.length ?? 0;
+      // The results modal renders next (see the early return below); just
+      // surface a quick toast summary here.
+      if (errorCount > 0) {
+        toast.info(
+          `Imported ${inserted}, updated ${updated} — ${errorCount} row(s) need fixing.`
+        );
+      } else if (skippedCount > 0) {
+        toast.info(
+          `Imported ${inserted}, updated ${updated}, skipped ${skippedCount} row(s).`
+        );
+      } else {
+        toast.success(`Imported ${inserted}, updated ${updated}.`);
+      }
     } else if (fetcher.data?.success === false) {
       toast.error(fetcher.data.message);
     }
@@ -56,6 +72,23 @@ export const ImportCSVModal = ({ table, onClose }: ImportCSVModalProps) => {
       setPage(ImportCSVPage.FieldMappings);
     }
   }, [file, fileColumns, page]);
+
+  // After a successful import, swap the wizard for the bigger results modal:
+  // every parsed row marked valid/error, filterable, with an errors-only CSV
+  // download (firstRows holds the full file, so no re-parse needed).
+  if (fetcher.data?.success === true && fileColumns) {
+    return (
+      <ImportResultsModal
+        table={table}
+        inserted={fetcher.data.inserted ?? 0}
+        updated={fetcher.data.updated ?? 0}
+        errors={fetcher.data.errors ?? []}
+        skipped={fetcher.data.skipped ?? []}
+        columns={fileColumns}
+        onClose={onClose}
+      />
+    );
+  }
 
   return (
     <Modal

@@ -46,7 +46,12 @@ import {
 } from "react-icons/lu";
 import { Link, useFetcher, useFetchers, useParams } from "react-router";
 import type { z } from "zod";
-import { MethodIcon, MethodItemTypeIcon, TrackingTypeIcon } from "~/components";
+import {
+  ItemLifecycleBadge,
+  MethodIcon,
+  MethodItemTypeIcon,
+  TrackingTypeIcon
+} from "~/components";
 import {
   DefaultMethodType,
   Hidden,
@@ -139,6 +144,9 @@ function makeItem(
       <VStack spacing={0} className="py-1 cursor-pointer">
         <div className="flex items-center gap-2 group">
           <h3 className="font-semibold truncate">{itemReadableId ?? ""}</h3>
+          <ItemLifecycleBadge
+            mode={items.find((i) => i.id === material.itemId)?.supersessionMode}
+          />
           {material.itemId && material.itemType && (
             <Link
               to={getLinkToItemDetails(material.itemType, material.itemId)}
@@ -800,6 +808,9 @@ function MaterialForm({
   const locationId = routeData?.job?.locationId ?? undefined;
   const storageUnits = useStorageUnits(locationId);
 
+  const isTracked =
+    itemData.requiresBatchTracking || itemData.requiresSerialTracking;
+
   return (
     <ValidatedForm
       action={
@@ -957,6 +968,7 @@ function MaterialForm({
           <DefaultMethodType
             name="methodType"
             label={t`Method Type`}
+            termId="method-type"
             value={itemData.methodType}
             onChange={(value) => {
               setItemData((d) => ({
@@ -982,73 +994,69 @@ function MaterialForm({
         </div>
       </div>
 
-      {(itemData.requiresBatchTracking || itemData.requiresSerialTracking) && (
-        <Hidden name="jobOperationId" value={itemData.jobOperationId} />
-      )}
-      {!itemData.requiresBatchTracking && !itemData.requiresSerialTracking && (
-        <div className="border border-border rounded-md shadow-sm p-4 flex flex-col gap-4 w-full">
-          <HStack
-            className="w-full justify-between cursor-pointer"
-            onClick={backflushDisclosure.onToggle}
-          >
-            <HStack>
-              <LuGitPullRequestCreateArrow />
-              <Label>
-                <Trans>Backflush</Trans>
-              </Label>
-            </HStack>
-            <HStack>
-              <Badge
-                variant={jobOperations.length > 0 ? "secondary" : "destructive"}
-              >
-                <LuCog className="size-3 mr-1" />
-                {itemData.jobOperationId
-                  ? jobOperations.find((o) => o.id === itemData.jobOperationId)
-                      ?.description || t`Selected Operation`
-                  : t`First Operation`}
-              </Badge>
-              <IconButton
-                icon={<LuChevronRight />}
-                aria-label={
-                  backflushDisclosure.isOpen
-                    ? "Collapse Backflush"
-                    : "Expand Backflush"
-                }
-                variant="ghost"
-                size="md"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  backflushDisclosure.onToggle();
-                }}
-                className={`transition-transform ${
-                  backflushDisclosure.isOpen ? "rotate-90" : ""
-                }`}
-              />
-            </HStack>
+      <div className="border border-border rounded-md shadow-sm p-4 flex flex-col gap-4 w-full">
+        <HStack
+          className="w-full justify-between cursor-pointer"
+          onClick={backflushDisclosure.onToggle}
+        >
+          <HStack>
+            <LuGitPullRequestCreateArrow />
+            <Label>
+              {isTracked ? <Trans>Operation</Trans> : <Trans>Backflush</Trans>}
+            </Label>
           </HStack>
-          <div
-            className={`grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3 pb-4 ${
-              backflushDisclosure.isOpen ? "" : "hidden"
-            }`}
-          >
-            <Select
-              name="jobOperationId"
-              label={t`Operation`}
-              isClearable
-              options={jobOperations.map((o) => ({
-                value: o.id!,
-                label: o.description
-              }))}
-              onChange={(newValue) => {
-                setItemData((d) => ({
-                  ...d,
-                  jobOperationId: newValue?.value as string
-                }));
+          <HStack>
+            <Badge
+              variant={jobOperations.length > 0 ? "secondary" : "destructive"}
+            >
+              <LuCog className="size-3 mr-1" />
+              {itemData.jobOperationId
+                ? jobOperations.find((o) => o.id === itemData.jobOperationId)
+                    ?.description || t`Selected Operation`
+                : t`First Operation`}
+            </Badge>
+            <IconButton
+              icon={<LuChevronRight />}
+              aria-label={
+                backflushDisclosure.isOpen
+                  ? "Collapse Operation"
+                  : "Expand Operation"
+              }
+              variant="ghost"
+              size="md"
+              onClick={(e) => {
+                e.stopPropagation();
+                backflushDisclosure.onToggle();
               }}
+              className={`transition-transform ${
+                backflushDisclosure.isOpen ? "rotate-90" : ""
+              }`}
             />
-          </div>
+          </HStack>
+        </HStack>
+        <div
+          className={`grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3 pb-4 ${
+            backflushDisclosure.isOpen ? "" : "hidden"
+          }`}
+        >
+          <Select
+            name="jobOperationId"
+            label={t`Operation`}
+            termId="operation"
+            isClearable
+            options={jobOperations.map((o) => ({
+              value: o.id!,
+              label: o.description
+            }))}
+            onChange={(newValue) => {
+              setItemData((d) => ({
+                ...d,
+                jobOperationId: newValue?.value as string
+              }));
+            }}
+          />
         </div>
-      )}
+      </div>
 
       <motion.div
         className="flex flex-1 items-center justify-end w-full pt-2"

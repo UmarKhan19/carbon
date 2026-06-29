@@ -3,20 +3,27 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import {
+  Button,
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
   Heading,
+  HStack,
   ScrollArea,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
   VStack
 } from "@carbon/react";
 import { msg } from "@lingui/core/macro";
-import { Trans } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
+import { LuKeySquare, LuRocket } from "react-icons/lu";
 import type { ActionFunctionArgs } from "react-router";
-import { data } from "react-router";
+import { data, Link } from "react-router";
 import { useRouteData } from "~/hooks";
+import { useImplementationReopenItem } from "~/hooks/useImplementationNavItem";
 import type { Company as CompanyType } from "~/modules/settings";
 import {
   CompanyForm,
@@ -25,6 +32,7 @@ import {
 } from "~/modules/settings";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
+import { copyToClipboard } from "~/utils/string";
 
 export const handle: Handle = {
   breadcrumb: msg`Company`,
@@ -58,12 +66,17 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function Company() {
+  const { t } = useLingui();
   const routeData = useRouteData<{ company: CompanyType }>(
     path.to.authenticatedRoot
   );
 
   const company = routeData?.company;
   if (!company) throw new Error("Company not found");
+
+  // Buried reopen entry for a finished implementation hub — only present once the
+  // company was enrolled and onboarding was wrapped up (status complete/archived).
+  const reopenHub = useImplementationReopenItem();
 
   const initialValues = {
     name: company.name,
@@ -88,17 +101,56 @@ export default function Company() {
         spacing={4}
         className="py-12 px-4 max-w-[60rem] h-full mx-auto gap-4"
       >
-        <Heading size="h3">
-          <Trans>Company</Trans>
-        </Heading>
+        <HStack spacing={1} className="items-center">
+          <Heading size="h3">
+            <Trans>Company</Trans>
+          </Heading>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                aria-label={t`Copy`}
+                size="sm"
+                className="p-1"
+                onClick={() => copyToClipboard(company.id ?? "")}
+              >
+                <LuKeySquare className="w-3 h-3" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <span>
+                <Trans>Copy company unique identifier</Trans>
+              </span>
+            </TooltipContent>
+          </Tooltip>
+        </HStack>
         <Card>
           <CardHeader>
-            <CardTitle>
-              <Trans>Basic Information</Trans>
-            </CardTitle>
-            <CardDescription>
-              <Trans>This information will be used on document headers</Trans>
-            </CardDescription>
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex flex-col gap-1.5">
+                <CardTitle>
+                  <Trans>Basic Information</Trans>
+                </CardTitle>
+                <CardDescription>
+                  <Trans>
+                    This information will be used on document headers
+                  </Trans>
+                </CardDescription>
+              </div>
+              {reopenHub ? (
+                <Button
+                  asChild
+                  variant="secondary"
+                  size="sm"
+                  leftIcon={<LuRocket />}
+                  className="shrink-0"
+                >
+                  <Link to={reopenHub.to}>
+                    <Trans>Go to implementation hub</Trans>
+                  </Link>
+                </Button>
+              ) : null}
+            </div>
           </CardHeader>
           <CardContent>
             {/* @ts-ignore */}

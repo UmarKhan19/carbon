@@ -1,6 +1,11 @@
 import type { Database, Json } from "@carbon/database";
 import { fetchAllFromTable } from "@carbon/database";
-import type { Kysely, KyselyDatabase } from "@carbon/database/client";
+import type {
+  ExpressionBuilder,
+  Kysely,
+  KyselyDatabase,
+  KyselyTx
+} from "@carbon/database/client";
 import { getLocalTimeZone, now, today } from "@internationalized/date";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { nanoid } from "nanoid";
@@ -15,7 +20,9 @@ import type {
 } from "../shared";
 import {
   lookupBuyPriceFromMap,
+  type MethodType,
   type PriceBreak,
+  type SourcingType,
   type SupplierPriceMap
 } from "../shared";
 import {
@@ -33,6 +40,7 @@ import {
   type itemPlanningValidator,
   type itemPostingGroupValidator,
   type itemPurchasingValidator,
+  type itemSupersessionValidator,
   type itemUnitSalePriceValidator,
   type itemValidator,
   type makeMethodVersionValidator,
@@ -46,6 +54,7 @@ import {
   type methodMaterialValidator,
   type methodOperationValidator,
   type partValidator,
+  type pickMethodSortMethods,
   type pickMethodValidator,
   type serviceValidator,
   type shelfLifeModes,
@@ -557,6 +566,11 @@ export type DemandForecastSourceRow = {
   demandProjectionId: string | null;
   parentItemId: string;
   parentItem: { id: string; readableId: string; name: string } | null;
+  redirectedFromItemId: string | null;
+  redirectedFromItem: {
+    id: string;
+    readableIdWithRevision: string;
+  } | null;
   job: {
     id: string;
     jobId: string;
@@ -609,6 +623,8 @@ export async function getDemandForecastSources(
         demandProjectionId,
         parentItemId,
         parentItem:item!demandForecastSource_parentItemId_fkey(id, readableId, name),
+        redirectedFromItemId,
+        redirectedFromItem:item!demandForecastSource_redirectedFromItemId_fkey(id, readableIdWithRevision),
         job:job!demandForecastSource_jobId_fkey(id, jobId, dueDate, status),
         salesOrderLine:salesOrderLine!demandForecastSource_salesOrderLineId_fkey(
           id,
@@ -747,6 +763,78 @@ export async function getItemReplenishment(
     .eq("itemId", itemId)
     .eq("companyId", companyId)
     .single();
+}
+
+export async function getItemSupersession(
+  client: SupabaseClient<Database>,
+  itemId: string,
+  companyId: string
+) {
+  // itemSupersession has two FKs to item, so embeds must hint the FK.
+  return client
+    .from("itemSupersession")
+    .select(
+      "*, successor:item!itemSupersession_successorItemId_fkey(id, readableIdWithRevision, name)"
+    )
+    .eq("itemId", itemId)
+    .eq("companyId", companyId)
+    .maybeSingle();
+}
+
+// Parts that point to this item as their successor (the "Supersedes" back-ref).
+export async function getItemSupersededBy(
+  client: SupabaseClient<Database>,
+  itemId: string,
+  companyId: string
+) {
+  return client
+    .from("itemSupersession")
+    .select(
+      "itemId, supersessionMode, successorEffectivityDate, predecessor:item!itemSupersession_itemId_fkey(id, readableIdWithRevision, name)"
+    )
+    .eq("successorItemId", itemId)
+    .eq("companyId", companyId);
+}
+
+export async function getSupersessionChain(
+  client: SupabaseClient<Database>,
+  itemId: string,
+  companyId: string
+) {
+  // Forward chain (this item -> successor -> ...), cycle-safe, capped depth.
+  type ChainLink = {
+    itemId: string;
+    supersessionMode: Database["public"]["Enums"]["supersessionMode"];
+    successorItemId: string | null;
+    successorEffectivityDate: string | null;
+    successor: {
+      id: string;
+      readableIdWithRevision: string | null;
+      name: string;
+    } | null;
+  };
+  const chain: ChainLink[] = [];
+  const visited = new Set<string>();
+  let currentId: string | null = itemId;
+  while (currentId && !visited.has(currentId) && chain.length < 5) {
+    visited.add(currentId);
+    const link = await client
+      .from("itemSupersession")
+      .select(
+        "itemId, supersessionMode, successorItemId, successorEffectivityDate, successor:item!itemSupersession_successorItemId_fkey(id, readableIdWithRevision, name)"
+      )
+      .eq("itemId", currentId)
+      .eq("companyId", companyId)
+      .maybeSingle();
+    const data = link.data as ChainLink | null;
+    if (!data) break;
+    chain.push(data);
+    currentId = data.successorItemId;
+  }
+
+  const supersededBy = await getItemSupersededBy(client, itemId, companyId);
+
+  return { chain, supersededBy: supersededBy.data ?? [] };
 }
 
 export async function getItemStorageUnitQuantities(
@@ -1316,7 +1404,9 @@ export async function getMethodMaterialsByMakeMethod(
 ) {
   return client
     .from("methodMaterial")
-    .select("*, item(name, itemTrackingType, replenishmentSystem)")
+    .select(
+      "*, item(name, itemTrackingType, replenishmentSystem, defaultMethodType, sourcingType)"
+    )
     .eq("makeMethodId", makeMethodId)
     .order("order", { ascending: true });
 }
@@ -2455,6 +2545,7 @@ export async function upsertPickMethodWithShelfLife(
     itemId: string;
     locationId: string;
     defaultStorageUnitId?: string | null;
+    sortMethod?: (typeof pickMethodSortMethods)[number];
     customFields?: Json;
     userId: string;
     shelfLife: {
@@ -2473,6 +2564,9 @@ export async function upsertPickMethodWithShelfLife(
       .updateTable("pickMethod")
       .set({
         defaultStorageUnitId: args.defaultStorageUnitId ?? null,
+        // Only overwrite when the caller surfaced the field; the column is
+        // NOT NULL DEFAULT 'Default' so we never set it null.
+        ...(args.sortMethod ? { sortMethod: args.sortMethod } : {}),
         customFields: args.customFields ?? null,
         updatedBy: args.userId,
         updatedAt
@@ -2717,6 +2811,131 @@ export async function cascadeItemTrackingType(
       )
       .execute();
   });
+}
+
+/**
+ * Updates item-level method/sourcing columns and mirrors the change down to
+ * every methodMaterial that references the item — in a single transaction, so
+ * the item and its mirrors can never be left half-applied.
+ *
+ * sourcingType and defaultMethodType are item-level properties; method
+ * materials are read-only mirrors. Only mirrors on Draft make methods are
+ * touched — Active and Archived methods are frozen.
+ */
+export async function updateItemMethodAndSourcing(
+  db: Kysely<KyselyDatabase>,
+  args: {
+    itemIds: string[];
+    companyId: string;
+    userId: string;
+    itemUpdate: {
+      replenishmentSystem?: Database["public"]["Enums"]["itemReplenishmentSystem"];
+      defaultMethodType?: MethodType;
+      sourcingType?: SourcingType;
+    };
+    cascade: {
+      sourcingType?: SourcingType;
+      methodType?: MethodType;
+    };
+  }
+) {
+  if (args.itemIds.length === 0) return;
+
+  const updatedAt = now(getLocalTimeZone()).toAbsoluteString();
+
+  return db.transaction().execute(async (trx) => {
+    await trx
+      .updateTable("item")
+      .set({ ...args.itemUpdate, updatedBy: args.userId, updatedAt })
+      .where("id", "in", args.itemIds)
+      .where("companyId", "=", args.companyId)
+      .execute();
+
+    await cascadeSourcingAndMethodTypeToMethodMaterials(trx, {
+      itemIds: args.itemIds,
+      companyId: args.companyId,
+      userId: args.userId,
+      newSourcingType: args.cascade.sourcingType,
+      newMethodType: args.cascade.methodType
+    });
+  });
+}
+
+/**
+ * Mirrors an item's sourcingType/methodType onto every methodMaterial that
+ * references it. Operates on a caller-supplied transaction so it composes with
+ * the item update above. Only method materials on Draft make methods are
+ * touched.
+ */
+async function cascadeSourcingAndMethodTypeToMethodMaterials(
+  trx: KyselyTx,
+  args: {
+    itemIds: string[];
+    companyId: string;
+    userId: string;
+    newSourcingType?: SourcingType;
+    newMethodType?: MethodType;
+  }
+) {
+  if (args.itemIds.length === 0) return;
+  if (!args.newSourcingType && !args.newMethodType) return;
+
+  const updatedAt = now(getLocalTimeZone()).toAbsoluteString();
+
+  // Restrict to method materials whose make method is still Draft.
+  const onDraftMakeMethod = (
+    eb: ExpressionBuilder<KyselyDatabase, "methodMaterial">
+  ) =>
+    eb(
+      "makeMethodId",
+      "in",
+      eb
+        .selectFrom("makeMethod")
+        .select("id")
+        .where("companyId", "=", args.companyId)
+        .where("status", "=", "Draft")
+    );
+
+  const baseSet: {
+    updatedBy: string;
+    updatedAt: string;
+    sourcingType?: SourcingType;
+  } = {
+    updatedBy: args.userId,
+    updatedAt
+  };
+  if (args.newSourcingType) baseSet.sourcingType = args.newSourcingType;
+
+  await trx
+    .updateTable("methodMaterial")
+    .set((eb) => ({
+      ...baseSet,
+      ...(args.newMethodType === "Make to Order"
+        ? {
+            methodType: "Make to Order" as const,
+            // materialMakeMethodId points at the component item's active make
+            // method (mirrors upsertMethodMaterial). Resolved with a correlated
+            // subquery so a single statement covers every item; null when the
+            // component has no active make method.
+            materialMakeMethodId: eb
+              .selectFrom("activeMakeMethods")
+              .select("id")
+              .whereRef(
+                "activeMakeMethods.itemId",
+                "=",
+                "methodMaterial.itemId"
+              )
+              .where("activeMakeMethods.companyId", "=", args.companyId)
+              .limit(1)
+          }
+        : args.newMethodType
+          ? { methodType: args.newMethodType, materialMakeMethodId: null }
+          : {})
+    }))
+    .where("itemId", "in", args.itemIds)
+    .where("companyId", "=", args.companyId)
+    .where(onDraftMakeMethod)
+    .execute();
 }
 
 export async function upsertConsumable(
@@ -3117,6 +3336,81 @@ export async function upsertItemPurchasing(
     .eq("itemId", itemPurchasing.itemId);
 }
 
+export async function upsertItemSupersession(
+  client: SupabaseClient<Database>,
+  itemSupersession: z.infer<typeof itemSupersessionValidator> & {
+    companyId: string;
+    createdBy: string;
+    updatedBy: string;
+  }
+) {
+  const {
+    itemId,
+    companyId,
+    createdBy,
+    updatedBy,
+    supersessionMode,
+    successorItemId,
+    discontinuationDate,
+    successorEffectivityDate,
+    conversionFactor,
+    locationId,
+    minimumReserveQuantity
+  } = itemSupersession;
+
+  // The minimum service-stock floor is per-location, so it lives on
+  // itemPlanning rather than the global supersession record.
+  if (locationId && minimumReserveQuantity !== undefined) {
+    const reserveUpdate = await client
+      .from("itemPlanning")
+      .update({ minimumReserveQuantity, updatedBy })
+      .eq("itemId", itemId)
+      .eq("locationId", locationId)
+      .eq("companyId", companyId);
+    if (reserveUpdate.error) return reserveUpdate;
+  }
+
+  // No mode selected = no supersession; clear any existing config.
+  if (!supersessionMode) {
+    return client
+      .from("itemSupersession")
+      .delete()
+      .eq("itemId", itemId)
+      .eq("companyId", companyId);
+  }
+
+  const isNoStock = supersessionMode === "No Stock";
+  const row = {
+    supersessionMode,
+    // No Stock has no successor (nothing takes over the demand).
+    successorItemId: isNoStock ? null : (successorItemId ?? null),
+    discontinuationDate: discontinuationDate ?? null,
+    successorEffectivityDate: isNoStock
+      ? null
+      : (successorEffectivityDate ?? null),
+    conversionFactor: isNoStock ? 1 : (conversionFactor ?? 1)
+  };
+
+  const existing = await client
+    .from("itemSupersession")
+    .select("itemId")
+    .eq("itemId", itemId)
+    .eq("companyId", companyId)
+    .maybeSingle();
+
+  if (existing.data) {
+    return client
+      .from("itemSupersession")
+      .update({ ...row, updatedBy, updatedAt: new Date().toISOString() })
+      .eq("itemId", itemId)
+      .eq("companyId", companyId);
+  }
+
+  return client
+    .from("itemSupersession")
+    .insert({ ...row, itemId, companyId, createdBy });
+}
+
 export async function upsertItemPostingGroup(
   client: SupabaseClient<Database>,
   itemPostingGroup:
@@ -3312,6 +3606,23 @@ export async function upsertMethodMaterial(
         customFields?: Json;
       })
 ) {
+  // sourcingType and methodType are item-level properties (edited in the
+  // item's Properties sidebar). A methodMaterial is a read-only mirror of its
+  // component item, so derive both from the item rather than trusting the
+  // submitted form values.
+  if (methodMaterial.itemId) {
+    const item = await client
+      .from("item")
+      .select("defaultMethodType, sourcingType")
+      .eq("id", methodMaterial.itemId)
+      .single();
+
+    if (item.error) return item;
+    methodMaterial.methodType =
+      item.data.defaultMethodType ?? methodMaterial.methodType;
+    methodMaterial.sourcingType = item.data.sourcingType;
+  }
+
   let materialMakeMethodId: string | null = null;
   if (methodMaterial.methodType === "Make to Order") {
     const makeMethod = await client

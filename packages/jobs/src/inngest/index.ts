@@ -39,9 +39,16 @@ import {
   weeklyFunction
 } from "./functions/scheduled";
 import {
+  companyExportFunction,
+  companyImportFunction,
+  companyRestoreFinalizeFunction,
+  companyRestoreFunction,
+  companyRestoreRevertFunction,
   modelThumbnailFunction,
   onboardFunction,
   postTransactionFunction,
+  printJobDeliverFunction,
+  printJobFunction,
   recalculateFunction,
   rescheduleJobFunction,
   updatePermissionsFunction,
@@ -63,6 +70,11 @@ export const functions = [
   workflowFunction,
   embeddingFunction,
   // Tasks
+  companyExportFunction,
+  companyImportFunction,
+  companyRestoreFunction,
+  companyRestoreFinalizeFunction,
+  companyRestoreRevertFunction,
   modelThumbnailFunction,
   updatePermissionsFunction,
   recalculateFunction,
@@ -70,6 +82,8 @@ export const functions = [
   postTransactionFunction,
   rescheduleJobFunction,
   onboardFunction,
+  printJobFunction,
+  printJobDeliverFunction,
   // Scheduled
   cleanupFunction,
   dispatchFunction,

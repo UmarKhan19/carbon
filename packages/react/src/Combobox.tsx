@@ -1,6 +1,6 @@
 import { useLingui } from "@lingui/react/macro";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import type { ComponentPropsWithoutRef } from "react";
+import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import { forwardRef, useMemo, useRef, useState } from "react";
 import { LuCheck, LuPlus, LuSettings2, LuX } from "react-icons/lu";
 import {
@@ -36,6 +36,7 @@ export type ComboboxProps = Omit<
   isLoading?: boolean;
   isReadOnly?: boolean;
   placeholder?: string;
+  emptyMessage?: ReactNode;
   onChange?: (selected: string) => void;
   inline?: (
     value: string,
@@ -55,6 +56,7 @@ const Combobox = forwardRef<HTMLButtonElement, ComboboxProps>(
       isLoading,
       isReadOnly,
       placeholder,
+      emptyMessage,
       onChange,
       inline,
       itemHeight = 40,
@@ -154,6 +156,8 @@ const Combobox = forwardRef<HTMLButtonElement, ComboboxProps>(
           </PopoverTrigger>
           <PopoverContent
             align="start"
+            onWheel={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
             className="min-w-[var(--radix-popover-trigger-width)] max-w-[min(560px,calc(100vw-2rem))] p-1"
             style={{
               width: dropdownContentWidthCh
@@ -161,13 +165,17 @@ const Combobox = forwardRef<HTMLButtonElement, ComboboxProps>(
                 : "var(--radix-popover-trigger-width)"
             }}
           >
-            <VirtualizedCommand
-              options={options}
-              value={value}
-              onChange={onChange}
-              itemHeight={itemHeight}
-              setOpen={setOpen}
-            />
+            {emptyMessage && options.length === 0 ? (
+              emptyMessage
+            ) : (
+              <VirtualizedCommand
+                options={options}
+                value={value}
+                onChange={onChange}
+                itemHeight={itemHeight}
+                setOpen={setOpen}
+              />
+            )}
           </PopoverContent>
         </Popover>
         {isClearable && !isReadOnly && value && (

@@ -375,7 +375,10 @@ export const methodMaterialValidator = z.object({
     } catch {
       return {};
     }
-  })
+  }),
+  // BOM line-item effectivity: the build-date window this line applies to.
+  effectiveFrom: zfd.text(z.string().optional()),
+  effectiveTo: zfd.text(z.string().optional())
 });
 
 export const methodOperationValidator = z
@@ -571,6 +574,60 @@ export const itemPlanningValidator = z
     }
   );
 
+export const supersessionModes = [
+  "Consume First",
+  "Prefer New",
+  "Stock Only",
+  "No Stock"
+] as const;
+
+export const itemSupersessionValidator = z
+  .object({
+    itemId: z.string().min(1, { message: "Item ID is required" }),
+    // Absent mode = no supersession; saving without a mode clears it.
+    supersessionMode: zfd.text(z.enum(supersessionModes).optional()),
+    successorItemId: zfd.text(z.string().optional()),
+    discontinuationDate: zfd.text(z.string().optional()),
+    successorEffectivityDate: zfd.text(z.string().optional()),
+    // How many of the successor replace one old part (1 old = N new).
+    conversionFactor: zfd.numeric(z.number().positive().optional()),
+    // The minimum service-stock floor is per-location (stored on itemPlanning).
+    locationId: zfd.text(z.string().optional()),
+    minimumReserveQuantity: zfd.numeric(z.number().min(0).optional())
+  })
+  .refine(
+    (data) => (data.supersessionMode ? !!data.discontinuationDate : true),
+    {
+      message: "Discontinuation date is required",
+      path: ["discontinuationDate"]
+    }
+  )
+  .refine(
+    (data) =>
+      data.supersessionMode && data.supersessionMode !== "No Stock"
+        ? !!data.successorItemId
+        : true,
+    {
+      message: "Successor part is required",
+      path: ["successorItemId"]
+    }
+  )
+  .refine((data) => data.successorItemId !== data.itemId, {
+    message: "A part cannot be its own successor",
+    path: ["successorItemId"]
+  })
+  .refine(
+    (data) =>
+      data.successorEffectivityDate && data.discontinuationDate
+        ? data.successorEffectivityDate >= data.discontinuationDate
+        : true,
+    {
+      message:
+        "Successor effectivity date must be on or after the discontinuation date",
+      path: ["successorEffectivityDate"]
+    }
+  );
+
 export const itemPurchasingValidator = z.object({
   itemId: z.string().min(1, { message: "Item ID is required" }),
   preferredSupplierId: zfd.text(z.string().optional()),
@@ -641,10 +698,21 @@ export const partValidator = applyStorageAndShelfLifeRefines(
   )
 );
 
+// Tracked-entity pick order surfaced on the item's per-location Inventory
+// card. 'Default' = the picker's smart order (expiring soonest, then oldest).
+// Mirrors "pickMethodSortMethod" Postgres enum.
+export const pickMethodSortMethods = [
+  "Default",
+  "FEFO",
+  "FIFO",
+  "LIFO"
+] as const;
+
 export const pickMethodValidator = z.object({
   itemId: z.string().min(1, { message: "Item ID is required" }),
   locationId: z.string().min(1, { message: "Location is required" }),
-  defaultStorageUnitId: zfd.text(z.string().optional())
+  defaultStorageUnitId: zfd.text(z.string().optional()),
+  sortMethod: z.enum(pickMethodSortMethods).optional()
 });
 
 // pickMethod form + shelf-life policy in one submit. Shelf-life itself is

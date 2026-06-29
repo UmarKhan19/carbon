@@ -102,11 +102,14 @@ export const purchaseInvoiceLineValidator = z
   .object({
     id: zfd.text(z.string().optional()),
     invoiceId: z.string().min(1, { message: "Invoice is required" }),
-    invoiceLineType: z.enum([...methodItemType, "G/L Account", "Fixed Asset"], {
-      errorMap: (issue, ctx) => ({
-        message: "Type is required"
-      })
-    }),
+    invoiceLineType: z.enum(
+      [...methodItemType, "Service", "Fixture", "G/L Account", "Fixed Asset"],
+      {
+        errorMap: (issue, ctx) => ({
+          message: "Type is required"
+        })
+      }
+    ),
     purchaseOrderId: zfd.text(z.string().optional()),
     purchaseOrderLineId: zfd.text(z.string().optional()),
     itemId: zfd.text(z.string().optional()),
@@ -221,11 +224,14 @@ export const salesInvoiceLineValidator = z
   .object({
     id: zfd.text(z.string().optional()),
     invoiceId: z.string().min(1, { message: "Invoice is required" }),
-    invoiceLineType: z.enum([...methodItemType, "Fixed Asset"], {
-      errorMap: (issue, ctx) => ({
-        message: "Type is required"
-      })
-    }),
+    invoiceLineType: z.enum(
+      [...methodItemType, "Service", "Fixture", "Fixed Asset"],
+      {
+        errorMap: (issue, ctx) => ({
+          message: "Type is required"
+        })
+      }
+    ),
     methodType: z
       .enum(methodType, {
         errorMap: (issue, ctx) => ({

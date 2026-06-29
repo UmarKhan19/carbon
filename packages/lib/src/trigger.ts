@@ -8,11 +8,18 @@ import { inngest } from "./inngest/client.ts";
  */
 const taskToEvent = {
   "accounting-backfill": "carbon/accounting-backfill",
+  "company-export": "carbon/company-export",
+  "company-import": "carbon/company-import",
+  "company-restore": "carbon/company-restore",
+  "company-restore-finalize": "carbon/company-restore-finalize",
+  "company-restore-revert": "carbon/company-restore-revert",
   "model-thumbnail": "carbon/model-thumbnail",
   notify: "carbon/notify",
   onboard: "carbon/onboard",
   "paperless-parts": "carbon/paperless-parts",
   "post-transactions": "carbon/post-transaction",
+  "print-job-deliver": "carbon/print-job-deliver",
+  "print-job": "carbon/print-job",
   recalculate: "carbon/recalculate",
   "schedule-job": "carbon/reschedule-job",
   "send-email": "carbon/send-email",
