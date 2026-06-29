@@ -46,7 +46,13 @@ For each iteration:
    - **c. Correctness (logic bug/feature)** — the **reproduce→fix→same-path** test: write a test that fails on the bug, fix, watch the *same* test pass (a unit test, or the agent-browser playbook recorded in step b).
    - If any gate fails: fix it, or revert this iteration's change.
 
-3. **Judge — dispatch a separate review subagent** (NOT yourself) to check the diff against the acceptance criteria and the design rules. It may send work back. Do not grade your own homework.
+3. **Judge — dispatch a separate review subagent** (NOT yourself) to check the diff against the acceptance criteria and the design rules. Do not grade your own homework. The judge does **not** return a holistic "looks good" — a single overall verdict rewards fluent-looking diffs that are subtly wrong. Instead it uses **binary decomposition**:
+   - **Decompose each acceptance criterion + applicable design rule into atomic yes/no questions** — one verifiable property per question (e.g. "Does the change handle the 4+-label case the binding names?", "Is the precedent component actually reused, not re-implemented?", "Are audit fields + `companyId` set on every new write?"). Concrete, checkable criteria are what decomposition is *for*.
+   - **Answer each question yes/no with a one-line justification grounded in a specific diff hunk or gate artifact** (file:line, screenshot, test name). A "yes" with no citation is a fail.
+   - **Enumerate failure modes explicitly** — regressions, missed edge cases, fabricated/placeholder values, broken multi-tenancy — rather than trusting that a coherent-looking diff is correct.
+   - **Approve only if every binary question passes.** Any "no" → the judge sends work back, and **the specific failed question becomes the next iteration's weakest-covered target** (§2.1) — so a rejection is directly actionable, not a vague "improve this."
+   - **Do not over-decompose inherently holistic criteria.** For genuinely subjective acceptance (does this *feel* polished, is the copy clear), keep the judgment holistic — forcing atomic checks on a tolerant criterion produces a harsher judge that diverges from human taste. Decompose the verifiable; judge the subjective as a whole.
+   - Use a **capable model** for the judge — decomposition surfaces failure modes but does not rescue a weak evaluator. Keep the question set tight; do not let it accrete unactionable boilerplate over iterations.
 
 4. **Decide + ledger.** Keep the change iff **every gate is green — including the behavior gate (§2b) with sufficient proof** — AND the judge approves; otherwise revert it. Append one entry to `llm/loops/runs/<id>/ledger.jsonl`:
    `pnpm --filter @carbon/harness exec tsx -e "import {appendLedger} from '@carbon/harness'; appendLedger('llm/loops/runs/<id>/ledger.jsonl', {iteration: <n>, change: '<summary>', gates: {<gate>: <bool>}, decision: '<keep|revert>', reason: '<why>', at: new Date().toISOString()})"`
