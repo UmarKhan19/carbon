@@ -38,6 +38,10 @@ export function ModelViewer({
 }) {
   const parentDiv = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<OV.EmbeddedViewer | null>(null);
+  // Lights we add directly to the THREE scene. Tracked so we can remove them
+  // on teardown (Viewer.Clear() only disposes model objects, not scene lights)
+  // and avoid stacking duplicates when the same viewer reloads a new model.
+  const addedLightsRef = useRef<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isActive, setIsActive] = useState(false);
   const [unitSystem, setUnitSystem] = useState<UnitSystem>("metric");
@@ -90,23 +94,32 @@ export function ModelViewer({
                 camera.up = new OV.Coord3D(0, 1, 0);
                 viewer3D.SetCamera(camera);
 
-                // Add ambient light for overall illumination
-                const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-                scene.add(ambientLight);
+                // Add lights once per viewer. onModelLoaded fires on every
+                // (re)load, so guarding here prevents stacking duplicate lights
+                // on the scene when the model changes without a remount.
+                if (addedLightsRef.current.length === 0) {
+                  // Ambient light for overall illumination
+                  const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 
-                // Add directional lights for isometric highlights
-                const dirLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
-                dirLight1.position.set(1, 1, 1);
-                scene.add(dirLight1);
+                  // Directional lights for isometric highlights
+                  const dirLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
+                  dirLight1.position.set(1, 1, 1);
 
-                const dirLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
-                dirLight2.position.set(-1, 0.5, -1);
-                scene.add(dirLight2);
+                  const dirLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
+                  dirLight2.position.set(-1, 0.5, -1);
 
-                // Add subtle point light for depth
-                const pointLight = new THREE.PointLight(0xffffff, 0.3);
-                pointLight.position.set(0, radius * 2, 0);
-                scene.add(pointLight);
+                  // Subtle point light for depth
+                  const pointLight = new THREE.PointLight(0xffffff, 0.3);
+                  pointLight.position.set(0, radius * 2, 0);
+
+                  addedLightsRef.current = [
+                    ambientLight,
+                    dirLight1,
+                    dirLight2,
+                    pointLight
+                  ];
+                  addedLightsRef.current.forEach((light) => scene.add(light));
+                }
 
                 viewer3D.Render();
               }
@@ -152,9 +165,25 @@ export function ModelViewer({
 
     return () => {
       if (viewerRef.current !== null && parentDiv.current !== null) {
+        const viewer3D = viewerRef.current.viewer as any;
+
+        // Remove and dispose the lights we added straight to the scene.
+        // Viewer.Clear() only disposes the model objects, so without this the
+        // lights linger on the orphaned scene.
+        addedLightsRef.current.forEach((light) => {
+          viewer3D?.scene?.remove(light);
+          light.dispose?.();
+        });
+        addedLightsRef.current = [];
+
         (viewerRef.current as any).model = undefined;
-        viewerRef.current.viewer.renderer.resetState();
-        viewerRef.current.viewer.Clear();
+        viewer3D.renderer.resetState();
+        viewer3D.Clear();
+        // Dispose the WebGLRenderer itself (shader programs, render targets,
+        // and the underlying WebGL context). The previous teardown skipped
+        // this, so every mount leaked a renderer + WebGL context — cycling
+        // through models climbed memory until Chrome dropped contexts / OOM'd.
+        viewer3D.renderer.dispose();
         (viewerRef.current as any).viewer = undefined;
         const gl = viewerRef.current.canvas.getContext("webgl2");
         gl?.getExtension("WEBGL_lose_context")?.loseContext();
