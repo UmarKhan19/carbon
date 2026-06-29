@@ -8,7 +8,10 @@ import {
 } from "@carbon/react";
 import { Trans } from "@lingui/react/macro";
 import type { ChangeOrderApprovalTask } from "~/modules/items";
-import { ChangeOrderTaskItem, ChangeOrderTaskProgress } from "./ChangeOrderTaskItem";
+import {
+  ChangeOrderTaskItem,
+  ChangeOrderTaskProgress
+} from "./ChangeOrderTaskItem";
 
 export default function ChangeOrderApprovalTasks({
   tasks,

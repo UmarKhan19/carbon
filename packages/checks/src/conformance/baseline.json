@@ -1,4 +1,12 @@
 [
+  "module-shape::items::extra-models:changeOrder.models.ts",
+  "module-shape::items::extra-service:changeOrder.service.ts",
+  "module-shape::plm::extra-service:onshape-import.service.ts",
+  "module-shape::plm::missing:index.ts",
+  "module-shape::plm::missing:plm.models.ts",
+  "module-shape::plm::missing:plm.service.ts",
+  "module-shape::plm::missing:types.ts",
+  "module-shape::plm::missing:ui",
   "module-shape::settings::extra-service:backups.service.ts",
   "module-shape::shared::extra-models:imports.models.ts",
   "module-shape::shared::missing:ui",

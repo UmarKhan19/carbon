@@ -128,9 +128,7 @@ export async function uploadOnshapeModelUpload(
       data: null,
       error: {
         message:
-          err instanceof Error
-            ? err.message
-            : "Failed to record model upload"
+          err instanceof Error ? err.message : "Failed to record model upload"
       }
     };
   }

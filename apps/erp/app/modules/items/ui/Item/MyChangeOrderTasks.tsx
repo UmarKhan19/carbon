@@ -88,7 +88,9 @@ const MyChangeOrderTasks = memo(({ tasks }: MyChangeOrderTasksProps) => {
   const renderContextMenu = useCallback(
     (row: MyChangeOrderTask) => {
       return (
-        <MenuItem onClick={() => navigate(path.to.changeOrder(row.changeOrderId))}>
+        <MenuItem
+          onClick={() => navigate(path.to.changeOrder(row.changeOrderId))}
+        >
           <MenuIcon icon={<LuExternalLink />} />
           {t`View Change Order`}
         </MenuItem>

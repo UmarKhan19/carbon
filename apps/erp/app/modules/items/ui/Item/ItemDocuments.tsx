@@ -396,7 +396,9 @@ const ControlledDrawingUpload = ({ itemId }: ControlledDrawingUploadProps) => {
   );
 };
 
-export const useControlledDrawing = ({ itemId }: ControlledDrawingUploadProps) => {
+export const useControlledDrawing = ({
+  itemId
+}: ControlledDrawingUploadProps) => {
   const { t } = useLingui();
   const permissions = usePermissions();
   const revalidator = useRevalidator();

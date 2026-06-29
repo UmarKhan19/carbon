@@ -105,10 +105,7 @@ describe("evaluateApprovalThreshold", () => {
     it("Unanimous ignores Skipped rows in the denominator", () => {
       // 2 Completed + 1 Skipped → all NON-skipped are Completed → unanimous.
       expect(
-        evaluateApprovalThreshold("Unanimous", [
-          ...completed(2),
-          ...skipped(1)
-        ])
+        evaluateApprovalThreshold("Unanimous", [...completed(2), ...skipped(1)])
       ).toBe(true);
       // A still-Pending reviewer keeps it from being unanimous.
       expect(

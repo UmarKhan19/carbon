@@ -12,8 +12,8 @@ import {
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useRef, useState } from "react";
 import { useFetcher } from "react-router";
-import { path } from "~/utils/path";
 import type { action as decisionAction } from "~/routes/x+/change-order+/$id.decision";
+import { path } from "~/utils/path";
 
 // Shared reason modal for the Approve / Reject reviewer decisions. Both flows
 // post the same { decision, reason } payload to the decision route; the title,
@@ -88,9 +88,7 @@ const ChangeOrderDecisionModal = ({
           <Textarea
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            placeholder={
-              isReject ? t`Reason for rejection` : t`Approval notes`
-            }
+            placeholder={isReject ? t`Reason for rejection` : t`Approval notes`}
             rows={4}
           />
         </ModalBody>
