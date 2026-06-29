@@ -33,7 +33,6 @@ import { TrackingTypeIcon } from "~/components";
 import {
   CustomFormFields,
   DefaultMethodType,
-  Employee,
   Hidden,
   Input,
   InputControlled,
@@ -314,12 +313,6 @@ const PartForm = ({ initialValues, type = "card", onClose }: PartFormProps) => {
                 <UnitOfMeasure
                   name="unitOfMeasureCode"
                   label={t`Unit of Measure`}
-                />
-                <Employee
-                  name="productManager"
-                  label={t`Product Manager`}
-                  isOptional
-                  isClearable
                 />
                 {!isEditing && (
                   <ItemPostingGroup

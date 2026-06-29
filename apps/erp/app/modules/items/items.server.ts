@@ -1,7 +1,7 @@
 import type { Database } from "@carbon/database";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getCompanySettings } from "~/modules/settings";
-import { plmReleaseControl } from "./changeOrder.models";
+import type { plmReleaseControl } from "./changeOrder.models";
 
 // =============================================================================
 // Release-lock helpers — gate BOM/BOP mutations on a released (Production)

@@ -9,7 +9,7 @@ import {
   getItemIdForParameter,
   getRevisionLock,
   LOCKED_REVISION_MESSAGE
-} from "~/modules/items/revisionLock.server";
+} from "~/modules/items/items.server";
 import { operationParameterValidator } from "~/modules/shared";
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -83,7 +83,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
     await flash(
       request,
       success(
-        lockWarn ? LOCKED_REVISION_MESSAGE : "Method operation parameter updated"
+        lockWarn
+          ? LOCKED_REVISION_MESSAGE
+          : "Method operation parameter updated"
       )
     )
   );

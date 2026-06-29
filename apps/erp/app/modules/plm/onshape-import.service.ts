@@ -1,15 +1,9 @@
 import type { Database, Json } from "@carbon/database";
-import type { Kysely, KyselyDatabase } from "@carbon/database/client";
 import type { OnshapeClient } from "@carbon/ee/onshape";
 import { getOnshapeClient, OnshapeElementType } from "@carbon/ee/onshape";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getDatabaseClient } from "~/services/database.server";
 import { getReadableIdWithRevision } from "~/utils/string";
-import { deleteItem, getMakeMethods, upsertPart } from "../items/items.service";
-
-import { pullDrawingForRevision } from "./onshape-drawing.server";
-import { pullGeometryForRevision } from "./onshape-geometry.server";
-
 import {
   addChangeOrderItem,
   createPendingRevision,
@@ -18,6 +12,9 @@ import {
   getOpenChangeOrderForItem,
   insertChangeOrder
 } from "../items/changeOrder.service";
+import { deleteItem, getMakeMethods, upsertPart } from "../items/items.service";
+import { pullDrawingForRevision } from "./onshape-drawing.server";
+import { pullGeometryForRevision } from "./onshape-geometry.server";
 
 // =============================================================================
 // OnShape import orchestrator — the "ECO-spine".
@@ -915,9 +912,11 @@ export async function importOnshapeReleasedObject(
       );
     }
     if (createdChangeOrderItemId) {
-      await deleteChangeOrderItem(serviceClient, createdChangeOrderItemId).catch(
-        (e) =>
-          console.error("onshape rollback cleanup failed (changeOrderItem)", e)
+      await deleteChangeOrderItem(
+        serviceClient,
+        createdChangeOrderItemId
+      ).catch((e) =>
+        console.error("onshape rollback cleanup failed (changeOrderItem)", e)
       );
     }
     if (createdCoUuid) {

@@ -8,7 +8,7 @@ import {
   getItemIdForOperation,
   getRevisionLock,
   LOCKED_REVISION_MESSAGE
-} from "~/modules/items/revisionLock.server";
+} from "~/modules/items/items.server";
 import { updateMethodOperationStepOrder } from "~/modules/production";
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -40,10 +40,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const lockItemId = await getItemIdForOperation(client, operationId);
   const lock = await getRevisionLock(client, { itemId: lockItemId, companyId });
   if (lock.isLocked && lock.releaseControl === "enforce") {
-    return data(
-      {},
-      await flash(request, error(null, LOCKED_REVISION_MESSAGE))
-    );
+    return data({}, await flash(request, error(null, LOCKED_REVISION_MESSAGE)));
   }
   const lockWarn = lock.isLocked && lock.releaseControl === "warn";
 

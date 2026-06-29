@@ -12441,7 +12441,6 @@ export type Database = {
           companyId: string | null
           createdAt: string
           id: string
-          isApprovalGroup: boolean
           isCustomerOrgGroup: boolean
           isCustomerTypeGroup: boolean
           isEmployeeTypeGroup: boolean
@@ -12455,7 +12454,6 @@ export type Database = {
           companyId?: string | null
           createdAt?: string
           id?: string
-          isApprovalGroup?: boolean
           isCustomerOrgGroup?: boolean
           isCustomerTypeGroup?: boolean
           isEmployeeTypeGroup?: boolean
@@ -12469,7 +12467,6 @@ export type Database = {
           companyId?: string | null
           createdAt?: string
           id?: string
-          isApprovalGroup?: boolean
           isCustomerOrgGroup?: boolean
           isCustomerTypeGroup?: boolean
           isEmployeeTypeGroup?: boolean
@@ -14062,7 +14059,6 @@ export type Database = {
           modelUploadId: string | null
           name: string
           notes: Json | null
-          productManager: string | null
           readableId: string
           readableIdWithRevision: string | null
           replenishmentSystem: Database["public"]["Enums"]["itemReplenishmentSystem"]
@@ -14090,7 +14086,6 @@ export type Database = {
           modelUploadId?: string | null
           name: string
           notes?: Json | null
-          productManager?: string | null
           readableId: string
           readableIdWithRevision?: string | null
           replenishmentSystem?: Database["public"]["Enums"]["itemReplenishmentSystem"]
@@ -14118,7 +14113,6 @@ export type Database = {
           modelUploadId?: string | null
           name?: string
           notes?: Json | null
-          productManager?: string | null
           readableId?: string
           readableIdWithRevision?: string | null
           replenishmentSystem?: Database["public"]["Enums"]["itemReplenishmentSystem"]
@@ -14251,41 +14245,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "salesRfqLines"
             referencedColumns: ["modelId"]
-          },
-          {
-            foreignKeyName: "item_productManager_fkey"
-            columns: ["productManager"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "item_productManager_fkey"
-            columns: ["productManager"]
-            isOneToOne: false
-            referencedRelation: "employeesAcrossCompanies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "item_productManager_fkey"
-            columns: ["productManager"]
-            isOneToOne: false
-            referencedRelation: "employeeSummary"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "item_productManager_fkey"
-            columns: ["productManager"]
-            isOneToOne: false
-            referencedRelation: "user"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "item_productManager_fkey"
-            columns: ["productManager"]
-            isOneToOne: false
-            referencedRelation: "userDefaults"
-            referencedColumns: ["userId"]
           },
           {
             foreignKeyName: "item_unitOfMeasureCode_fkey"
@@ -21992,7 +21951,6 @@ export type Database = {
           customFields: Json | null
           id: string
           itemId: string
-          itemNumber: string | null
           itemType: string
           kit: boolean
           makeMethodId: string
@@ -22002,7 +21960,6 @@ export type Database = {
           order: number
           productionQuantity: number | null
           quantity: number
-          referenceDesignators: string | null
           scrapQuantity: number
           sourcingType: Database["public"]["Enums"]["sourcingType"]
           storageUnitIds: Json
@@ -22018,7 +21975,6 @@ export type Database = {
           customFields?: Json | null
           id?: string
           itemId: string
-          itemNumber?: string | null
           itemType?: string
           kit?: boolean
           makeMethodId: string
@@ -22028,7 +21984,6 @@ export type Database = {
           order?: number
           productionQuantity?: number | null
           quantity: number
-          referenceDesignators?: string | null
           scrapQuantity?: number
           sourcingType?: Database["public"]["Enums"]["sourcingType"]
           storageUnitIds?: Json
@@ -22044,7 +21999,6 @@ export type Database = {
           customFields?: Json | null
           id?: string
           itemId?: string
-          itemNumber?: string | null
           itemType?: string
           kit?: boolean
           makeMethodId?: string
@@ -22054,7 +22008,6 @@ export type Database = {
           order?: number
           productionQuantity?: number | null
           quantity?: number
-          referenceDesignators?: string | null
           scrapQuantity?: number
           sourcingType?: Database["public"]["Enums"]["sourcingType"]
           storageUnitIds?: Json
@@ -65592,7 +65545,6 @@ export type Database = {
           modelSize: number
           name: string
           notes: Json
-          productManager: string
           readableId: string
           readableIdWithRevision: string
           replenishmentSystem: Database["public"]["Enums"]["itemReplenishmentSystem"]

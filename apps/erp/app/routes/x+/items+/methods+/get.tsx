@@ -10,7 +10,7 @@ import {
   getItemIdForMakeMethod,
   getRevisionLock,
   LOCKED_REVISION_MESSAGE
-} from "~/modules/items/revisionLock.server";
+} from "~/modules/items/items.server";
 import { path, requestReferrer } from "~/utils/path";
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -69,6 +69,8 @@ export async function action({ request }: ActionFunctionArgs) {
 
   throw redirect(
     requestReferrer(request) ?? path.to.items,
-    lockWarn ? await flash(request, success(LOCKED_REVISION_MESSAGE)) : undefined
+    lockWarn
+      ? await flash(request, success(LOCKED_REVISION_MESSAGE))
+      : undefined
   );
 }

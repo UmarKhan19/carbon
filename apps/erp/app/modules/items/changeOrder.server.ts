@@ -1,7 +1,7 @@
 import type { Database } from "@carbon/database";
 import type { Kysely, KyselyDatabase } from "@carbon/database/client";
 import { trigger } from "@carbon/jobs";
-import { NotificationEvent } from "@carbon/notifications";
+import type { NotificationEvent } from "@carbon/notifications";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getChangeOrderNotificationRecipients } from "./changeOrder.service";
 import {
@@ -9,10 +9,7 @@ import {
   getMethodMaterialsByMakeMethod,
   getMethodOperationsByMakeMethodId
 } from "./items.service";
-import type {
-  Material,
-  Operation
-} from "./ui/ChangeOrder/RedlineDiff";
+import type { Material, Operation } from "./ui/ChangeOrder/RedlineDiff";
 
 // =============================================================================
 // notifyChangeOrderTransition — fires a `notify` job at a real change-order
@@ -299,7 +296,8 @@ export async function getChangeOrderValidations(
       for (const item of affectedItems) {
         const pending = item.pendingItem;
         if (!pending?.id) continue;
-        const parentRank = REVISION_STATUS_RANK[pending.revisionStatus ?? ""] ?? 0;
+        const parentRank =
+          REVISION_STATUS_RANK[pending.revisionStatus ?? ""] ?? 0;
         const mmIds = makeMethodIdsByItem.get(pending.id) ?? [];
         for (const mmId of mmIds) {
           for (const child of childrenByMakeMethod.get(mmId) ?? []) {

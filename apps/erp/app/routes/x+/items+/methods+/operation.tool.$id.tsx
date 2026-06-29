@@ -9,7 +9,7 @@ import {
   getItemIdForTool,
   getRevisionLock,
   LOCKED_REVISION_MESSAGE
-} from "~/modules/items/revisionLock.server";
+} from "~/modules/items/items.server";
 import { operationToolValidator } from "~/modules/shared";
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -80,7 +80,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
     { id: methodOperationToolId },
     await flash(
       request,
-      success(lockWarn ? LOCKED_REVISION_MESSAGE : "Method operation tool updated")
+      success(
+        lockWarn ? LOCKED_REVISION_MESSAGE : "Method operation tool updated"
+      )
     )
   );
 }

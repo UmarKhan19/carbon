@@ -4,12 +4,12 @@ import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
-import { activateMethodVersion } from "~/modules/items/items.service";
 import {
   getItemIdForMakeMethod,
   getRevisionLock,
   LOCKED_REVISION_MESSAGE
-} from "~/modules/items/revisionLock.server";
+} from "~/modules/items/items.server";
+import { activateMethodVersion } from "~/modules/items/items.service";
 import { requestReferrer } from "~/utils/path";
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -77,6 +77,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   return redirect(
     redirectPath,
-    lockWarn ? await flash(request, success(LOCKED_REVISION_MESSAGE)) : undefined
+    lockWarn
+      ? await flash(request, success(LOCKED_REVISION_MESSAGE))
+      : undefined
   );
 }

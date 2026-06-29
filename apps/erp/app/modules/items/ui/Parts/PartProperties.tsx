@@ -26,7 +26,6 @@ import { zfd } from "zod-form-data";
 import { MethodBadge, MethodIcon, TrackingTypeIcon } from "~/components";
 import {
   Boolean,
-  Employee,
   ItemPostingGroup,
   Tags,
   UnitOfMeasure
@@ -121,8 +120,7 @@ const PartProperties = ({ data }: PartPropertiesProps) => {
         | "description"
         | "replenishmentSystem"
         | "unitOfMeasureCode"
-        | "requiresInspection"
-        | "productManager",
+        | "requiresInspection",
       value: string | null
     ) => {
       const formData = new FormData();
@@ -504,27 +502,6 @@ const PartProperties = ({ data }: PartPropertiesProps) => {
           inline
           onChange={(value) => {
             onUpdate("unitOfMeasureCode", value?.value ?? null);
-          }}
-        />
-      </ValidatedForm>
-
-      <ValidatedForm
-        defaultValues={{
-          productManager: routeData?.partSummary?.productManager ?? undefined
-        }}
-        validator={z.object({
-          productManager: z.string().nullable().optional()
-        })}
-        className="w-full"
-      >
-        <Employee
-          label={t`Product Manager`}
-          name="productManager"
-          inline
-          isOptional
-          isClearable
-          onChange={(value) => {
-            onUpdate("productManager", value?.value ?? null);
           }}
         />
       </ValidatedForm>

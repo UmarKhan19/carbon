@@ -8,7 +8,7 @@ import {
   getItemIdForMaterial,
   getRevisionLock,
   LOCKED_REVISION_MESSAGE
-} from "~/modules/items/revisionLock.server";
+} from "~/modules/items/items.server";
 
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
@@ -40,10 +40,7 @@ export async function action({ request }: ActionFunctionArgs) {
     : null;
   const lock = await getRevisionLock(client, { itemId: lockItemId, companyId });
   if (lock.isLocked && lock.releaseControl === "enforce") {
-    return data(
-      {},
-      await flash(request, error(null, LOCKED_REVISION_MESSAGE))
-    );
+    return data({}, await flash(request, error(null, LOCKED_REVISION_MESSAGE)));
   }
   const lockWarn = lock.isLocked && lock.releaseControl === "warn";
 

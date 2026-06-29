@@ -5,13 +5,6 @@ import type { z } from "zod";
 import type { GenericQueryFilters } from "~/utils/query";
 import { setGenericQueryFilters } from "~/utils/query";
 import { sanitize } from "~/utils/supabase";
-
-import { createRevision, getItem } from "./items.service";
-
-import {
-  canEditChangeOrderItems,
-  evaluateApprovalThreshold
-} from "./changeOrder.models";
 import type {
   changeOrderApprovalType,
   changeOrderDisposition,
@@ -21,6 +14,12 @@ import type {
   changeOrderType,
   changeOrderTypeValidator
 } from "./changeOrder.models";
+
+import {
+  canEditChangeOrderItems,
+  evaluateApprovalThreshold
+} from "./changeOrder.models";
+import { createRevision, getItem } from "./items.service";
 
 // =============================================================================
 // Getters — clone the quality.service.ts issue getters.
@@ -459,7 +458,7 @@ export async function insertChangeOrder(
   const approvalRequirements =
     approverGroupIds.length > 0
       ? approverGroupIds
-      : data.approvalRequirements ?? [];
+      : (data.approvalRequirements ?? []);
 
   const result = await client
     .from("changeOrder")
@@ -682,7 +681,10 @@ export async function applyChangeOrderReviewerDecision(
 
   const co = await getChangeOrder(client, changeOrderId, companyId);
   if (co.error || !co.data) {
-    return { data: null, error: co.error ?? { message: "Change order not found" } };
+    return {
+      data: null,
+      error: co.error ?? { message: "Change order not found" }
+    };
   }
   if (co.data.status !== "In Review") {
     return { data: null, error: { message: "Change order is not in review" } };
@@ -755,7 +757,12 @@ export async function applyChangeOrderReviewerDecision(
   // the pre-write in-memory snapshot). A concurrent second approval that landed
   // between our read and write is then reflected, so the CO is never left stuck
   // In Review when the threshold has actually been met.
-  return reevaluateChangeOrderApproval(client, changeOrderId, userId, companyId);
+  return reevaluateChangeOrderApproval(
+    client,
+    changeOrderId,
+    userId,
+    companyId
+  );
 }
 
 // =============================================================================
@@ -830,7 +837,7 @@ export async function reevaluateChangeOrderApproval(
 // =============================================================================
 // getChangeOrderNotificationRecipients — resolves the set of user ids to notify
 // on a change-order transition: every reviewer (changeOrderReviewer.assignee)
-// plus every affected item's product manager (item.productManager), deduped,
+// plus every affected item's assignee (item.assignee), deduped,
 // nulls skipped. Pure data fetch — the trigger("notify") call lives in the
 // server-only notifyChangeOrderTransition helper.
 // =============================================================================
@@ -848,9 +855,7 @@ export async function getChangeOrderNotificationRecipients(
       .eq("companyId", companyId),
     client
       .from("changeOrderItem")
-      .select(
-        "...item!changeOrderItem_itemId_fkey(productManager)"
-      )
+      .select("...item!changeOrderItem_itemId_fkey(assignee)")
       .eq("changeOrderId", changeOrderId)
       .eq("companyId", companyId)
   ]);
@@ -860,7 +865,7 @@ export async function getChangeOrderNotificationRecipients(
     if (r.assignee) ids.add(r.assignee);
   }
   for (const it of items.data ?? []) {
-    if (it.productManager) ids.add(it.productManager);
+    if (it.assignee) ids.add(it.assignee);
   }
   return [...ids];
 }
@@ -965,10 +970,7 @@ export async function deleteChangeOrderItem(
   client: SupabaseClient<Database>,
   changeOrderItemId: string
 ) {
-  return client
-    .from("changeOrderItem")
-    .delete()
-    .eq("id", changeOrderItemId);
+  return client.from("changeOrderItem").delete().eq("id", changeOrderItemId);
 }
 
 // removeAffectedItem — the single path for removing an affected item from a
@@ -1104,11 +1106,7 @@ export async function attachAffectedItem(
 // A change order is "open" until it is Released or Cancelled. An item may be on
 // at most one open change order at a time (mirrors Duro's core concurrency
 // guarantee), so two in-flight change orders can't race the same item.
-const OPEN_CHANGE_ORDER_STATUSES = [
-  "Draft",
-  "In Review",
-  "Approved"
-] as const;
+const OPEN_CHANGE_ORDER_STATUSES = ["Draft", "In Review", "Approved"] as const;
 
 export async function getOpenChangeOrderForItem(
   client: SupabaseClient<Database>,
@@ -1178,7 +1176,10 @@ export async function upsertChangeOrderType(
       })
 ) {
   if ("createdBy" in changeOrderType) {
-    return client.from("changeOrderType").insert([changeOrderType]).select("id");
+    return client
+      .from("changeOrderType")
+      .insert([changeOrderType])
+      .select("id");
   }
   return client
     .from("changeOrderType")

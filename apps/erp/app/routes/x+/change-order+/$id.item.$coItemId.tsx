@@ -14,7 +14,7 @@ import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect } from "react";
 import { LuArrowRight, LuPencil } from "react-icons/lu";
 import type { LoaderFunctionArgs } from "react-router";
-import { Link, useFetcher, useLoaderData, useParams } from "react-router";
+import { Link, useFetcher, useLoaderData } from "react-router";
 import { z } from "zod";
 import { usePermissions } from "~/hooks";
 import {

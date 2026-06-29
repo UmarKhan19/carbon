@@ -29,7 +29,7 @@ import {
   upsertItemManufacturing,
   upsertPart
 } from "~/modules/items";
-import { getRevisionLock } from "~/modules/items/revisionLock.server";
+import { getRevisionLock } from "~/modules/items/items.server";
 import {
   BillOfMaterial,
   BillOfProcess,
@@ -266,8 +266,13 @@ export default function PartDetailsRoute() {
   if (!itemId) throw new Error("Could not find itemId");
 
   const permissions = usePermissions();
-  const { methodData, tags, controlledDrawing, revisionStatus, releaseControl } =
-    useLoaderData<typeof loader>();
+  const {
+    methodData,
+    tags,
+    controlledDrawing,
+    revisionStatus,
+    releaseControl
+  } = useLoaderData<typeof loader>();
 
   const partData = useRouteData<{
     partSummary: PartSummary;

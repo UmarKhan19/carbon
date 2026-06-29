@@ -8,7 +8,7 @@ import {
   getItemIdForTool,
   getRevisionLock,
   LOCKED_REVISION_MESSAGE
-} from "~/modules/items/revisionLock.server";
+} from "~/modules/items/items.server";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);

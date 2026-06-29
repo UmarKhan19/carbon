@@ -2,45 +2,9 @@
 -- PLM — Change Orders (ECO) module
 -- Clones the quality / nonConformance conventions (20250327140050_ncr.sql):
 --   id('<prefix>') PK + companyId, audit columns, RLS via
---   get_companies_with_employee_permission('plm_*') and
+--   get_companies_with_employee_permission('production_*') and
 --   get_companies_with_employee_role() for SELECT on type tables.
 -- =============================================================================
-
--- -----------------------------------------------------------------------------
--- 1. Module enum + permissions
---    `ALTER TYPE ... ADD VALUE` cannot be used in the same transaction in which
---    the new value is referenced, so COMMIT immediately (mirrors
---    20250325103806_quality-module.sql).
--- -----------------------------------------------------------------------------
-ALTER TYPE module ADD VALUE IF NOT EXISTS 'PLM';
-
-COMMIT;
-
-DROP VIEW IF EXISTS "modules";
-CREATE VIEW "modules" AS
-    SELECT unnest(enum_range(NULL::module)) AS name;
-
--- Insert PLM module permissions for Admin and Management employee types
-INSERT INTO "employeeTypePermission" ("employeeTypeId", "module", "view", "create", "update", "delete")
-SELECT
-    et.id,
-    'PLM'::module,
-    ARRAY[et."companyId"],
-    ARRAY[et."companyId"],
-    ARRAY[et."companyId"],
-    ARRAY[et."companyId"]
-FROM "employeeType" et
-WHERE et.name IN ('Admin', 'Management')
-ON CONFLICT ("employeeTypeId", "module") DO NOTHING;
-
--- Seed userPermission table with PLM permissions based on Production permissions
-UPDATE "userPermission"
-SET "permissions" = "permissions" || jsonb_build_object(
-  'plm_view', COALESCE("permissions"->'production_view', '[]'::jsonb),
-  'plm_create', COALESCE("permissions"->'production_create', '[]'::jsonb),
-  'plm_update', COALESCE("permissions"->'production_update', '[]'::jsonb),
-  'plm_delete', COALESCE("permissions"->'production_delete', '[]'::jsonb)
-);
 
 -- -----------------------------------------------------------------------------
 -- 2. Enums
@@ -127,7 +91,7 @@ FOR INSERT WITH CHECK (
   "companyId" = ANY (
     (
       SELECT
-        get_companies_with_employee_permission ('plm_create')
+        get_companies_with_employee_permission ('production_create')
     )::text[]
   )
 );
@@ -137,7 +101,7 @@ FOR UPDATE USING (
   "companyId" = ANY (
     (
       SELECT
-        get_companies_with_employee_permission ('plm_update')
+        get_companies_with_employee_permission ('production_update')
     )::text[]
   )
 );
@@ -147,7 +111,7 @@ FOR DELETE USING (
   "companyId" = ANY (
     (
       SELECT
-        get_companies_with_employee_permission ('plm_delete')
+        get_companies_with_employee_permission ('production_delete')
     )::text[]
   )
 );
@@ -204,7 +168,7 @@ FOR SELECT USING (
   "companyId" = ANY (
     (
       SELECT
-        get_companies_with_employee_permission ('plm_view')
+        get_companies_with_employee_permission ('production_view')
     )::text[]
   )
 );
@@ -214,7 +178,7 @@ FOR INSERT WITH CHECK (
   "companyId" = ANY (
     (
       SELECT
-        get_companies_with_employee_permission ('plm_create')
+        get_companies_with_employee_permission ('production_create')
     )::text[]
   )
 );
@@ -224,7 +188,7 @@ FOR UPDATE USING (
   "companyId" = ANY (
     (
       SELECT
-        get_companies_with_employee_permission ('plm_update')
+        get_companies_with_employee_permission ('production_update')
     )::text[]
   )
 );
@@ -234,7 +198,7 @@ FOR DELETE USING (
   "companyId" = ANY (
     (
       SELECT
-        get_companies_with_employee_permission ('plm_delete')
+        get_companies_with_employee_permission ('production_delete')
     )::text[]
   )
 );
@@ -291,7 +255,7 @@ FOR SELECT USING (
   "companyId" = ANY (
     (
       SELECT
-        get_companies_with_employee_permission ('plm_view')
+        get_companies_with_employee_permission ('production_view')
     )::text[]
   )
 );
@@ -301,7 +265,7 @@ FOR INSERT WITH CHECK (
   "companyId" = ANY (
     (
       SELECT
-        get_companies_with_employee_permission ('plm_create')
+        get_companies_with_employee_permission ('production_create')
     )::text[]
   )
 );
@@ -311,7 +275,7 @@ FOR UPDATE USING (
   "companyId" = ANY (
     (
       SELECT
-        get_companies_with_employee_permission ('plm_update')
+        get_companies_with_employee_permission ('production_update')
     )::text[]
   )
 );
@@ -321,7 +285,7 @@ FOR DELETE USING (
   "companyId" = ANY (
     (
       SELECT
-        get_companies_with_employee_permission ('plm_delete')
+        get_companies_with_employee_permission ('production_delete')
     )::text[]
   )
 );
@@ -363,7 +327,7 @@ FOR SELECT USING (
   "companyId" = ANY (
     (
       SELECT
-        get_companies_with_employee_permission ('plm_view')
+        get_companies_with_employee_permission ('production_view')
     )::text[]
   )
 );
@@ -373,7 +337,7 @@ FOR INSERT WITH CHECK (
   "companyId" = ANY (
     (
       SELECT
-        get_companies_with_employee_permission ('plm_create')
+        get_companies_with_employee_permission ('production_create')
     )::text[]
   )
 );
@@ -383,7 +347,7 @@ FOR UPDATE USING (
   "companyId" = ANY (
     (
       SELECT
-        get_companies_with_employee_permission ('plm_update')
+        get_companies_with_employee_permission ('production_update')
     )::text[]
   )
 );
@@ -393,7 +357,7 @@ FOR DELETE USING (
   "companyId" = ANY (
     (
       SELECT
-        get_companies_with_employee_permission ('plm_delete')
+        get_companies_with_employee_permission ('production_delete')
     )::text[]
   )
 );
@@ -437,7 +401,7 @@ FOR SELECT USING (
   "companyId" = ANY (
     (
       SELECT
-        get_companies_with_employee_permission ('plm_view')
+        get_companies_with_employee_permission ('production_view')
     )::text[]
   )
 );
@@ -447,7 +411,7 @@ FOR INSERT WITH CHECK (
   "companyId" = ANY (
     (
       SELECT
-        get_companies_with_employee_permission ('plm_create')
+        get_companies_with_employee_permission ('production_create')
     )::text[]
   )
 );
@@ -457,7 +421,7 @@ FOR UPDATE USING (
   "companyId" = ANY (
     (
       SELECT
-        get_companies_with_employee_permission ('plm_update')
+        get_companies_with_employee_permission ('production_update')
     )::text[]
   )
 );
@@ -467,7 +431,7 @@ FOR DELETE USING (
   "companyId" = ANY (
     (
       SELECT
-        get_companies_with_employee_permission ('plm_delete')
+        get_companies_with_employee_permission ('production_delete')
     )::text[]
   )
 );
@@ -511,7 +475,7 @@ FOR SELECT USING (
   "companyId" = ANY (
     (
       SELECT
-        get_companies_with_employee_permission ('plm_view')
+        get_companies_with_employee_permission ('production_view')
     )::text[]
   )
 );
@@ -521,7 +485,7 @@ FOR INSERT WITH CHECK (
   "companyId" = ANY (
     (
       SELECT
-        get_companies_with_employee_permission ('plm_create')
+        get_companies_with_employee_permission ('production_create')
     )::text[]
   )
 );
@@ -531,7 +495,7 @@ FOR UPDATE USING (
   "companyId" = ANY (
     (
       SELECT
-        get_companies_with_employee_permission ('plm_update')
+        get_companies_with_employee_permission ('production_update')
     )::text[]
   )
 );
@@ -541,7 +505,7 @@ FOR DELETE USING (
   "companyId" = ANY (
     (
       SELECT
-        get_companies_with_employee_permission ('plm_delete')
+        get_companies_with_employee_permission ('production_delete')
     )::text[]
   )
 );
@@ -584,7 +548,7 @@ FOR SELECT USING (
   "companyId" = ANY (
     (
       SELECT
-        get_companies_with_employee_permission ('plm_view')
+        get_companies_with_employee_permission ('production_view')
     )::text[]
   )
 );
@@ -594,7 +558,7 @@ FOR INSERT WITH CHECK (
   "companyId" = ANY (
     (
       SELECT
-        get_companies_with_employee_permission ('plm_create')
+        get_companies_with_employee_permission ('production_create')
     )::text[]
   )
 );
@@ -604,7 +568,7 @@ FOR UPDATE USING (
   "companyId" = ANY (
     (
       SELECT
-        get_companies_with_employee_permission ('plm_update')
+        get_companies_with_employee_permission ('production_update')
     )::text[]
   )
 );
@@ -614,7 +578,7 @@ FOR DELETE USING (
   "companyId" = ANY (
     (
       SELECT
-        get_companies_with_employee_permission ('plm_delete')
+        get_companies_with_employee_permission ('production_delete')
     )::text[]
   )
 );
@@ -635,7 +599,7 @@ ALTER TABLE "companySettings" ADD COLUMN "plmReleaseControl" TEXT NOT NULL DEFAU
 -- 12. Custom fields registration
 -- -----------------------------------------------------------------------------
 INSERT INTO "customFieldTable" ("table", "name", "module")
-VALUES ('changeOrder', 'Change Order', 'PLM');
+VALUES ('changeOrder', 'Change Order', 'Production');
 
 -- -----------------------------------------------------------------------------
 -- 13. Sequence seed — ECO readable id per company (clones the NCR seed)

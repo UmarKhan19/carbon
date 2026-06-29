@@ -113,8 +113,7 @@ const SyncReleasedFromOnshapeModal = ({
       }
       navigate(path.to.changeOrder(importFetcher.data.changeOrderId));
     }
-    // biome-ignore lint/correctness/useExhaustiveDependencies: react to fetcher result
-  }, [importFetcher.data]);
+  }, [importFetcher.data, navigate, onClose, t]);
 
   const onImport = () => {
     if (!documentId || !selectedRevision || !selectedRevision.partNumber)
