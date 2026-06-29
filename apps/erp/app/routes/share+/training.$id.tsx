@@ -219,10 +219,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     const assignment = await getTrainingAssignmentForCompletion(client, id);
 
     if (assignment.error || !assignment.data) {
-      return data(
-        { error: "Training assignment not found" },
-        { status: 404 }
-      );
+      return data({ error: "Training assignment not found" }, { status: 404 });
     }
 
     const training = assignment.data.training;
