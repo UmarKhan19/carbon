@@ -5,6 +5,11 @@ import { validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { upsertMethodOperationParameter } from "~/modules/items";
+import {
+  getItemIdForParameter,
+  getRevisionLock,
+  LOCKED_REVISION_MESSAGE
+} from "~/modules/items/revisionLock.server";
 import { operationParameterValidator } from "~/modules/shared";
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -28,6 +33,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   const { id: _id, ...d } = validation.data;
+
+  // Release-lock gate: block edits to a released (Production) revision unless a
+  // change order is used. enforce -> block; warn -> proceed + flash; off -> no-op.
+  const lockItemId = await getItemIdForParameter(client, id);
+  const lock = await getRevisionLock(client, { itemId: lockItemId, companyId });
+  if (lock.isLocked && lock.releaseControl === "enforce") {
+    return data(
+      { id: null },
+      await flash(request, error(null, LOCKED_REVISION_MESSAGE))
+    );
+  }
+  const lockWarn = lock.isLocked && lock.releaseControl === "warn";
 
   const update = await upsertMethodOperationParameter(client, {
     id,
@@ -63,6 +80,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   return data(
     { id: methodOperationParameterId },
-    await flash(request, success("Method operation parameter updated"))
+    await flash(
+      request,
+      success(
+        lockWarn ? LOCKED_REVISION_MESSAGE : "Method operation parameter updated"
+      )
+    )
   );
 }

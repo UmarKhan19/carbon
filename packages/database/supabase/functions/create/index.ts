@@ -19,6 +19,12 @@ const payloadValidator = z.discriminatedUnion("type", [
     userId: z.string(),
   }),
   z.object({
+    type: z.literal("changeOrderTasks"),
+    id: z.string(),
+    companyId: z.string(),
+    userId: z.string(),
+  }),
+  z.object({
     type: z.literal("purchaseOrderFromJob"),
     jobId: z.string(),
     purchaseOrdersBySupplierId: z.record(z.string(), z.string()),
@@ -123,6 +129,7 @@ serve(async (req: Request) => {
 
   const permissionsByType: Record<string, { view?: string | string[]; create?: string | string[]; update?: string | string[]; delete?: string | string[] }> = {
     nonConformanceTasks: { update: "quality" },
+    changeOrderTasks: { update: "plm" },
     purchaseOrderFromJob: { create: ["purchasing", "production"] },
     receiptDefault: { create: "inventory" },
     receiptFromPurchaseOrder: { create: "inventory" },
@@ -375,6 +382,124 @@ serve(async (req: Request) => {
             await trx
               .deleteFrom("nonConformanceReviewer")
               .where("id", "in", reviewersToDelete)
+              .execute();
+          }
+        });
+      } catch (error) {
+        console.error(error);
+        return new Response(error.message, {
+          status: 500,
+          headers: corsHeaders,
+        });
+      }
+      return new Response(
+        JSON.stringify({
+          success: true,
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        }
+      );
+    }
+
+    case "changeOrderTasks": {
+      const { id } = payload;
+
+      console.log({
+        function: "create",
+        type,
+        id,
+      });
+
+      try {
+        const [changeOrder, actionTasks] = await Promise.all([
+          client
+            .from("changeOrder")
+            .select("*")
+            .eq("id", id)
+            .eq("companyId", companyId)
+            .single(),
+          client
+            .from("changeOrderActionTask")
+            .select("*")
+            .eq("changeOrderId", id)
+            .eq("companyId", companyId),
+        ]);
+
+        if (changeOrder.error) throw new Error(changeOrder.error.message);
+        if (!changeOrder.data) throw new Error("Change order not found");
+
+        const workflow = changeOrder.data?.changeOrderWorkflowId
+          ? await client
+              .from("changeOrderWorkflow")
+              .select("*")
+              .eq("id", changeOrder.data?.changeOrderWorkflowId)
+              .maybeSingle()
+          : null;
+
+        if (workflow?.error) throw new Error(workflow.error.message);
+
+        // Each task stores its label in `name` (the requiredActionId string).
+        // We don't key idempotency per-label; instead we gate on whether any
+        // tasks already exist: only seed the tasks once, when none are present.
+        // Re-running is then a no-op.
+        const hasExistingActionTasks = (actionTasks.data?.length ?? 0) > 0;
+
+        const actionTaskInserts: Database["public"]["Tables"]["changeOrderActionTask"]["Insert"][] =
+          [];
+
+        if (!hasExistingActionTasks) {
+          changeOrder.data?.requiredActionIds?.forEach((actionId, index) => {
+            actionTaskInserts.push({
+              changeOrderId: id,
+              name: actionId,
+              status: "Pending",
+              sortOrder: index + 1,
+              companyId,
+              createdBy: userId,
+            });
+          });
+        }
+
+        // NOTE: approval-task seeding (keyed off approvalRequirements) and the
+        // placeholder "Engineering"/"Quality" reviewer seeding were removed.
+        // changeOrder.approvalRequirements now stores picked approver GROUP ids
+        // (not approval-task labels), and the app-side insertChangeOrder is the
+        // single source of truth for reviewers — it resolves the approver
+        // picker (groups via users_for_groups + individuals) to one
+        // changeOrderReviewer per user. Seeding here as well would double-seed.
+        await db.transaction().execute(async (trx) => {
+          // changeOrder has no `content` column; its rich-text doc lives in the
+          // JSON `description` column (the equivalent of nonConformance.content).
+          // Copy the workflow template into it only when it's still empty.
+          if (
+            typeof changeOrder.data?.description === "object" &&
+            // @ts-ignore -- description is json
+            Object.keys(changeOrder.data?.description ?? {}).length === 0
+          ) {
+            // @ts-ignore -- content is json
+            const contentFromWorkflow = workflow?.data?.content?.content ?? [];
+            const insertedContent = {
+              type: "doc",
+              content: contentFromWorkflow,
+            };
+
+            if (insertedContent.content.length > 0) {
+              await trx
+                .updateTable("changeOrder")
+                .set({
+                  description: JSON.stringify(insertedContent),
+                })
+                .where("id", "=", id)
+                .execute();
+            }
+          }
+
+          if (actionTaskInserts.length > 0) {
+            await trx
+              .insertInto("changeOrderActionTask")
+              .values(actionTaskInserts)
               .execute();
           }
         });

@@ -3,6 +3,9 @@ import { useCarbon } from "@carbon/auth";
 import type { Database } from "@carbon/database";
 import { ValidatedForm } from "@carbon/form";
 import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
   Badge,
   Button,
   Card,
@@ -46,6 +49,7 @@ import {
   LuLock,
   LuSettings2,
   LuSquareFunction,
+  LuTriangleAlert,
   LuTruck,
   LuX
 } from "react-icons/lu";
@@ -125,6 +129,8 @@ type BillOfMaterialProps = {
   parameters?: ConfigurationParameter[];
   configurationRules?: ConfigurationRule[];
   replenishmentSystem?: string;
+  revisionStatus?: string | null;
+  releaseControl?: string;
 };
 
 type OrderState = {
@@ -160,13 +166,23 @@ const BillOfMaterial = ({
   materials: initialMaterials,
   operations,
   parameters,
-  replenishmentSystem
+  replenishmentSystem,
+  revisionStatus,
+  releaseControl
 }: BillOfMaterialProps) => {
   const permissions = usePermissions();
   const { t } = useLingui();
+  // A released (Production) revision should flow changes through a change order.
+  // Only `enforce` hard-locks editing; `warn` keeps editing enabled and shows an
+  // informational notice; `off` does nothing.
+  const isProductionRevision =
+    revisionStatus === "Production" && releaseControl !== "off";
+  const isReleaseLocked =
+    revisionStatus === "Production" && releaseControl === "enforce";
   const isReadOnly =
     permissions.can("update", "parts") === false ||
-    makeMethod.status !== "Draft";
+    makeMethod.status !== "Draft" ||
+    isReleaseLocked;
 
   const addItemButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -551,6 +567,31 @@ const BillOfMaterial = ({
         </CardAction>
       </HStack>
       <CardContent>
+        {isProductionRevision && (
+          <Alert variant="warning" className="mb-4">
+            <LuTriangleAlert />
+            <AlertTitle>
+              {isReleaseLocked ? (
+                <Trans>Released revision is locked</Trans>
+              ) : (
+                <Trans>Released revision</Trans>
+              )}
+            </AlertTitle>
+            <AlertDescription>
+              {isReleaseLocked ? (
+                <Trans>
+                  This revision is released (Production). Open a change order to
+                  modify its bill of material.
+                </Trans>
+              ) : (
+                <Trans>
+                  This revision is released (Production). Changes should normally
+                  flow through a change order.
+                </Trans>
+              )}
+            </AlertDescription>
+          </Alert>
+        )}
         <SortableList
           isReadOnly={isReadOnly}
           items={materials}

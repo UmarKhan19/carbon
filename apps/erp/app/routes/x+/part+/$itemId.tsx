@@ -2,6 +2,8 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import {
+  Alert,
+  AlertTitle,
   HStack,
   Input,
   InputGroup,
@@ -16,10 +18,11 @@ import {
 import { msg } from "@lingui/core/macro";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { Suspense, useState } from "react";
-import { LuSearch } from "react-icons/lu";
+import { LuSearch, LuTriangleAlert } from "react-icons/lu";
 import type { LoaderFunctionArgs } from "react-router";
 import {
   Await,
+  Link,
   Outlet,
   redirect,
   useLoaderData,
@@ -33,6 +36,7 @@ import {
   getMakeMethodById,
   getMakeMethods,
   getMethodTree,
+  getOpenChangeOrderForItem,
   getPart,
   getPartUsedIn,
   getPickMethods,
@@ -66,12 +70,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { itemId } = params;
   if (!itemId) throw new Error("Could not find itemId");
 
-  const [partSummary, supplierParts, pickMethods, tags] = await Promise.all([
-    getPart(client, itemId, companyId),
-    getSupplierParts(client, itemId, companyId),
-    getPickMethods(client, itemId, companyId),
-    getTagsList(client, companyId, "part")
-  ]);
+  const [partSummary, supplierParts, pickMethods, tags, openChangeOrder] =
+    await Promise.all([
+      getPart(client, itemId, companyId),
+      getSupplierParts(client, itemId, companyId),
+      getPickMethods(client, itemId, companyId),
+      getTagsList(client, companyId, "part"),
+      getOpenChangeOrderForItem(client, { itemId, companyId })
+    ]);
 
   if (partSummary.data?.companyId !== companyId) {
     throw redirect(path.to.items);
@@ -128,7 +134,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     makeMethods: getMakeMethods(client, itemId, companyId),
     tags: tags.data ?? [],
     usedIn: getPartUsedIn(client, itemId, companyId),
-    methodTree
+    methodTree,
+    openChangeOrder: openChangeOrder.data ?? null
   };
 }
 
@@ -144,7 +151,8 @@ export default function PartRoute() {
 
   if (!partData) throw new Error("Could not find part data");
 
-  const { usedIn, methodTree } = useLoaderData<typeof loader>();
+  const { usedIn, methodTree, openChangeOrder } =
+    useLoaderData<typeof loader>();
 
   const isManufactured = partData.partSummary?.replenishmentSystem !== "Buy";
 
@@ -152,6 +160,22 @@ export default function PartRoute() {
 
   return (
     <div className="flex flex-col h-[calc(100dvh-49px)] overflow-hidden w-full">
+      {openChangeOrder && (
+        <Link
+          to={path.to.changeOrder(openChangeOrder.id)}
+          className="flex-shrink-0 px-2 pt-2"
+        >
+          <Alert variant="warning">
+            <LuTriangleAlert />
+            <AlertTitle>
+              <Trans>
+                This item is under change order {openChangeOrder.changeOrderId} (
+                {openChangeOrder.status})
+              </Trans>
+            </AlertTitle>
+          </Alert>
+        </Link>
+      )}
       <PartHeader />
       <div className="flex h-[calc(100dvh-99px)] overflow-hidden w-full">
         <div className="flex flex-grow overflow-hidden">

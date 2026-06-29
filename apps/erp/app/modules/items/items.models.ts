@@ -375,7 +375,9 @@ export const methodMaterialValidator = z.object({
     } catch {
       return {};
     }
-  })
+  }),
+  referenceDesignators: zfd.text(z.string().optional()),
+  itemNumber: zfd.text(z.string().optional())
 });
 
 export const methodOperationValidator = z
@@ -636,6 +638,7 @@ export const partValidator = applyStorageAndShelfLifeRefines(
       id: z.string().min(1, { message: "Part ID is required" }).max(255),
       revision: z.string().min(1, { message: "Revision is required" }),
       modelUploadId: zfd.text(z.string().optional()),
+      productManager: zfd.text(z.string().optional()),
       lotSize: zfd.numeric(z.number().min(0).optional())
     })
   )

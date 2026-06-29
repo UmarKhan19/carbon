@@ -371,6 +371,17 @@ function GenericNotification({
           {...props}
         />
       );
+    case NotificationEvent.ChangeOrderSubmittedForReview:
+    case NotificationEvent.ChangeOrderApproved:
+    case NotificationEvent.ChangeOrderRejected:
+    case NotificationEvent.ChangeOrderReleased:
+      return (
+        <Notification
+          icon={<LuClipboardCheck />}
+          to={path.to.changeOrderDetails(id)}
+          {...props}
+        />
+      );
     case NotificationEvent.Digest:
       // Digest rows are rendered by DigestNotification (expandable). This
       // branch is unreachable when GenericNotification is used from the

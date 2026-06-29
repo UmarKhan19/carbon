@@ -20,6 +20,7 @@ import {
   LuEllipsisVertical,
   LuExternalLink,
   LuFile,
+  LuGitPullRequestArrow,
   LuLoaderCircle,
   LuTrash
 } from "react-icons/lu";
@@ -71,6 +72,18 @@ const IssueHeader = () => {
                 />
               </DropdownMenuTrigger>
               <DropdownMenuContent>
+                {permissions.can("create", "plm") && (
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to={`${path.to.newChangeOrder}?sourceType=nonConformance&sourceId=${id}&name=${encodeURIComponent(
+                        routeData?.nonConformance?.nonConformanceId ?? ""
+                      )}`}
+                    >
+                      <DropdownMenuIcon icon={<LuGitPullRequestArrow />} />
+                      <Trans>Create Change Order</Trans>
+                    </Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem
                   disabled={
                     !["In Progress", "Closed"].includes(status ?? "") ||

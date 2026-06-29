@@ -37,6 +37,11 @@ export const accountsQuery = (companyId: string | null) => ({
   staleTime: RefreshRate.Low
 });
 
+export const categoriesQuery = (companyId: string | null) => ({
+  queryKey: ["categories", companyId ?? "null"],
+  staleTime: RefreshRate.Low
+});
+
 export const countriesQuery = () => ({
   queryKey: ["countries"],
   staleTime: RefreshRate.Never
@@ -74,6 +79,11 @@ export const docsQuery = () => ({
 
 export const itemPostingGroupsQuery = (companyId: string | null) => ({
   queryKey: ["itemPostingGroups", companyId ?? "null"],
+  staleTime: RefreshRate.Low
+});
+
+export const changeOrderTypesQuery = (companyId: string | null) => ({
+  queryKey: ["changeOrderTypes", companyId ?? "null"],
   staleTime: RefreshRate.Low
 });
 

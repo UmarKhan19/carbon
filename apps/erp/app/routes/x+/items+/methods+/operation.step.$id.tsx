@@ -8,11 +8,16 @@ import {
   assertMethodOperationIsDraft,
   upsertMethodOperationStep
 } from "~/modules/items";
+import {
+  getItemIdForOperation,
+  getRevisionLock,
+  LOCKED_REVISION_MESSAGE
+} from "~/modules/items/revisionLock.server";
 import { operationStepValidator } from "~/modules/shared";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, userId } = await requirePermissions(request, {
+  const { client, companyId, userId } = await requirePermissions(request, {
     update: "parts"
   });
 
@@ -29,6 +34,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   const { id: _id, ...d } = validation.data;
+
+  // Release-lock gate: block edits to a released (Production) revision unless a
+  // change order is used. enforce -> block; warn -> proceed + flash; off -> no-op.
+  const lockItemId = await getItemIdForOperation(
+    client,
+    validation.data.operationId
+  );
+  const lock = await getRevisionLock(client, { itemId: lockItemId, companyId });
+  if (lock.isLocked && lock.releaseControl === "enforce") {
+    return { success: false, message: LOCKED_REVISION_MESSAGE };
+  }
+  const lockWarn = lock.isLocked && lock.releaseControl === "warn";
 
   await assertMethodOperationIsDraft(client, validation.data.operationId);
 
@@ -67,6 +84,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   return data(
     { id: methodOperationStepId },
-    await flash(request, success("Method operation step updated"))
+    await flash(
+      request,
+      success(lockWarn ? LOCKED_REVISION_MESSAGE : "Method operation step updated")
+    )
   );
 }

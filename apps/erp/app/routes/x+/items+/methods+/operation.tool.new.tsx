@@ -1,10 +1,15 @@
-import { assertIsPost, error } from "@carbon/auth";
+import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { upsertMethodOperationTool } from "~/modules/items";
+import {
+  getItemIdForOperation,
+  getRevisionLock,
+  LOCKED_REVISION_MESSAGE
+} from "~/modules/items/revisionLock.server";
 import { operationToolValidator } from "~/modules/shared";
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -19,6 +24,21 @@ export async function action({ request, params }: ActionFunctionArgs) {
   if (validation.error) {
     return validationError(validation.error);
   }
+
+  // Release-lock gate: block edits to a released (Production) revision unless a
+  // change order is used. enforce -> block; warn -> proceed + flash; off -> no-op.
+  const lockItemId = await getItemIdForOperation(
+    client,
+    validation.data.operationId
+  );
+  const lock = await getRevisionLock(client, { itemId: lockItemId, companyId });
+  if (lock.isLocked && lock.releaseControl === "enforce") {
+    return data(
+      { id: null },
+      await flash(request, error(null, LOCKED_REVISION_MESSAGE))
+    );
+  }
+  const lockWarn = lock.isLocked && lock.releaseControl === "warn";
 
   const insert = await upsertMethodOperationTool(client, {
     ...validation.data,
@@ -47,6 +67,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
         request,
         error(insert.error, "Failed to insert method operation tool")
       )
+    );
+  }
+
+  if (lockWarn) {
+    return data(
+      { id: methodOperationToolId },
+      await flash(request, success(LOCKED_REVISION_MESSAGE))
     );
   }
 

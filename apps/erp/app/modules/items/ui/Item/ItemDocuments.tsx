@@ -23,9 +23,15 @@ import {
 import { convertKbToString } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { FileObject } from "@supabase/storage-js";
+import { nanoid } from "nanoid";
 import type { ChangeEvent } from "react";
 import { useCallback } from "react";
-import { LuAxis3D, LuEllipsisVertical, LuUpload } from "react-icons/lu";
+import {
+  LuAxis3D,
+  LuEllipsisVertical,
+  LuFileText,
+  LuUpload
+} from "react-icons/lu";
 import { Link, useFetchers, useRevalidator, useSubmit } from "react-router";
 import { DocumentPreview, FileDropzone, Hyperlink } from "~/components";
 import DocumentIcon from "~/components/DocumentIcon";
@@ -41,6 +47,14 @@ type ItemDocumentsProps = {
   files: ItemFile[];
   itemId: string;
   modelUpload?: ModelUpload;
+  // Task 26 — the OnShape-controlled drawing PDF pinned to this revision. It is
+  // NOT a modelUpload (that slot holds the STEP geometry) and NOT an item file;
+  // its location lives in the `onshape` externalIntegrationMapping metadata. When
+  // present we render a read-only row linking to a signed URL of the private PDF.
+  controlledDrawing?: {
+    drawingPath: string;
+    drawingRevisionLabel: string | null;
+  } | null;
   type: MethodItemType;
 };
 
@@ -48,6 +62,7 @@ const ItemDocuments = ({
   files,
   itemId,
   modelUpload,
+  controlledDrawing,
   type
 }: ItemDocumentsProps) => {
   const { t } = useLingui();
@@ -64,6 +79,10 @@ const ItemDocuments = ({
   } = useItemDocuments({
     itemId,
     type
+  });
+
+  const { canUpdate: canUpdateDrawing, removeDrawing } = useControlledDrawing({
+    itemId
   });
 
   const onDrop = useCallback(
@@ -96,7 +115,10 @@ const ItemDocuments = ({
           </CardTitle>
         </CardHeader>
         <CardAction>
-          <ItemDocumentForm type={type} itemId={itemId} />
+          <HStack>
+            <ControlledDrawingUpload itemId={itemId} />
+            <ItemDocumentForm type={type} itemId={itemId} />
+          </HStack>
         </CardAction>
       </HStack>
       <CardContent>
@@ -116,6 +138,59 @@ const ItemDocuments = ({
             </Tr>
           </Thead>
           <Tbody>
+            {controlledDrawing && (
+              <Tr>
+                <Td>
+                  <HStack>
+                    <LuFileText className="text-blue-500 w-6 h-6" />
+                    <Hyperlink
+                      target="_blank"
+                      to={path.to.file.previewFile(
+                        `private/${controlledDrawing.drawingPath}`
+                      )}
+                    >
+                      {controlledDrawing.drawingRevisionLabel
+                        ? t`Controlled Drawing (Rev ${controlledDrawing.drawingRevisionLabel})`
+                        : t`Controlled Drawing`}
+                    </Hyperlink>
+                  </HStack>
+                </Td>
+                <Td className="text-xs font-mono">--</Td>
+                <Td className="text-xs font-mono">--</Td>
+                <Td>
+                  <div className="flex justify-end w-full">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <IconButton
+                          aria-label={t`More`}
+                          icon={<LuEllipsisVertical />}
+                          variant="secondary"
+                        />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem asChild>
+                          <Link
+                            target="_blank"
+                            to={path.to.file.previewFile(
+                              `private/${controlledDrawing.drawingPath}`
+                            )}
+                          >
+                            <Trans>View</Trans>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          destructive
+                          disabled={!canUpdateDrawing}
+                          onClick={() => removeDrawing()}
+                        >
+                          <Trans>Remove</Trans>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </Td>
+              </Tr>
+            )}
             {modelUpload?.modelId && (
               <Tr>
                 <Td>
@@ -241,7 +316,7 @@ const ItemDocuments = ({
                 </Tr>
               );
             })}
-            {allFiles.length === 0 && !modelUpload && (
+            {allFiles.length === 0 && !modelUpload && !controlledDrawing && (
               <Tr>
                 <Td
                   colSpan={24}
@@ -286,6 +361,105 @@ const ItemDocumentForm = ({ itemId, type }: ItemDocumentFormProps) => {
       New
     </File>
   );
+};
+
+type ControlledDrawingUploadProps = {
+  itemId: string;
+};
+
+// Manual controlled-drawing upload (spec §7, Task 33). Mirrors ItemDocumentForm:
+// a small PDF-only File control. The PDF is uploaded client-side to the private
+// bucket, then its path is posted to path.to.api.itemDrawing, which records it in
+// the existing `onshape` externalIntegrationMapping metadata slot — the same slot
+// the part-detail loader + PO-line form already read.
+const ControlledDrawingUpload = ({ itemId }: ControlledDrawingUploadProps) => {
+  const permissions = usePermissions();
+  const { uploadDrawing } = useControlledDrawing({ itemId });
+
+  const onChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      await uploadDrawing(file);
+    }
+    e.target.value = "";
+  };
+
+  return (
+    <File
+      isDisabled={!permissions.can("update", "parts")}
+      leftIcon={<LuFileText />}
+      accept="application/pdf"
+      onChange={onChange}
+    >
+      Drawing
+    </File>
+  );
+};
+
+export const useControlledDrawing = ({ itemId }: ControlledDrawingUploadProps) => {
+  const { t } = useLingui();
+  const permissions = usePermissions();
+  const revalidator = useRevalidator();
+  const { carbon } = useCarbon();
+  const { company } = useUser();
+  const submit = useSubmit();
+
+  const canUpdate = permissions.can("update", "parts");
+
+  const uploadDrawing = useCallback(
+    async (file: File) => {
+      if (!carbon) {
+        toast.error(t`Carbon client not available`);
+        return;
+      }
+
+      toast.info(t`Uploading ${file.name}`);
+      const drawingPath = `${company.id}/models/${nanoid()}.pdf`;
+      const upload = await carbon.storage
+        .from("private")
+        .upload(drawingPath, file, {
+          cacheControl: `${12 * 60 * 60}`,
+          upsert: true,
+          contentType: "application/pdf"
+        });
+
+      if (upload.error) {
+        toast.error(t`Failed to upload drawing: ${file.name}`);
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("intent", "upload");
+      formData.append("itemId", itemId);
+      formData.append("drawingPath", drawingPath);
+
+      submit(formData, {
+        method: "post",
+        action: path.to.api.itemDrawing,
+        navigate: false,
+        fetcherKey: `drawing:${itemId}`
+      });
+      toast.success(t`Controlled drawing uploaded`);
+      revalidator.revalidate();
+    },
+    [carbon, company.id, itemId, submit, revalidator, t]
+  );
+
+  const removeDrawing = useCallback(() => {
+    const formData = new FormData();
+    formData.append("intent", "remove");
+    formData.append("itemId", itemId);
+
+    submit(formData, {
+      method: "post",
+      action: path.to.api.itemDrawing,
+      navigate: false,
+      fetcherKey: `drawing:${itemId}`
+    });
+    revalidator.revalidate();
+  }, [itemId, submit, revalidator]);
+
+  return { canUpdate, uploadDrawing, removeDrawing };
 };
 
 type Props = {

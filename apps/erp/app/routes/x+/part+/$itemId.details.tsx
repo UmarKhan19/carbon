@@ -29,6 +29,7 @@ import {
   upsertItemManufacturing,
   upsertPart
 } from "~/modules/items";
+import { getRevisionLock } from "~/modules/items/revisionLock.server";
 import {
   BillOfMaterial,
   BillOfProcess,
@@ -57,13 +58,44 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const requestedMethodId = url.searchParams.get("methodId");
 
-  const [makeMethods] = await Promise.all([
-    getMakeMethods(client, itemId, companyId)
-    // client.storage
-    //   .from("private")
-    //   .list(`${companyId}/default-attachments/item/${itemId}`)
+  const [makeMethods, onshapeMapping, revisionLock] = await Promise.all([
+    getMakeMethods(client, itemId, companyId),
+    // Task 26 — the controlled drawing PDF is NOT on item.modelUploadId (that
+    // slot holds the STEP geometry); its private-bucket path + drawing revision
+    // label live in the revision-level `drawing` externalIntegrationMapping
+    // metadata (its own integration key, decoupled from the parked OnShape
+    // importer). Fetch it so we can render a pinned "Controlled Drawing" surface.
+    client
+      .from("externalIntegrationMapping")
+      .select("metadata")
+      .eq("entityType", "item")
+      .eq("entityId", itemId)
+      .eq("integration", "drawing")
+      .eq("companyId", companyId)
+      // A duplicate mapping row (e.g. a retried import) must not 500 the loader.
+      // Take the newest one rather than throwing on >1 rows with maybeSingle().
+      .order("createdAt", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    getRevisionLock(client, { itemId, companyId })
   ]);
+  const revisionStatus = revisionLock.revisionStatus;
+  const releaseControl = revisionLock.releaseControl;
   // const defaultAttachments = defaultAttachmentsResult.data ?? [];
+
+  // Derive the controlled-drawing surface from the mapping metadata (drawingPath
+  // is a private-bucket object key; drawingRevisionLabel is the drawing-rev,
+  // which differs from the part-rev). Null-safe: most items have no mapping.
+  const onshapeMetadata = onshapeMapping.data?.metadata as {
+    drawingPath?: string | null;
+    drawingRevisionLabel?: string | null;
+  } | null;
+  const controlledDrawing = onshapeMetadata?.drawingPath
+    ? {
+        drawingPath: onshapeMetadata.drawingPath,
+        drawingRevisionLabel: onshapeMetadata.drawingRevisionLabel ?? null
+      }
+    : null;
 
   const makeMethod = requestedMethodId
     ? (makeMethods.data?.find((m) => m.id === requestedMethodId) ??
@@ -73,12 +105,24 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       makeMethods.data?.[0]);
 
   if (!makeMethod) {
-    return { methodData: null, tags: [] };
+    return {
+      methodData: null,
+      tags: [],
+      controlledDrawing,
+      revisionStatus,
+      releaseControl
+    };
   }
 
   const fullMethod = await getMakeMethodById(client, makeMethod.id, companyId);
   if (fullMethod.error || !fullMethod.data) {
-    return { methodData: null, tags: [] };
+    return {
+      methodData: null,
+      tags: [],
+      controlledDrawing,
+      revisionStatus,
+      releaseControl
+    };
   }
 
   const [methodMaterials, methodOperations, tags, partManufacturing] =
@@ -128,7 +172,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       partManufacturing: partManufacturing.data,
       ...configData
     },
-    tags: tags.data ?? []
+    tags: tags.data ?? [],
+    controlledDrawing,
+    revisionStatus,
+    releaseControl
   };
 }
 
@@ -219,7 +266,8 @@ export default function PartDetailsRoute() {
   if (!itemId) throw new Error("Could not find itemId");
 
   const permissions = usePermissions();
-  const { methodData, tags } = useLoaderData<typeof loader>();
+  const { methodData, tags, controlledDrawing, revisionStatus, releaseControl } =
+    useLoaderData<typeof loader>();
 
   const partData = useRouteData<{
     partSummary: PartSummary;
@@ -300,6 +348,8 @@ export default function PartDetailsRoute() {
                   methodData.configurationParametersAndGroups.parameters
                 }
                 replenishmentSystem={partData.partSummary?.replenishmentSystem}
+                revisionStatus={revisionStatus}
+                releaseControl={releaseControl}
               />
               <BillOfProcess
                 key={`bop:${itemId}`}
@@ -329,6 +379,7 @@ export default function PartDetailsRoute() {
                 files={resolvedFiles}
                 itemId={itemId}
                 modelUpload={partData.partSummary ?? undefined}
+                controlledDrawing={controlledDrawing}
                 type="Part"
               />
             )}

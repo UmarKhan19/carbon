@@ -13,8 +13,12 @@ import {
   VStack
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { LuEllipsisVertical, LuTrash } from "react-icons/lu";
-import { Link, useParams } from "react-router";
+import {
+  LuEllipsisVertical,
+  LuGitPullRequestArrow,
+  LuTrash
+} from "react-icons/lu";
+import { Link, useNavigate, useParams } from "react-router";
 import { useAuditLog } from "~/components/AuditLog";
 import { DetailsTopbar } from "~/components/Layout";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
@@ -26,6 +30,7 @@ import { usePartNavigation } from "./usePartNavigation";
 const PartHeader = () => {
   const { t } = useLingui();
   const links = usePartNavigation();
+  const navigate = useNavigate();
   const { itemId } = useParams();
   if (!itemId) throw new Error("itemId not found");
 
@@ -66,6 +71,15 @@ const PartHeader = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 {auditLogTrigger}
+                <DropdownMenuItem
+                  disabled={!permissions.can("create", "plm")}
+                  onClick={() =>
+                    navigate(`${path.to.newChangeOrder}?itemId=${itemId}`)
+                  }
+                >
+                  <DropdownMenuIcon icon={<LuGitPullRequestArrow />} />
+                  <Trans>Create Change Order</Trans>
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   disabled={

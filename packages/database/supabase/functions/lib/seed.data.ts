@@ -242,6 +242,15 @@ export const sequences = [
     step: 1
   },
   {
+    table: "changeOrder",
+    name: "Change Order",
+    prefix: "ECO",
+    suffix: null,
+    next: 0,
+    size: 6,
+    step: 1
+  },
+  {
     table: "purchaseOrder",
     name: "Purchase Order",
     prefix: "PO",

@@ -61,6 +61,7 @@ export const path = {
       groupsByType: (type?: string) =>
         generatePath(`${api}/users/groups?type=${type}`),
       item: (type: string) => generatePath(`${api}/item/${type}`),
+      itemDrawing: `${api}/item/drawing`,
       itemCostRecalculate: (itemId: string) =>
         generatePath(`${api}/items/${itemId}/recalculate-cost`),
       itemConfigurable: `${api}/items/configurable`,
@@ -119,7 +120,12 @@ export const path = {
         generatePath(
           `${api}/integrations/onshape/d/${documentId}/v/${versionId}/elements`
         ),
+      onShapeReleasedRevisions: (documentId: string) =>
+        generatePath(
+          `${api}/integrations/onshape/d/${documentId}/revisions`
+        ),
       onShapeSync: `${api}/integrations/onshape/sync`,
+      onShapeImport: `${api}/integrations/onshape/import`,
       linearCreateIssue: `${api}/integrations/linear/issue/create`,
       linearLinkExistingIssue: `${api}/integrations/linear/issue/link`,
       linearSyncNotes: `${api}/integrations/linear/issue/sync-notes`,
@@ -491,6 +497,13 @@ export const path = {
     assignIssueItemEntities: `${x}/issue/item/assign-entities`,
     issueActionTasksOrder: `${x}/issue/action-tasks/order`,
     bulkUpdateIssueWorkflow: `${x}/issue-workflow/update`,
+    bulkUpdateChangeOrder: `${x}/change-order/update`,
+    updateChangeOrderItem: `${x}/change-order/item/update`,
+    deleteChangeOrderItem: (coItemId: string) =>
+      generatePath(`${x}/change-order/item/delete/${coItemId}`),
+    splitChangeOrderItem: `${x}/change-order/item/split`,
+    assignChangeOrderItemEntities: `${x}/change-order/item/assign-entities`,
+    bulkUpdateChangeOrderWorkflow: `${x}/change-order-workflow/update`,
     bulkUpdatePurchaseOrder: `${x}/purchase-order/update`,
     bulkUpdatePurchasingRfq: `${x}/purchasing-rfq/update`,
     bulkUpdatePurchaseInvoice: `${x}/purchase-invoice/update`,
@@ -723,6 +736,12 @@ export const path = {
       ),
     deleteIssueWorkflow: (id: string) =>
       generatePath(`${x}/issue-workflow/delete/${id}`),
+    deleteChangeOrder: (id: string) =>
+      generatePath(`${x}/change-order/delete/${id}`),
+    deleteChangeOrderWorkflow: (id: string) =>
+      generatePath(`${x}/change-order-workflow/delete/${id}`),
+    deleteChangeOrderType: (id: string) =>
+      generatePath(`${x}/items/change-order/change-order-types/delete/${id}`),
     deleteInvestigationType: (id: string) =>
       generatePath(`${x}/quality/investigation-types/delete/${id}`),
     deleteRequiredAction: (id: string) =>
@@ -947,6 +966,19 @@ export const path = {
     investigationTypes: `${x}/quality/investigation-types`,
     issueType: (id: string) => generatePath(`${x}/quality/issue-types/${id}`),
     issueTypes: `${x}/quality/issue-types`,
+    changeOrder: (id: string) => generatePath(`${x}/change-order/${id}`),
+    changeOrderDetails: (id: string) =>
+      generatePath(`${x}/change-order/${id}/details`),
+    changeOrderItem: (id: string, coItemId: string) =>
+      generatePath(`${x}/change-order/${id}/item/${coItemId}`),
+    changeOrderStatus: (id: string) =>
+      generatePath(`${x}/change-order/${id}/status`),
+    changeOrderDecision: (id: string) =>
+      generatePath(`${x}/change-order/${id}/decision`),
+    releaseChangeOrder: (id: string) =>
+      generatePath(`${x}/change-order/${id}/release`),
+    changeOrderTaskStatus: (id: string) =>
+      generatePath(`${x}/change-order/task/${id}/status`),
     items: `${x}/items`,
     itemCostUpdate: (id: string) => generatePath(`${x}/items/cost/${id}`),
     itemPostingGroup: (id: string) => generatePath(`${x}/items/groups/${id}`),
@@ -1149,6 +1181,9 @@ export const path = {
       generatePath(`${x}/issue/${id}/association/new`),
     newIssueType: `${x}/quality/issue-types/new`,
     newIssueWorkflow: `${x}/issue-workflow/new`,
+    newChangeOrder: `${x}/change-order/new`,
+    newChangeOrderType: `${x}/items/change-order/change-order-types/new`,
+    newChangeOrderWorkflow: `${x}/change-order-workflow/new`,
     newItemPostingGroup: `${x}/items/groups/new`,
     newJob: `${x}/job/new`,
     newJobMaterial: (jobId: string) =>
@@ -1426,6 +1461,14 @@ export const path = {
     qualityDocumentStepOrder: (id: string) =>
       generatePath(`${x}/quality-document/${id}/steps/order`),
     qualitySettings: `${x}/settings/quality`,
+    changeOrders: `${x}/items/change-order/change-orders`,
+    myChangeOrderTasks: `${x}/items/change-order-tasks`,
+    changeOrderWorkflows: `${x}/items/change-order/change-order-workflows`,
+    changeOrderWorkflow: (id: string) =>
+      generatePath(`${x}/change-order-workflow/${id}`),
+    changeOrderTypes: `${x}/items/change-order/change-order-types`,
+    changeOrderType: (id: string) =>
+      generatePath(`${x}/items/change-order/change-order-types/${id}`),
     quote: (id: string) => generatePath(`${x}/quote/${id}`),
     quoteAssembly: (quoteId: string, lineId: string, assemblyId: string) =>
       generatePath(

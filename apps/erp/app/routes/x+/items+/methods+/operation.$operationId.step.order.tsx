@@ -1,14 +1,19 @@
-import { assertIsPost, error } from "@carbon/auth";
+import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { assertMethodOperationIsDraft } from "~/modules/items";
+import {
+  getItemIdForOperation,
+  getRevisionLock,
+  LOCKED_REVISION_MESSAGE
+} from "~/modules/items/revisionLock.server";
 import { updateMethodOperationStepOrder } from "~/modules/production";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, userId } = await requirePermissions(request, {
+  const { client, companyId, userId } = await requirePermissions(request, {
     update: "parts"
   });
 
@@ -29,6 +34,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
       await flash(request, error(null, "Failed to receive a new sort order"))
     );
   }
+
+  // Release-lock gate: block edits to a released (Production) revision unless a
+  // change order is used. enforce -> block; warn -> proceed + flash; off -> no-op.
+  const lockItemId = await getItemIdForOperation(client, operationId);
+  const lock = await getRevisionLock(client, { itemId: lockItemId, companyId });
+  if (lock.isLocked && lock.releaseControl === "enforce") {
+    return data(
+      {},
+      await flash(request, error(null, LOCKED_REVISION_MESSAGE))
+    );
+  }
+  const lockWarn = lock.isLocked && lock.releaseControl === "warn";
 
   await assertMethodOperationIsDraft(client, operationId);
 
@@ -52,6 +69,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
         error(updateSortOrders, "Failed to update sort order")
       )
     );
+
+  if (lockWarn) {
+    return data(
+      { success: true },
+      await flash(request, success(LOCKED_REVISION_MESSAGE))
+    );
+  }
 
   return { success: true };
 }

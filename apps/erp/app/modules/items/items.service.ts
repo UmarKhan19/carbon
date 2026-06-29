@@ -2888,6 +2888,7 @@ export async function upsertPart(
         unitOfMeasureCode: part.unitOfMeasureCode,
         active: true,
         modelUploadId: part.modelUploadId,
+        productManager: part.productManager ?? null,
         companyId: part.companyId,
         createdBy: part.createdBy
       })
@@ -2968,6 +2969,7 @@ export async function upsertPart(
     defaultMethodType: part.defaultMethodType,
     itemTrackingType: part.itemTrackingType,
     unitOfMeasureCode: part.unitOfMeasureCode,
+    productManager: part.productManager ?? null,
     active: true
   };
 

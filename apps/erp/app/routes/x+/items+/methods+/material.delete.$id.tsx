@@ -1,13 +1,18 @@
-import { assertIsPost, error } from "@carbon/auth";
+import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { deleteMethodMaterial } from "~/modules/items";
+import {
+  getItemIdForMaterial,
+  getRevisionLock,
+  LOCKED_REVISION_MESSAGE
+} from "~/modules/items/revisionLock.server";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client } = await requirePermissions(request, {
+  const { client, companyId } = await requirePermissions(request, {
     delete: "parts"
   });
 
@@ -15,6 +20,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
   if (!id) {
     throw new Error("id not found");
   }
+
+  // Release-lock gate: block edits to a released (Production) revision unless a
+  // change order is used. enforce -> block; warn -> proceed + flash; off -> no-op.
+  const lockItemId = await getItemIdForMaterial(client, id);
+  const lock = await getRevisionLock(client, { itemId: lockItemId, companyId });
+  if (lock.isLocked && lock.releaseControl === "enforce") {
+    return data(
+      { id: null },
+      await flash(request, error(null, LOCKED_REVISION_MESSAGE))
+    );
+  }
+  const lockWarn = lock.isLocked && lock.releaseControl === "warn";
 
   const deleteMaterial = await deleteMethodMaterial(client, id);
   if (deleteMaterial.error) {
@@ -27,6 +44,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
         error(deleteMaterial.error, "Failed to delete method material")
       )
     );
+  }
+
+  if (lockWarn) {
+    return data({}, await flash(request, success(LOCKED_REVISION_MESSAGE)));
   }
 
   return {};

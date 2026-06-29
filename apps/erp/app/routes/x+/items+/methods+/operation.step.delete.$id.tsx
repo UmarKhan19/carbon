@@ -1,4 +1,4 @@
-import { assertIsPost, error } from "@carbon/auth";
+import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs } from "react-router";
@@ -7,10 +7,15 @@ import {
   assertMethodOperationIsDraft,
   deleteMethodOperationStep
 } from "~/modules/items";
+import {
+  getItemIdForOperation,
+  getRevisionLock,
+  LOCKED_REVISION_MESSAGE
+} from "~/modules/items/revisionLock.server";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client } = await requirePermissions(request, {
+  const { client, companyId } = await requirePermissions(request, {
     delete: "parts"
   });
 
@@ -29,6 +34,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
     throw new Error("Step not found");
   }
 
+  // Release-lock gate: block edits to a released (Production) revision unless a
+  // change order is used. enforce -> block; warn -> proceed + flash; off -> no-op.
+  const lockItemId = await getItemIdForOperation(client, step.data.operationId);
+  const lock = await getRevisionLock(client, { itemId: lockItemId, companyId });
+  if (lock.isLocked && lock.releaseControl === "enforce") {
+    return data(
+      { id: null },
+      await flash(request, error(null, LOCKED_REVISION_MESSAGE))
+    );
+  }
+  const lockWarn = lock.isLocked && lock.releaseControl === "warn";
+
   await assertMethodOperationIsDraft(client, step.data.operationId);
 
   const deleteOperationStep = await deleteMethodOperationStep(client, id);
@@ -45,6 +62,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
         )
       )
     );
+  }
+
+  if (lockWarn) {
+    return data({}, await flash(request, success(LOCKED_REVISION_MESSAGE)));
   }
 
   return {};

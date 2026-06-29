@@ -39,6 +39,7 @@ import { useEffect, useMemo, useState } from "react";
 import { LuBox, LuChevronRight, LuLandmark, LuReceipt } from "react-icons/lu";
 import { useFetcher, useParams } from "react-router";
 import type { z } from "zod";
+import { Hyperlink } from "~/components";
 import {
   Account,
   ConversionFactor,
@@ -111,6 +112,11 @@ const PurchaseOrderLineForm = ({
     itemId: string;
     conversionFactor: number;
     description: string;
+    // Task 26 — the released revision's OnShape-controlled drawing (private PDF
+    // path + drawing rev), so a buyer sees exactly the ordered revision's
+    // drawing. Pulled from the item's `onshape` externalIntegrationMapping.
+    drawingPath: string | null;
+    drawingRevisionLabel: string | null;
     fallbackUnitPrice: number;
     inventoryUom: string;
     minimumOrderQuantity?: number;
@@ -128,6 +134,8 @@ const PurchaseOrderLineForm = ({
     itemId: initialValues.itemId ?? "",
     conversionFactor: initialValues.conversionFactor ?? 1,
     description: initialValues.description ?? "",
+    drawingPath: null,
+    drawingRevisionLabel: null,
     fallbackUnitPrice: initialValues.supplierUnitPrice ?? 0,
     inventoryUom: initialValues.inventoryUnitOfMeasureCode ?? "",
     minimumOrderQuantity: undefined,
@@ -268,17 +276,45 @@ const PurchaseOrderLineForm = ({
     })();
   });
 
-  // Load price breaks on mount when editing so quantity changes resolve correctly
+  // Load the controlled drawing and price breaks on mount when editing so an
+  // existing PO line shows its drawing and resolves quantity pricing without the
+  // buyer having to re-pick the item.
   useMount(() => {
     if (!isEditing || !initialValues.itemId) return;
-    const supplierId = routeData?.purchaseOrder?.supplierId;
-    if (!supplierId) return;
+    const itemId = initialValues.itemId;
 
     (async () => {
+      // Task 26 — mirror onItemChange's drawing mapping fetch so the persisted
+      // item's controlled drawing loads on mount, not only on re-pick. This is
+      // not gated on the supplier (the drawing lives on the item).
+      const onshapeMapping = await carbon
+        .from("externalIntegrationMapping")
+        .select("metadata")
+        .eq("entityType", "item")
+        .eq("entityId", itemId)
+        .eq("integration", "drawing")
+        .eq("companyId", company.id)
+        .order("createdAt", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      const onshapeMetadata = onshapeMapping?.data?.metadata as {
+        drawingPath?: string | null;
+        drawingRevisionLabel?: string | null;
+      } | null;
+      setItemData((d) => ({
+        ...d,
+        drawingPath: onshapeMetadata?.drawingPath ?? null,
+        drawingRevisionLabel: onshapeMetadata?.drawingRevisionLabel ?? null
+      }));
+
+      const supplierId = routeData?.purchaseOrder?.supplierId;
+      if (!supplierId) return;
+
       const supplierPart = await carbon
         .from("supplierPart")
         .select("id")
-        .eq("itemId", initialValues.itemId!)
+        .eq("itemId", itemId)
         .eq("companyId", company.id)
         .eq("supplierId", supplierId)
         .maybeSingle();
@@ -308,6 +344,8 @@ const PurchaseOrderLineForm = ({
       itemId: "",
       conversionFactor: 1,
       description: "",
+      drawingPath: null,
+      drawingRevisionLabel: null,
       fallbackUnitPrice: 0,
       inventoryUom: "",
       minimumOrderQuantity: undefined,
@@ -333,30 +371,51 @@ const PurchaseOrderLineForm = ({
       case "Material":
       case "Part":
       case "Tool":
-        const [item, supplierPart, inventory] = await Promise.all([
-          carbon
-            .from("item")
-            .select(
-              "name, readableIdWithRevision, type, unitOfMeasureCode, itemCost(unitCost), itemReplenishment(purchasingUnitOfMeasureCode, conversionFactor, leadTime)"
-            )
-            .eq("id", itemId)
-            .eq("companyId", company.id)
-            .single(),
-          carbon
-            .from("supplierPart")
-            .select("*")
-            .eq("itemId", itemId)
-            .eq("companyId", company.id)
-            .eq("supplierId", routeData?.purchaseOrder.supplierId!)
-            .maybeSingle(),
-          carbon
-            .from("pickMethod")
-            .select("defaultStorageUnitId")
-            .eq("itemId", itemId)
-            .eq("companyId", company.id)
-            .eq("locationId", locationId!)
-            .maybeSingle()
-        ]);
+        const [item, supplierPart, inventory, onshapeMapping] =
+          await Promise.all([
+            carbon
+              .from("item")
+              .select(
+                "name, readableIdWithRevision, type, unitOfMeasureCode, itemCost(unitCost), itemReplenishment(purchasingUnitOfMeasureCode, conversionFactor, leadTime)"
+              )
+              .eq("id", itemId)
+              .eq("companyId", company.id)
+              .single(),
+            carbon
+              .from("supplierPart")
+              .select("*")
+              .eq("itemId", itemId)
+              .eq("companyId", company.id)
+              .eq("supplierId", routeData?.purchaseOrder.supplierId!)
+              .maybeSingle(),
+            carbon
+              .from("pickMethod")
+              .select("defaultStorageUnitId")
+              .eq("itemId", itemId)
+              .eq("companyId", company.id)
+              .eq("locationId", locationId!)
+              .maybeSingle(),
+            // Task 26 — the item id is the released revision, so its `drawing`
+            // mapping metadata pins the controlled drawing to exactly what
+            // purchasing is ordering (single-source-of-truth deliverable).
+            carbon
+              .from("externalIntegrationMapping")
+              .select("metadata")
+              .eq("entityType", "item")
+              .eq("entityId", itemId)
+              .eq("integration", "drawing")
+              .eq("companyId", company.id)
+              // A duplicate mapping row must not 500 the loader — take the
+              // newest rather than throwing on >1 rows with maybeSingle().
+              .order("createdAt", { ascending: false })
+              .limit(1)
+              .maybeSingle()
+          ]);
+
+        const onshapeMetadata = onshapeMapping?.data?.metadata as {
+          drawingPath?: string | null;
+          drawingRevisionLabel?: string | null;
+        } | null;
 
         const itemCost = item?.data?.itemCost?.[0];
         const itemReplenishment = item?.data?.itemReplenishment;
@@ -380,6 +439,8 @@ const PurchaseOrderLineForm = ({
         setItemData({
           itemId: itemId,
           description: item.data?.name ?? "",
+          drawingPath: onshapeMetadata?.drawingPath ?? null,
+          drawingRevisionLabel: onshapeMetadata?.drawingRevisionLabel ?? null,
           purchaseQuantity: initialQty,
           supplierUnitPrice: resolvedPrice,
           supplierShippingCost: 0,
@@ -603,6 +664,24 @@ const PurchaseOrderLineForm = ({
                             }))
                           }
                         />
+
+                        {itemData.drawingPath && (
+                          <FormControl>
+                            <FormLabel>
+                              <Trans>Controlled Drawing</Trans>
+                            </FormLabel>
+                            <Hyperlink
+                              target="_blank"
+                              to={path.to.file.previewFile(
+                                `private/${itemData.drawingPath}`
+                              )}
+                            >
+                              {itemData.drawingRevisionLabel
+                                ? t`Drawing (Rev ${itemData.drawingRevisionLabel})`
+                                : t`Drawing`}
+                            </Hyperlink>
+                          </FormControl>
+                        )}
 
                         {isOutsideProcessing && (
                           <JobOperationSelect jobId={initialValues.jobId} />

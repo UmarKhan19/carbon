@@ -5,6 +5,11 @@ import { validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { upsertMethodOperationTool } from "~/modules/items";
+import {
+  getItemIdForTool,
+  getRevisionLock,
+  LOCKED_REVISION_MESSAGE
+} from "~/modules/items/revisionLock.server";
 import { operationToolValidator } from "~/modules/shared";
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -26,6 +31,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   const { id: _id, ...d } = validation.data;
+
+  // Release-lock gate: block edits to a released (Production) revision unless a
+  // change order is used. enforce -> block; warn -> proceed + flash; off -> no-op.
+  const lockItemId = await getItemIdForTool(client, id);
+  const lock = await getRevisionLock(client, { itemId: lockItemId, companyId });
+  if (lock.isLocked && lock.releaseControl === "enforce") {
+    return data(
+      { id: null },
+      await flash(request, error(null, LOCKED_REVISION_MESSAGE))
+    );
+  }
+  const lockWarn = lock.isLocked && lock.releaseControl === "warn";
 
   const update = await upsertMethodOperationTool(client, {
     id,
@@ -61,6 +78,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   return data(
     { id: methodOperationToolId },
-    await flash(request, success("Method operation tool updated"))
+    await flash(
+      request,
+      success(lockWarn ? LOCKED_REVISION_MESSAGE : "Method operation tool updated")
+    )
   );
 }

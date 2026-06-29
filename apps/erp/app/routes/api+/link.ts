@@ -78,6 +78,11 @@ async function resolve(
       return path.to.stockTransfer(documentId);
     case NotificationEvent.SuggestionResponse:
       return path.to.suggestion(documentId);
+    case NotificationEvent.ChangeOrderSubmittedForReview:
+    case NotificationEvent.ChangeOrderApproved:
+    case NotificationEvent.ChangeOrderRejected:
+    case NotificationEvent.ChangeOrderReleased:
+      return path.to.changeOrderDetails(documentId);
     case NotificationEvent.ApprovalApproved:
     case NotificationEvent.ApprovalRejected:
     case NotificationEvent.ApprovalRequested:
