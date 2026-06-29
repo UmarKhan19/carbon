@@ -11606,6 +11606,9 @@ msgstr "这些工作有分配给此工作中心的操作："
 msgid "This completes the Discovery step."
 msgstr "这完成了发现步骤。"
 
+msgid "This employee is inactive"
+msgstr ""
+
 msgid "This information will be used on document headers"
 msgstr "此信息将用于文档标题"
 

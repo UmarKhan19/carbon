@@ -11606,6 +11606,9 @@ msgstr "इन कार्यों के पास इस कार्य क
 msgid "This completes the Discovery step."
 msgstr "यह Discovery चरण को पूरा करता है।"
 
+msgid "This employee is inactive"
+msgstr ""
+
 msgid "This information will be used on document headers"
 msgstr "यह जानकारी दस्तावेज़ शीर्षलेख पर उपयोग की जाएगी"
 

@@ -11606,6 +11606,9 @@ msgstr "これらのジョブにはこのワークセンターに割り当てら
 msgid "This completes the Discovery step."
 msgstr "これはDiscoveryステップを完了します。"
 
+msgid "This employee is inactive"
+msgstr ""
+
 msgid "This information will be used on document headers"
 msgstr "この情報はドキュメントヘッダーで使用されます"
 

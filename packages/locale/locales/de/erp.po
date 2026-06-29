@@ -11606,6 +11606,9 @@ msgstr "Diese Aufträge haben Operationen, die diesem Arbeitszentrum zugewiesen 
 msgid "This completes the Discovery step."
 msgstr "Dies schließt den Discovery-Schritt ab."
 
+msgid "This employee is inactive"
+msgstr ""
+
 msgid "This information will be used on document headers"
 msgstr "Diese Informationen werden in Dokumentkopfzeilen verwendet"
 

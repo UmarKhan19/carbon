@@ -11606,6 +11606,9 @@ msgstr "Te zadania mają operacje przypisane do tego centrum pracy:"
 msgid "This completes the Discovery step."
 msgstr "To uzupełnia krok Discovery."
 
+msgid "This employee is inactive"
+msgstr ""
+
 msgid "This information will be used on document headers"
 msgstr "Te informacje będą używane w nagłówkach dokumentów"
 

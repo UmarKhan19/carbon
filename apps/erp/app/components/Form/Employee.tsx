@@ -36,7 +36,7 @@ const Employee = ({ type, inline, ...props }: EmployeeSelectProps) => {
             <span>{person.name}</span>
           </div>
         ),
-        disabled: person.active === false,
+        disabled: person.status === "Inactive",
         disabledReason: "This employee is inactive"
       })) ?? [];
 

@@ -11606,6 +11606,9 @@ msgstr "Bu işler bu iş merkezine atanmış işlemlere sahiptir:"
 msgid "This completes the Discovery step."
 msgstr "Bu, Keşif adımını tamamlar."
 
+msgid "This employee is inactive"
+msgstr ""
+
 msgid "This information will be used on document headers"
 msgstr "Bu bilgiler belge başlıklarında kullanılacaktır"
 

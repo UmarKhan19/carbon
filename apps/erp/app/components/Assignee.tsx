@@ -8,6 +8,7 @@ import {
   cn,
   HStack,
   IconButton,
+  InactiveOptionIndicator,
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -76,17 +77,31 @@ const Assign = forwardRef<HTMLButtonElement, AssigneeProps>(
     };
 
     const options = useMemo(() => {
-      const base =
-        people
-          .filter((person) => person.id !== user.id)
-          .map((person) => ({
-            value: person.id,
-            label: person.name
-          })) ?? [];
+      const base = people
+        .filter((person) => person.id !== user.id)
+        .map((person) => ({
+          value: person.id,
+          label: person.name,
+          disabled: person.status === "Inactive",
+          disabledReason: t`This employee is inactive`
+        }))
+        // Sink inactive employees to the bottom (stable sort keeps name order
+        // within each group).
+        .sort((a, b) => Number(!!a.disabled) - Number(!!b.disabled));
 
       return [
-        { value: "", label: t`Unassigned` },
-        { value: user.id, label: `${user.firstName} ${user.lastName}` },
+        {
+          value: "",
+          label: t`Unassigned`,
+          disabled: false,
+          disabledReason: ""
+        },
+        {
+          value: user.id,
+          label: `${user.firstName} ${user.lastName}`,
+          disabled: false,
+          disabledReason: ""
+        },
         ...base
       ];
     }, [people, user, t]);
@@ -169,30 +184,48 @@ const Assign = forwardRef<HTMLButtonElement, AssigneeProps>(
                   <Trans>No option found.</Trans>
                 </CommandEmpty>
                 <CommandGroup>
-                  {options.map((option) => (
-                    <CommandItem
-                      value={
-                        typeof option.label === "string"
-                          ? option.label
-                          : undefined
-                      }
-                      key={option.value}
-                      onSelect={() => {
-                        handleChange(option.value);
-                        onChange?.(option.value);
-                        setOpen(false);
-                      }}
-                    >
-                      {option.label}
-
-                      <RxCheck
+                  {options.map((option) => {
+                    const isSelected = option.value === value;
+                    // Disabled blocks assigning an inactive employee, but never
+                    // the already-assigned one (so the record stays editable).
+                    const effectiveDisabled = !!option.disabled && !isSelected;
+                    return (
+                      <CommandItem
+                        value={
+                          typeof option.label === "string"
+                            ? option.label
+                            : undefined
+                        }
+                        key={option.value}
+                        aria-disabled={effectiveDisabled || undefined}
                         className={cn(
-                          "ml-auto h-4 w-4",
-                          option.value === value ? "opacity-100" : "opacity-0"
+                          option.disabled && "opacity-50",
+                          effectiveDisabled && "cursor-not-allowed"
                         )}
-                      />
-                    </CommandItem>
-                  ))}
+                        onSelect={() => {
+                          if (effectiveDisabled) return;
+                          handleChange(option.value);
+                          onChange?.(option.value);
+                          setOpen(false);
+                        }}
+                      >
+                        {option.label}
+
+                        {effectiveDisabled ? (
+                          <InactiveOptionIndicator
+                            reason={option.disabledReason}
+                          />
+                        ) : (
+                          <RxCheck
+                            className={cn(
+                              "ml-auto h-4 w-4",
+                              isSelected ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                        )}
+                      </CommandItem>
+                    );
+                  })}
                 </CommandGroup>
               </Command>
             </PopoverContent>

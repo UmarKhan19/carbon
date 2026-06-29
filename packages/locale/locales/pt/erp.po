@@ -11606,6 +11606,9 @@ msgstr "Estes trabalhos têm operações atribuídas a este centro de trabalho:"
 msgid "This completes the Discovery step."
 msgstr "Isto completa a etapa de Descoberta."
 
+msgid "This employee is inactive"
+msgstr ""
+
 msgid "This information will be used on document headers"
 msgstr "Esta informação será usada nos cabeçalhos de documentos"
 

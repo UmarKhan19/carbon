@@ -3,6 +3,10 @@ import { useNanoStore } from "~/hooks";
 import type { ListItem } from "~/types";
 
 const $peopleStore = atom<
-  (ListItem & { avatarUrl: string | null; active?: boolean | null })[]
+  (ListItem & {
+    avatarUrl: string | null;
+    active?: boolean | null;
+    status?: string | null;
+  })[]
 >([]);
 export const usePeople = () => useNanoStore($peopleStore, "people");

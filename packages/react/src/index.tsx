@@ -344,6 +344,7 @@ import { VStack } from "./VStack";
 
 export * from "./Acknowledge";
 export * from "./hooks";
+export { InactiveOptionIndicator } from "./InactiveOptionIndicator";
 export {
   Accordion,
   AccordionContent,

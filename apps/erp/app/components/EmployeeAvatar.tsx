@@ -39,7 +39,7 @@ const EmployeeAvatar = ({
     return <Avatar size={size ?? "xs"} path={undefined} />;
   }
 
-  const isInactive = person.active === false;
+  const isInactive = person.status === "Inactive";
 
   return (
     <HStack className="truncate no-underline hover:no-underline">

@@ -11606,6 +11606,9 @@ msgstr "These jobs have operations assigned to this work center:"
 msgid "This completes the Discovery step."
 msgstr "This completes the Discovery step."
 
+msgid "This employee is inactive"
+msgstr "This employee is inactive"
+
 msgid "This information will be used on document headers"
 msgstr "This information will be used on document headers"
 
