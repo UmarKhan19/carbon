@@ -29,7 +29,7 @@ If no spec exists, suggest running `/brainstorm` first.
 
 ## Step 1: Load the Design Spec
 
-Read the design spec from `docs/specs/[feature-name]-design.md`.
+Read the design spec from `claude/plans/[feature-name]-design.md`.
 
 Extract:
 - Data model changes
@@ -159,7 +159,7 @@ Save to `llm/tasks/[feature-name]-plan.md`:
 # [Feature] Implementation Plan
 
 ## Overview
-- **Design Spec:** `docs/specs/[feature-name]-design.md`
+- **Design Spec:** `claude/plans/[feature-name]-design.md`
 - **Tasks:** N tasks, estimated M minutes
 - **Dependencies:** [diagram or list]
 

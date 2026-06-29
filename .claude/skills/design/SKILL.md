@@ -55,7 +55,7 @@ For each decision:
 
 ### 3.2 Write Spec
 
-Save to `docs/specs/[feature]-design.md`:
+Save to `claude/plans/[feature]-design.md`:
 
 ```markdown
 # [Feature] Design
@@ -127,7 +127,7 @@ Each task is **2-5 minutes**, one discrete action:
 | Artifact | Location |
 |----------|----------|
 | Research | `llm/research/[feature].md` |
-| Design spec | `docs/specs/[feature]-design.md` |
+| Design spec | `claude/plans/[feature]-design.md` |
 | Implementation plan | `llm/tasks/[feature]-plan.md` |
 
 ## Approval Gate

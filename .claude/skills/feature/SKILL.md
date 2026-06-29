@@ -35,7 +35,7 @@ Identify the domain and research competitors:
 Design with research in hand:
 - Use competitor patterns to inform decisions
 - Document design choices with rationale
-- Save to `docs/specs/[feature]-design.md`
+- Save to `claude/plans/[feature]-design.md`
 - **Gate:** User approval required
 
 ### Phase 3: Plan (`/plan`)
@@ -95,7 +95,7 @@ Phase 5: Verify
 | Phase | Artifact | Location |
 |-------|----------|----------|
 | Research | Competitor analysis | `llm/research/[feature].md` |
-| Brainstorm | Design spec | `docs/specs/[feature]-design.md` |
+| Brainstorm | Design spec | `claude/plans/[feature]-design.md` |
 | Plan | Implementation plan | `llm/tasks/[feature]-plan.md` |
 | Execute | Working code | Feature branch |
 | Verify | Test evidence | Screenshots/logs |

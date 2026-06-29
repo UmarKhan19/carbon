@@ -112,7 +112,7 @@ Now brainstorm **with research in hand**.
 
 ### 4.1 Write Design Spec
 
-Save to `docs/specs/[feature-name]-design.md`:
+Save to `claude/plans/[feature-name]-design.md`:
 
 ```markdown
 # [Feature] Design Specification
@@ -157,7 +157,7 @@ Present the spec and wait for explicit approval before proceeding.
 | Artifact | Location |
 |----------|----------|
 | Competitor research | `llm/research/[feature-slug].md` |
-| Design specification | `docs/specs/[feature-name]-design.md` |
+| Design specification | `claude/plans/[feature-name]-design.md` |
 
 ## Next Step
 
