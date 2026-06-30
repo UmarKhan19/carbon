@@ -11,20 +11,19 @@
         "check-and-commit",
         "create-agents-md",
         "spec-writing",
-        "forms",
-        "login",
         "test",
         "plan",
         "execute",
-        "error",
         "feature",
         "improve",
-        "research",
-        "database-transactions",
-        "verification-before-completion",
-        "finishing-a-development-branch",
-        "receiving-code-review",
-        "using-git-worktrees"
+        "research"
+      ]
+    },
+    "building-blocks": {
+      "description": "Helper skills called by other skills but not loaded by default.",
+      "skills": [
+        "login",
+        "error"
       ]
     },
     "automation": {
@@ -34,7 +33,6 @@
         "pr-splitter",
         "systematic-debugging",
         "debugging-difficult-bugs",
-        "dispatching-parallel-agents",
         "smoke-test",
         "test-driven-development"
       ]

@@ -89,21 +89,74 @@ For **multi-row / multi-table writes** where partial failure is a bug, use Kysel
 `pg` pool built by `getPostgresClient`/`getPostgresConnectionPool` in
 `packages/database/supabase/functions/lib/postgres/index.ts`).
 
+Every `client.from(...).update(...)` is a separate HTTP roundtrip to PostgREST. With `Promise.all`,
+some rows can commit and the rest fail, leaving data in a half-applied state with no rollback.
+Kysely opens one PG transaction, runs every write inside it, and rolls everything back on any error.
+
+**Use transactions when:**
+- Bulk reorder / sortOrder updates across N rows.
+- Writes that span multiple tables and need all-or-nothing semantics (e.g. parent + child rows, denormalized counters).
+- Anything where partial application would be a real bug, not a cosmetic glitch.
+
+**Don't use transactions when:**
+- A single write (already atomic).
+- Reads only — keep using the Supabase client (`client.from(...).select(...)`); Kysely has no auth/RLS context.
+- Throwaway/idempotent fan-out where partial failure is fine and retry is cheap.
+
+### Service function example
+
+`Kysely<KyselyDatabase>` is the first arg by convention. The route passes `getDatabaseClient()`.
+Real precedents: `items.service.ts → upsertPickMethodWithShelfLife`,
+`update<Entity>LineOrder` functions across purchasing, sales, invoicing services.
+
 ```typescript
 import type { Kysely, KyselyDatabase } from "@carbon/database/client";
 
-export async function updateLineOrder(db: Kysely<KyselyDatabase>, updates: {...}[]) {
+export async function updatePurchaseOrderLineOrder(
+  db: Kysely<KyselyDatabase>,
+  updates: { id: string; sortOrder: number; updatedBy: string }[]
+) {
   return db.transaction().execute(async (trx) => {
-    for (const u of updates) {
-      await trx.updateTable("salesOrderLine").set({ sortOrder: u.sortOrder }).where("id", "=", u.id).execute();
+    for (const { id, sortOrder, updatedBy } of updates) {
+      await trx
+        .updateTable("purchaseOrderLine")
+        .set({ sortOrder, updatedBy })
+        .where("id", "=", id)
+        .execute();
     }
   });
 }
 ```
 
+### Route handler example
+
+```typescript
+import { getDatabaseClient } from "~/services/database.server";
+import { updatePurchaseOrderLineOrder } from "~/modules/purchasing";
+
+export async function action({ request, params }: ActionFunctionArgs) {
+  const { userId } = await requirePermissions(request, { update: "purchasing" });
+  // ... build `updates` from formData ...
+  try {
+    await updatePurchaseOrderLineOrder(getDatabaseClient(), updates);
+  } catch (err) {
+    return data(
+      { success: false },
+      await flash(request, error(err, "Failed to update sort order"))
+    );
+  }
+  return { success: true };
+}
+```
+
+### Key notes
+
 - Kysely **throws** on rollback — use `try/catch`, not the `{ error }` return pattern.
-- Kysely **does not apply RLS**. Authorize at the route with `requirePermissions` before calling it.
+- Kysely **does not apply RLS**. Authorize at the route with `requirePermissions` before calling it;
+  when in doubt, scope queries by `companyId` inside the transaction.
 - Single writes are already atomic — don't reach for a transaction.
+- Kysely auto-quotes reserved column names (e.g. `order`), so `.set({ order: sortOrder })` is safe.
+- Kysely uses a connection pool and the Postgres role — enforce auth at the route, not in the service.
 
 ## RLS / permission model
 

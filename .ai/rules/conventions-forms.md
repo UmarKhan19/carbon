@@ -11,8 +11,7 @@ paths:
 
 Forms in Carbon follow a three-part pattern: **zod validator** (module `.models.ts`)
 → **form component** (`ValidatedForm` in `ui/`) → **route action** (validate +
-service call + redirect). This rule is the full detail; it aligns with the `forms`
-skill (`.ai/skills/forms/SKILL.md`) — don't contradict it.
+service call + redirect).
 
 Real reference examples (current code):
 
@@ -41,7 +40,7 @@ selectors (`apps/erp/app/components/Form/index.ts`).
 ## 1. Validator (zod schema)
 
 Define in the module's `.models.ts`. **Import is `import { z } from "zod"` and
-`import { zfd } from "zod-form-data"`** — there is NO `@carbon/form` schema helper;
+`import { zfd } from "zod-form-data"`** - there is NO `@carbon/form` schema helper;
 the schema is plain zod. Use `zfd` to coerce raw `FormData` strings into the right
 types.
 
@@ -78,11 +77,11 @@ export const thingValidator = z.object({
 
 The core is `ValidatedForm` wrapping the fields. The **`validator` prop takes the
 raw zod schema directly** (e.g. `validator={thingValidator}`), NOT a wrapped
-validator — wrapping with `validator(schema)` happens only in the route action.
+validator - wrapping with `validator(schema)` happens only in the route action.
 
 Real forms typically: wrap in a `ModalDrawer*` container (`@carbon/react`), pass a
 `useFetcher()` to the form, set `className="flex flex-col h-full"`, and use Lingui
-``t`...` `` for labels. Containers vary (Drawer, Modal, Card, inline) — match
+``t`...` `` for labels. Containers vary (Drawer, Modal, Card, inline) - match
 neighboring routes.
 
 ```typescript
@@ -173,7 +172,7 @@ const ThingForm = ({ initialValues, type = "drawer", open, onClose }: ThingFormP
 ### Form component rules
 
 - Type props with `z.infer<typeof validator>`.
-- `validator={rawZodSchema}` — pass the schema directly.
+- `validator={rawZodSchema}` - pass the schema directly.
 - Include `<Hidden name="id" />` for edit support; `<Hidden name="type" value={type} />`
   when the action branches on `modal` vs page submission.
 - `<CustomFormFields table="{tableName}" />` renders per-table custom fields.
@@ -248,13 +247,13 @@ export async function action({ request }: ActionFunctionArgs) {
 | First | `assertIsPost(request)` |
 | Auth | `requirePermissions(request, { create \| update: "module" })` → `{ client, companyId, userId }` |
 | Read once | `const formData = await request.formData()` (reuse it; check `modal` via `formData.get("type")`) |
-| Validate | `validator(thingValidator).validate(formData)` — the **only** place the schema gets wrapped with `validator(...)`; NOT `schema.parse()` |
+| Validate | `validator(thingValidator).validate(formData)` - the **only** place the schema gets wrapped with `validator(...)`; NOT `schema.parse()` |
 | Validation error | `return validationError(validation.error)` (422; from `@carbon/form`) |
 | Custom fields | `customFields: setCustomFields(formData)` (`~/utils/form`) |
 | Service error | `return data({}, await flash(request, error(...)))` |
-| Success (page) | `throw redirect(...)` — NOT `return redirect()` (some modal branches `return redirect(...)` / `return data(row, { status: 201 })`) |
+| Success (page) | `throw redirect(...)` - NOT `return redirect()` (some modal branches `return redirect(...)` / `return data(row, { status: 201 })`) |
 
-Actions return **plain objects** or `data(value, init)`. Do NOT use `json(...)` —
+Actions return **plain objects** or `data(value, init)`. Do NOT use `json(...)` -
 that is the old Remix helper and is not used here. Edit actions live in the
 `${id}` route and use `update: "module"` permission instead of `create`.
 
@@ -310,7 +309,7 @@ Source: `packages/form/src/components/`.
 
 ### Domain selectors (`~/components/Form` only)
 
-Combobox/CreatableCombobox wrappers that auto-load options from stores — use these
+Combobox/CreatableCombobox wrappers that auto-load options from stores - use these
 instead of a raw `Combobox` when the entity matches. Current set
 (`apps/erp/app/components/Form/index.ts`):
 
