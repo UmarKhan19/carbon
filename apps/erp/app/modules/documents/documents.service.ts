@@ -112,9 +112,12 @@ export async function insertDocumentLabel(
   client: SupabaseClient<Database>,
   id: string,
   label: string,
-  userId: string
+  userId: string,
+  companyId: string
 ) {
-  return client.from("documentLabel").insert({ documentId: id, label, userId });
+  return client
+    .from("documentLabel")
+    .insert({ documentId: id, label, userId, companyId });
 }
 
 export async function moveDocumentToTrash(

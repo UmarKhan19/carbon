@@ -1015,6 +1015,7 @@ export async function insertSupplierContact(
       {
         supplierId: supplierContact.supplierId,
         contactId,
+        companyId: supplierContact.companyId,
         supplierLocationId: supplierContact.supplierLocationId,
         customFields: supplierContact.customFields
       }
@@ -1074,6 +1075,7 @@ export async function insertSupplierLocation(
       {
         supplierId: supplierLocation.supplierId,
         addressId,
+        companyId: supplierLocation.companyId,
         name: supplierLocation.name,
         customFields: supplierLocation.customFields
       }

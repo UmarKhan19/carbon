@@ -1166,6 +1166,7 @@ export async function upsertContractor(
       }
 ) {
   const { abilities, ...contractor } = contractorWithAbilities;
+  let companyId: string;
   if ("updatedBy" in contractor) {
     const updateContractor = await client
       .from("contractor")
@@ -1181,6 +1182,17 @@ export async function upsertContractor(
     if (deleteContractorAbilities.error) {
       return deleteContractorAbilities;
     }
+    const contractorRecord = await client
+      .from("contractor")
+      .select("companyId")
+      .eq("id", contractor.id)
+      .single();
+    if (contractorRecord.error || !contractorRecord.data) {
+      return contractorRecord.error
+        ? contractorRecord
+        : { data: null, error: new Error("Contractor not found") };
+    }
+    companyId = contractorRecord.data.companyId;
   } else {
     const createContractor = await client
       .from("contractor")
@@ -1188,12 +1200,14 @@ export async function upsertContractor(
     if (createContractor.error) {
       return createContractor;
     }
+    companyId = contractor.companyId;
   }
 
   const contractorAbilities = abilities.map((ability) => {
     return {
       contractorId: contractor.id,
       abilityId: ability,
+      companyId,
       createdBy:
         "createdBy" in contractor ? contractor.createdBy : contractor.updatedBy
     };

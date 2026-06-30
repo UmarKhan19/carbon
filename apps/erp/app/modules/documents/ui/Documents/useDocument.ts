@@ -46,7 +46,8 @@ export const useDocument = () => {
       return carbon?.from("documentTransaction").insert({
         documentId: document.id,
         type,
-        userId: user.id
+        userId: user.id,
+        companyId: user.company.id
       });
     },
     [carbon, user?.id]
@@ -148,7 +149,8 @@ export const useDocument = () => {
             labels.map((label) => ({
               documentId: document.id!,
               label,
-              userId: user.id
+              userId: user.id,
+              companyId: user.company.id
             }))
           );
         });

@@ -37,7 +37,11 @@ import { usePanels } from "~/components/Layout/Panels";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
 import { usePermissions, useRouteData, useUser } from "~/hooks";
 import { ShipmentStatus } from "~/modules/inventory/ui/Shipments";
-import type { SalesInvoice, SalesInvoiceLine } from "~/modules/invoicing";
+import type {
+  SalesInvoice,
+  SalesInvoiceLine,
+  SalesInvoiceStatus as SalesInvoiceStatusType
+} from "~/modules/invoicing";
 import { isInvoicePayable } from "~/modules/invoicing";
 import { getPayInvoiceHref } from "~/modules/invoicing/ui/Payment/PaymentForm";
 // status mutation route still exists for the manual Draft -> Pending ->
@@ -244,7 +248,9 @@ const SalesInvoiceHeader = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <SalesInvoiceStatus status={salesInvoice.status} />
+            <SalesInvoiceStatus
+              status={salesInvoice.status as SalesInvoiceStatusType | null}
+            />
           </HStack>
           <HStack>
             {relatedDocs.salesOrders.length === 1 && (

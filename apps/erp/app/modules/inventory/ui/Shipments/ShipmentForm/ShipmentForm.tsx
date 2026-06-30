@@ -451,7 +451,11 @@ function InvoiceButtons({
                           <DropdownMenuIcon icon={<LuCreditCard />} />
                           <HStack spacing={8}>
                             <span>{inv.invoiceId}</span>
-                            <SalesInvoiceStatus status={inv.status} />
+                            <SalesInvoiceStatus
+                              status={
+                                inv.status as SalesInvoiceStatusType | null
+                              }
+                            />
                           </HStack>
                         </Link>
                       </DropdownMenuItem>
@@ -523,7 +527,11 @@ function InvoiceButtons({
                           <DropdownMenuIcon icon={<LuCreditCard />} />
                           <HStack spacing={8}>
                             <span>{inv.invoiceId}</span>
-                            <SalesInvoiceStatus status={inv.status} />
+                            <SalesInvoiceStatus
+                              status={
+                                inv.status as SalesInvoiceStatusType | null
+                              }
+                            />
                           </HStack>
                         </Link>
                       </DropdownMenuItem>

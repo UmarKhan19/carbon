@@ -1,5 +1,5 @@
 {
-  "generated": "2026-06-30T13:05:05.514Z",
+  "generated": "2026-06-30T13:34:16.616Z",
   "totalTools": 1248,
   "modules": 15,
   "tools": [
@@ -3072,7 +3072,8 @@
         "client",
         "id",
         "label",
-        "userId"
+        "userId",
+        "companyId"
       ],
       "injectAuth": [
         "companyId",

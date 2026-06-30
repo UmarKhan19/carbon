@@ -52,7 +52,10 @@ import { usePermissions, useRouteData, useUser } from "~/hooks";
 import { useIntegrations } from "~/hooks/useIntegrations";
 import type { Shipment } from "~/modules/inventory/types";
 import { ShipmentStatus } from "~/modules/inventory/ui/Shipments";
-import type { SalesInvoice } from "~/modules/invoicing/types";
+import type {
+  SalesInvoice,
+  SalesInvoiceStatus as SalesInvoiceStatusType
+} from "~/modules/invoicing/types";
 import SalesInvoiceStatus from "~/modules/invoicing/ui/SalesInvoice/SalesInvoiceStatus";
 import type { Job } from "~/modules/production/types";
 import type { action as confirmAction } from "~/routes/x+/sales-order+/$orderId.confirm";
@@ -561,7 +564,9 @@ const SalesOrderHeader = () => {
                                   <HStack spacing={8}>
                                     <span>{invoice.invoiceId}</span>
                                     <SalesInvoiceStatus
-                                      status={invoice.status}
+                                      status={
+                                        invoice.status as SalesInvoiceStatusType | null
+                                      }
                                     />
                                   </HStack>
                                 </Link>
