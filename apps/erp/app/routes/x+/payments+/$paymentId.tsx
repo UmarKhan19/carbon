@@ -13,6 +13,7 @@ import {
   getOpenPurchaseInvoicesForSupplier,
   getOpenSalesInvoicesForCustomer,
   getPayment,
+  getStagedCreditsForPayment,
   isPaymentLocked,
   PaymentApplications,
   PaymentApplyTable,
@@ -20,6 +21,7 @@ import {
   paymentValidator,
   upsertPayment
 } from "~/modules/invoicing";
+import { setCustomFields } from "~/utils/form";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
@@ -37,7 +39,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const [payment, applications] = await Promise.all([
     getPayment(client, paymentId),
-    getInvoiceSettlements(client, paymentId)
+    getInvoiceSettlements(client, companyId, paymentId)
   ]);
 
   if (payment.error || !payment.data) {
@@ -77,9 +79,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   let availableCreditBase = 0;
   let openInvoices: OpenInvoiceRow[] = [];
   let availableCredits: AvailableCreditRow[] = [];
+  let stagedCredits: { memoId: string; invoiceId: string; amount: number }[] =
+    [];
   if (payment.data.status === "Draft") {
     if (payment.data.customerId) {
-      const [res, credit, credits] = await Promise.all([
+      const [res, credit, credits, staged] = await Promise.all([
         getOpenSalesInvoicesForCustomer(
           client,
           companyId,
@@ -89,16 +93,20 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
           paymentType: "Receipt",
           customerId: payment.data.customerId
         }),
-        getAvailableCreditsForParty(client, companyId, {
-          side: "sales",
-          customerId: payment.data.customerId
-        })
+        getAvailableCreditsForParty(
+          client,
+          companyId,
+          { side: "sales", customerId: payment.data.customerId },
+          paymentId
+        ),
+        getStagedCreditsForPayment(client, paymentId, "sales")
       ]);
       openInvoices = (res.data ?? []) as OpenInvoiceRow[];
       availableCreditBase = credit;
       availableCredits = (credits.data ?? []) as AvailableCreditRow[];
+      stagedCredits = staged.data ?? [];
     } else if (payment.data.supplierId) {
-      const [res, credit, credits] = await Promise.all([
+      const [res, credit, credits, staged] = await Promise.all([
         getOpenPurchaseInvoicesForSupplier(
           client,
           companyId,
@@ -108,14 +116,18 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
           paymentType: "Disbursement",
           supplierId: payment.data.supplierId
         }),
-        getAvailableCreditsForParty(client, companyId, {
-          side: "purchase",
-          supplierId: payment.data.supplierId
-        })
+        getAvailableCreditsForParty(
+          client,
+          companyId,
+          { side: "purchase", supplierId: payment.data.supplierId },
+          paymentId
+        ),
+        getStagedCreditsForPayment(client, paymentId, "purchase")
       ]);
       openInvoices = (res.data ?? []) as OpenInvoiceRow[];
       availableCreditBase = credit;
       availableCredits = (credits.data ?? []) as AvailableCreditRow[];
+      stagedCredits = staged.data ?? [];
     }
   }
 
@@ -124,7 +136,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     applications: applications.data ?? [],
     openInvoices: openInvoices ?? [],
     availableCreditBase,
-    availableCredits
+    availableCredits,
+    stagedCredits
   };
 }
 
@@ -161,7 +174,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const update = await upsertPayment(client, {
     ...paymentData,
     id: paymentId,
-    updatedBy: userId
+    updatedBy: userId,
+    customFields: setCustomFields(formData)
   });
   if (update.error) {
     return data(
@@ -182,7 +196,8 @@ export default function PaymentDetailRoute() {
     applications,
     openInvoices,
     availableCreditBase,
-    availableCredits
+    availableCredits,
+    stagedCredits
   } = useLoaderData<typeof loader>();
   const locked = isPaymentLocked(payment.status);
   const side: "sales" | "purchase" = payment.customerId ? "sales" : "purchase";
@@ -266,6 +281,7 @@ export default function PaymentDetailRoute() {
             exchangeRate: Number(inv.exchangeRate ?? 1),
             balance: Number(inv.balance ?? 0)
           }))}
+          staged={stagedCredits}
         />
       )}
     </VStack>

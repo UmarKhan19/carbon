@@ -49,6 +49,9 @@ type AvailableCreditsTableProps = {
   currency: string;
   credits: AvailableCredit[];
   openInvoices: OpenInvoiceOption[];
+  // Credit applications already staged on this (Draft) payment — pre-fills the
+  // table so a staged credit shows as selected instead of vanishing.
+  staged?: { memoId: string; invoiceId: string; amount: number }[];
 };
 
 type CreditRow = {
@@ -73,7 +76,8 @@ const AvailableCreditsTable = ({
   side,
   currency,
   credits,
-  openInvoices
+  openInvoices,
+  staged = []
 }: AvailableCreditsTableProps) => {
   const { t } = useLingui();
   const permissions = usePermissions();
@@ -86,18 +90,26 @@ const AvailableCreditsTable = ({
     [openInvoices]
   );
 
+  // staged is keyed by the memo's row id (== credit.id).
+  const stagedByMemo = useMemo(
+    () => new Map(staged.map((s) => [s.memoId, s])),
+    [staged]
+  );
   const seed = useMemo<CreditRow[]>(
     () =>
-      credits.map((c) => ({
-        id: c.id,
-        memoId: c.memoId,
-        direction: c.direction,
-        remaining: c.remaining,
-        checked: false,
-        invoiceId: openInvoices[0]?.id ?? "",
-        amount: 0
-      })),
-    [credits, openInvoices]
+      credits.map((c) => {
+        const s = stagedByMemo.get(c.id);
+        return {
+          id: c.id,
+          memoId: c.memoId,
+          direction: c.direction,
+          remaining: c.remaining,
+          checked: Boolean(s),
+          invoiceId: s?.invoiceId ?? openInvoices[0]?.id ?? "",
+          amount: s?.amount ?? 0
+        };
+      }),
+    [credits, openInvoices, stagedByMemo]
   );
 
   const [rows, setRows] = useState<CreditRow[]>(seed);
@@ -234,7 +246,7 @@ const AvailableCreditsTable = ({
                     key={r.id}
                     className={cn(
                       GRID,
-                      "items-center rounded-lg px-2 py-2 transition-colors",
+                      "items-center px-2 py-2 transition-colors",
                       r.checked ? "bg-muted/50" : "hover:bg-muted/30"
                     )}
                   >
@@ -324,7 +336,7 @@ const CardFooterRow = ({
   isSaving: boolean;
   canEdit: boolean;
 }) => (
-  <div className="flex items-center justify-between gap-4 px-6 pb-6">
+  <div className="flex items-center justify-between gap-4 px-6 pt-4 pb-6">
     <span className="text-sm text-muted-foreground">
       <Trans>Credits applied</Trans>{" "}
       <span className="tabular-nums font-medium text-foreground">

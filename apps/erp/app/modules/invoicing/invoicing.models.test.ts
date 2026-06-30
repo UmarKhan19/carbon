@@ -47,12 +47,12 @@ describe("paymentValidator", () => {
     expect(r.success).toBe(false);
   });
 
-  it("rejects a zero totalAmount", () => {
+  it("accepts a zero totalAmount (pure credit-application, no cash)", () => {
     const r = paymentValidator.safeParse({
       ...validReceipt,
       totalAmount: 0
     });
-    expect(r.success).toBe(false);
+    expect(r.success).toBe(true);
   });
 
   it("rejects a negative totalAmount", () => {

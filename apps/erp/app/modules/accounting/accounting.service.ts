@@ -29,6 +29,7 @@ import type {
   taxDepreciationMethods
 } from "./accounting.models";
 import type { Transaction, TranslatedBalance } from "./types";
+import { NET_INCOME_ACCOUNT_ID } from "./types";
 
 /**
  * Sign multiplier for root account aggregation.
@@ -139,6 +140,8 @@ export async function getFinancialStatementBalances(
   args: {
     startDate: string | null;
     endDate: string | null;
+    // Balance sheet only: append a computed "Net Income" equity line.
+    includeCurrentYearEarnings?: boolean;
   }
 ) {
   let accountsQuery = client
@@ -176,17 +179,68 @@ export async function getFinancialStatementBalances(
     return acc;
   }, {});
 
+  const mapped = (accountsResponse.data ?? [])
+    .filter((a): a is typeof a & { id: string } => a.id !== null)
+    .map((account) => ({
+      ...account,
+      netChange: balancesByAccountId[account.id]?.netChange ?? 0,
+      balance: balancesByAccountId[account.id]?.balance ?? 0,
+      balanceAtDate: balancesByAccountId[account.id]?.balanceAtDate ?? 0
+    }));
+
+  // Undistributed net income lives only in income-statement accounts until it is
+  // closed. A balance sheet at any date must carry it inside equity, or
+  // Assets ≠ Liabilities + Equity. We surface it as a computed "Net Income"
+  // equity line — the same pattern NetSuite ("Net Income" line), QuickBooks, and
+  // SAP (FSV net-result node) use: a calculated equity row, never a posted close.
+  if (args.includeCurrentYearEarnings) {
+    const balanceSheetRoot = mapped.find(
+      (a) =>
+        a.incomeBalance === "Balance Sheet" &&
+        (a.isSystem ?? a.parentId === null)
+    );
+    const equityGroup = mapped.find(
+      (a) =>
+        a.class === "Equity" && a.isGroup && a.parentId === balanceSheetRoot?.id
+    );
+    if (balanceSheetRoot && equityGroup) {
+      // Net income = Revenue − Expenses over income-statement LEAF accounts,
+      // signed exactly like the Income Statement report's bottom line.
+      let balance = 0;
+      let balanceAtDate = 0;
+      let netChange = 0;
+      for (const a of mapped) {
+        if (a.incomeBalance !== "Income Statement" || a.isGroup) continue;
+        const sign = rootSignMultiplier(a.class);
+        balance += sign * a.balance;
+        balanceAtDate += sign * a.balanceAtDate;
+        netChange += sign * a.netChange;
+      }
+      // Roll into the Equity group subtotal so the section ties out;
+      // applyRootSignCorrection recomputes the Balance Sheet root from its
+      // direct children, so the root nets to ~0.
+      equityGroup.balance += balance;
+      equityGroup.balanceAtDate += balanceAtDate;
+      equityGroup.netChange += netChange;
+      // Clone the Equity group to inherit every account column the report needs,
+      // then override identity + balances. Must NOT be isSystem — a system row
+      // is treated as a root by applyRootSignCorrection and recomputed to zero.
+      mapped.push({
+        ...equityGroup,
+        id: NET_INCOME_ACCOUNT_ID,
+        name: "Net Income",
+        isGroup: false,
+        isSystem: false,
+        parentId: equityGroup.id,
+        balance,
+        balanceAtDate,
+        netChange
+      });
+    }
+  }
+
   return {
-    data: applyRootSignCorrection(
-      (accountsResponse.data ?? [])
-        .filter((a): a is typeof a & { id: string } => a.id !== null)
-        .map((account) => ({
-          ...account,
-          netChange: balancesByAccountId[account.id]?.netChange ?? 0,
-          balance: balancesByAccountId[account.id]?.balance ?? 0,
-          balanceAtDate: balancesByAccountId[account.id]?.balanceAtDate ?? 0
-        }))
-    ),
+    data: applyRootSignCorrection(mapped),
     error: null
   };
 }

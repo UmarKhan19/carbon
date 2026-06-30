@@ -357,7 +357,7 @@ const PaymentApplyTable = ({
                     key={r.id}
                     className={cn(
                       GRID,
-                      "items-center rounded-lg px-2 py-2 transition-colors",
+                      "items-center px-2 py-2 transition-colors",
                       r.checked ? "bg-muted/50" : "hover:bg-muted/30"
                     )}
                   >

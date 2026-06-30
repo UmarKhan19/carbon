@@ -474,7 +474,9 @@ export const journalEntrySourceTypes = [
   "Job Close",
   "Asset Depreciation",
   "Asset Disposal",
-  "Payment"
+  "Payment",
+  "Credit Memo",
+  "Debit Memo"
 ] as const;
 
 export const journalEntryStatuses = ["Draft", "Posted", "Reversed"] as const;

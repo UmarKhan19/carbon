@@ -11,7 +11,6 @@ import {
   Heading,
   HStack,
   IconButton,
-  SplitButton,
   Status,
   useDisclosure
 } from "@carbon/react";
@@ -26,11 +25,10 @@ import {
   LuPanelLeft,
   LuPanelRight,
   LuShoppingCart,
-  LuTicketCheck,
   LuTicketX,
   LuTrash
 } from "react-icons/lu";
-import { Link, useNavigate, useParams } from "react-router";
+import { Link, useParams } from "react-router";
 import { useAuditLog } from "~/components/AuditLog";
 import { usePanels } from "~/components/Layout/Panels";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
@@ -41,12 +39,8 @@ import {
   useUser
 } from "~/hooks";
 import type { PurchaseInvoice, PurchaseInvoiceLine } from "~/modules/invoicing";
-import {
-  getApplyCreditHref,
-  getPayInvoiceHref,
-  isInvoicePayable,
-  PurchaseInvoicingStatus
-} from "~/modules/invoicing";
+import { isInvoicePayable, PurchaseInvoicingStatus } from "~/modules/invoicing";
+import { getPayInvoiceHref } from "~/modules/invoicing/ui/Payment/PaymentForm";
 import { useItems } from "~/stores";
 import { useSuppliers } from "~/stores/suppliers";
 import { path } from "~/utils/path";
@@ -57,7 +51,6 @@ import PurchaseInvoiceVoidModal from "./PurchaseInvoiceVoidModal";
 const PurchaseInvoiceHeader = () => {
   const { t } = useLingui();
   const permissions = usePermissions();
-  const navigate = useNavigate();
   const supplierApprovalRequired = useSupplierApprovalRequired();
   const { invoiceId } = useParams();
   const { company } = useUser();
@@ -201,13 +194,6 @@ const PurchaseInvoiceHeader = () => {
     invoiceId,
     balance: purchaseInvoice.balance
   });
-  // Offer "Apply Credit" only when the org has open debit memos to apply.
-  const canApplyCredit = canMakePayment && routeData?.orgHasCredits;
-  const applyCreditHref = getApplyCreditHref({
-    side: "ap",
-    partyId: purchaseInvoice.supplierId
-  });
-
   return (
     <>
       <div className="flex flex-shrink-0 items-center justify-between p-2 bg-background border-b h-[50px] overflow-x-auto scrollbar-hide">
@@ -354,29 +340,13 @@ const PurchaseInvoiceHeader = () => {
               <Trans>Post</Trans>
             </Button>
 
-            {canMakePayment &&
-              (canApplyCredit ? (
-                <SplitButton
-                  variant="primary"
-                  leftIcon={<LuHandCoins />}
-                  onClick={() => navigate(makePaymentHref)}
-                  dropdownItems={[
-                    {
-                      label: <Trans>Apply Credit</Trans>,
-                      icon: <LuTicketCheck />,
-                      onClick: () => navigate(applyCreditHref)
-                    }
-                  ]}
-                >
+            {canMakePayment && (
+              <Button variant="primary" leftIcon={<LuHandCoins />} asChild>
+                <Link to={makePaymentHref}>
                   <Trans>Payment</Trans>
-                </SplitButton>
-              ) : (
-                <Button variant="primary" leftIcon={<LuHandCoins />} asChild>
-                  <Link to={makePaymentHref}>
-                    <Trans>Payment</Trans>
-                  </Link>
-                </Button>
-              ))}
+                </Link>
+              </Button>
+            )}
 
             <IconButton
               aria-label={t`Toggle Properties`}

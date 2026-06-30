@@ -77,6 +77,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   try {
     await applyCreditsToInvoices(getDatabaseClient(), {
+      paymentId,
       companyId,
       createdBy: userId,
       appliedDate: new Date().toISOString().slice(0, 10),
@@ -84,9 +85,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
       applications: rows.data
     });
   } catch (e) {
+    // applyCreditsToInvoices throws Error with a specific, user-actionable
+    // reason (over-applied, invoice already settled, exchange-rate mismatch,
+    // etc.). Surface that instead of a generic message so the user knows why.
+    const reason =
+      e instanceof Error && e.message ? e.message : "Failed to apply credits";
     throw redirect(
       path.to.payment(paymentId),
-      await flash(request, error(e, "Failed to apply credits"))
+      await flash(request, error(e, reason))
     );
   }
 

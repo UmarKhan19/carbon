@@ -4,7 +4,6 @@ import {
   LuFileText,
   LuLayoutList,
   LuPackageSearch,
-  LuReceiptText,
   LuSquareChartGantt,
   LuStar
 } from "react-icons/lu";
@@ -45,13 +44,6 @@ export default function usePurchasingSubmodules() {
           to: path.to.purchaseOrders,
           icon: <LuLayoutList />,
           table: "purchaseOrder"
-        },
-        {
-          name: t`Invoices`,
-          to: path.to.purchaseInvoices,
-          icon: <LuReceiptText />,
-          table: "purchaseInvoice",
-          permission: "invoicing"
         }
       ]
     },

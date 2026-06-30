@@ -1,7 +1,9 @@
 import { z } from "zod";
 import { zfd } from "zod-form-data";
-import { path } from "~/utils/path";
-import { incoterms, methodItemType, methodType } from "../shared";
+// Import the constants from the models file directly (not the `../shared` barrel),
+// which also re-exports shared.service/shared.server — those transitively pull in
+// `@carbon/auth`'s Lingui-macro glossary and break plain unit tests of this module.
+import { incoterms, methodItemType, methodType } from "../shared/shared.models";
 
 export const purchaseInvoiceLineType = [
   "Part",
@@ -454,33 +456,4 @@ export function isInvoicePayable(
     !["Voided", "Draft", "Pending", "Paid"].includes(status ?? "") &&
     Number(balance ?? 0) > 0
   );
-}
-
-// Builds the "new payment" URL pre-filled from an invoice. side "ar" seeds the
-// customer (→ Receipt); "ap" seeds the supplier (→ Disbursement).
-export function getPayInvoiceHref(args: {
-  side: "ar" | "ap";
-  partyId: string | null | undefined;
-  invoiceId: string;
-  balance: number | null | undefined;
-}): string {
-  const partyParam = args.side === "ar" ? "customerId" : "supplierId";
-  return `${path.to.paymentNew}?${partyParam}=${encodeURIComponent(
-    args.partyId ?? ""
-  )}&invoiceId=${encodeURIComponent(
-    args.invoiceId
-  )}&amount=${encodeURIComponent(String(args.balance ?? 0))}`;
-}
-
-// Builds the "apply credit" URL: a $0 receipt/payment for the party, so the
-// settlement composer opens with no cash and the party's posted credits ready to
-// apply. No invoiceId (that would seed a cash amount from the invoice balance).
-export function getApplyCreditHref(args: {
-  side: "ar" | "ap";
-  partyId: string | null | undefined;
-}): string {
-  const partyParam = args.side === "ar" ? "customerId" : "supplierId";
-  return `${path.to.paymentNew}?${partyParam}=${encodeURIComponent(
-    args.partyId ?? ""
-  )}&amount=0`;
 }

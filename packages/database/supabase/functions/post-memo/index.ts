@@ -75,6 +75,24 @@ serve(async (req: Request) => {
         : null;
 
       await db.transaction().execute(async (trx) => {
+        // Lock the memo row and re-assert it's still Posted INSIDE the
+        // transaction. The status check above runs before the lock (a TOCTOU
+        // window): two concurrent voids could otherwise both pass it and each
+        // emit a reversing journal. The FOR UPDATE serializes them.
+        const lockedMemo = await trx
+          .selectFrom("memo")
+          .select(["id", "status"])
+          .where("id", "=", memoId)
+          .where("companyId", "=", companyId)
+          .forUpdate()
+          .executeTakeFirst();
+        if (!lockedMemo) throw new Error("Memo not found");
+        if (lockedMemo.status !== "Posted") {
+          throw new Error(
+            `Cannot void memo in status ${lockedMemo.status} (only Posted)`
+          );
+        }
+
         if (accountingEnabled && memo.data.journalId) {
           // Mirror the original journal's lines into a reversing journal (the
           // same paired-journal approach post-payment/post-purchase-invoice use
@@ -172,6 +190,7 @@ serve(async (req: Request) => {
             updatedBy: userId,
           })
           .where("id", "=", memoId)
+          .where("companyId", "=", companyId)
           .execute();
       });
 
@@ -403,6 +422,7 @@ serve(async (req: Request) => {
           updatedBy: userId,
         })
         .where("id", "=", memoId)
+        .where("companyId", "=", companyId)
         .execute();
 
       createdJournalId = journalId;

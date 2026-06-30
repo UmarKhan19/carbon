@@ -7,6 +7,8 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { data, redirect, useLoaderData } from "react-router";
 import {
   getMemo,
+  getMemoApplications,
+  MemoApplicationsPanel,
   MemoForm,
   memoValidator,
   upsertMemo
@@ -39,7 +41,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return { memo: memo.data };
+  const applications = await getMemoApplications(client, memoId);
+
+  return { memo: memo.data, applications: applications.data ?? [] };
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -92,7 +96,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function MemoDetailRoute() {
-  const { memo } = useLoaderData<typeof loader>();
+  const { memo, applications } = useLoaderData<typeof loader>();
 
   const initialValues = {
     id: memo.id,
@@ -112,6 +116,10 @@ export default function MemoDetailRoute() {
   return (
     <VStack spacing={4} className="p-6 max-w-6xl w-full mx-auto">
       <MemoForm initialValues={initialValues} />
+      <MemoApplicationsPanel
+        rows={applications}
+        currencyCode={memo.currencyCode ?? "USD"}
+      />
     </VStack>
   );
 }

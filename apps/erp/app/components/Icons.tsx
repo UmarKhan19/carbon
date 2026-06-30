@@ -17,6 +17,7 @@ import { FaCodePullRequest } from "react-icons/fa6";
 import {
   LuArrowLeftRight,
   LuAtom,
+  LuBanknote,
   LuBarcode,
   LuBookOpen,
   LuBox,
@@ -596,6 +597,12 @@ export const JournalEntrySourceTypeIcon = ({
       return <LuClock className={className} />;
     case "Asset Disposal":
       return <LuBuilding2 className={className} />;
+    case "Payment":
+      return <LuBanknote className={className} />;
+    case "Credit Memo":
+      return <LuCreditCard className={className} />;
+    case "Debit Memo":
+      return <LuCreditCard className={className} />;
   }
 
   return <LuSquare className={cn("text-muted-foreground", className)} />;

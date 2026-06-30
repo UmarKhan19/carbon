@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-29T00:39:58.453Z",
-  "totalTools": 1246,
+  "generated": "2026-06-30T03:54:20.537Z",
+  "totalTools": 1248,
   "modules": 15,
   "tools": [
     {
@@ -314,7 +314,7 @@
       "module": "accounting",
       "classification": "READ",
       "description": "get financial statement balances",
-      "paramCount": 2,
+      "paramCount": 3,
       "serviceParams": [
         "client",
         "companyGroupId",
@@ -338,6 +338,9 @@
               "string",
               "null"
             ]
+          },
+          "// Balance sheet only: append a computed \"Net Income\" equity line.\n    includeCurrentYearEarnings": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -8266,6 +8269,7 @@
       "paramCount": 1,
       "serviceParams": [
         "client",
+        "companyId",
         "paymentId"
       ],
       "injectAuth": [
@@ -8291,6 +8295,7 @@
       "paramCount": 2,
       "serviceParams": [
         "client",
+        "companyId",
         "side",
         "invoiceId"
       ],
@@ -8314,6 +8319,31 @@
         "required": [
           "side",
           "invoiceId"
+        ]
+      }
+    },
+    {
+      "name": "invoicing_getMemoApplications",
+      "module": "invoicing",
+      "classification": "READ",
+      "description": "get memo applications",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "memoId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "memoId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "memoId"
         ]
       }
     },
@@ -8672,11 +8702,14 @@
       "module": "invoicing",
       "classification": "READ",
       "description": "get available credits for party",
-      "paramCount": 1,
+      "paramCount": 4,
       "serviceParams": [
         "client",
         "companyId",
-        "party"
+        "party",
+        "// When editing a Draft payment's composer",
+        "that payment's own staged credits\n  // should NOT count as used — they show as staged",
+        "not consumed.\n  excludePaymentId"
       ],
       "injectAuth": [
         "companyId"
@@ -8684,10 +8717,17 @@
       "schema": {
         "type": "object",
         "properties": {
-          "party": {}
+          "party": {},
+          "// When editing a Draft payment's composer": {},
+          "that payment's own staged credits\n  // should NOT count as used — they show as staged": {},
+          "not consumed.\n  excludePaymentId": {
+            "type": "string"
+          }
         },
         "required": [
-          "party"
+          "party",
+          "// When editing a Draft payment's composer",
+          "that payment's own staged credits\n  // should NOT count as used — they show as staged"
         ]
       }
     },
@@ -8722,11 +8762,45 @@
       }
     },
     {
+      "name": "invoicing_getStagedCreditsForPayment",
+      "module": "invoicing",
+      "classification": "READ",
+      "description": "get staged credits for payment",
+      "paramCount": 2,
+      "serviceParams": [
+        "client",
+        "paymentId",
+        "side"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "paymentId": {
+            "type": "string"
+          },
+          "side": {
+            "type": "string",
+            "enum": [
+              "sales",
+              "purchase"
+            ]
+          }
+        },
+        "required": [
+          "paymentId",
+          "side"
+        ]
+      }
+    },
+    {
       "name": "invoicing_applyCreditsToInvoices",
       "module": "invoicing",
       "classification": "WRITE",
       "description": "apply credits to invoices",
-      "paramCount": 3,
+      "paramCount": 4,
       "serviceParams": [
         "db",
         "args"
@@ -8737,6 +8811,9 @@
       "schema": {
         "type": "object",
         "properties": {
+          "paymentId": {
+            "type": "string"
+          },
           "appliedDate": {
             "type": "string"
           },
@@ -8771,6 +8848,7 @@
           }
         },
         "required": [
+          "paymentId",
           "appliedDate",
           "side",
           "applications"

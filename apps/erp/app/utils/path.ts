@@ -1466,7 +1466,6 @@ export const path = {
       generatePath(`${x}/purchase-invoice/${id}/status`),
     purchaseInvoiceVoid: (id: string) =>
       generatePath(`${x}/purchase-invoice/${id}/void`),
-    purchaseInvoices: `${x}/purchasing/invoices`,
     purchaseOrder: (id: string) => generatePath(`${x}/purchase-order/${id}`),
     purchaseOrderDuplicate: (id: string) =>
       generatePath(`${x}/purchase-order/${id}/duplicate`),
@@ -1608,7 +1607,6 @@ export const path = {
       generatePath(`${x}/sales-invoice/${id}/status`),
     salesInvoiceVoid: (id: string) =>
       generatePath(`${x}/sales-invoice/${id}/void`),
-    salesInvoices: `${x}/sales/invoices`,
     // Credit / Debit memos — payment-shaped documents (the `memo` table). The
     // list lives in the invoicing nav beside Payments; details mirror payments.
     memo: (id: string) => generatePath(`${x}/credits/${id}`),

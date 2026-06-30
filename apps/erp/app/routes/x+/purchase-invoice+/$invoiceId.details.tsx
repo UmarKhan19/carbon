@@ -37,7 +37,7 @@ import { requireUnlocked } from "~/utils/lockedGuard.server";
 import { path } from "~/utils/path";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const { client } = await requirePermissions(request, {
+  const { client, companyId } = await requirePermissions(request, {
     view: "invoicing"
   });
 
@@ -46,11 +46,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const [invoice, applications] = await Promise.all([
     getPurchaseInvoice(client, invoiceId),
-    getInvoiceSettlementsForInvoice(client, "purchase", invoiceId)
+    getInvoiceSettlementsForInvoice(client, companyId, "purchase", invoiceId)
   ]);
   if (invoice.error) {
     throw redirect(
-      path.to.purchaseInvoices,
+      path.to.invoicingPurchasing,
       await flash(
         request,
         error(invoice.error, "Failed to load purchase invoice")

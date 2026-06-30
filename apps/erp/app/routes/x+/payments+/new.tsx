@@ -17,6 +17,7 @@ import {
 } from "~/modules/invoicing";
 import { getCompany, getNextSequence } from "~/modules/settings";
 import { getDatabaseClient } from "~/services/database.server";
+import { setCustomFields } from "~/utils/form";
 import { path } from "~/utils/path";
 
 // Open invoices the apply table / seed logic can settle, keyed by id with the
@@ -143,7 +144,8 @@ export async function action({ request }: ActionFunctionArgs) {
     ...paymentData,
     paymentId,
     companyId,
-    createdBy: userId
+    createdBy: userId,
+    customFields: setCustomFields(formData)
   });
   if (insert.error || !insert.data) {
     throw redirect(

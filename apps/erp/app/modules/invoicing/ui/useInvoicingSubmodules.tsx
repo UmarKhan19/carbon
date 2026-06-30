@@ -44,7 +44,7 @@ export default function useInvoicingSubmodules() {
         },
         {
           name: t`Sales Invoices`,
-          to: path.to.salesInvoices,
+          to: path.to.invoicingSales,
           icon: <LuCreditCard />,
           table: "salesInvoice",
           permission: "invoicing"

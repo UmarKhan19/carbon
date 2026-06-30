@@ -52,14 +52,19 @@ serve(async (req: Request) => {
       .single();
     const accountingEnabled = accountingSettings.data?.accountingEnabled ?? false;
 
-    const [payment, applications, accountDefaults] = await Promise.all([
+    const [payment, applications, credits, accountDefaults] = await Promise.all([
       client.from("payment").select("*").eq("id", paymentId).single(),
       client.from("invoiceSettlement").select("*").eq("paymentId", paymentId),
+      client
+        .from("invoiceSettlement")
+        .select("*")
+        .eq("appliedViaPaymentId", paymentId),
       getDefaultPostingGroup(client, companyId),
     ]);
 
     if (payment.error) throw new Error("Failed to fetch payment");
     if (applications.error) throw new Error("Failed to fetch payment applications");
+    if (credits.error) throw new Error("Failed to fetch credit applications");
     if (accountingEnabled && accountDefaults.error)
       throw new Error("Failed to fetch account defaults");
 
@@ -85,6 +90,24 @@ serve(async (req: Request) => {
         : null;
 
       await db.transaction().execute(async (trx) => {
+        // Lock the payment row and re-assert it's still Posted INSIDE the
+        // transaction. The status check above runs before the lock (a TOCTOU
+        // window): two concurrent voids could otherwise both pass it and each
+        // emit a reversing journal. The FOR UPDATE serializes them.
+        const lockedPayment = await trx
+          .selectFrom("payment")
+          .select(["id", "status"])
+          .where("id", "=", paymentId)
+          .where("companyId", "=", companyId)
+          .forUpdate()
+          .executeTakeFirst();
+        if (!lockedPayment) throw new Error("Payment not found");
+        if (lockedPayment.status !== "Posted") {
+          throw new Error(
+            `Cannot void payment in status ${lockedPayment.status} (only Posted)`
+          );
+        }
+
         if (accountingEnabled && payment.data.journalId) {
           // Pull the original journal's lines and emit a reversing journal
           // (mirror amounts). This matches post-purchase-invoice's void
@@ -179,6 +202,7 @@ serve(async (req: Request) => {
             updatedBy: userId,
           })
           .where("id", "=", paymentId)
+          .where("companyId", "=", companyId)
           .execute();
       });
 
@@ -203,12 +227,38 @@ serve(async (req: Request) => {
     // validation against invoice state (existence, counterparty, active
     // status, over-settlement cap) happens inside the commit transaction
     // below, NOT here — see the note on the application-level checks.
-    const salesInvoiceIds = applications.data
-      .filter((a) => a.targetSalesInvoiceId)
-      .map((a) => a.targetSalesInvoiceId as string);
-    const purchaseInvoiceIds = applications.data
-      .filter((a) => a.targetPurchaseInvoiceId)
-      .map((a) => a.targetPurchaseInvoiceId as string);
+    // Credit applications staged on this payment (memo-sourced, GL-neutral). They
+    // go live when the payment posts, so they share the per-invoice over-settlement
+    // cap with cash — but they are NOT cash, so they don't post GL or count toward
+    // the cash-vs-total (overApplied) check below.
+    const creditByInvoice = new Map<string, number>();
+    for (const c of credits.data ?? []) {
+      const invId = (isAR
+        ? c.targetSalesInvoiceId
+        : c.targetPurchaseInvoiceId) as string | null;
+      if (!invId) continue;
+      creditByInvoice.set(
+        invId,
+        (creditByInvoice.get(invId) ?? 0) + Number(c.appliedAmount)
+      );
+    }
+
+    const salesInvoiceIds = [
+      ...new Set([
+        ...applications.data
+          .filter((a) => a.targetSalesInvoiceId)
+          .map((a) => a.targetSalesInvoiceId as string),
+        ...(isAR ? [...creditByInvoice.keys()] : []),
+      ]),
+    ];
+    const purchaseInvoiceIds = [
+      ...new Set([
+        ...applications.data
+          .filter((a) => a.targetPurchaseInvoiceId)
+          .map((a) => a.targetPurchaseInvoiceId as string),
+        ...(!isAR ? [...creditByInvoice.keys()] : []),
+      ]),
+    ];
 
     if (isAR && purchaseInvoiceIds.length > 0) {
       throw new Error("Receipt cannot apply to purchase invoices");
@@ -366,6 +416,26 @@ serve(async (req: Request) => {
 
     let createdJournalId: string | null = null;
     await db.transaction().execute(async (trx) => {
+      // Lock the payment row and re-assert it's still Draft INSIDE the
+      // transaction. The status check above runs before the lock (a TOCTOU
+      // window): two concurrent posts could otherwise both pass it and each
+      // write a journal + settlements (the invoice lock below doesn't help a
+      // payment with no invoice applications, or a partial application under the
+      // over-settlement cap). The FOR UPDATE serializes them so the second aborts.
+      const lockedPayment = await trx
+        .selectFrom("payment")
+        .select(["id", "status"])
+        .where("id", "=", paymentId)
+        .where("companyId", "=", companyId)
+        .forUpdate()
+        .executeTakeFirst();
+      if (!lockedPayment) throw new Error("Payment not found");
+      if (lockedPayment.status !== "Draft") {
+        throw new Error(
+          `Cannot post payment in status ${lockedPayment.status} (only Draft)`
+        );
+      }
+
       // Lock + read the target invoices in one shot. Holding the row locks for
       // the rest of the transaction serializes concurrent posts so the
       // over-settlement cap below can't be raced (TOCTOU).
@@ -472,6 +542,29 @@ serve(async (req: Request) => {
         if (wouldSettle > remainingOpen + 0.0001) {
           throw new Error(
             `Application total (${wouldSettle}) exceeds remaining open amount (${remainingOpen}) on invoice ${invId}`
+          );
+        }
+      }
+
+      // Staged credit applications go live when this payment posts, so fold them
+      // into the same per-invoice cap: cash + credit must not over-settle.
+      for (const [invId, creditAmt] of creditByInvoice) {
+        const inv = invoiceById.get(invId);
+        if (!inv) throw new Error(`Invoice ${invId} not found`);
+        if (inv.partyId !== paymentPartyId) {
+          throw new Error(
+            `Invoice ${invId} belongs to a different ${isAR ? "customer" : "supplier"} than the payment`
+          );
+        }
+        if (inv.status !== activeStatus) {
+          throw new Error(
+            `Cannot apply credit to invoice ${invId} in status ${inv.status} (must be ${activeStatus})`
+          );
+        }
+        const wouldSettle = (currentSettledByInvoice.get(invId) ?? 0) + creditAmt;
+        if (wouldSettle > inv.balance + 0.0001) {
+          throw new Error(
+            `Application total (${wouldSettle}) exceeds remaining open amount (${inv.balance}) on invoice ${invId}`
           );
         }
       }
@@ -598,6 +691,7 @@ serve(async (req: Request) => {
           updatedBy: userId,
         })
         .where("id", "=", paymentId)
+        .where("companyId", "=", companyId)
         .execute();
 
       createdJournalId = journalId;

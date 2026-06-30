@@ -1,27 +1,10 @@
-import { VStack } from "@carbon/react";
-import { msg } from "@lingui/core/macro";
-import { Outlet, useLoaderData } from "react-router";
-import SalesInvoicesTable from "~/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable";
-import type { loader } from "~/routes/x+/invoicing+/sales";
-import type { Handle } from "~/utils/handle";
+import type { LoaderFunctionArgs } from "react-router";
+import { redirect } from "react-router";
 import { path } from "~/utils/path";
 
-// Single source of truth lives in the invoicing module route to avoid drift;
-// this Sales-module route is the same list under the Sales sidebar.
-export { loader } from "~/routes/x+/invoicing+/sales";
-
-export const handle: Handle = {
-  breadcrumb: msg`Invoices`,
-  to: path.to.salesInvoices
-};
-
-export default function SalesInvoicesSearchRoute() {
-  const { count, salesInvoices } = useLoaderData<typeof loader>();
-
-  return (
-    <VStack spacing={0} className="h-full">
-      <SalesInvoicesTable data={salesInvoices} count={count} />
-      <Outlet />
-    </VStack>
-  );
+// Sales invoices now live solely in the invoicing module. This legacy Sales-module
+// URL redirects there, preserving any filter query string (e.g. ?filter=customerId:eq:...).
+export async function loader({ request }: LoaderFunctionArgs) {
+  const url = new URL(request.url);
+  throw redirect(`${path.to.invoicingSales}${url.search}`);
 }

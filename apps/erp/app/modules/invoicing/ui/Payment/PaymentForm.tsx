@@ -44,6 +44,38 @@ import {
 import { path } from "~/utils/path";
 import PaymentStatus from "./PaymentStatus";
 
+// Builds the "new payment" URL pre-filled from an invoice. side "ar" seeds the
+// customer (→ Receipt); "ap" seeds the supplier (→ Disbursement). Lives with the
+// PaymentForm (the form on the page these links open) rather than in
+// invoicing.models.ts, which must stay free of the `~/utils/path` import so the
+// model unit tests don't pull in the Lingui-macro glossary via @carbon/auth.
+export function getPayInvoiceHref(args: {
+  side: "ar" | "ap";
+  partyId: string | null | undefined;
+  invoiceId: string;
+  balance: number | null | undefined;
+}): string {
+  const partyParam = args.side === "ar" ? "customerId" : "supplierId";
+  return `${path.to.paymentNew}?${partyParam}=${encodeURIComponent(
+    args.partyId ?? ""
+  )}&invoiceId=${encodeURIComponent(
+    args.invoiceId
+  )}&amount=${encodeURIComponent(String(args.balance ?? 0))}`;
+}
+
+// Builds the "apply credit" URL: a $0 receipt/payment for the party, so the
+// settlement composer opens with no cash and the party's posted credits ready to
+// apply. No invoiceId (that would seed a cash amount from the invoice balance).
+export function getApplyCreditHref(args: {
+  side: "ar" | "ap";
+  partyId: string | null | undefined;
+}): string {
+  const partyParam = args.side === "ar" ? "customerId" : "supplierId";
+  return `${path.to.paymentNew}?${partyParam}=${encodeURIComponent(
+    args.partyId ?? ""
+  )}&amount=0`;
+}
+
 type PaymentFormValues = z.infer<typeof paymentValidator>;
 
 type PaymentFormProps = {

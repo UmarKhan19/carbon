@@ -858,6 +858,9 @@ msgstr "Applied amount for {0}"
 msgid "Applied Date"
 msgstr "Applied Date"
 
+msgid "Applied To"
+msgstr "Applied To"
+
 msgid "Applies to"
 msgstr "Applies to"
 
@@ -869,9 +872,6 @@ msgstr "Applies to all work centers"
 
 msgid "Apply available credits"
 msgstr "Apply available credits"
-
-msgid "Apply Credit"
-msgstr "Apply Credit"
 
 msgid "Apply credits"
 msgstr "Apply credits"
@@ -6035,6 +6035,9 @@ msgstr "Invoiced Statuses"
 
 msgid "Invoices"
 msgstr "Invoices"
+
+msgid "Invoices this memo has been applied to. Click a row to open the document."
+msgstr "Invoices this memo has been applied to. Click a row to open the document."
 
 msgid "Invoicing"
 msgstr "Invoicing"

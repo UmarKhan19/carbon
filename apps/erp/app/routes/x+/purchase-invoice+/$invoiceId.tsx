@@ -24,8 +24,8 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: msg`Invoices`,
-  to: path.to.purchaseInvoices
+  breadcrumb: msg`Purchasing Invoices`,
+  to: path.to.invoicingPurchasing
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -45,7 +45,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   if (purchaseInvoice.error) {
     throw redirect(
-      path.to.purchaseInvoices,
+      path.to.invoicingPurchasing,
       await flash(
         request,
         error(purchaseInvoice.error, "Failed to load purchase invoice")

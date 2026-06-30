@@ -1,5 +1,4 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
-import { msg } from "@lingui/core/macro";
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
 import { useLoaderData } from "react-router";
 import type { AgingTotals, RecentPayment } from "~/modules/invoicing";
@@ -11,17 +10,10 @@ import {
   getPayments,
   InvoicingDashboard
 } from "~/modules/invoicing";
-import type { Handle } from "~/utils/handle";
-import { path } from "~/utils/path";
 import { getGenericQueryFilters } from "~/utils/query";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Carbon | Invoicing" }];
-};
-
-export const handle: Handle = {
-  breadcrumb: msg`Dashboard`,
-  to: path.to.invoicing
 };
 
 // The four bucket boundaries the dashboard rolls aging into (Current, 1–30,
