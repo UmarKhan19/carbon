@@ -27,6 +27,10 @@ SET "invoiceId" = pi."invoiceId" || '-' || pi."id"
 FROM ranked
 WHERE ranked."id" = pi."id" AND ranked.rn > 1;
 
+-- Idempotent: drop-then-add so a retry after a partial commit doesn't trip on an
+-- already-created constraint (the deploy runner is not transactional).
+ALTER TABLE "purchaseInvoice"
+  DROP CONSTRAINT IF EXISTS "purchaseInvoice_invoiceId_key";
 ALTER TABLE "purchaseInvoice"
   ADD CONSTRAINT "purchaseInvoice_invoiceId_key" UNIQUE ("invoiceId", "companyId");
 
