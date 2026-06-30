@@ -96,13 +96,41 @@ agent-browser click @eN          # open the dropdown
 agent-browser snapshot -i        # find the option refs
 agent-browser click @eM          # select the option
 ```
+Clicking an option updates the field's React state correctly (it persists across
+re-renders), so comboboxes are reliable.
 
-**Submit:**
+**Number / currency / date fields (react-aria — IMPORTANT):**
+These render a *visible* formatted input plus a *hidden* input that actually carries
+the form value (e.g. `<input type=hidden name="amount">`). react-aria only commits
+the hidden input **on blur**, not on each keystroke. So you MUST fill, then blur:
 ```bash
-agent-browser click @eN          # click the submit/save button
-agent-browser wait --load networkidle
-agent-browser snapshot -i        # verify the result
+agent-browser fill @eN "300"     # the visible field
+agent-browser click @eM          # click ANY other field to blur → commits hidden input
+# verify it committed:
+agent-browser eval "document.querySelector('input[name=amount]').value"   # => "300"
 ```
+`agent-browser type` often does NOT reach these fields — use `fill` + blur.
+
+**Submit (CRITICAL — do NOT click the submit button):**
+Carbon forms are `@carbon/form` `ValidatedForm` (vendored remix-validated-form). Its
+submit handler only runs on a **native `submit` event that carries a `submitter`**
+(`if (submitter?.form !== target) return;` — it bails silently otherwise). An
+agent-browser `click` on the Save button does **not** trigger that native submit, so
+nothing happens (no error, no navigation). Submit programmatically instead, passing
+the button as the submitter:
+```bash
+agent-browser eval "(()=>{const b=[...document.querySelectorAll('button')].find(x=>x.type==='submit'&&x.textContent.trim()==='Save');const f=b.closest('form');f.requestSubmit(b);return 'submitted'})()"
+agent-browser wait --load networkidle
+agent-browser snapshot -i        # verify the result (redirect / toast)
+```
+Adjust the button text (`'Save'`/`'Create'`/`'Submit'`) to match the form. The
+handler validates `new FormData(form)` (the real DOM) synchronously, so as long as
+every field's value/hidden-input is set (see number-field note above), this submits
+exactly as a real user click would — exercising the real client validation + action.
+
+> If a submit "does nothing", it's almost always one of: (a) you clicked the button
+> instead of `requestSubmit`-ing, or (b) a react-aria number/date field's hidden input
+> never committed (you didn't blur it). Verify the hidden inputs before blaming the form.
 
 #### 6c. Verify the result
 
@@ -146,7 +174,7 @@ Route: <URL path>
 - ...
 
 ### 3. Submit
-- Button: "<button label>"
+- `requestSubmit` the form whose submit button reads "<button label>" (NOT a click)
 
 ### 4. Verify
 - Expected redirect: `/x/<route>/<id>`
@@ -193,11 +221,14 @@ agent-browser close
 
 - **Required fields** are marked with asterisks or show validation errors on submit
 - **Combobox/select fields** need a click to open, then a search or click on an option
-- **Date fields** can be typed directly in `YYYY-MM-DD` format
-- **Number fields** accept plain numbers
-- **The submit button** is usually labeled "Save", "Create", or "Submit" and is at the bottom of the form or in the footer
+- **Number / currency / date fields** are react-aria: `fill` the visible input then
+  **blur** (click another field) so the hidden `name=...` input commits. `type` often
+  doesn't reach them. Verify with `eval "document.querySelector('input[name=X]').value"`.
+- **Submit with `requestSubmit`, never a click** — see step 6b. A plain agent-browser
+  click on the Save button does NOT fire the native submit that `ValidatedForm`
+  requires, so the form silently does nothing.
 - **After creating a record**, the app typically redirects to the detail page with the new record's ID in the URL
-- **Drawer forms** (child routes) appear as overlays — look for the drawer's submit button, not the parent page's
+- **Drawer forms** (child routes) appear as overlays — `requestSubmit` the drawer's own form (the one containing the drawer's submit button), not the parent page's
 - **Toast notifications** appear briefly — check the snapshot immediately after submission
 
 ## Failure Handling
