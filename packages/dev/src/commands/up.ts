@@ -613,28 +613,30 @@ async function appResponds(port: number): Promise<boolean> {
   }
 }
 
-/** Poll each selected app's port until it serves (or the deadline passes). */
+/** Poll each selected app's port concurrently until all serve (or deadline). */
 async function waitForApps(
   selectedApps: AppId[],
   ports: PortMap,
   timeoutMs = 180_000
 ): Promise<void> {
   const deadline = Date.now() + timeoutMs;
-  for (const id of selectedApps) {
-    const key = APP_PORT_KEY[id];
-    const port = key ? ports[key] : undefined;
-    if (port === undefined) continue;
-    let up = false;
-    while (Date.now() < deadline) {
-      if (await appResponds(port)) {
-        up = true;
-        break;
+  await Promise.all(
+    selectedApps.map(async (id) => {
+      const key = APP_PORT_KEY[id];
+      const port = key ? ports[key] : undefined;
+      if (port === undefined) return;
+      let up = false;
+      while (Date.now() < deadline) {
+        if (await appResponds(port)) {
+          up = true;
+          break;
+        }
+        await new Promise((r) => setTimeout(r, 1500));
       }
-      await new Promise((r) => setTimeout(r, 1500));
-    }
-    if (up) log.info(`${id} reachable on :${port}`);
-    else log.warn(`${id} not reachable on :${port} — running command anyway`);
-  }
+      if (up) log.info(`${id} reachable on :${port}`);
+      else log.warn(`${id} not reachable on :${port} — running command anyway`);
+    })
+  );
 }
 
 /**

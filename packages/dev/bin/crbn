@@ -75,7 +75,7 @@ repo_root() {
 }
 
 slugify_branch() {
-  # Mirrors packages/dev/src/lib/slug.ts:slugify — lowercase, replace
+  # Mirrors packages/dev/src/worktree.ts:slugify — lowercase, replace
   # non-[a-z0-9-] runs with `-`, trim/collapse `-`.
   printf '%s' "$1" \
     | tr '[:upper:]' '[:lower:]' \

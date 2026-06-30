@@ -56,11 +56,14 @@ export type Container = {
 export async function bootStack(
   root: string,
   slug: string,
-  opts?: { minimal?: boolean }
+  opts?: { minimal?: boolean; services?: string[] }
 ) {
   const args = devArgs(root, slug, "--env-file", ".env.local");
-  if (!opts?.minimal) args.push("--profile", "full");
+  // When specific services are requested, don't activate profiles — compose
+  // starts only the named services (+ dependencies) regardless of profiles.
+  if (!opts?.services && !opts?.minimal) args.push("--profile", "full");
   args.push("up", "-d");
+  if (opts?.services) args.push(...opts.services);
   await execStrict("docker", args, root);
 }
 
