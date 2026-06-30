@@ -107,9 +107,15 @@ IMPORTANT: Before any research or coding, match the task to this table. A single
 | Environment configuration | `.ai/rules/environment-configuration.md` |
 | MCP tools reference | `.ai/rules/mcp-tools-reference.md` |
 | Adding a new module | `.ai/docs/module-conventions.md` |
+| Creating/refreshing an AGENTS.md | `.ai/skills/create-agents-md/SKILL.md` |
 | **Design Specs** | |
 | Check existing specs before building | `.ai/specs/` + `.ai/specs/implemented/` |
-| Writing a new spec | `.ai/specs/AGENTS.md` + `.ai/specs/template.md` |
+| Writing a new spec | `.ai/skills/spec-writing/SKILL.md` |
+| **Workflows** | |
+| Bug fix: root-cause analysis (read-only) | `.ai/skills/root-cause/SKILL.md` |
+| Bug fix: implement the fix | `.ai/skills/fix/SKILL.md` |
+| Pre-commit verification gate | `.ai/skills/check-and-commit/SKILL.md` |
+| Feature build (doer→gate→judge loop) | `.ai/skills/conductor/SKILL.md` |
 
 ## Core Principles
 

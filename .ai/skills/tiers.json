@@ -6,6 +6,11 @@
       "skills": [
         "self-review",
         "conductor",
+        "root-cause",
+        "fix",
+        "check-and-commit",
+        "create-agents-md",
+        "spec-writing",
         "forms",
         "login",
         "test",
