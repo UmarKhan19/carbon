@@ -5338,8 +5338,7 @@
       ],
       "injectAuth": [
         "companyId",
-        "createdBy",
-        "updatedBy"
+        "createdBy"
       ],
       "schema": {
         "type": "object",
