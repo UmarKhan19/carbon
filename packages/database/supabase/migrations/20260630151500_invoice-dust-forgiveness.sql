@@ -27,11 +27,21 @@
 
 
 -- ============================================================
+-- Phase 1: Drop existing views
+-- CREATE OR REPLACE VIEW cannot change column expression types
+-- (e.g. simple column → CASE expression), so we must drop + recreate.
+-- ============================================================
+
+DROP VIEW IF EXISTS "salesInvoices";
+DROP VIEW IF EXISTS "purchaseInvoices";
+
+
+-- ============================================================
 -- salesInvoices — derived balance/status/datePaid with dust forgiveness
 -- Active state for sales invoices is 'Submitted'.
 -- ============================================================
 
-CREATE OR REPLACE VIEW "salesInvoices" WITH(SECURITY_INVOKER=true) AS
+CREATE VIEW "salesInvoices" WITH(SECURITY_INVOKER=true) AS
   WITH settled AS (
     SELECT
       pa."targetSalesInvoiceId",
@@ -139,7 +149,7 @@ CREATE OR REPLACE VIEW "salesInvoices" WITH(SECURITY_INVOKER=true) AS
 -- Active state for purchase invoices is 'Open'.
 -- ============================================================
 
-CREATE OR REPLACE VIEW "purchaseInvoices" WITH(SECURITY_INVOKER=true) AS
+CREATE VIEW "purchaseInvoices" WITH(SECURITY_INVOKER=true) AS
   WITH settled AS (
     SELECT
       pa."targetPurchaseInvoiceId",
