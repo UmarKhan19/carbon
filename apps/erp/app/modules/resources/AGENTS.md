@@ -1,74 +1,94 @@
 # Resources Module
 
-Locations, work centers, processes, abilities (skills), partners, contractors, equipment maintenance (dispatches and schedules), failure modes, training management, and employee suggestions. Manages the physical and capability infrastructure that production and other modules depend on.
+Locations, work centers, processes, abilities (skills), partners, contractors, equipment maintenance (dispatches and schedules), failure modes, training management, and employee suggestions. Manages the physical and capability infrastructure that production depends on.
 
 ## Key Domain Concepts
 
-- **Locations** — physical sites/facilities. Every inventory, job, and employee is scoped to a location. Has address, timezone, and GPS coordinates.
-- **Work Centers** — production stations within a location. Operations are scheduled onto work centers. Have capacity settings, rates, and active/inactive status. Soft-deleted via `active: false`.
-- **Processes** — types of work (e.g., "CNC Milling", "Welding", "Anodizing"). Operations reference a process. Active/inactive. Types defined by `processType` enum.
-- **Abilities** — employee skills/certifications with learning curves. Tracked per employee via `employeeAbility` with training status and completion percentage.
-- **Partners** — external partners associated with the company.
-- **Contractors** — supplier contacts working as contract labor, with hours-per-week and ability assignments.
-- **Maintenance Dispatches** — reactive/scheduled work orders for equipment. Statuses: Open → Assigned → In Progress → Completed/Cancelled. Track time (events), parts used (items), and affected work centers.
-- **Maintenance Schedules** — preventive maintenance plans with frequency (Daily/Weekly/Monthly/Quarterly/Annual), priority, and required parts.
-- **Failure Modes** — categorized failure types (Maintenance/Quality/Operations/Other) used by both maintenance and quality modules.
-- **Training** — training programs with assignments, quizzes, and completion tracking. Frequency-based recertification.
-- **Suggestions** — employee suggestion box system.
+- **Location** — physical site/facility. Every inventory record, job, and employee is scoped to a location. Has address, timezone, and GPS coordinates. Company-scoped.
+- **Work Center** — production station within a location. Operations schedule onto work centers. Have capacity, rates, and active/inactive status. MUST soft-delete via `active: false`.
+- **Process** — type of work (e.g., "CNC Milling", "Welding"). Operations reference a process. Linked to work centers via `workCenterProcess`. MUST soft-delete via `active: false`.
+- **Ability** — employee skill/certification with a learning curve. Tracked per employee via `employeeAbility` with training status, shadow weeks, and completion tracking.
+- **Partner** — external supplier location with ability mappings for outsourced work.
+- **Contractor** — supplier contact working as contract labor, with hours-per-week and ability assignments via `contractorAbility`.
+- **Maintenance Dispatch** — reactive or scheduled work order for equipment. Statuses: Open → Assigned → In Progress → Completed / Cancelled. Tracks time events, consumed parts, and affected work centers.
+- **Maintenance Schedule** — preventive maintenance plan with frequency, priority, and required spare parts.
+- **Failure Mode** — categorized failure type used by maintenance dispatches and quality NCRs.
+- **Training** — training programs with assignments, quiz questions, and frequency-based recertification. Completion tracked via `trainingCompletion`.
 
 ## Safety
 
 ### Always
-- Soft-delete work centers (`active: false`) — they may be referenced by job operations and schedules.
-- Soft-delete processes (`active: false`) via `processDeactivate` — they're referenced by operations and procedures.
-- Scope by `companyId` on all queries; locations are company-scoped.
-- Check `isMaintenanceDispatchLocked(status)` before editing — Completed/Cancelled dispatches are locked.
+- MUST soft-delete work centers via `deleteWorkCenter` (`active: false`) — they are referenced by job operations and schedules.
+- MUST soft-delete processes via `processDeactivate` (`active: false`) — referenced by operations and procedures.
+- MUST scope all queries by `companyId` — locations, work centers, and all sub-entities are company-scoped.
+- MUST use `insertMaintenanceDispatch` for new dispatches and `updateMaintenanceDispatch` for existing ones — `upsertMaintenanceDispatch` is deprecated.
 
 ### Ask First
 - Deleting locations — cascading impact on inventory, jobs, employees, and storage units.
-- Deactivating work centers that have active job operations scheduled.
-- Modifying process definitions that are referenced by active methods or procedures.
+- Deactivating work centers with active job operations scheduled against them.
+- Modifying process definitions referenced by active methods or procedures.
 
 ### Never
 - Hard-delete work centers or processes — always soft-delete via `active: false`.
-- Delete locations that have inventory or active jobs.
-- Remove abilities that have employee training records.
+- Delete locations that have inventory or active jobs — referential integrity will break.
+- Remove abilities that have `employeeAbility` training records.
+
+## Validation Commands
+
+```bash
+pnpm --filter @carbon/erp typecheck
+pnpm --filter @carbon/erp test -- --testPathPattern=resources
+```
 
 ## Key Data Model
 
 | Table / View | Purpose |
 |---|---|
 | `location` | Physical sites: address, timezone, coordinates |
-| `workCenter` | Production stations: location, capacity, rates, active flag |
-| `process` | Work types: name, type, active flag |
-| `ability` / `employeeAbility` | Skills with learning curves and training tracking |
-| `partner` | External partners |
-| `contractor` | Contract labor: supplier contact, hours, abilities |
+| `workCenter` / `workCenters` (view) / `workCentersWithBlockingStatus` (view) | Production stations with capacity and blocking info |
+| `process` / `processes` (view) | Work types with active flag |
+| `workCenterProcess` | Many-to-many link between work centers and processes |
+| `ability` / `employeeAbility` | Skills with learning curves and per-employee tracking |
+| `partner` / `partners` (view) | External supplier partners |
+| `contractor` / `contractors` (view) / `contractorAbility` | Contract labor with ability assignments |
 | `maintenanceDispatch` | Equipment work orders: status, priority, severity, OEE impact |
-| `maintenanceDispatchEvent` / `maintenanceDispatchComment` / `maintenanceDispatchItem` | Dispatch details |
-| `maintenanceSchedule` / `maintenanceScheduleItem` | Preventive maintenance plans |
-| `maintenanceFailureMode` | Failure categories (shared with quality) |
-| `training` / `trainingAssignment` / `trainingQuestion` | Training programs and quizzes |
-| `suggestion` | Employee suggestions |
+| `maintenanceDispatchEvent` / `maintenanceDispatchComment` / `maintenanceDispatchItem` | Dispatch time, comments, and consumed parts |
+| `maintenanceDispatchWorkCenter` / `maintenanceDispatchItemTrackedEntity` | Affected work centers and tracked items |
+| `maintenanceSchedule` / `maintenanceScheduleItem` | Preventive maintenance plans with spare parts |
+| `maintenanceFailureMode` | Failure categories shared with quality module |
+| `training` / `trainingAssignment` / `trainingQuestion` / `trainingCompletion` | Training programs with quizzes and completion tracking |
+| `suggestion` / `suggestions` (view) | Employee suggestions |
 
 ## Key Service Functions
 
-- `getLocations`, `getLocationsList` — site management
-- `getWorkCenters`, `activateWorkCenter`, `deleteWorkCenter` (soft) — work center management
-- `getProcesses`, `getProcessesList`, `activateProcess`, `processDeactivate`
-- `getAbilities`, `getAbility`, `getEmployeeAbilities` — skill tracking
-- `getPartners`, `getContractors` — external resources
-- `getMaintenanceDispatch(es)`, `getMaintenanceDispatchEvents/Comments/Items` — dispatch management
-- `getMaintenanceSchedule(s)`, `getMaintenanceScheduleItems` — PM plans
-- `getFailureModes`, `getFailureModesList` — failure categorization
-- `getTraining(s)`, `getTrainingAssignment(s)`, `getOutstandingTrainingsForUser`
+- `getLocations` / `getLocationsList` / `upsertLocation` — site management
+- `getWorkCenters` / `getWorkCentersByLocation` / `activateWorkCenter` / `deleteWorkCenter` (soft) — work center management
+- `getProcesses` / `getProcessesList` / `activateProcess` / `processDeactivate` — process management
+- `getAbilities` / `getAbility` / `getEmployeeAbilities` / `insertAbility` — skill tracking
+- `getPartners` / `getContractors` / `upsertContractor` — external resources
+- `insertMaintenanceDispatch` / `updateMaintenanceDispatch` / `getMaintenanceDispatch(es)` — dispatch lifecycle
+- `getMaintenanceDispatchEvents` / `getMaintenanceDispatchComments` / `getMaintenanceDispatchItems` — dispatch details
+- `getMaintenanceSchedule(s)` / `upsertMaintenanceSchedule` — PM plans
+- `getFailureModes` / `upsertFailureMode` — failure categorization
+- `getTraining(s)` / `getTrainingAssignment(s)` / `getTrainingAssignmentStatus` / `getOutstandingTrainingsForUser` — training management
 - `getSuggestion(s)` — suggestion management
+
+## Key Exports
+
+```typescript
+import { getLocationsList, getWorkCentersList, getProcessesList } from "~/modules/resources";
+```
 
 ## Related Modules
 
-- **production** — job operations run on work centers; scheduling assigns to work centers; processes link operations to capabilities; maintenance dispatches track machine downtime
+- **production** — job operations run on work centers; scheduling assigns to work centers; processes link operations to capabilities
 - **inventory** — storage units exist within locations; inventory is location-scoped
 - **people** — employees have abilities; shifts are location-scoped; contractors are supplier contacts
 - **quality** — failure modes shared between maintenance and quality NCRs
-- **items** — maintenance dispatches consume items (spare parts); supplier processes link processes to suppliers
-- **purchasing** — contractors reference supplier contacts
+- **items** — maintenance dispatches consume items (spare parts)
+- **purchasing** — contractors reference supplier contacts; partners reference supplier locations
+
+## Rules References
+
+- `.ai/rules/mes-job-operation-ui.md` — work center and process usage in MES context
+- `.ai/rules/scheduling-data-structures.md` — work center capacity and scheduling structures

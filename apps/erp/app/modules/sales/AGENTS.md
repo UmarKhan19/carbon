@@ -1,35 +1,41 @@
 # Sales Module
 
-Quotes (with cost rollup and pricing), sales orders, sales RFQs, customer management, opportunity tracking, pricing rules/overrides, and the customer portal. Covers the full quote-to-order-to-fulfillment lifecycle.
+Quotes (with cost rollup and pricing), sales orders, sales RFQs, customer management, opportunity tracking, pricing rules/overrides, and the customer portal. Full quote-to-order-to-fulfillment lifecycle.
 
 ## Key Domain Concepts
 
-- **Opportunities** — container linking quotes and sales orders for a customer deal.
-- **Quotes** — detailed cost estimates with line items, each having a make method (BOM + routing), quantity breaks with pricing, and cost category markups. Quote statuses: Draft → Pending → Sent → Ordered / Lost / Cancelled.
-- **Quote Line Pricing** — per-quantity-break pricing. PK is `(quoteLineId, quantity)` — no `id` column. `discountPercent` is a **fraction 0..1** (not 0..100). Generated columns compute net/converted prices.
-- **Pricing Rules** — company-scoped Discount/Markup rules. Discounts are non-stacking (highest priority wins); Markups stack and compound. See `.ai/rules/quote-discount-system.md`.
-- **Price Overrides** — customer-specific or customer-type-specific price overrides with quantity breaks. Precedence: customer override > customer-type > all-customers > base price.
-- **Sales Orders** — confirmed orders from quotes. Statuses drive fulfillment. Lines have `methodType` (Make to Order, Make to Stock, etc.) that determines production handling.
-- **Sales RFQs** — inbound requests from customers, convertible to quotes.
-- **Customers** — customer master with contacts, locations, tax settings, payment terms, shipping preferences.
+- **Opportunity** — deal container linking RFQs, quotes, and sales orders for one customer engagement.
+- **Quote** — detailed cost estimate with line items, each having a make method (BOM + routing) and quantity-break pricing. Statuses: Draft → Pending → Sent → Ordered / Lost / Cancelled.
+- **Quote Line Pricing** — per-quantity-break pricing. PK is `(quoteLineId, quantity)` — no `id` column. `discountPercent` is a **fraction 0–1** (not 0–100). Generated columns compute net/converted prices.
+- **Pricing Rules** — company-scoped Discount/Markup rules. Discounts are non-stacking (highest-priority wins); Markups stack and compound in priority order.
+- **Price Overrides** — customer-specific or type-specific price overrides with quantity breaks via `customerItemPriceOverride` / `customerItemPriceOverrideBreak`. Precedence: customer > customer-type > all-customers > base price.
+- **Sales Order** — confirmed order from a quote. Lines carry `methodType` (Make to Order, Make to Stock, etc.) that determines production handling.
+- **Sales RFQ** — inbound request from a customer, convertible to a quote via the `convert` edge function.
 
 ## Safety
 
 ### Always
-- Use `convertQuoteToOrder` for quote→order conversion — it goes through the `convert` edge function.
-- Remember `discountPercent` is a fraction (0..1), not a percentage (0..100).
-- Use `resolvePrice` + `applyPriceRules` for price calculation — never compute prices ad hoc.
-- `quoteLinePrice` has no `id` column — PK is `(quoteLineId, quantity)`.
+- MUST use `convertQuoteToOrder` / `convertSalesRfqToQuote` for lifecycle conversions — they invoke the `convert` edge function.
+- MUST use `resolvePrice` + `applyPriceRules` for price calculation — never compute prices ad hoc.
+- MUST store `discountPercent` as a fraction (0.10, not 10) — all downstream math assumes 0–1.
+- MUST scope customer queries by `companyId` — customers are company-scoped.
 
 ### Ask First
-- Closing sales orders — it sets `closed`, `closedAt`, `closedBy` permanently.
-- Deleting quotes that have been converted to orders (linked via opportunity).
-- Modifying pricing rules — they affect all future price resolutions.
+- Closing sales orders — `closeSalesOrder` sets `closed`, `closedAt`, `closedBy` permanently.
+- Deleting quotes linked to an opportunity — may orphan related orders.
+- Modifying pricing rules — affects all future `resolvePrice` calls.
 
 ### Never
+- Bypass the `convert` edge function for quote→order or RFQ→quote conversions.
+- Delete `quoteLinePrice` rows without preserving `discountPercent`, `leadTime`, and `categoryMarkups` — use `upsertQuoteLinePrices`.
 - Store `discountPercent` as a whole number (e.g., 10 instead of 0.10).
-- Delete `quoteLinePrice` rows without preserving existing `discountPercent`, `leadTime`, and `categoryMarkups` — `upsertQuoteLinePrices` handles this.
-- Bypass the `convert` edge function for quote-to-order or RFQ-to-quote conversions.
+
+## Validation Commands
+
+```bash
+pnpm --filter @carbon/erp typecheck
+pnpm --filter @carbon/erp test -- --testPathPattern=sales
+```
 
 ## Key Data Model
 
@@ -43,31 +49,39 @@ Quotes (with cost rollup and pricing), sales orders, sales RFQs, customer manage
 | `customer` / `customerContact` / `customerLocation` | Customer master data |
 | `customerStatus` / `customerType` | Customer categorization |
 | `pricingRule` | Company-scoped discount/markup rules |
-| `priceOverride` / `priceOverrideBreak` | Customer-specific pricing |
-| `noQuoteReason` | Why a quote was declined |
+| `customerItemPriceOverride` / `customerItemPriceOverrideBreak` | Customer-specific price overrides with quantity breaks |
+| `noQuoteReason` | Why a quote line was declined |
 
 ## Key Service Functions
 
-- `convertQuoteToOrder`, `convertSalesRfqToQuote` — lifecycle conversions
-- `copyQuoteLine`, `copyQuote` — duplication helpers
-- `applyPriceRules` — applies discount/markup rules to a base price
-- `resolvePrice` — full price resolution with overrides and rules
-- `getQuote`, `getQuoteLines`, `getQuoteLinePrices` — quote reads
-- `getSalesOrders`, `getSalesOrderLines`, `getExternalSalesOrderLines`
-- `getCustomer`, `getCustomers`, `getCustomerContacts`, `getCustomerLocations`
-- `getPricingRules`, `createPricingRule`, `duplicatePricingRule`
-- `getOpportunity`, `getOpportunityDocuments`
-- `closeSalesOrder` — closes an order
+- `convertQuoteToOrder` / `convertSalesRfqToQuote` — lifecycle conversions via edge function
+- `copyQuoteLine` / `copyQuote` — duplication via `get-method` edge function
+- `applyPriceRules` — applies matched discount/markup rules to a starting price
+- `resolvePrice` — full price resolution: base → overrides → rules → final
+- `resolvePriceList` — batch price list for a customer/type with quantity preview
+- `closeSalesOrder` / `releaseSalesOrder` / `finalizeQuote` — status transitions
+- `getQuote` / `getQuoteLines` / `getQuoteLinePrices` / `getQuoteMaterials` / `getQuoteOperations` — quote reads
+- `getSalesOrder(s)` / `getSalesOrderLines` / `getExternalSalesOrderLines` — order reads
+- `getCustomer(s)` / `getCustomerContacts` / `getCustomerLocations` — customer reads
+- `getPricingRules` / `createPricingRule` / `duplicatePricingRule` — rule management
+- `getOpportunity` / `getOpportunityDocuments` — deal tracking
+
+## Key Exports
+
+```typescript
+import { resolvePrice, applyPriceRules, getCustomer } from "~/modules/sales";
+```
 
 ## Related Modules
 
-- **production** — `convertSalesOrderLinesToJobs` creates jobs from Make to Order lines
-- **items** — quote lines reference items; methods are copied from item make methods
-- **purchasing** — sales RFQs may flow to purchasing; outside operations create PO lines
+- **production** — sales order lines create jobs for Make to Order items
+- **items** — quote lines reference items; methods copied from item make methods
+- **purchasing** — outside operations on quotes create PO lines
 - **inventory** — shipments fulfill sales order lines
-- **accounting** — sales invoices tie to orders; customer payment terms from accounting
-- **people** — customer contacts may overlap with people/contacts
+- **accounting** — sales invoices tie to orders; `getCurrencyByCode` used for exchange rates
+- **people** — `getEmployeeJob` used for assignee lookups
 
 ## Rules References
 
 - `.ai/rules/quote-discount-system.md` — pricing architecture, discount vs markup, price trace
+- `.ai/rules/customer-supplier-database-schema.md` — customer/supplier data model

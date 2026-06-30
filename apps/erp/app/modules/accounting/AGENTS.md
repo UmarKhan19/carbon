@@ -4,72 +4,92 @@ Chart of accounts, journal entries, general ledger, fiscal periods, currencies, 
 
 ## Key Domain Concepts
 
-- **Chart of Accounts** — hierarchical account tree. Accounts have: `class` (Asset/Liability/Equity/Revenue/Expense), `incomeBalance` (Balance Sheet/Income Statement), `accountType` (Bank, AR, AP, Inventory, Fixed Asset, etc.). Group accounts contain children; ledger accounts post transactions.
-- **Journal Entries** — double-entry bookkeeping. Each entry has balanced debit/credit lines. Lines can carry dimensions and cost center allocations.
-- **Fiscal Year Settings** — configurable start month for fiscal and tax years. Accounting periods are auto-created.
-- **Dimensions** — analytical tags on journal lines (e.g., Project, Region). Each dimension has values; lines can carry multiple dimension assignments.
-- **Cost Centers** — hierarchical organizational units for cost allocation.
-- **Fixed Assets** — capital assets with depreciation tracking. Supports straight-line, declining balance, and MACRS methods. Depreciation runs generate journal entries.
-- **Intercompany** — transactions between companies in a group. Matching and elimination entries for consolidation.
-- **Multi-Currency** — exchange rates, consolidated rate types (Average/Current/Historical), and balance translation for multi-company groups.
-- **Net Income** — computed equity line on balance sheet (never a posted account). Uses synthetic `NET_INCOME_ACCOUNT_ID`.
+- **Chart of Accounts** — hierarchical account tree. Accounts have `class` (Asset/Liability/Equity/Revenue/Expense), `incomeBalance` (Balance Sheet/Income Statement), and `accountType`. Group accounts contain children; leaf accounts post transactions. Scoped by `companyGroupId`.
+- **Journal Entries** — double-entry bookkeeping in the `journal` table. `amount > 0` = debit, `amount < 0` = credit. Lines carry dimensions and cost center allocations. Statuses: Draft → Posted → Reversed.
+- **Fiscal Year Settings** — configurable start month for fiscal and tax years. Accounting periods auto-created via `getOrCreateAccountingPeriod`.
+- **Dimensions** — analytical tags on journal lines (Location, Department, Project, etc.). Entity-type dimensions resolve values from their source table; Custom dimensions use `dimensionValue`.
+- **Cost Centers** — hierarchical organizational units for cost allocation via `parentCostCenterId`.
+- **Fixed Assets** — capital assets with depreciation. Supports straight-line, declining balance, MACRS, and units-of-production methods. Depreciation runs generate journal entries. See `.ai/rules/fixed-asset-lifecycle.md`.
+- **Intercompany** — transactions between companies in a group. `runIntercompanyMatching` pairs them; `generateEliminations` creates reversing entries for consolidation.
+- **Net Income** — computed equity line on the balance sheet, never a posted account. Uses synthetic `NET_INCOME_ACCOUNT_ID` constant.
 
 ## Safety
 
 ### Always
-- Journal entries must balance (total debits = total credits).
-- Use `rootSignMultiplier` logic for root account aggregation — Assets/Revenue add, Liabilities/Equity/Expense subtract.
-- Scope by `companyGroupId` for chart of accounts (shared across company group) and `companyId` for transactions.
-- Use `getOrCreateAccountingPeriod` to ensure periods exist before posting.
+- MUST ensure journal entries balance — `postJournalEntry` validates total debits = total credits before posting.
+- MUST use `rootSignMultiplier` logic for root account aggregation — Assets/Revenue add, Liabilities/Equity/Expense subtract.
+- MUST scope chart of accounts by `companyGroupId` (shared across group) and transactions by `companyId`.
+- MUST use `getOrCreateAccountingPeriod` before posting — it checks for closed periods and auto-creates missing ones.
+- MUST use `toStoredAmount` / `toDisplayDebit` / `toDisplayCredit` for amount conversion — respects account class sign conventions.
 
 ### Ask First
-- Modifying the chart of accounts structure — it affects all reporting.
-- Running depreciation — it creates irreversible journal entries.
-- Changing fiscal year settings — impacts period boundaries.
-- Intercompany eliminations — they create adjustment entries.
+- Modifying the chart of accounts structure — affects all financial reporting.
+- Running depreciation — `insertDepreciationRun` creates journal entries that are difficult to reverse.
+- Changing fiscal year settings — impacts period boundaries and reporting.
+- Generating intercompany eliminations — creates adjustment entries on elimination entities.
 
 ### Never
-- Delete accounts that have posted journal entries.
-- Manually create the "Net Income" account — it's a computed line (`NET_INCOME_ACCOUNT_ID`).
-- Bypass double-entry balance validation on journal entries.
+- Delete posted journal entries — MUST use `reverseJournalEntry` instead.
+- Manually create a "Net Income" account — it is computed via `NET_INCOME_ACCOUNT_ID`.
+- Bypass double-entry balance validation when posting journal entries.
+- Delete accounts that have posted journal lines — will violate referential integrity.
+
+## Validation Commands
+
+```bash
+pnpm --filter @carbon/erp typecheck
+pnpm --filter @carbon/erp test -- --testPathPattern=accounting
+```
 
 ## Key Data Model
 
 | Table / View | Purpose |
 |---|---|
-| `account` / `accounts` (view) | Chart of accounts: hierarchical, with class/type/balance |
-| `journalEntry` / `journalLine` | Double-entry transactions with dimensions |
-| `accountingPeriod` | Fiscal periods (auto-created) |
-| `currency` / `exchangeRate` | Multi-currency support |
-| `paymentTerm` | Net-30, 2/10 Net 30, etc. |
+| `account` / `accounts` (view) | Chart of accounts with class, type, and hierarchy |
+| `journal` / `journalLine` | Double-entry transactions; lines carry dimension assignments |
+| `journalLineDimension` | Dimension values assigned to journal lines |
+| `accountingPeriod` | Fiscal periods with Active/Inactive/Closed status |
+| `accountDefault` | Default GL account mappings (AR, AP, inventory, etc.) |
+| `currency` / `currencyCode` / `exchangeRateHistory` | Multi-currency with historical rates |
+| `paymentTerm` | Payment terms (Net 30, 2/10 Net 30, etc.) |
 | `costCenter` | Hierarchical cost allocation units |
-| `dimension` / `dimensionValue` / `journalLineDimension` | Analytical dimensions |
-| `fixedAsset` / `fixedAssetClass` / `depreciationRun` | Capital asset tracking |
-| `intercompanyTransaction` | Cross-company transactions |
-| `defaultAccount` | Default GL mappings (AR, AP, inventory, etc.) |
+| `dimension` / `dimensionValue` | Analytical dimensions and custom values |
+| `fixedAsset` / `fixedAssetClass` | Capital assets with depreciation configuration |
+| `depreciationRun` / `depreciationRunLine` | Batch depreciation processing |
+| `fixedAssetDisposal` / `fixedAssetUsageLog` | Asset disposal and usage tracking |
+| `intercompanyTransaction` | Cross-company transaction matching |
+| `fiscalYearSettings` | Fiscal and tax year configuration |
 
 ## Key Service Functions
 
-- `getChartOfAccounts`, `getAccounts`, `upsertAccount` — account management
-- `getTrialBalance` — trial balance RPC
+- `getChartOfAccounts` / `getAccounts` / `upsertAccount` — account management
+- `getTrialBalance` — trial balance via `trialBalance` RPC
 - `getFinancialStatementBalances` — balance sheet / income statement with Net Income computation
-- `getJournalEntries`, `getJournalEntry` — transaction reads
-- `getCurrentAccountingPeriod`, `getOrCreateAccountingPeriod` — period management
-- `getCurrencies`, `getBaseCurrency`, `translateCompanyBalances`
-- `getConsolidatedBalances` — multi-company consolidation
-- `getCostCenters`, `getCostCentersTree` — cost center hierarchy
-- `getDimensions`, `getActiveDimensionsWithValues`, `saveJournalLineDimensions`
-- `getFixedAssets`, `getDepreciationRuns` — fixed asset management
-- `createIntercompanyTransaction`, `runIntercompanyMatching`, `generateEliminations`
+- `getConsolidatedBalances` — multi-company consolidation with currency translation
+- `createJournalEntry` / `saveJournalEntryWithLines` / `postJournalEntry` / `reverseJournalEntry` — journal lifecycle
+- `getOrCreateAccountingPeriod` / `getCurrentAccountingPeriod` — period management
+- `getCurrencies` / `getBaseCurrency` / `getCurrencyByCode` — currency lookups
+- `translateCompanyBalances` — balance translation for multi-currency consolidation
+- `getDimensions` / `getActiveDimensionsWithValues` / `saveJournalLineDimensions` — dimension management
+- `getCostCenters` / `getCostCentersTree` — cost center hierarchy
+- `getFixedAssets` / `insertFixedAsset` / `insertDepreciationRun` — fixed asset lifecycle
+- `createIntercompanyTransaction` / `runIntercompanyMatching` / `generateEliminations` — IC processing
+
+## Key Exports
+
+```typescript
+import { getCurrencyByCode, getPaymentTermsList, getDefaultAccounts } from "~/modules/accounting";
+```
 
 ## Related Modules
 
-- **purchasing** — purchase invoices post to AP; PO receipts create inventory GL entries
-- **sales** — sales invoices post to AR; pricing uses payment terms
+- **purchasing** — purchase invoices post to AP; receipts create inventory GL entries
+- **sales** — sales invoices post to AR; quotes use `getCurrencyByCode` for exchange rates
 - **inventory** — inventory movements create GL entries via posting groups
 - **items** — `itemPostingGroup` maps item categories to GL accounts
-- **people** — employee-related postings (payroll integration point)
+- **people** — employees used as dimension values; cost center assignments
 
 ## Rules References
 
 - `.ai/rules/accounting-sync-handlers.md` — Xero sync architecture, entity syncers, Inngest functions
+- `.ai/rules/fixed-asset-lifecycle.md` — asset statuses, depreciation methods, disposal flow
