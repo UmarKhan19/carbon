@@ -21,6 +21,7 @@ As you review, actively look for problems and missing work:
 - risky changes that are not obvious from the diff
 - PR scope/title/body not matching the actual change
 - things that technically work but still feel brittle or hard to maintain
+- stale AGENTS.md or `.ai/` docs (see freshness check below)
 
 Be skeptical. Do not rubber-stamp your own work just because you wrote it.
 
@@ -34,6 +35,23 @@ Call out missing things too, not just bad things that are already present in the
 Be specific. Reference files and lines when possible. If you are not fully sure whether something is a real bug, include it anyway as a risk or question. Focus on what should be fixed, simplified, verified, or questioned before the PR is considered ready.
 
 Present the findings directly to the user so they can decide what to act on.
+
+## AGENTS.md & docs freshness check
+
+For every package or module directory the PR touches, check:
+
+1. Does a sibling `AGENTS.md` exist? If so, does the diff change anything it
+   references — a function name, table name, export, import path, or pattern?
+   If yes, flag it: _"`packages/database/AGENTS.md` references `fetchAllFromTable`
+   but this PR renames it to `fetchAll` — update the AGENTS.md."_
+2. Does the diff add a new package or module directory without an `AGENTS.md`?
+   Flag it: _"New package `packages/foo/` has no AGENTS.md — create one using a
+   sibling as template."_
+3. Does the diff introduce a new pattern, convention, or pitfall worth capturing?
+   Flag it for `.ai/lessons.md` if so.
+
+List freshness findings under a **Docs freshness** section in the review output,
+separate from Must fix / Risks / Suggested improvements.
 
 ## Strict mode (thermo-nuclear)
 

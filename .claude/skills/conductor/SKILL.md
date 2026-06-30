@@ -60,6 +60,22 @@ For each iteration:
 
 5. **Terminate?** If every acceptance criterion is met and provable → go to Finish. If you plateau (no progress across iterations) or the human stops → stop and report.
 
+## 2b. Post-build AGENTS.md freshness audit
+After the cycle converges (all acceptance criteria met, gates green), run a
+freshness audit before opening the PR:
+
+1. List every package and module directory the branch touched:
+   `git diff --name-only origin/main...HEAD | grep -E '^(packages|apps/erp/app/modules)/' | cut -d/ -f1-2 | sort -u`
+   (for modules: cut at depth 5 to get `apps/erp/app/modules/{name}`)
+2. For each touched directory that has an AGENTS.md, read the AGENTS.md and
+   check whether any concrete references (function names, table names, exports,
+   import paths) are stale relative to the code you just wrote.
+3. Fix any stale references in the same branch — small, scoped edits.
+4. If the build revealed a new pitfall or lesson, append it to `.ai/lessons.md`
+   using the `Context → Problem → Rule → Applies to` format.
+
+This is the **self-healing loop** — every build is a freshness audit.
+
 ## 3. Finish — land a gated PR
 - Embed the **proof captured by the behavior gate (§2b)** in the PR body:
   - **Unit/integration tests:** name the test file(s) and the red→green assertion(s)
