@@ -1501,6 +1501,9 @@ msgstr "Обратный отвод"
 msgid "Backups"
 msgstr "Резервные копии"
 
+msgid "Balance"
+msgstr ""
+
 msgid "Balance Sheet"
 msgstr "Баланс"
 
@@ -8217,9 +8220,6 @@ msgstr ""
 
 msgid "Payment ID"
 msgstr ""
-
-msgid "Payment Method"
-msgstr "Способ оплаты"
 
 msgid "payment term"
 msgstr "условия платежа"

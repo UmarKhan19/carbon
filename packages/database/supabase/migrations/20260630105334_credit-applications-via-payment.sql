@@ -112,7 +112,8 @@ CREATE OR REPLACE VIEW "salesInvoices" WITH(SECURITY_INVOKER=true) AS
     sil."thumbnailPath",
     sil."itemType",
     COALESCE(sil."subtotal", 0) + COALESCE(sil."totalTax", 0) + COALESCE(ss."shippingCost", 0) AS "invoiceTotal",
-    sil."lines"
+    sil."lines",
+    pt."name" AS "paymentTermName"
   FROM "salesInvoice" si
   LEFT JOIN (
     SELECT
@@ -151,6 +152,7 @@ CREATE OR REPLACE VIEW "salesInvoices" WITH(SECURITY_INVOKER=true) AS
     GROUP BY sil."invoiceId"
   ) sil ON sil."invoiceId" = si."id"
   JOIN "salesInvoiceShipment" ss ON ss."id" = si."id"
+  LEFT JOIN "paymentTerm" pt ON pt."id" = si."paymentTermId"
   LEFT JOIN settled s ON s."salesInvoiceId" = si."id";
 
 

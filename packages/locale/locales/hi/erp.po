@@ -1501,6 +1501,9 @@ msgstr "बैकफ्लश"
 msgid "Backups"
 msgstr "बैकअप"
 
+msgid "Balance"
+msgstr ""
+
 msgid "Balance Sheet"
 msgstr "बैलेंस शीट"
 
@@ -8217,9 +8220,6 @@ msgstr ""
 
 msgid "Payment ID"
 msgstr ""
-
-msgid "Payment Method"
-msgstr "भुगतान विधि"
 
 msgid "payment term"
 msgstr "भुगतान अवधि"

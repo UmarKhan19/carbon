@@ -19,6 +19,7 @@ import {
   LuAtom,
   LuBanknote,
   LuBarcode,
+  LuBlocks,
   LuBookOpen,
   LuBox,
   LuBuilding,
@@ -47,7 +48,6 @@ import {
   LuLandmark,
   LuList,
   LuMapPin,
-  LuPackage,
   LuPizza,
   LuQrCode,
   LuRotateCcw,
@@ -582,7 +582,7 @@ export const JournalEntrySourceTypeIcon = ({
     case "Transfer Receipt":
       return <LuArrowLeftRight className={className} />;
     case "Inventory Adjustment":
-      return <LuPackage className={className} />;
+      return <LuBlocks className={className} />;
     case "Production Order":
       return <LuCirclePlay className={className} />;
     case "Job Consumption":
@@ -631,7 +631,7 @@ export const DimensionEntityTypeIcon = ({
     case "Supplier":
       return <LuContainer className={className} />;
     case "Item":
-      return <LuPackage className={className} />;
+      return <LuBlocks className={className} />;
     case "Department":
       return <LuBuilding className={className} />;
     case "Employee":

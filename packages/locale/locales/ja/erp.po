@@ -1501,6 +1501,9 @@ msgstr "バックフラッシュ"
 msgid "Backups"
 msgstr "バックアップ"
 
+msgid "Balance"
+msgstr ""
+
 msgid "Balance Sheet"
 msgstr "貸借対照表"
 
@@ -8217,9 +8220,6 @@ msgstr ""
 
 msgid "Payment ID"
 msgstr ""
-
-msgid "Payment Method"
-msgstr "支払い方法"
 
 msgid "payment term"
 msgstr "支払条件"

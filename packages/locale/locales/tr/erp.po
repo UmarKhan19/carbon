@@ -1501,6 +1501,9 @@ msgstr "Geri Akış"
 msgid "Backups"
 msgstr "Yedeklemeler"
 
+msgid "Balance"
+msgstr ""
+
 msgid "Balance Sheet"
 msgstr "Bilanço"
 
@@ -8217,9 +8220,6 @@ msgstr ""
 
 msgid "Payment ID"
 msgstr ""
-
-msgid "Payment Method"
-msgstr "Ödeme Yöntemi"
 
 msgid "payment term"
 msgstr "ödeme şartları"

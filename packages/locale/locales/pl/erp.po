@@ -1501,6 +1501,9 @@ msgstr "Cofnięcie"
 msgid "Backups"
 msgstr "Kopie zapasowe"
 
+msgid "Balance"
+msgstr ""
+
 msgid "Balance Sheet"
 msgstr "Bilans"
 
@@ -8217,9 +8220,6 @@ msgstr ""
 
 msgid "Payment ID"
 msgstr ""
-
-msgid "Payment Method"
-msgstr "Metoda Płatności"
 
 msgid "payment term"
 msgstr "warunki płatności"

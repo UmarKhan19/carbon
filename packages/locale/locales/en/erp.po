@@ -1501,6 +1501,9 @@ msgstr "Backflush"
 msgid "Backups"
 msgstr "Backups"
 
+msgid "Balance"
+msgstr "Balance"
+
 msgid "Balance Sheet"
 msgstr "Balance Sheet"
 
@@ -8217,9 +8220,6 @@ msgstr "Payment Date"
 
 msgid "Payment ID"
 msgstr "Payment ID"
-
-msgid "Payment Method"
-msgstr "Payment Method"
 
 msgid "payment term"
 msgstr "payment term"

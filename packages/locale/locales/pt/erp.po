@@ -1501,6 +1501,9 @@ msgstr "Descarga Automática"
 msgid "Backups"
 msgstr "Backups"
 
+msgid "Balance"
+msgstr ""
+
 msgid "Balance Sheet"
 msgstr "Balanço Patrimonial"
 
@@ -8217,9 +8220,6 @@ msgstr ""
 
 msgid "Payment ID"
 msgstr ""
-
-msgid "Payment Method"
-msgstr "Método de Pagamento"
 
 msgid "payment term"
 msgstr "prazos de pagamento"

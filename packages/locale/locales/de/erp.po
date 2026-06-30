@@ -1501,6 +1501,9 @@ msgstr "Rücklauf"
 msgid "Backups"
 msgstr "Sicherungen"
 
+msgid "Balance"
+msgstr ""
+
 msgid "Balance Sheet"
 msgstr "Bilanz"
 
@@ -8217,9 +8220,6 @@ msgstr ""
 
 msgid "Payment ID"
 msgstr ""
-
-msgid "Payment Method"
-msgstr "Zahlungsmethode"
 
 msgid "payment term"
 msgstr "Zahlungsbedingungen"

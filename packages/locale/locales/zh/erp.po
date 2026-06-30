@@ -1501,6 +1501,9 @@ msgstr "反冲"
 msgid "Backups"
 msgstr "备份"
 
+msgid "Balance"
+msgstr ""
+
 msgid "Balance Sheet"
 msgstr "资产负债表"
 
@@ -8217,9 +8220,6 @@ msgstr ""
 
 msgid "Payment ID"
 msgstr ""
-
-msgid "Payment Method"
-msgstr "支付方式"
 
 msgid "payment term"
 msgstr "付款条件"

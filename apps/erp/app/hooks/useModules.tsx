@@ -1,6 +1,7 @@
 import { useRouteData } from "@carbon/react";
 import { useLingui } from "@lingui/react/macro";
 import {
+  LuBlocks,
   LuBox,
   LuCreditCard,
   LuCrown,
@@ -10,7 +11,6 @@ import {
   LuSettings,
   LuShield,
   LuShoppingCart,
-  LuSquareStack,
   LuTvMinimalPlay,
   LuUsers,
   LuWrench
@@ -79,7 +79,7 @@ function useModuleDefinitions(): ModuleDefinition[] {
       permission: "parts",
       name: t`Items`,
       to: path.to.parts,
-      icon: LuSquareStack
+      icon: LuBlocks
     },
     {
       key: "people",
