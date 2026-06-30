@@ -45,12 +45,12 @@ Tracking what you have and where. Key concepts:
 - **Serial Number**: individual unit tracking (for high-value items)
 - **Adjustment**: correcting inventory counts (damage, shrinkage, counting errors)
 - **Transfer**: moving inventory between locations
-- **Reservation**: holding inventory for a specific order or work order
+- **Reservation**: holding inventory for a specific order or job
 
 ### Production / Manufacturing
 
 The make side. Key entities:
-- **Work Order**: an instruction to manufacture a quantity of a product
+- **Job**: an instruction to manufacture a quantity of a product (industry term: "work order" — Carbon calls it a **job**)
 - **Routing**: the sequence of operations to make a product
 - **Operation**: a single step in a routing (e.g., "CNC machining", "assembly", "paint")
 - **Work Cell**: a station or machine where operations happen
@@ -111,7 +111,7 @@ These business rules are ALWAYS true in manufacturing ERP:
 | Carbon Term | Industry Term | Meaning |
 |-------------|--------------|---------|
 | Item | Part / SKU | A thing you buy, make, or sell |
-| Work Order | Manufacturing Order / Production Order | Instruction to make something |
+| Job | Work Order / Manufacturing Order | Instruction to make something |
 | Receipt | Goods Receipt / GRN | Physical arrival of purchased items |
 | Shipment | Dispatch / Delivery | Physical sending of items to customer |
 | Issue | NCR / CAPA / ECO / RMA | Quality/change management documents |

@@ -148,7 +148,7 @@ Every table follows the template in `.ai/rules/conventions-database.md`:
 
 ```sql
 CREATE TABLE "entityName" (
-    "id" TEXT NOT NULL DEFAULT id('prefix'),
+    "id" TEXT NOT NULL DEFAULT id(),
     "companyId" TEXT NOT NULL,
     -- Business columns
     "createdBy" TEXT NOT NULL REFERENCES "user"("id"),
@@ -156,18 +156,43 @@ CREATE TABLE "entityName" (
     "updatedBy" TEXT REFERENCES "user"("id"),
     "updatedAt" TIMESTAMP WITH TIME ZONE,
     "customFields" JSONB,
-    CONSTRAINT "entityName_pkey" PRIMARY KEY ("id", "companyId"),
-    CONSTRAINT "entityName_companyId_fkey"
-      FOREIGN KEY ("companyId") REFERENCES "company"("id")
-      ON DELETE CASCADE ON UPDATE CASCADE
+    PRIMARY KEY ("id", "companyId"),
+    FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE CASCADE
 );
 
-ALTER TABLE "entityName" ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "entityName_SELECT" ON "entityName" FOR SELECT USING (has_role());
-CREATE POLICY "entityName_INSERT" ON "entityName" FOR INSERT WITH CHECK (has_role());
-CREATE POLICY "entityName_UPDATE" ON "entityName" FOR UPDATE USING (has_role());
-CREATE POLICY "entityName_DELETE" ON "entityName" FOR DELETE USING (has_role());
+CREATE INDEX "entityName_companyId_idx" ON "entityName" ("companyId");
+CREATE INDEX "entityName_createdBy_idx" ON "entityName" ("createdBy");
+
+ALTER TABLE "public"."entityName" ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "SELECT" ON "public"."entityName"
+FOR SELECT USING (
+  "companyId" = ANY ((SELECT get_companies_with_employee_role())::text[])
+);
+
+CREATE POLICY "INSERT" ON "public"."entityName"
+FOR INSERT WITH CHECK (
+  "companyId" = ANY ((SELECT get_companies_with_employee_permission('module_create'))::text[])
+);
+
+CREATE POLICY "UPDATE" ON "public"."entityName"
+FOR UPDATE USING (
+  "companyId" = ANY ((SELECT get_companies_with_employee_permission('module_update'))::text[])
+);
+
+CREATE POLICY "DELETE" ON "public"."entityName"
+FOR DELETE USING (
+  "companyId" = ANY ((SELECT get_companies_with_employee_permission('module_delete'))::text[])
+);
 ```
+
+**RLS conventions (from the rls-refactor):**
+- Policy names are exactly `SELECT`, `INSERT`, `UPDATE`, `DELETE` — not verbose descriptions
+- **SELECT** → `get_companies_with_employee_role()` (any employee can read)
+- **INSERT / UPDATE / DELETE** → `get_companies_with_employee_permission('<module>_<action>')`
+- The old `has_role()` / `has_company_permission()` helpers are **deprecated** — never use them
+- Wrap helper calls in `(SELECT ...)` for per-statement evaluation (Postgres InitPlan optimization)
+- Cast result `::text[]`
 
 ## Forms
 

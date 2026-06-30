@@ -1,18 +1,66 @@
-# llm/outer-loop
+# Outer Loop — Autonomous Agent Architecture
 
-Scratch space for the **outer loop** — the autonomous "agentic employee" that watches GitHub, dispatches the conductor inner loop, and shepherds gated PRs through review. It runs on **OpenClaw** (the runtime) with a **headless Claude Code agent** (`claude -p --dangerously-skip-permissions`) doing the reasoning — *not* in this repo.
+How the `carbon-agent` autonomous builder works. The outer loop runs on OpenClaw (scheduling, webhooks, state) and dispatches Claude Code headless (`claude -p`) for all coding work.
 
-**This folder is gitignored except this README** (like `llm/loops/`). The design plans and the box's operating prompt are intentionally kept out of the product tree, matching the loop system's "code + skill = source of truth" convention:
+## Interface
 
-- **Design history** (the full plan, repo-change list, box setup): in the PR that introduced this — [crbnos/carbon#957](https://github.com/crbnos/carbon/pull/957) and its commits.
-- **Operating prompt** (the literal prompt the box runs each wake): lives on the **OpenClaw box**, where it runs.
+**Assign a GitHub issue to `carbon-agent` → it builds it.** Assign nothing → it grooms the backlog so there's good work ready to assign.
 
-## The one-sentence interface
+## Architecture
 
-**Assign a GitHub issue to `carbon-agent` → it builds it. Assign nothing → it grooms the backlog so there's good work ready to assign.** OpenClaw is just the runtime (heartbeat, webhooks, cron, channels, state, sandbox); Claude Code is the agent — the same `claude -p` the inner loop already uses.
+```
+OpenClaw runtime (heartbeat · webhooks · cron · sandbox · SQLite)
+ └─ claude -p --dangerously-skip-permissions     ← outer-loop orchestration
+     └─ crbn up --run 'pnpm --filter @carbon/harness loop …'  ← inner-loop dispatch
+         └─ harness spawns claude -p (doer / judge / behavior)  ← conductor
+```
 
-## What's actually in this repo (the functional contract the outer loop consumes)
+- **OpenClaw** = runtime only (heartbeat, webhooks, cron, channels, state, sandbox)
+- **Claude Code** = all reasoning (triage, binding synthesis, dispatch, grooming, PR feedback)
+- **Harness** = the conductor inner loop that drives a Binding to a gated PR
 
-- **`@carbon/harness`** — `crbn up --run 'pnpm --filter @carbon/harness loop <binding> --cwd .'` drives a `Binding` to a gated PR and writes `llm/loops/runs/<id>/outcome.json` (`{ state, prUrl, reason }`). `openPr` is idempotent (PR-feedback re-entry on the same branch); optional `Binding.issue` → `Closes #<n>`. GC stale runs with `pnpm --filter @carbon/harness run gc`.
-- **`crbn down --volumes`** / **`crbn up --run … --volumes`** — prune the stack's Docker volumes on teardown (headless boxes don't leak volumes).
-- **`.github/scripts/setup-agent-labels.sh`** + the **Agent Labels** workflow — the `agent:*` labels the orchestrator drives (`working`, `needs-grooming`, `groomed`, `needs-decomposition`, `blocked`).
+## Wake Loop (every 30 min)
+
+1. **Reconcile leases** — `agent:working` issues with no live build → stale → recover
+2. **PR feedback** (highest priority) — unresolved review comments → re-enter inner loop on same branch
+3. **Assigned work** — pick top issue by priority → synthesize Binding → dispatch conductor
+4. **Slack ingest** — tagged in a thread → read context, create issue, self-assign
+5. **Idle** → groom one backlog issue (comment spec + acceptance criteria, never build)
+6. **GC** — prune worktrees, Docker volumes, loop runs
+
+## Key Contracts
+
+### Harness
+
+```bash
+crbn up --minimal --run 'pnpm --filter @carbon/harness loop <binding-path> --cwd <worktree-path>' --volumes
+```
+
+- Drives a `Binding` (in `llm/loops/runs/<id>/binding.loop.md`) to a gated PR
+- Writes `llm/loops/runs/<id>/outcome.json` → `{ state, prUrl, reason }`
+- `openPr` is idempotent (PR-feedback re-entry reuses the same branch/PR)
+- GC: `pnpm --filter @carbon/harness run gc`
+
+### Agent Labels
+
+| Label | Meaning |
+|-------|---------|
+| `agent:working` | Build in flight (lease held) |
+| `agent:groomed` | Spec proposed, ready to assign |
+| `agent:needs-decomposition` | Epic-sized, breakdown proposed |
+| `agent:blocked` | Build failed/plateaued, needs human |
+
+### Safety
+
+- Never merge — human approves every PR
+- Never push to main — always feature branches
+- One build at a time (`N=1`) — mutex via lockfile + process check
+- Per-task + daily `$` budget caps
+- Kill switch: unassign the issue
+
+## Related Files
+
+- **Conductor skill:** `.claude/skills/conductor/SKILL.md`
+- **Harness:** `packages/harness/`
+- **Agent labels workflow:** `.github/scripts/setup-agent-labels.sh`
+- **Operating prompt:** lives on the OpenClaw box (not in this repo)
