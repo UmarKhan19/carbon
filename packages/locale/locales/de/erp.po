@@ -7781,6 +7781,9 @@ msgstr "In Aufträgen"
 msgid "On order"
 msgstr "Bestellt"
 
+msgid "On Production Demand"
+msgstr "Im Produktionsbedarf"
+
 msgid "On Purchase Order"
 msgstr "In Bestellung"
 
@@ -8529,6 +8532,9 @@ msgstr "Vorauszahlungen (Standard)"
 
 msgid "Prepayments (default)"
 msgstr "Vorbeugungsmaßnahme"
+
+msgid "Present Week"
+msgstr "Aktuelle Woche"
 
 msgid "Prev"
 msgstr "Zurück"
@@ -12949,6 +12955,9 @@ msgstr "Mittwoch"
 #. placeholder {0}: i + 1
 msgid "Week {0} ({formattedDate})"
 msgstr "Woche {0} ({formattedDate})"
+
+msgid "Week {weekNumber}"
+msgstr "Woche {weekNumber}"
 
 msgid "Week 8 cutover"
 msgstr "Woche 8 Umstellung"
