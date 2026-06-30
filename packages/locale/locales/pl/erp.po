@@ -1688,6 +1688,9 @@ msgstr "Zwana metodą w Carbon — komponenty plus operacje, które tworzą czę
 msgid "Can't disable the only active break. Add another break or toggle the override's Active instead."
 msgstr "Nie można wyłączyć jedynego aktywnego przedziału. Dodaj inny przedział lub przełącz opcję Aktywne dla przesłonięcia."
 
+msgid "Can't download this file"
+msgstr ""
+
 msgid "Cancel"
 msgstr "Anuluj"
 
@@ -3686,6 +3689,9 @@ msgstr "Pobierz CSV"
 
 msgid "Download Labels"
 msgstr "Pobierz Etykiety"
+
+msgid "Download Link"
+msgstr ""
 
 msgid "Download PDF"
 msgstr "Pobierz PDF"
@@ -11611,6 +11617,12 @@ msgstr "Te zadania mają operacje przypisane do tego centrum pracy:"
 
 msgid "This completes the Discovery step."
 msgstr "To uzupełnia krok Discovery."
+
+msgid "This download link is invalid or has been tampered with."
+msgstr ""
+
+msgid "This file is no longer available, or you don't have permission to download it."
+msgstr ""
 
 msgid "This information will be used on document headers"
 msgstr "Te informacje będą używane w nagłówkach dokumentów"

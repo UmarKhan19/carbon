@@ -1688,6 +1688,9 @@ msgstr "Called a method in Carbon — the components plus operations that produc
 msgid "Can't disable the only active break. Add another break or toggle the override's Active instead."
 msgstr "Can't disable the only active break. Add another break or toggle the override's Active instead."
 
+msgid "Can't download this file"
+msgstr "Can't download this file"
+
 msgid "Cancel"
 msgstr "Cancel"
 
@@ -3686,6 +3689,9 @@ msgstr "Download CSV"
 
 msgid "Download Labels"
 msgstr "Download Labels"
+
+msgid "Download Link"
+msgstr "Download Link"
 
 msgid "Download PDF"
 msgstr "Download PDF"
@@ -11611,6 +11617,12 @@ msgstr "These jobs have operations assigned to this work center:"
 
 msgid "This completes the Discovery step."
 msgstr "This completes the Discovery step."
+
+msgid "This download link is invalid or has been tampered with."
+msgstr "This download link is invalid or has been tampered with."
+
+msgid "This file is no longer available, or you don't have permission to download it."
+msgstr "This file is no longer available, or you don't have permission to download it."
 
 msgid "This information will be used on document headers"
 msgstr "This information will be used on document headers"

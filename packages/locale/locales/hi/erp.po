@@ -1688,6 +1688,9 @@ msgstr "कार्बन में एक विधि कहा जाता 
 msgid "Can't disable the only active break. Add another break or toggle the override's Active instead."
 msgstr "केवल सक्रिय ब्रेक को अक्षम नहीं कर सकते। एक और ब्रेक जोड़ें या ओवरराइड के सक्रिय को टॉगल करें।"
 
+msgid "Can't download this file"
+msgstr ""
+
 msgid "Cancel"
 msgstr "रद्द करें"
 
@@ -3686,6 +3689,9 @@ msgstr "CSV डाउनलोड करें"
 
 msgid "Download Labels"
 msgstr "लेबल डाउनलोड करें"
+
+msgid "Download Link"
+msgstr ""
 
 msgid "Download PDF"
 msgstr "PDF डाउनलोड करें"
@@ -11611,6 +11617,12 @@ msgstr "इन कार्यों के पास इस कार्य क
 
 msgid "This completes the Discovery step."
 msgstr "यह Discovery चरण को पूरा करता है।"
+
+msgid "This download link is invalid or has been tampered with."
+msgstr ""
+
+msgid "This file is no longer available, or you don't have permission to download it."
+msgstr ""
 
 msgid "This information will be used on document headers"
 msgstr "यह जानकारी दस्तावेज़ शीर्षलेख पर उपयोग की जाएगी"
