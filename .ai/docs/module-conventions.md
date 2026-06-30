@@ -144,7 +144,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 ## Database Tables
 
-Every table follows the template in `.claude/rules/conventions-database.md`:
+Every table follows the template in `.ai/rules/conventions-database.md`:
 
 ```sql
 CREATE TABLE "entityName" (
@@ -197,8 +197,8 @@ function ItemForm({ initialValues }: { initialValues?: Item }) {
 
 ## Cross-References
 
-- Database conventions: `.claude/rules/conventions-database.md`
-- Service conventions: `.claude/rules/conventions-services.md`
-- Form conventions: `.claude/rules/conventions-forms.md`
-- UI conventions: `.claude/rules/conventions-ui.md`
-- Coding conventions: `.claude/rules/coding-conventions.md`
+- Database conventions: `.ai/rules/conventions-database.md`
+- Service conventions: `.ai/rules/conventions-services.md`
+- Form conventions: `.ai/rules/conventions-forms.md`
+- UI conventions: `.ai/rules/conventions-ui.md`
+- Coding conventions: `.ai/rules/coding-conventions.md`

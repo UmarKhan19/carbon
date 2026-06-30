@@ -3,7 +3,6 @@ paths:
   - "apps/**"
   - "packages/**"
   - "docs/**"
-  - ".claude/rules/**"
   - ".ai/**"
   - "**/AGENTS.md"
   - "BACKWARD_COMPATIBILITY.md"

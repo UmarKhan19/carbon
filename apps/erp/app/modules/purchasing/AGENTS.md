@@ -9,7 +9,7 @@ Purchase orders, supplier management, supplier quotes/interactions, receipt-to-P
 - **Supplier Quotes** — vendor-side pricing; can be finalized and converted to POs via the `convert` edge function.
 - **Supplier Processes** — which processes a supplier can perform (links `supplier` ↔ `process`).
 - **Purchasing Planning** — MRP-driven planned orders that can be released into POs (`get_purchasing_planning` RPC).
-- **Conversion Factors** — when a supplier's UoM differs from the item's stocking UoM, a conversion factor on `purchaseOrderLine` scales quantities at receipt time. See `.claude/rules/purchasing-conversion-factors.md`.
+- **Conversion Factors** — when a supplier's UoM differs from the item's stocking UoM, a conversion factor on `purchaseOrderLine` scales quantities at receipt time. See `.ai/rules/purchasing-conversion-factors.md`.
 
 ## Safety
 
@@ -59,5 +59,5 @@ Purchase orders, supplier management, supplier quotes/interactions, receipt-to-P
 
 ## Rules References
 
-- `.claude/rules/purchasing-conversion-factors.md` — how UoM conversion works on PO lines
-- `.claude/rules/method-material-sourcing.md` — how method materials determine sourcing type (Buy/Make/Pull)
+- `.ai/rules/purchasing-conversion-factors.md` — how UoM conversion works on PO lines
+- `.ai/rules/method-material-sourcing.md` — how method materials determine sourcing type (Buy/Make/Pull)

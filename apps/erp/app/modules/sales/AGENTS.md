@@ -7,7 +7,7 @@ Quotes (with cost rollup and pricing), sales orders, sales RFQs, customer manage
 - **Opportunities** — container linking quotes and sales orders for a customer deal.
 - **Quotes** — detailed cost estimates with line items, each having a make method (BOM + routing), quantity breaks with pricing, and cost category markups. Quote statuses: Draft → Pending → Sent → Ordered / Lost / Cancelled.
 - **Quote Line Pricing** — per-quantity-break pricing. PK is `(quoteLineId, quantity)` — no `id` column. `discountPercent` is a **fraction 0..1** (not 0..100). Generated columns compute net/converted prices.
-- **Pricing Rules** — company-scoped Discount/Markup rules. Discounts are non-stacking (highest priority wins); Markups stack and compound. See `.claude/rules/quote-discount-system.md`.
+- **Pricing Rules** — company-scoped Discount/Markup rules. Discounts are non-stacking (highest priority wins); Markups stack and compound. See `.ai/rules/quote-discount-system.md`.
 - **Price Overrides** — customer-specific or customer-type-specific price overrides with quantity breaks. Precedence: customer override > customer-type > all-customers > base price.
 - **Sales Orders** — confirmed orders from quotes. Statuses drive fulfillment. Lines have `methodType` (Make to Order, Make to Stock, etc.) that determines production handling.
 - **Sales RFQs** — inbound requests from customers, convertible to quotes.
@@ -70,4 +70,4 @@ Quotes (with cost rollup and pricing), sales orders, sales RFQs, customer manage
 
 ## Rules References
 
-- `.claude/rules/quote-discount-system.md` — pricing architecture, discount vs markup, price trace
+- `.ai/rules/quote-discount-system.md` — pricing architecture, discount vs markup, price trace

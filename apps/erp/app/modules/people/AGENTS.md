@@ -4,7 +4,7 @@ Employee management, departments, shifts, holidays, time tracking (clock in/out,
 
 ## Key Domain Concepts
 
-- **People vs Users vs Employees** — `user` is the global identity (auth). `employee` is a per-company record (`(id, companyId)` composite PK where `id → user.id`). `employeeJob` holds the job title, location, department, shift, and manager. See `.claude/rules/user-employee-job-relationships.md`.
+- **People vs Users vs Employees** — `user` is the global identity (auth). `employee` is a per-company record (`(id, companyId)` composite PK where `id → user.id`). `employeeJob` holds the job title, location, department, shift, and manager. See `.ai/rules/user-employee-job-relationships.md`.
 - **Departments** — hierarchical organizational units via `parentDepartmentId`. Used for org structure and reporting.
 - **Shifts** — work schedules with day-of-week flags, start/end times, and location. Assigned to employees via `employeeJob.shiftId`.
 - **Holidays** — company-specific non-working days.
@@ -67,4 +67,4 @@ Employee management, departments, shifts, holidays, time tracking (clock in/out,
 
 ## Rules References
 
-- `.claude/rules/user-employee-job-relationships.md` — complete identity graph: user → employee → employeeJob → permissions
+- `.ai/rules/user-employee-job-relationships.md` — complete identity graph: user → employee → employeeJob → permissions

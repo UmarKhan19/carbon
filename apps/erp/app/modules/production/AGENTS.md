@@ -11,7 +11,7 @@ Work orders (jobs), scheduling, routings (operations), bill of materials, proced
 - **Procedures** — versioned work instructions linked to operations via `processId`.
 - **Production Events** — time tracking (Labor/Machine/Setup) against operations.
 - **Production Quantities** — output recording (Production/Scrap/Rework) against operations.
-- **Scheduling** — infinite-capacity backward scheduling engine (edge function `schedule`). See `.claude/rules/scheduling-data-structures.md`.
+- **Scheduling** — infinite-capacity backward scheduling engine (edge function `schedule`). See `.ai/rules/scheduling-data-structures.md`.
 - **Maintenance** — dispatches (reactive/scheduled repairs) and schedules (preventive maintenance) for work centers.
 
 ## Safety
@@ -72,5 +72,5 @@ Work orders (jobs), scheduling, routings (operations), bill of materials, proced
 
 ## Rules References
 
-- `.claude/rules/scheduling-data-structures.md` — scheduling engine architecture, RPCs, trigger chain
-- `.claude/rules/method-material-sourcing.md` — how material sourcing types work
+- `.ai/rules/scheduling-data-structures.md` — scheduling engine architecture, RPCs, trigger chain
+- `.ai/rules/method-material-sourcing.md` — how material sourcing types work

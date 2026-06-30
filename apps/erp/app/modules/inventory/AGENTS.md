@@ -64,4 +64,4 @@ Tracks item quantities across locations and storage units. Manages receipts, shi
 
 ## Rules References
 
-- `.claude/rules/inventory-system.md` — comprehensive guide to the inventory code, RPCs, and service functions
+- `.ai/rules/inventory-system.md` — comprehensive guide to the inventory code, RPCs, and service functions

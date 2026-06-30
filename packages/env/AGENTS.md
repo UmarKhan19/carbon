@@ -40,7 +40,7 @@ All from `src/index.ts` (single file):
 
 ## Cross-References
 
-- `.claude/rules/environment-configuration.md` — full env architecture, `.env` vs `.env.local`, URL resolution
+- `.ai/rules/environment-configuration.md` — full env architecture, `.env` vs `.env.local`, URL resolution
 - `packages/auth/` — re-exports all of `@carbon/env`; auth code imports from here
 - `packages/config/` — build tooling only, not runtime env (separate concern)
 - `scripts/setup-env-files.ts` — symlinks root `.env` into apps and packages

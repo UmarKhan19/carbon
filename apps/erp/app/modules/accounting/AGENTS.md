@@ -72,4 +72,4 @@ Chart of accounts, journal entries, general ledger, fiscal periods, currencies, 
 
 ## Rules References
 
-- `.claude/rules/accounting-sync-handlers.md` — Xero sync architecture, entity syncers, Inngest functions
+- `.ai/rules/accounting-sync-handlers.md` — Xero sync architecture, entity syncers, Inngest functions

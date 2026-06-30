@@ -6,7 +6,7 @@ Master data for all item types (Parts, Materials, Tools, Consumables, Services),
 
 - **Item Types** — Parts (manufactured/purchased goods), Materials (raw materials with taxonomy), Tools, Consumables, Services. All share the `item` table; type-specific tables (`part`, `material`, `tool`, `consumable`) extend it.
 - **Make Methods** — versioned manufacturing methods on an item: BOM (materials) + routing (operations). Managed via `methodMaterial` and `methodOperation` tables. Copied to jobs by the `get-method` edge function.
-- **Material Taxonomy** — Materials have structured properties via FK relationships: `materialSubstance` (steel, aluminum), `materialForm` (sheet, plate, roundbar), `materialType`, `materialGrade`, `materialFinish`, `materialDimension`. See `.claude/rules/material-tables.md`.
+- **Material Taxonomy** — Materials have structured properties via FK relationships: `materialSubstance` (steel, aluminum), `materialForm` (sheet, plate, roundbar), `materialType`, `materialGrade`, `materialFinish`, `materialDimension`. See `.ai/rules/material-tables.md`.
 - **Item Tracking** — `itemTrackingType`: Inventory (quantity only), Serial (unique per unit), Batch (lot-tracked), Non-Inventory (not stocked).
 - **Replenishment System** — Buy, Make, or Buy and Make. Drives MRP and method availability.
 - **Shelf Life** — batch/serial items can have expiry tracking (Fixed Duration, Calculated, Set on Receipt).
@@ -71,5 +71,5 @@ Master data for all item types (Parts, Materials, Tools, Consumables, Services),
 
 ## Rules References
 
-- `.claude/rules/material-tables.md` — material taxonomy schema, linkage, and gotchas
-- `.claude/rules/method-material-sourcing.md` — how methods determine Buy/Make/Pull sourcing
+- `.ai/rules/material-tables.md` — material taxonomy schema, linkage, and gotchas
+- `.ai/rules/method-material-sourcing.md` — how methods determine Buy/Make/Pull sourcing

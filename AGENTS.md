@@ -6,7 +6,7 @@ Carbon is a manufacturing ERP/MES/QMS. It contains apps for ERP, MES, academy, a
 
 - Check the Task Router below before research or coding; a single task may match multiple rows — read all relevant guides.
 - Use the closest package/module `AGENTS.md` for local architecture, imports, and validation commands.
-- Follow `.claude/rules/` for subsystem-specific conventions (auto-loaded via `paths:` frontmatter).
+- Follow `.ai/rules/` for subsystem-specific conventions (auto-loaded via `paths:` frontmatter).
 - Read `.ai/lessons.md` before non-trivial changes to avoid known pitfalls.
 - Preserve behavior unless the user or a spec explicitly asks for a behavior change.
 - Keep changes minimal, focused, and integrated through real call sites.
@@ -52,60 +52,60 @@ IMPORTANT: Before any research or coding, match the task to this table. A single
 | Task | Guide |
 |------|-------|
 | **Database & Schema** | |
-| Creating a database migration | `.claude/rules/workflow-database-migration.md` |
-| Database conventions (tables, RLS, multi-tenancy) | `.claude/rules/conventions-database.md` |
-| Database access patterns (clients, Kysely, RPCs) | `.claude/rules/database-patterns.md` |
-| Migration SQL patterns (enums, views, triggers) | `.claude/rules/database-migration-patterns.md` |
+| Creating a database migration | `.ai/rules/workflow-database-migration.md` |
+| Database conventions (tables, RLS, multi-tenancy) | `.ai/rules/conventions-database.md` |
+| Database access patterns (clients, Kysely, RPCs) | `.ai/rules/database-patterns.md` |
+| Migration SQL patterns (enums, views, triggers) | `.ai/rules/database-migration-patterns.md` |
 | Working with the database package | `packages/database/AGENTS.md` |
 | **Server & Services** | |
-| Writing service functions | `.claude/rules/conventions-services.md` |
-| Authentication, RBAC, permissions | `.claude/rules/authentication-system.md` + `packages/auth/AGENTS.md` |
-| Background jobs and events (Inngest) | `.claude/rules/event-system.md` + `packages/jobs/AGENTS.md` |
-| Adding an edge function | `.claude/rules/workflow-edge-function.md` |
-| Adding event handlers | `.claude/rules/workflow-event-system.md` |
+| Writing service functions | `.ai/rules/conventions-services.md` |
+| Authentication, RBAC, permissions | `.ai/rules/authentication-system.md` + `packages/auth/AGENTS.md` |
+| Background jobs and events (Inngest) | `.ai/rules/event-system.md` + `packages/jobs/AGENTS.md` |
+| Adding an edge function | `.ai/rules/workflow-edge-function.md` |
+| Adding event handlers | `.ai/rules/workflow-event-system.md` |
 | **UI & Forms** | |
-| Building forms (ValidatedForm + zod) | `.claude/rules/conventions-forms.md` + `packages/form/AGENTS.md` |
-| UI components and conventions | `.claude/rules/conventions-ui.md` + `packages/react/AGENTS.md` |
-| i18n / translations (Lingui) | `.claude/rules/i18n-lingui-system.md` + `packages/locale/AGENTS.md` |
-| Flash messages and toasts | `.claude/rules/flash-system.md` |
-| Document templates / customizer | `.claude/rules/document-template-customizer.md` |
+| Building forms (ValidatedForm + zod) | `.ai/rules/conventions-forms.md` + `packages/form/AGENTS.md` |
+| UI components and conventions | `.ai/rules/conventions-ui.md` + `packages/react/AGENTS.md` |
+| i18n / translations (Lingui) | `.ai/rules/i18n-lingui-system.md` + `packages/locale/AGENTS.md` |
+| Flash messages and toasts | `.ai/rules/flash-system.md` |
+| Document templates / customizer | `.ai/rules/document-template-customizer.md` |
 | **Domain Modules** | |
-| Purchasing (POs, receipts, conversion factors) | `.claude/rules/purchasing-conversion-factors.md` + `modules/purchasing/AGENTS.md` |
-| Inventory (lots, bins, adjustments) | `.claude/rules/inventory-system.md` + `modules/inventory/AGENTS.md` |
-| Production (work orders, scheduling, routings) | `.claude/rules/scheduling-data-structures.md` + `modules/production/AGENTS.md` |
-| MES (shop floor, job operations) | `.claude/rules/mes-job-operation-ui.md` |
+| Purchasing (POs, receipts, conversion factors) | `.ai/rules/purchasing-conversion-factors.md` + `modules/purchasing/AGENTS.md` |
+| Inventory (lots, bins, adjustments) | `.ai/rules/inventory-system.md` + `modules/inventory/AGENTS.md` |
+| Production (work orders, scheduling, routings) | `.ai/rules/scheduling-data-structures.md` + `modules/production/AGENTS.md` |
+| MES (shop floor, job operations) | `.ai/rules/mes-job-operation-ui.md` |
 | Quality (inspections, NCRs, CAPAs) | `modules/quality/AGENTS.md` |
-| Sales (quotes, orders) | `.claude/rules/quote-discount-system.md` + `modules/sales/AGENTS.md` |
-| Accounting (GL, journal entries) | `.claude/rules/accounting-sync-handlers.md` + `modules/accounting/AGENTS.md` |
-| Items / Parts / BOM | `.claude/rules/material-tables.md` + `modules/items/AGENTS.md` |
-| Issues (NCR, CAPA, ECO, RMA) | `.claude/rules/issue-module.md` |
-| Traceability / lot tracking | `.claude/rules/traceability-model.md` |
-| Revision system | `.claude/rules/revision-system.md` |
-| Kanban | `.claude/rules/kanban-system.md` |
-| Fixed assets | `.claude/rules/fixed-asset-lifecycle.md` |
-| Risk register | `.claude/rules/risk-register-module.md` |
+| Sales (quotes, orders) | `.ai/rules/quote-discount-system.md` + `modules/sales/AGENTS.md` |
+| Accounting (GL, journal entries) | `.ai/rules/accounting-sync-handlers.md` + `modules/accounting/AGENTS.md` |
+| Items / Parts / BOM | `.ai/rules/material-tables.md` + `modules/items/AGENTS.md` |
+| Issues (NCR, CAPA, ECO, RMA) | `.ai/rules/issue-module.md` |
+| Traceability / lot tracking | `.ai/rules/traceability-model.md` |
+| Revision system | `.ai/rules/revision-system.md` |
+| Kanban | `.ai/rules/kanban-system.md` |
+| Fixed assets | `.ai/rules/fixed-asset-lifecycle.md` |
+| Risk register | `.ai/rules/risk-register-module.md` |
 | **Infrastructure** | |
-| PDF generation | `.claude/rules/pdf-generation-patterns.md` + `packages/documents/AGENTS.md` |
-| Printing system | `.claude/rules/printing-system.md` + `packages/printing/AGENTS.md` |
-| CSV import/export | `.claude/rules/csv-import-system.md` + `.claude/rules/table-csv-export.md` |
-| Billing / Stripe | `.claude/rules/billing-system.md` + `packages/stripe/AGENTS.md` |
-| Deployment (SST) | `.claude/rules/sst-deployment-infrastructure.md` |
-| Audit log system | `.claude/rules/audit-log-system.md` |
-| Shipments / receipts UI | `.claude/rules/shipments-receipts-ui-patterns.md` |
-| AI chat / SDK | `.claude/rules/chat-ai-sdk-info.md` |
+| PDF generation | `.ai/rules/pdf-generation-patterns.md` + `packages/documents/AGENTS.md` |
+| Printing system | `.ai/rules/printing-system.md` + `packages/printing/AGENTS.md` |
+| CSV import/export | `.ai/rules/csv-import-system.md` + `.ai/rules/table-csv-export.md` |
+| Billing / Stripe | `.ai/rules/billing-system.md` + `packages/stripe/AGENTS.md` |
+| Deployment (SST) | `.ai/rules/sst-deployment-infrastructure.md` |
+| Audit log system | `.ai/rules/audit-log-system.md` |
+| Shipments / receipts UI | `.ai/rules/shipments-receipts-ui-patterns.md` |
+| AI chat / SDK | `.ai/rules/chat-ai-sdk-info.md` |
 | **Integrations** | |
-| Jira integration | `.claude/rules/jira-integration.md` |
-| Linear integration | `.claude/rules/linear-integration.md` |
-| Xero API / webhooks | `.claude/rules/xero-api-contact-structure.md` + `.claude/rules/xero-webhooks.md` |
-| Redis (shared dev) | `.claude/rules/dev-shared-redis.md` |
+| Jira integration | `.ai/rules/jira-integration.md` |
+| Linear integration | `.ai/rules/linear-integration.md` |
+| Xero API / webhooks | `.ai/rules/xero-api-contact-structure.md` + `.ai/rules/xero-webhooks.md` |
+| Redis (shared dev) | `.ai/rules/dev-shared-redis.md` |
 | **Architecture** | |
-| General coding conventions | `.claude/rules/coding-conventions.md` |
-| Project overview | `.claude/rules/project-overview.md` |
-| Customer/supplier DB schema | `.claude/rules/customer-supplier-database-schema.md` |
-| User/employee/job relationships | `.claude/rules/user-employee-job-relationships.md` |
-| Company backup/restore | `.claude/rules/company-backup-restore.md` |
-| Environment configuration | `.claude/rules/environment-configuration.md` |
-| MCP tools reference | `.claude/rules/mcp-tools-reference.md` |
+| General coding conventions | `.ai/rules/coding-conventions.md` |
+| Project overview | `.ai/rules/project-overview.md` |
+| Customer/supplier DB schema | `.ai/rules/customer-supplier-database-schema.md` |
+| User/employee/job relationships | `.ai/rules/user-employee-job-relationships.md` |
+| Company backup/restore | `.ai/rules/company-backup-restore.md` |
+| Environment configuration | `.ai/rules/environment-configuration.md` |
+| MCP tools reference | `.ai/rules/mcp-tools-reference.md` |
 | Adding a new module | `.ai/docs/module-conventions.md` |
 | **Design Specs** | |
 | Check existing specs before building | `.ai/specs/` + `.ai/specs/implemented/` |
@@ -169,9 +169,9 @@ apps/erp/app/modules/{module}/
 
 MES is lighter: services in `apps/mes/app/services/`, components in `apps/mes/app/components/`.
 
-## Rules (`.claude/rules/`)
+## Rules (`.ai/rules/`)
 
-Internal technical context for each subsystem lives in `.claude/rules/`, scoped to code paths via `paths:` frontmatter so the right rule auto-loads when you work in that area. Update the relevant rule when you learn something durable about a subsystem. The source of truth is always the code and schema first.
+Internal technical context for each subsystem lives in `.ai/rules/`, symlinked to `.claude/rules/` by `install-skills.sh`. Claude Code auto-loads rules via `paths:` frontmatter when you work in matching areas. Update the relevant rule when you learn something durable about a subsystem. The source of truth is always the code and schema first.
 
 ## Browser Automation
 
