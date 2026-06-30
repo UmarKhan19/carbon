@@ -68,11 +68,12 @@ apps/*/portless.json
 packages/database/supabase/snippets/**
 .pr-review
 
-# .claude/rules/ and .claude/skills/ are symlinks created by .ai/scripts/install-skills.sh
-# Source of truth is .ai/rules/ and .ai/skills/ — never edit under .claude/ directly
+# .claude/ and .codex/ rules+skills are symlinks created by .ai/scripts/install-skills.sh
+# Source of truth is .ai/rules/ and .ai/skills/ — never edit under .claude/ or .codex/ directly
 .claude/rules/
 .claude/skills/
 .claude/notes/
+.codex/
 
 # .ai/ scratch — runtime, not source
 .ai/scratch/

@@ -1,0 +1,49 @@
+{
+  "default": ["core"],
+  "tiers": {
+    "core": {
+      "description": "Daily-driver skills installed by default.",
+      "skills": [
+        "self-review",
+        "conductor",
+        "forms",
+        "login",
+        "test",
+        "plan",
+        "execute",
+        "error",
+        "feature",
+        "improve",
+        "research",
+        "database-transactions",
+        "verification-before-completion",
+        "finishing-a-development-branch",
+        "receiving-code-review",
+        "using-git-worktrees"
+      ]
+    },
+    "automation": {
+      "description": "PR/issue automation, code review, and debugging skills.",
+      "skills": [
+        "pr-explainer",
+        "pr-splitter",
+        "systematic-debugging",
+        "debugging-difficult-bugs",
+        "dispatching-parallel-agents",
+        "smoke-test",
+        "test-driven-development"
+      ]
+    },
+    "creative": {
+      "description": "UI, docs, writing, and brainstorming skills.",
+      "skills": [
+        "ui",
+        "make-interfaces-feel-better",
+        "brainstorm",
+        "carbon-docs",
+        "writing-skills",
+        "agent-browser"
+      ]
+    }
+  }
+}
