@@ -46,11 +46,11 @@ export const useDocument = () => {
       return carbon?.from("documentTransaction").insert({
         documentId: document.id,
         type,
-        userId: user.id,
-        companyId: user.company.id
+        companyId: user.company.id,
+        userId: user.id
       });
     },
-    [carbon, user?.id]
+    [carbon, user?.id, user.company.id]
   );
 
   const deleteLabel = useCallback(
@@ -149,15 +149,15 @@ export const useDocument = () => {
             labels.map((label) => ({
               documentId: document.id!,
               label,
-              userId: user.id,
-              companyId: user.company.id
+              companyId: user.company.id,
+              userId: user.id
             }))
           );
         });
 
       return insertTransaction(document, "Label");
     },
-    [insertTransaction, carbon, user.id]
+    [insertTransaction, carbon, user.id, user.company.id]
   );
 
   const makePreview = useCallback(

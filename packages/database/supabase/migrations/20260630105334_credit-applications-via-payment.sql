@@ -12,22 +12,28 @@
 -- applications are unchanged (source = paymentId, already gated on payment status).
 -- ============================================================
 
+-- Idempotent: the deploy runner does not wrap a migration in a transaction, so
+-- every step must be safe to re-run after a partial commit.
 ALTER TABLE "invoiceSettlement"
-  ADD COLUMN "appliedViaPaymentId" TEXT;
+  ADD COLUMN IF NOT EXISTS "appliedViaPaymentId" TEXT;
 
 -- Only memo-sourced settlements (credits) are "applied via" a payment; a cash
 -- settlement's source IS the payment.
+ALTER TABLE "invoiceSettlement"
+  DROP CONSTRAINT IF EXISTS "invoiceSettlement_appliedViaPaymentId_check";
 ALTER TABLE "invoiceSettlement"
   ADD CONSTRAINT "invoiceSettlement_appliedViaPaymentId_check"
   CHECK ("appliedViaPaymentId" IS NULL OR "memoId" IS NOT NULL);
 
 -- Deleting the draft payment releases its staged credit applications.
 ALTER TABLE "invoiceSettlement"
+  DROP CONSTRAINT IF EXISTS "invoiceSettlement_appliedViaPaymentId_fkey";
+ALTER TABLE "invoiceSettlement"
   ADD CONSTRAINT "invoiceSettlement_appliedViaPaymentId_fkey"
   FOREIGN KEY ("appliedViaPaymentId") REFERENCES "payment"("id")
   ON DELETE CASCADE ON UPDATE CASCADE;
 
-CREATE INDEX "invoiceSettlement_appliedViaPaymentId_idx"
+CREATE INDEX IF NOT EXISTS "invoiceSettlement_appliedViaPaymentId_idx"
   ON "invoiceSettlement" ("appliedViaPaymentId")
   WHERE "appliedViaPaymentId" IS NOT NULL;
 

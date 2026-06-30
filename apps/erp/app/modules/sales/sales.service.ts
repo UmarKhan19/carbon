@@ -1862,8 +1862,8 @@ export async function insertCustomerContact(
       {
         customerId: customerContact.customerId,
         contactId,
-        companyId: customerContact.companyId,
         customerLocationId: customerContact.customerLocationId,
+        companyId: customerContact.companyId,
         customFields: customerContact.customFields
       }
     ])
@@ -1910,8 +1910,8 @@ export async function insertCustomerLocation(
       {
         customerId: customerLocation.customerId,
         addressId,
-        companyId: customerLocation.companyId,
         name: customerLocation.name,
+        companyId: customerLocation.companyId,
         customFields: customerLocation.customFields
       }
     ])

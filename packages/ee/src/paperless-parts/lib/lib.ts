@@ -1463,9 +1463,9 @@ export async function getCustomerIdAndContactId(
       const newCustomerContact = await carbon
         .from("customerContact")
         .insert({
-          companyId: company.id,
           customerId,
-          contactId
+          contactId,
+          companyId: company.id
         })
         .select()
         .single();
@@ -1594,13 +1594,13 @@ export async function getCustomerLocationIds(
         const newCustomerLocation = await carbon
           .from("customerLocation")
           .insert({
-            companyId: company.id,
             name:
               billingInfo.city && billingInfo.state
                 ? `${billingInfo.city}, ${billingInfo.state}`
                 : billingInfo.city || billingInfo.state || "",
             customerId,
-            addressId
+            addressId,
+            companyId: company.id
           })
           .select()
           .single();
@@ -1721,10 +1721,10 @@ export async function getCustomerLocationIds(
         const newCustomerLocation = await carbon
           .from("customerLocation")
           .insert({
-            companyId: company.id,
             name,
             customerId,
-            addressId
+            addressId,
+            companyId: company.id
           })
           .select()
           .single();
@@ -3023,9 +3023,9 @@ export async function insertQuoteLines(
         if (component.quantities?.length) {
           const quoteLinePrices: Database["public"]["Tables"]["quoteLinePrice"]["Insert"][] =
             component.quantities.map((qp) => ({
-              companyId,
               quoteId,
               quoteLineId,
+              companyId,
               quantity: qp.quantity ?? 1,
               unitPrice: qp.unit_price ?? 0,
               leadTime: qp.lead_time ?? 0,

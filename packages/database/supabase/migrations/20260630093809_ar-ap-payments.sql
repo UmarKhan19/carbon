@@ -77,36 +77,48 @@ END $$;
 -- Phase 3: Extend accountDefault with the four new mappings
 -- ============================================================
 -- Add nullable, backfill, then SET NOT NULL to match existing
--- column nullability convention on this table.
+-- column nullability convention on this table. Idempotent: this
+-- migration is not run in a transaction by the deploy runner, so
+-- a mid-file failure leaves committed state behind — every step
+-- here must be safe to re-run.
 
 ALTER TABLE "accountDefault"
-  ADD COLUMN "customerWriteOffAccount" TEXT,
-  ADD COLUMN "supplierWriteOffAccount" TEXT,
-  ADD COLUMN "realizedExchangeGainAccount" TEXT,
-  ADD COLUMN "realizedExchangeLossAccount" TEXT;
+  ADD COLUMN IF NOT EXISTS "customerWriteOffAccount" TEXT,
+  ADD COLUMN IF NOT EXISTS "supplierWriteOffAccount" TEXT,
+  ADD COLUMN IF NOT EXISTS "realizedExchangeGainAccount" TEXT,
+  ADD COLUMN IF NOT EXISTS "realizedExchangeLossAccount" TEXT;
 
 -- Backfill: look up the account.id for each company's group by account.number.
+-- These numbers (6050/4130/4120/7060) are only guaranteed present if the COA
+-- was seeded/reset cleanly; a group can be missing one (renumbered/deleted
+-- accounts, or a NULL companyGroupId). When the lookup misses, COALESCE to an
+-- existing, always-NOT-NULL default of the same nature so no NULL survives and
+-- SET NOT NULL below can never fail. Admins override these in account settings.
 UPDATE "accountDefault" ad
 SET
-  "customerWriteOffAccount" = (
-    SELECT a.id FROM "account" a
-    INNER JOIN "company" c ON c."companyGroupId" = a."companyGroupId"
-    WHERE c.id = ad."companyId" AND a.number = '6050' LIMIT 1
+  "customerWriteOffAccount" = COALESCE(
+    (SELECT a.id FROM "account" a
+      INNER JOIN "company" c ON c."companyGroupId" = a."companyGroupId"
+      WHERE c.id = ad."companyId" AND a.number = '6050' LIMIT 1),
+    ad."salesDiscountAccount"            -- contra-revenue fallback for an AR write-off
   ),
-  "supplierWriteOffAccount" = (
-    SELECT a.id FROM "account" a
-    INNER JOIN "company" c ON c."companyGroupId" = a."companyGroupId"
-    WHERE c.id = ad."companyId" AND a.number = '4130' LIMIT 1
+  "supplierWriteOffAccount" = COALESCE(
+    (SELECT a.id FROM "account" a
+      INNER JOIN "company" c ON c."companyGroupId" = a."companyGroupId"
+      WHERE c.id = ad."companyId" AND a.number = '4130' LIMIT 1),
+    ad."salesAccount"                    -- income fallback for an AP write-off
   ),
-  "realizedExchangeGainAccount" = (
-    SELECT a.id FROM "account" a
-    INNER JOIN "company" c ON c."companyGroupId" = a."companyGroupId"
-    WHERE c.id = ad."companyId" AND a.number = '4120' LIMIT 1
+  "realizedExchangeGainAccount" = COALESCE(
+    (SELECT a.id FROM "account" a
+      INNER JOIN "company" c ON c."companyGroupId" = a."companyGroupId"
+      WHERE c.id = ad."companyId" AND a.number = '4120' LIMIT 1),
+    ad."salesAccount"                    -- income fallback for an FX gain
   ),
-  "realizedExchangeLossAccount" = (
-    SELECT a.id FROM "account" a
-    INNER JOIN "company" c ON c."companyGroupId" = a."companyGroupId"
-    WHERE c.id = ad."companyId" AND a.number = '7060' LIMIT 1
+  "realizedExchangeLossAccount" = COALESCE(
+    (SELECT a.id FROM "account" a
+      INNER JOIN "company" c ON c."companyGroupId" = a."companyGroupId"
+      WHERE c.id = ad."companyId" AND a.number = '7060' LIMIT 1),
+    ad."interestAccount"                 -- financial-expense fallback for an FX loss
   );
 
 ALTER TABLE "accountDefault"
@@ -114,6 +126,14 @@ ALTER TABLE "accountDefault"
   ALTER COLUMN "supplierWriteOffAccount" SET NOT NULL,
   ALTER COLUMN "realizedExchangeGainAccount" SET NOT NULL,
   ALTER COLUMN "realizedExchangeLossAccount" SET NOT NULL;
+
+-- DROP IF EXISTS before ADD so re-running after a partial deploy doesn't trip
+-- on an already-created constraint.
+ALTER TABLE "accountDefault"
+  DROP CONSTRAINT IF EXISTS "accountDefault_customerWriteOffAccount_fkey",
+  DROP CONSTRAINT IF EXISTS "accountDefault_supplierWriteOffAccount_fkey",
+  DROP CONSTRAINT IF EXISTS "accountDefault_realizedExchangeGainAccount_fkey",
+  DROP CONSTRAINT IF EXISTS "accountDefault_realizedExchangeLossAccount_fkey";
 
 ALTER TABLE "accountDefault"
   ADD CONSTRAINT "accountDefault_customerWriteOffAccount_fkey"
@@ -134,15 +154,25 @@ ALTER TABLE "accountDefault"
 -- Phase 4: Enums
 -- ============================================================
 
-CREATE TYPE "paymentType" AS ENUM ('Receipt', 'Disbursement');
-CREATE TYPE "paymentStatus" AS ENUM ('Draft', 'Posted', 'Voided');
+-- CREATE TYPE has no IF NOT EXISTS; guard each so a re-run after a partial
+-- deploy doesn't trip on an already-created type.
+DO $$ BEGIN
+  CREATE TYPE "paymentType" AS ENUM ('Receipt', 'Disbursement');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE TYPE "paymentStatus" AS ENUM ('Draft', 'Posted', 'Voided');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 -- A credit/debit memo is a standalone, payment-shaped document (Phase 5b) — NOT
 -- an invoice row. `direction` is whether it credits or debits the party's
 -- control account (Credit ⇒ DR reason / CR control; Debit ⇒ DR control / CR
 -- reason); status mirrors payment's lifecycle.
-CREATE TYPE "memoDirection" AS ENUM ('Credit', 'Debit');
-CREATE TYPE "memoStatus" AS ENUM ('Draft', 'Posted', 'Voided');
+DO $$ BEGIN
+  CREATE TYPE "memoDirection" AS ENUM ('Credit', 'Debit');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN
+  CREATE TYPE "memoStatus" AS ENUM ('Draft', 'Posted', 'Voided');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 ALTER TYPE "journalLineDocumentType" ADD VALUE IF NOT EXISTS 'Payment';
 -- post-memo writes its journal lines with documentType 'Memo'.
@@ -161,7 +191,7 @@ ALTER TYPE "journalEntrySourceType" ADD VALUE IF NOT EXISTS 'Debit Memo';
 -- discriminated by paymentType. customerId xor supplierId enforced
 -- by check matching the type.
 
-CREATE TABLE "payment" (
+CREATE TABLE IF NOT EXISTS "payment" (
   "id" TEXT NOT NULL PRIMARY KEY DEFAULT xid(),
   "paymentId" TEXT NOT NULL,
   "paymentType" "paymentType" NOT NULL,
@@ -214,14 +244,15 @@ CREATE TABLE "payment" (
   CONSTRAINT "payment_voidedBy_fkey" FOREIGN KEY ("voidedBy") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
-CREATE INDEX "payment_companyId_idx" ON "payment" ("companyId");
-CREATE INDEX "payment_customerId_idx" ON "payment" ("customerId") WHERE "customerId" IS NOT NULL;
-CREATE INDEX "payment_supplierId_idx" ON "payment" ("supplierId") WHERE "supplierId" IS NOT NULL;
-CREATE INDEX "payment_status_idx" ON "payment" ("status");
-CREATE INDEX "payment_paymentDate_idx" ON "payment" ("paymentDate");
+CREATE INDEX IF NOT EXISTS "payment_companyId_idx" ON "payment" ("companyId");
+CREATE INDEX IF NOT EXISTS "payment_customerId_idx" ON "payment" ("customerId") WHERE "customerId" IS NOT NULL;
+CREATE INDEX IF NOT EXISTS "payment_supplierId_idx" ON "payment" ("supplierId") WHERE "supplierId" IS NOT NULL;
+CREATE INDEX IF NOT EXISTS "payment_status_idx" ON "payment" ("status");
+CREATE INDEX IF NOT EXISTS "payment_paymentDate_idx" ON "payment" ("paymentDate");
 
 ALTER TABLE "payment" ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "SELECT" ON "public"."payment";
 CREATE POLICY "SELECT" ON "public"."payment"
 FOR SELECT USING (
   "companyId" = ANY (
@@ -229,6 +260,7 @@ FOR SELECT USING (
   )
 );
 
+DROP POLICY IF EXISTS "INSERT" ON "public"."payment";
 CREATE POLICY "INSERT" ON "public"."payment"
 FOR INSERT WITH CHECK (
   "companyId" = ANY (
@@ -239,6 +271,7 @@ FOR INSERT WITH CHECK (
 -- Mutability ties to status: Draft is freely editable, Posted only
 -- transitions to Voided (via post-payment edge function), Voided is
 -- terminal. App-side service rejects illegal transitions.
+DROP POLICY IF EXISTS "UPDATE" ON "public"."payment";
 CREATE POLICY "UPDATE" ON "public"."payment"
 FOR UPDATE USING (
   "companyId" = ANY (
@@ -247,6 +280,7 @@ FOR UPDATE USING (
 );
 
 -- DELETE allowed only on Draft (Posted payments must be voided).
+DROP POLICY IF EXISTS "DELETE" ON "public"."payment";
 CREATE POLICY "DELETE" ON "public"."payment"
 FOR DELETE USING (
   "status" = 'Draft' AND
@@ -273,7 +307,7 @@ FOR DELETE USING (
 -- invoices via invoiceSettlement (source = memoId). Balance-increasing memos are
 -- themselves open items, settled via invoiceSettlement (target = targetMemoId).
 
-CREATE TABLE "memo" (
+CREATE TABLE IF NOT EXISTS "memo" (
   "id" TEXT NOT NULL PRIMARY KEY DEFAULT xid(),
   "memoId" TEXT NOT NULL,
   "direction" "memoDirection" NOT NULL,
@@ -321,30 +355,34 @@ CREATE TABLE "memo" (
   CONSTRAINT "memo_voidedBy_fkey" FOREIGN KEY ("voidedBy") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
-CREATE INDEX "memo_companyId_idx" ON "memo" ("companyId");
-CREATE INDEX "memo_customerId_idx" ON "memo" ("customerId") WHERE "customerId" IS NOT NULL;
-CREATE INDEX "memo_supplierId_idx" ON "memo" ("supplierId") WHERE "supplierId" IS NOT NULL;
-CREATE INDEX "memo_status_idx" ON "memo" ("status");
-CREATE INDEX "memo_memoDate_idx" ON "memo" ("memoDate");
+CREATE INDEX IF NOT EXISTS "memo_companyId_idx" ON "memo" ("companyId");
+CREATE INDEX IF NOT EXISTS "memo_customerId_idx" ON "memo" ("customerId") WHERE "customerId" IS NOT NULL;
+CREATE INDEX IF NOT EXISTS "memo_supplierId_idx" ON "memo" ("supplierId") WHERE "supplierId" IS NOT NULL;
+CREATE INDEX IF NOT EXISTS "memo_status_idx" ON "memo" ("status");
+CREATE INDEX IF NOT EXISTS "memo_memoDate_idx" ON "memo" ("memoDate");
 
 ALTER TABLE "memo" ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "SELECT" ON "public"."memo";
 CREATE POLICY "SELECT" ON "public"."memo"
 FOR SELECT USING (
   "companyId" = ANY ((SELECT get_companies_with_employee_role())::text[])
 );
 
+DROP POLICY IF EXISTS "INSERT" ON "public"."memo";
 CREATE POLICY "INSERT" ON "public"."memo"
 FOR INSERT WITH CHECK (
   "companyId" = ANY ((SELECT get_companies_with_employee_permission('invoicing_create'))::text[])
 );
 
+DROP POLICY IF EXISTS "UPDATE" ON "public"."memo";
 CREATE POLICY "UPDATE" ON "public"."memo"
 FOR UPDATE USING (
   "companyId" = ANY ((SELECT get_companies_with_employee_permission('invoicing_update'))::text[])
 );
 
 -- DELETE allowed only on Draft (Posted memos must be voided).
+DROP POLICY IF EXISTS "DELETE" ON "public"."memo";
 CREATE POLICY "DELETE" ON "public"."memo"
 FOR DELETE USING (
   "status" = 'Draft' AND
@@ -372,7 +410,7 @@ FOR DELETE USING (
 -- counterparty) is enforced by the posting/apply functions — the source's
 -- AR/AP side lives in the payment/memo row, not structurally here.
 
-CREATE TABLE "invoiceSettlement" (
+CREATE TABLE IF NOT EXISTS "invoiceSettlement" (
   "id" TEXT NOT NULL PRIMARY KEY DEFAULT xid(),
   -- funding source (exactly one): a cash payment OR a memo
   "paymentId" TEXT,
@@ -438,16 +476,17 @@ CREATE TABLE "invoiceSettlement" (
   CONSTRAINT "invoiceSettlement_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
-CREATE INDEX "invoiceSettlement_paymentId_idx" ON "invoiceSettlement" ("paymentId") WHERE "paymentId" IS NOT NULL;
-CREATE INDEX "invoiceSettlement_memoId_idx" ON "invoiceSettlement" ("memoId") WHERE "memoId" IS NOT NULL;
-CREATE INDEX "invoiceSettlement_targetSalesInvoiceId_idx" ON "invoiceSettlement" ("targetSalesInvoiceId") WHERE "targetSalesInvoiceId" IS NOT NULL;
-CREATE INDEX "invoiceSettlement_targetPurchaseInvoiceId_idx" ON "invoiceSettlement" ("targetPurchaseInvoiceId") WHERE "targetPurchaseInvoiceId" IS NOT NULL;
-CREATE INDEX "invoiceSettlement_targetMemoId_idx" ON "invoiceSettlement" ("targetMemoId") WHERE "targetMemoId" IS NOT NULL;
-CREATE INDEX "invoiceSettlement_appliedDate_idx" ON "invoiceSettlement" ("appliedDate");
-CREATE INDEX "invoiceSettlement_companyId_idx" ON "invoiceSettlement" ("companyId");
+CREATE INDEX IF NOT EXISTS "invoiceSettlement_paymentId_idx" ON "invoiceSettlement" ("paymentId") WHERE "paymentId" IS NOT NULL;
+CREATE INDEX IF NOT EXISTS "invoiceSettlement_memoId_idx" ON "invoiceSettlement" ("memoId") WHERE "memoId" IS NOT NULL;
+CREATE INDEX IF NOT EXISTS "invoiceSettlement_targetSalesInvoiceId_idx" ON "invoiceSettlement" ("targetSalesInvoiceId") WHERE "targetSalesInvoiceId" IS NOT NULL;
+CREATE INDEX IF NOT EXISTS "invoiceSettlement_targetPurchaseInvoiceId_idx" ON "invoiceSettlement" ("targetPurchaseInvoiceId") WHERE "targetPurchaseInvoiceId" IS NOT NULL;
+CREATE INDEX IF NOT EXISTS "invoiceSettlement_targetMemoId_idx" ON "invoiceSettlement" ("targetMemoId") WHERE "targetMemoId" IS NOT NULL;
+CREATE INDEX IF NOT EXISTS "invoiceSettlement_appliedDate_idx" ON "invoiceSettlement" ("appliedDate");
+CREATE INDEX IF NOT EXISTS "invoiceSettlement_companyId_idx" ON "invoiceSettlement" ("companyId");
 
 ALTER TABLE "invoiceSettlement" ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "SELECT" ON "public"."invoiceSettlement";
 CREATE POLICY "SELECT" ON "public"."invoiceSettlement"
 FOR SELECT USING (
   "companyId" = ANY (
@@ -458,6 +497,7 @@ FOR SELECT USING (
 -- Settlement rows are staged while their parent source (payment OR memo) is
 -- Draft; the post-payment / post-memo edge function then posts them. Exactly one
 -- of paymentId/memoId is set, so the other gate is a NULL no-op.
+DROP POLICY IF EXISTS "INSERT" ON "public"."invoiceSettlement";
 CREATE POLICY "INSERT" ON "public"."invoiceSettlement"
 FOR INSERT WITH CHECK (
   ("paymentId" IS NULL OR EXISTS (
@@ -471,6 +511,7 @@ FOR INSERT WITH CHECK (
   )
 );
 
+DROP POLICY IF EXISTS "UPDATE" ON "public"."invoiceSettlement";
 CREATE POLICY "UPDATE" ON "public"."invoiceSettlement"
 FOR UPDATE USING (
   ("paymentId" IS NULL OR EXISTS (
@@ -484,6 +525,7 @@ FOR UPDATE USING (
   )
 );
 
+DROP POLICY IF EXISTS "DELETE" ON "public"."invoiceSettlement";
 CREATE POLICY "DELETE" ON "public"."invoiceSettlement"
 FOR DELETE USING (
   ("paymentId" IS NULL OR EXISTS (

@@ -1161,12 +1161,12 @@ export async function upsertContractor(
         id: string;
         hoursPerWeek?: number;
         abilities: string[];
+        companyId: string;
         updatedBy: string;
         customFields?: Json;
       }
 ) {
   const { abilities, ...contractor } = contractorWithAbilities;
-  let companyId: string;
   if ("updatedBy" in contractor) {
     const updateContractor = await client
       .from("contractor")
@@ -1192,7 +1192,6 @@ export async function upsertContractor(
         ? contractorRecord
         : { data: null, error: new Error("Contractor not found") };
     }
-    companyId = contractorRecord.data.companyId;
   } else {
     const createContractor = await client
       .from("contractor")
@@ -1200,14 +1199,13 @@ export async function upsertContractor(
     if (createContractor.error) {
       return createContractor;
     }
-    companyId = contractor.companyId;
   }
 
   const contractorAbilities = abilities.map((ability) => {
     return {
       contractorId: contractor.id,
       abilityId: ability,
-      companyId,
+      companyId: contractor.companyId,
       createdBy:
         "createdBy" in contractor ? contractor.createdBy : contractor.updatedBy
     };
