@@ -4,13 +4,13 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useMemo } from "react";
 import {
   LuArrowRightLeft,
+  LuBlocks,
   LuCalendar,
   LuFileText,
   LuHash,
   LuMapPin,
   LuMoveDown,
   LuMoveUp,
-  LuPackage,
   LuQrCode,
   LuUser,
   LuWarehouse
@@ -76,7 +76,7 @@ const StockMovementsTable = memo(
             </HStack>
           ),
           meta: {
-            icon: <LuPackage />
+            icon: <LuBlocks />
           }
         },
         {
