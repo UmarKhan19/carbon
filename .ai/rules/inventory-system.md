@@ -83,7 +83,7 @@ Relevant enums: `itemLedgerType`, `itemLedgerDocumentType`, `trackedEntityStatus
   `20260417000100` (rename, M2) + `..000300` (recreate dependents, M4) — they must apply together.
 - **`get_inventory_quantities` has many revisions.** Always read the newest (`20260512130000`), not the
   first match. `quantityOnHand` is status-aware: `Rejected` tracked entities are excluded.
-- **The auto-generated MCP reference (`.claude/rules/mcp-tools-reference.md`) is stale** for storage units —
+- **The auto-generated MCP reference (`.ai/rules/mcp-tools-reference.md`) is stale** for storage units —
   it still lists `getShelf`/`getDefaultShelfForJob`. The real service exports `getStorageUnit*` /
   `getDefaultStorageUnitForJob`. Trust the service file.
 - On-hand math comes from `itemLedger` (and the `get_inventory_quantities` RPC), not from summing

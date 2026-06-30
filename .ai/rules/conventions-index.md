@@ -22,7 +22,7 @@ the area you're touching — it has the full detail, this file does not repeat i
 
 Many subsystem rules (e.g. `database-patterns.md`, `event-system.md`,
 `printing-system.md`, `authentication-system.md`, `mrp-system.md`) live as
-siblings in this directory — grep `.claude/rules/` by topic.
+siblings in this directory — grep `.ai/rules/` by topic.
 
 ## Always-true facts
 

@@ -14,7 +14,7 @@ Source of truth for how Carbon works, in order:
 
 1. **Code + database schema** — the real behavior.
 2. **Product docs** — `docs/` (the Fumadocs site; reader-facing).
-3. **Rules** — `.claude/rules/*.md` (internal technical index, auto-loaded by `paths:`).
+3. **Rules** — `.ai/rules/*.md` (internal technical index, auto-loaded by `paths:`).
 4. **AGENTS.md** — agent guides at root, package, and module level (discovery + safety boundaries).
 5. **`.ai/`** — lessons, specs, design system rules, QA approach, domain docs.
 
@@ -23,7 +23,7 @@ with the code, the **code wins** — fix the doc, don't trust the stale text.
 
 ## When you change code or schema, sync the dependents
 
-### Rules (`.claude/rules/`)
+### Rules (`.ai/rules/`)
 
 - When you change a subsystem's tables, functions, flows, or file layout,
   update the matching rule. Its `paths:` frontmatter tells you which code it

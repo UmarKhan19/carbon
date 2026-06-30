@@ -80,7 +80,7 @@ Serial Numbers section uses shared `~/components` `PrintButton` with
 `context="workCenter"` and `workCenterId={operation.workCenterId}`: per-operation
 (`sourceDocument="Operation"`, routes `operationLabelsPdf`/`operationLabelsZpl`) and
 per-entity (`sourceDocument="Entity"`, `trackedEntityLabel*`). See
-`.claude/rules/` printing notes / cache for fallback-to-download behavior.
+`.ai/rules/` printing notes / cache for fallback-to-download behavior.
 
 ## Responsive / CSS gotchas
 

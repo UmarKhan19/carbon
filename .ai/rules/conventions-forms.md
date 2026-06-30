@@ -12,7 +12,7 @@ paths:
 Forms in Carbon follow a three-part pattern: **zod validator** (module `.models.ts`)
 → **form component** (`ValidatedForm` in `ui/`) → **route action** (validate +
 service call + redirect). This rule is the full detail; it aligns with the `forms`
-skill (`.claude/skills/forms/SKILL.md`) — don't contradict it.
+skill (`.ai/skills/forms/SKILL.md`) — don't contradict it.
 
 Real reference examples (current code):
 

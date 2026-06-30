@@ -112,7 +112,7 @@ Re-import safety uses the shared `externalIntegrationMapping` table with
   `(integration, externalId, entityType, companyId)` (when `allowDuplicateExternalId = false`)
   and updating `entityId`. So re-importing the same CSV ids updates rather than duplicates.
 
-See `.claude/rules/accounting-sync-handlers.md` for the full `externalIntegrationMapping` schema.
+See `.ai/rules/accounting-sync-handlers.md` for the full `externalIntegrationMapping` schema.
 
 ## Gotchas
 
