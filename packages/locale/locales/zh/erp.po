@@ -1761,6 +1761,9 @@ msgstr "在Carbon中称为方法—生成零件的组件和操作。"
 msgid "Can't disable the only active break. Add another break or toggle the override's Active instead."
 msgstr "无法禁用唯一的活跃价格段。请添加另一个价格段或改为切换覆盖的\"活跃\"状态。"
 
+msgid "Can't download this file"
+msgstr ""
+
 msgid "Cancel"
 msgstr "取消"
 
@@ -3790,6 +3793,9 @@ msgstr "下载 CSV"
 
 msgid "Download Labels"
 msgstr "下载标签"
+
+msgid "Download Link"
+msgstr ""
 
 msgid "Download PDF"
 msgstr "下载 PDF"
@@ -11858,6 +11864,12 @@ msgstr "这完成了发现步骤。"
 
 msgid "This counterparty has nothing outstanding — the payment will be recorded on-account."
 msgstr "该交易对手没有未结余额——该付款将记录为应收账款。"
+
+msgid "This download link is invalid or has been tampered with."
+msgstr ""
+
+msgid "This file is no longer available, or you don't have permission to download it."
+msgstr ""
 
 msgid "This information will be used on document headers"
 msgstr "此信息将用于文档标题"

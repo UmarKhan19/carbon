@@ -1761,6 +1761,9 @@ msgstr "Appelée une méthode en Carbon — les composants plus les opérations 
 msgid "Can't disable the only active break. Add another break or toggle the override's Active instead."
 msgstr "Impossible de désactiver le seul palier actif. Ajoutez un autre palier ou basculez plutôt l'option Active de la substitution."
 
+msgid "Can't download this file"
+msgstr ""
+
 msgid "Cancel"
 msgstr "Annuler"
 
@@ -3790,6 +3793,9 @@ msgstr "Télécharger CSV"
 
 msgid "Download Labels"
 msgstr "Télécharger les étiquettes"
+
+msgid "Download Link"
+msgstr ""
 
 msgid "Download PDF"
 msgstr "Télécharger le PDF"
@@ -11858,6 +11864,12 @@ msgstr "Cela complète l'étape de découverte."
 
 msgid "This counterparty has nothing outstanding — the payment will be recorded on-account."
 msgstr "Ce tiers n'a rien en suspens — le paiement sera enregistré en compte courant."
+
+msgid "This download link is invalid or has been tampered with."
+msgstr ""
+
+msgid "This file is no longer available, or you don't have permission to download it."
+msgstr ""
 
 msgid "This information will be used on document headers"
 msgstr "Ces informations seront utilisées dans les en-têtes de document"

@@ -1761,6 +1761,9 @@ msgstr "Eine Methode genannt in Carbon — die Komponenten plus Operationen, die
 msgid "Can't disable the only active break. Add another break or toggle the override's Active instead."
 msgstr "Der einzige aktive Break kann nicht deaktiviert werden. Fügen Sie einen weiteren Break hinzu oder schalten Sie stattdessen die Aktivierung der Überschreibung um."
 
+msgid "Can't download this file"
+msgstr ""
+
 msgid "Cancel"
 msgstr "Abbrechen"
 
@@ -3790,6 +3793,9 @@ msgstr "CSV herunterladen"
 
 msgid "Download Labels"
 msgstr "Etiketten herunterladen"
+
+msgid "Download Link"
+msgstr ""
 
 msgid "Download PDF"
 msgstr "PDF herunterladen"
@@ -11858,6 +11864,12 @@ msgstr "Dies schließt den Discovery-Schritt ab."
 
 msgid "This counterparty has nothing outstanding — the payment will be recorded on-account."
 msgstr "Dieser Geschäftspartner hat keine ausstehenden Forderungen — die Zahlung wird auf Kontokorrent verbucht."
+
+msgid "This download link is invalid or has been tampered with."
+msgstr ""
+
+msgid "This file is no longer available, or you don't have permission to download it."
+msgstr ""
 
 msgid "This information will be used on document headers"
 msgstr "Diese Informationen werden in Dokumentkopfzeilen verwendet"

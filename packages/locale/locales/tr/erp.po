@@ -1761,6 +1761,9 @@ msgstr "Carbon'da çağrılan bir yöntem — bir parça üreten bileşenler ve 
 msgid "Can't disable the only active break. Add another break or toggle the override's Active instead."
 msgstr "Yalnızca aktif olan aralığı devre dışı bırakamazsınız. Başka bir aralık ekleyin veya geçersiz kılmanın Aktif özelliğini değiştirin."
 
+msgid "Can't download this file"
+msgstr ""
+
 msgid "Cancel"
 msgstr "İptal"
 
@@ -3790,6 +3793,9 @@ msgstr "CSV İndir"
 
 msgid "Download Labels"
 msgstr "Etiketleri İndir"
+
+msgid "Download Link"
+msgstr ""
 
 msgid "Download PDF"
 msgstr "PDF'i İndir"
@@ -11858,6 +11864,12 @@ msgstr "Bu, Keşif adımını tamamlar."
 
 msgid "This counterparty has nothing outstanding — the payment will be recorded on-account."
 msgstr "Bu muhasebe ortağının ödenmemiş bir borcu yok — ödeme hesap üzerinde kaydedilecektir."
+
+msgid "This download link is invalid or has been tampered with."
+msgstr ""
+
+msgid "This file is no longer available, or you don't have permission to download it."
+msgstr ""
 
 msgid "This information will be used on document headers"
 msgstr "Bu bilgiler belge başlıklarında kullanılacaktır"

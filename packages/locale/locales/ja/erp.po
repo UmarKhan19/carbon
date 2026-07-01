@@ -1761,6 +1761,9 @@ msgstr "Carbonで呼ばれるメソッド—部品を生成するコンポーネ
 msgid "Can't disable the only active break. Add another break or toggle the override's Active instead."
 msgstr "唯一のアクティブなブレークを無効にすることはできません。別のブレークを追加するか、オーバーライドのアクティブを切り替えてください。"
 
+msgid "Can't download this file"
+msgstr ""
+
 msgid "Cancel"
 msgstr "キャンセル"
 
@@ -3790,6 +3793,9 @@ msgstr "CSVをダウンロード"
 
 msgid "Download Labels"
 msgstr "ラベルをダウンロード"
+
+msgid "Download Link"
+msgstr ""
 
 msgid "Download PDF"
 msgstr "PDFをダウンロード"
@@ -11858,6 +11864,12 @@ msgstr "これはDiscoveryステップを完了します。"
 
 msgid "This counterparty has nothing outstanding — the payment will be recorded on-account."
 msgstr "この取引先には未払い金がありません。支払いは掛け金として記録されます。"
+
+msgid "This download link is invalid or has been tampered with."
+msgstr ""
+
+msgid "This file is no longer available, or you don't have permission to download it."
+msgstr ""
 
 msgid "This information will be used on document headers"
 msgstr "この情報はドキュメントヘッダーで使用されます"

@@ -1761,6 +1761,9 @@ msgstr "Llamada una método en Carbon — los componentes más las operaciones q
 msgid "Can't disable the only active break. Add another break or toggle the override's Active instead."
 msgstr "No se puede desactivar el único intervalo activo. Agregue otro intervalo o active/desactive el estado Activo de la anulación en su lugar."
 
+msgid "Can't download this file"
+msgstr ""
+
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -3790,6 +3793,9 @@ msgstr "Descargar CSV"
 
 msgid "Download Labels"
 msgstr "Descargar Etiquetas"
+
+msgid "Download Link"
+msgstr ""
 
 msgid "Download PDF"
 msgstr "Descargar PDF"
@@ -11858,6 +11864,12 @@ msgstr "Esto completa el paso de Descubrimiento."
 
 msgid "This counterparty has nothing outstanding — the payment will be recorded on-account."
 msgstr "Este tercero no tiene nada pendiente — el pago se registrará en cuenta."
+
+msgid "This download link is invalid or has been tampered with."
+msgstr ""
+
+msgid "This file is no longer available, or you don't have permission to download it."
+msgstr ""
 
 msgid "This information will be used on document headers"
 msgstr "Esta información se utilizará en los encabezados de documentos"
