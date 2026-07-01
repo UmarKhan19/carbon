@@ -147,7 +147,7 @@ export default function AppIndexRoute() {
             action={path.to.getStartedEnroll}
             className="mb-6"
           >
-            <div className="rounded-2xl border border-border bg-card shadow-button-base p-6 flex items-start gap-4">
+            <div className="rounded-2xl ring-2 ring-transparent bg-gradient-to-bl from-card/70 from-50% to-background/70 backdrop-blur-md shadow-button-base p-6 flex items-start gap-4">
               <div className="shrink-0 size-11 rounded-2xl bg-accent flex items-center justify-center text-primary">
                 <LuRocket className="text-xl" />
               </div>

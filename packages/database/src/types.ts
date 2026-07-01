@@ -15290,6 +15290,7 @@ export type Database = {
           id: string
           itemTrackingType: Database["public"]["Enums"]["itemTrackingType"]
           modelUploadId: string | null
+          mpn: string | null
           name: string
           notes: Json | null
           readableId: string
@@ -15318,6 +15319,7 @@ export type Database = {
           id?: string
           itemTrackingType: Database["public"]["Enums"]["itemTrackingType"]
           modelUploadId?: string | null
+          mpn?: string | null
           name: string
           notes?: Json | null
           readableId: string
@@ -15346,6 +15348,7 @@ export type Database = {
           id?: string
           itemTrackingType?: Database["public"]["Enums"]["itemTrackingType"]
           modelUploadId?: string | null
+          mpn?: string | null
           name?: string
           notes?: Json | null
           readableId?: string
@@ -42233,7 +42236,7 @@ export type Database = {
           },
         ]
       }
-      searchIndex_d90t6nfl60gg2fpujaag: {
+      searchIndex_d924dneua0gg2k9762jg: {
         Row: {
           createdAt: string
           description: string | null
@@ -53483,6 +53486,7 @@ export type Database = {
           modelPath: string | null
           modelSize: number | null
           modelUploadId: string | null
+          mpn: string | null
           name: string | null
           notes: Json | null
           readableId: string | null
@@ -57677,6 +57681,7 @@ export type Database = {
           modelPath: string | null
           modelSize: number | null
           modelUploadId: string | null
+          mpn: string | null
           name: string | null
           notes: Json | null
           readableId: string | null
@@ -58602,6 +58607,7 @@ export type Database = {
           modelName: string | null
           modelPath: string | null
           modelSize: number | null
+          mpn: string | null
           name: string | null
           notes: Json | null
           readableId: string | null
@@ -60205,14 +60211,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["supplierCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["supplierCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -63638,13 +63644,6 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["shipmentCountryCode"]
-            isOneToOne: false
-            referencedRelation: "country"
-            referencedColumns: ["alpha2"]
-          },
-          {
-            foreignKeyName: "address_countryCode_fkey"
             columns: ["invoiceCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
@@ -66944,6 +66943,7 @@ export type Database = {
           modelName: string | null
           modelPath: string | null
           modelSize: number | null
+          mpn: string | null
           name: string | null
           notes: Json | null
           readableId: string | null
@@ -68071,6 +68071,7 @@ export type Database = {
           modelPath: string
           modelSize: number
           modelUploadId: string
+          mpn: string
           name: string
           notes: Json
           readableId: string
@@ -68623,6 +68624,7 @@ export type Database = {
           modelPath: string
           modelSize: number
           modelUploadId: string
+          mpn: string
           name: string
           notes: Json
           readableId: string
@@ -68745,6 +68747,7 @@ export type Database = {
           modelName: string
           modelPath: string
           modelSize: number
+          mpn: string
           name: string
           notes: Json
           readableId: string
@@ -69277,6 +69280,7 @@ export type Database = {
           modelName: string
           modelPath: string
           modelSize: number
+          mpn: string
           name: string
           notes: Json
           readableId: string

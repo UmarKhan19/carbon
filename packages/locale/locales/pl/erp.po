@@ -6785,6 +6785,9 @@ msgstr "Ręczny"
 msgid "Manufacturer"
 msgstr "Producent"
 
+msgid "Manufacturer Part Number"
+msgstr ""
+
 msgid "Manufacturing"
 msgstr "Produkcja"
 
@@ -11175,6 +11178,9 @@ msgstr "ID części dostawcy"
 
 msgid "Supplier Part Number"
 msgstr "Numer części dostawcy"
+
+msgid "Supplier Part Numbers"
+msgstr ""
 
 msgid "Supplier Parts"
 msgstr "Części dostawcy"

@@ -6785,6 +6785,9 @@ msgstr "Ручной"
 msgid "Manufacturer"
 msgstr "Производитель"
 
+msgid "Manufacturer Part Number"
+msgstr ""
+
 msgid "Manufacturing"
 msgstr "Производство"
 
@@ -11175,6 +11178,9 @@ msgstr "ID поставщика детали"
 
 msgid "Supplier Part Number"
 msgstr "Номер детали поставщика"
+
+msgid "Supplier Part Numbers"
+msgstr ""
 
 msgid "Supplier Parts"
 msgstr "Детали поставщика"

@@ -112,6 +112,7 @@ export const path = {
       materialTypes: (substanceId: string, formId: string) =>
         generatePath(`${api}/items/types/${substanceId}/${formId}`),
       materialSubstances: `${api}/items/substances`,
+      itemMpns: `${api}/items/mpns`,
       messagingNotify: `${api}/messaging/notify`,
       mrp: (locationId?: string) =>
         generatePath(
