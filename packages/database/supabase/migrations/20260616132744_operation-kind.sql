@@ -5,21 +5,28 @@
 -- depend on the inspection tables — see docs/adr/0003.
 
 -- 1. Classification enum. 'Operation' preserves today's behavior (the safe default).
-CREATE TYPE "operationKind" AS ENUM (
-  'Operation',
-  'Assembly',
-  'Inspection'
-);
+-- Guarded so re-running against a DB that already has the type (a shared dev
+-- volume whose bookkeeping was pruned by the branch-switch migration repair) is a
+-- no-op instead of a hard failure.
+DO $$ BEGIN
+  CREATE TYPE "operationKind" AS ENUM (
+    'Operation',
+    'Assembly',
+    'Inspection'
+  );
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
 
 -- 2. Add operationKind to the three operation tables.
 ALTER TABLE "methodOperation"
-  ADD COLUMN "operationKind" "operationKind" NOT NULL DEFAULT 'Operation';
+  ADD COLUMN IF NOT EXISTS "operationKind" "operationKind" NOT NULL DEFAULT 'Operation';
 
 ALTER TABLE "jobOperation"
-  ADD COLUMN "operationKind" "operationKind" NOT NULL DEFAULT 'Operation';
+  ADD COLUMN IF NOT EXISTS "operationKind" "operationKind" NOT NULL DEFAULT 'Operation';
 
 ALTER TABLE "quoteOperation"
-  ADD COLUMN "operationKind" "operationKind" NOT NULL DEFAULT 'Operation';
+  ADD COLUMN IF NOT EXISTS "operationKind" "operationKind" NOT NULL DEFAULT 'Operation';
 
 -- 3. Expose operationKind through the MES operation RPC so the view router can read it.
 --    Mirrors 20260531084723_rework-serial-flow.sql; only the trailing column is new.

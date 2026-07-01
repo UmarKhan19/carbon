@@ -773,6 +773,8 @@ export const path = {
       generatePath(`${x}/items/methods/material/delete/${id}`),
     deleteMethodOperationStep: (id: string) =>
       generatePath(`${x}/items/methods/operation/step/delete/${id}`),
+    duplicateMethodOperationStep: (id: string) =>
+      generatePath(`${x}/items/methods/operation/step/duplicate/${id}`),
     deleteMethodOperationStepSlide: (id: string) =>
       generatePath(`${x}/items/methods/operation/step/slide/delete/${id}`),
     deleteMethodOperationParameter: (id: string) =>

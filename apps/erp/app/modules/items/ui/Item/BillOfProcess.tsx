@@ -62,6 +62,7 @@ import {
   LuList,
   LuListChecks,
   LuLock,
+  LuMapPin,
   LuMaximize2,
   LuMinimize2,
   LuSettings2,
@@ -115,7 +116,9 @@ import type {
   OperationParameter,
   OperationStep,
   OperationStepSlide,
-  OperationTool
+  OperationTool,
+  SlideAnnotation,
+  SlideSize
 } from "~/modules/shared";
 import {
   classificationFromTypeKind,
@@ -125,6 +128,7 @@ import {
   operationStepValidator,
   operationToolValidator,
   procedureStepType,
+  slideSizes,
   standardFactorType,
   typeKindFromClassification
 } from "~/modules/shared";
@@ -141,6 +145,7 @@ import type {
   ConfigurationRule,
   MakeMethod
 } from "../../types";
+import { SlideAnnotator } from "./SlideAnnotator";
 
 type Operation = z.infer<typeof methodOperationValidator> & {
   workInstruction: JSONContent | null;
@@ -667,6 +672,7 @@ const BillOfProcess = ({
           <div className="flex w-full flex-col py-4">
             <AttributesForm
               steps={steps}
+              tools={tools}
               operationId={item.id!}
               temporaryItems={temporaryItems}
               isDisabled={
@@ -1759,6 +1765,7 @@ function AttributesForm({
   configurable,
   isDisabled,
   steps,
+  tools,
   temporaryItems,
   rulesByField,
   onConfigure,
@@ -1768,6 +1775,7 @@ function AttributesForm({
   configurable: boolean;
   isDisabled: boolean;
   steps: OperationStep[];
+  tools: OperationTool[];
   temporaryItems: TemporaryItems;
   rulesByField: Map<string, ConfigurationRule>;
   onConfigure?: (c: Configuration) => void;
@@ -1839,10 +1847,33 @@ function AttributesForm({
   const companyId = user.company.id;
   const revalidator = useRevalidator();
 
+  // Tools on this operation, deduped by toolId, with display names resolved from the
+  // tools store — passed to the annotator so a pin can be linked to one (smart hotspot).
+  const allTools = useTools();
+  const toolOptions = useMemo(() => {
+    const seen = new Set<string>();
+    const opts: { id: string; name: string }[] = [];
+    for (const ot of tools) {
+      if (!ot.toolId || seen.has(ot.toolId)) continue;
+      seen.add(ot.toolId);
+      opts.push({
+        id: ot.toolId,
+        name: allTools.find((t) => t.id === ot.toolId)?.name ?? ot.toolId
+      });
+    }
+    return opts;
+  }, [tools, allTools]);
+
   // Slides chosen while creating a step are buffered here (the step has no id yet);
   // they're attached to the new step right after it's created. See the effect below.
   const [draftSlides, setDraftSlides] = useState<
-    { id: string; imagePath: string; caption: string }[]
+    {
+      id: string;
+      imagePath: string;
+      caption: string;
+      size: SlideSize;
+      annotations: SlideAnnotation[];
+    }[]
   >([]);
   const [draftUploading, setDraftUploading] = useState(false);
   const draftFileInputRef = useRef<HTMLInputElement>(null);
@@ -1883,7 +1914,13 @@ function AttributesForm({
       }
       setDraftSlides((prev) => [
         ...prev,
-        { id: nanoid(), imagePath: result.data.path, caption: "" }
+        {
+          id: nanoid(),
+          imagePath: result.data.path,
+          caption: "",
+          size: "medium",
+          annotations: []
+        }
       ]);
     } finally {
       setDraftUploading(false);
@@ -1904,6 +1941,8 @@ function AttributesForm({
           imagePath: slide.imagePath,
           caption: slide.caption || null,
           sortOrder: index + 1,
+          size: slide.size,
+          annotations: slide.annotations,
           companyId,
           createdBy: user.id
         }))
@@ -2054,8 +2093,11 @@ function AttributesForm({
                 slides={draftSlides.map((slide) => ({
                   key: slide.id,
                   imagePath: slide.imagePath,
-                  caption: slide.caption
+                  caption: slide.caption,
+                  size: slide.size,
+                  annotations: slide.annotations
                 }))}
+                toolOptions={toolOptions}
                 isDisabled={isDisabled}
                 busy={draftUploading}
                 fileInputRef={draftFileInputRef}
@@ -2067,6 +2109,20 @@ function AttributesForm({
                   setDraftSlides((prev) =>
                     prev.map((slide, i) =>
                       i === index ? { ...slide, caption } : slide
+                    )
+                  )
+                }
+                onSizeChange={(index, size) =>
+                  setDraftSlides((prev) =>
+                    prev.map((slide, i) =>
+                      i === index ? { ...slide, size } : slide
+                    )
+                  )
+                }
+                onAnnotationsChange={(index, annotations) =>
+                  setDraftSlides((prev) =>
+                    prev.map((slide, i) =>
+                      i === index ? { ...slide, annotations } : slide
                     )
                   )
                 }
@@ -2107,6 +2163,7 @@ function AttributesForm({
                       attribute={step}
                       operationId={operationId}
                       typeOptions={typeOptions}
+                      toolOptions={toolOptions}
                       isDisabled={isDisabled}
                       dragControls={dragControls}
                       className={
@@ -2159,6 +2216,7 @@ function AttributesListItem({
   attribute,
   operationId,
   typeOptions,
+  toolOptions,
   className,
   configurable,
   rulesByField,
@@ -2170,6 +2228,7 @@ function AttributesListItem({
   attribute: OperationStep;
   operationId: string;
   typeOptions: { label: JSX.Element; value: string }[];
+  toolOptions: { id: string; name: string }[];
   className?: string;
   configurable: boolean;
   rulesByField: Map<string, ConfigurationRule>;
@@ -2196,6 +2255,7 @@ function AttributesListItem({
   const deleteModalDisclosure = useDisclosure();
   const submitted = useRef(false);
   const fetcher = useFetcher<typeof editMethodOperationStepAction>();
+  const duplicateFetcher = useFetcher();
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   useEffect(() => {
@@ -2407,7 +2467,11 @@ function AttributesListItem({
             {type === "List" && (
               <ArrayInput name="listValues" label={t`List Options`} />
             )}
-            <StepSlides step={attribute} isDisabled={isDisabled} />
+            <StepSlides
+              step={attribute}
+              toolOptions={toolOptions}
+              isDisabled={isDisabled}
+            />
             <HStack className="w-full justify-end" spacing={2}>
               <Button variant="secondary" onClick={disclosure.onClose}>
                 Cancel
@@ -2526,9 +2590,24 @@ function AttributesListItem({
           </HStack>
           <div className="flex items-center justify-end gap-2">
             <HStack spacing={2}>
-              <span className="text-xs text-muted-foreground">
-                {isUpdated ? "Updated" : "Created"} {formatRelativeTime(date)}
-              </span>
+              {/* Light revision surface: relative time inline, full created + updated
+                  history (who / when) on hover. */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="text-xs text-muted-foreground">
+                    {isUpdated ? "Updated" : "Created"}{" "}
+                    {formatRelativeTime(date)}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">
+                  <div className="flex flex-col gap-0.5 text-xs">
+                    <span>Created {formatRelativeTime(createdAt)}</span>
+                    {updatedAt ? (
+                      <span>Updated {formatRelativeTime(updatedAt)}</span>
+                    ) : null}
+                  </div>
+                </TooltipContent>
+              </Tooltip>
               <EmployeeAvatar employeeId={person} withName={false} />
             </HStack>
             {!isDisabled && (
@@ -2543,6 +2622,16 @@ function AttributesListItem({
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={disclosure.onOpen}>
                     Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() =>
+                      duplicateFetcher.submit(null, {
+                        method: "post",
+                        action: path.to.duplicateMethodOperationStep(id)
+                      })
+                    }
+                  >
+                    Duplicate
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     destructive
@@ -2574,27 +2663,60 @@ function AttributesListItem({
   );
 }
 
-// Presentational slides grid — header + "Add slide" + cards (image · caption · remove).
-// Shared by the create form (draft buffer, attached after the step is saved) and the
-// edit form (persisted immediately via the slide routes). See PRD-step-reference-images.
+// Card width + image height per display size — drives the resizable gallery grid.
+const SLIDE_CARD_WIDTH: Record<SlideSize, string> = {
+  small: "w-28",
+  medium: "w-40",
+  large: "w-56"
+};
+const SLIDE_IMAGE_HEIGHT: Record<SlideSize, string> = {
+  small: "h-20",
+  medium: "h-28",
+  large: "h-40"
+};
+const SLIDE_SIZE_LABEL: Record<SlideSize, string> = {
+  small: "S",
+  medium: "M",
+  large: "L"
+};
+
+type EditorSlide = {
+  key: string;
+  imagePath: string;
+  caption: string | null;
+  size: SlideSize | null;
+  annotations: SlideAnnotation[] | null;
+};
+
+// Presentational slides grid — header + "Add slide" + cards (image · pins · size · caption).
+// Shared by the create form (draft buffer, attached after the step is saved) and the edit
+// form (persisted immediately via the slide routes). See PRD-step-reference-images.
 function SlidesEditor({
   slides,
+  toolOptions = [],
   isDisabled,
   busy,
   fileInputRef,
   onFileChange,
   onRemove,
-  onCaptionBlur
+  onCaptionBlur,
+  onSizeChange,
+  onAnnotationsChange
 }: {
-  slides: { key: string; imagePath: string; caption: string | null }[];
+  slides: EditorSlide[];
+  toolOptions?: { id: string; name: string }[];
   isDisabled: boolean;
   busy: boolean;
   fileInputRef: React.RefObject<HTMLInputElement>;
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onRemove: (index: number) => void;
   onCaptionBlur: (index: number, caption: string) => void;
+  onSizeChange: (index: number, size: SlideSize) => void;
+  onAnnotationsChange: (index: number, annotations: SlideAnnotation[]) => void;
 }) {
   const { t } = useLingui();
+  const [annotatingIndex, setAnnotatingIndex] = useState<number | null>(null);
+  const annotating = annotatingIndex == null ? null : slides[annotatingIndex];
 
   if (isDisabled && slides.length === 0) return null;
 
@@ -2627,41 +2749,105 @@ function SlidesEditor({
       {slides.length === 0 ? (
         <p className="w-full text-xs text-muted-foreground">No slides</p>
       ) : (
-        <div className="flex w-full flex-wrap gap-3">
-          {slides.map((slide, index) => (
-            <div
-              key={slide.key}
-              className="flex w-40 flex-col gap-1 rounded-lg border p-2"
-            >
-              <div className="relative">
-                <img
-                  src={getPrivateUrl(slide.imagePath)}
-                  alt={slide.caption ?? "Slide"}
-                  className="h-24 w-full rounded-md object-cover"
-                />
-                {!isDisabled && (
-                  <IconButton
-                    aria-label={t`Remove slide`}
-                    icon={<LuX />}
-                    variant="secondary"
-                    size="sm"
-                    className="absolute right-1 top-1"
-                    onClick={() => onRemove(index)}
-                  />
+        <div className="flex w-full flex-wrap items-start gap-3">
+          {slides.map((slide, index) => {
+            const size = slide.size ?? "medium";
+            const pins = slide.annotations ?? [];
+            return (
+              <div
+                key={slide.key}
+                className={cn(
+                  "flex flex-col gap-1 rounded-lg border p-2",
+                  SLIDE_CARD_WIDTH[size]
                 )}
+              >
+                <div className="relative">
+                  <img
+                    src={getPrivateUrl(slide.imagePath)}
+                    alt={slide.caption ?? "Slide"}
+                    className={cn(
+                      "w-full rounded-md bg-muted/40 object-contain",
+                      SLIDE_IMAGE_HEIGHT[size]
+                    )}
+                  />
+                  {/* Read-only pin preview so an annotated slide reads at a glance. */}
+                  {pins.map((pin, i) => (
+                    <span
+                      key={pin.id}
+                      className="pointer-events-none absolute flex size-4 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white text-[8px] font-semibold text-white shadow"
+                      style={{
+                        left: `${pin.x * 100}%`,
+                        top: `${pin.y * 100}%`,
+                        backgroundColor: pin.color ?? "#ef4444"
+                      }}
+                    >
+                      {i + 1}
+                    </span>
+                  ))}
+                  {!isDisabled && (
+                    <IconButton
+                      aria-label={t`Remove slide`}
+                      icon={<LuX />}
+                      variant="secondary"
+                      size="sm"
+                      className="absolute right-1 top-1"
+                      onClick={() => onRemove(index)}
+                    />
+                  )}
+                </div>
+                {!isDisabled && (
+                  <div className="flex items-center justify-between gap-1">
+                    <div className="flex items-center gap-0.5">
+                      {slideSizes.map((s) => (
+                        <Button
+                          key={s}
+                          variant={size === s ? "active" : "ghost"}
+                          size="sm"
+                          className="h-6 w-6 p-0 text-[10px]"
+                          onClick={() => onSizeChange(index, s)}
+                        >
+                          {SLIDE_SIZE_LABEL[s]}
+                        </Button>
+                      ))}
+                    </div>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="h-6 px-2 text-[10px]"
+                      leftIcon={<LuMapPin className="size-3" />}
+                      onClick={() => setAnnotatingIndex(index)}
+                    >
+                      {pins.length > 0 ? pins.length : t`Pin`}
+                    </Button>
+                  </div>
+                )}
+                <input
+                  type="text"
+                  aria-label={t`Caption`}
+                  placeholder={t`Caption`}
+                  defaultValue={slide.caption ?? ""}
+                  disabled={isDisabled}
+                  onBlur={(e) => onCaptionBlur(index, e.target.value)}
+                  className="w-full rounded-md border bg-transparent px-2 py-1 text-xs"
+                />
               </div>
-              <input
-                type="text"
-                aria-label={t`Caption`}
-                placeholder={t`Caption`}
-                defaultValue={slide.caption ?? ""}
-                disabled={isDisabled}
-                onBlur={(e) => onCaptionBlur(index, e.target.value)}
-                className="w-full rounded-md border bg-transparent px-2 py-1 text-xs"
-              />
-            </div>
-          ))}
+            );
+          })}
         </div>
+      )}
+
+      {annotating && annotatingIndex != null && (
+        <SlideAnnotator
+          open
+          imageUrl={getPrivateUrl(annotating.imagePath)}
+          initial={annotating.annotations ?? []}
+          toolOptions={toolOptions}
+          onSave={(next) => {
+            onAnnotationsChange(annotatingIndex, next);
+            setAnnotatingIndex(null);
+          }}
+          onClose={() => setAnnotatingIndex(null)}
+        />
       )}
     </VStack>
   );
@@ -2672,9 +2858,11 @@ function SlidesEditor({
 // to job/quote by get-method. See PRD-step-reference-images.
 function StepSlides({
   step,
+  toolOptions,
   isDisabled
 }: {
   step: OperationStep;
+  toolOptions: { id: string; name: string }[];
   isDisabled: boolean;
 }) {
   const { t } = useLingui();
@@ -2722,14 +2910,19 @@ function StepSlides({
     }
   };
 
-  function saveCaption(slide: OperationStepSlide, caption: string) {
-    if ((slide.caption ?? "") === caption) return;
+  // Update one slide: always carries the required fields (id → the route updates rather than
+  // inserts; stepId/imagePath satisfy the validator) plus whatever changed. Fields not sent
+  // are preserved, so a caption edit never wipes size/annotations and vice-versa.
+  function saveSlide(
+    slide: OperationStepSlide,
+    fields: Record<string, string>
+  ) {
     const fd = new FormData();
     fd.append("id", slide.id);
     fd.append("stepId", slide.stepId);
     fd.append("imagePath", slide.imagePath);
-    fd.append("caption", caption);
     fd.append("sortOrder", String(slide.sortOrder ?? 1));
+    for (const [key, value] of Object.entries(fields)) fd.append(key, value);
     captionFetcher.submit(fd, {
       method: "post",
       action: path.to.newMethodOperationStepSlide
@@ -2741,8 +2934,11 @@ function StepSlides({
       slides={slides.map((s) => ({
         key: s.id,
         imagePath: s.imagePath,
-        caption: s.caption
+        caption: s.caption,
+        size: s.size,
+        annotations: s.annotations
       }))}
+      toolOptions={toolOptions}
       isDisabled={isDisabled}
       busy={uploading || fetcher.state !== "idle"}
       fileInputRef={fileInputRef}
@@ -2757,7 +2953,18 @@ function StepSlides({
       }}
       onCaptionBlur={(index, caption) => {
         const slide = slides[index];
-        if (slide) saveCaption(slide, caption);
+        if (slide && (slide.caption ?? "") !== caption)
+          saveSlide(slide, { caption });
+      }}
+      onSizeChange={(index, size) => {
+        const slide = slides[index];
+        if (slide && (slide.size ?? "medium") !== size)
+          saveSlide(slide, { size });
+      }}
+      onAnnotationsChange={(index, annotations) => {
+        const slide = slides[index];
+        if (slide)
+          saveSlide(slide, { annotations: JSON.stringify(annotations) });
       }}
     />
   );
@@ -3094,7 +3301,8 @@ function OperationPreview({
 
   // Tools scoped to this step + operation-level (null) tools shown on every step.
   const stepTools = tools.filter(
-    (tl) => tl.methodOperationStepId == null || tl.methodOperationStepId === step.id
+    (tl) =>
+      tl.methodOperationStepId == null || tl.methodOperationStepId === step.id
   );
 
   const descriptionHtml =
@@ -3125,7 +3333,9 @@ function OperationPreview({
             isIcon
             aria-label={t`Next step`}
             isDisabled={idx >= sorted.length - 1}
-            onClick={() => setCurrent((c) => Math.min(sorted.length - 1, c + 1))}
+            onClick={() =>
+              setCurrent((c) => Math.min(sorted.length - 1, c + 1))
+            }
           >
             <LuChevronRight />
           </Button>

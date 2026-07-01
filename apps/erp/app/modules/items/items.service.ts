@@ -7,7 +7,7 @@ import type {
   KyselyTx
 } from "@carbon/database/client";
 import { getLocalTimeZone, now, today } from "@internationalized/date";
-import type { SupabaseClient } from "@supabase/supabase-js";
+import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 import { nanoid } from "nanoid";
 import type { z } from "zod";
 import type { GenericQueryFilters } from "~/utils/query";
@@ -3744,6 +3744,88 @@ export async function upsertMethodOperationStep(
     .eq("id", methodOperationStep.id)
     .select("id")
     .single();
+}
+
+// Clone a step within the same operation: a "(copy)" appended after all siblings,
+// carrying its reference slides (image + caption + size + annotations, incl. tool
+// hotspots). Sequential supabase writes — a step is created first, then its slides,
+// so a slide-copy failure surfaces without a half-written step blocking the editor.
+export async function duplicateMethodOperationStep(
+  client: SupabaseClient<Database>,
+  args: { id: string; companyId: string; createdBy: string }
+): Promise<{ data: { id: string } | null; error: PostgrestError | null }> {
+  const source = await client
+    .from("methodOperationStep")
+    .select("*")
+    .eq("id", args.id)
+    .single();
+  if (source.error || !source.data) {
+    return { data: null, error: source.error };
+  }
+  const src = source.data;
+
+  // Append after the highest sortOrder in the operation.
+  const siblings = await client
+    .from("methodOperationStep")
+    .select("sortOrder")
+    .eq("operationId", src.operationId);
+  const nextSortOrder =
+    (siblings.data ?? []).reduce(
+      (max, s) => Math.max(max, s.sortOrder ?? 0),
+      0
+    ) + 1;
+
+  const insert = await client
+    .from("methodOperationStep")
+    .insert({
+      operationId: src.operationId,
+      name: `${src.name} (copy)`,
+      description: src.description,
+      type: src.type,
+      unitOfMeasureCode: src.unitOfMeasureCode,
+      minValue: src.minValue,
+      maxValue: src.maxValue,
+      listValues: src.listValues,
+      sortOrder: nextSortOrder,
+      companyId: args.companyId,
+      createdBy: args.createdBy
+    })
+    .select("id")
+    .single();
+  if (insert.error || !insert.data) {
+    return { data: null, error: insert.error };
+  }
+  const newStepId = insert.data.id;
+
+  // select("*") (not an explicit column list) so `size`/`annotations` — added by the
+  // step-slide migration — resolve once types are regenerated, without a bad column in
+  // the select string poisoning the whole row type before then.
+  const slides = await client
+    .from("methodOperationStepSlide")
+    .select("*")
+    .eq("stepId", args.id);
+  if (slides.error) {
+    return { data: null, error: slides.error };
+  }
+  if (slides.data && slides.data.length > 0) {
+    const slideInsert = await client.from("methodOperationStepSlide").insert(
+      slides.data.map((s) => ({
+        stepId: newStepId,
+        imagePath: s.imagePath,
+        caption: s.caption,
+        sortOrder: s.sortOrder,
+        size: s.size,
+        annotations: s.annotations,
+        companyId: args.companyId,
+        createdBy: args.createdBy
+      }))
+    );
+    if (slideInsert.error) {
+      return { data: null, error: slideInsert.error };
+    }
+  }
+
+  return { data: { id: newStepId }, error: null };
 }
 
 export async function upsertMethodOperationStepSlide(

@@ -11,6 +11,8 @@ import type {
   operationParameterValidator,
   operationStepValidator,
   operationToolValidator,
+  SlideAnnotation,
+  SlideSize,
   sourcingType,
   standardFactorType
 } from "./shared.models";
@@ -105,6 +107,8 @@ export type OperationStepSlide = {
   imagePath: string;
   caption: string | null;
   sortOrder: number;
+  size: SlideSize | null;
+  annotations: SlideAnnotation[] | null;
 };
 
 export type OperationStep = z.infer<typeof operationStepValidator> & {

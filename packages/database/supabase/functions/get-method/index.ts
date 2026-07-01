@@ -73,7 +73,7 @@ async function copyStepSlides(
 
   const { data: srcSlides } = await client
     .from(sourceTable)
-    .select("stepId, imagePath, caption, sortOrder")
+    .select("stepId, imagePath, caption, sortOrder, size, annotations")
     .in("stepId", sourceStepIds);
 
   const inserts = (srcSlides ?? []).flatMap((sl) => {
@@ -85,6 +85,8 @@ async function copyStepSlides(
       imagePath: sl.imagePath,
       caption: sl.caption,
       sortOrder: sl.sortOrder,
+      size: sl.size,
+      annotations: sl.annotations,
       companyId,
       createdBy: userId,
     }];

@@ -10,31 +10,33 @@
 -- from 20260621154233_operation-step-slides.sql (which FKs the *OperationStep "id").
 
 -- Materials ---------------------------------------------------------------------------------
+-- IF NOT EXISTS so a re-run (shared dev volume whose bookkeeping was pruned by the
+-- branch-switch migration repair) is a no-op instead of a hard failure.
 ALTER TABLE "methodMaterial"
-  ADD COLUMN "methodOperationStepId" TEXT
+  ADD COLUMN IF NOT EXISTS "methodOperationStepId" TEXT
     REFERENCES "methodOperationStep"("id") ON DELETE SET NULL;
 ALTER TABLE "jobMaterial"
-  ADD COLUMN "jobOperationStepId" TEXT
+  ADD COLUMN IF NOT EXISTS "jobOperationStepId" TEXT
     REFERENCES "jobOperationStep"("id") ON DELETE SET NULL;
 ALTER TABLE "quoteMaterial"
-  ADD COLUMN "quoteOperationStepId" TEXT
+  ADD COLUMN IF NOT EXISTS "quoteOperationStepId" TEXT
     REFERENCES "quoteOperationStep"("id") ON DELETE SET NULL;
 
 -- Tools -------------------------------------------------------------------------------------
 ALTER TABLE "methodOperationTool"
-  ADD COLUMN "methodOperationStepId" TEXT
+  ADD COLUMN IF NOT EXISTS "methodOperationStepId" TEXT
     REFERENCES "methodOperationStep"("id") ON DELETE SET NULL;
 ALTER TABLE "jobOperationTool"
-  ADD COLUMN "jobOperationStepId" TEXT
+  ADD COLUMN IF NOT EXISTS "jobOperationStepId" TEXT
     REFERENCES "jobOperationStep"("id") ON DELETE SET NULL;
 ALTER TABLE "quoteOperationTool"
-  ADD COLUMN "quoteOperationStepId" TEXT
+  ADD COLUMN IF NOT EXISTS "quoteOperationStepId" TEXT
     REFERENCES "quoteOperationStep"("id") ON DELETE SET NULL;
 
 -- Index every new FK (per conventions: index companyId and every FK).
-CREATE INDEX "methodMaterial_methodOperationStepId_idx" ON "methodMaterial" ("methodOperationStepId");
-CREATE INDEX "jobMaterial_jobOperationStepId_idx" ON "jobMaterial" ("jobOperationStepId");
-CREATE INDEX "quoteMaterial_quoteOperationStepId_idx" ON "quoteMaterial" ("quoteOperationStepId");
-CREATE INDEX "methodOperationTool_methodOperationStepId_idx" ON "methodOperationTool" ("methodOperationStepId");
-CREATE INDEX "jobOperationTool_jobOperationStepId_idx" ON "jobOperationTool" ("jobOperationStepId");
-CREATE INDEX "quoteOperationTool_quoteOperationStepId_idx" ON "quoteOperationTool" ("quoteOperationStepId");
+CREATE INDEX IF NOT EXISTS "methodMaterial_methodOperationStepId_idx" ON "methodMaterial" ("methodOperationStepId");
+CREATE INDEX IF NOT EXISTS "jobMaterial_jobOperationStepId_idx" ON "jobMaterial" ("jobOperationStepId");
+CREATE INDEX IF NOT EXISTS "quoteMaterial_quoteOperationStepId_idx" ON "quoteMaterial" ("quoteOperationStepId");
+CREATE INDEX IF NOT EXISTS "methodOperationTool_methodOperationStepId_idx" ON "methodOperationTool" ("methodOperationStepId");
+CREATE INDEX IF NOT EXISTS "jobOperationTool_jobOperationStepId_idx" ON "jobOperationTool" ("jobOperationStepId");
+CREATE INDEX IF NOT EXISTS "quoteOperationTool_quoteOperationStepId_idx" ON "quoteOperationTool" ("quoteOperationStepId");

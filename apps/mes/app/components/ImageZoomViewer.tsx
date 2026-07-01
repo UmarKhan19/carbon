@@ -1,4 +1,4 @@
-import { IconButton, cn } from "@carbon/react";
+import { cn, IconButton } from "@carbon/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { LuX } from "react-icons/lu";
 
@@ -13,16 +13,29 @@ const clampScale = (s: number) => Math.min(MAX_SCALE, Math.max(MIN_SCALE, s));
  * one-finger drag to pan). Double-tap toggles between fit and a 2.5× zoom. Escape, the close
  * button, or tapping the backdrop while at fit-scale dismisses it.
  */
+type Annotation = {
+  id: string;
+  x: number;
+  y: number;
+  label?: string | null;
+  color?: string | null;
+  toolId?: string | null;
+};
+
 export function ImageZoomViewer({
   open,
   src,
   caption,
+  annotations = [],
+  toolNameById,
   alt = "Reference image",
   onClose
 }: {
   open: boolean;
   src: string | null;
   caption?: string | null;
+  annotations?: Annotation[];
+  toolNameById?: Map<string, string>;
   alt?: string;
   onClose: () => void;
 }) {
@@ -93,7 +106,10 @@ export function ImageZoomViewer({
 
   const onWheel = (e: React.WheelEvent) => {
     e.preventDefault();
-    zoomTo(scale * (e.deltaY < 0 ? 1.15 : 1 / 1.15), toFocal(e.clientX, e.clientY));
+    zoomTo(
+      scale * (e.deltaY < 0 ? 1.15 : 1 / 1.15),
+      toFocal(e.clientX, e.clientY)
+    );
   };
 
   const onPointerDown = (e: React.PointerEvent) => {
@@ -180,19 +196,46 @@ export function ImageZoomViewer({
         onPointerUp={endPointer}
         onPointerCancel={endPointer}
       >
-        <img
-          src={src}
-          alt={alt}
-          draggable={false}
+        {/* Image + pins share one transformed wrapper so annotations pan/zoom with the art. */}
+        <div
           className={cn(
-            "max-h-full max-w-full object-contain will-change-transform",
+            "relative inline-flex max-h-full max-w-full will-change-transform",
             scale > 1 ? "cursor-grab" : "cursor-zoom-in"
           )}
           style={{
             transform: `translate(${tx}px, ${ty}px) scale(${scale})`,
             transformOrigin: "center center"
           }}
-        />
+        >
+          <img
+            src={src}
+            alt={alt}
+            draggable={false}
+            className="max-h-full max-w-full object-contain"
+          />
+          {annotations.map((pin, i) => {
+            const toolName = pin.toolId
+              ? toolNameById?.get(pin.toolId)
+              : undefined;
+            const title =
+              [`#${i + 1}`, toolName, pin.label].filter(Boolean).join(" · ") ||
+              undefined;
+            return (
+              <span
+                key={pin.id}
+                className="pointer-events-none absolute flex size-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white text-xs font-semibold text-white shadow-md"
+                style={{
+                  left: `${pin.x * 100}%`,
+                  top: `${pin.y * 100}%`,
+                  backgroundColor: pin.color ?? "#ef4444"
+                }}
+                title={title}
+              >
+                {i + 1}
+              </span>
+            );
+          })}
+        </div>
       </div>
 
       {caption ? (

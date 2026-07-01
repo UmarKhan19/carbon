@@ -37,20 +37,49 @@ export async function action({ request }: ActionFunctionArgs) {
 
   await assertMethodOperationIsDraft(client, step.data.operationId);
 
-  const insert = await upsertMethodOperationStepSlide(client, {
-    ...validation.data,
-    companyId,
-    createdBy: userId
-  });
-  if (insert.error) {
+  // Same route handles create (upload) and edit (caption/size/annotations): an `id` means
+  // update the existing slide, otherwise insert a new one. Passing createdBy unconditionally
+  // would force the insert branch and PK-conflict on every edit.
+  //
+  // On update we send ONLY the fields that were actually submitted: upsert runs sanitize(),
+  // which turns any `undefined` into `null`, so including an omitted optional field (e.g. on
+  // a caption-only save) would wipe size/annotations. stepId/imagePath are always present.
+  const { id, stepId, imagePath, caption, sortOrder, size, annotations } =
+    validation.data;
+  const upsert = await upsertMethodOperationStepSlide(
+    client,
+    id
+      ? {
+          id,
+          stepId,
+          imagePath,
+          updatedBy: userId,
+          updatedAt: new Date().toISOString(),
+          ...(caption !== undefined ? { caption } : {}),
+          ...(sortOrder !== undefined ? { sortOrder } : {}),
+          ...(size !== undefined ? { size } : {}),
+          ...(annotations !== undefined ? { annotations } : {})
+        }
+      : {
+          stepId,
+          imagePath,
+          caption,
+          sortOrder,
+          size,
+          annotations,
+          companyId,
+          createdBy: userId
+        }
+  );
+  if (upsert.error) {
     return data(
       { id: null },
       await flash(
         request,
-        error(insert.error, "Failed to insert operation step slide")
+        error(upsert.error, "Failed to save operation step slide")
       )
     );
   }
 
-  return { id: insert.data?.id ?? null };
+  return { id: upsert.data?.id ?? null };
 }

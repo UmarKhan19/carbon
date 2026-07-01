@@ -31,6 +31,8 @@ import {
   LuChevronRight,
   LuEllipsisVertical,
   LuExpand,
+  LuEye,
+  LuEyeOff,
   LuFlag,
   LuGitBranchPlus,
   LuGitPullRequest,
@@ -53,6 +55,7 @@ import {
   useRevalidator,
   useSearchParams
 } from "react-router";
+import { ImageZoomViewer } from "~/components/ImageZoomViewer";
 import { OperationChat } from "~/components/JobOperation/components/Chat";
 import { IssueMaterialModal } from "~/components/JobOperation/components/IssueMaterialModal";
 import { MaintenanceDispatch } from "~/components/JobOperation/components/MaintenanceDispatch";
@@ -61,7 +64,6 @@ import { QuantityModal } from "~/components/JobOperation/components/QuantityModa
 import { ReworkModal } from "~/components/JobOperation/components/ReworkModal";
 import { SerialSelectorModal } from "~/components/JobOperation/components/SerialSelectorModal";
 import { RecordModal } from "~/components/JobOperation/components/Step";
-import { ImageZoomViewer } from "~/components/ImageZoomViewer";
 import { useUser } from "~/hooks";
 import type {
   JobMaterial,
@@ -82,11 +84,23 @@ type StepRecord = {
   createdBy?: string | null;
 };
 
+type SlideAnnotation = {
+  id: string;
+  x: number;
+  y: number;
+  label?: string | null;
+  color?: string | null;
+  // Smart hotspot: item id of the tool this pin points at (matches a tool's item.id).
+  toolId?: string | null;
+};
+
 type Slide = {
   id: string;
   imagePath: string;
   caption?: string | null;
   sortOrder?: number | null;
+  size?: "small" | "medium" | "large" | null;
+  annotations?: SlideAnnotation[] | null;
 };
 
 type Step = {
@@ -255,6 +269,44 @@ function useElapsed(openEvent: { startTime: string } | null) {
   return Math.max(0, Math.floor((Date.now() - start) / 1000));
 }
 
+// Read-only numbered pins overlaid on a reference image for the operator. Absolutely
+// positioned by fraction of the box, so the parent must be sized to the rendered image
+// (an inline wrapper around <img>). Non-interactive — taps pass through to the image.
+function SlidePins({
+  annotations,
+  toolNameById
+}: {
+  annotations: SlideAnnotation[];
+  toolNameById?: Map<string, string>;
+}) {
+  if (annotations.length === 0) return null;
+  return (
+    <>
+      {annotations.map((pin, i) => {
+        // Prefer the linked tool's name for the hover title (falls back to any label).
+        const toolName = pin.toolId ? toolNameById?.get(pin.toolId) : undefined;
+        const title =
+          [`#${i + 1}`, toolName, pin.label].filter(Boolean).join(" · ") ||
+          undefined;
+        return (
+          <span
+            key={pin.id}
+            className="pointer-events-none absolute flex size-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white text-xs font-semibold text-white shadow-md"
+            style={{
+              left: `${pin.x * 100}%`,
+              top: `${pin.y * 100}%`,
+              backgroundColor: pin.color ?? "#ef4444"
+            }}
+            title={title}
+          >
+            {i + 1}
+          </span>
+        );
+      })}
+    </>
+  );
+}
+
 export function AssemblyView({
   operationId,
   job,
@@ -300,6 +352,8 @@ export function AssemblyView({
   // Which reference image fills the main panel: a step photo (index) or the
   // finished-product image ("finished").
   const [selected, setSelected] = useState<number | "finished">("finished");
+  // Operator toggle for the reference-image annotation pins (always-on vs tap-to-hide).
+  const [showPins, setShowPins] = useState(true);
   // For non-tracked material inline issue
   const [selectedMaterial, setSelectedMaterial] = useState<any | null>(null);
 
@@ -418,7 +472,8 @@ export function AssemblyView({
   // materials are operation-level and show everywhere.
   const rawMaterials: any[] = (materials?.materials ?? []).filter(
     (m: any) =>
-      m.jobOperationStepId == null || m.jobOperationStepId === (step?.id ?? null)
+      m.jobOperationStepId == null ||
+      m.jobOperationStepId === (step?.id ?? null)
   );
   const materialGroups = new Map<string, any[]>();
   for (const m of rawMaterials) {
@@ -541,6 +596,26 @@ export function AssemblyView({
     typeof selected === "number"
       ? (stepSlides[selected]?.caption ?? null)
       : null;
+  // Annotation pins for the shown slide (empty for the finished-item view).
+  const selectedAnnotations =
+    typeof selected === "number"
+      ? (stepSlides[selected]?.annotations ?? [])
+      : [];
+
+  // Smart hotspots: link a pin's toolId to the step's tools. `toolNameById` names a pin's
+  // tool on hover; `pinSeqByToolId` lets the Tools sidebar badge each tool with the pin
+  // sequence number(s) that point at it — i.e. the fastener/assembly order.
+  const toolNameById = new Map<string, string>();
+  for (const t of stepTools) {
+    if (t.item?.id) toolNameById.set(t.item.id, t.item.name);
+  }
+  const pinSeqByToolId = new Map<string, number[]>();
+  selectedAnnotations.forEach((pin, i) => {
+    if (!pin.toolId) return;
+    const seq = pinSeqByToolId.get(pin.toolId) ?? [];
+    seq.push(i + 1);
+    pinSeqByToolId.set(pin.toolId, seq);
+  });
 
   // On step change, default the main panel to the step's first slide so reference art
   // shows immediately; only fall back to the finished-assembly image when the step has
@@ -1007,12 +1082,42 @@ export function AssemblyView({
                         onClick={imageViewer.onOpen}
                         className="flex h-full w-full items-center justify-center"
                       >
-                        <img
-                          src={mainImage}
-                          alt="Assembly reference"
-                          className="max-h-full max-w-full object-contain"
-                        />
+                        {/* Wrapper shrinks to the rendered image so pins overlay by fraction. */}
+                        <div className="relative inline-flex max-h-full max-w-full">
+                          <img
+                            src={mainImage}
+                            alt="Assembly reference"
+                            className="max-h-full max-w-full object-contain"
+                          />
+                          {showPins && (
+                            <SlidePins
+                              annotations={selectedAnnotations}
+                              toolNameById={toolNameById}
+                            />
+                          )}
+                        </div>
                       </button>
+                      {/* Operator control: show/hide the annotation pins (always vs tap). */}
+                      {selectedAnnotations.length > 0 && (
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          className="absolute left-2 top-2 gap-1.5"
+                          leftIcon={
+                            showPins ? (
+                              <LuEye className="size-4" />
+                            ) : (
+                              <LuEyeOff className="size-4" />
+                            )
+                          }
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setShowPins((v) => !v);
+                          }}
+                        >
+                          {showPins ? "Hide pins" : "Show pins"}
+                        </Button>
+                      )}
                       <span className="pointer-events-none absolute right-2 top-2 flex items-center justify-center rounded-md bg-background/80 p-1.5 text-muted-foreground shadow-sm">
                         <LuExpand className="size-4" />
                       </span>
@@ -1041,7 +1146,13 @@ export function AssemblyView({
                       title={slide.caption ?? undefined}
                       onClick={() => setSelected(i)}
                       className={cn(
-                        "flex h-12 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md border-2 bg-muted/40",
+                        "flex shrink-0 items-center justify-center overflow-hidden rounded-md border-2 bg-muted/40",
+                        // Thumbnail scales with the slide's authored display size.
+                        slide.size === "small"
+                          ? "h-10 w-14"
+                          : slide.size === "large"
+                            ? "h-16 w-24"
+                            : "h-12 w-16",
                         selected === i
                           ? "border-foreground"
                           : "border-transparent"
@@ -1050,7 +1161,7 @@ export function AssemblyView({
                       <img
                         src={stepImages[i]}
                         alt=""
-                        className="h-full w-full object-cover"
+                        className="h-full w-full object-contain"
                       />
                     </button>
                   ))}
@@ -1143,22 +1254,41 @@ export function AssemblyView({
 
             {stepTools.length > 0 && (
               <SidebarSection title="Tools" scrollable>
-                {stepTools.map((t, i) => (
-                  <div
-                    key={t.item?.id ?? i}
-                    className="flex items-center gap-2 py-1"
-                  >
-                    <LuWrench className="size-3 shrink-0 text-muted-foreground" />
-                    <span className="flex-1 text-xs">
-                      {t.item?.name ?? "Unknown tool"}
-                    </span>
-                    {t.quantity > 1 && (
-                      <span className="text-xs text-muted-foreground">
-                        ×{t.quantity}
+                {stepTools.map((t, i) => {
+                  // Pin sequence number(s) on the current slide that point at this tool.
+                  const seq = t.item?.id
+                    ? pinSeqByToolId.get(t.item.id)
+                    : undefined;
+                  return (
+                    <div
+                      key={t.item?.id ?? i}
+                      className="flex items-center gap-2 py-1"
+                    >
+                      {seq && seq.length > 0 ? (
+                        <span className="flex shrink-0 items-center gap-0.5">
+                          {seq.map((n) => (
+                            <span
+                              key={n}
+                              className="flex size-4 items-center justify-center rounded-full bg-foreground text-[9px] font-bold text-background"
+                            >
+                              {n}
+                            </span>
+                          ))}
+                        </span>
+                      ) : (
+                        <LuWrench className="size-3 shrink-0 text-muted-foreground" />
+                      )}
+                      <span className="flex-1 text-xs">
+                        {t.item?.name ?? "Unknown tool"}
                       </span>
-                    )}
-                  </div>
-                ))}
+                      {t.quantity > 1 && (
+                        <span className="text-xs text-muted-foreground">
+                          ×{t.quantity}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
               </SidebarSection>
             )}
 
@@ -1402,6 +1532,8 @@ export function AssemblyView({
         open={imageViewer.isOpen}
         src={mainImage}
         caption={selectedCaption}
+        annotations={selectedAnnotations}
+        toolNameById={toolNameById}
         onClose={imageViewer.onClose}
       />
 

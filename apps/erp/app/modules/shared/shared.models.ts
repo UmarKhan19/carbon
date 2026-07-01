@@ -308,14 +308,52 @@ export const operationStepValidator = z
     }
   );
 
+// Display sizes for a step reference image, honored in the BOP editor grid and the MES
+// operator view. Kept as a plain const tuple so both the zod enum and the UI reuse it.
+export const slideSizes = ["small", "medium", "large"] as const;
+export type SlideSize = (typeof slideSizes)[number];
+
+// A single numbered annotation pin overlaid on a slide image. x/y are fractions (0..1) of
+// the image box so a pin stays put at any rendered size. The pin's number is its position
+// in the array (index + 1); label + color are optional.
+export const slideAnnotationValidator = z.object({
+  id: z.string(),
+  x: z.number().min(0).max(1),
+  y: z.number().min(0).max(1),
+  label: z.string().optional(),
+  color: z.string().optional(),
+  // Optional "smart hotspot" link: the tool (item) this pin points at. Matches an
+  // operationTool.toolId, so the MES view can name the tool and badge it with the
+  // pin's sequence number. The pin's number (array index + 1) is the fastener order.
+  toolId: z.string().optional()
+});
+export type SlideAnnotation = z.infer<typeof slideAnnotationValidator>;
+
 // A reference image ("slide") attached to an operation step. Authored on the method and
 // copied to job/quote by get-method. One image per slide; caption + order optional.
+// `annotations` arrives over FormData as a JSON string and is parsed into an array here.
 export const operationStepSlideValidator = z.object({
   id: zfd.text(z.string().optional()),
   stepId: z.string().min(1, { message: "Step is required" }),
   imagePath: z.string().min(1, { message: "Image is required" }),
   caption: zfd.text(z.string().optional()),
-  sortOrder: zfd.numeric(z.number().min(0).optional())
+  sortOrder: zfd.numeric(z.number().min(0).optional()),
+  size: zfd.text(z.enum(slideSizes).optional()),
+  // Absent = "not changed" (preserve on update / default on insert); a JSON string (incl.
+  // "[]" to clear) = the new pin set. Returning undefined when absent lets sanitize() drop
+  // it so a caption/size-only save never wipes existing annotations.
+  annotations: zfd.text(z.string().optional()).transform((value, ctx) => {
+    if (!value) return undefined;
+    try {
+      return z.array(slideAnnotationValidator).parse(JSON.parse(value));
+    } catch {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Invalid annotations"
+      });
+      return z.NEVER;
+    }
+  })
 });
 
 export const operationToolValidator = z.object({
