@@ -78,13 +78,19 @@ const DESCRIPTION_OVERRIDES: Record<string, string> = {
 };
 
 // Per-tool overrides of the auto-computed injectAuth set. The default rule
-// (insert* → companyId + createdBy + updatedBy) is unsound for append-only
-// ledger tables that have no updatedBy column: the injected field leaks into the
-// INSERT payload and PostgREST rejects it ("column updatedBy does not exist").
-// inventory_insertManualInventoryAdjustment writes itemLedger, which has only
-// createdAt/createdBy.
+// (insert* → companyId + createdBy + updatedBy) is wrong for tools that spread
+// their argument object straight into an INSERT on an append-only ledger table.
+// Those tables now carry an updatedBy column (schema uniformity, migration
+// 20260701143512), but by convention it must stay NULL — an "edit" is a new
+// offsetting row, never an in-place mutation. Injecting updatedBy would stamp it
+// on the ledger row and destroy the "untouched since creation" guarantee, so we
+// drop it here. Both tools below insert([data]) where data is built from the
+// spread of their injected args:
+//   - inventory_insertManualInventoryAdjustment → itemLedger
+//   - accounting_upsertFixedAssetUsageLog       → fixedAssetUsageLog
 const INJECT_AUTH_OVERRIDES: Record<string, AuthField[]> = {
   inventory_insertManualInventoryAdjustment: ["companyId", "createdBy"],
+  accounting_upsertFixedAssetUsageLog: ["companyId", "createdBy"],
 };
 
 // ---------------------------------------------------------------------------
