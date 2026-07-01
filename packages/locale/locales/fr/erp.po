@@ -522,9 +522,6 @@ msgstr "Ajouter une ligne"
 msgid "Add a step"
 msgstr "Ajouter une étape"
 
-msgid "Add a task"
-msgstr "Ajouter une tâche"
-
 msgid "Add Actions"
 msgstr "Ajouter des actions"
 
@@ -1956,9 +1953,6 @@ msgstr "Vérifiez votre email"
 msgid "Checkpoint ·"
 msgstr "Point de contrôle ·"
 
-msgid "Checkpoint:"
-msgstr "Point de contrôle :"
-
 msgid "Checkpoints"
 msgstr "Points de contrôle"
 
@@ -2015,9 +2009,6 @@ msgstr "Compte de compensation entre la réception de marchandises et la facture
 
 msgid "Clearing account for goods received / invoice received matching"
 msgstr "Compte de compensation pour réception de marchandises / correspondance de réception de facture"
-
-msgid "Click to change status"
-msgstr "Cliquez pour changer le statut"
 
 msgid "Click to upload a PDF drawing"
 msgstr "Cliquez pour télécharger un dessin PDF"
@@ -2247,9 +2238,6 @@ msgstr "Configurez qui doit recevoir des notifications lorsqu'un fournisseur sou
 
 msgid "Configure-to-order"
 msgstr "Configurer sur commande"
-
-msgid "Configure-to-order options and pricing"
-msgstr "Options de configuration à la commande et tarification"
 
 msgid "Configure-to-order, automated purchase planning, the shop-floor app."
 msgstr "Configurer sur commande, planification des achats automatisée, l'application d'atelier."
@@ -3540,9 +3528,6 @@ msgstr "Supprimer le devis fournisseur"
 msgid "Delete Supplier Type"
 msgstr "Supprimer le type de fournisseur"
 
-msgid "Delete task"
-msgstr "Supprimer la tâche"
-
 msgid "Delete Timecard"
 msgstr "Supprimer la feuille de temps"
 
@@ -4509,9 +4494,6 @@ msgstr "Tous les tests dans le périmètre réussissent dans votre système conf
 msgid "Every row was imported successfully."
 msgstr "Chaque ligne a été importée avec succès."
 
-msgid "Every task for the project, grouped by step. If it isn't on the board, it isn't happening. Click a status to cycle it."
-msgstr "Chaque tâche du projet, regroupée par étape. Si elle n'est pas sur le tableau, elle n'existe pas. Cliquez sur un statut pour le modifier."
-
 msgid "Everything from Starter"
 msgstr "Tout de Starter"
 
@@ -5269,6 +5251,9 @@ msgstr "Se repérer dans Carbon"
 
 msgid "Getting set up"
 msgstr "Mise en place"
+
+msgid "Give it an owner and a date"
+msgstr ""
 
 msgid "GL"
 msgstr "GL"
@@ -6446,9 +6431,6 @@ msgstr "Charger les plus récents"
 msgid "Load open transactions (orders, POs, inventory, balances)"
 msgstr "Charger les transactions ouvertes (commandes, bons de commande, inventaire, soldes)"
 
-msgid "Load parts, BOMs, Bill of Process, and costing"
-msgstr "Charger les pièces, les nomenclatures, le processus de fabrication et les coûts"
-
 msgid "Load Templates"
 msgstr "Charger les modèles"
 
@@ -7397,9 +7379,6 @@ msgstr "Séquence suivante"
 msgid "Next step"
 msgstr "Étape suivante"
 
-msgid "Next task"
-msgstr "Tâche suivante"
-
 msgid "Next:"
 msgstr "Suivant :"
 
@@ -7477,9 +7456,6 @@ msgstr "Aucune conversion n'est requise"
 
 msgid "No cost history found"
 msgstr "Aucun historique de coûts trouvé"
-
-msgid "No custom tasks yet. Add deal-specific work here."
-msgstr "Aucune tâche personnalisée pour le moment. Ajoutez du travail spécifique à l'accord ici."
 
 msgid "No Data"
 msgstr "Aucune donnée"
@@ -8100,9 +8076,6 @@ msgstr "Remplacer la méthode de fabrication cible par la méthode de devis"
 msgid "Owner (cost center)"
 msgstr "Centre de coûts parent"
 
-msgid "Owner + date on the Project Board"
-msgstr "Propriétaire + date sur le tableau de projet"
-
 msgid "Ownership"
 msgstr "Propriété"
 
@@ -8194,8 +8167,8 @@ msgstr "Type de tiers"
 msgid "Pass"
 msgstr "Réussir"
 
-msgid "Passed · reopen"
-msgstr "Réussi · rouvrir"
+msgid "Passed"
+msgstr ""
 
 msgid "Path"
 msgstr "Chemin"
@@ -8379,9 +8352,6 @@ msgstr "Épinglé"
 
 msgid "Plan"
 msgstr "Plan"
-
-msgid "Plan & Board"
-msgstr "Plan & Tableau"
 
 msgid "Plan the work"
 msgstr "Planifier le travail"
@@ -8724,17 +8694,11 @@ msgstr "Progression"
 msgid "Project"
 msgstr "Projet"
 
-msgid "Project Board"
-msgstr "Tableau de Projet"
-
 msgid "Project owner"
 msgstr "Propriétaire du projet"
 
-msgid "Project Plan & Board"
-msgstr "Plan et tableau de bord du projet"
-
-msgid "Project Plan & Timeline"
-msgstr "Plan de projet et calendrier"
+msgid "Project Plan"
+msgstr ""
 
 msgid "Project start"
 msgstr "Démarrage du projet"
@@ -9621,9 +9585,6 @@ msgstr "Risque"
 msgid "Risks"
 msgstr "Risques"
 
-msgid "Risks (on the Project Board)"
-msgstr "Risques (sur le Tableau de Projet)"
-
 msgid "Role"
 msgstr "Rôle"
 
@@ -10279,14 +10240,8 @@ msgstr "Définir la tarification"
 msgid "Set Quantity"
 msgstr "Définir la quantité"
 
-msgid "Set up sites, users, and roles"
-msgstr "Configurer les sites, les utilisateurs et les rôles"
-
 msgid "Set up the right way"
 msgstr "Configurer correctement"
-
-msgid "Set up the shop-floor app and stations"
-msgstr "Configurer l'application d'atelier et les postes"
 
 msgid "Set up your own data with import tools and LLM help"
 msgstr "Configurez vos propres données avec les outils d'importation et l'aide de l'IA"
@@ -11153,9 +11108,6 @@ msgstr "Version cible"
 msgid "Target Version"
 msgstr "Version cible"
 
-msgid "Task"
-msgstr "Tâche"
-
 msgid "tasks"
 msgstr "tâches"
 
@@ -11253,8 +11205,8 @@ msgid "Text size"
 msgstr "Taille du texte"
 
 #. placeholder {0}: steps.length
-msgid "The {0} phases to go live, each ending at a checkpoint. Tick a task here and it updates on the Project Board too."
-msgstr "Les {0} phases pour le lancement, chacune se terminant à un point de contrôle. Cochez une tâche ici et elle se met à jour sur le Tableau de Projet aussi."
+msgid "The {0} phases to go live, each ending at a checkpoint. Tick off each task as you complete it."
+msgstr ""
 
 msgid "The accounting dimension that categorizes items for reporting and analysis."
 msgstr "La dimension comptable qui catégorise les articles pour la déclaration et l'analyse."
@@ -12207,6 +12159,9 @@ msgstr "Entité suivie déjà prélevée"
 msgid "Tracked entity ID is required but none was found"
 msgstr "L'ID d'entité suivie est requis mais aucun n'a été trouvé"
 
+msgid "Tracked from the Setup Map — open it"
+msgstr ""
+
 msgid "Tracking"
 msgstr "Suivi"
 
@@ -12284,9 +12239,6 @@ msgstr "Déclencheurs"
 
 msgid "Tuesday"
 msgstr "Mardi"
-
-msgid "Turn on automated purchase planning"
-msgstr "Activer la planification des achats automatisée"
 
 msgid "Turn on the built-in pieces"
 msgstr "Activez les éléments intégrés"

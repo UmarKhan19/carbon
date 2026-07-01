@@ -522,9 +522,6 @@ msgstr "Add a row"
 msgid "Add a step"
 msgstr "Add a step"
 
-msgid "Add a task"
-msgstr "Add a task"
-
 msgid "Add Actions"
 msgstr "Add Actions"
 
@@ -1956,9 +1953,6 @@ msgstr "Check your email"
 msgid "Checkpoint ·"
 msgstr "Checkpoint ·"
 
-msgid "Checkpoint:"
-msgstr "Checkpoint:"
-
 msgid "Checkpoints"
 msgstr "Checkpoints"
 
@@ -2015,9 +2009,6 @@ msgstr "Clearing account between goods receipt and supplier invoice; balances wh
 
 msgid "Clearing account for goods received / invoice received matching"
 msgstr "Clearing account for goods received / invoice received matching"
-
-msgid "Click to change status"
-msgstr "Click to change status"
 
 msgid "Click to upload a PDF drawing"
 msgstr "Click to upload a PDF drawing"
@@ -2247,9 +2238,6 @@ msgstr "Configure who should receive notifications when a supplier submits a quo
 
 msgid "Configure-to-order"
 msgstr "Configure-to-order"
-
-msgid "Configure-to-order options and pricing"
-msgstr "Configure-to-order options and pricing"
 
 msgid "Configure-to-order, automated purchase planning, the shop-floor app."
 msgstr "Configure-to-order, automated purchase planning, the shop-floor app."
@@ -3540,9 +3528,6 @@ msgstr "Delete Supplier Quote"
 msgid "Delete Supplier Type"
 msgstr "Delete Supplier Type"
 
-msgid "Delete task"
-msgstr "Delete task"
-
 msgid "Delete Timecard"
 msgstr "Delete Timecard"
 
@@ -4509,9 +4494,6 @@ msgstr "Every in-scope test passes in your configured system, with your data."
 msgid "Every row was imported successfully."
 msgstr "Every row was imported successfully."
 
-msgid "Every task for the project, grouped by step. If it isn't on the board, it isn't happening. Click a status to cycle it."
-msgstr "Every task for the project, grouped by step. If it isn't on the board, it isn't happening. Click a status to cycle it."
-
 msgid "Everything from Starter"
 msgstr "Everything from Starter"
 
@@ -5269,6 +5251,9 @@ msgstr "Getting around Carbon"
 
 msgid "Getting set up"
 msgstr "Getting set up"
+
+msgid "Give it an owner and a date"
+msgstr "Give it an owner and a date"
 
 msgid "GL"
 msgstr "GL"
@@ -6446,9 +6431,6 @@ msgstr "Load newer"
 msgid "Load open transactions (orders, POs, inventory, balances)"
 msgstr "Load open transactions (orders, POs, inventory, balances)"
 
-msgid "Load parts, BOMs, Bill of Process, and costing"
-msgstr "Load parts, BOMs, Bill of Process, and costing"
-
 msgid "Load Templates"
 msgstr "Load Templates"
 
@@ -7397,9 +7379,6 @@ msgstr "Next Sequence"
 msgid "Next step"
 msgstr "Next step"
 
-msgid "Next task"
-msgstr "Next task"
-
 msgid "Next:"
 msgstr "Next:"
 
@@ -7477,9 +7456,6 @@ msgstr "No conversion is required"
 
 msgid "No cost history found"
 msgstr "No cost history found"
-
-msgid "No custom tasks yet. Add deal-specific work here."
-msgstr "No custom tasks yet. Add deal-specific work here."
 
 msgid "No Data"
 msgstr "No Data"
@@ -8100,9 +8076,6 @@ msgstr "Overwrite the target manufacturing method with the quote method"
 msgid "Owner (cost center)"
 msgstr "Owner (cost center)"
 
-msgid "Owner + date on the Project Board"
-msgstr "Owner + date on the Project Board"
-
 msgid "Ownership"
 msgstr "Ownership"
 
@@ -8194,8 +8167,8 @@ msgstr "Party Type"
 msgid "Pass"
 msgstr "Pass"
 
-msgid "Passed · reopen"
-msgstr "Passed · reopen"
+msgid "Passed"
+msgstr "Passed"
 
 msgid "Path"
 msgstr "Path"
@@ -8379,9 +8352,6 @@ msgstr "Pinned"
 
 msgid "Plan"
 msgstr "Plan"
-
-msgid "Plan & Board"
-msgstr "Plan & Board"
 
 msgid "Plan the work"
 msgstr "Plan the work"
@@ -8724,17 +8694,11 @@ msgstr "Progress"
 msgid "Project"
 msgstr "Project"
 
-msgid "Project Board"
-msgstr "Project Board"
-
 msgid "Project owner"
 msgstr "Project owner"
 
-msgid "Project Plan & Board"
-msgstr "Project Plan & Board"
-
-msgid "Project Plan & Timeline"
-msgstr "Project Plan & Timeline"
+msgid "Project Plan"
+msgstr "Project Plan"
 
 msgid "Project start"
 msgstr "Project start"
@@ -9621,9 +9585,6 @@ msgstr "Risk"
 msgid "Risks"
 msgstr "Risks"
 
-msgid "Risks (on the Project Board)"
-msgstr "Risks (on the Project Board)"
-
 msgid "Role"
 msgstr "Role"
 
@@ -10279,14 +10240,8 @@ msgstr "Set Pricing"
 msgid "Set Quantity"
 msgstr "Set Quantity"
 
-msgid "Set up sites, users, and roles"
-msgstr "Set up sites, users, and roles"
-
 msgid "Set up the right way"
 msgstr "Set up the right way"
-
-msgid "Set up the shop-floor app and stations"
-msgstr "Set up the shop-floor app and stations"
 
 msgid "Set up your own data with import tools and LLM help"
 msgstr "Set up your own data with import tools and LLM help"
@@ -11153,9 +11108,6 @@ msgstr "Target one or more items."
 msgid "Target Version"
 msgstr "Target Version"
 
-msgid "Task"
-msgstr "Task"
-
 msgid "tasks"
 msgstr "tasks"
 
@@ -11253,8 +11205,8 @@ msgid "Text size"
 msgstr "Text size"
 
 #. placeholder {0}: steps.length
-msgid "The {0} phases to go live, each ending at a checkpoint. Tick a task here and it updates on the Project Board too."
-msgstr "The {0} phases to go live, each ending at a checkpoint. Tick a task here and it updates on the Project Board too."
+msgid "The {0} phases to go live, each ending at a checkpoint. Tick off each task as you complete it."
+msgstr "The {0} phases to go live, each ending at a checkpoint. Tick off each task as you complete it."
 
 msgid "The accounting dimension that categorizes items for reporting and analysis."
 msgstr "The accounting dimension that categorizes items for reporting and analysis."
@@ -12207,6 +12159,9 @@ msgstr "Tracked entity already picked"
 msgid "Tracked entity ID is required but none was found"
 msgstr "Tracked entity ID is required but none was found"
 
+msgid "Tracked from the Setup Map — open it"
+msgstr "Tracked from the Setup Map — open it"
+
 msgid "Tracking"
 msgstr "Tracking"
 
@@ -12284,9 +12239,6 @@ msgstr "Triggers"
 
 msgid "Tuesday"
 msgstr "Tuesday"
-
-msgid "Turn on automated purchase planning"
-msgstr "Turn on automated purchase planning"
 
 msgid "Turn on the built-in pieces"
 msgstr "Turn on the built-in pieces"

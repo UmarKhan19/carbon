@@ -522,9 +522,6 @@ msgstr "Dodaj wiersz"
 msgid "Add a step"
 msgstr "Dodaj krok"
 
-msgid "Add a task"
-msgstr "Dodaj zadanie"
-
 msgid "Add Actions"
 msgstr "Dodaj Działania"
 
@@ -1956,9 +1953,6 @@ msgstr "Sprawdź swoją pocztę"
 msgid "Checkpoint ·"
 msgstr "Punkt kontrolny ·"
 
-msgid "Checkpoint:"
-msgstr "Punkt kontrolny:"
-
 msgid "Checkpoints"
 msgstr "Punkty kontrolne"
 
@@ -2015,9 +2009,6 @@ msgstr "Konto rozliczeniowe między przyjęciem towaru a fakturą dostawcy; wyr�
 
 msgid "Clearing account for goods received / invoice received matching"
 msgstr "Konto rozliczeniowe dla odboru towaru / dopasowania odboru faktury"
-
-msgid "Click to change status"
-msgstr "Kliknij, aby zmienić status"
 
 msgid "Click to upload a PDF drawing"
 msgstr "Kliknij, aby przesłać rysunek PDF"
@@ -2247,9 +2238,6 @@ msgstr "Skonfiguruj, kto powinien otrzymywać powiadomienia, gdy dostawca przesy
 
 msgid "Configure-to-order"
 msgstr "Konfiguruj na zamówienie"
-
-msgid "Configure-to-order options and pricing"
-msgstr "Opcje konfiguracji na zamówienie i ceny"
 
 msgid "Configure-to-order, automated purchase planning, the shop-floor app."
 msgstr "Konfiguracja na zamówienie, automatyczne planowanie zakupów, aplikacja hali produkcyjnej."
@@ -3540,9 +3528,6 @@ msgstr "Usuń Ofertę Dostawcy"
 msgid "Delete Supplier Type"
 msgstr "Usuń typ dostawcy"
 
-msgid "Delete task"
-msgstr "Usuń zadanie"
-
 msgid "Delete Timecard"
 msgstr "Usuń kartę czasu pracy"
 
@@ -4509,9 +4494,6 @@ msgstr "Każdy test w zakresie przechodzi w Twoim skonfigurowanym systemie, z Tw
 msgid "Every row was imported successfully."
 msgstr "Każdy wiersz został pomyślnie zaimportowany."
 
-msgid "Every task for the project, grouped by step. If it isn't on the board, it isn't happening. Click a status to cycle it."
-msgstr "Każde zadanie dla projektu, pogrupowane według etapu. Jeśli nie ma tego na tablicy, to się nie dzieje. Kliknij status, aby go zmienić."
-
 msgid "Everything from Starter"
 msgstr "Wszystko z pakietu Starter"
 
@@ -5269,6 +5251,9 @@ msgstr "Poruszanie się w Carbon"
 
 msgid "Getting set up"
 msgstr "Przygotowanie"
+
+msgid "Give it an owner and a date"
+msgstr ""
 
 msgid "GL"
 msgstr "GL"
@@ -6446,9 +6431,6 @@ msgstr "Załaduj nowsze"
 msgid "Load open transactions (orders, POs, inventory, balances)"
 msgstr "Załaduj otwarte transakcje (zamówienia, PZ, zapasy, salda)"
 
-msgid "Load parts, BOMs, Bill of Process, and costing"
-msgstr "Załaduj części, BOM-y, Bill of Process i wycenę"
-
 msgid "Load Templates"
 msgstr "Załaduj szablony"
 
@@ -7397,9 +7379,6 @@ msgstr "Następna Sekwencja"
 msgid "Next step"
 msgstr "Następny krok"
 
-msgid "Next task"
-msgstr "Następne zadanie"
-
 msgid "Next:"
 msgstr "Dalej:"
 
@@ -7477,9 +7456,6 @@ msgstr "Konwersja nie jest wymagana"
 
 msgid "No cost history found"
 msgstr "Nie znaleziono historii kosztów"
-
-msgid "No custom tasks yet. Add deal-specific work here."
-msgstr "Brak niestandardowych zadań. Dodaj tutaj pracę specyficzną dla transakcji."
 
 msgid "No Data"
 msgstr "Brak danych"
@@ -8100,9 +8076,6 @@ msgstr "Zastąp docelową metodę produkcji metodą z oferty"
 msgid "Owner (cost center)"
 msgstr "Nadrzędne centrum kosztów"
 
-msgid "Owner + date on the Project Board"
-msgstr "Właściciel + data na tablicy projektu"
-
 msgid "Ownership"
 msgstr "Własność"
 
@@ -8194,8 +8167,8 @@ msgstr "Typ strony"
 msgid "Pass"
 msgstr "Zatwierdź"
 
-msgid "Passed · reopen"
-msgstr "Zaliczone · ponownie otwórz"
+msgid "Passed"
+msgstr ""
 
 msgid "Path"
 msgstr "Ścieżka"
@@ -8379,9 +8352,6 @@ msgstr "Przypięte"
 
 msgid "Plan"
 msgstr "Plan"
-
-msgid "Plan & Board"
-msgstr "Plan i Tablica"
 
 msgid "Plan the work"
 msgstr "Zaplanuj pracę"
@@ -8724,17 +8694,11 @@ msgstr "Postęp"
 msgid "Project"
 msgstr "Projekt"
 
-msgid "Project Board"
-msgstr "Tablica Projektu"
-
 msgid "Project owner"
 msgstr "Właściciel projektu"
 
-msgid "Project Plan & Board"
-msgstr "Plan projektu i tablica"
-
-msgid "Project Plan & Timeline"
-msgstr "Plan projektu i harmonogram"
+msgid "Project Plan"
+msgstr ""
 
 msgid "Project start"
 msgstr "Początek projektu"
@@ -9621,9 +9585,6 @@ msgstr "Ryzyko"
 msgid "Risks"
 msgstr "Ryzyka"
 
-msgid "Risks (on the Project Board)"
-msgstr "Ryzyka (na Tablicy Projektu)"
-
 msgid "Role"
 msgstr "Rola"
 
@@ -10279,14 +10240,8 @@ msgstr "Ustaw ceny"
 msgid "Set Quantity"
 msgstr "Ustaw ilość"
 
-msgid "Set up sites, users, and roles"
-msgstr "Skonfiguruj witryny, użytkowników i role"
-
 msgid "Set up the right way"
 msgstr "Prawidłowa konfiguracja"
-
-msgid "Set up the shop-floor app and stations"
-msgstr "Skonfiguruj aplikację hali produkcyjnej i stacje"
 
 msgid "Set up your own data with import tools and LLM help"
 msgstr "Skonfiguruj własne dane za pomocą narzędzi importu i pomocy LLM"
@@ -11153,9 +11108,6 @@ msgstr "Wersja docelowa"
 msgid "Target Version"
 msgstr "Wersja docelowa"
 
-msgid "Task"
-msgstr "Zadanie"
-
 msgid "tasks"
 msgstr "zadania"
 
@@ -11253,8 +11205,8 @@ msgid "Text size"
 msgstr "Rozmiar tekstu"
 
 #. placeholder {0}: steps.length
-msgid "The {0} phases to go live, each ending at a checkpoint. Tick a task here and it updates on the Project Board too."
-msgstr "{0} faz do uruchomienia, każda kończąca się punktem kontrolnym. Zaznacz zadanie tutaj, a zostanie ono zaktualizowane również na Tablicy Projektów."
+msgid "The {0} phases to go live, each ending at a checkpoint. Tick off each task as you complete it."
+msgstr ""
 
 msgid "The accounting dimension that categorizes items for reporting and analysis."
 msgstr "Wymiar rachunkowy, który kategoryzuje artykuły do raportowania i analizy."
@@ -12207,6 +12159,9 @@ msgstr "Śledzona jednostka już pobrana"
 msgid "Tracked entity ID is required but none was found"
 msgstr "Identyfikator śledzonej jednostki jest wymagany, ale nie znaleziono żadnego"
 
+msgid "Tracked from the Setup Map — open it"
+msgstr ""
+
 msgid "Tracking"
 msgstr "Śledzenie"
 
@@ -12284,9 +12239,6 @@ msgstr "Wyzwalacze"
 
 msgid "Tuesday"
 msgstr "Wtorek"
-
-msgid "Turn on automated purchase planning"
-msgstr "Włącz zautomatyzowane planowanie zakupów"
 
 msgid "Turn on the built-in pieces"
 msgstr "Włącz wbudowane komponenty"
