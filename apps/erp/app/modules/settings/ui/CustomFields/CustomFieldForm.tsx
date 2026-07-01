@@ -164,29 +164,31 @@ function CustomFieldDataTypeIcon({
 }) {
   switch (type) {
     case DataType.Numeric:
-      return <LuHash className={cn("w-4 h-4 text-blue-600", className)} />;
+      return <LuHash className={cn("w-4 h-4 text-status-blue", className)} />;
     case DataType.Text:
-      return <LuType className={cn("w-4 h-4 text-emerald-600", className)} />;
+      return <LuType className={cn("w-4 h-4 text-status-green", className)} />;
     case DataType.Boolean:
       return (
-        <LuToggleLeft className={cn("w-4 h-4 text-purple-600", className)} />
+        <LuToggleLeft className={cn("w-4 h-4 text-status-purple", className)} />
       );
     case DataType.List:
-      return <LuList className={cn("w-4 h-4 text-orange-600", className)} />;
+      return <LuList className={cn("w-4 h-4 text-status-orange", className)} />;
     case DataType.Date:
-      return <LuCalendar className={cn("w-4 h-4 text-red-600", className)} />;
+      return (
+        <LuCalendar className={cn("w-4 h-4 text-status-red", className)} />
+      );
     case DataType.User:
-      return <LuUser className={cn("w-4 h-4 text-yellow-600", className)} />;
+      return <LuUser className={cn("w-4 h-4 text-status-yellow", className)} />;
     case DataType.Customer:
       return (
         <LuSquareUser className={cn("w-4 h-4 text-foreground", className)} />
       );
     case DataType.Supplier:
       return (
-        <LuContainer className={cn("w-4 h-4 text-emerald-600", className)} />
+        <LuContainer className={cn("w-4 h-4 text-status-green", className)} />
       );
     case DataType.File:
-      return <LuFile className={cn("w-4 h-4 text-indigo-600", className)} />;
+      return <LuFile className={cn("w-4 h-4 text-status-purple", className)} />;
     default:
       return null;
   }

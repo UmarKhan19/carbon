@@ -228,8 +228,8 @@ export default function InboundInspectionLotView({
                 max={Math.max(1, inspection.sampleSize)}
                 activeClassName={
                   fails > inspection.acceptanceNumber
-                    ? "bg-red-500"
-                    : "bg-emerald-500"
+                    ? "bg-destructive"
+                    : "bg-success"
                 }
               />
 

@@ -56,7 +56,7 @@ const HTMLContent = Node.create({
     container.setAttribute("data-video-embed", node.attrs.type);
     container.setAttribute("tabindex", "0");
     container.className =
-      "focus:ring-2 focus:ring-primary hover:bg-zinc-200 dark:hover:bg-zinc-800 p-2 border bg-zinc-100 dark:bg-zinc-900 cursor-move rounded-lg";
+      "focus:ring-2 focus:ring-primary hover:bg-accent p-2 border bg-muted cursor-move rounded-lg";
     container.innerHTML = node.attrs.html;
     return container;
   }
@@ -142,7 +142,7 @@ const tiptapImage = TiptapImage.extend({
   addProseMirrorPlugins() {
     return [
       UploadImagesPlugin({
-        imageClass: cx("opacity-40 rounded-lg border border-stone-200")
+        imageClass: cx("opacity-40 rounded-lg border border-border")
       })
     ];
   }

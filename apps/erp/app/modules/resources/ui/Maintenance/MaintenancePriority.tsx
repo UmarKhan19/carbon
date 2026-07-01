@@ -38,7 +38,7 @@ function MaintenancePriority({
     case "Critical":
       return (
         <div className={`flex gap-1 items-center ${className ?? ""}`}>
-          <BsExclamationSquareFill className="text-red-500" />
+          <BsExclamationSquareFill className="text-destructive" />
           <span>{priority}</span>
         </div>
       );

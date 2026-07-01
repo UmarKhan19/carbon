@@ -65,11 +65,11 @@ const cardVariants = cva(
   {
     variants: {
       status: {
-        "In Progress": "border-emerald-600/30",
+        "In Progress": "border-status-green/30",
         Ready: "",
         Done: "",
         Paused: "",
-        Canceled: "opacity-50 border-red-500",
+        Canceled: "opacity-50 border-status-red",
         Waiting: "opacity-50",
         Todo: "border-border"
       }
@@ -177,7 +177,10 @@ function OperationCard({
                 <Tooltip>
                   <TooltipTrigger>
                     <span
-                      className={cn("text-sm", isOverdue ? "text-red-500" : "")}
+                      className={cn(
+                        "text-sm",
+                        isOverdue ? "text-status-red" : ""
+                      )}
                     >
                       {["ASAP", "No Deadline"].includes(
                         operation.jobDeadlineType

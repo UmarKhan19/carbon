@@ -209,7 +209,7 @@ export default function MaintenanceDispatchEventsRoute() {
                     </span>
                   </HStack>
                   {!event.endTime && (
-                    <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                    <span className="text-xs bg-status-green/12 text-status-green-fg px-2 py-1 rounded">
                       In Progress
                     </span>
                   )}

@@ -116,11 +116,11 @@ export const SourcingTypeIcon = ({
 }) => {
   switch (type) {
     case "Specified":
-      return <LuTarget className={cn("text-red-500", className)} />;
+      return <LuTarget className={cn("text-status-red", className)} />;
     case "Drop Ship":
-      return <LuShoppingCart className={cn("text-blue-500", className)} />;
+      return <LuShoppingCart className={cn("text-status-blue", className)} />;
     case "Ship from Inventory":
-      return <LuTruck className={cn("text-cyan-500", className)} />;
+      return <LuTruck className={cn("text-status-blue", className)} />;
   }
 
   return <LuSquare className={cn("text-muted-foreground", className)} />;
@@ -141,13 +141,15 @@ export const MethodIcon = ({
         <AiOutlinePartition className={cn(className, "text-foreground")} />
       );
     case "Purchase to Order":
-      return <LuShoppingCart className={cn("text-blue-500", className)} />;
+      return <LuShoppingCart className={cn("text-status-blue", className)} />;
     case "Make to Order":
       return (
-        <RxCodesandboxLogo className={cn("text-emerald-500", className)} />
+        <RxCodesandboxLogo className={cn("text-status-green", className)} />
       );
     case "Pull from Inventory":
-      return <FaCodePullRequest className={cn("text-yellow-500", className)} />;
+      return (
+        <FaCodePullRequest className={cn("text-status-yellow", className)} />
+      );
   }
 
   return <LuSquare className={cn("text-muted-foreground", className)} />;
@@ -196,9 +198,9 @@ export const OnshapeStatus = ({
       case "In progress":
         return <AlmostDoneIcon className={className} />;
       case "Released":
-        return <LuCircleCheck className={cn("text-blue-600", className)} />;
+        return <LuCircleCheck className={cn("text-status-blue", className)} />;
       case "Rejected":
-        return <LuCircleX className={cn("text-red-600", className)} />;
+        return <LuCircleX className={cn("text-status-red", className)} />;
       case "Pending":
         return <InProgressStatusIcon className={className} />;
       default:
@@ -244,12 +246,12 @@ export function OperationStatusIcon({
           <LuCircleDashed className={cn("text-muted-foreground", className)} />
         );
       case "Ready":
-        return <TodoStatusIcon className={cn("text-blue-600", className)} />;
+        return <TodoStatusIcon className={cn("text-status-blue", className)} />;
       case "Waiting":
       case "Canceled":
-        return <LuCircleX className={cn("text-red-600", className)} />;
+        return <LuCircleX className={cn("text-status-red", className)} />;
       case "Done":
-        return <LuCircleCheck className={cn("text-green-600", className)} />;
+        return <LuCircleCheck className={cn("text-status-green", className)} />;
       case "In Progress":
         return <AlmostDoneIcon className={className} />;
       case "Paused":
@@ -288,7 +290,7 @@ export const IssueTaskStatusIcon = ({
       case "Skipped":
         return <LuCircleX className={cn("text-muted-foreground", className)} />;
       case "Completed":
-        return <LuCircleCheck className={cn("text-emerald-600", className)} />;
+        return <LuCircleCheck className={cn("text-status-green", className)} />;
       case "In Progress":
         return <AlmostDoneIcon className={className} />;
       default:
@@ -319,13 +321,13 @@ export const QuoteLineStatusIcon = ({
   const getIcon = () => {
     switch (status) {
       case "Not Started":
-        return <LuCircle size={12} className="text-blue-600" />;
+        return <LuCircle size={12} className="text-status-blue" />;
       case "No Quote":
-        return <LuCircleX size={12} className="text-red-600" />;
+        return <LuCircleX size={12} className="text-status-red" />;
       case "Complete":
-        return <LuCircleCheck size={12} className="text-emerald-600" />;
+        return <LuCircleCheck size={12} className="text-status-green" />;
       case "In Progress":
-        return <LuClock3 size={12} className="text-yellow-600" />;
+        return <LuClock3 size={12} className="text-status-yellow" />;
       default:
         return null;
     }
@@ -355,23 +357,25 @@ export const ProcedureStepTypeIcon = ({
 }) => {
   switch (type) {
     case "Task":
-      return <LuClipboardCheck className={cn("text-amber-500", className)} />;
+      return (
+        <LuClipboardCheck className={cn("text-status-yellow", className)} />
+      );
     case "Value":
       return <LuQrCode className={cn("text-foreground", className)} />;
     case "Measurement":
-      return <LuFlaskConical className={cn("text-emerald-500", className)} />;
+      return <LuFlaskConical className={cn("text-status-green", className)} />;
     case "Checkbox":
-      return <LuToggleLeft className={cn("text-purple-600", className)} />;
+      return <LuToggleLeft className={cn("text-status-purple", className)} />;
     case "Timestamp":
-      return <LuClock className={cn("text-blue-500", className)} />;
+      return <LuClock className={cn("text-status-blue", className)} />;
     case "Person":
-      return <LuUser className={cn("text-yellow-600", className)} />;
+      return <LuUser className={cn("text-status-yellow", className)} />;
     case "List":
-      return <LuList className={cn("text-orange-600", className)} />;
+      return <LuList className={cn("text-status-orange", className)} />;
     case "File":
-      return <LuImage className={cn("text-indigo-500", className)} />;
+      return <LuImage className={cn("text-status-purple", className)} />;
     case "Inspection":
-      return <LuEye className={cn("text-indigo-500", className)} />;
+      return <LuEye className={cn("text-status-purple", className)} />;
   }
 };
 
@@ -384,13 +388,13 @@ export const ReplenishmentSystemIcon = ({
 }) => {
   switch (type) {
     case "Buy":
-      return <LuShoppingCart className={cn("text-blue-500", className)} />;
+      return <LuShoppingCart className={cn("text-status-blue", className)} />;
     case "Make":
       return (
-        <RxCodesandboxLogo className={cn("text-emerald-500", className)} />
+        <RxCodesandboxLogo className={cn("text-status-green", className)} />
       );
     case "Buy and Make":
-      return <LuFlaskConical className={cn("text-teal-500", className)} />;
+      return <LuFlaskConical className={cn("text-status-green", className)} />;
   }
 
   return <LuSquare className={cn("text-muted-foreground", className)} />;
@@ -407,11 +411,11 @@ export const TrackingTypeIcon = ({
     case "Serial":
       return <LuBarcode className={cn("text-foreground", className)} />;
     case "Batch":
-      return <LuGroup className={cn("text-emerald-500", className)} />;
+      return <LuGroup className={cn("text-status-green", className)} />;
     case "Inventory":
-      return <LuBox className={cn("text-blue-500", className)} />;
+      return <LuBox className={cn("text-status-blue", className)} />;
     case "Non-Inventory":
-      return <TbTargetOff className={cn("text-red-500", className)} />;
+      return <TbTargetOff className={cn("text-status-red", className)} />;
     default:
       return <LuSquare className={cn("text-muted-foreground", className)} />;
   }
@@ -495,7 +499,7 @@ export const LinearIssueStateBadge = (props: {
       icon = <LuCircleX className={cn("text-muted-foreground", className)} />;
       break;
     case "Completed":
-      icon = <LuCircleCheck className={cn("text-emerald-600", className)} />;
+      icon = <LuCircleCheck className={cn("text-status-green", className)} />;
       break;
     case "In Progress":
       icon = <AlmostDoneIcon className={className} />;
@@ -665,7 +669,7 @@ export const JiraIssueStatusBadge = (props: {
       icon = <AlmostDoneIcon className={className} />;
       break;
     case "done":
-      icon = <LuCircleCheck className={cn("text-emerald-600", className)} />;
+      icon = <LuCircleCheck className={cn("text-status-green", className)} />;
       break;
   }
 

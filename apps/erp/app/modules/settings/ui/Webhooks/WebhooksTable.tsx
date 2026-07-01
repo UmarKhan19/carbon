@@ -470,7 +470,7 @@ function SuccessErrorBar({ successCount, errorCount }: SuccessErrorBarProps) {
         <Tooltip>
           <TooltipTrigger asChild>
             <div
-              className="h-full bg-emerald-500"
+              className="h-full bg-success"
               style={{ width: `${numberFormatter.format(successPercentage)}%` }}
             />
           </TooltipTrigger>
@@ -481,7 +481,7 @@ function SuccessErrorBar({ successCount, errorCount }: SuccessErrorBarProps) {
         <Tooltip>
           <TooltipTrigger asChild>
             <div
-              className="h-full bg-red-500"
+              className="h-full bg-destructive"
               style={{ width: `${errorPercentage}%` }}
             />
           </TooltipTrigger>

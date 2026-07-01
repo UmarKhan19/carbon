@@ -45,7 +45,7 @@ const Pagination = (props: PaginationProps) => {
 
   return (
     <>
-      <hr className="m-0 h-px w-full border-none bg-gradient-to-r from-zinc-200/0 via-zinc-500/30 to-zinc-200/0" />
+      <hr className="m-0 h-px w-full border-none bg-gradient-to-r from-border/0 via-border to-border/0" />
       <HStack
         className="text-center bg-card justify-between py-4 w-full z-[1] px-4"
         spacing={6}

@@ -55,7 +55,7 @@ export function CompaniesTreeView({
         source: company.parentCompanyId!,
         target: company.id!,
         type: "smoothstep",
-        style: { stroke: "hsl(var(--border))", strokeWidth: 1.5 }
+        style: { stroke: "var(--border)", strokeWidth: 1.5 }
       }));
 
     const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
@@ -107,7 +107,7 @@ export function CompaniesTreeView({
           variant={BackgroundVariant.Dots}
           gap={20}
           size={1}
-          color="hsl(var(--border))"
+          color="var(--border)"
         />
       </ReactFlow>
     </div>

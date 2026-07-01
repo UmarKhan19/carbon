@@ -65,10 +65,10 @@ const Cell = <T extends object>({
       className={cn(
         "group/cell relative py-2 whitespace-nowrap text-sm outline-none max-w-[30dvw] truncate",
         cell.column.id === "Select" ? "px-2" : "px-4",
-        wasEdited && "bg-yellow-100 dark:bg-yellow-900",
+        wasEdited && "bg-warning/15",
         isEditMode && !hasEditableTableCellComponent && "bg-muted/50",
         isEditMode && "border-border border-r",
-        hasError && "ring-inset ring-2 ring-red-500",
+        hasError && "ring-inset ring-2 ring-destructive",
         // Only ring editable cells — a ring on a read-only cell wrongly signals
         // it can be edited.
         isSelected &&

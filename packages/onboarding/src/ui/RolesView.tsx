@@ -37,15 +37,15 @@ export function RolesView() {
         </div>
       </header>
 
-      <section className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 shadow-button-base p-5">
+      <section className="rounded-2xl border border-success/30 bg-success/5 shadow-button-base p-5">
         <h2 className="text-sm font-semibold mb-3 flex items-center gap-2">
-          <span className="size-2 rounded-full bg-emerald-500" />
+          <span className="size-2 rounded-full bg-success" />
           <Trans>What you need to do</Trans>
         </h2>
         <ul className="flex flex-col gap-2">
           {yourItems.map((item, i) => (
             <li key={i} className="flex items-start gap-2.5 text-sm">
-              <span className="shrink-0 mt-1.5 size-1.5 rounded-full bg-emerald-500" />
+              <span className="shrink-0 mt-1.5 size-1.5 rounded-full bg-success" />
               <span className="flex-1">{i18n._(item.label)}</span>
               <span className="text-xxs uppercase tracking-wide text-muted-foreground shrink-0 pt-0.5">
                 {i18n._(item.step)}

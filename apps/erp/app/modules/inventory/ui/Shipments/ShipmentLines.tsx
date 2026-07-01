@@ -514,7 +514,7 @@ function ShipmentLineItem({
                 {isJobOverShipped && (
                   <Tooltip>
                     <TooltipTrigger>
-                      <LuCircleAlert className="text-red-500" />
+                      <LuCircleAlert className="text-destructive" />
                     </TooltipTrigger>
                     <TooltipContent>
                       Shipped quantity exceeds job quantity
@@ -552,7 +552,7 @@ function ShipmentLineItem({
                 <NumberInput
                   className={cn(
                     "disabled:bg-transparent disabled:opacity-100 min-w-[100px]",
-                    isJobOverShipped && "border-red-500 border-2"
+                    isJobOverShipped && "border-destructive border-2"
                   )}
                   isDisabled={
                     isReadOnly ||
@@ -583,7 +583,7 @@ function ShipmentLineItem({
                   (line.outstandingQuantity || 0) && (
                   <Tooltip>
                     <TooltipTrigger>
-                      <LuCircleAlert className="text-red-500" />
+                      <LuCircleAlert className="text-destructive" />
                     </TooltipTrigger>
                     <TooltipContent>
                       There are more shipped than ordered
@@ -916,7 +916,7 @@ function BatchForm({
               />
               <InputRightElement className="pl-2">
                 {isBatchNumberValid ? (
-                  <LuCheck className="text-emerald-500" />
+                  <LuCheck className="text-success" />
                 ) : (
                   <LuQrCode />
                 )}
@@ -1208,7 +1208,7 @@ function SerialForm({
                 />
                 <InputRightElement className="pl-2">
                   {isSerialNumberValid ? (
-                    <LuCheck className="text-emerald-500" />
+                    <LuCheck className="text-success" />
                   ) : (
                     <LuQrCode />
                   )}

@@ -66,7 +66,7 @@ type CurrencyFormProps = {
 const chartConfig = {
   rate: {
     label: "Exchange Rate",
-    color: "hsl(var(--primary))"
+    color: "var(--primary)"
   }
 } satisfies ChartConfig;
 

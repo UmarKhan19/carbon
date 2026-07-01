@@ -98,7 +98,7 @@ const OPEN_PURCHASE_ORDER_STATUSES = [
 
 const chartConfig = {
   value: {
-    color: "hsl(var(--primary))"
+    color: "var(--primary)"
   }
 } satisfies ChartConfig;
 

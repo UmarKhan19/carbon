@@ -550,13 +550,13 @@ function EditTimecardModal({
 function getChildIcon(child: MaintenanceExplorerChild) {
   switch (child.type) {
     case "item":
-      return <LuBox className="text-blue-500" />;
+      return <LuBox className="text-status-blue" />;
     case "event":
-      // Blue clock for open (no end time), green check for completed (has end time)
+      // Info clock for open (no end time), success check for completed (has end time)
       if (child.endTime) {
-        return <LuCircleCheck className="text-green-500" />;
+        return <LuCircleCheck className="text-success" />;
       }
-      return <LuClock className="text-blue-500" />;
+      return <LuClock className="text-info" />;
     default:
       return null;
   }

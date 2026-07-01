@@ -126,7 +126,7 @@ const ExpandedRowContent = memo(({ job }: { job: PrintJob }) => {
       {job.error && (
         <div>
           <h4 className="text-sm font-medium mb-2">Error</h4>
-          <pre className="text-xs font-mono bg-red-500/10 text-red-500 p-3 rounded-md whitespace-pre-wrap">
+          <pre className="text-xs font-mono bg-destructive/10 text-destructive p-3 rounded-md whitespace-pre-wrap">
             {job.error}
           </pre>
         </div>

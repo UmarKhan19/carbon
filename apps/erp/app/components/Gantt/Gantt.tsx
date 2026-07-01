@@ -211,9 +211,9 @@ const Gantt = ({
                       >
                         {node.hasChildren ? (
                           state.expanded ? (
-                            <LuChevronDown className="h-4 w-4 text-gray-400" />
+                            <LuChevronDown className="h-4 w-4 text-muted-foreground" />
                           ) : (
-                            <LuChevronRight className="h-4 w-4 text-gray-400" />
+                            <LuChevronRight className="h-4 w-4 text-muted-foreground" />
                           )
                         ) : (
                           <div className="h-8 w-4" />
@@ -433,7 +433,7 @@ const GanttTimeline = ({
                   className={cn(
                     "relative bottom-[2px] text-xxs",
                     rootSpanStatus === "completed"
-                      ? "text-emerald-500"
+                      ? "text-success"
                       : "text-destructive"
                   )}
                 >
@@ -492,7 +492,7 @@ const GanttTimeline = ({
                 className={cn(
                   "h-full border-r",
                   rootSpanStatus === "completed"
-                    ? "border-emerald-500/90"
+                    ? "border-success/90"
                     : "border-destructive/30"
                 )}
               />
@@ -633,13 +633,15 @@ function ShowParentLink({ ganttReadableId }: { ganttReadableId: string }) {
         }
       >
         {mouseOver ? (
-          <ShowParentIconSelected className="h-4 w-4 text-indigo-500" />
+          <ShowParentIconSelected className="h-4 w-4 text-status-purple" />
         ) : (
-          <ShowParentIcon className="text-gray-600 h-4 w-4" />
+          <ShowParentIcon className="text-muted-foreground h-4 w-4" />
         )}
         <Paragraph
           variant="small"
-          className={cn(mouseOver ? "text-indigo-500" : "text-gray-500")}
+          className={cn(
+            mouseOver ? "text-status-purple" : "text-muted-foreground"
+          )}
         >
           <Trans>Show parent items</Trans>
         </Paragraph>

@@ -10,7 +10,7 @@ export const buttonVariants = cva(
   [
     "relative font-medium shrink-0 group inline-flex items-center justify-center select-none transform-gpu initial:border-none disabled:opacity-50",
     "focus:!outline-none focus:!ring-0 active:!outline-none active:!ring-0 whitespace-nowrap",
-    "after:pointer-events-none after:absolute after:-inset-[3px] after:rounded-lg after:border after:border-blue-500 after:opacity-0 after:ring-2 after:ring-blue-500/20 after:transition-opacity after:duration-150 after:ease-out focus-visible:after:opacity-100 active:after:opacity-0",
+    "after:pointer-events-none after:absolute after:-inset-[3px] after:rounded-lg after:border after:border-ring after:opacity-0 after:ring-2 after:ring-ring/20 after:transition-opacity after:duration-150 after:ease-out focus-visible:after:opacity-100 active:after:opacity-0",
     // Transition: background/colors use 'ease' (150ms), transform uses 'ease-out' for responsive press feel
     "transform-gpu transition-[background-color,color,transform,box-shadow] duration-150 ease",
     // Active state: subtle scale down for tactile press feedback

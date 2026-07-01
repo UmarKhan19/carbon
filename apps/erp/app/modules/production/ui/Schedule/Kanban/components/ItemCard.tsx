@@ -75,12 +75,12 @@ const cardVariants = cva(
         overlay: "ring-2 ring-primary hover:bg-muted"
       },
       status: {
-        "In Progress": "border-emerald-600/30",
+        "In Progress": "border-success/30",
         Ready: "",
         Done: "",
         Paused: "",
-        Canceled: "border-red-500/30",
-        Cancelled: "border-red-500/30",
+        Canceled: "border-destructive/30",
+        Cancelled: "border-destructive/30",
         Waiting: "opacity-50",
         Todo: "border-border"
       }
@@ -252,13 +252,16 @@ export function ItemCard({ item, isOverlay, progressByItemId }: ItemCardProps) {
                 segments={[
                   {
                     value: item.quantityCompleted ?? 0,
-                    className: "bg-emerald-500"
+                    className: "bg-success"
                   },
                   {
                     value: item.quantityReworked ?? 0,
-                    className: "bg-yellow-500"
+                    className: "bg-warning"
                   },
-                  { value: item.quantityScrapped ?? 0, className: "bg-red-500" }
+                  {
+                    value: item.quantityScrapped ?? 0,
+                    className: "bg-destructive"
+                  }
                 ]}
                 max={(item.targetQuantity ?? item.quantity) || 1}
                 progress={
@@ -326,7 +329,7 @@ export function ItemCard({ item, isOverlay, progressByItemId }: ItemCardProps) {
             <Tooltip>
               <TooltipTrigger>
                 <span
-                  className={cn("text-sm", isOverdue ? "text-red-500" : "")}
+                  className={cn("text-sm", isOverdue ? "text-destructive" : "")}
                 >
                   {["ASAP", "No Deadline"].includes(item.deadlineType)
                     ? item.deadlineType
@@ -383,7 +386,7 @@ export function ItemCard({ item, isOverlay, progressByItemId }: ItemCardProps) {
           )}
 
         {displaySettings.showQuantity && Number(item.quantityScrapped) > 0 && (
-          <HStack className="justify-start space-x-2 text-red-500">
+          <HStack className="justify-start space-x-2 text-destructive">
             <LuTrash className="w-4 h-4" />
             <span className="text-sm">{item.quantityScrapped} Scrapped</span>
           </HStack>

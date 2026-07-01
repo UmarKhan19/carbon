@@ -5,7 +5,7 @@ import { Decoration, DecorationSet } from "@tiptap/pm/view";
 /** Matches a single-brace merge token like `{invoice.number}`. */
 const TOKEN_RE = /\{[\w.]+\}/g;
 
-const KNOWN_CLS = "rounded-sm bg-blue-500/25 ring-1 ring-blue-500/50 px-0.5";
+const KNOWN_CLS = "rounded-sm bg-info/25 ring-1 ring-info/50 px-0.5";
 const UNKNOWN_CLS =
   "rounded-sm bg-destructive/20 ring-1 ring-destructive/50 px-0.5";
 

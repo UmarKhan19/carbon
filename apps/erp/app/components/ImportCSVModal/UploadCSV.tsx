@@ -239,7 +239,9 @@ export const UploadCSV = ({ table }: { table: keyof typeof importSchemas }) => {
             )}
 
             {error && (
-              <p className="text-center text-sm text-red-600 mt-4">{error}</p>
+              <p className="text-center text-sm text-destructive mt-4">
+                {error}
+              </p>
             )}
           </div>
         </div>

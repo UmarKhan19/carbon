@@ -1826,11 +1826,11 @@ function PreviewStepRecord({
               attribute.minValue !== null &&
                 attribute.minValue !== undefined &&
                 record.numericValue < attribute.minValue &&
-                "text-red-500",
+                "text-destructive",
               attribute.maxValue !== null &&
                 attribute.maxValue !== undefined &&
                 record.numericValue > attribute.maxValue &&
-                "text-red-500"
+                "text-destructive"
             )}
           >
             {numberFormatter.format(record.numericValue)}{" "}
@@ -3007,10 +3007,10 @@ const ProductionEventActivity = ({ item }: ProductionEventActivityProps) => {
             type={item.type}
             className={cn(
               item.type === "Labor"
-                ? "text-emerald-500"
+                ? "text-status-green"
                 : item.type === "Machine"
-                  ? "text-blue-500"
-                  : "text-yellow-500"
+                  ? "text-status-blue"
+                  : "text-status-yellow"
             )}
           />
         ) : null
@@ -3404,7 +3404,9 @@ function OperationChat({ jobOperationId }: { jobOperationId: string }) {
                         <div
                           className={cn(
                             "rounded-2xl p-3 w-full flex flex-col gap-1",
-                            isUser ? "bg-blue-500 text-white" : "bg-muted"
+                            isUser
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-muted"
                           )}
                         >
                           <p className="text-sm">{m.note}</p>

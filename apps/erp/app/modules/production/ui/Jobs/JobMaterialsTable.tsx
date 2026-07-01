@@ -179,7 +179,7 @@ const JobMaterialsTable = memo(
                     {row.original.description}
                   </div>
                   {substitutedFrom && (
-                    <div className="w-full truncate text-xs text-blue-700 dark:text-blue-300">
+                    <div className="w-full truncate text-xs text-status-blue">
                       ↩ <Trans>substituted from</Trans> {substitutedFrom}
                     </div>
                   )}
@@ -338,13 +338,13 @@ const JobMaterialsTable = memo(
               <HStack>
                 {hasStorageUnitQuantityFlag ? (
                   <>
-                    <span className="text-red-500">
+                    <span className="text-destructive">
                       {formatter.format(quantityOnHandInStorageUnit)}
                     </span>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <span>
-                          <LuFlag className="text-red-500" />
+                          <LuFlag className="text-destructive" />
                         </span>
                       </TooltipTrigger>
                       <TooltipContent>
@@ -427,13 +427,13 @@ const JobMaterialsTable = memo(
               <HStack>
                 {hasTotalQuantityFlag ? (
                   <>
-                    <span className="text-red-500">
+                    <span className="text-destructive">
                       {formatter.format(quantityOnHand)}
                     </span>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <span>
-                          <LuFlag className="text-red-500" />
+                          <LuFlag className="text-destructive" />
                         </span>
                       </TooltipTrigger>
                       <TooltipContent>
@@ -483,7 +483,7 @@ const JobMaterialsTable = memo(
                 row.original.quantityFromProductionOrderNotInStorageUnit +
                 row.original.quantityOnSalesOrder
             ),
-          meta: { icon: <LuArrowDown className="text-red-600" /> }
+          meta: { icon: <LuArrowDown className="text-status-red" /> }
         },
         {
           id: "incoming",
@@ -504,7 +504,7 @@ const JobMaterialsTable = memo(
                 row.original.quantityOnProductionOrder
             ),
           meta: {
-            icon: <LuArrowUp className="text-emerald-600" />
+            icon: <LuArrowUp className="text-status-green" />
           }
         },
         {
@@ -523,7 +523,7 @@ const JobMaterialsTable = memo(
           cell: ({ row }) =>
             formatter.format(row.original.quantityInTransitToStorageUnit),
           meta: {
-            icon: <LuArrowLeftRight className="text-blue-600" />
+            icon: <LuArrowLeftRight className="text-status-blue" />
           }
         }
       ];

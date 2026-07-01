@@ -9,8 +9,8 @@ export function PositioningView() {
   const { t } = useLingui();
   return (
     <div className="w-full max-w-3xl mx-auto flex flex-col gap-6">
-      <div className="inline-flex items-center gap-2 self-start rounded-full bg-red-500/10 px-3 py-1 text-xs font-medium text-red-600 dark:text-red-400">
-        <span className="size-1.5 rounded-full bg-red-500" />
+      <div className="inline-flex items-center gap-2 self-start rounded-full bg-status-red/12 px-3 py-1 text-xs font-medium text-status-red-fg">
+        <span className="size-1.5 rounded-full bg-status-red" />
         <Trans>Internal only · not for customers</Trans>
       </div>
 
@@ -58,8 +58,8 @@ function VsColumn({
         <span
           className={
             tone === "red"
-              ? "size-2 rounded-full bg-red-500"
-              : "size-2 rounded-full bg-blue-500"
+              ? "size-2 rounded-full bg-status-red"
+              : "size-2 rounded-full bg-status-blue"
           }
         />
         {title}

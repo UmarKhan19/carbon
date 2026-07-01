@@ -15,12 +15,14 @@ export function getPriorityIcon(
 ) {
   switch (priority) {
     case "Critical":
-      return <BsExclamationSquareFill className="text-red-500" />;
+      return <BsExclamationSquareFill className="text-destructive" />;
     case "High":
-      return <HighPriorityIcon className={cn(overdue ? "text-red-500" : "")} />;
+      return (
+        <HighPriorityIcon className={cn(overdue ? "text-destructive" : "")} />
+      );
     case "Medium":
       return (
-        <MediumPriorityIcon className={cn(overdue ? "text-red-500" : "")} />
+        <MediumPriorityIcon className={cn(overdue ? "text-destructive" : "")} />
       );
     case "Low":
       return <LowPriorityIcon />;

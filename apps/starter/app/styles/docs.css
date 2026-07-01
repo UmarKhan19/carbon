@@ -96,8 +96,8 @@
 .Docs--inner-wrapper {
   background: linear-gradient(
     90deg,
-    hsl(var(--background)) 50%,
-    hsl(var(--muted)) 50%
+    var(--background) 50%,
+    var(--muted) 50%
   );
   width: 100%;
 }
@@ -105,8 +105,8 @@
 .dark .Docs--inner-wrapper {
   background: linear-gradient(
     90deg,
-    hsl(var(--background)) 50%,
-    hsl(var(--card)) 50%
+    var(--background) 50%,
+    var(--card) 50%
   );
 }
 
@@ -128,7 +128,7 @@
   display: flex;
   border-bottom-width: 1px;
   --tw-border-opacity: 1;
-  border-color: hsl(var(--border) / var(--tw-border-opacity));
+  border-color: color-mix(in oklab, var(--border) calc(var(--tw-border-opacity * 100%), transparent));
 }
 
 .Docs.Docs--table-editor .doc-section--introduction .text {
@@ -188,7 +188,7 @@
   padding-bottom: 2px;
   opacity: 1;
   text-decoration-line: underline;
-  text-decoration-color: hsl(var(--muted-foreground));
+  text-decoration-color: var(--muted-foreground);
   text-decoration-thickness: 1px;
   text-underline-offset: 2px;
 }
@@ -516,8 +516,8 @@
   font-weight: 400;
   font-size: 0.875em;
   padding: 0.2rem 0.4rem;
-  background-color: hsl(var(--muted));
-  border: 1px solid hsl(var(--muted));
+  background-color: var(--muted);
+  border: 1px solid var(--muted);
   border-radius: 0.5rem;
 }
 
@@ -718,7 +718,7 @@
   .doc-section
   article:first-child
   :where(figcaption):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
-  color: hsl(var(--muted-foreground));
+  color: var(--muted-foreground);
   font-size: 0.875em;
   line-height: 1.4285714;
   margin-top: 0.8571429em;
@@ -726,7 +726,7 @@
 }
 
 .Docs .doc-section article:first-child {
-  --tw-prose-links: hsl(var(--foreground));
+  --tw-prose-links: var(--foreground);
   --tw-prose-kbd: #111827;
   --tw-prose-kbd-shadows: 17 24 39;
   --tw-prose-invert-kbd: #fff;
@@ -921,7 +921,7 @@
   height: 0.125rem;
   width: 0.5rem;
   border-radius: 0.25rem;
-  background-color: hsl(var(--border));
+  background-color: var(--border);
   content: "";
 }
 
@@ -946,12 +946,12 @@
   height: 1.2rem;
   width: 1.2rem;
   border-radius: 0.25rem;
-  background-color: hsl(var(--background));
-  border: 1px solid hsl(var(--border));
+  background-color: var(--background);
+  border: 1px solid var(--border);
   content: counter(item) "  ";
   counter-increment: item;
   font-size: 12px;
-  color: hsl(var(--muted-foreground));
+  color: var(--muted-foreground);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -961,7 +961,7 @@
   .doc-section
   article:first-child
   :where(p img):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
-  border: 1px solid hsl(var(--border));
+  border: 1px solid var(--border);
   border-radius: 4px;
   overflow: hidden;
 }
@@ -970,7 +970,7 @@
   .doc-section
   article:first-child
   :where(iframe):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
-  border: 1px solid hsl(var(--border) / 0.9);
+  border: 1px solid color-mix(in oklab, var(--border) 90%, transparent);
   border-radius: 0.5rem;
 }
 
@@ -978,7 +978,7 @@
   .doc-section
   article:first-child
   :where(td):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
-  border-bottom: 1px solid hsl(var(--muted));
+  border-bottom: 1px solid var(--muted);
 }
 
 .Docs
@@ -1422,33 +1422,33 @@
 }
 
 .Docs .doc-section article:first-child {
-  --tw-prose-body: hsl(var(--foreground));
-  --tw-prose-headings: hsl(var(--foreground));
-  --tw-prose-lead: hsl(var(--foreground));
-  --tw-prose-links: hsl(var(--primary));
-  --tw-prose-bold: hsl(var(--foreground));
-  --tw-prose-counters: hsl(var(--foreground));
-  --tw-prose-bullets: hsl(var(--muted-foreground));
-  --tw-prose-hr: hsl(var(--muted));
-  --tw-prose-quotes: hsl(var(--foreground));
-  --tw-prose-quote-borders: hsl(var(--muted));
-  --tw-prose-captions: hsl(var(--border));
-  --tw-prose-code: hsl(var(--foreground));
-  --tw-prose-pre-code: hsl(var(--muted-foreground));
-  --tw-prose-pre-bg: hsl(var(--muted));
-  --tw-prose-th-borders: hsl(var(--muted));
+  --tw-prose-body: var(--foreground);
+  --tw-prose-headings: var(--foreground);
+  --tw-prose-lead: var(--foreground);
+  --tw-prose-links: var(--primary);
+  --tw-prose-bold: var(--foreground);
+  --tw-prose-counters: var(--foreground);
+  --tw-prose-bullets: var(--muted-foreground);
+  --tw-prose-hr: var(--muted);
+  --tw-prose-quotes: var(--foreground);
+  --tw-prose-quote-borders: var(--muted);
+  --tw-prose-captions: var(--border);
+  --tw-prose-code: var(--foreground);
+  --tw-prose-pre-code: var(--muted-foreground);
+  --tw-prose-pre-bg: var(--muted);
+  --tw-prose-th-borders: var(--muted);
   --tw-prose-td-borders: hsl(var(--background-default));
   --tw-prose-invert-body: hsl(var(--background-default));
   --tw-prose-invert-headings: #fff;
-  --tw-prose-invert-lead: hsl(var(--muted));
+  --tw-prose-invert-lead: var(--muted);
   --tw-prose-invert-links: #fff;
   --tw-prose-invert-bold: #fff;
-  --tw-prose-invert-counters: hsl(var(--muted));
-  --tw-prose-invert-bullets: hsl(var(--primary));
-  --tw-prose-invert-hr: hsl(var(--border));
+  --tw-prose-invert-counters: var(--muted);
+  --tw-prose-invert-bullets: var(--primary);
+  --tw-prose-invert-hr: var(--border);
   --tw-prose-invert-quotes: hsl(var(--background-alternative-default));
-  --tw-prose-invert-quote-borders: hsl(var(--border));
-  --tw-prose-invert-captions: hsl(var(--muted));
+  --tw-prose-invert-quote-borders: var(--border);
+  --tw-prose-invert-captions: var(--muted);
 }
 
 .Docs
@@ -1526,7 +1526,7 @@
 
 .Docs .code .is-highlighted {
   --tw-text-opacity: 1;
-  color: hsl(var(--primary) / var(--tw-text-opacity));
+  color: color-mix(in oklab, var(--primary) calc(var(--tw-text-opacity * 100%), transparent));
 }
 
 .Docs .codeblock-container + .codeblock-container {

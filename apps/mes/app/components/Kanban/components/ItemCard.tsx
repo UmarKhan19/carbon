@@ -58,11 +58,11 @@ const cardVariants = cva(
   {
     variants: {
       status: {
-        "In Progress": "border-emerald-600/30",
+        "In Progress": "border-status-green/30",
         Ready: "",
         Done: "",
         Paused: "",
-        Canceled: "opacity-50 border-red-500",
+        Canceled: "opacity-50 border-status-red",
         Waiting: "opacity-50",
         Todo: "border-border"
       }
@@ -146,10 +146,10 @@ export function ItemCard({
                   invertGradient
                   activeClassName={
                     progress > (item.duration ?? 0)
-                      ? "bg-red-500"
+                      ? "bg-destructive"
                       : status === "Paused"
-                        ? "bg-yellow-500"
-                        : "bg-emerald-500"
+                        ? "bg-warning"
+                        : "bg-success"
                   }
                   progress={Math.min(
                     progress && item.duration
@@ -169,15 +169,15 @@ export function ItemCard({
                   segments={[
                     {
                       value: item.quantityCompleted ?? 0,
-                      className: "bg-emerald-500"
+                      className: "bg-success"
                     },
                     {
                       value: item.quantityReworked ?? 0,
-                      className: "bg-yellow-500"
+                      className: "bg-warning"
                     },
                     {
                       value: item.quantityScrapped ?? 0,
-                      className: "bg-red-500"
+                      className: "bg-destructive"
                     }
                   ]}
                   max={item.targetQuantity || 1}
@@ -237,7 +237,10 @@ export function ItemCard({
               <Tooltip>
                 <TooltipTrigger>
                   <span
-                    className={cn("text-sm", isOverdue ? "text-red-500" : "")}
+                    className={cn(
+                      "text-sm",
+                      isOverdue ? "text-status-red" : ""
+                    )}
                   >
                     {["ASAP", "No Deadline"].includes(item.deadlineType)
                       ? item.deadlineType
@@ -291,7 +294,7 @@ export function ItemCard({
           )}
 
           {Number(item.quantityScrapped) > 0 && (
-            <HStack className="justify-start space-x-2 text-red-500">
+            <HStack className="justify-start space-x-2 text-status-red">
               <LuTrash className="w-4 h-4" />
               <span className="text-sm">
                 <Trans>{item.quantityScrapped} Scrapped</Trans>
@@ -330,7 +333,7 @@ function getStatusIcon(status: Item["status"] | "In Progress") {
       case "Canceled":
         return <LuCircleX className="text-muted-foreground" />;
       case "Done":
-        return <LuCircleCheck className="text-blue-600" />;
+        return <LuCircleCheck className="text-status-blue" />;
       case "In Progress":
         return <AlmostDoneIcon />;
       case "Paused":

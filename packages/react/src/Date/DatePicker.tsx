@@ -4,20 +4,18 @@ import { useDatePickerState } from "@react-stately/datepicker";
 import type { DatePickerProps } from "@react-types/datepicker";
 import type { ReactNode } from "react";
 import { useRef } from "react";
-import { LuBan, LuCalendarClock, LuInfo } from "react-icons/lu";
+import { LuBan, LuCalendar, LuCalendarClock, LuInfo } from "react-icons/lu";
 import { Button } from "../Button";
 import { HStack } from "../HStack";
 import { IconButton } from "../IconButton";
 import { InputGroup } from "../Input";
 import {
   Popover,
-  PopoverAnchor,
   PopoverContent,
   PopoverFooter,
   PopoverTrigger
 } from "../Popover";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
-import { FieldButton } from "./components/Button";
 import { Calendar } from "./components/Calendar";
 import DateField from "./components/DateField";
 
@@ -35,8 +33,14 @@ const DatePicker = (
   });
 
   const ref = useRef<HTMLDivElement>(null);
-  const { groupProps, fieldProps, buttonProps, dialogProps, calendarProps } =
-    useDatePicker(props, state, ref);
+  // Base UI's PopoverTrigger owns opening (via the controlled state below), so
+  // react-aria's `buttonProps` toggle is intentionally not used — wiring both
+  // onto the same button double-toggles and the popover never opens.
+  const { groupProps, fieldProps, dialogProps, calendarProps } = useDatePicker(
+    props,
+    state,
+    ref
+  );
 
   return (
     <Popover open={state.isOpen} onOpenChange={state.setOpen}>
@@ -52,7 +56,6 @@ const DatePicker = (
                     className="gap-1.5"
                     aria-label="Open date picker"
                     isDisabled={props.isDisabled}
-                    {...buttonProps}
                   >
                     {props.inline}
                     <LuCalendarClock />
@@ -82,7 +85,6 @@ const DatePicker = (
                         size="sm"
                         aria-label="Open date picker"
                         isDisabled={props.isDisabled}
-                        {...buttonProps}
                       />
                     </PopoverTrigger>
                   </HStack>
@@ -103,14 +105,17 @@ const DatePicker = (
                     <LuBan className="!text-destructive-foreground absolute right-[12px] top-[12px]" />
                   )}
                 </div>
-                {/* Anchor (not Trigger) so the calendar button isn't wrapped
-                    in a second <button>; the popover open state is driven by
-                    react-aria's buttonProps on FieldButton. */}
-                <PopoverAnchor asChild>
-                  <div className="flex-shrink-0 -mt-px">
-                    <FieldButton {...buttonProps} isPressed={state.isOpen} />
-                  </div>
-                </PopoverAnchor>
+                <div className="flex-shrink-0 -mt-px">
+                  <PopoverTrigger asChild>
+                    <IconButton
+                      aria-label="Toggle"
+                      icon={<LuCalendar />}
+                      variant="secondary"
+                      isDisabled={props.isDisabled || props.isReadOnly}
+                      className="flex-shrink-0 h-10 w-10 px-3 rounded-l-none border border-l-0 before:rounded-l-none"
+                    />
+                  </PopoverTrigger>
+                </div>
               </InputGroup>
             </>
           )}

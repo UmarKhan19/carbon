@@ -22,7 +22,7 @@ import {
   useEdition,
   useMode
 } from "@carbon/react";
-import { Edition, themes } from "@carbon/utils";
+import { Edition, resolveTheme, themes } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useLocale } from "@react-aria/i18n";
 import { useMemo, useState } from "react";
@@ -97,7 +97,10 @@ const AvatarMenu = () => {
     });
   };
 
-  const optimisticTheme = selectedTheme ?? serverTheme;
+  const optimisticTheme =
+    resolveTheme(selectedTheme ?? serverTheme)?.name ??
+    selectedTheme ??
+    serverTheme;
 
   const itarDisclosure = useDisclosure();
 
@@ -158,9 +161,8 @@ const AvatarMenu = () => {
                     onSelect={(e) => e.preventDefault()}
                     style={
                       {
-                        "--theme-primary": `hsl(${
+                        "--theme-primary":
                           t?.activeColor[mode === "dark" ? "dark" : "light"]
-                        })`
                       } as React.CSSProperties
                     }
                   >

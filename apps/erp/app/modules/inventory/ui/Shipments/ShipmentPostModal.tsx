@@ -265,7 +265,7 @@ const ShipmentPostModal = ({ onClose }: { onClose: () => void }) => {
                       <span className="text-muted-foreground ml-2">
                         {error.shippedQuantity}
                       </span>
-                      <span className="block mt-0.5 text-red-500 font-normal">
+                      <span className="block mt-0.5 text-destructive font-normal">
                         {error.shippedQuantityError}
                       </span>
                     </li>
@@ -291,7 +291,7 @@ const ShipmentPostModal = ({ onClose }: { onClose: () => void }) => {
                       <span className="text-muted-foreground ml-2">
                         {w.readableId}
                       </span>
-                      <span className="block mt-0.5 text-red-500 font-normal">
+                      <span className="block mt-0.5 text-destructive font-normal">
                         Expired on {w.expirationDate}
                       </span>
                     </li>
@@ -314,7 +314,7 @@ const ShipmentPostModal = ({ onClose }: { onClose: () => void }) => {
                       <span className="text-muted-foreground ml-2">
                         {w.readableId}
                       </span>
-                      <span className="block mt-0.5 text-amber-600 font-normal">
+                      <span className="block mt-0.5 text-warning font-normal">
                         Expired on {w.expirationDate}
                       </span>
                     </li>

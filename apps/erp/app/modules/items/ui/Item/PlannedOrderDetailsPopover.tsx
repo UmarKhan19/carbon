@@ -137,7 +137,7 @@ export function PlannedOrderDetailsPopover({
                   <dd>
                     {formatDate(order.dueDate)}
                     {isAsap && (
-                      <span className="ml-2 text-xs text-red-500 font-medium uppercase">
+                      <span className="ml-2 text-xs text-destructive font-medium uppercase">
                         ASAP
                       </span>
                     )}

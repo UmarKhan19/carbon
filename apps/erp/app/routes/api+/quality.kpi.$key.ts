@@ -145,17 +145,17 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
           {
             name: "Registered",
             value: counts.Registered,
-            fill: "hsl(var(--chart-5))"
+            fill: "var(--chart-5)"
           },
           {
             name: "In Progress",
             value: counts["In Progress"],
-            fill: "hsl(var(--chart-1))"
+            fill: "var(--chart-1)"
           },
           {
             name: "Closed",
             value: counts.Closed,
-            fill: "hsl(var(--success))"
+            fill: "var(--success)"
           }
         ],
         previousPeriodData: []

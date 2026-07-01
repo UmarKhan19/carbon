@@ -84,14 +84,14 @@ const OPEN_JOB_STATUSES = ["Ready", "In Progress", "Paused"] as const;
 
 const chartConfig = {
   value: {
-    color: "hsl(var(--primary))"
+    color: "var(--primary)"
   },
   actual: {
-    color: "hsl(var(--chart-1))",
+    color: "var(--chart-1)",
     label: "Actual"
   },
   estimate: {
-    color: "hsl(var(--chart-2))",
+    color: "var(--chart-2)",
     label: "Estimate"
   }
 } satisfies ChartConfig;
@@ -841,9 +841,7 @@ function WorkCenterCards({
             <HStack
               className={cn(
                 "justify-between w-full relative rounded-t-lg",
-                isBlocked
-                  ? "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-400"
-                  : ""
+                isBlocked ? "bg-destructive/12 text-destructive" : ""
               )}
             >
               <CardHeader>
@@ -949,7 +947,7 @@ function WorkCenterCards({
                           <span
                             className={cn(
                               "text-sm truncate",
-                              isOverdue ? "text-red-500" : ""
+                              isOverdue ? "text-destructive" : ""
                             )}
                           >
                             {["ASAP", "No Deadline"].includes(deadlineType)

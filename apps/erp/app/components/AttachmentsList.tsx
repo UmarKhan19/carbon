@@ -216,7 +216,7 @@ export default function AttachmentsList({
           overLimit
             ? "text-destructive"
             : warning
-              ? "text-amber-700"
+              ? "text-warning"
               : "text-muted-foreground"
         }`}
       >

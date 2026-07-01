@@ -24,7 +24,7 @@
   background: radial-gradient(
     circle,
     hsl(240 3.7 11%) 0,
-    hsl(var(--background)) 100%
+    var(--background) 100%
   );
 }
 

@@ -169,7 +169,7 @@ const OpportunityState = ({ opportunity }: { opportunity: Opportunity }) => {
                 leftIcon={
                   <Icon
                     className={cn(
-                      isCurrent && "text-emerald-500",
+                      isCurrent && "text-success",
                       !isCurrent && "opacity-80 hover:opacity-100"
                     )}
                   />
@@ -191,7 +191,7 @@ const OpportunityState = ({ opportunity }: { opportunity: Opportunity }) => {
                 leftIcon={
                   <Icon
                     className={cn(
-                      isCurrent && "text-emerald-500",
+                      isCurrent && "text-success",
                       !isCurrent && "opacity-80 hover:opacity-100"
                     )}
                   />
@@ -212,7 +212,7 @@ const OpportunityState = ({ opportunity }: { opportunity: Opportunity }) => {
               leftIcon={
                 <Icon
                   className={cn(
-                    isCompleted && "text-emerald-500",
+                    isCompleted && "text-success",
                     !isCurrent && "opacity-80 hover:opacity-100"
                   )}
                 />

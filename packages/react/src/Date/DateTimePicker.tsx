@@ -5,7 +5,7 @@ import type { DatePickerProps } from "@react-types/datepicker";
 import { cva } from "class-variance-authority";
 import type { ReactNode } from "react";
 import { useRef } from "react";
-import { LuBan, LuCalendarClock, LuInfo } from "react-icons/lu";
+import { LuBan, LuCalendar, LuCalendarClock, LuInfo } from "react-icons/lu";
 import { cn } from "..";
 import { Button } from "../Button";
 import { HStack } from "../HStack";
@@ -18,7 +18,6 @@ import {
   PopoverTrigger
 } from "../Popover";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip";
-import { FieldButton } from "./components/Button";
 import { Calendar } from "./components/Calendar";
 import DateField from "./components/DateField";
 import TimeField from "./TimePicker";
@@ -50,8 +49,13 @@ const DateTimePicker = (
     shouldCloseOnSelect: false
   });
   const ref = useRef<HTMLDivElement>(null);
-  const { groupProps, fieldProps, buttonProps, dialogProps, calendarProps } =
-    useDatePicker(props, state, ref);
+  // Base UI's PopoverTrigger owns opening via the controlled state; react-aria's
+  // `buttonProps` toggle is intentionally unused (both on one button = double-toggle).
+  const { groupProps, fieldProps, dialogProps, calendarProps } = useDatePicker(
+    props,
+    state,
+    ref
+  );
 
   return (
     <Popover open={state.isOpen} onOpenChange={state.setOpen}>
@@ -81,7 +85,6 @@ const DateTimePicker = (
                     size="sm"
                     aria-label="Open date time picker"
                     isDisabled={props.isDisabled}
-                    {...buttonProps}
                   />
                 </PopoverTrigger>
               </HStack>
@@ -104,11 +107,14 @@ const DateTimePicker = (
                 </div>
                 {props.withButton !== false && (
                   <div className="flex-shrink-0 -mt-px">
-                    <PopoverTrigger tabIndex={-1}>
-                      <FieldButton
-                        {...buttonProps}
-                        isPressed={state.isOpen}
+                    <PopoverTrigger asChild>
+                      <IconButton
+                        aria-label="Toggle"
+                        icon={<LuCalendar />}
+                        variant="secondary"
                         size={props.size}
+                        isDisabled={props.isDisabled || props.isReadOnly}
+                        className="flex-shrink-0 rounded-l-none border border-l-0 before:rounded-l-none"
                       />
                     </PopoverTrigger>
                   </div>

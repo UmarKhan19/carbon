@@ -136,7 +136,7 @@ export default function JobRoute() {
                     <Await
                       resolve={method}
                       errorElement={
-                        <div className="p-2 text-red-500">
+                        <div className="p-2 text-destructive">
                           <Trans>Error loading job tree.</Trans>
                         </div>
                       }

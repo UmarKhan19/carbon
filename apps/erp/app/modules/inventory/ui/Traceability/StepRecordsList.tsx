@@ -118,7 +118,7 @@ function StepValue({
           record.maxValue !== undefined &&
           record.numericValue > record.maxValue);
       return (
-        <span className={cn("font-medium", outOfRange && "text-red-500")}>
+        <span className={cn("font-medium", outOfRange && "text-destructive")}>
           {numberFormatter.format(record.numericValue)}
           {unit ? (
             <span className="text-muted-foreground ml-1">{unit}</span>

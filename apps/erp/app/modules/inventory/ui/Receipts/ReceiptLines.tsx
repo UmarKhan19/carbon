@@ -560,7 +560,7 @@ function ReceiptLineItem({
                   (line.outstandingQuantity ?? 0) && (
                   <Tooltip>
                     <TooltipTrigger>
-                      <LuCircleAlert className="text-red-500" />
+                      <LuCircleAlert className="text-destructive" />
                     </TooltipTrigger>
                     <TooltipContent>
                       There are more received than ordered

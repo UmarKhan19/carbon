@@ -576,7 +576,7 @@ export const JobOperation = ({
                 <span
                   className={cn(
                     "text-sm truncate",
-                    isOverdue ? "text-red-500" : ""
+                    isOverdue ? "text-status-red" : ""
                   )}
                 >
                   {["ASAP", "No Deadline"].includes(operation.jobDeadlineType)
@@ -639,7 +639,7 @@ export const JobOperation = ({
                     <CardTitle>
                       <Trans>Completed</Trans>
                     </CardTitle>
-                    <FaCheck className="h-3 w-3 text-emerald-500" />
+                    <FaCheck className="h-3 w-3 text-status-green" />
                   </CardHeader>
 
                   <CardContent>
@@ -678,7 +678,7 @@ export const JobOperation = ({
                         size="h3"
                         className={cn(
                           "w-full truncate",
-                          isOverdue ? "text-red-500" : ""
+                          isOverdue ? "text-status-red" : ""
                         )}
                       >
                         {["ASAP", "No Deadline"].includes(
@@ -1501,7 +1501,7 @@ export const JobOperation = ({
                                 <Tr className="[&>td]:py-3">
                                   <Td>
                                     <HStack>
-                                      <LuAxis3D className="text-emerald-500 w-6 h-6" />
+                                      <LuAxis3D className="text-status-green w-6 h-6" />
                                       <span>{modelUpload.modelName}</span>
                                     </HStack>
                                   </Td>
@@ -1675,7 +1675,7 @@ export const JobOperation = ({
                               colSpan={24}
                               className="py-8 text-muted-foreground text-center"
                             >
-                              <LuTriangleAlert className="text-red-500 size-4" />
+                              <LuTriangleAlert className="text-status-red size-4" />
                               <Trans>No serial numbers</Trans>
                             </Td>
                           </Tr>
@@ -1689,7 +1689,7 @@ export const JobOperation = ({
                                 <div className="flex gap-2 items-center">
                                   <span>{entity.id}</span>
                                   {entity.id === trackedEntityId && (
-                                    <LuCheck className="text-emerald-500 size-4" />
+                                    <LuCheck className="text-status-green size-4" />
                                   )}
                                   <Copy text={entity.id} />
                                 </div>
@@ -2094,7 +2094,7 @@ export const JobOperation = ({
                       <span
                         className={cn(
                           "text-sm truncate",
-                          isOverdue ? "text-red-500" : ""
+                          isOverdue ? "text-status-red" : ""
                         )}
                       >
                         {["ASAP", "No Deadline"].includes(
@@ -2193,8 +2193,8 @@ export const JobOperation = ({
                       }
                       activeClassName={
                         progress.setup > operation.setupDuration
-                          ? "bg-red-500"
-                          : "bg-emerald-500"
+                          ? "bg-destructive"
+                          : "bg-success"
                       }
                     />
                   </>
@@ -2226,8 +2226,8 @@ export const JobOperation = ({
                       }
                       activeClassName={
                         progress.labor > operation.laborDuration
-                          ? "bg-red-500"
-                          : "bg-emerald-500"
+                          ? "bg-destructive"
+                          : "bg-success"
                       }
                     />
                   </>
@@ -2259,8 +2259,8 @@ export const JobOperation = ({
                       }
                       activeClassName={
                         progress.machine > operation.machineDuration
-                          ? "bg-red-500"
-                          : "bg-emerald-500"
+                          ? "bg-destructive"
+                          : "bg-success"
                       }
                     />
                   </>
@@ -2281,15 +2281,15 @@ export const JobOperation = ({
                     segments={[
                       {
                         value: operation.quantityComplete,
-                        className: "bg-emerald-500"
+                        className: "bg-success"
                       },
                       {
                         value: operation.quantityReworked ?? 0,
-                        className: "bg-yellow-500"
+                        className: "bg-warning"
                       },
                       {
                         value: operation.quantityScrapped ?? 0,
-                        className: "bg-red-500"
+                        className: "bg-destructive"
                       }
                     ]}
                     max={operation.targetQuantity || 1}

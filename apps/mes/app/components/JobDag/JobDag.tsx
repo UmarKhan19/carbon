@@ -239,13 +239,13 @@ export function JobDag(props: Props) {
 
 function DagLegend() {
   const entries = [
-    { label: "Done", className: "border-green-500 bg-green-500" },
-    { label: "In Progress", className: "border-blue-500 bg-blue-500" },
-    { label: "Ready", className: "border-teal-500 bg-teal-500" },
-    { label: "Waiting", className: "border-gray-400 bg-gray-400" },
-    { label: "Todo", className: "border-gray-300 bg-gray-300" },
-    { label: "Paused", className: "border-amber-500 bg-amber-500" },
-    { label: "Canceled", className: "border-red-500 bg-red-500" }
+    { label: "Done", className: "border-status-green bg-status-green" },
+    { label: "In Progress", className: "border-status-blue bg-status-blue" },
+    { label: "Ready", className: "border-status-green bg-status-green" },
+    { label: "Waiting", className: "border-status-gray bg-status-gray" },
+    { label: "Todo", className: "border-status-gray bg-status-gray" },
+    { label: "Paused", className: "border-status-yellow bg-status-yellow" },
+    { label: "Canceled", className: "border-status-red bg-status-red" }
   ];
 
   return (

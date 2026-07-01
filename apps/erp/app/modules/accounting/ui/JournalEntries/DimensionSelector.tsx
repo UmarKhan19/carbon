@@ -41,29 +41,22 @@ type DimensionSelectorProps = {
 };
 
 const entityTypeColors: Record<string, string> = {
-  Department:
-    "bg-red-100 text-red-800 dark:bg-red-500/15 dark:text-red-400 border-red-500/20",
-  Employee:
-    "bg-indigo-100 text-indigo-800 dark:bg-indigo-500/15 dark:text-indigo-400 border-indigo-500/20",
+  Department: "bg-status-red/12 text-status-red-fg border-status-red/25",
+  Employee: "bg-status-purple/12 text-status-purple-fg border-status-purple/25",
   CustomerType:
-    "bg-yellow-100 text-yellow-800 dark:bg-yellow-500/15 dark:text-yellow-400 border-yellow-500/20",
-  Customer:
-    "bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-400 border-amber-500/20",
+    "bg-status-yellow/12 text-status-yellow-fg border-status-yellow/25",
+  Customer: "bg-status-yellow/12 text-status-yellow-fg border-status-yellow/25",
   SupplierType:
-    "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-400 border-emerald-500/20",
-  Supplier:
-    "bg-green-100 text-green-800 dark:bg-green-500/15 dark:text-green-400 border-green-500/20",
-  Item: "bg-fuchsia-100 text-fuchsia-800 dark:bg-fuchsia-500/15 dark:text-fuchsia-400 border-fuchsia-500/20",
-  Location:
-    "bg-blue-100 text-blue-800 dark:bg-blue-500/15 dark:text-blue-400 border-blue-500/20",
+    "bg-status-green/12 text-status-green-fg border-status-green/25",
+  Supplier: "bg-status-green/12 text-status-green-fg border-status-green/25",
+  Item: "bg-status-purple/12 text-status-purple-fg border-status-purple/25",
+  Location: "bg-status-blue/12 text-status-blue-fg border-status-blue/25",
   CostCenter:
-    "bg-orange-100 text-orange-800 dark:bg-orange-500/15 dark:text-orange-400 border-orange-500/20",
+    "bg-status-orange/12 text-status-orange-fg border-status-orange/25",
   ItemPostingGroup:
-    "bg-violet-100 text-violet-800 dark:bg-violet-500/15 dark:text-violet-400 border-violet-500/20",
-  WorkCenter:
-    "bg-teal-100 text-teal-800 dark:bg-teal-500/15 dark:text-teal-400 border-teal-500/20",
-  Process:
-    "bg-cyan-100 text-cyan-800 dark:bg-cyan-500/15 dark:text-cyan-400 border-cyan-500/20",
+    "bg-status-purple/12 text-status-purple-fg border-status-purple/25",
+  WorkCenter: "bg-status-green/12 text-status-green-fg border-status-green/25",
+  Process: "bg-status-blue/12 text-status-blue-fg border-status-blue/25",
   Custom: ""
 };
 

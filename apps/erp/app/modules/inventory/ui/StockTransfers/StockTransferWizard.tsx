@@ -459,10 +459,10 @@ function TransferGrid({ locationId }: { locationId: string }) {
               >
                 {!hasEnoughWithIncoming ? (
                   <HStack>
-                    <span className="text-red-500">
+                    <span className="text-destructive">
                       {formatter.format(row.original.quantityAvailable)}
                     </span>
-                    <LuFlag className="text-red-500" />
+                    <LuFlag className="text-destructive" />
                   </HStack>
                 ) : (
                   <span>
@@ -473,13 +473,13 @@ function TransferGrid({ locationId }: { locationId: string }) {
               {totalTransferQuantity > 0 && (
                 <span
                   className={`font-medium ${
-                    adjustedAvailable < 0 ? "text-red-500" : ""
+                    adjustedAvailable < 0 ? "text-destructive" : ""
                   }`}
                 >
                   {adjustedAvailable < 0 ? (
                     <HStack>
                       <span>{formatter.format(adjustedAvailable)}</span>
-                      <LuFlag className="text-red-500" />
+                      <LuFlag className="text-destructive" />
                     </HStack>
                   ) : (
                     formatter.format(adjustedAvailable)
@@ -779,10 +779,10 @@ function TransferGrid({ locationId }: { locationId: string }) {
 
             return !hasEnoughWithIncoming ? (
               <HStack>
-                <span className="text-red-500">
+                <span className="text-destructive">
                   {formatter.format(row.original.quantityAvailable)}
                 </span>
-                <LuFlag className="text-red-500" />
+                <LuFlag className="text-destructive" />
               </HStack>
             ) : (
               <span>{formatter.format(row.original.quantityAvailable)}</span>
@@ -816,10 +816,10 @@ function TransferGrid({ locationId }: { locationId: string }) {
               >
                 {!hasEnoughWithIncoming ? (
                   <HStack>
-                    <span className="text-red-500">
+                    <span className="text-destructive">
                       {formatter.format(row.original.quantityAvailable)}
                     </span>
-                    <LuFlag className="text-red-500" />
+                    <LuFlag className="text-destructive" />
                   </HStack>
                 ) : (
                   <span>
@@ -830,13 +830,13 @@ function TransferGrid({ locationId }: { locationId: string }) {
               {transferQuantity > 0 && (
                 <span
                   className={`font-medium ${
-                    adjustedAvailable < 0 ? "text-red-500" : ""
+                    adjustedAvailable < 0 ? "text-destructive" : ""
                   }`}
                 >
                   {adjustedAvailable < 0 ? (
                     <HStack>
                       <span>{formatter.format(adjustedAvailable)}</span>
-                      <LuFlag className="text-red-500" />
+                      <LuFlag className="text-destructive" />
                     </HStack>
                   ) : (
                     formatter.format(adjustedAvailable)
@@ -1109,7 +1109,7 @@ function TransferTable({
           )}
         </div>
       </div>
-      <hr className="m-0 h-px w-full border-none bg-gradient-to-r from-zinc-200/0 via-zinc-500/30 to-zinc-200/0" />
+      <hr className="m-0 h-px w-full border-none bg-gradient-to-r from-border/0 via-border/30 to-border/0" />
       <HStack
         className="text-center bg-card justify-between py-4 w-full z-[1] px-4"
         spacing={6}

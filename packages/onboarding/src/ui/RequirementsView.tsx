@@ -62,7 +62,7 @@ export function RequirementsView() {
           {module.areas.map((area) => (
             <div key={area.code}>
               <div className="px-5 pt-3 pb-1 flex items-baseline gap-2">
-                <span className="text-xs font-mono text-blue-600 dark:text-blue-400">
+                <span className="text-xs font-mono text-status-blue">
                   {area.code}
                 </span>
                 <span className="text-xs font-medium text-muted-foreground">

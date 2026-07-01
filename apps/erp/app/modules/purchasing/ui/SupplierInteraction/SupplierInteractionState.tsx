@@ -149,7 +149,7 @@ const SupplierInteractionState = ({
                   leftIcon={
                     <Icon
                       className={cn(
-                        isCurrent && "text-emerald-500",
+                        isCurrent && "text-status-green",
                         !isCurrent && "opacity-80 hover:opacity-100"
                       )}
                     />
@@ -171,7 +171,7 @@ const SupplierInteractionState = ({
                   leftIcon={
                     <Icon
                       className={cn(
-                        isCurrent && "text-emerald-500",
+                        isCurrent && "text-status-green",
                         !isCurrent && "opacity-80 hover:opacity-100"
                       )}
                     />
@@ -231,7 +231,7 @@ const SupplierInteractionState = ({
                       leftIcon={
                         <Icon
                           className={cn(
-                            isCurrent && "text-emerald-500",
+                            isCurrent && "text-status-green",
                             !isCurrent && "opacity-80 hover:opacity-100"
                           )}
                         />
@@ -266,7 +266,7 @@ const SupplierInteractionState = ({
                   leftIcon={
                     <Icon
                       className={cn(
-                        isCurrent && "text-emerald-500",
+                        isCurrent && "text-status-green",
                         !isCurrent && "opacity-80 hover:opacity-100"
                       )}
                     />
@@ -307,7 +307,7 @@ const SupplierInteractionState = ({
                   leftIcon={
                     <Icon
                       className={cn(
-                        isCurrent && "text-emerald-500",
+                        isCurrent && "text-status-green",
                         !isCurrent && "opacity-80 hover:opacity-100"
                       )}
                     />
@@ -329,7 +329,7 @@ const SupplierInteractionState = ({
                   leftIcon={
                     <Icon
                       className={cn(
-                        isCurrent && "text-emerald-500",
+                        isCurrent && "text-status-green",
                         !isCurrent && "opacity-80 hover:opacity-100"
                       )}
                     />

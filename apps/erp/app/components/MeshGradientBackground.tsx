@@ -1,4 +1,5 @@
 import { cn, useMode } from "@carbon/react";
+import { resolveTheme } from "@carbon/utils";
 import { MeshGradient } from "@paper-design/shaders-react";
 import { useEffect, useState } from "react";
 import { useTheme } from "~/hooks/useTheme";
@@ -16,38 +17,35 @@ const meshColorsByTheme: Record<
     light: ["#edecef", "#f4f4f6", "#fafafb", "#f0eff2"],
     dark: ["#18181b", "#000000", "#0D0D0D", "#050505"]
   },
-  neutral: {
-    light: ["#eeece9", "#f4f3f1", "#faf9f8", "#f1efed"],
-    dark: ["#1c1917", "#000000", "#0D0D0D", "#050505"]
+  indigo: {
+    light: ["#eaeefc", "#f2f5ff", "#fafbff", "#eceffd"],
+    dark: ["#0a1024", "#000000", "#05060f", "#030308"]
   },
-  red: {
-    light: ["#fdf0f1", "#fdf6f6", "#fffafa", "#fdf3f3"],
-    dark: ["#2d0a0a", "#000000", "#0D0D0D", "#050505"]
+  cobalt: {
+    light: ["#e6effc", "#eff6ff", "#f8fcff", "#e8f1fc"],
+    dark: ["#071224", "#000000", "#04070f", "#020308"]
   },
-  orange: {
-    light: ["#fdf4e9", "#fdf8f1", "#fffbf6", "#fdf6ed"],
-    dark: ["#2d1a0a", "#000000", "#0D0D0D", "#050505"]
+  emerald: {
+    light: ["#e5f3e9", "#eef8f1", "#f8fdf9", "#e7f4eb"],
+    dark: ["#04180f", "#000000", "#030b07", "#010503"]
   },
-  yellow: {
-    light: ["#fdf8e2", "#fdfaec", "#fffdf4", "#fdf9e7"],
-    dark: ["#2d2a0a", "#000000", "#0D0D0D", "#050505"]
+  acid: {
+    light: ["#eaf1e3", "#f2f7ed", "#fafdf7", "#edf3e6"],
+    dark: ["#0d1604", "#000000", "#070b03", "#030501"]
   },
-  green: {
-    light: ["#e9fbf2", "#f0fcf6", "#f6fdf9", "#edfcf4"],
-    dark: ["#023225", "#000000", "#0D0D0D", "#050505"]
+  coral: {
+    light: ["#fbeae5", "#fff2ee", "#fffaf8", "#fcece7"],
+    dark: ["#210c05", "#000000", "#0f0603", "#070301"]
   },
-  blue: {
-    light: ["#eef3fd", "#f5f8fe", "#fcfdfe", "#f1f5fd"],
-    dark: ["#0a1a2d", "#000000", "#0D0D0D", "#050505"]
-  },
-  violet: {
-    light: ["#f3f0fe", "#f7f5fe", "#fbfaff", "#f5f2fe"],
-    dark: ["#1e0a2d", "#000000", "#0D0D0D", "#050505"]
+  dusk: {
+    light: ["#f3ebf9", "#f8f3fd", "#fdfaff", "#f4edf9"],
+    dark: ["#180d21", "#000000", "#0b060f", "#050308"]
   }
 };
 
 export function getMeshColors(theme: string, mode: string) {
-  const colors = meshColorsByTheme[theme] ?? meshColorsByTheme.blue;
+  const name = resolveTheme(theme)?.name ?? "zinc";
+  const colors = meshColorsByTheme[name] ?? meshColorsByTheme.zinc;
   return mode === "light" ? colors.light : colors.dark;
 }
 

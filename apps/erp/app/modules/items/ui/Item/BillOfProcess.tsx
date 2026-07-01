@@ -842,7 +842,7 @@ const BillOfProcess = ({
                 className={cn(
                   rulesByField.has(
                     `billOfProcess:${makeMethodId}:${materialId}`
-                  ) && "text-emerald-500 hover:text-emerald-500"
+                  ) && "text-success hover:text-success"
                 )}
                 onClick={() =>
                   onConfigure({
@@ -2369,7 +2369,7 @@ function AttributesListItem({
               {isConfigured && (
                 <Tooltip>
                   <TooltipTrigger>
-                    <div className="flex flex-col items-center justify-center gap-1 text-emerald-500">
+                    <div className="flex flex-col items-center justify-center gap-1 text-success">
                       <LuSquareFunction
                         aria-label={t`Configured`}
                         className="size-4 "
@@ -2667,7 +2667,7 @@ function ParametersListItem({
             <HStack spacing={4} className="flex-1">
               <div className="bg-muted border rounded-full flex items-center justify-center p-2">
                 <LuActivity
-                  className={cn("size-4", isConfigured && "text-emerald-500")}
+                  className={cn("size-4", isConfigured && "text-success")}
                 />
               </div>
               <VStack spacing={0}>
@@ -2676,7 +2676,7 @@ function ParametersListItem({
               {isConfigured ? (
                 <Tooltip>
                   <TooltipTrigger>
-                    <div className="flex flex-col items-center justify-center gap-1 text-emerald-500">
+                    <div className="flex flex-col items-center justify-center gap-1 text-success">
                       <LuSquareFunction
                         aria-label={t`Configured`}
                         className="size-4 "

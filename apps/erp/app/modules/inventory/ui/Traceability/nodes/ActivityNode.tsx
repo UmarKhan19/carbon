@@ -66,9 +66,7 @@ function ActivityNodeImpl({ data, selected }: Props) {
           height={size}
           rx={5}
           fill={meta.color}
-          stroke={
-            selected || data.isRoot ? "hsl(var(--foreground))" : "transparent"
-          }
+          stroke={selected || data.isRoot ? "var(--foreground)" : "transparent"}
           strokeWidth={selected || data.isRoot ? 2 : 0}
           transform={`rotate(45 ${half} ${half})`}
         />

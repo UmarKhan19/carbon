@@ -17,30 +17,32 @@ const colorIndex = {
 
 export type Color = keyof typeof colorIndex;
 
+/* Notion-style label palette, derived from OKLCH (bg L=0.93 tint / text L=0.30
+ * in light; bg L=0.24 / text L=0.90 in dark). Order matches `colorIndex`. */
 const colors = [
-  { background: "#a6a5a5", color: "#32302c" },
-  { background: "#e3e2e0", color: "#32302c" },
-  { background: "#eee0da", color: "#442a1e" },
-  { background: "#fadec9", color: "#49290e" },
-  { background: "#f9e4bc", color: "#402c1b" },
-  { background: "#dbeddb", color: "#1c3829" },
-  { background: "#d3e5ef", color: "#183347" },
-  { background: "#e8deee", color: "#412454" },
-  { background: "#f5e0e9", color: "#4c2337" },
-  { background: "#ffe2dd", color: "#5d1715" }
+  { background: "#e6e8eb", color: "#2b2e32" }, // gray
+  { background: "#edeef1", color: "#2c2e31" }, // lightGray
+  { background: "#f8e4d4", color: "#41270f" }, // brown
+  { background: "#ffe1d1", color: "#492106" }, // orange
+  { background: "#f2e8c3", color: "#3c2c00" }, // yellow
+  { background: "#d5f0e0", color: "#063723" }, // green
+  { background: "#d7ebfa", color: "#103146" }, // blue
+  { background: "#ebe3fc", color: "#332649" }, // purple
+  { background: "#fbdfeb", color: "#451f32" }, // pink
+  { background: "#ffdfdc", color: "#49201d" } // red
 ];
 
 const darkColors = [
-  { background: "#373737", color: "#ffffff" },
-  { background: "#5a5a5a", color: "#ffffff" },
-  { background: "#603b2c", color: "#ffffff" },
-  { background: "#854c1d", color: "#ffffff" },
-  { background: "#835e33", color: "#ffffff" },
-  { background: "#2b593f", color: "#ffffff" },
-  { background: "#28456c", color: "#ffffff" },
-  { background: "#492f64", color: "#ffffff" },
-  { background: "#69314c", color: "#ffffff" },
-  { background: "#6e3630", color: "#ffffff" }
+  { background: "#1d1f22", color: "#dedede" }, // gray
+  { background: "#1e1f22", color: "#dedede" }, // lightGray
+  { background: "#2d1b0b", color: "#dedede" }, // brown
+  { background: "#321706", color: "#dedede" }, // orange
+  { background: "#291e00", color: "#dedede" }, // yellow
+  { background: "#072618", color: "#dedede" }, // green
+  { background: "#0c2230", color: "#dedede" }, // blue
+  { background: "#231a32", color: "#dedede" }, // purple
+  { background: "#2f1622", color: "#dedede" }, // pink
+  { background: "#321614", color: "#dedede" } // red
 ];
 
 export function getColor(color: Color, mode = "light") {

@@ -96,12 +96,12 @@ const cardVariants = cva(
         false: ""
       },
       status: {
-        "In Progress": "border-emerald-600/30",
+        "In Progress": "border-status-green/30",
         Ready: "",
         Done: "",
         Paused: "opacity-70",
-        Canceled: "border-red-500/30",
-        Cancelled: "border-red-500/30",
+        Canceled: "border-status-red/30",
+        Cancelled: "border-status-red/30",
         Waiting: "opacity-50",
         Todo: "border-border"
       }
@@ -182,15 +182,15 @@ export function PickingItemCard({
                 segments={[
                   {
                     value: item.quantityComplete ?? 0,
-                    className: "bg-emerald-500"
+                    className: "bg-status-green"
                   },
                   {
                     value: item.quantityReworked ?? 0,
-                    className: "bg-yellow-500"
+                    className: "bg-status-yellow"
                   },
                   {
                     value: item.quantityScrapped ?? 0,
-                    className: "bg-red-500"
+                    className: "bg-status-red"
                   }
                 ]}
                 max={(item.targetQuantity ?? item.operationQuantity) || 1}
@@ -276,7 +276,7 @@ export function PickingItemCard({
                 <span
                   className={cn(
                     "text-sm tabular-nums",
-                    isOverdue ? "text-red-500" : ""
+                    isOverdue ? "text-destructive" : ""
                   )}
                 >
                   Due{" "}
@@ -319,7 +319,7 @@ export function PickingItemCard({
         )}
 
         {displaySettings.showQuantity && Number(item.quantityScrapped) > 0 && (
-          <HStack className="justify-start space-x-2 text-red-500">
+          <HStack className="justify-start space-x-2 text-status-red">
             <LuTrash className="size-4 shrink-0" />
             <span className="text-sm tabular-nums">
               {item.quantityScrapped} Scrapped

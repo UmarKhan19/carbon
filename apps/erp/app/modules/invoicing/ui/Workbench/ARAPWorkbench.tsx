@@ -425,9 +425,7 @@ export function ARAPWorkbench({
                 <span
                   className={cn(
                     "tabular-nums font-semibold flex items-center gap-1",
-                    hasVariance
-                      ? "text-red-600 dark:text-red-400"
-                      : "text-emerald-600 dark:text-emerald-400"
+                    hasVariance ? "text-destructive" : "text-success"
                   )}
                 >
                   {hasVariance ? (

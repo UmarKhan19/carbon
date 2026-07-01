@@ -220,7 +220,7 @@ export function DemandForecastSourcesPopover({
                         <Link
                           to={path.to.part(s.redirectedFromItem.id)}
                           target="_blank"
-                          className="block truncate text-xs text-blue-700 hover:underline dark:text-blue-300"
+                          className="block truncate text-xs text-status-blue hover:underline"
                           title={
                             s.redirectedFromItem.readableIdWithRevision ?? ""
                           }

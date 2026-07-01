@@ -216,17 +216,19 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
 
           const statusIcon = everyMadeLineIsCompleted ? (
             <IconWithTooltip
-              icon={<LuCheck className="w-3 h-3 mr-2 text-emerald-500" />}
+              icon={<LuCheck className="w-3 h-3 mr-2 text-success" />}
               tooltip={t`All jobs completed`}
             />
           ) : everyMadeLineHasSufficientJobs ? (
             <IconWithTooltip
-              icon={<LuLoader className="w-3 h-3 mr-2 text-orange-500" />}
+              icon={<LuLoader className="w-3 h-3 mr-2 text-status-orange" />}
               tooltip={t`Jobs in progress`}
             />
           ) : (
             <IconWithTooltip
-              icon={<LuTriangleAlert className="w-3 h-3 mr-2 text-red-500" />}
+              icon={
+                <LuTriangleAlert className="w-3 h-3 mr-2 text-destructive" />
+              }
               tooltip={t`Not enough jobs to cover quantity`}
             />
           );
@@ -244,7 +246,7 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span className="inline-flex">
-                      <LuTriangleAlert className="w-3 h-3 mr-2 text-red-500" />
+                      <LuTriangleAlert className="w-3 h-3 mr-2 text-destructive" />
                     </span>
                   </TooltipTrigger>
                   <TooltipContent side="left">

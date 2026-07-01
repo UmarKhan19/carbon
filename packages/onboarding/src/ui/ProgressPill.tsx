@@ -18,14 +18,14 @@ export function ProgressPill({
       className={cn(
         "shrink-0 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium tabular-nums whitespace-nowrap",
         allDone
-          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+          ? "bg-status-green/12 text-status-green-fg"
           : "border text-muted-foreground"
       )}
     >
       <span
         className={cn(
           "size-1.5 rounded-full",
-          allDone ? "bg-emerald-500" : "bg-primary"
+          allDone ? "bg-status-green" : "bg-primary"
         )}
       />
       {done}/{total} {label}

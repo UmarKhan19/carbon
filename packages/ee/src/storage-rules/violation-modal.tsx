@@ -60,7 +60,7 @@ export default function StorageRuleViolationModal({
               {hasError ? (
                 <LuOctagonAlert className="text-destructive h-5 w-5" />
               ) : (
-                <LuTriangleAlert className="text-amber-500 h-5 w-5" />
+                <LuTriangleAlert className="text-warning h-5 w-5" />
               )}
               Rule Violation
             </span>
@@ -118,7 +118,7 @@ function ViolationGroup({
   tone: "error" | "warn";
 }) {
   const Icon = tone === "error" ? LuOctagonAlert : LuTriangleAlert;
-  const colorClass = tone === "error" ? "text-destructive" : "text-amber-500";
+  const colorClass = tone === "error" ? "text-destructive" : "text-warning";
 
   return (
     <div className="flex flex-col gap-2">

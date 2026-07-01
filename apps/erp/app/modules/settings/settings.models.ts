@@ -288,13 +288,12 @@ export const sequenceValidator = z.object({
 
 export const themes = [
   "zinc",
-  "neutral",
-  "red",
-  "orange",
-  "yellow",
-  "green",
-  "blue",
-  "violet"
+  "indigo",
+  "cobalt",
+  "emerald",
+  "acid",
+  "coral",
+  "dusk"
 ] as const;
 export type Theme = (typeof themes)[number];
 

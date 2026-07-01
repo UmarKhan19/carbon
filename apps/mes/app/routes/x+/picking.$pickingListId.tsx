@@ -387,10 +387,10 @@ function PickLineItem({
       className={cn(
         "text-white text-base tabular-nums",
         isFullyPicked
-          ? "bg-emerald-600"
+          ? "bg-success"
           : quantityPicked > 0
-            ? "bg-orange-500"
-            : "bg-red-600"
+            ? "bg-status-orange"
+            : "bg-destructive"
       )}
     >
       {quantityPicked}/{quantityToPick}
@@ -401,10 +401,10 @@ function PickLineItem({
       className={cn(
         "text-white text-base tabular-nums",
         isFullyPicked
-          ? "bg-emerald-600"
+          ? "bg-success"
           : isShort
-            ? "bg-orange-500"
-            : "bg-red-600"
+            ? "bg-status-orange"
+            : "bg-destructive"
       )}
     />
   );

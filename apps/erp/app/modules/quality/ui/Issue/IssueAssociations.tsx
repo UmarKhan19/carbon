@@ -305,19 +305,19 @@ function getAssociationIcon(key: IssueAssociationKey) {
     case "suppliers":
       return <LuContainer />;
     case "jobOperations":
-      return <LuCirclePlay className="text-amber-600" />;
+      return <LuCirclePlay className="text-status-yellow" />;
     case "purchaseOrderLines":
-      return <LuShoppingCart className="text-blue-600" />;
+      return <LuShoppingCart className="text-status-blue" />;
     case "salesOrderLines":
-      return <RiProgress8Line className="text-green-600" />;
+      return <RiProgress8Line className="text-status-green" />;
     case "shipmentLines":
-      return <LuTruck className="text-indigo-600" />;
+      return <LuTruck className="text-status-purple" />;
     case "receiptLines":
-      return <LuHandCoins className="text-red-600" />;
+      return <LuHandCoins className="text-status-red" />;
     case "trackedEntities":
       return <LuQrCode />;
     case "inboundInspections":
-      return <LuClipboardCheck className="text-teal-600" />;
+      return <LuClipboardCheck className="text-status-green" />;
     default:
       return <LuFileText />;
   }

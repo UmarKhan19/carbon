@@ -102,10 +102,10 @@ function eventTextClassName(
       return textClassNameForVariant(event.style.variant);
     }
     case "WARN": {
-      return "text-orange-500";
+      return "text-warning";
     }
     case "ERROR": {
-      return "text-red-500";
+      return "text-destructive";
     }
     default: {
       return textClassNameForVariant(event.style.variant);
@@ -120,7 +120,7 @@ export function eventBackgroundClassName(
   >
 ) {
   if (event.isError) {
-    return "bg-red-500";
+    return "bg-destructive";
   }
 
   if (event.isCancelled) {
@@ -143,10 +143,10 @@ export function eventBackgroundClassName(
       );
     }
     case "WARN": {
-      return "bg-orange-500";
+      return "bg-warning";
     }
     case "ERROR": {
-      return "bg-red-500";
+      return "bg-destructive";
     }
     default: {
       return backgroundClassNameForVariant(
@@ -175,12 +175,12 @@ function backgroundClassNameForVariant(
   switch (variant) {
     case "primary": {
       if (isPartial) {
-        return "bg-blue-500";
+        return "bg-status-blue";
       }
-      return "bg-emerald-500";
+      return "bg-success";
     }
     default: {
-      return "bg-gray-500";
+      return "bg-muted-foreground";
     }
   }
 }

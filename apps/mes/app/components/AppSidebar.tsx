@@ -250,7 +250,7 @@ export function OperationsNav({
                   item.label &&
                     Number.isInteger(parseInt(item.label)) &&
                     parseInt(item.label) > 0 &&
-                    "text-emerald-500"
+                    "text-status-green"
                 )}
                 isActive={isActive}
                 asChild

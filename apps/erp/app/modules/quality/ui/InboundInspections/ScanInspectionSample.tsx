@@ -149,7 +149,7 @@ export default function ScanInspectionSample({
                 progress={inspected}
                 max={Math.max(1, sampleSize)}
                 activeClassName={
-                  fails > acceptanceNumber ? "bg-red-500" : "bg-emerald-500"
+                  fails > acceptanceNumber ? "bg-destructive" : "bg-success"
                 }
               />
 
@@ -177,9 +177,9 @@ export default function ScanInspectionSample({
                         <InputRightElement>
                           {serial &&
                             (selected ? (
-                              <LuCheck className="text-green-500" />
+                              <LuCheck className="text-success" />
                             ) : (
-                              <LuX className="text-red-500" />
+                              <LuX className="text-destructive" />
                             ))}
                         </InputRightElement>
                       </InputGroup>

@@ -429,7 +429,7 @@ function SpacingSlider({
               onChange={(e) => onChange?.(Number(e.target.value))}
               aria-label="Layout spacing"
               className="absolute h-32 w-32 -rotate-90 cursor-pointer accent-foreground"
-              style={{ accentColor: "hsl(var(--foreground))" }}
+              style={{ accentColor: "var(--foreground)" }}
             />
           </div>
           <HStack className="w-full justify-between text-[10px] text-muted-foreground tabular-nums">

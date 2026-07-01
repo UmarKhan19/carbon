@@ -1,554 +1,317 @@
-import template from "lodash.template";
+/**
+ * OKLCH color system + theme engine.
+ *
+ * Every theme is generated from a compact spec (brand hue + chroma + kind) by
+ * `buildTheme`, which emits full `oklch(...)` strings for all semantic tokens in
+ * both light and dark modes. Dark mode follows a perceptual-lightness formula
+ * rather than hand-picked values.
+ *
+ * Token values are complete color strings (not bare HSL triplets), so every
+ * consumer references them directly as `var(--token)` — never `hsl(var(--token))`.
+ */
 
-export const themes = [
-  {
-    name: "zinc",
-    label: "Modern",
-    activeColor: {
-      light: "220 5.9% 2%",
-      dark: "220 5.2% 33.9%"
-    },
-    cssVars: {
-      light: {
-        background: "0 0% 100%",
-        foreground: "220 10% 3.9%",
-        card: "0 0% 100%",
-        "card-foreground": "220 10% 3.9%",
-        popover: "0 0% 100%",
-        "popover-foreground": "220 10% 3.9%",
-        active: "222 10% 88%",
-        "active-foreground": "222 0 8%",
-        primary: "220 5.9% 10%",
-        "primary-foreground": "0 0% 98%",
-        secondary: "220 4.8% 95.9%",
-        "secondary-foreground": "220 5.9% 10%",
-        muted: "220 4.8% 95.9%",
-        "muted-foreground": "220 3.8% 46.1%",
-        accent: "220 4.8% 95.9%",
-        "accent-foreground": "220 5.9% 10%",
-        destructive: "0 84.2% 60.2%",
-        "destructive-foreground": "0 0% 98%",
-        border: "220 5.9% 90%",
-        input: "220 5.9% 90%",
-        ring: "220 5.9% 10%",
-        success: "142 70% 45%",
-        "success-foreground": "0 0% 98%"
-      },
-      dark: {
-        // Vercel/Geist-inspired dark mode - pure black base
-        background: "0 0% 0%",
-        foreground: "0 0% 93%",
-        card: "0 0% 4%",
-        "card-foreground": "0 0% 93%",
-        popover: "0 0% 7%",
-        "popover-foreground": "0 0% 93%",
-        primary: "0 0% 100%",
-        "primary-foreground": "0 0% 0%",
-        active: "0 0% 10%",
-        "active-foreground": "0 0% 100%",
-        secondary: "0 0% 7%",
-        "secondary-foreground": "0 0% 93%",
-        muted: "0 0% 15%",
-        "muted-foreground": "0 0% 63%",
-        accent: "0 0% 10%",
-        "accent-foreground": "0 0% 93%",
-        destructive: "0 100% 64%",
-        "destructive-foreground": "0 0% 100%",
-        border: "0 0% 15%",
-        input: "0 0% 15%",
-        ring: "0 0% 35%",
-        success: "152 72% 53%",
-        "success-foreground": "0 0% 0%"
-      }
-    }
-  },
-  {
-    name: "neutral",
-    label: "Brutal",
-    activeColor: {
-      light: "0 0% 45.1%",
-      dark: "0 0% 32.2%"
-    },
-    cssVars: {
-      light: {
-        background: "0 0% 96%",
-        foreground: "0 0% 3.9%",
-        card: "0 0% 93%",
-        "card-foreground": "0 0% 3.9%",
-        popover: "0 0% 93%",
-        "popover-foreground": "0 0% 3.9%",
-        primary: "0 0% 9%",
-        "primary-foreground": "0 0% 98%",
-        active: "0 0% 88%",
-        "active-foreground": "0 0% 12%",
-        secondary: "0 0% 96%",
-        "secondary-foreground": "0 0% 9%",
-        muted: "0 0% 85%",
-        "muted-foreground": "0 0% 45.1%",
-        accent: "0 0% 96%",
-        "accent-foreground": "0 0% 9%",
-        destructive: "0 84.2% 60.2%",
-        "destructive-foreground": "0 0% 98%",
-        border: "0 0% 80%",
-        input: "0 0% 80%",
-        ring: "0 0% 3.9%",
-        success: "142 70% 45%",
-        "success-foreground": "0 0% 98%"
-      },
-      dark: {
-        background: "20 33% 4%",
-        foreground: "0 0% 98%",
-        card: "0 0% 5%",
-        "card-foreground": "0 0% 98%",
-        popover: "0 0% 8.9%",
-        "popover-foreground": "0 0% 98%",
-        primary: "30 24% 94%",
-        "primary-foreground": "0 0% 1%",
-        active: "30 24% 16%",
-        "active-foreground": "0 0% 98%",
-        secondary: "0 0% 14.9%",
-        "secondary-foreground": "0 0% 98%",
-        muted: "0 0% 14.9%",
-        "muted-foreground": "0 0% 63.9%",
-        accent: "0 0% 14.9%",
-        "accent-foreground": "0 0% 98%",
-        destructive: "0 62.8% 30.6%",
-        "destructive-foreground": "0 0% 98%",
-        border: "0 0% 14.9%",
-        input: "0 0% 14.9%",
-        ring: "0 0% 83.1%",
-        success: "142 70% 45%",
-        "success-foreground": "0 0% 98%"
-      }
-    }
-  },
-  {
-    name: "red",
-    label: "Cherry",
-    activeColor: {
-      light: "0 72.2% 50.6%",
-      dark: "0 72.2% 50.6%"
-    },
-    cssVars: {
-      light: {
-        background: "0 0% 100%",
-        foreground: "0 0% 3.9%",
-        card: "0 0% 100%",
-        "card-foreground": "0 0% 3.9%",
-        popover: "0 0% 100%",
-        "popover-foreground": "0 0% 3.9%",
-        primary: "0 72.2% 50.6%",
-        "primary-foreground": "0 85.7% 97.3%",
-        active: "0 55% 92%",
-        "active-foreground": "0 72% 50%",
-        secondary: "0 0% 96.1%",
-        "secondary-foreground": "0 0% 9%",
-        muted: "0 0% 96.1%",
-        "muted-foreground": "0 0% 45.1%",
-        accent: "0 0% 96.1%",
-        "accent-foreground": "0 0% 9%",
-        destructive: "0 84.2% 60.2%",
-        "destructive-foreground": "0 0% 98%",
-        border: "0 0% 89.8%",
-        input: "0 0% 89.8%",
-        ring: "0 72.2% 50.6%",
-        success: "142 70% 45%",
-        "success-foreground": "0 0% 98%"
-      },
-      dark: {
-        background: "0 0% 6.9%",
-        foreground: "0 0% 98%",
-        card: "0 0% 5%",
-        "card-foreground": "0 0% 98%",
-        popover: "0 0% 8.9%",
-        "popover-foreground": "0 0% 98%",
-        primary: "0 72.2% 50.6%",
-        "primary-foreground": "0 85.7% 97.3%",
-        active: "0 40% 17%",
-        "active-foreground": "0 80% 63%",
-        secondary: "0 0% 14.9%",
-        "secondary-foreground": "0 0% 98%",
-        muted: "0 0% 14.9%",
-        "muted-foreground": "0 0% 63.9%",
-        accent: "0 0% 14.9%",
-        "accent-foreground": "0 0% 98%",
-        destructive: "0 62.8% 30.6%",
-        "destructive-foreground": "0 0% 98%",
-        border: "0 0% 14.9%",
-        input: "0 0% 14.9%",
-        ring: "0 72.2% 50.6%",
-        success: "142 70% 45%",
-        "success-foreground": "0 0% 98%"
-      }
-    }
-  },
-  {
-    name: "orange",
-    label: "Apricot",
-    activeColor: {
-      light: "17 96% 57%",
-      dark: "17 96% 57%"
-    },
-    cssVars: {
-      light: {
-        background: "0 0% 100%",
-        foreground: "20 14.3% 4.1%",
-        card: "0 0% 100%",
-        "card-foreground": "20 14.3% 4.1%",
-        popover: "0 0% 100%",
-        "popover-foreground": "20 14.3% 4.1%",
-        primary: "17 96% 57%",
-        "primary-foreground": "60 9.1% 97.8%",
-        active: "11 55% 92%",
-        "active-foreground": "17 88% 51%",
-        secondary: "24 4.8% 95.9%",
-        "secondary-foreground": "24 9.8% 10%",
-        muted: "24 4.8% 95.9%",
-        "muted-foreground": "25 5.3% 44.7%",
-        accent: "24 4.8% 95.9%",
-        "accent-foreground": "24 9.8% 10%",
-        destructive: "0 84.2% 60.2%",
-        "destructive-foreground": "60 9.1% 97.8%",
-        border: "20 5.9% 90%",
-        input: "20 5.9% 90%",
-        ring: "17 96% 57%",
-        success: "142 70% 45%",
-        "success-foreground": "0 0% 98%"
-      },
-      dark: {
-        background: "20 14.3% 6.1%",
-        foreground: "60 9.1% 97.8%",
-        card: "20 14.3% 5%",
-        "card-foreground": "60 9.1% 97.8%",
-        popover: "20 14.3% 8.9%",
-        "popover-foreground": "60 9.1% 97.8%",
-        primary: "17 96% 57%",
-        "primary-foreground": "60 9.1% 3.8%",
-        active: "18 40% 17%",
-        "active-foreground": "18 80% 63%",
-        secondary: "12 6.5% 15.1%",
-        "secondary-foreground": "60 9.1% 97.8%",
-        muted: "12 6.5% 15.1%",
-        "muted-foreground": "24 5.4% 63.9%",
-        accent: "12 6.5% 15.1%",
-        "accent-foreground": "60 9.1% 97.8%",
-        destructive: "0 72.2% 50.6%",
-        "destructive-foreground": "60 9.1% 97.8%",
-        border: "12 6.5% 15.1%",
-        input: "12 6.5% 15.1%",
-        ring: "17 96% 57%",
-        success: "142 70% 45%",
-        "success-foreground": "0 0% 98%"
-      }
-    }
-  },
-  {
-    name: "yellow",
-    label: "Lemon",
-    activeColor: {
-      light: "47.9 95.8% 53.1%",
-      dark: "61 100% 50%"
-    },
-    cssVars: {
-      light: {
-        background: "0 0% 100%",
-        foreground: "20 14.3% 4.1%",
-        card: "0 0% 100%",
-        "card-foreground": "20 14.3% 4.1%",
-        popover: "0 0% 100%",
-        "popover-foreground": "20 14.3% 4.1%",
-        primary: "47.9 95.8% 53.1%",
-        "primary-foreground": "26 83.3% 14.1%",
-        active: "47.9 95.8% 88%",
-        "active-foreground": "47.9 95.8% 4%",
-        secondary: "47.9 4.8% 95.9%",
-        "secondary-foreground": "24 9.8% 10%",
-        muted: "47.9 4.8% 95.9%",
-        "muted-foreground": "25 5.3% 44.7%",
-        accent: "60 4.8% 95.9%",
-        "accent-foreground": "24 9.8% 10%",
-        destructive: "0 84.2% 60.2%",
-        "destructive-foreground": "60 9.1% 97.8%",
-        border: "20 5.9% 90%",
-        input: "20 5.9% 90%",
-        ring: "47.9 14.3% 4.1%",
-        success: "142 70% 45%",
-        "success-foreground": "0 0% 98%"
-      },
-      dark: {
-        background: "20 14.3% 6.1%",
-        foreground: "61 9.1% 97.8%",
-        card: "20 14.3% 5%",
-        "card-foreground": "61 9.1% 97.8%",
-        popover: "20 14.3% 4.1%",
-        "popover-foreground": "61 9.1% 97.8%",
-        primary: "61 100% 53.1%",
-        "primary-foreground": "61 83.3% 14.1%",
-        active: "61 40% 17%",
-        "active-foreground": "61 80% 63%",
+type Mode = "light" | "dark";
+type ThemeKind = "accent" | "neutral" | "acid";
 
-        secondary: "12 6.5% 15.1%",
-        "secondary-foreground": "61 9.1% 97.8%",
-        muted: "12 6.5% 15.1%",
-        "muted-foreground": "24 5.4% 63.9%",
-        accent: "12 6.5% 15.1%",
-        "accent-foreground": "61 9.1% 97.8%",
-        destructive: "0 62.8% 30.6%",
-        "destructive-foreground": "61 9.1% 97.8%",
-        border: "12 6.5% 15.1%",
-        input: "12 6.5% 15.1%",
-        ring: "61 91.7% 32.9%",
-        success: "142 70% 45%",
-        "success-foreground": "0 0% 98%"
-      }
-    }
-  },
+const ok = (l: number, c: number, h: number) =>
+  `oklch(${+l.toFixed(4)} ${+c.toFixed(4)} ${h})`;
 
-  {
-    name: "green",
-    label: "Mint",
-    activeColor: {
-      light: "171 62% 41%",
-      dark: "171 98% 59%"
-    },
-    cssVars: {
-      light: {
-        background: "0 0% 100%",
-        foreground: "171 10% 3.9%",
-        card: "0 0% 100%",
-        "card-foreground": "171 10% 3.9%",
-        popover: "0 0% 100%",
-        "popover-foreground": "171 10% 3.9%",
-        primary: "171 62% 41%",
-        "primary-foreground": "171 100% 97.3%",
-        active: "171 62% 92%",
-        "active-foreground": "171 62% 22%",
-        secondary: "171 4.8% 95.9%",
-        "secondary-foreground": "171 5.9% 10%",
-        muted: "171 4.8% 95.9%",
-        "muted-foreground": "171 3.8% 46.1%",
-        accent: "171 4.8% 95.9%",
-        "accent-foreground": "171 5.9% 10%",
-        destructive: "0 84.2% 60.2%",
-        "destructive-foreground": "0 0% 98%",
-        border: "171 5.9% 90%",
-        input: "171 5.9% 90%",
-        ring: "171 62% 41%",
-        success: "142 70% 45%",
-        "success-foreground": "0 0% 98%"
-      },
-      dark: {
-        background: "20 14.3% 6.1%",
-        foreground: "0 0% 95%",
-        popover: "151 0% 9%",
-        "popover-foreground": "151 0% 95%",
-        card: "151 0% 5%",
-        "card-foreground": "151 0% 95%",
-        primary: "171 98% 59%",
-        "primary-foreground": "144.9 80.4% 10%",
-        active: "171 98% 15%",
-        "active-foreground": "171 98% 59%",
-        secondary: "151 3.7% 15.9%",
-        "secondary-foreground": "0 0% 98%",
-        muted: "151 0% 15%",
-        "muted-foreground": "151 5% 64.9%",
-        accent: "151 6.5% 15.1%",
-        "accent-foreground": "0 0% 98%",
-        destructive: "0 62.8% 30.6%",
-        "destructive-foreground": "0 85.7% 97.3%",
-        border: "151 3.7% 15.9%",
-        input: "151 3.7% 15.9%",
-        ring: "171 71.8% 29.2%",
-        success: "142 70% 45%",
-        "success-foreground": "0 0% 98%"
-      }
-    }
-  },
-  {
-    name: "blue",
-    label: "Blueberry",
-    activeColor: {
-      light: "237 57% 30%",
-      dark: "216 98% 52%"
-    },
-    cssVars: {
-      light: {
-        background: "0 0% 100%",
-        foreground: "237 98% 4.9%",
-        card: "0 0% 100%",
-        "card-foreground": "237 98% 4.9%",
-        popover: "0 0% 100%",
-        "popover-foreground": "237 98% 4.9%",
-        primary: "237 57% 30%",
-        "primary-foreground": "210 40% 98%",
-        active: "237 57% 88%",
-        "active-foreground": "237 57 30%",
-        secondary: "210 40% 96.1%",
-        "secondary-foreground": "237.2 47.4% 11.2%",
-        muted: "237 40% 96.1%",
-        "muted-foreground": "215.4 16.3% 46.9%",
-        accent: "237 40% 96.1%",
-        "accent-foreground": "237.2 47.4% 11.2%",
-        destructive: "0 84.2% 60.2%",
-        "destructive-foreground": "210 40% 98%",
-        border: "214.3 31.8% 91.4%",
-        input: "214.3 31.8% 91.4%",
-        ring: "237.2 83.2% 53.3%",
-        success: "142 70% 45%",
-        "success-foreground": "0 0% 98%"
-      },
-      dark: {
-        background: "220 14.3% 6.1%",
-        foreground: "220 0% 95%",
-        popover: "216 0% 9%",
-        "popover-foreground": "220 0% 95%",
-        card: "220 10% 5%",
-        "card-foreground": "220 10% 95%",
-        primary: "216 98% 52%",
-        "primary-foreground": "216 80.4% 100%",
-        active: "216 50% 15%",
-        "active-foreground": "216 98% 58%",
-        secondary: "220 10% 15.9%",
-        "secondary-foreground": "220 0% 98%",
-        muted: "220 10% 15.9%",
-        "muted-foreground": "220 5% 64.9%",
-        accent: "220 10% 15.9%",
-        "accent-foreground": "0 0% 98%",
-        destructive: "0 62.8% 30.6%",
-        "destructive-foreground": "0 85.7% 97.3%",
-        border: "220 10% 15.9%",
-        input: "220 10% 15.9%",
-        ring: "216 71.8% 29.2%",
-        success: "142 70% 45%",
-        "success-foreground": "0 0% 98%"
-      }
-    }
-  },
-  {
-    name: "violet",
-    label: "Lavender",
-    activeColor: {
-      light: "238 57% 50%",
-      dark: "253.4 70% 40.4%"
-    },
-    cssVars: {
-      light: {
-        background: "0 0% 100%",
-        foreground: "224 71.4% 4.1%",
-        card: "0 0% 100%",
-        "card-foreground": "224 71.4% 4.1%",
-        popover: "0 0% 100%",
-        "popover-foreground": "224 71.4% 4.1%",
-        primary: "238 57% 50%",
-        "primary-foreground": "238 20% 98%",
-        active: "238 57% 88%",
-        "active-foreground": "238 57% 44%",
-        secondary: "220 14.3% 95.9%",
-        "secondary-foreground": "220.9 39.3% 11%",
-        muted: "238 57% 95.9%",
-        "muted-foreground": "238 8.9% 46.1%",
-        accent: "238 33.3% 95.9%",
-        "accent-foreground": "220.9 39.3% 11%",
-        destructive: "0 84.2% 60.2%",
-        "destructive-foreground": "210 20% 98%",
-        border: "220 13% 91%",
-        input: "220 13% 91%",
-        ring: "238 83.3% 57.8%",
-        success: "142 70% 45%",
-        "success-foreground": "0 0% 98%"
-      },
-      dark: {
-        background: "263 41.4 6.1%",
-        foreground: "263 20% 98%",
-        card: "263 41.4 5%",
-        "card-foreground": "210 20% 98%",
-        popover: "263 41.4 8.9%",
-        "popover-foreground": "210 20% 98%",
-        primary: "327 70% 40.4%",
-        "primary-foreground": "210 20% 98%",
-        active: "327 40% 17%",
-        "active-foreground": "327 80% 63%",
-        secondary: "263 27.9% 16.9%",
-        "secondary-foreground": "263 20% 98%",
-        muted: "263 27.9% 12.9%",
-        "muted-foreground": "217.9 10.6% 64.9%",
-        accent: "263 27.9% 12.9%",
-        "accent-foreground": "210 20% 98%",
-        destructive: "0 62.8% 30.6%",
-        "destructive-foreground": "210 20% 98%",
-        border: "263 27.9% 16.9%",
-        input: "263 27.9% 16.9%",
-        ring: "263.4 70% 50.4%",
-        success: "142 70% 45%",
-        "success-foreground": "0 0% 98%"
-      }
-    }
+/** Fixed, non-rotating status hues (semantic identity is stable across themes). */
+const STATUS = {
+  destructive: 25,
+  success: 160,
+  warning: 80,
+  info: 240
+} as const;
+
+/** Fixed, categorical chart hues at constant lightness (data identity is stable). */
+const CHART_HUES = [25, 160, 240, 80, 300, 50] as const;
+
+export type ThemeSpec = {
+  name: string;
+  label: string;
+  /** Brand hue in OKLCH degrees. */
+  hue: number;
+  /** Brand chroma (0 = achromatic graphite). */
+  chroma: number;
+  kind: ThemeKind;
+};
+
+type CssVars = Record<string, string>;
+
+type BrandVars = {
+  primary: string;
+  "primary-foreground": string;
+  active: string;
+  "active-foreground": string;
+  ring: string;
+};
+
+function statusTokens(mode: Mode): CssVars {
+  if (mode === "light") {
+    return {
+      destructive: ok(0.55, 0.16, STATUS.destructive),
+      "destructive-foreground": ok(0.98, 0.02, STATUS.destructive),
+      success: ok(0.55, 0.14, STATUS.success),
+      "success-foreground": ok(0.98, 0.02, STATUS.success),
+      warning: ok(0.68, 0.14, STATUS.warning),
+      "warning-foreground": ok(0.26, 0.06, STATUS.warning),
+      info: ok(0.55, 0.13, STATUS.info),
+      "info-foreground": ok(0.98, 0.02, STATUS.info)
+    };
   }
-] as const;
+  return {
+    destructive: ok(0.62, 0.15, STATUS.destructive),
+    "destructive-foreground": ok(0.14, 0.02, STATUS.destructive),
+    success: ok(0.62, 0.13, STATUS.success),
+    "success-foreground": ok(0.14, 0.02, STATUS.success),
+    warning: ok(0.72, 0.13, STATUS.warning),
+    "warning-foreground": ok(0.18, 0.04, STATUS.warning),
+    info: ok(0.62, 0.11, STATUS.info),
+    "info-foreground": ok(0.14, 0.02, STATUS.info)
+  };
+}
+
+function chartTokens(mode: Mode): CssVars {
+  const l = mode === "light" ? 0.6 : 0.7;
+  const chroma =
+    mode === "light"
+      ? [0.16, 0.14, 0.12, 0.13, 0.12, 0.14]
+      : [0.14, 0.12, 0.1, 0.11, 0.1, 0.12];
+  return CHART_HUES.reduce<CssVars>((acc, hue, i) => {
+    acc[`chart-${i + 1}`] = ok(l, chroma[i] ?? 0.12, hue);
+    return acc;
+  }, {});
+}
+
+/** Brand-derived tokens: primary, active, ring. */
+function brandTokens(spec: ThemeSpec, mode: Mode): BrandVars {
+  const { hue: h, chroma: c, kind } = spec;
+  const nh = h; // neutrals carry a faint brand tint
+
+  if (kind === "neutral") {
+    // Achromatic near-fg primary (graphite / brutal look).
+    if (mode === "light") {
+      return {
+        primary: ok(0.24, c, nh),
+        "primary-foreground": ok(0.98, 0, 0),
+        active: ok(0.92, c, nh),
+        "active-foreground": ok(0.28, c, nh),
+        ring: ok(0.35, c, nh)
+      };
+    }
+    return {
+      primary: ok(0.93, c, nh),
+      "primary-foreground": ok(0.14, c, nh),
+      active: ok(0.22, c, nh),
+      "active-foreground": ok(0.92, c, nh),
+      ring: ok(0.55, c, nh)
+    };
+  }
+
+  if (kind === "acid") {
+    // High-lightness electric accent on graphite (Signal Acid).
+    if (mode === "light") {
+      return {
+        primary: ok(0.82, c, h),
+        "primary-foreground": ok(0.28, c * 0.5, h),
+        active: ok(0.94, c * 0.5, h),
+        "active-foreground": ok(0.4, c * 0.65, h),
+        ring: ok(0.82, c, h)
+      };
+    }
+    return {
+      primary: ok(0.85, c, h),
+      "primary-foreground": ok(0.24, c * 0.55, h),
+      active: ok(0.28, c * 0.45, h),
+      "active-foreground": ok(0.85, c * 0.75, h),
+      ring: ok(0.85, c, h)
+    };
+  }
+
+  // Standard colored accent.
+  if (mode === "light") {
+    return {
+      primary: ok(0.52, c, h),
+      "primary-foreground": ok(0.98, c * 0.05, h),
+      active: ok(0.93, c * 0.25, h),
+      "active-foreground": ok(0.4, c * 0.8, h),
+      ring: ok(0.52, c, h)
+    };
+  }
+  return {
+    primary: ok(0.72, c * 0.85, h),
+    "primary-foreground": ok(0.14, c * 0.15, h),
+    active: ok(0.24, c * 0.35, h),
+    "active-foreground": ok(0.8, c * 0.75, h),
+    ring: ok(0.72, c * 0.85, h)
+  };
+}
+
+/** Neutral surfaces, text, borders — faintly tinted with the brand hue. */
+function neutralTokens(spec: ThemeSpec, mode: Mode): CssVars {
+  const nh = spec.hue;
+  const nc = spec.kind === "neutral" ? 0.004 : 0.006;
+
+  if (mode === "light") {
+    return {
+      background: ok(1, 0, 0),
+      foreground: ok(0.16, nc, nh),
+      card: ok(0.99, nc, nh),
+      "card-foreground": ok(0.16, nc, nh),
+      popover: ok(0.985, nc, nh),
+      "popover-foreground": ok(0.16, nc, nh),
+      secondary: ok(0.95, nc, nh),
+      "secondary-foreground": ok(0.24, nc, nh),
+      muted: ok(0.95, nc, nh),
+      "muted-foreground": ok(0.55, nc, nh),
+      accent: ok(0.955, nc, nh),
+      "accent-foreground": ok(0.24, nc, nh),
+      border: ok(0.9, nc, nh),
+      input: ok(0.9, nc, nh)
+    };
+  }
+  return {
+    background: ok(0.08, nc, nh),
+    foreground: ok(0.93, nc, nh),
+    card: ok(0.12, nc, nh),
+    "card-foreground": ok(0.93, nc, nh),
+    popover: ok(0.15, nc, nh),
+    "popover-foreground": ok(0.93, nc, nh),
+    secondary: ok(0.18, nc, nh),
+    "secondary-foreground": ok(0.92, nc, nh),
+    muted: ok(0.2, nc, nh),
+    "muted-foreground": ok(0.62, nc, nh),
+    accent: ok(0.18, nc, nh),
+    "accent-foreground": ok(0.92, nc, nh),
+    border: ok(0.25, nc, nh),
+    input: ok(0.25, nc, nh)
+  };
+}
+
+/** Sidebar surfaces derived from the neutral + brand ramp. */
+function sidebarTokens(spec: ThemeSpec, mode: Mode, brand: BrandVars): CssVars {
+  const nh = spec.hue;
+  const nc = spec.kind === "neutral" ? 0.004 : 0.006;
+  if (mode === "light") {
+    return {
+      "sidebar-background": ok(0.985, nc, nh),
+      "sidebar-foreground": ok(0.35, nc, nh),
+      "sidebar-primary": brand.primary,
+      "sidebar-primary-foreground": brand["primary-foreground"],
+      "sidebar-accent": ok(0.95, nc, nh),
+      "sidebar-accent-foreground": ok(0.24, nc, nh),
+      "sidebar-border": ok(0.9, nc, nh),
+      "sidebar-ring": brand.ring
+    };
+  }
+  return {
+    "sidebar-background": ok(0.11, nc, nh),
+    "sidebar-foreground": ok(0.9, nc, nh),
+    "sidebar-primary": brand.primary,
+    "sidebar-primary-foreground": brand["primary-foreground"],
+    "sidebar-accent": ok(0.18, nc, nh),
+    "sidebar-accent-foreground": ok(0.92, nc, nh),
+    "sidebar-border": ok(0.25, nc, nh),
+    "sidebar-ring": brand.ring
+  };
+}
+
+function buildMode(spec: ThemeSpec, mode: Mode): CssVars {
+  const brand = brandTokens(spec, mode);
+  return {
+    ...neutralTokens(spec, mode),
+    ...brand,
+    ...statusTokens(mode),
+    ...chartTokens(mode),
+    ...sidebarTokens(spec, mode, brand)
+  };
+}
+
+function buildTheme(spec: ThemeSpec) {
+  const light = buildMode(spec, "light");
+  const dark_ = buildMode(spec, "dark");
+  return {
+    name: spec.name,
+    label: spec.label,
+    activeColor: {
+      light: brandTokens(spec, "light").primary,
+      dark: brandTokens(spec, "dark").primary
+    },
+    cssVars: { light, dark: dark_ }
+  };
+}
+
+/**
+ * Theme specs. Legacy names (zinc, neutral, red…) are preserved for backward
+ * compatibility with stored theme cookies/settings; `zinc` remains the default
+ * "Modern" graphite. New modern themes are appended.
+ */
+const THEME_SPECS: ThemeSpec[] = [
+  { name: "zinc", label: "Modern", hue: 260, chroma: 0, kind: "neutral" },
+  {
+    name: "indigo",
+    label: "Electric Indigo",
+    hue: 275,
+    chroma: 0.16,
+    kind: "accent"
+  },
+  { name: "cobalt", label: "Cobalt", hue: 255, chroma: 0.15, kind: "accent" },
+  {
+    name: "emerald",
+    label: "Emerald Tech",
+    hue: 155,
+    chroma: 0.15,
+    kind: "accent"
+  },
+  { name: "acid", label: "Signal Acid", hue: 128, chroma: 0.19, kind: "acid" },
+  {
+    name: "coral",
+    label: "Sunset Coral",
+    hue: 40,
+    chroma: 0.15,
+    kind: "accent"
+  },
+  { name: "dusk", label: "Violet Dusk", hue: 310, chroma: 0.15, kind: "accent" }
+];
+
+export const themes = THEME_SPECS.map(buildTheme);
 
 export type Theme = (typeof themes)[number];
 
-export const BASE_THEME_WITH_VARIABLES = `
-:root {
-  --background: <%- colors.light["background"] %>;
-  --foreground: <%- colors.light["foreground"] %>;
-  --card: <%- colors.light["card"] %>;
-  --card-foreground: <%- colors.light["card-foreground"] %>;
-  --popover: <%- colors.light["popover"] %>;
-  --popover-foreground: <%- colors.light["popover-foreground"] %>;
-  --primary: <%- colors.light["primary"] %>;
-  --primary-foreground: <%- colors.light["primary-foreground"] %>;
-  --active: <%- colors.light["active"] %>;
-  --active-foreground: <%- colors.light["active-foreground"] %>;
-  --secondary: <%- colors.light["secondary"] %>;
-  --secondary-foreground: <%- colors.light["secondary-foreground"] %>;
-  --muted: <%- colors.light["muted"] %>;
-  --muted-foreground: <%- colors.light["muted-foreground"] %>;
-  --accent: <%- colors.light["accent"] %>;
-  --accent-foreground: <%- colors.light["accent-foreground"] %>;
-  --destructive: <%- colors.light["destructive"] %>;
-  --destructive-foreground: <%- colors.light["destructive-foreground"] %>;
-  --border: <%- colors.light["border"] %>;
-  --input: <%- colors.light["input"] %>;
-  --ring: <%- colors.light["ring"] %>;
-  --radius: <%- radius %>rem;
-  --success: <%- colors.light["success"] %>;
-  --success-foreground: <%- colors.light["success-foreground"] %>;
+/**
+ * Retired theme names → nearest current theme. Keeps companies that stored a
+ * legacy selection (Cherry, Blueberry, …) rendering correctly after pruning.
+ */
+export const THEME_ALIASES: Record<string, string> = {
+  neutral: "zinc", // Brutal → Modern (visually near-identical)
+  red: "coral", // Cherry → Sunset Coral
+  orange: "coral", // Apricot → Sunset Coral
+  yellow: "acid", // Lemon → Signal Acid
+  green: "emerald", // Mint → Emerald Tech
+  blue: "cobalt", // Blueberry → Cobalt
+  violet: "dusk" // Lavender → Violet Dusk
+};
+
+/** Resolve a stored/selected theme name (applying aliases) to a Theme. */
+export function resolveTheme(
+  name: string | undefined | null
+): Theme | undefined {
+  if (!name) return undefined;
+  const resolved = THEME_ALIASES[name] ?? name;
+  return themes.find((t) => t.name === resolved);
 }
 
-.dark {
-  --background: <%- colors.dark["background"] %>;
-  --foreground: <%- colors.dark["foreground"] %>;
-  --card: <%- colors.dark["card"] %>;
-  --card-foreground: <%- colors.dark["card-foreground"] %>;
-  --popover: <%- colors.dark["popover"] %>;
-  --popover-foreground: <%- colors.dark["popover-foreground"] %>;
-  --primary: <%- colors.dark["primary"] %>;
-  --primary-foreground: <%- colors.dark["primary-foreground"] %>;
-  --active: <%- colors.dark["active"] %>;
-  --active-foreground: <%- colors.dark["active-foreground"] %>;
-  --secondary: <%- colors.dark["secondary"] %>;
-  --secondary-foreground: <%- colors.dark["secondary-foreground"] %>;
-  --muted: <%- colors.dark["muted"] %>;
-  --muted-foreground: <%- colors.dark["muted-foreground"] %>;
-  --accent: <%- colors.dark["accent"] %>;
-  --accent-foreground: <%- colors.dark["accent-foreground"] %>;
-  --destructive: <%- colors.dark["destructive"] %>;
-  --destructive-foreground: <%- colors.dark["destructive-foreground"] %>;
-  --border: <%- colors.dark["border"] %>;
-  --input: <%- colors.dark["input"] %>;
-  --ring: <%- colors.dark["ring"] %>;
-  --success: <%- colors.dark["success"] %>;
-  --success-foreground: <%- colors.dark["success-foreground"] %>;
-}`;
-
+/**
+ * Serialize a theme to a `:root { … } .dark { … }` stylesheet. Retained for
+ * callers that want to inject a full theme block; the apps instead read
+ * `theme.cssVars` directly and inline the active mode.
+ */
 export function getThemeCode(theme: Theme) {
-  if (!theme) {
-    return "";
-  }
-
-  return template(BASE_THEME_WITH_VARIABLES)({
-    colors: theme.cssVars,
-    radius: 0.5
-  });
+  if (!theme) return "";
+  const toBlock = (vars: CssVars) =>
+    Object.entries(vars)
+      .map(([k, v]) => `  --${k}: ${v};`)
+      .join("\n");
+  return `:root {\n${toBlock(theme.cssVars.light)}\n  --radius: 0.675rem;\n}\n\n.dark {\n${toBlock(theme.cssVars.dark)}\n}`;
 }

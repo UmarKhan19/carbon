@@ -320,7 +320,8 @@ const JobEstimatesVsActuals = ({
                           <span
                             className={cn(
                               "flex-shrink-0",
-                              actual.total > estimated.total && "text-red-500"
+                              actual.total > estimated.total &&
+                                "text-destructive"
                             )}
                           >
                             {formatDurationMilliseconds(actual.total)}
@@ -330,7 +331,8 @@ const JobEstimatesVsActuals = ({
                           <span
                             className={cn(
                               "line-clamp-1",
-                              actual.total > estimated.total && "text-red-500"
+                              actual.total > estimated.total &&
+                                "text-destructive"
                             )}
                           >
                             {estimated.total
@@ -377,7 +379,7 @@ const JobEstimatesVsActuals = ({
                                           className={cn(
                                             "flex-1 rounded-lg p-2 text-sm",
                                             note.createdBy === user.id
-                                              ? "bg-blue-500 text-white"
+                                              ? "bg-primary text-primary-foreground"
                                               : "bg-muted"
                                           )}
                                         >
@@ -570,7 +572,7 @@ const JobEstimatesVsActuals = ({
                         </HStack>
                       </Td>
                       <Td>{material.estimatedQuantity}</Td>
-                      <Td className={cn(exceedsEstimate && "text-red-500")}>
+                      <Td className={cn(exceedsEstimate && "text-destructive")}>
                         {material.methodType === "Make to Order" ? (
                           <MethodIcon type="Make to Order" />
                         ) : (
@@ -578,7 +580,7 @@ const JobEstimatesVsActuals = ({
                         )}
                       </Td>
 
-                      <Td className={cn(exceedsEstimate && "text-red-500")}>
+                      <Td className={cn(exceedsEstimate && "text-destructive")}>
                         {material.methodType !== "Make to Order" &&
                         material.estimatedQuantity &&
                         material.quantityIssued
@@ -607,7 +609,7 @@ const JobEstimatesVsActuals = ({
                               className={cn(
                                 "text-sm",
                                 actualTotalCost > estimatedTotalCost &&
-                                  "text-red-500"
+                                  "text-destructive"
                               )}
                             >
                               {currencyFormatter.format(actualTotalCost)}
@@ -616,7 +618,7 @@ const JobEstimatesVsActuals = ({
                               className={cn(
                                 "text-xxs",
                                 currentUnitCost > material.unitCost &&
-                                  "text-red-500"
+                                  "text-destructive"
                               )}
                             >
                               {currencyFormatter.format(currentUnitCost)}

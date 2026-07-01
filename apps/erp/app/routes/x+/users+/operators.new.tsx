@@ -176,11 +176,7 @@ export default function NewOperatorRoute() {
                     size="sm"
                     aria-label={t`Copy PIN`}
                     icon={
-                      copied ? (
-                        <LuCheck className="text-emerald-500" />
-                      ) : (
-                        <LuCopy />
-                      )
+                      copied ? <LuCheck className="text-success" /> : <LuCopy />
                     }
                     onClick={() => {
                       navigator.clipboard.writeText(pinValue);

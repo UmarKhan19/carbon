@@ -1170,7 +1170,7 @@ export function IssueMaterialModal({
                                     />
                                     <InputRightElement className="pl-2">
                                       {!serialErrors[index] && sn.id ? (
-                                        <LuCheck className="text-emerald-500" />
+                                        <LuCheck className="text-status-green" />
                                       ) : (
                                         <LuQrCode />
                                       )}
@@ -1373,7 +1373,7 @@ export function IssueMaterialModal({
                                     />
                                     <InputRightElement className="pl-2">
                                       {!batchErrors[index] && batch.id ? (
-                                        <LuCheck className="text-emerald-500" />
+                                        <LuCheck className="text-status-green" />
                                       ) : (
                                         <LuQrCode />
                                       )}

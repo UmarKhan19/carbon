@@ -480,15 +480,15 @@ function JobDetails({ job }: { job: Job }) {
                           segments={[
                             {
                               value: operation.quantityComplete ?? 0,
-                              className: "bg-emerald-500"
+                              className: "bg-success"
                             },
                             {
                               value: operation.quantityReworked ?? 0,
-                              className: "bg-yellow-500"
+                              className: "bg-warning"
                             },
                             {
                               value: operation.quantityScrapped ?? 0,
-                              className: "bg-red-500"
+                              className: "bg-destructive"
                             }
                           ]}
                           max={

@@ -682,7 +682,7 @@ function CopyBadge({
           className="flex flex-row items-center gap-1 cursor-pointer"
           onClick={handleCopy}
         >
-          {isCopied ? <LuCheck className="text-emerald-500" /> : <LuLink />}
+          {isCopied ? <LuCheck className="text-success" /> : <LuLink />}
           {text}
         </Badge>
       </TooltipTrigger>

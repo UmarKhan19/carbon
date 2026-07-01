@@ -106,9 +106,9 @@ export function IconButtonWithTooltip({
       className={cn(
         "size-16 text-xl md:text-lg md:size-[8dvh] flex flex-row items-center gap-2 justify-center bg-accent rounded-full shadow-lg hover:cursor-pointer hover:shadow-xl hover:accent hover:scale-105 transition-all disabled:cursor-not-allowed disabled:bg-muted disabled:opacity-30 text-accent-foreground group-hover:text-accent-foreground/80",
         variant === "success" &&
-          "bg-emerald-500 !text-white hover:bg-emerald-600 hover:text-white",
+          "bg-success !text-success-foreground hover:bg-success/90 hover:text-success-foreground",
         variant === "destructive" &&
-          "bg-red-500 !text-white hover:bg-red-600 hover:text-white"
+          "bg-destructive !text-destructive-foreground hover:bg-destructive/90 hover:text-destructive-foreground"
       )}
     >
       {icon}
@@ -173,7 +173,7 @@ export function WorkTypeToggle({
             <Trans>Setup</Trans>
           </span>
           {active.setup && (
-            <span className="absolute -top-1 -right-1 h-3 w-3 bg-emerald-500 rounded-full" />
+            <span className="absolute -top-1 -right-1 h-3 w-3 bg-success rounded-full" />
           )}
         </ToggleGroupItem>
       )}
@@ -189,7 +189,7 @@ export function WorkTypeToggle({
             <Trans>Labor</Trans>
           </span>
           {active.labor && (
-            <span className="absolute -top-1 -right-1 h-3 w-3 bg-emerald-500 rounded-full" />
+            <span className="absolute -top-1 -right-1 h-3 w-3 bg-success rounded-full" />
           )}
         </ToggleGroupItem>
       )}
@@ -205,7 +205,7 @@ export function WorkTypeToggle({
             <Trans>Machine</Trans>
           </span>
           {active.machine && (
-            <span className="absolute -top-1 -right-1 h-3 w-3 bg-emerald-500 rounded-full" />
+            <span className="absolute -top-1 -right-1 h-3 w-3 bg-success rounded-full" />
           )}
         </ToggleGroupItem>
       )}
@@ -324,7 +324,7 @@ export function PauseButton({ className, ...props }: ComponentProps<"button">) {
     <ButtonWithTooltip
       {...props}
       tooltip={t`Pause`}
-      className="group size-24 tall:size-32 flex flex-row items-center gap-2 justify-center bg-red-500 rounded-full shadow-lg hover:cursor-pointer hover:drop-shadow-xl hover:bg-red-600 hover:scale-105 transition-all text-accent disabled:bg-muted disabled:text-muted-foreground/80 text-4xl border-b-4 border-red-700 active:border-b-0 active:translate-y-1 disabled:bg-gray-500 disabled:hover:bg-gray-600 disabled:border-gray-700 disabled:text-white"
+      className="group size-24 tall:size-32 flex flex-row items-center gap-2 justify-center bg-destructive rounded-full shadow-lg hover:cursor-pointer hover:drop-shadow-xl hover:bg-destructive/90 hover:scale-105 transition-all text-accent disabled:text-muted-foreground/80 text-4xl border-b-4 border-destructive active:border-b-0 active:translate-y-1 disabled:bg-muted disabled:hover:bg-muted disabled:border-border disabled:text-white"
     >
       <FaPause className="group-hover:scale-110" />
     </ButtonWithTooltip>
@@ -337,7 +337,7 @@ export function PlayButton({ className, ...props }: ComponentProps<"button">) {
     <ButtonWithTooltip
       {...props}
       tooltip={t`Start`}
-      className="group size-24 tall:size-32 flex flex-row items-center gap-2 justify-center bg-emerald-500 rounded-full shadow-lg hover:cursor-pointer hover:drop-shadow-xl hover:bg-emerald-600 hover:scale-105 transition-all text-accent disabled:bg-muted disabled:text-muted-foreground/80 text-4xl border-b-4 border-emerald-700 active:border-b-0 active:translate-y-1 disabled:bg-gray-500 disabled:hover:bg-gray-600 disabled:border-gray-700 disabled:text-white"
+      className="group size-24 tall:size-32 flex flex-row items-center gap-2 justify-center bg-success rounded-full shadow-lg hover:cursor-pointer hover:drop-shadow-xl hover:bg-success/90 hover:scale-105 transition-all text-accent disabled:text-muted-foreground/80 text-4xl border-b-4 border-success active:border-b-0 active:translate-y-1 disabled:bg-muted disabled:hover:bg-muted disabled:border-border disabled:text-white"
     >
       <FaPlay className="group-hover:scale-110" />
     </ButtonWithTooltip>

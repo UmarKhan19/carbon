@@ -374,7 +374,7 @@ const Grid = <T extends object>({
                       }}
                     >
                       {header.isPlaceholder ? null : (
-                        <div className="flex justify-start items-center text-xs text-zinc-500">
+                        <div className="flex justify-start items-center text-xs text-muted-foreground">
                           {flexRender(
                             header.column.columnDef.header,
                             header.getContext()

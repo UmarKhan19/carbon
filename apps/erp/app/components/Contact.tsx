@@ -55,13 +55,13 @@ const Contact = ({ contact, url, user, actions }: ContactProps) => {
           {userStatus === UserStatus.Active && (
             <span
               title={t`Active`}
-              className="inline-block bg-emerald-400 rounded-full w-3 h-3 ml-1.5"
+              className="inline-block bg-status-green rounded-full w-3 h-3 ml-1.5"
             />
           )}
           {userStatus === UserStatus.Inactive && (
             <span
               title={t`Inactive`}
-              className="inline-block bg-red-400 rounded-full w-3 h-3 ml-1.5"
+              className="inline-block bg-status-red rounded-full w-3 h-3 ml-1.5"
             />
           )}
         </HStack>

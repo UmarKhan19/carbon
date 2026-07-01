@@ -237,7 +237,7 @@ const ProductionPlanningTable = ({
             if (value === undefined) return "-";
             return (
               <span
-                className={value < 0 ? "text-red-500 font-bold" : undefined}
+                className={value < 0 ? "text-destructive font-bold" : undefined}
               >
                 {numberFormatter.format(value)}
               </span>

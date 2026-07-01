@@ -22,7 +22,7 @@ export function ReorderableRow({
       className={cn(
         "w-full items-center relative",
         isOverlay &&
-          "bg-card rounded-md shadow-[0_0_0_1px_hsl(var(--border)),0_4px_12px_rgba(0,0,0,0.08),0_12px_32px_rgba(0,0,0,0.06)]"
+          "bg-card rounded-md shadow-[0_0_0_1px_var(--border),0_4px_12px_rgba(0,0,0,0.08),0_12px_32px_rgba(0,0,0,0.06)]"
       )}
     >
       {dragHandle && (

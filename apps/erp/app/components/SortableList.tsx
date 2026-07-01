@@ -129,7 +129,7 @@ function SortableListItem<T>({
                         id={`checkbox-${item.id}`}
                         aria-label={t`Mark to delete`}
                         onCheckedChange={() => onToggleItem(item.id)}
-                        className="border-foreground/20 bg-background/30 data-[state=checked]:bg-background data-[state=checked]:text-red-200 flex flex-shrink-0 "
+                        className="border-foreground/20 bg-background/30 data-[state=checked]:bg-background data-[state=checked]:text-destructive flex flex-shrink-0 "
                       />
                     )}
                     {/* List Order */}
@@ -153,7 +153,9 @@ function SortableListItem<T>({
                           <span
                             className={cn(
                               "flex font-medium text-sm md:text-base truncate hover:underline cursor-pointer",
-                              item.checked ? "text-red-400" : "text-foreground"
+                              item.checked
+                                ? "text-destructive"
+                                : "text-foreground"
                             )}
                             onClick={(e) => {
                               if (!isDragging) {
@@ -170,7 +172,7 @@ function SortableListItem<T>({
                                 onSelectItem(item.id);
                               }
                             }}
-                            className={item.checked ? "text-red-400" : ""}
+                            className={item.checked ? "text-destructive" : ""}
                           >
                             {item.title}
                           </div>
@@ -215,7 +217,7 @@ function SortableListItem<T>({
               className="inline-flex h-10 items-center justify-center space-nowrap rounded-md px-3 text-sm font-medium  transition-colors duration-150  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
               onClick={() => onRemoveItem(item.id)}
             >
-              <LuTrash className="h-4 w-4 text-red-400 transition-colors duration-150 fill-red-400/60 " />
+              <LuTrash className="h-4 w-4 text-destructive transition-colors duration-150 fill-destructive/60 " />
             </button>
           </div>
         ) : null}

@@ -22,8 +22,8 @@ export function ContainmentList({ items }: Props) {
                 className={cn(
                   "size-2 rounded-full shrink-0",
                   item.containmentStatus === "Uncontained"
-                    ? "bg-red-500"
-                    : "bg-amber-500"
+                    ? "bg-status-red"
+                    : "bg-status-yellow"
                 )}
               />
               <span className="text-sm font-medium truncate">
@@ -33,8 +33,8 @@ export function ContainmentList({ items }: Props) {
                 className={cn(
                   "text-[10px] uppercase tracking-wide font-medium shrink-0",
                   item.containmentStatus === "Uncontained"
-                    ? "text-red-500"
-                    : "text-amber-500"
+                    ? "text-status-red"
+                    : "text-status-yellow"
                 )}
               >
                 {item.containmentStatus}

@@ -90,7 +90,7 @@ export function BarProgress({
   invertGradient = false,
   segments,
   className,
-  activeClassName = "bg-emerald-500",
+  activeClassName = "bg-success",
   inactiveClassName = "bg-muted"
 }: BarProgressProps) {
   const containerRef = useRef<HTMLDivElement>(null);

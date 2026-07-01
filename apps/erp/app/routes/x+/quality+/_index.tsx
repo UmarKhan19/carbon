@@ -245,24 +245,24 @@ export default function QualityDashboard() {
   const localizedChartConfig = useMemo(
     () =>
       ({
-        Critical: { label: t`Critical`, color: "hsl(var(--destructive))" },
-        High: { label: t`High`, color: "hsl(var(--chart-5))" },
-        Medium: { label: t`Medium`, color: "hsl(var(--chart-1))" },
-        Low: { label: t`Low`, color: "hsl(var(--success))" },
-        Registered: { label: t`Registered`, color: "hsl(var(--chart-5))" },
-        "In Progress": { label: t`In Progress`, color: "hsl(var(--chart-1))" },
-        Closed: { label: t`Closed`, color: "hsl(var(--success))" },
-        opened: { label: t`Opened`, color: "hsl(var(--chart-5))" },
-        closed: { label: t`Closed`, color: "hsl(var(--success))" },
-        target: { label: t`Target`, color: "hsl(var(--destructive))" },
+        Critical: { label: t`Critical`, color: "var(--destructive)" },
+        High: { label: t`High`, color: "var(--chart-5)" },
+        Medium: { label: t`Medium`, color: "var(--chart-1)" },
+        Low: { label: t`Low`, color: "var(--success)" },
+        Registered: { label: t`Registered`, color: "var(--chart-5)" },
+        "In Progress": { label: t`In Progress`, color: "var(--chart-1)" },
+        Closed: { label: t`Closed`, color: "var(--success)" },
+        opened: { label: t`Opened`, color: "var(--chart-5)" },
+        closed: { label: t`Closed`, color: "var(--success)" },
+        target: { label: t`Target`, color: "var(--destructive)" },
         count: { label: t`Count` },
-        cumulative: { label: t`Cumulative %`, color: "hsl(var(--chart-5))" },
-        Internal: { label: t`Internal`, color: "hsl(var(--chart-1))" },
-        External: { label: t`External`, color: "hsl(var(--chart-5))" },
-        "0-4 weeks": { label: t`0-4 weeks`, color: "hsl(var(--success))" },
-        "5-8 weeks": { label: t`5-8 weeks`, color: "hsl(var(--chart-4))" },
-        "9-12 weeks": { label: t`9-12 weeks`, color: "hsl(var(--chart-5))" },
-        "13+ weeks": { label: t`13+ weeks`, color: "hsl(var(--destructive))" }
+        cumulative: { label: t`Cumulative %`, color: "var(--chart-5)" },
+        Internal: { label: t`Internal`, color: "var(--chart-1)" },
+        External: { label: t`External`, color: "var(--chart-5)" },
+        "0-4 weeks": { label: t`0-4 weeks`, color: "var(--success)" },
+        "5-8 weeks": { label: t`5-8 weeks`, color: "var(--chart-4)" },
+        "9-12 weeks": { label: t`9-12 weeks`, color: "var(--chart-5)" },
+        "13+ weeks": { label: t`13+ weeks`, color: "var(--destructive)" }
       }) satisfies ChartConfig,
     [t]
   );
@@ -575,12 +575,12 @@ export default function QualityDashboard() {
                   {effectiveTarget > 0 && (
                     <ReferenceLine
                       y={effectiveTarget}
-                      stroke="hsl(var(--destructive))"
+                      stroke="var(--destructive)"
                       strokeDasharray="3 3"
                       label={{
                         value: t`Target`,
                         position: "insideTopLeft",
-                        fill: "hsl(var(--destructive))",
+                        fill: "var(--destructive)",
                         fontSize: 12
                       }}
                     />
@@ -682,7 +682,7 @@ export default function QualityDashboard() {
                   <Bar
                     yAxisId="left"
                     dataKey="count"
-                    fill="hsl(var(--chart-1))"
+                    fill="var(--chart-1)"
                     maxBarSize={48}
                     radius={2}
                     isAnimationActive={false}
@@ -822,7 +822,7 @@ export default function QualityDashboard() {
                     <ChartTooltip content={<ChartTooltipContent />} />
                     <Bar
                       dataKey="count"
-                      fill="hsl(var(--chart-1))"
+                      fill="var(--chart-1)"
                       maxBarSize={28}
                       radius={2}
                       isAnimationActive={false}
@@ -857,7 +857,7 @@ export default function QualityDashboard() {
                   <ChartLegend content={<ChartLegendContent />} />
                   <Bar
                     dataKey="0-4 weeks"
-                    fill="hsl(var(--success))"
+                    fill="var(--success)"
                     stackId="stack"
                     maxBarSize={48}
                     radius={2}
@@ -866,7 +866,7 @@ export default function QualityDashboard() {
                   />
                   <Bar
                     dataKey="5-8 weeks"
-                    fill="hsl(var(--chart-4))"
+                    fill="var(--chart-4)"
                     stackId="stack"
                     maxBarSize={48}
                     radius={2}
@@ -875,7 +875,7 @@ export default function QualityDashboard() {
                   />
                   <Bar
                     dataKey="9-12 weeks"
-                    fill="hsl(var(--chart-5))"
+                    fill="var(--chart-5)"
                     stackId="stack"
                     maxBarSize={48}
                     radius={2}
@@ -884,7 +884,7 @@ export default function QualityDashboard() {
                   />
                   <Bar
                     dataKey="13+ weeks"
-                    fill="hsl(var(--destructive))"
+                    fill="var(--destructive)"
                     stackId="stack"
                     maxBarSize={48}
                     radius={2}

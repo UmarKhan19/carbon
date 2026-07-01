@@ -67,7 +67,7 @@ function HighlightedText({ text, query }: { text: string; query?: string }) {
         part.toLowerCase() === query.toLowerCase() ? (
           <mark
             key={i}
-            className="bg-yellow-200 dark:bg-yellow-900/50 text-inherit rounded-sm px-0.5"
+            className="bg-status-yellow/25 text-inherit rounded-sm px-0.5"
           >
             {part}
           </mark>

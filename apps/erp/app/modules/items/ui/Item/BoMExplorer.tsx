@@ -369,9 +369,9 @@ const BoMExplorer = ({
                         >
                           {node.hasChildren ? (
                             state.expanded ? (
-                              <LuChevronDown className="h-4 w-4 text-gray-400 flex-shrink-0 ml-1" />
+                              <LuChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0 ml-1" />
                             ) : (
-                              <LuChevronRight className="h-4 w-4 text-gray-400 flex-shrink-0 ml-1" />
+                              <LuChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0 ml-1" />
                             )
                           ) : (
                             <div className="h-8 w-4" />

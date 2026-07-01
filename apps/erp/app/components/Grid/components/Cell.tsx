@@ -52,9 +52,9 @@ const Cell = <T extends object>({
     <Td
       className={cn(
         "group/cell relative border-r border-border px-4 py-2 whitespace-nowrap text-sm outline-none",
-        wasEdited && "bg-yellow-100 dark:bg-yellow-900",
+        wasEdited && "bg-warning/15",
         !hasEditableTableCellComponent && "bg-muted/50",
-        hasError && "ring-inset ring-2 ring-red-500",
+        hasError && "ring-inset ring-2 ring-destructive",
         // Only ring editable cells — a ring on a read-only cell wrongly signals
         // it can be edited.
         isSelected &&

@@ -110,7 +110,7 @@ export function ColumnCard({
         className={cn(
           "p-4 w-full font-semibold text-left flex flex-row space-between items-center sticky top-0 z-1 border-b",
           column.isBlocked && column.blockingDispatchId
-            ? "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-400"
+            ? "bg-status-red/12 text-status-red-fg"
             : "bg-card"
         )}
       >

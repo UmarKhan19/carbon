@@ -8,7 +8,7 @@ import {
 import { validator } from "@carbon/form";
 import { Button, Heading, Toaster, useMode } from "@carbon/react";
 import type { Theme } from "@carbon/utils";
-import { modeValidator, themes } from "@carbon/utils";
+import { modeValidator, resolveTheme } from "@carbon/utils";
 import { Analytics } from "@vercel/analytics/react";
 import type React from "react";
 import type {
@@ -146,9 +146,7 @@ function Document({
   mode?: "light" | "dark";
   theme?: string;
 }) {
-  const selectedTheme = themes.find((t) => t.name === theme) as
-    | Theme
-    | undefined;
+  const selectedTheme = resolveTheme(theme) as Theme | undefined;
 
   // Create style objects for both light and dark modes
   const lightVars: Record<string, string> = {};

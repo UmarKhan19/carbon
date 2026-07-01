@@ -183,7 +183,7 @@ function getPriorityIcon(
 ) {
   switch (priority) {
     case "Critical":
-      return <BsExclamationSquareFill className="text-red-500" />;
+      return <BsExclamationSquareFill className="text-status-red" />;
     case "High":
       return <HighPriorityIcon />;
     case "Medium":
@@ -196,13 +196,13 @@ function getPriorityIcon(
 function getStatusColor(status: string | null) {
   switch (status) {
     case "Open":
-      return "bg-blue-500";
+      return "bg-status-blue";
     case "Assigned":
-      return "bg-yellow-500";
+      return "bg-status-yellow";
     case "In Progress":
-      return "bg-emerald-500";
+      return "bg-status-green";
     default:
-      return "bg-gray-500";
+      return "bg-status-gray";
   }
 }
 

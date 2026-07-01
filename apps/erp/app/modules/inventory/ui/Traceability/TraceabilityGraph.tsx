@@ -625,7 +625,7 @@ function TraceabilityGraphInner({
           variant={BackgroundVariant.Dots}
           gap={28}
           size={1}
-          color="hsl(var(--muted-foreground) / 0.15)"
+          color="color-mix(in oklab, var(--muted-foreground) 15%, transparent)"
         />
         <MiniMap
           pannable
@@ -640,7 +640,7 @@ function TraceabilityGraphInner({
               .color;
           }}
           nodeStrokeWidth={0}
-          maskColor="hsl(var(--background) / 0.7)"
+          maskColor="color-mix(in oklab, var(--background) 70%, transparent)"
         />
       </ReactFlow>
 

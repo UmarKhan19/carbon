@@ -65,11 +65,11 @@ export function ItemCostHistoryChart({
 
   const chartConfig = {
     cost: {
-      color: "hsl(var(--chart-1))",
+      color: "var(--chart-1)",
       label: t`Unit Cost`
     },
     weightedAverage: {
-      color: "hsl(var(--chart-2))",
+      color: "var(--chart-2)",
       label: t`Weighted Average`
     }
   } satisfies ChartConfig;

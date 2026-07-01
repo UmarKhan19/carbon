@@ -633,7 +633,7 @@ function RelatedItemLink({
       case "jobs":
         return <MethodIcon type="Make to Order" />;
       case "shipments":
-        return <LuTruck className="text-indigo-600" />;
+        return <LuTruck className="text-status-purple" />;
       default:
         return null;
     }

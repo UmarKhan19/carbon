@@ -92,7 +92,7 @@ const InlineDiff = memo(
         {fieldName}:
       </span>
       {oldValue !== undefined && (
-        <span className="px-2 py-0.5 rounded bg-red-500/10 text-red-500">
+        <span className="px-2 py-0.5 rounded bg-status-red/12 text-status-red-fg">
           {formatValue(oldValue)}
         </span>
       )}
@@ -100,7 +100,7 @@ const InlineDiff = memo(
         <span className="text-muted-foreground">→</span>
       )}
       {newValue !== undefined && (
-        <span className="px-2 py-0.5 rounded bg-green-500/10 text-green-500">
+        <span className="px-2 py-0.5 rounded bg-status-green/12 text-status-green-fg">
           {formatValue(newValue)}
         </span>
       )}

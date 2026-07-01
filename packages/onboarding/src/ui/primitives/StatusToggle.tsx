@@ -28,7 +28,7 @@ export function StatusToggle({
         "shrink-0 inline-flex items-center gap-1.5 rounded-full text-xs font-medium active:scale-[0.96] transition-transform",
         withIcon ? "pl-2 pr-2.5 py-1" : "px-2.5 py-0.5",
         active
-          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+          ? "bg-status-green/12 text-status-green-fg"
           : "border text-muted-foreground",
         className
       )}

@@ -246,14 +246,14 @@ export function TrackedEntityPicker({
                   <InputRightElement>
                     {scan &&
                       (scanMatch ? (
-                        <LuCheck className="text-emerald-500" />
+                        <LuCheck className="text-success" />
                       ) : (
-                        <LuX className="text-red-500" />
+                        <LuX className="text-destructive" />
                       ))}
                   </InputRightElement>
                 </InputGroup>
                 {scanMatch && isBlocked(scanMatch) && (
-                  <p className="text-sm text-red-600">
+                  <p className="text-sm text-destructive">
                     {t`This lot is expired and can't be picked.`}
                   </p>
                 )}

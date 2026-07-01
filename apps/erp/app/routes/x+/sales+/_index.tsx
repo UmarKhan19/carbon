@@ -82,7 +82,7 @@ const OPEN_SALES_ORDER_STATUSES = [
 
 const chartConfig = {
   value: {
-    color: "hsl(var(--primary))"
+    color: "var(--primary)"
   }
 } satisfies ChartConfig;
 
@@ -153,20 +153,20 @@ export default function SalesDashboard() {
         id: "rfqs",
         label: t`RFQs`,
         value: 0,
-        colorClassName: "text-violet-600"
+        colorClassName: "text-status-purple"
       },
       {
         id: "quotes",
         label: t`Quotes`,
         value: 0,
-        colorClassName: "text-blue-600"
+        colorClassName: "text-status-blue"
       },
       {
         id: "salesOrders",
         label: t`Sales Orders`,
         value: 0,
         additionalValue: 0,
-        colorClassName: "text-teal-500"
+        colorClassName: "text-status-green"
       }
     ];
 

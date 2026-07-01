@@ -87,16 +87,16 @@ interface ChartDataPoint {
 // mapping is reused by the summary cards and the supply/demand list below, so a
 // color never means "supply" in one place and "demand" two inches away.
 const chartColors = {
-  supply: "hsl(var(--success))",
-  planned: "hsl(var(--chart-2))",
-  demand: "hsl(var(--destructive))",
-  demandForecast: "hsl(var(--chart-5))",
-  projection: "hsl(var(--primary))",
+  supply: "var(--success)",
+  planned: "var(--chart-2)",
+  demand: "var(--destructive)",
+  demandForecast: "var(--chart-5)",
+  projection: "var(--primary)",
   // Violet theme token (--chart-6, light/dark variants in tailwind.css): kept out
   // of the warm family so the safety-stock threshold is easy to read and never
   // confused with the orange Demand Forecast bars (--chart-5).
-  safety: "hsl(var(--chart-6))",
-  zero: "hsl(var(--muted-foreground))"
+  safety: "var(--chart-6)",
+  zero: "var(--muted-foreground)"
 } as const;
 
 // Round a value to a "nice" number (1/2/5 × 10^n) so axis steps land on
@@ -630,7 +630,7 @@ export const ItemPlanningChart = ({
                       angle: -90,
                       position: "insideLeft",
                       style: {
-                        fill: "hsl(var(--muted-foreground))",
+                        fill: "var(--muted-foreground)",
                         fontSize: 11
                       }
                     }}
@@ -725,7 +725,7 @@ export const ItemPlanningChart = ({
                       xAxisId="full"
                       r={5}
                       fill={chartColors.demand}
-                      stroke="hsl(var(--background))"
+                      stroke="var(--background)"
                       strokeWidth={2}
                       ifOverflow="extendDomain"
                       label={{
@@ -737,7 +737,9 @@ export const ItemPlanningChart = ({
                     />
                   )}
                   <ChartTooltip
-                    cursor={{ fill: "hsl(var(--muted) / 0.4)" }}
+                    cursor={{
+                      fill: "color-mix(in oklab, var(--muted) 40%, transparent)"
+                    }}
                     content={
                       <PlanningChartTooltip
                         safetyStock={
@@ -1089,10 +1091,10 @@ function PlanningStatusBanner({
         : chartColors.supply;
   const backgroundColor =
     tone === "danger"
-      ? "hsl(var(--destructive) / 0.08)"
+      ? "color-mix(in oklab, var(--destructive) 8%, transparent)"
       : tone === "warning"
-        ? "hsl(var(--chart-6) / 0.12)"
-        : "hsl(var(--success) / 0.08)";
+        ? "color-mix(in oklab, var(--chart-6) 12%, transparent)"
+        : "color-mix(in oklab, var(--success) 8%, transparent)";
 
   return (
     <div

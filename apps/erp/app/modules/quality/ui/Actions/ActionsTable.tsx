@@ -152,7 +152,7 @@ const ActionsTable = memo(
               row.original.dueDate &&
               new Date(row.original.dueDate) < new Date();
             return (
-              <span className={isOverdue ? "text-red-500" : ""}>
+              <span className={isOverdue ? "text-destructive" : ""}>
                 {formatDate(row.original.dueDate)}
               </span>
             );

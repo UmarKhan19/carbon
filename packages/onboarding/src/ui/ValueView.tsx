@@ -66,7 +66,7 @@ export function ValueView() {
           <ul className="flex flex-col gap-2">
             {VALUE_PROBLEMS.map((p, i) => (
               <li key={i} className="flex items-start gap-2.5 text-sm">
-                <span className="shrink-0 mt-1.5 size-1.5 rounded-full bg-red-500/70" />
+                <span className="shrink-0 mt-1.5 size-1.5 rounded-full bg-status-red/70" />
                 {i18n._(p)}
               </li>
             ))}
@@ -76,7 +76,7 @@ export function ValueView() {
           <ul className="flex flex-col gap-2">
             {VALUE_GOALS.map((g, i) => (
               <li key={i} className="flex items-start gap-2.5 text-sm">
-                <span className="shrink-0 mt-1.5 size-1.5 rounded-full bg-emerald-500" />
+                <span className="shrink-0 mt-1.5 size-1.5 rounded-full bg-success" />
                 {i18n._(g)}
               </li>
             ))}

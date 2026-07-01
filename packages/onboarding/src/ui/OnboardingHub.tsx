@@ -129,9 +129,9 @@ export function OnboardingHub({
       ) : null}
 
       {done === total ? (
-        <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 shadow-button-base p-6 flex items-center gap-4 motion-safe:animate-in motion-safe:fade-in-50 motion-safe:zoom-in-95 motion-safe:duration-500">
-          <div className="shrink-0 size-12 rounded-2xl bg-emerald-500/15 flex items-center justify-center">
-            <LuPartyPopper className="text-2xl text-emerald-600 dark:text-emerald-400" />
+        <div className="rounded-2xl border border-success/30 bg-success/5 shadow-button-base p-6 flex items-center gap-4 motion-safe:animate-in motion-safe:fade-in-50 motion-safe:zoom-in-95 motion-safe:duration-500">
+          <div className="shrink-0 size-12 rounded-2xl bg-success/15 flex items-center justify-center">
+            <LuPartyPopper className="text-2xl text-success" />
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-lg font-semibold tracking-tight">
@@ -162,7 +162,7 @@ export function OnboardingHub({
             <span
               className={cn(
                 "size-2 rounded-full",
-                done === total ? "bg-emerald-500" : "bg-primary"
+                done === total ? "bg-success" : "bg-primary"
               )}
             />
             {stateText}
@@ -183,7 +183,7 @@ export function OnboardingHub({
                 className={cn(
                   "flex-1 h-2.5 rounded-full transition-colors",
                   st === "done"
-                    ? "bg-emerald-500"
+                    ? "bg-success"
                     : st === "prog"
                       ? "bg-primary"
                       : "bg-border"
@@ -395,7 +395,7 @@ function StatusBox({
     small ? "size-5 mt-0.5" : "size-6 mt-0.5",
     interactive && "active:scale-[0.96]",
     status === "done"
-      ? "bg-emerald-500 border-emerald-500 text-white"
+      ? "bg-success border-success text-success-foreground"
       : status === "prog"
         ? "border-primary text-primary bg-primary/10"
         : cn(

@@ -70,7 +70,7 @@ export function SetupControls() {
           <h1 className="text-2xl font-semibold tracking-tight">
             <Trans>Setup & Controls</Trans>
           </h1>
-          <span className="text-xxs uppercase tracking-wide rounded px-1.5 py-0.5 bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium">
+          <span className="text-xxs uppercase tracking-wide rounded px-1.5 py-0.5 bg-status-blue/12 text-status-blue-fg font-medium">
             <Trans>Carbon only</Trans>
           </span>
         </div>

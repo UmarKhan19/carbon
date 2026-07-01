@@ -371,8 +371,8 @@ function ChangePill({
     "px-2 py-0.5 rounded",
     !hasDisplay && "font-mono",
     variant === "old"
-      ? "bg-red-500/10 text-red-500"
-      : "bg-green-500/10 text-green-500"
+      ? "bg-status-red/10 text-status-red-fg"
+      : "bg-status-green/10 text-status-green-fg"
   );
   const tooltip = hasDisplay && typeof value === "string" ? value : undefined;
   return (

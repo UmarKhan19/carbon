@@ -10,7 +10,7 @@ import {
   VStack
 } from "@carbon/react";
 import type { Theme } from "@carbon/utils";
-import { themes } from "@carbon/utils";
+import { resolveTheme, themes } from "@carbon/utils";
 import { Trans } from "@lingui/react/macro";
 import { RxCheck } from "react-icons/rx";
 import { useFetcher } from "react-router";
@@ -52,7 +52,8 @@ const ThemeForm = ({ theme: defaultValues }: ThemeFormProps) => {
         <VStack spacing={4} className="max-w-[520px]">
           <div className="grid grid-cols-3 gap-4">
             {themes.map((t) => {
-              const isActive = optimisticTheme === t.name;
+              const isActive =
+                resolveTheme(optimisticTheme as string)?.name === t.name;
               return (
                 <fetcher.Form
                   key={t.name}
@@ -71,9 +72,8 @@ const ThemeForm = ({ theme: defaultValues }: ThemeFormProps) => {
                     )}
                     style={
                       {
-                        "--theme-primary": `hsl(${
+                        "--theme-primary":
                           t?.activeColor[mode === "dark" ? "dark" : "light"]
-                        })`
                       } as React.CSSProperties
                     }
                   >

@@ -108,7 +108,7 @@ function getPriorityIcon(
 ) {
   switch (priority) {
     case "Critical":
-      return <BsExclamationSquareFill className="text-red-500 h-5 w-5" />;
+      return <BsExclamationSquareFill className="text-status-red h-5 w-5" />;
     case "High":
       return <HighPriorityIcon className="h-5 w-5" />;
     case "Medium":
@@ -337,10 +337,10 @@ export default function MaintenanceDetailRoute() {
                       <button
                         type="submit"
                         disabled={fetcher.state !== "idle"}
-                        className={`group size-24 flex flex-row items-center gap-2 justify-center rounded-full shadow-lg hover:cursor-pointer hover:drop-shadow-xl hover:scale-105 transition-all text-white text-3xl border-b-4 active:border-b-0 active:translate-y-1 disabled:bg-gray-500 disabled:hover:bg-gray-600 disabled:border-gray-700 ${
+                        className={`group size-24 flex flex-row items-center gap-2 justify-center rounded-full shadow-lg hover:cursor-pointer hover:drop-shadow-xl hover:scale-105 transition-all text-white text-3xl border-b-4 active:border-b-0 active:translate-y-1 disabled:bg-muted disabled:hover:bg-muted disabled:border-border ${
                           isWorking
-                            ? "bg-red-500 hover:bg-red-600 border-red-700"
-                            : "bg-emerald-500 hover:bg-emerald-600 border-emerald-700"
+                            ? "bg-destructive hover:bg-destructive/90 border-destructive"
+                            : "bg-success hover:bg-success/90 border-success"
                         }`}
                       >
                         {isWorking ? (
@@ -537,11 +537,11 @@ export default function MaintenanceDetailRoute() {
 
           {/* Completed State */}
           {isCompleted && (
-            <Card className="w-full bg-emerald-50 dark:bg-emerald-950 border-emerald-200 dark:border-emerald-800">
+            <Card className="w-full bg-status-green/12 border-status-green/25">
               <CardContent className="pt-6">
                 <VStack spacing={2}>
-                  <LuCheck className="h-8 w-8 text-emerald-600" />
-                  <span className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
+                  <LuCheck className="h-8 w-8 text-status-green" />
+                  <span className="text-sm font-medium text-status-green-fg">
                     <Trans>Maintenance Completed</Trans>
                   </span>
                   <span className="text-xs text-muted-foreground">

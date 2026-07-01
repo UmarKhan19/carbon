@@ -991,7 +991,7 @@ const QuoteLinePricing = ({
                       <VStack spacing={0}>
                         {Number.isFinite(profit) ? (
                           <span
-                            className={cn(profit < -0.01 && "text-red-500")}
+                            className={cn(profit < -0.01 && "text-destructive")}
                           >
                             {profit.toFixed(2)}%
                           </span>
@@ -1020,7 +1020,7 @@ const QuoteLinePricing = ({
                       <VStack spacing={0}>
                         {price ? (
                           <span
-                            className={cn(profit < -0.01 && "text-red-500")}
+                            className={cn(profit < -0.01 && "text-destructive")}
                           >
                             {formatter.format(profit)}
                           </span>

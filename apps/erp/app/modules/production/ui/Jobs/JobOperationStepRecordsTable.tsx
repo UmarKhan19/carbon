@@ -102,11 +102,11 @@ const JobOperationStepRecordsTable = memo(
                         record.minValue !== null &&
                           record.minValue !== undefined &&
                           record.numericValue < record.minValue &&
-                          "text-red-500",
+                          "text-destructive",
                         record.maxValue !== null &&
                           record.maxValue !== undefined &&
                           record.numericValue > record.maxValue &&
-                          "text-red-500"
+                          "text-destructive"
                       )}
                     >
                       {numberFormatter.format(record.numericValue)}{" "}

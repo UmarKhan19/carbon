@@ -149,7 +149,7 @@ const StockTransferPostModal = ({ onClose }: { onClose: () => void }) => {
                       <span className="text-muted-foreground ml-2">
                         {error.pickedQuantity}
                       </span>
-                      <span className="block mt-0.5 text-red-500 font-normal">
+                      <span className="block mt-0.5 text-destructive font-normal">
                         {error.pickedQuantityError}
                       </span>
                     </li>

@@ -258,12 +258,12 @@ const getActivityText = (ledgerRecord: ItemLedger) => {
 const getActivityIcon = (ledgerRecord: ItemLedger) => {
   switch (ledgerRecord.entryType) {
     case "Transfer":
-      return <LuArrowRightLeft className="text-blue-500 text-lg" />;
+      return <LuArrowRightLeft className="text-status-blue text-lg" />;
     case "Positive Adjmt.":
-      return <LuMoveUp className="text-emerald-500 text-lg" />;
+      return <LuMoveUp className="text-status-green text-lg" />;
     case "Negative Adjmt.":
     case "Consumption":
-      return <LuMoveDown className="text-red-500 text-lg" />;
+      return <LuMoveDown className="text-status-red text-lg" />;
     default:
       return "";
   }

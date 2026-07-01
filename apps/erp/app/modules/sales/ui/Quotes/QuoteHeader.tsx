@@ -449,7 +449,7 @@ function CreateRevisionModal({
             <ModalBody>
               <div className="flex flex-col items-center justify-center py-8">
                 <div>
-                  <LuCheck className="w-16 h-16 text-green-500" />
+                  <LuCheck className="w-16 h-16 text-success" />
                 </div>
                 <h2 className="animate-fade-in">
                   <Trans>The quote has been created</Trans>

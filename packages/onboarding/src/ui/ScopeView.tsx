@@ -69,7 +69,7 @@ export function ScopeView() {
         <ul className="flex flex-col gap-2">
           {inScope.map((item, i) => (
             <li key={i} className="flex items-start gap-2.5 text-sm">
-              <span className="shrink-0 mt-0.5 size-4 rounded flex items-center justify-center bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+              <span className="shrink-0 mt-0.5 size-4 rounded flex items-center justify-center bg-success/10 text-success">
                 <LuCheck className="size-3" />
               </span>
               {i18n._(item.label)}
@@ -117,13 +117,13 @@ export function ScopeView() {
         className={cn(
           "rounded-2xl border p-5 shadow-button-base",
           agreed
-            ? "border-emerald-500/30 bg-emerald-500/5"
+            ? "border-success/30 bg-success/5"
             : "border-primary/30 bg-primary/5"
         )}
       >
         {agreed ? (
           <div className="flex items-center gap-3">
-            <span className="shrink-0 size-9 rounded-xl bg-emerald-500/15 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+            <span className="shrink-0 size-9 rounded-xl bg-success/15 flex items-center justify-center text-success">
               <LuCheck />
             </span>
             <div className="flex-1 min-w-0">

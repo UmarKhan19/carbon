@@ -6,14 +6,14 @@ import { cn } from "./utils/cn";
 const pulseVariants = cva("", {
   variants: {
     variant: {
-      amber: "text-amber-500",
-      green: "text-emerald-500",
-      yellow: "text-yellow-500",
-      orange: "text-orange-500",
-      red: "text-red-500",
-      blue: "text-blue-500",
-      gray: "text-gray-500",
-      purple: "text-violet-500"
+      amber: "text-status-yellow",
+      green: "text-status-green",
+      yellow: "text-status-yellow",
+      orange: "text-status-orange",
+      red: "text-status-red",
+      blue: "text-status-blue",
+      gray: "text-status-gray",
+      purple: "text-status-purple"
     }
   },
   defaultVariants: {

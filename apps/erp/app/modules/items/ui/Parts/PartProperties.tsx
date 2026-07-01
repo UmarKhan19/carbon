@@ -729,7 +729,7 @@ const PartProperties = ({ data }: PartPropertiesProps) => {
             target="_blank"
           >
             <Badge variant="secondary">
-              <LuMove3D className="w-3 h-3 mr-1 text-emerald-500" />
+              <LuMove3D className="w-3 h-3 mr-1 text-status-green" />
               <Trans>3D Model</Trans>
             </Badge>
             <span className="group-hover:opacity-100 opacity-0 transition-opacity duration-200 w-4 h-4 text-foreground">

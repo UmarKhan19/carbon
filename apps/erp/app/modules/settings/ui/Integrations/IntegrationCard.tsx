@@ -165,9 +165,9 @@ const StatusBadge = ({
   status: "healthy" | "unhealthy" | "inactive";
 }) => {
   const colors = {
-    healthy: "bg-green-500",
-    unhealthy: "bg-red-500",
-    inactive: "bg-gray-400"
+    healthy: "bg-success",
+    unhealthy: "bg-destructive",
+    inactive: "bg-muted-foreground"
   } as const;
 
   const badgeVariants = {
@@ -176,7 +176,7 @@ const StatusBadge = ({
     inactive: "gray"
   } as const;
 
-  const ping = colors[status] || "text-gray-400";
+  const ping = colors[status] || "text-muted-foreground";
   return (
     <Badge
       variant={badgeVariants[status]}

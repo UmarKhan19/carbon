@@ -17,7 +17,11 @@ import {
   useMount
 } from "@carbon/react";
 import type { Theme } from "@carbon/utils";
-import { getPreferenceHeaders, modeValidator, themes } from "@carbon/utils";
+import {
+  getPreferenceHeaders,
+  modeValidator,
+  resolveTheme
+} from "@carbon/utils";
 import { Trans } from "@lingui/react/macro";
 import { I18nProvider } from "@react-aria/i18n";
 import { QueryClient } from "@tanstack/react-query";
@@ -200,9 +204,7 @@ export function Document({
   mode?: "light" | "dark";
   theme?: string;
 }) {
-  const selectedTheme = themes.find((t) => t.name === theme) as
-    | Theme
-    | undefined;
+  const selectedTheme = resolveTheme(theme) as Theme | undefined;
 
   // Create style objects for both light and dark modes
   const lightVars: Record<string, string> = {};

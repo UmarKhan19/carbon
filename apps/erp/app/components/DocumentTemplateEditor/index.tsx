@@ -261,8 +261,8 @@ function ConflictBanner({
   if (!conflict) return null;
 
   return (
-    <div className="flex items-center justify-between gap-3 border-b border-amber-500/40 bg-amber-500/10 px-4 py-2">
-      <p className="text-sm text-amber-700 dark:text-amber-400">
+    <div className="flex items-center justify-between gap-3 border-b border-warning/40 bg-warning/10 px-4 py-2">
+      <p className="text-sm text-warning">
         Someone else just saved this template. Refresh to load their version, or
         keep editing to overwrite it when you save.
       </p>

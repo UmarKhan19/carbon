@@ -152,7 +152,7 @@ const TrainingAssignmentsTable = memo(
           header: t`Completed`,
           cell: ({ row }) => (
             <HStack spacing={2}>
-              <LuCircleCheck className="text-emerald-500" />
+              <LuCircleCheck className="text-success" />
               <span className="text-muted-foreground">
                 {row.original.completed}
               </span>
@@ -167,7 +167,7 @@ const TrainingAssignmentsTable = memo(
           header: t`Pending`,
           cell: ({ row }) => (
             <HStack spacing={2}>
-              <LuClock className="text-yellow-500" />
+              <LuClock className="text-status-yellow" />
               <span className="text-muted-foreground text-xs">
                 {row.original.pending}
               </span>
@@ -182,7 +182,7 @@ const TrainingAssignmentsTable = memo(
           header: t`Overdue`,
           cell: ({ row }) => (
             <HStack spacing={2}>
-              <LuTriangleAlert className="text-red-500" />
+              <LuTriangleAlert className="text-destructive" />
               <span className="text-muted-foreground text-xs">
                 {row.original.overdue}
               </span>

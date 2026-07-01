@@ -78,11 +78,11 @@ const PersonAbilities = ({ abilities }: PersonAbilitiesProps) => {
                       className={clsx(
                         "flex h-10 w-10 rounded-full items-center justify-center",
                         {
-                          "bg-emerald-500 text-white":
+                          "bg-success text-success-foreground":
                             abilityStatus === AbilityEmployeeStatus.Complete,
-                          "bg-blue-400 text-white dark:bg-blue-500 dark:text-white":
+                          "bg-info text-info-foreground":
                             abilityStatus === AbilityEmployeeStatus.InProgress,
-                          "bg-zinc-200 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200":
+                          "bg-muted text-muted-foreground":
                             abilityStatus === AbilityEmployeeStatus.NotStarted
                         }
                       )}

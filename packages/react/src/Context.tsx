@@ -90,7 +90,7 @@ const ContextMenuItem = forwardRef<
       "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       inset && "pl-8",
       destructive &&
-        "text-red-500 focus:text-red-500 hover:bg-destructive/20 active:bg-destructive/20",
+        "text-destructive focus:text-destructive hover:bg-destructive/20 active:bg-destructive/20",
       className
     )}
     {...props}

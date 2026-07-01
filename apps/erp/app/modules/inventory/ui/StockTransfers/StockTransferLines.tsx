@@ -135,7 +135,7 @@ function StockTransferLineComponent({
             count={line.quantity ?? 0}
             className={cn(
               "text-right text-white text-base",
-              isPicked ? "bg-emerald-600" : "bg-red-600"
+              isPicked ? "bg-success" : "bg-destructive"
             )}
           />
         </HStack>

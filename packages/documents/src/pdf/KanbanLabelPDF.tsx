@@ -1,3 +1,4 @@
+import { STATUS_COLOR_HEX } from "@carbon/utils";
 import { Document, Image, Page, Text, View } from "@react-pdf/renderer";
 import { createTw } from "react-pdf-tailwind";
 import { generateQRCode } from "../qr/qr-code";
@@ -67,10 +68,11 @@ const KanbanLabelPDF = ({
   // QR code size - make it prominent
   const qrCodeSize = Math.min(labelHeight * 0.35, labelWidth * 0.4);
 
-  // QR code color based on action type
+  // QR code color based on action type. bwip-js barcolor wants bare hex (no #),
+  // so strip the leading # from the shared status palette. Keep "order" neutral.
   const getQRColor = () => {
-    if (action === "start") return "059669"; // emerald-600
-    if (action === "complete") return "2563eb"; // blue-600
+    if (action === "start") return STATUS_COLOR_HEX.green.replace("#", "");
+    if (action === "complete") return STATUS_COLOR_HEX.blue.replace("#", "");
     return "000000"; // black for order
   };
 

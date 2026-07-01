@@ -533,7 +533,7 @@ const BillOfMaterial = ({
                 className={cn(
                   rulesByField.has(
                     `billOfMaterial:${makeMethodId}:${materialId}`
-                  ) && "text-emerald-500 hover:text-emerald-500"
+                  ) && "text-success hover:text-success"
                 )}
                 onClick={() =>
                   onConfigure({
@@ -1236,7 +1236,7 @@ function makeItem(
             mode={items.find((i) => i.id === material.itemId)?.supersessionMode}
           />
           {hasRules && (
-            <LuSquareFunction className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+            <LuSquareFunction className="h-3.5 w-3.5 text-success shrink-0" />
           )}
           {material.itemId && material.itemType && (
             <Link

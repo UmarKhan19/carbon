@@ -166,7 +166,7 @@ function PhaseCard({
             className={cn(
               "shrink-0 size-9 rounded-xl border flex items-center justify-center text-sm font-semibold tabular-nums",
               gatePassed
-                ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400"
+                ? "bg-success/10 border-success/30 text-success"
                 : gateInProgress
                   ? "bg-primary/10 border-primary/30 text-primary"
                   : "bg-background"
@@ -192,7 +192,7 @@ function PhaseCard({
               className={cn(
                 "shrink-0 text-xxs font-medium rounded px-1.5 py-0.5 tabular-nums",
                 allDone
-                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                  ? "bg-status-green/12 text-status-green-fg"
                   : "border text-muted-foreground"
               )}
             >
@@ -227,7 +227,7 @@ function PhaseCard({
                   className={cn(
                     "shrink-0 mt-0.5 size-4 rounded border flex items-center justify-center transition-colors",
                     isDone
-                      ? "bg-emerald-500 border-emerald-500 text-white"
+                      ? "bg-success border-success text-success-foreground"
                       : isProg
                         ? "bg-primary/15 border-primary"
                         : "bg-card border-input"
@@ -321,7 +321,7 @@ function PhaseCard({
         className={cn(
           "px-5 py-3 border-t text-xs flex items-center gap-3 transition-colors",
           gatePassed
-            ? "bg-emerald-500/5"
+            ? "bg-success/5"
             : gateInProgress
               ? "bg-primary/5"
               : "bg-card"
@@ -344,7 +344,7 @@ function PhaseCard({
           className={cn(
             "shrink-0 inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xxs font-medium transition-colors active:scale-[0.97]",
             gatePassed
-              ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20"
+              ? "border-success/30 bg-success/10 text-success hover:bg-success/20"
               : "bg-card hover:border-primary hover:text-primary"
           )}
         >

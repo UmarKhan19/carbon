@@ -364,17 +364,17 @@ export default function StockTransferScan() {
                   placeholder={t`Enter or scan serial number`}
                   className={cn(
                     validationError && "border-destructive",
-                    isValid && "border-emerald-500"
+                    isValid && "border-success"
                   )}
                   disabled={isLoading}
                 />
                 <InputRightElement className="pl-2">
                   {isLoading ? (
-                    <div className="animate-spin h-4 w-4 border-2 border-gray-300 border-t-gray-600 rounded-full" />
+                    <div className="animate-spin h-4 w-4 border-2 border-border border-t-muted-foreground rounded-full" />
                   ) : validationError ? (
                     <LuX className="text-destructive" />
                   ) : isValid ? (
-                    <LuCheck className="text-emerald-500" />
+                    <LuCheck className="text-success" />
                   ) : (
                     <LuQrCode />
                   )}

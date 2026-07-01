@@ -116,7 +116,7 @@ const InventoryDetails = ({
               <h3 className="text-4xl font-medium tracking-tighter">
                 {formatter.format(quantities?.quantityOnPurchaseOrder ?? 0)}
               </h3>
-              <LuMoveUp className="text-emerald-500 text-lg" />
+              <LuMoveUp className="text-status-green text-lg" />
             </div>
           </CardContent>
         </Card>
@@ -131,7 +131,7 @@ const InventoryDetails = ({
               <h3 className="text-4xl font-medium tracking-tighter">
                 {formatter.format(quantities?.quantityOnSalesOrder ?? 0)}
               </h3>
-              <LuMoveDown className="text-red-500 text-lg" />
+              <LuMoveDown className="text-status-red text-lg" />
             </div>
           </CardContent>
         </Card>
@@ -147,7 +147,7 @@ const InventoryDetails = ({
                 <h3 className="text-4xl font-medium tracking-tighter">
                   {formatter.format(quantities?.quantityOnProductionOrder ?? 0)}
                 </h3>
-                <LuMoveUp className="text-emerald-500 text-lg" />
+                <LuMoveUp className="text-status-green text-lg" />
               </div>
               <div className="flex justify-start items-center gap-1">
                 <h3 className="text-4xl font-medium tracking-tighter">
@@ -155,7 +155,7 @@ const InventoryDetails = ({
                     quantities?.quantityOnProductionDemand ?? 0
                   )}
                 </h3>
-                <LuMoveDown className="text-red-500 text-lg" />
+                <LuMoveDown className="text-status-red text-lg" />
               </div>
             </div>
           </CardContent>

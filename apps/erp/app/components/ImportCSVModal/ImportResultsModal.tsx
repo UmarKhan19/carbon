@@ -108,7 +108,7 @@ export const ImportResultsModal = ({
         <ModalBody className="min-w-0">
           {allClean ? (
             <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
-              <LuCircleCheck className="h-8 w-8 text-emerald-500" />
+              <LuCircleCheck className="h-8 w-8 text-success" />
               <p className="text-sm text-muted-foreground">
                 <Trans>Every row was imported successfully.</Trans>
               </p>

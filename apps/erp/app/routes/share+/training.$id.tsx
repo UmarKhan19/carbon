@@ -721,8 +721,8 @@ function ResultsView({
               className={cn(
                 "flex-shrink-0 size-12 text-3xl p-2 rounded-full border",
                 actionData.passed
-                  ? "bg-emerald-100 text-emerald-500 border-emerald-500 dark:bg-emerald-900"
-                  : "bg-red-100 text-red-500 border-red-500 dark:bg-red-900"
+                  ? "bg-success/12 text-success border-success"
+                  : "bg-destructive/12 text-destructive border-destructive"
               )}
             >
               {actionData.passed ? <LuCircleCheck /> : <LuCircleX />}
@@ -741,7 +741,7 @@ function ResultsView({
               <span
                 className={cn(
                   "text-xl uppercase font-mono font-bold tracking-tight",
-                  actionData.passed ? "text-emerald-500" : "text-red-500"
+                  actionData.passed ? "text-success" : "text-destructive"
                 )}
               >
                 {actionData.passed ? "Passed" : "Failed"}
@@ -749,7 +749,7 @@ function ResultsView({
               <div
                 className={cn(
                   "text-6xl font-mono font-bold",
-                  actionData.passed ? "text-emerald-500" : "text-red-500"
+                  actionData.passed ? "text-success" : "text-destructive"
                 )}
               >
                 {scorePercent}%
@@ -833,15 +833,15 @@ function ResultsView({
                     className={cn(
                       "w-full p-4 border rounded-lg",
                       isCorrect
-                        ? "bg-emerald-50 border-emerald-200 dark:bg-emerald-950 dark:border-emerald-800"
-                        : "bg-red-50 border-red-200 dark:bg-red-950 dark:border-red-800"
+                        ? "bg-success/12 border-success/25"
+                        : "bg-destructive/12 border-destructive/25"
                     )}
                   >
                     <div className="flex items-start gap-3">
                       <div
                         className={cn(
                           "flex-shrink-0 mt-1",
-                          isCorrect ? "text-emerald-500" : "text-red-500"
+                          isCorrect ? "text-success" : "text-destructive"
                         )}
                       >
                         {isCorrect ? <LuCircleCheck /> : <LuCircleX />}
@@ -856,7 +856,7 @@ function ResultsView({
                           </span>
                           <span
                             className={
-                              isCorrect ? "text-emerald-600" : "text-red-600"
+                              isCorrect ? "text-success" : "text-destructive"
                             }
                           >
                             {formatAnswer(userAnswer?.value, question)}
@@ -867,7 +867,7 @@ function ResultsView({
                             <span className="text-muted-foreground">
                               Correct answer:{" "}
                             </span>
-                            <span className="text-emerald-600">
+                            <span className="text-success">
                               {formatCorrectAnswer(question)}
                             </span>
                           </p>

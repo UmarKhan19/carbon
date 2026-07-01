@@ -7,7 +7,7 @@ import type { deadlineTypes } from "../../production.models";
 export function getDeadlineIcon(deadlineType: (typeof deadlineTypes)[number]) {
   switch (deadlineType) {
     case "ASAP":
-      return <BsExclamationSquareFill className="text-red-500" />;
+      return <BsExclamationSquareFill className="text-destructive" />;
     case "Hard Deadline":
       return <HighPriorityIcon />;
     case "Soft Deadline":

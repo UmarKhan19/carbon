@@ -222,8 +222,8 @@ const GaugeForm = ({
                                                         "rounded-full flex items-center justify-center p-2",
                                                         record.inspectionStatus ===
                                                           "Pass"
-                                                          ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-400"
-                                                          : "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-400"
+                                                          ? "bg-status-green/12 text-status-green-fg"
+                                                          : "bg-status-red/12 text-status-red-fg"
                                                       )}
                                                     >
                                                       <LuCircleGauge className="size-4" />

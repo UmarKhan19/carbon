@@ -23,16 +23,16 @@ const badgeVariants = cva(
           "bg-destructive text-destructive-foreground shadow:sm dark:shadow hover:bg-destructive/80",
         outline: "text-foreground border border-border",
         green:
-          "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-400 border-emerald-500/20",
+          "bg-status-green/12 text-status-green-fg border-status-green/25 hover:bg-status-green/20",
         yellow:
-          "bg-yellow-100 text-yellow-800 dark:bg-yellow-500/15 dark:text-yellow-400 border-yellow-500/20",
+          "bg-status-yellow/12 text-status-yellow-fg border-status-yellow/25 hover:bg-status-yellow/20",
         orange:
-          "bg-orange-100 text-orange-800 dark:bg-orange-500/15 dark:text-orange-400 border-orange-500/20",
-        red: "bg-red-100 text-red-800 dark:bg-red-500/15 dark:text-red-400 border-red-500/20",
-        blue: "bg-blue-100 text-blue-800 dark:bg-blue-500/15 dark:text-blue-400 border-blue-500/20",
-        gray: "bg-[#e3e2e080] text-[#32302c] dark:bg-[#373737] dark:text-white hover:bg-[#e3e2e0] dark:hover:bg-[#5a5a5a] ",
+          "bg-status-orange/12 text-status-orange-fg border-status-orange/25 hover:bg-status-orange/20",
+        red: "bg-status-red/12 text-status-red-fg border-status-red/25 hover:bg-status-red/20",
+        blue: "bg-status-blue/12 text-status-blue-fg border-status-blue/25 hover:bg-status-blue/20",
+        gray: "bg-status-gray/15 text-status-gray-fg border-status-gray/25 hover:bg-status-gray/25",
         purple:
-          "bg-violet-100 text-violet-800 dark:bg-violet-500/15 dark:text-violet-400 border-violet-500/20"
+          "bg-status-purple/12 text-status-purple-fg border-status-purple/25 hover:bg-status-purple/20"
       }
     },
     defaultVariants: {

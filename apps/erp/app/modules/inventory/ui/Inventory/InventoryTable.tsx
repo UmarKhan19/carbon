@@ -251,7 +251,7 @@ const InventoryTable = memo(
           header: t`On Purchase Order`,
           cell: ({ row }) => formatNumber(row.original.quantityOnPurchaseOrder),
           meta: {
-            icon: <LuMoveUp className="text-emerald-500" />,
+            icon: <LuMoveUp className="text-status-green" />,
             renderTotal: true,
             formatter: formatNumber
           }
@@ -262,7 +262,7 @@ const InventoryTable = memo(
           cell: ({ row }) =>
             formatNumber(row.original.quantityOnProductionOrder),
           meta: {
-            icon: <LuMoveUp className="text-emerald-500" />,
+            icon: <LuMoveUp className="text-status-green" />,
             renderTotal: true,
             formatter: formatNumber
           }
@@ -273,7 +273,7 @@ const InventoryTable = memo(
           cell: ({ row }) =>
             formatNumber(row.original.quantityOnProductionDemand),
           meta: {
-            icon: <LuMoveDown className="text-red-500" />,
+            icon: <LuMoveDown className="text-status-red" />,
             renderTotal: true,
             formatter: formatNumber
           }
@@ -283,7 +283,7 @@ const InventoryTable = memo(
           header: t`On Sales Order`,
           cell: ({ row }) => formatNumber(row.original.quantityOnSalesOrder),
           meta: {
-            icon: <LuMoveDown className="text-red-500" />,
+            icon: <LuMoveDown className="text-status-red" />,
             renderTotal: true,
             formatter: formatNumber
           }
@@ -293,7 +293,7 @@ const InventoryTable = memo(
           header: t`Demand Forecast`,
           cell: ({ row }) => formatNumber(row.original.demandForecast),
           meta: {
-            icon: <LuMoveDown className="text-red-500" />,
+            icon: <LuMoveDown className="text-status-red" />,
             renderTotal: true,
             formatter: formatNumber
           }

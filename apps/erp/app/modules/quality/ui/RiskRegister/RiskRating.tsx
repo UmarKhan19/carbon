@@ -8,16 +8,16 @@ export function RiskRating({
   const getColor = (rating: number) => {
     switch (rating) {
       case 5:
-        return "bg-red-500";
+        return "bg-destructive";
       case 4:
-        return "bg-orange-500";
+        return "bg-status-orange";
       case 3:
-        return "bg-yellow-500";
+        return "bg-warning";
       case 2:
-        return "bg-emerald-500";
+        return "bg-success";
       case 1:
       default:
-        return "bg-emerald-500";
+        return "bg-success";
     }
   };
 

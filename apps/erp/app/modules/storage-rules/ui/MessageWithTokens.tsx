@@ -118,7 +118,7 @@ const CUSTOM_FIELD_PREFIX = "item.customFields.";
 // the overlay) so the textarea's real glyphs show through cleanly. Adding a
 // text color here would render duplicate, mis-aligned text on top of the
 // caret layer.
-const KNOWN_TOKEN_CLS = "rounded-sm bg-blue-500/25 ring-1 ring-blue-500/50";
+const KNOWN_TOKEN_CLS = "rounded-sm bg-info/25 ring-1 ring-info/50";
 const UNKNOWN_TOKEN_CLS =
   "rounded-sm bg-destructive/20 ring-1 ring-destructive/50";
 

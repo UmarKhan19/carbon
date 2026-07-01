@@ -486,7 +486,7 @@ export function AssociatedItemsList({
                 )}
 
                 {r.sumMismatch && (
-                  <p className="mt-2 text-xs text-warning-foreground">
+                  <p className="mt-2 text-xs text-status-yellow-fg">
                     <Trans>
                       Linked entity quantity ({r.linkedSum}) does not match row
                       quantity ({r.quantity}).

@@ -272,7 +272,7 @@ const CustomerAccountsTable = memo(
                   setSelectedUserIds([row.user.id]);
                   deactivateCustomerModal.onOpen();
                 }}
-                className="text-red-500 hover:text-red-500"
+                className="text-destructive hover:text-destructive"
               >
                 <MenuIcon icon={<LuBan />} />
                 <Trans>Deactivate Account</Trans>

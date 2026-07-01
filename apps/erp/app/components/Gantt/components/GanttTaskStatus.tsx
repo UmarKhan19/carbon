@@ -207,26 +207,26 @@ export function GanttTaskStatusIcon({
 export function runStatusClassNameColor(status: GanttTaskStatus): string {
   switch (status) {
     case "PENDING":
-      return "text-gray-500";
+      return "text-muted-foreground";
     case "EXECUTING":
     case "RETRYING_AFTER_FAILURE":
       return "text-pending";
     case "WAITING_TO_RESUME":
-      return "text-blue-300";
+      return "text-status-blue";
     case "PAUSED":
-      return "text-orange-300";
+      return "text-status-orange";
     case "CANCELED":
-      return "text-gray-500";
+      return "text-muted-foreground";
     case "INTERRUPTED":
-      return "text-red-500";
+      return "text-destructive";
     case "COMPLETED_SUCCESSFULLY":
       return "text-success";
     case "COMPLETED_WITH_ERRORS":
-      return "text-red-500";
+      return "text-destructive";
     case "SYSTEM_FAILURE":
-      return "text-red-500";
+      return "text-destructive";
     case "CRASHED":
-      return "text-red-500";
+      return "text-destructive";
     default: {
       assertNever(status);
     }

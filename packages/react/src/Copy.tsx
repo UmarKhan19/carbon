@@ -38,7 +38,7 @@ const Copy = ({
           icon={isCopied ? <LuCheck /> : (icon ?? <LuCopy />)}
           size={size}
           className={cn(
-            isCopied && "text-emerald-500 hover:text-emerald-500",
+            isCopied && "text-success hover:text-success",
             className
           )}
           onClick={handleCopy}

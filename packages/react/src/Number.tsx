@@ -63,7 +63,7 @@ const NumberIncrementStepper = ({
         [
           "flex flex-1 select-none items-center justify-center rounded-tr-md border-l border-border leading-none text-foreground transition-colors duration-100",
           // Pressed
-          "pressed:bg-slate-100 dark:pressed:bg-slate-700",
+          "pressed:bg-muted",
           // Disabled
           "disabled:opacity-40 disabled:cursor-not-allowed"
         ],
@@ -85,7 +85,7 @@ const NumberDecrementStepper = ({
         [
           "flex flex-1 select-none items-center justify-center rounded-br-md border-l border-t border-border leading-none text-foreground transition-colors duration-100",
           // Pressed
-          "pressed:bg-slate-100 dark:pressed:bg-slate-700",
+          "pressed:bg-muted",
           // Disabled
           "disabled:opacity-40 disabled:cursor-not-allowed"
         ],

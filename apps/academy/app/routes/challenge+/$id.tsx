@@ -172,9 +172,9 @@ export default function ChallengeRoute() {
   const getAnswerStyles = (status: string | null) => {
     switch (status) {
       case "correct":
-        return "bg-emerald-100 border-emerald-500 text-emerald-800 dark:bg-emerald-900 dark:border-emerald-500 dark:text-emerald-500";
+        return "bg-status-green/12 border-status-green/25 text-status-green-fg";
       case "incorrect":
-        return "bg-red-100 border-red-500 text-red-800 dark:bg-red-900 dark:border-red-500 dark:text-red-500";
+        return "bg-status-red/12 border-status-red/25 text-status-red-fg";
       default:
         return "hover:bg-accent";
     }
@@ -254,7 +254,7 @@ export default function ChallengeRoute() {
               <span
                 className={cn(
                   "text-xl font-display uppercase font-bold tracking-tight",
-                  actionData.passed ? "text-emerald-500" : "text-red-500"
+                  actionData.passed ? "text-status-green" : "text-status-red"
                 )}
               >
                 You Scored
@@ -262,7 +262,7 @@ export default function ChallengeRoute() {
               <div
                 className={cn(
                   "text-6xl font-display font-bold",
-                  actionData.passed ? "text-emerald-500" : "text-red-500"
+                  actionData.passed ? "text-status-green" : "text-status-red"
                 )}
               >
                 {Math.round(

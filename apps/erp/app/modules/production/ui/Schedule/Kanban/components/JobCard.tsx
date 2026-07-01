@@ -122,15 +122,15 @@ const cardVariants = cva(
       },
       status: {
         Draft: "border-border",
-        Planned: "border-yellow-500/30",
-        Ready: "border-blue-500/30",
-        "In Progress": "border-emerald-600/30",
-        Paused: "border-orange-500/30",
-        Completed: "border-green-500/30",
+        Planned: "border-warning/30",
+        Ready: "border-info/30",
+        "In Progress": "border-success/30",
+        Paused: "border-status-orange/30",
+        Completed: "border-success/30",
         Closed: "border-border",
-        Cancelled: "border-red-500/30",
-        Overdue: "border-red-500/50",
-        "Due Today": "border-orange-500/50"
+        Cancelled: "border-destructive/30",
+        Overdue: "border-destructive/50",
+        "Due Today": "border-status-orange/50"
       }
     },
     defaultVariants: {
@@ -231,7 +231,7 @@ export function JobCard({ item, isOverlay, progressByItemId }: JobCardProps) {
       style={style}
       className={cn(
         "max-w-[330px]",
-        item.hasConflict && "border-red-500 border-2",
+        item.hasConflict && "border-destructive border-2",
         cardVariants({
           dragging: isOverlay ? "overlay" : isDragging ? "over" : undefined,
           status: status,
@@ -260,7 +260,7 @@ export function JobCard({ item, isOverlay, progressByItemId }: JobCardProps) {
               {item.hasConflict && (
                 <Tooltip>
                   <TooltipTrigger>
-                    <LuTriangleAlert className="h-4 w-4 text-red-500 flex-shrink-0" />
+                    <LuTriangleAlert className="h-4 w-4 text-destructive flex-shrink-0" />
                   </TooltipTrigger>
                   <TooltipContent>
                     Scheduling conflict: operations cannot meet due date
@@ -326,7 +326,7 @@ export function JobCard({ item, isOverlay, progressByItemId }: JobCardProps) {
             <HStack>
               <BarProgress
                 activeClassName={
-                  status === "Completed" ? "bg-emerald-500" : "bg-blue-500"
+                  status === "Completed" ? "bg-success" : "bg-info"
                 }
                 progress={Math.min((item.progress ?? 0) * 100, 100)}
               />
@@ -392,7 +392,7 @@ export function JobCard({ item, isOverlay, progressByItemId }: JobCardProps) {
         )}
         {displaySettings.showDueDate && item.completedDate && (
           <HStack className="justify-start space-x-2">
-            <LuCircleCheck className="text-emerald-500" />
+            <LuCircleCheck className="text-success" />
             <span className="text-sm">
               Completed {formatDate(item.completedDate)}
             </span>

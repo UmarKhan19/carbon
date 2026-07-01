@@ -135,7 +135,7 @@ export function ExpiryTracePopover({
                   <span
                     className={
                       isResolved
-                        ? "flex h-5 w-5 items-center justify-center rounded-full text-emerald-500"
+                        ? "flex h-5 w-5 items-center justify-center rounded-full text-success"
                         : "flex h-5 w-5 items-center justify-center rounded-full bg-muted text-muted-foreground"
                     }
                   >

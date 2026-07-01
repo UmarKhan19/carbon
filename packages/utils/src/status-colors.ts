@@ -18,14 +18,29 @@ export type StatusColor =
   | "gray"
   | "purple";
 
+/* Representative solid hex per status color, for framework-agnostic contexts
+ * that can't read CSS variables (docs dots, PDF, SVG). Derived from the OKLCH
+ * `--status-*` light-mode solids in @carbon/config theme.css — keep in sync. */
 export const STATUS_COLOR_HEX: Record<StatusColor, string> = {
-  green: "#10b981",
-  orange: "#f97316",
-  red: "#ef4444",
-  yellow: "#eab308",
-  blue: "#3b82f6",
-  gray: "#8b8985",
-  purple: "#8b5cf6"
+  green: "#008954",
+  orange: "#cb6620",
+  red: "#bd413f",
+  yellow: "#c7a92a",
+  blue: "#0079b5",
+  gray: "#7d8085",
+  purple: "#7f5bb6"
+};
+
+/* CSS custom-property reference per status color, for in-app (themeable) use —
+ * flips automatically in dark mode. Prefer this over STATUS_COLOR_HEX in the ERP. */
+export const STATUS_COLOR_VAR: Record<StatusColor, string> = {
+  green: "var(--status-green)",
+  orange: "var(--status-orange)",
+  red: "var(--status-red)",
+  yellow: "var(--status-yellow)",
+  blue: "var(--status-blue)",
+  gray: "var(--status-gray)",
+  purple: "var(--status-purple)"
 };
 
 export const JOB_STATUS_COLOR_MAP = {

@@ -328,7 +328,7 @@ export default function LessonRoute() {
                   >
                     <div className="flex items-center gap-2">
                       {isCompleted ? (
-                        <LuCircleCheck className="size-4 flex-shrink-0 text-emerald-500" />
+                        <LuCircleCheck className="size-4 flex-shrink-0 text-status-green" />
                       ) : (
                         <LuCirclePlay className="size-4 flex-shrink-0 text-muted-foreground" />
                       )}
@@ -353,7 +353,7 @@ export default function LessonRoute() {
               <Button
                 variant="primary"
                 leftIcon={
-                  <LuCircleCheck className="size-4 flex-shrink-0 text-emerald-500" />
+                  <LuCircleCheck className="size-4 flex-shrink-0 text-status-green" />
                 }
               >
                 Topic Challenge Completed

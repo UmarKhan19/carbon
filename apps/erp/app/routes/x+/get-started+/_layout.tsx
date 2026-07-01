@@ -259,17 +259,15 @@ export default function GetStartedLayout() {
 function PreviewBar({ previewing }: { previewing: boolean }) {
   if (previewing) {
     return (
-      <div className="sticky top-0 z-20 flex items-center gap-3 px-8 py-2 bg-amber-500/15 border-b border-amber-500/20 text-sm backdrop-blur-sm">
-        <span className="text-amber-700 dark:text-amber-400 font-medium">
-          Customer preview
-        </span>
+      <div className="sticky top-0 z-20 flex items-center gap-3 px-8 py-2 bg-warning/15 border-b border-warning/20 text-sm backdrop-blur-sm">
+        <span className="text-warning font-medium">Customer preview</span>
         <span className="text-muted-foreground">
           Internal pages and locked fields are hidden.
         </span>
         <button
           type="button"
           onClick={() => setCustomerPreview(false)}
-          className="ml-auto font-medium text-amber-700 dark:text-amber-400 hover:underline"
+          className="ml-auto font-medium text-warning hover:underline"
         >
           Exit preview
         </button>

@@ -563,7 +563,7 @@ const Notifications = () => {
           className="w-8 h-8 flex items-center relative"
         >
           {hasUnseenNotifications && (
-            <div className="w-2 h-2 bg-red-500 rounded-full absolute top-0 right-0" />
+            <div className="w-2 h-2 bg-destructive rounded-full absolute top-0 right-0" />
           )}
           <LuBell size={16} />
         </Button>

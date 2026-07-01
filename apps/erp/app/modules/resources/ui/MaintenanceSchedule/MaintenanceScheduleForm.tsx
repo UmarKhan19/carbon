@@ -51,7 +51,7 @@ function getPriorityIcon(
 ) {
   switch (priority) {
     case "Critical":
-      return <BsExclamationSquareFill className="text-red-500" />;
+      return <BsExclamationSquareFill className="text-destructive" />;
     case "High":
       return <HighPriorityIcon />;
     case "Medium":

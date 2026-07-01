@@ -70,7 +70,7 @@ const OPEN_STATUSES = ["Open", "Assigned", "In Progress"] as const;
 
 const chartConfig = {
   value: {
-    color: "hsl(var(--primary))"
+    color: "var(--primary)"
   }
 } satisfies ChartConfig;
 

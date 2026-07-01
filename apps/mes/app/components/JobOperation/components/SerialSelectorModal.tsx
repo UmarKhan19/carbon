@@ -141,9 +141,9 @@ export function SerialSelectorModal({
                         (entity) =>
                           entity.id === serial || entity.readableId === serial
                       ) ? (
-                        <LuCheck className="text-green-500" />
+                        <LuCheck className="text-status-green" />
                       ) : (
-                        <LuX className="text-red-500" />
+                        <LuX className="text-status-red" />
                       ))}
                   </InputRightElement>
                 </InputGroup>

@@ -136,15 +136,15 @@ export function StepsListItem({
                     isDisabled={record?.createdBy !== user?.id}
                     onClick={() => onRecord(step)}
                     className={cn(
-                      "text-emerald-500",
+                      "text-status-green",
                       step.minValue !== null &&
                         record?.numericValue != null &&
                         record?.numericValue < step.minValue &&
-                        "text-red-500",
+                        "text-status-red",
                       step.maxValue !== null &&
                         record?.numericValue != null &&
                         record?.numericValue > step.maxValue &&
-                        "text-red-500"
+                        "text-status-red"
                     )}
                   />
                 ) : (
@@ -314,10 +314,10 @@ export function PreviewStepRecord({
               "text-sm",
               step.minValue !== null &&
                 record?.numericValue < step.minValue &&
-                "text-red-500",
+                "text-status-red",
               step.maxValue !== null &&
                 record?.numericValue > step.maxValue &&
-                "text-red-500"
+                "text-status-red"
             )}
           >
             {numberFormatter.format(record?.numericValue)}{" "}

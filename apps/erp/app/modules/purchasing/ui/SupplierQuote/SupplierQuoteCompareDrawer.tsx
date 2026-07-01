@@ -476,14 +476,14 @@ const ComparisonView = ({
                         </span>
                         <HStack spacing={1}>
                           {total === bestTotal && total > 0 && (
-                            <LuStar className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                            <LuStar className="h-4 w-4 text-status-yellow fill-status-yellow" />
                           )}
                           <span
                             className={cn(
                               "font-semibold",
                               total === bestTotal &&
                                 total > 0 &&
-                                "text-green-600"
+                                "text-status-green"
                             )}
                           >
                             {hasMatchingTier ? formatter.format(total) : "N/A"}
@@ -501,7 +501,7 @@ const ComparisonView = ({
                       )}
 
                       {!hasMatchingTier && (
-                        <span className="text-xs text-amber-600">
+                        <span className="text-xs text-warning">
                           <Trans>No pricing for selected quantity</Trans>
                         </span>
                       )}
@@ -617,12 +617,12 @@ const ComparisonView = ({
                               <VStack spacing={0}>
                                 <HStack spacing={1} className="justify-center">
                                   {isBest && (
-                                    <LuStar className="h-3 w-3 text-yellow-500 fill-yellow-500" />
+                                    <LuStar className="h-3 w-3 text-status-yellow fill-status-yellow" />
                                   )}
                                   <span
                                     className={cn(
                                       "font-medium",
-                                      isBest && "text-green-600"
+                                      isBest && "text-status-green"
                                     )}
                                   >
                                     {formatter.format(

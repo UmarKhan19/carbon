@@ -128,7 +128,7 @@ export default function CourseRoute() {
               </div>
             </div>
             <div className="flex items-center gap-1 text-xs">
-              <span className="font-bold text-emerald-500">
+              <span className="font-bold text-status-green">
                 {completionPercentage}%
               </span>
               <Progress value={completionPercentage} />
@@ -180,7 +180,7 @@ export default function CourseRoute() {
                         >
                           <div className="flex items-center gap-2">
                             {isCompleted ? (
-                              <LuCircleCheck className="size-4 flex-shrink-0 text-emerald-500" />
+                              <LuCircleCheck className="size-4 flex-shrink-0 text-status-green" />
                             ) : (
                               <LuCirclePlay className="size-4 flex-shrink-0 text-muted-foreground" />
                             )}
@@ -198,7 +198,7 @@ export default function CourseRoute() {
                       <Button
                         variant="primary"
                         leftIcon={
-                          <LuCircleCheck className="size-4 flex-shrink-0 text-emerald-500" />
+                          <LuCircleCheck className="size-4 flex-shrink-0 text-status-green" />
                         }
                       >
                         Topic Challenge Completed
@@ -244,7 +244,7 @@ export default function CourseRoute() {
                           >
                             <div className="flex items-center gap-2">
                               {isCompleted ? (
-                                <LuCircleCheck className="size-4 flex-shrink-0 text-emerald-500" />
+                                <LuCircleCheck className="size-4 flex-shrink-0 text-status-green" />
                               ) : (
                                 <LuCirclePlay className="size-4 flex-shrink-0 text-muted-foreground" />
                               )}

@@ -12,12 +12,12 @@ const alertVariants = cva(
       variant: {
         default: "bg-background text-foreground",
         success:
-          "bg-gradient-fade border-emerald-600/70 from-emerald-600/20 text-emerald-700 [&>svg]:text-emerald-600 dark:text-emerald-100 dark:from-emerald-600/20 dark:border-emerald-500/30 dark:[&>svg]:text-emerald-400",
-        info: "bg-gradient-fade border-blue-500/70 from-blue-500/20 text-blue-800 [&>svg]:text-blue-600 dark:text-blue-100 dark:from-blue-500/20 dark:border-blue-500/30 dark:[&>svg]:text-blue-400",
+          "bg-gradient-fade border-status-green/40 from-status-green/15 text-status-green-fg [&>svg]:text-status-green",
+        info: "bg-gradient-fade border-status-blue/40 from-status-blue/15 text-status-blue-fg [&>svg]:text-status-blue",
         warning:
-          "bg-gradient-fade border-amber-500/70 from-amber-500/20 text-amber-800 [&>svg]:text-amber-600 dark:text-amber-100 dark:from-amber-500/20 dark:border-amber-500/30 dark:[&>svg]:text-amber-400",
+          "bg-gradient-fade border-status-yellow/40 from-status-yellow/15 text-status-yellow-fg [&>svg]:text-status-yellow",
         destructive:
-          "bg-gradient-fade border-red-500/70 from-red-500/20 text-destructive [&>svg]:text-destructive dark:text-red-100 dark:from-red-500/20 dark:border-red-500/30 dark:[&>svg]:text-red-400"
+          "bg-gradient-fade border-status-red/40 from-status-red/15 text-status-red-fg [&>svg]:text-status-red"
       }
     },
     defaultVariants: {

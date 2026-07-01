@@ -1516,7 +1516,7 @@ export const ErrorMessage = ({
               cx="50"
               cy="50"
               r="45"
-              stroke="hsl(var(--muted))"
+              stroke="var(--muted)"
               strokeWidth="10"
               initial={{ pathLength: 0 }}
               animate={{ pathLength: 1 }}
@@ -1524,7 +1524,7 @@ export const ErrorMessage = ({
             />
             <motion.path
               d="M50 5 A45 45 0 0 1 95 50"
-              stroke="hsl(var(--primary))"
+              stroke="var(--primary)"
               strokeWidth="10"
               strokeLinecap="round"
               initial={{ pathLength: 0 }}

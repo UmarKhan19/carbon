@@ -120,7 +120,7 @@ export function GoLiveView() {
           <ul className="flex flex-col gap-2">
             {HYPERCARE.map((h, i) => (
               <li key={i} className="flex items-start gap-2.5 text-sm">
-                <span className="shrink-0 mt-1.5 size-1.5 rounded-full bg-emerald-500" />
+                <span className="shrink-0 mt-1.5 size-1.5 rounded-full bg-success" />
                 {i18n._(h)}
               </li>
             ))}
@@ -155,7 +155,7 @@ function CutoverBox({ done }: { done: boolean }) {
       className={cn(
         "shrink-0 size-5 rounded border flex items-center justify-center transition-colors",
         done
-          ? "bg-emerald-500 border-emerald-500 text-white"
+          ? "bg-success border-success text-success-foreground"
           : "bg-card border-input"
       )}
     >

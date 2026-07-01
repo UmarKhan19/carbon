@@ -153,7 +153,7 @@ export function createMentionExtension({
   return Mention.configure({
     HTMLAttributes: {
       class:
-        "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-400",
+        "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-status-blue/12 text-status-blue-fg",
       "data-mention-type": name
     },
     suggestion: createMentionSuggestion({ char, items, elementRef })

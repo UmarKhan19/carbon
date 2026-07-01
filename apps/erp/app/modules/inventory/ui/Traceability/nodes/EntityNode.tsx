@@ -95,9 +95,7 @@ function EntityNodeImpl({ data, selected, id }: Props) {
           cy={radius}
           r={radius}
           fill={meta.color}
-          stroke={
-            selected || data.isRoot ? "hsl(var(--foreground))" : "transparent"
-          }
+          stroke={selected || data.isRoot ? "var(--foreground)" : "transparent"}
           strokeWidth={selected || data.isRoot ? 2 : 0}
         />
       </svg>

@@ -40,27 +40,27 @@ export function JobOrderStatusBadge({
       );
     case "inStock":
       return badge(
-        <LuCircleCheck className="text-emerald-600" />,
+        <LuCircleCheck className="text-success" />,
         <Trans>In stock</Trans>
       );
     case "needsOrder":
       return badge(
-        <LuCircleAlert className="text-red-500" />,
+        <LuCircleAlert className="text-destructive" />,
         <Trans>Order {status?.shortfall} for this job</Trans>
       );
     case "needsJob":
       return badge(
-        <LuClock className="text-red-500" />,
+        <LuClock className="text-destructive" />,
         <Trans>Needs job</Trans>
       );
     case "planned":
       return badge(
-        <TodoStatusIcon className="text-blue-600" />,
+        <TodoStatusIcon className="text-status-blue" />,
         <Trans>Planned purchase order</Trans>
       );
     case "awaitingApproval":
       return badge(
-        <LuStamp className="text-amber-400" />,
+        <LuStamp className="text-warning" />,
         <Trans>Awaiting approval</Trans>
       );
     case "received":
@@ -74,7 +74,7 @@ export function JobOrderStatusBadge({
       return badge(<AlmostDoneIcon />, <Trans>On order</Trans>);
     case "plannedJob":
       return badge(
-        <LuClock className="text-amber-400" />,
+        <LuClock className="text-warning" />,
         status?.supplyJobStatus === "Planned" ? (
           <Trans>Planned job</Trans>
         ) : (

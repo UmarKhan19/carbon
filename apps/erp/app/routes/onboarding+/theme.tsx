@@ -15,7 +15,7 @@ import {
   VStack
 } from "@carbon/react";
 import type { Theme } from "@carbon/utils";
-import { themes } from "@carbon/utils";
+import { resolveTheme, themes } from "@carbon/utils";
 import { msg } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useEffect, useRef, useState } from "react";
@@ -78,7 +78,7 @@ export default function OnboardingTheme() {
   const [theme, setTheme] = useState<ThemeValue>(initialTheme as "zinc");
 
   const onThemeChange = (t: Theme) => {
-    setTheme(t.name);
+    setTheme(t.name as ThemeValue);
 
     const variables = mode === "dark" ? t.cssVars.dark : t.cssVars.light;
 
@@ -181,7 +181,7 @@ export default function OnboardingTheme() {
           </HStack>
           <div className="w-full grid grid-cols-3 gap-4">
             {themes.map((t) => {
-              const isActive = theme === t.name;
+              const isActive = resolveTheme(theme)?.name === t.name;
               return (
                 <Button
                   key={t.name}
@@ -193,12 +193,10 @@ export default function OnboardingTheme() {
                   )}
                   style={
                     {
-                      "--theme-primary": `hsl(${
+                      "--theme-primary":
+                        t?.activeColor[mode === "dark" ? "dark" : "light"],
+                      borderColor:
                         t?.activeColor[mode === "dark" ? "dark" : "light"]
-                      })`,
-                      borderColor: `hsl(${
-                        t?.activeColor[mode === "dark" ? "dark" : "light"]
-                      })`
                     } as React.CSSProperties
                   }
                 >

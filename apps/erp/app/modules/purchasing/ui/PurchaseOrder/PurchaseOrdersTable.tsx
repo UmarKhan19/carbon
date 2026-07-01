@@ -188,9 +188,9 @@ const PurchaseOrdersTable = memo(
               <span
                 className={
                   isReceivedOnTime
-                    ? "text-emerald-500"
+                    ? "text-status-green"
                     : isOverdue
-                      ? "text-red-500"
+                      ? "text-status-red"
                       : ""
                 }
               >

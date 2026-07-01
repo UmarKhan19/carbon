@@ -14,13 +14,13 @@ type JobOperationNodeData = {
 };
 
 const STATUS_COLORS: Record<string, { border: string; bar: string }> = {
-  Done: { border: "border-green-500", bar: "bg-green-500" },
-  "In Progress": { border: "border-blue-500", bar: "bg-blue-500" },
-  Ready: { border: "border-teal-500", bar: "bg-teal-500" },
-  Waiting: { border: "border-gray-400", bar: "bg-gray-400" },
-  Todo: { border: "border-gray-300", bar: "bg-gray-300" },
-  Paused: { border: "border-amber-500", bar: "bg-amber-500" },
-  Canceled: { border: "border-red-500", bar: "bg-red-500" }
+  Done: { border: "border-success", bar: "bg-success" },
+  "In Progress": { border: "border-info", bar: "bg-info" },
+  Ready: { border: "border-status-green", bar: "bg-status-green" },
+  Waiting: { border: "border-border", bar: "bg-muted-foreground" },
+  Todo: { border: "border-border", bar: "bg-muted" },
+  Paused: { border: "border-warning", bar: "bg-warning" },
+  Canceled: { border: "border-destructive", bar: "bg-destructive" }
 };
 
 function JobOperationNodeImpl({ data }: NodeProps) {
@@ -51,9 +51,9 @@ function JobOperationNodeImpl({ data }: NodeProps) {
         </div>
         <BarProgress
           segments={[
-            { value: d.quantityComplete, className: "bg-emerald-500" },
-            { value: d.quantityReworked, className: "bg-yellow-500" },
-            { value: d.quantityScrapped, className: "bg-red-500" }
+            { value: d.quantityComplete, className: "bg-success" },
+            { value: d.quantityReworked, className: "bg-warning" },
+            { value: d.quantityScrapped, className: "bg-destructive" }
           ]}
           progress={d.quantityComplete}
           max={d.targetQuantity || 1}
@@ -61,7 +61,7 @@ function JobOperationNodeImpl({ data }: NodeProps) {
           className="mt-1"
         />
         {d.quantityScrapped > 0 && (
-          <div className="mt-0.5 text-right text-[11px] text-red-500">
+          <div className="mt-0.5 text-right text-[11px] text-status-red">
             {d.quantityScrapped} scrapped
           </div>
         )}

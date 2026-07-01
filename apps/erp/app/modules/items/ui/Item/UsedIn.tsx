@@ -455,9 +455,9 @@ export function UsedInItem({
               >
                 <LevelLine isSelected={false} className="mr-2" />
                 {child.methodType === "Shipment" ? (
-                  <LuTruck className="mr-2 text-indigo-600" />
+                  <LuTruck className="mr-2 text-status-purple" />
                 ) : node.module === "quality" ? (
-                  <LuShieldX className="mr-2 text-red-600" />
+                  <LuShieldX className="mr-2 text-status-red" />
                 ) : (
                   <MethodIcon
                     type={child.methodType ?? "Method"}

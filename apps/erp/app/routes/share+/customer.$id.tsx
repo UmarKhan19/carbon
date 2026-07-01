@@ -177,7 +177,7 @@ export default function CustomerPortal() {
             )}
             {row.original.customerReference ? (
               <>
-                <LuShieldCheck className="text-emerald-500 flex-shrink-0" />
+                <LuShieldCheck className="text-success flex-shrink-0" />
                 <span className="text-xs font-medium truncate">
                   {row.original.customerReference}
                 </span>

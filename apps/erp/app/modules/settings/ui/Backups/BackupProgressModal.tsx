@@ -81,7 +81,7 @@ function StepChecklist({
             <div key={label} className="flex items-center gap-2.5 text-sm">
               <span className="flex h-5 w-5 shrink-0 items-center justify-center">
                 {state === "done" ? (
-                  <LuCheck className="h-4 w-4 text-emerald-500 duration-200 animate-in fade-in zoom-in-75 motion-reduce:animate-none" />
+                  <LuCheck className="h-4 w-4 text-success duration-200 animate-in fade-in zoom-in-75 motion-reduce:animate-none" />
                 ) : state === "active" ? (
                   <LuLoaderCircle className="h-4 w-4 animate-spin text-primary motion-reduce:animate-none" />
                 ) : (
@@ -277,7 +277,7 @@ export function JobProgressModal({
         <ModalBody>
           {success ? (
             <div className="flex flex-col items-center gap-3 py-4">
-              <LuCheck className="h-8 w-8 text-emerald-500 duration-300 animate-in fade-in zoom-in-75 motion-reduce:animate-none" />
+              <LuCheck className="h-8 w-8 text-success duration-300 animate-in fade-in zoom-in-75 motion-reduce:animate-none" />
               <p className="text-center text-sm text-muted-foreground">
                 {isExport
                   ? "Your backup is ready — it's in the list below."

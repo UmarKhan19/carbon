@@ -169,7 +169,7 @@ const PrimaryNavigation = () => {
                   "hover:bg-accent hover:text-accent-foreground",
                   "transition-[background-color,color,width] duration-100 ease-out",
                   "focus:!outline-none focus:!ring-0 active:!outline-none active:!ring-0",
-                  "after:pointer-events-none after:absolute after:-inset-[3px] after:rounded-lg after:border after:border-blue-500 after:opacity-0 after:ring-2 after:ring-blue-500/20 after:transition-opacity focus-visible:after:opacity-100 active:after:opacity-0",
+                  "after:pointer-events-none after:absolute after:-inset-[3px] after:rounded-lg after:border after:border-ring after:opacity-0 after:ring-2 after:ring-ring/20 after:transition-opacity focus-visible:after:opacity-100 active:after:opacity-0",
                   "group/item"
                 )}
               >
@@ -217,7 +217,7 @@ const NavigationIconLink = forwardRef<
     "disabled:opacity-50",
     "transition-[background-color,color,width] duration-100 ease-out",
     "focus:!outline-none focus:!ring-0 active:!outline-none active:!ring-0",
-    "after:pointer-events-none after:absolute after:-inset-[3px] after:rounded-lg after:border after:border-blue-500 after:opacity-0 after:ring-2 after:ring-blue-500/20 after:transition-opacity focus-visible:after:opacity-100 active:after:opacity-0",
+    "after:pointer-events-none after:absolute after:-inset-[3px] after:rounded-lg after:border after:border-ring after:opacity-0 after:ring-2 after:ring-ring/20 after:transition-opacity focus-visible:after:opacity-100 active:after:opacity-0",
     !isActive && "hover:bg-accent hover:text-accent-foreground",
     isActive && "bg-active text-active-foreground dark:shadow-button-base",
     "group/item"

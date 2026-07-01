@@ -292,7 +292,7 @@ const Documents = ({
               <Tr>
                 <Td>
                   <HStack>
-                    <LuAxis3D className="text-emerald-500 w-6 h-6" />
+                    <LuAxis3D className="text-status-green w-6 h-6" />
                     <Hyperlink
                       target="_blank"
                       to={

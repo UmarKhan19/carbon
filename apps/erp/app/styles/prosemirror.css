@@ -5,7 +5,7 @@
 .ProseMirror .is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   float: left;
-  color: hsl(var(--muted-foreground));
+  color: var(--muted-foreground);
   pointer-events: none;
   height: 0;
 }
@@ -13,7 +13,7 @@
 .ProseMirror .is-empty::before {
   content: attr(data-placeholder);
   float: left;
-  color: hsl(var(--muted-foreground));
+  color: var(--muted-foreground);
   pointer-events: none;
   height: 0;
 }
@@ -70,25 +70,25 @@ ul[data-type="taskList"] li > label {
 ul[data-type="taskList"] li > label input[type="checkbox"] {
   -webkit-appearance: none;
   appearance: none;
-  background-color: hsl(var(--background));
+  background-color: var(--background);
   margin: 0;
   cursor: pointer;
   width: 1.2em;
   height: 1.2em;
   position: relative;
   top: 5px;
-  border: 2px solid hsl(var(--border));
+  border: 2px solid var(--border);
   margin-right: 0.3rem;
   display: grid;
   place-content: center;
 }
 
 ul[data-type="taskList"] li > label input[type="checkbox"]:hover {
-  background-color: hsl(var(--accent));
+  background-color: var(--accent);
 }
 
 ul[data-type="taskList"] li > label input[type="checkbox"]:active {
-  background-color: hsl(var(--accent));
+  background-color: var(--accent);
 }
 
 ul[data-type="taskList"] li > label input[type="checkbox"]::before {

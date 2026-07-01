@@ -184,7 +184,9 @@ export function OperationChat({
                       <div
                         className={cn(
                           "rounded-2xl p-3 w-full flex flex-col gap-1",
-                          isUser ? "bg-blue-500 text-white" : "bg-muted"
+                          isUser
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted"
                         )}
                       >
                         <p className="text-sm">{m.note}</p>

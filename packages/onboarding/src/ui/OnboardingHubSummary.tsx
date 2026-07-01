@@ -52,7 +52,7 @@ export function OnboardingHubSummary({
           <div
             className={cn(
               "h-full rounded-full transition-[width] duration-500",
-              done === total ? "bg-emerald-500" : "bg-primary"
+              done === total ? "bg-success" : "bg-primary"
             )}
             style={{ width: `${pct}%` }}
           />

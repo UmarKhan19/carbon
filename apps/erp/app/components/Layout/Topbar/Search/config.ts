@@ -23,13 +23,13 @@ export const entityTypeConfig: Record<
   { bgColor: string; textColor: string; icon: IconType }
 > = {
   customer: {
-    bgColor: "bg-blue-100 dark:bg-blue-900/30",
-    textColor: "text-blue-600 dark:text-blue-400",
+    bgColor: "bg-status-blue/12",
+    textColor: "text-status-blue-fg",
     icon: LuSquareUser
   },
   supplier: {
-    bgColor: "bg-purple-100 dark:bg-purple-900/30",
-    textColor: "text-purple-600 dark:text-purple-400",
+    bgColor: "bg-status-purple/12",
+    textColor: "text-status-purple-fg",
     icon: PiShareNetworkFill
   },
   gauge: {
@@ -43,53 +43,53 @@ export const entityTypeConfig: Record<
     icon: LuOctagonAlert
   },
   item: {
-    bgColor: "bg-emerald-100 dark:bg-emerald-900/30",
-    textColor: "text-emerald-600 dark:text-emerald-400",
+    bgColor: "bg-status-green/12",
+    textColor: "text-status-green-fg",
     icon: LuWrench
   },
   job: {
-    bgColor: "bg-orange-100 dark:bg-orange-900/30",
-    textColor: "text-orange-600 dark:text-orange-400",
+    bgColor: "bg-status-orange/12",
+    textColor: "text-status-orange-fg",
     icon: LuHardHat
   },
   employee: {
-    bgColor: "bg-cyan-100 dark:bg-cyan-900/30",
-    textColor: "text-cyan-600 dark:text-cyan-400",
+    bgColor: "bg-status-blue/12",
+    textColor: "text-status-blue-fg",
     icon: LuUser
   },
   purchaseOrder: {
-    bgColor: "bg-yellow-100 dark:bg-yellow-900/30",
-    textColor: "text-yellow-600 dark:text-yellow-400",
+    bgColor: "bg-status-yellow/12",
+    textColor: "text-status-yellow-fg",
     icon: LuShoppingCart
   },
   salesInvoice: {
-    bgColor: "bg-green-100 dark:bg-green-900/30",
-    textColor: "text-green-600 dark:text-green-400",
+    bgColor: "bg-status-green/12",
+    textColor: "text-status-green-fg",
     icon: RiProgress8Line
   },
   purchaseInvoice: {
-    bgColor: "bg-red-100 dark:bg-red-900/30",
-    textColor: "text-red-600 dark:text-red-400",
+    bgColor: "bg-status-red/12",
+    textColor: "text-status-red-fg",
     icon: LuFileCheck
   },
   quote: {
-    bgColor: "bg-indigo-100 dark:bg-indigo-900/30",
-    textColor: "text-indigo-600 dark:text-indigo-400",
+    bgColor: "bg-status-purple/12",
+    textColor: "text-status-purple-fg",
     icon: RiProgress4Line
   },
   salesRfq: {
-    bgColor: "bg-pink-100 dark:bg-pink-900/30",
-    textColor: "text-pink-600 dark:text-pink-400",
+    bgColor: "bg-status-red/12",
+    textColor: "text-status-red-fg",
     icon: RiProgress2Line
   },
   salesOrder: {
-    bgColor: "bg-teal-100 dark:bg-teal-900/30",
-    textColor: "text-teal-600 dark:text-teal-400",
+    bgColor: "bg-status-green/12",
+    textColor: "text-status-green-fg",
     icon: RiProgress8Line
   },
   supplierQuote: {
-    bgColor: "bg-violet-100 dark:bg-violet-900/30",
-    textColor: "text-violet-600 dark:text-violet-400",
+    bgColor: "bg-status-purple/12",
+    textColor: "text-status-purple-fg",
     icon: LuPackageSearch
   }
 };

@@ -3,11 +3,11 @@ import { useDateRangePickerState } from "@react-stately/datepicker";
 import type { DateRangePickerProps, DateValue } from "@react-types/datepicker";
 import { cva } from "class-variance-authority";
 import { useRef } from "react";
-import { LuBan } from "react-icons/lu";
+import { LuBan, LuCalendar } from "react-icons/lu";
 import { HStack } from "../HStack";
+import { IconButton } from "../IconButton";
 import { InputGroup } from "../Input";
 import { Popover, PopoverContent, PopoverTrigger } from "../Popover";
-import { FieldButton } from "./components/Button";
 import DateField from "./components/DateField";
 import { RangeCalendar } from "./components/RangeCalendar";
 
@@ -48,11 +48,12 @@ const DateRangePicker = ({
     shouldCloseOnSelect: false
   });
   const ref = useRef<HTMLDivElement>(null);
+  // Base UI's PopoverTrigger owns opening via the controlled state; react-aria's
+  // `buttonProps` toggle is intentionally unused (both on one button = double-toggle).
   const {
     groupProps,
     startFieldProps,
     endFieldProps,
-    buttonProps,
     dialogProps,
     calendarProps
   } = useDateRangePicker(props, state, ref);
@@ -83,11 +84,14 @@ const DateRangePicker = ({
             </div>
           </InputGroup>
 
-          <PopoverTrigger tabIndex={-1}>
-            <FieldButton
-              {...buttonProps}
-              isPressed={state.isOpen}
+          <PopoverTrigger asChild>
+            <IconButton
+              aria-label="Toggle"
+              icon={<LuCalendar />}
+              variant="secondary"
               size={size}
+              isDisabled={props.isDisabled}
+              className="flex-shrink-0 rounded-l-none border border-l-0 before:rounded-l-none"
             />
           </PopoverTrigger>
         </HStack>

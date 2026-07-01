@@ -34,7 +34,7 @@ const CustomFieldsTable = memo(({ data, count }: CustomFieldsTableProps) => {
           <div className="flex items-center gap-2">
             <Hyperlink to={row.original.table!}>{row.original.name}</Hyperlink>
             {tablesWithTags.includes(row.original.table!) && (
-              <LuTags className="text-emerald-500" />
+              <LuTags className="text-status-green" />
             )}
           </div>
         ),

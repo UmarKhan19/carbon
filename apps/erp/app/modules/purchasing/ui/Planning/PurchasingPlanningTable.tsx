@@ -334,7 +334,9 @@ const PlanningTable = memo(
               if (value === undefined) return "-";
               return (
                 <span
-                  className={value < 0 ? "text-red-500 font-bold" : undefined}
+                  className={
+                    value < 0 ? "text-status-red font-bold" : undefined
+                  }
                 >
                   {numberFormatter.format(value)}
                 </span>
