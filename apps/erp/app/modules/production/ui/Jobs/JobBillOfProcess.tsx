@@ -85,7 +85,13 @@ import {
   LuTriangleAlert,
   LuX
 } from "react-icons/lu";
-import { Link, useFetcher, useFetchers, useParams } from "react-router";
+import {
+  Link,
+  useFetcher,
+  useFetchers,
+  useParams,
+  useRevalidator
+} from "react-router";
 import type { z } from "zod";
 import {
   Assignee,
@@ -704,6 +710,34 @@ const JobBillOfProcess = ({
           }
         }
       );
+    }
+  });
+
+  // Phase 3: keep the live job's BOP steps fresh without closing the panel. When steps are
+  // added/edited/reordered for the open operation, or an operator records a step on the shop
+  // floor (jobOperationStepRecord), revalidate so the loader re-serves the latest steps.
+  const revalidator = useRevalidator();
+  useRealtimeChannel({
+    topic: `bop-steps:${selectedItemId}`,
+    enabled: !!selectedItemId && !temporaryItems[selectedItemId],
+    setup(channel) {
+      const refresh = () => revalidator.revalidate();
+      return channel
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "jobOperationStep",
+            filter: `operationId=eq.${selectedItemId}`
+          },
+          refresh
+        )
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "jobOperationStepRecord" },
+          refresh
+        );
     }
   });
 

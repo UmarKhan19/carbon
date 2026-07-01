@@ -1079,6 +1079,43 @@ export async function endProductionEventsByWorkCenter(
     .eq("companyId", args.companyId);
 }
 
+// Phase 3 (auto-start): when an operator starts a production event, flip a not-yet-started
+// job + operation to "In Progress" so the shop floor doesn't have to mark it manually. Status
+// guards make re-starts and already-running jobs no-ops. Best-effort — a failure here must not
+// block the production event that already succeeded.
+async function autoStartJobAndOperation(
+  client: SupabaseClient<Database>,
+  args: { jobOperationId: string; userId: string }
+) {
+  const op = await client
+    .from("jobOperation")
+    .select("jobId, status")
+    .eq("id", args.jobOperationId)
+    .maybeSingle();
+  if (op.error || !op.data) return;
+
+  const updates: PromiseLike<unknown>[] = [];
+  if (["Todo", "Ready", "Waiting"].includes(op.data.status ?? "")) {
+    updates.push(
+      client
+        .from("jobOperation")
+        .update({ status: "In Progress", updatedBy: args.userId })
+        .eq("id", args.jobOperationId)
+        .in("status", ["Todo", "Ready", "Waiting"])
+    );
+  }
+  if (op.data.jobId) {
+    updates.push(
+      client
+        .from("job")
+        .update({ status: "In Progress", updatedBy: args.userId })
+        .eq("id", op.data.jobId)
+        .in("status", ["Draft", "Planned", "Ready"])
+    );
+  }
+  await Promise.all(updates);
+}
+
 export async function startProductionEvent(
   client: SupabaseClient<Database>,
   data: Omit<
@@ -1147,10 +1184,27 @@ export async function startProductionEvent(
       return trackedActivityOutputInsert;
     }
 
+    await autoStartJobAndOperation(client, {
+      jobOperationId: data.jobOperationId,
+      userId: data.createdBy
+    });
+
     return eventInsert;
   }
 
-  return client.from("productionEvent").insert(data).select("*");
+  const eventInsert = await client
+    .from("productionEvent")
+    .insert(data)
+    .select("*");
+
+  if (!eventInsert.error) {
+    await autoStartJobAndOperation(client, {
+      jobOperationId: data.jobOperationId,
+      userId: data.createdBy
+    });
+  }
+
+  return eventInsert;
 }
 
 type JobMethod = {

@@ -52,6 +52,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import {
   LuActivity,
+  LuChevronLeft,
   LuChevronRight,
   LuCirclePlus,
   LuEllipsisVertical,
@@ -117,14 +118,15 @@ import type {
   OperationTool
 } from "~/modules/shared";
 import {
+  classificationFromTypeKind,
   methodOperationOrders,
-  operationKinds,
+  operationClassifications,
   operationParameterValidator,
   operationStepValidator,
   operationToolValidator,
-  operationTypes,
   procedureStepType,
-  standardFactorType
+  standardFactorType,
+  typeKindFromClassification
 } from "~/modules/shared";
 import type { action as editMethodOperationParameterAction } from "~/routes/x+/items+/methods+/operation.parameter.$id";
 import type { action as newMethodOperationParameterAction } from "~/routes/x+/items+/methods+/operation.parameter.new";
@@ -705,6 +707,19 @@ const BillOfProcess = ({
             />
           </div>
         )
+      },
+      {
+        // Phase 3: read-only preview of how the operator sees this operation in the MES
+        // assembly view — step-by-step, with each step's reference image and the tools
+        // scoped to it. No live job needed; renders straight off the method.
+        id: 5,
+        disabled: item.id in temporaryItems,
+        label: <span>Preview</span>,
+        content: (
+          <div className="flex w-full flex-col py-4">
+            <OperationPreview steps={steps} tools={tools} />
+          </div>
+        )
       }
     ];
 
@@ -1134,58 +1149,49 @@ function OperationForm({
           }
         />
 
+        {/* Unified Type+Kind picker (Brad's merge): one field collapsing operationType
+            (Inside/Outside) + operationKind (Operation/Assembly/Inspection). The two
+            underlying columns are still submitted via the hidden inputs below, so costing
+            and the MES view router are unchanged. */}
         <SelectControlled
-          name="operationType"
-          label={t`Operation Type`}
-          placeholder={t`Operation Type`}
-          options={operationTypes.map((o) => ({
+          name="operationClassification"
+          label={t`Type`}
+          placeholder={t`Type`}
+          options={operationClassifications.map((o) => ({
             value: o,
             label: o
           }))}
-          value={processData.operationType}
+          value={classificationFromTypeKind(
+            processData.operationType,
+            processData.operationKind
+          )}
           onChange={(value) => {
+            const next = typeKindFromClassification(value?.value as string);
             setProcessData((d) => ({
               ...d,
-              setupUnit: "Total Minutes",
-              laborUnit: "Minutes/Piece",
-              machineUnit: "Minutes/Piece",
-              operationType: value?.value as string
+              operationType: next.operationType,
+              operationKind: next.operationKind,
+              // Switching inside<->outside changes the meaningful time units; reset to
+              // defaults (matches the previous Operation Type behavior).
+              ...(next.operationType !== d.operationType
+                ? {
+                    setupUnit: "Total Minutes",
+                    laborUnit: "Minutes/Piece",
+                    machineUnit: "Minutes/Piece"
+                  }
+                : {})
             }));
           }}
-          isConfigured={rulesByField.has(key("operationType"))}
-          onConfigure={
-            configurable && !temporaryItems[item.id]
-              ? () => {
-                  onConfigure({
-                    label: t`Operation Type`,
-                    field: key("operationType"),
-                    code: rulesByField.get(key("operationType"))?.code,
-                    defaultValue: processData.operationType,
-                    returnType: {
-                      type: "enum",
-                      listOptions: ["Inside", "Outside"]
-                    }
-                  });
-                }
-              : undefined
-          }
         />
-
-        <SelectControlled
+        <input
+          type="hidden"
+          name="operationType"
+          value={processData.operationType}
+        />
+        <input
+          type="hidden"
           name="operationKind"
-          label="Operation Kind"
-          placeholder="Operation Kind"
-          options={operationKinds.map((o) => ({
-            value: o,
-            label: o
-          }))}
           value={processData.operationKind}
-          onChange={(value) => {
-            setProcessData((d) => ({
-              ...d,
-              operationKind: (value?.value as string) ?? "Operation"
-            }));
-          }}
         />
 
         <InputControlled
@@ -3049,6 +3055,138 @@ function ParametersListItem({
           }}
         />
       )}
+    </div>
+  );
+}
+
+// Read-only MES assembly preview for an operation (Phase 3). Mirrors the MES per-step
+// layout: a step pager, the step's first reference slide, the step text, and the tools
+// scoped to that step (unscoped tools show on every step). No live job, no mutations.
+function OperationPreview({
+  steps,
+  tools
+}: {
+  steps: OperationStep[];
+  tools: OperationTool[];
+}) {
+  const { t } = useLingui();
+  const allTools = useTools();
+  const [current, setCurrent] = useState(0);
+
+  const sorted = [...steps].sort(
+    (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
+  );
+
+  if (sorted.length === 0) {
+    return (
+      <div className="rounded-lg border bg-card p-6 text-center text-sm text-muted-foreground">
+        <Trans>Add steps to preview the operator view.</Trans>
+      </div>
+    );
+  }
+
+  const idx = Math.min(current, sorted.length - 1);
+  const step = sorted[idx];
+  const slides = [...(step.methodOperationStepSlide ?? [])].sort(
+    (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
+  );
+  const image = slides[0] ? getPrivateUrl(slides[0].imagePath) : null;
+
+  // Tools scoped to this step + operation-level (null) tools shown on every step.
+  const stepTools = tools.filter(
+    (tl) => tl.methodOperationStepId == null || tl.methodOperationStepId === step.id
+  );
+
+  const descriptionHtml =
+    step.description && typeof step.description === "object"
+      ? generateHTML(step.description as Parameters<typeof generateHTML>[0])
+      : "";
+
+  return (
+    <div className="flex flex-col gap-4 rounded-lg border bg-card p-4">
+      <div className="flex items-center justify-between">
+        <span className="text-xs text-muted-foreground">
+          {t`Step`} {idx + 1} / {sorted.length}
+        </span>
+        <div className="flex gap-1">
+          <Button
+            variant="ghost"
+            size="md"
+            isIcon
+            aria-label={t`Previous step`}
+            isDisabled={idx <= 0}
+            onClick={() => setCurrent((c) => Math.max(0, c - 1))}
+          >
+            <LuChevronLeft />
+          </Button>
+          <Button
+            variant="ghost"
+            size="md"
+            isIcon
+            aria-label={t`Next step`}
+            isDisabled={idx >= sorted.length - 1}
+            onClick={() => setCurrent((c) => Math.min(sorted.length - 1, c + 1))}
+          >
+            <LuChevronRight />
+          </Button>
+        </div>
+      </div>
+
+      <div className="flex aspect-video items-center justify-center overflow-hidden rounded-md border bg-muted/40">
+        {image ? (
+          <img
+            src={image}
+            alt=""
+            className="max-h-full max-w-full object-contain"
+          />
+        ) : (
+          <span className="text-xs text-muted-foreground">
+            <Trans>No reference image</Trans>
+          </span>
+        )}
+      </div>
+
+      <div className="flex items-center gap-2">
+        <span className="flex size-6 items-center justify-center rounded-full bg-foreground text-xs font-bold text-background">
+          {idx + 1}
+        </span>
+        {step.type ? <Badge variant="secondary">{step.type}</Badge> : null}
+      </div>
+      <p className="text-sm font-medium">{step.name ?? t`Step`}</p>
+      {descriptionHtml ? (
+        <div
+          className="prose prose-sm max-w-none text-sm dark:prose-invert"
+          dangerouslySetInnerHTML={{ __html: descriptionHtml }}
+        />
+      ) : null}
+
+      <div className="flex flex-col gap-1 border-t pt-3">
+        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <Trans>Tools</Trans>
+        </span>
+        {stepTools.length > 0 ? (
+          stepTools.map((tl, i) => {
+            const tool = allTools.find((x) => x.id === tl.toolId);
+            return (
+              <div key={tl.id ?? i} className="flex items-center gap-2 py-0.5">
+                <LuHammer className="size-3 shrink-0 text-muted-foreground" />
+                <span className="flex-1 text-xs">
+                  {tool?.readableIdWithRevision ?? tl.toolId}
+                </span>
+                {tl.quantity > 1 ? (
+                  <span className="text-xs text-muted-foreground">
+                    ×{tl.quantity}
+                  </span>
+                ) : null}
+              </div>
+            );
+          })
+        ) : (
+          <span className="text-xs text-muted-foreground">
+            <Trans>No tools for this step</Trans>
+          </span>
+        )}
+      </div>
     </div>
   );
 }

@@ -30,15 +30,17 @@ the part-link scope); jobs created directly from an item method (the common path
 2. create job from method w/ part->step set
 3. `docker exec carbon-carbon-postgres-1 psql -U postgres -d postgres -c "SELECT \"jobOperationStepId\", count(*) FROM \"jobMaterial\" WHERE \"jobId\"='<id>' GROUP BY 1;"`
 
-## Phase 3 — behavioral ⬜ (not started)
-- ⬜ auto-start job when operator starts step (productionEvent + jobStatus exist -> small server add)
-- ⬜ MES preview from BOP tab, no live job (render assembly view vs methodOperation; read-only)
-- ⬜ refresh BOP steps on live job w/o closing (realtime channel partly there)
+## Phase 3 — behavioral ✅ (done)
+- ✅ auto-start job+op on production-event Start (`startProductionEvent` -> `autoStartJobAndOperation`, status-guarded; both start paths)
+- ✅ MES preview from BOP tab, no live job (`OperationPreview` read-only per-step view: image + step text + per-step tools, in BillOfProcess "Preview" tab)
+- ✅ refresh BOP steps on live job w/o closing (realtime channel on `jobOperationStep`/`jobOperationStepRecord` -> revalidate in JobBillOfProcess)
 
-## Phase 4 — remaining ⬜ (not started)
+## Phase 4 — remaining ⬜ (mostly not started)
 
 ### Op Type + Kind merge (Brad)
-- 🟡 design agreed: single op field `Standard|Assembly|Inspection|Outside Processing`, drop Batch (=tracking type), keep process.processType (Inside/Outside/both). ⬜ impl = big refactor (~29 `=== "Outside"` sites + collapse operationType/operationKind + view router + BOP picker)
+- 🟡 design agreed: single op field `Standard|Assembly|Inspection|Outside Processing`, drop Batch (=tracking type), keep process.processType (Inside/Outside/both).
+- ✅ authoring UI: unified **Type** picker in the method BOP editor (`operationClassifications` + `classificationFromTypeKind`/`typeKindFromClassification` in `operationKind.ts`). Maps to the existing `operationType`+`operationKind` columns via hidden inputs, so costing (`=== "Outside"`) + the MES view router are untouched. Batch dropped.
+- ⬜ follow-up: mirror the unified picker in Job + Quote BOP editors; physical column collapse (enum migration + retire `operationKind` column + rewrite the ~29 `=== "Outside"` sites) — deferred (needs DB apply + costing/MRP regression).
 
 ### Tool tail (finish Phase 2 tools) ✅ DONE
 - ✅ get-method copy tool->step (tools-after-steps reorder in op loop)
@@ -67,10 +69,10 @@ the part-link scope); jobs created directly from an item method (the common path
 - ✅ bigger buttons · ✅ fullscreen+pan · ✅ drop Assy
 - ✅ part->step · ✅ serial scan-at-step (scan exists, filtered per step)
 - ✅ link tools->step (author ✅, copy ✅, MES filter ✅)
-- ⬜ auto-start job on step start
-- ⬜ MES preview from BOP (no live job)
+- ✅ auto-start job on step start
+- ✅ MES preview from BOP (no live job)
 - ⬜ shortage flag -> future job
-- 🟡 merge Type+Kind (design only)
+- 🟡 merge Type+Kind (authoring UI ✅ via unified picker; physical column collapse ⬜)
 
 ## Notes
 - demo job: MES `:3001/x/assembly/jo_8651wnMAbSiZMvGVF62tyh` (company "Minimal X", login sidgaikwad460)
