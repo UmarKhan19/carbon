@@ -39,6 +39,7 @@ pnpm --filter @carbon/auth test
 | `./company.server` | Company switching, `updateCompanySession` |
 | `./users.server` | `getUserClaims`, deactivation flows, cache invalidation |
 | `./passkey.server` | WebAuthn/passkey registration and authentication |
+| `./pin.server` | MES keypad-login PIN helpers: `hashPinLookup` (deterministic per-company lookup digest), `isValidPin` |
 | `./middleware/flash.server` | Flash message middleware |
 
 ## Cross-References
