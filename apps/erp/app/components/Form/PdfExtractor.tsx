@@ -3,12 +3,13 @@ import { useEffect, useRef, useState } from "react";
 import { useFetcher } from "react-router";
 import { useUser } from "~/hooks";
 import { useDocumentExtraction } from "~/hooks/useDocumentExtraction";
+import type { ExtractedDocumentData } from "~/modules/documents";
 
 type PdfExtractorProps = {
   documentType: "purchaseInvoice" | "salesRfq";
   sourceDocument: string;
   sourceDocumentId?: string;
-  onExtractionComplete: (data: Record<string, any>) => void;
+  onExtractionComplete: (data: ExtractedDocumentData) => void;
 };
 
 export function PdfExtractor({
@@ -27,7 +28,7 @@ export function PdfExtractor({
     string | null
   >(null);
 
-  const { extraction } = useDocumentExtraction(extractionId);
+  const { extraction } = useDocumentExtraction(extractionId, documentType);
 
   // When extraction completes, notify parent
   useEffect(() => {
@@ -91,6 +92,14 @@ export function PdfExtractor({
   }
 
   const status = extraction?.status;
+  // Once we have an extraction id, stay busy until it reaches a terminal state.
+  // This covers the gap after the API call returns (fetcher idle) but before the
+  // row's status (pending → processing) is known, and avoids the button flickering
+  // back to "Auto-fill from PDF" mid-extraction.
+  const isExtracting =
+    extractionId !== null && status !== "completed" && status !== "failed";
+  // Cover the whole pipeline: local upload → API submit → extraction in progress.
+  const isBusy = uploading || fetcher.state !== "idle" || isExtracting;
 
   return (
     <VStack spacing={2} className="mb-4 p-4 border rounded-md bg-muted/50">
@@ -106,23 +115,28 @@ export function PdfExtractor({
           variant="secondary"
           size="md"
           onClick={() => fileInputRef.current?.click()}
-          isDisabled={uploading || status === "processing"}
+          isLoading={isBusy}
+          isDisabled={isBusy}
         >
-          {uploading ? "Uploading..." : "Auto-fill from PDF"}
+          {uploading
+            ? "Uploading..."
+            : isBusy
+              ? "Extracting..."
+              : "Auto-fill from PDF"}
         </Button>
       </HStack>
-      {status === "processing" && (
-        <p className="text-sm text-muted-foreground animate-pulse">
+      {isExtracting && (
+        <p className="text-xs text-muted-foreground animate-pulse">
           Extracting data from PDF...
         </p>
       )}
       {status === "completed" && (
-        <p className="text-sm text-green-600">
+        <p className="text-xs text-green-600">
           ✓ Fields populated from PDF. Please review before saving.
         </p>
       )}
       {status === "failed" && (
-        <p className="text-sm text-red-600">
+        <p className="text-xs text-red-600">
           ✗ Extraction failed: {extraction?.error}
         </p>
       )}

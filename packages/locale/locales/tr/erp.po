@@ -440,11 +440,9 @@ msgstr "Satın alma maliyeti"
 
 msgid "Acquisition Date"
 msgstr "Satın alma tarihi"
+
 msgid "Action"
 msgstr ""
-
-msgid "Action Items"
-msgstr "Eylem Öğeleri"
 
 msgid "Action Status"
 msgstr "Aksiyon Durumu"
@@ -2832,7 +2830,7 @@ msgstr "Stok transfer satırı oluşturuldu"
 msgid "Created storage type"
 msgstr "Depolama türü oluşturuldu"
 
-#. placeholder {0}: fetcher.data.data.name
+#. placeholder {0}: created.name
 msgid "Created supplier: {0}"
 msgstr "Oluşturulan tedarikçi: {0}"
 
@@ -4676,6 +4674,7 @@ msgstr "Carbon'ın varsayılan olarak izlemediği verileri yakalamak için ekstr
 
 msgid "Extra tags for slicing your GL reporting"
 msgstr "GL raporlamanızı dilimlemek için ekstra etiketler"
+
 #. placeholder {0}: data.customerName
 msgid "Extracted customer \"{0}\" was not found. Please create it or select an existing one."
 msgstr ""
@@ -6482,10 +6481,11 @@ msgstr "İlgili işler yükleniyor..."
 msgid "Loading item details..."
 msgstr "Ürün detayları yükleniyor..."
 
-msgid "Loading your own data with Carbon's import tools"
-msgstr "Carbon'ın içe aktarma araçlarıyla kendi verilerinizi yükleme"
 msgid "Loading suggestions..."
 msgstr ""
+
+msgid "Loading your own data with Carbon's import tools"
+msgstr "Carbon'ın içe aktarma araçlarıyla kendi verilerinizi yükleme"
 
 msgid "Loading..."
 msgstr "Yükleniyor..."
@@ -6698,8 +6698,6 @@ msgstr ""
 msgid "Manufacturing"
 msgstr "Üretim"
 
-msgid "Map your current process, systems, and data"
-msgstr "Mevcut sürecinizi, sistemlerinizi ve verilerinizi eşleyin"
 msgid "Map Extracted Invoice Lines"
 msgstr ""
 
@@ -6708,6 +6706,9 @@ msgstr ""
 
 msgid "Map Lines Now"
 msgstr ""
+
+msgid "Map your current process, systems, and data"
+msgstr "Mevcut sürecinizi, sistemlerinizi ve verilerinizi eşleyin"
 
 msgid "Mark as Planned"
 msgstr "Planlanmış olarak işaretle"
@@ -13335,10 +13336,11 @@ msgstr "Stok neden değişiyor — Pozitif (bulundu), Negatif (kayıp/hurda) vey
 msgid "Why this line is being declined; surfaced on the printable quote and recorded for win-loss reporting."
 msgstr "Bu satırın neden reddedildiği; yazdırılabilir teklifte gösterilir ve kazanç-kayıp raporlaması için kaydedilir."
 
-msgid "Window:"
-msgstr "Pencere:"
 msgid "Will remain as comment line"
 msgstr ""
+
+msgid "Window:"
+msgstr "Pencere:"
 
 msgid "WIP"
 msgstr "Yarı Mamul"
@@ -13470,6 +13472,7 @@ msgstr "Sipariş edilen miktardan {leftoverQuantity} fazla {0} tamamladınız. F
 
 msgid "You drive it; we make sure it's done right. Expert eyes on your setup, data, and go-live."
 msgstr "Siz yönetirsiniz; biz doğru yapıldığından emin oluruz. Kurulumunuz, verileriniz ve canlı yayına geçişiniz üzerinde uzman gözler."
+
 #. placeholder {0}: unmappedLines.length
 msgid "You have {0} lines extracted from a PDF that are not mapped to any inventory items."
 msgstr ""

@@ -440,11 +440,9 @@ msgstr "Acquisition Cost"
 
 msgid "Acquisition Date"
 msgstr "Acquisition Date"
+
 msgid "Action"
 msgstr "Action"
-
-msgid "Action Items"
-msgstr "Action Items"
 
 msgid "Action Status"
 msgstr "Action Status"
@@ -2832,7 +2830,7 @@ msgstr "Created stock transfer line"
 msgid "Created storage type"
 msgstr "Created storage type"
 
-#. placeholder {0}: fetcher.data.data.name
+#. placeholder {0}: created.name
 msgid "Created supplier: {0}"
 msgstr "Created supplier: {0}"
 
@@ -4676,6 +4674,7 @@ msgstr "Extra fields to capture data Carbon doesn't track by default"
 
 msgid "Extra tags for slicing your GL reporting"
 msgstr "Extra tags for slicing your GL reporting"
+
 #. placeholder {0}: data.customerName
 msgid "Extracted customer \"{0}\" was not found. Please create it or select an existing one."
 msgstr "Extracted customer \"{0}\" was not found. Please create it or select an existing one."
@@ -6482,10 +6481,11 @@ msgstr "Loading associated jobs..."
 msgid "Loading item details..."
 msgstr "Loading item details..."
 
-msgid "Loading your own data with Carbon's import tools"
-msgstr "Loading your own data with Carbon's import tools"
 msgid "Loading suggestions..."
 msgstr "Loading suggestions..."
+
+msgid "Loading your own data with Carbon's import tools"
+msgstr "Loading your own data with Carbon's import tools"
 
 msgid "Loading..."
 msgstr "Loading..."
@@ -6698,8 +6698,6 @@ msgstr "Manufacturer Part Number"
 msgid "Manufacturing"
 msgstr "Manufacturing"
 
-msgid "Map your current process, systems, and data"
-msgstr "Map your current process, systems, and data"
 msgid "Map Extracted Invoice Lines"
 msgstr "Map Extracted Invoice Lines"
 
@@ -6708,6 +6706,9 @@ msgstr "Map Extracted Lines"
 
 msgid "Map Lines Now"
 msgstr "Map Lines Now"
+
+msgid "Map your current process, systems, and data"
+msgstr "Map your current process, systems, and data"
 
 msgid "Mark as Planned"
 msgstr "Mark as Planned"
@@ -10619,6 +10620,7 @@ msgstr "so you can assign it here."
 
 msgid "Solutions Engineer"
 msgstr "Solutions Engineer"
+
 msgid "Some lines extracted from the PDF could not be automatically mapped to your inventory items. Please map them below."
 msgstr "Some lines extracted from the PDF could not be automatically mapped to your inventory items. Please map them below."
 
@@ -13334,10 +13336,11 @@ msgstr "Why stock is changing — Positive (found), Negative (lost/scrap), or Se
 msgid "Why this line is being declined; surfaced on the printable quote and recorded for win-loss reporting."
 msgstr "Why this line is being declined; surfaced on the printable quote and recorded for win-loss reporting."
 
-msgid "Window:"
-msgstr "Window:"
 msgid "Will remain as comment line"
 msgstr "Will remain as comment line"
+
+msgid "Window:"
+msgstr "Window:"
 
 msgid "WIP"
 msgstr "WIP"
@@ -13473,6 +13476,7 @@ msgstr ""
 
 msgid "You drive it; we make sure it's done right. Expert eyes on your setup, data, and go-live."
 msgstr "You drive it; we make sure it's done right. Expert eyes on your setup, data, and go-live."
+
 #. placeholder {0}: unmappedLines.length
 msgid "You have {0} lines extracted from a PDF that are not mapped to any inventory items."
 msgstr "You have {0} lines extracted from a PDF that are not mapped to any inventory items."

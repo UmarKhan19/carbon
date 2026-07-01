@@ -360,16 +360,20 @@ const RealtimeDataProvider = ({ children }: { children: React.ReactNode }) => {
                 const { new: inserted } = payload;
 
                 setSuppliers((suppliers) =>
-                  [
-                    ...suppliers,
-                    {
-                      id: inserted.id,
-                      name: inserted.name,
-                      website: inserted.website,
-                      supplierStatus: inserted.supplierStatus,
-                      readableId: inserted.readableId ?? undefined
-                    }
-                  ].sort((a, b) => a.name.localeCompare(b.name))
+                  // Guard against a duplicate when the create-on-the-fly flow
+                  // has already appended this supplier synchronously.
+                  suppliers.some((s) => s.id === inserted.id)
+                    ? suppliers
+                    : [
+                        ...suppliers,
+                        {
+                          id: inserted.id,
+                          name: inserted.name,
+                          website: inserted.website,
+                          supplierStatus: inserted.supplierStatus,
+                          readableId: inserted.readableId ?? undefined
+                        }
+                      ].sort((a, b) => a.name.localeCompare(b.name))
                 );
                 break;
               case "UPDATE":

@@ -440,11 +440,9 @@ msgstr "Coût d'acquisition"
 
 msgid "Acquisition Date"
 msgstr "Date d'acquisition"
+
 msgid "Action"
 msgstr ""
-
-msgid "Action Items"
-msgstr "Éléments d'action"
 
 msgid "Action Status"
 msgstr "Statut de l'action"
@@ -2832,7 +2830,7 @@ msgstr "Ligne de transfert de stock créée"
 msgid "Created storage type"
 msgstr "Type de stockage créé"
 
-#. placeholder {0}: fetcher.data.data.name
+#. placeholder {0}: created.name
 msgid "Created supplier: {0}"
 msgstr "Fournisseur créé : {0}"
 
@@ -4676,6 +4674,7 @@ msgstr "Champs supplémentaires pour capturer les données que Carbon ne suit pa
 
 msgid "Extra tags for slicing your GL reporting"
 msgstr "Balises supplémentaires pour segmenter vos rapports GL"
+
 #. placeholder {0}: data.customerName
 msgid "Extracted customer \"{0}\" was not found. Please create it or select an existing one."
 msgstr ""
@@ -6482,10 +6481,11 @@ msgstr "Chargement des tâches associées..."
 msgid "Loading item details..."
 msgstr "Chargement des détails de l'article..."
 
-msgid "Loading your own data with Carbon's import tools"
-msgstr "Chargement de vos propres données avec les outils d'importation de Carbon"
 msgid "Loading suggestions..."
 msgstr ""
+
+msgid "Loading your own data with Carbon's import tools"
+msgstr "Chargement de vos propres données avec les outils d'importation de Carbon"
 
 msgid "Loading..."
 msgstr "Chargement..."
@@ -6698,8 +6698,6 @@ msgstr ""
 msgid "Manufacturing"
 msgstr "Fabrication"
 
-msgid "Map your current process, systems, and data"
-msgstr "Cartographiez votre processus actuel, vos systèmes et vos données"
 msgid "Map Extracted Invoice Lines"
 msgstr ""
 
@@ -6708,6 +6706,9 @@ msgstr ""
 
 msgid "Map Lines Now"
 msgstr ""
+
+msgid "Map your current process, systems, and data"
+msgstr "Cartographiez votre processus actuel, vos systèmes et vos données"
 
 msgid "Mark as Planned"
 msgstr "Marquer comme planifié"
@@ -13335,10 +13336,11 @@ msgstr "Pourquoi le stock change — Positif (trouvé), Négatif (perdu/rebut) o
 msgid "Why this line is being declined; surfaced on the printable quote and recorded for win-loss reporting."
 msgstr "Pourquoi cette ligne est refusée ; affiché sur le devis imprimable et enregistré pour les rapports gain-perte."
 
-msgid "Window:"
-msgstr "Fenêtre :"
 msgid "Will remain as comment line"
 msgstr ""
+
+msgid "Window:"
+msgstr "Fenêtre :"
 
 msgid "WIP"
 msgstr "TEC"
@@ -13470,6 +13472,7 @@ msgstr "Vous avez complété {leftoverQuantity} {0} de plus que la quantité com
 
 msgid "You drive it; we make sure it's done right. Expert eyes on your setup, data, and go-live."
 msgstr "Vous pilotez ; nous veillons à ce que ce soit fait correctement. Un regard expert sur votre configuration, vos données et votre mise en ligne."
+
 #. placeholder {0}: unmappedLines.length
 msgid "You have {0} lines extracted from a PDF that are not mapped to any inventory items."
 msgstr ""

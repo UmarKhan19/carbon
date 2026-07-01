@@ -5,17 +5,21 @@ import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { insertDocumentExtraction } from "~/modules/documents/extraction.service";
 
+// Each document type must be gated by the permission for the module that owns it,
+// and paired with the source document the client claims to be extracting.
+const DOCUMENT_TYPES = {
+  salesRfq: { module: "sales", sourceDocument: "Request for Quote" },
+  purchaseInvoice: { module: "purchasing", sourceDocument: "Purchase Invoice" }
+} as const;
+
+type DocumentType = keyof typeof DOCUMENT_TYPES;
+
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, companyId, userId } = await requirePermissions(request, {
-    view: "purchasing"
-  });
 
   const formData = await request.formData();
   const storagePath = formData.get("storagePath") as string;
-  const documentType = formData.get("documentType") as
-    | "purchaseInvoice"
-    | "salesRfq";
+  const documentType = formData.get("documentType") as DocumentType;
   const sourceDocument = formData.get("sourceDocument") as string;
   const sourceDocumentId =
     (formData.get("sourceDocumentId") as string) || undefined;
@@ -23,6 +27,17 @@ export async function action({ request }: ActionFunctionArgs) {
   if (!storagePath || !documentType || !sourceDocument) {
     return data({ error: "Missing required fields" }, { status: 400 });
   }
+
+  const documentConfig = DOCUMENT_TYPES[documentType];
+  if (!documentConfig || documentConfig.sourceDocument !== sourceDocument) {
+    return data({ error: "Invalid document type" }, { status: 400 });
+  }
+
+  // Gate on the module that owns this document type — an RFQ is a sales document,
+  // an invoice is a purchasing document.
+  const { client, companyId, userId } = await requirePermissions(request, {
+    view: documentConfig.module
+  });
 
   const result = await insertDocumentExtraction(client, {
     storagePath,

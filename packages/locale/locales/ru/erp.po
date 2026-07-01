@@ -440,11 +440,9 @@ msgstr "Первоначальная стоимость"
 
 msgid "Acquisition Date"
 msgstr "Дата приобретения"
+
 msgid "Action"
 msgstr ""
-
-msgid "Action Items"
-msgstr "Элементы действия"
 
 msgid "Action Status"
 msgstr "Статус действия"
@@ -2832,7 +2830,7 @@ msgstr "Создана строка передачи запасов"
 msgid "Created storage type"
 msgstr "Тип хранилища создан"
 
-#. placeholder {0}: fetcher.data.data.name
+#. placeholder {0}: created.name
 msgid "Created supplier: {0}"
 msgstr "Поставщик создан: {0}"
 
@@ -4676,6 +4674,7 @@ msgstr "Дополнительные поля для сбора данных, к
 
 msgid "Extra tags for slicing your GL reporting"
 msgstr "Дополнительные теги для разбора отчетности главной книги"
+
 #. placeholder {0}: data.customerName
 msgid "Extracted customer \"{0}\" was not found. Please create it or select an existing one."
 msgstr ""
@@ -6482,10 +6481,11 @@ msgstr "Загрузка связанных заданий..."
 msgid "Loading item details..."
 msgstr "Загрузка деталей товара..."
 
-msgid "Loading your own data with Carbon's import tools"
-msgstr "Загрузка ваших данных с помощью инструментов импорта Carbon"
 msgid "Loading suggestions..."
 msgstr ""
+
+msgid "Loading your own data with Carbon's import tools"
+msgstr "Загрузка ваших данных с помощью инструментов импорта Carbon"
 
 msgid "Loading..."
 msgstr "Загрузка..."
@@ -6698,8 +6698,6 @@ msgstr ""
 msgid "Manufacturing"
 msgstr "Производство"
 
-msgid "Map your current process, systems, and data"
-msgstr "Сопоставьте ваш текущий процесс, системы и данные"
 msgid "Map Extracted Invoice Lines"
 msgstr ""
 
@@ -6708,6 +6706,9 @@ msgstr ""
 
 msgid "Map Lines Now"
 msgstr ""
+
+msgid "Map your current process, systems, and data"
+msgstr "Сопоставьте ваш текущий процесс, системы и данные"
 
 msgid "Mark as Planned"
 msgstr "Отметить как запланировано"
@@ -13335,10 +13336,11 @@ msgstr "Почему запас меняется — Положительный 
 msgid "Why this line is being declined; surfaced on the printable quote and recorded for win-loss reporting."
 msgstr "Почему эта строка отклоняется; отображается в печатаемом предложении и записывается для отчетов по победам и потерям."
 
-msgid "Window:"
-msgstr "Окно:"
 msgid "Will remain as comment line"
 msgstr ""
+
+msgid "Window:"
+msgstr "Окно:"
 
 msgid "WIP"
 msgstr "НЗП"
@@ -13470,6 +13472,7 @@ msgstr "Вы завершили {leftoverQuantity} больше {0}, чем за
 
 msgid "You drive it; we make sure it's done right. Expert eyes on your setup, data, and go-live."
 msgstr "Вы управляете процессом; мы следим, чтобы всё было сделано правильно. Опытный взгляд на вашу настройку, данные и запуск."
+
 #. placeholder {0}: unmappedLines.length
 msgid "You have {0} lines extracted from a PDF that are not mapped to any inventory items."
 msgstr ""

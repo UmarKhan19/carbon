@@ -1,5 +1,10 @@
 import { useCarbon, useRealtimeChannel } from "@carbon/react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import type {
+  DocumentExtractionType,
+  ExtractedDocumentData
+} from "~/modules/documents";
+import { parseExtractedData } from "~/modules/documents";
 import { useUser } from "./useUser";
 
 type ExtractionStatus = "pending" | "processing" | "completed" | "failed";
@@ -7,7 +12,7 @@ type ExtractionStatus = "pending" | "processing" | "completed" | "failed";
 type DocumentExtractionState = {
   id: string;
   status: ExtractionStatus;
-  filteredData: Record<string, unknown> | null;
+  filteredData: ExtractedDocumentData | null;
   error: string | null;
   storagePath: string | null;
 };
@@ -26,7 +31,10 @@ const POLL_INTERVAL_MS = 3_000;
  *     the UI never stalls if the realtime event is missed or the channel
  *     takes time to subscribe.
  */
-export function useDocumentExtraction(extractionId: string | null) {
+export function useDocumentExtraction(
+  extractionId: string | null,
+  documentType: DocumentExtractionType
+) {
   const { company } = useUser();
   const { carbon: supabase } = useCarbon();
   const [extraction, setExtraction] = useState<DocumentExtractionState | null>(
@@ -53,7 +61,15 @@ export function useDocumentExtraction(extractionId: string | null) {
       .single();
 
     if (data) {
-      const row = data as unknown as DocumentExtractionState;
+      const row: DocumentExtractionState = {
+        id: data.id,
+        status: data.status as ExtractionStatus,
+        filteredData: data.filteredData
+          ? parseExtractedData(documentType, data.filteredData)
+          : null,
+        error: data.error,
+        storagePath: data.storagePath
+      };
       setExtraction(row);
 
       // Schedule next poll if extraction is still in-progress
@@ -68,7 +84,7 @@ export function useDocumentExtraction(extractionId: string | null) {
       }
     }
     setIsLoading(false);
-  }, [extractionId, supabase, clearPoll]);
+  }, [extractionId, supabase, clearPoll, documentType]);
 
   // Stop polling when we get a terminal status via realtime
   const handleRealtimeUpdate = useCallback(
@@ -109,7 +125,9 @@ export function useDocumentExtraction(extractionId: string | null) {
           handleRealtimeUpdate({
             id: row.id as string,
             status: row.status as ExtractionStatus,
-            filteredData: row.filteredData as Record<string, unknown> | null,
+            filteredData: row.filteredData
+              ? parseExtractedData(documentType, row.filteredData)
+              : null,
             error: row.error as string | null,
             storagePath: row.storagePath as string | null
           });
