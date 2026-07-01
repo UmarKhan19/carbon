@@ -1,3 +1,5 @@
+import type { Database } from "@carbon/database";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
 /**
@@ -157,6 +159,39 @@ export type ExtractionLocationRow = {
   id: string;
   address: { addressLine1: string | null } | null;
 };
+
+/**
+ * Fetch the existing contacts and locations for a customer/supplier so the
+ * auto-fill hooks can match extracted values against them. The two entity
+ * families share an identical shape, so this collapses the duplicate fetch (and
+ * the accompanying casts) into one place.
+ */
+export async function getExtractionMatchCandidates(
+  carbon: SupabaseClient<Database>,
+  entity: "customer" | "supplier",
+  entityId: string
+): Promise<{
+  contacts: ExtractionContactRow[];
+  locations: ExtractionLocationRow[];
+}> {
+  const [contactResult, locationResult] = await Promise.all([
+    carbon
+      // Cast the dynamic table/column names to a concrete literal; the customer
+      // and supplier variants have identical column shapes at runtime.
+      .from(`${entity}Contact` as "customerContact")
+      .select("id, contact(id, fullName, email)")
+      .eq(`${entity}Id` as "customerId", entityId),
+    carbon
+      .from(`${entity}Location` as "customerLocation")
+      .select("id, address(id, addressLine1)")
+      .eq(`${entity}Id` as "customerId", entityId)
+  ]);
+
+  return {
+    contacts: (contactResult.data ?? []) as unknown as ExtractionContactRow[],
+    locations: (locationResult.data ?? []) as unknown as ExtractionLocationRow[]
+  };
+}
 
 /** Match an extracted address to an existing location by substring inclusion (either direction). */
 export function findMatchingLocationId(

@@ -31,7 +31,7 @@ import {
   Submit
 } from "~/components/Form";
 import { useCompanySettings, usePermissions } from "~/hooks";
-import { useCustomers } from "~/stores";
+import { upsertIntoListStore, useCustomers } from "~/stores";
 import { path } from "~/utils/path";
 import { customerValidator } from "../../sales.models";
 import type { Customer } from "../../types";
@@ -80,17 +80,12 @@ const CustomerForm = ({
       // a late realtime event doesn't double-add it.
       if (createdCustomer?.id) {
         setCustomers((prev) =>
-          prev.some((c) => c.id === createdCustomer.id)
-            ? prev
-            : [
-                ...prev,
-                {
-                  id: createdCustomer.id,
-                  name: createdCustomer.name,
-                  website: createdCustomer.website ?? undefined,
-                  readableId: createdCustomer.readableId ?? undefined
-                }
-              ].sort((a, b) => a.name.localeCompare(b.name))
+          upsertIntoListStore(prev, {
+            id: createdCustomer.id,
+            name: createdCustomer.name,
+            website: createdCustomer.website ?? undefined,
+            readableId: createdCustomer.readableId ?? undefined
+          })
         );
       }
       onClose?.();
@@ -100,7 +95,7 @@ const CustomerForm = ({
     } else if (fetcher.state === "idle" && fetcher.data?.error) {
       toast.error(t`Failed to create customer: ${fetcher.data.error.message}`);
     }
-  }, [fetcher.data, fetcher.state, onClose, t, type]);
+  }, [fetcher.data, fetcher.state, onClose, t, type, setCustomers]);
 
   const isEditing = initialValues.id !== undefined;
   const isDisabled = isEditing

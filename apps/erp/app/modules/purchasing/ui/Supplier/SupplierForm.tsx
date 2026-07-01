@@ -39,7 +39,7 @@ import {
   supplierApprovalValidator,
   supplierValidator
 } from "~/modules/purchasing";
-import { useSuppliers } from "~/stores";
+import { upsertIntoListStore, useSuppliers } from "~/stores";
 import { path } from "~/utils/path";
 
 type SupplierFormProps = {
@@ -88,25 +88,20 @@ const SupplierForm = ({
         readableId?: string | null;
       };
       setSuppliers((prev) =>
-        prev.some((s) => s.id === created.id)
-          ? prev
-          : [
-              ...prev,
-              {
-                id: created.id,
-                name: created.name,
-                website: created.website ?? undefined,
-                supplierStatus: created.supplierStatus ?? undefined,
-                readableId: created.readableId ?? undefined
-              }
-            ].sort((a, b) => a.name.localeCompare(b.name))
+        upsertIntoListStore(prev, {
+          id: created.id,
+          name: created.name,
+          website: created.website ?? undefined,
+          supplierStatus: created.supplierStatus ?? undefined,
+          readableId: created.readableId ?? undefined
+        })
       );
       onClose?.();
       toast.success(t`Created supplier: ${created.name}`);
     } else if (fetcher.state === "idle" && fetcher.data?.error) {
       toast.error(t`Failed to create supplier: ${fetcher.data.error.message}`);
     }
-  }, [fetcher.data, fetcher.state, onClose, t, type]);
+  }, [fetcher.data, fetcher.state, onClose, t, type, setSuppliers]);
 
   const isEditing = initialValues.id !== undefined;
   const isDisabled = isEditing

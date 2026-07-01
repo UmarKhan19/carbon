@@ -6,14 +6,13 @@ import { flushSync } from "react-dom";
 import type { z } from "zod";
 import type {
   ExtractedDocumentData,
-  ExtractionContactRow,
-  ExtractionLocationRow,
   PurchaseInvoiceExtraction,
   PurchaseInvoiceLineItem
 } from "~/modules/documents";
 import {
   findMatchingContactId,
-  findMatchingLocationId
+  findMatchingLocationId,
+  getExtractionMatchCandidates
 } from "~/modules/documents";
 import type { purchaseInvoiceValidator } from "~/modules/invoicing";
 
@@ -115,30 +114,20 @@ export function usePurchaseInvoiceAutoFill(
       }
 
       if (resolvedSupplierId) {
-        const [contactResult, locationResult] = await Promise.all([
-          carbon
-            .from("supplierContact")
-            .select("id, contact(id, fullName, email)")
-            .eq("supplierId", resolvedSupplierId),
-          carbon
-            .from("supplierLocation")
-            .select("id, address(id, addressLine1)")
-            .eq("supplierId", resolvedSupplierId)
-        ]);
+        const { contacts, locations } = await getExtractionMatchCandidates(
+          carbon,
+          "supplier",
+          resolvedSupplierId
+        );
 
-        if (contactResult.data) {
-          resolvedContactId = findMatchingContactId(
-            contactResult.data as unknown as ExtractionContactRow[],
-            { name: data.supplierContactName, email: data.supplierContactEmail }
-          );
-        }
-
-        if (locationResult.data) {
-          resolvedLocationId = findMatchingLocationId(
-            locationResult.data as unknown as ExtractionLocationRow[],
-            data.supplierAddressLine1
-          );
-        }
+        resolvedContactId = findMatchingContactId(contacts, {
+          name: data.supplierContactName,
+          email: data.supplierContactEmail
+        });
+        resolvedLocationId = findMatchingLocationId(
+          locations,
+          data.supplierAddressLine1
+        );
       }
     }
 

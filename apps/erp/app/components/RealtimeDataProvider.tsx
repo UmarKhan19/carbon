@@ -5,7 +5,13 @@ import { type Database, fetchAllFromTable } from "@carbon/database";
 import { useInterval, useRealtimeChannel } from "@carbon/react";
 import { useEffect } from "react";
 import { useUser } from "~/hooks";
-import { useCustomers, useItems, usePeople, useSuppliers } from "~/stores";
+import {
+  upsertIntoListStore,
+  useCustomers,
+  useItems,
+  usePeople,
+  useSuppliers
+} from "~/stores";
 import type { Item } from "~/stores/items";
 import type { ListItem } from "~/types";
 
@@ -301,20 +307,15 @@ const RealtimeDataProvider = ({ children }: { children: React.ReactNode }) => {
                 )
                   return;
                 const { new: inserted } = payload;
+                // upsert (not append): the create-on-the-fly flow may have
+                // already added this customer synchronously.
                 setCustomers((customers) =>
-                  // Guard against a duplicate when the create-on-the-fly flow
-                  // has already appended this customer synchronously.
-                  customers.some((c) => c.id === inserted.id)
-                    ? customers
-                    : [
-                        ...customers,
-                        {
-                          id: inserted.id,
-                          name: inserted.name,
-                          website: inserted.website,
-                          readableId: inserted.readableId ?? undefined
-                        }
-                      ].sort((a, b) => a.name.localeCompare(b.name))
+                  upsertIntoListStore(customers, {
+                    id: inserted.id,
+                    name: inserted.name,
+                    website: inserted.website,
+                    readableId: inserted.readableId ?? undefined
+                  })
                 );
                 break;
               case "UPDATE":
@@ -362,22 +363,16 @@ const RealtimeDataProvider = ({ children }: { children: React.ReactNode }) => {
                 )
                   return;
                 const { new: inserted } = payload;
-
+                // upsert (not append): the create-on-the-fly flow may have
+                // already added this supplier synchronously.
                 setSuppliers((suppliers) =>
-                  // Guard against a duplicate when the create-on-the-fly flow
-                  // has already appended this supplier synchronously.
-                  suppliers.some((s) => s.id === inserted.id)
-                    ? suppliers
-                    : [
-                        ...suppliers,
-                        {
-                          id: inserted.id,
-                          name: inserted.name,
-                          website: inserted.website,
-                          supplierStatus: inserted.supplierStatus,
-                          readableId: inserted.readableId ?? undefined
-                        }
-                      ].sort((a, b) => a.name.localeCompare(b.name))
+                  upsertIntoListStore(suppliers, {
+                    id: inserted.id,
+                    name: inserted.name,
+                    website: inserted.website,
+                    supplierStatus: inserted.supplierStatus,
+                    readableId: inserted.readableId ?? undefined
+                  })
                 );
                 break;
               case "UPDATE":

@@ -6,14 +6,13 @@ import { flushSync } from "react-dom";
 import type { z } from "zod";
 import type {
   ExtractedDocumentData,
-  ExtractionContactRow,
-  ExtractionLocationRow,
   SalesRfqExtraction,
   SalesRfqLineItem
 } from "~/modules/documents";
 import {
   findMatchingContactId,
   findMatchingLocationId,
+  getExtractionMatchCandidates,
   splitContactName
 } from "~/modules/documents";
 import type { salesRfqValidator } from "../../sales.models";
@@ -94,49 +93,29 @@ export function useSalesRfqAutoFill(initialValues: SalesRFQFormValues) {
       }
     }
 
-    setCurrentValues((prev) => ({
-      ...prev,
-      customerId: resolvedCustomerId || prev.customerId,
-      customerReference: data.rfqNumber || prev.customerReference,
-      rfqDate: data.rfqDate || prev.rfqDate,
-      expirationDate: data.dueDate || prev.expirationDate
-    }));
-
     let resolvedPurchasingContactId: string | undefined = undefined;
     let resolvedEngineeringContactId: string | undefined = undefined;
     let resolvedLocationId: string | undefined = undefined;
 
     if (carbon && resolvedCustomerId) {
-      const [contactResult, locationResult] = await Promise.all([
-        carbon
-          .from("customerContact")
-          .select("id, contact(id, fullName, email)")
-          .eq("customerId", resolvedCustomerId),
-        carbon
-          .from("customerLocation")
-          .select("id, address(id, addressLine1)")
-          .eq("customerId", resolvedCustomerId)
-      ]);
+      const { contacts, locations } = await getExtractionMatchCandidates(
+        carbon,
+        "customer",
+        resolvedCustomerId
+      );
 
-      if (contactResult.data) {
-        const contacts =
-          contactResult.data as unknown as ExtractionContactRow[];
-        resolvedPurchasingContactId = findMatchingContactId(contacts, {
-          name: data.purchasingContactName,
-          email: data.purchasingContactEmail
-        });
-        resolvedEngineeringContactId = findMatchingContactId(contacts, {
-          name: data.engineeringContactName,
-          email: data.engineeringContactEmail
-        });
-      }
-
-      if (locationResult.data) {
-        resolvedLocationId = findMatchingLocationId(
-          locationResult.data as unknown as ExtractionLocationRow[],
-          data.customerAddressLine1
-        );
-      }
+      resolvedPurchasingContactId = findMatchingContactId(contacts, {
+        name: data.purchasingContactName,
+        email: data.purchasingContactEmail
+      });
+      resolvedEngineeringContactId = findMatchingContactId(contacts, {
+        name: data.engineeringContactName,
+        email: data.engineeringContactEmail
+      });
+      resolvedLocationId = findMatchingLocationId(
+        locations,
+        data.customerAddressLine1
+      );
     }
 
     if (data.customerName && !foundCustomerInDb) {

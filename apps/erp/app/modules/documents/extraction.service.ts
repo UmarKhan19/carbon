@@ -51,21 +51,3 @@ export async function insertDocumentExtraction(
 
   return { data: result.data, error: null };
 }
-
-export async function getDocumentExtraction(
-  client: SupabaseClient<Database>,
-  id: string
-) {
-  return client.from("documentExtraction").select("*").eq("id", id).single();
-}
-
-export async function getDocumentExtractionsBySource(
-  client: SupabaseClient<Database>,
-  sourceDocumentId: string
-) {
-  return client
-    .from("documentExtraction")
-    .select("*")
-    .eq("sourceDocumentId", sourceDocumentId)
-    .order("createdAt", { ascending: false });
-}
