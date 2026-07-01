@@ -60,7 +60,7 @@ crbn up --minimal --run 'pnpm --filter @carbon/harness loop <binding-path> --cwd
 
 ## Related Files
 
-- **Conductor skill:** `.claude/skills/conductor/SKILL.md`
+- **Conductor skill:** `.ai/skills/conductor/SKILL.md`
 - **Harness:** `packages/harness/`
 - **Agent labels workflow:** `.github/scripts/setup-agent-labels.sh`
 - **Operating prompt:** lives on the OpenClaw box (not in this repo)
