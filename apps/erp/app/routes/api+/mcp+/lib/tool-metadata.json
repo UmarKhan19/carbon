@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-01T02:59:04.560Z",
-  "totalTools": 1248,
+  "generated": "2026-07-01T03:06:01.116Z",
+  "totalTools": 1249,
   "modules": 15,
   "tools": [
     {
@@ -11398,6 +11398,24 @@
             }
           }
         }
+      }
+    },
+    {
+      "name": "items_getItemMpnsList",
+      "module": "items",
+      "classification": "READ",
+      "description": "get item mpns list",
+      "paramCount": 0,
+      "serviceParams": [
+        "client",
+        "companyId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {}
       }
     },
     {

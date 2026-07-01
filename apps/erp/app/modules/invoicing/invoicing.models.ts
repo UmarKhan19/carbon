@@ -453,15 +453,22 @@ export const invoiceSettlementValidator = invoiceSettlementBase
     }
   );
 
-// An invoice is payable when it's posted with an outstanding balance — i.e. not
-// draft/pending, voided, or already fully paid. Shared by the sales (AR) and
-// purchase (AP) invoice headers; the caller AND-s in the permission check.
+// Sub-cent balances are forgiven as dust: an outstanding amount below one cent
+// (the smallest representable currency unit) can't be collected and is treated
+// as paid. Kept in sync with the SQL view forgiveness in
+// 20260630151500_invoice-dust-forgiveness.sql.
+export const INVOICE_DUST_THRESHOLD = 0.01;
+
+// An invoice is payable when it's posted with an outstanding balance of at least
+// one cent — i.e. not draft/pending, voided, already fully paid, or down to dust.
+// Shared by the sales (AR) and purchase (AP) invoice headers; the caller AND-s in
+// the permission check.
 export function isInvoicePayable(
   status: string | null | undefined,
   balance: number | null | undefined
 ): boolean {
   return (
     !["Voided", "Draft", "Pending", "Paid"].includes(status ?? "") &&
-    Number(balance ?? 0) > 0
+    Number(balance ?? 0) >= INVOICE_DUST_THRESHOLD
   );
 }

@@ -6692,6 +6692,9 @@ msgstr "मैनुअल"
 msgid "Manufacturer"
 msgstr "निर्माता"
 
+msgid "Manufacturer Part Number"
+msgstr ""
+
 msgid "Manufacturing"
 msgstr "विनिर्माण"
 
@@ -11014,6 +11017,9 @@ msgstr "आपूर्तिकर्ता भाग ID"
 
 msgid "Supplier Part Number"
 msgstr "आपूर्तिकर्ता भाग संख्या"
+
+msgid "Supplier Part Numbers"
+msgstr ""
 
 msgid "Supplier Parts"
 msgstr "आपूर्तिकर्ता पार्ट्स"

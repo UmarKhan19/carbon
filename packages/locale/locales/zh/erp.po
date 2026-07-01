@@ -6692,6 +6692,9 @@ msgstr "手动"
 msgid "Manufacturer"
 msgstr "制造商"
 
+msgid "Manufacturer Part Number"
+msgstr ""
+
 msgid "Manufacturing"
 msgstr "制造"
 
@@ -11014,6 +11017,9 @@ msgstr "供应商零件ID"
 
 msgid "Supplier Part Number"
 msgstr "供应商零件号"
+
+msgid "Supplier Part Numbers"
+msgstr ""
 
 msgid "Supplier Parts"
 msgstr "供应商零件"

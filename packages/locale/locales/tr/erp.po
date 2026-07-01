@@ -6692,6 +6692,9 @@ msgstr "Manuel"
 msgid "Manufacturer"
 msgstr "Üretici"
 
+msgid "Manufacturer Part Number"
+msgstr ""
+
 msgid "Manufacturing"
 msgstr "Üretim"
 
@@ -11014,6 +11017,9 @@ msgstr "Tedarikçi Parça Kimliği"
 
 msgid "Supplier Part Number"
 msgstr "Tedarikçi Parça Numarası"
+
+msgid "Supplier Part Numbers"
+msgstr ""
 
 msgid "Supplier Parts"
 msgstr "Tedarikçi Parçaları"
