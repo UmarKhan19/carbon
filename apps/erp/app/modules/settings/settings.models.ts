@@ -143,6 +143,13 @@ export const jobCompletedValidator = z.object({
   salesJobCompletedNotificationGroup: z.array(z.string()).optional()
 });
 
+export const operationTimerValidator = z.object({
+  autoStartOperationTimer: zfd.checkbox(),
+  operationTimerIdleMinutes: zfd.numeric(
+    z.number().int().min(1).max(120).default(5)
+  )
+});
+
 export const kanbanOutputValidator = z.object({
   kanbanOutput: z.enum(kanbanOutputTypes)
 });

@@ -23,7 +23,7 @@ import {
 } from "@carbon/react";
 import { formatDurationMilliseconds } from "@carbon/utils";
 import { getLocalTimeZone } from "@internationalized/date";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   LuBarcode,
   LuCheck,
@@ -162,6 +162,8 @@ type Props = {
   events: ProductionEvent[];
   nonConformanceActions: ContainmentAction[];
   expiredEntityPolicy?: "Warn" | "Block" | "BlockWithOverride";
+  autoStartOperationTimer?: boolean;
+  operationTimerIdleMinutes?: number;
   productionQuantities?: { scrap: number; production: number; rework: number };
   workCenter?: {
     id: string;
@@ -270,6 +272,8 @@ export function AssemblyView({
   events,
   nonConformanceActions,
   expiredEntityPolicy = "Block",
+  autoStartOperationTimer = false,
+  operationTimerIdleMinutes = 5,
   workCenter,
   kanban,
   jobId,
@@ -1400,6 +1404,168 @@ export function AssemblyView({
         caption={selectedCaption}
         onClose={imageViewer.onClose}
       />
+
+      {operation && autoStartOperationTimer && (
+        <AutoTimer
+          operationId={operationId}
+          enabled={autoStartOperationTimer}
+          idleMinutes={operationTimerIdleMinutes}
+          workType={selectedWorkType}
+          workCenterId={operation.workCenterId ?? undefined}
+          openEvent={openEventForType ?? null}
+          trackedEntityId={isTracked ? currentEntity?.id : undefined}
+        />
+      )}
+    </div>
+  );
+}
+
+// Passive operation timer (Phase 4, opt-in). Auto-starts the operator's production event
+// when the assembly view opens (so it isn't forgotten), watches for screen inactivity, and
+// after `idleMinutes` prompts "Still working?" — ending the event if unanswered. It only
+// ever ends events it detects as idle-abandoned, so it re-arms after an idle-end but never
+// fights a manual pause (which this component doesn't trigger). Drives off the loader's
+// `openEvent`, which the assembly realtime channel keeps fresh after each Start/End.
+function AutoTimer({
+  operationId,
+  enabled,
+  idleMinutes,
+  workType,
+  workCenterId,
+  openEvent,
+  trackedEntityId
+}: {
+  operationId: string;
+  enabled: boolean;
+  idleMinutes: number;
+  workType: "Setup" | "Labor" | "Machine";
+  workCenterId?: string;
+  openEvent: { id: string; startTime: string } | null;
+  trackedEntityId?: string;
+}) {
+  const fetcher = useFetcher();
+  const [prompt, setPrompt] = useState(false);
+  const [grace, setGrace] = useState(60);
+  const lastActivity = useRef(Date.now());
+  const startedRef = useRef(false);
+  const idleEndedRef = useRef(false);
+
+  const busy = fetcher.state !== "idle";
+  const running = !!openEvent;
+
+  const post = useCallback(
+    (action: "Start" | "End", id?: string) => {
+      const fd = new FormData();
+      fd.set("jobOperationId", operationId);
+      fd.set("timezone", getLocalTimeZone());
+      fd.set("type", workType);
+      fd.set("action", action);
+      if (workCenterId) fd.set("workCenterId", workCenterId);
+      if (id) fd.set("id", id);
+      if (trackedEntityId) fd.set("trackedEntityId", trackedEntityId);
+      fetcher.submit(fd, { method: "post", action: path.to.productionEvent });
+    },
+    [operationId, workType, workCenterId, trackedEntityId, fetcher]
+  );
+
+  // Auto-start once when the view opens and nothing is running yet.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: one-shot on open
+  useEffect(() => {
+    if (!enabled || startedRef.current) return;
+    startedRef.current = true;
+    if (!running && !busy) post("Start");
+  }, [enabled]);
+
+  // Track screen activity; resume only after an idle-end (never after a manual pause,
+  // which this component never triggers, so idleEndedRef stays false for those).
+  useEffect(() => {
+    if (!enabled) return;
+    const onActivity = () => {
+      lastActivity.current = Date.now();
+      if (idleEndedRef.current && !running && !busy) {
+        idleEndedRef.current = false;
+        post("Start");
+      }
+    };
+    const evts = ["mousemove", "keydown", "touchstart", "click", "scroll"];
+    evts.forEach((e) =>
+      window.addEventListener(e, onActivity, { passive: true })
+    );
+    return () => evts.forEach((e) => window.removeEventListener(e, onActivity));
+  }, [enabled, running, busy, post]);
+
+  // Idle watchdog: when a timer is running and there's been no activity for idleMinutes,
+  // raise the "Still working?" prompt with a grace countdown.
+  useEffect(() => {
+    if (!enabled || !running) return;
+    const idleMs = Math.max(1, idleMinutes) * 60_000;
+    const id = window.setInterval(() => {
+      if (!prompt && Date.now() - lastActivity.current >= idleMs) {
+        setGrace(60);
+        setPrompt(true);
+      }
+    }, 5000);
+    return () => window.clearInterval(id);
+  }, [enabled, running, idleMinutes, prompt]);
+
+  // Grace countdown; if it runs out the operator has abandoned the station — end the event
+  // and arm auto-resume for when they return.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: countdown owns its own timer
+  useEffect(() => {
+    if (!prompt) return;
+    const id = window.setInterval(() => {
+      setGrace((g) => {
+        if (g <= 1) {
+          window.clearInterval(id);
+          setPrompt(false);
+          if (openEvent) {
+            idleEndedRef.current = true;
+            post("End", openEvent.id);
+          }
+          return 60;
+        }
+        return g - 1;
+      });
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, [prompt]);
+
+  if (!prompt) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/70 p-6">
+      <div className="w-full max-w-sm rounded-lg border border-border bg-card p-6 shadow-lg">
+        <p className="text-lg font-semibold">Still working?</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          No activity for a while. The timer stops in {grace}s.
+        </p>
+        <div className="mt-5 flex gap-2">
+          <Button
+            variant="primary"
+            size="lg"
+            className="flex-1"
+            onClick={() => {
+              lastActivity.current = Date.now();
+              setPrompt(false);
+            }}
+          >
+            Keep working
+          </Button>
+          <Button
+            variant="outline"
+            size="lg"
+            className="flex-1"
+            isDisabled={busy}
+            onClick={() => {
+              // Operator is present and chose to stop — no auto-resume.
+              setPrompt(false);
+              if (openEvent) post("End", openEvent.id);
+            }}
+          >
+            Stop timer
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

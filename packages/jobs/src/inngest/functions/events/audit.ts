@@ -338,8 +338,11 @@ export const auditFunction = inngest.createFunction(
               } else if (isIndirectTable(tableConfig)) {
                 const { junction, fk, entityIdColumn } = tableConfig.resolve;
 
-                const { data: junctionRow } = await client
-                  .from(junction as any)
+                // Cast the client to `any` so TS doesn't expand the full Database
+                // table union here (TS2590 "union too complex" — this dynamic junction
+                // query is untyped anyway).
+                const { data: junctionRow } = await (client as any)
+                  .from(junction)
                   .select(entityIdColumn)
                   .eq(fk, record.event.recordId)
                   .limit(1)

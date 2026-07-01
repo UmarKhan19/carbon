@@ -3093,6 +3093,8 @@ export type Database = {
           showSupplierReadableId: boolean
           supplierQuoteNotificationGroup: string[]
           timeCardEnabled: boolean
+          autoStartOperationTimer: boolean
+          operationTimerIdleMinutes: number
           updateLeadTimesOnReceipt: boolean
           useMetric: boolean
         }
@@ -3136,6 +3138,8 @@ export type Database = {
           showSupplierReadableId?: boolean
           supplierQuoteNotificationGroup?: string[]
           timeCardEnabled?: boolean
+          autoStartOperationTimer?: boolean
+          operationTimerIdleMinutes?: number
           updateLeadTimesOnReceipt?: boolean
           useMetric?: boolean
         }
@@ -3179,6 +3183,8 @@ export type Database = {
           showSupplierReadableId?: boolean
           supplierQuoteNotificationGroup?: string[]
           timeCardEnabled?: boolean
+          autoStartOperationTimer?: boolean
+          operationTimerIdleMinutes?: number
           updateLeadTimesOnReceipt?: boolean
           useMetric?: boolean
         }
