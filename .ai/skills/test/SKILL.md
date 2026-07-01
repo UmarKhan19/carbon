@@ -1,6 +1,6 @@
 ---
 name: test
-description: Agentically test a specific feature by analyzing the branch diff, building a test plan, and driving the app through agent-browser. Builds on /login and /error skills. Caches successful playbooks to playbooks/ for reuse.
+description: Agentically test a specific feature by analyzing the branch diff, building a test plan, and driving the app through agent-browser. Builds on /login and /error skills. Caches successful playbooks to .ai/playbooks/ for reuse.
 ---
 
 # Feature Test
@@ -21,7 +21,7 @@ The user may provide:
 Before doing anything else, check if there are cached playbooks for the feature being tested:
 
 ```bash
-ls playbooks/
+ls .ai/playbooks/
 ```
 
 If a matching playbook exists (e.g., `create-purchase-order.md` when testing purchase order creation), read it and use the cached navigation steps, selectors, and field mappings. This saves significant time — skip to Step 4 (Login) and use the playbook's steps directly.
@@ -149,7 +149,7 @@ Track each test with its status:
 
 ### Step 7: Cache successful playbooks
 
-After each **PASS** test, write or update a playbook file at `playbooks/<feature-slug>.md`. This is critical for future efficiency.
+After each **PASS** test, write or update a playbook file at `.ai/playbooks/<feature-slug>.md`. This is critical for future efficiency.
 
 **Playbook format:**
 
