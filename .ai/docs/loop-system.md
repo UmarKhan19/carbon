@@ -27,7 +27,7 @@ outer-loop (OpenClaw cron → Claude Code headless)
 The entire `llm/` directory is **gitignored** — it holds only runtime state, never committed docs.
 
 ```
-llm/
+.ai/
 ├── outer-loop/
 │   ├── agent-state.db      # outer-loop scratch (SQLite)
 │   └── daily-notes/        # per-day operational logs
