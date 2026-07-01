@@ -35,7 +35,7 @@ For each iteration:
    - **Module code:** keep one `<module>.service.ts` and one `<module>.models.ts` per module; never scatter new service/models files.
 
 2. **Gate.** Run these in order; every applicable one must be green:
-   - **a. Floor gates** — `pnpm --filter @carbon/harness gates` (lint + `@carbon/checks` conformance + clobbers), plus `typecheck` for each package you touched (per-package, never whole-repo).
+   - **a. Floor gates** — before running any gate, auto-format with `biome check --write --no-errors-on-unmatched` and stage the fixes (this is the `check-and-commit` skill's Gate 2 applied in-loop — every commit must be biome-clean). Then run `pnpm --filter @carbon/harness gates` (lint + `@carbon/checks` conformance + clobbers), plus `typecheck` for each package you touched (per-package, never whole-repo).
    - **b. Behavior gate — MANDATORY for ANY change that affects user-facing behavior.** Choose the **simplest sufficient proof** from this hierarchy:
      1. **Unit / integration test (red→green)** — Write a test that fails on the old behavior and passes on the new. **Preferred when applicable:** logic changes, data transformations, component rendering, conditional visibility, service behavior, and anything testable without a running stack. Fast, deterministic, CI-portable, and it lives in the repo as a regression guard.
      2. **Agent-browser visual verification** — Boot the app (`crbn up`), `/login`, drive the affected screen with `agent-browser`: reproduce the exact failing condition, capture a **BEFORE screenshot**, confirm the fix, capture an **AFTER screenshot**. **Required when the proof is inherently visual** — layout, spacing, overflow, responsive behavior, animation, or anything where seeing the pixels is the only meaningful assertion.
@@ -77,6 +77,7 @@ freshness audit before opening the PR:
 This is the **self-healing loop** — every build is a freshness audit.
 
 ## 3. Finish — land a gated PR
+- Run the `check-and-commit` skill on the final branch state before opening the PR: run `biome check --write --no-errors-on-unmatched`, stage any fixes, then the full gate suite (§2a). This is the final format + lint + type pass — ensures the PR goes up biome-clean.
 - Embed the **proof captured by the behavior gate (§2b)** in the PR body:
   - **Unit/integration tests:** name the test file(s) and the red→green assertion(s)
   - **Visual verification:** embed before/after screenshots

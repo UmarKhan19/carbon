@@ -21,10 +21,7 @@
     },
     "building-blocks": {
       "description": "Helper skills called by other skills but not loaded by default.",
-      "skills": [
-        "login",
-        "error"
-      ]
+      "skills": ["login", "error"]
     },
     "automation": {
       "description": "PR/issue automation, code review, and debugging skills.",
