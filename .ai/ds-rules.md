@@ -10,13 +10,13 @@ Rules for UI code in Carbon. These are laws, not suggestions. Follow them when w
 |------|-----|-------------|
 | Button | `Button` (with variant) | `@carbon/react` |
 | Icon-only button | `IconButton` (with aria-label) | `@carbon/react` |
-| Form submit | `Submit` | `~/components/Form` |
-| Text input | `Input` | `~/components/Form` |
-| Number input | `Number` | `~/components/Form` |
-| Select/dropdown | `Select` | `~/components/Form` |
-| Boolean/checkbox | `Boolean` | `~/components/Form` |
-| Date picker | `DatePicker` | `~/components/Form` |
-| Domain selector (Customer, Item, etc.) | Named selector | `~/components/Form` |
+| Form submit | `Submit` | `@carbon/form` |
+| Text input | `Input` | `@carbon/form` |
+| Number input | `Number` | `@carbon/form` |
+| Select/dropdown | `Select` | `@carbon/form` |
+| Boolean/checkbox | `Boolean` | `@carbon/form` |
+| Date picker | `DatePicker` | `@carbon/form` |
+| Domain selector (Customer, Item, etc.) | Named selector | `@carbon/form` |
 | Vertical stack | `VStack` (spacing prop) | `@carbon/react` |
 | Horizontal stack | `HStack` (spacing prop) | `@carbon/react` |
 | Card/container | `Card` / `CardContent` / `CardHeader` | `@carbon/react` |
@@ -25,7 +25,7 @@ Rules for UI code in Carbon. These are laws, not suggestions. Follow them when w
 | Tabs | `Tabs` / `TabsList` / `TabsTrigger` | `@carbon/react` |
 | Toast/notification | `flash()` from session | `@carbon/auth/session.server` |
 | Class merging | `cn()` | `@carbon/react` |
-| Icons | Lucide React (`Lu*`) | `lucide-react` |
+| Icons | Lucide React (`Lu*`) | `react-icons/lu` |
 
 ## Button Rules
 
@@ -61,11 +61,11 @@ Rules for UI code in Carbon. These are laws, not suggestions. Follow them when w
 - ALWAYS use `ValidatedForm` from `@carbon/form` for forms
 - ALWAYS wrap validation with `validator(schema)` — never raw `schema.parse()`
 - Every input MUST have a visible label (via component `label` prop or explicit `<label>`)
-- Use domain selectors from `~/components/Form` for foreign key references (Customer, Item, Employee, etc.)
+- Use domain selectors from `@carbon/form` for foreign key references (Customer, Item, Employee, etc.)
 
 ## Icon Rules
 
-- ALWAYS use `lucide-react` icons (prefixed `Lu*`)
+- ALWAYS use `react-icons/lu` icons (prefixed `Lu*`)
 - NEVER use inline `<svg>` elements
 - NEVER use other icon libraries (heroicons, fontawesome, etc.)
 
