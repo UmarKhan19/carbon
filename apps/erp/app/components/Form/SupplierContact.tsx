@@ -124,6 +124,12 @@ const SupplierContact = ({
           onClose={() => {
             setCreated("");
             newContactModal.onClose();
+            // Reload the per-supplier fetcher so a just-created contact appears.
+            if (supplier) {
+              supplierContactsFetcher.load(
+                path.to.api.supplierContacts(supplier)
+              );
+            }
             triggerRef.current?.click();
           }}
           initialValues={{

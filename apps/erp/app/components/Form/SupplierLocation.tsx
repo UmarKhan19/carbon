@@ -135,6 +135,12 @@ const SupplierLocation = ({
           onClose={() => {
             setCreated("");
             newLocationModal.onClose();
+            // Reload the per-supplier fetcher so a just-created location appears.
+            if (supplier) {
+              supplierLocationsFetcher.load(
+                path.to.api.supplierLocations(supplier)
+              );
+            }
             triggerRef.current?.click();
           }}
           initialValues={{

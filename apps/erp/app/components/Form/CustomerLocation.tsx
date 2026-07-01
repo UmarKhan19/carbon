@@ -138,6 +138,12 @@ const CustomerLocation = ({
           onClose={() => {
             setCreated("");
             newLocationModal.onClose();
+            // Reload the per-customer fetcher so a just-created location appears.
+            if (customer) {
+              customerLocationsFetcher.load(
+                path.to.api.customerLocations(customer)
+              );
+            }
             triggerRef.current?.click();
           }}
           initialValues={{

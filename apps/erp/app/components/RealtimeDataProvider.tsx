@@ -302,15 +302,19 @@ const RealtimeDataProvider = ({ children }: { children: React.ReactNode }) => {
                   return;
                 const { new: inserted } = payload;
                 setCustomers((customers) =>
-                  [
-                    ...customers,
-                    {
-                      id: inserted.id,
-                      name: inserted.name,
-                      website: inserted.website,
-                      readableId: inserted.readableId ?? undefined
-                    }
-                  ].sort((a, b) => a.name.localeCompare(b.name))
+                  // Guard against a duplicate when the create-on-the-fly flow
+                  // has already appended this customer synchronously.
+                  customers.some((c) => c.id === inserted.id)
+                    ? customers
+                    : [
+                        ...customers,
+                        {
+                          id: inserted.id,
+                          name: inserted.name,
+                          website: inserted.website,
+                          readableId: inserted.readableId ?? undefined
+                        }
+                      ].sort((a, b) => a.name.localeCompare(b.name))
                 );
                 break;
               case "UPDATE":
