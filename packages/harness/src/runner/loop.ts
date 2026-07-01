@@ -103,6 +103,13 @@ export function runLoop(
 
       const gates: Record<string, boolean> = {};
       if (dirty) {
+        // Auto-format before gates — ensures committed code always passes biome format.
+        // Exit code is ignored: auto-fixable issues are fixed in-place, unfixable ones
+        // are caught by the lint gate below.
+        shell("pnpm exec biome check --write --no-errors-on-unmatched", {
+          cwd
+        });
+
         // 2. FLOOR GATES (lint + conformance + clobbers) and per-package typecheck.
         const floor = config.gates ?? FLOOR_GATES;
         for (const r of runGates(floor, (cmd) => shell(cmd, { cwd }))) {

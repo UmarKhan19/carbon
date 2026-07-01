@@ -35,6 +35,7 @@ For each iteration:
    - **Module code:** keep one `<module>.service.ts` and one `<module>.models.ts` per module; never scatter new service/models files.
 
 2. **Gate.** Run these in order; every applicable one must be green:
+   - **a0. Auto-format** — `pnpm exec biome check --write --no-errors-on-unmatched` runs automatically before the floor gates, fixing formatting and safe lint issues in-place. You do not need to run this manually — the harness handles it.
    - **a. Floor gates** — `pnpm --filter @carbon/harness gates` (lint + `@carbon/checks` conformance + clobbers), plus `typecheck` for each package you touched (per-package, never whole-repo).
    - **b. Behavior gate — MANDATORY for ANY change that affects user-facing behavior.** Choose the **simplest sufficient proof** from this hierarchy:
      1. **Unit / integration test (red→green)** — Write a test that fails on the old behavior and passes on the new. **Preferred when applicable:** logic changes, data transformations, component rendering, conditional visibility, service behavior, and anything testable without a running stack. Fast, deterministic, CI-portable, and it lives in the repo as a regression guard.

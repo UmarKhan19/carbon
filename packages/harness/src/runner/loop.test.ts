@@ -183,6 +183,31 @@ describe("runLoop", () => {
     expect(out.reason).toContain("behavior gate");
   });
 
+  it("runs biome auto-format before floor gates on dirty tree", () => {
+    const cmds: string[] = [];
+    const shell: RunnerDeps["shell"] = (cmd) => {
+      cmds.push(cmd);
+      if (cmd === "git diff --quiet") return { ok: false, output: "" };
+      return { ok: true, output: "" };
+    };
+    const deps = makeDeps({
+      claude: scriptedClaude(
+        [doer({})],
+        [judge({ approved: true, unmet: [] })]
+      ),
+      shell
+    });
+
+    runLoop(BINDING, makeConfig(), deps);
+
+    const formatIdx = cmds.findIndex((c) => c.includes("biome check --write"));
+    const lintIdx = cmds.findIndex(
+      (c) => c.includes("biome check") && !c.includes("--write")
+    );
+    expect(formatIdx).toBeGreaterThan(-1);
+    expect(lintIdx).toBeGreaterThan(formatIdx);
+  });
+
   it("blocks (not reverts) when the behavior gate reports the stack is down", () => {
     const deps = makeDeps({
       claude: scriptedClaude([doer({ touchedUI: true })], []),
