@@ -440,6 +440,11 @@ msgstr "Satın alma maliyeti"
 
 msgid "Acquisition Date"
 msgstr "Satın alma tarihi"
+msgid "Action"
+msgstr ""
+
+msgid "Action Items"
+msgstr "Eylem Öğeleri"
 
 msgid "Action Status"
 msgstr "Aksiyon Durumu"
@@ -2281,6 +2286,9 @@ msgstr "Kimlik Değişikliğini Onayla"
 
 msgid "Confirm Import"
 msgstr "İçe Aktarmayı Onayla"
+
+msgid "Confirm Mapping"
+msgstr ""
 
 msgid "Confirm Password"
 msgstr "Şifreyi Onayla"
@@ -4668,6 +4676,19 @@ msgstr "Carbon'ın varsayılan olarak izlemediği verileri yakalamak için ekstr
 
 msgid "Extra tags for slicing your GL reporting"
 msgstr "GL raporlamanızı dilimlemek için ekstra etiketler"
+#. placeholder {0}: data.customerName
+msgid "Extracted customer \"{0}\" was not found. Please create it or select an existing one."
+msgstr ""
+
+msgid "Extracted Description"
+msgstr ""
+
+msgid "Extracted Part Number"
+msgstr ""
+
+#. placeholder {0}: data.supplierName
+msgid "Extracted supplier \"{0}\" was not found. Please create it or select an existing one."
+msgstr ""
 
 msgid "Fail"
 msgstr "Başarısız"
@@ -6463,6 +6484,8 @@ msgstr "Ürün detayları yükleniyor..."
 
 msgid "Loading your own data with Carbon's import tools"
 msgstr "Carbon'ın içe aktarma araçlarıyla kendi verilerinizi yükleme"
+msgid "Loading suggestions..."
+msgstr ""
 
 msgid "Loading..."
 msgstr "Yükleniyor..."
@@ -6674,6 +6697,14 @@ msgstr "Üretim"
 
 msgid "Map your current process, systems, and data"
 msgstr "Mevcut sürecinizi, sistemlerinizi ve verilerinizi eşleyin"
+msgid "Map Extracted Invoice Lines"
+msgstr ""
+
+msgid "Map Extracted Lines"
+msgstr ""
+
+msgid "Map Lines Now"
+msgstr ""
 
 msgid "Mark as Planned"
 msgstr "Planlanmış olarak işaretle"
@@ -8922,6 +8953,9 @@ msgstr "Bu kanban için bir sonraki işlemi başlatmak üzere QR kod"
 msgid "Qty"
 msgstr "Miktar"
 
+msgid "Qty / Price"
+msgstr ""
+
 msgid "Qty to Order"
 msgstr "Sipariş Edilecek Miktar"
 
@@ -10582,6 +10616,9 @@ msgstr "burada atayabilmeniz için."
 
 msgid "Solutions Engineer"
 msgstr "Çözüm Mühendisi"
+
+msgid "Some lines extracted from the PDF could not be automatically mapped to your inventory items. Please map them below."
+msgstr ""
 
 msgid "Something went wrong"
 msgstr "Bir şeyler yanlış gitti"
@@ -12399,6 +12436,9 @@ msgstr "Bağlantısını Kes"
 msgid "Unlink job from sales order?"
 msgstr "İş emrini satış siparişinden ayır?"
 
+msgid "Unmapped Extracted Lines"
+msgstr ""
+
 msgid "Unpick"
 msgstr "Çıkart"
 
@@ -13291,6 +13331,8 @@ msgstr "Bu satırın neden reddedildiği; yazdırılabilir teklifte gösterilir 
 
 msgid "Window:"
 msgstr "Pencere:"
+msgid "Will remain as comment line"
+msgstr ""
 
 msgid "WIP"
 msgstr "Yarı Mamul"
@@ -13422,6 +13464,9 @@ msgstr "Sipariş edilen miktardan {leftoverQuantity} fazla {0} tamamladınız. F
 
 msgid "You drive it; we make sure it's done right. Expert eyes on your setup, data, and go-live."
 msgstr "Siz yönetirsiniz; biz doğru yapıldığından emin oluruz. Kurulumunuz, verileriniz ve canlı yayına geçişiniz üzerinde uzman gözler."
+#. placeholder {0}: unmappedLines.length
+msgid "You have {0} lines extracted from a PDF that are not mapped to any inventory items."
+msgstr ""
 
 msgid "You haven't created any contacts yet."
 msgstr "Henüz herhangi bir iletişim bilgisi oluşturmadınız."

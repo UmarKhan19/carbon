@@ -21,6 +21,12 @@ type CustomerContactSelectProps = Omit<
     customer: { id: string; contact: CustomerContactType["contact"] } | null
   ) => void;
   inline?: boolean;
+  extractedContact?: {
+    firstName?: string | null;
+    lastName?: string | null;
+    email?: string | null;
+    phone?: string | null;
+  };
 };
 
 const CustomerContactPreview = (
@@ -40,7 +46,11 @@ const CustomerContactPreview = (
   );
 };
 
-const CustomerContact = (props: CustomerContactSelectProps) => {
+const CustomerContact = ({
+  customer,
+  extractedContact,
+  ...props
+}: CustomerContactSelectProps) => {
   const { t } = useLingui();
   const newContactModal = useDisclosure();
   const [created, setCreated] = useState<string>("");
@@ -48,7 +58,7 @@ const CustomerContact = (props: CustomerContactSelectProps) => {
 
   const [firstName, ...lastName] = created.split(" ");
 
-  const { options, data } = useCustomerContacts(props.customer);
+  const { options, data } = useCustomerContacts(customer);
 
   const onChange = (
     newValue: { label: string | JSX.Element; value: string } | null
@@ -61,7 +71,7 @@ const CustomerContact = (props: CustomerContactSelectProps) => {
 
   const emptyMessage = useEmptyState(
     "customerContact",
-    props.customer ? { onCreate: () => newContactModal.onOpen() } : undefined
+    customer ? { onCreate: () => newContactModal.onOpen() } : undefined
   );
 
   return (
@@ -79,10 +89,17 @@ const CustomerContact = (props: CustomerContactSelectProps) => {
           newContactModal.onOpen();
           setCreated(option);
         }}
+        extractedValue={
+          extractedContact?.firstName || extractedContact?.email
+            ? [extractedContact.firstName, extractedContact.lastName]
+                .filter(Boolean)
+                .join(" ") || extractedContact.email!
+            : undefined
+        }
       />
       {newContactModal.isOpen && (
         <CustomerContactForm
-          customerId={props.customer!}
+          customerId={customer!}
           type="modal"
           onClose={() => {
             setCreated("");
@@ -90,9 +107,10 @@ const CustomerContact = (props: CustomerContactSelectProps) => {
             triggerRef.current?.click();
           }}
           initialValues={{
-            email: "",
-            firstName: firstName,
-            lastName: lastName.join(" ")
+            email: extractedContact?.email || "",
+            firstName: extractedContact?.firstName || firstName || "",
+            lastName: extractedContact?.lastName || lastName.join(" ") || "",
+            mobilePhone: extractedContact?.phone || ""
           }}
         />
       )}

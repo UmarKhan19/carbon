@@ -169,6 +169,9 @@ export const path = {
         ),
       resourcesKpi: (key: string) =>
         generatePath(`${api}/resources/kpi/${key}`),
+      purchaseInvoice: (id: string) =>
+        generatePath(`${api}/purchase-invoice/${id}`),
+      salesRfq: (id: string) => generatePath(`${api}/sales-rfq/${id}`),
       salesCustomerOverride: `${api}/sales/customer-override`,
       salesKpi: (key: string) => generatePath(`${api}/sales/kpi/${key}`),
       salesResolvePrice: `${api}/sales/resolve-price`,

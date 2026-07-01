@@ -1,7 +1,7 @@
 import { useLingui } from "@lingui/react/macro";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
-import { forwardRef, useMemo, useRef, useState } from "react";
+import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import { LuCheck, LuPlus, LuSettings2, LuX } from "react-icons/lu";
 import {
   Command,
@@ -43,6 +43,7 @@ export type CreatableComboboxProps = Omit<
   onChange?: (selected: string) => void;
   onCreateOption?: (inputValue: string) => void;
   itemHeight?: number;
+  extractedValue?: string;
 };
 
 const CreatableCombobox = forwardRef<HTMLButtonElement, CreatableComboboxProps>(
@@ -62,6 +63,7 @@ const CreatableCombobox = forwardRef<HTMLButtonElement, CreatableComboboxProps>(
       inline,
       inlineAddLabel,
       onCreateOption,
+      extractedValue,
       ...props
     },
     ref
@@ -69,6 +71,17 @@ const CreatableCombobox = forwardRef<HTMLButtonElement, CreatableComboboxProps>(
     const { t } = useLingui();
     const [open, setOpen] = useState(false);
     const [search, setSearch] = useState("");
+
+    // When opening with an extracted value but no actual value, prefill the search
+    // so the user can easily click "Create [Extracted Value]"
+    useEffect(() => {
+      if (open && extractedValue && !value) {
+        setSearch(extractedValue);
+      } else if (!open) {
+        setSearch("");
+      }
+    }, [open, extractedValue, value]);
+
     const isInlinePreview = !!inline;
     const selectedOption = useMemo(
       () => options.find((option) => option.value === value),
@@ -154,6 +167,10 @@ const CreatableCombobox = forwardRef<HTMLButtonElement, CreatableComboboxProps>(
                   >
                     {selectedOption?.label}
                   </TruncatedTooltipText>
+                ) : extractedValue ? (
+                  <span className="block min-w-0 flex-1 truncate text-left font-medium text-destructive">
+                    {extractedValue}
+                  </span>
                 ) : (
                   <span className="!text-muted-foreground">
                     {placeholder ?? t`Select`}

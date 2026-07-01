@@ -440,6 +440,11 @@ msgstr "Costo di acquisizione"
 
 msgid "Acquisition Date"
 msgstr "Data di acquisizione"
+msgid "Action"
+msgstr ""
+
+msgid "Action Items"
+msgstr "Elementi di azione"
 
 msgid "Action Status"
 msgstr "Stato Azione"
@@ -2281,6 +2286,9 @@ msgstr "Conferma cambio ID"
 
 msgid "Confirm Import"
 msgstr "Conferma importazione"
+
+msgid "Confirm Mapping"
+msgstr ""
 
 msgid "Confirm Password"
 msgstr "Conferma Password"
@@ -4668,6 +4676,19 @@ msgstr "Campi aggiuntivi per acquisire dati che Carbon non traccia per impostazi
 
 msgid "Extra tags for slicing your GL reporting"
 msgstr "Tag aggiuntivi per suddividere i tuoi report GL"
+#. placeholder {0}: data.customerName
+msgid "Extracted customer \"{0}\" was not found. Please create it or select an existing one."
+msgstr ""
+
+msgid "Extracted Description"
+msgstr ""
+
+msgid "Extracted Part Number"
+msgstr ""
+
+#. placeholder {0}: data.supplierName
+msgid "Extracted supplier \"{0}\" was not found. Please create it or select an existing one."
+msgstr ""
 
 msgid "Fail"
 msgstr "Non superato"
@@ -6463,6 +6484,8 @@ msgstr "Caricamento dettagli articolo..."
 
 msgid "Loading your own data with Carbon's import tools"
 msgstr "Caricamento dei tuoi dati con gli strumenti di importazione di Carbon"
+msgid "Loading suggestions..."
+msgstr ""
 
 msgid "Loading..."
 msgstr "Caricamento..."
@@ -6674,6 +6697,14 @@ msgstr "Produzione"
 
 msgid "Map your current process, systems, and data"
 msgstr "Mappa il tuo processo attuale, i sistemi e i dati"
+msgid "Map Extracted Invoice Lines"
+msgstr ""
+
+msgid "Map Extracted Lines"
+msgstr ""
+
+msgid "Map Lines Now"
+msgstr ""
 
 msgid "Mark as Planned"
 msgstr "Contrassegna come Pianificato"
@@ -8922,6 +8953,9 @@ msgstr "Codice QR per avviare l'operazione successiva per questo kanban"
 msgid "Qty"
 msgstr "Qtà"
 
+msgid "Qty / Price"
+msgstr ""
+
 msgid "Qty to Order"
 msgstr "Qtà da ordinare"
 
@@ -10582,6 +10616,9 @@ msgstr "così puoi assegnarlo qui."
 
 msgid "Solutions Engineer"
 msgstr "Solutions Engineer"
+
+msgid "Some lines extracted from the PDF could not be automatically mapped to your inventory items. Please map them below."
+msgstr ""
 
 msgid "Something went wrong"
 msgstr "Qualcosa è andato storto"
@@ -12399,6 +12436,9 @@ msgstr "Scollega"
 msgid "Unlink job from sales order?"
 msgstr "Scollega il lavoro dall'ordine di vendita?"
 
+msgid "Unmapped Extracted Lines"
+msgstr ""
+
 msgid "Unpick"
 msgstr "Annulla prelievo"
 
@@ -13291,6 +13331,8 @@ msgstr "Perché questa linea viene rifiutata; visualizzato sul preventivo stampa
 
 msgid "Window:"
 msgstr "Finestra:"
+msgid "Will remain as comment line"
+msgstr ""
 
 msgid "WIP"
 msgstr "WIP"
@@ -13422,6 +13464,9 @@ msgstr "Hai completato {leftoverQuantity} {0} in più rispetto alla quantità or
 
 msgid "You drive it; we make sure it's done right. Expert eyes on your setup, data, and go-live."
 msgstr "Tu lo guidi; noi ci assicuriamo che sia fatto bene. Occhi esperti sulla tua configurazione, dati e lancio."
+#. placeholder {0}: unmappedLines.length
+msgid "You have {0} lines extracted from a PDF that are not mapped to any inventory items."
+msgstr ""
 
 msgid "You haven't created any contacts yet."
 msgstr "Non hai ancora creato alcun contatto."

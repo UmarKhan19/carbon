@@ -1,5 +1,5 @@
 {
-  "generated": "2026-06-30T13:22:53.840Z",
+  "generated": "2026-07-01T02:59:04.560Z",
   "totalTools": 1248,
   "modules": 15,
   "tools": [
@@ -7527,7 +7527,7 @@
       "module": "invoicing",
       "classification": "WRITE",
       "description": "insert purchase invoice",
-      "paramCount": 14,
+      "paramCount": 15,
       "serviceParams": [
         "client",
         "input"
@@ -7578,6 +7578,9 @@
           },
           "exchangeRateUpdatedAt": {
             "type": "string"
+          },
+          "supplierShippingCost": {
+            "type": "number"
           },
           "customFields": {}
         },

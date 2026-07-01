@@ -440,6 +440,11 @@ msgstr "取得原価"
 
 msgid "Acquisition Date"
 msgstr "取得日"
+msgid "Action"
+msgstr ""
+
+msgid "Action Items"
+msgstr "アクション項目"
 
 msgid "Action Status"
 msgstr "アクション状態"
@@ -2281,6 +2286,9 @@ msgstr "IDの変更を確認"
 
 msgid "Confirm Import"
 msgstr "インポートを確認"
+
+msgid "Confirm Mapping"
+msgstr ""
 
 msgid "Confirm Password"
 msgstr "パスワードを確認"
@@ -4668,6 +4676,19 @@ msgstr "Carbonがデフォルトで追跡しないデータをキャプチャす
 
 msgid "Extra tags for slicing your GL reporting"
 msgstr "GL レポートをスライスするための追加タグ"
+#. placeholder {0}: data.customerName
+msgid "Extracted customer \"{0}\" was not found. Please create it or select an existing one."
+msgstr ""
+
+msgid "Extracted Description"
+msgstr ""
+
+msgid "Extracted Part Number"
+msgstr ""
+
+#. placeholder {0}: data.supplierName
+msgid "Extracted supplier \"{0}\" was not found. Please create it or select an existing one."
+msgstr ""
 
 msgid "Fail"
 msgstr "不合格"
@@ -6463,6 +6484,8 @@ msgstr "アイテムの詳細を読み込み中..."
 
 msgid "Loading your own data with Carbon's import tools"
 msgstr "Carbonのインポートツールで独自のデータを読み込む"
+msgid "Loading suggestions..."
+msgstr ""
 
 msgid "Loading..."
 msgstr "読み込み中..."
@@ -6674,6 +6697,14 @@ msgstr "製造"
 
 msgid "Map your current process, systems, and data"
 msgstr "現在のプロセス、システム、データをマップする"
+msgid "Map Extracted Invoice Lines"
+msgstr ""
+
+msgid "Map Extracted Lines"
+msgstr ""
+
+msgid "Map Lines Now"
+msgstr ""
 
 msgid "Mark as Planned"
 msgstr "計画済みとしてマーク"
@@ -8922,6 +8953,9 @@ msgstr "このカンバンの次の操作を開始するためのQRコード"
 msgid "Qty"
 msgstr "数量"
 
+msgid "Qty / Price"
+msgstr ""
+
 msgid "Qty to Order"
 msgstr "注文数量"
 
@@ -10582,6 +10616,9 @@ msgstr "ここで割り当てることができます。"
 
 msgid "Solutions Engineer"
 msgstr "ソリューションズエンジニア"
+
+msgid "Some lines extracted from the PDF could not be automatically mapped to your inventory items. Please map them below."
+msgstr ""
 
 msgid "Something went wrong"
 msgstr "エラーが発生しました"
@@ -12399,6 +12436,9 @@ msgstr "リンク解除"
 msgid "Unlink job from sales order?"
 msgstr "販売注文からジョブのリンクを解除しますか？"
 
+msgid "Unmapped Extracted Lines"
+msgstr ""
+
 msgid "Unpick"
 msgstr "ピック解除"
 
@@ -13291,6 +13331,8 @@ msgstr "この行が拒否されている理由。印刷可能な見積もりに
 
 msgid "Window:"
 msgstr "ウィンドウ:"
+msgid "Will remain as comment line"
+msgstr ""
 
 msgid "WIP"
 msgstr "仕掛品"
@@ -13422,6 +13464,9 @@ msgstr "あなたは注文数量 {1} より {leftoverQuantity} 個多く {0} を
 
 msgid "You drive it; we make sure it's done right. Expert eyes on your setup, data, and go-live."
 msgstr "あなたが主導し、私たちが確実に正しく実行します。セットアップ、データ、本番稼働に関する専門家の目が入ります。"
+#. placeholder {0}: unmappedLines.length
+msgid "You have {0} lines extracted from a PDF that are not mapped to any inventory items."
+msgstr ""
 
 msgid "You haven't created any contacts yet."
 msgstr "まだ連絡先を作成していません。"

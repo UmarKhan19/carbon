@@ -1,0 +1,284 @@
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
+import { EXTRACTION_CONFIDENCE_THRESHOLD } from "@carbon/env";
+import { inngest } from "../../client";
+import { invoiceExtractionSchema, rfqExtractionSchema } from "./schemas";
+
+function parseDateToISO8601(value: unknown): string | null {
+  if (typeof value !== "string" || !value) return null;
+  const cleaned = value.trim();
+
+  // YYYY-MM-DD
+  if (/^\d{4}-\d{2}-\d{2}$/.test(cleaned)) {
+    return cleaned;
+  }
+
+  // YYYY-MM-DDTHH:mm:...
+  if (/^\d{4}-\d{2}-\d{2}T/.test(cleaned)) {
+    return cleaned.slice(0, 10);
+  }
+
+  const parsed = Date.parse(cleaned);
+  if (isNaN(parsed)) return null;
+
+  const d = new Date(parsed);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+export const extractDocumentFunction = inngest.createFunction(
+  { id: "extract-document", retries: 2 },
+  { event: "carbon/extract-document" },
+  async ({ event, step }) => {
+    const { documentExtractionId, companyId } = event.data;
+
+    await step.run("extract-and-save", async () => {
+      const client = getCarbonServiceRole();
+
+      // 1. Fetch the extraction record
+      const { data: extraction, error: fetchErr } = await client
+        .from("documentExtraction")
+        .select("*")
+        .eq("id", documentExtractionId)
+        .eq("companyId", companyId)
+        .single();
+
+      if (fetchErr || !extraction) {
+        console.error("Failed to fetch extraction record", { fetchErr });
+        throw new Error("Extraction record not found");
+      }
+
+      // 2. Update status to processing
+      await client
+        .from("documentExtraction")
+        .update({
+          status: "processing" as const,
+          updatedAt: new Date().toISOString()
+        })
+        .eq("id", documentExtractionId)
+        .eq("companyId", companyId);
+
+      try {
+        // 3. Download PDF from Supabase Storage
+        const { data: fileData, error: downloadErr } = await client.storage
+          .from("private")
+          .download(extraction.storagePath);
+
+        if (downloadErr || !fileData) {
+          throw new Error(`Failed to download PDF: ${downloadErr?.message}`);
+        }
+
+        // 4. Extract text from PDF using pdfjs-dist
+        const buffer = await fileData.arrayBuffer();
+        const uint8Array = new Uint8Array(buffer);
+        // @ts-ignore pdfjs-dist legacy build lacks type declarations
+        const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+        const pdf = await pdfjs.getDocument({ data: uint8Array }).promise;
+        let pdfText = "";
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const textContent = await page.getTextContent();
+          const pageText = textContent.items
+            .map((item: any) => item.str)
+            .join(" ");
+          pdfText += `--- Page ${i} ---\n${pageText}\n\n`;
+        }
+        await pdf.destroy();
+
+        // 5. Pick schema based on document type
+        const schema =
+          extraction.documentType === "purchaseInvoice"
+            ? invoiceExtractionSchema
+            : rfqExtractionSchema;
+
+        const systemPrompt =
+          extraction.documentType === "purchaseInvoice"
+            ? "You are an ERP data extraction assistant. Extract invoice data from this PDF. For each field, provide the extracted value and a confidence score between 0.0 and 1.0. If a field is not found or you are unsure, set value to null and confidence to 0.0."
+            : "You are an ERP data extraction assistant. Extract RFQ (Request for Quote) data from this PDF. For each field, provide the extracted value and a confidence score between 0.0 and 1.0. If a field is not found or you are unsure, set value to null and confidence to 0.0.";
+
+        const schemaDescription =
+          extraction.documentType === "purchaseInvoice"
+            ? `
+Return your response ONLY as a valid JSON object matching this schema. Do not include markdown code block formatting (like \`\`\`json) or any other text.
+Important: For \`supplierCountry\`, you MUST return the ISO 3166-1 alpha-2 country code (e.g. "US", "ID", "GB", "SG"), not the full country name.
+Schema structure:
+{
+  "supplierName": { "value": string or null, "confidence": number },
+  "supplierContactName": { "value": string or null, "confidence": number },
+  "supplierContactEmail": { "value": string or null, "confidence": number },
+  "supplierContactPhone": { "value": string or null, "confidence": number },
+  "supplierAddressLine1": { "value": string or null, "confidence": number },
+  "supplierAddressLine2": { "value": string or null, "confidence": number },
+  "supplierCity": { "value": string or null, "confidence": number },
+  "supplierStateProvince": { "value": string or null, "confidence": number },
+  "supplierPostalCode": { "value": string or null, "confidence": number },
+  "supplierCountry": { "value": string or null, "confidence": number },
+  "invoiceNumber": { "value": string or null, "confidence": number },
+  "invoiceDate": { "value": string or null, "confidence": number },
+  "dueDate": { "value": string or null, "confidence": number },
+  "paymentTerms": { "value": string or null, "confidence": number },
+  "purchaseOrderNumber": { "value": string or null, "confidence": number },
+  "currencyCode": { "value": string or null, "confidence": number },
+  "subtotal": { "value": number or null, "confidence": number },
+  "taxAmount": { "value": number or null, "confidence": number },
+  "shippingCost": { "value": number or null, "confidence": number },
+  "totalAmount": { "value": number or null, "confidence": number },
+  "lineItems": [
+    {
+      "description": { "value": string or null, "confidence": number },
+      "quantity": { "value": number or null, "confidence": number },
+      "unitPrice": { "value": number or null, "confidence": number },
+      "totalPrice": { "value": number or null, "confidence": number }
+    }
+  ]
+}
+`
+            : `
+Return your response ONLY as a valid JSON object matching this schema. Do not include markdown code block formatting (like \`\`\`json) or any other text.
+Schema structure:
+{
+  "customerName": { "value": string or null, "confidence": number },
+  "purchasingContactName": { "value": string or null, "confidence": number },
+  "purchasingContactEmail": { "value": string or null, "confidence": number },
+  "purchasingContactPhone": { "value": string or null, "confidence": number },
+  "engineeringContactName": { "value": string or null, "confidence": number },
+  "engineeringContactEmail": { "value": string or null, "confidence": number },
+  "engineeringContactPhone": { "value": string or null, "confidence": number },
+  "customerAddressLine1": { "value": string or null, "confidence": number },
+  "customerAddressLine2": { "value": string or null, "confidence": number },
+  "customerCity": { "value": string or null, "confidence": number },
+  "customerStateProvince": { "value": string or null, "confidence": number },
+  "customerPostalCode": { "value": string or null, "confidence": number },
+  "customerCountry": { "value": string or null, "confidence": number },
+  "rfqNumber": { "value": string or null, "confidence": number },
+  "rfqDate": { "value": string or null, "confidence": number },
+  "dueDate": { "value": string or null, "confidence": number },
+  "requestedDeliveryDate": { "value": string or null, "confidence": number },
+  "lineItems": [
+    {
+      "partNumber": { "value": string or null, "confidence": number },
+      "description": { "value": string or null, "confidence": number },
+      "quantity": { "value": number or null, "confidence": number }
+    }
+  ]
+}
+`;
+
+        // 6. Call AI with text output
+        const { generateText } = await import("ai");
+        const { createOpenAI } = await import("@ai-sdk/openai");
+
+        const aiApiKey =
+          process.env.AI_API_KEY || process.env.OPENAI_API_KEY || "mock-key";
+        const aiBaseUrl = process.env.AI_BASE_URL;
+        const aiModelName = process.env.AI_MODEL || "gpt-4o";
+
+        const provider = createOpenAI({
+          apiKey: aiApiKey,
+          baseURL: aiBaseUrl,
+          fetch: async (url, init) => {
+            return fetch(url, {
+              ...init,
+              signal: AbortSignal.timeout(60_000)
+            });
+          }
+        });
+
+        const model = provider.chat(aiModelName);
+
+        const result = await generateText({
+          model,
+          maxRetries: 5,
+          messages: [
+            {
+              role: "user",
+              content: `${systemPrompt}\n\nFormat instructions:\n${schemaDescription}\n\nHere is the text extracted from the PDF document:\n\n${pdfText}`
+            }
+          ]
+        });
+
+        let rawText = result.text.trim();
+        if (rawText.startsWith("```")) {
+          const firstLineEnd = rawText.indexOf("\n");
+          if (firstLineEnd !== -1) {
+            rawText = rawText.slice(firstLineEnd).trim();
+          }
+          if (rawText.endsWith("```")) {
+            rawText = rawText.slice(0, -3).trim();
+          }
+        }
+
+        const parsed = JSON.parse(rawText);
+        const validated = schema.parse(parsed);
+
+        // 7. Filter by confidence threshold
+        const threshold = EXTRACTION_CONFIDENCE_THRESHOLD;
+        const raw = validated as Record<string, unknown>;
+        const filtered: Record<string, unknown> = {};
+        const dateFields = [
+          "invoiceDate",
+          "dueDate",
+          "rfqDate",
+          "requestedDeliveryDate"
+        ];
+
+        for (const [key, val] of Object.entries(raw)) {
+          if (key === "lineItems" && Array.isArray(val)) {
+            filtered.lineItems = val.map((line: Record<string, unknown>) => {
+              const filteredLine: Record<string, unknown> = {};
+              for (const [lk, lv] of Object.entries(line)) {
+                if (
+                  lv &&
+                  typeof lv === "object" &&
+                  lv !== null &&
+                  "confidence" in lv
+                ) {
+                  const field = lv as { value: unknown; confidence: number };
+                  filteredLine[lk] =
+                    field.confidence >= threshold ? field.value : null;
+                }
+              }
+              return filteredLine;
+            });
+          } else if (
+            val &&
+            typeof val === "object" &&
+            val !== null &&
+            "confidence" in val
+          ) {
+            const field = val as { value: unknown; confidence: number };
+            let extractedValue =
+              field.confidence >= threshold ? field.value : null;
+            if (extractedValue !== null && dateFields.includes(key)) {
+              extractedValue =
+                parseDateToISO8601(extractedValue) ?? extractedValue;
+            }
+            filtered[key] = extractedValue;
+          }
+        }
+
+        // 8. Save results
+        await client
+          .from("documentExtraction")
+          .update({
+            status: "completed" as const,
+            extractedData: raw as any,
+            filteredData: filtered as any,
+            updatedAt: new Date().toISOString()
+          })
+          .eq("id", documentExtractionId)
+          .eq("companyId", companyId);
+      } catch (err) {
+        console.error("Extraction failed", { err });
+        await client
+          .from("documentExtraction")
+          .update({
+            status: "failed" as const,
+            error: err instanceof Error ? err.message : String(err),
+            updatedAt: new Date().toISOString()
+          })
+          .eq("id", documentExtractionId)
+          .eq("companyId", companyId);
+        throw err;
+      }
+    });
+  }
+);
