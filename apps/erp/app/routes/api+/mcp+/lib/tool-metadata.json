@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-01T06:37:39.064Z",
+  "generated": "2026-07-01T16:55:39.742Z",
   "totalTools": 1250,
   "modules": 15,
   "tools": [
@@ -2832,8 +2832,7 @@
       ],
       "injectAuth": [
         "companyId",
-        "createdBy",
-        "updatedBy"
+        "createdBy"
       ],
       "schema": {
         "type": "object",
@@ -5380,8 +5379,7 @@
       ],
       "injectAuth": [
         "companyId",
-        "createdBy",
-        "updatedBy"
+        "createdBy"
       ],
       "schema": {
         "type": "object",

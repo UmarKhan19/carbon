@@ -525,9 +525,6 @@ msgstr "Zeile hinzufügen"
 msgid "Add a step"
 msgstr "Einen Schritt hinzufügen"
 
-msgid "Add a task"
-msgstr "Aufgabe hinzufügen"
-
 msgid "Add Actions"
 msgstr "Aktionen hinzufügen"
 
@@ -1767,6 +1764,9 @@ msgstr "Eine Methode genannt in Carbon — die Komponenten plus Operationen, die
 msgid "Can't disable the only active break. Add another break or toggle the override's Active instead."
 msgstr "Der einzige aktive Break kann nicht deaktiviert werden. Fügen Sie einen weiteren Break hinzu oder schalten Sie stattdessen die Aktivierung der Überschreibung um."
 
+msgid "Can't download this file"
+msgstr ""
+
 msgid "Cancel"
 msgstr "Abbrechen"
 
@@ -1959,9 +1959,6 @@ msgstr "Überprüfen Sie Ihre E-Mail"
 msgid "Checkpoint ·"
 msgstr "Checkpoint ·"
 
-msgid "Checkpoint:"
-msgstr "Checkpoint:"
-
 msgid "Checkpoints"
 msgstr "Kontrollpunkte"
 
@@ -2018,9 +2015,6 @@ msgstr "Verrechnungskonto zwischen Wareneingang und Lieferantenrechnung; wird au
 
 msgid "Clearing account for goods received / invoice received matching"
 msgstr "Verrechnungskonto für Wareneingang / Rechnungseingang Abgleich"
-
-msgid "Click to change status"
-msgstr "Klicken Sie, um den Status zu ändern"
 
 msgid "Click to upload a PDF drawing"
 msgstr "Klicken Sie, um eine PDF-Zeichnung hochzuladen"
@@ -2250,9 +2244,6 @@ msgstr "Konfigurieren Sie, wer Benachrichtigungen erhalten soll, wenn ein Liefer
 
 msgid "Configure-to-order"
 msgstr "Konfigurieren nach Bestellung"
-
-msgid "Configure-to-order options and pricing"
-msgstr "Konfigurierbare Optionen und Preisgestaltung"
 
 msgid "Configure-to-order, automated purchase planning, the shop-floor app."
 msgstr "Konfigurieren auf Bestellung, automatisierte Beschaffungsplanung, die Shop-Floor-App."
@@ -3550,9 +3541,6 @@ msgstr "Lieferantenangebotsanfrage löschen"
 msgid "Delete Supplier Type"
 msgstr "Lieferantentyp löschen"
 
-msgid "Delete task"
-msgstr "Aufgabe löschen"
-
 msgid "Delete Timecard"
 msgstr "Zeitkarte löschen"
 
@@ -3815,6 +3803,9 @@ msgstr "CSV herunterladen"
 
 msgid "Download Labels"
 msgstr "Etiketten herunterladen"
+
+msgid "Download Link"
+msgstr ""
 
 msgid "Download PDF"
 msgstr "PDF herunterladen"
@@ -4518,9 +4509,6 @@ msgstr "Jeder Test im Umfang wird in Ihrem konfigurierten System mit Ihren Daten
 
 msgid "Every row was imported successfully."
 msgstr "Jede Zeile wurde erfolgreich importiert."
-
-msgid "Every task for the project, grouped by step. If it isn't on the board, it isn't happening. Click a status to cycle it."
-msgstr "Jede Aufgabe für das Projekt, gruppiert nach Schritt. Wenn sie nicht auf dem Board ist, passiert sie nicht. Klicken Sie auf einen Status, um ihn zu wechseln."
 
 msgid "Everything from Starter"
 msgstr "Alles aus dem Starter-Plan"
@@ -5288,6 +5276,9 @@ msgstr "Navigation in Carbon"
 
 msgid "Getting set up"
 msgstr "Erste Schritte"
+
+msgid "Give it an owner and a date"
+msgstr ""
 
 msgid "GL"
 msgstr "GL"
@@ -6465,9 +6456,6 @@ msgstr "Neuere laden"
 msgid "Load open transactions (orders, POs, inventory, balances)"
 msgstr "Offene Transaktionen laden (Bestellungen, Bestellanforderungen, Bestand, Salden)"
 
-msgid "Load parts, BOMs, Bill of Process, and costing"
-msgstr "Teile, Stücklisten, Fertigungsprozess und Kostenrechnung laden"
-
 msgid "Load Templates"
 msgstr "Vorlagen laden"
 
@@ -7428,9 +7416,6 @@ msgstr "Nächste Sequenz"
 msgid "Next step"
 msgstr "Nächster Schritt"
 
-msgid "Next task"
-msgstr "Nächste Aufgabe"
-
 msgid "Next:"
 msgstr "Nächstes:"
 
@@ -7508,9 +7493,6 @@ msgstr "Keine Umrechnung erforderlich"
 
 msgid "No cost history found"
 msgstr "Keine Kostenhistorie gefunden"
-
-msgid "No custom tasks yet. Add deal-specific work here."
-msgstr "Noch keine benutzerdefinierten Aufgaben. Fügen Sie hier dealspezifische Arbeiten hinzu."
 
 msgid "No Data"
 msgstr "Keine Daten"
@@ -8131,9 +8113,6 @@ msgstr "Überschreiben Sie die Zielfertigungsmethode mit der Angebotsmethode"
 msgid "Owner (cost center)"
 msgstr "Übergeordnete Kostenstelle"
 
-msgid "Owner + date on the Project Board"
-msgstr "Eigentümer + Datum auf dem Projekt-Board"
-
 msgid "Ownership"
 msgstr "Eigentümerschaft"
 
@@ -8225,8 +8204,8 @@ msgstr "Parteityp"
 msgid "Pass"
 msgstr "Bestanden"
 
-msgid "Passed · reopen"
-msgstr "Bestanden · erneut öffnen"
+msgid "Passed"
+msgstr ""
 
 msgid "Path"
 msgstr "Pfad"
@@ -8410,9 +8389,6 @@ msgstr "Angeheftet"
 
 msgid "Plan"
 msgstr "Plan"
-
-msgid "Plan & Board"
-msgstr "Plan & Board"
 
 msgid "Plan the work"
 msgstr "Planen Sie die Arbeit"
@@ -8755,17 +8731,11 @@ msgstr "Fortschritt"
 msgid "Project"
 msgstr "Projekt"
 
-msgid "Project Board"
-msgstr "Projekt-Board"
-
 msgid "Project owner"
 msgstr "Projektverantwortlicher"
 
-msgid "Project Plan & Board"
-msgstr "Projektplan & Board"
-
-msgid "Project Plan & Timeline"
-msgstr "Projektplan & Zeitplan"
+msgid "Project Plan"
+msgstr ""
 
 msgid "Project start"
 msgstr "Projektstart"
@@ -9658,9 +9628,6 @@ msgstr "Risiko"
 msgid "Risks"
 msgstr "Risiken"
 
-msgid "Risks (on the Project Board)"
-msgstr "Risiken (auf dem Projekt-Board)"
-
 msgid "Role"
 msgstr "Rolle"
 
@@ -10316,14 +10283,8 @@ msgstr "Preisgestaltung festlegen"
 msgid "Set Quantity"
 msgstr "Menge festlegen"
 
-msgid "Set up sites, users, and roles"
-msgstr "Websites, Benutzer und Rollen einrichten"
-
 msgid "Set up the right way"
 msgstr "Richtig einrichten"
-
-msgid "Set up the shop-floor app and stations"
-msgstr "Richten Sie die Shop-Floor-App und Stationen ein"
 
 msgid "Set up your own data with import tools and LLM help"
 msgstr "Richten Sie Ihre eigenen Daten mit Importtools und LLM-Hilfe ein"
@@ -11193,9 +11154,6 @@ msgstr "Zielversion"
 msgid "Target Version"
 msgstr "Zielversion"
 
-msgid "Task"
-msgstr "Aufgabe"
-
 msgid "tasks"
 msgstr "Aufgaben"
 
@@ -11293,8 +11251,8 @@ msgid "Text size"
 msgstr "Textgröße"
 
 #. placeholder {0}: steps.length
-msgid "The {0} phases to go live, each ending at a checkpoint. Tick a task here and it updates on the Project Board too."
-msgstr "Die {0} Phasen bis zur Live-Schaltung, jede endet an einem Checkpoint. Markieren Sie hier eine Aufgabe und sie wird auch auf dem Project Board aktualisiert."
+msgid "The {0} phases to go live, each ending at a checkpoint. Tick off each task as you complete it."
+msgstr ""
 
 msgid "The accounting dimension that categorizes items for reporting and analysis."
 msgstr "Die Buchhaltungsdimension, die Artikel zur Berichterstattung und Analyse kategorisiert."
@@ -11947,6 +11905,12 @@ msgstr "Dies schließt den Discovery-Schritt ab."
 msgid "This counterparty has nothing outstanding — the payment will be recorded on-account."
 msgstr "Dieser Geschäftspartner hat keine ausstehenden Forderungen — die Zahlung wird auf Kontokorrent verbucht."
 
+msgid "This download link is invalid or has been tampered with."
+msgstr ""
+
+msgid "This file is no longer available, or you don't have permission to download it."
+msgstr ""
+
 msgid "This information will be used on document headers"
 msgstr "Diese Informationen werden in Dokumentkopfzeilen verwendet"
 
@@ -12247,6 +12211,9 @@ msgstr "Verfolgtes Element bereits ausgewählt"
 msgid "Tracked entity ID is required but none was found"
 msgstr "Tracked Entity ID ist erforderlich, aber keine wurde gefunden"
 
+msgid "Tracked from the Setup Map — open it"
+msgstr ""
+
 msgid "Tracking"
 msgstr "Verfolgung"
 
@@ -12324,9 +12291,6 @@ msgstr "Auslöser"
 
 msgid "Tuesday"
 msgstr "Dienstag"
-
-msgid "Turn on automated purchase planning"
-msgstr "Automatisierte Beschaffungsplanung aktivieren"
 
 msgid "Turn on the built-in pieces"
 msgstr "Aktivieren Sie die integrierten Komponenten"
