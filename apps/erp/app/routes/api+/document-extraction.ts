@@ -3,7 +3,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
-import { insertDocumentExtraction } from "~/modules/documents/extraction.service";
+import { insertDocumentExtraction } from "~/modules/documents/documents.service";
 
 // Each document type must be gated by the permission for the module that owns it,
 // and paired with the source document the client claims to be extracting.

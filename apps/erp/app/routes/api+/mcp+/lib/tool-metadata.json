@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-01T06:27:43.490Z",
-  "totalTools": 1249,
+  "generated": "2026-07-01T06:37:39.064Z",
+  "totalTools": 1250,
   "modules": 15,
   "tools": [
     {
@@ -3253,6 +3253,48 @@
         },
         "required": [
           "documentId"
+        ]
+      }
+    },
+    {
+      "name": "documents_insertDocumentExtraction",
+      "module": "documents",
+      "classification": "WRITE",
+      "description": "insert document extraction",
+      "paramCount": 4,
+      "serviceParams": [
+        "client",
+        "data"
+      ],
+      "injectAuth": [
+        "companyId",
+        "createdBy",
+        "updatedBy"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "storagePath": {
+            "type": "string"
+          },
+          "documentType": {
+            "type": "string",
+            "enum": [
+              "purchaseInvoice",
+              "salesRfq"
+            ]
+          },
+          "sourceDocument": {
+            "type": "string"
+          },
+          "sourceDocumentId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "storagePath",
+          "documentType",
+          "sourceDocument"
         ]
       }
     },
