@@ -40,7 +40,6 @@ The entire `llm/` directory is **gitignored** — it holds only runtime state, n
         └── screenshots/     # behavior-gate captures (hosted on loop-artifacts branch)
 ```
 
-All paths are constructed by `layout.ts` in `@carbon/harness` — nothing else should hardcode `llm/loops/...`.
 
 **Key exports from `layout.ts`:**
 - `LOOPS_DIR`, `RUNS_DIR` — repo-relative roots
@@ -48,7 +47,7 @@ All paths are constructed by `layout.ts` in `@carbon/harness` — nothing else s
 
 ## Binding Format
 
-Bindings live at `llm/loops/runs/<id>/binding.loop.md`. The parser (`parseBinding` in `binding.ts`) **only reads YAML frontmatter** — markdown body after `---` is supplementary context only.
+Bindings live at `.ai/loops/runs/<id>/binding.loop.md`. The parser (`parseBinding` in `binding.ts`) **only reads YAML frontmatter** — markdown body after `---` is supplementary context only.
 
 ```markdown
 ---
