@@ -77,6 +77,16 @@ const DESCRIPTION_OVERRIDES: Record<string, string> = {
   inventory_updateWarehouseTransfer: "Update an existing warehouse transfer",
 };
 
+// Per-tool overrides of the auto-computed injectAuth set. The default rule
+// (insert* → companyId + createdBy + updatedBy) is unsound for append-only
+// ledger tables that have no updatedBy column: the injected field leaks into the
+// INSERT payload and PostgREST rejects it ("column updatedBy does not exist").
+// inventory_insertManualInventoryAdjustment writes itemLedger, which has only
+// createdAt/createdBy.
+const INJECT_AUTH_OVERRIDES: Record<string, AuthField[]> = {
+  inventory_insertManualInventoryAdjustment: ["companyId", "createdBy"],
+};
+
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
@@ -573,7 +583,9 @@ export function generateToolMetadata(): void {
       if (MCP_BLOCKED_TOOL_NAMES.includes(toolName)) continue;
 
       const classification = classifyFunction(func.name);
-      const injectAuth = computeInjectAuth(func.name, classification);
+      const injectAuth =
+        INJECT_AUTH_OVERRIDES[toolName] ||
+        computeInjectAuth(func.name, classification);
       const description =
         DESCRIPTION_OVERRIDES[toolName] || generateDescription(func.name);
       const serviceParams = func.params.map((p) => p.name);
