@@ -59,7 +59,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
     try {
       await userClient
         .from("documentTransaction")
-        .insert({ documentId, type: "Download", userId });
+        .insert({ documentId, type: "Download", companyId, userId });
     } catch {
       // ignore
     }
