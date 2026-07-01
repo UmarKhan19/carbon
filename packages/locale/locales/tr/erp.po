@@ -2634,6 +2634,10 @@ msgstr "PDF oluşturulamadı. Lütfen tekrar deneyin."
 msgid "Could not prepare region image for analysis"
 msgstr "Bölge görüntüsü analiz için hazırlanamadı"
 
+#. placeholder {0}: extraction?.error ?? ""
+msgid "Could not read the document: {0}"
+msgstr ""
+
 msgid "Couldn't load documents"
 msgstr "Belgeler yüklenemedi"
 
@@ -4675,18 +4679,10 @@ msgstr "Carbon'ın varsayılan olarak izlemediği verileri yakalamak için ekstr
 msgid "Extra tags for slicing your GL reporting"
 msgstr "GL raporlamanızı dilimlemek için ekstra etiketler"
 
-#. placeholder {0}: data.customerName
-msgid "Extracted customer \"{0}\" was not found. Please create it or select an existing one."
-msgstr ""
-
 msgid "Extracted Description"
 msgstr ""
 
 msgid "Extracted Part Number"
-msgstr ""
-
-#. placeholder {0}: data.supplierName
-msgid "Extracted supplier \"{0}\" was not found. Please create it or select an existing one."
 msgstr ""
 
 msgid "Fail"
@@ -5027,6 +5023,9 @@ msgstr "Alan Adlandırma"
 
 msgid "Fields"
 msgstr "Alanlar"
+
+msgid "Fields populated from the document. Please review before saving."
+msgstr ""
 
 msgid "File deleted successfully"
 msgstr "Dosya başarıyla silindi"
@@ -9129,6 +9128,9 @@ msgstr "Bunu okuyun — Carbon'un kurulumunuz için neler yapacağını ve yapma
 msgid "Read this through. When it's right, sign off at the bottom. It's the statement your commercial agreement points to, with no prices or legal terms here."
 msgstr "Bunu baştan sona oku. Doğru olduğunda, altta imzala. Bu, ticari anlaşmanın işaret ettiği beyan olup, burada fiyat veya yasal şart yoktur."
 
+msgid "Reading the document..."
+msgstr ""
+
 msgid "Ready for Quote"
 msgstr "Teklif İçin Hazır"
 
@@ -12578,6 +12580,9 @@ msgstr "Yükleniyor {0}"
 
 msgid "Uploading {fileName}"
 msgstr "{\"fileName\"} yükleniyor"
+
+msgid "Uploading..."
+msgstr ""
 
 msgid "Uploading…"
 msgstr "Yükleniyor…"

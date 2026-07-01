@@ -12,28 +12,11 @@ import type {
 import {
   findMatchingContactId,
   findMatchingLocationId,
-  getExtractionMatchCandidates,
-  splitContactName
+  getExtractionMatchCandidates
 } from "~/modules/documents";
 import type { salesRfqValidator } from "../../sales.models";
 
 type SalesRFQFormValues = z.infer<typeof salesRfqValidator>;
-
-type ExtractedContact = {
-  firstName?: string | null;
-  lastName?: string | null;
-  email?: string | null;
-  phone?: string | null;
-};
-
-type ExtractedLocation = {
-  addressLine1?: string | null;
-  addressLine2?: string | null;
-  city?: string | null;
-  stateProvince?: string | null;
-  postalCode?: string | null;
-  countryCode?: string | null;
-};
 
 type CustomerState = {
   id: string | undefined;
@@ -59,16 +42,9 @@ export function useSalesRfqAutoFill(initialValues: SalesRFQFormValues) {
     customerLocationId: initialValues.customerLocationId
   });
 
-  const [extractedCustomerName, setExtractedCustomerName] = useState<string>();
   const [extractedLineItems, setExtractedLineItems] = useState<
     SalesRfqLineItem[]
   >([]);
-  const [extractedLocation, setExtractedLocation] =
-    useState<ExtractedLocation>();
-  const [extractedPurchasingContact, setExtractedPurchasingContact] =
-    useState<ExtractedContact>();
-  const [extractedEngineeringContact, setExtractedEngineeringContact] =
-    useState<ExtractedContact>();
   const [extractedStoragePath, setExtractedStoragePath] = useState<string>();
 
   const [formKey, setFormKey] = useState(0);
@@ -77,21 +53,11 @@ export function useSalesRfqAutoFill(initialValues: SalesRFQFormValues) {
   const handleExtractionComplete = async (raw: ExtractedDocumentData) => {
     const data = raw as SalesRfqExtraction & { _storagePath?: string | null };
 
-    let resolvedCustomerId = currentValues.customerId;
-    let foundCustomerInDb = false;
-
-    if (carbon && data.customerName) {
-      const { data: customerData } = await carbon
-        .from("customer")
-        .select("id")
-        .ilike("name", `%${data.customerName.trim()}%`)
-        .limit(1);
-
-      if (customerData && customerData.length > 0) {
-        resolvedCustomerId = customerData[0].id;
-        foundCustomerInDb = true;
-      }
-    }
+    // Customer is already resolved to a real record id by the extraction job
+    // (which was given the candidate list). Contacts and locations are
+    // entity-scoped, so we match them here against the resolved customer's
+    // records and leave them empty when nothing matches.
+    const resolvedCustomerId = data.customerId || currentValues.customerId;
 
     let resolvedPurchasingContactId: string | undefined = undefined;
     let resolvedEngineeringContactId: string | undefined = undefined;
@@ -118,59 +84,8 @@ export function useSalesRfqAutoFill(initialValues: SalesRFQFormValues) {
       );
     }
 
-    if (data.customerName && !foundCustomerInDb) {
-      setExtractedCustomerName(data.customerName);
-      toast.info(
-        t`Extracted customer "${data.customerName}" was not found. Please create it or select an existing one.`
-      );
-    } else {
-      setExtractedCustomerName(undefined);
-    }
-
     if (data.lineItems && Array.isArray(data.lineItems)) {
       setExtractedLineItems(data.lineItems);
-    }
-
-    if (
-      (data.customerAddressLine1 || data.customerCity) &&
-      !resolvedLocationId
-    ) {
-      setExtractedLocation({
-        addressLine1: data.customerAddressLine1,
-        addressLine2: data.customerAddressLine2,
-        city: data.customerCity,
-        stateProvince: data.customerStateProvince,
-        postalCode: data.customerPostalCode,
-        countryCode: data.customerCountry
-      });
-    } else {
-      setExtractedLocation(undefined);
-    }
-
-    if (
-      (data.purchasingContactName || data.purchasingContactEmail) &&
-      !resolvedPurchasingContactId
-    ) {
-      setExtractedPurchasingContact({
-        ...splitContactName(data.purchasingContactName),
-        email: data.purchasingContactEmail,
-        phone: data.purchasingContactPhone
-      });
-    } else {
-      setExtractedPurchasingContact(undefined);
-    }
-
-    if (
-      (data.engineeringContactName || data.engineeringContactEmail) &&
-      !resolvedEngineeringContactId
-    ) {
-      setExtractedEngineeringContact({
-        ...splitContactName(data.engineeringContactName),
-        email: data.engineeringContactEmail,
-        phone: data.engineeringContactPhone
-      });
-    } else {
-      setExtractedEngineeringContact(undefined);
     }
 
     if (data._storagePath) {
@@ -292,11 +207,7 @@ export function useSalesRfqAutoFill(initialValues: SalesRFQFormValues) {
     customer,
     currentValues,
     formKey,
-    extractedCustomerName,
     extractedLineItems,
-    extractedLocation,
-    extractedPurchasingContact,
-    extractedEngineeringContact,
     extractedStoragePath,
     handleExtractionComplete,
     onCustomerChange

@@ -18,15 +18,6 @@ import type { purchaseInvoiceValidator } from "~/modules/invoicing";
 
 type PurchaseInvoiceFormValues = z.infer<typeof purchaseInvoiceValidator>;
 
-type ExtractedAddress = {
-  addressLine1?: string | null;
-  addressLine2?: string | null;
-  city?: string | null;
-  stateProvince?: string | null;
-  postalCode?: string | null;
-  countryCode?: string | null;
-};
-
 type InvoiceSupplierState = {
   id: string | undefined;
   invoiceSupplierContactId: string | undefined;
@@ -58,11 +49,6 @@ export function usePurchaseInvoiceAutoFill(
     id: initialValues.supplierId
   });
 
-  const [extractedSupplierName, setExtractedSupplierName] = useState<string>();
-  const [extractedContactName, setExtractedContactName] = useState<string>();
-  const [extractedContactEmail, setExtractedContactEmail] = useState<string>();
-  const [extractedContactPhone, setExtractedContactPhone] = useState<string>();
-  const [extractedAddress, setExtractedAddress] = useState<ExtractedAddress>();
   const [extractedLineItems, setExtractedLineItems] = useState<
     PurchaseInvoiceLineItem[]
   >([]);
@@ -77,101 +63,34 @@ export function usePurchaseInvoiceAutoFill(
       _storagePath?: string | null;
     };
 
-    let resolvedSupplierId = currentValues.supplierId;
-    let resolvedPaymentTermId = currentValues.paymentTermId;
-    let resolvedCurrencyCode = currentValues.currencyCode;
+    // Supplier and payment term are already resolved to real record ids by the
+    // extraction job (which was given the candidate lists). Contacts and
+    // locations are entity-scoped, so we still match them here against the
+    // resolved supplier's records — and simply leave them empty when nothing
+    // matches (no forced red-text placeholder).
+    const resolvedSupplierId = data.supplierId || currentValues.supplierId;
+    let resolvedPaymentTermId =
+      data.paymentTermId || currentValues.paymentTermId;
+    let resolvedCurrencyCode = data.currencyCode || currentValues.currencyCode;
 
-    let foundSupplierInDb = false;
     let resolvedContactId: string | undefined = undefined;
     let resolvedLocationId: string | undefined = undefined;
 
-    if (carbon) {
-      if (data.supplierName) {
-        const { data: supplierData } = await carbon
-          .from("supplier")
-          .select("id, currencyCode")
-          .ilike("name", `%${data.supplierName.trim()}%`)
-          .limit(1);
-
-        if (supplierData && supplierData.length > 0) {
-          resolvedSupplierId = supplierData[0].id;
-          resolvedCurrencyCode =
-            supplierData[0].currencyCode ?? resolvedCurrencyCode;
-          foundSupplierInDb = true;
-        }
-      }
-
-      if (data.paymentTerms) {
-        const { data: termData } = await carbon
-          .from("paymentTerm")
-          .select("id")
-          .ilike("name", `%${data.paymentTerms}%`)
-          .limit(1);
-
-        if (termData && termData.length > 0) {
-          resolvedPaymentTermId = termData[0].id;
-        }
-      }
-
-      if (resolvedSupplierId) {
-        const { contacts, locations } = await getExtractionMatchCandidates(
-          carbon,
-          "supplier",
-          resolvedSupplierId
-        );
-
-        resolvedContactId = findMatchingContactId(contacts, {
-          name: data.supplierContactName,
-          email: data.supplierContactEmail
-        });
-        resolvedLocationId = findMatchingLocationId(
-          locations,
-          data.supplierAddressLine1
-        );
-      }
-    }
-
-    if (data.currencyCode) {
-      resolvedCurrencyCode = data.currencyCode;
-    }
-
-    if (
-      (data.supplierContactName || data.supplierContactEmail) &&
-      !resolvedContactId
-    ) {
-      setExtractedContactName(
-        data.supplierContactName || data.supplierContactEmail || undefined
+    if (carbon && resolvedSupplierId) {
+      const { contacts, locations } = await getExtractionMatchCandidates(
+        carbon,
+        "supplier",
+        resolvedSupplierId
       );
-    } else {
-      setExtractedContactName(undefined);
-    }
 
-    if (data.supplierContactEmail && !resolvedContactId) {
-      setExtractedContactEmail(data.supplierContactEmail);
-    } else {
-      setExtractedContactEmail(undefined);
-    }
-
-    if (data.supplierContactPhone && !resolvedContactId) {
-      setExtractedContactPhone(data.supplierContactPhone);
-    } else {
-      setExtractedContactPhone(undefined);
-    }
-
-    if (
-      (data.supplierAddressLine1 || data.supplierCity) &&
-      !resolvedLocationId
-    ) {
-      setExtractedAddress({
-        addressLine1: data.supplierAddressLine1,
-        addressLine2: data.supplierAddressLine2,
-        city: data.supplierCity,
-        stateProvince: data.supplierStateProvince,
-        postalCode: data.supplierPostalCode,
-        countryCode: data.supplierCountry
+      resolvedContactId = findMatchingContactId(contacts, {
+        name: data.supplierContactName,
+        email: data.supplierContactEmail
       });
-    } else {
-      setExtractedAddress(undefined);
+      resolvedLocationId = findMatchingLocationId(
+        locations,
+        data.supplierAddressLine1
+      );
     }
 
     let finalContactId = resolvedContactId;
@@ -225,18 +144,21 @@ export function usePurchaseInvoiceAutoFill(
           supplierDetails.data.supplierShipping?.shippingSupplierLocationId ??
           undefined;
 
+        resolvedCurrencyCode =
+          resolvedCurrencyCode ??
+          supplierDetails.data.currencyCode ??
+          undefined;
+        resolvedPaymentTermId =
+          resolvedPaymentTermId ??
+          paymentTermData.data.paymentTermId ??
+          undefined;
+
         setInvoiceSupplier((prev) => ({
           ...prev,
           invoiceSupplierContactId: finalContactId,
           invoiceSupplierLocationId: finalLocationId,
-          currencyCode:
-            resolvedCurrencyCode ??
-            supplierDetails.data.currencyCode ??
-            undefined,
-          paymentTermId:
-            resolvedPaymentTermId ??
-            paymentTermData.data.paymentTermId ??
-            undefined
+          currencyCode: resolvedCurrencyCode,
+          paymentTermId: resolvedPaymentTermId
         }));
       }
     } else {
@@ -268,15 +190,6 @@ export function usePurchaseInvoiceAutoFill(
       invoiceSupplierLocationId:
         finalLocationId || prev.invoiceSupplierLocationId
     }));
-
-    if (data.supplierName && !foundSupplierInDb) {
-      setExtractedSupplierName(data.supplierName);
-      toast.info(
-        t`Extracted supplier "${data.supplierName}" was not found. Please create it or select an existing one.`
-      );
-    } else {
-      setExtractedSupplierName(undefined);
-    }
 
     if (data.lineItems && Array.isArray(data.lineItems)) {
       setExtractedLineItems(data.lineItems);
@@ -326,7 +239,7 @@ export function usePurchaseInvoiceAutoFill(
         carbon
           .from("supplier")
           .select(
-            "name, currencyCode, purchasingContactId, supplierShipping!supplierId(shippingSupplierLocationId)"
+            "currencyCode, purchasingContactId, supplierShipping!supplierId(shippingSupplierLocationId)"
           )
           .eq("id", newValue.value)
           .single(),
@@ -340,13 +253,6 @@ export function usePurchaseInvoiceAutoFill(
       if (supplierData.error || paymentTermData.error) {
         toast.error(t`Error fetching supplier data`);
       } else {
-        if (supplierData.data.name !== extractedSupplierName) {
-          setExtractedContactName(undefined);
-          setExtractedContactEmail(undefined);
-          setExtractedContactPhone(undefined);
-          setExtractedAddress(undefined);
-        }
-
         setInvoiceSupplier((prev) => ({
           ...prev,
           id: newValue.value,
@@ -379,11 +285,6 @@ export function usePurchaseInvoiceAutoFill(
     setInvoiceSupplier,
     currentValues,
     formKey,
-    extractedSupplierName,
-    extractedContactName,
-    extractedContactEmail,
-    extractedContactPhone,
-    extractedAddress,
     extractedLineItems,
     extractedTaxAmount,
     extractedStoragePath,

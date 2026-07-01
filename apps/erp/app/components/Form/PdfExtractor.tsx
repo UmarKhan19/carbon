@@ -1,6 +1,8 @@
-import { Button, HStack, useCarbon, VStack } from "@carbon/react";
-import { useEffect, useRef, useState } from "react";
+import { useCarbon } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
+import { useEffect, useState } from "react";
 import { useFetcher } from "react-router";
+import { FileDropzone } from "~/components";
 import { useUser } from "~/hooks";
 import { useDocumentExtraction } from "~/hooks/useDocumentExtraction";
 import type { ExtractedDocumentData } from "~/modules/documents";
@@ -9,6 +11,8 @@ type PdfExtractorProps = {
   documentType: "purchaseInvoice" | "salesRfq";
   sourceDocument: string;
   sourceDocumentId?: string;
+  /** Heading shown above the drop zone (e.g. "Invoice", "RFQ"). */
+  label: string;
   onExtractionComplete: (data: ExtractedDocumentData) => void;
 };
 
@@ -16,12 +20,13 @@ export function PdfExtractor({
   documentType,
   sourceDocument,
   sourceDocumentId,
+  label,
   onExtractionComplete
 }: PdfExtractorProps) {
+  const { t } = useLingui();
   const { carbon: supabase } = useCarbon();
   const { company } = useUser();
   const fetcher = useFetcher<{ extractionId?: string }>();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [extractionId, setExtractionId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [notifiedExtractionId, setNotifiedExtractionId] = useState<
@@ -29,6 +34,17 @@ export function PdfExtractor({
   >(null);
 
   const { extraction } = useDocumentExtraction(extractionId, documentType);
+
+  // Adopt each newly-created extraction id (a re-upload returns a fresh one).
+  // Keying on the id — not `!extractionId` — avoids re-latching the prior id
+  // while `fetcher.data` still holds it during a resubmission.
+  const latestExtractionId = fetcher.data?.extractionId;
+  useEffect(() => {
+    if (latestExtractionId) {
+      setExtractionId(latestExtractionId);
+      setNotifiedExtractionId(null);
+    }
+  }, [latestExtractionId]);
 
   // When extraction completes, notify parent
   useEffect(() => {
@@ -52,14 +68,13 @@ export function PdfExtractor({
     notifiedExtractionId
   ]);
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleDrop = async (acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
     if (!file || !file.name.endsWith(".pdf")) return;
+    if (!supabase) return;
 
     setUploading(true);
     const storagePath = `${company.id}/extractions/${Date.now()}_${file.name}`;
-
-    if (!supabase) return;
 
     const { error } = await supabase.storage
       .from("private")
@@ -86,60 +101,37 @@ export function PdfExtractor({
     setUploading(false);
   };
 
-  // Extract the extractionId from fetcher response
-  if (fetcher.data?.extractionId && !extractionId) {
-    setExtractionId(fetcher.data.extractionId);
-  }
-
   const status = extraction?.status;
-  // Once we have an extraction id, stay busy until it reaches a terminal state.
-  // This covers the gap after the API call returns (fetcher idle) but before the
-  // row's status (pending → processing) is known, and avoids the button flickering
-  // back to "Auto-fill from PDF" mid-extraction.
   const isExtracting =
     extractionId !== null && status !== "completed" && status !== "failed";
-  // Cover the whole pipeline: local upload → API submit → extraction in progress.
   const isBusy = uploading || fetcher.state !== "idle" || isExtracting;
 
   return (
-    <VStack spacing={2} className="mb-4 p-4 border rounded-md bg-muted/50">
-      <HStack>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".pdf"
-          onChange={handleUpload}
-          className="hidden"
-        />
-        <Button
-          variant="secondary"
-          size="md"
-          onClick={() => fileInputRef.current?.click()}
-          isLoading={isBusy}
-          isDisabled={isBusy}
-        >
-          {uploading
-            ? "Uploading..."
-            : isBusy
-              ? "Extracting..."
-              : "Auto-fill from PDF"}
-        </Button>
-      </HStack>
-      {isExtracting && (
+    <div className="mt-6 flex flex-col gap-2">
+      <label className="text-xs font-medium text-muted-foreground">
+        {label}
+      </label>
+      <FileDropzone
+        onDrop={handleDrop}
+        accept={{ "application/pdf": [".pdf"] }}
+        multiple={false}
+        className="mt-0"
+      />
+      {isBusy && (
         <p className="text-xs text-muted-foreground animate-pulse">
-          Extracting data from PDF...
+          {uploading ? t`Uploading...` : t`Reading the document...`}
         </p>
       )}
-      {status === "completed" && (
+      {status === "completed" && !isBusy && (
         <p className="text-xs text-green-600">
-          ✓ Fields populated from PDF. Please review before saving.
+          {t`Fields populated from the document. Please review before saving.`}
         </p>
       )}
       {status === "failed" && (
         <p className="text-xs text-red-600">
-          ✗ Extraction failed: {extraction?.error}
+          {t`Could not read the document: ${extraction?.error ?? ""}`}
         </p>
       )}
-    </VStack>
+    </div>
   );
 }

@@ -83,16 +83,76 @@ export const extractDocumentFunction = inngest.createFunction(
         }
         await pdf.destroy();
 
-        // 5. Pick schema based on document type
+        // 5. Load candidate options so the AI can resolve extracted names to
+        // real record ids itself (instead of the app fuzzy-matching afterward).
+        // All lists are company-scoped; cap and log rather than silently truncate.
+        const CANDIDATE_LIMIT = 1000;
+        type Candidate = { id: string; name: string };
+        const supplierCandidates: Candidate[] = [];
+        const paymentTermCandidates: Candidate[] = [];
+        const customerCandidates: Candidate[] = [];
+
+        const collect = (
+          rows: Candidate[] | null,
+          into: Candidate[],
+          label: string
+        ) => {
+          into.push(...(rows ?? []).slice(0, CANDIDATE_LIMIT));
+          if ((rows?.length ?? 0) > CANDIDATE_LIMIT) {
+            console.warn(
+              `${label} candidate list truncated to ${CANDIDATE_LIMIT} for company ${companyId}`
+            );
+          }
+        };
+
+        if (extraction.documentType === "purchaseInvoice") {
+          const [{ data: suppliers }, { data: paymentTerms }] =
+            await Promise.all([
+              client
+                .from("supplier")
+                .select("id, name")
+                .eq("companyId", companyId)
+                .order("name")
+                .limit(CANDIDATE_LIMIT + 1),
+              client
+                .from("paymentTerm")
+                .select("id, name")
+                .eq("companyId", companyId)
+                .order("name")
+                .limit(CANDIDATE_LIMIT + 1)
+            ]);
+          collect(suppliers, supplierCandidates, "Supplier");
+          collect(paymentTerms, paymentTermCandidates, "Payment term");
+        } else {
+          const { data: customers } = await client
+            .from("customer")
+            .select("id, name")
+            .eq("companyId", companyId)
+            .order("name")
+            .limit(CANDIDATE_LIMIT + 1);
+          collect(customers, customerCandidates, "Customer");
+        }
+
+        const candidatesSection =
+          extraction.documentType === "purchaseInvoice"
+            ? `Known suppliers (choose the matching id for supplierId, or null):\n${JSON.stringify(supplierCandidates)}\n\nKnown payment terms (choose the matching id for paymentTermId, or null):\n${JSON.stringify(paymentTermCandidates)}`
+            : `Known customers (choose the matching id for customerId, or null):\n${JSON.stringify(customerCandidates)}`;
+
+        // 6. Pick schema based on document type
         const schema =
           extraction.documentType === "purchaseInvoice"
             ? invoiceExtractionSchema
             : rfqExtractionSchema;
 
+        const matchingInstruction =
+          " For the id fields, you are given lists of known records; return the id of the single best match, or null if none of the listed records clearly correspond to the document. Do NOT invent ids — only return an id that appears in the provided lists.";
+
         const systemPrompt =
           extraction.documentType === "purchaseInvoice"
-            ? "You are an ERP data extraction assistant. Extract invoice data from this PDF. For each field, provide the extracted value and a confidence score between 0.0 and 1.0. If a field is not found or you are unsure, set value to null and confidence to 0.0."
-            : "You are an ERP data extraction assistant. Extract RFQ (Request for Quote) data from this PDF. For each field, provide the extracted value and a confidence score between 0.0 and 1.0. If a field is not found or you are unsure, set value to null and confidence to 0.0.";
+            ? "You are an ERP data extraction assistant. Extract invoice data from this PDF. For each field, provide the extracted value and a confidence score between 0.0 and 1.0. If a field is not found or you are unsure, set value to null and confidence to 0.0." +
+              matchingInstruction
+            : "You are an ERP data extraction assistant. Extract RFQ (Request for Quote) data from this PDF. For each field, provide the extracted value and a confidence score between 0.0 and 1.0. If a field is not found or you are unsure, set value to null and confidence to 0.0." +
+              matchingInstruction;
 
         const schemaDescription =
           extraction.documentType === "purchaseInvoice"
@@ -101,6 +161,8 @@ Return your response ONLY as a valid JSON object matching this schema. Do not in
 Important: For \`supplierCountry\`, you MUST return the ISO 3166-1 alpha-2 country code (e.g. "US", "ID", "GB", "SG"), not the full country name.
 Schema structure:
 {
+  "supplierId": { "value": string or null, "confidence": number },
+  "paymentTermId": { "value": string or null, "confidence": number },
   "supplierName": { "value": string or null, "confidence": number },
   "supplierContactName": { "value": string or null, "confidence": number },
   "supplierContactEmail": { "value": string or null, "confidence": number },
@@ -135,6 +197,7 @@ Schema structure:
 Return your response ONLY as a valid JSON object matching this schema. Do not include markdown code block formatting (like \`\`\`json) or any other text.
 Schema structure:
 {
+  "customerId": { "value": string or null, "confidence": number },
   "customerName": { "value": string or null, "confidence": number },
   "purchasingContactName": { "value": string or null, "confidence": number },
   "purchasingContactEmail": { "value": string or null, "confidence": number },
@@ -162,7 +225,7 @@ Schema structure:
 }
 `;
 
-        // 6. Call AI with text output
+        // 7. Call AI with text output
         const { generateText } = await import("ai");
         const { createOpenAI } = await import("@ai-sdk/openai");
 
@@ -190,7 +253,7 @@ Schema structure:
           messages: [
             {
               role: "user",
-              content: `${systemPrompt}\n\nFormat instructions:\n${schemaDescription}\n\nHere is the text extracted from the PDF document:\n\n${pdfText}`
+              content: `${systemPrompt}\n\nFormat instructions:\n${schemaDescription}\n\nCandidate records to match against:\n${candidatesSection}\n\nHere is the text extracted from the PDF document:\n\n${pdfText}`
             }
           ]
         });
@@ -209,7 +272,7 @@ Schema structure:
         const parsed = JSON.parse(rawText);
         const validated = schema.parse(parsed);
 
-        // 7. Filter by confidence threshold
+        // 8. Filter by confidence threshold
         const threshold = EXTRACTION_CONFIDENCE_THRESHOLD;
         const raw = validated as Record<string, unknown>;
         const filtered: Record<string, unknown> = {};
@@ -255,7 +318,7 @@ Schema structure:
           }
         }
 
-        // 8. Save results
+        // 9. Save results
         await client
           .from("documentExtraction")
           .update({

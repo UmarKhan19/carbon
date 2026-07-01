@@ -11,7 +11,6 @@ import type {
 import { SupplierLocationForm } from "~/modules/purchasing/ui/Supplier";
 import { useSuppliers } from "~/stores";
 import { path } from "~/utils/path";
-import { useCountries } from "./Country";
 import { useEmptyState } from "./emptyStates";
 
 type SupplierLocationSelectProps = Omit<
@@ -21,14 +20,6 @@ type SupplierLocationSelectProps = Omit<
   supplier?: string;
   inline?: boolean;
   onChange?: (supplier: SupplierLocationType | null) => void;
-  extractedAddress?: {
-    addressLine1?: string | null;
-    addressLine2?: string | null;
-    city?: string | null;
-    stateProvince?: string | null;
-    postalCode?: string | null;
-    countryCode?: string | null;
-  };
 };
 
 const SupplierLocationPreview = (
@@ -41,7 +32,6 @@ const SupplierLocationPreview = (
 };
 
 const SupplierLocation = ({
-  extractedAddress,
   onChange: propsOnChange,
   inline,
   supplier,
@@ -55,19 +45,6 @@ const SupplierLocation = ({
   const [suppliers] = useSuppliers();
   const supplierName =
     suppliers.find((s) => s.id === supplier)?.name ?? "Main Location";
-
-  const countries = useCountries();
-  const mappedCountryCode = useMemo(() => {
-    if (!extractedAddress?.countryCode) return "";
-    const raw = extractedAddress.countryCode;
-    if (raw.length === 2) return raw.toUpperCase();
-    const match = countries.find(
-      (c) =>
-        c.label.toLowerCase().includes(raw.toLowerCase()) ||
-        raw.toLowerCase().includes(c.label.toLowerCase())
-    );
-    return match ? match.value : raw;
-  }, [extractedAddress?.countryCode, countries]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   useEffect(() => {
@@ -113,12 +90,6 @@ const SupplierLocation = ({
         ref={triggerRef}
         options={options}
         {...props}
-        extractedValue={
-          extractedAddress?.addressLine1 ??
-          extractedAddress?.city ??
-          extractedAddress?.postalCode ??
-          undefined
-        }
         inline={inline ? SupplierLocationPreview : undefined}
         label={props?.label ?? "Supplier Location"}
         emptyMessage={emptyMessage}
@@ -145,12 +116,12 @@ const SupplierLocation = ({
           }}
           initialValues={{
             name: supplierName,
-            addressLine1: extractedAddress?.addressLine1 || created || "",
-            addressLine2: extractedAddress?.addressLine2 || "",
-            city: extractedAddress?.city || "",
-            stateProvince: extractedAddress?.stateProvince || "",
-            postalCode: extractedAddress?.postalCode || "",
-            countryCode: mappedCountryCode
+            addressLine1: created || "",
+            addressLine2: "",
+            city: "",
+            stateProvince: "",
+            postalCode: "",
+            countryCode: ""
           }}
         />
       )}

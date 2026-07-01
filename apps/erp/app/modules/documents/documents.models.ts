@@ -63,6 +63,8 @@ const salesRfqLineItemSchema = z.object({
 });
 
 export const salesRfqExtractionSchema = z.object({
+  // AI-resolved id of a matching record (or null when nothing matched).
+  customerId: str,
   customerName: str,
   purchasingContactName: str,
   purchasingContactEmail: str,
@@ -91,6 +93,9 @@ const purchaseInvoiceLineItemSchema = z.object({
 });
 
 export const purchaseInvoiceExtractionSchema = z.object({
+  // AI-resolved ids of matching records (or null when nothing matched).
+  supplierId: str,
+  paymentTermId: str,
   supplierName: str,
   supplierContactName: str,
   supplierContactEmail: str,

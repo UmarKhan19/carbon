@@ -11,7 +11,6 @@ import type {
 } from "~/modules/sales";
 import CustomerLocationForm from "~/modules/sales/ui/Customer/CustomerLocationForm";
 import { path } from "~/utils/path";
-import { useCountries } from "./Country";
 import { useEmptyState } from "./emptyStates";
 
 type CustomerLocationSelectProps = Omit<
@@ -21,14 +20,6 @@ type CustomerLocationSelectProps = Omit<
   customer?: string;
   inline?: boolean;
   onChange?: (customer: CustomerLocationType | null) => void;
-  extractedLocation?: {
-    addressLine1?: string | null;
-    addressLine2?: string | null;
-    city?: string | null;
-    stateProvince?: string | null;
-    postalCode?: string | null;
-    countryCode?: string | null;
-  };
 };
 
 const CustomerLocationPreview = (
@@ -42,7 +33,6 @@ const CustomerLocationPreview = (
 
 const CustomerLocation = ({
   customer,
-  extractedLocation,
   ...props
 }: CustomerLocationSelectProps) => {
   const { t } = useLingui();
@@ -59,19 +49,6 @@ const CustomerLocation = ({
       customerLocationsFetcher.load(path.to.api.customerLocations(customer));
     }
   }, [customer]);
-
-  const countries = useCountries();
-  const mappedCountryCode = useMemo(() => {
-    if (!extractedLocation?.countryCode) return "";
-    const raw = extractedLocation.countryCode;
-    if (raw.length === 2) return raw.toUpperCase();
-    const match = countries.find(
-      (c: { label: string; value: string }) =>
-        c.label.toLowerCase().includes(raw.toLowerCase()) ||
-        raw.toLowerCase().includes(c.label.toLowerCase())
-    );
-    return match ? match.value : raw;
-  }, [extractedLocation?.countryCode, countries]);
 
   const options = useMemo(
     () =>
@@ -119,17 +96,6 @@ const CustomerLocation = ({
           newLocationModal.onOpen();
           setCreated(option);
         }}
-        extractedValue={
-          extractedLocation?.addressLine1 || extractedLocation?.city
-            ? [
-                extractedLocation.addressLine1,
-                extractedLocation.city,
-                extractedLocation.stateProvince
-              ]
-                .filter(Boolean)
-                .join(", ")
-            : undefined
-        }
       />
       {newLocationModal.isOpen && (
         <CustomerLocationForm
@@ -148,12 +114,12 @@ const CustomerLocation = ({
           }}
           initialValues={{
             name: created,
-            addressLine1: extractedLocation?.addressLine1 || "",
-            addressLine2: extractedLocation?.addressLine2 || "",
-            city: extractedLocation?.city || "",
-            stateProvince: extractedLocation?.stateProvince || "",
-            postalCode: extractedLocation?.postalCode || "",
-            countryCode: mappedCountryCode
+            addressLine1: "",
+            addressLine2: "",
+            city: "",
+            stateProvince: "",
+            postalCode: "",
+            countryCode: ""
           }}
         />
       )}

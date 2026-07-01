@@ -2634,6 +2634,10 @@ msgstr "无法生成 PDF。请重试。"
 msgid "Could not prepare region image for analysis"
 msgstr "无法准备区域图像以进行分析"
 
+#. placeholder {0}: extraction?.error ?? ""
+msgid "Could not read the document: {0}"
+msgstr ""
+
 msgid "Couldn't load documents"
 msgstr "无法加载文档"
 
@@ -4675,18 +4679,10 @@ msgstr "用于捕获 Carbon 默认不跟踪的额外数据的字段"
 msgid "Extra tags for slicing your GL reporting"
 msgstr "用于切分总账报告的额外标签"
 
-#. placeholder {0}: data.customerName
-msgid "Extracted customer \"{0}\" was not found. Please create it or select an existing one."
-msgstr ""
-
 msgid "Extracted Description"
 msgstr ""
 
 msgid "Extracted Part Number"
-msgstr ""
-
-#. placeholder {0}: data.supplierName
-msgid "Extracted supplier \"{0}\" was not found. Please create it or select an existing one."
 msgstr ""
 
 msgid "Fail"
@@ -5027,6 +5023,9 @@ msgstr "字段映射"
 
 msgid "Fields"
 msgstr "字段"
+
+msgid "Fields populated from the document. Please review before saving."
+msgstr ""
 
 msgid "File deleted successfully"
 msgstr "文件删除成功"
@@ -9129,6 +9128,9 @@ msgstr "通读以下内容——Carbon 将为您的设置做什么和不会做�
 msgid "Read this through. When it's right, sign off at the bottom. It's the statement your commercial agreement points to, with no prices or legal terms here."
 msgstr "通读此内容。确认无误后，在底部签署。这是您商业协议所指向的声明，不包含价格或法律条款。"
 
+msgid "Reading the document..."
+msgstr ""
+
 msgid "Ready for Quote"
 msgstr "准备报价"
 
@@ -12578,6 +12580,9 @@ msgstr "正在上传 {0}"
 
 msgid "Uploading {fileName}"
 msgstr "正在上传 {fileName}"
+
+msgid "Uploading..."
+msgstr ""
 
 msgid "Uploading…"
 msgstr "上传中…"

@@ -2634,6 +2634,10 @@ msgstr "Could not build PDF. Try again."
 msgid "Could not prepare region image for analysis"
 msgstr "Could not prepare region image for analysis"
 
+#. placeholder {0}: extraction?.error ?? ""
+msgid "Could not read the document: {0}"
+msgstr "Could not read the document: {0}"
+
 msgid "Couldn't load documents"
 msgstr "Couldn't load documents"
 
@@ -4675,19 +4679,11 @@ msgstr "Extra fields to capture data Carbon doesn't track by default"
 msgid "Extra tags for slicing your GL reporting"
 msgstr "Extra tags for slicing your GL reporting"
 
-#. placeholder {0}: data.customerName
-msgid "Extracted customer \"{0}\" was not found. Please create it or select an existing one."
-msgstr "Extracted customer \"{0}\" was not found. Please create it or select an existing one."
-
 msgid "Extracted Description"
 msgstr "Extracted Description"
 
 msgid "Extracted Part Number"
 msgstr "Extracted Part Number"
-
-#. placeholder {0}: data.supplierName
-msgid "Extracted supplier \"{0}\" was not found. Please create it or select an existing one."
-msgstr "Extracted supplier \"{0}\" was not found. Please create it or select an existing one."
 
 msgid "Fail"
 msgstr "Fail"
@@ -5027,6 +5023,9 @@ msgstr "Field Mapping"
 
 msgid "Fields"
 msgstr "Fields"
+
+msgid "Fields populated from the document. Please review before saving."
+msgstr "Fields populated from the document. Please review before saving."
 
 msgid "File deleted successfully"
 msgstr "File deleted successfully"
@@ -9129,6 +9128,9 @@ msgstr "Read this through — what Carbon will and won't do for your setup. When
 msgid "Read this through. When it's right, sign off at the bottom. It's the statement your commercial agreement points to, with no prices or legal terms here."
 msgstr "Read this through. When it's right, sign off at the bottom. It's the statement your commercial agreement points to, with no prices or legal terms here."
 
+msgid "Reading the document..."
+msgstr "Reading the document..."
+
 msgid "Ready for Quote"
 msgstr "Ready for Quote"
 
@@ -12578,6 +12580,9 @@ msgstr "Uploading {0}"
 
 msgid "Uploading {fileName}"
 msgstr "Uploading {fileName}"
+
+msgid "Uploading..."
+msgstr "Uploading..."
 
 msgid "Uploading…"
 msgstr "Uploading…"

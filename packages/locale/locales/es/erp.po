@@ -2634,6 +2634,10 @@ msgstr "No se pudo crear el PDF. Intenta de nuevo."
 msgid "Could not prepare region image for analysis"
 msgstr "No se pudo preparar la imagen de la región para el análisis"
 
+#. placeholder {0}: extraction?.error ?? ""
+msgid "Could not read the document: {0}"
+msgstr ""
+
 msgid "Couldn't load documents"
 msgstr "No se pudieron cargar los documentos"
 
@@ -4675,18 +4679,10 @@ msgstr "Campos adicionales para capturar datos que Carbon no rastrea de forma pr
 msgid "Extra tags for slicing your GL reporting"
 msgstr "Etiquetas adicionales para segmentar tu informe de GL"
 
-#. placeholder {0}: data.customerName
-msgid "Extracted customer \"{0}\" was not found. Please create it or select an existing one."
-msgstr ""
-
 msgid "Extracted Description"
 msgstr ""
 
 msgid "Extracted Part Number"
-msgstr ""
-
-#. placeholder {0}: data.supplierName
-msgid "Extracted supplier \"{0}\" was not found. Please create it or select an existing one."
 msgstr ""
 
 msgid "Fail"
@@ -5027,6 +5023,9 @@ msgstr "Mapeo de campos"
 
 msgid "Fields"
 msgstr "Campos"
+
+msgid "Fields populated from the document. Please review before saving."
+msgstr ""
 
 msgid "File deleted successfully"
 msgstr "Archivo eliminado correctamente"
@@ -9129,6 +9128,9 @@ msgstr "Lee esto completamente — qué Carbon hará y qué no hará en tu confi
 msgid "Read this through. When it's right, sign off at the bottom. It's the statement your commercial agreement points to, with no prices or legal terms here."
 msgstr "Lee esto completamente. Cuando sea correcto, firma al pie. Es la declaración a la que apunta tu acuerdo comercial, sin precios ni términos legales aquí."
 
+msgid "Reading the document..."
+msgstr ""
+
 msgid "Ready for Quote"
 msgstr "Listo para cotizar"
 
@@ -12578,6 +12580,9 @@ msgstr "Cargando {0}"
 
 msgid "Uploading {fileName}"
 msgstr "Cargando {fileName}"
+
+msgid "Uploading..."
+msgstr ""
 
 msgid "Uploading…"
 msgstr "Cargando…"

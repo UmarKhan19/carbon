@@ -21,12 +21,6 @@ type CustomerContactSelectProps = Omit<
     customer: { id: string; contact: CustomerContactType["contact"] } | null
   ) => void;
   inline?: boolean;
-  extractedContact?: {
-    firstName?: string | null;
-    lastName?: string | null;
-    email?: string | null;
-    phone?: string | null;
-  };
 };
 
 const CustomerContactPreview = (
@@ -48,7 +42,6 @@ const CustomerContactPreview = (
 
 const CustomerContact = ({
   customer,
-  extractedContact,
   ...props
 }: CustomerContactSelectProps) => {
   const { t } = useLingui();
@@ -89,13 +82,6 @@ const CustomerContact = ({
           newContactModal.onOpen();
           setCreated(option);
         }}
-        extractedValue={
-          extractedContact?.firstName || extractedContact?.email
-            ? [extractedContact.firstName, extractedContact.lastName]
-                .filter(Boolean)
-                .join(" ") || extractedContact.email!
-            : undefined
-        }
       />
       {newContactModal.isOpen && (
         <CustomerContactForm
@@ -110,10 +96,10 @@ const CustomerContact = ({
             triggerRef.current?.click();
           }}
           initialValues={{
-            email: extractedContact?.email || "",
-            firstName: extractedContact?.firstName || firstName || "",
-            lastName: extractedContact?.lastName || lastName.join(" ") || "",
-            mobilePhone: extractedContact?.phone || ""
+            email: "",
+            firstName: firstName || "",
+            lastName: lastName.join(" ") || "",
+            mobilePhone: ""
           }}
         />
       )}

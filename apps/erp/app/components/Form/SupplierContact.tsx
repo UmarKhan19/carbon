@@ -21,9 +21,6 @@ type SupplierContactSelectProps = Omit<
     supplier: { id: string; contact: SupplierContactType["contact"] } | null
   ) => void;
   inline?: boolean;
-  extractedValue?: string;
-  extractedEmail?: string;
-  extractedPhone?: string;
 };
 
 const SupplierContactPreview = (
@@ -44,9 +41,6 @@ const SupplierContactPreview = (
 };
 
 const SupplierContact = ({
-  extractedValue,
-  extractedEmail,
-  extractedPhone,
   onChange: propsOnChange,
   inline,
   supplier,
@@ -60,8 +54,7 @@ const SupplierContact = ({
   const [created, setCreated] = useState<string>("");
   const triggerRef = useRef<HTMLButtonElement>(null);
 
-  const sourceName = created || extractedValue || "";
-  const [namePart, ...titleParts] = sourceName.split(" - ");
+  const [namePart, ...titleParts] = created.split(" - ");
   const initialTitle = titleParts.join(" - ").trim();
   const nameTokens = namePart.trim().split(" ");
   const initialFirstName = nameTokens[0] || "";
@@ -106,7 +99,6 @@ const SupplierContact = ({
         ref={triggerRef}
         options={options}
         {...props}
-        extractedValue={extractedValue}
         placeholder={t`Select Contact`}
         inline={inline ? SupplierContactPreview : undefined}
         label={props?.label ?? t`Supplier Contact`}
@@ -133,11 +125,11 @@ const SupplierContact = ({
             triggerRef.current?.click();
           }}
           initialValues={{
-            email: extractedEmail ?? "",
+            email: "",
             firstName: initialFirstName,
             lastName: initialLastName,
             title: initialTitle,
-            mobilePhone: extractedPhone ?? ""
+            mobilePhone: ""
           }}
         />
       )}

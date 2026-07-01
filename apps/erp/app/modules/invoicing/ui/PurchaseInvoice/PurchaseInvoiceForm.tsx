@@ -61,11 +61,6 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
     setInvoiceSupplier,
     currentValues,
     formKey,
-    extractedSupplierName,
-    extractedContactName,
-    extractedContactEmail,
-    extractedContactPhone,
-    extractedAddress,
     extractedLineItems,
     extractedTaxAmount,
     extractedStoragePath,
@@ -97,12 +92,6 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
           )}
         </CardHeader>
         <CardContent>
-          <PdfExtractor
-            documentType="purchaseInvoice"
-            sourceDocument="Purchase Invoice"
-            sourceDocumentId={initialValues.id}
-            onExtractionComplete={handleExtractionComplete}
-          />
           <Hidden name="id" />
           <input
             type="hidden"
@@ -148,7 +137,6 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
               <Supplier
                 name="supplierId"
                 label={t`Supplier`}
-                extractedValue={extractedSupplierName}
                 defaultCurrencyCode={invoiceSupplier.currencyCode}
                 onChange={onSupplierChange}
                 onlyApproved={supplierApprovalRequired}
@@ -161,7 +149,6 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
               <Supplier
                 name="invoiceSupplierId"
                 label={t`Invoice Supplier`}
-                extractedValue={extractedSupplierName}
                 value={invoiceSupplier.id}
                 defaultCurrencyCode={invoiceSupplier.currencyCode}
                 onChange={onInvoiceSupplierChange}
@@ -172,7 +159,6 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
                 label={t`Invoice Supplier Location`}
                 supplier={supplier.id}
                 value={invoiceSupplier.invoiceSupplierLocationId}
-                extractedAddress={extractedAddress}
                 onChange={(newValue) => {
                   if (newValue?.id) {
                     setInvoiceSupplier((prevSupplier) => ({
@@ -187,9 +173,6 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
                 label={t`Invoice Supplier Contact`}
                 supplier={supplier.id}
                 value={invoiceSupplier.invoiceSupplierContactId}
-                extractedValue={extractedContactName}
-                extractedEmail={extractedContactEmail}
-                extractedPhone={extractedContactPhone}
                 onChange={(newValue) => {
                   if (newValue?.id) {
                     setInvoiceSupplier((prevSupplier) => ({
@@ -233,6 +216,13 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
               <CustomFormFields table="purchaseInvoice" />
             </div>
           </VStack>
+          <PdfExtractor
+            documentType="purchaseInvoice"
+            sourceDocument="Purchase Invoice"
+            sourceDocumentId={initialValues.id}
+            label={t`Invoice`}
+            onExtractionComplete={handleExtractionComplete}
+          />
         </CardContent>
         <CardFooter>
           <Submit

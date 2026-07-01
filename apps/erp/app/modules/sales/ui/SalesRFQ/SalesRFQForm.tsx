@@ -56,11 +56,7 @@ const SalesRFQForm = ({ initialValues }: SalesRFQFormProps) => {
     customer,
     currentValues,
     formKey,
-    extractedCustomerName,
     extractedLineItems,
-    extractedLocation,
-    extractedPurchasingContact,
-    extractedEngineeringContact,
     extractedStoragePath,
     handleExtractionComplete,
     onCustomerChange
@@ -90,12 +86,6 @@ const SalesRFQForm = ({ initialValues }: SalesRFQFormProps) => {
           )}
         </CardHeader>
         <CardContent>
-          <PdfExtractor
-            documentType="salesRfq"
-            sourceDocument="Request for Quote"
-            sourceDocumentId={initialValues.id}
-            onExtractionComplete={handleExtractionComplete}
-          />
           {isEditing && <Hidden name="rfqId" />}
           <input
             type="hidden"
@@ -130,7 +120,6 @@ const SalesRFQForm = ({ initialValues }: SalesRFQFormProps) => {
                 autoFocus={!isEditing}
                 name="customerId"
                 label={t`Customer`}
-                extractedValue={extractedCustomerName}
                 onChange={onCustomerChange}
               />
               <Input
@@ -143,21 +132,18 @@ const SalesRFQForm = ({ initialValues }: SalesRFQFormProps) => {
                 label={t`Purchasing Contact`}
                 customer={customer.id}
                 value={customer.customerContactId}
-                extractedContact={extractedPurchasingContact}
               />
               <CustomerContact
                 name="customerEngineeringContactId"
                 label={t`Engineering Contact`}
                 customer={customer.id}
                 value={customer.customerEngineeringContactId}
-                extractedContact={extractedEngineeringContact}
               />
               <CustomerLocation
                 name="customerLocationId"
                 label={t`Customer Location`}
                 customer={customer.id}
                 value={customer.customerLocationId}
-                extractedLocation={extractedLocation}
               />
               <DatePicker
                 name="rfqDate"
@@ -182,6 +168,13 @@ const SalesRFQForm = ({ initialValues }: SalesRFQFormProps) => {
               <CustomFormFields table="salesRfq" />
             </div>
           </VStack>
+          <PdfExtractor
+            documentType="salesRfq"
+            sourceDocument="Request for Quote"
+            sourceDocumentId={initialValues.id}
+            label={t`RFQ`}
+            onExtractionComplete={handleExtractionComplete}
+          />
         </CardContent>
         <CardFooter>
           <Submit

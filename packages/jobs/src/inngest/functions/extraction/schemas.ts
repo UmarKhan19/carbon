@@ -18,6 +18,10 @@ const invoiceLineSchema = z.object({
 
 /** Top-level invoice extraction schema sent to AI */
 export const invoiceExtractionSchema = z.object({
+  // Resolved against the candidate option lists passed to the AI (id of a real
+  // record, or null when none of the listed options match).
+  supplierId: confidenceField(z.string()),
+  paymentTermId: confidenceField(z.string()),
   supplierName: confidenceField(z.string()),
   supplierContactName: confidenceField(z.string()),
   supplierContactEmail: confidenceField(z.string()),
@@ -49,6 +53,9 @@ const rfqLineSchema = z.object({
 });
 
 export const rfqExtractionSchema = z.object({
+  // Resolved against the candidate customer list passed to the AI (id of a real
+  // record, or null when none of the listed options match).
+  customerId: confidenceField(z.string()),
   customerName: confidenceField(z.string()),
   purchasingContactName: confidenceField(z.string()),
   purchasingContactEmail: confidenceField(z.string()),
