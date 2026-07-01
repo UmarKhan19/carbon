@@ -6675,6 +6675,9 @@ msgstr "Manuel"
 msgid "Manufacturer"
 msgstr "Fabricant"
 
+msgid "Manufacturer Part Number"
+msgstr ""
+
 msgid "Manufacturing"
 msgstr "Fabrication"
 
@@ -10983,6 +10986,9 @@ msgstr "ID de pièce fournisseur"
 
 msgid "Supplier Part Number"
 msgstr "Numéro de pièce fournisseur"
+
+msgid "Supplier Part Numbers"
+msgstr ""
 
 msgid "Supplier Parts"
 msgstr "Pièces du fournisseur"

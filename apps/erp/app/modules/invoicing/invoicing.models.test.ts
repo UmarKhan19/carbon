@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   invoiceSettlementValidator,
+  isInvoicePayable,
   paymentValidator
 } from "./invoicing.models";
 
@@ -156,5 +157,34 @@ describe("invoiceSettlementValidator", () => {
       sourceExchangeRate: -1
     });
     expect(r.success).toBe(false);
+  });
+});
+
+describe("isInvoicePayable", () => {
+  it("is payable when posted with a real outstanding balance", () => {
+    expect(isInvoicePayable("Partially Paid", 25)).toBe(true);
+    expect(isInvoicePayable("Submitted", 0.01)).toBe(true);
+    expect(isInvoicePayable("Overdue", 100)).toBe(true);
+  });
+
+  it("forgives a sub-cent dust balance (not payable)", () => {
+    expect(isInvoicePayable("Partially Paid", 0.003)).toBe(false);
+    expect(isInvoicePayable("Partially Paid", 0.009)).toBe(false);
+  });
+
+  it("is not payable when fully paid or zero balance", () => {
+    expect(isInvoicePayable("Paid", 0)).toBe(false);
+    expect(isInvoicePayable("Submitted", 0)).toBe(false);
+  });
+
+  it("is not payable in non-payable statuses regardless of balance", () => {
+    expect(isInvoicePayable("Voided", 100)).toBe(false);
+    expect(isInvoicePayable("Draft", 100)).toBe(false);
+    expect(isInvoicePayable("Pending", 100)).toBe(false);
+  });
+
+  it("treats nullish balance/status as not payable", () => {
+    expect(isInvoicePayable(null, null)).toBe(false);
+    expect(isInvoicePayable(undefined, undefined)).toBe(false);
   });
 });
