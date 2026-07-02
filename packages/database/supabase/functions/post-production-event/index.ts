@@ -82,11 +82,14 @@ serve(async (req: Request) => {
 
     const event = productionEvent.data;
     if (!event.endTime || !event.duration || !event.workCenterId) {
-      await client
-        .from("productionEvent")
-        .update({ postedToGL: true })
-        .eq("id", productionEventId);
-      return new Response(JSON.stringify({ success: true }), {
+      // Leave postedToGL untouched so the event can still be posted later
+      // (manually or by complete_job_to_inventory) once it's completable.
+      const reason = !event.endTime
+        ? "event has no end time"
+        : !event.duration
+        ? "event has no duration"
+        : "event has no work center";
+      return new Response(JSON.stringify({ success: false, reason }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -109,7 +112,38 @@ serve(async (req: Request) => {
 
     const cost = durationHours * rate;
 
-    if (cost <= 0) {
+    // Net amount already posted for this event, grouped by account. Events
+    // posted before per-event references (documentLineReference = job:...)
+    // can't be adjusted safely, so bail rather than double-post.
+    const eventReference = journalReference.to.productionEvent(
+      productionEventId
+    );
+    const priorLines = event.postedToGL
+      ? await db
+          .selectFrom("journalLine")
+          .select(["accountId", (eb) => eb.fn.sum("amount").as("amount")])
+          .where("documentLineReference", "=", eventReference)
+          .where("companyId", "=", companyId)
+          .groupBy("accountId")
+          .execute()
+      : [];
+    const reversalLines = priorLines.filter(
+      (line) => Math.abs(Number(line.amount)) >= 0.000001
+    );
+
+    if (event.postedToGL && reversalLines.length === 0 && cost > 0) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          reason:
+            "event was posted before per-event journal references; adjust with a manual journal entry",
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (cost <= 0 && reversalLines.length === 0) {
+      // Nothing to post and nothing to reverse.
       await client
         .from("productionEvent")
         .update({ postedToGL: true })
@@ -146,28 +180,45 @@ serve(async (req: Request) => {
     const journalLineReference = nanoid();
 
     const journalLineInserts = [
-      {
-        accountId: accountDefaults.data.workInProgressAccount,
-        description: "WIP Account",
-        amount: debit("asset", cost),
+      // Reposting an edited event: first negate the net previously posted for
+      // this event per account, then post the new amount.
+      ...reversalLines.map((line) => ({
+        accountId: line.accountId,
+        description: "Production Event Reversal",
+        amount: -Number(line.amount),
         quantity: 1,
         documentType: "Production Event",
         documentId: jobId,
-        documentLineReference: journalReference.to.job(jobId),
+        documentLineReference: eventReference,
         journalLineReference,
         companyId,
-      },
-      {
-        accountId: accountDefaults.data.laborAbsorptionAccount!,
-        description: "Labor/Machine Absorption",
-        amount: credit("expense", cost),
-        quantity: 1,
-        documentType: "Production Event",
-        documentId: jobId,
-        documentLineReference: journalReference.to.job(jobId),
-        journalLineReference,
-        companyId,
-      },
+      })),
+      ...(cost > 0
+        ? [
+            {
+              accountId: accountDefaults.data.workInProgressAccount,
+              description: "WIP Account",
+              amount: debit("asset", cost),
+              quantity: 1,
+              documentType: "Production Event",
+              documentId: jobId,
+              documentLineReference: eventReference,
+              journalLineReference,
+              companyId,
+            },
+            {
+              accountId: accountDefaults.data.laborAbsorptionAccount!,
+              description: "Labor/Machine Absorption",
+              amount: credit("expense", cost),
+              quantity: 1,
+              documentType: "Production Event",
+              documentId: jobId,
+              documentLineReference: eventReference,
+              journalLineReference,
+              companyId,
+            },
+          ]
+        : []),
     ];
 
     const accountingPeriodId = await getCurrentAccountingPeriod(
@@ -188,7 +239,9 @@ serve(async (req: Request) => {
         .values({
           journalEntryId,
           accountingPeriodId,
-          description: `${event.type} Time — Job ${job.data.jobId}`,
+          description: `${event.type} Time — Job ${job.data.jobId}${
+            reversalLines.length > 0 ? " (Adjustment)" : ""
+          }`,
           postingDate: today,
           companyId,
           sourceType: "Production Event",
