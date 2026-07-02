@@ -10,7 +10,7 @@ import {
   getMakeMethods,
   getOpenChangeOrderForItem,
   insertChangeOrder
-} from "../items/items.service";
+} from "./items.service";
 import {
   flattenBomResponse,
   loadBomIntoRevision,

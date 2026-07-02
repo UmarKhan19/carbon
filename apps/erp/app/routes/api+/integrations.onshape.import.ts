@@ -7,7 +7,7 @@ import { data } from "react-router";
 // Import DIRECTLY from the module path, not the client-reachable plm barrel:
 // onshape-import.service.ts pulls in @carbon/ee/onshape (axios) + edge-fn invokes
 // that are unsafe to bundle for the client.
-import { importReleasedRevision } from "~/modules/plm/onshape-import.service";
+import { importReleasedRevision } from "~/modules/items/onshape-import.server";
 
 // The orchestrator writes under the service role (so the `sync` edge fn's own
 // requirePermissions passes); this route is the auth gate.

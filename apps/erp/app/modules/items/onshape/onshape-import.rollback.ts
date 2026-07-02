@@ -5,7 +5,7 @@ import {
   deleteChangeOrder,
   deleteChangeOrderItem,
   deleteItem
-} from "../../items/items.service";
+} from "../items.service";
 
 // =============================================================================
 // Ordered teardown for a partially-completed Onshape import.

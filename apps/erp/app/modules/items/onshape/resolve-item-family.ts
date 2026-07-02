@@ -1,7 +1,7 @@
 import type { Database } from "@carbon/database";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { upsertPart } from "../../items/items.service";
+import { upsertPart } from "../items.service";
 import type {
   BomRow,
   OnshapeReleasedObject,
