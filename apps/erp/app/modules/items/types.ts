@@ -35,6 +35,24 @@ import type {
   getUnitOfMeasuresList
 } from "./items.service";
 
+export type ChangeOrderStatusType =
+  Database["public"]["Enums"]["changeOrderStatus"];
+
+export type ChangeOrderTypeEnum =
+  Database["public"]["Enums"]["changeOrderTypeEnum"];
+
+export type ChangeOrderApprovalTypeEnum =
+  Database["public"]["Enums"]["changeOrderApprovalType"];
+
+export type ChangeOrderDispositionEnum =
+  Database["public"]["Enums"]["changeOrderDisposition"];
+
+export type ChangeOrderTaskStatusEnum =
+  Database["public"]["Enums"]["changeOrderTaskStatus"];
+
+export type ItemRevisionStatus =
+  Database["public"]["Enums"]["itemRevisionStatus"];
+
 export type MaterialConfigurationData = {
   materialId?: string;
   materialSubstanceId?: string;
