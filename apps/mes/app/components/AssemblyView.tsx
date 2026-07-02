@@ -47,7 +47,8 @@ import {
   LuTimer,
   LuTrash,
   LuUndo2,
-  LuWrench
+  LuWrench,
+  LuX
 } from "react-icons/lu";
 import {
   useFetcher,
@@ -269,9 +270,11 @@ function useElapsed(openEvent: { startTime: string } | null) {
   return Math.max(0, Math.floor((Date.now() - start) / 1000));
 }
 
-// Read-only numbered pins overlaid on a reference image for the operator. Absolutely
-// positioned by fraction of the box, so the parent must be sized to the rendered image
-// (an inline wrapper around <img>). Non-interactive — taps pass through to the image.
+// Numbered pins overlaid on a reference image for the operator. Absolutely positioned by
+// fraction of the box, so the parent must be sized to the rendered image (an inline wrapper
+// around <img>). Tapping a pin that carries a note/tool reveals it in a bar along the bottom
+// of the image — hover `title` tooltips are dead on the shop floor's touch devices. Pins
+// without any detail stay non-interactive so taps fall through to open the fullscreen viewer.
 function SlidePins({
   annotations,
   toolNameById
@@ -279,30 +282,87 @@ function SlidePins({
   annotations: SlideAnnotation[];
   toolNameById?: Map<string, string>;
 }) {
+  const [openPinId, setOpenPinId] = useState<string | null>(null);
+
   if (annotations.length === 0) return null;
+
+  const openIndex = annotations.findIndex((p) => p.id === openPinId);
+  const openPin = openIndex >= 0 ? annotations[openIndex] : null;
+  const openToolName = openPin?.toolId
+    ? toolNameById?.get(openPin.toolId)
+    : undefined;
+
   return (
     <>
       {annotations.map((pin, i) => {
-        // Prefer the linked tool's name for the hover title (falls back to any label).
         const toolName = pin.toolId ? toolNameById?.get(pin.toolId) : undefined;
-        const title =
-          [`#${i + 1}`, toolName, pin.label].filter(Boolean).join(" · ") ||
-          undefined;
+        const hasDetail = Boolean(toolName || pin.label);
+        const isOpen = pin.id === openPinId;
         return (
-          <span
+          <button
             key={pin.id}
-            className="pointer-events-none absolute flex size-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white text-xs font-semibold text-white shadow-md"
+            type="button"
+            disabled={!hasDetail}
+            aria-label={
+              [`Annotation ${i + 1}`, toolName, pin.label]
+                .filter(Boolean)
+                .join(": ") || `Annotation ${i + 1}`
+            }
+            onClick={(e) => {
+              e.stopPropagation();
+              setOpenPinId((cur) => (cur === pin.id ? null : pin.id));
+            }}
+            className={cn(
+              "absolute z-20 flex size-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white text-xs font-semibold text-white shadow-md transition-transform",
+              hasDetail
+                ? "cursor-pointer active:scale-[0.96]"
+                : "pointer-events-none",
+              isOpen && "ring-2 ring-white ring-offset-1 ring-offset-black/40"
+            )}
             style={{
               left: `${pin.x * 100}%`,
               top: `${pin.y * 100}%`,
               backgroundColor: pin.color ?? "#ef4444"
             }}
-            title={title}
           >
             {i + 1}
-          </span>
+          </button>
         );
       })}
+
+      {openPin && (openToolName || openPin.label) && (
+        <div className="absolute inset-x-0 bottom-0 z-20 flex items-start gap-2 bg-background/90 px-3 py-2 text-left shadow-sm backdrop-blur-sm">
+          <span
+            className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold text-white"
+            style={{ backgroundColor: openPin.color ?? "#ef4444" }}
+          >
+            {openIndex + 1}
+          </span>
+          <div className="min-w-0 flex-1">
+            {openToolName && (
+              <div className="truncate text-sm font-semibold text-foreground">
+                {openToolName}
+              </div>
+            )}
+            {openPin.label && (
+              <div className="text-xs text-muted-foreground">
+                {openPin.label}
+              </div>
+            )}
+          </div>
+          <button
+            type="button"
+            aria-label="Dismiss annotation"
+            onClick={(e) => {
+              e.stopPropagation();
+              setOpenPinId(null);
+            }}
+            className="shrink-0 text-muted-foreground hover:text-foreground"
+          >
+            <LuX className="size-4" />
+          </button>
+        </div>
+      )}
     </>
   );
 }
@@ -1100,6 +1160,7 @@ export function AssemblyView({
                     />
                     {showPins && (
                       <SlidePins
+                        key={selected}
                         annotations={selectedAnnotations}
                         toolNameById={toolNameById}
                       />
