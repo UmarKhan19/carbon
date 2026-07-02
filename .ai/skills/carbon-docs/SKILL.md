@@ -300,4 +300,4 @@ Never declare docs done without: the new content rendering (in the user's runnin
 `pnpm --filter docs build`), every internal link resolving, any new `<Term>` glossary entries grounded in
 source + their popovers rendering, names matching real code, **no generic repeated
 headings**, and a re-read that confirms each page says what matters / names the mistake / points onward. Then
-record progress (`.ai/scratch/tasks/` + memory). **Don't kill or rebuild under the user's running dev server.**
+record progress (the `.ai/plans/` plan file if one exists, + memory). **Don't kill or rebuild under the user's running dev server.**

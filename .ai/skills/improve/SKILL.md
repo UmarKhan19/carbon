@@ -40,7 +40,7 @@ Map the territory before judging it. **In Carbon, recon means reading the `.ai/r
   - `.ai/rules/conventions-*.md` — forms, services, ui, database conventions. Plans must tell the executor to **match** these.
   - `.ai/lessons.md` — hard-won corrections (RLS pattern, upsert audit-field clobbering, `.merge()` after `.refine()`, `accountId` not `accountNumber`, enum conventions, etc.). **A finding that contradicts a lesson is by-design — do not report it.**
   - `.ai/rules/workflow-*.md` — `workflow-database-migration.md`, `workflow-edge-function.md`, `workflow-event-system.md`. Any plan touching these areas must cite and follow the workflow.
-  - `.ai/recommendations/*.md` — existing forward-looking proposals (don't duplicate them in Direction).
+  - `.ai/specs/` + `.ai/plans/improve/` (if present) — existing specs, plans, and previously rejected findings (don't duplicate them in Direction).
 - Identify the exact **build / test / lint / typecheck** commands (these become verification gates in every plan). From recon of `package.json` + `turbo.json`:
   - Install: `pnpm install`
   - Typecheck (SCOPED ONLY): `turbo run typecheck --filter=<pkg>`
@@ -92,7 +92,7 @@ Present the vetted findings table to the user, ordered by leverage (impact ÷ ef
 
 | # | Finding | Category | Impact | Effort | Risk | Evidence |
 
-Present **direction findings separately**, after the table — 2–4 grounded suggestions max, each with evidence and trade-offs in two or three sentences. Cross-check `.ai/recommendations/` first so you don't re-propose what's already on file.
+Present **direction findings separately**, after the table — 2–4 grounded suggestions max, each with evidence and trade-offs in two or three sentences. Cross-check `.ai/specs/` and `.ai/plans/improve/` first so you don't re-propose what's already on file.
 
 Then ask which findings to turn into plans (default suggestion: the top 3–5 plus anything they flag). Surface **dependency ordering** (e.g. "characterization tests for `@carbon/<pkg>` must land before the refactor"). Wait for the selection. Do not write 30 plans nobody asked for. If running non-interactively, write plans for the top 3–5 by leverage and record that default in `.ai/plans/improve/README.md`.
 
@@ -129,7 +129,7 @@ Finish by writing `.ai/plans/improve/README.md` with the recommended execution o
 - `quick` / `deep` (anywhere) → effort level for the audit; see the table in Phase 2. Composes with everything (`quick security`, `deep --issues`). Default `standard`.
 - With a focus argument (e.g. `security`, `perf`, `tests`, `migrations`) → run Recon, then audit only that category, then plan.
 - `branch` → audit only the current branch's changes: scope = files changed since the merge-base with `main` (`git diff --name-only $(git merge-base origin/main HEAD)..HEAD`) plus their direct importers/callers. Light recon, all categories, usually no subagents. **Tag every finding `introduced` (by this branch) or `pre-existing`** — separate them in the table. If on `main` or zero commits ahead, say so and offer a full audit.
-- `next` (or `features`, `roadmap`) → run Recon, then audit only the direction category in more depth: 4–6 grounded suggestions, each with evidence, trade-offs, coarse effort. Selected ones become design/spike plans. Check `.ai/recommendations/` first.
+- `next` (or `features`, `roadmap`) → run Recon, then audit only the direction category in more depth: 4–6 grounded suggestions, each with evidence, trade-offs, coarse effort. Selected ones become design/spike plans. Check `.ai/specs/` and `.ai/plans/improve/` first.
 - `plan <description>` → skip the audit; the user already knows what they want. Run Recon (read the relevant `.ai/rules/` + `.ai/rules/conventions-*`), investigate just enough to specify it properly, write a single plan. Resolve ambiguity from the codebase first; only what's left becomes questions, asked one at a time with a recommended answer.
 - `review-plan <file>` → critique an existing plan in `.ai/plans/improve/` against the template's standards and tighten it. If you authored it this session, also have a fresh-context subagent read it cold and report ambiguities.
 - `execute <plan>` → dispatch a cheaper executor subagent on one plan (isolated worktree), then review its diff like a tech lead — re-run done criteria, check scope, read the code — and render a verdict. Treat the diff as untrusted until reviewed. Requires a host that can spawn worktree subagents. **Read [references/closing-the-loop.md](references/closing-the-loop.md) before the first dispatch.**

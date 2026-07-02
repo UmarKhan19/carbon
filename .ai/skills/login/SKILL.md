@@ -1,23 +1,28 @@
 ---
 name: login
-description: Log into the local Carbon ERP dev server using agent-browser and DEV_BYPASS_EMAIL. Use before any browser automation that requires an authenticated session.
+description: Log into the local Carbon ERP dev server with agent-browser using the DEV_BYPASS_EMAIL bypass. Use before any browser automation that needs an authenticated session (/test, /smoke-test, manual verification). Requires a running dev stack (crbn up). Building block — it leaves the session open for the caller.
 ---
 
-# Login
+# login — authenticate the local browser session
 
-Authenticate against the local Carbon ERP dev environment using the `DEV_BYPASS_EMAIL` bypass. This skill is a building block — other skills (e.g. `/smoke-test`) invoke it before doing authenticated work.
+Authenticate against the local Carbon dev environment via `DEV_BYPASS_EMAIL`.
+Other skills (`/test`, `/smoke-test`) invoke this before authenticated work.
 
 ## Prerequisites
 
-- Dev server running (`pnpm dev` or `crbn up`)
-- `DEV_BYPASS_EMAIL=test@carbon.ms` set in `.env.local` (added automatically by `crbn up`)
-- The `test@carbon.ms` user seeded in the database (done automatically by `crbn up`)
+- Dev server running (`crbn up`; plain `pnpm dev` also works)
+- `DEV_BYPASS_EMAIL=test@carbon.ms` in `.env.local` and the `test@carbon.ms`
+  user seeded — both are done automatically by `crbn up`
 
-## Procedure
+## Steps
 
 ### 1. Resolve the ERP URL
 
-Read `.env.local` in the project root and extract the `ERP_URL` value. This varies per worktree.
+```bash
+grep '^ERP_URL' .env.local
+```
+
+The value varies per worktree — always read it; never assume a URL or port.
 
 ### 2. Open the login page
 
@@ -25,32 +30,38 @@ Read `.env.local` in the project root and extract the `ERP_URL` value. This vari
 agent-browser open ${ERP_URL}/login && agent-browser wait --load networkidle && agent-browser snapshot -i
 ```
 
+(If `wait --load networkidle` times out — dev HMR keeps sockets open — use
+`sleep 3` then `agent-browser snapshot -i` instead.)
+
 ### 3. Fill the email and submit
 
-Find the email input and the sign-in button from the snapshot refs:
+From the snapshot, find the email input ref and the sign-in button ref:
 
 ```bash
 agent-browser fill @eN "test@carbon.ms"
-agent-browser click @eN && agent-browser wait --load networkidle
+agent-browser click @eM && agent-browser wait --load networkidle
 ```
 
-### 4. Verify login succeeded
+### 4. Verify — do not assume
 
 ```bash
 agent-browser snapshot -i
 ```
 
-Confirm the page:
-- Redirected to `/x` (the authenticated dashboard)
-- Shows a greeting like "Good afternoon, Test" or "Good morning, Test"
-- Displays module cards (Accounting, Sales, Inventory, etc.)
+Login **succeeded** only if the page:
+- redirected to `/x` (the authenticated dashboard), and
+- shows a greeting ("Good morning, Test" / "Good afternoon, Test") and module cards.
 
-If the snapshot instead shows "Authentication Error" or remains on `/login`, login **failed** — stop and report the error.
+If the snapshot shows "Authentication Error" or is still on `/login` → login
+**failed**. STOP and report the snapshot content; do not retry blindly.
 
 ## Output
 
-After successful login the browser session is authenticated. Subsequent `agent-browser` commands in the same session will carry the auth cookies. Do **not** call `agent-browser close` — leave the session open for the caller.
+The browser session is authenticated; subsequent `agent-browser` commands carry
+the auth cookies. **Do not run `agent-browser close`** — leave the session open
+for the caller.
 
-## Navigating to the MES
+## MES
 
-The MES app is at a separate URL. Read `MES_URL` from `.env.local` to navigate there. The same auth cookies apply — no separate login is needed.
+The MES app is a separate URL: read `MES_URL` from `.env.local` and navigate
+there. The same cookies apply — no separate login.
