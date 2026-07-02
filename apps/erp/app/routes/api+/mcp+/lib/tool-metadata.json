@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-01T13:02:38.180Z",
-  "totalTools": 1249,
+  "generated": "2026-07-02T04:41:07.819Z",
+  "totalTools": 1252,
   "modules": 15,
   "tools": [
     {
@@ -3252,6 +3252,48 @@
         },
         "required": [
           "documentId"
+        ]
+      }
+    },
+    {
+      "name": "documents_insertDocumentExtraction",
+      "module": "documents",
+      "classification": "WRITE",
+      "description": "insert document extraction",
+      "paramCount": 4,
+      "serviceParams": [
+        "client",
+        "data"
+      ],
+      "injectAuth": [
+        "companyId",
+        "createdBy",
+        "updatedBy"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "storagePath": {
+            "type": "string"
+          },
+          "documentType": {
+            "type": "string",
+            "enum": [
+              "purchaseInvoice",
+              "salesRfq"
+            ]
+          },
+          "sourceDocument": {
+            "type": "string"
+          },
+          "sourceDocumentId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "storagePath",
+          "documentType",
+          "sourceDocument"
         ]
       }
     },
@@ -7525,7 +7567,7 @@
       "module": "invoicing",
       "classification": "WRITE",
       "description": "insert purchase invoice",
-      "paramCount": 14,
+      "paramCount": 15,
       "serviceParams": [
         "client",
         "input"
@@ -7576,6 +7618,9 @@
           },
           "exchangeRateUpdatedAt": {
             "type": "string"
+          },
+          "supplierShippingCost": {
+            "type": "number"
           },
           "customFields": {}
         },
@@ -12385,6 +12430,57 @@
         },
         "required": [
           "consumable"
+        ]
+      }
+    },
+    {
+      "name": "items_matchItemIdByText",
+      "module": "items",
+      "classification": "WRITE",
+      "description": "match item id by text",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "candidates"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "candidates": {}
+        },
+        "required": [
+          "candidates"
+        ]
+      }
+    },
+    {
+      "name": "items_resolveItemIdFromExtractedText",
+      "module": "items",
+      "classification": "WRITE",
+      "description": "resolve item id from extracted text",
+      "paramCount": 2,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "party",
+        "candidates"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "party": {},
+          "candidates": {}
+        },
+        "required": [
+          "party",
+          "candidates"
         ]
       }
     },

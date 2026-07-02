@@ -29,7 +29,7 @@ If no spec exists, suggest running `/brainstorm` first.
 
 ## Step 1: Load the Design Spec
 
-Read the design spec from `.ai/scratch/research/[feature-name]-design.md`.
+Read the design spec from `.ai/research/[feature-name]-design.md`.
 
 Extract:
 - Data model changes
@@ -153,13 +153,13 @@ For each task, provide:
 
 ### 4.1 Save the Plan
 
-Save to `.ai/scratch/plans/[feature-name]-plan.md`:
+Save to `.ai/plans/[feature-name]-plan.md`:
 
 ```markdown
 # [Feature] Implementation Plan
 
 ## Overview
-- **Design Spec:** `.ai/scratch/research/[feature-name]-design.md`
+- **Design Spec:** `.ai/research/[feature-name]-design.md`
 - **Tasks:** N tasks, estimated M minutes
 - **Dependencies:** [diagram or list]
 
@@ -194,7 +194,7 @@ Present the plan and wait for explicit approval.
 
 | Artifact | Location |
 |----------|----------|
-| Implementation plan | `.ai/scratch/plans/[feature-name]-plan.md` |
+| Implementation plan | `.ai/plans/[feature-name]-plan.md` |
 
 ## Next Step
 

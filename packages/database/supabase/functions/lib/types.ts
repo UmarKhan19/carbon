@@ -8361,6 +8361,79 @@ export type Database = {
           },
         ]
       }
+      documentExtraction: {
+        Row: {
+          companyId: string
+          createdAt: string
+          createdBy: string
+          documentType: Database["public"]["Enums"]["documentExtractionType"]
+          error: string | null
+          extractedData: Json | null
+          filteredData: Json | null
+          id: string
+          sourceDocument: string
+          sourceDocumentId: string | null
+          status: Database["public"]["Enums"]["documentExtractionStatus"]
+          storagePath: string
+          updatedAt: string | null
+          updatedBy: string | null
+        }
+        Insert: {
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          documentType: Database["public"]["Enums"]["documentExtractionType"]
+          error?: string | null
+          extractedData?: Json | null
+          filteredData?: Json | null
+          id?: string
+          sourceDocument: string
+          sourceDocumentId?: string | null
+          status?: Database["public"]["Enums"]["documentExtractionStatus"]
+          storagePath: string
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Update: {
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          documentType?: Database["public"]["Enums"]["documentExtractionType"]
+          error?: string | null
+          extractedData?: Json | null
+          filteredData?: Json | null
+          id?: string
+          sourceDocument?: string
+          sourceDocumentId?: string | null
+          status?: Database["public"]["Enums"]["documentExtractionStatus"]
+          storagePath?: string
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documentExtraction_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documentExtraction_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documentExtraction_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       documentFavorite: {
         Row: {
           documentId: string
@@ -69548,6 +69621,8 @@ export type Database = {
         | "invoice"
         | "receipt"
         | "shipment"
+      documentExtractionStatus: "pending" | "processing" | "completed" | "failed"
+      documentExtractionType: "purchaseInvoice" | "salesRfq"
       documentTransactionType:
         | "Download"
         | "Edit"

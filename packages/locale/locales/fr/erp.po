@@ -44,6 +44,10 @@ msgstr "{0} jours"
 msgid "{0} deleted successfully"
 msgstr "{0} supprimé avec succès"
 
+#. placeholder {0}: mappings.length
+msgid "{0} lines to map"
+msgstr "{0} lignes à mapper"
+
 #. placeholder {0}: history.length
 msgid "{0} orders"
 msgstr "{0} commandes"
@@ -1762,7 +1766,7 @@ msgid "Can't disable the only active break. Add another break or toggle the over
 msgstr "Impossible de désactiver le seul palier actif. Ajoutez un autre palier ou basculez plutôt l'option Active de la substitution."
 
 msgid "Can't download this file"
-msgstr ""
+msgstr "Impossible de télécharger ce fichier"
 
 msgid "Cancel"
 msgstr "Annuler"
@@ -2273,6 +2277,9 @@ msgstr "Confirmer le changement d'ID"
 msgid "Confirm Import"
 msgstr "Confirmer l'importation"
 
+msgid "Confirm Mapping"
+msgstr "Confirmer le mappage"
+
 msgid "Confirm Password"
 msgstr "Confirmer le mot de passe"
 
@@ -2619,6 +2626,10 @@ msgstr "Impossible de créer le PDF. Réessayez."
 msgid "Could not prepare region image for analysis"
 msgstr "Impossible de préparer l'image de la région pour l'analyse"
 
+#. placeholder {0}: extraction?.error ?? ""
+msgid "Could not read the document: {0}"
+msgstr "Impossible de lire le document : {0}"
+
 msgid "Couldn't load documents"
 msgstr "Impossible de charger les documents"
 
@@ -2815,7 +2826,7 @@ msgstr "Ligne de transfert de stock créée"
 msgid "Created storage type"
 msgstr "Type de stockage créé"
 
-#. placeholder {0}: fetcher.data.data.name
+#. placeholder {0}: created.name
 msgid "Created supplier: {0}"
 msgstr "Fournisseur créé : {0}"
 
@@ -3795,7 +3806,7 @@ msgid "Download Labels"
 msgstr "Télécharger les étiquettes"
 
 msgid "Download Link"
-msgstr ""
+msgstr "Lien de téléchargement"
 
 msgid "Download PDF"
 msgstr "Télécharger le PDF"
@@ -5259,7 +5270,7 @@ msgid "Getting set up"
 msgstr "Mise en place"
 
 msgid "Give it an owner and a date"
-msgstr ""
+msgstr "Désignez un propriétaire et une date"
 
 msgid "GL"
 msgstr "GL"
@@ -6658,10 +6669,19 @@ msgid "Manufacturer"
 msgstr "Fabricant"
 
 msgid "Manufacturer Part Number"
-msgstr ""
+msgstr "Numéro de pièce du fabricant"
 
 msgid "Manufacturing"
 msgstr "Fabrication"
+
+msgid "Map Extracted Invoice Lines"
+msgstr "Mapper les lignes de facture extraites"
+
+msgid "Map Extracted Lines"
+msgstr "Mapper les lignes extraites"
+
+msgid "Map Lines Now"
+msgstr "Mapper les lignes maintenant"
 
 msgid "Map your current process, systems, and data"
 msgstr "Cartographiez votre processus actuel, vos systèmes et vos données"
@@ -7523,6 +7543,9 @@ msgstr "Aucune image"
 msgid "No issue types configured"
 msgstr "Aucun type de problème configuré"
 
+msgid "No lines to map"
+msgstr "Aucune ligne à mapper"
+
 msgid "No locations found."
 msgstr "Aucun emplacement trouvé."
 
@@ -8174,7 +8197,7 @@ msgid "Pass"
 msgstr "Réussir"
 
 msgid "Passed"
-msgstr ""
+msgstr "Réussi"
 
 msgid "Path"
 msgstr "Chemin"
@@ -8704,7 +8727,7 @@ msgid "Project owner"
 msgstr "Propriétaire du projet"
 
 msgid "Project Plan"
-msgstr ""
+msgstr "Plan de projet"
 
 msgid "Project start"
 msgstr "Démarrage du projet"
@@ -9063,6 +9086,9 @@ msgstr "Lisez ceci attentivement — ce que Carbon fera et ne fera pas pour votr
 
 msgid "Read this through. When it's right, sign off at the bottom. It's the statement your commercial agreement points to, with no prices or legal terms here."
 msgstr "Lisez ceci attentivement. Quand c'est correct, validez en bas. C'est la déclaration à laquelle votre accord commercial fait référence, sans prix ni conditions légales ici."
+
+msgid "Reading the document..."
+msgstr "Lecture du document..."
 
 msgid "Ready for Quote"
 msgstr "Prêt pour devis"
@@ -10547,6 +10573,9 @@ msgstr "pour que vous puissiez l'assigner ici."
 msgid "Solutions Engineer"
 msgstr "Ingénieur Solutions"
 
+msgid "Some lines extracted from the PDF could not be automatically mapped to your inventory items. Review and map each line below."
+msgstr "Certaines lignes extraites du PDF n'ont pas pu être automatiquement mappées à vos articles d'inventaire. Vérifiez et mappez chaque ligne ci-dessous."
+
 msgid "Something went wrong"
 msgstr "Une erreur s'est produite"
 
@@ -10943,7 +10972,7 @@ msgid "Supplier Part Number"
 msgstr "Numéro de pièce fournisseur"
 
 msgid "Supplier Part Numbers"
-msgstr ""
+msgstr "Numéros de pièce fournisseur"
 
 msgid "Supplier Parts"
 msgstr "Pièces du fournisseur"
@@ -11212,7 +11241,7 @@ msgstr "Taille du texte"
 
 #. placeholder {0}: steps.length
 msgid "The {0} phases to go live, each ending at a checkpoint. Tick off each task as you complete it."
-msgstr ""
+msgstr "Les {0} phases pour le lancement, chacune se terminant à un point de contrôle. Cochez chaque tâche au fur et à mesure que vous la terminez."
 
 msgid "The accounting dimension that categorizes items for reporting and analysis."
 msgstr "La dimension comptable qui catégorise les articles pour la déclaration et l'analyse."
@@ -11866,10 +11895,10 @@ msgid "This counterparty has nothing outstanding — the payment will be recorde
 msgstr "Ce tiers n'a rien en suspens — le paiement sera enregistré en compte courant."
 
 msgid "This download link is invalid or has been tampered with."
-msgstr ""
+msgstr "Ce lien de téléchargement est invalide ou a été modifié."
 
 msgid "This file is no longer available, or you don't have permission to download it."
-msgstr ""
+msgstr "Ce fichier n'est plus disponible, ou vous n'avez pas la permission de le télécharger."
 
 msgid "This information will be used on document headers"
 msgstr "Ces informations seront utilisées dans les en-têtes de document"
@@ -11903,6 +11932,9 @@ msgstr "La quantité propre requise par cette tâche pour le matériau."
 
 msgid "This lot is expired and can't be picked."
 msgstr "Ce lot est expiré et ne peut pas être prélevé."
+
+msgid "This may take a moment. Hang tight."
+msgstr "Cela peut prendre un moment. Tenez bon."
 
 msgid "This page of your Implementation Hub is being built. Start from the command center while we finish it."
 msgstr "Cette page de votre Implementation Hub est en cours de construction. Commencez par le centre de commande pendant que nous la finissons."
@@ -12172,7 +12204,7 @@ msgid "Tracked entity ID is required but none was found"
 msgstr "L'ID d'entité suivie est requis mais aucun n'a été trouvé"
 
 msgid "Tracked from the Setup Map — open it"
-msgstr ""
+msgstr "Suivi à partir de la Carte de configuration — l'ouvrir"
 
 msgid "Tracking"
 msgstr "Suivi"
@@ -12369,6 +12401,9 @@ msgstr "Dissocier"
 msgid "Unlink job from sales order?"
 msgstr "Dissocier la commande de la commande client ?"
 
+msgid "Unmapped Extracted Lines"
+msgstr "Lignes extraites non mappées"
+
 msgid "Unpick"
 msgstr "Dépicker"
 
@@ -12390,6 +12425,9 @@ msgstr "Type de document source non pris en charge : {sourceDocument}"
 
 msgid "Untitled Diagram"
 msgstr "Diagramme sans titre"
+
+msgid "Untitled line"
+msgstr "Ligne sans titre"
 
 msgid "UoM"
 msgstr "UoM"
@@ -12501,6 +12539,9 @@ msgstr "Téléchargement de {0}"
 
 msgid "Uploading {fileName}"
 msgstr "Téléchargement de {fileName}"
+
+msgid "Uploading..."
+msgstr "Téléchargement..."
 
 msgid "Uploading…"
 msgstr "Téléchargement en cours…"
@@ -13259,6 +13300,9 @@ msgstr "Pourquoi le stock change — Positif (trouvé), Négatif (perdu/rebut) o
 msgid "Why this line is being declined; surfaced on the printable quote and recorded for win-loss reporting."
 msgstr "Pourquoi cette ligne est refusée ; affiché sur le devis imprimable et enregistré pour les rapports gain-perte."
 
+msgid "Will remain as a comment line"
+msgstr "Restera comme ligne de commentaire"
+
 msgid "Window:"
 msgstr "Fenêtre :"
 
@@ -13392,6 +13436,10 @@ msgstr "Vous avez complété {leftoverQuantity} {0} de plus que la quantité com
 
 msgid "You drive it; we make sure it's done right. Expert eyes on your setup, data, and go-live."
 msgstr "Vous pilotez ; nous veillons à ce que ce soit fait correctement. Un regard expert sur votre configuration, vos données et votre mise en ligne."
+
+#. placeholder {0}: unmappedLines.length
+msgid "You have {0} lines extracted from a PDF that are not mapped to any inventory items."
+msgstr "Vous avez {0} lignes extraites d'un PDF qui ne sont mappées à aucun article d'inventaire."
 
 msgid "You haven't created any contacts yet."
 msgstr "Vous n'avez pas encore créé de contacts."

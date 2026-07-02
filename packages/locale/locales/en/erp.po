@@ -44,6 +44,10 @@ msgstr "{0} days"
 msgid "{0} deleted successfully"
 msgstr "{0} deleted successfully"
 
+#. placeholder {0}: mappings.length
+msgid "{0} lines to map"
+msgstr "{0} lines to map"
+
 #. placeholder {0}: history.length
 msgid "{0} orders"
 msgstr "{0} orders"
@@ -2273,6 +2277,9 @@ msgstr "Confirm ID Change"
 msgid "Confirm Import"
 msgstr "Confirm Import"
 
+msgid "Confirm Mapping"
+msgstr "Confirm Mapping"
+
 msgid "Confirm Password"
 msgstr "Confirm Password"
 
@@ -2619,6 +2626,10 @@ msgstr "Could not build PDF. Try again."
 msgid "Could not prepare region image for analysis"
 msgstr "Could not prepare region image for analysis"
 
+#. placeholder {0}: extraction?.error ?? ""
+msgid "Could not read the document: {0}"
+msgstr "Could not read the document: {0}"
+
 msgid "Couldn't load documents"
 msgstr "Couldn't load documents"
 
@@ -2815,7 +2826,7 @@ msgstr "Created stock transfer line"
 msgid "Created storage type"
 msgstr "Created storage type"
 
-#. placeholder {0}: fetcher.data.data.name
+#. placeholder {0}: created.name
 msgid "Created supplier: {0}"
 msgstr "Created supplier: {0}"
 
@@ -6663,6 +6674,15 @@ msgstr "Manufacturer Part Number"
 msgid "Manufacturing"
 msgstr "Manufacturing"
 
+msgid "Map Extracted Invoice Lines"
+msgstr "Map Extracted Invoice Lines"
+
+msgid "Map Extracted Lines"
+msgstr "Map Extracted Lines"
+
+msgid "Map Lines Now"
+msgstr "Map Lines Now"
+
 msgid "Map your current process, systems, and data"
 msgstr "Map your current process, systems, and data"
 
@@ -7522,6 +7542,9 @@ msgstr "No image"
 
 msgid "No issue types configured"
 msgstr "No issue types configured"
+
+msgid "No lines to map"
+msgstr "No lines to map"
 
 msgid "No locations found."
 msgstr "No locations found."
@@ -9064,6 +9087,9 @@ msgstr "Read this through — what Carbon will and won't do for your setup. When
 msgid "Read this through. When it's right, sign off at the bottom. It's the statement your commercial agreement points to, with no prices or legal terms here."
 msgstr "Read this through. When it's right, sign off at the bottom. It's the statement your commercial agreement points to, with no prices or legal terms here."
 
+msgid "Reading the document..."
+msgstr "Reading the document..."
+
 msgid "Ready for Quote"
 msgstr "Ready for Quote"
 
@@ -10547,6 +10573,9 @@ msgstr "so you can assign it here."
 msgid "Solutions Engineer"
 msgstr "Solutions Engineer"
 
+msgid "Some lines extracted from the PDF could not be automatically mapped to your inventory items. Review and map each line below."
+msgstr "Some lines extracted from the PDF could not be automatically mapped to your inventory items. Review and map each line below."
+
 msgid "Something went wrong"
 msgstr "Something went wrong"
 
@@ -11904,6 +11933,9 @@ msgstr "This job's own required quantity for the material."
 msgid "This lot is expired and can't be picked."
 msgstr "This lot is expired and can't be picked."
 
+msgid "This may take a moment. Hang tight."
+msgstr "This may take a moment. Hang tight."
+
 msgid "This page of your Implementation Hub is being built. Start from the command center while we finish it."
 msgstr "This page of your Implementation Hub is being built. Start from the command center while we finish it."
 
@@ -12369,6 +12401,9 @@ msgstr "Unlink"
 msgid "Unlink job from sales order?"
 msgstr "Unlink job from sales order?"
 
+msgid "Unmapped Extracted Lines"
+msgstr "Unmapped Extracted Lines"
+
 msgid "Unpick"
 msgstr "Unpick"
 
@@ -12390,6 +12425,9 @@ msgstr "Unsupported source document type: {sourceDocument}"
 
 msgid "Untitled Diagram"
 msgstr "Untitled Diagram"
+
+msgid "Untitled line"
+msgstr "Untitled line"
 
 msgid "UoM"
 msgstr "UoM"
@@ -12501,6 +12539,9 @@ msgstr "Uploading {0}"
 
 msgid "Uploading {fileName}"
 msgstr "Uploading {fileName}"
+
+msgid "Uploading..."
+msgstr "Uploading..."
 
 msgid "Uploading…"
 msgstr "Uploading…"
@@ -13259,6 +13300,9 @@ msgstr "Why stock is changing — Positive (found), Negative (lost/scrap), or Se
 msgid "Why this line is being declined; surfaced on the printable quote and recorded for win-loss reporting."
 msgstr "Why this line is being declined; surfaced on the printable quote and recorded for win-loss reporting."
 
+msgid "Will remain as a comment line"
+msgstr "Will remain as a comment line"
+
 msgid "Window:"
 msgstr "Window:"
 
@@ -13396,6 +13440,10 @@ msgstr ""
 
 msgid "You drive it; we make sure it's done right. Expert eyes on your setup, data, and go-live."
 msgstr "You drive it; we make sure it's done right. Expert eyes on your setup, data, and go-live."
+
+#. placeholder {0}: unmappedLines.length
+msgid "You have {0} lines extracted from a PDF that are not mapped to any inventory items."
+msgstr "You have {0} lines extracted from a PDF that are not mapped to any inventory items."
 
 msgid "You haven't created any contacts yet."
 msgstr "You haven't created any contacts yet."

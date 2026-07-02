@@ -57,7 +57,7 @@ minimum:
 - **One domain-specific competitor** (e.g., Fishbowl for inventory, JobBOSS for
   job shops, Epicor for manufacturing, Xero for accounting)
 
-Save research notes to `.ai/scratch/research/{feature}.md`.
+Save research notes to `.ai/research/{feature}.md`.
 
 Questions to answer from research:
 - What entities does SAP use for this domain?
@@ -176,7 +176,7 @@ Before presenting the spec, verify:
 - [ ] **Acceptance criteria** are testable (not vague "works correctly")
 - [ ] **Open Questions** section has ≥1 genuine unknown
 - [ ] **Risks table** has ≥1 entry
-- [ ] **Research notes** are saved to `.ai/scratch/research/`
+- [ ] **Research notes** are saved to `.ai/research/`
 - [ ] **Changelog** has the creation date entry
 - [ ] **File name** follows `{YYYY-MM-DD}-{slug}.md` convention
 
@@ -200,7 +200,7 @@ Before presenting the spec, verify:
 | Artifact | Location |
 |----------|----------|
 | Feature spec | `.ai/specs/{YYYY-MM-DD}-{slug}.md` |
-| Research notes | `.ai/scratch/research/{feature}.md` |
+| Research notes | `.ai/research/{feature}.md` |
 
 ## Next Steps
 
