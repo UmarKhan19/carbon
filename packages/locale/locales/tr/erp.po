@@ -84,6 +84,9 @@ msgstr "{chainLabel}. Bu parçayı doğrudan son halefine yönlendirmeyi düşü
 msgid "{count, plural, one {# course} other {# courses}}"
 msgstr "{count, plural, one {# kurs} other {# kurs}}"
 
+msgid "{from}–{to} of {count}"
+msgstr ""
+
 #. placeholder {0}: errors.length
 #. placeholder {1}: skipped.length
 msgid "{inserted} inserted, {updated} updated, {0} need fixing, {1} skipped."
@@ -731,6 +734,9 @@ msgstr "{inserted} eklendi, {updated} güncellendi — tüm satırlar içe aktar
 msgid "All Suppliers"
 msgstr "Tüm Tedarikçiler"
 
+msgid "All Time"
+msgstr ""
+
 msgid "All Types"
 msgstr "Tüm Türler"
 
@@ -870,6 +876,9 @@ msgstr "Tümüne uygulanır"
 
 msgid "Applies to all work centers"
 msgstr "Tüm iş merkezlerine uygulanır"
+
+msgid "Apply"
+msgstr ""
 
 msgid "Apply available credits"
 msgstr "Mevcut kredileri uygula"
@@ -1298,6 +1307,13 @@ msgstr "Emin misiniz?"
 
 msgid "As needed"
 msgstr "Gerektiğinde"
+
+msgid "As of"
+msgstr ""
+
+#. placeholder {0}: formatDate(endDate)
+msgid "As of {0}"
+msgstr ""
 
 msgid "As of:"
 msgstr "Şu tarih itibariyle:"
@@ -2041,6 +2057,9 @@ msgstr "Kapalı"
 
 msgid "Closed Date"
 msgstr "Kapatma Tarihi"
+
+msgid "Closing"
+msgstr ""
 
 msgid "Closure blocked"
 msgstr "Kapanış engellendi"
@@ -2929,6 +2948,9 @@ msgstr "Özel Alanlar"
 msgid "Custom SOW · we manage"
 msgstr "Özel SOW · biz yönetiriz"
 
+msgid "Custom…"
+msgstr ""
+
 msgid "customer"
 msgstr "müşteri"
 
@@ -3126,9 +3148,6 @@ msgstr "Düzenleme Tarihi"
 
 msgid "Date Paid"
 msgstr "Ödeme Tarihi"
-
-msgid "Date Range"
-msgstr "Tarih Aralığı"
 
 msgid "Dates"
 msgstr "Tarihler"
@@ -3995,9 +4014,6 @@ msgstr "Müşteri Durumunu Düzenle"
 msgid "Edit Customer Type"
 msgstr "Müşteri Tipini Düzenle"
 
-msgid "Edit date range"
-msgstr "Tarih aralığını düzenle"
-
 msgid "Edit Department"
 msgstr "Departmanı Düzenle"
 
@@ -4328,6 +4344,15 @@ msgstr "Etkinleştirilmiş"
 msgid "End Date"
 msgstr "Bitiş Tarihi"
 
+msgid "End of Last Month"
+msgstr ""
+
+msgid "End of Last Quarter"
+msgstr ""
+
+msgid "End of Last Year"
+msgstr ""
+
 msgid "End Time"
 msgstr "Bitiş Saati"
 
@@ -4387,6 +4412,9 @@ msgstr "Varlık Türü"
 
 msgid "Entity type cannot be changed"
 msgstr "Varlık türü değiştirilemez"
+
+msgid "Entry"
+msgstr ""
 
 msgid "Entry Type"
 msgstr "Giriş Türü"
@@ -5157,6 +5185,7 @@ msgstr "Sıklık"
 msgid "Friday"
 msgstr "Cuma"
 
+#. placeholder {0}: formatDate(startDate)
 #. placeholder {0}: routeDataFromRoute.supersession.successorEffectivityDate
 msgid "From {0}"
 msgstr "{0} tarihinden itibaren"
@@ -6295,8 +6324,14 @@ msgstr "Son Kalibrasyon"
 msgid "Last Calibration Date"
 msgstr "Son Kalibrasyon Tarihi"
 
+msgid "Last Month"
+msgstr ""
+
 msgid "Last Name"
 msgstr "Soyadı"
+
+msgid "Last Quarter"
+msgstr ""
 
 #. placeholder {0}: formatDateTime(lastSyncedAt)
 msgid "Last synced: {0}"
@@ -6304,6 +6339,9 @@ msgstr "Son senkronize edildi: {0}"
 
 msgid "Last updated: {formattedDate}"
 msgstr "Son güncellendi: {formattedDate}"
+
+msgid "Last Year"
+msgstr ""
 
 msgid "Lead time"
 msgstr "Teslim Süresi"
@@ -7105,6 +7143,9 @@ msgstr "Negatif Ayarlama"
 msgid "Net book value"
 msgstr "Net Defter Değeri"
 
+msgid "Net Change"
+msgstr ""
+
 msgid "Never"
 msgstr "Asla"
 
@@ -7663,6 +7704,9 @@ msgstr "Henüz tedarikçi yok"
 msgid "No time entries for this week"
 msgstr "Bu hafta için zaman girişi yok"
 
+msgid "No transactions in this period"
+msgstr ""
+
 msgid "No value needed"
 msgstr "Değer gerekmiyor"
 
@@ -7923,6 +7967,9 @@ msgstr "Açık işlemler"
 
 msgid "Opened"
 msgstr "Açık"
+
+msgid "Opening"
+msgstr ""
 
 msgid "Opening balance of depreciation already booked before this asset was added to Carbon (use 0 for new acquisitions)."
 msgstr "Bu varlık Carbon'a eklenmeden önce zaten deftere geçirilmiş amortismanın açılış bakiyesi (yeni satın almalar için 0 kullanın)."
@@ -10070,9 +10117,6 @@ msgstr "Müşteri türü seçin"
 msgid "Select customers"
 msgstr "Müşterileri seçin"
 
-msgid "Select date range to filter net change and balance at date"
-msgstr "Net değişim ve tarihteki bakiyeyi filtrelemek için tarih aralığı seçin"
-
 msgid "Select Employee"
 msgstr "Çalışan Seç"
 
@@ -11936,6 +11980,9 @@ msgstr "Bu parti süresi dolmuş ve alınamaz."
 msgid "This may take a moment. Hang tight."
 msgstr "Bu biraz zaman alabilir. Sabrın."
 
+msgid "This Month"
+msgstr ""
+
 msgid "This page of your Implementation Hub is being built. Start from the command center while we finish it."
 msgstr "Bu Implementation Hub sayfası şu anda inşa edilmektedir. Biz bitirirken komut merkezinden başlayın."
 
@@ -11950,6 +11997,9 @@ msgstr "Bu parça kullanımdan kaldırılmıştır (Stok Yok)."
 
 msgid "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 msgstr "Bu parça kullanımdan kaldırılmış ve Yalnızca Stok olarak ayarlanmıştır — talep bağımsız olarak yedek rezerv tabanına kadar yenilenir."
+
+msgid "This Quarter"
+msgstr ""
 
 msgid "This sales order has associated jobs. Choose what to do with them."
 msgstr "Bu satış siparişi ilgili işlere sahiptir. Onlarla ne yapılacağına karar verin."
@@ -11995,6 +12045,10 @@ msgstr "Bu, varlığın kalan net defter değerini silebilir."
 
 msgid "Three-way match"
 msgstr "Üç yönlü eşleşme"
+
+#. placeholder {0}: formatDate(endDate)
+msgid "Through {0}"
+msgstr ""
 
 msgid "Thumbnail"
 msgstr "Küçük Resim"
@@ -13393,6 +13447,9 @@ msgstr "Bir varlığın değerini faydalı kullanım süresi boyunca azaltma —
 
 msgid "Year"
 msgstr "Yıl"
+
+msgid "Year to Date"
+msgstr ""
 
 msgid "Yes"
 msgstr "Evet"

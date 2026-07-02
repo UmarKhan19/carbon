@@ -84,6 +84,9 @@ msgstr "{chainLabel}. Considere apuntar esta pieza directamente al sucesor final
 msgid "{count, plural, one {# course} other {# courses}}"
 msgstr "{count, plural, one {# curso} other {# cursos}}"
 
+msgid "{from}–{to} of {count}"
+msgstr ""
+
 #. placeholder {0}: errors.length
 #. placeholder {1}: skipped.length
 msgid "{inserted} inserted, {updated} updated, {0} need fixing, {1} skipped."
@@ -731,6 +734,9 @@ msgstr "Todas las filas importadas — {inserted} insertadas, {updated} actualiz
 msgid "All Suppliers"
 msgstr "Todos los proveedores"
 
+msgid "All Time"
+msgstr ""
+
 msgid "All Types"
 msgstr "Todos los tipos"
 
@@ -870,6 +876,9 @@ msgstr "Se aplica a todos"
 
 msgid "Applies to all work centers"
 msgstr "Se aplica a todos los centros de trabajo"
+
+msgid "Apply"
+msgstr ""
 
 msgid "Apply available credits"
 msgstr "Aplicar créditos disponibles"
@@ -1298,6 +1307,13 @@ msgstr "¿Estás seguro?"
 
 msgid "As needed"
 msgstr "Según sea necesario"
+
+msgid "As of"
+msgstr ""
+
+#. placeholder {0}: formatDate(endDate)
+msgid "As of {0}"
+msgstr ""
 
 msgid "As of:"
 msgstr "A partir de:"
@@ -2041,6 +2057,9 @@ msgstr "Cerrado"
 
 msgid "Closed Date"
 msgstr "Fecha de Cierre"
+
+msgid "Closing"
+msgstr ""
 
 msgid "Closure blocked"
 msgstr "Cierre bloqueado"
@@ -2929,6 +2948,9 @@ msgstr "Campos Personalizados"
 msgid "Custom SOW · we manage"
 msgstr "SOW personalizado · nosotros gestionamos"
 
+msgid "Custom…"
+msgstr ""
+
 msgid "customer"
 msgstr "cliente"
 
@@ -3126,9 +3148,6 @@ msgstr "Fecha de Emisión"
 
 msgid "Date Paid"
 msgstr "Fecha Pagada"
-
-msgid "Date Range"
-msgstr "Rango de Fechas"
 
 msgid "Dates"
 msgstr "Fechas"
@@ -3995,9 +4014,6 @@ msgstr "Editar Estado del Cliente"
 msgid "Edit Customer Type"
 msgstr "Editar Tipo de Cliente"
 
-msgid "Edit date range"
-msgstr "Editar rango de fechas"
-
 msgid "Edit Department"
 msgstr "Editar Departamento"
 
@@ -4328,6 +4344,15 @@ msgstr "Habilitado"
 msgid "End Date"
 msgstr "Fecha de Fin"
 
+msgid "End of Last Month"
+msgstr ""
+
+msgid "End of Last Quarter"
+msgstr ""
+
+msgid "End of Last Year"
+msgstr ""
+
 msgid "End Time"
 msgstr "Hora de Finalización"
 
@@ -4387,6 +4412,9 @@ msgstr "Tipo de Entidad"
 
 msgid "Entity type cannot be changed"
 msgstr "El tipo de entidad no puede ser cambiado"
+
+msgid "Entry"
+msgstr ""
 
 msgid "Entry Type"
 msgstr "Tipo de Entrada"
@@ -5157,6 +5185,7 @@ msgstr "Frecuencia"
 msgid "Friday"
 msgstr "Viernes"
 
+#. placeholder {0}: formatDate(startDate)
 #. placeholder {0}: routeDataFromRoute.supersession.successorEffectivityDate
 msgid "From {0}"
 msgstr "Desde {0}"
@@ -6295,8 +6324,14 @@ msgstr "Última Calibración"
 msgid "Last Calibration Date"
 msgstr "Última Fecha de Calibración"
 
+msgid "Last Month"
+msgstr ""
+
 msgid "Last Name"
 msgstr "Apellido"
+
+msgid "Last Quarter"
+msgstr ""
 
 #. placeholder {0}: formatDateTime(lastSyncedAt)
 msgid "Last synced: {0}"
@@ -6304,6 +6339,9 @@ msgstr "Última sincronización: {0}"
 
 msgid "Last updated: {formattedDate}"
 msgstr "Última actualización: {formattedDate}"
+
+msgid "Last Year"
+msgstr ""
 
 msgid "Lead time"
 msgstr "Tiempo de Entrega"
@@ -7105,6 +7143,9 @@ msgstr "Ajuste Negativo"
 msgid "Net book value"
 msgstr "Valor en Libros Neto"
 
+msgid "Net Change"
+msgstr ""
+
 msgid "Never"
 msgstr "Nunca"
 
@@ -7663,6 +7704,9 @@ msgstr "Sin proveedores aún"
 msgid "No time entries for this week"
 msgstr "No hay entradas de tiempo para esta semana"
 
+msgid "No transactions in this period"
+msgstr ""
+
 msgid "No value needed"
 msgstr "No se necesita valor"
 
@@ -7923,6 +7967,9 @@ msgstr "Transacciones abiertas"
 
 msgid "Opened"
 msgstr "Abierto"
+
+msgid "Opening"
+msgstr ""
 
 msgid "Opening balance of depreciation already booked before this asset was added to Carbon (use 0 for new acquisitions)."
 msgstr "Saldo de apertura de la depreciación ya contabilizada antes de que este activo se agregara a Carbon (use 0 para nuevas adquisiciones)."
@@ -10070,9 +10117,6 @@ msgstr "Seleccionar tipos de cliente"
 msgid "Select customers"
 msgstr "Seleccionar clientes"
 
-msgid "Select date range to filter net change and balance at date"
-msgstr "Selecciona el rango de fechas para filtrar el cambio neto y el saldo en la fecha"
-
 msgid "Select Employee"
 msgstr "Seleccionar Empleado"
 
@@ -11936,6 +11980,9 @@ msgstr "Este lote ha expirado y no se puede seleccionar."
 msgid "This may take a moment. Hang tight."
 msgstr "Esto puede tomar un momento. Aguanta firme."
 
+msgid "This Month"
+msgstr ""
+
 msgid "This page of your Implementation Hub is being built. Start from the command center while we finish it."
 msgstr "Esta página de tu Centro de Implementación está en construcción. Comienza desde el centro de comandos mientras la terminamos."
 
@@ -11950,6 +11997,9 @@ msgstr "Esta pieza está obsoleta (Sin Stock)."
 
 msgid "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 msgstr "Esta pieza está obsoleta y configurada como Stock Only — se repone hasta su nivel de reserva de repuestos, independientemente de la demanda."
+
+msgid "This Quarter"
+msgstr ""
 
 msgid "This sales order has associated jobs. Choose what to do with them."
 msgstr "Este pedido de venta tiene trabajos asociados. Elige qué hacer con ellos."
@@ -11995,6 +12045,10 @@ msgstr "Esto liquidará el valor en libros restante del activo."
 
 msgid "Three-way match"
 msgstr "Coinciencia de tres vías"
+
+#. placeholder {0}: formatDate(endDate)
+msgid "Through {0}"
+msgstr ""
 
 msgid "Thumbnail"
 msgstr "Miniatura"
@@ -13393,6 +13447,9 @@ msgstr "Reducir el valor de un activo a lo largo de su vida útil — un lote me
 
 msgid "Year"
 msgstr "Año"
+
+msgid "Year to Date"
+msgstr ""
 
 msgid "Yes"
 msgstr "Sí"

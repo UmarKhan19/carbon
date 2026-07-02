@@ -8,6 +8,7 @@ import {
 } from "@carbon/react";
 import { memo, useMemo, useRef } from "react";
 import {
+  LuBookOpen,
   LuChevronDown,
   LuChevronRight,
   LuEllipsisVertical,
@@ -21,7 +22,8 @@ import {
 import { useNavigate } from "react-router";
 import type { FlatTree, FlatTreeItem } from "~/components/TreeView";
 import { LevelLine, TreeView, useTree } from "~/components/TreeView";
-import { useRealtime, useSettings } from "~/hooks";
+import { useRealtime, useSettings, useUrlParams } from "~/hooks";
+import { path } from "~/utils/path";
 import type { Chart } from "../../types";
 
 type ChartOfAccountsTreeProps = {
@@ -105,6 +107,15 @@ const ChartOfAccountsTree = memo(
     const accountingEnabled = (settings as any).accountingEnabled ?? false;
     const parentRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
+    const [params] = useUrlParams();
+
+    const openLedger = (accountId: string) => {
+      const nextParams = new URLSearchParams(params);
+      nextParams.delete("offset");
+      const qs = nextParams.toString();
+      const to = path.to.chartOfAccountsLedger(accountId);
+      navigate(qs ? `${to}?${qs}` : to);
+    };
 
     const filtered = useMemo(
       () => filterAccounts(data, search),
@@ -215,11 +226,23 @@ const ChartOfAccountsTree = memo(
                 </div>
 
                 {/* Balance */}
-                {accountingEnabled && (
-                  <span className="w-32 text-right tabular-nums shrink-0 text-muted-foreground">
-                    {formatCurrency(account.balance ?? 0)}
-                  </span>
-                )}
+                {accountingEnabled &&
+                  (isGroup ? (
+                    <span className="w-32 text-right tabular-nums shrink-0 text-muted-foreground">
+                      {formatCurrency(account.balance ?? 0)}
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      className="w-32 text-right tabular-nums shrink-0 text-muted-foreground hover:text-foreground hover:underline underline-offset-2 decoration-border"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openLedger(account.id as string);
+                      }}
+                    >
+                      {formatCurrency(account.balance ?? 0)}
+                    </button>
+                  ))}
 
                 {/* Actions menu */}
                 <DropdownMenu>
@@ -268,6 +291,14 @@ const ChartOfAccountsTree = memo(
                       </>
                     ) : (
                       <>
+                        {accountingEnabled && (
+                          <DropdownMenuItem
+                            onClick={() => openLedger(account.id as string)}
+                          >
+                            <LuBookOpen className="mr-2 h-4 w-4" />
+                            View Ledger
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuItem
                           onClick={() => navigate(account.id as string)}
                         >
