@@ -44,6 +44,10 @@ msgstr "{0} gün"
 msgid "{0} deleted successfully"
 msgstr "{0} başarıyla silindi"
 
+#. placeholder {0}: mappings.length
+msgid "{0} lines to map"
+msgstr "{0} satır eşlenecek"
+
 #. placeholder {0}: history.length
 msgid "{0} orders"
 msgstr "{0} sipariş"
@@ -521,9 +525,6 @@ msgstr "Bir satır ekle"
 
 msgid "Add a step"
 msgstr "Bir adım ekle"
-
-msgid "Add a task"
-msgstr "Bir görev ekle"
 
 msgid "Add Actions"
 msgstr "Eylemler Ekle"
@@ -1764,6 +1765,9 @@ msgstr "Carbon'da çağrılan bir yöntem — bir parça üreten bileşenler ve 
 msgid "Can't disable the only active break. Add another break or toggle the override's Active instead."
 msgstr "Yalnızca aktif olan aralığı devre dışı bırakamazsınız. Başka bir aralık ekleyin veya geçersiz kılmanın Aktif özelliğini değiştirin."
 
+msgid "Can't download this file"
+msgstr "Bu dosya indirilemiyor"
+
 msgid "Cancel"
 msgstr "İptal"
 
@@ -1956,9 +1960,6 @@ msgstr "E-postanızı kontrol edin"
 msgid "Checkpoint ·"
 msgstr "Kontrol Noktası ·"
 
-msgid "Checkpoint:"
-msgstr "Kontrol noktası:"
-
 msgid "Checkpoints"
 msgstr "Kontrol Noktaları"
 
@@ -2015,9 +2016,6 @@ msgstr "Mal alımı ve tedarikçi faturası arasındaki mahsup hesabı; her ikis
 
 msgid "Clearing account for goods received / invoice received matching"
 msgstr "Mal alımı / fatura alımı eşleştirmesi için mahsup hesabı"
-
-msgid "Click to change status"
-msgstr "Durumu değiştirmek için tıklayın"
 
 msgid "Click to upload a PDF drawing"
 msgstr "PDF çizimi yüklemek için tıklayın"
@@ -2248,9 +2246,6 @@ msgstr "Bir tedarikçi teklif sunduğunda kimin bildirim alacağını yapıland�
 msgid "Configure-to-order"
 msgstr "Siparişe göre yapılandır"
 
-msgid "Configure-to-order options and pricing"
-msgstr "Sipariş-yapılandırma seçenekleri ve fiyatlandırma"
-
 msgid "Configure-to-order, automated purchase planning, the shop-floor app."
 msgstr "Siparişe göre yapılandırma, otomatik satın alma planlaması, atölye uygulaması."
 
@@ -2281,6 +2276,9 @@ msgstr "Kimlik Değişikliğini Onayla"
 
 msgid "Confirm Import"
 msgstr "İçe Aktarmayı Onayla"
+
+msgid "Confirm Mapping"
+msgstr "Eşleştirmeyi Onayla"
 
 msgid "Confirm Password"
 msgstr "Şifreyi Onayla"
@@ -2628,6 +2626,10 @@ msgstr "PDF oluşturulamadı. Lütfen tekrar deneyin."
 msgid "Could not prepare region image for analysis"
 msgstr "Bölge görüntüsü analiz için hazırlanamadı"
 
+#. placeholder {0}: extraction?.error ?? ""
+msgid "Could not read the document: {0}"
+msgstr "Belge okunamadı: {0}"
+
 msgid "Couldn't load documents"
 msgstr "Belgeler yüklenemedi"
 
@@ -2824,7 +2826,7 @@ msgstr "Stok transfer satırı oluşturuldu"
 msgid "Created storage type"
 msgstr "Depolama türü oluşturuldu"
 
-#. placeholder {0}: fetcher.data.data.name
+#. placeholder {0}: created.name
 msgid "Created supplier: {0}"
 msgstr "Oluşturulan tedarikçi: {0}"
 
@@ -3540,9 +3542,6 @@ msgstr "Tedarikçi Teklifini Sil"
 msgid "Delete Supplier Type"
 msgstr "Tedarikçi Türünü Sil"
 
-msgid "Delete task"
-msgstr "Görevi sil"
-
 msgid "Delete Timecard"
 msgstr "Çalışma Kaydını Sil"
 
@@ -3805,6 +3804,9 @@ msgstr "CSV İndir"
 
 msgid "Download Labels"
 msgstr "Etiketleri İndir"
+
+msgid "Download Link"
+msgstr "İndirme Bağlantısı"
 
 msgid "Download PDF"
 msgstr "PDF'i İndir"
@@ -4508,9 +4510,6 @@ msgstr "Kapsamdaki her test, yapılandırılmış sisteminizde, verilerinizle ge
 
 msgid "Every row was imported successfully."
 msgstr "Her satır başarıyla içe aktarıldı."
-
-msgid "Every task for the project, grouped by step. If it isn't on the board, it isn't happening. Click a status to cycle it."
-msgstr "Projenin her görevi, adıma göre gruplandırılmış. Pano üzerinde değilse, gerçekleşmiyor. Durumu döngüye almak için tıklayın."
 
 msgid "Everything from Starter"
 msgstr "Başlangıç'tan her şey"
@@ -5269,6 +5268,9 @@ msgstr "Carbon'da Gezinme"
 
 msgid "Getting set up"
 msgstr "Kurulum yapılıyor"
+
+msgid "Give it an owner and a date"
+msgstr "Ona bir sahip ve bir tarih verin"
 
 msgid "GL"
 msgstr "GL"
@@ -6446,9 +6448,6 @@ msgstr "Daha yenisini yükle"
 msgid "Load open transactions (orders, POs, inventory, balances)"
 msgstr "Açık işlemleri yükle (siparişler, PO'lar, envanter, bakiyeler)"
 
-msgid "Load parts, BOMs, Bill of Process, and costing"
-msgstr "Parçaları, BOM'ları, İşlem Faturasını ve maliyetlendirmeyi yükleyin"
-
 msgid "Load Templates"
 msgstr "Şablonları Yükle"
 
@@ -6670,10 +6669,19 @@ msgid "Manufacturer"
 msgstr "Üretici"
 
 msgid "Manufacturer Part Number"
-msgstr ""
+msgstr "Üretici Parça Numarası"
 
 msgid "Manufacturing"
 msgstr "Üretim"
+
+msgid "Map Extracted Invoice Lines"
+msgstr "Çıkarılan Fatura Satırlarını Eşle"
+
+msgid "Map Extracted Lines"
+msgstr "Çıkarılan Satırları Eşle"
+
+msgid "Map Lines Now"
+msgstr "Satırları Şimdi Eşle"
 
 msgid "Map your current process, systems, and data"
 msgstr "Mevcut sürecinizi, sistemlerinizi ve verilerinizi eşleyin"
@@ -7397,9 +7405,6 @@ msgstr "Sonraki Sıra"
 msgid "Next step"
 msgstr "Sonraki adım"
 
-msgid "Next task"
-msgstr "Sonraki görev"
-
 msgid "Next:"
 msgstr "Sonraki:"
 
@@ -7478,9 +7483,6 @@ msgstr "Dönüşüm gerekmiyor"
 msgid "No cost history found"
 msgstr "Hiç maliyet geçmişi bulunamadı"
 
-msgid "No custom tasks yet. Add deal-specific work here."
-msgstr "Henüz özel görev yok. Anlaşmaya özgü işleri buraya ekleyin."
-
 msgid "No Data"
 msgstr "Veri Yok"
 
@@ -7540,6 +7542,9 @@ msgstr "Resim yok"
 
 msgid "No issue types configured"
 msgstr "Hiçbir sorun türü yapılandırılmamış"
+
+msgid "No lines to map"
+msgstr "Eşlenecek satır yok"
 
 msgid "No locations found."
 msgstr "Konum bulunamadı."
@@ -8100,9 +8105,6 @@ msgstr "Hedef üretim yöntemini teklif yöntemiyle üzerine yaz"
 msgid "Owner (cost center)"
 msgstr "Ana maliyet merkezi"
 
-msgid "Owner + date on the Project Board"
-msgstr "Sahip + tarih Proje Panosunda"
-
 msgid "Ownership"
 msgstr "Sahiplik"
 
@@ -8194,8 +8196,8 @@ msgstr "Taraf Türü"
 msgid "Pass"
 msgstr "Geçerli"
 
-msgid "Passed · reopen"
-msgstr "Geçti · yeniden aç"
+msgid "Passed"
+msgstr "Geçti"
 
 msgid "Path"
 msgstr "Yol"
@@ -8379,9 +8381,6 @@ msgstr "Sabitlenmiş"
 
 msgid "Plan"
 msgstr "Plan"
-
-msgid "Plan & Board"
-msgstr "Plan & Pano"
 
 msgid "Plan the work"
 msgstr "Çalışmayı planlayın"
@@ -8724,17 +8723,11 @@ msgstr "İlerleme"
 msgid "Project"
 msgstr "Proje"
 
-msgid "Project Board"
-msgstr "Proje Panosu"
-
 msgid "Project owner"
 msgstr "Proje sahibi"
 
-msgid "Project Plan & Board"
-msgstr "Proje Planı & Panosu"
-
-msgid "Project Plan & Timeline"
-msgstr "Proje Planı & Zaman Çizelgesi"
+msgid "Project Plan"
+msgstr "Proje Planı"
 
 msgid "Project start"
 msgstr "Proje başlangıcı"
@@ -9093,6 +9086,9 @@ msgstr "Bunu okuyun — Carbon'un kurulumunuz için neler yapacağını ve yapma
 
 msgid "Read this through. When it's right, sign off at the bottom. It's the statement your commercial agreement points to, with no prices or legal terms here."
 msgstr "Bunu baştan sona oku. Doğru olduğunda, altta imzala. Bu, ticari anlaşmanın işaret ettiği beyan olup, burada fiyat veya yasal şart yoktur."
+
+msgid "Reading the document..."
+msgstr "Belge okunuyor..."
 
 msgid "Ready for Quote"
 msgstr "Teklif İçin Hazır"
@@ -9620,9 +9616,6 @@ msgstr "Risk"
 
 msgid "Risks"
 msgstr "Riskler"
-
-msgid "Risks (on the Project Board)"
-msgstr "Riskler (Proje Panosunda)"
 
 msgid "Role"
 msgstr "Rol"
@@ -10279,14 +10272,8 @@ msgstr "Fiyatlandırmayı Ayarla"
 msgid "Set Quantity"
 msgstr "Miktarı Ayarla"
 
-msgid "Set up sites, users, and roles"
-msgstr "Siteleri, kullanıcıları ve rolleri ayarlayın"
-
 msgid "Set up the right way"
 msgstr "Doğru şekilde ayarla"
-
-msgid "Set up the shop-floor app and stations"
-msgstr "Mağaza tabanı uygulamasını ve istasyonları ayarlayın"
 
 msgid "Set up your own data with import tools and LLM help"
 msgstr "İçe aktarma araçları ve LLM yardımıyla kendi verilerinizi ayarlayın"
@@ -10585,6 +10572,9 @@ msgstr "burada atayabilmeniz için."
 
 msgid "Solutions Engineer"
 msgstr "Çözüm Mühendisi"
+
+msgid "Some lines extracted from the PDF could not be automatically mapped to your inventory items. Review and map each line below."
+msgstr "PDF'den çıkarılan bazı satırlar envanter öğelerinize otomatik olarak eşleştirilemedi. Aşağıdaki her satırı gözden geçirin ve eşleştirin."
 
 msgid "Something went wrong"
 msgstr "Bir şeyler yanlış gitti"
@@ -10982,7 +10972,7 @@ msgid "Supplier Part Number"
 msgstr "Tedarikçi Parça Numarası"
 
 msgid "Supplier Part Numbers"
-msgstr ""
+msgstr "Tedarikçi Parça Numaraları"
 
 msgid "Supplier Parts"
 msgstr "Tedarikçi Parçaları"
@@ -11153,9 +11143,6 @@ msgstr "Bir veya daha fazla öğeyi hedefleyin."
 msgid "Target Version"
 msgstr "Hedef Sürüm"
 
-msgid "Task"
-msgstr "Görev"
-
 msgid "tasks"
 msgstr "görevler"
 
@@ -11253,8 +11240,8 @@ msgid "Text size"
 msgstr "Metin boyutu"
 
 #. placeholder {0}: steps.length
-msgid "The {0} phases to go live, each ending at a checkpoint. Tick a task here and it updates on the Project Board too."
-msgstr "Canlı yayına geçmek için {0} aşama, her biri bir kontrol noktasında sona eriyor. Burada bir görevi işaretleyin ve Proje Panosunda da güncellenir."
+msgid "The {0} phases to go live, each ending at a checkpoint. Tick off each task as you complete it."
+msgstr "{0} aşamayı canlı yayına almak için, her biri bir kontrol noktasında sona eriyor. Her görevi tamamladıkça işaretleyin."
 
 msgid "The accounting dimension that categorizes items for reporting and analysis."
 msgstr "Raporlama ve analiz için öğeleri kategorize eden muhasebe boyutu."
@@ -11907,6 +11894,12 @@ msgstr "Bu, Keşif adımını tamamlar."
 msgid "This counterparty has nothing outstanding — the payment will be recorded on-account."
 msgstr "Bu muhasebe ortağının ödenmemiş bir borcu yok — ödeme hesap üzerinde kaydedilecektir."
 
+msgid "This download link is invalid or has been tampered with."
+msgstr "Bu indirme bağlantısı geçersiz veya değiştirilmiş."
+
+msgid "This file is no longer available, or you don't have permission to download it."
+msgstr "Bu dosya artık kullanılamıyor veya onu indirme izniniz yok."
+
 msgid "This information will be used on document headers"
 msgstr "Bu bilgiler belge başlıklarında kullanılacaktır"
 
@@ -11939,6 +11932,9 @@ msgstr "Bu işin malzeme için kendi gerekli miktarı."
 
 msgid "This lot is expired and can't be picked."
 msgstr "Bu parti süresi dolmuş ve alınamaz."
+
+msgid "This may take a moment. Hang tight."
+msgstr "Bu biraz zaman alabilir. Sabrın."
 
 msgid "This page of your Implementation Hub is being built. Start from the command center while we finish it."
 msgstr "Bu Implementation Hub sayfası şu anda inşa edilmektedir. Biz bitirirken komut merkezinden başlayın."
@@ -12207,6 +12203,9 @@ msgstr "Takip edilen varlık zaten alındı"
 msgid "Tracked entity ID is required but none was found"
 msgstr "Takip edilen varlık kimliği gerekli ancak hiçbiri bulunamadı"
 
+msgid "Tracked from the Setup Map — open it"
+msgstr "Kurulum Haritasından izleniyor — aç"
+
 msgid "Tracking"
 msgstr "Takip"
 
@@ -12284,9 +12283,6 @@ msgstr "Tetikleyiciler"
 
 msgid "Tuesday"
 msgstr "Salı"
-
-msgid "Turn on automated purchase planning"
-msgstr "Otomatik satın alma planlamasını açın"
 
 msgid "Turn on the built-in pieces"
 msgstr "Yerleşik parçaları açın"
@@ -12405,6 +12401,9 @@ msgstr "Bağlantısını Kes"
 msgid "Unlink job from sales order?"
 msgstr "İş emrini satış siparişinden ayır?"
 
+msgid "Unmapped Extracted Lines"
+msgstr "Eşlenmemiş Çıkarılan Satırlar"
+
 msgid "Unpick"
 msgstr "Çıkart"
 
@@ -12426,6 +12425,9 @@ msgstr "Desteklenmeyen kaynak belge türü: {sourceDocument}"
 
 msgid "Untitled Diagram"
 msgstr "Başlıksız Diyagram"
+
+msgid "Untitled line"
+msgstr "Başlıksız satır"
 
 msgid "UoM"
 msgstr "Birim"
@@ -12537,6 +12539,9 @@ msgstr "Yükleniyor {0}"
 
 msgid "Uploading {fileName}"
 msgstr "{\"fileName\"} yükleniyor"
+
+msgid "Uploading..."
+msgstr "Yükleniyor..."
 
 msgid "Uploading…"
 msgstr "Yükleniyor…"
@@ -13295,6 +13300,9 @@ msgstr "Stok neden değişiyor — Pozitif (bulundu), Negatif (kayıp/hurda) vey
 msgid "Why this line is being declined; surfaced on the printable quote and recorded for win-loss reporting."
 msgstr "Bu satırın neden reddedildiği; yazdırılabilir teklifte gösterilir ve kazanç-kayıp raporlaması için kaydedilir."
 
+msgid "Will remain as a comment line"
+msgstr "Yorum satırı olarak kalacak"
+
 msgid "Window:"
 msgstr "Pencere:"
 
@@ -13428,6 +13436,10 @@ msgstr "Sipariş edilen miktardan {leftoverQuantity} fazla {0} tamamladınız. F
 
 msgid "You drive it; we make sure it's done right. Expert eyes on your setup, data, and go-live."
 msgstr "Siz yönetirsiniz; biz doğru yapıldığından emin oluruz. Kurulumunuz, verileriniz ve canlı yayına geçişiniz üzerinde uzman gözler."
+
+#. placeholder {0}: unmappedLines.length
+msgid "You have {0} lines extracted from a PDF that are not mapped to any inventory items."
+msgstr "{0} satırı PDF'den çıkarıldı ancak hiçbir envanter öğesine eşlenmedi."
 
 msgid "You haven't created any contacts yet."
 msgstr "Henüz herhangi bir iletişim bilgisi oluşturmadınız."
