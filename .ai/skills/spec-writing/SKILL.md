@@ -117,16 +117,23 @@ Rules:
   v1" decision.
 - Record each resolution inline: `- [x] {Question} — **Answer:** {decision and rationale}`.
 
-## Step 7: Present and wait
+## Step 7: Grill — resolve the questions interactively
 
-Show the user the spec path and list the open questions verbatim. Ask for
-answers. Do not say "we can figure these out during implementation."
+Show the user the spec path and the list of open questions, then invoke
+`/grill` on the spec (protocol: `.ai/skills/grill/SKILL.md`). The grill
+interviews the user through the questions one at a time (grouped max 2–3 only
+for single-module, no-schema specs), with a recommended answer per question
+and codebase cross-checks, recording each resolution inline as it lands:
+`- [x] {Question} — **Answer:** {decision and rationale}`.
+
+Do not say "we can figure these out during implementation." The hard stop
+holds until every box is checked.
 
 ## Step 8: Finalize
 
-After every question is resolved: check them off with answers, add a changelog
-entry, set status per `.ai/specs/AGENTS.md`. The spec is now ready for `/plan`
-(or `/feature`, which calls it).
+After every question is resolved (checked off during the Step 7 grill): add a
+changelog entry, set status per `.ai/specs/AGENTS.md`. The spec is now ready
+for `/plan` (or `/feature`, which calls it).
 
 ## Done when
 
@@ -134,11 +141,14 @@ entry, set status per `.ai/specs/AGENTS.md`. The spec is now ready for `/plan`
 - [ ] Research file exists and is linked from the spec
 - [ ] Every applicable heuristic (1–7) has a row in Design Decisions — no TBDs
 - [ ] Open Questions has ≥1 entry, each with "why it matters"
-- [ ] The user has been shown the questions and work is stopped until answered
+- [ ] Every question resolved through the Step 7 grill at the correct depth,
+      with the answer recorded inline — work is stopped until then
 
 ## Anti-patterns
 
 - Writing a design doc anywhere other than `.ai/specs/`
+- Dumping all open questions in one message and accepting batch answers
+- Accepting an answer without checking it against the code
 - Marking questions resolved without human input
 - Skipping `/research` because "I know how ERPs work"
 - "TBD" in the Design Decisions table (that's an Open Question)
