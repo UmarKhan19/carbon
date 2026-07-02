@@ -1,7 +1,7 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { matchItemIdByText, upsertPart } from "~/modules/items";
+import { resolveItemIdFromExtractedText, upsertPart } from "~/modules/items";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { client, companyId } = await requirePermissions(request, {
@@ -30,31 +30,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   // The invoice line only carries a description (which prefers the extracted
   // part number when one was found), so that's our single candidate string.
   for (const line of lines) {
-    const candidates = [line.description];
-    let suggestedItemId: string | null = null;
-
-    // 1. Supplier part mapping: the supplier's catalog number -> item.
-    if (supplierId) {
-      for (const candidate of candidates) {
-        if (!candidate) continue;
-        const { data: supplierPart } = await client
-          .from("supplierPart")
-          .select("itemId")
-          .eq("companyId", companyId)
-          .eq("supplierId", supplierId)
-          .ilike("supplierPartId", candidate)
-          .limit(1);
-        if (supplierPart?.[0]) {
-          suggestedItemId = supplierPart[0].itemId;
-          break;
-        }
-      }
-    }
-
-    // 2. Fallback: match the candidate against item readableId or name.
-    if (!suggestedItemId) {
-      suggestedItemId = await matchItemIdByText(client, companyId, candidates);
-    }
+    const suggestedItemId = await resolveItemIdFromExtractedText(
+      client,
+      companyId,
+      { type: "supplier", id: supplierId },
+      [line.description]
+    );
 
     suggestions.push({
       lineId: line.id,

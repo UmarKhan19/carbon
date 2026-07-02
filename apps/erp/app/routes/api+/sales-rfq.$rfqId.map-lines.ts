@@ -1,7 +1,7 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { matchItemIdByText, upsertPart } from "~/modules/items";
+import { resolveItemIdFromExtractedText, upsertPart } from "~/modules/items";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { client, companyId } = await requirePermissions(request, {
@@ -29,30 +29,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   // Try every extracted string for a line — part number and description alike —
   // the classification doesn't matter; we just want the best chance of a match.
   for (const line of lines) {
-    const candidates = [line.customerPartId, line.description];
-    let suggestedItemId: string | null = null;
-
-    // 1. Customer part mapping (either candidate -> item).
-    if (customerId) {
-      for (const candidate of candidates) {
-        if (!candidate) continue;
-        const { data: mapping } = await client
-          .from("customerPartToItem")
-          .select("itemId")
-          .eq("customerId", customerId)
-          .eq("customerPartId", candidate)
-          .maybeSingle();
-        if (mapping) {
-          suggestedItemId = mapping.itemId;
-          break;
-        }
-      }
-    }
-
-    // 2. Fallback: match either candidate against item readableId or name.
-    if (!suggestedItemId) {
-      suggestedItemId = await matchItemIdByText(client, companyId, candidates);
-    }
+    const suggestedItemId = await resolveItemIdFromExtractedText(
+      client,
+      companyId,
+      { type: "customer", id: customerId },
+      [line.customerPartId, line.description]
+    );
 
     suggestions.push({
       lineId: line.id,

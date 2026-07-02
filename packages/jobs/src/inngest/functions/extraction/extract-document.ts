@@ -138,12 +138,6 @@ export const extractDocumentFunction = inngest.createFunction(
             ? `Known suppliers (choose the matching id for supplierId, or null):\n${JSON.stringify(supplierCandidates)}\n\nKnown payment terms (choose the matching id for paymentTermId, or null):\n${JSON.stringify(paymentTermCandidates)}`
             : `Known customers (choose the matching id for customerId, or null):\n${JSON.stringify(customerCandidates)}`;
 
-        // 6. Pick schema based on document type
-        const schema =
-          extraction.documentType === "purchaseInvoice"
-            ? invoiceExtractionSchema
-            : rfqExtractionSchema;
-
         const matchingInstruction =
           " For the id fields, you are given lists of known records; return the id of the single best match, or null if none of the listed records clearly correspond to the document. Do NOT invent ids — only return an id that appears in the provided lists.";
 
@@ -154,80 +148,8 @@ export const extractDocumentFunction = inngest.createFunction(
             : "You are an ERP data extraction assistant. Extract RFQ (Request for Quote) data from this PDF. For each field, provide the extracted value and a confidence score between 0.0 and 1.0. If a field is not found or you are unsure, set value to null and confidence to 0.0." +
               matchingInstruction;
 
-        const schemaDescription =
-          extraction.documentType === "purchaseInvoice"
-            ? `
-Return your response ONLY as a valid JSON object matching this schema. Do not include markdown code block formatting (like \`\`\`json) or any other text.
-Important: For \`supplierCountry\`, you MUST return the ISO 3166-1 alpha-2 country code (e.g. "US", "ID", "GB", "SG"), not the full country name.
-Schema structure:
-{
-  "supplierId": { "value": string or null, "confidence": number },
-  "paymentTermId": { "value": string or null, "confidence": number },
-  "supplierName": { "value": string or null, "confidence": number },
-  "supplierContactName": { "value": string or null, "confidence": number },
-  "supplierContactEmail": { "value": string or null, "confidence": number },
-  "supplierContactPhone": { "value": string or null, "confidence": number },
-  "supplierAddressLine1": { "value": string or null, "confidence": number },
-  "supplierAddressLine2": { "value": string or null, "confidence": number },
-  "supplierCity": { "value": string or null, "confidence": number },
-  "supplierStateProvince": { "value": string or null, "confidence": number },
-  "supplierPostalCode": { "value": string or null, "confidence": number },
-  "supplierCountry": { "value": string or null, "confidence": number },
-  "invoiceNumber": { "value": string or null, "confidence": number },
-  "invoiceDate": { "value": string or null, "confidence": number },
-  "dueDate": { "value": string or null, "confidence": number },
-  "paymentTerms": { "value": string or null, "confidence": number },
-  "purchaseOrderNumber": { "value": string or null, "confidence": number },
-  "currencyCode": { "value": string or null, "confidence": number },
-  "subtotal": { "value": number or null, "confidence": number },
-  "taxAmount": { "value": number or null, "confidence": number },
-  "shippingCost": { "value": number or null, "confidence": number },
-  "totalAmount": { "value": number or null, "confidence": number },
-  "lineItems": [
-    {
-      "partNumber": { "value": string or null, "confidence": number },
-      "description": { "value": string or null, "confidence": number },
-      "quantity": { "value": number or null, "confidence": number },
-      "unitPrice": { "value": number or null, "confidence": number },
-      "totalPrice": { "value": number or null, "confidence": number }
-    }
-  ]
-}
-`
-            : `
-Return your response ONLY as a valid JSON object matching this schema. Do not include markdown code block formatting (like \`\`\`json) or any other text.
-Schema structure:
-{
-  "customerId": { "value": string or null, "confidence": number },
-  "customerName": { "value": string or null, "confidence": number },
-  "purchasingContactName": { "value": string or null, "confidence": number },
-  "purchasingContactEmail": { "value": string or null, "confidence": number },
-  "purchasingContactPhone": { "value": string or null, "confidence": number },
-  "engineeringContactName": { "value": string or null, "confidence": number },
-  "engineeringContactEmail": { "value": string or null, "confidence": number },
-  "engineeringContactPhone": { "value": string or null, "confidence": number },
-  "customerAddressLine1": { "value": string or null, "confidence": number },
-  "customerAddressLine2": { "value": string or null, "confidence": number },
-  "customerCity": { "value": string or null, "confidence": number },
-  "customerStateProvince": { "value": string or null, "confidence": number },
-  "customerPostalCode": { "value": string or null, "confidence": number },
-  "customerCountry": { "value": string or null, "confidence": number },
-  "rfqNumber": { "value": string or null, "confidence": number },
-  "rfqDate": { "value": string or null, "confidence": number },
-  "dueDate": { "value": string or null, "confidence": number },
-  "requestedDeliveryDate": { "value": string or null, "confidence": number },
-  "lineItems": [
-    {
-      "partNumber": { "value": string or null, "confidence": number },
-      "description": { "value": string or null, "confidence": number },
-      "quantity": { "value": number or null, "confidence": number }
-    }
-  ]
-}
-`;
-
-        // 7. Call AI with text output
-        const { generateText } = await import("ai");
+        // 6. Call AI with structured output validated against the zod schema
+        const { generateObject } = await import("ai");
         const { createOpenAI } = await import("@ai-sdk/openai");
 
         const aiApiKey =
@@ -248,32 +170,24 @@ Schema structure:
 
         const model = provider.chat(aiModelName);
 
-        const result = await generateText({
-          model,
-          maxRetries: 5,
-          messages: [
-            {
-              role: "user",
-              content: `${systemPrompt}\n\nFormat instructions:\n${schemaDescription}\n\nCandidate records to match against:\n${candidatesSection}\n\nHere is the text extracted from the PDF document:\n\n${pdfText}`
-            }
-          ]
-        });
+        const prompt = `${systemPrompt}\n\nCandidate records to match against:\n${candidatesSection}\n\nHere is the text extracted from the PDF document:\n\n${pdfText}`;
 
-        let rawText = result.text.trim();
-        if (rawText.startsWith("```")) {
-          const firstLineEnd = rawText.indexOf("\n");
-          if (firstLineEnd !== -1) {
-            rawText = rawText.slice(firstLineEnd).trim();
-          }
-          if (rawText.endsWith("```")) {
-            rawText = rawText.slice(0, -3).trim();
-          }
-        }
+        const { object: validated } =
+          extraction.documentType === "purchaseInvoice"
+            ? await generateObject({
+                model,
+                maxRetries: 5,
+                schema: invoiceExtractionSchema,
+                prompt
+              })
+            : await generateObject({
+                model,
+                maxRetries: 5,
+                schema: rfqExtractionSchema,
+                prompt
+              });
 
-        const parsed = JSON.parse(rawText);
-        const validated = schema.parse(parsed);
-
-        // 8. Filter by confidence threshold
+        // 7. Filter by confidence threshold
         const threshold = EXTRACTION_CONFIDENCE_THRESHOLD;
         const raw = validated as Record<string, unknown>;
         const filtered: Record<string, unknown> = {};
@@ -319,7 +233,7 @@ Schema structure:
           }
         }
 
-        // 9. Save results
+        // 8. Save results
         await client
           .from("documentExtraction")
           .update({

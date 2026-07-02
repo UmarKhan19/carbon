@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-02T03:51:29.625Z",
-  "totalTools": 1251,
+  "generated": "2026-07-02T04:41:07.819Z",
+  "totalTools": 1252,
   "modules": 15,
   "tools": [
     {
@@ -12453,6 +12453,33 @@
           "candidates": {}
         },
         "required": [
+          "candidates"
+        ]
+      }
+    },
+    {
+      "name": "items_resolveItemIdFromExtractedText",
+      "module": "items",
+      "classification": "WRITE",
+      "description": "resolve item id from extracted text",
+      "paramCount": 2,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "party",
+        "candidates"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "party": {},
+          "candidates": {}
+        },
+        "required": [
+          "party",
           "candidates"
         ]
       }

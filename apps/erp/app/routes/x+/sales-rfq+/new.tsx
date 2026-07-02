@@ -8,6 +8,7 @@ import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { useUrlParams, useUser } from "~/hooks";
 import { upsertDocument } from "~/modules/documents";
+import { resolveItemIdFromExtractedText } from "~/modules/items";
 import type { SalesRFQStatusType } from "~/modules/sales";
 import {
   getSalesRFQ,
@@ -70,10 +71,22 @@ export async function action({ request }: ActionFunctionArgs) {
     let order = 10;
     for (const item of extractedLineItems) {
       if (!item.partNumber && !item.description) continue;
+
+      // Map the line up front when the extracted text directly matches an
+      // existing record — only lines with no direct match are left unmapped
+      // for the review modal.
+      const itemId = await resolveItemIdFromExtractedText(
+        client,
+        companyId,
+        { type: "customer", id: validation.data.customerId },
+        [item.partNumber, item.description]
+      );
+
       promises.push(
         upsertSalesRFQLine(client, {
           salesRfqId: result.data.id,
           customerPartId: item.partNumber || "Unknown",
+          itemId: itemId ?? undefined,
           description: item.description || item.partNumber || "Line Item",
           quantity: [item.quantity || 1],
           unitOfMeasureCode: "EA",

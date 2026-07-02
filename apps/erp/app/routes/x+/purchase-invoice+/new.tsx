@@ -18,6 +18,7 @@ import {
   purchaseInvoiceValidator,
   upsertPurchaseInvoiceLine
 } from "~/modules/invoicing";
+import { resolveItemIdFromExtractedText } from "~/modules/items";
 import { setCustomFields } from "~/utils/form";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
@@ -129,10 +130,21 @@ export async function action({ request }: ActionFunctionArgs) {
       const lineTax = !taxApplied ? extractedTaxAmount : 0;
       taxApplied = true;
 
+      // Map the line up front when the extracted text directly matches an
+      // existing record — only lines with no direct match are left as
+      // comments for the review modal.
+      const itemId = await resolveItemIdFromExtractedText(
+        client,
+        companyId,
+        { type: "supplier", id: d.supplierId },
+        [item.partNumber, item.description]
+      );
+
       promises.push(
         upsertPurchaseInvoiceLine(client, {
           invoiceId: result.data.id,
-          invoiceLineType: "Comment",
+          invoiceLineType: itemId ? "Part" : "Comment",
+          itemId: itemId ?? undefined,
           description: item.partNumber || item.description || "Line Item",
           quantity: item.quantity || 1,
           supplierUnitPrice: item.unitPrice || 0,

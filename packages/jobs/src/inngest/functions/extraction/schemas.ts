@@ -32,7 +32,13 @@ export const invoiceExtractionSchema = z.object({
   supplierCity: confidenceField(z.string()),
   supplierStateProvince: confidenceField(z.string()),
   supplierPostalCode: confidenceField(z.string()),
-  supplierCountry: confidenceField(z.string()),
+  supplierCountry: confidenceField(
+    z
+      .string()
+      .describe(
+        'ISO 3166-1 alpha-2 country code (e.g. "US", "ID", "GB", "SG"), not the full country name'
+      )
+  ),
   invoiceNumber: confidenceField(z.string()),
   invoiceDate: confidenceField(z.string()),
   dueDate: confidenceField(z.string()),
