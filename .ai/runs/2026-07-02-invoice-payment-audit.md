@@ -53,9 +53,14 @@ unitPrice (ok); FX round-trip — consistent given S1/S2 fixed.
 | Pay9 | Low | `salesInvoices` view INNER JOINs `salesInvoiceShipment` (purchase side is LEFT JOIN). An invoice missing its shipment row disappears from the view and becomes unpayable (balance defaults to 0). LEFT JOIN is strictly safer. |
 | Pay8+ | Verified good | Over-settlement guard (reads views, row locks, cumulative cash+memo cap), partial/multiple payments, dust forgiveness (matches `INVOICE_DUST_THRESHOLD`), settlement deletion cascades, void journal reversal, memo journal shape, exchange-rate edit locking. |
 
-## Recommended remediation tiers
+## Remediation status
 
-**Tier 1 — same family as the fixed bugs, safe and minimal:**
+Tier 1 was implemented on this branch immediately after the audit (see the
+follow-up commit). Tier 2 is captured in
+`.ai/specs/2026-07-02-exchange-rate-convention-normalization.md` (FX) and
+remains open for S4/S6/S8/Pay5/Pay6/Pay8/P6.
+
+**Tier 1 — same family as the fixed bugs, safe and minimal (IMPLEMENTED):**
 - S1 + S2 + S3: fix `post-sales-invoice` totals (add nonTaxableAddOnCost
   outside the tax multiplier; weight header shipping by the pre-tax basis;
   zero-basis fallback). One patch, makes AR == view total exactly.

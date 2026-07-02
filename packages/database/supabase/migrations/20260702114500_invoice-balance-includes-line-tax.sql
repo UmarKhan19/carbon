@@ -159,7 +159,10 @@ CREATE VIEW "salesInvoices" WITH(SECURITY_INVOKER=true) AS
     LEFT JOIN "modelUpload" mu ON mu.id = i."modelUploadId"
     GROUP BY sil."invoiceId"
   ) sil ON sil."invoiceId" = si."id"
-  JOIN "salesInvoiceShipment" ss ON ss."id" = si."id"
+  -- LEFT JOIN (was INNER): an invoice missing its shipment row must not
+  -- vanish from the view — post-payment would read its balance as 0 and
+  -- reject every application. shippingCost is already COALESCEd.
+  LEFT JOIN "salesInvoiceShipment" ss ON ss."id" = si."id"
   LEFT JOIN "paymentTerm" pt ON pt."id" = si."paymentTermId"
   LEFT JOIN settled s ON s."targetSalesInvoiceId" = si."id";
 
