@@ -4,19 +4,21 @@
 
 - **Design Spec:** `.ai/specs/2026-07-02-financial-reporting.md` (status: in-progress, all open questions resolved)
 - **Research:** `.ai/research/financial-reporting.md`
-- **Tasks:** 18 tasks + gated verification
+- **Tasks:** 24 tasks + gated verification
 - **Branch:** `feature/financial-reporting`
 
-Scope = spec v1: statement of cash flows (indirect, single-company), Retained
+Scope = the full spec (former Phase 2 folded into v1): statement of cash flows
+(indirect; single-company AND consolidated with FX-effect line), Retained
 Earnings / Net Income split, GL detail report + journal drawer + drill-down
-links, four-column trial balance, comparative columns, CSV export. Phase 2
-items (consolidated SCF, PDF package, period-snapped presets, saved reports)
-are explicitly out of scope.
+links, four-column trial balance, comparative columns, CSV export, PDF
+financial statements package, period picker, and saved report views. Still out
+of scope: cash-basis toggle, dimension-filtered statements, PDF customization,
+shared views.
 
 **Ground rules for the executor:**
 
 - Do NOT regenerate or commit `packages/database/src/types.ts` — committed types are cloud-generated. Access new columns (`account.cashFlowActivity`, new `trialBalance` RPC return columns) via `as unknown as` / `(client as any)` casts (established pattern; see the period-closing plan and `(client as any).from("itemSamplingPlan")` in post-receipt).
-- Do NOT rebuild the database. Apply the migration with `pnpm db:migrate` only, when the local stack is up (Task 15).
+- Do NOT rebuild the database. Apply the migration with `pnpm db:migrate` only, when the local stack is up (Task 22).
 - Typecheck per package (`pnpm --filter @carbon/erp typecheck`), never whole-repo `tsc --noEmit` (OOMs).
 - Sign convention (load-bearing): `journalLine.amount` is **class-normal signed** — positive = the account's natural direction (debit for Asset/Expense, credit for Liability/Equity/Revenue). See `packages/utils/src/accounting.ts`. Never assume "positive = debit" globally.
 - Commit only at marked checkpoints after verification passes (check-and-commit gate); never auto-commit.
@@ -24,10 +26,11 @@ are explicitly out of scope.
 ## Dependencies
 
 ```
-Task 1 (migration file) ── Task 16 (apply migration) — deferred until stack is up
+Task 1 (migration file) ── Task 22 (apply migration) — deferred until stack is up
 Task 2 (models/types) ─┬─ Task 3 (pure utils + tests)
                        ├─ Task 4 (RE/CYE split service) ── Task 10 (statement tree display + drill links)
-                       ├─ Task 5 (cash flow service) ───── Task 8 (cash-flow route/UI)
+                       ├─ Task 5 (cash flow service) ─┬─── Task 8 (cash-flow route/UI)
+                       │                              └─── Task 16 (rates + consolidated SCF service) ── Task 17 (consolidated SCF UI)
                        └─ Task 6 (GL detail service) ───── Task 9 (general-ledger route/UI)
 Task 7 (path.ts + nav) — independent; needed by Tasks 8, 9, 11
 Task 11 (journal drawer) — after Task 7
@@ -35,15 +38,19 @@ Task 12 (comparatives) — after Task 4
 Task 13 (trial balance UI) — after Tasks 1 (SQL shape), 7
 Task 14 (account form select) — after Task 2
 Task 15 (CSV export buttons) — after Tasks 8, 10, 13
-Task 16 (apply migration) — env-gated, before Task 17
-Task 17 (full gate: typecheck/lint/tests) — after all code tasks
-Task 18 (browser verification /test) — last
-Independent of each other (parallel-safe): 3∥4∥5∥6, 8∥9∥11∥13∥14
+Task 18 (period picker) — after Task 7 (reads period-closing columns; hides gracefully)
+Task 19 (report views service + resource route) — after Tasks 1 (table), 2
+Task 20 (report views UI in filters) — after Task 19
+Task 21 (PDF package: component + route + buttons) — after Tasks 4, 5, 16
+Task 22 (apply migration) — env-gated, before Task 23
+Task 23 (full gate: typecheck/lint/tests) — after all code tasks
+Task 24 (browser verification /test) — last
+Independent of each other (parallel-safe): 3∥4∥5∥6, 8∥9∥11∥13∥14, 16∥18∥19
 ```
 
 ## Progress
 
-- [ ] Task 1: Migration — `cashFlowActivity` enum/column, `accounts` view, four-column `trialBalance` RPC
+- [ ] Task 1: Migration — `cashFlowActivity` enum/column, `accounts` view, `reportView` table, four-column `trialBalance` RPC
 - [ ] Task 2: Models & types — cash flow enums, validator field, statement types
 - [ ] Task 3: Pure helpers + unit tests — activity mapping, fiscal year start, cash flow builder
 - [ ] Task 4: Service — Retained Earnings / Net Income split in `getFinancialStatementBalances`
@@ -58,9 +65,15 @@ Independent of each other (parallel-safe): 3∥4∥5∥6, 8∥9∥11∥13∥14
 - [ ] Task 13: Trial balance — four-column UI + drill links
 - [ ] Task 14: Account form — Cash Flow Activity select
 - [ ] Task 15: CSV export buttons on statement reports
-- [ ] Task 16: Apply migration locally
-- [ ] Task 17: Full verification gate
-- [ ] Task 18: Browser verification (/test)
+- [ ] Task 16: Service — currency rates helper + consolidated cash flow
+- [ ] Task 17: Cash flow UI — consolidated mode + FX-effect line
+- [ ] Task 18: Period picker in ReportFilters
+- [ ] Task 19: Report views — models, service, resource route
+- [ ] Task 20: Report views UI — dropdown + save/delete in ReportFilters
+- [ ] Task 21: PDF financial statements package
+- [ ] Task 22: Apply migration locally
+- [ ] Task 23: Full verification gate
+- [ ] Task 24: Browser verification (/test)
 
 ---
 
@@ -94,7 +107,43 @@ DROP VIEW IF EXISTS "accounts";
 CREATE VIEW "accounts" WITH(SECURITY_INVOKER=true) AS
 SELECT * FROM "account";
 
--- 3. Four-column trial balance. Return shape changes, so DROP first
+-- 3. Saved report views — personal-preference table mirroring
+--    userModulePreference (20260512174538_menu-customization.sql):
+--    simple PK, owner-scoped RLS, (userId, companyId, report, name) unique.
+--    No createdBy/updatedBy: ownership IS userId (matches precedent).
+CREATE TABLE IF NOT EXISTS "reportView" (
+  "id" TEXT NOT NULL DEFAULT id('rpv'),
+  "userId" TEXT NOT NULL REFERENCES "user"("id") ON DELETE CASCADE,
+  "companyId" TEXT NOT NULL REFERENCES "company"("id") ON DELETE CASCADE,
+  "report" TEXT NOT NULL CHECK ("report" IN
+    ('balance-sheet', 'income-statement', 'cash-flow', 'trial-balance', 'general-ledger')),
+  "name" TEXT NOT NULL,
+  "params" JSONB NOT NULL DEFAULT '{}',
+  "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  "updatedAt" TIMESTAMP WITH TIME ZONE,
+
+  CONSTRAINT "reportView_pkey" PRIMARY KEY ("id"),
+  CONSTRAINT "reportView_userId_companyId_report_name_key"
+    UNIQUE ("userId", "companyId", "report", "name")
+);
+
+CREATE INDEX IF NOT EXISTS "reportView_userId_companyId_idx"
+  ON "reportView" ("userId", "companyId");
+
+ALTER TABLE "reportView" ENABLE ROW LEVEL SECURITY;
+
+DO $$ BEGIN
+  CREATE POLICY "SELECT" ON "reportView"
+    FOR SELECT USING ("userId" = auth.uid()::text);
+  CREATE POLICY "INSERT" ON "reportView"
+    FOR INSERT WITH CHECK ("userId" = auth.uid()::text);
+  CREATE POLICY "UPDATE" ON "reportView"
+    FOR UPDATE USING ("userId" = auth.uid()::text);
+  CREATE POLICY "DELETE" ON "reportView"
+    FOR DELETE USING ("userId" = auth.uid()::text);
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+-- 4. Four-column trial balance. Return shape changes, so DROP first
 --    (CREATE OR REPLACE cannot change an OUT row type).
 DROP FUNCTION IF EXISTS "trialBalance"(TEXT, TEXT, DATE, DATE);
 
@@ -190,17 +239,17 @@ END;
 $$;
 ```
 
-3. Do NOT apply yet — application is Task 15. Do NOT run `pnpm db:types`.
+3. Do NOT apply yet — application is Task 22. Do NOT run `pnpm db:types`.
 
 **Verify:**
 ```bash
 ls packages/database/supabase/migrations/ | grep financial-reporting
 # Expected: one file, timestamp newer than every existing migration, HHMMSS not 000000
 grep -c "IF NOT EXISTS\|IF EXISTS\|duplicate_object" packages/database/supabase/migrations/*financial-reporting.sql
-# Expected: >= 4 (idempotency guards present)
+# Expected: >= 7 (idempotency guards present, incl. reportView table/index/policies)
 ```
 
-**Out of scope:** RLS changes (no new tables; `account` policies already cover the column), `accountTreeBalancesByCompany` (unchanged), any backfill of `cashFlowActivity` (NULL = derive from accountType is the design).
+**Out of scope:** RLS on existing tables (`account` policies already cover the new column), `accountTreeBalancesByCompany` (unchanged), any backfill of `cashFlowActivity` (NULL = derive from accountType is the design), `createdBy`/`updatedBy` on `reportView` (ownership is `userId`, matching the `userModulePreference` precedent).
 
 ---
 
@@ -416,7 +465,7 @@ export async function getCashFlowStatement(
 }
 ```
 
-Follow the exact fetch/error-handling pattern of `getFinancialStatementBalances` (parallel `Promise.all`, return the first error response untouched). `companyId` is required (single-company v1 per spec).
+Follow the exact fetch/error-handling pattern of `getFinancialStatementBalances` (parallel `Promise.all`, return the first error response untouched). `companyId` is required — this function computes one company in its local currency; Task 16's `getConsolidatedCashFlowStatement` composes it across companies.
 
 **Verify:**
 ```bash
@@ -540,9 +589,9 @@ grep -n "cashFlowStatement\|generalLedger" apps/erp/app/utils/path.ts
 
 **Steps:**
 
-1. Route: copy `balance-sheet.tsx`'s structure. Loader: `requirePermissions(request, { view: "accounting", role: "employee" })`; read `companies`, `startDate`, `endDate` params; **single company only** — resolve `selectedCompanyId` as balance-sheet does but never enter a multi-company branch (the UI passes `hideConsolidated` to filters, step 3). Call `getCashFlowStatement(client, companyGroupId, selectedCompanyId, { startDate, endDate })`; on error, redirect to `path.to.accounting` with flash (copy the pattern verbatim). `handle.breadcrumb: "Cash Flow"`, `to: path.to.cashFlowStatement`.
+1. Route: copy `balance-sheet.tsx`'s structure. Loader: `requirePermissions(request, { view: "accounting", role: "employee" })`; read `companies`, `startDate`, `endDate` params; resolve `selectedCompanyId` as balance-sheet does. **This task builds the single-company path only**: when `companiesParam === "all"`, temporarily fall back to the session `companyId` (Task 17 replaces this fallback with the consolidated branch — leave a `// TODO(Task 17)` on that line). Call `getCashFlowStatement(client, companyGroupId, selectedCompanyId, { startDate, endDate })`; on error, redirect to `path.to.accounting` with flash (copy the pattern verbatim). `handle.breadcrumb: "Cash Flow"`, `to: path.to.cashFlowStatement`.
 2. `CashFlowStatement.tsx`: render the sections in order — Operating (first line "Net Income", then each `operating` line), Investing, Financing, Unclassified (only when non-empty, with an amber header warning: "N accounts have no cash flow activity — set an account type or override"), then the footer block: Net change in cash / Cash at beginning of period / Cash at end of period / (Unreconciled difference row only when non-zero, styled destructive). Use the table primitives `TrialBalanceTable.tsx` uses (grep its imports — `@carbon/react` `Table`/`Thead`/`Tbody` wrappers) and the same currency formatting helper it uses. Section subtotal rows use the same styling as that table's totals row. Each account line's amount links to `path.to.generalLedger + "?accountId={id}&startDate=...&endDate=..."`; the Net Income line links to `path.to.incomeStatement` with the same window.
-3. `ReportFilters` reuse: pass the same props balance-sheet passes; if `ReportFilters` has no way to hide the "all companies" option, add an optional `hideConsolidated?: boolean` prop to it (default false) that filters that option out — modify `ReportFilters.tsx` minimally.
+3. `ReportFilters` reuse: pass the same props balance-sheet passes (the "All companies" option stays visible — it resolves to the fallback until Task 17 wires the consolidated branch).
 4. No parenthesized counts anywhere (house style).
 
 **Verify:**
@@ -731,7 +780,258 @@ pnpm --filter @carbon/erp typecheck 2>&1 | tail -3
 
 ---
 
-## Task 16: Apply migration locally
+## Task 16: Service — currency rates helper + consolidated cash flow
+
+**Depends on:** Task 5
+**Files:**
+- Modify: `apps/erp/app/modules/accounting/accounting.service.ts` — two new functions after `getCashFlowStatement`
+- Modify: `apps/erp/app/modules/accounting/types.ts` — extend `CashFlowStatement` with `effectOfExchangeRates?: number`
+
+**Steps:**
+
+1. Rate helper — mirror the exact fallback chain of `translateTrialBalance` in `packages/database/supabase/migrations/20260315000002_exchange-rate-history.sql` (average = `AVG(rate)` over the window; closing = latest `rate` on/before a date; fallbacks average → closing → 1; `translated = local × rate`). Read that migration before implementing; if the rate direction there is not `local × rate = parent`, STOP and report.
+
+```typescript
+export async function getCurrencyRatesForWindow(
+  client: SupabaseClient<Database>,
+  companyGroupId: string,
+  currencyCode: string,
+  args: { startDate: string | null; endDate: string | null }
+) {
+  // Query exchangeRateHistory (companyGroupId + currencyCode):
+  //  - average: AVG of rate where effectiveDate in [startDate, endDate]
+  //  - closingAtStart: latest rate where effectiveDate <= startDate (window
+  //    open; beginning cash is the balance *before* startDate)
+  //  - closingAtEnd: latest rate where effectiveDate <= endDate
+  // Apply fallbacks per rate: average ?? closingAtEnd ?? 1; closing ?? 1.
+  // Return { data: { average, closingAtStart, closingAtEnd }, error: null }.
+  // When currencyCode equals the parent/base currency or no rows exist, all 1.
+}
+```
+
+Fetch rows once with `.gte`/`.lte` on `effectiveDate` plus one query for the latest-before-start rate; compute in TS (no new RPC).
+
+2. Consolidated statement:
+
+```typescript
+export async function getConsolidatedCashFlowStatement(
+  client: SupabaseClient<Database>,
+  companyGroupId: string,
+  companyIds: string[],
+  parentCurrency: string,
+  args: { startDate: string | null; endDate: string | null }
+) {
+  // For each company (Promise.all):
+  //   - getCashFlowStatement (local currency)
+  //   - company.baseCurrencyCode → getCurrencyRatesForWindow
+  //   - translate: every section line amount and netIncome × average;
+  //     beginningCash × closingAtStart; endingCash × closingAtEnd
+  // Merge section lines across companies by accountId (shared chart), summing
+  // translated amounts; sum netIncome/beginningCash/endingCash.
+  // effectOfExchangeRates = endingCash − beginningCash −
+  //   (netIncome + operatingΣ + investingΣ + financingΣ + unclassifiedΣ)
+  // netChangeInCash (displayed) = endingCash − beginningCash.
+  // Return { data: CashFlowStatement & { effectOfExchangeRates }, error }.
+}
+```
+
+Companies list comes from the caller (route already loads `getCompaniesInGroup` — pass `baseCurrencyCode` per company through rather than re-fetching). Do NOT apply `generateEliminations` here — elimination journals are non-cash balanced adjustments; the elimination company's own journals are included when its id is in `companyIds` (same as other statements).
+
+3. Unit-test the pure merge/plug math: extract a pure `mergeTranslatedCashFlows(perCompany: TranslatedCompanyFlow[])` into `accounting.utils.ts` and add tests in `accounting.utils.test.ts`: (a) two same-currency companies (all rates 1) → FX effect exactly 0, sections sum; (b) one foreign company with average 1.1, closingAtStart 1.0, closingAtEnd 1.2 → FX effect = ending×1.2 − beginning×1.0 − flows×1.1 (assert the identity Beginning + flows + FX = Ending in parent currency).
+
+**Verify:**
+```bash
+pnpm --filter @carbon/erp test -- accounting.utils
+# Expected: mergeTranslatedCashFlows tests pass (same-currency zero-FX case + foreign-rate identity case)
+pnpm --filter @carbon/erp typecheck 2>&1 | tail -3
+# Expected: exit 0
+```
+
+**Out of scope:** eliminations on the SCF (non-cash by construction), historical-rate equity handling (SCF uses average/closing only), caching rates.
+
+---
+
+## Task 17: Cash flow UI — consolidated mode + FX-effect line
+
+**Depends on:** Tasks 8, 16
+**Files:**
+- Modify: `apps/erp/app/routes/x+/accounting+/cash-flow.tsx` — multi-company branch
+- Modify: `apps/erp/app/modules/accounting/ui/Reports/CashFlowStatement.tsx` — FX line + currency label
+- Copy from (precedent): the multi-company branch in `apps/erp/app/routes/x+/accounting+/balance-sheet.tsx` (lines ~47–88: `companiesParam === "all"`, parent currency resolution)
+
+**Steps:**
+
+1. Route: replace Task 8's `// TODO(Task 17)` single-company fallback. Copy balance-sheet's `selectedCompanyIds`/`isMultiCompany`/`parentCurrency` resolution; when `isMultiCompany && parentCurrency`, call `getConsolidatedCashFlowStatement(client, companyGroupId, selectedCompanyIds, parentCurrency, { startDate, endDate })` (pass each company's `baseCurrencyCode` from the already-loaded companies list); else keep the single-company call. Return `parentCurrency` + `isMultiCompany` for display.
+2. `CashFlowStatement.tsx`: accept optional `effectOfExchangeRates` and `currencyCode` props. When `effectOfExchangeRates` is defined, render an "Effect of exchange rate changes on cash" row between the Financing section and the cash reconciliation footer (same row styling as section subtotals). Show the currency code in the header when provided (consolidated = parent currency). In consolidated mode, line-level drill links to the GL detail remain per-account but without a company filter — append no `companyId` param.
+3. The footer identity in consolidated mode: Beginning + Net change (flows) + FX effect = Ending — assert visually by rendering Net change as `endingCash − beginningCash − effectOfExchangeRates` (flows-only) so the four footer rows sum exactly.
+
+**Verify:**
+```bash
+pnpm --filter @carbon/erp typecheck 2>&1 | tail -3
+# Expected: exit 0
+grep -n "effectOfExchangeRates" apps/erp/app/modules/accounting/ui/Reports/CashFlowStatement.tsx | head -2
+# Expected: prop consumed
+```
+
+**Out of scope:** `showTranslated` toggle on single foreign-currency company (BS/IS-only concern), CTA (balance-sheet concept, not SCF).
+
+---
+
+## Task 18: Period picker in ReportFilters
+
+**Depends on:** Task 7
+**Files:**
+- Modify: `apps/erp/app/modules/accounting/ui/Reports/ReportFilters.tsx` — Dates | Period mode toggle
+- Modify: `apps/erp/app/routes/x+/accounting+/{balance-sheet,income-statement,cash-flow,trial-balance,general-ledger}.tsx` — loaders pass `periods` data
+- Modify: `apps/erp/app/modules/accounting/accounting.service.ts` — `getReportingPeriods`
+
+**Steps:**
+
+1. Service (reads period-closing's columns directly so this feature depends only on that MIGRATION, not its services):
+
+```typescript
+export async function getReportingPeriods(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  const result = await client
+    .from("accountingPeriod")
+    .select("id, startDate, endDate")
+    .eq("companyId", companyId)
+    .order("startDate", { ascending: false });
+  if (result.error) return result;
+  // fiscalYear/periodNumber are period-closing columns absent from committed
+  // types — read via cast; rows where either is null are filtered out.
+  const rows = (result.data ?? []) as unknown as {
+    id: string; startDate: string; endDate: string;
+    fiscalYear: number | null; periodNumber: number | null;
+  }[];
+  return { data: rows.filter((r) => r.fiscalYear !== null && r.periodNumber !== null), error: null };
+}
+```
+
+Select `"*"` if the narrowed select rejects unknown columns at runtime — the cast handles the shape either way. If the `accountingPeriod` table has no `fiscalYear` column at all (period-closing migration not applied), PostgREST returns every row with the cast fields `undefined` → the filter yields `[]` → the toggle hides. Confirm this degradation path works; if selecting explicit missing columns errors instead, fall back to `select("*")`.
+
+2. `ReportFilters.tsx`: add a two-option segmented control Dates | Period (render only when a new optional `periods` prop is non-empty). Period mode replaces the two DatePickers with: fiscal year `Select` (distinct `fiscalYear` desc) + period `Select` ("Full year" + periods of that FY as "P{periodNumber} ({MMM})"). On selection, write `startDate`/`endDate` of the chosen period (or FY span for "Full year") via the existing `setParams` call (line ~84 pattern) — nothing else in any loader changes. Track mode in a `mode` search param so it survives navigation; default `dates`.
+3. Each of the five report loaders: call `getReportingPeriods(client, selectedCompanyId ?? companyId)` and pass `periods` to `ReportFilters`. Comparison column header (Task 12's tree): when `mode=period` and a comparison is active, label the comparison column with the computed window's month/period name instead of the raw dates (pure display; reuse the window dates already returned by the loader).
+
+**Verify:**
+```bash
+pnpm --filter @carbon/erp typecheck 2>&1 | tail -3
+# Expected: exit 0
+pnpm --filter @carbon/erp test -- accounting.utils
+# Expected: still green (no util regressions)
+```
+
+**Out of scope:** creating/generating periods (period-closing's `/x/accounting/periods` UI), snapping compare presets to non-monthly calendars (periods are monthly by construction), locking/closing semantics.
+
+---
+
+## Task 19: Report views — models, service, resource route
+
+**Depends on:** Tasks 1 (table), 2
+**Files:**
+- Modify: `apps/erp/app/modules/accounting/accounting.models.ts` — `reportViewValidator`
+- Modify: `apps/erp/app/modules/accounting/accounting.service.ts` — three functions
+- Create: `apps/erp/app/routes/x+/accounting+/report-views.tsx` — resource route (action only)
+- Modify: `apps/erp/app/utils/path.ts` — `reportViews: `${x}/accounting/report-views``
+- Copy from (precedent): any small intent-based action route in `x+/accounting+/` (e.g. the delete routes) for the action shape
+
+**Steps:**
+
+1. Validator:
+
+```typescript
+export const reportViewValidator = z.object({
+  id: zfd.text(z.string().optional()),
+  report: z.enum(["balance-sheet", "income-statement", "cash-flow", "trial-balance", "general-ledger"]),
+  name: z.string().min(1, { message: "Name is required" }),
+  params: z.string(), // JSON-stringified search params from the client
+});
+```
+
+2. Service (RLS is owner-scoped, but scope queries defensively anyway). `reportView` is absent from committed types — use `(client as any).from("reportView")` with explicit row typing on the way out (`ReportView` type in `types.ts`: `{ id, userId, companyId, report, name, params: Record<string, string> }`):
+
+```typescript
+getReportViews(client, companyId: string, userId: string, report: string)
+  // select *, eq companyId + userId + report, order name; parse params JSONB
+upsertReportView(client, view: { id?: string; userId: string; companyId: string; report: string; name: string; params: Record<string, string> })
+  // insert or update-by-id; set updatedAt on update
+deleteReportView(client, id: string, userId: string)
+  // delete eq id + userId (defense in depth on top of RLS)
+```
+
+3. Resource route: action only (`assertIsPost`), `requirePermissions(request, { view: "accounting" })` (personal data — the report's own view permission suffices; do NOT require update/create on accounting). `intent` field: `save` → validate with `reportViewValidator`, `JSON.parse(params)` into a record, call `upsertReportView` with `userId` from the session; `delete` → `deleteReportView(client, id, userId)`. Return `{ success: true }` or flash error — plain objects, never `Response.json`.
+
+**Verify:**
+```bash
+pnpm --filter @carbon/erp typecheck 2>&1 | tail -3
+# Expected: exit 0
+grep -n "reportViews" apps/erp/app/utils/path.ts
+# Expected: present
+```
+
+**Out of scope:** sharing views across users, view management screen (dropdown-only in v1), MCP tool exposure.
+
+---
+
+## Task 20: Report views UI — dropdown + save/delete in ReportFilters
+
+**Depends on:** Task 19
+**Files:**
+- Modify: `apps/erp/app/modules/accounting/ui/Reports/ReportFilters.tsx` — views dropdown + save popover
+- Modify: `apps/erp/app/routes/x+/accounting+/{balance-sheet,income-statement,cash-flow,trial-balance,general-ledger}.tsx` — loaders return `reportViews` via `getReportViews`
+- Copy from (precedent): `apps/erp/app/components/Table/components/TableHeader.tsx` saved-views affordance for visual placement; a `DropdownMenu` from `@carbon/react` for the menu itself
+
+**Steps:**
+
+1. `ReportFilters` gains optional props `report: string` and `views: ReportView[]`. When provided, render a "Views" `DropdownMenu` (leftmost in the filter row): one item per saved view (click = `navigate({ search: new URLSearchParams(view.params).toString() })`), each with a delete icon button submitting `intent=delete` + `id` to `path.to.reportViews` via `useFetcher`; a divider; "Save current view…" opening a small popover with a name input that submits `intent=save`, `report`, `name`, and `params = JSON.stringify(Object.fromEntries(currentSearchParams))` to the same route via `ValidatedForm` + `reportViewValidator`.
+2. On successful save/delete, `revalidate` (fetcher completion already triggers loader revalidation; confirm the views list refreshes — if not, call `useRevalidator().revalidate()` on `fetcher.state === "idle" && fetcher.data?.success`).
+3. Each report loader: `getReportViews(client, companyId, userId, "<report-slug>")` and pass through. Keep the dropdown hidden when `views` prop is undefined (e.g. other future consumers of ReportFilters).
+
+**Verify:**
+```bash
+pnpm --filter @carbon/erp typecheck 2>&1 | tail -3
+# Expected: exit 0
+```
+
+**Out of scope:** renaming views inline (delete + re-save covers v1), default/pinned views.
+
+---
+
+## Task 21: PDF financial statements package
+
+**Depends on:** Tasks 4, 5, 16
+**Files:**
+- Create: `packages/documents/src/pdf/FinancialStatementsPDF.tsx`
+- Modify: `packages/documents/src/pdf/index.ts` — barrel export
+- Create: `apps/erp/app/routes/file+/accounting+/financial-statements[.]pdf.tsx`
+- Modify: `apps/erp/app/utils/path.ts` — `financialStatementsPdf` path helper (with query-param builder)
+- Modify: `apps/erp/app/routes/x+/accounting+/{balance-sheet,income-statement,cash-flow}.tsx` — "Download PDF" button beside Export CSV
+- Copy from (precedent): route shape `apps/erp/app/routes/file+/sales-invoice+/$id[.]pdf.tsx` (renderToStream → Buffer → `application/pdf` response, `ensureFont` before render); component style `packages/documents/src/pdf/components/Template.tsx` shell per `.ai/rules/pdf-generation-patterns.md` (hand-built tree — NOT block-registry; check how `KanbanLabelPDF.tsx` imports `useTw`/`tw` for styling)
+
+**Steps:**
+
+1. `FinancialStatementsPDF.tsx`: props `{ company: { name, logo? }, currencyCode, startDate, endDate, balanceSheet: StatementRow[], incomeStatement: StatementRow[], cashFlow: CashFlowStatement & { effectOfExchangeRates?: number } }` where `StatementRow = { name, number?, depth, amount, isGroup, isComputed? }` (flattened tree, depth-indented). Render inside `<Template title="Financial Statements" meta={{...}}>`: one section per statement (new `<Page>` per statement via three Template-wrapped pages OR one Template with page breaks — follow whatever `Template.tsx` supports; if Template is single-page-flow only, render three `<Page>` elements inside one `<Document>` manually reusing Template's header/footer components and STOP-note the deviation). Rows: name (indented 8pt per depth), right-aligned amount (`text-[9px]`, `tabular-nums` if supported); group rows bold; computed rows italic with a "(computed)" suffix; section totals with top border. Style exclusively via `useTw()`/`tw` semantic grays.
+2. Route: `requirePermissions(request, { view: "accounting", role: "employee" })`; parse `companies`, `startDate`, `endDate` from the query string; resolve company selection exactly as `balance-sheet.tsx` does; fetch the three datasets with the same service calls the three screens use (`getFinancialStatementBalances` ×2 filtered by `incomeBalance`, or `getConsolidatedBalances` when multi-company; `getCashFlowStatement` / `getConsolidatedCashFlowStatement`); flatten trees to `StatementRow[]` (depth from parent chain, same ordering as the screens); `await ensureFont(...)` (default family) then `renderToStream(<FinancialStatementsPDF ... />)`; drain to Buffer; respond `application/pdf` with `Content-Disposition: inline; filename="{company} - Financial Statements {endDate}.pdf"`.
+3. Buttons: on the three statement routes, an icon-link "Download PDF" beside the Export CSV button, `href = path.to.financialStatementsPdf + "?" + currentSearchParams` opening in a new tab.
+4. Run `pnpm --filter @carbon/documents build` once if `fonts.data.ts` is missing locally (gitignored, generated).
+
+**Verify:**
+```bash
+pnpm --filter @carbon/documents typecheck 2>&1 | tail -3
+# Expected: exit 0
+pnpm --filter @carbon/erp typecheck 2>&1 | tail -3
+# Expected: exit 0
+grep -n "FinancialStatementsPDF" packages/documents/src/pdf/index.ts
+# Expected: exported
+```
+
+**Out of scope:** document-template customizer integration (`DOCUMENT_PDFS` registration is for customizable/previewable docs — skip it), trial balance / GL detail in the PDF, ZPL/printing, email delivery.
+
+---
+
+## Task 22: Apply migration locally
 
 **Depends on:** Task 1 (and the local stack being up — if `crbn up` isn't running, STOP and ask the user; never rebuild the DB)
 **Files:** none (applies `packages/database/supabase/migrations/*financial-reporting.sql`)
@@ -748,6 +1048,9 @@ psql "postgresql://postgres:postgres@127.0.0.1:$PORT_DB/postgres" -c \
 psql "postgresql://postgres:postgres@127.0.0.1:$PORT_DB/postgres" -c \
   "SELECT proname, pronargs FROM pg_proc WHERE proname='trialBalance';"
 # Expected: one row, 4 args
+psql "postgresql://postgres:postgres@127.0.0.1:$PORT_DB/postgres" -c \
+  "SELECT relrowsecurity FROM pg_class WHERE relname='reportView';"
+# Expected: one row, t (table exists with RLS enabled)
 ```
 
 3. Re-apply idempotency check: run the migration file once more via psql `-f`; expect zero errors.
@@ -758,18 +1061,20 @@ psql "postgresql://postgres:postgres@127.0.0.1:$PORT_DB/postgres" -c \
 
 ---
 
-## Task 17: Full verification gate
+## Task 23: Full verification gate
 
-**Depends on:** all code tasks (2–15) + Task 16
+**Depends on:** all code tasks (2–21) + Task 22
 **Files:** none
 
 **Steps + Verify:**
 
 ```bash
 pnpm --filter @carbon/erp test -- accounting
-# Expected: all accounting tests pass (utils incl. new cash-flow/fiscal-year/comparison suites)
+# Expected: all accounting tests pass (utils incl. cash-flow/fiscal-year/comparison/merge-translated suites)
 pnpm --filter @carbon/erp typecheck 2>&1 | tail -3
 # Expected: exit 0
+pnpm --filter @carbon/documents typecheck 2>&1 | tail -3
+# Expected: exit 0 (FinancialStatementsPDF)
 pnpm run lint 2>&1 | tail -5
 # Expected: no new errors (Biome clean on changed files)
 git status --porcelain -- packages/database/src/types.ts
@@ -780,9 +1085,9 @@ Then commit via the check-and-commit gate (user-approved checkpoints only).
 
 ---
 
-## Task 18: Browser verification (/test)
+## Task 24: Browser verification (/test)
 
-**Depends on:** Task 17, local stack up, accounting enabled (`/x/settings/accounting` — crbn reset seeds it off)
+**Depends on:** Task 23, local stack up, accounting enabled (`/x/settings/accounting` — crbn reset seeds it off)
 **Files:** none
 
 **Steps:**
@@ -794,8 +1099,12 @@ Then commit via the check-and-commit gate (user-approved checkpoints only).
    - Income statement with `Compare: Previous year` → three extra columns, sane variance math on one spot-checked account.
    - Trial balance → Opening/Period/Closing groups each foot to equal debits and credits; Export CSV downloads on all four reports.
    - Account form: set an Other Current Liability account's Cash Flow Activity to Financing → cash flow statement moves its line.
+   - Cash flow with `Companies: All` → sections in the parent currency, an "Effect of exchange rate changes on cash" row present, and Beginning + Net change + FX effect = Ending (exactly 0 FX when all companies share the currency).
+   - "Download PDF" on the balance sheet → an `application/pdf` response opens containing all three statements; spot-check one total per statement against the screens.
+   - With period-closing's migration applied and periods generated: switch filters to Period mode, pick "FY · P{current}" → dates populate and the report matches the same manual date range; with no periods, the toggle is absent.
+   - Save a view "Board pack" on the income statement (consolidated + prior-year compare), navigate away, reapply from the Views dropdown → identical URL params; delete it → gone from the dropdown.
 2. Capture screenshots of each report for the PR (house rule: net-new UI PRs include agent-browser screenshots).
 
 **Verify:** `/test` playbook passes all scenarios; screenshots saved.
 
-**Out of scope:** consolidated cash flow, PDF package, performance testing.
+**Out of scope:** performance testing, Xero-sync interactions.
