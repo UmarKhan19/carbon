@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-02T11:28:30.226Z",
-  "totalTools": 1264,
+  "generated": "2026-07-02T16:02:34.279Z",
+  "totalTools": 1265,
   "modules": 15,
   "tools": [
     {
@@ -36617,6 +36617,33 @@
         },
         "required": [
           "useMetric"
+        ]
+      }
+    },
+    {
+      "name": "settings_updatePlmReleaseControlSetting",
+      "module": "settings",
+      "classification": "WRITE",
+      "description": "update plm release control setting",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "plmReleaseControl"
+      ],
+      "injectAuth": [
+        "companyId",
+        "updatedBy"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "plmReleaseControl": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "plmReleaseControl"
         ]
       }
     },

@@ -2408,6 +2408,9 @@ msgstr "控制器，会计"
 msgid "Controls how planning handles a discontinued item: Consume First exhausts on-hand before switching to the successor, Prefer New redirects new demand to the successor immediately, Stock Only keeps only a minimum service reserve, and No Stock drops the item from planning entirely."
 msgstr "控制规划如何处理已停产的物料：优先消耗会在切换到替代物料前耗尽现有库存，优先新品会立即将新需求重定向到替代物料，仅库存会仅保留最少的服务库存，无库存会将物料从规划中完全删除。"
 
+msgid "Controls whether the bill of material and bill of process of a released (Production) revision can be edited outside a change order."
+msgstr ""
+
 msgid "Convention"
 msgstr "惯例"
 
@@ -3660,6 +3663,9 @@ msgstr "描述（可选）"
 msgid "Description of Issue"
 msgstr "问题描述"
 
+msgid "Design"
+msgstr ""
+
 msgid "Detail"
 msgstr "详情"
 
@@ -4349,6 +4355,9 @@ msgstr "结束日期"
 
 msgid "End Time"
 msgstr "结束时间"
+
+msgid "Enforce — edits are blocked"
+msgstr ""
 
 msgid "Enforce per-item validation and guidelines across receipts, shipments, transfers, and adjustments."
 msgstr "在收据、发货、转移和调整中强制执行按项目验证和指南。"
@@ -7781,6 +7790,9 @@ msgstr "数字"
 msgid "Number of inventory units per purchase unit"
 msgstr "每个采购单位的库存单位数"
 
+msgid "Obsolete"
+msgstr ""
+
 msgid "OEE Impact"
 msgstr "OEE 影响"
 
@@ -7792,6 +7804,9 @@ msgstr "的"
 
 msgid "of {total} phases complete"
 msgstr "的 {total} 个阶段已完成"
+
+msgid "Off — released revisions stay editable"
+msgstr ""
 
 msgid "OK"
 msgstr "确定"
@@ -8801,6 +8816,9 @@ msgstr "保护上线日期"
 msgid "Protect training time and attend"
 msgstr "保护培训时间并参加"
 
+msgid "Prototype"
+msgstr ""
+
 msgid "Provide process knowledge and inputs"
 msgstr "提供流程知识和输入"
 
@@ -9317,6 +9335,12 @@ msgstr "相对时间线 · 日期待确认"
 msgid "Release"
 msgstr "释放"
 
+msgid "Release control"
+msgstr ""
+
+msgid "Release Control"
+msgstr ""
+
 msgid "Release Job"
 msgstr "发布工作"
 
@@ -9324,6 +9348,12 @@ msgid "Released"
 msgstr "已发布"
 
 msgid "Released Object"
+msgstr ""
+
+msgid "Released revision"
+msgstr ""
+
+msgid "Released revision is locked"
 msgstr ""
 
 msgid "Remaining"
@@ -11988,6 +12018,12 @@ msgstr "这个零件已过时（无库存）。"
 msgid "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 msgstr "此零件已被替代并设置为仅库存 — 它补充到其备件储备下限，与需求无关。"
 
+msgid "This revision is released (Production). Changes should normally flow through a change order."
+msgstr ""
+
+msgid "This revision is released (Production). Open a change order to modify it."
+msgstr ""
+
 msgid "This sales order has associated jobs. Choose what to do with them."
 msgstr "此销售订单有关联的工作。选择如何处理它们。"
 
@@ -12936,6 +12972,9 @@ msgstr "仓库, 运营"
 
 msgid "Warn"
 msgstr "警告"
+
+msgid "Warn — edits succeed with a warning"
+msgstr ""
 
 msgid "Warn but allow"
 msgstr "警告但允许"

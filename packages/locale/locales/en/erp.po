@@ -2408,6 +2408,9 @@ msgstr "Controller, Accountant"
 msgid "Controls how planning handles a discontinued item: Consume First exhausts on-hand before switching to the successor, Prefer New redirects new demand to the successor immediately, Stock Only keeps only a minimum service reserve, and No Stock drops the item from planning entirely."
 msgstr "Controls how planning handles a discontinued item: Consume First exhausts on-hand before switching to the successor, Prefer New redirects new demand to the successor immediately, Stock Only keeps only a minimum service reserve, and No Stock drops the item from planning entirely."
 
+msgid "Controls whether the bill of material and bill of process of a released (Production) revision can be edited outside a change order."
+msgstr "Controls whether the bill of material and bill of process of a released (Production) revision can be edited outside a change order."
+
 msgid "Convention"
 msgstr "Convention"
 
@@ -3660,6 +3663,9 @@ msgstr "Description (optional)"
 msgid "Description of Issue"
 msgstr "Description of Issue"
 
+msgid "Design"
+msgstr "Design"
+
 msgid "Detail"
 msgstr "Detail"
 
@@ -4349,6 +4355,9 @@ msgstr "End Date"
 
 msgid "End Time"
 msgstr "End Time"
+
+msgid "Enforce — edits are blocked"
+msgstr "Enforce — edits are blocked"
 
 msgid "Enforce per-item validation and guidelines across receipts, shipments, transfers, and adjustments."
 msgstr "Enforce per-item validation and guidelines across receipts, shipments, transfers, and adjustments."
@@ -7781,6 +7790,9 @@ msgstr "Number"
 msgid "Number of inventory units per purchase unit"
 msgstr "Number of inventory units per purchase unit"
 
+msgid "Obsolete"
+msgstr "Obsolete"
+
 msgid "OEE Impact"
 msgstr "OEE Impact"
 
@@ -7792,6 +7804,9 @@ msgstr "of"
 
 msgid "of {total} phases complete"
 msgstr "of {total} phases complete"
+
+msgid "Off — released revisions stay editable"
+msgstr "Off — released revisions stay editable"
 
 msgid "OK"
 msgstr "OK"
@@ -8801,6 +8816,9 @@ msgstr "Protect the go-live date"
 msgid "Protect training time and attend"
 msgstr "Protect training time and attend"
 
+msgid "Prototype"
+msgstr "Prototype"
+
 msgid "Provide process knowledge and inputs"
 msgstr "Provide process knowledge and inputs"
 
@@ -9317,6 +9335,12 @@ msgstr "Relative timeline · dates to be confirmed"
 msgid "Release"
 msgstr "Release"
 
+msgid "Release control"
+msgstr "Release control"
+
+msgid "Release Control"
+msgstr "Release Control"
+
 msgid "Release Job"
 msgstr "Release Job"
 
@@ -9325,6 +9349,12 @@ msgstr "Released"
 
 msgid "Released Object"
 msgstr "Released Object"
+
+msgid "Released revision"
+msgstr "Released revision"
+
+msgid "Released revision is locked"
+msgstr "Released revision is locked"
 
 msgid "Remaining"
 msgstr "Remaining"
@@ -11988,6 +12018,12 @@ msgstr "This part is obsolete (No Stock)."
 msgid "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 msgstr "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 
+msgid "This revision is released (Production). Changes should normally flow through a change order."
+msgstr "This revision is released (Production). Changes should normally flow through a change order."
+
+msgid "This revision is released (Production). Open a change order to modify it."
+msgstr "This revision is released (Production). Open a change order to modify it."
+
 msgid "This sales order has associated jobs. Choose what to do with them."
 msgstr "This sales order has associated jobs. Choose what to do with them."
 
@@ -12936,6 +12972,9 @@ msgstr "Warehouse, Ops"
 
 msgid "Warn"
 msgstr "Warn"
+
+msgid "Warn — edits succeed with a warning"
+msgstr "Warn — edits succeed with a warning"
 
 msgid "Warn but allow"
 msgstr "Warn but allow"

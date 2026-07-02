@@ -2408,6 +2408,9 @@ msgstr "Contrôleur, Comptable"
 msgid "Controls how planning handles a discontinued item: Consume First exhausts on-hand before switching to the successor, Prefer New redirects new demand to the successor immediately, Stock Only keeps only a minimum service reserve, and No Stock drops the item from planning entirely."
 msgstr "Contrôle la façon dont la planification gère un article discontinué : Consommer d'abord épuise le stock existant avant de basculer vers le successeur, Préférer le nouveau redirige immédiatement la nouvelle demande vers le successeur, Stock uniquement conserve uniquement une réserve de service minimale, et Pas de stock supprime l'article de la planification entièrement."
 
+msgid "Controls whether the bill of material and bill of process of a released (Production) revision can be edited outside a change order."
+msgstr ""
+
 msgid "Convention"
 msgstr "Convention"
 
@@ -3660,6 +3663,9 @@ msgstr "Description (facultatif)"
 msgid "Description of Issue"
 msgstr "Description du problème"
 
+msgid "Design"
+msgstr ""
+
 msgid "Detail"
 msgstr "Détail"
 
@@ -4349,6 +4355,9 @@ msgstr "Date de fin"
 
 msgid "End Time"
 msgstr "Heure de fin"
+
+msgid "Enforce — edits are blocked"
+msgstr ""
 
 msgid "Enforce per-item validation and guidelines across receipts, shipments, transfers, and adjustments."
 msgstr "Appliquer la validation et les directives par article dans les reçus, les expéditions, les transferts et les ajustements."
@@ -7781,6 +7790,9 @@ msgstr "Nombre"
 msgid "Number of inventory units per purchase unit"
 msgstr "Nombre d'unités d'inventaire par unité d'achat"
 
+msgid "Obsolete"
+msgstr ""
+
 msgid "OEE Impact"
 msgstr "Impact OEE"
 
@@ -7792,6 +7804,9 @@ msgstr "de"
 
 msgid "of {total} phases complete"
 msgstr "de {total} phases complètes"
+
+msgid "Off — released revisions stay editable"
+msgstr ""
 
 msgid "OK"
 msgstr "OK"
@@ -8801,6 +8816,9 @@ msgstr "Protéger la date de mise en production"
 msgid "Protect training time and attend"
 msgstr "Protégez le temps de formation et participez"
 
+msgid "Prototype"
+msgstr ""
+
 msgid "Provide process knowledge and inputs"
 msgstr "Fournir les connaissances et les données du processus"
 
@@ -9317,6 +9335,12 @@ msgstr "Chronologie relative · dates à confirmer"
 msgid "Release"
 msgstr "Libération"
 
+msgid "Release control"
+msgstr ""
+
+msgid "Release Control"
+msgstr ""
+
 msgid "Release Job"
 msgstr "Lancer le travail"
 
@@ -9324,6 +9348,12 @@ msgid "Released"
 msgstr "Libéré"
 
 msgid "Released Object"
+msgstr ""
+
+msgid "Released revision"
+msgstr ""
+
+msgid "Released revision is locked"
 msgstr ""
 
 msgid "Remaining"
@@ -11988,6 +12018,12 @@ msgstr "Cette pièce est obsolète (Pas de stock)."
 msgid "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 msgstr "Cette pièce est obsolète et définie sur Stock Only — elle est réapprovisionnée jusqu'à son plancher de réserve de pièces de rechange, indépendamment de la demande."
 
+msgid "This revision is released (Production). Changes should normally flow through a change order."
+msgstr ""
+
+msgid "This revision is released (Production). Open a change order to modify it."
+msgstr ""
+
 msgid "This sales order has associated jobs. Choose what to do with them."
 msgstr "Cette commande client a des tâches associées. Choisissez ce que vous souhaitez en faire."
 
@@ -12936,6 +12972,9 @@ msgstr "Entrepôt, Ops"
 
 msgid "Warn"
 msgstr "Avertissement"
+
+msgid "Warn — edits succeed with a warning"
+msgstr ""
 
 msgid "Warn but allow"
 msgstr "Avertir mais autoriser"

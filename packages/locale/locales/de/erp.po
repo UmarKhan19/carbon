@@ -2408,6 +2408,9 @@ msgstr "Controller, Buchhalter"
 msgid "Controls how planning handles a discontinued item: Consume First exhausts on-hand before switching to the successor, Prefer New redirects new demand to the successor immediately, Stock Only keeps only a minimum service reserve, and No Stock drops the item from planning entirely."
 msgstr "Steuert, wie die Planung ein eingestelltes Artikel handhabt: Consume First erschöpft den Bestand, bevor zur Nachfolgeposition gewechselt wird, Prefer New leitet neue Nachfrage sofort zur Nachfolgeposition um, Stock Only behält nur einen minimalen Servicebestand, und No Stock entfernt den Artikel vollständig aus der Planung."
 
+msgid "Controls whether the bill of material and bill of process of a released (Production) revision can be edited outside a change order."
+msgstr ""
+
 msgid "Convention"
 msgstr "Konvention"
 
@@ -3660,6 +3663,9 @@ msgstr "Beschreibung (optional)"
 msgid "Description of Issue"
 msgstr "Problembeschreibung"
 
+msgid "Design"
+msgstr ""
+
 msgid "Detail"
 msgstr "Detail"
 
@@ -4349,6 +4355,9 @@ msgstr "Enddatum"
 
 msgid "End Time"
 msgstr "Endzeit"
+
+msgid "Enforce — edits are blocked"
+msgstr ""
 
 msgid "Enforce per-item validation and guidelines across receipts, shipments, transfers, and adjustments."
 msgstr "Erzwingen Sie eine Validierung und Richtlinien pro Artikel über Eingänge, Lieferungen, Transfers und Anpassungen hinweg."
@@ -7781,6 +7790,9 @@ msgstr "Zahl"
 msgid "Number of inventory units per purchase unit"
 msgstr "Anzahl der Bestandseinheiten pro Kaufeinheit"
 
+msgid "Obsolete"
+msgstr ""
+
 msgid "OEE Impact"
 msgstr "OEE-Auswirkung"
 
@@ -7792,6 +7804,9 @@ msgstr "von"
 
 msgid "of {total} phases complete"
 msgstr "von {total} Phasen abgeschlossen"
+
+msgid "Off — released revisions stay editable"
+msgstr ""
 
 msgid "OK"
 msgstr "OK"
@@ -8801,6 +8816,9 @@ msgstr "Schützen Sie das Go-Live-Datum"
 msgid "Protect training time and attend"
 msgstr "Schulungszeit schützen und teilnehmen"
 
+msgid "Prototype"
+msgstr ""
+
 msgid "Provide process knowledge and inputs"
 msgstr "Prozesswissen und Eingaben bereitstellen"
 
@@ -9317,6 +9335,12 @@ msgstr "Relative Zeitleiste · Daten müssen noch bestätigt werden"
 msgid "Release"
 msgstr "Freigabe"
 
+msgid "Release control"
+msgstr ""
+
+msgid "Release Control"
+msgstr ""
+
 msgid "Release Job"
 msgstr "Auftrag freigeben"
 
@@ -9324,6 +9348,12 @@ msgid "Released"
 msgstr "Freigegeben"
 
 msgid "Released Object"
+msgstr ""
+
+msgid "Released revision"
+msgstr ""
+
+msgid "Released revision is locked"
 msgstr ""
 
 msgid "Remaining"
@@ -11988,6 +12018,12 @@ msgstr "Dieses Teil ist veraltet (Kein Bestand)."
 msgid "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 msgstr "Dieses Teil ist überholt und auf „Nur Bestand\" eingestellt — es wird bis zur Reservefläche für Ersatzteile aufgefüllt, unabhängig von der Nachfrage."
 
+msgid "This revision is released (Production). Changes should normally flow through a change order."
+msgstr ""
+
+msgid "This revision is released (Production). Open a change order to modify it."
+msgstr ""
+
 msgid "This sales order has associated jobs. Choose what to do with them."
 msgstr "Diese Bestellung hat zugeordnete Aufträge. Wählen Sie, was damit geschehen soll."
 
@@ -12936,6 +12972,9 @@ msgstr "Lager, Betrieb"
 
 msgid "Warn"
 msgstr "Warnung"
+
+msgid "Warn — edits succeed with a warning"
+msgstr ""
 
 msgid "Warn but allow"
 msgstr "Warnen, aber zulassen"

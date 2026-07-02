@@ -132,6 +132,8 @@ import type {
   ConfigurationRule,
   MakeMethod
 } from "../../types";
+import type { ReleaseLockProps } from "./ReleaseLockAlert";
+import ReleaseLockAlert, { getReleaseLockFlags } from "./ReleaseLockAlert";
 
 type Operation = z.infer<typeof methodOperationValidator> & {
   workInstruction: JSONContent | null;
@@ -158,7 +160,7 @@ type BillOfProcessProps = {
   })[];
   parameters?: ConfigurationParameter[];
   tags: { name: string }[];
-};
+} & ReleaseLockProps;
 
 type PendingWorkInstructions = {
   [key: string]: JSONContent;
@@ -206,13 +208,20 @@ const BillOfProcess = ({
   materials,
   operations: initialOperations,
   parameters,
-  tags
+  tags,
+  revisionStatus,
+  releaseControl
 }: BillOfProcessProps) => {
   const permissions = usePermissions();
   const { t } = useLingui();
+  const { isProductionRevision, isReleaseLocked } = getReleaseLockFlags({
+    revisionStatus,
+    releaseControl
+  });
   const isReadOnly =
     permissions.can("update", "parts") === false ||
-    makeMethod.status !== "Draft";
+    makeMethod.status !== "Draft" ||
+    isReleaseLocked;
 
   const makeMethodId = makeMethod.id;
 
@@ -863,6 +872,9 @@ const BillOfProcess = ({
         </CardAction>
       </HStack>
       <CardContent>
+        {isProductionRevision && (
+          <ReleaseLockAlert isLocked={isReleaseLocked} className="mb-4" />
+        )}
         <SortableList
           isReadOnly={isReadOnly}
           items={items}

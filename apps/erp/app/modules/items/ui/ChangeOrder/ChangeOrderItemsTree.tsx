@@ -32,6 +32,7 @@ import { LevelLine } from "~/components/TreeView";
 import { usePermissions } from "~/hooks";
 import type { ChangeOrderItem } from "~/modules/items";
 import { path } from "~/utils/path";
+import ItemRevisionStatus from "../Item/ItemRevisionStatus";
 import { AddAffectedItemModal } from "./ChangeOrderItems";
 
 // Affected-items sidebar: search + per-item rows linking to the focused view.
@@ -222,6 +223,7 @@ function AffectedItemNode({
           fromRevision={item.revision}
           toRevision={item.pendingItem?.revision}
         />
+        <ItemRevisionStatus status={item.revisionStatus} />
       </Link>
       {canDelete && (
         <DropdownMenu>

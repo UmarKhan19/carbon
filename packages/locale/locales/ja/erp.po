@@ -2408,6 +2408,9 @@ msgstr "コントローラー、会計士"
 msgid "Controls how planning handles a discontinued item: Consume First exhausts on-hand before switching to the successor, Prefer New redirects new demand to the successor immediately, Stock Only keeps only a minimum service reserve, and No Stock drops the item from planning entirely."
 msgstr "計画が廃止品目をどのように処理するかを制御します。「Consume First」は在庫を使い切ってから後継品に切り替え、「Prefer New」は新規需要をすぐに後継品にリダイレクト、「Stock Only」は最小限のサービス在庫のみを保持、「No Stock」は品目を計画から完全に削除します。"
 
+msgid "Controls whether the bill of material and bill of process of a released (Production) revision can be edited outside a change order."
+msgstr ""
+
 msgid "Convention"
 msgstr "慣例"
 
@@ -3660,6 +3663,9 @@ msgstr "説明（オプション）"
 msgid "Description of Issue"
 msgstr "問題の説明"
 
+msgid "Design"
+msgstr ""
+
 msgid "Detail"
 msgstr "詳細"
 
@@ -4349,6 +4355,9 @@ msgstr "終了日"
 
 msgid "End Time"
 msgstr "終了時刻"
+
+msgid "Enforce — edits are blocked"
+msgstr ""
 
 msgid "Enforce per-item validation and guidelines across receipts, shipments, transfers, and adjustments."
 msgstr "領収書、出荷、転送、および調整全体にわたって、品目ごとの検証とガイドラインを実施します。"
@@ -7781,6 +7790,9 @@ msgstr "数字"
 msgid "Number of inventory units per purchase unit"
 msgstr "購買単位あたりの在庫単位数"
 
+msgid "Obsolete"
+msgstr ""
+
 msgid "OEE Impact"
 msgstr "OEE影響"
 
@@ -7792,6 +7804,9 @@ msgstr "の"
 
 msgid "of {total} phases complete"
 msgstr "{total}フェーズ中完了"
+
+msgid "Off — released revisions stay editable"
+msgstr ""
 
 msgid "OK"
 msgstr "OK"
@@ -8801,6 +8816,9 @@ msgstr "ゴーライブ日を保護する"
 msgid "Protect training time and attend"
 msgstr "トレーニング時間を確保して参加する"
 
+msgid "Prototype"
+msgstr ""
+
 msgid "Provide process knowledge and inputs"
 msgstr "プロセスの知識と入力を提供する"
 
@@ -9317,6 +9335,12 @@ msgstr "相対的なタイムライン · 日付は確認待ちです"
 msgid "Release"
 msgstr "リリース"
 
+msgid "Release control"
+msgstr ""
+
+msgid "Release Control"
+msgstr ""
+
 msgid "Release Job"
 msgstr "ジョブをリリース"
 
@@ -9324,6 +9348,12 @@ msgid "Released"
 msgstr "リリース済み"
 
 msgid "Released Object"
+msgstr ""
+
+msgid "Released revision"
+msgstr ""
+
+msgid "Released revision is locked"
 msgstr ""
 
 msgid "Remaining"
@@ -11988,6 +12018,12 @@ msgstr "このパーツは廃止されています（在庫なし）。"
 msgid "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 msgstr "このパーツは廃止予定であり、「Stock Only」に設定されています。予備部品の予備フロアまで補充され、需要とは無関係に運用されます。"
 
+msgid "This revision is released (Production). Changes should normally flow through a change order."
+msgstr ""
+
+msgid "This revision is released (Production). Open a change order to modify it."
+msgstr ""
+
 msgid "This sales order has associated jobs. Choose what to do with them."
 msgstr "この販売注文には関連するジョブがあります。それらをどうするかを選択してください。"
 
@@ -12936,6 +12972,9 @@ msgstr "倉庫、オペレーション"
 
 msgid "Warn"
 msgstr "警告"
+
+msgid "Warn — edits succeed with a warning"
+msgstr ""
 
 msgid "Warn but allow"
 msgstr "警告するが許可する"

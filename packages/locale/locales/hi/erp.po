@@ -2408,6 +2408,9 @@ msgstr "नियंत्रक, लेखाकार"
 msgid "Controls how planning handles a discontinued item: Consume First exhausts on-hand before switching to the successor, Prefer New redirects new demand to the successor immediately, Stock Only keeps only a minimum service reserve, and No Stock drops the item from planning entirely."
 msgstr "नियंत्रित करता है कि योजना एक बंद की गई वस्तु को कैसे संभालती है: पहले उपभोग करें हाथ पर स्टॉक को समाप्त करता है फिर उत्तराधिकारी पर स्विच करता है, नई को प्राथमिकता दें नई मांग को तुरंत उत्तराधिकारी को पुनर्निर्देशित करता है, केवल स्टॉक केवल न्यूनतम सेवा रिजर्व रखता है, और कोई स्टॉक नहीं वस्तु को योजना से पूरी तरह हटा देता है।"
 
+msgid "Controls whether the bill of material and bill of process of a released (Production) revision can be edited outside a change order."
+msgstr ""
+
 msgid "Convention"
 msgstr "अभिसम्मति"
 
@@ -3660,6 +3663,9 @@ msgstr "विवरण (वैकल्पिक)"
 msgid "Description of Issue"
 msgstr "समस्या का विवरण"
 
+msgid "Design"
+msgstr ""
+
 msgid "Detail"
 msgstr "विवरण"
 
@@ -4349,6 +4355,9 @@ msgstr "अंतिम तारीख"
 
 msgid "End Time"
 msgstr "समाप्ति समय"
+
+msgid "Enforce — edits are blocked"
+msgstr ""
 
 msgid "Enforce per-item validation and guidelines across receipts, shipments, transfers, and adjustments."
 msgstr "रसीदों, शिपमेंट, ट्रांसफर और समायोजन में प्रति-आइटम सत्यापन और दिशानिर्देश लागू करें।"
@@ -7781,6 +7790,9 @@ msgstr "संख्या"
 msgid "Number of inventory units per purchase unit"
 msgstr "प्रति क्रय इकाई इन्वेंटरी इकाइयों की संख्या"
 
+msgid "Obsolete"
+msgstr ""
+
 msgid "OEE Impact"
 msgstr "OEE प्रभाव"
 
@@ -7792,6 +7804,9 @@ msgstr "का"
 
 msgid "of {total} phases complete"
 msgstr "of {total} phases complete"
+
+msgid "Off — released revisions stay editable"
+msgstr ""
 
 msgid "OK"
 msgstr "ठीक है"
@@ -8801,6 +8816,9 @@ msgstr "गो-लाइव की तारीख की सुरक्षा 
 msgid "Protect training time and attend"
 msgstr "प्रशिक्षण समय की सुरक्षा करें और भाग लें"
 
+msgid "Prototype"
+msgstr ""
+
 msgid "Provide process knowledge and inputs"
 msgstr "प्रक्रिया ज्ञान और इनपुट प्रदान करें"
 
@@ -9317,6 +9335,12 @@ msgstr "सापेक्ष समयरेखा · तारीखें प
 msgid "Release"
 msgstr "रिलीज़"
 
+msgid "Release control"
+msgstr ""
+
+msgid "Release Control"
+msgstr ""
+
 msgid "Release Job"
 msgstr "जॉब रिलीज़ करें"
 
@@ -9324,6 +9348,12 @@ msgid "Released"
 msgstr "जारी किया गया"
 
 msgid "Released Object"
+msgstr ""
+
+msgid "Released revision"
+msgstr ""
+
+msgid "Released revision is locked"
 msgstr ""
 
 msgid "Remaining"
@@ -11988,6 +12018,12 @@ msgstr "यह पार्ट अप्रचलित है (स्टॉक 
 msgid "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 msgstr "यह पार्ट अप्रचलित है और Stock Only पर सेट है — इसे इसके स्पेयर रिजर्व फ्लोर तक भरा जाता है, मांग से स्वतंत्र।"
 
+msgid "This revision is released (Production). Changes should normally flow through a change order."
+msgstr ""
+
+msgid "This revision is released (Production). Open a change order to modify it."
+msgstr ""
+
 msgid "This sales order has associated jobs. Choose what to do with them."
 msgstr "इस बिक्रय आदेश के संबंधित कार्य हैं। उनके साथ क्या करना है यह चुनें।"
 
@@ -12936,6 +12972,9 @@ msgstr "गोदाम, संचालन"
 
 msgid "Warn"
 msgstr "चेतावनी"
+
+msgid "Warn — edits succeed with a warning"
+msgstr ""
 
 msgid "Warn but allow"
 msgstr "चेतावनी दें लेकिन अनुमति दें"

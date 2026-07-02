@@ -2408,6 +2408,9 @@ msgstr "Kontrolör, Muhasebeci"
 msgid "Controls how planning handles a discontinued item: Consume First exhausts on-hand before switching to the successor, Prefer New redirects new demand to the successor immediately, Stock Only keeps only a minimum service reserve, and No Stock drops the item from planning entirely."
 msgstr "Planlamanın kullanımdan kaldırılan bir öğeyi nasıl işlediğini kontrol eder: Önce Tüket mevcut stoğu tüketir ve ardından halefi kullanmaya geçer, Yeni Tercih et yeni talebi hemen halefi yönlendirir, Yalnızca Stok minimum bir hizmet rezervi tutar ve Stok Yok öğeyi planlama işleminden tamamen çıkarır.\""
 
+msgid "Controls whether the bill of material and bill of process of a released (Production) revision can be edited outside a change order."
+msgstr ""
+
 msgid "Convention"
 msgstr "Sözleşme"
 
@@ -3660,6 +3663,9 @@ msgstr "Açıklama (isteğe bağlı)"
 msgid "Description of Issue"
 msgstr "Sorun Açıklaması"
 
+msgid "Design"
+msgstr ""
+
 msgid "Detail"
 msgstr "Detay"
 
@@ -4349,6 +4355,9 @@ msgstr "Bitiş Tarihi"
 
 msgid "End Time"
 msgstr "Bitiş Saati"
+
+msgid "Enforce — edits are blocked"
+msgstr ""
 
 msgid "Enforce per-item validation and guidelines across receipts, shipments, transfers, and adjustments."
 msgstr "Alışmalar, sevkiyatlar, transferler ve ayarlamalarda kalem bazında doğrulama ve yönergeleri zorunlu kılın."
@@ -7781,6 +7790,9 @@ msgstr "Numara"
 msgid "Number of inventory units per purchase unit"
 msgstr "Satın alma birimi başına envanter birimi sayısı"
 
+msgid "Obsolete"
+msgstr ""
+
 msgid "OEE Impact"
 msgstr "OEE Etkisi"
 
@@ -7792,6 +7804,9 @@ msgstr "adet"
 
 msgid "of {total} phases complete"
 msgstr "{total} aşamanın tamamlandığı"
+
+msgid "Off — released revisions stay editable"
+msgstr ""
 
 msgid "OK"
 msgstr "Tamam"
@@ -8801,6 +8816,9 @@ msgstr "Go-live tarihini koruyun"
 msgid "Protect training time and attend"
 msgstr "Eğitim zamanını koru ve katıl"
 
+msgid "Prototype"
+msgstr ""
+
 msgid "Provide process knowledge and inputs"
 msgstr "Süreç bilgisi ve girdileri sağlayın"
 
@@ -9317,6 +9335,12 @@ msgstr "Göreceli zaman çizelgesi · tarihler onaylanacak"
 msgid "Release"
 msgstr "Serbest Bırakma"
 
+msgid "Release control"
+msgstr ""
+
+msgid "Release Control"
+msgstr ""
+
 msgid "Release Job"
 msgstr "İşi Yayınla"
 
@@ -9324,6 +9348,12 @@ msgid "Released"
 msgstr "Yayınlandı"
 
 msgid "Released Object"
+msgstr ""
+
+msgid "Released revision"
+msgstr ""
+
+msgid "Released revision is locked"
 msgstr ""
 
 msgid "Remaining"
@@ -11988,6 +12018,12 @@ msgstr "Bu parça kullanımdan kaldırılmıştır (Stok Yok)."
 msgid "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 msgstr "Bu parça kullanımdan kaldırılmış ve Yalnızca Stok olarak ayarlanmıştır — talep bağımsız olarak yedek rezerv tabanına kadar yenilenir."
 
+msgid "This revision is released (Production). Changes should normally flow through a change order."
+msgstr ""
+
+msgid "This revision is released (Production). Open a change order to modify it."
+msgstr ""
+
 msgid "This sales order has associated jobs. Choose what to do with them."
 msgstr "Bu satış siparişi ilgili işlere sahiptir. Onlarla ne yapılacağına karar verin."
 
@@ -12936,6 +12972,9 @@ msgstr "Depo, Operasyon"
 
 msgid "Warn"
 msgstr "Uyarı"
+
+msgid "Warn — edits succeed with a warning"
+msgstr ""
 
 msgid "Warn but allow"
 msgstr "Uyarı ver ama izin ver"

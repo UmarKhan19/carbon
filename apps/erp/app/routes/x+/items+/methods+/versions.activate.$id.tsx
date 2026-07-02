@@ -1,8 +1,10 @@
-import { assertIsPost } from "@carbon/auth";
+import { assertIsPost, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
+import { flash } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
+import { checkRevisionLock } from "~/modules/items/items.server";
 import { activateMethodVersion } from "~/modules/items/items.service";
 import { requestReferrer } from "~/utils/path";
 
@@ -20,7 +22,20 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return { success: false, message: "Invalid operation tool id" };
   }
 
-  const update = await activateMethodVersion(getCarbonServiceRole(), {
+  const serviceRole = getCarbonServiceRole();
+
+  // Release-lock gate: activating a make-method version switches the live
+  // BOM/BOP for the item, so resolve the version's parent item and gate on it.
+  const lock = await checkRevisionLock(serviceRole, {
+    kind: "makeMethod",
+    id,
+    companyId
+  });
+  if (!lock.ok) {
+    return { success: false, message: lock.message };
+  }
+
+  const update = await activateMethodVersion(serviceRole, {
     id,
     companyId,
     userId
@@ -52,5 +67,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
     };
   }
 
-  return redirect(redirectPath);
+  return redirect(
+    redirectPath,
+    lock.warn ? await flash(request, success(lock.message)) : undefined
+  );
 }

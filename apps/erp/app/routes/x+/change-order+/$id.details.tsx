@@ -83,7 +83,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     openDate: d.openDate,
     dueDate: d.dueDate || null,
     effectiveDate: d.effectiveDate || null,
-    description: d.description || undefined,
+    description: d.description || "",
     approvalRequirements: d.approvalRequirements,
     sourceType: d.sourceType || null,
     sourceId: d.sourceId || null,
