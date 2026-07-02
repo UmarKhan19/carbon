@@ -170,6 +170,9 @@ export const path = {
         ),
       resourcesKpi: (key: string) =>
         generatePath(`${api}/resources/kpi/${key}`),
+      purchaseInvoice: (id: string) =>
+        generatePath(`${api}/purchase-invoice/${id}`),
+      salesRfq: (id: string) => generatePath(`${api}/sales-rfq/${id}`),
       salesCustomerOverride: `${api}/sales/customer-override`,
       salesKpi: (key: string) => generatePath(`${api}/sales/kpi/${key}`),
       salesResolvePrice: `${api}/sales/resolve-price`,
@@ -1082,6 +1085,8 @@ export const path = {
     locations: `${x}/resources/locations`,
     login: "/login",
     logout: "/logout",
+    download: (token: string) => `/download/${token}`,
+    downloadError: (reason: string) => `/download/error?reason=${reason}`,
     logos: `${x}/settings/logos`,
     maintenanceDispatch: (id: string) => generatePath(`${x}/maintenance/${id}`),
     maintenanceDispatchComments: (id: string) =>
