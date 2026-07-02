@@ -1395,9 +1395,7 @@ export async function getJobMaterialsByMethodId(
 ) {
   return client
     .from("jobMaterial")
-    .select(
-      "*, item(replenishmentSystem), jobMaterialStep(jobOperationStepId)"
-    )
+    .select("*, item(replenishmentSystem), jobMaterialStep(jobOperationStepId)")
     .eq("jobMakeMethodId", jobMakeMethodId)
     .order("order", { ascending: true });
 }
@@ -2959,6 +2957,128 @@ export async function upsertJobOperationStep(
     .eq("id", jobOperationStep.id)
     .select("id")
     .single();
+}
+
+// Job-tier twin of duplicateMethodOperationStep (items.service.ts). Deep-copies a job
+// step's DEFINITION — the step row, its slides (incl. size/annotations), and its
+// step-scoped tool + part/material links — but NOT its jobOperationStepRecord rows: those
+// are captured operator results, not part of the template, and must start empty on a copy.
+// NCR linkage (nonConformance*Id) is intentionally dropped so a clone isn't a second step
+// claiming the same containment action.
+export async function duplicateJobOperationStep(
+  client: SupabaseClient<Database>,
+  args: { id: string; companyId: string; createdBy: string }
+): Promise<{ data: { id: string } | null; error: PostgrestError | null }> {
+  const source = await client
+    .from("jobOperationStep")
+    .select("*")
+    .eq("id", args.id)
+    .single();
+  if (source.error || !source.data) {
+    return { data: null, error: source.error };
+  }
+  const src = source.data;
+
+  // Append after the highest sortOrder in the operation.
+  const siblings = await client
+    .from("jobOperationStep")
+    .select("sortOrder")
+    .eq("operationId", src.operationId);
+  const nextSortOrder =
+    (siblings.data ?? []).reduce(
+      (max, s) => Math.max(max, s.sortOrder ?? 0),
+      0
+    ) + 1;
+
+  const insert = await client
+    .from("jobOperationStep")
+    .insert({
+      operationId: src.operationId,
+      name: `${src.name} (copy)`,
+      description: src.description,
+      type: src.type,
+      unitOfMeasureCode: src.unitOfMeasureCode,
+      minValue: src.minValue,
+      maxValue: src.maxValue,
+      listValues: src.listValues,
+      sortOrder: nextSortOrder,
+      companyId: args.companyId,
+      createdBy: args.createdBy
+    })
+    .select("id")
+    .single();
+  if (insert.error || !insert.data) {
+    return { data: null, error: insert.error };
+  }
+  const newStepId = insert.data.id;
+
+  const slides = await client
+    .from("jobOperationStepSlide")
+    .select("*")
+    .eq("stepId", args.id);
+  if (slides.error) {
+    return { data: null, error: slides.error };
+  }
+  if (slides.data && slides.data.length > 0) {
+    const slideInsert = await client.from("jobOperationStepSlide").insert(
+      slides.data.map((s) => ({
+        stepId: newStepId,
+        imagePath: s.imagePath,
+        caption: s.caption,
+        sortOrder: s.sortOrder,
+        size: s.size,
+        annotations: s.annotations,
+        companyId: args.companyId,
+        createdBy: args.createdBy
+      }))
+    );
+    if (slideInsert.error) {
+      return { data: null, error: slideInsert.error };
+    }
+  }
+
+  // Copy step-scoped tool links. No join rows = operation-level (shown on every step) and
+  // needs nothing copied; only tools scoped to this step carry a row to repoint at the clone.
+  const toolLinks = await client
+    .from("jobOperationToolStep")
+    .select("jobOperationToolId")
+    .eq("jobOperationStepId", args.id);
+  if (toolLinks.error) {
+    return { data: null, error: toolLinks.error };
+  }
+  if (toolLinks.data && toolLinks.data.length > 0) {
+    const toolLinkInsert = await client.from("jobOperationToolStep").insert(
+      toolLinks.data.map((l) => ({
+        jobOperationToolId: l.jobOperationToolId,
+        jobOperationStepId: newStepId
+      }))
+    );
+    if (toolLinkInsert.error) {
+      return { data: null, error: toolLinkInsert.error };
+    }
+  }
+
+  // Copy step-scoped part/material links (same operation-level-vs-scoped semantics as tools).
+  const materialLinks = await client
+    .from("jobMaterialStep")
+    .select("jobMaterialId")
+    .eq("jobOperationStepId", args.id);
+  if (materialLinks.error) {
+    return { data: null, error: materialLinks.error };
+  }
+  if (materialLinks.data && materialLinks.data.length > 0) {
+    const materialLinkInsert = await client.from("jobMaterialStep").insert(
+      materialLinks.data.map((l) => ({
+        jobMaterialId: l.jobMaterialId,
+        jobOperationStepId: newStepId
+      }))
+    );
+    if (materialLinkInsert.error) {
+      return { data: null, error: materialLinkInsert.error };
+    }
+  }
+
+  return { data: { id: newStepId }, error: null };
 }
 
 // Job-tier twin of upsertMethodOperationStepSlide (items.service.ts). Same generic

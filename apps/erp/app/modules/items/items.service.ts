@@ -3825,6 +3825,48 @@ export async function duplicateMethodOperationStep(
     }
   }
 
+  // Copy step-scoped tool links. A tool with NO join rows is operation-level (shown on
+  // every step) and needs nothing copied; only tools scoped to this specific step carry
+  // a row here, and those must be repointed at the clone or the copy silently loses them.
+  const toolLinks = await client
+    .from("methodOperationToolStep")
+    .select("methodOperationToolId")
+    .eq("methodOperationStepId", args.id);
+  if (toolLinks.error) {
+    return { data: null, error: toolLinks.error };
+  }
+  if (toolLinks.data && toolLinks.data.length > 0) {
+    const toolLinkInsert = await client.from("methodOperationToolStep").insert(
+      toolLinks.data.map((l) => ({
+        methodOperationToolId: l.methodOperationToolId,
+        methodOperationStepId: newStepId
+      }))
+    );
+    if (toolLinkInsert.error) {
+      return { data: null, error: toolLinkInsert.error };
+    }
+  }
+
+  // Copy step-scoped part/material links (same operation-level-vs-scoped semantics as tools).
+  const materialLinks = await client
+    .from("methodMaterialStep")
+    .select("methodMaterialId")
+    .eq("methodOperationStepId", args.id);
+  if (materialLinks.error) {
+    return { data: null, error: materialLinks.error };
+  }
+  if (materialLinks.data && materialLinks.data.length > 0) {
+    const materialLinkInsert = await client.from("methodMaterialStep").insert(
+      materialLinks.data.map((l) => ({
+        methodMaterialId: l.methodMaterialId,
+        methodOperationStepId: newStepId
+      }))
+    );
+    if (materialLinkInsert.error) {
+      return { data: null, error: materialLinkInsert.error };
+    }
+  }
+
   return { data: { id: newStepId }, error: null };
 }
 

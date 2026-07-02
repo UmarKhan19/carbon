@@ -1045,6 +1045,8 @@ export const path = {
       generatePath(`${x}/job/methods/${jobId}/operation/delete`),
     jobOperationStep: (id: string) =>
       generatePath(`${x}/job/methods/operation/step/${id}`),
+    duplicateJobOperationStep: (id: string) =>
+      generatePath(`${x}/job/methods/operation/step/duplicate/${id}`),
     deleteJobOperationStepSlide: (id: string) =>
       generatePath(`${x}/job/methods/operation/step/slide/delete/${id}`),
     jobOperationStepOrder: (operationId: string) =>

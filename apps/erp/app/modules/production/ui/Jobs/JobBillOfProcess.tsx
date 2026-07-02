@@ -1750,6 +1750,7 @@ function StepsListItem({
   const deleteModalDisclosure = useDisclosure();
   const submitted = useRef(false);
   const fetcher = useFetcher<typeof editJobOperationStepAction>();
+  const duplicateStepFetcher = useFetcher();
   const { t } = useLingui();
   const [description, setDescription] = useState<JSONContent>(() => {
     if (!attribute.description) return {};
@@ -2021,6 +2022,16 @@ function StepsListItem({
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={disclosure.onOpen}>
                     Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() =>
+                      duplicateStepFetcher.submit(null, {
+                        method: "post",
+                        action: path.to.duplicateJobOperationStep(id)
+                      })
+                    }
+                  >
+                    Duplicate
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     destructive
@@ -3607,8 +3618,13 @@ function ToolsForm({
                   jobOperationStepIds:
                     t.jobOperationStepIds ??
                     (
-                      (t as { jobOperationToolStep?: { jobOperationStepId: string }[] })
-                        .jobOperationToolStep ?? []
+                      (
+                        t as {
+                          jobOperationToolStep?: {
+                            jobOperationStepId: string;
+                          }[];
+                        }
+                      ).jobOperationToolStep ?? []
                     ).map((s) => s.jobOperationStepId)
                 }}
                 operationId={operationId}
