@@ -84,6 +84,9 @@ msgstr "{chainLabel}. इस भाग को सीधे अंतिम उ�
 msgid "{count, plural, one {# course} other {# courses}}"
 msgstr "{count, plural, one {# कोर्स} other {# कोर्स}}"
 
+msgid "{from}–{to} of {count}"
+msgstr "{from}–{to} में से {count}"
+
 #. placeholder {0}: errors.length
 #. placeholder {1}: skipped.length
 msgid "{inserted} inserted, {updated} updated, {0} need fixing, {1} skipped."
@@ -731,6 +734,9 @@ msgstr "सभी पंक्तियाँ आयात की गईं — 
 msgid "All Suppliers"
 msgstr "सभी आपूर्तिकर्ता"
 
+msgid "All Time"
+msgstr "सभी समय"
+
 msgid "All Types"
 msgstr "सभी प्रकार"
 
@@ -870,6 +876,9 @@ msgstr "सभी पर लागू होता है"
 
 msgid "Applies to all work centers"
 msgstr "सभी कार्य केंद्रों पर लागू होता है"
+
+msgid "Apply"
+msgstr "लागू करें"
 
 msgid "Apply available credits"
 msgstr "उपलब्ध क्रेडिट लागू करें"
@@ -1298,6 +1307,13 @@ msgstr "क्या आप सुनिश्चित हैं?"
 
 msgid "As needed"
 msgstr "आवश्यकतानुसार"
+
+msgid "As of"
+msgstr "के अनुसार"
+
+#. placeholder {0}: formatDate(endDate)
+msgid "As of {0}"
+msgstr "{0} के अनुसार"
 
 msgid "As of:"
 msgstr "इसके अनुसार:"
@@ -2041,6 +2057,9 @@ msgstr "बंद"
 
 msgid "Closed Date"
 msgstr "बंद तारीख"
+
+msgid "Closing"
+msgstr "समापन"
 
 msgid "Closure blocked"
 msgstr "बंद करना अवरुद्ध"
@@ -2929,6 +2948,9 @@ msgstr "कस्टम फील्ड्स"
 msgid "Custom SOW · we manage"
 msgstr "कस्टम SOW · हम प्रबंधित करते हैं"
 
+msgid "Custom…"
+msgstr "कस्टम…"
+
 msgid "customer"
 msgstr "ग्राहक"
 
@@ -3126,9 +3148,6 @@ msgstr "जारी करने की तारीख"
 
 msgid "Date Paid"
 msgstr "भुगतान की तारीख"
-
-msgid "Date Range"
-msgstr "तारीख की सीमा"
 
 msgid "Dates"
 msgstr "तारीखें"
@@ -3995,9 +4014,6 @@ msgstr "ग्राहक स्थिति संपादित करें
 msgid "Edit Customer Type"
 msgstr "ग्राहक प्रकार संपादित करें"
 
-msgid "Edit date range"
-msgstr "तारीख की सीमा संपादित करें"
-
 msgid "Edit Department"
 msgstr "विभाग संपादित करें"
 
@@ -4328,6 +4344,15 @@ msgstr "सक्षम"
 msgid "End Date"
 msgstr "अंतिम तारीख"
 
+msgid "End of Last Fiscal Year"
+msgstr "पिछले वित्तीय वर्ष का अंत"
+
+msgid "End of Last Month"
+msgstr "पिछले महीने का अंत"
+
+msgid "End of Last Quarter"
+msgstr "पिछली तिमाही का अंत"
+
 msgid "End Time"
 msgstr "समाप्ति समय"
 
@@ -4387,6 +4412,9 @@ msgstr "इकाई प्रकार"
 
 msgid "Entity type cannot be changed"
 msgstr "इकाई प्रकार को परिवर्तित नहीं किया जा सकता"
+
+msgid "Entry"
+msgstr "प्रविष्टि"
 
 msgid "Entry Type"
 msgstr "प्रविष्टि प्रकार"
@@ -5084,6 +5112,9 @@ msgstr "वित्तीय वर्ष"
 msgid "Fiscal Year Settings"
 msgstr "वित्तीय वर्ष सेटिंग्स"
 
+msgid "Fiscal Year to Date"
+msgstr "वित्तीय वर्ष से अब तक"
+
 msgid "Fiscal Years"
 msgstr "वित्तीय वर्ष"
 
@@ -5157,6 +5188,7 @@ msgstr "आवृत्ति"
 msgid "Friday"
 msgstr "शुक्रवार"
 
+#. placeholder {0}: formatDate(startDate)
 #. placeholder {0}: routeDataFromRoute.supersession.successorEffectivityDate
 msgid "From {0}"
 msgstr "{0} से"
@@ -6295,8 +6327,17 @@ msgstr "अंतिम अंशांकन"
 msgid "Last Calibration Date"
 msgstr "अंतिम अंशांकन तारीख"
 
+msgid "Last Fiscal Year"
+msgstr "पिछला वित्तीय वर्ष"
+
+msgid "Last Month"
+msgstr "पिछला महीना"
+
 msgid "Last Name"
 msgstr "अंतिम नाम"
+
+msgid "Last Quarter"
+msgstr "पिछली तिमाही"
 
 #. placeholder {0}: formatDateTime(lastSyncedAt)
 msgid "Last synced: {0}"
@@ -7105,6 +7146,9 @@ msgstr "नकारात्मक समायोजन"
 msgid "Net book value"
 msgstr "शुद्ध पुस्तक मूल्य"
 
+msgid "Net Change"
+msgstr "शुद्ध परिवर्तन"
+
 msgid "Never"
 msgstr "कभी नहीं"
 
@@ -7663,6 +7707,9 @@ msgstr "अभी तक कोई आपूर्तिकर्ता नह�
 msgid "No time entries for this week"
 msgstr "इस सप्ताह के लिए कोई समय प्रविष्टि नहीं"
 
+msgid "No transactions in this period"
+msgstr "इस अवधि में कोई लेनदेन नहीं"
+
 msgid "No value needed"
 msgstr "कोई मान आवश्यक नहीं"
 
@@ -7923,6 +7970,9 @@ msgstr "खुले लेनदेन"
 
 msgid "Opened"
 msgstr "खुला हुआ"
+
+msgid "Opening"
+msgstr "शुरुआती"
 
 msgid "Opening balance of depreciation already booked before this asset was added to Carbon (use 0 for new acquisitions)."
 msgstr "अवक्षयण का खाता खोलने के संतुलन को पहले ही बुक किया गया है इससे पहले कि यह संपत्ति Carbon में जोड़ी गई थी (नई खरीद के लिए 0 का उपयोग करें)।"
@@ -10070,9 +10120,6 @@ msgstr "ग्राहक प्रकार चुनें"
 msgid "Select customers"
 msgstr "ग्राहकों का चयन करें"
 
-msgid "Select date range to filter net change and balance at date"
-msgstr "तारीख की सीमा चुनें नेट परिवर्तन और तारीख पर शेष को फ़िल्टर करने के लिए"
-
 msgid "Select Employee"
 msgstr "कर्मचारी चुनें"
 
@@ -11900,6 +11947,9 @@ msgstr "यह डाउनलोड लिंक अमान्य है य�
 msgid "This file is no longer available, or you don't have permission to download it."
 msgstr "यह फ़ाइल अब उपलब्ध नहीं है, या आपके पास इसे डाउनलोड करने की अनुमति नहीं है।"
 
+msgid "This Fiscal Year"
+msgstr "यह वित्तीय वर्ष"
+
 msgid "This information will be used on document headers"
 msgstr "यह जानकारी दस्तावेज़ शीर्षलेख पर उपयोग की जाएगी"
 
@@ -11936,6 +11986,9 @@ msgstr "यह लॉट समाप्त हो गया है और इ�
 msgid "This may take a moment. Hang tight."
 msgstr "यह एक पल ले सकता है। धैर्य रखें।"
 
+msgid "This Month"
+msgstr "इस महीने"
+
 msgid "This page of your Implementation Hub is being built. Start from the command center while we finish it."
 msgstr "आपके Implementation Hub का यह पृष्ठ बनाया जा रहा है। जब तक हम इसे पूरा करते हैं, command center से शुरू करें।"
 
@@ -11950,6 +12003,9 @@ msgstr "यह पार्ट अप्रचलित है (स्टॉक 
 
 msgid "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 msgstr "यह पार्ट अप्रचलित है और Stock Only पर सेट है — इसे इसके स्पेयर रिजर्व फ्लोर तक भरा जाता है, मांग से स्वतंत्र।"
+
+msgid "This Quarter"
+msgstr "इस त्रैमासिक"
 
 msgid "This sales order has associated jobs. Choose what to do with them."
 msgstr "इस बिक्रय आदेश के संबंधित कार्य हैं। उनके साथ क्या करना है यह चुनें।"
@@ -11995,6 +12051,10 @@ msgstr "यह संपत्ति के शेष बही मूल्य 
 
 msgid "Three-way match"
 msgstr "तीन-तरफा मेल"
+
+#. placeholder {0}: formatDate(endDate)
+msgid "Through {0}"
+msgstr "{0} तक"
 
 msgid "Thumbnail"
 msgstr "थंबनेल"

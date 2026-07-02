@@ -84,6 +84,9 @@ msgstr "{chainLabel}. Rozważ wskazanie tej części bezpośrednio na ostateczne
 msgid "{count, plural, one {# course} other {# courses}}"
 msgstr "{count, plural, one {# kurs} other {# kursy}}"
 
+msgid "{from}–{to} of {count}"
+msgstr "{from}–{to} z {count}"
+
 #. placeholder {0}: errors.length
 #. placeholder {1}: skipped.length
 msgid "{inserted} inserted, {updated} updated, {0} need fixing, {1} skipped."
@@ -731,6 +734,9 @@ msgstr "Wszystkie wiersze zaimportowane — {inserted} wstawiono, {updated} zakt
 msgid "All Suppliers"
 msgstr "Wszyscy dostawcy"
 
+msgid "All Time"
+msgstr "Cały czas"
+
 msgid "All Types"
 msgstr "Wszystkie typy"
 
@@ -870,6 +876,9 @@ msgstr "Dotyczy wszystkich"
 
 msgid "Applies to all work centers"
 msgstr "Dotyczy wszystkich centrów pracy"
+
+msgid "Apply"
+msgstr "Zastosuj"
 
 msgid "Apply available credits"
 msgstr "Zastosuj dostępne kredyty"
@@ -1298,6 +1307,13 @@ msgstr "Jesteś pewny?"
 
 msgid "As needed"
 msgstr "W razie potrzeby"
+
+msgid "As of"
+msgstr "Na dzień"
+
+#. placeholder {0}: formatDate(endDate)
+msgid "As of {0}"
+msgstr "Od {0}"
 
 msgid "As of:"
 msgstr "Na dzień:"
@@ -2041,6 +2057,9 @@ msgstr "Zamknięty"
 
 msgid "Closed Date"
 msgstr "Data zamknięcia"
+
+msgid "Closing"
+msgstr "Zamknięcie"
 
 msgid "Closure blocked"
 msgstr "Zamknięcie zablokowane"
@@ -2929,6 +2948,9 @@ msgstr "Pola niestandardowe"
 msgid "Custom SOW · we manage"
 msgstr "Niestandardowy SOW · zarządzamy"
 
+msgid "Custom…"
+msgstr "Niestandardowe…"
+
 msgid "customer"
 msgstr "klient"
 
@@ -3126,9 +3148,6 @@ msgstr "Data wystawienia"
 
 msgid "Date Paid"
 msgstr "Data zapłaty"
-
-msgid "Date Range"
-msgstr "Zakres dat"
 
 msgid "Dates"
 msgstr "Daty"
@@ -3995,9 +4014,6 @@ msgstr "Edytuj status klienta"
 msgid "Edit Customer Type"
 msgstr "Edytuj typ klienta"
 
-msgid "Edit date range"
-msgstr "Edytuj zakres dat"
-
 msgid "Edit Department"
 msgstr "Edytuj Dział"
 
@@ -4328,6 +4344,15 @@ msgstr "Włączone"
 msgid "End Date"
 msgstr "Data końcowa"
 
+msgid "End of Last Fiscal Year"
+msgstr "Koniec ostatniego roku obrachunkowego"
+
+msgid "End of Last Month"
+msgstr "Koniec ostatniego miesiąca"
+
+msgid "End of Last Quarter"
+msgstr "Koniec ostatniego kwartału"
+
 msgid "End Time"
 msgstr "Czas zakończenia"
 
@@ -4387,6 +4412,9 @@ msgstr "Typ Jednostki"
 
 msgid "Entity type cannot be changed"
 msgstr "Typ jednostki nie może być zmieniony"
+
+msgid "Entry"
+msgstr "Wpis"
 
 msgid "Entry Type"
 msgstr "Typ wpisu"
@@ -5084,6 +5112,9 @@ msgstr "Rok obrachunkowy"
 msgid "Fiscal Year Settings"
 msgstr "Ustawienia roku obrachunkowego"
 
+msgid "Fiscal Year to Date"
+msgstr "Od początku roku obrachunkowego"
+
 msgid "Fiscal Years"
 msgstr "Lata obrachunkowe"
 
@@ -5157,6 +5188,7 @@ msgstr "Częstotliwość"
 msgid "Friday"
 msgstr "Piątek"
 
+#. placeholder {0}: formatDate(startDate)
 #. placeholder {0}: routeDataFromRoute.supersession.successorEffectivityDate
 msgid "From {0}"
 msgstr "Od {0}"
@@ -6295,8 +6327,17 @@ msgstr "Ostatnia Kalibracja"
 msgid "Last Calibration Date"
 msgstr "Data ostatniej kalibracji"
 
+msgid "Last Fiscal Year"
+msgstr "Ostatni rok obrachunkowy"
+
+msgid "Last Month"
+msgstr "Ostatni miesiąc"
+
 msgid "Last Name"
 msgstr "Nazwisko"
+
+msgid "Last Quarter"
+msgstr "Ostatni kwartał"
 
 #. placeholder {0}: formatDateTime(lastSyncedAt)
 msgid "Last synced: {0}"
@@ -7105,6 +7146,9 @@ msgstr "Ujemna Korekta"
 msgid "Net book value"
 msgstr "Wartość Netto w Księdze"
 
+msgid "Net Change"
+msgstr "Zmiana netto"
+
 msgid "Never"
 msgstr "Nigdy"
 
@@ -7663,6 +7707,9 @@ msgstr "Brak dostawców"
 msgid "No time entries for this week"
 msgstr "Brak wpisów czasu pracy w tym tygodniu"
 
+msgid "No transactions in this period"
+msgstr "Brak transakcji w tym okresie"
+
 msgid "No value needed"
 msgstr "Wartość nie jest wymagana"
 
@@ -7923,6 +7970,9 @@ msgstr "Otwarte transakcje"
 
 msgid "Opened"
 msgstr "Otwarty"
+
+msgid "Opening"
+msgstr "Otwarcie"
 
 msgid "Opening balance of depreciation already booked before this asset was added to Carbon (use 0 for new acquisitions)."
 msgstr "Saldo otwarcia amortyzacji już zaksięgowanej przed dodaniem tego zasobu do Carbon (użyj 0 dla nowych przejęć)."
@@ -10070,9 +10120,6 @@ msgstr "Wybierz typy klientów"
 msgid "Select customers"
 msgstr "Wybierz klientów"
 
-msgid "Select date range to filter net change and balance at date"
-msgstr "Wybierz zakres dat, aby filtrować zmianę netto i saldo na dzień"
-
 msgid "Select Employee"
 msgstr "Wybierz pracownika"
 
@@ -11900,6 +11947,9 @@ msgstr "Ten link pobierania jest nieprawidłowy lub został zmieniony."
 msgid "This file is no longer available, or you don't have permission to download it."
 msgstr "Ten plik nie jest już dostępny lub nie masz uprawnień do jego pobrania."
 
+msgid "This Fiscal Year"
+msgstr "Ten rok obrachunkowy"
+
 msgid "This information will be used on document headers"
 msgstr "Te informacje będą używane w nagłówkach dokumentów"
 
@@ -11936,6 +11986,9 @@ msgstr "Ta partia wygasła i nie można jej pobrać."
 msgid "This may take a moment. Hang tight."
 msgstr "To może chwilę potrwać. Czekaj cierpliwie."
 
+msgid "This Month"
+msgstr "Ten miesiąc"
+
 msgid "This page of your Implementation Hub is being built. Start from the command center while we finish it."
 msgstr "Ta strona Twojego Implementation Hub jest w trakcie budowy. Zacznij od centrum poleceń, podczas gdy ją dokańczamy."
 
@@ -11950,6 +12003,9 @@ msgstr "Ta część jest przestarzała (Brak zapasu)."
 
 msgid "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 msgstr "Ta część jest zastąpiona i ustawiona na Stock Only — jest uzupełniana do poziomu rezerwy części zamiennych, niezależnie od popytu."
+
+msgid "This Quarter"
+msgstr "Ten Kwartał"
 
 msgid "This sales order has associated jobs. Choose what to do with them."
 msgstr "To zamówienie sprzedaży ma powiązane zadania. Wybierz, co z nimi zrobić."
@@ -11995,6 +12051,10 @@ msgstr "Spowoduje to wpisanie pozostałej wartości netto w księgach zasobu."
 
 msgid "Three-way match"
 msgstr "Pojednanie trójstronnie"
+
+#. placeholder {0}: formatDate(endDate)
+msgid "Through {0}"
+msgstr "Do {0}"
 
 msgid "Thumbnail"
 msgstr "Miniatura"

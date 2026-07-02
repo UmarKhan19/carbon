@@ -84,6 +84,9 @@ msgstr "{chainLabel}. Envisagez de pointer cette pièce directement vers le succ
 msgid "{count, plural, one {# course} other {# courses}}"
 msgstr "{count, plural, one {# cours} other {# cours}}"
 
+msgid "{from}–{to} of {count}"
+msgstr "{from}–{to} sur {count}"
+
 #. placeholder {0}: errors.length
 #. placeholder {1}: skipped.length
 msgid "{inserted} inserted, {updated} updated, {0} need fixing, {1} skipped."
@@ -731,6 +734,9 @@ msgstr "Toutes les lignes importées — {inserted} insérées, {updated} mises 
 msgid "All Suppliers"
 msgstr "Tous les fournisseurs"
 
+msgid "All Time"
+msgstr "Tous les temps"
+
 msgid "All Types"
 msgstr "Tous les types"
 
@@ -870,6 +876,9 @@ msgstr "S'applique à tous"
 
 msgid "Applies to all work centers"
 msgstr "S'applique à tous les centres de travail"
+
+msgid "Apply"
+msgstr "Appliquer"
 
 msgid "Apply available credits"
 msgstr "Appliquer les crédits disponibles"
@@ -1298,6 +1307,13 @@ msgstr "Êtes-vous sûr ?"
 
 msgid "As needed"
 msgstr "Selon les besoins"
+
+msgid "As of"
+msgstr "Au"
+
+#. placeholder {0}: formatDate(endDate)
+msgid "As of {0}"
+msgstr "Au {0}"
 
 msgid "As of:"
 msgstr "Au :"
@@ -2041,6 +2057,9 @@ msgstr "Fermé"
 
 msgid "Closed Date"
 msgstr "Date de fermeture"
+
+msgid "Closing"
+msgstr "Clôture"
 
 msgid "Closure blocked"
 msgstr "Fermeture bloquée"
@@ -2929,6 +2948,9 @@ msgstr "Champs personnalisés"
 msgid "Custom SOW · we manage"
 msgstr "SOW personnalisé · nous gérons"
 
+msgid "Custom…"
+msgstr "Personnalisé…"
+
 msgid "customer"
 msgstr "client"
 
@@ -3126,9 +3148,6 @@ msgstr "Date d'émission"
 
 msgid "Date Paid"
 msgstr "Date de paiement"
-
-msgid "Date Range"
-msgstr "Plage de dates"
 
 msgid "Dates"
 msgstr "Dates"
@@ -3995,9 +4014,6 @@ msgstr "Modifier le statut client"
 msgid "Edit Customer Type"
 msgstr "Modifier le type de client"
 
-msgid "Edit date range"
-msgstr "Modifier la plage de dates"
-
 msgid "Edit Department"
 msgstr "Modifier le département"
 
@@ -4328,6 +4344,15 @@ msgstr "Activé"
 msgid "End Date"
 msgstr "Date de fin"
 
+msgid "End of Last Fiscal Year"
+msgstr "Fin du dernier exercice fiscal"
+
+msgid "End of Last Month"
+msgstr "Fin du mois dernier"
+
+msgid "End of Last Quarter"
+msgstr "Fin du dernier trimestre"
+
 msgid "End Time"
 msgstr "Heure de fin"
 
@@ -4387,6 +4412,9 @@ msgstr "Type d'Entité"
 
 msgid "Entity type cannot be changed"
 msgstr "Le type d'entité ne peut pas être modifié"
+
+msgid "Entry"
+msgstr "Écriture"
 
 msgid "Entry Type"
 msgstr "Type d'entrée"
@@ -5084,6 +5112,9 @@ msgstr "Exercice fiscal"
 msgid "Fiscal Year Settings"
 msgstr "Paramètres de l'exercice fiscal"
 
+msgid "Fiscal Year to Date"
+msgstr "Exercice fiscal à ce jour"
+
 msgid "Fiscal Years"
 msgstr "Exercices fiscaux"
 
@@ -5157,6 +5188,7 @@ msgstr "Fréquence"
 msgid "Friday"
 msgstr "Vendredi"
 
+#. placeholder {0}: formatDate(startDate)
 #. placeholder {0}: routeDataFromRoute.supersession.successorEffectivityDate
 msgid "From {0}"
 msgstr "À partir de {0}"
@@ -6295,8 +6327,17 @@ msgstr "Dernier étalonnage"
 msgid "Last Calibration Date"
 msgstr "Dernière date d'étalonnage"
 
+msgid "Last Fiscal Year"
+msgstr "Dernier exercice fiscal"
+
+msgid "Last Month"
+msgstr "Mois dernier"
+
 msgid "Last Name"
 msgstr "Nom de famille"
+
+msgid "Last Quarter"
+msgstr "Dernier trimestre"
 
 #. placeholder {0}: formatDateTime(lastSyncedAt)
 msgid "Last synced: {0}"
@@ -7105,6 +7146,9 @@ msgstr "Ajustement Négatif"
 msgid "Net book value"
 msgstr "Valeur Nette Comptable"
 
+msgid "Net Change"
+msgstr "Variation nette"
+
 msgid "Never"
 msgstr "Jamais"
 
@@ -7663,6 +7707,9 @@ msgstr "Aucun fournisseur pour le moment"
 msgid "No time entries for this week"
 msgstr "Aucune entrée de temps pour cette semaine"
 
+msgid "No transactions in this period"
+msgstr "Aucune transaction au cours de cette période"
+
 msgid "No value needed"
 msgstr "Aucune valeur requise"
 
@@ -7923,6 +7970,9 @@ msgstr "Transactions ouvertes"
 
 msgid "Opened"
 msgstr "Ouvert"
+
+msgid "Opening"
+msgstr "Ouverture"
 
 msgid "Opening balance of depreciation already booked before this asset was added to Carbon (use 0 for new acquisitions)."
 msgstr "Solde d'ouverture de l'amortissement déjà comptabilisé avant l'ajout de cet actif à Carbon (utilisez 0 pour les nouvelles acquisitions)."
@@ -10070,9 +10120,6 @@ msgstr "Sélectionner les types de clients"
 msgid "Select customers"
 msgstr "Sélectionner les clients"
 
-msgid "Select date range to filter net change and balance at date"
-msgstr "Sélectionnez une plage de dates pour filtrer la variation nette et le solde à la date"
-
 msgid "Select Employee"
 msgstr "Sélectionner un employé"
 
@@ -11900,6 +11947,9 @@ msgstr "Ce lien de téléchargement est invalide ou a été modifié."
 msgid "This file is no longer available, or you don't have permission to download it."
 msgstr "Ce fichier n'est plus disponible, ou vous n'avez pas la permission de le télécharger."
 
+msgid "This Fiscal Year"
+msgstr "Cet exercice fiscal"
+
 msgid "This information will be used on document headers"
 msgstr "Ces informations seront utilisées dans les en-têtes de document"
 
@@ -11936,6 +11986,9 @@ msgstr "Ce lot est expiré et ne peut pas être prélevé."
 msgid "This may take a moment. Hang tight."
 msgstr "Cela peut prendre un moment. Tenez bon."
 
+msgid "This Month"
+msgstr "Ce mois"
+
 msgid "This page of your Implementation Hub is being built. Start from the command center while we finish it."
 msgstr "Cette page de votre Implementation Hub est en cours de construction. Commencez par le centre de commande pendant que nous la finissons."
 
@@ -11950,6 +12003,9 @@ msgstr "Cette pièce est obsolète (Pas de stock)."
 
 msgid "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 msgstr "Cette pièce est obsolète et définie sur Stock Only — elle est réapprovisionnée jusqu'à son plancher de réserve de pièces de rechange, indépendamment de la demande."
+
+msgid "This Quarter"
+msgstr "Ce trimestre"
 
 msgid "This sales order has associated jobs. Choose what to do with them."
 msgstr "Cette commande client a des tâches associées. Choisissez ce que vous souhaitez en faire."
@@ -11995,6 +12051,10 @@ msgstr "Ceci annulera la valeur nette comptable restante de l'actif."
 
 msgid "Three-way match"
 msgstr "Rapprochement à trois voies"
+
+#. placeholder {0}: formatDate(endDate)
+msgid "Through {0}"
+msgstr "Jusqu'au {0}"
 
 msgid "Thumbnail"
 msgstr "Miniature"
