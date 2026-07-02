@@ -8415,7 +8415,49 @@ export type Database = {
             foreignKeyName: "documentExtraction_companyId_fkey"
             columns: ["companyId"]
             isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documentExtraction_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
             referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documentExtraction_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "documentExtraction_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "documentExtraction_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documentExtraction_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documentExtraction_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
             referencedColumns: ["id"]
           },
           {
@@ -8426,12 +8468,47 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "documentExtraction_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "documentExtraction_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documentExtraction_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documentExtraction_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "documentExtraction_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "user"
             referencedColumns: ["id"]
-          }
+          },
+          {
+            foreignKeyName: "documentExtraction_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
         ]
       }
       documentFavorite: {
@@ -41582,7 +41659,49 @@ export type Database = {
           },
         ]
       }
-      searchIndex_d924dneua0gg2k9762jg: {
+      searchIndex_Bi9qTnnxCWSejaHm7G2Tjn: {
+        Row: {
+          createdAt: string
+          description: string | null
+          entityId: string
+          entityType: string
+          id: number
+          link: string
+          metadata: Json | null
+          searchVector: unknown
+          tags: string[] | null
+          title: string
+          updatedAt: string | null
+        }
+        Insert: {
+          createdAt?: string
+          description?: string | null
+          entityId: string
+          entityType: string
+          id?: number
+          link: string
+          metadata?: Json | null
+          searchVector?: unknown
+          tags?: string[] | null
+          title: string
+          updatedAt?: string | null
+        }
+        Update: {
+          createdAt?: string
+          description?: string | null
+          entityId?: string
+          entityType?: string
+          id?: number
+          link?: string
+          metadata?: Json | null
+          searchVector?: unknown
+          tags?: string[] | null
+          title?: string
+          updatedAt?: string | null
+        }
+        Relationships: []
+      }
+      searchIndex_d92cchpf40h028gvbhsg: {
         Row: {
           createdAt: string
           description: string | null
@@ -63256,7 +63375,7 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["shipmentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -63270,14 +63389,7 @@ export type Database = {
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["shipmentCountryCode"]
-            isOneToOne: false
-            referencedRelation: "country"
-            referencedColumns: ["alpha2"]
-          },
-          {
-            foreignKeyName: "address_countryCode_fkey"
-            columns: ["shipmentCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -63313,7 +63425,6 @@ export type Database = {
           locationId: string | null
           opportunityId: string | null
           paymentTermId: string | null
-          paymentTermName: string | null
           postingDate: string | null
           shipmentId: string | null
           status: string | null
@@ -69590,6 +69701,12 @@ export type Database = {
         | "Rework"
         | "Scrap"
         | "Use As Is"
+      documentExtractionStatus:
+        | "pending"
+        | "processing"
+        | "completed"
+        | "failed"
+      documentExtractionType: "purchaseInvoice" | "salesRfq"
       documentSourceType:
         | "Job"
         | "Part"
@@ -69621,8 +69738,6 @@ export type Database = {
         | "invoice"
         | "receipt"
         | "shipment"
-      documentExtractionStatus: "pending" | "processing" | "completed" | "failed"
-      documentExtractionType: "purchaseInvoice" | "salesRfq"
       documentTransactionType:
         | "Download"
         | "Edit"
@@ -70904,6 +71019,13 @@ export const Constants = {
         "Scrap",
         "Use As Is",
       ],
+      documentExtractionStatus: [
+        "pending",
+        "processing",
+        "completed",
+        "failed",
+      ],
+      documentExtractionType: ["purchaseInvoice", "salesRfq"],
       documentSourceType: [
         "Job",
         "Part",
