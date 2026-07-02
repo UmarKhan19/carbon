@@ -153,7 +153,7 @@ For each task, provide:
 
 ### 4.1 Save the Plan
 
-Save to `.ai/scratch/plans/[feature-name]-plan.md`:
+Save to `.ai/plans/{YYYY-MM-DD}-{feature-name}.md`:
 
 ```markdown
 # [Feature] Implementation Plan
@@ -194,7 +194,7 @@ Present the plan and wait for explicit approval.
 
 | Artifact | Location |
 |----------|----------|
-| Implementation plan | `.ai/scratch/plans/[feature-name]-plan.md` |
+| Implementation plan | `.ai/plans/{YYYY-MM-DD}-{feature-name}.md` |
 
 ## Next Step
 
