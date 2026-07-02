@@ -6,7 +6,7 @@
 - **Research:** `.ai/research/bank-reconciliation.md`
 - **Scope:** Phase 1 only — schema (incl. `journalLine` FX columns), bank accounts, CSV + OFX statement import, deterministic matching + N:M match groups, reconcile workspace, close-out with optional approval workflow, on-demand PDF report. Plaid (Phase 2), BAI2/MT940/CAMT.053 + rules engine + auto-match tolerance (Phase 3), intelligence (Phase 4) are out.
 - **Tasks:** 24 tasks ≈ 2 hours of focused execution
-- **Branch:** `feature/bank-reconciliation`
+- **Branch:** `period-closing-spec` (shared with the period-close work per Brad's call, 2026-07-02 — coordinate edits to `accounting.service.ts` / `types.ts` / `path.ts` with that workstream)
 
 ### Execution notes (read before Task 1)
 
@@ -37,9 +37,8 @@ T5..T14 ─▶ T19..T22        T23 (settings UI) after T3        T24 (verify + s
 
 **Steps:**
 
-1. Branch and create the migration file (HHMMSS must not be `000000` — the CLI stamps the real time):
+1. Create the migration file on the current `period-closing-spec` branch (HHMMSS must not be `000000` — the CLI stamps the real time):
    ```bash
-   git checkout -b feature/bank-reconciliation
    pnpm db:migrate:new bank-reconciliation
    # Expected: Created new migration at supabase/migrations/<ts>_bank-reconciliation.sql
    ```
