@@ -24,30 +24,27 @@ outer-loop (OpenClaw cron → Claude Code headless)
 
 ## Runtime Layout
 
-The entire `llm/` directory is **gitignored** — it holds only runtime state, never committed docs.
+Loop runtime state lives under `.ai/runs/<id>/` (`RUNS_DIR` in `layout.ts`). Per-run **directories** are gitignored (`.ai/runs/*/`); the committed markdown run logs from the plan/execute skills (`.ai/runs/*.md`) share the same root and stay tracked. Run dirs don't exist in a fresh checkout — `run-loop.ts` creates them when a loop executes.
 
 ```
-.ai/
-├── outer-loop/
-│   ├── agent-state.db      # outer-loop scratch (SQLite)
-│   └── daily-notes/        # per-day operational logs
-└── loops/
-    └── runs/<id>/           # one loop run's ephemeral artifacts
-        ├── binding.loop.md  # the binding this run was driven from
-        ├── ledger.jsonl     # append-only per-iteration record
-        ├── run.log.jsonl    # full event log
-        ├── outcome.json     # final LoopOutcome (machine-readable result)
-        └── screenshots/     # behavior-gate captures (hosted on loop-artifacts branch)
+.ai/runs/<id>/               # one loop run's ephemeral artifacts — GITIGNORED
+├── binding.loop.md          # the binding this run was driven from
+├── ledger.jsonl             # append-only per-iteration record
+├── run.log.jsonl            # full event log
+├── outcome.json             # final LoopOutcome (machine-readable result)
+└── screenshots/             # behavior-gate captures (hosted on loop-artifacts branch)
 ```
+
+Outer-loop scratch (`agent-state.db`, daily notes) lives on the OpenClaw box, not in this repo.
 
 
 **Key exports from `layout.ts`:**
-- `LOOPS_DIR`, `RUNS_DIR` — repo-relative roots
+- `RUNS_DIR` — repo-relative root for run artifacts
 - `runDir(cwd, id)`, `bindingPath(cwd, id)`, `ledgerPath(cwd, id)`, `logPath(cwd, id)`, `outcomePath(cwd, id)`, `screenshotsDir(cwd, id)`, `hostedScreenshotPath(id, name)`
 
 ## Binding Format
 
-Bindings live at `.ai/loops/runs/<id>/binding.loop.md`. The parser (`parseBinding` in `binding.ts`) **only reads YAML frontmatter** — markdown body after `---` is supplementary context only.
+Bindings live at `.ai/runs/<id>/binding.loop.md`. The parser (`parseBinding` in `binding.ts`) **only reads YAML frontmatter** — markdown body after `---` is supplementary context only.
 
 ```markdown
 ---
