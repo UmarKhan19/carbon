@@ -887,7 +887,10 @@ export const changeOrderTaskStatus = [
   "Skipped"
 ] as const;
 
-// changeOrder.priority uses quality's nonConformancePriority (its DB enum) — import it, don't redeclare.
+// changeOrder.priority reuses quality's nonConformancePriority DB enum — bind a
+// single domain alias to that canonical values array (no second declaration) so
+// change-order UI can import `changeOrderPriority` without re-listing values.
+export const changeOrderPriority = nonConformancePriority;
 
 // companySettings.plmReleaseControl
 export const plmReleaseControl = ["off", "warn", "enforce"] as const;
@@ -935,3 +938,116 @@ export function canEditChangeOrderItems(
 ): boolean {
   return status === "Draft";
 }
+
+// Allowed status changes for a change order. Anything not listed (including
+// from === to and terminal states) is rejected. Approved → Released is
+// intentionally absent: release is reached ONLY via releaseChangeOrder (which
+// guards status === "Approved" inside its transaction), so excluding it here
+// stops the generic status path from flipping Approved → Released and bypassing
+// the revision-promotion + make-method flip.
+export const changeOrderStatusTransitions: Record<
+  (typeof changeOrderStatus)[number],
+  (typeof changeOrderStatus)[number][]
+> = {
+  Draft: ["In Review", "Cancelled"],
+  "In Review": ["Approved", "Draft", "Cancelled"],
+  Approved: ["Draft", "Cancelled"],
+  Released: [],
+  Cancelled: []
+};
+
+export function isAllowedChangeOrderTransition(
+  from: string | null | undefined,
+  to: string | null | undefined
+): boolean {
+  if (!from || !to || from === to) return false;
+  const allowed =
+    changeOrderStatusTransitions[from as (typeof changeOrderStatus)[number]];
+  if (!allowed) return false;
+  return (allowed as readonly string[]).includes(to);
+}
+
+// Peer-review threshold. An approval counts only when a reviewer reached the
+// terminal Completed state. A Skipped reviewer is a RECUSAL — excluded from the
+// denominator entirely (otherwise the Skip button would make Unanimous/Majority
+// unreachable). If every reviewer is Skipped (or there are none), no threshold
+// can be met.
+export function evaluateApprovalThreshold(
+  approvalType: (typeof changeOrderApprovalType)[number],
+  decisions: { status: (typeof changeOrderTaskStatus)[number] }[]
+): boolean {
+  const considered = decisions.filter((d) => d.status !== "Skipped");
+  const total = considered.length;
+  if (total === 0) return false;
+  const completed = considered.filter((d) => d.status === "Completed").length;
+  switch (approvalType) {
+    case "Unanimous":
+      return completed === total;
+    case "Majority":
+      return completed * 2 > total;
+    case "First-In":
+      return completed >= 1;
+    default:
+      return false;
+  }
+}
+
+export const changeOrderTypeValidator = z.object({
+  id: zfd.text(z.string().optional()),
+  name: z.string().min(1, { message: "Name is required" })
+});
+
+// A change order workflow is a TEMPLATE that pre-fills a new change order — not
+// a state machine. It carries a default priority, approvalType, and approver
+// GROUP ids, all persisted inside the existing `content` JSON column (no
+// dedicated columns). See changeOrderWorkflowContentValidator for the read side.
+export const changeOrderWorkflowValidator = z.object({
+  id: zfd.text(z.string().optional()),
+  name: z.string().min(1, { message: "Name is required" }),
+  priority: z.enum(nonConformancePriority).optional(),
+  approvalType: z.enum(changeOrderApprovalType),
+  approvers: z.array(z.string()).optional()
+});
+
+export const changeOrderWorkflowContentValidator = z.object({
+  priority: z.enum(nonConformancePriority).nullish(),
+  approvalType: z.enum(changeOrderApprovalType).nullish(),
+  approvers: z.array(z.string()).nullish()
+});
+
+export type ChangeOrderWorkflowContent = z.infer<
+  typeof changeOrderWorkflowContentValidator
+>;
+
+export function parseChangeOrderWorkflowContent(
+  content: unknown
+): ChangeOrderWorkflowContent {
+  const result = changeOrderWorkflowContentValidator.safeParse(content);
+  return result.success ? result.data : {};
+}
+
+export const changeOrderApprovalTaskValidator = z.object({
+  id: zfd.text(z.string().optional()),
+  changeOrderId: z.string().min(1, { message: "Change order is required" }),
+  status: z.enum(changeOrderTaskStatus).optional(),
+  dueDate: zfd.text(z.string().optional()),
+  assignee: zfd.text(z.string().optional())
+});
+
+// Status transition (used by $id.status route). fromStatus lets the service run
+// a compare-and-swap: the caller states the status it observed; the UPDATE only
+// lands if the row is still there, otherwise a stale/concurrent transition is
+// rejected.
+export const changeOrderStatusValidator = z.object({
+  id: z.string().min(1, { message: "Id is required" }),
+  fromStatus: z.enum(changeOrderStatus),
+  status: z.enum(changeOrderStatus),
+  assignee: zfd.text(z.string().optional()),
+  effectiveDate: zfd.text(z.string().optional())
+});
+
+// Reviewer decision (used by the $id.decision route + decision modal).
+export const changeOrderDecisionValidator = z.object({
+  decision: z.enum(["approve", "reject"]),
+  reason: z.string().min(1, { message: "A reason is required" })
+});

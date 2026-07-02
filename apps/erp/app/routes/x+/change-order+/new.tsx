@@ -1,4 +1,4 @@
-import { assertIsPost, error } from "@carbon/auth";
+import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
@@ -11,6 +11,7 @@ import { useUrlParams } from "~/hooks";
 import {
   changeOrderValidator,
   getChangeOrderTypesList,
+  getChangeOrderWorkflowsList,
   insertChangeOrder
 } from "~/modules/items";
 import ChangeOrderForm from "~/modules/items/ui/ChangeOrder/ChangeOrderForm";
@@ -28,7 +29,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     view: "parts"
   });
 
-  const types = await getChangeOrderTypesList(client, companyId);
+  const [types, workflows] = await Promise.all([
+    getChangeOrderTypesList(client, companyId),
+    getChangeOrderWorkflowsList(client, companyId)
+  ]);
 
   const url = new URL(request.url);
   const sourceType = url.searchParams.get("sourceType");
@@ -37,6 +41,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   return {
     types: types.data ?? [],
+    workflows: workflows.data ?? [],
     sourceType,
     sourceId,
     name
@@ -92,11 +97,29 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 
+  // Creation is not a single transaction (a pending revision is staged via an
+  // edge function mid-chain), so per-item / reviewer / action-task seeding
+  // failures come back as warnings. Surface them rather than swallowing.
+  if (createResult.warnings.length > 0) {
+    throw redirect(
+      path.to.changeOrder(createResult.data.id),
+      await flash(
+        request,
+        success(
+          `Change order created with warnings: ${createResult.warnings.join(
+            "; "
+          )}`
+        )
+      )
+    );
+  }
+
   throw redirect(path.to.changeOrder(createResult.data.id));
 }
 
 export default function ChangeOrderNewRoute() {
-  const { types, sourceType, sourceId, name } = useLoaderData<typeof loader>();
+  const { types, workflows, sourceType, sourceId, name } =
+    useLoaderData<typeof loader>();
 
   const [params] = useUrlParams();
   const itemId = params.get("itemId");
@@ -109,9 +132,11 @@ export default function ChangeOrderNewRoute() {
     approvalType: "Unanimous" as const,
     priority: "Medium" as const,
     changeOrderTypeId: "",
+    changeOrderWorkflowId: "",
     openDate: today(getLocalTimeZone()).toString(),
     dueDate: "",
     effectiveDate: "",
+    approvers: [] as string[],
     sourceType: sourceType ?? "",
     sourceId: sourceId ?? "",
     assignee: "",
@@ -120,7 +145,11 @@ export default function ChangeOrderNewRoute() {
 
   return (
     <div className="max-w-4xl w-full p-2 sm:p-0 mx-auto mt-0 md:mt-8">
-      <ChangeOrderForm initialValues={initialValues} changeOrderTypes={types} />
+      <ChangeOrderForm
+        initialValues={initialValues}
+        changeOrderTypes={types}
+        changeOrderWorkflows={workflows}
+      />
     </div>
   );
 }

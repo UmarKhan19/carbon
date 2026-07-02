@@ -6,6 +6,7 @@ import type {
   KyselyDatabase,
   KyselyTx
 } from "@carbon/database/client";
+import type { JSONContent } from "@carbon/react";
 import { getLocalTimeZone, now, today } from "@internationalized/date";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { nanoid } from "nanoid";
@@ -31,7 +32,9 @@ import {
   type changeOrderApprovalType,
   type changeOrderDisposition,
   type changeOrderStatus,
+  type changeOrderTaskStatus,
   type changeOrderType,
+  type changeOrderTypeValidator,
   type configurationParameterGroupOrderValidator,
   type configurationParameterGroupValidator,
   type configurationParameterOrderValidator,
@@ -39,8 +42,10 @@ import {
   type configurationRuleValidator,
   type consumableValidator,
   type customerPartValidator,
+  evaluateApprovalThreshold,
   type getMethodValidator,
   ItemTrackingType,
+  isAllowedChangeOrderTransition,
   type itemCostValidator,
   type itemManufacturingValidator,
   type itemPlanningValidator,
@@ -255,6 +260,314 @@ export async function getChangeOrderTypesList(
     .order("name");
 }
 
+export async function getChangeOrderActionTasks(
+  client: SupabaseClient<Database>,
+  id: string,
+  companyId: string
+) {
+  return client
+    .from("changeOrderActionTask")
+    .select("*")
+    .eq("changeOrderId", id)
+    .eq("companyId", companyId)
+    .order("sortOrder", { ascending: true })
+    .order("createdAt", { ascending: true });
+}
+
+export async function getChangeOrderApprovalTasks(
+  client: SupabaseClient<Database>,
+  id: string,
+  companyId: string
+) {
+  return client
+    .from("changeOrderApprovalTask")
+    .select("*")
+    .eq("changeOrderId", id)
+    .eq("companyId", companyId)
+    .order("sortOrder", { ascending: true })
+    .order("createdAt", { ascending: true });
+}
+
+export async function getChangeOrderReviewers(
+  client: SupabaseClient<Database>,
+  id: string,
+  companyId: string
+) {
+  return client
+    .from("changeOrderReviewer")
+    .select("*")
+    .eq("changeOrderId", id)
+    .eq("companyId", companyId)
+    .order("sortOrder", { ascending: true })
+    .order("id", { ascending: true });
+}
+
+export async function getChangeOrderTasks(
+  client: SupabaseClient<Database>,
+  id: string,
+  companyId: string
+) {
+  return Promise.all([
+    getChangeOrderActionTasks(client, id, companyId),
+    getChangeOrderApprovalTasks(client, id, companyId)
+  ]);
+}
+
+export async function getChangeOrderType(
+  client: SupabaseClient<Database>,
+  changeOrderTypeId: string
+) {
+  return client
+    .from("changeOrderType")
+    .select("*")
+    .eq("id", changeOrderTypeId)
+    .single();
+}
+
+export async function getChangeOrderTypes(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  args?: GenericQueryFilters & { search: string | null }
+) {
+  let query = client
+    .from("changeOrderType")
+    .select("*", { count: "exact" })
+    .eq("companyId", companyId);
+
+  if (args?.search) {
+    query = query.ilike("name", `%${args.search}%`);
+  }
+
+  if (args) {
+    query = setGenericQueryFilters(query, args, [
+      { column: "name", ascending: true }
+    ]);
+  }
+
+  return query;
+}
+
+export async function getChangeOrderWorkflow(
+  client: SupabaseClient<Database>,
+  changeOrderWorkflowId: string
+) {
+  return client
+    .from("changeOrderWorkflow")
+    .select("*")
+    .eq("id", changeOrderWorkflowId)
+    .single();
+}
+
+export async function getChangeOrderWorkflows(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  args?: GenericQueryFilters & { search: string | null }
+) {
+  let query = client
+    .from("changeOrderWorkflow")
+    .select("*", { count: "exact" })
+    .eq("companyId", companyId)
+    .eq("active", true);
+
+  if (args?.search) {
+    query = query.ilike("name", `%${args.search}%`);
+  }
+
+  if (args) {
+    query = setGenericQueryFilters(query, args, [
+      { column: "name", ascending: true }
+    ]);
+  }
+
+  return query;
+}
+
+export async function getChangeOrderWorkflowsList(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  return client
+    .from("changeOrderWorkflow")
+    .select("*")
+    .eq("companyId", companyId)
+    .eq("active", true)
+    .order("name");
+}
+
+// getMyChangeOrderTasks — the signed-in user's still-Pending change-order
+// sign-offs (reviewer rows ∪ approval tasks), each joined to its parent CO so
+// the inbox links straight through. Identity is scoped by the caller's
+// userId + companyId (both from requirePermissions, never client input).
+export type MyChangeOrderTask = {
+  changeOrderId: string;
+  changeOrderReadableId: string;
+  changeOrderName: string;
+  changeOrderStatus: (typeof changeOrderStatus)[number];
+  taskTitle: string;
+  dueDate: string | null;
+};
+
+export async function getMyChangeOrderTasks(
+  client: SupabaseClient<Database>,
+  args: { userId: string; companyId: string }
+): Promise<{
+  data: MyChangeOrderTask[];
+  error: import("@supabase/supabase-js").PostgrestError | null;
+}> {
+  const { userId, companyId } = args;
+  const pending: (typeof changeOrderTaskStatus)[number] = "Pending";
+
+  const [reviewers, approvals] = await Promise.all([
+    client
+      .from("changeOrderReviewer")
+      .select(
+        "title, dueDate, changeOrder:changeOrderId(id, changeOrderId, name, status)"
+      )
+      .eq("assignee", userId)
+      .eq("status", pending)
+      .eq("companyId", companyId),
+    client
+      .from("changeOrderApprovalTask")
+      .select(
+        "name, dueDate, changeOrder:changeOrderId(id, changeOrderId, name, status)"
+      )
+      .eq("assignee", userId)
+      .eq("status", pending)
+      .eq("companyId", companyId)
+  ]);
+
+  if (reviewers.error) return { data: [], error: reviewers.error };
+  if (approvals.error) return { data: [], error: approvals.error };
+
+  const tasks: MyChangeOrderTask[] = [];
+
+  for (const r of reviewers.data ?? []) {
+    const co = r.changeOrder;
+    if (!co) continue;
+    tasks.push({
+      changeOrderId: co.id,
+      changeOrderReadableId: co.changeOrderId,
+      changeOrderName: co.name,
+      changeOrderStatus: co.status,
+      taskTitle: r.title,
+      dueDate: r.dueDate
+    });
+  }
+
+  for (const a of approvals.data ?? []) {
+    const co = a.changeOrder;
+    if (!co) continue;
+    tasks.push({
+      changeOrderId: co.id,
+      changeOrderReadableId: co.changeOrderId,
+      changeOrderName: co.name,
+      changeOrderStatus: co.status,
+      taskTitle: a.name ?? "Approval",
+      dueDate: a.dueDate
+    });
+  }
+
+  tasks.sort((a, b) => {
+    if (a.dueDate && b.dueDate && a.dueDate !== b.dueDate) {
+      return a.dueDate < b.dueDate ? -1 : 1;
+    }
+    if (a.dueDate && !b.dueDate) return -1;
+    if (!a.dueDate && b.dueDate) return 1;
+    return a.changeOrderReadableId.localeCompare(b.changeOrderReadableId);
+  });
+
+  return { data: tasks, error: null };
+}
+
+// getChangeOrderImpact — read-only "where used" blast radius for a change
+// order's affected items: the jobs, purchase-order lines, sales-order lines, and
+// parent BOMs that reference each affected item today, so a reviewer sees what a
+// release touches. The four join shapes mirror getPartUsedIn's (kept in sync by
+// hand); item-type-independent (works for parts, materials, etc.).
+export type ChangeOrderImpactItem = {
+  itemId: string;
+  itemReadableId: string | null;
+  jobs: Array<{ id: string; documentReadableId: string | null }>;
+  purchaseOrderLines: Array<{ id: string; documentReadableId: string | null }>;
+  salesOrderLines: Array<{ id: string; documentReadableId: string | null }>;
+  parentBoms: Array<{ id: string; documentReadableId: string | null }>;
+};
+
+export async function getChangeOrderImpact(
+  client: SupabaseClient<Database>,
+  changeOrderId: string,
+  companyId: string
+): Promise<ChangeOrderImpactItem[]> {
+  const affected = await client
+    .from("changeOrderItem")
+    .select(
+      "itemId, ...item!changeOrderItem_itemId_fkey(itemReadableId:readableIdWithRevision)"
+    )
+    .eq("changeOrderId", changeOrderId)
+    .eq("companyId", companyId);
+
+  const rows = (affected.data ?? []) as Array<{
+    itemId: string;
+    itemReadableId: string | null;
+  }>;
+
+  return Promise.all(
+    rows.map(async (row) => {
+      const [jobs, purchaseOrderLines, salesOrderLines, parentBoms] =
+        await Promise.all([
+          client
+            .from("job")
+            .select("id, documentReadableId:jobId")
+            .eq("itemId", row.itemId)
+            .eq("companyId", companyId)
+            .limit(100),
+          client
+            .from("purchaseOrderLine")
+            .select(
+              "id, documentReadableId:purchaseOrder(purchaseOrderId), purchaseOrderId"
+            )
+            .eq("itemId", row.itemId)
+            .eq("companyId", companyId)
+            .limit(100),
+          client
+            .from("salesOrderLine")
+            .select("id, ...salesOrder(documentReadableId:salesOrderId)")
+            .eq("itemId", row.itemId)
+            .eq("companyId", companyId)
+            .limit(100),
+          client
+            .from("methodMaterial")
+            .select(
+              "id, ...makeMethod!makeMethodId(...item(documentReadableId:readableIdWithRevision))"
+            )
+            .eq("itemId", row.itemId)
+            .eq("companyId", companyId)
+            .limit(100)
+        ]);
+
+      const norm = (
+        data: any[] | null
+      ): Array<{ id: string; documentReadableId: string | null }> =>
+        (data ?? []).map((r) => ({
+          id: r.id,
+          documentReadableId:
+            typeof r.documentReadableId === "object"
+              ? (r.documentReadableId?.purchaseOrderId ?? null)
+              : (r.documentReadableId ?? null)
+        }));
+
+      return {
+        itemId: row.itemId,
+        itemReadableId: row.itemReadableId,
+        jobs: norm(jobs.data),
+        purchaseOrderLines: norm(purchaseOrderLines.data),
+        salesOrderLines: norm(salesOrderLines.data),
+        parentBoms: norm(parentBoms.data)
+      };
+    })
+  );
+}
+
 export async function insertChangeOrder(
   client: SupabaseClient<Database>,
   input: {
@@ -276,7 +589,8 @@ export async function insertChangeOrder(
     sourceType?: string;
     sourceId?: string;
     assignee?: string;
-    // Reviewer picker output; reviewer seeding is not implemented yet.
+    // Approver picker output: verbose-prefixed "group_…"/"user_…" ids. Resolved
+    // to one changeOrderReviewer per user below.
     approvers?: string[];
     items?: string[];
     customFields?: Json;
@@ -284,7 +598,13 @@ export async function insertChangeOrder(
 ): Promise<{
   data: { id: string; changeOrderId: string } | null;
   error: import("@supabase/supabase-js").PostgrestError | null;
+  // Non-fatal seeding failures (per-item attach, reviewer/action-task seeding).
+  // Creation is not a single DB transaction because attachAffectedItem invokes
+  // the get-method edge function mid-chain, so partial failures are surfaced
+  // here rather than swallowed — the caller flashes them.
+  warnings: string[];
 }> {
+  const warnings: string[] = [];
   let changeOrderId: string;
   if (input.changeOrderId) {
     changeOrderId = input.changeOrderId;
@@ -300,33 +620,92 @@ export async function insertChangeOrder(
           seq.error ??
           ({
             message: "Failed to generate changeOrder sequence"
-          } as import("@supabase/supabase-js").PostgrestError)
+          } as import("@supabase/supabase-js").PostgrestError),
+        warnings
       };
     }
     changeOrderId = seq.data;
   }
 
-  const { items, ...data } = input;
+  const { items, approvers, ...data } = input;
 
-  // Runs under the service role (RLS bypassed), so validate every supplied item
-  // belongs to this company before trusting it.
+  // Split the approver picker output into group ids and individual user ids.
+  const approverPicks = approvers ?? [];
+  const approverGroupIds = approverPicks
+    .filter((a) => a.startsWith("group_"))
+    .map((a) => a.slice(6));
+  const approverUserIds = approverPicks
+    .filter((a) => a.startsWith("user_"))
+    .map((a) => a.slice(5));
+
+  // Runs under the service role (RLS bypassed), so validate every supplied
+  // item / group / user resolves within this company before trusting it.
   if (items && items.length > 0) {
     const validItems = await client
       .from("item")
       .select("id")
       .in("id", items)
       .eq("companyId", input.companyId);
-    if (validItems.error) return { data: null, error: validItems.error };
+    if (validItems.error)
+      return { data: null, error: validItems.error, warnings };
     const validItemIds = new Set((validItems.data ?? []).map((i) => i.id));
     if (items.some((id) => !validItemIds.has(id))) {
       return {
         data: null,
         error: {
           message: "One or more items do not belong to this company"
-        } as import("@supabase/supabase-js").PostgrestError
+        } as import("@supabase/supabase-js").PostgrestError,
+        warnings
       };
     }
   }
+
+  if (approverGroupIds.length > 0) {
+    const validGroups = await client
+      .from("group")
+      .select("id")
+      .in("id", approverGroupIds)
+      .eq("companyId", input.companyId);
+    if (validGroups.error)
+      return { data: null, error: validGroups.error, warnings };
+    const validGroupIds = new Set((validGroups.data ?? []).map((g) => g.id));
+    if (approverGroupIds.some((id) => !validGroupIds.has(id))) {
+      return {
+        data: null,
+        error: {
+          message: "One or more approver groups do not belong to this company"
+        } as import("@supabase/supabase-js").PostgrestError,
+        warnings
+      };
+    }
+  }
+
+  if (approverUserIds.length > 0) {
+    const validUsers = await client
+      .from("userToCompany")
+      .select("userId")
+      .in("userId", approverUserIds)
+      .eq("companyId", input.companyId);
+    if (validUsers.error)
+      return { data: null, error: validUsers.error, warnings };
+    const validUserIds = new Set((validUsers.data ?? []).map((u) => u.userId));
+    if (approverUserIds.some((id) => !validUserIds.has(id))) {
+      return {
+        data: null,
+        error: {
+          message: "One or more approvers do not belong to this company"
+        } as import("@supabase/supabase-js").PostgrestError,
+        warnings
+      };
+    }
+  }
+
+  // Persist the picked GROUP ids in the repurposed approvalRequirements column,
+  // falling back to any explicitly-passed value when no picker groups arrived.
+  const approvalRequirements =
+    approverGroupIds.length > 0
+      ? approverGroupIds
+      : (data.approvalRequirements ?? []);
 
   const result = await client
     .from("changeOrder")
@@ -343,7 +722,7 @@ export async function insertChangeOrder(
       dueDate: data.dueDate ?? null,
       effectiveDate: data.effectiveDate ?? null,
       requiredActionIds: data.requiredActionIds ?? [],
-      approvalRequirements: data.approvalRequirements ?? [],
+      approvalRequirements,
       sourceType: data.sourceType ?? null,
       sourceId: data.sourceId ?? null,
       assignee: data.assignee ?? null,
@@ -355,14 +734,15 @@ export async function insertChangeOrder(
     .single();
 
   if (result.error || !result.data) {
-    return { data: null, error: result.error };
+    return { data: null, error: result.error, warnings };
   }
 
   const coId = result.data.id;
 
   if (items && items.length > 0) {
     // Attach via the shared path so the one-open-CO-per-item guard runs and
-    // Engineering COs get a staged pending revision. Best-effort per item.
+    // Engineering COs get a staged pending revision. A guard rejection skips
+    // that item (surfaced as a warning) rather than aborting the whole create.
     for (const itemId of items) {
       const attached = await attachAffectedItem(client, {
         changeOrderId: coId,
@@ -372,16 +752,88 @@ export async function insertChangeOrder(
         type: data.type
       });
       if (attached.error) {
-        console.error(attached.error);
+        warnings.push(attached.error.message);
       }
     }
   }
 
-  // Reviewer + approval-task seeding is not implemented yet; the CO stays Draft.
+  // Single-writer reviewer seeding (§4): resolve the picked approvers to a
+  // deduped set of user ids — expand groups via users_for_groups, merge with the
+  // picked individuals — and seed one Pending changeOrderReviewer per user. This
+  // is the ONLY reviewer seeder (no edge function), so there is no double-seed
+  // race.
+  const fromGroups =
+    approverGroupIds.length > 0
+      ? await client.rpc("users_for_groups", { groups: approverGroupIds })
+      : { data: [] as string[], error: null };
+
+  if (fromGroups.error) {
+    warnings.push("Failed to resolve approver groups");
+  }
+
+  const groupUserIds = Array.isArray(fromGroups.data)
+    ? (fromGroups.data as string[])
+    : [];
+
+  const resolvedUserIds = [
+    ...new Set([...approverUserIds, ...groupUserIds])
+  ].filter(Boolean);
+
+  if (resolvedUserIds.length > 0) {
+    const users = await client
+      .from("user")
+      .select("id, fullName")
+      .in("id", resolvedUserIds);
+
+    if (users.error) {
+      warnings.push("Failed to resolve approver names");
+    }
+
+    const fullNameById = new Map(
+      (users.data ?? []).map((u) => [u.id, u.fullName])
+    );
+
+    const reviewerInsert = await client.from("changeOrderReviewer").insert(
+      resolvedUserIds.map((assignee, index) => ({
+        changeOrderId: coId,
+        title: fullNameById.get(assignee) ?? "Reviewer",
+        assignee,
+        status: "Pending" as const,
+        sortOrder: index + 1,
+        companyId: input.companyId,
+        createdBy: input.createdBy
+      }))
+    );
+
+    if (reviewerInsert.error) {
+      warnings.push("Failed to seed reviewers");
+    }
+  }
+
+  // Single-writer action-task seeding (§4): one changeOrderActionTask per
+  // requiredActionId, folded app-side (the reference used the create edge
+  // function, whose own comments documented a double-seed bug from the split).
+  const requiredActionIds = data.requiredActionIds ?? [];
+  if (requiredActionIds.length > 0) {
+    const actionInsert = await client.from("changeOrderActionTask").insert(
+      requiredActionIds.map((actionId, index) => ({
+        changeOrderId: coId,
+        name: actionId,
+        status: "Pending" as const,
+        sortOrder: index + 1,
+        companyId: input.companyId,
+        createdBy: input.createdBy
+      }))
+    );
+    if (actionInsert.error) {
+      warnings.push("Failed to seed action tasks");
+    }
+  }
 
   return {
     data: { id: coId, changeOrderId: result.data.changeOrderId },
-    error: null
+    error: null,
+    warnings
   };
 }
 
@@ -431,18 +883,464 @@ export async function deleteChangeOrder(
   return client.from("changeOrder").delete().eq("id", changeOrderId);
 }
 
+// updateChangeOrderStatus — the single guarded status writer, implemented as a
+// compare-and-swap (§2). The caller states the status it observed (fromStatus);
+// the DAG (isAllowedChangeOrderTransition) rejects illegal moves, a
+// Draft → In Review submit is blocked unless at least one reviewer exists, and
+// the UPDATE lands ONLY while the row is still fromStatus. 0 rows updated ⇒ a
+// stale read / concurrent transition ⇒ a typed error. Release (Approved →
+// Released) is intentionally NOT in the DAG — it goes through releaseChangeOrder
+// so the revision-promotion + make-method flip can never be bypassed here.
 export async function updateChangeOrderStatus(
   client: SupabaseClient<Database>,
   update: {
     id: string;
-    status: (typeof changeOrderStatus)[number];
+    companyId: string;
+    fromStatus: (typeof changeOrderStatus)[number];
+    toStatus: (typeof changeOrderStatus)[number];
     assignee?: string | null;
     effectiveDate?: string | null;
     updatedBy: string;
   }
+): Promise<{
+  data: { id: string; status: (typeof changeOrderStatus)[number] } | null;
+  error: { message: string } | null;
+}> {
+  const { id, companyId, fromStatus, toStatus, ...rest } = update;
+
+  if (!isAllowedChangeOrderTransition(fromStatus, toStatus)) {
+    return {
+      data: null,
+      error: {
+        message: `Cannot change status from ${fromStatus} to ${toStatus}`
+      }
+    };
+  }
+
+  if (toStatus === "In Review") {
+    const reviewers = await client
+      .from("changeOrderReviewer")
+      .select("id", { count: "exact", head: true })
+      .eq("changeOrderId", id)
+      .eq("companyId", companyId);
+    if (reviewers.error) {
+      return { data: null, error: reviewers.error };
+    }
+    if ((reviewers.count ?? 0) === 0) {
+      return {
+        data: null,
+        error: {
+          message:
+            "At least one reviewer is required before submitting for review."
+        }
+      };
+    }
+  }
+
+  // Build the update explicitly rather than sanitize({...rest}): sanitize
+  // coerces every `undefined` field to null, which would wipe an existing
+  // assignee/effectiveDate on any transition where the caller passes those as
+  // undefined (e.g. the status route sends assignee: undefined on submit). Only
+  // set an optional field when the caller actually provided a value (including
+  // an explicit null, e.g. Cancelled clears the assignee).
+  const payload: {
+    status: (typeof changeOrderStatus)[number];
+    updatedBy: string;
+    assignee?: string | null;
+    effectiveDate?: string | null;
+  } = { status: toStatus, updatedBy: rest.updatedBy };
+  if (rest.assignee !== undefined) payload.assignee = rest.assignee;
+  if (rest.effectiveDate !== undefined)
+    payload.effectiveDate = rest.effectiveDate;
+
+  const result = await client
+    .from("changeOrder")
+    .update(payload)
+    .eq("id", id)
+    .eq("companyId", companyId)
+    .eq("status", fromStatus)
+    .select("id, status")
+    .maybeSingle();
+
+  if (result.error) return { data: null, error: result.error };
+  if (!result.data) {
+    return {
+      data: null,
+      error: {
+        message:
+          "The change order was updated by someone else. Refresh and try again."
+      }
+    };
+  }
+  return { data: result.data, error: null };
+}
+
+// applyChangeOrderReviewerDecision — records the caller's reviewer decision and
+// applies the peer-review threshold. The CO must be In Review and the caller
+// must own a reviewer row.
+//   - Reject: reset every reviewer to Pending, store {reason} on the caller's
+//     row, send the CO back to Draft.
+//   - Approve: mark the caller's row Completed (+ reason), then re-evaluate; if
+//     the threshold is met the CO auto-advances to Approved, else it stays In
+//     Review awaiting the remaining sign-offs.
+export async function applyChangeOrderReviewerDecision(
+  client: SupabaseClient<Database>,
+  args: {
+    changeOrderId: string;
+    userId: string;
+    companyId: string;
+    decision: "approve" | "reject";
+    reason: string;
+  }
+): Promise<{
+  data: {
+    status: (typeof changeOrderStatus)[number];
+    autoAdvanced: boolean;
+  } | null;
+  error: { message: string } | null;
+}> {
+  const { changeOrderId, userId, companyId, decision, reason } = args;
+
+  const co = await getChangeOrder(client, changeOrderId, companyId);
+  if (co.error || !co.data) {
+    return {
+      data: null,
+      error: co.error ?? { message: "Change order not found" }
+    };
+  }
+  if (co.data.status !== "In Review") {
+    return { data: null, error: { message: "Change order is not in review" } };
+  }
+
+  const reviewers = await client
+    .from("changeOrderReviewer")
+    .select("id, assignee, status")
+    .eq("changeOrderId", changeOrderId)
+    .eq("companyId", companyId);
+  if (reviewers.error) {
+    return { data: null, error: reviewers.error };
+  }
+
+  const mine = (reviewers.data ?? []).find((r) => r.assignee === userId);
+  if (!mine) {
+    return { data: null, error: { message: "You are not a reviewer" } };
+  }
+
+  const today = new Date().toISOString().split("T")[0];
+
+  if (decision === "reject") {
+    // Flip the status FIRST (compare-and-swap In Review → Draft). If the CAS
+    // loses to a concurrent transition it returns an error and we bail BEFORE
+    // touching any reviewer rows — otherwise a lost CAS would leave every
+    // reviewer wiped to Pending while the status stayed Approved/whatever.
+    const status = await updateChangeOrderStatus(client, {
+      id: changeOrderId,
+      companyId,
+      fromStatus: "In Review",
+      toStatus: "Draft",
+      updatedBy: userId
+    });
+    if (status.error) return { data: null, error: status.error };
+
+    // Now that the CO is safely back in Draft, reset every reviewer to Pending
+    // so a fresh review starts after the author addresses the rejection; clear
+    // stale notes so a prior round's decision doesn't surface next round (the
+    // rejecter's own note is re-stamped immediately below).
+    const reset = await client
+      .from("changeOrderReviewer")
+      .update({
+        status: "Pending",
+        completedDate: null,
+        notes: {},
+        updatedBy: userId
+      })
+      .eq("changeOrderId", changeOrderId)
+      .eq("companyId", companyId);
+    if (reset.error) return { data: null, error: reset.error };
+
+    const note = await client
+      .from("changeOrderReviewer")
+      .update({ notes: { reason, decision: "reject" }, updatedBy: userId })
+      .eq("id", mine.id)
+      .eq("companyId", companyId);
+    if (note.error) return { data: null, error: note.error };
+
+    return { data: { status: "Draft", autoAdvanced: false }, error: null };
+  }
+
+  const record = await client
+    .from("changeOrderReviewer")
+    .update({
+      status: "Completed",
+      completedDate: today,
+      notes: { reason, decision: "approve" },
+      updatedBy: userId
+    })
+    .eq("id", mine.id)
+    .eq("companyId", companyId);
+  if (record.error) return { data: null, error: record.error };
+
+  return reevaluateChangeOrderApproval(
+    client,
+    changeOrderId,
+    userId,
+    companyId
+  );
+}
+
+// reevaluateChangeOrderApproval — the single source of truth for auto-advancing
+// a CO from In Review → Approved. Called from BOTH the reviewer-decision path
+// and the generic reviewer-task-completion path, so any reviewer completion can
+// auto-advance regardless of entry point. Always re-reads the live reviewer set
+// (race-safe against concurrent approvals) and lets the CAS in
+// updateChangeOrderStatus guarantee the In Review → Approved flip lands once.
+export async function reevaluateChangeOrderApproval(
+  client: SupabaseClient<Database>,
+  changeOrderId: string,
+  userId: string,
+  companyId: string
+): Promise<{
+  data: {
+    status: (typeof changeOrderStatus)[number];
+    autoAdvanced: boolean;
+  } | null;
+  error: { message: string } | null;
+}> {
+  const co = await getChangeOrder(client, changeOrderId, companyId);
+  if (co.error || !co.data) {
+    return {
+      data: null,
+      error: co.error ?? { message: "Change order not found" }
+    };
+  }
+
+  if (co.data.status !== "In Review") {
+    return {
+      data: {
+        status: co.data.status as (typeof changeOrderStatus)[number],
+        autoAdvanced: false
+      },
+      error: null
+    };
+  }
+
+  const reviewers = await client
+    .from("changeOrderReviewer")
+    .select("status")
+    .eq("changeOrderId", changeOrderId)
+    .eq("companyId", companyId);
+  if (reviewers.error) {
+    return { data: null, error: reviewers.error };
+  }
+
+  const met = evaluateApprovalThreshold(
+    co.data.approvalType,
+    (reviewers.data ?? []).map((r) => ({ status: r.status }))
+  );
+
+  if (met) {
+    const status = await updateChangeOrderStatus(client, {
+      id: changeOrderId,
+      companyId,
+      fromStatus: "In Review",
+      toStatus: "Approved",
+      updatedBy: userId
+    });
+    // A concurrent approval may have already flipped the row; the CAS then
+    // updated 0 rows. That is not an error here — the CO is Approved either way.
+    if (status.error && status.data === null) {
+      const fresh = await getChangeOrder(client, changeOrderId, companyId);
+      if (fresh.data?.status === "Approved") {
+        return {
+          data: { status: "Approved", autoAdvanced: false },
+          error: null
+        };
+      }
+      return { data: null, error: status.error };
+    }
+    return { data: { status: "Approved", autoAdvanced: true }, error: null };
+  }
+
+  return { data: { status: "In Review", autoAdvanced: false }, error: null };
+}
+
+// getChangeOrderNotificationRecipients — the set of user ids to notify on a
+// transition: every reviewer plus every affected item's assignee, deduped,
+// nulls skipped. Pure data; the trigger("notify") call lives in the server-only
+// notifyChangeOrderTransition helper.
+export async function getChangeOrderNotificationRecipients(
+  client: SupabaseClient<Database>,
+  changeOrderId: string,
+  companyId: string
+): Promise<string[]> {
+  const [reviewers, items] = await Promise.all([
+    client
+      .from("changeOrderReviewer")
+      .select("assignee")
+      .eq("changeOrderId", changeOrderId)
+      .eq("companyId", companyId),
+    client
+      .from("changeOrderItem")
+      .select("...item!changeOrderItem_itemId_fkey(assignee)")
+      .eq("changeOrderId", changeOrderId)
+      .eq("companyId", companyId)
+  ]);
+
+  const ids = new Set<string>();
+  for (const r of reviewers.data ?? []) {
+    if (r.assignee) ids.add(r.assignee);
+  }
+  for (const it of (items.data ?? []) as Array<{ assignee: string | null }>) {
+    if (it.assignee) ids.add(it.assignee);
+  }
+  return [...ids];
+}
+
+export async function updateChangeOrderTaskStatus(
+  client: SupabaseClient<Database>,
+  args: {
+    id: string;
+    companyId: string;
+    status: (typeof changeOrderTaskStatus)[number];
+    type: "action" | "approval" | "review";
+    userId?: string;
+    assignee?: string | null;
+  }
 ) {
-  const { id, ...rest } = update;
-  return client.from("changeOrder").update(sanitize(rest)).eq("id", id);
+  const { id, companyId, status, type, userId, assignee } = args;
+  const table =
+    type === "action"
+      ? "changeOrderActionTask"
+      : type === "review"
+        ? "changeOrderReviewer"
+        : "changeOrderApprovalTask";
+
+  const finalAssignee = assignee || userId;
+
+  const updateData: {
+    status: typeof status;
+    updatedBy: string | undefined;
+    assignee: string | null | undefined;
+    completedDate?: string;
+  } = {
+    status,
+    updatedBy: userId,
+    assignee: finalAssignee
+  };
+
+  if (status === "Completed") {
+    updateData.completedDate = new Date().toISOString().split("T")[0];
+  }
+
+  return client
+    .from(table)
+    .update(updateData)
+    .eq("id", id)
+    .eq("companyId", companyId)
+    .select("changeOrderId")
+    .single();
+}
+
+export async function updateChangeOrderTaskContent(
+  client: SupabaseClient<Database>,
+  args: {
+    id: string;
+    companyId: string;
+    type: "action" | "approval" | "review";
+    content: JSONContent;
+  }
+) {
+  const { id, companyId, content, type } = args;
+  const table =
+    type === "action"
+      ? "changeOrderActionTask"
+      : type === "review"
+        ? "changeOrderReviewer"
+        : "changeOrderApprovalTask";
+
+  return client
+    .from(table)
+    .update({ notes: content })
+    .eq("id", id)
+    .eq("companyId", companyId)
+    .select("changeOrderId")
+    .single();
+}
+
+export async function upsertChangeOrderType(
+  client: SupabaseClient<Database>,
+  changeOrderType:
+    | (Omit<z.infer<typeof changeOrderTypeValidator>, "id"> & {
+        companyId: string;
+        createdBy: string;
+        customFields?: Json;
+      })
+    | (Omit<z.infer<typeof changeOrderTypeValidator>, "id"> & {
+        id: string;
+        updatedBy: string;
+        customFields?: Json;
+      })
+) {
+  if ("createdBy" in changeOrderType) {
+    return client
+      .from("changeOrderType")
+      .insert([changeOrderType])
+      .select("id");
+  }
+  return client
+    .from("changeOrderType")
+    .update(sanitize(changeOrderType))
+    .eq("id", changeOrderType.id);
+}
+
+export async function upsertChangeOrderWorkflow(
+  client: SupabaseClient<Database>,
+  // The changeOrderWorkflow table stores the template payload (priority,
+  // approvalType, approvers) inside the `content` JSON column — no dedicated
+  // columns. Routes serialize the validated form fields into `content` before
+  // calling this, so the upsert accepts the real columns (name + content).
+  changeOrderWorkflow:
+    | {
+        name: string;
+        content: Json;
+        companyId: string;
+        createdBy: string;
+      }
+    | {
+        id: string;
+        name: string;
+        content: Json;
+        updatedBy: string;
+      }
+) {
+  if ("createdBy" in changeOrderWorkflow) {
+    return client
+      .from("changeOrderWorkflow")
+      .insert([changeOrderWorkflow])
+      .select("id")
+      .single();
+  }
+  return client
+    .from("changeOrderWorkflow")
+    .update(sanitize(changeOrderWorkflow))
+    .eq("id", changeOrderWorkflow.id);
+}
+
+export async function deleteChangeOrderType(
+  client: SupabaseClient<Database>,
+  changeOrderTypeId: string
+) {
+  return client.from("changeOrderType").delete().eq("id", changeOrderTypeId);
+}
+
+export async function deleteChangeOrderWorkflow(
+  client: SupabaseClient<Database>,
+  changeOrderWorkflowId: string
+) {
+  return client
+    .from("changeOrderWorkflow")
+    .update({ active: false })
+    .eq("id", changeOrderWorkflowId);
 }
 
 export async function addChangeOrderItem(

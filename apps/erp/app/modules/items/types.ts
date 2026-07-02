@@ -1,8 +1,14 @@
 import type { Database } from "@carbon/database";
 import type {
   getChangeOrder,
+  getChangeOrderApprovalTasks,
   getChangeOrderItems,
+  getChangeOrderReviewers,
   getChangeOrders,
+  getChangeOrderType,
+  getChangeOrderTypes,
+  getChangeOrderWorkflow,
+  getChangeOrderWorkflows,
   getConfigurationParameters,
   getConfigurationRules,
   getConsumable,
@@ -49,6 +55,30 @@ export type ChangeOrderDetail = NonNullable<
 export type ChangeOrderItem = NonNullable<
   Awaited<ReturnType<typeof getChangeOrderItems>>["data"]
 >[number];
+
+export type ChangeOrderApprovalTask = NonNullable<
+  Awaited<ReturnType<typeof getChangeOrderApprovalTasks>>["data"]
+>[number];
+
+export type ChangeOrderReviewer = NonNullable<
+  Awaited<ReturnType<typeof getChangeOrderReviewers>>["data"]
+>[number];
+
+export type ChangeOrderType = NonNullable<
+  Awaited<ReturnType<typeof getChangeOrderTypes>>["data"]
+>[number];
+
+export type ChangeOrderTypeDetail = NonNullable<
+  Awaited<ReturnType<typeof getChangeOrderType>>["data"]
+>;
+
+export type ChangeOrderWorkflow = NonNullable<
+  Awaited<ReturnType<typeof getChangeOrderWorkflows>>["data"]
+>[number];
+
+export type ChangeOrderWorkflowDetail = NonNullable<
+  Awaited<ReturnType<typeof getChangeOrderWorkflow>>["data"]
+>;
 
 export type ChangeOrderStatusType =
   Database["public"]["Enums"]["changeOrderStatus"];

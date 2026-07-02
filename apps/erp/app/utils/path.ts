@@ -603,12 +603,34 @@ export const path = {
       generatePath(`${x}/change-order/${id}/details`),
     changeOrderItem: (id: string, coItemId: string) =>
       generatePath(`${x}/change-order/${id}/item/${coItemId}`),
+    changeOrderStatus: (id: string) =>
+      generatePath(`${x}/change-order/${id}/status`),
+    changeOrderDecision: (id: string) =>
+      generatePath(`${x}/change-order/${id}/decision`),
+    releaseChangeOrder: (id: string) =>
+      generatePath(`${x}/change-order/${id}/release`),
+    changeOrderTaskStatus: (id: string) =>
+      generatePath(`${x}/change-order/task/${id}/status`),
     newChangeOrder: `${x}/change-order/new`,
+    newChangeOrderType: `${x}/items/change-order/change-order-types/new`,
+    newChangeOrderWorkflow: `${x}/change-order-workflow/new`,
     deleteChangeOrder: (id: string) =>
-      generatePath(`${x}/change-order/${id}/delete`),
+      generatePath(`${x}/change-order/delete/${id}`),
+    bulkUpdateChangeOrder: `${x}/change-order/update`,
     updateChangeOrderItem: `${x}/change-order/item/update`,
     deleteChangeOrderItem: (coItemId: string) =>
       generatePath(`${x}/change-order/item/delete/${coItemId}`),
+    deleteChangeOrderWorkflow: (id: string) =>
+      generatePath(`${x}/change-order-workflow/delete/${id}`),
+    deleteChangeOrderType: (id: string) =>
+      generatePath(`${x}/items/change-order/change-order-types/delete/${id}`),
+    myChangeOrderTasks: `${x}/items/change-order-tasks`,
+    changeOrderWorkflows: `${x}/items/change-order/change-order-workflows`,
+    changeOrderWorkflow: (id: string) =>
+      generatePath(`${x}/change-order-workflow/${id}`),
+    changeOrderTypes: `${x}/items/change-order/change-order-types`,
+    changeOrderType: (id: string) =>
+      generatePath(`${x}/items/change-order/change-order-types/${id}`),
     contractor: (id: string) =>
       generatePath(`${x}/resources/contractors/${id}`),
     contractors: `${x}/resources/contractors`,

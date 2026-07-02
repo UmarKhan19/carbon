@@ -3,7 +3,9 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import type { ActionFunctionArgs } from "react-router";
 import { removeAffectedItem } from "~/modules/items";
 
-// removeAffectedItem enforces the draft-only guard + pending-revision cleanup.
+// ConfirmDelete (sidebar "Delete Association") posts an empty form to this
+// path; the affected-item id rides in the URL. Reuses removeAffectedItem so the
+// draft-only guard + pending-revision cleanup match the fetcher delete intent.
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
   const { client, companyId } = await requirePermissions(request, {

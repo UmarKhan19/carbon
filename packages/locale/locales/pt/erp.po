@@ -679,6 +679,9 @@ msgstr "Tipo de Ajuste"
 msgid "Advanced"
 msgstr "Avançado"
 
+msgid "Affected Item"
+msgstr ""
+
 msgid "Affected Items"
 msgstr ""
 
@@ -912,6 +915,9 @@ msgstr "Data de Aprovação"
 msgid "Approval is required at or above this amount, up to the next rule's minimum"
 msgstr "A aprovação é necessária neste valor ou acima dele, até o mínimo da próxima regra"
 
+msgid "Approval notes"
+msgstr ""
+
 msgid "Approval Requirements"
 msgstr "Requisitos de Aprovação"
 
@@ -921,11 +927,20 @@ msgstr "Regras de Aprovação"
 msgid "Approval Type"
 msgstr ""
 
+msgid "Approvals"
+msgstr ""
+
 msgid "Approve"
 msgstr "Aprovar"
 
+msgid "Approve Change Order"
+msgstr ""
+
 msgid "Approved By"
 msgstr "Aprovado Por"
+
+msgid "Approvers"
+msgstr ""
 
 msgid "AQL"
 msgstr "AQL"
@@ -1050,6 +1065,10 @@ msgstr "Tem a certeza de que deseja eliminar a conta: {0}{1}? Esta ação não p
 #. placeholder {0}: apiKey.name
 msgid "Are you sure you want to delete the API key: {0}? This cannot be undone."
 msgstr "Tem a certeza de que deseja eliminar a chave de API: {0}? Esta ação não pode ser desfeita."
+
+#. placeholder {0}: changeOrderType.name
+msgid "Are you sure you want to delete the change order type: {0}? This cannot be undone."
+msgstr ""
 
 msgid "Are you sure you want to delete the contractor: {name}? This cannot be undone."
 msgstr "Tem a certeza de que deseja eliminar o contratante: {name}? Esta ação não pode ser desfeita."
@@ -1208,6 +1227,9 @@ msgstr "Tem a certeza de que deseja eliminar o webhook: {0}? Esta ação não po
 
 msgid "Are you sure you want to delete this approval rule? This cannot be undone."
 msgstr "Tem a certeza de que deseja eliminar esta regra de aprovação? Isto não pode ser desfeito."
+
+msgid "Are you sure you want to delete this change order workflow?"
+msgstr ""
 
 msgid "Are you sure you want to delete this change order?"
 msgstr ""
@@ -1594,6 +1616,9 @@ msgstr "Rastreamento de lote"
 msgid "Batch Tracking"
 msgstr "Rastreamento em Lote"
 
+msgid "Before"
+msgstr ""
+
 #. placeholder {0}: successorItem.readableIdWithRevision
 msgid "Being phased out — successor: <0>{0}</0>"
 msgstr "Sendo descontinuado — sucessor: <0>{0}</0>"
@@ -1939,6 +1964,12 @@ msgid "Change"
 msgstr "Alterar"
 
 msgid "Change Order"
+msgstr ""
+
+msgid "Change Order Types"
+msgstr ""
+
+msgid "Change Order Workflows"
 msgstr ""
 
 msgid "Change Orders"
@@ -2459,6 +2490,12 @@ msgstr "Copiar todos os itens e preços para outro cliente ou tipo."
 msgid "Copy API Key"
 msgstr "Copiar Chave de API"
 
+msgid "Copy change order number"
+msgstr ""
+
+msgid "Copy change order unique identifier"
+msgstr ""
+
 msgid "Copy company unique identifier"
 msgstr "Copiar identificador único da empresa"
 
@@ -2491,6 +2528,9 @@ msgstr "Copiar número do trabalho"
 
 msgid "Copy link"
 msgstr "Copiar ligação"
+
+msgid "Copy link to change order"
+msgstr ""
 
 msgid "Copy link to consumable"
 msgstr "Copiar link para consumível"
@@ -2756,6 +2796,9 @@ msgstr "Criado em"
 
 msgid "Created By"
 msgstr "Criado por"
+
+msgid "Created change order type"
+msgstr ""
 
 msgid "Created consumable"
 msgstr "Consumível criado"
@@ -3251,6 +3294,9 @@ msgstr "Contas padrão para transações relacionadas a impostos"
 
 msgid "Default Approver"
 msgstr "Aprovador Padrão"
+
+msgid "Default Approvers"
+msgstr ""
 
 msgid "Default Attachments"
 msgstr "Anexos Padrão"
@@ -3993,6 +4039,9 @@ msgstr "Editar Categoria de Atributo"
 msgid "Edit Category"
 msgstr "Editar Categoria"
 
+msgid "Edit Change Order Type"
+msgstr ""
+
 msgid "Edit column visibility"
 msgstr "Editar visibilidade da coluna"
 
@@ -4148,6 +4197,9 @@ msgstr "Editar Projeção de Produção"
 
 msgid "Edit Production Quantity"
 msgstr "Editar Quantidade de Produção"
+
+msgid "Edit proposed revision"
+msgstr ""
 
 msgid "Edit purchase order line type"
 msgstr "Editar tipo de linha de ordem de compra"
@@ -4705,6 +4757,10 @@ msgstr "Falhar"
 #. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create asset class: {0}"
 msgstr "FEFO (primeiro a expirar, primeiro a sair)"
+
+#. placeholder {0}: fetcher.data.error.message
+msgid "Failed to create change order type: {0}"
+msgstr ""
 
 #. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create consumable: {0}"
@@ -6855,6 +6911,9 @@ msgstr "Materiais"
 msgid "Materials"
 msgstr "Materiais"
 
+msgid "Materials (BOM)"
+msgstr ""
+
 msgid "Max Qty"
 msgstr "Qtd Máx"
 
@@ -7088,6 +7147,9 @@ msgstr "MRP é executado automaticamente a cada 3 horas, mas você pode executá
 msgid "Must be in the same location"
 msgstr "Deve estar no mesmo local"
 
+msgid "My Change Orders"
+msgstr ""
+
 msgid "My Documents"
 msgstr "Meus Documentos"
 
@@ -7162,6 +7224,9 @@ msgstr "Novo Atributo"
 
 msgid "New Attribute Category"
 msgstr "Nova Categoria de Atributo"
+
+msgid "New Change Order Type"
+msgstr ""
 
 msgid "New Consumable"
 msgstr "Novo Consumível"
@@ -7496,6 +7561,12 @@ msgstr "Nenhuma entrada de BOM tem uma política de vida útil"
 msgid "No calibration records found"
 msgstr "Nenhum registro de calibração encontrado"
 
+msgid "No changes"
+msgstr ""
+
+msgid "No changes proposed yet"
+msgstr ""
+
 msgid "No changes recorded"
 msgstr "Nenhuma alteração registrada"
 
@@ -7585,6 +7656,12 @@ msgstr "Nenhuma correspondência"
 
 msgid "No matches for \"{query}\". Try a different search term."
 msgstr "Nenhuma correspondência para \"{query}\". Tente um termo de pesquisa diferente."
+
+msgid "No materials"
+msgstr ""
+
+msgid "No method changes between revisions."
+msgstr ""
 
 msgid "No new notifications"
 msgstr "Sem notificações novas"
@@ -7981,6 +8058,9 @@ msgstr "Tipo de Operação"
 
 msgid "Operations"
 msgstr "Operações"
+
+msgid "Operations (BOP)"
+msgstr ""
 
 msgid "Operations / steps"
 msgstr "Operações / etapas"
@@ -9157,6 +9237,9 @@ msgstr "Conta de Motivo"
 msgid "Reason for declining (Optional)"
 msgstr "Motivo da recusa (Opcional)"
 
+msgid "Reason for rejection"
+msgstr ""
+
 msgid "Reasons"
 msgstr "Razões"
 
@@ -9266,6 +9349,9 @@ msgstr "Registar inspeções vinculadas a uma peça e um trabalho"
 msgid "Record the inspection result for this sample."
 msgstr "Registre o resultado da inspeção para esta amostra."
 
+msgid "Record your approval. Add a note for the audit trail."
+msgstr ""
+
 msgid "Recorded that follow-up is needed after this calibration; surfaces this gauge on the open-actions queue."
 msgstr "Registrado que o acompanhamento é necessário após esta calibração; mostra este indicador na fila de ações abertas."
 
@@ -9283,6 +9369,9 @@ msgstr "Registrar"
 
 msgid "Redirecting to verification page..."
 msgstr "Redirecionando para página de verificação..."
+
+msgid "Redline"
+msgstr ""
 
 msgid "Reduced"
 msgstr "Reduzido"
@@ -9308,6 +9397,9 @@ msgstr "Ponto de Reabastecimento"
 msgid "Reject"
 msgstr "Rejeitar"
 
+msgid "Reject Change Order"
+msgstr ""
+
 msgid "Reject Lot"
 msgstr "Rejeitar Lote"
 
@@ -9323,6 +9415,9 @@ msgstr "Rejeitado Por"
 msgid "Rejected Date"
 msgstr "Data de Rejeição"
 
+msgid "Rejecting returns the change order to Draft and resets all reviewers. Explain what needs to change."
+msgstr ""
+
 msgid "Relabels the hub and frames the deal."
 msgstr "Relabela o hub e enquadra o negócio."
 
@@ -9334,6 +9429,13 @@ msgstr "Cronograma relativo · datas a confirmar"
 
 msgid "Release"
 msgstr "Liberação"
+
+#. placeholder {0}: routeData.changeOrder.sourceId
+msgid "Release {0}"
+msgstr ""
+
+msgid "Release blocked"
+msgstr ""
 
 msgid "Release control"
 msgstr ""
@@ -9616,6 +9718,9 @@ msgstr "Imposto de vendas de cobrança reversa (padrão)"
 
 msgid "Reverse the related journal entries"
 msgstr "Reverter os lançamentos contábeis relacionados"
+
+msgid "Reviewers"
+msgstr ""
 
 msgid "Revision"
 msgstr "Revisão"
@@ -10610,6 +10715,9 @@ msgstr "Tamanho"
 msgid "Sizes"
 msgstr "Tamanhos"
 
+msgid "Skip"
+msgstr ""
+
 msgid "Skip Existing"
 msgstr "Ignorar Existentes"
 
@@ -10918,6 +11026,9 @@ msgstr "Enviar anonimamente"
 msgid "Submit for approval"
 msgstr "Enviar para aprovação"
 
+msgid "Submit for Review"
+msgstr ""
+
 msgid "Submit Inspection"
 msgstr "Enviar Inspeção"
 
@@ -11209,6 +11320,9 @@ msgstr "Versão de Destino"
 
 msgid "Target Version"
 msgstr "Versão de Destino"
+
+msgid "Task"
+msgstr ""
 
 msgid "tasks"
 msgstr "tarefas"
@@ -11739,6 +11853,9 @@ msgstr "O procedimento que os técnicos seguem quando essa manutenção é execu
 msgid "The processes this work center can run; appears in process-pickers when scheduling operations, and limits which jobs can route through this work center."
 msgstr "Os processos que este centro de trabalho pode executar; aparece nos seletores de processo ao agendar operações e limita quais trabalhos podem rotear através deste centro de trabalho."
 
+msgid "The proposed revision is an exact copy of the current revision. Edit the proposed revision to redline its BOM/BOP."
+msgstr ""
+
 msgid "The quantity breakpoints this line is priced at; each column carries its own per-unit price for buyer–supplier negotiation and for converting to downstream documents."
 msgstr "Os pontos de ruptura de quantidade em que essa linha é precificada; cada coluna possui seu próprio preço por unidade para negociação comprador-fornecedor e conversão para documentos posteriores."
 
@@ -11984,6 +12101,9 @@ msgstr "Este é o mês em que seu ano fiscal começa."
 
 msgid "This is the month your tax year starts."
 msgstr "Este é o mês em que seu ano fiscal começa."
+
+msgid "This item has no proposed revision, so there is nothing to redline."
+msgstr ""
 
 msgid "This item is built via a configurator and resolves its components per-order; jobs created for it inherit the configurator's resolved BOM."
 msgstr "Este item é construído por meio de um configurador e resolve seus componentes por pedido; os trabalhos criados para ele herdam a BOM resolvida do configurador."
@@ -12808,6 +12928,9 @@ msgstr "Ver Atributos"
 msgid "View Certificate"
 msgstr "Exibir Certificado"
 
+msgid "View Change Order"
+msgstr ""
+
 msgid "View Contact"
 msgstr "Ver Contacto"
 
@@ -12987,6 +13110,9 @@ msgstr "Avisar quando a pessoa que inspeciona um item de entrada é a mesma pess
 
 msgid "Warning"
 msgstr "Aviso"
+
+msgid "Warnings"
+msgstr ""
 
 msgid "Watch"
 msgstr "Assistir"
@@ -13429,6 +13555,9 @@ msgstr "O rastreamento de turnos de trabalho está ativo."
 
 msgid "Workflow"
 msgstr "Fluxo de Trabalho"
+
+msgid "Workflows"
+msgstr ""
 
 msgid "Working sessions on configuration and data"
 msgstr "Sessões de trabalho sobre configuração e dados"

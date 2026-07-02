@@ -1,7 +1,9 @@
 import {
+  CreatableCombobox,
   DatePicker,
   MultiSelect,
   Select,
+  SelectControlled,
   TextArea,
   ValidatedForm
 } from "@carbon/form";
@@ -12,36 +14,71 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
+  FormLabel,
   VStack
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
+import { useState } from "react";
+import { useNavigate } from "react-router";
 import type { z } from "zod";
 import { CustomFormFields, Hidden, Input, Submit } from "~/components/Form";
+import { UserSelect } from "~/components/Selectors";
+import type { IndividualOrGroup } from "~/components/Selectors/UserSelect/types";
 import { usePermissions } from "~/hooks";
+import type { ChangeOrderWorkflow } from "~/modules/items";
 import {
   changeOrderApprovalType,
+  changeOrderPriority,
   changeOrderType,
-  changeOrderValidator
+  changeOrderValidator,
+  parseChangeOrderWorkflowContent
 } from "~/modules/items";
-import { nonConformancePriority } from "~/modules/quality";
 import { useItems } from "~/stores/items";
 import type { ListItem } from "~/types";
+import { path } from "~/utils/path";
 
 type ChangeOrderFormValues = z.infer<typeof changeOrderValidator>;
 
 type ChangeOrderFormProps = {
   initialValues: ChangeOrderFormValues;
+  changeOrderWorkflows: ChangeOrderWorkflow[];
   changeOrderTypes: ListItem[];
 };
 
-// Workflow-template picker + reviewer selector are not implemented yet.
 const ChangeOrderForm = ({
   initialValues,
+  changeOrderWorkflows,
   changeOrderTypes
 }: ChangeOrderFormProps) => {
+  const navigate = useNavigate();
   const { t } = useLingui();
   const permissions = usePermissions();
   const isEditing = initialValues.id !== undefined;
+
+  // Local state for the fields a workflow template pre-fills. Selecting a
+  // workflow copies its priority, approvalType, and default approver groups
+  // into these controlled fields (client-side, like the Issue onWorkflowChange).
+  const [workflow, setWorkflow] = useState<{
+    priority: string;
+    approvalType: string;
+    approvers: string[];
+  }>({
+    priority: initialValues.priority ?? "",
+    approvalType: initialValues.approvalType ?? "Unanimous",
+    approvers: initialValues.approvers ?? []
+  });
+
+  const onWorkflowChange = (value: { value: string } | null) => {
+    if (!value) return;
+    const selected = changeOrderWorkflows.find((w) => w.id === value.value);
+    if (!selected) return;
+    const content = parseChangeOrderWorkflowContent(selected.content);
+    setWorkflow((prev) => ({
+      priority: content.priority ?? "",
+      approvalType: content.approvalType ?? prev.approvalType,
+      approvers: content.approvers ?? []
+    }));
+  };
 
   const [items] = useItems();
 
@@ -95,25 +132,82 @@ const ChangeOrderForm = ({
                   value: type.id
                 }))}
               />
-              <Select
-                name="priority"
-                label={t`Priority`}
-                options={nonConformancePriority.map((priority) => ({
-                  label: priority,
-                  value: priority
+              <CreatableCombobox
+                name="changeOrderWorkflowId"
+                label={t`Workflow`}
+                options={changeOrderWorkflows.map((workflow) => ({
+                  label: workflow.name,
+                  value: workflow.id
                 }))}
+                onChange={onWorkflowChange}
+                onCreateOption={() => {
+                  navigate(path.to.newChangeOrderWorkflow);
+                }}
               />
             </div>
 
             <div className="grid w-full gap-4 grid-cols-1 md:grid-cols-2">
-              <Select
+              <SelectControlled
+                name="priority"
+                label={t`Priority`}
+                options={changeOrderPriority.map((priority) => ({
+                  label: priority,
+                  value: priority
+                }))}
+                value={workflow.priority}
+                onChange={(value) => {
+                  setWorkflow({
+                    ...workflow,
+                    priority: value?.value ?? ""
+                  });
+                }}
+              />
+              <SelectControlled
                 name="approvalType"
                 label={t`Approval Type`}
                 options={changeOrderApprovalType.map((approvalType) => ({
                   label: approvalType,
                   value: approvalType
                 }))}
+                value={workflow.approvalType}
+                onChange={(value) => {
+                  setWorkflow((prev) => ({
+                    ...prev,
+                    approvalType: value?.value ?? ""
+                  }));
+                }}
               />
+            </div>
+
+            <VStack spacing={4}>
+              <VStack spacing={2}>
+                <FormLabel htmlFor="approvers" isOptional>
+                  {t`Approvers`}
+                </FormLabel>
+                {workflow.approvers.map((approver, index) => (
+                  <input
+                    key={`approvers[${index}]`}
+                    type="hidden"
+                    name={`approvers[${index}]`}
+                    value={approver}
+                  />
+                ))}
+                <UserSelect
+                  isMulti
+                  type="employee"
+                  value={workflow.approvers.map((a) =>
+                    a.replace(/^(user|group)_/, "")
+                  )}
+                  onChange={(selections: IndividualOrGroup[]) => {
+                    setWorkflow((prev) => ({
+                      ...prev,
+                      approvers: selections.map((item) =>
+                        "users" in item ? `group_${item.id}` : `user_${item.id}`
+                      )
+                    }));
+                  }}
+                />
+              </VStack>
               <MultiSelect
                 name="items"
                 label={t`Items`}
@@ -123,7 +217,7 @@ const ChangeOrderForm = ({
                   helper: item.name
                 }))}
               />
-            </div>
+            </VStack>
 
             <div className="grid w-full gap-4 grid-cols-1 md:grid-cols-2">
               <DatePicker name="openDate" label={t`Open Date`} />
@@ -137,8 +231,8 @@ const ChangeOrderForm = ({
           <Submit
             isDisabled={
               isEditing
-                ? !permissions.can("update", "parts")
-                : !permissions.can("create", "parts")
+                ? !permissions.can("update", "production")
+                : !permissions.can("create", "production")
             }
           >
             Save

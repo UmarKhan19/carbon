@@ -37,8 +37,9 @@ export async function action({ request }: ActionFunctionArgs) {
       if (changeOrder.error || !changeOrder.data) {
         return { error: { message: "Change order not found" }, data: null };
       }
-      // Draft-only: the affected-item set is frozen once In Review so nothing
-      // can ride to release unreviewed.
+      // Affected items may only be added while the CO is a Draft. Once it is In
+      // Review or later the set is frozen so a new item can't ride to release
+      // unreviewed.
       if (!canEditChangeOrderItems(changeOrder.data.status)) {
         return {
           error: {
@@ -49,8 +50,8 @@ export async function action({ request }: ActionFunctionArgs) {
         };
       }
 
-      // Shared attach path: one-open-CO-per-item guard + insert + (Engineering)
-      // pending revision.
+      // Shared attach path: runs the one-open-CO-per-item guard, inserts the
+      // association, and (for Engineering COs) stages a pending revision.
       const attached = await attachAffectedItem(client, {
         changeOrderId,
         itemId,

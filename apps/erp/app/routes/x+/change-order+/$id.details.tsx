@@ -2,24 +2,41 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import { msg } from "@lingui/core/macro";
+import type { JSONContent } from "@carbon/react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  generateHTML,
+  Spinner,
+  VStack
+} from "@carbon/react";
+import { Suspense } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { redirect, useLoaderData } from "react-router";
+import { Await, redirect, useLoaderData, useParams } from "react-router";
+import { useRouteData } from "~/hooks";
+import type { ChangeOrderDetail, ChangeOrderItem } from "~/modules/items";
 import {
   changeOrderValidator,
   getChangeOrder,
-  getChangeOrderTypesList,
+  getChangeOrderApprovalTasks,
+  getChangeOrderImpact,
+  getChangeOrderReviewers,
   isChangeOrderLocked,
   updateChangeOrder
 } from "~/modules/items";
-import ChangeOrderForm from "~/modules/items/ui/ChangeOrder/ChangeOrderForm";
+import ChangeOrderApprovalTasks from "~/modules/items/ui/ChangeOrder/ChangeOrderApprovalTasks";
+import ChangeOrderImpact from "~/modules/items/ui/ChangeOrder/ChangeOrderImpact";
+import ChangeOrderReviewers from "~/modules/items/ui/ChangeOrder/ChangeOrderReviewers";
+import ValidationBanner from "~/modules/items/ui/ChangeOrder/ValidationBanner";
 import { setCustomFields } from "~/utils/form";
 import type { Handle } from "~/utils/handle";
 import { requireUnlocked } from "~/utils/lockedGuard.server";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: msg`Details`
+  breadcrumb: "Details"
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -31,10 +48,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { id } = params;
   if (!id) throw new Error("Could not find id");
 
-  const [changeOrder, changeOrderTypes] = await Promise.all([
-    getChangeOrder(client, id, companyId),
-    getChangeOrderTypesList(client, companyId)
-  ]);
+  const changeOrder = await getChangeOrder(client, id, companyId);
 
   if (changeOrder.error) {
     throw new Error(changeOrder.error.message);
@@ -42,20 +56,25 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   return {
     changeOrder: changeOrder.data,
-    changeOrderTypes: changeOrderTypes.data ?? []
+    approvalTasks: getChangeOrderApprovalTasks(client, id, companyId),
+    reviewers: getChangeOrderReviewers(client, id, companyId),
+    impact: getChangeOrderImpact(client, id, companyId)
   };
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, companyId, userId } = await requirePermissions(request, {
+  const { client, userId } = await requirePermissions(request, {
     update: "parts"
   });
 
   const { id } = params;
   if (!id) throw new Error("Could not find id");
 
-  const changeOrder = await getChangeOrder(client, id, companyId);
+  const { client: viewClient, companyId } = await requirePermissions(request, {
+    view: "parts"
+  });
+  const changeOrder = await getChangeOrder(viewClient, id, companyId);
   await requireUnlocked({
     request,
     isLocked: isChangeOrderLocked(changeOrder.data?.status),
@@ -104,35 +123,90 @@ export async function action({ request, params }: ActionFunctionArgs) {
   );
 }
 
+const taskFallback = (
+  <div className="flex min-h-[420px] w-full h-full rounded bg-gradient-to-tr from-background to-card items-center justify-center">
+    <Spinner className="size-10" />
+  </div>
+);
+
 export default function ChangeOrderDetailsRoute() {
-  const { changeOrder, changeOrderTypes } = useLoaderData<typeof loader>();
+  const { id } = useParams();
+  if (!id) throw new Error("Could not find id");
 
-  const description = changeOrder?.description;
+  const { approvalTasks, reviewers, impact } = useLoaderData<typeof loader>();
 
-  const initialValues = {
-    id: changeOrder?.id,
-    changeOrderId: changeOrder?.changeOrderId ?? undefined,
-    name: changeOrder?.name ?? "",
-    description: typeof description === "string" ? description : "",
-    type: changeOrder?.type ?? "Engineering",
-    priority: changeOrder?.priority ?? undefined,
-    approvalType: changeOrder?.approvalType ?? "Unanimous",
-    changeOrderTypeId: changeOrder?.changeOrderTypeId ?? "",
-    changeOrderWorkflowId: changeOrder?.changeOrderWorkflowId ?? "",
-    openDate: changeOrder?.openDate ?? "",
-    dueDate: changeOrder?.dueDate ?? "",
-    effectiveDate: changeOrder?.effectiveDate ?? "",
-    sourceType: changeOrder?.sourceType ?? "",
-    sourceId: changeOrder?.sourceId ?? "",
-    assignee: changeOrder?.assignee ?? "",
-    items: [] as string[]
-  };
+  const routeData = useRouteData<{
+    changeOrder: ChangeOrderDetail;
+    items: ChangeOrderItem[];
+    validations: Promise<{ errors: string[]; warnings: string[] }>;
+  }>(path.to.changeOrder(id));
+
+  if (!routeData) throw new Error("Could not find change order data");
+
+  const changeOrder = routeData.changeOrder;
 
   return (
-    <ChangeOrderForm
-      key={changeOrder?.id}
-      initialValues={initialValues}
-      changeOrderTypes={changeOrderTypes}
-    />
+    <VStack spacing={2}>
+      <Suspense fallback={null}>
+        <Await resolve={routeData.validations}>
+          {(resolved) => (
+            <ValidationBanner
+              errors={resolved?.errors ?? []}
+              warnings={resolved?.warnings ?? []}
+            />
+          )}
+        </Await>
+      </Suspense>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Description</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {(() => {
+            // description is a JSON column: a TipTap doc (object with `type`),
+            // a plain string (from the TextArea form), or empty. generateHTML
+            // throws ("type" in <string>) on a bare string, so branch on shape.
+            const d = changeOrder?.description as unknown;
+            if (d && typeof d === "object" && "type" in d) {
+              return (
+                <div
+                  className="prose dark:prose-invert"
+                  dangerouslySetInnerHTML={{
+                    __html: generateHTML(d as JSONContent)
+                  }}
+                />
+              );
+            }
+            if (typeof d === "string" && d.trim()) {
+              return <p className="text-sm whitespace-pre-wrap">{d}</p>;
+            }
+            return null;
+          })()}
+        </CardContent>
+      </Card>
+
+      <Suspense fallback={taskFallback}>
+        <Await resolve={approvalTasks}>
+          {(resolved) => (
+            <ChangeOrderApprovalTasks tasks={resolved?.data ?? []} />
+          )}
+        </Await>
+      </Suspense>
+
+      <Suspense fallback={taskFallback}>
+        <Await resolve={reviewers}>
+          {(resolved) => (
+            <ChangeOrderReviewers reviewers={resolved?.data ?? []} />
+          )}
+        </Await>
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <Await resolve={impact}>
+          {(resolved) => <ChangeOrderImpact impact={resolved ?? []} />}
+        </Await>
+      </Suspense>
+    </VStack>
   );
 }

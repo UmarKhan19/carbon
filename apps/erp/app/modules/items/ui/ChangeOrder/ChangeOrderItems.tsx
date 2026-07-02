@@ -17,8 +17,13 @@ import { z } from "zod";
 import { Item } from "~/components/Form";
 import { path } from "~/utils/path";
 
-// Disposition badge + add-affected-item modal (the list lives in ChangeOrderItemsTree).
+// Shared affected-item UI for change orders. The affected-items list itself now
+// lives in the explorer sidebar (ChangeOrderItemsTree) and the redline + the
+// disposition control live in the focused per-item view; this module is the
+// single home for the two reusable bits both surfaces need: the disposition
+// badge and the add-affected-item modal.
 
+// The disposition options shown for an affected item.
 export function DispositionStatus({ disposition }: { disposition: string }) {
   switch (disposition) {
     case "No Change":

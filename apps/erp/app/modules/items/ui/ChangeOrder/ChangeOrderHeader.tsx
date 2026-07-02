@@ -1,4 +1,5 @@
 import {
+  Button,
   Copy,
   DropdownMenu,
   DropdownMenuContent,
@@ -12,13 +13,23 @@ import {
   VStack
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { LuEllipsisVertical, LuTrash } from "react-icons/lu";
-import { Link, useParams } from "react-router";
+import { useState } from "react";
+import {
+  LuCircleCheck,
+  LuCircleX,
+  LuEllipsisVertical,
+  LuHistory,
+  LuRocket,
+  LuSend,
+  LuTrash
+} from "react-icons/lu";
+import { Link, useFetcher, useParams } from "react-router";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
 import { usePermissions, useRouteData } from "~/hooks";
 import type { ChangeOrderDetail } from "~/modules/items";
 import { isChangeOrderLocked } from "~/modules/items";
 import { path } from "~/utils/path";
+import ChangeOrderDecisionModal from "./ChangeOrderDecisionModal";
 import ChangeOrderStatus from "./ChangeOrderStatus";
 
 const ChangeOrderHeader = () => {
@@ -32,9 +43,14 @@ const ChangeOrderHeader = () => {
   const status = routeData?.changeOrder?.status;
   const { t } = useLingui();
   const permissions = usePermissions();
+  const statusFetcher = useFetcher<{}>();
+  const releaseFetcher = useFetcher<{}>();
   const deleteChangeOrderModal = useDisclosure();
+  const [decision, setDecision] = useState<"approve" | "reject" | null>(null);
 
   const isLocked = isChangeOrderLocked(status);
+  const canDecide =
+    status === "In Review" && permissions.can("update", "production");
 
   return (
     <>
@@ -58,10 +74,16 @@ const ChangeOrderHeader = () => {
                 />
               </DropdownMenuTrigger>
               <DropdownMenuContent>
+                <DropdownMenuItem asChild>
+                  <Link to={path.to.changeOrderDetails(id)}>
+                    <DropdownMenuIcon icon={<LuHistory />} />
+                    <Trans>Audit Log</Trans>
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   destructive
                   disabled={
-                    !permissions.can("delete", "parts") ||
+                    !permissions.can("delete", "production") ||
                     !permissions.is("employee") ||
                     isLocked
                   }
@@ -75,8 +97,77 @@ const ChangeOrderHeader = () => {
           </HStack>
         </VStack>
 
-        {/* Status-transition + release actions are not implemented yet. */}
+        <HStack>
+          <statusFetcher.Form
+            method="post"
+            action={path.to.changeOrderStatus(id)}
+          >
+            <input type="hidden" name="status" value="In Review" />
+            <Button
+              type="submit"
+              leftIcon={<LuSend />}
+              variant={status === "Draft" ? "primary" : "secondary"}
+              isDisabled={
+                status !== "Draft" ||
+                statusFetcher.state !== "idle" ||
+                !permissions.can("update", "production")
+              }
+              isLoading={
+                statusFetcher.state !== "idle" &&
+                statusFetcher.formData?.get("status") === "In Review"
+              }
+            >
+              <Trans>Submit for Review</Trans>
+            </Button>
+          </statusFetcher.Form>
+
+          <Button
+            type="button"
+            leftIcon={<LuCircleX />}
+            variant="secondary"
+            isDisabled={!canDecide}
+            onClick={() => setDecision("reject")}
+          >
+            <Trans>Reject</Trans>
+          </Button>
+
+          <Button
+            type="button"
+            leftIcon={<LuCircleCheck />}
+            variant={status === "In Review" ? "primary" : "secondary"}
+            isDisabled={!canDecide}
+            onClick={() => setDecision("approve")}
+          >
+            <Trans>Approve</Trans>
+          </Button>
+
+          <releaseFetcher.Form
+            method="post"
+            action={path.to.releaseChangeOrder(id)}
+          >
+            <Button
+              type="submit"
+              leftIcon={<LuRocket />}
+              variant={status === "Approved" ? "primary" : "secondary"}
+              isDisabled={
+                status !== "Approved" ||
+                releaseFetcher.state !== "idle" ||
+                !permissions.can("update", "production")
+              }
+              isLoading={releaseFetcher.state !== "idle"}
+            >
+              <Trans>Release</Trans>
+            </Button>
+          </releaseFetcher.Form>
+        </HStack>
       </div>
+      {decision && (
+        <ChangeOrderDecisionModal
+          changeOrderId={id}
+          decision={decision}
+          onClose={() => setDecision(null)}
+        />
+      )}
       {deleteChangeOrderModal.isOpen && (
         <ConfirmDelete
           action={path.to.deleteChangeOrder(id)}

@@ -4,6 +4,7 @@ import {
   LuAtom,
   LuAxis3D,
   LuBeef,
+  LuClipboardList,
   LuDessert,
   LuGitPullRequestArrow,
   LuGlassWater,
@@ -12,7 +13,8 @@ import {
   LuPizza,
   LuPuzzle,
   LuRuler,
-  LuShapes
+  LuShapes,
+  LuWorkflow
 } from "react-icons/lu";
 import { usePermissions } from "~/hooks";
 import { useSavedViews } from "~/hooks/useSavedViews";
@@ -61,6 +63,12 @@ export default function useItemsSubmodules() {
           to: path.to.changeOrders,
           icon: <LuGitPullRequestArrow />,
           table: "changeOrder"
+        },
+        {
+          name: t`My Change Orders`,
+          to: path.to.myChangeOrderTasks,
+          icon: <LuClipboardList />,
+          role: "employee"
         }
       ]
     },
@@ -119,6 +127,18 @@ export default function useItemsSubmodules() {
           to: path.to.uoms,
           role: "employee",
           icon: <LuRuler />
+        },
+        {
+          name: t`Change Order Types`,
+          to: path.to.changeOrderTypes,
+          role: "employee",
+          icon: <LuShapes />
+        },
+        {
+          name: t`Change Order Workflows`,
+          to: path.to.changeOrderWorkflows,
+          role: "employee",
+          icon: <LuWorkflow />
         }
       ]
     }
