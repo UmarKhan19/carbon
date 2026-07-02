@@ -7,24 +7,21 @@ import {
   DropdownMenuIcon,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  SplitButton,
   useDisclosure,
   VStack
 } from "@carbon/react";
-import { labelSizes } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import {
   LuCheckCheck,
   LuCreditCard,
-  LuQrCode,
   LuShoppingCart,
   LuTicketX,
   LuTrash,
   LuTruck
 } from "react-icons/lu";
-import { Link, useParams } from "react-router";
+import { Link, useNavigation, useParams } from "react-router";
 import type { z } from "zod";
-import { DocumentHeader } from "~/components";
+import { DocumentHeader, PrintButton } from "~/components";
 import { useAuditLog } from "~/components/AuditLog";
 import {
   Combobox,
@@ -78,6 +75,7 @@ const ReceiptForm = ({
   const { company } = useUser();
   const permissions = usePermissions();
   const { t } = useLingui();
+  const navigation = useNavigation();
   const {
     locationId,
     sourceDocuments,
@@ -111,29 +109,16 @@ const ReceiptForm = ({
 
   const receiptLineTracking = routeData?.receiptLineTracking ?? [];
 
-  const navigateToTrackingLabels = (zpl?: boolean, labelSize?: string) => {
-    if (!window) return;
-    if (zpl) {
-      window.open(
-        window.location.origin +
-          path.to.file.receiptLabelsZpl(receiptId, { labelSize }),
-        "_blank"
-      );
-    } else {
-      window.open(
-        window.location.origin +
-          path.to.file.receiptLabelsPdf(receiptId, { labelSize }),
-        "_blank"
-      );
-    }
-  };
-
   const canInvoice =
     isPosted &&
     !isInvoiced &&
     routeData?.receipt?.sourceDocument === "Purchase Order" &&
     routeData?.receipt?.sourceDocumentId &&
     permissions.can("create", "invoicing");
+
+  const isInvoicing =
+    navigation.state !== "idle" &&
+    navigation.location?.pathname === path.to.newPurchaseInvoice;
 
   return (
     <>
@@ -186,18 +171,16 @@ const ReceiptForm = ({
             actions={
               <>
                 {receiptLineTracking.length > 0 && (
-                  <SplitButton
-                    leftIcon={<LuQrCode />}
-                    dropdownItems={labelSizes.map((size) => ({
-                      label: size.name,
-                      onClick: () =>
-                        navigateToTrackingLabels(!!size.zpl, size.id)
-                    }))}
-                    onClick={() => navigateToTrackingLabels(false)}
-                    variant={isPosted ? "primary" : "secondary"}
-                  >
-                    <Trans>Tracking Labels</Trans>
-                  </SplitButton>
+                  <PrintButton
+                    sourceDocument="Receipt"
+                    sourceDocumentId={receiptId}
+                    locationId={locationId ?? undefined}
+                    context="receiving"
+                    fileRoutes={{
+                      pdf: path.to.file.receiptLabelsPdf,
+                      zpl: path.to.file.receiptLabelsZpl
+                    }}
+                  />
                 )}
                 <SourceDocumentLink
                   sourceDocument={
@@ -212,7 +195,8 @@ const ReceiptForm = ({
                 />
                 <Button
                   variant={canInvoice ? "primary" : "secondary"}
-                  isDisabled={!canInvoice}
+                  isDisabled={!canInvoice || isInvoicing}
+                  isLoading={isInvoicing}
                   leftIcon={<LuCreditCard />}
                   asChild
                 >
@@ -254,6 +238,7 @@ const ReceiptForm = ({
                 <Select
                   name="sourceDocument"
                   label={t`Source Document`}
+                  termId="receipt-source-document"
                   options={receiptSourceDocumentType.map((v) => ({
                     label: v,
                     value: v
@@ -270,6 +255,7 @@ const ReceiptForm = ({
                 <Combobox
                   name="sourceDocumentId"
                   label={t`Source Document ID`}
+                  termId="receipt-source-document-id"
                   options={sourceDocuments.map((d) => ({
                     label: d.name,
                     value: d.id
@@ -279,6 +265,7 @@ const ReceiptForm = ({
                 <Input
                   name="externalDocumentId"
                   label={t`External Reference`}
+                  termId="receipt-external-reference"
                   isDisabled={isPosted}
                 />
                 <CustomFormFields table="receipt" />

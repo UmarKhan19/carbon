@@ -33,6 +33,7 @@ import {
   unitOfMeasures
 } from "../supabase/functions/lib/seed.data.ts";
 import { getPostgresConnectionPool } from "./client.ts";
+import { seedPrinting } from "./seed-printing.ts";
 import type { Database } from "./types.ts";
 
 // Load environment variables
@@ -61,6 +62,10 @@ const { values } = parseArgs({
     email: {
       type: "string",
       short: "e"
+    },
+    printing: {
+      type: "boolean",
+      default: false
     }
   },
   strict: true
@@ -68,13 +73,15 @@ const { values } = parseArgs({
 
 function printUsage() {
   console.log(`
-Usage: pnpm run db:seed:dev -- --email <email>
+Usage: pnpm run db:seed:dev -- --email <email> [--printing]
 
 Arguments:
   --email, -e    Required. The email address for the dev user.
+  --printing     Optional. Seed printing test data (printer routes, receipts, etc.).
 
 Example:
   pnpm run db:seed:dev -- --email developer@example.com
+  pnpm run db:seed:dev -- --email developer@example.com --printing
   `);
 }
 
@@ -418,10 +425,13 @@ async function seedDev() {
           "bankLocalCurrencyAccount", "bankForeignCurrencyAccount", "prepaymentAccount",
           "payablesAccount", "goodsReceivedNotInvoicedAccount", "inventoryShippedNotInvoicedAccount",
           "salesTaxPayableAccount", "purchaseTaxPayableAccount", "reverseChargeSalesTaxPayableAccount",
-          "retainedEarningsAccount", "currencyTranslationAccount", "companyId"
+          "retainedEarningsAccount", "currencyTranslationAccount",
+          "customerWriteOffAccount", "supplierWriteOffAccount",
+          "realizedExchangeGainAccount", "realizedExchangeLossAccount", "companyId"
         ) VALUES (
           $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19,
-          $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40
+          $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40,
+          $41, $42, $43, $44
         )`,
         [
           resolveAccountId(accountDefaults.salesAccount),
@@ -467,6 +477,10 @@ async function seedDev() {
           resolveAccountId(accountDefaults.reverseChargeSalesTaxPayableAccount),
           resolveAccountId(accountDefaults.retainedEarningsAccount),
           resolveAccountId(accountDefaults.currencyTranslationAccount),
+          resolveAccountId(accountDefaults.customerWriteOffAccount),
+          resolveAccountId(accountDefaults.supplierWriteOffAccount),
+          resolveAccountId(accountDefaults.realizedExchangeGainAccount),
+          resolveAccountId(accountDefaults.realizedExchangeLossAccount),
           companyId
         ]
       );
@@ -581,6 +595,12 @@ async function seedDev() {
       );
 
       console.log("   User permissions updated.");
+
+      // Seed printing test data (opt-in via --printing flag)
+      if (values.printing) {
+        console.log("8. Seeding printing test data...");
+        await seedPrinting(client, { companyId, userId, locationId });
+      }
 
       // Commit the transaction
       await client.query("COMMIT");

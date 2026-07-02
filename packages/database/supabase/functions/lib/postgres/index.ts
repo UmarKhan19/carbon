@@ -7,7 +7,7 @@ import {
   PostgresQueryCompiler,
   Transaction,
 } from "kysely";
-import type { KyselifyDatabase } from "kysely-supabase";
+import type { KyselifyDatabase } from "./kysely-supabase.types.ts";
 // Aliased it as pg so can be imported as-is in Node environment
 import { Pool } from "pg";
 import type { Database as SupabaseDatabase } from "../../../../src/types.ts";
@@ -16,7 +16,7 @@ export type KyselyDatabase = KyselifyDatabase<SupabaseDatabase>;
 export type KyselyTx = Transaction<KyselyDatabase>;
 export type KyselyDbTx = KyselyDatabase | KyselyTx;
 
-export type { Kysely } from "kysely";
+export type { ExpressionBuilder, Kysely } from "kysely";
 
 export function getRuntime() {
   if (typeof (globalThis as Record<string, unknown>).Deno !== "undefined") {

@@ -7,8 +7,11 @@ import {
   evaluateLinesForSurface,
   isBlocked
 } from "@carbon/ee/storage-rules.server";
+import { trigger } from "@carbon/jobs";
+import { getCachedPrinterConfig } from "@carbon/printing/printing.server";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
+import { reconcileReceiptSerialEntities } from "~/modules/inventory";
 import { path } from "~/utils/path";
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -29,7 +32,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const { data: lines } = await serviceRole
     .from("receiptLine")
     .select(
-      "id, itemId, storageUnitId, receivedQuantity, locationId, receiptId"
+      "id, itemId, storageUnitId, receivedQuantity, locationId, receiptId, requiresSerialTracking"
     )
     .eq("receiptId", receiptId)
     .eq("companyId", companyId);
@@ -101,6 +104,16 @@ export async function action({ request, params }: ActionFunctionArgs) {
     };
   }
 
+  // Serial-tracked lines can accumulate stale tracked entities (reduced
+  // quantity leaves orphans, edited serials leave duplicates) that would
+  // otherwise be flipped to Available as phantom serials. Clear them before
+  // posting.
+  await reconcileReceiptSerialEntities(serviceRole, {
+    receiptId,
+    companyId,
+    lines: lines ?? []
+  });
+
   const setPendingState = await client
     .from("receipt")
     .update({
@@ -126,7 +139,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       .single();
 
     const companySettings = await (serviceRole.from("companySettings") as any)
-      .select("updateLeadTimesOnReceipt")
+      .select("updateLeadTimesOnReceipt,printing")
       .eq("id", companyId)
       .single();
 
@@ -169,6 +182,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
             source: "purchaseOrder",
             purchaseOrderId: receiptMetadata.data.sourceDocumentId,
             companyId,
+            userId,
             updatePrices: false,
             updateLeadTimes: true
           }
@@ -182,8 +196,40 @@ export async function action({ request, params }: ActionFunctionArgs) {
         );
       }
     }
-    // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration
-  } catch (error) {
+
+    // Auto-print labels if enabled
+    try {
+      const { data: receipt } = await serviceRole
+        .from("receipt")
+        .select("locationId")
+        .eq("id", receiptId)
+        .single();
+      const locationId = receipt?.locationId as string | undefined;
+      if (locationId) {
+        const config = await getCachedPrinterConfig(
+          serviceRole,
+          companyId,
+          locationId,
+          "receiving"
+        );
+        if (config?.autoPrint ?? true) {
+          await trigger("print-job", {
+            sourceDocument: "Receipt",
+            sourceDocumentId: receiptId,
+            companyId,
+            userId,
+            locationId
+          });
+        }
+      }
+    } catch (e) {
+      console.error("Auto-print failed:", e);
+    }
+  } catch (thrown) {
+    // Re-throw redirects — don't swallow them
+    if (thrown instanceof Response) throw thrown;
+
+    // Only reset to Draft for actual errors
     await client
       .from("receipt")
       .update({

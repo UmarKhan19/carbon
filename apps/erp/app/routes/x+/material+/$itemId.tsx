@@ -16,6 +16,8 @@ import { ResizablePanels } from "~/components/Layout";
 import type { ItemFile, MaterialSummary } from "~/modules/items";
 import {
   getItemFiles,
+  getItemSupersededBy,
+  getItemSupersession,
   getMakeMethods,
   getMaterial,
   getMaterialUsedIn,
@@ -47,14 +49,21 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { itemId } = params;
   if (!itemId) throw new Error("Could not find itemId");
 
-  const [materialSummary, supplierParts, pickMethods, tags] = await Promise.all(
-    [
-      getMaterial(client, itemId, companyId),
-      getSupplierParts(client, itemId, companyId),
-      getPickMethods(client, itemId, companyId),
-      getTagsList(client, companyId, "material")
-    ]
-  );
+  const [
+    materialSummary,
+    supplierParts,
+    pickMethods,
+    tags,
+    supersession,
+    supersededBy
+  ] = await Promise.all([
+    getMaterial(client, itemId, companyId),
+    getSupplierParts(client, itemId, companyId),
+    getPickMethods(client, itemId, companyId),
+    getTagsList(client, companyId, "material"),
+    getItemSupersession(client, itemId, companyId),
+    getItemSupersededBy(client, itemId, companyId)
+  ]);
 
   if (materialSummary.error) {
     throw redirect(
@@ -68,6 +77,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   return {
     materialSummary: materialSummary.data,
+    supersession: supersession.data,
+    supersededBy: supersededBy.data ?? [],
     files: getItemFiles(client, itemId, companyId),
     supplierParts: supplierParts.data ?? [],
     pickMethods: pickMethods.data ?? [],
@@ -97,118 +108,122 @@ export default function MaterialRoute() {
         <div className="flex flex-grow overflow-hidden">
           <ResizablePanels
             explorer={
-              <Suspense fallback={<UsedInSkeleton />}>
-                <Await resolve={usedIn}>
-                  {(resolvedUsedIn) => {
-                    const {
-                      issues,
-                      jobMaterials,
-                      maintenanceDispatchItems,
-                      methodMaterials,
-                      purchaseOrderLines,
-                      receiptLines,
-                      quoteMaterials,
-                      salesOrderLines,
-                      shipmentLines,
-                      supplierQuotes,
-                      jobMaterialUsage
-                    } = resolvedUsedIn;
+              <div className="flex flex-col h-full">
+                <div className="flex-1 overflow-y-auto">
+                  <Suspense fallback={<UsedInSkeleton />}>
+                    <Await resolve={usedIn}>
+                      {(resolvedUsedIn) => {
+                        const {
+                          issues,
+                          jobMaterials,
+                          maintenanceDispatchItems,
+                          methodMaterials,
+                          purchaseOrderLines,
+                          receiptLines,
+                          quoteMaterials,
+                          salesOrderLines,
+                          shipmentLines,
+                          supplierQuotes,
+                          jobMaterialUsage
+                        } = resolvedUsedIn;
 
-                    const tree: UsedInNode[] = [
-                      {
-                        key: "issues",
-                        name: "Issues",
-                        module: "quality",
-                        children: issues
-                      },
-                      {
-                        key: "jobMaterials",
-                        name: "Job Materials",
-                        module: "production",
-                        children: jobMaterials
-                      },
-                      {
-                        key: "maintenanceDispatchItems",
-                        name: "Maintenance",
-                        module: "resources",
-                        children: maintenanceDispatchItems
-                      },
-                      {
-                        key: "methodMaterials",
-                        name: "Method Materials",
-                        module: "parts",
-                        // @ts-expect-error
-                        children: methodMaterials
-                      },
-                      {
-                        key: "purchaseOrderLines",
-                        name: "Purchase Orders",
-                        module: "purchasing",
-                        children: purchaseOrderLines.map((po) => ({
-                          ...po,
-                          methodType: "Purchase to Order"
-                        }))
-                      },
-                      {
-                        key: "receiptLines",
-                        name: "Receipts",
-                        module: "inventory",
-                        children: receiptLines.map((receipt) => ({
-                          ...receipt,
-                          methodType: "Pull from Inventory"
-                        }))
-                      },
+                        const tree: UsedInNode[] = [
+                          {
+                            key: "issues",
+                            name: "Issues",
+                            module: "quality",
+                            children: issues
+                          },
+                          {
+                            key: "jobMaterials",
+                            name: "Job Materials",
+                            module: "production",
+                            children: jobMaterials
+                          },
+                          {
+                            key: "maintenanceDispatchItems",
+                            name: "Maintenance",
+                            module: "resources",
+                            children: maintenanceDispatchItems
+                          },
+                          {
+                            key: "methodMaterials",
+                            name: "Method Materials",
+                            module: "parts",
+                            // @ts-expect-error
+                            children: methodMaterials
+                          },
+                          {
+                            key: "purchaseOrderLines",
+                            name: "Purchase Orders",
+                            module: "purchasing",
+                            children: purchaseOrderLines.map((po) => ({
+                              ...po,
+                              methodType: "Purchase to Order"
+                            }))
+                          },
+                          {
+                            key: "receiptLines",
+                            name: "Receipts",
+                            module: "inventory",
+                            children: receiptLines.map((receipt) => ({
+                              ...receipt,
+                              methodType: "Pull from Inventory"
+                            }))
+                          },
 
-                      {
-                        key: "quoteMaterials",
-                        name: "Quote Materials",
-                        module: "sales",
-                        children: quoteMaterials?.map((qm) => ({
-                          ...qm,
-                          documentReadableId: qm.documentReadableId ?? ""
-                        }))
-                      },
-                      {
-                        key: "salesOrderLines",
-                        name: "Sales Orders",
-                        module: "sales",
-                        children: salesOrderLines
-                      },
-                      {
-                        key: "shipmentLines",
-                        name: "Shipments",
-                        module: "inventory",
-                        children: shipmentLines.map((shipment) => ({
-                          ...shipment,
-                          methodType: "Shipment"
-                        }))
-                      },
-                      {
-                        key: "supplierQuotes",
-                        name: "Supplier Quotes",
-                        module: "purchasing",
-                        children: supplierQuotes
-                      }
-                    ];
+                          {
+                            key: "quoteMaterials",
+                            name: "Quote Materials",
+                            module: "sales",
+                            children: quoteMaterials?.map((qm) => ({
+                              ...qm,
+                              documentReadableId: qm.documentReadableId ?? ""
+                            }))
+                          },
+                          {
+                            key: "salesOrderLines",
+                            name: "Sales Orders",
+                            module: "sales",
+                            children: salesOrderLines
+                          },
+                          {
+                            key: "shipmentLines",
+                            name: "Shipments",
+                            module: "inventory",
+                            children: shipmentLines.map((shipment) => ({
+                              ...shipment,
+                              methodType: "Shipment"
+                            }))
+                          },
+                          {
+                            key: "supplierQuotes",
+                            name: "Supplier Quotes",
+                            module: "purchasing",
+                            children: supplierQuotes
+                          }
+                        ];
 
-                    return (
-                      <UsedInTree
-                        tree={tree}
-                        hasSizesInsteadOfRevisions={true}
-                        revisions={materialData.materialSummary?.revisions}
-                        itemReadableId={
-                          materialData.materialSummary?.readableId ?? ""
-                        }
-                        itemReadableIdWithRevision={
-                          materialData.materialSummary
-                            ?.readableIdWithRevision ?? ""
-                        }
-                        jobMaterialUsage={jobMaterialUsage}
-                      />
-                    );
-                  }}
-                </Await>
-              </Suspense>
+                        return (
+                          <UsedInTree
+                            tree={tree}
+                            hasSizesInsteadOfRevisions={true}
+                            revisions={materialData.materialSummary?.revisions}
+                            itemReadableId={
+                              materialData.materialSummary?.readableId ?? ""
+                            }
+                            itemReadableIdWithRevision={
+                              materialData.materialSummary
+                                ?.readableIdWithRevision ?? ""
+                            }
+                            jobMaterialUsage={jobMaterialUsage}
+                          />
+                        );
+                      }}
+                    </Await>
+                  </Suspense>
+                </div>
+              </div>
             }
             content={
               <div className="h-[calc(100dvh-99px)] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent w-full">

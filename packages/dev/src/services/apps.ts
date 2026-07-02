@@ -5,7 +5,7 @@ import { type ExecaChildProcess, execa } from "execa";
 import { join } from "pathe";
 import pc from "picocolors";
 import { isAtLeastAsNew, onShutdown, readLines } from "../helpers.js";
-import type { PortMap } from "../worktree.js";
+import { type PortMap, sameWorktreePath } from "../worktree.js";
 
 const APP_COLORS: Record<string, (s: string) => string> = {
   erp: pc.cyan,
@@ -50,13 +50,37 @@ const APP_URL_ENV_KEYS: Partial<Record<string, string>> = {
   mes: "MES_URL"
 };
 
+type AppCommand = { file: string; args: string[] };
+
+function reactRouterDevCommand(port: number | undefined): AppCommand {
+  return {
+    file: "pnpm",
+    args: [
+      "exec",
+      "react-router",
+      "dev",
+      ...(port !== undefined ? ["--port", String(port)] : []),
+      "--host",
+      "127.0.0.1"
+    ]
+  };
+}
+
 export function spawnApps(opts: {
   root: string;
   apps: string[];
   ports: PortMap;
   portless: boolean;
+  // What each app runs; defaults to `pnpm exec react-router dev`. Override to
+  // run a different process (the integration tests point this at a controllable
+  // node script).
+  command?: (ctx: { id: string; port: number | undefined }) => AppCommand;
+  // Programmatic teardown in addition to OS signals: abort to stop the stack.
+  signal?: AbortSignal;
 }): Promise<void> {
   const { root, apps, ports, portless } = opts;
+  const buildCommand =
+    opts.command ?? (({ port }) => reactRouterDevCommand(port));
 
   // When portless is active, apps talk to Supabase over HTTPS using
   // portless's self-signed CA. Tell Node to trust it.
@@ -66,7 +90,11 @@ export function spawnApps(opts: {
 
   let shuttingDown = false;
 
-  const children: ExecaChildProcess[] = apps.map((id) => {
+  // The live child per app slot; supervisors swap these on restart and
+  // `shutdown()` signals whatever is current.
+  const current: (ExecaChildProcess | undefined)[] = new Array(apps.length);
+
+  const spawnOne = (id: string): ExecaChildProcess => {
     const color = APP_COLORS[id] ?? ((s: string) => s);
     // Spawn apps directly with assigned ports. Hostnames are registered via
     // `portless alias` (in registerAliases) so we control the exact format
@@ -78,54 +106,52 @@ export function spawnApps(opts: {
     // OAuth callback) return to the correct app, not always ERP.
     const urlKey = APP_URL_ENV_KEYS[id];
     const vercelUrl = urlKey ? appEnv[urlKey] : undefined;
-    const child = execa(
-      "pnpm",
-      [
-        "exec",
-        "react-router",
-        "dev",
-        ...(port !== undefined ? ["--port", String(port)] : []),
-        "--host",
-        "127.0.0.1"
-      ],
-      {
-        cwd: join(root, "apps", id),
-        env: {
-          ...appEnv,
-          ...extraCaEnv,
-          HOST: "127.0.0.1",
-          ...(port !== undefined ? { PORT: String(port) } : {}),
-          ...(vercelUrl ? { VERCEL_URL: vercelUrl } : {})
-        },
-        reject: false,
-        stdin: "ignore",
-        detached: true
-      }
-    );
+    const { file, args } = buildCommand({ id, port });
+    const child = execa(file, args, {
+      cwd: join(root, "apps", id),
+      env: {
+        ...appEnv,
+        ...extraCaEnv,
+        HOST: "127.0.0.1",
+        ...(port !== undefined ? { PORT: String(port) } : {}),
+        ...(vercelUrl ? { VERCEL_URL: vercelUrl } : {})
+      },
+      reject: false,
+      stdin: "ignore",
+      detached: true
+    });
 
     const prefix = color(pc.bold(`${id.padEnd(3)} | `));
+    const disposers: Array<() => void> = [];
     const pipe = (
       stream: NodeJS.ReadableStream | null,
       sink: NodeJS.WriteStream
     ) => {
       if (!stream) return;
-      readLines(stream, (line) => {
-        // Mute shutdown noise (EPIPE, ELIFECYCLE 143, esbuild "stopped").
-        if (shuttingDown || isNoiseLine(line)) return;
-        sink.write(`${prefix}${line}\n`);
-      });
+      disposers.push(
+        readLines(stream, (line) => {
+          // Mute shutdown noise (EPIPE, ELIFECYCLE 143, esbuild "stopped").
+          if (shuttingDown || isNoiseLine(line)) return;
+          sink.write(`${prefix}${line}\n`);
+        })
+      );
     };
     pipe(child.stdout, process.stdout);
     pipe(child.stderr, process.stderr);
+    // Close the readline interfaces when this child exits so a restarting
+    // (crash-looping) app doesn't leak one per respawn.
+    child.once("exit", () => {
+      for (const dispose of disposers) dispose();
+    });
 
     return child;
-  });
+  };
 
   let killTimer: NodeJS.Timeout | undefined;
 
   const shutdown = (signal: "SIGTERM" | "SIGKILL") => {
-    for (const c of children) {
-      if (c.exitCode !== null || !c.pid) continue;
+    for (const c of current) {
+      if (!c || c.exitCode !== null || !c.pid) continue;
       try {
         process.kill(-c.pid, signal);
       } catch {
@@ -150,10 +176,53 @@ export function spawnApps(opts: {
   };
 
   const detach = onShutdown(onSignal);
+  opts.signal?.addEventListener("abort", onSignal, { once: true });
 
-  return Promise.all(children)
+  // Auto-recover a dev server that dies (a bad rebuild after `git pull`, OOM, a
+  // boot-time crash). Restart it in place with backoff so the surviving apps
+  // keep their state. A genuinely broken tree would crash-loop, so cap it: more
+  // than MAX_RESTARTS within RESTART_WINDOW_MS means give up and tear the stack
+  // down for a clean `crbn up` rerun, rather than respawning forever.
+  const MAX_RESTARTS = 3;
+  const RESTART_WINDOW_MS = 10_000;
+
+  const supervise = (id: string, slot: number): Promise<void> =>
+    new Promise<void>((resolve) => {
+      const crashes: number[] = [];
+      const launch = () => {
+        if (shuttingDown) return resolve();
+        const child = spawnOne(id);
+        current[slot] = child;
+        child.on("exit", (code, signal) => {
+          if (shuttingDown) return resolve();
+          const reason = signal ? signal : `code ${code}`;
+          const now = Date.now();
+          crashes.push(now);
+          let oldest = crashes[0];
+          while (oldest !== undefined && now - oldest > RESTART_WINDOW_MS) {
+            crashes.shift();
+            oldest = crashes[0];
+          }
+          if (crashes.length > MAX_RESTARTS) {
+            process.stderr.write(
+              `\n${id} dev server crashed ${crashes.length}× in ${RESTART_WINDOW_MS / 1_000}s (${reason}); giving up. Fix it and rerun \`crbn up\`.\n`
+            );
+            resolve();
+            onSignal();
+            return;
+          }
+          const delay = Math.min(500 * 2 ** (crashes.length - 1), 4_000);
+          process.stderr.write(
+            `\n${id} dev server exited (${reason}); restarting in ${delay}ms…\n`
+          );
+          setTimeout(launch, delay);
+        });
+      };
+      launch();
+    });
+
+  return Promise.all(apps.map((id, i) => supervise(id, i)))
     .then(() => undefined)
-    .catch(() => undefined)
     .finally(() => {
       if (killTimer) clearTimeout(killTimer);
       detach();
@@ -240,12 +309,17 @@ export function spawnGeometry(opts: {
   return child;
 }
 
-export function spawnStripeListener(root: string) {
-  execa("pnpm", ["run", "dev:stripe"], {
+// Detached + reject:false so the caller owns the lifecycle: kill the whole
+// process group on teardown (apps mode) or `unref()` it to outlive crbn
+// (services-only mode). Previously fire-and-forget `.unref()`, which orphaned
+// the listener across `crbn down`.
+export function spawnStripeListener(root: string): ExecaChildProcess {
+  return execa("pnpm", ["run", "dev:stripe"], {
     cwd: root,
     detached: true,
-    stdio: "ignore"
-  }).unref();
+    stdio: "ignore",
+    reject: false
+  });
 }
 
 // Skip when node_modules/.modules.yaml is newer than pnpm-lock.yaml (pnpm's
@@ -281,4 +355,67 @@ export async function syncEnvSymlinks(root: string) {
     process.stderr.write(r.stderr?.toString() ?? "");
     throw new Error(`setup-env-files failed (exit ${r.exitCode})`);
   }
+}
+
+// ---------------------------------------------------------------------------
+// Orphan cleanup — used by `crbn down` to kill host processes that survived
+// a crashed `crbn up`. Dev servers and the stripe listener are spawned
+// `detached: true` so they outlive the parent; without this, orphaned
+// processes hold the worktree's ports and block the next `crbn up`.
+// ---------------------------------------------------------------------------
+
+// Kill processes listening on PORT_ERP / PORT_MES. Port-based lookup is
+// reliable since ports are unique per worktree (allocated in the slot
+// registry). Best-effort — silently skips ports with nothing listening.
+export async function killOrphanedApps(ports: PortMap): Promise<void> {
+  const appPorts = [ports.PORT_ERP, ports.PORT_MES];
+  for (const port of appPorts) {
+    const r = await execa("lsof", ["-ti", `:${port}`], { reject: false });
+    if (r.exitCode !== 0) continue;
+    const pids = r.stdout
+      .split("\n")
+      .map((s) => Number(s.trim()))
+      .filter((n) => n > 0);
+    for (const pid of pids) {
+      try {
+        process.kill(pid, "SIGKILL");
+        // biome-ignore lint/suspicious/noEmptyBlockStatements: best-effort kill
+      } catch {}
+    }
+  }
+}
+
+// Kill the stripe listener (`tsx ./stripe.dev.ts`) whose cwd matches this
+// worktree. Cloud-edition only — silently no-ops when nothing matches.
+export async function killOrphanedStripe(root: string): Promise<void> {
+  const r = await execa("pgrep", ["-f", "stripe.dev.ts"], { reject: false });
+  if (r.exitCode !== 0) return;
+  const pids = r.stdout
+    .split("\n")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  for (const pidStr of pids) {
+    const pid = Number(pidStr);
+    if (!pid) continue;
+    const cwd = await processCwd(pid);
+    if (cwd && sameWorktreePath(cwd, root)) {
+      try {
+        process.kill(pid, "SIGKILL");
+        // biome-ignore lint/suspicious/noEmptyBlockStatements: best-effort kill
+      } catch {}
+    }
+  }
+}
+
+// Resolve a process's current working directory via lsof (macOS + Linux).
+// Returns null if the process is gone or lsof isn't available.
+async function processCwd(pid: number): Promise<string | null> {
+  const r = await execa("lsof", ["-a", "-p", String(pid), "-d", "cwd", "-Fn"], {
+    reject: false
+  });
+  if (r.exitCode !== 0) return null;
+  for (const line of r.stdout.split("\n")) {
+    if (line.startsWith("n")) return line.slice(1);
+  }
+  return null;
 }

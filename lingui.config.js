@@ -2,7 +2,7 @@ import { defineConfig } from "@lingui/cli";
 
 export default defineConfig({
   sourceLocale: "en",
-  locales: ["en", "es", "de", "it", "ja", "zh", "fr", "pl", "pt", "ru", "hi"],
+  locales: ["en", "es", "de", "it", "ja", "zh", "fr", "pl", "pt", "ru", "hi", "tr"],
   fallbackLocales: {
     default: "en"
   },
@@ -14,12 +14,24 @@ export default defineConfig({
   catalogs: [
     {
       path: "packages/locale/locales/{locale}/erp",
-      include: ["apps/erp/app", "packages/react/src", "packages/form/src"],
+      include: [
+        "apps/erp/app",
+        "packages/react/src",
+        "packages/form/src",
+        "packages/printing/src/ui",
+        "packages/glossary/src",
+        "packages/onboarding/src"
+      ],
       exclude: ["**/*.server.*", "**/*.test.*", "**/*.spec.*"]
     },
     {
       path: "packages/locale/locales/{locale}/mes",
-      include: ["apps/mes/app", "packages/react/src", "packages/form/src"],
+      include: [
+        "apps/mes/app",
+        "packages/react/src",
+        "packages/form/src",
+        "packages/printing/src/ui"
+      ],
       exclude: ["**/*.server.*", "**/*.test.*", "**/*.spec.*"]
     }
   ]

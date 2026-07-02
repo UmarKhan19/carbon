@@ -11,9 +11,13 @@ import ItemPlanningForm from "./ItemPlanningForm";
 import ItemPurchasingForm from "./ItemPurchasingForm";
 import ItemRiskRegister from "./ItemRiskRegister";
 import ItemSalePriceForm from "./ItemSalePriceForm";
+import ItemSupersessionForm, {
+  getItemLifecycleStatus
+} from "./ItemSupersessionForm";
 import MakeMethodTools from "./MakeMethodTools";
 import PickMethodForm from "./PickMethodForm";
 import { SelectedItemProperties } from "./SelectedItemProperties";
+import { SourcingTypeProperty } from "./SourcingTypeProperty";
 import SupplierPartForm from "./SupplierPartForm";
 import SupplierParts from "./SupplierParts";
 
@@ -31,10 +35,13 @@ export {
   ItemPlanningForm,
   ItemPurchasingForm,
   ItemRiskRegister,
+  ItemSupersessionForm,
+  getItemLifecycleStatus,
   ItemSalePriceForm,
   MakeMethodTools,
   PickMethodForm,
   SelectedItemProperties,
+  SourcingTypeProperty,
   SupplierPartForm,
   SupplierParts
 };

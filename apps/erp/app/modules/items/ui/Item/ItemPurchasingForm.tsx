@@ -1,4 +1,9 @@
-import { Select, ValidatedForm } from "@carbon/form";
+import {
+  FieldEmptyState,
+  fieldEmptyStateLinkClassName,
+  Select,
+  ValidatedForm
+} from "@carbon/form";
 import {
   Card,
   CardContent,
@@ -8,7 +13,7 @@ import {
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
-import { useParams } from "react-router";
+import { Link, useParams } from "react-router";
 import type { z } from "zod";
 import {
   ConversionFactor,
@@ -78,12 +83,31 @@ const ItemPurchasingForm = ({
             <Select
               name="preferredSupplierId"
               label={t`Preferred Supplier`}
+              termId="item-preferred-supplier"
               options={allowedSuppliersOptions}
+              emptyMessage={
+                <FieldEmptyState
+                  title={<Trans>No suppliers yet</Trans>}
+                  description={
+                    <Trans>
+                      <Link to="new" className={fieldEmptyStateLinkClassName}>
+                        Add a supplier part
+                      </Link>{" "}
+                      for this item to set a preferred supplier.
+                    </Trans>
+                  }
+                />
+              }
             />
-            <Number name="leadTime" label={t`Lead Time (Days)`} />
+            <Number
+              name="leadTime"
+              label={t`Lead Time (Days)`}
+              termId="item-purchasing-lead-time"
+            />
             <UnitOfMeasure
               name="purchasingUnitOfMeasureCode"
               label={t`Purchasing Unit of Measure`}
+              termId="item-purchasing-uom"
               onChange={(newValue) => {
                 if (newValue) setPurchasingCode(newValue.value);
               }}
@@ -93,6 +117,7 @@ const ItemPurchasingForm = ({
               isReadOnly={!purchasingCode || !inventoryCode}
               purchasingCode={purchasingCode ?? undefined}
               inventoryCode={inventoryCode ?? undefined}
+              termId="conversion-factor"
             />
             {/* <Boolean name="purchasingBlocked" label={t`Purchasing Blocked`} /> */}
           </div>

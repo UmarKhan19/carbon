@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-12T02:08:48.825Z",
-  "totalTools": 1212,
+  "generated": "2026-07-01T03:05:57.214Z",
+  "totalTools": 1280,
   "modules": 15,
   "tools": [
     {
@@ -314,7 +314,7 @@
       "module": "accounting",
       "classification": "READ",
       "description": "get financial statement balances",
-      "paramCount": 2,
+      "paramCount": 3,
       "serviceParams": [
         "client",
         "companyGroupId",
@@ -338,6 +338,9 @@
               "string",
               "null"
             ]
+          },
+          "// Balance sheet only: append a computed \"Net Income\" equity line.\n    includeCurrentYearEarnings": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -976,7 +979,7 @@
       "module": "accounting",
       "classification": "WRITE",
       "description": "update default income accounts",
-      "paramCount": 21,
+      "paramCount": 25,
       "serviceParams": [
         "client",
         "defaultAccounts"
@@ -1045,6 +1048,18 @@
           "customerPaymentDiscountAccount": {
             "type": "string"
           },
+          "customerWriteOffAccount": {
+            "type": "string"
+          },
+          "supplierWriteOffAccount": {
+            "type": "string"
+          },
+          "realizedExchangeGainAccount": {
+            "type": "string"
+          },
+          "realizedExchangeLossAccount": {
+            "type": "string"
+          },
           "roundingAccount": {
             "type": "string"
           },
@@ -1072,6 +1087,10 @@
           "interestAccount",
           "supplierPaymentDiscountAccount",
           "customerPaymentDiscountAccount",
+          "customerWriteOffAccount",
+          "supplierWriteOffAccount",
+          "realizedExchangeGainAccount",
+          "realizedExchangeLossAccount",
           "roundingAccount",
           "deferredTaxExpenseAccountId"
         ]
@@ -3053,6 +3072,7 @@
         "client",
         "id",
         "label",
+        "companyId",
         "userId"
       ],
       "injectAuth": [
@@ -3599,6 +3619,48 @@
       }
     },
     {
+      "name": "inventory_getItemLedgerActivity",
+      "module": "inventory",
+      "classification": "READ",
+      "description": "get item ledger activity",
+      "paramCount": 5,
+      "serviceParams": [
+        "client",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "omit to start from the newest entry. */\n    entryNumber": {
+            "type": "number"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "older",
+              "newer"
+            ]
+          },
+          "/** include the cursor row itself (used for the anchored first load). */\n    inclusive": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "itemId",
+          "locationId"
+        ]
+      }
+    },
+    {
       "name": "inventory_getBatchProperties",
       "module": "inventory",
       "classification": "READ",
@@ -4112,6 +4174,35 @@
       }
     },
     {
+      "name": "inventory_reconcileReceiptSerialEntities",
+      "module": "inventory",
+      "classification": "WRITE",
+      "description": "reconcile receipt serial entities",
+      "paramCount": 2,
+      "serviceParams": [
+        "client",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "receiptId": {
+            "type": "string"
+          },
+          "lines: {\n      id: string;\n      receivedQuantity: number | null;\n      requiresSerialTracking": {
+            "type": "array",
+            "items": {}
+          }
+        },
+        "required": [
+          "receiptId"
+        ]
+      }
+    },
+    {
       "name": "inventory_getReceiptFiles",
       "module": "inventory",
       "classification": "READ",
@@ -4162,6 +4253,76 @@
         },
         "required": [
           "itemId"
+        ]
+      }
+    },
+    {
+      "name": "inventory_getAvailableTrackedEntities",
+      "module": "inventory",
+      "classification": "READ",
+      "description": "get available tracked entities",
+      "paramCount": 5,
+      "serviceParams": [
+        "client",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "excludeLineside": {
+            "type": "boolean"
+          },
+          "excludeAllocated": {
+            "type": "boolean"
+          },
+          "excludeLineId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "itemId",
+          "locationId"
+        ]
+      }
+    },
+    {
+      "name": "inventory_getPickOrder",
+      "module": "inventory",
+      "classification": "READ",
+      "description": "get pick order",
+      "paramCount": 2,
+      "serviceParams": [
+        "client",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "itemId",
+          "locationId"
         ]
       }
     },
@@ -4336,6 +4497,31 @@
       }
     },
     {
+      "name": "inventory_getEffectiveWorkCenterId",
+      "module": "inventory",
+      "classification": "READ",
+      "description": "get effective work center id",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "storageUnitId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "storageUnitId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "storageUnitId"
+        ]
+      }
+    },
+    {
       "name": "inventory_getStorageUnitRoots",
       "module": "inventory",
       "classification": "READ",
@@ -4408,6 +4594,45 @@
       }
     },
     {
+      "name": "inventory_getStorageUnitSubtrees",
+      "module": "inventory",
+      "classification": "READ",
+      "description": "get storage unit subtrees",
+      "paramCount": 3,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "locationId",
+        "rootIds",
+        "maxDepth"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string"
+          },
+          "rootIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "maxDepth": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "locationId",
+          "rootIds",
+          "maxDepth"
+        ]
+      }
+    },
+    {
       "name": "inventory_getStorageUnitParentIdsWithChildren",
       "module": "inventory",
       "classification": "READ",
@@ -4462,6 +4687,45 @@
           "locationId",
           "search"
         ]
+      }
+    },
+    {
+      "name": "inventory_getStockMovements",
+      "module": "inventory",
+      "classification": "READ",
+      "description": "get stock movements",
+      "paramCount": 3,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "args": {
+            "type": "object",
+            "properties": {
+              "limit": {
+                "type": "integer",
+                "default": 100
+              },
+              "offset": {
+                "type": "integer",
+                "default": 0
+              },
+              "search": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        }
       }
     },
     {
@@ -5296,7 +5560,7 @@
       "module": "inventory",
       "classification": "WRITE",
       "description": "upsert storage unit",
-      "paramCount": 6,
+      "paramCount": 7,
       "serviceParams": [
         "client",
         "storageUnit"
@@ -5322,6 +5586,9 @@
             "type": "string"
           },
           "parentId": {
+            "type": "string"
+          },
+          "workCenterId": {
             "type": "string"
           },
           "storageTypeIds": {
@@ -5933,6 +6200,537 @@
         },
         "required": [
           "trackedEntityIds"
+        ]
+      }
+    },
+    {
+      "name": "inventory_getPickingLists",
+      "module": "inventory",
+      "classification": "READ",
+      "description": "get picking lists",
+      "paramCount": 6,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "args": {
+            "type": "object",
+            "properties": {
+              "limit": {
+                "type": "integer",
+                "default": 100
+              },
+              "offset": {
+                "type": "integer",
+                "default": 0
+              },
+              "search": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "status": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "assignee": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "locationId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "inventory_getPickingList",
+      "module": "inventory",
+      "classification": "READ",
+      "description": "get picking list",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "pickingListId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "pickingListId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "pickingListId"
+        ]
+      }
+    },
+    {
+      "name": "inventory_getPickingListLines",
+      "module": "inventory",
+      "classification": "READ",
+      "description": "get picking list lines",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "pickingListId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "pickingListId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "pickingListId"
+        ]
+      }
+    },
+    {
+      "name": "inventory_getPickingListAvailability",
+      "module": "inventory",
+      "classification": "READ",
+      "description": "get picking list availability",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "pickingListId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "pickingListId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "pickingListId"
+        ]
+      }
+    },
+    {
+      "name": "inventory_getPickingListRecommendations",
+      "module": "inventory",
+      "classification": "READ",
+      "description": "get picking list recommendations",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "pickingListId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "pickingListId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "pickingListId"
+        ]
+      }
+    },
+    {
+      "name": "inventory_getPickingListLine",
+      "module": "inventory",
+      "classification": "READ",
+      "description": "get picking list line",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "lineId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "lineId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "lineId"
+        ]
+      }
+    },
+    {
+      "name": "inventory_getPickingListLineTrackedEntities",
+      "module": "inventory",
+      "classification": "READ",
+      "description": "get picking list line tracked entities",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "lineId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "lineId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "lineId"
+        ]
+      }
+    },
+    {
+      "name": "inventory_setPickingListLineTrackedEntity",
+      "module": "inventory",
+      "classification": "WRITE",
+      "description": "set picking list line tracked entity",
+      "paramCount": 5,
+      "serviceParams": [
+        "client",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId",
+        "updatedBy"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "pickingListLineId": {
+            "type": "string"
+          },
+          "trackedEntityId": {
+            "type": "string"
+          },
+          "fromStorageUnitId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "unpick": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "pickingListLineId",
+          "trackedEntityId"
+        ]
+      }
+    },
+    {
+      "name": "inventory_upsertPickingList",
+      "module": "inventory",
+      "classification": "WRITE",
+      "description": "upsert picking list",
+      "paramCount": 6,
+      "serviceParams": [
+        "client",
+        "pickingList"
+      ],
+      "injectAuth": [
+        "companyId",
+        "createdBy",
+        "updatedBy"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "pickingListId": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "assignee": {
+            "type": "string"
+          },
+          "dueDate": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "locationId"
+        ]
+      }
+    },
+    {
+      "name": "inventory_updatePickingListStatus",
+      "module": "inventory",
+      "classification": "WRITE",
+      "description": "update picking list status",
+      "paramCount": 2,
+      "serviceParams": [
+        "client",
+        "pickingListId",
+        "status",
+        "updatedBy"
+      ],
+      "injectAuth": [
+        "companyId",
+        "updatedBy"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "pickingListId": {
+            "type": "string"
+          },
+          "status": {}
+        },
+        "required": [
+          "pickingListId",
+          "status"
+        ]
+      }
+    },
+    {
+      "name": "inventory_upsertPickingListLine",
+      "module": "inventory",
+      "classification": "WRITE",
+      "description": "upsert picking list line",
+      "paramCount": 8,
+      "serviceParams": [
+        "client",
+        "line"
+      ],
+      "injectAuth": [
+        "companyId",
+        "createdBy",
+        "updatedBy"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "pickingListId": {
+            "type": "string"
+          },
+          "jobId": {
+            "type": "string"
+          },
+          "jobMaterialId": {
+            "type": "string"
+          },
+          "jobOperationId": {
+            "type": "string"
+          },
+          "itemId": {
+            "type": "string"
+          },
+          "quantityToPick": {
+            "type": "number"
+          },
+          "storageUnitId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "pickingListId",
+          "jobId",
+          "jobMaterialId",
+          "itemId"
+        ]
+      }
+    },
+    {
+      "name": "inventory_deletePickingList",
+      "module": "inventory",
+      "classification": "DESTRUCTIVE",
+      "description": "delete picking list",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "pickingListId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "pickingListId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "pickingListId"
+        ]
+      }
+    },
+    {
+      "name": "inventory_deletePickingListLine",
+      "module": "inventory",
+      "classification": "DESTRUCTIVE",
+      "description": "delete picking list line",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "lineId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "lineId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "lineId"
+        ]
+      }
+    },
+    {
+      "name": "inventory_getPickingSchedule",
+      "module": "inventory",
+      "classification": "READ",
+      "description": "get picking schedule",
+      "paramCount": 2,
+      "serviceParams": [
+        "client",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string"
+          },
+          "search": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "locationId"
+        ]
+      }
+    },
+    {
+      "name": "inventory_generatePickingList",
+      "module": "inventory",
+      "classification": "WRITE",
+      "description": "generate picking list",
+      "paramCount": 4,
+      "serviceParams": [
+        "client",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId",
+        "createdBy",
+        "updatedBy"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "jobOperationIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "assignee": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "dueDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "jobOperationIds",
+          "locationId"
+        ]
+      }
+    },
+    {
+      "name": "inventory_pickPickingListLine",
+      "module": "inventory",
+      "classification": "WRITE",
+      "description": "pick picking list line",
+      "paramCount": 3,
+      "serviceParams": [
+        "client",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "pickingListLineId": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "markShort": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "pickingListLineId",
+          "quantity"
         ]
       }
     },
@@ -7369,6 +8167,858 @@
       }
     },
     {
+      "name": "invoicing_getPayment",
+      "module": "invoicing",
+      "classification": "READ",
+      "description": "get payment",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "id"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "name": "invoicing_getPayments",
+      "module": "invoicing",
+      "classification": "READ",
+      "description": "get payments",
+      "paramCount": 8,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "args": {
+            "type": "object",
+            "properties": {
+              "limit": {
+                "type": "integer",
+                "default": 100
+              },
+              "offset": {
+                "type": "integer",
+                "default": 0
+              },
+              "search": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "paymentType": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "enum": [
+                  "Receipt",
+                  "Disbursement"
+                ]
+              },
+              "status": {},
+              "customerId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "supplierId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "// Combined counterparty filter (customer OR supplier ids) from the table's\n    // \"Counterparty\" filter, which sources options from both stores.\n    counterpartyIds": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "invoicing_getInvoiceSettlements",
+      "module": "invoicing",
+      "classification": "READ",
+      "description": "get invoice settlements",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "paymentId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "paymentId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "paymentId"
+        ]
+      }
+    },
+    {
+      "name": "invoicing_getInvoiceSettlementsForInvoice",
+      "module": "invoicing",
+      "classification": "READ",
+      "description": "get invoice settlements for invoice",
+      "paramCount": 2,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "side",
+        "invoiceId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "side": {
+            "type": "string",
+            "enum": [
+              "sales",
+              "purchase"
+            ]
+          },
+          "invoiceId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "side",
+          "invoiceId"
+        ]
+      }
+    },
+    {
+      "name": "invoicing_getMemoApplications",
+      "module": "invoicing",
+      "classification": "READ",
+      "description": "get memo applications",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "memoId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "memoId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "memoId"
+        ]
+      }
+    },
+    {
+      "name": "invoicing_getOpenSalesInvoicesForCustomer",
+      "module": "invoicing",
+      "classification": "READ",
+      "description": "get open sales invoices for customer",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "customerId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "customerId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "customerId"
+        ]
+      }
+    },
+    {
+      "name": "invoicing_getOpenPurchaseInvoicesForSupplier",
+      "module": "invoicing",
+      "classification": "READ",
+      "description": "get open purchase invoices for supplier",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "supplierId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "supplierId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "supplierId"
+        ]
+      }
+    },
+    {
+      "name": "invoicing_getAvailableOnAccountCredit",
+      "module": "invoicing",
+      "classification": "READ",
+      "description": "get available on account credit",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "party"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "party": {}
+        },
+        "required": [
+          "party"
+        ]
+      }
+    },
+    {
+      "name": "invoicing_upsertPayment",
+      "module": "invoicing",
+      "classification": "WRITE",
+      "description": "upsert payment",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "payment"
+      ],
+      "injectAuth": [
+        "companyId",
+        "createdBy",
+        "updatedBy"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "payment": {}
+        },
+        "required": [
+          "payment"
+        ]
+      }
+    },
+    {
+      "name": "invoicing_deletePayment",
+      "module": "invoicing",
+      "classification": "DESTRUCTIVE",
+      "description": "delete payment",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "id"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "name": "invoicing_upsertInvoiceSettlement",
+      "module": "invoicing",
+      "classification": "WRITE",
+      "description": "upsert invoice settlement",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "app"
+      ],
+      "injectAuth": [
+        "companyId",
+        "createdBy",
+        "updatedBy"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "app": {}
+        },
+        "required": [
+          "app"
+        ]
+      }
+    },
+    {
+      "name": "invoicing_deleteInvoiceSettlement",
+      "module": "invoicing",
+      "classification": "DESTRUCTIVE",
+      "description": "delete invoice settlement",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "id"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "name": "invoicing_replaceInvoiceSettlements",
+      "module": "invoicing",
+      "classification": "WRITE",
+      "description": "replace invoice settlements",
+      "paramCount": 2,
+      "serviceParams": [
+        "db",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "paymentId": {
+            "type": "string"
+          },
+          "applications": {
+            "type": "array",
+            "items": {}
+          }
+        },
+        "required": [
+          "paymentId",
+          "applications"
+        ]
+      }
+    },
+    {
+      "name": "invoicing_getMemo",
+      "module": "invoicing",
+      "classification": "READ",
+      "description": "get memo",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "id"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "name": "invoicing_getMemos",
+      "module": "invoicing",
+      "classification": "READ",
+      "description": "get memos",
+      "paramCount": 6,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "args": {
+            "type": "object",
+            "properties": {
+              "limit": {
+                "type": "integer",
+                "default": 100
+              },
+              "offset": {
+                "type": "integer",
+                "default": 0
+              },
+              "search": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "direction": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "enum": [
+                  "Credit",
+                  "Debit"
+                ]
+              },
+              "status": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "enum": [
+                  "Draft",
+                  "Posted",
+                  "Voided"
+                ]
+              },
+              "counterpartyIds": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "invoicing_upsertMemo",
+      "module": "invoicing",
+      "classification": "WRITE",
+      "description": "upsert memo",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "memo"
+      ],
+      "injectAuth": [
+        "companyId",
+        "createdBy",
+        "updatedBy"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "memo": {}
+        },
+        "required": [
+          "memo"
+        ]
+      }
+    },
+    {
+      "name": "invoicing_deleteMemo",
+      "module": "invoicing",
+      "classification": "DESTRUCTIVE",
+      "description": "delete memo",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "id"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "name": "invoicing_getAvailableCreditsForParty",
+      "module": "invoicing",
+      "classification": "READ",
+      "description": "get available credits for party",
+      "paramCount": 4,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "party",
+        "// When editing a Draft payment's composer",
+        "that payment's own staged credits\n  // should NOT count as used — they show as staged",
+        "not consumed.\n  excludePaymentId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "party": {},
+          "// When editing a Draft payment's composer": {},
+          "that payment's own staged credits\n  // should NOT count as used — they show as staged": {},
+          "not consumed.\n  excludePaymentId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "party",
+          "// When editing a Draft payment's composer",
+          "that payment's own staged credits\n  // should NOT count as used — they show as staged"
+        ]
+      }
+    },
+    {
+      "name": "invoicing_getCompanyHasOpenCredits",
+      "module": "invoicing",
+      "classification": "READ",
+      "description": "get company has open credits",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "side"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "side": {
+            "type": "string",
+            "enum": [
+              "sales",
+              "purchase"
+            ]
+          }
+        },
+        "required": [
+          "side"
+        ]
+      }
+    },
+    {
+      "name": "invoicing_getStagedCreditsForPayment",
+      "module": "invoicing",
+      "classification": "READ",
+      "description": "get staged credits for payment",
+      "paramCount": 2,
+      "serviceParams": [
+        "client",
+        "paymentId",
+        "side"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "paymentId": {
+            "type": "string"
+          },
+          "side": {
+            "type": "string",
+            "enum": [
+              "sales",
+              "purchase"
+            ]
+          }
+        },
+        "required": [
+          "paymentId",
+          "side"
+        ]
+      }
+    },
+    {
+      "name": "invoicing_applyCreditsToInvoices",
+      "module": "invoicing",
+      "classification": "WRITE",
+      "description": "apply credits to invoices",
+      "paramCount": 4,
+      "serviceParams": [
+        "db",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "paymentId": {
+            "type": "string"
+          },
+          "appliedDate": {
+            "type": "string"
+          },
+          "side": {
+            "type": "string",
+            "enum": [
+              "sales",
+              "purchase"
+            ]
+          },
+          "applications": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "memoId": {
+                  "type": "string"
+                },
+                "invoiceId": {
+                  "type": "string"
+                },
+                "amount": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "memoId",
+                "invoiceId",
+                "amount"
+              ]
+            }
+          }
+        },
+        "required": [
+          "paymentId",
+          "appliedDate",
+          "side",
+          "applications"
+        ]
+      }
+    },
+    {
+      "name": "invoicing_getArTieOut",
+      "module": "invoicing",
+      "classification": "READ",
+      "description": "get ar tie out",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "asOfDate"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "asOfDate": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "asOfDate"
+        ]
+      }
+    },
+    {
+      "name": "invoicing_getApTieOut",
+      "module": "invoicing",
+      "classification": "READ",
+      "description": "get ap tie out",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "asOfDate"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "asOfDate": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "asOfDate"
+        ]
+      }
+    },
+    {
+      "name": "invoicing_getArOpenByCustomer",
+      "module": "invoicing",
+      "classification": "READ",
+      "description": "get ar open by customer",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "asOfDate"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "asOfDate": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "asOfDate"
+        ]
+      }
+    },
+    {
+      "name": "invoicing_getApOpenBySupplier",
+      "module": "invoicing",
+      "classification": "READ",
+      "description": "get ap open by supplier",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "asOfDate"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "asOfDate": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "asOfDate"
+        ]
+      }
+    },
+    {
+      "name": "invoicing_getArAging",
+      "module": "invoicing",
+      "classification": "READ",
+      "description": "get ar aging",
+      "paramCount": 2,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "asOfDate",
+        "options"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "asOfDate": {
+            "type": "string"
+          },
+          "options": {}
+        },
+        "required": [
+          "asOfDate",
+          "options"
+        ]
+      }
+    },
+    {
+      "name": "invoicing_getApAging",
+      "module": "invoicing",
+      "classification": "READ",
+      "description": "get ap aging",
+      "paramCount": 2,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "asOfDate",
+        "options"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "asOfDate": {
+            "type": "string"
+          },
+          "options": {}
+        },
+        "required": [
+          "asOfDate",
+          "options"
+        ]
+      }
+    },
+    {
       "name": "items_activateMethodVersion",
       "module": "items",
       "classification": "WRITE",
@@ -8553,6 +10203,84 @@
       }
     },
     {
+      "name": "items_getItemSupersession",
+      "module": "items",
+      "classification": "READ",
+      "description": "get item supersession",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "itemId",
+        "companyId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "itemId"
+        ]
+      }
+    },
+    {
+      "name": "items_getItemSupersededBy",
+      "module": "items",
+      "classification": "READ",
+      "description": "get item superseded by",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "itemId",
+        "companyId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "itemId"
+        ]
+      }
+    },
+    {
+      "name": "items_getSupersessionChain",
+      "module": "items",
+      "classification": "READ",
+      "description": "get supersession chain",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "itemId",
+        "companyId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "itemId"
+        ]
+      }
+    },
+    {
       "name": "items_getItemStorageUnitQuantities",
       "module": "items",
       "classification": "READ",
@@ -9670,6 +11398,24 @@
       }
     },
     {
+      "name": "items_getItemMpnsList",
+      "module": "items",
+      "classification": "READ",
+      "description": "get item mpns list",
+      "paramCount": 0,
+      "serviceParams": [
+        "client",
+        "companyId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
       "name": "items_getPartsList",
       "module": "items",
       "classification": "READ",
@@ -10519,7 +12265,7 @@
       "module": "items",
       "classification": "WRITE",
       "description": "upsert pick method with shelf life",
-      "paramCount": 5,
+      "paramCount": 6,
       "serviceParams": [
         "db",
         "args"
@@ -10543,6 +12289,9 @@
               "string",
               "null"
             ]
+          },
+          "sortMethod": {
+            "type": "string"
           },
           "customFields": {},
           "shelfLife: {\n      mode": {
@@ -10582,6 +12331,37 @@
         "required": [
           "itemIds",
           "newType"
+        ]
+      }
+    },
+    {
+      "name": "items_updateItemMethodAndSourcing",
+      "module": "items",
+      "classification": "WRITE",
+      "description": "update item method and sourcing",
+      "paramCount": 3,
+      "serviceParams": [
+        "db",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId",
+        "updatedBy"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "itemIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "itemUpdate: {\n      replenishmentSystem": {},
+          "cascade: {\n      sourcingType": {}
+        },
+        "required": [
+          "itemIds"
         ]
       }
     },
@@ -10714,7 +12494,7 @@
       "module": "items",
       "classification": "WRITE",
       "description": "upsert pick method",
-      "paramCount": 3,
+      "paramCount": 4,
       "serviceParams": [
         "client",
         "pickMethod"
@@ -10734,6 +12514,9 @@
             "type": "string"
           },
           "defaultStorageUnitId": {
+            "type": "string"
+          },
+          "sortMethod": {
             "type": "string"
           }
         },
@@ -10843,6 +12626,31 @@
         },
         "required": [
           "itemId"
+        ]
+      }
+    },
+    {
+      "name": "items_upsertItemSupersession",
+      "module": "items",
+      "classification": "WRITE",
+      "description": "upsert item supersession",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "itemSupersession"
+      ],
+      "injectAuth": [
+        "companyId",
+        "createdBy",
+        "updatedBy"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "itemSupersession": {}
+        },
+        "required": [
+          "itemSupersession"
         ]
       }
     },
@@ -14261,6 +16069,106 @@
         "required": [
           "jobId",
           "locationId"
+        ]
+      }
+    },
+    {
+      "name": "production_getJobMaterialItemIds",
+      "module": "production",
+      "classification": "READ",
+      "description": "get job material item ids",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "jobId",
+        "companyId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "jobId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "jobId"
+        ]
+      }
+    },
+    {
+      "name": "production_getJobMaterialShortfallByItem",
+      "module": "production",
+      "classification": "READ",
+      "description": "get job material shortfall by item",
+      "paramCount": 3,
+      "serviceParams": [
+        "client",
+        "jobId",
+        "companyId",
+        "locationId",
+        "materials"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "jobId": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "materials": {
+            "type": "array",
+            "items": {}
+          }
+        },
+        "required": [
+          "jobId",
+          "locationId",
+          "materials"
+        ]
+      }
+    },
+    {
+      "name": "production_getJobOrderStatusMap",
+      "module": "production",
+      "classification": "READ",
+      "description": "get job order status map",
+      "paramCount": 4,
+      "serviceParams": [
+        "client",
+        "jobId",
+        "companyId",
+        "locationId",
+        "jobStatus",
+        "materials"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "jobId": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "jobStatus": {},
+          "materials": {}
+        },
+        "required": [
+          "jobId",
+          "locationId",
+          "jobStatus",
+          "materials"
         ]
       }
     },
@@ -18328,6 +20236,63 @@
         },
         "required": [
           "step"
+        ]
+      }
+    },
+    {
+      "name": "production_getJobMaterialPurchaseOrderLines",
+      "module": "production",
+      "classification": "READ",
+      "description": "get job material purchase order lines",
+      "paramCount": 2,
+      "serviceParams": [
+        "client",
+        "materials",
+        "locationId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "materials": {},
+          "locationId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "materials",
+          "locationId"
+        ]
+      }
+    },
+    {
+      "name": "production_getJobMaterialSupplyJobLines",
+      "module": "production",
+      "classification": "READ",
+      "description": "get job material supply job lines",
+      "paramCount": 2,
+      "serviceParams": [
+        "client",
+        "materials",
+        "companyId",
+        "locationId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "materials": {},
+          "locationId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "materials",
+          "locationId"
         ]
       }
     },
@@ -33561,6 +35526,23 @@
       }
     },
     {
+      "name": "settings_getIndustries",
+      "module": "settings",
+      "classification": "READ",
+      "description": "get industries",
+      "paramCount": 0,
+      "serviceParams": [
+        "client"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
       "name": "settings_getCompany",
       "module": "settings",
       "classification": "READ",
@@ -34041,6 +36023,267 @@
       }
     },
     {
+      "name": "settings_getDocumentTemplate",
+      "module": "settings",
+      "classification": "READ",
+      "description": "get document template",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "documentType"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "documentType": {}
+        },
+        "required": [
+          "documentType"
+        ]
+      }
+    },
+    {
+      "name": "settings_getDocumentTemplateConfig",
+      "module": "settings",
+      "classification": "READ",
+      "description": "get document template config",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "documentType"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "documentType": {}
+        },
+        "required": [
+          "documentType"
+        ]
+      }
+    },
+    {
+      "name": "settings_upsertDocumentTemplate",
+      "module": "settings",
+      "classification": "WRITE",
+      "description": "upsert document template",
+      "paramCount": 6,
+      "serviceParams": [
+        "client",
+        "documentTemplate"
+      ],
+      "injectAuth": [
+        "companyId",
+        "createdBy",
+        "updatedBy"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "documentType": {},
+          "blocks": {
+            "type": "array",
+            "items": {}
+          },
+          "theme": {},
+          "settings": {},
+          "headerSectionId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "footerSectionId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "documentType",
+          "blocks",
+          "theme",
+          "settings",
+          "headerSectionId",
+          "footerSectionId"
+        ]
+      }
+    },
+    {
+      "name": "settings_getDocumentSections",
+      "module": "settings",
+      "classification": "READ",
+      "description": "get document sections",
+      "paramCount": 0,
+      "serviceParams": [
+        "client",
+        "companyId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "settings_getDocumentSection",
+      "module": "settings",
+      "classification": "READ",
+      "description": "get document section",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "id",
+        "companyId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "name": "settings_getDocumentSectionsByIds",
+      "module": "settings",
+      "classification": "READ",
+      "description": "get document sections by ids",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "ids"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "ids"
+        ]
+      }
+    },
+    {
+      "name": "settings_upsertDocumentSection",
+      "module": "settings",
+      "classification": "WRITE",
+      "description": "upsert document section",
+      "paramCount": 6,
+      "serviceParams": [
+        "client",
+        "documentSection"
+      ],
+      "injectAuth": [
+        "companyId",
+        "createdBy",
+        "updatedBy"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "placement": {},
+          "content": {},
+          "config": {},
+          "} & ({ createdBy": {}
+        },
+        "required": [
+          "name",
+          "placement",
+          "content",
+          "} & ({ createdBy"
+        ]
+      }
+    },
+    {
+      "name": "settings_deleteDocumentSection",
+      "module": "settings",
+      "classification": "DESTRUCTIVE",
+      "description": "delete document section",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "id",
+        "companyId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "name": "settings_resolveSections",
+      "module": "settings",
+      "classification": "WRITE",
+      "description": "resolve sections",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "ids"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "ids"
+        ]
+      }
+    },
+    {
       "name": "settings_getWebhook",
       "module": "settings",
       "classification": "READ",
@@ -34410,33 +36653,6 @@
         "required": [
           "integrationId",
           "metadata"
-        ]
-      }
-    },
-    {
-      "name": "settings_updateJobTravelerWorkInstructions",
-      "module": "settings",
-      "classification": "WRITE",
-      "description": "update job traveler work instructions",
-      "paramCount": 1,
-      "serviceParams": [
-        "client",
-        "companyId",
-        "jobTravelerIncludeWorkInstructions"
-      ],
-      "injectAuth": [
-        "companyId",
-        "updatedBy"
-      ],
-      "schema": {
-        "type": "object",
-        "properties": {
-          "jobTravelerIncludeWorkInstructions": {
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "jobTravelerIncludeWorkInstructions"
         ]
       }
     },
@@ -35015,33 +37231,6 @@
       }
     },
     {
-      "name": "settings_updatePurchasingPdfThumbnails",
-      "module": "settings",
-      "classification": "WRITE",
-      "description": "update purchasing pdf thumbnails",
-      "paramCount": 1,
-      "serviceParams": [
-        "client",
-        "companyId",
-        "includeThumbnailsOnPurchasingPdfs"
-      ],
-      "injectAuth": [
-        "companyId",
-        "updatedBy"
-      ],
-      "schema": {
-        "type": "object",
-        "properties": {
-          "includeThumbnailsOnPurchasingPdfs": {
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "includeThumbnailsOnPurchasingPdfs"
-        ]
-      }
-    },
-    {
       "name": "settings_updateRfqReadySetting",
       "module": "settings",
       "classification": "WRITE",
@@ -35068,33 +37257,6 @@
         },
         "required": [
           "rfqReadyNotificationGroup"
-        ]
-      }
-    },
-    {
-      "name": "settings_updateSalesPdfThumbnails",
-      "module": "settings",
-      "classification": "WRITE",
-      "description": "update sales pdf thumbnails",
-      "paramCount": 1,
-      "serviceParams": [
-        "client",
-        "companyId",
-        "includeThumbnailsOnSalesPdfs"
-      ],
-      "injectAuth": [
-        "companyId",
-        "updatedBy"
-      ],
-      "schema": {
-        "type": "object",
-        "properties": {
-          "includeThumbnailsOnSalesPdfs": {
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "includeThumbnailsOnSalesPdfs"
         ]
       }
     },

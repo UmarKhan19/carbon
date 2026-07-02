@@ -339,6 +339,14 @@ function GenericNotification({
           {...props}
         />
       );
+    case NotificationEvent.PickingListAssignment:
+      return (
+        <Notification
+          icon={<LuListChecks />}
+          to={path.to.pickingList(id)}
+          {...props}
+        />
+      );
     case NotificationEvent.SuggestionResponse:
       return (
         <Notification

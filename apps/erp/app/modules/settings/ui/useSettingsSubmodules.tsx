@@ -1,22 +1,24 @@
 import { useLingui } from "@lingui/react/macro";
 import { useMemo } from "react";
 import {
-  LuBarcode,
+  LuBlocks,
   LuBox,
   LuCircleCheck,
   LuClipboardCheck,
   LuCreditCard,
   LuCrown,
+  LuDatabase,
   LuFactory,
+  LuFileText,
   LuHistory,
   LuImage,
   LuKey,
   LuLandmark,
   LuLayoutDashboard,
   LuNetwork,
+  LuPrinter,
   LuSheet,
   LuShoppingCart,
-  LuSquareStack,
   LuUsers,
   LuWebhook,
   LuWorkflow,
@@ -27,7 +29,10 @@ import { useFlags } from "~/hooks/useFlags";
 import type { AuthenticatedRouteGroup, Role } from "~/types";
 import { path } from "~/utils/path";
 
-const internalOnlyRoutes = new Set<string>([path.to.companies]);
+const internalOnlyRoutes = new Set<string>([
+  path.to.companies,
+  path.to.backups
+]);
 
 export default function useSettingsSubmodules() {
   const { t } = useLingui();
@@ -43,6 +48,14 @@ export default function useSettingsSubmodules() {
         name: t`Company`,
         routes: [
           {
+            name: t`Billing`,
+            to: path.to.billing,
+            role: "employee",
+            icon: <LuCreditCard />,
+            requiresOwnership: true,
+            requiresCloudEnvironment: true
+          },
+          {
             name: t`Company`,
             to: path.to.company,
             role: "employee",
@@ -55,24 +68,28 @@ export default function useSettingsSubmodules() {
             icon: <LuNetwork />
           },
           {
-            name: t`Billing`,
-            to: path.to.billing,
+            name: t`Document Templates`,
+            to: path.to.documentTemplates,
             role: "employee",
-            icon: <LuCreditCard />,
-            requiresOwnership: true,
-            requiresCloudEnvironment: true
-          },
-          {
-            name: t`Labels`,
-            to: path.to.labelsSettings,
-            role: "employee",
-            icon: <LuBarcode />
+            icon: <LuFileText />
           },
           {
             name: t`Logos`,
             to: path.to.logos,
             role: "employee",
             icon: <LuImage />
+          },
+          {
+            name: t`Backups`,
+            to: path.to.backups,
+            role: "employee",
+            icon: <LuDatabase />
+          },
+          {
+            name: t`Printing`,
+            to: path.to.printingSettings,
+            role: "employee",
+            icon: <LuPrinter />
           }
         ]
       },
@@ -95,7 +112,7 @@ export default function useSettingsSubmodules() {
             name: t`Items`,
             to: path.to.itemsSettings,
             role: "employee",
-            icon: <LuSquareStack />
+            icon: <LuBlocks />
           },
           {
             name: t`People`,

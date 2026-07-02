@@ -154,38 +154,9 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
         }
       },
       {
-        accessorKey: "status",
+        accessorKey: "displayStatus",
         header: t`Status`,
-        cell: ({ row }) => {
-          const status =
-            row.getValue<(typeof salesOrderStatusType)[number]>("status");
-          const jobs = (row.original.jobs ?? []) as SalesOrderJob[];
-          const lines =
-            (row.original.lines as {
-              id: string;
-              saleQuantity: number;
-              methodType:
-                | "Purchase to Order"
-                | "Make to Order"
-                | "Pull from Inventory";
-            }[]) ?? [];
-          return (
-            <SalesStatus
-              status={status}
-              jobs={jobs.map((job) => ({
-                salesOrderLineId: job.salesOrderLineId,
-                productionQuantity: job.quantity,
-                quantityComplete: job.quantityComplete,
-                status: job.status
-              }))}
-              lines={lines.map((line) => ({
-                id: line.id,
-                methodType: line.methodType,
-                saleQuantity: line.saleQuantity
-              }))}
-            />
-          );
-        },
+        cell: ({ row }) => <SalesStatus status={row.original.displayStatus} />,
         meta: {
           filter: {
             type: "static",
@@ -349,7 +320,11 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
           );
         },
         meta: {
-          icon: <LuFactory />
+          icon: <LuFactory />,
+          exportValue: (row) => {
+            const jobs = (row.jobs ?? []) as SalesOrderJob[];
+            return jobs.map((job) => job.jobId).join(", ");
+          }
         }
       },
       {
@@ -443,7 +418,7 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
       },
       {
         accessorKey: "paymentTermId",
-        header: t`Payment Method`,
+        header: t`Payment Terms`,
         cell: (item) => (
           <Enumerable
             value={
@@ -594,9 +569,6 @@ const SalesOrdersTable = memo(({ data, count }: SalesOrdersTableProps) => {
         }}
         defaultColumnVisibility={{
           receiptPromisedDate: false,
-          shippingMethodName: false,
-          shippingTermName: false,
-          paymentTermName: false,
           dropShipment: false,
           createdBy: false,
           createdAt: false,

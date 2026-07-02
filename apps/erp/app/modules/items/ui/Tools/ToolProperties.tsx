@@ -14,7 +14,7 @@ import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { Suspense, useCallback, useEffect } from "react";
 import { LuCopy, LuKeySquare, LuLink } from "react-icons/lu";
-import { Await, useFetcher, useParams } from "react-router";
+import { Await, Link, useFetcher, useParams } from "react-router";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 import { MethodBadge, MethodIcon, TrackingTypeIcon } from "~/components";
@@ -40,7 +40,7 @@ import type {
   SupplierPart,
   Tool
 } from "../../types";
-import { FileBadge, ItemDescription } from "../Item";
+import { FileBadge, ItemDescription, SourcingTypeProperty } from "../Item";
 
 type ToolPropertiesProps = {
   data?: {
@@ -73,6 +73,22 @@ const ToolProperties = ({ data }: ToolPropertiesProps) => {
     pickMethods: PickMethod[];
     makeMethods: Promise<PostgrestResponse<MakeMethod>>;
     tags: { name: string }[];
+    supersession?: {
+      successorItemId: string | null;
+      successorEffectivityDate: string | null;
+      successor: {
+        id: string;
+        readableIdWithRevision: string;
+        name: string;
+      } | null;
+    } | null;
+    supersededBy?: Array<{
+      predecessor: {
+        id: string;
+        readableIdWithRevision: string;
+        name: string;
+      } | null;
+    }>;
   }>(path.to.tool(itemId));
   const routeData = data ?? routeDataFromRoute;
 
@@ -104,10 +120,12 @@ const ToolProperties = ({ data }: ToolPropertiesProps) => {
         | "description"
         | "replenishmentSystem"
         | "defaultMethodType"
+        | "sourcingType"
         | "itemTrackingType"
         | "itemPostingGroupId"
         | "toolId"
         | "active"
+        | "mpn"
         | "requiresInspection",
       value: string | null
     ) => {
@@ -332,6 +350,7 @@ const ToolProperties = ({ data }: ToolPropertiesProps) => {
         <Select
           name="replenishmentSystem"
           label={t`Replenishment`}
+          termId="replenishment-system"
           inline={(value) => (
             <Badge variant="secondary">
               <ReplenishmentSystemIcon type={value} className="mr-2" />
@@ -376,6 +395,7 @@ const ToolProperties = ({ data }: ToolPropertiesProps) => {
         <Select
           name="itemTrackingType"
           label={t`Tracking Type`}
+          termId="item-tracking-type"
           inline={(value) => (
             <Badge variant="secondary">
               <TrackingTypeIcon type={value} className="mr-2" />
@@ -424,6 +444,7 @@ const ToolProperties = ({ data }: ToolPropertiesProps) => {
         <Select
           name="defaultMethodType"
           label={t`Default Method Type`}
+          termId="item-default-method-type"
           inline={(value) => (
             <Badge variant="secondary">
               <MethodIcon type={value} className="mr-2" />
@@ -461,6 +482,12 @@ const ToolProperties = ({ data }: ToolPropertiesProps) => {
           }}
         />
       </ValidatedForm>
+
+      <SourcingTypeProperty
+        replenishmentSystem={routeData?.toolSummary?.replenishmentSystem}
+        value={routeData?.toolSummary?.sourcingType}
+        onChange={(value) => onUpdate("sourcingType", value)}
+      />
 
       <VStack spacing={2}>
         <h3 className="text-xs text-muted-foreground">
@@ -542,8 +569,7 @@ const ToolProperties = ({ data }: ToolPropertiesProps) => {
           }}
         />
       </ValidatedForm>
-      {(routeData?.toolSummary?.itemTrackingType === "Serial" ||
-        routeData?.toolSummary?.itemTrackingType === "Batch") && (
+      {routeData?.toolSummary?.replenishmentSystem?.includes("Buy") && (
         <ValidatedForm
           defaultValues={{
             requiresInspection:
@@ -563,6 +589,67 @@ const ToolProperties = ({ data }: ToolPropertiesProps) => {
             }}
           />
         </ValidatedForm>
+      )}
+      {routeData?.toolSummary?.replenishmentSystem?.includes("Buy") && (
+        <ValidatedForm
+          defaultValues={{
+            mpn: (routeData?.toolSummary as any)?.mpn ?? undefined
+          }}
+          validator={z.object({
+            mpn: z.string().optional()
+          })}
+          className="w-full"
+        >
+          <InputControlled
+            label={t`Manufacturer Part Number`}
+            name="mpn"
+            inline
+            size="sm"
+            value={(routeData?.toolSummary as any)?.mpn ?? ""}
+            onBlur={(e) => {
+              onUpdate("mpn", e.target.value ?? null);
+            }}
+          />
+        </ValidatedForm>
+      )}
+      {routeDataFromRoute?.supersession?.successor && (
+        <div className="w-full">
+          <h3 className="text-xs text-muted-foreground mb-1">
+            <Trans>Superseded By</Trans>
+          </h3>
+          <Link
+            to={path.to.tool(routeDataFromRoute.supersession.successor.id)}
+            className="text-sm text-primary hover:underline"
+          >
+            {routeDataFromRoute.supersession.successor.readableIdWithRevision}
+          </Link>
+          {routeDataFromRoute.supersession.successorEffectivityDate && (
+            <p className="text-xs text-muted-foreground">
+              <Trans>
+                From {routeDataFromRoute.supersession.successorEffectivityDate}
+              </Trans>
+            </p>
+          )}
+        </div>
+      )}
+      {(routeDataFromRoute?.supersededBy?.length ?? 0) > 0 && (
+        <div className="w-full">
+          <h3 className="text-xs text-muted-foreground mb-1">
+            <Trans>Supersedes</Trans>
+          </h3>
+          {routeDataFromRoute?.supersededBy?.map(
+            (ref) =>
+              ref.predecessor && (
+                <Link
+                  key={ref.predecessor.id}
+                  to={path.to.tool(ref.predecessor.id)}
+                  className="block text-sm text-primary hover:underline"
+                >
+                  {ref.predecessor.readableIdWithRevision}
+                </Link>
+              )
+          )}
+        </div>
       )}
       <ValidatedForm
         defaultValues={{

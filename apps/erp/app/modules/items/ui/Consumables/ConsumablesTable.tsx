@@ -28,10 +28,12 @@ import {
   LuBookMarked,
   LuCalendar,
   LuCheck,
+  LuFactory,
   LuGroup,
   LuPencil,
   LuTag,
   LuTrash,
+  LuTruck,
   LuUser
 } from "react-icons/lu";
 import { RxCodesandboxLogo } from "react-icons/rx";
@@ -40,6 +42,7 @@ import { Link, useFetcher, useNavigate } from "react-router";
 import {
   EmployeeAvatar,
   Hyperlink,
+  ItemLifecycleBadge,
   ItemThumbnail,
   MethodIcon,
   New,
@@ -160,10 +163,26 @@ const ConsumablesTable = memo(
           accessorKey: "defaultMethodType",
           header: t`Default Method`,
           cell: (item) => (
-            <Badge variant="secondary">
-              <MethodIcon type={item.getValue<string>()} className="mr-2" />
-              <span>{translateMethodType(item.getValue<string>())}</span>
-            </Badge>
+            <VStack spacing={1}>
+              <Badge variant="secondary">
+                <MethodIcon type={item.getValue<string>()} className="mr-2" />
+                <span>{translateMethodType(item.getValue<string>())}</span>
+              </Badge>
+              <ItemLifecycleBadge
+                mode={
+                  (
+                    item.row.original as {
+                      supersessionMode?:
+                        | "Consume First"
+                        | "Prefer New"
+                        | "Stock Only"
+                        | "No Stock"
+                        | null;
+                    }
+                  ).supersessionMode
+                }
+              />
+            </VStack>
           ),
           meta: {
             filter: {
@@ -231,6 +250,43 @@ const ConsumablesTable = memo(
               isArray: true
             },
             icon: <LuTag />
+          }
+        },
+        {
+          accessorKey: "mpn",
+          header: t`Manufacturer Part Number`,
+          cell: (item) => (
+            <div className="max-w-[200px] truncate">
+              {item.getValue<string>()}
+            </div>
+          ),
+          meta: {
+            filter: {
+              type: "fetcher",
+              endpoint: path.to.api.itemMpns,
+              transform: (data: string[] | null) =>
+                data?.map((mpn) => ({ value: mpn, label: mpn })) ?? []
+            },
+            icon: <LuFactory />
+          }
+        },
+        {
+          accessorKey: "supplierIds",
+          header: t`Supplier Part Numbers`,
+          cell: ({ row }) => (
+            <HStack spacing={0} className="gap-1">
+              {row.original.supplierIds
+                ?.split(",")
+                .filter(Boolean)
+                .map((supplierPartId) => (
+                  <Badge key={supplierPartId} variant="secondary">
+                    {supplierPartId}
+                  </Badge>
+                ))}
+            </HStack>
+          ),
+          meta: {
+            icon: <LuTruck />
           }
         },
         {

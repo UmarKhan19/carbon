@@ -286,6 +286,21 @@ async function getDescription(
       return `Stock Transfer ${stockTransfer?.data?.stockTransferId} assigned to you`;
     }
 
+    case NotificationEvent.PickingListAssignment: {
+      const pickingList = await client
+        .from("pickingList")
+        .select("*")
+        .eq("id", documentId)
+        .single();
+
+      if (pickingList.error) {
+        console.error("Failed to get pickingList", pickingList.error);
+        throw pickingList.error;
+      }
+
+      return `Picking List ${pickingList?.data?.pickingListId} assigned to you`;
+    }
+
     case NotificationEvent.TrainingAssignment: {
       const trainingAssignment = await client
         .from("trainingAssignment")
@@ -608,6 +623,10 @@ const defaultDestinations: Partial<
     NotificationDestination.Slack
   ],
   [NotificationEvent.StockTransferAssignment]: [
+    NotificationDestination.Email,
+    NotificationDestination.Slack
+  ],
+  [NotificationEvent.PickingListAssignment]: [
     NotificationDestination.Email,
     NotificationDestination.Slack
   ],

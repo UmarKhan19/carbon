@@ -11,6 +11,7 @@ import {
   ModalDrawerTitle,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { useFetcher } from "react-router";
 import type { z } from "zod";
@@ -40,6 +41,7 @@ type FixedAssetFormProps = {
 };
 
 const FixedAssetForm = ({ initialValues, onClose }: FixedAssetFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const settings = useSettings();
   const taxDepreciationEnabled =
@@ -124,24 +126,30 @@ const FixedAssetForm = ({ initialValues, onClose }: FixedAssetFormProps) => {
           >
             <ModalDrawerHeader>
               <ModalDrawerTitle>
-                {isEditing ? "Edit" : "New"} Fixed Asset
+                {isEditing ? (
+                  <Trans>Edit Fixed Asset</Trans>
+                ) : (
+                  <Trans>New Fixed Asset</Trans>
+                )}
               </ModalDrawerTitle>
             </ModalDrawerHeader>
             <ModalDrawerBody>
               <Hidden name="id" />
               <VStack spacing={4}>
-                <Input name="name" label="Name" />
+                <Input name="name" label={t`Name`} />
                 <AssetClass
                   name="fixedAssetClassId"
-                  label="Asset Class"
+                  label={t`Asset Class`}
+                  termId="asset-class"
                   value={assetData.fixedAssetClassId}
                   onChange={onAssetClassChange}
                 />
-                <Input name="description" label="Description" />
-                <Input name="serialNumber" label="Serial Number" />
+                <Input name="description" label={t`Description`} />
+                <Input name="serialNumber" label={t`Serial Number`} />
                 <SelectControlled
                   name="depreciationMethod"
-                  label="Depreciation Method"
+                  label={t`Depreciation Method`}
+                  termId="fixed-asset-depreciation-method"
                   options={depreciationMethods.map((m) => ({
                     label: m,
                     value: m
@@ -157,7 +165,8 @@ const FixedAssetForm = ({ initialValues, onClose }: FixedAssetFormProps) => {
                 />
                 <NumberControlled
                   name="usefulLifeMonths"
-                  label="Useful Life (Months)"
+                  label={t`Useful Life (Months)`}
+                  termId="fixed-asset-useful-life"
                   minValue={1}
                   value={assetData.usefulLifeMonths}
                   onChange={(value) =>
@@ -166,7 +175,8 @@ const FixedAssetForm = ({ initialValues, onClose }: FixedAssetFormProps) => {
                 />
                 <NumberControlled
                   name="residualValuePercent"
-                  label="Residual Value %"
+                  label={t`Residual Value %`}
+                  termId="residual-value"
                   minValue={0}
                   maxValue={100}
                   value={assetData.residualValuePercent}
@@ -177,7 +187,8 @@ const FixedAssetForm = ({ initialValues, onClose }: FixedAssetFormProps) => {
                 {assetData.depreciationMethod === "Units of Production" && (
                   <NumberControlled
                     name="assetLifetimeUsage"
-                    label="Lifetime Usage (Units)"
+                    label={t`Lifetime Usage (Units)`}
+                    termId="fixed-asset-lifetime-usage"
                     minValue={0}
                     value={assetData.assetLifetimeUsage}
                     onChange={(value) =>
@@ -185,13 +196,14 @@ const FixedAssetForm = ({ initialValues, onClose }: FixedAssetFormProps) => {
                     }
                   />
                 )}
-                <Location name="locationId" label="Location" />
+                <Location name="locationId" label={t`Location`} />
                 {taxDepreciationEnabled && (
                   <>
                     <SelectControlled
                       name="taxDepreciationMethod"
-                      label="Tax Depreciation Method"
-                      placeholder="None"
+                      label={t`Tax Depreciation Method`}
+                      termId="fixed-asset-tax-depreciation-method"
+                      placeholder={t`None`}
                       options={taxDepreciationMethods.map((m) => ({
                         label: m,
                         value: m
@@ -213,7 +225,8 @@ const FixedAssetForm = ({ initialValues, onClose }: FixedAssetFormProps) => {
                     >
                       <SelectControlled
                         name="macrsPropertyClass"
-                        label="MACRS Property Class"
+                        label={t`MACRS Property Class`}
+                        termId="macrs-property-class"
                         isOptional={false}
                         options={macrsPropertyClasses.map((c) => ({
                           label: `${c}-Year`,
@@ -230,7 +243,8 @@ const FixedAssetForm = ({ initialValues, onClose }: FixedAssetFormProps) => {
                       />
                       <SelectControlled
                         name="macrsConvention"
-                        label="MACRS Convention"
+                        label={t`MACRS Convention`}
+                        termId="macrs-convention"
                         isOptional={false}
                         options={macrsConventions.map((c) => ({
                           label: c,
@@ -247,7 +261,8 @@ const FixedAssetForm = ({ initialValues, onClose }: FixedAssetFormProps) => {
                       />
                       <NumberControlled
                         name="bonusDepreciationPercent"
-                        label="Bonus Depreciation %"
+                        label={t`Bonus Depreciation %`}
+                        termId="bonus-depreciation"
                         minValue={0}
                         maxValue={100}
                         value={assetData.bonusDepreciationPercent}
@@ -269,7 +284,8 @@ const FixedAssetForm = ({ initialValues, onClose }: FixedAssetFormProps) => {
                     >
                       <NumberControlled
                         name="taxUsefulLifeMonths"
-                        label="Tax Useful Life (Months)"
+                        label={t`Tax Useful Life (Months)`}
+                        termId="fixed-asset-tax-useful-life"
                         minValue={1}
                         value={assetData.taxUsefulLifeMonths}
                         onChange={(value) =>
@@ -281,7 +297,8 @@ const FixedAssetForm = ({ initialValues, onClose }: FixedAssetFormProps) => {
                       />
                       <NumberControlled
                         name="taxResidualValuePercent"
-                        label="Tax Residual Value %"
+                        label={t`Tax Residual Value %`}
+                        termId="residual-value"
                         minValue={0}
                         maxValue={100}
                         value={assetData.taxResidualValuePercent}
@@ -299,9 +316,11 @@ const FixedAssetForm = ({ initialValues, onClose }: FixedAssetFormProps) => {
             </ModalDrawerBody>
             <ModalDrawerFooter>
               <HStack>
-                <Submit isDisabled={isDisabled}>Save</Submit>
+                <Submit isDisabled={isDisabled}>
+                  <Trans>Save</Trans>
+                </Submit>
                 <Button size="md" variant="solid" onClick={() => onClose?.()}>
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
               </HStack>
             </ModalDrawerFooter>

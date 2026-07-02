@@ -13,7 +13,7 @@ import {
   LuTrash,
   LuUser
 } from "react-icons/lu";
-import { Link, Outlet, useNavigate } from "react-router";
+import { Outlet, useNavigate } from "react-router";
 import { EmployeeAvatar, Hyperlink, New, Table } from "~/components";
 import { useDateFormatter, usePermissions, useUrlParams } from "~/hooks";
 import type { ApiKey } from "~/modules/settings";
@@ -24,6 +24,15 @@ type ApiKeysTableProps = {
   data: ApiKey[];
   count: number;
 };
+
+// `apiKey.scopes` is a `Json` column; narrow it to the scope map shape once so
+// the cell and the CSV export read it the same way without an `as any` cast.
+function getScopes(apiKey: ApiKey): Record<string, string[]> | null {
+  const { scopes } = apiKey;
+  return scopes && typeof scopes === "object" && !Array.isArray(scopes)
+    ? (scopes as Record<string, string[]>)
+    : null;
+}
 
 function getScopeCount(scopes: Record<string, string[]> | null): number {
   if (!scopes) return 0;
@@ -78,11 +87,7 @@ const ApiKeysTable = memo(({ data, count }: ApiKeysTableProps) => {
         id: "scopes",
         header: t`Scopes`,
         cell: ({ row }) => {
-          const scopes = (row.original as any).scopes as Record<
-            string,
-            string[]
-          > | null;
-          const scopeCount = getScopeCount(scopes);
+          const scopeCount = getScopeCount(getScopes(row.original));
           return (
             <Badge variant="secondary">
               {scopeCount === 0 ? t`No Access` : t`${scopeCount} permissions`}
@@ -90,7 +95,13 @@ const ApiKeysTable = memo(({ data, count }: ApiKeysTableProps) => {
           );
         },
         meta: {
-          icon: <LuShield />
+          icon: <LuShield />,
+          exportValue: (row) => {
+            const scopeCount = getScopeCount(getScopes(row));
+            return scopeCount === 0
+              ? t`No Access`
+              : t`${scopeCount} permissions`;
+          }
         }
       },
       {
@@ -205,9 +216,9 @@ const ApiKeysTable = memo(({ data, count }: ApiKeysTableProps) => {
               />
             )}
             <Button leftIcon={<LuCode />} variant="secondary" asChild>
-              <Link to={path.to.apiIntroduction}>
+              <a href={path.to.apiDocs} target="_blank" rel="noreferrer">
                 <Trans>API Docs</Trans>
-              </Link>
+              </a>
             </Button>
           </HStack>
         }

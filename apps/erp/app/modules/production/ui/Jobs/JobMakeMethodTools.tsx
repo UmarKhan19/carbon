@@ -20,7 +20,6 @@ import {
   ModalFooter,
   ModalHeader,
   ModalTitle,
-  SplitButton,
   Tabs,
   TabsContent,
   TabsList,
@@ -30,21 +29,20 @@ import {
   useMount,
   VStack
 } from "@carbon/react";
-import { labelSizes } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { Fragment, useEffect, useState } from "react";
 import {
+  LuBlocks,
   LuChevronRight,
   LuGitBranch,
   LuGitFork,
   LuGitMerge,
-  LuQrCode,
   LuSettings,
-  LuSquareStack,
   LuTriangleAlert
 } from "react-icons/lu";
 import { RiProgress4Line } from "react-icons/ri";
 import { Link, useFetcher, useLocation, useParams } from "react-router";
+import { PrintButton } from "~/components";
 import { ConfiguratorModal } from "~/components/Configurator/ConfiguratorForm";
 import { Hidden, Item, Submit, useConfigurableItems } from "~/components/Form";
 import type { Tree } from "~/components/TreeView";
@@ -181,36 +179,6 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
     );
   };
 
-  const navigateToTrackingLabels = (
-    makeMethodId: string,
-    zpl: boolean,
-    {
-      labelSize,
-      trackedEntityId
-    }: { labelSize?: string; trackedEntityId?: string } = {}
-  ) => {
-    if (!window) return;
-    if (!makeMethodId) return;
-
-    if (zpl) {
-      window.open(
-        window.location.origin +
-          path.to.file.operationLabelsZpl(makeMethodId, {
-            labelSize
-          }),
-        "_blank"
-      );
-    } else {
-      window.open(
-        window.location.origin +
-          path.to.file.operationLabelsPdf(makeMethodId, {
-            labelSize
-          }),
-        "_blank"
-      );
-    }
-  };
-
   const {
     company: { id: companyId }
   } = useUser();
@@ -318,22 +286,16 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                 {makeMethod &&
                   (makeMethod.requiresSerialTracking ||
                     makeMethod.requiresBatchTracking) && (
-                    <SplitButton
-                      dropdownItems={labelSizes.map((size) => ({
-                        label: size.name,
-                        onClick: () =>
-                          navigateToTrackingLabels(makeMethod.id, !!size.zpl, {
-                            labelSize: size.id
-                          })
-                      }))}
-                      leftIcon={<LuQrCode />}
-                      variant="ghost"
-                      onClick={() =>
-                        navigateToTrackingLabels(makeMethod.id, false)
-                      }
-                    >
-                      <Trans>Tracking Labels</Trans>
-                    </SplitButton>
+                    <PrintButton
+                      sourceDocument="Operation"
+                      sourceDocumentId={makeMethod.id}
+                      locationId={routeData?.job?.locationId ?? undefined}
+                      context="workCenter"
+                      fileRoutes={{
+                        pdf: path.to.file.operationLabelsPdf,
+                        zpl: path.to.file.operationLabelsZpl
+                      }}
+                    />
                   )}
               </HStack>
             </HStack>
@@ -369,7 +331,7 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                   {isJobMethod && (
                     <TabsList className="grid w-full grid-cols-2 mb-4">
                       <TabsTrigger value="item">
-                        <LuSquareStack className="mr-2" /> Item
+                        <LuBlocks className="mr-2" /> Item
                       </TabsTrigger>
                       <TabsTrigger value="quote">
                         <RiProgress4Line className="mr-2" />
@@ -404,6 +366,7 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                       <Item
                         name="sourceId"
                         label={t`Source Method`}
+                        termId="method"
                         type={(routeData?.job.itemType ?? "Part") as "Part"}
                         blacklist={configurableItemIds}
                         includeInactive={includeInactive === true}
@@ -509,6 +472,7 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                   <Item
                     name="itemId"
                     label={t`Target Method`}
+                    termId="method"
                     type={(routeData?.job?.itemType ?? "Part") as "Part"}
                     blacklist={configurableItemIds}
                     locationId={routeData?.job?.locationId ?? undefined}

@@ -2,29 +2,52 @@ import { intro, outro, tasks } from "@clack/prompts";
 import pc from "picocolors";
 import { syncAppPortlessConfigs } from "../env.js";
 import { currentBranch } from "../git.js";
+import { killOrphanedApps, killOrphanedStripe } from "../services/apps.js";
 import { stopStack } from "../services/compose.js";
 import { branchToPrefix, unregisterAliases } from "../services/portless.js";
-import { getWorktreeRoot, projectName, resolveSlug } from "../worktree.js";
+import {
+  ensureSlugAvailable,
+  getSlot,
+  getWorktreeRoot,
+  projectName,
+  resolveSlug
+} from "../worktree.js";
 
 // silent: post-SIGINT path. clack tasks/spinner would EIO via setRawMode on
 // the freshly-interrupted stdin; fall back to plain printf progress.
-export async function down(opts: { silent?: boolean } = {}) {
+// volumes: also drop the stack's Docker volumes (data is wiped) — for headless
+// dispatch teardown where leftover volumes would accumulate on a long-lived box.
+export async function down(opts: { silent?: boolean; volumes?: boolean } = {}) {
   const root = await getWorktreeRoot();
   const slug = resolveSlug(root);
   const project = projectName(slug);
+  const withVolumes = opts.volumes ?? false;
+
+  // Refuse to tear down a stack that another worktree owns (same slug, different
+  // path). Passes for our own stack and when nothing is running.
+  await ensureSlugAvailable(slug, root);
 
   if (opts.silent) {
-    return runPlain(root, slug, project);
+    return runPlain(root, slug, project, withVolumes);
   }
 
   intro("Carbon · dev down");
   await tasks([
     {
-      title: `Stopping ${project} (volumes preserved)`,
+      title: `Stopping ${project} (${withVolumes ? "removing volumes" : "volumes preserved"})`,
       task: async (msg) => {
-        msg("docker compose stop");
-        await stopStack(root, slug, false);
-        return "stack stopped";
+        msg(withVolumes ? "docker compose down -v" : "docker compose down");
+        await stopStack(root, slug, withVolumes);
+        return withVolumes ? "stack stopped, volumes removed" : "stack stopped";
+      }
+    },
+    {
+      title: "Kill orphaned dev servers & stripe listener",
+      task: async () => {
+        const slot = getSlot(slug);
+        if (slot) await killOrphanedApps(slot.ports);
+        await killOrphanedStripe(root);
+        return "orphaned processes killed";
       }
     },
     {
@@ -47,15 +70,28 @@ export async function down(opts: { silent?: boolean } = {}) {
   outro("stopped");
 }
 
-async function runPlain(root: string, slug: string, project: string) {
+async function runPlain(
+  root: string,
+  slug: string,
+  project: string,
+  withVolumes: boolean
+) {
   const step = (msg: string) =>
     process.stderr.write(`${pc.cyan("•")} ${msg}…\n`);
   const done = (msg: string) =>
     process.stderr.write(`${pc.green("✓")} ${msg}\n`);
 
-  step(`stopping ${project} (volumes preserved)`);
-  await stopStack(root, slug, false);
-  done("stack stopped");
+  step(
+    `stopping ${project} (${withVolumes ? "removing volumes" : "volumes preserved"})`
+  );
+  await stopStack(root, slug, withVolumes);
+  done(withVolumes ? "stack stopped, volumes removed" : "stack stopped");
+
+  step("killing orphaned dev servers & stripe listener");
+  const slot = getSlot(slug);
+  if (slot) await killOrphanedApps(slot.ports);
+  await killOrphanedStripe(root);
+  done("orphaned processes killed");
 
   step("unregistering portless aliases");
   const branch = await currentBranch(root);

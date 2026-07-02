@@ -13,11 +13,20 @@
     "nanoid": "catalog:",
     "react-icons": "catalog:",
     "react-pdf-tailwind": "2.3.0",
-    "sst": "catalog:"
+    "sst": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@carbon/config": "workspace:*",
     "@carbon/database": "workspace:*",
+    "@fontsource/inter": "^5.0.0",
+    "@fontsource/lato": "^5.0.0",
+    "@fontsource/lora": "^5.0.0",
+    "@fontsource/merriweather": "^5.0.0",
+    "@fontsource/montserrat": "^5.0.0",
+    "@fontsource/open-sans": "^5.0.0",
+    "@fontsource/playfair-display": "^5.0.0",
+    "@fontsource/roboto": "^5.0.0",
     "@internationalized/date": "catalog:",
     "@testing-library/dom": "8.20.1",
     "@types/dompurify": "2.4.0",
@@ -30,11 +39,14 @@
   "exports": {
     "./email": "./src/email/index.ts",
     "./pdf": "./src/pdf/index.ts",
+    "./template": "./src/template/index.ts",
     "./zpl": "./src/zpl/index.ts",
-    "./qr": "./src/qr/qr-code.ts"
+    "./qr": "./src/qr/qr-code.ts",
+    "./labels": "./src/labels/index.ts"
   },
   "private": true,
   "scripts": {
+    "build": "node ./scripts/generate-fonts.mjs",
     "clean": "rimraf .turbo node_modules dist",
     "lint": "biome lint --write ",
     "test": "vitest run",

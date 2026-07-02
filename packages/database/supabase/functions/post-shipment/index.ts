@@ -101,6 +101,8 @@ serve(async (req: Request) => {
       throw new Error("Failed to fetch jobs");
     }
 
+    const splitEntityIds: string[] = [];
+
     switch (type) {
       case "post": {
         switch (shipment.data?.sourceDocument) {
@@ -170,7 +172,9 @@ serve(async (req: Request) => {
                   .eq("companyGroupId", companyGroupId)
                   .eq("active", true)
                   .in("entityType", [
+                    "Customer",
                     "CustomerType",
+                    "Item",
                     "ItemPostingGroup",
                     "Location",
                     "CostCenter",
@@ -195,6 +199,7 @@ serve(async (req: Request) => {
 
             const journalLineDimensionsMeta: {
               customerTypeId: string | null;
+              itemId: string | null;
               itemPostingGroupId: string | null;
               locationId: string | null;
               costCenterId: string | null;
@@ -452,6 +457,7 @@ serve(async (req: Request) => {
                 for (let i = 0; i < 2; i++) {
                   journalLineDimensionsMeta.push({
                     customerTypeId: customer.data.customerTypeId ?? null,
+                    itemId: shipmentLine.itemId ?? null,
                     itemPostingGroupId,
                     locationId: shipmentLine.locationId ?? locationId ?? null,
                     costCenterId: salesOrderLine?.costCenterId ?? null,
@@ -590,6 +596,7 @@ serve(async (req: Request) => {
 
                   journalLineDimensionsMeta.push({
                     customerTypeId: customer.data.customerTypeId ?? null,
+                    itemId: null,
                     itemPostingGroupId: null,
                     locationId: locationId ?? assetRecord.data.locationId ?? null,
                     costCenterId: faSoLine.costCenterId ?? null,
@@ -617,6 +624,7 @@ serve(async (req: Request) => {
 
                   journalLineDimensionsMeta.push({
                     customerTypeId: customer.data.customerTypeId ?? null,
+                    itemId: null,
                     itemPostingGroupId: null,
                     locationId: locationId ?? assetRecord.data.locationId ?? null,
                     costCenterId: faSoLine.costCenterId ?? null,
@@ -643,6 +651,7 @@ serve(async (req: Request) => {
 
                 journalLineDimensionsMeta.push({
                   customerTypeId: customer.data.customerTypeId ?? null,
+                  itemId: null,
                   itemPostingGroupId: null,
                   locationId: locationId ?? assetRecord.data.locationId ?? null,
                   costCenterId: faSoLine.costCenterId ?? null,
@@ -685,6 +694,7 @@ serve(async (req: Request) => {
                 originalQuantity: number;
                 shippedQuantity: number;
                 remainingQuantity: number;
+                readableId: string | null;
                 attributes: TrackedEntityAttributes;
                 sourceDocument: string;
                 sourceDocumentId: string;
@@ -722,6 +732,7 @@ serve(async (req: Request) => {
                     shippedQuantity: shipmentLine.shippedQuantity,
                     remainingQuantity:
                       trackedEntity.quantity - shipmentLine.shippedQuantity,
+                    readableId: trackedEntity.readableId,
                     attributes:
                       trackedEntity.attributes as TrackedEntityAttributes,
                     sourceDocument: trackedEntity.sourceDocument,
@@ -879,6 +890,7 @@ serve(async (req: Request) => {
                   const newTrackedEntity = await trx
                     .insertInto("trackedEntity")
                     .values({
+                      readableId: splitInfo.readableId,
                       quantity: splitInfo.remainingQuantity,
                       status: "Available",
                       sourceDocument: splitInfo.sourceDocument,
@@ -896,6 +908,7 @@ serve(async (req: Request) => {
                     .execute();
 
                   const newTrackedEntityId = newTrackedEntity[0].id!;
+                  splitEntityIds.push(newTrackedEntityId);
 
                   // Update the original entity's attributes to include the split entity ID
                   const originalEntity = await trx
@@ -1200,11 +1213,30 @@ serve(async (req: Request) => {
                     const meta = journalLineDimensionsMeta[index];
                     if (!meta) return;
 
+                    if (
+                      salesOrder.data?.customerId &&
+                      dimensionMap.has("Customer")
+                    ) {
+                      journalLineDimensionInserts.push({
+                        journalLineId: jl.id,
+                        dimensionId: dimensionMap.get("Customer")!,
+                        valueId: salesOrder.data.customerId,
+                        companyId,
+                      });
+                    }
                     if (meta.customerTypeId && dimensionMap.has("CustomerType")) {
                       journalLineDimensionInserts.push({
                         journalLineId: jl.id,
                         dimensionId: dimensionMap.get("CustomerType")!,
                         valueId: meta.customerTypeId,
+                        companyId,
+                      });
+                    }
+                    if (meta.itemId && dimensionMap.has("Item")) {
+                      journalLineDimensionInserts.push({
+                        journalLineId: jl.id,
+                        dimensionId: dimensionMap.get("Item")!,
+                        valueId: meta.itemId,
                         companyId,
                       });
                     }
@@ -1373,6 +1405,7 @@ serve(async (req: Request) => {
                 originalQuantity: number;
                 shippedQuantity: number;
                 remainingQuantity: number;
+                readableId: string | null;
                 attributes: TrackedEntityAttributes;
                 sourceDocument: string;
                 sourceDocumentId: string;
@@ -1410,6 +1443,7 @@ serve(async (req: Request) => {
                     shippedQuantity: shipmentLine.shippedQuantity,
                     remainingQuantity:
                       trackedEntity.quantity - shipmentLine.shippedQuantity,
+                    readableId: trackedEntity.readableId,
                     attributes:
                       trackedEntity.attributes as TrackedEntityAttributes,
                     sourceDocument: trackedEntity.sourceDocument,
@@ -1515,6 +1549,7 @@ serve(async (req: Request) => {
                   const newTrackedEntity = await trx
                     .insertInto("trackedEntity")
                     .values({
+                      readableId: splitInfo.readableId,
                       quantity: splitInfo.remainingQuantity,
                       status: "Available",
                       sourceDocument: splitInfo.sourceDocument,
@@ -1532,6 +1567,7 @@ serve(async (req: Request) => {
                     .execute();
 
                   const newTrackedEntityId = newTrackedEntity[0].id!;
+                  splitEntityIds.push(newTrackedEntityId);
 
                   // Update the original entity's attributes to include the split entity ID
                   const originalEntity = await trx
@@ -2834,6 +2870,7 @@ serve(async (req: Request) => {
     return new Response(
       JSON.stringify({
         success: true,
+        splitEntityIds,
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

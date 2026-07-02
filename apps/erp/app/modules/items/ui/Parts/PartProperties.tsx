@@ -51,7 +51,7 @@ import type {
   PickMethod,
   SupplierPart
 } from "../../types";
-import { FileBadge, ItemDescription } from "../Item";
+import { FileBadge, ItemDescription, SourcingTypeProperty } from "../Item";
 
 type PartPropertiesProps = {
   data?: {
@@ -84,6 +84,22 @@ const PartProperties = ({ data }: PartPropertiesProps) => {
     pickMethods: PickMethod[];
     makeMethods: Promise<PostgrestResponse<MakeMethod>>;
     tags: { name: string }[];
+    supersession?: {
+      successorItemId: string | null;
+      successorEffectivityDate: string | null;
+      successor: {
+        id: string;
+        readableIdWithRevision: string;
+        name: string;
+      } | null;
+    } | null;
+    supersededBy?: Array<{
+      predecessor: {
+        id: string;
+        readableIdWithRevision: string;
+        name: string;
+      } | null;
+    }>;
   }>(path.to.part(itemId));
   const routeData = data ?? routeDataFromRoute;
 
@@ -113,11 +129,13 @@ const PartProperties = ({ data }: PartPropertiesProps) => {
       field:
         | "active"
         | "defaultMethodType"
+        | "sourcingType"
         | "itemTrackingType"
         | "itemPostingGroupId"
         | "partId"
         | "name"
         | "description"
+        | "mpn"
         | "replenishmentSystem"
         | "unitOfMeasureCode"
         | "requiresInspection",
@@ -354,6 +372,7 @@ const PartProperties = ({ data }: PartPropertiesProps) => {
         <Select
           name="replenishmentSystem"
           label={t`Replenishment`}
+          termId="replenishment-system"
           inline={(value) => (
             <Badge variant="secondary">
               <ReplenishmentSystemIcon type={value} className="mr-2" />
@@ -398,6 +417,7 @@ const PartProperties = ({ data }: PartPropertiesProps) => {
         <Select
           name="itemTrackingType"
           label={t`Tracking Type`}
+          termId="item-tracking-type"
           inline={(value) => (
             <Badge variant="secondary">
               <TrackingTypeIcon type={value} className="mr-2" />
@@ -446,6 +466,7 @@ const PartProperties = ({ data }: PartPropertiesProps) => {
         <Select
           name="defaultMethodType"
           label={t`Default Method Type`}
+          termId="item-default-method-type"
           inline={(value) => (
             <Badge variant="secondary">
               <MethodIcon type={value} className="mr-2" />
@@ -483,6 +504,12 @@ const PartProperties = ({ data }: PartPropertiesProps) => {
           }}
         />
       </ValidatedForm>
+
+      <SourcingTypeProperty
+        replenishmentSystem={routeData?.partSummary?.replenishmentSystem}
+        value={routeData?.partSummary?.sourcingType}
+        onChange={(value) => onUpdate("sourcingType", value)}
+      />
 
       <ValidatedForm
         defaultValues={{
@@ -579,8 +606,7 @@ const PartProperties = ({ data }: PartPropertiesProps) => {
           }}
         />
       </ValidatedForm>
-      {(routeData?.partSummary?.itemTrackingType === "Serial" ||
-        routeData?.partSummary?.itemTrackingType === "Batch") && (
+      {routeData?.partSummary?.replenishmentSystem?.includes("Buy") && (
         <ValidatedForm
           defaultValues={{
             requiresInspection:
@@ -600,6 +626,67 @@ const PartProperties = ({ data }: PartPropertiesProps) => {
             }}
           />
         </ValidatedForm>
+      )}
+      {routeData?.partSummary?.replenishmentSystem?.includes("Buy") && (
+        <ValidatedForm
+          defaultValues={{
+            mpn: routeData?.partSummary?.mpn ?? undefined
+          }}
+          validator={z.object({
+            mpn: z.string().optional()
+          })}
+          className="w-full"
+        >
+          <InputControlled
+            label={t`Manufacturer Part Number`}
+            name="mpn"
+            inline
+            size="sm"
+            value={routeData?.partSummary?.mpn ?? ""}
+            onBlur={(e) => {
+              onUpdate("mpn", e.target.value ?? null);
+            }}
+          />
+        </ValidatedForm>
+      )}
+      {routeDataFromRoute?.supersession?.successor && (
+        <div className="w-full">
+          <h3 className="text-xs text-muted-foreground mb-1">
+            <Trans>Superseded By</Trans>
+          </h3>
+          <Link
+            to={path.to.part(routeDataFromRoute.supersession.successor.id)}
+            className="text-sm text-primary hover:underline"
+          >
+            {routeDataFromRoute.supersession.successor.readableIdWithRevision}
+          </Link>
+          {routeDataFromRoute.supersession.successorEffectivityDate && (
+            <p className="text-xs text-muted-foreground">
+              <Trans>
+                From {routeDataFromRoute.supersession.successorEffectivityDate}
+              </Trans>
+            </p>
+          )}
+        </div>
+      )}
+      {(routeDataFromRoute?.supersededBy?.length ?? 0) > 0 && (
+        <div className="w-full">
+          <h3 className="text-xs text-muted-foreground mb-1">
+            <Trans>Supersedes</Trans>
+          </h3>
+          {routeDataFromRoute?.supersededBy?.map(
+            (ref) =>
+              ref.predecessor && (
+                <Link
+                  key={ref.predecessor.id}
+                  to={path.to.part(ref.predecessor.id)}
+                  className="block text-sm text-primary hover:underline"
+                >
+                  {ref.predecessor.readableIdWithRevision}
+                </Link>
+              )
+          )}
+        </div>
       )}
       <ValidatedForm
         defaultValues={{

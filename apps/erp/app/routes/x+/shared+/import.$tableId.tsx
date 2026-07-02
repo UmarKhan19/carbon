@@ -54,8 +54,24 @@ export async function action({ request, params }: ActionFunctionArgs) {
     };
   }
 
+  type RowIssue = {
+    row: number;
+    reason: string;
+    values: Record<string, string>;
+  };
+  const data = (importResult.data ?? {}) as {
+    inserted?: number;
+    updated?: number;
+    errors?: RowIssue[];
+    skipped?: RowIssue[];
+  };
+
   return {
     success: true,
-    message: "Import successful"
+    message: "Import successful",
+    inserted: data.inserted ?? 0,
+    updated: data.updated ?? 0,
+    errors: data.errors ?? [],
+    skipped: data.skipped ?? []
   };
 }

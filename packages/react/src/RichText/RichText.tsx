@@ -10,6 +10,8 @@ import { Toolbar } from "./Toolbar";
 
 export const useRichText = (content: string) => {
   const richText = useEditor({
+    // Avoid SSR hydration mismatch (Tiptap renders on the client).
+    immediatelyRender: false,
     extensions: [
       Color.configure({ types: [TextStyle.name, ListItem.name] }),
       TextStyle,

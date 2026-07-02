@@ -171,6 +171,7 @@ const MaintenanceDispatchForm = ({
               <Select
                 name="source"
                 label={t`Source`}
+                termId="maintenance-dispatch-source"
                 options={maintenanceSource.map((source) => ({
                   value: source,
                   label: <MaintenanceSource source={source} />
@@ -179,16 +180,22 @@ const MaintenanceDispatchForm = ({
               <Select
                 name="severity"
                 label={t`Severity`}
+                termId="maintenance-dispatch-severity"
                 options={maintenanceSeverity.map((severity) => ({
                   value: severity,
                   label: <MaintenanceSeverity severity={severity} />
                 }))}
               />
-              <WorkCenter name="workCenterId" label={t`Work Center`} />
+              <WorkCenter
+                name="workCenterId"
+                label={t`Work Center`}
+                termId="work-center"
+              />
               <Location name="locationId" label={t`Location`} />
               <Select
                 name="oeeImpact"
                 label={t`OEE Impact`}
+                termId="maintenance-dispatch-oee-impact"
                 options={oeeImpact.map((impact) => ({
                   value: impact,
                   label: <MaintenanceOeeImpact oeeImpact={impact} />
@@ -211,6 +218,7 @@ const MaintenanceDispatchForm = ({
                 <Select
                   name="suspectedFailureModeId"
                   label={t`Suspected Failure Mode`}
+                  termId="maintenance-dispatch-suspected-failure-mode"
                   options={failureModes.map((mode) => ({
                     value: mode.id,
                     label: mode.name

@@ -15,14 +15,17 @@ server/dist
 public/dist
 vite.config.ts.timestamp*
 .claude-flow
-.claude/settings.json
 .claude/settings.local.json
+.claude/scheduled_tasks.lock
 .mcp.json
 opencode.json
 .windsurf
 
 # Lingui compiled catalogs
 packages/locale/locales/**/*.mjs
+
+# Generated PDF font data (woff base64) — built on postinstall + turbo build
+packages/documents/src/pdf/fonts.data.ts
 
 scripts/migrations/data
 scripts/paperless-test.ts
@@ -42,26 +45,38 @@ scripts/test-get-stripe-customer.ts
 packages/database/.env
 packages/database/supabase/seed.sql
 
-.vercel
 .env*.local
-
-.react-router
 
 # Rust
 **/target/
 **/*.rs.bk
 **/pkg/
-**/pkg/
 
 # C++ (cad-engine)
 **/build/
 !**/build/.gitkeep
+.orcka
+**/supabase/snippets
 
 # Worktree-isolated dev environment
 .carbon-worktree
 .superpowers
-docs/superpowers
-docs/e2e
-llm/tasks
+
+# Agent scratch — local-only, never commit
+.claude/scratch/
 apps/*/portless.json
-packages/database/supabase/snippets/**.superpowers/
+packages/database/supabase/snippets/**
+.pr-review
+
+# .claude/ and .codex/ rules+skills are symlinks created by .ai/scripts/install-skills.sh
+# Source of truth is .ai/rules/ and .ai/skills/ — never edit under .claude/ or .codex/ directly
+.claude/rules/
+.claude/skills/
+.claude/notes/
+.codex/
+
+# .ai/ scratch — runtime, not source
+.ai/scratch/
+
+# Legacy llm/ — consolidated into .ai/ (docs, specs, runs)
+llm/

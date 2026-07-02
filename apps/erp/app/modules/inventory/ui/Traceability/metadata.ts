@@ -1,9 +1,9 @@
 import type { IconType } from "react-icons";
 import {
+  LuBlocks,
   LuClipboardCheck,
   LuFactory,
   LuForklift,
-  LuPackage,
   LuPackageCheck,
   LuPackageMinus,
   LuPackageOpen,
@@ -91,7 +91,7 @@ export const ACTIVITY_KIND_META: Record<ActivityKind, ActivityKindMeta> = {
     color: "hsl(330 70% 60%)",
     icon: LuClipboardCheck
   },
-  Other: { label: "Other", color: "hsl(280 65% 60%)", icon: LuPackage }
+  Other: { label: "Other", color: "hsl(280 65% 60%)", icon: LuBlocks }
 };
 
 export function activityKindFor(type: string | undefined | null): ActivityKind {
@@ -99,7 +99,9 @@ export function activityKindFor(type: string | undefined | null): ActivityKind {
   const t = type.toLowerCase();
   if (t.includes("receipt") || t.includes("receive")) return "Receipt";
   if (t.includes("ship")) return "Shipment";
-  if (t.includes("transfer")) return "Transfer";
+  // A pick is a warehouse→lineside transfer; render it with the Transfer kind
+  // (the node label still shows the raw "Pick" type).
+  if (t.includes("transfer") || t.includes("pick")) return "Transfer";
   if (t.includes("rework")) return "Rework";
   if (t.includes("inspect") || t.includes("qc") || t.includes("quality"))
     return "Inspection";

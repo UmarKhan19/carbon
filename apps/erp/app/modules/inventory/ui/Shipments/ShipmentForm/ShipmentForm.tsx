@@ -11,12 +11,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   HStack,
-  SplitButton,
   useDisclosure,
   VStack
 } from "@carbon/react";
-import type { TrackedEntityAttributes } from "@carbon/utils";
-import { labelSizes } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { Suspense } from "react";
 import {
@@ -25,16 +22,21 @@ import {
   LuChevronDown,
   LuCirclePlus,
   LuCreditCard,
-  LuQrCode,
   LuShoppingCart,
   LuTicketX,
   LuTrash,
   LuTruck
 } from "react-icons/lu";
 import { RiProgress8Line } from "react-icons/ri";
-import { Await, Link, useNavigate, useParams } from "react-router";
+import {
+  Await,
+  Link,
+  useNavigate,
+  useNavigation,
+  useParams
+} from "react-router";
 import type { z } from "zod";
-import { DocumentHeader } from "~/components";
+import { DocumentHeader, PrintButton } from "~/components";
 import { useAuditLog } from "~/components/AuditLog";
 import {
   Combobox,
@@ -125,26 +127,7 @@ const ShipmentForm = ({
     hasShippableFaLines;
 
   const shipmentLineTracking = routeData?.shipmentLineTracking ?? [];
-  const hasTrackingLabels = shipmentLineTracking.some(
-    (line) => "Split Entity ID" in (line.attributes as TrackedEntityAttributes)
-  );
-
-  const navigateToTrackingLabels = (zpl?: boolean, labelSize?: string) => {
-    if (!window) return;
-    if (zpl) {
-      window.open(
-        window.location.origin +
-          path.to.file.shipmentLabelsZpl(shipmentId, { labelSize }),
-        "_blank"
-      );
-    } else {
-      window.open(
-        window.location.origin +
-          path.to.file.shipmentLabelsPdf(shipmentId, { labelSize }),
-        "_blank"
-      );
-    }
-  };
+  const hasTrackingLabels = shipmentLineTracking.length > 0;
 
   const createInvoice = (shipment?: Shipment) => {
     if (!shipment) return;
@@ -205,18 +188,16 @@ const ShipmentForm = ({
             actions={
               <>
                 {hasTrackingLabels && (
-                  <SplitButton
-                    leftIcon={<LuQrCode />}
-                    dropdownItems={labelSizes.map((size) => ({
-                      label: size.name,
-                      onClick: () =>
-                        navigateToTrackingLabels(!!size.zpl, size.id)
-                    }))}
-                    onClick={() => navigateToTrackingLabels(false)}
-                    variant="primary"
-                  >
-                    <Trans>Tracking Labels</Trans>
-                  </SplitButton>
+                  <PrintButton
+                    sourceDocument="Shipment"
+                    sourceDocumentId={shipmentId}
+                    locationId={locationId ?? undefined}
+                    context="shipping"
+                    fileRoutes={{
+                      pdf: path.to.file.shipmentLabelsPdf,
+                      zpl: path.to.file.shipmentLabelsZpl
+                    }}
+                  />
                 )}
                 <Button variant="secondary" leftIcon={<LuBarcode />} asChild>
                   <a
@@ -283,6 +264,7 @@ const ShipmentForm = ({
                 <Select
                   name="sourceDocument"
                   label={t`Source Document`}
+                  termId="shipment-source-document"
                   options={shipmentSourceDocumentType.map((v) => ({
                     label: v,
                     value: v
@@ -299,6 +281,7 @@ const ShipmentForm = ({
                 <Combobox
                   name="sourceDocumentId"
                   label={t`Source Document ID`}
+                  termId="shipment-source-document-id"
                   options={sourceDocuments.map((d) => ({
                     label: d.name,
                     value: d.id
@@ -411,6 +394,11 @@ function InvoiceButtons({
   isVoided: boolean;
   onCreateInvoice: (shipment?: Shipment) => void;
 }) {
+  const navigation = useNavigation();
+  const isInvoicing =
+    navigation.state !== "idle" &&
+    navigation.location?.pathname === path.to.newSalesInvoice;
+
   if (!shipment) return null;
 
   if (shipment.sourceDocument === "Sales Order") {
@@ -450,7 +438,7 @@ function InvoiceButtons({
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem
-                      disabled={!isPosted}
+                      disabled={!isPosted || isInvoicing}
                       onClick={() => onCreateInvoice(shipment)}
                     >
                       <DropdownMenuIcon icon={<LuCirclePlus />} />
@@ -475,7 +463,8 @@ function InvoiceButtons({
               <Button
                 leftIcon={<LuCreditCard />}
                 variant={isPosted && !isVoided ? "primary" : "secondary"}
-                isDisabled={!isPosted}
+                isDisabled={!isPosted || isInvoicing}
+                isLoading={isInvoicing}
                 onClick={() => onCreateInvoice(shipment)}
               >
                 <Trans>Invoice</Trans>
