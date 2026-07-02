@@ -8,9 +8,10 @@ import {
   jobMaterialValidator,
   recalculateJobMakeMethodRequirements,
   recalculateJobOperationDependencies,
+  replaceJobMaterialSteps,
   upsertJobMaterial
 } from "~/modules/production";
-import { setCustomFields } from "~/utils/form";
+import { getFormDataArray, setCustomFields } from "~/utils/form";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
@@ -65,6 +66,21 @@ export async function action({ request, params }: ActionFunctionArgs) {
         request,
         error(updateJobMaterial, "Failed to update job material")
       )
+    );
+  }
+
+  // Per-step assignment (part ↔ step is many-to-many). Read from formData directly and
+  // replace jobMaterialStep rows.
+  const jobOperationStepIds = getFormDataArray(formData, "jobOperationStepIds");
+  const stepLink = await replaceJobMaterialSteps(
+    client,
+    jobMaterialId,
+    jobOperationStepIds
+  );
+  if (stepLink.error) {
+    return data(
+      { id: jobMaterialId },
+      await flash(request, error(stepLink.error, "Failed to link part to steps"))
     );
   }
 

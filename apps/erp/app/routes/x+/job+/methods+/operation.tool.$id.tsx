@@ -4,8 +4,12 @@ import { flash } from "@carbon/auth/session.server";
 import { validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
-import { upsertJobOperationTool } from "~/modules/production";
+import {
+  replaceJobOperationToolSteps,
+  upsertJobOperationTool
+} from "~/modules/production";
 import { operationToolValidator } from "~/modules/shared";
+import { getFormDataArray } from "~/utils/form";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
@@ -26,6 +30,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   const { id: _id, ...d } = validation.data;
+
+  // Per-step assignment (tool ↔ step is many-to-many). Read from formData directly so the
+  // shared operationToolValidator stays tier-agnostic; links are written after the upsert.
+  const jobOperationStepIds = getFormDataArray(formData, "jobOperationStepIds");
 
   const update = await upsertJobOperationTool(client, {
     id,
@@ -56,6 +64,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
         request,
         error(update.error, "Failed to update job operation tool")
       )
+    );
+  }
+
+  const stepLink = await replaceJobOperationToolSteps(
+    client,
+    operationToolId,
+    jobOperationStepIds
+  );
+  if (stepLink.error) {
+    return data(
+      { id: operationToolId },
+      await flash(request, error(stepLink.error, "Failed to link tool to steps"))
     );
   }
 

@@ -4,8 +4,12 @@ import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
-import { upsertMethodOperationTool } from "~/modules/items";
+import {
+  replaceMethodOperationToolSteps,
+  upsertMethodOperationTool
+} from "~/modules/items";
 import { operationToolValidator } from "~/modules/shared";
+import { getFormDataArray } from "~/utils/form";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
@@ -20,14 +24,15 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return validationError(validation.error);
   }
 
-  // Optional per-step assignment (Phase 2). Read from formData directly so the shared
-  // operationToolValidator stays tier-agnostic (job/quote tools use a different column).
-  const methodOperationStepId =
-    (formData.get("methodOperationStepId") as string) || null;
+  // Per-step assignment (tool ↔ step is many-to-many). Read from formData directly so the
+  // shared operationToolValidator stays tier-agnostic; links are written after the upsert.
+  const methodOperationStepIds = getFormDataArray(
+    formData,
+    "methodOperationStepIds"
+  );
 
   const insert = await upsertMethodOperationTool(client, {
     ...validation.data,
-    methodOperationStepId,
     companyId,
     createdBy: userId
   });
@@ -53,6 +58,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
         request,
         error(insert.error, "Failed to insert method operation tool")
       )
+    );
+  }
+
+  const stepLink = await replaceMethodOperationToolSteps(
+    client,
+    methodOperationToolId,
+    methodOperationStepIds
+  );
+  if (stepLink.error) {
+    return data(
+      { id: methodOperationToolId },
+      await flash(request, error(stepLink.error, "Failed to link tool to steps"))
     );
   }
 

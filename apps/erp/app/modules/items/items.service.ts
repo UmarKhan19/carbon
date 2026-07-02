@@ -1413,7 +1413,7 @@ export async function getMethodMaterialsByMakeMethod(
   return client
     .from("methodMaterial")
     .select(
-      "*, item(name, itemTrackingType, replenishmentSystem, defaultMethodType, sourcingType)"
+      "*, item(name, itemTrackingType, replenishmentSystem, defaultMethodType, sourcingType), methodMaterialStep(methodOperationStepId)"
     )
     .eq("makeMethodId", makeMethodId)
     .order("order", { ascending: true });
@@ -1454,7 +1454,7 @@ export async function getMethodOperationsByMakeMethodId(
   return client
     .from("methodOperation")
     .select(
-      "*, methodOperationTool(*), methodOperationParameter(*), methodOperationStep(*, methodOperationStepSlide(*))"
+      "*, methodOperationTool(*, methodOperationToolStep(methodOperationStepId)), methodOperationParameter(*), methodOperationStep(*, methodOperationStepSlide(*))"
     )
     .eq("makeMethodId", makeMethodId)
     .order("order", { ascending: true });
@@ -3892,13 +3892,11 @@ export async function upsertMethodOperationTool(
     | (Omit<z.infer<typeof operationToolValidator>, "id"> & {
         companyId: string;
         createdBy: string;
-        methodOperationStepId?: string | null;
       })
     | (Omit<z.infer<typeof operationToolValidator>, "id"> & {
         id: string;
         updatedBy: string;
         updatedAt: string;
-        methodOperationStepId?: string | null;
       })
 ) {
   if ("createdBy" in methodOperationTool) {
@@ -3915,6 +3913,45 @@ export async function upsertMethodOperationTool(
     .eq("id", methodOperationTool.id)
     .select("id")
     .single();
+}
+
+// Replace a method tool's step links (tool ↔ step is many-to-many). No ids = the tool
+// applies to the whole operation (shown on every step in the MES). Delete-then-insert.
+export async function replaceMethodOperationToolSteps(
+  client: SupabaseClient<Database>,
+  methodOperationToolId: string,
+  methodOperationStepIds: string[]
+) {
+  const del = await client
+    .from("methodOperationToolStep")
+    .delete()
+    .eq("methodOperationToolId", methodOperationToolId);
+  if (del.error || methodOperationStepIds.length === 0) return del;
+  return client.from("methodOperationToolStep").insert(
+    methodOperationStepIds.map((methodOperationStepId) => ({
+      methodOperationToolId,
+      methodOperationStepId
+    }))
+  );
+}
+
+// Replace a method material's step links (part ↔ step, many-to-many). See above.
+export async function replaceMethodMaterialSteps(
+  client: SupabaseClient<Database>,
+  methodMaterialId: string,
+  methodOperationStepIds: string[]
+) {
+  const del = await client
+    .from("methodMaterialStep")
+    .delete()
+    .eq("methodMaterialId", methodMaterialId);
+  if (del.error || methodOperationStepIds.length === 0) return del;
+  return client.from("methodMaterialStep").insert(
+    methodOperationStepIds.map((methodOperationStepId) => ({
+      methodMaterialId,
+      methodOperationStepId
+    }))
+  );
 }
 
 export async function upsertMaterial(

@@ -14,6 +14,7 @@ import { getEmployeeJob } from "../people";
 import type {
   MethodType,
   operationParameterValidator,
+  operationStepSlideValidator,
   operationStepValidator,
   operationToolValidator
 } from "../shared";
@@ -471,6 +472,13 @@ export async function deleteJobOperationStep(
   id: string
 ) {
   return client.from("jobOperationStep").delete().eq("id", id);
+}
+
+export async function deleteJobOperationStepSlide(
+  client: SupabaseClient<Database>,
+  id: string
+) {
+  return client.from("jobOperationStepSlide").delete().eq("id", id);
 }
 
 export async function deleteJobOperationParameter(
@@ -1387,7 +1395,9 @@ export async function getJobMaterialsByMethodId(
 ) {
   return client
     .from("jobMaterial")
-    .select("*, item(replenishmentSystem)")
+    .select(
+      "*, item(replenishmentSystem), jobMaterialStep(jobOperationStepId)"
+    )
     .eq("jobMakeMethodId", jobMakeMethodId)
     .order("order", { ascending: true });
 }
@@ -1508,7 +1518,7 @@ export async function getJobOperationsByMethodId(
   return client
     .from("jobOperation")
     .select(
-      "*, jobOperationTool(*), jobOperationParameter(*), jobOperationStep(*, jobOperationStepRecord(*))"
+      "*, jobOperationTool(*, jobOperationToolStep(jobOperationStepId)), jobOperationParameter(*), jobOperationStep(*, jobOperationStepRecord(*), jobOperationStepSlide(*))"
     )
     .eq("jobMakeMethodId", jobMakeMethodId)
     .order("order", { ascending: true });
@@ -2951,6 +2961,38 @@ export async function upsertJobOperationStep(
     .single();
 }
 
+// Job-tier twin of upsertMethodOperationStepSlide (items.service.ts). Same generic
+// validator; `stepId` here is a jobOperationStep id. On update we sanitize() so an
+// omitted optional field (caption-only save) never wipes size/annotations.
+export async function upsertJobOperationStepSlide(
+  client: SupabaseClient<Database>,
+  slide:
+    | (Omit<z.infer<typeof operationStepSlideValidator>, "id"> & {
+        companyId: string;
+        createdBy: string;
+      })
+    | (Omit<z.infer<typeof operationStepSlideValidator>, "id"> & {
+        id: string;
+        updatedBy: string;
+        updatedAt: string;
+      })
+) {
+  if ("createdBy" in slide) {
+    return client
+      .from("jobOperationStepSlide")
+      .insert(slide)
+      .select("id")
+      .single();
+  }
+
+  return client
+    .from("jobOperationStepSlide")
+    .update(sanitize(slide))
+    .eq("id", slide.id)
+    .select("id")
+    .single();
+}
+
 export async function upsertJobOperationParameter(
   client: SupabaseClient<Database>,
   jobOperationParameter:
@@ -3007,6 +3049,45 @@ export async function upsertJobOperationTool(
     .eq("id", jobOperationTool.id)
     .select("id")
     .single();
+}
+
+// Replace a job tool's step links (part/tool ↔ step is many-to-many). No ids = the tool
+// applies to the whole operation (shown on every step in the MES). Delete-then-insert.
+export async function replaceJobOperationToolSteps(
+  client: SupabaseClient<Database>,
+  jobOperationToolId: string,
+  jobOperationStepIds: string[]
+) {
+  const del = await client
+    .from("jobOperationToolStep")
+    .delete()
+    .eq("jobOperationToolId", jobOperationToolId);
+  if (del.error || jobOperationStepIds.length === 0) return del;
+  return client.from("jobOperationToolStep").insert(
+    jobOperationStepIds.map((jobOperationStepId) => ({
+      jobOperationToolId,
+      jobOperationStepId
+    }))
+  );
+}
+
+// Replace a job material's step links (part ↔ step, many-to-many). See above.
+export async function replaceJobMaterialSteps(
+  client: SupabaseClient<Database>,
+  jobMaterialId: string,
+  jobOperationStepIds: string[]
+) {
+  const del = await client
+    .from("jobMaterialStep")
+    .delete()
+    .eq("jobMaterialId", jobMaterialId);
+  if (del.error || jobOperationStepIds.length === 0) return del;
+  return client.from("jobMaterialStep").insert(
+    jobOperationStepIds.map((jobOperationStepId) => ({
+      jobMaterialId,
+      jobOperationStepId
+    }))
+  );
 }
 
 export async function upsertJobMethod(

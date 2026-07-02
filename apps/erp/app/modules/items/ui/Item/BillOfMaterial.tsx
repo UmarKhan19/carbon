@@ -72,6 +72,7 @@ import {
   Hidden,
   Item,
   Location,
+  MultiSelect,
   Number,
   Select,
   StorageUnit,
@@ -666,7 +667,7 @@ function MaterialForm({
     description: string;
     unitOfMeasureCode: string;
     methodOperationId: string | undefined;
-    methodOperationStepId?: string | undefined;
+    methodOperationStepIds?: string[];
     quantity: number;
     kit: boolean;
     storageUnitIds: Record<string, string>;
@@ -680,7 +681,10 @@ function MaterialForm({
     description: item.data.description ?? "",
     unitOfMeasureCode: item.data.unitOfMeasureCode ?? "EA",
     methodOperationId: item.data.methodOperationId ?? undefined,
-    methodOperationStepId: item.data.methodOperationStepId ?? undefined,
+    methodOperationStepIds: (
+      (item.data as { methodMaterialStep?: { methodOperationStepId: string }[] })
+        .methodMaterialStep ?? []
+    ).map((s) => s.methodOperationStepId),
     quantity: item.data.quantity ?? 1,
     kit: item.data.kit ?? false,
     storageUnitIds: item.data.storageUnitIds ?? {},
@@ -1112,14 +1116,14 @@ function MaterialForm({
               setItemData((d) => ({
                 ...d,
                 methodOperationId: value?.value,
-                // Step belongs to an operation — clear it when the operation changes.
-                methodOperationStepId: undefined
+                // Steps belong to an operation — clear them when the operation changes.
+                methodOperationStepIds: []
               }));
             }}
           />
-          {/* Phase 2 (part ↔ step): scope this material to a single step of the chosen
-              operation so the MES shows only the parts involved in that step. Empty =
-              whole operation. */}
+          {/* Phase 2 (part ↔ step, many-to-many): scope this material to any subset of the
+              chosen operation's steps so the MES shows only the parts involved in those
+              steps. No selection = whole operation. */}
           {(() => {
             const operationSteps =
               methodOperations.find(
@@ -1127,18 +1131,18 @@ function MaterialForm({
               )?.methodOperationStep ?? [];
             if (operationSteps.length === 0) return null;
             return (
-              <Select
-                name="methodOperationStepId"
-                label={t`Step`}
-                isOptional
+              <MultiSelect
+                name="methodOperationStepIds"
+                label={t`Steps`}
+                value={itemData.methodOperationStepIds ?? []}
                 options={operationSteps.map((s) => ({
                   value: s.id,
                   label: s.name ?? t`Step`
                 }))}
-                onChange={(value) =>
+                onChange={(values) =>
                   setItemData((d) => ({
                     ...d,
-                    methodOperationStepId: value?.value
+                    methodOperationStepIds: (values ?? []).map((v) => v.value)
                   }))
                 }
               />

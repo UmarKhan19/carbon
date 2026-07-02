@@ -365,8 +365,8 @@ export const methodMaterialValidator = z.object({
   }),
   itemId: z.string().optional(),
   methodOperationId: zfd.text(z.string().optional()),
-  // Optional per-step assignment (Phase 2: part ↔ step). Null = whole operation.
-  methodOperationStepId: zfd.text(z.string().optional()),
+  // Per-step assignment (Phase 2: part ↔ step) is many-to-many: the route reads
+  // formData.getAll("methodOperationStepIds") and writes methodMaterialStep rows.
   // description: z.string().min(1, { message: "Description is required" }),
   quantity: zfd.numeric(z.number().min(0)),
   unitOfMeasureCode: z

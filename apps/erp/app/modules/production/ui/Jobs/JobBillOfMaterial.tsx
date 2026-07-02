@@ -57,6 +57,7 @@ import {
   Hidden,
   InputControlled,
   Item,
+  MultiSelect,
   Number,
   NumberControlled,
   Select,
@@ -92,7 +93,11 @@ type Material = z.infer<typeof jobMaterialValidator> & {
   } | null;
 };
 
-type Operation = z.infer<typeof jobOperationValidator>;
+type Operation = z.infer<typeof jobOperationValidator> & {
+  // The same operations data BillOfProcess gets — carries its steps at runtime, so the BoM
+  // editor can offer a per-step assignment. Narrow type, optional here.
+  jobOperationStep?: { id: string; name: string | null }[];
+};
 
 type ItemWithData = SortableItem & {
   data: Material;
@@ -704,6 +709,7 @@ function MaterialForm({
     methodType: MethodType;
     description: string;
     jobOperationId: string;
+    jobOperationStepIds?: string[];
     unitCost: number;
     unitOfMeasureCode: string;
     quantity: number;
@@ -717,6 +723,10 @@ function MaterialForm({
     methodType: item.data.methodType ?? "Pull from Inventory",
     description: item.data.description ?? "",
     jobOperationId: item.data.jobOperationId ?? "",
+    jobOperationStepIds: (
+      (item.data as { jobMaterialStep?: { jobOperationStepId: string }[] })
+        .jobMaterialStep ?? []
+    ).map((s) => s.jobOperationStepId),
     unitCost: item.data.unitCost ?? 0,
     unitOfMeasureCode: item.data.unitOfMeasureCode ?? "EA",
     quantity: item.data.quantity ?? 1,
@@ -1051,10 +1061,38 @@ function MaterialForm({
             onChange={(newValue) => {
               setItemData((d) => ({
                 ...d,
-                jobOperationId: newValue?.value as string
+                jobOperationId: newValue?.value as string,
+                // Steps belong to an operation — clear them when the operation changes.
+                jobOperationStepIds: []
               }));
             }}
           />
+          {/* Part ↔ step (many-to-many): scope this material to any subset of the chosen
+              operation's steps so the MES shows only the parts involved in those steps.
+              No selection = whole operation. */}
+          {(() => {
+            const operationSteps =
+              jobOperations.find((o) => o.id === itemData.jobOperationId)
+                ?.jobOperationStep ?? [];
+            if (operationSteps.length === 0) return null;
+            return (
+              <MultiSelect
+                name="jobOperationStepIds"
+                label={t`Steps`}
+                value={itemData.jobOperationStepIds ?? []}
+                options={operationSteps.map((s) => ({
+                  value: s.id,
+                  label: s.name ?? t`Step`
+                }))}
+                onChange={(values) =>
+                  setItemData((d) => ({
+                    ...d,
+                    jobOperationStepIds: (values ?? []).map((v) => v.value)
+                  }))
+                }
+              />
+            );
+          })()}
         </div>
       </div>
 

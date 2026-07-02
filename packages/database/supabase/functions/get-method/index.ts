@@ -98,6 +98,18 @@ async function copyStepSlides(
   }
 }
 
+// Many-to-many step links (Phase 2): remap a parent's OLD operation-step ids onto the freshly
+// inserted step ids via stepMap, dropping any that don't map. Empty in = the parent applies to
+// the whole operation (no join rows, shown on every step in the MES).
+function remapStepIds(
+  oldIds: Array<string | null | undefined> | null | undefined,
+  stepMap: Record<string, string>,
+): string[] {
+  return (oldIds ?? []).flatMap((id) =>
+    id && stepMap[id] ? [stepMap[id]] : []
+  );
+}
+
 const partsValidator = z.object({
   billOfMaterial: z.boolean().default(true),
   billOfProcess: z.boolean().default(true),
@@ -614,7 +626,7 @@ serve(async (req: Request) => {
             const relatedOperations = await client
               .from("methodOperation")
               .select(
-                "*, methodOperationTool(*), methodOperationParameter(*), methodOperationStep(*)"
+                "*, methodOperationTool(*, methodOperationToolStep(*)), methodOperationParameter(*), methodOperationStep(*)"
               )
               .eq("makeMethodId", node.data.materialMakeMethodId);
 
@@ -868,30 +880,51 @@ serve(async (req: Request) => {
                   }
 
                   // Tools after steps (Phase 2): the method-step -> job-step map is now
-                  // populated, so a tool scoped to a step carries that link onto the job
-                  // via jobOperationStepId. Null (unscoped) = the whole operation, shown on
-                  // every step in the MES. Mirrors the material part ↔ step copy above.
+                  // populated, so a tool scoped to steps carries those links onto the job via
+                  // jobOperationToolStep. Mirrors the material part ↔ step copy above.
                   if (
                     (!node.data.isRoot || parts.tools) &&
                     Array.isArray(methodOperationTool) &&
                     methodOperationTool.length > 0
                   ) {
-                    await trx
+                    const insertedTools = await trx
                       .insertInto("jobOperationTool")
                       .values(
                         methodOperationTool.map((tool) => ({
                           toolId: tool.toolId,
                           quantity: tool.quantity,
                           operationId,
-                          jobOperationStepId: tool.methodOperationStepId
-                            ? methodStepsToJobSteps[tool.methodOperationStepId] ??
-                              null
-                            : null,
                           companyId,
                           createdBy: userId,
                         }))
                       )
+                      .returning(["id"])
                       .execute();
+
+                    // Tool ↔ step links (Phase 2, many-to-many). Bulk insert preserves order,
+                    // so insertedTools[i] ↔ methodOperationTool[i]. A tool with no links applies
+                    // to the whole operation (shown on every step in the MES).
+                    const toolStepRows = methodOperationTool.flatMap((tool, i) => {
+                      const jobOperationToolId = insertedTools[i]?.id;
+                      if (!jobOperationToolId) return [];
+                      const oldStepIds = (
+                        (tool.methodOperationToolStep ?? []) as Array<{
+                          methodOperationStepId: string | null;
+                        }>
+                      ).map((l) => l.methodOperationStepId);
+                      return remapStepIds(oldStepIds, methodStepsToJobSteps).map(
+                        (jobOperationStepId) => ({
+                          jobOperationToolId,
+                          jobOperationStepId,
+                        })
+                      );
+                    });
+                    if (toolStepRows.length > 0) {
+                      await trx
+                        .insertInto("jobOperationToolStep")
+                        .values(toolStepRows)
+                        .execute();
+                    }
                   }
                 }
               }
@@ -1027,11 +1060,13 @@ serve(async (req: Request) => {
                 jobMakeMethodId: parentJobMakeMethodId!,
                 jobOperationId:
                   methodOperationsToJobOperations[child.data.operationId],
-                jobOperationStepId:
-                  methodStepsToJobSteps[
-                    (child.data as { methodOperationStepId?: string | null })
-                      .methodOperationStepId ?? ""
-                  ] ?? null,
+                // Transient (Phase 2, many-to-many): the part ↔ step links, remapped onto the
+                // job's steps. Stripped before insert; used to build jobMaterialStep rows.
+                __stepIds: remapStepIds(
+                  (child.data as { methodOperationStepIds?: string[] | null })
+                    .methodOperationStepIds,
+                  methodStepsToJobSteps
+                ),
                 itemId,
                 itemType,
                 kit: child.data.kit,
@@ -1130,8 +1165,33 @@ serve(async (req: Request) => {
 
               await trx
                 .insertInto("jobMaterial")
-                .values(madeMaterialsWithIds)
+                .values(
+                  madeMaterialsWithIds.map((m) => {
+                    const { __stepIds, ...rest } = m as typeof m & {
+                      __stepIds?: string[];
+                    };
+                    return rest;
+                  })
+                )
                 .execute();
+
+              // Part ↔ step links (Phase 2, many-to-many): the transient __stepIds carried the
+              // remapped job step ids; write them to jobMaterialStep now that the material id
+              // exists. No links = whole operation (shown on every step in the MES).
+              const madeStepRows = madeMaterialsWithIds.flatMap((m) =>
+                ((m as { __stepIds?: string[] }).__stepIds ?? []).map(
+                  (jobOperationStepId) => ({
+                    jobMaterialId: m.id,
+                    jobOperationStepId,
+                  })
+                )
+              );
+              if (madeStepRows.length > 0) {
+                await trx
+                  .insertInto("jobMaterialStep")
+                  .values(madeStepRows)
+                  .execute();
+              }
 
               for (const [index, child] of madeChildren.entries()) {
                 const materialId = madeMaterialsWithIds[index].id;
@@ -1191,10 +1251,38 @@ serve(async (req: Request) => {
             }
 
             if (pickedOrBoughtMaterials.length > 0) {
+              // Assign ids up front so part ↔ step links (Phase 2, many-to-many) can reference
+              // each row; strip the transient __stepIds before inserting the material.
+              const pickedWithIds = pickedOrBoughtMaterials.map((m) => ({
+                ...m,
+                id: (m as { id?: string }).id ?? nanoid(),
+              }));
               await trx
                 .insertInto("jobMaterial")
-                .values(pickedOrBoughtMaterials)
+                .values(
+                  pickedWithIds.map((m) => {
+                    const { __stepIds, ...rest } = m as typeof m & {
+                      __stepIds?: string[];
+                    };
+                    return rest;
+                  })
+                )
                 .execute();
+
+              const pickedStepRows = pickedWithIds.flatMap((m) =>
+                ((m as { __stepIds?: string[] }).__stepIds ?? []).map(
+                  (jobOperationStepId) => ({
+                    jobMaterialId: m.id,
+                    jobOperationStepId,
+                  })
+                )
+              );
+              if (pickedStepRows.length > 0) {
+                await trx
+                  .insertInto("jobMaterialStep")
+                  .values(pickedStepRows)
+                  .execute();
+              }
             }
             } // end if (parts.billOfMaterial)
           }
@@ -1390,7 +1478,7 @@ serve(async (req: Request) => {
             const relatedOperations = await client
               .from("methodOperation")
               .select(
-                "*, methodOperationTool(*), methodOperationParameter(*), methodOperationStep(*)"
+                "*, methodOperationTool(*, methodOperationToolStep(*)), methodOperationParameter(*), methodOperationStep(*)"
               )
               .eq("makeMethodId", node.data.materialMakeMethodId);
 
@@ -1525,30 +1613,51 @@ serve(async (req: Request) => {
                   }
 
                   // Tools after steps (Phase 2): the method-step -> job-step map is now
-                  // populated, so a tool scoped to a step carries that link onto the job
-                  // via jobOperationStepId. Null (unscoped) = the whole operation, shown on
-                  // every step in the MES. Mirrors the material part ↔ step copy above.
+                  // populated, so a tool scoped to steps carries those links onto the job via
+                  // jobOperationToolStep. Mirrors the material part ↔ step copy above.
                   if (
                     parts.tools &&
                     Array.isArray(methodOperationTool) &&
                     methodOperationTool.length > 0
                   ) {
-                    await trx
+                    const insertedTools = await trx
                       .insertInto("jobOperationTool")
                       .values(
                         methodOperationTool.map((tool) => ({
                           toolId: tool.toolId,
                           quantity: tool.quantity,
                           operationId,
-                          jobOperationStepId: tool.methodOperationStepId
-                            ? methodStepsToJobSteps[tool.methodOperationStepId] ??
-                              null
-                            : null,
                           companyId,
                           createdBy: userId,
                         }))
                       )
+                      .returning(["id"])
                       .execute();
+
+                    // Tool ↔ step links (Phase 2, many-to-many). Bulk insert preserves order,
+                    // so insertedTools[i] ↔ methodOperationTool[i]. A tool with no links applies
+                    // to the whole operation (shown on every step in the MES).
+                    const toolStepRows = methodOperationTool.flatMap((tool, i) => {
+                      const jobOperationToolId = insertedTools[i]?.id;
+                      if (!jobOperationToolId) return [];
+                      const oldStepIds = (
+                        (tool.methodOperationToolStep ?? []) as Array<{
+                          methodOperationStepId: string | null;
+                        }>
+                      ).map((l) => l.methodOperationStepId);
+                      return remapStepIds(oldStepIds, methodStepsToJobSteps).map(
+                        (jobOperationStepId) => ({
+                          jobOperationToolId,
+                          jobOperationStepId,
+                        })
+                      );
+                    });
+                    if (toolStepRows.length > 0) {
+                      await trx
+                        .insertInto("jobOperationToolStep")
+                        .values(toolStepRows)
+                        .execute();
+                    }
                   }
                 }
               }
@@ -1601,11 +1710,13 @@ serve(async (req: Request) => {
                 jobMakeMethodId: parentJobMakeMethodId!,
                 jobOperationId:
                   methodOperationsToJobOperations[child.data.operationId],
-                jobOperationStepId:
-                  methodStepsToJobSteps[
-                    (child.data as { methodOperationStepId?: string | null })
-                      .methodOperationStepId ?? ""
-                  ] ?? null,
+                // Transient (Phase 2, many-to-many): the part ↔ step links, remapped onto the
+                // job's steps. Stripped before insert; used to build jobMaterialStep rows.
+                __stepIds: remapStepIds(
+                  (child.data as { methodOperationStepIds?: string[] | null })
+                    .methodOperationStepIds,
+                  methodStepsToJobSteps
+                ),
                 itemId: child.data.itemId,
                 kit: child.data.kit,
                 itemType: child.data.itemType,
@@ -1685,8 +1796,33 @@ serve(async (req: Request) => {
 
               await trx
                 .insertInto("jobMaterial")
-                .values(madeMaterialsWithIds)
+                .values(
+                  madeMaterialsWithIds.map((m) => {
+                    const { __stepIds, ...rest } = m as typeof m & {
+                      __stepIds?: string[];
+                    };
+                    return rest;
+                  })
+                )
                 .execute();
+
+              // Part ↔ step links (Phase 2, many-to-many): the transient __stepIds carried the
+              // remapped job step ids; write them to jobMaterialStep now that the material id
+              // exists. No links = whole operation (shown on every step in the MES).
+              const madeStepRows = madeMaterialsWithIds.flatMap((m) =>
+                ((m as { __stepIds?: string[] }).__stepIds ?? []).map(
+                  (jobOperationStepId) => ({
+                    jobMaterialId: m.id,
+                    jobOperationStepId,
+                  })
+                )
+              );
+              if (madeStepRows.length > 0) {
+                await trx
+                  .insertInto("jobMaterialStep")
+                  .values(madeStepRows)
+                  .execute();
+              }
 
               const madeChildren = node.children.filter(
                 (child) => child.data.methodType === "Make to Order"
@@ -1739,10 +1875,38 @@ serve(async (req: Request) => {
             }
 
             if (pickedOrBoughtMaterials.length > 0) {
+              // Assign ids up front so part ↔ step links (Phase 2, many-to-many) can reference
+              // each row; strip the transient __stepIds before inserting the material.
+              const pickedWithIds = pickedOrBoughtMaterials.map((m) => ({
+                ...m,
+                id: (m as { id?: string }).id ?? nanoid(),
+              }));
               await trx
                 .insertInto("jobMaterial")
-                .values(pickedOrBoughtMaterials)
+                .values(
+                  pickedWithIds.map((m) => {
+                    const { __stepIds, ...rest } = m as typeof m & {
+                      __stepIds?: string[];
+                    };
+                    return rest;
+                  })
+                )
                 .execute();
+
+              const pickedStepRows = pickedWithIds.flatMap((m) =>
+                ((m as { __stepIds?: string[] }).__stepIds ?? []).map(
+                  (jobOperationStepId) => ({
+                    jobMaterialId: m.id,
+                    jobOperationStepId,
+                  })
+                )
+              );
+              if (pickedStepRows.length > 0) {
+                await trx
+                  .insertInto("jobMaterialStep")
+                  .values(pickedStepRows)
+                  .execute();
+              }
             }
             } // end if (parts.billOfMaterial)
           }

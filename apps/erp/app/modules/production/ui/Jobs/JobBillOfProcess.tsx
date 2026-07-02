@@ -104,6 +104,7 @@ import Activity from "~/components/Activity";
 import {
   Hidden,
   InputControlled,
+  MultiSelect,
   Number,
   NumberControlled,
   Process,
@@ -125,6 +126,7 @@ import UnitOfMeasure, {
 import { ProcedureStepTypeIcon } from "~/components/Icons";
 import InfiniteScroll from "~/components/InfiniteScroll";
 import { ConfirmDelete } from "~/components/Modals";
+import { SlidesEditor } from "~/components/SlidesEditor";
 import type { Item, SortableItemRenderProps } from "~/components/SortableList";
 import { SortableList, SortableListItem } from "~/components/SortableList";
 import {
@@ -137,7 +139,10 @@ import {
 import type {
   OperationParameter,
   OperationStep,
-  OperationTool
+  OperationStepSlide,
+  OperationTool,
+  SlideAnnotation,
+  SlideSize
 } from "~/modules/shared";
 import {
   methodOperationOrders,
@@ -183,6 +188,7 @@ type JobOperationStep = OperationStep & {
   jobOperationStepRecord?:
     | Database["public"]["Tables"]["jobOperationStepRecord"]["Row"][]
     | null;
+  jobOperationStepSlide?: OperationStepSlide[] | null;
 };
 
 type JobMaterial = {
@@ -920,6 +926,7 @@ const JobBillOfProcess = ({
               }
               temporaryItems={temporaryItems}
               materials={materials}
+              tools={tools}
             />
           </div>
         )
@@ -945,6 +952,7 @@ const JobBillOfProcess = ({
                 selectedItemId === null || !!temporaryItems[selectedItemId]
               }
               temporaryItems={temporaryItems}
+              steps={steps}
             />
           </div>
         )
@@ -1126,16 +1134,19 @@ function StepsForm({
   isDisabled,
   steps,
   temporaryItems,
-  materials
+  materials,
+  tools
 }: {
   operationId: string;
   isDisabled: boolean;
   steps: JobOperationStep[];
   temporaryItems: TemporaryItems;
   materials: JobMaterial[];
+  tools: OperationTool[];
 }) {
   const fetcher = useFetcher<typeof newJobOperationParameterAction>();
   const { t } = useLingui();
+  const revalidator = useRevalidator();
   const sortOrderFetcher = useFetcher<{ success: boolean }>();
   const [type, setType] = useState<OperationStep["type"]>("Task");
   const [description, setDescription] = useState<JSONContent>({});
@@ -1200,9 +1211,41 @@ function StepsForm({
 
   const { carbon } = useCarbon();
   const {
+    id: userId,
     company: { id: companyId }
   } = useUser();
   const [allItems] = useItems();
+  const allTools = useTools();
+
+  // Tools on this operation, deduped by toolId, names resolved from the tools store —
+  // passed to the annotator so a pin can be linked to one (smart hotspot).
+  const toolOptions = useMemo(() => {
+    const seen = new Set<string>();
+    const opts: { id: string; name: string }[] = [];
+    for (const ot of tools) {
+      if (!ot.toolId || seen.has(ot.toolId)) continue;
+      seen.add(ot.toolId);
+      opts.push({
+        id: ot.toolId,
+        name: allTools.find((tl) => tl.id === ot.toolId)?.name ?? ot.toolId
+      });
+    }
+    return opts;
+  }, [tools, allTools]);
+
+  // Slides chosen while creating a step are buffered here (the step has no id yet); they're
+  // attached to the new step right after it's created. See the effect below.
+  const [draftSlides, setDraftSlides] = useState<
+    {
+      id: string;
+      imagePath: string;
+      caption: string;
+      size: SlideSize;
+      annotations: SlideAnnotation[];
+    }[]
+  >([]);
+  const [draftUploading, setDraftUploading] = useState(false);
+  const draftFileInputRef = useRef<HTMLInputElement>(null);
 
   const materialItemIds = useMemo(
     () => new Set((materials ?? []).map((m) => m.itemId)),
@@ -1238,6 +1281,69 @@ function StepsForm({
 
     return getPrivateUrl(result.data.path);
   };
+
+  const onAddDraftSlide = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !carbon) return;
+    setDraftUploading(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const fileName = `${companyId}/parts/${nanoid()}.${ext}`;
+      const result = await carbon.storage
+        .from("private")
+        .upload(fileName, file);
+      if (result.error || !result.data) {
+        toast.error(t`Failed to upload image`);
+        return;
+      }
+      setDraftSlides((prev) => [
+        ...prev,
+        {
+          id: nanoid(),
+          imagePath: result.data.path,
+          caption: "",
+          size: "medium",
+          annotations: []
+        }
+      ]);
+    } finally {
+      setDraftUploading(false);
+    }
+  };
+
+  // When the new step is created, attach any buffered slides to it, then revalidate so they
+  // show on the step and reset the buffer for the next step.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: keyed off the created step id
+  useEffect(() => {
+    const newStepId = (fetcher.data as { id?: string | null } | undefined)?.id;
+    if (!newStepId || draftSlides.length === 0 || !carbon) return;
+    let cancelled = false;
+    (async () => {
+      const { error } = await carbon.from("jobOperationStepSlide").insert(
+        draftSlides.map((slide, index) => ({
+          stepId: newStepId,
+          imagePath: slide.imagePath,
+          caption: slide.caption || null,
+          sortOrder: index + 1,
+          size: slide.size,
+          annotations: slide.annotations,
+          companyId,
+          createdBy: userId
+        }))
+      );
+      if (cancelled) return;
+      if (error) {
+        toast.error(t`Failed to save slides`);
+        return;
+      }
+      setDraftSlides([]);
+      revalidator.revalidate();
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [fetcher.data]);
 
   if (isDisabled && temporaryItems[operationId]) {
     return (
@@ -1369,6 +1475,45 @@ function StepsForm({
                 <ArrayInput name="listValues" label={t`List Options`} />
               )}
 
+              <SlidesEditor
+                slides={draftSlides.map((slide) => ({
+                  key: slide.id,
+                  imagePath: slide.imagePath,
+                  caption: slide.caption,
+                  size: slide.size,
+                  annotations: slide.annotations
+                }))}
+                toolOptions={toolOptions}
+                isDisabled={isDisabled}
+                busy={draftUploading}
+                fileInputRef={draftFileInputRef}
+                onFileChange={onAddDraftSlide}
+                onRemove={(index) =>
+                  setDraftSlides((prev) => prev.filter((_, i) => i !== index))
+                }
+                onCaptionBlur={(index, caption) =>
+                  setDraftSlides((prev) =>
+                    prev.map((slide, i) =>
+                      i === index ? { ...slide, caption } : slide
+                    )
+                  )
+                }
+                onSizeChange={(index, size) =>
+                  setDraftSlides((prev) =>
+                    prev.map((slide, i) =>
+                      i === index ? { ...slide, size } : slide
+                    )
+                  )
+                }
+                onAnnotationsChange={(index, annotations) =>
+                  setDraftSlides((prev) =>
+                    prev.map((slide, i) =>
+                      i === index ? { ...slide, annotations } : slide
+                    )
+                  )
+                }
+              />
+
               <Submit
                 leftIcon={<LuCirclePlus />}
                 isDisabled={isDisabled || fetcher.state !== "idle"}
@@ -1413,6 +1558,7 @@ function StepsForm({
                       isDisabled={isDisabled}
                       dragControls={dragControls}
                       itemMentions={itemMentions}
+                      toolOptions={toolOptions}
                       className={
                         index === sortOrder.length - 1 ? "border-none" : ""
                       }
@@ -1425,6 +1571,124 @@ function StepsForm({
         </div>
       )}
     </Loading>
+  );
+}
+
+// Reference images ("slides") for an EXISTING job step — upload, caption, resize, annotate,
+// delete; persisted immediately via the job slide routes. Job-tier twin of the item
+// StepSlides (BillOfProcess); reuses the shared SlidesEditor. Lets an operator's reference
+// content be corrected on the job without recreating it, since the MES reads the job copy.
+function JobStepSlides({
+  step,
+  toolOptions,
+  isDisabled
+}: {
+  step: JobOperationStep;
+  toolOptions: { id: string; name: string }[];
+  isDisabled: boolean;
+}) {
+  const { t } = useLingui();
+  const fetcher = useFetcher();
+  const captionFetcher = useFetcher();
+  const { carbon } = useCarbon();
+  const {
+    company: { id: companyId }
+  } = useUser();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const slides = ((step.jobOperationStepSlide ?? []) as OperationStepSlide[])
+    .slice()
+    .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+
+  const onAddFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !carbon || !step.id) return;
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const fileName = `${companyId}/parts/${nanoid()}.${ext}`;
+      const result = await carbon.storage
+        .from("private")
+        .upload(fileName, file);
+      if (result.error || !result.data) {
+        toast.error(t`Failed to upload image`);
+        return;
+      }
+      const fd = new FormData();
+      fd.append("stepId", step.id);
+      fd.append("imagePath", result.data.path);
+      fd.append(
+        "sortOrder",
+        String(slides.reduce((m, s) => Math.max(m, s.sortOrder ?? 0), 0) + 1)
+      );
+      fetcher.submit(fd, {
+        method: "post",
+        action: path.to.newJobOperationStepSlide
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // Update one slide: always carries the required fields (id → the route updates rather than
+  // inserts; stepId/imagePath satisfy the validator) plus whatever changed. Fields not sent
+  // are preserved, so a caption edit never wipes size/annotations and vice-versa.
+  function saveSlide(
+    slide: OperationStepSlide,
+    fields: Record<string, string>
+  ) {
+    const fd = new FormData();
+    fd.append("id", slide.id);
+    fd.append("stepId", slide.stepId);
+    fd.append("imagePath", slide.imagePath);
+    fd.append("sortOrder", String(slide.sortOrder ?? 1));
+    for (const [key, value] of Object.entries(fields)) fd.append(key, value);
+    captionFetcher.submit(fd, {
+      method: "post",
+      action: path.to.newJobOperationStepSlide
+    });
+  }
+
+  return (
+    <SlidesEditor
+      slides={slides.map((s) => ({
+        key: s.id,
+        imagePath: s.imagePath,
+        caption: s.caption,
+        size: s.size,
+        annotations: s.annotations
+      }))}
+      toolOptions={toolOptions}
+      isDisabled={isDisabled}
+      busy={uploading || fetcher.state !== "idle"}
+      fileInputRef={fileInputRef}
+      onFileChange={onAddFile}
+      onRemove={(index) => {
+        const slide = slides[index];
+        if (!slide) return;
+        fetcher.submit(null, {
+          method: "post",
+          action: path.to.deleteJobOperationStepSlide(slide.id)
+        });
+      }}
+      onCaptionBlur={(index, caption) => {
+        const slide = slides[index];
+        if (slide && (slide.caption ?? "") !== caption)
+          saveSlide(slide, { caption });
+      }}
+      onSizeChange={(index, size) => {
+        const slide = slides[index];
+        if (slide && (slide.size ?? "medium") !== size)
+          saveSlide(slide, { size });
+      }}
+      onAnnotationsChange={(index, annotations) => {
+        const slide = slides[index];
+        if (slide)
+          saveSlide(slide, { annotations: JSON.stringify(annotations) });
+      }}
+    />
   );
 }
 
@@ -1457,6 +1721,7 @@ function StepsListItem({
   isDisabled = false,
   dragControls,
   itemMentions,
+  toolOptions,
   className
 }: {
   attribute: JobOperationStep;
@@ -1465,6 +1730,7 @@ function StepsListItem({
   isDisabled?: boolean;
   dragControls?: DragControls;
   itemMentions: { id: string; label: string }[];
+  toolOptions: { id: string; name: string }[];
   className?: string;
 }) {
   const {
@@ -1649,6 +1915,11 @@ function StepsListItem({
             {type === "List" && (
               <ArrayInput name="listValues" label={t`List Options`} />
             )}
+            <JobStepSlides
+              step={attribute}
+              toolOptions={toolOptions}
+              isDisabled={isDisabled}
+            />
             <HStack className="w-full justify-end" spacing={2}>
               <Button variant="secondary" onClick={disclosure.onClose}>
                 Cancel
@@ -3075,12 +3346,23 @@ const ProductionEventActivity = ({ item }: ProductionEventActivityProps) => {
 };
 
 function ToolsListItem({
-  tool: { toolId, quantity, id, updatedBy, updatedAt, createdBy, createdAt },
+  tool: {
+    toolId,
+    quantity,
+    id,
+    jobOperationStepIds,
+    updatedBy,
+    updatedAt,
+    createdBy,
+    createdAt
+  },
   operationId,
+  steps,
   className
 }: {
   tool: OperationTool;
   operationId: string;
+  steps: JobOperationStep[];
   className?: string;
 }) {
   const { formatRelativeTime } = useDateFormatter();
@@ -3122,7 +3404,11 @@ function ToolsListItem({
             id: id,
             toolId: toolId ?? "",
             quantity: quantity ?? 1,
-            operationId
+            operationId,
+            // jobOperationStepIds isn't in the tier-agnostic validator; spread it in
+            // (bypasses excess-property check) so the Step picker pre-selects the tool's
+            // current steps. The edit route reads them from formData directly.
+            jobOperationStepIds: jobOperationStepIds ?? []
           }}
           className="w-full"
         >
@@ -3132,6 +3418,20 @@ function ToolsListItem({
               <Tool name="toolId" label={t`Tool`} autoFocus />
               <Number name="quantity" label={t`Quantity`} />
             </div>
+
+            {/* Optionally scope this tool to a single step. Empty = the whole operation,
+                shown on every step in the MES. Mirrors the add form. */}
+            {steps.length > 0 && (
+              <MultiSelect
+                name="jobOperationStepIds"
+                label={t`Steps`}
+                options={steps.map((s) => ({
+                  value: s.id ?? "",
+                  label: s.name ?? t`Step`
+                }))}
+              />
+            )}
+
             <HStack className="w-full justify-end" spacing={2}>
               <Button variant="secondary" onClick={disclosure.onClose}>
                 Cancel
@@ -3217,12 +3517,14 @@ function ToolsForm({
   operationId,
   isDisabled,
   tools,
-  temporaryItems
+  temporaryItems,
+  steps
 }: {
   operationId: string;
   isDisabled: boolean;
   tools: OperationTool[];
   temporaryItems: TemporaryItems;
+  steps: JobOperationStep[];
 }) {
   const fetcher = useFetcher<typeof newJobOperationToolAction>();
   const { t } = useLingui();
@@ -3265,6 +3567,19 @@ function ToolsForm({
               <Number name="quantity" label={t`Quantity`} />
             </div>
 
+            {/* Optionally scope this tool to a single step. Empty = the whole operation,
+                shown on every step in the MES. */}
+            {steps.length > 0 && (
+              <MultiSelect
+                name="jobOperationStepIds"
+                label={t`Steps`}
+                options={steps.map((s) => ({
+                  value: s.id ?? "",
+                  label: s.name ?? t`Step`
+                }))}
+              />
+            )}
+
             <Submit
               leftIcon={<LuCirclePlus />}
               isDisabled={isDisabled || fetcher.state !== "idle"}
@@ -3285,8 +3600,19 @@ function ToolsForm({
             .map((t, index) => (
               <ToolsListItem
                 key={t.id}
-                tool={t}
+                tool={{
+                  ...t,
+                  // Flatten the embedded jobOperationToolStep join rows into the plural id
+                  // array the form + list item expect (tool ↔ step, many-to-many).
+                  jobOperationStepIds:
+                    t.jobOperationStepIds ??
+                    (
+                      (t as { jobOperationToolStep?: { jobOperationStepId: string }[] })
+                        .jobOperationToolStep ?? []
+                    ).map((s) => s.jobOperationStepId)
+                }}
                 operationId={operationId}
+                steps={steps}
                 className={index === tools.length - 1 ? "border-none" : ""}
               />
             ))}

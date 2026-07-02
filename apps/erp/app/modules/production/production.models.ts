@@ -656,6 +656,8 @@ const baseMaterialValidator = z.object({
 export const jobMaterialValidator = baseMaterialValidator
   .extend({
     jobOperationId: zfd.text(z.string().optional())
+    // Per-step assignment (part ↔ step) is many-to-many: the route reads
+    // formData.getAll("jobOperationStepIds") and writes jobMaterialStep rows.
   })
   .refine(
     (data) => {
@@ -709,6 +711,8 @@ export const jobMaterialValidator = baseMaterialValidator
 export const jobMaterialValidatorForReleasedJob = baseMaterialValidator
   .extend({
     jobOperationId: z.string().min(1, { message: "Operation is required" })
+    // Per-step assignment (part ↔ step) is many-to-many: the route reads
+    // formData.getAll("jobOperationStepIds") and writes jobMaterialStep rows.
   })
   .refine(
     (data) => {

@@ -4,8 +4,12 @@ import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
-import { methodMaterialValidator, upsertMethodMaterial } from "~/modules/items";
-import { setCustomFields } from "~/utils/form";
+import {
+  methodMaterialValidator,
+  replaceMethodMaterialSteps,
+  upsertMethodMaterial
+} from "~/modules/items";
+import { getFormDataArray, setCustomFields } from "~/utils/form";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
@@ -56,6 +60,24 @@ export async function action({ request, params }: ActionFunctionArgs) {
         request,
         error(updateMethodMaterial, "Failed to update method material")
       )
+    );
+  }
+
+  // Per-step assignment (part ↔ step is many-to-many). Read from formData directly and
+  // replace methodMaterialStep rows.
+  const methodOperationStepIds = getFormDataArray(
+    formData,
+    "methodOperationStepIds"
+  );
+  const stepLink = await replaceMethodMaterialSteps(
+    client,
+    methodMaterialId,
+    methodOperationStepIds
+  );
+  if (stepLink.error) {
+    return data(
+      { id: methodMaterialId },
+      await flash(request, error(stepLink.error, "Failed to link part to steps"))
     );
   }
 

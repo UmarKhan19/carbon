@@ -166,7 +166,7 @@ type Props = {
   procedure: { attributes: Step[]; parameters: any[] };
   tools: {
     quantity: number;
-    jobOperationStepId?: string | null;
+    jobOperationStepIds?: string[];
     item: { id: string; name: string; type: string } | null;
   }[];
   ncrs: any[];
@@ -466,15 +466,15 @@ export function AssemblyView({
   const step = steps[currentStep] ?? null;
 
   // Group materials by their REAL item type (Part / Material / Consumable / …).
-  // Phase 2 (part ↔ step): show only the parts involved in the current step — a material
-  // scoped to a step (jobOperationStepId) appears only on that step; operation-level
-  // materials (null) appear on every step. Backward compatible: with no assignments, all
+  // Phase 2 (part ↔ step, many-to-many): show only the parts involved in the current step —
+  // a material scoped to steps (jobOperationStepIds) appears on those steps; operation-level
+  // materials (no links) appear on every step. Backward compatible: with no assignments, all
   // materials are operation-level and show everywhere.
-  const rawMaterials: any[] = (materials?.materials ?? []).filter(
-    (m: any) =>
-      m.jobOperationStepId == null ||
-      m.jobOperationStepId === (step?.id ?? null)
-  );
+  const rawMaterials: any[] = (materials?.materials ?? []).filter((m: any) => {
+    const ids: string[] = m.jobOperationStepIds ?? [];
+    // No links = operation-level (every step); otherwise only the linked steps.
+    return ids.length === 0 || (step?.id != null && ids.includes(step.id));
+  });
   const materialGroups = new Map<string, any[]>();
   for (const m of rawMaterials) {
     const t = m.itemType ?? "Other";
@@ -487,15 +487,15 @@ export function AssemblyView({
     return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi);
   });
 
-  // Phase 2 (tool ↔ step): show only the tools involved in the current step — a tool
-  // scoped to a step (jobOperationStepId) appears only on that step; operation-level tools
-  // (null) appear on every step. Backward compatible: with no assignments, every tool is
+  // Phase 2 (tool ↔ step, many-to-many): show only the tools involved in the current step —
+  // a tool scoped to steps (jobOperationStepIds) appears on those steps; operation-level tools
+  // (no links) appear on every step. Backward compatible: with no assignments, every tool is
   // operation-level and shows everywhere. Mirrors the per-step material filter above.
-  const stepTools = tools.filter(
-    (t) =>
-      t.jobOperationStepId == null ||
-      t.jobOperationStepId === (step?.id ?? null)
-  );
+  const stepTools = tools.filter((t) => {
+    const ids: string[] = t.jobOperationStepIds ?? [];
+    // No links = operation-level (every step); otherwise only the linked steps.
+    return ids.length === 0 || (step?.id != null && ids.includes(step.id));
+  });
 
   // Material the generic "Scan" button pre-selects. Prefer a tracked material
   // that still NEEDS issuing (otherwise the modal opens straight into the
@@ -596,6 +596,12 @@ export function AssemblyView({
     typeof selected === "number"
       ? (stepSlides[selected]?.caption ?? null)
       : null;
+  // Authored display size of the shown slide (small/medium/large). Drives how wide the main
+  // image renders, so the content author's sizing is honored (finished item = full width).
+  const selectedSize =
+    typeof selected === "number"
+      ? (stepSlides[selected]?.size ?? "medium")
+      : "large";
   // Annotation pins for the shown slide (empty for the finished-item view).
   const selectedAnnotations =
     typeof selected === "number"
@@ -1071,64 +1077,71 @@ export function AssemblyView({
               />
             </div>
           ) : (
-            <>
-              <div className="flex h-[42vh] shrink-0 flex-col gap-2 border-b border-border p-4 lg:h-auto lg:min-h-0 lg:grow-[7] lg:basis-0">
-                <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/40">
-                  {mainImage ? (
-                    <>
-                      <button
-                        type="button"
-                        aria-label="View image full screen"
-                        onClick={imageViewer.onOpen}
-                        className="flex h-full w-full items-center justify-center"
+            <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+              <div className="flex shrink-0 flex-col gap-2 border-b border-border p-4">
+                {mainImage ? (
+                  // Width honors the slide's authored size (small/medium/large); height
+                  // follows the image's own aspect ratio (capped at 65vh). Large fills the
+                  // panel; smaller sizes center. The details column scrolls if it overflows.
+                  <div
+                    className={cn(
+                      "relative mx-auto w-full overflow-hidden rounded-lg border border-border bg-muted/40",
+                      selectedSize === "small"
+                        ? "max-w-[40%]"
+                        : selectedSize === "large"
+                          ? "max-w-full"
+                          : "max-w-[70%]"
+                    )}
+                  >
+                    <img
+                      src={mainImage}
+                      alt="Assembly reference"
+                      className="block h-auto max-h-[65vh] w-full object-contain"
+                    />
+                    {showPins && (
+                      <SlidePins
+                        annotations={selectedAnnotations}
+                        toolNameById={toolNameById}
+                      />
+                    )}
+                    {/* Tap the image to open full screen. */}
+                    <button
+                      type="button"
+                      aria-label="View image full screen"
+                      onClick={imageViewer.onOpen}
+                      className="absolute inset-0"
+                    />
+                    {/* Operator control: show/hide the annotation pins (always vs tap). */}
+                    {selectedAnnotations.length > 0 && (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="absolute left-2 top-2 z-10 gap-1.5"
+                        leftIcon={
+                          showPins ? (
+                            <LuEye className="size-4" />
+                          ) : (
+                            <LuEyeOff className="size-4" />
+                          )
+                        }
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowPins((v) => !v);
+                        }}
                       >
-                        {/* Wrapper shrinks to the rendered image so pins overlay by fraction. */}
-                        <div className="relative inline-flex max-h-full max-w-full">
-                          <img
-                            src={mainImage}
-                            alt="Assembly reference"
-                            className="max-h-full max-w-full object-contain"
-                          />
-                          {showPins && (
-                            <SlidePins
-                              annotations={selectedAnnotations}
-                              toolNameById={toolNameById}
-                            />
-                          )}
-                        </div>
-                      </button>
-                      {/* Operator control: show/hide the annotation pins (always vs tap). */}
-                      {selectedAnnotations.length > 0 && (
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          className="absolute left-2 top-2 gap-1.5"
-                          leftIcon={
-                            showPins ? (
-                              <LuEye className="size-4" />
-                            ) : (
-                              <LuEyeOff className="size-4" />
-                            )
-                          }
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setShowPins((v) => !v);
-                          }}
-                        >
-                          {showPins ? "Hide pins" : "Show pins"}
-                        </Button>
-                      )}
-                      <span className="pointer-events-none absolute right-2 top-2 flex items-center justify-center rounded-md bg-background/80 p-1.5 text-muted-foreground shadow-sm">
-                        <LuExpand className="size-4" />
-                      </span>
-                    </>
-                  ) : (
-                    <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                      <LuImage className="size-8" />
-                      <span className="text-xs">No reference image</span>
-                    </div>
-                  )}
-                </div>
+                        {showPins ? "Hide pins" : "Show pins"}
+                      </Button>
+                    )}
+                    <span className="pointer-events-none absolute right-2 top-2 z-10 flex items-center justify-center rounded-md bg-background/80 p-1.5 text-muted-foreground shadow-sm">
+                      <LuExpand className="size-4" />
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex aspect-video w-full flex-col items-center justify-center gap-2 rounded-lg border border-border bg-muted/40 text-muted-foreground">
+                    <LuImage className="size-8" />
+                    <span className="text-xs">No reference image</span>
+                  </div>
+                )}
 
                 {selectedCaption && (
                   <p className="shrink-0 truncate text-center text-xs text-muted-foreground">
@@ -1190,7 +1203,7 @@ export function AssemblyView({
               </div>
 
               {/* Current step */}
-              <div className="flex flex-col gap-3 p-6 lg:min-h-0 lg:grow-[3] lg:basis-0 lg:overflow-y-auto">
+              <div className="flex shrink-0 flex-col gap-3 p-6">
                 {step ? (
                   <>
                     <div className="flex items-center gap-2">
@@ -1222,7 +1235,7 @@ export function AssemblyView({
                   </p>
                 )}
               </div>
-            </>
+            </div>
           )}
         </main>
 

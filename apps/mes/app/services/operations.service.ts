@@ -470,21 +470,24 @@ export async function getJobMaterialsByOperationId(
     materials.data = [...(materials.data ?? []), ...processedKittedMaterials];
   }
 
-  // Step assignment (Phase 2: part ↔ step). The make-method view doesn't carry the new
-  // jobOperationStepId FK, so look it up from the base table and attach it. NULL = the
-  // material applies to the whole operation (shown on every step); a set value scopes it
-  // to one step so the MES can show only the parts involved in the current step.
+  // Step assignment (Phase 2: part ↔ step, many-to-many). The make-method view doesn't carry
+  // the join rows, so look them up from jobMaterialStep and attach an array. No rows = the
+  // material applies to the whole operation (shown on every step); 1+ rows scope it to those
+  // steps so the MES shows only the parts involved in the current step.
   const stepLinks = await client
-    .from("jobMaterial")
-    .select("id, jobOperationStepId")
-    .eq("jobMakeMethodId", operation.jobMakeMethodId);
-  const stepByMaterialId = new Map(
-    (stepLinks.data ?? []).map((r) => [r.id, r.jobOperationStepId])
-  );
+    .from("jobMaterialStep")
+    .select("jobMaterialId, jobOperationStepId")
+    .in("jobMaterialId", (materials.data ?? []).map((m) => m.id ?? ""));
+  const stepIdsByMaterialId = new Map<string, string[]>();
+  for (const r of stepLinks.data ?? []) {
+    const list = stepIdsByMaterialId.get(r.jobMaterialId) ?? [];
+    list.push(r.jobOperationStepId);
+    stepIdsByMaterialId.set(r.jobMaterialId, list);
+  }
   if (materials.data) {
     materials.data = materials.data.map((m) => ({
       ...m,
-      jobOperationStepId: stepByMaterialId.get(m.id ?? "") ?? null
+      jobOperationStepIds: stepIdsByMaterialId.get(m.id ?? "") ?? []
     }));
   }
 
@@ -702,22 +705,31 @@ export async function getToolsByOperationId(
 ) {
   type Tool = {
     quantity: number;
-    jobOperationStepId: string | null;
+    jobOperationStepIds: string[];
     item: { id: string; name: string; type: string } | null;
   };
 
-  // Read the job's OWN tools (jobOperationTool), not the method template. This carries
-  // jobOperationStepId (Phase 2: tool ↔ step), copied from the method by get-method, so
-  // the assembly view can show only the tools relevant to the current step. NULL = the
-  // tool applies to the whole operation (shown on every step). Mirrors the per-step
-  // material filter.
+  // Read the job's OWN tools (jobOperationTool), not the method template. This carries the
+  // tool ↔ step links (Phase 2, many-to-many) via jobOperationToolStep, copied from the
+  // method by get-method, so the assembly view can show only the tools relevant to the
+  // current step. No links = the tool applies to the whole operation (shown on every step).
+  // Mirrors the per-step material filter.
   const result = await client
     .from("jobOperationTool")
-    .select("quantity, jobOperationStepId, item:toolId(id, name, type)")
+    .select(
+      "quantity, item:toolId(id, name, type), jobOperationToolStep(jobOperationStepId)"
+    )
     .eq("operationId", operationId);
 
   return {
-    data: (result.data ?? []) as unknown as Tool[],
+    data: (result.data ?? []).map((t) => ({
+      quantity: (t as { quantity: number }).quantity,
+      item: (t as { item: Tool["item"] }).item,
+      jobOperationStepIds: (
+        (t as { jobOperationToolStep?: { jobOperationStepId: string }[] })
+          .jobOperationToolStep ?? []
+      ).map((s) => s.jobOperationStepId)
+    })) as Tool[],
     error: result.error
   };
 }

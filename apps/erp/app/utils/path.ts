@@ -1045,6 +1045,8 @@ export const path = {
       generatePath(`${x}/job/methods/${jobId}/operation/delete`),
     jobOperationStep: (id: string) =>
       generatePath(`${x}/job/methods/operation/step/${id}`),
+    deleteJobOperationStepSlide: (id: string) =>
+      generatePath(`${x}/job/methods/operation/step/slide/delete/${id}`),
     jobOperationStepOrder: (operationId: string) =>
       generatePath(`${x}/job/methods/operation/${operationId}/step/order`),
     jobOperationParameter: (id: string) =>
@@ -1225,6 +1227,7 @@ export const path = {
     newJobOperation: (jobId: string) =>
       generatePath(`${x}/job/methods/${jobId}/operation/new`),
     newJobOperationStep: `${x}/job/methods/operation/step/new`,
+    newJobOperationStepSlide: `${x}/job/methods/operation/step/slide/new`,
     newJobOperationParameter: `${x}/job/methods/operation/parameter/new`,
     newJobOperationTool: `${x}/job/methods/operation/tool/new`,
     newKanban: `${x}/inventory/kanbans/new`,
