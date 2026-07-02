@@ -1,9 +1,9 @@
 ---
-name: login
+name: auth
 description: Log into the local Carbon ERP dev server with agent-browser using the DEV_BYPASS_EMAIL bypass. Use before any browser automation that needs an authenticated session (/test, /smoke-test, manual verification). Requires a running dev stack (crbn up). Building block — it leaves the session open for the caller.
 ---
 
-# login — authenticate the local browser session
+# auth — authenticate the local browser session
 
 Authenticate against the local Carbon dev environment via `DEV_BYPASS_EMAIL`.
 Other skills (`/test`, `/smoke-test`) invoke this before authenticated work.

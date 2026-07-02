@@ -191,4 +191,4 @@ Internal technical context for each subsystem lives in `.ai/rules/`, symlinked t
 
 ## Browser Automation
 
-With the user's permission, use the `/login` and `/test` skill to verify fixes.
+With the user's permission, use the `/auth` and `/test` skill to verify fixes.

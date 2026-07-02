@@ -75,7 +75,7 @@ b. **Behavior gate — mandatory for ANY user-facing change.** Choose the
       regression guard.
    2. **Agent-browser visual verification** — required when the proof is
       inherently visual (layout, spacing, overflow, animation): boot with
-      `crbn up`, `/login`, drive the screen per `/test`, capture BEFORE and
+      `crbn up`, `/auth`, drive the screen per `/test`, capture BEFORE and
       AFTER screenshots.
    3. **CLI/script proof** — for non-UI changes (migrations, endpoints): a
       command demonstrating correct output.
