@@ -46,7 +46,7 @@ msgstr "{0}が正常に削除されました"
 
 #. placeholder {0}: mappings.length
 msgid "{0} lines to map"
-msgstr ""
+msgstr "{0}件のラインをマップします"
 
 #. placeholder {0}: history.length
 msgid "{0} orders"
@@ -1766,7 +1766,7 @@ msgid "Can't disable the only active break. Add another break or toggle the over
 msgstr "唯一のアクティブなブレークを無効にすることはできません。別のブレークを追加するか、オーバーライドのアクティブを切り替えてください。"
 
 msgid "Can't download this file"
-msgstr ""
+msgstr "このファイルをダウンロードできません"
 
 msgid "Cancel"
 msgstr "キャンセル"
@@ -2278,7 +2278,7 @@ msgid "Confirm Import"
 msgstr "インポートを確認"
 
 msgid "Confirm Mapping"
-msgstr ""
+msgstr "マッピングを確認"
 
 msgid "Confirm Password"
 msgstr "パスワードを確認"
@@ -2628,7 +2628,7 @@ msgstr "分析用の領域画像を準備できませんでした"
 
 #. placeholder {0}: extraction?.error ?? ""
 msgid "Could not read the document: {0}"
-msgstr ""
+msgstr "ドキュメントを読み込めませんでした: {0}"
 
 msgid "Couldn't load documents"
 msgstr "ドキュメントを読み込めませんでした"
@@ -3806,7 +3806,7 @@ msgid "Download Labels"
 msgstr "ラベルをダウンロード"
 
 msgid "Download Link"
-msgstr ""
+msgstr "ダウンロードリンク"
 
 msgid "Download PDF"
 msgstr "PDFをダウンロード"
@@ -5270,7 +5270,7 @@ msgid "Getting set up"
 msgstr "セットアップ中"
 
 msgid "Give it an owner and a date"
-msgstr ""
+msgstr "所有者と期日を割り当てる"
 
 msgid "GL"
 msgstr "GL"
@@ -6669,19 +6669,19 @@ msgid "Manufacturer"
 msgstr "製造業者"
 
 msgid "Manufacturer Part Number"
-msgstr ""
+msgstr "メーカー部品番号"
 
 msgid "Manufacturing"
 msgstr "製造"
 
 msgid "Map Extracted Invoice Lines"
-msgstr ""
+msgstr "抽出された請求書行をマップする"
 
 msgid "Map Extracted Lines"
-msgstr ""
+msgstr "抽出行をマップ"
 
 msgid "Map Lines Now"
-msgstr ""
+msgstr "今すぐラインをマップ"
 
 msgid "Map your current process, systems, and data"
 msgstr "現在のプロセス、システム、データをマップする"
@@ -7544,7 +7544,7 @@ msgid "No issue types configured"
 msgstr "問題タイプが設定されていません"
 
 msgid "No lines to map"
-msgstr ""
+msgstr "マップするラインがありません"
 
 msgid "No locations found."
 msgstr "ロケーションが見つかりません。"
@@ -8197,7 +8197,7 @@ msgid "Pass"
 msgstr "合格"
 
 msgid "Passed"
-msgstr ""
+msgstr "完了"
 
 msgid "Path"
 msgstr "パス"
@@ -8727,7 +8727,7 @@ msgid "Project owner"
 msgstr "プロジェクトオーナー"
 
 msgid "Project Plan"
-msgstr ""
+msgstr "プロジェクト計画"
 
 msgid "Project start"
 msgstr "プロジェクト開始"
@@ -9088,7 +9088,7 @@ msgid "Read this through. When it's right, sign off at the bottom. It's the stat
 msgstr "これを読み通してください。正しいと思ったら、下部で署名してください。これはあなたの商業契約が指す声明であり、価格や法的条件は含まれていません。"
 
 msgid "Reading the document..."
-msgstr ""
+msgstr "ドキュメントを読み込み中..."
 
 msgid "Ready for Quote"
 msgstr "見積もり準備完了"
@@ -10574,7 +10574,7 @@ msgid "Solutions Engineer"
 msgstr "ソリューションズエンジニア"
 
 msgid "Some lines extracted from the PDF could not be automatically mapped to your inventory items. Review and map each line below."
-msgstr ""
+msgstr "PDFから抽出された一部の行は、在庫アイテムに自動的にマップできませんでした。以下の各行を確認してマップしてください。"
 
 msgid "Something went wrong"
 msgstr "エラーが発生しました"
@@ -10972,7 +10972,7 @@ msgid "Supplier Part Number"
 msgstr "仕入先部品番号"
 
 msgid "Supplier Part Numbers"
-msgstr ""
+msgstr "サプライヤー部品番号"
 
 msgid "Supplier Parts"
 msgstr "サプライヤー部品"
@@ -11241,7 +11241,7 @@ msgstr "テキストサイズ"
 
 #. placeholder {0}: steps.length
 msgid "The {0} phases to go live, each ending at a checkpoint. Tick off each task as you complete it."
-msgstr ""
+msgstr "{0}個のフェーズをリリースするまで進め、各フェーズはチェックポイントで終了します。完了したタスクをチェックオフしてください。"
 
 msgid "The accounting dimension that categorizes items for reporting and analysis."
 msgstr "レポートと分析のためにアイテムを分類する会計ディメンション。"
@@ -11895,10 +11895,10 @@ msgid "This counterparty has nothing outstanding — the payment will be recorde
 msgstr "この取引先には未払い金がありません。支払いは掛け金として記録されます。"
 
 msgid "This download link is invalid or has been tampered with."
-msgstr ""
+msgstr "このダウンロードリンクは無効であるか、改ざんされています。"
 
 msgid "This file is no longer available, or you don't have permission to download it."
-msgstr ""
+msgstr "このファイルは利用できなくなっているか、ダウンロード権限がありません。"
 
 msgid "This information will be used on document headers"
 msgstr "この情報はドキュメントヘッダーで使用されます"
@@ -11934,7 +11934,7 @@ msgid "This lot is expired and can't be picked."
 msgstr "このロットは期限切れであり、ピックできません。"
 
 msgid "This may take a moment. Hang tight."
-msgstr ""
+msgstr "これには少し時間がかかる場合があります。お待ちください。"
 
 msgid "This page of your Implementation Hub is being built. Start from the command center while we finish it."
 msgstr "このページのImplementation Hubは現在構築中です。完成するまでコマンドセンターから始めてください。"
@@ -12204,7 +12204,7 @@ msgid "Tracked entity ID is required but none was found"
 msgstr "追跡対象エンティティIDが必要ですが、見つかりませんでした"
 
 msgid "Tracked from the Setup Map — open it"
-msgstr ""
+msgstr "セットアップマップから追跡されています — 開く"
 
 msgid "Tracking"
 msgstr "追跡"
@@ -12402,7 +12402,7 @@ msgid "Unlink job from sales order?"
 msgstr "販売注文からジョブのリンクを解除しますか？"
 
 msgid "Unmapped Extracted Lines"
-msgstr ""
+msgstr "マップされていない抽出行"
 
 msgid "Unpick"
 msgstr "ピック解除"
@@ -12427,7 +12427,7 @@ msgid "Untitled Diagram"
 msgstr "無題の図"
 
 msgid "Untitled line"
-msgstr ""
+msgstr "無題の行"
 
 msgid "UoM"
 msgstr "UoM"
@@ -12541,7 +12541,7 @@ msgid "Uploading {fileName}"
 msgstr "アップロード中 {fileName}"
 
 msgid "Uploading..."
-msgstr ""
+msgstr "アップロード中..."
 
 msgid "Uploading…"
 msgstr "アップロード中…"
@@ -13301,7 +13301,7 @@ msgid "Why this line is being declined; surfaced on the printable quote and reco
 msgstr "この行が拒否されている理由。印刷可能な見積もりに表示され、win-loss報告用に記録されます。"
 
 msgid "Will remain as a comment line"
-msgstr ""
+msgstr "コメント行として残ります"
 
 msgid "Window:"
 msgstr "ウィンドウ:"
@@ -13439,7 +13439,7 @@ msgstr "あなたが主導し、私たちが確実に正しく実行します。
 
 #. placeholder {0}: unmappedLines.length
 msgid "You have {0} lines extracted from a PDF that are not mapped to any inventory items."
-msgstr ""
+msgstr "あなたは、PDFから抽出された{0}行を持っていますが、これらはインベントリアイテムにマップされていません。"
 
 msgid "You haven't created any contacts yet."
 msgstr "まだ連絡先を作成していません。"

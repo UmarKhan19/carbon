@@ -46,7 +46,7 @@ msgstr "{0} başarıyla silindi"
 
 #. placeholder {0}: mappings.length
 msgid "{0} lines to map"
-msgstr ""
+msgstr "{0} satır eşlenecek"
 
 #. placeholder {0}: history.length
 msgid "{0} orders"
@@ -1766,7 +1766,7 @@ msgid "Can't disable the only active break. Add another break or toggle the over
 msgstr "Yalnızca aktif olan aralığı devre dışı bırakamazsınız. Başka bir aralık ekleyin veya geçersiz kılmanın Aktif özelliğini değiştirin."
 
 msgid "Can't download this file"
-msgstr ""
+msgstr "Bu dosya indirilemiyor"
 
 msgid "Cancel"
 msgstr "İptal"
@@ -2278,7 +2278,7 @@ msgid "Confirm Import"
 msgstr "İçe Aktarmayı Onayla"
 
 msgid "Confirm Mapping"
-msgstr ""
+msgstr "Eşleştirmeyi Onayla"
 
 msgid "Confirm Password"
 msgstr "Şifreyi Onayla"
@@ -2628,7 +2628,7 @@ msgstr "Bölge görüntüsü analiz için hazırlanamadı"
 
 #. placeholder {0}: extraction?.error ?? ""
 msgid "Could not read the document: {0}"
-msgstr ""
+msgstr "Belge okunamadı: {0}"
 
 msgid "Couldn't load documents"
 msgstr "Belgeler yüklenemedi"
@@ -3806,7 +3806,7 @@ msgid "Download Labels"
 msgstr "Etiketleri İndir"
 
 msgid "Download Link"
-msgstr ""
+msgstr "İndirme Bağlantısı"
 
 msgid "Download PDF"
 msgstr "PDF'i İndir"
@@ -5270,7 +5270,7 @@ msgid "Getting set up"
 msgstr "Kurulum yapılıyor"
 
 msgid "Give it an owner and a date"
-msgstr ""
+msgstr "Ona bir sahip ve bir tarih verin"
 
 msgid "GL"
 msgstr "GL"
@@ -6669,19 +6669,19 @@ msgid "Manufacturer"
 msgstr "Üretici"
 
 msgid "Manufacturer Part Number"
-msgstr ""
+msgstr "Üretici Parça Numarası"
 
 msgid "Manufacturing"
 msgstr "Üretim"
 
 msgid "Map Extracted Invoice Lines"
-msgstr ""
+msgstr "Çıkarılan Fatura Satırlarını Eşle"
 
 msgid "Map Extracted Lines"
-msgstr ""
+msgstr "Çıkarılan Satırları Eşle"
 
 msgid "Map Lines Now"
-msgstr ""
+msgstr "Satırları Şimdi Eşle"
 
 msgid "Map your current process, systems, and data"
 msgstr "Mevcut sürecinizi, sistemlerinizi ve verilerinizi eşleyin"
@@ -7544,7 +7544,7 @@ msgid "No issue types configured"
 msgstr "Hiçbir sorun türü yapılandırılmamış"
 
 msgid "No lines to map"
-msgstr ""
+msgstr "Eşlenecek satır yok"
 
 msgid "No locations found."
 msgstr "Konum bulunamadı."
@@ -8197,7 +8197,7 @@ msgid "Pass"
 msgstr "Geçerli"
 
 msgid "Passed"
-msgstr ""
+msgstr "Geçti"
 
 msgid "Path"
 msgstr "Yol"
@@ -8727,7 +8727,7 @@ msgid "Project owner"
 msgstr "Proje sahibi"
 
 msgid "Project Plan"
-msgstr ""
+msgstr "Proje Planı"
 
 msgid "Project start"
 msgstr "Proje başlangıcı"
@@ -9088,7 +9088,7 @@ msgid "Read this through. When it's right, sign off at the bottom. It's the stat
 msgstr "Bunu baştan sona oku. Doğru olduğunda, altta imzala. Bu, ticari anlaşmanın işaret ettiği beyan olup, burada fiyat veya yasal şart yoktur."
 
 msgid "Reading the document..."
-msgstr ""
+msgstr "Belge okunuyor..."
 
 msgid "Ready for Quote"
 msgstr "Teklif İçin Hazır"
@@ -10574,7 +10574,7 @@ msgid "Solutions Engineer"
 msgstr "Çözüm Mühendisi"
 
 msgid "Some lines extracted from the PDF could not be automatically mapped to your inventory items. Review and map each line below."
-msgstr ""
+msgstr "PDF'den çıkarılan bazı satırlar envanter öğelerinize otomatik olarak eşleştirilemedi. Aşağıdaki her satırı gözden geçirin ve eşleştirin."
 
 msgid "Something went wrong"
 msgstr "Bir şeyler yanlış gitti"
@@ -10972,7 +10972,7 @@ msgid "Supplier Part Number"
 msgstr "Tedarikçi Parça Numarası"
 
 msgid "Supplier Part Numbers"
-msgstr ""
+msgstr "Tedarikçi Parça Numaraları"
 
 msgid "Supplier Parts"
 msgstr "Tedarikçi Parçaları"
@@ -11241,7 +11241,7 @@ msgstr "Metin boyutu"
 
 #. placeholder {0}: steps.length
 msgid "The {0} phases to go live, each ending at a checkpoint. Tick off each task as you complete it."
-msgstr ""
+msgstr "{0} aşamayı canlı yayına almak için, her biri bir kontrol noktasında sona eriyor. Her görevi tamamladıkça işaretleyin."
 
 msgid "The accounting dimension that categorizes items for reporting and analysis."
 msgstr "Raporlama ve analiz için öğeleri kategorize eden muhasebe boyutu."
@@ -11895,10 +11895,10 @@ msgid "This counterparty has nothing outstanding — the payment will be recorde
 msgstr "Bu muhasebe ortağının ödenmemiş bir borcu yok — ödeme hesap üzerinde kaydedilecektir."
 
 msgid "This download link is invalid or has been tampered with."
-msgstr ""
+msgstr "Bu indirme bağlantısı geçersiz veya değiştirilmiş."
 
 msgid "This file is no longer available, or you don't have permission to download it."
-msgstr ""
+msgstr "Bu dosya artık kullanılamıyor veya onu indirme izniniz yok."
 
 msgid "This information will be used on document headers"
 msgstr "Bu bilgiler belge başlıklarında kullanılacaktır"
@@ -11934,7 +11934,7 @@ msgid "This lot is expired and can't be picked."
 msgstr "Bu parti süresi dolmuş ve alınamaz."
 
 msgid "This may take a moment. Hang tight."
-msgstr ""
+msgstr "Bu biraz zaman alabilir. Sabrın."
 
 msgid "This page of your Implementation Hub is being built. Start from the command center while we finish it."
 msgstr "Bu Implementation Hub sayfası şu anda inşa edilmektedir. Biz bitirirken komut merkezinden başlayın."
@@ -12204,7 +12204,7 @@ msgid "Tracked entity ID is required but none was found"
 msgstr "Takip edilen varlık kimliği gerekli ancak hiçbiri bulunamadı"
 
 msgid "Tracked from the Setup Map — open it"
-msgstr ""
+msgstr "Kurulum Haritasından izleniyor — aç"
 
 msgid "Tracking"
 msgstr "Takip"
@@ -12402,7 +12402,7 @@ msgid "Unlink job from sales order?"
 msgstr "İş emrini satış siparişinden ayır?"
 
 msgid "Unmapped Extracted Lines"
-msgstr ""
+msgstr "Eşlenmemiş Çıkarılan Satırlar"
 
 msgid "Unpick"
 msgstr "Çıkart"
@@ -12427,7 +12427,7 @@ msgid "Untitled Diagram"
 msgstr "Başlıksız Diyagram"
 
 msgid "Untitled line"
-msgstr ""
+msgstr "Başlıksız satır"
 
 msgid "UoM"
 msgstr "Birim"
@@ -12541,7 +12541,7 @@ msgid "Uploading {fileName}"
 msgstr "{\"fileName\"} yükleniyor"
 
 msgid "Uploading..."
-msgstr ""
+msgstr "Yükleniyor..."
 
 msgid "Uploading…"
 msgstr "Yükleniyor…"
@@ -13301,7 +13301,7 @@ msgid "Why this line is being declined; surfaced on the printable quote and reco
 msgstr "Bu satırın neden reddedildiği; yazdırılabilir teklifte gösterilir ve kazanç-kayıp raporlaması için kaydedilir."
 
 msgid "Will remain as a comment line"
-msgstr ""
+msgstr "Yorum satırı olarak kalacak"
 
 msgid "Window:"
 msgstr "Pencere:"
@@ -13439,7 +13439,7 @@ msgstr "Siz yönetirsiniz; biz doğru yapıldığından emin oluruz. Kurulumunuz
 
 #. placeholder {0}: unmappedLines.length
 msgid "You have {0} lines extracted from a PDF that are not mapped to any inventory items."
-msgstr ""
+msgstr "{0} satırı PDF'den çıkarıldı ancak hiçbir envanter öğesine eşlenmedi."
 
 msgid "You haven't created any contacts yet."
 msgstr "Henüz herhangi bir iletişim bilgisi oluşturmadınız."

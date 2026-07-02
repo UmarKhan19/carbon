@@ -31,7 +31,7 @@ If no plan exists, suggest running `/plan` first.
 
 ### 1.1 Load the Plan
 
-Read `.ai/scratch/plans/[feature-name]-plan.md`.
+Read `.ai/plans/[feature-name]-plan.md`.
 
 ### 1.2 Critical Review
 

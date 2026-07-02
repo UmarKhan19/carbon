@@ -46,7 +46,7 @@ msgstr "{0} 已成功删除"
 
 #. placeholder {0}: mappings.length
 msgid "{0} lines to map"
-msgstr ""
+msgstr "{0} 行待映射"
 
 #. placeholder {0}: history.length
 msgid "{0} orders"
@@ -1766,7 +1766,7 @@ msgid "Can't disable the only active break. Add another break or toggle the over
 msgstr "无法禁用唯一的活跃价格段。请添加另一个价格段或改为切换覆盖的\"活跃\"状态。"
 
 msgid "Can't download this file"
-msgstr ""
+msgstr "无法下载此文件"
 
 msgid "Cancel"
 msgstr "取消"
@@ -2278,7 +2278,7 @@ msgid "Confirm Import"
 msgstr "确认导入"
 
 msgid "Confirm Mapping"
-msgstr ""
+msgstr "确认映射"
 
 msgid "Confirm Password"
 msgstr "确认密码"
@@ -2628,7 +2628,7 @@ msgstr "无法准备区域图像以进行分析"
 
 #. placeholder {0}: extraction?.error ?? ""
 msgid "Could not read the document: {0}"
-msgstr ""
+msgstr "无法读取文档：{0}"
 
 msgid "Couldn't load documents"
 msgstr "无法加载文档"
@@ -3806,7 +3806,7 @@ msgid "Download Labels"
 msgstr "下载标签"
 
 msgid "Download Link"
-msgstr ""
+msgstr "下载链接"
 
 msgid "Download PDF"
 msgstr "下载 PDF"
@@ -5270,7 +5270,7 @@ msgid "Getting set up"
 msgstr "正在设置"
 
 msgid "Give it an owner and a date"
-msgstr ""
+msgstr "给它分配一个负责人和截止日期"
 
 msgid "GL"
 msgstr "GL"
@@ -6669,19 +6669,19 @@ msgid "Manufacturer"
 msgstr "制造商"
 
 msgid "Manufacturer Part Number"
-msgstr ""
+msgstr "制造商零件号"
 
 msgid "Manufacturing"
 msgstr "制造"
 
 msgid "Map Extracted Invoice Lines"
-msgstr ""
+msgstr "映射提取的发票行项目"
 
 msgid "Map Extracted Lines"
-msgstr ""
+msgstr "映射提取的行"
 
 msgid "Map Lines Now"
-msgstr ""
+msgstr "立即映射行"
 
 msgid "Map your current process, systems, and data"
 msgstr "映射您当前的流程、系统和数据"
@@ -7544,7 +7544,7 @@ msgid "No issue types configured"
 msgstr "未配置问题类型"
 
 msgid "No lines to map"
-msgstr ""
+msgstr "没有行需要映射"
 
 msgid "No locations found."
 msgstr "未找到位置。"
@@ -8197,7 +8197,7 @@ msgid "Pass"
 msgstr "通过"
 
 msgid "Passed"
-msgstr ""
+msgstr "已通过"
 
 msgid "Path"
 msgstr "路径"
@@ -8727,7 +8727,7 @@ msgid "Project owner"
 msgstr "项目所有者"
 
 msgid "Project Plan"
-msgstr ""
+msgstr "项目计划"
 
 msgid "Project start"
 msgstr "项目开始"
@@ -9088,7 +9088,7 @@ msgid "Read this through. When it's right, sign off at the bottom. It's the stat
 msgstr "通读此内容。确认无误后，在底部签署。这是您商业协议所指向的声明，不包含价格或法律条款。"
 
 msgid "Reading the document..."
-msgstr ""
+msgstr "正在读取文档..."
 
 msgid "Ready for Quote"
 msgstr "准备报价"
@@ -10574,7 +10574,7 @@ msgid "Solutions Engineer"
 msgstr "解决方案工程师"
 
 msgid "Some lines extracted from the PDF could not be automatically mapped to your inventory items. Review and map each line below."
-msgstr ""
+msgstr "从PDF提取的某些行无法自动映射到您的库存项目。请查看并映射下面的每一行。"
 
 msgid "Something went wrong"
 msgstr "出错了"
@@ -10972,7 +10972,7 @@ msgid "Supplier Part Number"
 msgstr "供应商零件号"
 
 msgid "Supplier Part Numbers"
-msgstr ""
+msgstr "供应商零件号"
 
 msgid "Supplier Parts"
 msgstr "供应商零件"
@@ -11241,7 +11241,7 @@ msgstr "文本大小"
 
 #. placeholder {0}: steps.length
 msgid "The {0} phases to go live, each ending at a checkpoint. Tick off each task as you complete it."
-msgstr ""
+msgstr "The {0} phases to go live, each ending at a checkpoint. Tick off each task as you complete it."
 
 msgid "The accounting dimension that categorizes items for reporting and analysis."
 msgstr "将项目分类以进行报告和分析的会计维度。"
@@ -11895,10 +11895,10 @@ msgid "This counterparty has nothing outstanding — the payment will be recorde
 msgstr "该交易对手没有未结余额——该付款将记录为应收账款。"
 
 msgid "This download link is invalid or has been tampered with."
-msgstr ""
+msgstr "此下载链接无效或已被篡改。"
 
 msgid "This file is no longer available, or you don't have permission to download it."
-msgstr ""
+msgstr "此文件不再可用，或您没有权限下载它。"
 
 msgid "This information will be used on document headers"
 msgstr "此信息将用于文档标题"
@@ -11934,7 +11934,7 @@ msgid "This lot is expired and can't be picked."
 msgstr "此批次已过期，无法领取。"
 
 msgid "This may take a moment. Hang tight."
-msgstr ""
+msgstr "这可能需要一些时间。请稍候。"
 
 msgid "This page of your Implementation Hub is being built. Start from the command center while we finish it."
 msgstr "您的实现中心的此页面正在构建中。请从命令中心开始，我们将继续完成它。"
@@ -12204,7 +12204,7 @@ msgid "Tracked entity ID is required but none was found"
 msgstr "已跟踪实体ID是必需的，但未找到"
 
 msgid "Tracked from the Setup Map — open it"
-msgstr ""
+msgstr "从设置地图跟踪 — 打开它"
 
 msgid "Tracking"
 msgstr "追踪"
@@ -12402,7 +12402,7 @@ msgid "Unlink job from sales order?"
 msgstr "从销售订单取消关联工作？"
 
 msgid "Unmapped Extracted Lines"
-msgstr ""
+msgstr "未映射的提取行"
 
 msgid "Unpick"
 msgstr "取消拣选"
@@ -12427,7 +12427,7 @@ msgid "Untitled Diagram"
 msgstr "未命名图表"
 
 msgid "Untitled line"
-msgstr ""
+msgstr "未命名行"
 
 msgid "UoM"
 msgstr "计量单位"
@@ -12541,7 +12541,7 @@ msgid "Uploading {fileName}"
 msgstr "正在上传 {fileName}"
 
 msgid "Uploading..."
-msgstr ""
+msgstr "上传中..."
 
 msgid "Uploading…"
 msgstr "上传中…"
@@ -13301,7 +13301,7 @@ msgid "Why this line is being declined; surfaced on the printable quote and reco
 msgstr "该行被拒绝的原因;显示在可打印报价上,并为损益报告记录。"
 
 msgid "Will remain as a comment line"
-msgstr ""
+msgstr "将保留为注释行"
 
 msgid "Window:"
 msgstr "窗口："
@@ -13439,7 +13439,7 @@ msgstr "你来主导；我们确保一切正确无误。我们的专家会审视
 
 #. placeholder {0}: unmappedLines.length
 msgid "You have {0} lines extracted from a PDF that are not mapped to any inventory items."
-msgstr ""
+msgstr "您有 {0} 行从 PDF 中提取的数据未映射到任何库存项目。"
 
 msgid "You haven't created any contacts yet."
 msgstr "你还没有创建任何联系人。"

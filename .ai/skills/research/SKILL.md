@@ -57,7 +57,7 @@ Structure research as actionable patterns:
 
 ### Step 5: Save Output
 
-Save the research to `.ai/scratch/research/[feature-slug].md` using the output format below.
+Save the research to `.ai/research/[feature-slug].md` using the output format below.
 
 ## Output Format
 
@@ -100,9 +100,6 @@ Based on the research:
 - [Link 2]
 ```
 
-## Example Research
-
-See `.ai/scratch/tasks/accrual-accounting-research.md` for an example of well-structured competitor research covering NetSuite and SAP accounting patterns.
 
 ## When to Use
 

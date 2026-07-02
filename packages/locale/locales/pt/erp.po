@@ -46,7 +46,7 @@ msgstr "{0} eliminado com sucesso"
 
 #. placeholder {0}: mappings.length
 msgid "{0} lines to map"
-msgstr ""
+msgstr "{0} linhas para mapear"
 
 #. placeholder {0}: history.length
 msgid "{0} orders"
@@ -1766,7 +1766,7 @@ msgid "Can't disable the only active break. Add another break or toggle the over
 msgstr "Não é possível desativar o único intervalo ativo. Adicione outro intervalo ou alterne o status Ativo da substituição."
 
 msgid "Can't download this file"
-msgstr ""
+msgstr "Não é possível baixar este arquivo"
 
 msgid "Cancel"
 msgstr "Cancelar"
@@ -2278,7 +2278,7 @@ msgid "Confirm Import"
 msgstr "Confirmar Importação"
 
 msgid "Confirm Mapping"
-msgstr ""
+msgstr "Confirmar Mapeamento"
 
 msgid "Confirm Password"
 msgstr "Confirmar Senha"
@@ -2628,7 +2628,7 @@ msgstr "Não foi possível preparar a imagem da região para análise"
 
 #. placeholder {0}: extraction?.error ?? ""
 msgid "Could not read the document: {0}"
-msgstr ""
+msgstr "Não foi possível ler o documento: {0}"
 
 msgid "Couldn't load documents"
 msgstr "Não foi possível carregar documentos"
@@ -3806,7 +3806,7 @@ msgid "Download Labels"
 msgstr "Baixar Etiquetas"
 
 msgid "Download Link"
-msgstr ""
+msgstr "Link de Download"
 
 msgid "Download PDF"
 msgstr "Baixar PDF"
@@ -5270,7 +5270,7 @@ msgid "Getting set up"
 msgstr "Configurando"
 
 msgid "Give it an owner and a date"
-msgstr ""
+msgstr "Atribua um proprietário e uma data"
 
 msgid "GL"
 msgstr "GL"
@@ -6669,19 +6669,19 @@ msgid "Manufacturer"
 msgstr "Fabricante"
 
 msgid "Manufacturer Part Number"
-msgstr ""
+msgstr "Número de Peça do Fabricante"
 
 msgid "Manufacturing"
 msgstr "Fabricação"
 
 msgid "Map Extracted Invoice Lines"
-msgstr ""
+msgstr "Mapear Linhas de Fatura Extraídas"
 
 msgid "Map Extracted Lines"
-msgstr ""
+msgstr "Mapear Linhas Extraídas"
 
 msgid "Map Lines Now"
-msgstr ""
+msgstr "Mapear Linhas Agora"
 
 msgid "Map your current process, systems, and data"
 msgstr "Mapeie seu processo, sistemas e dados atuais"
@@ -7544,7 +7544,7 @@ msgid "No issue types configured"
 msgstr "Nenhum tipo de problema configurado"
 
 msgid "No lines to map"
-msgstr ""
+msgstr "Nenhuma linha para mapear"
 
 msgid "No locations found."
 msgstr "Nenhuma localização encontrada."
@@ -8197,7 +8197,7 @@ msgid "Pass"
 msgstr "Passar"
 
 msgid "Passed"
-msgstr ""
+msgstr "Aprovado"
 
 msgid "Path"
 msgstr "Caminho"
@@ -8727,7 +8727,7 @@ msgid "Project owner"
 msgstr "Proprietário do projeto"
 
 msgid "Project Plan"
-msgstr ""
+msgstr "Plano do Projeto"
 
 msgid "Project start"
 msgstr "Início do projeto"
@@ -9088,7 +9088,7 @@ msgid "Read this through. When it's right, sign off at the bottom. It's the stat
 msgstr "Leia isto com atenção. Quando estiver correto, assine no final. É a declaração para a qual seu acordo comercial aponta, sem preços ou termos legais aqui."
 
 msgid "Reading the document..."
-msgstr ""
+msgstr "Lendo o documento..."
 
 msgid "Ready for Quote"
 msgstr "Pronto para Cotação"
@@ -10574,7 +10574,7 @@ msgid "Solutions Engineer"
 msgstr "Engenheiro de Soluções"
 
 msgid "Some lines extracted from the PDF could not be automatically mapped to your inventory items. Review and map each line below."
-msgstr ""
+msgstr "Algumas linhas extraídas do PDF não puderam ser mapeadas automaticamente para seus itens de inventário. Revise e mapeie cada linha abaixo."
 
 msgid "Something went wrong"
 msgstr "Algo deu errado"
@@ -10972,7 +10972,7 @@ msgid "Supplier Part Number"
 msgstr "Número da Peça do Fornecedor"
 
 msgid "Supplier Part Numbers"
-msgstr ""
+msgstr "Números de Peça do Fornecedor"
 
 msgid "Supplier Parts"
 msgstr "Peças do Fornecedor"
@@ -11241,7 +11241,7 @@ msgstr "Tamanho do texto"
 
 #. placeholder {0}: steps.length
 msgid "The {0} phases to go live, each ending at a checkpoint. Tick off each task as you complete it."
-msgstr ""
+msgstr "Os {0} fases para entrar em produção, cada uma terminando em um ponto de verificação. Marque cada tarefa conforme a concluir."
 
 msgid "The accounting dimension that categorizes items for reporting and analysis."
 msgstr "A dimensão contábil que categoriza itens para relatórios e análises."
@@ -11895,10 +11895,10 @@ msgid "This counterparty has nothing outstanding — the payment will be recorde
 msgstr "Este terceiro não tem nada pendente — o pagamento será registrado em conta."
 
 msgid "This download link is invalid or has been tampered with."
-msgstr ""
+msgstr "Este link de download é inválido ou foi alterado."
 
 msgid "This file is no longer available, or you don't have permission to download it."
-msgstr ""
+msgstr "Este arquivo não está mais disponível, ou você não tem permissão para baixá-lo."
 
 msgid "This information will be used on document headers"
 msgstr "Esta informação será usada nos cabeçalhos de documentos"
@@ -11934,7 +11934,7 @@ msgid "This lot is expired and can't be picked."
 msgstr "Este lote expirou e não pode ser selecionado."
 
 msgid "This may take a moment. Hang tight."
-msgstr ""
+msgstr "Isto pode levar um momento. Aguarde."
 
 msgid "This page of your Implementation Hub is being built. Start from the command center while we finish it."
 msgstr "Esta página do seu Implementation Hub está sendo construída. Comece pelo centro de comando enquanto terminamos."
@@ -12204,7 +12204,7 @@ msgid "Tracked entity ID is required but none was found"
 msgstr "ID da entidade rastreada é obrigatório, mas nenhum foi encontrado"
 
 msgid "Tracked from the Setup Map — open it"
-msgstr ""
+msgstr "Rastreado no Mapa de Configuração — abra-o"
 
 msgid "Tracking"
 msgstr "Rastreamento"
@@ -12402,7 +12402,7 @@ msgid "Unlink job from sales order?"
 msgstr "Desassociar trabalho da ordem de venda?"
 
 msgid "Unmapped Extracted Lines"
-msgstr ""
+msgstr "Linhas Extraídas Não Mapeadas"
 
 msgid "Unpick"
 msgstr "Desmarcar"
@@ -12427,7 +12427,7 @@ msgid "Untitled Diagram"
 msgstr "Diagrama sem título"
 
 msgid "Untitled line"
-msgstr ""
+msgstr "Linha sem título"
 
 msgid "UoM"
 msgstr "UoM"
@@ -12541,7 +12541,7 @@ msgid "Uploading {fileName}"
 msgstr "Carregando {fileName}"
 
 msgid "Uploading..."
-msgstr ""
+msgstr "Enviando..."
 
 msgid "Uploading…"
 msgstr "Enviando…"
@@ -13301,7 +13301,7 @@ msgid "Why this line is being declined; surfaced on the printable quote and reco
 msgstr "Por que esta linha está sendo recusada; mostrado na cotação imprimível e registrado para relatórios de ganho-perda."
 
 msgid "Will remain as a comment line"
-msgstr ""
+msgstr "Permanecerá como uma linha de comentário"
 
 msgid "Window:"
 msgstr "Janela:"
@@ -13439,7 +13439,7 @@ msgstr "Você conduz; nós garantimos que seja feito corretamente. Olhos especia
 
 #. placeholder {0}: unmappedLines.length
 msgid "You have {0} lines extracted from a PDF that are not mapped to any inventory items."
-msgstr ""
+msgstr "Você tem {0} linhas extraídas de um PDF que não estão mapeadas para nenhum item de inventário."
 
 msgid "You haven't created any contacts yet."
 msgstr "Ainda não criou nenhum contacto."
