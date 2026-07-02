@@ -85,7 +85,7 @@ msgid "{count, plural, one {# course} other {# courses}}"
 msgstr "{count, plural, one {# コース} other {# コース}}"
 
 msgid "{from}–{to} of {count}"
-msgstr ""
+msgstr "{from}–{to} / {count}"
 
 #. placeholder {0}: errors.length
 #. placeholder {1}: skipped.length
@@ -735,7 +735,7 @@ msgid "All Suppliers"
 msgstr "すべてのサプライヤー"
 
 msgid "All Time"
-msgstr ""
+msgstr "すべての期間"
 
 msgid "All Types"
 msgstr "すべてのタイプ"
@@ -878,7 +878,7 @@ msgid "Applies to all work centers"
 msgstr "すべてのワークセンターに適用"
 
 msgid "Apply"
-msgstr ""
+msgstr "適用"
 
 msgid "Apply available credits"
 msgstr "利用可能なクレジットを適用"
@@ -1309,11 +1309,11 @@ msgid "As needed"
 msgstr "必要に応じて"
 
 msgid "As of"
-msgstr ""
+msgstr "現在時点で"
 
 #. placeholder {0}: formatDate(endDate)
 msgid "As of {0}"
-msgstr ""
+msgstr "{0}時点で"
 
 msgid "As of:"
 msgstr "以下の日付時点:"
@@ -2059,7 +2059,7 @@ msgid "Closed Date"
 msgstr "終了日"
 
 msgid "Closing"
-msgstr ""
+msgstr "終了残高"
 
 msgid "Closure blocked"
 msgstr "完了がブロックされています"
@@ -2949,7 +2949,7 @@ msgid "Custom SOW · we manage"
 msgstr "カスタムSOW · 当社が管理"
 
 msgid "Custom…"
-msgstr ""
+msgstr "カスタム…"
 
 msgid "customer"
 msgstr "顧客"
@@ -4345,13 +4345,13 @@ msgid "End Date"
 msgstr "終了日"
 
 msgid "End of Last Fiscal Year"
-msgstr ""
+msgstr "前会計年度末"
 
 msgid "End of Last Month"
-msgstr ""
+msgstr "先月末"
 
 msgid "End of Last Quarter"
-msgstr ""
+msgstr "前四半期末"
 
 msgid "End Time"
 msgstr "終了時刻"
@@ -4414,7 +4414,7 @@ msgid "Entity type cannot be changed"
 msgstr "エンティティタイプは変更できません"
 
 msgid "Entry"
-msgstr ""
+msgstr "仕訳"
 
 msgid "Entry Type"
 msgstr "エントリータイプ"
@@ -5113,7 +5113,7 @@ msgid "Fiscal Year Settings"
 msgstr "会計年度設定"
 
 msgid "Fiscal Year to Date"
-msgstr ""
+msgstr "会計年度初めから現在まで"
 
 msgid "Fiscal Years"
 msgstr "会計年度"
@@ -6328,16 +6328,16 @@ msgid "Last Calibration Date"
 msgstr "最後のキャリブレーション日"
 
 msgid "Last Fiscal Year"
-msgstr ""
+msgstr "前年度"
 
 msgid "Last Month"
-msgstr ""
+msgstr "先月"
 
 msgid "Last Name"
 msgstr "姓"
 
 msgid "Last Quarter"
-msgstr ""
+msgstr "前四半期"
 
 #. placeholder {0}: formatDateTime(lastSyncedAt)
 msgid "Last synced: {0}"
@@ -7147,7 +7147,7 @@ msgid "Net book value"
 msgstr "純簿価額"
 
 msgid "Net Change"
-msgstr ""
+msgstr "純変化"
 
 msgid "Never"
 msgstr "なし"
@@ -7708,7 +7708,7 @@ msgid "No time entries for this week"
 msgstr "今週のタイムエントリがありません"
 
 msgid "No transactions in this period"
-msgstr ""
+msgstr "この期間に取引がありません"
 
 msgid "No value needed"
 msgstr "値が不要です"
@@ -7972,7 +7972,7 @@ msgid "Opened"
 msgstr "開いている"
 
 msgid "Opening"
-msgstr ""
+msgstr "開始残高"
 
 msgid "Opening balance of depreciation already booked before this asset was added to Carbon (use 0 for new acquisitions)."
 msgstr "このアセットがCarbonに追加される前に既に予約されていた減価償却の期首残高（新規取得の場合は0を使用してください）。"
@@ -11948,7 +11948,7 @@ msgid "This file is no longer available, or you don't have permission to downloa
 msgstr "このファイルは利用できなくなっているか、ダウンロード権限がありません。"
 
 msgid "This Fiscal Year"
-msgstr ""
+msgstr "この会計年度"
 
 msgid "This information will be used on document headers"
 msgstr "この情報はドキュメントヘッダーで使用されます"
@@ -11987,7 +11987,7 @@ msgid "This may take a moment. Hang tight."
 msgstr "これには少し時間がかかる場合があります。お待ちください。"
 
 msgid "This Month"
-msgstr ""
+msgstr "今月"
 
 msgid "This page of your Implementation Hub is being built. Start from the command center while we finish it."
 msgstr "このページのImplementation Hubは現在構築中です。完成するまでコマンドセンターから始めてください。"
@@ -12005,7 +12005,7 @@ msgid "This part is superseded and set to Stock Only — it's replenished to its
 msgstr "このパーツは廃止予定であり、「Stock Only」に設定されています。予備部品の予備フロアまで補充され、需要とは無関係に運用されます。"
 
 msgid "This Quarter"
-msgstr ""
+msgstr "今四半期"
 
 msgid "This sales order has associated jobs. Choose what to do with them."
 msgstr "この販売注文には関連するジョブがあります。それらをどうするかを選択してください。"
@@ -12054,7 +12054,7 @@ msgstr "3者照合"
 
 #. placeholder {0}: formatDate(endDate)
 msgid "Through {0}"
-msgstr ""
+msgstr "{0}まで"
 
 msgid "Thumbnail"
 msgstr "サムネイル"

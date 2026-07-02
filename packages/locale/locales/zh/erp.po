@@ -85,7 +85,7 @@ msgid "{count, plural, one {# course} other {# courses}}"
 msgstr "{count, plural, one {# 门课程} other {# 门课程}}"
 
 msgid "{from}–{to} of {count}"
-msgstr ""
+msgstr "{from}–{to} 共 {count}"
 
 #. placeholder {0}: errors.length
 #. placeholder {1}: skipped.length
@@ -735,7 +735,7 @@ msgid "All Suppliers"
 msgstr "所有供应商"
 
 msgid "All Time"
-msgstr ""
+msgstr "所有时间"
 
 msgid "All Types"
 msgstr "所有类型"
@@ -878,7 +878,7 @@ msgid "Applies to all work centers"
 msgstr "适用于所有工作中心"
 
 msgid "Apply"
-msgstr ""
+msgstr "应用"
 
 msgid "Apply available credits"
 msgstr "应用可用额度"
@@ -1309,11 +1309,11 @@ msgid "As needed"
 msgstr "按需"
 
 msgid "As of"
-msgstr ""
+msgstr "截至"
 
 #. placeholder {0}: formatDate(endDate)
 msgid "As of {0}"
-msgstr ""
+msgstr "截至 {0}"
 
 msgid "As of:"
 msgstr "截至："
@@ -2059,7 +2059,7 @@ msgid "Closed Date"
 msgstr "关闭日期"
 
 msgid "Closing"
-msgstr ""
+msgstr "结余"
 
 msgid "Closure blocked"
 msgstr "关闭被阻止"
@@ -2949,7 +2949,7 @@ msgid "Custom SOW · we manage"
 msgstr "自定义 SOW · 我们管理"
 
 msgid "Custom…"
-msgstr ""
+msgstr "自定义…"
 
 msgid "customer"
 msgstr "客户"
@@ -4345,13 +4345,13 @@ msgid "End Date"
 msgstr "结束日期"
 
 msgid "End of Last Fiscal Year"
-msgstr ""
+msgstr "上一财政年度末"
 
 msgid "End of Last Month"
-msgstr ""
+msgstr "上月末"
 
 msgid "End of Last Quarter"
-msgstr ""
+msgstr "上一季度末"
 
 msgid "End Time"
 msgstr "结束时间"
@@ -4414,7 +4414,7 @@ msgid "Entity type cannot be changed"
 msgstr "实体类型无法更改"
 
 msgid "Entry"
-msgstr ""
+msgstr "条目"
 
 msgid "Entry Type"
 msgstr "条目类型"
@@ -5113,7 +5113,7 @@ msgid "Fiscal Year Settings"
 msgstr "财政年度设置"
 
 msgid "Fiscal Year to Date"
-msgstr ""
+msgstr "财政年度至今"
 
 msgid "Fiscal Years"
 msgstr "财政年度"
@@ -6328,16 +6328,16 @@ msgid "Last Calibration Date"
 msgstr "上次校准日期"
 
 msgid "Last Fiscal Year"
-msgstr ""
+msgstr "上一财政年度"
 
 msgid "Last Month"
-msgstr ""
+msgstr "上个月"
 
 msgid "Last Name"
 msgstr "姓氏"
 
 msgid "Last Quarter"
-msgstr ""
+msgstr "上一季度"
 
 #. placeholder {0}: formatDateTime(lastSyncedAt)
 msgid "Last synced: {0}"
@@ -7147,7 +7147,7 @@ msgid "Net book value"
 msgstr "净账面价值"
 
 msgid "Net Change"
-msgstr ""
+msgstr "净变化"
 
 msgid "Never"
 msgstr "永不"
@@ -7708,7 +7708,7 @@ msgid "No time entries for this week"
 msgstr "本周没有时间条目"
 
 msgid "No transactions in this period"
-msgstr ""
+msgstr "此期间无交易"
 
 msgid "No value needed"
 msgstr "不需要值"
@@ -7972,7 +7972,7 @@ msgid "Opened"
 msgstr "打开"
 
 msgid "Opening"
-msgstr ""
+msgstr "期初"
 
 msgid "Opening balance of depreciation already booked before this asset was added to Carbon (use 0 for new acquisitions)."
 msgstr "在将此资产添加到Carbon之前已入账的折旧的期初余额（新购置的情况下使用0）。"
@@ -11948,7 +11948,7 @@ msgid "This file is no longer available, or you don't have permission to downloa
 msgstr "此文件不再可用，或您没有权限下载它。"
 
 msgid "This Fiscal Year"
-msgstr ""
+msgstr "本财政年度"
 
 msgid "This information will be used on document headers"
 msgstr "此信息将用于文档标题"
@@ -11987,7 +11987,7 @@ msgid "This may take a moment. Hang tight."
 msgstr "这可能需要一些时间。请稍候。"
 
 msgid "This Month"
-msgstr ""
+msgstr "本月"
 
 msgid "This page of your Implementation Hub is being built. Start from the command center while we finish it."
 msgstr "您的实现中心的此页面正在构建中。请从命令中心开始，我们将继续完成它。"
@@ -12005,7 +12005,7 @@ msgid "This part is superseded and set to Stock Only — it's replenished to its
 msgstr "此零件已被替代并设置为仅库存 — 它补充到其备件储备下限，与需求无关。"
 
 msgid "This Quarter"
-msgstr ""
+msgstr "本季度"
 
 msgid "This sales order has associated jobs. Choose what to do with them."
 msgstr "此销售订单有关联的工作。选择如何处理它们。"
@@ -12054,7 +12054,7 @@ msgstr "三方对账"
 
 #. placeholder {0}: formatDate(endDate)
 msgid "Through {0}"
-msgstr ""
+msgstr "至 {0}"
 
 msgid "Thumbnail"
 msgstr "缩略图"

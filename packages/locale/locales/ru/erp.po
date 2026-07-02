@@ -85,7 +85,7 @@ msgid "{count, plural, one {# course} other {# courses}}"
 msgstr "{count, plural, one {# курс} other {# курсов}}"
 
 msgid "{from}–{to} of {count}"
-msgstr ""
+msgstr "{from}–{to} из {count}"
 
 #. placeholder {0}: errors.length
 #. placeholder {1}: skipped.length
@@ -735,7 +735,7 @@ msgid "All Suppliers"
 msgstr "Все поставщики"
 
 msgid "All Time"
-msgstr ""
+msgstr "Все время"
 
 msgid "All Types"
 msgstr "Все типы"
@@ -878,7 +878,7 @@ msgid "Applies to all work centers"
 msgstr "Применяется ко всем рабочим центрам"
 
 msgid "Apply"
-msgstr ""
+msgstr "Применить"
 
 msgid "Apply available credits"
 msgstr "Применить доступные кредиты"
@@ -1309,11 +1309,11 @@ msgid "As needed"
 msgstr "По мере необходимости"
 
 msgid "As of"
-msgstr ""
+msgstr "На дату"
 
 #. placeholder {0}: formatDate(endDate)
 msgid "As of {0}"
-msgstr ""
+msgstr "По состоянию на {0}"
 
 msgid "As of:"
 msgstr "По состоянию на:"
@@ -2059,7 +2059,7 @@ msgid "Closed Date"
 msgstr "Дата закрытия"
 
 msgid "Closing"
-msgstr ""
+msgstr "Закрытие"
 
 msgid "Closure blocked"
 msgstr "Закрытие заблокировано"
@@ -2949,7 +2949,7 @@ msgid "Custom SOW · we manage"
 msgstr "Пользовательское SOW · мы управляем"
 
 msgid "Custom…"
-msgstr ""
+msgstr "Пользовательский…"
 
 msgid "customer"
 msgstr "клиент"
@@ -4345,13 +4345,13 @@ msgid "End Date"
 msgstr "Дата окончания"
 
 msgid "End of Last Fiscal Year"
-msgstr ""
+msgstr "Конец последнего финансового года"
 
 msgid "End of Last Month"
-msgstr ""
+msgstr "Конец последнего месяца"
 
 msgid "End of Last Quarter"
-msgstr ""
+msgstr "Конец последнего квартала"
 
 msgid "End Time"
 msgstr "Время окончания"
@@ -4414,7 +4414,7 @@ msgid "Entity type cannot be changed"
 msgstr "Тип сущности не может быть изменён"
 
 msgid "Entry"
-msgstr ""
+msgstr "Запись"
 
 msgid "Entry Type"
 msgstr "Тип записи"
@@ -5113,7 +5113,7 @@ msgid "Fiscal Year Settings"
 msgstr "Параметры финансового года"
 
 msgid "Fiscal Year to Date"
-msgstr ""
+msgstr "Финансовый год на сегодняшний день"
 
 msgid "Fiscal Years"
 msgstr "Финансовые годы"
@@ -6328,16 +6328,16 @@ msgid "Last Calibration Date"
 msgstr "Дата последней калибровки"
 
 msgid "Last Fiscal Year"
-msgstr ""
+msgstr "Прошлый финансовый год"
 
 msgid "Last Month"
-msgstr ""
+msgstr "Прошлый месяц"
 
 msgid "Last Name"
 msgstr "Фамилия"
 
 msgid "Last Quarter"
-msgstr ""
+msgstr "Последний квартал"
 
 #. placeholder {0}: formatDateTime(lastSyncedAt)
 msgid "Last synced: {0}"
@@ -7147,7 +7147,7 @@ msgid "Net book value"
 msgstr "Чистая балансовая стоимость"
 
 msgid "Net Change"
-msgstr ""
+msgstr "Чистое изменение"
 
 msgid "Never"
 msgstr "Никогда"
@@ -7708,7 +7708,7 @@ msgid "No time entries for this week"
 msgstr "Нет записей о времени на эту неделю"
 
 msgid "No transactions in this period"
-msgstr ""
+msgstr "Нет транзакций в этом периоде"
 
 msgid "No value needed"
 msgstr "Значение не требуется"
@@ -7972,7 +7972,7 @@ msgid "Opened"
 msgstr "Открыт"
 
 msgid "Opening"
-msgstr ""
+msgstr "Открытие"
 
 msgid "Opening balance of depreciation already booked before this asset was added to Carbon (use 0 for new acquisitions)."
 msgstr "Начальный баланс амортизации, уже учтенный до добавления этого актива в Carbon (используйте 0 для новых приобретений)."
@@ -11948,7 +11948,7 @@ msgid "This file is no longer available, or you don't have permission to downloa
 msgstr "Этот файл больше не доступен, или у вас нет разрешения на его загрузку."
 
 msgid "This Fiscal Year"
-msgstr ""
+msgstr "Этот финансовый год"
 
 msgid "This information will be used on document headers"
 msgstr "Эта информация будет использована в заголовках документов"
@@ -11987,7 +11987,7 @@ msgid "This may take a moment. Hang tight."
 msgstr "Это может занять некоторое время. Не волнуйтесь."
 
 msgid "This Month"
-msgstr ""
+msgstr "Этот месяц"
 
 msgid "This page of your Implementation Hub is being built. Start from the command center while we finish it."
 msgstr "Эта страница вашего Implementation Hub находится в разработке. Начните с командного центра, пока мы её завершаем."
@@ -12005,7 +12005,7 @@ msgid "This part is superseded and set to Stock Only — it's replenished to its
 msgstr "Эта деталь снята с производства и установлена в режим «Только запас» — она пополняется до минимального уровня резервного запаса независимо от спроса."
 
 msgid "This Quarter"
-msgstr ""
+msgstr "Этот квартал"
 
 msgid "This sales order has associated jobs. Choose what to do with them."
 msgstr "Этот заказ на продажу имеет связанные работы. Выберите, что с ними делать."
@@ -12054,7 +12054,7 @@ msgstr "Трёхсторонняя сверка"
 
 #. placeholder {0}: formatDate(endDate)
 msgid "Through {0}"
-msgstr ""
+msgstr "До {0}"
 
 msgid "Thumbnail"
 msgstr "Миниатюра"

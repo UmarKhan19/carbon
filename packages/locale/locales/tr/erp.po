@@ -85,7 +85,7 @@ msgid "{count, plural, one {# course} other {# courses}}"
 msgstr "{count, plural, one {# kurs} other {# kurs}}"
 
 msgid "{from}–{to} of {count}"
-msgstr ""
+msgstr "{from}–{to} / {count}"
 
 #. placeholder {0}: errors.length
 #. placeholder {1}: skipped.length
@@ -735,7 +735,7 @@ msgid "All Suppliers"
 msgstr "Tüm Tedarikçiler"
 
 msgid "All Time"
-msgstr ""
+msgstr "Her Zaman"
 
 msgid "All Types"
 msgstr "Tüm Türler"
@@ -878,7 +878,7 @@ msgid "Applies to all work centers"
 msgstr "Tüm iş merkezlerine uygulanır"
 
 msgid "Apply"
-msgstr ""
+msgstr "Uygula"
 
 msgid "Apply available credits"
 msgstr "Mevcut kredileri uygula"
@@ -1309,11 +1309,11 @@ msgid "As needed"
 msgstr "Gerektiğinde"
 
 msgid "As of"
-msgstr ""
+msgstr "Itibaren"
 
 #. placeholder {0}: formatDate(endDate)
 msgid "As of {0}"
-msgstr ""
+msgstr "{0} itibariyle"
 
 msgid "As of:"
 msgstr "Şu tarih itibariyle:"
@@ -2059,7 +2059,7 @@ msgid "Closed Date"
 msgstr "Kapatma Tarihi"
 
 msgid "Closing"
-msgstr ""
+msgstr "Kapanış"
 
 msgid "Closure blocked"
 msgstr "Kapanış engellendi"
@@ -2949,7 +2949,7 @@ msgid "Custom SOW · we manage"
 msgstr "Özel SOW · biz yönetiriz"
 
 msgid "Custom…"
-msgstr ""
+msgstr "Özel…"
 
 msgid "customer"
 msgstr "müşteri"
@@ -4345,13 +4345,13 @@ msgid "End Date"
 msgstr "Bitiş Tarihi"
 
 msgid "End of Last Fiscal Year"
-msgstr ""
+msgstr "Son Mali Yılın Sonu"
 
 msgid "End of Last Month"
-msgstr ""
+msgstr "Geçen Ayın Sonu"
 
 msgid "End of Last Quarter"
-msgstr ""
+msgstr "Son Çeyreğin Sonu"
 
 msgid "End Time"
 msgstr "Bitiş Saati"
@@ -4414,7 +4414,7 @@ msgid "Entity type cannot be changed"
 msgstr "Varlık türü değiştirilemez"
 
 msgid "Entry"
-msgstr ""
+msgstr "Giriş"
 
 msgid "Entry Type"
 msgstr "Giriş Türü"
@@ -5113,7 +5113,7 @@ msgid "Fiscal Year Settings"
 msgstr "Mali Yılı Ayarları"
 
 msgid "Fiscal Year to Date"
-msgstr ""
+msgstr "Mali Yıldan Bugüne"
 
 msgid "Fiscal Years"
 msgstr "Mali Yıllar"
@@ -6328,16 +6328,16 @@ msgid "Last Calibration Date"
 msgstr "Son Kalibrasyon Tarihi"
 
 msgid "Last Fiscal Year"
-msgstr ""
+msgstr "Son Mali Yıl"
 
 msgid "Last Month"
-msgstr ""
+msgstr "Geçen Ay"
 
 msgid "Last Name"
 msgstr "Soyadı"
 
 msgid "Last Quarter"
-msgstr ""
+msgstr "Son Çeyrek"
 
 #. placeholder {0}: formatDateTime(lastSyncedAt)
 msgid "Last synced: {0}"
@@ -7147,7 +7147,7 @@ msgid "Net book value"
 msgstr "Net Defter Değeri"
 
 msgid "Net Change"
-msgstr ""
+msgstr "Net Değişim"
 
 msgid "Never"
 msgstr "Asla"
@@ -7708,7 +7708,7 @@ msgid "No time entries for this week"
 msgstr "Bu hafta için zaman girişi yok"
 
 msgid "No transactions in this period"
-msgstr ""
+msgstr "Bu dönemde işlem yok"
 
 msgid "No value needed"
 msgstr "Değer gerekmiyor"
@@ -7972,7 +7972,7 @@ msgid "Opened"
 msgstr "Açık"
 
 msgid "Opening"
-msgstr ""
+msgstr "Açılış"
 
 msgid "Opening balance of depreciation already booked before this asset was added to Carbon (use 0 for new acquisitions)."
 msgstr "Bu varlık Carbon'a eklenmeden önce zaten deftere geçirilmiş amortismanın açılış bakiyesi (yeni satın almalar için 0 kullanın)."
@@ -11948,7 +11948,7 @@ msgid "This file is no longer available, or you don't have permission to downloa
 msgstr "Bu dosya artık kullanılamıyor veya onu indirme izniniz yok."
 
 msgid "This Fiscal Year"
-msgstr ""
+msgstr "Bu Mali Yıl"
 
 msgid "This information will be used on document headers"
 msgstr "Bu bilgiler belge başlıklarında kullanılacaktır"
@@ -11987,7 +11987,7 @@ msgid "This may take a moment. Hang tight."
 msgstr "Bu biraz zaman alabilir. Sabrın."
 
 msgid "This Month"
-msgstr ""
+msgstr "Bu Ay"
 
 msgid "This page of your Implementation Hub is being built. Start from the command center while we finish it."
 msgstr "Bu Implementation Hub sayfası şu anda inşa edilmektedir. Biz bitirirken komut merkezinden başlayın."
@@ -12005,7 +12005,7 @@ msgid "This part is superseded and set to Stock Only — it's replenished to its
 msgstr "Bu parça kullanımdan kaldırılmış ve Yalnızca Stok olarak ayarlanmıştır — talep bağımsız olarak yedek rezerv tabanına kadar yenilenir."
 
 msgid "This Quarter"
-msgstr ""
+msgstr "Bu Çeyrek"
 
 msgid "This sales order has associated jobs. Choose what to do with them."
 msgstr "Bu satış siparişi ilgili işlere sahiptir. Onlarla ne yapılacağına karar verin."
@@ -12054,7 +12054,7 @@ msgstr "Üç yönlü eşleşme"
 
 #. placeholder {0}: formatDate(endDate)
 msgid "Through {0}"
-msgstr ""
+msgstr "Şu tarihe kadar {0}"
 
 msgid "Thumbnail"
 msgstr "Küçük Resim"

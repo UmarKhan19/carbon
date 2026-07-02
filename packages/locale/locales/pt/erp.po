@@ -85,7 +85,7 @@ msgid "{count, plural, one {# course} other {# courses}}"
 msgstr "{count, plural, one {# curso} other {# cursos}}"
 
 msgid "{from}–{to} of {count}"
-msgstr ""
+msgstr "{from}–{to} de {count}"
 
 #. placeholder {0}: errors.length
 #. placeholder {1}: skipped.length
@@ -735,7 +735,7 @@ msgid "All Suppliers"
 msgstr "Todos os Fornecedores"
 
 msgid "All Time"
-msgstr ""
+msgstr "Sempre"
 
 msgid "All Types"
 msgstr "Todos os Tipos"
@@ -878,7 +878,7 @@ msgid "Applies to all work centers"
 msgstr "Aplica-se a todos os centros de trabalho"
 
 msgid "Apply"
-msgstr ""
+msgstr "Aplicar"
 
 msgid "Apply available credits"
 msgstr "Aplicar créditos disponíveis"
@@ -1309,11 +1309,11 @@ msgid "As needed"
 msgstr "Conforme necessário"
 
 msgid "As of"
-msgstr ""
+msgstr "A partir de"
 
 #. placeholder {0}: formatDate(endDate)
 msgid "As of {0}"
-msgstr ""
+msgstr "A partir de {0}"
 
 msgid "As of:"
 msgstr "A partir de:"
@@ -2059,7 +2059,7 @@ msgid "Closed Date"
 msgstr "Data de Encerramento"
 
 msgid "Closing"
-msgstr ""
+msgstr "Encerramento"
 
 msgid "Closure blocked"
 msgstr "Encerramento bloqueado"
@@ -2949,7 +2949,7 @@ msgid "Custom SOW · we manage"
 msgstr "SOW personalizado · gerenciamos"
 
 msgid "Custom…"
-msgstr ""
+msgstr "Personalizado…"
 
 msgid "customer"
 msgstr "cliente"
@@ -4345,13 +4345,13 @@ msgid "End Date"
 msgstr "Data Final"
 
 msgid "End of Last Fiscal Year"
-msgstr ""
+msgstr "Fim do Último Ano Fiscal"
 
 msgid "End of Last Month"
-msgstr ""
+msgstr "Fim do Mês Anterior"
 
 msgid "End of Last Quarter"
-msgstr ""
+msgstr "Fim do Trimestre Anterior"
 
 msgid "End Time"
 msgstr "Hora de Término"
@@ -4414,7 +4414,7 @@ msgid "Entity type cannot be changed"
 msgstr "O tipo de entidade não pode ser alterado"
 
 msgid "Entry"
-msgstr ""
+msgstr "Lançamento"
 
 msgid "Entry Type"
 msgstr "Tipo de Entrada"
@@ -5113,7 +5113,7 @@ msgid "Fiscal Year Settings"
 msgstr "Configurações do Ano Fiscal"
 
 msgid "Fiscal Year to Date"
-msgstr ""
+msgstr "Ano Fiscal até Hoje"
 
 msgid "Fiscal Years"
 msgstr "Anos Fiscais"
@@ -6328,16 +6328,16 @@ msgid "Last Calibration Date"
 msgstr "Data da Última Calibração"
 
 msgid "Last Fiscal Year"
-msgstr ""
+msgstr "Último Ano Fiscal"
 
 msgid "Last Month"
-msgstr ""
+msgstr "Mês Passado"
 
 msgid "Last Name"
 msgstr "Sobrenome"
 
 msgid "Last Quarter"
-msgstr ""
+msgstr "Último Trimestre"
 
 #. placeholder {0}: formatDateTime(lastSyncedAt)
 msgid "Last synced: {0}"
@@ -7147,7 +7147,7 @@ msgid "Net book value"
 msgstr "Valor Líquido Contábil"
 
 msgid "Net Change"
-msgstr ""
+msgstr "Alteração Líquida"
 
 msgid "Never"
 msgstr "Nunca"
@@ -7708,7 +7708,7 @@ msgid "No time entries for this week"
 msgstr "Sem registros de tempo para esta semana"
 
 msgid "No transactions in this period"
-msgstr ""
+msgstr "Nenhuma transação neste período"
 
 msgid "No value needed"
 msgstr "Nenhum valor necessário"
@@ -7972,7 +7972,7 @@ msgid "Opened"
 msgstr "Aberto"
 
 msgid "Opening"
-msgstr ""
+msgstr "Abertura"
 
 msgid "Opening balance of depreciation already booked before this asset was added to Carbon (use 0 for new acquisitions)."
 msgstr "Saldo de abertura da depreciação já contabilizada antes de este ativo ser adicionado ao Carbon (use 0 para novas aquisições)."
@@ -11948,7 +11948,7 @@ msgid "This file is no longer available, or you don't have permission to downloa
 msgstr "Este arquivo não está mais disponível, ou você não tem permissão para baixá-lo."
 
 msgid "This Fiscal Year"
-msgstr ""
+msgstr "Este Ano Fiscal"
 
 msgid "This information will be used on document headers"
 msgstr "Esta informação será usada nos cabeçalhos de documentos"
@@ -11987,7 +11987,7 @@ msgid "This may take a moment. Hang tight."
 msgstr "Isto pode levar um momento. Aguarde."
 
 msgid "This Month"
-msgstr ""
+msgstr "Este Mês"
 
 msgid "This page of your Implementation Hub is being built. Start from the command center while we finish it."
 msgstr "Esta página do seu Implementation Hub está sendo construída. Comece pelo centro de comando enquanto terminamos."
@@ -12005,7 +12005,7 @@ msgid "This part is superseded and set to Stock Only — it's replenished to its
 msgstr "Esta peça foi substituída e configurada como Stock Only — é reabastecida até seu piso de reserva de peças de reposição, independentemente da demanda."
 
 msgid "This Quarter"
-msgstr ""
+msgstr "Este Trimestre"
 
 msgid "This sales order has associated jobs. Choose what to do with them."
 msgstr "Esta ordem de venda tem trabalhos associados. Escolha o que fazer com eles."
@@ -12054,7 +12054,7 @@ msgstr "Reconciliação de três vias"
 
 #. placeholder {0}: formatDate(endDate)
 msgid "Through {0}"
-msgstr ""
+msgstr "Até {0}"
 
 msgid "Thumbnail"
 msgstr "Miniatura"
