@@ -130,6 +130,9 @@ export const path = {
           `${api}/integrations/onshape/d/${documentId}/v/${versionId}/elements`
         ),
       onShapeSync: `${api}/integrations/onshape/sync`,
+      onShapeReleasedRevisions: (documentId: string) =>
+        generatePath(`${api}/integrations/onshape/d/${documentId}/revisions`),
+      onShapeImport: `${api}/integrations/onshape/import`,
       linearCreateIssue: `${api}/integrations/linear/issue/create`,
       linearLinkExistingIssue: `${api}/integrations/linear/issue/link`,
       linearSyncNotes: `${api}/integrations/linear/issue/sync-notes`,
@@ -594,6 +597,18 @@ export const path = {
       generatePath(`${x}/part/${itemId}/parameter/order`),
     configurationRule: (itemId: string) =>
       generatePath(`${x}/part/${itemId}/rule`),
+    changeOrders: `${x}/items/change-order/change-orders`,
+    changeOrder: (id: string) => generatePath(`${x}/change-order/${id}`),
+    changeOrderDetails: (id: string) =>
+      generatePath(`${x}/change-order/${id}/details`),
+    changeOrderItem: (id: string, coItemId: string) =>
+      generatePath(`${x}/change-order/${id}/item/${coItemId}`),
+    newChangeOrder: `${x}/change-order/new`,
+    deleteChangeOrder: (id: string) =>
+      generatePath(`${x}/change-order/${id}/delete`),
+    updateChangeOrderItem: `${x}/change-order/item/update`,
+    deleteChangeOrderItem: (coItemId: string) =>
+      generatePath(`${x}/change-order/item/delete/${coItemId}`),
     contractor: (id: string) =>
       generatePath(`${x}/resources/contractors/${id}`),
     contractors: `${x}/resources/contractors`,

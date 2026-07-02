@@ -165,6 +165,9 @@ msgstr "90 jours"
 msgid "A Carbon-run data migration — you load your own data"
 msgstr "Une migration de données gérée par Carbon — vous chargez vos propres données"
 
+msgid "A change order tracks engineering and manufacturing changes through review, approval, and release."
+msgstr ""
+
 msgid "A clearing account holding the value of goods received but not yet billed; the supplier invoice clears it."
 msgstr "Un compte de compensation tenant la valeur des marchandises reçues mais non encore facturées ; la facture du fournisseur l'apure."
 
@@ -525,6 +528,9 @@ msgstr "Ajouter une étape"
 msgid "Add Actions"
 msgstr "Ajouter des actions"
 
+msgid "Add affected item"
+msgstr ""
+
 msgid "Add any notes about your decision..."
 msgstr "Ajoutez des notes sur votre décision..."
 
@@ -672,6 +678,9 @@ msgstr "Type d'ajustement"
 
 msgid "Advanced"
 msgstr "Avancé"
+
+msgid "Affected Items"
+msgstr ""
 
 msgid "After"
 msgstr "Après"
@@ -894,6 +903,9 @@ msgstr "Appliquer aux factures"
 msgid "Approaching {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB cap."
 msgstr "Approche de la limite de {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB."
 
+msgid "Approval"
+msgstr ""
+
 msgid "Approval Date"
 msgstr "Date d'approbation"
 
@@ -905,6 +917,9 @@ msgstr "Exigences d'approbation"
 
 msgid "Approval Rules"
 msgstr "Règles d'approbation"
+
+msgid "Approval Type"
+msgstr ""
 
 msgid "Approve"
 msgstr "Approuver"
@@ -1193,6 +1208,9 @@ msgstr "Êtes-vous sûr de vouloir supprimer le webhook : {0} ? Cette action ne 
 
 msgid "Are you sure you want to delete this approval rule? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer cette règle d'approbation ? Cette action ne peut pas être annulée."
+
+msgid "Are you sure you want to delete this change order?"
+msgstr ""
 
 msgid "Are you sure you want to delete this gauge?"
 msgstr "Êtes-vous sûr de vouloir supprimer ce jauge ?"
@@ -1919,6 +1937,12 @@ msgstr "Champions"
 
 msgid "Change"
 msgstr "Modifier"
+
+msgid "Change Order"
+msgstr ""
+
+msgid "Change Orders"
+msgstr ""
 
 msgid "Change status"
 msgstr "Modifier le statut"
@@ -3336,6 +3360,9 @@ msgstr "Supprimer l'attribut"
 msgid "Delete Category"
 msgstr "Supprimer la catégorie"
 
+msgid "Delete Change Order"
+msgstr ""
+
 msgid "Delete Consumable"
 msgstr "Supprimer la consommable"
 
@@ -4218,6 +4245,9 @@ msgstr "Modifier le Webhook"
 msgid "Edit Work Center"
 msgstr "Modifier le centre de travail"
 
+msgid "Effective Date"
+msgstr ""
+
 msgid "Effective From"
 msgstr "À partir de"
 
@@ -4328,6 +4358,9 @@ msgstr "Niveau d'engagement"
 
 msgid "Engineering"
 msgstr "Ingénierie"
+
+msgid "Engineering Change"
+msgstr ""
 
 msgid "Engineering changes and CAD"
 msgstr "Modifications d'ingénierie et CAO"
@@ -5703,6 +5736,9 @@ msgstr "Chef de mise en œuvre"
 msgid "Implementation Support"
 msgstr "Support à la mise en œuvre"
 
+msgid "Import"
+msgstr ""
+
 msgid "Import {label} CSV"
 msgstr "Importer {label} CSV"
 
@@ -5711,6 +5747,9 @@ msgstr "Résultats d'Importation"
 
 msgid "Import your BOM"
 msgstr "Importez votre nomenclature"
+
+msgid "Imported into draft change order"
+msgstr ""
 
 msgid "In order to convert this RFQ to a quote, all lines must have an internal part number."
 msgstr "Pour convertir cette demande de devis en devis, toutes les lignes doivent avoir un numéro de pièce interne."
@@ -7423,6 +7462,9 @@ msgstr "Aucun devis actif"
 msgid "No addresses found"
 msgstr "Aucune adresse trouvée"
 
+msgid "No affected items yet"
+msgstr ""
+
 msgid "No applications. Payment will be on-account."
 msgstr "Aucune application. Le paiement sera sur compte."
 
@@ -7571,6 +7613,9 @@ msgstr "Aucune source parent enregistrée pour le moment. Cliquez sur Recalculer
 msgid "No part ID"
 msgstr "Aucun ID de pièce"
 
+msgid "No Part Number"
+msgstr ""
+
 msgid "No payables"
 msgstr "Aucun compte créditeur"
 
@@ -7603,6 +7648,9 @@ msgstr "Aucune raison de devis"
 
 msgid "No receivables"
 msgstr "Aucune créance"
+
+msgid "No released revisions in this document."
+msgstr ""
 
 msgid "No remaining entities to inspect."
 msgstr "Aucune entité restante à inspecter."
@@ -8310,6 +8358,9 @@ msgstr "Prélever"
 
 msgid "Pick a column to sort by"
 msgstr "Choisir une colonne pour trier"
+
+msgid "Pick a connected document, then a released object to import into a draft change order."
+msgstr ""
 
 msgid "Pick a customer or customer type to view their pricing."
 msgstr "Sélectionnez un client ou un type de client pour afficher leurs tarifs."
@@ -9272,6 +9323,9 @@ msgstr "Lancer le travail"
 msgid "Released"
 msgstr "Libéré"
 
+msgid "Released Object"
+msgstr ""
+
 msgid "Remaining"
 msgstr "Restant"
 
@@ -9982,6 +10036,12 @@ msgstr "Sélectionner un assigné"
 
 msgid "Select a default approver"
 msgstr "Sélectionner un approbateur par défaut"
+
+msgid "Select a document"
+msgstr ""
+
+msgid "Select a document to list released objects."
+msgstr ""
 
 msgid "Select a new owner"
 msgstr "Sélectionner un nouveau propriétaire"
@@ -11054,6 +11114,12 @@ msgstr "Changer le type d'employé ici ne change pas ses permissions existantes;
 msgid "Sync"
 msgstr "Synchroniser"
 
+msgid "Sync from Onshape"
+msgstr ""
+
+msgid "Sync from OnShape"
+msgstr ""
+
 msgid "System"
 msgstr "Système"
 
@@ -11876,6 +11942,9 @@ msgstr "Ces informations seront utilisées dans les en-têtes de document"
 
 msgid "This information will be visible to all users, so be careful what you share."
 msgstr "Ces informations seront visibles par tous les utilisateurs, soyez donc prudent dans ce que vous partagez."
+
+msgid "This is a configured object — its configuration will be imported."
+msgstr ""
 
 msgid "This is a unique identifier for the webhook"
 msgstr "Ceci est un identifiant unique pour le webhook"

@@ -7,6 +7,7 @@ import {
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { Onshape } from "@carbon/ee";
+import { OnshapeClient } from "@carbon/ee/onshape";
 import type { LoaderFunctionArgs } from "react-router";
 import { data, redirect } from "react-router";
 import { upsertCompanyIntegration } from "~/modules/settings/settings.server";
@@ -81,6 +82,23 @@ export async function loader({ request }: LoaderFunctionArgs) {
       );
     }
 
+    const baseUrl = "https://cad.onshape.com";
+
+    // Resolve the Onshape company id (cid) needed by the Revisions API. Non-fatal:
+    // if it fails, the connect still succeeds and the revisions route falls back
+    // to getCompanies() at read time.
+    let onshapeCompanyId: string | null = null;
+    try {
+      const onshapeClient = new OnshapeClient({
+        baseUrl,
+        accessToken: tokenData.access_token
+      });
+      const companies = await onshapeClient.getCompanies();
+      onshapeCompanyId = companies.items?.[0]?.id ?? null;
+    } catch (companyError) {
+      console.error("Failed to resolve Onshape company id:", companyError);
+    }
+
     const serviceRole = getCarbonServiceRole();
     const createdIntegration = await upsertCompanyIntegration(serviceRole, {
       id: Onshape.id,
@@ -92,7 +110,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
           refreshToken: tokenData.refresh_token,
           expiresAt: new Date(Date.now() + 3600 * 1000).toISOString()
         },
-        baseUrl: "https://cad.onshape.com"
+        baseUrl,
+        ...(onshapeCompanyId ? { onshapeCompanyId } : {})
       },
       updatedBy: userId,
       companyId: companyId

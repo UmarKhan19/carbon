@@ -5,6 +5,7 @@ import {
   LuAxis3D,
   LuBeef,
   LuDessert,
+  LuGitPullRequestArrow,
   LuGlassWater,
   LuGroup,
   LuHammer,
@@ -49,6 +50,17 @@ export default function useItemsSubmodules() {
           to: path.to.consumables,
           icon: <LuPizza />,
           table: "consumable"
+        }
+      ]
+    },
+    {
+      name: t`Engineering Change`,
+      routes: [
+        {
+          name: t`Change Orders`,
+          to: path.to.changeOrders,
+          icon: <LuGitPullRequestArrow />,
+          table: "changeOrder"
         }
       ]
     },

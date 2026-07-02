@@ -1,5 +1,5 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
-import { getOnshapeClient } from "@carbon/ee/onshape";
+import { flattenOnshapeBomRows, getOnshapeClient } from "@carbon/ee/onshape";
 import type {
   LoaderFunctionArgs,
   ShouldRevalidateFunction
@@ -56,28 +56,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       "rows" in response &&
       Array.isArray(response.rows)
     ) {
-      // Transform the BOM data into a structured array of objects
-      const headers = response.headers;
-      const rows = response.rows;
-
-      // Create an array of objects where each object represents a row with properties named after headers
-      const flattenedData = rows.map((row) => {
-        const rowData: Record<string, any> = {};
-
-        // Map each header to its corresponding value in the row
-        headers.forEach((header) => {
-          if (header.name === "Material") {
-            // Handle special case for Material field which might have a displayName
-            rowData[header.name] =
-              row.headerIdToValue[header.id]?.displayName || "";
-          } else {
-            // For other fields, just use the value directly
-            rowData[header.name] = row.headerIdToValue[header.id] || "";
-          }
-        });
-
-        return rowData;
-      });
+      // Flatten the multi-level BOM (headers→rows) via the shared parser.
+      const flattenedData = flattenOnshapeBomRows(response);
 
       const uniquePartNumbers = new Set(
         flattenedData.map((row) =>

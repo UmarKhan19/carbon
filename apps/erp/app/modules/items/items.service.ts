@@ -13,6 +13,7 @@ import type { z } from "zod";
 import type { GenericQueryFilters } from "~/utils/query";
 import { setGenericQueryFilters } from "~/utils/query";
 import { sanitize } from "~/utils/supabase";
+import type { nonConformancePriority } from "../quality/quality.models";
 import type {
   operationParameterValidator,
   operationStepValidator,
@@ -26,6 +27,11 @@ import {
   type SupplierPriceMap
 } from "../shared";
 import {
+  canEditChangeOrderItems,
+  type changeOrderApprovalType,
+  type changeOrderDisposition,
+  type changeOrderStatus,
+  type changeOrderType,
   type configurationParameterGroupOrderValidator,
   type configurationParameterGroupValidator,
   type configurationParameterOrderValidator,
@@ -178,6 +184,564 @@ export async function createRevision(
   }
 
   return itemInsert;
+}
+
+// =============================================================================
+// PLM / change orders (ECO). Reviewer, approval-task, and release behavior are
+// not implemented yet.
+// =============================================================================
+
+export async function getChangeOrder(
+  client: SupabaseClient<Database>,
+  changeOrderId: string,
+  companyId: string
+) {
+  return client
+    .from("changeOrder")
+    .select("*")
+    .eq("id", changeOrderId)
+    .eq("companyId", companyId)
+    .single();
+}
+
+export async function getChangeOrders(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  args?: GenericQueryFilters & { search: string | null }
+) {
+  let query = client
+    .from("changeOrder")
+    .select("*", { count: "exact" })
+    .eq("companyId", companyId);
+
+  if (args?.search) {
+    query = query.or(
+      `changeOrderId.ilike.%${args.search}%,name.ilike.%${args.search}%`
+    );
+  }
+
+  if (args) {
+    query = setGenericQueryFilters(query, args, [
+      { column: "changeOrderId", ascending: false }
+    ]);
+  }
+
+  return query;
+}
+
+export async function getChangeOrderItems(
+  client: SupabaseClient<Database>,
+  id: string,
+  companyId: string
+) {
+  return client
+    .from("changeOrderItem")
+    .select(
+      "*, ...item!changeOrderItem_itemId_fkey(revision, readableIdWithRevision, revisionStatus), pendingItem:item!changeOrderItem_pendingItemId_fkey(id, readableIdWithRevision, revision, revisionStatus)"
+    )
+    .eq("changeOrderId", id)
+    .eq("companyId", companyId)
+    .order("createdAt", { ascending: true });
+}
+
+export async function getChangeOrderTypesList(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  return client
+    .from("changeOrderType")
+    .select("id, name")
+    .eq("companyId", companyId)
+    .order("name");
+}
+
+export async function insertChangeOrder(
+  client: SupabaseClient<Database>,
+  input: {
+    companyId: string;
+    createdBy: string;
+    changeOrderId?: string;
+    name: string;
+    type: (typeof changeOrderType)[number];
+    approvalType: (typeof changeOrderApprovalType)[number];
+    priority?: (typeof nonConformancePriority)[number];
+    openDate: string;
+    description?: Json;
+    changeOrderTypeId?: string;
+    changeOrderWorkflowId?: string;
+    dueDate?: string;
+    effectiveDate?: string;
+    requiredActionIds?: string[];
+    approvalRequirements?: string[];
+    sourceType?: string;
+    sourceId?: string;
+    assignee?: string;
+    // Reviewer picker output; reviewer seeding is not implemented yet.
+    approvers?: string[];
+    items?: string[];
+    customFields?: Json;
+  }
+): Promise<{
+  data: { id: string; changeOrderId: string } | null;
+  error: import("@supabase/supabase-js").PostgrestError | null;
+}> {
+  let changeOrderId: string;
+  if (input.changeOrderId) {
+    changeOrderId = input.changeOrderId;
+  } else {
+    const seq = await client.rpc("get_next_sequence", {
+      sequence_name: "changeOrder",
+      company_id: input.companyId
+    });
+    if (seq.error || !seq.data) {
+      return {
+        data: null,
+        error:
+          seq.error ??
+          ({
+            message: "Failed to generate changeOrder sequence"
+          } as import("@supabase/supabase-js").PostgrestError)
+      };
+    }
+    changeOrderId = seq.data;
+  }
+
+  const { items, ...data } = input;
+
+  // Runs under the service role (RLS bypassed), so validate every supplied item
+  // belongs to this company before trusting it.
+  if (items && items.length > 0) {
+    const validItems = await client
+      .from("item")
+      .select("id")
+      .in("id", items)
+      .eq("companyId", input.companyId);
+    if (validItems.error) return { data: null, error: validItems.error };
+    const validItemIds = new Set((validItems.data ?? []).map((i) => i.id));
+    if (items.some((id) => !validItemIds.has(id))) {
+      return {
+        data: null,
+        error: {
+          message: "One or more items do not belong to this company"
+        } as import("@supabase/supabase-js").PostgrestError
+      };
+    }
+  }
+
+  const result = await client
+    .from("changeOrder")
+    .insert({
+      changeOrderId,
+      name: data.name,
+      type: data.type,
+      approvalType: data.approvalType,
+      priority: data.priority ?? null,
+      openDate: data.openDate,
+      description: data.description ?? {},
+      changeOrderTypeId: data.changeOrderTypeId ?? null,
+      changeOrderWorkflowId: data.changeOrderWorkflowId ?? null,
+      dueDate: data.dueDate ?? null,
+      effectiveDate: data.effectiveDate ?? null,
+      requiredActionIds: data.requiredActionIds ?? [],
+      approvalRequirements: data.approvalRequirements ?? [],
+      sourceType: data.sourceType ?? null,
+      sourceId: data.sourceId ?? null,
+      assignee: data.assignee ?? null,
+      customFields: data.customFields,
+      companyId: data.companyId,
+      createdBy: data.createdBy
+    })
+    .select("id, changeOrderId")
+    .single();
+
+  if (result.error || !result.data) {
+    return { data: null, error: result.error };
+  }
+
+  const coId = result.data.id;
+
+  if (items && items.length > 0) {
+    // Attach via the shared path so the one-open-CO-per-item guard runs and
+    // Engineering COs get a staged pending revision. Best-effort per item.
+    for (const itemId of items) {
+      const attached = await attachAffectedItem(client, {
+        changeOrderId: coId,
+        itemId,
+        userId: input.createdBy,
+        companyId: input.companyId,
+        type: data.type
+      });
+      if (attached.error) {
+        console.error(attached.error);
+      }
+    }
+  }
+
+  // Reviewer + approval-task seeding is not implemented yet; the CO stays Draft.
+
+  return {
+    data: { id: coId, changeOrderId: result.data.changeOrderId },
+    error: null
+  };
+}
+
+export async function updateChangeOrder(
+  client: SupabaseClient<Database>,
+  input: {
+    id: string;
+    updatedBy: string;
+    changeOrderId?: string;
+    name?: string;
+    type?: (typeof changeOrderType)[number];
+    approvalType?: (typeof changeOrderApprovalType)[number];
+    priority?: (typeof nonConformancePriority)[number] | null;
+    openDate?: string;
+    description?: Json;
+    changeOrderTypeId?: string | null;
+    changeOrderWorkflowId?: string | null;
+    dueDate?: string | null;
+    effectiveDate?: string | null;
+    requiredActionIds?: string[];
+    approvalRequirements?: string[];
+    sourceType?: string | null;
+    sourceId?: string | null;
+    assignee?: string | null;
+    customFields?: Json;
+  }
+): Promise<{
+  data: { id: string } | null;
+  error: import("@supabase/supabase-js").PostgrestError | null;
+}> {
+  const { id, ...rest } = input;
+  const result = await client
+    .from("changeOrder")
+    .update(sanitize(rest))
+    .eq("id", id)
+    .select("id")
+    .single();
+
+  if (result.error) return { data: null, error: result.error };
+  return { data: { id: result.data.id }, error: null };
+}
+
+export async function deleteChangeOrder(
+  client: SupabaseClient<Database>,
+  changeOrderId: string
+) {
+  return client.from("changeOrder").delete().eq("id", changeOrderId);
+}
+
+export async function updateChangeOrderStatus(
+  client: SupabaseClient<Database>,
+  update: {
+    id: string;
+    status: (typeof changeOrderStatus)[number];
+    assignee?: string | null;
+    effectiveDate?: string | null;
+    updatedBy: string;
+  }
+) {
+  const { id, ...rest } = update;
+  return client.from("changeOrder").update(sanitize(rest)).eq("id", id);
+}
+
+export async function addChangeOrderItem(
+  client: SupabaseClient<Database>,
+  input: {
+    changeOrderId: string;
+    itemId: string;
+    disposition?: (typeof changeOrderDisposition)[number];
+    dispositionNotes?: string;
+    companyId: string;
+    createdBy: string;
+  }
+) {
+  return client
+    .from("changeOrderItem")
+    .insert({
+      changeOrderId: input.changeOrderId,
+      itemId: input.itemId,
+      disposition: input.disposition ?? "No Change",
+      dispositionNotes: input.dispositionNotes ?? null,
+      companyId: input.companyId,
+      createdBy: input.createdBy
+    })
+    .select("id")
+    .single();
+}
+
+export async function deleteChangeOrderItem(
+  client: SupabaseClient<Database>,
+  changeOrderItemId: string
+) {
+  return client.from("changeOrderItem").delete().eq("id", changeOrderItemId);
+}
+
+// removeAffectedItem — the single path for removing an affected item from a
+// change order. Loads the row (company-scoped) with its parent CO status +
+// staged pending revision, enforces the draft-only edit window, deletes the
+// orphaned pending revision (cascades its makeMethod / materials), then removes
+// the association.
+export async function removeAffectedItem(
+  client: SupabaseClient<Database>,
+  args: { id: string; companyId: string }
+): Promise<{ error: { message: string } | null }> {
+  const row = await client
+    .from("changeOrderItem")
+    .select("id, pendingItemId, changeOrder:changeOrderId(status)")
+    .eq("id", args.id)
+    .eq("companyId", args.companyId)
+    .single();
+  if (row.error || !row.data) {
+    return { error: { message: "Affected item not found" } };
+  }
+
+  if (!canEditChangeOrderItems(row.data.changeOrder?.status)) {
+    return {
+      error: {
+        message:
+          "Affected items can only be removed while the change order is a draft."
+      }
+    };
+  }
+
+  if (row.data.pendingItemId) {
+    await client
+      .from("item")
+      .delete()
+      .eq("id", row.data.pendingItemId)
+      .eq("companyId", args.companyId);
+  }
+
+  const deletion = await deleteChangeOrderItem(client, args.id);
+  if (deletion.error) {
+    console.error(deletion.error);
+    return { error: { message: "Failed to delete affected item" } };
+  }
+
+  return { error: null };
+}
+
+// attachAffectedItem — the single path for associating an item with a change
+// order. (a) enforces the at-most-one-open-CO-per-item invariant via
+// getOpenChangeOrderForItem, (b) inserts the changeOrderItem row, and (c) for
+// Engineering COs stages a pending revision so the redline / release path has
+// somewhere to record the change. Shared by the create flow (insertChangeOrder),
+// the incremental add flow, and the Onshape import, so none can bypass the guard
+// or skip the pending revision.
+export async function attachAffectedItem(
+  client: SupabaseClient<Database>,
+  args: {
+    changeOrderId: string;
+    itemId: string;
+    userId: string;
+    companyId: string;
+    type: (typeof changeOrderType)[number];
+  }
+): Promise<{
+  data: { id: string } | null;
+  error: { message: string } | null;
+}> {
+  const { changeOrderId, itemId, userId, companyId, type } = args;
+
+  // (a) Concurrency guard: an item may be on at most one open change order.
+  const openCo = await getOpenChangeOrderForItem(client, {
+    itemId,
+    companyId,
+    excludeChangeOrderId: changeOrderId
+  });
+  if (openCo.error) {
+    return { data: null, error: openCo.error };
+  }
+  if (openCo.data) {
+    return {
+      data: null,
+      error: {
+        message: `This item is already on open change order ${openCo.data.changeOrderId}.`
+      }
+    };
+  }
+
+  // (b) Insert the association row.
+  const insert = await addChangeOrderItem(client, {
+    changeOrderId,
+    itemId,
+    companyId,
+    createdBy: userId
+  });
+  if (insert.error || !insert.data) {
+    return {
+      data: null,
+      error: insert.error ?? { message: "Failed to add affected item" }
+    };
+  }
+
+  // (c) Engineering COs stage a pending revision per affected item.
+  if (type === "Engineering") {
+    const revision = await createPendingRevision(client, {
+      changeOrderId,
+      changeOrderItemId: insert.data.id,
+      itemId,
+      userId,
+      companyId
+    });
+    if (revision.error) {
+      // Roll back the association row we just inserted — otherwise it persists
+      // with pendingItemId=null AND occupies the (changeOrderId, itemId) unique
+      // slot, so a clean retry is impossible. Best-effort.
+      await deleteChangeOrderItem(client, insert.data.id);
+      return { data: null, error: revision.error };
+    }
+  }
+
+  return { data: { id: insert.data.id }, error: null };
+}
+
+// A change order is "open" until it is Released or Cancelled. An item may be on
+// at most one open change order at a time, so two in-flight change orders can't
+// race the same item.
+const OPEN_CHANGE_ORDER_STATUSES = ["Draft", "In Review", "Approved"] as const;
+
+export async function getOpenChangeOrderForItem(
+  client: SupabaseClient<Database>,
+  args: { itemId: string; companyId: string; excludeChangeOrderId?: string }
+): Promise<{
+  data: { id: string; changeOrderId: string; status: string } | null;
+  error: { message: string } | null;
+}> {
+  const rows = await client
+    .from("changeOrderItem")
+    .select(
+      "changeOrderId, changeOrder:changeOrderId(id, changeOrderId, status)"
+    )
+    .eq("itemId", args.itemId)
+    .eq("companyId", args.companyId);
+
+  if (rows.error) {
+    return { data: null, error: rows.error };
+  }
+
+  const conflict = (rows.data ?? []).find((row) => {
+    const co = row.changeOrder as {
+      id: string;
+      changeOrderId: string;
+      status: string;
+    } | null;
+    return (
+      row.changeOrderId !== args.excludeChangeOrderId &&
+      co != null &&
+      (OPEN_CHANGE_ORDER_STATUSES as readonly string[]).includes(co.status)
+    );
+  });
+
+  const conflictCo = conflict?.changeOrder as
+    | { id: string; changeOrderId: string; status: string }
+    | null
+    | undefined;
+
+  return {
+    data: conflictCo
+      ? {
+          id: conflictCo.id,
+          changeOrderId: conflictCo.changeOrderId,
+          status: conflictCo.status
+        }
+      : null,
+    error: null
+  };
+}
+
+// getNextRevision — numeric → +1, A → …→ Z → AA, AA → AB, etc.
+export function getNextRevision(maxRevision: string): string {
+  if (/^\d+$/.test(maxRevision)) {
+    return (parseInt(maxRevision) + 1).toString();
+  } else if (/^[A-Z]{1,2}$/.test(maxRevision)) {
+    if (maxRevision.length === 1) {
+      return maxRevision === "Z"
+        ? "AA"
+        : String.fromCharCode(maxRevision.charCodeAt(0) + 1);
+    }
+    const firstChar = maxRevision[0];
+    const secondChar = maxRevision[1];
+    if (secondChar === "Z") {
+      return String.fromCharCode(firstChar.charCodeAt(0) + 1) + "A";
+    }
+    return firstChar + String.fromCharCode(secondChar.charCodeAt(0) + 1);
+  }
+  return maxRevision;
+}
+
+export async function createPendingRevision(
+  client: SupabaseClient<Database>,
+  args: {
+    changeOrderId: string;
+    changeOrderItemId: string;
+    itemId: string;
+    userId: string;
+    companyId: string;
+  }
+): Promise<{
+  data: { id: string; revision: string } | null;
+  error: { message: string } | null;
+}> {
+  const { changeOrderItemId, itemId, userId } = args;
+
+  const item = await getItem(client, itemId);
+  if (item.error || !item.data) {
+    return {
+      data: null,
+      error: item.error ?? { message: "Item not found" }
+    };
+  }
+
+  // Compute the next revision against ALL existing revisions of this item so the
+  // pending revision never collides with one that already exists (the item
+  // unique key is (readableId, revision, companyId, type)).
+  const existingRevisions = await client
+    .from("item")
+    .select("revision")
+    .eq("readableId", item.data.readableId)
+    .eq("companyId", args.companyId)
+    .eq("type", item.data.type);
+  const taken = new Set(
+    (existingRevisions.data ?? []).map((r) => r.revision ?? "0")
+  );
+  let revision = getNextRevision(item.data.revision ?? "0");
+  let guard = 0;
+  while (taken.has(revision) && guard++ < 100) {
+    revision = getNextRevision(revision);
+  }
+
+  const newItem = await createRevision(client, {
+    item: item.data,
+    revision,
+    createdBy: userId
+  });
+
+  if (newItem.error || !newItem.data) {
+    return {
+      data: null,
+      error: newItem.error ?? { message: "Failed to create revision" }
+    };
+  }
+
+  const newItemId = newItem.data.id;
+
+  // createRevision() already deep-copies the full method tree for non-Buy items
+  // via the get-method edge function. Do NOT issue a second copyItem() here.
+
+  const link = await client
+    .from("changeOrderItem")
+    .update({ pendingItemId: newItemId, updatedBy: userId })
+    .eq("id", changeOrderItemId);
+
+  if (link.error) {
+    // Roll back the orphaned revision item (cascades its makeMethod/materials).
+    await client.from("item").delete().eq("id", newItemId);
+    return { data: null, error: link.error };
+  }
+
+  return { data: { id: newItemId, revision }, error: null };
 }
 
 export async function deleteConfigurationParameter(

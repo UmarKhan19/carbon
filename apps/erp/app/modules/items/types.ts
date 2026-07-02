@@ -1,5 +1,8 @@
 import type { Database } from "@carbon/database";
 import type {
+  getChangeOrder,
+  getChangeOrderItems,
+  getChangeOrders,
   getConfigurationParameters,
   getConfigurationRules,
   getConsumable,
@@ -34,6 +37,18 @@ import type {
   getUnitOfMeasure,
   getUnitOfMeasuresList
 } from "./items.service";
+
+export type ChangeOrder = NonNullable<
+  Awaited<ReturnType<typeof getChangeOrders>>["data"]
+>[number];
+
+export type ChangeOrderDetail = NonNullable<
+  Awaited<ReturnType<typeof getChangeOrder>>["data"]
+>;
+
+export type ChangeOrderItem = NonNullable<
+  Awaited<ReturnType<typeof getChangeOrderItems>>["data"]
+>[number];
 
 export type ChangeOrderStatusType =
   Database["public"]["Enums"]["changeOrderStatus"];

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { zfd } from "zod-form-data";
+import { nonConformancePriority } from "../quality/quality.models";
 import {
   methodItemType,
   methodOperationOrders,
@@ -844,14 +845,7 @@ export const unitOfMeasureValidator = z.object({
   name: z.string().min(1, { message: "Name is required" }).max(50)
 });
 
-// =============================================================================
-// PLM / change-order enums — mirror the DB enums defined in the
-// plm-change-orders migration. Phase 0 (foundation) ships ONLY these enum
-// mirror arrays. Validators, the status-transition DAG, the approval evaluator,
-// and lock helpers are deferred to their consuming feature phase and added here
-// in place.
-// =============================================================================
-
+// PLM / change-order enums — mirror the DB enums in the plm-change-orders migration.
 export const changeOrderType = [
   "Engineering",
   "Manufacturing",
@@ -886,7 +880,6 @@ export const itemRevisionStatus = [
   "Obsolete"
 ] as const;
 
-// Mirrors nonConformanceTaskStatus (Pending/In Progress/Completed/Skipped).
 export const changeOrderTaskStatus = [
   "Pending",
   "In Progress",
@@ -894,9 +887,51 @@ export const changeOrderTaskStatus = [
   "Skipped"
 ] as const;
 
-// NOTE: changeOrder.priority is the DB enum `nonConformancePriority`. Its TS
-// mirror is the canonical `nonConformancePriority` in quality.models.ts — import
-// that where a validator/UI needs it rather than re-declaring the values here.
+// changeOrder.priority uses quality's nonConformancePriority (its DB enum) — import it, don't redeclare.
 
-// company setting companySettings.plmReleaseControl
+// companySettings.plmReleaseControl
 export const plmReleaseControl = ["off", "warn", "enforce"] as const;
+
+export const changeOrderValidator = z.object({
+  id: zfd.text(z.string().optional()),
+  changeOrderId: zfd.text(z.string().optional()),
+  name: z.string().min(1, { message: "Name is required" }),
+  description: zfd.text(z.string().optional()),
+  type: z.enum(changeOrderType),
+  priority: z.enum(nonConformancePriority).optional(),
+  approvalType: z.enum(changeOrderApprovalType),
+  changeOrderTypeId: zfd.text(z.string().optional()),
+  changeOrderWorkflowId: zfd.text(z.string().optional()),
+  openDate: z.string().min(1, { message: "Open date is required" }),
+  dueDate: zfd.text(z.string().optional()),
+  effectiveDate: zfd.text(z.string().optional()),
+  approvalRequirements: z.array(z.string()).optional(),
+  sourceType: zfd.text(z.string().optional()),
+  sourceId: zfd.text(z.string().optional()),
+  assignee: zfd.text(z.string().optional()),
+  approvers: z.array(z.string()).optional(),
+  items: z.array(z.string()).optional()
+});
+
+export const changeOrderItemValidator = z.object({
+  id: zfd.text(z.string().optional()),
+  changeOrderId: z.string().min(1, { message: "Change order is required" }),
+  itemId: z.string().min(1, { message: "Item is required" }),
+  disposition: z.enum(changeOrderDisposition).optional(),
+  dispositionNotes: zfd.text(z.string().optional())
+});
+
+// Edit-window helpers. isChangeOrderLocked → true once Released/Cancelled (no
+// further edits allowed); canEditChangeOrderItems → affected items may be
+// added/removed only while the change order is a Draft.
+export function isChangeOrderLocked(
+  status: string | null | undefined
+): boolean {
+  return status === "Released" || status === "Cancelled";
+}
+
+export function canEditChangeOrderItems(
+  status: string | null | undefined
+): boolean {
+  return status === "Draft";
+}
