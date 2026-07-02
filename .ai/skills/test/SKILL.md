@@ -1,6 +1,6 @@
 ---
 name: test
-description: Agentically test a specific feature end-to-end in the running Carbon dev server — analyze the branch diff (or a given feature/issue), build a test plan, drive the app with agent-browser, and cache successful playbooks to .ai/playbooks/ for reuse. Use to verify a feature or fix actually works in the browser ("test this", "verify in the browser", after /execute or /fix for user-facing changes). Builds on /login and /error. For a broad does-everything-load sweep use /smoke-test.
+description: Agentically test a specific feature end-to-end in the running Carbon dev server — analyze the branch diff (or a given feature/issue), build a test plan, drive the app with agent-browser, and cache successful playbooks to .ai/playbooks/ for reuse. Use to verify a feature or fix actually works in the browser ("test this", "verify in the browser", after /execute or /fix for user-facing changes). Builds on /auth and /error. For a broad does-everything-load sweep use /smoke-test.
 ---
 
 # test — feature test through the real browser
@@ -51,7 +51,7 @@ the user sees what you intend to do.
 
 ## Step 4: Login
 
-Invoke `/login`. If it fails, STOP and report.
+Invoke `/auth`. If it fails, STOP and report.
 
 ## Step 5: Execute each test
 
