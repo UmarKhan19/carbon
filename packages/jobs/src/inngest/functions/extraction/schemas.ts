@@ -10,6 +10,7 @@ function confidenceField<T extends z.ZodTypeAny>(schema: T) {
 
 /** Invoice line item extracted from PDF */
 const invoiceLineSchema = z.object({
+  partNumber: confidenceField(z.string()),
   description: confidenceField(z.string()),
   quantity: confidenceField(z.number()),
   unitPrice: confidenceField(z.number()),

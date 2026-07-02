@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-01T16:55:39.742Z",
-  "totalTools": 1250,
+  "generated": "2026-07-02T03:51:29.625Z",
+  "totalTools": 1251,
   "modules": 15,
   "tools": [
     {
@@ -12430,6 +12430,30 @@
         },
         "required": [
           "consumable"
+        ]
+      }
+    },
+    {
+      "name": "items_matchItemIdByText",
+      "module": "items",
+      "classification": "WRITE",
+      "description": "match item id by text",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "candidates"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "candidates": {}
+        },
+        "required": [
+          "candidates"
         ]
       }
     },

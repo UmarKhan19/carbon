@@ -44,6 +44,10 @@ msgstr "{0} gün"
 msgid "{0} deleted successfully"
 msgstr "{0} başarıyla silindi"
 
+#. placeholder {0}: mappings.length
+msgid "{0} lines to map"
+msgstr ""
+
 #. placeholder {0}: history.length
 msgid "{0} orders"
 msgstr "{0} sipariş"
@@ -440,9 +444,6 @@ msgstr "Satın alma maliyeti"
 
 msgid "Acquisition Date"
 msgstr "Satın alma tarihi"
-
-msgid "Action"
-msgstr ""
 
 msgid "Action Status"
 msgstr "Aksiyon Durumu"
@@ -4667,12 +4668,6 @@ msgstr "Carbon'ın varsayılan olarak izlemediği verileri yakalamak için ekstr
 msgid "Extra tags for slicing your GL reporting"
 msgstr "GL raporlamanızı dilimlemek için ekstra etiketler"
 
-msgid "Extracted Description"
-msgstr ""
-
-msgid "Extracted Part Number"
-msgstr ""
-
 msgid "Fail"
 msgstr "Başarısız"
 
@@ -5011,9 +5006,6 @@ msgstr "Alan Adlandırma"
 
 msgid "Fields"
 msgstr "Alanlar"
-
-msgid "Fields populated from the document. Please review before saving."
-msgstr ""
 
 msgid "File deleted successfully"
 msgstr "Dosya başarıyla silindi"
@@ -6468,9 +6460,6 @@ msgstr "İlgili işler yükleniyor..."
 msgid "Loading item details..."
 msgstr "Ürün detayları yükleniyor..."
 
-msgid "Loading suggestions..."
-msgstr ""
-
 msgid "Loading your own data with Carbon's import tools"
 msgstr "Carbon'ın içe aktarma araçlarıyla kendi verilerinizi yükleme"
 
@@ -7553,6 +7542,9 @@ msgstr "Resim yok"
 
 msgid "No issue types configured"
 msgstr "Hiçbir sorun türü yapılandırılmamış"
+
+msgid "No lines to map"
+msgstr ""
 
 msgid "No locations found."
 msgstr "Konum bulunamadı."
@@ -8925,9 +8917,6 @@ msgstr "Bu kanban için bir sonraki işlemi başlatmak üzere QR kod"
 
 msgid "Qty"
 msgstr "Miktar"
-
-msgid "Qty / Price"
-msgstr ""
 
 msgid "Qty to Order"
 msgstr "Sipariş Edilecek Miktar"
@@ -10584,7 +10573,7 @@ msgstr "burada atayabilmeniz için."
 msgid "Solutions Engineer"
 msgstr "Çözüm Mühendisi"
 
-msgid "Some lines extracted from the PDF could not be automatically mapped to your inventory items. Please map them below."
+msgid "Some lines extracted from the PDF could not be automatically mapped to your inventory items. Review and map each line below."
 msgstr ""
 
 msgid "Something went wrong"
@@ -11944,6 +11933,9 @@ msgstr "Bu işin malzeme için kendi gerekli miktarı."
 msgid "This lot is expired and can't be picked."
 msgstr "Bu parti süresi dolmuş ve alınamaz."
 
+msgid "This may take a moment. Hang tight."
+msgstr ""
+
 msgid "This page of your Implementation Hub is being built. Start from the command center while we finish it."
 msgstr "Bu Implementation Hub sayfası şu anda inşa edilmektedir. Biz bitirirken komut merkezinden başlayın."
 
@@ -12433,6 +12425,9 @@ msgstr "Desteklenmeyen kaynak belge türü: {sourceDocument}"
 
 msgid "Untitled Diagram"
 msgstr "Başlıksız Diyagram"
+
+msgid "Untitled line"
+msgstr ""
 
 msgid "UoM"
 msgstr "Birim"
@@ -13305,7 +13300,7 @@ msgstr "Stok neden değişiyor — Pozitif (bulundu), Negatif (kayıp/hurda) vey
 msgid "Why this line is being declined; surfaced on the printable quote and recorded for win-loss reporting."
 msgstr "Bu satırın neden reddedildiği; yazdırılabilir teklifte gösterilir ve kazanç-kayıp raporlaması için kaydedilir."
 
-msgid "Will remain as comment line"
+msgid "Will remain as a comment line"
 msgstr ""
 
 msgid "Window:"

@@ -1,6 +1,7 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { matchItemIdByText, upsertPart } from "~/modules/items";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { client, companyId } = await requirePermissions(request, {
@@ -25,40 +26,32 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const suggestions = [];
 
+  // Try every extracted string for a line — part number and description alike —
+  // the classification doesn't matter; we just want the best chance of a match.
   for (const line of lines) {
-    let suggestedItemId = null;
-    let suggestedItemName = null;
+    const candidates = [line.customerPartId, line.description];
+    let suggestedItemId: string | null = null;
 
-    if (customerId && line.customerPartId) {
-      // Auto match from customerPartToItem
-      const { data: mapping } = await client
-        .from("customerPartToItem")
-        .select("itemId, item(name)")
-        .eq("customerId", customerId)
-        .eq("customerPartId", line.customerPartId)
-        .maybeSingle();
-
-      if (mapping) {
-        suggestedItemId = mapping.itemId;
-        suggestedItemName = mapping.item?.name;
+    // 1. Customer part mapping (either candidate -> item).
+    if (customerId) {
+      for (const candidate of candidates) {
+        if (!candidate) continue;
+        const { data: mapping } = await client
+          .from("customerPartToItem")
+          .select("itemId")
+          .eq("customerId", customerId)
+          .eq("customerPartId", candidate)
+          .maybeSingle();
+        if (mapping) {
+          suggestedItemId = mapping.itemId;
+          break;
+        }
       }
     }
 
-    if (!suggestedItemId && line.customerPartId) {
-      // Fallback: search item by ID, readableId, or name
-      const { data: itemMatch } = await client
-        .from("item")
-        .select("id, name")
-        .eq("companyId", companyId)
-        .or(
-          `id.eq.${line.customerPartId},readableId.eq.${line.customerPartId},name.ilike.%${line.customerPartId}%`
-        )
-        .maybeSingle();
-
-      if (itemMatch) {
-        suggestedItemId = itemMatch.id;
-        suggestedItemName = itemMatch.name;
-      }
+    // 2. Fallback: match either candidate against item readableId or name.
+    if (!suggestedItemId) {
+      suggestedItemId = await matchItemIdByText(client, companyId, candidates);
     }
 
     suggestions.push({
@@ -67,7 +60,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       description: line.description,
       quantity: line.quantity,
       suggestedItemId,
-      suggestedItemName,
       action: suggestedItemId ? "map" : "create" // "map" | "create" | "ignore"
     });
   }
@@ -97,59 +89,47 @@ export async function action({ request, params }: ActionFunctionArgs) {
     let finalItemId = map.itemId;
 
     if (map.action === "create") {
-      const cleanPartId = map.customerPartId
-        .replace(/[^a-zA-Z0-9-_.]/g, "-")
-        .toUpperCase();
-      const createName =
-        map.createName || map.description || map.customerPartId;
+      // readableId and name are whatever the user typed in the create field,
+      // defaulting to the extracted customer part number (then description).
+      const createName = (
+        map.createName ||
+        map.customerPartId ||
+        map.description ||
+        ""
+      ).trim();
+      if (!createName) continue;
 
-      // Smart Map: Check if item already exists by ID or exact Name to prevent duplicates
-      const { data: existingItem } = await client
+      // Reuse an existing item with the same readableId instead of failing on
+      // the unique constraint / creating a duplicate.
+      const existing = await serviceRole
         .from("item")
         .select("id")
         .eq("companyId", companyId)
-        .or(`id.eq.${cleanPartId},name.eq.${createName}`)
+        .eq("readableId", createName)
         .maybeSingle();
 
-      if (existingItem) {
-        // Auto-switch to mapping to the existing item
-        finalItemId = existingItem.id;
+      if (existing.data) {
+        finalItemId = existing.data.id;
       } else {
-        // Create new item
-        const { data: newItem, error: itemError } = await client
-          .from("item")
-          .insert({
-            id: cleanPartId,
-            readableId: cleanPartId,
-            companyId,
-            name: createName,
-            type: "Part",
-            itemTrackingType: "Inventory",
-            replenishmentSystem: "Make",
-            defaultMethodType: "Make to Order",
-            sourcingType: "Specified",
-            unitOfMeasureCode: "EA",
-            description: map.description,
-            createdBy: userId
-          })
-          .select("id")
-          .single();
+        // Create through the standard Part flow (item + part + companion rows)
+        // with the service role, since the sales-scoped client can't insert
+        // items under RLS.
+        const created = await upsertPart(serviceRole, {
+          id: createName,
+          name: createName,
+          revision: "0",
+          description: map.description || undefined,
+          replenishmentSystem: "Make",
+          defaultMethodType: "Make to Order",
+          itemTrackingType: "Inventory",
+          unitOfMeasureCode: "EA",
+          shelfLifeCalculateFromBom: false,
+          companyId,
+          createdBy: userId
+        });
 
-        if (!itemError && newItem) {
-          finalItemId = newItem.id;
-        } else {
-          // Fallback check if it was inserted just now by a race condition
-          const { data: fallbackExisting } = await client
-            .from("item")
-            .select("id")
-            .eq("companyId", companyId)
-            .eq("id", cleanPartId)
-            .maybeSingle();
-
-          if (fallbackExisting) {
-            finalItemId = fallbackExisting.id;
-          }
-          // Note: We no longer create duplicate items with random number suffixes!
+        if (!created.error && created.data?.id) {
+          finalItemId = created.data.id;
         }
       }
     }

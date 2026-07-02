@@ -133,7 +133,7 @@ export async function action({ request }: ActionFunctionArgs) {
         upsertPurchaseInvoiceLine(client, {
           invoiceId: result.data.id,
           invoiceLineType: "Comment",
-          description: item.description || item.partNumber || "Line Item",
+          description: item.partNumber || item.description || "Line Item",
           quantity: item.quantity || 1,
           supplierUnitPrice: item.unitPrice || 0,
           supplierShippingCost: 0,

@@ -1,5 +1,7 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { matchItemIdByText, upsertPart } from "~/modules/items";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { client, companyId } = await requirePermissions(request, {
@@ -8,6 +10,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const { invoiceId } = params;
   if (!invoiceId) throw new Error("invoiceId required");
+
+  const url = new URL(request.url);
+  const supplierId = url.searchParams.get("supplierId");
 
   const { data: lines } = await client
     .from("purchaseInvoiceLine")
@@ -22,25 +27,33 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const suggestions = [];
 
+  // The invoice line only carries a description (which prefers the extracted
+  // part number when one was found), so that's our single candidate string.
   for (const line of lines) {
-    let suggestedItemId = null;
-    let suggestedItemName = null;
+    const candidates = [line.description];
+    let suggestedItemId: string | null = null;
 
-    if (line.description) {
-      // Search item by name or readableId
-      const { data: itemMatch } = await client
-        .from("item")
-        .select("id, name")
-        .eq("companyId", companyId)
-        .or(
-          `name.ilike.%${line.description}%,readableId.ilike.%${line.description}%`
-        )
-        .maybeSingle();
-
-      if (itemMatch) {
-        suggestedItemId = itemMatch.id;
-        suggestedItemName = itemMatch.name;
+    // 1. Supplier part mapping: the supplier's catalog number -> item.
+    if (supplierId) {
+      for (const candidate of candidates) {
+        if (!candidate) continue;
+        const { data: supplierPart } = await client
+          .from("supplierPart")
+          .select("itemId")
+          .eq("companyId", companyId)
+          .eq("supplierId", supplierId)
+          .ilike("supplierPartId", candidate)
+          .limit(1);
+        if (supplierPart?.[0]) {
+          suggestedItemId = supplierPart[0].itemId;
+          break;
+        }
       }
+    }
+
+    // 2. Fallback: match the candidate against item readableId or name.
+    if (!suggestedItemId) {
+      suggestedItemId = await matchItemIdByText(client, companyId, candidates);
     }
 
     suggestions.push({
@@ -49,7 +62,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       quantity: line.quantity,
       unitPrice: line.supplierUnitPrice,
       suggestedItemId,
-      suggestedItemName,
       action: suggestedItemId ? "map" : "create" // "map" | "create" | "ignore"
     });
   }
@@ -70,6 +82,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   if (!mappingsStr) return { success: false, error: "No mappings provided" };
 
   const mappings = JSON.parse(mappingsStr);
+  const serviceRole = await getCarbonServiceRole();
 
   for (const map of mappings) {
     if (map.action === "ignore") continue;
@@ -77,63 +90,48 @@ export async function action({ request, params }: ActionFunctionArgs) {
     let finalItemId = map.itemId;
 
     if (map.action === "create") {
-      const createName = map.createName || map.description || "New Item";
-      const cleanPartId = createName
-        .replace(/[^a-zA-Z0-9-_.]/g, "-")
-        .toUpperCase();
+      // readableId and name are whatever the user typed in the create field,
+      // falling back to the extracted description.
+      const createName = (map.createName || map.description || "").trim();
+      if (!createName) continue;
 
-      // Smart Map: Check if item already exists by ID or exact Name to prevent duplicates
-      const { data: existingItem } = await client
+      // Reuse an existing item with the same readableId instead of failing on
+      // the unique constraint / creating a duplicate.
+      const existing = await serviceRole
         .from("item")
         .select("id")
         .eq("companyId", companyId)
-        .or(`id.eq.${cleanPartId},name.eq.${createName}`)
+        .eq("readableId", createName)
         .maybeSingle();
 
-      if (existingItem) {
-        // Auto-switch to mapping to the existing item
-        finalItemId = existingItem.id;
+      if (existing.data) {
+        finalItemId = existing.data.id;
       } else {
-        // Create new item
-        const { data: newItem, error: itemError } = await client
-          .from("item")
-          .insert({
-            id: cleanPartId,
-            readableId: cleanPartId,
-            companyId,
-            name: createName,
-            type: "Part",
-            itemTrackingType: "Inventory",
-            replenishmentSystem: "Buy",
-            defaultMethodType: "Make to Order",
-            sourcingType: "Specified",
-            unitOfMeasureCode: "EA",
-            description: map.description,
-            createdBy: userId
-          })
-          .select("id")
-          .single();
+        // Create through the standard Part flow (item + part + companion rows)
+        // with the service role, since the invoicing-scoped client can't insert
+        // items under RLS. Purchased items default to Buy.
+        const created = await upsertPart(serviceRole, {
+          id: createName,
+          name: createName,
+          revision: "0",
+          description: map.description || undefined,
+          replenishmentSystem: "Buy",
+          defaultMethodType: "Pull from Inventory",
+          itemTrackingType: "Inventory",
+          unitOfMeasureCode: "EA",
+          shelfLifeCalculateFromBom: false,
+          companyId,
+          createdBy: userId
+        });
 
-        if (!itemError && newItem) {
-          finalItemId = newItem.id;
-        } else {
-          // Fallback check if it was inserted by a race condition
-          const { data: fallbackExisting } = await client
-            .from("item")
-            .select("id")
-            .eq("companyId", companyId)
-            .eq("id", cleanPartId)
-            .maybeSingle();
-
-          if (fallbackExisting) {
-            finalItemId = fallbackExisting.id;
-          }
+        if (!created.error && created.data?.id) {
+          finalItemId = created.data.id;
         }
       }
     }
 
     if (finalItemId) {
-      // Update purchaseInvoiceLine: set itemId and change type from Comment to Item
+      // Set the line's item and promote it from a Comment to a Part line.
       await client
         .from("purchaseInvoiceLine")
         .update({

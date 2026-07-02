@@ -1,4 +1,4 @@
-import { useCarbon } from "@carbon/react";
+import { Spinner, useCarbon } from "@carbon/react";
 import { useLingui } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import { useFetcher } from "react-router";
@@ -111,22 +111,26 @@ export function PdfExtractor({
       <label className="text-xs font-medium text-muted-foreground">
         {label}
       </label>
-      <FileDropzone
-        onDrop={handleDrop}
-        accept={{ "application/pdf": [".pdf"] }}
-        multiple={false}
-        className="mt-0"
-      />
-      {isBusy && (
-        <p className="text-xs text-muted-foreground animate-pulse">
-          {uploading ? t`Uploading...` : t`Reading the document...`}
-        </p>
-      )}
-      {status === "completed" && !isBusy && (
-        <p className="text-xs text-green-600">
-          {t`Fields populated from the document. Please review before saving.`}
-        </p>
-      )}
+      <div className="relative">
+        <FileDropzone
+          onDrop={handleDrop}
+          accept={{ "application/pdf": [".pdf"] }}
+          multiple={false}
+          disabled={isBusy}
+          className="mt-0"
+        />
+        {isBusy && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-md bg-background/70 backdrop-blur-sm">
+            <Spinner className="size-6 text-muted-foreground" />
+            <p className="text-sm font-medium text-foreground">
+              {uploading ? t`Uploading...` : t`Reading the document...`}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {t`This may take a moment. Hang tight.`}
+            </p>
+          </div>
+        )}
+      </div>
       {status === "failed" && (
         <p className="text-xs text-red-600">
           {t`Could not read the document: ${extraction?.error ?? ""}`}

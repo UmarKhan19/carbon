@@ -185,6 +185,7 @@ Schema structure:
   "totalAmount": { "value": number or null, "confidence": number },
   "lineItems": [
     {
+      "partNumber": { "value": string or null, "confidence": number },
       "description": { "value": string or null, "confidence": number },
       "quantity": { "value": number or null, "confidence": number },
       "unitPrice": { "value": number or null, "confidence": number },

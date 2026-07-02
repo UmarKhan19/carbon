@@ -3094,6 +3094,49 @@ export async function upsertConsumable(
   return updateConsumable;
 }
 
+/**
+ * Best-effort match of extracted text to an existing item. Tries every
+ * candidate string (e.g. an extracted part number AND description — the
+ * classification doesn't matter) against the item's `readableId` then `name`,
+ * case-insensitively. Returns the first item id found, or null.
+ *
+ * Callers that also have a customer/supplier part mapping should try that
+ * first; this covers the readableId/name half of the match.
+ */
+export async function matchItemIdByText(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  candidates: Array<string | null | undefined>
+): Promise<string | null> {
+  const seen = new Set<string>();
+
+  for (const raw of candidates) {
+    const value = raw?.trim();
+    if (!value) continue;
+    const key = value.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+
+    const byReadableId = await client
+      .from("item")
+      .select("id")
+      .eq("companyId", companyId)
+      .ilike("readableId", value)
+      .limit(1);
+    if (byReadableId.data?.[0]) return byReadableId.data[0].id;
+
+    const byName = await client
+      .from("item")
+      .select("id")
+      .eq("companyId", companyId)
+      .ilike("name", value)
+      .limit(1);
+    if (byName.data?.[0]) return byName.data[0].id;
+  }
+
+  return null;
+}
+
 export async function upsertPart(
   client: SupabaseClient<Database>,
   part:

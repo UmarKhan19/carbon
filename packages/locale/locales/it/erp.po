@@ -44,6 +44,10 @@ msgstr "{0} giorni"
 msgid "{0} deleted successfully"
 msgstr "{0} eliminato con successo"
 
+#. placeholder {0}: mappings.length
+msgid "{0} lines to map"
+msgstr ""
+
 #. placeholder {0}: history.length
 msgid "{0} orders"
 msgstr "{0} ordini"
@@ -440,9 +444,6 @@ msgstr "Costo di acquisizione"
 
 msgid "Acquisition Date"
 msgstr "Data di acquisizione"
-
-msgid "Action"
-msgstr ""
 
 msgid "Action Status"
 msgstr "Stato Azione"
@@ -4667,12 +4668,6 @@ msgstr "Campi aggiuntivi per acquisire dati che Carbon non traccia per impostazi
 msgid "Extra tags for slicing your GL reporting"
 msgstr "Tag aggiuntivi per suddividere i tuoi report GL"
 
-msgid "Extracted Description"
-msgstr ""
-
-msgid "Extracted Part Number"
-msgstr ""
-
 msgid "Fail"
 msgstr "Non superato"
 
@@ -5011,9 +5006,6 @@ msgstr "Mappatura campi"
 
 msgid "Fields"
 msgstr "Campi"
-
-msgid "Fields populated from the document. Please review before saving."
-msgstr ""
 
 msgid "File deleted successfully"
 msgstr "File eliminato con successo"
@@ -6468,9 +6460,6 @@ msgstr "Caricamento dei lavori associati..."
 msgid "Loading item details..."
 msgstr "Caricamento dettagli articolo..."
 
-msgid "Loading suggestions..."
-msgstr ""
-
 msgid "Loading your own data with Carbon's import tools"
 msgstr "Caricamento dei tuoi dati con gli strumenti di importazione di Carbon"
 
@@ -7553,6 +7542,9 @@ msgstr "Nessuna immagine"
 
 msgid "No issue types configured"
 msgstr "Nessun tipo di problema configurato"
+
+msgid "No lines to map"
+msgstr ""
 
 msgid "No locations found."
 msgstr "Nessuna posizione trovata."
@@ -8925,9 +8917,6 @@ msgstr "Codice QR per avviare l'operazione successiva per questo kanban"
 
 msgid "Qty"
 msgstr "Qtà"
-
-msgid "Qty / Price"
-msgstr ""
 
 msgid "Qty to Order"
 msgstr "Qtà da ordinare"
@@ -10584,7 +10573,7 @@ msgstr "così puoi assegnarlo qui."
 msgid "Solutions Engineer"
 msgstr "Solutions Engineer"
 
-msgid "Some lines extracted from the PDF could not be automatically mapped to your inventory items. Please map them below."
+msgid "Some lines extracted from the PDF could not be automatically mapped to your inventory items. Review and map each line below."
 msgstr ""
 
 msgid "Something went wrong"
@@ -11944,6 +11933,9 @@ msgstr "La quantità richiesta da questo lavoro per il materiale."
 msgid "This lot is expired and can't be picked."
 msgstr "Questo lotto è scaduto e non può essere prelevato."
 
+msgid "This may take a moment. Hang tight."
+msgstr ""
+
 msgid "This page of your Implementation Hub is being built. Start from the command center while we finish it."
 msgstr "Questa pagina del tuo Implementation Hub è in fase di costruzione. Inizia dal centro di comando mentre la completiamo."
 
@@ -12433,6 +12425,9 @@ msgstr "Tipo di documento di origine non supportato: {sourceDocument}"
 
 msgid "Untitled Diagram"
 msgstr "Diagramma senza titolo"
+
+msgid "Untitled line"
+msgstr ""
 
 msgid "UoM"
 msgstr "UdM"
@@ -13305,7 +13300,7 @@ msgstr "Perché il magazzino sta cambiando — Positivo (trovato), Negativo (per
 msgid "Why this line is being declined; surfaced on the printable quote and recorded for win-loss reporting."
 msgstr "Perché questa linea viene rifiutata; visualizzato sul preventivo stampabile e registrato per i rapporti di vincita/perdita."
 
-msgid "Will remain as comment line"
+msgid "Will remain as a comment line"
 msgstr ""
 
 msgid "Window:"

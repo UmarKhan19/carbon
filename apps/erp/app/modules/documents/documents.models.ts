@@ -86,6 +86,7 @@ export const salesRfqExtractionSchema = z.object({
 });
 
 const purchaseInvoiceLineItemSchema = z.object({
+  partNumber: str,
   description: str,
   quantity: num,
   unitPrice: num,

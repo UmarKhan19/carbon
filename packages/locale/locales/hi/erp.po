@@ -44,6 +44,10 @@ msgstr "{0} दिन"
 msgid "{0} deleted successfully"
 msgstr "{0} सफलतापूर्वक हटाया गया"
 
+#. placeholder {0}: mappings.length
+msgid "{0} lines to map"
+msgstr ""
+
 #. placeholder {0}: history.length
 msgid "{0} orders"
 msgstr "{0} ऑर्डर"
@@ -440,9 +444,6 @@ msgstr "अधिग्रहण लागत"
 
 msgid "Acquisition Date"
 msgstr "अधिग्रहण तारीख"
-
-msgid "Action"
-msgstr ""
 
 msgid "Action Status"
 msgstr "कार्रवाई स्थिति"
@@ -4667,12 +4668,6 @@ msgstr "कार्बन डिफ़ॉल्ट रूप से ट्र�
 msgid "Extra tags for slicing your GL reporting"
 msgstr "आपकी GL रिपोर्टिंग को स्लाइस करने के लिए अतिरिक्त टैग"
 
-msgid "Extracted Description"
-msgstr ""
-
-msgid "Extracted Part Number"
-msgstr ""
-
 msgid "Fail"
 msgstr "विफल"
 
@@ -5011,9 +5006,6 @@ msgstr "फील्ड मैपिंग"
 
 msgid "Fields"
 msgstr "फील्ड्स"
-
-msgid "Fields populated from the document. Please review before saving."
-msgstr ""
 
 msgid "File deleted successfully"
 msgstr "फ़ाइल सफलतापूर्वक हटा दी गई"
@@ -6468,9 +6460,6 @@ msgstr "संबंधित कार्य लोड हो रहे है�
 msgid "Loading item details..."
 msgstr "आइटम विवरण लोड हो रहे हैं..."
 
-msgid "Loading suggestions..."
-msgstr ""
-
 msgid "Loading your own data with Carbon's import tools"
 msgstr "Carbon के आयात उपकरणों के साथ अपना डेटा लोड करना"
 
@@ -7553,6 +7542,9 @@ msgstr "कोई छवि नहीं"
 
 msgid "No issue types configured"
 msgstr "कोई समस्या प्रकार कॉन्फ़िगर नहीं किया गया"
+
+msgid "No lines to map"
+msgstr ""
 
 msgid "No locations found."
 msgstr "कोई स्थान नहीं मिला।"
@@ -8925,9 +8917,6 @@ msgstr "इस कनबन के लिए अगली ऑपरेशन श
 
 msgid "Qty"
 msgstr "मात्रा"
-
-msgid "Qty / Price"
-msgstr ""
 
 msgid "Qty to Order"
 msgstr "ऑर्डर करने की मात्रा"
@@ -10584,7 +10573,7 @@ msgstr "ताकि आप इसे यहां असाइन कर सक
 msgid "Solutions Engineer"
 msgstr "समाधान इंजीनियर"
 
-msgid "Some lines extracted from the PDF could not be automatically mapped to your inventory items. Please map them below."
+msgid "Some lines extracted from the PDF could not be automatically mapped to your inventory items. Review and map each line below."
 msgstr ""
 
 msgid "Something went wrong"
@@ -11944,6 +11933,9 @@ msgstr "इस सामग्री के लिए इस कार्य क
 msgid "This lot is expired and can't be picked."
 msgstr "यह लॉट समाप्त हो गया है और इसे चुना नहीं जा सकता।"
 
+msgid "This may take a moment. Hang tight."
+msgstr ""
+
 msgid "This page of your Implementation Hub is being built. Start from the command center while we finish it."
 msgstr "आपके Implementation Hub का यह पृष्ठ बनाया जा रहा है। जब तक हम इसे पूरा करते हैं, command center से शुरू करें।"
 
@@ -12433,6 +12425,9 @@ msgstr "असमर्थित स्रोत दस्तावेज़ प
 
 msgid "Untitled Diagram"
 msgstr "बिना शीर्षक वाला आरेख"
+
+msgid "Untitled line"
+msgstr ""
 
 msgid "UoM"
 msgstr "UoM"
@@ -13305,7 +13300,7 @@ msgstr "स्टॉक क्यों बदल रहा है — सका
 msgid "Why this line is being declined; surfaced on the printable quote and recorded for win-loss reporting."
 msgstr "यह पंक्ति क्यों अस्वीकार की जा रही है; मुद्रण योग्य उद्धरण पर प्रदर्शित और जीत-हानि रिपोर्टिंग के लिए दर्ज।"
 
-msgid "Will remain as comment line"
+msgid "Will remain as a comment line"
 msgstr ""
 
 msgid "Window:"
