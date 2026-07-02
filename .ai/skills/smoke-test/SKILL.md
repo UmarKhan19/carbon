@@ -1,6 +1,6 @@
 ---
 name: smoke-test
-description: Quick e2e smoke test of the local Carbon ERP dev server — logs in via /login, then loads each core module and verifies it renders without errors. Use after booting a stack, after wide-reaching changes, or when asked to "smoke test" the app. For feature-specific testing use /test instead.
+description: Quick e2e smoke test of the local Carbon ERP dev server — logs in via /auth, then loads each core module and verifies it renders without errors. Use after booting a stack, after wide-reaching changes, or when asked to "smoke test" the app. For feature-specific testing use /test instead.
 ---
 
 # smoke-test — do the core modules load?
@@ -18,7 +18,7 @@ broken routes and crashed loaders, not logic bugs.
 
 ### 1. Login
 
-Invoke `/login`. If it fails, STOP and report — everything below needs auth.
+Invoke `/auth`. If it fails, STOP and report — everything below needs auth.
 
 ### 2. Visit each module
 

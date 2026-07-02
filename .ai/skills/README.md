@@ -45,7 +45,7 @@ Questions via `/grill`. `/execute` commits per task via `/check-and-commit`.
 | `improve` | Senior-advisor audit; plans for other agents to execute | `.ai/plans/improve/` |
 | `test` | Drive changed flows in the browser; cache playbooks | pass/fail + `.ai/playbooks/{slug}.md` |
 | `smoke-test` | Do all core modules load? | pass/fail table |
-| `login` | Authenticate agent-browser against local dev | authed session (building block) |
+| `auth` | Authenticate agent-browser against local dev | authed session (building block) |
 | `error` | Capture screenshot + snapshot on browser failure | `.ai/scratch/e2e/…` (building block) |
 | `create-agents-md` | Generate/refresh a grounded AGENTS.md | `AGENTS.md` |
 | `carbon-docs` | Author reader-facing docs in the docs app | `docs/content/**` |

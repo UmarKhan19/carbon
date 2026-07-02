@@ -56,7 +56,7 @@ in when the container filesystem is awkward to reach.
 ## Step 3: Reproduce the real issue once
 
 - Prefer reproducing yourself: boot the stack (`crbn up` if not already
-  running), authenticate with `/login`, and drive the exact failing flow with
+  running), authenticate with `/auth`, and drive the exact failing flow with
   `agent-browser` (the `/test` skill documents Carbon's form gotchas —
   `requestSubmit`, react-aria blur).
 - If only the user can reproduce (their data, their environment), tell them
