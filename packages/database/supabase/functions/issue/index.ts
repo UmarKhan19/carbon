@@ -198,8 +198,20 @@ async function issueJobOperationMaterials(
     [];
 
   for await (const material of materialsToIssue) {
+    // Cap the backflush at the material's remaining unissued requirement,
+    // mirroring backflush_job_materials. Without this, materials already
+    // issued manually (e.g. from MES after skipping the operation) get
+    // consumed a second time on operation completion — duplicate item/cost
+    // ledger entries and duplicate DR WIP / CR Inventory journal lines.
+    const demandQuantity = Number(material.quantity) * quantity;
+    const remainingQuantity = Math.max(
+      Number(material.estimatedQuantity ?? 0) -
+        Number(material.quantityIssued ?? 0),
+      0
+    );
+    const quantityToIssue = Math.min(demandQuantity, remainingQuantity);
 
-    const quantityToIssue = Number(material.quantity) * quantity;
+    if (quantityToIssue <= 0) continue;
 
     let proposedStorageUnitId = material.storageUnitId;
 
@@ -1402,9 +1414,14 @@ serve(async (req: Request) => {
             await trx
               .updateTable("jobMaterial")
               .set({
+                // A positive adjustment returns material to inventory, so it
+                // reduces quantityIssued — otherwise the backflush cap sees
+                // returned material as still issued.
                 quantityIssued:
                   (Number(material?.quantityIssued) ?? 0) +
-                  Number(quantityToIssue),
+                  (adjustmentType === "Positive Adjmt."
+                    ? -Number(quantityToIssue)
+                    : Number(quantityToIssue)),
               })
               .where("id", "=", materialId)
               .execute();
