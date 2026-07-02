@@ -18,6 +18,9 @@ const payloadValidator = z.object({
   productionEventId: z.string(),
   userId: z.string(),
   companyId: z.string(),
+  // Reverse the net journal lines previously posted for this event (e.g.
+  // before deleting it) instead of posting its current state.
+  reverse: z.boolean().optional(),
 });
 
 serve(async (req: Request) => {
@@ -29,7 +32,7 @@ serve(async (req: Request) => {
   const today = format(new Date(), "yyyy-MM-dd");
 
   try {
-    const { productionEventId, userId, companyId } =
+    const { productionEventId, userId, companyId, reverse } =
       payloadValidator.parse(payload);
 
     const client = await requirePermissions(req, companyId, userId, { update: "production" });
@@ -81,7 +84,15 @@ serve(async (req: Request) => {
     }
 
     const event = productionEvent.data;
-    if (!event.endTime || !event.duration || !event.workCenterId) {
+
+    if (reverse && !event.postedToGL) {
+      // Nothing was posted for this event, so there is nothing to reverse.
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (!reverse && (!event.endTime || !event.duration || !event.workCenterId)) {
       // Leave postedToGL untouched so the event can still be posted later
       // (manually or by complete_job_to_inventory) once it's completable.
       const reason = !event.endTime
@@ -96,21 +107,24 @@ serve(async (req: Request) => {
 
     const jobId = (event.jobOperation as any).jobId as string;
 
-    const workCenter = await client
-      .from("workCenter")
-      .select("laborRate, machineRate")
-      .eq("id", event.workCenterId)
-      .single();
+    let cost = 0;
+    if (!reverse) {
+      const workCenter = await client
+        .from("workCenter")
+        .select("laborRate, machineRate")
+        .eq("id", event.workCenterId!)
+        .single();
 
-    if (workCenter.error) throw new Error(`Failed to fetch work center ${event.workCenterId}: ${workCenter.error.message}`);
+      if (workCenter.error) throw new Error(`Failed to fetch work center ${event.workCenterId}: ${workCenter.error.message}`);
 
-    const durationHours = event.duration / 3600;
-    const rate =
-      event.type === "Machine"
-        ? Number(workCenter.data.machineRate ?? 0)
-        : Number(workCenter.data.laborRate ?? 0);
+      const durationHours = (event.duration ?? 0) / 3600;
+      const rate =
+        event.type === "Machine"
+          ? Number(workCenter.data.machineRate ?? 0)
+          : Number(workCenter.data.laborRate ?? 0);
 
-    const cost = durationHours * rate;
+      cost = durationHours * rate;
+    }
 
     // Net amount already posted for this event, grouped by account. Events
     // posted before per-event references (documentLineReference = job:...)
@@ -131,7 +145,11 @@ serve(async (req: Request) => {
       (line) => Math.abs(Number(line.amount)) >= 0.000001
     );
 
-    if (event.postedToGL && reversalLines.length === 0 && cost > 0) {
+    if (
+      event.postedToGL &&
+      reversalLines.length === 0 &&
+      (cost > 0 || reverse)
+    ) {
       return new Response(
         JSON.stringify({
           success: false,
@@ -240,7 +258,11 @@ serve(async (req: Request) => {
           journalEntryId,
           accountingPeriodId,
           description: `${event.type} Time — Job ${job.data.jobId}${
-            reversalLines.length > 0 ? " (Adjustment)" : ""
+            reverse
+              ? " (Reversal)"
+              : reversalLines.length > 0
+              ? " (Adjustment)"
+              : ""
           }`,
           postingDate: today,
           companyId,
@@ -337,7 +359,7 @@ serve(async (req: Request) => {
 
       await trx
         .updateTable("productionEvent")
-        .set({ postedToGL: true })
+        .set({ postedToGL: !reverse })
         .where("id", "=", productionEventId)
         .execute();
     });

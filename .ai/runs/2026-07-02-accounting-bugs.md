@@ -98,9 +98,13 @@ entries.
 - `convert/index.ts` still writes the deprecated stored
   `purchaseInvoice.totalAmount` pre-tax; only external (Xero) sync readers
   see it.
-- Deleting a posted production event does not reverse its journal entry
-  (`event.delete.$id.tsx`). Same family, unreported; needs a
-  reverse-on-delete or a block.
+- ~~Deleting a posted production event does not reverse its journal entry~~
+  Done in a follow-up commit: `post-production-event` gained a
+  `reverse: true` mode (posts a reversal journal from the per-event tagged
+  lines, sets `postedToGL = false`); `deleteProductionEvent` reverses before
+  deleting and blocks the delete when reversal isn't possible (events posted
+  before per-event tagging). Covers both the ERP route and the MCP tool
+  (service signature gained `companyId`/`userId`; MCP metadata regenerated).
 - If manual-event posting still fails after these fixes, check edge-function
   logs for auth: `requirePermissions` in `functions/lib/supabase.ts` rejects
   opaque (`sb_secret_*`) service keys that `isTrustedBearer` accepts —

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-02T04:41:07.819Z",
+  "generated": "2026-07-02T12:02:00.478Z",
   "totalTools": 1252,
   "modules": 15,
   "tools": [
@@ -15357,7 +15357,9 @@
       "paramCount": 1,
       "serviceParams": [
         "client",
-        "productionEventId"
+        "productionEventId",
+        "companyId",
+        "userId"
       ],
       "injectAuth": [
         "companyId"
