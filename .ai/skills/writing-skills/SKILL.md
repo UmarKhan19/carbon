@@ -27,11 +27,23 @@ zero context. It will not infer intent, fill gaps, or exercise judgment. So:
 5. **Decision tables over prose.** Situation → action. A weak model can match a
    row; it cannot weigh an essay.
 6. **Verified references only.** Every file, command, and skill a skill mentions
-   must exist — run the command, `ls` the path, before writing it down. A
-   reference to something that doesn't exist sends the executor into a loop.
+   must exist — run the command, `ls` the path, before writing it down. This
+   includes claims inherited from an earlier version of the skill: re-verify
+   them; the previous author may have been wrong. A reference to something that
+   doesn't exist sends the executor into a loop.
 7. **Close loopholes explicitly.** For discipline rules, list the specific
    workarounds that are forbidden and the red-flag phrases that mean "stop"
    ("just this once", "I'll test after", "keep it as reference").
+8. **Announce at start.** Workflow skills open with one line naming the skill
+   and its target. It locks the executor into the procedure and tells the
+   supervising human which playbook is running.
+9. **Non-interactive only.** Never instruct `git rebase -i`, `git add -i`,
+   `git restore -p`, or anything that opens an editor/prompt — interactive
+   commands hang in agent harnesses. Give the non-interactive equivalent.
+10. **Bundle assets for generative output.** When a skill produces a styled
+    artifact (HTML page, document scaffold), ship a filled-in template under
+    `assets/` and have the executor copy + fill `<!-- FILL -->` markers —
+    weak models fill templates far better than they invent structure.
 
 ## Frontmatter contract (hard requirements)
 
@@ -57,6 +69,8 @@ description: {what it does/produces}. Use when {triggers}. Do not use for {adjac
 
 {2–3 sentences: input → output contract.}
 
+**Announce at start:** "Using the {name} skill — {purpose}."
+
 ## Step 1: {imperative}
 {exact commands, expected output}
 ...
@@ -74,6 +88,11 @@ description: {what it does/produces}. Use when {triggers}. Do not use for {adjac
 Sizing: most skills 60–180 lines. Move heavy reference material (100+ lines) to
 `references/*.md` inside the skill dir and say exactly when to read each file.
 One excellent example beats three mediocre ones.
+
+Formatting trap: when a template block in your skill must itself contain fenced
+commands, use a **four-backtick outer fence** (`````` ````markdown ``````) — a
+three-backtick fence inside a three-backtick fence closes the outer block early
+and garbles everything after it.
 
 ## Canonical artifact paths (use these; never invent new ones)
 

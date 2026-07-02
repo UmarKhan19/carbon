@@ -72,3 +72,30 @@ inferring intent.
       has line-1 frontmatter + dir-matching name + description, no references to
       deleted/phantom skills or missing files remain
 - [x] Commit on skills-rewrite branch
+
+## Wave 2 — treat ALL inherited content as suspect; harden for weak executors
+
+- [x] Fact-checked inherited claims: smoke-test module routes verified against
+      `path.ts` + `routes/x+` (all real); /login greeting verified
+      (`apps/erp/app/components/Greeting.tsx`); moved reference files carry no
+      stale `superpowers:` refs
+- [x] Fixed nested-fence rendering bug in plan + create-agents-md templates
+      (```` outer fences); added fence-balance check to the verification sweep
+- [x] Added "Announce at start" to every workflow skill (building blocks,
+      externals, and reference skills intentionally excluded)
+- [x] Added red-flag rationalization lists at the discipline pressure points:
+      spec-writing (self-resolving the gate), plan (under-specified tasks),
+      execute (improvising), fix (test-after / scope creep), check-and-commit
+      (gate weakening, "probably pre-existing" now requires proof), root-cause
+      (fix-before-cause)
+- [x] check-and-commit: mechanical changed-files→package-names snippet (weak
+      models fumble the --filter mapping)
+- [x] pr-splitter: full rewrite — non-interactive extraction recipes (the old
+      skill prescribed `git restore -p`, which hangs in agent harnesses),
+      merge-base detection, scratchpad moved to gitignored .ai/scratch/
+- [x] pr-explainer: full rewrite around a bundled assets/template.html
+      (styled, self-contained, `<!-- FILL -->` markers) — filling a template
+      beats inventing 200 lines of HTML
+- [x] writing-skills: new authoring rules 8–10 (announce, non-interactive only,
+      bundle assets for generative output), four-backtick fence trap, and
+      "re-verify inherited claims" added to rule 6

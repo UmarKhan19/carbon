@@ -8,6 +8,8 @@ description: Quick e2e smoke test of the local Carbon ERP dev server — logs in
 Verify every core module renders. This is breadth, not depth — it catches
 broken routes and crashed loaders, not logic bugs.
 
+**Announce at start:** "Using the smoke-test skill — sweeping the core modules."
+
 ## Prerequisites
 
 - Dev server running (`crbn up` — seeds the test user and `DEV_BYPASS_EMAIL`)

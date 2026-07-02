@@ -11,6 +11,9 @@ description: Pre-commit verification gate — runs Carbon's validation gates in 
 Run the gates in order, fix what's mechanically fixable, and commit only when
 everything is green. This skill is the only place in the workflow that commits.
 
+**Announce at start:** "Using the check-and-commit skill — running the gates,
+then committing."
+
 ## Step 1: Identify what changed
 
 ```bash
@@ -21,8 +24,17 @@ git diff --name-only
 From the changed paths, derive:
 
 - `SCHEMA_CHANGED` — any file under `packages/database/supabase/migrations/`
-- the set of **touched packages** (`apps/erp` → `erp`, `packages/react` →
-  `@carbon/react`, …) — read the `name` field of the nearest `package.json`
+- the set of **touched packages** — run this to map changed files to workspace
+  package names (these are the `--filter` values for the gates):
+
+  ```bash
+  git diff --name-only HEAD | while read -r f; do
+    d=$(dirname "$f")
+    while [ "$d" != "." ] && [ ! -f "$d/package.json" ]; do d=$(dirname "$d"); done
+    [ -f "$d/package.json" ] && sed -n 's/.*"name": *"\([^"]*\)".*/\1/p' "$d/package.json" | head -1
+  done | sort -u
+  ```
+
 - whether any file is **outside** the intended change (leftover debug file,
   unrelated edit). If yes → exclude it from staging and mention it in the report.
 
@@ -59,6 +71,17 @@ pnpm exec turbo run build --filter=<pkg>
 | Type/test error caused by this change | Fix the code, re-run |
 | Pre-existing failure, unrelated to this change | Note in report; don't block, don't fix |
 | Anything unclear or still failing after **2** fix attempts | STOP — report BLOCKED |
+
+"Pre-existing" must be proven, not assumed: the failing file/test is untouched
+by this diff, or the same failure reproduces on the merge-base. If you can't
+show one of those, treat it as caused by this change.
+
+Red flags — thinking any of these means the gate is being weakened; STOP:
+
+- "I'll run the gates once at the end instead of in order"
+- "`git add -A` is faster"
+- "that failure is probably pre-existing" (prove it — see above)
+- "the gate is flaky, I'll just retry until it passes"
 
 ## Step 4: Commit
 

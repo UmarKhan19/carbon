@@ -15,6 +15,9 @@ The iron rule: **no fix without a root cause.** A fix proposed before the cause
 is understood is a guess, and guesses create new bugs. Symptom patches are
 failure even when they make the error disappear.
 
+**Announce at start:** "Using the root-cause skill — read-only analysis of this
+bug."
+
 ## Step 0: Load context
 
 1. The bug report — full description, repro steps, linked threads/issues.
@@ -110,6 +113,14 @@ Produce exactly this structure (~400 words max):
 - **Stay scoped.** Analyze the reported bug only; note unrelated discoveries in
   one line at the end, don't chase them.
 - **Cite evidence.** Every claim references a file, line, migration, or policy.
+
+Red flags — thinking any of these means you're guessing, not analyzing; STOP:
+
+- "it's probably X, let me suggest the fix" (no verified cause → no fix)
+- "I'll propose two possible fixes and let them pick" (that's two guesses)
+- "one more hypothesis" after three have failed (that's an architecture
+  question now — surface it)
+- "the error message is misleading, ignore it" (read it again; it usually isn't)
 
 ## References (read when the situation matches)
 

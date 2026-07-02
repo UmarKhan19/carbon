@@ -9,6 +9,9 @@ Input: a feature or domain question. Output: `.ai/research/{feature-slug}.md` wi
 consensus patterns and a recommendation for Carbon. This skill only researches and
 writes the findings file — it does not design, plan, or write code.
 
+**Announce at start:** "Using the research skill — surveying how competitors
+handle {feature}."
+
 ## Step 1: Classify the domain
 
 Match the request against this table. A feature may match multiple rows (e.g.

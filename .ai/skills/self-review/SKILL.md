@@ -8,6 +8,9 @@ description: Critically review your own branch work before or just after opening
 Review the **full branch diff**, not just the last commit. Do not rubber-stamp
 your own work because you wrote it.
 
+**Announce at start:** "Using the self-review skill — reviewing the branch diff
+against main."
+
 ## Step 1: Get the diff
 
 - Open PR exists → `gh pr view` + `gh pr diff`.
@@ -49,8 +52,9 @@ For every package or module directory the diff touches:
 
 ## Step 4: Output
 
-Four sections, specific, with `file:line` references. If unsure whether
-something is a real bug, include it as a risk/question rather than dropping it.
+Four sections, specific, with `file:line` references — a finding you cannot tie
+to a file and line gets cut, not padded. If unsure whether something is a real
+bug, include it as a risk/question rather than dropping it.
 
 - **Must fix**
 - **Risks / questions**

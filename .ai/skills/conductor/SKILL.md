@@ -10,6 +10,9 @@ with the human watching and giving final approval. Ship a **gated PR** — never
 merge. Architecture context: `.ai/docs/loop-system.md`; the deterministic
 helpers live in `packages/harness` (see its `AGENTS.md`).
 
+**Announce at start:** "Using the conductor skill — supervised loop on
+{work item}."
+
 ## Step 0: Isolated worktree off origin/main — always first
 
 ```bash

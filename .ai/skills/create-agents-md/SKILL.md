@@ -12,6 +12,9 @@ Produce a prescriptive AGENTS.md grounded in source. Every claim MUST trace to a
 real function name, table name, import path, or file — grep and verify; never
 describe what "might" exist.
 
+**Announce at start:** "Using the create-agents-md skill — generating/refreshing
+the AGENTS.md for {target}."
+
 ## Step 1: Identify the target
 
 - **Package**: `packages/{name}/` → budget ≤100 lines
@@ -50,7 +53,7 @@ that actually exist.
 
 ### Module template
 
-```markdown
+````markdown
 # {Module Name} Module
 
 {One line: what this module does in the ERP domain.}
@@ -88,11 +91,11 @@ pnpm --filter erp test
 
 ## Rules References
 - `.ai/rules/{file}.md` — {what it covers}
-```
+````
 
 ### Package template
 
-```markdown
+````markdown
 # @carbon/{name}
 
 {One line.}
@@ -113,7 +116,7 @@ pnpm --filter @carbon/{name} test
 
 ## Cross-References
 {rules, related packages, consuming apps}
-```
+````
 
 ## Done when — verify each line
 

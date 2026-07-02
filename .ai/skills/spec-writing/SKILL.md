@@ -15,6 +15,9 @@ stop** — implementation must not start while any question is unresolved.
 The spec is the single design artifact. Do not write separate "design docs" in
 other locations.
 
+**Announce at start:** "Using the spec-writing skill — designing {feature} and
+drafting the spec."
+
 ## When to write a spec
 
 | Situation | Action |
@@ -140,3 +143,10 @@ entry, set status per `.ai/specs/AGENTS.md`. The spec is now ready for `/plan`
 - Skipping `/research` because "I know how ERPs work"
 - "TBD" in the Design Decisions table (that's an Open Question)
 - Vague acceptance criteria ("feature works as expected")
+
+Red flags — thinking any of these means the gate is being defeated; STOP:
+
+- "I'll mark this question resolved so we can keep moving"
+- "zero open questions — the design is clear" (you haven't looked hard enough)
+- "we can settle this during implementation"
+- "the user probably wants X, I'll assume it" (that assumption IS the question)

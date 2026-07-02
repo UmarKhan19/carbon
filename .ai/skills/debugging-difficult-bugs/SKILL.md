@@ -10,6 +10,9 @@ tell you**. Add temporary append-only JSONL logging along the real code path,
 reproduce the real issue once, read the log chronologically, and only then fix.
 Never make a second speculative fix without new runtime evidence.
 
+**Announce at start:** "Using the debugging-difficult-bugs skill — instrumenting
+the runtime path to observe the failure."
+
 ## Step 1: State the uncertainty
 
 Write down: what you believe, what you can't verify statically, and the exact

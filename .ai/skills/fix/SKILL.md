@@ -12,6 +12,9 @@ Input: a root-cause brief (from `/root-cause` or equivalent proof). Output: the
 smallest correct fix plus a regression test, all gates green, ready for
 `/check-and-commit`. Your job is to execute the brief, prove it, and stop.
 
+**Announce at start:** "Using the fix skill — implementing the change from the
+root-cause brief."
+
 ## Step 0: Prerequisites
 
 1. **Read the brief.** No brief → STOP and run `/root-cause` first.
@@ -109,3 +112,12 @@ Then hand off to `/check-and-commit`.
 - **No scope creep** — related bugs get one line in the output, not a fix.
 - **No guessing** — if the brief is unclear or you disagree with it, STOP and
   say so. Don't implement a fix you don't believe in.
+
+Red flags — thinking any of these means the process is off the rails; STOP:
+
+- "the fix is obvious, I'll write the test after" (a test written after passes
+  immediately and proves nothing — Step 2 comes first)
+- "while I'm here, I'll clean this up too"
+- "the test is hard to write, I'll just verify manually" (report BLOCKED instead)
+- "the brief is probably right" (if the code you read doesn't confirm the cause,
+  go back to /root-cause)

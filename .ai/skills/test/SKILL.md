@@ -9,6 +9,8 @@ Drive the running app through the changed flows like a user would, verify
 results, and cache what worked as a playbook. A user-facing change that hasn't
 passed this (or an equivalent unit-test proof) is not done.
 
+**Announce at start:** "Using the test skill — browser-testing {feature/flows}."
+
 ## Arguments
 
 - Feature description: `/test creating a purchase order`

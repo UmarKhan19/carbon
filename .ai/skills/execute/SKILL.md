@@ -12,6 +12,9 @@ checklist fully checked off.
 Your job is to follow the plan exactly — not to improve it. Deviations are
 blockers, not judgment calls.
 
+**Announce at start:** "Using the execute skill — implementing the plan at
+{path}."
+
 ## Step 1: Load and sanity-check
 
 1. Read the whole plan file. Confirm: you are on the branch it names, the spec
@@ -53,6 +56,13 @@ Report format: what happened, exact command + output, what you tried, 1–2
 options if you have them. After the human resolves it, resume the loop. If the
 plan itself is wrong, go back to `/plan` and update the plan file first — never
 push through with an unplanned design change.
+
+Red flags — thinking any of these means you are improvising; STOP instead:
+
+- "the plan is close enough, I'll adapt this step"
+- "I'll run all the verifications together at the end"
+- "this extra fix is obviously needed" (out-of-scope is a blocker, not a favor)
+- "the verification failed but the code looks right"
 
 ## Step 4: Parallel tasks (optional)
 

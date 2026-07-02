@@ -8,6 +8,9 @@ description: End-to-end feature pipeline that runs /research, /spec-writing, /pl
 Runs the full feature lifecycle by invoking the phase skills in order. This
 skill adds no logic of its own — each phase's rules live in its own skill.
 
+**Announce at start:** "Using the feature skill — running the full pipeline for
+{feature}."
+
 ## The pipeline
 
 | # | Phase | Skill | Artifact | Gate before next phase |

@@ -58,6 +58,8 @@ manually: `pnpm install-skills`). Authoring rules: `writing-skills/SKILL.md`.
 
 ## Conventions every skill follows
 
+- Workflow skills announce themselves at start ("Using the {name} skill — …")
+  so the human always knows which playbook is running.
 - Typecheck is always scoped: `pnpm exec turbo run typecheck --filter=<pkg>`.
   Whole-repo typecheck OOMs — no skill may prescribe it.
 - `pnpm run generate:types` after any migration, before typechecking.

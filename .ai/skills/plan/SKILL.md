@@ -12,6 +12,9 @@ questions) or, for small changes, an explicit user description. Output: a plan a
 Write the plan for the **weakest plausible executor**: an agent with no memory of
 this session. Every task must be executable from the plan text alone.
 
+**Announce at start:** "Using the plan skill — turning the spec into an
+implementation plan."
+
 ## Step 1: Check prerequisites
 
 1. Read the spec. If any Open Question is unchecked → **STOP** and return to
@@ -42,7 +45,7 @@ this session. Every task must be executable from the plan text alone.
 
 Every task uses exactly this shape:
 
-```markdown
+````markdown
 ## Task N: {imperative title}
 
 **Depends on:** {task numbers, or "none"}
@@ -63,7 +66,7 @@ Every task uses exactly this shape:
 ```
 
 **Out of scope:** {things that look related but must NOT be touched}
-```
+````
 
 Hard rules for task content:
 
@@ -83,6 +86,14 @@ Hard rules for task content:
   logic". If you can't specify it, the spec is incomplete — go back.
 - **Escape hatches.** Where a task rests on an assumption, add: "If {assumption}
   turns out false, STOP and report — do not improvise."
+
+Red flags — if you catch yourself writing any of these, the task is
+under-specified; fix it before moving on:
+
+- "similar to the previous task" / "as appropriate" / "etc."
+- a Verify block with no expected output
+- a UI task with no precedent file path
+- a migration task without a `generate:types` follow-up
 
 ## Step 4: Write the plan file
 

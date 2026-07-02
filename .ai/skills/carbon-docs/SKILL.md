@@ -16,6 +16,8 @@ description: >-
 warm-paper aesthetic. It is no longer scaffolded; it exists and ships content. This skill is how to add
 or change docs **in that system, in its house style, grounded in real Carbon code.**
 
+**Announce at start:** "Using the carbon-docs skill — authoring docs for {topic}."
+
 > The single biggest mistake is writing plausible ERP-generic prose. Carbon's behavior is specific and
 > often counterintuitive (WIP is a GL balance not a table; payment is a field not an entity; overhead is
 > not absorbed; fixed-asset disposal is scrapping-only). **Every claim is grounded in source.** See the
