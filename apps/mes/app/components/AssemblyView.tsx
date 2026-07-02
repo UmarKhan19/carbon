@@ -9,7 +9,13 @@ import {
   BottomSheetContent,
   Button,
   cn,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
   generateHTML,
+  IconButton,
   ModelViewer,
   Separator,
   SidebarTrigger,
@@ -39,6 +45,7 @@ import {
   LuHammer,
   LuHardHat,
   LuImage,
+  LuListFilter,
   LuPause,
   LuPlay,
   LuPrinter,
@@ -414,6 +421,10 @@ export function AssemblyView({
   const [selected, setSelected] = useState<number | "finished">("finished");
   // Operator toggle for the reference-image annotation pins (always-on vs tap-to-hide).
   const [showPins, setShowPins] = useState(true);
+  // Steps-bar filter: which steps the segmented bar shows for the current unit.
+  const [stepFilter, setStepFilter] = useState<"all" | "completed" | "incomplete">(
+    "all"
+  );
   // For non-tracked material inline issue
   const [selectedMaterial, setSelectedMaterial] = useState<any | null>(null);
 
@@ -901,27 +912,79 @@ export function AssemblyView({
       {/* ── STEPS BAR (segmented, click to jump; green = done) ── */}
       {steps.length > 0 && (
         <div className="flex h-9 shrink-0 items-center gap-3 bg-card border-b border-border px-5">
+          {/* Label reflects the active filter so a filtered bar (e.g. only the completed,
+              all-green steps) is never mistaken for "everything done". */}
           <span className="whitespace-nowrap text-xs text-muted-foreground">
-            {doneCount} / {steps.length} done
+            {stepFilter === "completed"
+              ? `${doneCount} completed`
+              : stepFilter === "incomplete"
+                ? `${steps.length - doneCount} incomplete`
+                : `${doneCount} / ${steps.length} done`}
           </span>
-          <div className="flex flex-1 gap-1">
-            {steps.map((s, i) => (
-              <button
-                key={s.id}
-                type="button"
-                aria-label={`Go to step ${i + 1}`}
-                onClick={() => goToStep(i)}
-                className={cn(
-                  "h-1.5 flex-1 rounded-full transition-colors",
-                  isStepDone(s)
-                    ? "bg-emerald-500"
-                    : i === currentStep
-                      ? "bg-foreground"
-                      : "bg-border hover:bg-muted-foreground/40"
-                )}
-              />
-            ))}
+          <div className="flex flex-1 items-center gap-1">
+            {steps
+              .map((s, i) => [s, i] as const)
+              .filter(([s]) =>
+                stepFilter === "all"
+                  ? true
+                  : stepFilter === "completed"
+                    ? isStepDone(s)
+                    : !isStepDone(s)
+              )
+              .map(([s, i]) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  aria-label={`Go to step ${i + 1}`}
+                  onClick={() => goToStep(i)}
+                  className={cn(
+                    "h-1.5 flex-1 rounded-full transition-colors",
+                    isStepDone(s)
+                      ? "bg-emerald-500"
+                      : i === currentStep
+                        ? "bg-foreground"
+                        : "bg-border hover:bg-muted-foreground/40"
+                  )}
+                />
+              ))}
+            {stepFilter === "incomplete" && doneCount === steps.length && (
+              <span className="text-xs text-emerald-500">All steps done</span>
+            )}
+            {stepFilter === "completed" && doneCount === 0 && (
+              <span className="text-xs text-muted-foreground">
+                No completed steps yet
+              </span>
+            )}
           </div>
+          {/* Filter which steps the bar emphasizes (all / completed / incomplete). */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <IconButton
+                aria-label="Filter steps"
+                variant={stepFilter === "all" ? "ghost" : "active"}
+                size="sm"
+                icon={<LuListFilter />}
+              />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuRadioGroup
+                value={stepFilter}
+                onValueChange={(v) =>
+                  setStepFilter(v as "all" | "completed" | "incomplete")
+                }
+              >
+                <DropdownMenuRadioItem value="all">
+                  Show all
+                </DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="completed">
+                  Show completed
+                </DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="incomplete">
+                  Show incomplete
+                </DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <span className="whitespace-nowrap text-xs tabular-nums text-muted-foreground">
             {currentStep + 1} / {steps.length}
           </span>
