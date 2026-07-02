@@ -84,6 +84,18 @@ link_skills() {
     name=$(basename "$skill_dir")
     [ -f "$skill_dir/SKILL.md" ] || continue
 
+    # Guard: frontmatter must start on line 1 and its name must match the dir.
+    # (A comment above the frontmatter breaks description parsing in harnesses.)
+    if [ "$(head -n 1 "$skill_dir/SKILL.md")" != "---" ]; then
+      echo "  ⚠ $name: SKILL.md does not start with '---' frontmatter on line 1" >&2
+    else
+      local fm_name
+      fm_name=$(sed -n '2,10s/^name:[[:space:]]*//p' "$skill_dir/SKILL.md" | head -n 1)
+      if [ -n "$fm_name" ] && [ "$fm_name" != "$name" ]; then
+        echo "  ⚠ $name: frontmatter name '$fm_name' does not match directory name" >&2
+      fi
+    fi
+
     ln -sfn "$rel_prefix/$name" "$harness_dir/$name"
     count=$((count + 1))
   done
