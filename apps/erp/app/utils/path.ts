@@ -565,14 +565,22 @@ export const path = {
     chartOfAccount: (id: string) =>
       generatePath(`${x}/accounting/charts/${id}`),
     chartOfAccounts: `${x}/accounting/charts`,
+    chartOfAccountsLedger: (id: string) =>
+      generatePath(`${x}/accounting/charts/ledger/${id}`),
     moveChartOfAccount: (id: string) =>
       generatePath(`${x}/accounting/charts/move/${id}`),
     costCenter: (id: string) =>
       generatePath(`${x}/accounting/cost-centers/${id}`),
     costCenters: `${x}/accounting/cost-centers`,
     trialBalance: `${x}/accounting/trial-balance`,
+    trialBalanceLedger: (id: string) =>
+      generatePath(`${x}/accounting/trial-balance/${id}`),
     balanceSheet: `${x}/accounting/balance-sheet`,
+    balanceSheetLedger: (id: string) =>
+      generatePath(`${x}/accounting/balance-sheet/${id}`),
     incomeStatement: `${x}/accounting/income-statement`,
+    incomeStatementLedger: (id: string) =>
+      generatePath(`${x}/accounting/income-statement/${id}`),
     company: `${x}/settings/company`,
     companySwitch: (companyId: string) =>
       generatePath(`${x}/settings/company/switch/${companyId}`),
