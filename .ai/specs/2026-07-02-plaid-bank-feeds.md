@@ -1,6 +1,6 @@
 # Plaid Bank Feeds & Cash Position (Bank Reconciliation Phase 2)
 
-> Status: draft
+> Status: in-progress
 > Author: Claude (with Brad Barbin)
 > Date: 2026-07-02
 > Research notes: `.ai/research/plaid-bank-feeds.md` (Plaid mechanics verified against plaid.com/docs 2026-07-02)
@@ -40,7 +40,7 @@ Parent-spec decision: Supabase Vault. **Unverified in this stack** (no `vault`/`
 - Implementation Task 1 probes `SELECT 1 FROM vault.secrets LIMIT 0` on the local stack and the Docker/cloud deploy targets.
 - **If present**: `tokenRef = { kind: "vault", secretId }` via `vault.create_secret(access_token)`; reads happen server-side only (service role) through `vault.decrypted_secrets`.
 - **If absent anywhere we deploy**: fallback is app-layer **AES-256-GCM** with a required `PLAID_TOKEN_ENCRYPTION_KEY` env secret (32 bytes, base64); `tokenRef = { kind: "aes", ciphertext, iv, tag }` stored in the metadata JSON. Same interface (`getItemAccessToken(companyId, itemId)` in `packages/ee/src/plaid/tokens.server.ts`), so the storage backend is swappable and the Xero-token migration can follow either way.
-- Never the Xero plaintext pattern for bank credentials (Open Question 1 confirms the fallback choice).
+- Never the Xero plaintext pattern for bank credentials (fallback pre-approved; see resolved Open Question 1).
 
 ### Sync job — `bank-feed-sync`
 
@@ -67,7 +67,7 @@ Pure verify-and-dispatch (Xero webhook precedent):
 2. Route by `webhook_type`/`webhook_code`:
    - `TRANSACTIONS` / `SYNC_UPDATES_AVAILABLE` → `trigger("bank-feed-sync", { companyId, itemId, trigger: "webhook" })` (company resolved by scanning `companyIntegration` metadata for the `item_id` — add a small `getCompanyByPlaidItemId(serviceRole, itemId)` helper).
    - `ITEM` / `ERROR` with `ITEM_LOGIN_REQUIRED`, `PENDING_EXPIRATION`, `PENDING_DISCONNECT` → set the Item's metadata `status: "Requires Reauth"` and `connectionStatus = 'Requires Reauth'` on its mapped bank accounts.
-   - `ITEM` / `USER_PERMISSION_REVOKED` → Item `status: "Error"`, accounts `connectionStatus = 'Error'` (bank account rows and history are always kept — Open Question 4).
+   - `ITEM` / `USER_PERMISSION_REVOKED` → Item `status: "Error"`, accounts `connectionStatus = 'Error'` (bank account rows and history are always kept — resolved: keep-and-relink).
    - Everything else (legacy `INITIAL_UPDATE`/`HISTORICAL_UPDATE`/`DEFAULT_UPDATE`/`TRANSACTIONS_REMOVED`) → 200, ignored (sync handles state).
 3. Always 200 fast; never do sync work inline.
 
@@ -189,27 +189,26 @@ ON CONFLICT ("id") DO NOTHING;
 
 | Risk | Severity | Mitigation |
 |------|----------|------------|
-| Vault absent in self-hosted/Docker deploys → token-storage decision blocked | Med | Probe first (Open Question 1); AES-GCM env-key fallback behind the same interface, decided before implementation, not during |
+| Vault absent in self-hosted/Docker deploys → token-storage decision blocked | Med | Probe first; AES-GCM env-key fallback pre-approved behind the same interface — the probe cannot block |
 | Webhook endpoint is public and attacker-reachable | Med | Full verification chain (ES256 + `kid` key fetch + body hash constant-time + 5-min replay window); route does nothing but dispatch |
 | Cursor loss/corruption in metadata JSON → re-ingest storm | Low | Unique `(bankAccountId, externalId)` makes re-ingest idempotent (duplicates skipped); worst case is wasted API calls |
 | Item webhook → company resolution scans metadata JSON | Low | Items per company are few; add a `metadata->items` GIN index only if it ever shows up in traces |
-| Plaid production approval/pricing not in place when Phase 2 lands | Med | Open Question 3; sandbox works end-to-end without approval, so build/test isn't blocked |
+| Plaid production approval/pricing not in place when Phase 2 lands | Med | Resolved: account created now, approval runs in parallel; sandbox works end-to-end without approval, so build/test isn't blocked |
 | Local dev can't receive webhooks → devs think feeds are broken | Low | Scheduled catch-up + "Sync now" keep dev fresh; documented in the integration card copy and the research notes |
 | `modified` rewrites of Unmatched lines fight a user mid-match | Low | Updates only touch Pending/Unmatched rows; Matched+ rows go to `needsReview` |
 | Balance snapshot sign errors on credit accounts | Med | One flip point at snapshot write + acceptance criterion; class-aware convention already established in Phase 1 |
 
 ## Open Questions
 
-> 🛑 HARD STOP: Do not proceed with implementation until these are answered.
+> ✅ All resolved 2026-07-02 — recommendations accepted verbatim by Brad ("let's go with the recommendations"). Implementation may proceed.
 
-Recommendations inline, per standing "use your best judgement" guidance:
-
-- [ ] **Vault probe outcome & fallback approval** — the parent spec chose Supabase Vault, but `vault`/`pgsodium` appear nowhere in this stack's migrations/config. If the probe finds Vault missing in any deploy target, is the AES-256-GCM + `PLAID_TOKEN_ENCRYPTION_KEY` fallback approved as the v1 storage (same interface, swappable later)? Matters because it gates the token-storage implementation and the Xero-migration follow-up. **Recommend: yes, approve the fallback pre-emptively so the probe can't block.**
-- [ ] **Webhook URL / environment reachability** — webhooks need a public HTTPS URL per Item. Production uses the app URL; what should *deployed dev/staging* Items use, and do we accept "no webhooks locally, scheduled+manual sync only" as the permanent local-dev story? Matters for how the webhook path gets exercised before production. **Recommend: accept it; verify webhooks on the deployed dev env via `/sandbox/item/fire_webhook`.**
-- [ ] **Plaid account ownership & production approval** — who owns the Plaid dashboard account, and when do we start production access approval (it gates real banks + pricing)? Matters for launch sequencing, not build. **Recommend: create the account now, start approval in parallel with implementation; build entirely on sandbox.**
-- [ ] **Retention on revocation** — when `USER_PERMISSION_REVOKED` arrives (user cut access at the bank), keep the `bankAccount` + all transactions and allow relinking a future Item to the same account (history preserved), never auto-delete? Matters because deletion would destroy reconciliation history. **Recommend: keep-and-relink, always.**
-- [ ] **Scheduled catch-up cadence** — daily (06:00 UTC) per Item, or twice daily? Plaid bills per connected account, not per API call, so frequency is about freshness vs job noise. Matters little; setting it once avoids churn. **Recommend: daily, with the webhook path as the real-time channel.**
+- [x] **Vault probe outcome & fallback approval** — the parent spec chose Supabase Vault, but `vault`/`pgsodium` appear nowhere in this stack's migrations/config. If the probe finds Vault missing in any deploy target, is the AES-256-GCM + `PLAID_TOKEN_ENCRYPTION_KEY` fallback approved as the v1 storage (same interface, swappable later)? Matters because it gates the token-storage implementation and the Xero-migration follow-up. **Answer: approved — if the probe finds Vault missing in any deploy target, ship the AES-256-GCM + `PLAID_TOKEN_ENCRYPTION_KEY` fallback behind the same `getItemAccessToken` interface.**
+- [x] **Webhook URL / environment reachability** — webhooks need a public HTTPS URL per Item. Production uses the app URL; what should *deployed dev/staging* Items use, and do we accept "no webhooks locally, scheduled+manual sync only" as the permanent local-dev story? Matters for how the webhook path gets exercised before production. **Answer: accepted — local dev is scheduled + manual sync only; the webhook path is verified on the deployed dev environment via `/sandbox/item/fire_webhook`.**
+- [x] **Plaid account ownership & production approval** — who owns the Plaid dashboard account, and when do we start production access approval (it gates real banks + pricing)? Matters for launch sequencing, not build. **Answer: Brad creates the Plaid dashboard account now and starts production approval in parallel; implementation proceeds entirely on sandbox.**
+- [x] **Retention on revocation** — when `USER_PERMISSION_REVOKED` arrives (user cut access at the bank), keep the `bankAccount` + all transactions and allow relinking a future Item to the same account (history preserved), never auto-delete? Matters because deletion would destroy reconciliation history. **Answer: keep-and-relink, always — bank accounts and transaction history are never auto-deleted on revocation.**
+- [x] **Scheduled catch-up cadence** — daily (06:00 UTC) per Item, or twice daily? Plaid bills per connected account, not per API call, so frequency is about freshness vs job noise. Matters little; setting it once avoids churn. **Answer: daily; webhooks are the real-time channel.**
 
 ## Changelog
 
 - 2026-07-02: Created — Phase 2 of `.ai/specs/2026-07-02-bank-reconciliation.md`. Plaid mechanics verified directly against plaid.com/docs (sync cursor/mutation-restart, webhook JWT verification chain, update mode, `days_requested` immutability, sandbox endpoints) after the Phase-1 research pass's verification outage; Vault availability flagged unverified in this stack. See `.ai/research/plaid-bank-feeds.md`.
+- 2026-07-02: All open questions resolved — recommendations accepted verbatim ("let's go with the recommendations"): AES-GCM fallback pre-approved pending the Vault probe; local-dev webhook story accepted; Plaid account + production approval started in parallel; keep-and-relink on revocation; daily catch-up cadence. Status → in-progress; ready for `/plan`.
