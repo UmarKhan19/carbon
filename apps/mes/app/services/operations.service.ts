@@ -7,7 +7,7 @@ import {
   type TrackedActivityAttributes
 } from "@carbon/utils";
 import { getLocalTimeZone, today } from "@internationalized/date";
-import type { SupabaseClient } from "@supabase/supabase-js";
+import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 import { nanoid } from "nanoid";
 import type { z } from "zod";
 import { sanitize } from "~/utils/supabase";
@@ -969,6 +969,40 @@ export async function insertAttributeRecord(
     onConflict: "jobOperationStepId, index",
     ignoreDuplicates: false
   });
+}
+
+// Manager override: record every step of an operation that has no record yet for this unit
+// index, in one write. Records carry no captured value (booleanValue/numericValue/etc. left
+// null) — the override marks steps done without their data capture, which is the point of an
+// override. Already-recorded steps are skipped (ignoreDuplicates) so it never overwrites real
+// operator data. Gated at the route on the Production DELETE permission.
+export async function completeAllStepsForUnit(
+  client: SupabaseClient<Database>,
+  args: { operationId: string; index: number; companyId: string; createdBy: string }
+): Promise<{ data: { count: number } | null; error: PostgrestError | null }> {
+  const steps = await client
+    .from("jobOperationStep")
+    .select("id, jobOperationStepRecord(index)")
+    .eq("operationId", args.operationId);
+  if (steps.error) return { data: null, error: steps.error };
+
+  const missing = (steps.data ?? []).filter(
+    (s) =>
+      !(s.jobOperationStepRecord ?? []).some((r) => r.index === args.index)
+  );
+  if (missing.length === 0) return { data: { count: 0 }, error: null };
+
+  const insert = await client.from("jobOperationStepRecord").upsert(
+    missing.map((s) => ({
+      jobOperationStepId: s.id,
+      index: args.index,
+      companyId: args.companyId,
+      createdBy: args.createdBy
+    })),
+    { onConflict: "jobOperationStepId, index", ignoreDuplicates: true }
+  );
+  if (insert.error) return { data: null, error: insert.error };
+  return { data: { count: missing.length }, error: null };
 }
 
 export async function insertReworkQuantity(

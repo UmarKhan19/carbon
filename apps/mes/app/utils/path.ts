@@ -136,6 +136,7 @@ export const path = {
     recent: `${x}/recent`,
     record: `${x}/record`,
     recordDelete: (id: string) => generatePath(`${x}/record/${id}/delete`),
+    completeAllSteps: `${x}/steps/complete-all`,
     refreshSession: "/refresh-session",
     requestAccess: "/request-access",
     rework: `${x}/rework`,

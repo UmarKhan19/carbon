@@ -16,6 +16,13 @@ import {
   DropdownMenuTrigger,
   generateHTML,
   IconButton,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  ModalTitle,
   ModelViewer,
   Separator,
   SidebarTrigger,
@@ -45,6 +52,7 @@ import {
   LuHammer,
   LuHardHat,
   LuImage,
+  LuListChecks,
   LuListFilter,
   LuPause,
   LuPlay,
@@ -196,6 +204,7 @@ type Props = {
   } | null;
   kanban?: { id?: string; completedBarcodeOverride?: string | null } | null;
   jobId?: string | null;
+  canOverrideComplete?: boolean;
   modelPath?: string | null;
 };
 
@@ -396,6 +405,7 @@ export function AssemblyView({
   workCenter,
   kanban,
   jobId,
+  canOverrideComplete = false,
   modelPath
 }: Props) {
   const user = useUser();
@@ -415,6 +425,8 @@ export function AssemblyView({
   const maintenanceModal = useDisclosure();
   const serialModal = useDisclosure();
   const actionsSheet = useDisclosure();
+  const completeAllModal = useDisclosure();
+  const completeAllFetcher = useFetcher<{ success?: boolean }>();
   const imageViewer = useDisclosure();
   // Which reference image fills the main panel: a step photo (index) or the
   // finished-product image ("finished").
@@ -1660,10 +1672,74 @@ export function AssemblyView({
                   qualityModal.onOpen();
                 }}
               />
+              {/* Manager-only override: record every remaining step for this unit at once.
+                  Shown only to users with the Production DELETE permission, and only when
+                  there are unrecorded steps left. */}
+              {canOverrideComplete && steps.length > 0 && doneCount < steps.length && (
+                <ActionSheetButton
+                  icon={<LuListChecks className="size-4 shrink-0" />}
+                  label="Complete all steps"
+                  onClick={() => {
+                    actionsSheet.onClose();
+                    completeAllModal.onOpen();
+                  }}
+                />
+              )}
             </div>
           </BottomSheetBody>
         </BottomSheetContent>
       </BottomSheet>
+
+      {completeAllModal.isOpen && (
+        <Modal
+          open
+          onOpenChange={(open) => {
+            if (!open) completeAllModal.onClose();
+          }}
+        >
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>
+              <ModalTitle>Complete all steps?</ModalTitle>
+            </ModalHeader>
+            <ModalBody>
+              <p className="text-sm text-muted-foreground">
+                This records the{" "}
+                <span className="font-semibold text-foreground">
+                  {steps.length - doneCount}
+                </span>{" "}
+                remaining step(s) as complete for{" "}
+                <span className="font-semibold text-foreground">
+                  Unit {currentUnitIndex + 1}
+                </span>{" "}
+                without capturing their values. This is a manager override; each
+                step can still be undone individually.
+              </p>
+            </ModalBody>
+            <ModalFooter>
+              <Button variant="secondary" onClick={completeAllModal.onClose}>
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                isLoading={completeAllFetcher.state !== "idle"}
+                onClick={() => {
+                  const fd = new FormData();
+                  fd.append("operationId", operationId);
+                  fd.append("index", String(activeIndex));
+                  completeAllFetcher.submit(fd, {
+                    method: "post",
+                    action: path.to.completeAllSteps
+                  });
+                  completeAllModal.onClose();
+                }}
+              >
+                Complete all
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+      )}
 
       <ImageZoomViewer
         open={imageViewer.isOpen}

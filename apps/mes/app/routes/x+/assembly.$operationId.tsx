@@ -1,6 +1,7 @@
 import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
+import { getUserClaims } from "@carbon/auth/users.server";
 import { flash } from "@carbon/auth/session.server";
 import type { LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData, useParams } from "react-router";
@@ -31,6 +32,15 @@ type ExpiredEntityPolicy = "Warn" | "Block" | "BlockWithOverride";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { userId, companyId } = await requirePermissions(request, {});
+
+  // Manager-only "complete all steps" override is gated on the Production DELETE permission:
+  // operators hold view/create/update (they record steps) but not delete, so delete cleanly
+  // separates managers from operators regardless of how a company names its employee types.
+  const claims = await getUserClaims(userId, companyId);
+  const canOverrideComplete =
+    claims?.permissions?.production?.delete?.some(
+      (c) => c === "0" || c === companyId
+    ) ?? false;
 
   const { operationId } = params;
   if (!operationId) throw new Error("Operation ID is required");
@@ -198,6 +208,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       } | null) ?? null,
     kanban: kanban?.data ?? null,
     jobId: job.data.id ?? null,
+    canOverrideComplete,
     modelPath:
       (op as { itemModelPath?: string | null }).itemModelPath ??
       (job.data as { modelPath?: string | null }).modelPath ??
