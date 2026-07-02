@@ -4344,13 +4344,13 @@ msgstr "Включено"
 msgid "End Date"
 msgstr "Дата окончания"
 
+msgid "End of Last Fiscal Year"
+msgstr ""
+
 msgid "End of Last Month"
 msgstr ""
 
 msgid "End of Last Quarter"
-msgstr ""
-
-msgid "End of Last Year"
 msgstr ""
 
 msgid "End Time"
@@ -5111,6 +5111,9 @@ msgstr "Финансовый год"
 
 msgid "Fiscal Year Settings"
 msgstr "Параметры финансового года"
+
+msgid "Fiscal Year to Date"
+msgstr ""
 
 msgid "Fiscal Years"
 msgstr "Финансовые годы"
@@ -6324,6 +6327,9 @@ msgstr "Последняя калибровка"
 msgid "Last Calibration Date"
 msgstr "Дата последней калибровки"
 
+msgid "Last Fiscal Year"
+msgstr ""
+
 msgid "Last Month"
 msgstr ""
 
@@ -6339,9 +6345,6 @@ msgstr "Последняя синхронизация: {0}"
 
 msgid "Last updated: {formattedDate}"
 msgstr "Последнее обновление: {formattedDate}"
-
-msgid "Last Year"
-msgstr ""
 
 msgid "Lead time"
 msgstr "Время поставки"
@@ -11944,6 +11947,9 @@ msgstr "Эта ссылка для скачивания недействител
 msgid "This file is no longer available, or you don't have permission to download it."
 msgstr "Этот файл больше не доступен, или у вас нет разрешения на его загрузку."
 
+msgid "This Fiscal Year"
+msgstr ""
+
 msgid "This information will be used on document headers"
 msgstr "Эта информация будет использована в заголовках документов"
 
@@ -13447,9 +13453,6 @@ msgstr "Снижение стоимости актива в течение ег�
 
 msgid "Year"
 msgstr "Год"
-
-msgid "Year to Date"
-msgstr ""
 
 msgid "Yes"
 msgstr "Да"

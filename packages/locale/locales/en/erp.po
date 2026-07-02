@@ -4344,14 +4344,14 @@ msgstr "Enabled"
 msgid "End Date"
 msgstr "End Date"
 
+msgid "End of Last Fiscal Year"
+msgstr "End of Last Fiscal Year"
+
 msgid "End of Last Month"
 msgstr "End of Last Month"
 
 msgid "End of Last Quarter"
 msgstr "End of Last Quarter"
-
-msgid "End of Last Year"
-msgstr "End of Last Year"
 
 msgid "End Time"
 msgstr "End Time"
@@ -5111,6 +5111,9 @@ msgstr "Fiscal Year"
 
 msgid "Fiscal Year Settings"
 msgstr "Fiscal Year Settings"
+
+msgid "Fiscal Year to Date"
+msgstr "Fiscal Year to Date"
 
 msgid "Fiscal Years"
 msgstr "Fiscal Years"
@@ -6324,6 +6327,9 @@ msgstr "Last Calibration"
 msgid "Last Calibration Date"
 msgstr "Last Calibration Date"
 
+msgid "Last Fiscal Year"
+msgstr "Last Fiscal Year"
+
 msgid "Last Month"
 msgstr "Last Month"
 
@@ -6339,9 +6345,6 @@ msgstr "Last synced: {0}"
 
 msgid "Last updated: {formattedDate}"
 msgstr "Last updated: {formattedDate}"
-
-msgid "Last Year"
-msgstr "Last Year"
 
 msgid "Lead time"
 msgstr "Lead time"
@@ -11944,6 +11947,9 @@ msgstr "This download link is invalid or has been tampered with."
 msgid "This file is no longer available, or you don't have permission to download it."
 msgstr "This file is no longer available, or you don't have permission to download it."
 
+msgid "This Fiscal Year"
+msgstr "This Fiscal Year"
+
 msgid "This information will be used on document headers"
 msgstr "This information will be used on document headers"
 
@@ -13447,9 +13453,6 @@ msgstr "Writing an asset's value down over its life — a monthly batch you crea
 
 msgid "Year"
 msgstr "Year"
-
-msgid "Year to Date"
-msgstr "Year to Date"
 
 msgid "Yes"
 msgstr "Yes"

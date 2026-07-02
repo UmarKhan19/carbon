@@ -4344,13 +4344,13 @@ msgstr "Włączone"
 msgid "End Date"
 msgstr "Data końcowa"
 
+msgid "End of Last Fiscal Year"
+msgstr ""
+
 msgid "End of Last Month"
 msgstr ""
 
 msgid "End of Last Quarter"
-msgstr ""
-
-msgid "End of Last Year"
 msgstr ""
 
 msgid "End Time"
@@ -5111,6 +5111,9 @@ msgstr "Rok obrachunkowy"
 
 msgid "Fiscal Year Settings"
 msgstr "Ustawienia roku obrachunkowego"
+
+msgid "Fiscal Year to Date"
+msgstr ""
 
 msgid "Fiscal Years"
 msgstr "Lata obrachunkowe"
@@ -6324,6 +6327,9 @@ msgstr "Ostatnia Kalibracja"
 msgid "Last Calibration Date"
 msgstr "Data ostatniej kalibracji"
 
+msgid "Last Fiscal Year"
+msgstr ""
+
 msgid "Last Month"
 msgstr ""
 
@@ -6339,9 +6345,6 @@ msgstr "Ostatnia synchronizacja: {0}"
 
 msgid "Last updated: {formattedDate}"
 msgstr "Ostatnia aktualizacja: {formattedDate}"
-
-msgid "Last Year"
-msgstr ""
 
 msgid "Lead time"
 msgstr "Czas Dostawy"
@@ -11944,6 +11947,9 @@ msgstr "Ten link pobierania jest nieprawidłowy lub został zmieniony."
 msgid "This file is no longer available, or you don't have permission to download it."
 msgstr "Ten plik nie jest już dostępny lub nie masz uprawnień do jego pobrania."
 
+msgid "This Fiscal Year"
+msgstr ""
+
 msgid "This information will be used on document headers"
 msgstr "Te informacje będą używane w nagłówkach dokumentów"
 
@@ -13447,9 +13453,6 @@ msgstr "Zmniejszanie wartości składnika aktywów w trakcie jego użyteczności
 
 msgid "Year"
 msgstr "Rok"
-
-msgid "Year to Date"
-msgstr ""
 
 msgid "Yes"
 msgstr "Tak"

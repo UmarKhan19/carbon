@@ -191,6 +191,7 @@ export default function IncomeStatementRoute() {
       />
       <FinancialStatementTree
         data={incomeStatement}
+        measure="netChange"
         showTranslated={showTranslated}
         parentCurrency={parentCurrency}
         search={search}

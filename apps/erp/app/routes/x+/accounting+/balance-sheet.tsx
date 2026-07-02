@@ -205,6 +205,7 @@ export default function BalanceSheetRoute() {
       />
       <FinancialStatementTree
         data={balanceSheet}
+        measure="balanceAtDate"
         showTranslated={showTranslated}
         parentCurrency={parentCurrency}
         search={search}

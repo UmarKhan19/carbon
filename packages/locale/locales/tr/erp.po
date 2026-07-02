@@ -4344,13 +4344,13 @@ msgstr "Etkinleştirilmiş"
 msgid "End Date"
 msgstr "Bitiş Tarihi"
 
+msgid "End of Last Fiscal Year"
+msgstr ""
+
 msgid "End of Last Month"
 msgstr ""
 
 msgid "End of Last Quarter"
-msgstr ""
-
-msgid "End of Last Year"
 msgstr ""
 
 msgid "End Time"
@@ -5111,6 +5111,9 @@ msgstr "Mali Yılı"
 
 msgid "Fiscal Year Settings"
 msgstr "Mali Yılı Ayarları"
+
+msgid "Fiscal Year to Date"
+msgstr ""
 
 msgid "Fiscal Years"
 msgstr "Mali Yıllar"
@@ -6324,6 +6327,9 @@ msgstr "Son Kalibrasyon"
 msgid "Last Calibration Date"
 msgstr "Son Kalibrasyon Tarihi"
 
+msgid "Last Fiscal Year"
+msgstr ""
+
 msgid "Last Month"
 msgstr ""
 
@@ -6339,9 +6345,6 @@ msgstr "Son senkronize edildi: {0}"
 
 msgid "Last updated: {formattedDate}"
 msgstr "Son güncellendi: {formattedDate}"
-
-msgid "Last Year"
-msgstr ""
 
 msgid "Lead time"
 msgstr "Teslim Süresi"
@@ -11944,6 +11947,9 @@ msgstr "Bu indirme bağlantısı geçersiz veya değiştirilmiş."
 msgid "This file is no longer available, or you don't have permission to download it."
 msgstr "Bu dosya artık kullanılamıyor veya onu indirme izniniz yok."
 
+msgid "This Fiscal Year"
+msgstr ""
+
 msgid "This information will be used on document headers"
 msgstr "Bu bilgiler belge başlıklarında kullanılacaktır"
 
@@ -13447,9 +13453,6 @@ msgstr "Bir varlığın değerini faydalı kullanım süresi boyunca azaltma —
 
 msgid "Year"
 msgstr "Yıl"
-
-msgid "Year to Date"
-msgstr ""
 
 msgid "Yes"
 msgstr "Evet"

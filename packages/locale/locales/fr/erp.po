@@ -4344,13 +4344,13 @@ msgstr "Activé"
 msgid "End Date"
 msgstr "Date de fin"
 
+msgid "End of Last Fiscal Year"
+msgstr ""
+
 msgid "End of Last Month"
 msgstr ""
 
 msgid "End of Last Quarter"
-msgstr ""
-
-msgid "End of Last Year"
 msgstr ""
 
 msgid "End Time"
@@ -5111,6 +5111,9 @@ msgstr "Exercice fiscal"
 
 msgid "Fiscal Year Settings"
 msgstr "Paramètres de l'exercice fiscal"
+
+msgid "Fiscal Year to Date"
+msgstr ""
 
 msgid "Fiscal Years"
 msgstr "Exercices fiscaux"
@@ -6324,6 +6327,9 @@ msgstr "Dernier étalonnage"
 msgid "Last Calibration Date"
 msgstr "Dernière date d'étalonnage"
 
+msgid "Last Fiscal Year"
+msgstr ""
+
 msgid "Last Month"
 msgstr ""
 
@@ -6339,9 +6345,6 @@ msgstr "Dernière synchronisation : {0}"
 
 msgid "Last updated: {formattedDate}"
 msgstr "Dernière mise à jour : {formattedDate}"
-
-msgid "Last Year"
-msgstr ""
 
 msgid "Lead time"
 msgstr "Délai"
@@ -11944,6 +11947,9 @@ msgstr "Ce lien de téléchargement est invalide ou a été modifié."
 msgid "This file is no longer available, or you don't have permission to download it."
 msgstr "Ce fichier n'est plus disponible, ou vous n'avez pas la permission de le télécharger."
 
+msgid "This Fiscal Year"
+msgstr ""
+
 msgid "This information will be used on document headers"
 msgstr "Ces informations seront utilisées dans les en-têtes de document"
 
@@ -13447,9 +13453,6 @@ msgstr "Réduire la valeur d'un actif au cours de sa vie utile — un lot mensue
 
 msgid "Year"
 msgstr "Année"
-
-msgid "Year to Date"
-msgstr ""
 
 msgid "Yes"
 msgstr "Oui"

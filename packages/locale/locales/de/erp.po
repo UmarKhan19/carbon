@@ -4344,13 +4344,13 @@ msgstr "Aktiviert"
 msgid "End Date"
 msgstr "Enddatum"
 
+msgid "End of Last Fiscal Year"
+msgstr ""
+
 msgid "End of Last Month"
 msgstr ""
 
 msgid "End of Last Quarter"
-msgstr ""
-
-msgid "End of Last Year"
 msgstr ""
 
 msgid "End Time"
@@ -5111,6 +5111,9 @@ msgstr "Geschäftsjahr"
 
 msgid "Fiscal Year Settings"
 msgstr "Einstellungen für Geschäftsjahr"
+
+msgid "Fiscal Year to Date"
+msgstr ""
 
 msgid "Fiscal Years"
 msgstr "Geschäftsjahre"
@@ -6324,6 +6327,9 @@ msgstr "Letzte Kalibrierung"
 msgid "Last Calibration Date"
 msgstr "Letztes Kalibrierungsdatum"
 
+msgid "Last Fiscal Year"
+msgstr ""
+
 msgid "Last Month"
 msgstr ""
 
@@ -6339,9 +6345,6 @@ msgstr "Zuletzt synchronisiert: {0}"
 
 msgid "Last updated: {formattedDate}"
 msgstr "Zuletzt aktualisiert: {formattedDate}"
-
-msgid "Last Year"
-msgstr ""
 
 msgid "Lead time"
 msgstr "Vorlaufzeit"
@@ -11944,6 +11947,9 @@ msgstr "Dieser Download-Link ist ungültig oder wurde manipuliert."
 msgid "This file is no longer available, or you don't have permission to download it."
 msgstr "Diese Datei ist nicht mehr verfügbar, oder Sie haben keine Berechtigung, sie herunterzuladen."
 
+msgid "This Fiscal Year"
+msgstr ""
+
 msgid "This information will be used on document headers"
 msgstr "Diese Informationen werden in Dokumentkopfzeilen verwendet"
 
@@ -13447,9 +13453,6 @@ msgstr "Den Wert eines Vermögenswerts über seine Lebensdauer abschreiben — e
 
 msgid "Year"
 msgstr "Jahr"
-
-msgid "Year to Date"
-msgstr ""
 
 msgid "Yes"
 msgstr "Ja"

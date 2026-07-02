@@ -55,6 +55,21 @@ function formatDate(value: string): string {
   }).format(new Date(`${value}T00:00:00`));
 }
 
+function formatDateRange(start: string, end: string): string {
+  return new Intl.DateTimeFormat(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric"
+  }).formatRange(new Date(`${start}T00:00:00`), new Date(`${end}T00:00:00`));
+}
+
+function presetDates(preset: PeriodPreset): string | null {
+  if (preset.startDate && preset.endDate)
+    return formatDateRange(preset.startDate, preset.endDate);
+  if (preset.endDate) return formatDate(preset.endDate);
+  return null;
+}
+
 const PeriodSelector = ({
   variant = "range",
   fiscalStartMonth = 1
@@ -94,7 +109,7 @@ const PeriodSelector = ({
         },
         {
           id: "end-of-last-year",
-          label: t`End of Last Year`,
+          label: t`End of Last Fiscal Year`,
           endDate: fyStart.subtract({ days: 1 }).toString()
         }
       ];
@@ -130,16 +145,22 @@ const PeriodSelector = ({
         endDate: thisQuarterStart.subtract({ days: 1 }).toString()
       },
       {
-        id: "year-to-date",
-        label: t`Year to Date`,
+        id: "this-year",
+        label: t`This Fiscal Year`,
         startDate: fyStart.toString(),
-        endDate: now.toString()
+        endDate: fyStart.add({ years: 1 }).subtract({ days: 1 }).toString()
       },
       {
         id: "last-year",
-        label: t`Last Year`,
+        label: t`Last Fiscal Year`,
         startDate: lastFyStart.toString(),
         endDate: fyStart.subtract({ days: 1 }).toString()
+      },
+      {
+        id: "year-to-date",
+        label: t`Fiscal Year to Date`,
+        startDate: fyStart.toString(),
+        endDate: now.toString()
       },
       {
         id: "all-time",
@@ -204,23 +225,31 @@ const PeriodSelector = ({
       </PopoverTrigger>
       <PopoverContent
         align="start"
-        className={view === "presets" ? "w-56 p-1" : "w-[320px] p-3"}
+        className={view === "presets" ? "w-[340px] p-1" : "w-[320px] p-3"}
       >
         {view === "presets" ? (
           <div className="flex flex-col">
             {presets.map((preset) => {
               const isActive = preset.id === activePreset?.id;
+              const dates = presetDates(preset);
               return (
                 <button
                   key={preset.id}
                   type="button"
-                  className="flex h-8 w-full items-center justify-between rounded-md px-2 text-sm outline-none hover:bg-accent focus-visible:bg-accent"
+                  className="flex h-8 w-full items-center justify-between gap-3 rounded-md px-2 text-sm outline-none hover:bg-accent focus-visible:bg-accent"
                   onClick={() => onSelectPreset(preset)}
                 >
-                  <span>{preset.label}</span>
-                  {isActive && (
-                    <LuCheck className="h-4 w-4 text-muted-foreground" />
-                  )}
+                  <span className="whitespace-nowrap">{preset.label}</span>
+                  <span className="flex items-center gap-2">
+                    {dates && (
+                      <span className="whitespace-nowrap text-xs text-muted-foreground tabular-nums">
+                        {dates}
+                      </span>
+                    )}
+                    {isActive && (
+                      <LuCheck className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    )}
+                  </span>
                 </button>
               );
             })}

@@ -4344,13 +4344,13 @@ msgstr "已启用"
 msgid "End Date"
 msgstr "结束日期"
 
+msgid "End of Last Fiscal Year"
+msgstr ""
+
 msgid "End of Last Month"
 msgstr ""
 
 msgid "End of Last Quarter"
-msgstr ""
-
-msgid "End of Last Year"
 msgstr ""
 
 msgid "End Time"
@@ -5111,6 +5111,9 @@ msgstr "财政年度"
 
 msgid "Fiscal Year Settings"
 msgstr "财政年度设置"
+
+msgid "Fiscal Year to Date"
+msgstr ""
 
 msgid "Fiscal Years"
 msgstr "财政年度"
@@ -6324,6 +6327,9 @@ msgstr "最后校准"
 msgid "Last Calibration Date"
 msgstr "上次校准日期"
 
+msgid "Last Fiscal Year"
+msgstr ""
+
 msgid "Last Month"
 msgstr ""
 
@@ -6339,9 +6345,6 @@ msgstr "最后同步: {0}"
 
 msgid "Last updated: {formattedDate}"
 msgstr "最后更新: {formattedDate}"
-
-msgid "Last Year"
-msgstr ""
 
 msgid "Lead time"
 msgstr "交货期"
@@ -11944,6 +11947,9 @@ msgstr "此下载链接无效或已被篡改。"
 msgid "This file is no longer available, or you don't have permission to download it."
 msgstr "此文件不再可用，或您没有权限下载它。"
 
+msgid "This Fiscal Year"
+msgstr ""
+
 msgid "This information will be used on document headers"
 msgstr "此信息将用于文档标题"
 
@@ -13447,9 +13453,6 @@ msgstr "在资产的使用寿命期间降低其价值 — 您创建、作为草�
 
 msgid "Year"
 msgstr "年份"
-
-msgid "Year to Date"
-msgstr ""
 
 msgid "Yes"
 msgstr "是"

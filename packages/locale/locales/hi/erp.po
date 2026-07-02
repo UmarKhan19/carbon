@@ -4344,13 +4344,13 @@ msgstr "सक्षम"
 msgid "End Date"
 msgstr "अंतिम तारीख"
 
+msgid "End of Last Fiscal Year"
+msgstr ""
+
 msgid "End of Last Month"
 msgstr ""
 
 msgid "End of Last Quarter"
-msgstr ""
-
-msgid "End of Last Year"
 msgstr ""
 
 msgid "End Time"
@@ -5111,6 +5111,9 @@ msgstr "वित्तीय वर्ष"
 
 msgid "Fiscal Year Settings"
 msgstr "वित्तीय वर्ष सेटिंग्स"
+
+msgid "Fiscal Year to Date"
+msgstr ""
 
 msgid "Fiscal Years"
 msgstr "वित्तीय वर्ष"
@@ -6324,6 +6327,9 @@ msgstr "अंतिम अंशांकन"
 msgid "Last Calibration Date"
 msgstr "अंतिम अंशांकन तारीख"
 
+msgid "Last Fiscal Year"
+msgstr ""
+
 msgid "Last Month"
 msgstr ""
 
@@ -6339,9 +6345,6 @@ msgstr "अंतिम सिंक: {0}"
 
 msgid "Last updated: {formattedDate}"
 msgstr "अंतिम अपडेट: {formattedDate}"
-
-msgid "Last Year"
-msgstr ""
 
 msgid "Lead time"
 msgstr "लीड समय"
@@ -11944,6 +11947,9 @@ msgstr "यह डाउनलोड लिंक अमान्य है य�
 msgid "This file is no longer available, or you don't have permission to download it."
 msgstr "यह फ़ाइल अब उपलब्ध नहीं है, या आपके पास इसे डाउनलोड करने की अनुमति नहीं है।"
 
+msgid "This Fiscal Year"
+msgstr ""
+
 msgid "This information will be used on document headers"
 msgstr "यह जानकारी दस्तावेज़ शीर्षलेख पर उपयोग की जाएगी"
 
@@ -13447,9 +13453,6 @@ msgstr "किसी संपत्ति के मूल्य को उस�
 
 msgid "Year"
 msgstr "साल"
-
-msgid "Year to Date"
-msgstr ""
 
 msgid "Yes"
 msgstr "हाँ"

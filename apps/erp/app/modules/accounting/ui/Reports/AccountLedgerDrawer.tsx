@@ -112,7 +112,7 @@ const AccountLedgerDrawer = ({
           </div>
         </DrawerHeader>
         <DrawerBody className="p-0">
-          <div className="grid grid-cols-3 divide-x divide-border border-b border-border">
+          <div className="grid w-full grid-cols-3 divide-x divide-border border-b border-border">
             <div className="px-4 py-3">
               <p className="text-xs text-muted-foreground">
                 <Trans>Opening</Trans>
@@ -139,7 +139,7 @@ const AccountLedgerDrawer = ({
             </div>
           </div>
           {lines.length === 0 ? (
-            <div className="flex items-center justify-center py-16 text-sm text-muted-foreground">
+            <div className="flex w-full items-center justify-center py-16 text-sm text-muted-foreground">
               <Trans>No transactions in this period</Trans>
             </div>
           ) : (
@@ -207,7 +207,7 @@ const AccountLedgerDrawer = ({
             </Table>
           )}
           {count > limit && (
-            <div className="flex items-center justify-between border-t border-border px-4 py-2">
+            <div className="flex w-full items-center justify-between border-t border-border px-4 py-2">
               <p className="text-xs text-muted-foreground tabular-nums">
                 <Trans>
                   {from}–{to} of {count}

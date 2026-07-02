@@ -21,6 +21,14 @@ type TranslatedChart = Chart & {
 
 type FinancialStatementTreeProps = {
   data: TranslatedChart[];
+  /**
+   * Which RPC measure the amount column shows. The Balance Sheet reads
+   * "balanceAtDate" (closing balance as of endDate = the ledger drawer's
+   * Closing); the Income Statement reads "netChange" (activity within the
+   * startDate–endDate range = the drawer's Net Change). Never the RPC's
+   * all-time "balance".
+   */
+  measure: "balanceAtDate" | "netChange";
   showTranslated?: boolean;
   parentCurrency?: string | null;
   search: string;
@@ -108,11 +116,13 @@ function formatCurrency(value: number): string {
 const FinancialStatementTree = memo(
   ({
     data,
+    measure,
     showTranslated = false,
     parentCurrency,
     search,
     ledgerPath
   }: FinancialStatementTreeProps) => {
+    const measureLabel = measure === "netChange" ? "Net Change" : "Balance";
     useRealtime("journal");
     const navigate = useNavigate();
     const [params] = useUrlParams();
@@ -151,14 +161,13 @@ const FinancialStatementTree = memo(
         <div className="sticky top-0 z-10 flex h-11 items-center pr-4 text-sm font-medium text-foreground/80 border-b border-border bg-card">
           <div className="flex-1 px-4">Account</div>
           <span className="w-32 text-right px-4">
-            {showTranslated ? "Local" : "Balance"}
+            {showTranslated ? "Local" : measureLabel}
           </span>
           {showTranslated && (
             <span className="w-32 text-right px-4">
               {parentCurrency ?? "Translated"}
             </span>
           )}
-          <span className="w-32 text-right px-4">Net Change</span>
         </div>
         <TreeView<TranslatedChart>
           tree={tree}
@@ -244,7 +253,7 @@ const FinancialStatementTree = memo(
                   )}
                 </div>
 
-                {/* Balance */}
+                {/* Balance (as of endDate) or Net Change (within range) */}
                 <span
                   className={cn(
                     "w-32 text-right tabular-nums shrink-0 text-muted-foreground",
@@ -252,7 +261,7 @@ const FinancialStatementTree = memo(
                       "group-hover/row:text-foreground group-hover/row:underline underline-offset-2 decoration-border"
                   )}
                 >
-                  {formatCurrency(account.balanceAtDate ?? 0)}
+                  {formatCurrency(account[measure] ?? 0)}
                 </span>
 
                 {/* Translated Balance */}
@@ -263,11 +272,6 @@ const FinancialStatementTree = memo(
                       : "-"}
                   </span>
                 )}
-
-                {/* Net Change */}
-                <span className="w-32 text-right tabular-nums shrink-0 text-muted-foreground">
-                  {formatCurrency(account.netChange ?? 0)}
-                </span>
               </div>
             );
           }}
