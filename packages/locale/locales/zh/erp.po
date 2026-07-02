@@ -5690,6 +5690,9 @@ msgstr "如果它阻碍了进度或日期有风险，它会被分配所有者并
 msgid "If items already exist"
 msgstr "如果项目已存在"
 
+msgid "If ordered, no stockout projected in the next 48 weeks"
+msgstr ""
+
 msgid "If something is off track"
 msgstr "如果有什么偏离轨道"
 

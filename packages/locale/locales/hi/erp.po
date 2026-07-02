@@ -5690,6 +5690,9 @@ msgstr "अगर यह अवरुद्ध है या कोई तार
 msgid "If items already exist"
 msgstr "अगर आइटम पहले से मौजूद हैं"
 
+msgid "If ordered, no stockout projected in the next 48 weeks"
+msgstr ""
+
 msgid "If something is off track"
 msgstr "अगर कुछ गलत रास्ते पर है"
 
