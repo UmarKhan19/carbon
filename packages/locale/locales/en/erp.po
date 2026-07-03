@@ -25,9 +25,6 @@ msgstr "\"{storageUnitName}\" has {childCount} direct nested storage units. Dele
 msgid "\"{storageUnitName}\" has 1 direct nested storage unit. Deleting it will also delete that unit and anything underneath it. This cannot be undone."
 msgstr "\"{storageUnitName}\" has 1 direct nested storage unit. Deleting it will also delete that unit and anything underneath it. This cannot be undone."
 
-msgid "\"Nobody got fired for buying it.\" An incumbent comfort factor."
-msgstr "\"Nobody got fired for buying it.\" An incumbent comfort factor."
-
 msgid "(excluded for this customer)"
 msgstr "(excluded for this customer)"
 
@@ -207,9 +204,6 @@ msgstr "A firm order to a supplier; status moves through receive and invoice bef
 
 msgid "A formal acceptance / sign-off phase"
 msgstr "A formal acceptance / sign-off phase"
-
-msgid "A heavy, structured methodology that big, cautious buyers expect."
-msgstr "A heavy, structured methodology that big, cautious buyers expect."
 
 msgid "A issue record tracks quality issues and their resolution process."
 msgstr "A issue record tracks quality issues and their resolution process."
@@ -1664,14 +1658,8 @@ msgstr "Bonus Depreciation %"
 msgid "Book a call with Carbon"
 msgstr "Book a call with Carbon"
 
-msgid "Brand safety"
-msgstr "Brand safety"
-
 msgid "Breadcrumb"
 msgstr "Breadcrumb"
-
-msgid "Breadth of legacy modules"
-msgstr "Breadth of legacy modules"
 
 msgid "Bring in your parts, BOMs, Bill of Process, and costing — with Carbon's import tools, CSV, or LLM help."
 msgstr "Bring in your parts, BOMs, Bill of Process, and costing — with Carbon's import tools, CSV, or LLM help."
@@ -3215,9 +3203,6 @@ msgstr "Debit"
 
 msgid "Debit Account"
 msgstr "Debit Account"
-
-msgid "Decades of niche features for edge-case industries."
-msgstr "Decades of niche features for edge-case industries."
 
 msgid "Decide what an operator sees if they try to issue a batch or serial that's already expired."
 msgstr "Decide what an operator sees if they try to issue a batch or serial that's already expired."
@@ -5953,12 +5938,6 @@ msgstr "Internal"
 msgid "Internal Notes"
 msgstr "Internal Notes"
 
-msgid "Internal only · not for customers"
-msgstr "Internal only · not for customers"
-
-msgid "Internal reference for where each tool is stronger. Use it to set expectations honestly, not to oversell."
-msgstr "Internal reference for where each tool is stronger. Use it to set expectations honestly, not to oversell."
-
 msgid "inv"
 msgstr "inv"
 
@@ -6476,9 +6455,6 @@ msgstr "List Options"
 
 msgid "List Parameters"
 msgstr "List Parameters"
-
-msgid "Live in weeks, not quarters. Most of the product is already built."
-msgstr "Live in weeks, not quarters. Most of the product is already built."
 
 msgid "Live on Carbon"
 msgstr "Live on Carbon"
@@ -7038,9 +7014,6 @@ msgstr "Model removed from job"
 
 msgid "Model removed from line"
 msgstr "Model removed from line"
-
-msgid "Modern, connected core"
-msgstr "Modern, connected core"
 
 msgid "Module"
 msgstr "Module"
@@ -7875,9 +7848,6 @@ msgstr "On-hand inventory remains"
 msgid "On-time delivery"
 msgstr "On-time delivery"
 
-msgid "One database from quote to cash, with AI-assisted setup and migration."
-msgstr "One database from quote to cash, with AI-assisted setup and migration."
-
 msgid "One serial unit or one batch that Carbon follows individually, carrying its own status and attributes such as an expiry date."
 msgstr "One serial unit or one batch that Carbon follows individually, carrying its own status and attributes such as an expiry date."
 
@@ -7964,9 +7934,6 @@ msgstr "Open Sales Orders"
 
 msgid "Open Scheduled"
 msgstr "Open Scheduled"
-
-msgid "Open source and extensible; you're not locked in."
-msgstr "Open source and extensible; you're not locked in."
 
 msgid "Open task details"
 msgstr "Open task details"
@@ -8095,9 +8062,6 @@ msgstr "Other Income account for vendor balances cleared without full payment on
 msgid "Other Type"
 msgstr "Other Type"
 
-msgid "Others vs Carbon"
-msgstr "Others vs Carbon"
-
 msgid "Out"
 msgstr "Out"
 
@@ -8163,9 +8127,6 @@ msgstr "Overwrite the target manufacturing method with the quote method"
 
 msgid "Owner (cost center)"
 msgstr "Owner (cost center)"
-
-msgid "Ownership"
-msgstr "Ownership"
 
 #. placeholder {0}: i18n._(member.owns)
 msgid "Owns: {0}"
@@ -9667,9 +9628,6 @@ msgstr "RFQs"
 msgid "Right item"
 msgstr "Right item"
 
-msgid "Rigor and reassurance"
-msgstr "Rigor and reassurance"
-
 msgid "Risk"
 msgstr "Risk"
 
@@ -10586,9 +10544,6 @@ msgstr "Sign-offs that must be recorded before this issue can be closed; in addi
 
 msgid "Signed in as {name}"
 msgstr "Signed in as {name}"
-
-msgid "Simplicity and speed"
-msgstr "Simplicity and speed"
 
 msgid "Sites & locations"
 msgstr "Sites & locations"
@@ -12816,6 +12771,9 @@ msgstr "View Certificate"
 msgid "View Contact"
 msgstr "View Contact"
 
+msgid "View Contained Issues"
+msgstr "View Contained Issues"
+
 msgid "View Custom Fields"
 msgstr "View Custom Fields"
 
@@ -12855,8 +12813,14 @@ msgstr "View missing values"
 msgid "View Open"
 msgstr "View Open"
 
+msgid "View Open Actions"
+msgstr "View Open Actions"
+
 msgid "View Open Invoices"
 msgstr "View Open Invoices"
+
+msgid "View Open Issues"
+msgstr "View Open Issues"
 
 msgid "View Open Orders"
 msgstr "View Open Orders"
@@ -12869,6 +12833,9 @@ msgstr "View Open Quotes"
 
 msgid "View Open RFQs"
 msgstr "View Open RFQs"
+
+msgid "View Payables"
+msgstr "View Payables"
 
 msgid "View Payment"
 msgstr "View Payment"
@@ -12896,6 +12863,9 @@ msgstr "View Reactive"
 
 msgid "View Receipt"
 msgstr "View Receipt"
+
+msgid "View Receivables"
+msgstr "View Receivables"
 
 msgid "View Scheduled"
 msgstr "View Scheduled"
@@ -13084,9 +13054,6 @@ msgstr "Welcome to Carbon"
 msgid "Welcome, {companyName}"
 msgstr "Welcome, {companyName}"
 
-msgid "What Carbon does better"
-msgstr "What Carbon does better"
-
 msgid "What category of failure this is — Mechanical, Electrical, Software, Operator, Material, etc.; rolls up into the failure-mode pareto report so the category breakdown is meaningful."
 msgstr "What category of failure this is — Mechanical, Electrical, Software, Operator, Material, etc.; rolls up into the failure-mode pareto report so the category breakdown is meaningful."
 
@@ -13113,9 +13080,6 @@ msgstr "What kind of PO this is — standard goods, services, outside-processing
 
 msgid "What kind of quote this is — standard supplier quote, blanket-agreement priced quote, or contract-manufacturing quote; drives the PO line layout when converted."
 msgstr "What kind of quote this is — standard supplier quote, blanket-agreement priced quote, or contract-manufacturing quote; drives the PO line layout when converted."
-
-msgid "What others do better"
-msgstr "What others do better"
 
 msgid "What source this dimension pulls its allowed values from (custom list or an existing entity like customer, location, employee)."
 msgstr "What source this dimension pulls its allowed values from (custom list or an existing entity like customer, location, employee)."

@@ -25,9 +25,6 @@ msgstr "\"{storageUnitName}\" {childCount} adet doğrudan iç içe geçmiş depo
 msgid "\"{storageUnitName}\" has 1 direct nested storage unit. Deleting it will also delete that unit and anything underneath it. This cannot be undone."
 msgstr "\"{storageUnitName}\" bir doğrudan iç içe geçmiş depolama birimine sahip. Silinmesi, o birimi ve altındaki her şeyi de silecektir. Bu geri alınamaz."
 
-msgid "\"Nobody got fired for buying it.\" An incumbent comfort factor."
-msgstr "\"Bunu satın almak için kimse işten çıkarılmadı.\" Yerleşik bir rahatlık faktörü."
-
 msgid "(excluded for this customer)"
 msgstr "(bu müşteri için hariç tutulmuş)"
 
@@ -207,9 +204,6 @@ msgstr "Bir tedarikçiye kesin sipariş; mal ve faturalar geldikçe durum, Tamam
 
 msgid "A formal acceptance / sign-off phase"
 msgstr "Resmi bir kabul / imza aşaması"
-
-msgid "A heavy, structured methodology that big, cautious buyers expect."
-msgstr "Büyük, temkinli alıcıların beklediği ağır, yapılandırılmış bir metodoloji."
 
 msgid "A issue record tracks quality issues and their resolution process."
 msgstr "Bir sorun kaydı kalite sorunlarını ve çözüm süreçlerini izler."
@@ -1664,14 +1658,8 @@ msgstr "Bonus amortisman %"
 msgid "Book a call with Carbon"
 msgstr "Carbon ile bir çağrı ayarlayın"
 
-msgid "Brand safety"
-msgstr "Marka güvenliği"
-
 msgid "Breadcrumb"
 msgstr "Sayfa Yolu"
-
-msgid "Breadth of legacy modules"
-msgstr "Eski modüllerin geniş yelpazesi"
 
 msgid "Bring in your parts, BOMs, Bill of Process, and costing — with Carbon's import tools, CSV, or LLM help."
 msgstr "Parçalarınızı, BOM'larınızı, İşlem Faturasını ve maliyetlendirmeyi getirin — Carbon'ın içe aktarma araçları, CSV veya LLM yardımı ile."
@@ -3215,9 +3203,6 @@ msgstr "Borç"
 
 msgid "Debit Account"
 msgstr "Borç Hesabı"
-
-msgid "Decades of niche features for edge-case industries."
-msgstr "Onlarca yıllık niş özellikler ve kenar durum endüstrileri için çözümler."
 
 msgid "Decide what an operator sees if they try to issue a batch or serial that's already expired."
 msgstr "Operatörün zaten süresi dolmuş bir parti veya seri çıkarmaya çalışması durumunda ne göreceğini belirleyin."
@@ -5953,12 +5938,6 @@ msgstr "Dahili"
 msgid "Internal Notes"
 msgstr "Dahili Notlar"
 
-msgid "Internal only · not for customers"
-msgstr "Yalnızca dahili · müşteriler için değil"
-
-msgid "Internal reference for where each tool is stronger. Use it to set expectations honestly, not to oversell."
-msgstr "Her aracın nerede daha güçlü olduğu için dahili referans. Beklentileri dürüstçe belirlemek için kullanın, aşırı satış yapmayın."
-
 msgid "inv"
 msgstr "stok"
 
@@ -6476,9 +6455,6 @@ msgstr "Liste Seçenekleri"
 
 msgid "List Parameters"
 msgstr "Liste Parametreleri"
-
-msgid "Live in weeks, not quarters. Most of the product is already built."
-msgstr "Haftalar içinde canlı olun, çeyrekler değil. Ürünün çoğu zaten oluşturulmuş."
 
 msgid "Live on Carbon"
 msgstr "Carbon'da Canlı"
@@ -7038,9 +7014,6 @@ msgstr "Model işten kaldırıldı"
 
 msgid "Model removed from line"
 msgstr "Model satırdan kaldırıldı"
-
-msgid "Modern, connected core"
-msgstr "Modern, bağlantılı çekirdek"
 
 msgid "Module"
 msgstr "Modül"
@@ -7875,9 +7848,6 @@ msgstr "Eldeki envanter kaldı"
 msgid "On-time delivery"
 msgstr "Zamanında teslimat"
 
-msgid "One database from quote to cash, with AI-assisted setup and migration."
-msgstr "Teklif'ten nakite kadar tek bir veritabanı, yapay zeka destekli kurulum ve geçişle."
-
 msgid "One serial unit or one batch that Carbon follows individually, carrying its own status and attributes such as an expiry date."
 msgstr "Carbon'un bireysel olarak takip ettiği bir seri birim veya bir batch, sona erme tarihi gibi kendi durumu ve öznitelikleri taşıyan."
 
@@ -7964,9 +7934,6 @@ msgstr "Açık Satış Siparişleri"
 
 msgid "Open Scheduled"
 msgstr "Planlanmış Açık"
-
-msgid "Open source and extensible; you're not locked in."
-msgstr "Açık kaynak ve genişletilebilir; kilitli değilsiniz."
 
 msgid "Open task details"
 msgstr "Görev ayrıntılarını aç"
@@ -8095,9 +8062,6 @@ msgstr "Satıcı bakiyelerinin AP kapatılması sırasında tam ödeme yapılmad
 msgid "Other Type"
 msgstr "Diğer Tür"
 
-msgid "Others vs Carbon"
-msgstr "Diğerleri vs Carbon"
-
 msgid "Out"
 msgstr "Dışı"
 
@@ -8163,9 +8127,6 @@ msgstr "Hedef üretim yöntemini teklif yöntemiyle üzerine yaz"
 
 msgid "Owner (cost center)"
 msgstr "Ana maliyet merkezi"
-
-msgid "Ownership"
-msgstr "Sahiplik"
 
 #. placeholder {0}: i18n._(member.owns)
 msgid "Owns: {0}"
@@ -9667,9 +9628,6 @@ msgstr "Teklif Talepleri"
 msgid "Right item"
 msgstr "Sağ öğe"
 
-msgid "Rigor and reassurance"
-msgstr "Titizlik ve güvence"
-
 msgid "Risk"
 msgstr "Risk"
 
@@ -10586,9 +10544,6 @@ msgstr "Bu sorun kapatılmadan önce kaydedilmesi gereken onaylar; iş akışı 
 
 msgid "Signed in as {name}"
 msgstr "Oturum açıldı olarak {name}"
-
-msgid "Simplicity and speed"
-msgstr "Basitlik ve hız"
 
 msgid "Sites & locations"
 msgstr "Siteler & konumlar"
@@ -12816,6 +12771,9 @@ msgstr "Sertifikayı Görüntüle"
 msgid "View Contact"
 msgstr "İletişim Bilgilerini Görüntüle"
 
+msgid "View Contained Issues"
+msgstr ""
+
 msgid "View Custom Fields"
 msgstr "Özel Alanları Görüntüle"
 
@@ -12855,8 +12813,14 @@ msgstr "Eksik değerleri görüntüle"
 msgid "View Open"
 msgstr "Açık Gör"
 
+msgid "View Open Actions"
+msgstr ""
+
 msgid "View Open Invoices"
 msgstr "Açık Faturaları Görüntüle"
+
+msgid "View Open Issues"
+msgstr ""
 
 msgid "View Open Orders"
 msgstr "Açık Siparişleri Görüntüle"
@@ -12869,6 +12833,9 @@ msgstr "Açık Teklifleri Görüntüle"
 
 msgid "View Open RFQs"
 msgstr "Açık RFQ'ları Görüntüle"
+
+msgid "View Payables"
+msgstr ""
 
 msgid "View Payment"
 msgstr "Ödemeyi Görüntüle"
@@ -12896,6 +12863,9 @@ msgstr "Reaktif Olarak Görüntüle"
 
 msgid "View Receipt"
 msgstr "Makbuzu Görüntüle"
+
+msgid "View Receivables"
+msgstr ""
 
 msgid "View Scheduled"
 msgstr "Planlanmışları Gör"
@@ -13084,9 +13054,6 @@ msgstr "Carbon'a Hoş Geldiniz"
 msgid "Welcome, {companyName}"
 msgstr "Hoş geldiniz, {companyName}"
 
-msgid "What Carbon does better"
-msgstr "Carbon'ın daha iyi yaptığı şeyler"
-
 msgid "What category of failure this is — Mechanical, Electrical, Software, Operator, Material, etc.; rolls up into the failure-mode pareto report so the category breakdown is meaningful."
 msgstr "Bu hangi başarısızlık kategorisidir — Mekanik, Elektrik, Yazılım, Operatör, Malzeme, vb.; arıza modu pareto raporunda özetlenir, böylece kategori dökümü anlamlı olur."
 
@@ -13113,9 +13080,6 @@ msgstr "Bu PO'nun türü — standart mallar, hizmetler, dış işleme veya gene
 
 msgid "What kind of quote this is — standard supplier quote, blanket-agreement priced quote, or contract-manufacturing quote; drives the PO line layout when converted."
 msgstr "Bu teklif türü nedir — standart tedarikçi teklifi, genel uyum fiyatlı teklif veya sözleşmeli üretim teklifi; dönüştürülürken PO satır düzenini belirler."
-
-msgid "What others do better"
-msgstr "Diğerlerinin daha iyi yaptığı şeyler"
 
 msgid "What source this dimension pulls its allowed values from (custom list or an existing entity like customer, location, employee)."
 msgstr "Bu boyut izin verilen değerlerini hangi kaynaktan alır (özel liste veya müşteri, konum, çalışan gibi mevcut bir varlık)."
