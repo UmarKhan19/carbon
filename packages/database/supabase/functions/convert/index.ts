@@ -672,7 +672,12 @@ serve(async (req: Request) => {
           const newQuoteStatus: "Ordered" | "Partial" = hasZeroQuantityLines
             ? "Partial"
             : "Ordered";
-          await trx
+          // Atomic guard: only convert a quote that is still "Sent". Both the
+          // internal "convert to order" flow and the unauthenticated digital
+          // quote accept run from "Sent" only. If a concurrent or replayed
+          // request already converted it, 0 rows update here and the throw rolls
+          // the whole transaction back — no duplicate sales order is committed.
+          const quoteStatusUpdate = await trx
             .updateTable("quote")
             .set({
               status: newQuoteStatus,
@@ -680,7 +685,14 @@ serve(async (req: Request) => {
               digitalQuoteAcceptedByEmail: digitalQuoteAcceptedByEmail ?? null,
             })
             .where("id", "=", quote.data.id)
-            .execute();
+            .where("status", "=", "Sent")
+            .executeTakeFirst();
+
+          if (Number(quoteStatusUpdate.numUpdatedRows ?? 0) === 0) {
+            throw new Error(
+              `Quote ${quote.data.id} is no longer in a convertible state`
+            );
+          }
 
           const customerPartSeen = new Set<string>();
           const customerPartToItemInserts = quoteLines.data
