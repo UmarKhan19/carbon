@@ -2436,7 +2436,7 @@ msgstr "設計変更をリビジョン/ECOで管理"
 msgid "Controlled Drawing"
 msgstr ""
 
-#. placeholder {0}: controlledDrawing.drawingRevisionLabel
+#. placeholder {0}: drawing.drawingRevisionLabel
 msgid "Controlled Drawing (Rev {0})"
 msgstr ""
 

@@ -94,12 +94,10 @@ export const onshapeFilePullFunction = inngest.createFunction(
         .eq("entityId", revisionItemId)
         .eq("integration", "drawing")
         .eq("companyId", companyId)
-        .order("createdAt", { ascending: false })
-        .limit(1)
         .maybeSingle();
-      if (existing.error) {
-        return { patched: false };
-      }
+      // DB errors throw so Inngest retries the step (the pulled PDF is already
+      // memoized) instead of silently dropping the drawing pointer.
+      if (existing.error) throw existing.error;
       const currentMetadata =
         (existing.data?.metadata as Record<string, Json> | null) ?? {};
       if (currentMetadata.drawingSource === "manual") {
@@ -111,23 +109,22 @@ export const onshapeFilePullFunction = inngest.createFunction(
         drawingRevisionLabel: drawing.drawingRevisionLabel,
         drawingSource: "onshape"
       };
-      if (existing.data) {
-        await serviceClient
-          .from("externalIntegrationMapping")
-          .update({ metadata: merged, updatedAt: new Date().toISOString() })
-          .eq("id", existing.data.id)
-          .eq("companyId", companyId);
-      } else {
-        await serviceClient.from("externalIntegrationMapping").insert({
-          entityType: "item",
-          entityId: revisionItemId,
-          integration: "drawing",
-          externalId: null,
-          metadata: merged,
-          companyId,
-          createdBy: userId
-        });
-      }
+      const write = existing.data
+        ? await serviceClient
+            .from("externalIntegrationMapping")
+            .update({ metadata: merged, updatedAt: new Date().toISOString() })
+            .eq("id", existing.data.id)
+            .eq("companyId", companyId)
+        : await serviceClient.from("externalIntegrationMapping").insert({
+            entityType: "item",
+            entityId: revisionItemId,
+            integration: "drawing",
+            externalId: null,
+            metadata: merged,
+            companyId,
+            createdBy: userId
+          });
+      if (write.error) throw write.error;
       return { patched: true };
     });
 

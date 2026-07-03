@@ -1954,10 +1954,10 @@ export async function getControlledDrawing(
 }
 
 // The one home of the controlled-drawing query (entityType="item",
-// integration="drawing"). Newest row with a non-null drawingPath wins per item —
-// a duplicate mapping row (e.g. a retried import) must not break readers. A
-// query error degrades to "no drawing" (the drawing is advisory on every
-// surface), never a thrown 500.
+// integration="drawing"). The table's unique constraint on
+// (entityType, entityId, integration, companyId) guarantees at most one row
+// per item. A query error degrades to "no drawing" (the drawing is advisory
+// on every surface), never a thrown 500.
 export async function getControlledDrawings(
   client: SupabaseClient<Database>,
   args: { itemIds: string[]; companyId: string }
@@ -1971,8 +1971,7 @@ export async function getControlledDrawings(
     .eq("entityType", "item")
     .eq("integration", "drawing")
     .in("entityId", args.itemIds)
-    .eq("companyId", args.companyId)
-    .order("createdAt", { ascending: false });
+    .eq("companyId", args.companyId);
 
   if (mappings.error) {
     console.error("getControlledDrawings failed", mappings.error);
@@ -1980,7 +1979,6 @@ export async function getControlledDrawings(
   }
 
   for (const mapping of mappings.data ?? []) {
-    if (drawingsByItemId.has(mapping.entityId)) continue;
     const drawing = parseControlledDrawing(mapping.metadata);
     if (drawing) {
       drawingsByItemId.set(mapping.entityId, drawing);

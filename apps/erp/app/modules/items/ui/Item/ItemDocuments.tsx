@@ -23,15 +23,9 @@ import {
 import { convertKbToString } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { FileObject } from "@supabase/storage-js";
-import { nanoid } from "nanoid";
 import type { ChangeEvent } from "react";
 import { useCallback } from "react";
-import {
-  LuAxis3D,
-  LuEllipsisVertical,
-  LuFileText,
-  LuUpload
-} from "react-icons/lu";
+import { LuAxis3D, LuEllipsisVertical, LuUpload } from "react-icons/lu";
 import { Link, useFetchers, useRevalidator, useSubmit } from "react-router";
 import { DocumentPreview, FileDropzone, Hyperlink } from "~/components";
 import DocumentIcon from "~/components/DocumentIcon";
@@ -43,6 +37,10 @@ import { path } from "~/utils/path";
 import { stripSpecialCharacters } from "~/utils/string";
 import type { ControlledDrawing } from "../../items.service";
 import type { ItemFile } from "../../types";
+import {
+  ControlledDrawingRow,
+  ControlledDrawingUpload
+} from "./ControlledDrawing";
 
 type ItemDocumentsProps = {
   files: ItemFile[];
@@ -76,10 +74,6 @@ const ItemDocuments = ({
   } = useItemDocuments({
     itemId,
     type
-  });
-
-  const { canUpdate: canUpdateDrawing, removeDrawing } = useControlledDrawing({
-    itemId
   });
 
   const onDrop = useCallback(
@@ -135,59 +129,7 @@ const ItemDocuments = ({
             </Tr>
           </Thead>
           <Tbody>
-            {controlledDrawing && (
-              <Tr>
-                <Td>
-                  <HStack>
-                    <LuFileText className="text-blue-500 w-6 h-6" />
-                    <Hyperlink
-                      target="_blank"
-                      to={path.to.file.previewFile(
-                        `private/${controlledDrawing.drawingPath}`
-                      )}
-                    >
-                      {controlledDrawing.drawingRevisionLabel
-                        ? t`Controlled Drawing (Rev ${controlledDrawing.drawingRevisionLabel})`
-                        : t`Controlled Drawing`}
-                    </Hyperlink>
-                  </HStack>
-                </Td>
-                <Td className="text-xs font-mono">--</Td>
-                <Td className="text-xs font-mono">--</Td>
-                <Td>
-                  <div className="flex justify-end w-full">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <IconButton
-                          aria-label={t`More`}
-                          icon={<LuEllipsisVertical />}
-                          variant="secondary"
-                        />
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        <DropdownMenuItem asChild>
-                          <Link
-                            target="_blank"
-                            to={path.to.file.previewFile(
-                              `private/${controlledDrawing.drawingPath}`
-                            )}
-                          >
-                            <Trans>View</Trans>
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          destructive
-                          disabled={!canUpdateDrawing}
-                          onClick={() => removeDrawing()}
-                        >
-                          <Trans>Remove</Trans>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </Td>
-              </Tr>
-            )}
+            <ControlledDrawingRow itemId={itemId} drawing={controlledDrawing} />
             {modelUpload?.modelId && (
               <Tr>
                 <Td>
@@ -358,105 +300,6 @@ const ItemDocumentForm = ({ itemId, type }: ItemDocumentFormProps) => {
       New
     </File>
   );
-};
-
-type ControlledDrawingUploadProps = {
-  itemId: string;
-};
-
-const ControlledDrawingUpload = ({ itemId }: ControlledDrawingUploadProps) => {
-  const { canUpdate, uploadDrawing } = useControlledDrawing({ itemId });
-
-  const onChange = async (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      await uploadDrawing(file);
-    }
-    e.target.value = "";
-  };
-
-  return (
-    <File
-      isDisabled={!canUpdate}
-      leftIcon={<LuFileText />}
-      accept="application/pdf"
-      onChange={onChange}
-    >
-      Drawing
-    </File>
-  );
-};
-
-// Manual writer of the controlled-drawing slot: the PDF is uploaded client-side
-// to the private bucket, then its path is posted to the item.drawing route,
-// which records it (drawingSource: "manual") in the `drawing`
-// externalIntegrationMapping metadata that every reader keys on.
-export const useControlledDrawing = ({
-  itemId
-}: ControlledDrawingUploadProps) => {
-  const { t } = useLingui();
-  const permissions = usePermissions();
-  const revalidator = useRevalidator();
-  const { carbon } = useCarbon();
-  const { company } = useUser();
-  const submit = useSubmit();
-
-  const canUpdate = permissions.can("update", "parts");
-
-  const uploadDrawing = useCallback(
-    async (file: File) => {
-      if (!carbon) {
-        toast.error(t`Carbon client not available`);
-        return;
-      }
-
-      toast.info(t`Uploading ${file.name}`);
-      const drawingPath = `${company.id}/models/${nanoid()}.pdf`;
-      const upload = await carbon.storage
-        .from("private")
-        .upload(drawingPath, file, {
-          cacheControl: `${12 * 60 * 60}`,
-          upsert: true,
-          contentType: "application/pdf"
-        });
-
-      if (upload.error) {
-        toast.error(t`Failed to upload drawing: ${file.name}`);
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append("intent", "upload");
-      formData.append("itemId", itemId);
-      formData.append("drawingPath", drawingPath);
-
-      submit(formData, {
-        method: "post",
-        action: path.to.api.itemDrawing,
-        navigate: false,
-        fetcherKey: `drawing:${itemId}`
-      });
-      toast.success(t`Controlled drawing uploaded`);
-      revalidator.revalidate();
-    },
-    [carbon, company.id, itemId, submit, revalidator, t]
-  );
-
-  const removeDrawing = useCallback(() => {
-    const formData = new FormData();
-    formData.append("intent", "remove");
-    formData.append("itemId", itemId);
-
-    submit(formData, {
-      method: "post",
-      action: path.to.api.itemDrawing,
-      navigate: false,
-      fetcherKey: `drawing:${itemId}`
-    });
-    revalidator.revalidate();
-  }, [itemId, submit, revalidator]);
-
-  return { canUpdate, uploadDrawing, removeDrawing };
 };
 
 type Props = {

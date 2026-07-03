@@ -2436,7 +2436,7 @@ msgstr "Designänderungen mit Revisionen / ECOs steuern"
 msgid "Controlled Drawing"
 msgstr ""
 
-#. placeholder {0}: controlledDrawing.drawingRevisionLabel
+#. placeholder {0}: drawing.drawingRevisionLabel
 msgid "Controlled Drawing (Rev {0})"
 msgstr ""
 

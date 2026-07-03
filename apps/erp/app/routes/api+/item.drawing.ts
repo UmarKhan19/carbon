@@ -23,14 +23,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const itemId = url.searchParams.get("itemId");
   if (!itemId) {
-    return { controlledDrawing: null };
+    return { itemId: null, controlledDrawing: null };
   }
 
   const controlledDrawing = await getControlledDrawing(client, {
     itemId,
     companyId
   });
-  return { controlledDrawing };
+  // itemId is echoed back so the client hook can discard responses that no
+  // longer match the currently selected item.
+  return { itemId, controlledDrawing };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -53,8 +55,6 @@ export async function action({ request }: ActionFunctionArgs) {
     .eq("entityId", itemId)
     .eq("integration", "drawing")
     .eq("companyId", companyId)
-    .order("createdAt", { ascending: false })
-    .limit(1)
     .maybeSingle();
   if (existing.error) {
     return data({ success: false, message: existing.error.message });
