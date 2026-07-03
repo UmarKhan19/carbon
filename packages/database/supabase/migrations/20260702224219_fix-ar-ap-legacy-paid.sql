@@ -21,31 +21,22 @@
 --   Base 'Partially Paid' with no settlements stays FULLY OPEN (deliberate:
 --   the paid amount is unknowable; remediate via a real payment or write-off).
 --
--- Also folds in regressions from the 20260630 view fork chain:
---   * balance/status/datePaid math used the deprecated STORED totalAmount
---     (unmaintained since 20260604120000; always 0 for invoices posted after
---     it) while displaying the live line-derived total — now all derived
---     expressions use the live total.
---   * memo-sourced settlements (20260630102736, gated on appliedViaPaymentId
---     by 20260630105334) were silently dropped from the settled CTE by the
---     20260630151500 fork — restored.
---   * paymentTermName on salesInvoices (added 20260630105334, lost by the
---     151500 fork) — restored.
---   * new baseStatus column on both views (UI needs to distinguish base-Paid
---     from settlement-derived Paid).
---
 -- Fork sources (full bodies, minimal edits):
---   * salesInvoices    — 20260630151500_invoice-dust-forgiveness.sql
---   * purchaseInvoices — 20260702061504_fix-supplier-shipping-cost-exchange-rate.sql
---     (preserves its supplierShippingCost / exchangeRate divide fix)
---   * six RPCs         — 20260630104012_tie-out-aging-from-view-total.sql
+--   * both views — 20260702114500_invoice-balance-includes-line-tax.sql
+--     (keeps its live line-derived total in the balance/status/datePaid
+--     math, memo-aware settled CTE, paymentTermName on salesInvoices, the
+--     LEFT JOIN on salesInvoiceShipment, dust forgiveness, and the
+--     supplierShippingCost divide with zero-guard). The only view edits here
+--     are the base-'Paid' branches and the new baseStatus column.
+--   * six RPCs   — 20260630104012_tie-out-aging-from-view-total.sql
 -- ============================================================
 
 DROP VIEW IF EXISTS "salesInvoices";
 CREATE VIEW "salesInvoices" WITH(SECURITY_INVOKER=true) AS
   WITH settled AS (
-    -- Amount applied TO this invoice: Posted cash payments, and Posted credit
-    -- memos once the payment applying them (if any) is Posted.
+    -- Amount applied TO this invoice (as the settlement target): Posted cash
+    -- payments, and Posted credit memos once the payment applying them is
+    -- Posted (a memo staged through a Draft payment doesn't count yet).
     SELECT
       s."targetSalesInvoiceId",
       SUM(s."appliedAmount" + s."discountAmount" + s."writeOffAmount") AS amount,
@@ -163,7 +154,10 @@ CREATE VIEW "salesInvoices" WITH(SECURITY_INVOKER=true) AS
     LEFT JOIN "modelUpload" mu ON mu.id = i."modelUploadId"
     GROUP BY sil."invoiceId"
   ) sil ON sil."invoiceId" = si."id"
-  JOIN "salesInvoiceShipment" ss ON ss."id" = si."id"
+  -- LEFT JOIN (was INNER): an invoice missing its shipment row must not
+  -- vanish from the view — post-payment would read its balance as 0 and
+  -- reject every application. shippingCost is already COALESCEd.
+  LEFT JOIN "salesInvoiceShipment" ss ON ss."id" = si."id"
   LEFT JOIN "paymentTerm" pt ON pt."id" = si."paymentTermId"
   LEFT JOIN settled s ON s."targetSalesInvoiceId" = si."id";
 
