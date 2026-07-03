@@ -5723,7 +5723,7 @@ msgid "If items already exist"
 msgstr "अगर आइटम पहले से मौजूद हैं"
 
 msgid "If ordered, no stockout projected in the next 48 weeks"
-msgstr ""
+msgstr "यदि ऑर्डर किया जाता है, तो अगले 48 सप्ताह में कोई स्टॉकआउट प्रक्षेपित नहीं है"
 
 msgid "If something is off track"
 msgstr "अगर कुछ गलत रास्ते पर है"
