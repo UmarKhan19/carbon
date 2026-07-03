@@ -6731,7 +6731,7 @@ msgid "Map your current process, systems, and data"
 msgstr "अपनी वर्तमान प्रक्रिया, सिस्टम और डेटा को मैप करें"
 
 msgid "Mark as Paid"
-msgstr ""
+msgstr "भुगतान के रूप में चिह्नित करें"
 
 msgid "Mark as Planned"
 msgstr "योजना के रूप में चिह्नित करें"
@@ -6740,7 +6740,7 @@ msgid "Mark as read"
 msgstr "पढ़ा हुआ चिह्नित करें"
 
 msgid "Mark as Unpaid"
-msgstr ""
+msgstr "अदा न किए गए के रूप में चिह्नित करें"
 
 msgid "Mark checkpoint passed"
 msgstr "चेकपॉइंट पास किया गया चिह्नित करें"
