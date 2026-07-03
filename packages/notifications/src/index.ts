@@ -29,6 +29,8 @@ export enum NotificationEvent {
   SalesRfqReady = "sales-rfq-ready",
   StockTransferAssignment = "stock-transfer-assignment",
   SuggestionResponse = "suggestion-response",
+  // Weekly digest reminder for outstanding trainings (documentIds-shaped).
+  TrainingReminder = "training-reminder",
   SupplierQuoteAssignment = "supplier-quote-assignment",
   SupplierQuoteResponse = "supplier-quote-response",
   TrainingAssignment = "training-assignment",
@@ -52,6 +54,13 @@ export enum NotificationTopic {
   Suggestion = "suggestion",
   Training = "training"
 }
+
+// A labeled fact attached to a notification (e.g. Customer / Acme Corp),
+// rendered in the email, Slack text, and notification.payload.details.
+export type NotificationDetail = {
+  label: string;
+  value: string;
+};
 
 // Fan-out targets understood by the notify Inngest function. inApp is
 // always included regardless of what the caller passes — the topbar reflects
@@ -93,6 +102,7 @@ export function getNotificationTopic(
       return NotificationTopic.Quality;
     case NotificationEvent.ProcedureAssignment:
     case NotificationEvent.TrainingAssignment:
+    case NotificationEvent.TrainingReminder:
     case NotificationEvent.ResourceTrainingAssignment:
       return NotificationTopic.Training;
     case NotificationEvent.PickingListAssignment:
@@ -157,6 +167,8 @@ export function getNotificationEmailHeading(event: NotificationEvent): string {
       return "Procedure assigned to you";
     case NotificationEvent.TrainingAssignment:
       return "Training assigned to you";
+    case NotificationEvent.TrainingReminder:
+      return "Training reminder";
     case NotificationEvent.ResourceTrainingAssignment:
       return "New training available";
     case NotificationEvent.PickingListAssignment:
@@ -193,6 +205,8 @@ export function getNotificationEmailCtaLabel(event: NotificationEvent): string {
       return "View gauge";
     case NotificationEvent.QuoteExpired:
       return "View quote";
+    case NotificationEvent.TrainingReminder:
+      return "View training";
     case NotificationEvent.DigitalQuoteResponse:
     case NotificationEvent.SupplierQuoteResponse:
       return "View response";

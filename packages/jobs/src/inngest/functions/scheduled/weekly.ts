@@ -1,4 +1,5 @@
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
+import { isReminderItemStatus } from "@carbon/documents/email";
 import { NotificationEvent } from "@carbon/notifications";
 import { Edition } from "@carbon/utils";
 import { inngest } from "../../client";
@@ -136,9 +137,23 @@ export const weeklyFunction = inngest.createFunction(
       }
     });
 
-    await step.run("notify-outstanding-trainings", async () => {
+    // Build inside a memoized step, send via step.sendEvent — sending
+    // mid-step would double-deliver on a retry after a partial send.
+    const reminders = await step.run("build-training-reminders", async () => {
       // Notify employees with outstanding trainings (Pending or Overdue)
       console.log(`Checking for outstanding training assignments...`);
+
+      // One digest-shaped TrainingReminder per employee (documentIds); the
+      // notify function owns all channel fan-out.
+      const notifyEvents: Array<{
+        name: "carbon/notify";
+        data: {
+          companyId: string;
+          documentIds: string[];
+          event: NotificationEvent;
+          recipient: { type: "user"; userId: string };
+        };
+      }> = [];
 
       try {
         // Get all companies with training assignments
@@ -152,7 +167,7 @@ export const weeklyFunction = inngest.createFunction(
           console.error(
             `Failed to fetch companies with trainings: ${companiesError.message}`
           );
-          return;
+          return { notifyEvents };
         }
 
         const uniqueCompanyIds = [
@@ -162,8 +177,6 @@ export const weeklyFunction = inngest.createFunction(
         console.log(
           `Found ${uniqueCompanyIds.length} companies with training assignments`
         );
-
-        let totalNotifications = 0;
 
         for (const companyId of uniqueCompanyIds) {
           const { data: trainingStatus, error: trainingsError } =
@@ -178,21 +191,15 @@ export const weeklyFunction = inngest.createFunction(
             continue;
           }
 
-          // Filter to pending/overdue and dedupe by employee+assignment
-          const outstandingTrainings = (trainingStatus ?? []).filter(
-            (t) => t.status === "Pending" || t.status === "Overdue"
+          // Filter to outstanding and dedupe by employee+assignment
+          const outstandingTrainings = (trainingStatus ?? []).filter((t) =>
+            isReminderItemStatus(t.status)
           );
 
           // Group by trainingAssignmentId to send one notification per assignment per employee
           const assignmentsByEmployee = new Map<
             string,
-            {
-              trainingAssignmentId: string;
-              employeeId: string;
-              companyId: string;
-              trainingName: string;
-              status: string;
-            }
+            (typeof outstandingTrainings)[number]
           >();
 
           for (const training of outstandingTrainings) {
@@ -202,38 +209,33 @@ export const weeklyFunction = inngest.createFunction(
             }
           }
 
-          // Send notifications for each unique employee-assignment combination
-          for (const [, assignment] of assignmentsByEmployee) {
-            try {
-              await inngest.send({
-                name: "carbon/notify",
-                data: {
-                  companyId: assignment.companyId,
-                  documentId: assignment.trainingAssignmentId,
-                  event: NotificationEvent.TrainingAssignment,
-                  recipient: {
-                    type: "user" as const,
-                    userId: assignment.employeeId
-                  }
+          const assignments = [...assignmentsByEmployee.values()];
+          if (assignments.length === 0) continue;
+
+          const byEmployee = new Map<string, typeof assignments>();
+          for (const assignment of assignments) {
+            const list = byEmployee.get(assignment.employeeId) ?? [];
+            list.push(assignment);
+            byEmployee.set(assignment.employeeId, list);
+          }
+
+          for (const [employeeId, employeeAssignments] of byEmployee) {
+            notifyEvents.push({
+              name: "carbon/notify" as const,
+              data: {
+                companyId,
+                documentIds: employeeAssignments.map(
+                  (assignment) => assignment.trainingAssignmentId
+                ),
+                event: NotificationEvent.TrainingReminder,
+                recipient: {
+                  type: "user" as const,
+                  userId: employeeId
                 }
-              });
-              console.log(
-                `Sent reminder for training "${assignment.trainingName}" to employee ${assignment.employeeId}`
-              );
-              totalNotifications++;
-            } catch (err) {
-              console.error(
-                `Failed to send training reminder: ${
-                  err instanceof Error ? err.message : String(err)
-                }`
-              );
-            }
+              }
+            });
           }
         }
-
-        console.log(
-          `Sent ${totalNotifications} training reminder notifications`
-        );
       } catch (error) {
         console.error(
           `Unexpected error in training notifications: ${
@@ -242,7 +244,19 @@ export const weeklyFunction = inngest.createFunction(
         );
       }
 
-      console.log(`Weekly tasks completed: ${new Date().toISOString()}`);
+      console.log(
+        `Built ${notifyEvents.length} weekly training reminder digests`
+      );
+      return { notifyEvents };
     });
+
+    if (reminders.notifyEvents.length > 0) {
+      await step.sendEvent(
+        "send-training-reminder-notifications",
+        reminders.notifyEvents
+      );
+    }
+
+    console.log(`Weekly tasks completed: ${new Date().toISOString()}`);
   }
 );

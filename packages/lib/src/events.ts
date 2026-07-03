@@ -16,7 +16,11 @@ export type Events = {
     data: {
       event: NotificationEvent;
       companyId: string;
-      documentId: string;
+      // At least one of documentId / documentIds is required. Digest-capable
+      // events pass documentIds (one notification covering several documents);
+      // the primary/link id is documentId ?? documentIds[0].
+      documentId?: string;
+      documentIds?: string[];
       recipient:
         | { type: "user"; userId: string }
         | { type: "group"; groupIds: string[] }

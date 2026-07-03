@@ -372,6 +372,7 @@ function GenericNotification({
         />
       );
     case NotificationEvent.TrainingAssignment:
+    case NotificationEvent.TrainingReminder:
       return (
         <Notification
           icon={<LuListChecks />}

@@ -51,6 +51,8 @@
     "build": "node ./scripts/generate-fonts.mjs",
     "clean": "rimraf .turbo node_modules dist",
     "email": "email dev --dir ./src/email --port 3030",
+    "email:notifications": "email dev --dir ./src/email --port 3030",
+    "email:previews": "email dev --dir ./src/email/previews --port 3030",
     "lint": "biome lint --write ",
     "test": "vitest run",
     "typecheck": "tsgo --noEmit"

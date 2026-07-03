@@ -6,7 +6,14 @@ import QuoteEmail from "./QuoteEmail";
 import SalesInvoiceEmail from "./SalesInvoiceEmail";
 import SalesOrderEmail from "./SalesOrderEmail";
 import VerificationEmail from "./VerificationEmail";
+import WeeklyReminderEmail from "./WeeklyReminderEmail";
 import WelcomeEmail from "./WelcomeEmail";
+
+export {
+  isReminderItemStatus,
+  type ReminderItemStatus,
+  reminderItemStatuses
+} from "./WeeklyReminderEmail";
 
 export {
   GetStartedEmail,
@@ -17,5 +24,6 @@ export {
   SalesInvoiceEmail,
   SalesOrderEmail,
   VerificationEmail,
+  WeeklyReminderEmail,
   WelcomeEmail
 };

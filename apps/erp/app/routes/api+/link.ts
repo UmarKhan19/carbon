@@ -18,6 +18,11 @@ async function resolve(
   documentType?: ApprovalDocumentType
 ): Promise<string | null> {
   switch (event) {
+    case NotificationEvent.TrainingReminder: {
+      // documentId is a trainingAssignment id; land on the completion page
+      // (same target as the topbar notification).
+      return path.to.completeTrainingAssignment(documentId);
+    }
     case NotificationEvent.TrainingAssignment: {
       // Group-based trainingAssignment row (/x/resources/assignments).
       // documentId is a `ta_*` id — look up the parent training so the
