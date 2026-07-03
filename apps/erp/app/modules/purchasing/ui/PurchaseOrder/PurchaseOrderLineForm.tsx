@@ -62,6 +62,10 @@ import {
   useUser
 } from "~/hooks";
 import { getSupplierPartPriceBreaks } from "~/modules/items";
+import {
+  ControlledDrawingLink,
+  useItemControlledDrawing
+} from "~/modules/items/ui/Item";
 import type { PurchaseOrder, PurchaseOrderLine } from "~/modules/purchasing";
 import {
   isPurchaseOrderLocked,
@@ -153,6 +157,8 @@ const PurchaseOrderLineForm = ({
             (initialValues.supplierShippingCost ?? 0))
         : 0
   });
+
+  const controlledDrawing = useItemControlledDrawing(itemData.itemId);
 
   // update tax amount when quantity or unit price changes
   useEffect(() => {
@@ -622,6 +628,8 @@ const PurchaseOrderLineForm = ({
                             }))
                           }
                         />
+
+                        <ControlledDrawingLink drawing={controlledDrawing} />
 
                         {isOutsideProcessing && (
                           <JobOperationSelect jobId={initialValues.jobId} />

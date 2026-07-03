@@ -78,9 +78,12 @@ export const onshapeFilePullFunction = inngest.createFunction(
       return { modelUploadId: res.data?.modelUploadId ?? null };
     });
 
-    // Merge the drawing pointer into the revision's onshape mapping row
-    // (read-merge-write so prior metadata keys survive).
-    await step.run("patch-mapping-metadata", async () => {
+    // Write the drawing pointer to the item's `drawing` mapping slot (plan §1) —
+    // the one slot every reader keys on. Manual pin wins: a re-import never
+    // silently replaces a drawing a human pinned (drawingSource: "manual").
+    // Read-merge-write so unrelated metadata keys survive. The `onshape`
+    // revision mapping row keeps its import/idempotency role untouched.
+    await step.run("patch-drawing-mapping", async () => {
       if (!drawing.drawingPath && !drawing.drawingRevisionLabel) {
         return { patched: false };
       }
@@ -89,24 +92,42 @@ export const onshapeFilePullFunction = inngest.createFunction(
         .select("id, metadata")
         .eq("entityType", "item")
         .eq("entityId", revisionItemId)
-        .eq("integration", "onshape")
+        .eq("integration", "drawing")
         .eq("companyId", companyId)
         .order("createdAt", { ascending: false })
         .limit(1)
         .maybeSingle();
-      if (existing.error || !existing.data) {
+      if (existing.error) {
         return { patched: false };
       }
+      const currentMetadata =
+        (existing.data?.metadata as Record<string, Json> | null) ?? {};
+      if (currentMetadata.drawingSource === "manual") {
+        return { patched: false, reason: "manual-pin" };
+      }
       const merged: Json = {
-        ...((existing.data.metadata as Record<string, Json> | null) ?? {}),
+        ...currentMetadata,
         drawingPath: drawing.drawingPath,
-        drawingRevisionLabel: drawing.drawingRevisionLabel
+        drawingRevisionLabel: drawing.drawingRevisionLabel,
+        drawingSource: "onshape"
       };
-      await serviceClient
-        .from("externalIntegrationMapping")
-        .update({ metadata: merged, lastSyncedAt: new Date().toISOString() })
-        .eq("id", existing.data.id)
-        .eq("companyId", companyId);
+      if (existing.data) {
+        await serviceClient
+          .from("externalIntegrationMapping")
+          .update({ metadata: merged, updatedAt: new Date().toISOString() })
+          .eq("id", existing.data.id)
+          .eq("companyId", companyId);
+      } else {
+        await serviceClient.from("externalIntegrationMapping").insert({
+          entityType: "item",
+          entityId: revisionItemId,
+          integration: "drawing",
+          externalId: null,
+          metadata: merged,
+          companyId,
+          createdBy: userId
+        });
+      }
       return { patched: true };
     });
 

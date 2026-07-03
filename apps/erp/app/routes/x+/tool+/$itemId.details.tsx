@@ -13,6 +13,7 @@ import { CadModel, DeferredFiles } from "~/components";
 import { usePermissions, useRouteData } from "~/hooks";
 import type { ItemFile, MakeMethod, ToolSummary } from "~/modules/items";
 import {
+  getControlledDrawing,
   getItemManufacturing,
   getMakeMethodById,
   getMakeMethods,
@@ -51,9 +52,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const requestedMethodId = url.searchParams.get("methodId");
 
-  const [makeMethods, revisionLock] = await Promise.all([
+  const [makeMethods, revisionLock, controlledDrawing] = await Promise.all([
     getMakeMethods(client, itemId, companyId),
-    getRevisionLock(client, { itemId, companyId })
+    getRevisionLock(client, { itemId, companyId }),
+    getControlledDrawing(client, { itemId, companyId })
   ]);
   const revisionStatus = revisionLock.revisionStatus;
   const releaseControl = revisionLock.releaseControl;
@@ -65,12 +67,24 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       makeMethods.data?.[0]);
 
   if (!makeMethod) {
-    return { methodData: null, tags: [], revisionStatus, releaseControl };
+    return {
+      methodData: null,
+      tags: [],
+      revisionStatus,
+      releaseControl,
+      controlledDrawing
+    };
   }
 
   const fullMethod = await getMakeMethodById(client, makeMethod.id, companyId);
   if (fullMethod.error || !fullMethod.data) {
-    return { methodData: null, tags: [], revisionStatus, releaseControl };
+    return {
+      methodData: null,
+      tags: [],
+      revisionStatus,
+      releaseControl,
+      controlledDrawing
+    };
   }
 
   const [methodMaterials, methodOperations, tags, toolManufacturing] =
@@ -103,7 +117,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     },
     tags: tags.data ?? [],
     revisionStatus,
-    releaseControl
+    releaseControl,
+    controlledDrawing
   };
 }
 
@@ -185,8 +200,13 @@ export default function ToolDetailsRoute() {
   if (!itemId) throw new Error("Could not find itemId");
 
   const permissions = usePermissions();
-  const { methodData, tags, revisionStatus, releaseControl } =
-    useLoaderData<typeof loader>();
+  const {
+    methodData,
+    tags,
+    revisionStatus,
+    releaseControl,
+    controlledDrawing
+  } = useLoaderData<typeof loader>();
 
   const toolData = useRouteData<{
     toolSummary: ToolSummary;
@@ -276,6 +296,7 @@ export default function ToolDetailsRoute() {
                 files={resolvedFiles}
                 itemId={itemId}
                 modelUpload={toolData.toolSummary ?? undefined}
+                controlledDrawing={controlledDrawing}
                 type="Tool"
               />
             )}

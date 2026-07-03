@@ -1,6 +1,10 @@
 import BillOfMaterial from "./BillOfMaterial";
 import BillOfProcess from "./BillOfProcess";
 import BoMExplorer, { BoMActions } from "./BoMExplorer";
+import {
+  ControlledDrawingLink,
+  useItemControlledDrawing
+} from "./ControlledDrawing";
 import { FileBadge } from "./FileBadge";
 import ItemCostingForm from "./ItemCostingForm";
 import ItemDescription from "./ItemDescription";
@@ -28,6 +32,7 @@ export {
   BillOfProcess,
   BoMActions,
   BoMExplorer,
+  ControlledDrawingLink,
   FileBadge,
   ItemCostingForm,
   ItemDescription,
@@ -47,5 +52,6 @@ export {
   SelectedItemProperties,
   SourcingTypeProperty,
   SupplierPartForm,
-  SupplierParts
+  SupplierParts,
+  useItemControlledDrawing
 };

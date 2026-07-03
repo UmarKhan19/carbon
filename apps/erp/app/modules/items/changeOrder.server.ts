@@ -6,6 +6,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { itemRevisionStatus } from "./items.models";
 import {
   getChangeOrderNotificationRecipients,
+  getControlledDrawings,
   getMakeMethods,
   getMethodMaterialsByMakeMethod,
   getMethodOperationsByMakeMethodId
@@ -337,26 +338,15 @@ export async function getChangeOrderValidations(
   // revision has no controlled 2D drawing in the per-item `drawing`
   // externalIntegrationMapping slot.
   if (pendingItemIds.length > 0) {
-    const drawingMappings = await client
-      .from("externalIntegrationMapping")
-      .select("entityId, metadata")
-      .eq("entityType", "item")
-      .eq("integration", "drawing")
-      .in("entityId", pendingItemIds)
-      .eq("companyId", companyId);
-
-    const itemsWithDrawing = new Set<string>();
-    for (const m of drawingMappings.data ?? []) {
-      const metadata = m.metadata as { drawingPath?: string | null } | null;
-      if (metadata?.drawingPath) {
-        itemsWithDrawing.add(m.entityId);
-      }
-    }
+    const drawings = await getControlledDrawings(client, {
+      itemIds: pendingItemIds,
+      companyId
+    });
 
     for (const item of affectedItems) {
       const pending = item.pendingItem;
       if (!pending?.id) continue;
-      if (!itemsWithDrawing.has(pending.id)) {
+      if (!drawings.has(pending.id)) {
         warnings.push(
           `${
             pending.readableIdWithRevision ?? pending.id

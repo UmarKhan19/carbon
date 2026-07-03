@@ -1919,6 +1919,77 @@ export async function getConsumablesList(
       .order("name")
   );
 }
+export type ControlledDrawing = {
+  drawingPath: string;
+  drawingRevisionLabel: string | null;
+  drawingSource: "onshape" | "manual";
+};
+
+function parseControlledDrawing(
+  metadata: Json | null
+): ControlledDrawing | null {
+  const drawingMetadata = metadata as {
+    drawingPath?: string | null;
+    drawingRevisionLabel?: string | null;
+    drawingSource?: string | null;
+  } | null;
+  if (!drawingMetadata?.drawingPath) return null;
+  return {
+    drawingPath: drawingMetadata.drawingPath,
+    drawingRevisionLabel: drawingMetadata.drawingRevisionLabel ?? null,
+    drawingSource:
+      drawingMetadata.drawingSource === "onshape" ? "onshape" : "manual"
+  };
+}
+
+export async function getControlledDrawing(
+  client: SupabaseClient<Database>,
+  args: { itemId: string; companyId: string }
+): Promise<ControlledDrawing | null> {
+  const drawings = await getControlledDrawings(client, {
+    itemIds: [args.itemId],
+    companyId: args.companyId
+  });
+  return drawings.get(args.itemId) ?? null;
+}
+
+// The one home of the controlled-drawing query (entityType="item",
+// integration="drawing"). Newest row with a non-null drawingPath wins per item —
+// a duplicate mapping row (e.g. a retried import) must not break readers. A
+// query error degrades to "no drawing" (the drawing is advisory on every
+// surface), never a thrown 500.
+export async function getControlledDrawings(
+  client: SupabaseClient<Database>,
+  args: { itemIds: string[]; companyId: string }
+): Promise<Map<string, ControlledDrawing>> {
+  const drawingsByItemId = new Map<string, ControlledDrawing>();
+  if (args.itemIds.length === 0) return drawingsByItemId;
+
+  const mappings = await client
+    .from("externalIntegrationMapping")
+    .select("entityId, metadata")
+    .eq("entityType", "item")
+    .eq("integration", "drawing")
+    .in("entityId", args.itemIds)
+    .eq("companyId", args.companyId)
+    .order("createdAt", { ascending: false });
+
+  if (mappings.error) {
+    console.error("getControlledDrawings failed", mappings.error);
+    return drawingsByItemId;
+  }
+
+  for (const mapping of mappings.data ?? []) {
+    if (drawingsByItemId.has(mapping.entityId)) continue;
+    const drawing = parseControlledDrawing(mapping.metadata);
+    if (drawing) {
+      drawingsByItemId.set(mapping.entityId, drawing);
+    }
+  }
+
+  return drawingsByItemId;
+}
+
 export async function getItem(client: SupabaseClient<Database>, id: string) {
   return client.from("item").select("*").eq("id", id).single();
 }

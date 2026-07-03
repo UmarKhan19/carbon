@@ -2433,6 +2433,16 @@ msgstr "Yükleniciler"
 msgid "Control design changes with revisions / ECOs"
 msgstr "Tasarım değişikliklerini revizyonlar / ECO'lar ile kontrol edin"
 
+msgid "Controlled Drawing"
+msgstr ""
+
+#. placeholder {0}: controlledDrawing.drawingRevisionLabel
+msgid "Controlled Drawing (Rev {0})"
+msgstr ""
+
+msgid "Controlled drawing uploaded"
+msgstr ""
+
 msgid "Controller, Accountant"
 msgstr "Kontrolör, Muhasebeci"
 
@@ -3909,6 +3919,10 @@ msgstr "Yakınlaştırmak için sürükleyin"
 msgid "Drawing"
 msgstr "Çekiliyor"
 
+#. placeholder {0}: drawing.drawingRevisionLabel
+msgid "Drawing (Rev {0})"
+msgstr ""
+
 msgid "Drawing Number"
 msgstr "Çizim Numarası"
 
@@ -5019,6 +5033,10 @@ msgstr "Sertifika Yükleme Başarısız"
 
 msgid "Failed to upload CSV file."
 msgstr "CSV dosyası yüklenemedi."
+
+#. placeholder {0}: file.name
+msgid "Failed to upload drawing: {0}"
+msgstr ""
 
 msgid "Failed to upload file"
 msgstr "Dosyayı yüklemede başarısız oldu"

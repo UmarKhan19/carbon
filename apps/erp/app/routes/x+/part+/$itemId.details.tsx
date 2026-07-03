@@ -19,6 +19,7 @@ import type { ItemFile, MakeMethod, PartSummary } from "~/modules/items";
 import {
   getConfigurationParameters,
   getConfigurationRules,
+  getControlledDrawing,
   getItemManufacturing,
   getMakeMethodById,
   getMakeMethods,
@@ -59,9 +60,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const requestedMethodId = url.searchParams.get("methodId");
 
-  const [makeMethods, revisionLock] = await Promise.all([
+  const [makeMethods, revisionLock, controlledDrawing] = await Promise.all([
     getMakeMethods(client, itemId, companyId),
-    getRevisionLock(client, { itemId, companyId })
+    getRevisionLock(client, { itemId, companyId }),
+    getControlledDrawing(client, { itemId, companyId })
     // client.storage
     //   .from("private")
     //   .list(`${companyId}/default-attachments/item/${itemId}`)
@@ -78,12 +80,24 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       makeMethods.data?.[0]);
 
   if (!makeMethod) {
-    return { methodData: null, tags: [], revisionStatus, releaseControl };
+    return {
+      methodData: null,
+      tags: [],
+      revisionStatus,
+      releaseControl,
+      controlledDrawing
+    };
   }
 
   const fullMethod = await getMakeMethodById(client, makeMethod.id, companyId);
   if (fullMethod.error || !fullMethod.data) {
-    return { methodData: null, tags: [], revisionStatus, releaseControl };
+    return {
+      methodData: null,
+      tags: [],
+      revisionStatus,
+      releaseControl,
+      controlledDrawing
+    };
   }
 
   const [methodMaterials, methodOperations, tags, partManufacturing] =
@@ -135,7 +149,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     },
     tags: tags.data ?? [],
     revisionStatus,
-    releaseControl
+    releaseControl,
+    controlledDrawing
   };
 }
 
@@ -226,8 +241,13 @@ export default function PartDetailsRoute() {
   if (!itemId) throw new Error("Could not find itemId");
 
   const permissions = usePermissions();
-  const { methodData, tags, revisionStatus, releaseControl } =
-    useLoaderData<typeof loader>();
+  const {
+    methodData,
+    tags,
+    revisionStatus,
+    releaseControl,
+    controlledDrawing
+  } = useLoaderData<typeof loader>();
 
   const partData = useRouteData<{
     partSummary: PartSummary;
@@ -346,6 +366,7 @@ export default function PartDetailsRoute() {
                 files={resolvedFiles}
                 itemId={itemId}
                 modelUpload={partData.partSummary ?? undefined}
+                controlledDrawing={controlledDrawing}
                 type="Part"
               />
             )}

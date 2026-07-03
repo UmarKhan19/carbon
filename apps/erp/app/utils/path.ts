@@ -70,6 +70,7 @@ export const path = {
       usersBatch: (ids: string[]) =>
         generatePath(`${api}/users/batch?ids=${ids.join(",")}`),
       item: (type: string) => generatePath(`${api}/item/${type}`),
+      itemDrawing: `${api}/item/drawing`,
       itemCostRecalculate: (itemId: string) =>
         generatePath(`${api}/items/${itemId}/recalculate-cost`),
       itemConfigurable: `${api}/items/configurable`,

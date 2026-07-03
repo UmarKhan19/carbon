@@ -2433,6 +2433,16 @@ msgstr "Подрядчики"
 msgid "Control design changes with revisions / ECOs"
 msgstr "Контролировать изменения конструкции с помощью редакций / ECO"
 
+msgid "Controlled Drawing"
+msgstr ""
+
+#. placeholder {0}: controlledDrawing.drawingRevisionLabel
+msgid "Controlled Drawing (Rev {0})"
+msgstr ""
+
+msgid "Controlled drawing uploaded"
+msgstr ""
+
 msgid "Controller, Accountant"
 msgstr "Контроллер, Бухгалтер"
 
@@ -3909,6 +3919,10 @@ msgstr "Перетащите для масштабирования"
 msgid "Drawing"
 msgstr "Снятие"
 
+#. placeholder {0}: drawing.drawingRevisionLabel
+msgid "Drawing (Rev {0})"
+msgstr ""
+
 msgid "Drawing Number"
 msgstr "Номер чертежа"
 
@@ -5019,6 +5033,10 @@ msgstr "Не удалось загрузить сертификат"
 
 msgid "Failed to upload CSV file."
 msgstr "Не удалось загрузить CSV файл."
+
+#. placeholder {0}: file.name
+msgid "Failed to upload drawing: {0}"
+msgstr ""
 
 msgid "Failed to upload file"
 msgstr "Ошибка при загрузке файла"
