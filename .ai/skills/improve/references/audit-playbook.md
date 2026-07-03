@@ -97,10 +97,10 @@ Lowest default priority — only flag where absence has a concrete cost:
 
 ## 9. Direction — features & where to take this next
 
-Forward-looking: what this codebase wants to become. **Grounding rule:** every suggestion must cite evidence from the repo — a suggestion that could apply to any ERP ("add AI", "add dark mode") is noise. **Check `.ai/recommendations/` first** and never re-propose what's on file. Sources of grounded signal:
+Forward-looking: what this codebase wants to become. **Grounding rule:** every suggestion must cite evidence from the repo — a suggestion that could apply to any ERP ("add AI", "add dark mode") is noise. **Check `.ai/specs/` and `.ai/plans/improve/` first** and never re-propose what's on file. Sources of grounded signal:
 
 - **Unfinished intent**: TODO/FIXME clusters around one theme, feature flags never rolled out, stubbed modules, abandoned mid-feature work in git history.
-- **Stated-but-undelivered**: items in `.ai/recommendations/`, `.ai/scratch/tasks/*.md`, or rule docs describing intended direction the code hasn't caught up to.
+- **Stated-but-undelivered**: unimplemented specs in `.ai/specs/`, open items in `.ai/plans/improve/`, or rule docs describing intended direction the code hasn't caught up to.
 - **Surface asymmetries**: one-directional pairs (export without import, create without bulk-create, a module with CRUD-minus-one), a capability one app has that the parallel app lacks (erp ↔ mes).
 - **The adjacent possible**: capabilities the existing architecture makes disproportionately cheap — an MCP tool one service-function away (Carbon already exposes ~1187 MCP tools), a report one query from the existing service layer, an integration the data model already supports.
 - **Friction worth productizing**: things users evidently do by hand around Carbon.

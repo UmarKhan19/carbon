@@ -84,6 +84,9 @@ msgstr "{chainLabel}。考虑将此零件直接指向最终后继产品。"
 msgid "{count, plural, one {# course} other {# courses}}"
 msgstr "{count, plural, one {# 门课程} other {# 门课程}}"
 
+msgid "{from}–{to} of {count}"
+msgstr "{from}–{to} 共 {count}"
+
 #. placeholder {0}: errors.length
 #. placeholder {1}: skipped.length
 msgid "{inserted} inserted, {updated} updated, {0} need fixing, {1} skipped."
@@ -731,6 +734,9 @@ msgstr "所有行已导入—{inserted}行插入，{updated}行更新。"
 msgid "All Suppliers"
 msgstr "所有供应商"
 
+msgid "All Time"
+msgstr "所有时间"
+
 msgid "All Types"
 msgstr "所有类型"
 
@@ -870,6 +876,9 @@ msgstr "适用于全部"
 
 msgid "Applies to all work centers"
 msgstr "适用于所有工作中心"
+
+msgid "Apply"
+msgstr "应用"
 
 msgid "Apply available credits"
 msgstr "应用可用额度"
@@ -1298,6 +1307,13 @@ msgstr "你确定吗？"
 
 msgid "As needed"
 msgstr "按需"
+
+msgid "As of"
+msgstr "截至"
+
+#. placeholder {0}: formatDate(endDate)
+msgid "As of {0}"
+msgstr "截至 {0}"
 
 msgid "As of:"
 msgstr "截至："
@@ -2041,6 +2057,9 @@ msgstr "已关闭"
 
 msgid "Closed Date"
 msgstr "关闭日期"
+
+msgid "Closing"
+msgstr "结余"
 
 msgid "Closure blocked"
 msgstr "关闭被阻止"
@@ -2929,6 +2948,9 @@ msgstr "自定义字段"
 msgid "Custom SOW · we manage"
 msgstr "自定义 SOW · 我们管理"
 
+msgid "Custom…"
+msgstr "自定义…"
+
 msgid "customer"
 msgstr "客户"
 
@@ -3126,9 +3148,6 @@ msgstr "签发日期"
 
 msgid "Date Paid"
 msgstr "支付日期"
-
-msgid "Date Range"
-msgstr "日期范围"
 
 msgid "Dates"
 msgstr "日期"
@@ -3995,9 +4014,6 @@ msgstr "编辑客户状态"
 msgid "Edit Customer Type"
 msgstr "编辑客户类型"
 
-msgid "Edit date range"
-msgstr "编辑日期范围"
-
 msgid "Edit Department"
 msgstr "编辑部门"
 
@@ -4328,6 +4344,15 @@ msgstr "已启用"
 msgid "End Date"
 msgstr "结束日期"
 
+msgid "End of Last Fiscal Year"
+msgstr "上一财政年度末"
+
+msgid "End of Last Month"
+msgstr "上月末"
+
+msgid "End of Last Quarter"
+msgstr "上一季度末"
+
 msgid "End Time"
 msgstr "结束时间"
 
@@ -4387,6 +4412,9 @@ msgstr "实体类型"
 
 msgid "Entity type cannot be changed"
 msgstr "实体类型无法更改"
+
+msgid "Entry"
+msgstr "条目"
 
 msgid "Entry Type"
 msgstr "条目类型"
@@ -5084,6 +5112,9 @@ msgstr "财政年度"
 msgid "Fiscal Year Settings"
 msgstr "财政年度设置"
 
+msgid "Fiscal Year to Date"
+msgstr "财政年度至今"
+
 msgid "Fiscal Years"
 msgstr "财政年度"
 
@@ -5157,6 +5188,7 @@ msgstr "频率"
 msgid "Friday"
 msgstr "星期五"
 
+#. placeholder {0}: formatDate(startDate)
 #. placeholder {0}: routeDataFromRoute.supersession.successorEffectivityDate
 msgid "From {0}"
 msgstr "从 {0}"
@@ -5689,6 +5721,9 @@ msgstr "如果它阻碍了进度或日期有风险，它会被分配所有者并
 
 msgid "If items already exist"
 msgstr "如果项目已存在"
+
+msgid "If ordered, no stockout projected in the next 48 weeks"
+msgstr ""
 
 msgid "If something is off track"
 msgstr "如果有什么偏离轨道"
@@ -6295,8 +6330,17 @@ msgstr "最后校准"
 msgid "Last Calibration Date"
 msgstr "上次校准日期"
 
+msgid "Last Fiscal Year"
+msgstr "上一财政年度"
+
+msgid "Last Month"
+msgstr "上个月"
+
 msgid "Last Name"
 msgstr "姓氏"
+
+msgid "Last Quarter"
+msgstr "上一季度"
 
 #. placeholder {0}: formatDateTime(lastSyncedAt)
 msgid "Last synced: {0}"
@@ -7105,6 +7149,9 @@ msgstr "负调整"
 msgid "Net book value"
 msgstr "净账面价值"
 
+msgid "Net Change"
+msgstr "净变化"
+
 msgid "Never"
 msgstr "永不"
 
@@ -7663,6 +7710,9 @@ msgstr "还没有供应商"
 msgid "No time entries for this week"
 msgstr "本周没有时间条目"
 
+msgid "No transactions in this period"
+msgstr "此期间无交易"
+
 msgid "No value needed"
 msgstr "不需要值"
 
@@ -7923,6 +7973,9 @@ msgstr "未结交易"
 
 msgid "Opened"
 msgstr "打开"
+
+msgid "Opening"
+msgstr "期初"
 
 msgid "Opening balance of depreciation already booked before this asset was added to Carbon (use 0 for new acquisitions)."
 msgstr "在将此资产添加到Carbon之前已入账的折旧的期初余额（新购置的情况下使用0）。"
@@ -10070,9 +10123,6 @@ msgstr "选择客户类型"
 msgid "Select customers"
 msgstr "选择客户"
 
-msgid "Select date range to filter net change and balance at date"
-msgstr "选择日期范围以筛选净变化和日期余额"
-
 msgid "Select Employee"
 msgstr "选择员工"
 
@@ -11900,6 +11950,9 @@ msgstr "此下载链接无效或已被篡改。"
 msgid "This file is no longer available, or you don't have permission to download it."
 msgstr "此文件不再可用，或您没有权限下载它。"
 
+msgid "This Fiscal Year"
+msgstr "本财政年度"
+
 msgid "This information will be used on document headers"
 msgstr "此信息将用于文档标题"
 
@@ -11936,6 +11989,9 @@ msgstr "此批次已过期，无法领取。"
 msgid "This may take a moment. Hang tight."
 msgstr "这可能需要一些时间。请稍候。"
 
+msgid "This Month"
+msgstr "本月"
+
 msgid "This page of your Implementation Hub is being built. Start from the command center while we finish it."
 msgstr "您的实现中心的此页面正在构建中。请从命令中心开始，我们将继续完成它。"
 
@@ -11950,6 +12006,9 @@ msgstr "这个零件已过时（无库存）。"
 
 msgid "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 msgstr "此零件已被替代并设置为仅库存 — 它补充到其备件储备下限，与需求无关。"
+
+msgid "This Quarter"
+msgstr "本季度"
 
 msgid "This sales order has associated jobs. Choose what to do with them."
 msgstr "此销售订单有关联的工作。选择如何处理它们。"
@@ -11995,6 +12054,10 @@ msgstr "这将注销资产的剩余净账面价值。"
 
 msgid "Three-way match"
 msgstr "三方对账"
+
+#. placeholder {0}: formatDate(endDate)
+msgid "Through {0}"
+msgstr "至 {0}"
 
 msgid "Thumbnail"
 msgstr "缩略图"

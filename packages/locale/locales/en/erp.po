@@ -84,6 +84,9 @@ msgstr "{chainLabel}. Consider pointing this part directly at the final successo
 msgid "{count, plural, one {# course} other {# courses}}"
 msgstr "{count, plural, one {# course} other {# courses}}"
 
+msgid "{from}–{to} of {count}"
+msgstr "{from}–{to} of {count}"
+
 #. placeholder {0}: errors.length
 #. placeholder {1}: skipped.length
 msgid "{inserted} inserted, {updated} updated, {0} need fixing, {1} skipped."
@@ -731,6 +734,9 @@ msgstr "All rows imported — {inserted} inserted, {updated} updated."
 msgid "All Suppliers"
 msgstr "All Suppliers"
 
+msgid "All Time"
+msgstr "All Time"
+
 msgid "All Types"
 msgstr "All Types"
 
@@ -870,6 +876,9 @@ msgstr "Applies to all"
 
 msgid "Applies to all work centers"
 msgstr "Applies to all work centers"
+
+msgid "Apply"
+msgstr "Apply"
 
 msgid "Apply available credits"
 msgstr "Apply available credits"
@@ -1298,6 +1307,13 @@ msgstr "Are you sure?"
 
 msgid "As needed"
 msgstr "As needed"
+
+msgid "As of"
+msgstr "As of"
+
+#. placeholder {0}: formatDate(endDate)
+msgid "As of {0}"
+msgstr "As of {0}"
 
 msgid "As of:"
 msgstr "As of:"
@@ -2041,6 +2057,9 @@ msgstr "Closed"
 
 msgid "Closed Date"
 msgstr "Closed Date"
+
+msgid "Closing"
+msgstr "Closing"
 
 msgid "Closure blocked"
 msgstr "Closure blocked"
@@ -2929,6 +2948,9 @@ msgstr "Custom Fields"
 msgid "Custom SOW · we manage"
 msgstr "Custom SOW · we manage"
 
+msgid "Custom…"
+msgstr "Custom…"
+
 msgid "customer"
 msgstr "customer"
 
@@ -3126,9 +3148,6 @@ msgstr "Date Issued"
 
 msgid "Date Paid"
 msgstr "Date Paid"
-
-msgid "Date Range"
-msgstr "Date Range"
 
 msgid "Dates"
 msgstr "Dates"
@@ -3995,9 +4014,6 @@ msgstr "Edit Customer Status"
 msgid "Edit Customer Type"
 msgstr "Edit Customer Type"
 
-msgid "Edit date range"
-msgstr "Edit date range"
-
 msgid "Edit Department"
 msgstr "Edit Department"
 
@@ -4328,6 +4344,15 @@ msgstr "Enabled"
 msgid "End Date"
 msgstr "End Date"
 
+msgid "End of Last Fiscal Year"
+msgstr "End of Last Fiscal Year"
+
+msgid "End of Last Month"
+msgstr "End of Last Month"
+
+msgid "End of Last Quarter"
+msgstr "End of Last Quarter"
+
 msgid "End Time"
 msgstr "End Time"
 
@@ -4387,6 +4412,9 @@ msgstr "Entity Type"
 
 msgid "Entity type cannot be changed"
 msgstr "Entity type cannot be changed"
+
+msgid "Entry"
+msgstr "Entry"
 
 msgid "Entry Type"
 msgstr "Entry Type"
@@ -5084,6 +5112,9 @@ msgstr "Fiscal Year"
 msgid "Fiscal Year Settings"
 msgstr "Fiscal Year Settings"
 
+msgid "Fiscal Year to Date"
+msgstr "Fiscal Year to Date"
+
 msgid "Fiscal Years"
 msgstr "Fiscal Years"
 
@@ -5157,6 +5188,7 @@ msgstr "Frequency"
 msgid "Friday"
 msgstr "Friday"
 
+#. placeholder {0}: formatDate(startDate)
 #. placeholder {0}: routeDataFromRoute.supersession.successorEffectivityDate
 msgid "From {0}"
 msgstr "From {0}"
@@ -5689,6 +5721,9 @@ msgstr "If it's blocking or a date is at risk, it gets an owner and is tracked."
 
 msgid "If items already exist"
 msgstr "If items already exist"
+
+msgid "If ordered, no stockout projected in the next 48 weeks"
+msgstr "If ordered, no stockout projected in the next 48 weeks"
 
 msgid "If something is off track"
 msgstr "If something is off track"
@@ -6295,8 +6330,17 @@ msgstr "Last Calibration"
 msgid "Last Calibration Date"
 msgstr "Last Calibration Date"
 
+msgid "Last Fiscal Year"
+msgstr "Last Fiscal Year"
+
+msgid "Last Month"
+msgstr "Last Month"
+
 msgid "Last Name"
 msgstr "Last Name"
+
+msgid "Last Quarter"
+msgstr "Last Quarter"
 
 #. placeholder {0}: formatDateTime(lastSyncedAt)
 msgid "Last synced: {0}"
@@ -7105,6 +7149,9 @@ msgstr "Negative Adjustment"
 msgid "Net book value"
 msgstr "Net book value"
 
+msgid "Net Change"
+msgstr "Net Change"
+
 msgid "Never"
 msgstr "Never"
 
@@ -7663,6 +7710,9 @@ msgstr "No suppliers yet"
 msgid "No time entries for this week"
 msgstr "No time entries for this week"
 
+msgid "No transactions in this period"
+msgstr "No transactions in this period"
+
 msgid "No value needed"
 msgstr "No value needed"
 
@@ -7923,6 +7973,9 @@ msgstr "Open transactions"
 
 msgid "Opened"
 msgstr "Opened"
+
+msgid "Opening"
+msgstr "Opening"
 
 msgid "Opening balance of depreciation already booked before this asset was added to Carbon (use 0 for new acquisitions)."
 msgstr "Opening balance of depreciation already booked before this asset was added to Carbon (use 0 for new acquisitions)."
@@ -10070,9 +10123,6 @@ msgstr "Select customer types"
 msgid "Select customers"
 msgstr "Select customers"
 
-msgid "Select date range to filter net change and balance at date"
-msgstr "Select date range to filter net change and balance at date"
-
 msgid "Select Employee"
 msgstr "Select Employee"
 
@@ -11900,6 +11950,9 @@ msgstr "This download link is invalid or has been tampered with."
 msgid "This file is no longer available, or you don't have permission to download it."
 msgstr "This file is no longer available, or you don't have permission to download it."
 
+msgid "This Fiscal Year"
+msgstr "This Fiscal Year"
+
 msgid "This information will be used on document headers"
 msgstr "This information will be used on document headers"
 
@@ -11936,6 +11989,9 @@ msgstr "This lot is expired and can't be picked."
 msgid "This may take a moment. Hang tight."
 msgstr "This may take a moment. Hang tight."
 
+msgid "This Month"
+msgstr "This Month"
+
 msgid "This page of your Implementation Hub is being built. Start from the command center while we finish it."
 msgstr "This page of your Implementation Hub is being built. Start from the command center while we finish it."
 
@@ -11950,6 +12006,9 @@ msgstr "This part is obsolete (No Stock)."
 
 msgid "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 msgstr "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
+
+msgid "This Quarter"
+msgstr "This Quarter"
 
 msgid "This sales order has associated jobs. Choose what to do with them."
 msgstr "This sales order has associated jobs. Choose what to do with them."
@@ -11995,6 +12054,10 @@ msgstr "This will write off the remaining book value of the asset."
 
 msgid "Three-way match"
 msgstr "Three-way match"
+
+#. placeholder {0}: formatDate(endDate)
+msgid "Through {0}"
+msgstr "Through {0}"
 
 msgid "Thumbnail"
 msgstr "Thumbnail"
