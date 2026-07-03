@@ -12772,7 +12772,7 @@ msgid "View Contact"
 msgstr "İletişim Bilgilerini Görüntüle"
 
 msgid "View Contained Issues"
-msgstr ""
+msgstr "Kontrol Altına Alınan Sorunları Görüntüle"
 
 msgid "View Custom Fields"
 msgstr "Özel Alanları Görüntüle"
@@ -12814,13 +12814,13 @@ msgid "View Open"
 msgstr "Açık Gör"
 
 msgid "View Open Actions"
-msgstr ""
+msgstr "Açık İşlemleri Görüntüle"
 
 msgid "View Open Invoices"
 msgstr "Açık Faturaları Görüntüle"
 
 msgid "View Open Issues"
-msgstr ""
+msgstr "Açık Sorunları Görüntüle"
 
 msgid "View Open Orders"
 msgstr "Açık Siparişleri Görüntüle"
@@ -12835,7 +12835,7 @@ msgid "View Open RFQs"
 msgstr "Açık RFQ'ları Görüntüle"
 
 msgid "View Payables"
-msgstr ""
+msgstr "Ödenecek Hesapları Görüntüle"
 
 msgid "View Payment"
 msgstr "Ödemeyi Görüntüle"
@@ -12865,7 +12865,7 @@ msgid "View Receipt"
 msgstr "Makbuzu Görüntüle"
 
 msgid "View Receivables"
-msgstr ""
+msgstr "Alacakları Görüntüle"
 
 msgid "View Scheduled"
 msgstr "Planlanmışları Gör"

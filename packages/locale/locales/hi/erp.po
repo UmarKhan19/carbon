@@ -12772,7 +12772,7 @@ msgid "View Contact"
 msgstr "संपर्क देखें"
 
 msgid "View Contained Issues"
-msgstr ""
+msgstr "नियंत्रित समस्याओं को देखें"
 
 msgid "View Custom Fields"
 msgstr "कस्टम फील्ड्स देखें"
@@ -12814,13 +12814,13 @@ msgid "View Open"
 msgstr "खुला देखें"
 
 msgid "View Open Actions"
-msgstr ""
+msgstr "खुली कार्रवाइयां देखें"
 
 msgid "View Open Invoices"
 msgstr "खुली चालानें देखें"
 
 msgid "View Open Issues"
-msgstr ""
+msgstr "खुले मुद्दे देखें"
 
 msgid "View Open Orders"
 msgstr "खुले ऑर्डर देखें"
@@ -12835,7 +12835,7 @@ msgid "View Open RFQs"
 msgstr "खुले RFQ देखें"
 
 msgid "View Payables"
-msgstr ""
+msgstr "देय राशि देखें"
 
 msgid "View Payment"
 msgstr "भुगतान देखें"
@@ -12865,7 +12865,7 @@ msgid "View Receipt"
 msgstr "रसीद देखें"
 
 msgid "View Receivables"
-msgstr ""
+msgstr "प्राप्य देखें"
 
 msgid "View Scheduled"
 msgstr "निर्धारित देखें"

@@ -12772,7 +12772,7 @@ msgid "View Contact"
 msgstr "連絡先を表示"
 
 msgid "View Contained Issues"
-msgstr ""
+msgstr "含まれた問題を表示"
 
 msgid "View Custom Fields"
 msgstr "カスタムフィールドを表示"
@@ -12814,13 +12814,13 @@ msgid "View Open"
 msgstr "開く"
 
 msgid "View Open Actions"
-msgstr ""
+msgstr "オープンアクションを表示"
 
 msgid "View Open Invoices"
 msgstr "オープンな請求書を表示"
 
 msgid "View Open Issues"
-msgstr ""
+msgstr "オープンな問題を表示"
 
 msgid "View Open Orders"
 msgstr "オープンオーダーを表示"
@@ -12835,7 +12835,7 @@ msgid "View Open RFQs"
 msgstr "オープンなRFQを表示"
 
 msgid "View Payables"
-msgstr ""
+msgstr "支払い義務を表示"
 
 msgid "View Payment"
 msgstr "支払いを表示"
@@ -12865,7 +12865,7 @@ msgid "View Receipt"
 msgstr "領収書を表示"
 
 msgid "View Receivables"
-msgstr ""
+msgstr "売掛金を表示"
 
 msgid "View Scheduled"
 msgstr "スケジュール済みを表示"

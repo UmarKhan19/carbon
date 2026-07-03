@@ -12772,7 +12772,7 @@ msgid "View Contact"
 msgstr "Ver Contacto"
 
 msgid "View Contained Issues"
-msgstr ""
+msgstr "Ver problemas contenidos"
 
 msgid "View Custom Fields"
 msgstr "Ver Campos Personalizados"
@@ -12814,13 +12814,13 @@ msgid "View Open"
 msgstr "Ver Abiertos"
 
 msgid "View Open Actions"
-msgstr ""
+msgstr "Ver Acciones Abiertas"
 
 msgid "View Open Invoices"
 msgstr "Ver Facturas Abiertas"
 
 msgid "View Open Issues"
-msgstr ""
+msgstr "Ver problemas abiertos"
 
 msgid "View Open Orders"
 msgstr "Ver Pedidos Abiertos"
@@ -12835,7 +12835,7 @@ msgid "View Open RFQs"
 msgstr "Ver RFQs Abiertos"
 
 msgid "View Payables"
-msgstr ""
+msgstr "Ver Cuentas por Pagar"
 
 msgid "View Payment"
 msgstr "Ver Pago"
@@ -12865,7 +12865,7 @@ msgid "View Receipt"
 msgstr "Ver Recepción"
 
 msgid "View Receivables"
-msgstr ""
+msgstr "Ver Cuentas por Cobrar"
 
 msgid "View Scheduled"
 msgstr "Ver Programado"

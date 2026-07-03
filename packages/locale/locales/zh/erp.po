@@ -12772,7 +12772,7 @@ msgid "View Contact"
 msgstr "查看联系人"
 
 msgid "View Contained Issues"
-msgstr ""
+msgstr "查看已遏制的问题"
 
 msgid "View Custom Fields"
 msgstr "查看自定义字段"
@@ -12814,13 +12814,13 @@ msgid "View Open"
 msgstr "查看开放"
 
 msgid "View Open Actions"
-msgstr ""
+msgstr "查看开放操作"
 
 msgid "View Open Invoices"
 msgstr "查看未结发票"
 
 msgid "View Open Issues"
-msgstr ""
+msgstr "查看开放问题"
 
 msgid "View Open Orders"
 msgstr "查看未结订单"
@@ -12835,7 +12835,7 @@ msgid "View Open RFQs"
 msgstr "查看未结束的询价单"
 
 msgid "View Payables"
-msgstr ""
+msgstr "查看应付账款"
 
 msgid "View Payment"
 msgstr "查看付款"
@@ -12865,7 +12865,7 @@ msgid "View Receipt"
 msgstr "查看收据"
 
 msgid "View Receivables"
-msgstr ""
+msgstr "查看应收账款"
 
 msgid "View Scheduled"
 msgstr "查看已排期"
