@@ -33,6 +33,7 @@ import {
   ownerLeadLabel,
   planAnchorId,
   resolveTimeline,
+  setupAnchorId,
   spineForTier,
   stepTaskProgress,
   taskKey,
@@ -59,8 +60,9 @@ export function PlanView({
   onOpenSetupMap
 }: {
   // Jump to the Setup Map — Configure's checklist derives its status from
-  // there, so its tasks aren't manually tickable here.
-  onOpenSetupMap?: () => void;
+  // there, so its tasks aren't manually tickable here. An optional anchor id
+  // deep-links straight to the matching group's section.
+  onOpenSetupMap?: (anchorId?: string) => void;
 } = {}) {
   const { t, i18n } = useLingui();
   const map = useCheckMap();
@@ -149,7 +151,7 @@ function PhaseCard({
   progress: { done: number; total: number };
   onToggleTask: (itemKey: string, kind: StateKind, value: string) => void;
   onToggleGate: (key: string, next: GateValue) => void;
-  onOpenSetupMap?: () => void;
+  onOpenSetupMap?: (anchorId?: string) => void;
 }) {
   const { t, i18n } = useLingui();
   const { done, total } = progress;
@@ -305,7 +307,7 @@ function PhaseCard({
                     />
                     <button
                       type="button"
-                      onClick={() => onOpenSetupMap?.()}
+                      onClick={() => onOpenSetupMap?.(setupAnchorId(task.key))}
                       title={t`Open the Setup Map`}
                       className="flex items-start gap-3 min-w-0 flex-1 text-left"
                     >

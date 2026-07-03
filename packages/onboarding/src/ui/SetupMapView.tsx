@@ -9,8 +9,9 @@ import {
   LuTrash
 } from "react-icons/lu";
 import { COLLECTIONS, PAGE_COPY } from "../content";
+import { setupGroupKey } from "../content/board";
 import { SETUP_GROUPS } from "../content/setup";
-import { filterByModule, flagKey } from "../logic";
+import { filterByModule, flagKey, setupAnchorId } from "../logic";
 import type { CustomDataPayload, ImplementationRowData } from "../types";
 import { ProgressPill } from "./ProgressPill";
 import {
@@ -99,6 +100,8 @@ export function SetupMapView() {
         return (
           <Section
             key={group.n}
+            id={setupAnchorId(setupGroupKey(group.n))}
+            className="scroll-mt-6"
             number={group.n}
             title={i18n._(group.title)}
             subtitle={i18n._(group.desc)}

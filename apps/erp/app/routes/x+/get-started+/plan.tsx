@@ -24,10 +24,15 @@ export default function GetStartedPlanRoute() {
   }, [hash]);
 
   // In-hub navigation stays in this tab — only external resources (Academy,
-  // docs) and Setup Map deep links into ERP screens open new tabs.
+  // docs) and Setup Map deep links into ERP screens open new tabs. An anchor id
+  // deep-links to the matching Setup Map group (see setup route's scroll effect).
   return (
     <PlanView
-      onOpenSetupMap={() => navigate(path.to.getStartedPage("setup"))}
+      onOpenSetupMap={(anchorId) =>
+        navigate(
+          `${path.to.getStartedPage("setup")}${anchorId ? `#${anchorId}` : ""}`
+        )
+      }
     />
   );
 }
