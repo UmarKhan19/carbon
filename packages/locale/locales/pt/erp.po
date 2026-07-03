@@ -265,6 +265,12 @@ msgstr "Uma cotação é um conjunto de preços para peças e quantidades espec�
 msgid "A quote line contains pricing and lead times for a particular part"
 msgstr "Uma linha de cotação contém preços e prazos de entrega para uma peça específica"
 
+msgid "A reusable, versioned set of work instructions attached to a process, giving an operation its ordered steps to record and check plus the parameters it runs at."
+msgstr ""
+
+msgid "A routing step on a released job, the job's own copy of an operation, carrying a status the floor drives from Todo through Done."
+msgstr ""
+
 msgid "A sales invoice (you bill a customer) or purchase invoice (a supplier bills you); payment is a field, not a separate record."
 msgstr "Uma fatura de venda (você cobra a um cliente) ou fatura de compra (um fornecedor o cobra); o pagamento é um campo, não um registro separado."
 
@@ -300,6 +306,9 @@ msgstr "A resposta com preço de um fornecedor a um RFQ de compra — uma por fo
 
 msgid "A taxable surcharge (handling, setup, fuel) added to the line; rolls into the tax base."
 msgstr "Uma sobretaxa tributável (manuseio, configuração, combustível) adicionada à linha e incluída na base tributária."
+
+msgid "A timed record of Setup, Labor, or Machine work logged against a job operation, whose duration rolls up into the operation's actual cost."
+msgstr ""
 
 msgid "A tool is a physical item used to make a part that can be used across multiple jobs"
 msgstr "Uma ferramenta é um item físico usado para fazer uma peça que pode ser usada em vários trabalhos"
@@ -6205,6 +6214,9 @@ msgstr "Localização do Trabalho"
 msgid "Job Materials"
 msgstr "Materiais de Trabalho"
 
+msgid "Job operation"
+msgstr ""
+
 msgid "Job Operation"
 msgstr "Operação de Trabalho"
 
@@ -8710,6 +8722,9 @@ msgstr "Variação de Produção"
 msgid "Production"
 msgstr "Produção"
 
+msgid "Production event"
+msgstr ""
+
 msgid "Production Event"
 msgstr "Evento de Produção"
 
@@ -10683,6 +10698,9 @@ msgstr "Padrão"
 msgid "Standard cloud Carbon fits how your company runs"
 msgstr "O Carbon em nuvem padrão se adequa ao modo como sua empresa funciona"
 
+msgid "Standard factor"
+msgstr ""
+
 msgid "Standard Lead Time"
 msgstr "Tempo de Entrega Padrão"
 
@@ -11829,6 +11847,9 @@ msgstr "O número típico de dias entre enviar trabalho para este fornecedor par
 
 msgid "The unique identifier on this physical unit; one row per serial, quantity is always 1."
 msgstr "O identificador único nesta unidade física; uma linha por número de série, a quantidade é sempre 1."
+
+msgid "The unit a routing time is expressed in, such as Hours/Piece or Total Hours, telling Carbon whether the time scales with quantity or is fixed per run."
+msgstr ""
 
 msgid "The unit price of the item at the time of the purchase"
 msgstr "O preço unitário do item no momento da compra"

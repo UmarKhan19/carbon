@@ -265,6 +265,12 @@ msgstr "A quote is a set of prices for specific parts and quantities."
 msgid "A quote line contains pricing and lead times for a particular part"
 msgstr "A quote line contains pricing and lead times for a particular part"
 
+msgid "A reusable, versioned set of work instructions attached to a process, giving an operation its ordered steps to record and check plus the parameters it runs at."
+msgstr "A reusable, versioned set of work instructions attached to a process, giving an operation its ordered steps to record and check plus the parameters it runs at."
+
+msgid "A routing step on a released job, the job's own copy of an operation, carrying a status the floor drives from Todo through Done."
+msgstr "A routing step on a released job, the job's own copy of an operation, carrying a status the floor drives from Todo through Done."
+
 msgid "A sales invoice (you bill a customer) or purchase invoice (a supplier bills you); payment is a field, not a separate record."
 msgstr "A sales invoice (you bill a customer) or purchase invoice (a supplier bills you); payment is a field, not a separate record."
 
@@ -300,6 +306,9 @@ msgstr "A supplier's priced response to a purchasing RFQ — one per supplier; D
 
 msgid "A taxable surcharge (handling, setup, fuel) added to the line; rolls into the tax base."
 msgstr "A taxable surcharge (handling, setup, fuel) added to the line; rolls into the tax base."
+
+msgid "A timed record of Setup, Labor, or Machine work logged against a job operation, whose duration rolls up into the operation's actual cost."
+msgstr "A timed record of Setup, Labor, or Machine work logged against a job operation, whose duration rolls up into the operation's actual cost."
 
 msgid "A tool is a physical item used to make a part that can be used across multiple jobs"
 msgstr "A tool is a physical item used to make a part that can be used across multiple jobs"
@@ -6205,6 +6214,9 @@ msgstr "Job Location"
 msgid "Job Materials"
 msgstr "Job Materials"
 
+msgid "Job operation"
+msgstr "Job operation"
+
 msgid "Job Operation"
 msgstr "Job Operation"
 
@@ -8710,6 +8722,9 @@ msgstr "production"
 msgid "Production"
 msgstr "Production"
 
+msgid "Production event"
+msgstr "Production event"
+
 msgid "Production Event"
 msgstr "Production Event"
 
@@ -10683,6 +10698,9 @@ msgstr "Standard"
 msgid "Standard cloud Carbon fits how your company runs"
 msgstr "Standard cloud Carbon fits how your company runs"
 
+msgid "Standard factor"
+msgstr "Standard factor"
+
 msgid "Standard Lead Time"
 msgstr "Standard Lead Time"
 
@@ -11829,6 +11847,9 @@ msgstr "The typical number of days between sending work to this supplier for thi
 
 msgid "The unique identifier on this physical unit; one row per serial, quantity is always 1."
 msgstr "The unique identifier on this physical unit; one row per serial, quantity is always 1."
+
+msgid "The unit a routing time is expressed in, such as Hours/Piece or Total Hours, telling Carbon whether the time scales with quantity or is fixed per run."
+msgstr "The unit a routing time is expressed in, such as Hours/Piece or Total Hours, telling Carbon whether the time scales with quantity or is fixed per run."
 
 msgid "The unit price of the item at the time of the purchase"
 msgstr "The unit price of the item at the time of the purchase"

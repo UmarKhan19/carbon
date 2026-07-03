@@ -265,6 +265,12 @@ msgstr "見積もりは、特定の部品と数量の価格セットです。"
 msgid "A quote line contains pricing and lead times for a particular part"
 msgstr "見積行には、特定の部品の価格とリードタイムが含まれています"
 
+msgid "A reusable, versioned set of work instructions attached to a process, giving an operation its ordered steps to record and check plus the parameters it runs at."
+msgstr ""
+
+msgid "A routing step on a released job, the job's own copy of an operation, carrying a status the floor drives from Todo through Done."
+msgstr ""
+
 msgid "A sales invoice (you bill a customer) or purchase invoice (a supplier bills you); payment is a field, not a separate record."
 msgstr "販売請求書（顧客に請求）または購入請求書（仕入先が請求）。支払いはフィールド、別個のレコードではありません。"
 
@@ -300,6 +306,9 @@ msgstr "購買RFQに対するサプライヤーの価格応答—サプライヤ
 
 msgid "A taxable surcharge (handling, setup, fuel) added to the line; rolls into the tax base."
 msgstr "課税対象の追加料金（取扱、セットアップ、燃料）を行に追加し、課税ベースに含めます。"
+
+msgid "A timed record of Setup, Labor, or Machine work logged against a job operation, whose duration rolls up into the operation's actual cost."
+msgstr ""
 
 msgid "A tool is a physical item used to make a part that can be used across multiple jobs"
 msgstr "ツールは、複数のジョブで使用できるパーツを作成するために使用される物理的なアイテムです"
@@ -6205,6 +6214,9 @@ msgstr "ジョブロケーション"
 msgid "Job Materials"
 msgstr "ジョブ材料"
 
+msgid "Job operation"
+msgstr ""
+
 msgid "Job Operation"
 msgstr "作業操作"
 
@@ -8710,6 +8722,9 @@ msgstr "生産差異"
 msgid "Production"
 msgstr "生産"
 
+msgid "Production event"
+msgstr ""
+
 msgid "Production Event"
 msgstr "生産イベント"
 
@@ -10683,6 +10698,9 @@ msgstr "標準"
 msgid "Standard cloud Carbon fits how your company runs"
 msgstr "標準クラウドCarbonはあなたの会社の運営方法に適合します"
 
+msgid "Standard factor"
+msgstr ""
+
 msgid "Standard Lead Time"
 msgstr "標準リードタイム"
 
@@ -11829,6 +11847,9 @@ msgstr "このプロセスのためにこのサプライヤーに仕事を送っ
 
 msgid "The unique identifier on this physical unit; one row per serial, quantity is always 1."
 msgstr "この物理ユニットの一意の識別子。シリアル番号ごとに1行、数量は常に1です。"
+
+msgid "The unit a routing time is expressed in, such as Hours/Piece or Total Hours, telling Carbon whether the time scales with quantity or is fixed per run."
+msgstr ""
 
 msgid "The unit price of the item at the time of the purchase"
 msgstr "購入時のアイテムの単価"

@@ -265,6 +265,12 @@ msgstr "Teklif, belirli parçalar ve miktarlar için bir fiyat kümesidir."
 msgid "A quote line contains pricing and lead times for a particular part"
 msgstr "Bir fiyat teklifi satırı, belirli bir parça için fiyatlandırma ve teslim süreleri içerir"
 
+msgid "A reusable, versioned set of work instructions attached to a process, giving an operation its ordered steps to record and check plus the parameters it runs at."
+msgstr ""
+
+msgid "A routing step on a released job, the job's own copy of an operation, carrying a status the floor drives from Todo through Done."
+msgstr ""
+
 msgid "A sales invoice (you bill a customer) or purchase invoice (a supplier bills you); payment is a field, not a separate record."
 msgstr "Bir satış faturası (bir müşteriye fatura çıkarırsınız) veya satın alma faturası (bir tedarikçi size fatura çıkarır); ödeme bir alandır, ayrı bir kayıt değil."
 
@@ -300,6 +306,9 @@ msgstr "Bir tedarikçinin satın alma RFQ'ya verilen fiyatlı yanıtı — tedar
 
 msgid "A taxable surcharge (handling, setup, fuel) added to the line; rolls into the tax base."
 msgstr "Vergilendirilecek bir ek ücret (işçilik, kurulum, yakıt) satıra eklenir ve vergi matrahına dahil edilir."
+
+msgid "A timed record of Setup, Labor, or Machine work logged against a job operation, whose duration rolls up into the operation's actual cost."
+msgstr ""
 
 msgid "A tool is a physical item used to make a part that can be used across multiple jobs"
 msgstr "Bir takım, birden fazla işte kullanılabilecek bir parça yapmak için kullanılan fiziksel bir öğedir"
@@ -6205,6 +6214,9 @@ msgstr "İş Yeri Konumu"
 msgid "Job Materials"
 msgstr "İş Malzemeleri"
 
+msgid "Job operation"
+msgstr ""
+
 msgid "Job Operation"
 msgstr "İşlem"
 
@@ -8710,6 +8722,9 @@ msgstr "Üretim Sapması"
 msgid "Production"
 msgstr "Üretim"
 
+msgid "Production event"
+msgstr ""
+
 msgid "Production Event"
 msgstr "Üretim Olayı"
 
@@ -10683,6 +10698,9 @@ msgstr "Standart"
 msgid "Standard cloud Carbon fits how your company runs"
 msgstr "Standart bulut Carbon, şirketinizin nasıl çalıştığına uygun"
 
+msgid "Standard factor"
+msgstr ""
+
 msgid "Standard Lead Time"
 msgstr "Standart Teslim Süresi"
 
@@ -11829,6 +11847,9 @@ msgstr "Bu işlem için bu tedarikçiye iş göndermekle geri almak arasında ge
 
 msgid "The unique identifier on this physical unit; one row per serial, quantity is always 1."
 msgstr "Bu fiziksel birim üzerindeki benzersiz tanımlayıcı; seri numarası başına bir satır, miktar her zaman 1'dir."
+
+msgid "The unit a routing time is expressed in, such as Hours/Piece or Total Hours, telling Carbon whether the time scales with quantity or is fixed per run."
+msgstr ""
 
 msgid "The unit price of the item at the time of the purchase"
 msgstr "Satın alma zamanındaki birim fiyat"
