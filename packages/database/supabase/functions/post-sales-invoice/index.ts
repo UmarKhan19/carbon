@@ -281,22 +281,19 @@ serve(async (req: Request) => {
           fixedAssetClassId: string | null;
         }[] = [];
 
-        // For IC transactions, use IC Receivables (1130) instead of regular AR
-        let receivablesAccountId: string | undefined;
-        if (isIntercompany && companyGroupId) {
-          // TODO: consider storing the IC receivables account ID in a config
-          // rather than looking it up by number each time
-          const icAccount = await client
-            .from("account")
-            .select("id")
-            .eq("number", "1130")
-            .eq("companyGroupId", companyGroupId)
-            .single();
-          if (icAccount.error) throw new Error("Failed to fetch IC receivables account 1130");
-          receivablesAccountId = icAccount.data.id;
-        } else {
-          receivablesAccountId = accountDefaults?.data?.receivablesAccount;
-        }
+        // For IC transactions, book to Inter-Company Receivables instead of
+        // regular AR. Resolve it from accountDefault (stable id), not by account
+        // number — numbers are user-editable. Fall back to regular receivables
+        // if the IC default isn't configured.
+        const icReceivablesAccount = (
+          accountDefaults?.data as unknown as {
+            intercompanyReceivablesAccount?: string | null;
+          }
+        )?.intercompanyReceivablesAccount;
+        const receivablesAccountId: string | undefined =
+          isIntercompany && icReceivablesAccount
+            ? icReceivablesAccount
+            : accountDefaults?.data?.receivablesAccount;
 
         // Invoice exchange rate (defaults to 1 for base-currency invoices).
         // journalLine.amount is denominated in base currency, so all monetary
