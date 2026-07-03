@@ -6730,11 +6730,17 @@ msgstr "Zeilen jetzt zuordnen"
 msgid "Map your current process, systems, and data"
 msgstr "Ordnen Sie Ihren aktuellen Prozess, Ihre Systeme und Daten"
 
+msgid "Mark as Paid"
+msgstr ""
+
 msgid "Mark as Planned"
 msgstr "Als geplant markieren"
 
 msgid "Mark as read"
 msgstr "Als gelesen markieren"
+
+msgid "Mark as Unpaid"
+msgstr ""
 
 msgid "Mark checkpoint passed"
 msgstr "Checkpoint als bestanden markieren"

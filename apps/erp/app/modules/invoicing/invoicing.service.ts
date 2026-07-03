@@ -334,15 +334,14 @@ export async function updatePurchaseInvoiceStatus(
     status: (typeof purchaseInvoiceStatusType)[number];
     assignee: null | undefined;
     updatedBy: string;
+    datePaid?: string | null;
   }
 ) {
-  // Paid / Partially Paid / Overdue are derived in the purchaseInvoices view
-  // from invoiceSettlement. Rejecting them here ensures status integrity.
-  if (
-    update.status === "Paid" ||
-    update.status === "Partially Paid" ||
-    update.status === "Overdue"
-  ) {
+  // Partially Paid / Overdue are derived in the purchaseInvoices view from
+  // invoiceSettlement. Base-status 'Paid' is the manual/legacy/Xero "settled"
+  // signal honored by the views and aging/tie-out RPCs; the route enforces
+  // that manual 'Paid' is only allowed when accounting is disabled.
+  if (update.status === "Partially Paid" || update.status === "Overdue") {
     return {
       data: null,
       error: {
@@ -380,15 +379,14 @@ export async function updateSalesInvoiceStatus(
     status: (typeof salesInvoiceStatusType)[number];
     assignee: null | undefined;
     updatedBy: string;
+    datePaid?: string | null;
   }
 ) {
-  // Paid / Partially Paid / Overdue are derived in the salesInvoices view
-  // from invoiceSettlement. Rejecting them here ensures status integrity.
-  if (
-    update.status === "Paid" ||
-    update.status === "Partially Paid" ||
-    update.status === "Overdue"
-  ) {
+  // Partially Paid / Overdue are derived in the salesInvoices view from
+  // invoiceSettlement. Base-status 'Paid' is the manual/legacy/Xero "settled"
+  // signal honored by the views and aging/tie-out RPCs; the route enforces
+  // that manual 'Paid' is only allowed when accounting is disabled.
+  if (update.status === "Partially Paid" || update.status === "Overdue") {
     return {
       data: null,
       error: {

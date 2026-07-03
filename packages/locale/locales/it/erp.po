@@ -6730,11 +6730,17 @@ msgstr "Mappa Righe Ora"
 msgid "Map your current process, systems, and data"
 msgstr "Mappa il tuo processo attuale, i sistemi e i dati"
 
+msgid "Mark as Paid"
+msgstr ""
+
 msgid "Mark as Planned"
 msgstr "Contrassegna come Pianificato"
 
 msgid "Mark as read"
 msgstr "Segna come letto"
+
+msgid "Mark as Unpaid"
+msgstr ""
 
 msgid "Mark checkpoint passed"
 msgstr "Contrassegna checkpoint come superato"

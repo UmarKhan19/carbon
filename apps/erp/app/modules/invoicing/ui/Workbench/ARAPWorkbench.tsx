@@ -493,7 +493,7 @@ export function ARAPWorkbench({
         value={agingMethod}
         onValueChange={(value) => setParams({ agingMethod: value })}
       >
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger size="sm" className="w-[180px]">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -509,6 +509,7 @@ export function ARAPWorkbench({
         <Trans>As of:</Trans>
       </span>
       <DatePicker
+        size="sm"
         value={parseDate(asOfDate)}
         onChange={(value) =>
           setParams({ asOfDate: value?.toString() ?? asOfDate })
