@@ -1,5 +1,7 @@
 # Period Closing — Implementation Plan
 
+> ⚠️ **2026-07-03 delta (readiness roadmap):** the spec gained a posted-record immutability fold-in (`2026-07-03-public-company-readiness.md` MW-1 → spec §Enforcement item 4): extend the drafted migration `20260702044133` with (a) a second SECURITY DEFINER trigger — Posted journals allow only `Posted → Reversed`; journalLines frozen once parent is Posted, all period states — and (b) `journalLine.createdBy`. Add matching acceptance tests. See `.ai/plans/2026-07-03-public-company-readiness-roadmap.md`.
+
 ## Overview
 
 - **Design Spec:** `.ai/specs/2026-07-02-period-closing.md` (status: in-progress, all open questions resolved)

@@ -1,5 +1,7 @@
 # Financial Reporting — Implementation Plan
 
+> ⚠️ **2026-07-03 delta (readiness roadmap):** the spec gained Posted-only balances (`2026-07-03-public-company-readiness.md` SD-1 → spec §11): add `p_include_drafts BOOLEAN DEFAULT FALSE` to `accountTreeBalancesByCompany` and the redefined `trialBalance` RPC, an "Include drafts" toggle on report filters, and drawer-follows-parent behavior in the drill-down. See `.ai/plans/2026-07-03-public-company-readiness-roadmap.md`.
+
 ## Overview
 
 - **Design Spec:** `.ai/specs/2026-07-02-financial-reporting.md` (status: in-progress, all open questions resolved)

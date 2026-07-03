@@ -1,5 +1,7 @@
 # Bank Reconciliation — Phase 1 (Foundations) Implementation Plan
 
+> ⚠️ **2026-07-03 delta (readiness roadmap):** `journalLine.sourceAmount`/`sourceCurrencyCode` population is now **mandatory on every posting path** (base-currency documents write base amount + base code), not best-effort — see the spec's FX section and `.ai/plans/2026-07-03-public-company-readiness-roadmap.md`. The posting-path tasks in this plan must cover all `post-*` edge functions and app-side posters.
+
 ## Overview
 
 - **Design Spec:** `.ai/specs/2026-07-02-bank-reconciliation.md` (status: in-progress; all open questions resolved)
