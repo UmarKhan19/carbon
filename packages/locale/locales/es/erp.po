@@ -544,6 +544,9 @@ msgstr "Agregar Acciones"
 msgid "Add affected item"
 msgstr ""
 
+msgid "Add another approver"
+msgstr ""
+
 msgid "Add any notes about your decision..."
 msgstr "Añade cualquier nota sobre tu decisión..."
 
@@ -7625,6 +7628,9 @@ msgstr ""
 msgid "No applications. Payment will be on-account."
 msgstr "Sin aplicaciones. El pago será a cuenta."
 
+msgid "No approvers yet. Add approvers in the Properties panel to route this change order for review."
+msgstr ""
+
 #. placeholder {0}: auditConfig.retentionDays
 msgid "No archived logs yet. Logs older than {0} days will be automatically archived and available for download here."
 msgstr "No hay registros archivados aún. Los registros más antiguos de {0} días se archivarán automáticamente y estarán disponibles para descargar aquí."
@@ -8976,6 +8982,10 @@ msgstr "Fecha Prometida"
 msgid "Properties"
 msgstr "Propiedades"
 
+#. placeholder {0}: changeOrder.changeOrderId
+msgid "Proposed under change order {0}. Its method becomes active when the change order is released."
+msgstr ""
+
 msgid "Protect the go-live date"
 msgstr "Proteger la fecha de puesta en marcha"
 
@@ -10320,6 +10330,9 @@ msgstr "Selecciona un artículo para configurar"
 
 msgid "Select an option"
 msgstr "Selecciona una opción"
+
+msgid "Select approvers"
+msgstr ""
 
 msgid "Select Contact"
 msgstr "Seleccionar Contacto"

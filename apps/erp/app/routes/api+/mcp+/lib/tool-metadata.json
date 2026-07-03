@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-03T13:49:14.919Z",
-  "totalTools": 1289,
+  "generated": "2026-07-03T18:18:27.885Z",
+  "totalTools": 1290,
   "modules": 15,
   "tools": [
     {
@@ -9494,6 +9494,39 @@
         },
         "required": [
           "id"
+        ]
+      }
+    },
+    {
+      "name": "items_updateChangeOrderReviewers",
+      "module": "items",
+      "classification": "WRITE",
+      "description": "update change order reviewers",
+      "paramCount": 2,
+      "serviceParams": [
+        "client",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId",
+        "updatedBy"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "changeOrderId": {
+            "type": "string"
+          },
+          "approvers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "changeOrderId",
+          "approvers"
         ]
       }
     },

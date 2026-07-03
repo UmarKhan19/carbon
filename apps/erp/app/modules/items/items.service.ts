@@ -294,6 +294,145 @@ export async function getChangeOrderReviewers(
     .order("id", { ascending: true });
 }
 
+// Resolve the approver picker output — the verbose-prefixed "group_…"/"user_…"
+// ids it emits — into the deduped set of user ids that should become reviewers,
+// expanding each picked group via users_for_groups. `pickedUserIds`/`groupIds`
+// are returned unresolved so callers can still validate them against the company.
+// A group-expansion RPC failure is surfaced via `error` but leaves the
+// explicitly-picked users intact.
+async function resolveApproverUserIds(
+  client: SupabaseClient<Database>,
+  approvers: string[]
+): Promise<{
+  pickedUserIds: string[];
+  groupIds: string[];
+  resolvedUserIds: string[];
+  error: string | null;
+}> {
+  const groupIds = approvers
+    .filter((a) => a.startsWith("group_"))
+    .map((a) => a.slice(6));
+  const pickedUserIds = approvers
+    .filter((a) => a.startsWith("user_"))
+    .map((a) => a.slice(5));
+
+  const fromGroups =
+    groupIds.length > 0
+      ? await client.rpc("users_for_groups", { groups: groupIds })
+      : { data: [] as string[], error: null };
+
+  const groupUserIds = Array.isArray(fromGroups.data)
+    ? (fromGroups.data as string[])
+    : [];
+  const resolvedUserIds = [
+    ...new Set([...pickedUserIds, ...groupUserIds])
+  ].filter(Boolean);
+
+  return {
+    pickedUserIds,
+    groupIds,
+    resolvedUserIds,
+    error: fromGroups.error ? "Failed to resolve approver groups" : null
+  };
+}
+
+// Build Pending changeOrderReviewer insert rows for a set of user ids, titled
+// with each user's full name (falling back to "Reviewer"). sortOrder continues
+// from `startSort` so callers can append to any existing reviewers.
+async function buildReviewerRows(
+  client: SupabaseClient<Database>,
+  userIds: string[],
+  args: {
+    changeOrderId: string;
+    companyId: string;
+    createdBy: string;
+    startSort: number;
+  }
+) {
+  const users = await client
+    .from("user")
+    .select("id, fullName")
+    .in("id", userIds);
+  const fullNameById = new Map(
+    (users.data ?? []).map((u) => [u.id, u.fullName])
+  );
+  return userIds.map((assignee, index) => ({
+    changeOrderId: args.changeOrderId,
+    title: fullNameById.get(assignee) ?? "Reviewer",
+    assignee,
+    status: "Pending" as const,
+    sortOrder: args.startSort + index + 1,
+    companyId: args.companyId,
+    createdBy: args.createdBy
+  }));
+}
+
+// Sync a change order's reviewers to a picked approver set. Existing reviewers
+// who are still picked keep their row (and their decision); newly-picked users
+// get a Pending row; dropped users are removed. Callers re-evaluate approval
+// afterwards for In Review COs.
+export async function updateChangeOrderReviewers(
+  client: SupabaseClient<Database>,
+  args: {
+    changeOrderId: string;
+    companyId: string;
+    approvers: string[];
+    userId: string;
+  }
+): Promise<{ error: { message: string } | null }> {
+  const { changeOrderId, companyId, approvers, userId } = args;
+
+  const { resolvedUserIds, error: resolveError } = await resolveApproverUserIds(
+    client,
+    approvers
+  );
+  if (resolveError) return { error: { message: resolveError } };
+  const resolvedSet = new Set(resolvedUserIds);
+
+  const existing = await client
+    .from("changeOrderReviewer")
+    .select("id, assignee, sortOrder")
+    .eq("changeOrderId", changeOrderId)
+    .eq("companyId", companyId);
+  if (existing.error) return { error: existing.error };
+
+  const existingRows = existing.data ?? [];
+  const existingAssignees = new Set(
+    existingRows.map((r) => r.assignee).filter((a): a is string => Boolean(a))
+  );
+
+  const toRemove = existingRows
+    .filter((r) => !r.assignee || !resolvedSet.has(r.assignee))
+    .map((r) => r.id);
+  const toAdd = resolvedUserIds.filter((id) => !existingAssignees.has(id));
+
+  if (toRemove.length > 0) {
+    const del = await client
+      .from("changeOrderReviewer")
+      .delete()
+      .in("id", toRemove)
+      .eq("companyId", companyId);
+    if (del.error) return { error: del.error };
+  }
+
+  if (toAdd.length > 0) {
+    const startSort = existingRows.reduce(
+      (max, r) => Math.max(max, r.sortOrder ?? 0),
+      0
+    );
+    const rows = await buildReviewerRows(client, toAdd, {
+      changeOrderId,
+      companyId,
+      createdBy: userId,
+      startSort
+    });
+    const ins = await client.from("changeOrderReviewer").insert(rows);
+    if (ins.error) return { error: ins.error };
+  }
+
+  return { error: null };
+}
+
 export async function getChangeOrderTasks(
   client: SupabaseClient<Database>,
   id: string,
@@ -595,14 +734,16 @@ export async function insertChangeOrder(
 
   const { items, approvers, ...data } = input;
 
-  // Split the approver picker output into group ids and individual user ids.
-  const approverPicks = approvers ?? [];
-  const approverGroupIds = approverPicks
-    .filter((a) => a.startsWith("group_"))
-    .map((a) => a.slice(6));
-  const approverUserIds = approverPicks
-    .filter((a) => a.startsWith("user_"))
-    .map((a) => a.slice(5));
+  // Resolve the approver picker output up front: group ids and picked user ids
+  // (for the company-scoped validation below) plus the deduped set of user ids to
+  // seed as reviewers. Seeding runs only after validation passes, so an early
+  // group expansion of an invalid group can never leak into reviewer rows.
+  const {
+    pickedUserIds: approverUserIds,
+    groupIds: approverGroupIds,
+    resolvedUserIds,
+    error: approverResolveError
+  } = await resolveApproverUserIds(client, approvers ?? []);
 
   // Runs under the service role (RLS bypassed), so validate every supplied
   // item / group / user resolves within this company before trusting it.
@@ -722,53 +863,24 @@ export async function insertChangeOrder(
     }
   }
 
-  // Single-writer reviewer seeding (§4): resolve the picked approvers to a
-  // deduped set of user ids — expand groups via users_for_groups, merge with the
-  // picked individuals — and seed one Pending changeOrderReviewer per user. This
-  // is the ONLY reviewer seeder (no edge function), so there is no double-seed
-  // race.
-  const fromGroups =
-    approverGroupIds.length > 0
-      ? await client.rpc("users_for_groups", { groups: approverGroupIds })
-      : { data: [] as string[], error: null };
-
-  if (fromGroups.error) {
-    warnings.push("Failed to resolve approver groups");
+  // Single-writer reviewer seeding (§4): seed one Pending changeOrderReviewer per
+  // resolved approver user. This is the ONLY reviewer seeder (no edge function),
+  // so there is no double-seed race.
+  if (approverResolveError) {
+    warnings.push(approverResolveError);
   }
 
-  const groupUserIds = Array.isArray(fromGroups.data)
-    ? (fromGroups.data as string[])
-    : [];
-
-  const resolvedUserIds = [
-    ...new Set([...approverUserIds, ...groupUserIds])
-  ].filter(Boolean);
-
   if (resolvedUserIds.length > 0) {
-    const users = await client
-      .from("user")
-      .select("id, fullName")
-      .in("id", resolvedUserIds);
+    const rows = await buildReviewerRows(client, resolvedUserIds, {
+      changeOrderId: coId,
+      companyId: input.companyId,
+      createdBy: input.createdBy,
+      startSort: 0
+    });
 
-    if (users.error) {
-      warnings.push("Failed to resolve approver names");
-    }
-
-    const fullNameById = new Map(
-      (users.data ?? []).map((u) => [u.id, u.fullName])
-    );
-
-    const reviewerInsert = await client.from("changeOrderReviewer").insert(
-      resolvedUserIds.map((assignee, index) => ({
-        changeOrderId: coId,
-        title: fullNameById.get(assignee) ?? "Reviewer",
-        assignee,
-        status: "Pending" as const,
-        sortOrder: index + 1,
-        companyId: input.companyId,
-        createdBy: input.createdBy
-      }))
-    );
+    const reviewerInsert = await client
+      .from("changeOrderReviewer")
+      .insert(rows);
 
     if (reviewerInsert.error) {
       warnings.push("Failed to seed reviewers");
@@ -1510,7 +1622,11 @@ export async function attachAffectedItem(
 // race the same item.
 const OPEN_CHANGE_ORDER_STATUSES = ["Draft", "In Review", "Approved"] as const;
 
-type OpenChangeOrder = { id: string; changeOrderId: string; status: string };
+export type OpenChangeOrder = {
+  id: string;
+  changeOrderId: string;
+  status: string;
+};
 type OpenChangeOrderResult = {
   data: OpenChangeOrder | null;
   error: { message: string } | null;

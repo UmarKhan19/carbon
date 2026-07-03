@@ -129,7 +129,11 @@ export async function action({ request }: ActionFunctionArgs) {
           userId
         });
       } catch (err) {
-        console.error(err);
+        console.error(
+          "Failed to cascade item tracking type",
+          { field, itemIds: items },
+          err
+        );
         return {
           error: { message: "Failed to cascade tracking flags" },
           data: null
@@ -167,7 +171,11 @@ export async function action({ request }: ActionFunctionArgs) {
           cascade
         });
       } catch (err) {
-        console.error(err);
+        console.error(
+          "Failed to update item method/sourcing",
+          { field, value, itemIds: items },
+          err
+        );
         return { error: { message: "Failed to update item" }, data: null };
       }
       return { data: null, error: null };

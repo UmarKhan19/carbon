@@ -435,23 +435,30 @@ const Item = ({
             </ModalHeader>
             <ModalBody>
               <div className="grid grid-cols-2 gap-4">
-                {Object.values(methodItemType).map((itemType) => (
-                  <Button
-                    key={itemType}
-                    leftIcon={<MethodItemTypeIcon type={itemType} />}
-                    className="flex w-full"
-                    variant={type === itemType ? "primary" : "secondary"}
-                    size="lg"
-                    onClick={() => {
-                      onTypeChange?.(itemType);
-                      setTimeout(() => {
-                        submitRef.current?.focus();
-                      }, 0);
-                    }}
-                  >
-                    {translateItemType(itemType)}
-                  </Button>
-                ))}
+                {Object.values(methodItemType)
+                  .filter(
+                    (itemType) =>
+                      validItemTypes === undefined ||
+                      (Array.isArray(validItemTypes) &&
+                        validItemTypes.includes(itemType))
+                  )
+                  .map((itemType) => (
+                    <Button
+                      key={itemType}
+                      leftIcon={<MethodItemTypeIcon type={itemType} />}
+                      className="flex w-full"
+                      variant={type === itemType ? "primary" : "secondary"}
+                      size="lg"
+                      onClick={() => {
+                        onTypeChange?.(itemType);
+                        setTimeout(() => {
+                          submitRef.current?.focus();
+                        }, 0);
+                      }}
+                    >
+                      {translateItemType(itemType)}
+                    </Button>
+                  ))}
               </div>
             </ModalBody>
             <ModalFooter>

@@ -544,6 +544,9 @@ msgstr "कार्य जोड़ें"
 msgid "Add affected item"
 msgstr ""
 
+msgid "Add another approver"
+msgstr ""
+
 msgid "Add any notes about your decision..."
 msgstr "अपने निर्णय के बारे में कोई भी नोट्स जोड़ें..."
 
@@ -7625,6 +7628,9 @@ msgstr ""
 msgid "No applications. Payment will be on-account."
 msgstr "कोई आवेदन नहीं। भुगतान खाते पर होगा।"
 
+msgid "No approvers yet. Add approvers in the Properties panel to route this change order for review."
+msgstr ""
+
 #. placeholder {0}: auditConfig.retentionDays
 msgid "No archived logs yet. Logs older than {0} days will be automatically archived and available for download here."
 msgstr "अभी तक कोई संग्रहीत लॉग नहीं है। {0} दिन से पुराने लॉग स्वचालित रूप से संग्रहीत किए जाएंगे और यहां डाउनलोड के लिए उपलब्ध होंगे।"
@@ -8976,6 +8982,10 @@ msgstr "वादा की गई तारीख"
 msgid "Properties"
 msgstr "गुण"
 
+#. placeholder {0}: changeOrder.changeOrderId
+msgid "Proposed under change order {0}. Its method becomes active when the change order is released."
+msgstr ""
+
 msgid "Protect the go-live date"
 msgstr "गो-लाइव की तारीख की सुरक्षा करें"
 
@@ -10320,6 +10330,9 @@ msgstr "कॉन्फ़िगर करने के लिए एक आइ�
 
 msgid "Select an option"
 msgstr "एक विकल्प चुनें"
+
+msgid "Select approvers"
+msgstr ""
 
 msgid "Select Contact"
 msgstr "संपर्क चुनें"

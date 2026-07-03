@@ -544,6 +544,9 @@ msgstr "アクションを追加"
 msgid "Add affected item"
 msgstr ""
 
+msgid "Add another approver"
+msgstr ""
+
 msgid "Add any notes about your decision..."
 msgstr "あなたの決定についてのメモを追加してください..."
 
@@ -7625,6 +7628,9 @@ msgstr ""
 msgid "No applications. Payment will be on-account."
 msgstr "申請がありません。支払いはオンアカウントになります。"
 
+msgid "No approvers yet. Add approvers in the Properties panel to route this change order for review."
+msgstr ""
+
 #. placeholder {0}: auditConfig.retentionDays
 msgid "No archived logs yet. Logs older than {0} days will be automatically archived and available for download here."
 msgstr "まだアーカイブされたログはありません。{0}日以上前のログは自動的にアーカイブされ、ここからダウンロードできます。"
@@ -8976,6 +8982,10 @@ msgstr "約束日"
 msgid "Properties"
 msgstr "プロパティ"
 
+#. placeholder {0}: changeOrder.changeOrderId
+msgid "Proposed under change order {0}. Its method becomes active when the change order is released."
+msgstr ""
+
 msgid "Protect the go-live date"
 msgstr "ゴーライブ日を保護する"
 
@@ -10320,6 +10330,9 @@ msgstr "設定するアイテムを選択"
 
 msgid "Select an option"
 msgstr "オプションを選択"
+
+msgid "Select approvers"
+msgstr ""
 
 msgid "Select Contact"
 msgstr "連絡先を選択"

@@ -9,6 +9,8 @@ import {
 import {
   Badge,
   Button,
+  FormControl,
+  FormLabel,
   HStack,
   Tooltip,
   TooltipContent,
@@ -29,8 +31,10 @@ import {
 } from "~/components";
 import { Tags } from "~/components/Form";
 import CustomFormInlineFields from "~/components/Form/CustomFormInlineFields";
+import { UserSelect } from "~/components/Selectors";
+import type { IndividualOrGroup } from "~/components/Selectors/UserSelect/types";
 import { usePermissions, useRouteData } from "~/hooks";
-import type { ChangeOrderDetail } from "~/modules/items";
+import type { ChangeOrderDetail, ChangeOrderReviewer } from "~/modules/items";
 import {
   changeOrderApprovalType,
   changeOrderPriority,
@@ -110,7 +114,15 @@ const ChangeOrderProperties = () => {
   const routeData = useRouteData<{
     changeOrder: ChangeOrderDetail;
     tags: { name: string }[];
+    reviewers: ChangeOrderReviewer[];
   }>(path.to.changeOrder(id));
+
+  // Editing approvers is gated in the UI by permission only; the server action
+  // (changeOrderApprovers) enforces the Draft/In-Review window so a settled
+  // (Approved/Released/Cancelled) change order can't have its reviewers rewritten.
+  const approverUserIds = (routeData?.reviewers ?? [])
+    .map((r) => r.assignee)
+    .filter((a): a is string => Boolean(a));
 
   const optimisticAssignment = useOptimisticAssignment({
     id: id,
@@ -179,6 +191,21 @@ const ChangeOrderProperties = () => {
       });
     },
 
+    [id]
+  );
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
+  const onUpdateApprovers = useCallback(
+    (approvers: string[]) => {
+      const formData = new FormData();
+      approvers.forEach((a) => {
+        formData.append("approvers", a);
+      });
+      fetcher.submit(formData, {
+        method: "post",
+        action: path.to.changeOrderApprovers(id)
+      });
+    },
     [id]
   );
 
@@ -305,6 +332,35 @@ const ChangeOrderProperties = () => {
           value={assignee ?? ""}
           isReadOnly={!permissions.can("update", "production")}
         />
+      </VStack>
+
+      <VStack spacing={2}>
+        <h3 className="text-xs text-muted-foreground">
+          <Trans>Approvers</Trans>
+        </h3>
+        <FormControl>
+          <FormLabel className="sr-only">{t`Approvers`}</FormLabel>
+          <UserSelect
+            isMulti
+            type="employee"
+            placeholder={
+              approverUserIds.length > 0
+                ? t`Add another approver`
+                : t`Select approvers`
+            }
+            readOnly={!permissions.can("update", "production")}
+            value={approverUserIds}
+            onChange={(selections: IndividualOrGroup[]) => {
+              onUpdateApprovers(
+                selections.map((item) =>
+                  "isEmployeeTypeGroup" in item
+                    ? `group_${item.id}`
+                    : `user_${item.id}`
+                )
+              );
+            }}
+          />
+        </FormControl>
       </VStack>
 
       <ValidatedForm

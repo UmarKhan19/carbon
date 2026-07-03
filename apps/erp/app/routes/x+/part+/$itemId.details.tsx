@@ -15,7 +15,12 @@ import type {
 import { Await, redirect, useLoaderData, useParams } from "react-router";
 import { CadModel, DeferredFiles } from "~/components";
 import { usePermissions, useRouteData } from "~/hooks";
-import type { ItemFile, MakeMethod, PartSummary } from "~/modules/items";
+import type {
+  ItemFile,
+  MakeMethod,
+  OpenChangeOrder,
+  PartSummary
+} from "~/modules/items";
 import {
   getConfigurationParameters,
   getConfigurationRules,
@@ -253,6 +258,7 @@ export default function PartDetailsRoute() {
     partSummary: PartSummary;
     files: Promise<ItemFile[]>;
     makeMethods: Promise<PostgrestResponse<MakeMethod>>;
+    pendingRevisionChangeOrder: OpenChangeOrder | null;
   }>(path.to.part(itemId));
 
   if (!partData) throw new Error("Could not find part data");
@@ -286,6 +292,7 @@ export default function PartDetailsRoute() {
                       makeMethods={makeMethods?.data ?? []}
                       type="Part"
                       currentMethodId={methodData.makeMethod.id}
+                      changeOrder={partData.pendingRevisionChangeOrder}
                     />
                   )}
                 </Await>

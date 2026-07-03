@@ -20,7 +20,7 @@ export default function ChangeOrderReviewers({
   reviewers: ChangeOrderReviewer[];
   isDisabled?: boolean;
 }) {
-  if (reviewers.length === 0) return null;
+  const isEmpty = reviewers.length === 0;
 
   return (
     <Card className="w-full" isCollapsible>
@@ -30,19 +30,28 @@ export default function ChangeOrderReviewers({
             <Trans>Reviewers</Trans>
           </CardTitle>
         </CardHeader>
-        <ChangeOrderTaskProgress tasks={reviewers} />
+        {!isEmpty && <ChangeOrderTaskProgress tasks={reviewers} />}
       </HStack>
       <CardContent>
-        <VStack spacing={3}>
-          {reviewers.map((reviewer) => (
-            <ChangeOrderTaskItem
-              key={reviewer.id}
-              task={reviewer}
-              type="review"
-              isDisabled={isDisabled}
-            />
-          ))}
-        </VStack>
+        {isEmpty ? (
+          <p className="text-sm text-muted-foreground">
+            <Trans>
+              No approvers yet. Add approvers in the Properties panel to route
+              this change order for review.
+            </Trans>
+          </p>
+        ) : (
+          <VStack spacing={3}>
+            {reviewers.map((reviewer) => (
+              <ChangeOrderTaskItem
+                key={reviewer.id}
+                task={reviewer}
+                type="review"
+                isDisabled={isDisabled}
+              />
+            ))}
+          </VStack>
+        )}
       </CardContent>
     </Card>
   );

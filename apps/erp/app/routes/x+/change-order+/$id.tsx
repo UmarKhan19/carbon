@@ -23,7 +23,8 @@ import { PanelProvider, ResizablePanels } from "~/components/Layout/Panels";
 import {
   getChangeOrder,
   getChangeOrderImpact,
-  getChangeOrderItems
+  getChangeOrderItems,
+  getChangeOrderReviewers
 } from "~/modules/items";
 import {
   getChangeOrderValidations,
@@ -54,10 +55,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { id } = params;
   if (!id) throw new Error("Could not find id");
 
-  const [changeOrder, items, tags] = await Promise.all([
+  const [changeOrder, items, tags, reviewers] = await Promise.all([
     getChangeOrder(client, id, companyId),
     getChangeOrderItems(client, id, companyId),
-    getTagsList(client, companyId, "changeOrder")
+    getTagsList(client, companyId, "changeOrder"),
+    getChangeOrderReviewers(client, id, companyId)
   ]);
 
   if (changeOrder.error) {
@@ -99,6 +101,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     items: affectedItems,
     redlineByItemId,
     tags: tags.data ?? [],
+    reviewers: reviewers.data ?? [],
     // Deferred: pre-release validations are streamed to the detail view.
     validations: getChangeOrderValidations(client, id, companyId),
     // Deferred: "where used" blast radius, streamed into the explorer's Used In tab.

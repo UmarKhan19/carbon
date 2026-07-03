@@ -11,10 +11,11 @@ import {
   toast
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useFetcher, useParams } from "react-router";
 import { z } from "zod";
 import { Item } from "~/components/Form";
+import type { MethodItemType } from "~/modules/shared";
 import { path } from "~/utils/path";
 
 // Shared affected-item UI for change orders. The affected-items list itself now
@@ -43,6 +44,11 @@ export function AddAffectedItemModal({ onClose }: { onClose: () => void }) {
   const { t } = useLingui();
   const { id } = useParams();
   if (!id) throw new Error("id not found");
+
+  // Item's "create new item" flow needs a controlled type: the Select Item Type
+  // modal writes back through onTypeChange, so without this the type never sets
+  // and Create stays disabled. Scoped to the change-order-eligible types.
+  const [itemType, setItemType] = useState<MethodItemType | "Item">("Item");
   const fetcher = useFetcher<{ error?: { message: string } | null }>();
 
   useEffect(() => {
@@ -82,7 +88,8 @@ export function AddAffectedItemModal({ onClose }: { onClose: () => void }) {
             <Item
               name="itemId"
               label={t`Item`}
-              type="Item"
+              type={itemType}
+              onTypeChange={setItemType}
               validItemTypes={["Part", "Tool"]}
             />
           </ModalBody>

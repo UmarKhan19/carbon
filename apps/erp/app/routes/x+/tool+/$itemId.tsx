@@ -37,6 +37,7 @@ import {
   getMakeMethods,
   getMethodTree,
   getOpenChangeOrderForItem,
+  getOpenChangeOrderForPendingRevision,
   getPartUsedIn,
   getPickMethods,
   getSupplierParts,
@@ -76,7 +77,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     tags,
     supersession,
     supersededBy,
-    openChangeOrder
+    openChangeOrder,
+    pendingRevisionChangeOrder
   ] = await Promise.all([
     getTool(client, itemId, companyId),
     getSupplierParts(client, itemId, companyId),
@@ -84,7 +86,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     getTagsList(client, companyId, "tool"),
     getItemSupersession(client, itemId, companyId),
     getItemSupersededBy(client, itemId, companyId),
-    getOpenChangeOrderForItem(client, { itemId, companyId })
+    getOpenChangeOrderForItem(client, { itemId, companyId }),
+    getOpenChangeOrderForPendingRevision(client, {
+      pendingItemId: itemId,
+      companyId
+    })
   ]);
 
   if (toolSummary.error) {
@@ -134,6 +140,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     supersession: supersession.data,
     supersededBy: supersededBy.data ?? [],
     openChangeOrder: openChangeOrder.data,
+    pendingRevisionChangeOrder: pendingRevisionChangeOrder.data,
     files: getItemFiles(client, itemId, companyId),
     supplierParts: supplierParts.data ?? [],
     pickMethods: pickMethods.data ?? [],

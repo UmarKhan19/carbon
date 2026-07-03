@@ -2,13 +2,14 @@ import { Alert, AlertDescription, AlertTitle } from "@carbon/react";
 import { Trans } from "@lingui/react/macro";
 import { LuGitPullRequestArrow } from "react-icons/lu";
 import { Link } from "react-router";
+import type { OpenChangeOrder } from "~/modules/items";
 import { path } from "~/utils/path";
 
 // Advisory shown on part/tool pages while the item is attached to an open
 // change order (Draft/In Review/Approved — see getOpenChangeOrderForItem).
 // Links to the change order by its UUID `id`, never the readable id.
 type UnderChangeOrderAlertProps = {
-  changeOrder: { id: string; changeOrderId: string; status: string } | null;
+  changeOrder: OpenChangeOrder | null;
   className?: string;
 };
 

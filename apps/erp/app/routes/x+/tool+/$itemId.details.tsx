@@ -11,7 +11,12 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { Await, redirect, useLoaderData, useParams } from "react-router";
 import { CadModel, DeferredFiles } from "~/components";
 import { usePermissions, useRouteData } from "~/hooks";
-import type { ItemFile, MakeMethod, ToolSummary } from "~/modules/items";
+import type {
+  ItemFile,
+  MakeMethod,
+  OpenChangeOrder,
+  ToolSummary
+} from "~/modules/items";
 import {
   getControlledDrawing,
   getItemManufacturing,
@@ -212,6 +217,7 @@ export default function ToolDetailsRoute() {
     toolSummary: ToolSummary;
     files: Promise<ItemFile[]>;
     makeMethods: Promise<PostgrestResponse<MakeMethod>>;
+    pendingRevisionChangeOrder: OpenChangeOrder | null;
   }>(path.to.tool(itemId));
 
   if (!toolData) throw new Error("Could not find tool data");
@@ -241,6 +247,7 @@ export default function ToolDetailsRoute() {
                   makeMethods={makeMethods?.data ?? []}
                   type="Tool"
                   currentMethodId={methodData.makeMethod.id}
+                  changeOrder={toolData.pendingRevisionChangeOrder}
                 />
               )}
             </Await>

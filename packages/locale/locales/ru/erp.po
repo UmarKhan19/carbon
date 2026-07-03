@@ -544,6 +544,9 @@ msgstr "Добавить действия"
 msgid "Add affected item"
 msgstr ""
 
+msgid "Add another approver"
+msgstr ""
+
 msgid "Add any notes about your decision..."
 msgstr "Добавьте любые заметки о вашем решении..."
 
@@ -7625,6 +7628,9 @@ msgstr ""
 msgid "No applications. Payment will be on-account."
 msgstr "Нет приложений. Платеж будет на счет."
 
+msgid "No approvers yet. Add approvers in the Properties panel to route this change order for review."
+msgstr ""
+
 #. placeholder {0}: auditConfig.retentionDays
 msgid "No archived logs yet. Logs older than {0} days will be automatically archived and available for download here."
 msgstr "Нет архивированных логов. Логи старше {0} дней будут автоматически архивированы и доступны для скачивания здесь."
@@ -8976,6 +8982,10 @@ msgstr "Обещанная дата"
 msgid "Properties"
 msgstr "Свойства"
 
+#. placeholder {0}: changeOrder.changeOrderId
+msgid "Proposed under change order {0}. Its method becomes active when the change order is released."
+msgstr ""
+
 msgid "Protect the go-live date"
 msgstr "Защитите дату запуска"
 
@@ -10320,6 +10330,9 @@ msgstr "Выберите элемент для настройки"
 
 msgid "Select an option"
 msgstr "Выберите опцию"
+
+msgid "Select approvers"
+msgstr ""
 
 msgid "Select Contact"
 msgstr "Выберите контакт"
