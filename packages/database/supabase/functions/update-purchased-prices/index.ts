@@ -236,13 +236,21 @@ serve(async (req: Request) => {
       [];
 
     if (shouldUpdatePrices && itemIds.length > 0) {
-      const [costLedgers, supplierParts] = await Promise.all([
-        client
-          .from("costLedger")
-          .select("*")
-          .in("itemId", itemIds)
-          .eq("companyId", companyId)
-          .gte("postingDate", dateOneYearAgo),
+      // Aggregate in SQL: fetching raw rows through PostgREST silently caps
+      // at 1000, which skewed the weighted average for high-volume items.
+      const [costLedgerTotals, supplierParts] = await Promise.all([
+        db
+          .selectFrom("costLedger")
+          .select(({ fn }) => [
+            "itemId",
+            fn.sum<number>("quantity").as("quantity"),
+            fn.sum<number>("cost").as("cost"),
+          ])
+          .where("itemId", "in", itemIds)
+          .where("companyId", "=", companyId)
+          .where("postingDate", ">=", dateOneYearAgo)
+          .groupBy("itemId")
+          .execute(),
         client
           .from("supplierPart")
           .select("*")
@@ -251,26 +259,18 @@ serve(async (req: Request) => {
           .eq("companyId", companyId),
       ]);
 
-      if (costLedgers.error) {
-        throw new Error("Failed to fetch historical cost ledger entries");
-      }
       if (supplierParts.error) {
         throw new Error("Failed to fetch supplier parts");
       }
 
       supplierPartRows = supplierParts.data ?? [];
 
-      costLedgers.data?.forEach((ledger) => {
-        if (ledger.itemId) {
-          if (!historicalPartCosts[ledger.itemId]) {
-            historicalPartCosts[ledger.itemId] = {
-              quantity: 0,
-              cost: 0,
-            };
-          }
-
-          historicalPartCosts[ledger.itemId].quantity += ledger.quantity;
-          historicalPartCosts[ledger.itemId].cost += ledger.cost;
+      costLedgerTotals.forEach((row) => {
+        if (row.itemId) {
+          historicalPartCosts[row.itemId] = {
+            quantity: Number(row.quantity ?? 0),
+            cost: Number(row.cost ?? 0),
+          };
         }
       });
     }
