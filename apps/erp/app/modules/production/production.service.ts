@@ -561,6 +561,9 @@ export async function deleteProductionEvent(
     }
   }
 
+  // Recorded output quantities reference this event via ON DELETE SET NULL FKs
+  // (migration below), so they survive with their link cleared — the quantities
+  // are real output and outlive an individual time card.
   return client
     .from("productionEvent")
     .delete()

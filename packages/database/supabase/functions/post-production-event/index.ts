@@ -126,9 +126,7 @@ serve(async (req: Request) => {
       cost = durationHours * rate;
     }
 
-    // Net amount already posted for this event, grouped by account. Events
-    // posted before per-event references (documentLineReference = job:...)
-    // can't be adjusted safely, so bail rather than double-post.
+    // Net amount already posted for this specific event, grouped by account.
     const eventReference = journalReference.to.productionEvent(
       productionEventId
     );
@@ -145,11 +143,37 @@ serve(async (req: Request) => {
       (line) => Math.abs(Number(line.amount)) >= 0.000001
     );
 
-    if (
-      event.postedToGL &&
-      reversalLines.length === 0 &&
-      (cost > 0 || reverse)
-    ) {
+    // Did this event's job post any production-event lines under the old
+    // job-tagged scheme (documentLineReference = job:...)? Those can't be
+    // attributed to one event, so editing/reversing a posted event that has no
+    // per-event lines can't be done safely — it needs a manual journal entry.
+    // This is rate-independent: unlike recomputing cost, it still recognizes a
+    // zero-cost posted event (which posted nothing) as safe to delete even
+    // after the work center's rate later changes.
+    const hasOldSchemePostings =
+      event.postedToGL && reversalLines.length === 0
+        ? Number(
+            (
+              await db
+                .selectFrom("journalLine")
+                .select((eb) => eb.fn.countAll().as("count"))
+                .where("documentType", "=", "Production Event")
+                .where("documentId", "=", jobId)
+                .where(
+                  "documentLineReference",
+                  "=",
+                  journalReference.to.job(jobId)
+                )
+                .where("companyId", "=", companyId)
+                .executeTakeFirst()
+            )?.count ?? 0
+          ) > 0
+        : false;
+
+    // Block only when the event posted amounts under the old scheme that we
+    // can't attribute/reverse. A zero-cost posted event posted nothing, so
+    // there's nothing to reverse and it's safe to delete.
+    if (event.postedToGL && reversalLines.length === 0 && hasOldSchemePostings) {
       return new Response(
         JSON.stringify({
           success: false,
@@ -161,10 +185,11 @@ serve(async (req: Request) => {
     }
 
     if (cost <= 0 && reversalLines.length === 0) {
-      // Nothing to post and nothing to reverse.
+      // Nothing to post and nothing to reverse. On a reversal this clears the
+      // flag so the event can be deleted; on a post it marks it done.
       await client
         .from("productionEvent")
-        .update({ postedToGL: true })
+        .update({ postedToGL: !reverse })
         .eq("id", productionEventId);
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -211,7 +236,7 @@ serve(async (req: Request) => {
         journalLineReference,
         companyId,
       })),
-      ...(cost > 0
+      ...(!reverse && cost > 0
         ? [
             {
               accountId: accountDefaults.data.workInProgressAccount,
