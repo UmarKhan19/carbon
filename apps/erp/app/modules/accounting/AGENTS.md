@@ -49,6 +49,7 @@ pnpm --filter @carbon/erp test -- --testPathPattern=accounting
 | `journal` / `journalLine` | Double-entry transactions; lines carry dimension assignments |
 | `journalLineDimension` | Dimension values assigned to journal lines |
 | `accountingPeriod` | Fiscal periods with Active/Inactive/Closed status |
+| `accountingPeriodBalance` | Cumulative per-account GL balance snapshots at period close; written by `snapshotAccountingPeriodBalances`, read by `accountTreeBalancesByCompany` (snapshot + delta; full-scan fallback when empty). Balance RPCs exclude Draft journals. |
 | `accountDefault` | Default GL account mappings (AR, AP, inventory, etc.) |
 | `currency` / `currencyCode` / `exchangeRateHistory` | Multi-currency with historical rates |
 | `paymentTerm` | Payment terms (Net 30, 2/10 Net 30, etc.) |
