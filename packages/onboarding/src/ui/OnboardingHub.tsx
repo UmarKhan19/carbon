@@ -329,8 +329,8 @@ function GateRow({
           }
           tooltip={
             status === "done"
-              ? t`Done — this phase's checkpoint has been passed.`
-              : t`This phase checks itself off once all of its tasks in the project plan are done.`
+              ? t`The "${i18n._(step.title)}" phase is done — its "${i18n._(step.gate)}" checkpoint has been passed.`
+              : t`The "${i18n._(step.title)}" phase checks itself off once all of its tasks in the project plan are done.`
           }
           className="size-5 mt-1"
         />
@@ -343,7 +343,7 @@ function GateRow({
             <span
               className={cn(
                 "text-sm font-semibold transition-colors group-hover:text-primary",
-                status === "done" && "text-muted-foreground"
+                status === "done" && "line-through text-muted-foreground"
               )}
             >
               {step.n} · {i18n._(step.title)}

@@ -1,13 +1,26 @@
-import { cn } from "@carbon/react";
-import { Trans, useLingui } from "@lingui/react/macro";
-import { type ReactNode, useEffect, useRef } from "react";
 import {
-  LuArrowUpRight,
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Button,
+  cn,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalDescription,
+  ModalFooter,
+  ModalHeader,
+  ModalTitle
+} from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
+import { useEffect, useRef, useState } from "react";
+import {
   LuCalendarClock,
   LuCheck,
   LuFileText,
   LuPlay,
-  LuRotateCcw
+  LuRotateCcw,
+  LuTriangleAlert
 } from "react-icons/lu";
 import { PAGE_COPY } from "../content";
 import { BOARD_TASKS } from "../content/board";
@@ -29,7 +42,7 @@ import {
 } from "../logic";
 import type { BoardTask, GateValue, StateKind, StepDef, Tier } from "../types";
 import { ProgressPill } from "./ProgressPill";
-import { DerivedStatus, PageHeader } from "./primitives";
+import { DerivedStatus, LearnLink, PageHeader } from "./primitives";
 import {
   useCheckMap,
   useFieldMap,
@@ -143,6 +156,14 @@ function PhaseCard({
   const allDone = total > 0 && done === total;
   const gatePassed = gateStatus === "done";
   const gateInProgress = gateStatus === "prog";
+
+  // Passing a checkpoint with tasks still open is allowed, but warned first —
+  // the same confirm-with-warning pattern as finalizing a quote without
+  // shipping costs.
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const openTasks = stepTasks.filter(
+    (task) => taskStatus(task, map) !== "done"
+  );
 
   // Auto-pass the checkpoint when its tasks all complete — one-way, on the
   // incomplete→complete transition (and on mount if already complete, so the
@@ -262,6 +283,7 @@ function PhaseCard({
               // <button>, so these use a flex row of separate controls.
               if (fromSetupMap) {
                 const setupProgress = taskSetupProgress(task, map);
+                const taskName = i18n._(task.label);
                 return (
                   <li
                     key={task.key}
@@ -276,8 +298,8 @@ function PhaseCard({
                       }
                       tooltip={
                         isDone
-                          ? t`Done — everything in this group is configured.`
-                          : t`This checks itself off once every item in this group is marked "Configured" on the Setup Map.`
+                          ? t`"${taskName}" is done — all ${setupProgress.total} of its Setup Map items are configured.`
+                          : t`"${taskName}" checks itself off once its ${setupProgress.total} Setup Map items are marked "Configured" — ${setupProgress.done} of ${setupProgress.total} so far.`
                       }
                       className="size-4 mt-0.5"
                     />
@@ -291,20 +313,20 @@ function PhaseCard({
                     </button>
                     <div className="shrink-0 flex items-center gap-2 text-xs mt-0.5">
                       {task.docsUrl ? (
-                        <ResourceLink
+                        <LearnLink
                           href={task.docsUrl}
                           icon={<LuFileText className="size-3" />}
                         >
                           <Trans>Docs</Trans>
-                        </ResourceLink>
+                        </LearnLink>
                       ) : null}
                       {task.academyUrl ? (
-                        <ResourceLink
+                        <LearnLink
                           href={task.academyUrl}
                           icon={<LuPlay className="size-3" />}
                         >
                           <Trans>Video</Trans>
-                        </ResourceLink>
+                        </LearnLink>
                       ) : null}
                     </div>
                   </li>
@@ -350,14 +372,24 @@ function PhaseCard({
           </span>
           <span className="font-medium">{i18n._(step.gate)}</span>
           {gateInProgress ? (
-            <span className="ml-2 text-xxs uppercase tracking-wide rounded px-1.5 py-0.5 border border-primary/30 bg-primary/10 text-primary font-medium">
+            // In-progress blue app-wide (BoP status language), not theme
+            // primary — primary is near-black on neutral themes.
+            <span className="ml-2 text-xxs uppercase tracking-wide rounded px-1.5 py-0.5 border border-blue-600/30 bg-blue-600/10 text-blue-600 dark:text-blue-400 font-medium">
               <Trans>In progress</Trans>
             </span>
           ) : null}
         </div>
         <button
           type="button"
-          onClick={() => onToggleGate(step.key, gatePassed ? "todo" : "done")}
+          onClick={() => {
+            if (gatePassed) {
+              onToggleGate(step.key, "todo");
+            } else if (openTasks.length > 0) {
+              setConfirmOpen(true);
+            } else {
+              onToggleGate(step.key, "done");
+            }
+          }}
           className={cn(
             "shrink-0 inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xxs font-medium transition-colors active:scale-[0.97]",
             gatePassed
@@ -378,6 +410,49 @@ function PhaseCard({
           )}
         </button>
       </div>
+
+      <Modal open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <ModalContent>
+          <ModalHeader>
+            <ModalTitle>{t`Mark "${i18n._(step.gate)}" as passed?`}</ModalTitle>
+            <ModalDescription>
+              <Trans>
+                Are you sure you want to pass this checkpoint? The{" "}
+                {i18n._(step.title)} phase still has unfinished tasks.
+              </Trans>
+            </ModalDescription>
+          </ModalHeader>
+          <ModalBody>
+            <Alert variant="destructive">
+              <LuTriangleAlert className="h-4 w-4" />
+              <AlertTitle>
+                <Trans>Tasks still open</Trans>
+              </AlertTitle>
+              <AlertDescription>
+                <Trans>The following tasks are not done yet:</Trans>
+                <ul className="list-disc py-2 pl-4">
+                  {openTasks.map((task) => (
+                    <li key={task.key}>{i18n._(task.label)}</li>
+                  ))}
+                </ul>
+              </AlertDescription>
+            </Alert>
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="secondary" onClick={() => setConfirmOpen(false)}>
+              <Trans>Cancel</Trans>
+            </Button>
+            <Button
+              onClick={() => {
+                setConfirmOpen(false);
+                onToggleGate(step.key, "done");
+              }}
+            >
+              <Trans>Mark checkpoint passed</Trans>
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   );
 }
@@ -410,46 +485,20 @@ function PhaseResources({ step }: { step: StepDef }) {
             {i18n._(r.label)}
           </span>
           {r.docsUrl ? (
-            <ResourceLink
+            <LearnLink
               href={r.docsUrl}
               icon={<LuFileText className="size-3" />}
             >
               <Trans>Docs</Trans>
-            </ResourceLink>
+            </LearnLink>
           ) : null}
           {r.videoUrl ? (
-            <ResourceLink
-              href={r.videoUrl}
-              icon={<LuPlay className="size-3" />}
-            >
+            <LearnLink href={r.videoUrl} icon={<LuPlay className="size-3" />}>
               <Trans>Video</Trans>
-            </ResourceLink>
+            </LearnLink>
           ) : null}
         </div>
       ))}
     </div>
-  );
-}
-
-function ResourceLink({
-  href,
-  icon,
-  children
-}: {
-  href: string;
-  icon: ReactNode;
-  children: ReactNode;
-}) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      className="shrink-0 inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 font-medium text-muted-foreground hover:text-primary hover:border-primary/40 transition-colors"
-    >
-      {icon}
-      {children}
-      <LuArrowUpRight className="size-3 opacity-60" />
-    </a>
   );
 }

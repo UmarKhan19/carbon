@@ -156,7 +156,6 @@ export function GoLiveView() {
                   {i18n._(GUIDED_CONTACT.detail)}
                 </p>
                 <Button
-                  variant="secondary"
                   size="sm"
                   className="mt-2"
                   rightIcon={<LuArrowUpRight />}

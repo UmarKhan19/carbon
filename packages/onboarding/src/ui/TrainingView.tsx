@@ -1,13 +1,13 @@
 import { cn } from "@carbon/react";
 import type { MessageDescriptor } from "@lingui/core";
 import { msg } from "@lingui/core/macro";
-import { Plural, useLingui } from "@lingui/react/macro";
-import { LuArrowUpRight } from "react-icons/lu";
+import { Plural, Trans, useLingui } from "@lingui/react/macro";
+import { LuArrowUpRight, LuFileText, LuPlay } from "react-icons/lu";
 import { PAGE_COPY } from "../content";
 import { TRAINING_TRACKS } from "../content/training";
 import { fmtKey, isModuleExcluded } from "../logic";
 import { EditableField } from "./EditableField";
-import { PageHeader, Section, SectionList } from "./primitives";
+import { LearnLink, PageHeader, Section, SectionList } from "./primitives";
 import {
   useCheckMap,
   useExclusions,
@@ -99,6 +99,27 @@ export function TrainingView() {
                         />
                       </div>
                     </div>
+                    {/* Where to learn it: the Academy course when one exists,
+                        else the docs page. Same chip as the Setup Map rows. */}
+                    {videoUrl ? (
+                      <div className="shrink-0 flex items-center text-xs">
+                        <LearnLink
+                          href={videoUrl}
+                          icon={<LuPlay className="size-3" />}
+                        >
+                          <Trans>Academy</Trans>
+                        </LearnLink>
+                      </div>
+                    ) : course.docsUrl ? (
+                      <div className="shrink-0 flex items-center text-xs">
+                        <LearnLink
+                          href={course.docsUrl}
+                          icon={<LuFileText className="size-3" />}
+                        >
+                          <Trans>Docs</Trans>
+                        </LearnLink>
+                      </div>
+                    ) : null}
                     {/* Self-serve is all self-paced — a dead format toggle just
                         looks like a broken button, so it renders nothing. Paid
                         tiers keep the working Self-paced/Hands-on choice. */}

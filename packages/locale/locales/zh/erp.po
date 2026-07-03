@@ -25,6 +25,16 @@ msgstr "\"{storageUnitName}\"有{childCount}个直接嵌套的存储单元。删
 msgid "\"{storageUnitName}\" has 1 direct nested storage unit. Deleting it will also delete that unit and anything underneath it. This cannot be undone."
 msgstr "\"${storageUnitName}\"有1个直接嵌套的存储单元。删除它也会删除该单元及其下的所有内容。此操作无法撤销。"
 
+#. placeholder {0}: setupProgress.total
+#. placeholder {1}: setupProgress.done
+#. placeholder {2}: setupProgress.total
+msgid "\"{taskName}\" checks itself off once its {0} Setup Map items are marked \"Configured\" — {1} of {2} so far."
+msgstr ""
+
+#. placeholder {0}: setupProgress.total
+msgid "\"{taskName}\" is done — all {0} of its Setup Map items are configured."
+msgstr ""
+
 msgid "\"Nobody got fired for buying it.\" An incumbent comfort factor."
 msgstr "\"没有人因为购买它而被解雇。\"一个现任者的舒适因素。"
 
@@ -324,6 +334,9 @@ msgstr "功能"
 
 msgid "About"
 msgstr "关于"
+
+msgid "Academy"
+msgstr ""
 
 msgid "Accept Lot"
 msgstr "接受批次"
@@ -1254,6 +1267,10 @@ msgstr "您确定要完成供应商报价吗？"
 
 msgid "Are you sure you want to leave this page?"
 msgstr "您确定要离开此页面吗？"
+
+#. placeholder {0}: i18n._(step.title)
+msgid "Are you sure you want to pass this checkpoint? The {0} phase still has unfinished tasks."
+msgstr ""
 
 #. placeholder {0}: selectedPurchaseInvoice.invoiceId!
 #. placeholder {0}: selectedSalesInvoice.invoiceId!
@@ -3810,12 +3827,6 @@ msgstr "完成"
 
 msgid "Done"
 msgstr "完成"
-
-msgid "Done — everything in this group is configured."
-msgstr ""
-
-msgid "Done — this phase's checkpoint has been passed."
-msgstr ""
 
 msgid "Done when day-to-day runs without us in the room"
 msgstr "完成时日常运营无需我们在场"
@@ -6738,6 +6749,13 @@ msgstr "立即映射行"
 
 msgid "Map your current process, systems, and data"
 msgstr "映射您当前的流程、系统和数据"
+
+#. placeholder {0}: i18n._(step.gate)
+msgid "Mark \"{0}\" as passed?"
+msgstr ""
+
+msgid "Mark all as configured"
+msgstr ""
 
 msgid "Mark as Planned"
 msgstr "标记为已计划"
@@ -11208,6 +11226,9 @@ msgstr "任务"
 msgid "Tasks"
 msgstr "任务"
 
+msgid "Tasks still open"
+msgstr ""
+
 msgid "Tasks that must be completed before this issue can be closed; selecting actions here adds them on top of whatever the workflow specifies."
 msgstr "在关闭此问题之前必须完成的任务；在此处选择操作会将其添加到工作流程指定的内容之外。"
 
@@ -11297,6 +11318,15 @@ msgstr "测试值"
 
 msgid "Text size"
 msgstr "文本大小"
+
+#. placeholder {0}: i18n._(step.title)
+msgid "The \"{0}\" phase checks itself off once all of its tasks in the project plan are done."
+msgstr ""
+
+#. placeholder {0}: i18n._(step.title)
+#. placeholder {1}: i18n._(step.gate)
+msgid "The \"{0}\" phase is done — its \"{1}\" checkpoint has been passed."
+msgstr ""
 
 #. placeholder {0}: steps.length
 msgid "The {0} phases to go live, each ending at a checkpoint. Tick off each task as you complete it."
@@ -11505,6 +11535,9 @@ msgstr "以下装配体没有操作。请在发布前为每个装配体分配一
 
 msgid "The following line items are missing prices or lead times:"
 msgstr "以下行项目缺少价格或交货期："
+
+msgid "The following tasks are not done yet:"
+msgstr ""
 
 msgid "The forms and shapes your raw materials come in"
 msgstr "您的原材料所采用的形式和形状"
@@ -11947,9 +11980,6 @@ msgstr "这些电子邮件地址将自动抄送到发送给客户的所有报价
 msgid "These jobs have operations assigned to this work center:"
 msgstr "这些工作有分配给此工作中心的操作："
 
-msgid "This checks itself off once every item in this group is marked \"Configured\" on the Setup Map."
-msgstr ""
-
 msgid "This completes the Discovery step."
 msgstr "这完成了发现步骤。"
 
@@ -12018,9 +12048,6 @@ msgstr "这个零件已过时（无库存）。"
 
 msgid "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 msgstr "此零件已被替代并设置为仅库存 — 它补充到其备件储备下限，与需求无关。"
-
-msgid "This phase checks itself off once all of its tasks in the project plan are done."
-msgstr ""
 
 msgid "This Quarter"
 msgstr "本季度"

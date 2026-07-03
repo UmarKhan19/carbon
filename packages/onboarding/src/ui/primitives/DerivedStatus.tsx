@@ -64,9 +64,11 @@ export function DerivedStatus({
     status === "done" ? (
       <LuCircleCheck className="size-full text-emerald-600 dark:text-emerald-500" />
     ) : status === "prog" ? (
+      // Blue, not theme primary — "in progress" is blue app-wide (the BoP
+      // operation-status icons), and primary is near-black on neutral themes.
       <ProgressRingIcon
         fraction={fraction ?? 0.5}
-        className="size-full text-primary"
+        className="size-full text-blue-600 dark:text-blue-500"
       />
     ) : (
       <LuCircleDashed className="size-full text-muted-foreground" />

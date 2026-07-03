@@ -25,6 +25,16 @@ msgstr "\"{storageUnitName}\" tem {childCount} unidades de armazenamento aninhad
 msgid "\"{storageUnitName}\" has 1 direct nested storage unit. Deleting it will also delete that unit and anything underneath it. This cannot be undone."
 msgstr "\"{storageUnitName}\" tem 1 unidade de armazenamento aninhada direta. Deletá-la também excluirá essa unidade e tudo abaixo dela. Isso não pode ser desfeito."
 
+#. placeholder {0}: setupProgress.total
+#. placeholder {1}: setupProgress.done
+#. placeholder {2}: setupProgress.total
+msgid "\"{taskName}\" checks itself off once its {0} Setup Map items are marked \"Configured\" — {1} of {2} so far."
+msgstr ""
+
+#. placeholder {0}: setupProgress.total
+msgid "\"{taskName}\" is done — all {0} of its Setup Map items are configured."
+msgstr ""
+
 msgid "\"Nobody got fired for buying it.\" An incumbent comfort factor."
 msgstr "\"Ninguém foi demitido por comprar.\" Um fator de conforto do incumbente."
 
@@ -324,6 +334,9 @@ msgstr "capacidade"
 
 msgid "About"
 msgstr "Sobre"
+
+msgid "Academy"
+msgstr ""
 
 msgid "Accept Lot"
 msgstr "Aceitar Lote"
@@ -1254,6 +1267,10 @@ msgstr "Tem a certeza de que deseja finalizar a cotação do fornecedor?"
 
 msgid "Are you sure you want to leave this page?"
 msgstr "Tem certeza que deseja sair desta página?"
+
+#. placeholder {0}: i18n._(step.title)
+msgid "Are you sure you want to pass this checkpoint? The {0} phase still has unfinished tasks."
+msgstr ""
 
 #. placeholder {0}: selectedPurchaseInvoice.invoiceId!
 #. placeholder {0}: selectedSalesInvoice.invoiceId!
@@ -3810,12 +3827,6 @@ msgstr "concluído"
 
 msgid "Done"
 msgstr "Concluído"
-
-msgid "Done — everything in this group is configured."
-msgstr ""
-
-msgid "Done — this phase's checkpoint has been passed."
-msgstr ""
 
 msgid "Done when day-to-day runs without us in the room"
 msgstr "Concluído quando o dia a dia funciona sem nós na sala"
@@ -6738,6 +6749,13 @@ msgstr "Mapear Linhas Agora"
 
 msgid "Map your current process, systems, and data"
 msgstr "Mapeie seu processo, sistemas e dados atuais"
+
+#. placeholder {0}: i18n._(step.gate)
+msgid "Mark \"{0}\" as passed?"
+msgstr ""
+
+msgid "Mark all as configured"
+msgstr ""
 
 msgid "Mark as Planned"
 msgstr "Marcar como Planejado"
@@ -11208,6 +11226,9 @@ msgstr "tarefas"
 msgid "Tasks"
 msgstr "Tarefas"
 
+msgid "Tasks still open"
+msgstr ""
+
 msgid "Tasks that must be completed before this issue can be closed; selecting actions here adds them on top of whatever the workflow specifies."
 msgstr "Tarefas que devem ser concluídas antes que este problema possa ser fechado; selecionar ações aqui as adiciona além do que o fluxo de trabalho especifica."
 
@@ -11297,6 +11318,15 @@ msgstr "Valor de Teste"
 
 msgid "Text size"
 msgstr "Tamanho do texto"
+
+#. placeholder {0}: i18n._(step.title)
+msgid "The \"{0}\" phase checks itself off once all of its tasks in the project plan are done."
+msgstr ""
+
+#. placeholder {0}: i18n._(step.title)
+#. placeholder {1}: i18n._(step.gate)
+msgid "The \"{0}\" phase is done — its \"{1}\" checkpoint has been passed."
+msgstr ""
 
 #. placeholder {0}: steps.length
 msgid "The {0} phases to go live, each ending at a checkpoint. Tick off each task as you complete it."
@@ -11505,6 +11535,9 @@ msgstr "Os seguintes conjuntos não têm operações. Atribua uma operação a c
 
 msgid "The following line items are missing prices or lead times:"
 msgstr "Os seguintes itens de linha estão faltando preços ou prazos de entrega:"
+
+msgid "The following tasks are not done yet:"
+msgstr ""
 
 msgid "The forms and shapes your raw materials come in"
 msgstr "As formas e formatos em que seus materiais brutos chegam"
@@ -11947,9 +11980,6 @@ msgstr "Estes endereços de email serão automaticamente copiados em todos os em
 msgid "These jobs have operations assigned to this work center:"
 msgstr "Estes trabalhos têm operações atribuídas a este centro de trabalho:"
 
-msgid "This checks itself off once every item in this group is marked \"Configured\" on the Setup Map."
-msgstr ""
-
 msgid "This completes the Discovery step."
 msgstr "Isto completa a etapa de Descoberta."
 
@@ -12018,9 +12048,6 @@ msgstr "Esta peça está obsoleta (Sem Estoque)."
 
 msgid "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 msgstr "Esta peça foi substituída e configurada como Stock Only — é reabastecida até seu piso de reserva de peças de reposição, independentemente da demanda."
-
-msgid "This phase checks itself off once all of its tasks in the project plan are done."
-msgstr ""
 
 msgid "This Quarter"
 msgstr "Este Trimestre"
