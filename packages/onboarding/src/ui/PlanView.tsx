@@ -2,6 +2,7 @@ import {
   Alert,
   AlertDescription,
   AlertTitle,
+  Badge,
   Button,
   cn,
   Modal,
@@ -212,16 +213,12 @@ function PhaseCard({
             </div>
           </div>
           {total > 0 ? (
-            <span
-              className={cn(
-                "shrink-0 text-xxs font-medium rounded px-1.5 py-0.5 tabular-nums",
-                allDone
-                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                  : "border text-muted-foreground"
-              )}
+            <Badge
+              variant={allDone ? "green" : "outline"}
+              className="shrink-0 tabular-nums"
             >
               {done} / {total} <Trans>done</Trans>
-            </span>
+            </Badge>
           ) : null}
         </div>
 
@@ -376,9 +373,9 @@ function PhaseCard({
           {gateInProgress ? (
             // In-progress blue app-wide (BoP status language), not theme
             // primary — primary is near-black on neutral themes.
-            <span className="ml-2 text-xxs uppercase tracking-wide rounded px-1.5 py-0.5 border border-blue-600/30 bg-blue-600/10 text-blue-600 dark:text-blue-400 font-medium">
+            <Badge variant="blue" className="ml-2">
               <Trans>In progress</Trans>
-            </span>
+            </Badge>
           ) : null}
         </div>
         <button

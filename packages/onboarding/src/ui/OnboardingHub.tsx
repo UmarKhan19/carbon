@@ -1,4 +1,4 @@
-import { Button, cn } from "@carbon/react";
+import { Badge, Button, cn } from "@carbon/react";
 import { Plural, Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useRef } from "react";
 import {
@@ -354,9 +354,9 @@ function GateRow({
               </span>
             ) : null}
             {tier !== "self_serve" ? (
-              <span className="text-xxs uppercase tracking-wide rounded px-1.5 py-0.5 border text-muted-foreground font-medium ml-auto">
+              <Badge variant="outline" className="ml-auto">
                 {i18n._(OWNER_TOKENS[ownerForStep(step, tier)].label)}
-              </span>
+              </Badge>
             ) : null}
             <LuArrowRight
               className={cn(
