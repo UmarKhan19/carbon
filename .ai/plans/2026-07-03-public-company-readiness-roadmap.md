@@ -19,6 +19,7 @@ Carbon becomes an accounting system a CFO adopts at seed and keeps through IPO a
    - Universal `journalLine.sourceAmount`/`sourceCurrencyCode` population (every posting path, base documents included) → bank-reconciliation spec FX section (serves FEC/SAF-T + ASC 830, not just bank matching).
    Their plan files carry ⚠️ delta banners; update task lists before executing.
 4. **Build vs integrate.** Carbon builds the GL baseline + statutory surfaces + integration feeds; it never builds reconciliation certification, SEC/XBRL, equity/718, tax provision, payroll, or US sales-tax content (research §Ecosystem — even NetSuite doesn't).
+5. **All spec open questions resolved 2026-07-03** (recorded inline in the spec): reversal-only + audited `'Repair'` journal channel; **approvals for manual JEs, payments, and purchase invoices ASAP** on the existing PO approval engine (workstream pulled forward — starts now); forward-only gapless numbering, existing journals never renumbered; rev-rec cut accepted with a contract-validation TODO; auto-reverse unrealized FX; **Avalara first-class** for e-invoicing; detective SoD v1; SOC 2 evidence starts now → SOC 1 after Phase 0; group-scoped books with per-company enablement.
 
 ## Phase ∅ — Land this branch (prerequisite for everything)
 
@@ -36,7 +37,10 @@ Suggested order (dependencies noted). Each executes per its own plan.
 
 ## Phase 0 — Ledger integrity (the two remaining MWs + numbering)
 
-Cut as three specs via `/spec-writing`, then `/plan` + execute each:
+Cut as three specs via `/spec-writing`, then `/plan` + execute each.
+**Spec B (approvals) is pulled forward — it depends only on the existing
+approval engine, not on Phase ∅, and Brad wants it ASAP. Start it now, in
+parallel with the Phase-∅ workstreams.**
 
 - [ ] **Spec A: Record integrity & audit hardening** (MW-1 remainder, SD-1 remainder)
   - [ ] Immutability triggers for posted `payment`/`memo`/`invoiceSettlement` (`Posted → Voided` only), completing what the period-closing fold-in does for journals.
@@ -45,22 +49,23 @@ Cut as three specs via `/spec-writing`, then `/plan` + execute each:
   - [ ] Accounting entities: audit **always-on** (company toggle governs operational entities only) and **synchronous in-transaction** (or transactional outbox) — never PGMQ fire-and-forget.
   - [ ] Audit tables: append-only (REVOKE UPDATE/DELETE + restrictive policies), per-class retention (≥7 years accounting, 30-day default operational), archive integrity.
   - [ ] **JE population export** (route + streaming service, no row caps): journal id/line, account, signed amount + debit/credit presentation, posting date, createdAt/postedAt, `createdBy`/`preparedBy`/`approvedBy`, source type, document ref, reversal linkage, source currency/amount, book. This is the SOX AS 2401 / FEC / GoBD / SAF-T substrate.
-- [ ] **Spec B: JE approval & SoD reporting** (MW-2)
-  - [ ] `approvalDocumentType` += `journalEntry` (+ `payment`, `purchaseInvoice` — scope per open question; recommend journals first, invoices/payments when payment execution lands).
-  - [ ] Journal state machine `Draft → Pending Approval → Posted` when a rule matches; amount/account-class routing on `approvalRule` tiers; `preparedBy`/`approvedBy` stamped.
+  - [ ] **Repair channel** (resolved): a `'Repair'` journal source type — the only sanctioned data-fix path once immutability lands. Permissioned, reason required, correcting-entries only (never in-place edits), itself immutable and audit-logged; the invoice/payment audit's deferred historical-repair work flows through it.
+- [ ] **Spec B: JE/payment/invoice approval & SoD reporting** (MW-2) — **starts now (resolved: full scope ASAP)**
+  - [ ] `approvalDocumentType` += `journalEntry`, `payment`, `purchaseInvoice` — all three at launch, reusing the PO approval engine (`approvalRule`/`approvalRequest`, amount tiers, approver groups, escalation).
+  - [ ] Journal state machine `Draft → Pending Approval → Posted` when a rule matches (payments/invoices mirror with their own pending states); amount/account-class routing on `approvalRule` tiers; `preparedBy`/`approvedBy` stamped.
   - [ ] **No-self-approval** enforced server-side in `canApproveRequest`, all document types (fixes the existing PO hole), default on.
   - [ ] User access report (effective permissions per user per company, point-in-time + grant history) for quarterly access reviews.
   - [ ] SoD conflict report v1 (detective): seeded conflict matrix — vendor-create+payment-post, JE-create+JE-approve, sequence-edit+posting, bank-rec-prepare+JE-post. Preventive enforcement deferred (Phase 4 candidate).
-- [ ] **Spec C: Gapless numbering & legal series** (SD-2)
-  - [ ] `journalEntryId` assigned inside the posting transaction from a DB-serialized per-company counter (decide: reset per fiscal year vs continuous — open question).
-  - [ ] `sequence` rows for accounting documents immutable-after-first-use + audit-logged.
-  - [ ] `legalSeries` table (entity × country × document type) for customer-facing documents — substrate for e-invoicing (Phase 3); backdating flag (postingDate ≪ createdAt) in the JE export.
-- [ ] **Schema seed:** `journal.bookId` (+ `accountingBook` table, seeded `PRIMARY` per group) — lands with Spec A's migration so every later poster/report is book-aware (GAP-5 step 1). Resolve book-scoping open question first.
+- [ ] **Spec C: Gapless numbering & legal series** (SD-2) — resolved: forward-only fix, **existing journals are never renumbered** (historical gaps are documented with a cutover date, not rewritten)
+  - [ ] `journalEntryId` keeps the `JE-yyyy-mm-` format but is assigned **inside the posting transaction** from a DB-serialized per-company counter — gapless from the cutover date forward.
+  - [ ] `sequence` rows for accounting documents immutable-after-first-use + audit-logged (kills the rewind→duplicate-number hole).
+  - [ ] `legalSeries` table (entity × country × document type) for customer-facing **sales invoices/credit notes** (the EU/LatAm statutory gapless-series requirement — not journals) — substrate for e-invoicing (Phase 3); backdating flag (postingDate ≪ createdAt) in the JE export.
+- [ ] **Schema seed:** `journal.bookId` (+ `accountingBook` table, seeded `PRIMARY` per group) — lands with Spec A's migration so every later poster/report is book-aware (GAP-5 step 1). Scoping resolved: **group-scoped definitions with per-company enablement** (an `accountingBookCompany` enablement table), mirroring the shared chart-of-accounts pattern.
 - [ ] **Cutover tooling** (§Cutover below) — spec the activation event + opening-balance wizard; required for flag retirement, so it belongs to Phase 0 even though it ships last in it.
 
 ## Phase 1 — Close & FX completeness
 
-- [ ] **Unrealized FX revaluation** (SD-4): close task revaluing open FX invoices, unapplied payments/memos, FX bank balances at period-end rate; auto-reversing entries to new `unrealizedExchangeGain/LossAccount` defaults; posts as *accounting* source; joins `getPeriodCloseReadiness`. (Method — auto-reverse vs delta — open question.)
+- [ ] **Unrealized FX revaluation** (SD-4): close task revaluing open FX invoices, unapplied payments/memos, FX bank balances at period-end rate; **SAP-style auto-reversing** entries (post at period end, reverse day 1 next period — self-healing; resolved 2026-07-03) to new `unrealizedExchangeGain/LossAccount` defaults; posts as *accounting* source; joins `getPeriodCloseReadiness`.
 - [ ] **Exchange-rate history feed** (SD-5): daily job appends `exchangeRateHistory` closing rates + derives period averages; consolidated reports warn on missing coverage instead of silently falling back to rate 1.
 - [ ] **Posted CTA** (SD-5): consolidation posts CTA to `accountDefault.currencyTranslationAccount` resolved by id (kill the hardcoded "3200"); CTA rolls forward; translated income statement learns `netChange`.
 - [ ] **Scheduled depreciation** (GAP-4.1): monthly Inngest proposal → Draft depreciation run → approval → post; close-readiness check "depreciation posted for period".
@@ -68,7 +73,7 @@ Cut as three specs via `/spec-writing`, then `/plan` + execute each:
 
 ## Phase 2 — Subledger completeness
 
-- [ ] **Revenue recognition v1** (GAP-1): deferred revenue schedules + recognition journal; customer deposits/prepayments as liabilities; cost-based percent-of-completion for long-lead jobs (uses existing job costing); contract asset/liability rollforward report. SSP allocation explicitly deferred. (Confirm the cut — open question.)
+- [ ] **Revenue recognition v1** (GAP-1): deferred revenue schedules + recognition journal; customer deposits/prepayments as liabilities; cost-based percent-of-completion for long-lead jobs (uses existing job costing); contract asset/liability rollforward report. SSP allocation explicitly deferred. **TODO before cutting this spec (resolved with condition): validate the cut against real customer contracts — check current/pipeline customers for bundled obligations that would force SSP allocation earlier.**
 - [ ] **Inventory valuation** (GAP-3): standard-cost input + actual-vs-standard variance posting → inventory revaluation document (`Revaluation` cost-ledger type) → LCNRV write-down run (reversal per book: US no, IAS 2 yes — first multi-book consumer) → GL posting for quantity adjustments → overhead absorption to GL → landed cost.
 - [ ] **Fixed assets completeness** (GAP-4): disposal with proceeds (gain/loss = proceeds − NBV), impairment posting, CIP asset class + capitalization from job/PO costs, component assets.
 - [ ] **Master-data change controls** (SD-6): supplier bank details table + approval-gated changes (prereq for any payment execution), change alerts on `accountDefault`/tax config.
@@ -78,7 +83,7 @@ Cut as three specs via `/spec-writing`, then `/plan` + execute each:
 - [ ] **Adjustment books** (GAP-5): NetSuite-style delta books on `bookId`; book-specific depreciation per asset; book columns in reports. First consumers: IAS 2 reversals, statutory depreciation, IFRS 16.
 - [ ] **Leases** (GAP-2): lease master, PV/IBR, ROU + liability effective-interest schedules, operating vs finance (+ IFRS 16 single model per book), monthly JEs, maturity-analysis export.
 - [ ] **Statutory audit files** (GAP-D3): FEC 18-field export (thin layer over the Phase-0 JE export), SAF-T country flavors (taxLedger supplies the tax section), GoBD data-access export; statutory COA alternative-account-number mapping; WORM retention ≥10y + legal hold.
-- [ ] **E-invoicing framework** (GAP-D2): EN 16931 semantic model from Carbon invoices (tax spec's registrations/summary blocks are prereqs); Peppol BIS 3.0 / Factur-X / XRechnung renderers; clearance state machine (Pending → Submitted → Accepted/Rejected → Corrected); inbound structured invoices into AP; middleware partner behind one adapter interface (partner choice — open question; France Sept 2026 is the first hard deadline).
+- [ ] **E-invoicing framework** (GAP-D2): EN 16931 semantic model from Carbon invoices (tax spec's registrations/summary blocks are prereqs); Peppol BIS 3.0 / Factur-X / XRechnung renderers; clearance state machine (Pending → Submitted → Accepted/Rejected → Corrected); inbound structured invoices into AP. **Partner resolved: Avalara as a first-class integration** (Avalara E-Invoicing APIs behind Carbon's adapter interface, same posture as the tax spec's AvaTax connector — the two share `companyIntegration` credentials). France Sept 2026 is the first hard deadline.
 - [ ] **Filing extensions** (GAP-D1): AP withholding tax (treaty rates, certificates), EC Sales List + Intrastat extracts, UK MTD digital-links submission.
 - [ ] **Segments** (GAP-7): server-side enforcement of required dimensions at posting; reserved Segment dimension derived from master data; segment columns on statements; ASU 2023-07 expense detail.
 
@@ -139,8 +144,9 @@ Audit posture: the activation event, opening journal, config locks, and pre-cuto
 
 ## Remaining open questions
 
-Tracked in the spec's Open Questions section (`2026-07-03-public-company-readiness.md`) — still open: sanctioned repair path under immutability; approval launch scope; numbering domain (annual reset vs continuous); rev-rec v1 cut; unrealized FX method; e-invoicing partner; SoD detective-vs-preventive; SOC 1 timing/scope; book scoping (group vs entity — blocks the Phase-0 `bookId` seed). Resolve via `/grill` before cutting the Phase-0 specs.
+**None.** All nine resolved by Brad on 2026-07-03 — recorded inline in the spec's Open Questions section and in Governing decision 5 above. One conditional carry-forward: the rev-rec contract-validation TODO (Phase 2) must be done before that spec is cut.
 
 ## Changelog
 
 - 2026-07-03: Created. Governing decisions locked (switch → internal FF + cutover; virtual year-end; three fold-ins applied to unbuilt specs with delta banners on their plans).
+- 2026-07-03: All nine open questions resolved (Governing decision 5). Approvals workstream (Phase 0 Spec B — JEs + payments + purchase invoices on the existing PO engine) pulled forward to start immediately, in parallel with Phase ∅. Numbering fix confirmed forward-only (no renumbering of history); book scoping = group definitions + per-company enablement; FX = auto-reverse; e-invoicing = Avalara first-class; SoD = detective v1.
