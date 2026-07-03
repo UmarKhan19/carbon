@@ -30,6 +30,7 @@ import {
 import { ItemLifecycleBadge } from "./ItemLifecycleBadge";
 import ItemThumbnail from "./ItemThumbnail";
 import Location from "./Location";
+import MetricCard from "./MetricCard";
 import New from "./New";
 import PeriodSelector from "./PeriodSelector";
 import RealtimeDataProvider from "./RealtimeDataProvider";
@@ -66,6 +67,7 @@ export {
   MethodBadge,
   MethodIcon,
   MethodItemTypeIcon,
+  MetricCard,
   ModuleIcon,
   New,
   OperationStatusIcon,

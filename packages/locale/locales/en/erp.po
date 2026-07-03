@@ -35,9 +35,6 @@ msgstr "\"{taskName}\" checks itself off once its {0} Setup Map items are marked
 msgid "\"{taskName}\" is done — all {0} of its Setup Map items are configured."
 msgstr "\"{taskName}\" is done — all {0} of its Setup Map items are configured."
 
-msgid "\"Nobody got fired for buying it.\" An incumbent comfort factor."
-msgstr "\"Nobody got fired for buying it.\" An incumbent comfort factor."
-
 msgid "(excluded for this customer)"
 msgstr "(excluded for this customer)"
 
@@ -218,9 +215,6 @@ msgstr "A firm order to a supplier; status moves through receive and invoice bef
 msgid "A formal acceptance / sign-off phase"
 msgstr "A formal acceptance / sign-off phase"
 
-msgid "A heavy, structured methodology that big, cautious buyers expect."
-msgstr "A heavy, structured methodology that big, cautious buyers expect."
-
 msgid "A issue record tracks quality issues and their resolution process."
 msgstr "A issue record tracks quality issues and their resolution process."
 
@@ -281,6 +275,12 @@ msgstr "A quote is a set of prices for specific parts and quantities."
 msgid "A quote line contains pricing and lead times for a particular part"
 msgstr "A quote line contains pricing and lead times for a particular part"
 
+msgid "A reusable, versioned set of work instructions attached to a process, giving an operation its ordered steps to record and check plus the parameters it runs at."
+msgstr "A reusable, versioned set of work instructions attached to a process, giving an operation its ordered steps to record and check plus the parameters it runs at."
+
+msgid "A routing step on a released job, the job's own copy of an operation, carrying a status the floor drives from Todo through Done."
+msgstr "A routing step on a released job, the job's own copy of an operation, carrying a status the floor drives from Todo through Done."
+
 msgid "A sales invoice (you bill a customer) or purchase invoice (a supplier bills you); payment is a field, not a separate record."
 msgstr "A sales invoice (you bill a customer) or purchase invoice (a supplier bills you); payment is a field, not a separate record."
 
@@ -316,6 +316,9 @@ msgstr "A supplier's priced response to a purchasing RFQ — one per supplier; D
 
 msgid "A taxable surcharge (handling, setup, fuel) added to the line; rolls into the tax base."
 msgstr "A taxable surcharge (handling, setup, fuel) added to the line; rolls into the tax base."
+
+msgid "A timed record of Setup, Labor, or Machine work logged against a job operation, whose duration rolls up into the operation's actual cost."
+msgstr "A timed record of Setup, Labor, or Machine work logged against a job operation, whose duration rolls up into the operation's actual cost."
 
 msgid "A tool is a physical item used to make a part that can be used across multiple jobs"
 msgstr "A tool is a physical item used to make a part that can be used across multiple jobs"
@@ -1684,14 +1687,8 @@ msgstr "Book a call to discuss guided implementation"
 msgid "Book a call with Carbon"
 msgstr "Book a call with Carbon"
 
-msgid "Brand safety"
-msgstr "Brand safety"
-
 msgid "Breadcrumb"
 msgstr "Breadcrumb"
-
-msgid "Breadth of legacy modules"
-msgstr "Breadth of legacy modules"
 
 msgid "Bring in your parts, BOMs, Bill of Process, and costing — with Carbon's import tools, CSV, or LLM help."
 msgstr "Bring in your parts, BOMs, Bill of Process, and costing — with Carbon's import tools, CSV, or LLM help."
@@ -3235,9 +3232,6 @@ msgstr "Debit"
 
 msgid "Debit Account"
 msgstr "Debit Account"
-
-msgid "Decades of niche features for edge-case industries."
-msgstr "Decades of niche features for edge-case industries."
 
 msgid "Decide what an operator sees if they try to issue a batch or serial that's already expired."
 msgstr "Decide what an operator sees if they try to issue a batch or serial that's already expired."
@@ -5973,12 +5967,6 @@ msgstr "Internal"
 msgid "Internal Notes"
 msgstr "Internal Notes"
 
-msgid "Internal only · not for customers"
-msgstr "Internal only · not for customers"
-
-msgid "Internal reference for where each tool is stronger. Use it to set expectations honestly, not to oversell."
-msgstr "Internal reference for where each tool is stronger. Use it to set expectations honestly, not to oversell."
-
 msgid "inv"
 msgstr "inv"
 
@@ -6246,6 +6234,9 @@ msgstr "Job Location"
 msgid "Job Materials"
 msgstr "Job Materials"
 
+msgid "Job operation"
+msgstr "Job operation"
+
 msgid "Job Operation"
 msgstr "Job Operation"
 
@@ -6496,9 +6487,6 @@ msgstr "List Options"
 
 msgid "List Parameters"
 msgstr "List Parameters"
-
-msgid "Live in weeks, not quarters. Most of the product is already built."
-msgstr "Live in weeks, not quarters. Most of the product is already built."
 
 msgid "Live on Carbon"
 msgstr "Live on Carbon"
@@ -6757,11 +6745,17 @@ msgstr "Mark \"{0}\" as passed?"
 msgid "Mark all as configured"
 msgstr "Mark all as configured"
 
+msgid "Mark as Paid"
+msgstr "Mark as Paid"
+
 msgid "Mark as Planned"
 msgstr "Mark as Planned"
 
 msgid "Mark as read"
 msgstr "Mark as read"
+
+msgid "Mark as Unpaid"
+msgstr "Mark as Unpaid"
 
 msgid "Mark checkpoint passed"
 msgstr "Mark checkpoint passed"
@@ -7059,9 +7053,6 @@ msgstr "Model removed from job"
 
 msgid "Model removed from line"
 msgstr "Model removed from line"
-
-msgid "Modern, connected core"
-msgstr "Modern, connected core"
 
 msgid "Module"
 msgstr "Module"
@@ -7896,9 +7887,6 @@ msgstr "On-hand inventory remains"
 msgid "On-time delivery"
 msgstr "On-time delivery"
 
-msgid "One database from quote to cash, with AI-assisted setup and migration."
-msgstr "One database from quote to cash, with AI-assisted setup and migration."
-
 msgid "One serial unit or one batch that Carbon follows individually, carrying its own status and attributes such as an expiry date."
 msgstr "One serial unit or one batch that Carbon follows individually, carrying its own status and attributes such as an expiry date."
 
@@ -7985,9 +7973,6 @@ msgstr "Open Sales Orders"
 
 msgid "Open Scheduled"
 msgstr "Open Scheduled"
-
-msgid "Open source and extensible; you're not locked in."
-msgstr "Open source and extensible; you're not locked in."
 
 msgid "Open task details"
 msgstr "Open task details"
@@ -8116,9 +8101,6 @@ msgstr "Other Income account for vendor balances cleared without full payment on
 msgid "Other Type"
 msgstr "Other Type"
 
-msgid "Others vs Carbon"
-msgstr "Others vs Carbon"
-
 msgid "Out"
 msgstr "Out"
 
@@ -8184,9 +8166,6 @@ msgstr "Overwrite the target manufacturing method with the quote method"
 
 msgid "Owner (cost center)"
 msgstr "Owner (cost center)"
-
-msgid "Ownership"
-msgstr "Ownership"
 
 #. placeholder {0}: i18n._(member.owns)
 msgid "Owns: {0}"
@@ -8769,6 +8748,9 @@ msgstr "production"
 
 msgid "Production"
 msgstr "Production"
+
+msgid "Production event"
+msgstr "Production event"
 
 msgid "Production Event"
 msgstr "Production Event"
@@ -9688,9 +9670,6 @@ msgstr "RFQs"
 msgid "Right item"
 msgstr "Right item"
 
-msgid "Rigor and reassurance"
-msgstr "Rigor and reassurance"
-
 msgid "Risk"
 msgstr "Risk"
 
@@ -10608,9 +10587,6 @@ msgstr "Sign-offs that must be recorded before this issue can be closed; in addi
 msgid "Signed in as {name}"
 msgstr "Signed in as {name}"
 
-msgid "Simplicity and speed"
-msgstr "Simplicity and speed"
-
 msgid "Sites & locations"
 msgstr "Sites & locations"
 
@@ -10748,6 +10724,9 @@ msgstr "Standard"
 
 msgid "Standard cloud Carbon fits how your company runs"
 msgstr "Standard cloud Carbon fits how your company runs"
+
+msgid "Standard factor"
+msgstr "Standard factor"
 
 msgid "Standard Lead Time"
 msgstr "Standard Lead Time"
@@ -11911,6 +11890,9 @@ msgstr "The typical number of days between sending work to this supplier for thi
 msgid "The unique identifier on this physical unit; one row per serial, quantity is always 1."
 msgstr "The unique identifier on this physical unit; one row per serial, quantity is always 1."
 
+msgid "The unit a routing time is expressed in, such as Hours/Piece or Total Hours, telling Carbon whether the time scales with quantity or is fixed per run."
+msgstr "The unit a routing time is expressed in, such as Hours/Piece or Total Hours, telling Carbon whether the time scales with quantity or is fixed per run."
+
 msgid "The unit price of the item at the time of the purchase"
 msgstr "The unit price of the item at the time of the purchase"
 
@@ -12843,6 +12825,9 @@ msgstr "View Certificate"
 msgid "View Contact"
 msgstr "View Contact"
 
+msgid "View Contained Issues"
+msgstr "View Contained Issues"
+
 msgid "View Custom Fields"
 msgstr "View Custom Fields"
 
@@ -12882,8 +12867,14 @@ msgstr "View missing values"
 msgid "View Open"
 msgstr "View Open"
 
+msgid "View Open Actions"
+msgstr "View Open Actions"
+
 msgid "View Open Invoices"
 msgstr "View Open Invoices"
+
+msgid "View Open Issues"
+msgstr "View Open Issues"
 
 msgid "View Open Orders"
 msgstr "View Open Orders"
@@ -12896,6 +12887,9 @@ msgstr "View Open Quotes"
 
 msgid "View Open RFQs"
 msgstr "View Open RFQs"
+
+msgid "View Payables"
+msgstr "View Payables"
 
 msgid "View Payment"
 msgstr "View Payment"
@@ -12923,6 +12917,9 @@ msgstr "View Reactive"
 
 msgid "View Receipt"
 msgstr "View Receipt"
+
+msgid "View Receivables"
+msgstr "View Receivables"
 
 msgid "View Scheduled"
 msgstr "View Scheduled"
@@ -13114,9 +13111,6 @@ msgstr "Welcome to Carbon"
 msgid "Welcome, {companyName}"
 msgstr "Welcome, {companyName}"
 
-msgid "What Carbon does better"
-msgstr "What Carbon does better"
-
 msgid "What category of failure this is — Mechanical, Electrical, Software, Operator, Material, etc.; rolls up into the failure-mode pareto report so the category breakdown is meaningful."
 msgstr "What category of failure this is — Mechanical, Electrical, Software, Operator, Material, etc.; rolls up into the failure-mode pareto report so the category breakdown is meaningful."
 
@@ -13143,9 +13137,6 @@ msgstr "What kind of PO this is — standard goods, services, outside-processing
 
 msgid "What kind of quote this is — standard supplier quote, blanket-agreement priced quote, or contract-manufacturing quote; drives the PO line layout when converted."
 msgstr "What kind of quote this is — standard supplier quote, blanket-agreement priced quote, or contract-manufacturing quote; drives the PO line layout when converted."
-
-msgid "What others do better"
-msgstr "What others do better"
 
 msgid "What source this dimension pulls its allowed values from (custom list or an existing entity like customer, location, employee)."
 msgstr "What source this dimension pulls its allowed values from (custom list or an existing entity like customer, location, employee)."

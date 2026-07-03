@@ -334,15 +334,14 @@ export async function updatePurchaseInvoiceStatus(
     status: (typeof purchaseInvoiceStatusType)[number];
     assignee: null | undefined;
     updatedBy: string;
+    datePaid?: string | null;
   }
 ) {
-  // Paid / Partially Paid / Overdue are derived in the purchaseInvoices view
-  // from invoiceSettlement. Rejecting them here ensures status integrity.
-  if (
-    update.status === "Paid" ||
-    update.status === "Partially Paid" ||
-    update.status === "Overdue"
-  ) {
+  // Partially Paid / Overdue are derived in the purchaseInvoices view from
+  // invoiceSettlement. Base-status 'Paid' is the manual/legacy/Xero "settled"
+  // signal honored by the views and aging/tie-out RPCs; the route enforces
+  // that manual 'Paid' is only allowed when accounting is disabled.
+  if (update.status === "Partially Paid" || update.status === "Overdue") {
     return {
       data: null,
       error: {
@@ -380,15 +379,14 @@ export async function updateSalesInvoiceStatus(
     status: (typeof salesInvoiceStatusType)[number];
     assignee: null | undefined;
     updatedBy: string;
+    datePaid?: string | null;
   }
 ) {
-  // Paid / Partially Paid / Overdue are derived in the salesInvoices view
-  // from invoiceSettlement. Rejecting them here ensures status integrity.
-  if (
-    update.status === "Paid" ||
-    update.status === "Partially Paid" ||
-    update.status === "Overdue"
-  ) {
+  // Partially Paid / Overdue are derived in the salesInvoices view from
+  // invoiceSettlement. Base-status 'Paid' is the manual/legacy/Xero "settled"
+  // signal honored by the views and aging/tie-out RPCs; the route enforces
+  // that manual 'Paid' is only allowed when accounting is disabled.
+  if (update.status === "Partially Paid" || update.status === "Overdue") {
     return {
       data: null,
       error: {
@@ -1909,7 +1907,9 @@ export async function getAvailableCreditsForParty(
   const ids = rows.map((m) => m.id as string);
   const apps = await client
     .from("invoiceSettlement")
-    .select("memoId, appliedAmount, appliedViaPaymentId")
+    .select(
+      "memoId, appliedAmount, appliedViaPaymentId, appliedViaPayment:payment!invoiceSettlement_appliedViaPaymentId_fkey(status)"
+    )
     .in("memoId", ids);
   if (apps.error) return { data: null, error: apps.error };
 
@@ -1919,6 +1919,12 @@ export async function getAvailableCreditsForParty(
     const viaId = (a as { appliedViaPaymentId: string | null })
       .appliedViaPaymentId;
     if (excludePaymentId && viaId === excludePaymentId) continue;
+    // A voided applying payment releases its credit application — the
+    // invoice balance reopens (the views stop counting the row), so the
+    // memo's remaining must reopen with it. Draft still reserves.
+    const viaStatus = (a as { appliedViaPayment: { status: string } | null })
+      .appliedViaPayment?.status;
+    if (viaId && viaStatus === "Voided") continue;
     appliedByMemo.set(
       a.memoId,
       (appliedByMemo.get(a.memoId) ?? 0) + Number(a.appliedAmount)
@@ -1969,13 +1975,19 @@ export async function getCompanyHasOpenCredits(
   const ids = rows.map((m) => m.id as string);
   const apps = await client
     .from("invoiceSettlement")
-    .select("memoId, appliedAmount")
+    .select(
+      "memoId, appliedAmount, appliedViaPaymentId, appliedViaPayment:payment!invoiceSettlement_appliedViaPaymentId_fkey(status)"
+    )
     .in("memoId", ids);
   if (apps.error) return false;
 
   const appliedByMemo = new Map<string, number>();
   for (const a of apps.data ?? []) {
     if (!a.memoId) continue;
+    // A voided applying payment releases its credit application.
+    const viaStatus = (a as { appliedViaPayment: { status: string } | null })
+      .appliedViaPayment?.status;
+    if (a.appliedViaPaymentId && viaStatus === "Voided") continue;
     appliedByMemo.set(
       a.memoId,
       (appliedByMemo.get(a.memoId) ?? 0) + Number(a.appliedAmount)
@@ -2095,10 +2107,23 @@ export async function applyCreditsToInvoices(
       .where("companyId", "=", args.companyId)
       .forUpdate()
       .execute();
+    // A voided applying payment releases its credit application; Draft
+    // still reserves (pessimistic, matches the composer's available list).
     const priorByMemo = await trx
       .selectFrom("invoiceSettlement")
-      .select(["memoId", "appliedAmount"])
-      .where("memoId", "in", memoIds)
+      .leftJoin(
+        "payment as vp",
+        "vp.id",
+        "invoiceSettlement.appliedViaPaymentId"
+      )
+      .select(["invoiceSettlement.memoId", "invoiceSettlement.appliedAmount"])
+      .where("invoiceSettlement.memoId", "in", memoIds)
+      .where((eb) =>
+        eb.or([
+          eb("invoiceSettlement.appliedViaPaymentId", "is", null),
+          eb("vp.status", "!=", "Voided")
+        ])
+      )
       .execute();
     const priorApplied = new Map<string, number>();
     for (const p of priorByMemo) {

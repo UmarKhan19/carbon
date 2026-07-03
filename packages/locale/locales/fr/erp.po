@@ -35,9 +35,6 @@ msgstr ""
 msgid "\"{taskName}\" is done — all {0} of its Setup Map items are configured."
 msgstr ""
 
-msgid "\"Nobody got fired for buying it.\" An incumbent comfort factor."
-msgstr "« Personne n'a jamais été licencié pour l'avoir acheté. » Un facteur de confort pour l'incumbent."
-
 msgid "(excluded for this customer)"
 msgstr "(exclu pour ce client)"
 
@@ -218,9 +215,6 @@ msgstr "Une commande ferme auprès d'un fournisseur ; le statut passe par récep
 msgid "A formal acceptance / sign-off phase"
 msgstr "Une phase d'acceptation formelle / de signature"
 
-msgid "A heavy, structured methodology that big, cautious buyers expect."
-msgstr "Une méthodologie lourde et structurée que les grands acheteurs prudents attendent."
-
 msgid "A issue record tracks quality issues and their resolution process."
 msgstr "Un enregistrement de problème suit les problèmes de qualité et leur processus de résolution."
 
@@ -281,6 +275,12 @@ msgstr "Un devis est un ensemble de prix pour des pièces et des quantités spé
 msgid "A quote line contains pricing and lead times for a particular part"
 msgstr "Une ligne de devis contient les tarifs et les délais de livraison pour une pièce particulière"
 
+msgid "A reusable, versioned set of work instructions attached to a process, giving an operation its ordered steps to record and check plus the parameters it runs at."
+msgstr ""
+
+msgid "A routing step on a released job, the job's own copy of an operation, carrying a status the floor drives from Todo through Done."
+msgstr ""
+
 msgid "A sales invoice (you bill a customer) or purchase invoice (a supplier bills you); payment is a field, not a separate record."
 msgstr "Une facture de vente (vous facturez un client) ou une facture d'achat (un fournisseur vous facture) ; le paiement est un champ, pas un enregistrement séparé."
 
@@ -316,6 +316,9 @@ msgstr "La réponse tarifée d'un fournisseur à un RFQ d'achat — une par four
 
 msgid "A taxable surcharge (handling, setup, fuel) added to the line; rolls into the tax base."
 msgstr "Un supplément imposable (manutention, configuration, carburant) ajouté à la ligne et inclus dans la base imposable."
+
+msgid "A timed record of Setup, Labor, or Machine work logged against a job operation, whose duration rolls up into the operation's actual cost."
+msgstr ""
 
 msgid "A tool is a physical item used to make a part that can be used across multiple jobs"
 msgstr "Un outil est un article physique utilisé pour fabriquer une pièce qui peut être utilisée dans plusieurs travaux"
@@ -1684,14 +1687,8 @@ msgstr ""
 msgid "Book a call with Carbon"
 msgstr "Réserver un appel avec Carbon"
 
-msgid "Brand safety"
-msgstr "Sécurité de la marque"
-
 msgid "Breadcrumb"
 msgstr "Fil d'Ariane"
-
-msgid "Breadth of legacy modules"
-msgstr "Étendue des modules hérités"
 
 msgid "Bring in your parts, BOMs, Bill of Process, and costing — with Carbon's import tools, CSV, or LLM help."
 msgstr "Importez vos pièces, nomenclatures, processus de fabrication et coûts — avec les outils d'importation de Carbon, CSV ou l'aide de l'IA."
@@ -3235,9 +3232,6 @@ msgstr "Débit"
 
 msgid "Debit Account"
 msgstr "Compte Débiteur"
-
-msgid "Decades of niche features for edge-case industries."
-msgstr "Des décennies de fonctionnalités de niche pour les industries de cas limites."
 
 msgid "Decide what an operator sees if they try to issue a batch or serial that's already expired."
 msgstr "Décidez ce qu'un opérateur voit s'il essaie d'émettre un lot ou un numéro de série qui a déjà expiré."
@@ -5743,7 +5737,7 @@ msgid "If items already exist"
 msgstr "Si des articles existent déjà"
 
 msgid "If ordered, no stockout projected in the next 48 weeks"
-msgstr ""
+msgstr "Si commandé, aucune rupture de stock prévue au cours des 48 prochaines semaines"
 
 msgid "If something is off track"
 msgstr "Si quelque chose déraille"
@@ -5972,12 +5966,6 @@ msgstr "Interne"
 
 msgid "Internal Notes"
 msgstr "Notes internes"
-
-msgid "Internal only · not for customers"
-msgstr "Interne uniquement · pas pour les clients"
-
-msgid "Internal reference for where each tool is stronger. Use it to set expectations honestly, not to oversell."
-msgstr "Référence interne pour voir où chaque outil est plus performant. Utilisez-la pour fixer les attentes honnêtement, sans exagérer."
 
 msgid "inv"
 msgstr "inv"
@@ -6246,6 +6234,9 @@ msgstr "Localisation du travail"
 msgid "Job Materials"
 msgstr "Matériaux de travail"
 
+msgid "Job operation"
+msgstr ""
+
 msgid "Job Operation"
 msgstr "Opération de travail"
 
@@ -6496,9 +6487,6 @@ msgstr "Options de liste"
 
 msgid "List Parameters"
 msgstr "Paramètres de liste"
-
-msgid "Live in weeks, not quarters. Most of the product is already built."
-msgstr "Vivez en semaines, pas en trimestres. La plupart du produit est déjà construit."
 
 msgid "Live on Carbon"
 msgstr "En direct sur Carbon"
@@ -6757,11 +6745,17 @@ msgstr ""
 msgid "Mark all as configured"
 msgstr ""
 
+msgid "Mark as Paid"
+msgstr "Marquer comme payé"
+
 msgid "Mark as Planned"
 msgstr "Marquer comme planifié"
 
 msgid "Mark as read"
 msgstr "Marquer comme lu"
+
+msgid "Mark as Unpaid"
+msgstr "Marquer comme non payé"
 
 msgid "Mark checkpoint passed"
 msgstr "Marquer le point de contrôle comme réussi"
@@ -7059,9 +7053,6 @@ msgstr "Modèle supprimé du projet"
 
 msgid "Model removed from line"
 msgstr "Modèle supprimé de la ligne"
-
-msgid "Modern, connected core"
-msgstr "Cœur moderne et connecté"
 
 msgid "Module"
 msgstr "Module"
@@ -7896,9 +7887,6 @@ msgstr "Stock en main disponible"
 msgid "On-time delivery"
 msgstr "Livraison à temps"
 
-msgid "One database from quote to cash, with AI-assisted setup and migration."
-msgstr "Une seule base de données de la cotation au paiement, avec configuration et migration assistées par l'IA."
-
 msgid "One serial unit or one batch that Carbon follows individually, carrying its own status and attributes such as an expiry date."
 msgstr "Une unité de série ou un lot que Carbon suit individuellement, portant son propre statut et ses attributs tels qu'une date d'expiration."
 
@@ -7985,9 +7973,6 @@ msgstr "Commandes de vente ouvertes"
 
 msgid "Open Scheduled"
 msgstr "Planifiés ouverts"
-
-msgid "Open source and extensible; you're not locked in."
-msgstr "Open source et extensible ; vous n'êtes pas enfermé."
 
 msgid "Open task details"
 msgstr "Ouvrir les détails de la tâche"
@@ -8116,9 +8101,6 @@ msgstr "Compte de revenu supplémentaire pour les soldes fournisseurs apurés sa
 msgid "Other Type"
 msgstr "Autre Type"
 
-msgid "Others vs Carbon"
-msgstr "Autres vs Carbon"
-
 msgid "Out"
 msgstr "Hors"
 
@@ -8184,9 +8166,6 @@ msgstr "Remplacer la méthode de fabrication cible par la méthode de devis"
 
 msgid "Owner (cost center)"
 msgstr "Centre de coûts parent"
-
-msgid "Ownership"
-msgstr "Propriété"
 
 #. placeholder {0}: i18n._(member.owns)
 msgid "Owns: {0}"
@@ -8769,6 +8748,9 @@ msgstr "Écart de Production"
 
 msgid "Production"
 msgstr "Production"
+
+msgid "Production event"
+msgstr ""
 
 msgid "Production Event"
 msgstr "Événement de production"
@@ -9688,9 +9670,6 @@ msgstr "Appels d'offres"
 msgid "Right item"
 msgstr "Élément de droite"
 
-msgid "Rigor and reassurance"
-msgstr "Rigueur et assurance"
-
 msgid "Risk"
 msgstr "Risque"
 
@@ -10608,9 +10587,6 @@ msgstr "Autorisations qui doivent être enregistrées avant la fermeture de ce p
 msgid "Signed in as {name}"
 msgstr "Connecté en tant que {name}"
 
-msgid "Simplicity and speed"
-msgstr "Simplicité et rapidité"
-
 msgid "Sites & locations"
 msgstr "Sites et emplacements"
 
@@ -10748,6 +10724,9 @@ msgstr "Standard"
 
 msgid "Standard cloud Carbon fits how your company runs"
 msgstr "Carbon cloud standard s'adapte à la façon dont votre entreprise fonctionne"
+
+msgid "Standard factor"
+msgstr ""
 
 msgid "Standard Lead Time"
 msgstr "Délai de livraison standard"
@@ -11911,6 +11890,9 @@ msgstr "Le nombre typique de jours entre l'envoi de travail à ce fournisseur po
 msgid "The unique identifier on this physical unit; one row per serial, quantity is always 1."
 msgstr "L'identifiant unique sur cette unité physique; une ligne par numéro de série, la quantité est toujours 1."
 
+msgid "The unit a routing time is expressed in, such as Hours/Piece or Total Hours, telling Carbon whether the time scales with quantity or is fixed per run."
+msgstr ""
+
 msgid "The unit price of the item at the time of the purchase"
 msgstr "Le prix unitaire de l'article au moment de l'achat"
 
@@ -12843,6 +12825,9 @@ msgstr "Afficher le Certificat"
 msgid "View Contact"
 msgstr "Afficher le contact"
 
+msgid "View Contained Issues"
+msgstr "Afficher les problèmes contenus"
+
 msgid "View Custom Fields"
 msgstr "Afficher les champs personnalisés"
 
@@ -12882,8 +12867,14 @@ msgstr "Afficher les valeurs manquantes"
 msgid "View Open"
 msgstr "Afficher les ouvertes"
 
+msgid "View Open Actions"
+msgstr "Afficher les actions ouvertes"
+
 msgid "View Open Invoices"
 msgstr "Afficher les factures ouvertes"
+
+msgid "View Open Issues"
+msgstr "Afficher les problèmes ouverts"
 
 msgid "View Open Orders"
 msgstr "Afficher les commandes ouvertes"
@@ -12896,6 +12887,9 @@ msgstr "Afficher les devis ouverts"
 
 msgid "View Open RFQs"
 msgstr "Afficher les demandes de devis ouvertes"
+
+msgid "View Payables"
+msgstr "Afficher les comptes créditeurs"
 
 msgid "View Payment"
 msgstr "Afficher le paiement"
@@ -12923,6 +12917,9 @@ msgstr "Afficher Réactif"
 
 msgid "View Receipt"
 msgstr "Afficher le reçu"
+
+msgid "View Receivables"
+msgstr "Afficher les créances"
 
 msgid "View Scheduled"
 msgstr "Afficher planifiés"
@@ -13114,9 +13111,6 @@ msgstr "Bienvenue dans Carbon"
 msgid "Welcome, {companyName}"
 msgstr "Bienvenue, {companyName}"
 
-msgid "What Carbon does better"
-msgstr "Ce que Carbon fait mieux"
-
 msgid "What category of failure this is — Mechanical, Electrical, Software, Operator, Material, etc.; rolls up into the failure-mode pareto report so the category breakdown is meaningful."
 msgstr "Quelle catégorie de défaillance c'est — Mécanique, Électrique, Logiciel, Opérateur, Matériau, etc. ; elle se récapitule dans le rapport de pareto des modes de défaillance de sorte que la répartition par catégorie soit significative."
 
@@ -13143,9 +13137,6 @@ msgstr "Quel type de PO c'est — biens standard, services, traitement externe o
 
 msgid "What kind of quote this is — standard supplier quote, blanket-agreement priced quote, or contract-manufacturing quote; drives the PO line layout when converted."
 msgstr "Quel type de devis c'est — devis de fournisseur standard, devis à prix d'accord-cadre ou devis de fabrication contractuelle ; détermine la disposition de la ligne PO lors de la conversion."
-
-msgid "What others do better"
-msgstr "Ce que les autres font mieux"
 
 msgid "What source this dimension pulls its allowed values from (custom list or an existing entity like customer, location, employee)."
 msgstr "De quelle source cette dimension tire ses valeurs autorisées (liste personnalisée ou une entité existante comme client, localisation, employé)."
