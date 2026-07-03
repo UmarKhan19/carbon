@@ -1661,6 +1661,9 @@ msgstr "物料清单"
 msgid "Bonus Depreciation %"
 msgstr "奖金折旧%"
 
+msgid "Book a call to discuss guided implementation"
+msgstr ""
+
 msgid "Book a call with Carbon"
 msgstr "与 Carbon 预约通话"
 
@@ -3807,6 +3810,12 @@ msgstr "完成"
 
 msgid "Done"
 msgstr "完成"
+
+msgid "Done — everything in this group is configured."
+msgstr ""
+
+msgid "Done — this phase's checkpoint has been passed."
+msgstr ""
 
 msgid "Done when day-to-day runs without us in the room"
 msgstr "完成时日常运营无需我们在场"
@@ -11938,6 +11947,9 @@ msgstr "这些电子邮件地址将自动抄送到发送给客户的所有报价
 msgid "These jobs have operations assigned to this work center:"
 msgstr "这些工作有分配给此工作中心的操作："
 
+msgid "This checks itself off once every item in this group is marked \"Configured\" on the Setup Map."
+msgstr ""
+
 msgid "This completes the Discovery step."
 msgstr "这完成了发现步骤。"
 
@@ -12006,6 +12018,9 @@ msgstr "这个零件已过时（无库存）。"
 
 msgid "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 msgstr "此零件已被替代并设置为仅库存 — 它补充到其备件储备下限，与需求无关。"
+
+msgid "This phase checks itself off once all of its tasks in the project plan are done."
+msgstr ""
 
 msgid "This Quarter"
 msgstr "本季度"
@@ -12265,9 +12280,6 @@ msgstr "已追踪实体已被拣选"
 
 msgid "Tracked entity ID is required but none was found"
 msgstr "已跟踪实体ID是必需的，但未找到"
-
-msgid "Tracked from the Setup Map — open it"
-msgstr "从设置地图跟踪 — 打开它"
 
 msgid "Tracking"
 msgstr "追踪"
@@ -12539,12 +12551,6 @@ msgstr "更新看板信息以进行扫描式补货。"
 
 msgid "Update the purchase order quantities"
 msgstr "更新采购订单数量"
-
-msgid "Update this in the project plan"
-msgstr "在项目计划中更新此项"
-
-msgid "Update this in the project plan."
-msgstr "在项目计划中更新此项。"
 
 msgid "Updated"
 msgstr "已更新"
@@ -12959,6 +12965,9 @@ msgstr "与您的项目冠军一起逐个领域进行审查，并切换任何超
 
 msgid "Walk your current process, systems, and data"
 msgstr "浏览您当前的流程、系统和数据"
+
+msgid "Want our team alongside you? Expert eyes on your setup, data, and go-live."
+msgstr ""
 
 msgid "Warehouse Transfer"
 msgstr "仓库转移"

@@ -1661,6 +1661,9 @@ msgstr "Zestawienia materiałowe"
 msgid "Bonus Depreciation %"
 msgstr "Bonus deprecjacja %"
 
+msgid "Book a call to discuss guided implementation"
+msgstr ""
+
 msgid "Book a call with Carbon"
 msgstr "Zarezerwuj rozmowę z Carbon"
 
@@ -3807,6 +3810,12 @@ msgstr "gotowe"
 
 msgid "Done"
 msgstr "Gotowe"
+
+msgid "Done — everything in this group is configured."
+msgstr ""
+
+msgid "Done — this phase's checkpoint has been passed."
+msgstr ""
 
 msgid "Done when day-to-day runs without us in the room"
 msgstr "Gotowe, gdy codzienne operacje działają bez naszej obecności"
@@ -11938,6 +11947,9 @@ msgstr "Te adresy e-mail będą automatycznie dodawane w polu DW do wszystkich w
 msgid "These jobs have operations assigned to this work center:"
 msgstr "Te zadania mają operacje przypisane do tego centrum pracy:"
 
+msgid "This checks itself off once every item in this group is marked \"Configured\" on the Setup Map."
+msgstr ""
+
 msgid "This completes the Discovery step."
 msgstr "To uzupełnia krok Discovery."
 
@@ -12006,6 +12018,9 @@ msgstr "Ta część jest przestarzała (Brak zapasu)."
 
 msgid "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 msgstr "Ta część jest zastąpiona i ustawiona na Stock Only — jest uzupełniana do poziomu rezerwy części zamiennych, niezależnie od popytu."
+
+msgid "This phase checks itself off once all of its tasks in the project plan are done."
+msgstr ""
 
 msgid "This Quarter"
 msgstr "Ten Kwartał"
@@ -12265,9 +12280,6 @@ msgstr "Śledzona jednostka już pobrana"
 
 msgid "Tracked entity ID is required but none was found"
 msgstr "Identyfikator śledzonej jednostki jest wymagany, ale nie znaleziono żadnego"
-
-msgid "Tracked from the Setup Map — open it"
-msgstr "Śledzone z Mapy Konfiguracji — otwórz ją"
 
 msgid "Tracking"
 msgstr "Śledzenie"
@@ -12539,12 +12551,6 @@ msgstr "Zaktualizuj informacje kanban dla uzupełniania opartego na skanowaniu."
 
 msgid "Update the purchase order quantities"
 msgstr "Zaktualizuj ilości zamówienia zakupu"
-
-msgid "Update this in the project plan"
-msgstr "Zaktualizuj to w planie projektu"
-
-msgid "Update this in the project plan."
-msgstr "Zaktualizuj to w planie projektu."
 
 msgid "Updated"
 msgstr "Zaktualizowano"
@@ -12959,6 +12965,9 @@ msgstr "Przejdź przez każdy obszar ze swoim liderem i wyłącz wszystko, co je
 
 msgid "Walk your current process, systems, and data"
 msgstr "Przejdź przez swój obecny proces, systemy i dane"
+
+msgid "Want our team alongside you? Expert eyes on your setup, data, and go-live."
+msgstr ""
 
 msgid "Warehouse Transfer"
 msgstr "Transfer magazynu"

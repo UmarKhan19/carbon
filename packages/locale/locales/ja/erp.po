@@ -1661,6 +1661,9 @@ msgstr "BOM"
 msgid "Bonus Depreciation %"
 msgstr "ボーナス減価償却 %"
 
+msgid "Book a call to discuss guided implementation"
+msgstr ""
+
 msgid "Book a call with Carbon"
 msgstr "Carbonとの通話を予約する"
 
@@ -3807,6 +3810,12 @@ msgstr "完了"
 
 msgid "Done"
 msgstr "完了"
+
+msgid "Done — everything in this group is configured."
+msgstr ""
+
+msgid "Done — this phase's checkpoint has been passed."
+msgstr ""
 
 msgid "Done when day-to-day runs without us in the room"
 msgstr "日常業務が私たちなしで円滑に進むようになったら完了"
@@ -11938,6 +11947,9 @@ msgstr "これらのメールアドレスは、顧客に送信されるすべて
 msgid "These jobs have operations assigned to this work center:"
 msgstr "これらのジョブにはこのワークセンターに割り当てられた操作があります:"
 
+msgid "This checks itself off once every item in this group is marked \"Configured\" on the Setup Map."
+msgstr ""
+
 msgid "This completes the Discovery step."
 msgstr "これはDiscoveryステップを完了します。"
 
@@ -12006,6 +12018,9 @@ msgstr "このパーツは廃止されています（在庫なし）。"
 
 msgid "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 msgstr "このパーツは廃止予定であり、「Stock Only」に設定されています。予備部品の予備フロアまで補充され、需要とは無関係に運用されます。"
+
+msgid "This phase checks itself off once all of its tasks in the project plan are done."
+msgstr ""
 
 msgid "This Quarter"
 msgstr "今四半期"
@@ -12265,9 +12280,6 @@ msgstr "既に追跡対象が選択されています"
 
 msgid "Tracked entity ID is required but none was found"
 msgstr "追跡対象エンティティIDが必要ですが、見つかりませんでした"
-
-msgid "Tracked from the Setup Map — open it"
-msgstr "セットアップマップから追跡されています — 開く"
 
 msgid "Tracking"
 msgstr "追跡"
@@ -12539,12 +12551,6 @@ msgstr "スキャンベースの補充のためのカンバン情報を更新し
 
 msgid "Update the purchase order quantities"
 msgstr "購買注文数量を更新"
-
-msgid "Update this in the project plan"
-msgstr "プロジェクトプランでこれを更新してください"
-
-msgid "Update this in the project plan."
-msgstr "プロジェクトプランでこれを更新してください。"
 
 msgid "Updated"
 msgstr "更新済み"
@@ -12959,6 +12965,9 @@ msgstr "各エリアをチャンピオンと一緒に確認し、スコープ外
 
 msgid "Walk your current process, systems, and data"
 msgstr "現在のプロセス、システム、データを確認する"
+
+msgid "Want our team alongside you? Expert eyes on your setup, data, and go-live."
+msgstr ""
 
 msgid "Warehouse Transfer"
 msgstr "倉庫移動"

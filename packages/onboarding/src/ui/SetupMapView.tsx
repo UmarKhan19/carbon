@@ -133,8 +133,12 @@ export function SetupMapView() {
                   >
                     <div className="flex-1 min-w-0">
                       {url ? (
+                        // New tab (the ↗ arrow signals it): the ERP screen opens
+                        // alongside the map so the user keeps their place here.
                         <a
                           href={url}
+                          target="_blank"
+                          rel="noreferrer"
                           className="group inline-flex items-center gap-1 text-sm font-medium hover:text-primary transition-colors"
                         >
                           {i18n._(row.object)}
@@ -238,6 +242,8 @@ function CustomSetupRow({ row }: { row: ImplementationRowData }) {
             {payload.url ? (
               <a
                 href={payload.url}
+                target="_blank"
+                rel="noreferrer"
                 className="group inline-flex items-center gap-1 text-sm font-medium hover:text-primary transition-colors"
               >
                 {payload.object}

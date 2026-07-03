@@ -1661,6 +1661,9 @@ msgstr "Ürün Yapıları"
 msgid "Bonus Depreciation %"
 msgstr "Bonus amortisman %"
 
+msgid "Book a call to discuss guided implementation"
+msgstr ""
+
 msgid "Book a call with Carbon"
 msgstr "Carbon ile bir çağrı ayarlayın"
 
@@ -3807,6 +3810,12 @@ msgstr "tamamlandı"
 
 msgid "Done"
 msgstr "Tamamlandı"
+
+msgid "Done — everything in this group is configured."
+msgstr ""
+
+msgid "Done — this phase's checkpoint has been passed."
+msgstr ""
 
 msgid "Done when day-to-day runs without us in the room"
 msgstr "Günlük işlemler bizim olmadan sorunsuz çalıştığında tamamlanır"
@@ -11938,6 +11947,9 @@ msgstr "Bu e-posta adresleri, müşterilere gönderilen tüm teklif e-postaları
 msgid "These jobs have operations assigned to this work center:"
 msgstr "Bu işler bu iş merkezine atanmış işlemlere sahiptir:"
 
+msgid "This checks itself off once every item in this group is marked \"Configured\" on the Setup Map."
+msgstr ""
+
 msgid "This completes the Discovery step."
 msgstr "Bu, Keşif adımını tamamlar."
 
@@ -12006,6 +12018,9 @@ msgstr "Bu parça kullanımdan kaldırılmıştır (Stok Yok)."
 
 msgid "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 msgstr "Bu parça kullanımdan kaldırılmış ve Yalnızca Stok olarak ayarlanmıştır — talep bağımsız olarak yedek rezerv tabanına kadar yenilenir."
+
+msgid "This phase checks itself off once all of its tasks in the project plan are done."
+msgstr ""
 
 msgid "This Quarter"
 msgstr "Bu Çeyrek"
@@ -12265,9 +12280,6 @@ msgstr "Takip edilen varlık zaten alındı"
 
 msgid "Tracked entity ID is required but none was found"
 msgstr "Takip edilen varlık kimliği gerekli ancak hiçbiri bulunamadı"
-
-msgid "Tracked from the Setup Map — open it"
-msgstr "Kurulum Haritasından izleniyor — aç"
 
 msgid "Tracking"
 msgstr "Takip"
@@ -12539,12 +12551,6 @@ msgstr "Tarama tabanlı ikmal için kanban bilgilerini güncelleyin."
 
 msgid "Update the purchase order quantities"
 msgstr "Satın alma siparişi miktarlarını güncelle"
-
-msgid "Update this in the project plan"
-msgstr "Bunu proje planında güncelleyin"
-
-msgid "Update this in the project plan."
-msgstr "Bunu proje planında güncelleyin."
 
 msgid "Updated"
 msgstr "Güncellendi"
@@ -12959,6 +12965,9 @@ msgstr "Her alanı şampiyon ile birlikte gözden geçirin ve kapsam dışında 
 
 msgid "Walk your current process, systems, and data"
 msgstr "Mevcut sürecinizi, sistemlerinizi ve verilerinizi gözden geçirin"
+
+msgid "Want our team alongside you? Expert eyes on your setup, data, and go-live."
+msgstr ""
 
 msgid "Warehouse Transfer"
 msgstr "Depo Transferi"

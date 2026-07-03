@@ -23,12 +23,13 @@ import {
   spineForTier,
   stepTaskProgress,
   taskKey,
+  taskSetupProgress,
   taskStatus,
   tasksForStep
 } from "../logic";
 import type { BoardTask, GateValue, StateKind, StepDef, Tier } from "../types";
 import { ProgressPill } from "./ProgressPill";
-import { PageHeader } from "./primitives";
+import { DerivedStatus, PageHeader } from "./primitives";
 import {
   useCheckMap,
   useFieldMap,
@@ -254,22 +255,38 @@ function PhaseCard({
                 </span>
               );
 
-              // Setup rows aren't tickable here — the row opens the Setup Map,
-              // with the module's Docs/Video links inline. An <a> can't nest in
-              // a <button>, so these use a flex row of separate controls.
+              // Setup rows aren't tickable here — they check themselves off as
+              // their Setup Map rows are configured, so they get the derived
+              // ring (never a checkbox) and the row opens the Setup Map, with
+              // the module's Docs/Video links inline. An <a> can't nest in a
+              // <button>, so these use a flex row of separate controls.
               if (fromSetupMap) {
+                const setupProgress = taskSetupProgress(task, map);
                 return (
                   <li
                     key={task.key}
                     className="group flex items-start gap-3 rounded-lg px-2 py-1.5 hover:bg-muted/50 transition-colors"
                   >
+                    <DerivedStatus
+                      status={isDone ? "done" : isProg ? "prog" : "todo"}
+                      fraction={
+                        setupProgress.total > 0
+                          ? setupProgress.done / setupProgress.total
+                          : undefined
+                      }
+                      tooltip={
+                        isDone
+                          ? t`Done — everything in this group is configured.`
+                          : t`This checks itself off once every item in this group is marked "Configured" on the Setup Map.`
+                      }
+                      className="size-4 mt-0.5"
+                    />
                     <button
                       type="button"
                       onClick={() => onOpenSetupMap?.()}
-                      title={t`Tracked from the Setup Map — open it`}
+                      title={t`Open the Setup Map`}
                       className="flex items-start gap-3 min-w-0 flex-1 text-left"
                     >
-                      {checkbox}
                       {label}
                     </button>
                     <div className="shrink-0 flex items-center gap-2 text-xs mt-0.5">
