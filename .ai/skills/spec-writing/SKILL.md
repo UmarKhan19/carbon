@@ -1,22 +1,24 @@
 ---
 name: spec-writing
-description: Design a feature and write its spec at .ai/specs/{YYYY-MM-DD}-{slug}.md, with competitor research, explicit design decisions, and an Open Questions hard stop. Use when designing or brainstorming a new feature, a new module, a data-model change, or any change touching 3+ files or crossing modules. Do not use for small bug fixes or one-file refactors, and do not start implementation from this skill — implementation starts only after every open question is resolved.
+description: Design a feature and write its spec at .ai/specs/{YYYY-MM-DD}-{slug}.md, with competitor research and explicit design decisions. Open questions are resolved with the user BEFORE the spec is written — the interview comes first, the document second. Use when designing or brainstorming a new feature, a new module, a data-model change, or any change touching 3+ files or crossing modules. Do not use for small bug fixes or one-file refactors, and do not start implementation from this skill — implementation starts only after the spec is written with every question resolved.
 ---
 <!-- Workflow pattern inspired by Open Mercato (MIT License)
      https://github.com/open-mercato/open-mercato
      Copyright (c) 2025-2026 Open Mercato contributors -->
 
-# spec-writing — design a feature, produce a spec, stop at open questions
+# spec-writing — research, grill the open questions, THEN write the spec
 
 Input: a feature request. Output: a complete spec at
-`.ai/specs/{YYYY-MM-DD}-{slug}.md` whose **Open Questions section is a hard
-stop** — implementation must not start while any question is unresolved.
+`.ai/specs/{YYYY-MM-DD}-{slug}.md` written **after** every open question has
+been resolved with the user. The interview happens before the document exists,
+so the spec is written once, around real answers — not written around guesses
+and reworked after the fact.
 
 The spec is the single design artifact. Do not write separate "design docs" in
 other locations.
 
-**Announce at start:** "Using the spec-writing skill — designing {feature} and
-drafting the spec."
+**Announce at start:** "Using the spec-writing skill — designing {feature};
+I'll bring you the open questions before writing the spec."
 
 ## When to write a spec
 
@@ -58,7 +60,7 @@ Invoke `/research {feature}`. This is mandatory for ERP-domain features
 invent domain logic. Findings land in `.ai/research/{slug}.md`; cite that file
 from the spec.
 
-## Step 4: Make the design decisions
+## Step 4: Make the design decisions — and separate the questions
 
 For each significant decision (data model shape, status lifecycle, workflow,
 integration point):
@@ -66,11 +68,15 @@ integration point):
 1. State the question.
 2. Cite what the research found ("SAP and NetSuite both…").
 3. List 2–3 options with one-line trade-offs.
-4. Pick one and say why. If you cannot pick, it is an Open Question — do not
-   write "TBD" as a decision.
+4. **Decide it yourself if the research + codebase settle it** — record the
+   choice and rationale for the spec's Design Decisions table.
+5. **If you cannot settle it, it is an open question** — genuine domain
+   ambiguity, scope boundaries, data-model alternatives with real trade-offs,
+   product-positioning calls, anything where the user's answer changes what
+   you build. Do NOT pick a placeholder and move on; do NOT write "TBD".
 
-Run every new or modified entity through this checklist and record the answer in
-the spec's Design Decisions table:
+Run every new or modified entity through this checklist; decided rows go in the
+Design Decisions table, unsettled ones join the question list:
 
 | # | Heuristic | Question to answer |
 |---|-----------|--------------------|
@@ -82,10 +88,35 @@ the spec's Design Decisions table:
 | 6 | Module layout | One `{module}.service.ts`, one `{module}.models.ts`, barrel `index.ts`? |
 | 7 | Backward compatibility | Any FROZEN/STABLE surface touched (see `BACKWARD_COMPATIBILITY.md`)? What is the migration path? |
 
-## Step 5: Write the spec
+At least one open question is required before proceeding. Zero questions means
+you haven't thought hard enough — re-read the research and the heuristics table.
 
-Copy `.ai/specs/template.md` to `.ai/specs/{YYYY-MM-DD}-{slug}.md` (today's
-date, kebab-case slug) and fill every section. Rules:
+## Step 5: Grill — resolve the questions with the user BEFORE writing
+
+> 🛑 HARD STOP: the spec file is not written while any question is unresolved.
+
+Present the question list to the user and interview through it **one question
+at a time** (group max 2–3 only for single-module, no-schema designs). For each
+question:
+
+- State the question and **why it matters** (what changes downstream).
+- Give your **recommended answer** with a one-line rationale, plus the
+  alternatives and their trade-offs.
+- Cross-check the user's answer against the codebase before accepting it — if
+  the answer contradicts something real (an existing table, a lesson in
+  `.ai/lessons.md`, a prior spec), say so and re-ask.
+- Record the resolution: `- [x] {Question} — **Answer:** {decision and rationale}`.
+
+The user may batch ("accept all recommendations") — that is their call to make,
+not yours to assume. Never resolve a question yourself to unblock work;
+resolutions come only from a human answer, a research finding, or an explicit
+documented "out of scope for v1" decision.
+
+## Step 6: Write the spec
+
+Only now. Copy `.ai/specs/template.md` to `.ai/specs/{YYYY-MM-DD}-{slug}.md`
+(today's date, kebab-case slug) and fill every section, with the Step-5
+resolutions baked into the design. Rules:
 
 - SQL sketches use `id('prefix')`, `companyId`, composite PK, audit columns —
   never `gen_random_uuid()`.
@@ -93,59 +124,53 @@ date, kebab-case slug) and fill every section. Rules:
   correct totals in the list view", not "works correctly".
 - No `{placeholders}` left in the file; mark inapplicable sections `N/A` with a
   reason.
+- The Open Questions section records the resolved Q&A (all boxes checked, each
+  with its inline answer) — it is the audit trail of Step 5, not a to-do list.
 
-## Step 6: Open Questions — HARD STOP
+## Step 7: New questions discovered while writing
 
-Populate the Open Questions section with every genuine unknown (domain
-ambiguity, scope boundaries, data-model alternatives you couldn't settle,
-performance, UX choices):
+Writing the spec sometimes surfaces questions Step 4 missed. When that happens:
 
-```markdown
-## Open Questions
-
-> 🛑 HARD STOP: Do not proceed with implementation until these are answered.
-
-- [ ] {Question} — {why it matters}
-```
-
-Rules:
-
-- At least one open question is required. Zero questions means you haven't
-  thought hard enough — re-read the research and the heuristics table.
-- Never resolve questions yourself to unblock work. They are resolved only by a
-  human answer, a research finding, or an explicit documented "out of scope for
-  v1" decision.
-- Record each resolution inline: `- [x] {Question} — **Answer:** {decision and rationale}`.
-
-## Step 7: Present and wait
-
-Show the user the spec path and list the open questions verbatim. Ask for
-answers. Do not say "we can figure these out during implementation."
+- Add them to the Open Questions section as unchecked items with "why it
+  matters".
+- Take them back to the user (same protocol as Step 5) **before calling the
+  spec final** — the hard stop applies to these too. Do not say "we can figure
+  these out during implementation."
 
 ## Step 8: Finalize
 
-After every question is resolved: check them off with answers, add a changelog
-entry, set status per `.ai/specs/AGENTS.md`. The spec is now ready for `/plan`
-(or `/feature`, which calls it).
+After every question is resolved: add a changelog entry, set status per
+`.ai/specs/AGENTS.md`. The spec is now ready for `/plan` (or `/feature`, which
+calls it).
 
 ## Done when
 
-- [ ] Spec exists at `.ai/specs/{YYYY-MM-DD}-{slug}.md`, every section real content
+- [ ] Every open question was answered by the user BEFORE the spec was written
+      (Step 5), with the resolution recorded inline in the spec
+- [ ] Spec exists at `.ai/specs/{YYYY-MM-DD}-{slug}.md`, every section real content,
+      design reflecting the resolutions (no section contradicts an answer)
 - [ ] Research file exists and is linked from the spec
 - [ ] Every applicable heuristic (1–7) has a row in Design Decisions — no TBDs
-- [ ] Open Questions has ≥1 entry, each with "why it matters"
-- [ ] The user has been shown the questions and work is stopped until answered
+- [ ] Any questions surfaced during writing (Step 7) were also resolved before
+      the spec was called final
 
 ## Anti-patterns
 
+- Writing the spec first and interviewing the user afterward (the old flow —
+  it produces rework: the document gets written around guesses, then edited
+  around answers)
 - Writing a design doc anywhere other than `.ai/specs/`
+- Dumping all open questions in one message and accepting batch answers you
+  assumed rather than the user chose
+- Accepting an answer without checking it against the code
 - Marking questions resolved without human input
 - Skipping `/research` because "I know how ERPs work"
-- "TBD" in the Design Decisions table (that's an Open Question)
+- "TBD" in the Design Decisions table (that's an open question — Step 5 it)
 - Vague acceptance criteria ("feature works as expected")
 
 Red flags — thinking any of these means the gate is being defeated; STOP:
 
+- "I'll draft the spec now and confirm the questions after" (that IS the old flow)
 - "I'll mark this question resolved so we can keep moving"
 - "zero open questions — the design is clear" (you haven't looked hard enough)
 - "we can settle this during implementation"
