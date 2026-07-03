@@ -36,19 +36,23 @@ const payloadValidator = z.discriminatedUnion("type", [
     companyId: z.string(),
     userId: z.string(),
     purchaseOrderNumber: z.string().optional(),
+    // Only `quantity` is trusted (it selects a quantity break). Every financial
+    // field is derived server-side from quoteLinePrice in the handler; the money
+    // fields below are accepted-but-ignored for backward compatibility with
+    // existing clients that still send them.
     selectedLines: z.record(
       z.string(),
       z.object({
-        quantity: z.number(),
-        netUnitPrice: z.number(),
-        convertedNetUnitPrice: z.number(),
-        addOn: z.number(),
-        convertedAddOn: z.number(),
+        quantity: z.number().min(0),
+        netUnitPrice: z.number().optional(),
+        convertedNetUnitPrice: z.number().optional(),
+        addOn: z.number().optional(),
+        convertedAddOn: z.number().optional(),
         taxableAddOn: z.number().optional(),
         convertedTaxableAddOn: z.number().optional(),
-        shippingCost: z.number(),
-        convertedShippingCost: z.number(),
-        leadTime: z.number(),
+        shippingCost: z.number().optional(),
+        convertedShippingCost: z.number().optional(),
+        leadTime: z.number().optional(),
       })
     ),
     digitalQuoteAcceptedBy: z.string().optional(),
@@ -432,22 +436,67 @@ serve(async (req: Request) => {
           digitalQuoteAcceptedBy,
           digitalQuoteAcceptedByEmail,
         } = payload;
-        const [quote, quoteLines, quotePayment, quoteShipping, company] =
-          await Promise.all([
-            client.from("quote").select("*").eq("id", id).single(),
-            client.from("quoteLine").select("*").eq("quoteId", id),
-            client.from("quotePayment").select("*").eq("id", id).single(),
-            client.from("quoteShipment").select("*").eq("id", id).single(),
-            client.from("company").select("*").eq("id", companyId).single(),
-          ]);
+        const [
+          quote,
+          quoteLines,
+          quoteLinePrices,
+          quotePayment,
+          quoteShipping,
+          company,
+        ] = await Promise.all([
+          client.from("quote").select("*").eq("id", id).single(),
+          client.from("quoteLine").select("*").eq("quoteId", id),
+          client.from("quoteLinePrice").select("*").eq("quoteId", id),
+          client.from("quotePayment").select("*").eq("id", id).single(),
+          client.from("quoteShipment").select("*").eq("id", id).single(),
+          client.from("company").select("*").eq("id", companyId).single(),
+        ]);
 
         if (quote.error) throw new Error(`Quote with id ${id} not found`);
         if (quoteLines.error)
           throw new Error(`Quote Lines with id ${id} not found`);
+        if (quoteLinePrices.error)
+          throw new Error(`Quote line prices with id ${id} not found`);
         if (quotePayment.error)
           throw new Error(`Quote payment with id ${id} not found`);
         if (quoteShipping.error)
           throw new Error(`Quote shipping with id ${id} not found`);
+
+        // SECURITY: every financial field on the resulting sales order line is
+        // derived here from the canonical quoteLinePrice rows, keyed by
+        // (quoteLineId, quantity). The digital-quote accept endpoint is
+        // unauthenticated, so the client `selectedLines` payload is trusted only
+        // as a selection of quantity break — never as a source of prices. Do not
+        // read money fields (netUnitPrice, shippingCost, addOn, …) from it.
+        const canonicalPriceByLineQty = new Map<
+          string,
+          NonNullable<typeof quoteLinePrices.data>[number]
+        >();
+        for (const price of quoteLinePrices.data ?? []) {
+          canonicalPriceByLineQty.set(
+            `${price.quoteLineId}:${price.quantity}`,
+            price
+          );
+        }
+
+        const computeAddOns = (
+          additionalCharges: unknown,
+          quantity: number
+        ): { addOn: number; taxableAddOn: number } => {
+          const charges =
+            (additionalCharges as Record<
+              string,
+              { amounts?: Record<string, number>; taxable?: boolean }
+            > | null) ?? {};
+          let addOn = 0;
+          let taxableAddOn = 0;
+          for (const charge of Object.values(charges)) {
+            const amount = Number(charge?.amounts?.[quantity] ?? 0) || 0;
+            addOn += amount;
+            if (charge?.taxable !== false) taxableAddOn += amount;
+          }
+          return { addOn, taxableAddOn };
+        };
 
         let insertedSalesOrderId = "";
         await db.transaction().execute(async (trx) => {
@@ -558,12 +607,25 @@ serve(async (req: Request) => {
 
           const salesOrderLineInserts: Database["public"]["Tables"]["salesOrderLine"]["Insert"][] =
             selectedQuoteLines.map((line) => {
+              const selectedQuantity = selectedLines![line.id!].quantity;
+              const price = canonicalPriceByLineQty.get(
+                `${line.id}:${selectedQuantity}`
+              );
+              if (!price) {
+                throw new Error(
+                  `No quote price found for line ${line.id} at quantity ${selectedQuantity}`
+                );
+              }
+              const { addOn, taxableAddOn } = computeAddOns(
+                line.additionalCharges,
+                price.quantity
+              );
               return {
                 id: line.id,
                 salesOrderId: insertedSalesOrderId,
                 salesOrderLineType: line.itemType as "Part",
-                addOnCost: selectedLines![line.id!].taxableAddOn ?? selectedLines![line.id!].addOn,
-                nonTaxableAddOnCost: (selectedLines![line.id!].addOn ?? 0) - (selectedLines![line.id!].taxableAddOn ?? selectedLines![line.id!].addOn ?? 0),
+                addOnCost: taxableAddOn,
+                nonTaxableAddOnCost: addOn - taxableAddOn,
                 description: line.description,
                 itemId: line.itemId,
                 locationId: line.locationId ?? quote.data.locationId,
@@ -571,14 +633,13 @@ serve(async (req: Request) => {
                 storageUnitId: pickMethodDefaultsByLineId.get(line.id!) ?? null,
                 internalNotes: line.internalNotes,
                 externalNotes: line.externalNotes,
-                saleQuantity: selectedLines![line.id!].quantity,
+                saleQuantity: price.quantity,
                 status: "Ordered",
                 unitOfMeasureCode: line.unitOfMeasureCode,
-                unitPrice: selectedLines![line.id!].netUnitPrice,
+                unitPrice: price.netUnitPrice ?? 0,
                 promisedDate: format(
                   new Date(
-                    Date.now() +
-                      selectedLines![line.id!].leadTime * 24 * 60 * 60 * 1000
+                    Date.now() + (price.leadTime ?? 0) * 24 * 60 * 60 * 1000
                   ),
                   "yyyy-MM-dd"
                 ),
@@ -586,7 +647,7 @@ serve(async (req: Request) => {
                 companyId,
                 exchangeRate: quote.data.exchangeRate ?? 1,
                 taxPercent: line.taxPercent,
-                shippingCost: selectedLines![line.id!].shippingCost,
+                shippingCost: price.shippingCost ?? 0,
                 sortOrder: line.sortOrder ?? 1,
               };
             });
