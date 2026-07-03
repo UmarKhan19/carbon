@@ -142,7 +142,7 @@ serve(async (req: Request) => {
       const accountingPeriodId = await getCurrentAccountingPeriod(
         client,
         companyId,
-        db
+        trx
       );
 
       const journalEntryId = await getNextSequence(

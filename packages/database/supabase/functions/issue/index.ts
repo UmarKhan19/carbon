@@ -418,7 +418,7 @@ async function issueJobOperationMaterials(
     }
 
     if (journalLineInserts.length > 0) {
-      const accountingPeriodId = await getCurrentAccountingPeriod(client, companyId, db);
+      const accountingPeriodId = await getCurrentAccountingPeriod(client, companyId, trx);
       const journalEntryId = await getNextSequence(trx, "journalEntry", companyId);
 
       const journalResult = await trx
@@ -661,7 +661,7 @@ async function createMaterialWipEntries(
 
   if (journalLineInserts.length === 0) return;
 
-  const accountingPeriodId = await getCurrentAccountingPeriod(client, companyId, db);
+  const accountingPeriodId = await getCurrentAccountingPeriod(client, companyId, trx);
   const journalEntryId = await getNextSequence(trx, "journalEntry", companyId);
 
   const journalResult = await trx
