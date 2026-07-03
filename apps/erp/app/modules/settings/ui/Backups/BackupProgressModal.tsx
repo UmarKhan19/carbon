@@ -1,4 +1,5 @@
 import {
+  BarProgress,
   Button,
   Modal,
   ModalBody,
@@ -67,12 +68,7 @@ function StepChecklist({
   const f = done ? 1 : Math.max(0, Math.min(1, fraction));
   return (
     <div className="flex w-full flex-col gap-4 py-2">
-      <div className="h-1 w-full overflow-hidden rounded-full bg-muted">
-        <div
-          className="h-full origin-left rounded-full bg-primary transition-transform duration-700 ease-out motion-reduce:transition-none"
-          style={{ transform: `scaleX(${f})` }}
-        />
-      </div>
+      <BarProgress progress={f} max={1} activeClassName="bg-primary" />
       <div className="flex flex-col gap-2.5">
         {steps.map((label, i) => {
           const state =
