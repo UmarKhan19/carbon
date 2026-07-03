@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-03T00:11:26.137Z",
+  "generated": "2026-07-03T04:30:59.871Z",
   "totalTools": 1254,
   "modules": 15,
   "tools": [
@@ -7566,7 +7566,7 @@
       "module": "invoicing",
       "classification": "WRITE",
       "description": "update purchase invoice status",
-      "paramCount": 3,
+      "paramCount": 4,
       "serviceParams": [
         "client",
         "update"
@@ -7584,7 +7584,13 @@
           "status": {
             "type": "string"
           },
-          "assignee": {}
+          "assignee": {},
+          "datePaid": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
         },
         "required": [
           "id",
@@ -7628,7 +7634,7 @@
       "module": "invoicing",
       "classification": "WRITE",
       "description": "update sales invoice status",
-      "paramCount": 3,
+      "paramCount": 4,
       "serviceParams": [
         "client",
         "update"
@@ -7646,7 +7652,13 @@
           "status": {
             "type": "string"
           },
-          "assignee": {}
+          "assignee": {},
+          "datePaid": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
         },
         "required": [
           "id",
@@ -15450,7 +15462,9 @@
       "paramCount": 1,
       "serviceParams": [
         "client",
-        "productionEventId"
+        "productionEventId",
+        "companyId",
+        "userId"
       ],
       "injectAuth": [
         "companyId"

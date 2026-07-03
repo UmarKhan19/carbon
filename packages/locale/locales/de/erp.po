@@ -5723,7 +5723,7 @@ msgid "If items already exist"
 msgstr "Wenn Artikel bereits vorhanden sind"
 
 msgid "If ordered, no stockout projected in the next 48 weeks"
-msgstr ""
+msgstr "Falls bestellt, kein Lagerbestand in den nächsten 48 Wochen prognostiziert"
 
 msgid "If something is off track"
 msgstr "Wenn etwas aus dem Ruder läuft"
@@ -6730,11 +6730,17 @@ msgstr "Zeilen jetzt zuordnen"
 msgid "Map your current process, systems, and data"
 msgstr "Ordnen Sie Ihren aktuellen Prozess, Ihre Systeme und Daten"
 
+msgid "Mark as Paid"
+msgstr "Als bezahlt markieren"
+
 msgid "Mark as Planned"
 msgstr "Als geplant markieren"
 
 msgid "Mark as read"
 msgstr "Als gelesen markieren"
+
+msgid "Mark as Unpaid"
+msgstr "Als unbezahlt markieren"
 
 msgid "Mark checkpoint passed"
 msgstr "Checkpoint als bestanden markieren"
