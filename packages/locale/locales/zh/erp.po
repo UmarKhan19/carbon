@@ -5723,7 +5723,7 @@ msgid "If items already exist"
 msgstr "如果项目已存在"
 
 msgid "If ordered, no stockout projected in the next 48 weeks"
-msgstr ""
+msgstr "如果下单，未来48周内预计不会缺货"
 
 msgid "If something is off track"
 msgstr "如果有什么偏离轨道"

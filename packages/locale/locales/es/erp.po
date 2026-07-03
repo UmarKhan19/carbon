@@ -5723,7 +5723,7 @@ msgid "If items already exist"
 msgstr "Si los artículos ya existen"
 
 msgid "If ordered, no stockout projected in the next 48 weeks"
-msgstr ""
+msgstr "Si se ordena, no se proyecta falta de existencias en las próximas 48 semanas"
 
 msgid "If something is off track"
 msgstr "Si algo se desvía del plan"

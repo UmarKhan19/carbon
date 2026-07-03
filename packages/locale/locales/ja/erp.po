@@ -5723,7 +5723,7 @@ msgid "If items already exist"
 msgstr "アイテムが既に存在する場合"
 
 msgid "If ordered, no stockout projected in the next 48 weeks"
-msgstr ""
+msgstr "注文した場合、今後48週間の在庫切れは予測されていません"
 
 msgid "If something is off track"
 msgstr "何か問題が生じた場合"
