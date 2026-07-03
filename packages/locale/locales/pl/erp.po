@@ -1990,6 +1990,11 @@ msgstr "Zmienione przez"
 msgid "Changes"
 msgstr "Zmiany"
 
+#. placeholder {0}: changeOrder.changeOrderId
+#. placeholder {1}: changeOrder.status
+msgid "Changes are being tracked by <0>{0}</0> ({1})."
+msgstr ""
+
 msgid "Changing this will overwrite the existing method"
 msgstr "Zmiana tego spowoduje zastąpienie istniejącej metody"
 
@@ -2749,6 +2754,9 @@ msgstr "Twórz i zatwierdzaj zamówienia zakupu"
 
 msgid "Create audit trail entries"
 msgstr "Utwórz wpisy dziennika audytu"
+
+msgid "Create Change Order"
+msgstr ""
 
 msgid "Create Issue"
 msgstr "Utwórz problem"
@@ -7969,6 +7977,9 @@ msgstr "Jeden krok w trasie pracy, który wymienia proces i centrum pracy i nosi
 msgid "One system from quote to cash"
 msgstr "Jeden system od oferty do gotówki"
 
+msgid "OnShape"
+msgstr ""
+
 msgid "Onshape Status"
 msgstr "Status Onshape"
 
@@ -9089,6 +9100,9 @@ msgstr "Reguła zatwierdzania dokumentu jakości"
 msgid "Quality Documents"
 msgstr "Dokumenty Jakości"
 
+msgid "Quality Issue"
+msgstr ""
+
 msgid "Quality Type"
 msgstr "Typ Jakości"
 
@@ -9448,8 +9462,7 @@ msgstr "Względna oś czasu · daty do potwierdzenia"
 msgid "Release"
 msgstr "Zwolnienie"
 
-#. placeholder {0}: routeData.changeOrder.sourceId
-msgid "Release {0}"
+msgid "Release {sourceId}"
 msgstr ""
 
 msgid "Release blocked"
@@ -12125,6 +12138,9 @@ msgstr ""
 
 msgid "This item is built via a configurator and resolves its components per-order; jobs created for it inherit the configurator's resolved BOM."
 msgstr "Ten artykuł jest zbudowany za pośrednictwem konfiguratora i rozwiązuje jego komponenty na zamówienie; zadania dla niego dziedziczą rozwiązaną BOM konfiguratora."
+
+msgid "This item is under change order"
+msgstr ""
 
 msgid "This item's bill of materials has no inputs with shelf-life enabled, so no expiry will be calculated from the BOM."
 msgstr "Rachunek materiałów tego artykułu nie ma wejść z włączoną polityką przechowywania, dlatego żaden termin ważności nie będzie obliczony z rachunku materiałów."

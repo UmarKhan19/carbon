@@ -35,12 +35,17 @@ import {
   getMakeMethodById,
   getMakeMethods,
   getMethodTree,
+  getOpenChangeOrderForItem,
   getPartUsedIn,
   getPickMethods,
   getSupplierParts,
   getTool
 } from "~/modules/items";
-import { BoMActions, BoMExplorer } from "~/modules/items/ui/Item";
+import {
+  BoMActions,
+  BoMExplorer,
+  UnderChangeOrderAlert
+} from "~/modules/items/ui/Item";
 import type { UsedInNode } from "~/modules/items/ui/Item/UsedIn";
 import { UsedInSkeleton, UsedInTree } from "~/modules/items/ui/Item/UsedIn";
 import { ToolHeader, ToolProperties } from "~/modules/items/ui/Tools";
@@ -69,14 +74,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     pickMethods,
     tags,
     supersession,
-    supersededBy
+    supersededBy,
+    openChangeOrder
   ] = await Promise.all([
     getTool(client, itemId, companyId),
     getSupplierParts(client, itemId, companyId),
     getPickMethods(client, itemId, companyId),
     getTagsList(client, companyId, "tool"),
     getItemSupersession(client, itemId, companyId),
-    getItemSupersededBy(client, itemId, companyId)
+    getItemSupersededBy(client, itemId, companyId),
+    getOpenChangeOrderForItem(client, { itemId, companyId })
   ]);
 
   if (toolSummary.error) {
@@ -125,6 +132,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     toolSummary: toolSummary.data,
     supersession: supersession.data,
     supersededBy: supersededBy.data ?? [],
+    openChangeOrder: openChangeOrder.data,
     files: getItemFiles(client, itemId, companyId),
     supplierParts: supplierParts.data ?? [],
     pickMethods: pickMethods.data ?? [],
@@ -147,7 +155,8 @@ export default function ToolRoute() {
 
   if (!toolData) throw new Error("Could not find tool data");
 
-  const { usedIn, methodTree } = useLoaderData<typeof loader>();
+  const { usedIn, methodTree, openChangeOrder } =
+    useLoaderData<typeof loader>();
 
   const isManufactured = toolData.toolSummary?.replenishmentSystem !== "Buy";
 
@@ -513,6 +522,10 @@ export default function ToolRoute() {
             }
             content={
               <div className="h-[calc(100dvh-99px)] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent w-full">
+                <UnderChangeOrderAlert
+                  changeOrder={openChangeOrder}
+                  className="m-2"
+                />
                 <Outlet />
               </div>
             }

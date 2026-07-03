@@ -16,10 +16,13 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import type { MessageDescriptor } from "@lingui/core";
+import { msg } from "@lingui/core/macro";
 import { Trans, useLingui } from "@lingui/react/macro";
+import type { ReactNode } from "react";
 import { useCallback, useEffect } from "react";
-import { LuCopy, LuKeySquare, LuLink } from "react-icons/lu";
-import { useFetcher, useParams } from "react-router";
+import { LuCopy, LuKeySquare, LuLink, LuShieldAlert } from "react-icons/lu";
+import { Link, useFetcher, useParams } from "react-router";
 import { z } from "zod";
 import {
   Assignee,
@@ -41,6 +44,65 @@ import type { action } from "~/routes/x+/items+/update";
 import type { ListItem } from "~/types";
 import { path } from "~/utils/path";
 import { copyToClipboard } from "~/utils/string";
+
+// Change orders are spawned from a growing set of upstream systems. Describe
+// each source as data (icon, label, optional back-link, optional detail line)
+// rather than a branch per type — an unknown sourceType falls back to a plain
+// badge. Add a new integration by adding a row here.
+const CHANGE_ORDER_SOURCES: Record<
+  string,
+  {
+    icon: ReactNode;
+    label: MessageDescriptor;
+    href?: (sourceId: string) => string;
+    detail?: (sourceId: string) => MessageDescriptor;
+  }
+> = {
+  onshape: {
+    icon: <OnshapeLogo className="h-4 w-auto" />,
+    label: msg`OnShape`,
+    detail: (sourceId) => msg`Release ${sourceId}`
+  },
+  nonConformance: {
+    icon: <LuShieldAlert className="h-4 w-4" />,
+    label: msg`Quality Issue`,
+    href: (sourceId) => path.to.issue(sourceId)
+  }
+};
+
+const ChangeOrderSource = ({
+  sourceType,
+  sourceId
+}: {
+  sourceType: string;
+  sourceId: string | null;
+}) => {
+  const { i18n } = useLingui();
+  const descriptor = CHANGE_ORDER_SOURCES[sourceType];
+  const label = descriptor ? i18n._(descriptor.label) : sourceType;
+  const badge = <Badge variant="outline">{label}</Badge>;
+
+  return (
+    <VStack spacing={2}>
+      <h3 className="text-xs text-muted-foreground">
+        <Trans>Source</Trans>
+      </h3>
+      <HStack spacing={2} className="items-center">
+        {descriptor?.icon}
+        {descriptor?.href && sourceId ? (
+          <Link to={descriptor.href(sourceId)}>{badge}</Link>
+        ) : (
+          badge
+        )}
+      </HStack>
+      {descriptor?.detail && sourceId && (
+        <span className="text-xs text-muted-foreground">
+          {i18n._(descriptor.detail(sourceId))}
+        </span>
+      )}
+    </VStack>
+  );
+};
 
 const ChangeOrderProperties = () => {
   const { id } = useParams();
@@ -415,21 +477,11 @@ const ChangeOrderProperties = () => {
         />
       </VStack>
 
-      {routeData?.changeOrder?.sourceType === "onshape" && (
-        <VStack spacing={2}>
-          <h3 className="text-xs text-muted-foreground">
-            <Trans>Source</Trans>
-          </h3>
-          <HStack spacing={2} className="items-center">
-            <OnshapeLogo className="h-4 w-auto" />
-            <Badge variant="outline">OnShape</Badge>
-          </HStack>
-          {routeData.changeOrder.sourceId && (
-            <span className="text-xs text-muted-foreground">
-              <Trans>Release {routeData.changeOrder.sourceId}</Trans>
-            </span>
-          )}
-        </VStack>
+      {routeData?.changeOrder?.sourceType && (
+        <ChangeOrderSource
+          sourceType={routeData.changeOrder.sourceType}
+          sourceId={routeData.changeOrder.sourceId}
+        />
       )}
 
       <ValidatedForm

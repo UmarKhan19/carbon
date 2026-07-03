@@ -1990,6 +1990,11 @@ msgstr "Changed By"
 msgid "Changes"
 msgstr "Changes"
 
+#. placeholder {0}: changeOrder.changeOrderId
+#. placeholder {1}: changeOrder.status
+msgid "Changes are being tracked by <0>{0}</0> ({1})."
+msgstr "Changes are being tracked by <0>{0}</0> ({1})."
+
 msgid "Changing this will overwrite the existing method"
 msgstr "Changing this will overwrite the existing method"
 
@@ -2749,6 +2754,9 @@ msgstr "Create and approve purchase orders"
 
 msgid "Create audit trail entries"
 msgstr "Create audit trail entries"
+
+msgid "Create Change Order"
+msgstr "Create Change Order"
 
 msgid "Create Issue"
 msgstr "Create Issue"
@@ -7969,6 +7977,9 @@ msgstr "One step in a job's routing, naming a process and a work center and carr
 msgid "One system from quote to cash"
 msgstr "One system from quote to cash"
 
+msgid "OnShape"
+msgstr "OnShape"
+
 msgid "Onshape Status"
 msgstr "Onshape Status"
 
@@ -9089,6 +9100,9 @@ msgstr "Quality Document approval rule"
 msgid "Quality Documents"
 msgstr "Quality Documents"
 
+msgid "Quality Issue"
+msgstr "Quality Issue"
+
 msgid "Quality Type"
 msgstr "Quality Type"
 
@@ -9448,9 +9462,8 @@ msgstr "Relative timeline · dates to be confirmed"
 msgid "Release"
 msgstr "Release"
 
-#. placeholder {0}: routeData.changeOrder.sourceId
-msgid "Release {0}"
-msgstr "Release {0}"
+msgid "Release {sourceId}"
+msgstr "Release {sourceId}"
 
 msgid "Release blocked"
 msgstr "Release blocked"
@@ -12125,6 +12138,9 @@ msgstr "This item has no proposed revision, so there is nothing to redline."
 
 msgid "This item is built via a configurator and resolves its components per-order; jobs created for it inherit the configurator's resolved BOM."
 msgstr "This item is built via a configurator and resolves its components per-order; jobs created for it inherit the configurator's resolved BOM."
+
+msgid "This item is under change order"
+msgstr "This item is under change order"
 
 msgid "This item's bill of materials has no inputs with shelf-life enabled, so no expiry will be calculated from the BOM."
 msgstr "This item's bill of materials has no inputs with shelf-life enabled, so no expiry will be calculated from the BOM."

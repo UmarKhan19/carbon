@@ -1990,6 +1990,11 @@ msgstr "Cambiado por"
 msgid "Changes"
 msgstr "Cambios"
 
+#. placeholder {0}: changeOrder.changeOrderId
+#. placeholder {1}: changeOrder.status
+msgid "Changes are being tracked by <0>{0}</0> ({1})."
+msgstr ""
+
 msgid "Changing this will overwrite the existing method"
 msgstr "Cambiar esto sobrescribirá el método existente"
 
@@ -2749,6 +2754,9 @@ msgstr "Crear y aprobar órdenes de compra"
 
 msgid "Create audit trail entries"
 msgstr "Crear entradas de pista de auditoría"
+
+msgid "Create Change Order"
+msgstr ""
 
 msgid "Create Issue"
 msgstr "Crear Problema"
@@ -7969,6 +7977,9 @@ msgstr "Un paso en la ruta de un trabajo, que nombra un proceso y un centro de t
 msgid "One system from quote to cash"
 msgstr "Un sistema de presupuesto a efectivo"
 
+msgid "OnShape"
+msgstr ""
+
 msgid "Onshape Status"
 msgstr "Estado de Onshape"
 
@@ -9089,6 +9100,9 @@ msgstr "Regla de aprobación de documento de calidad"
 msgid "Quality Documents"
 msgstr "Documentos de Calidad"
 
+msgid "Quality Issue"
+msgstr ""
+
 msgid "Quality Type"
 msgstr "Tipo de Calidad"
 
@@ -9448,8 +9462,7 @@ msgstr "Cronograma relativo · fechas por confirmar"
 msgid "Release"
 msgstr "Liberar"
 
-#. placeholder {0}: routeData.changeOrder.sourceId
-msgid "Release {0}"
+msgid "Release {sourceId}"
 msgstr ""
 
 msgid "Release blocked"
@@ -12125,6 +12138,9 @@ msgstr ""
 
 msgid "This item is built via a configurator and resolves its components per-order; jobs created for it inherit the configurator's resolved BOM."
 msgstr "Este artículo se construye a través de un configurador y resuelve sus componentes por pedido; los trabajos creados para él heredan la BOM resuelta del configurador."
+
+msgid "This item is under change order"
+msgstr ""
 
 msgid "This item's bill of materials has no inputs with shelf-life enabled, so no expiry will be calculated from the BOM."
 msgstr "La lista de materiales de este artículo no tiene entradas con vida útil habilitada, por lo que no se calculará ninguna fecha de vencimiento a partir de la lista de materiales."

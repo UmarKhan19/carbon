@@ -14,7 +14,11 @@ import {
   VStack
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { LuEllipsisVertical, LuTrash } from "react-icons/lu";
+import {
+  LuEllipsisVertical,
+  LuGitPullRequestArrow,
+  LuTrash
+} from "react-icons/lu";
 import { Link, useParams } from "react-router";
 import { useAuditLog } from "~/components/AuditLog";
 import { DetailsTopbar } from "~/components/Layout";
@@ -84,6 +88,16 @@ const PartHeader = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 {auditLogTrigger}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  disabled={!permissions.can("create", "parts")}
+                  asChild
+                >
+                  <Link to={`${path.to.newChangeOrder}?itemId=${itemId}`}>
+                    <DropdownMenuIcon icon={<LuGitPullRequestArrow />} />
+                    <Trans>Create Change Order</Trans>
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   disabled={

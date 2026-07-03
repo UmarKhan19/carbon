@@ -1990,6 +1990,11 @@ msgstr "更改者"
 msgid "Changes"
 msgstr "更改"
 
+#. placeholder {0}: changeOrder.changeOrderId
+#. placeholder {1}: changeOrder.status
+msgid "Changes are being tracked by <0>{0}</0> ({1})."
+msgstr ""
+
 msgid "Changing this will overwrite the existing method"
 msgstr "更改此项将覆盖现有方法"
 
@@ -2749,6 +2754,9 @@ msgstr "创建并批准采购订单"
 
 msgid "Create audit trail entries"
 msgstr "创建审计跟踪条目"
+
+msgid "Create Change Order"
+msgstr ""
 
 msgid "Create Issue"
 msgstr "创建问题"
@@ -7969,6 +7977,9 @@ msgstr "工作路线中的一个步骤，命名流程和工作中心，并携带
 msgid "One system from quote to cash"
 msgstr "从报价到收款的一个系统"
 
+msgid "OnShape"
+msgstr ""
+
 msgid "Onshape Status"
 msgstr "Onshape 状态"
 
@@ -9089,6 +9100,9 @@ msgstr "质量文件审批规则"
 msgid "Quality Documents"
 msgstr "质量文件"
 
+msgid "Quality Issue"
+msgstr ""
+
 msgid "Quality Type"
 msgstr "质量类型"
 
@@ -9448,8 +9462,7 @@ msgstr "相对时间线 · 日期待确认"
 msgid "Release"
 msgstr "释放"
 
-#. placeholder {0}: routeData.changeOrder.sourceId
-msgid "Release {0}"
+msgid "Release {sourceId}"
 msgstr ""
 
 msgid "Release blocked"
@@ -12125,6 +12138,9 @@ msgstr ""
 
 msgid "This item is built via a configurator and resolves its components per-order; jobs created for it inherit the configurator's resolved BOM."
 msgstr "该项目通过配置器构建，并按订单解析其组件；为其创建的工作继承配置器的解析BOM。"
+
+msgid "This item is under change order"
+msgstr ""
 
 msgid "This item's bill of materials has no inputs with shelf-life enabled, so no expiry will be calculated from the BOM."
 msgstr "此项目的物料清单没有启用保质期的输入，因此不会从物料清单计算过期日期。"
