@@ -27,9 +27,9 @@ CREATE OR REPLACE FUNCTION "accountTreeBalancesByCompany" (
 )
 RETURNS TABLE (
   "accountId" TEXT,
-  "balance" NUMERIC(19, 4),
-  "balanceAtDate" NUMERIC(19, 4),
-  "netChange" NUMERIC(19, 4)
+  "balance" NUMERIC,
+  "balanceAtDate" NUMERIC,
+  "netChange" NUMERIC
 ) LANGUAGE "plpgsql" SECURITY INVOKER SET search_path = public
 AS $$
 BEGIN
@@ -71,9 +71,9 @@ BEGIN
     )
     SELECT
       t."rootId" AS "accountId",
-      COALESCE(SUM(lb."balance"), 0)::NUMERIC(19, 4) AS "balance",
-      COALESCE(SUM(lb."balanceAtDate"), 0)::NUMERIC(19, 4) AS "balanceAtDate",
-      COALESCE(SUM(lb."netChange"), 0)::NUMERIC(19, 4) AS "netChange"
+      COALESCE(SUM(lb."balance"), 0)::NUMERIC AS "balance",
+      COALESCE(SUM(lb."balanceAtDate"), 0)::NUMERIC AS "balanceAtDate",
+      COALESCE(SUM(lb."netChange"), 0)::NUMERIC AS "netChange"
     FROM "accountTree" t
     LEFT JOIN "leafBalances" lb ON lb."accountId" = t."id" AND t."isGroup" = false
     GROUP BY t."rootId";
@@ -87,9 +87,9 @@ CREATE OR REPLACE FUNCTION "accountTreeBalances" (
 )
 RETURNS TABLE (
   "accountId" TEXT,
-  "balance" NUMERIC(19, 4),
-  "balanceAtDate" NUMERIC(19, 4),
-  "netChange" NUMERIC(19, 4)
+  "balance" NUMERIC,
+  "balanceAtDate" NUMERIC,
+  "netChange" NUMERIC
 ) LANGUAGE "plpgsql" SECURITY INVOKER SET search_path = public
 AS $$
 BEGIN
@@ -133,9 +133,9 @@ BEGIN
     -- For each account, sum up all descendant leaf balances
     SELECT
       t."rootId" AS "accountId",
-      COALESCE(SUM(lb."balance"), 0)::NUMERIC(19, 4) AS "balance",
-      COALESCE(SUM(lb."balanceAtDate"), 0)::NUMERIC(19, 4) AS "balanceAtDate",
-      COALESCE(SUM(lb."netChange"), 0)::NUMERIC(19, 4) AS "netChange"
+      COALESCE(SUM(lb."balance"), 0)::NUMERIC AS "balance",
+      COALESCE(SUM(lb."balanceAtDate"), 0)::NUMERIC AS "balanceAtDate",
+      COALESCE(SUM(lb."netChange"), 0)::NUMERIC AS "netChange"
     FROM "accountTree" t
     LEFT JOIN "leafBalances" lb ON lb."accountId" = t."id" AND t."isGroup" = false
     GROUP BY t."rootId";
@@ -149,9 +149,9 @@ CREATE OR REPLACE FUNCTION "journalLinesByAccountNumber" (
 RETURNS TABLE (
   "number" TEXT,
   "companyGroupId" TEXT,
-  "balance" NUMERIC(19, 4),
-  "balanceAtDate" NUMERIC(19, 4),
-  "netChange" NUMERIC(19, 4)
+  "balance" NUMERIC,
+  "balanceAtDate" NUMERIC,
+  "netChange" NUMERIC
 ) LANGUAGE "plpgsql" SECURITY INVOKER SET search_path = public
 AS $$
   BEGIN
@@ -184,17 +184,17 @@ CREATE OR REPLACE FUNCTION "getConsolidationRates" (
 )
 RETURNS TABLE (
   "sourceCurrency" TEXT,
-  "closingRate" NUMERIC(20, 8),
-  "averageRate" NUMERIC(20, 8),
-  "historicalRate" NUMERIC(20, 8)
+  "closingRate" NUMERIC,
+  "averageRate" NUMERIC,
+  "historicalRate" NUMERIC
 )
 LANGUAGE "plpgsql" SECURITY INVOKER SET search_path = public
 AS $$
 DECLARE
   v_source_currency TEXT;
-  v_closing_rate NUMERIC(20, 8);
-  v_average_rate NUMERIC(20, 8);
-  v_historical_rate NUMERIC(20, 8);
+  v_closing_rate NUMERIC;
+  v_average_rate NUMERIC;
+  v_historical_rate NUMERIC;
 BEGIN
   SELECT "baseCurrencyCode" INTO v_source_currency
   FROM "company" WHERE "id" = p_company_id;
