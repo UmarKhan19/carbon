@@ -17,6 +17,26 @@ import { getNextSequence } from "../shared/get-next-sequence.ts";
 const pool = getConnectionPool(2);
 const db = getDatabaseClient<DB>(pool);
 
+// Supabase/PostgREST caps a single response at 1000 rows. Page through with
+// .range() so large reads (e.g. a quote's lines × quantity-break prices) are
+// not silently truncated.
+async function fetchAllRows<T>(
+  makeQuery: (
+    from: number,
+    to: number
+  ) => PromiseLike<{ data: T[] | null; error: unknown }>
+): Promise<{ data: T[]; error: unknown }> {
+  const pageSize = 1000;
+  const all: T[] = [];
+  for (let from = 0; ; from += pageSize) {
+    const { data, error } = await makeQuery(from, from + pageSize - 1);
+    if (error) return { data: all, error };
+    if (data && data.length > 0) all.push(...data);
+    if (!data || data.length < pageSize) break;
+  }
+  return { data: all, error: null };
+}
+
 const payloadValidator = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("methodVersionToActive"),
@@ -445,8 +465,16 @@ serve(async (req: Request) => {
           company,
         ] = await Promise.all([
           client.from("quote").select("*").eq("id", id).single(),
-          client.from("quoteLine").select("*").eq("quoteId", id),
-          client.from("quoteLinePrice").select("*").eq("quoteId", id),
+          fetchAllRows((from, to) =>
+            client.from("quoteLine").select("*").eq("quoteId", id).range(from, to)
+          ),
+          fetchAllRows((from, to) =>
+            client
+              .from("quoteLinePrice")
+              .select("*")
+              .eq("quoteId", id)
+              .range(from, to)
+          ),
           client.from("quotePayment").select("*").eq("id", id).single(),
           client.from("quoteShipment").select("*").eq("id", id).single(),
           client.from("company").select("*").eq("id", companyId).single(),
