@@ -2,7 +2,6 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import { ScrollArea } from "@carbon/react";
 import { msg } from "@lingui/core/macro";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
@@ -23,7 +22,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: msg`Workflows`,
+  breadcrumb: msg`Templates`,
   to: path.to.changeOrderWorkflows,
   module: "items"
 };
@@ -88,17 +87,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
   if (update.error) {
     return data(
       {},
-      await flash(
-        request,
-        error(update.error, "Failed to update change order workflow")
-      )
+      await flash(request, error(update.error, "Failed to update template"))
     );
   }
 
-  return data(
-    {},
-    await flash(request, success("Change order workflow updated"))
-  );
+  return data({}, await flash(request, success("Template updated")));
 }
 
 export default function ChangeOrderWorkflowRoute() {
@@ -122,11 +115,6 @@ export default function ChangeOrderWorkflowRoute() {
   };
 
   return (
-    <ScrollArea className="w-full h-[calc(100dvh-49px)] bg-card">
-      <ChangeOrderWorkflowForm
-        initialValues={initialValues}
-        onClose={onClose}
-      />
-    </ScrollArea>
+    <ChangeOrderWorkflowForm initialValues={initialValues} onClose={onClose} />
   );
 }

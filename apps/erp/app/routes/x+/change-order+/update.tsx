@@ -94,7 +94,6 @@ export async function action({ request }: ActionFunctionArgs) {
         .in("id", ids as string[]);
     }
     case "priority":
-    case "changeOrderTypeId":
     case "dueDate":
     case "effectiveDate":
       return await client

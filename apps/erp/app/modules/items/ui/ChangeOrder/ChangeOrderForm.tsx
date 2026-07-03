@@ -14,12 +14,13 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
+  FormControl,
   FormLabel,
+  useDisclosure,
   VStack
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useRef, useState } from "react";
 import type { z } from "zod";
 import { CustomFormFields, Hidden, Input, Submit } from "~/components/Form";
 import { UserSelect } from "~/components/Selectors";
@@ -33,24 +34,20 @@ import {
   changeOrderValidator,
   parseChangeOrderWorkflowContent
 } from "~/modules/items";
+import { ChangeOrderWorkflowForm } from "~/modules/items/ui/ChangeOrderWorkflow";
 import { useItems } from "~/stores/items";
-import type { ListItem } from "~/types";
-import { path } from "~/utils/path";
 
 type ChangeOrderFormValues = z.infer<typeof changeOrderValidator>;
 
 type ChangeOrderFormProps = {
   initialValues: ChangeOrderFormValues;
   changeOrderWorkflows: ChangeOrderWorkflow[];
-  changeOrderTypes: ListItem[];
 };
 
 const ChangeOrderForm = ({
   initialValues,
-  changeOrderWorkflows,
-  changeOrderTypes
+  changeOrderWorkflows
 }: ChangeOrderFormProps) => {
-  const navigate = useNavigate();
   const { t } = useLingui();
   const permissions = usePermissions();
   const isEditing = initialValues.id !== undefined;
@@ -79,6 +76,13 @@ const ChangeOrderForm = ({
       approvers: content.approvers ?? []
     }));
   };
+
+  // Create a template inline via a modal (no navigation, so the half-filled
+  // change order isn't lost). On close the dropdown reopens so the revalidated
+  // list shows the new template, ready to select (which applies its presets).
+  const newTemplateModal = useDisclosure();
+  const [newTemplateName, setNewTemplateName] = useState("");
+  const templateTriggerRef = useRef<HTMLButtonElement>(null);
 
   const [items] = useItems();
 
@@ -124,29 +128,6 @@ const ChangeOrderForm = ({
             </div>
             <TextArea name="description" label={t`Description`} />
             <div className="grid w-full gap-4 grid-cols-1 md:grid-cols-2">
-              <Select
-                name="changeOrderTypeId"
-                label={t`Category`}
-                options={changeOrderTypes.map((type) => ({
-                  label: type.name,
-                  value: type.id
-                }))}
-              />
-              <CreatableCombobox
-                name="changeOrderWorkflowId"
-                label={t`Workflow`}
-                options={changeOrderWorkflows.map((workflow) => ({
-                  label: workflow.name,
-                  value: workflow.id
-                }))}
-                onChange={onWorkflowChange}
-                onCreateOption={() => {
-                  navigate(path.to.newChangeOrderWorkflow);
-                }}
-              />
-            </div>
-
-            <div className="grid w-full gap-4 grid-cols-1 md:grid-cols-2">
               <SelectControlled
                 name="priority"
                 label={t`Priority`}
@@ -179,8 +160,22 @@ const ChangeOrderForm = ({
               />
             </div>
 
-            <VStack spacing={4}>
-              <VStack spacing={2}>
+            <div className="grid w-full gap-4 grid-cols-1 md:grid-cols-2 md:items-start">
+              <CreatableCombobox
+                ref={templateTriggerRef}
+                name="changeOrderWorkflowId"
+                label={t`Template`}
+                options={changeOrderWorkflows.map((workflow) => ({
+                  label: workflow.name,
+                  value: workflow.id
+                }))}
+                onChange={onWorkflowChange}
+                onCreateOption={(option) => {
+                  setNewTemplateName(option);
+                  newTemplateModal.onOpen();
+                }}
+              />
+              <FormControl>
                 <FormLabel htmlFor="approvers" isOptional>
                   {t`Approvers`}
                 </FormLabel>
@@ -201,23 +196,28 @@ const ChangeOrderForm = ({
                   onChange={(selections: IndividualOrGroup[]) => {
                     setWorkflow((prev) => ({
                       ...prev,
+                      // A group loads without members, so it has no `users` key
+                      // at runtime — discriminate on a field only groups carry.
                       approvers: selections.map((item) =>
-                        "users" in item ? `group_${item.id}` : `user_${item.id}`
+                        "isEmployeeTypeGroup" in item
+                          ? `group_${item.id}`
+                          : `user_${item.id}`
                       )
                     }));
                   }}
                 />
-              </VStack>
-              <MultiSelect
-                name="items"
-                label={t`Items`}
-                options={items.map((item) => ({
-                  label: item.readableIdWithRevision,
-                  value: item.id,
-                  helper: item.name
-                }))}
-              />
-            </VStack>
+              </FormControl>
+            </div>
+
+            <MultiSelect
+              name="items"
+              label={t`Items`}
+              options={items.map((item) => ({
+                label: item.readableIdWithRevision,
+                value: item.id,
+                helper: item.name
+              }))}
+            />
 
             <div className="grid w-full gap-4 grid-cols-1 md:grid-cols-2">
               <DatePicker name="openDate" label={t`Open Date`} />
@@ -239,6 +239,23 @@ const ChangeOrderForm = ({
           </Submit>
         </CardFooter>
       </ValidatedForm>
+      {newTemplateModal.isOpen && (
+        <ChangeOrderWorkflowForm
+          type="modal"
+          initialValues={{
+            name: newTemplateName,
+            priority: "Medium",
+            approvalType: "Unanimous",
+            approvers: []
+          }}
+          onClose={() => {
+            setNewTemplateName("");
+            newTemplateModal.onClose();
+            // Reopen the dropdown so the revalidated list shows the new template.
+            templateTriggerRef.current?.click();
+          }}
+        />
+      )}
     </Card>
   );
 };

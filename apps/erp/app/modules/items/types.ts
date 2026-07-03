@@ -5,8 +5,6 @@ import type {
   getChangeOrderItems,
   getChangeOrderReviewers,
   getChangeOrders,
-  getChangeOrderType,
-  getChangeOrderTypes,
   getChangeOrderWorkflow,
   getChangeOrderWorkflows,
   getConfigurationParameters,
@@ -63,14 +61,6 @@ export type ChangeOrderApprovalTask = NonNullable<
 export type ChangeOrderReviewer = NonNullable<
   Awaited<ReturnType<typeof getChangeOrderReviewers>>["data"]
 >[number];
-
-export type ChangeOrderType = NonNullable<
-  Awaited<ReturnType<typeof getChangeOrderTypes>>["data"]
->[number];
-
-export type ChangeOrderTypeDetail = NonNullable<
-  Awaited<ReturnType<typeof getChangeOrderType>>["data"]
->;
 
 export type ChangeOrderWorkflow = NonNullable<
   Awaited<ReturnType<typeof getChangeOrderWorkflows>>["data"]

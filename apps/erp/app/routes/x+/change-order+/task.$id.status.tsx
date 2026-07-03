@@ -126,16 +126,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
-  // A reviewer can also sign off via this generic task route (not only the
-  // dedicated decision route). Centralize the auto-advance: re-evaluate the
-  // peer-review threshold whenever a reviewer row reaches Completed, so any
-  // reviewer completion can advance the CO to Approved regardless of entry
-  // point. Best-effort — never blocks the response.
-  if (
-    type === "review" &&
-    status === "Completed" &&
-    update.data?.changeOrderId
-  ) {
+  // A reviewer can also sign off (or withdraw a sign-off) via this generic task
+  // route, not only the dedicated decision route. Centralize the threshold
+  // re-evaluation: run it on ANY reviewer-row status change, so a completion can
+  // advance In Review → Approved AND a reopen/skip can downgrade Approved → In
+  // Review when the set no longer meets the bar. Best-effort — never blocks the
+  // response.
+  if (type === "review" && update.data?.changeOrderId) {
     const changeOrderId = update.data.changeOrderId;
     const reeval = await reevaluateChangeOrderApproval(
       client,

@@ -303,6 +303,9 @@ msgstr "La risposta con prezzo di un fornitore a un RFQ di acquisto — una per 
 msgid "A taxable surcharge (handling, setup, fuel) added to the line; rolls into the tax base."
 msgstr "Un supplemento imponibile (manipolazione, configurazione, carburante) aggiunto alla riga e incluso nella base imponibile."
 
+msgid "A template defines the preset values for a new change order — its priority, approval type, and default approvers."
+msgstr ""
+
 msgid "A tool is a physical item used to make a part that can be used across multiple jobs"
 msgstr "Uno strumento è un articolo fisico utilizzato per realizzare una parte che può essere utilizzata in più lavori"
 
@@ -1066,10 +1069,6 @@ msgstr "Sei sicuro di voler eliminare l'account: {0}{1}? Questa azione non può 
 msgid "Are you sure you want to delete the API key: {0}? This cannot be undone."
 msgstr "Sei sicuro di voler eliminare la chiave API: {0}? Questa azione non può essere annullata."
 
-#. placeholder {0}: changeOrderType.name
-msgid "Are you sure you want to delete the change order type: {0}? This cannot be undone."
-msgstr ""
-
 msgid "Are you sure you want to delete the contractor: {name}? This cannot be undone."
 msgstr "Sei sicuro di voler eliminare l'appaltatore: {name}? Questa azione non può essere annullata."
 
@@ -1228,7 +1227,7 @@ msgstr "Sei sicuro di voler eliminare il webhook: {0}? Questa azione non può es
 msgid "Are you sure you want to delete this approval rule? This cannot be undone."
 msgstr "Sei sicuro di voler eliminare questa regola di approvazione? Questa azione non può essere annullata."
 
-msgid "Are you sure you want to delete this change order workflow?"
+msgid "Are you sure you want to delete this change order template?"
 msgstr ""
 
 msgid "Are you sure you want to delete this change order?"
@@ -1966,10 +1965,7 @@ msgstr "Cambia"
 msgid "Change Order"
 msgstr ""
 
-msgid "Change Order Types"
-msgstr ""
-
-msgid "Change Order Workflows"
+msgid "Change Order Templates"
 msgstr ""
 
 msgid "Change Orders"
@@ -2508,9 +2504,6 @@ msgstr "Copia Chiave API"
 msgid "Copy change order number"
 msgstr ""
 
-msgid "Copy change order unique identifier"
-msgstr ""
-
 msgid "Copy company unique identifier"
 msgstr "Copia identificatore univoco azienda"
 
@@ -2815,9 +2808,6 @@ msgstr "Creato il"
 msgid "Created By"
 msgstr "Creato da"
 
-msgid "Created change order type"
-msgstr ""
-
 msgid "Created consumable"
 msgstr "Consumabile creato"
 
@@ -2906,6 +2896,9 @@ msgstr "Tipo di archiviazione creato"
 #. placeholder {0}: fetcher.data.data.name
 msgid "Created supplier: {0}"
 msgstr "Fornitore creato: {0}"
+
+msgid "Created template"
+msgstr ""
 
 msgid "Created tool"
 msgstr "Strumento creato"
@@ -4061,9 +4054,6 @@ msgstr "Modifica Categoria Attributo"
 msgid "Edit Category"
 msgstr "Modifica Categoria"
 
-msgid "Edit Change Order Type"
-msgstr ""
-
 msgid "Edit column visibility"
 msgstr "Modifica visibilità colonna"
 
@@ -4294,6 +4284,9 @@ msgstr "Modifica processo fornitore"
 
 msgid "Edit Supplier Type"
 msgstr "Modifica Tipo Fornitore"
+
+msgid "Edit Template"
+msgstr ""
 
 msgid "Edit the rule to remove the \"Applies to all\" flag"
 msgstr "Modifica la regola per rimuovere il flag \"Applies to all\""
@@ -4781,10 +4774,6 @@ msgid "Failed to create asset class: {0}"
 msgstr "FEFO (prima scadenza, prima uscita)"
 
 #. placeholder {0}: fetcher.data.error.message
-msgid "Failed to create change order type: {0}"
-msgstr ""
-
-#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create consumable: {0}"
 msgstr "Impossibile creare consumabile: {0}"
 
@@ -4887,6 +4876,10 @@ msgstr "Impossibile creare il tipo di archiviazione: {0}"
 #. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create supplier: {0}"
 msgstr "Impossibile creare il fornitore: {0}"
+
+#. placeholder {0}: fetcher.data.error
+msgid "Failed to create template: {0}"
+msgstr ""
 
 #. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create tool: {0}"
@@ -7251,9 +7244,6 @@ msgstr "Nuovo Attributo"
 msgid "New Attribute Category"
 msgstr "Nuova Categoria Attributo"
 
-msgid "New Change Order Type"
-msgstr ""
-
 msgid "New Consumable"
 msgstr "Nuovo Consumabile"
 
@@ -7466,6 +7456,9 @@ msgstr "Nuovo Fornitore"
 
 msgid "New Supplier Part"
 msgstr "Nuovo Fornitore Parte"
+
+msgid "New Template"
+msgstr ""
 
 msgid "New Timecard"
 msgstr "Nuovo Foglio Presenze"
@@ -11430,6 +11423,9 @@ msgstr "Team addestrato"
 msgid "Temperature"
 msgstr "Temperatura"
 
+msgid "Template"
+msgstr ""
+
 msgid "Template ID"
 msgstr "ID Modello"
 
@@ -13589,9 +13585,6 @@ msgstr "Il tracciamento dei turni di lavoro è attivo."
 
 msgid "Workflow"
 msgstr "Flusso di lavoro"
-
-msgid "Workflows"
-msgstr ""
 
 msgid "Working sessions on configuration and data"
 msgstr "Sessioni di lavoro su configurazione e dati"

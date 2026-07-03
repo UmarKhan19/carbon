@@ -63,7 +63,13 @@ export default function useUserSelect(props: UserSelectProps) {
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   useEffect(() => {
-    groupsFetcher.load(path.to.api.groupsByType(innerProps.type));
+    // Employee groups are few, so we ask the server for real (transitive)
+    // member counts up front; other group types (customer/supplier) can be
+    // numerous, so they keep the cheaper count-less load.
+    const base = path.to.api.groupsByType(innerProps.type);
+    groupsFetcher.load(
+      innerProps.type === "employee" ? `${base}&counts=true` : base
+    );
   }, [innerProps.type]);
 
   /* Refs */
@@ -108,6 +114,20 @@ export default function useUserSelect(props: UserSelectProps) {
 
   // Convert the tree from the server into a format that is easier to work with
   const optionGroups = useMemo<OptionGroup[]>(() => {
+    // The group's own selectable object — rendered on the header (see
+    // TreeSelect), never as a row inside its own member list.
+    const makeGroupSelectable = (
+      group: Group,
+      groupId: string
+    ): IndividualOrGroup => ({
+      ...group.data,
+      uid: getOptionId(groupId, group.data.id),
+      label: group.data.name || "",
+      children: group.children
+    });
+
+    // Member rows only: subgroups + users. The group itself is NOT included
+    // here — it lives on the header so it isn't duplicated as a nested row.
     const makeGroupItems = (
       group: Group,
       groupId: string
@@ -115,13 +135,6 @@ export default function useUserSelect(props: UserSelectProps) {
       const result: IndividualOrGroup[] = [];
 
       if (!innerProps.usersOnly) {
-        result.push({
-          ...group.data,
-          uid: getOptionId(groupId, group.data.id),
-          label: group.data.name || "",
-          children: group.children
-        });
-
         const subgroups = group.children.map((subgroup) => ({
           ...subgroup.data,
           uid: getOptionId(groupId, subgroup.data.id),
@@ -149,32 +162,82 @@ export default function useUserSelect(props: UserSelectProps) {
       return result;
     };
 
-    return !groupsFetcher.data || !groupsFetcher.data.groups
-      ? []
-      : groupsFetcher.data.groups.reduce<OptionGroup[]>((acc, group) => {
-          if (
-            !innerProps.usersOnly ||
-            (group.data.users && group.data.users.length) ||
-            (fetchedMembers[group.data.id] &&
-              fetchedMembers[group.data.id].length)
-          ) {
-            const uid = getGroupId(instanceId, group.data.id);
-            return acc.concat({
-              uid,
-              expanded: false,
-              items: makeGroupItems(group as Group, uid),
-              name: group.data.name || ""
-            });
-          }
-          return acc;
-        }, []);
-  }, [groupsFetcher.data, innerProps.usersOnly, instanceId, fetchedMembers]);
+    if (!groupsFetcher.data || !groupsFetcher.data.groups) return [];
+
+    // Employee picker: present every group flat (deduped) with its real member
+    // count, and reveal its people directly on expand (transitive members,
+    // loaded into `fetchedMembers`). No nested subgroup rows — a person is never
+    // buried behind a subgroup like "All Employees → Admin → person".
+    if (innerProps.type === "employee") {
+      const distinct = new Map<string, Group["data"]>();
+      const collect = (group: Group) => {
+        if (group?.data?.id && !distinct.has(group.data.id)) {
+          distinct.set(group.data.id, group.data);
+        }
+        group?.children?.forEach(collect);
+      };
+      groupsFetcher.data.groups.forEach((g) => collect(g as Group));
+
+      return Array.from(distinct.values()).map((d) => {
+        const uid = getGroupId(instanceId, d.id);
+        const members = (fetchedMembers[d.id] ?? []).map((user) => ({
+          ...user,
+          uid: getOptionId(uid, user.id),
+          label: user.fullName || ""
+        }));
+        return {
+          uid,
+          expanded: false,
+          items: members,
+          name: d.name || "",
+          memberCount: d.memberCount,
+          groupItem: innerProps.usersOnly
+            ? undefined
+            : {
+                ...d,
+                uid: getOptionId(uid, d.id),
+                label: d.name || "",
+                children: [] as Group[]
+              }
+        };
+      });
+    }
+
+    return groupsFetcher.data.groups.reduce<OptionGroup[]>((acc, group) => {
+      if (
+        !innerProps.usersOnly ||
+        (group.data.users && group.data.users.length) ||
+        (fetchedMembers[group.data.id] && fetchedMembers[group.data.id].length)
+      ) {
+        const uid = getGroupId(instanceId, group.data.id);
+        return acc.concat({
+          uid,
+          expanded: false,
+          items: makeGroupItems(group as Group, uid),
+          name: group.data.name || "",
+          groupItem: innerProps.usersOnly
+            ? undefined
+            : makeGroupSelectable(group as Group, uid)
+        });
+      }
+      return acc;
+    }, []);
+  }, [
+    groupsFetcher.data,
+    innerProps.usersOnly,
+    innerProps.type,
+    instanceId,
+    fetchedMembers
+  ]);
 
   /* Pre-populate controlled component after data loads */
   useEffect(() => {
     if (innerProps.value && optionGroups && optionGroups.length > 0) {
       const flattened = optionGroups.reduce<IndividualOrGroup[]>(
-        (acc, group) => acc.concat(group.items),
+        (acc, group) =>
+          acc.concat(
+            group.groupItem ? [group.groupItem, ...group.items] : group.items
+          ),
         []
       );
       const values = Array.isArray(innerProps.value)
@@ -235,7 +298,10 @@ export default function useUserSelect(props: UserSelectProps) {
           const matches = group.items.filter((item) =>
             stringContainsTerm(item.label, query)
           );
-          if (matches && matches.length) {
+          // Keep the header when the group name itself matches, so a group is
+          // discoverable by typing its name even before members are loaded.
+          const groupMatches = stringContainsTerm(group.name, query);
+          if ((matches && matches.length) || groupMatches) {
             return acc.concat({
               ...group,
               expanded: true,
@@ -308,7 +374,13 @@ export default function useUserSelect(props: UserSelectProps) {
       const groupId = uid.split("_")[1];
       if (groupId && !fetchedMembers[groupId] && !loadingGroups[groupId]) {
         setLoadingGroups((prev) => ({ ...prev, [groupId]: true }));
-        fetch(path.to.api.groupMembers(groupId))
+        // Employee groups resolve members transitively (through subgroups) so
+        // expanding always reveals real people, not nested groups.
+        const membersUrl =
+          innerProps.type === "employee"
+            ? `${path.to.api.groupMembers(groupId)}?transitive=true`
+            : path.to.api.groupMembers(groupId);
+        fetch(membersUrl)
           .then((res) => res.json())
           .then((data) => {
             if (data.users) {

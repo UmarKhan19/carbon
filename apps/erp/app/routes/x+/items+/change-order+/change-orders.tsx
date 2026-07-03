@@ -6,7 +6,7 @@ import { msg } from "@lingui/core/macro";
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useLoaderData } from "react-router";
 import { useRealtime } from "~/hooks";
-import { getChangeOrders, getChangeOrderTypesList } from "~/modules/items";
+import { getChangeOrders } from "~/modules/items";
 import ChangeOrdersTable from "~/modules/items/ui/ChangeOrder/ChangeOrdersTable";
 import { getTagsList } from "~/modules/shared";
 import type { Handle } from "~/utils/handle";
@@ -31,7 +31,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const { limit, offset, sorts, filters } =
     getGenericQueryFilters(searchParams);
 
-  const [changeOrders, changeOrderTypes, tags] = await Promise.all([
+  const [changeOrders, tags] = await Promise.all([
     getChangeOrders(client, companyId, {
       search,
       limit,
@@ -39,7 +39,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
       sorts,
       filters
     }),
-    getChangeOrderTypesList(client, companyId),
     getTagsList(client, companyId, "changeOrder")
   ]);
 
@@ -57,7 +56,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return {
     changeOrders: changeOrders.data ?? [],
     count: changeOrders.count ?? 0,
-    types: changeOrderTypes.data ?? [],
     tags: tags.data ?? []
   };
 }

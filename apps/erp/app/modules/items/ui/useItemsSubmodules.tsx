@@ -129,13 +129,7 @@ export default function useItemsSubmodules() {
           icon: <LuRuler />
         },
         {
-          name: t`Change Order Types`,
-          to: path.to.changeOrderTypes,
-          role: "employee",
-          icon: <LuShapes />
-        },
-        {
-          name: t`Change Order Workflows`,
+          name: t`Change Order Templates`,
           to: path.to.changeOrderWorkflows,
           role: "employee",
           icon: <LuWorkflow />

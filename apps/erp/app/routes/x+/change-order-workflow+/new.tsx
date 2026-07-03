@@ -2,7 +2,6 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import { ScrollArea } from "@carbon/react";
 import type { ActionFunctionArgs } from "react-router";
 import { data, redirect, useNavigate } from "react-router";
 import {
@@ -18,6 +17,7 @@ export async function action({ request }: ActionFunctionArgs) {
     create: "parts"
   });
   const formData = await request.formData();
+  const modal = formData.get("type") === "modal";
   const validation = await validator(changeOrderWorkflowValidator).validate(
     formData
   );
@@ -40,19 +40,20 @@ export async function action({ request }: ActionFunctionArgs) {
   });
 
   if (insert.error || !insert.data?.id) {
-    return data(
-      {},
-      await flash(
-        request,
-        error(insert.error, "Failed to insert change order workflow")
-      )
-    );
+    return modal
+      ? data({ error: insert.error?.message ?? "Failed to create template" })
+      : data(
+          {},
+          await flash(request, error(insert.error, "Failed to insert template"))
+        );
   }
 
-  throw redirect(
-    path.to.changeOrderWorkflow(insert.data.id),
-    await flash(request, success("Change order workflow created"))
-  );
+  return modal
+    ? data({ id: insert.data.id, name }, { status: 201 })
+    : redirect(
+        path.to.changeOrderWorkflow(insert.data.id),
+        await flash(request, success("Template created"))
+      );
 }
 
 export default function NewChangeOrderWorkflowRoute() {
@@ -65,11 +66,9 @@ export default function NewChangeOrderWorkflowRoute() {
   };
 
   return (
-    <ScrollArea className="w-full h-[calc(100dvh-49px)] bg-card">
-      <ChangeOrderWorkflowForm
-        initialValues={initialValues}
-        onClose={() => navigate(-1)}
-      />
-    </ScrollArea>
+    <ChangeOrderWorkflowForm
+      initialValues={initialValues}
+      onClose={() => navigate(-1)}
+    />
   );
 }

@@ -18,7 +18,6 @@ import {
   LuCircleCheck,
   LuCircleX,
   LuEllipsisVertical,
-  LuHistory,
   LuRocket,
   LuSend,
   LuTrash
@@ -74,12 +73,6 @@ const ChangeOrderHeader = () => {
                 />
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem asChild>
-                  <Link to={path.to.changeOrderDetails(id)}>
-                    <DropdownMenuIcon icon={<LuHistory />} />
-                    <Trans>Audit Log</Trans>
-                  </Link>
-                </DropdownMenuItem>
                 <DropdownMenuItem
                   destructive
                   disabled={
@@ -98,67 +91,71 @@ const ChangeOrderHeader = () => {
         </VStack>
 
         <HStack>
-          <statusFetcher.Form
-            method="post"
-            action={path.to.changeOrderStatus(id)}
-          >
-            <input type="hidden" name="status" value="In Review" />
-            <Button
-              type="submit"
-              leftIcon={<LuSend />}
-              variant={status === "Draft" ? "primary" : "secondary"}
-              isDisabled={
-                status !== "Draft" ||
-                statusFetcher.state !== "idle" ||
-                !permissions.can("update", "production")
-              }
-              isLoading={
-                statusFetcher.state !== "idle" &&
-                statusFetcher.formData?.get("status") === "In Review"
-              }
+          {status === "Draft" && (
+            <statusFetcher.Form
+              method="post"
+              action={path.to.changeOrderStatus(id)}
             >
-              <Trans>Submit for Review</Trans>
-            </Button>
-          </statusFetcher.Form>
+              <input type="hidden" name="status" value="In Review" />
+              <Button
+                type="submit"
+                leftIcon={<LuSend />}
+                variant="primary"
+                isDisabled={
+                  statusFetcher.state !== "idle" ||
+                  !permissions.can("update", "production")
+                }
+                isLoading={
+                  statusFetcher.state !== "idle" &&
+                  statusFetcher.formData?.get("status") === "In Review"
+                }
+              >
+                <Trans>Submit for Review</Trans>
+              </Button>
+            </statusFetcher.Form>
+          )}
 
-          <Button
-            type="button"
-            leftIcon={<LuCircleX />}
-            variant="secondary"
-            isDisabled={!canDecide}
-            onClick={() => setDecision("reject")}
-          >
-            <Trans>Reject</Trans>
-          </Button>
+          {canDecide && (
+            <>
+              <Button
+                type="button"
+                leftIcon={<LuCircleX />}
+                variant="secondary"
+                onClick={() => setDecision("reject")}
+              >
+                <Trans>Reject</Trans>
+              </Button>
 
-          <Button
-            type="button"
-            leftIcon={<LuCircleCheck />}
-            variant={status === "In Review" ? "primary" : "secondary"}
-            isDisabled={!canDecide}
-            onClick={() => setDecision("approve")}
-          >
-            <Trans>Approve</Trans>
-          </Button>
+              <Button
+                type="button"
+                leftIcon={<LuCircleCheck />}
+                variant="primary"
+                onClick={() => setDecision("approve")}
+              >
+                <Trans>Approve</Trans>
+              </Button>
+            </>
+          )}
 
-          <releaseFetcher.Form
-            method="post"
-            action={path.to.releaseChangeOrder(id)}
-          >
-            <Button
-              type="submit"
-              leftIcon={<LuRocket />}
-              variant={status === "Approved" ? "primary" : "secondary"}
-              isDisabled={
-                status !== "Approved" ||
-                releaseFetcher.state !== "idle" ||
-                !permissions.can("update", "production")
-              }
-              isLoading={releaseFetcher.state !== "idle"}
+          {status === "Approved" && (
+            <releaseFetcher.Form
+              method="post"
+              action={path.to.releaseChangeOrder(id)}
             >
-              <Trans>Release</Trans>
-            </Button>
-          </releaseFetcher.Form>
+              <Button
+                type="submit"
+                leftIcon={<LuRocket />}
+                variant="primary"
+                isDisabled={
+                  releaseFetcher.state !== "idle" ||
+                  !permissions.can("update", "production")
+                }
+                isLoading={releaseFetcher.state !== "idle"}
+              >
+                <Trans>Release</Trans>
+              </Button>
+            </releaseFetcher.Form>
+          )}
         </HStack>
       </div>
       {decision && (

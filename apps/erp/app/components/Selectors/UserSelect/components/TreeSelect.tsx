@@ -68,6 +68,12 @@ const Group = ({ group }: { group: OptionGroup }) => {
   const groupId = group.uid.split("_")[1];
   const isLoading = groupId ? loadingGroups?.[groupId] : false;
 
+  const groupItem = group.groupItem;
+  const isGroupSelected = !!groupItem && groupItem.id in selectionItemsById;
+  const isGroupDisabled = groupItem
+    ? (alwaysSelected?.includes(groupItem.id) ?? false)
+    : false;
+
   return (
     // biome-ignore lint/a11y/useAriaPropsSupportedByRole: suppressed due to migration
     <div
@@ -76,28 +82,63 @@ const Group = ({ group }: { group: OptionGroup }) => {
       className="rounded-md outline-none"
       aria-expanded={isExpanded}
     >
-      {/* Group Header */}
+      {/* Group Header — checkbox selects the whole group; the label/chevron
+          expands it to reveal individual members. */}
       <div
         role="treeitem"
-        aria-selected={isExpanded ? "true" : "false"}
-        onClick={() =>
-          group.expanded ? onGroupCollapse(group.uid) : onGroupExpand(group.uid)
-        }
-        onMouseEnter={() => {
-          if (!group.expanded) prefetchGroup(group.uid);
-        }}
+        aria-selected={isGroupSelected}
         className={cn(
-          "flex cursor-pointer select-none items-center gap-2 rounded-md px-2 py-2 hover:bg-muted/50 text-sm",
+          "flex select-none items-center gap-2 rounded-md px-2 py-2 hover:bg-muted/50 text-sm",
           isFocused && "bg-muted/50"
         )}
       >
-        <ExpandIcon isExpanded={isExpanded} />
-        <span className="flex-1 truncate">{group.name}</span>
-        {isLoading ? (
-          <Spinner className="h-3 w-3" />
-        ) : (
-          <span className="text-[10px] font-normal">{group.items.length}</span>
+        {groupItem && (
+          // biome-ignore lint/a11y/useKeyWithClickEvents: parent handles keyboard nav
+          <div
+            role="checkbox"
+            aria-checked={isGroupSelected}
+            aria-disabled={isGroupDisabled}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (isGroupDisabled) return;
+              isGroupSelected ? onDeselect(groupItem) : onSelect(groupItem);
+            }}
+            className={cn(
+              "flex h-4 w-4 shrink-0 cursor-pointer items-center justify-center rounded border transition-colors",
+              isGroupSelected
+                ? "border-primary bg-primary text-primary-foreground"
+                : "border-muted-foreground/30 bg-background",
+              isGroupDisabled && "opacity-50 pointer-events-none"
+            )}
+          >
+            {isGroupSelected && <LuCheck className="h-3 w-3" />}
+          </div>
         )}
+        <div
+          className="flex flex-1 cursor-pointer items-center gap-2 min-w-0"
+          onClick={() =>
+            group.expanded
+              ? onGroupCollapse(group.uid)
+              : onGroupExpand(group.uid)
+          }
+          onMouseEnter={() => {
+            if (!group.expanded) prefetchGroup(group.uid);
+          }}
+        >
+          <ExpandIcon isExpanded={isExpanded} />
+          <span className="truncate">{group.name}</span>
+          <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium uppercase text-muted-foreground">
+            Group
+          </span>
+          {typeof group.memberCount === "number" && (
+            <span className="shrink-0 text-xs text-muted-foreground">
+              {group.memberCount}{" "}
+              {group.memberCount === 1 ? "member" : "members"}
+            </span>
+          )}
+          <span className="flex-1" />
+          {isLoading && <Spinner className="h-3 w-3" />}
+        </div>
       </div>
 
       {/* Group Items */}

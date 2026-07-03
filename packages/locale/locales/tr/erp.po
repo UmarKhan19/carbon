@@ -303,6 +303,9 @@ msgstr "Bir tedarikçinin satın alma RFQ'ya verilen fiyatlı yanıtı — tedar
 msgid "A taxable surcharge (handling, setup, fuel) added to the line; rolls into the tax base."
 msgstr "Vergilendirilecek bir ek ücret (işçilik, kurulum, yakıt) satıra eklenir ve vergi matrahına dahil edilir."
 
+msgid "A template defines the preset values for a new change order — its priority, approval type, and default approvers."
+msgstr ""
+
 msgid "A tool is a physical item used to make a part that can be used across multiple jobs"
 msgstr "Bir takım, birden fazla işte kullanılabilecek bir parça yapmak için kullanılan fiziksel bir öğedir"
 
@@ -1066,10 +1069,6 @@ msgstr "Hesabı silmek istediğinizden emin misiniz: {0}{1}? Bu geri alınamaz."
 msgid "Are you sure you want to delete the API key: {0}? This cannot be undone."
 msgstr "API anahtarını silmek istediğinizden emin misiniz: {0}? Bu geri alınamaz."
 
-#. placeholder {0}: changeOrderType.name
-msgid "Are you sure you want to delete the change order type: {0}? This cannot be undone."
-msgstr ""
-
 msgid "Are you sure you want to delete the contractor: {name}? This cannot be undone."
 msgstr "Yükleniciyi silmek istediğinizden emin misiniz: {name}? Bu geri alınamaz."
 
@@ -1228,7 +1227,7 @@ msgstr "Webhook'u silmek istediğinizden emin misiniz: {0}? Bu geri alınamaz."
 msgid "Are you sure you want to delete this approval rule? This cannot be undone."
 msgstr "Bu onay kuralını silmek istediğinizden emin misiniz? Bu geri alınamaz."
 
-msgid "Are you sure you want to delete this change order workflow?"
+msgid "Are you sure you want to delete this change order template?"
 msgstr ""
 
 msgid "Are you sure you want to delete this change order?"
@@ -1966,10 +1965,7 @@ msgstr "Değiştir"
 msgid "Change Order"
 msgstr ""
 
-msgid "Change Order Types"
-msgstr ""
-
-msgid "Change Order Workflows"
+msgid "Change Order Templates"
 msgstr ""
 
 msgid "Change Orders"
@@ -2508,9 +2504,6 @@ msgstr "API Anahtarını Kopyala"
 msgid "Copy change order number"
 msgstr ""
 
-msgid "Copy change order unique identifier"
-msgstr ""
-
 msgid "Copy company unique identifier"
 msgstr "Şirket benzersiz tanımlayıcısını kopyala"
 
@@ -2815,9 +2808,6 @@ msgstr "Oluşturulma Tarihi"
 msgid "Created By"
 msgstr "Oluşturan"
 
-msgid "Created change order type"
-msgstr ""
-
 msgid "Created consumable"
 msgstr "Tüketilebilir malzeme oluşturuldu"
 
@@ -2906,6 +2896,9 @@ msgstr "Depolama türü oluşturuldu"
 #. placeholder {0}: fetcher.data.data.name
 msgid "Created supplier: {0}"
 msgstr "Oluşturulan tedarikçi: {0}"
+
+msgid "Created template"
+msgstr ""
 
 msgid "Created tool"
 msgstr "Oluşturulan araç"
@@ -4061,9 +4054,6 @@ msgstr "Öznitelik Kategorisini Düzenle"
 msgid "Edit Category"
 msgstr "Kategoriyi Düzenle"
 
-msgid "Edit Change Order Type"
-msgstr ""
-
 msgid "Edit column visibility"
 msgstr "Sütun görünürlüğünü düzenle"
 
@@ -4294,6 +4284,9 @@ msgstr "Tedarikçi sürecini düzenle"
 
 msgid "Edit Supplier Type"
 msgstr "Tedarikçi Türünü Düzenle"
+
+msgid "Edit Template"
+msgstr ""
 
 msgid "Edit the rule to remove the \"Applies to all\" flag"
 msgstr "Kuralı düzenleyerek \"Tümüne uygulanır\" işaretini kaldırın"
@@ -4781,10 +4774,6 @@ msgid "Failed to create asset class: {0}"
 msgstr "FEFO (ilk son kullanma tarihi, ilk çıkış)"
 
 #. placeholder {0}: fetcher.data.error.message
-msgid "Failed to create change order type: {0}"
-msgstr ""
-
-#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create consumable: {0}"
 msgstr "Tüketilebilir oluşturulamadı: {0}"
 
@@ -4887,6 +4876,10 @@ msgstr "Depolama türü oluşturulamadı: {0}"
 #. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create supplier: {0}"
 msgstr "Tedarikçi oluşturulamadı: {0}"
+
+#. placeholder {0}: fetcher.data.error
+msgid "Failed to create template: {0}"
+msgstr ""
 
 #. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create tool: {0}"
@@ -7251,9 +7244,6 @@ msgstr "Yeni Öznitelik"
 msgid "New Attribute Category"
 msgstr "Yeni Öznitelik Kategorisi"
 
-msgid "New Change Order Type"
-msgstr ""
-
 msgid "New Consumable"
 msgstr "Yeni Sarf Malzemesi"
 
@@ -7466,6 +7456,9 @@ msgstr "Yeni Tedarikçi"
 
 msgid "New Supplier Part"
 msgstr "Yeni Tedarikçi Parçası"
+
+msgid "New Template"
+msgstr ""
 
 msgid "New Timecard"
 msgstr "Yeni Vardiya"
@@ -11430,6 +11423,9 @@ msgstr "Takım eğitildi"
 msgid "Temperature"
 msgstr "Sıcaklık"
 
+msgid "Template"
+msgstr ""
+
 msgid "Template ID"
 msgstr "Şablon Kimliği"
 
@@ -13589,9 +13585,6 @@ msgstr "Çalışma vardiyası takibi aktif."
 
 msgid "Workflow"
 msgstr "İş Akışı"
-
-msgid "Workflows"
-msgstr ""
 
 msgid "Working sessions on configuration and data"
 msgstr "Yapılandırma ve veri üzerinde çalışma oturumları"

@@ -303,6 +303,9 @@ msgstr "A supplier's priced response to a purchasing RFQ — one per supplier; D
 msgid "A taxable surcharge (handling, setup, fuel) added to the line; rolls into the tax base."
 msgstr "A taxable surcharge (handling, setup, fuel) added to the line; rolls into the tax base."
 
+msgid "A template defines the preset values for a new change order — its priority, approval type, and default approvers."
+msgstr "A template defines the preset values for a new change order — its priority, approval type, and default approvers."
+
 msgid "A tool is a physical item used to make a part that can be used across multiple jobs"
 msgstr "A tool is a physical item used to make a part that can be used across multiple jobs"
 
@@ -1066,10 +1069,6 @@ msgstr "Are you sure you want to delete the account: {0}{1}? This cannot be undo
 msgid "Are you sure you want to delete the API key: {0}? This cannot be undone."
 msgstr "Are you sure you want to delete the API key: {0}? This cannot be undone."
 
-#. placeholder {0}: changeOrderType.name
-msgid "Are you sure you want to delete the change order type: {0}? This cannot be undone."
-msgstr "Are you sure you want to delete the change order type: {0}? This cannot be undone."
-
 msgid "Are you sure you want to delete the contractor: {name}? This cannot be undone."
 msgstr "Are you sure you want to delete the contractor: {name}? This cannot be undone."
 
@@ -1228,8 +1227,8 @@ msgstr "Are you sure you want to delete the webhook: {0}? This cannot be undone.
 msgid "Are you sure you want to delete this approval rule? This cannot be undone."
 msgstr "Are you sure you want to delete this approval rule? This cannot be undone."
 
-msgid "Are you sure you want to delete this change order workflow?"
-msgstr "Are you sure you want to delete this change order workflow?"
+msgid "Are you sure you want to delete this change order template?"
+msgstr "Are you sure you want to delete this change order template?"
 
 msgid "Are you sure you want to delete this change order?"
 msgstr "Are you sure you want to delete this change order?"
@@ -1966,11 +1965,8 @@ msgstr "Change"
 msgid "Change Order"
 msgstr "Change Order"
 
-msgid "Change Order Types"
-msgstr "Change Order Types"
-
-msgid "Change Order Workflows"
-msgstr "Change Order Workflows"
+msgid "Change Order Templates"
+msgstr "Change Order Templates"
 
 msgid "Change Orders"
 msgstr "Change Orders"
@@ -2508,9 +2504,6 @@ msgstr "Copy API Key"
 msgid "Copy change order number"
 msgstr "Copy change order number"
 
-msgid "Copy change order unique identifier"
-msgstr "Copy change order unique identifier"
-
 msgid "Copy company unique identifier"
 msgstr "Copy company unique identifier"
 
@@ -2815,9 +2808,6 @@ msgstr "Created At"
 msgid "Created By"
 msgstr "Created By"
 
-msgid "Created change order type"
-msgstr "Created change order type"
-
 msgid "Created consumable"
 msgstr "Created consumable"
 
@@ -2906,6 +2896,9 @@ msgstr "Created storage type"
 #. placeholder {0}: fetcher.data.data.name
 msgid "Created supplier: {0}"
 msgstr "Created supplier: {0}"
+
+msgid "Created template"
+msgstr "Created template"
 
 msgid "Created tool"
 msgstr "Created tool"
@@ -4061,9 +4054,6 @@ msgstr "Edit Attribute Category"
 msgid "Edit Category"
 msgstr "Edit Category"
 
-msgid "Edit Change Order Type"
-msgstr "Edit Change Order Type"
-
 msgid "Edit column visibility"
 msgstr "Edit column visibility"
 
@@ -4294,6 +4284,9 @@ msgstr "Edit supplier process"
 
 msgid "Edit Supplier Type"
 msgstr "Edit Supplier Type"
+
+msgid "Edit Template"
+msgstr "Edit Template"
 
 msgid "Edit the rule to remove the \"Applies to all\" flag"
 msgstr "Edit the rule to remove the \"Applies to all\" flag"
@@ -4781,10 +4774,6 @@ msgid "Failed to create asset class: {0}"
 msgstr "Failed to create asset class: {0}"
 
 #. placeholder {0}: fetcher.data.error.message
-msgid "Failed to create change order type: {0}"
-msgstr "Failed to create change order type: {0}"
-
-#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create consumable: {0}"
 msgstr "Failed to create consumable: {0}"
 
@@ -4887,6 +4876,10 @@ msgstr "Failed to create storage type: {0}"
 #. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create supplier: {0}"
 msgstr "Failed to create supplier: {0}"
+
+#. placeholder {0}: fetcher.data.error
+msgid "Failed to create template: {0}"
+msgstr "Failed to create template: {0}"
 
 #. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create tool: {0}"
@@ -7251,9 +7244,6 @@ msgstr "New Attribute"
 msgid "New Attribute Category"
 msgstr "New Attribute Category"
 
-msgid "New Change Order Type"
-msgstr "New Change Order Type"
-
 msgid "New Consumable"
 msgstr "New Consumable"
 
@@ -7466,6 +7456,9 @@ msgstr "New Supplier"
 
 msgid "New Supplier Part"
 msgstr "New Supplier Part"
+
+msgid "New Template"
+msgstr "New Template"
 
 msgid "New Timecard"
 msgstr "New Timecard"
@@ -11430,6 +11423,9 @@ msgstr "Team trained"
 msgid "Temperature"
 msgstr "Temperature"
 
+msgid "Template"
+msgstr "Template"
+
 msgid "Template ID"
 msgstr "Template ID"
 
@@ -13589,9 +13585,6 @@ msgstr "Work shift tracking is active."
 
 msgid "Workflow"
 msgstr "Workflow"
-
-msgid "Workflows"
-msgstr "Workflows"
 
 msgid "Working sessions on configuration and data"
 msgstr "Working sessions on configuration and data"

@@ -34,7 +34,6 @@ import {
   type changeOrderStatus,
   type changeOrderTaskStatus,
   type changeOrderType,
-  type changeOrderTypeValidator,
   type configurationParameterGroupOrderValidator,
   type configurationParameterGroupValidator,
   type configurationParameterOrderValidator,
@@ -249,17 +248,6 @@ export async function getChangeOrderItems(
     .order("createdAt", { ascending: true });
 }
 
-export async function getChangeOrderTypesList(
-  client: SupabaseClient<Database>,
-  companyId: string
-) {
-  return client
-    .from("changeOrderType")
-    .select("id, name")
-    .eq("companyId", companyId)
-    .order("name");
-}
-
 export async function getChangeOrderActionTasks(
   client: SupabaseClient<Database>,
   id: string,
@@ -311,40 +299,6 @@ export async function getChangeOrderTasks(
     getChangeOrderActionTasks(client, id, companyId),
     getChangeOrderApprovalTasks(client, id, companyId)
   ]);
-}
-
-export async function getChangeOrderType(
-  client: SupabaseClient<Database>,
-  changeOrderTypeId: string
-) {
-  return client
-    .from("changeOrderType")
-    .select("*")
-    .eq("id", changeOrderTypeId)
-    .single();
-}
-
-export async function getChangeOrderTypes(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  args?: GenericQueryFilters & { search: string | null }
-) {
-  let query = client
-    .from("changeOrderType")
-    .select("*", { count: "exact" })
-    .eq("companyId", companyId);
-
-  if (args?.search) {
-    query = query.ilike("name", `%${args.search}%`);
-  }
-
-  if (args) {
-    query = setGenericQueryFilters(query, args, [
-      { column: "name", ascending: true }
-    ]);
-  }
-
-  return query;
 }
 
 export async function getChangeOrderWorkflow(
@@ -580,7 +534,6 @@ export async function insertChangeOrder(
     priority?: (typeof nonConformancePriority)[number];
     openDate: string;
     description?: Json;
-    changeOrderTypeId?: string;
     changeOrderWorkflowId?: string;
     dueDate?: string;
     effectiveDate?: string;
@@ -717,7 +670,6 @@ export async function insertChangeOrder(
       priority: data.priority ?? null,
       openDate: data.openDate,
       description: data.description ?? {},
-      changeOrderTypeId: data.changeOrderTypeId ?? null,
       changeOrderWorkflowId: data.changeOrderWorkflowId ?? null,
       dueDate: data.dueDate ?? null,
       effectiveDate: data.effectiveDate ?? null,
@@ -849,7 +801,6 @@ export async function updateChangeOrder(
     priority?: (typeof nonConformancePriority)[number] | null;
     openDate?: string;
     description?: Json;
-    changeOrderTypeId?: string | null;
     changeOrderWorkflowId?: string | null;
     dueDate?: string | null;
     effectiveDate?: string | null;
@@ -934,6 +885,29 @@ export async function updateChangeOrderStatus(
             "At least one reviewer is required before submitting for review."
         }
       };
+    }
+
+    // A CO with zero affected items has nothing to review or release. Guard the
+    // Draft → In Review submit only — the Approved → In Review downgrade (a
+    // reopened reviewer decision) must never be blocked by this.
+    if (fromStatus === "Draft") {
+      const affectedItems = await client
+        .from("changeOrderItem")
+        .select("id", { count: "exact", head: true })
+        .eq("changeOrderId", id)
+        .eq("companyId", companyId);
+      if (affectedItems.error) {
+        return { data: null, error: affectedItems.error };
+      }
+      if ((affectedItems.count ?? 0) === 0) {
+        return {
+          data: null,
+          error: {
+            message:
+              "At least one affected item is required before submitting for review."
+          }
+        };
+      }
     }
   }
 
@@ -1114,7 +1088,10 @@ export async function reevaluateChangeOrderApproval(
     };
   }
 
-  if (co.data.status !== "In Review") {
+  // Only In Review (may advance) and Approved (may be withdrawn back) are
+  // sensitive to reviewer-set changes. Draft/Released/Cancelled never re-derive
+  // their status from the threshold.
+  if (co.data.status !== "In Review" && co.data.status !== "Approved") {
     return {
       data: {
         status: co.data.status as (typeof changeOrderStatus)[number],
@@ -1137,6 +1114,33 @@ export async function reevaluateChangeOrderApproval(
     co.data.approvalType,
     (reviewers.data ?? []).map((r) => ({ status: r.status }))
   );
+
+  // Already Approved: a reviewer reopening/withdrawing their sign-off can drop
+  // the set below threshold. Downgrade Approved → In Review so the CO can never
+  // sit Approved while its live reviewer set no longer meets the bar.
+  if (co.data.status === "Approved") {
+    if (met) {
+      return { data: { status: "Approved", autoAdvanced: false }, error: null };
+    }
+    const status = await updateChangeOrderStatus(client, {
+      id: changeOrderId,
+      companyId,
+      fromStatus: "Approved",
+      toStatus: "In Review",
+      updatedBy: userId
+    });
+    if (status.error && status.data === null) {
+      const fresh = await getChangeOrder(client, changeOrderId, companyId);
+      if (fresh.data?.status === "In Review") {
+        return {
+          data: { status: "In Review", autoAdvanced: false },
+          error: null
+        };
+      }
+      return { data: null, error: status.error };
+    }
+    return { data: { status: "In Review", autoAdvanced: false }, error: null };
+  }
 
   if (met) {
     const status = await updateChangeOrderStatus(client, {
@@ -1267,32 +1271,6 @@ export async function updateChangeOrderTaskContent(
     .single();
 }
 
-export async function upsertChangeOrderType(
-  client: SupabaseClient<Database>,
-  changeOrderType:
-    | (Omit<z.infer<typeof changeOrderTypeValidator>, "id"> & {
-        companyId: string;
-        createdBy: string;
-        customFields?: Json;
-      })
-    | (Omit<z.infer<typeof changeOrderTypeValidator>, "id"> & {
-        id: string;
-        updatedBy: string;
-        customFields?: Json;
-      })
-) {
-  if ("createdBy" in changeOrderType) {
-    return client
-      .from("changeOrderType")
-      .insert([changeOrderType])
-      .select("id");
-  }
-  return client
-    .from("changeOrderType")
-    .update(sanitize(changeOrderType))
-    .eq("id", changeOrderType.id);
-}
-
 export async function upsertChangeOrderWorkflow(
   client: SupabaseClient<Database>,
   // The changeOrderWorkflow table stores the template payload (priority,
@@ -1324,13 +1302,6 @@ export async function upsertChangeOrderWorkflow(
     .from("changeOrderWorkflow")
     .update(sanitize(changeOrderWorkflow))
     .eq("id", changeOrderWorkflow.id);
-}
-
-export async function deleteChangeOrderType(
-  client: SupabaseClient<Database>,
-  changeOrderTypeId: string
-) {
-  return client.from("changeOrderType").delete().eq("id", changeOrderTypeId);
 }
 
 export async function deleteChangeOrderWorkflow(

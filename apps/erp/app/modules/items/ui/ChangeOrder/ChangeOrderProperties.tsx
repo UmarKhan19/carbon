@@ -16,12 +16,10 @@ import {
   toast,
   VStack
 } from "@carbon/react";
-import type { MessageDescriptor } from "@lingui/core";
-import { msg } from "@lingui/core/macro";
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { ReactNode } from "react";
 import { useCallback, useEffect } from "react";
-import { LuCopy, LuKeySquare, LuLink, LuShieldAlert } from "react-icons/lu";
+import { LuCopy, LuLink, LuShieldAlert } from "react-icons/lu";
 import { Link, useFetcher, useParams } from "react-router";
 import { z } from "zod";
 import {
@@ -29,7 +27,6 @@ import {
   EmployeeAvatar,
   useOptimisticAssignment
 } from "~/components";
-import { Enumerable } from "~/components/Enumerable";
 import { Tags } from "~/components/Form";
 import CustomFormInlineFields from "~/components/Form/CustomFormInlineFields";
 import { usePermissions, useRouteData } from "~/hooks";
@@ -41,7 +38,6 @@ import {
   isChangeOrderLocked
 } from "~/modules/items";
 import type { action } from "~/routes/x+/items+/update";
-import type { ListItem } from "~/types";
 import { path } from "~/utils/path";
 import { copyToClipboard } from "~/utils/string";
 
@@ -53,19 +49,19 @@ const CHANGE_ORDER_SOURCES: Record<
   string,
   {
     icon: ReactNode;
-    label: MessageDescriptor;
+    label: ReactNode;
     href?: (sourceId: string) => string;
-    detail?: (sourceId: string) => MessageDescriptor;
+    detail?: (sourceId: string) => ReactNode;
   }
 > = {
   onshape: {
     icon: <OnshapeLogo className="h-4 w-auto" />,
-    label: msg`OnShape`,
-    detail: (sourceId) => msg`Release ${sourceId}`
+    label: <Trans>OnShape</Trans>,
+    detail: (sourceId) => <Trans>Release {sourceId}</Trans>
   },
   nonConformance: {
     icon: <LuShieldAlert className="h-4 w-4" />,
-    label: msg`Quality Issue`,
+    label: <Trans>Quality Issue</Trans>,
     href: (sourceId) => path.to.issue(sourceId)
   }
 };
@@ -77,10 +73,10 @@ const ChangeOrderSource = ({
   sourceType: string;
   sourceId: string | null;
 }) => {
-  const { i18n } = useLingui();
   const descriptor = CHANGE_ORDER_SOURCES[sourceType];
-  const label = descriptor ? i18n._(descriptor.label) : sourceType;
-  const badge = <Badge variant="outline">{label}</Badge>;
+  const badge = (
+    <Badge variant="outline">{descriptor?.label ?? sourceType}</Badge>
+  );
 
   return (
     <VStack spacing={2}>
@@ -97,7 +93,7 @@ const ChangeOrderSource = ({
       </HStack>
       {descriptor?.detail && sourceId && (
         <span className="text-xs text-muted-foreground">
-          {i18n._(descriptor.detail(sourceId))}
+          {descriptor.detail(sourceId)}
         </span>
       )}
     </VStack>
@@ -113,7 +109,6 @@ const ChangeOrderProperties = () => {
 
   const routeData = useRouteData<{
     changeOrder: ChangeOrderDetail;
-    changeOrderTypes: ListItem[];
     tags: { name: string }[];
   }>(path.to.changeOrder(id));
 
@@ -145,7 +140,6 @@ const ChangeOrderProperties = () => {
         | "type"
         | "approvalType"
         | "priority"
-        | "changeOrderTypeId"
         | "approvalRequirements"
         | "openDate"
         | "dueDate"
@@ -242,33 +236,20 @@ const ChangeOrderProperties = () => {
                 </span>
               </TooltipContent>
             </Tooltip>
+          </HStack>
+        </HStack>
+        <VStack spacing={1}>
+          <HStack spacing={1} className="group items-center">
+            <span className="text-sm tracking-tight">
+              {routeData?.changeOrder?.changeOrderId}
+            </span>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label={t`Copy`}
+                  aria-label={t`Copy change order number`}
                   size="sm"
-                  className="p-1"
-                  onClick={() =>
-                    copyToClipboard(routeData?.changeOrder?.changeOrderId ?? "")
-                  }
-                >
-                  <LuKeySquare className="w-3 h-3" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <span>
-                  <Trans>Copy change order unique identifier</Trans>
-                </span>
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  aria-label={t`Copy`}
-                  size="sm"
-                  className="p-1"
+                  className="p-1 opacity-0 transition-opacity group-hover:opacity-100"
                   onClick={() =>
                     copyToClipboard(routeData?.changeOrder?.changeOrderId ?? "")
                   }
@@ -283,11 +264,9 @@ const ChangeOrderProperties = () => {
               </TooltipContent>
             </Tooltip>
           </HStack>
-        </HStack>
-        <VStack spacing={1}>
-          <span className="text-sm tracking-tight">
-            {routeData?.changeOrder?.changeOrderId}
-          </span>
+          <h3 className="text-xs text-muted-foreground">
+            <Trans>Name</Trans>
+          </h3>
           <ValidatedForm
             defaultValues={{
               name: routeData?.changeOrder?.name ?? undefined
@@ -351,41 +330,6 @@ const ChangeOrderProperties = () => {
           onChange={(value) => {
             if (value) {
               onUpdate("type", value.value);
-            }
-          }}
-        />
-      </ValidatedForm>
-
-      <ValidatedForm
-        defaultValues={{
-          changeOrderTypeId: routeData?.changeOrder?.changeOrderTypeId ?? ""
-        }}
-        validator={z.object({
-          changeOrderTypeId: z.string().optional()
-        })}
-        className="w-full"
-      >
-        <Select
-          options={(routeData?.changeOrderTypes ?? []).map((type) => ({
-            value: type.id,
-            label: <Enumerable value={type.name} />
-          }))}
-          isReadOnly={disableStructureUpdate}
-          label={t`Category`}
-          name="changeOrderTypeId"
-          inline={(value, options) => {
-            return (
-              <Enumerable
-                value={
-                  routeData?.changeOrderTypes.find((t) => t.id === value)
-                    ?.name ?? null
-                }
-              />
-            );
-          }}
-          onChange={(value) => {
-            if (value) {
-              onUpdate("changeOrderTypeId", value.value);
             }
           }}
         />

@@ -6,11 +6,7 @@ import { msg } from "@lingui/core/macro";
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useLoaderData, useParams } from "react-router";
 import { PanelProvider, ResizablePanels } from "~/components/Layout/Panels";
-import {
-  getChangeOrder,
-  getChangeOrderItems,
-  getChangeOrderTypesList
-} from "~/modules/items";
+import { getChangeOrder, getChangeOrderItems } from "~/modules/items";
 import {
   getChangeOrderValidations,
   getMethodSnapshot
@@ -39,10 +35,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { id } = params;
   if (!id) throw new Error("Could not find id");
 
-  const [changeOrder, items, changeOrderTypes, tags] = await Promise.all([
+  const [changeOrder, items, tags] = await Promise.all([
     getChangeOrder(client, id, companyId),
     getChangeOrderItems(client, id, companyId),
-    getChangeOrderTypesList(client, companyId),
     getTagsList(client, companyId, "changeOrder")
   ]);
 
@@ -86,7 +81,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     changeOrder: changeOrder.data,
     items: affectedItems,
     redlineByItemId,
-    changeOrderTypes: changeOrderTypes.data ?? [],
     tags: tags.data ?? [],
     // Deferred: pre-release validations are streamed to the detail view.
     validations: getChangeOrderValidations(client, id, companyId)

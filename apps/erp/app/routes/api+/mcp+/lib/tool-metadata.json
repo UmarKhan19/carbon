@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-03T02:46:33.797Z",
-  "totalTools": 1287,
+  "generated": "2026-07-03T06:25:23.766Z",
+  "totalTools": 1282,
   "modules": 15,
   "tools": [
     {
@@ -9272,24 +9272,6 @@
       }
     },
     {
-      "name": "items_getChangeOrderTypesList",
-      "module": "items",
-      "classification": "READ",
-      "description": "get change order types list",
-      "paramCount": 0,
-      "serviceParams": [
-        "client",
-        "companyId"
-      ],
-      "injectAuth": [
-        "companyId"
-      ],
-      "schema": {
-        "type": "object",
-        "properties": {}
-      }
-    },
-    {
       "name": "items_getChangeOrderActionTasks",
       "module": "items",
       "classification": "READ",
@@ -9391,70 +9373,6 @@
         "required": [
           "id"
         ]
-      }
-    },
-    {
-      "name": "items_getChangeOrderType",
-      "module": "items",
-      "classification": "READ",
-      "description": "get change order type",
-      "paramCount": 1,
-      "serviceParams": [
-        "client",
-        "changeOrderTypeId"
-      ],
-      "injectAuth": [
-        "companyId"
-      ],
-      "schema": {
-        "type": "object",
-        "properties": {
-          "changeOrderTypeId": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "changeOrderTypeId"
-        ]
-      }
-    },
-    {
-      "name": "items_getChangeOrderTypes",
-      "module": "items",
-      "classification": "READ",
-      "description": "get change order types",
-      "paramCount": 3,
-      "serviceParams": [
-        "client",
-        "companyId",
-        "args"
-      ],
-      "injectAuth": [
-        "companyId"
-      ],
-      "schema": {
-        "type": "object",
-        "properties": {
-          "args": {
-            "type": "object",
-            "properties": {
-              "limit": {
-                "type": "integer",
-                "default": 100
-              },
-              "offset": {
-                "type": "integer",
-                "default": 0
-              },
-              "search": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              }
-            }
-          }
-        }
       }
     },
     {
@@ -9588,7 +9506,7 @@
       "module": "items",
       "classification": "WRITE",
       "description": "insert change order",
-      "paramCount": 19,
+      "paramCount": 18,
       "serviceParams": [
         "client",
         "input"
@@ -9620,9 +9538,6 @@
             "type": "string"
           },
           "description": {},
-          "changeOrderTypeId": {
-            "type": "string"
-          },
           "changeOrderWorkflowId": {
             "type": "string"
           },
@@ -9680,7 +9595,7 @@
       "module": "items",
       "classification": "WRITE",
       "description": "update change order",
-      "paramCount": 18,
+      "paramCount": 17,
       "serviceParams": [
         "client",
         "input"
@@ -9717,12 +9632,6 @@
             "type": "string"
           },
           "description": {},
-          "changeOrderTypeId": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
           "changeOrderWorkflowId": {
             "type": [
               "string",
@@ -10022,36 +9931,6 @@
       }
     },
     {
-      "name": "items_upsertChangeOrderType",
-      "module": "items",
-      "classification": "WRITE",
-      "description": "upsert change order type",
-      "paramCount": 2,
-      "serviceParams": [
-        "client",
-        "changeOrderType"
-      ],
-      "injectAuth": [
-        "companyId",
-        "createdBy",
-        "updatedBy"
-      ],
-      "schema": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "name"
-        ]
-      }
-    },
-    {
       "name": "items_upsertChangeOrderWorkflow",
       "module": "items",
       "classification": "WRITE",
@@ -10076,31 +9955,6 @@
         "required": [
           "// The changeOrderWorkflow table stores the template payload (priority,\n  // approvalType, approvers) inside the `content` JSON column — no dedicated\n  // columns. Routes serialize the validated form fields into `content` before\n  // calling this",
           "so the upsert accepts the real columns (name + content).\n  changeOrderWorkflow"
-        ]
-      }
-    },
-    {
-      "name": "items_deleteChangeOrderType",
-      "module": "items",
-      "classification": "DESTRUCTIVE",
-      "description": "delete change order type",
-      "paramCount": 1,
-      "serviceParams": [
-        "client",
-        "changeOrderTypeId"
-      ],
-      "injectAuth": [
-        "companyId"
-      ],
-      "schema": {
-        "type": "object",
-        "properties": {
-          "changeOrderTypeId": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "changeOrderTypeId"
         ]
       }
     },

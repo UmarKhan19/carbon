@@ -10,7 +10,7 @@ import { path } from "~/utils/path";
 import { getGenericQueryFilters } from "~/utils/query";
 
 export const handle: Handle = {
-  breadcrumb: msg`Workflows`,
+  breadcrumb: msg`Templates`,
   to: path.to.changeOrderWorkflows,
   module: "items"
 };

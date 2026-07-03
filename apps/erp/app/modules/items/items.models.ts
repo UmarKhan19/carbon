@@ -903,7 +903,6 @@ export const changeOrderValidator = z.object({
   type: z.enum(changeOrderType),
   priority: z.enum(nonConformancePriority).optional(),
   approvalType: z.enum(changeOrderApprovalType),
-  changeOrderTypeId: zfd.text(z.string().optional()),
   changeOrderWorkflowId: zfd.text(z.string().optional()),
   openDate: z.string().min(1, { message: "Open date is required" }),
   dueDate: zfd.text(z.string().optional()),
@@ -951,7 +950,9 @@ export const changeOrderStatusTransitions: Record<
 > = {
   Draft: ["In Review", "Cancelled"],
   "In Review": ["Approved", "Draft", "Cancelled"],
-  Approved: ["Draft", "Cancelled"],
+  // Approved → In Review lets a reopened/withdrawn reviewer decision downgrade a
+  // CO whose approval threshold is no longer met (see reevaluateChangeOrderApproval).
+  Approved: ["In Review", "Draft", "Cancelled"],
   Released: [],
   Cancelled: []
 };
@@ -991,11 +992,6 @@ export function evaluateApprovalThreshold(
       return false;
   }
 }
-
-export const changeOrderTypeValidator = z.object({
-  id: zfd.text(z.string().optional()),
-  name: z.string().min(1, { message: "Name is required" })
-});
 
 // A change order workflow is a TEMPLATE that pre-fills a new change order — not
 // a state machine. It carries a default priority, approvalType, and approver

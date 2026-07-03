@@ -10,7 +10,6 @@ import { redirect, useLoaderData } from "react-router";
 import { useUrlParams } from "~/hooks";
 import {
   changeOrderValidator,
-  getChangeOrderTypesList,
   getChangeOrderWorkflowsList,
   insertChangeOrder
 } from "~/modules/items";
@@ -29,10 +28,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     view: "parts"
   });
 
-  const [types, workflows] = await Promise.all([
-    getChangeOrderTypesList(client, companyId),
-    getChangeOrderWorkflowsList(client, companyId)
-  ]);
+  const workflows = await getChangeOrderWorkflowsList(client, companyId);
 
   const url = new URL(request.url);
   const sourceType = url.searchParams.get("sourceType");
@@ -40,7 +36,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const name = url.searchParams.get("name");
 
   return {
-    types: types.data ?? [],
     workflows: workflows.data ?? [],
     sourceType,
     sourceId,
@@ -73,7 +68,6 @@ export async function action({ request }: ActionFunctionArgs) {
     priority: d.priority,
     openDate: d.openDate,
     description: d.description,
-    changeOrderTypeId: d.changeOrderTypeId,
     changeOrderWorkflowId: d.changeOrderWorkflowId,
     dueDate: d.dueDate,
     effectiveDate: d.effectiveDate,
@@ -118,7 +112,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function ChangeOrderNewRoute() {
-  const { types, workflows, sourceType, sourceId, name } =
+  const { workflows, sourceType, sourceId, name } =
     useLoaderData<typeof loader>();
 
   const [params] = useUrlParams();
@@ -131,7 +125,6 @@ export default function ChangeOrderNewRoute() {
     type: "Engineering" as const,
     approvalType: "Unanimous" as const,
     priority: "Medium" as const,
-    changeOrderTypeId: "",
     changeOrderWorkflowId: "",
     openDate: today(getLocalTimeZone()).toString(),
     dueDate: "",
@@ -147,7 +140,6 @@ export default function ChangeOrderNewRoute() {
     <div className="max-w-4xl w-full p-2 sm:p-0 mx-auto mt-0 md:mt-8">
       <ChangeOrderForm
         initialValues={initialValues}
-        changeOrderTypes={types}
         changeOrderWorkflows={workflows}
       />
     </div>

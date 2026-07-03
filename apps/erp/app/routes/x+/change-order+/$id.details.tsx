@@ -97,7 +97,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
     type: d.type,
     approvalType: d.approvalType,
     priority: d.priority,
-    changeOrderTypeId: d.changeOrderTypeId || null,
     changeOrderWorkflowId: d.changeOrderWorkflowId || null,
     openDate: d.openDate,
     dueDate: d.dueDate || null,
@@ -158,33 +157,33 @@ export default function ChangeOrderDetailsRoute() {
         </Await>
       </Suspense>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Description</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {(() => {
-            // description is a JSON column: a TipTap doc (object with `type`),
-            // a plain string (from the TextArea form), or empty. generateHTML
-            // throws ("type" in <string>) on a bare string, so branch on shape.
-            const d = changeOrder?.description as unknown;
-            if (d && typeof d === "object" && "type" in d) {
-              return (
-                <div
-                  className="prose dark:prose-invert"
-                  dangerouslySetInnerHTML={{
-                    __html: generateHTML(d as JSONContent)
-                  }}
-                />
-              );
-            }
-            if (typeof d === "string" && d.trim()) {
-              return <p className="text-sm whitespace-pre-wrap">{d}</p>;
-            }
-            return null;
-          })()}
-        </CardContent>
-      </Card>
+      {(() => {
+        // description is a JSON column: a TipTap doc (object with `type`),
+        // a plain string (from the TextArea form), or empty. generateHTML
+        // throws ("type" in <string>) on a bare string, so branch on shape.
+        const d = changeOrder?.description as unknown;
+        const body =
+          d && typeof d === "object" && "type" in d ? (
+            <div
+              className="prose dark:prose-invert"
+              dangerouslySetInnerHTML={{
+                __html: generateHTML(d as JSONContent)
+              }}
+            />
+          ) : typeof d === "string" && d.trim() ? (
+            <p className="text-sm whitespace-pre-wrap">{d}</p>
+          ) : null;
+        // No description → don't render an empty Description card at all.
+        if (!body) return null;
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>Description</CardTitle>
+            </CardHeader>
+            <CardContent>{body}</CardContent>
+          </Card>
+        );
+      })()}
 
       <Suspense fallback={taskFallback}>
         <Await resolve={approvalTasks}>

@@ -80,7 +80,7 @@ const ChangeOrderWorkflowsTable = memo(
               }}
             >
               <MenuIcon icon={<LuPencil />} />
-              Edit Workflow
+              Edit Template
             </MenuItem>
             <MenuItem
               destructive
@@ -93,7 +93,7 @@ const ChangeOrderWorkflowsTable = memo(
               }}
             >
               <MenuIcon icon={<LuTrash />} />
-              Delete Workflow
+              Delete Template
             </MenuItem>
           </>
         );
@@ -109,11 +109,11 @@ const ChangeOrderWorkflowsTable = memo(
           count={count}
           primaryAction={
             permissions.can("create", "production") && (
-              <New label={t`Workflow`} to={path.to.newChangeOrderWorkflow} />
+              <New label={t`Template`} to={path.to.newChangeOrderWorkflow} />
             )
           }
           renderContextMenu={renderContextMenu}
-          title={t`Change Order Workflows`}
+          title={t`Change Order Templates`}
           table="changeOrderWorkflow"
           withSavedView
         />
@@ -129,8 +129,8 @@ const ChangeOrderWorkflowsTable = memo(
               setSelectedWorkflow(null);
               deleteDisclosure.onClose();
             }}
-            name={selectedWorkflow.name ?? "change order workflow"}
-            text={t`Are you sure you want to delete this change order workflow?`}
+            name={selectedWorkflow.name ?? "change order template"}
+            text={t`Are you sure you want to delete this change order template?`}
           />
         )}
       </>

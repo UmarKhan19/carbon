@@ -57,11 +57,6 @@ export const customerLocationsQuery = (customerId: string) => ({
   staleTime: RefreshRate.Low
 });
 
-export const changeOrderTypesQuery = (companyId: string | null) => ({
-  queryKey: ["changeOrderTypes", companyId ?? "null"],
-  staleTime: RefreshRate.Low
-});
-
 export const customerTypesQuery = (companyId: string | null) => ({
   queryKey: ["customerTypes", companyId ?? "null"],
   staleTime: RefreshRate.Low
