@@ -59,6 +59,7 @@ export type RecentPayment = {
 
 type InvoicingDashboardProps = {
   asOfDate: string;
+  accountingEnabled: boolean;
   ar: AgingTotals;
   ap: AgingTotals;
   arTieOut: TieOut;
@@ -79,6 +80,7 @@ const AgingCard = ({
   icon,
   totals,
   tieOut,
+  showTieOut,
   bucketLabels,
   format
 }: {
@@ -86,6 +88,7 @@ const AgingCard = ({
   icon: React.ReactNode;
   totals: AgingTotals;
   tieOut: TieOut;
+  showTieOut: boolean;
   bucketLabels: string[];
   format: (n: number) => string;
 }) => {
@@ -144,29 +147,32 @@ const AgingCard = ({
           </Tbody>
         </Table>
       </CardContent>
-      <CardFooter className="justify-between text-xs">
-        <span className="text-muted-foreground">
-          <Trans>GL tie-out</Trans>
-        </span>
-        {tieOut ? (
-          tied ? (
-            <Status color="green">
-              <Trans>Balanced</Trans>
-            </Status>
+      {showTieOut && (
+        <CardFooter className="justify-between text-xs">
+          <span className="text-muted-foreground">
+            <Trans>GL tie-out</Trans>
+          </span>
+          {tieOut ? (
+            tied ? (
+              <Status color="green">
+                <Trans>Balanced</Trans>
+              </Status>
+            ) : (
+              <Status color="red">
+                <span className="tabular-nums">{format(tieOut.variance)}</span>
+              </Status>
+            )
           ) : (
-            <Status color="red">
-              <span className="tabular-nums">{format(tieOut.variance)}</span>
-            </Status>
-          )
-        ) : (
-          <span className="text-muted-foreground">—</span>
-        )}
-      </CardFooter>
+            <span className="text-muted-foreground">—</span>
+          )}
+        </CardFooter>
+      )}
     </Card>
   );
 };
 
 const InvoicingDashboard = ({
+  accountingEnabled,
   ar,
   ap,
   arTieOut,
@@ -309,6 +315,7 @@ const InvoicingDashboard = ({
           icon={<LuClock />}
           totals={ar}
           tieOut={arTieOut}
+          showTieOut={accountingEnabled}
           bucketLabels={bucketLabels}
           format={format}
         />
@@ -317,6 +324,7 @@ const InvoicingDashboard = ({
           icon={<LuClock />}
           totals={ap}
           tieOut={apTieOut}
+          showTieOut={accountingEnabled}
           bucketLabels={bucketLabels}
           format={format}
         />

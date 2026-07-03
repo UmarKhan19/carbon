@@ -6730,11 +6730,17 @@ msgstr "Сопоставить строки сейчас"
 msgid "Map your current process, systems, and data"
 msgstr "Сопоставьте ваш текущий процесс, системы и данные"
 
+msgid "Mark as Paid"
+msgstr "Отметить как оплачено"
+
 msgid "Mark as Planned"
 msgstr "Отметить как запланировано"
 
 msgid "Mark as read"
 msgstr "Отметить как прочитанное"
+
+msgid "Mark as Unpaid"
+msgstr "Отметить как неоплаченный"
 
 msgid "Mark checkpoint passed"
 msgstr "Отметить контрольную точку как пройденную"
