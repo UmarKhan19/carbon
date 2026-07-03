@@ -7,7 +7,7 @@ import { deleteChangeOrder } from "~/modules/items";
 import { path } from "~/utils/path";
 
 export async function action({ request, params }: ActionFunctionArgs) {
-  const { client } = await requirePermissions(request, {
+  const { client, companyId } = await requirePermissions(request, {
     delete: "parts"
   });
 
@@ -15,7 +15,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   if (!id) throw new Error("id is not found");
 
-  const mutation = await deleteChangeOrder(client, id);
+  const mutation = await deleteChangeOrder(client, id, companyId);
   if (mutation.error) {
     return data(
       {

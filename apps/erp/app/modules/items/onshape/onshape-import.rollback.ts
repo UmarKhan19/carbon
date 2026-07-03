@@ -68,8 +68,8 @@ export async function rollbackImport(
     );
   }
   if (artifacts.coUuid) {
-    await deleteChangeOrder(serviceClient, artifacts.coUuid).catch((e) =>
-      console.error("onshape rollback cleanup failed (changeOrder)", e)
+    await deleteChangeOrder(serviceClient, artifacts.coUuid, companyId).catch(
+      (e) => console.error("onshape rollback cleanup failed (changeOrder)", e)
     );
   }
   if (artifacts.baseItemId) {

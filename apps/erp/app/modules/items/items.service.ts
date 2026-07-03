@@ -842,9 +842,35 @@ export async function updateChangeOrder(
 
 export async function deleteChangeOrder(
   client: SupabaseClient<Database>,
-  changeOrderId: string
+  changeOrderId: string,
+  companyId: string
 ) {
-  return client.from("changeOrder").delete().eq("id", changeOrderId);
+  // Discard the staged pending revisions first (their makeMethod/materials
+  // cascade), mirroring removeAffectedItem — deleting only the change order
+  // would orphan the draft item rows.
+  const items = await client
+    .from("changeOrderItem")
+    .select("pendingItemId")
+    .eq("changeOrderId", changeOrderId)
+    .eq("companyId", companyId);
+
+  const pendingItemIds = (items.data ?? [])
+    .map((i) => i.pendingItemId)
+    .filter((id): id is string => Boolean(id));
+
+  if (pendingItemIds.length > 0) {
+    await client
+      .from("item")
+      .delete()
+      .in("id", pendingItemIds)
+      .eq("companyId", companyId);
+  }
+
+  return client
+    .from("changeOrder")
+    .delete()
+    .eq("id", changeOrderId)
+    .eq("companyId", companyId);
 }
 
 // updateChangeOrderStatus — the single guarded status writer, implemented as a
