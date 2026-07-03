@@ -616,6 +616,9 @@ msgstr "Brak wpływu"
 msgid "No maintenance scheduled for today"
 msgstr "Brak zaplanowanego utrzymania ruchu na dziś"
 
+msgid "No matches. Type to create one."
+msgstr ""
+
 msgid "No materials"
 msgstr "Brak materiałów"
 

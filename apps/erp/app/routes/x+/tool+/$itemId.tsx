@@ -30,6 +30,7 @@ import { flattenTree } from "~/components/TreeView";
 import type { ItemFile, ToolSummary } from "~/modules/items";
 import {
   getItemFiles,
+  getItemRevisionStatuses,
   getItemSupersededBy,
   getItemSupersession,
   getMakeMethodById,
@@ -139,6 +140,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     makeMethods: getMakeMethods(client, itemId, companyId),
     tags: tags.data ?? [],
     usedIn: getPartUsedIn(client, itemId, companyId),
+    revisionStatusById: await getItemRevisionStatuses(
+      client,
+      itemId,
+      companyId
+    ),
     methodTree
   };
 }
@@ -155,7 +161,7 @@ export default function ToolRoute() {
 
   if (!toolData) throw new Error("Could not find tool data");
 
-  const { usedIn, methodTree, openChangeOrder } =
+  const { usedIn, methodTree, openChangeOrder, revisionStatusById } =
     useLoaderData<typeof loader>();
 
   const isManufactured = toolData.toolSummary?.replenishmentSystem !== "Buy";
@@ -352,6 +358,7 @@ export default function ToolRoute() {
                                 <UsedInTree
                                   tree={tree}
                                   revisions={toolData.toolSummary?.revisions}
+                                  revisionStatusById={revisionStatusById}
                                   itemReadableId={
                                     toolData.toolSummary?.readableId ?? ""
                                   }
@@ -500,6 +507,7 @@ export default function ToolRoute() {
                               <UsedInTree
                                 tree={tree}
                                 revisions={toolData.toolSummary?.revisions}
+                                revisionStatusById={revisionStatusById}
                                 itemReadableId={
                                   toolData.toolSummary?.readableId ?? ""
                                 }

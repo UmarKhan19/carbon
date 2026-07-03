@@ -616,6 +616,9 @@ msgstr "Etki Yok"
 msgid "No maintenance scheduled for today"
 msgstr "Bugün planlanmış bakım yok"
 
+msgid "No matches. Type to create one."
+msgstr ""
+
 msgid "No materials"
 msgstr "Malzeme yok"
 

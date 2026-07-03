@@ -110,16 +110,23 @@ export async function releaseChangeOrder(
       for (const coItem of changeOrderItems) {
         if (!coItem.pendingItemId) continue;
 
+        // Release makes the proposed revision the live one: mark it active
+        // (it was created inactive so the draft never surfaced in pickers) and
+        // retire the superseded revision.
         await trx
           .updateTable("item")
-          .set({ revisionStatus: "Production", updatedBy: userId })
+          .set({
+            revisionStatus: "Production",
+            active: true,
+            updatedBy: userId
+          })
           .where("id", "=", coItem.pendingItemId)
           .where("companyId", "=", companyId)
           .execute();
 
         await trx
           .updateTable("item")
-          .set({ revisionStatus: "Obsolete", updatedBy: userId })
+          .set({ revisionStatus: "Obsolete", active: false, updatedBy: userId })
           .where("id", "=", coItem.itemId)
           .where("companyId", "=", companyId)
           .execute();

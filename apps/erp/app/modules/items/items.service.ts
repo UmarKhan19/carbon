@@ -149,9 +149,13 @@ export async function createRevision(
     item: NonNullable<Awaited<ReturnType<typeof getItem>>["data"]>;
     revision: string;
     createdBy: string;
+    // Change-order draft revisions are created inactive so they don't surface
+    // in item pickers/production until the change order is released. Manual
+    // "New Revision" keeps the default (active).
+    active?: boolean;
   }
 ) {
-  const { item, revision, createdBy } = args;
+  const { item, revision, createdBy, active = true } = args;
   const itemInsert = await client
     .from("item")
     .insert({
@@ -163,7 +167,7 @@ export async function createRevision(
       defaultMethodType: item.defaultMethodType,
       itemTrackingType: item.itemTrackingType,
       unitOfMeasureCode: item.unitOfMeasureCode,
-      active: true,
+      active,
       modelUploadId: item.modelUploadId,
       companyId: item.companyId,
       createdBy: createdBy
@@ -241,7 +245,7 @@ export async function getChangeOrderItems(
   return client
     .from("changeOrderItem")
     .select(
-      "*, ...item!changeOrderItem_itemId_fkey(revision, readableIdWithRevision, revisionStatus), pendingItem:item!changeOrderItem_pendingItemId_fkey(id, readableIdWithRevision, revision, revisionStatus)"
+      "*, ...item!changeOrderItem_itemId_fkey(itemType:type, revision, readableIdWithRevision, revisionStatus), pendingItem:item!changeOrderItem_pendingItemId_fkey(id, readableIdWithRevision, revision, revisionStatus)"
     )
     .eq("changeOrderId", id)
     .eq("companyId", companyId)
@@ -438,13 +442,23 @@ export async function getMyChangeOrderTasks(
 // parent BOMs that reference each affected item today, so a reviewer sees what a
 // release touches. The four join shapes mirror getPartUsedIn's (kept in sync by
 // hand); item-type-independent (works for parts, materials, etc.).
+//
+// Each row carries the parent-document id (`documentId`) needed to build a link
+// to that job/PO/SO/parent item — the change-order "Used In" panel feeds these
+// straight into the shared UsedInItem renderer via getUseInLink.
+export type ChangeOrderImpactChild = {
+  id: string;
+  documentReadableId: string | null;
+  documentId?: string;
+  itemType?: Database["public"]["Enums"]["itemType"];
+};
 export type ChangeOrderImpactItem = {
   itemId: string;
   itemReadableId: string | null;
-  jobs: Array<{ id: string; documentReadableId: string | null }>;
-  purchaseOrderLines: Array<{ id: string; documentReadableId: string | null }>;
-  salesOrderLines: Array<{ id: string; documentReadableId: string | null }>;
-  parentBoms: Array<{ id: string; documentReadableId: string | null }>;
+  jobs: ChangeOrderImpactChild[];
+  purchaseOrderLines: ChangeOrderImpactChild[];
+  salesOrderLines: ChangeOrderImpactChild[];
+  parentBoms: ChangeOrderImpactChild[];
 };
 
 export async function getChangeOrderImpact(
@@ -478,36 +492,35 @@ export async function getChangeOrderImpact(
           client
             .from("purchaseOrderLine")
             .select(
-              "id, documentReadableId:purchaseOrder(purchaseOrderId), purchaseOrderId"
+              "id, documentId:purchaseOrderId, ...purchaseOrder(documentReadableId:purchaseOrderId)"
             )
             .eq("itemId", row.itemId)
             .eq("companyId", companyId)
             .limit(100),
           client
             .from("salesOrderLine")
-            .select("id, ...salesOrder(documentReadableId:salesOrderId)")
+            .select(
+              "id, documentId:salesOrderId, ...salesOrder(documentReadableId:salesOrderId)"
+            )
             .eq("itemId", row.itemId)
             .eq("companyId", companyId)
             .limit(100),
           client
             .from("methodMaterial")
             .select(
-              "id, ...makeMethod!makeMethodId(...item(documentReadableId:readableIdWithRevision))"
+              "id, ...makeMethod!makeMethodId(...item(documentId:id, itemType:type, documentReadableId:readableIdWithRevision))"
             )
             .eq("itemId", row.itemId)
             .eq("companyId", companyId)
             .limit(100)
         ]);
 
-      const norm = (
-        data: any[] | null
-      ): Array<{ id: string; documentReadableId: string | null }> =>
+      const norm = (data: any[] | null): ChangeOrderImpactChild[] =>
         (data ?? []).map((r) => ({
           id: r.id,
-          documentReadableId:
-            typeof r.documentReadableId === "object"
-              ? (r.documentReadableId?.purchaseOrderId ?? null)
-              : (r.documentReadableId ?? null)
+          documentReadableId: r.documentReadableId ?? null,
+          documentId: r.documentId ?? undefined,
+          itemType: r.itemType ?? undefined
         }));
 
       return {
@@ -1471,31 +1484,38 @@ export async function attachAffectedItem(
 // race the same item.
 const OPEN_CHANGE_ORDER_STATUSES = ["Draft", "In Review", "Approved"] as const;
 
-export async function getOpenChangeOrderForItem(
-  client: SupabaseClient<Database>,
-  args: { itemId: string; companyId: string; excludeChangeOrderId?: string }
-): Promise<{
-  data: { id: string; changeOrderId: string; status: string } | null;
+type OpenChangeOrder = { id: string; changeOrderId: string; status: string };
+type OpenChangeOrderResult = {
+  data: OpenChangeOrder | null;
   error: { message: string } | null;
-}> {
+};
+
+// Shared core: find the first open change order whose affected-item list
+// references `value` via `column` (`itemId` for the current item, or
+// `pendingItemId` for a proposed draft revision), optionally excluding one CO.
+async function findOpenChangeOrder(
+  client: SupabaseClient<Database>,
+  args: {
+    column: "itemId" | "pendingItemId";
+    value: string;
+    companyId: string;
+    excludeChangeOrderId?: string;
+  }
+): Promise<OpenChangeOrderResult> {
   const rows = await client
     .from("changeOrderItem")
     .select(
       "changeOrderId, changeOrder:changeOrderId(id, changeOrderId, status)"
     )
-    .eq("itemId", args.itemId)
+    .eq(args.column, args.value)
     .eq("companyId", args.companyId);
 
   if (rows.error) {
     return { data: null, error: rows.error };
   }
 
-  const conflict = (rows.data ?? []).find((row) => {
-    const co = row.changeOrder as {
-      id: string;
-      changeOrderId: string;
-      status: string;
-    } | null;
+  const match = (rows.data ?? []).find((row) => {
+    const co = row.changeOrder as OpenChangeOrder | null;
     return (
       row.changeOrderId !== args.excludeChangeOrderId &&
       co != null &&
@@ -1503,21 +1523,39 @@ export async function getOpenChangeOrderForItem(
     );
   });
 
-  const conflictCo = conflict?.changeOrder as
-    | { id: string; changeOrderId: string; status: string }
-    | null
-    | undefined;
-
+  const co = match?.changeOrder as OpenChangeOrder | null | undefined;
   return {
-    data: conflictCo
-      ? {
-          id: conflictCo.id,
-          changeOrderId: conflictCo.changeOrderId,
-          status: conflictCo.status
-        }
+    data: co
+      ? { id: co.id, changeOrderId: co.changeOrderId, status: co.status }
       : null,
     error: null
   };
+}
+
+export function getOpenChangeOrderForItem(
+  client: SupabaseClient<Database>,
+  args: { itemId: string; companyId: string; excludeChangeOrderId?: string }
+): Promise<OpenChangeOrderResult> {
+  return findOpenChangeOrder(client, {
+    column: "itemId",
+    value: args.itemId,
+    companyId: args.companyId,
+    excludeChangeOrderId: args.excludeChangeOrderId
+  });
+}
+
+// A proposed (draft) revision is stored as `changeOrderItem.pendingItemId`, not
+// `itemId`, so getOpenChangeOrderForItem can't see it. Used to block manual
+// make-method activation on a draft (it activates only via CO release).
+export function getOpenChangeOrderForPendingRevision(
+  client: SupabaseClient<Database>,
+  args: { pendingItemId: string; companyId: string }
+): Promise<OpenChangeOrderResult> {
+  return findOpenChangeOrder(client, {
+    column: "pendingItemId",
+    value: args.pendingItemId,
+    companyId: args.companyId
+  });
 }
 
 // getNextRevision — numeric → +1, A → …→ Z → AA, AA → AB, etc.
@@ -1584,7 +1622,10 @@ export async function createPendingRevision(
   const newItem = await createRevision(client, {
     item: item.data,
     revision,
-    createdBy: userId
+    createdBy: userId,
+    // Draft revision stays inactive (hidden from pickers/production) until the
+    // change order is released; releaseChangeOrder flips it active.
+    active: false
   });
 
   if (newItem.error || !newItem.data) {
@@ -3155,6 +3196,34 @@ export async function getItemMpnsList(
       .not("mpn", "is", null)
       .neq("mpn", "")
       .order("mpn")
+  );
+}
+
+// Maps each sibling revision (same readableId + type) to its revisionStatus, so
+// the revision switcher can badge Design/Production/Obsolete without baking the
+// status into the detail RPC's `revisions` JSON. Keyed by item id.
+export async function getItemRevisionStatuses(
+  client: SupabaseClient<Database>,
+  itemId: string,
+  companyId: string
+): Promise<Record<string, string | null>> {
+  const base = await client
+    .from("item")
+    .select("readableId, type")
+    .eq("id", itemId)
+    .eq("companyId", companyId)
+    .single();
+  if (base.error || !base.data) return {};
+
+  const rows = await client
+    .from("item")
+    .select("id, revisionStatus")
+    .eq("readableId", base.data.readableId)
+    .eq("type", base.data.type)
+    .eq("companyId", companyId);
+
+  return Object.fromEntries(
+    (rows.data ?? []).map((r) => [r.id, r.revisionStatus])
   );
 }
 

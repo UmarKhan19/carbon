@@ -1622,6 +1622,9 @@ msgstr ""
 msgid "Being phased out — successor: <0>{0}</0>"
 msgstr "Aşamalı olarak kaldırılıyor — halef: <0>{0}</0>"
 
+msgid "Being validated before production."
+msgstr ""
+
 msgid "Below safety stock"
 msgstr "Emniyet stoğunun altında"
 
@@ -4317,6 +4320,9 @@ msgstr "Webhook Düzenle"
 
 msgid "Edit Work Center"
 msgstr "İş Merkezi Düzenle"
+
+msgid "Editable draft; becomes Production when released."
+msgstr ""
 
 msgid "Effective Date"
 msgstr ""
@@ -7676,7 +7682,7 @@ msgstr "Eşleşme yok"
 msgid "No matches for \"{query}\". Try a different search term."
 msgstr "\"{query}\" için eşleşme bulunamadı. Farklı bir arama terbi deneyin."
 
-msgid "No materials"
+msgid "No matches. Type to create one."
 msgstr ""
 
 msgid "No method changes between revisions."
@@ -9473,6 +9479,9 @@ msgstr "İşi Yayınla"
 msgid "Released"
 msgstr "Yayınlandı"
 
+msgid "Released and locked; change via a change order."
+msgstr ""
+
 msgid "Released Object"
 msgstr ""
 
@@ -9509,6 +9518,9 @@ msgstr "Filtreyi kaldır"
 
 msgid "Remove Filters"
 msgstr "Filtreleri Kaldır"
+
+msgid "Remove from change order"
+msgstr ""
 
 msgid "Remove from Price List"
 msgstr "Fiyat Listesinden Kaldır"
@@ -9752,6 +9764,9 @@ msgstr "Revizyon"
 #. placeholder {0}: revision.revision
 msgid "Revision {0}"
 msgstr "Revizyon {0}"
+
+msgid "Revisions"
+msgstr ""
 
 msgid "Revoke"
 msgstr "İptal et"
@@ -11116,6 +11131,9 @@ msgstr "Pazar"
 msgid "Superseded By"
 msgstr "Yerine Geçirildi"
 
+msgid "Superseded by a newer revision."
+msgstr ""
+
 msgid "Supersedes"
 msgstr "Yerine Geçer"
 
@@ -11880,7 +11898,7 @@ msgstr "Teknikerin bu bakım gerçekleştirildiğinde izlediği prosedür; krono
 msgid "The processes this work center can run; appears in process-pickers when scheduling operations, and limits which jobs can route through this work center."
 msgstr "Bu iş merkezinin çalıştırabileceği süreçler; işlem planlanırken işlem seçicilerinde görünür ve hangi işlerin bu iş merkezi aracılığıyla yönlendirilebileceğini sınırlar."
 
-msgid "The proposed revision is an exact copy of the current revision. Edit the proposed revision to redline its BOM/BOP."
+msgid "The proposed revision is an exact copy of the current revision. Use “Edit proposed revision” above to redline its BOM/BOP."
 msgstr ""
 
 msgid "The quantity breakpoints this line is priced at; each column carries its own per-unit price for buyer–supplier negotiation and for converting to downstream documents."

@@ -1622,6 +1622,9 @@ msgstr ""
 msgid "Being phased out — successor: <0>{0}</0>"
 msgstr "En cours de suppression — successeur : <0>{0}</0>"
 
+msgid "Being validated before production."
+msgstr ""
+
 msgid "Below safety stock"
 msgstr "Sous stock de sécurité"
 
@@ -4317,6 +4320,9 @@ msgstr "Modifier le Webhook"
 
 msgid "Edit Work Center"
 msgstr "Modifier le centre de travail"
+
+msgid "Editable draft; becomes Production when released."
+msgstr ""
 
 msgid "Effective Date"
 msgstr ""
@@ -7676,7 +7682,7 @@ msgstr "Aucune correspondance"
 msgid "No matches for \"{query}\". Try a different search term."
 msgstr "Aucune correspondance pour « {query} ». Essayez un terme de recherche différent."
 
-msgid "No materials"
+msgid "No matches. Type to create one."
 msgstr ""
 
 msgid "No method changes between revisions."
@@ -9473,6 +9479,9 @@ msgstr "Lancer le travail"
 msgid "Released"
 msgstr "Libéré"
 
+msgid "Released and locked; change via a change order."
+msgstr ""
+
 msgid "Released Object"
 msgstr ""
 
@@ -9509,6 +9518,9 @@ msgstr "Supprimer le filtre"
 
 msgid "Remove Filters"
 msgstr "Supprimer les filtres"
+
+msgid "Remove from change order"
+msgstr ""
 
 msgid "Remove from Price List"
 msgstr "Supprimer de la liste de prix"
@@ -9752,6 +9764,9 @@ msgstr "Révision"
 #. placeholder {0}: revision.revision
 msgid "Revision {0}"
 msgstr "Révision {0}"
+
+msgid "Revisions"
+msgstr ""
 
 msgid "Revoke"
 msgstr "Révoquer"
@@ -11116,6 +11131,9 @@ msgstr "Dimanche"
 msgid "Superseded By"
 msgstr "Remplacé par"
 
+msgid "Superseded by a newer revision."
+msgstr ""
+
 msgid "Supersedes"
 msgstr "Remplace"
 
@@ -11880,7 +11898,7 @@ msgstr "La procédure que les techniciens suivent lors de l'exécution de cet en
 msgid "The processes this work center can run; appears in process-pickers when scheduling operations, and limits which jobs can route through this work center."
 msgstr "Les processus que ce centre de travail peut exécuter; apparaît dans les sélecteurs de processus lors de la planification des opérations, et limite les travaux qui peuvent traverser ce centre de travail."
 
-msgid "The proposed revision is an exact copy of the current revision. Edit the proposed revision to redline its BOM/BOP."
+msgid "The proposed revision is an exact copy of the current revision. Use “Edit proposed revision” above to redline its BOM/BOP."
 msgstr ""
 
 msgid "The quantity breakpoints this line is priced at; each column carries its own per-unit price for buyer–supplier negotiation and for converting to downstream documents."

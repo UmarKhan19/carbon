@@ -1,17 +1,10 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { Select, ValidatedForm } from "@carbon/form";
-import {
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  HStack,
-  toast,
-  VStack
-} from "@carbon/react";
+import { Button, Card, CardContent, cn, toast, VStack } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
+import type { ComponentProps, ReactNode } from "react";
 import { useCallback, useEffect } from "react";
+import { AiOutlinePartition } from "react-icons/ai";
 import { LuArrowRight, LuPencil } from "react-icons/lu";
 import type { LoaderFunctionArgs } from "react-router";
 import { Link, useFetcher, useLoaderData } from "react-router";
@@ -27,6 +20,9 @@ import { DispositionStatus } from "~/modules/items/ui/ChangeOrder/ChangeOrderIte
 import RedlineDiff, {
   getRedlineCounts
 } from "~/modules/items/ui/ChangeOrder/RedlineDiff";
+import ItemRevisionStatus from "~/modules/items/ui/Item/ItemRevisionStatus";
+import { getPathToMakeMethod } from "~/modules/items/ui/Methods/utils";
+import type { MethodItemType } from "~/modules/shared";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
@@ -60,8 +56,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const hasChanges = counts.added + counts.removed + counts.changed > 0;
 
   // Resolve the proposed revision's active make method so "Edit proposed
-  // revision" lands directly on its BOM/BOP editor. The pending item is in
-  // Design status, so its method is unlocked/editable.
+  // revision" lands directly on its BOM/BOP editor, routed by the item's type
+  // (Part → part editor, Tool → tool editor). The pending item is in Design
+  // status, so its method is unlocked/editable.
+  const itemType = (item.itemType ?? "Part") as MethodItemType;
   let editLink: string | null = null;
   if (item.pendingItemId) {
     const makeMethods = await getMakeMethods(
@@ -73,8 +71,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       makeMethods.data?.find((m) => m.status === "Active") ??
       makeMethods.data?.[0];
     editLink = active
-      ? `${path.to.partDetails(item.pendingItemId)}?methodId=${active.id}`
-      : path.to.partDetails(item.pendingItemId);
+      ? getPathToMakeMethod(itemType, item.pendingItemId, active.id)
+      : itemType === "Tool"
+        ? path.to.toolDetails(item.pendingItemId)
+        : path.to.partDetails(item.pendingItemId);
   }
 
   return { item, current, pending, hasChanges, editLink };
@@ -119,74 +119,69 @@ export default function ChangeOrderAffectedItemRoute() {
       </Button>
     ) : null;
 
+  const after = item.pendingItem?.readableIdWithRevision
+    ? {
+        id: item.pendingItem.readableIdWithRevision,
+        status: item.pendingItem.revisionStatus
+      }
+    : null;
+
   return (
     <VStack spacing={2}>
       <Card>
-        <HStack className="justify-between w-full items-start">
-          <CardHeader>
-            <CardTitle>
-              <Trans>Affected Item</Trans>
-            </CardTitle>
-            <div className="flex items-center gap-2 pt-1">
-              <div className="flex flex-col">
-                <span className="text-xs text-muted-foreground">
-                  <Trans>Before</Trans>
+        <CardContent className="p-4">
+          <VStack spacing={4} className="w-full">
+            <div className="flex w-full flex-wrap items-start justify-between gap-4">
+              <VStack spacing={3}>
+                <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                  <Trans>Affected Item</Trans>
                 </span>
-                <span className="font-semibold">
-                  {item.readableIdWithRevision}
-                </span>
-                {item.revisionStatus && (
-                  <span className="text-xs text-muted-foreground">
-                    {item.revisionStatus}
-                  </span>
-                )}
-              </div>
-              {item.pendingItem?.readableIdWithRevision && (
-                <>
-                  <LuArrowRight className="size-4 text-muted-foreground shrink-0" />
-                  <div className="flex flex-col">
-                    <span className="text-xs text-muted-foreground">
-                      <Trans>After</Trans>
-                    </span>
-                    <span className="font-semibold text-emerald-600 dark:text-emerald-400">
-                      {item.pendingItem.readableIdWithRevision}
-                    </span>
-                    {item.pendingItem.revisionStatus && (
-                      <span className="text-xs text-muted-foreground">
-                        {item.pendingItem.revisionStatus}
-                      </span>
-                    )}
-                  </div>
-                </>
-              )}
+                <div className="flex flex-wrap items-center gap-4">
+                  <RevisionCell
+                    label={<Trans>Before</Trans>}
+                    id={item.readableIdWithRevision}
+                    status={item.revisionStatus}
+                  />
+                  {after && (
+                    <>
+                      <LuArrowRight className="size-4 shrink-0 text-muted-foreground" />
+                      <RevisionCell
+                        label={<Trans>After</Trans>}
+                        id={after.id}
+                        status={after.status}
+                        highlight
+                      />
+                    </>
+                  )}
+                </div>
+              </VStack>
+              <ValidatedForm
+                defaultValues={{ disposition: item.disposition ?? "No Change" }}
+                validator={z.object({ disposition: z.string() })}
+                className="w-[160px]"
+              >
+                <Select
+                  name="disposition"
+                  label={t`Disposition`}
+                  isReadOnly={!canEdit}
+                  options={changeOrderDisposition.map((d) => ({
+                    value: d,
+                    label: <DispositionStatus disposition={d} />
+                  }))}
+                  inline={(value) => (
+                    <div className="h-8 flex items-center">
+                      <DispositionStatus disposition={value} />
+                    </div>
+                  )}
+                  onChange={(option) => {
+                    if (option) onUpdateDisposition(option.value);
+                  }}
+                />
+              </ValidatedForm>
             </div>
-          </CardHeader>
-          <CardContent className="pt-6">
-            <ValidatedForm
-              defaultValues={{ disposition: item.disposition ?? "No Change" }}
-              validator={z.object({ disposition: z.string() })}
-              className="w-[160px]"
-            >
-              <Select
-                name="disposition"
-                label={t`Disposition`}
-                isReadOnly={!canEdit}
-                options={changeOrderDisposition.map((d) => ({
-                  value: d,
-                  label: <DispositionStatus disposition={d} />
-                }))}
-                inline={(value) => (
-                  <div className="h-8 flex items-center">
-                    <DispositionStatus disposition={value} />
-                  </div>
-                )}
-                onChange={(option) => {
-                  if (option) onUpdateDisposition(option.value);
-                }}
-              />
-            </ValidatedForm>
-          </CardContent>
-        </HStack>
+            {editButton && <div>{editButton}</div>}
+          </VStack>
+        </CardContent>
       </Card>
 
       {!item.pendingItemId ? (
@@ -201,10 +196,7 @@ export default function ChangeOrderAffectedItemRoute() {
           </CardContent>
         </Card>
       ) : hasChanges ? (
-        <>
-          <RedlineDiff current={current} pending={pending} />
-          {editButton && <div className="self-start">{editButton}</div>}
-        </>
+        <RedlineDiff current={current} pending={pending} />
       ) : (
         <Card>
           <CardContent className="py-10 flex flex-col items-center justify-center gap-3 text-center">
@@ -214,13 +206,53 @@ export default function ChangeOrderAffectedItemRoute() {
             <p className="text-sm text-muted-foreground max-w-md">
               <Trans>
                 The proposed revision is an exact copy of the current revision.
-                Edit the proposed revision to redline its BOM/BOP.
+                Use “Edit proposed revision” above to redline its BOM/BOP.
               </Trans>
             </p>
-            {editButton}
           </CardContent>
         </Card>
       )}
     </VStack>
+  );
+}
+
+// Before/After revision cell: item id + a lifecycle status badge whose tooltip
+// explains what the stage (Design/Prototype/Production/Obsolete) means.
+function RevisionCell({
+  label,
+  id,
+  status,
+  highlight = false
+}: {
+  label: ReactNode;
+  id: string | null;
+  status?: string | null;
+  highlight?: boolean;
+}) {
+  return (
+    <div className="flex flex-col gap-1">
+      <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+        {label}
+      </span>
+      <div className="flex items-center gap-2">
+        <AiOutlinePartition className="size-4 shrink-0 text-muted-foreground" />
+        <span
+          className={cn(
+            "font-semibold",
+            highlight && "text-emerald-600 dark:text-emerald-400"
+          )}
+        >
+          {id}
+        </span>
+        {status ? (
+          <ItemRevisionStatus
+            status={
+              status as ComponentProps<typeof ItemRevisionStatus>["status"]
+            }
+            withHelp
+          />
+        ) : null}
+      </div>
+    </div>
   );
 }

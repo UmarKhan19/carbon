@@ -77,7 +77,14 @@ export function AddAffectedItemModal({ onClose }: { onClose: () => void }) {
             </ModalTitle>
           </ModalHeader>
           <ModalBody>
-            <Item name="itemId" label={t`Item`} type="Item" />
+            {/* Change orders apply to Parts and Tools only — materials,
+                consumables, and services don't carry engineering revisions. */}
+            <Item
+              name="itemId"
+              label={t`Item`}
+              type="Item"
+              validItemTypes={["Part", "Tool"]}
+            />
           </ModalBody>
           <ModalFooter>
             <Button variant="secondary" onClick={onClose}>

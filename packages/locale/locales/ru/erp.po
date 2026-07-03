@@ -1622,6 +1622,9 @@ msgstr ""
 msgid "Being phased out — successor: <0>{0}</0>"
 msgstr "Снимается с производства — преемник: <0>{0}</0>"
 
+msgid "Being validated before production."
+msgstr ""
+
 msgid "Below safety stock"
 msgstr "Ниже страховой запас"
 
@@ -4317,6 +4320,9 @@ msgstr "Редактировать Webhook"
 
 msgid "Edit Work Center"
 msgstr "Редактировать рабочий центр"
+
+msgid "Editable draft; becomes Production when released."
+msgstr ""
 
 msgid "Effective Date"
 msgstr ""
@@ -7676,7 +7682,7 @@ msgstr "Нет совпадений"
 msgid "No matches for \"{query}\". Try a different search term."
 msgstr "Нет совпадений для \"{query}\". Попробуйте другой поисковый запрос."
 
-msgid "No materials"
+msgid "No matches. Type to create one."
 msgstr ""
 
 msgid "No method changes between revisions."
@@ -9473,6 +9479,9 @@ msgstr "Выпустить задание"
 msgid "Released"
 msgstr "Выпущено"
 
+msgid "Released and locked; change via a change order."
+msgstr ""
+
 msgid "Released Object"
 msgstr ""
 
@@ -9509,6 +9518,9 @@ msgstr "Удалить фильтр"
 
 msgid "Remove Filters"
 msgstr "Удалить фильтры"
+
+msgid "Remove from change order"
+msgstr ""
 
 msgid "Remove from Price List"
 msgstr "Удалить из прайс-листа"
@@ -9752,6 +9764,9 @@ msgstr "Редакция"
 #. placeholder {0}: revision.revision
 msgid "Revision {0}"
 msgstr "Версия {0}"
+
+msgid "Revisions"
+msgstr ""
 
 msgid "Revoke"
 msgstr "Отозвать"
@@ -11116,6 +11131,9 @@ msgstr "Воскресенье"
 msgid "Superseded By"
 msgstr "Заменено на"
 
+msgid "Superseded by a newer revision."
+msgstr ""
+
 msgid "Supersedes"
 msgstr "Заменяет"
 
@@ -11880,7 +11898,7 @@ msgstr "Процедура, которой следуют техники при 
 msgid "The processes this work center can run; appears in process-pickers when scheduling operations, and limits which jobs can route through this work center."
 msgstr "Процессы, которые может выполнять этот рабочий центр; отображается в селекторах процессов при планировании операций и ограничивает, какие задания могут маршрутизироваться через этот рабочий центр."
 
-msgid "The proposed revision is an exact copy of the current revision. Edit the proposed revision to redline its BOM/BOP."
+msgid "The proposed revision is an exact copy of the current revision. Use “Edit proposed revision” above to redline its BOM/BOP."
 msgstr ""
 
 msgid "The quantity breakpoints this line is priced at; each column carries its own per-unit price for buyer–supplier negotiation and for converting to downstream documents."

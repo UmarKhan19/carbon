@@ -21,6 +21,7 @@ import {
   VStack
 } from "@carbon/react";
 import { useLingui } from "@lingui/react/macro";
+import type { ComponentProps } from "react";
 import { useState } from "react";
 import { flushSync } from "react-dom";
 import {
@@ -44,6 +45,7 @@ import type { MethodItemType } from "~/modules/shared";
 import { path } from "~/utils/path";
 import { getReadableIdWithRevision } from "~/utils/string";
 import { getPathToMakeMethod } from "../Methods/utils";
+import ItemRevisionStatus from "./ItemRevisionStatus";
 import RevisionForm from "./RevisionForm";
 
 export function UsedInSkeleton() {
@@ -110,7 +112,8 @@ export function UsedInTree({
   jobMaterialUsage,
   hasSizesInsteadOfRevisions = false,
   filterText: filterTextProp,
-  hideSearch
+  hideSearch,
+  revisionStatusById
 }: {
   tree: UsedInNode[];
   revisions?: Json;
@@ -120,6 +123,7 @@ export function UsedInTree({
   hasSizesInsteadOfRevisions?: boolean;
   filterText?: string;
   hideSearch?: boolean;
+  revisionStatusById?: Record<string, string | null>;
 }) {
   const { t } = useLingui();
   const [filterTextInternal, setFilterTextInternal] = useState("");
@@ -165,6 +169,7 @@ export function UsedInTree({
           }}
           maxRevision={revisions?.[0]?.revision ?? ""}
           hasSizesInsteadOfRevisions={hasSizesInsteadOfRevisions}
+          revisionStatusById={revisionStatusById}
         />
         {tree.map((node) => (
           <UsedInItem
@@ -185,12 +190,14 @@ export function RevisionsItem({
   node,
   filterText,
   maxRevision,
-  hasSizesInsteadOfRevisions = false
+  hasSizesInsteadOfRevisions = false,
+  revisionStatusById
 }: {
   node: UsedInNode;
   filterText: string;
   maxRevision: string;
   hasSizesInsteadOfRevisions?: boolean;
+  revisionStatusById?: Record<string, string | null>;
 }) {
   const { itemId } = useParams();
   const permissions = usePermissions();
@@ -284,6 +291,19 @@ export function RevisionsItem({
                       className="mr-2"
                     />
                     <span className="truncate">{child.documentReadableId}</span>
+                    {!hasSizesInsteadOfRevisions &&
+                      revisionStatusById?.[child.id] && (
+                        <span className="ml-auto">
+                          <ItemRevisionStatus
+                            status={
+                              revisionStatusById[child.id] as ComponentProps<
+                                typeof ItemRevisionStatus
+                              >["status"]
+                            }
+                            withHelp
+                          />
+                        </span>
+                      )}
                   </Hyperlink>
                   {permissions.can("update", "parts") && (
                     <DropdownMenu>

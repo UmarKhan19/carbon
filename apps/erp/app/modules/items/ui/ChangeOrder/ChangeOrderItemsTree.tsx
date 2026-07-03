@@ -1,6 +1,5 @@
 import {
   Badge,
-  Count,
   cn,
   DropdownMenu,
   DropdownMenuContent,
@@ -21,35 +20,29 @@ import { useState } from "react";
 import { flushSync } from "react-dom";
 import { AiOutlinePartition } from "react-icons/ai";
 import {
-  LuChevronRight,
   LuCirclePlus,
   LuEllipsisVertical,
-  LuListTree,
   LuSearch,
   LuTrash
 } from "react-icons/lu";
 import { Link, useParams } from "react-router";
 import { ConfirmDelete } from "~/components/Modals";
-import { LevelLine } from "~/components/TreeView";
 import { usePermissions } from "~/hooks";
 import type { ChangeOrderItem } from "~/modules/items";
 import { path } from "~/utils/path";
 import ItemRevisionStatus from "../Item/ItemRevisionStatus";
 import { AddAffectedItemModal } from "./ChangeOrderItems";
-import type { Material, RedlineCounts } from "./RedlineDiff";
+import type { RedlineCounts } from "./RedlineDiff";
 
 export type AffectedItemRedline = {
   counts: RedlineCounts;
-  // Proposed-revision BOM materials, used to nest the method (BOM) under each
-  // affected item. Operations (processes) are intentionally omitted.
-  materials: Material[];
 };
 
-// The change-order affected-items sidebar. Mirrors the NCR association tree:
-// a ScrollArea + search, a collapsible "Affected Items" group carrying an add
-// button, and per-item navigable rows. Each row navigates to the focused
-// per-item Before/After view, shows a "Rev A → B" signal + a +/−/~ redline
-// badge, and nests its proposed method (BOM) as a child node.
+// The change-order affected-items sidebar. A flat, navigable list — one row per
+// affected item — with a search + add toolbar. Each row shows the item, its
+// proposed revision status, and a compact +/−/~ redline signal, and navigates to
+// the focused Before/After view. (The full BOM/method diff lives in that view,
+// not nested here.)
 export default function ChangeOrderItemsTree({
   changeOrderId,
   items,
@@ -64,7 +57,6 @@ export default function ChangeOrderItemsTree({
   const { t } = useLingui();
   const permissions = usePermissions();
   const [filterText, setFilterText] = useState("");
-  const [isExpanded, setIsExpanded] = useState(true);
   const addModal = useDisclosure();
   const deleteDisclosure = useDisclosure();
   const [selectedItem, setSelectedItem] = useState<ChangeOrderItem | null>(
@@ -94,8 +86,8 @@ export default function ChangeOrderItemsTree({
 
   return (
     <ScrollArea className="h-full">
-      <VStack className="px-2">
-        <HStack className="w-full py-2">
+      <VStack spacing={0} className="px-2">
+        <HStack className="w-full gap-1 py-2">
           <InputGroup size="sm" className="flex flex-grow">
             <InputLeftElement>
               <LuSearch className="h-4 w-4" />
@@ -106,65 +98,35 @@ export default function ChangeOrderItemsTree({
               onChange={(e) => setFilterText(e.target.value)}
             />
           </InputGroup>
+          {canCreate && (
+            <IconButton
+              aria-label={t`Add affected item`}
+              size="sm"
+              variant="secondary"
+              icon={<LuCirclePlus />}
+              onClick={addModal.onOpen}
+            />
+          )}
         </HStack>
-        <VStack spacing={0}>
-          <div className="flex h-8 items-center overflow-hidden rounded-sm px-2 gap-2 text-sm w-full hover:bg-accent">
-            <button
-              type="button"
-              className="flex flex-grow cursor-pointer items-center overflow-hidden font-medium"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsExpanded(!isExpanded);
-              }}
-            >
-              <div className="h-8 w-4 flex items-center justify-center">
-                <LuChevronRight
-                  className={cn("size-4", isExpanded && "rotate-90")}
-                />
-              </div>
-              <div className="flex flex-grow items-center justify-between gap-2">
-                <span>
-                  <Trans>Affected Items</Trans>
-                </span>
-                {filteredItems.length > 0 && (
-                  <Count count={filteredItems.length} />
-                )}
-              </div>
-            </button>
-            {canCreate && (
-              <IconButton
-                aria-label={t`Add affected item`}
-                size="sm"
-                variant="ghost"
-                icon={<LuCirclePlus />}
-                className="ml-auto"
-                onClick={addModal.onOpen}
-              />
-            )}
-          </div>
 
-          {isExpanded && (
-            <div className="flex flex-col w-full px-2">
-              {filteredItems.length === 0 ? (
-                <div className="flex h-8 items-center overflow-hidden rounded-sm px-2 gap-4">
-                  <LevelLine isSelected={false} />
-                  <div className="text-xs text-muted-foreground">
-                    <Trans>No affected items yet</Trans>
-                  </div>
-                </div>
-              ) : (
-                filteredItems.map((item) => (
-                  <AffectedItemNode
-                    key={item.id}
-                    changeOrderId={changeOrderId}
-                    item={item}
-                    redline={redlineByItemId[item.id]}
-                    canDelete={canDelete}
-                    onDelete={onDelete}
-                  />
-                ))
-              )}
+        <VStack spacing={0} className="w-full">
+          {filteredItems.length === 0 ? (
+            <div className="flex h-8 items-center px-2">
+              <span className="text-xs text-muted-foreground">
+                <Trans>No affected items yet</Trans>
+              </span>
             </div>
+          ) : (
+            filteredItems.map((item) => (
+              <AffectedItemRow
+                key={item.id}
+                changeOrderId={changeOrderId}
+                item={item}
+                redline={redlineByItemId[item.id]}
+                canDelete={canDelete}
+                onDelete={onDelete}
+              />
+            ))
           )}
         </VStack>
       </VStack>
@@ -188,29 +150,14 @@ export default function ChangeOrderItemsTree({
   );
 }
 
-function ChangeSignal({
-  fromRevision,
-  toRevision,
-  counts
-}: {
-  fromRevision?: string | null;
-  toRevision?: string | null;
-  counts?: RedlineCounts;
-}) {
-  const hasRevisionDelta = Boolean(toRevision) && fromRevision !== toRevision;
+function RedlineBadges({ counts }: { counts?: RedlineCounts }) {
   const added = counts?.added ?? 0;
   const removed = counts?.removed ?? 0;
   const changed = counts?.changed ?? 0;
-
-  if (!hasRevisionDelta && added + removed + changed === 0) return null;
+  if (added + removed + changed === 0) return null;
 
   return (
-    <div className="flex items-center gap-1 shrink-0">
-      {hasRevisionDelta && (
-        <span className="text-[10px] font-medium text-muted-foreground whitespace-nowrap">
-          {fromRevision ?? "—"} → {toRevision}
-        </span>
-      )}
+    <div className="flex shrink-0 items-center gap-1">
       {added > 0 && (
         <Badge variant="green" className="px-1 py-0 text-[10px]">
           +{added}
@@ -230,7 +177,7 @@ function ChangeSignal({
   );
 }
 
-function AffectedItemNode({
+function AffectedItemRow({
   changeOrderId,
   item,
   redline,
@@ -246,99 +193,42 @@ function AffectedItemNode({
   const { t } = useLingui();
   const { coItemId } = useParams();
   const isActive = coItemId === item.id;
-  const materials = redline?.materials ?? [];
-  const [isMethodExpanded, setIsMethodExpanded] = useState(false);
 
   return (
-    <>
-      <div className="group/association relative flex w-full">
-        <Link
-          to={path.to.changeOrderItem(changeOrderId, item.id)}
-          className={cn(
-            "flex pr-7 h-8 cursor-pointer items-center overflow-hidden rounded-sm px-1 gap-2 text-sm hover:bg-accent w-full font-medium whitespace-nowrap",
-            isActive && "bg-accent"
-          )}
-        >
-          <LevelLine isSelected={isActive} />
-          <AiOutlinePartition className="shrink-0" />
-          <span className="truncate flex-grow">
-            {item.readableIdWithRevision}
-          </span>
-          <ChangeSignal
-            fromRevision={item.revision}
-            toRevision={item.pendingItem?.revision}
-            counts={redline?.counts}
-          />
-          <ItemRevisionStatus status={item.revisionStatus} />
-        </Link>
-        {canDelete && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <IconButton
-                aria-label={t`Options`}
-                icon={<LuEllipsisVertical />}
-                variant="ghost"
-                size="sm"
-                className="absolute right-1 top-1 flex-shrink-0 opacity-0 group-hover/association:opacity-100 data-[state=open]:opacity-100 text-foreground/70 hover:text-foreground"
-              />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem destructive onSelect={() => onDelete(item)}>
-                <DropdownMenuIcon icon={<LuTrash />} />
-                <Trans>Delete Association</Trans>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+    <div className="group/affected relative flex w-full">
+      <Link
+        to={path.to.changeOrderItem(changeOrderId, item.id)}
+        className={cn(
+          "flex h-9 w-full cursor-pointer items-center gap-2 overflow-hidden rounded-sm px-2 pr-8 text-sm hover:bg-accent",
+          isActive && "bg-accent"
         )}
-      </div>
-
-      {item.pendingItemId && (
-        <div className="flex flex-col w-full pl-4">
-          <button
-            type="button"
-            className="flex h-8 items-center overflow-hidden rounded-sm px-1 gap-2 text-sm w-full hover:bg-accent text-muted-foreground"
-            onClick={() => setIsMethodExpanded((prev) => !prev)}
-          >
-            <LevelLine isSelected={false} />
-            <div className="h-8 w-4 flex items-center justify-center shrink-0">
-              <LuChevronRight
-                className={cn("size-3.5", isMethodExpanded && "rotate-90")}
-              />
-            </div>
-            <LuListTree className="shrink-0" />
-            <span className="truncate">
-              <Trans>Method</Trans>
-            </span>
-          </button>
-
-          {isMethodExpanded && (
-            <div className="flex flex-col w-full pl-4">
-              {materials.length === 0 ? (
-                <div className="flex h-8 items-center overflow-hidden rounded-sm px-1 gap-2">
-                  <LevelLine isSelected={false} />
-                  <span className="text-xs text-muted-foreground">
-                    <Trans>No materials</Trans>
-                  </span>
-                </div>
-              ) : (
-                materials.map((material, index) => (
-                  <div
-                    key={material.key ?? `${material.itemId}-${index}`}
-                    className="flex h-8 items-center overflow-hidden rounded-sm px-1 gap-2 text-sm whitespace-nowrap"
-                    style={{ paddingLeft: (material.level ?? 0) * 12 }}
-                  >
-                    <LevelLine isSelected={false} />
-                    <AiOutlinePartition className="shrink-0 text-muted-foreground" />
-                    <span className="truncate text-muted-foreground">
-                      {material.itemReadableId ?? material.itemId}
-                    </span>
-                  </div>
-                ))
-              )}
-            </div>
-          )}
-        </div>
+      >
+        <AiOutlinePartition className="shrink-0 text-muted-foreground" />
+        <span className="flex-grow truncate font-medium">
+          {item.readableIdWithRevision}
+        </span>
+        <RedlineBadges counts={redline?.counts} />
+        <ItemRevisionStatus status={item.revisionStatus} withHelp />
+      </Link>
+      {canDelete && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <IconButton
+              aria-label={t`Options`}
+              icon={<LuEllipsisVertical />}
+              variant="ghost"
+              size="sm"
+              className="absolute right-1 top-1 shrink-0 text-foreground/70 opacity-0 hover:text-foreground group-hover/affected:opacity-100 data-[state=open]:opacity-100"
+            />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem destructive onSelect={() => onDelete(item)}>
+              <DropdownMenuIcon icon={<LuTrash />} />
+              <Trans>Remove from change order</Trans>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       )}
-    </>
+    </div>
   );
 }

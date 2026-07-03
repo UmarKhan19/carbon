@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-03T06:25:23.766Z",
-  "totalTools": 1282,
+  "generated": "2026-07-03T11:54:48.657Z",
+  "totalTools": 1284,
   "modules": 15,
   "tools": [
     {
@@ -9156,7 +9156,7 @@
       "module": "items",
       "classification": "WRITE",
       "description": "create revision",
-      "paramCount": 2,
+      "paramCount": 3,
       "serviceParams": [
         "client",
         "args"
@@ -9172,6 +9172,9 @@
           "item": {},
           "revision": {
             "type": "string"
+          },
+          "// Change-order draft revisions are created inactive so they don't surface\n    // in item pickers/production until the change order is released. Manual\n    // \"New Revision\" keeps the default (active).\n    active": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -10128,6 +10131,31 @@
         },
         "required": [
           "itemId"
+        ]
+      }
+    },
+    {
+      "name": "items_getOpenChangeOrderForPendingRevision",
+      "module": "items",
+      "classification": "READ",
+      "description": "get open change order for pending revision",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "pendingItemId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "pendingItemId"
         ]
       }
     },
@@ -12474,6 +12502,32 @@
       "schema": {
         "type": "object",
         "properties": {}
+      }
+    },
+    {
+      "name": "items_getItemRevisionStatuses",
+      "module": "items",
+      "classification": "READ",
+      "description": "get item revision statuses",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "itemId",
+        "companyId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "itemId"
+        ]
       }
     },
     {

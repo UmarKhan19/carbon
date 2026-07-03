@@ -1,12 +1,30 @@
 import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import { VStack } from "@carbon/react";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  VStack
+} from "@carbon/react";
 import { msg } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
+import { Suspense } from "react";
 import type { LoaderFunctionArgs } from "react-router";
-import { Outlet, redirect, useLoaderData, useParams } from "react-router";
+import {
+  Await,
+  Outlet,
+  redirect,
+  useLoaderData,
+  useParams
+} from "react-router";
 import { PanelProvider, ResizablePanels } from "~/components/Layout/Panels";
-import { getChangeOrder, getChangeOrderItems } from "~/modules/items";
+import {
+  getChangeOrder,
+  getChangeOrderImpact,
+  getChangeOrderItems
+} from "~/modules/items";
 import {
   getChangeOrderValidations,
   getMethodSnapshot
@@ -15,6 +33,7 @@ import ChangeOrderHeader from "~/modules/items/ui/ChangeOrder/ChangeOrderHeader"
 import type { AffectedItemRedline } from "~/modules/items/ui/ChangeOrder/ChangeOrderItemsTree";
 import ChangeOrderItemsTree from "~/modules/items/ui/ChangeOrder/ChangeOrderItemsTree";
 import ChangeOrderProperties from "~/modules/items/ui/ChangeOrder/ChangeOrderProperties";
+import ChangeOrderUsedIn from "~/modules/items/ui/ChangeOrder/ChangeOrderUsedIn";
 import { getRedlineCounts } from "~/modules/items/ui/ChangeOrder/RedlineDiff";
 import { getTagsList } from "~/modules/shared";
 import type { Handle } from "~/utils/handle";
@@ -54,9 +73,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const affectedItems = items.data ?? [];
 
   // For each affected item with a pending revision, resolve the current vs
-  // pending method and pre-compute the sidebar redline signal (+/−/~ counts and
-  // the proposed-revision BOM materials for the nested method node). The full
-  // diff body is built per-item in the focused view.
+  // pending method and pre-compute the sidebar redline signal (+/−/~ counts).
+  // The full diff body is built per-item in the focused view.
   const redlineEntries = await Promise.all(
     affectedItems
       .filter((item) => Boolean(item.pendingItemId))
@@ -68,8 +86,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         return [
           item.id,
           {
-            counts: getRedlineCounts(current, pending),
-            materials: pending.materials
+            counts: getRedlineCounts(current, pending)
           } satisfies AffectedItemRedline
         ] as const;
       })
@@ -83,12 +100,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     redlineByItemId,
     tags: tags.data ?? [],
     // Deferred: pre-release validations are streamed to the detail view.
-    validations: getChangeOrderValidations(client, id, companyId)
+    validations: getChangeOrderValidations(client, id, companyId),
+    // Deferred: "where used" blast radius, streamed into the explorer's Used In tab.
+    impact: getChangeOrderImpact(client, id, companyId)
   };
 }
 
 export default function ChangeOrderRoute() {
-  const { items, redlineByItemId } = useLoaderData<typeof loader>();
+  const { items, redlineByItemId, impact } = useLoaderData<typeof loader>();
   const { id } = useParams();
   if (!id) throw new Error("Could not find id");
 
@@ -100,12 +119,42 @@ export default function ChangeOrderRoute() {
           <div className="flex flex-grow overflow-hidden">
             <ResizablePanels
               explorer={
-                <ChangeOrderItemsTree
-                  key={id}
-                  changeOrderId={id}
-                  items={items}
-                  redlineByItemId={redlineByItemId}
-                />
+                <Tabs
+                  defaultValue="affected"
+                  className="flex h-full w-full flex-col"
+                >
+                  <TabsList className="mx-2 mt-3 grid grid-cols-2">
+                    <TabsTrigger value="affected">
+                      <Trans>Affected Items</Trans>
+                    </TabsTrigger>
+                    <TabsTrigger value="usedIn">
+                      <Trans>Used In</Trans>
+                    </TabsTrigger>
+                  </TabsList>
+                  <TabsContent
+                    value="affected"
+                    className="min-h-0 flex-grow overflow-hidden"
+                  >
+                    <ChangeOrderItemsTree
+                      key={id}
+                      changeOrderId={id}
+                      items={items}
+                      redlineByItemId={redlineByItemId}
+                    />
+                  </TabsContent>
+                  <TabsContent
+                    value="usedIn"
+                    className="min-h-0 flex-grow overflow-hidden"
+                  >
+                    <Suspense fallback={null}>
+                      <Await resolve={impact}>
+                        {(resolved) => (
+                          <ChangeOrderUsedIn impact={resolved ?? []} />
+                        )}
+                      </Await>
+                    </Suspense>
+                  </TabsContent>
+                </Tabs>
               }
               content={
                 <div className="h-[calc(100dvh-99px)] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent w-full">

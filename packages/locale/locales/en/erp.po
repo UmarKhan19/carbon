@@ -1622,6 +1622,9 @@ msgstr "Before"
 msgid "Being phased out — successor: <0>{0}</0>"
 msgstr "Being phased out — successor: <0>{0}</0>"
 
+msgid "Being validated before production."
+msgstr "Being validated before production."
+
 msgid "Below safety stock"
 msgstr "Below safety stock"
 
@@ -4317,6 +4320,9 @@ msgstr "Edit Webhook"
 
 msgid "Edit Work Center"
 msgstr "Edit Work Center"
+
+msgid "Editable draft; becomes Production when released."
+msgstr "Editable draft; becomes Production when released."
 
 msgid "Effective Date"
 msgstr "Effective Date"
@@ -7676,8 +7682,8 @@ msgstr "No matches"
 msgid "No matches for \"{query}\". Try a different search term."
 msgstr "No matches for \"{query}\". Try a different search term."
 
-msgid "No materials"
-msgstr "No materials"
+msgid "No matches. Type to create one."
+msgstr "No matches. Type to create one."
 
 msgid "No method changes between revisions."
 msgstr "No method changes between revisions."
@@ -9473,6 +9479,9 @@ msgstr "Release Job"
 msgid "Released"
 msgstr "Released"
 
+msgid "Released and locked; change via a change order."
+msgstr "Released and locked; change via a change order."
+
 msgid "Released Object"
 msgstr "Released Object"
 
@@ -9509,6 +9518,9 @@ msgstr "Remove filter"
 
 msgid "Remove Filters"
 msgstr "Remove Filters"
+
+msgid "Remove from change order"
+msgstr "Remove from change order"
 
 msgid "Remove from Price List"
 msgstr "Remove from Price List"
@@ -9752,6 +9764,9 @@ msgstr "Revision"
 #. placeholder {0}: revision.revision
 msgid "Revision {0}"
 msgstr "Revision {0}"
+
+msgid "Revisions"
+msgstr "Revisions"
 
 msgid "Revoke"
 msgstr "Revoke"
@@ -11116,6 +11131,9 @@ msgstr "Sunday"
 msgid "Superseded By"
 msgstr "Superseded By"
 
+msgid "Superseded by a newer revision."
+msgstr "Superseded by a newer revision."
+
 msgid "Supersedes"
 msgstr "Supersedes"
 
@@ -11880,8 +11898,8 @@ msgstr "The procedure technicians follow when this maintenance is performed; rep
 msgid "The processes this work center can run; appears in process-pickers when scheduling operations, and limits which jobs can route through this work center."
 msgstr "The processes this work center can run; appears in process-pickers when scheduling operations, and limits which jobs can route through this work center."
 
-msgid "The proposed revision is an exact copy of the current revision. Edit the proposed revision to redline its BOM/BOP."
-msgstr "The proposed revision is an exact copy of the current revision. Edit the proposed revision to redline its BOM/BOP."
+msgid "The proposed revision is an exact copy of the current revision. Use “Edit proposed revision” above to redline its BOM/BOP."
+msgstr "The proposed revision is an exact copy of the current revision. Use “Edit proposed revision” above to redline its BOM/BOP."
 
 msgid "The quantity breakpoints this line is priced at; each column carries its own per-unit price for buyer–supplier negotiation and for converting to downstream documents."
 msgstr "The quantity breakpoints this line is priced at; each column carries its own per-unit price for buyer–supplier negotiation and for converting to downstream documents."

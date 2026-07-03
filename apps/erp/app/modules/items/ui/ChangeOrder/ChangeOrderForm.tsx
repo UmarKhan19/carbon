@@ -212,11 +212,15 @@ const ChangeOrderForm = ({
             <MultiSelect
               name="items"
               label={t`Items`}
-              options={items.map((item) => ({
-                label: item.readableIdWithRevision,
-                value: item.id,
-                helper: item.name
-              }))}
+              // Change orders apply to Parts and Tools only — materials,
+              // consumables, and services don't carry engineering revisions.
+              options={items
+                .filter((item) => item.type === "Part" || item.type === "Tool")
+                .map((item) => ({
+                  label: item.readableIdWithRevision,
+                  value: item.id,
+                  helper: item.name
+                }))}
             />
 
             <div className="grid w-full gap-4 grid-cols-1 md:grid-cols-2">

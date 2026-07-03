@@ -21,13 +21,11 @@ import {
   changeOrderValidator,
   getChangeOrder,
   getChangeOrderApprovalTasks,
-  getChangeOrderImpact,
   getChangeOrderReviewers,
   isChangeOrderLocked,
   updateChangeOrder
 } from "~/modules/items";
 import ChangeOrderApprovalTasks from "~/modules/items/ui/ChangeOrder/ChangeOrderApprovalTasks";
-import ChangeOrderImpact from "~/modules/items/ui/ChangeOrder/ChangeOrderImpact";
 import ChangeOrderReviewers from "~/modules/items/ui/ChangeOrder/ChangeOrderReviewers";
 import ValidationBanner from "~/modules/items/ui/ChangeOrder/ValidationBanner";
 import { setCustomFields } from "~/utils/form";
@@ -57,8 +55,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   return {
     changeOrder: changeOrder.data,
     approvalTasks: getChangeOrderApprovalTasks(client, id, companyId),
-    reviewers: getChangeOrderReviewers(client, id, companyId),
-    impact: getChangeOrderImpact(client, id, companyId)
+    reviewers: getChangeOrderReviewers(client, id, companyId)
   };
 }
 
@@ -132,7 +129,7 @@ export default function ChangeOrderDetailsRoute() {
   const { id } = useParams();
   if (!id) throw new Error("Could not find id");
 
-  const { approvalTasks, reviewers, impact } = useLoaderData<typeof loader>();
+  const { approvalTasks, reviewers } = useLoaderData<typeof loader>();
 
   const routeData = useRouteData<{
     changeOrder: ChangeOrderDetail;
@@ -198,12 +195,6 @@ export default function ChangeOrderDetailsRoute() {
           {(resolved) => (
             <ChangeOrderReviewers reviewers={resolved?.data ?? []} />
           )}
-        </Await>
-      </Suspense>
-
-      <Suspense fallback={null}>
-        <Await resolve={impact}>
-          {(resolved) => <ChangeOrderImpact impact={resolved ?? []} />}
         </Await>
       </Suspense>
     </VStack>
