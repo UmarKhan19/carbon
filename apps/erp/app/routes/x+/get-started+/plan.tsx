@@ -1,6 +1,6 @@
 import { PlanView } from "@carbon/onboarding/ui";
 import { useEffect } from "react";
-import { useLocation } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { path } from "~/utils/path";
 
 // Scroll to (and briefly highlight) the step card linked from the hub's
@@ -8,6 +8,7 @@ import { path } from "~/utils/path";
 // <HubProvider> in the layout.
 export default function GetStartedPlanRoute() {
   const { hash } = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!hash) return;
@@ -24,13 +25,7 @@ export default function GetStartedPlanRoute() {
 
   return (
     <PlanView
-      onOpenSetupMap={() =>
-        window.open(
-          path.to.getStartedPage("setup"),
-          "_blank",
-          "noopener,noreferrer"
-        )
-      }
+      onOpenSetupMap={() => navigate(path.to.getStartedPage("setup"))}
     />
   );
 }

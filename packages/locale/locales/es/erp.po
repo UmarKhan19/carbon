@@ -25,9 +25,6 @@ msgstr "\"{storageUnitName}\" tiene {childCount} unidades de almacenamiento anid
 msgid "\"{storageUnitName}\" has 1 direct nested storage unit. Deleting it will also delete that unit and anything underneath it. This cannot be undone."
 msgstr "\"{storageUnitName}\" tiene 1 unidad de almacenamiento anidada directa. Eliminarlo también eliminará esa unidad y todo lo que hay debajo. Esto no se puede deshacer."
 
-msgid "\"Nobody got fired for buying it.\" An incumbent comfort factor."
-msgstr "\"Nadie fue despedido por comprarlo.\" Un factor de comodidad del incumbente."
-
 msgid "(excluded for this customer)"
 msgstr "(excluido para este cliente)"
 
@@ -207,9 +204,6 @@ msgstr "Una orden firme a un proveedor; el estado pasa por recibir e factura ant
 
 msgid "A formal acceptance / sign-off phase"
 msgstr "Una fase formal de aceptación / aprobación"
-
-msgid "A heavy, structured methodology that big, cautious buyers expect."
-msgstr "Una metodología pesada y estructurada que los grandes compradores cautelosos esperan."
 
 msgid "A issue record tracks quality issues and their resolution process."
 msgstr "Un registro de problema rastrea problemas de calidad y su proceso de resolución."
@@ -1664,14 +1658,8 @@ msgstr "Depreciación de bonificación %"
 msgid "Book a call with Carbon"
 msgstr "Reserva una llamada con Carbon"
 
-msgid "Brand safety"
-msgstr "Seguridad de marca"
-
 msgid "Breadcrumb"
 msgstr "Migas de pan"
-
-msgid "Breadth of legacy modules"
-msgstr "Amplitud de módulos heredados"
 
 msgid "Bring in your parts, BOMs, Bill of Process, and costing — with Carbon's import tools, CSV, or LLM help."
 msgstr "Importa tus piezas, BOMs, Bill of Process y costos — con las herramientas de importación de Carbon, CSV o ayuda de LLM."
@@ -3215,9 +3203,6 @@ msgstr "Débito"
 
 msgid "Debit Account"
 msgstr "Cuenta Deudora"
-
-msgid "Decades of niche features for edge-case industries."
-msgstr "Décadas de características especializadas para industrias de casos extremos."
 
 msgid "Decide what an operator sees if they try to issue a batch or serial that's already expired."
 msgstr "Decide qué ve un operador si intenta emitir un lote o número de serie que ya ha expirado."
@@ -5953,12 +5938,6 @@ msgstr "Interno"
 msgid "Internal Notes"
 msgstr "Notas Internas"
 
-msgid "Internal only · not for customers"
-msgstr "Solo interno · no para clientes"
-
-msgid "Internal reference for where each tool is stronger. Use it to set expectations honestly, not to oversell."
-msgstr "Referencia interna para ver dónde es más fuerte cada herramienta. Úsala para establecer expectativas honestamente, no para exagerar."
-
 msgid "inv"
 msgstr "inv"
 
@@ -6476,9 +6455,6 @@ msgstr "Opciones de lista"
 
 msgid "List Parameters"
 msgstr "Parámetros de Lista"
-
-msgid "Live in weeks, not quarters. Most of the product is already built."
-msgstr "Vive en semanas, no en trimestres. La mayoría del producto ya está construido."
 
 msgid "Live on Carbon"
 msgstr "En vivo en Carbon"
@@ -7038,9 +7014,6 @@ msgstr "Modelo eliminado del trabajo"
 
 msgid "Model removed from line"
 msgstr "Modelo eliminado de la línea"
-
-msgid "Modern, connected core"
-msgstr "Núcleo moderno y conectado"
 
 msgid "Module"
 msgstr "Módulo"
@@ -7875,9 +7848,6 @@ msgstr "El inventario disponible permanece"
 msgid "On-time delivery"
 msgstr "Entrega a tiempo"
 
-msgid "One database from quote to cash, with AI-assisted setup and migration."
-msgstr "Una base de datos única de presupuesto a pago, con configuración y migración asistidas por IA."
-
 msgid "One serial unit or one batch that Carbon follows individually, carrying its own status and attributes such as an expiry date."
 msgstr "Una unidad de serie o un lote que Carbon rastrea individualmente, llevando su propio estado y atributos como una fecha de vencimiento."
 
@@ -7964,9 +7934,6 @@ msgstr "Órdenes de Venta Abiertas"
 
 msgid "Open Scheduled"
 msgstr "Programado Abierto"
-
-msgid "Open source and extensible; you're not locked in."
-msgstr "De código abierto y extensible; no estás atrapado."
 
 msgid "Open task details"
 msgstr "Abrir detalles de la tarea"
@@ -8095,9 +8062,6 @@ msgstr "Cuenta de Otros Ingresos para saldos de proveedores liquidados sin pago 
 msgid "Other Type"
 msgstr "Otro Tipo"
 
-msgid "Others vs Carbon"
-msgstr "Otros vs Carbon"
-
 msgid "Out"
 msgstr "Fuera"
 
@@ -8163,9 +8127,6 @@ msgstr "Sobrescribir el método de fabricación objetivo con el método de cotiz
 
 msgid "Owner (cost center)"
 msgstr "Centro de costos principal"
-
-msgid "Ownership"
-msgstr "Propiedad"
 
 #. placeholder {0}: i18n._(member.owns)
 msgid "Owns: {0}"
@@ -9667,9 +9628,6 @@ msgstr "RFQs"
 msgid "Right item"
 msgstr "Elemento derecho"
 
-msgid "Rigor and reassurance"
-msgstr "Rigor y tranquilidad"
-
 msgid "Risk"
 msgstr "Riesgo"
 
@@ -10586,9 +10544,6 @@ msgstr "Autorizaciones que deben registrarse antes de que se pueda cerrar este p
 
 msgid "Signed in as {name}"
 msgstr "Sesión iniciada como {name}"
-
-msgid "Simplicity and speed"
-msgstr "Simplicidad y velocidad"
 
 msgid "Sites & locations"
 msgstr "Sitios y ubicaciones"
@@ -12816,6 +12771,9 @@ msgstr "Ver Certificado"
 msgid "View Contact"
 msgstr "Ver Contacto"
 
+msgid "View Contained Issues"
+msgstr "Ver problemas contenidos"
+
 msgid "View Custom Fields"
 msgstr "Ver Campos Personalizados"
 
@@ -12855,8 +12813,14 @@ msgstr "Ver valores faltantes"
 msgid "View Open"
 msgstr "Ver Abiertos"
 
+msgid "View Open Actions"
+msgstr "Ver Acciones Abiertas"
+
 msgid "View Open Invoices"
 msgstr "Ver Facturas Abiertas"
+
+msgid "View Open Issues"
+msgstr "Ver problemas abiertos"
 
 msgid "View Open Orders"
 msgstr "Ver Pedidos Abiertos"
@@ -12869,6 +12833,9 @@ msgstr "Ver Cotizaciones Abiertas"
 
 msgid "View Open RFQs"
 msgstr "Ver RFQs Abiertos"
+
+msgid "View Payables"
+msgstr "Ver Cuentas por Pagar"
 
 msgid "View Payment"
 msgstr "Ver Pago"
@@ -12896,6 +12863,9 @@ msgstr "Ver Reactivo"
 
 msgid "View Receipt"
 msgstr "Ver Recepción"
+
+msgid "View Receivables"
+msgstr "Ver Cuentas por Cobrar"
 
 msgid "View Scheduled"
 msgstr "Ver Programado"
@@ -13084,9 +13054,6 @@ msgstr "Bienvenido a Carbon"
 msgid "Welcome, {companyName}"
 msgstr "Bienvenido, {companyName}"
 
-msgid "What Carbon does better"
-msgstr "Lo que Carbon hace mejor"
-
 msgid "What category of failure this is — Mechanical, Electrical, Software, Operator, Material, etc.; rolls up into the failure-mode pareto report so the category breakdown is meaningful."
 msgstr "Qué categoría de falla es esta — Mecánica, Eléctrica, Software, Operador, Material, etc.; se resume en el informe de pareto de modo de falla para que el desglose de categorías sea significativo."
 
@@ -13113,9 +13080,6 @@ msgstr "Qué tipo de PO es esta — bienes estándar, servicios, procesamiento e
 
 msgid "What kind of quote this is — standard supplier quote, blanket-agreement priced quote, or contract-manufacturing quote; drives the PO line layout when converted."
 msgstr "Qué tipo de cotización es esta — cotización de proveedor estándar, cotización con precio de acuerdo global, o cotización de fabricación por contrato; impulsa el diseño de línea de PO cuando se convierte."
-
-msgid "What others do better"
-msgstr "Lo que otros hacen mejor"
 
 msgid "What source this dimension pulls its allowed values from (custom list or an existing entity like customer, location, employee)."
 msgstr "De qué fuente esta dimensión obtiene sus valores permitidos (lista personalizada o una entidad existente como cliente, ubicación, empleado)."
