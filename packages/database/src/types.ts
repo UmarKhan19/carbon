@@ -1436,6 +1436,7 @@ export type Database = {
           rateLimit: number
           rateLimitWindow: string
           scopes: Json
+          updatedBy: string | null
         }
         Insert: {
           companyId: string
@@ -1450,6 +1451,7 @@ export type Database = {
           rateLimit?: number
           rateLimitWindow?: string
           scopes?: Json
+          updatedBy?: string | null
         }
         Update: {
           companyId?: string
@@ -1464,6 +1466,7 @@ export type Database = {
           rateLimit?: number
           rateLimitWindow?: string
           scopes?: Json
+          updatedBy?: string | null
         }
         Relationships: [
           {
@@ -1525,6 +1528,41 @@ export type Database = {
           {
             foreignKeyName: "apiKey_createdBy_fkey"
             columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "apiKey_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "apiKey_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "apiKey_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "apiKey_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "apiKey_updatedBy_fkey"
+            columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
@@ -4779,6 +4817,7 @@ export type Database = {
           contractorId: string
           createdAt: string
           createdBy: string
+          updatedBy: string | null
         }
         Insert: {
           abilityId: string
@@ -4786,6 +4825,7 @@ export type Database = {
           contractorId: string
           createdAt?: string
           createdBy: string
+          updatedBy?: string | null
         }
         Update: {
           abilityId?: string
@@ -4793,6 +4833,7 @@ export type Database = {
           contractorId?: string
           createdAt?: string
           createdBy?: string
+          updatedBy?: string | null
         }
         Relationships: [
           {
@@ -4847,6 +4888,41 @@ export type Database = {
           {
             foreignKeyName: "contractorAbility_createdBy_fkey"
             columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "contractorAbility_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contractorAbility_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contractorAbility_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contractorAbility_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contractorAbility_updatedBy_fkey"
+            columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
@@ -8236,6 +8312,7 @@ export type Database = {
           postedAt: string | null
           postedBy: string | null
           status: string
+          updatedBy: string | null
         }
         Insert: {
           companyId: string
@@ -8247,6 +8324,7 @@ export type Database = {
           postedAt?: string | null
           postedBy?: string | null
           status?: string
+          updatedBy?: string | null
         }
         Update: {
           companyId?: string
@@ -8258,6 +8336,7 @@ export type Database = {
           postedAt?: string | null
           postedBy?: string | null
           status?: string
+          updatedBy?: string | null
         }
         Relationships: [
           {
@@ -8354,6 +8433,41 @@ export type Database = {
           {
             foreignKeyName: "depreciationRun_postedBy_fkey"
             columns: ["postedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "depreciationRun_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "depreciationRun_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "depreciationRun_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "depreciationRun_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "depreciationRun_updatedBy_fkey"
+            columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
@@ -8819,6 +8933,156 @@ export type Database = {
           },
           {
             foreignKeyName: "document_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+        ]
+      }
+      documentExtraction: {
+        Row: {
+          companyId: string
+          createdAt: string
+          createdBy: string
+          documentType: Database["public"]["Enums"]["documentExtractionType"]
+          error: string | null
+          extractedData: Json | null
+          filteredData: Json | null
+          id: string
+          sourceDocument: string
+          sourceDocumentId: string | null
+          status: Database["public"]["Enums"]["documentExtractionStatus"]
+          storagePath: string
+          updatedAt: string | null
+          updatedBy: string | null
+        }
+        Insert: {
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          documentType: Database["public"]["Enums"]["documentExtractionType"]
+          error?: string | null
+          extractedData?: Json | null
+          filteredData?: Json | null
+          id?: string
+          sourceDocument: string
+          sourceDocumentId?: string | null
+          status?: Database["public"]["Enums"]["documentExtractionStatus"]
+          storagePath: string
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Update: {
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          documentType?: Database["public"]["Enums"]["documentExtractionType"]
+          error?: string | null
+          extractedData?: Json | null
+          filteredData?: Json | null
+          id?: string
+          sourceDocument?: string
+          sourceDocumentId?: string | null
+          status?: Database["public"]["Enums"]["documentExtractionStatus"]
+          storagePath?: string
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documentExtraction_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documentExtraction_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documentExtraction_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "documentExtraction_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "documentExtraction_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documentExtraction_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documentExtraction_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documentExtraction_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documentExtraction_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "documentExtraction_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documentExtraction_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documentExtraction_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documentExtraction_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documentExtraction_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "userDefaults"
@@ -10006,6 +10270,7 @@ export type Database = {
           metadata: Json | null
           remoteUpdatedAt: string | null
           updatedAt: string
+          updatedBy: string | null
         }
         Insert: {
           allowDuplicateExternalId?: boolean
@@ -10021,6 +10286,7 @@ export type Database = {
           metadata?: Json | null
           remoteUpdatedAt?: string | null
           updatedAt?: string
+          updatedBy?: string | null
         }
         Update: {
           allowDuplicateExternalId?: boolean
@@ -10036,6 +10302,7 @@ export type Database = {
           metadata?: Json | null
           remoteUpdatedAt?: string | null
           updatedAt?: string
+          updatedBy?: string | null
         }
         Relationships: [
           {
@@ -10097,6 +10364,41 @@ export type Database = {
           {
             foreignKeyName: "externalIntegrationMapping_createdBy_fkey"
             columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "externalIntegrationMapping_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "externalIntegrationMapping_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "externalIntegrationMapping_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "externalIntegrationMapping_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "externalIntegrationMapping_updatedBy_fkey"
+            columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
@@ -10896,6 +11198,7 @@ export type Database = {
           journalId: string | null
           netBookValueAtDisposal: number
           saleProceeds: number
+          updatedBy: string | null
         }
         Insert: {
           companyId: string
@@ -10909,6 +11212,7 @@ export type Database = {
           journalId?: string | null
           netBookValueAtDisposal: number
           saleProceeds?: number
+          updatedBy?: string | null
         }
         Update: {
           companyId?: string
@@ -10922,6 +11226,7 @@ export type Database = {
           journalId?: string | null
           netBookValueAtDisposal?: number
           saleProceeds?: number
+          updatedBy?: string | null
         }
         Relationships: [
           {
@@ -11008,6 +11313,41 @@ export type Database = {
             referencedRelation: "journalEntries"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fixedAssetDisposal_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetDisposal_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetDisposal_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetDisposal_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetDisposal_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
         ]
       }
       fixedAssetUsageLog: {
@@ -11020,6 +11360,7 @@ export type Database = {
           periodEnd: string
           periodStart: string
           unitsProduced: number
+          updatedBy: string | null
         }
         Insert: {
           companyId: string
@@ -11030,6 +11371,7 @@ export type Database = {
           periodEnd: string
           periodStart: string
           unitsProduced: number
+          updatedBy?: string | null
         }
         Update: {
           companyId?: string
@@ -11040,6 +11382,7 @@ export type Database = {
           periodEnd?: string
           periodStart?: string
           unitsProduced?: number
+          updatedBy?: string | null
         }
         Relationships: [
           {
@@ -11111,6 +11454,41 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "fixedAsset"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetUsageLog_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetUsageLog_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetUsageLog_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetUsageLog_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetUsageLog_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
           },
         ]
       }
@@ -11366,6 +11744,7 @@ export type Database = {
           quantity: number
           salesOrderLineId: string
           type: Database["public"]["Enums"]["fulfillmentType"]
+          updatedBy: string | null
         }
         Insert: {
           companyId: string
@@ -11376,6 +11755,7 @@ export type Database = {
           quantity: number
           salesOrderLineId: string
           type: Database["public"]["Enums"]["fulfillmentType"]
+          updatedBy?: string | null
         }
         Update: {
           companyId?: string
@@ -11386,6 +11766,7 @@ export type Database = {
           quantity?: number
           salesOrderLineId?: string
           type?: Database["public"]["Enums"]["fulfillmentType"]
+          updatedBy?: string | null
         }
         Relationships: [
           {
@@ -11492,6 +11873,41 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "salesOrderLines"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fulfillment_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fulfillment_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fulfillment_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fulfillment_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fulfillment_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
           },
         ]
       }
@@ -13255,6 +13671,7 @@ export type Database = {
           samplingStandard: Database["public"]["Enums"]["samplingStandard"]
           severity: Database["public"]["Enums"]["inspectionSeverity"]
           supplierId: string | null
+          updatedBy: string | null
         }
         Insert: {
           aql?: number | null
@@ -13274,6 +13691,7 @@ export type Database = {
           samplingStandard: Database["public"]["Enums"]["samplingStandard"]
           severity: Database["public"]["Enums"]["inspectionSeverity"]
           supplierId?: string | null
+          updatedBy?: string | null
         }
         Update: {
           aql?: number | null
@@ -13293,6 +13711,7 @@ export type Database = {
           samplingStandard?: Database["public"]["Enums"]["samplingStandard"]
           severity?: Database["public"]["Enums"]["inspectionSeverity"]
           supplierId?: string | null
+          updatedBy?: string | null
         }
         Relationships: [
           {
@@ -13441,6 +13860,41 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "suppliers"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inboundInspectionHistory_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inboundInspectionHistory_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inboundInspectionHistory_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inboundInspectionHistory_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inboundInspectionHistory_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
           },
         ]
       }
@@ -14246,6 +14700,7 @@ export type Database = {
           permissions: Json
           revokedAt: string | null
           role: Database["public"]["Enums"]["role"]
+          updatedBy: string | null
         }
         Insert: {
           acceptedAt?: string | null
@@ -14258,6 +14713,7 @@ export type Database = {
           permissions?: Json
           revokedAt?: string | null
           role: Database["public"]["Enums"]["role"]
+          updatedBy?: string | null
         }
         Update: {
           acceptedAt?: string | null
@@ -14270,6 +14726,7 @@ export type Database = {
           permissions?: Json
           revokedAt?: string | null
           role?: Database["public"]["Enums"]["role"]
+          updatedBy?: string | null
         }
         Relationships: [
           {
@@ -14335,6 +14792,41 @@ export type Database = {
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
           },
+          {
+            foreignKeyName: "invite_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invite_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invite_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invite_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invite_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
         ]
       }
       invoiceSettlement: {
@@ -14355,6 +14847,7 @@ export type Database = {
           targetMemoId: string | null
           targetPurchaseInvoiceId: string | null
           targetSalesInvoiceId: string | null
+          updatedBy: string | null
           writeOffAmount: number
         }
         Insert: {
@@ -14374,6 +14867,7 @@ export type Database = {
           targetMemoId?: string | null
           targetPurchaseInvoiceId?: string | null
           targetSalesInvoiceId?: string | null
+          updatedBy?: string | null
           writeOffAmount?: number
         }
         Update: {
@@ -14393,6 +14887,7 @@ export type Database = {
           targetMemoId?: string | null
           targetPurchaseInvoiceId?: string | null
           targetSalesInvoiceId?: string | null
+          updatedBy?: string | null
           writeOffAmount?: number
         }
         Relationships: [
@@ -14521,6 +15016,41 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "salesInvoices"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoiceSettlement_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoiceSettlement_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoiceSettlement_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoiceSettlement_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoiceSettlement_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
           },
         ]
       }
@@ -14993,6 +15523,7 @@ export type Database = {
           trackedEntityStatus:
             | Database["public"]["Enums"]["trackedEntityStatus"]
             | null
+          updatedBy: string | null
         }
         Insert: {
           comment?: string | null
@@ -15017,6 +15548,7 @@ export type Database = {
           trackedEntityStatus?:
             | Database["public"]["Enums"]["trackedEntityStatus"]
             | null
+          updatedBy?: string | null
         }
         Update: {
           comment?: string | null
@@ -15041,6 +15573,7 @@ export type Database = {
           trackedEntityStatus?:
             | Database["public"]["Enums"]["trackedEntityStatus"]
             | null
+          updatedBy?: string | null
         }
         Relationships: [
           {
@@ -15140,6 +15673,41 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "trackedEntity"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "itemLedger_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "itemLedger_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "itemLedger_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "itemLedger_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "itemLedger_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
           },
           {
             foreignKeyName: "partLeger_companyId_fkey"
@@ -25237,6 +25805,7 @@ export type Database = {
           id: string
           inboundInspectionId: string
           nonConformanceId: string
+          updatedBy: string | null
         }
         Insert: {
           companyId: string
@@ -25245,6 +25814,7 @@ export type Database = {
           id?: string
           inboundInspectionId: string
           nonConformanceId: string
+          updatedBy?: string | null
         }
         Update: {
           companyId?: string
@@ -25253,6 +25823,7 @@ export type Database = {
           id?: string
           inboundInspectionId?: string
           nonConformanceId?: string
+          updatedBy?: string | null
         }
         Relationships: [
           {
@@ -25338,6 +25909,41 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "nonConformance"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nonConformanceInboundInspection_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nonConformanceInboundInspection_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nonConformanceInboundInspection_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nonConformanceInboundInspection_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nonConformanceInboundInspection_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
           },
         ]
       }
@@ -27748,6 +28354,7 @@ export type Database = {
           note: string
           noteRichText: Json
           updatedAt: string | null
+          updatedBy: string | null
         }
         Insert: {
           active?: boolean
@@ -27759,6 +28366,7 @@ export type Database = {
           note: string
           noteRichText?: Json
           updatedAt?: string | null
+          updatedBy?: string | null
         }
         Update: {
           active?: boolean
@@ -27770,8 +28378,44 @@ export type Database = {
           note?: string
           noteRichText?: Json
           updatedAt?: string | null
+          updatedBy?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "note_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "note_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "note_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "note_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "note_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
           {
             foreignKeyName: "notes_companyId_fkey"
             columns: ["companyId"]
@@ -33639,6 +34283,7 @@ export type Database = {
           id: string
           purchaseOrderId: string
           status: Database["public"]["Enums"]["purchaseOrderStatus"]
+          updatedBy: string | null
         }
         Insert: {
           companyId: string
@@ -33647,6 +34292,7 @@ export type Database = {
           id?: string
           purchaseOrderId: string
           status: Database["public"]["Enums"]["purchaseOrderStatus"]
+          updatedBy?: string | null
         }
         Update: {
           companyId?: string
@@ -33655,6 +34301,7 @@ export type Database = {
           id?: string
           purchaseOrderId?: string
           status?: Database["public"]["Enums"]["purchaseOrderStatus"]
+          updatedBy?: string | null
         }
         Relationships: [
           {
@@ -33712,6 +34359,41 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "purchaseOrders"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchaseOrderStatusHistory_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchaseOrderStatusHistory_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchaseOrderStatusHistory_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchaseOrderStatusHistory_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchaseOrderStatusHistory_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
           },
         ]
       }
@@ -34337,6 +35019,7 @@ export type Database = {
           id: string
           purchasingRfqId: string
           supplierId: string
+          updatedBy: string | null
         }
         Insert: {
           companyId: string
@@ -34345,6 +35028,7 @@ export type Database = {
           id?: string
           purchasingRfqId: string
           supplierId: string
+          updatedBy?: string | null
         }
         Update: {
           companyId?: string
@@ -34353,6 +35037,7 @@ export type Database = {
           id?: string
           purchasingRfqId?: string
           supplierId?: string
+          updatedBy?: string | null
         }
         Relationships: [
           {
@@ -34466,6 +35151,41 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "suppliers"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchasingRfqSupplier_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchasingRfqSupplier_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchasingRfqSupplier_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchasingRfqSupplier_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchasingRfqSupplier_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
           },
         ]
       }
@@ -40590,6 +41310,7 @@ export type Database = {
           id: string
           salesOrderId: string
           status: Database["public"]["Enums"]["salesOrderStatus"]
+          updatedBy: string | null
         }
         Insert: {
           companyId: string
@@ -40598,6 +41319,7 @@ export type Database = {
           id?: string
           salesOrderId: string
           status: Database["public"]["Enums"]["salesOrderStatus"]
+          updatedBy?: string | null
         }
         Update: {
           companyId?: string
@@ -40606,6 +41328,7 @@ export type Database = {
           id?: string
           salesOrderId?: string
           status?: Database["public"]["Enums"]["salesOrderStatus"]
+          updatedBy?: string | null
         }
         Relationships: [
           {
@@ -40663,6 +41386,41 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "salesOrders"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "salesOrderStatusHistory_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "salesOrderStatusHistory_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "salesOrderStatusHistory_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "salesOrderStatusHistory_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "salesOrderStatusHistory_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
           },
         ]
       }
@@ -41517,48 +42275,6 @@ export type Database = {
             referencedColumns: ["userId"]
           },
         ]
-      }
-      searchIndex_d924dneua0gg2k9762jg: {
-        Row: {
-          createdAt: string
-          description: string | null
-          entityId: string
-          entityType: string
-          id: number
-          link: string
-          metadata: Json | null
-          searchVector: unknown
-          tags: string[] | null
-          title: string
-          updatedAt: string | null
-        }
-        Insert: {
-          createdAt?: string
-          description?: string | null
-          entityId: string
-          entityType: string
-          id?: number
-          link: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title: string
-          updatedAt?: string | null
-        }
-        Update: {
-          createdAt?: string
-          description?: string | null
-          entityId?: string
-          entityType?: string
-          id?: number
-          link?: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title?: string
-          updatedAt?: string | null
-        }
-        Relationships: []
       }
       searchIndexRegistry: {
         Row: {
@@ -43874,6 +44590,7 @@ export type Database = {
           createdBy: string
           itemId: string
           ruleId: string
+          updatedBy: string | null
         }
         Insert: {
           companyId: string
@@ -43881,6 +44598,7 @@ export type Database = {
           createdBy: string
           itemId: string
           ruleId: string
+          updatedBy?: string | null
         }
         Update: {
           companyId?: string
@@ -43888,6 +44606,7 @@ export type Database = {
           createdBy?: string
           itemId?: string
           ruleId?: string
+          updatedBy?: string | null
         }
         Relationships: [
           {
@@ -44002,6 +44721,41 @@ export type Database = {
             referencedRelation: "storageRule"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "storageRuleItemAssignment_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "storageRuleItemAssignment_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "storageRuleItemAssignment_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "storageRuleItemAssignment_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "storageRuleItemAssignment_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
         ]
       }
       storageRuleWorkCenterAssignment: {
@@ -44010,6 +44764,7 @@ export type Database = {
           createdAt: string
           createdBy: string
           ruleId: string
+          updatedBy: string | null
           workCenterId: string
         }
         Insert: {
@@ -44017,6 +44772,7 @@ export type Database = {
           createdAt?: string
           createdBy: string
           ruleId: string
+          updatedBy?: string | null
           workCenterId: string
         }
         Update: {
@@ -44024,6 +44780,7 @@ export type Database = {
           createdAt?: string
           createdBy?: string
           ruleId?: string
+          updatedBy?: string | null
           workCenterId?: string
         }
         Relationships: [
@@ -44096,6 +44853,41 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "storageRule"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "storageRuleWorkCenterAssignment_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "storageRuleWorkCenterAssignment_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "storageRuleWorkCenterAssignment_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "storageRuleWorkCenterAssignment_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "storageRuleWorkCenterAssignment_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
           },
           {
             foreignKeyName: "storageRuleWorkCenterAssignment_workCenterId_fkey"
@@ -48027,6 +48819,7 @@ export type Database = {
           createdBy: string
           name: string
           table: string
+          updatedBy: string | null
         }
         Insert: {
           companyId: string
@@ -48034,6 +48827,7 @@ export type Database = {
           createdBy: string
           name: string
           table: string
+          updatedBy?: string | null
         }
         Update: {
           companyId?: string
@@ -48041,6 +48835,7 @@ export type Database = {
           createdBy?: string
           name?: string
           table?: string
+          updatedBy?: string | null
         }
         Relationships: [
           {
@@ -48102,6 +48897,41 @@ export type Database = {
           {
             foreignKeyName: "tag_createdBy_fkey"
             columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "tag_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tag_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tag_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tag_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tag_updatedBy_fkey"
+            columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
@@ -48570,6 +49400,7 @@ export type Database = {
           sourceDocumentId: string | null
           sourceDocumentReadableId: string | null
           type: string
+          updatedBy: string | null
         }
         Insert: {
           attributes?: Json
@@ -48581,6 +49412,7 @@ export type Database = {
           sourceDocumentId?: string | null
           sourceDocumentReadableId?: string | null
           type: string
+          updatedBy?: string | null
         }
         Update: {
           attributes?: Json
@@ -48592,6 +49424,7 @@ export type Database = {
           sourceDocumentId?: string | null
           sourceDocumentReadableId?: string | null
           type?: string
+          updatedBy?: string | null
         }
         Relationships: [
           {
@@ -48657,6 +49490,41 @@ export type Database = {
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
           },
+          {
+            foreignKeyName: "trackedActivity_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trackedActivity_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trackedActivity_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trackedActivity_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trackedActivity_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
         ]
       }
       trackedActivityInput: {
@@ -48667,6 +49535,7 @@ export type Database = {
           quantity: number
           trackedActivityId: string
           trackedEntityId: string
+          updatedBy: string | null
         }
         Insert: {
           companyId: string
@@ -48675,6 +49544,7 @@ export type Database = {
           quantity: number
           trackedActivityId: string
           trackedEntityId: string
+          updatedBy?: string | null
         }
         Update: {
           companyId?: string
@@ -48683,6 +49553,7 @@ export type Database = {
           quantity?: number
           trackedActivityId?: string
           trackedEntityId?: string
+          updatedBy?: string | null
         }
         Relationships: [
           {
@@ -48762,6 +49633,41 @@ export type Database = {
             referencedRelation: "trackedEntity"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "trackedActivityInput_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trackedActivityInput_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trackedActivityInput_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trackedActivityInput_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trackedActivityInput_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
         ]
       }
       trackedActivityOutput: {
@@ -48772,6 +49678,7 @@ export type Database = {
           quantity: number
           trackedActivityId: string
           trackedEntityId: string
+          updatedBy: string | null
         }
         Insert: {
           companyId: string
@@ -48780,6 +49687,7 @@ export type Database = {
           quantity: number
           trackedActivityId: string
           trackedEntityId: string
+          updatedBy?: string | null
         }
         Update: {
           companyId?: string
@@ -48788,6 +49696,7 @@ export type Database = {
           quantity?: number
           trackedActivityId?: string
           trackedEntityId?: string
+          updatedBy?: string | null
         }
         Relationships: [
           {
@@ -48867,6 +49776,41 @@ export type Database = {
             referencedRelation: "trackedEntity"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "trackedActivityOutput_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trackedActivityOutput_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trackedActivityOutput_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trackedActivityOutput_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trackedActivityOutput_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
         ]
       }
       trackedEntity: {
@@ -48884,6 +49828,7 @@ export type Database = {
           sourceDocumentId: string
           sourceDocumentReadableId: string | null
           status: Database["public"]["Enums"]["trackedEntityStatus"]
+          updatedBy: string | null
         }
         Insert: {
           attributes?: Json
@@ -48899,6 +49844,7 @@ export type Database = {
           sourceDocumentId: string
           sourceDocumentReadableId?: string | null
           status?: Database["public"]["Enums"]["trackedEntityStatus"]
+          updatedBy?: string | null
         }
         Update: {
           attributes?: Json
@@ -48914,6 +49860,7 @@ export type Database = {
           sourceDocumentId?: string
           sourceDocumentReadableId?: string | null
           status?: Database["public"]["Enums"]["trackedEntityStatus"]
+          updatedBy?: string | null
         }
         Relationships: [
           {
@@ -49020,6 +49967,41 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "tools"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trackedEntity_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trackedEntity_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trackedEntity_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trackedEntity_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trackedEntity_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
           },
         ]
       }
@@ -57825,14 +58807,14 @@ export type Database = {
           },
           {
             foreignKeyName: "partner_id_fkey"
-            columns: ["supplierLocationId"]
+            columns: ["id"]
             isOneToOne: false
             referencedRelation: "supplierLocation"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "partner_id_fkey"
-            columns: ["id"]
+            columns: ["supplierLocationId"]
             isOneToOne: false
             referencedRelation: "supplierLocation"
             referencedColumns: ["id"]
@@ -59497,14 +60479,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["supplierCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["supplierCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -69266,6 +70248,12 @@ export type Database = {
         | "Rework"
         | "Scrap"
         | "Use As Is"
+      documentExtractionStatus:
+        | "pending"
+        | "processing"
+        | "completed"
+        | "failed"
+      documentExtractionType: "purchaseInvoice" | "salesRfq"
       documentSourceType:
         | "Job"
         | "Part"
@@ -70595,6 +71583,13 @@ export const Constants = {
         "Scrap",
         "Use As Is",
       ],
+      documentExtractionStatus: [
+        "pending",
+        "processing",
+        "completed",
+        "failed",
+      ],
+      documentExtractionType: ["purchaseInvoice", "salesRfq"],
       documentSourceType: [
         "Job",
         "Part",

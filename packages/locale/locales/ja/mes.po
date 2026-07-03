@@ -769,6 +769,7 @@ msgstr "予防保全"
 
 msgid "Previous"
 msgstr ""
+
 msgid "Print"
 msgstr "印刷"
 

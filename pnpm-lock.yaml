@@ -2442,6 +2442,9 @@ importers:
       nodemailer:
         specifier: 6.10.1
         version: 6.10.1
+      pdfjs-dist:
+        specifier: 5.4.296
+        version: 5.4.296
       react:
         specifier: 18.3.1
         version: 18.3.1

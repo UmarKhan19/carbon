@@ -769,6 +769,7 @@ msgstr "निवारक"
 
 msgid "Previous"
 msgstr ""
+
 msgid "Print"
 msgstr "प्रिंट करें"
 

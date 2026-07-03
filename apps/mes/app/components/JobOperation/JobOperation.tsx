@@ -1652,6 +1652,7 @@ export const JobOperation = ({
                             locationId={locationId}
                             context="workCenter"
                             workCenterId={operation.workCenterId ?? undefined}
+                            size="lg"
                             fileRoutes={{
                               pdf: path.to.file.operationLabelsPdf,
                               zpl: path.to.file.operationLabelsZpl
@@ -1714,6 +1715,7 @@ export const JobOperation = ({
                                     workCenterId={
                                       operation.workCenterId ?? undefined
                                     }
+                                    size="lg"
                                     fileRoutes={{
                                       pdf: path.to.file.trackedEntityLabelPdf,
                                       zpl: path.to.file.trackedEntityLabelZpl

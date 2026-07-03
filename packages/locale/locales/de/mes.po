@@ -769,6 +769,7 @@ msgstr "Vorbeugend"
 
 msgid "Previous"
 msgstr ""
+
 msgid "Print"
 msgstr "Drucken"
 
