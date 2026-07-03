@@ -25,6 +25,16 @@ msgstr "\"{storageUnitName}\"有{childCount}个直接嵌套的存储单元。删
 msgid "\"{storageUnitName}\" has 1 direct nested storage unit. Deleting it will also delete that unit and anything underneath it. This cannot be undone."
 msgstr "\"${storageUnitName}\"有1个直接嵌套的存储单元。删除它也会删除该单元及其下的所有内容。此操作无法撤销。"
 
+#. placeholder {0}: setupProgress.total
+#. placeholder {1}: setupProgress.done
+#. placeholder {2}: setupProgress.total
+msgid "\"{taskName}\" checks itself off once its {0} Setup Map items are marked \"Configured\" — {1} of {2} so far."
+msgstr ""
+
+#. placeholder {0}: setupProgress.total
+msgid "\"{taskName}\" is done — all {0} of its Setup Map items are configured."
+msgstr ""
+
 msgid "(excluded for this customer)"
 msgstr "(已为此客户排除)"
 
@@ -327,6 +337,9 @@ msgstr "功能"
 
 msgid "About"
 msgstr "关于"
+
+msgid "Academy"
+msgstr ""
 
 msgid "Accept Lot"
 msgstr "接受批次"
@@ -1258,6 +1271,10 @@ msgstr "您确定要完成供应商报价吗？"
 msgid "Are you sure you want to leave this page?"
 msgstr "您确定要离开此页面吗？"
 
+#. placeholder {0}: i18n._(step.title)
+msgid "Are you sure you want to pass this checkpoint? The {0} phase still has unfinished tasks."
+msgstr ""
+
 #. placeholder {0}: selectedPurchaseInvoice.invoiceId!
 #. placeholder {0}: selectedSalesInvoice.invoiceId!
 msgid "Are you sure you want to permanently delete {0}?"
@@ -1663,6 +1680,9 @@ msgstr "物料清单"
 
 msgid "Bonus Depreciation %"
 msgstr "奖金折旧%"
+
+msgid "Book a call to discuss guided implementation"
+msgstr ""
 
 msgid "Book a call with Carbon"
 msgstr "与 Carbon 预约通话"
@@ -6718,6 +6738,13 @@ msgstr "立即映射行"
 msgid "Map your current process, systems, and data"
 msgstr "映射您当前的流程、系统和数据"
 
+#. placeholder {0}: i18n._(step.gate)
+msgid "Mark \"{0}\" as passed?"
+msgstr ""
+
+msgid "Mark all as configured"
+msgstr ""
+
 msgid "Mark as Paid"
 msgstr "标记为已支付"
 
@@ -11178,6 +11205,9 @@ msgstr "任务"
 msgid "Tasks"
 msgstr "任务"
 
+msgid "Tasks still open"
+msgstr ""
+
 msgid "Tasks that must be completed before this issue can be closed; selecting actions here adds them on top of whatever the workflow specifies."
 msgstr "在关闭此问题之前必须完成的任务；在此处选择操作会将其添加到工作流程指定的内容之外。"
 
@@ -11267,6 +11297,15 @@ msgstr "测试值"
 
 msgid "Text size"
 msgstr "文本大小"
+
+#. placeholder {0}: i18n._(step.title)
+msgid "The \"{0}\" phase checks itself off once all of its tasks in the project plan are done."
+msgstr ""
+
+#. placeholder {0}: i18n._(step.title)
+#. placeholder {1}: i18n._(step.gate)
+msgid "The \"{0}\" phase is done — its \"{1}\" checkpoint has been passed."
+msgstr ""
 
 #. placeholder {0}: steps.length
 msgid "The {0} phases to go live, each ending at a checkpoint. Tick off each task as you complete it."
@@ -11475,6 +11514,9 @@ msgstr "以下装配体没有操作。请在发布前为每个装配体分配一
 
 msgid "The following line items are missing prices or lead times:"
 msgstr "以下行项目缺少价格或交货期："
+
+msgid "The following tasks are not done yet:"
+msgstr ""
 
 msgid "The forms and shapes your raw materials come in"
 msgstr "您的原材料所采用的形式和形状"
@@ -12248,9 +12290,6 @@ msgstr "已追踪实体已被拣选"
 msgid "Tracked entity ID is required but none was found"
 msgstr "已跟踪实体ID是必需的，但未找到"
 
-msgid "Tracked from the Setup Map — open it"
-msgstr "从设置地图跟踪 — 打开它"
-
 msgid "Tracking"
 msgstr "追踪"
 
@@ -12521,12 +12560,6 @@ msgstr "更新看板信息以进行扫描式补货。"
 
 msgid "Update the purchase order quantities"
 msgstr "更新采购订单数量"
-
-msgid "Update this in the project plan"
-msgstr "在项目计划中更新此项"
-
-msgid "Update this in the project plan."
-msgstr "在项目计划中更新此项。"
 
 msgid "Updated"
 msgstr "已更新"
@@ -12956,6 +12989,9 @@ msgstr "与您的项目冠军一起逐个领域进行审查，并切换任何超
 
 msgid "Walk your current process, systems, and data"
 msgstr "浏览您当前的流程、系统和数据"
+
+msgid "Want our team alongside you? Expert eyes on your setup, data, and go-live."
+msgstr ""
 
 msgid "Warehouse Transfer"
 msgstr "仓库转移"

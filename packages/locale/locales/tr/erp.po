@@ -25,6 +25,16 @@ msgstr "\"{storageUnitName}\" {childCount} adet doğrudan iç içe geçmiş depo
 msgid "\"{storageUnitName}\" has 1 direct nested storage unit. Deleting it will also delete that unit and anything underneath it. This cannot be undone."
 msgstr "\"{storageUnitName}\" bir doğrudan iç içe geçmiş depolama birimine sahip. Silinmesi, o birimi ve altındaki her şeyi de silecektir. Bu geri alınamaz."
 
+#. placeholder {0}: setupProgress.total
+#. placeholder {1}: setupProgress.done
+#. placeholder {2}: setupProgress.total
+msgid "\"{taskName}\" checks itself off once its {0} Setup Map items are marked \"Configured\" — {1} of {2} so far."
+msgstr ""
+
+#. placeholder {0}: setupProgress.total
+msgid "\"{taskName}\" is done — all {0} of its Setup Map items are configured."
+msgstr ""
+
 msgid "(excluded for this customer)"
 msgstr "(bu müşteri için hariç tutulmuş)"
 
@@ -327,6 +337,9 @@ msgstr "yetenek"
 
 msgid "About"
 msgstr "Hakkında"
+
+msgid "Academy"
+msgstr ""
 
 msgid "Accept Lot"
 msgstr "Lotu Kabul Et"
@@ -1258,6 +1271,10 @@ msgstr "Tedarikçi teklifini sonlandırmak istediğinizden emin misiniz?"
 msgid "Are you sure you want to leave this page?"
 msgstr "Bu sayfadan ayrılmak istediğinizden emin misiniz?"
 
+#. placeholder {0}: i18n._(step.title)
+msgid "Are you sure you want to pass this checkpoint? The {0} phase still has unfinished tasks."
+msgstr ""
+
 #. placeholder {0}: selectedPurchaseInvoice.invoiceId!
 #. placeholder {0}: selectedSalesInvoice.invoiceId!
 msgid "Are you sure you want to permanently delete {0}?"
@@ -1663,6 +1680,9 @@ msgstr "Ürün Yapıları"
 
 msgid "Bonus Depreciation %"
 msgstr "Bonus amortisman %"
+
+msgid "Book a call to discuss guided implementation"
+msgstr ""
 
 msgid "Book a call with Carbon"
 msgstr "Carbon ile bir çağrı ayarlayın"
@@ -6718,6 +6738,13 @@ msgstr "Satırları Şimdi Eşle"
 msgid "Map your current process, systems, and data"
 msgstr "Mevcut sürecinizi, sistemlerinizi ve verilerinizi eşleyin"
 
+#. placeholder {0}: i18n._(step.gate)
+msgid "Mark \"{0}\" as passed?"
+msgstr ""
+
+msgid "Mark all as configured"
+msgstr ""
+
 msgid "Mark as Paid"
 msgstr "Ödendi Olarak İşaretle"
 
@@ -11178,6 +11205,9 @@ msgstr "görevler"
 msgid "Tasks"
 msgstr "Görevler"
 
+msgid "Tasks still open"
+msgstr ""
+
 msgid "Tasks that must be completed before this issue can be closed; selecting actions here adds them on top of whatever the workflow specifies."
 msgstr "Bu sorun kapatılmadan önce tamamlanması gereken görevler; burada eylemleri seçmek, iş akışının belirttiğinin yanına eklenir."
 
@@ -11267,6 +11297,15 @@ msgstr "Test Değeri"
 
 msgid "Text size"
 msgstr "Metin boyutu"
+
+#. placeholder {0}: i18n._(step.title)
+msgid "The \"{0}\" phase checks itself off once all of its tasks in the project plan are done."
+msgstr ""
+
+#. placeholder {0}: i18n._(step.title)
+#. placeholder {1}: i18n._(step.gate)
+msgid "The \"{0}\" phase is done — its \"{1}\" checkpoint has been passed."
+msgstr ""
 
 #. placeholder {0}: steps.length
 msgid "The {0} phases to go live, each ending at a checkpoint. Tick off each task as you complete it."
@@ -11475,6 +11514,9 @@ msgstr "Aşağıdaki montajlarda işlem bulunmamaktadır. Lütfen yayınlamadan 
 
 msgid "The following line items are missing prices or lead times:"
 msgstr "Aşağıdaki kalemlerde fiyat veya teslim süresi eksik:"
+
+msgid "The following tasks are not done yet:"
+msgstr ""
 
 msgid "The forms and shapes your raw materials come in"
 msgstr "Ham ve malzemelerin geldiği formlar ve şekiller"
@@ -12248,9 +12290,6 @@ msgstr "Takip edilen varlık zaten alındı"
 msgid "Tracked entity ID is required but none was found"
 msgstr "Takip edilen varlık kimliği gerekli ancak hiçbiri bulunamadı"
 
-msgid "Tracked from the Setup Map — open it"
-msgstr "Kurulum Haritasından izleniyor — aç"
-
 msgid "Tracking"
 msgstr "Takip"
 
@@ -12521,12 +12560,6 @@ msgstr "Tarama tabanlı ikmal için kanban bilgilerini güncelleyin."
 
 msgid "Update the purchase order quantities"
 msgstr "Satın alma siparişi miktarlarını güncelle"
-
-msgid "Update this in the project plan"
-msgstr "Bunu proje planında güncelleyin"
-
-msgid "Update this in the project plan."
-msgstr "Bunu proje planında güncelleyin."
 
 msgid "Updated"
 msgstr "Güncellendi"
@@ -12956,6 +12989,9 @@ msgstr "Her alanı şampiyon ile birlikte gözden geçirin ve kapsam dışında 
 
 msgid "Walk your current process, systems, and data"
 msgstr "Mevcut sürecinizi, sistemlerinizi ve verilerinizi gözden geçirin"
+
+msgid "Want our team alongside you? Expert eyes on your setup, data, and go-live."
+msgstr ""
 
 msgid "Warehouse Transfer"
 msgstr "Depo Transferi"
