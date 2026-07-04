@@ -208,7 +208,7 @@ export function openPr(
     ...behaviorSection(hosted, shots),
     "### Ledger",
     ...ledger.map(
-      (e) => `- #${e.iteration} **${e.decision}** — ${e.change} _(${e.reason})_`
+      (e) => `- ${e.iteration}. **${e.decision}** — ${e.change} _(${e.reason})_`
     ),
     "",
     `_Conducted headless: ${kept} kept / ${ledger.length} iterations. ` +
