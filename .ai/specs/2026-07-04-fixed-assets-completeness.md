@@ -50,69 +50,65 @@ Verified against `20260524143827_fixed-assets.sql`, `accounting.server.ts`
 
 ### 1. Disposal with proceeds (full and partial)
 
-Extend the dispose flow (`$fixedAssetId.dispose` → `postDisposal()`) with proceeds:
+Extend the dispose flow (`$fixedAssetId.dispose` → `postDisposal()`):
 
-- **Proceeds source** — one of: (a) a `salesInvoiceLine` of type `'Fixed Asset'`
-  (link exists via `salesInvoiceLine.assetId`); (b) direct proceeds with a
-  user-selected debit account (cash/clearing) for sales outside the invoicing flow.
-- **Journal** (`sourceType: 'Asset Disposal'`): Dr accumulated depreciation
-  (incl. accumulated impairment), Dr proceeds account (AR via invoice posting, or
-  the selected cash account), Cr asset at cost, and the balancing line to the
-  class's **`disposalAccountId`**: gain (credit) or loss (debit) = proceeds − NBV.
-  The `post-sales-invoice` edge function's Fixed Asset branch is rewritten to this
-  pattern (proceeds stop hitting revenue; NBV stops hitting write-off).
-  `writeOffAccountId` remains the zero-proceeds (scrapping) target — unchanged.
-- **Partial disposal**: the user disposes a fraction, entered as quantity
-  (e.g. 2 of 5 identical units) or value fraction; both resolve to
-  `disposalFraction` (0 < f ≤ 1). Disposed cost = cost × f; disposed accumulated
-  depreciation/impairment = accumulated × f (pro-rata). Asset stays `Active` with
-  reduced cost/accumulated balances; `fixedAssetDisposal` records the fraction and
-  the disposed slices. `f = 1` is today's full disposal.
+- **Proceeds source** — either a `salesInvoiceLine` of type `'Fixed Asset'` (link
+  exists via `salesInvoiceLine.assetId`), or direct proceeds with a user-selected
+  debit account (cash/clearing) for sales outside the invoicing flow.
+- **Journal** (`sourceType: 'Asset Disposal'`): Dr accumulated depreciation (incl.
+  impairment), Dr proceeds account (AR via invoice posting, or the selected cash
+  account), Cr asset at cost, balancing line to the class's **`disposalAccountId`**
+  — gain (credit) or loss (debit) = proceeds − NBV. The `post-sales-invoice` Fixed
+  Asset branch is rewritten to this pattern (proceeds stop hitting revenue; NBV
+  stops hitting write-off). `writeOffAccountId` remains the zero-proceeds
+  (scrapping) target — unchanged.
+- **Partial disposal**: entered as quantity (e.g. 2 of 5 units) or value fraction,
+  both resolving to `disposalFraction` (0 < f ≤ 1). Disposed cost and accumulated
+  depreciation/impairment = balance × f (pro-rata); asset stays `Active` with
+  reduced balances; `fixedAssetDisposal` records the fraction + disposed slices.
+  `f = 1` is today's full disposal.
 
 ### 2. Impairment
 
 New `fixedAssetImpairment` document, Draft → Posted:
 
-- **Scope**: single asset, or a class (one header, one line per Active asset in the
-  class — each line gets its own recoverable amount, prefilled with NBV).
-- **Input**: recoverable amount per asset. Loss = max(0, NBV − recoverable amount)
-  where NBV = acquisitionCost − accumulatedDepreciation − accumulatedImpairment.
-- **Posting** (new `journalEntrySourceType` value `'Asset Impairment'`):
-  Dr class `writeDownAccountId` / Cr class `accumulatedDepreciationAccountId`.
-  **Contra treatment, not a new account column**: the credit lands in the existing
-  accumulated-depreciation account, while a new `fixedAsset.accumulatedImpairment`
-  column tracks the impairment slice separately for the register, disposal
-  clearing, and the IAS 36 reversal question later (multi-book adjustment books
-  need the split; the GL does not need a seventh NOT NULL account FK on every
-  class, which would force a breaking backfill for all existing classes).
-- **Re-basing**: after posting, future depreciation = (recoverable amount −
-  residual) over remaining useful life. `buildDepreciationLines()` already
-  computes from NBV-style inputs; it subtracts `accumulatedImpairment` in the NBV
-  term. Reversals (IAS 36) are **out of scope** until the multi-book adjustment
-  books exist — same staging as LCNRV reversals in GAP-3.
+- **Scope**: single asset, or a class (one line per Active asset in the class,
+  each with its own recoverable amount, prefilled with NBV).
+- **Loss** = max(0, NBV − recoverable amount), where NBV = acquisitionCost −
+  accumulatedDepreciation − accumulatedImpairment.
+- **Posting** (new `journalEntrySourceType` `'Asset Impairment'`): Dr class
+  `writeDownAccountId` / Cr class `accumulatedDepreciationAccountId`. **Contra
+  treatment, not a new account column**: the credit lands in the existing
+  accumulated-depreciation account while a new `fixedAsset.accumulatedImpairment`
+  column tracks the impairment slice for the register, disposal clearing, and
+  future IAS 36 reversals — a seventh NOT NULL account FK would force a breaking
+  backfill of every existing class.
+- **Re-basing**: future depreciation = (recoverable − residual) over remaining
+  life; `buildDepreciationLines()` subtracts `accumulatedImpairment` in its NBV
+  term. IAS 36 reversals are **out of scope** until multi-book adjustment books
+  exist — same staging as LCNRV reversals in GAP-3.
 
 ### 3. CIP — construction in progress
 
 - **CIP class flag**: `fixedAssetClass.isConstructionInProgress BOOLEAN` — assets
-  in a CIP class never enter depreciation runs, and their status uses a new enum
-  value `'Under Construction'` (between Draft and Active). Seed one "Construction
-  in Progress" class per company group (asset account = CIP; depreciation accounts
-  point at CIP too — required by NOT NULL but never posted).
-- **Cost accumulation** — new `fixedAssetCipCost` ledger rows, two sources:
+  in a CIP class never enter depreciation runs; their status uses new enum value
+  `'Under Construction'`. Seed one "Construction in Progress" class per company
+  group (all six account FKs point at the CIP account — NOT NULL satisfied, the
+  depreciation ones never posted).
+- **Cost accumulation** — append-only `fixedAssetCipCost` rows, two sources:
   1. **PO lines**: a Fixed Asset PO line pointing at a CIP asset posts Dr CIP
-     asset account (existing acquisition path, unchanged accounts) and appends a
-     `fixedAssetCipCost` row (source `'Purchase Invoice'`, document line FK).
-  2. **Job costs**: a job (or selected job cost slice) is attached to a CIP asset;
-     on attachment the accumulated job cost posts Dr CIP asset account / Cr WIP
-     (`postingGroupInventory.workInProgressAccount`) and appends a row (source
-     `'Job'`). Timing of the WIP credit is an open question below.
-- **Capitalization** = a `fixedAssetTransfer` of type `'Capitalization'`: pick
-  target class + in-service date; posts Dr target class asset account / Cr CIP
-  asset account at accumulated cost; sets `acquisitionCost`, `acquisitionDate`,
+     asset account (existing acquisition path, unchanged) and appends a row
+     (source `'Purchase Invoice'`, document line FK).
+  2. **Job costs**: a job (or cost slice) attached to a CIP asset posts Dr CIP
+     asset account / Cr WIP (`postingGroupInventory.workInProgressAccount`) and
+     appends a row (source `'Job'`). WIP-credit timing: open question below.
+- **Capitalization** = `fixedAssetTransfer` of type `'Capitalization'`: target
+  class + in-service date; posts Dr target asset account / Cr CIP asset account at
+  accumulated cost; sets `acquisitionCost`, `acquisitionDate`,
   `depreciationStartDate` (= in-service date), status → `Active`. Depreciation
-  begins with the next run (scheduling itself: close-automation spec).
-- **CIP aging report**: CIP assets with accumulated cost bucketed by age of first
-  cost (0–90/91–180/181–365/365+ days) — the auditor's stale-CIP question.
+  begins with the next run (scheduling: close-automation spec).
+- **CIP aging report**: accumulated cost bucketed by age of first cost
+  (0–90/91–180/181–365/365+ days) — the auditor's stale-CIP question.
 
 ### 4. Component assets and class transfers
 
@@ -355,16 +351,16 @@ CREATE TABLE "fixedAssetTransfer" (
 - [x] Where does disposal gain/loss post? — **Resolved:** net to the class's
       existing `disposalAccountId` (proceeds − NBV); `writeOffAccountId` stays the
       scrapping target. (Scope resolution 1.)
-- [x] Are partial disposals in scope? — **Resolved:** yes; quantity or value
-      fraction, pro-rata cost/accumulated split. (Scope resolution 1.)
-- [x] Impairment credit: new contra-account column or contra treatment? —
-      **Resolved:** contra treatment in the existing accumulated-depreciation
-      account plus a `fixedAsset.accumulatedImpairment` tracking column; no new
-      NOT NULL account FK (breaking backfill avoided; subledger keeps the split
-      for reporting and future IAS 36 reversals). (Scope resolution 2 + Decision 4.)
+- [x] Partial disposals in scope? — **Resolved:** yes; quantity or value fraction,
+      pro-rata cost/accumulated split. (Scope resolution 1.)
+- [x] Impairment credit: new account column or contra treatment? — **Resolved:**
+      contra in the existing accumulated-depreciation account + a
+      `fixedAsset.accumulatedImpairment` tracking column; no new NOT NULL account
+      FK (breaking backfill avoided; subledger keeps the split for reporting and
+      future IAS 36 reversals). (Scope resolution 2 + Decision 4.)
 - [x] CIP cost sources? — **Resolved:** Fixed Asset PO lines and job costs both
       accumulate onto a CIP asset; capitalization transfers to a depreciating
-      class and starts depreciation at in-service date. (Scope resolution 3.)
+      class, depreciation starts at in-service date. (Scope resolution 3.)
 - [x] Components for IFRS? — **Resolved:** one-level parent/child with independent
       lives/methods; book-specific depreciation parameters are the multi-book
       spec's layer on top. (Scope resolution 4.)
