@@ -7,6 +7,12 @@ export type LedgerEntry = {
   gates: Record<string, boolean>;
   decision: "keep" | "revert";
   reason: string;
+  /** Proof gaps this iteration — behavior gate could not verify either way. */
+  unverified?: string[];
+  /** Product questions the judge raised (disputed acceptance criteria). */
+  questions?: string[];
+  /** Interpretation calls the doer made instead of asking a human. */
+  assumptions?: string[];
   /** ISO timestamp, supplied by the caller (the harness has no clock). */
   at: string;
 };

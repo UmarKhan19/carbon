@@ -7,9 +7,22 @@ export type TerminalState = "shipped" | "blocked" | "plateau" | "error";
 export type LoopOutcome = {
   state: TerminalState;
   iterations: number;
-  /** Set when `state === "shipped"` and the script opened a PR. */
+  /** Set when the script opened a PR (shipped, or a partial salvage PR). */
   prUrl?: string;
   reason: string;
+  /**
+   * Proof gaps on KEPT work — the behavior gate could not verify either way
+   * (missing test data, unreachable state, capped session, stack down). The
+   * work still ships, as a draft PR flagged for human verification; "we
+   * couldn't prove it" is not "it doesn't work".
+   */
+  unverified?: string[];
+  /**
+   * Product questions raised during the loop (disputed acceptance criteria,
+   * doer assumptions). The outer loop posts these back to the issue so future
+   * grooming resolves them BEFORE the next dispatch.
+   */
+  questions?: string[];
 };
 
 /**
@@ -25,7 +38,14 @@ export type DoerResult = {
   testCommand: string;
   /** True if the change touches UI / user-facing surface (needs the behavior gate). */
   touchedUI: boolean;
-  /** Set when the doer cannot proceed without a human — surfaces as a BLOCKED outcome. */
+  /**
+   * Interpretation calls the doer made instead of asking a human (ambiguous
+   * criterion, unstated default…). Kept assumptions surface on the PR as open
+   * questions — the loop never stops to ask.
+   */
+  assumptions?: string[];
+  /** Set when the doer cannot proceed without a human — surfaces as a BLOCKED
+   *  outcome. Reserved for hard impossibilities, never questions of preference. */
   blocked?: string;
 };
 
@@ -34,20 +54,31 @@ export type JudgeResult = {
   approved: boolean;
   /** Indices into `binding.acceptance` of criteria still unmet. Empty ⇒ done. */
   unmet: number[];
+  /**
+   * Criteria the judge believes rest on a wrong premise or need a product
+   * decision — a question for the human, NOT an unmet criterion. Disputed
+   * indices are excluded from `unmet` so the loop doesn't churn on them; the
+   * questions ride the PR/issue instead.
+   */
+  disputed?: { index: number; question: string }[];
   feedback: string;
 };
 
 /** Outcome of the UI behavior gate (boot stack + agent-browser). */
 export type BehaviorResult = {
+  /** True only when the gate SAW the acceptance behavior work in the app. */
   passed: boolean;
   screenshots: string[];
   notes: string;
   /**
-   * Set when the gate cannot even attempt verification — the stack isn't up and
-   * a bounded boot failed. This is environmental: ends the loop as BLOCKED (the
-   * skill's "stack can't boot → stop and surface"), never a silent revert/retry.
+   * Set when the gate could not obtain proof EITHER WAY — missing test data it
+   * couldn't construct, unreachable state, a capped session, or a stack that
+   * won't boot. This is NOT a failure: `passed: false` with `unverified` unset
+   * means the gate reached the state and saw the fix NOT work (revert); with
+   * `unverified` set, the loop keeps judge-approved work and ships it as a
+   * draft PR flagged for human verification instead of discarding it.
    */
-  blocked?: string;
+  unverified?: string;
 };
 
 export type ClaudeRequest = {
@@ -98,7 +129,7 @@ export type RunnerDeps = {
 export type RunnerConfig = {
   /** Absolute path to the worktree the loop runs in. */
   cwd: string;
-  /** Where to append the ledger (e.g. llm/loops/<id>/ledger.jsonl). */
+  /** Where to append the ledger (e.g. .ai/runs/<id>/ledger.jsonl). */
   ledgerPath: string;
   /** Stop after this many consecutive iterations with no kept change. */
   plateauAfter: number;

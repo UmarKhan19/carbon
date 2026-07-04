@@ -1,104 +1,206 @@
 ---
 name: conductor
-description: Supervised loop conductor — drive a single work item (a bug, a usability tweak, a small feature) through a doer→gate→keep-or-revert→ledger cycle to a gated PR, while the human watches. Use when asked to "conduct", "build", "fix", or "loop on" a specific item with the conductor. Supervised only — not autonomous/overnight (not yet supported). Backed by @carbon/harness + the @carbon/checks checks.
+description: Supervised loop conductor — drive a single work item (a bug, a usability tweak, a small feature) through a doer→gate→judge→keep-or-revert→ledger cycle to a gated PR, while the human watches. Use when asked to "conduct", "loop on", or build/fix one tightly-scoped item with explicit acceptance criteria. Backed by @carbon/harness and the @carbon/checks gates. Supervised only — never autonomous/overnight, never auto-merged. For multi-phase features prefer /feature.
 ---
 
-# conductor — supervised loop conductor
+# conductor — supervised doer→gate→judge loop
 
-You are conducting a **supervised loop**: iterate doer→gate→keep/revert→ledger until the acceptance criteria are met, with the human watching and giving the final approval. Land a **gated PR** — never auto-merge.
+Iterate on one work item until its acceptance criteria are met and provable,
+with the human watching and giving final approval. Ship a **gated PR** — never
+merge. Architecture context: `.ai/docs/loop-system.md`; the deterministic
+helpers live in `packages/harness` (see its `AGENTS.md`).
 
-This is the execution layer of the loop system. The deterministic helpers live in `@carbon/harness`; the checker is the four `@carbon/checks` checks.
+**Announce at start:** "Using the conductor skill — supervised loop on
+{work item}."
 
-## 0. Isolated worktree off `origin/main` (do this first)
-- Every loop runs in its **own worktree, branched off the latest `origin/main`** — never stacked on another feature branch. Create it non-interactively:
-  ```
-  git fetch origin main
-  crbn new loop/<id> --base origin/main --yes
-  ```
-  `crbn new --yes` skips all prompts (base defaults to `origin/main`) and prints the new worktree path; `cd` into it and do all the loop's work there.
-- **Never run on `main`.** The loop's branch is `loop/<id>`.
-- *(This assumes the loop system — `@carbon/harness` + `@carbon/checks` — is on `main`. Until that merges, the gate tooling only exists on the loop-system branch, so base off that branch instead.)*
+## Step 0: Isolated worktree off origin/main — always first
 
-## 1. Bind the work item
-- If given a binding path, read it. Otherwise write one from the request (see `llm/loops/README.md` for the format) and save it to `llm/loops/runs/<id>/binding.loop.md` (run-loop also persists the binding there automatically).
-- Parse it to validate the shape:
-  `pnpm --filter @carbon/harness exec tsx -e "import {parseBinding} from '@carbon/harness'; import {readFileSync} from 'node:fs'; console.log(JSON.stringify(parseBinding(readFileSync('<path>','utf8'))))"`
-- The binding has `id`, `kind` (bug|feature|usability|copy), `title`, `risk`, and an `acceptance` list. **Each acceptance criterion is the definition of done** — you are not finished until each is satisfied and provable.
+```bash
+git fetch origin main
+crbn new loop/<id> --base origin/main --yes   # prints the worktree path
+```
 
-## 2. The cycle (repeat until acceptance met OR the human stops)
-For each iteration:
+Do all loop work in that worktree, on branch `loop/<id>`. **Never run on
+`main`, and never stack on another feature branch.**
 
-1. **Doer — make the smallest change toward the weakest-covered acceptance criterion.** Do not batch unrelated changes.
-   - **UI work:** FIRST find the nearest existing screen/component that matches and *copy its layout/components/approach* — do not design from concepts. Cite the precedent path. (See the design's exemplar/precedent rule.)
-   - **ERP-domain features** (accounting, RMAs, costing, tax, inventory valuation, …): FIRST use the `research` skill to ground the design in how real ERPs do it. Do not invent domain logic.
-   - **Schema/migration changes:** after the change, regenerate types (`pnpm run generate:types`) BEFORE typechecking — a typecheck against stale types is a false green.
-   - **Module code:** keep one `<module>.service.ts` and one `<module>.models.ts` per module; never scatter new service/models files.
+## Step 1: Bind the work item
 
-2. **Gate.** Run these in order; every applicable one must be green:
-   - **a. Floor gates** — before running any gate, auto-format with `biome check --write --no-errors-on-unmatched` and stage the fixes (this is the `check-and-commit` skill's Gate 2 applied in-loop — every commit must be biome-clean). Then run `pnpm --filter @carbon/harness gates` (lint + `@carbon/checks` conformance + clobbers), plus `typecheck` for each package you touched (per-package, never whole-repo).
-   - **b. Behavior gate — MANDATORY for ANY change that affects user-facing behavior.** Choose the **simplest sufficient proof** from this hierarchy:
-     1. **Unit / integration test (red→green)** — Write a test that fails on the old behavior and passes on the new. **Preferred when applicable:** logic changes, data transformations, component rendering, conditional visibility, service behavior, and anything testable without a running stack. Fast, deterministic, CI-portable, and it lives in the repo as a regression guard.
-     2. **Agent-browser visual verification** — Boot the app (`crbn up`), `/login`, drive the affected screen with `agent-browser`: reproduce the exact failing condition, capture a **BEFORE screenshot**, confirm the fix, capture an **AFTER screenshot**. **Required when the proof is inherently visual** — layout, spacing, overflow, responsive behavior, animation, or anything where seeing the pixels is the only meaningful assertion.
-     3. **CLI / script proof** — For non-UI changes (migrations, CLI tools, API endpoints), a command that demonstrates the correct output before and after.
-     - **The principle: take the simplest possible path to provability.** If a unit test proves it, use a unit test. If it genuinely requires seeing pixels, use agent-browser. Never choose a heavier method when a lighter one gives the same confidence.
-     - **At least one proof method must pass.** A user-facing change without proof is not done — the gate is flexible about *how*, not *whether*.
-     - **If visual verification is needed and the stack cannot be brought up, the loop is BLOCKED** — stop and surface to the human. Do NOT open a "done" PR with verification "pending."
-   - **c. Correctness (logic bug/feature)** — the **reproduce→fix→same-path** test: write a test that fails on the bug, fix, watch the *same* test pass (a unit test, or the agent-browser playbook recorded in step b).
-   - If any gate fails: fix it, or revert this iteration's change.
+The binding is a `.loop.md` file with frontmatter `id`, `kind`
+(`bug|feature|usability|copy`), `title`, `risk`, optional `issue`, and an
+`acceptance` list (field reference: `packages/harness/AGENTS.md`). If given a
+binding path, read it; otherwise write one from the request to
+`.ai/runs/<id>/binding.loop.md` (gitignored runtime). Validate the shape:
 
-3. **Judge — dispatch a separate review subagent** (NOT yourself) to check the diff against the acceptance criteria and the design rules. Do not grade your own homework. The judge does **not** return a holistic "looks good" — a single overall verdict rewards fluent-looking diffs that are subtly wrong. Instead it uses **binary decomposition**:
-   - **Decompose each acceptance criterion + applicable design rule into atomic yes/no questions** — one verifiable property per question (e.g. "Does the change handle the 4+-label case the binding names?", "Is the precedent component actually reused, not re-implemented?", "Are audit fields + `companyId` set on every new write?"). Concrete, checkable criteria are what decomposition is *for*.
-   - **Answer each question yes/no with a one-line justification grounded in a specific diff hunk or gate artifact** (file:line, screenshot, test name). A "yes" with no citation is a fail.
-   - **Enumerate failure modes explicitly** — regressions, missed edge cases, fabricated/placeholder values, broken multi-tenancy — rather than trusting that a coherent-looking diff is correct.
-   - **Approve only if every binary question passes.** Any "no" → the judge sends work back, and **the specific failed question becomes the next iteration's weakest-covered target** (§2.1) — so a rejection is directly actionable, not a vague "improve this."
-   - **Do not over-decompose inherently holistic criteria.** For genuinely subjective acceptance (does this *feel* polished, is the copy clear), keep the judgment holistic — forcing atomic checks on a tolerant criterion produces a harsher judge that diverges from human taste. Decompose the verifiable; judge the subjective as a whole.
-   - Use a **capable model** for the judge — decomposition surfaces failure modes but does not rescue a weak evaluator. Keep the question set tight; do not let it accrete unactionable boilerplate over iterations.
+```bash
+pnpm --filter @carbon/harness exec tsx -e "import {parseBinding} from '@carbon/harness'; import {readFileSync} from 'node:fs'; console.log(JSON.stringify(parseBinding(readFileSync('<path>','utf8'))))"
+```
 
-4. **Decide + ledger.** Keep the change iff **every gate is green — including the behavior gate (§2b) with sufficient proof** — AND the judge approves; otherwise revert it. Append one entry to `llm/loops/runs/<id>/ledger.jsonl`:
-   `pnpm --filter @carbon/harness exec tsx -e "import {appendLedger} from '@carbon/harness'; appendLedger('llm/loops/runs/<id>/ledger.jsonl', {iteration: <n>, change: '<summary>', gates: {<gate>: <bool>}, decision: '<keep|revert>', reason: '<why>', at: new Date().toISOString()})"`
-   (The harness has no clock — you supply `at`.)
+**Each acceptance criterion is the definition of done** — you are not finished
+until every one is satisfied and provable.
 
-5. **Terminate?** If every acceptance criterion is met and provable → go to Finish. If you plateau (no progress across iterations) or the human stops → stop and report.
+The binding's **markdown body is grooming context** and is fed to the doer,
+judge, and behavior gate: resolved questions, repro steps, test-data hints,
+precedent pointers. Ambiguities should be settled there — at grooming time,
+on the issue — before the loop ever starts, not asked mid-loop.
 
-## 2b. Post-build AGENTS.md freshness audit
-After the cycle converges (all acceptance criteria met, gates green), run a
-freshness audit before opening the PR:
+## Step 2: The cycle (repeat until acceptance met or the human stops)
 
-1. List every package and module directory the branch touched:
+### 2.1 Doer
+
+Make the **smallest change toward the weakest-covered acceptance criterion**.
+Never batch unrelated changes. Domain rules:
+
+- **UI work**: FIRST find the nearest existing screen/component and copy its
+  layout/components/approach — cite the precedent path. Never design from concepts.
+- **ERP-domain logic** (accounting, RMA, costing, valuation, tax…): FIRST run
+  `/research` — never invent domain logic.
+- **Schema changes**: `pnpm run generate:types` after the migration, BEFORE
+  typechecking (stale types make typecheck a false green).
+- **Module code**: one `{module}.service.ts` + one `{module}.models.ts`.
+
+### 2.2 Gate
+
+Run in order; every applicable gate must be green:
+
+a. **Floor gates** — format first, then the harness gate suite (lint +
+   `@carbon/checks` conformance + clobber detection), then scoped typechecks:
+
+   ```bash
+   pnpm exec biome check --write --no-errors-on-unmatched <changed paths>
+   pnpm --filter @carbon/harness gates
+   pnpm exec turbo run typecheck --filter=<pkg>   # per touched package, never whole-repo
+   ```
+
+b. **Behavior gate — mandatory for ANY user-facing change.** Choose the
+   **simplest sufficient proof**:
+
+   1. **Unit/integration test (red→green)** — preferred whenever the behavior is
+      testable without a running stack: logic, transformations, rendering,
+      conditional visibility, service behavior. Fast, CI-portable, lives on as a
+      regression guard.
+   2. **Agent-browser visual verification** — required when the proof is
+      inherently visual (layout, spacing, overflow, animation): boot with
+      `crbn up`, `/auth`, drive the screen per `/test`, capture BEFORE and
+      AFTER screenshots.
+   3. **CLI/script proof** — for non-UI changes (migrations, endpoints): a
+      command demonstrating correct output.
+
+   Never pick a heavier method when a lighter one gives the same confidence.
+   The proof attempt has **three outcomes**, and the distinction matters:
+
+   - **Proved** — you saw the behavior work. The gate is green.
+   - **Disproved** — you reached the relevant state and the behavior is still
+     wrong. The gate is red: fix or revert this iteration.
+   - **Unverifiable** — you could not reach the state either way (test data you
+     can't construct at reasonable cost, stack won't boot, login/environment
+     failure). This is **absence of proof, not disproof** — do NOT revert
+     working, judge-approved code over it. Record exactly what proof is missing
+     and what a human would need to do, keep going, and ship the PR **flagged
+     for human verification** (draft + `agent:needs-verification`, see Step 4).
+     Never spend the whole behavior budget grinding on test-data generation —
+     stop early and mark it unverifiable.
+
+c. **Correctness (bug fixes)** — reproduce→fix→same-path: the test (or recorded
+   browser playbook) that failed on the bug must pass after the fix.
+
+Any gate fails → fix it or revert this iteration's change.
+
+### 2.3 Judge — a separate subagent, never yourself
+
+Dispatch a review subagent to check the diff against the acceptance criteria
+and design rules. Do not grade your own homework, and do not accept a holistic
+"looks good":
+
+- **Decompose** each acceptance criterion + applicable design rule into atomic
+  yes/no questions (one verifiable property each: "Is the precedent component
+  actually reused, not re-implemented?", "Are audit fields + `companyId` set on
+  every new write?").
+- Each answer needs a **one-line justification citing a specific diff hunk or
+  artifact** (file:line, test name, screenshot). A "yes" without a citation is a fail.
+- **Enumerate failure modes explicitly** — regressions, missed edge cases,
+  placeholder values, broken multi-tenancy.
+- Approve only if every question passes. Any "no" → that question becomes the
+  next iteration's weakest-covered target.
+- Keep genuinely subjective criteria (copy clarity, polish) holistic — don't
+  force atomic checks onto matters of taste.
+- **Disputed criteria are questions, not targets.** If a criterion rests on a
+  premise the code contradicts (the described mechanism doesn't exist) or
+  hinges on a product decision no agent can make, don't iterate against its
+  literal text — record it as *disputed* with a one-line question, exclude it
+  from the unmet set, and surface the question on the PR/issue. Iterating
+  cannot answer a product question; grooming can.
+
+### 2.4 Decide + ledger
+
+Keep the change iff **every gate is green AND the judge approves**; otherwise
+revert it. An *unverifiable* behavior proof does not make the gate red — the
+change is kept (if the judge approves) and the proof gap travels with it to the
+PR as a needs-verification flag. Append one entry per iteration:
+
+```bash
+pnpm --filter @carbon/harness exec tsx -e "import {appendLedger} from '@carbon/harness'; appendLedger('.ai/runs/<id>/ledger.jsonl', {iteration: <n>, change: '<summary>', gates: {<gate>: <bool>}, decision: '<keep|revert>', reason: '<why>', at: new Date().toISOString()})"
+```
+
+(The harness has no clock — you supply `at`.)
+
+### 2.5 Terminate?
+
+All criteria met (disputed ones excluded, unverifiable proofs flagged) → Step 3.
+No progress across iterations (plateau) or the human stops → stop and report
+honestly — **but never discard kept work**: if any iteration was kept
+(gate-green + judge-approved), still open the PR per Step 4, marked *partial*.
+
+## Step 3: Post-build freshness audit
+
+Before opening the PR:
+
+1. List touched package/module dirs:
    `git diff --name-only origin/main...HEAD | grep -E '^(packages|apps/erp/app/modules)/' | cut -d/ -f1-2 | sort -u`
-   (for modules: cut at depth 5 to get `apps/erp/app/modules/{name}`)
-2. For each touched directory that has an AGENTS.md, read the AGENTS.md and
-   check whether any concrete references (function names, table names, exports,
-   import paths) are stale relative to the code you just wrote.
-3. Fix any stale references in the same branch — small, scoped edits.
-4. If the build revealed a new pitfall or lesson, append it to `.ai/lessons.md`
-   using the `Context → Problem → Rule → Applies to` format.
+   (modules: cut to depth 5 for `apps/erp/app/modules/{name}`).
+2. For each with an `AGENTS.md`, fix any reference your changes made stale —
+   small scoped edits in the same branch.
+3. New pitfall discovered? Append it to `.ai/lessons.md`
+   (`Context → Problem → Rule → Applies to`).
 
-This is the **self-healing loop** — every build is a freshness audit.
+## Step 4: Finish — land a gated PR
 
-## 3. Finish — land a gated PR
-- Run the `check-and-commit` skill on the final branch state before opening the PR: run `biome check --write --no-errors-on-unmatched`, stage any fixes, then the full gate suite (§2a). This is the final format + lint + type pass — ensures the PR goes up biome-clean.
-- Embed the **proof captured by the behavior gate (§2b)** in the PR body:
-  - **Unit/integration tests:** name the test file(s) and the red→green assertion(s)
-  - **Visual verification:** embed before/after screenshots
-  - **CLI/script proof:** include the command and its output
-  A PR without proof that the behavior gate passed means the loop wasn't verified — do not open it.
-- Open a **gated PR via the `gh` CLI** (`gh pr create`). Never merge. The PR body must:
-  - state the **design rationale** (the precedent you copied; any `research`),
-  - list, per acceptance criterion, **which gate proves it and how** (test name, screenshots, or CLI output),
-  - embed **before/after screenshots** for visual changes,
-  - summarize the **ledger** (iterations, what was kept/reverted and why).
-- **Surface every design decision for the human to approve / comment / improve** — design is never shipped silently.
-- **Loop artifacts stay out of source.** `llm/loops/runs/` (bindings, ledger, outcome, screenshots) is gitignored *runtime* — never commit it to the working branch. The **ledger summary goes in the PR body**, and **before/after screenshots are embedded in the PR body** from a shared, non-merging **`loop-artifacts`** branch (under `llm/loops/runs/<id>/screenshots/`, referenced by raw URL) — never committed to the product tree. (`@carbon/harness`'s `openPr` does this hosting automatically.)
+1. Final pass: run `/check-and-commit` on the branch state (biome + gates), so
+   the PR goes up clean.
+2. Open the PR with `gh pr create` — **never merge**. The body must include:
+   - the design rationale (precedent copied; research cited),
+   - per acceptance criterion: **which gate proves it and how** (test name,
+     before/after screenshots, or CLI output),
+   - a ledger summary (iterations, kept/reverted and why),
+   - **open questions** (disputed criteria, assumptions made instead of asking).
+3. If any proof was unverifiable, or the loop ended partial: open the PR as a
+   **draft** with the `agent:needs-verification` label and a warning section
+   stating exactly what a human must verify (and how) before merge. Flagged,
+   never silently dropped — and never presented as fully proven.
+4. Loop artifacts (`.ai/runs/<id>/` — binding, ledger, screenshots) are
+   gitignored runtime and never committed to the product tree; the harness's
+   `openPr` hosts screenshots for embedding.
+5. Surface every design decision for the human to approve or improve — design
+   is never shipped silently.
 
-## Guardrails (non-negotiable)
-- **A user-facing change is never done without sufficient proof (§2b).** The proof must use the simplest method from the provability hierarchy — unit test when applicable, visual verification when inherently visual, CLI proof for non-UI. If visual verification is needed and the stack can't boot, the loop is BLOCKED — stop and surface, not "done."
-- Never auto-merge; the human approves the PR.
-- Never run on `main`.
-- Surface design changes to the human.
-- Supervised only: do not background, schedule, or fan out across worktrees (later versions).
+## Guardrails — non-negotiable
+
+- A user-facing change without sufficient proof is never presented as *done* —
+  it ships as a **draft PR flagged `agent:needs-verification`** naming the
+  missing proof. Absence of proof is not disproof; discarding gate-green,
+  judge-approved work because verification was impossible is a bug, not rigor.
+- Questions belong to grooming, not the loop. Never stop mid-loop to ask about
+  preference or ambiguity — choose the precedent-matching interpretation,
+  record the assumption, surface it on the PR. Reserve BLOCKED for hard
+  impossibilities (missing credentials, destructive/production actions,
+  a premise the code flatly contradicts).
+- Never auto-merge; never run on `main`; never background or fan out — this is
+  the supervised loop.
+- If blocked, say BLOCKED and why — and still salvage kept iterations as a
+  partial draft PR.
 
 ## Growing this
-- Add a floor gate: append a `{ id, cmd }` to `FLOOR_GATES` in `@carbon/harness/src/gates.ts`.
-- Add a binding field: extend the frontmatter + `parseBinding`.
-- Provability hierarchy (unit test → visual → CLI) is **in** v1 (§2b). Richer gates (calibrated judge) and autonomy are deliberately out of v1.
+
+- New floor gate: append `{ id, cmd }` to `FLOOR_GATES` in
+  `packages/harness/src/gates.ts` (ask first — it raises the bar for all builds).
+- New binding field: extend the frontmatter + `parseBinding` in
+  `packages/harness/src/binding.ts`.
