@@ -44,7 +44,7 @@ Outer-loop scratch (`agent-state.db`, daily notes) lives on the OpenClaw box, no
 
 ## Binding Format
 
-Bindings live at `.ai/runs/<id>/binding.loop.md`. The parser (`parseBinding` in `binding.ts`) **only reads YAML frontmatter** — markdown body after `---` is supplementary context only.
+Bindings live at `.ai/runs/<id>/binding.loop.md`. The parser (`parseBinding` in `binding.ts`) reads the YAML frontmatter for structured fields; the **markdown body after the frontmatter is captured as `notes`** — grooming context (resolved questions, repro steps, test-data hints) that is injected into the doer, judge, and behavior-gate prompts. Put everything the loop needs to not ask questions there.
 
 ```markdown
 ---
@@ -67,7 +67,8 @@ Freeform notes / context for the loop (optional).
 | `title` | string | concise description |
 | `risk` | enum | `low` · `med` · `high` (⚠️ `med`, not `medium`) |
 | `acceptance` | string[] | concrete, testable criteria (contiguous `- item` lines) |
-| `issue` | number? | GitHub issue number (PR body gets `Closes #<n>`) |
+| `issue` | number? | GitHub issue number (PR body gets `Closes #<n>`; `Related to #<n>` on partial PRs) |
+| `notes` | string? | markdown body — grooming context fed to doer/judge/behavior prompts |
 
 **Validation:** `parseBinding` requires `id` and a valid `kind`. Risk defaults to `"low"` if absent. Acceptance must be inside the frontmatter block as contiguous `- item` lines — a blank line or another key ends the list.
 
@@ -104,10 +105,16 @@ Plus **per-package typecheck** for each package the doer touched.
 
 | State | Meaning |
 |-------|---------|
-| `shipped` | green committed state, PR opened (or updated) |
-| `blocked` | doer reported a blocker, or behavior gate can't boot the stack |
+| `shipped` | green committed state, PR opened (or updated) — possibly flagged `unverified` |
+| `blocked` | doer reported a hard blocker (impossibility, never a question of preference) |
 | `plateau` | `plateauAfter` consecutive iterations with no kept change |
 | `error` | unexpected failure |
+
+`LoopOutcome` also carries:
+
+- **`unverified?: string[]`** — proof gaps on kept work: the behavior gate could not verify **either way** (missing test data it couldn't construct, capped session, stack down). Absence of proof is *not* disproof — the work still ships, as a **draft PR** labeled `agent:needs-verification` whose body names exactly what a human must verify. Only a gate that *reached the state and saw the change not work* (`verdict: "failed"`) reverts the iteration.
+- **`questions?: string[]`** — product questions raised mid-loop: acceptance criteria the judge *disputed* (wrong premise / needs a product decision — excluded from `unmet` so the loop doesn't churn on them) plus assumptions the doer made instead of blocking. The outer loop posts these back to the issue so grooming resolves them before any re-dispatch.
+- **`prUrl?`** — set for shipped runs *and* for **salvage PRs**: when a run ends `plateau`/`blocked` but kept (gate-green, judge-approved) commits exist, `run-loop` still opens a draft PR marked `[partial]` (`Related to #<n>`, never `Closes`) instead of letting the worktree GC discard paid-for work.
 
 The outer loop reads `outcome.json` to decide next steps (report, label, escalate).
 

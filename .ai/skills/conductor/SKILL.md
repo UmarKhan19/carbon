@@ -38,6 +38,11 @@ pnpm --filter @carbon/harness exec tsx -e "import {parseBinding} from '@carbon/h
 **Each acceptance criterion is the definition of done** — you are not finished
 until every one is satisfied and provable.
 
+The binding's **markdown body is grooming context** and is fed to the doer,
+judge, and behavior gate: resolved questions, repro steps, test-data hints,
+precedent pointers. Ambiguities should be settled there — at grooming time,
+on the issue — before the loop ever starts, not asked mid-loop.
+
 ## Step 2: The cycle (repeat until acceptance met or the human stops)
 
 ### 2.1 Doer
@@ -80,10 +85,20 @@ b. **Behavior gate — mandatory for ANY user-facing change.** Choose the
    3. **CLI/script proof** — for non-UI changes (migrations, endpoints): a
       command demonstrating correct output.
 
-   Never pick a heavier method when a lighter one gives the same confidence —
-   but at least one proof must pass. **If visual proof is needed and the stack
-   cannot boot, the loop is BLOCKED** — surface to the human; do not open a
-   "done" PR with verification pending.
+   Never pick a heavier method when a lighter one gives the same confidence.
+   The proof attempt has **three outcomes**, and the distinction matters:
+
+   - **Proved** — you saw the behavior work. The gate is green.
+   - **Disproved** — you reached the relevant state and the behavior is still
+     wrong. The gate is red: fix or revert this iteration.
+   - **Unverifiable** — you could not reach the state either way (test data you
+     can't construct at reasonable cost, stack won't boot, login/environment
+     failure). This is **absence of proof, not disproof** — do NOT revert
+     working, judge-approved code over it. Record exactly what proof is missing
+     and what a human would need to do, keep going, and ship the PR **flagged
+     for human verification** (draft + `agent:needs-verification`, see Step 4).
+     Never spend the whole behavior budget grinding on test-data generation —
+     stop early and mark it unverifiable.
 
 c. **Correctness (bug fixes)** — reproduce→fix→same-path: the test (or recorded
    browser playbook) that failed on the bug must pass after the fix.
@@ -108,11 +123,19 @@ and design rules. Do not grade your own homework, and do not accept a holistic
   next iteration's weakest-covered target.
 - Keep genuinely subjective criteria (copy clarity, polish) holistic — don't
   force atomic checks onto matters of taste.
+- **Disputed criteria are questions, not targets.** If a criterion rests on a
+  premise the code contradicts (the described mechanism doesn't exist) or
+  hinges on a product decision no agent can make, don't iterate against its
+  literal text — record it as *disputed* with a one-line question, exclude it
+  from the unmet set, and surface the question on the PR/issue. Iterating
+  cannot answer a product question; grooming can.
 
 ### 2.4 Decide + ledger
 
-Keep the change iff **every gate is green (including the behavior proof) AND
-the judge approves**; otherwise revert it. Append one entry per iteration:
+Keep the change iff **every gate is green AND the judge approves**; otherwise
+revert it. An *unverifiable* behavior proof does not make the gate red — the
+change is kept (if the judge approves) and the proof gap travels with it to the
+PR as a needs-verification flag. Append one entry per iteration:
 
 ```bash
 pnpm --filter @carbon/harness exec tsx -e "import {appendLedger} from '@carbon/harness'; appendLedger('.ai/runs/<id>/ledger.jsonl', {iteration: <n>, change: '<summary>', gates: {<gate>: <bool>}, decision: '<keep|revert>', reason: '<why>', at: new Date().toISOString()})"
@@ -122,8 +145,10 @@ pnpm --filter @carbon/harness exec tsx -e "import {appendLedger} from '@carbon/h
 
 ### 2.5 Terminate?
 
-All criteria met and provable → Step 3. No progress across iterations
-(plateau) or the human stops → stop and report honestly.
+All criteria met (disputed ones excluded, unverifiable proofs flagged) → Step 3.
+No progress across iterations (plateau) or the human stops → stop and report
+honestly — **but never discard kept work**: if any iteration was kept
+(gate-green + judge-approved), still open the PR per Step 4, marked *partial*.
 
 ## Step 3: Post-build freshness audit
 
@@ -145,19 +170,33 @@ Before opening the PR:
    - the design rationale (precedent copied; research cited),
    - per acceptance criterion: **which gate proves it and how** (test name,
      before/after screenshots, or CLI output),
-   - a ledger summary (iterations, kept/reverted and why).
-3. Loop artifacts (`.ai/runs/<id>/` — binding, ledger, screenshots) are
+   - a ledger summary (iterations, kept/reverted and why),
+   - **open questions** (disputed criteria, assumptions made instead of asking).
+3. If any proof was unverifiable, or the loop ended partial: open the PR as a
+   **draft** with the `agent:needs-verification` label and a warning section
+   stating exactly what a human must verify (and how) before merge. Flagged,
+   never silently dropped — and never presented as fully proven.
+4. Loop artifacts (`.ai/runs/<id>/` — binding, ledger, screenshots) are
    gitignored runtime and never committed to the product tree; the harness's
    `openPr` hosts screenshots for embedding.
-4. Surface every design decision for the human to approve or improve — design
+5. Surface every design decision for the human to approve or improve — design
    is never shipped silently.
 
 ## Guardrails — non-negotiable
 
-- A user-facing change without sufficient proof is never done.
+- A user-facing change without sufficient proof is never presented as *done* —
+  it ships as a **draft PR flagged `agent:needs-verification`** naming the
+  missing proof. Absence of proof is not disproof; discarding gate-green,
+  judge-approved work because verification was impossible is a bug, not rigor.
+- Questions belong to grooming, not the loop. Never stop mid-loop to ask about
+  preference or ambiguity — choose the precedent-matching interpretation,
+  record the assumption, surface it on the PR. Reserve BLOCKED for hard
+  impossibilities (missing credentials, destructive/production actions,
+  a premise the code flatly contradicts).
 - Never auto-merge; never run on `main`; never background or fan out — this is
   the supervised loop.
-- If blocked, say BLOCKED and why. Never report "done, verification pending".
+- If blocked, say BLOCKED and why — and still salvage kept iterations as a
+  partial draft PR.
 
 ## Growing this
 
