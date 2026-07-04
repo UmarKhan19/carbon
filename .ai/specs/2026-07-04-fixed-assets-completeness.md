@@ -12,11 +12,11 @@
 The fixed-asset subledger acquires, depreciates, and scraps — but cannot book a
 gain on sale (docs admit "no proceeds-based gain calculation"), impair
 (`writeDownAccountId` is a dead FK), accumulate construction costs (no CIP), or
-componentize (IAS 16 prerequisite for IFRS books). This spec adds four
-capabilities to `modules/accounting`: (1) disposal with proceeds — full or partial
-— posting gain/loss = proceeds − NBV to the class's `disposalAccountId`, linked to
-a sales invoice or direct cash proceeds; (2) an impairment document (asset or
-class scope) posting Dr `writeDownAccountId` / Cr accumulated depreciation with an
+componentize (IAS 16 prerequisite for IFRS books). This spec adds to
+`modules/accounting`: (1) disposal with proceeds — full or partial — posting
+gain/loss = proceeds − NBV to the class's `disposalAccountId`, linked to a sales
+invoice or direct cash proceeds; (2) an impairment document (asset or class scope)
+posting Dr `writeDownAccountId` / Cr accumulated depreciation with an
 `accumulatedImpairment` tracking column, re-basing future depreciation; (3) CIP
 classes accumulating costs from Fixed Asset PO lines and job costs, capitalized
 into a depreciating class via a transfer document; (4) parent/child component
@@ -26,50 +26,47 @@ obey the period-close matrix and posted-journal immutability.
 ## Problem Statement
 
 Verified against `20260524143827_fixed-assets.sql`, `accounting.server.ts`
-(`postDisposal` L37), `post-sales-invoice/index.ts` L578–800, and
-`docs/content/docs/reference/fixed-assets.mdx`:
+(`postDisposal` L37), `post-sales-invoice/index.ts` L578–800, and the docs
+(`docs/content/docs/reference/fixed-assets.mdx`):
 
-1. **Disposal ignores proceeds.** `postDisposal()` posts Dr accumulated
-   depreciation / Dr `writeOffAccountId` (NBV) / Cr asset at cost. The
-   sales-invoice path books proceeds as plain *revenue* and NBV to *write-off* —
-   gross, never netted. `fixedAssetDisposal.saleProceeds`/`gainLoss` columns exist
-   but no gain is ever computed against proceeds; `disposalAccountId` (NOT NULL on
-   every class) has **zero writers**. Cost 10,000, accum dep 4,000, sold 7,500
-   shows 7,500 revenue + 6,000 expense instead of a 1,500 gain. No partial disposal.
+1. **Disposal ignores proceeds.** `postDisposal()` posts Dr accum dep / Dr
+   `writeOffAccountId` (NBV) / Cr asset at cost; the sales-invoice path books
+   proceeds as plain *revenue* and NBV to *write-off* — gross, never netted.
+   `fixedAssetDisposal.saleProceeds`/`gainLoss` exist but no gain is computed;
+   `disposalAccountId` (NOT NULL on every class) has **zero writers**. Cost 10,000,
+   accum dep 4,000, sold 7,500 shows 7,500 revenue + 6,000 expense instead of a
+   1,500 gain. No partial disposal.
 2. **No impairment.** `writeDownAccountId` is required on every class and never
    referenced by any posting path; ASC 360/IAS 36 write-downs become manual JEs
-   the subledger never learns about — NBV overstated, over-depreciation thereafter.
+   the subledger never learns about — NBV overstated, over-depreciation after.
 3. **No CIP.** Fixed Asset PO lines post straight to the class asset account and
-   depreciation can start before in-service; job costs (self-constructed machinery
-   — Carbon's own customer base) can't reach an asset at all. No CIP aging.
+   depreciation can start before in-service; job costs (self-constructed
+   machinery — Carbon's customer base) can't reach an asset at all. No CIP aging.
 4. **No components.** No parent/child concept; IAS 16.43 componentization is a
-   prerequisite for IFRS books via the multi-book spec. No mid-life class transfer
-   either (wrong-class fixes mean dispose + re-create, destroying history).
+   prerequisite for IFRS books via the multi-book spec. No mid-life class
+   transfer either (wrong-class fixes mean dispose + re-create, losing history).
 
 ## Proposed Solution
 
 ### 1. Disposal with proceeds (full and partial)
 
-Extend the dispose flow (`$fixedAssetId.dispose` → `postDisposal()`):
+Extends the dispose flow (`$fixedAssetId.dispose` → `postDisposal()`).
 
 - **Proceeds source** — either a `salesInvoiceLine` of type `'Fixed Asset'` (link
   exists via `salesInvoiceLine.assetId`), or direct proceeds with a user-selected
   debit account (cash/clearing) for sales outside the invoicing flow.
 - **Journal** (`sourceType: 'Asset Disposal'`): Dr accumulated depreciation (incl.
-  impairment), Dr proceeds account (AR via invoice posting, or the selected cash
-  account), Cr asset at cost, balancing line to the class's **`disposalAccountId`**
-  — gain (credit) or loss (debit) = proceeds − NBV. The `post-sales-invoice` Fixed
-  Asset branch is rewritten to this pattern (proceeds stop hitting revenue; NBV
-  stops hitting write-off). `writeOffAccountId` remains the zero-proceeds
-  (scrapping) target — unchanged.
+  impairment), Dr proceeds account (AR via invoice posting, or the cash account),
+  Cr asset at cost, balancing line to the class's **`disposalAccountId`** — gain
+  (credit) or loss (debit) = proceeds − NBV. The `post-sales-invoice` Fixed Asset
+  branch is rewritten to this pattern (proceeds stop hitting revenue; NBV stops
+  hitting write-off). `writeOffAccountId` stays the zero-proceeds (scrapping) target.
 - **Partial disposal**: entered as quantity (e.g. 2 of 5 units) or value fraction,
   both resolving to `disposalFraction` (0 < f ≤ 1). Disposed cost and accumulated
   balances = balance × f (pro-rata); asset stays `Active` with reduced balances;
   `fixedAssetDisposal` records fraction + slices. `f = 1` is today's full disposal.
 
-### 2. Impairment
-
-New `fixedAssetImpairment` document, Draft → Posted:
+### 2. Impairment — new `fixedAssetImpairment` document, Draft → Posted
 
 - **Scope**: single asset, or a class (one line per Active asset, each with its
   own recoverable amount, prefilled with NBV). **Loss** = max(0, NBV −
@@ -83,8 +80,8 @@ New `fixedAssetImpairment` document, Draft → Posted:
   seventh NOT NULL account FK would force a breaking backfill of every class.
 - **Re-basing**: future depreciation = (recoverable − residual) over remaining
   life; `buildDepreciationLines()` subtracts `accumulatedImpairment` in its NBV
-  term. IAS 36 reversals are **out of scope** until multi-book adjustment books
-  exist — same staging as LCNRV reversals in GAP-3.
+  term. IAS 36 reversals: **out of scope** until multi-book adjustment books exist
+  — same staging as LCNRV reversals in GAP-3.
 
 ### 3. CIP — construction in progress
 
@@ -93,12 +90,12 @@ New `fixedAssetImpairment` document, Draft → Posted:
   `'Under Construction'`. Seed one CIP class per company group (all six account
   FKs point at the CIP account — NOT NULL satisfied, depreciation ones never post).
 - **Cost accumulation** — append-only `fixedAssetCipCost` rows, two sources:
-  1. **PO lines**: a Fixed Asset PO line pointing at a CIP asset posts Dr CIP
-     asset account (existing acquisition path, unchanged) and appends a row
-     (source `'Purchase Invoice'`, document line FK).
-  2. **Job costs**: a job (or cost slice) attached to a CIP asset posts Dr CIP
-     asset account / Cr WIP (`postingGroupInventory.workInProgressAccount`) and
-     appends a row (source `'Job'`). WIP-credit timing: open question below.
+  (1) **PO lines**: a Fixed Asset PO line pointing at a CIP asset posts Dr CIP
+  asset account (existing acquisition path, unchanged) and appends a row (source
+  `'Purchase Invoice'`, document line FK); (2) **job costs**: a job (or cost
+  slice) attached to a CIP asset posts Dr CIP asset account / Cr WIP
+  (`postingGroupInventory.workInProgressAccount`) and appends a row (source
+  `'Job'`) — WIP-credit timing is an open question below.
 - **Capitalization** = `fixedAssetTransfer` of type `'Capitalization'`: target
   class + in-service date; posts Dr target asset account / Cr CIP asset account
   at accumulated cost; sets `acquisitionCost`, `acquisitionDate`,
@@ -112,15 +109,15 @@ New `fixedAssetImpairment` document, Draft → Posted:
   cannot itself have children — trigger-enforced). Components are ordinary assets
   with their own class, method, life, and cost — depreciation/disposal/impairment
   work per component unchanged; the parent may carry residual cost (IAS 16.46
-  "remainder"). Register UI rolls children up under the parent. Componentization
-  here is the structural prerequisite for the multi-book spec
+  "remainder"); register UI rolls children up under the parent. Componentization
+  is the structural prerequisite for the multi-book spec
   (`.ai/specs/2026-07-04-multi-book.md`), whose per-book depreciation parameters
-  attach to components there.
-- **Class transfer** (type `'Reclassification'` on the same `fixedAssetTransfer`
-  table): Dr new / Cr old asset account at cost, Dr old / Cr new accumulated
-  depreciation account at accumulated amounts (skip lines where accounts match);
-  new `journalEntrySourceType` `'Asset Transfer'`. Method/life do **not** change
-  on transfer (that is an estimate change, edited on the asset directly).
+  attach to components.
+- **Class transfer** (type `'Reclassification'`, same `fixedAssetTransfer` table):
+  Dr new / Cr old asset account at cost, Dr old / Cr new accumulated-depreciation
+  account (skip lines where accounts match); new `journalEntrySourceType`
+  `'Asset Transfer'`. Method/life do **not** change on transfer (estimate change,
+  edited on the asset directly).
 
 ### 5. Period close and immutability
 
@@ -162,8 +159,7 @@ ALTER TYPE "journalEntrySourceType" ADD VALUE IF NOT EXISTS 'Asset Transfer';
 ALTER TABLE "fixedAsset"
   ADD COLUMN "parentFixedAssetId" TEXT REFERENCES "fixedAsset"("id") ON DELETE SET NULL,
   ADD COLUMN "accumulatedImpairment" NUMERIC NOT NULL DEFAULT 0;
-CREATE INDEX "fixedAsset_parentFixedAssetId_idx" ON "fixedAsset" ("parentFixedAssetId");
--- trigger: reject parentFixedAssetId whose target itself has a parent (depth 1)
+-- + index on parentFixedAssetId; trigger rejects a parent that itself has a parent
 
 -- fixedAssetClass: CIP flag
 ALTER TABLE "fixedAssetClass"
@@ -174,13 +170,14 @@ ALTER TABLE "fixedAssetDisposal"
   ADD COLUMN "salesInvoiceLineId" TEXT REFERENCES "salesInvoiceLine"("id") ON DELETE SET NULL,
   ADD COLUMN "proceedsAccountId" TEXT REFERENCES "account"("id"),
   ADD COLUMN "disposalFraction" NUMERIC NOT NULL DEFAULT 1,
-  ADD COLUMN "disposedCost" NUMERIC,                    -- snapshot: cost × fraction
-  ADD COLUMN "disposedAccumulatedDepreciation" NUMERIC, -- snapshot at posting
+  -- posting-time snapshots: cost × fraction, accumulated dep/impairment × fraction
+  ADD COLUMN "disposedCost" NUMERIC,
+  ADD COLUMN "disposedAccumulatedDepreciation" NUMERIC,
   ADD COLUMN "disposedAccumulatedImpairment" NUMERIC;
 
--- Impairment document (header + lines). All new tables: audit columns
--- (createdBy NOT NULL / createdAt / updatedBy / updatedAt, REFERENCES "user"("id")),
--- "customFields" JSONB on headers, companyId FK → company ON DELETE CASCADE.
+-- Impairment document (header + lines). All new tables: audit columns (createdBy/
+-- createdAt/updatedBy/updatedAt REFERENCES "user"("id")), "customFields" JSONB on
+-- headers, companyId FK → company ON DELETE CASCADE.
 CREATE TABLE "fixedAssetImpairment" (
     "id" TEXT NOT NULL DEFAULT id('faim'),
     "companyId" TEXT NOT NULL,
@@ -218,8 +215,7 @@ CREATE TABLE "fixedAssetCipCost" (
     "costDate" DATE NOT NULL,
     "journalId" TEXT REFERENCES "journal"("id") ON DELETE SET NULL,
     CONSTRAINT "fixedAssetCipCost_pkey" PRIMARY KEY ("id", "companyId")
-);
-CREATE INDEX "fixedAssetCipCost_fixedAssetId_idx" ON "fixedAssetCipCost" ("fixedAssetId");
+);  -- + index on fixedAssetId
 
 -- Capitalization + reclassification (Draft→Posted lifecycle like fixedAssetImpairment)
 CREATE TABLE "fixedAssetTransfer" (
@@ -250,20 +246,18 @@ CREATE TABLE "fixedAssetTransfer" (
 
 - `accounting.models.ts`: extend `fixedAssetDisposalValidator` (proceeds source,
   `salesInvoiceLineId` | `proceedsAccountId` + amount, quantity/fraction); new
-  `fixedAssetImpairmentValidator`, `fixedAssetTransferValidator`; status arrays
-  gain `'Under Construction'`.
+  impairment + transfer validators; status arrays gain `'Under Construction'`.
 - `accounting.service.ts`: CRUD for impairments, transfers, CIP costs;
   `getCipAging`; `getFixedAssetComponents` — all `(client, args)` → `{data,error}`.
 - `accounting.server.ts` (Kysely transactions): `postDisposal()` gains proceeds +
   fraction handling; new `postImpairment()`, `postTransfer()`, `attachJobCostToCip()`.
-- `accounting.utils.ts`: `buildDepreciationLines()` subtracts
-  `accumulatedImpairment` in its basis term; excludes `'Under Construction'`.
+- `accounting.utils.ts`: `buildDepreciationLines()` subtracts `accumulatedImpairment`
+  in its basis term; excludes `'Under Construction'`.
 - Edge functions: `post-sales-invoice` Fixed Asset branch → gain/loss pattern;
   `post-receipt`/`post-purchase-invoice` append `fixedAssetCipCost` rows when the
   target asset's class is CIP (GL lines unchanged — CIP class's own asset account).
 - Routes: `x+/fixed-asset+/$fixedAssetId.{dispose,transfer,components}`;
-  `x+/impairment+/{new,$impairmentId,$impairmentId.post}`;
-  `x+/accounting+/cip-aging`.
+  `x+/impairment+/{new,$impairmentId,$impairmentId.post}`; `x+/accounting+/cip-aging`.
 
 ## UI Changes
 
@@ -271,11 +265,11 @@ CREATE TABLE "fixedAssetTransfer" (
   asset's Fixed Asset lines, or direct account + amount) and partial-disposal
   quantity/fraction input with live gain/loss preview.
 - New `FixedAssetImpairmentForm` (scope toggle, per-line recoverable amounts,
-  computed loss column) + impairments table; new `FixedAssetTransferForm` (type,
-  target class, in-service date), reused as the "Capitalize" action on CIP assets.
+  computed loss) + table; new `FixedAssetTransferForm` (type, target class,
+  in-service date), reused as the "Capitalize" action on CIP assets.
 - `FixedAssetForm`: parent-asset combobox; register groups components under
-  parents; NBV column = cost − accum dep − accum impairment.
-- CIP aging report page (buckets by first-cost age, drill to cost ledger).
+  parents; NBV column = cost − accum dep − accum impairment. CIP aging report
+  page (buckets by first-cost age, drill to cost ledger).
 
 ## Acceptance Criteria
 
@@ -293,24 +287,22 @@ CREATE TABLE "fixedAssetTransfer" (
       (= 4,500/36), not 166.67.
 - [ ] Class-scope impairment creates one line per Active asset, prefilled with
       each NBV; lines with recoverable ≥ NBV post nothing.
-- [ ] CIP asset receives a 6,000 Fixed Asset PO line (via purchase-invoice
-      posting) and a 2,500 job-cost attachment: two `fixedAssetCipCost` rows; GL
-      shows 8,500 Dr in the CIP asset account (2,500 credited from WIP); status
-      `Under Construction`; appears in CIP aging; excluded from depreciation runs.
+- [ ] CIP asset receives a 6,000 Fixed Asset PO line (purchase-invoice posting) +
+      a 2,500 job-cost attachment: two `fixedAssetCipCost` rows; 8,500 Dr in the
+      CIP asset account (2,500 credited from WIP); `Under Construction`; shown in
+      CIP aging; excluded from depreciation runs.
 - [ ] Capitalizing it into Machinery & Equipment, in-service 2026-08-01: Dr
       Machinery asset account 8,500 / Cr CIP asset account 8,500; `acquisitionCost`
       8,500, `depreciationStartDate` 2026-08-01, `Active`; August run depreciates it.
 - [ ] Component with `parentFixedAssetId`, own class and 60-month life,
       depreciates independently; parenting under an asset that itself has a
-      parent is rejected.
-- [ ] Reclassification posts cost + accumulated-depreciation reclass lines,
-      skipping lines where source and target accounts are identical.
-- [ ] Posting any of these dated into a Closed period fails with the standard
+      parent is rejected. Reclassification posts cost + accumulated-depreciation
+      reclass lines, skipping lines where source and target accounts match.
+- [ ] Posting any of these into a Closed period fails with the standard
       closed-period error; posted documents reject edits (immutability trigger
-      pattern); the UI offers reversal instead.
-- [ ] All new tables have four RLS policies + `companyId` scoping;
-      `pnpm exec turbo run typecheck --filter=erp` passes after
-      `pnpm run generate:types`.
+      pattern) and the UI offers reversal instead.
+- [ ] All new tables have four RLS policies + `companyId` scoping; `pnpm exec
+      turbo run typecheck --filter=erp` passes after `pnpm run generate:types`.
 
 ## Risks
 
@@ -333,26 +325,25 @@ CREATE TABLE "fixedAssetTransfer" (
       pro-rata cost/accumulated split. (Resolution 1.)
 - [x] Impairment credit: new account column or contra? — **Resolved:** contra in
       the existing accumulated-depreciation account + `accumulatedImpairment`
-      tracking column; no new NOT NULL account FK. (Resolution 2 + Decision 4.)
-- [x] CIP cost sources? — **Resolved:** Fixed Asset PO lines and job costs both
+      column; no new NOT NULL account FK. (Resolution 2 + Decision 4.)
+- [x] CIP cost sources? — **Resolved:** Fixed Asset PO lines + job costs both
       accumulate onto a CIP asset; capitalization transfers to a depreciating
-      class, depreciation starts at in-service date. (Resolution 3.)
+      class, depreciation starting at in-service date. (Resolution 3.)
 - [x] Components for IFRS? — **Resolved:** one-level parent/child, independent
-      lives/methods; book-specific parameters are the multi-book spec's layer.
-      (Resolution 4.)
+      lives/methods; book-specific parameters are the multi-book spec's layer. (Resolution 4.)
 - [x] Depreciation scheduling / close checks here? — **Resolved:** no — the
-      close-automation spec owns scheduled runs and close-readiness; this spec
-      only excludes `Under Construction` from runs. (Resolution 5.)
+      close-automation spec owns them; this spec only excludes
+      `Under Construction` from runs. (Resolution 5.)
 - [ ] **Job → CIP WIP credit timing:** credit WIP at attachment (cost leaves the
       job immediately) vs at capitalization (WIP holds until in-service).
       Recommended: at attachment — matches SAP AuC settlement, keeps WIP clean at
-      close — but it changes production job costing, and CIP-attached jobs must be
-      blocked from normal completion costing. Cross-module contract → needs sign-off.
-- [ ] **Fate of the standalone "Sell" flow:** `$fixedAssetId.sell` creates a sales
-      order at book value; the invoice posts revenue. Once disposal owns gain/loss,
-      keep Sell as the invoice-generating front end (posting rewritten to net to
-      `disposalAccountId` — recommended) or fold it into the dispose form? Changes
-      what customers see on posted invoices' GL → needs confirmation.
+      close — but it changes production job costing, and CIP-attached jobs must
+      be blocked from normal completion costing. Cross-module → needs sign-off.
+- [ ] **Fate of the standalone "Sell" flow:** `$fixedAssetId.sell` creates a
+      sales order at book value; the invoice posts revenue. Keep Sell as the
+      invoice-generating front end with its posting rewritten to net to
+      `disposalAccountId` (recommended), or fold it into the dispose form?
+      Changes posted invoices' GL → needs confirmation.
 
 ## Changelog
 
