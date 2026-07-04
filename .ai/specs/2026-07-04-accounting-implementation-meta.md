@@ -34,7 +34,7 @@ Waves are a scheduling convenience; the truth is the edge list. `⚠ spec-first`
 | Issue | Workstream | Spec status | Hard deps | Soft deps / coordination |
 |---|---|---|---|---|
 | [#1030](https://github.com/crbnos/carbon/issues/1030) | FX convention normalization | spec exists — **3 open questions to resolve in-issue first** | — | ship as one coordinated PR |
-| [#1031](https://github.com/crbnos/carbon/issues/1031) | Period close + posted-record immutability | spec + plan exist (delta banner) | — | land before #1036 (shared `post-*` surface) |
+| [#1031](https://github.com/crbnos/carbon/issues/1031) | Period close + posted-record immutability + **NetSuite-style close checklist** | spec + plan exist (two delta banners; plan Addendum Tasks 17–20) | — | land before #1036 (shared `post-*` surface); seeds the checklist registration surface downstream close tasks use |
 | [#1032](https://github.com/crbnos/carbon/issues/1032) | Document approvals + SoD reporting | spec exists — `/plan` next | — | **highest priority** |
 | [#1033](https://github.com/crbnos/carbon/issues/1033) | ITGC hardening | ⚠ spec-first (auth portions) | — | SOC 2 evidence depends on it |
 | [#1034](https://github.com/crbnos/carbon/issues/1034) | Bank reconciliation Phase 1 | spec + plan exist (delta banner) | #1030 | |
@@ -79,7 +79,7 @@ Rendered graph: see [#1060](https://github.com/crbnos/carbon/issues/1060) (merma
 7. **Close-out**: on merge — check the issue off in #1060; tick the roadmap checkbox; update the spec's changelog (and move to `implemented/` when fully done); if the work changed any assumption in this meta spec or the DAG, update this file in the same PR.
 8. **New specs as needed**: any discovery that meets the spec-writing triggers (new module, 3+ files, data-model change) gets its own spec under the standard flow and, if it's a new unit of work, a new issue wired into the DAG here.
 
-Coordination rules: issues sharing the `post-*` edge-function surface (#1030, #1031, #1036, #1047) must rebase on each other's merged state — do not run two of them concurrently. The six Phase-∅ specs carry ⚠ delta banners on their plans; apply the deltas before executing.
+Coordination rules: issues sharing the `post-*` edge-function surface (#1030, #1031, #1036, #1047) must rebase on each other's merged state — do not run two of them concurrently. The six Phase-∅ specs carry ⚠ delta banners on their plans; apply the deltas before executing. **Close-checklist registration**: #1031 ships the persisted checklist (`periodCloseTaskDefinition`/`periodCloseTask`, 9 seeded tasks); any later workstream that adds a period-end activity (#1039 depreciation/accruals, #1042/#1046 bank rec completeness, #1048 revenue recognition, #1050 FX revaluation + consolidated rates) delivers its close integration by **registering a task definition** (with an auto-check where the state is computable) — never by inventing a parallel checklist mechanism.
 
 ## Out of scope for agents
 
@@ -87,4 +87,5 @@ SOC 1/SOC 2/ISO 27001 evidence programs, auditor selection, PITR/DR contracts, a
 
 ## Changelog
 
+- 2026-07-04: Period-closing scope expanded at user direction to include the NetSuite-style persisted close checklist (#1031 row updated; issues #1031/#1039/#1048/#1050 bodies updated). New coordination rule: downstream period-end workstreams integrate by registering `periodCloseTaskDefinition` rows, never by building parallel checklist mechanisms. DAG unchanged (no new nodes or edges).
 - 2026-07-04: Created. 30 workstream issues (#1030–#1059) + tracking issue #1060 opened; DAG defined; execution protocol set. All program-level open questions were resolved 2026-07-03/04 (see the readiness spec); per-workstream questions resolve in-issue at each spec gate.
