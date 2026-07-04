@@ -70,9 +70,8 @@ best-effort from natural postings.
   `journalLineDimension.valueId` already points at `dimensionValue.id` for
   non-entity dimensions. The `dimensionValues` view's `entityType = 'Custom'`
   filter widens to `IN ('Custom', 'Segment')`.
-- Reserved semantics, service-enforced: the Segment dimension cannot be
-  renamed, deleted, or deactivated, and is hidden from the manual-JE
-  `DimensionSelector` — derivation owns it.
+- Reserved semantics, service-enforced: it cannot be renamed, deleted, or
+  deactivated, and is hidden from the manual-JE selector — derivation owns it.
 - **Segment attributes as columns** (no mapping tables):
   - `costCenter."segmentId"` — nullable FK to `dimensionValue`. Effective
     segment = own value, else nearest ancestor's via `parentCostCenterId`
@@ -87,9 +86,8 @@ best-effort from natural postings.
 
 ### 2. Derivation + server-side required-dimension enforcement
 
-One SQL function, one trigger pair — DB-level so every path (service role,
-edge functions, plpgsql, PostgREST) is bound, per the readiness audit's
-Decision 1 precedent (`20260702044133_period-close-lifecycle.sql`).
+One SQL function, one trigger pair — DB-level so every path is bound, per the
+readiness audit's Decision 1 precedent (`20260702044133_period-close-lifecycle.sql`).
 
 - **`resolve_segment(p_company_id, p_cost_center_id, p_item_posting_group_id,
   p_source_type)`** — the precedence chain: cost center's effective segment

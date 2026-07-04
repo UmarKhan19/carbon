@@ -36,33 +36,34 @@ Waves are a scheduling convenience; the truth is the edge list. `⚠ spec-first`
 | [#1030](https://github.com/crbnos/carbon/issues/1030) | FX convention normalization | spec exists — **3 open questions to resolve in-issue first** | — | ship as one coordinated PR |
 | [#1031](https://github.com/crbnos/carbon/issues/1031) | Period close + posted-record immutability + **NetSuite-style close checklist** | spec + plan exist (two delta banners; plan Addendum Tasks 17–20) | — | land before #1036 (shared `post-*` surface); seeds the checklist registration surface downstream close tasks use |
 | [#1032](https://github.com/crbnos/carbon/issues/1032) | Document approvals + SoD reporting | spec exists — `/plan` next | — | **highest priority** |
-| [#1033](https://github.com/crbnos/carbon/issues/1033) | ITGC hardening | ⚠ spec-first (auth portions) | — | SOC 2 evidence depends on it |
+| [#1033](https://github.com/crbnos/carbon/issues/1033) | ITGC hardening | **CLOSED — deferred** (Brad, 2026-07-04) | — | reopen when the SOC program starts |
 | [#1034](https://github.com/crbnos/carbon/issues/1034) | Bank reconciliation Phase 1 | spec + plan exist (delta banner) | #1030 | |
 | [#1035](https://github.com/crbnos/carbon/issues/1035) | Financial reporting package | spec + plan exist (delta banner) | #1031 | |
 | [#1036](https://github.com/crbnos/carbon/issues/1036) | Tax Phase 1 | spec exists — `/plan` next | #1030 | after #1031 (posting triggers) |
 | [#1037](https://github.com/crbnos/carbon/issues/1037) | Budgeting Phase 1 | spec + plan exist | #1031 | |
-| [#1038](https://github.com/crbnos/carbon/issues/1038) | Gapless numbering + legal series | ⚠ spec-first | #1031 | coordinate with #1047 |
-| [#1039](https://github.com/crbnos/carbon/issues/1039) | Close automation (depreciation, accruals, recurring) | ⚠ spec-first | #1031 | |
-| [#1040](https://github.com/crbnos/carbon/issues/1040) | Inventory valuation completeness | ⚠ spec-first | #1031 | IAS 2 reversal waits for #1052 |
-| [#1041](https://github.com/crbnos/carbon/issues/1041) | Fixed assets completeness | ⚠ spec-first | #1031 | |
+| [#1038](https://github.com/crbnos/carbon/issues/1038) | Gapless numbering + legal series | spec exists (`2026-07-04-gapless-numbering-legal-series.md`) — `/plan` next | #1031 | coordinate with #1047 |
+| [#1039](https://github.com/crbnos/carbon/issues/1039) | Close automation (depreciation, accruals, recurring) | spec exists (`2026-07-04-close-automation.md`) — `/plan` next | #1031 | |
+| [#1040](https://github.com/crbnos/carbon/issues/1040) | Inventory valuation completeness | spec exists (`2026-07-04-inventory-valuation-completeness.md`) — `/plan` next | #1031 | IAS 2 reversal waits for #1052 |
+| [#1041](https://github.com/crbnos/carbon/issues/1041) | Fixed assets completeness | spec exists (`2026-07-04-fixed-assets-completeness.md`) — `/plan` next | #1031 | |
 | [#1042](https://github.com/crbnos/carbon/issues/1042) | Plaid bank feeds + cash position | spec exists — `/plan` next | #1034 | |
 | [#1043](https://github.com/crbnos/carbon/issues/1043) | Tax Phase 2 (returns, settlement) | spec exists | #1036, #1031 | |
 | [#1044](https://github.com/crbnos/carbon/issues/1044) | Tax Phase 3 (Avalara, Xero mapping) | spec exists | #1036 | foundation for #1054 |
 | [#1045](https://github.com/crbnos/carbon/issues/1045) | Budgeting Phases 2–3 | spec + plan exist | #1037, #1035 | |
 | [#1046](https://github.com/crbnos/carbon/issues/1046) | Bank rec Phases 3–4 | spec exists | #1034 | |
-| [#1047](https://github.com/crbnos/carbon/issues/1047) | Record integrity, audit hardening, JE export, book seed | ⚠ spec-first | #1031, #1032, #1034 | `audit.config.ts` ask lives in the spec |
-| [#1048](https://github.com/crbnos/carbon/issues/1048) | Revenue recognition v1 | ⚠ spec-first — **contract-validation TODO first** | #1031, #1036 | |
-| [#1049](https://github.com/crbnos/carbon/issues/1049) | Segments + dimension enforcement | ⚠ spec-first | #1035 | |
-| [#1050](https://github.com/crbnos/carbon/issues/1050) | FX + consolidation completeness | ⚠ spec-first | #1031, #1034, #1035 | |
-| [#1051](https://github.com/crbnos/carbon/issues/1051) | Master-data controls + vendor bank details | ⚠ spec-first | #1032, #1047 | prereq for any payment execution |
-| [#1052](https://github.com/crbnos/carbon/issues/1052) | Multi-book adjustment books | ⚠ spec-first | #1047 | |
-| [#1053](https://github.com/crbnos/carbon/issues/1053) | Statutory exports (FEC, SAF-T, GoBD, statutory COA, retention) | ⚠ spec-first | #1047, #1038, #1036 | |
-| [#1054](https://github.com/crbnos/carbon/issues/1054) | E-invoicing framework (Avalara first-class) | ⚠ spec-first | #1036, #1038, #1044 | **France mandate Sept 2026** |
-| [#1055](https://github.com/crbnos/carbon/issues/1055) | Withholding, ECSL/Intrastat, MTD | ⚠ spec-first | #1043 | |
-| [#1056](https://github.com/crbnos/carbon/issues/1056) | Lease subledger (842/IFRS 16) | ⚠ spec-first | #1052 | US-GAAP-only start possible after #1047 |
-| [#1057](https://github.com/crbnos/carbon/issues/1057) | Cutover tooling + flag retirement | ⚠ spec-first | #1031, #1036, #1047, #1038 | gates GA / always-on |
-| [#1058](https://github.com/crbnos/carbon/issues/1058) | Intercompany maturity | ⚠ spec-first | #1050 | |
-| [#1059](https://github.com/crbnos/carbon/issues/1059) | Integration surface (TB/JE APIs, JE import, webhooks) | ⚠ spec-first | #1032, #1047 | |
+| [#1047](https://github.com/crbnos/carbon/issues/1047) | Record integrity, audit hardening, JE export, book seed | spec exists (`2026-07-04-record-integrity-audit-hardening.md`) — `/plan` next | #1031, #1032, #1034 | the spec is the `audit.config.ts` ask |
+| [#1048](https://github.com/crbnos/carbon/issues/1048) | Revenue recognition (full ASC 606 + SSP + POC) | spec exists (`2026-07-04-revenue-recognition.md`) — `/plan` next; 2 open questions in-issue | #1031, #1036 | |
+| [#1049](https://github.com/crbnos/carbon/issues/1049) | Segments + dimension enforcement | spec exists (`2026-07-04-segment-reporting.md`) — `/plan` next | #1035 | |
+| [#1050](https://github.com/crbnos/carbon/issues/1050) | FX + consolidation completeness | spec exists (`2026-07-04-fx-consolidation-completeness.md`) — `/plan` next; 2 open questions in-issue | #1031, #1034, #1035 | |
+| [#1051](https://github.com/crbnos/carbon/issues/1051) | Master-data controls + vendor bank details | spec exists (`2026-07-04-master-data-controls.md`) — `/plan` next | #1032, #1047 | prereq for any payment execution |
+| [#1052](https://github.com/crbnos/carbon/issues/1052) | Multi-book adjustment books | spec exists (`2026-07-04-multi-book.md`) — `/plan` next | #1047 | owns the shared book DDL contract with #1047 |
+| [#1053](https://github.com/crbnos/carbon/issues/1053) | Statutory exports (FEC, SAF-T, GoBD, statutory COA, retention) | **CLOSED — deferred** (Brad, 2026-07-04; reopen before any French/statutory-filing entity goes live) | — | |
+| [#1054](https://github.com/crbnos/carbon/issues/1054) | E-invoicing framework (Avalara first-class) | spec exists (`2026-07-04-e-invoicing.md`) — `/plan` next; 3 open questions in-issue | #1036, #1038, #1044, #1061 | **France mandate Sept 2026; Poland KSeF already in force** |
+| [#1055](https://github.com/crbnos/carbon/issues/1055) | Withholding, ECSL/Intrastat, MTD | spec exists (`2026-07-04-withholding-ecsl-intrastat-mtd.md`) — `/plan` next; 2 open questions in-issue | #1043 | |
+| [#1056](https://github.com/crbnos/carbon/issues/1056) | Lease subledger (lessee + lessor, 842/IFRS 16) | spec exists (`2026-07-04-lease-accounting.md`) — `/plan` next; 2 open questions in-issue | #1052 | |
+| [#1057](https://github.com/crbnos/carbon/issues/1057) | Cutover tooling + flag retirement | spec exists (`2026-07-04-accounting-cutover-activation.md`) — `/plan` next | #1031, #1036, #1047, #1038 | gates GA / always-on |
+| [#1058](https://github.com/crbnos/carbon/issues/1058) | Intercompany maturity | spec exists (`2026-07-04-intercompany-maturity.md`) — `/plan` next; 2 open questions in-issue | #1050 | |
+| [#1059](https://github.com/crbnos/carbon/issues/1059) | Integration surface (TB/JE APIs, JE import, webhooks) | spec exists (`2026-07-04-integration-surface.md`) — `/plan` next | #1032, #1047 | |
+| [#1061](https://github.com/crbnos/carbon/issues/1061) | Avalara integration foundation (registry, credentials, shared client) | **spec + plan exist** (`2026-07-04-avalara-integration-foundation.md`, plan same slug) — execute next; 1 open question in-issue | — | consumed by #1044 and #1054 |
 
 Rendered graph: see [#1060](https://github.com/crbnos/carbon/issues/1060) (mermaid).
 
@@ -87,5 +88,6 @@ SOC 1/SOC 2/ISO 27001 evidence programs, auditor selection, PITR/DR contracts, a
 
 ## Changelog
 
+- 2026-07-04: **All spec-first workstreams spec'd** (16 specs + the Avalara plan written in one batch with Brad's 15 resolutions baked in — full ASC 606 incl. SSP, ambitious segments/leases/multi-book, propose-only depreciation, gapless all-sequences, current-infra APIs). #1033 (ITGC) and #1053 (statutory archives) closed/deferred by Brad. #1061 (Avalara integration foundation) added — no deps; #1044 and #1054 now depend on it. Every remaining issue is executable: spec → `/plan` → build. Residual per-workstream open questions live in their issues (14 total across 8 issues) — resolve in-issue before the affected portion builds; none block schema-level starts except where noted.
 - 2026-07-04: Period-closing scope expanded at user direction to include the NetSuite-style persisted close checklist (#1031 row updated; issues #1031/#1039/#1048/#1050 bodies updated). New coordination rule: downstream period-end workstreams integrate by registering `periodCloseTaskDefinition` rows, never by building parallel checklist mechanisms. DAG unchanged (no new nodes or edges).
 - 2026-07-04: Created. 30 workstream issues (#1030–#1059) + tracking issue #1060 opened; DAG defined; execution protocol set. All program-level open questions were resolved 2026-07-03/04 (see the readiness spec); per-workstream questions resolve in-issue at each spec gate.
