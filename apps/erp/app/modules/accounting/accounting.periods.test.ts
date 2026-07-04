@@ -25,6 +25,8 @@ vi.mock("@carbon/glossary", () => ({
 
 import {
   closeAccountingPeriod,
+  getOrCreateAccountingPeriod,
+  postJournalEntry,
   reopenAccountingPeriod
 } from "./accounting.service";
 
@@ -116,5 +118,98 @@ describe("reopenAccountingPeriod — reverse-sequential reopen", () => {
 
     expect(result.error).toBeNull();
     expect(result.data).toEqual({ id: "P2" });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Source-aware posting gate (acceptance criteria 2/3)
+//
+// getOrCreateAccountingPeriod issues one query (getCurrentAccountingPeriod's
+// `.single()`) to resolve the current period, then applies the close-status
+// gate. An Active + Locked period rejects "operational" posting but still
+// accepts "accounting" adjustments.
+// ---------------------------------------------------------------------------
+
+describe("getOrCreateAccountingPeriod — locked-period source gate", () => {
+  it("rejects operational posting into a Locked period", async () => {
+    const client = makeClient([
+      { data: { id: "P2", status: "Active", closeStatus: "Locked" } }
+    ]);
+
+    const result = await getOrCreateAccountingPeriod(
+      client,
+      "C1",
+      "2026-02-15",
+      "operational"
+    );
+
+    expect(result.data).toBeNull();
+    expect(result.error?.message).toMatch(/locked/i);
+  });
+
+  it("allows accounting posting into a Locked period", async () => {
+    const client = makeClient([
+      { data: { id: "P2", status: "Active", closeStatus: "Locked" } }
+    ]);
+
+    const result = await getOrCreateAccountingPeriod(
+      client,
+      "C1",
+      "2026-02-15",
+      "accounting"
+    );
+
+    expect(result.error).toBeNull();
+    expect(result.data).toBe("P2");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// postJournalEntry now routes through the period gate (source "accounting").
+// A balanced manual JE dated in a Closed period must be rejected — before the
+// gate was wired in, the status flip proceeded regardless of period state.
+//
+// Query order: getJournalEntry `.single()` -> getCurrentAccountingPeriod
+// `.single()` -> (only if the gate passes) the status-flip update `.single()`.
+// ---------------------------------------------------------------------------
+
+describe("postJournalEntry — period gate wiring", () => {
+  const draftEntry = {
+    data: {
+      id: "J1",
+      status: "Draft",
+      companyId: "C1",
+      postingDate: "2026-02-15",
+      journalLine: [
+        { amount: 100, account: { class: "Asset" } },
+        { amount: 100, account: { class: "Liability" } }
+      ]
+    },
+    error: null
+  };
+
+  it("rejects posting a balanced manual JE into a Closed period", async () => {
+    const client = makeClient([
+      draftEntry,
+      { data: { id: "P2", status: "Active", closeStatus: "Closed" } }
+    ]);
+
+    const result = await postJournalEntry(client, "J1", "U1");
+
+    expect(result.data).toBeNull();
+    expect(result.error?.message).toMatch(/closed/i);
+  });
+
+  it("posts a balanced manual JE into a Locked period (accounting source)", async () => {
+    const client = makeClient([
+      draftEntry,
+      { data: { id: "P2", status: "Active", closeStatus: "Locked" } },
+      { data: { id: "J1" }, error: null }
+    ]);
+
+    const result = await postJournalEntry(client, "J1", "U1");
+
+    expect(result.error).toBeNull();
+    expect(result.data).toEqual({ id: "J1" });
   });
 });

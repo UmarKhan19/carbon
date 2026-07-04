@@ -2450,6 +2450,19 @@ export async function postJournalEntry(
     };
   }
 
+  // 2b. Enforce the period lifecycle. A manual JE posts as an "accounting"
+  // source, so a Locked period still accepts it (adjustments are allowed);
+  // only a Closed period rejects. Stamp the resolved period on the entry.
+  const period = await getOrCreateAccountingPeriod(
+    client,
+    entry.data.companyId,
+    entry.data.postingDate ?? new Date().toISOString().split("T")[0],
+    "accounting"
+  );
+  if (period.error) {
+    return { data: null, error: period.error };
+  }
+
   // 3. Flip status — lines are already in journalLine, no copying needed
   return client
     .from("journal")
@@ -2457,6 +2470,7 @@ export async function postJournalEntry(
       status: "Posted" as const,
       postedAt: new Date().toISOString(),
       postedBy: userId,
+      accountingPeriodId: period.data,
       updatedBy: userId
     })
     .eq("id", id)
@@ -2503,6 +2517,20 @@ export async function reverseJournalEntry(
     journalEntryId = seq.data;
   }
 
+  // 2b. The reversing entry is dated today and posts as an "accounting" source,
+  // so it lands in the current period (never the original's, which may be
+  // Closed). A Closed current period rejects; a Locked one still accepts.
+  const postingDate = new Date().toISOString().split("T")[0];
+  const period = await getOrCreateAccountingPeriod(
+    client,
+    data.companyId,
+    postingDate,
+    "accounting"
+  );
+  if (period.error) {
+    return { data: null, error: period.error };
+  }
+
   // 3. Create reversing entry as Posted
   const reversed = await client
     .from("journal")
@@ -2510,7 +2538,8 @@ export async function reverseJournalEntry(
       journalEntryId,
       companyId: data.companyId,
       description: `Reversal of ${original.data.journalEntryId}`,
-      postingDate: new Date().toISOString().split("T")[0],
+      postingDate,
+      accountingPeriodId: period.data,
       sourceType: "Manual" as const,
       reversalOfId: id,
       status: "Posted" as const,

@@ -63,6 +63,29 @@ export async function getCurrentAccountingPeriod<T>(
     .lte("startDate", d)
     .single();
 
+  // Operational posting (receipts, shipments, invoices, payments) is not
+  // allowed into a Locked or Closed period. The close-lifecycle columns are
+  // cloud-generated and not yet in the committed types, so read through a cast.
+  if (currentAccountingPeriod.data) {
+    const closeStatus =
+      (
+        currentAccountingPeriod.data as unknown as {
+          closeStatus?: string | null;
+        }
+      ).closeStatus ??
+      (currentAccountingPeriod.data.closedAt ? "Closed" : "Open");
+
+    if (closeStatus === "Closed") {
+      throw new Error("Accounting period is closed. Reopen it before posting.");
+    }
+
+    if (closeStatus === "Locked") {
+      throw new Error(
+        "Accounting period is locked. Unlock it before posting operational documents."
+      );
+    }
+  }
+
   if (
     currentAccountingPeriod.data &&
     currentAccountingPeriod.data.status === "Active"
@@ -120,8 +143,11 @@ export async function getCurrentAccountingPeriod<T>(
         endDate,
         companyId,
         status: "Active",
+        // Lazily-created periods start Open; column is cloud-generated and not
+        // yet in the committed Kysely types, hence the cast.
+        closeStatus: "Open",
         createdBy: "system",
-      })
+      } as any)
       .returning("id")
       .executeTakeFirstOrThrow();
   });
