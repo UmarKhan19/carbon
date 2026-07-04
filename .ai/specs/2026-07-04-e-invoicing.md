@@ -221,7 +221,10 @@ CREATE TABLE "eInvoiceTransmission" (
         REFERENCES "eInvoiceDocument"("id", "companyId") ON DELETE CASCADE
 );
 
--- Issuance gate on the invoice itself
+-- Issuance gate on the invoice itself. Distinct from the existing user-editable
+-- "dateIssued" DATE (the business document date, BT-2): "issuedAt" is the
+-- system-stamped legal-issuance instant, set by posting (non-gated countries)
+-- or by clearance acceptance (gated countries). Never user-editable.
 ALTER TABLE "salesInvoice" ADD COLUMN "issuedAt" TIMESTAMP WITH TIME ZONE;
 -- Backfill: existing posted invoices are considered issued at posting
 UPDATE "salesInvoice" SET "issuedAt" = "postingDate" WHERE "postingDate" IS NOT NULL;
@@ -243,7 +246,7 @@ CREATE POLICY "eInvoiceDocument_SELECT" ON "eInvoiceDocument" FOR SELECT USING (
 
 - **`packages/ee/src/e-invoicing/`** — `semantic/` (types + `mapSalesInvoice`, `mapCreditMemo`, `validate` with BR/CIUS rule tables), `formats/` (five renderers + XSD golden tests), `adapters/` (`types.ts`, `avalara.ts` consuming #1061's client, `internal-archive.ts`), `inbound/` (parser → `SemanticInvoice`, supplier/line matcher).
 - **`modules/invoicing/eInvoicing.service.ts`** — `getEInvoiceCountrySettings`, `upsertEInvoiceCountrySetting`, `getEInvoiceDocuments` (monitor list), `getEInvoiceDocument`, `buildSemanticInvoice`, `submitEInvoice` (creates row + fires event), `resubmitEInvoice` (rejected-only; creates superseding row), `createPurchaseInvoiceFromInbound`.
-- **Inngest** (`@carbon/jobs`): `e-invoice-submit` (build→validate→render→submit; Inngest retries on transport failure), `e-invoice-status` (webhook-driven transitions; stamps `issuedAt` on Accepted where gated; fires notification on Rejected), `e-invoice-reconcile` (hourly poll for stale `Submitted`), `e-invoice-inbound`.
+- **Inngest** (`@carbon/jobs`): `e-invoice-submit` (build→validate→render→submit; Inngest retries on transport failure), `e-invoice-status` (webhook-driven transitions; stamps `issuedAt` on Accepted where gated; fires notification on Rejected), `e-invoice-reconcile` (hourly poll for stale `Submitted`), `e-invoice-inbound`. Rejections and inbound arrivals notify via `@carbon/notifications` to invoicing users (same channel pattern as existing document notifications).
 - **Routes**: `api+/webhook.avalara-einvoicing.ts` (signature-verified, per #1061); `x+/settings+/e-invoicing.tsx` (country settings); `x+/invoicing+/e-invoice-monitor*` (list + drawer); inbound inbox under `x+/invoicing+/`.
 - **Posting hook**: `post-sales-invoice` (edge function) gains a post-commit step — if an `eInvoiceCountrySetting` matches the invoice's tax country and `outboundEnabled`, fire `carbon/e-invoice.submit`; if `clearanceGatesIssuance`, leave `issuedAt` NULL, else stamp it. No setting → stamp `issuedAt`, done (today's behavior).
 - **Delivery gate**: invoice email/customer-PDF actions check `issuedAt IS NOT NULL` when a gating setting exists for the country.
