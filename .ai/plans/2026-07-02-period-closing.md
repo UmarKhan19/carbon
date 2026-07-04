@@ -1,6 +1,8 @@
 # Period Closing — Implementation Plan
 
 > ⚠️ **2026-07-03 delta (readiness roadmap):** the spec gained a posted-record immutability fold-in (`2026-07-03-public-company-readiness.md` MW-1 → spec §Enforcement item 4): extend the drafted migration `20260702044133` with (a) a second SECURITY DEFINER trigger — Posted journals allow only `Posted → Reversed`; journalLines frozen once parent is Posted, all period states — and (b) `journalLine.createdBy`. Add matching acceptance tests. See `.ai/plans/2026-07-03-public-company-readiness-roadmap.md`.
+>
+> ⚠️ **2026-07-04 delta (user direction):** the spec now includes a **NetSuite-style persisted close checklist** (spec §NetSuite-style close checklist), superseding "computed, not persisted". Execute the **Addendum Tasks 17–20** at the end of this plan; Task 13's close drawer becomes the checklist UI (Task 19 amends it); "persisted close-checklist tasks" is removed from the Deferred list.
 
 ## Overview
 
@@ -1389,4 +1391,44 @@ export default function ClosePeriodRoute() {
 
 ## Deferred (explicit non-goals for v1, per spec)
 
-- Per-subledger AR/AP/Inventory locks; 13th adjustment period; persisted close-checklist tasks; negative-inventory and posting-queue readiness checks; dead-letter UI for closed-period job failures; removal of the legacy Active/Inactive toggle; JournalEntryForm inline period warning (server-side error + flash covers v1).
+- Per-subledger AR/AP/Inventory locks; 13th adjustment period; dead-letter UI for closed-period job failures; removal of the legacy Active/Inactive toggle; JournalEntryForm inline period warning (server-side error + flash covers v1). *(Persisted close-checklist tasks were un-deferred 2026-07-04 — see Addendum Tasks 17–20. Negative-inventory readiness is now seeded task 6's auto-check; posting-queue readiness is part of task 1's.)*
+
+---
+
+# Addendum (2026-07-04): NetSuite-style close checklist — Tasks 17–20
+
+Spec reference: `.ai/specs/2026-07-02-period-closing.md` §"NetSuite-style close checklist". Execute after Tasks 1–16 (or fold Task 17's DDL into the Task 1 migration wave if it hasn't been applied yet — preferred).
+
+## Task 17: Migration — checklist tables + seed
+
+**Files:** extend `20260702044133_period-close-lifecycle.sql` if unapplied, else a new randomized-timestamp migration; `packages/database/supabase/functions/lib/seed.data.ts` + `seed-company` for new-company seeding.
+
+1. Create `periodCloseTaskDefinition` + `periodCloseTask` exactly per the spec's SQL sketch (composite PKs, audit columns, `(companyId, accountingPeriodId, definitionId)` unique, indexes on `companyId`, `accountingPeriodId`).
+2. Four standard RLS policies each: SELECT via `get_companies_with_employee_role()`, writes via `get_companies_with_employee_permission('accounting_*')`.
+3. Seed the 9 system definitions (spec table: pending-postings, draft-journals, lock, draft-depreciation, unmatched-ic, negative-inventory, tb-balanced, review-statements, close) for every existing company (`isSystem = true`) and in `seed-company` for new ones. Idempotency-guard all DDL + seeds.
+4. `pnpm run generate:types` before typechecking.
+
+## Task 18: Service — checklist functions + close gating
+
+**Files:** `apps/erp/app/modules/accounting/accounting.service.ts`, `accounting.models.ts`.
+
+1. `getPeriodCloseChecklist(client, companyId, periodId)`: idempotent instantiation from active definitions (insert missing via the unique key, snapshot name/type/sort/required/severity, default assignee), then overlay live results from `getPeriodCloseReadiness` onto Auto tasks (check passes ⇒ effective status Done, `completedBy = null`), return ordered.
+2. `completeCloseTask` / `skipCloseTask` (reject skip on Blocker autos; `skippedReason` required; both stamp user + timestamp) / `addCloseTask` (ad-hoc, `definitionId = null`).
+3. Definition CRUD: `getPeriodCloseTaskDefinitions`, `upsertPeriodCloseTaskDefinition` (system rows: only `sortOrder`/`defaultAssigneeId`/`active` mutable), no hard delete for `isSystem`.
+4. `closeAccountingPeriod` gains the checklist gate: every `required` task Done/Skipped AND no failing Blocker auto-check; on success persist final Auto-task states onto the rows in the same transaction.
+5. Zod validators (`closeTaskCompleteValidator`, `closeTaskSkipValidator` with min-length reason, `periodCloseTaskDefinitionValidator`).
+
+## Task 19: UI — close drawer becomes the checklist; periods row progress
+
+**Files:** amend Task 13's `periods.$periodId.close.tsx`; `AccountingPeriodsTable` from Task 11; new `ui/Periods/PeriodCloseChecklist.tsx`.
+
+1. Drawer renders ordered task rows: status icon (green check / red blocker / amber warning / gray open), name, assignee, per-type affordances — Auto: live state + drill link (draft JEs → journals list filtered; pending docs → posting queue; IC → intercompany match page); Action: Lock/Close buttons wired to the existing parent-route intents; Manual: Complete (notes/evidence optional) + Skip (reason modal). Route action handles `intent: complete | skip | add-task`.
+2. Close button enabled per the Task 18 gate; blockers listed above it when disabled.
+3. `AccountingPeriodsTable` row gains a "6/9" progress chip once a period has instantiated tasks.
+4. Template management: `periods.checklist-settings.tsx` (Drawer) listing definitions with add/reorder/deactivate/default-assignee; `update: "accounting"`.
+
+## Task 20: Verification additions
+
+1. SQL: re-opening the drawer never duplicates tasks (unique-key upsert proven); closing persists Auto states.
+2. E2E per the spec's new acceptance criteria: seeded 9 tasks appear; draft-JE blocker disables Close and its drill link resolves; warning skip requires reason; Blocker skip rejected server-side; custom template task appears in the NEXT period only; close records completedBy/At on manual tasks.
+3. Update the Task 15/16 gates to include these; commit checkpoint: `feat(accounting): NetSuite-style period close checklist`.

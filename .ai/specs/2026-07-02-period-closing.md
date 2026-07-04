@@ -7,7 +7,7 @@
 
 ## TLDR
 
-Carbon already has an `accountingPeriod` table with `closedAt`/`closedBy` columns and a single close gate buried in `getOrCreateAccountingPeriod`, but no way to close a period from the UI, no soft-close stage, and several posting paths (notably manual journal entries) that never check the period at all. This spec introduces a first-class period close lifecycle — **Open → Locked → Closed** — modeled on NetSuite's period statuses and SAP's authorization-group posting intervals: *Locked* is a soft close where only accounting users can post adjustments (operational postings from receipts, shipments, and invoices are blocked), and *Closed* is a hard close enforced by a database trigger that no posting path can bypass. Periods gain explicit `fiscalYear`/`periodNumber` identity generated from `fiscalYearSettings`, closes are sequential (like NetSuite), a computed close-readiness checklist surfaces blockers (draft journals, unposted receipts, negative inventory, unmatched intercompany) before closing, and year-end stays implicit — Carbon's virtual Net Income / retained-earnings computation means no closing entries are ever posted, which is self-healing by construction (the same property SAP achieves with re-runnable balance carryforward).
+Carbon already has an `accountingPeriod` table with `closedAt`/`closedBy` columns and a single close gate buried in `getOrCreateAccountingPeriod`, but no way to close a period from the UI, no soft-close stage, and several posting paths (notably manual journal entries) that never check the period at all. This spec introduces a first-class period close lifecycle — **Open → Locked → Closed** — modeled on NetSuite's period statuses and SAP's authorization-group posting intervals: *Locked* is a soft close where only accounting users can post adjustments (operational postings from receipts, shipments, and invoices are blocked), and *Closed* is a hard close enforced by a database trigger that no posting path can bypass. Periods gain explicit `fiscalYear`/`periodNumber` identity generated from `fiscalYearSettings`, closes are sequential (like NetSuite), a **NetSuite-style persisted close checklist** per period (ordered tasks with owners and sign-off evidence; system tasks auto-evaluated from computed checks — draft journals, unposted documents, negative inventory, unmatched intercompany, TB balance; skip-with-reason for warnings; Close as the terminal task) gates closing, and year-end stays implicit — Carbon's virtual Net Income / retained-earnings computation means no closing entries are ever posted, which is self-healing by construction (the same property SAP achieves with re-runnable balance carryforward).
 
 ## Problem Statement
 
@@ -56,20 +56,38 @@ The `Active`/`Inactive` status column is left in place but deprecated: "current 
 3. **Reversal symmetry.** `reverseJournalEntry` must date the reversing entry in the *current open period*, never back into the closed source period (standard SAP/NetSuite behavior for reversals across a close boundary).
 4. **Posted-record immutability (same trigger wave).** Added per the public-company readiness audit (`.ai/specs/2026-07-03-public-company-readiness.md`, MW-1) — cheaper to build with this migration than to retrofit: a second `BEFORE UPDATE` backstop makes **posted journals immutable in every period state, not just Closed**. On `journal`, the only permitted UPDATE once `status = 'Posted'` is the status transition `Posted → Reversed` (setting `reversedById`); on `journalLine`, all UPDATE/DELETE is rejected once the parent journal is Posted. SECURITY DEFINER like the period trigger, so it binds edge functions and service-role jobs. This closes the existing RLS hole (`20260402000000:84-92` allows posted-header updates with `WITH CHECK (true)`) at the same layer, in the same review, with the same writer inventory this spec already requires. Corrections remain reversal-only. `journalLine` also gains `createdBy` in this migration so every line carries preparer identity from day one of enforced close.
 
-### Close-readiness checklist (computed, not persisted)
+### NetSuite-style close checklist (persisted tasks + computed auto-checks)
 
-NetSuite's close checklist is a persisted task-workflow engine; that is deliberately **out of scope for v1**. Instead, a `getPeriodCloseReadiness(client, companyId, periodId)` service computes the manufacturing-relevant checks on demand and the close drawer renders them:
+*(Scope revised 2026-07-04 at user direction — the original v1 deliberately deferred the persisted task engine; it is now in scope so that later close tasks — FX revaluation, revenue recognition, bank reconciliation, depreciation scheduling — register into an existing substrate instead of retrofitting one.)*
 
-| Check | Severity |
-|-------|----------|
-| Draft journal entries with `postingDate` in the period | Blocker |
-| Unposted receipts/shipments/invoices dated in the period (pending `post-transaction` queue items) | Blocker |
-| Draft depreciation runs covering the period | Warning |
-| Negative on-hand inventory quantities | Warning |
-| Unmatched `intercompanyTransaction` rows involving this company for the period | Warning |
-| Trial balance out of balance for the period (sanity check) | Blocker |
+Each accounting period gets a **persisted, ordered checklist** of close tasks (the NetSuite Period Close Checklist model): tasks have owners, statuses, sort order, and completion evidence; system tasks auto-evaluate from computed checks; manual tasks are human sign-offs; the terminal task is Close itself.
 
-Blockers prevent Close (not Lock). Warnings require an explicit "close anyway" confirmation. This gives the NetSuite checklist's *value* (you can't close on top of half-posted work) without building a task engine.
+Two tables:
+
+- **`periodCloseTaskDefinition`** — the company-level template: name, `taskType`, sort order, `required`, `active`, optional default assignee, optional `autoCheckKey` binding the task to a computed evaluator. Companies can add manual tasks, reorder, and toggle optional ones; seeded system definitions cannot be deleted (deactivate instead).
+- **`periodCloseTask`** — per-period instances, created idempotently from active definitions when the period's close drawer first opens (or on Lock). Status `Open | Done | Skipped`; `completedBy/At`; `skippedReason` (required on skip); optional evidence link (journal id / note).
+
+**Auto-evaluated tasks** bind to the computed readiness checks (which remain, as the evaluator layer):
+
+| Seeded task (default order) | Type | Auto-check | Severity |
+|---|---|---|---|
+| 1. Post pending operational documents (receipts/shipments/invoices dated in period; posting queue drained) | Auto | pending-postings | Blocker |
+| 2. Post or re-date draft journal entries in the period | Auto | draft-journals | Blocker |
+| 3. Lock the period (operational postings blocked) | Action | — | Required |
+| 4. Post depreciation runs covering the period | Auto | draft-depreciation | Warning |
+| 5. Match & eliminate intercompany transactions (group companies only) | Auto | unmatched-ic | Warning |
+| 6. Review negative on-hand inventory | Auto | negative-inventory | Warning |
+| 7. Trial balance in balance for the period | Auto | tb-balanced | Blocker |
+| 8. Review financial statements | Manual | — | Required |
+| 9. Close the period | Action | — | Terminal |
+
+Semantics:
+
+- An **Auto** task's live pass/fail is computed on every checklist render; when its check passes it reads Done (system), and its final state is persisted at Close for the audit record.
+- **Blocker** auto-tasks can never be skipped; **Warning** auto-tasks and optional manual tasks can be skipped with a required reason (permission `update: accounting`), recorded on the row.
+- **Close** is enabled only when every `required` task is Done/Skipped and no Blocker fails — the same gate the computed-only design enforced, now with owners, sign-off evidence, and a durable per-period record (the close binder auditors ask for).
+- Later features register their own definitions when they ship (FX revaluation, revenue recognition, bank-rec-complete-per-account, consolidated-rates) — the readiness roadmap's Phase-1 items name this checklist as their execution surface.
+- `getPeriodCloseReadiness` remains as the evaluator service backing the auto-checks; the drawer renders the checklist, not the raw check list.
 
 ### Year-end: implicit, no closing entries
 
@@ -89,7 +107,7 @@ Every transition (Lock, Unlock, Close, Reopen) is recorded via the existing audi
 | Posted-record immutability | Second SECURITY DEFINER trigger in the same migration: Posted journals allow only `Posted → Reversed`; journalLines frozen once parent is Posted; `journalLine.createdBy` added | Readiness audit MW-1 (SOX AS 2401 / GoBD Unveränderbarkeit); same writer inventory, same trigger surface, same review — retrofit later would touch every posting path twice |
 | Year-end | Implicit (virtual retained earnings, no closing entries) | Carbon already computes Net Income virtually; matches NetSuite; self-healing on prior-year reopen. |
 | Close ordering | Sequential close, reverse-sequential reopen, non-sequential lock | NetSuite rule; guarantees a contiguous closed boundary with no holes. |
-| Checklist | Computed readiness checks (RPC/service), not persisted task workflow | Task engine is the expensive 20%; computed checks deliver the control value. Persisted checklists deferred. |
+| Checklist | **Persisted NetSuite-style task list** (`periodCloseTaskDefinition` template + per-period `periodCloseTask`), with the computed readiness checks retained as the auto-evaluator layer | Revised 2026-07-04 at user direction: later close tasks (FX reval, rev rec, bank rec, depreciation) need a registration surface — building it now avoids retrofitting; auto-checks keep the zero-config control value; persisted rows give owners, sign-offs, and the per-period close binder auditors request. |
 | Multi-tenancy | Existing `accountingPeriod` keeps its legacy single-column PK (`xid()`); no new tables in v1 | Altering the PK of a referenced table is high-risk churn for zero behavior gain; all new columns are on the existing table. No new tables ⇒ heuristic satisfied by inheritance. |
 | Service shape | `lockAccountingPeriod` / `closeAccountingPeriod` / `reopenAccountingPeriod` / `getPeriodCloseReadiness` in `accounting.service.ts`, `(client, companyId, ...)` → `{data, error}`, never throw | `.ai/rules/conventions-services.md`; one module service file, no new files. |
 | RLS | `accountingPeriod` UPDATE policy requires `accounting_update`; status transitions additionally validated in service (sequential rules can't be expressed in RLS cleanly) | Matches existing permission-based policy pattern. |
@@ -147,6 +165,60 @@ CREATE TRIGGER "journal_check_period_open"
   FOR EACH ROW EXECUTE FUNCTION check_accounting_period_open();
 ```
 
+Checklist tables (same migration wave; standard audit columns + four RLS policies gated on `accounting_*` per conventions):
+
+```sql
+CREATE TABLE IF NOT EXISTS "periodCloseTaskDefinition" (
+  "id" TEXT NOT NULL DEFAULT id('pctd'),
+  "companyId" TEXT NOT NULL,
+  "name" TEXT NOT NULL,
+  "taskType" TEXT NOT NULL DEFAULT 'Manual',   -- 'Auto' | 'Action' | 'Manual'
+  "autoCheckKey" TEXT,                          -- binds Auto tasks to a readiness evaluator
+  "sortOrder" INTEGER NOT NULL DEFAULT 1,
+  "required" BOOLEAN NOT NULL DEFAULT true,
+  "severity" TEXT,                              -- 'Blocker' | 'Warning' (Auto tasks)
+  "active" BOOLEAN NOT NULL DEFAULT true,
+  "isSystem" BOOLEAN NOT NULL DEFAULT false,    -- seeded rows: deactivate, never delete
+  "defaultAssigneeId" TEXT REFERENCES "user"("id"),
+  "createdBy" TEXT NOT NULL REFERENCES "user"("id"),
+  "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  "updatedBy" TEXT REFERENCES "user"("id"),
+  "updatedAt" TIMESTAMP WITH TIME ZONE,
+  "customFields" JSONB,
+  CONSTRAINT "periodCloseTaskDefinition_pkey" PRIMARY KEY ("id", "companyId"),
+  CONSTRAINT "periodCloseTaskDefinition_companyId_fkey" FOREIGN KEY ("companyId")
+    REFERENCES "company"("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS "periodCloseTask" (
+  "id" TEXT NOT NULL DEFAULT id('pct'),
+  "companyId" TEXT NOT NULL,
+  "accountingPeriodId" TEXT NOT NULL,           -- FK accountingPeriod (legacy single-col PK)
+  "definitionId" TEXT,                          -- NULL = ad-hoc task added for this period
+  "name" TEXT NOT NULL,                         -- snapshot from definition
+  "taskType" TEXT NOT NULL,
+  "autoCheckKey" TEXT,
+  "sortOrder" INTEGER NOT NULL,
+  "required" BOOLEAN NOT NULL,
+  "severity" TEXT,
+  "status" TEXT NOT NULL DEFAULT 'Open',        -- 'Open' | 'Done' | 'Skipped'
+  "assigneeId" TEXT REFERENCES "user"("id"),
+  "completedBy" TEXT REFERENCES "user"("id"),   -- NULL for system-auto completions
+  "completedAt" TIMESTAMP WITH TIME ZONE,
+  "skippedReason" TEXT,                         -- required when status = 'Skipped'
+  "evidenceJournalId" TEXT,
+  "notes" TEXT,
+  "createdBy" TEXT NOT NULL REFERENCES "user"("id"),
+  "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  "updatedBy" TEXT REFERENCES "user"("id"),
+  "updatedAt" TIMESTAMP WITH TIME ZONE,
+  CONSTRAINT "periodCloseTask_pkey" PRIMARY KEY ("id", "companyId"),
+  CONSTRAINT "periodCloseTask_period_definition_key" UNIQUE ("companyId", "accountingPeriodId", "definitionId")
+);
+-- Seed: the 9 default system definitions (table above) per existing company +
+-- in seed-company for new companies.
+```
+
 Notes:
 - No views select from `accountingPeriod` today (verify during implementation; if any do, DROP/recreate with `SELECT *`).
 - `closedAt`/`closedBy` columns are reused as-is; the existing `closedAt` check in `getOrCreateAccountingPeriod` is replaced by `closeStatus` checks.
@@ -171,7 +243,19 @@ reopenAccountingPeriod(client, { periodId, companyId, userId })  // requires lat
 // Generation + queries
 createFiscalYearPeriods(client, { companyId, fiscalYear, userId })  // 12 periods from fiscalYearSettings
 getAccountingPeriods(client, companyId, { fiscalYear? })
-getPeriodCloseReadiness(client, companyId, periodId)  // → { blockers: Check[], warnings: Check[] }
+getPeriodCloseReadiness(client, companyId, periodId)  // → { blockers: Check[], warnings: Check[] } — the auto-check evaluator layer
+
+// Close checklist (NetSuite-style)
+getPeriodCloseChecklist(client, companyId, periodId)
+// instantiates tasks from active definitions if missing (idempotent via the
+// (companyId, accountingPeriodId, definitionId) unique key), overlays live
+// auto-check results onto Auto tasks, returns ordered tasks
+completeCloseTask(client, { taskId, companyId, userId, evidenceJournalId?, notes? })   // Manual/Action tasks
+skipCloseTask(client, { taskId, companyId, userId, reason })   // rejected for Blocker auto-tasks; reason required
+addCloseTask(client, { companyId, accountingPeriodId, name, assigneeId?, userId })     // ad-hoc per-period task
+get/upsert/deactivatePeriodCloseTaskDefinition(...)             // template CRUD (settings surface)
+// closeAccountingPeriod additionally: requires every required task Done/Skipped and
+// no failing Blocker auto-check; persists final auto-task states on the rows at close.
 ```
 
 Callers to update:
@@ -188,7 +272,8 @@ Routes (new, under `apps/erp/app/routes/x+/accounting+/`):
 ## UI Changes
 
 - **Periods page** (`/x/accounting/periods`): table grouped by fiscal year — period number, name ("FY2026 · P6 (Jun)"), date range, status badge (Open gray / Locked amber / Closed green, plain counts, no parenthesized numbers), closed-by/at. Row actions: Lock, Unlock, Close…, Reopen (visibility driven by status + sequential rules). "Generate FY{next}" button when the next fiscal year has no periods. Added to the accounting sidebar next to Fiscal Year settings.
-- **Close drawer**: readiness checklist with blockers (red, disable Close) and warnings (amber, require confirmation checkbox), then Close button. Follows existing Drawer-overlay detail-view convention.
+- **Close drawer = the checklist** (NetSuite Period Close Checklist shape): ordered task rows with status icon, assignee avatar, and per-type affordances — Auto tasks show live pass/fail with a drill link to the offending records (draft JEs list, unposted documents, IC matching page); Action tasks deep-link (Lock button, Close button); Manual tasks have Complete (with optional evidence/notes) and Skip-with-reason. Blockers render red and disable Close; skipped warnings show amber with the reason. Progress indicator ("6 of 9 done") also renders on the periods table row. Follows the Drawer-overlay detail-view convention.
+- **Checklist template settings**: a section on the periods page (or accounting settings) listing `periodCloseTaskDefinition` rows — add manual tasks, reorder, set default assignees, deactivate optional tasks; system rows lock their type/autoCheck fields.
 - **Journal entry form**: v1 relies on the server-side gate — posting into a Locked/Closed period fails with a clear flash error from `postJournalEntry`. An inline pre-submit warning on the posting-date field is deferred (see plan's non-goals).
 - **Flash messages** on all transitions per `.ai/rules/flash-system.md`.
 
@@ -198,7 +283,9 @@ Routes (new, under `apps/erp/app/routes/x+/accounting+/`):
 - [ ] Closing period N fails with a clear error while period N−1 is not Closed; reopening period N fails while period N+1 is Closed.
 - [ ] With June **Locked**: posting a receipt dated June 15 via the normal receipt flow fails with "period is locked"; posting a manual journal entry dated June 15 as an accounting user succeeds.
 - [ ] With June **Closed**: `postJournalEntry`, post-receipt, post-shipment, post-purchase-invoice, depreciation run, and disposal all fail with a period-closed error; a direct SQL `INSERT` into `journal` with a June posting date (service-role) is rejected by the trigger.
-- [ ] Close drawer shows a blocker when a draft journal entry dated in the period exists, and Close is disabled until it is posted or re-dated; warnings (negative inventory, unmatched IC) allow close after explicit confirmation.
+- [ ] Close drawer shows a blocker when a draft journal entry dated in the period exists, and Close is disabled until it is posted or re-dated; warnings (negative inventory, unmatched IC) allow close after explicit skip-with-reason.
+- [ ] Opening the close drawer for a fresh period instantiates the 9 seeded checklist tasks exactly once (re-opening does not duplicate); Auto tasks flip to Done as their checks pass; a Manual task records completedBy/At; a Warning task skips only with a reason and never a Blocker; Close is enabled only when every required task is Done/Skipped, and closing persists the final task states.
+- [ ] A custom manual task added to the template appears in the next period's checklist with its default assignee; deactivating it removes it from future periods without touching past ones.
 - [ ] Reversing a journal entry whose period is Closed creates the reversing entry dated in the current open period, and both entries reference each other.
 - [ ] Trial balance / balance sheet / income statement for a closed period return identical numbers before and after unrelated postings in later periods.
 - [ ] A **Posted** journal in an **Open** period rejects direct header UPDATEs (description, postingDate) and any journalLine UPDATE/DELETE via PostgREST — with user credentials and with the service role; the `Posted → Reversed` status transition still succeeds; new journal lines carry `createdBy`.
@@ -233,4 +320,5 @@ Routes (new, under `apps/erp/app/routes/x+/accounting+/`):
 - 2026-07-02: Created — grounded in codebase exploration (existing `accountingPeriod`/`closedAt` gate, posting entry-point inventory) and ERP research (SAP OB52/AFC, NetSuite period close checklist, D365/BC/Odoo lock models); see `.ai/research/period-closing.md`.
 - 2026-07-02: All open questions resolved (user delegated to best judgment); status → in-progress. Key calls: source-based Locked in v1, reopen gated by `delete: accounting`, adjustment period deferred, sync writes rejected into non-open periods, group ordering as warning, Active/Inactive removal deferred, no dead-letter UI.
 - 2026-07-02: Implementation plan written at `.ai/plans/2026-07-02-period-closing.md`; migration drafted at `packages/database/supabase/migrations/20260702044133_period-close-lifecycle.sql` (not yet applied). Recon finding folded in: edge functions use a separate period helper (`packages/database/supabase/functions/shared/get-accounting-period.ts`) with no close check — added as a mandatory gate point; depreciation/disposal are gated at their routes; eliminations post via DB RPC and are covered by the trigger backstop. Inline journal-form warning deferred to v2.
+- 2026-07-04: **NetSuite-style persisted close checklist added at user direction**, superseding the v1 "computed, not persisted" decision (and its earlier open-question resolution): `periodCloseTaskDefinition` template + per-period `periodCloseTask` with Auto (readiness-check-backed) / Action / Manual tasks, skip-with-reason (never for Blockers), sign-off evidence, 9 seeded system tasks, and template customization. The computed readiness checks remain as the auto-evaluator layer. Later close tasks (FX revaluation, rev rec, bank rec, consolidated rates — readiness roadmap Phase 1+) register definitions here instead of retrofitting a task engine. Plan updated with addendum tasks 17–20.
 - 2026-07-03: **Posted-record immutability folded in** per the public-company readiness audit (`2026-07-03-public-company-readiness.md` MW-1, roadmap `.ai/plans/2026-07-03-public-company-readiness-roadmap.md`): second SECURITY DEFINER trigger (posted journals = status-transition-only in all period states; journalLines frozen once posted), `journalLine.createdBy` column. Extend the drafted migration + plan tasks accordingly before implementation. Rationale: same trigger surface, same writer inventory — right the first time.
