@@ -22,7 +22,7 @@ Questions via `/grill`. `/execute` commits per task via `/check-and-commit`.
 /root-cause → (/debugging-difficult-bugs if runtime evidence needed) → /fix → /check-and-commit
 ```
 
-**Supervised loop** (single scoped item, doer→gate→judge): `/conductor`.
+**Autonomous loop** (single scoped item, doer→gate→judge, no mid-loop human input, gated PR): `/conductor`.
 
 **Advisory audit** (read-only, produces handoff plans): `/improve`.
 
@@ -41,7 +41,7 @@ Questions via `/grill`. `/execute` commits per task via `/check-and-commit`.
 | `fix` | Minimal fix from a brief + red→green regression test | ready-to-commit change |
 | `check-and-commit` | Gate suite, then commit specific files | conventional commit |
 | `self-review` | Review your own branch before/at PR time | Must fix / Risks / Suggestions |
-| `conductor` | Supervised doer→gate→judge loop to a gated PR | PR + ledger |
+| `conductor` | Autonomous doer→gate→judge loop to a gated PR (no mid-loop human input) | PR + ledger |
 | `improve` | Senior-advisor audit; plans for other agents to execute | `.ai/plans/improve/` |
 | `test` | Drive changed flows in the browser; cache playbooks | pass/fail + `.ai/playbooks/{slug}.md` |
 | `smoke-test` | Do all core modules load? | pass/fail table |

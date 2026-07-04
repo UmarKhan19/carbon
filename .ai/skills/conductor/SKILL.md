@@ -1,17 +1,38 @@
 ---
 name: conductor
-description: Supervised loop conductor — drive a single work item (a bug, a usability tweak, a small feature) through a doer→gate→judge→keep-or-revert→ledger cycle to a gated PR, while the human watches. Use when asked to "conduct", "loop on", or build/fix one tightly-scoped item with explicit acceptance criteria. Backed by @carbon/harness and the @carbon/checks gates. Supervised only — never autonomous/overnight, never auto-merged. For multi-phase features prefer /feature.
+description: Autonomous loop conductor — drive a single work item (a bug, a usability tweak, a small feature) through a doer→gate→judge→keep-or-revert→ledger cycle to a gated PR, unattended. Use when asked to "conduct", "loop on", or build/fix one tightly-scoped item with explicit acceptance criteria, and as the inner loop the outer-loop orchestrator dispatches headless. Backed by @carbon/harness and the @carbon/checks gates. Autonomous means: never call /grill or block on human input mid-loop; the gated PR is the supervision point — never auto-merged. For multi-phase features with human design gates prefer /feature.
 ---
 
-# conductor — supervised doer→gate→judge loop
+# conductor — autonomous doer→gate→judge loop
 
 Iterate on one work item until its acceptance criteria are met and provable,
-with the human watching and giving final approval. Ship a **gated PR** — never
-merge. Architecture context: `.ai/docs/loop-system.md`; the deterministic
-helpers live in `packages/harness` (see its `AGENTS.md`).
+**without human input mid-loop** — this skill runs unattended (the outer loop
+dispatches it headless via cron; see `.ai/docs/outer-loop.md`). Human review
+happens exactly once, at the end: ship a **gated PR** — never merge.
+Architecture context: `.ai/docs/loop-system.md`; the deterministic helpers
+live in `packages/harness` (see its `AGENTS.md`).
 
-**Announce at start:** "Using the conductor skill — supervised loop on
+**Announce at start:** "Using the conductor skill — autonomous loop on
 {work item}."
+
+## Autonomous decision protocol — no mid-loop questions
+
+The loop never waits on a human. Concretely:
+
+- **Never invoke `/grill`** or any interactive interview from inside a loop.
+  If a sub-skill offers a supervised question gate (e.g. spec-writing Step 5),
+  use its **autonomous mode** instead.
+- A decision that would normally go to the user is resolved in this order:
+  (1) codebase precedent, (2) the research file / competitor consensus,
+  (3) your own recommended answer. Record every such call in the ledger entry
+  (`reason`) and collect them into an **"Assumed decisions"** section of the
+  PR body — the human reviews them there, not mid-loop.
+- **BLOCKED, not guessed** — some calls are never made autonomously (the root
+  `AGENTS.md` Ask-First list): production-critical schema changes, auth/RBAC/
+  multi-tenancy changes, public contract changes, scope reductions, new
+  production dependencies. Hitting one of these → record BLOCKED in the
+  outcome with the question stated crisply, and stop. Same for a visual proof
+  the stack can't provide.
 
 ## Step 0: Isolated worktree off origin/main — always first
 
@@ -38,7 +59,7 @@ pnpm --filter @carbon/harness exec tsx -e "import {parseBinding} from '@carbon/h
 **Each acceptance criterion is the definition of done** — you are not finished
 until every one is satisfied and provable.
 
-## Step 2: The cycle (repeat until acceptance met or the human stops)
+## Step 2: The cycle (repeat until acceptance met, plateau, or BLOCKED)
 
 ### 2.1 Doer
 
@@ -82,8 +103,8 @@ b. **Behavior gate — mandatory for ANY user-facing change.** Choose the
 
    Never pick a heavier method when a lighter one gives the same confidence —
    but at least one proof must pass. **If visual proof is needed and the stack
-   cannot boot, the loop is BLOCKED** — surface to the human; do not open a
-   "done" PR with verification pending.
+   cannot boot, the loop is BLOCKED** — record it in the outcome and stop; do
+   not open a "done" PR with verification pending.
 
 c. **Correctness (bug fixes)** — reproduce→fix→same-path: the test (or recorded
    browser playbook) that failed on the bug must pass after the fix.
@@ -123,7 +144,8 @@ pnpm --filter @carbon/harness exec tsx -e "import {appendLedger} from '@carbon/h
 ### 2.5 Terminate?
 
 All criteria met and provable → Step 3. No progress across iterations
-(plateau) or the human stops → stop and report honestly.
+(plateau), or a BLOCKED condition from the autonomous decision protocol →
+stop and report honestly in the outcome.
 
 ## Step 3: Post-build freshness audit
 
@@ -145,18 +167,24 @@ Before opening the PR:
    - the design rationale (precedent copied; research cited),
    - per acceptance criterion: **which gate proves it and how** (test name,
      before/after screenshots, or CLI output),
+   - an **Assumed decisions** section listing every call made under the
+     autonomous decision protocol, with its rationale — this is where the
+     human supervises,
    - a ledger summary (iterations, kept/reverted and why).
 3. Loop artifacts (`.ai/runs/<id>/` — binding, ledger, screenshots) are
    gitignored runtime and never committed to the product tree; the harness's
    `openPr` hosts screenshots for embedding.
-4. Surface every design decision for the human to approve or improve — design
-   is never shipped silently.
+4. Every design decision appears in the PR body for the human to approve or
+   improve at review time — design is never shipped silently, and never
+   blocks the loop waiting for approval.
 
 ## Guardrails — non-negotiable
 
 - A user-facing change without sufficient proof is never done.
-- Never auto-merge; never run on `main`; never background or fan out — this is
-  the supervised loop.
+- Never auto-merge; never run on `main`. The loop is autonomous but the merge
+  is always human.
+- Never `/grill` or otherwise block on human input mid-loop; decisions follow
+  the autonomous decision protocol or the loop goes BLOCKED.
 - If blocked, say BLOCKED and why. Never report "done, verification pending".
 
 ## Growing this

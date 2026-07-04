@@ -1,6 +1,6 @@
 ---
 name: grill
-description: Interview the user relentlessly, one question at a time, to stress-test a plan, spec, or design until every open decision is resolved — recommended answer per question, answers cross-checked against the codebase and the @carbon/glossary domain terms, resolutions written back to the artifact as they land. Use when the user says "grill me", wants to stress-test a design or plan, or a spec-in-design's open questions need resolving (spec-writing Step 5 invokes this BEFORE the spec is written). Do not use to author the artifact itself — use /spec-writing for specs, /plan for implementation plans.
+description: Interview the user relentlessly, one question at a time, to stress-test a plan, spec, or design until every open decision is resolved — recommended answer per question, answers cross-checked against the codebase and the @carbon/glossary domain terms, resolutions written back to the artifact as they land. Use when the user says "grill me", wants to stress-test a design or plan, or a spec-in-design's open questions need resolving (spec-writing Step 5 invokes this BEFORE the spec is written). SUPERVISED ONLY — never invoke from an automated loop (conductor, headless/outer-loop runs); autonomous flows use spec-writing's autonomous mode instead. Do not use to author the artifact itself — use /spec-writing for specs, /plan for implementation plans.
 ---
 
 # grill — stress-test a design by interviewing its author
@@ -9,6 +9,12 @@ Input: a plan, spec, or design idea (in a file or only in chat). Output: every
 open decision resolved with the human one branch at a time, each resolution
 written to its canonical home, and every contradiction between the user's
 answers and the codebase surfaced along the way.
+
+**Supervised only.** This skill exists to interview a human; there is no
+autonomous variant. Inside an automated loop (conductor, headless/outer-loop
+runs) do NOT invoke it — spec-writing's autonomous mode (recommendation-based
+resolutions recorded as `**Autonomous:**`, Ask-First territory → BLOCKED) is
+the substitute.
 
 **Announce at start:** "Using the grill skill — stress-testing {target}."
 

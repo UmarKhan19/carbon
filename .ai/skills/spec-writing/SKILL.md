@@ -114,6 +114,23 @@ not yours to assume. Never resolve a question yourself to unblock work;
 resolutions come only from a human answer, a research finding, or an explicit
 documented "out of scope for v1" decision.
 
+### Autonomous mode (automated loops — conductor, headless/outer-loop runs)
+
+When this skill runs inside an automated loop with no human available, **do
+not invoke `/grill` and do not block waiting for answers.** Instead:
+
+- Resolve each question in this order: (1) codebase precedent, (2) research /
+  competitor consensus, (3) your recommended answer. Record it inline as
+  `- [x] {Question} — **Autonomous:** {answer + rationale}` so assumed
+  decisions are distinguishable from human ones at a glance.
+- Surface the full list of autonomous resolutions in the spec changelog AND in
+  the loop's "Assumed decisions" PR section — the human reviews them at the
+  PR, not mid-loop.
+- **Ask-First territory is never resolved autonomously** (root `AGENTS.md`:
+  production-critical schema, auth/RBAC/multi-tenancy, public contracts,
+  scope reductions, new production dependencies). A question in that
+  territory → the loop goes BLOCKED with the question stated crisply.
+
 ## Step 6: Write the spec
 
 Only now. Copy `.ai/specs/template.md` to `.ai/specs/{YYYY-MM-DD}-{slug}.md`
