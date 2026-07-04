@@ -334,17 +334,18 @@ CREATE TABLE "fixedAssetTransfer" (
 - [x] Depreciation scheduling / close checks here? — **Resolved:** no — the
       close-automation spec owns them; this spec only excludes
       `Under Construction` from runs. (Resolution 5.)
-- [ ] **Job → CIP WIP credit timing:** credit WIP at attachment (cost leaves the
+- [x] **Job → CIP WIP credit timing:** credit WIP at attachment (cost leaves the
       job immediately) vs at capitalization (WIP holds until in-service).
       Recommended: at attachment — matches SAP AuC settlement, keeps WIP clean at
       close — but it changes production job costing, and CIP-attached jobs must
-      be blocked from normal completion costing. Cross-module → needs sign-off.
-- [ ] **Fate of the standalone "Sell" flow:** `$fixedAssetId.sell` creates a
+      be blocked from normal completion costing. Cross-module → needs sign-off. — **Answer (Brad, 2026-07-04, ambition heuristic — be ambitious and thorough; back out at /plan stage if needed):** At attachment (SAP AuC pattern) — cost leaves WIP when attached to the CIP asset; CIP-attached jobs are blocked from normal completion costing. The cross-module production change is accepted.
+- [x] **Fate of the standalone "Sell" flow:** `$fixedAssetId.sell` creates a
       sales order at book value; the invoice posts revenue. Keep Sell as the
       invoice-generating front end with its posting rewritten to net to
       `disposalAccountId` (recommended), or fold it into the dispose form?
-      Changes posted invoices' GL → needs confirmation.
+      Changes posted invoices' GL → needs confirmation. — **Answer (Brad, 2026-07-04, ambition heuristic — be ambitious and thorough; back out at /plan stage if needed):** Keep `$fixedAssetId.sell` as the invoice-generating front end with its posting rewritten to net proceeds to `disposalAccountId`.
 
 ## Changelog
 
 - 2026-07-04: Created from readiness finding GAP-4 remainder (tracking crbnos/carbon#1041); scope resolutions 1–5 baked in; two new blocking questions surfaced (WIP credit timing, Sell-flow fate).
+- 2026-07-04: Remaining open questions resolved under the program ambition heuristic (ambitious scope now; back-out valves at plan stage).
