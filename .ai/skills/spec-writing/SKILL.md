@@ -95,9 +95,11 @@ you haven't thought hard enough — re-read the research and the heuristics tabl
 
 > 🛑 HARD STOP: the spec file is not written while any question is unresolved.
 
-Present the question list to the user and interview through it **one question
-at a time** (group max 2–3 only for single-module, no-schema designs). For each
-question:
+Invoke `/grill` on the question list (protocol: `.ai/skills/grill/SKILL.md` —
+the spec doesn't exist yet, so this is its artifact-less mode; resolutions
+carry into the spec's Open Questions section when it is written in Step 6).
+Interview **one question at a time** (group max 2–3 only for single-module,
+no-schema designs). For each question:
 
 - State the question and **why it matters** (what changes downstream).
 - Give your **recommended answer** with a one-line rationale, plus the

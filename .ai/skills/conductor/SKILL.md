@@ -29,7 +29,7 @@ The binding is a `.loop.md` file with frontmatter `id`, `kind`
 (`bug|feature|usability|copy`), `title`, `risk`, optional `issue`, and an
 `acceptance` list (field reference: `packages/harness/AGENTS.md`). If given a
 binding path, read it; otherwise write one from the request to
-`llm/loops/runs/<id>/binding.loop.md` (gitignored runtime). Validate the shape:
+`.ai/runs/<id>/binding.loop.md` (gitignored runtime). Validate the shape:
 
 ```bash
 pnpm --filter @carbon/harness exec tsx -e "import {parseBinding} from '@carbon/harness'; import {readFileSync} from 'node:fs'; console.log(JSON.stringify(parseBinding(readFileSync('<path>','utf8'))))"
@@ -75,7 +75,7 @@ b. **Behavior gate — mandatory for ANY user-facing change.** Choose the
       regression guard.
    2. **Agent-browser visual verification** — required when the proof is
       inherently visual (layout, spacing, overflow, animation): boot with
-      `crbn up`, `/login`, drive the screen per `/test`, capture BEFORE and
+      `crbn up`, `/auth`, drive the screen per `/test`, capture BEFORE and
       AFTER screenshots.
    3. **CLI/script proof** — for non-UI changes (migrations, endpoints): a
       command demonstrating correct output.
@@ -115,7 +115,7 @@ Keep the change iff **every gate is green (including the behavior proof) AND
 the judge approves**; otherwise revert it. Append one entry per iteration:
 
 ```bash
-pnpm --filter @carbon/harness exec tsx -e "import {appendLedger} from '@carbon/harness'; appendLedger('llm/loops/runs/<id>/ledger.jsonl', {iteration: <n>, change: '<summary>', gates: {<gate>: <bool>}, decision: '<keep|revert>', reason: '<why>', at: new Date().toISOString()})"
+pnpm --filter @carbon/harness exec tsx -e "import {appendLedger} from '@carbon/harness'; appendLedger('.ai/runs/<id>/ledger.jsonl', {iteration: <n>, change: '<summary>', gates: {<gate>: <bool>}, decision: '<keep|revert>', reason: '<why>', at: new Date().toISOString()})"
 ```
 
 (The harness has no clock — you supply `at`.)
@@ -146,7 +146,7 @@ Before opening the PR:
    - per acceptance criterion: **which gate proves it and how** (test name,
      before/after screenshots, or CLI output),
    - a ledger summary (iterations, kept/reverted and why).
-3. Loop artifacts (`llm/loops/runs/<id>/` — binding, ledger, screenshots) are
+3. Loop artifacts (`.ai/runs/<id>/` — binding, ledger, screenshots) are
    gitignored runtime and never committed to the product tree; the harness's
    `openPr` hosts screenshots for embedding.
 4. Surface every design decision for the human to approve or improve — design

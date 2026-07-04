@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-02T04:41:07.819Z",
-  "totalTools": 1252,
+  "generated": "2026-07-03T13:58:43.227Z",
+  "totalTools": 1254,
   "modules": 15,
   "tools": [
     {
@@ -304,6 +304,94 @@
           }
         },
         "required": [
+          "startDate",
+          "endDate"
+        ]
+      }
+    },
+    {
+      "name": "accounting_getAccountLedger",
+      "module": "accounting",
+      "classification": "READ",
+      "description": "get account ledger",
+      "paramCount": 5,
+      "serviceParams": [
+        "client",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "accountId": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "endDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "limit": {
+            "type": "number"
+          },
+          "offset": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "accountId",
+          "startDate",
+          "endDate",
+          "limit",
+          "offset"
+        ]
+      }
+    },
+    {
+      "name": "accounting_getAccountLedgerSummary",
+      "module": "accounting",
+      "classification": "READ",
+      "description": "get account ledger summary",
+      "paramCount": 3,
+      "serviceParams": [
+        "client",
+        "companyGroupId",
+        "companyId",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "accountId": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "endDate": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "accountId",
           "startDate",
           "endDate"
         ]
@@ -7473,7 +7561,7 @@
       "module": "invoicing",
       "classification": "WRITE",
       "description": "update purchase invoice status",
-      "paramCount": 3,
+      "paramCount": 4,
       "serviceParams": [
         "client",
         "update"
@@ -7491,7 +7579,13 @@
           "status": {
             "type": "string"
           },
-          "assignee": {}
+          "assignee": {},
+          "datePaid": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
         },
         "required": [
           "id",
@@ -7535,7 +7629,7 @@
       "module": "invoicing",
       "classification": "WRITE",
       "description": "update sales invoice status",
-      "paramCount": 3,
+      "paramCount": 4,
       "serviceParams": [
         "client",
         "update"
@@ -7553,7 +7647,13 @@
           "status": {
             "type": "string"
           },
-          "assignee": {}
+          "assignee": {},
+          "datePaid": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
         },
         "required": [
           "id",
@@ -15357,7 +15457,9 @@
       "paramCount": 1,
       "serviceParams": [
         "client",
-        "productionEventId"
+        "productionEventId",
+        "companyId",
+        "userId"
       ],
       "injectAuth": [
         "companyId"

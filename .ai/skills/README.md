@@ -13,8 +13,8 @@ manually: `pnpm install-skills`). Authoring rules: `writing-skills/SKILL.md`.
                  🛑 open questions      🛑 plan approval
 ```
 
-`/feature` runs this pipeline end-to-end. `/execute` commits per task via
-`/check-and-commit`.
+`/feature` runs this pipeline end-to-end. `/spec-writing` resolves its Open
+Questions via `/grill`. `/execute` commits per task via `/check-and-commit`.
 
 **Bug fix**:
 
@@ -32,6 +32,7 @@ manually: `pnpm install-skills`). Authoring rules: `writing-skills/SKILL.md`.
 |-------|---------|----------|
 | `research` | Competitor/industry survey for a feature | `.ai/research/{slug}.md` |
 | `spec-writing` | Design + spec with Open Questions hard stop | `.ai/specs/{date}-{slug}.md` |
+| `grill` | Interview stress-test of a plan/spec/design, one question at a time | resolutions in the spec/plan, or `.ai/runs/{date}-grill-{slug}.md` |
 | `plan` | Implementation plan from a finalized spec | `.ai/plans/{date}-{slug}.md` |
 | `execute` | Run an approved plan task by task | commits on the branch |
 | `feature` | The full pipeline above, orchestrated | all of the above |
@@ -44,7 +45,7 @@ manually: `pnpm install-skills`). Authoring rules: `writing-skills/SKILL.md`.
 | `improve` | Senior-advisor audit; plans for other agents to execute | `.ai/plans/improve/` |
 | `test` | Drive changed flows in the browser; cache playbooks | pass/fail + `.ai/playbooks/{slug}.md` |
 | `smoke-test` | Do all core modules load? | pass/fail table |
-| `login` | Authenticate agent-browser against local dev | authed session (building block) |
+| `auth` | Authenticate agent-browser against local dev | authed session (building block) |
 | `error` | Capture screenshot + snapshot on browser failure | `.ai/scratch/e2e/…` (building block) |
 | `create-agents-md` | Generate/refresh a grounded AGENTS.md | `AGENTS.md` |
 | `carbon-docs` | Author reader-facing docs in the docs app | `docs/content/**` |
