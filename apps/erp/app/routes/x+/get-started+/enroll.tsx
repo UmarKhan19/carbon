@@ -6,7 +6,7 @@ import { ImplementationHubEmail } from "@carbon/documents/email";
 import { ERP_URL } from "@carbon/env";
 import { trigger } from "@carbon/jobs";
 import { enrollImplementation } from "@carbon/onboarding/server";
-import { renderAsync } from "@react-email/components";
+import { render } from "@react-email/components";
 import type { ActionFunctionArgs } from "react-router";
 import { data, redirect } from "react-router";
 import { path } from "~/utils/path";
@@ -62,12 +62,15 @@ export async function action({ request }: ActionFunctionArgs) {
 
     const adminTypeIds = (adminTypes.data ?? []).map((t) => t.id);
     if (adminTypeIds.length === 0) {
-      return redirect(path.to.getStarted);
+      console.log(
+        "No Admin employee type found for company; skipping enrollment notification"
+      );
+      return;
     }
 
     const admins = await serviceRole
       .from("employees")
-      .select("email, name")
+      .select("id, email, name")
       .eq("companyId", companyId)
       .eq("active", true)
       .in("employeeTypeId", adminTypeIds);
@@ -87,8 +90,8 @@ export async function action({ request }: ActionFunctionArgs) {
           recipientName: admin.name ?? undefined,
           hubUrl
         });
-        const html = await renderAsync(emailTemplate);
-        const text = await renderAsync(emailTemplate, { plainText: true });
+        const html = await render(emailTemplate);
+        const text = await render(emailTemplate, { plainText: true });
         await trigger("send-email", {
           to: [admin.email],
           subject: "Your Implementation Hub is ready",
@@ -98,7 +101,7 @@ export async function action({ request }: ActionFunctionArgs) {
         });
       } catch (emailErr) {
         console.error(
-          `Failed to send Implementation Hub email to ${admin.email}`,
+          `Failed to send Implementation Hub email to admin id:${admin.id ?? "unknown"}`,
           emailErr
         );
       }
