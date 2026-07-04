@@ -21,12 +21,12 @@ OpenClaw runtime (heartbeat · webhooks · cron · sandbox · SQLite)
 
 ## Wake Loop (every 30 min)
 
-1. **Reconcile leases** — `agent:working` issues with no live build → stale → recover
+1. **Reconcile leases** — `agent:working` issues with no live build → stale → follow the Crash Recovery protocol below (never delete the branch)
 2. **PR feedback** (highest priority) — unresolved review comments → re-enter inner loop on same branch
 3. **Assigned work** — pick top issue by priority → run the pre-dispatch gate (below) → synthesize Binding → dispatch conductor
 4. **Slack ingest** — tagged in a thread → read context, create issue, self-assign
 5. **Idle** → groom one backlog issue (comment spec + acceptance criteria, never build)
-6. **GC** — prune worktrees, Docker volumes, loop runs — **never a branch with an open PR**
+6. **GC** — prune worktrees, Docker volumes, loop runs — **never `loop/*` or `loop-rescue/*` branches on origin** (worktrees are disposable; branches are the work)
 
 ## Grooming Contract — questions die here, not in the loop
 
@@ -53,6 +53,13 @@ we are avoiding — the loop either builds or returns; it never waits on a perso
 4. **The binding body carries all grooming answers** — resolved questions,
    repro steps, test-data hints, precedent pointers. The harness feeds it to
    the doer, judge, and behavior gate.
+5. **The binding is loop-sized: at most ~8 acceptance criteria.** The harness
+   now chunks internally (its planner decomposes any >2-criteria binding into
+   small tasks, each with its own doer session, judge review, and checkpoint
+   commit), so moderate bindings are safe to dispatch as-is. But a binding
+   whose criteria span multiple modules or need >6 tasks is an epic wearing a
+   binding's clothes (#1031: 13 criteria) — label `agent:needs-decomposition`,
+   propose the split, and dispatch the pieces as separate issues.
 
 **After a run**, any `questions` in `outcome.json` (disputed criteria, doer
 assumptions) get posted to the issue. A human answers; the next grooming pass
@@ -79,11 +86,32 @@ crbn up --minimal --run 'pnpm --filter @carbon/harness loop <binding-path> --cwd
 |---|---|---|
 | `state: shipped`, no `unverified` | Fully proven, PR open | Comment PR link on issue, drop `agent:working` |
 | `state: shipped` + `unverified` | Work kept & judge-approved; behavior proof was impossible (test data, environment). PR is a **draft** labeled `agent:needs-verification` | Comment PR link + the `unverified` gaps on the issue; label issue `agent:needs-verification`, **not** `agent:blocked` |
-| `state: plateau/blocked` + `prUrl` | Partial salvage draft PR (`[partial]`, `Related to #<n>`) — kept commits survived | Comment PR link + reason; label `agent:blocked`; the branch/PR carry the work forward |
-| `state: plateau/blocked`, no `prUrl` | Nothing worth keeping was produced | Label `agent:blocked` with the reason |
+| `state: plateau/blocked/error` + `prUrl` | Partial salvage draft PR (`[partial]`, `Related to #<n>`) — committed work survived | Comment PR link + reason; label `agent:blocked`; the branch/PR carry the work forward |
+| `state: plateau/blocked/error`, no `prUrl` | No committed work was produced (or PR creation failed — the pushed branch still exists) | Label `agent:blocked` with the reason; mention the branch if it exists on origin |
 | any outcome with `questions` | Product questions surfaced (disputed criteria, doer assumptions) | Post them as an issue comment; a human answer + re-groom (fold answers into the binding body) precedes any re-dispatch |
+| any outcome with `plan` | Task plan + statuses (`done`/`flagged`/`failed`/`pending`) | Include in the issue comment; `failed` tasks name a `loop-rescue/<id>/t<k>` branch holding the attempts |
 
 **"We couldn't prove it" ≠ "it doesn't work."** Kept work always ships in a PR — flagged, draft, never auto-merged — rather than being reverted and GC'd with the worktree.
+
+### Crash Recovery — a mechanical protocol, no judgment required
+
+The harness commits and pushes every doer pass to `loop/<id>` as it goes, so a
+dead PID loses at most one uncommitted edit. When a lease is stale (process
+dead, no `outcome.json`):
+
+1. **Never delete the branch.** GC may remove the *worktree* and Docker
+   volumes; branches on origin (`loop/<id>`, `loop-rescue/<id>/*`) are the
+   work — they stay until their PR closes.
+2. Check origin: `git ls-remote origin "refs/heads/loop/<id>"`.
+   - **Branch exists** → re-dispatch the SAME binding in a worktree based on
+     it: `crbn new loop/<id> --base origin/loop/<id> --yes`, then the normal
+     harness command. The loop re-plans, sees the committed progress, and
+     continues from where it died. `openPr` is idempotent — same branch, same PR.
+   - **No branch** → nothing was produced; re-dispatch fresh (base `origin/main`).
+3. Before re-dispatching after a second consecutive crash, capture evidence
+   instead of retrying blind: post the tail (~50 lines) of the dispatch
+   process's stdout/stderr and `.ai/runs/<id>/run.log.jsonl` (if the worktree
+   survives) as an issue comment, label `agent:blocked`.
 
 ### Agent Labels
 

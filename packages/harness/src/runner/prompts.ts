@@ -1,6 +1,32 @@
 import type { Binding } from "../binding";
 import type { LedgerEntry } from "../ledger";
-import type { DoerResult, JudgeResult } from "./types";
+import type { DoerResult, JudgeResult, PlanTask } from "./types";
+
+/** Task context threaded into the doer/judge prompts by the loop. */
+export type TaskContext = {
+  task: PlanTask;
+  /** 1-based position and plan size, for orientation ("task 2 of 5"). */
+  index: number;
+  total: number;
+  /** SHA at task start — the judge diffs `<sha>..HEAD` to see the task's work. */
+  startSha?: string;
+};
+
+function taskSection(binding: Binding, ctx: TaskContext | undefined): string {
+  if (!ctx) return "";
+  const criteria =
+    ctx.task.criteria.length > 0
+      ? ctx.task.criteria
+          .map((i) => `  [${i}] ${binding.acceptance[i] ?? "?"}`)
+          .join("\n")
+      : "  (none mapped)";
+  return `
+YOUR CURRENT TASK (${ctx.index} of ${ctx.total} in the plan): ${ctx.task.title}
+${ctx.task.detail}
+This task advances these acceptance criteria (work on THESE only):
+${criteria}
+`;
+}
 
 /** Pull the last fenced ```json block out of model text. Throws if none parses. */
 export function extractJson<T>(text: string): T {
@@ -47,7 +73,8 @@ export function groomingNotes(binding: Binding): string {
  */
 export function buildDoerPrompt(
   binding: Binding,
-  ledger: LedgerEntry[]
+  ledger: LedgerEntry[],
+  ctx?: TaskContext
 ): string {
   return `You are the DOER in an unattended conductor loop. There is NO human watching — you may never ask a question; either make a change, or report \`blocked\`.
 
@@ -55,17 +82,22 @@ Work item (${binding.kind}, risk ${binding.risk}): ${binding.title}
 
 Acceptance criteria (each is a definition of done):
 ${acceptanceList(binding)}
-${groomingNotes(binding)}
-Prior iterations:
+${groomingNotes(binding)}${taskSection(binding, ctx)}
+Prior iterations (fix forward — earlier attempts are already committed; improve on them, don't start over):
 ${ledgerSummary(ledger)}
 
 Your job THIS iteration:
-- Make the SMALLEST change toward the weakest-covered acceptance criterion. Do not batch unrelated changes.
+- ${ctx ? "Complete YOUR CURRENT TASK above — nothing more. Other tasks in the plan are not your job this session." : "Make the SMALLEST change toward the weakest-covered acceptance criterion."} Do not batch unrelated changes.
 - UI work: FIRST copy the nearest existing screen/component (precedent), don't design from concepts.
 - ERP-domain logic (accounting, costing, tax, inventory valuation, RMAs): ground it in how real ERPs work; don't invent domain logic.
 - Schema/migration changes: run \`pnpm run generate:types\` BEFORE any typecheck (stale types = false green).
 - Module code: keep ONE \`<module>.service.ts\` and ONE \`<module>.models.ts\`; never scatter new ones.
 - Correctness: write a test that FAILS on the bug/missing-feature and PASSES after your change. Report its exact command.
+
+Chunk your own work — you have a hard turn/budget cap:
+- If the task will not fit comfortably in this session, STOP EARLY at a COHERENT SLICE: code that compiles, is lint-clean, and is safe to commit as-is. Report what's left in \`remaining\` — the loop checkpoints your slice and gives a fresh session this context to continue.
+- A clean partial slice is SUCCESS; a complete-but-broken sprint to the buzzer is failure. Never race your limits, and never leave the tree half-edited at the end of your session.
+- Prior slices are already committed — build on them, don't redo them.
 
 Questions vs blockers — questions belong to GROOMING, not to this loop:
 - NEVER block on a question of interpretation, preference, or an ambiguous acceptance criterion. Choose the most reasonable interpretation (prefer matching existing app behavior/precedent) and record it in \`assumptions\` — it will be surfaced on the PR for a human to confirm.
@@ -80,6 +112,7 @@ End your reply with EXACTLY one fenced json block, no prose after it:
   "packages": ["@carbon/<pkg>", "..."],
   "testCommand": "<command that fails before / passes after, or \\"\\">",
   "touchedUI": <true if any user-facing UI changed, else false>,
+  "remaining": "<omit when the task is COMPLETE; otherwise one line: what a fresh session should do next>",
   "assumptions": ["<interpretation you chose instead of asking>", "..."],
   "blocked": "<omit unless truly impossible without a human; then explain why>"
 }
@@ -90,19 +123,23 @@ End your reply with EXACTLY one fenced json block, no prose after it:
  * The judge reviews the uncommitted working tree against acceptance + design
  * rules. A SEPARATE session — never the doer grading itself.
  */
-export function buildJudgePrompt(binding: Binding): string {
-  return `You are the JUDGE in an unattended conductor loop. Review the current UNCOMMITTED change against the acceptance criteria and Carbon's design rules. Be skeptical — do not rubber-stamp.
+export function buildJudgePrompt(binding: Binding, ctx?: TaskContext): string {
+  const inspect = ctx?.startSha
+    ? `Inspect the change yourself: run \`git diff ${ctx.startSha}..HEAD\` (the task's committed work) plus \`git status\` in the worktree.`
+    : "Inspect the change yourself: run `git diff` (and `git status`) in the worktree.";
+  return `You are the JUDGE in an unattended conductor loop. Review the ${ctx ? "current task's committed work" : "current UNCOMMITTED change"} against the acceptance criteria and Carbon's design rules. Be skeptical — do not rubber-stamp.
 
 Work item (${binding.kind}, risk ${binding.risk}): ${binding.title}
 
 Acceptance criteria:
 ${acceptanceList(binding)}
-${groomingNotes(binding)}
-Inspect the change yourself: run \`git diff\` (and \`git status\`) in the worktree. Check:
+${groomingNotes(binding)}${taskSection(binding, ctx)}
+${inspect} Check:
 - Does the change actually advance the weakest criterion, with a real reproduce→fix→pass test?
 - Does it follow Carbon conventions (module layout, RLS/migration rules, existing components over ad-hoc styles)?
 - Is the scope minimal — no unrelated edits?
 - For each acceptance criterion, is it now MET and provable?
+${ctx ? "- `approved` judges THIS task's work; `unmet` lists ALL acceptance indices still unsatisfied across the whole work item (later tasks will cover theirs — that's expected)." : ""}
 
 Disputed criteria — do NOT hold the loop hostage to a wrong spec:
 - If a criterion rests on a premise the code contradicts (the mechanism it describes does not exist), or hinges on a product decision no agent can make, put it in \`disputed\` with a one-line question for the human and leave it OUT of \`unmet\`. Iterating cannot resolve a product question — it goes back to the issue instead.
@@ -138,11 +175,14 @@ export function parseDoerResult(text: string): DoerResult {
         (a): a is string => typeof a === "string" && a !== ""
       )
     : [];
+  const remaining =
+    typeof raw.remaining === "string" ? raw.remaining.trim() : "";
   return {
     change: raw.change ?? "(no summary)",
     packages: Array.isArray(raw.packages) ? raw.packages : [],
     testCommand: raw.testCommand ?? "",
     touchedUI: raw.touchedUI === true,
+    ...(remaining ? { remaining } : {}),
     ...(assumptions.length > 0 ? { assumptions } : {}),
     ...(raw.blocked ? { blocked: raw.blocked } : {})
   };
@@ -154,6 +194,7 @@ export function parseJudgeResult(text: string): JudgeResult {
     return {
       approved: false,
       unmet: [],
+      verdictMissing: true,
       feedback: "judge returned no JSON verdict"
     };
   const disputed = Array.isArray(raw.disputed)

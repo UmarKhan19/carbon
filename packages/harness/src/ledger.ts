@@ -5,8 +5,16 @@ export type LedgerEntry = {
   iteration: number;
   change: string;
   gates: Record<string, boolean>;
-  decision: "keep" | "revert";
+  /**
+   * `keep` = task-approved commit on the branch. `checkpoint` = committed and
+   * pushed (work preserved) but the task isn't approved yet — a later attempt
+   * fixes forward on top of it. `revert` = removed from the branch (attempts
+   * are still preserved on a rescue branch before any reset).
+   */
+  decision: "keep" | "revert" | "checkpoint";
   reason: string;
+  /** The plan task this iteration worked on, as "k/N: title". */
+  task?: string;
   /** Proof gaps this iteration — behavior gate could not verify either way. */
   unverified?: string[];
   /** Product questions the judge raised (disputed acceptance criteria). */
