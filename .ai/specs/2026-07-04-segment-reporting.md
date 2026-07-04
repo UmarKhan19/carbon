@@ -22,15 +22,15 @@ posting functions, manual JEs) is covered identically. The same trigger
 finally enforces `dimension.required` server-side (today a stored flag the
 server never reads): posting with a missing required dimension fails with an
 error naming the dimension. Reporting extends the financial-reporting spec's
-surfaces: segment filter + per-segment columns on trial balance / balance
-sheet / income statement, a segment column + filter on GL detail, and a new
-**Segment Disclosure** report (ASU 2023-07): revenue, significant expense
-categories (from the existing expense account-tree headings), other segment
-items, and segment profit per segment, with an **Unassigned / Eliminations**
-reconciliation column so segment totals tie to consolidated totals by
-construction. History is never rewritten — pre-segment lines report as
-Unassigned. SAP document splitting / zero-balancing is explicitly out of
-scope v1: segment balance sheets are best-effort from natural postings.
+surfaces: segment filter + per-segment columns on TB/BS/IS, a segment column
++ filter on GL detail, and a new **Segment Disclosure** report (ASU 2023-07):
+revenue, significant expense categories (from the existing expense
+account-tree headings), other segment items, and segment profit per segment,
+with an **Unassigned / Eliminations** reconciliation column so segment totals
+tie to consolidated totals by construction. History is never rewritten —
+pre-segment lines report as Unassigned. SAP document splitting /
+zero-balancing is explicitly out of scope v1: segment balance sheets are
+best-effort from natural postings.
 
 ## Problem Statement
 
@@ -83,8 +83,7 @@ scope v1: segment balance sheets are best-effort from natural postings.
     (`20230820020844_posting-groups.sql`), the natural home for the
     company-level fallback.
 - Document-type defaults need a map (source type → segment), which cannot be
-  a column: one small table `documentSegmentDefault(companyId, sourceType
-  journalEntrySourceType, segmentId)` — see Data Model.
+  a column: one small table `documentSegmentDefault` — see Data Model.
 
 ### 2. Derivation + server-side required-dimension enforcement
 
@@ -93,9 +92,9 @@ edge functions, plpgsql, PostgREST) is bound, per the readiness audit's
 Decision 1 precedent (`20260702044133_period-close-lifecycle.sql`).
 
 - **`resolve_segment(p_company_id, p_cost_center_id, p_item_posting_group_id,
-  p_source_type)`** — implements the precedence chain: cost center's
-  effective segment (recursive CTE up `parentCostCenterId`) → item posting
-  group's `segmentId` → `documentSegmentDefault` row for `p_source_type` →
+  p_source_type)`** — the precedence chain: cost center's effective segment
+  (recursive CTE up `parentCostCenterId`) → `itemPostingGroup."segmentId"` →
+  `documentSegmentDefault` for the source type →
   `accountDefault."defaultSegmentId"` → NULL.
 - **Deferred constraint trigger on `journalLine`** (`AFTER INSERT …
   DEFERRABLE INITIALLY DEFERRED`), firing at transaction commit — by which
@@ -116,14 +115,14 @@ Decision 1 precedent (`20260702044133_period-close-lifecycle.sql`).
      line; else `RAISE EXCEPTION` naming the missing dimension(s) and the
      `journalLineReference`.
 - **Trigger on `journal` status transition to `Posted`** runs the same two
-  checks across all of the journal's lines — covers manual JEs, where lines
-  and dimensions are written in earlier transactions while `Draft` and
-  posting is a later status flip.
+  checks across all of the journal's lines — covers manual JEs, whose lines
+  and dimensions are written in earlier `Draft` transactions with posting as
+  a later status flip.
 - **Segment becomes required-by-default once configured**: creating the first
   segment value flips the Segment dimension's `required` to `true`
-  (service-side, with a UI notice); the admin may untoggle it. Independent of
+  (service-side, with a UI notice); the admin may untoggle. Independent of
   that flag, derivation runs whenever any segment values exist — `required`
-  governs only whether a NULL derivation is an error or silently unassigned.
+  only governs whether a NULL derivation errors or lands unassigned.
 - Client-side validation stays as UX; the DB is the control.
 
 ### 3. Segment reporting (extends `.ai/specs/2026-07-02-financial-reporting.md`)
@@ -139,28 +138,26 @@ Decision 1 precedent (`20260702044133_period-close-lifecycle.sql`).
   select — a single segment filters the report; **"By segment"** renders one
   column per segment plus an **Unassigned / Eliminations** reconciliation
   column and the existing Total. Loader = one balance call per column zipped
-  by account id — the same N-call-zip mechanism the financial-reporting spec
-  built for comparatives (§5 there); segment counts are small (ASC 280
-  reportable segments: typically 2–10). Elimination-entity journals carry no
-  cost center / posting group, so they derive the company default or land in
-  Unassigned — either way the reconciliation column absorbs them and columns
-  tie.
-- **GL detail** (`getGeneralLedgerLines`): a Segment display column and
-  filter (join through `journalLineDimension`), incl. `segment=unassigned`;
+  by account id — the N-call-zip mechanism the financial-reporting spec built
+  for comparatives (§5 there); ASC 280 segment counts are small (2–10).
+  Elimination-entity journals carry no cost center / posting group, so they
+  derive the company default or land in Unassigned — either way the
+  reconciliation column absorbs them and columns tie.
+- **GL detail** (`getGeneralLedgerLines`): Segment display column and filter
+  (join through `journalLineDimension`), incl. `segment=unassigned`;
   statement segment-column amounts drill to GL detail pre-filtered to
   account + window + segment. CSV export inherits via the shared `Table`.
 - **Segment Disclosure report** (new route, the ASU 2023-07 artifact): rows =
   Revenue, one row per top-level expense heading of the account tree (the
-  significant expense categories the CODM sees — no new category entity;
-  account groupings are the source of truth), Other segment items (plug),
-  Segment profit (ties to the income statement bottom line per column);
-  columns = each segment, Unassigned/Eliminations, consolidated Total.
-  Works single-company and consolidated (translated balances, same as the
-  other statements). CSV export.
+  significant expense categories the CODM sees — no new category entity),
+  Other segment items (plug), Segment profit (ties to the income statement
+  bottom line per column); columns = each segment,
+  Unassigned/Eliminations, consolidated Total. Works single-company and
+  consolidated (translated balances, same as the other statements); CSV.
 - **Segment balance sheet is best-effort** and labeled as such in the UI:
   without document splitting, cash, AR/AP settlement, tax, and equity lines
-  do not fully allocate to segments; the Unassigned column absorbs the
-  remainder and each row still ties to the consolidated total. Honest > fake.
+  do not fully allocate; the Unassigned column absorbs the remainder and
+  each row still ties to the consolidated total. Honest > fake.
 
 ### 4. Backfill posture
 
@@ -174,12 +171,11 @@ honest representation of pre-segment data.
 - **SAP document splitting / zero-balancing per segment** — inheriting the
   segment onto offsetting lines (cash, AR/AP) and posting zero-balancing
   clearing lines so each segment's balance sheet balances independently. A
-  full sub-ledger rework; explicitly deferred. Consequence stated above (§3).
+  full sub-ledger rework; explicitly deferred. Consequence stated in §3.
 - A dedicated Eliminations segment value / segment-aware IC eliminations.
-- Segment budgeting (budgeting spec owns budget columns), segment-level
-  PDF package pages, ASU 2023-07 interim-disclosure checklists.
-- Generalizing per-segment columns to arbitrary dimensions (the RPC params
-  are segment-specific by name but the join is by dimension id — a future
+- Segment budgeting (budgeting spec owns budget columns), segment PDF pages,
+  ASU 2023-07 interim-disclosure checklists, and generalizing per-segment
+  columns to arbitrary dimensions (the join is by dimension id, so a future
   "by any dimension" mode reuses the shape).
 
 ### Design Decisions
@@ -214,11 +210,11 @@ ALTER TYPE "dimensionEntityType" ADD VALUE IF NOT EXISTS 'Segment';
 Migration 2 (everything else):
 
 ```sql
--- Seed the reserved Segment dimension per company group (idempotent)
+-- Seed the reserved Segment dimension per company group (idempotent);
+-- seed-company edge function gains the same row for new groups
 INSERT INTO "dimension" ("name", "entityType", "companyGroupId", "createdBy")
 SELECT 'Segment', 'Segment', cg."id", 'system' FROM "companyGroup" cg
 ON CONFLICT ("name", "companyGroupId") DO NOTHING;
--- (seed-company edge function gains the same row for new groups)
 
 -- Segment attributes: columns, not tables
 ALTER TABLE "costCenter" ADD COLUMN IF NOT EXISTS "segmentId" TEXT
@@ -252,11 +248,10 @@ ALTER TABLE "documentSegmentDefault" ENABLE ROW LEVEL SECURITY;
 -- resolve_segment(p_company_id, p_cost_center_id, p_item_posting_group_id,
 --   p_source_type) RETURNS TEXT — STABLE, SECURITY DEFINER, search_path=public:
 --   recursive CTE up costCenter.parentCostCenterId for the first non-null
---   segmentId → itemPostingGroup.segmentId → documentSegmentDefault.segmentId
---   → accountDefault."defaultSegmentId" → NULL
+--   segmentId → itemPostingGroup → documentSegmentDefault → accountDefault → NULL
 
--- enforce_line_dimensions(): trigger fn — derive Segment (§2 step 1) then
--- assert required dimensions (§2 step 2); SECURITY DEFINER.
+-- enforce_line_dimensions(): derive Segment (§2.1) then assert required
+-- dimensions (§2.2); SECURITY DEFINER.
 CREATE CONSTRAINT TRIGGER "journalLine_dimension_enforcement"
   AFTER INSERT ON "journalLine"
   DEFERRABLE INITIALLY DEFERRED
@@ -283,24 +278,21 @@ CREATE INDEX IF NOT EXISTS "journalLineDimension_dimensionId_valueId_idx"
 ## API / Service Changes
 
 `apps/erp/app/modules/accounting/accounting.service.ts` (+ zod in
-`accounting.models.ts`): `getSegments(client, companyGroupId)` (values under
-the Segment dimension), `upsertSegment` (flips `dimension.required` on first
-value), `getDocumentSegmentDefaults` / `upsertDocumentSegmentDefault`,
-`getSegmentDisclosure(client, companyGroupId, companyIds, { startDate,
-endDate })` (per-segment IS balances folded into revenue / expense-heading /
-profit rows), and `p_segment_*` pass-throughs on `getTrialBalance` /
-`getFinancialStatementBalances` / `getGeneralLedgerLines`. `costCenter` and
-`itemPostingGroup` upserts (their existing services) gain `segmentId`;
-`accountDefault` upsert gains `defaultSegmentId`. Reserved-dimension guard in
-`updateDimension` / `deleteDimension` (reject `entityType = 'Segment'`).
+`accounting.models.ts`): `getSegments`, `upsertSegment` (flips
+`dimension.required` on first value), `getDocumentSegmentDefaults` /
+`upsertDocumentSegmentDefault`, `getSegmentDisclosure(client, companyGroupId,
+companyIds, { startDate, endDate })` (per-segment IS balances folded into
+revenue / expense-heading / profit rows), and `p_segment_*` pass-throughs on
+`getTrialBalance` / `getFinancialStatementBalances` /
+`getGeneralLedgerLines`. Existing `costCenter` / `itemPostingGroup` upserts
+gain `segmentId`; `accountDefault` upsert gains `defaultSegmentId`.
+Reserved-dimension guard in `updateDimension` / `deleteDimension`.
 
-Routes (`routes/x+/accounting+/`): `settings.segments.tsx` (segment values,
-document-type defaults, company default — one settings screen);
-`segment-disclosure.tsx` (report); `trial-balance` / `balance-sheet` /
-`income-statement` / `general-ledger` loaders accept `segment` /
-`bySegment` search params. `path.to` additions: `segments`,
-`segmentDisclosure`. Edge functions are **unchanged** — derivation and
-enforcement live in the database.
+Routes (`routes/x+/accounting+/`): `settings.segments.tsx` (one settings
+screen: values, doc-type defaults, company default); `segment-disclosure.tsx`;
+TB / BS / IS / GL loaders accept `segment` / `bySegment` search params.
+`path.to` additions: `segments`, `segmentDisclosure`. Edge functions are
+**unchanged** — derivation and enforcement live in the database.
 
 ## UI Changes
 
@@ -311,11 +303,10 @@ enforcement live in the database.
   best-effort banner on the segmented balance sheet (§3).
 - **`Reports/SegmentDisclosure.tsx`**: the ASU 2023-07 grid; CSV export.
 - **`GeneralLedger/GeneralLedgerTable.tsx`**: Segment column + filter.
-- **Settings — Segments screen**: value list (create/rename/deactivate),
-  doc-type default rows, company default select; notice when the first value
-  flips Segment to required.
+- **Settings — Segments screen**: value list, doc-type default rows, company
+  default select; notice when the first value flips Segment to required.
 - **Cost center / item posting group / account defaults forms**: Segment
-  select (existing `ValidatedForm`s).
+  select added to the existing `ValidatedForm`s.
 - **`JournalEntries/DimensionSelector.tsx`**: hides the Segment dimension;
   posting-failure toasts surface the trigger's missing-dimension message.
 
@@ -332,8 +323,7 @@ enforcement live in the database.
 - [ ] Segmented balance sheet renders with the best-effort banner; every row ties across columns; unallocated cash/AR/AP sits in Unassigned.
 - [ ] GL detail filtered to account + window + segment sums to the corresponding statement cell; `segment=unassigned` returns exactly the lines with no Segment row; CSV matches the visible rows.
 - [ ] Segment Disclosure report: per segment — revenue, one row per top-level expense heading, other segment items, segment profit; Total column equals the consolidated income statement for the same window (single-company and consolidated/translated modes).
-- [ ] Four-column trial balance with a segment filter still foots (opening + debits − credits = closing per account; total debits = credits).
-- [ ] `pnpm run generate:types`, scoped typechecks (`--filter=@carbon/erp`, `--filter=@carbon/database`), and `pnpm run lint` pass; both migrations apply idempotently twice.
+- [ ] Four-column trial balance with a segment filter still foots (total debits = credits); `pnpm run generate:types`, scoped typechecks (`--filter=@carbon/erp`, `--filter=@carbon/database`), and `pnpm run lint` pass; both migrations apply idempotently twice.
 
 ## Risks
 
@@ -343,9 +333,8 @@ enforcement live in the database.
 | Deferred per-row trigger cost on large postings (backflush with many lines) | Low | Checks are index-served lookups per line (new partial index); posting sizes are tens of lines; measure on `close-job` in staging |
 | Trigger exception text lost/blurred through PostgREST → unclear user error | Med | Use `ERRCODE` + stable message prefix; edge functions and services map it to a flash message; acceptance criterion covers the toast |
 | Segment join slows balance RPCs on large ledgers when segment params are NULL | Low | Join only added inside the branch where a segment param is set; unfiltered plans unchanged |
-| `required` flips on while unposted drafts exist → users blocked at post time | Low | Intended behavior (post-time gate); settings screen warns; error message is actionable |
 | Concurrent redefinition of the same RPCs as financial-reporting spec | Med | This spec forks the **post-financial-reporting** definitions (per `.ai/lessons.md` fork-newest rule); sequencing noted in the meta spec `2026-07-04-accounting-implementation-meta.md` |
-| Companies segment by neither cost center nor product line (e.g., geography) | Low | Location-based segmentation lands via cost centers per location (assign segments there); documented; a `location.segmentId` attribute is a cheap follow-up if demanded |
+| Companies segment by geography, not cost center / product line | Low | Assign segments to per-location cost centers; a `location.segmentId` attribute is a cheap follow-up if demanded |
 
 ## Open Questions
 
@@ -360,4 +349,4 @@ enforcement live in the database.
 
 ## Changelog
 
-- 2026-07-04: Created — readiness finding GAP-7 (ASC 280 / ASU 2023-07); grounded in the dimension machinery (`20260228024512_dimensions.sql` + enum extensions through `20260630090112`), the nine dimension-writing edge functions, `accounting.server.ts` Kysely paths, plpgsql posters (`20260630092517`), `costCenter` (`20260317233050`), `itemPostingGroup` (`20230330024716`), `accountDefault` (`20230820020844`), `journal.sourceType`/`status` (`20260402000000`), and the SAP segment-derived-from-master-data pattern (research §S/4HANA). Extends the financial-reporting spec's report surfaces and RPC-fork conventions. Scope resolved ambitious/full-derivation by Brad 2026-07-04.
+- 2026-07-04: Created — readiness finding GAP-7 (ASC 280 / ASU 2023-07); grounded in the dimension machinery (`20260228024512_dimensions.sql` + enum extensions), the nine dimension-writing edge functions, `accounting.server.ts` Kysely paths, plpgsql posters (`20260630092517`), `costCenter` (`20260317233050`), `itemPostingGroup` (`20230330024716`), `accountDefault` (`20230820020844`), `journal.sourceType`/`status` (`20260402000000`), and the SAP segment-derived-from-master-data pattern (research §S/4HANA). Extends the financial-reporting spec's surfaces and RPC-fork conventions. Scope resolved ambitious/full-derivation by Brad 2026-07-04.
