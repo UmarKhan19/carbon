@@ -26,12 +26,28 @@ outer-loop (OpenClaw cron → Claude Code headless)
                     failed attempts exhausted → rescue branch + reset → end (salvage PR)
 ```
 
-**The doer chunks its own work too.** Its prompt tells it: if the task won't fit
-in one budgeted session, stop early at a coherent, committable slice and report
-`remaining` — a clean partial slice is success; racing the turn/budget cap to a
-broken finish is failure. Gate-green slices are checkpointed and pushed, skip
-the judge, reset the failure counter, and hand the next session the remaining
-work — so no session ever needs to be bigger than what it can finish cleanly.
+**The doer chunks its own work too.** Its prompt tells it its exact session
+caps (turns + budget) and: if the task won't fit in one budgeted session, stop
+early at a coherent, committable slice and report `remaining` — a clean partial
+slice is success; racing the turn/budget cap to a broken finish is failure.
+Gate-green slices are checkpointed and pushed, skip the judge, reset the
+failure counter, and hand the next session the remaining work — so no session
+ever needs to be bigger than what it can finish cleanly.
+
+**A doer session with no verdict never ends the run.** A capped/garbled doer
+session (no JSON handoff) is checkpointed as-is, counted as one failed attempt,
+and the task continues with a fresh session; `blocked` is reserved for the doer
+*explicitly* reporting a hard impossibility. (#1031's second run died at T4 on
+the old no-verdict → blocked behavior.)
+
+**Re-dispatch = resume.** The full plan (tasks + statuses) is written into
+`outcome.json`, which is committed with the branch (#1070). Re-dispatching the
+same binding on the same branch resumes deterministically: `done`/`flagged`
+tasks are skipped without spending a session, `pending`/`failed` ones re-run,
+and the prior run's `unverified`/`questions` flags carry into the new PR body.
+A prior `shipped` outcome never resumes — PR-feedback re-entry gets a fresh
+plan. The outer loop needs zero judgment: "run the same dispatch command again"
+is always the right recovery move.
 
 **Nothing is ever thrown away.** Every doer pass is committed and force-with-lease
 pushed to the loop branch before gates run; failed attempts stay on the branch as

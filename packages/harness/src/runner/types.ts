@@ -38,8 +38,18 @@ export type LoopOutcome = {
    * grooming resolves them BEFORE the next dispatch.
    */
   questions?: string[];
-  /** The task plan and where each task ended up — the PR renders this. */
-  plan?: { title: string; status: TaskStatus }[];
+  /**
+   * The task plan and where each task ended up. Carries the full task
+   * definitions (detail + criteria) so a re-dispatch on the same branch can
+   * RESUME: concluded tasks are skipped, pending/failed ones re-run.
+   * The PR renders this as a checklist.
+   */
+  plan?: {
+    title: string;
+    detail: string;
+    criteria: number[];
+    status: TaskStatus;
+  }[];
 };
 
 /**
@@ -68,6 +78,14 @@ export type DoerResult = {
    * questions — the loop never stops to ask.
    */
   assumptions?: string[];
+  /**
+   * Set when the doer produced NO parseable verdict (capped session, garbled
+   * output). Absence of a verdict is not a blocker: the tree is checkpointed
+   * as-is, the iteration counts as a failed attempt, and a FRESH session
+   * continues the task — the run never dies over one capped session
+   * (#1031's T4 ended a whole run this way).
+   */
+  noVerdict?: true;
   /** Set when the doer cannot proceed without a human — surfaces as a BLOCKED
    *  outcome. Reserved for hard impossibilities, never questions of preference. */
   blocked?: string;

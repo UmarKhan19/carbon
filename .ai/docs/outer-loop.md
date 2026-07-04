@@ -105,8 +105,10 @@ dead, no `outcome.json`):
 2. Check origin: `git ls-remote origin "refs/heads/loop/<id>"`.
    - **Branch exists** → re-dispatch the SAME binding in a worktree based on
      it: `crbn new loop/<id> --base origin/loop/<id> --yes`, then the normal
-     harness command. The loop re-plans, sees the committed progress, and
-     continues from where it died. `openPr` is idempotent — same branch, same PR.
+     harness command. The loop **resumes** — the committed `outcome.json`
+     carries the plan and task statuses, so concluded tasks are skipped for
+     free and only pending/failed ones run. `openPr` is idempotent — same
+     branch, same PR.
    - **No branch** → nothing was produced; re-dispatch fresh (base `origin/main`).
 3. Before re-dispatching after a second consecutive crash, capture evidence
    instead of retrying blind: post the tail (~50 lines) of the dispatch

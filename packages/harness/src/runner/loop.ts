@@ -1,7 +1,7 @@
 import type { Binding } from "../binding";
 import { FLOOR_GATES, runGates } from "../gates";
 import { appendLedger, readLedger } from "../ledger";
-import { buildPlan } from "./plan";
+import { resolvePlan } from "./plan";
 import {
   buildDoerPrompt,
   buildJudgePrompt,
@@ -15,8 +15,7 @@ import type {
   LoopOutcome,
   RunnerConfig,
   RunnerDeps,
-  Shell,
-  TaskStatus
+  Shell
 } from "./types";
 
 /** Anything uncommitted — tracked modifications AND untracked files. */
@@ -89,17 +88,23 @@ export function runLoop(
   const { claude, shell, now, log } = deps;
   const { cwd, ledgerPath } = config;
   let iteration = 0;
-  // Proof gaps on KEPT work and product questions raised along the way — both
-  // ride the outcome so the PR/issue gets flagged instead of the work vanishing.
-  const unverified: string[] = [];
-  const questions: string[] = [];
   // Consecutive tasks concluded without any judge verdict (even after retries)
   // — a persistent judge outage shouldn't keep burning doer budget.
   let judgeMissingStreak = 0;
 
-  // Phase 0: PLAN — systematic chunking, in code not in model judgment.
-  const tasks = buildPlan(binding, config, deps);
-  const status: TaskStatus[] = tasks.map(() => "pending");
+  // Phase 0: PLAN — systematic chunking, in code not in model judgment. A
+  // prior non-shipped run on this branch RESUMES: its plan and task statuses
+  // come back from outcome.json, concluded tasks are skipped for free.
+  const { tasks, status, resumed, ...carried } = resolvePlan(
+    binding,
+    config,
+    deps
+  );
+  // Proof gaps on KEPT work and product questions raised along the way — both
+  // ride the outcome so the PR/issue gets flagged instead of the work
+  // vanishing. Seeded from the resumed run so its flags survive re-dispatch.
+  const unverified: string[] = [...carried.unverified];
+  const questions: string[] = [...carried.questions];
 
   const end = (state: LoopOutcome["state"], reason: string): LoopOutcome => {
     log({ event: "loop:end", state, reason, iterations: iteration });
@@ -109,6 +114,8 @@ export function runLoop(
       reason,
       plan: tasks.map((t, i) => ({
         title: t.title,
+        detail: t.detail,
+        criteria: t.criteria,
         status: status[i] ?? "pending"
       })),
       ...(unverified.length > 0
@@ -122,12 +129,18 @@ export function runLoop(
     const task = tasks[k];
     if (!task) continue;
     const taskLabel = `${k + 1}/${tasks.length}: ${task.title}`;
+    // Resumed runs skip already-concluded tasks — no doer/judge spend.
+    if (status[k] === "done" || status[k] === "flagged") {
+      log({ event: "task:skip", task: taskLabel, status: status[k], resumed });
+      continue;
+    }
     const startSha = headSha(shell, cwd);
     const ctx: TaskContext = {
       task,
       index: k + 1,
       total: tasks.length,
-      ...(startSha ? { startSha } : {})
+      ...(startSha ? { startSha } : {}),
+      limits: { turns: config.doerMaxTurns, usd: config.doerMaxBudgetUsd }
     };
     // The doer chunks its own work too: a gate-green SLICE (doer reports
     // `remaining`) is progress — it resets the failure counter and skips the
@@ -243,6 +256,25 @@ export function runLoop(
           }
         }
         const gatesGreen = Object.values(gates).every(Boolean);
+
+        // 6-pre. NO VERDICT — the doer session was cut off (cap) or garbled.
+        // Absence of a verdict is not a blocker: the tree is already
+        // checkpointed and pushed; count a failed attempt and give the task a
+        // FRESH session with this in the ledger. (#1031's run died here.)
+        if (doer.noVerdict) {
+          failed++;
+          appendLedger(ledgerPath, {
+            iteration,
+            change: doer.change,
+            gates,
+            decision: "checkpoint",
+            reason:
+              "fixing forward: doer session ended without a verdict (likely hit its turn/budget cap)",
+            task: taskLabel,
+            at: now()
+          });
+          continue;
+        }
 
         // 6a. SLICE — the doer chunked itself: a gate-green, committed slice
         // with work remaining is progress. Checkpoint it, skip the judge
