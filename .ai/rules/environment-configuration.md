@@ -61,6 +61,25 @@ secret), `SUPABASE_JWT_SECRET` (optional), plus
 `INNGEST_DEV` is set). Dev also uses `INNGEST_DEV`, `INNGEST_BASE_URL`,
 `INNGEST_SERVE_HOST`, `INNGEST_TLS_HOST`.
 
+> **Self-hosting gotcha — `env_archived`:** the edge functions in
+> `packages/database/supabase/functions` send events with a raw `fetch` to
+> `${INNGEST_BASE_URL}/e/${INNGEST_EVENT_KEY}` (see `functions/lib/inngest.ts`,
+> rewritten off the `@inngest/sdk` in #988). For self-hosting, just set
+> `INNGEST_BASE_URL` to your Inngest server; the OSS `inngest start` server
+> validates `INNGEST_EVENT_KEY`. **Do not set `INNGEST_DEV` for the edge
+> functions** — it's unnecessary and disables signature verification.
+>
+> If a send fails with `401 Unauthorized … "error_code":"env_archived"`
+> ("Cannot send events to an archived environment"), the request escaped to
+> Inngest **Cloud** (`inn.gs`) — the OSS event API has no archived-env check, so
+> this response can only come from Cloud. Two causes: (a) the deployed edge lib
+> predates #988 and still uses `@inngest/sdk`, which ignores `INNGEST_BASE_URL`
+> and defaults to Cloud mode unless `INNGEST_DEV` is set → **re-sync/redeploy the
+> functions** to get the fetch-based lib; or (b) `INNGEST_BASE_URL` isn't set in
+> the functions container. The archived-env part is just the leftover Cloud
+> event key pointing at a branch environment that auto-archived 3 days after its
+> last deploy.
+
 **Auth / session** — `SESSION_SECRET` (required), `AUTH_PROVIDERS`
 (`email,google,azure,passkey`; gate via `isAuthProviderEnabled`),
 `CLOUDFLARE_TURNSTILE_SITE_KEY` / `_SECRET_KEY`, `RATE_LIMIT`.
