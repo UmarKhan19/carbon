@@ -150,8 +150,8 @@ export const DEFAULT_CONFIG: Omit<RunnerConfig, "cwd" | "ledgerPath"> = {
   maxIterations: 8,
   doerMaxTurns: 60,
   doerMaxBudgetUsd: 5,
-  judgeMaxTurns: 20,
-  judgeMaxBudgetUsd: 2,
+  judgeMaxTurns: 30,
+  judgeMaxBudgetUsd: 5,
   behaviorMaxTurns: 300,
   behaviorMaxBudgetUsd: 15
 };
