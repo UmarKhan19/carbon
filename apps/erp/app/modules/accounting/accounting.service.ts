@@ -26,6 +26,7 @@ import type {
   macrsConventions,
   macrsPropertyClasses,
   paymentTermValidator,
+  periodCloseStatuses,
   taxDepreciationMethods
 } from "./accounting.models";
 import type {
@@ -589,19 +590,77 @@ export async function getCurrentAccountingPeriod(
     .single();
 }
 
+// Posting source distinguishes operational documents (receipts, shipments,
+// invoices) from accounting entries (manual JEs, depreciation, disposals).
+// Locked periods reject operational posting but still accept accounting
+// adjustments; Closed periods reject both. See period-closing spec §Enforcement.
+type PeriodPostingSource = "operational" | "accounting";
+
+// New close-lifecycle columns on accountingPeriod are cloud-generated and not
+// yet in the committed DB types, so read them through this cast shape.
+type AccountingPeriodCloseColumns = {
+  closeStatus?: (typeof periodCloseStatuses)[number];
+  fiscalYear?: number | null;
+  periodNumber?: number | null;
+};
+
+const MONTH_NUMBER: Record<string, number> = {
+  January: 1,
+  February: 2,
+  March: 3,
+  April: 4,
+  May: 5,
+  June: 6,
+  July: 7,
+  August: 8,
+  September: 9,
+  October: 10,
+  November: 11,
+  December: 12
+};
+
+// Fiscal year is named by its ending calendar year (FY2026 = the year that
+// ends in 2026). periodNumber is 1..12 counted from the fiscal start month.
+function fiscalYearAndPeriodFor(
+  date: Date,
+  startMonth: number
+): { fiscalYear: number; periodNumber: number } {
+  const month = date.getMonth() + 1;
+  const year = date.getFullYear();
+  const periodNumber = ((month - startMonth + 12) % 12) + 1;
+  const fiscalYear =
+    startMonth === 1 ? year : month >= startMonth ? year + 1 : year;
+  return { fiscalYear, periodNumber };
+}
+
 export async function getOrCreateAccountingPeriod(
   client: SupabaseClient<Database>,
   companyId: string,
-  date: string
+  date: string,
+  source: PeriodPostingSource = "operational"
 ): Promise<{ data: string | null; error: { message: string } | null }> {
   const existing = await getCurrentAccountingPeriod(client, companyId, date);
 
   if (existing.data) {
-    if (existing.data.closedAt) {
+    const closeStatus =
+      (existing.data as unknown as AccountingPeriodCloseColumns).closeStatus ??
+      (existing.data.closedAt ? "Closed" : "Open");
+
+    if (closeStatus === "Closed") {
       return {
         data: null,
         error: {
           message: "Accounting period is closed. Reopen it before posting."
+        }
+      };
+    }
+
+    if (closeStatus === "Locked" && source === "operational") {
+      return {
+        data: null,
+        error: {
+          message:
+            "Accounting period is locked. Post as an accounting adjustment or unlock the period first."
         }
       };
     }
@@ -628,19 +687,27 @@ export async function getOrCreateAccountingPeriod(
   const startDate = new Date(year, month, 1).toISOString().split("T")[0];
   const endDate = new Date(year, month + 1, 0).toISOString().split("T")[0];
 
+  const settings = await getFiscalYearSettings(client, companyId);
+  const startMonth = settings.data?.startMonth
+    ? (MONTH_NUMBER[settings.data.startMonth] ?? 1)
+    : 1;
+  const { fiscalYear, periodNumber } = fiscalYearAndPeriodFor(d, startMonth);
+
   await client
     .from("accountingPeriod")
     .update({ status: "Inactive" as const })
     .eq("companyId", companyId)
     .eq("status", "Active");
 
-  const result = await client
-    .from("accountingPeriod")
+  const result = await (client.from("accountingPeriod") as any)
     .insert({
       startDate,
       endDate,
       companyId,
       status: "Active" as const,
+      closeStatus: "Open",
+      fiscalYear,
+      periodNumber,
       createdBy: "system"
     })
     .select("id")
@@ -654,6 +721,362 @@ export async function getOrCreateAccountingPeriod(
   }
 
   return { data: result.data.id, error: null };
+}
+
+type AccountingPeriodRow = {
+  id: string;
+  startDate: string;
+  endDate: string;
+  status: "Active" | "Inactive";
+  closeStatus: (typeof periodCloseStatuses)[number];
+  fiscalYear: number | null;
+  periodNumber: number | null;
+  lockedAt: string | null;
+  lockedBy: string | null;
+  closedAt: string | null;
+  closedBy: string | null;
+};
+
+export async function getAccountingPeriods(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  return (client.from("accountingPeriod") as any)
+    .select(
+      "id, startDate, endDate, status, closeStatus, fiscalYear, periodNumber, lockedAt, lockedBy, closedAt, closedBy",
+      { count: "exact" }
+    )
+    .eq("companyId", companyId)
+    .order("startDate", { ascending: false }) as Promise<{
+    data: AccountingPeriodRow[] | null;
+    count: number | null;
+    error: { message: string } | null;
+  }>;
+}
+
+async function getAccountingPeriodById(
+  client: SupabaseClient<Database>,
+  periodId: string,
+  companyId: string
+) {
+  const result = await (client.from("accountingPeriod") as any)
+    .select("id, startDate, endDate, closeStatus, fiscalYear, periodNumber")
+    .eq("id", periodId)
+    .eq("companyId", companyId)
+    .single();
+  return result as {
+    data: Pick<
+      AccountingPeriodRow,
+      | "id"
+      | "startDate"
+      | "endDate"
+      | "closeStatus"
+      | "fiscalYear"
+      | "periodNumber"
+    > | null;
+    error: { message: string } | null;
+  };
+}
+
+export async function lockAccountingPeriod(
+  client: SupabaseClient<Database>,
+  args: { periodId: string; companyId: string; userId: string }
+) {
+  const period = await getAccountingPeriodById(
+    client,
+    args.periodId,
+    args.companyId
+  );
+  if (period.error || !period.data) {
+    return {
+      data: null,
+      error: period.error ?? { message: "Period not found" }
+    };
+  }
+  if (period.data.closeStatus !== "Open") {
+    return {
+      data: null,
+      error: { message: "Only open periods can be locked" }
+    };
+  }
+  return (client.from("accountingPeriod") as any)
+    .update({
+      closeStatus: "Locked",
+      lockedAt: new Date().toISOString(),
+      lockedBy: args.userId,
+      updatedBy: args.userId,
+      updatedAt: new Date().toISOString()
+    })
+    .eq("id", args.periodId)
+    .eq("companyId", args.companyId)
+    .select("id")
+    .single();
+}
+
+export async function unlockAccountingPeriod(
+  client: SupabaseClient<Database>,
+  args: { periodId: string; companyId: string; userId: string }
+) {
+  const period = await getAccountingPeriodById(
+    client,
+    args.periodId,
+    args.companyId
+  );
+  if (period.error || !period.data) {
+    return {
+      data: null,
+      error: period.error ?? { message: "Period not found" }
+    };
+  }
+  if (period.data.closeStatus !== "Locked") {
+    return {
+      data: null,
+      error: { message: "Only locked periods can be unlocked" }
+    };
+  }
+  return (client.from("accountingPeriod") as any)
+    .update({
+      closeStatus: "Open",
+      lockedAt: null,
+      lockedBy: null,
+      updatedBy: args.userId,
+      updatedAt: new Date().toISOString()
+    })
+    .eq("id", args.periodId)
+    .eq("companyId", args.companyId)
+    .select("id")
+    .single();
+}
+
+export async function closeAccountingPeriod(
+  client: SupabaseClient<Database>,
+  args: { periodId: string; companyId: string; userId: string }
+) {
+  const period = await getAccountingPeriodById(
+    client,
+    args.periodId,
+    args.companyId
+  );
+  if (period.error || !period.data) {
+    return {
+      data: null,
+      error: period.error ?? { message: "Period not found" }
+    };
+  }
+  if (period.data.closeStatus === "Closed") {
+    return { data: null, error: { message: "Period is already closed" } };
+  }
+
+  // Sequential close: every earlier period must already be Closed.
+  const earlierOpen = await (client.from("accountingPeriod") as any)
+    .select("id", { count: "exact", head: true })
+    .eq("companyId", args.companyId)
+    .lt("startDate", period.data.startDate)
+    .neq("closeStatus", "Closed");
+  if ((earlierOpen.count ?? 0) > 0) {
+    return {
+      data: null,
+      error: {
+        message: "Earlier periods must be closed first (sequential close)"
+      }
+    };
+  }
+
+  return (client.from("accountingPeriod") as any)
+    .update({
+      closeStatus: "Closed",
+      closedAt: new Date().toISOString(),
+      closedBy: args.userId,
+      updatedBy: args.userId,
+      updatedAt: new Date().toISOString()
+    })
+    .eq("id", args.periodId)
+    .eq("companyId", args.companyId)
+    .select("id")
+    .single();
+}
+
+export async function reopenAccountingPeriod(
+  client: SupabaseClient<Database>,
+  args: { periodId: string; companyId: string; userId: string }
+) {
+  const period = await getAccountingPeriodById(
+    client,
+    args.periodId,
+    args.companyId
+  );
+  if (period.error || !period.data) {
+    return {
+      data: null,
+      error: period.error ?? { message: "Period not found" }
+    };
+  }
+  if (period.data.closeStatus !== "Closed") {
+    return { data: null, error: { message: "Period is not closed" } };
+  }
+
+  // Reverse-sequential reopen: no later period may still be Closed.
+  const laterClosed = await (client.from("accountingPeriod") as any)
+    .select("id", { count: "exact", head: true })
+    .eq("companyId", args.companyId)
+    .gt("startDate", period.data.startDate)
+    .eq("closeStatus", "Closed");
+  if ((laterClosed.count ?? 0) > 0) {
+    return {
+      data: null,
+      error: {
+        message:
+          "Later periods must be reopened first (reopen from the most recent close backwards)"
+      }
+    };
+  }
+
+  return (client.from("accountingPeriod") as any)
+    .update({
+      closeStatus: "Open",
+      closedAt: null,
+      closedBy: null,
+      updatedBy: args.userId,
+      updatedAt: new Date().toISOString()
+    })
+    .eq("id", args.periodId)
+    .eq("companyId", args.companyId)
+    .select("id")
+    .single();
+}
+
+export async function createFiscalYearPeriods(
+  client: SupabaseClient<Database>,
+  args: { companyId: string; fiscalYear: number; userId: string }
+) {
+  const settings = await getFiscalYearSettings(client, args.companyId);
+  const startMonth = settings.data?.startMonth
+    ? (MONTH_NUMBER[settings.data.startMonth] ?? 1)
+    : 1;
+
+  // FY is named by its ending calendar year; a non-January start begins in the
+  // prior calendar year.
+  const firstYear = startMonth === 1 ? args.fiscalYear : args.fiscalYear - 1;
+
+  const existing = await (client.from("accountingPeriod") as any)
+    .select("periodNumber")
+    .eq("companyId", args.companyId)
+    .eq("fiscalYear", args.fiscalYear);
+  if (existing.error) return existing;
+  const existingNumbers = new Set(
+    ((existing.data ?? []) as { periodNumber: number | null }[]).map(
+      (p) => p.periodNumber
+    )
+  );
+
+  const rows = [];
+  for (let p = 1; p <= 12; p++) {
+    if (existingNumbers.has(p)) continue;
+    const monthIndex = (startMonth - 1 + (p - 1)) % 12; // 0-indexed
+    const year = firstYear + Math.floor((startMonth - 1 + (p - 1)) / 12);
+    const startDate = new Date(Date.UTC(year, monthIndex, 1));
+    const endDate = new Date(Date.UTC(year, monthIndex + 1, 0));
+    rows.push({
+      companyId: args.companyId,
+      startDate: startDate.toISOString().split("T")[0],
+      endDate: endDate.toISOString().split("T")[0],
+      status: "Inactive",
+      closeStatus: "Open",
+      fiscalYear: args.fiscalYear,
+      periodNumber: p,
+      createdBy: args.userId
+    });
+  }
+
+  if (rows.length === 0) {
+    return { data: [], error: null };
+  }
+
+  return (client.from("accountingPeriod") as any).insert(rows).select("id");
+}
+
+export async function getPeriodCloseReadiness(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  periodId: string
+) {
+  const period = await getAccountingPeriodById(client, periodId, companyId);
+  if (period.error || !period.data) {
+    return {
+      data: null,
+      error: period.error ?? { message: "Period not found" }
+    };
+  }
+  const { startDate, endDate } = period.data;
+
+  const [draftJournals, journalsInPeriod, draftDepreciation, unmatchedIC] =
+    await Promise.all([
+      client
+        .from("journal")
+        .select("id", { count: "exact", head: true })
+        .eq("companyId", companyId)
+        .eq("status", "Draft")
+        .gte("postingDate", startDate)
+        .lte("postingDate", endDate),
+      client
+        .from("journalEntries")
+        .select("id, journalEntryId, totalDebits, totalCredits")
+        .eq("companyId", companyId)
+        .eq("status", "Posted")
+        .gte("postingDate", startDate)
+        .lte("postingDate", endDate),
+      client
+        .from("depreciationRun")
+        .select("id", { count: "exact", head: true })
+        .eq("companyId", companyId)
+        .eq("status", "Draft")
+        .gte("periodEnd", startDate)
+        .lte("periodEnd", endDate),
+      client
+        .from("intercompanyTransaction")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "Unmatched")
+        .or(`sourceCompanyId.eq.${companyId},targetCompanyId.eq.${companyId}`)
+    ]);
+
+  const unbalanced = (journalsInPeriod.data ?? []).filter(
+    (j) =>
+      Math.abs(Number(j.totalDebits ?? 0) - Number(j.totalCredits ?? 0)) > 0.001
+  );
+
+  const blockers: { key: string; label: string; count: number }[] = [];
+  const warnings: { key: string; label: string; count: number }[] = [];
+
+  if ((draftJournals.count ?? 0) > 0) {
+    blockers.push({
+      key: "draftJournals",
+      label: "Draft journal entries dated in this period",
+      count: draftJournals.count ?? 0
+    });
+  }
+  if (unbalanced.length > 0) {
+    blockers.push({
+      key: "unbalancedJournals",
+      label: "Posted journal entries with unequal debits and credits",
+      count: unbalanced.length
+    });
+  }
+  if ((draftDepreciation.count ?? 0) > 0) {
+    warnings.push({
+      key: "draftDepreciation",
+      label: "Draft depreciation runs ending in this period",
+      count: draftDepreciation.count ?? 0
+    });
+  }
+  if ((unmatchedIC.count ?? 0) > 0) {
+    warnings.push({
+      key: "unmatchedIntercompany",
+      label: "Unmatched intercompany transactions involving this company",
+      count: unmatchedIC.count ?? 0
+    });
+  }
+
+  return { data: { blockers, warnings }, error: null };
 }
 
 export async function getDefaultAccounts(

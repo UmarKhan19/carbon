@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-06T06:59:29.834Z",
-  "totalTools": 1254,
+  "generated": "2026-07-04T18:11:22.760Z",
+  "totalTools": 1261,
   "modules": 15,
   "tools": [
     {
@@ -821,11 +821,12 @@
       "module": "accounting",
       "classification": "READ",
       "description": "get or create accounting period",
-      "paramCount": 1,
+      "paramCount": 2,
       "serviceParams": [
         "client",
         "companyId",
-        "date"
+        "date",
+        "source"
       ],
       "injectAuth": [
         "companyId"
@@ -835,10 +836,184 @@
         "properties": {
           "date": {
             "type": "string"
+          },
+          "source": {}
+        },
+        "required": [
+          "date",
+          "source"
+        ]
+      }
+    },
+    {
+      "name": "accounting_getAccountingPeriods",
+      "module": "accounting",
+      "classification": "READ",
+      "description": "get accounting periods",
+      "paramCount": 0,
+      "serviceParams": [
+        "client",
+        "companyId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "accounting_lockAccountingPeriod",
+      "module": "accounting",
+      "classification": "WRITE",
+      "description": "lock accounting period",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "periodId": {
+            "type": "string"
           }
         },
         "required": [
-          "date"
+          "periodId"
+        ]
+      }
+    },
+    {
+      "name": "accounting_unlockAccountingPeriod",
+      "module": "accounting",
+      "classification": "WRITE",
+      "description": "unlock accounting period",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "periodId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "periodId"
+        ]
+      }
+    },
+    {
+      "name": "accounting_closeAccountingPeriod",
+      "module": "accounting",
+      "classification": "WRITE",
+      "description": "close accounting period",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId",
+        "updatedBy"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "periodId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "periodId"
+        ]
+      }
+    },
+    {
+      "name": "accounting_reopenAccountingPeriod",
+      "module": "accounting",
+      "classification": "WRITE",
+      "description": "reopen accounting period",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "periodId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "periodId"
+        ]
+      }
+    },
+    {
+      "name": "accounting_createFiscalYearPeriods",
+      "module": "accounting",
+      "classification": "WRITE",
+      "description": "create fiscal year periods",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId",
+        "createdBy",
+        "updatedBy"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "fiscalYear": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "fiscalYear"
+        ]
+      }
+    },
+    {
+      "name": "accounting_getPeriodCloseReadiness",
+      "module": "accounting",
+      "classification": "READ",
+      "description": "get period close readiness",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "periodId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "periodId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "periodId"
         ]
       }
     },
@@ -13042,7 +13217,7 @@
       "module": "items",
       "classification": "WRITE",
       "description": "upsert method material",
-      "paramCount": 1,
+      "paramCount": 4,
       "serviceParams": [
         "client",
         "methodMaterial"
@@ -13055,10 +13230,22 @@
       "schema": {
         "type": "object",
         "properties": {
-          "methodMaterial": {}
+          "id": {
+            "type": "string"
+          },
+          "makeMethodId": {
+            "type": "string"
+          },
+          "order": {
+            "type": "number"
+          },
+          "itemType": {
+            "type": "string"
+          }
         },
         "required": [
-          "methodMaterial"
+          "id",
+          "makeMethodId"
         ]
       }
     },
@@ -18203,7 +18390,7 @@
       "module": "production",
       "classification": "WRITE",
       "description": "update production quantity",
-      "paramCount": 1,
+      "paramCount": 3,
       "serviceParams": [
         "client",
         "productionQuantity"
@@ -18215,10 +18402,18 @@
       "schema": {
         "type": "object",
         "properties": {
-          "productionQuantity": {}
+          "id": {
+            "type": "string"
+          },
+          "jobOperationId": {
+            "type": "string"
+          },
+          "type": {
+            "type": "number"
+          }
         },
         "required": [
-          "productionQuantity"
+          "jobOperationId"
         ]
       }
     },
@@ -18227,7 +18422,7 @@
       "module": "production",
       "classification": "WRITE",
       "description": "upsert production quantity",
-      "paramCount": 1,
+      "paramCount": 3,
       "serviceParams": [
         "client",
         "productionQuantity"
@@ -18240,10 +18435,18 @@
       "schema": {
         "type": "object",
         "properties": {
-          "productionQuantity": {}
+          "id": {
+            "type": "string"
+          },
+          "jobOperationId": {
+            "type": "string"
+          },
+          "type": {
+            "type": "number"
+          }
         },
         "required": [
-          "productionQuantity"
+          "jobOperationId"
         ]
       }
     },

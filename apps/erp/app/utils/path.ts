@@ -470,6 +470,9 @@ export const path = {
     accounting: `${x}/accounting`,
     accountingDefaults: `${x}/accounting/defaults`,
     accountingJournals: `${x}/accounting/journals`,
+    accountingPeriods: `${x}/accounting/periods`,
+    accountingPeriodClose: (id: string) =>
+      generatePath(`${x}/accounting/periods/${id}/close`),
     accountingSettings: `${x}/settings/accounting`,
     journalEntry: (id: string) => generatePath(`${x}/journal-entry/${id}`),
     journalEntryDetails: (id: string) =>

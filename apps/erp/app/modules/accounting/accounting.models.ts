@@ -481,6 +481,18 @@ export const journalEntrySourceTypes = [
 
 export const journalEntryStatuses = ["Draft", "Posted", "Reversed"] as const;
 
+export const periodCloseStatuses = ["Open", "Locked", "Closed"] as const;
+
+export const accountingPeriodTransitionValidator = z.object({
+  intent: z.enum(["lock", "unlock", "close", "reopen"]),
+  periodId: z.string().min(1, { message: "Period is required" })
+});
+
+export const generateFiscalYearPeriodsValidator = z.object({
+  intent: z.literal("generate"),
+  fiscalYear: zfd.numeric(z.number().int().min(2000).max(2200))
+});
+
 export const journalEntryValidator = z.object({
   id: zfd.text(z.string().optional()),
   description: z.string().optional(),
