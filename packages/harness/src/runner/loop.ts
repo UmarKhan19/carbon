@@ -65,10 +65,29 @@ export function runLoop(
   const { cwd, ledgerPath } = config;
   let iteration = 0;
   let sinceKeep = 0;
+  // Proof gaps on KEPT work and product questions raised along the way — both
+  // ride the outcome so the PR/issue gets flagged instead of the work vanishing.
+  const unverified: string[] = [];
+  const questions: string[] = [];
 
   const end = (state: LoopOutcome["state"], reason: string): LoopOutcome => {
-    log({ event: "loop:end", state, reason, iterations: iteration });
-    return { state, iterations: iteration, reason };
+    log({
+      event: "loop:end",
+      state,
+      reason,
+      iterations: iteration,
+      unverified: unverified.length,
+      questions: questions.length
+    });
+    return {
+      state,
+      iterations: iteration,
+      reason,
+      ...(unverified.length > 0
+        ? { unverified: [...new Set(unverified)] }
+        : {}),
+      ...(questions.length > 0 ? { questions: [...new Set(questions)] } : {})
+    };
   };
 
   while (iteration < config.maxIterations) {
@@ -102,6 +121,8 @@ export function runLoop(
       const dirty = isDirty(shell, cwd);
 
       const gates: Record<string, boolean> = {};
+      // Proof gaps THIS iteration (behavior gate couldn't verify either way).
+      const iterUnverified: string[] = [];
       if (dirty) {
         // 2. FLOOR GATES (lint + conformance + clobbers) and per-package typecheck.
         const floor = config.gates ?? FLOOR_GATES;
@@ -124,15 +145,19 @@ export function runLoop(
             );
           }
           const b = deps.behaviorGate(binding, config, deps);
-          if (b.blocked) {
-            revert(shell, cwd);
-            return end("blocked", `behavior gate blocked: ${b.blocked}`);
+          if (b.unverified) {
+            // Absence of proof is not disproof. Don't fail the gate — record
+            // the gap; if the judge approves, the work ships as a draft PR
+            // flagged for human verification instead of being reverted.
+            iterUnverified.push(b.unverified);
+          } else {
+            gates.behavior = b.passed;
           }
-          gates.behavior = b.passed;
           log({
             event: "behavior",
             iteration,
             passed: b.passed,
+            ...(b.unverified ? { unverified: b.unverified } : {}),
             shots: b.screenshots.length,
             notes: b.notes
           });
@@ -164,9 +189,18 @@ export function runLoop(
           event: "judge",
           iteration,
           approved: judge.approved,
-          unmet: judge.unmet
+          unmet: judge.unmet,
+          ...(judge.disputed ? { disputed: judge.disputed } : {})
         });
       }
+
+      // Disputed criteria are product questions, not build targets — surface
+      // them (they reach the PR/issue) whether or not this change is kept.
+      const disputedQs = (judge.disputed ?? []).map(
+        (d) =>
+          `Acceptance [${d.index}] "${binding.acceptance[d.index] ?? "?"}": ${d.question}`
+      );
+      questions.push(...disputedQs);
 
       // 6. DECIDE + LEDGER. Keep iff every gate is green AND the judge approves.
       const keep = gatesGreen && judge.approved;
@@ -174,20 +208,38 @@ export function runLoop(
         if (keep) commit(shell, cwd, `loop(${binding.id}): ${doer.change}`);
         else revert(shell, cwd);
       }
+      if (keep) {
+        unverified.push(...iterUnverified);
+        questions.push(
+          ...(doer.assumptions ?? []).map((a) => `Assumption: ${a}`)
+        );
+      }
       appendLedger(ledgerPath, {
         iteration,
         change: doer.change,
         gates,
         decision: keep ? "keep" : "revert",
         reason: keep
-          ? "all gates green; judge approved"
+          ? iterUnverified.length > 0
+            ? "gates green; judge approved (behavior proof incomplete)"
+            : "all gates green; judge approved"
           : revertReason(gates, judge),
+        ...(iterUnverified.length > 0 ? { unverified: iterUnverified } : {}),
+        ...(disputedQs.length > 0 ? { questions: disputedQs } : {}),
+        ...(doer.assumptions && doer.assumptions.length > 0
+          ? { assumptions: doer.assumptions }
+          : {}),
         at: now()
       });
 
       // 7. TERMINATE?
       if (keep && judge.unmet.length === 0) {
-        return end("shipped", "all acceptance criteria met and provable");
+        return end(
+          "shipped",
+          unverified.length > 0
+            ? "acceptance met per judge; behavior proof incomplete — needs human verification"
+            : "all acceptance criteria met and provable"
+        );
       }
       // Progress = a real change was committed. A clean no-op never counts.
       if (keep && dirty) sinceKeep = 0;

@@ -183,22 +183,88 @@ describe("runLoop", () => {
     expect(out.reason).toContain("behavior gate");
   });
 
-  it("blocks (not reverts) when the behavior gate reports the stack is down", () => {
+  it("ships flagged (not reverted) when the behavior gate cannot verify either way", () => {
+    const committed: string[] = [];
+    const shell: RunnerDeps["shell"] = (cmd) => {
+      if (cmd === "git diff --quiet") return { ok: false, output: "" };
+      if (cmd.startsWith("git commit")) committed.push(cmd);
+      return { ok: true, output: "" };
+    };
     const deps = makeDeps({
-      claude: scriptedClaude([doer({ touchedUI: true })], []),
-      shell: dirtyShell(),
+      claude: scriptedClaude(
+        [doer({ touchedUI: true })],
+        [judge({ approved: true, unmet: [] })]
+      ),
+      shell,
       behaviorGate: () => ({
         passed: false,
         screenshots: [],
-        notes: "down",
-        blocked: "ERP not reachable"
+        notes: "could not construct a PO with two receipts",
+        unverified: "could not construct a PO with two receipts"
       })
     });
 
     const out = runLoop(BINDING, makeConfig(), deps);
 
-    expect(out.state).toBe("blocked");
-    expect(out.reason).toContain("ERP not reachable");
+    expect(out.state).toBe("shipped");
+    expect(out.unverified).toEqual([
+      "could not construct a PO with two receipts"
+    ]);
+    expect(out.reason).toContain("needs human verification");
+    expect(committed).toHaveLength(1);
+    const last = readLedger(ledgerPath).at(-1);
+    expect(last?.decision).toBe("keep");
+    expect(last?.unverified).toEqual([
+      "could not construct a PO with two receipts"
+    ]);
+    // The behavior gate must not be recorded as failed — proof was unavailable.
+    expect(last?.gates.behavior).toBeUndefined();
+  });
+
+  it("reverts when the behavior gate DISPROVES the change (reached the state, still broken)", () => {
+    const deps = makeDeps({
+      claude: scriptedClaude(
+        [doer({ touchedUI: true }), doer({ touchedUI: true })],
+        []
+      ),
+      shell: dirtyShell(),
+      behaviorGate: () => ({
+        passed: false,
+        screenshots: ["bug.png"],
+        notes: "reproduced the state; still broken"
+      })
+    });
+
+    const out = runLoop(BINDING, makeConfig({ plateauAfter: 2 }), deps);
+
+    expect(out.state).toBe("plateau");
+    const ledger = readLedger(ledgerPath);
+    expect(ledger.every((e) => e.decision === "revert")).toBe(true);
+    expect(ledger.at(-1)?.gates.behavior).toBe(false);
+  });
+
+  it("ships with open questions when the judge disputes a criterion instead of churning", () => {
+    const deps = makeDeps({
+      claude: scriptedClaude(
+        [doer({ assumptions: ["kept 'Set Quantity' as the default"] })],
+        [
+          judge({
+            approved: true,
+            unmet: [],
+            disputed: [{ index: 1, question: "is this criterion intentional?" }]
+          })
+        ]
+      ),
+      shell: dirtyShell()
+    });
+
+    const out = runLoop(BINDING, makeConfig(), deps);
+
+    expect(out.state).toBe("shipped");
+    expect(out.questions).toEqual([
+      'Acceptance [1] "a test covers it": is this criterion intentional?',
+      "Assumption: kept 'Set Quantity' as the default"
+    ]);
   });
 
   it("runs the behavior gate for UI changes when wired", () => {

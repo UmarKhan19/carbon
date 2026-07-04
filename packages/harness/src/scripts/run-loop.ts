@@ -7,6 +7,7 @@ import {
 import { resolve } from "node:path";
 import { parseBinding } from "../binding";
 import * as layout from "../layout";
+import { readLedger } from "../ledger";
 import { behaviorGate } from "../runner/behavior";
 import { claude } from "../runner/claude";
 import { runLoop } from "../runner/loop";
@@ -65,10 +66,21 @@ const outcome = runLoop(binding, config, {
   behaviorGate
 });
 
-if (outcome.state === "shipped" && !noPr) {
-  const url = openPr(binding, ledgerPath, shell, cwd);
+// Open a PR whenever there is kept, gate-green work — shipped runs always, and
+// non-shipped runs (plateau/blocked) as a SALVAGE draft. Kept commits already
+// passed every floor gate and judge review; discarding them with the worktree
+// wastes the spend. Unproven work goes up flagged, never silently dropped.
+const keptCommits = readLedger(ledgerPath).some((e) => e.decision === "keep");
+if (!noPr && (outcome.state === "shipped" || keptCommits)) {
+  const url = openPr(binding, ledgerPath, shell, cwd, {
+    ...(outcome.unverified ? { unverified: outcome.unverified } : {}),
+    ...(outcome.questions ? { questions: outcome.questions } : {}),
+    ...(outcome.state !== "shipped"
+      ? { partial: { state: outcome.state, reason: outcome.reason } }
+      : {})
+  });
   outcome.prUrl = url;
-  log({ event: "pr", url });
+  log({ event: "pr", url, partial: outcome.state !== "shipped" });
   console.log(`\nPR: ${url}`);
 }
 
