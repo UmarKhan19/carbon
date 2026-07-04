@@ -23,11 +23,18 @@ vi.mock("@carbon/glossary", () => ({
   terms: {}
 }));
 
+import type {
+  PeriodCloseTaskRow,
+  PeriodReadinessCheck
+} from "./accounting.service";
 import {
+  checklistTasksToCreate,
   closeAccountingPeriod,
+  evaluateCloseChecklist,
   getOrCreateAccountingPeriod,
   postJournalEntry,
-  reopenAccountingPeriod
+  reopenAccountingPeriod,
+  skipCloseTask
 } from "./accounting.service";
 
 // ---------------------------------------------------------------------------
@@ -79,17 +86,134 @@ describe("closeAccountingPeriod — sequential close", () => {
     expect(result.data).toBeNull();
   });
 
-  it("allows closing when all earlier periods are Closed", async () => {
+  it("allows closing when earlier periods are closed and the checklist is clear", async () => {
+    // Query order after the sequential gate:
+    //   getPeriodCloseChecklist: getAccountingPeriodById -> [definitions, tasks]
+    //     -> readiness (4 parallel) ; then the period-flip update.
     const client = makeClient([
       { data: { id: "P2", startDate: "2026-02-01", closeStatus: "Open" } },
       { count: 0 }, // no earlier open periods
-      { data: { id: "P2" }, error: null } // update
+      {
+        data: {
+          id: "P2",
+          startDate: "2026-02-01",
+          endDate: "2026-02-28",
+          closeStatus: "Open"
+        }
+      },
+      { data: [] }, // active definitions (none configured)
+      { data: [] }, // existing tasks (none)
+      { count: 0 }, // readiness: draft journals
+      { data: [] }, // readiness: posted journals in period
+      { count: 0 }, // readiness: draft depreciation
+      { count: 0 }, // readiness: unmatched intercompany
+      { data: { id: "P2" }, error: null } // period-flip update
     ]);
 
     const result = await closeAccountingPeriod(client, args);
 
     expect(result.error).toBeNull();
     expect(result.data).toEqual({ id: "P2" });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Close checklist gating (acceptance criteria 6/9/10) — exercised as pure logic
+// so the gate is verified without scripting a full query graph.
+// ---------------------------------------------------------------------------
+
+function task(overrides: Partial<PeriodCloseTaskRow>): PeriodCloseTaskRow {
+  return {
+    id: "T",
+    companyId: "C1",
+    accountingPeriodId: "P2",
+    definitionId: "D",
+    name: "Task",
+    taskType: "Manual",
+    autoCheckKey: null,
+    sortOrder: 1,
+    required: true,
+    severity: null,
+    status: "Open",
+    assigneeId: null,
+    completedBy: null,
+    completedAt: null,
+    skippedReason: null,
+    notes: null,
+    ...overrides
+  };
+}
+
+const draftBlockerFailing: PeriodReadinessCheck = {
+  autoCheckKey: "draft-journals",
+  severity: "Blocker",
+  label: "Draft journal entries dated in this period",
+  failing: true,
+  count: 2
+};
+const draftBlockerPassing: PeriodReadinessCheck = {
+  ...draftBlockerFailing,
+  failing: false,
+  count: 0
+};
+
+describe("checklistTasksToCreate — idempotent instantiation (criterion 6)", () => {
+  it("creates a task per definition on first run, none on re-run", () => {
+    const defs = [{ id: "d1" }, { id: "d2" }, { id: "d3" }];
+
+    const first = checklistTasksToCreate(defs, []);
+    expect(first.map((d) => d.id)).toEqual(["d1", "d2", "d3"]);
+
+    // Simulate the tasks that first-run would have created, then re-run.
+    const existing = first.map((d) => ({ definitionId: d.id }));
+    const second = checklistTasksToCreate(defs, existing);
+    expect(second).toEqual([]);
+  });
+});
+
+describe("evaluateCloseChecklist — close gate (criteria 7/10)", () => {
+  it("blocks close when a required manual task is still Open", () => {
+    const result = evaluateCloseChecklist(
+      [task({ taskType: "Manual", status: "Open", name: "Review financials" })],
+      []
+    );
+    expect(result.canClose).toBe(false);
+    expect(result.blockingReason).toMatch(/Review financials/);
+  });
+
+  it("blocks close when a Blocker auto-check is failing", () => {
+    const result = evaluateCloseChecklist(
+      [
+        task({
+          taskType: "Auto",
+          autoCheckKey: "draft-journals",
+          severity: "Blocker",
+          status: "Open",
+          name: "Post or re-date draft journal entries"
+        })
+      ],
+      [draftBlockerFailing]
+    );
+    expect(result.canClose).toBe(false);
+    expect(result.blockingReason).toMatch(/draft journal/i);
+  });
+
+  it("allows close and persists the resolved Auto-task state when checks pass", () => {
+    const result = evaluateCloseChecklist(
+      [
+        task({
+          id: "auto1",
+          taskType: "Auto",
+          autoCheckKey: "draft-journals",
+          severity: "Blocker",
+          status: "Open"
+        }),
+        task({ taskType: "Manual", status: "Done" })
+      ],
+      [draftBlockerPassing]
+    );
+    expect(result.canClose).toBe(true);
+    expect(result.autoTaskStates).toEqual([{ id: "auto1", status: "Done" }]);
   });
 });
 
@@ -211,5 +335,67 @@ describe("postJournalEntry — period gate wiring", () => {
 
     expect(result.error).toBeNull();
     expect(result.data).toEqual({ id: "J1" });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// skipCloseTask — Blocker skip rejection + empty-reason rejection (criteria 8/9)
+// Query order: getPeriodCloseTaskById `.single()` -> (only if allowed) update.
+// ---------------------------------------------------------------------------
+
+describe("skipCloseTask — skip guards", () => {
+  it("rejects an empty skip reason before touching the database", async () => {
+    const client = makeClient([]);
+    const result = await skipCloseTask(client, {
+      taskId: "T1",
+      companyId: "C1",
+      userId: "U1",
+      skippedReason: "   "
+    });
+    expect(result.data).toBeNull();
+    expect(result.error?.message).toMatch(/reason is required/i);
+  });
+
+  it("rejects skipping a Blocker task", async () => {
+    const client = makeClient([
+      {
+        data: {
+          id: "T1",
+          taskType: "Auto",
+          severity: "Blocker",
+          status: "Open"
+        }
+      }
+    ]);
+    const result = await skipCloseTask(client, {
+      taskId: "T1",
+      companyId: "C1",
+      userId: "U1",
+      skippedReason: "not applicable this month"
+    });
+    expect(result.data).toBeNull();
+    expect(result.error?.message).toMatch(/cannot be skipped/i);
+  });
+
+  it("skips a Warning task with a recorded reason", async () => {
+    const client = makeClient([
+      {
+        data: {
+          id: "T2",
+          taskType: "Auto",
+          severity: "Warning",
+          status: "Open"
+        }
+      },
+      { data: { id: "T2" }, error: null } // update
+    ]);
+    const result = await skipCloseTask(client, {
+      taskId: "T2",
+      companyId: "C1",
+      userId: "U1",
+      skippedReason: "intercompany matched manually"
+    });
+    expect(result.error).toBeNull();
+    expect(result.data).toEqual({ id: "T2" });
   });
 });
