@@ -16,6 +16,7 @@ import { shell } from "../runner/shell";
 import { DEFAULT_CONFIG, type RunnerConfig } from "../runner/types";
 
 // Usage: tsx src/scripts/run-loop.ts <binding.loop.md> [--cwd <worktree>] [--no-pr]
+//        [--doer-budget <usd>] [--judge-budget <usd>] [--judge-turns <n>]
 //
 // Milestone 1: run inside a worktree you already created (`crbn new` + `crbn up`)
 // and pass it via --cwd. Drives one binding to a gated PR, fully unattended.
@@ -34,6 +35,16 @@ const cwd = resolve(
   cwdArg && !cwdArg.startsWith("--") ? cwdArg : process.cwd()
 );
 const noPr = argv.includes("--no-pr");
+
+// Optional budget/turn overrides for per-dispatch tuning (#1063) — e.g.
+// --doer-budget 10 for complex features, --judge-budget 5 for many criteria.
+const numFlag = (name: string): number => {
+  const idx = argv.indexOf(name);
+  return idx >= 0 ? Number.parseFloat(argv[idx + 1] ?? "") : Number.NaN;
+};
+const doerBudgetOverride = numFlag("--doer-budget");
+const judgeBudgetOverride = numFlag("--judge-budget");
+const judgeTurnsOverride = numFlag("--judge-turns");
 
 const bindingMd = readFileSync(resolve(bindingPath), "utf8");
 const binding = parseBinding(bindingMd);
@@ -56,7 +67,20 @@ const log = (event: Record<string, unknown>) => {
   }
 };
 
-const config: RunnerConfig = { ...DEFAULT_CONFIG, cwd, ledgerPath };
+const config: RunnerConfig = {
+  ...DEFAULT_CONFIG,
+  cwd,
+  ledgerPath,
+  ...(Number.isFinite(doerBudgetOverride)
+    ? { doerMaxBudgetUsd: doerBudgetOverride }
+    : {}),
+  ...(Number.isFinite(judgeBudgetOverride)
+    ? { judgeMaxBudgetUsd: judgeBudgetOverride }
+    : {}),
+  ...(Number.isFinite(judgeTurnsOverride)
+    ? { judgeMaxTurns: Math.trunc(judgeTurnsOverride) }
+    : {})
+};
 
 const outcome = runLoop(binding, config, {
   claude,
