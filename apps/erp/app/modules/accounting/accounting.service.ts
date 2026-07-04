@@ -941,6 +941,24 @@ export async function closeAccountingPeriod(
     .single();
 }
 
+// Public entry point for the close-checklist UI. `closeAccountingPeriod`
+// already reloads the checklist, refuses the close when a Blocker auto-check is
+// failing or a required task is still Open (surfacing `blockingReason`), and
+// flushes the derived final Auto-task states before flipping the period — so a
+// checklist-aware close is exactly that call with the argument shape the route
+// action passes. Kept as a distinct named export so the route imports intent,
+// not the lower-level lifecycle primitive.
+export async function closePeriodWithChecklist(
+  client: SupabaseClient<Database>,
+  args: { companyId: string; periodId: string; userId: string }
+) {
+  return closeAccountingPeriod(client, {
+    periodId: args.periodId,
+    companyId: args.companyId,
+    userId: args.userId
+  });
+}
+
 export async function reopenAccountingPeriod(
   client: SupabaseClient<Database>,
   args: { periodId: string; companyId: string; userId: string }

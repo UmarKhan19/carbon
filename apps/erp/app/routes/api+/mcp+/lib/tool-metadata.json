@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-04T18:34:09.485Z",
-  "totalTools": 1269,
+  "generated": "2026-07-04T22:59:09.174Z",
+  "totalTools": 1270,
   "modules": 15,
   "tools": [
     {
@@ -918,6 +918,32 @@
       "module": "accounting",
       "classification": "WRITE",
       "description": "close accounting period",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId",
+        "updatedBy"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "periodId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "periodId"
+        ]
+      }
+    },
+    {
+      "name": "accounting_closePeriodWithChecklist",
+      "module": "accounting",
+      "classification": "WRITE",
+      "description": "close period with checklist",
       "paramCount": 1,
       "serviceParams": [
         "client",

@@ -30,6 +30,7 @@ import type {
 import {
   checklistTasksToCreate,
   closeAccountingPeriod,
+  closePeriodWithChecklist,
   evaluateCloseChecklist,
   getOrCreateAccountingPeriod,
   postJournalEntry,
@@ -68,6 +69,39 @@ function makeClient(responses: Scripted[]) {
     then: (resolve: (v: Scripted) => unknown) => resolve(next())
   };
   return { from: () => builder } as any;
+}
+
+// Like makeClient but records every `.update(values)` keyed by table, so tests
+// can assert which rows a service persisted (and in what state), not just its
+// return value. The shared response queue advances in issue order exactly as in
+// makeClient; a fresh builder per `from(table)` carries the table name through.
+function makeRecordingClient(responses: Scripted[]) {
+  let i = 0;
+  const next = () => responses[i++] ?? { data: null, error: null };
+  const updates: { table: string; values: any }[] = [];
+  const makeBuilder = (table: string) => {
+    const builder: any = {
+      select: () => builder,
+      insert: () => builder,
+      upsert: () => builder,
+      update: (values: any) => {
+        updates.push({ table, values });
+        return builder;
+      },
+      eq: () => builder,
+      neq: () => builder,
+      lt: () => builder,
+      gt: () => builder,
+      gte: () => builder,
+      lte: () => builder,
+      or: () => builder,
+      order: () => builder,
+      single: () => Promise.resolve(next()),
+      then: (resolve: (v: Scripted) => unknown) => resolve(next())
+    };
+    return builder;
+  };
+  return { client: { from: (t: string) => makeBuilder(t) } as any, updates };
 }
 
 const args = { periodId: "P2", companyId: "C1", userId: "U1" };
@@ -114,6 +148,124 @@ describe("closeAccountingPeriod — sequential close", () => {
 
     expect(result.error).toBeNull();
     expect(result.data).toEqual({ id: "P2" });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// closePeriodWithChecklist — the UI entry point (acceptance criteria 1/4).
+//
+// Delegates to closeAccountingPeriod, so it drives the full query graph:
+//   getAccountingPeriodById -> earlierOpen count
+//   -> getPeriodCloseChecklist(getAccountingPeriodById -> [definitions, tasks]
+//      -> readiness: [draftJournals, journalsInPeriod, draftDepreciation, IC])
+//   -> (per differing Auto task) periodCloseTask update
+//   -> accountingPeriod flip.
+// makeRecordingClient (above) records every `.update()` keyed by table so we can
+// assert both the close-gate outcome and that final Auto-task states persist.
+// ---------------------------------------------------------------------------
+
+const openPeriod = { id: "P2", startDate: "2026-02-01", closeStatus: "Open" };
+const openPeriodWithRange = {
+  ...openPeriod,
+  endDate: "2026-02-28"
+};
+
+describe("closePeriodWithChecklist — Blocker gate + Auto-task persistence", () => {
+  it("rejects the close when a Blocker auto-check (draft JEs) is failing", async () => {
+    const { client, updates } = makeRecordingClient([
+      { data: openPeriod }, // getAccountingPeriodById
+      { count: 0 }, // no earlier open periods
+      { data: openPeriodWithRange }, // checklist: getAccountingPeriodById
+      { data: [] }, // active definitions (already instantiated)
+      {
+        data: [
+          {
+            id: "auto1",
+            companyId: "C1",
+            accountingPeriodId: "P2",
+            definitionId: "d1",
+            name: "Post or re-date draft journal entries",
+            taskType: "Auto",
+            autoCheckKey: "draft-journals",
+            sortOrder: 1,
+            required: true,
+            severity: "Blocker",
+            status: "Open",
+            assigneeId: null,
+            completedBy: null,
+            completedAt: null,
+            skippedReason: null,
+            notes: null
+          }
+        ]
+      }, // existing tasks — no instantiation needed
+      { count: 2 }, // readiness: draft journals present -> Blocker failing
+      { data: [] }, // readiness: posted journals in period
+      { count: 0 }, // readiness: draft depreciation
+      { count: 0 } // readiness: unmatched intercompany
+    ]);
+
+    const result = await closePeriodWithChecklist(client, args);
+
+    expect(result.data).toBeNull();
+    expect(result.error?.message).toMatch(/draft journal/i);
+    // The period must NOT have been flipped to Closed.
+    expect(
+      updates.some(
+        (u) =>
+          u.table === "accountingPeriod" && u.values.closeStatus === "Closed"
+      )
+    ).toBe(false);
+  });
+
+  it("persists the resolved Auto-task state, then closes, when checks pass", async () => {
+    const { client, updates } = makeRecordingClient([
+      { data: openPeriod }, // getAccountingPeriodById
+      { count: 0 }, // no earlier open periods
+      { data: openPeriodWithRange }, // checklist: getAccountingPeriodById
+      { data: [] }, // active definitions
+      {
+        data: [
+          {
+            id: "auto1",
+            companyId: "C1",
+            accountingPeriodId: "P2",
+            definitionId: "d1",
+            name: "Post or re-date draft journal entries",
+            taskType: "Auto",
+            autoCheckKey: "draft-journals",
+            sortOrder: 1,
+            required: true,
+            severity: "Blocker",
+            status: "Open", // stale Open; readiness now passes -> flips to Done
+            assigneeId: null,
+            completedBy: null,
+            completedAt: null,
+            skippedReason: null,
+            notes: null
+          }
+        ]
+      },
+      { count: 0 }, // readiness: no draft journals -> Blocker passing
+      { data: [] }, // readiness: posted journals in period
+      { count: 0 }, // readiness: draft depreciation
+      { count: 0 }, // readiness: unmatched intercompany
+      { data: { id: "auto1" }, error: null }, // periodCloseTask persist update
+      { data: { id: "P2" }, error: null } // accountingPeriod flip
+    ]);
+
+    const result = await closePeriodWithChecklist(client, args);
+
+    expect(result.error).toBeNull();
+    expect(result.data).toEqual({ id: "P2" });
+
+    // Final Auto-task state persisted to periodCloseTask as Done.
+    const taskUpdate = updates.find((u) => u.table === "periodCloseTask");
+    expect(taskUpdate?.values.status).toBe("Done");
+
+    // Period flipped to Closed after the task state was flushed.
+    const periodUpdate = updates.find((u) => u.table === "accountingPeriod");
+    expect(periodUpdate?.values.closeStatus).toBe("Closed");
   });
 });
 
