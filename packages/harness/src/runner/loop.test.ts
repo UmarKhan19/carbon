@@ -1,4 +1,4 @@
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -141,7 +141,9 @@ describe("runLoop", () => {
     expect(commits).toHaveLength(1);
     // Commit early, push often — the checkpoint hit origin before gates ran.
     expect(pushes.some((p) => p.includes("--force-with-lease"))).toBe(true);
-    expect(out.plan).toEqual([{ title: BINDING.title, status: "done" }]);
+    expect(
+      out.plan?.map((t) => ({ title: t.title, status: t.status }))
+    ).toEqual([{ title: BINDING.title, status: "done" }]);
     expect(readLedger(ledgerPath).at(-1)?.decision).toBe("keep");
   });
 
@@ -281,6 +283,44 @@ describe("runLoop", () => {
     expect(last?.reason).toContain("loop-rescue/bug-1/t1");
   });
 
+  it("continues with a fresh session (never blocks) when the doer returns no verdict", () => {
+    const { shell, commits } = recordingShell();
+    const deps = makeDeps({
+      claude: scriptedClaude(
+        ["…capped mid-edit, no json at all…", doer({ change: "finished" })],
+        [judge({ approved: true, unmet: [] })]
+      ),
+      shell
+    });
+
+    const out = runLoop(BINDING, makeConfig(), deps);
+
+    expect(out.state).toBe("shipped");
+    expect(out.iterations).toBe(2);
+    // The capped session's tree was checkpointed, not thrown away or blocked.
+    expect(commits).toHaveLength(2);
+    const ledger = readLedger(ledgerPath);
+    expect(ledger[0]?.decision).toBe("checkpoint");
+    expect(ledger[0]?.reason).toContain("without a verdict");
+    expect(ledger.at(-1)?.decision).toBe("keep");
+  });
+
+  it("ends plateau (work preserved) when the doer never produces a verdict", () => {
+    const deps = makeDeps({
+      claude: scriptedClaude(["no json", "no json"], []),
+      shell: dirtyShell()
+    });
+
+    const out = runLoop(BINDING, makeConfig({ taskMaxAttempts: 2 }), deps);
+
+    expect(out.state).toBe("plateau");
+    expect(
+      readLedger(ledgerPath).every(
+        (e) => e.decision === "checkpoint" || e.decision === "revert"
+      )
+    ).toBe(true);
+  });
+
   it("blocks when the doer reports it cannot proceed — after checkpointing its work", () => {
     const { shell, commits } = recordingShell();
     const deps = makeDeps({
@@ -394,7 +434,9 @@ describe("runLoop", () => {
     const out = runLoop(BINDING, makeConfig(), deps);
 
     expect(out.state).toBe("shipped");
-    expect(out.plan).toEqual([{ title: BINDING.title, status: "flagged" }]);
+    expect(
+      out.plan?.map((t) => ({ title: t.title, status: t.status }))
+    ).toEqual([{ title: BINDING.title, status: "flagged" }]);
     expect(out.unverified?.[0]).toContain("WITHOUT judge review");
     expect(commits).toHaveLength(1);
     expect(readLedger(ledgerPath).at(-1)?.decision).toBe("keep");
@@ -425,6 +467,47 @@ describe("runLoop", () => {
       'Acceptance [1] "a test covers it": is this criterion intentional?',
       "Assumption: kept 'Set Quantity' as the default"
     ]);
+  });
+
+  it("resumes a prior non-shipped run: concluded tasks are skipped, flags carried over", () => {
+    // A prior run (e.g. before a crash / doer cap) left its plan in
+    // outcome.json — committed with the branch. Task 1 is already done.
+    mkdirSync(join(dir, ".ai", "runs", "bug-1"), { recursive: true });
+    writeFileSync(
+      join(dir, ".ai", "runs", "bug-1", "outcome.json"),
+      JSON.stringify({
+        state: "blocked",
+        iterations: 3,
+        reason: "doer capped",
+        unverified: ["carried: needs human verification of X"],
+        plan: [
+          { title: "models", detail: "d", criteria: [0], status: "done" },
+          { title: "wiring", detail: "d", criteria: [1], status: "pending" }
+        ]
+      })
+    );
+    let doerSessions = 0;
+    const claude = (req: ClaudeRequest): ClaudeResult => {
+      if (req.prompt.includes("You are the DOER")) {
+        doerSessions++;
+        return { text: doer({ change: "wiring" }), costUsd: 0, sessionId: "s" };
+      }
+      return {
+        text: judge({ approved: true, unmet: [] }),
+        costUsd: 0,
+        sessionId: "s"
+      };
+    };
+    const deps = makeDeps({ claude, shell: dirtyShell() });
+
+    const out = runLoop(BINDING, makeConfig(), deps);
+
+    expect(out.state).toBe("shipped");
+    // Only the pending task spent a session — the done one was skipped free.
+    expect(doerSessions).toBe(1);
+    expect(out.plan?.map((t) => t.status)).toEqual(["done", "done"]);
+    // The prior run's flags survive the re-dispatch.
+    expect(out.unverified).toContain("carried: needs human verification of X");
   });
 
   describe("with a planner-decomposed binding", () => {
@@ -458,7 +541,9 @@ describe("runLoop", () => {
       const out = runLoop(BIG, makeConfig(), deps);
 
       expect(out.state).toBe("shipped");
-      expect(out.plan).toEqual([
+      expect(
+        out.plan?.map((t) => ({ title: t.title, status: t.status }))
+      ).toEqual([
         { title: "migration", status: "done" },
         { title: "service + UI", status: "done" }
       ]);

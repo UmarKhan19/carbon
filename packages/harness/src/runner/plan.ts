@@ -1,6 +1,14 @@
+import { readFileSync } from "node:fs";
 import type { Binding } from "../binding";
+import { outcomePath } from "../layout";
 import { groomingNotes, tryExtractJson } from "./prompts";
-import type { PlanTask, RunnerConfig, RunnerDeps } from "./types";
+import type {
+  LoopOutcome,
+  PlanTask,
+  RunnerConfig,
+  RunnerDeps,
+  TaskStatus
+} from "./types";
 
 /**
  * Systematic chunking, owned by the harness — not by the groomer, not by the
@@ -122,4 +130,83 @@ export function buildPlan(
     });
     return [wholeTask(binding)];
   }
+}
+
+/** What `resolvePlan` hands the loop: tasks, their starting statuses, and any
+ *  flags carried over from the run being resumed. */
+export type ResolvedPlan = {
+  tasks: PlanTask[];
+  status: TaskStatus[];
+  /** Prior run's proof gaps / questions — re-seeded so the PR keeps its flags. */
+  unverified: string[];
+  questions: string[];
+  resumed: boolean;
+};
+
+/**
+ * RESUME, deterministically: a prior non-shipped run on this branch left its
+ * full plan (tasks + statuses) in `outcome.json`, which is committed with the
+ * branch. Re-dispatching the same binding picks the plan back up — concluded
+ * tasks (`done`/`flagged`) are skipped without spending a session, pending and
+ * failed ones re-run. No re-planning, no model judgment, no outer-loop smarts
+ * required: "run it again" is always the right recovery move.
+ *
+ * A prior `shipped` outcome never resumes (PR-feedback re-entry is new work —
+ * it gets a fresh plan), and any unreadable/invalid outcome falls through to
+ * fresh planning.
+ */
+export function resolvePlan(
+  binding: Binding,
+  config: RunnerConfig,
+  deps: RunnerDeps
+): ResolvedPlan {
+  try {
+    const prior = JSON.parse(
+      readFileSync(outcomePath(config.cwd, binding.id), "utf8")
+    ) as Partial<LoopOutcome>;
+    const plan = prior?.plan;
+    if (
+      prior?.state !== "shipped" &&
+      Array.isArray(plan) &&
+      plan.length > 0 &&
+      plan.every(
+        (t) => typeof t?.title === "string" && Array.isArray(t?.criteria)
+      )
+    ) {
+      const valid = binding.acceptance.length;
+      const tasks: PlanTask[] = plan.map((t) => ({
+        title: t.title,
+        detail: typeof t.detail === "string" ? t.detail : "",
+        criteria: t.criteria.filter(
+          (i): i is number =>
+            typeof i === "number" && Number.isInteger(i) && i >= 0 && i < valid
+        )
+      }));
+      const status: TaskStatus[] = plan.map((t) =>
+        t.status === "done" || t.status === "flagged" ? t.status : "pending"
+      );
+      deps.log({
+        event: "plan:resume",
+        priorState: prior.state,
+        tasks: tasks.map((t, i) => `${t.title} [${status[i]}]`)
+      });
+      return {
+        tasks,
+        status,
+        unverified: Array.isArray(prior.unverified) ? prior.unverified : [],
+        questions: Array.isArray(prior.questions) ? prior.questions : [],
+        resumed: true
+      };
+    }
+  } catch {
+    /* no prior outcome — fresh run */
+  }
+  const tasks = buildPlan(binding, config, deps);
+  return {
+    tasks,
+    status: tasks.map(() => "pending"),
+    unverified: [],
+    questions: [],
+    resumed: false
+  };
 }

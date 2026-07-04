@@ -1,6 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { afterEach, describe, expect, it } from "vitest";
 import type { Binding } from "../binding";
-import { buildPlan, parsePlanResult } from "./plan";
+import { buildPlan, parsePlanResult, resolvePlan } from "./plan";
 import type { ClaudeResult, RunnerConfig, RunnerDeps } from "./types";
 
 const BINDING: Binding = {
@@ -81,6 +84,84 @@ describe("parsePlanResult", () => {
       expect(tasks).toHaveLength(1);
       expect(tasks[0]?.criteria).toEqual([0, 1, 2, 3]);
     }
+  });
+});
+
+describe("resolvePlan", () => {
+  const dirs: string[] = [];
+  afterEach(() => {
+    for (const d of dirs.splice(0)) rmSync(d, { recursive: true, force: true });
+  });
+
+  function cwdWithOutcome(outcome: unknown): string {
+    const cwd = mkdtempSync(join(tmpdir(), "plan-resume-"));
+    dirs.push(cwd);
+    if (outcome !== undefined) {
+      mkdirSync(join(cwd, ".ai", "runs", BINDING.id), { recursive: true });
+      writeFileSync(
+        join(cwd, ".ai", "runs", BINDING.id, "outcome.json"),
+        JSON.stringify(outcome)
+      );
+    }
+    return cwd;
+  }
+
+  it("resumes a non-shipped prior run: statuses and flags carried, no planner session", () => {
+    const cwd = cwdWithOutcome({
+      state: "blocked",
+      unverified: ["needs human check"],
+      questions: ["is X intentional?"],
+      plan: [
+        { title: "a", detail: "d", criteria: [0, 1], status: "done" },
+        { title: "b", detail: "d", criteria: [2], status: "flagged" },
+        { title: "c", detail: "d", criteria: [3], status: "failed" }
+      ]
+    });
+    let planner = 0;
+    const r = resolvePlan(
+      BINDING,
+      { ...config, cwd },
+      deps(() => {
+        planner++;
+        return { text: "", costUsd: 0, sessionId: "s" };
+      })
+    );
+    expect(planner).toBe(0);
+    expect(r.resumed).toBe(true);
+    expect(r.tasks.map((t) => t.title)).toEqual(["a", "b", "c"]);
+    // done/flagged stay concluded; failed re-runs as pending
+    expect(r.status).toEqual(["done", "flagged", "pending"]);
+    expect(r.unverified).toEqual(["needs human check"]);
+    expect(r.questions).toEqual(["is X intentional?"]);
+  });
+
+  it("never resumes a shipped outcome (PR-feedback re-entry gets a fresh plan)", () => {
+    const cwd = cwdWithOutcome({
+      state: "shipped",
+      plan: [{ title: "a", detail: "d", criteria: [0], status: "done" }]
+    });
+    const r = resolvePlan(
+      BINDING,
+      { ...config, cwd },
+      deps(() => {
+        throw new Error("planner dead"); // falls back to whole-binding task
+      })
+    );
+    expect(r.resumed).toBe(false);
+    expect(r.status).toEqual(["pending"]);
+  });
+
+  it("falls through to fresh planning when no outcome exists", () => {
+    const cwd = cwdWithOutcome(undefined);
+    const r = resolvePlan(
+      BINDING,
+      { ...config, cwd },
+      deps(() => {
+        throw new Error("planner dead");
+      })
+    );
+    expect(r.resumed).toBe(false);
+    expect(r.tasks).toHaveLength(1);
   });
 });
 

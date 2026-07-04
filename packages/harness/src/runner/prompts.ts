@@ -10,6 +10,9 @@ export type TaskContext = {
   total: number;
   /** SHA at task start — the judge diffs `<sha>..HEAD` to see the task's work. */
   startSha?: string;
+  /** The doer's session caps, so it can budget its slices instead of getting
+   *  cut off mid-edit with no verdict. */
+  limits?: { turns: number; usd: number };
 };
 
 function taskSection(binding: Binding, ctx: TaskContext | undefined): string {
@@ -94,7 +97,7 @@ Your job THIS iteration:
 - Module code: keep ONE \`<module>.service.ts\` and ONE \`<module>.models.ts\`; never scatter new ones.
 - Correctness: write a test that FAILS on the bug/missing-feature and PASSES after your change. Report its exact command.
 
-Chunk your own work — you have a hard turn/budget cap:
+Chunk your own work — you have a hard turn/budget cap${ctx?.limits ? ` (about ${ctx.limits.turns} tool-use turns / $${ctx.limits.usd} for THIS session — a session that hits the cap mid-edit reports nothing and wastes its work)` : ""}:
 - If the task will not fit comfortably in this session, STOP EARLY at a COHERENT SLICE: code that compiles, is lint-clean, and is safe to commit as-is. Report what's left in \`remaining\` — the loop checkpoints your slice and gives a fresh session this context to continue.
 - A clean partial slice is SUCCESS; a complete-but-broken sprint to the buzzer is failure. Never race your limits, and never leave the tree half-edited at the end of your session.
 - Prior slices are already committed — build on them, don't redo them.
@@ -158,16 +161,16 @@ End your reply with EXACTLY one fenced json block, no prose after it:
 
 export function parseDoerResult(text: string): DoerResult {
   const raw = tryExtractJson<Partial<DoerResult>>(text);
-  // No verdict ⇒ the doer was cut off (limit) or misbehaved. Block rather than
-  // silently revert — we can't trust what it left in the tree.
+  // No verdict ⇒ the doer was cut off (limit) or misbehaved. Absence of a
+  // verdict is not a blocker: the loop checkpoints the tree, counts a failed
+  // attempt, and continues the task with a fresh session.
   if (!raw) {
     return {
-      change: "(no verdict)",
+      change: "(doer session ended without a verdict)",
       packages: [],
       testCommand: "",
       touchedUI: false,
-      blocked:
-        "doer returned no JSON verdict (possibly hit a turn/budget limit)"
+      noVerdict: true
     };
   }
   const assumptions = Array.isArray(raw.assumptions)

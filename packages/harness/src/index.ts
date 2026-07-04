@@ -27,7 +27,9 @@ export { runLoop } from "./runner/loop";
 export {
   buildPlan,
   buildPlannerPrompt,
-  parsePlanResult
+  parsePlanResult,
+  type ResolvedPlan,
+  resolvePlan
 } from "./runner/plan";
 export {
   buildDoerPrompt,
