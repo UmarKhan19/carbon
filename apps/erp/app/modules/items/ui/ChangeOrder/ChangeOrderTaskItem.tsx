@@ -1,13 +1,13 @@
 import {
-  BarProgress,
   Button,
   cn,
   HStack,
   IconButton,
+  Status,
   useDisclosure
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import {
   LuChevronRight,
   LuCircleCheck,
@@ -24,6 +24,7 @@ import type {
   ChangeOrderTaskStatusEnum
 } from "~/modules/items";
 import { path } from "~/utils/path";
+import ChangeOrderDecisionModal from "./ChangeOrderDecisionModal";
 
 export type ChangeOrderTaskType = "approval" | "review";
 
@@ -71,20 +72,12 @@ export function ChangeOrderTaskProgress({
   const completedOrSkippedTasks = tasks.filter(
     (task) => task.status === "Completed" || task.status === "Skipped"
   ).length;
-  const progressPercentage = (completedOrSkippedTasks / tasks.length) * 100;
 
   return (
-    <div
-      className={cn(
-        "flex flex-col items-end gap-2 py-3 pr-14 w-[120px]",
-        className
-      )}
-    >
-      <BarProgress
-        gradient
-        progress={progressPercentage}
-        value={`${completedOrSkippedTasks}/${tasks.length}`}
-      />
+    <div className={cn("flex items-center py-3 pr-14", className)}>
+      <span className="text-sm font-medium tabular-nums text-muted-foreground">
+        {completedOrSkippedTasks}/{tasks.length}
+      </span>
     </div>
   );
 }
@@ -142,15 +135,27 @@ function useChangeOrderTaskStatus({
 export function ChangeOrderTaskItem({
   task,
   type,
-  isDisabled = false
+  isDisabled = false,
+  changeOrderId,
+  changeOrderStatus,
+  itemIds
 }: {
   task: AnyChangeOrderTask;
   type: ChangeOrderTaskType;
   isDisabled?: boolean;
+  // Present for reviewer rows: enables the on-row Approve/Reject decision + the
+  // per-reviewer "X/N reviewed" reading-aid progress.
+  changeOrderId?: string;
+  changeOrderStatus?: string;
+  // Current affected-item ids — used to size progress and to intersect out any
+  // stale ids left in a reviewer's reviewedItemIds after an item was removed.
+  itemIds?: string[];
 }) {
   const { t } = useLingui();
   const permissions = usePermissions();
+  const { id: currentUserId } = useUser();
   const disclosure = useDisclosure({ defaultIsOpen: false });
+  const [decision, setDecision] = useState<"approve" | "reject" | null>(null);
 
   const canEdit = permissions.can("update", "production") && !isDisabled;
   const { currentStatus, onStatusChange } = useChangeOrderTaskStatus({
@@ -160,6 +165,22 @@ export function ChangeOrderTaskItem({
   });
 
   const statusAction = statusActions[currentStatus];
+
+  const reviewer = type === "review" ? (task as ChangeOrderReviewer) : null;
+  const itemTotal = itemIds?.length ?? 0;
+  // Count only reviewed ids that are still affected items (drop stale ids from
+  // items removed after they were marked reviewed).
+  const itemIdSet = new Set(itemIds ?? []);
+  const reviewedCount =
+    reviewer?.reviewedItemIds?.filter((itemId) => itemIdSet.has(itemId))
+      .length ?? 0;
+  const allReviewed = reviewedCount >= itemTotal;
+  // The reviewer acts on their OWN row (Approve/Reject); other rows are read-only.
+  const isOwnReviewer =
+    type === "review" && !!changeOrderId && task.assignee === currentUserId;
+  // Decisions are only meaningful while the change order is actually In Review;
+  // the header gates the same way.
+  const canDecide = isOwnReviewer && changeOrderStatus === "In Review";
 
   // changeOrderApprovalTask carries a `name` label column; changeOrderReviewer
   // carries a `title`.
@@ -179,24 +200,42 @@ export function ChangeOrderTaskItem({
     typeof (reviewerNotes as { reason?: unknown }).reason === "string"
       ? (reviewerNotes as { reason: string }).reason
       : null;
+  const decisionValue =
+    reviewerNotes &&
+    typeof reviewerNotes === "object" &&
+    !Array.isArray(reviewerNotes)
+      ? (reviewerNotes as { decision?: "approve" | "reject" }).decision
+      : undefined;
 
   return (
     <div className="rounded-lg border w-full flex flex-col bg-card">
       <div className="flex w-full justify-between px-4 py-2 items-center">
-        <div className="flex flex-col flex-1">
+        <div className="flex flex-1 items-center gap-2">
           <span className="text-base font-semibold tracking-tight">
             {taskTitle}
           </span>
+          {decisionValue === "approve" && (
+            <Status color="green">
+              <Trans>Approved</Trans>
+            </Status>
+          )}
+          {decisionValue === "reject" && (
+            <Status color="red">
+              <Trans>Rejected</Trans>
+            </Status>
+          )}
         </div>
-        <div className="flex items-center gap-1">
-          <IconButton
-            icon={<LuChevronRight />}
-            variant="ghost"
-            onClick={disclosure.onToggle}
-            aria-label={t`Open task details`}
-            className={cn(disclosure.isOpen && "rotate-90")}
-          />
-        </div>
+        {decisionReason && (
+          <div className="flex items-center gap-1">
+            <IconButton
+              icon={<LuChevronRight />}
+              variant="ghost"
+              onClick={disclosure.onToggle}
+              aria-label={t`Show decision reason`}
+              className={cn(disclosure.isOpen && "rotate-90")}
+            />
+          </div>
+        )}
       </div>
 
       {disclosure.isOpen && decisionReason && (
@@ -221,29 +260,70 @@ export function ChangeOrderTaskItem({
             value={task.assignee ?? undefined}
             disabled={!canEdit}
           />
-        </HStack>
-        <HStack>
-          {currentStatus !== "Skipped" && currentStatus !== "Completed" && (
-            <Button
-              isDisabled={!canEdit}
-              variant="ghost"
-              size="sm"
-              onClick={() => onStatusChange(task.id!, "Skipped")}
-            >
-              <Trans>Skip</Trans>
-            </Button>
+          {reviewer && itemTotal > 0 && (
+            <span className="text-xs text-muted-foreground tabular-nums">
+              {reviewedCount}/{itemTotal} <Trans>reviewed</Trans>
+            </span>
           )}
-          <Button
-            isDisabled={!canEdit}
-            leftIcon={statusAction.icon}
-            variant="secondary"
-            size="sm"
-            onClick={() => onStatusChange(task.id!, statusAction.status)}
-          >
-            {statusAction.action}
-          </Button>
         </HStack>
+        {!isDisabled && (
+          <HStack>
+            {currentStatus !== "Skipped" && currentStatus !== "Completed" && (
+              <Button
+                isDisabled={!canEdit}
+                variant="ghost"
+                size="sm"
+                onClick={() => onStatusChange(task.id!, "Skipped")}
+              >
+                <Trans>Skip</Trans>
+              </Button>
+            )}
+            {canDecide && currentStatus === "In Progress" ? (
+              <>
+                {!allReviewed && (
+                  <span className="text-xs text-muted-foreground">
+                    <Trans>{itemTotal - reviewedCount} not reviewed</Trans>
+                  </span>
+                )}
+                <Button
+                  isDisabled={!canEdit}
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setDecision("reject")}
+                >
+                  <Trans>Reject</Trans>
+                </Button>
+                <Button
+                  isDisabled={!canEdit}
+                  variant="primary"
+                  size="sm"
+                  onClick={() => setDecision("approve")}
+                >
+                  <Trans>Approve</Trans>
+                </Button>
+              </>
+            ) : (
+              <Button
+                isDisabled={!canEdit}
+                leftIcon={statusAction.icon}
+                variant="secondary"
+                size="sm"
+                onClick={() => onStatusChange(task.id!, statusAction.status)}
+              >
+                {statusAction.action}
+              </Button>
+            )}
+          </HStack>
+        )}
       </div>
+
+      {decision && changeOrderId && (
+        <ChangeOrderDecisionModal
+          changeOrderId={changeOrderId}
+          decision={decision}
+          onClose={() => setDecision(null)}
+        />
+      )}
     </div>
   );
 }

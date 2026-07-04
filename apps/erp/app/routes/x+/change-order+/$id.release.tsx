@@ -28,7 +28,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
       requestReferrer(request) ?? path.to.changeOrderDetails(id),
       await flash(
         request,
-        error(null, `Cannot release change order: ${errors.join("; ")}`)
+        error(
+          null,
+          `Cannot release change order: ${errors
+            .map((e) => e.message)
+            .join("; ")}`
+        )
       )
     );
   }

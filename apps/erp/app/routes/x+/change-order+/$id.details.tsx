@@ -25,6 +25,7 @@ import {
   isChangeOrderLocked,
   updateChangeOrder
 } from "~/modules/items";
+import type { ChangeOrderValidationEntry } from "~/modules/items/changeOrder.server";
 import ChangeOrderApprovalTasks from "~/modules/items/ui/ChangeOrder/ChangeOrderApprovalTasks";
 import ChangeOrderReviewers from "~/modules/items/ui/ChangeOrder/ChangeOrderReviewers";
 import ValidationBanner from "~/modules/items/ui/ChangeOrder/ValidationBanner";
@@ -134,12 +135,16 @@ export default function ChangeOrderDetailsRoute() {
   const routeData = useRouteData<{
     changeOrder: ChangeOrderDetail;
     items: ChangeOrderItem[];
-    validations: Promise<{ errors: string[]; warnings: string[] }>;
+    validations: Promise<{
+      errors: ChangeOrderValidationEntry[];
+      warnings: ChangeOrderValidationEntry[];
+    }>;
   }>(path.to.changeOrder(id));
 
   if (!routeData) throw new Error("Could not find change order data");
 
   const changeOrder = routeData.changeOrder;
+  const isLocked = isChangeOrderLocked(changeOrder?.status);
 
   return (
     <VStack spacing={2}>
@@ -147,6 +152,7 @@ export default function ChangeOrderDetailsRoute() {
         <Await resolve={routeData.validations}>
           {(resolved) => (
             <ValidationBanner
+              changeOrderId={id}
               errors={resolved?.errors ?? []}
               warnings={resolved?.warnings ?? []}
             />
@@ -185,7 +191,10 @@ export default function ChangeOrderDetailsRoute() {
       <Suspense fallback={taskFallback}>
         <Await resolve={approvalTasks}>
           {(resolved) => (
-            <ChangeOrderApprovalTasks tasks={resolved?.data ?? []} />
+            <ChangeOrderApprovalTasks
+              tasks={resolved?.data ?? []}
+              isDisabled={isLocked}
+            />
           )}
         </Await>
       </Suspense>
@@ -193,7 +202,13 @@ export default function ChangeOrderDetailsRoute() {
       <Suspense fallback={taskFallback}>
         <Await resolve={reviewers}>
           {(resolved) => (
-            <ChangeOrderReviewers reviewers={resolved?.data ?? []} />
+            <ChangeOrderReviewers
+              reviewers={resolved?.data ?? []}
+              changeOrderId={id}
+              changeOrderStatus={changeOrder?.status ?? undefined}
+              itemIds={routeData.items?.map((item) => item.id) ?? []}
+              isDisabled={isLocked}
+            />
           )}
         </Await>
       </Suspense>

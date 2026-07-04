@@ -347,6 +347,7 @@ export type Database = {
           deferredTaxLiabilityAccountId: string | null
           goodsReceivedNotInvoicedAccount: string
           indirectCostAccount: string
+          intercompanyReceivablesAccount: string | null
           interestAccount: string
           inventoryAccount: string
           inventoryAdjustmentVarianceAccount: string
@@ -396,6 +397,7 @@ export type Database = {
           deferredTaxLiabilityAccountId?: string | null
           goodsReceivedNotInvoicedAccount: string
           indirectCostAccount: string
+          intercompanyReceivablesAccount?: string | null
           interestAccount: string
           inventoryAccount: string
           inventoryAdjustmentVarianceAccount: string
@@ -445,6 +447,7 @@ export type Database = {
           deferredTaxLiabilityAccountId?: string | null
           goodsReceivedNotInvoicedAccount?: string
           indirectCostAccount?: string
+          intercompanyReceivablesAccount?: string | null
           interestAccount?: string
           inventoryAccount?: string
           inventoryAdjustmentVarianceAccount?: string
@@ -738,6 +741,20 @@ export type Database = {
           {
             foreignKeyName: "accountDefault_indirectCostAccount_fkey"
             columns: ["indirectCostAccount"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accountDefault_intercompanyReceivablesAccount_fkey"
+            columns: ["intercompanyReceivablesAccount"]
+            isOneToOne: false
+            referencedRelation: "account"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accountDefault_intercompanyReceivablesAccount_fkey"
+            columns: ["intercompanyReceivablesAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
             referencedColumns: ["id"]
@@ -2036,45 +2053,6 @@ export type Database = {
           isText?: boolean
           isUser?: boolean
           label?: string
-        }
-        Relationships: []
-      }
-      auditLog_QdnTgK8ScbRLknUWXt9dxX: {
-        Row: {
-          actorId: string | null
-          createdAt: string
-          diff: Json | null
-          entityId: string
-          entityType: string
-          id: string
-          metadata: Json | null
-          operation: string
-          recordId: string | null
-          tableName: string
-        }
-        Insert: {
-          actorId?: string | null
-          createdAt?: string
-          diff?: Json | null
-          entityId: string
-          entityType: string
-          id?: string
-          metadata?: Json | null
-          operation: string
-          recordId?: string | null
-          tableName: string
-        }
-        Update: {
-          actorId?: string | null
-          createdAt?: string
-          diff?: Json | null
-          entityId?: string
-          entityType?: string
-          id?: string
-          metadata?: Json | null
-          operation?: string
-          recordId?: string | null
-          tableName?: string
         }
         Relationships: []
       }
@@ -3429,6 +3407,7 @@ export type Database = {
           dueDate: string | null
           id: string
           notes: Json
+          reviewedItemIds: string[]
           sortOrder: number
           status: Database["public"]["Enums"]["changeOrderTaskStatus"]
           tags: string[] | null
@@ -3446,6 +3425,7 @@ export type Database = {
           dueDate?: string | null
           id?: string
           notes?: Json
+          reviewedItemIds?: string[]
           sortOrder?: number
           status?: Database["public"]["Enums"]["changeOrderTaskStatus"]
           tags?: string[] | null
@@ -3463,6 +3443,7 @@ export type Database = {
           dueDate?: string | null
           id?: string
           notes?: Json
+          reviewedItemIds?: string[]
           sortOrder?: number
           status?: Database["public"]["Enums"]["changeOrderTaskStatus"]
           tags?: string[] | null
@@ -9732,6 +9713,156 @@ export type Database = {
           },
         ]
       }
+      documentExtraction: {
+        Row: {
+          companyId: string
+          createdAt: string
+          createdBy: string
+          documentType: Database["public"]["Enums"]["documentExtractionType"]
+          error: string | null
+          extractedData: Json | null
+          filteredData: Json | null
+          id: string
+          sourceDocument: string
+          sourceDocumentId: string | null
+          status: Database["public"]["Enums"]["documentExtractionStatus"]
+          storagePath: string
+          updatedAt: string | null
+          updatedBy: string | null
+        }
+        Insert: {
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          documentType: Database["public"]["Enums"]["documentExtractionType"]
+          error?: string | null
+          extractedData?: Json | null
+          filteredData?: Json | null
+          id?: string
+          sourceDocument: string
+          sourceDocumentId?: string | null
+          status?: Database["public"]["Enums"]["documentExtractionStatus"]
+          storagePath: string
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Update: {
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          documentType?: Database["public"]["Enums"]["documentExtractionType"]
+          error?: string | null
+          extractedData?: Json | null
+          filteredData?: Json | null
+          id?: string
+          sourceDocument?: string
+          sourceDocumentId?: string | null
+          status?: Database["public"]["Enums"]["documentExtractionStatus"]
+          storagePath?: string
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documentExtraction_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documentExtraction_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documentExtraction_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "documentExtraction_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "documentExtraction_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documentExtraction_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documentExtraction_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documentExtraction_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documentExtraction_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "documentExtraction_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documentExtraction_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documentExtraction_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documentExtraction_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documentExtraction_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+        ]
+      }
       documentFavorite: {
         Row: {
           documentId: string
@@ -15294,6 +15425,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "intercompanyTransaction_sourceJournalLineId_fkey"
+            columns: ["sourceJournalLineId"]
+            isOneToOne: false
+            referencedRelation: "journalLines"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "intercompanyTransaction_targetCompanyId_fkey"
             columns: ["targetCompanyId"]
             isOneToOne: false
@@ -15326,6 +15464,13 @@ export type Database = {
             columns: ["targetJournalLineId"]
             isOneToOne: false
             referencedRelation: "journalLine"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "intercompanyTransaction_targetJournalLineId_fkey"
+            columns: ["targetJournalLineId"]
+            isOneToOne: false
+            referencedRelation: "journalLines"
             referencedColumns: ["id"]
           },
         ]
@@ -20673,6 +20818,13 @@ export type Database = {
             columns: ["journalLineId"]
             isOneToOne: false
             referencedRelation: "journalLine"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "journalLineDimension_journalLineId_fkey"
+            columns: ["journalLineId"]
+            isOneToOne: false
+            referencedRelation: "journalLines"
             referencedColumns: ["id"]
           },
         ]
@@ -42883,426 +43035,6 @@ export type Database = {
           },
         ]
       }
-      searchIndex_8gDPXkC84fG3kQGMezBDvb: {
-        Row: {
-          createdAt: string
-          description: string | null
-          entityId: string
-          entityType: string
-          id: number
-          link: string
-          metadata: Json | null
-          searchVector: unknown
-          tags: string[] | null
-          title: string
-          updatedAt: string | null
-        }
-        Insert: {
-          createdAt?: string
-          description?: string | null
-          entityId: string
-          entityType: string
-          id?: number
-          link: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title: string
-          updatedAt?: string | null
-        }
-        Update: {
-          createdAt?: string
-          description?: string | null
-          entityId?: string
-          entityType?: string
-          id?: number
-          link?: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title?: string
-          updatedAt?: string | null
-        }
-        Relationships: []
-      }
-      searchIndex_8samL4iyQfCAAQ2DTAz3Mo: {
-        Row: {
-          createdAt: string
-          description: string | null
-          entityId: string
-          entityType: string
-          id: number
-          link: string
-          metadata: Json | null
-          searchVector: unknown
-          tags: string[] | null
-          title: string
-          updatedAt: string | null
-        }
-        Insert: {
-          createdAt?: string
-          description?: string | null
-          entityId: string
-          entityType: string
-          id?: number
-          link: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title: string
-          updatedAt?: string | null
-        }
-        Update: {
-          createdAt?: string
-          description?: string | null
-          entityId?: string
-          entityType?: string
-          id?: number
-          link?: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title?: string
-          updatedAt?: string | null
-        }
-        Relationships: []
-      }
-      searchIndex_9AfhEJEUAR6g1xay6X6qp4: {
-        Row: {
-          createdAt: string
-          description: string | null
-          entityId: string
-          entityType: string
-          id: number
-          link: string
-          metadata: Json | null
-          searchVector: unknown
-          tags: string[] | null
-          title: string
-          updatedAt: string | null
-        }
-        Insert: {
-          createdAt?: string
-          description?: string | null
-          entityId: string
-          entityType: string
-          id?: number
-          link: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title: string
-          updatedAt?: string | null
-        }
-        Update: {
-          createdAt?: string
-          description?: string | null
-          entityId?: string
-          entityType?: string
-          id?: number
-          link?: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title?: string
-          updatedAt?: string | null
-        }
-        Relationships: []
-      }
-      searchIndex_BdyD64vGrRzGJc9vhqexh: {
-        Row: {
-          createdAt: string
-          description: string | null
-          entityId: string
-          entityType: string
-          id: number
-          link: string
-          metadata: Json | null
-          searchVector: unknown
-          tags: string[] | null
-          title: string
-          updatedAt: string | null
-        }
-        Insert: {
-          createdAt?: string
-          description?: string | null
-          entityId: string
-          entityType: string
-          id?: number
-          link: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title: string
-          updatedAt?: string | null
-        }
-        Update: {
-          createdAt?: string
-          description?: string | null
-          entityId?: string
-          entityType?: string
-          id?: number
-          link?: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title?: string
-          updatedAt?: string | null
-        }
-        Relationships: []
-      }
-      searchIndex_D1damgjDjopNUspXxBp9LD: {
-        Row: {
-          createdAt: string
-          description: string | null
-          entityId: string
-          entityType: string
-          id: number
-          link: string
-          metadata: Json | null
-          searchVector: unknown
-          tags: string[] | null
-          title: string
-          updatedAt: string | null
-        }
-        Insert: {
-          createdAt?: string
-          description?: string | null
-          entityId: string
-          entityType: string
-          id?: number
-          link: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title: string
-          updatedAt?: string | null
-        }
-        Update: {
-          createdAt?: string
-          description?: string | null
-          entityId?: string
-          entityType?: string
-          id?: number
-          link?: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title?: string
-          updatedAt?: string | null
-        }
-        Relationships: []
-      }
-      searchIndex_d8p2p4o760h02ahrvu1g: {
-        Row: {
-          createdAt: string
-          description: string | null
-          entityId: string
-          entityType: string
-          id: number
-          link: string
-          metadata: Json | null
-          searchVector: unknown
-          tags: string[] | null
-          title: string
-          updatedAt: string | null
-        }
-        Insert: {
-          createdAt?: string
-          description?: string | null
-          entityId: string
-          entityType: string
-          id?: number
-          link: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title: string
-          updatedAt?: string | null
-        }
-        Update: {
-          createdAt?: string
-          description?: string | null
-          entityId?: string
-          entityType?: string
-          id?: number
-          link?: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title?: string
-          updatedAt?: string | null
-        }
-        Relationships: []
-      }
-      searchIndex_d8padvg760h88mhrvu50: {
-        Row: {
-          createdAt: string
-          description: string | null
-          entityId: string
-          entityType: string
-          id: number
-          link: string
-          metadata: Json | null
-          searchVector: unknown
-          tags: string[] | null
-          title: string
-          updatedAt: string | null
-        }
-        Insert: {
-          createdAt?: string
-          description?: string | null
-          entityId: string
-          entityType: string
-          id?: number
-          link: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title: string
-          updatedAt?: string | null
-        }
-        Update: {
-          createdAt?: string
-          description?: string | null
-          entityId?: string
-          entityType?: string
-          id?: number
-          link?: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title?: string
-          updatedAt?: string | null
-        }
-        Relationships: []
-      }
-      searchIndex_d8pchig760h9ss9rvu70: {
-        Row: {
-          createdAt: string
-          description: string | null
-          entityId: string
-          entityType: string
-          id: number
-          link: string
-          metadata: Json | null
-          searchVector: unknown
-          tags: string[] | null
-          title: string
-          updatedAt: string | null
-        }
-        Insert: {
-          createdAt?: string
-          description?: string | null
-          entityId: string
-          entityType: string
-          id?: number
-          link: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title: string
-          updatedAt?: string | null
-        }
-        Update: {
-          createdAt?: string
-          description?: string | null
-          entityId?: string
-          entityType?: string
-          id?: number
-          link?: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title?: string
-          updatedAt?: string | null
-        }
-        Relationships: []
-      }
-      searchIndex_Hv6UHNWyRmugoopHDVAD8L: {
-        Row: {
-          createdAt: string
-          description: string | null
-          entityId: string
-          entityType: string
-          id: number
-          link: string
-          metadata: Json | null
-          searchVector: unknown
-          tags: string[] | null
-          title: string
-          updatedAt: string | null
-        }
-        Insert: {
-          createdAt?: string
-          description?: string | null
-          entityId: string
-          entityType: string
-          id?: number
-          link: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title: string
-          updatedAt?: string | null
-        }
-        Update: {
-          createdAt?: string
-          description?: string | null
-          entityId?: string
-          entityType?: string
-          id?: number
-          link?: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title?: string
-          updatedAt?: string | null
-        }
-        Relationships: []
-      }
-      searchIndex_QdnTgK8ScbRLknUWXt9dxX: {
-        Row: {
-          createdAt: string
-          description: string | null
-          entityId: string
-          entityType: string
-          id: number
-          link: string
-          metadata: Json | null
-          searchVector: unknown
-          tags: string[] | null
-          title: string
-          updatedAt: string | null
-        }
-        Insert: {
-          createdAt?: string
-          description?: string | null
-          entityId: string
-          entityType: string
-          id?: number
-          link: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title: string
-          updatedAt?: string | null
-        }
-        Update: {
-          createdAt?: string
-          description?: string | null
-          entityId?: string
-          entityType?: string
-          id?: number
-          link?: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title?: string
-          updatedAt?: string | null
-        }
-        Relationships: []
-      }
       searchIndexRegistry: {
         Row: {
           companyId: string
@@ -58388,6 +58120,159 @@ export type Database = {
           },
         ]
       }
+      journalLines: {
+        Row: {
+          accountId: string | null
+          accrual: boolean | null
+          amount: number | null
+          companyId: string | null
+          createdAt: string | null
+          customFields: Json | null
+          description: string | null
+          documentId: string | null
+          documentLineReference: string | null
+          documentType:
+            | Database["public"]["Enums"]["journalLineDocumentType"]
+            | null
+          externalDocumentId: string | null
+          id: string | null
+          intercompanyPartnerId: string | null
+          journalDescription: string | null
+          journalEntryId: string | null
+          journalId: string | null
+          journalLineReference: string | null
+          postingDate: string | null
+          quantity: number | null
+          sourceType:
+            | Database["public"]["Enums"]["journalEntrySourceType"]
+            | null
+          status: Database["public"]["Enums"]["journalEntryStatus"] | null
+          tags: string[] | null
+          updatedAt: string | null
+          updatedBy: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "journalLine_accountId_fkey"
+            columns: ["accountId"]
+            isOneToOne: false
+            referencedRelation: "account"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "journalLine_accountId_fkey"
+            columns: ["accountId"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "journalLine_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "journalLine_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "journalLine_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "journalLine_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "journalLine_intercompanyPartnerId_fkey"
+            columns: ["intercompanyPartnerId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "journalLine_intercompanyPartnerId_fkey"
+            columns: ["intercompanyPartnerId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "journalLine_intercompanyPartnerId_fkey"
+            columns: ["intercompanyPartnerId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "journalLine_intercompanyPartnerId_fkey"
+            columns: ["intercompanyPartnerId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "journalLine_journalId_fkey"
+            columns: ["journalId"]
+            isOneToOne: false
+            referencedRelation: "journal"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "journalLine_journalId_fkey"
+            columns: ["journalId"]
+            isOneToOne: false
+            referencedRelation: "journalEntries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "journalLine_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "journalLine_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "journalLine_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "journalLine_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "journalLine_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+        ]
+      }
       kanbans: {
         Row: {
           autoRelease: boolean | null
@@ -59830,14 +59715,14 @@ export type Database = {
           },
           {
             foreignKeyName: "partner_id_fkey"
-            columns: ["supplierLocationId"]
+            columns: ["id"]
             isOneToOne: false
             referencedRelation: "supplierLocation"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "partner_id_fkey"
-            columns: ["id"]
+            columns: ["supplierLocationId"]
             isOneToOne: false
             referencedRelation: "supplierLocation"
             referencedColumns: ["id"]
@@ -60827,6 +60712,9 @@ export type Database = {
         Row: {
           assignee: string | null
           balance: number | null
+          baseStatus:
+            | Database["public"]["Enums"]["purchaseInvoiceStatus"]
+            | null
           companyId: string | null
           createdAt: string | null
           createdBy: string | null
@@ -61502,14 +61390,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["supplierCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["supplierCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -64935,7 +64823,7 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["shipmentCountryCode"]
+            columns: ["invoiceCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -64949,7 +64837,7 @@ export type Database = {
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["invoiceCountryCode"]
+            columns: ["shipmentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -64960,6 +64848,7 @@ export type Database = {
         Row: {
           assignee: string | null
           balance: number | null
+          baseStatus: Database["public"]["Enums"]["salesInvoiceStatus"] | null
           companyId: string | null
           createdAt: string | null
           createdBy: string | null
@@ -64985,6 +64874,7 @@ export type Database = {
           locationId: string | null
           opportunityId: string | null
           paymentTermId: string | null
+          paymentTermName: string | null
           postingDate: string | null
           shipmentId: string | null
           status: string | null
@@ -65516,14 +65406,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["paymentCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["paymentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -71271,6 +71161,12 @@ export type Database = {
         | "Rework"
         | "Scrap"
         | "Use As Is"
+      documentExtractionStatus:
+        | "pending"
+        | "processing"
+        | "completed"
+        | "failed"
+      documentExtractionType: "purchaseInvoice" | "salesRfq"
       documentSourceType:
         | "Job"
         | "Part"
@@ -72595,6 +72491,13 @@ export const Constants = {
         "Scrap",
         "Use As Is",
       ],
+      documentExtractionStatus: [
+        "pending",
+        "processing",
+        "completed",
+        "failed",
+      ],
+      documentExtractionType: ["purchaseInvoice", "salesRfq"],
       documentSourceType: [
         "Job",
         "Part",

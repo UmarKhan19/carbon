@@ -915,6 +915,18 @@ export const changeOrderValidator = z.object({
   items: z.array(z.string()).optional()
 });
 
+// Creating a change order requires at least one affected item and one approver —
+// a change order with neither has nothing to review. The base validator keeps
+// them optional because the edit/details action reuses it without those fields.
+export const changeOrderCreateValidator = changeOrderValidator.extend({
+  approvers: z
+    .array(z.string())
+    .min(1, { message: "At least one approver is required" }),
+  items: z
+    .array(z.string())
+    .min(1, { message: "At least one item is required" })
+});
+
 export const changeOrderItemValidator = z.object({
   id: zfd.text(z.string().optional()),
   changeOrderId: z.string().min(1, { message: "Change order is required" }),

@@ -197,13 +197,20 @@ const revisionRank = (status: string | null | undefined): number => {
 //     by companySettings.plmReleaseControl (enforce → error, warn → warning,
 //     off → skipped).
 //   - warning: a released pending revision with no controlled drawing.
+// A validation message, optionally tied to an affected item (its changeOrderItem
+// id) so the UI can link straight to that item's disposition/redline view.
+export type ChangeOrderValidationEntry = { message: string; coItemId?: string };
+
 export async function getChangeOrderValidations(
   client: SupabaseClient<Database>,
   changeOrderId: string,
   companyId: string
-): Promise<{ errors: string[]; warnings: string[] }> {
-  const errors: string[] = [];
-  const warnings: string[] = [];
+): Promise<{
+  errors: ChangeOrderValidationEntry[];
+  warnings: ChangeOrderValidationEntry[];
+}> {
+  const errors: ChangeOrderValidationEntry[] = [];
+  const warnings: ChangeOrderValidationEntry[] = [];
 
   const changeOrder = await client
     .from("changeOrder")
@@ -213,7 +220,7 @@ export async function getChangeOrderValidations(
     .single();
 
   if (changeOrder.error || !changeOrder.data) {
-    return { errors: ["Change order not found"], warnings };
+    return { errors: [{ message: "Change order not found" }], warnings };
   }
 
   const settings = await client
@@ -246,11 +253,12 @@ export async function getChangeOrderValidations(
 
   for (const item of affectedItems) {
     if (changeOrder.data.type === "Engineering" && !item.pendingItemId) {
-      errors.push(
-        `Affected item ${
+      errors.push({
+        message: `Affected item ${
           item.itemReadableId ?? item.itemId
-        } has no pending revision to release`
-      );
+        } has no pending revision to release`,
+        coItemId: item.id
+      });
     }
 
     // §5: an "explicit disposition" means the user moved it off the "No Change"
@@ -259,13 +267,16 @@ export async function getChangeOrderValidations(
       const hasExplicitDisposition =
         !!item.disposition && item.disposition !== "No Change";
       if (!hasExplicitDisposition) {
-        const message = `Affected item ${
-          item.itemReadableId ?? item.itemId
-        } needs an explicit disposition before release`;
+        const entry = {
+          message: `Affected item ${
+            item.itemReadableId ?? item.itemId
+          } needs an explicit disposition before release`,
+          coItemId: item.id
+        };
         if (releaseControl === "enforce") {
-          errors.push(message);
+          errors.push(entry);
         } else {
-          warnings.push(message);
+          warnings.push(entry);
         }
       }
     }
@@ -327,13 +338,14 @@ export async function getChangeOrderValidations(
             const childRank = revisionRank(child.status);
             if (child.status === "Obsolete") continue;
             if (parentRank > childRank) {
-              errors.push(
-                `${
+              errors.push({
+                message: `${
                   pending.readableIdWithRevision ?? pending.id
                 } cannot be more mature than child ${
                   child.readableId ?? "material"
-                } (${child.status})`
-              );
+                } (${child.status})`,
+                coItemId: item.id
+              });
             }
           }
         }
@@ -354,11 +366,12 @@ export async function getChangeOrderValidations(
       const pending = item.pendingItem;
       if (!pending?.id) continue;
       if (!drawings.has(pending.id)) {
-        warnings.push(
-          `${
+        warnings.push({
+          message: `${
             pending.readableIdWithRevision ?? pending.id
-          } has no controlled drawing attached`
-        );
+          } has no controlled drawing attached`,
+          coItemId: item.id
+        });
       }
     }
   }

@@ -9,7 +9,7 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData } from "react-router";
 import { useUrlParams } from "~/hooks";
 import {
-  changeOrderValidator,
+  changeOrderCreateValidator,
   getChangeOrderWorkflowsList,
   insertChangeOrder
 } from "~/modules/items";
@@ -52,7 +52,9 @@ export async function action({ request }: ActionFunctionArgs) {
   const serviceRole = await getCarbonServiceRole();
 
   const formData = await request.formData();
-  const validation = await validator(changeOrderValidator).validate(formData);
+  const validation = await validator(changeOrderCreateValidator).validate(
+    formData
+  );
 
   if (validation.error) {
     return validationError(validation.error);

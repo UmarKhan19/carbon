@@ -524,6 +524,7 @@ CREATE TABLE "changeOrderReviewer" (
   "status" "changeOrderTaskStatus" NOT NULL DEFAULT 'Pending',
   "changeOrderId" TEXT NOT NULL,
   "notes" JSON NOT NULL DEFAULT '{}',
+  "reviewedItemIds" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
   "sortOrder" INTEGER NOT NULL DEFAULT 0,
   "dueDate" DATE,
   "completedDate" DATE,

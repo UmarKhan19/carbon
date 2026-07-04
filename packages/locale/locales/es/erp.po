@@ -28,6 +28,10 @@ msgstr "\"{storageUnitName}\" tiene 1 unidad de almacenamiento anidada directa. 
 msgid "(excluded for this customer)"
 msgstr "(excluido para este cliente)"
 
+#. placeholder {0}: entries.length
+msgid "{0} affected items"
+msgstr ""
+
 #. placeholder {0}: ar.count
 msgid "{0} customers with a balance"
 msgstr "{0} clientes con saldo"
@@ -44,6 +48,10 @@ msgstr "{0} eliminado correctamente"
 #. placeholder {0}: mappings.length
 msgid "{0} lines to map"
 msgstr "{0} líneas para mapear"
+
+#. placeholder {0}: itemTotal - reviewedCount
+msgid "{0} not reviewed"
+msgstr ""
 
 #. placeholder {0}: history.length
 msgid "{0} orders"
@@ -674,6 +682,9 @@ msgstr "Complemento"
 msgid "Add-On Cost"
 msgstr "Costo Adicional"
 
+msgid "Added"
+msgstr ""
+
 msgid "Added for this customer"
 msgstr "Añadido para este cliente"
 
@@ -956,6 +967,9 @@ msgid "Approve"
 msgstr "Aprobar"
 
 msgid "Approve Change Order"
+msgstr ""
+
+msgid "Approved"
 msgstr ""
 
 msgid "Approved By"
@@ -2002,6 +2016,9 @@ msgstr "Cambiar el tipo de artículo (p. ej., Pieza, Material, Herramienta, etc.
 
 msgid "Change Type"
 msgstr "Cambiar Tipo"
+
+msgid "Changed"
+msgstr ""
 
 msgid "Changed By"
 msgstr "Cambiado por"
@@ -6886,6 +6903,9 @@ msgstr "Marcar como no realizado"
 msgid "Mark Partial"
 msgstr "Marcar como Parcial"
 
+msgid "Mark reviewed"
+msgstr ""
+
 msgid "Mark scope as agreed"
 msgstr "Marcar alcance como acordado"
 
@@ -7622,6 +7642,9 @@ msgstr "Sin presupuestos activos"
 msgid "No addresses found"
 msgstr "No se encontraron direcciones"
 
+msgid "No affected items to review yet."
+msgstr ""
+
 msgid "No affected items yet"
 msgstr ""
 
@@ -8072,6 +8095,9 @@ msgstr "AR abierto"
 
 msgid "Open Audit Log"
 msgstr "Abrir Registro de Auditoría"
+
+msgid "Open change order"
+msgstr ""
 
 msgid "Open Date"
 msgstr "Fecha de Apertura"
@@ -9472,9 +9498,6 @@ msgstr "Registrar"
 msgid "Redirecting to verification page..."
 msgstr "Redirigiendo a la página de verificación..."
 
-msgid "Redline"
-msgstr ""
-
 msgid "Reduced"
 msgstr "Reducido"
 
@@ -9610,6 +9633,9 @@ msgstr "Eliminar ordenamiento por columna"
 
 msgid "Remove this storage type from all referencing storage units and delete it. This cannot be undone."
 msgstr "Elimina este tipo de almacenamiento de todas las unidades de almacenamiento que lo referencian y elimínalo. Esto no se puede deshacer."
+
+msgid "Removed"
+msgstr ""
 
 msgid "Rendering label preview..."
 msgstr "Renderizando vista previa de etiqueta..."
@@ -9825,6 +9851,15 @@ msgstr "Impuesto a las ventas de cargo inverso (predeterminado)"
 
 msgid "Reverse the related journal entries"
 msgstr "Revertir los asientos de diario relacionados"
+
+msgid "Review all changes"
+msgstr ""
+
+msgid "reviewed"
+msgstr ""
+
+msgid "Reviewed"
+msgstr ""
 
 msgid "Reviewers"
 msgstr ""
@@ -10761,6 +10796,9 @@ msgstr "Mostrar una columna de ID de Proveedor legible en la lista de proveedore
 
 msgid "Show Customer IDs"
 msgstr "Mostrar IDs de Cliente"
+
+msgid "Show decision reason"
+msgstr ""
 
 msgid "Show Durations"
 msgstr "Mostrar duraciones"
@@ -12225,6 +12263,9 @@ msgid "This is the month your tax year starts."
 msgstr "Este es el mes en que comienza tu año fiscal."
 
 msgid "This item has no proposed revision, so there is nothing to redline."
+msgstr ""
+
+msgid "This item has no proposed revision."
 msgstr ""
 
 msgid "This item is built via a configurator and resolves its components per-order; jobs created for it inherit the configurator's resolved BOM."
@@ -13804,6 +13845,10 @@ msgstr "Recibiste este artículo"
 
 msgid "You received this lot"
 msgstr "Recibiste este lote"
+
+#. placeholder {0}: entries.length
+msgid "you: {reviewedCount}/{0} reviewed"
+msgstr ""
 
 msgid "You're live on Carbon"
 msgstr "Estás en vivo en Carbon"

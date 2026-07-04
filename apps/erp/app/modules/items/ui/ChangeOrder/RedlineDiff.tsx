@@ -1,14 +1,15 @@
 import { Badge, cn } from "@carbon/react";
 import { Trans } from "@lingui/react/macro";
+import type { ComponentProps, ReactNode } from "react";
 
 // =============================================================================
-// RedlineDiff — a Duro-style GitHub *unified* diff of an item's method between
-// its current revision and the in-progress (pending) revision.
+// RedlineDiff — a change-order redline of an item's method between its current
+// revision and the in-progress (pending) revision.
 //
-// Materials (BOM) are matched on itemId, operations (BOP) on order/description.
-// Each side is rendered as ONE flat list of rows carrying a +/−/~ marker and a
-// row tint (added = green, removed = red, changed = amber) using the codebase's
-// existing Badge color variants (green/red/yellow) and semantic text classes.
+// Materials (BOM) are matched on a stable key path, operations (BOP) on
+// order/description. Each changed row leads with a colored kind badge
+// (Added = green, Removed = red, Changed = amber), the item name, its readable
+// id, and the field values that moved (old → new).
 // =============================================================================
 
 export type Material = {
@@ -19,6 +20,7 @@ export type Material = {
   level?: number | null;
   itemId?: string | null;
   itemReadableId?: string | null;
+  // The item's name (populated from item.name in the snapshot builder).
   description?: string | null;
   quantity?: number | null;
   unitOfMeasureCode?: string | null;
@@ -48,31 +50,20 @@ type DiffRow = {
   key: string;
   kind: DiffKind;
   title: string;
+  // Secondary identifier shown muted next to the title (e.g. the readable id).
+  subtitle?: string;
   fields: DiffField[];
   // BOM nesting depth (materials only); used to indent nested rows.
   level?: number;
 };
 
-const MARKERS: Record<Exclude<DiffKind, "unchanged">, string> = {
-  added: "+",
-  removed: "−",
-  changed: "~"
-};
-
-const ROW_CLASSES: Record<DiffKind, string> = {
-  added:
-    "bg-emerald-100/50 dark:bg-emerald-500/10 border-l-2 border-emerald-500/60",
-  removed: "bg-red-100/50 dark:bg-red-500/10 border-l-2 border-red-500/60",
-  changed:
-    "bg-yellow-100/50 dark:bg-yellow-500/10 border-l-2 border-yellow-500/60",
-  unchanged: "border-l-2 border-transparent"
-};
-
-const MARKER_CLASSES: Record<DiffKind, string> = {
-  added: "text-emerald-600 dark:text-emerald-400",
-  removed: "text-red-600 dark:text-red-400",
-  changed: "text-yellow-600 dark:text-yellow-500",
-  unchanged: "text-muted-foreground"
+const KIND_BADGE: Record<
+  Exclude<DiffKind, "unchanged">,
+  { variant: ComponentProps<typeof Badge>["variant"]; label: ReactNode }
+> = {
+  added: { variant: "green", label: <Trans>Added</Trans> },
+  removed: { variant: "red", label: <Trans>Removed</Trans> },
+  changed: { variant: "yellow", label: <Trans>Changed</Trans> }
 };
 
 function fmt(value: string | number | null | undefined): string {
@@ -80,8 +71,14 @@ function fmt(value: string | number | null | undefined): string {
   return String(value);
 }
 
-function materialTitle(m: Material): string {
-  return m.itemReadableId ?? m.itemId ?? "Material";
+function materialName(m: Material): string {
+  return m.description ?? m.itemReadableId ?? m.itemId ?? "Material";
+}
+
+function materialSubtitle(m: Material): string | undefined {
+  const id = m.itemReadableId ?? m.itemId ?? undefined;
+  // Only show the id as a subtitle when it isn't already the title.
+  return id && id !== materialName(m) ? id : undefined;
 }
 
 function operationTitle(o: Operation): string {
@@ -115,7 +112,10 @@ function diffRows<T>(
     pending: T | null,
     kind: DiffKind
   ) => DiffField[],
-  levelOf?: (item: T) => number | undefined
+  options?: {
+    levelOf?: (item: T) => number | undefined;
+    subtitleOf?: (item: T) => string | undefined;
+  }
 ): DiffRow[] {
   const currentByKey = new Map(current.map((item) => [keyOf(item), item]));
   const pendingByKey = new Map(pending.map((item) => [keyOf(item), item]));
@@ -150,8 +150,9 @@ function diffRows<T>(
       key,
       kind,
       title: titleOf(source),
+      subtitle: options?.subtitleOf?.(source),
       fields: fieldsOf(before, after, kind),
-      level: levelOf?.(source)
+      level: options?.levelOf?.(source)
     });
   }
 
@@ -167,8 +168,8 @@ function buildMaterialRows(
     pending,
     // Key on the stable multi-level path so the same item at different BOM
     // levels never collides; fall back to itemId for flat (legacy) inputs.
-    (m) => m.key ?? m.itemId ?? m.itemReadableId ?? materialTitle(m),
-    materialTitle,
+    (m) => m.key ?? m.itemId ?? m.itemReadableId ?? materialName(m),
+    materialName,
     (before, after, kind) => [
       buildField("Qty", fmt(before?.quantity), fmt(after?.quantity), kind),
       buildField(
@@ -176,15 +177,12 @@ function buildMaterialRows(
         fmt(before?.unitOfMeasureCode),
         fmt(after?.unitOfMeasureCode),
         kind
-      ),
-      buildField(
-        "Description",
-        fmt(before?.description),
-        fmt(after?.description),
-        kind
       )
     ],
-    (m) => m.level ?? undefined
+    {
+      levelOf: (m) => m.level ?? undefined,
+      subtitleOf: materialSubtitle
+    }
   );
 }
 
@@ -204,113 +202,95 @@ function buildOperationRows(
         fmt(before?.workCenter),
         fmt(after?.workCenter),
         kind
-      ),
-      buildField(
-        "Description",
-        fmt(before?.description),
-        fmt(after?.description),
-        kind
       )
     ]
   );
 }
 
-function FieldValue({ field }: { field: DiffField }) {
+function FieldValue({ field, kind }: { field: DiffField; kind: DiffKind }) {
+  if (kind === "added") {
+    return (
+      <span>
+        {field.label} {field.pending}
+      </span>
+    );
+  }
+  if (kind === "removed") {
+    return (
+      <span>
+        {field.label} {field.current}
+      </span>
+    );
+  }
   if (!field.changed) {
     return (
-      <span className="text-foreground/80">
-        {field.label}: {field.current}
+      <span>
+        {field.label} {field.current}
       </span>
     );
   }
   return (
     <span>
-      {field.label}:{" "}
-      <span className="text-red-600 line-through dark:text-red-400">
-        {field.current}
-      </span>{" "}
-      <span className="text-emerald-600 dark:text-emerald-400">
-        {field.pending}
-      </span>
+      {field.label} {field.current}{" "}
+      <span className="font-medium text-foreground">→ {field.pending}</span>
     </span>
   );
 }
 
 function DiffRowLine({ row }: { row: DiffRow }) {
-  const marker = row.kind === "unchanged" ? " " : MARKERS[row.kind];
   const level = row.level ?? 0;
+  const badge = row.kind === "unchanged" ? null : KIND_BADGE[row.kind];
+  const fields =
+    row.kind === "changed" ? row.fields.filter((f) => f.changed) : row.fields;
+
   return (
     <li
-      className={cn(
-        "flex items-start gap-3 px-3 py-2 text-sm",
-        ROW_CLASSES[row.kind]
-      )}
+      className="flex items-start gap-3 py-2"
+      style={level > 0 ? { paddingLeft: level * 16 } : undefined}
     >
-      <span
-        className={cn(
-          "font-mono font-bold w-3 select-none shrink-0",
-          MARKER_CLASSES[row.kind]
-        )}
-        aria-hidden
-      >
-        {marker}
-      </span>
-      {/* Indent nested sub-assembly materials by their BOM level. */}
-      {level > 0 && (
-        <span
-          aria-hidden
-          className="shrink-0 self-stretch border-l border-border/60"
-          style={{ marginLeft: (level - 1) * 16, width: 16 }}
-        />
+      {badge && (
+        <Badge variant={badge.variant} className="mt-0.5 shrink-0">
+          {badge.label}
+        </Badge>
       )}
-      <div className="flex flex-col min-w-0 flex-1 gap-0.5">
-        <span className="font-medium truncate">{row.title}</span>
-        <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs">
-          {row.kind === "removed"
-            ? row.fields.map((f) => (
-                <span key={f.label} className="text-foreground/70">
-                  {f.label}: {f.current}
-                </span>
-              ))
-            : row.kind === "added"
-              ? row.fields.map((f) => (
-                  <span key={f.label} className="text-foreground/70">
-                    {f.label}: {f.pending}
-                  </span>
-                ))
-              : row.fields.map((f) => <FieldValue key={f.label} field={f} />)}
+      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <div className="flex items-baseline gap-2 min-w-0">
+          <span className="font-medium truncate">{row.title}</span>
+          {row.subtitle && (
+            <span className="shrink-0 text-xs text-muted-foreground">
+              {row.subtitle}
+            </span>
+          )}
         </div>
+        {fields.length > 0 && (
+          <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-muted-foreground">
+            {fields.map((f) => (
+              <FieldValue key={f.label} field={f} kind={row.kind} />
+            ))}
+          </div>
+        )}
       </div>
     </li>
   );
 }
 
-function DiffSection({
-  title,
-  rows
-}: {
-  title: React.ReactNode;
-  rows: DiffRow[];
-}) {
+function DiffSection({ title, rows }: { title: ReactNode; rows: DiffRow[] }) {
   const changedRows = rows.filter((r) => r.kind !== "unchanged");
   return (
-    <div className="flex flex-col">
-      <div className="flex items-center justify-between px-3 py-1.5 border-b border-border bg-muted/40">
-        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          {title}
-        </span>
-        {changedRows.length === 0 && (
-          <span className="text-xs text-muted-foreground">
-            <Trans>No changes</Trans>
-          </span>
-        )}
-      </div>
-      {rows.length > 0 && (
-        <ul className="flex flex-col divide-y divide-border/60">
-          {rows.map((row) => (
+    <div className="flex flex-col gap-1">
+      <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        {title}
+      </span>
+      {changedRows.length > 0 ? (
+        <ul className="flex flex-col divide-y divide-border/50">
+          {changedRows.map((row) => (
             <DiffRowLine key={row.key} row={row} />
           ))}
         </ul>
+      ) : (
+        <span className="text-xs text-muted-foreground">
+          <Trans>No changes</Trans>
+        </span>
       )}
     </div>
   );
@@ -330,9 +310,10 @@ function countByKind(rows: DiffRow[]) {
 
 export type RedlineCounts = { added: number; removed: number; changed: number };
 
-// Pure helper (no React) so loaders can compute the +/−/~ signal for a method
-// pair without rendering the diff. Reuses the same row builders + countByKind
-// the component uses, so the sidebar badge and the diff body never disagree.
+// Pure helper (no React) so loaders can compute the added/removed/changed signal
+// for a method pair without rendering the diff. Reuses the same row builders +
+// countByKind the component uses, so the sidebar badge and the diff body never
+// disagree.
 export function getRedlineCounts(
   current: Method,
   pending: Method
@@ -369,19 +350,14 @@ export default function RedlineDiff({
     totals.added > 0 || totals.removed > 0 || totals.changed > 0;
 
   return (
-    <div className="rounded-lg border border-border overflow-hidden bg-card">
-      <div className="flex items-center gap-2 px-3 py-2 border-b border-border">
-        <span className="text-sm font-semibold">
-          <Trans>Redline</Trans>
-        </span>
-        <div className="flex items-center gap-1.5 ml-auto">
-          <Badge variant="green">{totals.added} added</Badge>
-          <Badge variant="red">{totals.removed} removed</Badge>
-          <Badge variant="yellow">{totals.changed} changed</Badge>
-        </div>
-      </div>
+    <div
+      className={cn(
+        "flex flex-col gap-5 rounded-lg border border-border bg-card p-4",
+        !hasChanges && "items-center justify-center py-10 text-center"
+      )}
+    >
       {hasChanges ? (
-        <div className="flex flex-col">
+        <>
           <DiffSection
             title={<Trans>Materials (BOM)</Trans>}
             rows={materialRows}
@@ -390,11 +366,11 @@ export default function RedlineDiff({
             title={<Trans>Operations (BOP)</Trans>}
             rows={operationRows}
           />
-        </div>
+        </>
       ) : (
-        <div className="px-3 py-4 text-sm text-muted-foreground text-center">
+        <p className="text-sm text-muted-foreground">
           <Trans>No method changes between revisions.</Trans>
-        </div>
+        </p>
       )}
     </div>
   );

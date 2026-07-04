@@ -5,6 +5,7 @@ import {
   Select,
   SelectControlled,
   TextArea,
+  useField,
   ValidatedForm
 } from "@carbon/form";
 import {
@@ -15,12 +16,13 @@ import {
   CardHeader,
   CardTitle,
   FormControl,
+  FormErrorMessage,
   FormLabel,
   useDisclosure,
   VStack
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import type { z } from "zod";
 import { CustomFormFields, Hidden, Input, Submit } from "~/components/Form";
 import { UserSelect } from "~/components/Selectors";
@@ -29,15 +31,15 @@ import { usePermissions } from "~/hooks";
 import type { ChangeOrderWorkflow } from "~/modules/items";
 import {
   changeOrderApprovalType,
+  changeOrderCreateValidator,
   changeOrderPriority,
   changeOrderType,
-  changeOrderValidator,
   parseChangeOrderWorkflowContent
 } from "~/modules/items";
 import { ChangeOrderWorkflowForm } from "~/modules/items/ui/ChangeOrderWorkflow";
-import { useItems } from "~/stores/items";
+import { latestRevisionByReadableId, useItems } from "~/stores/items";
 
-type ChangeOrderFormValues = z.infer<typeof changeOrderValidator>;
+type ChangeOrderFormValues = z.infer<typeof changeOrderCreateValidator>;
 
 type ChangeOrderFormProps = {
   initialValues: ChangeOrderFormValues;
@@ -86,11 +88,28 @@ const ChangeOrderForm = ({
 
   const [items] = useItems();
 
+  // Change orders apply to active Parts and Tools only, one option per part
+  // (the latest revision); obsolete revisions are active === false and excluded.
+  const itemOptions = useMemo(
+    () =>
+      latestRevisionByReadableId(
+        items.filter(
+          (item) =>
+            (item.type === "Part" || item.type === "Tool") && item.active
+        )
+      ).map((item) => ({
+        label: item.readableIdWithRevision,
+        value: item.id,
+        helper: item.name
+      })),
+    [items]
+  );
+
   return (
     <Card>
       <ValidatedForm
         method="post"
-        validator={changeOrderValidator}
+        validator={changeOrderCreateValidator}
         defaultValues={initialValues}
         className="w-full"
       >
@@ -175,53 +194,24 @@ const ChangeOrderForm = ({
                   newTemplateModal.onOpen();
                 }}
               />
-              <FormControl>
-                <FormLabel htmlFor="approvers" isOptional>
-                  {t`Approvers`}
-                </FormLabel>
-                {workflow.approvers.map((approver, index) => (
-                  <input
-                    key={`approvers[${index}]`}
-                    type="hidden"
-                    name={`approvers[${index}]`}
-                    value={approver}
-                  />
-                ))}
-                <UserSelect
-                  isMulti
-                  type="employee"
-                  value={workflow.approvers.map((a) =>
-                    a.replace(/^(user|group)_/, "")
-                  )}
-                  onChange={(selections: IndividualOrGroup[]) => {
-                    setWorkflow((prev) => ({
-                      ...prev,
-                      // A group loads without members, so it has no `users` key
-                      // at runtime — discriminate on a field only groups carry.
-                      approvers: selections.map((item) =>
-                        "isEmployeeTypeGroup" in item
-                          ? `group_${item.id}`
-                          : `user_${item.id}`
-                      )
-                    }));
-                  }}
-                />
-              </FormControl>
+              <ApproversField
+                approvers={workflow.approvers}
+                onChange={(selections) => {
+                  setWorkflow((prev) => ({
+                    ...prev,
+                    // A group loads without members, so it has no `users` key
+                    // at runtime — discriminate on a field only groups carry.
+                    approvers: selections.map((item) =>
+                      "isEmployeeTypeGroup" in item
+                        ? `group_${item.id}`
+                        : `user_${item.id}`
+                    )
+                  }));
+                }}
+              />
             </div>
 
-            <MultiSelect
-              name="items"
-              label={t`Items`}
-              // Change orders apply to Parts and Tools only — materials,
-              // consumables, and services don't carry engineering revisions.
-              options={items
-                .filter((item) => item.type === "Part" || item.type === "Tool")
-                .map((item) => ({
-                  label: item.readableIdWithRevision,
-                  value: item.id,
-                  helper: item.name
-                }))}
-            />
+            <MultiSelect name="items" label={t`Items`} options={itemOptions} />
 
             <div className="grid w-full gap-4 grid-cols-1 md:grid-cols-2">
               <DatePicker name="openDate" label={t`Open Date`} />
@@ -265,3 +255,37 @@ const ChangeOrderForm = ({
 };
 
 export default ChangeOrderForm;
+
+// The approvers control is a custom UserSelect (not a registered form field), so
+// its validation error needs to be surfaced explicitly. Rendered inside the
+// ValidatedForm so useField("approvers") can read the error and drive isInvalid.
+function ApproversField({
+  approvers,
+  onChange
+}: {
+  approvers: string[];
+  onChange: (selections: IndividualOrGroup[]) => void;
+}) {
+  const { t } = useLingui();
+  const { error } = useField("approvers");
+  return (
+    <FormControl isInvalid={!!error}>
+      <FormLabel htmlFor="approvers">{t`Approvers`}</FormLabel>
+      {approvers.map((approver, index) => (
+        <input
+          key={`approvers[${index}]`}
+          type="hidden"
+          name={`approvers[${index}]`}
+          value={approver}
+        />
+      ))}
+      <UserSelect
+        isMulti
+        type="employee"
+        value={approvers.map((a) => a.replace(/^(user|group)_/, ""))}
+        onChange={onChange}
+      />
+      {error && <FormErrorMessage>{error}</FormErrorMessage>}
+    </FormControl>
+  );
+}

@@ -1,10 +1,8 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { Select, ValidatedForm } from "@carbon/form";
-import { Button, Card, CardContent, cn, toast, VStack } from "@carbon/react";
+import { Button, Card, CardContent, toast, VStack } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
-import type { ComponentProps, ReactNode } from "react";
 import { useCallback, useEffect } from "react";
-import { AiOutlinePartition } from "react-icons/ai";
 import { LuArrowRight, LuPencil } from "react-icons/lu";
 import type { LoaderFunctionArgs } from "react-router";
 import { Link, useFetcher, useLoaderData } from "react-router";
@@ -20,7 +18,7 @@ import { DispositionStatus } from "~/modules/items/ui/ChangeOrder/ChangeOrderIte
 import RedlineDiff, {
   getRedlineCounts
 } from "~/modules/items/ui/ChangeOrder/RedlineDiff";
-import ItemRevisionStatus from "~/modules/items/ui/Item/ItemRevisionStatus";
+import RevisionCell from "~/modules/items/ui/ChangeOrder/RevisionCell";
 import { getPathToMakeMethod } from "~/modules/items/ui/Methods/utils";
 import type { MethodItemType } from "~/modules/shared";
 import type { Handle } from "~/utils/handle";
@@ -213,46 +211,5 @@ export default function ChangeOrderAffectedItemRoute() {
         </Card>
       )}
     </VStack>
-  );
-}
-
-// Before/After revision cell: item id + a lifecycle status badge whose tooltip
-// explains what the stage (Design/Prototype/Production/Obsolete) means.
-function RevisionCell({
-  label,
-  id,
-  status,
-  highlight = false
-}: {
-  label: ReactNode;
-  id: string | null;
-  status?: string | null;
-  highlight?: boolean;
-}) {
-  return (
-    <div className="flex flex-col gap-1">
-      <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
-        {label}
-      </span>
-      <div className="flex items-center gap-2">
-        <AiOutlinePartition className="size-4 shrink-0 text-muted-foreground" />
-        <span
-          className={cn(
-            "font-semibold",
-            highlight && "text-emerald-600 dark:text-emerald-400"
-          )}
-        >
-          {id}
-        </span>
-        {status ? (
-          <ItemRevisionStatus
-            status={
-              status as ComponentProps<typeof ItemRevisionStatus>["status"]
-            }
-            withHelp
-          />
-        ) : null}
-      </div>
-    </div>
   );
 }

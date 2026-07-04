@@ -116,6 +116,56 @@ export async function action({ request }: ActionFunctionArgs) {
 
       return { data: update.data, error: null };
     }
+    case "reviewed": {
+      // Per-reviewer reading-aid progress: toggle this affected item in the
+      // current user's own reviewer row (reviewedItemIds). Non-binding — it does
+      // not gate the Approve/Reject decision.
+      const changeOrderId = formData.get("changeOrderId");
+      const coItemId = formData.get("coItemId");
+      const value = formData.get("value");
+      if (typeof changeOrderId !== "string" || !changeOrderId) {
+        return { error: { message: "Change order is required" }, data: null };
+      }
+      if (typeof coItemId !== "string" || !coItemId) {
+        return { error: { message: "Item is required" }, data: null };
+      }
+
+      const reviewer = await client
+        .from("changeOrderReviewer")
+        .select("id, reviewedItemIds")
+        .eq("changeOrderId", changeOrderId)
+        .eq("assignee", userId)
+        .eq("companyId", companyId)
+        .maybeSingle();
+
+      if (reviewer.error || !reviewer.data) {
+        return {
+          error: { message: "You are not a reviewer on this change order" },
+          data: null
+        };
+      }
+
+      const current = reviewer.data.reviewedItemIds ?? [];
+      const reviewedItemIds =
+        value === "true"
+          ? Array.from(new Set([...current, coItemId]))
+          : current.filter((itemId) => itemId !== coItemId);
+
+      const update = await client
+        .from("changeOrderReviewer")
+        .update({ reviewedItemIds, updatedBy: userId })
+        .eq("id", reviewer.data.id);
+
+      if (update.error) {
+        console.error(update.error);
+        return {
+          error: { message: "Failed to update review progress" },
+          data: null
+        };
+      }
+
+      return { data: update.data, error: null };
+    }
     default:
       return { error: { message: "Invalid intent" }, data: null };
   }

@@ -1,4 +1,5 @@
 import {
+  Button,
   Copy,
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +16,7 @@ import {
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
 import {
+  LuArrowUpRight,
   LuEllipsisVertical,
   LuGitPullRequestArrow,
   LuTrash
@@ -54,11 +56,18 @@ const PartHeader = () => {
         | "Stock Only"
         | "No Stock";
     } | null;
+    openChangeOrder: { id: string; changeOrderId: string } | null;
+    pendingRevisionChangeOrder: { id: string; changeOrderId: string } | null;
   }>(path.to.part(itemId));
 
   const lifecycleStatus = getItemLifecycleStatus(
     routeData?.supersession?.supersessionMode
   );
+
+  // The part is tied to an open change order either as the current revision
+  // (openChangeOrder) or as the proposed revision (pendingRevisionChangeOrder).
+  const changeOrder =
+    routeData?.openChangeOrder ?? routeData?.pendingRevisionChangeOrder;
 
   return (
     <>
@@ -76,6 +85,19 @@ const PartHeader = () => {
               <Status color={lifecycleStatus.color}>
                 {lifecycleStatus.label}
               </Status>
+            )}
+            {changeOrder && (
+              <Button
+                asChild
+                size="sm"
+                variant="secondary"
+                leftIcon={<LuGitPullRequestArrow />}
+                rightIcon={<LuArrowUpRight />}
+              >
+                <Link to={path.to.changeOrder(changeOrder.id)}>
+                  <Trans>Open change order</Trans>
+                </Link>
+              </Button>
             )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

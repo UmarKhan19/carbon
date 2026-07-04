@@ -615,6 +615,8 @@ export const path = {
       generatePath(`${x}/change-order/${id}/details`),
     changeOrderItem: (id: string, coItemId: string) =>
       generatePath(`${x}/change-order/${id}/item/${coItemId}`),
+    changeOrderReview: (id: string) =>
+      generatePath(`${x}/change-order/${id}/review`),
     changeOrderStatus: (id: string) =>
       generatePath(`${x}/change-order/${id}/status`),
     changeOrderDecision: (id: string) =>

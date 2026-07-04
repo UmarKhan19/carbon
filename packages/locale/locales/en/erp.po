@@ -28,6 +28,10 @@ msgstr "\"{storageUnitName}\" has 1 direct nested storage unit. Deleting it will
 msgid "(excluded for this customer)"
 msgstr "(excluded for this customer)"
 
+#. placeholder {0}: entries.length
+msgid "{0} affected items"
+msgstr "{0} affected items"
+
 #. placeholder {0}: ar.count
 msgid "{0} customers with a balance"
 msgstr "{0} customers with a balance"
@@ -44,6 +48,10 @@ msgstr "{0} deleted successfully"
 #. placeholder {0}: mappings.length
 msgid "{0} lines to map"
 msgstr "{0} lines to map"
+
+#. placeholder {0}: itemTotal - reviewedCount
+msgid "{0} not reviewed"
+msgstr "{0} not reviewed"
 
 #. placeholder {0}: history.length
 msgid "{0} orders"
@@ -674,6 +682,9 @@ msgstr "Add-On"
 msgid "Add-On Cost"
 msgstr "Add-On Cost"
 
+msgid "Added"
+msgstr "Added"
+
 msgid "Added for this customer"
 msgstr "Added for this customer"
 
@@ -957,6 +968,9 @@ msgstr "Approve"
 
 msgid "Approve Change Order"
 msgstr "Approve Change Order"
+
+msgid "Approved"
+msgstr "Approved"
 
 msgid "Approved By"
 msgstr "Approved By"
@@ -2002,6 +2016,9 @@ msgstr "Change the item type (e.g. Part, Material, Tool, etc.)"
 
 msgid "Change Type"
 msgstr "Change Type"
+
+msgid "Changed"
+msgstr "Changed"
 
 msgid "Changed By"
 msgstr "Changed By"
@@ -6886,6 +6903,9 @@ msgstr "Mark not done"
 msgid "Mark Partial"
 msgstr "Mark Partial"
 
+msgid "Mark reviewed"
+msgstr "Mark reviewed"
+
 msgid "Mark scope as agreed"
 msgstr "Mark scope as agreed"
 
@@ -7622,6 +7642,9 @@ msgstr "No Active Quotes"
 msgid "No addresses found"
 msgstr "No addresses found"
 
+msgid "No affected items to review yet."
+msgstr "No affected items to review yet."
+
 msgid "No affected items yet"
 msgstr "No affected items yet"
 
@@ -8072,6 +8095,9 @@ msgstr "Open AR"
 
 msgid "Open Audit Log"
 msgstr "Open Audit Log"
+
+msgid "Open change order"
+msgstr "Open change order"
 
 msgid "Open Date"
 msgstr "Open Date"
@@ -9472,9 +9498,6 @@ msgstr "Recovery Period"
 msgid "Redirecting to verification page..."
 msgstr "Redirecting to verification page..."
 
-msgid "Redline"
-msgstr "Redline"
-
 msgid "Reduced"
 msgstr "Reduced"
 
@@ -9610,6 +9633,9 @@ msgstr "Remove sort by column"
 
 msgid "Remove this storage type from all referencing storage units and delete it. This cannot be undone."
 msgstr "Remove this storage type from all referencing storage units and delete it. This cannot be undone."
+
+msgid "Removed"
+msgstr "Removed"
 
 msgid "Rendering label preview..."
 msgstr "Rendering label preview..."
@@ -9825,6 +9851,15 @@ msgstr "Reverse Charge Sales Tax (default)"
 
 msgid "Reverse the related journal entries"
 msgstr "Reverse the related journal entries"
+
+msgid "Review all changes"
+msgstr "Review all changes"
+
+msgid "reviewed"
+msgstr "reviewed"
+
+msgid "Reviewed"
+msgstr "Reviewed"
 
 msgid "Reviewers"
 msgstr "Reviewers"
@@ -10761,6 +10796,9 @@ msgstr "Show a readable Supplier ID column on the supplier list, supplier forms,
 
 msgid "Show Customer IDs"
 msgstr "Show Customer IDs"
+
+msgid "Show decision reason"
+msgstr "Show decision reason"
 
 msgid "Show Durations"
 msgstr "Show Durations"
@@ -12226,6 +12264,9 @@ msgstr "This is the month your tax year starts."
 
 msgid "This item has no proposed revision, so there is nothing to redline."
 msgstr "This item has no proposed revision, so there is nothing to redline."
+
+msgid "This item has no proposed revision."
+msgstr "This item has no proposed revision."
 
 msgid "This item is built via a configurator and resolves its components per-order; jobs created for it inherit the configurator's resolved BOM."
 msgstr "This item is built via a configurator and resolves its components per-order; jobs created for it inherit the configurator's resolved BOM."
@@ -13808,6 +13849,10 @@ msgstr "You received this item"
 
 msgid "You received this lot"
 msgstr "You received this lot"
+
+#. placeholder {0}: entries.length
+msgid "you: {reviewedCount}/{0} reviewed"
+msgstr "you: {reviewedCount}/{0} reviewed"
 
 msgid "You're live on Carbon"
 msgstr "You're live on Carbon"

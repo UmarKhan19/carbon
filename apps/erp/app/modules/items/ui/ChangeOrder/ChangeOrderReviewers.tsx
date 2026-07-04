@@ -15,9 +15,15 @@ import {
 
 export default function ChangeOrderReviewers({
   reviewers,
+  changeOrderId,
+  changeOrderStatus,
+  itemIds,
   isDisabled = false
 }: {
   reviewers: ChangeOrderReviewer[];
+  changeOrderId: string;
+  changeOrderStatus?: string;
+  itemIds: string[];
   isDisabled?: boolean;
 }) {
   const isEmpty = reviewers.length === 0;
@@ -48,6 +54,9 @@ export default function ChangeOrderReviewers({
                 task={reviewer}
                 type="review"
                 isDisabled={isDisabled}
+                changeOrderId={changeOrderId}
+                changeOrderStatus={changeOrderStatus}
+                itemIds={itemIds}
               />
             ))}
           </VStack>

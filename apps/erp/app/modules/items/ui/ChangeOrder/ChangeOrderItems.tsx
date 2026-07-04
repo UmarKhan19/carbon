@@ -91,6 +91,7 @@ export function AddAffectedItemModal({ onClose }: { onClose: () => void }) {
               type={itemType}
               onTypeChange={setItemType}
               validItemTypes={["Part", "Tool"]}
+              latestRevisionOnly
             />
           </ModalBody>
           <ModalFooter>

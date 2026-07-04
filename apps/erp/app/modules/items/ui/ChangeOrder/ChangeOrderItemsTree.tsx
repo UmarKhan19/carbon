@@ -22,10 +22,11 @@ import { AiOutlinePartition } from "react-icons/ai";
 import {
   LuCirclePlus,
   LuEllipsisVertical,
+  LuListChecks,
   LuSearch,
   LuTrash
 } from "react-icons/lu";
-import { Link, useParams } from "react-router";
+import { Link, useLocation, useParams } from "react-router";
 import { ConfirmDelete } from "~/components/Modals";
 import { usePermissions } from "~/hooks";
 import type { ChangeOrderItem } from "~/modules/items";
@@ -65,6 +66,7 @@ export default function ChangeOrderItemsTree({
 
   const canCreate = permissions.can("update", "production") && !isDisabled;
   const canDelete = permissions.can("delete", "production") && !isDisabled;
+  const isReviewActive = useLocation().pathname.endsWith("/review");
 
   const onDelete = (item: ChangeOrderItem) => {
     flushSync(() => {
@@ -108,6 +110,19 @@ export default function ChangeOrderItemsTree({
             />
           )}
         </HStack>
+
+        {items.length > 0 && (
+          <Link
+            to={path.to.changeOrderReview(changeOrderId)}
+            className={cn(
+              "flex h-9 w-full items-center gap-2 rounded-sm px-2 text-sm font-medium hover:bg-accent",
+              isReviewActive && "bg-accent"
+            )}
+          >
+            <LuListChecks className="shrink-0 text-muted-foreground" />
+            <Trans>Review all changes</Trans>
+          </Link>
+        )}
 
         <VStack spacing={0} className="w-full">
           {filteredItems.length === 0 ? (
