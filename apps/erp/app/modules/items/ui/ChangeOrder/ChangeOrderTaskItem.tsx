@@ -1,4 +1,5 @@
 import {
+  BarProgress,
   Button,
   cn,
   HStack,
@@ -72,12 +73,20 @@ export function ChangeOrderTaskProgress({
   const completedOrSkippedTasks = tasks.filter(
     (task) => task.status === "Completed" || task.status === "Skipped"
   ).length;
+  const progressPercentage = (completedOrSkippedTasks / tasks.length) * 100;
 
   return (
-    <div className={cn("flex items-center py-3 pr-14", className)}>
-      <span className="text-sm font-medium tabular-nums text-muted-foreground">
-        {completedOrSkippedTasks}/{tasks.length}
-      </span>
+    <div
+      className={cn(
+        "flex flex-col items-end gap-2 py-3 pr-14 w-[120px]",
+        className
+      )}
+    >
+      <BarProgress
+        gradient
+        progress={progressPercentage}
+        value={`${completedOrSkippedTasks}/${tasks.length}`}
+      />
     </div>
   );
 }

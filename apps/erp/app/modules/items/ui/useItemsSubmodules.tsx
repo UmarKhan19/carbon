@@ -4,7 +4,6 @@ import {
   LuAtom,
   LuAxis3D,
   LuBeef,
-  LuClipboardList,
   LuDessert,
   LuGitPullRequestArrow,
   LuGlassWater,
@@ -63,12 +62,6 @@ export default function useItemsSubmodules() {
           to: path.to.changeOrders,
           icon: <LuGitPullRequestArrow />,
           table: "changeOrder"
-        },
-        {
-          name: t`My Change Orders`,
-          to: path.to.myChangeOrderTasks,
-          icon: <LuClipboardList />,
-          role: "employee"
         }
       ]
     },

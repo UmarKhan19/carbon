@@ -23,12 +23,7 @@ export default function RevisionCell({
       </span>
       <div className="flex items-center gap-2">
         <AiOutlinePartition className="size-4 shrink-0 text-muted-foreground" />
-        <span
-          className={cn(
-            "font-semibold",
-            highlight && "text-emerald-600 dark:text-emerald-400"
-          )}
-        >
+        <span className={cn("font-semibold", highlight && "text-foreground")}>
           {id}
         </span>
         {status ? (

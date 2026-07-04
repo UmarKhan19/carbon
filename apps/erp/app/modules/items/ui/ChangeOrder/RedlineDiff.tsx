@@ -207,33 +207,55 @@ function buildOperationRows(
   );
 }
 
-function FieldValue({ field, kind }: { field: DiffField; kind: DiffKind }) {
-  if (kind === "added") {
-    return (
-      <span>
-        {field.label} {field.pending}
-      </span>
-    );
-  }
-  if (kind === "removed") {
-    return (
-      <span>
-        {field.label} {field.current}
-      </span>
-    );
-  }
-  if (!field.changed) {
-    return (
-      <span>
-        {field.label} {field.current}
-      </span>
-    );
-  }
+// A single old/new value, rendered as a colored pill matching the audit-log
+// change display (old = red tint, new = green tint).
+function ValuePill({
+  value,
+  variant
+}: {
+  value: string;
+  variant: "old" | "new";
+}) {
   return (
-    <span>
-      {field.label} {field.current}{" "}
-      <span className="font-medium text-foreground">→ {field.pending}</span>
+    <span
+      className={cn(
+        "rounded px-1.5 py-0.5 font-mono",
+        variant === "old"
+          ? "bg-red-500/10 text-red-500"
+          : "bg-green-500/10 text-green-500"
+      )}
+    >
+      {value}
     </span>
+  );
+}
+
+// One labeled change row: "label  [old]  →  [new]". Mirrors the audit-log
+// ChangeLine pattern. Added rows show only the new pill; removed rows only the
+// old pill; changed rows show both with a muted arrow between them.
+function FieldValue({ field, kind }: { field: DiffField; kind: DiffKind }) {
+  const showOld = kind === "removed" || (kind === "changed" && field.changed);
+  const showNew = kind === "added" || (kind === "changed" && field.changed);
+  // Unchanged field on a changed row: fall back to the current value as context.
+  const showContext = !showOld && !showNew;
+
+  return (
+    <div className="flex items-center gap-2">
+      <span className="min-w-[72px] font-medium text-muted-foreground">
+        {field.label}
+      </span>
+      {showContext ? (
+        <span>{field.current}</span>
+      ) : (
+        <>
+          {showOld && <ValuePill value={field.current} variant="old" />}
+          {showOld && showNew && (
+            <span className="text-muted-foreground">→</span>
+          )}
+          {showNew && <ValuePill value={field.pending} variant="new" />}
+        </>
+      )}
+    </div>
   );
 }
 
@@ -263,7 +285,7 @@ function DiffRowLine({ row }: { row: DiffRow }) {
           )}
         </div>
         {fields.length > 0 && (
-          <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-muted-foreground">
+          <div className="flex flex-col gap-0.5 text-xs">
             {fields.map((f) => (
               <FieldValue key={f.label} field={f} kind={row.kind} />
             ))}
