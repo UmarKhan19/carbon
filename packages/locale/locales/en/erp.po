@@ -410,6 +410,9 @@ msgstr "Accounting is enabled"
 msgid "Accounting period"
 msgstr "Accounting period"
 
+msgid "Accounting Periods"
+msgstr "Accounting Periods"
+
 msgid "Accounting: GL, AR, AP, and month-end close"
 msgstr "Accounting: GL, AR, AP, and month-end close"
 
@@ -2069,6 +2072,9 @@ msgstr "Close"
 msgid "Close Date"
 msgstr "Close Date"
 
+msgid "Close Status"
+msgstr "Close Status"
+
 msgid "Closed"
 msgstr "Closed"
 
@@ -3165,6 +3171,9 @@ msgstr "Date Issued"
 
 msgid "Date Paid"
 msgstr "Date Paid"
+
+msgid "Date Range"
+msgstr "Date Range"
 
 msgid "Dates"
 msgstr "Dates"
@@ -7489,6 +7498,9 @@ msgstr "No abilities added"
 
 msgid "No Access"
 msgstr "No Access"
+
+msgid "No accounting periods yet"
+msgstr "No accounting periods yet"
 
 msgid "No action needed"
 msgstr "No action needed"

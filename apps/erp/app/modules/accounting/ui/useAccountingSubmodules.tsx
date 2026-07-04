@@ -7,6 +7,7 @@ import {
   LuBookOpen,
   LuBuilding2,
   LuCalendar1,
+  LuCalendarCheck,
   LuClock,
   LuCoins,
   LuEuro,
@@ -73,6 +74,12 @@ export default function useAccountingSubmodules() {
             to: path.to.accountingJournals,
             role: "employee",
             icon: <LuBookOpen />
+          },
+          {
+            name: t`Accounting Periods`,
+            to: path.to.accountingPeriods,
+            role: "employee",
+            icon: <LuCalendarCheck />
           }
         ]
       },

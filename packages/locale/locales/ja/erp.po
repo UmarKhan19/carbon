@@ -410,6 +410,9 @@ msgstr "会計が有効です"
 msgid "Accounting period"
 msgstr "会計期間"
 
+msgid "Accounting Periods"
+msgstr ""
+
 msgid "Accounting: GL, AR, AP, and month-end close"
 msgstr "会計: GL、AR、AP、および月末決算"
 
@@ -2069,6 +2072,9 @@ msgstr "閉じる"
 msgid "Close Date"
 msgstr "終了日"
 
+msgid "Close Status"
+msgstr ""
+
 msgid "Closed"
 msgstr "クローズ"
 
@@ -3165,6 +3171,9 @@ msgstr "発行日"
 
 msgid "Date Paid"
 msgstr "支払日"
+
+msgid "Date Range"
+msgstr ""
 
 msgid "Dates"
 msgstr "日付"
@@ -7489,6 +7498,9 @@ msgstr "能力が追加されていません"
 
 msgid "No Access"
 msgstr "アクセスなし"
+
+msgid "No accounting periods yet"
+msgstr ""
 
 msgid "No action needed"
 msgstr "対応は不要です"

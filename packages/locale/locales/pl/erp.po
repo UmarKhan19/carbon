@@ -410,6 +410,9 @@ msgstr "Rachunkowość jest włączona"
 msgid "Accounting period"
 msgstr "Okres rozliczeniowy"
 
+msgid "Accounting Periods"
+msgstr ""
+
 msgid "Accounting: GL, AR, AP, and month-end close"
 msgstr "Rachunkowość: GL, AR, AP i zamknięcie miesiąca"
 
@@ -2069,6 +2072,9 @@ msgstr "Zamknij"
 msgid "Close Date"
 msgstr "Data zamknięcia"
 
+msgid "Close Status"
+msgstr ""
+
 msgid "Closed"
 msgstr "Zamknięty"
 
@@ -3165,6 +3171,9 @@ msgstr "Data wystawienia"
 
 msgid "Date Paid"
 msgstr "Data zapłaty"
+
+msgid "Date Range"
+msgstr ""
 
 msgid "Dates"
 msgstr "Daty"
@@ -7489,6 +7498,9 @@ msgstr "Brak dodanych umiejętności"
 
 msgid "No Access"
 msgstr "Brak dostępu"
+
+msgid "No accounting periods yet"
+msgstr ""
 
 msgid "No action needed"
 msgstr "Brak wymaganych działań"

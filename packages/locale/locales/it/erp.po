@@ -410,6 +410,9 @@ msgstr "La contabilità è abilitata"
 msgid "Accounting period"
 msgstr "Periodo contabile"
 
+msgid "Accounting Periods"
+msgstr ""
+
 msgid "Accounting: GL, AR, AP, and month-end close"
 msgstr "Contabilità: GL, AR, AP e chiusura di fine mese"
 
@@ -2069,6 +2072,9 @@ msgstr "Chiudi"
 msgid "Close Date"
 msgstr "Data di chiusura"
 
+msgid "Close Status"
+msgstr ""
+
 msgid "Closed"
 msgstr "Chiuso"
 
@@ -3165,6 +3171,9 @@ msgstr "Data di emissione"
 
 msgid "Date Paid"
 msgstr "Data Pagamento"
+
+msgid "Date Range"
+msgstr ""
 
 msgid "Dates"
 msgstr "Date"
@@ -7489,6 +7498,9 @@ msgstr "Nessuna competenza aggiunta"
 
 msgid "No Access"
 msgstr "Nessun accesso"
+
+msgid "No accounting periods yet"
+msgstr ""
 
 msgid "No action needed"
 msgstr "Nessuna azione necessaria"

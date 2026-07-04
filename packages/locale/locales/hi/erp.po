@@ -410,6 +410,9 @@ msgstr "लेखांकन सक्षम है"
 msgid "Accounting period"
 msgstr "लेखांकन अवधि"
 
+msgid "Accounting Periods"
+msgstr ""
+
 msgid "Accounting: GL, AR, AP, and month-end close"
 msgstr "लेखांकन: GL, AR, AP, और महीने के अंत का समापन"
 
@@ -2069,6 +2072,9 @@ msgstr "बंद करें"
 msgid "Close Date"
 msgstr "बंद करने की तारीख"
 
+msgid "Close Status"
+msgstr ""
+
 msgid "Closed"
 msgstr "बंद"
 
@@ -3165,6 +3171,9 @@ msgstr "जारी करने की तारीख"
 
 msgid "Date Paid"
 msgstr "भुगतान की तारीख"
+
+msgid "Date Range"
+msgstr ""
 
 msgid "Dates"
 msgstr "तारीखें"
@@ -7489,6 +7498,9 @@ msgstr "कोई क्षमता जोड़ी नहीं गई"
 
 msgid "No Access"
 msgstr "कोई एक्सेस नहीं"
+
+msgid "No accounting periods yet"
+msgstr ""
 
 msgid "No action needed"
 msgstr "कोई कार्रवाई की आवश्यकता नहीं है"

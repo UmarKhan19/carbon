@@ -410,6 +410,9 @@ msgstr "Buchhaltung ist aktiviert"
 msgid "Accounting period"
 msgstr "Abrechnungsperiode"
 
+msgid "Accounting Periods"
+msgstr ""
+
 msgid "Accounting: GL, AR, AP, and month-end close"
 msgstr "Buchhaltung: Hauptbuch, Debitorenbuchhaltung, Kreditorenbuchhaltung und Monatsabschluss"
 
@@ -2069,6 +2072,9 @@ msgstr "Schließen"
 msgid "Close Date"
 msgstr "Schließungsdatum"
 
+msgid "Close Status"
+msgstr ""
+
 msgid "Closed"
 msgstr "Geschlossen"
 
@@ -3165,6 +3171,9 @@ msgstr "Ausstellungsdatum"
 
 msgid "Date Paid"
 msgstr "Zahlungsdatum"
+
+msgid "Date Range"
+msgstr ""
 
 msgid "Dates"
 msgstr "Daten"
@@ -7489,6 +7498,9 @@ msgstr "Keine Fähigkeiten hinzugefügt"
 
 msgid "No Access"
 msgstr "Kein Zugriff"
+
+msgid "No accounting periods yet"
+msgstr ""
 
 msgid "No action needed"
 msgstr "Keine Aktion erforderlich"

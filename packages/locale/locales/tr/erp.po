@@ -410,6 +410,9 @@ msgstr "Muhasebe etkinleştirilmiş"
 msgid "Accounting period"
 msgstr "Muhasebe dönemi"
 
+msgid "Accounting Periods"
+msgstr ""
+
 msgid "Accounting: GL, AR, AP, and month-end close"
 msgstr "Muhasebe: GL, AR, AP ve ay sonu kapanışı"
 
@@ -2069,6 +2072,9 @@ msgstr "Kapat"
 msgid "Close Date"
 msgstr "Kapatma Tarihi"
 
+msgid "Close Status"
+msgstr ""
+
 msgid "Closed"
 msgstr "Kapalı"
 
@@ -3165,6 +3171,9 @@ msgstr "Düzenleme Tarihi"
 
 msgid "Date Paid"
 msgstr "Ödeme Tarihi"
+
+msgid "Date Range"
+msgstr ""
 
 msgid "Dates"
 msgstr "Tarihler"
@@ -7489,6 +7498,9 @@ msgstr "Ek yetenek eklenmedi"
 
 msgid "No Access"
 msgstr "Erişim Yok"
+
+msgid "No accounting periods yet"
+msgstr ""
 
 msgid "No action needed"
 msgstr "Yapılacak işlem yok"
