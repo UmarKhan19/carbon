@@ -494,13 +494,13 @@ describe("exaggerateMotion", () => {
   });
 
   it("scales L segments proportionally", () => {
-    const motion = {
+    const motion: Motion = {
       type: "L",
       segments: [
-        { direction: [1, 0, 0] as [number, number, number], distance: 6 },
-        { direction: [0, 0, -1] as [number, number, number], distance: 4 }
+        { direction: [1, 0, 0], distance: 6 },
+        { direction: [0, 0, -1], distance: 4 }
       ]
-    } as const;
+    };
     const result = exaggerateMotion(motion, 20, 1000);
     if (result.type === "L") {
       const total = result.segments.reduce((sum, s) => sum + s.distance, 0);

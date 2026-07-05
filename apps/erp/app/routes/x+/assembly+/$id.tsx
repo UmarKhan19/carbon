@@ -16,6 +16,7 @@ import {
   assemblyInstructionValidator,
   getAssemblyGroups,
   getAssemblyInstruction,
+  getAssemblyInstructionStepMaterials,
   getAssemblyInstructionStepRequirements,
   getAssemblyInstructionSteps,
   getAssemblyPartMappings,
@@ -63,26 +64,27 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  const [requirements, plan, partMappings, bomMaterials] = await Promise.all([
-    getAssemblyInstructionStepRequirements(
-      client,
-      (steps.data ?? []).map((step) => step.id)
-    ),
-    instruction.data.modelUploadId
-      ? getAssemblyPlanJson(client, instruction.data.modelUploadId)
-      : Promise.resolve(null),
-    instruction.data.modelUploadId
-      ? getAssemblyPartMappings(client, instruction.data.modelUploadId)
-      : Promise.resolve({ data: [] }),
-    instruction.data.itemId
-      ? getFlattenedBomMaterials(client, instruction.data.itemId, companyId)
-      : Promise.resolve([])
-  ]);
+  const stepIds = (steps.data ?? []).map((step) => step.id);
+  const [requirements, stepMaterials, plan, partMappings, bomMaterials] =
+    await Promise.all([
+      getAssemblyInstructionStepRequirements(client, stepIds),
+      getAssemblyInstructionStepMaterials(client, stepIds),
+      instruction.data.modelUploadId
+        ? getAssemblyPlanJson(client, instruction.data.modelUploadId)
+        : Promise.resolve(null),
+      instruction.data.modelUploadId
+        ? getAssemblyPartMappings(client, instruction.data.modelUploadId)
+        : Promise.resolve({ data: [] }),
+      instruction.data.itemId
+        ? getFlattenedBomMaterials(client, instruction.data.itemId, companyId)
+        : Promise.resolve([])
+    ]);
 
   return {
     instruction: instruction.data,
     steps: steps.data ?? [],
     requirements: requirements.data ?? [],
+    stepMaterials: stepMaterials.data ?? [],
     standardNotes: standardNotes.data ?? [],
     groups: groups.data ?? [],
     plan,
@@ -140,6 +142,7 @@ export default function AssemblyInstructionRoute() {
     instruction,
     steps,
     requirements,
+    stepMaterials,
     standardNotes,
     groups,
     plan,
@@ -268,6 +271,14 @@ export default function AssemblyInstructionRoute() {
                         )
                       : []
                   }
+                  stepMaterials={
+                    selectedStep
+                      ? stepMaterials.filter(
+                          (material) => material.stepId === selectedStep.id
+                        )
+                      : []
+                  }
+                  bomMaterials={bomMaterials}
                   standardNotes={standardNotes}
                 />
               }

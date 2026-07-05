@@ -145,3 +145,75 @@ CREATE POLICY "DELETE" ON "assemblyStandardNote"
       get_companies_with_employee_permission('production_delete')::text[]
     )
   );
+
+-- Bill-of-material parts consumed at a step. Stores itemId (not a
+-- methodMaterial FK) so associations survive make-method re-versioning; the
+-- UI picker is limited to items on the instruction item's make-method BOM.
+-- Unlike requirements, these rows are meaningless without the item, so the
+-- FK cascades instead of degrading to a snapshot.
+CREATE TABLE "assemblyInstructionStepMaterial" (
+  "id" TEXT NOT NULL DEFAULT xid(),
+  "stepId" TEXT NOT NULL,
+  "itemId" TEXT NOT NULL,
+  -- Quantity consumed at this step; null = "as needed"
+  "quantity" NUMERIC,
+  "sortOrder" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "companyId" TEXT NOT NULL,
+  "createdBy" TEXT NOT NULL,
+  "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  "updatedBy" TEXT,
+  "updatedAt" TIMESTAMP WITH TIME ZONE,
+
+  CONSTRAINT "assemblyInstructionStepMaterial_pkey" PRIMARY KEY ("id"),
+  CONSTRAINT "assemblyInstructionStepMaterial_stepId_fkey"
+    FOREIGN KEY ("stepId") REFERENCES "assemblyInstructionStep"("id") ON DELETE CASCADE,
+  CONSTRAINT "assemblyInstructionStepMaterial_itemId_fkey"
+    FOREIGN KEY ("itemId") REFERENCES "item"("id") ON DELETE CASCADE,
+  CONSTRAINT "assemblyInstructionStepMaterial_companyId_fkey"
+    FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "assemblyInstructionStepMaterial_createdBy_fkey"
+    FOREIGN KEY ("createdBy") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT "assemblyInstructionStepMaterial_updatedBy_fkey"
+    FOREIGN KEY ("updatedBy") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT "assemblyInstructionStepMaterial_stepId_itemId_key"
+    UNIQUE ("stepId", "itemId")
+);
+
+CREATE INDEX "assemblyInstructionStepMaterial_stepId_idx"
+  ON "assemblyInstructionStepMaterial" ("stepId");
+CREATE INDEX "assemblyInstructionStepMaterial_stepId_sortOrder_idx"
+  ON "assemblyInstructionStepMaterial" ("stepId", "sortOrder");
+CREATE INDEX "assemblyInstructionStepMaterial_companyId_idx"
+  ON "assemblyInstructionStepMaterial" ("companyId");
+CREATE INDEX "assemblyInstructionStepMaterial_itemId_idx"
+  ON "assemblyInstructionStepMaterial" ("itemId");
+
+ALTER TABLE "assemblyInstructionStepMaterial" ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "SELECT" ON "assemblyInstructionStepMaterial"
+  FOR SELECT USING (
+    "companyId" = ANY (
+      get_companies_with_employee_permission('production_view')::text[]
+    )
+  );
+
+CREATE POLICY "INSERT" ON "assemblyInstructionStepMaterial"
+  FOR INSERT WITH CHECK (
+    "companyId" = ANY (
+      get_companies_with_employee_permission('production_create')::text[]
+    )
+  );
+
+CREATE POLICY "UPDATE" ON "assemblyInstructionStepMaterial"
+  FOR UPDATE USING (
+    "companyId" = ANY (
+      get_companies_with_employee_permission('production_update')::text[]
+    )
+  );
+
+CREATE POLICY "DELETE" ON "assemblyInstructionStepMaterial"
+  FOR DELETE USING (
+    "companyId" = ANY (
+      get_companies_with_employee_permission('production_delete')::text[]
+    )
+  );

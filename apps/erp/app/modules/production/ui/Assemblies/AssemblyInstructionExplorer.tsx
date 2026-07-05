@@ -36,6 +36,7 @@ import {
 } from "react-icons/lu";
 import { useFetcher, useParams } from "react-router";
 import { Empty } from "~/components";
+import { ProcedureStepTypeIcon } from "~/components/Icons";
 import { ConfirmDelete } from "~/components/Modals";
 import { usePermissions } from "~/hooks";
 import { path } from "~/utils/path";
@@ -524,6 +525,10 @@ function StepItem({
         stepId={step.id}
         status={step.status ?? "Todo"}
         isDisabled={isDisabled}
+      />
+      <ProcedureStepTypeIcon
+        type={step.type ?? "Task"}
+        className="shrink-0 text-muted-foreground"
       />
       <VStack spacing={0} className="flex-grow">
         <p className="text-foreground text-sm">

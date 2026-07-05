@@ -549,6 +549,14 @@ export const path = {
       generatePath(`${x}/assembly/${id}/requirements/delete/${requirementId}`),
     assemblyStepRequirementOrder: (id: string) =>
       generatePath(`${x}/assembly/${id}/requirements/order`),
+    newAssemblyStepMaterial: (id: string) =>
+      generatePath(`${x}/assembly/${id}/materials/new`),
+    assemblyStepMaterial: (id: string, materialId: string) =>
+      generatePath(`${x}/assembly/${id}/materials/${materialId}`),
+    deleteAssemblyStepMaterial: (id: string, materialId: string) =>
+      generatePath(`${x}/assembly/${id}/materials/delete/${materialId}`),
+    assemblyStepMaterialOrder: (id: string) =>
+      generatePath(`${x}/assembly/${id}/materials/order`),
     newAssemblyGroup: (id: string) =>
       generatePath(`${x}/assembly/${id}/groups/new`),
     newAssemblyPartMapping: (id: string) =>

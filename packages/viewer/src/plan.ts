@@ -43,7 +43,7 @@ export function planMotionForParts(
     .map((nodeId) => plan.parts[nodeId])
     .filter(
       (entry): entry is AssemblyPlanPart =>
-        Boolean(entry) && entry.motion.type !== "none"
+        entry !== undefined && entry.motion.type !== "none"
     );
   if (entries.length === 0) return null;
 

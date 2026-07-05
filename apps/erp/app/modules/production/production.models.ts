@@ -1,4 +1,5 @@
 import type { Database } from "@carbon/database";
+import { textToTiptap } from "@carbon/utils";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 import {
@@ -1057,6 +1058,8 @@ export const motionSchema = z.discriminatedUnion("type", [
   }),
   z.object({
     type: z.literal("L"),
+    // 2+ segments: the tier-3 escape planner emits up to 3 (e.g. slide out
+    // of a blind slot, lift, exit); the viewer interpolates any count
     segments: z
       .array(
         z.object({
@@ -1065,7 +1068,6 @@ export const motionSchema = z.discriminatedUnion("type", [
         })
       )
       .min(2)
-      .max(2)
   }),
   z.object({
     type: z.literal("helix"),
@@ -1137,17 +1139,83 @@ export const assemblyInstructionStatusValidator = z.object({
   status: z.enum(assemblyInstructionStatuses)
 });
 
-export const assemblyInstructionStepValidator = z.object({
-  id: zfd.text(z.string().optional()),
-  assemblyInstructionId: z.string().min(1),
-  title: zfd.text(z.string().optional()),
-  instructionText: zfd.text(z.string().optional()),
-  partNodeIds: jsonField(z.array(z.string()).optional()),
-  motion: jsonField(motionSchema.optional()),
-  camera: jsonField(cameraSchema.nullable().optional()),
-  fastener: jsonField(fastenerSchema.nullable().optional()),
-  durationSeconds: zfd.numeric(z.number().positive().optional())
-});
+/**
+ * Optional tiptap-doc transform: same coercion as the shared
+ * operationStepValidator description, but optional because "Add Step" posts
+ * only assemblyInstructionId + motion. Returns `any` for the same reason —
+ * the doc is consumed both as a DB Json value and as editor JSONContent.
+ */
+const optionalTiptapDescription = zfd
+  .text(z.string().optional())
+  .transform((val): any => {
+    if (val === undefined || val === "") return undefined;
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(val);
+    } catch {
+      parsed = val;
+    }
+    // Always store a tiptap doc object, never a scalar string (jsonb scalar
+    // strings break method copies) and never silently drop content to {}.
+    if (typeof parsed === "string") return textToTiptap(parsed);
+    if (parsed && typeof parsed === "object") return parsed;
+    return textToTiptap(String(val));
+  });
+
+export const assemblyInstructionStepValidator = z
+  .object({
+    id: zfd.text(z.string().optional()),
+    assemblyInstructionId: z.string().min(1),
+    title: zfd.text(z.string().optional()),
+    // Typed-step fields mirror jobOperationStep so steps can eventually be
+    // copied into job operations
+    type: zfd.text(z.enum(procedureStepType).optional()),
+    description: optionalTiptapDescription,
+    required: zfd.checkbox(),
+    unitOfMeasureCode: zfd.text(z.string().optional()),
+    minValue: zfd.numeric(z.number().min(0).optional()),
+    maxValue: zfd.numeric(z.number().min(0).optional()),
+    listValues: z.array(z.string()).optional(),
+    partNodeIds: jsonField(z.array(z.string()).optional()),
+    motion: jsonField(motionSchema.optional()),
+    camera: jsonField(cameraSchema.nullable().optional()),
+    fastener: jsonField(fastenerSchema.nullable().optional()),
+    durationSeconds: zfd.numeric(z.number().positive().optional())
+  })
+  .superRefine((data, ctx) => {
+    if (data.type === "Measurement" && !data.unitOfMeasureCode) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["unitOfMeasureCode"],
+        message: "Unit of measure is required"
+      });
+    }
+    if (
+      data.type === "List" &&
+      !(
+        Array.isArray(data.listValues) &&
+        data.listValues.length > 0 &&
+        data.listValues.every((option) => option.trim() !== "")
+      )
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["listValues"],
+        message: "List options are required"
+      });
+    }
+    if (
+      data.minValue != null &&
+      data.maxValue != null &&
+      data.maxValue < data.minValue
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["maxValue"],
+        message: "Maximum value must be greater than or equal to minimum value"
+      });
+    }
+  });
 
 export const assemblyInstructionStepStatusValidator = z.object({
   status: z.enum(assemblyStepStatuses)
@@ -1162,6 +1230,19 @@ export const assemblyInstructionStepOrderValidator = z.object({
       })
     )
     .min(1)
+});
+
+/**
+ * Bill-of-material parts consumed at a step. Stores itemId (not a
+ * methodMaterial FK) so associations survive make-method re-versioning; the
+ * UI picker is limited to items on the instruction item's make-method BOM.
+ */
+export const assemblyStepMaterialValidator = z.object({
+  id: zfd.text(z.string().optional()),
+  stepId: z.string().min(1),
+  itemId: z.string().min(1, { message: "Item is required" }),
+  quantity: zfd.numeric(z.number().min(0).optional()),
+  sortOrder: zfd.numeric(z.number().min(0).optional())
 });
 
 export const assemblyStepRequirementValidator = z

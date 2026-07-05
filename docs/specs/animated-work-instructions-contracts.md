@@ -93,10 +93,19 @@ and GLB extras.
   }
 }
 // response 200
-{ "ok": true, "partCount": 31, "plannedCount": 29,
-  "stats": { "planMs": 8000, "tiers": { "linear": 25, "l": 4, "unplanned": 2 }, "warnings": [] } }
+{ "ok": true, "partCount": 31, "plannedCount": 30,
+  "stats": { "planMs": 8000, "tiers": { "linear": 25, "l": 3, "escape": 1, "forced": 1, "unplanned": 0 }, "warnings": [] } }
 // errors: same codes/status mapping as /convert
 ```
+
+Planner tiers: 1 = straight-line removal (candidate directions are the part's
+symmetry axis then all six world axes, sign-sensitive), 2 = fixed lift-then-slide
+"L", 3 = adaptive multi-segment escape (BFS over axis-aligned hops, emits an
+"L" with 2+ segments), 4 = forced best-effort linear along the least-obstructed
+direction when no collision-free escape exists (blockers recorded, warning
+emitted). **Every part except the base — `sequence[0]`, the last one standing
+in the greedy disassembly — gets a motion**; `tiers.unplanned` is always 0 and
+remains only for stats compatibility.
 
 plan.json (uploaded to outputs.plan.url):
 
@@ -104,23 +113,27 @@ plan.json (uploaded to outputs.plan.url):
 {
   "version": 1,
   "unit": "mm",
-  "sequence": ["nodeId", "..."],     // assembly order = reversed greedy disassembly
+  "sequence": ["nodeId", "..."],     // assembly order = reversed greedy disassembly; [0] is the base
   "parts": {
     "<nodeId>": {
       "motion": { /* INSERTION motion per §4 (removal reversed) */ },
-      "confidence": "high" | "low",  // low = L-motion or heuristic fallback
+      "confidence": "high" | "low",  // low = L/escape motion or heuristic fallback
       "removalDirection": [0, 0, 1], // unit vector, removal sense
-      "blockedBy": ["nodeId"]        // present when no motion found (motion = none)
+      "blockedBy": ["nodeId"]        // present on tier-4 forced motions (unresolved collisions)
     }
   },
-  "warnings": ["..."]
+  "warnings": ["..."]                // includes one entry per tier-4 forced part
 }
 ```
 
 Editor semantics: when a step's `partNodeIds` change, motion is auto-filled
 from plan.json (single part → its motion; multiple parts → the shared motion
-if all agree, else the first part's motion with confidence low). The manual
-motion form is an override, only shown on demand.
+if all agree, else the first part's motion with confidence low). When the plan
+has nothing for the parts, `synthesizeFallbackMotion` (`@carbon/viewer`)
+derives an AABB-based motion from graph.json so the step still animates. The
+manual motion form is an override, only shown on demand. The player applies
+the same fallback display-only to any non-first step stored with motion
+"none" (legacy plans, manual steps).
 
 ### Operational limits (service env vars)
 
@@ -142,7 +155,8 @@ world space as the GLB.
 // linear insertion along a vector
 { "type": "linear", "direction": [0, 0, -1], "distance": 80 }
 
-// two-segment: travel1 then travel2 (insertion order), e.g. slide then drop
+// multi-segment (2+, insertion order), e.g. slide then drop; the tier-3
+// escape planner emits up to 3 segments and the viewer interpolates any count
 { "type": "L",
   "segments": [
     { "direction": [1, 0, 0], "distance": 60 },
@@ -175,13 +189,23 @@ world space as the GLB.
 type AssemblyStep = {
   id: string;
   title: string | null;
-  instructionText: string | null;
+  instructionText: string | null; // derived plain-text snapshot of the step's
+                                  // rich-text `description` (tiptap JSON)
   partNodeIds: string[];     // parts installed in this step
   motion: Motion;            // section 4
   camera: CameraPose | null;
   fastener: Fastener | null;
 };
 ```
+
+The DB row behind this carries more authoring data than the viewer consumes:
+`assemblyInstructionStep` also has the typed-step fields mirrored from
+`jobOperationStep` (`type` `procedureStepType`, `description` tiptap JSON,
+`required`, `unitOfMeasureCode`, `minValue`/`maxValue`, `listValues`,
+`fileTypes`) so steps can eventually be copied into job operations, and
+BOM-part associations live in `assemblyInstructionStepMaterial`
+(`stepId` → `itemId` + optional quantity; stored by itemId so links survive
+make-method re-versioning).
 
 Playback semantics for step k (0-based): parts of steps < k are shown solid in final
 pose; parts of step k animate per `motion` (looping); parts of steps > k are hidden

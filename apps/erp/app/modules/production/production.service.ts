@@ -2,7 +2,14 @@ import type { Database, Json } from "@carbon/database";
 import { fetchAllFromTable } from "@carbon/database";
 import type { Kysely, KyselyDatabase } from "@carbon/database/client";
 import type { JSONContent } from "@carbon/react";
-import type { AssemblyGraph, AssemblyPlan, AssemblyStep } from "@carbon/viewer";
+import { tiptapToText } from "@carbon/utils";
+import type {
+  AssemblyGraph,
+  AssemblyGraphIndex,
+  AssemblyPlan,
+  AssemblyStep
+} from "@carbon/viewer";
+import { indexAssemblyGraph, synthesizeFallbackMotion } from "@carbon/viewer";
 import { parseDate } from "@internationalized/date";
 import type { FileObject, StorageError } from "@supabase/storage-js";
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
@@ -3969,7 +3976,13 @@ export async function upsertAssemblyInstructionStep(
     id?: string;
     assemblyInstructionId: string;
     title?: string | null;
-    instructionText?: string | null;
+    type?: Database["public"]["Enums"]["procedureStepType"];
+    description?: Json;
+    required?: boolean;
+    unitOfMeasureCode?: string | null;
+    minValue?: number | null;
+    maxValue?: number | null;
+    listValues?: string[] | null;
     partNodeIds?: string[];
     motion?: z.infer<typeof motionSchema>;
     camera?: z.infer<typeof cameraSchema> | null;
@@ -3981,12 +3994,39 @@ export async function upsertAssemblyInstructionStep(
     updatedBy?: string;
   }
 ) {
+  // instructionText is a derived plain-text snapshot of the tiptap
+  // description, consumed by the viewer overlay, MES playback, and search
+  const derivedInstructionText =
+    data.description !== undefined
+      ? {
+          instructionText: tiptapToText(data.description as JSONContent) || null
+        }
+      : {};
+
+  // When a type is posted, clear the value fields that don't apply to it so
+  // switching type never leaves stale constraints behind
+  const typedFields = data.type
+    ? {
+        type: data.type,
+        unitOfMeasureCode:
+          data.type === "Measurement" ? (data.unitOfMeasureCode ?? null) : null,
+        minValue: data.type === "Measurement" ? (data.minValue ?? null) : null,
+        maxValue: data.type === "Measurement" ? (data.maxValue ?? null) : null,
+        listValues: data.type === "List" ? (data.listValues ?? null) : null
+      }
+    : {};
+
   if (data.id) {
     return client
       .from("assemblyInstructionStep")
       .update({
         title: data.title ?? null,
-        instructionText: data.instructionText ?? null,
+        ...typedFields,
+        ...(data.description !== undefined
+          ? { description: data.description }
+          : {}),
+        ...derivedInstructionText,
+        ...(data.required !== undefined ? { required: data.required } : {}),
         ...(data.partNodeIds ? { partNodeIds: data.partNodeIds } : {}),
         ...(data.motion ? { motion: data.motion as Json } : {}),
         ...(data.camera !== undefined
@@ -4012,7 +4052,18 @@ export async function upsertAssemblyInstructionStep(
     .insert({
       assemblyInstructionId: data.assemblyInstructionId,
       title: data.title ?? null,
-      instructionText: data.instructionText ?? null,
+      type: data.type ?? "Task",
+      description: data.description ?? {},
+      instructionText:
+        data.description !== undefined
+          ? tiptapToText(data.description as JSONContent) || null
+          : null,
+      required: data.required ?? false,
+      unitOfMeasureCode:
+        data.type === "Measurement" ? (data.unitOfMeasureCode ?? null) : null,
+      minValue: data.type === "Measurement" ? (data.minValue ?? null) : null,
+      maxValue: data.type === "Measurement" ? (data.maxValue ?? null) : null,
+      listValues: data.type === "List" ? (data.listValues ?? null) : null,
       partNodeIds: data.partNodeIds ?? [],
       motion: (data.motion ?? { type: "none" }) as Json,
       camera: (data.camera ?? null) as Json | null,
@@ -4216,6 +4267,100 @@ export async function deleteAssemblyInstructionStepRequirement(
     .from("assemblyInstructionStepRequirement")
     .delete()
     .eq("id", id);
+}
+
+export async function getAssemblyInstructionStepMaterials(
+  client: SupabaseClient<Database>,
+  stepIds: string[]
+) {
+  if (stepIds.length === 0) {
+    return { data: [], error: null };
+  }
+  return client
+    .from("assemblyInstructionStepMaterial")
+    .select("*, item(id, name, readableIdWithRevision)")
+    .in("stepId", stepIds)
+    .order("sortOrder", { ascending: true });
+}
+
+export async function upsertAssemblyInstructionStepMaterial(
+  client: SupabaseClient<Database>,
+  data: {
+    id?: string;
+    stepId: string;
+    itemId: string;
+    quantity?: number | null;
+    sortOrder?: number;
+    companyId: string;
+    createdBy: string;
+    updatedBy?: string;
+  }
+) {
+  if (data.id) {
+    return client
+      .from("assemblyInstructionStepMaterial")
+      .update({
+        itemId: data.itemId,
+        quantity: data.quantity ?? null,
+        ...(data.sortOrder !== undefined ? { sortOrder: data.sortOrder } : {}),
+        updatedBy: data.updatedBy ?? data.createdBy,
+        updatedAt: new Date().toISOString()
+      })
+      .eq("id", data.id)
+      .select("id")
+      .single();
+  }
+
+  return client
+    .from("assemblyInstructionStepMaterial")
+    .insert({
+      stepId: data.stepId,
+      itemId: data.itemId,
+      quantity: data.quantity ?? null,
+      sortOrder:
+        data.sortOrder ?? (await getNextStepMaterialSortOrder(client, data)),
+      companyId: data.companyId,
+      createdBy: data.createdBy
+    })
+    .select("id")
+    .single();
+}
+
+async function getNextStepMaterialSortOrder(
+  client: SupabaseClient<Database>,
+  data: { stepId: string }
+) {
+  const last = await client
+    .from("assemblyInstructionStepMaterial")
+    .select("sortOrder")
+    .eq("stepId", data.stepId)
+    .order("sortOrder", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  return (last.data?.sortOrder ?? 0) + 1;
+}
+
+export async function updateAssemblyInstructionStepMaterialOrder(
+  db: Kysely<KyselyDatabase>,
+  updates: { id: string; sortOrder: number; updatedBy: string }[]
+) {
+  return db.transaction().execute(async (trx) => {
+    for (const { id, sortOrder, updatedBy } of updates) {
+      await trx
+        .updateTable("assemblyInstructionStepMaterial")
+        .set({ sortOrder, updatedBy, updatedAt: new Date().toISOString() })
+        .where("id", "=", id)
+        .execute();
+    }
+  });
+}
+
+export async function deleteAssemblyInstructionStepMaterial(
+  client: SupabaseClient<Database>,
+  id: string
+) {
+  return client.from("assemblyInstructionStepMaterial").delete().eq("id", id);
 }
 
 export async function getAssemblyStandardNotes(
@@ -4725,14 +4870,17 @@ export async function generateAssemblyStepsFromPlan(
     return { ok: false, reason: "no-plan", modelUploadId };
   }
 
-  // nodeId → geometryHash so identical parts can share a step
+  // nodeId → geometryHash so identical parts can share a step; the full
+  // index also powers fallback motion synthesis for unplanned parts
   const hashByNode = new Map<string, string | null>();
+  let graphIndex: AssemblyGraphIndex | null = null;
   const graphPath = instruction.data.modelUpload?.graphPath;
   if (graphPath) {
     const graphFile = await client.storage.from("private").download(graphPath);
     if (graphFile.data) {
       try {
         const graph = JSON.parse(await graphFile.data.text()) as AssemblyGraph;
+        graphIndex = indexAssemblyGraph(graph);
         const visit = (node: AssemblyGraph["root"]) => {
           hashByNode.set(node.nodeId, node.geometryHash);
           for (const child of node.children) visit(child);
@@ -4790,6 +4938,21 @@ export async function generateAssemblyStepsFromPlan(
 
   if (groups.length === 0) {
     return { ok: false, reason: "error", message: "The plan has no parts" };
+  }
+
+  // Older plan.json files leave interlocked parts with motion "none". Every
+  // step except the first (the base) should animate — synthesize an
+  // AABB-based fallback so those parts never just pop into place.
+  if (graphIndex) {
+    for (let index = 1; index < groups.length; index++) {
+      const group = groups[index];
+      if (!group || group.motion.type !== "none") continue;
+      const fallback = synthesizeFallbackMotion(graphIndex, group.partNodeIds);
+      if (fallback && fallback.type !== "none") {
+        group.motion = fallback;
+        group.confidence = "low";
+      }
+    }
   }
 
   const rows = groups.map((group, index) => ({

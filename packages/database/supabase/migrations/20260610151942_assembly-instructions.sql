@@ -44,7 +44,18 @@ CREATE TABLE "assemblyInstructionStep" (
   "parentStepId" TEXT,
   "sortOrder" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "title" TEXT,
+  -- Typed-step shape mirrors "jobOperationStep" so steps can eventually be
+  -- copied into job operations. "instructionText" is a derived plain-text
+  -- snapshot of "description" (tiptap JSON) consumed by the 3D viewer overlay.
+  "type" "procedureStepType" NOT NULL DEFAULT 'Task',
+  "description" JSON DEFAULT '{}',
   "instructionText" TEXT,
+  "required" BOOLEAN DEFAULT FALSE,
+  "unitOfMeasureCode" TEXT,
+  "minValue" NUMERIC,
+  "maxValue" NUMERIC,
+  "listValues" TEXT[],
+  "fileTypes" TEXT[],
   "notes" JSON,
   "partNodeIds" TEXT[] NOT NULL DEFAULT '{}',
   "motion" JSONB NOT NULL DEFAULT '{"type": "none"}',
@@ -63,6 +74,7 @@ CREATE TABLE "assemblyInstructionStep" (
   CONSTRAINT "assemblyInstructionStep_pkey" PRIMARY KEY ("id"),
   CONSTRAINT "assemblyInstructionStep_assemblyInstructionId_fkey" FOREIGN KEY ("assemblyInstructionId") REFERENCES "assemblyInstruction"("id") ON DELETE CASCADE,
   CONSTRAINT "assemblyInstructionStep_parentStepId_fkey" FOREIGN KEY ("parentStepId") REFERENCES "assemblyInstructionStep"("id") ON DELETE SET NULL,
+  CONSTRAINT "assemblyInstructionStep_unitOfMeasureCode_fkey" FOREIGN KEY ("unitOfMeasureCode", "companyId") REFERENCES "unitOfMeasure"("code", "companyId") ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT "assemblyInstructionStep_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT "assemblyInstructionStep_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT "assemblyInstructionStep_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE

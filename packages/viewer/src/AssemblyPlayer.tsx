@@ -16,6 +16,7 @@ import {
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import { AssemblyViewer } from "./AssemblyViewer";
 import { describeStep } from "./describe";
+import { synthesizeFallbackMotion } from "./fallback";
 import { indexAssemblyGraph } from "./graph";
 import { buildStepClip, exaggerateMotion, stepTimelineSeconds } from "./motion";
 import type { AssemblyGraph, AssemblyStep } from "./types";
@@ -103,8 +104,12 @@ export function AssemblyPlayer({
     ? describeStep(activeStep, graphIndex)
     : null;
 
-  // Small parts (bolts, washers) get exaggerated travel so their insertion
-  // reads clearly at assembly scale — display only, the data is untouched
+  // Display-only motion adjustments — the stored data is untouched:
+  // 1. Steps saved with motion "none" (legacy plans, manual steps) get an
+  //    AABB-synthesized insertion so parts never pop into place. The first
+  //    step is the base — it is placed, not inserted, and stays still.
+  // 2. Small parts (bolts, washers) get exaggerated travel so their
+  //    insertion reads clearly at assembly scale.
   const displaySteps = useMemo(() => {
     if (!graphIndex) return steps;
     const root = graphIndex.graph.root.bbox;
@@ -113,7 +118,17 @@ export function AssemblyPlayer({
       root.max[1] - root.min[1],
       root.max[2] - root.min[2]
     );
-    return steps.map((step) => {
+    return steps.map((step, index) => {
+      let baseMotion = step.motion;
+      if (
+        index > 0 &&
+        baseMotion.type === "none" &&
+        step.partNodeIds.length > 0
+      ) {
+        const fallback = synthesizeFallbackMotion(graphIndex, step.partNodeIds);
+        if (fallback && fallback.type !== "none") baseMotion = fallback;
+      }
+
       let minBox: [number, number, number] | null = null;
       let maxBox: [number, number, number] | null = null;
       for (const nodeId of step.partNodeIds) {
@@ -135,14 +150,18 @@ export function AssemblyPlayer({
           }
         }
       }
-      if (!minBox || !maxBox) return step;
+      if (!minBox || !maxBox) {
+        return baseMotion === step.motion
+          ? step
+          : { ...step, motion: baseMotion };
+      }
       const partDiagonal = Math.hypot(
         maxBox[0] - minBox[0],
         maxBox[1] - minBox[1],
         maxBox[2] - minBox[2]
       );
       const motion = exaggerateMotion(
-        step.motion,
+        baseMotion,
         partDiagonal,
         assemblyDiagonal
       );

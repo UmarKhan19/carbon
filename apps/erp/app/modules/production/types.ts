@@ -3,6 +3,7 @@ import type {
   getActiveProductionEvents,
   getAssemblyGroups,
   getAssemblyInstruction,
+  getAssemblyInstructionStepMaterials,
   getAssemblyInstructionStepRequirements,
   getAssemblyInstructionSteps,
   getAssemblyInstructions,
@@ -205,6 +206,10 @@ export type AssemblyInstructionStepRow = NonNullable<
 
 export type AssemblyStepRequirement = NonNullable<
   Awaited<ReturnType<typeof getAssemblyInstructionStepRequirements>>["data"]
+>[number];
+
+export type AssemblyStepMaterial = NonNullable<
+  Awaited<ReturnType<typeof getAssemblyInstructionStepMaterials>>["data"]
 >[number];
 
 export type AssemblyStandardNote = NonNullable<

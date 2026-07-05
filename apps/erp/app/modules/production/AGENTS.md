@@ -53,6 +53,10 @@ pnpm --filter @carbon/erp test
 | `productionEvent` | Time tracking: type (Labor/Machine/Setup), start/end, employee |
 | `productionQuantity` | Output: type (Production/Scrap/Rework), quantity, scrapReason |
 | `procedure` / `procedureStep` / `procedureParameter` | Versioned work instructions |
+| `assemblyInstruction` / `assemblyInstructionStep` | 3D model-based assembly instructions (Draft/Published/Archived); steps carry `partNodeIds` + `motion`/`camera` JSON for the viewer AND the typed-step fields mirrored from `jobOperationStep` (`type` `procedureStepType`, tiptap `description` with derived `instructionText`, `required`, UoM/min/max, `listValues`) for eventual copy into job operations |
+| `assemblyInstructionStepMaterial` | BOM parts consumed at a step (`stepId` → `itemId` + optional quantity; stored by itemId so links survive make-method re-versioning; picker limited to the item's make-method BOM) |
+| `assemblyInstructionStepRequirement` / `assemblyStandardNote` | Per-step tools/fixtures/consumables/notes/media; reusable note templates |
+| `assemblyPartMapping` / `assemblyGroup` / `assemblyPlanJob` | Geometry↔BOM item mapping, part grouping, and geometry-service plan/convert job tracking |
 | `maintenanceDispatch` / `maintenanceSchedule` | Equipment maintenance tracking |
 | `demandForecast` / `demandProjection` | Demand planning data |
 | `scrapReason` / `maintenanceFailureMode` | Reference data for production and maintenance |
@@ -71,6 +75,9 @@ pnpm --filter @carbon/erp test
 - `getActiveJobOperationsByLocation` — schedule board data (RPC `get_active_job_operations_by_location`)
 - `getProductionPlanning` — MRP-driven production planning (RPC `get_production_planning`)
 - `upsertMaintenanceDispatch` / `upsertMaintenanceSchedule` — maintenance management
+- `getAssemblyInstruction(s)` / `upsertAssemblyInstructionStep` / `getAssemblyInstructionStepMaterials` — assembly instruction authoring; the step upsert derives `instructionText` from the tiptap `description` (viewer/MES consume the plain text)
+- `generateAssemblyStepsFromPlan` — plan.json → draft steps; synthesizes AABB fallback motions (`synthesizeFallbackMotion` from `@carbon/viewer`) for non-base parts old plans left unplanned
+- `getFlattenedBomMaterials` — the item's engineering BOM flattened through Make subassemblies; feeds the assembly BOM tree and the per-step material picker
 
 ## Key Exports
 

@@ -1,0 +1,216 @@
+import type { AssemblyGraphIndex } from "./graph";
+import type { Motion, Vec3 } from "./types";
+
+/**
+ * AABB-based fallback motion synthesis for steps the geometry planner left
+ * with motion "none" (old plan.json files, manually authored steps). Pure —
+ * no WebGL, unit-testable in node, same conventions as the Python planner:
+ * distances in mm, stored motion is the INSERTION (removal reversed).
+ *
+ * This is display guidance, not physics: obstacles are leaf bounding boxes,
+ * and anything already overlapping the part at its seated pose (mating
+ * geometry an AABB cannot reason about) is ignored.
+ */
+
+type Box = { min: Vec3; max: Vec3 };
+
+const EXIT_MARGIN_MM = 5;
+const HOP_MARGIN_MM = 2;
+/** Surface contact between neighbors is not an obstruction */
+const CONTACT_EPSILON_MM = 0.01;
+
+type AxisDirection = { dir: Vec3; axis: 0 | 1 | 2; sign: 1 | -1 };
+
+/** Same preference order as the Python planner's world axes: up first. */
+const DIRECTIONS: AxisDirection[] = [
+  { dir: [0, 0, 1], axis: 2, sign: 1 },
+  { dir: [0, 0, -1], axis: 2, sign: -1 },
+  { dir: [1, 0, 0], axis: 0, sign: 1 },
+  { dir: [-1, 0, 0], axis: 0, sign: -1 },
+  { dir: [0, 1, 0], axis: 1, sign: 1 },
+  { dir: [0, -1, 0], axis: 1, sign: -1 }
+];
+
+function unionBox(boxes: Box[]): Box | null {
+  const first = boxes[0];
+  if (!first) return null;
+  const min: Vec3 = [...first.min];
+  const max: Vec3 = [...first.max];
+  for (const box of boxes) {
+    for (let axis = 0; axis < 3; axis++) {
+      min[axis] = Math.min(min[axis] ?? 0, box.min[axis] ?? 0);
+      max[axis] = Math.max(max[axis] ?? 0, box.max[axis] ?? 0);
+    }
+  }
+  return { min, max };
+}
+
+function boxesOverlap(a: Box, b: Box, epsilon: number): boolean {
+  for (let axis = 0; axis < 3; axis++) {
+    if ((a.max[axis] ?? 0) - epsilon <= (b.min[axis] ?? 0)) return false;
+    if ((b.max[axis] ?? 0) - epsilon <= (a.min[axis] ?? 0)) return false;
+  }
+  return true;
+}
+
+function translateBox(
+  box: Box,
+  direction: AxisDirection,
+  distance: number
+): Box {
+  const min: Vec3 = [...box.min];
+  const max: Vec3 = [...box.max];
+  min[direction.axis] = (min[direction.axis] ?? 0) + direction.sign * distance;
+  max[direction.axis] = (max[direction.axis] ?? 0) + direction.sign * distance;
+  return { min, max };
+}
+
+/** The box swept by translating `box` along `direction` for `distance`. */
+function sweptBox(box: Box, direction: AxisDirection, distance: number): Box {
+  const min: Vec3 = [...box.min];
+  const max: Vec3 = [...box.max];
+  if (direction.sign > 0) {
+    max[direction.axis] = (max[direction.axis] ?? 0) + distance;
+  } else {
+    min[direction.axis] = (min[direction.axis] ?? 0) - distance;
+  }
+  return { min, max };
+}
+
+/** Distance until `part` separates from `assembly` along `direction`. */
+function exitTravel(
+  part: Box,
+  assembly: Box,
+  direction: AxisDirection
+): number {
+  const { axis, sign } = direction;
+  const needed =
+    sign > 0
+      ? (assembly.max[axis] ?? 0) - (part.min[axis] ?? 0)
+      : (part.max[axis] ?? 0) - (assembly.min[axis] ?? 0);
+  const extent = (part.max[axis] ?? 0) - (part.min[axis] ?? 0);
+  return Math.max(needed, extent, 0) + EXIT_MARGIN_MM;
+}
+
+/** Distance until `part` clears `obstacle` along `direction`. */
+function clearTravel(
+  part: Box,
+  obstacle: Box,
+  direction: AxisDirection
+): number {
+  const { axis, sign } = direction;
+  const needed =
+    sign > 0
+      ? (obstacle.max[axis] ?? 0) - (part.min[axis] ?? 0)
+      : (part.max[axis] ?? 0) - (obstacle.min[axis] ?? 0);
+  return Math.max(needed, 0) + HOP_MARGIN_MM;
+}
+
+function negate(direction: AxisDirection): Vec3 {
+  return direction.dir.map((c) => -c) as Vec3;
+}
+
+/**
+ * Synthesizes an insertion motion for a step's parts from graph bounding
+ * boxes: a straight exit along the least-obstructed axis when one exists,
+ * else a two-segment escape (hop past the blockers, then exit), else a
+ * best-effort straight line through the fewest boxes. Returns null only
+ * when the parts resolve to no leaf geometry.
+ */
+export function synthesizeFallbackMotion(
+  index: AssemblyGraphIndex,
+  partNodeIds: string[]
+): Motion | null {
+  const partSet = new Set(partNodeIds);
+  const partBoxes: Box[] = [];
+  const otherBoxes: Box[] = [];
+  for (const node of index.leaves) {
+    if (!node.bbox) continue;
+    (partSet.has(node.nodeId) ? partBoxes : otherBoxes).push(node.bbox);
+  }
+
+  const part = unionBox(partBoxes);
+  if (!part) return null;
+  const assembly = unionBox([part, ...otherBoxes]);
+  if (!assembly) return null;
+
+  // Mating parts overlap the seated box; an AABB sweep cannot distinguish
+  // them from real blockers, so they are excluded from obstruction counts
+  const obstacles = otherBoxes.filter(
+    (box) => !boxesOverlap(part, box, CONTACT_EPSILON_MM)
+  );
+
+  const candidates = DIRECTIONS.map((direction) => {
+    const travel = exitTravel(part, assembly, direction);
+    const swept = sweptBox(part, direction, travel);
+    const blockers = obstacles.filter((box) =>
+      boxesOverlap(swept, box, CONTACT_EPSILON_MM)
+    );
+    return { direction, travel, blockers };
+  }).sort(
+    (a, b) => a.blockers.length - b.blockers.length || a.travel - b.travel
+  );
+
+  const best = candidates[0];
+  if (!best) return null;
+
+  if (best.blockers.length === 0) {
+    // Straight removal along `direction` -> insertion approaches from there
+    return {
+      type: "linear",
+      direction: negate(best.direction),
+      distance: round(best.travel)
+    };
+  }
+
+  // Two-segment escape: hop perpendicular until clear of the exit blockers,
+  // then exit. Both legs must be unobstructed.
+  for (const exit of candidates) {
+    if (exit.blockers.length === 0) continue;
+    for (const hopDirection of DIRECTIONS) {
+      if (hopDirection.axis === exit.direction.axis) continue;
+
+      const hop = Math.max(
+        ...exit.blockers.map((box) => clearTravel(part, box, hopDirection))
+      );
+      const hopSwept = sweptBox(part, hopDirection, hop);
+      if (
+        obstacles.some((box) => boxesOverlap(hopSwept, box, CONTACT_EPSILON_MM))
+      ) {
+        continue;
+      }
+
+      const hopped = translateBox(part, hopDirection, hop);
+      const travel = exitTravel(hopped, assembly, exit.direction);
+      const exitSwept = sweptBox(hopped, exit.direction, travel);
+      if (
+        obstacles.some((box) =>
+          boxesOverlap(exitSwept, box, CONTACT_EPSILON_MM)
+        )
+      ) {
+        continue;
+      }
+
+      // Removal: hop then exit. Insertion reverses: enter, then settle.
+      return {
+        type: "L",
+        segments: [
+          { direction: negate(exit.direction), distance: round(travel) },
+          { direction: negate(hopDirection), distance: round(hop) }
+        ]
+      };
+    }
+  }
+
+  // Best effort: straight through the fewest boxes — still better than
+  // popping into place
+  return {
+    type: "linear",
+    direction: negate(best.direction),
+    distance: round(best.travel)
+  };
+}
+
+function round(value: number): number {
+  return Math.round(value * 1000) / 1000;
+}

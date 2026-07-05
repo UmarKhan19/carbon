@@ -1,18 +1,19 @@
 import { describe, expect, it } from "vitest";
 import type { AssemblyPlan } from "./plan";
 import { planMotionForParts } from "./plan";
+import type { Motion } from "./types";
 
-const lift = {
+const lift: Motion = {
   type: "linear",
   direction: [0, 0, -1],
   distance: 25
-} as const;
+};
 
-const slide = {
+const slide: Motion = {
   type: "linear",
   direction: [-1, 0, 0],
   distance: 80
-} as const;
+};
 
 const plan: AssemblyPlan = {
   version: 1,

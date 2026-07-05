@@ -1,11 +1,15 @@
+import { useCarbon } from "@carbon/auth";
 import {
+  Array as ArrayInput,
+  Boolean as BooleanInput,
   Hidden,
   Input,
   Number,
+  SelectControlled,
   Submit,
-  TextArea,
   ValidatedForm
 } from "@carbon/form";
+import type { JSONContent } from "@carbon/react";
 import {
   Badge,
   Button,
@@ -18,30 +22,40 @@ import {
   TabsTrigger,
   ToggleGroup,
   ToggleGroupItem,
+  toast,
   VStack
 } from "@carbon/react";
+import { Editor } from "@carbon/react/Editor";
 import type { AssemblyGraphIndex, AssemblyPlan } from "@carbon/viewer";
 import {
   describeStep,
   planMotionForParts,
-  stepTimelineSeconds
+  stepTimelineSeconds,
+  synthesizeFallbackMotion
 } from "@carbon/viewer";
+import { nanoid } from "nanoid";
 import { useEffect, useMemo, useState } from "react";
 import { useFetcher, useParams } from "react-router";
 import { Empty } from "~/components";
-import { usePermissions } from "~/hooks";
-import { path } from "~/utils/path";
+import { UnitOfMeasure } from "~/components/Form";
+import { ProcedureStepTypeIcon } from "~/components/Icons";
+import { usePermissions, useUser } from "~/hooks";
+import { procedureStepType } from "~/modules/shared";
+import { getPrivateUrl, path } from "~/utils/path";
 import {
   assemblyInstructionStepValidator,
   fastenerSchema,
   motionSchema
 } from "../../production.models";
+import type { FlattenedBomMaterial } from "../../production.service";
 import type {
   AssemblyInstructionStepRow,
   AssemblyStandardNote,
+  AssemblyStepMaterial,
   AssemblyStepRequirement
 } from "../../types";
 import AssemblyStepBom from "./AssemblyStepBom";
+import AssemblyStepMaterials from "./AssemblyStepMaterials";
 import AssemblyStepRequirements from "./AssemblyStepRequirements";
 
 type AssemblyInstructionPropertiesProps = {
@@ -51,6 +65,8 @@ type AssemblyInstructionPropertiesProps = {
   graphIndex: AssemblyGraphIndex | null;
   plan: AssemblyPlan | null;
   requirements: AssemblyStepRequirement[];
+  stepMaterials: AssemblyStepMaterial[];
+  bomMaterials: FlattenedBomMaterial[];
   standardNotes: AssemblyStandardNote[];
 };
 
@@ -61,6 +77,8 @@ const AssemblyInstructionProperties = ({
   graphIndex,
   plan,
   requirements,
+  stepMaterials,
+  bomMaterials,
   standardNotes
 }: AssemblyInstructionPropertiesProps) => {
   const { id: instructionId } = useParams();
@@ -105,15 +123,24 @@ const AssemblyInstructionProperties = ({
             />
           </TabsContent>
           <TabsContent value="bom">
-            <AssemblyStepBom
-              partNodeIds={draftPartNodeIds ?? step.partNodeIds ?? []}
-              hasUnsavedParts={
-                draftPartNodeIds !== null &&
-                JSON.stringify(draftPartNodeIds) !==
-                  JSON.stringify(step.partNodeIds ?? [])
-              }
-              graphIndex={graphIndex}
-            />
+            <VStack spacing={4} className="w-full py-2">
+              <AssemblyStepMaterials
+                stepId={step.id}
+                instructionId={instructionId}
+                materials={stepMaterials}
+                bomMaterials={bomMaterials}
+                isDisabled={isDisabled}
+              />
+              <AssemblyStepBom
+                partNodeIds={draftPartNodeIds ?? step.partNodeIds ?? []}
+                hasUnsavedParts={
+                  draftPartNodeIds !== null &&
+                  JSON.stringify(draftPartNodeIds) !==
+                    JSON.stringify(step.partNodeIds ?? [])
+                }
+                graphIndex={graphIndex}
+              />
+            </VStack>
           </TabsContent>
           <TabsContent value="requirements">
             <AssemblyStepRequirements
@@ -223,7 +250,7 @@ function describeMotionDraft(draft: MotionDraft): string {
           sum + Math.abs(globalThis.Number(segment.distance) || 0),
         0
       );
-      return `Two-segment insertion · ${total} mm`;
+      return `${draft.segments.length}-segment insertion · ${total} mm`;
     }
     case "helix":
       return `Threaded insertion (helix) · ${draft.turns} turns`;
@@ -319,6 +346,49 @@ function StepForm({
 
   const permissions = usePermissions();
   const fetcher = useFetcher<{ success: boolean }>();
+  const { carbon } = useCarbon();
+  const {
+    company: { id: companyId }
+  } = useUser();
+
+  const [stepType, setStepType] = useState<(typeof procedureStepType)[number]>(
+    step.type ?? "Task"
+  );
+  const [description, setDescription] = useState<JSONContent>(
+    (step.description as JSONContent) ?? {}
+  );
+
+  const typeOptions = useMemo(
+    () =>
+      procedureStepType.map((type) => ({
+        label: (
+          <HStack>
+            <ProcedureStepTypeIcon type={type} className="mr-2" />
+            {type}
+          </HStack>
+        ),
+        value: type
+      })),
+    []
+  );
+
+  const onUploadImage = async (file: File) => {
+    const fileType = file.name.split(".").pop();
+    const fileName = `${companyId}/assembly/${instructionId}/${nanoid()}.${fileType}`;
+
+    const result = await carbon?.storage.from("private").upload(fileName, file);
+
+    if (result?.error) {
+      toast.error("Failed to upload image");
+      throw new Error(result.error.message);
+    }
+
+    if (!result?.data) {
+      throw new Error("Failed to upload image");
+    }
+
+    return getPrivateUrl(result.data.path);
+  };
 
   const [motion, setMotion] = useState<MotionDraft>(() =>
     makeMotionDraft(step.motion)
@@ -343,8 +413,20 @@ function StepForm({
     if (planned) {
       setMotion(makeMotionDraft(planned.motion));
       setAutoPlanned(planned.confidence);
+      return;
     }
-  }, [draftPartNodeIds, plan]);
+    // The plan has nothing for these parts (old plan.json, or none was ever
+    // computed): synthesize an AABB-based motion so the step still animates.
+    // Never clobbers a motion the author already set by hand.
+    if (!graphIndex || motion.type !== "none") return;
+    const fallback = synthesizeFallbackMotion(graphIndex, draftPartNodeIds);
+    if (fallback && fallback.type !== "none") {
+      setMotion(makeMotionDraft(fallback));
+      setAutoPlanned("low");
+    }
+    // motion.type is deliberately not a dependency: it is read as a guard,
+    // and re-running on motion edits would fight the manual editor
+  }, [draftPartNodeIds, plan, graphIndex]);
 
   const partNodeIds = draftPartNodeIds ?? step.partNodeIds ?? [];
   const hasUnsavedParts =
@@ -400,7 +482,12 @@ function StepForm({
         id: step.id,
         assemblyInstructionId: instructionId,
         title: step.title ?? "",
-        instructionText: step.instructionText ?? "",
+        type: step.type ?? "Task",
+        required: step.required ?? false,
+        unitOfMeasureCode: step.unitOfMeasureCode ?? "",
+        minValue: step.minValue ?? undefined,
+        maxValue: step.maxValue ?? undefined,
+        listValues: step.listValues ?? [],
         durationSeconds: step.durationSeconds ?? undefined
       }}
       fetcher={fetcher}
@@ -408,16 +495,71 @@ function StepForm({
     >
       <Hidden name="id" />
       <Hidden name="assemblyInstructionId" />
+      <Hidden name="description" value={JSON.stringify(description)} />
       <Hidden name="partNodeIds" value={JSON.stringify(partNodeIds)} />
       <Hidden name="motion" value={JSON.stringify(serializedMotion)} />
       <Hidden name="fastener" value={JSON.stringify(serializedFastener)} />
       <VStack spacing={4} className="w-full pb-4">
+        <SelectControlled
+          name="type"
+          label="Type"
+          options={typeOptions}
+          value={stepType}
+          isReadOnly={isDisabled}
+          onChange={(option) => {
+            if (option) {
+              setStepType(option.value as (typeof procedureStepType)[number]);
+            }
+          }}
+        />
         <Input
           name="title"
           label="Title"
           placeholder={derivedTitle ?? "Untitled step"}
         />
-        <TextArea name="instructionText" label="Instruction" />
+        <VStack spacing={2} className="w-full">
+          <Label>Instruction</Label>
+          <Editor
+            initialValue={(step.description as JSONContent) ?? {}}
+            onUpload={onUploadImage}
+            onChange={(value) => {
+              setDescription(value);
+            }}
+            className="[&_.is-empty]:text-muted-foreground min-h-[120px] p-4 rounded-lg border w-full"
+          />
+        </VStack>
+
+        {stepType === "Measurement" && (
+          <VStack spacing={2} className="w-full">
+            <UnitOfMeasure name="unitOfMeasureCode" label="Unit of Measure" />
+            <div className="grid grid-cols-2 gap-2 w-full">
+              <Number
+                name="minValue"
+                label="Minimum"
+                formatOptions={{
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 10
+                }}
+              />
+              <Number
+                name="maxValue"
+                label="Maximum"
+                formatOptions={{
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 10
+                }}
+              />
+            </div>
+          </VStack>
+        )}
+        {stepType === "List" && (
+          <ArrayInput name="listValues" label="List Options" />
+        )}
+        <BooleanInput
+          name="required"
+          label="Required"
+          description="Operators must record this step to complete the operation"
+        />
 
         <VStack spacing={2} className="w-full">
           <Label>Parts</Label>

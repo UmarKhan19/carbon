@@ -83,8 +83,10 @@ def test_pin_in_bore_slides_out_along_axis():
     assert sequence[0] == "plate"
 
 
-def test_enclosed_box_is_unplanned_with_blockers():
-    # A box fully enclosed in a hollow shell cannot translate out
+def test_enclosed_box_forces_best_effort_motion():
+    # A box fully enclosed in a hollow shell cannot translate out. Tier 4
+    # still animates it: the shell gets a forced best-effort linear motion
+    # (with blockers + a warning) and the inner box becomes the base.
     outer = trimesh.creation.box(extents=(50, 50, 50))
     cavity = trimesh.creation.box(extents=(40, 40, 40))
     shell = outer.difference(cavity)
@@ -100,12 +102,28 @@ def test_enclosed_box_is_unplanned_with_blockers():
 
     inner = _box_part("inner", (30, 30, 30), (0, 0, 0))
 
-    planned, _sequence, tiers = _plan([shell_part, inner])
+    warnings: list[str] = []
+    planned, sequence, tiers = _greedy_disassembly(
+        [shell_part, inner],
+        trimesh,
+        clearance=0.5,
+        path_samples=40,
+        warnings=warnings,
+    )
     by_id = {entry.node_id: entry for entry in planned}
 
-    assert tiers["unplanned"] >= 1
-    assert by_id["inner"].motion["type"] == "none"
-    assert "shell" in by_id["inner"].blocked_by
+    assert tiers["unplanned"] == 0
+    assert tiers["forced"] >= 1
+    # Only the base (first in sequence) may keep motion "none"
+    for entry in planned:
+        if entry.node_id == sequence[0]:
+            assert entry.motion["type"] == "none"
+        else:
+            assert entry.motion["type"] != "none"
+    assert by_id["shell"].motion["type"] == "linear"
+    assert by_id["shell"].confidence == "low"
+    assert "inner" in by_id["shell"].blocked_by
+    assert any("shell" in warning for warning in warnings)
 
 
 def test_rod_prefers_its_own_axis():
@@ -135,6 +153,58 @@ def test_rod_prefers_its_own_axis():
     # Axis-first: the rod leaves along ±X (its own axis), not +Z
     assert abs(direction[0]) == 1.0
     assert direction[1] == 0.0 and direction[2] == 0.0
+
+
+def test_blind_pocket_escapes_with_multi_segment_motion():
+    # A part in a walled pocket, seated under an interior lip: it must first
+    # slide sideways out from under the lip, then lift through the open top.
+    # Tier 2's fixed lift-then-slide cannot solve this (its hop length is the
+    # part diagonal, which overshoots into the pocket wall) — the tier-3
+    # adaptive escape must find the slide-then-lift and emit a multi-segment
+    # "L" motion.
+    floor = trimesh.creation.box(extents=(60, 60, 5))
+    floor.apply_translation((0, 0, 2.5))
+    wall_px = trimesh.creation.box(extents=(10, 60, 40))
+    wall_px.apply_translation((25, 0, 20))
+    wall_nx = trimesh.creation.box(extents=(10, 60, 40))
+    wall_nx.apply_translation((-25, 0, 20))
+    wall_py = trimesh.creation.box(extents=(60, 10, 40))
+    wall_py.apply_translation((0, 25, 20))
+    wall_ny = trimesh.creation.box(extents=(60, 10, 40))
+    wall_ny.apply_translation((0, -25, 20))
+    lip = trimesh.creation.box(extents=(20, 40, 5))
+    lip.apply_translation((10, 0, 37.5))
+    container = trimesh.util.concatenate(
+        [floor, wall_px, wall_nx, wall_py, wall_ny, lip]
+    )
+    container_part = _Part(
+        node_id="container",
+        name="container",
+        mesh=container,
+        bbox_min=np.array(container.bounds[0]),
+        bbox_max=np.array(container.bounds[1]),
+        is_proxy=False,
+    )
+
+    part = _box_part("part", (18, 18, 10), (8, 0, 10))
+
+    planned, sequence, tiers = _plan([container_part, part])
+    by_id = {entry.node_id: entry for entry in planned}
+
+    assert tiers["escape"] >= 1
+    assert tiers["unplanned"] == 0
+    assert sequence[0] == "container"
+    assert by_id["container"].motion["type"] == "none"
+
+    motion = by_id["part"].motion
+    assert motion["type"] == "L"
+    assert len(motion["segments"]) >= 2
+    assert by_id["part"].confidence == "low"
+    # Insertion reverses the removal: drop in through the open top, then
+    # slide +X under the lip into the seated pose
+    first, last = motion["segments"][0], motion["segments"][-1]
+    assert first["direction"][2] < -0.9
+    assert last["direction"][0] > 0.9
 
 
 def test_captive_washer_assembles_before_its_bolt():

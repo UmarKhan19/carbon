@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-03T14:32:14.549Z",
-  "totalTools": 1285,
+  "generated": "2026-07-05T03:28:54.150Z",
+  "totalTools": 1289,
   "modules": 15,
   "tools": [
     {
@@ -19678,7 +19678,7 @@
       "module": "production",
       "classification": "WRITE",
       "description": "upsert assembly instruction step",
-      "paramCount": 10,
+      "paramCount": 16,
       "serviceParams": [
         "client",
         "data"
@@ -19703,11 +19703,37 @@
               "null"
             ]
           },
-          "instructionText": {
+          "type": {},
+          "description": {},
+          "required": {
+            "type": "boolean"
+          },
+          "unitOfMeasureCode": {
             "type": [
               "string",
               "null"
             ]
+          },
+          "minValue": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "maxValue": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "listValues": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            }
           },
           "partNodeIds": {
             "type": "array",
@@ -19985,6 +20011,132 @@
       "module": "production",
       "classification": "DESTRUCTIVE",
       "description": "delete assembly instruction step requirement",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "id"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "name": "production_getAssemblyInstructionStepMaterials",
+      "module": "production",
+      "classification": "READ",
+      "description": "get assembly instruction step materials",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "stepIds"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "stepIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "stepIds"
+        ]
+      }
+    },
+    {
+      "name": "production_upsertAssemblyInstructionStepMaterial",
+      "module": "production",
+      "classification": "WRITE",
+      "description": "upsert assembly instruction step material",
+      "paramCount": 5,
+      "serviceParams": [
+        "client",
+        "data"
+      ],
+      "injectAuth": [
+        "companyId",
+        "createdBy",
+        "updatedBy"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "stepId": {
+            "type": "string"
+          },
+          "itemId": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "sortOrder": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "stepId",
+          "itemId"
+        ]
+      }
+    },
+    {
+      "name": "production_updateAssemblyInstructionStepMaterialOrder",
+      "module": "production",
+      "classification": "WRITE",
+      "description": "update assembly instruction step material order",
+      "paramCount": 2,
+      "serviceParams": [
+        "db",
+        "updates"
+      ],
+      "injectAuth": [
+        "companyId",
+        "updatedBy"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "sortOrder"
+        ]
+      }
+    },
+    {
+      "name": "production_deleteAssemblyInstructionStepMaterial",
+      "module": "production",
+      "classification": "DESTRUCTIVE",
+      "description": "delete assembly instruction step material",
       "paramCount": 1,
       "serviceParams": [
         "client",

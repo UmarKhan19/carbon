@@ -12,8 +12,17 @@ Algorithm (per llm/research/animated-work-instructions.md):
   densely sampled removal path is collision-free against the remaining
   parts (small penetration tolerance allows sliding fits).
 - Tier 2: two-segment "L" motions (lift then slide) for tier-1 failures.
-- Leftovers get motion "none" with the blocking parts recorded; the human
-  editor resolves them.
+- Tier 3: adaptive multi-segment escape search (BFS over axis-aligned
+  hops, each hop as far as the free space allows) for parts tiers 1-2
+  cannot solve. Emits a multi-segment "L" motion.
+- Tier 4: best-effort forced removal along the least-obstructed direction
+  when no collision-free escape exists, with the blocking parts recorded
+  and a warning emitted. Every part except the base gets SOME motion so
+  the animation never silently pops parts into place.
+
+Only the base part (the last one standing in the greedy disassembly, the
+first in the assembly sequence) keeps motion "none" — it is placed, not
+inserted.
 
 The recorded motion is the INSERTION motion (removal reversed), matching
 the viewer contract.
@@ -63,6 +72,14 @@ FASTENER_NAME_RE = re.compile(
     r"|\bM\d+(x[\d.]+)?\b"
     r"|\bDIN ?\d+|\bISO ?\d+"
 )
+
+# Tier-3 escape search bounds: BFS over axis-aligned hops. Each expansion
+# costs dense collision sampling, so the search is tightly capped.
+MAX_ESCAPE_SEGMENTS = 3
+MAX_ESCAPE_EXPANSIONS = 24
+# A hop must move the part at least this fraction of its own diagonal to
+# count as progress (avoids micro-hops that explode the search space).
+MIN_HOP_FRACTION = 0.25
 
 
 def _is_fastener(part: "_Part") -> bool:
@@ -141,7 +158,11 @@ def plan_step(
         )
 
     planned, sequence, tiers = _greedy_disassembly(
-        parts, trimesh, clearance=clearance, path_samples=path_samples
+        parts,
+        trimesh,
+        clearance=clearance,
+        path_samples=path_samples,
+        warnings=warnings,
     )
 
     plan = {
@@ -249,7 +270,9 @@ def _candidate_directions(part: _Part) -> list[np.ndarray]:
 
     A part's own symmetry axis comes before the world axes so fasteners
     leave through their own bores instead of the first free world
-    direction.
+    direction. Deduplication is sign-sensitive: +X and -X are different
+    removal directions (a part boxed in on one side exits the other), so
+    only same-direction duplicates of the symmetry axis are dropped.
     """
     candidates: list[np.ndarray] = []
     axis = _symmetry_axis(part)
@@ -257,7 +280,7 @@ def _candidate_directions(part: _Part) -> list[np.ndarray]:
         candidates.extend([axis, -axis])
 
     for world in WORLD_AXES:
-        if all(abs(float(np.dot(world, c))) < 0.99 for c in candidates):
+        if all(float(np.dot(world, c)) < 0.999 for c in candidates):
             candidates.append(world)
     return candidates
 
@@ -267,8 +290,12 @@ def _greedy_disassembly(
     trimesh_mod,
     clearance: float,
     path_samples: int,
+    warnings: list[str] | None = None,
 ) -> tuple[list[PlannedPart], list[str], dict]:
     from trimesh.collision import CollisionManager
+
+    if warnings is None:
+        warnings = []
 
     by_id = {part.node_id: part for part in parts}
     remaining: dict[str, _Part] = dict(by_id)
@@ -278,16 +305,20 @@ def _greedy_disassembly(
         manager.add_object(part.node_id, part.mesh)
 
     removal_order: list[PlannedPart] = []
-    tiers = {"linear": 0, "l": 0, "unplanned": 0}
+    # "unplanned" stays for stats compatibility; tiers 3-4 guarantee every
+    # non-base part gets a motion, so it is always 0 now
+    tiers = {"linear": 0, "l": 0, "escape": 0, "forced": 0, "unplanned": 0}
+
+    def top_down(pool: dict[str, _Part]) -> list[_Part]:
+        # Outer parts first: removing top-most parts first reads naturally
+        return sorted(
+            pool.values(), key=lambda p: float(p.bbox_max[2]), reverse=True
+        )
 
     progressed = True
     while remaining and progressed:
         progressed = False
-        # Outer parts first: removing top-most parts first reads naturally
-        scan = sorted(
-            remaining.values(), key=lambda p: float(p.bbox_max[2]), reverse=True
-        )
-        for part in scan:
+        for part in top_down(remaining):
             if len(remaining) == 1:
                 # The last part is the base: it "assembles" by being placed
                 remaining.pop(part.node_id)
@@ -318,28 +349,42 @@ def _greedy_disassembly(
                 remaining.pop(part.node_id)
                 progressed = True
 
-    # Leftovers are interlocked (or need motions the planner does not search)
-    leftovers: list[PlannedPart] = []
-    for part in remaining.values():
-        blocked_by = _blockers(part, remaining, trimesh_mod)
-        leftovers.append(
-            PlannedPart(
-                node_id=part.node_id,
-                motion={"type": "none"},
-                confidence=None,
-                removal_direction=None,
-                blocked_by=blocked_by,
-            )
-        )
-        tiers["unplanned"] += 1
+        if not progressed and len(remaining) > 1:
+            # Tier 3: adaptive multi-segment escape for interlocked parts
+            for part in top_down(remaining):
+                manager.remove_object(part.node_id)
+                planned = None
+                try:
+                    planned = _plan_escape(part, remaining, manager, path_samples)
+                finally:
+                    if planned is None:
+                        manager.add_object(part.node_id, part.mesh)
 
-    # Assembly order = leftovers (base/interlocked) first, then the greedy
-    # removal order reversed
-    sequence = [entry.node_id for entry in leftovers] + [
-        entry.node_id for entry in reversed(removal_order)
-    ]
-    planned_parts = leftovers + removal_order
-    return planned_parts, sequence, tiers
+                if planned is not None:
+                    tiers["escape"] += 1
+                    removal_order.append(planned)
+                    remaining.pop(part.node_id)
+                    progressed = True
+                    # Resume the cheap greedy scan: freeing one part often
+                    # unlocks straight-line removals for its neighbors
+                    break
+
+        if not progressed and len(remaining) > 1:
+            # Tier 4: no collision-free escape exists — force a best-effort
+            # motion so the part still animates instead of popping in
+            part = top_down(remaining)[0]
+            manager.remove_object(part.node_id)
+            planned = _forced_removal(
+                part, remaining, manager, trimesh_mod, path_samples, warnings
+            )
+            tiers["forced"] += 1
+            removal_order.append(planned)
+            remaining.pop(part.node_id)
+            progressed = True
+
+    # Assembly order = removal order reversed (base out last -> placed first)
+    sequence = [entry.node_id for entry in reversed(removal_order)]
+    return removal_order, sequence, tiers
 
 
 def _plan_removal(
@@ -432,6 +477,218 @@ def _plan_removal(
                 )
 
     return None
+
+
+def _plan_escape(
+    part: _Part,
+    remaining: dict[str, _Part],
+    manager,
+    path_samples: int,
+) -> PlannedPart | None:
+    """Tier 3: BFS over axis-aligned hops until the part clears the assembly.
+
+    Unlike tier 2's fixed lift-then-slide, each hop travels as far as the
+    free space allows (a blind slot needs "slide to the end, lift, slide
+    out" — hop lengths the fixed search cannot guess). The removal segments
+    reverse into a multi-segment "L" insertion motion, which the viewer
+    already interpolates for any segment count.
+    """
+    from collections import deque
+
+    others = [p for p in remaining.values() if p.node_id != part.node_id]
+    if not others:
+        return None
+
+    static_min = np.min([p.bbox_min for p in others], axis=0)
+    static_max = np.max([p.bbox_max for p in others], axis=0)
+
+    part_diagonal = float(np.linalg.norm(part.bbox_max - part.bbox_min)) or 1.0
+    min_hop = max(part_diagonal * MIN_HOP_FRACTION, 2.0)
+    hop_cap = part_diagonal * 1.5
+    samples_segment = max(12, path_samples // 3)
+    fastener_axis = _symmetry_axis(part) if _is_fastener(part) else None
+    directions = _candidate_directions(part)
+
+    def tolerance_for(direction: np.ndarray) -> float:
+        if (
+            fastener_axis is not None
+            and abs(float(np.dot(direction, fastener_axis))) > 0.99
+        ):
+            return THREAD_PENETRATION_MM
+        return PENETRATION_TOLERANCE_MM
+
+    queue: deque[tuple[np.ndarray, list[tuple[np.ndarray, float]]]] = deque(
+        [(np.zeros(3), [])]
+    )
+    visited = {(0, 0, 0)}
+    expansions = 0
+
+    while queue and expansions < MAX_ESCAPE_EXPANSIONS:
+        offset, segments = queue.popleft()
+        expansions += 1
+        for direction in directions:
+            # Never double back along the previous hop
+            if segments and abs(float(np.dot(direction, segments[-1][0]))) > 0.99:
+                continue
+            tolerance = tolerance_for(direction)
+
+            # Can the part exit straight from here?
+            travel = _exit_travel(
+                part, static_min, static_max, direction, base_offset=offset
+            )
+            if travel > 0 and _path_is_clear(
+                part,
+                manager,
+                direction,
+                0.0,
+                travel,
+                samples_segment,
+                tolerance,
+                base_offset=offset,
+            ):
+                removal = segments + [(direction, float(travel))]
+                return _removal_segments_to_planned(part, removal)
+
+            if len(segments) + 1 >= MAX_ESCAPE_SEGMENTS:
+                continue
+
+            # Otherwise hop as far as the free space allows and search on
+            free = _free_travel(
+                part, manager, direction, offset, hop_cap, samples_segment, tolerance
+            )
+            if free < min_hop:
+                continue
+            new_offset = offset + direction * free
+            key = tuple(int(round(float(c) / min_hop)) for c in new_offset)
+            if key in visited:
+                continue
+            visited.add(key)
+            queue.append((new_offset, segments + [(direction, float(free))]))
+
+    return None
+
+
+def _removal_segments_to_planned(
+    part: _Part, removal: list[tuple[np.ndarray, float]]
+) -> PlannedPart:
+    """Reverse a removal segment chain into an insertion motion."""
+    first_direction = removal[0][0]
+    if len(removal) == 1:
+        direction, distance = removal[0]
+        motion = {
+            "type": "linear",
+            "direction": [-float(c) for c in direction],
+            "distance": round(float(distance), 3),
+        }
+    else:
+        motion = {
+            "type": "L",
+            "segments": [
+                {
+                    "direction": [-float(c) for c in direction],
+                    "distance": round(float(distance), 3),
+                }
+                for direction, distance in reversed(removal)
+            ],
+        }
+    return PlannedPart(
+        node_id=part.node_id,
+        motion=motion,
+        confidence="low",
+        removal_direction=[float(c) for c in first_direction],
+    )
+
+
+def _forced_removal(
+    part: _Part,
+    remaining: dict[str, _Part],
+    manager,
+    trimesh_mod,
+    path_samples: int,
+    warnings: list[str],
+) -> PlannedPart:
+    """Tier 4: best-effort linear motion when no collision-free escape exists.
+
+    Picks the direction with the most free travel before contact so the
+    animation passes through as little geometry as possible. The blocking
+    parts are recorded and a warning surfaces the unresolved collision to
+    the author.
+    """
+    others = [p for p in remaining.values() if p.node_id != part.node_id]
+    static_min = np.min([p.bbox_min for p in others], axis=0)
+    static_max = np.max([p.bbox_max for p in others], axis=0)
+    diagonal = float(np.linalg.norm(static_max - static_min)) or 1.0
+    samples_segment = max(12, path_samples // 3)
+
+    best_direction = WORLD_AXES[0]
+    best_free = -1.0
+    for direction in _candidate_directions(part):
+        free = _free_travel(
+            part,
+            manager,
+            direction,
+            np.zeros(3),
+            diagonal,
+            samples_segment,
+            PENETRATION_TOLERANCE_MM,
+        )
+        if free > best_free:
+            best_free = free
+            best_direction = direction
+
+    travel = _exit_travel(part, static_min, static_max, best_direction)
+    warnings.append(
+        f"'{part.name or part.node_id}' has no collision-free escape; "
+        "using a best-effort linear motion"
+    )
+    return PlannedPart(
+        node_id=part.node_id,
+        motion={
+            "type": "linear",
+            "direction": [-float(c) for c in best_direction],
+            "distance": round(float(travel), 3),
+        },
+        confidence="low",
+        removal_direction=[float(c) for c in best_direction],
+        blocked_by=_blockers(part, remaining, trimesh_mod),
+    )
+
+
+def _free_travel(
+    part: _Part,
+    manager,
+    direction: np.ndarray,
+    base_offset: np.ndarray,
+    cap: float,
+    samples: int,
+    tolerance: float,
+) -> float:
+    """Furthest clear translation along `direction` from `base_offset`.
+
+    Samples forward like `_path_is_clear` but returns the last clear
+    distance before the first blocking contact instead of a boolean.
+    """
+    if cap <= 0:
+        return 0.0
+    samples = min(
+        max(samples, int(cap / MAX_SAMPLE_SPACING_MM) + 1),
+        MAX_PATH_SAMPLES,
+    )
+    offsets = np.linspace(0.0, cap, samples, endpoint=True)[1:]
+    transform = np.eye(4)
+    clear = 0.0
+    for s in offsets:
+        translation = direction * float(s) + base_offset
+        transform[:3, 3] = translation
+        is_colliding, contacts = manager.in_collision_single(
+            part.mesh, transform=transform, return_data=True
+        )
+        if is_colliding:
+            depth = max((contact.depth for contact in contacts), default=0.0)
+            if depth > tolerance:
+                return clear
+        clear = float(s)
+    return clear
 
 
 def _exit_travel(
