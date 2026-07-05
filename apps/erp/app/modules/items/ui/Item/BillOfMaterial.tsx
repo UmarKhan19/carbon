@@ -72,9 +72,9 @@ import {
   Hidden,
   Item,
   Location,
-  MultiSelect,
   Number,
   Select,
+  SelectControlled,
   StorageUnit,
   Submit,
   UnitOfMeasure
@@ -1121,9 +1121,8 @@ function MaterialForm({
               }));
             }}
           />
-          {/* Phase 2 (part ↔ step, many-to-many): scope this material to any subset of the
-              chosen operation's steps so the MES shows only the parts involved in those
-              steps. No selection = whole operation. */}
+          {/* Part ↔ step: a part is scoped to a SINGLE step so the MES shows it only on that
+              step. No selection = unassigned, surfaced in the MES "General" bucket. */}
           {(() => {
             const operationSteps =
               methodOperations.find(
@@ -1131,18 +1130,19 @@ function MaterialForm({
               )?.methodOperationStep ?? [];
             if (operationSteps.length === 0) return null;
             return (
-              <MultiSelect
+              <SelectControlled
                 name="methodOperationStepIds"
-                label={t`Steps`}
-                value={itemData.methodOperationStepIds ?? []}
+                label={t`Step`}
+                isOptional
+                value={itemData.methodOperationStepIds?.[0] ?? ""}
                 options={operationSteps.map((s) => ({
                   value: s.id,
                   label: s.name ?? t`Step`
                 }))}
-                onChange={(values) =>
+                onChange={(option) =>
                   setItemData((d) => ({
                     ...d,
-                    methodOperationStepIds: (values ?? []).map((v) => v.value)
+                    methodOperationStepIds: option ? [option.value] : []
                   }))
                 }
               />

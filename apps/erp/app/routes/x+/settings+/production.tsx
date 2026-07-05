@@ -20,7 +20,7 @@ import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
-import { Boolean, Number, Users } from "~/components/Form";
+import { Boolean, Users } from "~/components/Form";
 import {
   getCompanySettings,
   jobCompletedValidator,
@@ -96,8 +96,7 @@ export async function action({ request }: ActionFunctionArgs) {
     const update = await client
       .from("companySettings")
       .update({
-        autoStartOperationTimer: validation.data.autoStartOperationTimer,
-        operationTimerIdleMinutes: validation.data.operationTimerIdleMinutes
+        autoStartOperationTimer: validation.data.autoStartOperationTimer
       })
       .eq("id", companyId);
 
@@ -209,9 +208,7 @@ export default function ProductionSettingsRoute() {
             validator={operationTimerValidator}
             defaultValues={{
               autoStartOperationTimer:
-                companySettings.autoStartOperationTimer ?? false,
-              operationTimerIdleMinutes:
-                companySettings.operationTimerIdleMinutes ?? 5
+                companySettings.autoStartOperationTimer ?? false
             }}
             fetcher={timerFetcher}
           >
@@ -223,8 +220,7 @@ export default function ProductionSettingsRoute() {
               <CardDescription>
                 <Trans>
                   Auto-start the operator's timer when they open an operation in
-                  the MES, and stop it after a period of inactivity so time logs
-                  stay accurate.
+                  the MES so time logs are captured from the start.
                 </Trans>
               </CardDescription>
             </CardHeader>
@@ -234,12 +230,6 @@ export default function ProductionSettingsRoute() {
                   name="autoStartOperationTimer"
                   label={t`Auto-start timer on open`}
                   description={t`When on, opening an operation starts its timer automatically.`}
-                />
-                <Number
-                  name="operationTimerIdleMinutes"
-                  label={t`Idle timeout (minutes)`}
-                  minValue={1}
-                  maxValue={120}
                 />
               </div>
             </CardContent>

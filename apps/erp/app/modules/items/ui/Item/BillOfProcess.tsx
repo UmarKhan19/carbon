@@ -1846,23 +1846,6 @@ function AttributesForm({
   const companyId = user.company.id;
   const revalidator = useRevalidator();
 
-  // Tools on this operation, deduped by toolId, with display names resolved from the
-  // tools store — passed to the annotator so a pin can be linked to one (smart hotspot).
-  const allTools = useTools();
-  const toolOptions = useMemo(() => {
-    const seen = new Set<string>();
-    const opts: { id: string; name: string }[] = [];
-    for (const ot of tools) {
-      if (!ot.toolId || seen.has(ot.toolId)) continue;
-      seen.add(ot.toolId);
-      opts.push({
-        id: ot.toolId,
-        name: allTools.find((t) => t.id === ot.toolId)?.name ?? ot.toolId
-      });
-    }
-    return opts;
-  }, [tools, allTools]);
-
   // Slides chosen while creating a step are buffered here (the step has no id yet);
   // they're attached to the new step right after it's created. See the effect below.
   const [draftSlides, setDraftSlides] = useState<
@@ -2096,7 +2079,6 @@ function AttributesForm({
                   size: slide.size,
                   annotations: slide.annotations
                 }))}
-                toolOptions={toolOptions}
                 isDisabled={isDisabled}
                 busy={draftUploading}
                 fileInputRef={draftFileInputRef}
@@ -2108,13 +2090,6 @@ function AttributesForm({
                   setDraftSlides((prev) =>
                     prev.map((slide, i) =>
                       i === index ? { ...slide, caption } : slide
-                    )
-                  )
-                }
-                onSizeChange={(index, size) =>
-                  setDraftSlides((prev) =>
-                    prev.map((slide, i) =>
-                      i === index ? { ...slide, size } : slide
                     )
                   )
                 }
@@ -2162,7 +2137,6 @@ function AttributesForm({
                       attribute={step}
                       operationId={operationId}
                       typeOptions={typeOptions}
-                      toolOptions={toolOptions}
                       isDisabled={isDisabled}
                       dragControls={dragControls}
                       className={
@@ -2215,7 +2189,6 @@ function AttributesListItem({
   attribute,
   operationId,
   typeOptions,
-  toolOptions,
   className,
   configurable,
   rulesByField,
@@ -2227,7 +2200,6 @@ function AttributesListItem({
   attribute: OperationStep;
   operationId: string;
   typeOptions: { label: JSX.Element; value: string }[];
-  toolOptions: { id: string; name: string }[];
   className?: string;
   configurable: boolean;
   rulesByField: Map<string, ConfigurationRule>;
@@ -2466,11 +2438,7 @@ function AttributesListItem({
             {type === "List" && (
               <ArrayInput name="listValues" label={t`List Options`} />
             )}
-            <StepSlides
-              step={attribute}
-              toolOptions={toolOptions}
-              isDisabled={isDisabled}
-            />
+            <StepSlides step={attribute} isDisabled={isDisabled} />
             <HStack className="w-full justify-end" spacing={2}>
               <Button variant="secondary" onClick={disclosure.onClose}>
                 Cancel
@@ -2667,11 +2635,9 @@ function AttributesListItem({
 // to job/quote by get-method. See PRD-step-reference-images.
 function StepSlides({
   step,
-  toolOptions,
   isDisabled
 }: {
   step: OperationStep;
-  toolOptions: { id: string; name: string }[];
   isDisabled: boolean;
 }) {
   const { t } = useLingui();
@@ -2747,7 +2713,6 @@ function StepSlides({
         size: s.size,
         annotations: s.annotations
       }))}
-      toolOptions={toolOptions}
       isDisabled={isDisabled}
       busy={uploading || fetcher.state !== "idle"}
       fileInputRef={fileInputRef}
@@ -2764,11 +2729,6 @@ function StepSlides({
         const slide = slides[index];
         if (slide && (slide.caption ?? "") !== caption)
           saveSlide(slide, { caption });
-      }}
-      onSizeChange={(index, size) => {
-        const slide = slides[index];
-        if (slide && (slide.size ?? "medium") !== size)
-          saveSlide(slide, { size });
       }}
       onAnnotationsChange={(index, annotations) => {
         const slide = slides[index];

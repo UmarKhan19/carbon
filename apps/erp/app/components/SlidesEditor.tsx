@@ -3,26 +3,12 @@ import { useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { LuCirclePlus, LuMapPin, LuX } from "react-icons/lu";
 import type { SlideAnnotation, SlideSize } from "~/modules/shared";
-import { slideSizes } from "~/modules/shared";
 import { getPrivateUrl } from "~/utils/path";
 import { SlideAnnotator } from "./SlideAnnotator";
 
-// Card width + image height per display size — drives the resizable gallery grid.
-const SLIDE_CARD_WIDTH: Record<SlideSize, string> = {
-  small: "w-28",
-  medium: "w-40",
-  large: "w-56"
-};
-const SLIDE_IMAGE_HEIGHT: Record<SlideSize, string> = {
-  small: "h-20",
-  medium: "h-28",
-  large: "h-40"
-};
-const SLIDE_SIZE_LABEL: Record<SlideSize, string> = {
-  small: "S",
-  medium: "M",
-  large: "L"
-};
+// Single fixed slide card size — slides are no longer individually resizable.
+const SLIDE_CARD_WIDTH = "w-40";
+const SLIDE_IMAGE_HEIGHT = "h-28";
 
 export type EditorSlide = {
   key: string;
@@ -32,31 +18,27 @@ export type EditorSlide = {
   annotations: SlideAnnotation[] | null;
 };
 
-// Presentational slides grid — header + "Add slide" + cards (image · pins · size · caption).
+// Presentational slides grid — header + "Add slide" + cards (image · pins · caption).
 // Shared by the create form (draft buffer, attached after the step is saved) and the edit
 // form (persisted immediately via the slide routes). Used by both the item method editor
 // (BillOfProcess) and the job editor (JobBillOfProcess). See PRD-step-reference-images.
 export function SlidesEditor({
   slides,
-  toolOptions = [],
   isDisabled,
   busy,
   fileInputRef,
   onFileChange,
   onRemove,
   onCaptionBlur,
-  onSizeChange,
   onAnnotationsChange
 }: {
   slides: EditorSlide[];
-  toolOptions?: { id: string; name: string }[];
   isDisabled: boolean;
   busy: boolean;
   fileInputRef: React.RefObject<HTMLInputElement>;
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onRemove: (index: number) => void;
   onCaptionBlur: (index: number, caption: string) => void;
-  onSizeChange: (index: number, size: SlideSize) => void;
   onAnnotationsChange: (index: number, annotations: SlideAnnotation[]) => void;
 }) {
   const { t } = useLingui();
@@ -96,14 +78,13 @@ export function SlidesEditor({
       ) : (
         <div className="flex w-full flex-wrap items-start gap-3">
           {slides.map((slide, index) => {
-            const size = slide.size ?? "medium";
             const pins = slide.annotations ?? [];
             return (
               <div
                 key={slide.key}
                 className={cn(
                   "flex flex-col gap-1 rounded-lg border p-2",
-                  SLIDE_CARD_WIDTH[size]
+                  SLIDE_CARD_WIDTH
                 )}
               >
                 <div className="relative">
@@ -112,7 +93,7 @@ export function SlidesEditor({
                     alt={slide.caption ?? "Slide"}
                     className={cn(
                       "w-full rounded-md bg-muted/40 object-contain",
-                      SLIDE_IMAGE_HEIGHT[size]
+                      SLIDE_IMAGE_HEIGHT
                     )}
                   />
                   {/* Read-only pin preview so an annotated slide reads at a glance. */}
@@ -141,20 +122,7 @@ export function SlidesEditor({
                   )}
                 </div>
                 {!isDisabled && (
-                  <div className="flex items-center justify-between gap-1">
-                    <div className="flex items-center gap-0.5">
-                      {slideSizes.map((s) => (
-                        <Button
-                          key={s}
-                          variant={size === s ? "active" : "ghost"}
-                          size="sm"
-                          className="h-6 w-6 p-0 text-[10px]"
-                          onClick={() => onSizeChange(index, s)}
-                        >
-                          {SLIDE_SIZE_LABEL[s]}
-                        </Button>
-                      ))}
-                    </div>
+                  <div className="flex items-center justify-end gap-1">
                     <Button
                       variant="secondary"
                       size="sm"
@@ -186,7 +154,6 @@ export function SlidesEditor({
           open
           imageUrl={getPrivateUrl(annotating.imagePath)}
           initial={annotating.annotations ?? []}
-          toolOptions={toolOptions}
           onSave={(next) => {
             onAnnotationsChange(annotatingIndex, next);
             setAnnotatingIndex(null);

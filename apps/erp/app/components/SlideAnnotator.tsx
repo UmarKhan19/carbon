@@ -36,15 +36,12 @@ export function SlideAnnotator({
   open,
   imageUrl,
   initial,
-  toolOptions = [],
   onSave,
   onClose
 }: {
   open: boolean;
   imageUrl: string;
   initial: SlideAnnotation[];
-  // Tools on this operation, so a pin can be linked to one (a "smart hotspot").
-  toolOptions?: { id: string; name: string }[];
   onSave: (annotations: SlideAnnotation[]) => void;
   onClose: () => void;
 }) {
@@ -228,23 +225,6 @@ export function SlideAnnotator({
                       />
                     ))}
                   </div>
-                  {toolOptions.length > 0 ? (
-                    <select
-                      aria-label="Linked tool"
-                      value={selected.toolId ?? ""}
-                      onChange={(e) =>
-                        updateSelected({ toolId: e.target.value || undefined })
-                      }
-                      className="w-full rounded-md border bg-transparent px-2 py-1 text-sm"
-                    >
-                      <option value="">No tool</option>
-                      {toolOptions.map((tool) => (
-                        <option key={tool.id} value={tool.id}>
-                          {tool.name}
-                        </option>
-                      ))}
-                    </select>
-                  ) : null}
                 </div>
               ) : null}
             </div>

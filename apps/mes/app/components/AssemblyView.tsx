@@ -36,12 +36,15 @@ import {
 } from "@carbon/react";
 import { formatDurationMilliseconds } from "@carbon/utils";
 import { getLocalTimeZone } from "@internationalized/date";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   LuBarcode,
   LuCheck,
   LuChevronLeft,
   LuChevronRight,
+  LuCircle,
+  LuCircleCheck,
+  LuCircleDot,
   LuEllipsisVertical,
   LuExpand,
   LuEye,
@@ -115,7 +118,6 @@ type Slide = {
   imagePath: string;
   caption?: string | null;
   sortOrder?: number | null;
-  size?: "small" | "medium" | "large" | null;
   annotations?: SlideAnnotation[] | null;
 };
 
@@ -193,7 +195,6 @@ type Props = {
   nonConformanceActions: ContainmentAction[];
   expiredEntityPolicy?: "Warn" | "Block" | "BlockWithOverride";
   autoStartOperationTimer?: boolean;
-  operationTimerIdleMinutes?: number;
   productionQuantities?: { scrap: number; production: number; rework: number };
   workCenter?: {
     id: string;
@@ -401,7 +402,6 @@ export function AssemblyView({
   nonConformanceActions,
   expiredEntityPolicy = "Block",
   autoStartOperationTimer = false,
-  operationTimerIdleMinutes = 5,
   workCenter,
   kanban,
   jobId,
@@ -548,18 +548,22 @@ export function AssemblyView({
   );
   const step = steps[currentStep] ?? null;
 
-  // Group materials by their REAL item type (Part / Material / Consumable / …).
-  // Phase 2 (part ↔ step, many-to-many): show only the parts involved in the current step —
-  // a material scoped to steps (jobOperationStepIds) appears on those steps; operation-level
-  // materials (no links) appear on every step. Backward compatible: with no assignments, all
-  // materials are operation-level and show everywhere.
-  const rawMaterials: any[] = (materials?.materials ?? []).filter((m: any) => {
-    const ids: string[] = m.jobOperationStepIds ?? [];
-    // No links = operation-level (every step); otherwise only the linked steps.
-    return ids.length === 0 || (step?.id != null && ids.includes(step.id));
-  });
+  // Part ↔ step: a part is scoped to a SINGLE step. Parts linked to the current step show in
+  // their type group (Part / Material / Consumable / …). Parts with NO step link are
+  // "unassigned" and surface in a dedicated General bucket shown on every step, so nothing
+  // silently disappears while a step is selected.
+  const allMaterials: any[] = materials?.materials ?? [];
+  const stepMaterials = allMaterials.filter(
+    (m: any) =>
+      step?.id != null && (m.jobOperationStepIds ?? []).includes(step.id)
+  );
+  const generalMaterials = allMaterials.filter(
+    (m: any) => (m.jobOperationStepIds ?? []).length === 0
+  );
+  // Union drives the tracked-scan pre-select below (a part still needing issue).
+  const rawMaterials: any[] = [...stepMaterials, ...generalMaterials];
   const materialGroups = new Map<string, any[]>();
-  for (const m of rawMaterials) {
+  for (const m of stepMaterials) {
     const t = m.itemType ?? "Other";
     if (!materialGroups.has(t)) materialGroups.set(t, []);
     materialGroups.get(t)?.push(m);
@@ -679,12 +683,8 @@ export function AssemblyView({
     typeof selected === "number"
       ? (stepSlides[selected]?.caption ?? null)
       : null;
-  // Authored display size of the shown slide (small/medium/large). Drives how wide the main
-  // image renders, so the content author's sizing is honored (finished item = full width).
-  const selectedSize =
-    typeof selected === "number"
-      ? (stepSlides[selected]?.size ?? "medium")
-      : "large";
+  // The finished-item image fills the panel; step slides render at a consistent width.
+  const isFinishedImage = selected === "finished";
   // Annotation pins for the shown slide (empty for the finished-item view).
   const selectedAnnotations =
     typeof selected === "number"
@@ -1215,17 +1215,13 @@ export function AssemblyView({
             <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
               <div className="flex shrink-0 flex-col gap-2 border-b border-border p-4">
                 {mainImage ? (
-                  // Width honors the slide's authored size (small/medium/large); height
-                  // follows the image's own aspect ratio (capped at 65vh). Large fills the
-                  // panel; smaller sizes center. The details column scrolls if it overflows.
+                  // The finished-item image fills the panel; step slides render at a
+                  // consistent width and center. Height follows the image's own aspect
+                  // ratio (capped at 65vh); the details column scrolls if it overflows.
                   <div
                     className={cn(
                       "relative mx-auto w-full overflow-hidden rounded-lg border border-border bg-muted/40",
-                      selectedSize === "small"
-                        ? "max-w-[40%]"
-                        : selectedSize === "large"
-                          ? "max-w-full"
-                          : "max-w-[70%]"
+                      isFinishedImage ? "max-w-full" : "max-w-[70%]"
                     )}
                   >
                     <img
@@ -1295,13 +1291,7 @@ export function AssemblyView({
                       title={slide.caption ?? undefined}
                       onClick={() => setSelected(i)}
                       className={cn(
-                        "flex shrink-0 items-center justify-center overflow-hidden rounded-md border-2 bg-muted/40",
-                        // Thumbnail scales with the slide's authored display size.
-                        slide.size === "small"
-                          ? "h-10 w-14"
-                          : slide.size === "large"
-                            ? "h-16 w-24"
-                            : "h-12 w-16",
+                        "flex h-12 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md border-2 bg-muted/40",
                         selected === i
                           ? "border-foreground"
                           : "border-transparent"
@@ -1378,22 +1368,38 @@ export function AssemblyView({
         {/* ── SIDEBAR: materials, tools, NCRs, parameters ── */}
         <aside className="flex w-full shrink-0 flex-col border-t border-border bg-card lg:w-[280px] lg:overflow-hidden lg:border-l lg:border-t-0 xl:w-[320px]">
           <div className="flex flex-col lg:min-h-0 lg:flex-1 lg:overflow-hidden">
-            {groupEntries.length > 0 ? (
-              groupEntries.map(([type, mats]) => (
-                <SidebarSection key={type} title={pluralize(type)} scrollable>
-                  {mats.map((m, i) => (
-                    <MaterialRow
-                      key={m.id ?? i}
-                      material={m}
-                      onIssue={() => {
-                        setSelectedMaterial(m);
-                        issueModal.onOpen();
-                      }}
-                    />
-                  ))}
-                </SidebarSection>
-              ))
-            ) : (
+            {groupEntries.map(([type, mats]) => (
+              <SidebarSection key={type} title={pluralize(type)} scrollable>
+                {mats.map((m, i) => (
+                  <MaterialRow
+                    key={m.id ?? i}
+                    material={m}
+                    onIssue={() => {
+                      setSelectedMaterial(m);
+                      issueModal.onOpen();
+                    }}
+                  />
+                ))}
+              </SidebarSection>
+            ))}
+
+            {/* Unassigned parts (no step link) — shown regardless of the selected step. */}
+            {generalMaterials.length > 0 && (
+              <SidebarSection title="General" scrollable>
+                {generalMaterials.map((m, i) => (
+                  <MaterialRow
+                    key={m.id ?? i}
+                    material={m}
+                    onIssue={() => {
+                      setSelectedMaterial(m);
+                      issueModal.onOpen();
+                    }}
+                  />
+                ))}
+              </SidebarSection>
+            )}
+
+            {groupEntries.length === 0 && generalMaterials.length === 0 && (
               <SidebarSection title="Parts">
                 <p className="text-xs text-muted-foreground">
                   No materials assigned
@@ -1754,7 +1760,6 @@ export function AssemblyView({
         <AutoTimer
           operationId={operationId}
           enabled={autoStartOperationTimer}
-          idleMinutes={operationTimerIdleMinutes}
           workType={selectedWorkType}
           workCenterId={operation.workCenterId ?? undefined}
           openEvent={openEventForType ?? null}
@@ -1765,16 +1770,13 @@ export function AssemblyView({
   );
 }
 
-// Passive operation timer (Phase 4, opt-in). Auto-starts the operator's production event
-// when the assembly view opens (so it isn't forgotten), watches for screen inactivity, and
-// after `idleMinutes` prompts "Still working?" — ending the event if unanswered. It only
-// ever ends events it detects as idle-abandoned, so it re-arms after an idle-end but never
-// fights a manual pause (which this component doesn't trigger). Drives off the loader's
-// `openEvent`, which the assembly realtime channel keeps fresh after each Start/End.
+// Passive operation timer (opt-in). Auto-starts the operator's production event when the
+// assembly view opens (so it isn't forgotten). It never auto-ends ("clocks out") a timer —
+// stopping is always a manual action via the header pause button. Drives off the loader's
+// `openEvent`, which the assembly realtime channel keeps fresh after each Start.
 function AutoTimer({
   operationId,
   enabled,
-  idleMinutes,
   workType,
   workCenterId,
   openEvent,
@@ -1782,137 +1784,34 @@ function AutoTimer({
 }: {
   operationId: string;
   enabled: boolean;
-  idleMinutes: number;
   workType: "Setup" | "Labor" | "Machine";
   workCenterId?: string;
   openEvent: { id: string; startTime: string } | null;
   trackedEntityId?: string;
 }) {
   const fetcher = useFetcher();
-  const [prompt, setPrompt] = useState(false);
-  const [grace, setGrace] = useState(60);
-  const lastActivity = useRef(Date.now());
   const startedRef = useRef(false);
-  const idleEndedRef = useRef(false);
 
   const busy = fetcher.state !== "idle";
   const running = !!openEvent;
-
-  const post = useCallback(
-    (action: "Start" | "End", id?: string) => {
-      const fd = new FormData();
-      fd.set("jobOperationId", operationId);
-      fd.set("timezone", getLocalTimeZone());
-      fd.set("type", workType);
-      fd.set("action", action);
-      if (workCenterId) fd.set("workCenterId", workCenterId);
-      if (id) fd.set("id", id);
-      if (trackedEntityId) fd.set("trackedEntityId", trackedEntityId);
-      fetcher.submit(fd, { method: "post", action: path.to.productionEvent });
-    },
-    [operationId, workType, workCenterId, trackedEntityId, fetcher]
-  );
 
   // Auto-start once when the view opens and nothing is running yet.
   // biome-ignore lint/correctness/useExhaustiveDependencies: one-shot on open
   useEffect(() => {
     if (!enabled || startedRef.current) return;
     startedRef.current = true;
-    if (!running && !busy) post("Start");
+    if (running || busy) return;
+    const fd = new FormData();
+    fd.set("jobOperationId", operationId);
+    fd.set("timezone", getLocalTimeZone());
+    fd.set("type", workType);
+    fd.set("action", "Start");
+    if (workCenterId) fd.set("workCenterId", workCenterId);
+    if (trackedEntityId) fd.set("trackedEntityId", trackedEntityId);
+    fetcher.submit(fd, { method: "post", action: path.to.productionEvent });
   }, [enabled]);
 
-  // Track screen activity; resume only after an idle-end (never after a manual pause,
-  // which this component never triggers, so idleEndedRef stays false for those).
-  useEffect(() => {
-    if (!enabled) return;
-    const onActivity = () => {
-      lastActivity.current = Date.now();
-      if (idleEndedRef.current && !running && !busy) {
-        idleEndedRef.current = false;
-        post("Start");
-      }
-    };
-    const evts = ["mousemove", "keydown", "touchstart", "click", "scroll"];
-    evts.forEach((e) =>
-      window.addEventListener(e, onActivity, { passive: true })
-    );
-    return () => evts.forEach((e) => window.removeEventListener(e, onActivity));
-  }, [enabled, running, busy, post]);
-
-  // Idle watchdog: when a timer is running and there's been no activity for idleMinutes,
-  // raise the "Still working?" prompt with a grace countdown.
-  useEffect(() => {
-    if (!enabled || !running) return;
-    const idleMs = Math.max(1, idleMinutes) * 60_000;
-    const id = window.setInterval(() => {
-      if (!prompt && Date.now() - lastActivity.current >= idleMs) {
-        setGrace(60);
-        setPrompt(true);
-      }
-    }, 5000);
-    return () => window.clearInterval(id);
-  }, [enabled, running, idleMinutes, prompt]);
-
-  // Grace countdown; if it runs out the operator has abandoned the station — end the event
-  // and arm auto-resume for when they return.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: countdown owns its own timer
-  useEffect(() => {
-    if (!prompt) return;
-    const id = window.setInterval(() => {
-      setGrace((g) => {
-        if (g <= 1) {
-          window.clearInterval(id);
-          setPrompt(false);
-          if (openEvent) {
-            idleEndedRef.current = true;
-            post("End", openEvent.id);
-          }
-          return 60;
-        }
-        return g - 1;
-      });
-    }, 1000);
-    return () => window.clearInterval(id);
-  }, [prompt]);
-
-  if (!prompt) return null;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/70 p-6">
-      <div className="w-full max-w-sm rounded-lg border border-border bg-card p-6 shadow-lg">
-        <p className="text-lg font-semibold">Still working?</p>
-        <p className="mt-1 text-sm text-muted-foreground">
-          No activity for a while. The timer stops in {grace}s.
-        </p>
-        <div className="mt-5 flex gap-2">
-          <Button
-            variant="primary"
-            size="lg"
-            className="flex-1"
-            onClick={() => {
-              lastActivity.current = Date.now();
-              setPrompt(false);
-            }}
-          >
-            Keep working
-          </Button>
-          <Button
-            variant="outline"
-            size="lg"
-            className="flex-1"
-            isDisabled={busy}
-            onClick={() => {
-              // Operator is present and chose to stop — no auto-resume.
-              setPrompt(false);
-              if (openEvent) post("End", openEvent.id);
-            }}
-          >
-            Stop timer
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
+  return null;
 }
 
 function ActionSheetButton({
@@ -2066,8 +1965,20 @@ function MaterialRow({
   const fullyIssued = required > 0 && issued >= required;
   const partiallyIssued = issued > 0 && !fullyIssued;
 
+  // Leading status dot: issued (green check) · partially issued (amber) · not issued (hollow).
+  const issueStatus = fullyIssued
+    ? { icon: LuCircleCheck, className: "text-emerald-500", label: "Issued" }
+    : partiallyIssued
+      ? { icon: LuCircleDot, className: "text-amber-500", label: "Partially issued" }
+      : { icon: LuCircle, className: "text-muted-foreground/50", label: "Not issued" };
+  const StatusIcon = issueStatus.icon;
+
   return (
     <div className="flex items-center gap-2 py-1">
+      <StatusIcon
+        aria-label={issueStatus.label}
+        className={cn("size-3.5 shrink-0", issueStatus.className)}
+      />
       <span className="w-[56px] shrink-0 truncate font-mono text-[10px] text-muted-foreground">
         {material.itemReadableId}
       </span>

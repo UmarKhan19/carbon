@@ -1215,24 +1215,6 @@ function StepsForm({
     company: { id: companyId }
   } = useUser();
   const [allItems] = useItems();
-  const allTools = useTools();
-
-  // Tools on this operation, deduped by toolId, names resolved from the tools store —
-  // passed to the annotator so a pin can be linked to one (smart hotspot).
-  const toolOptions = useMemo(() => {
-    const seen = new Set<string>();
-    const opts: { id: string; name: string }[] = [];
-    for (const ot of tools) {
-      if (!ot.toolId || seen.has(ot.toolId)) continue;
-      seen.add(ot.toolId);
-      opts.push({
-        id: ot.toolId,
-        name: allTools.find((tl) => tl.id === ot.toolId)?.name ?? ot.toolId
-      });
-    }
-    return opts;
-  }, [tools, allTools]);
-
   // Slides chosen while creating a step are buffered here (the step has no id yet); they're
   // attached to the new step right after it's created. See the effect below.
   const [draftSlides, setDraftSlides] = useState<
@@ -1483,7 +1465,6 @@ function StepsForm({
                   size: slide.size,
                   annotations: slide.annotations
                 }))}
-                toolOptions={toolOptions}
                 isDisabled={isDisabled}
                 busy={draftUploading}
                 fileInputRef={draftFileInputRef}
@@ -1495,13 +1476,6 @@ function StepsForm({
                   setDraftSlides((prev) =>
                     prev.map((slide, i) =>
                       i === index ? { ...slide, caption } : slide
-                    )
-                  )
-                }
-                onSizeChange={(index, size) =>
-                  setDraftSlides((prev) =>
-                    prev.map((slide, i) =>
-                      i === index ? { ...slide, size } : slide
                     )
                   )
                 }
@@ -1558,7 +1532,6 @@ function StepsForm({
                       isDisabled={isDisabled}
                       dragControls={dragControls}
                       itemMentions={itemMentions}
-                      toolOptions={toolOptions}
                       className={
                         index === sortOrder.length - 1 ? "border-none" : ""
                       }
@@ -1580,11 +1553,9 @@ function StepsForm({
 // content be corrected on the job without recreating it, since the MES reads the job copy.
 function JobStepSlides({
   step,
-  toolOptions,
   isDisabled
 }: {
   step: JobOperationStep;
-  toolOptions: { id: string; name: string }[];
   isDisabled: boolean;
 }) {
   const { t } = useLingui();
@@ -1660,7 +1631,6 @@ function JobStepSlides({
         size: s.size,
         annotations: s.annotations
       }))}
-      toolOptions={toolOptions}
       isDisabled={isDisabled}
       busy={uploading || fetcher.state !== "idle"}
       fileInputRef={fileInputRef}
@@ -1677,11 +1647,6 @@ function JobStepSlides({
         const slide = slides[index];
         if (slide && (slide.caption ?? "") !== caption)
           saveSlide(slide, { caption });
-      }}
-      onSizeChange={(index, size) => {
-        const slide = slides[index];
-        if (slide && (slide.size ?? "medium") !== size)
-          saveSlide(slide, { size });
       }}
       onAnnotationsChange={(index, annotations) => {
         const slide = slides[index];
@@ -1721,7 +1686,6 @@ function StepsListItem({
   isDisabled = false,
   dragControls,
   itemMentions,
-  toolOptions,
   className
 }: {
   attribute: JobOperationStep;
@@ -1730,7 +1694,6 @@ function StepsListItem({
   isDisabled?: boolean;
   dragControls?: DragControls;
   itemMentions: { id: string; label: string }[];
-  toolOptions: { id: string; name: string }[];
   className?: string;
 }) {
   const {
@@ -1916,11 +1879,7 @@ function StepsListItem({
             {type === "List" && (
               <ArrayInput name="listValues" label={t`List Options`} />
             )}
-            <JobStepSlides
-              step={attribute}
-              toolOptions={toolOptions}
-              isDisabled={isDisabled}
-            />
+            <JobStepSlides step={attribute} isDisabled={isDisabled} />
             <HStack className="w-full justify-end" spacing={2}>
               <Button variant="secondary" onClick={disclosure.onClose}>
                 Cancel

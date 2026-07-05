@@ -144,10 +144,7 @@ export const jobCompletedValidator = z.object({
 });
 
 export const operationTimerValidator = z.object({
-  autoStartOperationTimer: zfd.checkbox(),
-  operationTimerIdleMinutes: zfd.numeric(
-    z.number().int().min(1).max(120).default(5)
-  )
+  autoStartOperationTimer: zfd.checkbox()
 });
 
 export const kanbanOutputValidator = z.object({

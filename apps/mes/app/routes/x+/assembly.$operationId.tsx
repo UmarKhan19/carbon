@@ -124,11 +124,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     inventoryShelfLife?.expiredEntityPolicy ?? "Block";
 
   // Passive operation timer (opt-in). When on, the assembly view auto-starts the operator's
-  // timer on open and idle-ends it after N minutes (see AutoTimer in AssemblyView).
+  // timer on open (see AutoTimer in AssemblyView). It never auto-ends a timer.
   const autoStartOperationTimer =
     companySettings.data?.autoStartOperationTimer ?? false;
-  const operationTimerIdleMinutes =
-    companySettings.data?.operationTimerIdleMinutes ?? 5;
 
   // Resolve the unit the materials/consume target key off. Only serial/batch parents
   // bind per-unit tracked entities; inventory/non-inventory parents page purely by index,
@@ -196,7 +194,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     nonConformanceActions,
     expiredEntityPolicy,
     autoStartOperationTimer,
-    operationTimerIdleMinutes,
     productionQuantities,
     workCenter:
       (workCenter.data as {
