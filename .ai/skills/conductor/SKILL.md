@@ -196,8 +196,7 @@ Before opening the PR:
      before/after screenshots, or CLI output),
    - a ledger summary (iterations, kept/reverted and why),
    - **open questions** (disputed criteria, assumptions made instead of asking).
-3. **Ready-vs-draft is decided by the exit state** — open every PR as a draft
-   first, then promote based on outcome:
+3. **Ready-vs-draft is decided by the exit state** — create the PR as a draft only for unverified or partial runs, then promote shipped PRs to ready for review:
    - **All criteria proved, verification gate green (`state=shipped`):** mark
      the PR *ready for review* (`gh pr ready <url>`) and request a review from
      Brad Barbin (`gh pr edit <url> --add-reviewer bradbarbin`).
