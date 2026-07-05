@@ -90,6 +90,12 @@ export type AssemblyStep = {
   fastener: Fastener | null;
   /** Optional authored override for the step's timeline length (seconds) */
   durationSeconds?: number | null;
+  /**
+   * The planner proved no collision-free path for these parts. The player
+   * fades them in at the seated pose instead of synthesizing a fallback
+   * motion — a fabricated path would animate straight through geometry.
+   */
+  flagged?: boolean;
 };
 
 /** One node of the assembly tree in graph.json. */

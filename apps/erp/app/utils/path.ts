@@ -526,6 +526,10 @@ export const path = {
     assemblyInstructions: `${x}/production/assemblies`,
     assemblyInstructionStatus: (id: string) =>
       generatePath(`${x}/assembly/${id}/status`),
+    assemblyModelConvert: (id: string) =>
+      generatePath(`${x}/assembly/${id}/model/convert`),
+    assemblyPlanRerun: (id: string) =>
+      generatePath(`${x}/assembly/${id}/plan/rerun`),
     deleteAssemblyInstruction: (id: string) =>
       generatePath(`${x}/assembly/delete/${id}`),
     newAssemblyInstruction: `${x}/production/assemblies/new`,

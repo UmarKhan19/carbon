@@ -668,7 +668,9 @@ function BomRow({
           <span
             className={cn(
               "truncate text-xs",
-              quantityMismatch ? "text-yellow-600" : "text-muted-foreground"
+              // Mismatch stands out via full-strength text + the explicit "≠"
+              // clause below — no colored status text (see .ai/ds-rules.md)
+              quantityMismatch ? "text-foreground" : "text-muted-foreground"
             )}
             title={mapping.item.name ?? undefined}
           >

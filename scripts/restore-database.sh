@@ -130,11 +130,11 @@ TRUNCATE storage.objects CASCADE;
 TRUNCATE storage.prefixes CASCADE;
 TRUNCATE storage.s3_multipart_uploads_parts CASCADE;
 TRUNCATE storage.s3_multipart_uploads CASCADE;
+TRUNCATE storage.buckets CASCADE;
 INSERT INTO storage.buckets (id, name, public) VALUES
   ('public',  'public',  true),
   ('avatars', 'avatars', true),
-  ('private', 'private', false)
-ON CONFLICT (id) DO NOTHING;
+  ('private', 'private', false);
 " >/dev/null 2>&1 || true
 # ── 4. If ADMIN_EMAIL is set, resolve the user_id ───────────────────────────
 ADMIN_USER_ID=""

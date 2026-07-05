@@ -9,7 +9,11 @@ import type {
   AssemblyPlan,
   AssemblyStep
 } from "@carbon/viewer";
-import { indexAssemblyGraph, synthesizeFallbackMotion } from "@carbon/viewer";
+import {
+  buildAssemblyStepGroups,
+  CURRENT_PLAN_VERSION,
+  indexAssemblyGraph
+} from "@carbon/viewer";
 import { parseDate } from "@internationalized/date";
 import type { FileObject, StorageError } from "@supabase/storage-js";
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
@@ -39,7 +43,6 @@ import type {
   jobOperationValidator,
   jobStatus,
   jobValidator,
-  Motion,
   maintenanceDispatchCommentValidator,
   maintenanceDispatchEventValidator,
   maintenanceDispatchItemValidator,
@@ -58,10 +61,12 @@ import {
   ACTIVE_JOB_STATUSES,
   cameraSchema,
   fastenerSchema,
+  getAssemblyModelState,
   isJobOrderStatusHidden,
   JOB_SUPPLY_STATUS_PRIORITY,
   motionSchema,
-  PO_STATUS_PRIORITY
+  PO_STATUS_PRIORITY,
+  stepPlanWarningsSchema
 } from "./production.models";
 import type {
   AssemblyInstructionStepRow,
@@ -3846,11 +3851,12 @@ export async function getAssemblyInstructions(
 }
 
 /**
- * Resolves a made item's usable CAD model for assembly instructions. Items
- * link to their model via item.modelUploadId; the model is usable once the
- * geometry pipeline has produced a GLB + graph for it.
+ * Resolves a made item's CAD model for assembly instructions. Items link to
+ * their model via item.modelUploadId. Conversion to viewer artifacts (GLB +
+ * graph) is lazy — `modelState` tells the caller whether the model is ready,
+ * convertible on demand, or unusable.
  */
-export async function getValidModelForItem(
+export async function getModelForItem(
   client: SupabaseClient<Database>,
   itemId: string,
   companyId: string
@@ -3861,22 +3867,27 @@ export async function getValidModelForItem(
     .eq("id", itemId)
     .eq("companyId", companyId)
     .single();
-  if (item.error) return { item: null, model: null };
+  if (item.error) {
+    return { item: null, model: null, modelState: "none" as const };
+  }
 
-  if (!item.data.modelUploadId) return { item: item.data, model: null };
+  if (!item.data.modelUploadId) {
+    return { item: item.data, model: null, modelState: "none" as const };
+  }
 
   const model = await client
     .from("modelUpload")
-    .select("id, name, partCount, processingStatus, glbPath, graphPath")
+    .select(
+      "id, name, partCount, processingStatus, processingError, glbPath, graphPath, modelPath"
+    )
     .eq("id", item.data.modelUploadId)
     .maybeSingle();
 
-  const isValid =
-    model.data?.processingStatus === "Success" &&
-    Boolean(model.data.glbPath) &&
-    Boolean(model.data.graphPath);
-
-  return { item: item.data, model: isValid ? model.data : null };
+  return {
+    item: item.data,
+    model: model.data ?? null,
+    modelState: getAssemblyModelState(model.data ?? null)
+  };
 }
 
 export async function getAssemblyInstructionSteps(
@@ -4508,7 +4519,33 @@ export async function getLatestAssemblyPlan(
     .maybeSingle();
 }
 
-/** Downloads and parses plan.json for a model's latest successful plan. */
+/**
+ * Latest plan job in any state — used to tell "planning is running" apart
+ * from "planning failed" and to avoid enqueueing duplicate plan runs.
+ */
+export async function getLatestAssemblyPlanJob(
+  client: SupabaseClient<Database>,
+  modelUploadId: string
+) {
+  return client
+    .from("assemblyPlanJob")
+    .select("id, status, error, planPath, createdAt")
+    .eq("modelUploadId", modelUploadId)
+    .eq("kind", "plan")
+    .order("createdAt", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+}
+
+/** Downloads and parses plan.json for a model's latest successful plan.
+
+ * Plans written by an older planner version are treated as ABSENT: the
+ * stored artifact is keyed to the model upload and survives step
+ * deletion and even instruction delete/recreate, so without this gate a
+ * stale plan silently resurrects old motions. Absence flows into the
+ * existing no-plan path, which triggers a fresh planner run and
+ * auto-generates steps when it lands.
+ */
 export async function getAssemblyPlanJson(
   client: SupabaseClient<Database>,
   modelUploadId: string
@@ -4520,7 +4557,9 @@ export async function getAssemblyPlanJson(
   if (file.error || !file.data) return null;
 
   try {
-    return JSON.parse(await file.data.text()) as AssemblyPlan;
+    const plan = JSON.parse(await file.data.text()) as AssemblyPlan;
+    if ((plan.version ?? 1) < CURRENT_PLAN_VERSION) return null;
+    return plan;
   } catch {
     return null;
   }
@@ -4831,7 +4870,7 @@ type GenerateStepsResult =
   | { ok: true; created: number }
   | {
       ok: false;
-      reason: "no-model" | "no-plan" | "steps-exist" | "error";
+      reason: "no-model" | "no-plan" | "steps-exist" | "steps-locked" | "error";
       modelUploadId?: string;
       message?: string;
     };
@@ -4839,12 +4878,25 @@ type GenerateStepsResult =
 /**
  * Creates draft steps from the motion plan: walks the planned assembly
  * sequence, groups consecutive identical parts (same geometry, same motion
- * shape) into one step, and inserts them in order with status Review. The
- * author validates/edits the drafts instead of authoring motions by hand.
+ * shape) into one step, and inserts them in order with status Review. Parts
+ * the planner flagged (blockedBy: no collision-free path exists) are stored
+ * with motion "none" plus a `warnings` payload — the viewer fades them in
+ * rather than animating a fabricated colliding path. The author
+ * validates/edits the drafts instead of authoring motions by hand.
  */
 export async function generateAssemblyStepsFromPlan(
   client: SupabaseClient<Database>,
-  args: { assemblyInstructionId: string; companyId: string; userId: string }
+  args: {
+    assemblyInstructionId: string;
+    companyId: string;
+    userId: string;
+    /**
+     * "regenerate" replaces the existing steps with fresh drafts from the
+     * latest plan — refused while any step is manually authored
+     * (planConfidence "manual") or already Done.
+     */
+    mode?: "generate" | "regenerate";
+  }
 ): Promise<GenerateStepsResult> {
   const instruction = await client
     .from("assemblyInstruction")
@@ -4858,11 +4910,30 @@ export async function generateAssemblyStepsFromPlan(
 
   const existing = await client
     .from("assemblyInstructionStep")
-    .select("id")
-    .eq("assemblyInstructionId", args.assemblyInstructionId)
-    .limit(1);
+    .select("id, planConfidence, status")
+    .eq("assemblyInstructionId", args.assemblyInstructionId);
   if ((existing.data ?? []).length > 0) {
-    return { ok: false, reason: "steps-exist", modelUploadId };
+    if (args.mode !== "regenerate") {
+      return { ok: false, reason: "steps-exist", modelUploadId };
+    }
+    const locked = (existing.data ?? []).filter(
+      (step) => step.planConfidence === "manual" || step.status === "Done"
+    );
+    if (locked.length > 0) {
+      return {
+        ok: false,
+        reason: "steps-locked",
+        modelUploadId,
+        message: `${locked.length} ${locked.length === 1 ? "step is" : "steps are"} manually authored or done — delete or reset them before regenerating`
+      };
+    }
+    const removed = await client
+      .from("assemblyInstructionStep")
+      .delete()
+      .eq("assemblyInstructionId", args.assemblyInstructionId);
+    if (removed.error) {
+      return { ok: false, reason: "error", message: removed.error.message };
+    }
   }
 
   const plan = await getAssemblyPlanJson(client, modelUploadId);
@@ -4870,9 +4941,8 @@ export async function generateAssemblyStepsFromPlan(
     return { ok: false, reason: "no-plan", modelUploadId };
   }
 
-  // nodeId → geometryHash so identical parts can share a step; the full
-  // index also powers fallback motion synthesis for unplanned parts
-  const hashByNode = new Map<string, string | null>();
+  // graph.json powers identical-part grouping (geometryHash) and fallback
+  // motion synthesis for unplanned, unflagged parts
   let graphIndex: AssemblyGraphIndex | null = null;
   const graphPath = instruction.data.modelUpload?.graphPath;
   if (graphPath) {
@@ -4881,90 +4951,34 @@ export async function generateAssemblyStepsFromPlan(
       try {
         const graph = JSON.parse(await graphFile.data.text()) as AssemblyGraph;
         graphIndex = indexAssemblyGraph(graph);
-        const visit = (node: AssemblyGraph["root"]) => {
-          hashByNode.set(node.nodeId, node.geometryHash);
-          for (const child of node.children) visit(child);
-        };
-        visit(graph.root);
       } catch {
         // grouping degrades to per-part steps
       }
     }
   }
 
-  const motionKey = (motion: Motion): string => {
-    switch (motion.type) {
-      case "linear":
-        return `linear:${motion.direction.join(",")}`;
-      case "L":
-        return `L:${motion.segments
-          .map((segment) => segment.direction.join(","))
-          .join(";")}`;
-      default:
-        return motion.type;
-    }
-  };
-
-  type StepGroup = {
-    partNodeIds: string[];
-    motion: Motion;
-    confidence: "high" | "low";
-    key: string;
-  };
-
-  const groups: StepGroup[] = [];
-  for (const nodeId of plan.sequence) {
-    const part = plan.parts[nodeId];
-    const parsed = motionSchema.safeParse(part?.motion);
-    const motion: Motion = parsed.success ? parsed.data : { type: "none" };
-    const confidence: "high" | "low" =
-      part?.confidence === "high" ? "high" : "low";
-    const key = `${hashByNode.get(nodeId) ?? nodeId}|${motionKey(motion)}|${confidence}`;
-
-    const previous = groups[groups.length - 1];
-    if (previous && previous.key === key) {
-      previous.partNodeIds.push(nodeId);
-      // Identical parts can sit at different depths: animate the longest
-      if (motion.type === "linear" && previous.motion.type === "linear") {
-        previous.motion = {
-          ...previous.motion,
-          distance: Math.max(previous.motion.distance, motion.distance)
-        };
-      }
-      continue;
-    }
-    groups.push({ partNodeIds: [nodeId], motion, confidence, key });
-  }
-
+  const groups = buildAssemblyStepGroups(plan, graphIndex);
   if (groups.length === 0) {
     return { ok: false, reason: "error", message: "The plan has no parts" };
   }
 
-  // Older plan.json files leave interlocked parts with motion "none". Every
-  // step except the first (the base) should animate — synthesize an
-  // AABB-based fallback so those parts never just pop into place.
-  if (graphIndex) {
-    for (let index = 1; index < groups.length; index++) {
-      const group = groups[index];
-      if (!group || group.motion.type !== "none") continue;
-      const fallback = synthesizeFallbackMotion(graphIndex, group.partNodeIds);
-      if (fallback && fallback.type !== "none") {
-        group.motion = fallback;
-        group.confidence = "low";
-      }
-    }
-  }
-
-  const rows = groups.map((group, index) => ({
-    assemblyInstructionId: args.assemblyInstructionId,
-    sortOrder: index + 1,
-    partNodeIds: group.partNodeIds,
-    motion: group.motion as Json,
-    planConfidence: group.confidence,
-    status: "Review" as const,
-    companyId: args.companyId,
-    createdBy: args.userId
-  }));
+  const rows = groups.map((group, index) => {
+    const motion = motionSchema.safeParse(group.motion);
+    return {
+      assemblyInstructionId: args.assemblyInstructionId,
+      sortOrder: index + 1,
+      partNodeIds: group.partNodeIds,
+      motion: (motion.success ? motion.data : { type: "none" }) as Json,
+      warnings:
+        group.blockedBy.length > 0
+          ? ({ flagged: true, blockedBy: group.blockedBy } as Json)
+          : null,
+      planConfidence: group.confidence,
+      status: "Review" as const,
+      companyId: args.companyId,
+      createdBy: args.userId
+    };
+  });
 
   const insert = await client.from("assemblyInstructionStep").insert(rows);
   if (insert.error) {
@@ -4983,6 +4997,7 @@ export function toViewerStep(step: AssemblyInstructionStepRow): AssemblyStep {
   const motion = motionSchema.safeParse(step.motion);
   const camera = cameraSchema.safeParse(step.camera);
   const fastener = fastenerSchema.safeParse(step.fastener);
+  const planWarnings = stepPlanWarningsSchema.safeParse(step.warnings);
 
   return {
     id: step.id,
@@ -4992,7 +5007,11 @@ export function toViewerStep(step: AssemblyInstructionStepRow): AssemblyStep {
     motion: motion.success ? motion.data : { type: "none" },
     camera: camera.success ? camera.data : null,
     fastener: fastener.success ? fastener.data : null,
-    durationSeconds: step.durationSeconds
+    durationSeconds: step.durationSeconds,
+    flagged:
+      planWarnings.success && planWarnings.data.flagged === true
+        ? true
+        : undefined
   };
 }
 

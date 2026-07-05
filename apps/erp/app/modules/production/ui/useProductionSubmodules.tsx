@@ -1,11 +1,11 @@
 import { useLingui } from "@lingui/react/macro";
 import {
-  LuBlocks,
   LuChartLine,
   LuCirclePlay,
   LuListChecks,
   LuSquareChartGantt,
   LuSquareKanban,
+  LuStepForward,
   LuTrash
 } from "react-icons/lu";
 import { usePermissions } from "~/hooks";
@@ -26,19 +26,6 @@ export default function useProductionSubmodules() {
           to: path.to.jobs,
           icon: <LuCirclePlay />,
           table: "job"
-        },
-        {
-          name: t`Procedures`,
-          to: path.to.procedures,
-          icon: <LuListChecks />,
-          table: "procedure",
-          role: "employee"
-        },
-        {
-          name: t`Assemblies`,
-          to: path.to.assemblyInstructions,
-          icon: <LuBlocks />,
-          role: "employee"
         }
       ]
     },
@@ -61,6 +48,24 @@ export default function useProductionSubmodules() {
           name: t`Schedule`,
           to: path.to.scheduleDates,
           icon: <LuSquareKanban />
+        }
+      ]
+    },
+    {
+      name: t`Work Instructions`,
+      routes: [
+        {
+          name: t`Assemblies`,
+          to: path.to.assemblyInstructions,
+          icon: <LuStepForward />,
+          role: "employee"
+        },
+        {
+          name: t`Procedures`,
+          to: path.to.procedures,
+          icon: <LuListChecks />,
+          table: "procedure",
+          role: "employee"
         }
       ]
     },

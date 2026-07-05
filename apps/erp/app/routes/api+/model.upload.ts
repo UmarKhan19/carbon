@@ -81,13 +81,9 @@ export async function action({ request }: ActionFunctionArgs) {
     modelId
   });
 
-  if ([".step", ".stp"].some((ext) => name.toLowerCase().endsWith(ext))) {
-    await trigger("assembly-convert", {
-      companyId,
-      modelUploadId: modelId,
-      userId
-    });
-  }
+  // Conversion to assembly-instruction artifacts (GLB + graph) is lazy:
+  // triggered when an assembly instruction is created for this model, not
+  // on upload — most uploaded models never become assemblies.
 
   return {
     success: true

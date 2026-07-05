@@ -2,11 +2,14 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
+import { trigger } from "@carbon/jobs";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { data, redirect, useLoaderData, useNavigate } from "react-router";
 import {
   assemblyInstructionFromItemValidator,
-  getValidModelForItem,
+  getAssemblyModelState,
+  getLatestAssemblyPlanJob,
+  getModelForItem,
   upsertAssemblyInstruction
 } from "~/modules/production";
 import AssemblyInstructionForm from "~/modules/production/ui/Assemblies/AssemblyInstructionForm";
@@ -44,33 +47,35 @@ export async function action({ request }: ActionFunctionArgs) {
   const { itemId, name, modelUploadId } = validation.data;
 
   // An explicitly provided model (e.g. from the part details page) wins when
-  // it has been processed; otherwise derive it from the item's CAD files
+  // it is usable; otherwise derive it from the item's CAD files
   let model: { id: string } | null = null;
+  let modelState: ReturnType<typeof getAssemblyModelState> = "none";
 
   if (modelUploadId) {
     const explicit = await client
       .from("modelUpload")
-      .select("id, processingStatus, glbPath, graphPath")
+      .select("id, processingStatus, glbPath, graphPath, modelPath")
       .eq("id", modelUploadId)
       .eq("companyId", companyId)
       .maybeSingle();
-    if (
-      explicit.data?.processingStatus === "Success" &&
-      explicit.data.glbPath &&
-      explicit.data.graphPath
-    ) {
+    const explicitState = getAssemblyModelState(explicit.data ?? null);
+    if (explicit.data && explicitState !== "none") {
       model = explicit.data;
+      modelState = explicitState;
     }
   }
 
-  const derived = await getValidModelForItem(client, itemId, companyId);
+  const derived = await getModelForItem(client, itemId, companyId);
   if (!derived.item) {
     return data(
       {},
       await flash(request, error(null, "Failed to load the selected item"))
     );
   }
-  if (!model) model = derived.model;
+  if (!model && derived.model && derived.modelState !== "none") {
+    model = derived.model;
+    modelState = derived.modelState;
+  }
 
   if (!model) {
     return data(
@@ -79,7 +84,7 @@ export async function action({ request }: ActionFunctionArgs) {
         request,
         error(
           null,
-          "The selected item has no processed 3D model. Upload a STEP file on the item's Model tab first."
+          "The selected item has no 3D model. Upload a STEP file on the item's Model tab first."
         )
       )
     );
@@ -101,6 +106,35 @@ export async function action({ request }: ActionFunctionArgs) {
         error(create.error, "Failed to create assembly instruction")
       )
     );
+  }
+
+  // Lazy conversion: the geometry pipeline only runs for models that are
+  // actually used in an assembly. "processing" means a job is already in
+  // flight, so only kick one off for unconverted or previously failed models.
+  if (modelState === "convertible" || modelState === "failed") {
+    await trigger("assembly-convert", {
+      companyId,
+      modelUploadId: model.id,
+      userId
+    });
+  } else if (modelState === "converted") {
+    // Conversion chains motion planning, but a model converted before this
+    // instruction existed may have no plan yet — start planning now so the
+    // plan is ready by the time the author clicks Generate Steps.
+    const planJob = await getLatestAssemblyPlanJob(client, model.id);
+    const planStatus = planJob.data?.status;
+    if (
+      !planJob.data ||
+      (planStatus !== "Success" &&
+        planStatus !== "Processing" &&
+        planStatus !== "Queued")
+    ) {
+      await trigger("assembly-plan", {
+        companyId,
+        modelUploadId: model.id,
+        userId
+      });
+    }
   }
 
   throw redirect(

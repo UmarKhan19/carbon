@@ -7,6 +7,8 @@ import {
   Vector3,
   VectorKeyframeTrack
 } from "three";
+import { synthesizeFallbackMotion } from "./fallback";
+import type { AssemblyGraphIndex } from "./graph";
 import type { AssemblyStep, Motion, Quat, Vec3 } from "./types";
 
 /**
@@ -107,6 +109,32 @@ export function motionDuration(motion: Motion): number {
     MAX_DURATION_S,
     Math.max(MIN_DURATION_S, travel / INSERTION_SPEED_MM_PER_S)
   );
+}
+
+/**
+ * The motion a step should display. Flagged steps (the planner proved no
+ * collision-free path exists) keep motion "none" — the player fades their
+ * parts in at the seated pose rather than animating a fabricated
+ * fly-through. Other non-first steps stored with "none" (legacy plans,
+ * manually authored steps) get the AABB fallback so parts never pop into
+ * place. The first step is the base: placed, not inserted.
+ */
+export function displayMotionForStep(
+  step: Pick<AssemblyStep, "motion" | "partNodeIds" | "flagged">,
+  index: number,
+  graphIndex: AssemblyGraphIndex | null
+): Motion {
+  if (
+    index === 0 ||
+    step.flagged ||
+    step.motion.type !== "none" ||
+    step.partNodeIds.length === 0 ||
+    !graphIndex
+  ) {
+    return step.motion;
+  }
+  const fallback = synthesizeFallbackMotion(graphIndex, step.partNodeIds);
+  return fallback && fallback.type !== "none" ? fallback : step.motion;
 }
 
 /** Parts smaller than this fraction of the assembly count as "small". */

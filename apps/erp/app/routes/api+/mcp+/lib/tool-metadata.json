@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-05T03:28:54.150Z",
-  "totalTools": 1289,
+  "generated": "2026-07-05T19:13:55.118Z",
+  "totalTools": 1290,
   "modules": 15,
   "tools": [
     {
@@ -19519,10 +19519,10 @@
       }
     },
     {
-      "name": "production_getValidModelForItem",
+      "name": "production_getModelForItem",
       "module": "production",
       "classification": "READ",
-      "description": "get valid model for item",
+      "description": "get model for item",
       "paramCount": 1,
       "serviceParams": [
         "client",
@@ -20371,6 +20371,31 @@
       }
     },
     {
+      "name": "production_getLatestAssemblyPlanJob",
+      "module": "production",
+      "classification": "READ",
+      "description": "get latest assembly plan job",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "modelUploadId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "modelUploadId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "modelUploadId"
+        ]
+      }
+    },
+    {
       "name": "production_getAssemblyPlanJson",
       "module": "production",
       "classification": "READ",
@@ -20543,7 +20568,7 @@
       "module": "production",
       "classification": "WRITE",
       "description": "generate assembly steps from plan",
-      "paramCount": 1,
+      "paramCount": 2,
       "serviceParams": [
         "client",
         "args"
@@ -20558,6 +20583,13 @@
         "properties": {
           "assemblyInstructionId": {
             "type": "string"
+          },
+          "/**\n     * \"regenerate\" replaces the existing steps with fresh drafts from the\n     * latest plan — refused while any step is manually authored\n     * (planConfidence \"manual\") or already Done.\n     */\n    mode": {
+            "type": "string",
+            "enum": [
+              "generate",
+              "regenerate"
+            ]
           }
         },
         "required": [

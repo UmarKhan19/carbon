@@ -39,6 +39,7 @@ import {
 } from "~/modules/items/ui/Item";
 import ItemManufacturingForm from "~/modules/items/ui/Item/ItemManufacturingForm";
 import { ConfigurationParametersForm } from "~/modules/items/ui/Parts";
+import { getAssemblyModelState } from "~/modules/production";
 import CreateAssemblyInstruction from "~/modules/production/ui/Assemblies/CreateAssemblyInstruction";
 import type { MethodItemType, MethodType } from "~/modules/shared";
 import { getTagsList } from "~/modules/shared";
@@ -62,7 +63,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     getMakeMethods(client, itemId, companyId),
     client
       .from("item")
-      .select("modelUploadId, modelUpload(id, name, processingStatus)")
+      .select(
+        "modelUploadId, modelUpload(id, name, processingStatus, glbPath, graphPath, modelPath)"
+      )
       .eq("id", itemId)
       .single()
     // client.storage
@@ -71,8 +74,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   ]);
   // const defaultAttachments = defaultAttachmentsResult.data ?? [];
 
+  // Conversion is lazy, so any usable model (converted or convertible STEP)
+  // enables the create-assembly-instruction entry point
   const assemblyModel =
-    itemModel.data?.modelUpload?.processingStatus === "Success"
+    itemModel.data?.modelUpload &&
+    getAssemblyModelState(itemModel.data.modelUpload) !== "none"
       ? {
           id: itemModel.data.modelUpload.id,
           name: itemModel.data.modelUpload.name

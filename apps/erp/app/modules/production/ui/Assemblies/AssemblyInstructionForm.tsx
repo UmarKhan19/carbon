@@ -1,6 +1,8 @@
 import { useCarbon } from "@carbon/auth";
 import { ValidatedForm } from "@carbon/form";
 import {
+  Alert,
+  AlertDescription,
   HStack,
   ModalDrawer,
   ModalDrawerBody,
@@ -12,18 +14,24 @@ import {
   VStack
 } from "@carbon/react";
 import { useCallback, useEffect, useState } from "react";
-import { LuCircleCheck, LuTriangleAlert } from "react-icons/lu";
+import { LuCircleCheck, LuInfo, LuTriangleAlert } from "react-icons/lu";
 import type { z } from "zod";
 import { Hidden, Input, Item, Submit } from "~/components/Form";
 import { usePermissions } from "~/hooks";
 import { path } from "~/utils/path";
-import { assemblyInstructionFromItemValidator } from "../../production.models";
+import {
+  assemblyInstructionFromItemValidator,
+  getAssemblyModelState
+} from "../../production.models";
 
 type ModelStatus =
   | { state: "idle" }
   | { state: "loading" }
-  | { state: "ok"; label: string }
-  | { state: "missing" };
+  | { state: "converted"; label: string }
+  | { state: "convertible" }
+  | { state: "processing" }
+  | { state: "failed"; error: string | null }
+  | { state: "none" };
 
 type AssemblyInstructionFormProps = {
   initialValues: z.infer<typeof assemblyInstructionFromItemValidator>;
@@ -43,8 +51,8 @@ const AssemblyInstructionForm = ({
     state: "idle"
   });
 
-  // Mirrors getValidModelForItem on the server: the item's current model
-  // when processed, otherwise its latest successfully processed upload
+  // Mirrors getModelForItem on the server: conversion is lazy, so any STEP
+  // model is usable — the state just tells the user what will happen on save
   const checkModel = useCallback(
     async (itemId: string) => {
       if (!carbon || !itemId) {
@@ -59,37 +67,38 @@ const AssemblyInstructionForm = ({
         .eq("id", itemId)
         .maybeSingle();
 
-      let model: {
-        name: string;
-        partCount: number | null;
-      } | null = null;
-
-      if (item?.modelUploadId) {
-        const { data: current } = await carbon
-          .from("modelUpload")
-          .select("id, name, partCount, processingStatus, glbPath, graphPath")
-          .eq("id", item.modelUploadId)
-          .maybeSingle();
-        if (
-          current?.processingStatus === "Success" &&
-          current.glbPath &&
-          current.graphPath
-        ) {
-          model = current;
-        }
+      if (!item?.modelUploadId) {
+        setModelStatus({ state: "none" });
+        return;
       }
 
-      setModelStatus(
-        model
-          ? {
-              state: "ok",
-              label:
-                typeof model.partCount === "number"
-                  ? `${model.name} (${model.partCount} parts)`
-                  : model.name
-            }
-          : { state: "missing" }
-      );
+      const { data: model } = await carbon
+        .from("modelUpload")
+        .select(
+          "id, name, partCount, processingStatus, processingError, glbPath, graphPath, modelPath"
+        )
+        .eq("id", item.modelUploadId)
+        .maybeSingle();
+
+      const state = getAssemblyModelState(model ?? null);
+      switch (state) {
+        case "converted": {
+          const name = model!.name ?? "Model";
+          setModelStatus({
+            state,
+            label:
+              typeof model!.partCount === "number"
+                ? `${name} (${model!.partCount} parts)`
+                : name
+          });
+          break;
+        }
+        case "failed":
+          setModelStatus({ state, error: model!.processingError });
+          break;
+        default:
+          setModelStatus({ state });
+      }
     },
     [carbon]
   );
@@ -99,7 +108,8 @@ const AssemblyInstructionForm = ({
   }, [initialValues.itemId, checkModel]);
 
   const isDisabled =
-    !permissions.can("create", "production") || modelStatus.state !== "ok";
+    !permissions.can("create", "production") ||
+    ["idle", "loading", "none"].includes(modelStatus.state);
 
   return (
     <ModalDrawerProvider type="modal">
@@ -123,6 +133,43 @@ const AssemblyInstructionForm = ({
             <ModalDrawerBody>
               <Hidden name="id" />
               <VStack spacing={4}>
+                {modelStatus.state === "convertible" && (
+                  <Alert variant="info">
+                    <LuInfo />
+                    <AlertDescription>
+                      This model will be converted for assembly instructions
+                      when you save. This can take a minute.
+                    </AlertDescription>
+                  </Alert>
+                )}
+                {modelStatus.state === "processing" && (
+                  <Alert variant="info">
+                    <LuInfo />
+                    <AlertDescription>
+                      Model conversion is in progress. You can save now — the
+                      model will appear once conversion finishes.
+                    </AlertDescription>
+                  </Alert>
+                )}
+                {modelStatus.state === "failed" && (
+                  <Alert variant="warning">
+                    <LuTriangleAlert />
+                    <AlertDescription>
+                      {modelStatus.error
+                        ? `Previous model conversion failed: ${modelStatus.error}. Saving will retry.`
+                        : "Previous model conversion failed. Saving will retry."}
+                    </AlertDescription>
+                  </Alert>
+                )}
+                {modelStatus.state === "none" && (
+                  <Alert variant="warning">
+                    <LuTriangleAlert />
+                    <AlertDescription>
+                      This item has no 3D model. Upload a STEP file on the
+                      item's Model tab first.
+                    </AlertDescription>
+                  </Alert>
+                )}
                 <VStack spacing={1} className="w-full">
                   <Item
                     name="itemId"
@@ -135,20 +182,13 @@ const AssemblyInstructionForm = ({
                   />
                   {modelStatus.state === "loading" && (
                     <p className="text-xs text-muted-foreground">
-                      Checking for a processed 3D model…
+                      Checking for a 3D model…
                     </p>
                   )}
-                  {modelStatus.state === "ok" && (
-                    <p className="flex items-center gap-1.5 text-xs text-emerald-600">
+                  {modelStatus.state === "converted" && (
+                    <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
                       <LuCircleCheck className="h-3.5 w-3.5 shrink-0" />
                       Model: {modelStatus.label}
-                    </p>
-                  )}
-                  {modelStatus.state === "missing" && (
-                    <p className="flex items-center gap-1.5 text-xs text-yellow-600">
-                      <LuTriangleAlert className="h-3.5 w-3.5 shrink-0" />
-                      This item has no processed 3D model. Upload a STEP file on
-                      the item's Model tab first.
                     </p>
                   )}
                 </VStack>

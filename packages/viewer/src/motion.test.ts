@@ -7,8 +7,10 @@ import {
   Vector3
 } from "three";
 import { describe, expect, it } from "vitest";
+import { indexAssemblyGraph } from "./graph";
 import {
   buildStepClip,
+  displayMotionForStep,
   exaggerateMotion,
   type MotionKeyframes,
   motionDuration,
@@ -516,5 +518,85 @@ describe("exaggerateMotion", () => {
   it("does not exaggerate none motions", () => {
     const none = { type: "none" } as const;
     expect(exaggerateMotion(none, 20, 1000)).toBe(none);
+  });
+});
+
+describe("displayMotionForStep", () => {
+  const IDENTITY = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+  const graphIndex = indexAssemblyGraph({
+    version: 1,
+    unit: "mm",
+    sourceUnit: "mm",
+    partCount: 2,
+    root: {
+      nodeId: "root",
+      name: "Assembly",
+      isAssembly: true,
+      geometryHash: null,
+      transform: IDENTITY,
+      bbox: { min: [-50, -50, 0], max: [50, 50, 20] },
+      volume: null,
+      color: null,
+      children: [
+        {
+          nodeId: "base",
+          name: "base",
+          isAssembly: false,
+          geometryHash: "hash-base",
+          transform: IDENTITY,
+          bbox: { min: [-50, -50, 0], max: [50, 50, 10] },
+          volume: 1000,
+          color: null,
+          children: []
+        },
+        {
+          nodeId: "top",
+          name: "top",
+          isAssembly: false,
+          geometryHash: "hash-top",
+          transform: IDENTITY,
+          bbox: { min: [-10, -10, 10], max: [10, 10, 20] },
+          volume: 1000,
+          color: null,
+          children: []
+        }
+      ]
+    }
+  });
+
+  const step = (
+    overrides: Partial<Pick<AssemblyStep, "motion" | "partNodeIds" | "flagged">>
+  ) => ({
+    motion: { type: "none" } as Motion,
+    partNodeIds: ["top"],
+    ...overrides
+  });
+
+  it("keeps motion none for flagged steps — no fabricated fallback", () => {
+    expect(
+      displayMotionForStep(step({ flagged: true }), 1, graphIndex)
+    ).toEqual({ type: "none" });
+  });
+
+  it("synthesizes a fallback for unflagged none-motion steps after the base", () => {
+    const motion = displayMotionForStep(step({}), 1, graphIndex);
+    expect(motion.type).toBe("linear");
+  });
+
+  it("keeps the base step still", () => {
+    expect(displayMotionForStep(step({}), 0, graphIndex)).toEqual({
+      type: "none"
+    });
+  });
+
+  it("passes stored motions through untouched", () => {
+    const stored: Motion = {
+      type: "linear",
+      direction: [0, 0, -1],
+      distance: 5
+    };
+    expect(displayMotionForStep(step({ motion: stored }), 1, graphIndex)).toBe(
+      stored
+    );
   });
 });

@@ -1105,7 +1105,19 @@ export const fastenerSchema = z.object({
   tool: z.string().optional()
 });
 
-const jsonField = (schema: z.ZodTypeAny) =>
+/**
+ * Planner flags persisted on assemblyInstructionStep.warnings (jsonb).
+ * `flagged` marks steps whose parts have no proven collision-free path —
+ * the viewer fades them in at the seated pose instead of animating a
+ * fabricated motion. `blockedBy` records the obstructing nodeIds from
+ * plan.json so the editor can name the blockers.
+ */
+export const stepPlanWarningsSchema = z.object({
+  flagged: z.boolean().optional(),
+  blockedBy: z.array(z.string()).optional()
+});
+
+const jsonField = <T extends z.ZodTypeAny>(schema: T) =>
   z.preprocess((raw) => {
     if (typeof raw !== "string") return raw;
     if (raw.trim() === "") return undefined;
@@ -1123,10 +1135,47 @@ export const assemblyInstructionValidator = z.object({
   itemId: zfd.text(z.string().optional())
 });
 
+export type AssemblyModelState =
+  | "converted" // GLB + graph artifacts exist — ready for the viewer
+  | "processing" // conversion job is queued or running
+  | "failed" // last conversion failed — retriable
+  | "convertible" // STEP file present but never converted (lazy conversion)
+  | "none"; // no model, or a format the geometry service can't convert
+
+export function getAssemblyModelState(
+  model: {
+    modelPath: string | null;
+    processingStatus: Database["public"]["Enums"]["modelProcessingStatus"];
+    glbPath: string | null;
+    graphPath: string | null;
+  } | null
+): AssemblyModelState {
+  if (!model) return "none";
+  if (
+    model.processingStatus === "Success" &&
+    model.glbPath &&
+    model.graphPath
+  ) {
+    return "converted";
+  }
+  const isStep = [".step", ".stp"].some((ext) =>
+    (model.modelPath ?? "").toLowerCase().endsWith(ext)
+  );
+  if (!isStep) return "none";
+  if (
+    model.processingStatus === "Queued" ||
+    model.processingStatus === "Processing"
+  ) {
+    return "processing";
+  }
+  if (model.processingStatus === "Failed") return "failed";
+  return "convertible";
+}
+
 /**
  * Creating an instruction starts from a made item; the model is derived
- * server-side from the item's processed CAD files. An explicit
- * modelUploadId (e.g. from the part details page) takes precedence.
+ * server-side from the item's CAD files (converted lazily if needed). An
+ * explicit modelUploadId (e.g. from the part details page) takes precedence.
  */
 export const assemblyInstructionFromItemValidator = z.object({
   id: zfd.text(z.string().optional()),

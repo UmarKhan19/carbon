@@ -16,9 +16,13 @@ import {
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import { AssemblyViewer } from "./AssemblyViewer";
 import { describeStep } from "./describe";
-import { synthesizeFallbackMotion } from "./fallback";
 import { indexAssemblyGraph } from "./graph";
-import { buildStepClip, exaggerateMotion, stepTimelineSeconds } from "./motion";
+import {
+  buildStepClip,
+  displayMotionForStep,
+  exaggerateMotion,
+  stepTimelineSeconds
+} from "./motion";
 import type { AssemblyGraph, AssemblyStep } from "./types";
 import { useAssembly } from "./useAssembly";
 import { cn } from "./utils";
@@ -56,7 +60,7 @@ export type AssemblyPlayerProps = {
  * Animated assembly playback per the assembly contracts (section 5):
  * - parts of steps before the active step are shown solid at their final pose
  * - parts of the active step play their insertion motion once, holding the
- *   seated pose
+ *   seated pose; flagged steps (no collision-free path) fade in instead
  * - parts of later steps render per the future-parts mode: ghosted at low
  *   opacity in their original color (default), hidden, or solid
  * - parts in no step (base/fixture parts) are always shown solid
@@ -105,9 +109,10 @@ export function AssemblyPlayer({
     : null;
 
   // Display-only motion adjustments — the stored data is untouched:
-  // 1. Steps saved with motion "none" (legacy plans, manual steps) get an
-  //    AABB-synthesized insertion so parts never pop into place. The first
-  //    step is the base — it is placed, not inserted, and stays still.
+  // 1. Non-flagged steps saved with motion "none" (legacy plans, manual
+  //    steps) get an AABB-synthesized insertion so parts never pop into
+  //    place. Flagged steps (no collision-free path exists) keep "none" and
+  //    fade in instead. The first step is the base — placed, not inserted.
   // 2. Small parts (bolts, washers) get exaggerated travel so their
   //    insertion reads clearly at assembly scale.
   const displaySteps = useMemo(() => {
@@ -119,15 +124,7 @@ export function AssemblyPlayer({
       root.max[2] - root.min[2]
     );
     return steps.map((step, index) => {
-      let baseMotion = step.motion;
-      if (
-        index > 0 &&
-        baseMotion.type === "none" &&
-        step.partNodeIds.length > 0
-      ) {
-        const fallback = synthesizeFallbackMotion(graphIndex, step.partNodeIds);
-        if (fallback && fallback.type !== "none") baseMotion = fallback;
-      }
+      const baseMotion = displayMotionForStep(step, index, graphIndex);
 
       let minBox: [number, number, number] | null = null;
       let maxBox: [number, number, number] | null = null;
@@ -439,7 +436,7 @@ export function AssemblyPlayer({
 
 type PartVisual = "solid" | "active" | "hidden" | "ghost";
 
-type OverrideKind = "ghost" | "highlight" | "selected" | "external";
+type OverrideKind = "ghost" | "highlight" | "selected" | "external" | "fade";
 
 type MaterialOverrides = {
   original: Material | Material[];
@@ -448,12 +445,15 @@ type MaterialOverrides = {
   highlight?: Material | Material[];
   selected?: Material | Material[];
   external?: Material | Material[];
+  fade?: Material | Material[];
 };
 
 const HIGHLIGHT_COLOR = 0x3b82f6;
 const SELECTED_COLOR = 0xf59e0b;
 const EXTERNAL_COLOR = 0x10b981;
 const GHOST_OPACITY = 0.3;
+/** Seconds a flagged step's parts take to fade in at the seated pose */
+const FADE_SECONDS = 1.2;
 
 function AssemblyScene({
   scene,
@@ -547,6 +547,7 @@ function AssemblyScene({
         if (entry.highlight) disposeMaterials(entry.highlight);
         if (entry.selected) disposeMaterials(entry.selected);
         if (entry.external) disposeMaterials(entry.external);
+        if (entry.fade) disposeMaterials(entry.fade);
       }
       overrides.clear();
     };
@@ -711,6 +712,81 @@ function AssemblyScene({
   useEffect(() => {
     if (actionRef.current) actionRef.current.paused = !isPlaying;
   }, [isPlaying]);
+
+  // --- Flagged fade-in -------------------------------------------------
+  // Steps the planner flagged (no collision-free path exists) have motion
+  // "none": their parts fade in at the seated pose instead of animating a
+  // fabricated fly-through. Runs after the visual-state pass, which assigns
+  // the base materials this overrides.
+  const fadeRef = useRef<{
+    meshes: Mesh[];
+    materials: Material[];
+    seconds: number;
+  } | null>(null);
+
+  useEffect(() => {
+    const step = steps[activeStepIndex];
+    if (!step?.flagged || step.motion.type !== "none") {
+      fadeRef.current = null;
+      return;
+    }
+
+    const overrides = overridesRef.current;
+    const meshes: Mesh[] = [];
+    const materials: Material[] = [];
+    for (const nodeId of step.partNodeIds) {
+      const node = nodesById.get(nodeId);
+      if (!node) continue;
+      node.traverse((object) => {
+        if (!(object as Mesh).isMesh) return;
+        const mesh = object as Mesh;
+        const override = getOverride(mesh, overrides, "fade");
+        for (const material of Array.isArray(override)
+          ? override
+          : [override]) {
+          material.transparent = true;
+          material.opacity = 0;
+          material.depthWrite = false;
+          materials.push(material);
+        }
+        mesh.material = override;
+        // Draw after opaque parts while transparent
+        mesh.renderOrder = 1;
+        meshes.push(mesh);
+      });
+    }
+    if (meshes.length === 0) {
+      fadeRef.current = null;
+      return;
+    }
+
+    const segment = segments[activeStepIndex] ?? 0;
+    fadeRef.current = {
+      meshes,
+      materials,
+      seconds: segment > 0 ? Math.min(FADE_SECONDS, segment) : FADE_SECONDS
+    };
+
+    return () => {
+      fadeRef.current = null;
+      // Materials are reassigned by the visual-state pass on step change
+      for (const mesh of meshes) mesh.renderOrder = 0;
+    };
+  }, [steps, activeStepIndex, nodesById, segments]);
+
+  useFrame(() => {
+    const fade = fadeRef.current;
+    if (!fade) return;
+    const progress =
+      fade.seconds > 0
+        ? Math.min(localElapsedRef.current / fade.seconds, 1)
+        : 1;
+    for (const material of fade.materials) {
+      material.opacity = progress;
+      material.transparent = progress < 1;
+      material.depthWrite = progress >= 1;
+    }
+  });
 
   useFrame((_, delta) => {
     if (isPlaying) {
@@ -1155,10 +1231,28 @@ function getOverride(
     override =
       kind === "ghost"
         ? cloneAsGhost(entry.original)
-        : cloneWithEmissive(entry.original, emissiveColor);
+        : kind === "fade"
+          ? cloneAsFade(entry.original)
+          : cloneWithEmissive(entry.original, emissiveColor);
     entry[kind] = override;
   }
   return override;
+}
+
+/**
+ * Fading-in flagged part: the original material starting fully transparent.
+ * The scene animates opacity 0 → 1 across the step; at 1 the material is
+ * switched back to opaque so it renders like any seated part.
+ */
+function cloneAsFade(material: Material | Material[]): Material | Material[] {
+  const clone = (source: Material): Material => {
+    const cloned = source.clone();
+    cloned.transparent = true;
+    cloned.opacity = 0;
+    cloned.depthWrite = false;
+    return cloned;
+  };
+  return Array.isArray(material) ? material.map(clone) : clone(material);
 }
 
 /**

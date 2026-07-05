@@ -604,7 +604,7 @@ export async function getJobOperationAssembly(
     client
       .from("assemblyInstructionStep")
       .select(
-        "id, title, instructionText, partNodeIds, motion, camera, fastener, durationSeconds"
+        "id, title, instructionText, partNodeIds, motion, camera, fastener, durationSeconds, warnings"
       )
       .eq("assemblyInstructionId", assemblyInstructionId)
       .order("sortOrder", { ascending: true })

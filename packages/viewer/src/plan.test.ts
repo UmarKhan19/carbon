@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
+import { indexAssemblyGraph } from "./graph";
 import type { AssemblyPlan } from "./plan";
-import { planMotionForParts } from "./plan";
-import type { Motion } from "./types";
+import { buildAssemblyStepGroups, planMotionForParts } from "./plan";
+import type { AssemblyGraph, AssemblyGraphNode, Motion, Vec3 } from "./types";
 
 const lift: Motion = {
   type: "linear",
@@ -55,5 +56,279 @@ describe("planMotionForParts", () => {
     expect(planMotionForParts(plan, ["missing"])).toBeNull();
     expect(planMotionForParts(plan, [])).toBeNull();
     expect(planMotionForParts(null, ["bolt-1"])).toBeNull();
+  });
+});
+
+const IDENTITY = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+
+function graphLeaf(
+  nodeId: string,
+  bbox: { min: Vec3; max: Vec3 },
+  geometryHash = `hash-${nodeId}`
+): AssemblyGraphNode {
+  return {
+    nodeId,
+    name: nodeId,
+    isAssembly: false,
+    geometryHash,
+    transform: IDENTITY,
+    bbox,
+    volume: 1000,
+    color: null,
+    children: []
+  };
+}
+
+function graphOf(leaves: AssemblyGraphNode[]): AssemblyGraph {
+  return {
+    version: 1,
+    unit: "mm",
+    sourceUnit: "mm",
+    partCount: leaves.length,
+    root: {
+      nodeId: "root",
+      name: "Assembly",
+      isAssembly: true,
+      geometryHash: null,
+      transform: IDENTITY,
+      bbox: { min: [-50, -50, 0], max: [50, 50, 40] },
+      volume: null,
+      color: null,
+      children: leaves
+    }
+  };
+}
+
+describe("buildAssemblyStepGroups", () => {
+  const graphIndex = indexAssemblyGraph(
+    graphOf([
+      graphLeaf("base", { min: [-50, -50, 0], max: [50, 50, 10] }),
+      graphLeaf(
+        "bolt-1",
+        { min: [-30, -30, 10], max: [-20, -20, 30] },
+        "hash-bolt"
+      ),
+      graphLeaf(
+        "bolt-2",
+        { min: [20, 20, 10], max: [30, 30, 30] },
+        "hash-bolt"
+      ),
+      graphLeaf("cover", { min: [-10, -10, 30], max: [10, 10, 40] })
+    ])
+  );
+
+  it("walks the sequence, merging consecutive identical parts with the longest travel", () => {
+    const stepPlan: AssemblyPlan = {
+      version: 1,
+      unit: "mm",
+      sequence: ["base", "bolt-1", "bolt-2"],
+      parts: {
+        base: { motion: { type: "none" } },
+        "bolt-1": {
+          motion: { type: "linear", direction: [0, 0, -1], distance: 20 },
+          confidence: "high"
+        },
+        "bolt-2": {
+          motion: { type: "linear", direction: [0, 0, -1], distance: 25 },
+          confidence: "high"
+        }
+      },
+      warnings: []
+    };
+
+    const groups = buildAssemblyStepGroups(stepPlan, graphIndex);
+
+    expect(groups).toHaveLength(2);
+    expect(groups[0]?.partNodeIds).toEqual(["base"]);
+    expect(groups[0]?.motion).toEqual({ type: "none" });
+    expect(groups[1]?.partNodeIds).toEqual(["bolt-1", "bolt-2"]);
+    expect(groups[1]?.motion).toEqual({
+      type: "linear",
+      direction: [0, 0, -1],
+      distance: 25
+    });
+    expect(groups[1]?.confidence).toBe("high");
+    expect(groups[1]?.blockedBy).toEqual([]);
+  });
+
+  it("drops fabricated motions on flagged parts and never synthesizes a fallback for them", () => {
+    const fabricated: Motion = {
+      type: "linear",
+      direction: [1, 0, 0],
+      distance: 640
+    };
+    const stepPlan: AssemblyPlan = {
+      version: 1,
+      unit: "mm",
+      sequence: ["base", "bolt-1", "bolt-2"],
+      parts: {
+        base: { motion: { type: "none" } },
+        "bolt-1": {
+          motion: fabricated,
+          confidence: "low",
+          blockedBy: ["base"]
+        },
+        "bolt-2": {
+          motion: fabricated,
+          confidence: "low",
+          blockedBy: ["cover"]
+        }
+      },
+      warnings: []
+    };
+
+    const groups = buildAssemblyStepGroups(stepPlan, graphIndex);
+
+    expect(groups).toHaveLength(2);
+    const flagged = groups[1];
+    // Identical flagged twins share a step; their blockers merge
+    expect(flagged?.partNodeIds).toEqual(["bolt-1", "bolt-2"]);
+    expect(flagged?.motion).toEqual({ type: "none" });
+    expect(flagged?.blockedBy).toEqual(["base", "cover"]);
+    expect(flagged?.confidence).toBe("low");
+  });
+
+  it("keeps flagged and unflagged twins in separate steps", () => {
+    const stepPlan: AssemblyPlan = {
+      version: 1,
+      unit: "mm",
+      sequence: ["bolt-1", "bolt-2"],
+      parts: {
+        "bolt-1": {
+          motion: { type: "linear", direction: [0, 0, -1], distance: 20 },
+          confidence: "high"
+        },
+        "bolt-2": {
+          motion: { type: "linear", direction: [0, 0, -1], distance: 20 },
+          confidence: "low",
+          blockedBy: ["base"]
+        }
+      },
+      warnings: []
+    };
+
+    const groups = buildAssemblyStepGroups(stepPlan, graphIndex);
+
+    expect(groups).toHaveLength(2);
+    expect(groups[0]?.blockedBy).toEqual([]);
+    expect(groups[1]?.partNodeIds).toEqual(["bolt-2"]);
+    expect(groups[1]?.motion).toEqual({ type: "none" });
+  });
+
+  it("synthesizes an AABB fallback for unflagged none-motion parts, but never the base", () => {
+    const stepPlan: AssemblyPlan = {
+      version: 1,
+      unit: "mm",
+      sequence: ["base", "cover"],
+      parts: {
+        base: { motion: { type: "none" } },
+        // Legacy plan: unplanned but not flagged
+        cover: { motion: { type: "none" } }
+      },
+      warnings: []
+    };
+
+    const groups = buildAssemblyStepGroups(stepPlan, graphIndex);
+
+    expect(groups[0]?.motion).toEqual({ type: "none" });
+    expect(groups[1]?.motion.type).toBe("linear");
+    expect(groups[1]?.confidence).toBe("low");
+  });
+});
+
+describe("buildAssemblyStepGroups v2", () => {
+  const graphIndex = indexAssemblyGraph(
+    graphOf([
+      graphLeaf("rail", { min: [-100, -10, 0], max: [100, 10, 20] }),
+      graphLeaf("slider", { min: [-20, -12, 20], max: [20, 12, 40] }),
+      graphLeaf("knob", { min: [-5, 12, 25], max: [5, 22, 35] }),
+      graphLeaf("logo", { min: [-8, -1, 30], max: [8, 1, 34] })
+    ])
+  );
+
+  it("keeps subassembly members in one step regardless of geometry", () => {
+    const slide: Motion = {
+      type: "linear",
+      direction: [-1, 0, 0],
+      distance: 120
+    };
+    const v2: AssemblyPlan = {
+      version: 2,
+      unit: "mm",
+      sequence: ["rail", "slider", "knob"],
+      parts: {
+        rail: { motion: { type: "none" }, tier: "base", verified: true },
+        slider: {
+          motion: slide,
+          confidence: "low",
+          tier: "group",
+          groupId: "g1",
+          verified: true
+        },
+        knob: {
+          motion: slide,
+          confidence: "low",
+          tier: "group",
+          groupId: "g1",
+          verified: true
+        }
+      },
+      groups: { g1: { partNodeIds: ["slider", "knob"], motion: slide } },
+      warnings: []
+    };
+
+    const groups = buildAssemblyStepGroups(v2, graphIndex);
+
+    expect(groups).toHaveLength(2);
+    expect(groups[1]?.partNodeIds).toEqual(["slider", "knob"]);
+    expect(groups[1]?.motion).toEqual(slide);
+  });
+
+  it("folds rigidly merged parts into their host's step", () => {
+    const lift: Motion = {
+      type: "linear",
+      direction: [0, 0, -1],
+      distance: 40
+    };
+    const v2: AssemblyPlan = {
+      version: 2,
+      unit: "mm",
+      sequence: ["rail", "slider"],
+      parts: {
+        rail: { motion: { type: "none" }, tier: "base", verified: true },
+        slider: { motion: lift, confidence: "high", verified: true },
+        logo: { motion: { type: "none" }, mergedInto: "slider" }
+      },
+      warnings: []
+    };
+
+    const groups = buildAssemblyStepGroups(v2, graphIndex);
+
+    expect(groups).toHaveLength(2);
+    expect(groups[1]?.partNodeIds).toEqual(["slider", "logo"]);
+    expect(groups[1]?.motion).toEqual(lift);
+  });
+
+  it("treats verification failures as flagged", () => {
+    const v2: AssemblyPlan = {
+      version: 2,
+      unit: "mm",
+      sequence: ["rail", "slider"],
+      parts: {
+        rail: { motion: { type: "none" }, tier: "base", verified: true },
+        slider: {
+          motion: { type: "linear", direction: [0, 0, -1], distance: 40 },
+          confidence: "high",
+          verified: false,
+          blockedBy: ["rail"]
+        }
+      },
+      warnings: []
+    };
+
+    const groups = buildAssemblyStepGroups(v2, graphIndex);
+
+    expect(groups[1]?.motion).toEqual({ type: "none" });
+    expect(groups[1]?.blockedBy).toEqual(["rail"]);
   });
 });

@@ -76,7 +76,7 @@ pnpm --filter @carbon/erp test
 - `getProductionPlanning` — MRP-driven production planning (RPC `get_production_planning`)
 - `upsertMaintenanceDispatch` / `upsertMaintenanceSchedule` — maintenance management
 - `getAssemblyInstruction(s)` / `upsertAssemblyInstructionStep` / `getAssemblyInstructionStepMaterials` — assembly instruction authoring; the step upsert derives `instructionText` from the tiptap `description` (viewer/MES consume the plain text)
-- `generateAssemblyStepsFromPlan` — plan.json → draft steps; synthesizes AABB fallback motions (`synthesizeFallbackMotion` from `@carbon/viewer`) for non-base parts old plans left unplanned
+- `generateAssemblyStepsFromPlan` — plan.json → draft steps via `buildAssemblyStepGroups` (`@carbon/viewer`): sequence order, consecutive identical parts merged, subassembly `groups` one step, `mergedInto` parts riding their host's step; planner-flagged parts (blockedBy / failed verification) store motion "none" + `warnings: { flagged, blockedBy }` (the viewer fades them in — no fabricated paths); `mode: "regenerate"` replaces existing steps, refused while any step is `planConfidence: "manual"` or status `Done`
 - `getFlattenedBomMaterials` — the item's engineering BOM flattened through Make subassemblies; feeds the assembly BOM tree and the per-step material picker
 
 ## Key Exports

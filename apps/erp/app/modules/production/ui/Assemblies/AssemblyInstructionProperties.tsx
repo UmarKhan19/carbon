@@ -45,7 +45,8 @@ import { getPrivateUrl, path } from "~/utils/path";
 import {
   assemblyInstructionStepValidator,
   fastenerSchema,
-  motionSchema
+  motionSchema,
+  stepPlanWarningsSchema
 } from "../../production.models";
 import type { FlattenedBomMaterial } from "../../production.service";
 import type {
@@ -96,7 +97,7 @@ const AssemblyInstructionProperties = ({
       </VStack>
       {step ? (
         <Tabs defaultValue="details" className="w-full">
-          <TabsList className="w-full">
+          <TabsList className="w-full mb-4">
             <TabsTrigger className="flex-1" value="details">
               Details
             </TabsTrigger>
@@ -409,6 +410,15 @@ function StepForm({
   // geometry planner automatically — the manual editor is an override
   useEffect(() => {
     if (!draftPartNodeIds || draftPartNodeIds.length === 0) return;
+    // Parts the planner flagged have no proven collision-free path; their
+    // recorded motion (older plans fabricated one) must not be auto-filled
+    if (
+      draftPartNodeIds.some(
+        (nodeId) => (plan?.parts[nodeId]?.blockedBy?.length ?? 0) > 0
+      )
+    ) {
+      return;
+    }
     const planned = planMotionForParts(plan, draftPartNodeIds);
     if (planned) {
       setMotion(makeMotionDraft(planned.motion));
@@ -472,6 +482,17 @@ function StepForm({
       ),
     [partNodeIds, fastenerValidation, graphIndex]
   );
+
+  // Planner flag: no collision-free path exists for these parts. The player
+  // fades them in at the seated pose; a manual motion overrides the flag.
+  const planFlag = useMemo(() => {
+    const parsed = stepPlanWarningsSchema.safeParse(step.warnings);
+    if (!parsed.success || parsed.data.flagged !== true) return null;
+    const blockers = (parsed.data.blockedBy ?? [])
+      .map((nodeId) => graphIndex?.nodesById.get(nodeId)?.name)
+      .filter((name): name is string => Boolean(name));
+    return { blockers: [...new Set(blockers)] };
+  }, [step.warnings, graphIndex]);
 
   return (
     <ValidatedForm
@@ -591,16 +612,29 @@ function StepForm({
           <p className="text-sm text-foreground">
             {describeMotionDraft(motion)}
           </p>
-          {autoPlanned === "high" && (
-            <p className="text-xs text-emerald-600">
-              Planned automatically from the model's geometry
+          {planFlag && motion.type === "none" ? (
+            <p className="text-xs text-muted-foreground">
+              No collision-free insertion path was found
+              {planFlag.blockers.length > 0
+                ? ` — blocked by ${planFlag.blockers.join(", ")}`
+                : ""}
+              . The parts fade in at their seated pose; set a manual motion to
+              override.
             </p>
-          )}
-          {autoPlanned === "low" && (
-            <p className="text-xs text-yellow-600">
-              Planned automatically (low confidence) — verify the animation and
-              adjust if needed
-            </p>
+          ) : (
+            <>
+              {autoPlanned === "high" && (
+                <p className="text-xs text-muted-foreground">
+                  Planned automatically from the model's geometry
+                </p>
+              )}
+              {autoPlanned === "low" && (
+                <p className="text-xs text-muted-foreground">
+                  Planned automatically (low confidence) — verify the animation
+                  and adjust if needed
+                </p>
+              )}
+            </>
           )}
           {showMotionEditor && (
             <ToggleGroup

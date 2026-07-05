@@ -14,6 +14,7 @@ export {
 } from "./graph";
 export {
   buildStepClip,
+  displayMotionForStep,
   exaggerateMotion,
   type MotionKeyframeOptions,
   type MotionKeyframes,
@@ -27,6 +28,9 @@ export {
 export {
   type AssemblyPlan,
   type AssemblyPlanPart,
+  type AssemblyStepGroup,
+  buildAssemblyStepGroups,
+  CURRENT_PLAN_VERSION,
   type PlannedMotion,
   planMotionForParts
 } from "./plan";

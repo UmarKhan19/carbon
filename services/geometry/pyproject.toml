@@ -13,6 +13,8 @@ dependencies = [
     "trimesh==4.5.3",
     "python-fcl>=0.7.0.6",
     "scipy>=1.14",
+    # ray-cast containment (fastener joints, embedded-solid merging)
+    "rtree>=1.2",
 ]
 
 [project.optional-dependencies]

@@ -2,13 +2,26 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import { ClientOnly, Spinner, useMode } from "@carbon/react";
+import {
+  Button,
+  ClientOnly,
+  Spinner,
+  useInterval,
+  useMode
+} from "@carbon/react";
 import type { AssemblyGraph } from "@carbon/viewer";
 import { AssemblyPlayer, indexAssemblyGraph } from "@carbon/viewer";
 import { msg } from "@lingui/core/macro";
 import { useCallback, useMemo, useState } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { data, redirect, useLoaderData, useParams } from "react-router";
+import {
+  data,
+  redirect,
+  useFetcher,
+  useLoaderData,
+  useParams,
+  useRevalidator
+} from "react-router";
 import { Empty } from "~/components";
 import { PanelProvider, ResizablePanels } from "~/components/Layout/Panels";
 import { usePermissions } from "~/hooks";
@@ -23,6 +36,7 @@ import {
   getAssemblyPlanJson,
   getAssemblyStandardNotes,
   getFlattenedBomMaterials,
+  getLatestAssemblyPlanJob,
   toViewerStep,
   upsertAssemblyInstruction
 } from "~/modules/production";
@@ -65,20 +79,29 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 
   const stepIds = (steps.data ?? []).map((step) => step.id);
-  const [requirements, stepMaterials, plan, partMappings, bomMaterials] =
-    await Promise.all([
-      getAssemblyInstructionStepRequirements(client, stepIds),
-      getAssemblyInstructionStepMaterials(client, stepIds),
-      instruction.data.modelUploadId
-        ? getAssemblyPlanJson(client, instruction.data.modelUploadId)
-        : Promise.resolve(null),
-      instruction.data.modelUploadId
-        ? getAssemblyPartMappings(client, instruction.data.modelUploadId)
-        : Promise.resolve({ data: [] }),
-      instruction.data.itemId
-        ? getFlattenedBomMaterials(client, instruction.data.itemId, companyId)
-        : Promise.resolve([])
-    ]);
+  const [
+    requirements,
+    stepMaterials,
+    plan,
+    planJob,
+    partMappings,
+    bomMaterials
+  ] = await Promise.all([
+    getAssemblyInstructionStepRequirements(client, stepIds),
+    getAssemblyInstructionStepMaterials(client, stepIds),
+    instruction.data.modelUploadId
+      ? getAssemblyPlanJson(client, instruction.data.modelUploadId)
+      : Promise.resolve(null),
+    instruction.data.modelUploadId
+      ? getLatestAssemblyPlanJob(client, instruction.data.modelUploadId)
+      : Promise.resolve({ data: null }),
+    instruction.data.modelUploadId
+      ? getAssemblyPartMappings(client, instruction.data.modelUploadId)
+      : Promise.resolve({ data: [] }),
+    instruction.data.itemId
+      ? getFlattenedBomMaterials(client, instruction.data.itemId, companyId)
+      : Promise.resolve([])
+  ]);
 
   return {
     instruction: instruction.data,
@@ -88,6 +111,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     standardNotes: standardNotes.data ?? [],
     groups: groups.data ?? [],
     plan,
+    planJob: planJob.data ?? null,
     partMappings: partMappings.data ?? [],
     bomMaterials
   };
@@ -146,6 +170,7 @@ export default function AssemblyInstructionRoute() {
     standardNotes,
     groups,
     plan,
+    planJob,
     partMappings,
     bomMaterials
   } = useLoaderData<typeof loader>();
@@ -186,6 +211,18 @@ export default function AssemblyInstructionRoute() {
   const glbPath = modelUpload?.glbPath;
   const graphPath = modelUpload?.graphPath;
 
+  // Conversion is lazy (kicked off when the instruction was created), so the
+  // artifacts may still be in flight — poll until they land. "Idle" without
+  // artifacts covers the window before the queued event is picked up.
+  const isConverting =
+    !glbPath &&
+    (modelUpload?.processingStatus === "Queued" ||
+      modelUpload?.processingStatus === "Processing" ||
+      modelUpload?.processingStatus === "Idle");
+  const revalidator = useRevalidator();
+  useInterval(() => revalidator.revalidate(), isConverting ? 5000 : null);
+  const retryFetcher = useFetcher<{}>();
+
   return (
     <PanelProvider key={id}>
       <div className="flex flex-col h-[calc(100dvh-49px)] overflow-hidden w-full">
@@ -201,6 +238,7 @@ export default function AssemblyInstructionRoute() {
                   isDisabled={isDisabled}
                   graphIndex={graphIndex}
                   hasPlan={Boolean(plan)}
+                  planJob={planJob}
                   modelUploadId={instruction.modelUploadId}
                   partMappings={partMappings}
                   bomMaterials={bomMaterials}
@@ -243,13 +281,42 @@ export default function AssemblyInstructionRoute() {
                         />
                       )}
                     </ClientOnly>
+                  ) : isConverting ? (
+                    <div className="flex flex-col h-full w-full items-center justify-center gap-4">
+                      <Spinner className="h-10 w-10" />
+                      <p className="text-sm text-muted-foreground max-w-[320px] text-center">
+                        Converting the model for assembly instructions… this can
+                        take a minute.
+                      </p>
+                    </div>
+                  ) : modelUpload?.processingStatus === "Failed" ? (
+                    <Empty>
+                      <p className="text-sm text-muted-foreground max-w-[320px] text-center">
+                        {modelUpload?.processingError ??
+                          "Model conversion failed"}
+                      </p>
+                      <retryFetcher.Form
+                        method="post"
+                        action={path.to.assemblyModelConvert(id!)}
+                      >
+                        <Button
+                          type="submit"
+                          variant="secondary"
+                          isLoading={retryFetcher.state !== "idle"}
+                          isDisabled={
+                            retryFetcher.state !== "idle" ||
+                            !permissions.can("update", "production")
+                          }
+                        >
+                          Retry conversion
+                        </Button>
+                      </retryFetcher.Form>
+                    </Empty>
                   ) : (
                     <Empty>
                       <p className="text-sm text-muted-foreground max-w-[320px] text-center">
-                        {modelUpload?.processingStatus === "Failed"
-                          ? (modelUpload?.processingError ??
-                            "Model processing failed")
-                          : "The model has not been processed for assembly instructions yet"}
+                        The model has not been processed for assembly
+                        instructions yet
                       </p>
                     </Empty>
                   )}

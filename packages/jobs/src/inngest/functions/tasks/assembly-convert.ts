@@ -104,9 +104,15 @@ export const assemblyConvertFunction = inngest.createFunction(
         throw new Error(`Failed to sign source URL: ${source.error.message}`);
       }
 
+      // upsert: Inngest retries re-upload to the same paths; without it the
+      // storage API rejects the second attempt with "resource already exists"
       const [glbUpload, graphUpload] = await Promise.all([
-        client.storage.from("private").createSignedUploadUrl(glbPath),
-        client.storage.from("private").createSignedUploadUrl(graphPath)
+        client.storage
+          .from("private")
+          .createSignedUploadUrl(glbPath, { upsert: true }),
+        client.storage
+          .from("private")
+          .createSignedUploadUrl(graphPath, { upsert: true })
       ]);
       if (glbUpload.error || graphUpload.error) {
         throw new Error("Failed to sign artifact upload URLs");

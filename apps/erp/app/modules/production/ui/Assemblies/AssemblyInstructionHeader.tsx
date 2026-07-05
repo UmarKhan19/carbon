@@ -1,7 +1,6 @@
 import {
   Badge,
   Button,
-  Copy,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuIcon,
@@ -14,10 +13,10 @@ import {
 } from "@carbon/react";
 import { useState } from "react";
 import {
+  LuBlocks,
   LuEllipsisVertical,
   LuPanelLeft,
   LuPanelRight,
-  LuSquareStack,
   LuTrash
 } from "react-icons/lu";
 import { Link, useFetcher, useParams } from "react-router";
@@ -100,7 +99,7 @@ const AssemblyInstructionHeader = () => {
           variant="ghost"
         />
         <Input
-          className="max-w-[320px] font-semibold text-foreground"
+          className="w-auto min-w-0 max-w-[320px] font-semibold text-foreground field-sizing-content"
           value={name}
           borderless
           onChange={
@@ -113,19 +112,6 @@ const AssemblyInstructionHeader = () => {
           }
         />
         <AssemblyInstructionStatus status={instruction?.status} />
-        {instruction && (
-          <Badge variant="outline" className="shrink-0 tabular-nums">
-            Edit {instruction.version}
-          </Badge>
-        )}
-        {instruction && (
-          <span className="hidden whitespace-nowrap text-xs text-muted-foreground lg:inline">
-            {instruction.createdBy === user.id ? "By you · " : ""}
-            edited{" "}
-            {formatRelativeTime(instruction.updatedAt ?? instruction.createdAt)}
-          </span>
-        )}
-        <Copy text={instruction?.name ?? ""} />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <IconButton
@@ -136,6 +122,19 @@ const AssemblyInstructionHeader = () => {
             />
           </DropdownMenuTrigger>
           <DropdownMenuContent>
+            {item && itemTypesWithDetails.includes(item.type) && (
+              <DropdownMenuItem asChild>
+                <Link
+                  to={getLinkToItemDetails(
+                    item.type as MethodItemType,
+                    item.id
+                  )}
+                >
+                  <DropdownMenuIcon icon={<LuBlocks />} />
+                  View Item Master
+                </Link>
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem
               disabled={
                 !permissions.can("delete", "production") ||
@@ -149,17 +148,20 @@ const AssemblyInstructionHeader = () => {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        {instruction && (
+          <Badge variant="outline" className="shrink-0 tabular-nums">
+            Edit {instruction.version}
+          </Badge>
+        )}
+        {instruction && (
+          <span className="hidden whitespace-nowrap text-xs text-muted-foreground lg:inline">
+            {instruction.createdBy === user.id ? "By you · " : ""}
+            edited{" "}
+            {formatRelativeTime(instruction.updatedAt ?? instruction.createdAt)}
+          </span>
+        )}
       </HStack>
       <div className="flex flex-shrink-0 gap-2 items-center justify-end">
-        {item && itemTypesWithDetails.includes(item.type) && (
-          <Button variant="secondary" leftIcon={<LuSquareStack />} asChild>
-            <Link
-              to={getLinkToItemDetails(item.type as MethodItemType, item.id)}
-            >
-              {item.readableIdWithRevision}
-            </Link>
-          </Button>
-        )}
         {instruction?.status === "Draft" && (
           <Button
             isDisabled={!canUpdate}
