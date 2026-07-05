@@ -84,7 +84,7 @@ crbn up --minimal --run 'pnpm --filter @carbon/harness loop <binding-path> --cwd
 
 | `outcome.json` | What it means | Orchestrator action |
 |---|---|---|
-| `state: shipped`, no `unverified` | Fully proven, PR open | Comment PR link on issue, drop `agent:working` |
+| `state: shipped`, no `unverified` | Fully proven, PR open | Mark PR **ready for review** (`gh pr ready`) + request review from `bradbarbin` (`gh pr edit --add-reviewer bradbarbin`); comment PR link on issue; drop `agent:working` |
 | `state: shipped` + `unverified` | Work kept & judge-approved; behavior proof was impossible (test data, environment). PR is a **draft** labeled `agent:needs-verification` | Comment PR link + the `unverified` gaps on the issue; label issue `agent:needs-verification`, **not** `agent:blocked` |
 | `state: plateau/blocked/error` + `prUrl` | Partial salvage draft PR (`[partial]`, `Related to #<n>`) — committed work survived | Comment PR link + reason; label `agent:blocked`; the branch/PR carry the work forward |
 | `state: plateau/blocked/error`, no `prUrl` | No committed work was produced (or PR creation failed — the pushed branch still exists) | Label `agent:blocked` with the reason; mention the branch if it exists on origin |
