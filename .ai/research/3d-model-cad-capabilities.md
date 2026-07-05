@@ -52,7 +52,6 @@ value or `assembly_*` permission family.
 - Docs: `.ai/research/animated-work-instructions.md`,
   `.ai/specs/2026-07-04-animated-work-instructions-design.md` (+ `-contracts.md`,
   `.ai/plans/2026-07-04-animated-work-instructions.md`,
-  `.ai/plans/2026-07-04-assembly-editor-feature-parity.md`,
   `.ai/specs/2026-07-04-assembly-editor-requirements.md`).
 - `services/geometry/` — Python/FastAPI + OCCT (cadquery-ocp): POST /convert turns a
   STEP file (signed GET URL) into a meshopt-compressed GLB + graph.json (signed PUTs).
