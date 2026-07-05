@@ -7,7 +7,7 @@ import {
   operationTypes,
   sourcingType,
   standardFactorType
-} from "../shared";
+} from "../shared/shared.models";
 
 export const batchPropertyDataTypes = [
   "text",

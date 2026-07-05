@@ -499,3 +499,28 @@ export const pickQuantityValidator = z.object({
   quantity: zfd.numeric(z.number().min(0)),
   markShort: zfd.text(z.string().optional())
 });
+
+export const inventoryCountStatusType = [
+  "Draft",
+  "In Progress",
+  "Posted",
+  "Cancelled"
+] as const;
+
+export const inventoryCountValidator = z.object({
+  id: zfd.text(z.string().optional()),
+  countDate: zfd.text(z.string().optional()),
+  locationId: zfd.text(z.string().optional()),
+  notes: zfd.text(z.string().optional())
+});
+
+export const inventoryCountLineValidator = z.object({
+  id: z.string().min(1),
+  countedQty: zfd.numeric(z.number().min(0).optional())
+});
+
+export type InventoryCountStatus = (typeof inventoryCountStatusType)[number];
+export type InventoryCountFormData = z.infer<typeof inventoryCountValidator>;
+export type InventoryCountLineFormData = z.infer<
+  typeof inventoryCountLineValidator
+>;
