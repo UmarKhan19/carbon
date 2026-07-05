@@ -49,9 +49,11 @@ Part of the **production** module (not a standalone module): permissions are
 `production_<view|create|update|delete>`; there is no `Assembly` module enum
 value or `assembly_*` permission family.
 
-- Docs: `llm/research/animated-work-instructions.md`,
-  `docs/specs/animated-work-instructions-design.md` (+ `-contracts.md`, `-plan.md`,
-  `feature-parity-plan.md`, `assembly-editor-requirements.md`).
+- Docs: `.ai/research/animated-work-instructions.md`,
+  `.ai/specs/2026-07-04-animated-work-instructions-design.md` (+ `-contracts.md`,
+  `.ai/plans/2026-07-04-animated-work-instructions.md`,
+  `.ai/plans/2026-07-04-assembly-editor-feature-parity.md`,
+  `.ai/specs/2026-07-04-assembly-editor-requirements.md`).
 - `services/geometry/` — Python/FastAPI + OCCT (cadquery-ocp): POST /convert turns a
   STEP file (signed GET URL) into a meshopt-compressed GLB + graph.json (signed PUTs).
   POST /plan (app/plan.py) runs greedy assembly-by-disassembly motion planning

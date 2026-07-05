@@ -1,9 +1,9 @@
 # Animated Work Instructions — Implementation Plan
 
-Spec: `docs/specs/animated-work-instructions-design.md`
-Research: `llm/research/animated-work-instructions.md`
-Conventions: load `llm/conventions/database.md`, `services.md`, `forms.md`, `ui.md`
-before the corresponding tasks.
+Spec: `.ai/specs/2026-07-04-animated-work-instructions-design.md`
+Research: `.ai/research/animated-work-instructions.md`
+Conventions: `.ai/rules/conventions-database.md`, `conventions-services.md`,
+`conventions-forms.md`, `conventions-ui.md`
 
 Working name for the module: **assembly**.
 
@@ -45,7 +45,7 @@ using `@gltf-transform/cli`)
 
 ### 0.4 Database migration: processing columns + plan job table
 **Files:** `packages/database/supabase/migrations/<ts>_assembly-foundations.sql`
-1. Follow `llm/conventions/database.md`. Alter `modelUpload`: add `processingStatus`,
+1. Follow `.ai/rules/conventions-database.md`. Alter `modelUpload`: add `processingStatus`,
    `processingError`, `glbPath`, `graphPath`, `partCount`, `processedAt`.
 2. Create `assemblyPlanJob` per spec (kind: 'convert' now, 'plan' later) with RLS.
 3. `npm run db:build`; commit.
@@ -91,7 +91,7 @@ using `@gltf-transform/cli`)
 ### 0.8 Assembly module: models + service
 **Files:** `apps/erp/app/modules/assembly/assembly.models.ts`, `assembly.service.ts`
 1. Zod validators (instruction, step upsert with motion JSON schema) per
-   `llm/conventions/forms.md`; service CRUD per `services.md` (Kysely transaction for
+   `.ai/rules/conventions-forms.md`; service CRUD per `conventions-services.md` (Kysely transaction for
    bulk step writes/reorder — see `database-transactions` skill notes).
 2. Commit.
 

@@ -20,7 +20,7 @@ instructions" must not depend on ERP internals).
 
 ## Research
 
-From `llm/research/animated-work-instructions.md`:
+From `.ai/research/animated-work-instructions.md`:
 
 - Commercial tools in this category automate ~80% (sequence, animations, text,
   EBOM→MBOM) and leave ~20% to a human editor; revision propagation and subassembly
@@ -235,7 +235,7 @@ into the standard module/permission system. MES playback requires only productio
   US 9,053,258 / US 7,295,201 (auto-explode), and avoid the patent-pending swept-volume
   method (use sampled discrete checks).
 
-## Phasing (summary — full plan in llm/tasks/animated-work-instructions-plan.md)
+## Phasing (summary — full plan in .ai/plans/2026-07-04-animated-work-instructions.md)
 
 - **Phase 0 — Foundations:** geometry service skeleton, STEP→GLB+graph pipeline,
   schema, AssemblyPlayer with manual step authoring. Valuable alone: assembly-aware
