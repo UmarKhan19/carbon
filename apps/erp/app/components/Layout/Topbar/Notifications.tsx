@@ -380,6 +380,14 @@ function GenericNotification({
           {...props}
         />
       );
+    case NotificationEvent.ResourceTrainingAssignment:
+      return (
+        <Notification
+          icon={<LuGraduationCap />}
+          to={path.to.training(id)}
+          {...props}
+        />
+      );
     case NotificationEvent.Digest:
       // Digest rows are rendered by DigestNotification (expandable). This
       // branch is unreachable when GenericNotification is used from the
