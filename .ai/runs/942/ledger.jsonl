@@ -1,0 +1,1 @@
+{"iteration":1,"change":"(doer session ended without a verdict)","gates":{"lint":true,"conformance":false,"clobbers":true},"decision":"checkpoint","reason":"fixing forward: doer session ended without a verdict (likely hit its turn/budget cap)","task":"1/5: Add inventoryCount schema migration + models","at":"2026-07-05T00:22:18.062Z"}
