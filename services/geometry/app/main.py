@@ -150,8 +150,9 @@ def plan(request: PlanRequest) -> PlanResponse:
             "TESSELLATION_FAILED", f"planner dependencies unavailable: {exc}"
         ) from exc
 
-    for url in (request.source.url, request.outputs.plan.url):
-        _validate_url(url)
+    _validate_url(request.source.url)
+    if request.outputs is not None:
+        _validate_url(request.outputs.plan.url)
 
     if not _conversion_slots.acquire(blocking=False):
         raise ConvertError("BUSY", "all conversion slots are in use; retry later", 429)
@@ -174,11 +175,16 @@ def plan(request: PlanRequest) -> PlanResponse:
                 max_parts=config.max_parts(),
             )
 
-            _upload(
-                request.outputs.plan.url,
-                json.dumps(result.plan).encode("utf-8"),
-                "application/json",
-            )
+            # The caller persists result.plan from the response body. Planning
+            # can run for minutes — long enough for a pre-signed upload URL to
+            # expire (60s TTL) — so uploading here is only done when an output
+            # target is explicitly supplied (backward compatibility).
+            if request.outputs is not None:
+                _upload(
+                    request.outputs.plan.url,
+                    json.dumps(result.plan).encode("utf-8"),
+                    "application/json",
+                )
     finally:
         _conversion_slots.release()
 
@@ -194,10 +200,12 @@ def plan(request: PlanRequest) -> PlanResponse:
     return PlanResponse(
         partCount=result.part_count,
         plannedCount=result.planned_count,
+        plan=result.plan,
         stats=PlanStats(
             planMs=plan_ms,
             tiers=result.tiers,
             warnings=result.warnings,
+            verifiedCount=result.verified_count,
         ),
     )
 
@@ -246,7 +254,20 @@ def _download(url: str, destination: Path) -> None:
 def _upload(url: str, body: bytes, content_type: str) -> None:
     try:
         with httpx.Client(timeout=HTTP_TIMEOUT_S, verify=config.verify_tls()) as client:
-            response = client.put(url, content=body, headers={"Content-Type": content_type})
+            response = client.put(
+                url,
+                content=body,
+                # Retried jobs re-upload to the same path; without upsert the
+                # storage API rejects the second attempt with a 400
+                headers={"Content-Type": content_type, "x-upsert": "true"},
+            )
             response.raise_for_status()
+    except httpx.HTTPStatusError as exc:
+        detail = exc.response.text[:200] if exc.response is not None else ""
+        raise ConvertError(
+            "UPLOAD_FAILED",
+            f"could not upload artifact: {exc} {detail}".strip(),
+            502,
+        ) from exc
     except httpx.HTTPError as exc:
         raise ConvertError("UPLOAD_FAILED", f"could not upload artifact: {exc}", 502) from exc

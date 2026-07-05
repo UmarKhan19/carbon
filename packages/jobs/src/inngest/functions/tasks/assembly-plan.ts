@@ -4,6 +4,10 @@ import { GEOMETRY_SERVICE_API_KEY, GEOMETRY_SERVICE_URL } from "@carbon/env";
 import { inngest } from "../../client";
 
 const SIGNED_URL_EXPIRY = 60 * 60; // seconds
+// The planner can run for several minutes on large assemblies. Bound the call
+// so a genuinely hung request fails cleanly (→ onFailure marks the job Failed →
+// the UI offers a retry) instead of pinning the job in "Processing" forever.
+const PLAN_TIMEOUT_MS = 10 * 60 * 1000;
 
 /**
  * Runs the geometry service motion planner over a converted model: computes a
@@ -89,13 +93,6 @@ export const assemblyPlanFunction = inngest.createFunction(
         throw new Error(`Failed to sign source URL: ${source.error.message}`);
       }
 
-      const planUpload = await client.storage
-        .from("private")
-        .createSignedUploadUrl(planPath);
-      if (planUpload.error) {
-        throw new Error("Failed to sign plan upload URL");
-      }
-
       const response = await fetch(`${GEOMETRY_SERVICE_URL}/plan`, {
         method: "POST",
         headers: {
@@ -109,25 +106,38 @@ export const assemblyPlanFunction = inngest.createFunction(
           source: {
             url: source.data.signedUrl,
             format: "step"
-          },
-          outputs: {
-            plan: { url: planUpload.data.signedUrl }
           }
-        })
+        }),
+        signal: AbortSignal.timeout(PLAN_TIMEOUT_MS)
       });
 
       const result = (await response.json().catch(() => null)) as {
         ok: boolean;
+        plan?: Json;
         partCount?: number;
         plannedCount?: number;
         stats?: Record<string, unknown>;
         error?: string;
       } | null;
 
-      if (!response.ok || !result?.ok) {
+      if (!response.ok || !result?.ok || result.plan == null) {
         throw new Error(
           result?.error ?? `Geometry service returned ${response.status}`
         );
+      }
+
+      // Persist the plan ourselves now that the planner has returned. The
+      // service used to upload via a pre-signed URL, but that URL is minted
+      // before the multi-minute run and expires (60s TTL) long before the
+      // planner finishes — the upload then 400s and the job never completes.
+      const upload = await client.storage
+        .from("private")
+        .upload(planPath, JSON.stringify(result.plan), {
+          contentType: "application/json",
+          upsert: true
+        });
+      if (upload.error) {
+        throw new Error(`Failed to upload plan: ${upload.error.message}`);
       }
 
       await client

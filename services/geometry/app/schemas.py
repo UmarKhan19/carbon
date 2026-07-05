@@ -67,7 +67,11 @@ class PlanOptions(BaseModel):
 class PlanRequest(BaseModel):
     jobId: str
     source: SourceSpec
-    outputs: PlanOutputSpec
+    # Optional: the caller now persists the plan from the response body (see
+    # PlanResponse.plan). A pre-signed upload URL would expire during the
+    # multi-minute planner run, so uploading here is best-effort/backward-compat
+    # only.
+    outputs: PlanOutputSpec | None = None
     options: PlanOptions = PlanOptions()
 
 
@@ -75,12 +79,19 @@ class PlanStats(BaseModel):
     planMs: int
     tiers: dict[str, int]
     warnings: list[str] = []
+    # Parts whose insertion passed forward verification against the parts
+    # present at their point in the final sequence
+    verifiedCount: int | None = None
 
 
 class PlanResponse(BaseModel):
     ok: Literal[True] = True
     partCount: int
     plannedCount: int
+    # The plan document (plan.json contents), returned inline so the caller can
+    # persist it after the planner finishes. Uploading via a pre-signed URL is
+    # unreliable: the URL is minted before the multi-minute run and expires.
+    plan: dict
     stats: PlanStats
 
 

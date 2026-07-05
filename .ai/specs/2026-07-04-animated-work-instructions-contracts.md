@@ -74,16 +74,26 @@ both sides).
 
 ### POST /plan
 
-Computes a collision-free removal motion for every leaf part plus a greedy
-assembly-by-disassembly sequence. Re-tessellates the same STEP source with the
-same nodeId derivation as /convert, so plan.json keys join against graph.json
-and GLB extras.
+Computes a collision-free insertion motion for every leaf part plus a
+constraint-consistent assembly sequence. Re-tessellates the same STEP source
+with the same nodeId derivation as /convert, so plan.json keys join against
+graph.json and GLB extras.
+
+Pipeline (v2): classify named fasteners (symmetry axis + threaded mates — the
+parts they deeply interpenetrate when seated) → rigid-merge pairs that can
+never separate (deep non-threaded interpenetration, or full containment such
+as embedded logo/text solids) → greedy disassembly for motions → precedence
+DAG + preference topo sort for the order → forward verification.
 
 ```jsonc
 // request
 {
   "jobId": "string",
   "source": { "url": "https://signed-get-url", "format": "step" },
+  // `outputs` is OPTIONAL and normally omitted. The planner can run for
+  // minutes — longer than a pre-signed upload URL's 60s TTL — so the caller
+  // persists the plan from the response body instead. When supplied, the
+  // service also uploads plan.json to outputs.plan.url (best-effort).
   "outputs": { "plan": { "url": "https://signed-put-url" } },
   "options": {                       // all optional
     "linearDeflection": 0.1,
@@ -92,48 +102,116 @@ and GLB extras.
     "pathSamples": 60                // collision checks per candidate path
   }
 }
-// response 200
+// response 200 — `plan` is the plan.json document, returned inline for the
+// caller to persist.
 { "ok": true, "partCount": 31, "plannedCount": 30,
-  "stats": { "planMs": 8000, "tiers": { "linear": 25, "l": 3, "escape": 1, "forced": 1, "unplanned": 0 }, "warnings": [] } }
+  "plan": { "version": 2, "unit": "mm", "sequence": ["..."], "parts": { } },
+  "stats": { "planMs": 8000, "verifiedCount": 30,
+             "tiers": { "linear": 25, "l": 2, "escape": 1, "group": 1, "flagged": 1, "forced": 0, "unplanned": 0 },
+             "warnings": [] } }
 // errors: same codes/status mapping as /convert
 ```
 
-Planner tiers: 1 = straight-line removal (candidate directions are the part's
-symmetry axis then all six world axes, sign-sensitive), 2 = fixed lift-then-slide
-"L", 3 = adaptive multi-segment escape (BFS over axis-aligned hops, emits an
-"L" with 2+ segments), 4 = forced best-effort linear along the least-obstructed
-direction when no collision-free escape exists (blockers recorded, warning
-emitted). **Every part except the base — `sequence[0]`, the last one standing
-in the greedy disassembly — gets a motion**; `tiers.unplanned` is always 0 and
-remains only for stats compatibility.
+Motion tiers: 1 = straight-line removal (the part's symmetry axis first, then
+the six world axes; **named fasteners only ever exit along their bore axis**,
+with contacts against their threaded mate allowed up to the seated
+interference — there is no blanket penetration allowance, so thin blockers
+can never be tunneled), 2 = fixed lift-then-slide "L", 3 = adaptive
+multi-segment escape (BFS over axis-aligned hops), group = subassembly
+extraction in stuck states (mutually interlocked parts that remove as one
+unit — members share one step and one motion), flagged = **no collision-free
+escape exists: motion stays "none"**, blockers are recorded, and the viewer
+fades the parts in at the seated pose. The planner never fabricates a motion
+through geometry; `tiers.forced` is always 0 and remains only for stats
+compatibility.
 
-plan.json (uploaded to outputs.plan.url):
+Sequence: after motions are chosen (per part: the least-entangling clear
+direction — fewest full-assembly sweep blockers, natural-axis order as the
+tiebreak; recorded travel is "reach free space", not exit-the-bounding-box),
+the order comes from a precedence DAG topologically sorted with
+preferences.
+
+Hard edges, all cycle-guarded:
+- **Derived**: U before X when X's seated body blocks U's insertion sweep.
+- **Joint**: everything a fastener joins — threaded mates plus every part
+  whose material radially surrounds its shank (ring-containment probes at
+  the shank radius, just outside the candidate's own bore, and at the
+  bore-rim height) — installs before it; the one inversion is a disc mate
+  (nut) after its rod fastener. Washer-before-bolt is therefore
+  unconditional, slip fits and counterbores included.
+- **Joint-stack**: a joint's members order by WHERE they engage the shank,
+  tip → head (head = the fastener's geometrically widest end) — the bolt
+  clamps the head-side part onto the tip-side part, across CAD air gaps.
+- **Support**: for mostly-vertical structure-structure seated contact
+  (hemisphere-aligned normals), the lower part precedes the upper.
+
+Preferences, in order: the base first (the biggest part survives greedy
+disassembly by design); runs of identical parts kept together; **securing
+fasteners** — those whose joint contains a through-part that is neither
+their threaded mate nor the base — immediately after their joint
+completes (anchor bolts into the skeleton take no jump); then structure
+big → small by MATERIAL volume (watertight mesh volume, else the sum of
+watertight split bodies, else bbox — bboxes lie for tilted and
+wrap-around parts), with horizontal centrality as the tiebreak.
+
+Fastener axes come from an evidence cascade: own symmetry (SVD) → bbox
+shape → thread-mate contact band → the full seated contact cloud → the
+dominant contact normal; along its bore axis a fastener keeps sliding
+engagement with its joint (allowances capped at seated interference /
+mesh tolerance). Collision tolerance scales with tessellation:
+max(0.15mm, 2.5 × linearDeflection).
+
+Unresolvable geometry is handled by evidence, never fabrication: a stuck
+part blocked by exactly ONE other (captive SEMS washers, coincident CAD
+variants) rigid-merges into it (`mergedInto`); mutually interlocked sets
+that clear together become subassembly `groups`; anything else is flagged
+with its real sweep blockers. Finally the whole sequence is
+forward-verified: each part's insertion is re-checked against exactly the
+parts present at that point; failures demote to flagged
+(`verified: false`).
+
+plan.json (returned inline as the response `plan`; the caller persists it):
 
 ```jsonc
 {
-  "version": 1,
+  "version": 2,
   "unit": "mm",
-  "sequence": ["nodeId", "..."],     // assembly order = reversed greedy disassembly; [0] is the base
+  "sequence": ["nodeId", "..."],     // constraint-consistent assembly order; [0] is the base
   "parts": {
     "<nodeId>": {
       "motion": { /* INSERTION motion per §4 (removal reversed) */ },
-      "confidence": "high" | "low",  // low = L/escape motion or heuristic fallback
+      "confidence": "high" | "low",
       "removalDirection": [0, 0, 1], // unit vector, removal sense
-      "blockedBy": ["nodeId"]        // present on tier-4 forced motions (unresolved collisions)
+      "tier": "linear" | "L" | "escape" | "group" | "flagged" | "base",
+      "verified": true,              // forward-verified against its predecessors
+      "blockedBy": ["nodeId"],       // flagged parts: what obstructs them
+      "groupId": "g1",               // subassembly members (see groups)
+      "mergedInto": "nodeId"         // rigidly merged: rides the host's step
     }
   },
-  "warnings": ["..."]                // includes one entry per tier-4 forced part
+  "groups": {                        // subassembly units (optional)
+    "g1": { "partNodeIds": ["nodeId", "..."], "motion": { /* shared */ } }
+  },
+  "warnings": ["..."]                // one entry per flagged part / merge / skipped preference
 }
 ```
 
+All v2 fields are optional additions — version-1 files keep parsing everywhere.
+
 Editor semantics: when a step's `partNodeIds` change, motion is auto-filled
 from plan.json (single part → its motion; multiple parts → the shared motion
-if all agree, else the first part's motion with confidence low). When the plan
-has nothing for the parts, `synthesizeFallbackMotion` (`@carbon/viewer`)
-derives an AABB-based motion from graph.json so the step still animates. The
-manual motion form is an override, only shown on demand. The player applies
-the same fallback display-only to any non-first step stored with motion
-"none" (legacy plans, manual steps).
+if all agree, else the first part's motion with confidence low). Parts the
+plan flagged are never auto-filled — their recorded motion is "none" and the
+editor shows the blockers. When the plan has nothing for the parts,
+`synthesizeFallbackMotion` (`@carbon/viewer`) derives an AABB-based motion
+from graph.json so the step still animates; the manual motion form is an
+override, only shown on demand. `buildAssemblyStepGroups` (`@carbon/viewer`)
+turns a plan into draft step groups: sequence order, consecutive identical
+parts merged, subassembly units one step, merged parts riding their host's
+step, flagged parts stored with motion "none" plus a
+`warnings: { flagged, blockedBy }` payload on `assemblyInstructionStep`.
+"Generate Steps" refuses while steps exist; `mode=regenerate` replaces them,
+guarded against manually authored (`planConfidence: "manual"`) or Done steps.
 
 ### Operational limits (service env vars)
 
