@@ -196,10 +196,15 @@ Before opening the PR:
      before/after screenshots, or CLI output),
    - a ledger summary (iterations, kept/reverted and why),
    - **open questions** (disputed criteria, assumptions made instead of asking).
-3. If any proof was unverifiable, or the loop ended partial: open the PR as a
-   **draft** with the `agent:needs-verification` label and a warning section
-   stating exactly what a human must verify (and how) before merge. Flagged,
-   never silently dropped — and never presented as fully proven.
+3. **Ready-vs-draft is decided by the exit state** — create the PR as a draft only for unverified or partial runs, then promote shipped PRs to ready for review:
+   - **All criteria proved, verification gate green (`state=shipped`):** mark
+     the PR *ready for review* (`gh pr ready <url>`) and request a review from
+     Brad Barbin (`gh pr edit <url> --add-reviewer bradbarbin`).
+   - **Any proof unverifiable, or the loop ended partial/blocked:** leave it a
+     **draft** with the `agent:needs-verification` label and a warning section
+     stating exactly what a human must verify (and how) before merge. Do **not**
+     mark it ready; do **not** request a review. Flagged, never silently
+     dropped, never presented as fully proven.
 4. Loop artifacts (`.ai/runs/<id>/` — binding, ledger, screenshots) are
    gitignored runtime and never committed to the product tree; the harness's
    `openPr` hosts screenshots for embedding.
@@ -212,6 +217,9 @@ Before opening the PR:
   it ships as a **draft PR flagged `agent:needs-verification`** naming the
   missing proof. Absence of proof is not disproof; discarding gate-green,
   judge-approved work because verification was impossible is a bug, not rigor.
+- A fully-proven `state=shipped` PR must be marked ready-for-review and have
+  a review requested from `bradbarbin` before closing the loop — do not leave
+  a complete, green PR as a draft.
 - Questions belong to grooming, not the loop. Never stop mid-loop to ask about
   preference or ambiguity — choose the precedent-matching interpretation,
   record the assumption, surface it on the PR. Reserve BLOCKED for hard
