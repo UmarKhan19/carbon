@@ -22,7 +22,7 @@ OpenClaw runtime (heartbeat · webhooks · cron · sandbox · SQLite)
 ## Wake Loop (every 30 min)
 
 1. **Reconcile leases** — `agent:working` issues with no live build → stale → follow the Crash Recovery protocol below (never delete the branch)
-2. **PR feedback** (highest priority) — unresolved review comments → re-enter inner loop on same branch
+2. **PR feedback** (highest priority) — unresolved review comments → re-enter inner loop on same branch. **Respond immediately on `pull_request_review` / `pull_request_review_comment` webhook — don't wait for heartbeat.** Human org-member comments always act; CodeRabbit Major+ act; CodeRabbit Trivial/Nitpick skip.
 3. **Assigned work** — pick top issue by priority → run the pre-dispatch gate (below) → synthesize Binding → dispatch conductor
 4. **Slack ingest** — tagged in a thread → read context, create issue, self-assign
 5. **Idle** → groom one backlog issue (comment spec + acceptance criteria, never build)
