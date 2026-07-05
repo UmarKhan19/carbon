@@ -60,3 +60,32 @@ export function toStoredAmount(
   if (debitAmount > 0) return debit(type, debitAmount);
   return credit(type, creditAmount);
 }
+
+export const MONTH_NUMBER: Record<string, number> = {
+  January: 1,
+  February: 2,
+  March: 3,
+  April: 4,
+  May: 5,
+  June: 6,
+  July: 7,
+  August: 8,
+  September: 9,
+  October: 10,
+  November: 11,
+  December: 12
+};
+
+// Fiscal year is named by its ending calendar year (FY2026 = the year that
+// ends in 2026). periodNumber is 1..12 counted from the fiscal start month.
+export function fiscalYearAndPeriodFor(
+  date: Date,
+  startMonth: number
+): { fiscalYear: number; periodNumber: number } {
+  const month = date.getMonth() + 1;
+  const year = date.getFullYear();
+  const periodNumber = ((month - startMonth + 12) % 12) + 1;
+  const fiscalYear =
+    startMonth === 1 ? year : month >= startMonth ? year + 1 : year;
+  return { fiscalYear, periodNumber };
+}

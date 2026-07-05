@@ -44,6 +44,7 @@ import {
   getPeriodCloseChecklist,
   skipCloseTask
 } from "~/modules/accounting";
+import { getDatabaseClient } from "~/services/database.server";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
@@ -136,7 +137,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   if (intent === "close") {
-    const result = await closePeriodWithChecklist(client, {
+    const result = await closePeriodWithChecklist(client, getDatabaseClient(), {
       companyId,
       periodId,
       userId

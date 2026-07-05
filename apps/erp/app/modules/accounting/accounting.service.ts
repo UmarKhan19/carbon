@@ -1,6 +1,9 @@
 import type { Database, Json } from "@carbon/database";
+import type { Kysely, KyselyDatabase } from "@carbon/database/client";
 import {
+  fiscalYearAndPeriodFor,
   getDateNYearsAgo,
+  MONTH_NUMBER,
   toDisplayCredit,
   toDisplayDebit,
   toStoredAmount
@@ -608,35 +611,6 @@ type AccountingPeriodCloseColumns = {
   periodNumber?: number | null;
 };
 
-const MONTH_NUMBER: Record<string, number> = {
-  January: 1,
-  February: 2,
-  March: 3,
-  April: 4,
-  May: 5,
-  June: 6,
-  July: 7,
-  August: 8,
-  September: 9,
-  October: 10,
-  November: 11,
-  December: 12
-};
-
-// Fiscal year is named by its ending calendar year (FY2026 = the year that
-// ends in 2026). periodNumber is 1..12 counted from the fiscal start month.
-function fiscalYearAndPeriodFor(
-  date: Date,
-  startMonth: number
-): { fiscalYear: number; periodNumber: number } {
-  const month = date.getMonth() + 1;
-  const year = date.getFullYear();
-  const periodNumber = ((month - startMonth + 12) % 12) + 1;
-  const fiscalYear =
-    startMonth === 1 ? year : month >= startMonth ? year + 1 : year;
-  return { fiscalYear, periodNumber };
-}
-
 export async function getOrCreateAccountingPeriod(
   client: SupabaseClient<Database>,
   companyId: string,
@@ -854,6 +828,7 @@ export async function unlockAccountingPeriod(
 
 export async function closeAccountingPeriod(
   client: SupabaseClient<Database>,
+  db: Kysely<KyselyDatabase>,
   args: { periodId: string; companyId: string; userId: string }
 ) {
   const period = await getAccountingPeriodById(
@@ -910,35 +885,56 @@ export async function closeAccountingPeriod(
     };
   }
 
-  // Persist the final Auto-task states resolved above. supabase-js has no
-  // multi-statement transaction, so these land just before the period flip;
-  // the DB close trigger is the true backstop for the invariant.
-  for (const state of checklist.data.autoTaskStates) {
-    const upd = await (client as any)
-      .from("periodCloseTask")
-      .update({
-        status: state.status,
-        completedAt: state.status === "Done" ? new Date().toISOString() : null,
-        updatedBy: args.userId,
-        updatedAt: new Date().toISOString()
-      })
-      .eq("id", state.id)
-      .eq("companyId", args.companyId);
-    if (upd.error) return { data: null, error: upd.error };
+  // Persist the final Auto-task states and flip the period atomically. The
+  // checklist state and the period status must move together — a partial write
+  // would leave the checklist inconsistent with the period. supabase-js has no
+  // multi-statement transaction, so the writes go through the Kysely client;
+  // the DB close trigger remains the backstop for the invariant.
+  const now = new Date().toISOString();
+  // periodCloseTask and accountingPeriod.closeStatus are added by the
+  // period-close-lifecycle migration; the generated Kysely types don't include
+  // them yet, so the write builder is cast until types are regenerated (this
+  // mirrors the `as any` casts the read path already uses).
+  try {
+    await db.transaction().execute(async (trx) => {
+      const tx = trx as any;
+      for (const state of checklist.data.autoTaskStates) {
+        await tx
+          .updateTable("periodCloseTask")
+          .set({
+            status: state.status,
+            completedAt: state.status === "Done" ? now : null,
+            updatedBy: args.userId,
+            updatedAt: now
+          })
+          .where("id", "=", state.id)
+          .where("companyId", "=", args.companyId)
+          .execute();
+      }
+
+      await tx
+        .updateTable("accountingPeriod")
+        .set({
+          closeStatus: "Closed",
+          closedAt: now,
+          closedBy: args.userId,
+          updatedBy: args.userId,
+          updatedAt: now
+        })
+        .where("id", "=", args.periodId)
+        .where("companyId", "=", args.companyId)
+        .execute();
+    });
+  } catch (err) {
+    return {
+      data: null,
+      error: {
+        message: err instanceof Error ? err.message : "Failed to close period"
+      }
+    };
   }
 
-  return (client.from("accountingPeriod") as any)
-    .update({
-      closeStatus: "Closed",
-      closedAt: new Date().toISOString(),
-      closedBy: args.userId,
-      updatedBy: args.userId,
-      updatedAt: new Date().toISOString()
-    })
-    .eq("id", args.periodId)
-    .eq("companyId", args.companyId)
-    .select("id")
-    .single();
+  return { data: { id: args.periodId }, error: null };
 }
 
 // Public entry point for the close-checklist UI. `closeAccountingPeriod`
@@ -950,9 +946,10 @@ export async function closeAccountingPeriod(
 // not the lower-level lifecycle primitive.
 export async function closePeriodWithChecklist(
   client: SupabaseClient<Database>,
+  db: Kysely<KyselyDatabase>,
   args: { companyId: string; periodId: string; userId: string }
 ) {
-  return closeAccountingPeriod(client, {
+  return closeAccountingPeriod(client, db, {
     periodId: args.periodId,
     companyId: args.companyId,
     userId: args.userId

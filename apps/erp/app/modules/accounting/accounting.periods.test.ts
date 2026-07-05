@@ -104,6 +104,36 @@ function makeRecordingClient(responses: Scripted[]) {
   return { client: { from: (t: string) => makeBuilder(t) } as any, updates };
 }
 
+// The close path flips periodCloseTask + accountingPeriod through the Kysely
+// client inside a single transaction. This records every `.set(values)` keyed
+// by table so tests can assert the persisted state, mirroring the supabase
+// recording client above. `.execute()` resolves empty — the service ignores the
+// result and returns `{ id: periodId }` on a clean transaction.
+function makeKyselyRecorder() {
+  const updates: { table: string; values: any }[] = [];
+  const tx = {
+    updateTable(table: string) {
+      const builder: any = {
+        set: (values: any) => {
+          updates.push({ table, values });
+          return builder;
+        },
+        where: () => builder,
+        execute: () => Promise.resolve([])
+      };
+      return builder;
+    }
+  };
+  const db: any = {
+    transaction: () => ({
+      execute: async (fn: (t: unknown) => Promise<unknown>) => {
+        await fn(tx);
+      }
+    })
+  };
+  return { db, updates };
+}
+
 const args = { periodId: "P2", companyId: "C1", userId: "U1" };
 
 describe("closeAccountingPeriod — sequential close", () => {
@@ -112,8 +142,9 @@ describe("closeAccountingPeriod — sequential close", () => {
       { data: { id: "P2", startDate: "2026-02-01", closeStatus: "Open" } },
       { count: 1 } // one earlier period still open
     ]);
+    const { db } = makeKyselyRecorder();
 
-    const result = await closeAccountingPeriod(client, args);
+    const result = await closeAccountingPeriod(client, db, args);
 
     expect(result.error).toBeTruthy();
     expect(result.error?.message).toMatch(/sequential close/i);
@@ -140,11 +171,12 @@ describe("closeAccountingPeriod — sequential close", () => {
       { count: 0 }, // readiness: draft journals
       { data: [] }, // readiness: posted journals in period
       { count: 0 }, // readiness: draft depreciation
-      { count: 0 }, // readiness: unmatched intercompany
-      { data: { id: "P2" }, error: null } // period-flip update
+      { count: 0 } // readiness: unmatched intercompany
     ]);
+    // The period-flip write goes through the Kysely transaction, not supabase.
+    const { db } = makeKyselyRecorder();
 
-    const result = await closeAccountingPeriod(client, args);
+    const result = await closeAccountingPeriod(client, db, args);
 
     expect(result.error).toBeNull();
     expect(result.data).toEqual({ id: "P2" });
@@ -204,12 +236,15 @@ describe("closePeriodWithChecklist — Blocker gate + Auto-task persistence", ()
       { count: 0 }, // readiness: draft depreciation
       { count: 0 } // readiness: unmatched intercompany
     ]);
+    const { db, updates: txUpdates } = makeKyselyRecorder();
 
-    const result = await closePeriodWithChecklist(client, args);
+    const result = await closePeriodWithChecklist(client, db, args);
 
     expect(result.data).toBeNull();
     expect(result.error?.message).toMatch(/draft journal/i);
-    // The period must NOT have been flipped to Closed.
+    // The close is rejected before the transaction opens, so nothing is
+    // persisted through either client.
+    expect(txUpdates).toHaveLength(0);
     expect(
       updates.some(
         (u) =>
@@ -219,7 +254,7 @@ describe("closePeriodWithChecklist — Blocker gate + Auto-task persistence", ()
   });
 
   it("persists the resolved Auto-task state, then closes, when checks pass", async () => {
-    const { client, updates } = makeRecordingClient([
+    const { client } = makeRecordingClient([
       { data: openPeriod }, // getAccountingPeriodById
       { count: 0 }, // no earlier open periods
       { data: openPeriodWithRange }, // checklist: getAccountingPeriodById
@@ -249,23 +284,28 @@ describe("closePeriodWithChecklist — Blocker gate + Auto-task persistence", ()
       { count: 0 }, // readiness: no draft journals -> Blocker passing
       { data: [] }, // readiness: posted journals in period
       { count: 0 }, // readiness: draft depreciation
-      { count: 0 }, // readiness: unmatched intercompany
-      { data: { id: "auto1" }, error: null }, // periodCloseTask persist update
-      { data: { id: "P2" }, error: null } // accountingPeriod flip
+      { count: 0 } // readiness: unmatched intercompany
     ]);
+    // The task persist + period flip both run inside the Kysely transaction.
+    const { db, updates: txUpdates } = makeKyselyRecorder();
 
-    const result = await closePeriodWithChecklist(client, args);
+    const result = await closePeriodWithChecklist(client, db, args);
 
     expect(result.error).toBeNull();
     expect(result.data).toEqual({ id: "P2" });
 
     // Final Auto-task state persisted to periodCloseTask as Done.
-    const taskUpdate = updates.find((u) => u.table === "periodCloseTask");
+    const taskUpdate = txUpdates.find((u) => u.table === "periodCloseTask");
     expect(taskUpdate?.values.status).toBe("Done");
 
     // Period flipped to Closed after the task state was flushed.
-    const periodUpdate = updates.find((u) => u.table === "accountingPeriod");
+    const periodUpdate = txUpdates.find((u) => u.table === "accountingPeriod");
     expect(periodUpdate?.values.closeStatus).toBe("Closed");
+    // The task write precedes the period flip within the transaction.
+    expect(txUpdates.map((u) => u.table)).toEqual([
+      "periodCloseTask",
+      "accountingPeriod"
+    ]);
   });
 });
 
