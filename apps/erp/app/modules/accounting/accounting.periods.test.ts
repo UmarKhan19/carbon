@@ -59,6 +59,7 @@ function makeClient(responses: Scripted[]) {
     update: () => builder,
     eq: () => builder,
     neq: () => builder,
+    in: () => builder,
     lt: () => builder,
     gt: () => builder,
     gte: () => builder,
@@ -90,6 +91,7 @@ function makeRecordingClient(responses: Scripted[]) {
       },
       eq: () => builder,
       neq: () => builder,
+      in: () => builder,
       lt: () => builder,
       gt: () => builder,
       gte: () => builder,
@@ -139,7 +141,7 @@ const args = { periodId: "P2", companyId: "C1", userId: "U1" };
 describe("closeAccountingPeriod — sequential close", () => {
   it("rejects closing period N while an earlier period is not Closed", async () => {
     const client = makeClient([
-      { data: { id: "P2", startDate: "2026-02-01", closeStatus: "Open" } },
+      { data: { id: "P2", startDate: "2026-02-01", closeStatus: "Locked" } },
       { count: 1 } // one earlier period still open
     ]);
     const { db } = makeKyselyRecorder();
@@ -151,19 +153,31 @@ describe("closeAccountingPeriod — sequential close", () => {
     expect(result.data).toBeNull();
   });
 
+  it("rejects closing a period that is not yet Locked", async () => {
+    const client = makeClient([
+      { data: { id: "P2", startDate: "2026-02-01", closeStatus: "Open" } }
+    ]);
+    const { db } = makeKyselyRecorder();
+
+    const result = await closeAccountingPeriod(client, db, args);
+
+    expect(result.error?.message).toMatch(/must be locked/i);
+    expect(result.data).toBeNull();
+  });
+
   it("allows closing when earlier periods are closed and the checklist is clear", async () => {
     // Query order after the sequential gate:
     //   getPeriodCloseChecklist: getAccountingPeriodById -> [definitions, tasks]
     //     -> readiness (4 parallel) ; then the period-flip update.
     const client = makeClient([
-      { data: { id: "P2", startDate: "2026-02-01", closeStatus: "Open" } },
+      { data: { id: "P2", startDate: "2026-02-01", closeStatus: "Locked" } },
       { count: 0 }, // no earlier open periods
       {
         data: {
           id: "P2",
           startDate: "2026-02-01",
           endDate: "2026-02-28",
-          closeStatus: "Open"
+          closeStatus: "Locked"
         }
       },
       { data: [] }, // active definitions (none configured)
@@ -171,7 +185,11 @@ describe("closeAccountingPeriod — sequential close", () => {
       { count: 0 }, // readiness: draft journals
       { data: [] }, // readiness: posted journals in period
       { count: 0 }, // readiness: draft depreciation
-      { count: 0 } // readiness: unmatched intercompany
+      { count: 0 }, // readiness: unmatched intercompany
+      { count: 0 }, // readiness: pending receipts
+      { count: 0 }, // readiness: pending shipments
+      { count: 0 }, // readiness: pending sales invoices
+      { count: 0 } // readiness: pending purchase invoices
     ]);
     // The period-flip write goes through the Kysely transaction, not supabase.
     const { db } = makeKyselyRecorder();
@@ -189,25 +207,31 @@ describe("closeAccountingPeriod — sequential close", () => {
 // Delegates to closeAccountingPeriod, so it drives the full query graph:
 //   getAccountingPeriodById -> earlierOpen count
 //   -> getPeriodCloseChecklist(getAccountingPeriodById -> [definitions, tasks]
-//      -> readiness: [draftJournals, journalsInPeriod, draftDepreciation, IC])
+//      -> readiness: [draftJournals, journalsInPeriod, draftDepreciation, IC,
+//         pendingReceipts, pendingShipments, pendingSalesInv, pendingPurchInv])
 //   -> (per differing Auto task) periodCloseTask update
 //   -> accountingPeriod flip.
 // makeRecordingClient (above) records every `.update()` keyed by table so we can
 // assert both the close-gate outcome and that final Auto-task states persist.
 // ---------------------------------------------------------------------------
 
-const openPeriod = { id: "P2", startDate: "2026-02-01", closeStatus: "Open" };
-const openPeriodWithRange = {
-  ...openPeriod,
+// Close requires the period to already be Locked (Open -> Locked -> Closed).
+const lockedPeriod = {
+  id: "P2",
+  startDate: "2026-02-01",
+  closeStatus: "Locked"
+};
+const lockedPeriodWithRange = {
+  ...lockedPeriod,
   endDate: "2026-02-28"
 };
 
 describe("closePeriodWithChecklist — Blocker gate + Auto-task persistence", () => {
   it("rejects the close when a Blocker auto-check (draft JEs) is failing", async () => {
     const { client, updates } = makeRecordingClient([
-      { data: openPeriod }, // getAccountingPeriodById
+      { data: lockedPeriod }, // getAccountingPeriodById
       { count: 0 }, // no earlier open periods
-      { data: openPeriodWithRange }, // checklist: getAccountingPeriodById
+      { data: lockedPeriodWithRange }, // checklist: getAccountingPeriodById
       { data: [] }, // active definitions (already instantiated)
       {
         data: [
@@ -234,7 +258,11 @@ describe("closePeriodWithChecklist — Blocker gate + Auto-task persistence", ()
       { count: 2 }, // readiness: draft journals present -> Blocker failing
       { data: [] }, // readiness: posted journals in period
       { count: 0 }, // readiness: draft depreciation
-      { count: 0 } // readiness: unmatched intercompany
+      { count: 0 }, // readiness: unmatched intercompany
+      { count: 0 }, // readiness: pending receipts
+      { count: 0 }, // readiness: pending shipments
+      { count: 0 }, // readiness: pending sales invoices
+      { count: 0 } // readiness: pending purchase invoices
     ]);
     const { db, updates: txUpdates } = makeKyselyRecorder();
 
@@ -255,9 +283,9 @@ describe("closePeriodWithChecklist — Blocker gate + Auto-task persistence", ()
 
   it("persists the resolved Auto-task state, then closes, when checks pass", async () => {
     const { client } = makeRecordingClient([
-      { data: openPeriod }, // getAccountingPeriodById
+      { data: lockedPeriod }, // getAccountingPeriodById
       { count: 0 }, // no earlier open periods
-      { data: openPeriodWithRange }, // checklist: getAccountingPeriodById
+      { data: lockedPeriodWithRange }, // checklist: getAccountingPeriodById
       { data: [] }, // active definitions
       {
         data: [
@@ -284,7 +312,11 @@ describe("closePeriodWithChecklist — Blocker gate + Auto-task persistence", ()
       { count: 0 }, // readiness: no draft journals -> Blocker passing
       { data: [] }, // readiness: posted journals in period
       { count: 0 }, // readiness: draft depreciation
-      { count: 0 } // readiness: unmatched intercompany
+      { count: 0 }, // readiness: unmatched intercompany
+      { count: 0 }, // readiness: pending receipts
+      { count: 0 }, // readiness: pending shipments
+      { count: 0 }, // readiness: pending sales invoices
+      { count: 0 } // readiness: pending purchase invoices
     ]);
     // The task persist + period flip both run inside the Kysely transaction.
     const { db, updates: txUpdates } = makeKyselyRecorder();

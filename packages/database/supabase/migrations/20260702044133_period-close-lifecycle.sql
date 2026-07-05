@@ -142,7 +142,9 @@ CREATE TRIGGER "journal_check_period_open"
 --    posted journals immutable in EVERY period state, not only Closed:
 --      * journal: once status = 'Posted', the only permitted UPDATE is the
 --        status transition Posted → Reversed (which stamps reversedById). Any
---        other field change, or any other status change, is rejected.
+--        other field change, or any other status change, is rejected. DELETE of
+--        a Posted or Reversed journal is likewise rejected (it would cascade the
+--        lines away); such entries can only be reversed, never removed.
 --      * journalLine: all UPDATE/DELETE is rejected once the parent journal has
 --        left Draft (Posted or Reversed), in every period state. Lines are only
 --        editable while the parent is still a Draft entry.
@@ -157,6 +159,15 @@ DECLARE
   v_parent_status "journalEntryStatus";
 BEGIN
   IF TG_TABLE_NAME = 'journal' THEN
+    IF TG_OP = 'DELETE' THEN
+      -- A posted (or reversed) journal must never be deleted; a DELETE would
+      -- cascade its lines out from under the audit trail. Only the reversing
+      -- flow, which UPDATEs Posted -> Reversed, may touch such a journal.
+      IF OLD."status" IN ('Posted', 'Reversed') THEN
+        RAISE EXCEPTION 'Posted journal % is immutable and cannot be deleted; reverse it instead', OLD."id";
+      END IF;
+      RETURN OLD;
+    END IF;
     IF OLD."status" = 'Posted' AND NEW."status" IS DISTINCT FROM 'Reversed' THEN
       RAISE EXCEPTION 'Posted journal % is immutable; only the Posted -> Reversed transition is permitted', OLD."id";
     END IF;
@@ -177,7 +188,7 @@ $$;
 
 DROP TRIGGER IF EXISTS "journal_posted_immutable" ON "journal";
 CREATE TRIGGER "journal_posted_immutable"
-  BEFORE UPDATE ON "journal"
+  BEFORE UPDATE OR DELETE ON "journal"
   FOR EACH ROW EXECUTE FUNCTION public.check_posted_record_immutable();
 
 DROP TRIGGER IF EXISTS "journalLine_posted_immutable" ON "journalLine";

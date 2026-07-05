@@ -61,6 +61,12 @@ export function toStoredAmount(
   return credit(type, creditAmount);
 }
 
+// Posting source distinguishes operational documents (receipts, shipments,
+// invoices) from accounting entries (manual JEs, depreciation, disposals).
+// Locked periods reject operational posting but still accept accounting
+// adjustments; Closed periods reject both. See period-closing spec §Enforcement.
+export type PeriodPostingSource = "operational" | "accounting";
+
 export const MONTH_NUMBER: Record<string, number> = {
   January: 1,
   February: 2,

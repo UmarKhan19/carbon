@@ -338,6 +338,7 @@ function PeriodCloseTaskRow({ task }: { task: PeriodCloseTaskView }) {
                 <Trans>Confirm Skip</Trans>
               </Button>
               <Button
+                type="button"
                 variant="ghost"
                 size="sm"
                 onClick={() => setSkipping(false)}

@@ -1,5 +1,6 @@
 import type { Database, Json } from "@carbon/database";
 import type { Kysely, KyselyDatabase } from "@carbon/database/client";
+import type { PeriodPostingSource } from "@carbon/utils";
 import {
   fiscalYearAndPeriodFor,
   getDateNYearsAgo,
@@ -597,12 +598,7 @@ export async function getCurrentAccountingPeriod(
     .single();
 }
 
-// Posting source distinguishes operational documents (receipts, shipments,
-// invoices) from accounting entries (manual JEs, depreciation, disposals).
-// Locked periods reject operational posting but still accept accounting
-// adjustments; Closed periods reject both. See period-closing spec §Enforcement.
-type PeriodPostingSource = "operational" | "accounting";
-
+// PeriodPostingSource lives in @carbon/utils alongside the fiscal-year helpers.
 // New close-lifecycle columns on accountingPeriod are cloud-generated and not
 // yet in the committed DB types, so read them through this cast shape.
 type AccountingPeriodCloseColumns = {
@@ -846,6 +842,16 @@ export async function closeAccountingPeriod(
     return { data: null, error: { message: "Period is already closed" } };
   }
 
+  // Enforce the Open -> Locked -> Closed lifecycle: a period must be Locked
+  // before it can close. The "Lock the period" checklist step drives the flip;
+  // this gate makes locking a hard precondition regardless of that task's state.
+  if (period.data.closeStatus !== "Locked") {
+    return {
+      data: null,
+      error: { message: "Period must be locked before closing." }
+    };
+  }
+
   // Sequential close: every earlier period must already be Closed.
   const earlierOpen = await (client.from("accountingPeriod") as any)
     .select("id", { count: "exact", head: true })
@@ -1056,8 +1062,9 @@ export async function createFiscalYearPeriods(
 }
 
 // A single readiness evaluator, keyed by the autoCheckKey that binds it to an
-// Auto checklist task. autoCheckKeys with no evaluator here (pending-postings,
-// negative-inventory) are treated as passing until an evaluator is added.
+// Auto checklist task. Every seeded autoCheckKey has an evaluator here; a key
+// with no matching evaluator would resolve its task to Done (passing) by
+// default, so new Auto tasks must add their evaluator alongside the definition.
 export type PeriodReadinessCheck = {
   autoCheckKey: string;
   severity: (typeof periodCloseTaskSeverities)[number];
@@ -1076,42 +1083,95 @@ async function computePeriodReadiness(
   blockers: { key: string; label: string; count: number }[];
   warnings: { key: string; label: string; count: number }[];
 }> {
-  const [draftJournals, journalsInPeriod, draftDepreciation, unmatchedIC] =
-    await Promise.all([
-      client
-        .from("journal")
-        .select("id", { count: "exact", head: true })
-        .eq("companyId", companyId)
-        .eq("status", "Draft")
-        .gte("postingDate", startDate)
-        .lte("postingDate", endDate),
-      client
-        .from("journalEntries")
-        .select("id, journalEntryId, totalDebits, totalCredits")
-        .eq("companyId", companyId)
-        .eq("status", "Posted")
-        .gte("postingDate", startDate)
-        .lte("postingDate", endDate),
-      client
-        .from("depreciationRun")
-        .select("id", { count: "exact", head: true })
-        .eq("companyId", companyId)
-        .eq("status", "Draft")
-        .gte("periodEnd", startDate)
-        .lte("periodEnd", endDate),
-      client
-        .from("intercompanyTransaction")
-        .select("id", { count: "exact", head: true })
-        .eq("status", "Unmatched")
-        .or(`sourceCompanyId.eq.${companyId},targetCompanyId.eq.${companyId}`)
-    ]);
+  const [
+    draftJournals,
+    journalsInPeriod,
+    draftDepreciation,
+    unmatchedIC,
+    pendingReceipts,
+    pendingShipments,
+    pendingSalesInvoices,
+    pendingPurchaseInvoices
+  ] = await Promise.all([
+    client
+      .from("journal")
+      .select("id", { count: "exact", head: true })
+      .eq("companyId", companyId)
+      .eq("status", "Draft")
+      .gte("postingDate", startDate)
+      .lte("postingDate", endDate),
+    client
+      .from("journalEntries")
+      .select("id, journalEntryId, totalDebits, totalCredits")
+      .eq("companyId", companyId)
+      .eq("status", "Posted")
+      .gte("postingDate", startDate)
+      .lte("postingDate", endDate),
+    client
+      .from("depreciationRun")
+      .select("id", { count: "exact", head: true })
+      .eq("companyId", companyId)
+      .eq("status", "Draft")
+      .gte("periodEnd", startDate)
+      .lte("periodEnd", endDate),
+    client
+      .from("intercompanyTransaction")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "Unmatched")
+      .or(`sourceCompanyId.eq.${companyId},targetCompanyId.eq.${companyId}`),
+    // Un-posted operational documents dated in this period. Draft/Pending are
+    // the pre-posting states for receipts, shipments and invoices; Posted (or
+    // Open/Submitted for invoices) and Voided are terminal. postingDate is the
+    // period-anchoring date, matching the draft-journals check above.
+    client
+      .from("receipt")
+      .select("id", { count: "exact", head: true })
+      .eq("companyId", companyId)
+      .in("status", ["Draft", "Pending"])
+      .gte("postingDate", startDate)
+      .lte("postingDate", endDate),
+    client
+      .from("shipment")
+      .select("id", { count: "exact", head: true })
+      .eq("companyId", companyId)
+      .in("status", ["Draft", "Pending"])
+      .gte("postingDate", startDate)
+      .lte("postingDate", endDate),
+    client
+      .from("salesInvoice")
+      .select("id", { count: "exact", head: true })
+      .eq("companyId", companyId)
+      .in("status", ["Draft", "Pending"])
+      .gte("postingDate", startDate)
+      .lte("postingDate", endDate),
+    client
+      .from("purchaseInvoice")
+      .select("id", { count: "exact", head: true })
+      .eq("companyId", companyId)
+      .in("status", ["Draft", "Pending"])
+      .gte("postingDate", startDate)
+      .lte("postingDate", endDate)
+  ]);
 
   const unbalanced = (journalsInPeriod.data ?? []).filter(
     (j) =>
       Math.abs(Number(j.totalDebits ?? 0) - Number(j.totalCredits ?? 0)) > 0.001
   );
 
+  const pendingPostings =
+    (pendingReceipts.count ?? 0) +
+    (pendingShipments.count ?? 0) +
+    (pendingSalesInvoices.count ?? 0) +
+    (pendingPurchaseInvoices.count ?? 0);
+
   const checks: PeriodReadinessCheck[] = [
+    {
+      autoCheckKey: "pending-postings",
+      severity: "Blocker",
+      label: "Un-posted operational documents dated in this period",
+      failing: pendingPostings > 0,
+      count: pendingPostings
+    },
     {
       autoCheckKey: "draft-journals",
       severity: "Blocker",
@@ -1139,6 +1199,18 @@ async function computePeriodReadiness(
       label: "Unmatched intercompany transactions involving this company",
       failing: (unmatchedIC.count ?? 0) > 0,
       count: unmatchedIC.count ?? 0
+    },
+    {
+      // TODO: compute negative on-hand quantities as of period end from the
+      // item ledger (sum itemLedger.quantity per item/location where
+      // postingDate <= endDate, flag any negative balance). Until that
+      // aggregation is wired up, this Warning fails closed so the close forces
+      // an explicit manual review/skip rather than silently passing.
+      autoCheckKey: "negative-inventory",
+      severity: "Warning",
+      label: "Negative on-hand inventory as of period end (manual review)",
+      failing: true,
+      count: 0
     }
   ];
 
