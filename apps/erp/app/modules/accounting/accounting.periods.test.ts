@@ -422,6 +422,23 @@ describe("evaluateCloseChecklist — close gate (criteria 7/10)", () => {
     expect(result.blockingReason).toMatch(/draft journal/i);
   });
 
+  it("fails closed when an Auto task has no registered evaluator", () => {
+    const result = evaluateCloseChecklist(
+      [
+        task({
+          taskType: "Auto",
+          autoCheckKey: "future-custom-check",
+          severity: "Blocker",
+          status: "Open",
+          name: "Some future auto check"
+        })
+      ],
+      [] // no evaluator produced for this key
+    );
+    expect(result.canClose).toBe(false);
+    expect(result.blockingReason).toMatch(/Some future auto check/);
+  });
+
   it("allows close and persists the resolved Auto-task state when checks pass", () => {
     const result = evaluateCloseChecklist(
       [

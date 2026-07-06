@@ -1063,8 +1063,9 @@ export async function createFiscalYearPeriods(
 
 // A single readiness evaluator, keyed by the autoCheckKey that binds it to an
 // Auto checklist task. Every seeded autoCheckKey has an evaluator here; a key
-// with no matching evaluator would resolve its task to Done (passing) by
-// default, so new Auto tasks must add their evaluator alongside the definition.
+// with no matching evaluator fails closed in evaluateCloseChecklist (the task
+// stays Open and blocks the close) rather than silently passing, so a new Auto
+// task without its evaluator gates the close instead of quietly resolving Done.
 export type PeriodReadinessCheck = {
   autoCheckKey: string;
   severity: (typeof periodCloseTaskSeverities)[number];
@@ -1329,10 +1330,27 @@ export function evaluateCloseChecklist(
 
   const views: PeriodCloseTaskView[] = tasks.map((task) => {
     if (task.taskType === "Auto" && task.autoCheckKey) {
-      const autoCheck = checkByKey.get(task.autoCheckKey) ?? null;
-      const failing = autoCheck?.failing ?? false;
+      // An Auto task whose autoCheckKey has no registered evaluator cannot be
+      // verified, so it fails closed instead of silently passing: synthesize a
+      // failing check (inheriting the task's declared severity, defaulting to
+      // Blocker) so the close is gated and the reason is visible rather than a
+      // quiet Done. Every seeded key has an evaluator; this guards future
+      // custom Auto tasks added without one.
+      const autoCheck: PeriodReadinessCheck = checkByKey.get(
+        task.autoCheckKey
+      ) ?? {
+        autoCheckKey: task.autoCheckKey,
+        severity: task.severity ?? "Blocker",
+        label: `No automated check is implemented for "${task.autoCheckKey}"`,
+        failing: true,
+        count: 0
+      };
       const effectiveStatus =
-        task.status === "Skipped" ? "Skipped" : failing ? "Open" : "Done";
+        task.status === "Skipped"
+          ? "Skipped"
+          : autoCheck.failing
+            ? "Open"
+            : "Done";
       return { ...task, autoCheck, effectiveStatus };
     }
     return { ...task, autoCheck: null, effectiveStatus: task.status };

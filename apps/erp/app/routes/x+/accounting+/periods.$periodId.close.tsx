@@ -304,6 +304,7 @@ function PeriodCloseTaskRow({ task }: { task: PeriodCloseTaskView }) {
             )}
             {canSkip && !skipping && (
               <Button
+                type="button"
                 variant="secondary"
                 size="sm"
                 onClick={() => setSkipping(true)}

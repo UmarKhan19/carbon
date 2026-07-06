@@ -269,6 +269,8 @@ CREATE INDEX IF NOT EXISTS "periodCloseTask_companyId_idx" ON "periodCloseTask" 
 CREATE INDEX IF NOT EXISTS "periodCloseTask_accountingPeriodId_idx" ON "periodCloseTask" ("accountingPeriodId");
 CREATE INDEX IF NOT EXISTS "periodCloseTask_definitionId_idx" ON "periodCloseTask" ("definitionId", "companyId");
 CREATE INDEX IF NOT EXISTS "periodCloseTask_createdBy_idx" ON "periodCloseTask" ("createdBy");
+CREATE INDEX IF NOT EXISTS "periodCloseTask_assigneeId_idx" ON "periodCloseTask" ("assigneeId");
+CREATE INDEX IF NOT EXISTS "periodCloseTask_completedBy_idx" ON "periodCloseTask" ("completedBy");
 
 -- RLS: four standardized policies gated on accounting_* per conventions.
 ALTER TABLE "public"."periodCloseTaskDefinition" ENABLE ROW LEVEL SECURITY;
