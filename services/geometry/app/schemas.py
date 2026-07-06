@@ -84,15 +84,28 @@ class PlanStats(BaseModel):
     verifiedCount: int | None = None
 
 
-class PlanResponse(BaseModel):
+# Planning a large assembly runs for 10+ minutes — longer than any single HTTP
+# request survives across the app/tunnel/undici stack. So POST /plan starts the
+# work in the background and returns immediately; the caller polls
+# GET /plan/{jobId} until it reports "done" and then persists the inline plan.
+
+
+class PlanStartResponse(BaseModel):
     ok: Literal[True] = True
-    partCount: int
-    plannedCount: int
-    # The plan document (plan.json contents), returned inline so the caller can
-    # persist it after the planner finishes. Uploading via a pre-signed URL is
-    # unreliable: the URL is minted before the multi-minute run and expires.
-    plan: dict
-    stats: PlanStats
+    jobId: str
+    status: str  # "pending" | "running"
+
+
+class PlanStatusResponse(BaseModel):
+    ok: Literal[True] = True
+    status: str  # "pending" | "running" | "done" | "error"
+    # Present only when status == "done":
+    plan: dict | None = None
+    partCount: int | None = None
+    plannedCount: int | None = None
+    stats: PlanStats | None = None
+    # Present only when status == "error":
+    error: str | None = None
 
 
 class HealthResponse(BaseModel):

@@ -5,6 +5,7 @@ Wire format is defined in docs/specs/animated-work-instructions-contracts.md.
 
 import json
 import logging
+import shutil
 import tempfile
 import threading
 import time
@@ -24,9 +25,11 @@ from app.schemas import (
     ConvertResponse,
     ConvertStats,
     HealthResponse,
+    PlanOptions,
     PlanRequest,
-    PlanResponse,
+    PlanStartResponse,
     PlanStats,
+    PlanStatusResponse,
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -141,73 +144,147 @@ def convert(request: ConvertRequest) -> ConvertResponse:
     )
 
 
-@app.post("/plan", response_model=PlanResponse, dependencies=[Depends(require_auth)])
-def plan(request: PlanRequest) -> PlanResponse:
+# --- Async plan jobs -----------------------------------------------------
+# Planning runs in a background thread keyed by jobId; the caller polls
+# GET /plan/{jobId}. Jobs live in-process (dev-scale) — a service restart drops
+# them and the caller re-submits. Slots are held only while a job runs, so
+# submissions queue rather than 429 when both slots are busy.
+_plan_jobs: dict[str, dict] = {}
+_plan_jobs_lock = threading.Lock()
+_PLAN_JOB_TTL_S = 60 * 60
+
+
+def _plan_job_get(job_id: str) -> dict | None:
+    with _plan_jobs_lock:
+        job = _plan_jobs.get(job_id)
+        return dict(job) if job else None
+
+
+def _plan_job_set(job_id: str, **fields: object) -> None:
+    with _plan_jobs_lock:
+        job = _plan_jobs.setdefault(job_id, {})
+        job.update(fields)
+        job["updatedAt"] = time.time()
+
+
+def _plan_jobs_prune() -> None:
+    cutoff = time.time() - _PLAN_JOB_TTL_S
+    with _plan_jobs_lock:
+        for key in [
+            k for k, v in _plan_jobs.items() if v.get("updatedAt", 0.0) < cutoff
+        ]:
+            _plan_jobs.pop(key, None)
+
+
+def _run_plan_job(job_id: str, source_url: str, options: PlanOptions) -> None:
+    from app.plan import plan_step
+
+    _conversion_slots.acquire()
+    tmp = tempfile.mkdtemp(prefix="geometry-")
+    started = time.monotonic()
+    logger.info("[%s] plan start: step", job_id)
     try:
-        from app.plan import plan_step
+        _plan_job_set(job_id, status="running")
+        step_path = Path(tmp) / "source.step"
+        _download(source_url, step_path)
+
+        result = plan_step(
+            step_path,
+            linear_deflection=options.linearDeflection,
+            angular_deflection=options.angularDeflection,
+            clearance=options.clearance,
+            path_samples=options.pathSamples,
+            max_parts=config.max_parts(),
+        )
+
+        plan_ms = int((time.monotonic() - started) * 1000)
+        logger.info(
+            "[%s] plan done: %d/%d parts planned, tiers=%s, %dms",
+            job_id,
+            result.planned_count,
+            result.part_count,
+            result.tiers,
+            plan_ms,
+        )
+        _plan_job_set(
+            job_id,
+            status="done",
+            plan=result.plan,
+            partCount=result.part_count,
+            plannedCount=result.planned_count,
+            stats={
+                "planMs": plan_ms,
+                "tiers": result.tiers,
+                "warnings": result.warnings,
+                "verifiedCount": result.verified_count,
+            },
+        )
+    except ConvertError as exc:
+        logger.exception("[%s] plan failed", job_id)
+        _plan_job_set(job_id, status="error", error=exc.message)
+    except Exception as exc:  # noqa: BLE001 - surface any planner failure to caller
+        logger.exception("[%s] plan failed", job_id)
+        _plan_job_set(job_id, status="error", error=str(exc))
+    finally:
+        _conversion_slots.release()
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+@app.post(
+    "/plan",
+    status_code=202,
+    response_model=PlanStartResponse,
+    dependencies=[Depends(require_auth)],
+)
+def plan(request: PlanRequest) -> PlanStartResponse:
+    try:
+        from app.plan import plan_step  # noqa: F401 - fail fast if deps missing
     except ImportError as exc:
         raise ConvertError(
             "TESSELLATION_FAILED", f"planner dependencies unavailable: {exc}"
         ) from exc
 
     _validate_url(request.source.url)
-    if request.outputs is not None:
-        _validate_url(request.outputs.plan.url)
 
-    if not _conversion_slots.acquire(blocking=False):
-        raise ConvertError("BUSY", "all conversion slots are in use; retry later", 429)
+    _plan_jobs_prune()
+    job_id = request.jobId
+    with _plan_jobs_lock:
+        existing = _plan_jobs.get(job_id)
+        if existing and existing.get("status") in ("pending", "running"):
+            # Idempotent: a duplicate submit (e.g. an Inngest retry) attaches to
+            # the run already in flight rather than starting a second planner.
+            return PlanStartResponse(jobId=job_id, status=str(existing["status"]))
+        _plan_jobs[job_id] = {"status": "pending", "updatedAt": time.time()}
 
-    started = time.monotonic()
-    logger.info("[%s] plan start: %s", request.jobId, request.source.format)
+    threading.Thread(
+        target=_run_plan_job,
+        args=(job_id, request.source.url, request.options),
+        daemon=True,
+    ).start()
+    return PlanStartResponse(jobId=job_id, status="pending")
 
-    try:
-        with tempfile.TemporaryDirectory(prefix="geometry-") as tmp:
-            tmp_dir = Path(tmp)
-            step_path = tmp_dir / "source.step"
-            _download(request.source.url, step_path)
 
-            result = plan_step(
-                step_path,
-                linear_deflection=request.options.linearDeflection,
-                angular_deflection=request.options.angularDeflection,
-                clearance=request.options.clearance,
-                path_samples=request.options.pathSamples,
-                max_parts=config.max_parts(),
-            )
-
-            # The caller persists result.plan from the response body. Planning
-            # can run for minutes — long enough for a pre-signed upload URL to
-            # expire (60s TTL) — so uploading here is only done when an output
-            # target is explicitly supplied (backward compatibility).
-            if request.outputs is not None:
-                _upload(
-                    request.outputs.plan.url,
-                    json.dumps(result.plan).encode("utf-8"),
-                    "application/json",
-                )
-    finally:
-        _conversion_slots.release()
-
-    plan_ms = int((time.monotonic() - started) * 1000)
-    logger.info(
-        "[%s] plan done: %d/%d parts planned, tiers=%s, %dms",
-        request.jobId,
-        result.planned_count,
-        result.part_count,
-        result.tiers,
-        plan_ms,
-    )
-    return PlanResponse(
-        partCount=result.part_count,
-        plannedCount=result.planned_count,
-        plan=result.plan,
-        stats=PlanStats(
-            planMs=plan_ms,
-            tiers=result.tiers,
-            warnings=result.warnings,
-            verifiedCount=result.verified_count,
-        ),
-    )
+@app.get(
+    "/plan/{job_id}",
+    response_model=PlanStatusResponse,
+    dependencies=[Depends(require_auth)],
+)
+def plan_status(job_id: str) -> PlanStatusResponse:
+    job = _plan_job_get(job_id)
+    if job is None:
+        raise ConvertError("NOT_FOUND", f"no plan job {job_id}", 404)
+    status = str(job["status"])
+    if status == "done":
+        return PlanStatusResponse(
+            status="done",
+            plan=job["plan"],
+            partCount=job["partCount"],
+            plannedCount=job["plannedCount"],
+            stats=PlanStats(**job["stats"]),
+        )
+    if status == "error":
+        return PlanStatusResponse(status="error", error=job.get("error"))
+    return PlanStatusResponse(status=status)
 
 
 def _validate_url(url: str) -> None:

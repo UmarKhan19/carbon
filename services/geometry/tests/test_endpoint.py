@@ -1,6 +1,9 @@
 """End-to-end /convert against a local HTTP server playing the storage role."""
 
 import json
+import time
+from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -8,6 +11,8 @@ pytest.importorskip("OCP")
 
 from fastapi.testclient import TestClient
 
+import app.main as main
+import app.plan as plan_mod
 from app.main import app
 
 
@@ -69,3 +74,68 @@ def test_convert_endpoint_read_failure(monkeypatch: pytest.MonkeyPatch) -> None:
     body = response.json()
     assert body["ok"] is False
     assert body["code"] == "READ_FAILED"
+
+
+def test_plan_async_submit_poll_result(monkeypatch: pytest.MonkeyPatch) -> None:
+    """POST /plan starts a background job; GET /plan/{id} polls to the result."""
+    monkeypatch.setenv("GEOMETRY_SERVICE_API_KEY", "secret")
+
+    # Stub the planner + download so the async orchestration is what's exercised,
+    # not OCCT tessellation.
+    monkeypatch.setattr(main, "_download", lambda url, dest: Path(dest).write_text("x"))
+
+    def fake_plan_step(_path: object, **_kwargs: object) -> SimpleNamespace:
+        return SimpleNamespace(
+            plan={
+                "version": 3,
+                "unit": "mm",
+                "sequence": ["n1"],
+                "parts": {"n1": {"motion": {"type": "none"}}},
+            },
+            part_count=1,
+            planned_count=1,
+            tiers={"linear": 1},
+            warnings=[],
+            verified_count=1,
+        )
+
+    monkeypatch.setattr(plan_mod, "plan_step", fake_plan_step)
+
+    client = TestClient(app)
+    headers = {"Authorization": "Bearer secret"}
+
+    start = client.post(
+        "/plan",
+        json={"jobId": "async-job", "source": {"url": "https://x/y.step"}},
+        headers=headers,
+    )
+    assert start.status_code == 202, start.text
+    assert start.json()["jobId"] == "async-job"
+    assert start.json()["status"] in ("pending", "running")
+
+    for _ in range(100):
+        poll = client.get("/plan/async-job", headers=headers)
+        assert poll.status_code == 200, poll.text
+        body = poll.json()
+        if body["status"] == "done":
+            assert body["plan"]["version"] == 3
+            assert body["partCount"] == 1
+            assert body["plannedCount"] == 1
+            break
+        if body["status"] == "error":
+            raise AssertionError(body.get("error"))
+        time.sleep(0.02)
+    else:
+        raise AssertionError("plan job never completed")
+
+    # Unknown job id reports 404 via the error contract.
+    missing = client.get("/plan/does-not-exist", headers=headers)
+    assert missing.status_code == 404
+    assert missing.json()["ok"] is False
+
+
+def test_plan_requires_auth(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("GEOMETRY_SERVICE_API_KEY", "secret")
+    client = TestClient(app)
+    assert client.post("/plan", json={}).status_code == 401
+    assert client.get("/plan/whatever").status_code == 401

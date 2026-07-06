@@ -4,10 +4,18 @@ import { GEOMETRY_SERVICE_API_KEY, GEOMETRY_SERVICE_URL } from "@carbon/env";
 import { inngest } from "../../client";
 
 const SIGNED_URL_EXPIRY = 60 * 60; // seconds
-// The planner can run for several minutes on large assemblies. Bound the call
-// so a genuinely hung request fails cleanly (→ onFailure marks the job Failed →
-// the UI offers a retry) instead of pinning the job in "Processing" forever.
-const PLAN_TIMEOUT_MS = 10 * 60 * 1000;
+// Every geometry HTTP call is now short (submit or a status poll), so a tight
+// per-request timeout is safe and catches a genuinely unreachable service.
+const REQUEST_TIMEOUT_MS = 60 * 1000;
+// Large assemblies can plan for 10+ minutes. Poll the async job on this cadence
+// up to this many times; exceeding it fails the job (→ onFailure → Failed → the
+// UI offers a retry) rather than waiting forever.
+const PLAN_POLL_INTERVAL = "15s";
+const PLAN_MAX_POLLS = 120; // 15s × 120 = 30 min budget
+
+const authHeaders: Record<string, string> = GEOMETRY_SERVICE_API_KEY
+  ? { Authorization: `Bearer ${GEOMETRY_SERVICE_API_KEY}` }
+  : {};
 
 /**
  * Runs the geometry service motion planner over a converted model: computes a
@@ -77,14 +85,16 @@ export const assemblyPlanFunction = inngest.createFunction(
       return { id: planJob.data.id, modelPath: modelUpload.data.modelPath };
     });
 
-    await step.run("plan", async () => {
+    if (!GEOMETRY_SERVICE_URL) {
+      throw new Error("GEOMETRY_SERVICE_URL is not configured");
+    }
+    const geometryUrl = GEOMETRY_SERVICE_URL;
+
+    // Kick off the planner. The service starts it in the background and returns
+    // immediately, so the request is short — no connection is held open across
+    // the multi-minute run (which no HTTP hop survives).
+    await step.run("start-plan", async () => {
       const client = getCarbonServiceRole();
-
-      if (!GEOMETRY_SERVICE_URL) {
-        throw new Error("GEOMETRY_SERVICE_URL is not configured");
-      }
-
-      const planPath = `${companyId}/models/${modelUploadId}/${job.id}/plan.json`;
 
       const source = await client.storage
         .from("private")
@@ -93,46 +103,80 @@ export const assemblyPlanFunction = inngest.createFunction(
         throw new Error(`Failed to sign source URL: ${source.error.message}`);
       }
 
-      const response = await fetch(`${GEOMETRY_SERVICE_URL}/plan`, {
+      const response = await fetch(`${geometryUrl}/plan`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(GEOMETRY_SERVICE_API_KEY
-            ? { Authorization: `Bearer ${GEOMETRY_SERVICE_API_KEY}` }
-            : {})
-        },
+        headers: { "Content-Type": "application/json", ...authHeaders },
         body: JSON.stringify({
           jobId: job.id,
-          source: {
-            url: source.data.signedUrl,
-            format: "step"
-          }
+          source: { url: source.data.signedUrl, format: "step" }
         }),
-        signal: AbortSignal.timeout(PLAN_TIMEOUT_MS)
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS)
       });
 
       const result = (await response.json().catch(() => null)) as {
-        ok: boolean;
-        plan?: Json;
-        partCount?: number;
-        plannedCount?: number;
-        stats?: Record<string, unknown>;
+        ok?: boolean;
         error?: string;
       } | null;
-
-      if (!response.ok || !result?.ok || result.plan == null) {
+      if (!response.ok || !result?.ok) {
         throw new Error(
           result?.error ?? `Geometry service returned ${response.status}`
         );
       }
+    });
 
-      // Persist the plan ourselves now that the planner has returned. The
-      // service used to upload via a pre-signed URL, but that URL is minted
-      // before the multi-minute run and expires (60s TTL) long before the
-      // planner finishes — the upload then 400s and the job never completes.
+    // Poll the async job until it finishes. Each poll is its own short step, so
+    // Inngest sleeps between them rather than holding a request open, and a
+    // retry resumes from the last poll instead of re-running the planner.
+    let plan: Json | null = null;
+    let stats: Json = null;
+    for (let attempt = 0; attempt < PLAN_MAX_POLLS; attempt++) {
+      await step.sleep(`plan-wait-${attempt}`, PLAN_POLL_INTERVAL);
+
+      const status = await step.run(`plan-poll-${attempt}`, async () => {
+        const response = await fetch(`${geometryUrl}/plan/${job.id}`, {
+          headers: authHeaders,
+          signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS)
+        });
+        const body = (await response.json().catch(() => null)) as {
+          ok?: boolean;
+          status?: string;
+          plan?: Json;
+          stats?: Record<string, unknown>;
+          error?: string;
+        } | null;
+        if (!response.ok || !body?.ok) {
+          throw new Error(
+            body?.error ?? `Geometry status check returned ${response.status}`
+          );
+        }
+        return body;
+      });
+
+      if (status.status === "done") {
+        if (status.plan == null) {
+          throw new Error("Planner reported done but returned no plan");
+        }
+        plan = status.plan;
+        stats = (status.stats ?? null) as Json;
+        break;
+      }
+      if (status.status === "error") {
+        throw new Error(status.error ?? "Motion planning failed");
+      }
+    }
+
+    if (plan == null) {
+      throw new Error("Motion planning did not finish in time");
+    }
+    const planData = plan;
+
+    await step.run("persist-plan", async () => {
+      const client = getCarbonServiceRole();
+      const planPath = `${companyId}/models/${modelUploadId}/${job.id}/plan.json`;
+
       const upload = await client.storage
         .from("private")
-        .upload(planPath, JSON.stringify(result.plan), {
+        .upload(planPath, JSON.stringify(planData), {
           contentType: "application/json",
           upsert: true
         });
@@ -145,7 +189,7 @@ export const assemblyPlanFunction = inngest.createFunction(
         .update({
           status: "Success",
           planPath,
-          stats: (result.stats ?? null) as Json,
+          stats,
           updatedAt: new Date().toISOString()
         })
         .eq("id", job.id);
