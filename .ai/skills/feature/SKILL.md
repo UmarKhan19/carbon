@@ -16,7 +16,7 @@ skill adds no logic of its own — each phase's rules live in its own skill.
 | # | Phase | Skill | Artifact | Gate before next phase |
 |---|-------|-------|----------|-------------------------|
 | 1 | Research | `/research` | `.ai/research/{slug}.md` | none |
-| 2 | Design + spec | `/spec-writing` | `.ai/specs/{date}-{slug}.md` | 🛑 every Open Question resolved by the user |
+| 2 | Design + spec | `/spec-writing` | `.ai/specs/{date}-{slug}.md` | 🛑 open questions grilled with the user BEFORE the spec is written; spec final only when all are resolved |
 | 3 | Plan | `/plan` | `.ai/plans/{date}-{slug}.md` | 🛑 user approves the plan |
 | 4 | Build | `/execute` | commits on the feature branch | all tasks verified + committed |
 | 5 | Browser verify | `/test` | pass/fail table + playbooks | every user-facing flow passes |
