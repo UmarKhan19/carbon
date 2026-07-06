@@ -561,16 +561,16 @@ export const path = {
       generatePath(`${x}/assembly/${id}/materials/delete/${materialId}`),
     assemblyStepMaterialOrder: (id: string) =>
       generatePath(`${x}/assembly/${id}/materials/order`),
-    newAssemblyGroup: (id: string) =>
-      generatePath(`${x}/assembly/${id}/groups/new`),
+    newAssemblyUnit: (id: string) =>
+      generatePath(`${x}/assembly/${id}/units/new`),
     newAssemblyPartMapping: (id: string) =>
       generatePath(`${x}/assembly/${id}/part-mappings/new`),
     deleteAssemblyPartMapping: (id: string, mappingId: string) =>
       generatePath(`${x}/assembly/${id}/part-mappings/delete/${mappingId}`),
     autoMatchAssemblyParts: (id: string) =>
       generatePath(`${x}/assembly/${id}/part-mappings/auto`),
-    deleteAssemblyGroup: (id: string, groupId: string) =>
-      generatePath(`${x}/assembly/${id}/groups/delete/${groupId}`),
+    deleteAssemblyUnit: (id: string, unitId: string) =>
+      generatePath(`${x}/assembly/${id}/units/delete/${unitId}`),
     newAssemblyStandardNote: `${x}/assembly/standard-notes/new`,
     assemblyStandardNote: (noteId: string) =>
       generatePath(`${x}/assembly/standard-notes/${noteId}`),

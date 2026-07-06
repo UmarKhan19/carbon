@@ -27,7 +27,6 @@ import { PanelProvider, ResizablePanels } from "~/components/Layout/Panels";
 import { usePermissions } from "~/hooks";
 import {
   assemblyInstructionValidator,
-  getAssemblyGroups,
   getAssemblyInstruction,
   getAssemblyInstructionStepMaterials,
   getAssemblyInstructionStepRequirements,
@@ -35,6 +34,7 @@ import {
   getAssemblyPartMappings,
   getAssemblyPlanJson,
   getAssemblyStandardNotes,
+  getAssemblyUnits,
   getFlattenedBomMaterials,
   getLatestAssemblyPlanJob,
   toViewerStep,
@@ -61,11 +61,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { id } = params;
   if (!id) throw new Error("Could not find id");
 
-  const [instruction, steps, standardNotes, groups] = await Promise.all([
+  const [instruction, steps, standardNotes] = await Promise.all([
     getAssemblyInstruction(client, id),
     getAssemblyInstructionSteps(client, id),
-    getAssemblyStandardNotes(client, companyId),
-    getAssemblyGroups(client, id)
+    getAssemblyStandardNotes(client, companyId)
   ]);
 
   if (instruction.error) {
@@ -85,6 +84,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     plan,
     planJob,
     partMappings,
+    units,
     bomMaterials
   ] = await Promise.all([
     getAssemblyInstructionStepRequirements(client, stepIds),
@@ -98,6 +98,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     instruction.data.modelUploadId
       ? getAssemblyPartMappings(client, instruction.data.modelUploadId)
       : Promise.resolve({ data: [] }),
+    instruction.data.modelUploadId
+      ? getAssemblyUnits(client, instruction.data.modelUploadId)
+      : Promise.resolve({ data: [] }),
     instruction.data.itemId
       ? getFlattenedBomMaterials(client, instruction.data.itemId, companyId)
       : Promise.resolve([])
@@ -109,7 +112,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     requirements: requirements.data ?? [],
     stepMaterials: stepMaterials.data ?? [],
     standardNotes: standardNotes.data ?? [],
-    groups: groups.data ?? [],
+    units: units.data ?? [],
     plan,
     planJob: planJob.data ?? null,
     partMappings: partMappings.data ?? [],
@@ -168,7 +171,7 @@ export default function AssemblyInstructionRoute() {
     requirements,
     stepMaterials,
     standardNotes,
-    groups,
+    units,
     plan,
     planJob,
     partMappings,
@@ -191,7 +194,10 @@ export default function AssemblyInstructionRoute() {
     () => (graph ? indexAssemblyGraph(graph) : null),
     [graph]
   );
-  const [highlightedNodeIds, setHighlightedNodeIds] = useState<string[]>([]);
+  // The current part selection — a single source of truth shared by all three
+  // panels: it renders red in the viewer, marks + scrolls to the row in the
+  // Parts panel, and (while authoring a step) stages the step's draft parts.
+  const [selectedNodeIds, setSelectedNodeIds] = useState<string[]>([]);
   const [hiddenNodeIds, setHiddenNodeIds] = useState<string[]>([]);
 
   const selectedStep =
@@ -204,6 +210,16 @@ export default function AssemblyInstructionRoute() {
     setSelectedStepId(stepId);
     setDraftPartNodeIds(null);
   }, []);
+
+  // Picking parts (in the viewer or the Parts panel) drives the shared
+  // selection; while authoring an editable step it also stages the draft parts.
+  const onSelectParts = useCallback(
+    (nodeIds: string[]) => {
+      setSelectedNodeIds(nodeIds);
+      if (!isDisabled && selectedStep) setDraftPartNodeIds(nodeIds);
+    },
+    [isDisabled, selectedStep]
+  );
 
   const viewerSteps = useMemo(() => steps.map(toViewerStep), [steps]);
 
@@ -233,17 +249,19 @@ export default function AssemblyInstructionRoute() {
               explorer={
                 <AssemblyInstructionExplorer
                   steps={steps}
-                  groups={groups}
+                  units={units}
                   selectedStepId={selectedStep?.id ?? null}
                   isDisabled={isDisabled}
+                  isConverting={isConverting}
                   graphIndex={graphIndex}
                   hasPlan={Boolean(plan)}
                   planJob={planJob}
                   modelUploadId={instruction.modelUploadId}
                   partMappings={partMappings}
                   bomMaterials={bomMaterials}
+                  selectedNodeIds={selectedNodeIds}
                   onSelectStep={onSelectStep}
-                  onHighlightParts={setHighlightedNodeIds}
+                  onHighlightParts={onSelectParts}
                   onHideParts={setHiddenNodeIds}
                 />
               }
@@ -267,13 +285,9 @@ export default function AssemblyInstructionRoute() {
                             const step = steps[index];
                             if (step) onSelectStep(step.id);
                           }}
-                          onSelectParts={
-                            isDisabled || !selectedStep
-                              ? undefined
-                              : setDraftPartNodeIds
-                          }
+                          onSelectParts={onSelectParts}
                           onGraphLoaded={setGraph}
-                          highlightedNodeIds={highlightedNodeIds}
+                          highlightedNodeIds={selectedNodeIds}
                           hiddenNodeIds={hiddenNodeIds}
                           readOnly={isDisabled}
                           mode={mode}

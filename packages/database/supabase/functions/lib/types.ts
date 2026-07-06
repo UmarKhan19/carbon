@@ -1997,157 +1997,200 @@ export type Database = {
           },
         ]
       }
-      assemblyGroup: {
+      assemblyUnit: {
         Row: {
-          assemblyInstructionId: string
-          childInstructionId: string | null
           companyId: string
           createdAt: string
           createdBy: string
           id: string
+          itemId: string | null
+          modelUploadId: string
           name: string
           partNodeIds: string[]
-          partNumber: string | null
-          type: Database["public"]["Enums"]["assemblyGroupType"]
           updatedAt: string | null
           updatedBy: string | null
         }
         Insert: {
-          assemblyInstructionId: string
-          childInstructionId?: string | null
           companyId: string
           createdAt?: string
           createdBy: string
           id?: string
+          itemId?: string | null
+          modelUploadId: string
           name: string
           partNodeIds?: string[]
-          partNumber?: string | null
-          type: Database["public"]["Enums"]["assemblyGroupType"]
           updatedAt?: string | null
           updatedBy?: string | null
         }
         Update: {
-          assemblyInstructionId?: string
-          childInstructionId?: string | null
           companyId?: string
           createdAt?: string
           createdBy?: string
           id?: string
+          itemId?: string | null
+          modelUploadId?: string
           name?: string
           partNodeIds?: string[]
-          partNumber?: string | null
-          type?: Database["public"]["Enums"]["assemblyGroupType"]
           updatedAt?: string | null
           updatedBy?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "assemblyGroup_assemblyInstructionId_fkey"
-            columns: ["assemblyInstructionId"]
-            isOneToOne: false
-            referencedRelation: "assemblyInstruction"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "assemblyGroup_childInstructionId_fkey"
-            columns: ["childInstructionId"]
-            isOneToOne: false
-            referencedRelation: "assemblyInstruction"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "assemblyGroup_companyId_fkey"
+            foreignKeyName: "assemblyUnit_companyId_fkey"
             columns: ["companyId"]
             isOneToOne: false
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "assemblyGroup_companyId_fkey"
+            foreignKeyName: "assemblyUnit_companyId_fkey"
             columns: ["companyId"]
             isOneToOne: false
             referencedRelation: "company"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "assemblyGroup_companyId_fkey"
+            foreignKeyName: "assemblyUnit_companyId_fkey"
             columns: ["companyId"]
             isOneToOne: false
             referencedRelation: "customFieldTables"
             referencedColumns: ["companyId"]
           },
           {
-            foreignKeyName: "assemblyGroup_companyId_fkey"
+            foreignKeyName: "assemblyUnit_companyId_fkey"
             columns: ["companyId"]
             isOneToOne: false
             referencedRelation: "integrations"
             referencedColumns: ["companyId"]
           },
           {
-            foreignKeyName: "assemblyGroup_createdBy_fkey"
+            foreignKeyName: "assemblyUnit_createdBy_fkey"
             columns: ["createdBy"]
             isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "assemblyGroup_createdBy_fkey"
+            foreignKeyName: "assemblyUnit_createdBy_fkey"
             columns: ["createdBy"]
             isOneToOne: false
             referencedRelation: "employeesAcrossCompanies"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "assemblyGroup_createdBy_fkey"
+            foreignKeyName: "assemblyUnit_createdBy_fkey"
             columns: ["createdBy"]
             isOneToOne: false
             referencedRelation: "employeeSummary"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "assemblyGroup_createdBy_fkey"
+            foreignKeyName: "assemblyUnit_createdBy_fkey"
             columns: ["createdBy"]
             isOneToOne: false
             referencedRelation: "user"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "assemblyGroup_createdBy_fkey"
+            foreignKeyName: "assemblyUnit_createdBy_fkey"
             columns: ["createdBy"]
             isOneToOne: false
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
           },
           {
-            foreignKeyName: "assemblyGroup_updatedBy_fkey"
+            foreignKeyName: "assemblyUnit_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "consumables"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyUnit_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "item"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyUnit_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyUnit_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "parts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyUnit_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyUnit_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "tools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyUnit_modelUploadId_fkey"
+            columns: ["modelUploadId"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["modelId"]
+          },
+          {
+            foreignKeyName: "assemblyUnit_modelUploadId_fkey"
+            columns: ["modelUploadId"]
+            isOneToOne: false
+            referencedRelation: "modelUpload"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyUnit_modelUploadId_fkey"
+            columns: ["modelUploadId"]
+            isOneToOne: false
+            referencedRelation: "salesRfqLines"
+            referencedColumns: ["modelId"]
+          },
+          {
+            foreignKeyName: "assemblyUnit_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "assemblyGroup_updatedBy_fkey"
+            foreignKeyName: "assemblyUnit_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "employeesAcrossCompanies"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "assemblyGroup_updatedBy_fkey"
+            foreignKeyName: "assemblyUnit_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "employeeSummary"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "assemblyGroup_updatedBy_fkey"
+            foreignKeyName: "assemblyUnit_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "user"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "assemblyGroup_updatedBy_fkey"
+            foreignKeyName: "assemblyUnit_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "userDefaults"
@@ -2393,7 +2436,6 @@ export type Database = {
           explode: Json | null
           fastener: Json | null
           fileTypes: string[] | null
-          groupIds: string[]
           id: string
           instructionText: string | null
           listValues: string[] | null
@@ -2425,7 +2467,6 @@ export type Database = {
           explode?: Json | null
           fastener?: Json | null
           fileTypes?: string[] | null
-          groupIds?: string[]
           id?: string
           instructionText?: string | null
           listValues?: string[] | null
@@ -2457,7 +2498,6 @@ export type Database = {
           explode?: Json | null
           fastener?: Json | null
           fileTypes?: string[] | null
-          groupIds?: string[]
           id?: string
           instructionText?: string | null
           listValues?: string[] | null
@@ -71118,7 +71158,6 @@ export type Database = {
         | "Investments"
       approvalDocumentType: "purchaseOrder" | "qualityDocument" | "supplier"
       approvalStatus: "Pending" | "Approved" | "Rejected" | "Cancelled"
-      assemblyGroupType: "Cluster" | "Kit" | "Combination" | "Subassembly"
       assemblyInstructionStatus: "Draft" | "Published" | "Archived"
       assemblyNoteSeverity: "Info" | "Caution" | "Warning"
       assemblyRequirementType:
@@ -72446,7 +72485,6 @@ export const Constants = {
       ],
       approvalDocumentType: ["purchaseOrder", "qualityDocument", "supplier"],
       approvalStatus: ["Pending", "Approved", "Rejected", "Cancelled"],
-      assemblyGroupType: ["Cluster", "Kit", "Combination", "Subassembly"],
       assemblyInstructionStatus: ["Draft", "Published", "Archived"],
       assemblyNoteSeverity: ["Info", "Caution", "Warning"],
       assemblyRequirementType: [

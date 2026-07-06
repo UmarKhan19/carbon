@@ -7,10 +7,6 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
   cn,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
   IconButton,
   Input,
   Modal,
@@ -34,36 +30,36 @@ import {
   LuBlocks,
   LuEye,
   LuEyeOff,
-  LuFolderTree,
   LuSettings,
-  LuSquareStack,
   LuTrash
 } from "react-icons/lu";
-import { Link, useFetcher, useParams } from "react-router";
+import { useFetcher, useParams } from "react-router";
 import { Empty } from "~/components";
 import { usePermissions } from "~/hooks";
 import { path } from "~/utils/path";
-import type { assemblyGroupTypes } from "../../production.models";
 import type { FlattenedBomMaterial } from "../../production.service";
 import { toViewerStep } from "../../production.service";
 import type {
-  AssemblyGroup,
   AssemblyInstructionStepRow,
-  AssemblyPartMapping
+  AssemblyPartMapping,
+  AssemblyUnit
 } from "../../types";
 import { PartColorSwatch } from "./AssemblyStepBom";
 
 type SortMode = "count" | "alpha";
-type GroupType = (typeof assemblyGroupTypes)[number];
 
 type AssemblyBomTreeProps = {
   graphIndex: AssemblyGraphIndex | null;
   steps: AssemblyInstructionStepRow[];
-  groups: AssemblyGroup[];
+  units: AssemblyUnit[];
   isDisabled: boolean;
   modelUploadId: string | null;
   partMappings: AssemblyPartMapping[];
   bomMaterials: FlattenedBomMaterial[];
+  /** Current selection (shared with the viewer) — marks + scrolls to the rows */
+  selectedNodeIds: string[];
+  /** The Parts tab is the visible tab — gate scroll-to-selection on it */
+  isActive: boolean;
   onHighlightParts: (nodeIds: string[]) => void;
   onHideParts: (nodeIds: string[]) => void;
   onSelectStep: (stepId: string) => void;
@@ -71,20 +67,23 @@ type AssemblyBomTreeProps = {
 
 /**
  * Bill of materials derived from the model's assembly graph: every distinct
- * part with its instance count, plus authored part groups (clusters, kits,
- * combinations, subassemblies). Selecting rows highlights all instances in
- * the viewer; selections can be grouped via the toolbar or right-click menu.
+ * part with its instance count, plus authored subassembly units — sets of parts
+ * the planner treats as one rigid body (overriding the automatic BOM-driven
+ * derivation). Selecting rows highlights all instances in the viewer; a
+ * selection can be planned as one part via the toolbar or right-click menu.
  * Parts map to engineering BOM items (methodMaterial) by geometry hash —
  * auto-matched by name/quantity, adjustable per part in the detail popover.
  */
 export default function AssemblyBomTree({
   graphIndex,
   steps,
-  groups,
+  units,
   isDisabled,
   modelUploadId,
   partMappings,
   bomMaterials,
+  selectedNodeIds,
+  isActive,
   onHighlightParts,
   onHideParts,
   onSelectStep
@@ -107,12 +106,20 @@ export default function AssemblyBomTree({
   );
 
   const [sortMode, setSortMode] = useState<SortMode>("count");
-  const [selectedKeys, setSelectedKeys] = useState<ReadonlySet<string>>(
-    new Set()
-  );
-  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
+  // Selection is controlled by the parent (shared with the viewer). A part row
+  // is selected when any of its instances is in the current selection.
+  const selectedKeys = useMemo<ReadonlySet<string>>(() => {
+    const keys = new Set<string>();
+    if (!graphIndex) return keys;
+    for (const nodeId of selectedNodeIds) {
+      const group = graphIndex.groupByNodeId.get(nodeId);
+      if (group) keys.add(group.key);
+    }
+    return keys;
+  }, [selectedNodeIds, graphIndex]);
+  const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
   const [hiddenKeys, setHiddenKeys] = useState<ReadonlySet<string>>(new Set());
-  const [groupModalType, setGroupModalType] = useState<GroupType | null>(null);
+  const [showCreateUnit, setShowCreateUnit] = useState(false);
   const lastClickedIndexRef = useRef<number | null>(null);
 
   const partGroups = useMemo(() => {
@@ -151,7 +158,8 @@ export default function AssemblyBomTree({
     return usage;
   }, [steps, graphIndex]);
 
-  const selectedNodeIds = useMemo(
+  // Every instance of every selected part — the unit for grouping/hiding
+  const selectedGroupNodeIds = useMemo(
     () =>
       partGroups
         .filter((group) => selectedKeys.has(group.key))
@@ -169,8 +177,7 @@ export default function AssemblyBomTree({
   }, [hiddenKeys, partGroups, onHideParts]);
 
   const applySelection = (next: ReadonlySet<string>) => {
-    setSelectedKeys(next);
-    setSelectedGroupId(null);
+    setSelectedUnitId(null);
     onHighlightParts(
       partGroups
         .filter((group) => next.has(group.key))
@@ -209,15 +216,14 @@ export default function AssemblyBomTree({
     applySelection(next);
   };
 
-  const onToggleGroupHighlight = (group: AssemblyGroup) => {
-    if (selectedGroupId === group.id) {
-      setSelectedGroupId(null);
+  const onToggleUnitHighlight = (unit: AssemblyUnit) => {
+    if (selectedUnitId === unit.id) {
+      setSelectedUnitId(null);
       onHighlightParts([]);
       return;
     }
-    setSelectedKeys(new Set());
-    setSelectedGroupId(group.id);
-    onHighlightParts(group.partNodeIds ?? []);
+    setSelectedUnitId(unit.id);
+    onHighlightParts(unit.partNodeIds ?? []);
   };
 
   const onHideSelection = () => {
@@ -225,6 +231,16 @@ export default function AssemblyBomTree({
     for (const key of selectedKeys) next.add(key);
     setHiddenKeys(next);
     applySelection(new Set());
+  };
+
+  // Toggle a single part's visibility (Onshape-style per-row eye)
+  const onToggleHide = (key: string) => {
+    setHiddenKeys((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
   };
 
   const onShowAll = () => setHiddenKeys(new Set());
@@ -236,6 +252,22 @@ export default function AssemblyBomTree({
     estimateSize: () => 36,
     overscan: 12
   });
+
+  // Bring the current selection into view — when it changes while the Parts tab
+  // is open, and when the tab becomes active with a selection already present.
+  // The scroll container has no dimensions while the tab is hidden, so gate on
+  // isActive and defer a frame so the just-shown list can measure.
+  const firstSelectedIndex = useMemo(
+    () => partGroups.findIndex((group) => selectedKeys.has(group.key)),
+    [partGroups, selectedKeys]
+  );
+  useEffect(() => {
+    if (!isActive || firstSelectedIndex < 0) return;
+    const frame = requestAnimationFrame(() =>
+      virtualizer.scrollToIndex(firstSelectedIndex, { align: "center" })
+    );
+    return () => cancelAnimationFrame(frame);
+  }, [isActive, firstSelectedIndex, virtualizer]);
 
   if (!graphIndex) {
     return (
@@ -249,20 +281,20 @@ export default function AssemblyBomTree({
 
   return (
     <div className="flex h-full w-full flex-col">
-      {groups.length > 0 && (
+      {units.length > 0 && (
         <div className="w-full flex-none border-b border-border">
           <h4 className="px-3 pt-2 text-xxs text-foreground/70 uppercase font-light tracking-wide">
-            Groups
+            Subassemblies
           </h4>
           <ul className="w-full pb-1">
-            {groups.map((group) => (
-              <GroupRow
-                key={group.id}
-                group={group}
+            {units.map((unit) => (
+              <UnitRow
+                key={unit.id}
+                unit={unit}
                 instructionId={id}
-                isSelected={selectedGroupId === group.id}
+                isSelected={selectedUnitId === unit.id}
                 isDisabled={isDisabled}
-                onClick={() => onToggleGroupHighlight(group)}
+                onClick={() => onToggleUnitHighlight(unit)}
               />
             ))}
           </ul>
@@ -294,24 +326,14 @@ export default function AssemblyBomTree({
             </Button>
           )}
           {selectedKeys.size > 0 && canGroup && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="secondary" size="sm" leftIcon={<LuBlocks />}>
-                  Group
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                {selectionGroupTypes.map(({ type, label, icon: Icon }) => (
-                  <DropdownMenuItem
-                    key={type}
-                    onClick={() => setGroupModalType(type)}
-                  >
-                    <Icon className="mr-2 h-4 w-4" />
-                    {label}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Button
+              variant="secondary"
+              size="sm"
+              leftIcon={<LuBlocks />}
+              onClick={() => setShowCreateUnit(true)}
+            >
+              Plan as one part
+            </Button>
           )}
           {selectedKeys.size > 0 && (
             <IconButton
@@ -391,6 +413,7 @@ export default function AssemblyBomTree({
                     onClick={(event) =>
                       onRowClick(event, group, virtualRow.index)
                     }
+                    onToggleHide={() => onToggleHide(group.key)}
                     onSelectStep={onSelectStep}
                   />
                 );
@@ -399,16 +422,13 @@ export default function AssemblyBomTree({
           </div>
         </ContextMenuTrigger>
         <ContextMenuContent>
-          {selectionGroupTypes.map(({ type, label, icon: Icon }) => (
-            <ContextMenuItem
-              key={type}
-              disabled={!canGroup || selectedKeys.size === 0}
-              onClick={() => setGroupModalType(type)}
-            >
-              <Icon className="mr-2 h-4 w-4" />
-              {label}
-            </ContextMenuItem>
-          ))}
+          <ContextMenuItem
+            disabled={!canGroup || selectedKeys.size === 0}
+            onClick={() => setShowCreateUnit(true)}
+          >
+            <LuBlocks className="mr-2 h-4 w-4" />
+            Plan as one part
+          </ContextMenuItem>
           <ContextMenuSeparator />
           <ContextMenuItem
             disabled={selectedKeys.size === 0}
@@ -429,14 +449,14 @@ export default function AssemblyBomTree({
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
-      {groupModalType && (
-        <CreateGroupModal
-          type={groupModalType}
+      {showCreateUnit && modelUploadId && (
+        <CreateUnitModal
           instructionId={id}
-          partNodeIds={selectedNodeIds}
-          onClose={() => setGroupModalType(null)}
+          modelUploadId={modelUploadId}
+          partNodeIds={selectedGroupNodeIds}
+          onClose={() => setShowCreateUnit(false)}
           onCreated={() => {
-            setGroupModalType(null);
+            setShowCreateUnit(false);
             applySelection(new Set());
           }}
         />
@@ -445,32 +465,14 @@ export default function AssemblyBomTree({
   );
 }
 
-const selectionGroupTypes: {
-  type: GroupType;
-  label: string;
-  icon: typeof LuBlocks;
-}[] = [
-  { type: "Cluster", label: "Create cluster", icon: LuFolderTree },
-  { type: "Kit", label: "Create kit", icon: LuSquareStack },
-  { type: "Combination", label: "Create combination", icon: LuBlocks },
-  { type: "Subassembly", label: "Create subassembly", icon: LuBlocks }
-];
-
-const groupTypeDescriptions: Record<GroupType, string> = {
-  Cluster: "A visual grouping of parts in the tree",
-  Kit: "Parts that are always picked and staged together",
-  Combination: "Parts treated as one logical unit in steps",
-  Subassembly: "Gets its own child instruction with its own build sequence"
-};
-
-function GroupRow({
-  group,
+function UnitRow({
+  unit,
   instructionId,
   isSelected,
   isDisabled,
   onClick
 }: {
-  group: AssemblyGroup;
+  unit: AssemblyUnit;
   instructionId: string;
   isSelected: boolean;
   isDisabled: boolean;
@@ -492,28 +494,16 @@ function GroupRow({
         if (event.key === "Enter") onClick();
       }}
     >
-      <Badge variant="secondary" className="shrink-0">
-        {group.type}
-      </Badge>
-      <span className="min-w-0 flex-1 truncate" title={group.name}>
-        {group.type === "Subassembly" && group.childInstructionId ? (
-          <Link
-            to={path.to.assemblyInstruction(group.childInstructionId)}
-            className="hover:underline"
-            onClick={(event) => event.stopPropagation()}
-          >
-            {group.name}
-          </Link>
-        ) : (
-          group.name
-        )}
+      <LuBlocks className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+      <span className="min-w-0 flex-1 truncate" title={unit.name}>
+        {unit.name}
       </span>
       <span className="text-xs text-muted-foreground tabular-nums">
-        {group.partNodeIds?.length ?? 0}
+        {unit.partNodeIds?.length ?? 0}
       </span>
       {!isDisabled && permissions.can("delete", "production") && (
         <IconButton
-          aria-label={`Delete group ${group.name}`}
+          aria-label={`Delete subassembly ${unit.name}`}
           icon={<LuTrash />}
           variant="ghost"
           size="sm"
@@ -522,7 +512,7 @@ function GroupRow({
             event.stopPropagation();
             deleteFetcher.submit(new FormData(), {
               method: "post",
-              action: path.to.deleteAssemblyGroup(instructionId, group.id)
+              action: path.to.deleteAssemblyUnit(instructionId, unit.id)
             });
           }}
         />
@@ -531,15 +521,15 @@ function GroupRow({
   );
 }
 
-function CreateGroupModal({
-  type,
+function CreateUnitModal({
   instructionId,
+  modelUploadId,
   partNodeIds,
   onClose,
   onCreated
 }: {
-  type: GroupType;
   instructionId: string;
+  modelUploadId: string;
   partNodeIds: string[];
   onClose: () => void;
   onCreated: () => void;
@@ -556,13 +546,12 @@ function CreateGroupModal({
   const onSubmit = () => {
     if (!name.trim()) return;
     const formData = new FormData();
-    formData.append("assemblyInstructionId", instructionId);
+    formData.append("modelUploadId", modelUploadId);
     formData.append("name", name.trim());
-    formData.append("type", type);
     formData.append("partNodeIds", JSON.stringify(partNodeIds));
     fetcher.submit(formData, {
       method: "post",
-      action: path.to.newAssemblyGroup(instructionId)
+      action: path.to.newAssemblyUnit(instructionId)
     });
   };
 
@@ -575,17 +564,18 @@ function CreateGroupModal({
     >
       <ModalContent>
         <ModalHeader>
-          <ModalTitle>Create {type.toLowerCase()}</ModalTitle>
+          <ModalTitle>Plan as one part</ModalTitle>
         </ModalHeader>
         <ModalBody>
           <VStack spacing={3} className="w-full">
             <p className="text-sm text-muted-foreground">
-              {groupTypeDescriptions[type]} · {partNodeIds.length} part
-              {partNodeIds.length === 1 ? "" : "s"} selected
+              The planner treats these {partNodeIds.length} part
+              {partNodeIds.length === 1 ? "" : "s"} as one rigid body — one step
+              in the instructions. Re-run the plan to apply.
             </p>
             <Input
-              aria-label="Group name"
-              placeholder={`${type} name`}
+              aria-label="Subassembly name"
+              placeholder="Subassembly name"
               value={name}
               autoFocus
               onChange={(nameEvent) => setName(nameEvent.target.value)}
@@ -620,6 +610,7 @@ function BomRow({
   instructionId,
   style,
   onClick,
+  onToggleHide,
   onSelectStep
 }: {
   group: PartGroup;
@@ -633,6 +624,7 @@ function BomRow({
   instructionId: string;
   style: React.CSSProperties;
   onClick: (event: MouseEvent) => void;
+  onToggleHide: () => void;
   onSelectStep: (stepId: string) => void;
 }) {
   const bomLine = mapping
@@ -647,8 +639,10 @@ function BomRow({
       tabIndex={0}
       style={style}
       className={cn(
-        "group flex cursor-pointer select-none items-center gap-2 border-b border-border px-3 text-sm hover:bg-accent/30",
-        isSelected && "bg-accent/50 hover:bg-accent/50",
+        "group relative flex cursor-pointer select-none items-center gap-2 border-b border-border px-3 text-sm hover:bg-accent/30",
+        // Selection is red everywhere (matches the viewer highlight): a solid
+        // left bar plus a red wash so it reads clearly, not just a faint accent
+        isSelected && "bg-red-500/10 hover:bg-red-500/10",
         isHidden && "opacity-50"
       )}
       onClick={onClick}
@@ -659,6 +653,12 @@ function BomRow({
         }
       }}
     >
+      {isSelected && (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-y-0 left-0 w-0.5 bg-red-500"
+        />
+      )}
       <PartColorSwatch color={group.color} />
       <div className="flex min-w-0 flex-1 flex-col">
         <span className="truncate" title={group.name}>
@@ -681,43 +681,58 @@ function BomRow({
           </span>
         )}
       </div>
-      {isHidden && (
-        <LuEyeOff
-          className="h-3.5 w-3.5 shrink-0 text-muted-foreground"
-          aria-label="Hidden"
-        />
-      )}
       <span className="text-xs text-muted-foreground tabular-nums">
         — {group.count}
       </span>
-      <Popover>
-        <PopoverTrigger asChild>
-          <IconButton
-            aria-label={`Part details: ${group.name}`}
-            icon={<LuSettings />}
-            variant="ghost"
-            size="sm"
-            className="opacity-0 group-hover:opacity-100 focus:opacity-100 data-[state=open]:opacity-100"
+      {/* Ghost icon buttons sit flush together (no gap between them) */}
+      <div className="flex items-center">
+        <IconButton
+          aria-label={isHidden ? `Show ${group.name}` : `Hide ${group.name}`}
+          icon={isHidden ? <LuEyeOff /> : <LuEye />}
+          variant="ghost"
+          size="sm"
+          className={cn(
+            "focus:opacity-100",
+            // Hidden rows keep the crossed eye visible as their status + control;
+            // visible rows reveal the eye on hover, Onshape-style
+            isHidden
+              ? "opacity-100 text-muted-foreground"
+              : "opacity-0 group-hover:opacity-100"
+          )}
+          onClick={(event) => {
+            event.stopPropagation();
+            onToggleHide();
+          }}
+        />
+        <Popover>
+          <PopoverTrigger asChild>
+            <IconButton
+              aria-label={`Part details: ${group.name}`}
+              icon={<LuSettings />}
+              variant="ghost"
+              size="sm"
+              className="opacity-0 group-hover:opacity-100 focus:opacity-100 data-[state=open]:opacity-100"
+              onClick={(event) => event.stopPropagation()}
+            />
+          </PopoverTrigger>
+          <PopoverContent
+            align="end"
+            className="w-72 text-sm"
             onClick={(event) => event.stopPropagation()}
-          />
-        </PopoverTrigger>
-        <PopoverContent
-          align="end"
-          className="w-72 text-sm"
-          onClick={(event) => event.stopPropagation()}
-        >
-          <PartDetails
-            group={group}
-            usage={usage}
-            mapping={mapping}
-            bomMaterials={bomMaterials}
-            canMap={canMap}
-            modelUploadId={modelUploadId}
-            instructionId={instructionId}
-            onSelectStep={onSelectStep}
-          />
-        </PopoverContent>
-      </Popover>
+          >
+            <PartDetails
+              group={group}
+              usage={usage}
+              mapping={mapping}
+              bomMaterials={bomMaterials}
+              canMap={canMap}
+              modelUploadId={modelUploadId}
+              instructionId={instructionId}
+              onSelectStep={onSelectStep}
+            />
+          </PopoverContent>
+        </Popover>
+      </div>
     </div>
   );
 }

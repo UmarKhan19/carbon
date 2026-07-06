@@ -53,17 +53,19 @@ import { path } from "~/utils/path";
 import type { FlattenedBomMaterial } from "../../production.service";
 import { toViewerStep } from "../../production.service";
 import type {
-  AssemblyGroup,
   AssemblyInstructionStepRow,
-  AssemblyPartMapping
+  AssemblyPartMapping,
+  AssemblyUnit
 } from "../../types";
 import AssemblyBomTree from "./AssemblyBomTree";
 
 type AssemblyInstructionExplorerProps = {
   steps: AssemblyInstructionStepRow[];
-  groups: AssemblyGroup[];
+  units: AssemblyUnit[];
   selectedStepId: string | null;
   isDisabled: boolean;
+  /** The CAD model is still being converted — block step generation until it lands */
+  isConverting: boolean;
   graphIndex: AssemblyGraphIndex | null;
   /** A successful motion plan exists for the model */
   hasPlan: boolean;
@@ -77,6 +79,8 @@ type AssemblyInstructionExplorerProps = {
   modelUploadId: string | null;
   partMappings: AssemblyPartMapping[];
   bomMaterials: FlattenedBomMaterial[];
+  /** Current part selection (shared with the viewer) — highlighted in the Parts tab */
+  selectedNodeIds: string[];
   onSelectStep: (stepId: string) => void;
   onHighlightParts: (nodeIds: string[]) => void;
   onHideParts: (nodeIds: string[]) => void;
@@ -84,15 +88,17 @@ type AssemblyInstructionExplorerProps = {
 
 export default function AssemblyInstructionExplorer({
   steps,
-  groups,
+  units,
   selectedStepId,
   isDisabled,
+  isConverting,
   graphIndex,
   hasPlan,
   planJob,
   modelUploadId,
   partMappings,
   bomMaterials,
+  selectedNodeIds,
   onSelectStep,
   onHighlightParts,
   onHideParts
@@ -116,6 +122,10 @@ export default function AssemblyInstructionExplorer({
   // pending state, poll until the plan lands, and re-submit automatically so
   // the steps appear without further clicks.
   const [isAwaitingPlan, setIsAwaitingPlan] = useState(false);
+
+  // Controlled so the Parts tab knows when it becomes active — it scrolls the
+  // current selection into view on activation
+  const [tab, setTab] = useState<"steps" | "parts">("steps");
   // A pre-existing Failed job stays the latest row until the freshly
   // triggered run inserts its own — remember it so it doesn't read as the
   // outcome of the run we're waiting on.
@@ -320,7 +330,8 @@ export default function AssemblyInstructionExplorer({
   return (
     <>
       <Tabs
-        defaultValue="steps"
+        value={tab}
+        onValueChange={(value) => setTab(value as "steps" | "parts")}
         className="flex h-[calc(100dvh-99px)] w-full flex-col"
       >
         <TabsList className="w-auto flex-none gap-1 mx-3 mt-3">
@@ -388,6 +399,7 @@ export default function AssemblyInstructionExplorer({
                     <Button
                       isDisabled={
                         isDisabled ||
+                        isConverting ||
                         generateFetcher.state !== "idle" ||
                         (isAwaitingPlan && !planFailed)
                       }
@@ -504,11 +516,13 @@ export default function AssemblyInstructionExplorer({
           <AssemblyBomTree
             graphIndex={graphIndex}
             steps={steps}
-            groups={groups}
+            units={units}
             isDisabled={isDisabled}
             modelUploadId={modelUploadId}
             partMappings={partMappings}
             bomMaterials={bomMaterials}
+            selectedNodeIds={selectedNodeIds}
+            isActive={tab === "parts"}
             onHighlightParts={onHighlightParts}
             onHideParts={onHideParts}
             onSelectStep={onSelectStep}

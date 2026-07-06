@@ -1341,20 +1341,15 @@ export const assemblyStandardNoteValidator = z.object({
   severity: z.enum(assemblyNoteSeverities)
 });
 
-export const assemblyGroupTypes = [
-  "Cluster",
-  "Kit",
-  "Combination",
-  "Subassembly"
-] as const;
-
-export const assemblyGroupValidator = z.object({
+// An assembly unit: model leaf nodes the planner treats as one rigid body — a
+// user override on the automatic BOM-driven derivation. Scoped to the model
+// upload so it survives instruction delete/recreate (like part mappings).
+export const assemblyUnitValidator = z.object({
   id: zfd.text(z.string().optional()),
-  assemblyInstructionId: z.string().min(1),
+  modelUploadId: z.string().min(1),
   name: z.string().min(1, { message: "Name is required" }),
-  type: z.enum(assemblyGroupTypes),
   partNodeIds: jsonField(z.array(z.string()).min(1)),
-  partNumber: zfd.text(z.string().optional())
+  itemId: zfd.text(z.string().optional())
 });
 
 export type Motion = z.infer<typeof motionSchema>;

@@ -31,7 +31,6 @@ import type {
   operationToolValidator
 } from "../shared";
 import type {
-  assemblyGroupTypes,
   assemblyInstructionStatuses,
   assemblyNoteSeverities,
   assemblyRequirementTypes,
@@ -3978,7 +3977,68 @@ export async function deleteAssemblyInstruction(
   client: SupabaseClient<Database>,
   id: string
 ) {
-  return client.from("assemblyInstruction").delete().eq("id", id);
+  // Remember which model this instruction was authored against before we drop
+  // it — the cached motion plan is keyed to the modelUpload, not the
+  // instruction, so it survives delete/recreate and would otherwise resurrect a
+  // stale plan for a fresh instruction (defeating any planner improvement).
+  const instruction = await client
+    .from("assemblyInstruction")
+    .select("modelUploadId")
+    .eq("id", id)
+    .maybeSingle();
+
+  const deletion = await client
+    .from("assemblyInstruction")
+    .delete()
+    .eq("id", id);
+  if (deletion.error) return deletion;
+
+  const modelUploadId = instruction.data?.modelUploadId;
+  if (modelUploadId) {
+    await invalidateAssemblyPlanCache(client, modelUploadId);
+  }
+
+  return deletion;
+}
+
+/**
+ * Drops the cached motion plan for a model so the next instruction re-plans from
+ * scratch (with the current algorithm). Leaves the expensive conversion output
+ * (glb/graph on the modelUpload) intact — conversion isn't what a planner change
+ * affects. No-op while another instruction still authors against the same model
+ * (one item → one modelUpload, potentially several instructions).
+ */
+async function invalidateAssemblyPlanCache(
+  client: SupabaseClient<Database>,
+  modelUploadId: string
+) {
+  const others = await client
+    .from("assemblyInstruction")
+    .select("id")
+    .eq("modelUploadId", modelUploadId)
+    .limit(1);
+  if (others.error || (others.data?.length ?? 0) > 0) return;
+
+  const planJobs = await client
+    .from("assemblyPlanJob")
+    .select("planPath")
+    .eq("modelUploadId", modelUploadId)
+    .eq("kind", "plan");
+
+  const planPaths = (planJobs.data ?? [])
+    .map((job) => job.planPath)
+    .filter((planPath): planPath is string => Boolean(planPath));
+  if (planPaths.length > 0) {
+    // Best-effort artifact cleanup; deleting the rows below is what actually
+    // invalidates the cache (getLatestAssemblyPlan then finds nothing).
+    await client.storage.from("private").remove(planPaths);
+  }
+
+  await client
+    .from("assemblyPlanJob")
+    .delete()
+    .eq("modelUploadId", modelUploadId)
+    .eq("kind", "plan");
 }
 
 export async function upsertAssemblyInstructionStep(
@@ -4432,27 +4492,25 @@ export async function deleteAssemblyStandardNote(
   return client.from("assemblyStandardNote").delete().eq("id", id);
 }
 
-export async function getAssemblyGroups(
+export async function getAssemblyUnits(
   client: SupabaseClient<Database>,
-  assemblyInstructionId: string
+  modelUploadId: string
 ) {
   return client
-    .from("assemblyGroup")
+    .from("assemblyUnit")
     .select("*")
-    .eq("assemblyInstructionId", assemblyInstructionId)
+    .eq("modelUploadId", modelUploadId)
     .order("name");
 }
 
-export async function upsertAssemblyGroup(
+export async function upsertAssemblyUnit(
   client: SupabaseClient<Database>,
   data: {
     id?: string;
-    assemblyInstructionId: string;
+    modelUploadId: string;
     name: string;
-    type: (typeof assemblyGroupTypes)[number];
     partNodeIds: string[];
-    partNumber?: string | null;
-    childInstructionId?: string | null;
+    itemId?: string | null;
     companyId: string;
     createdBy: string;
     updatedBy?: string;
@@ -4460,14 +4518,11 @@ export async function upsertAssemblyGroup(
 ) {
   if (data.id) {
     return client
-      .from("assemblyGroup")
+      .from("assemblyUnit")
       .update({
         name: data.name,
         partNodeIds: data.partNodeIds,
-        partNumber: data.partNumber ?? null,
-        ...(data.childInstructionId !== undefined
-          ? { childInstructionId: data.childInstructionId }
-          : {}),
+        itemId: data.itemId ?? null,
         updatedBy: data.updatedBy ?? data.createdBy,
         updatedAt: new Date().toISOString()
       })
@@ -4477,14 +4532,12 @@ export async function upsertAssemblyGroup(
   }
 
   return client
-    .from("assemblyGroup")
+    .from("assemblyUnit")
     .insert({
-      assemblyInstructionId: data.assemblyInstructionId,
+      modelUploadId: data.modelUploadId,
       name: data.name,
-      type: data.type,
       partNodeIds: data.partNodeIds,
-      partNumber: data.partNumber ?? null,
-      childInstructionId: data.childInstructionId ?? null,
+      itemId: data.itemId ?? null,
       companyId: data.companyId,
       createdBy: data.createdBy
     })
@@ -4492,11 +4545,11 @@ export async function upsertAssemblyGroup(
     .single();
 }
 
-export async function deleteAssemblyGroup(
+export async function deleteAssemblyUnit(
   client: SupabaseClient<Database>,
   id: string
 ) {
-  return client.from("assemblyGroup").delete().eq("id", id);
+  return client.from("assemblyUnit").delete().eq("id", id);
 }
 
 /**
@@ -4539,12 +4592,14 @@ export async function getLatestAssemblyPlanJob(
 
 /** Downloads and parses plan.json for a model's latest successful plan.
 
- * Plans written by an older planner version are treated as ABSENT: the
- * stored artifact is keyed to the model upload and survives step
- * deletion and even instruction delete/recreate, so without this gate a
- * stale plan silently resurrects old motions. Absence flows into the
- * existing no-plan path, which triggers a fresh planner run and
- * auto-generates steps when it lands.
+ * Plans written by an older planner *version* are treated as ABSENT: the
+ * stored artifact is keyed to the model upload, so without this gate a
+ * format-stale plan could silently resurrect old motions. (Deleting an
+ * instruction now also invalidates the plan for its model — see
+ * invalidateAssemblyPlanCache — but this gate still guards the shared-model
+ * case and same-version format drift.) Absence flows into the existing
+ * no-plan path, which triggers a fresh planner run and auto-generates steps
+ * when it lands.
  */
 export async function getAssemblyPlanJson(
   client: SupabaseClient<Database>,
