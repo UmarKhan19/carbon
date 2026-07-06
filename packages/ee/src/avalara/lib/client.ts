@@ -314,37 +314,43 @@ export class AvalaraHttp {
     const retryable = options.retryable ?? isGet;
     const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
 
-    let headers: HeadersInit;
-    try {
-      headers = await this.authHeaders(surface);
-    } catch (err) {
-      return {
-        data: null,
-        error:
-          err instanceof AvalaraError
-            ? err
-            : new AvalaraError({ kind: "auth", message: "Avalara auth error" })
-      };
-    }
-
     const url = this.buildUrl(surface, path, options.query);
-    const init: RequestInit = {
-      method,
-      headers: {
-        Accept: "application/json",
-        ...headers,
-        ...(options.body !== undefined
-          ? { "Content-Type": "application/json" }
-          : {})
-      },
-      ...(options.body !== undefined
-        ? { body: JSON.stringify(options.body) }
-        : {})
-    };
 
     let lastError: AvalaraError | null = null;
 
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      // Auth header retrieval lives inside the retry loop so a transient
+      // token-fetch failure (e.g. Identity endpoint unreachable) gets the same
+      // backoff treatment as the request itself.
+      let headers: HeadersInit;
+      try {
+        headers = await this.authHeaders(surface);
+      } catch (err) {
+        lastError =
+          err instanceof AvalaraError
+            ? err
+            : new AvalaraError({ kind: "auth", message: "Avalara auth error" });
+        if (retryable && lastError.retryable && attempt < MAX_RETRIES) {
+          await this.sleepImpl(this.backoff(attempt));
+          continue;
+        }
+        return { data: null, error: lastError };
+      }
+
+      const init: RequestInit = {
+        method,
+        headers: {
+          Accept: "application/json",
+          ...headers,
+          ...(options.body !== undefined
+            ? { "Content-Type": "application/json" }
+            : {})
+        },
+        ...(options.body !== undefined
+          ? { body: JSON.stringify(options.body) }
+          : {})
+      };
+
       let response: Response;
       try {
         response = await this.fetchImpl(url, {

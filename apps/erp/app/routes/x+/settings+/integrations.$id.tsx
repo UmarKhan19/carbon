@@ -125,7 +125,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   let avalaraCompanyOptions: Array<{ value: string; label: string }> = [];
   if (integrationId === "avalara") {
     try {
-      const { data: companies } = await listAvalaraCompanies(client, companyId);
+      const { data: companies, error: listError } = await listAvalaraCompanies(
+        client,
+        companyId
+      );
+      if (listError) {
+        console.error(
+          "Failed to fetch Avalara companies for settings:",
+          listError.message
+        );
+      }
       avalaraCompanyOptions = (companies ?? []).map((company) => ({
         value: company.companyCode,
         label: company.name

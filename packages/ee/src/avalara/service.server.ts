@@ -166,6 +166,16 @@ export async function listAvalaraCompanies(
     .eq("id", "avalara")
     .maybeSingle();
 
+  if (row.error) {
+    return {
+      data: null,
+      error: new AvalaraError({
+        kind: "transient",
+        message: "Failed to read Avalara integration"
+      })
+    };
+  }
+
   const metadata = (row.data?.metadata ?? {}) as Record<string, unknown>;
   const environment: Avalara.Environment =
     metadata.environment === "production" ? "production" : "sandbox";

@@ -107,8 +107,10 @@ export class AvataxApi {
       {
         body,
         timeoutMs: 30_000,
-        // Never auto-retry a commit; estimate-only calls are safe to retry.
-        retryable: body.commit !== true
+        // Never auto-retry a commit. Only retry uncommitted creates that carry
+        // a stable `code` (idempotency key) so a retry overwrites the same
+        // document rather than duplicating it; codeless creates are one-shot.
+        retryable: body.commit !== true && !!body.code
       }
     );
   }
