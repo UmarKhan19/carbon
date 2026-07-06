@@ -30,7 +30,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
-  const { client } = await requirePermissions(request, {
+  const { client, companyId } = await requirePermissions(request, {
     delete: "parts"
   });
 
@@ -42,7 +42,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
-  const { error: deleteTypeError } = await deleteMaterialForm(client, formId);
+  const { error: deleteTypeError } = await deleteMaterialForm(
+    client,
+    formId,
+    companyId
+  );
   if (deleteTypeError) {
     throw redirect(
       `${path.to.materialForms}?${getParams(request)}`,

@@ -12428,8 +12428,8 @@ msgstr "Undo"
 msgid "Uninstall"
 msgstr "Uninstall"
 
-msgid "Unique, uppercase, without spaces"
-msgstr "Unique, uppercase, without spaces"
+msgid "Unique, uppercase, without spaces (max 10 characters)"
+msgstr "Unique, uppercase, without spaces (max 10 characters)"
 
 msgid "Unit"
 msgstr "Unit"

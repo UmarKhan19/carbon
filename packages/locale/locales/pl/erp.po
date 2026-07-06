@@ -12428,8 +12428,8 @@ msgstr "Cofnij"
 msgid "Uninstall"
 msgstr "Odinstaluj"
 
-msgid "Unique, uppercase, without spaces"
-msgstr "Unikalne, wielkie litery, bez spacji"
+msgid "Unique, uppercase, without spaces (max 10 characters)"
+msgstr ""
 
 msgid "Unit"
 msgstr "Jednostka"

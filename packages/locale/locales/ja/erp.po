@@ -12428,8 +12428,8 @@ msgstr "元に戻す"
 msgid "Uninstall"
 msgstr "アンインストール"
 
-msgid "Unique, uppercase, without spaces"
-msgstr "ユニーク、大文字、スペースなし"
+msgid "Unique, uppercase, without spaces (max 10 characters)"
+msgstr ""
 
 msgid "Unit"
 msgstr "単位"

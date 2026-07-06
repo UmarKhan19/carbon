@@ -12428,8 +12428,8 @@ msgstr "पूर्ववत करें"
 msgid "Uninstall"
 msgstr "अनइंस्टॉल करें"
 
-msgid "Unique, uppercase, without spaces"
-msgstr "अद्वितीय, बड़े अक्षर, बिना रिक्त स्थान के"
+msgid "Unique, uppercase, without spaces (max 10 characters)"
+msgstr ""
 
 msgid "Unit"
 msgstr "इकाई"

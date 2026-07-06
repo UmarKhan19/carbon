@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-04T10:15:13.582Z",
+  "generated": "2026-07-06T06:36:29.066Z",
   "totalTools": 1254,
   "modules": 15,
   "tools": [
@@ -9464,7 +9464,8 @@
       "paramCount": 1,
       "serviceParams": [
         "client",
-        "id"
+        "id",
+        "companyId"
       ],
       "injectAuth": [
         "companyId"
@@ -9489,7 +9490,8 @@
       "paramCount": 1,
       "serviceParams": [
         "client",
-        "id"
+        "id",
+        "companyId"
       ],
       "injectAuth": [
         "companyId"
@@ -9514,7 +9516,8 @@
       "paramCount": 1,
       "serviceParams": [
         "client",
-        "id"
+        "id",
+        "companyId"
       ],
       "injectAuth": [
         "companyId"
@@ -9539,7 +9542,8 @@
       "paramCount": 1,
       "serviceParams": [
         "client",
-        "id"
+        "id",
+        "companyId"
       ],
       "injectAuth": [
         "companyId"
@@ -9564,7 +9568,8 @@
       "paramCount": 1,
       "serviceParams": [
         "client",
-        "id"
+        "id",
+        "companyId"
       ],
       "injectAuth": [
         "companyId"
@@ -9589,7 +9594,8 @@
       "paramCount": 1,
       "serviceParams": [
         "client",
-        "id"
+        "id",
+        "companyId"
       ],
       "injectAuth": [
         "companyId"
@@ -9764,7 +9770,8 @@
       "paramCount": 1,
       "serviceParams": [
         "client",
-        "id"
+        "id",
+        "companyId"
       ],
       "injectAuth": [
         "companyId"
@@ -13042,7 +13049,7 @@
       "module": "items",
       "classification": "WRITE",
       "description": "upsert method material",
-      "paramCount": 4,
+      "paramCount": 1,
       "serviceParams": [
         "client",
         "methodMaterial"
@@ -13055,22 +13062,10 @@
       "schema": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string"
-          },
-          "makeMethodId": {
-            "type": "string"
-          },
-          "order": {
-            "type": "number"
-          },
-          "itemType": {
-            "type": "string"
-          }
+          "methodMaterial": {}
         },
         "required": [
-          "id",
-          "makeMethodId"
+          "methodMaterial"
         ]
       }
     },
@@ -13343,7 +13338,8 @@
       "paramCount": 1,
       "serviceParams": [
         "client",
-        "id"
+        "id",
+        "companyId"
       ],
       "injectAuth": [
         "companyId"
@@ -17912,7 +17908,8 @@
       "description": "update job material order",
       "paramCount": 2,
       "serviceParams": [
-        "client",
+        "db",
+        "companyId",
         "updates"
       ],
       "injectAuth": [
@@ -17942,7 +17939,8 @@
       "description": "update job operation order",
       "paramCount": 2,
       "serviceParams": [
-        "client",
+        "db",
+        "companyId",
         "updates"
       ],
       "injectAuth": [
@@ -17972,7 +17970,8 @@
       "description": "update job operation step order",
       "paramCount": 2,
       "serviceParams": [
-        "client",
+        "db",
+        "companyId",
         "updates"
       ],
       "injectAuth": [
@@ -18215,7 +18214,7 @@
       "module": "production",
       "classification": "WRITE",
       "description": "update production quantity",
-      "paramCount": 3,
+      "paramCount": 1,
       "serviceParams": [
         "client",
         "productionQuantity"
@@ -18227,18 +18226,10 @@
       "schema": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string"
-          },
-          "jobOperationId": {
-            "type": "string"
-          },
-          "type": {
-            "type": "number"
-          }
+          "productionQuantity": {}
         },
         "required": [
-          "jobOperationId"
+          "productionQuantity"
         ]
       }
     },
@@ -18247,7 +18238,7 @@
       "module": "production",
       "classification": "WRITE",
       "description": "upsert production quantity",
-      "paramCount": 3,
+      "paramCount": 1,
       "serviceParams": [
         "client",
         "productionQuantity"
@@ -18260,18 +18251,10 @@
       "schema": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string"
-          },
-          "jobOperationId": {
-            "type": "string"
-          },
-          "type": {
-            "type": "number"
-          }
+          "productionQuantity": {}
         },
         "required": [
-          "jobOperationId"
+          "productionQuantity"
         ]
       }
     },

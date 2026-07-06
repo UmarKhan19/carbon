@@ -8,10 +8,11 @@ import {
   recalculateJobOperationDependencies,
   updateJobOperationOrder
 } from "~/modules/production";
+import { getDatabaseClient } from "~/services/database.server";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, companyId, userId } = await requirePermissions(request, {
+  const { companyId, userId } = await requirePermissions(request, {
     update: "production"
   });
 
@@ -41,15 +42,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
     })
   );
 
-  const updateSortOrders = await updateJobOperationOrder(client, updates);
-  if (updateSortOrders.some((update) => update.error))
+  try {
+    await updateJobOperationOrder(getDatabaseClient(), companyId, updates);
+  } catch (err) {
     return data(
       {},
-      await flash(
-        request,
-        error(updateSortOrders, "Failed to update sort order")
-      )
+      await flash(request, error(err, "Failed to update sort order"))
     );
+  }
 
   if (jobId) {
     const recalculateDependencies = await recalculateJobOperationDependencies(

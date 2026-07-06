@@ -12428,8 +12428,8 @@ msgstr "Deshacer"
 msgid "Uninstall"
 msgstr "Desinstalar"
 
-msgid "Unique, uppercase, without spaces"
-msgstr "Único, mayúsculas, sin espacios"
+msgid "Unique, uppercase, without spaces (max 10 characters)"
+msgstr ""
 
 msgid "Unit"
 msgstr "Unidad"

@@ -1,5 +1,6 @@
 import type { Database, Json } from "@carbon/database";
 import { fetchAllFromTable } from "@carbon/database";
+import type { Kysely, KyselyDatabase } from "@carbon/database/client";
 import type { JSONContent } from "@carbon/react";
 import { parseDate } from "@internationalized/date";
 import type { FileObject, StorageError } from "@supabase/storage-js";
@@ -2316,48 +2317,66 @@ export async function updateJobStatus(
 }
 
 export async function updateJobMaterialOrder(
-  client: SupabaseClient<Database>,
+  db: Kysely<KyselyDatabase>,
+  companyId: string,
   updates: {
     id: string;
     order: number;
     updatedBy: string;
   }[]
 ) {
-  const updatePromises = updates.map(({ id, order, updatedBy }) =>
-    client.from("jobMaterial").update({ order, updatedBy }).eq("id", id)
-  );
-  return Promise.all(updatePromises);
+  return db.transaction().execute(async (trx) => {
+    for (const { id, order, updatedBy } of updates) {
+      await trx
+        .updateTable("jobMaterial")
+        .set({ order, updatedBy })
+        .where("id", "=", id)
+        .where("companyId", "=", companyId)
+        .execute();
+    }
+  });
 }
 
 export async function updateJobOperationOrder(
-  client: SupabaseClient<Database>,
+  db: Kysely<KyselyDatabase>,
+  companyId: string,
   updates: {
     id: string;
     order: number;
     updatedBy: string;
   }[]
 ) {
-  const updatePromises = updates.map(({ id, order, updatedBy }) =>
-    client.from("jobOperation").update({ order, updatedBy }).eq("id", id)
-  );
-  return Promise.all(updatePromises);
+  return db.transaction().execute(async (trx) => {
+    for (const { id, order, updatedBy } of updates) {
+      await trx
+        .updateTable("jobOperation")
+        .set({ order, updatedBy })
+        .where("id", "=", id)
+        .where("companyId", "=", companyId)
+        .execute();
+    }
+  });
 }
 
 export async function updateJobOperationStepOrder(
-  client: SupabaseClient<Database>,
+  db: Kysely<KyselyDatabase>,
+  companyId: string,
   updates: {
     id: string;
     sortOrder: number;
     updatedBy: string;
   }[]
 ) {
-  const updatePromises = updates.map(({ id, sortOrder, updatedBy }) =>
-    client
-      .from("jobOperationStep")
-      .update({ sortOrder, updatedBy })
-      .eq("id", id)
-  );
-  return Promise.all(updatePromises);
+  return db.transaction().execute(async (trx) => {
+    for (const { id, sortOrder, updatedBy } of updates) {
+      await trx
+        .updateTable("jobOperationStep")
+        .set({ sortOrder, updatedBy })
+        .where("id", "=", id)
+        .where("companyId", "=", companyId)
+        .execute();
+    }
+  });
 }
 
 export async function updateKanbanJob(
