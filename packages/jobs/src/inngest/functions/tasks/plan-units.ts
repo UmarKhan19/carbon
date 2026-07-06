@@ -1,12 +1,12 @@
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { Database } from "@carbon/database";
 import {
-  assemblyUnitCandidates,
   deriveAssemblyUnits,
+  distinctPartNames,
   type UnitGraph
 } from "@carbon/utils";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { matchUnitsToBom } from "./match-units";
+import { assignPartsToBom } from "./match-units";
 
 /** A pre-grouped rigid body for the geometry planner's `options.units`. */
 export type PlanUnit = { id: string; name: string | null; nodeIds: string[] };
@@ -53,17 +53,14 @@ export async function loadPlanUnits(args: {
       .select("geometryHash, itemId")
       .eq("modelUploadId", modelUploadId);
 
-    const nodeMatches = await matchUnitsToBom(
-      assemblyUnitCandidates(graph),
-      bom
-    );
+    const partMatches = await assignPartsToBom(distinctPartNames(graph), bom);
 
     const units = deriveAssemblyUnits({
       graph,
       bomMaterials: bom,
       partMappings: mappings.data ?? [],
       authoredUnits: [],
-      nodeMatches
+      partMatches
     });
 
     return units
@@ -88,7 +85,7 @@ async function loadItemBom(
   client: SupabaseClient<Database>,
   itemId: string,
   companyId: string
-): Promise<{ itemId: string; name: string | null }[]> {
+): Promise<{ itemId: string; name: string | null; quantity: number }[]> {
   const makeMethods = await client
     .from("makeMethod")
     .select("id, status")
@@ -103,17 +100,21 @@ async function loadItemBom(
 
   const materials = await client
     .from("methodMaterial")
-    .select("itemId")
+    .select("itemId, quantity")
     .eq("makeMethodId", active.id)
     .eq("companyId", companyId);
 
-  const componentIds = [
-    ...new Set(
-      (materials.data ?? [])
-        .map((material) => material.itemId)
-        .filter((id): id is string => Boolean(id))
-    )
-  ];
+  // One row per BOM item; sum quantities of duplicate lines. Quantity drives
+  // the collapse rule (qty ≤ 1 with many leaves → one rigid body).
+  const quantityByItem = new Map<string, number>();
+  for (const material of materials.data ?? []) {
+    if (!material.itemId) continue;
+    quantityByItem.set(
+      material.itemId,
+      (quantityByItem.get(material.itemId) ?? 0) + (material.quantity ?? 0)
+    );
+  }
+  const componentIds = [...quantityByItem.keys()];
   if (componentIds.length === 0) return [];
 
   const items = await client
@@ -127,6 +128,7 @@ async function loadItemBom(
 
   return componentIds.map((id) => ({
     itemId: id,
-    name: nameById.get(id) ?? null
+    name: nameById.get(id) ?? null,
+    quantity: quantityByItem.get(id) ?? 1
   }));
 }

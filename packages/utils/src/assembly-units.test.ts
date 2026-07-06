@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
-  assemblyUnitCandidates,
   deriveAssemblyUnits,
+  distinctPartNames,
   type UnitGraph,
   type UnitGraphNode
 } from "./assembly-units";
@@ -14,27 +14,25 @@ function leaf(
   return { nodeId, name, isAssembly: false, geometryHash, children: [] };
 }
 
-function asm(
-  nodeId: string,
-  name: string,
-  children: UnitGraphNode[]
-): UnitGraphNode {
-  return { nodeId, name, isAssembly: true, geometryHash: null, children };
-}
-
-function graphOf(root: UnitGraphNode): UnitGraph {
-  return { root };
+function flat(children: UnitGraphNode[]): UnitGraph {
+  return {
+    root: {
+      nodeId: "root",
+      name: "Assembly",
+      isAssembly: true,
+      geometryHash: null,
+      children
+    }
+  };
 }
 
 describe("deriveAssemblyUnits", () => {
-  it("gives a flat model one unit per leaf", () => {
-    const graph = graphOf(
-      asm("root", "Assembly", [
-        leaf("a", "Bracket", "h1"),
-        leaf("b", "Screw", "h2"),
-        leaf("c", "Cover", "h3")
-      ])
-    );
+  it("gives an unmatched flat model one loose unit per leaf", () => {
+    const graph = flat([
+      leaf("a", "Bracket", "h1"),
+      leaf("b", "Screw", "h2"),
+      leaf("c", "Cover", "h3")
+    ]);
     const units = deriveAssemblyUnits({
       graph,
       bomMaterials: [],
@@ -42,158 +40,102 @@ describe("deriveAssemblyUnits", () => {
       authoredUnits: []
     });
     expect(units).toHaveLength(3);
-    expect(units.every((u) => u.nodeIds.length === 1)).toBe(true);
+    expect(units.every((u) => u.source === "loose")).toBe(true);
     expect(units.map((u) => u.id).sort()).toEqual(["a", "b", "c"]);
   });
 
-  it("unwraps single-child wrapper layers before taking top-level children", () => {
-    const graph = graphOf(
-      asm("root", "Product", [
-        asm("wrap", "Wrapper", [
-          leaf("a", "Bracket", "h1"),
-          leaf("b", "Screw", "h2")
-        ])
-      ])
-    );
+  // A flat SA-BCU-like model: a populated PCB (qty 1) shown as many component
+  // solids, plus 8 screws (qty 8) and a single seal (qty 1).
+  const bcuGraph = () =>
+    flat([
+      leaf("seal", "Seal Electronics Box", "hseal"),
+      ...Array.from({ length: 8 }, (_, i) =>
+        leaf(`screw-${i}`, "Flanged Screw", `hscrew`)
+      ),
+      ...Array.from({ length: 300 }, (_, i) =>
+        leaf(`pcb-${i}`, `R_0402_${i}`, `hr${i}`)
+      )
+    ]);
+  const bcuBom = [
+    { itemId: "i_seal", name: "Seal Electronics Box", quantity: 1 },
+    { itemId: "i_screw", name: "Flanged Screws", quantity: 8 },
+    { itemId: "i_pcb", name: "BCU PCB", quantity: 1 }
+  ];
+  // The LLM assigns each distinct part name to a BOM line.
+  const bcuMatches = [
+    { name: "Seal Electronics Box", itemId: "i_seal" },
+    { name: "Flanged Screw", itemId: "i_screw" },
+    ...Array.from({ length: 300 }, (_, i) => ({
+      name: `R_0402_${i}`,
+      itemId: "i_pcb"
+    }))
+  ];
+
+  it("collapses the qty-1 PCB into one rigid unit but keeps 8 screws separate", () => {
     const units = deriveAssemblyUnits({
-      graph,
-      bomMaterials: [],
+      graph: bcuGraph(),
+      bomMaterials: bcuBom,
       partMappings: [],
-      authoredUnits: []
-    });
-    expect(units.map((u) => u.id).sort()).toEqual(["a", "b"]);
-  });
-
-  const pcbGraph = () => {
-    // 6 top-level leaves + one PCB assembly whose internal solids are NOT in the
-    // parent BOM. The BOM has 7 lines including "PCB Assembly".
-    const pcbChildren = Array.from({ length: 300 }, (_, i) =>
-      leaf(`pcb-${i}`, `C${i}`, `pcbhash-${i}`)
-    );
-    return graphOf(
-      asm("root", "Widget", [
-        leaf("l1", "Enclosure Top", "h1"),
-        leaf("l2", "Enclosure Bottom", "h2"),
-        leaf("l3", "Gasket", "h3"),
-        leaf("l4", "Fan", "h4"),
-        leaf("l5", "Bracket", "h5"),
-        leaf("l6", "Label", "h6"),
-        asm("pcb", "PCB Assembly", pcbChildren)
-      ])
-    );
-  };
-  const pcbBom = [
-    { itemId: "i1", name: "Enclosure Top" },
-    { itemId: "i2", name: "Enclosure Bottom" },
-    { itemId: "i3", name: "Gasket" },
-    { itemId: "i4", name: "Fan" },
-    { itemId: "i5", name: "Bracket" },
-    { itemId: "i6", name: "Label" },
-    { itemId: "i7", name: "PCB Assembly" }
-  ];
-  const pcbMappings = [
-    { geometryHash: "h1", itemId: "i1" },
-    { geometryHash: "h2", itemId: "i2" },
-    { geometryHash: "h3", itemId: "i3" },
-    { geometryHash: "h4", itemId: "i4" },
-    { geometryHash: "h5", itemId: "i5" },
-    { geometryHash: "h6", itemId: "i6" }
-  ];
-
-  it("collapses a PCB-like subassembly to one BOM unit via the LLM match", () => {
-    const units = deriveAssemblyUnits({
-      graph: pcbGraph(),
-      bomMaterials: pcbBom,
-      partMappings: pcbMappings,
       authoredUnits: [],
-      nodeMatches: [{ nodeId: "pcb", itemId: "i7" }]
+      partMatches: bcuMatches
     });
-    expect(units).toHaveLength(7);
-    const pcb = units.find((u) => u.id === "pcb");
+
+    const pcb = units.find((u) => u.id === "unit:i_pcb");
     expect(pcb?.nodeIds).toHaveLength(300);
-    expect(pcb?.itemId).toBe("i7");
-    expect(pcb?.name).toBe("PCB Assembly");
+    expect(pcb?.name).toBe("BCU PCB");
     expect(pcb?.source).toBe("bom");
+
+    // 8 screws stay as 8 separate parts (qty 8, not merged).
+    const screws = units.filter((u) => u.itemId === "i_screw");
+    expect(screws).toHaveLength(8);
+    expect(screws.every((u) => u.nodeIds.length === 1)).toBe(true);
+
+    // Seal is a lone matched part.
+    const seal = units.find((u) => u.id === "seal");
+    expect(seal?.itemId).toBe("i_seal");
+
+    // 1 PCB unit + 8 screws + 1 seal.
+    expect(units).toHaveLength(10);
   });
 
-  it("still collapses the PCB as a hierarchy unit with no LLM match", () => {
-    const units = deriveAssemblyUnits({
-      graph: pcbGraph(),
-      bomMaterials: pcbBom,
-      partMappings: pcbMappings,
-      authoredUnits: []
-    });
-    expect(units).toHaveLength(7);
-    const pcb = units.find((u) => u.id === "pcb");
-    expect(pcb?.nodeIds).toHaveLength(300);
-    expect(pcb?.source).toBe("hierarchy");
-    expect(pcb?.itemId).toBeUndefined();
-  });
-
-  it("lists only assembly-node subtrees as LLM match candidates", () => {
-    const candidates = assemblyUnitCandidates(pcbGraph());
-    expect(candidates).toHaveLength(1);
-    expect(candidates[0]?.nodeId).toBe("pcb");
-    expect(candidates[0]?.name).toBe("PCB Assembly");
-    expect(candidates[0]?.leafCount).toBe(300);
-    expect(candidates[0]?.sampleParts.length).toBeGreaterThan(0);
-  });
-
-  it("collapses a subassembly with no BOM match as a hierarchy unit", () => {
-    const graph = graphOf(
-      asm("root", "Widget", [
-        leaf("l1", "Base", "h1"),
-        asm("sub", "Mystery Module", [
-          leaf("s1", "x", "hs1"),
-          leaf("s2", "y", "hs2")
-        ])
-      ])
+  it("does not collapse a qty>1 line even with many leaves", () => {
+    const graph = flat(
+      Array.from({ length: 12 }, (_, i) => leaf(`s-${i}`, "Screw", "hs"))
     );
     const units = deriveAssemblyUnits({
       graph,
-      bomMaterials: [{ itemId: "i1", name: "Base" }],
-      partMappings: [{ geometryHash: "h1", itemId: "i1" }],
-      authoredUnits: []
+      bomMaterials: [{ itemId: "i", name: "Screw", quantity: 12 }],
+      partMappings: [],
+      authoredUnits: [],
+      partMatches: [{ name: "Screw", itemId: "i" }]
     });
-    const sub = units.find((u) => u.id === "sub");
-    expect(sub).toBeDefined();
-    expect(sub?.source).toBe("hierarchy");
-    expect(sub?.nodeIds.sort()).toEqual(["s1", "s2"]);
+    expect(units).toHaveLength(12);
+    expect(units.every((u) => u.nodeIds.length === 1)).toBe(true);
   });
 
-  it("descends a wrapper that spans several distinct BOM items", () => {
-    const graph = graphOf(
-      asm("root", "Widget", [
-        asm("grp", "Unnamed Group", [
-          leaf("a", "Bracket", "h1"),
-          leaf("b", "Screw", "h2")
-        ])
-      ])
-    );
+  it("prefers an exact geometry↔BOM mapping over the LLM name assignment", () => {
+    const graph = flat([leaf("a", "Widget", "hA"), leaf("b", "Widget", "hB")]);
     const units = deriveAssemblyUnits({
       graph,
       bomMaterials: [
-        { itemId: "i1", name: "Bracket" },
-        { itemId: "i2", name: "Screw" }
+        { itemId: "i_map", name: "Mapped", quantity: 1 },
+        { itemId: "i_llm", name: "Guessed", quantity: 1 }
       ],
-      partMappings: [
-        { geometryHash: "h1", itemId: "i1" },
-        { geometryHash: "h2", itemId: "i2" }
-      ],
-      authoredUnits: []
+      // Exact mapping says hA → i_map; the LLM guesses the name → i_llm.
+      partMappings: [{ geometryHash: "hA", itemId: "i_map" }],
+      authoredUnits: [],
+      partMatches: [{ name: "Widget", itemId: "i_llm" }]
     });
-    expect(units.map((u) => u.id).sort()).toEqual(["a", "b"]);
-    expect(units.find((u) => u.id === "a")?.itemId).toBe("i1");
+    expect(units.find((u) => u.id === "a")?.itemId).toBe("i_map");
+    expect(units.find((u) => u.id === "b")?.itemId).toBe("i_llm");
   });
 
   it("honors an authored unit and removes its leaves from the automatic pass", () => {
-    const graph = graphOf(
-      asm("root", "Widget", [
-        leaf("a", "Bracket", "h1"),
-        leaf("b", "Screw", "h2"),
-        leaf("c", "Washer", "h3")
-      ])
-    );
+    const graph = flat([
+      leaf("a", "Bracket", "h1"),
+      leaf("b", "Screw", "h2"),
+      leaf("c", "Washer", "h3")
+    ]);
     const units = deriveAssemblyUnits({
       graph,
       bomMaterials: [],
@@ -206,6 +148,15 @@ describe("deriveAssemblyUnits", () => {
     expect(authored?.source).toBe("authored");
     expect(authored?.nodeIds.sort()).toEqual(["b", "c"]);
     expect(units.filter((u) => u.nodeIds.includes("b"))).toHaveLength(1);
-    expect(units.find((u) => u.id === "a")).toBeDefined();
+    expect(units.find((u) => u.id === "a")?.source).toBe("loose");
+  });
+
+  it("summarizes distinct part names with counts for the matcher", () => {
+    const names = distinctPartNames(bcuGraph());
+    const byName = new Map(names.map((n) => [n.name, n.count]));
+    expect(byName.get("Flanged Screw")).toBe(8);
+    expect(byName.get("Seal Electronics Box")).toBe(1);
+    // 300 distinct R_0402_* names + screw + seal.
+    expect(names).toHaveLength(302);
   });
 });

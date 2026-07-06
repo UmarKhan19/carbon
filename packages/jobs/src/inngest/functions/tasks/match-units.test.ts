@@ -1,15 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { matchUnitsToBom } from "./match-units";
+import { assignPartsToBom } from "./match-units";
 
-const candidate = {
-  nodeId: "pcb",
-  name: "PCB Assembly",
-  leafCount: 300,
-  sampleParts: ["C1", "R4", "U2"]
-};
-const bom = [{ itemId: "i7", name: "PCB Assembly" }];
+const parts = [
+  { name: "R_0402_1005Metric_49", count: 40 },
+  { name: "minimalBCU_gen2_PCB", count: 1 }
+];
+const bom = [{ itemId: "i_pcb", name: "BCU PCB" }];
 
-describe("matchUnitsToBom guards", () => {
+describe("assignPartsToBom guards", () => {
   const original = process.env.OPENAI_API_KEY;
   beforeEach(() => {
     process.env.OPENAI_API_KEY = "test-key";
@@ -19,16 +17,24 @@ describe("matchUnitsToBom guards", () => {
     else process.env.OPENAI_API_KEY = original;
   });
 
-  it("returns [] with no candidates", async () => {
-    expect(await matchUnitsToBom([], bom)).toEqual([]);
+  it("returns [] with no parts", async () => {
+    expect(await assignPartsToBom([], bom)).toEqual([]);
   });
 
   it("returns [] with an empty BOM", async () => {
-    expect(await matchUnitsToBom([candidate], [])).toEqual([]);
+    expect(await assignPartsToBom(parts, [])).toEqual([]);
+  });
+
+  it("returns [] when the part set is implausibly large", async () => {
+    const many = Array.from({ length: 601 }, (_, i) => ({
+      name: `P${i}`,
+      count: 1
+    }));
+    expect(await assignPartsToBom(many, bom)).toEqual([]);
   });
 
   it("returns [] (no throw) when the OpenAI key is absent", async () => {
     delete process.env.OPENAI_API_KEY;
-    expect(await matchUnitsToBom([candidate], bom)).toEqual([]);
+    expect(await assignPartsToBom(parts, bom)).toEqual([]);
   });
 });

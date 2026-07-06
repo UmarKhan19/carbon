@@ -259,6 +259,33 @@ follow-up — noted, **not in this pass**.
   subassembly override). Post-D0 nothing DB-side is called a "group", which
   dissolves the collision.
 
+## Revision — CAD is flat, group by BOM membership (2026-07-06)
+
+Inspecting the real model (SA-BCU, 431 leaves) disproved the nesting
+assumption: the STEP export is **completely flat** — all 431 solids are direct
+children of the root, no subassembly nodes. The PCB's ~400 component solids
+(`R_0402`, `SOT-23`, `PG-TSDSO`, `minimalBCU_gen2_PCB`, …) are top-level
+siblings of the enclosure, seal, and screws. The BOM has 7 lines including
+**`BCU PCB` (qty 1)**.
+
+So units cannot come from the tree. `deriveAssemblyUnits` is rewritten to group
+by **BOM membership**:
+- The LLM (`assignPartsToBom`, gpt-4o-mini) assigns each distinct part *name* to
+  a BOM line — electronic footprints → the PCB line — since text similarity
+  can't (`minimalBCU_gen2_PCB` vs `BCU PCB` scores 0.25; `R_0402` shares nothing
+  with `BCU PCB`). Exact geometry↔BOM mappings win over the LLM guess.
+- Leaves group by assigned item. A group **collapses into one rigid body only
+  when quantity ≤ 1 and it has ≥ 2 leaves** (a single subassembly shown in
+  detail — the PCB). Multi-quantity lines (8 screws, 4 clips) stay separate
+  bodies; the viewer's identical-part grouping still merges them into a step.
+- The qty≤1 heuristic is imperfect (user: "1 seems most correct… may not be
+  true in other instances") — the T5 manual override (`assemblyUnit`) is the
+  escape hatch for the exceptions.
+
+Replaces the hierarchy-unwrap/descend rules and `assemblyUnitCandidates` from
+the original D1. `AssemblyUnit.source` is now `authored | bom | loose`. The
+worker sends only collapsed (multi-leaf) units as `options.units`.
+
 ## Execution log (running)
 
 - 2026-07-06 — Plan drafted; rule = BOM-driven with top-level hierarchy
