@@ -215,6 +215,40 @@ describe("buildAssemblyStepGroups", () => {
     expect(groups[1]?.motion).toEqual({ type: "none" });
   });
 
+  it("folds a v3 unit's members into one named step", () => {
+    const stepPlan: AssemblyPlan = {
+      version: 3,
+      unit: "mm",
+      sequence: ["pcb-a", "pcb-b"],
+      parts: {
+        "pcb-a": {
+          motion: { type: "linear", direction: [0, 0, 1], distance: 30 },
+          confidence: "high",
+          groupId: "pcb"
+        },
+        "pcb-b": {
+          motion: { type: "linear", direction: [0, 0, 1], distance: 30 },
+          confidence: "high",
+          groupId: "pcb"
+        }
+      },
+      groups: {
+        pcb: {
+          partNodeIds: ["pcb-a", "pcb-b"],
+          motion: { type: "linear", direction: [0, 0, 1], distance: 30 },
+          name: "PCB Assembly"
+        }
+      },
+      warnings: []
+    };
+
+    const groups = buildAssemblyStepGroups(stepPlan, graphIndex);
+
+    expect(groups).toHaveLength(1);
+    expect(groups[0]?.partNodeIds).toEqual(["pcb-a", "pcb-b"]);
+    expect(groups[0]?.name).toBe("PCB Assembly");
+  });
+
   it("synthesizes an AABB fallback for unflagged none-motion parts, but never the base", () => {
     const stepPlan: AssemblyPlan = {
       version: 1,

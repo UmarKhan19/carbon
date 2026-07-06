@@ -4950,6 +4950,9 @@ export async function generateAssemblyStepsFromPlan(
     return {
       assemblyInstructionId: args.assemblyInstructionId,
       sortOrder: index + 1,
+      // A pre-grouped unit (e.g. a purchased PCB) titles its step with the
+      // unit name; ungrouped steps derive their title from their parts.
+      title: group.name ?? null,
       partNodeIds: group.partNodeIds,
       motion: (motion.success ? motion.data : { type: "none" }) as Json,
       warnings:

@@ -32,16 +32,22 @@ export type AssemblyPlanPart = {
  * treat them as absent so the pipeline re-plans instead of resurrecting
  * old motions. Bump alongside the geometry service's PLAN_VERSION.
  */
-export const CURRENT_PLAN_VERSION = 2;
+export const CURRENT_PLAN_VERSION = 3;
 
 export type AssemblyPlan = {
-  version: 1 | 2;
+  version: 1 | 2 | 3;
   unit: "mm";
   /** Assembly order (constraint-consistent; v1: reversed greedy disassembly) */
   sequence: string[];
   parts: Record<string, AssemblyPlanPart>;
-  /** v2: subassembly units keyed by groupId */
-  groups?: Record<string, { partNodeIds: string[]; motion: Motion }>;
+  /**
+   * v2: subassembly units keyed by groupId. v3 adds `name` — a pre-grouped unit
+   * (e.g. a purchased PCB) carries its BOM/subassembly name for the step title.
+   */
+  groups?: Record<
+    string,
+    { partNodeIds: string[]; motion: Motion; name?: string }
+  >;
   warnings: string[];
 };
 
@@ -113,6 +119,8 @@ export type AssemblyStepGroup = {
    * the parts in at their seated pose.
    */
   blockedBy: string[];
+  /** v3: the pre-grouped unit's name (e.g. "PCB Assembly"), for the step title. */
+  name?: string;
 };
 
 function motionKey(motion: Motion): string {
@@ -199,6 +207,7 @@ export function buildAssemblyStepGroups(
       motion,
       confidence,
       blockedBy: [...blockedBy],
+      name: part?.groupId ? plan.groups?.[part.groupId]?.name : undefined,
       key
     });
   }
