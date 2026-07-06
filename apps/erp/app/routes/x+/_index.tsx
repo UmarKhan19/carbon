@@ -124,7 +124,7 @@ export default function AppIndexRoute() {
 
   return (
     <div className="relative w-full h-full overflow-hidden">
-      <MeshGradientBackground />
+      <MeshGradientBackground darkOnly />
       <div className="relative z-10 p-8 w-full h-full overflow-y-auto">
         <Greeting size="h3" />
         <Subheading>{formatter.format(date)}</Subheading>
