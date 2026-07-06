@@ -9,8 +9,13 @@ let unavailable = false;
 export function logUnavailable(err: unknown): void {
   const now = Date.now();
   if (!unavailable || now - lastLoggedAt >= LOG_THROTTLE_MS) {
-    const message = err instanceof Error ? err.message : String(err);
-    console.warn(`Redis unavailable, falling back: ${message}`);
+    console.error(
+      JSON.stringify({
+        event: "redis.degraded",
+        message: "Redis is unavailable, running in degraded mode",
+        cause: err instanceof Error ? err.message : String(err)
+      })
+    );
     lastLoggedAt = now;
   }
   unavailable = true;
@@ -18,7 +23,12 @@ export function logUnavailable(err: unknown): void {
 
 function logReconnected(): void {
   if (unavailable) {
-    console.info("Redis reconnected");
+    console.info(
+      JSON.stringify({
+        event: "redis.recovered",
+        message: "Redis reconnected"
+      })
+    );
     unavailable = false;
   }
 }
