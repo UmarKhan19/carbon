@@ -112,13 +112,11 @@ describe("AvataxApi", () => {
   });
 
   it("getCompanyByCode escapes single quotes in the $filter", async () => {
-    const fetchImpl = vi
-      .fn()
-      .mockResolvedValue(
-        mockResponse(200, {
-          value: [{ id: 1, companyCode: "O'HARE", name: "O'Hare" }]
-        })
-      );
+    const fetchImpl = vi.fn().mockResolvedValue(
+      mockResponse(200, {
+        value: [{ id: 1, companyCode: "O'HARE", name: "O'Hare" }]
+      })
+    );
     const { api } = makeApi(fetchImpl as unknown as typeof fetch, "O'HARE");
 
     const { data, error } = await api.getCompanyByCode("O'HARE");
