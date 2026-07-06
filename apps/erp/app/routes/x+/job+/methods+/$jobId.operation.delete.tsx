@@ -35,6 +35,15 @@ export async function action({ request, params }: ActionFunctionArgs) {
     .from("productionEvent")
     .select("id", { count: "exact", head: true })
     .eq("jobOperationId", id);
+  if (events.error) {
+    return data(
+      {
+        success: false,
+        error: "Failed to check for recorded production events"
+      },
+      { status: 500 }
+    );
+  }
   if ((events.count ?? 0) > 0) {
     return data(
       {
