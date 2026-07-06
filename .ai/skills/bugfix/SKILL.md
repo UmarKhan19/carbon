@@ -42,8 +42,10 @@ Default when ambiguous: **ask** — one question, the two options above.
 
 ### 0b. Phase set
 
-Root-cause and fix always run. The rest are decided as follows — note some
-branches resolve _after_ root-cause, not upfront:
+Root-cause and fix always run **on a fresh start**; a resumed run may begin past
+them when a prior artifact already satisfies the phase (see Entering
+mid-pipeline). The rest are decided as follows — note some branches resolve
+_after_ root-cause, not upfront:
 
 - **Runtime instrument (`/debugging-difficult-bugs`)** — a **runtime branch, decided
   after phase 1**: run root-cause first, read its Confidence line. Include when
@@ -61,9 +63,10 @@ branches resolve _after_ root-cause, not upfront:
 
 ## Step 0c: Open the run record — the standardization artifact
 
-Create `.ai/runs/{date}-{slug}.md` before phase 1. One canonical log of what was
-diagnosed, decided, and proven — so the same bug handled by different engineers
-produces comparable results.
+Create `.ai/runs/{date}-{slug}.md` before the **first selected phase** (phase 1
+on a fresh run; Fix or Test on a resumed run — see Entering mid-pipeline). One
+canonical log of what was diagnosed, decided, and proven — so the same bug
+handled by different engineers produces comparable results.
 
 ```markdown
 # Bugfix run: {title}
@@ -115,7 +118,10 @@ Start at the first selected phase whose input is missing:
 
 ## Hard rules
 
-- `/root-cause` and `/fix` always run — never skip diagnosis, never fix a guess.
+- On a fresh run, `/root-cause` and `/fix` both run — never skip diagnosis,
+  never fix a guess. A resumed run may start past them only when a prior
+  artifact (a proven brief, an implemented fix) already satisfies that phase
+  (see Entering mid-pipeline).
 - **Never commit unprompted.** `/check-and-commit` runs only on an explicit
   commit request; otherwise stop at READY and offer.
 - The two 🛑 hard stops surface to the human **even in autonomous mode** —

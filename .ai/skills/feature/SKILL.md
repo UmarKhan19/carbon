@@ -55,7 +55,8 @@ Detection heuristics (recommend, don't dogmatically enforce):
 - **Spec** — include when the change touches 3+ files, crosses modules, or adds
   a data model (spec-writing's own trigger). Skip for a well-understood
   single-surface feature with clear requirements — go straight to plan.
-- **Plan / Execute** — always.
+- **Plan / Execute** — always on a fresh run (a resumed run may start at Execute
+  when an approved plan already exists — see Entering mid-pipeline).
 - **Test** — include for user-facing flows. Skip when the user says it's
   straightforward, wants to verify manually, or flags browser-test cost — but
   say so in the record ("test skipped — user opts to verify manually").
@@ -67,9 +68,10 @@ If requirements are unclear and research is a candidate, in approval mode ask:
 
 ## Step 0c: Open the run record — the standardization artifact
 
-Create `.ai/runs/{date}-{slug}.md` before phase 1. This is what makes ten
-engineers on the same feature produce comparable results — one canonical log of
-what was decided and why.
+Create `.ai/runs/{date}-{slug}.md` before the **first selected phase** (phase 1
+on a fresh run; a later phase on a resumed run — see Entering mid-pipeline).
+This is what makes ten engineers on the same feature produce comparable
+results — one canonical log of what was decided and why.
 
 ```markdown
 # Feature run: {title}
@@ -117,7 +119,9 @@ Start at the first selected phase whose artifact is missing or stale:
 
 ## Hard rules
 
-- `/plan` and `/execute` always run — never skip them.
+- On a fresh run, `/plan` and `/execute` always run — never skip them. A resumed
+  run may start past plan only when an approved plan already exists (see Entering
+  mid-pipeline).
 - In approval mode, never skip a 🛑 gate. In autonomous mode, never skip
   *recording* an auto-resolved gate decision — the record is the audit trail.
 - Never let a phase write its artifact somewhere non-canonical — the paths in
