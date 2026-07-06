@@ -36,7 +36,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
-  const { client, companyId } = await requirePermissions(request, {
+  const { client } = await requirePermissions(request, {
     delete: "parts"
   });
 
@@ -48,11 +48,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
-  const { error: deleteTypeError } = await deleteUnitOfMeasure(
-    client,
-    uomId,
-    companyId
-  );
+  const { error: deleteTypeError } = await deleteUnitOfMeasure(client, uomId);
   if (deleteTypeError) {
     throw redirect(
       path.to.uoms,

@@ -30,7 +30,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
-  const { client, companyId } = await requirePermissions(request, {
+  const { client } = await requirePermissions(request, {
     delete: "parts"
   });
 
@@ -45,11 +45,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
-  const { error: deleteTypeError } = await deleteMaterialDimension(
-    client,
-    id,
-    companyId
-  );
+  const { error: deleteTypeError } = await deleteMaterialDimension(client, id);
   if (deleteTypeError) {
     throw redirect(
       `${path.to.materialDimensions}?${getParams(request)}`,

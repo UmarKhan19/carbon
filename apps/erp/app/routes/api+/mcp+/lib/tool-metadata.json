@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-06T06:36:29.066Z",
+  "generated": "2026-07-06T06:59:29.834Z",
   "totalTools": 1254,
   "modules": 15,
   "tools": [
@@ -9464,8 +9464,7 @@
       "paramCount": 1,
       "serviceParams": [
         "client",
-        "id",
-        "companyId"
+        "id"
       ],
       "injectAuth": [
         "companyId"
@@ -9490,8 +9489,7 @@
       "paramCount": 1,
       "serviceParams": [
         "client",
-        "id",
-        "companyId"
+        "id"
       ],
       "injectAuth": [
         "companyId"
@@ -9516,8 +9514,7 @@
       "paramCount": 1,
       "serviceParams": [
         "client",
-        "id",
-        "companyId"
+        "id"
       ],
       "injectAuth": [
         "companyId"
@@ -9542,8 +9539,7 @@
       "paramCount": 1,
       "serviceParams": [
         "client",
-        "id",
-        "companyId"
+        "id"
       ],
       "injectAuth": [
         "companyId"
@@ -9568,8 +9564,7 @@
       "paramCount": 1,
       "serviceParams": [
         "client",
-        "id",
-        "companyId"
+        "id"
       ],
       "injectAuth": [
         "companyId"
@@ -9594,8 +9589,7 @@
       "paramCount": 1,
       "serviceParams": [
         "client",
-        "id",
-        "companyId"
+        "id"
       ],
       "injectAuth": [
         "companyId"
@@ -9770,8 +9764,7 @@
       "paramCount": 1,
       "serviceParams": [
         "client",
-        "id",
-        "companyId"
+        "id"
       ],
       "injectAuth": [
         "companyId"
@@ -13338,8 +13331,7 @@
       "paramCount": 1,
       "serviceParams": [
         "client",
-        "id",
-        "companyId"
+        "id"
       ],
       "injectAuth": [
         "companyId"
@@ -17908,8 +17900,7 @@
       "description": "update job material order",
       "paramCount": 2,
       "serviceParams": [
-        "db",
-        "companyId",
+        "client",
         "updates"
       ],
       "injectAuth": [
@@ -17939,8 +17930,7 @@
       "description": "update job operation order",
       "paramCount": 2,
       "serviceParams": [
-        "db",
-        "companyId",
+        "client",
         "updates"
       ],
       "injectAuth": [
@@ -17970,8 +17960,7 @@
       "description": "update job operation step order",
       "paramCount": 2,
       "serviceParams": [
-        "db",
-        "companyId",
+        "client",
         "updates"
       ],
       "injectAuth": [

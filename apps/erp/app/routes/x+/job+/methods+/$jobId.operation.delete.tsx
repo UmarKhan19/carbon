@@ -45,11 +45,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
-  const { error } = await client
-    .from("jobOperation")
-    .delete()
-    .eq("id", id)
-    .eq("companyId", companyId);
+  const { error } = await client.from("jobOperation").delete().eq("id", id);
 
   if (error) {
     return data(

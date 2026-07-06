@@ -246,74 +246,44 @@ export async function deleteItem(client: SupabaseClient<Database>, id: string) {
 
 export async function deleteItemPostingGroup(
   client: SupabaseClient<Database>,
-  id: string,
-  companyId: string
+  id: string
 ) {
-  return client
-    .from("itemPostingGroup")
-    .delete()
-    .eq("id", id)
-    .eq("companyId", companyId);
+  return client.from("itemPostingGroup").delete().eq("id", id);
 }
 
 export async function deleteMaterialDimension(
   client: SupabaseClient<Database>,
-  id: string,
-  companyId: string
+  id: string
 ) {
-  return client
-    .from("materialDimension")
-    .delete()
-    .eq("id", id)
-    .eq("companyId", companyId);
+  return client.from("materialDimension").delete().eq("id", id);
 }
 
 export async function deleteMaterialFinish(
   client: SupabaseClient<Database>,
-  id: string,
-  companyId: string
+  id: string
 ) {
-  return client
-    .from("materialFinish")
-    .delete()
-    .eq("id", id)
-    .eq("companyId", companyId);
+  return client.from("materialFinish").delete().eq("id", id);
 }
 
 export async function deleteMaterialForm(
   client: SupabaseClient<Database>,
-  id: string,
-  companyId: string
+  id: string
 ) {
-  return client
-    .from("materialForm")
-    .delete()
-    .eq("id", id)
-    .eq("companyId", companyId);
+  return client.from("materialForm").delete().eq("id", id);
 }
 
 export async function deleteMaterialGrade(
   client: SupabaseClient<Database>,
-  id: string,
-  companyId: string
+  id: string
 ) {
-  return client
-    .from("materialGrade")
-    .delete()
-    .eq("id", id)
-    .eq("companyId", companyId);
+  return client.from("materialGrade").delete().eq("id", id);
 }
 
 export async function deleteMaterialSubstance(
   client: SupabaseClient<Database>,
-  id: string,
-  companyId: string
+  id: string
 ) {
-  return client
-    .from("materialSubstance")
-    .delete()
-    .eq("id", id)
-    .eq("companyId", companyId);
+  return client.from("materialSubstance").delete().eq("id", id);
 }
 
 export async function deleteMethodMaterial(
@@ -375,14 +345,9 @@ export async function deleteMethodOperationTool(
 
 export async function deleteUnitOfMeasure(
   client: SupabaseClient<Database>,
-  id: string,
-  companyId: string
+  id: string
 ) {
-  return client
-    .from("unitOfMeasure")
-    .delete()
-    .eq("id", id)
-    .eq("companyId", companyId);
+  return client.from("unitOfMeasure").delete().eq("id", id);
 }
 
 export async function getConfigurationParameters(
@@ -4320,14 +4285,9 @@ export async function upsertMaterialGrade(
 
 export async function deleteMaterialType(
   client: SupabaseClient<Database>,
-  id: string,
-  companyId: string
+  id: string
 ) {
-  return client
-    .from("materialType")
-    .delete()
-    .eq("id", id)
-    .eq("companyId", companyId);
+  return client.from("materialType").delete().eq("id", id);
 }
 
 export async function getMaterialTypes(
