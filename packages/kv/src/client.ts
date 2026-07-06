@@ -1,5 +1,5 @@
 import { REDIS_URL } from "@carbon/env";
-import Redis from "ioredis";
+import Redis, { type ChainableCommander } from "ioredis";
 
 declare global {
   var __redis: Redis | undefined;
@@ -21,14 +21,12 @@ if (!global.__redis) {
   });
 }
 
-const redis = global.__redis;
-
-export default redis;
-
 // --- Resilience layer --------------------------------------------------------
-// Foundation only: consumers keep using the raw `redis` export until they
-// migrate to the safe helpers below. When Redis is unreachable these helpers
-// return a fallback instead of letting the rejection propagate into a 5xx.
+// The exported `redis` is a transparent proxy: every command is wrapped with a
+// short timeout and, when Redis is unreachable, returns a type-appropriate empty
+// value instead of throwing. Consumers keep calling `redis.get(...)` /
+// `redis.set(...)` unchanged — a Redis outage degrades to no-op reads/writes
+// rather than 5xxing the request.
 
 const REDIS_TIMEOUT_MS = 500;
 const LOG_DEBOUNCE_MS = 10_000;
@@ -60,18 +58,24 @@ function logRecovered(): void {
 }
 
 /**
+ * Test-only hook to reset the module-global degraded/debounce state between
+ * cases. Not re-exported from the package index.
+ */
+export function __resetResilienceState(): void {
+  lastLoggedAt = 0;
+  degraded = false;
+}
+
+/**
  * Run a Redis operation with a per-call timeout, returning `fallback` on any
  * error (connection refused, timeout, offline-queue overflow, etc.) instead of
  * throwing. Callers never hang longer than {@link REDIS_TIMEOUT_MS}.
  */
-export async function withRedis<T>(
-  fn: (client: Redis) => Promise<T>,
-  fallback: T
-): Promise<T> {
+async function runSafe<T>(op: () => Promise<T>, fallback: T): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined;
   try {
     const result = await Promise.race([
-      fn(redis),
+      op(),
       new Promise<never>((_, reject) => {
         timer = setTimeout(
           () => reject(new Error("redis timeout")),
@@ -89,26 +93,229 @@ export async function withRedis<T>(
   }
 }
 
-/** Redis GET that yields `null` when Redis is unavailable. */
-export const safeGet = (key: string): Promise<string | null> =>
-  withRedis((r) => r.get(key), null);
+// Command → fallback classification. Reads that yield collections must fall back
+// to the matching empty shape so callers can still `.map`/`.length`/spread the
+// result; everything else falls back to `null`.
+const ARRAY_REPLY = new Set([
+  "keys",
+  "mget",
+  "hmget",
+  "hvals",
+  "hkeys",
+  "lrange",
+  "smembers",
+  "sinter",
+  "sunion",
+  "sdiff",
+  "srandmember",
+  "spop",
+  "zrange",
+  "zrevrange",
+  "zrangebyscore",
+  "zrevrangebyscore",
+  "zrangebylex",
+  "zrevrangebylex",
+  "zpopmin",
+  "zpopmax",
+  "sort",
+  "xrange",
+  "xrevrange",
+  "georadius",
+  "geopos",
+  "geohash"
+]);
+const OBJECT_REPLY = new Set(["hgetall"]);
+// scan-family replies are [cursor, elements].
+const SCAN_REPLY = new Set(["scan", "hscan", "sscan", "zscan"]);
+const INTEGER_REPLY = new Set([
+  "del",
+  "unlink",
+  "exists",
+  "expire",
+  "expireat",
+  "pexpire",
+  "pexpireat",
+  "persist",
+  "ttl",
+  "pttl",
+  "incr",
+  "incrby",
+  "decr",
+  "decrby",
+  "hincrby",
+  "hdel",
+  "hset",
+  "hsetnx",
+  "hlen",
+  "hexists",
+  "llen",
+  "lpush",
+  "rpush",
+  "lpushx",
+  "rpushx",
+  "lrem",
+  "sadd",
+  "srem",
+  "scard",
+  "sismember",
+  "smove",
+  "zadd",
+  "zrem",
+  "zcard",
+  "zcount",
+  "zrank",
+  "zrevrank",
+  "setnx",
+  "setrange",
+  "append",
+  "strlen",
+  "getbit",
+  "setbit",
+  "bitcount",
+  "publish",
+  "pfadd",
+  "pfcount",
+  "geoadd",
+  "xlen",
+  "dbsize",
+  "touch",
+  "wait",
+  "move",
+  "renamenx",
+  "msetnx"
+]);
+const STATUS_REPLY = new Set([
+  "set",
+  "setex",
+  "psetex",
+  "mset",
+  "hmset",
+  "rename",
+  "ltrim",
+  "flushall",
+  "flushdb"
+]);
 
-/** Redis SET that silently no-ops when Redis is unavailable. */
-export const safeSet = (
-  key: string,
-  value: string,
-  options?: { ex?: number }
-): Promise<void> =>
-  withRedis<void>(async (r) => {
-    if (options?.ex !== undefined) {
-      await r.set(key, value, "EX", options.ex);
-    } else {
-      await r.set(key, value);
+function fallbackFor(command: string): unknown {
+  const name = command.toLowerCase();
+  if (ARRAY_REPLY.has(name)) return [];
+  if (OBJECT_REPLY.has(name)) return {};
+  if (SCAN_REPLY.has(name)) return ["0", []];
+  if (INTEGER_REPLY.has(name)) return 0;
+  if (STATUS_REPLY.has(name)) return "OK";
+  return null;
+}
+
+// Members that must NOT be command-wrapped: EventEmitter surface, connection
+// lifecycle, command definition, and streaming helpers. These are returned
+// bound to the raw client so `this` stays correct.
+const PASSTHROUGH = new Set([
+  "on",
+  "once",
+  "off",
+  "emit",
+  "addListener",
+  "removeListener",
+  "removeAllListeners",
+  "listeners",
+  "rawListeners",
+  "listenerCount",
+  "eventNames",
+  "prependListener",
+  "prependOnceListener",
+  "setMaxListeners",
+  "getMaxListeners",
+  "connect",
+  "disconnect",
+  "quit",
+  "end",
+  "duplicate",
+  "defineCommand",
+  "createBuiltinCommand",
+  "sendCommand",
+  "scanStream",
+  "hscanStream",
+  "sscanStream",
+  "zscanStream"
+]);
+
+type AnyFn = (...args: unknown[]) => unknown;
+
+/**
+ * Wrap a pipeline/multi so its command builders keep chaining but `exec` never
+ * throws — a downed Redis yields an empty result set instead of rejecting.
+ */
+function createSafePipeline(pipeline: ChainableCommander): ChainableCommander {
+  return new Proxy(pipeline, {
+    get(target, prop, receiver) {
+      const value = Reflect.get(target, prop, target);
+      if (typeof value !== "function") return value;
+      if (prop === "exec" || prop === "execBuffer") {
+        return (...args: unknown[]) =>
+          runSafe(
+            () => (value as AnyFn).apply(target, args) as Promise<unknown>,
+            []
+          );
+      }
+      return (...args: unknown[]) => {
+        const result = (value as AnyFn).apply(target, args);
+        // Command builders return the pipeline itself; keep the wrapper chained.
+        return result === target ? receiver : result;
+      };
     }
-  }, undefined);
+  });
+}
 
-/** Redis DEL that silently no-ops when Redis is unavailable. */
-export const safeDel = (key: string): Promise<void> =>
-  withRedis<void>(async (r) => {
-    await r.del(key);
-  }, undefined);
+/**
+ * Return a `Redis` proxy whose every command call is timeout-bounded and
+ * failure-safe. The runtime shape is identical to the wrapped client, so the
+ * cast to `Redis` preserves the full typed command surface for callers.
+ */
+export function createSafeRedis(client: Redis): Redis {
+  return new Proxy(client, {
+    get(target, prop) {
+      if (prop === "pipeline" || prop === "multi") {
+        const build = Reflect.get(target, prop, target) as (
+          ...args: unknown[]
+        ) => ChainableCommander;
+        return (...args: unknown[]) =>
+          createSafePipeline(build.apply(target, args));
+      }
+
+      const value = Reflect.get(target, prop, target);
+      if (typeof value !== "function") return value;
+
+      // Non-command members keep their real behavior, bound to the raw client.
+      if (typeof prop !== "string" || PASSTHROUGH.has(prop)) {
+        return (value as AnyFn).bind(target);
+      }
+
+      const command = prop;
+      return (...args: unknown[]) =>
+        runSafe(
+          () => (value as AnyFn).apply(target, args) as Promise<unknown>,
+          fallbackFor(command)
+        );
+    }
+  }) as Redis;
+}
+
+// The raw, unguarded client. Exposed for `withRedis` and tests; not re-exported
+// from the package index (consumers should use the safe default or `withRedis`).
+export const rawRedis = global.__redis;
+
+const redis = createSafeRedis(rawRedis);
+
+export default redis;
+
+/**
+ * Lower-level escape hatch for custom multi-step operations that need an
+ * explicit fallback value. Runs `fn` against the raw client with the same
+ * timeout + degraded-logging behavior as the safe proxy.
+ */
+export async function withRedis<T>(
+  fn: (client: Redis) => Promise<T>,
+  fallback: T
+): Promise<T> {
+  return runSafe(() => fn(rawRedis), fallback);
+}
