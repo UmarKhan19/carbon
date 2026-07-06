@@ -2,7 +2,7 @@ import type { Database, Json } from "@carbon/database";
 import { fetchAllFromTable } from "@carbon/database";
 import type { Kysely, KyselyDatabase } from "@carbon/database/client";
 import type { JSONContent } from "@carbon/react";
-import { tiptapToText } from "@carbon/utils";
+import { nameSimilarity, tiptapToText } from "@carbon/utils";
 import type {
   AssemblyGraph,
   AssemblyGraphIndex,
@@ -4687,23 +4687,6 @@ export async function getFlattenedBomMaterials(
   await walk(active.id, 1, 0);
   return results;
 }
-
-const tokenize = (value: string): Set<string> =>
-  new Set(
-    value
-      .toLowerCase()
-      .split(/[^a-z0-9.]+/)
-      .filter((token) => token.length > 0)
-  );
-
-const nameSimilarity = (a: string, b: string): number => {
-  const tokensA = tokenize(a);
-  const tokensB = tokenize(b);
-  if (tokensA.size === 0 || tokensB.size === 0) return 0;
-  let shared = 0;
-  for (const token of tokensA) if (tokensB.has(token)) shared++;
-  return shared / (tokensA.size + tokensB.size - shared);
-};
 
 export type AutoMatchResult = {
   mapped: number;
