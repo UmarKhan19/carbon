@@ -5,7 +5,7 @@ import type { Binding } from "../binding";
 import { hostedScreenshotPath, screenshotsDir } from "../layout";
 import { readLedger } from "../ledger";
 import { sq } from "./shell";
-import type { Shell } from "./types";
+import type { Shell, TaskStatus } from "./types";
 
 /** Screenshot files the behavior gate captured for this loop, if any. */
 function screenshots(dir: string): string[] {
@@ -139,10 +139,19 @@ export type PrFlags = {
   unverified?: string[];
   /** Product questions for the reviewer (disputed criteria, doer assumptions). */
   questions?: string[];
+  /** The task plan and per-task outcome — rendered as a checklist. */
+  plan?: { title: string; status: TaskStatus }[];
   /** Set when the loop ended WITHOUT meeting all criteria (plateau/blocked) but
-   *  kept, gate-green commits exist — salvage them as a draft PR rather than
-   *  losing the work with the worktree. */
+   *  committed work exists — salvage it as a draft PR rather than losing the
+   *  work with the worktree. */
   partial?: { state: string; reason: string };
+};
+
+const TASK_MARK: Record<TaskStatus, string> = {
+  done: "- [x]",
+  flagged: "- [x] ⚠️",
+  failed: "- [ ] ✗",
+  pending: "- [ ]"
 };
 
 /**
@@ -187,7 +196,7 @@ export function openPr(
       ? [
           `> [!WARNING]`,
           `> **Partial work — the loop ended \`${flags.partial.state}\`:** ${flags.partial.reason}`,
-          `> Every kept commit passed the floor gates and judge review; the remaining criteria are unfinished, not failing.`,
+          `> The ledger below records which commits passed gates and review. Remaining criteria are unfinished, not failing.`,
           ""
         ]
       : []),
@@ -202,13 +211,23 @@ export function openPr(
     "### Acceptance",
     ...binding.acceptance.map((c) => `- [${flags.partial ? " " : "x"}] ${c}`),
     "",
+    ...(flags.plan && flags.plan.length > 0
+      ? [
+          "### Tasks",
+          ...flags.plan.map(
+            (t) =>
+              `${TASK_MARK[t.status]} ${t.title}${t.status === "flagged" ? " _(kept without judge review)_" : t.status === "failed" ? " _(attempts on rescue branch)_" : ""}`
+          ),
+          ""
+        ]
+      : []),
     ...(questions.length > 0
       ? ["### Open questions", ...questions.map((q) => `- ${q}`), ""]
       : []),
     ...behaviorSection(hosted, shots),
     "### Ledger",
     ...ledger.map(
-      (e) => `- #${e.iteration} **${e.decision}** — ${e.change} _(${e.reason})_`
+      (e) => `- ${e.iteration}. **${e.decision}** — ${e.change} _(${e.reason})_`
     ),
     "",
     `_Conducted headless: ${kept} kept / ${ledger.length} iterations. ` +
