@@ -12429,7 +12429,7 @@ msgid "Uninstall"
 msgstr "Desinstalar"
 
 msgid "Unique, uppercase, without spaces (max 10 characters)"
-msgstr ""
+msgstr "Único, en mayúsculas, sin espacios (máx. 10 caracteres)"
 
 msgid "Unit"
 msgstr "Unidad"

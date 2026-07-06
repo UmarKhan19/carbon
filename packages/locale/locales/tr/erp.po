@@ -12429,7 +12429,7 @@ msgid "Uninstall"
 msgstr "Kaldır"
 
 msgid "Unique, uppercase, without spaces (max 10 characters)"
-msgstr ""
+msgstr "Benzersiz, büyük harf, boşluksuz (en fazla 10 karakter)"
 
 msgid "Unit"
 msgstr "Birim"

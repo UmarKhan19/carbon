@@ -12429,7 +12429,7 @@ msgid "Uninstall"
 msgstr "अनइंस्टॉल करें"
 
 msgid "Unique, uppercase, without spaces (max 10 characters)"
-msgstr ""
+msgstr "अद्वितीय, बड़े अक्षरों में, बिना स्थान के (अधिकतम 10 वर्ण)"
 
 msgid "Unit"
 msgstr "इकाई"
