@@ -286,6 +286,20 @@ Replaces the hierarchy-unwrap/descend rules and `assemblyUnitCandidates` from
 the original D1. `AssemblyUnit.source` is now `authored | bom | loose`. The
 worker sends only collapsed (multi-leaf) units as `options.units`.
 
+## T6 result — verified on SA-BCU (2026-07-06)
+
+Triggered a fresh plan for the real 431-leaf model end-to-end:
+- LLM assigned all 431 leaves, 0 unmatched: 412 → BCU PCB, 8+4 screws, 4 clips,
+  seal/lid/box (~1s, gpt-4o-mini).
+- Geometry planned **~20 bodies in 105s** (was 431 bodies / ~11 min).
+- plan.json v3 with two collapsed units: `BCU PCB` (411 members) and
+  `Electronics Box - 36 Pin` (2 members).
+- buildAssemblyStepGroups over the real graph → **431 parts render as 11 steps**,
+  the PCB one step titled "BCU PCB".
+- Caveat: the merged PCB and Box bodies flag (motion "none", fade in) — no
+  collision-free insertion into the sealed enclosure. Structurally correct;
+  motion quality is a follow-up (manual motion or an authored split).
+
 ## Execution log (running)
 
 - 2026-07-06 — Plan drafted; rule = BOM-driven with top-level hierarchy
