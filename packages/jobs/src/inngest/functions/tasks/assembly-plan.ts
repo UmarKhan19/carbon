@@ -2,6 +2,7 @@ import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { Json } from "@carbon/database";
 import { GEOMETRY_SERVICE_API_KEY, GEOMETRY_SERVICE_URL } from "@carbon/env";
 import { inngest } from "../../client";
+import { loadPlanUnits } from "./plan-units";
 
 const SIGNED_URL_EXPIRY = 60 * 60; // seconds
 // Every geometry HTTP call is now short (submit or a status poll), so a tight
@@ -53,7 +54,7 @@ export const assemblyPlanFunction = inngest.createFunction(
 
       const modelUpload = await client
         .from("modelUpload")
-        .select("id, modelPath, processingStatus")
+        .select("id, modelPath, graphPath, processingStatus")
         .eq("id", modelUploadId)
         .eq("companyId", companyId)
         .single();
@@ -82,13 +83,25 @@ export const assemblyPlanFunction = inngest.createFunction(
         );
       }
 
-      return { id: planJob.data.id, modelPath: modelUpload.data.modelPath };
+      return {
+        id: planJob.data.id,
+        modelPath: modelUpload.data.modelPath,
+        graphPath: modelUpload.data.graphPath
+      };
     });
 
     if (!GEOMETRY_SERVICE_URL) {
       throw new Error("GEOMETRY_SERVICE_URL is not configured");
     }
     const geometryUrl = GEOMETRY_SERVICE_URL;
+
+    // Collapse the model's leaf soup into the units the planner should treat as
+    // rigid bodies (e.g. a purchased PCB → one body) BEFORE submitting, so a
+    // 400-part model plans as its ~7 assembled units. Best-effort: no units →
+    // every leaf is planned, exactly as before.
+    const units = await step.run("derive-units", () =>
+      loadPlanUnits({ modelUploadId, companyId, graphPath: job.graphPath })
+    );
 
     // Kick off the planner. The service starts it in the background and returns
     // immediately, so the request is short — no connection is held open across
@@ -108,7 +121,8 @@ export const assemblyPlanFunction = inngest.createFunction(
         headers: { "Content-Type": "application/json", ...authHeaders },
         body: JSON.stringify({
           jobId: job.id,
-          source: { url: source.data.signedUrl, format: "step" }
+          source: { url: source.data.signedUrl, format: "step" },
+          ...(units.length > 0 ? { options: { units } } : {})
         }),
         signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS)
       });
