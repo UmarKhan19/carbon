@@ -69,6 +69,7 @@ vi.mock("./company.server", () => ({
 }));
 
 import { redis } from "@carbon/kv";
+import { sendEmail } from "@carbon/lib/resend.server";
 import type { AuthSession } from "../types";
 import {
   getAndDeleteAuthChallenge,
@@ -103,10 +104,12 @@ describe("auth Redis-down resilience", () => {
     await expect(sendVerificationCode("user@example.com")).resolves.toBe(false);
   });
 
-  it("[case 2b] sendVerificationCode does not throw when redis.set resolves null", async () => {
-    await expect(sendVerificationCode("user@example.com")).resolves.toEqual(
-      expect.any(Boolean)
-    );
+  it("[case 2b] sendVerificationCode fails closed (returns false, no email) when redis.set resolves null", async () => {
+    // Under withResilience, a Redis-down `set` resolves null (not a throw). The code
+    // must NOT send an unverifiable email in that case — it returns false without
+    // ever calling sendEmail.
+    await expect(sendVerificationCode("user@example.com")).resolves.toBe(false);
+    expect(sendEmail).not.toHaveBeenCalled();
   });
 
   it("[case 3] verifyEmailCode returns false (fail-closed) when redis.get is null", async () => {
