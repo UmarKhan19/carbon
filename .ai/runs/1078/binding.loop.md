@@ -37,8 +37,10 @@ This issue hardens the auth path and adds tests proving Redis-down behavior is s
   doesn't abort the in-flight request. Move it inside a try/catch if it isn't already.
 
 **`packages/auth/src/services/verification.server.ts`:**
-- `sendVerificationCode`: `redis.set` is inside try/catch — return false if it fails
-  (verification code unsendable). This is already correct; verify no silent swallow.
+- `sendVerificationCode`: `redis.set` is inside try/catch AND a falsy-return check.
+  Because `withResilience()` returns `null` on Redis-down without throwing, try/catch alone
+  is insufficient. The code explicitly treats a falsy `redis.set` result as failure and
+  returns `false` (verification code unsendable). Both guards are needed.
 - `verifyEmailCode`: `redis.get` returns null (Redis down) → `storedCode` is null →
   `return false`. This blocks verification when Redis is down. That is acceptable and
   expected behavior — document it with a comment.

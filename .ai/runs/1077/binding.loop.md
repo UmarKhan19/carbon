@@ -22,9 +22,9 @@ Part of epic #1076: Redis downtime kills the entire app.
 
 This PR introduces the resilience layer (foundation only, no consumer migration).
 
-## Current code
+## Current code (at dispatch time — pre-PR #1083)
 ```ts
-// packages/kv/src/client.ts — entire file
+// packages/kv/src/client.ts — at the time this task was dispatched
 import { REDIS_URL } from "@carbon/env";
 import Redis from "ioredis";
 
@@ -42,6 +42,8 @@ if (!global.__redis) {
 const redis = global.__redis;
 export default redis;
 ```
+
+**Note:** PR #1083 (merged 2026-07-06) subsequently wrapped the singleton with `withResilience()` from `packages/kv/src/resilient.ts`. The current `client.ts` applies the Proxy-based resilience wrapper at import time. This snapshot records the pre-resilience baseline for historical context.
 
 ## What to build
 
@@ -69,16 +71,17 @@ Implement a simple debounced logger (`logDegraded`) that logs at most once per 1
 
 ### 2. Convenience wrappers in `packages/kv/src/client.ts`
 ```ts
-export const safeGet = (key: string) =>
+export const safeGet = (key: string): Promise<string | null> =>
   withRedis((r) => r.get(key), null);
 
-export const safeSet = (key: string, value: string, options?: { ex?: number }) =>
-  withRedis((r) => options?.ex ? r.set(key, value, "EX", options.ex) : r.set(key, value), undefined);
+export const safeSet = (key: string, value: string, options?: { ex?: number }): Promise<void> =>
+  withRedis((r) => options?.ex ? r.set(key, value, "EX", options.ex) : r.set(key, value), null).then(() => undefined);
 
-export const safeDel = (key: string) =>
-  withRedis((r) => r.del(key), undefined);
+export const safeDel = (key: string): Promise<void> =>
+  withRedis((r) => r.del(key), null).then(() => undefined);
 ```
-Adjust types to match ioredis's actual return types.
+
+Return types: `safeGet` returns `string | null`; `safeSet` and `safeDel` return `void` (discard the underlying Redis command result), consistent with acceptance criteria.
 
 ### 3. Export from `packages/kv/src/index.ts`
 Re-export `withRedis`, `safeGet`, `safeSet`, `safeDel` alongside the existing `redis` default export.
