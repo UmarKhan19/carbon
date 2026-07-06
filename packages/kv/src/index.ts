@@ -1,6 +1,6 @@
-import redis from "./client";
+import redis, { safeDel, safeGet, safeSet, withRedis } from "./client";
 
-export { redis };
+export { redis, safeDel, safeGet, safeSet, withRedis };
 export type {
   Duration,
   RatelimitConfig,
