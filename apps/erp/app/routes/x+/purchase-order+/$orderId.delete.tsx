@@ -66,7 +66,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
         {
           amount: approvalRequest.data.amount,
           documentType: approvalRequest.data.documentType,
-          companyId: approvalRequest.data.companyId
+          companyId: approvalRequest.data.companyId,
+          requestedBy: approvalRequest.data.requestedBy
         },
         userId
       );

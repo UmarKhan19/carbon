@@ -365,6 +365,9 @@ msgstr "Kabul"
 msgid "Acceptance passed"
 msgstr "Kabul edildi"
 
+msgid "Access Report"
+msgstr ""
+
 msgid "Account"
 msgstr "Hesap"
 
@@ -1665,6 +1668,9 @@ msgstr "Malzeme Faturaları"
 msgid "Blind Count"
 msgstr ""
 
+msgid "Block the person who submitted a document from approving it. Disabling this permits self-approval and is flagged as a standing exception in the Segregation of Duties report."
+msgstr ""
+
 msgid "Block with an error"
 msgstr "Hata ile engelle"
 
@@ -2349,6 +2355,9 @@ msgstr "Onaylanan giden stok — satış siparişleri ve iş malzemeleri (sıfı
 msgid "Confirming locks the counted quantities. Review the warnings below, then post the count to apply the adjustments."
 msgstr ""
 
+msgid "Conflict"
+msgstr ""
+
 msgid "Connect Carbon to your accounting, project management, and CAD tools and much more."
 msgstr "Carbon'ı muhasebe, proje yönetimi ve CAD araçlarınızla ve çok daha fazlasıyla bağlayın."
 
@@ -2925,6 +2934,9 @@ msgstr "Kredi Hesabı"
 
 msgid "Credit account when labor/machine time is absorbed into WIP"
 msgstr "İşçilik/makine zamanı WIP'de emildiğinde kredi hesabı"
+
+msgid "Credit/Debit Memos"
+msgstr ""
 
 msgid "Credits & Debits"
 msgstr "Krediler ve Borçlar"
@@ -4553,6 +4565,9 @@ msgstr "Proje liderlerine yükselt"
 msgid "Escalation"
 msgstr "Yükseltme"
 
+msgid "Escalation Days"
+msgstr ""
+
 msgid "Est. Duration"
 msgstr "Tahmini Süre"
 
@@ -5909,6 +5924,9 @@ msgstr "Dolaylı Malzemeler ve Hizmetler"
 
 msgid "Indirect Materials & Services (default)"
 msgstr "Dolaylı Malzemeler ve Hizmetler (varsayılan)"
+
+msgid "Info"
+msgstr ""
 
 msgid "Infrastructure"
 msgstr "Altyapı"
@@ -8660,6 +8678,9 @@ msgstr "Mevcut Hafta"
 msgid "Prev"
 msgstr "Önceki"
 
+msgid "Prevent Self-Approval"
+msgstr ""
+
 msgid "Preventive action"
 msgstr "Eldeki envanter değerlemesi için ana hesap"
 
@@ -8943,9 +8964,6 @@ msgstr "Satın Alma Siparişi"
 msgid "Purchase Order Amount"
 msgstr "Satın Alma Siparişi Tutarı"
 
-msgid "Purchase Order approval rule"
-msgstr "Satın Alma Siparişi onay kuralı"
-
 msgid "Purchase Order ID"
 msgstr "Satın Alma Siparişi Numarası"
 
@@ -9060,9 +9078,6 @@ msgstr "Teklif Fiyatından Nakde"
 
 msgid "Quality"
 msgstr "Kalite"
-
-msgid "Quality Document approval rule"
-msgstr "Kalite Belgesi onay kuralı"
 
 msgid "Quality Documents"
 msgstr "Kalite Belgeleri"
@@ -9199,6 +9214,9 @@ msgstr "Hız Sınırı"
 
 msgid "Re-keying between quoting, the floor, and finance"
 msgstr "Tekliflendirme, üretim ve muhasebe arasında veri yeniden girişi"
+
+msgid "Re-notify approvers daily once a request has been pending this many days. Leave empty to disable escalation."
+msgstr ""
 
 msgid "Reactivate"
 msgstr "Yeniden etkinleştir"
@@ -9549,6 +9567,18 @@ msgstr "Talep Edilen Tarih"
 
 msgid "Require approval before suppliers can be set to Active"
 msgstr "Tedarikçilerin Aktif olarak ayarlanabilmesi için onay gerektirir"
+
+msgid "Require approval for credit and debit memos based on amount thresholds"
+msgstr ""
+
+msgid "Require approval for manual journal entries based on amount thresholds"
+msgstr ""
+
+msgid "Require approval for payments based on amount thresholds"
+msgstr ""
+
+msgid "Require approval for purchase invoices based on amount thresholds"
+msgstr ""
 
 msgid "Require approval for purchase orders based on amount thresholds"
 msgstr "Belirli tutar eşiklerine göre satın alma siparişleri için onay gerektirir"
@@ -10122,6 +10152,9 @@ msgstr "Bölüm"
 msgid "Segments that drive customer pricing and terms"
 msgstr "Müşteri fiyatlandırması ve koşullarını belirleyen segmentler"
 
+msgid "Segregation of Duties"
+msgstr ""
+
 msgid "Select"
 msgstr "Seç"
 
@@ -10686,6 +10719,9 @@ msgstr "Temel günlük akışları uçtan uca test et"
 msgid "so you can assign it here."
 msgstr "burada atayabilmeniz için."
 
+msgid "SoD Report"
+msgstr ""
+
 msgid "Solutions Engineer"
 msgstr "Çözüm Mühendisi"
 
@@ -10969,6 +11005,9 @@ msgstr "Taşeğremenin Farkı"
 
 msgid "Subcontracting Variance (default)"
 msgstr "Taşeğremenin Farkı (varsayılan)"
+
+msgid "Subject"
+msgstr ""
 
 msgid "Subledger"
 msgstr "Yardımcı Defter"

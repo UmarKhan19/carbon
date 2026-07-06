@@ -113,6 +113,8 @@ export function usePurchaseInvoiceAutoFill(
       });
 
       const [supplierDetails, paymentTermData] = await Promise.all([
+        // @ts-ignore excessively deep type instantiation (embedded relation over
+        // the enlarged Database type); runtime shape is unchanged.
         carbon
           .from("supplier")
           .select(

@@ -453,6 +453,8 @@ export const path = {
     authenticatedRoot: x,
     selectCompany,
     acknowledge: `${x}/acknowledge`,
+    accessReport: `${x}/settings/access-report`,
+    sodReport: `${x}/settings/sod-report`,
     approvalRules: `${x}/settings/approval-rules`,
     approvalRule: (id: string) =>
       generatePath(`${x}/settings/approval-rules/${id}`),

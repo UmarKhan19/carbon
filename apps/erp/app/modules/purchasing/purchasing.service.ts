@@ -521,7 +521,8 @@ export async function getSupplierApprovalContext(
     {
       amount: req?.amount ?? null,
       documentType: "supplier",
-      companyId
+      companyId,
+      requestedBy: req?.requestedBy ?? ""
     },
     userId
   );
@@ -2362,6 +2363,8 @@ export async function getPurchasingRFQSuppliers(
   client: SupabaseClient<Database>,
   purchasingRfqId: string
 ) {
+  // @ts-ignore excessively deep type instantiation (embedded relation over the
+  // enlarged Database type); runtime shape is unchanged.
   return client
     .from("purchasingRfqSupplier")
     .select("*, supplier:supplierId(id, name)")

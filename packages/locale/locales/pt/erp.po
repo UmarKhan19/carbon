@@ -365,6 +365,9 @@ msgstr "Aceitação"
 msgid "Acceptance passed"
 msgstr "Aceitação aprovada"
 
+msgid "Access Report"
+msgstr ""
+
 msgid "Account"
 msgstr "Conta"
 
@@ -1665,6 +1668,9 @@ msgstr "Listas de materiais"
 msgid "Blind Count"
 msgstr ""
 
+msgid "Block the person who submitted a document from approving it. Disabling this permits self-approval and is flagged as a standing exception in the Segregation of Duties report."
+msgstr ""
+
 msgid "Block with an error"
 msgstr "Bloquear com um erro"
 
@@ -2349,6 +2355,9 @@ msgstr "Estoque de saída confirmado — pedidos de vendas e materiais de trabal
 msgid "Confirming locks the counted quantities. Review the warnings below, then post the count to apply the adjustments."
 msgstr ""
 
+msgid "Conflict"
+msgstr ""
+
 msgid "Connect Carbon to your accounting, project management, and CAD tools and much more."
 msgstr "Conecte o Carbon às suas ferramentas de contabilidade, gerenciamento de projetos, CAD e muito mais."
 
@@ -2925,6 +2934,9 @@ msgstr "Conta de Crédito"
 
 msgid "Credit account when labor/machine time is absorbed into WIP"
 msgstr "Conta de crédito quando tempo de mão de obra/máquina é absorvido em WIP"
+
+msgid "Credit/Debit Memos"
+msgstr ""
 
 msgid "Credits & Debits"
 msgstr "Créditos e Débitos"
@@ -4553,6 +4565,9 @@ msgstr "Escalar para os líderes do projeto"
 msgid "Escalation"
 msgstr "Escalação"
 
+msgid "Escalation Days"
+msgstr ""
+
 msgid "Est. Duration"
 msgstr "Duração Est."
 
@@ -5909,6 +5924,9 @@ msgstr "Materiais Indiretos e Serviços"
 
 msgid "Indirect Materials & Services (default)"
 msgstr "Materiais Indiretos e Serviços (padrão)"
+
+msgid "Info"
+msgstr ""
 
 msgid "Infrastructure"
 msgstr "Infraestrutura"
@@ -8660,6 +8678,9 @@ msgstr "Semana atual"
 msgid "Prev"
 msgstr "Anterior"
 
+msgid "Prevent Self-Approval"
+msgstr ""
+
 msgid "Preventive action"
 msgstr "Conta principal para valoração de estoque disponível"
 
@@ -8943,9 +8964,6 @@ msgstr "Ordem de Compra"
 msgid "Purchase Order Amount"
 msgstr "Valor do Pedido de Compra"
 
-msgid "Purchase Order approval rule"
-msgstr "Regra de aprovação de Ordem de Compra"
-
 msgid "Purchase Order ID"
 msgstr "ID da Ordem de Compra"
 
@@ -9060,9 +9078,6 @@ msgstr "Cotação para Caixa"
 
 msgid "Quality"
 msgstr "Qualidade"
-
-msgid "Quality Document approval rule"
-msgstr "Regra de aprovação de Documento de Qualidade"
 
 msgid "Quality Documents"
 msgstr "Documentos de Qualidade"
@@ -9199,6 +9214,9 @@ msgstr "Limite de Taxa"
 
 msgid "Re-keying between quoting, the floor, and finance"
 msgstr "Re-digitação entre orçamento, chão de fábrica e finanças"
+
+msgid "Re-notify approvers daily once a request has been pending this many days. Leave empty to disable escalation."
+msgstr ""
 
 msgid "Reactivate"
 msgstr "Reativar"
@@ -9549,6 +9567,18 @@ msgstr "Data Solicitada"
 
 msgid "Require approval before suppliers can be set to Active"
 msgstr "Exigir aprovação antes que fornecedores possam ser definidos como Ativos"
+
+msgid "Require approval for credit and debit memos based on amount thresholds"
+msgstr ""
+
+msgid "Require approval for manual journal entries based on amount thresholds"
+msgstr ""
+
+msgid "Require approval for payments based on amount thresholds"
+msgstr ""
+
+msgid "Require approval for purchase invoices based on amount thresholds"
+msgstr ""
 
 msgid "Require approval for purchase orders based on amount thresholds"
 msgstr "Exigir aprovação para pedidos de compra com base em limites de valor"
@@ -10122,6 +10152,9 @@ msgstr "Seção"
 msgid "Segments that drive customer pricing and terms"
 msgstr "Segmentos que determinam preços e condições de clientes"
 
+msgid "Segregation of Duties"
+msgstr ""
+
 msgid "Select"
 msgstr "Selecionar"
 
@@ -10686,6 +10719,9 @@ msgstr "Teste de fumaça dos fluxos diários principais de ponta a ponta"
 msgid "so you can assign it here."
 msgstr "para que você possa atribuí-lo aqui."
 
+msgid "SoD Report"
+msgstr ""
+
 msgid "Solutions Engineer"
 msgstr "Engenheiro de Soluções"
 
@@ -10969,6 +11005,9 @@ msgstr "Variação de Subcontratação"
 
 msgid "Subcontracting Variance (default)"
 msgstr "Variação de Subcontratação (padrão)"
+
+msgid "Subject"
+msgstr ""
 
 msgid "Subledger"
 msgstr "Razão Auxiliar"

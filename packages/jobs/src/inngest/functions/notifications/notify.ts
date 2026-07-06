@@ -472,6 +472,78 @@ async function getDescription(
           qualityDocumentResult.data.name ?? "Untitled";
         return `Quality document "${qualityDocumentName}" requires your approval`;
       }
+
+      if (documentType === "journalEntry") {
+        const journalEntryResult = await client
+          .from("journal")
+          .select("journalEntryId")
+          .eq("id", documentId)
+          .single();
+
+        if (journalEntryResult.error || !journalEntryResult.data) {
+          console.error(
+            "Failed to retrieve journal entry for approval notification",
+            journalEntryResult.error
+          );
+          return "Journal entry requires your approval";
+        }
+
+        return `Journal entry ${journalEntryResult.data.journalEntryId} requires your approval`;
+      }
+
+      if (documentType === "payment") {
+        const paymentResult = await client
+          .from("payment")
+          .select("paymentId")
+          .eq("id", documentId)
+          .single();
+
+        if (paymentResult.error || !paymentResult.data) {
+          console.error(
+            "Failed to retrieve payment for approval notification",
+            paymentResult.error
+          );
+          return "Payment requires your approval";
+        }
+
+        return `Payment ${paymentResult.data.paymentId} requires your approval`;
+      }
+
+      if (documentType === "purchaseInvoice") {
+        const purchaseInvoiceResult = await client
+          .from("purchaseInvoice")
+          .select("invoiceId")
+          .eq("id", documentId)
+          .single();
+
+        if (purchaseInvoiceResult.error || !purchaseInvoiceResult.data) {
+          console.error(
+            "Failed to retrieve purchase invoice for approval notification",
+            purchaseInvoiceResult.error
+          );
+          return "Purchase invoice requires your approval";
+        }
+
+        return `Purchase invoice ${purchaseInvoiceResult.data.invoiceId} requires your approval`;
+      }
+
+      if (documentType === "memo") {
+        const memoResult = await client
+          .from("memo")
+          .select("memoId")
+          .eq("id", documentId)
+          .single();
+
+        if (memoResult.error || !memoResult.data) {
+          console.error(
+            "Failed to retrieve memo for approval notification",
+            memoResult.error
+          );
+          return "Memo requires your approval";
+        }
+
+        return `Memo ${memoResult.data.memoId} requires your approval`;
+      }
       return `Approval requested`;
     }
 
@@ -498,6 +570,50 @@ async function getDescription(
         }
         return `Quality document "${qdApproved.data.name ?? "Untitled"}" was approved`;
       }
+      if (documentType === "journalEntry") {
+        const journalEntryApproved = await client
+          .from("journal")
+          .select("journalEntryId")
+          .eq("id", documentId)
+          .single();
+        if (journalEntryApproved.error || !journalEntryApproved.data) {
+          return "Your journal entry was approved";
+        }
+        return `Journal entry ${journalEntryApproved.data.journalEntryId} was approved`;
+      }
+      if (documentType === "payment") {
+        const paymentApproved = await client
+          .from("payment")
+          .select("paymentId")
+          .eq("id", documentId)
+          .single();
+        if (paymentApproved.error || !paymentApproved.data) {
+          return "Your payment was approved";
+        }
+        return `Payment ${paymentApproved.data.paymentId} was approved`;
+      }
+      if (documentType === "purchaseInvoice") {
+        const purchaseInvoiceApproved = await client
+          .from("purchaseInvoice")
+          .select("invoiceId")
+          .eq("id", documentId)
+          .single();
+        if (purchaseInvoiceApproved.error || !purchaseInvoiceApproved.data) {
+          return "Your purchase invoice was approved";
+        }
+        return `Purchase invoice ${purchaseInvoiceApproved.data.invoiceId} was approved`;
+      }
+      if (documentType === "memo") {
+        const memoApproved = await client
+          .from("memo")
+          .select("memoId")
+          .eq("id", documentId)
+          .single();
+        if (memoApproved.error || !memoApproved.data) {
+          return "Your memo was approved";
+        }
+        return `Memo ${memoApproved.data.memoId} was approved`;
+      }
       return "Your approval request was approved";
     }
 
@@ -523,6 +639,50 @@ async function getDescription(
           return "Your quality document was rejected";
         }
         return `Quality document "${qdRejected.data.name ?? "Untitled"}" was rejected`;
+      }
+      if (documentType === "journalEntry") {
+        const journalEntryRejected = await client
+          .from("journal")
+          .select("journalEntryId")
+          .eq("id", documentId)
+          .single();
+        if (journalEntryRejected.error || !journalEntryRejected.data) {
+          return "Your journal entry was rejected";
+        }
+        return `Journal entry ${journalEntryRejected.data.journalEntryId} was rejected`;
+      }
+      if (documentType === "payment") {
+        const paymentRejected = await client
+          .from("payment")
+          .select("paymentId")
+          .eq("id", documentId)
+          .single();
+        if (paymentRejected.error || !paymentRejected.data) {
+          return "Your payment was rejected";
+        }
+        return `Payment ${paymentRejected.data.paymentId} was rejected`;
+      }
+      if (documentType === "purchaseInvoice") {
+        const purchaseInvoiceRejected = await client
+          .from("purchaseInvoice")
+          .select("invoiceId")
+          .eq("id", documentId)
+          .single();
+        if (purchaseInvoiceRejected.error || !purchaseInvoiceRejected.data) {
+          return "Your purchase invoice was rejected";
+        }
+        return `Purchase invoice ${purchaseInvoiceRejected.data.invoiceId} was rejected`;
+      }
+      if (documentType === "memo") {
+        const memoRejected = await client
+          .from("memo")
+          .select("memoId")
+          .eq("id", documentId)
+          .single();
+        if (memoRejected.error || !memoRejected.data) {
+          return "Your memo was rejected";
+        }
+        return `Memo ${memoRejected.data.memoId} was rejected`;
       }
       return "Your approval request was rejected";
     }

@@ -479,7 +479,12 @@ export const journalEntrySourceTypes = [
   "Debit Memo"
 ] as const;
 
-export const journalEntryStatuses = ["Draft", "Posted", "Reversed"] as const;
+export const journalEntryStatuses = [
+  "Draft",
+  "Posted",
+  "Reversed",
+  "Pending Approval"
+] as const;
 
 export const journalEntryValidator = z.object({
   id: zfd.text(z.string().optional()),
