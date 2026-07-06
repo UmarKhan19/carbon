@@ -1,0 +1,26 @@
+{
+  "state": "shipped",
+  "iterations": 11,
+  "reason": "all acceptance criteria met and provable",
+  "plan": [
+    {
+      "title": "Harden auth service Redis null-handling + document intent",
+      "detail": "In packages/auth/src/services/users.server.ts wrap the claims-caching redis.set (line ~55, inside getUserClaims' finally) in its own try/catch so a null/failed write can't abort the request. Add clarifying comments: verification.server.ts verifyEmailCode (null storedCode → returns false when Redis down is expected/acceptable), passkey.server.ts confirm both verify* callers null-guard the getAndDelete* results (add a guard only if missing), and session.server.ts updateCompanySession redis.del as intentionally fire-and-forget/benign on null. Behavior-preserving only; keep getUserClaims' existing try/catch/DB-fallback. Verify pnpm --filter @carbon/auth typecheck and lint.",
+      "criteria": [0, 1, 2, 3, 4, 6, 7],
+      "status": "done"
+    },
+    {
+      "title": "Add auth Redis-down resilience tests",
+      "detail": "Add a vitest test file under packages/auth/src/services (e.g. auth-redis-resilience.test.ts) that mocks @carbon/kv's redis (get/set/del/getdel all resolving null) per the grooming snippet. Cover all 6 cases: getUserClaims falls through to a mocked service-role DB lookup and returns correct claims; sendVerificationCode returns false; verifyEmailCode returns false; getAndDeleteRegistrationChallenge and getAndDeleteAuthChallenge return null; updateCompanySession returns a session cookie without crashing. Assert no thrown errors/unhandled rejections. Verify pnpm --filter @carbon/auth typecheck, lint, and test all pass.",
+      "criteria": [5, 6, 7, 8],
+      "status": "done"
+    }
+  ],
+  "questions": [
+    "Assumption: Task 1 (code hardening + comments) was verifiably complete across 8 prior committed slices, so I completed Task 2 (the tests) this session — the actual blocker for the flagged criteria [2]/[5]/[8] — rather than re-verify Task 1 a 9th time with no progress.",
+    "Assumption: Combined both required test files into one auth-redis-resilience.test.ts (grooming context explicitly permits combining), covering all 6 cases plus a null-resolve no-throw variant.",
+    "Assumption: Mocked env-validation (../config/env), @carbon/kv, and heavy deps (resend/email/simplewebauthn/supabase) so tests run without a live environment; used clearAllMocks (keeps factory implementations) plus per-test mockRejectedValueOnce for the set-fails case.",
+    "Assumption: A Redis-down set (null return) means the verification code is unpersisted, so the email must not be sent — matching grooming's 'verification code unsendable → return false' requirement"
+  ],
+  "prUrl": "https://github.com/crbnos/carbon/pull/1084"
+}
