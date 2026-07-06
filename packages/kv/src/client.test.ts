@@ -116,6 +116,56 @@ describe("@carbon/kv transparent resilient client", () => {
       );
       await expect(redis.smembers("s")).resolves.toEqual([]);
     });
+
+    it("redis.spop(key) falls back to null (scalar reply)", async () => {
+      vi.spyOn(rawRedis, "spop").mockRejectedValueOnce(
+        new Error("connect ECONNREFUSED")
+      );
+      await expect(redis.spop("s")).resolves.toBeNull();
+    });
+
+    it("redis.spop(key, count) falls back to [] (array reply)", async () => {
+      vi.spyOn(rawRedis, "spop").mockRejectedValueOnce(
+        new Error("connect ECONNREFUSED")
+      );
+      await expect(redis.spop("s", 2)).resolves.toEqual([]);
+    });
+
+    it("redis.srandmember(key) falls back to null (scalar reply)", async () => {
+      vi.spyOn(rawRedis, "srandmember").mockRejectedValueOnce(
+        new Error("connect ECONNREFUSED")
+      );
+      await expect(redis.srandmember("s")).resolves.toBeNull();
+    });
+
+    it("redis.srandmember(key, count) falls back to [] (array reply)", async () => {
+      vi.spyOn(rawRedis, "srandmember").mockRejectedValueOnce(
+        new Error("connect ECONNREFUSED")
+      );
+      await expect(redis.srandmember("s", 2)).resolves.toEqual([]);
+    });
+  });
+
+  describe("blocking commands pass through unwrapped", () => {
+    it("redis.blpop is not wrapped by runSafe: errors propagate", async () => {
+      // A wrapped command would swallow the rejection into a fallback. A blocking
+      // command binds straight to the raw client, so the rejection propagates —
+      // proving no timeout/fallback wrapper sits in front of it.
+      vi.spyOn(rawRedis, "blpop").mockRejectedValueOnce(
+        new Error("connect ECONNREFUSED")
+      );
+      await expect(redis.blpop("q", 0)).rejects.toThrow("connect ECONNREFUSED");
+    });
+
+    it("redis.blpop calls straight through to the raw client and returns its result", async () => {
+      // The safe proxy delegates to rawRedis.blpop with the original args and
+      // returns its result verbatim — no fallback substitution.
+      const spy = vi
+        .spyOn(rawRedis, "blpop")
+        .mockResolvedValueOnce(["q", "job"] as never);
+      await expect(redis.blpop("q", 0)).resolves.toEqual(["q", "job"]);
+      expect(spy).toHaveBeenCalledWith("q", 0);
+    });
   });
 
   describe("per-call timeout", () => {

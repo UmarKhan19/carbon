@@ -107,8 +107,6 @@ const ARRAY_REPLY = new Set([
   "sinter",
   "sunion",
   "sdiff",
-  "srandmember",
-  "spop",
   "zrange",
   "zrevrange",
   "zrangebyscore",
@@ -179,7 +177,6 @@ const INTEGER_REPLY = new Set([
   "xlen",
   "dbsize",
   "touch",
-  "wait",
   "move",
   "renamenx",
   "msetnx"
@@ -196,9 +193,38 @@ const STATUS_REPLY = new Set([
   "flushdb"
 ]);
 
-function fallbackFor(command: string): unknown {
+// Commands overloaded on their argument count: `spop key` / `srandmember key`
+// return a single member (scalar), while `spop key count` / `srandmember key
+// count` return an array. The fallback shape therefore depends on whether a
+// count argument was supplied — see the count check in the proxy `get` trap.
+const COUNT_OPTIONAL_ARRAY = new Set(["spop", "srandmember"]);
+
+/**
+ * Blocking / wait commands that intentionally park until data arrives or their
+ * own BLOCK/numreplicas/timeout argument elapses. Wrapping them in the 500ms
+ * {@link REDIS_TIMEOUT_MS} race would defeat their purpose — they would always
+ * lose the race and return the fallback instead of blocking. These pass through
+ * to the raw client unmodified, with no timeout wrapper and no fallback, so
+ * their real blocking semantics are preserved.
+ */
+const BLOCKING_COMMANDS = new Set([
+  "blpop",
+  "brpop",
+  "blmove",
+  "brpoplpush",
+  "bzpopmin",
+  "bzpopmax",
+  "xread",
+  "xreadgroup",
+  "wait"
+]);
+
+function fallbackFor(command: string, args: unknown[]): unknown {
   const name = command.toLowerCase();
   if (ARRAY_REPLY.has(name)) return [];
+  // `spop`/`srandmember` without a count return a scalar member (null on miss);
+  // with a count they return an array.
+  if (COUNT_OPTIONAL_ARRAY.has(name)) return args.length > 1 ? [] : null;
   if (OBJECT_REPLY.has(name)) return {};
   if (SCAN_REPLY.has(name)) return ["0", []];
   if (INTEGER_REPLY.has(name)) return 0;
@@ -286,7 +312,13 @@ export function createSafeRedis(client: Redis): Redis {
       if (typeof value !== "function") return value;
 
       // Non-command members keep their real behavior, bound to the raw client.
-      if (typeof prop !== "string" || PASSTHROUGH.has(prop)) {
+      // Blocking commands also pass through unwrapped so the 500ms timeout race
+      // can't defeat their intended blocking semantics.
+      if (
+        typeof prop !== "string" ||
+        PASSTHROUGH.has(prop) ||
+        BLOCKING_COMMANDS.has(prop.toLowerCase())
+      ) {
         return (value as AnyFn).bind(target);
       }
 
@@ -294,7 +326,7 @@ export function createSafeRedis(client: Redis): Redis {
       return (...args: unknown[]) =>
         runSafe(
           () => (value as AnyFn).apply(target, args) as Promise<unknown>,
-          fallbackFor(command)
+          fallbackFor(command, args)
         );
     }
   }) as Redis;
