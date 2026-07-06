@@ -195,6 +195,9 @@ def _run_plan_job(job_id: str, source_url: str, options: PlanOptions) -> None:
             clearance=options.clearance,
             path_samples=options.pathSamples,
             max_parts=config.max_parts(),
+            units=(
+                [u.model_dump() for u in options.units] if options.units else None
+            ),
         )
 
         plan_ms = int((time.monotonic() - started) * 1000)

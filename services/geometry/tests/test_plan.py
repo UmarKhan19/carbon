@@ -742,3 +742,52 @@ def test_part_escapes_along_tilted_contact_normal():
     assert direction is not None
     assert abs(float(np.dot(np.asarray(direction), normal))) > 0.98
     assert by_id["block"].verified
+
+
+def test_merge_units_collapses_members_into_one_body():
+    from app.plan import _merge_units
+
+    a = _box_part("a", (10, 10, 10), (0, 0, 0))
+    b = _box_part("b", (10, 10, 10), (20, 0, 0))
+    c = _box_part("c", (10, 10, 10), (40, 0, 0))
+
+    parts, expansion = _merge_units(
+        [a, b, c],
+        [
+            {"id": "u1", "name": "PCB Assembly", "nodeIds": ["a", "b"]},
+            {"id": "u2", "name": "Solo", "nodeIds": ["c"]},  # single member: skipped
+        ],
+        trimesh,
+    )
+
+    by_id = {p.node_id: p for p in parts}
+    # a+b merged into one body "u1"; c stays; the single-member unit is a no-op.
+    assert set(by_id) == {"u1", "c"}
+    assert expansion == {"u1": {"members": ["a", "b"], "name": "PCB Assembly"}}
+    # The merged body spans both boxes' bounds.
+    assert by_id["u1"].mesh.vertices.shape[0] == a.mesh.vertices.shape[0] * 2
+    assert by_id["u1"].bbox_min[0] == pytest.approx(-5.0)
+    assert by_id["u1"].bbox_max[0] == pytest.approx(25.0)
+
+
+def test_merge_units_body_plans_as_a_single_step():
+    from app.plan import _merge_units
+
+    # A base with a two-solid "module" stacked on top; the module is one unit.
+    base = _box_part("base", (100, 100, 10), (0, 0, 5))
+    mod_a = _box_part("mod_a", (40, 40, 10), (0, 0, 15.05))
+    mod_b = _box_part("mod_b", (20, 20, 10), (0, 0, 25.10))
+
+    parts, expansion = _merge_units(
+        [base, mod_a, mod_b],
+        [{"id": "module", "name": "Module", "nodeIds": ["mod_a", "mod_b"]}],
+        trimesh,
+    )
+    assert {p.node_id for p in parts} == {"base", "module"}
+
+    outcome, _ = _plan_full(parts)
+    # The whole module is one planned body that lifts off the base.
+    by_id = {entry.node_id: entry for entry in outcome.planned}
+    assert "module" in by_id
+    assert by_id["module"].motion["type"] == "linear"
+    assert expansion["module"]["members"] == ["mod_a", "mod_b"]

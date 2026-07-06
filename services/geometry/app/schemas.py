@@ -55,6 +55,14 @@ class PlanOutputSpec(BaseModel):
     plan: OutputTarget
 
 
+class PlanUnit(BaseModel):
+    """A set of leaf nodeIds the planner should treat as one rigid body."""
+
+    id: str
+    name: str | None = None
+    nodeIds: list[str]
+
+
 class PlanOptions(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
@@ -62,6 +70,8 @@ class PlanOptions(BaseModel):
     angularDeflection: float = 0.5
     clearance: float = 0.5
     pathSamples: int = 60
+    # Pre-grouped units (e.g. a purchased PCB) merged into one body for planning.
+    units: list[PlanUnit] | None = None
 
 
 class PlanRequest(BaseModel):

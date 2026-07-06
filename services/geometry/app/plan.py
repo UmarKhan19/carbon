@@ -53,7 +53,7 @@ from app.convert import (
 )
 from app.errors import ConvertError
 
-PLAN_VERSION = 2
+PLAN_VERSION = 3
 OUTPUT_UNIT = "mm"
 
 # Allowed surface penetration (mm) along a removal path. Parts in contact at
@@ -200,8 +200,16 @@ def plan_step(
     clearance: float = 0.5,
     path_samples: int = 60,
     max_parts: int | None = None,
+    units: list[dict] | None = None,
 ) -> PlanResult:
-    """Plan removal motions and an assembly sequence for a STEP file."""
+    """Plan removal motions and an assembly sequence for a STEP file.
+
+    ``units`` pre-groups leaf nodeIds (e.g. a purchased PCB's hundreds of tiny
+    solids) into single rigid bodies: each multi-member unit is merged into one
+    collision mesh for planning, then expanded back to its member leaves at
+    emission (they share one step and one motion). This is what keeps a 400-part
+    model — really ~7 assembled units — from being planned as 400 loose bodies.
+    """
     try:
         import trimesh
     except ImportError as exc:  # pragma: no cover - dependency guard
@@ -216,6 +224,13 @@ def plan_step(
     _compute_world_bboxes(root, np.eye(4))
 
     parts = _collect_world_parts(root, trimesh)
+    leaf_count = len(parts)
+    expansion: dict[str, dict] = {}
+    if units:
+        parts, expansion = _merge_units(parts, units, trimesh)
+
+    # The limit applies to the bodies actually planned (post-merge), not the raw
+    # leaf count — a PCB's 300 internal solids collapse to one body.
     if max_parts is not None and len(parts) > max_parts:
         raise ConvertError(
             "LIMIT_EXCEEDED",
@@ -236,35 +251,105 @@ def plan_step(
         tolerance=_mesh_tolerance(linear_deflection),
     )
 
-    plan_parts_payload = {
-        entry.node_id: _part_to_dict(entry) for entry in outcome.planned
-    }
+    # Expand merged units back to their member leaves: each member carries the
+    # unit's motion + groupId, and the unit is one entry in `groups` (with its
+    # name) so the viewer/step generator render it as a single step.
+    groups: dict = dict(outcome.groups)
+    plan_parts_payload: dict = {}
+    for entry in outcome.planned:
+        unit = expansion.get(entry.node_id)
+        if unit is None:
+            plan_parts_payload[entry.node_id] = _part_to_dict(entry)
+            continue
+        member_payload = _part_to_dict(entry)
+        member_payload["groupId"] = entry.node_id
+        for member in unit["members"]:
+            plan_parts_payload[member] = dict(member_payload)
+        group_payload: dict = {
+            "partNodeIds": unit["members"],
+            "motion": entry.motion,
+        }
+        if unit.get("name"):
+            group_payload["name"] = unit["name"]
+        groups[entry.node_id] = group_payload
+
     for member, rep in outcome.merged_into.items():
         plan_parts_payload[member] = {
             "motion": {"type": "none"},
             "mergedInto": rep,
         }
 
+    sequence: list[str] = []
+    for node_id in outcome.sequence:
+        unit = expansion.get(node_id)
+        if unit is None:
+            sequence.append(node_id)
+        else:
+            sequence.extend(unit["members"])
+
     plan = {
         "version": PLAN_VERSION,
         "unit": OUTPUT_UNIT,
-        "sequence": outcome.sequence,
+        "sequence": sequence,
         "parts": plan_parts_payload,
         "warnings": warnings,
     }
-    if outcome.groups:
-        plan["groups"] = outcome.groups
+    if groups:
+        plan["groups"] = groups
     planned_count = sum(
         1 for entry in outcome.planned if entry.motion.get("type") != "none"
     )
     return PlanResult(
         plan=plan,
-        part_count=len(parts),
+        part_count=leaf_count,
         planned_count=planned_count,
         tiers=outcome.tiers,
         warnings=warnings,
         verified_count=outcome.verified_count,
     )
+
+
+def _merge_units(
+    parts: list[_Part], units: list[dict], trimesh_mod
+) -> tuple[list[_Part], dict[str, dict]]:
+    """Merge each multi-member unit's leaf meshes into one rigid collision body.
+
+    Returns the reduced parts list (unit bodies replace their members) plus an
+    expansion map ``unit_id -> {"members": [...], "name": str | None}`` used to
+    re-expand the plan afterward. Single-member units are left untouched.
+    """
+    by_id = {p.node_id: p for p in parts}
+    expansion: dict[str, dict] = {}
+    consumed: set[str] = set()
+    merged: list[_Part] = []
+
+    for unit in units:
+        unit_id = unit.get("id")
+        node_ids = unit.get("nodeIds") or []
+        members = [
+            nid for nid in node_ids if nid in by_id and nid not in consumed
+        ]
+        if not unit_id or len(members) <= 1:
+            continue  # nothing to merge; the single leaf plans as itself
+
+        combined = trimesh_mod.util.concatenate([by_id[nid].mesh for nid in members])
+        bbox_min = np.min([by_id[nid].bbox_min for nid in members], axis=0)
+        bbox_max = np.max([by_id[nid].bbox_max for nid in members], axis=0)
+        merged.append(
+            _Part(
+                node_id=unit_id,
+                name=unit.get("name") or by_id[members[0]].name,
+                mesh=combined,
+                bbox_min=bbox_min,
+                bbox_max=bbox_max,
+                is_proxy=any(by_id[nid].is_proxy for nid in members),
+            )
+        )
+        expansion[unit_id] = {"members": members, "name": unit.get("name")}
+        consumed.update(members)
+
+    remaining = [p for p in parts if p.node_id not in consumed]
+    return remaining + merged, expansion
 
 
 @dataclass
