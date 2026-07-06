@@ -13,8 +13,13 @@ manually: `pnpm install-skills`). Authoring rules: `writing-skills/SKILL.md`.
                  🛑 open questions      🛑 plan approval
 ```
 
-`/feature` runs this pipeline end-to-end. `/spec-writing` resolves its Open
-Questions via `/grill`. `/execute` commits per task via `/check-and-commit`.
+`/feature` runs this pipeline. At start it picks an **autonomy mode**
+(approval-before-each-phase vs fully autonomous — autonomous auto-resolves the
+🛑 gates and records the decision) and a **phase set** (`/plan` + `/execute` are
+mandatory; research, spec, test, self-review are optional, auto-detected from
+the request), and keeps a run record at `.ai/runs/{date}-{slug}.md`.
+`/spec-writing` resolves its Open Questions via `/grill`. `/execute` commits per
+task via `/check-and-commit`.
 
 **Bug fix**:
 
