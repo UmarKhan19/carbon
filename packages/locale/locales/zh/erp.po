@@ -12428,8 +12428,8 @@ msgstr "撤销"
 msgid "Uninstall"
 msgstr "卸载"
 
-msgid "Unique, uppercase, without spaces"
-msgstr "唯一、大写、无空格"
+msgid "Unique, uppercase, without spaces (max 10 characters)"
+msgstr "唯一、大写、无空格（最多 10 个字符）"
 
 msgid "Unit"
 msgstr "单位"

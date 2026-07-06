@@ -12428,8 +12428,8 @@ msgstr "Отменить"
 msgid "Uninstall"
 msgstr "Удалить"
 
-msgid "Unique, uppercase, without spaces"
-msgstr "Уникальный, прописные буквы, без пробелов"
+msgid "Unique, uppercase, without spaces (max 10 characters)"
+msgstr "Уникальный, заглавными буквами, без пробелов (макс. 10 символов)"
 
 msgid "Unit"
 msgstr "Единица"

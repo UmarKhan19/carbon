@@ -12428,8 +12428,8 @@ msgstr "Annuler"
 msgid "Uninstall"
 msgstr "Désinstaller"
 
-msgid "Unique, uppercase, without spaces"
-msgstr "Unique, majuscules, sans espaces"
+msgid "Unique, uppercase, without spaces (max 10 characters)"
+msgstr "Unique, en majuscules, sans espaces (10 caractères max.)"
 
 msgid "Unit"
 msgstr "Unité"
