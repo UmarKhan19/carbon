@@ -4388,6 +4388,12 @@ msgstr "Alterações de Engenharia e CAD"
 msgid "Engineering Contact"
 msgstr "Contacto de Engenharia"
 
+msgid "Enroll"
+msgstr "Inscrever"
+
+msgid "Enroll this company in the Implementation Hub"
+msgstr "Inscrever esta empresa no hub de implementação"
+
 msgid "Enter a batch number before setting the expiration date"
 msgstr "Insira um número de lote antes de definir a data de expiração"
 
@@ -10330,6 +10336,9 @@ msgstr "Definir Quantidade"
 
 msgid "Set up the right way"
 msgstr "Configure da forma correta"
+
+msgid "Set up your company with a step-by-step implementation plan covering setup, data, training, and go-live."
+msgstr "Configure sua empresa com um plano de implementação passo a passo cobrindo configuração, dados, treinamento e go-live."
 
 msgid "Set up your own data with import tools and LLM help"
 msgstr "Configure seus próprios dados com ferramentas de importação e ajuda de LLM"

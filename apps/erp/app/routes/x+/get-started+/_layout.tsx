@@ -133,7 +133,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const hub = await getImplementationHub(client, companyId);
   // Only enrolled companies have a hub row — others never reach this surface.
-  // Enrollment is the gate (manual today; Cloud auto-enroll later), not staff.
+  // Enrollment is the gate (self-serve from the home page), not staff.
   if (!hub.data) {
     throw redirect(path.to.authenticatedRoot);
   }
