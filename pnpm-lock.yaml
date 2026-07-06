@@ -2504,6 +2504,9 @@ importers:
       '@carbon/config':
         specifier: workspace:*
         version: link:../config
+      '@types/ioredis-mock':
+        specifier: 8.2.7
+        version: 8.2.7(ioredis@5.10.1)
       '@types/node':
         specifier: 20.19.39
         version: 20.19.39
