@@ -23,10 +23,7 @@ function logReconnected(): void {
   }
 }
 
-// Reconnect forever with capped backoff so the client auto-recovers when Redis
-// returns. Never returns null — that would end reconnection permanently; a null
-// here is the exact bug that defeats auto-recovery. Per-command latency is
-// bounded by maxRetriesPerRequest + the guard timeout, not by giving up here.
+// Never null: returning null ends ioredis reconnection permanently, defeating auto-recovery.
 export const reconnectStrategy = (times: number): number =>
   Math.min(times * 200, 5000);
 
@@ -44,8 +41,7 @@ function guard<T>(promise: Promise<T>, fallback: T): Promise<T> {
       finish(fallback);
     }, REDIS_TIMEOUT_MS);
 
-    // A late settle after the timeout is intentionally swallowed here so it
-    // can't surface as an unhandled rejection.
+    // A late settle after the timeout is swallowed (finish no-ops once settled).
     promise.then(
       (value) => {
         clearTimeout(timer);
@@ -82,8 +78,7 @@ const fallbackFor = (command: string): unknown =>
 function wrapPipeline<
   T extends { exec?: (...args: unknown[]) => Promise<unknown> }
 >(pipeline: T): T {
-  // Pipelines are chainable objects, so the proxy can't reach their commands;
-  // guard the terminal exec() instead.
+  // Pipelines are chainable objects the proxy can't reach; guard their exec() instead.
   if (pipeline && typeof pipeline.exec === "function") {
     const originalExec = pipeline.exec.bind(pipeline);
     pipeline.exec = (...args: unknown[]) =>
@@ -92,9 +87,7 @@ function wrapPipeline<
   return pipeline;
 }
 
-// Redis is a cache, never the source of truth. This Proxy makes an unreachable
-// Redis degrade instead of crash: reads resolve null, collections [], writes
-// null — so consumers keep the ordinary ioredis API with no per-call handling.
+// Proxy the client so an unreachable Redis degrades (reads null, collections [], writes null) instead of throwing.
 export function withResilience(client: Redis): Redis {
   return new Proxy(client, {
     get(target, prop) {

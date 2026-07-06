@@ -17,8 +17,7 @@ if (!global.__redis) {
     enableOfflineQueue: true, // buffer commands while connecting
     retryStrategy: reconnectStrategy
   });
-  // Registered once with the singleton; without a listener ioredis re-emits
-  // connection errors as process-level unhandled errors.
+  // Registered once; without a listener ioredis re-emits errors as unhandled process events.
   client.on("error", logUnavailable);
   global.__redis = client;
 }
