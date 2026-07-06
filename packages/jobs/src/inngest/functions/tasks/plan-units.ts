@@ -53,13 +53,23 @@ export async function loadPlanUnits(args: {
       .select("geometryHash, itemId")
       .eq("modelUploadId", modelUploadId);
 
+    // User "plan as one part" overrides — explicit units that always collapse.
+    const authored = await client
+      .from("assemblyUnit")
+      .select("id, name, partNodeIds")
+      .eq("modelUploadId", modelUploadId);
+
     const partMatches = await assignPartsToBom(distinctPartNames(graph), bom);
 
     const units = deriveAssemblyUnits({
       graph,
       bomMaterials: bom,
       partMappings: mappings.data ?? [],
-      authoredUnits: [],
+      authoredUnits: (authored.data ?? []).map((unit) => ({
+        id: unit.id,
+        name: unit.name,
+        partNodeIds: unit.partNodeIds ?? []
+      })),
       partMatches
     });
 
