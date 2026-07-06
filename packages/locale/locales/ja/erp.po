@@ -4427,6 +4427,12 @@ msgstr "エンジニアリング変更とCAD"
 msgid "Engineering Contact"
 msgstr "エンジニアリング担当者"
 
+msgid "Enroll"
+msgstr "登録"
+
+msgid "Enroll this company in the Implementation Hub"
+msgstr "この会社を実装ハブに登録する"
+
 msgid "Enter a batch number before setting the expiration date"
 msgstr "有効期限を設定する前にバッチ番号を入力してください"
 
@@ -10393,6 +10399,9 @@ msgstr "数量を設定"
 
 msgid "Set up the right way"
 msgstr "正しい方法でセットアップ"
+
+msgid "Set up your company with a step-by-step implementation plan covering setup, data, training, and go-live."
+msgstr "セットアップ、データ、トレーニング、本番稼働をカバーするステップバイステップの実装プランで会社をセットアップします。"
 
 msgid "Set up your own data with import tools and LLM help"
 msgstr "インポートツールとLLMの支援を使用して独自のデータをセットアップする"

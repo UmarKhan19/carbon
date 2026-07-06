@@ -4427,6 +4427,12 @@ msgstr "Инженерные изменения и САПР"
 msgid "Engineering Contact"
 msgstr "Контакт инженера"
 
+msgid "Enroll"
+msgstr "Зарегистрировать"
+
+msgid "Enroll this company in the Implementation Hub"
+msgstr "Зарегистрировать эту компанию в центре внедрения"
+
 msgid "Enter a batch number before setting the expiration date"
 msgstr "Введите номер партии перед установкой даты истечения"
 
@@ -10393,6 +10399,9 @@ msgstr "Установить количество"
 
 msgid "Set up the right way"
 msgstr "Правильная настройка"
+
+msgid "Set up your company with a step-by-step implementation plan covering setup, data, training, and go-live."
+msgstr "Настройте свою компанию с помощью пошагового плана внедрения, охватывающего настройку, данные, обучение и запуск в производство."
 
 msgid "Set up your own data with import tools and LLM help"
 msgstr "Настройте свои данные с помощью инструментов импорта и LLM"
