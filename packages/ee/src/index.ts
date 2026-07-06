@@ -1,3 +1,4 @@
+import { Avalara } from "./avalara/config";
 import { Email } from "./email/config";
 import { ExchangeRates } from "./exchange-rates/config";
 import { Jira } from "./jira/config";
@@ -29,6 +30,7 @@ export type {
 
 export const integrations = [
   // Radan,
+  Avalara,
   Email,
   ExchangeRates,
   Jira,
@@ -44,6 +46,7 @@ export const integrations = [
 
 export type IntegrationID = (typeof integrations)[number]["id"];
 
+export { Avalara } from "./avalara/config";
 export { Jira } from "./jira/config";
 export { Logo as OnshapeLogo, Onshape } from "./onshape/config";
 // TODO: export as @carbon/ee/paperless

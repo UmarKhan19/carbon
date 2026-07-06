@@ -5,6 +5,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./accounting": "./src/accounting/index.ts",
+    "./avalara": "./src/avalara/index.ts",
+    "./avalara/hooks.server": "./src/avalara/hooks.server.ts",
     "./storage-rules": "./src/storage-rules/index.ts",
     "./storage-rules.server": "./src/storage-rules/server.ts",
     "./exchange-rates.server": "./src/exchange-rates/exchange-rates.server.ts",

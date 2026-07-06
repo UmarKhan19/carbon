@@ -95,6 +95,7 @@ IMPORTANT: Before any research or coding, match the task to this table. A single
 | Shipments / receipts UI | `.ai/rules/shipments-receipts-ui-patterns.md` |
 | AI chat / SDK | `.ai/rules/chat-ai-sdk-info.md` |
 | **Integrations** | |
+| Avalara (tax + e-invoicing substrate) | `.ai/rules/avalara-integration.md` |
 | Jira integration | `.ai/rules/jira-integration.md` |
 | Linear integration | `.ai/rules/linear-integration.md` |
 | Xero API / webhooks | `.ai/rules/xero-api-contact-structure.md` + `.ai/rules/xero-webhooks.md` |
