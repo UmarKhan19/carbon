@@ -51,8 +51,14 @@ export async function getUserClaims(userId: string, companyId: string) {
       // convert rawClaims to permissions
       claims = makePermissionsFromClaims(rawClaims.data as Json[]);
 
-      // store claims in redis
-      await redis.set(getPermissionCacheKey(userId), JSON.stringify(claims));
+      // store claims in redis — best-effort. A null/failed write (Redis down,
+      // fail-soft via @carbon/kv withResilience) must not abort the in-flight
+      // request; we already have the claims from the DB.
+      try {
+        await redis.set(getPermissionCacheKey(userId), JSON.stringify(claims));
+      } catch (e) {
+        console.error("Failed to cache claims in redis", e);
+      }
 
       if (!claims) {
         throw new Error("Failed to get claims");

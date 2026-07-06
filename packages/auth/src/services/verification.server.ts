@@ -46,6 +46,9 @@ export async function verifyEmailCode(email: string, code: string) {
   try {
     const storedCode = await redis.get(`verification:${email.toLowerCase()}`);
 
+    // If Redis is down, @carbon/kv fails soft and `storedCode` is null, so we
+    // return false. Blocking verification when the code store is unreachable is
+    // the expected/acceptable fail-closed behavior — we cannot confirm the code.
     if (!storedCode || String(storedCode).trim() !== String(code).trim()) {
       return false;
     }
