@@ -68,7 +68,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
       await trigger("assembly-plan", {
         modelUploadId: result.modelUploadId,
         companyId,
-        userId
+        userId,
+        // Generate the steps server-side once the plan lands, so this completes
+        // even if the user navigates away while it's solving.
+        generateStepsFor: id
       });
     }
 

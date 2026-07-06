@@ -1,7 +1,9 @@
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { Json } from "@carbon/database";
 import { GEOMETRY_SERVICE_API_KEY, GEOMETRY_SERVICE_URL } from "@carbon/env";
+import type { AssemblyPlan } from "@carbon/viewer/steps";
 import { inngest } from "../../client";
+import { generateAssemblyStepsFromPlan } from "./generate-assembly-steps";
 import { loadPlanUnits } from "./plan-units";
 
 const SIGNED_URL_EXPIRY = 60 * 60; // seconds
@@ -208,5 +210,22 @@ export const assemblyPlanFunction = inngest.createFunction(
         })
         .eq("id", job.id);
     });
+
+    // The user clicked "Generate Steps" before a plan existed — create the
+    // draft steps now that it's ready, so it completes whether or not they
+    // stayed on the page. No-op if the instruction already has steps.
+    if (event.data.generateStepsFor) {
+      const generateStepsFor = event.data.generateStepsFor;
+      await step.run("generate-steps", async () => {
+        const client = getCarbonServiceRole();
+        await generateAssemblyStepsFromPlan(client, {
+          assemblyInstructionId: generateStepsFor,
+          plan: planData as unknown as AssemblyPlan,
+          graphPath: job.graphPath,
+          companyId,
+          userId
+        });
+      });
+    }
   }
 );

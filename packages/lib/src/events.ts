@@ -71,6 +71,10 @@ export type Events = {
       modelUploadId: string;
       companyId: string;
       userId: string;
+      // When set (the user clicked "Generate Steps" before a plan existed),
+      // the job generates draft steps for this instruction once the plan lands
+      // — so it works whether or not they stay on the page.
+      generateStepsFor?: string;
     };
   };
 

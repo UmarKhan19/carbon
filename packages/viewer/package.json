@@ -17,7 +17,8 @@
     "vitest": "catalog:"
   },
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./steps": "./src/steps.ts"
   },
   "peerDependencies": {
     "react": "catalog:",
