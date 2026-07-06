@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-05T19:13:55.118Z",
+  "generated": "2026-07-06T04:08:56.142Z",
   "totalTools": 1290,
   "modules": 15,
   "tools": [
@@ -20239,14 +20239,14 @@
       }
     },
     {
-      "name": "production_getAssemblyGroups",
+      "name": "production_getAssemblyUnits",
       "module": "production",
       "classification": "READ",
-      "description": "get assembly groups",
+      "description": "get assembly units",
       "paramCount": 1,
       "serviceParams": [
         "client",
-        "assemblyInstructionId"
+        "modelUploadId"
       ],
       "injectAuth": [
         "companyId"
@@ -20254,21 +20254,21 @@
       "schema": {
         "type": "object",
         "properties": {
-          "assemblyInstructionId": {
+          "modelUploadId": {
             "type": "string"
           }
         },
         "required": [
-          "assemblyInstructionId"
+          "modelUploadId"
         ]
       }
     },
     {
-      "name": "production_upsertAssemblyGroup",
+      "name": "production_upsertAssemblyUnit",
       "module": "production",
       "classification": "WRITE",
-      "description": "upsert assembly group",
-      "paramCount": 7,
+      "description": "upsert assembly unit",
+      "paramCount": 5,
       "serviceParams": [
         "client",
         "data"
@@ -20284,13 +20284,10 @@
           "id": {
             "type": "string"
           },
-          "assemblyInstructionId": {
+          "modelUploadId": {
             "type": "string"
           },
           "name": {
-            "type": "string"
-          },
-          "type": {
             "type": "string"
           },
           "partNodeIds": {
@@ -20299,13 +20296,7 @@
               "type": "string"
             }
           },
-          "partNumber": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "childInstructionId": {
+          "itemId": {
             "type": [
               "string",
               "null"
@@ -20313,18 +20304,17 @@
           }
         },
         "required": [
-          "assemblyInstructionId",
+          "modelUploadId",
           "name",
-          "type",
           "partNodeIds"
         ]
       }
     },
     {
-      "name": "production_deleteAssemblyGroup",
+      "name": "production_deleteAssemblyUnit",
       "module": "production",
       "classification": "DESTRUCTIVE",
-      "description": "delete assembly group",
+      "description": "delete assembly unit",
       "paramCount": 1,
       "serviceParams": [
         "client",

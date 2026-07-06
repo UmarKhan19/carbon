@@ -72,45 +72,65 @@ both sides).
 
 ### GET /health → `{ "ok": true, "version": "x.y.z" }`
 
-### POST /plan
+### POST /plan (async: submit → poll)
 
 Computes a collision-free insertion motion for every leaf part plus a
 constraint-consistent assembly sequence. Re-tessellates the same STEP source
 with the same nodeId derivation as /convert, so plan.json keys join against
 graph.json and GLB extras.
 
-Pipeline (v2): classify named fasteners (symmetry axis + threaded mates — the
-parts they deeply interpenetrate when seated) → rigid-merge pairs that can
-never separate (deep non-threaded interpenetration, or full containment such
-as embedded logo/text solids) → greedy disassembly for motions → precedence
-DAG + preference topo sort for the order → forward verification.
+**Async** (v3): planning a large model runs 10+ minutes — longer than any single
+HTTP request survives across the Inngest → tunnel → app → tunnel → geometry hops
+(and a pre-signed upload URL's 60s TTL). So `/plan` starts the work in a
+background thread and returns **202 immediately**; the caller polls
+`GET /plan/{jobId}` until it reports `done` and then persists the inline plan
+itself (the worker uploads plan.json with its service-role client — no expiring
+URL). Submits are idempotent: a duplicate `/plan` for a jobId already running
+attaches to it rather than starting a second planner.
+
+Pipeline: **merge `options.units` into single rigid bodies** (a purchased PCB's
+hundreds of component solids → one body; see units below) → classify named
+fasteners (symmetry axis + threaded mates) → rigid-merge inseparable pairs →
+greedy disassembly for motions → precedence DAG + preference topo sort → forward
+verification → **expand merged units back to member leaves** (each carries the
+unit's motion + `groupId`; the unit is one `groups` entry).
 
 ```jsonc
-// request
+// POST /plan request
 {
-  "jobId": "string",
+  "jobId": "string",                 // the caller's plan-job id; also the poll key
   "source": { "url": "https://signed-get-url", "format": "step" },
-  // `outputs` is OPTIONAL and normally omitted. The planner can run for
-  // minutes — longer than a pre-signed upload URL's 60s TTL — so the caller
-  // persists the plan from the response body instead. When supplied, the
-  // service also uploads plan.json to outputs.plan.url (best-effort).
-  "outputs": { "plan": { "url": "https://signed-put-url" } },
   "options": {                       // all optional
     "linearDeflection": 0.1,
     "angularDeflection": 0.5,
     "clearance": 0.5,                // mm of required clearance along the path
-    "pathSamples": 60                // collision checks per candidate path
+    "pathSamples": 60,               // collision checks per candidate path
+    // Pre-grouped units: leaf nodeIds merged into one rigid body for planning,
+    // then expanded back to members (one step, one motion). Derived app-side
+    // from BOM membership + an LLM part→BOM assignment + user overrides.
+    "units": [ { "id": "unit:<itemId>", "name": "BCU PCB", "nodeIds": ["leaf1", "..."] } ]
   }
 }
-// response 200 — `plan` is the plan.json document, returned inline for the
-// caller to persist.
-{ "ok": true, "partCount": 31, "plannedCount": 30,
-  "plan": { "version": 2, "unit": "mm", "sequence": ["..."], "parts": { } },
-  "stats": { "planMs": 8000, "verifiedCount": 30,
-             "tiers": { "linear": 25, "l": 2, "escape": 1, "group": 1, "flagged": 1, "forced": 0, "unplanned": 0 },
-             "warnings": [] } }
-// errors: same codes/status mapping as /convert
+// POST /plan response 202 — accepted, running in the background
+{ "ok": true, "jobId": "string", "status": "pending" }
+
+// GET /plan/{jobId} response 200
+{ "ok": true, "status": "pending" | "running" | "done" | "error",
+  // present only when status == "done":
+  "plan": { "version": 3, "unit": "mm", "sequence": ["..."], "parts": { }, "groups": { } },
+  "partCount": 431, "plannedCount": 424,
+  "stats": { "planMs": 105000, "verifiedCount": 18,
+             "tiers": { "linear": 13, "l": 4, "escape": 0, "group": 0, "flagged": 2, "forced": 0, "unplanned": 0 },
+             "warnings": [] },
+  // present only when status == "error":
+  "error": "message" }
+// unknown jobId → 404; errors otherwise use the same codes/status mapping as /convert
 ```
+
+plan.json is **version 3**: `groups` entries gain an optional `name` (the unit's
+BOM/subassembly name → the draft step title). A merged unit's member leaves each
+carry `groupId` (= the unit id) and sit consecutively in `sequence`, so
+`buildAssemblyStepGroups` folds them into one step.
 
 Motion tiers: 1 = straight-line removal (the part's symmetry axis first, then
 the six world axes; **named fasteners only ever exit along their bore axis**,
@@ -170,11 +190,11 @@ forward-verified: each part's insertion is re-checked against exactly the
 parts present at that point; failures demote to flagged
 (`verified: false`).
 
-plan.json (returned inline as the response `plan`; the caller persists it):
+plan.json (returned inline in the `done` poll response; the caller persists it):
 
 ```jsonc
 {
-  "version": 2,
+  "version": 3,
   "unit": "mm",
   "sequence": ["nodeId", "..."],     // constraint-consistent assembly order; [0] is the base
   "parts": {
@@ -190,13 +210,16 @@ plan.json (returned inline as the response `plan`; the caller persists it):
     }
   },
   "groups": {                        // subassembly units (optional)
-    "g1": { "partNodeIds": ["nodeId", "..."], "motion": { /* shared */ } }
+    "g1": { "partNodeIds": ["nodeId", "..."], "motion": { /* shared */ },
+            "name": "BCU PCB" }      // v3: unit name → step title (optional)
   },
   "warnings": ["..."]                // one entry per flagged part / merge / skipped preference
 }
 ```
 
-All v2 fields are optional additions — version-1 files keep parsing everywhere.
+All v2/v3 fields are optional additions — older files keep parsing. Bumping the
+version invalidates stored plans (consumers treat below-current as absent and
+re-plan), which is how pre-grouping (v2) plans get replaced.
 
 Editor semantics: when a step's `partNodeIds` change, motion is auto-filled
 from plan.json (single part → its motion; multiple parts → the shared motion

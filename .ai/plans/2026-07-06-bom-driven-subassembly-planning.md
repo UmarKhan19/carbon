@@ -173,11 +173,11 @@ follow-up — noted, **not in this pass**.
 
 ## Tasks
 
-- [ ] **T0 — Commit the async /plan prerequisite** already in tree.
+- [x] **T0 — Commit the async /plan prerequisite** already in tree.
   Verify: `pnpm exec turbo run typecheck --filter=@carbon/jobs` green;
   `services/geometry/.venv/bin/python -m pytest -q` green.
 
-- [ ] **T0.5 — Simplify the group model (D0)**
+- [x] **T0.5 — Simplify the group model (D0)**
   Files: `packages/database/supabase/migrations/20260611134652_assembly-editor-parity.sql`
   (in-place edit), local psql patch (SQL in D0), `pnpm run generate:types`,
   `production.models.ts`, `production.service.ts`,
@@ -186,7 +186,7 @@ follow-up — noted, **not in this pass**.
   Verify: `pnpm exec turbo run typecheck --filter=erp` green; BOM tree renders
   and creates a subassembly locally.
 
-- [ ] **T1 — `deriveAssemblyUnits` + shared `nameSimilarity`**
+- [x] **T1 — `deriveAssemblyUnits` + shared `nameSimilarity`**
   Files: `packages/viewer/src/units.ts` (new), `packages/viewer/src/units.test.ts`
   (new), move `nameSimilarity` out of `production.service.ts`, export from
   `packages/viewer/src/index.ts`.
@@ -195,7 +195,7 @@ follow-up — noted, **not in this pass**.
   precedence; descend-when-no-BOM-match.
   Verify: `pnpm --filter @carbon/viewer test` and typecheck green.
 
-- [ ] **T2 — Geometry service: units + PLAN_VERSION 3**
+- [x] **T2 — Geometry service: units + PLAN_VERSION 3**
   Files: `services/geometry/app/schemas.py` (`PlanOptions.units`),
   `services/geometry/app/plan.py` (`plan_step(units=...)`, merge in
   `_collect_world_parts`, emit `groups` with `name`, `PLAN_VERSION = 3`),
@@ -204,31 +204,31 @@ follow-up — noted, **not in this pass**.
   collapsed unit plans as one body, group payload carries members + name).
   Verify: `services/geometry/.venv/bin/python -m pytest -q` green.
 
-- [ ] **T3 — Worker passes units**
+- [x] **T3 — Worker passes units**
   File: `packages/jobs/src/inngest/functions/tasks/assembly-plan.ts` —
   fetch graph/BOM/mappings/groups, call `deriveAssemblyUnits`, send
   `options.units`.
   Verify: typecheck green; local run (see T6).
 
-- [ ] **T4 — Viewer/step-gen: v3 + names**
+- [x] **T4 — Viewer/step-gen: v3 + names**
   Files: `packages/viewer/src/plan.ts` (`CURRENT_PLAN_VERSION = 3`, parse
   optional group `name`, title passthrough in `buildAssemblyStepGroups`),
   `packages/viewer/src/plan.test.ts`.
   Verify: `pnpm --filter @carbon/viewer test` green.
 
-- [ ] **T5 — BOM tree unit rows + toggle**
+- [x] **T5 — BOM tree unit rows + toggle**
   Files: `apps/erp/app/modules/production/ui/Assemblies/AssemblyBomTree.tsx`,
   `production.service.ts` (group upsert already exists — reuse), route for the
   toggle if one doesn't fit an existing action.
   Verify: typecheck; browser check in T6.
 
-- [ ] **T6 — End-to-end on the real model**
+- [x] **T6 — End-to-end on the real model**
   Re-upload (or plan.rerun) the 431-part model: expect ~7 planned units,
   plan runtime **≪ 11 min** (target < 2 min), Generate Steps produces ~7 draft
   steps with sane titles, PCB animates as one unit.
   Verify: `assemblyPlanJob` row Success + timing; steps count; visual check.
 
-- [ ] **T7 — Spec + docs sync**
+- [x] **T7 — Spec + docs sync**
   Update `.ai/specs/2026-07-04-animated-work-instructions-contracts.md`
   (units option, v3, group name) and the production module `AGENTS.md` row for
   `generateAssemblyStepsFromPlan`/plan pipeline.
