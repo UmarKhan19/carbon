@@ -172,14 +172,28 @@ export default function AssemblyInstructionExplorer({
   );
 
   // Surface elapsed time while the planner runs so the wait shows a rough
-  // expectation and forward progress instead of an open-ended spinner.
+  // expectation and forward progress instead of an open-ended spinner. A plan
+  // runs server-side, so reflect a Processing plan job (isPlanning) too — the
+  // "solving" state must survive navigating away and back, when the ephemeral
+  // isAwaitingPlan flag is gone but the plan is still running.
   const isSolving =
-    generateFetcher.state !== "idle" || (isAwaitingPlan && !planFailed);
+    generateFetcher.state !== "idle" ||
+    (isAwaitingPlan && !planFailed) ||
+    (isPlanning && steps.length === 0);
   const [solveStartedAt, setSolveStartedAt] = useState<number | null>(null);
   const [solveNow, setSolveNow] = useState(() => Date.now());
   useEffect(() => {
-    setSolveStartedAt((prev) => (isSolving ? (prev ?? Date.now()) : null));
-  }, [isSolving]);
+    setSolveStartedAt((prev) => {
+      if (!isSolving) return null;
+      if (prev != null) return prev;
+      // Anchor elapsed to the plan job's real start when a plan is running, so
+      // the timer is accurate even after leaving and returning to the page.
+      if (isPlanning && planJob?.createdAt) {
+        return new Date(planJob.createdAt).getTime();
+      }
+      return Date.now();
+    });
+  }, [isSolving, isPlanning, planJob?.createdAt]);
   useInterval(
     () => setSolveNow(Date.now()),
     solveStartedAt != null ? 1000 : null
@@ -397,16 +411,8 @@ export default function AssemblyInstructionExplorer({
                 {permissions.can("update", "production") && (
                   <VStack spacing={2} className="items-center">
                     <Button
-                      isDisabled={
-                        isDisabled ||
-                        isConverting ||
-                        generateFetcher.state !== "idle" ||
-                        (isAwaitingPlan && !planFailed)
-                      }
-                      isLoading={
-                        generateFetcher.state !== "idle" ||
-                        (isAwaitingPlan && !planFailed)
-                      }
+                      isDisabled={isDisabled || isConverting || isSolving}
+                      isLoading={isSolving}
                       leftIcon={<LuSparkles />}
                       onClick={() => {
                         // The action starts a fresh planner run when the

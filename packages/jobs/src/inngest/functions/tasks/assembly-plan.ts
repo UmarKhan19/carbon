@@ -15,6 +15,9 @@ const REQUEST_TIMEOUT_MS = 60 * 1000;
 // UI offers a retry) rather than waiting forever.
 const PLAN_POLL_INTERVAL = "15s";
 const PLAN_MAX_POLLS = 120; // 15s × 120 = 30 min budget
+// The geometry job registry is in-process; a restart drops running jobs. Re-submit
+// the plan on a lost job up to this many times before giving up.
+const PLAN_MAX_RESUBMITS = 3;
 
 const authHeaders: Record<string, string> = GEOMETRY_SERVICE_API_KEY
   ? { Authorization: `Bearer ${GEOMETRY_SERVICE_API_KEY}` }
@@ -107,8 +110,9 @@ export const assemblyPlanFunction = inngest.createFunction(
 
     // Kick off the planner. The service starts it in the background and returns
     // immediately, so the request is short — no connection is held open across
-    // the multi-minute run (which no HTTP hop survives).
-    await step.run("start-plan", async () => {
+    // the multi-minute run (which no HTTP hop survives). A fresh signed source
+    // URL is minted per submit so re-submits (below) don't reuse an expired one.
+    const submitPlan = async () => {
       const client = getCarbonServiceRole();
 
       const source = await client.storage
@@ -138,13 +142,19 @@ export const assemblyPlanFunction = inngest.createFunction(
           result?.error ?? `Geometry service returned ${response.status}`
         );
       }
-    });
+      return { ok: true };
+    };
+
+    await step.run("start-plan", submitPlan);
 
     // Poll the async job until it finishes. Each poll is its own short step, so
-    // Inngest sleeps between them rather than holding a request open, and a
-    // retry resumes from the last poll instead of re-running the planner.
+    // Inngest sleeps between them rather than holding a request open. The
+    // geometry service keeps its job registry in-process, so a restart (or its
+    // dev `uvicorn --reload`) drops the running job and the poll 404s — recover
+    // by re-submitting rather than failing the whole plan.
     let plan: Json | null = null;
     let stats: Json = null;
+    let resubmits = 0;
     for (let attempt = 0; attempt < PLAN_MAX_POLLS; attempt++) {
       await step.sleep(`plan-wait-${attempt}`, PLAN_POLL_INTERVAL);
 
@@ -153,6 +163,8 @@ export const assemblyPlanFunction = inngest.createFunction(
           headers: authHeaders,
           signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS)
         });
+        // 404 = the service no longer knows this job (it restarted).
+        if (response.status === 404) return { status: "missing" as const };
         const body = (await response.json().catch(() => null)) as {
           ok?: boolean;
           status?: string;
@@ -168,6 +180,16 @@ export const assemblyPlanFunction = inngest.createFunction(
         return body;
       });
 
+      if (status.status === "missing") {
+        if (resubmits >= PLAN_MAX_RESUBMITS) {
+          throw new Error(
+            "The geometry service repeatedly lost the plan job (restarting?)"
+          );
+        }
+        resubmits++;
+        await step.run(`plan-resubmit-${attempt}`, submitPlan);
+        continue;
+      }
       if (status.status === "done") {
         if (status.plan == null) {
           throw new Error("Planner reported done but returned no plan");
