@@ -174,9 +174,21 @@ const ProcedureProperties = () => {
             label={t`Status`}
             name="status"
             inline={(value) => (
-              <ProcedureStatus
-                status={value as "Draft" | "Active" | "Archived"}
-              />
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="inline-flex cursor-help">
+                    <ProcedureStatus
+                      status={value as "Draft" | "Active" | "Archived"}
+                    />
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <Trans>
+                    Draft = editable · Active = in use, create a new version to
+                    change · Archived = retired
+                  </Trans>
+                </TooltipContent>
+              </Tooltip>
             )}
             options={procedureStatus.map((status) => ({
               value: status,

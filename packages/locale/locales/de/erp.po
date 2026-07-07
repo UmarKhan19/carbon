@@ -161,6 +161,9 @@ msgstr "5 Benutzer Minimum"
 msgid "5-8 weeks"
 msgstr "5-8 Wochen"
 
+msgid "52-week demand"
+msgstr ""
+
 msgid "5MB file limit"
 msgstr "5MB Dateigrößenlimit"
 
@@ -532,6 +535,9 @@ msgstr "Fügen Sie unten eine Spalte hinzu, um die Ansicht zu sortieren"
 
 msgid "Add a comment..."
 msgstr "Einen Kommentar hinzufügen..."
+
+msgid "Add a custom pricing row to override quantity, price, shipping, lead time, and tax"
+msgstr ""
 
 msgid "Add a printer in the printing settings to print labels directly."
 msgstr "Fügen Sie einen Drucker in den Druckeinstellungen hinzu, um Etiketten direkt zu drucken."
@@ -982,6 +988,10 @@ msgstr "Sind Sie sicher, dass Sie dieses Messinstrument aktivieren möchten?."
 #. placeholder {0}: routeData?.rfqSummary ?.rfqId!
 msgid "Are you sure you want to cancel {0}? This will also cancel all related supplier quotes."
 msgstr "Sind Sie sicher, dass Sie {0} stornieren möchten? Dies storniert auch alle zugehörigen Lieferantenofferten."
+
+#. placeholder {0}: routeData?.purchaseOrder?.purchaseOrderId ?? "this purchase order"
+msgid "Are you sure you want to cancel {0}? This will close the order."
+msgstr ""
 
 msgid "Are you sure you want to cancel this job? It will no longer be available on the shop floor."
 msgstr "Sind Sie sicher, dass Sie diesen Auftrag stornieren möchten? Er ist dann nicht mehr auf der Werkstatt verfügbar."
@@ -1723,6 +1733,9 @@ msgstr "Erstellen Sie rollenbasierte Schulungsmaterialien"
 msgid "Build tailored, role-based training materials"
 msgstr "Erstellen Sie maßgeschneiderte, rollenbasierte Schulungsmaterialien"
 
+msgid "Built and costed as its own method"
+msgstr ""
+
 msgid "Bulk Import"
 msgstr "Massenimport"
 
@@ -1806,6 +1819,12 @@ msgstr "Abbrechen"
 
 msgid "Cancel Job"
 msgstr "Auftrag abbrechen"
+
+msgid "Cancel Order"
+msgstr ""
+
+msgid "Cancel Purchase Order"
+msgstr ""
 
 msgid "Cancel Sales Order"
 msgstr "Verkaufsauftrag stornieren"
@@ -2669,6 +2688,12 @@ msgstr "Dokument konnte nicht gelesen werden: {0}"
 msgid "Couldn't load documents"
 msgstr "Dokumente konnten nicht geladen werden"
 
+msgid "Couldn't load related documents. Refresh before creating a new one to avoid duplicates."
+msgstr ""
+
+msgid "Couldn't reschedule the job. Please try again."
+msgstr ""
+
 msgid "Count"
 msgstr "Anzahl"
 
@@ -2907,6 +2932,9 @@ msgstr "CSV-Spalte"
 
 msgid "CSV file must have at least 2 rows."
 msgstr "CSV-Datei muss mindestens 2 Zeilen enthalten."
+
+msgid "Cumulative"
+msgstr ""
 
 msgid "Cumulative %"
 msgstr "Kumulativ %"
@@ -3428,6 +3456,9 @@ msgstr "Feiertag löschen"
 msgid "Delete Issue"
 msgstr "Problem löschen"
 
+msgid "Delete Item Group"
+msgstr ""
+
 msgid "Delete Line"
 msgstr "Zeile löschen"
 
@@ -3575,6 +3606,10 @@ msgstr "Lieferantenangebotsanfrage löschen"
 msgid "Delete Supplier Type"
 msgstr "Lieferantentyp löschen"
 
+#. placeholder {0}: pendingDelete.quantity
+msgid "Delete the price break for quantity {0}? This can't be undone."
+msgstr ""
+
 msgid "Delete Timecard"
 msgstr "Zeitkarte löschen"
 
@@ -3589,6 +3624,9 @@ msgstr "Übertragung löschen"
 
 msgid "Delete Transfer Line"
 msgstr "Transferzeile löschen"
+
+msgid "Delete Unit of Measure"
+msgstr ""
 
 msgid "Delete View"
 msgstr "Ansicht löschen"
@@ -3849,6 +3887,12 @@ msgstr "Vorlage herunterladen"
 
 msgid "Draft"
 msgstr "Entwurf"
+
+msgid "Draft = editable · Active = in use, create a new version to change · Archived = retired"
+msgstr ""
+
+msgid "Draft = editable · Active = read-only (create a new version to change) · Archived = history"
+msgstr ""
 
 msgid "Drag & drop files, or click to browse"
 msgstr "Dateien ziehen und ablegen oder zum Durchsuchen klicken"
@@ -4390,6 +4434,9 @@ msgstr "Technischer Kontakt"
 
 msgid "Enter a batch number before setting the expiration date"
 msgstr "Geben Sie eine Chargennummer ein, bevor Sie das Ablaufdatum festlegen"
+
+msgid "Enter a percentage, e.g. 10%"
+msgstr ""
 
 msgid "Enter and approve vendor bills against a PO (three-way match)"
 msgstr "Lieferantenrechnungen gegen eine Bestellung eingeben und genehmigen (dreigliedriger Abgleich)"
@@ -5546,9 +5593,6 @@ msgstr "Spalten ausblenden, fixieren und neu anordnen"
 
 msgid "High"
 msgstr "Hoch"
-
-msgid "Higher priority wins ties and applies first for markups"
-msgstr "Höhere Priorität gewinnt bei Gleichständen und wird zuerst für Aufschläge angewendet"
 
 msgid "Hints in the first row"
 msgstr "Hinweise in der ersten Zeile"
@@ -6711,6 +6755,9 @@ msgstr "Abonnement verwalten"
 msgid "Manage your subscription and billing information"
 msgstr "Verwalten Sie Ihr Abonnement und Ihre Abrechnungsinformationen"
 
+msgid "Managed by the approval workflow"
+msgstr ""
+
 msgid "Manager"
 msgstr "Manager"
 
@@ -6725,6 +6772,9 @@ msgstr "Herstellerteilnummer"
 
 msgid "Manufacturing"
 msgstr "Herstellung"
+
+msgid "Manufacturing is blocked for this item, so a job cannot be created from planning."
+msgstr ""
 
 msgid "Map Extracted Invoice Lines"
 msgstr "Extrahierte Rechnungspositionen zuordnen"
@@ -7608,6 +7658,9 @@ msgstr "Kein Bild"
 msgid "No issue types configured"
 msgstr "Keine Problemtypen konfiguriert"
 
+msgid "No items"
+msgstr ""
+
 msgid "No lines to map"
 msgstr "Keine Zeilen zum Zuordnen"
 
@@ -7887,6 +7940,9 @@ msgstr "Bestandsinventar vorhanden"
 msgid "On-time delivery"
 msgstr "Pünktliche Lieferung"
 
+msgid "On: pricing rules apply on top of this override. Off: use only the override price."
+msgstr ""
+
 msgid "One serial unit or one batch that Carbon follows individually, carrying its own status and attributes such as an expiry date."
 msgstr "Eine Serieneinheit oder eine Partie, die Carbon einzeln verfolgt und ihre eigenen Status und Attribute wie ein Verfallsdatum trägt."
 
@@ -7898,6 +7954,9 @@ msgstr "Ein Schritt in der Routing eines Auftrags, der einen Prozess und ein Arb
 
 msgid "One system from quote to cash"
 msgstr "Ein System von der Anfrage bis zur Bezahlung"
+
+msgid "Only Draft procedures are editable. Create a new version to change an Active or Archived procedure."
+msgstr ""
 
 msgid "Onshape Status"
 msgstr "Onshape-Status"
@@ -8073,6 +8132,9 @@ msgstr "Bestellmenge"
 
 msgid "Order quantities must be whole multiples of this number (a multiple of 12 → 12, 24, 36 …)."
 msgstr "Bestellmengen müssen ganze Vielfache dieser Zahl sein (ein Vielfaches von 12 → 12, 24, 36 …)."
+
+msgid "Order rules are evaluated in — for discounts only the highest-priority match applies (no stacking); markups all apply and compound in priority order."
+msgstr ""
 
 msgid "Order Total"
 msgstr "Bestellsumme"
@@ -8407,6 +8469,9 @@ msgstr "Entnahmereihenfol­ge"
 
 msgid "Pick tracked item"
 msgstr "Verfolgtes Element auswählen"
+
+msgid "Picked and consumed as separate components"
+msgstr ""
 
 msgid "Picked quantity"
 msgstr "Gepickte Menge"
@@ -9448,6 +9513,9 @@ msgstr "Nachbestellungsrichtlinie"
 msgid "Reordering Policy"
 msgstr "Nachbestellungsrichtlinie"
 
+msgid "Reorders dispatch sequence and work center only — does not reschedule. Change dates on the Dates board."
+msgstr ""
+
 msgid "Replace drawing?"
 msgstr "Zeichnung ersetzen?"
 
@@ -9507,6 +9575,9 @@ msgstr "Erforderliche Aktionen (in Reihenfolge)"
 
 msgid "Required Date"
 msgstr "Erforderliches Datum"
+
+msgid "Required when tax exempt"
+msgstr ""
 
 msgid "Requirement"
 msgstr "Anforderung"
@@ -9960,6 +10031,9 @@ msgstr "Geplante Wartungen"
 msgid "Schedules"
 msgstr "Zeitpläne"
 
+msgid "Scheduling conflict: the computed start date is in the past. Move the due date out or reduce lead time."
+msgstr ""
+
 msgid "Scope"
 msgstr "Umfang"
 
@@ -10113,6 +10187,9 @@ msgstr "Wählen Sie einen Artikel zum Konfigurieren aus"
 
 msgid "Select an option"
 msgstr "Wählen Sie eine Option"
+
+msgid "Select at least one line to convert"
+msgstr ""
 
 msgid "Select Contact"
 msgstr "Kontakt auswählen"
@@ -13059,6 +13136,10 @@ msgstr "Website"
 msgid "Wednesday"
 msgstr "Mittwoch"
 
+#. placeholder {0}: d.week
+msgid "Week {0}"
+msgstr ""
+
 #. placeholder {0}: i + 1
 msgid "Week {0} ({formattedDate})"
 msgstr "Woche {0} ({formattedDate})"
@@ -13075,6 +13156,9 @@ msgstr "Woche des {0}"
 
 msgid "Weekly"
 msgstr "Wöchentlich"
+
+msgid "Weekly demand"
+msgstr ""
 
 #. placeholder {0}: Math.round(startWeek) + 1
 #. placeholder {1}: Math.round(endWeek)
@@ -13398,6 +13482,11 @@ msgstr "Fenster:"
 
 msgid "WIP"
 msgstr "WIP"
+
+#. placeholder {0}: quarter.start + 1
+#. placeholder {1}: quarter.end
+msgid "Wk {0}–{1}"
+msgstr ""
 
 msgid "wks"
 msgstr "Wo."

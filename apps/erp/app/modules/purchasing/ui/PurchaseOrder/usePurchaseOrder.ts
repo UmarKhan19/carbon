@@ -7,6 +7,9 @@ import type { PurchaseInvoice } from "~/modules/invoicing";
 import type { PurchaseOrder } from "~/modules/purchasing";
 import { path } from "~/utils/path";
 
+const MAX_RELATED_DOCS_RETRIES = 2;
+const RELATED_DOCS_RETRY_DELAY_MS = 1000;
+
 export const usePurchaseOrder = () => {
   const navigate = useNavigate();
   const submit = useSubmit();
@@ -66,12 +69,15 @@ export const usePurchaseOrderRelatedDocuments = (
   const [shipments, setShipments] = useState<
     Pick<Shipment, "id" | "shipmentId" | "status">[]
   >([]);
+  const [hasError, setHasError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { carbon } = useCarbon();
 
   const getRelatedDocuments = useCallback(
-    async (supplierInteractionId: string) => {
+    async (supplierInteractionId: string, attempt = 0) => {
       if (!carbon || !supplierInteractionId) return;
+      setIsLoading(true);
       const [receipts, invoices, shipments] = await Promise.all([
         carbon
           .from("receipt")
@@ -89,14 +95,20 @@ export const usePurchaseOrderRelatedDocuments = (
           : Promise.resolve({ data: [], error: null })
       ]);
 
+      const failed = !!receipts.error || !!invoices.error || !!shipments.error;
+      // Retry transient failures before surfacing a hard error, so a network
+      // blip doesn't leave Ship/Receive/Invoice permanently disabled. Only
+      // toast / commit the error state on the final attempt.
+      const willRetry = failed && attempt < MAX_RELATED_DOCS_RETRIES;
+
       if (receipts.error) {
-        toast.error("Failed to load receipts");
+        if (!willRetry) toast.error("Failed to load receipts");
       } else {
         setReceipts(receipts.data);
       }
 
       if (invoices.error) {
-        toast.error("Failed to load invoices");
+        if (!willRetry) toast.error("Failed to load invoices");
       } else {
         setInvoices(
           invoices.data?.map((invoice) => ({
@@ -110,10 +122,21 @@ export const usePurchaseOrderRelatedDocuments = (
         );
       }
       if (shipments.error) {
-        toast.error("Failed to load shipments");
+        if (!willRetry) toast.error("Failed to load shipments");
       } else {
         setShipments(shipments.data);
       }
+
+      if (willRetry) {
+        setTimeout(
+          () => getRelatedDocuments(supplierInteractionId, attempt + 1),
+          RELATED_DOCS_RETRY_DELAY_MS * (attempt + 1)
+        );
+        return;
+      }
+
+      setHasError(failed);
+      setIsLoading(false);
     },
     [carbon, isOutsideProcessing]
   );
@@ -122,5 +145,5 @@ export const usePurchaseOrderRelatedDocuments = (
     getRelatedDocuments(supplierInteractionId);
   }, [getRelatedDocuments, supplierInteractionId]);
 
-  return { receipts, invoices, shipments };
+  return { receipts, invoices, shipments, hasError, isLoading };
 };

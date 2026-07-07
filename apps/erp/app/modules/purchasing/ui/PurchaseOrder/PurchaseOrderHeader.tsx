@@ -11,8 +11,18 @@ import {
   Heading,
   HStack,
   IconButton,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  ModalTitle,
   SplitButton,
   Status,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
   useDisclosure
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
@@ -111,7 +121,12 @@ const PurchaseOrderHeader = () => {
   const hasApprovalRequest = !!routeData?.approvalRequest;
   const canApprove = routeData?.canApprove ?? false;
   const isLocked = isPurchaseOrderLocked(routeData?.purchaseOrder?.status);
-  const { receipts, invoices, shipments } = usePurchaseOrderRelatedDocuments(
+  const {
+    receipts,
+    invoices,
+    shipments,
+    hasError: relatedDocsError
+  } = usePurchaseOrderRelatedDocuments(
     routeData?.purchaseOrder?.supplierInteractionId ?? "",
     routeData?.purchaseOrder?.purchaseOrderType === "Outside Processing"
   );
@@ -125,8 +140,11 @@ const PurchaseOrderHeader = () => {
 
   const finalizeDisclosure = useDisclosure();
   const deleteModal = useDisclosure();
+  const cancelModal = useDisclosure();
   const [approvalDecision, setApprovalDecision] =
     useState<ApprovalDecision | null>(null);
+
+  const relatedDocsErrorMessage = t`Couldn't load related documents. Refresh before creating a new one to avoid duplicates.`;
 
   const isOutsideProcessing =
     routeData?.purchaseOrder?.purchaseOrderType === "Outside Processing";
@@ -334,26 +352,34 @@ const PurchaseOrderHeader = () => {
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                <Button
-                  leftIcon={<LuTruck />}
-                  isDisabled={
-                    !["To Receive", "To Receive and Invoice"].includes(
-                      routeData?.purchaseOrder?.status ?? ""
-                    )
-                  }
-                  variant={
-                    ["To Receive", "To Receive and Invoice"].includes(
-                      routeData?.purchaseOrder?.status ?? ""
-                    )
-                      ? "primary"
-                      : "secondary"
-                  }
-                  onClick={() => {
-                    ship(routeData?.purchaseOrder);
-                  }}
-                >
-                  <Trans>Ship</Trans>
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      leftIcon={<LuTruck />}
+                      isDisabled={
+                        relatedDocsError ||
+                        !["To Receive", "To Receive and Invoice"].includes(
+                          routeData?.purchaseOrder?.status ?? ""
+                        )
+                      }
+                      variant={
+                        ["To Receive", "To Receive and Invoice"].includes(
+                          routeData?.purchaseOrder?.status ?? ""
+                        )
+                          ? "primary"
+                          : "secondary"
+                      }
+                      onClick={() => {
+                        ship(routeData?.purchaseOrder);
+                      }}
+                    >
+                      <Trans>Ship</Trans>
+                    </Button>
+                  </TooltipTrigger>
+                  {relatedDocsError && (
+                    <TooltipContent>{relatedDocsErrorMessage}</TooltipContent>
+                  )}
+                </Tooltip>
               ))}
             {isNeedsApproval && hasApprovalRequest && canApprove ? (
               <>
@@ -432,27 +458,36 @@ const PurchaseOrderHeader = () => {
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                <Button
-                  leftIcon={<LuHandCoins />}
-                  isLoading={isReceiving}
-                  isDisabled={
-                    !["To Receive", "To Receive and Invoice"].includes(
-                      routeData?.purchaseOrder?.status ?? ""
-                    ) || isReceiving
-                  }
-                  variant={
-                    ["To Receive", "To Receive and Invoice"].includes(
-                      routeData?.purchaseOrder?.status ?? ""
-                    ) && !requiresShipment
-                      ? "primary"
-                      : "secondary"
-                  }
-                  onClick={() => {
-                    receive(routeData?.purchaseOrder);
-                  }}
-                >
-                  <Trans>Receive</Trans>
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      leftIcon={<LuHandCoins />}
+                      isLoading={isReceiving}
+                      isDisabled={
+                        relatedDocsError ||
+                        !["To Receive", "To Receive and Invoice"].includes(
+                          routeData?.purchaseOrder?.status ?? ""
+                        ) ||
+                        isReceiving
+                      }
+                      variant={
+                        ["To Receive", "To Receive and Invoice"].includes(
+                          routeData?.purchaseOrder?.status ?? ""
+                        ) && !requiresShipment
+                          ? "primary"
+                          : "secondary"
+                      }
+                      onClick={() => {
+                        receive(routeData?.purchaseOrder);
+                      }}
+                    >
+                      <Trans>Receive</Trans>
+                    </Button>
+                  </TooltipTrigger>
+                  {relatedDocsError && (
+                    <TooltipContent>{relatedDocsErrorMessage}</TooltipContent>
+                  )}
+                </Tooltip>
               )
             ) : null}
 
@@ -507,54 +542,57 @@ const PurchaseOrderHeader = () => {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 ) : (
-                  <Button
-                    leftIcon={<LuCreditCard />}
-                    isLoading={isInvoicing}
-                    isDisabled={
-                      !["To Invoice", "To Receive and Invoice"].includes(
-                        routeData?.purchaseOrder?.status ?? ""
-                      ) || isInvoicing
-                    }
-                    variant={
-                      ["To Invoice", "To Receive and Invoice"].includes(
-                        routeData?.purchaseOrder?.status ?? ""
-                      ) && !requiresShipment
-                        ? "primary"
-                        : "secondary"
-                    }
-                    onClick={() => {
-                      invoice(routeData?.purchaseOrder);
-                    }}
-                  >
-                    <Trans>Invoice</Trans>
-                  </Button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        leftIcon={<LuCreditCard />}
+                        isLoading={isInvoicing}
+                        isDisabled={
+                          relatedDocsError ||
+                          !["To Invoice", "To Receive and Invoice"].includes(
+                            routeData?.purchaseOrder?.status ?? ""
+                          ) ||
+                          isInvoicing
+                        }
+                        variant={
+                          ["To Invoice", "To Receive and Invoice"].includes(
+                            routeData?.purchaseOrder?.status ?? ""
+                          ) && !requiresShipment
+                            ? "primary"
+                            : "secondary"
+                        }
+                        onClick={() => {
+                          invoice(routeData?.purchaseOrder);
+                        }}
+                      >
+                        <Trans>Invoice</Trans>
+                      </Button>
+                    </TooltipTrigger>
+                    {relatedDocsError && (
+                      <TooltipContent>{relatedDocsErrorMessage}</TooltipContent>
+                    )}
+                  </Tooltip>
                 )}
               </>
             )}
-            <statusFetcher.Form
-              method="post"
-              action={path.to.purchaseOrderStatus(orderId)}
+            <Button
+              onClick={cancelModal.onOpen}
+              isLoading={
+                statusFetcher.state !== "idle" &&
+                statusFetcher.formData?.get("status") === "Closed"
+              }
+              isDisabled={
+                ["Closed", "Completed"].includes(
+                  routeData?.purchaseOrder?.status ?? ""
+                ) ||
+                statusFetcher.state !== "idle" ||
+                !permissions.can("delete", "purchasing")
+              }
+              leftIcon={<LuCircleStop />}
+              variant="secondary"
             >
-              <input type="hidden" name="status" value="Closed" />
-              <Button
-                type="submit"
-                isLoading={
-                  statusFetcher.state !== "idle" &&
-                  statusFetcher.formData?.get("status") === "Closed"
-                }
-                isDisabled={
-                  ["Closed", "Completed"].includes(
-                    routeData?.purchaseOrder?.status ?? ""
-                  ) ||
-                  statusFetcher.state !== "idle" ||
-                  !permissions.can("delete", "purchasing")
-                }
-                leftIcon={<LuCircleStop />}
-                variant="secondary"
-              >
-                <Trans>Cancel</Trans>
-              </Button>
-            </statusFetcher.Form>
+              <Trans>Cancel Order</Trans>
+            </Button>
             <IconButton
               aria-label={t`Toggle Properties`}
               icon={<LuPanelRight />}
@@ -587,6 +625,49 @@ const PurchaseOrderHeader = () => {
             deleteModal.onClose();
           }}
         />
+      )}
+      {cancelModal.isOpen && (
+        <Modal
+          open={cancelModal.isOpen}
+          onOpenChange={(open) => {
+            if (!open) cancelModal.onClose();
+          }}
+        >
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>
+              <ModalTitle>
+                <Trans>Cancel Purchase Order</Trans>
+              </ModalTitle>
+            </ModalHeader>
+            <ModalBody>
+              <p className="text-sm text-muted-foreground">
+                {t`Are you sure you want to cancel ${routeData?.purchaseOrder?.purchaseOrderId ?? "this purchase order"}? This will close the order.`}
+              </p>
+            </ModalBody>
+            <ModalFooter>
+              <Button variant="secondary" onClick={cancelModal.onClose}>
+                <Trans>Back</Trans>
+              </Button>
+              <statusFetcher.Form
+                method="post"
+                action={path.to.purchaseOrderStatus(orderId)}
+                onSubmit={cancelModal.onClose}
+              >
+                <input type="hidden" name="status" value="Closed" />
+                <Button
+                  type="submit"
+                  variant="destructive"
+                  isLoading={statusFetcher.state !== "idle"}
+                  isDisabled={statusFetcher.state !== "idle"}
+                  leftIcon={<LuCircleStop />}
+                >
+                  <Trans>Cancel Order</Trans>
+                </Button>
+              </statusFetcher.Form>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
       )}
       {approvalDecision && routeData?.approvalRequest?.id && (
         <PurchaseOrderApprovalModal

@@ -1504,6 +1504,10 @@ export const terms = {
     term: msg`Quantity Range`,
     definition: msg`The quantity range over which this rule applies; orders outside the range fall through to the next rule.`
   },
+  "pricing-rule-priority": {
+    term: msg`Priority`,
+    definition: msg`Order rules are evaluated in — for discounts only the highest-priority match applies (no stacking); markups all apply and compound in priority order.`
+  },
 
   // ── Sales: Quote header & shipment (QuoteForm, QuoteShipmentForm) ───────
   "quote-fulfillment-location": {

@@ -80,6 +80,10 @@ const JobProperties = () => {
   const [type, setType] = useState<MethodItemType>(
     (routeData?.job?.itemType ?? "Part") as MethodItemType
   );
+  const [deadlineType, setDeadlineType] = useState<string>(
+    routeData?.job?.deadlineType ?? ""
+  );
+  const showDueDate = ["Hard Deadline", "Soft Deadline"].includes(deadlineType);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   const onUpdate = useCallback(
@@ -431,25 +435,27 @@ const JobProperties = () => {
         />
       </ValidatedForm>
 
-      <ValidatedForm
-        defaultValues={{
-          dueDate: routeData?.job?.dueDate ?? ""
-        }}
-        validator={z.object({
-          dueDate: zfd.text(z.string().optional())
-        })}
-        className="w-full"
-      >
-        <DatePicker
-          name="dueDate"
-          label={t`Due Date`}
-          inline
-          isDisabled={isDisabled}
-          onChange={(date) => {
-            onUpdate("dueDate", date);
+      {showDueDate && (
+        <ValidatedForm
+          defaultValues={{
+            dueDate: routeData?.job?.dueDate ?? ""
           }}
-        />
-      </ValidatedForm>
+          validator={z.object({
+            dueDate: zfd.text(z.string().optional())
+          })}
+          className="w-full"
+        >
+          <DatePicker
+            name="dueDate"
+            label={t`Due Date`}
+            inline
+            isDisabled={isDisabled}
+            onChange={(date) => {
+              onUpdate("dueDate", date);
+            }}
+          />
+        </ValidatedForm>
+      )}
 
       <ValidatedForm
         defaultValues={{
@@ -465,6 +471,7 @@ const JobProperties = () => {
         <Select
           name="deadlineType"
           label={t`Deadline Type`}
+          termId="job-deadline-type"
           inline={(value, options) => {
             const deadlineType = value as (typeof deadlineTypes)[number];
             return (
@@ -480,7 +487,12 @@ const JobProperties = () => {
             label: d
           }))}
           onChange={(value) => {
-            onUpdate("deadlineType", value?.value ?? null);
+            const next = value?.value ?? "";
+            setDeadlineType(next);
+            onUpdate("deadlineType", next || null);
+            if (!["Hard Deadline", "Soft Deadline"].includes(next)) {
+              onUpdate("dueDate", null);
+            }
           }}
         />
       </ValidatedForm>

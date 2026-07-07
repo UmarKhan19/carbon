@@ -70,6 +70,10 @@ const JobForm = ({ initialValues }: JobFormProps) => {
   const [type, setType] = useState<MethodItemType>(
     initialValues.itemType ?? "Item"
   );
+  const [deadlineType, setDeadlineType] = useState<string>(
+    initialValues.deadlineType ?? ""
+  );
+  const showDueDate = ["Hard Deadline", "Soft Deadline"].includes(deadlineType);
 
   const isLocked = isJobLocked(initialValues.status);
   const isDisabled = isLocked;
@@ -333,15 +337,20 @@ const JobForm = ({ initialValues }: JobFormProps) => {
 
                       <Location name="locationId" label={t`Location`} />
 
-                      <DatePicker
-                        name="dueDate"
-                        label={t`Due Date`}
-                        isDisabled={isCustomer}
-                      />
+                      {showDueDate && (
+                        <DatePicker
+                          name="dueDate"
+                          label={t`Due Date`}
+                          isDisabled={isCustomer}
+                        />
+                      )}
                       <Select
                         name="deadlineType"
                         label={t`Deadline Type`}
                         termId="job-deadline-type"
+                        onChange={(option) =>
+                          setDeadlineType(option?.value ?? "")
+                        }
                         options={deadlineTypes.map((d) => ({
                           value: d,
                           label: (
@@ -485,25 +494,32 @@ const JobForm = ({ initialValues }: JobFormProps) => {
                           minValue={0}
                         />
 
-                        <DatePicker
-                          name="dueDateOfFirstJob"
-                          label={t`Due Date of First Job`}
-                          termId="job-bulk-due-date-first"
-                          isDisabled={isCustomer}
-                        />
+                        {showDueDate && (
+                          <>
+                            <DatePicker
+                              name="dueDateOfFirstJob"
+                              label={t`Due Date of First Job`}
+                              termId="job-bulk-due-date-first"
+                              isDisabled={isCustomer}
+                            />
 
-                        <DatePicker
-                          name="dueDateOfLastJob"
-                          label={t`Due Date of Last Job`}
-                          termId="job-bulk-due-date-last"
-                          isDisabled={isCustomer}
-                        />
+                            <DatePicker
+                              name="dueDateOfLastJob"
+                              label={t`Due Date of Last Job`}
+                              termId="job-bulk-due-date-last"
+                              isDisabled={isCustomer}
+                            />
+                          </>
+                        )}
 
                         <Location name="locationId" label={t`Location`} />
                         <Select
                           name="deadlineType"
                           label={t`Deadline Type`}
                           termId="job-deadline-type"
+                          onChange={(option) =>
+                            setDeadlineType(option?.value ?? "")
+                          }
                           options={deadlineTypes.map((d) => ({
                             value: d,
                             label: (

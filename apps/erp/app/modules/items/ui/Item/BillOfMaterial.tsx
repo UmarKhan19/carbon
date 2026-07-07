@@ -1150,11 +1150,30 @@ function MaterialForm({
                     }));
                   }}
                 >
-                  <DropdownMenuRadioItem value="Subassembly">
-                    <Trans>Subassembly</Trans>
+                  <DropdownMenuRadioItem
+                    value="Subassembly"
+                    className="items-start"
+                  >
+                    <div className="flex flex-col gap-0.5">
+                      <span>
+                        <Trans>Subassembly</Trans>
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        <Trans>Built and costed as its own method</Trans>
+                      </span>
+                    </div>
                   </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="Kit">
-                    <Trans>Kit</Trans>
+                  <DropdownMenuRadioItem value="Kit" className="items-start">
+                    <div className="flex flex-col gap-0.5">
+                      <span>
+                        <Trans>Kit</Trans>
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        <Trans>
+                          Picked and consumed as separate components
+                        </Trans>
+                      </span>
+                    </div>
                   </DropdownMenuRadioItem>
                 </DropdownMenuRadioGroup>
               </DropdownMenuContent>

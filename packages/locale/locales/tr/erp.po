@@ -161,6 +161,9 @@ msgstr "Minimum 5 kullanıcı"
 msgid "5-8 weeks"
 msgstr "5-8 hafta"
 
+msgid "52-week demand"
+msgstr ""
+
 msgid "5MB file limit"
 msgstr "5 MB dosya sınırı"
 
@@ -532,6 +535,9 @@ msgstr "Görünümü sıralamak için aşağı bir sütun ekleyin"
 
 msgid "Add a comment..."
 msgstr "Bir yorum ekle..."
+
+msgid "Add a custom pricing row to override quantity, price, shipping, lead time, and tax"
+msgstr ""
 
 msgid "Add a printer in the printing settings to print labels directly."
 msgstr "Etiketleri doğrudan yazdırmak için yazdırma ayarlarında bir yazıcı ekleyin."
@@ -982,6 +988,10 @@ msgstr "Bu kalibratörü etkinleştirmek istediğinizden emin misiniz?."
 #. placeholder {0}: routeData?.rfqSummary ?.rfqId!
 msgid "Are you sure you want to cancel {0}? This will also cancel all related supplier quotes."
 msgstr "{0}'yi iptal etmek istediğinizden emin misiniz? Bu aynı zamanda tüm ilgili tedarikçi tekliflerini de iptal edecektir."
+
+#. placeholder {0}: routeData?.purchaseOrder?.purchaseOrderId ?? "this purchase order"
+msgid "Are you sure you want to cancel {0}? This will close the order."
+msgstr ""
 
 msgid "Are you sure you want to cancel this job? It will no longer be available on the shop floor."
 msgstr "Bu işi iptal etmek istediğinizden emin misiniz? Artık atölyede kullanılamayacak."
@@ -1723,6 +1733,9 @@ msgstr "Rol tabanlı eğitim materyalleri oluşturun"
 msgid "Build tailored, role-based training materials"
 msgstr "Özelleştirilmiş, rol tabanlı eğitim materyalleri oluşturun"
 
+msgid "Built and costed as its own method"
+msgstr ""
+
 msgid "Bulk Import"
 msgstr "Toplu İçe Aktarma"
 
@@ -1806,6 +1819,12 @@ msgstr "İptal"
 
 msgid "Cancel Job"
 msgstr "İşi İptal Et"
+
+msgid "Cancel Order"
+msgstr ""
+
+msgid "Cancel Purchase Order"
+msgstr ""
 
 msgid "Cancel Sales Order"
 msgstr "Satış Siparişini İptal Et"
@@ -2669,6 +2688,12 @@ msgstr "Belge okunamadı: {0}"
 msgid "Couldn't load documents"
 msgstr "Belgeler yüklenemedi"
 
+msgid "Couldn't load related documents. Refresh before creating a new one to avoid duplicates."
+msgstr ""
+
+msgid "Couldn't reschedule the job. Please try again."
+msgstr ""
+
 msgid "Count"
 msgstr "Adet"
 
@@ -2907,6 +2932,9 @@ msgstr "CSV sütunu"
 
 msgid "CSV file must have at least 2 rows."
 msgstr "CSV dosyası en az 2 satır içermelidir."
+
+msgid "Cumulative"
+msgstr ""
 
 msgid "Cumulative %"
 msgstr "Kümülatif %"
@@ -3428,6 +3456,9 @@ msgstr "Tatili Sil"
 msgid "Delete Issue"
 msgstr "Sorunu Sil"
 
+msgid "Delete Item Group"
+msgstr ""
+
 msgid "Delete Line"
 msgstr "Satırı Sil"
 
@@ -3575,6 +3606,10 @@ msgstr "Tedarikçi Teklifini Sil"
 msgid "Delete Supplier Type"
 msgstr "Tedarikçi Türünü Sil"
 
+#. placeholder {0}: pendingDelete.quantity
+msgid "Delete the price break for quantity {0}? This can't be undone."
+msgstr ""
+
 msgid "Delete Timecard"
 msgstr "Çalışma Kaydını Sil"
 
@@ -3589,6 +3624,9 @@ msgstr "Transferi Sil"
 
 msgid "Delete Transfer Line"
 msgstr "Transfer Satırını Sil"
+
+msgid "Delete Unit of Measure"
+msgstr ""
 
 msgid "Delete View"
 msgstr "Görünümü Sil"
@@ -3849,6 +3887,12 @@ msgstr "Şablon indir"
 
 msgid "Draft"
 msgstr "Taslak"
+
+msgid "Draft = editable · Active = in use, create a new version to change · Archived = retired"
+msgstr ""
+
+msgid "Draft = editable · Active = read-only (create a new version to change) · Archived = history"
+msgstr ""
 
 msgid "Drag & drop files, or click to browse"
 msgstr "Dosyaları sürükleyip bırakın veya göz atmak için tıklayın"
@@ -4390,6 +4434,9 @@ msgstr "Mühendislik İletişim Kişisi"
 
 msgid "Enter a batch number before setting the expiration date"
 msgstr "Son kullanma tarihini ayarlamadan önce bir parti numarası girin"
+
+msgid "Enter a percentage, e.g. 10%"
+msgstr ""
 
 msgid "Enter and approve vendor bills against a PO (three-way match)"
 msgstr "Satıcı faturalarını bir PO'ya karşı girin ve onaylayın (üç yönlü eşleştirme)"
@@ -5546,9 +5593,6 @@ msgstr "Sütunları gizle, sabitle ve yeniden sırala"
 
 msgid "High"
 msgstr "Yüksek"
-
-msgid "Higher priority wins ties and applies first for markups"
-msgstr "Daha yüksek öncelik, eşitlik durumlarında kazanır ve eklemeler için ilk uygulanır"
 
 msgid "Hints in the first row"
 msgstr "İlk satırdaki ipuçları"
@@ -6711,6 +6755,9 @@ msgstr "Aboneliği Yönet"
 msgid "Manage your subscription and billing information"
 msgstr "Aboneliğinizi ve faturalandırma bilgilerinizi yönetin"
 
+msgid "Managed by the approval workflow"
+msgstr ""
+
 msgid "Manager"
 msgstr "Yönetici"
 
@@ -6725,6 +6772,9 @@ msgstr "Üretici Parça Numarası"
 
 msgid "Manufacturing"
 msgstr "Üretim"
+
+msgid "Manufacturing is blocked for this item, so a job cannot be created from planning."
+msgstr ""
 
 msgid "Map Extracted Invoice Lines"
 msgstr "Çıkarılan Fatura Satırlarını Eşle"
@@ -7608,6 +7658,9 @@ msgstr "Resim yok"
 msgid "No issue types configured"
 msgstr "Hiçbir sorun türü yapılandırılmamış"
 
+msgid "No items"
+msgstr ""
+
 msgid "No lines to map"
 msgstr "Eşlenecek satır yok"
 
@@ -7887,6 +7940,9 @@ msgstr "Eldeki envanter kaldı"
 msgid "On-time delivery"
 msgstr "Zamanında teslimat"
 
+msgid "On: pricing rules apply on top of this override. Off: use only the override price."
+msgstr ""
+
 msgid "One serial unit or one batch that Carbon follows individually, carrying its own status and attributes such as an expiry date."
 msgstr "Carbon'un bireysel olarak takip ettiği bir seri birim veya bir batch, sona erme tarihi gibi kendi durumu ve öznitelikleri taşıyan."
 
@@ -7898,6 +7954,9 @@ msgstr "Bir işin yönlendirilmesinde bir adım, bir süreci ve bir iş merkezin
 
 msgid "One system from quote to cash"
 msgstr "Teklif'ten nakite kadar tek bir sistem"
+
+msgid "Only Draft procedures are editable. Create a new version to change an Active or Archived procedure."
+msgstr ""
 
 msgid "Onshape Status"
 msgstr "Onshape Durumu"
@@ -8073,6 +8132,9 @@ msgstr "Sipariş Miktarı"
 
 msgid "Order quantities must be whole multiples of this number (a multiple of 12 → 12, 24, 36 …)."
 msgstr "Sipariş miktarları bu sayının tam katları olmalıdır (12'nin katı → 12, 24, 36 …)."
+
+msgid "Order rules are evaluated in — for discounts only the highest-priority match applies (no stacking); markups all apply and compound in priority order."
+msgstr ""
 
 msgid "Order Total"
 msgstr "Toplam Sipariş Tutarı"
@@ -8407,6 +8469,9 @@ msgstr "Seçim Sırası"
 
 msgid "Pick tracked item"
 msgstr "Takip edilen öğeyi seç"
+
+msgid "Picked and consumed as separate components"
+msgstr ""
 
 msgid "Picked quantity"
 msgstr "Alınan miktar"
@@ -9448,6 +9513,9 @@ msgstr "Yeniden sipariş politikası"
 msgid "Reordering Policy"
 msgstr "Yeniden Sipariş Politikası"
 
+msgid "Reorders dispatch sequence and work center only — does not reschedule. Change dates on the Dates board."
+msgstr ""
+
 msgid "Replace drawing?"
 msgstr "Çizimi değiştir?"
 
@@ -9507,6 +9575,9 @@ msgstr "Gerekli İşlemler (sırayla)"
 
 msgid "Required Date"
 msgstr "Gerekli Tarih"
+
+msgid "Required when tax exempt"
+msgstr ""
 
 msgid "Requirement"
 msgstr "Gereksinim"
@@ -9960,6 +10031,9 @@ msgstr "Planlanmış Bakımlar"
 msgid "Schedules"
 msgstr "Programlar"
 
+msgid "Scheduling conflict: the computed start date is in the past. Move the due date out or reduce lead time."
+msgstr ""
+
 msgid "Scope"
 msgstr "Kapsam"
 
@@ -10113,6 +10187,9 @@ msgstr "Yapılandırılacak bir öğe seçin"
 
 msgid "Select an option"
 msgstr "Bir seçenek seçin"
+
+msgid "Select at least one line to convert"
+msgstr ""
 
 msgid "Select Contact"
 msgstr "İletişim Kişisi Seçin"
@@ -13059,6 +13136,10 @@ msgstr "Web Sitesi"
 msgid "Wednesday"
 msgstr "Çarşamba"
 
+#. placeholder {0}: d.week
+msgid "Week {0}"
+msgstr ""
+
 #. placeholder {0}: i + 1
 msgid "Week {0} ({formattedDate})"
 msgstr "Hafta {0} ({formattedDate})"
@@ -13075,6 +13156,9 @@ msgstr "{0} haftası"
 
 msgid "Weekly"
 msgstr "Haftalık"
+
+msgid "Weekly demand"
+msgstr ""
 
 #. placeholder {0}: Math.round(startWeek) + 1
 #. placeholder {1}: Math.round(endWeek)
@@ -13398,6 +13482,11 @@ msgstr "Pencere:"
 
 msgid "WIP"
 msgstr "Yarı Mamul"
+
+#. placeholder {0}: quarter.start + 1
+#. placeholder {1}: quarter.end
+msgid "Wk {0}–{1}"
+msgstr ""
 
 msgid "wks"
 msgstr "hf"

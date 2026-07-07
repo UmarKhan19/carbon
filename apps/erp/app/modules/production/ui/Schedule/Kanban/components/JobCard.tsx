@@ -263,7 +263,7 @@ export function JobCard({ item, isOverlay, progressByItemId }: JobCardProps) {
                     <LuTriangleAlert className="h-4 w-4 text-red-500 flex-shrink-0" />
                   </TooltipTrigger>
                   <TooltipContent>
-                    Scheduling conflict: operations cannot meet due date
+                    {t`Scheduling conflict: the computed start date is in the past. Move the due date out or reduce lead time.`}
                   </TooltipContent>
                 </Tooltip>
               )}

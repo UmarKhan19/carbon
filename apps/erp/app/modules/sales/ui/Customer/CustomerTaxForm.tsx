@@ -110,6 +110,7 @@ const CustomerTaxForm = ({ initialValues }: CustomerTaxFormProps) => {
                   label={t`Exemption Reason`}
                   options={taxExemptionReasonOptions}
                   placeholder={t`Select Reason`}
+                  helperText={t`Required when tax exempt`}
                 />
                 <Input
                   name="taxExemptionCertificateNumber"
