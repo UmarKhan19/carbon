@@ -117,6 +117,12 @@ msgstr "{total} fases para poner tu empresa en vivo en Carbon. Cada una termina 
 msgid "{total} phases to go live"
 msgstr "{total} fases para activar"
 
+msgid "{uncounted, plural, one {# uncounted line} other {# uncounted lines}}"
+msgstr ""
+
+msgid "{variances, plural, one {# line differs from the expected quantity} other {# lines differ from the expected quantity}}"
+msgstr ""
+
 msgid "/month/user"
 msgstr "/mes/usuario"
 
@@ -409,6 +415,9 @@ msgstr "La contabilidad está habilitada"
 
 msgid "Accounting period"
 msgstr "Período contable"
+
+msgid "Accounting Periods"
+msgstr ""
 
 msgid "Accounting: GL, AR, AP, and month-end close"
 msgstr "Contabilidad: GL, AR, AP y cierre de fin de mes"
@@ -734,6 +743,9 @@ msgstr "Todos los Clientes"
 
 msgid "All Documents"
 msgstr "Todos los documentos"
+
+msgid "All item types"
+msgstr ""
 
 msgid "All Items"
 msgstr "Todos los artículos"
@@ -1595,6 +1607,9 @@ msgstr "Información Básica"
 msgid "Batch"
 msgstr "Lote"
 
+msgid "Batch / Serial"
+msgstr ""
+
 msgid "Batch items require a sales order"
 msgstr "Los artículos por lote requieren una orden de venta"
 
@@ -1649,6 +1664,9 @@ msgstr "Dirección de Facturación"
 
 msgid "Bills of material"
 msgstr "Listas de materiales"
+
+msgid "Blind Count"
+msgstr ""
 
 msgid "Block with an error"
 msgstr "Bloquear con un error"
@@ -1839,6 +1857,9 @@ msgstr "No se pueden agregar pasos a una operación sin guardar"
 
 msgid "Cannot add tools to unsaved operation"
 msgstr "No se pueden agregar herramientas a una operación sin guardar"
+
+msgid "Cannot close yet"
+msgstr ""
 
 msgid "Cannot convert RFQ to quote"
 msgstr "No se puede convertir RFQ a cotización"
@@ -2066,8 +2087,17 @@ msgstr "Registrado desde {0}"
 msgid "Close"
 msgstr "Cerrar"
 
+msgid "Close {periodLabel}"
+msgstr ""
+
 msgid "Close Date"
 msgstr "Fecha de Cierre"
+
+msgid "Close Period"
+msgstr ""
+
+msgid "Close Status"
+msgstr ""
 
 msgid "Closed"
 msgstr "Cerrado"
@@ -2304,6 +2334,9 @@ msgstr "Confirmar {0}"
 msgid "Confirm and sign the scope"
 msgstr "Confirmar y firmar el alcance"
 
+msgid "Confirm Count"
+msgstr ""
+
 msgid "Confirm how your company runs and lock the scope."
 msgstr "Confirma cómo funciona tu empresa y bloquea el alcance."
 
@@ -2313,17 +2346,26 @@ msgstr "Confirmar cambio de ID"
 msgid "Confirm Import"
 msgstr "Confirmar importación"
 
+msgid "Confirm Inventory Count"
+msgstr ""
+
 msgid "Confirm Mapping"
 msgstr "Confirmar Mapeo"
 
 msgid "Confirm Password"
 msgstr "Confirmar Contraseña"
 
+msgid "Confirm Skip"
+msgstr ""
+
 msgid "Confirmed incoming stock — purchase & production orders (bars above zero)."
 msgstr "Existencias entrantes confirmadas — órdenes de compra y producción (barras por encima de cero)."
 
 msgid "Confirmed outgoing stock — sales orders & job materials (bars below zero)."
 msgstr "Existencias salientes confirmadas — órdenes de venta y materiales de trabajo (barras por debajo de cero)."
+
+msgid "Confirming locks the counted quantities. Review the warnings below, then post the count to apply the adjustments."
+msgstr ""
 
 msgid "Connect Carbon to your accounting, project management, and CAD tools and much more."
 msgstr "Conecta Carbon a tus herramientas de contabilidad, gestión de proyectos, CAD y mucho más."
@@ -2672,6 +2714,12 @@ msgstr "No se pudieron cargar los documentos"
 msgid "Count"
 msgstr "Cantidad"
 
+msgid "Count ID"
+msgstr ""
+
+msgid "Counted Qty"
+msgstr ""
+
 msgid "Counterparties"
 msgstr "Contrapartes"
 
@@ -2692,6 +2740,9 @@ msgstr "Crear {0}"
 #. placeholder {0}: unmatchedValues.length
 msgid "Create {0} values"
 msgstr "Crear {0} valores"
+
+msgid "Create & Snapshot"
+msgstr ""
 
 msgid "Create a new kanban card for scan-based replenishment."
 msgstr "Crea una nueva tarjeta kanban para reabastecimiento basado en escaneo."
@@ -3166,6 +3217,9 @@ msgstr "Fecha de Emisión"
 msgid "Date Paid"
 msgstr "Fecha Pagada"
 
+msgid "Date Range"
+msgstr ""
+
 msgid "Dates"
 msgstr "Fechas"
 
@@ -3388,6 +3442,9 @@ msgstr "Eliminar Contacto"
 
 msgid "Delete Contractor"
 msgstr "Eliminar Contratista"
+
+msgid "Delete Count"
+msgstr ""
 
 msgid "Delete Custom Field"
 msgstr "Eliminar Campo Personalizado"
@@ -4013,6 +4070,9 @@ msgstr "Editar Contacto"
 msgid "Edit Contractor"
 msgstr "Editar Contratista"
 
+msgid "Edit Count"
+msgstr ""
+
 msgid "Edit Currency"
 msgstr "Editar Moneda"
 
@@ -4388,6 +4448,12 @@ msgstr "Cambios de Ingeniería y CAD"
 msgid "Engineering Contact"
 msgstr "Contacto de Ingeniería"
 
+msgid "Enroll"
+msgstr "Inscribir"
+
+msgid "Enroll this company in the Implementation Hub"
+msgstr "Inscribir esta empresa en el centro de implementación"
+
 msgid "Enter a batch number before setting the expiration date"
 msgstr "Ingrese un número de lote antes de establecer la fecha de vencimiento"
 
@@ -4549,6 +4615,9 @@ msgstr "Todas las condiciones deben coincidir"
 
 msgid "Every in-scope test passes in your configured system, with your data."
 msgstr "Todas las pruebas dentro del alcance se aprueban en su sistema configurado, con sus datos."
+
+msgid "Every required task must be Done or Skipped before the period can be closed."
+msgstr ""
 
 msgid "Every row was imported successfully."
 msgstr "Cada fila se importó correctamente."
@@ -4949,6 +5018,9 @@ msgstr "Error al actualizar los márgenes de categoría"
 
 msgid "Failed to update configuration parameter"
 msgstr "Error al actualizar el parámetro de configuración"
+
+msgid "Failed to update count"
+msgstr ""
 
 msgid "Failed to update item cost"
 msgstr "Error al actualizar el costo del artículo"
@@ -5541,6 +5613,9 @@ msgstr "Ayuda"
 msgid "Hide"
 msgstr "Ocultar"
 
+msgid "Hide system quantities until the review step"
+msgstr ""
+
 msgid "Hide, pin and reorder columns"
 msgstr "Ocultar, anclar y reordenar columnas"
 
@@ -6009,6 +6084,9 @@ msgstr "Control de Inventario"
 msgid "Inventory control and counts"
 msgstr "Control de inventario y conteos"
 
+msgid "Inventory Count"
+msgstr ""
+
 msgid "Inventory History"
 msgstr "Historial de Inventario"
 
@@ -6200,6 +6278,9 @@ msgstr "Alcance de Artículos"
 
 msgid "Item Type"
 msgstr "Tipo de Artículo"
+
+msgid "Item Type (optional)"
+msgstr ""
 
 msgid "Item types"
 msgstr "Tipos de artículo"
@@ -6455,6 +6536,9 @@ msgstr "Estado de la Línea"
 
 msgid "Linear Team"
 msgstr "Equipo de Linear"
+
+msgid "Lines"
+msgstr ""
 
 msgid "Lines need internal part numbers"
 msgstr "Las líneas necesitan números de parte internos"
@@ -6768,6 +6852,9 @@ msgstr "Marca Modo Oscuro"
 
 msgid "Mark done"
 msgstr "Marcar como hecho"
+
+msgid "Mark Done"
+msgstr ""
 
 msgid "Mark Light Mode"
 msgstr "Marca Modo Claro"
@@ -7260,6 +7347,9 @@ msgstr "Nueva Transacción IC"
 msgid "New Inspection Document"
 msgstr "Nuevo Documento de Inspección"
 
+msgid "New Inventory Count"
+msgstr ""
+
 msgid "New Invoice"
 msgstr "Factura Nueva"
 
@@ -7489,6 +7579,9 @@ msgstr "Sin habilidades añadidas"
 
 msgid "No Access"
 msgstr "Sin acceso"
+
+msgid "No accounting periods yet"
+msgstr ""
 
 msgid "No action needed"
 msgstr "Sin acción necesaria"
@@ -8564,6 +8657,9 @@ msgstr "Código Postal"
 msgid "Posted"
 msgstr "Publicado"
 
+msgid "Posted At"
+msgstr ""
+
 msgid "Posted By"
 msgstr "Publicado por"
 
@@ -9176,6 +9272,9 @@ msgstr "Cuenta de Razón"
 msgid "Reason for declining (Optional)"
 msgstr "Motivo de rechazo (Opcional)"
 
+msgid "Reason for skipping (required)"
+msgstr ""
+
 msgid "Reasons"
 msgstr "Razones"
 
@@ -9187,6 +9286,9 @@ msgstr "Recalcular"
 
 msgid "Recalculate Unit Cost"
 msgstr "Recalcular Costo Unitario"
+
+msgid "Recalculating…"
+msgstr ""
 
 msgid "Receipt"
 msgstr "Recepción"
@@ -10331,6 +10433,9 @@ msgstr "Establecer Cantidad"
 msgid "Set up the right way"
 msgstr "Configura de la manera correcta"
 
+msgid "Set up your company with a step-by-step implementation plan covering setup, data, training, and go-live."
+msgstr "Configure su empresa con un plan de implementación paso a paso que cubre la configuración, los datos, la formación y la puesta en marcha."
+
 msgid "Set up your own data with import tools and LLM help"
 msgstr "Configura tus propios datos con herramientas de importación y ayuda de LLM"
 
@@ -10598,6 +10703,9 @@ msgstr "Tamaño"
 
 msgid "Sizes"
 msgstr "Tamaños"
+
+msgid "Skip"
+msgstr ""
 
 msgid "Skip Existing"
 msgstr "Omitir Existentes"
@@ -10867,6 +10975,9 @@ msgstr "unidad de almacenamiento"
 
 msgid "Storage Unit"
 msgstr "Unidad de Almacenamiento"
+
+msgid "Storage Unit (optional)"
+msgstr ""
 
 msgid "storage units"
 msgstr "unidades de almacenamiento"
@@ -11145,6 +11256,9 @@ msgstr "Sistema"
 msgid "System configured"
 msgstr "Sistema configurado"
 
+msgid "System Qty"
+msgstr ""
+
 msgid "Table"
 msgstr "Tabla"
 
@@ -11198,6 +11312,9 @@ msgstr "Versión Destino"
 
 msgid "Target Version"
 msgstr "Versión Destino"
+
+msgid "Task"
+msgstr ""
 
 msgid "tasks"
 msgstr "tareas"
@@ -12413,6 +12530,9 @@ msgstr "Sin asignar"
 msgid "Unballoon"
 msgstr "Desvinculación"
 
+msgid "Uncounted lines are left unchanged at post — they are not zeroed."
+msgstr ""
+
 msgid "Under Demand-Based Reorder, planning sums demand inside this rolling window when computing a replenishment quantity."
 msgstr "Bajo Reorden Basado en Demanda, la planificación suma la demanda dentro de esta ventana móvil al calcular una cantidad de reabastecimiento."
 
@@ -12828,6 +12948,9 @@ msgstr "Ver Contacto"
 msgid "View Contained Issues"
 msgstr "Ver problemas contenidos"
 
+msgid "View Count"
+msgstr ""
+
 msgid "View Custom Fields"
 msgstr "Ver Campos Personalizados"
 
@@ -12863,6 +12986,9 @@ msgstr "Ver Memorándum"
 
 msgid "View missing values"
 msgstr "Ver valores faltantes"
+
+msgid "View notes"
+msgstr ""
 
 msgid "View Open"
 msgstr "Ver Abiertos"

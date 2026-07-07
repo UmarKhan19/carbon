@@ -1,4 +1,10 @@
+
 import { Avalara } from "./avalara/config";
+
+import { ClaudeMCP } from "./claude-mcp/config";
+
+export type { QuickInstallConnector } from "./claude-mcp/config";
+
 import { Email } from "./email/config";
 import { ExchangeRates } from "./exchange-rates/config";
 import { Jira } from "./jira/config";
@@ -64,3 +70,9 @@ export { Xero } from "./xero/config";
 export const getIntegrationConfigById = (id: IntegrationID) => {
   return integrations.find((integration) => integration.id === id);
 };
+
+/**
+ * Quick-install connectors are external link-outs with no DB state.
+ * Each user connects individually (e.g. Claude MCP).
+ */
+export const quickInstallConnectors = [ClaudeMCP];
