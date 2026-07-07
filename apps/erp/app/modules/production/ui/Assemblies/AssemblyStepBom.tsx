@@ -6,14 +6,12 @@ import { Empty } from "~/components";
 
 type AssemblyStepBomProps = {
   partNodeIds: string[];
-  hasUnsavedParts: boolean;
   graphIndex: AssemblyGraphIndex | null;
 };
 
 /** Parts used by the selected step, grouped by identical geometry. */
 export default function AssemblyStepBom({
   partNodeIds,
-  hasUnsavedParts,
   graphIndex
 }: AssemblyStepBomProps) {
   const groups = useMemo(
@@ -43,11 +41,6 @@ export default function AssemblyStepBom({
 
   return (
     <VStack spacing={2} className="w-full py-2">
-      {hasUnsavedParts && (
-        <Badge variant="outline" className="self-end">
-          Unsaved
-        </Badge>
-      )}
       <ul className="w-full divide-y divide-border">
         {groups.map((group) => (
           <li

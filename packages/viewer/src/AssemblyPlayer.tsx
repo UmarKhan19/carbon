@@ -23,7 +23,7 @@ import {
 } from "three";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import { AssemblyViewer } from "./AssemblyViewer";
-import { describeStep } from "./describe";
+import { describeStep, type NamedUnit } from "./describe";
 import { indexAssemblyGraph } from "./graph";
 import { MotionPathEditor } from "./MotionPathEditor";
 import {
@@ -44,6 +44,9 @@ import { cn } from "./utils";
 
 /** How parts of steps after the active one are rendered. */
 export type FuturePartsMode = "ghost" | "hidden" | "solid";
+
+/** Marquee rectangle in canvas-local CSS pixels while box-selecting. */
+type BoxRect = { left: number; top: number; width: number; height: number };
 
 export type AssemblyPlayerProps = {
   glbUrl: string;
@@ -75,6 +78,18 @@ export type AssemblyPlayerProps = {
   onMotionChange?: (stepId: string, motion: Motion) => void;
   /** Initial render mode for future-step parts */
   defaultFutureMode?: FuturePartsMode;
+  /**
+   * When true (default), the whole sequence auto-plays on load and runs through
+   * every step. When false, the player starts paused: selecting a step plays
+   * just that step, and it only continues through the rest once Play is pressed.
+   */
+  autoPlay?: boolean;
+  /**
+   * Named subassembly units (authored "plan as one part" groups). A step whose
+   * parts are exactly one of these is titled by the unit's name rather than by
+   * listing every part inside it.
+   */
+  units?: NamedUnit[];
   mode?: "dark" | "light";
   className?: string;
 };
@@ -116,6 +131,8 @@ export const AssemblyPlayer = forwardRef<
     editMotion,
     onMotionChange,
     defaultFutureMode = "ghost",
+    autoPlay = true,
+    units,
     mode = "dark",
     className
   },
@@ -125,9 +142,15 @@ export const AssemblyPlayer = forwardRef<
     glbUrl,
     graphUrl
   );
-  const [isPlaying, setIsPlaying] = useState(true);
+  // With autoPlay, the sequence runs through every step on load. Otherwise the
+  // player starts paused: selecting a step plays just that step, and it only
+  // continues through the rest once Play is pressed (`continuous`).
+  const [isPlaying, setIsPlaying] = useState(autoPlay);
+  const [continuous, setContinuous] = useState(autoPlay);
   const [futureMode, setFutureMode] =
     useState<FuturePartsMode>(defaultFutureMode);
+  // Live marquee rectangle while box-selecting (drawn as a DOM overlay).
+  const [boxRect, setBoxRect] = useState<BoxRect | null>(null);
 
   // The scene writes the live camera reader here; the imperative handle reads it.
   const capturePoseRef = useRef<(() => CameraPose | null) | null>(null);
@@ -142,6 +165,13 @@ export const AssemblyPlayer = forwardRef<
   useEffect(() => {
     if (isEditingMotion) setIsPlaying(false);
   }, [isEditingMotion]);
+
+  // Selecting a step plays that one step's animation (single-step). Skip the
+  // initial mount so the player is paused by default, and don't auto-play while
+  // the motion-path editor is open (parts must sit seated for the drag handles).
+  const isEditingMotionRef = useRef(isEditingMotion);
+  isEditingMotionRef.current = isEditingMotion;
+  const prevStepIndexRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (graph) onGraphLoaded?.(graph);
@@ -166,8 +196,46 @@ export const AssemblyPlayer = forwardRef<
   const clampedIndex = Math.min(Math.max(activeStepIndex, 0), stepCount - 1);
   const activeStep = steps[clampedIndex] ?? null;
   const activeStepTitle = activeStep
-    ? describeStep(activeStep, graphIndex)
+    ? describeStep(activeStep, graphIndex, units)
     : null;
+
+  useEffect(() => {
+    const prev = prevStepIndexRef.current;
+    prevStepIndexRef.current = clampedIndex;
+    // Auto-playing a step on selection is the paused (editor) mode's behavior.
+    // In autoPlay mode the sequence already runs itself, so leave stepping alone.
+    if (autoPlay) return;
+    // Only on a real step change (not the initial mount), and never while the
+    // motion-path editor is open.
+    if (prev === null || prev === clampedIndex) return;
+    if (isEditingMotionRef.current) return;
+    setIsPlaying(true);
+  }, [autoPlay, clampedIndex]);
+
+  // Cmd/Ctrl+A selects every currently visible part (skipping hidden ones and,
+  // per the future-parts mode, any that aren't rendered). Ignored while typing
+  // in a field and in read-only playback, so the browser's own select-all still
+  // works there.
+  useEffect(() => {
+    if (readOnly || !onSelectParts) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (
+        !(event.metaKey || event.ctrlKey) ||
+        event.key.toLowerCase() !== "a" ||
+        isEditableTarget(event.target)
+      ) {
+        return;
+      }
+      if (!graphIndex) return;
+      const visible = graphIndex.leaves
+        .map((leaf) => leaf.nodeId)
+        .filter((nodeId) => nodesById.get(nodeId)?.visible);
+      event.preventDefault();
+      onSelectParts(visible);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [readOnly, onSelectParts, graphIndex, nodesById]);
 
   // Display-only motion adjustments — the stored data is untouched:
   // 1. Non-flagged steps saved with motion "none" (legacy plans, manual
@@ -280,12 +348,16 @@ export const AssemblyPlayer = forwardRef<
   );
 
   const handleStepFinished = useCallback(() => {
-    if (clampedIndex < stepCount - 1) {
+    // Auto-advance to the next step only during a continuous play-through. A
+    // single-step play (from selecting a step) stops here, paused at the seated
+    // pose.
+    if (continuous && clampedIndex < stepCount - 1) {
       goToStep(clampedIndex + 1);
     } else {
       setIsPlaying(false);
+      setContinuous(false);
     }
-  }, [clampedIndex, stepCount, goToStep]);
+  }, [continuous, clampedIndex, stepCount, goToStep]);
 
   const onScrub = useCallback(
     (seconds: number) => {
@@ -338,9 +410,22 @@ export const AssemblyPlayer = forwardRef<
               seekRef={seekRef}
               seekVersion={seekVersion}
               onStepFinished={handleStepFinished}
+              onBoxRect={setBoxRect}
             />
           )}
         </AssemblyViewer>
+        {boxRect && (
+          <div
+            aria-hidden
+            className="pointer-events-none absolute z-10 rounded-[2px] border border-primary bg-primary/10"
+            style={{
+              left: boxRect.left,
+              top: boxRect.top,
+              width: boxRect.width,
+              height: boxRect.height
+            }}
+          />
+        )}
         {isLoading && (
           <div className="absolute inset-0 flex items-center justify-center">
             <svg
@@ -400,15 +485,30 @@ export const AssemblyPlayer = forwardRef<
           aria-label={isPlaying ? "Pause" : "Play"}
           disabled={isEditingMotion}
           onClick={() => {
-            // Pressing play at the end restarts from the beginning
-            if (
-              !isPlaying &&
-              stepCount > 0 &&
-              playheadRef.current >= totalSeconds - 0.05
-            ) {
-              onScrub(0);
+            if (isPlaying) {
+              setIsPlaying(false);
+              setContinuous(false);
+              return;
             }
-            setIsPlaying((playing) => !playing);
+            // Play = run on through the rest of the steps.
+            const nextStart =
+              startTimes[clampedIndex + 1] ?? Number.POSITIVE_INFINITY;
+            const currentStepFinished =
+              clampedIndex < stepCount - 1 &&
+              playheadRef.current >= nextStart - 0.05;
+            if (stepCount > 0 && playheadRef.current >= totalSeconds - 0.05) {
+              // Parked at the very end → restart the whole sequence.
+              onScrub(0);
+            } else if (currentStepFinished) {
+              // Current step already finished (e.g. after a single-step play) →
+              // continue with the next one rather than replaying this one.
+              goToStep(clampedIndex + 1);
+            } else {
+              // Mid-step or a fresh step → (re)play it from the current position.
+              setSeekVersion((version) => version + 1);
+            }
+            setContinuous(true);
+            setIsPlaying(true);
           }}
         >
           {isPlaying ? <PauseIcon /> : <PlayIcon />}
@@ -546,7 +646,8 @@ function AssemblyScene({
   playheadRef,
   seekRef,
   seekVersion,
-  onStepFinished
+  onStepFinished,
+  onBoxRect
 }: {
   scene: Object3D;
   nodesById: Map<string, Object3D>;
@@ -583,36 +684,36 @@ function AssemblyScene({
   seekVersion: number;
   /** The active step's timeline segment has fully elapsed */
   onStepFinished?: () => void;
+  /** Live marquee rectangle (canvas-local px) while box-selecting; null clears */
+  onBoxRect?: (rect: BoxRect | null) => void;
 }) {
   const camera = useThree((state) => state.camera);
   const controls = useThree(
     (state) => state.controls
   ) as unknown as OrbitControlsImpl | null;
-  const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(
-    new Set()
-  );
+  const gl = useThree((state) => state.gl);
 
   const activeStep = steps[activeStepIndex] ?? null;
   const isEditingActive = Boolean(
     editMotion && activeStep && editMotion.stepId === activeStep.id
   );
 
-  // Anchor for the editable path: centroid of the step's parts' seated world
-  // positions. Parts sit seated while editing (the clip is skipped below), so
-  // their world matrices are the final poses.
+  // Anchor for the editable path: center of the step's parts' seated world
+  // bounds — the visual center of the object at its final location. Node
+  // origins won't do: CAD exports often pivot far from the geometry, which
+  // would draw the locked endpoint away from the part. Parts sit seated while
+  // editing (the clip is skipped below), so world space IS the final pose.
   const seatedCentroid = useMemo<Vec3 | null>(() => {
     if (!isEditingActive || !activeStep) return null;
-    const sum = new Vector3();
-    let count = 0;
+    const box = new Box3();
     for (const nodeId of activeStep.partNodeIds) {
       const node = nodesById.get(nodeId);
       if (!node) continue;
       node.updateWorldMatrix(true, false);
-      sum.add(new Vector3().setFromMatrixPosition(node.matrixWorld));
-      count++;
+      box.expandByObject(node);
     }
-    if (count === 0) return null;
-    return sum.divideScalar(count).toArray() as Vec3;
+    if (box.isEmpty()) return null;
+    return box.getCenter(new Vector3()).toArray() as Vec3;
   }, [isEditingActive, activeStep, nodesById]);
 
   const highlightedSet = useMemo(
@@ -687,6 +788,13 @@ function AssemblyScene({
       });
     };
 
+    // While the animation plays, later-step parts stay hidden until their own
+    // step installs them, so playback reads as a real build-up rather than a
+    // ghosted preview. The future-parts toggle still applies while paused.
+    const effectiveFutureMode: FuturePartsMode = isPlaying
+      ? "hidden"
+      : futureMode;
+
     for (const [nodeId, stepIndex] of stepIndexByNode) {
       const node = nodesById.get(nodeId);
       if (!node) continue;
@@ -695,9 +803,9 @@ function AssemblyScene({
           ? "solid"
           : stepIndex === activeStepIndex
             ? "active"
-            : futureMode === "ghost"
+            : effectiveFutureMode === "ghost"
               ? "ghost"
-              : futureMode === "hidden"
+              : effectiveFutureMode === "hidden"
                 ? "hidden"
                 : "solid";
       applyVisual(node, visual);
@@ -724,8 +832,12 @@ function AssemblyScene({
       if (node) node.visible = false;
     }
 
-    // Click-selection renders on top of everything else
-    for (const nodeId of selectedIds) {
+    // The selection renders on top of everything else. It's the same set as the
+    // external highlight above (both come from `highlightedNodeIds`), so a
+    // selected part is forced visible there, then gets the strong "selected"
+    // material here — regardless of whether it was picked in the viewer or the
+    // Parts panel.
+    for (const nodeId of highlightedSet) {
       const node = nodesById.get(nodeId);
       if (!node || !node.visible) continue;
       node.traverse((object) => {
@@ -739,9 +851,9 @@ function AssemblyScene({
     stepIndexByNode,
     activeStepIndex,
     futureMode,
+    isPlaying,
     highlightedSet,
-    hiddenSet,
-    selectedIds
+    hiddenSet
   ]);
 
   // --- Animation -----------------------------------------------------------
@@ -988,6 +1100,13 @@ function AssemblyScene({
     null
   );
 
+  // Signature of the last pose the per-step effect framed. Guards against
+  // re-framing when nothing framing-relevant changed — the effect otherwise
+  // re-runs on every new `steps` array reference (any revalidation, or a part
+  // selection that restages the draft), silently yanking the camera back and
+  // discarding the orbit the user did to inspect the selected part.
+  const lastFramedKeyRef = useRef<string | null>(null);
+
   useEffect(() => {
     if (!controls) return;
     const cancel = () => {
@@ -1034,22 +1153,9 @@ function AssemblyScene({
     }
   });
 
-  // Frame externally highlighted parts when the highlight changes (but keep
-  // the user's camera when the highlight is cleared)
-  const framedHighlightRef = useRef<string>("");
-  useEffect(() => {
-    const key = [...highlightedSet].sort().join("|");
-    if (key === framedHighlightRef.current) return;
-    framedHighlightRef.current = key;
-    if (highlightedSet.size === 0) return;
-
-    const box = new Box3();
-    for (const nodeId of highlightedSet) {
-      const node = nodesById.get(nodeId);
-      if (node) box.expandByObject(node);
-    }
-    frameBox(box);
-  }, [highlightedSet, nodesById, frameBox]);
+  // Selecting/highlighting parts intentionally does NOT move the camera —
+  // the red tint (+ forced visibility) is the feedback. Auto-framing here
+  // yanked the view away every time a part was picked in the parts panel.
 
   // Per-step camera: explicit pose wins; otherwise keep the standing
   // whole-assembly distance and rotate so the active part and its travel
@@ -1057,6 +1163,22 @@ function AssemblyScene({
   useEffect(() => {
     const step = steps[activeStepIndex];
     if (!step || !controls) return;
+
+    // Only re-frame when the active step (or a framing-relevant input) actually
+    // changes. A bare re-render — or a revalidation / part selection that hands
+    // us a new-but-equivalent `steps` array — must not recompute a pose and pull
+    // the camera off wherever the user orbited it to.
+    const framingKey = [
+      activeStepIndex,
+      step.id,
+      JSON.stringify(step.camera ?? null),
+      JSON.stringify(step.partNodeIds),
+      JSON.stringify(step.motion),
+      futureMode,
+      [...hiddenSet].sort().join(",")
+    ].join("|");
+    if (framingKey === lastFramedKeyRef.current) return;
+    lastFramedKeyRef.current = framingKey;
 
     if (step.camera) {
       desiredPoseRef.current = {
@@ -1204,33 +1326,179 @@ function AssemblyScene({
       // letting clicks pass through hidden geometry to the parts inside it.
       const nodeId = findVisibleNodeId(clickEvent.intersections);
       if (!nodeId) return;
-      setSelectedIds((previous) => {
-        const next = clickEvent.nativeEvent.shiftKey
-          ? new Set(previous)
-          : new Set<string>();
-        if (clickEvent.nativeEvent.shiftKey && next.has(nodeId)) {
-          next.delete(nodeId);
-        } else {
-          next.add(nodeId);
-        }
-        onSelectParts([...next]);
-        return next;
-      });
+      // Selection is controlled by `highlightedNodeIds`: shift-click extends the
+      // current selection, a plain click replaces it. Emit the new set and let
+      // the parent own the state so it stays in lockstep with the Parts panel
+      // and clears instantly when the parent resets it (e.g. starting Add parts).
+      const next = clickEvent.nativeEvent.shiftKey
+        ? new Set(highlightedSet)
+        : new Set<string>();
+      if (clickEvent.nativeEvent.shiftKey && next.has(nodeId)) {
+        next.delete(nodeId);
+      } else {
+        next.add(nodeId);
+      }
+      onSelectParts([...next]);
     },
-    [readOnly, onSelectParts]
+    [readOnly, onSelectParts, highlightedSet]
   );
+
+  // A box drag just completed the selection — swallow the click that fires at
+  // the end of the drag so it doesn't immediately clear what we just selected.
+  const boxJustSelectedRef = useRef(false);
 
   const handlePointerMissed = useCallback(
     (pointerEvent: MouseEvent) => {
       if (readOnly || !onSelectParts || pointerEvent.shiftKey) return;
-      setSelectedIds((previous) => {
-        if (previous.size === 0) return previous;
-        onSelectParts([]);
-        return new Set();
-      });
+      if (boxJustSelectedRef.current) {
+        boxJustSelectedRef.current = false;
+        return;
+      }
+      if (highlightedSet.size === 0) return;
+      onSelectParts([]);
     },
-    [readOnly, onSelectParts]
+    [readOnly, onSelectParts, highlightedSet]
   );
+
+  // --- Box (marquee) selection ---------------------------------------------
+  // Plain drag orbits as usual. Holding Shift turns the drag into a rubber-band
+  // rectangle that adds every visible part whose center falls inside it to the
+  // selection (the CAD Shift+box = add convention). Env is read through a ref so
+  // the window listeners attach once yet always see the latest camera,
+  // selection, and callbacks.
+  const boxEnvRef = useRef({
+    readOnly,
+    onSelectParts,
+    editMotion,
+    leafBounds,
+    nodesById,
+    highlightedSet,
+    onBoxRect,
+    camera,
+    controls,
+    gl
+  });
+  boxEnvRef.current = {
+    readOnly,
+    onSelectParts,
+    editMotion,
+    leafBounds,
+    nodesById,
+    highlightedSet,
+    onBoxRect,
+    camera,
+    controls,
+    gl
+  };
+
+  useEffect(() => {
+    const drag = {
+      active: false,
+      startX: 0,
+      startY: 0,
+      moved: false
+    };
+    const localX = (event: PointerEvent, rect: DOMRect) =>
+      event.clientX - rect.left;
+    const localY = (event: PointerEvent, rect: DOMRect) =>
+      event.clientY - rect.top;
+
+    const onDown = (event: PointerEvent) => {
+      const env = boxEnvRef.current;
+      boxJustSelectedRef.current = false;
+      // Box-select only while Shift is held; otherwise the drag orbits.
+      if (
+        event.button !== 0 ||
+        !event.shiftKey ||
+        env.readOnly ||
+        !env.onSelectParts ||
+        env.editMotion ||
+        event.target !== env.gl.domElement
+      ) {
+        return;
+      }
+      const rect = env.gl.domElement.getBoundingClientRect();
+      if (env.controls) env.controls.enabled = false; // suppress orbit for the box
+      drag.active = true;
+      drag.startX = localX(event, rect);
+      drag.startY = localY(event, rect);
+      drag.moved = false;
+      env.onBoxRect?.({
+        left: drag.startX,
+        top: drag.startY,
+        width: 0,
+        height: 0
+      });
+    };
+
+    const onMove = (event: PointerEvent) => {
+      if (!drag.active) return;
+      const env = boxEnvRef.current;
+      const rect = env.gl.domElement.getBoundingClientRect();
+      const x = localX(event, rect);
+      const y = localY(event, rect);
+      const width = Math.abs(x - drag.startX);
+      const height = Math.abs(y - drag.startY);
+      if (width > 3 || height > 3) drag.moved = true;
+      env.onBoxRect?.({
+        left: Math.min(drag.startX, x),
+        top: Math.min(drag.startY, y),
+        width,
+        height
+      });
+    };
+
+    const onUp = (event: PointerEvent) => {
+      if (!drag.active) return;
+      drag.active = false;
+      const env = boxEnvRef.current;
+      if (env.controls) env.controls.enabled = true;
+      env.onBoxRect?.(null);
+      // A click, not a drag — let the miss handler clear the selection instead.
+      if (!drag.moved || !env.onSelectParts) return;
+      const rect = env.gl.domElement.getBoundingClientRect();
+      const endX = localX(event, rect);
+      const endY = localY(event, rect);
+      const minX = Math.min(drag.startX, endX);
+      const maxX = Math.max(drag.startX, endX);
+      const minY = Math.min(drag.startY, endY);
+      const maxY = Math.max(drag.startY, endY);
+      const center = new Vector3();
+      const inside: string[] = [];
+      for (const leaf of env.leafBounds ?? []) {
+        if (!env.nodesById.get(leaf.nodeId)?.visible) continue;
+        const min = leaf.bbox.min as [number, number, number];
+        const max = leaf.bbox.max as [number, number, number];
+        center
+          .set(
+            (min[0] + max[0]) / 2,
+            (min[1] + max[1]) / 2,
+            (min[2] + max[2]) / 2
+          )
+          .project(env.camera);
+        if (center.z > 1) continue; // behind the camera / beyond the far plane
+        const sx = (center.x * 0.5 + 0.5) * rect.width;
+        const sy = (-center.y * 0.5 + 0.5) * rect.height;
+        if (sx >= minX && sx <= maxX && sy >= minY && sy <= maxY) {
+          inside.push(leaf.nodeId);
+        }
+      }
+      boxJustSelectedRef.current = true;
+      // Shift+box adds to the current selection.
+      const set = new Set(env.highlightedSet);
+      for (const nodeId of inside) set.add(nodeId);
+      env.onSelectParts([...set]);
+    };
+
+    window.addEventListener("pointerdown", onDown, { capture: true });
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    return () => {
+      window.removeEventListener("pointerdown", onDown, { capture: true });
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+    };
+  }, []);
 
   return (
     <>
@@ -1342,6 +1610,19 @@ function formatTime(seconds: number): string {
   const minutes = Math.floor(safe / 60);
   const remainder = Math.floor(safe % 60);
   return `${minutes}:${String(remainder).padStart(2, "0")}`;
+}
+
+/** True when the keyboard event is aimed at a text field, so shortcuts like
+ * Cmd/Ctrl+A should fall through to the browser's own select-all. */
+function isEditableTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false;
+  const tag = target.tagName;
+  return (
+    tag === "INPUT" ||
+    tag === "TEXTAREA" ||
+    tag === "SELECT" ||
+    target.isContentEditable
+  );
 }
 
 function findNodeId(object: Object3D): string | null {

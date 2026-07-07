@@ -5,6 +5,7 @@ import type { AssemblyPlan } from "@carbon/viewer/steps";
 import { inngest } from "../../client";
 import { generateAssemblyStepsFromPlan } from "./generate-assembly-steps";
 import { loadPlanUnits } from "./plan-units";
+import { updateAssemblyStepMotionsFromPlan } from "./update-step-motions";
 
 const SIGNED_URL_EXPIRY = 60 * 60; // seconds
 // Every geometry HTTP call is now short (submit or a status poll), so a tight
@@ -52,7 +53,7 @@ export const assemblyPlanFunction = inngest.createFunction(
   },
   { event: "carbon/assembly-plan" },
   async ({ event, step }) => {
-    const { modelUploadId, companyId, userId } = event.data;
+    const { modelUploadId, companyId, userId, reMotionFor } = event.data;
 
     const job = await step.run("queue", async () => {
       const client = getCarbonServiceRole();
@@ -100,13 +101,36 @@ export const assemblyPlanFunction = inngest.createFunction(
     }
     const geometryUrl = GEOMETRY_SERVICE_URL;
 
-    // Collapse the model's leaf soup into the units the planner should treat as
-    // rigid bodies (e.g. a purchased PCB → one body) BEFORE submitting, so a
-    // 400-part model plans as its ~7 assembled units. Best-effort: no units →
-    // every leaf is planned, exactly as before.
-    const units = await step.run("derive-units", () =>
-      loadPlanUnits({ modelUploadId, companyId, graphPath: job.graphPath })
-    );
+    // Re-motion mode (order-preserving): take the existing step order as the
+    // fixed assembly sequence and let the planner only recompute each step's
+    // motion (forward-collision against earlier steps). Otherwise plan fresh:
+    // collapse the model's leaf soup into rigid-body units so a 400-part model
+    // plans as its ~7 assembled units. Best-effort: no units → every leaf.
+    const sequence = reMotionFor
+      ? await step.run("derive-sequence", async () => {
+          const client = getCarbonServiceRole();
+          const steps = await client
+            .from("assemblyInstructionStep")
+            .select("partNodeIds")
+            .eq("assemblyInstructionId", reMotionFor)
+            .eq("companyId", companyId)
+            .order("sortOrder", { ascending: true });
+          // Every step's parts (Done included — they're obstacles) in order.
+          return (steps.data ?? [])
+            .map((row) => row.partNodeIds ?? [])
+            .filter((group) => group.length > 0);
+        })
+      : null;
+    const units =
+      sequence != null
+        ? []
+        : await step.run("derive-units", () =>
+            loadPlanUnits({
+              modelUploadId,
+              companyId,
+              graphPath: job.graphPath
+            })
+          );
 
     // Kick off the planner. The service starts it in the background and returns
     // immediately, so the request is short — no connection is held open across
@@ -128,7 +152,11 @@ export const assemblyPlanFunction = inngest.createFunction(
         body: JSON.stringify({
           jobId: job.id,
           source: { url: source.data.signedUrl, format: "step" },
-          ...(units.length > 0 ? { options: { units } } : {})
+          ...(sequence != null
+            ? { options: { sequence } }
+            : units.length > 0
+              ? { options: { units } }
+              : {})
         }),
         signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS)
       });
@@ -232,6 +260,21 @@ export const assemblyPlanFunction = inngest.createFunction(
         })
         .eq("id", job.id);
     });
+
+    // Re-motion: the plan preserved the step order — update each step's motion
+    // in place (Done steps kept, order/titles/typed fields untouched).
+    if (reMotionFor) {
+      await step.run("update-step-motions", async () => {
+        const client = getCarbonServiceRole();
+        await updateAssemblyStepMotionsFromPlan(client, {
+          assemblyInstructionId: reMotionFor,
+          plan: planData as unknown as AssemblyPlan,
+          graphPath: job.graphPath,
+          companyId,
+          userId
+        });
+      });
+    }
 
     // The user clicked "Generate Steps" before a plan existed — create the
     // draft steps now that it's ready, so it completes whether or not they

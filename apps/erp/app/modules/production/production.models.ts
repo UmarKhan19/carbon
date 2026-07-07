@@ -1173,13 +1173,13 @@ export function getAssemblyModelState(
 }
 
 /**
- * Creating an instruction starts from a made item; the model is derived
- * server-side from the item's CAD files (converted lazily if needed). An
- * explicit modelUploadId (e.g. from the part details page) takes precedence.
+ * Creating an instruction starts from a made item; the instruction name and
+ * model are derived server-side (the name from the item, the model from the
+ * item's CAD files, converted lazily if needed). An explicit modelUploadId
+ * (e.g. from the part details page) takes precedence.
  */
 export const assemblyInstructionFromItemValidator = z.object({
   id: zfd.text(z.string().optional()),
-  name: zfd.text(z.string().optional()),
   itemId: z.string().min(1, { message: "Item is required" }),
   modelUploadId: zfd.text(z.string().optional())
 });
@@ -1274,6 +1274,15 @@ export const assemblyInstructionStepValidator = z
 export const assemblyInstructionStepMotionValidator = z.object({
   motion: jsonField(motionSchema.optional()),
   camera: jsonField(cameraSchema.nullable().optional())
+});
+
+/**
+ * Partial update for a step's assigned parts, saved directly from the Details
+ * panel's Add/remove controls without round-tripping the whole step form. An
+ * empty array is valid — a process-only step with no parts.
+ */
+export const assemblyInstructionStepPartsValidator = z.object({
+  partNodeIds: jsonField(z.array(z.string()))
 });
 
 export const assemblyInstructionStepStatusValidator = z.object({

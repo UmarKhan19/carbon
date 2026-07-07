@@ -539,6 +539,8 @@ export const path = {
       generatePath(`${x}/assembly/${id}/steps/${stepId}`),
     assemblyInstructionStepMotion: (id: string, stepId: string) =>
       generatePath(`${x}/assembly/${id}/steps/motion/${stepId}`),
+    assemblyInstructionStepParts: (id: string, stepId: string) =>
+      generatePath(`${x}/assembly/${id}/steps/parts/${stepId}`),
     deleteAssemblyInstructionStep: (id: string, stepId: string) =>
       generatePath(`${x}/assembly/${id}/steps/delete/${stepId}`),
     assemblyInstructionStepOrder: (id: string) =>
@@ -565,6 +567,8 @@ export const path = {
       generatePath(`${x}/assembly/${id}/materials/order`),
     newAssemblyUnit: (id: string) =>
       generatePath(`${x}/assembly/${id}/units/new`),
+    updateAssemblyUnit: (id: string, unitId: string) =>
+      generatePath(`${x}/assembly/${id}/units/${unitId}`),
     newAssemblyPartMapping: (id: string) =>
       generatePath(`${x}/assembly/${id}/part-mappings/new`),
     deleteAssemblyPartMapping: (id: string, mappingId: string) =>

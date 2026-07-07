@@ -6,7 +6,7 @@ docs/specs/animated-work-instructions-contracts.md exactly.
 
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator
 
 
 class SourceSpec(BaseModel):
@@ -72,6 +72,28 @@ class PlanOptions(BaseModel):
     pathSamples: int = 60
     # Pre-grouped units (e.g. a purchased PCB) merged into one body for planning.
     units: list[PlanUnit] | None = None
+    # Caller-fixed assembly order + grouping: an ordered list of groups, each a
+    # set of leaf nodeIds installed together as one rigid body at step i, after
+    # every earlier group. When set, the planner uses this order as-is (no
+    # reordering) and only computes each group's forward-collision insertion
+    # motion against the parts of previous groups.
+    sequence: list[list[str]] | None = None
+
+    @field_validator("sequence")
+    @classmethod
+    def _validate_sequence(
+        cls, value: list[list[str]] | None
+    ) -> list[list[str]] | None:
+        if value is None:
+            return value
+        for index, group in enumerate(value):
+            if not group:
+                raise ValueError(f"sequence group {index} must be non-empty")
+            if not all(isinstance(node_id, str) for node_id in group):
+                raise ValueError(
+                    f"sequence group {index} entries must be strings"
+                )
+        return value
 
 
 class PlanRequest(BaseModel):

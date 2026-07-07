@@ -75,6 +75,12 @@ export type Events = {
       // the job generates draft steps for this instruction once the plan lands
       // — so it works whether or not they stay on the page.
       generateStepsFor?: string;
+      // When set (the user clicked "Re-run Motion Planning" on an instruction
+      // that already has steps), the planner runs in order-preserving mode: it
+      // takes the existing step order as fixed (options.sequence) and recomputes
+      // each step's motion to avoid collision with parts from earlier steps, then
+      // updates the step motions in place. Mutually exclusive with reordering.
+      reMotionFor?: string;
     };
   };
 

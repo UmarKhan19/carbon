@@ -7,9 +7,11 @@ import { data } from "react-router";
 import { getLatestAssemblyPlanJob } from "~/modules/production";
 
 /**
- * Re-runs motion planning over the instruction's converted model. Steps
- * generated from an older plan stay untouched — once the fresh plan lands,
- * the editor offers "Regenerate from Plan".
+ * Re-runs motion planning over the instruction's converted model. When the
+ * instruction already has steps, it runs in ORDER-PRESERVING mode: the planner
+ * takes the existing step order as fixed and only recomputes each step's motion
+ * to avoid collision with parts from earlier steps, updating the step motions in
+ * place (Done steps kept). With no steps yet, it plans fresh (deriving order).
  */
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
@@ -61,17 +63,31 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
+  // Order-preserving re-motion when steps already exist; fresh (reordering)
+  // plan when there are none yet.
+  const stepCount = await client
+    .from("assemblyInstructionStep")
+    .select("id", { count: "exact", head: true })
+    .eq("assemblyInstructionId", id)
+    .eq("companyId", companyId);
+  const hasSteps = (stepCount.count ?? 0) > 0;
+
   await trigger("assembly-plan", {
     modelUploadId: instruction.data.modelUploadId,
     companyId,
-    userId
+    userId,
+    ...(hasSteps ? { reMotionFor: id } : {})
   });
 
   return data(
     { success: true },
     await flash(
       request,
-      success("Motion planning started — regenerate steps when it finishes")
+      success(
+        hasSteps
+          ? "Re-planning motions in the current step order — steps update when it finishes"
+          : "Motion planning started — regenerate steps when it finishes"
+      )
     )
   );
 }

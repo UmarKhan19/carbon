@@ -198,6 +198,7 @@ def _run_plan_job(job_id: str, source_url: str, options: PlanOptions) -> None:
             units=(
                 [u.model_dump() for u in options.units] if options.units else None
             ),
+            sequence=options.sequence,
         )
 
         plan_ms = int((time.monotonic() - started) * 1000)

@@ -8,6 +8,10 @@ import {
   assemblyInstructionStepValidator,
   upsertAssemblyInstructionStep
 } from "~/modules/production";
+import {
+  logAssemblyStep,
+  readAndLogFormData
+} from "~/modules/production/assembly-debug.server";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
@@ -18,11 +22,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const { id: assemblyInstructionId } = params;
   if (!assemblyInstructionId) throw new Error("id is not found");
 
+  const formData = await readAndLogFormData(request, "new.action");
   const validation = await validator(assemblyInstructionStepValidator).validate(
-    await request.formData()
+    formData
   );
 
   if (validation.error) {
+    logAssemblyStep("new.validationError", { error: validation.error });
     return data(
       { success: false },
       await flash(request, error(validation.error, "Failed to create step"))
@@ -36,6 +42,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
     ...rest,
     companyId,
     createdBy: userId
+  });
+  logAssemblyStep("new.result", {
+    createdId: create.data?.id ?? null,
+    partNodeIds: rest.partNodeIds,
+    error: create.error?.message ?? null
   });
   if (create.error) {
     return data(

@@ -164,28 +164,67 @@ Hard edges, all cycle-guarded:
   clamps the head-side part onto the tip-side part, across CAD air gaps.
 - **Support**: for mostly-vertical structure-structure seated contact
   (hemisphere-aligned normals), the lower part precedes the upper.
+- **Sandwich**: a thin part with seated contact on BOTH sides along one
+  shared contact axis (gasket, seal, shim — detected from contact-point
+  positions and the winding-invariant structure tensor, never bbox
+  z-centers, which degenerate for thin parts) assembles after its
+  heavier side (the enclosure) and before its lighter side (the
+  compressor). Detection is strict because a false positive corrupts
+  collision truth: thickness is capped relative to the part's largest
+  extent AND absolutely (≤ ~6mm — gaskets are thin in millimeters), and
+  the observed interference must be squish-scale (≤ ~0.6mm; a 10mm bite
+  is a press fit or broken CAD, never compliance). Sandwich edges are
+  added BEFORE support edges so the cycle guard rejects a wrong
+  z-center-degenerate support edge. Near-equal sides add nothing rather
+  than guessing.
 
 Preferences, in order: the base first (the biggest part survives greedy
 disassembly by design); runs of identical parts kept together; **securing
 fasteners** — those whose joint contains a through-part that is neither
 their threaded mate nor the base — immediately after their joint
-completes (anchor bolts into the skeleton take no jump); then structure
-big → small by MATERIAL volume (watertight mesh volume, else the sum of
-watertight split bodies, else bbox — bboxes lie for tilted and
-wrap-around parts), with horizontal centrality as the tiebreak.
+completes (anchor bolts into the skeleton take no jump); the
+**dependency spine** — parts other parts are waiting on (outgoing
+precedence edges: their insertion window closes, or later parts build on
+them) precede terminal parts nothing depends on, regardless of size (a
+small slider beats a big badge subassembly; deferring the terminal
+accessory also defers its fasteners' securing jump, so a structural
+joint's fasteners aren't interrupted by accessory hardware); then
+structure big → small by MATERIAL volume (watertight mesh volume, else
+the sum of watertight split bodies, else bbox — bboxes lie for tilted and
+wrap-around parts), with horizontal centrality as the tiebreak —
+EXCEPT **weakly-secured terminal parts** (no fastener engages them, no
+outgoing precedence edge, exactly one seated structural neighbor, AND a
+verified tier-1/2 clean removal — snap clips, badges), which go last
+regardless of size. The removability-evidence gate matters on real CAD:
+fastener detection is name-only and clearance fits hide contacts, so
+the static signal alone matches a large share of a wire harness.
+Escape/flagged parts and bbox proxies never demote. This is a topo-sort
+preference ONLY — the greedy removal priority deliberately ignores it,
+because that ranking schedules expensive removal attempts and picks
+flag/merge victims, and fronting hard-to-remove one-contact parts
+(cables, interlocked clips) multiplies failed sweeps.
 
 Fastener axes come from an evidence cascade: own symmetry (SVD) → bbox
 shape → thread-mate contact band → the full seated contact cloud → the
 dominant contact normal; along its bore axis a fastener keeps sliding
 engagement with its joint (allowances capped at seated interference /
-mesh tolerance). Collision tolerance scales with tessellation:
+mesh tolerance). Sandwiched parts and their flanges likewise exchange a
+seated-interference allowance (observed depth + the mate margin, valid
+ONLY along the sandwich axis — lateral motion is judged strictly, like a
+thread mate along its bore) — a compressed gasket's squish is
+evidence-backed compliance, same reasoning as thread interference, so it
+never reads as a blocking collision during removal sweeps or forward
+verification. Collision tolerance scales with tessellation:
 max(0.15mm, 2.5 × linearDeflection).
 
 Unresolvable geometry is handled by evidence, never fabrication: a stuck
 part blocked by exactly ONE other (captive SEMS washers, coincident CAD
-variants) rigid-merges into it (`mergedInto`); mutually interlocked sets
-that clear together become subassembly `groups`; anything else is flagged
-with its real sweep blockers. Finally the whole sequence is
+variants) rigid-merges into it (`mergedInto`) — sandwiched parts are
+exempt on both sides (a gasket pressed into its lid is compliant, not
+rigid with it) and their deep bites don't deprioritize them as group
+members; mutually interlocked sets that clear together become
+subassembly `groups`; anything else is flagged with its real sweep
+blockers. Finally the whole sequence is
 forward-verified: each part's insertion is re-checked against exactly the
 parts present at that point; failures demote to flagged
 (`verified: false`).
@@ -233,6 +272,13 @@ turns a plan into draft step groups: sequence order, consecutive identical
 parts merged, subassembly units one step, merged parts riding their host's
 step, flagged parts stored with motion "none" plus a
 `warnings: { flagged, blockedBy }` payload on `assemblyInstructionStep`.
+A step's parts animate SIMULTANEOUSLY, so merging is corridor-gated: each
+part's swept corridor (AABB of its seat pose union every insertion pose,
+from graph.json bboxes) must be disjoint from every corridor already in
+the step. Side-by-side same-direction screws share a step; clips sliding
+in-line into the same channel each take their own step (the only way
+their simultaneous animation avoids collision). Subassembly units (one
+rigid body) and graph-less calls are exempt.
 "Generate Steps" refuses while steps exist; `mode=regenerate` replaces them,
 guarded against manually authored (`planConfidence: "manual"`) or Done steps.
 

@@ -366,3 +366,86 @@ describe("buildAssemblyStepGroups v2", () => {
     expect(groups[1]?.blockedBy).toEqual(["rail"]);
   });
 });
+
+describe("corridor-aware simultaneous steps", () => {
+  // Four identical clips sliding along +X into a shared channel, seated
+  // one behind another: each clip's insertion corridor sweeps through the
+  // others' seats, so simultaneous animation would drive them through
+  // each other — every clip takes its own step.
+  const inlineSlide: Motion = {
+    type: "linear",
+    direction: [1, 0, 0],
+    distance: 60
+  };
+  const inlineGraph = indexAssemblyGraph(
+    graphOf(
+      [0, 1, 2, 3].map((index) =>
+        graphLeaf(
+          `clip-${index}`,
+          {
+            min: [index * 20, 0, 0],
+            max: [index * 20 + 15, 10, 10]
+          },
+          "hash-clip"
+        )
+      )
+    )
+  );
+  const inlinePlan: AssemblyPlan = {
+    version: 1,
+    unit: "mm",
+    sequence: ["clip-0", "clip-1", "clip-2", "clip-3"],
+    parts: Object.fromEntries(
+      [0, 1, 2, 3].map((index) => [
+        `clip-${index}`,
+        { motion: inlineSlide, confidence: "high" as const }
+      ])
+    ),
+    warnings: []
+  };
+
+  it("splits in-line slide-ins into independent steps", () => {
+    const groups = buildAssemblyStepGroups(inlinePlan, inlineGraph);
+    expect(groups.map((group) => group.partNodeIds)).toEqual([
+      ["clip-0"],
+      ["clip-1"],
+      ["clip-2"],
+      ["clip-3"]
+    ]);
+  });
+
+  it("keeps side-by-side same-direction parts on one simultaneous step", () => {
+    // Same four clips, but seated side by side across Y: corridors are
+    // parallel and disjoint, simultaneous insertion is collision-free
+    const sideGraph = indexAssemblyGraph(
+      graphOf(
+        [0, 1, 2, 3].map((index) =>
+          graphLeaf(
+            `clip-${index}`,
+            {
+              min: [0, index * 20, 0],
+              max: [15, index * 20 + 10, 10]
+            },
+            "hash-clip"
+          )
+        )
+      )
+    );
+    const groups = buildAssemblyStepGroups(inlinePlan, sideGraph);
+    expect(groups).toHaveLength(1);
+    expect(groups[0]?.partNodeIds).toEqual([
+      "clip-0",
+      "clip-1",
+      "clip-2",
+      "clip-3"
+    ]);
+  });
+
+  it("never shares steps without a graph (hash falls back to nodeId)", () => {
+    // Pre-existing behavior, unchanged by the corridor gate: with no
+    // graph there is no geometryHash, so parts can't be identified as
+    // identical in the first place
+    const groups = buildAssemblyStepGroups(inlinePlan, null);
+    expect(groups).toHaveLength(4);
+  });
+});

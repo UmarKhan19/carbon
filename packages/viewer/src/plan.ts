@@ -1,6 +1,6 @@
 import { synthesizeFallbackMotion } from "./fallback";
 import type { AssemblyGraphIndex } from "./graph";
-import type { Motion } from "./types";
+import type { Motion, Vec3 } from "./types";
 
 /**
  * plan.json as written by the geometry service /plan endpoint (see
@@ -136,6 +136,65 @@ function motionKey(motion: Motion): string {
   }
 }
 
+type Aabb = { min: Vec3; max: Vec3 };
+
+/**
+ * Conservative swept volume of a part's insertion: the AABB of its seat
+ * pose union every pose along the motion (segment corners included). Two
+ * parts whose corridors are AABB-disjoint cannot collide while animating
+ * simultaneously; overlapping corridors (e.g. clips sliding in-line into
+ * the same channel) must insert on separate steps.
+ */
+function motionCorridor(bbox: Aabb | undefined, motion: Motion): Aabb | null {
+  if (!bbox) return null;
+  const min: Vec3 = [bbox.min[0], bbox.min[1], bbox.min[2]];
+  const max: Vec3 = [bbox.max[0], bbox.max[1], bbox.max[2]];
+  const extend = (offset: Vec3) => {
+    min[0] = Math.min(min[0], bbox.min[0] + offset[0]);
+    min[1] = Math.min(min[1], bbox.min[1] + offset[1]);
+    min[2] = Math.min(min[2], bbox.min[2] + offset[2]);
+    max[0] = Math.max(max[0], bbox.max[0] + offset[0]);
+    max[1] = Math.max(max[1], bbox.max[1] + offset[1]);
+    max[2] = Math.max(max[2], bbox.max[2] + offset[2]);
+  };
+  if (motion.type === "linear") {
+    extend([
+      -motion.direction[0] * motion.distance,
+      -motion.direction[1] * motion.distance,
+      -motion.direction[2] * motion.distance
+    ]);
+    return { min, max };
+  }
+  if (motion.type === "L") {
+    // Insertion plays the segments in order and ends at the seat, so the
+    // poses walk backward from the seat through each segment corner
+    let offset: Vec3 = [0, 0, 0];
+    for (let index = motion.segments.length - 1; index >= 0; index--) {
+      const segment = motion.segments[index];
+      if (!segment) continue;
+      offset = [
+        offset[0] - segment.direction[0] * segment.distance,
+        offset[1] - segment.direction[1] * segment.distance,
+        offset[2] - segment.direction[2] * segment.distance
+      ];
+      extend(offset);
+    }
+    return { min, max };
+  }
+  return null;
+}
+
+function corridorsOverlap(a: Aabb, b: Aabb): boolean {
+  return (
+    a.min[0] <= b.max[0] &&
+    b.min[0] <= a.max[0] &&
+    a.min[1] <= b.max[1] &&
+    b.min[1] <= a.max[1] &&
+    a.min[2] <= b.max[2] &&
+    b.min[2] <= a.max[2]
+  );
+}
+
 /**
  * Groups a plan's assembly sequence into draft steps: consecutive identical
  * parts (same geometry, same motion direction, same flag state) share a
@@ -152,7 +211,7 @@ export function buildAssemblyStepGroups(
   plan: AssemblyPlan,
   graphIndex: AssemblyGraphIndex | null
 ): AssemblyStepGroup[] {
-  type WorkingGroup = AssemblyStepGroup & { key: string };
+  type WorkingGroup = AssemblyStepGroup & { key: string; corridors: Aabb[] };
   const groups: WorkingGroup[] = [];
 
   // Rigidly merged parts (v2) are absent from the sequence: they install
@@ -185,9 +244,25 @@ export function buildAssemblyStepGroups(
 
     const withMerged = [nodeId, ...(mergedByHost.get(nodeId) ?? [])];
 
+    // A step's parts animate SIMULTANEOUSLY, which is only legitimate
+    // when their swept corridors can't intersect — side-by-side screws
+    // pass, clips sliding in-line into the same channel must each take
+    // their own step. Subassembly units are one rigid body and exempt.
+    const corridor = part?.groupId
+      ? null
+      : motionCorridor(graphIndex?.nodesById.get(nodeId)?.bbox, motion);
+
     const previous = groups[groups.length - 1];
-    if (previous && previous.key === key) {
+    const corridorClear =
+      part?.groupId != null ||
+      corridor == null ||
+      previous == null ||
+      previous.corridors.every((other) => !corridorsOverlap(corridor, other));
+    if (previous && previous.key === key && corridorClear) {
       previous.partNodeIds.push(...withMerged);
+      if (corridor) {
+        previous.corridors.push(corridor);
+      }
       for (const blocker of blockedBy) {
         if (!previous.blockedBy.includes(blocker)) {
           previous.blockedBy.push(blocker);
@@ -208,7 +283,8 @@ export function buildAssemblyStepGroups(
       confidence,
       blockedBy: [...blockedBy],
       name: part?.groupId ? plan.groups?.[part.groupId]?.name : undefined,
-      key
+      key,
+      corridors: corridor ? [corridor] : []
     });
   }
 
@@ -230,5 +306,5 @@ export function buildAssemblyStepGroups(
     }
   }
 
-  return groups.map(({ key: _key, ...group }) => group);
+  return groups.map(({ key: _key, corridors: _corridors, ...group }) => group);
 }

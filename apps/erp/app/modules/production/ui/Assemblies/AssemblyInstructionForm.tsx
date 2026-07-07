@@ -16,7 +16,7 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import { LuCircleCheck, LuInfo, LuTriangleAlert } from "react-icons/lu";
 import type { z } from "zod";
-import { Hidden, Input, Item, Submit } from "~/components/Form";
+import { Hidden, Item, Submit } from "~/components/Form";
 import { usePermissions } from "~/hooks";
 import { path } from "~/utils/path";
 import {
@@ -192,11 +192,6 @@ const AssemblyInstructionForm = ({
                     </p>
                   )}
                 </VStack>
-                <Input
-                  name="name"
-                  label="Name"
-                  placeholder="Defaults to the item name"
-                />
               </VStack>
             </ModalDrawerBody>
             <ModalDrawerFooter>

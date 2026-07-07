@@ -186,3 +186,75 @@ describe("describeStep", () => {
     ).toBeNull();
   });
 });
+
+describe("describeStep with named subassembly units", () => {
+  const index = indexAssemblyGraph(graph);
+  const units = [{ name: "Bracket Sub", partNodeIds: ["plate-1", "bolt-3"] }];
+
+  it("titles a step by the unit name when its parts match the unit", () => {
+    expect(
+      describeStep(
+        { title: null, partNodeIds: ["bolt-3", "plate-1"], fastener: null },
+        index,
+        units
+      )
+    ).toBe("Add Bracket Sub");
+  });
+
+  it("matches on the set, ignoring order and duplicates", () => {
+    expect(
+      describeStep(
+        {
+          title: null,
+          partNodeIds: ["plate-1", "bolt-3", "plate-1"],
+          fastener: null
+        },
+        index,
+        units
+      )
+    ).toBe("Add Bracket Sub");
+  });
+
+  it("appends the fastener spec to the unit name", () => {
+    expect(
+      describeStep(
+        {
+          title: null,
+          partNodeIds: ["plate-1", "bolt-3"],
+          fastener: { spec: "M5 SHCS", count: 4 }
+        },
+        index,
+        units
+      )
+    ).toBe("Add Bracket Sub, M5 SHCS (×4)");
+  });
+
+  it("still lets an explicit title win over a unit match", () => {
+    expect(
+      describeStep(
+        {
+          title: "Seat the bracket",
+          partNodeIds: ["plate-1", "bolt-3"],
+          fastener: null
+        },
+        index,
+        units
+      )
+    ).toBe("Seat the bracket");
+  });
+
+  it("falls back to enumerating parts when the set does not match a unit", () => {
+    // A superset of the unit (extra bolt) is not the unit → enumerate.
+    expect(
+      describeStep(
+        {
+          title: null,
+          partNodeIds: ["plate-1", "bolt-3", "bolt-1"],
+          fastener: null
+        },
+        index,
+        units
+      )
+    ).toBe("Assemble Base Plate, M8 Bolt (×2)");
+  });
+});

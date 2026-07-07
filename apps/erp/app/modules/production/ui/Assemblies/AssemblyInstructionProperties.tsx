@@ -13,8 +13,9 @@ import type { JSONContent } from "@carbon/react";
 import {
   Badge,
   Button,
+  cn,
   HStack,
-  Input as InputBase,
+  IconButton,
   Label,
   Tabs,
   TabsContent,
@@ -24,10 +25,11 @@ import {
   VStack
 } from "@carbon/react";
 import { Editor } from "@carbon/react/Editor";
-import type { AssemblyGraphIndex } from "@carbon/viewer";
-import { describeStep, stepTimelineSeconds } from "@carbon/viewer";
+import type { AssemblyGraphIndex, NamedUnit } from "@carbon/viewer";
+import { describeStep, groupPartNodeIds } from "@carbon/viewer";
 import { nanoid } from "nanoid";
 import { useMemo, useState } from "react";
+import { LuCirclePlus, LuX } from "react-icons/lu";
 import { useFetcher, useParams } from "react-router";
 import { Empty } from "~/components";
 import { UnitOfMeasure } from "~/components/Form";
@@ -38,7 +40,6 @@ import { getPrivateUrl, path } from "~/utils/path";
 import {
   assemblyInstructionStepValidator,
   fastenerSchema,
-  motionSchema,
   stepPlanWarningsSchema
 } from "../../production.models";
 import type { FlattenedBomMaterial } from "../../production.service";
@@ -48,19 +49,29 @@ import type {
   AssemblyStepMaterial,
   AssemblyStepRequirement
 } from "../../types";
-import AssemblyStepBom from "./AssemblyStepBom";
+import AssemblyStepBom, { PartColorSwatch } from "./AssemblyStepBom";
 import AssemblyStepMaterials from "./AssemblyStepMaterials";
 import AssemblyStepRequirements from "./AssemblyStepRequirements";
 
 type AssemblyInstructionPropertiesProps = {
   step: AssemblyInstructionStepRow | null;
   draftPartNodeIds: string[] | null;
+  /** Current viewer/Parts-panel selection — marks the matching part rows */
+  selectedNodeIds: string[];
+  /** Add-mode is on — picking parts appends them to this step */
+  isAddingParts: boolean;
   isDisabled: boolean;
   graphIndex: AssemblyGraphIndex | null;
+  /** Authored subassembly units — a step matching one is titled by its name. */
+  units: NamedUnit[];
   requirements: AssemblyStepRequirement[];
   stepMaterials: AssemblyStepMaterial[];
   bomMaterials: FlattenedBomMaterial[];
   standardNotes: AssemblyStandardNote[];
+  onSelectParts: (nodeIds: string[]) => void;
+  onStartAddParts: () => void;
+  onStopAddParts: () => void;
+  onRemoveParts: (nodeIds: string[]) => void;
   /** The active step's motion path is open in the 3D editor */
   isEditingMotion: boolean;
   onEditMotion: (stepId: string) => void;
@@ -72,12 +83,19 @@ type AssemblyInstructionPropertiesProps = {
 const AssemblyInstructionProperties = ({
   step,
   draftPartNodeIds,
+  selectedNodeIds,
+  isAddingParts,
   isDisabled,
   graphIndex,
+  units,
   requirements,
   stepMaterials,
   bomMaterials,
   standardNotes,
+  onSelectParts,
+  onStartAddParts,
+  onStopAddParts,
+  onRemoveParts,
   isEditingMotion,
   onEditMotion,
   onStopEditMotion,
@@ -120,8 +138,15 @@ const AssemblyInstructionProperties = ({
               key={step.id}
               step={step}
               draftPartNodeIds={draftPartNodeIds}
+              selectedNodeIds={selectedNodeIds}
+              isAddingParts={isAddingParts}
               isDisabled={isDisabled}
               graphIndex={graphIndex}
+              units={units}
+              onSelectParts={onSelectParts}
+              onStartAddParts={onStartAddParts}
+              onStopAddParts={onStopAddParts}
+              onRemoveParts={onRemoveParts}
               isEditingMotion={isEditingMotion}
               onEditMotion={onEditMotion}
               onStopEditMotion={onStopEditMotion}
@@ -140,11 +165,6 @@ const AssemblyInstructionProperties = ({
               />
               <AssemblyStepBom
                 partNodeIds={draftPartNodeIds ?? step.partNodeIds ?? []}
-                hasUnsavedParts={
-                  draftPartNodeIds !== null &&
-                  JSON.stringify(draftPartNodeIds) !==
-                    JSON.stringify(step.partNodeIds ?? [])
-                }
                 graphIndex={graphIndex}
               />
             </VStack>
@@ -168,42 +188,18 @@ const AssemblyInstructionProperties = ({
 
 export default AssemblyInstructionProperties;
 
-type FastenerDraft = {
-  spec: string;
-  count: string;
-  torqueNm: string;
-  tool: string;
-};
-
-function makeFastenerDraft(fastener: unknown): FastenerDraft {
-  const parsed = fastenerSchema.safeParse(fastener);
-  if (!parsed.success) {
-    return { spec: "", count: "", torqueNm: "", tool: "" };
-  }
-  return {
-    spec: parsed.data.spec ?? "",
-    count: parsed.data.count !== undefined ? String(parsed.data.count) : "",
-    torqueNm:
-      parsed.data.torqueNm !== undefined ? String(parsed.data.torqueNm) : "",
-    tool: parsed.data.tool ?? ""
-  };
-}
-
-function serializeFastener(draft: FastenerDraft): unknown {
-  const fastener: Record<string, unknown> = {};
-  if (draft.spec.trim()) fastener.spec = draft.spec.trim();
-  if (draft.count.trim()) fastener.count = globalThis.Number(draft.count);
-  if (draft.torqueNm.trim())
-    fastener.torqueNm = globalThis.Number(draft.torqueNm);
-  if (draft.tool.trim()) fastener.tool = draft.tool.trim();
-  return Object.keys(fastener).length > 0 ? fastener : null;
-}
-
 function StepForm({
   step,
   draftPartNodeIds,
+  selectedNodeIds,
+  isAddingParts,
   isDisabled,
   graphIndex,
+  units,
+  onSelectParts,
+  onStartAddParts,
+  onStopAddParts,
+  onRemoveParts,
   isEditingMotion,
   onEditMotion,
   onStopEditMotion,
@@ -212,8 +208,15 @@ function StepForm({
 }: {
   step: AssemblyInstructionStepRow;
   draftPartNodeIds: string[] | null;
+  selectedNodeIds: string[];
+  isAddingParts: boolean;
   isDisabled: boolean;
   graphIndex: AssemblyGraphIndex | null;
+  units: NamedUnit[];
+  onSelectParts: (nodeIds: string[]) => void;
+  onStartAddParts: () => void;
+  onStopAddParts: () => void;
+  onRemoveParts: (nodeIds: string[]) => void;
   isEditingMotion: boolean;
   onEditMotion: (stepId: string) => void;
   onStopEditMotion: () => void;
@@ -269,51 +272,26 @@ function StepForm({
     return getPrivateUrl(result.data.path);
   };
 
-  const [fastener, setFastener] = useState<FastenerDraft>(() =>
-    makeFastenerDraft(step.fastener)
-  );
-
   const partNodeIds = draftPartNodeIds ?? step.partNodeIds ?? [];
-  const hasUnsavedParts =
-    draftPartNodeIds !== null &&
-    JSON.stringify(draftPartNodeIds) !== JSON.stringify(step.partNodeIds ?? []);
 
-  const serializedFastener = useMemo(
-    () => serializeFastener(fastener),
-    [fastener]
-  );
-  const fastenerValidation = useMemo(
-    () => fastenerSchema.nullable().safeParse(serializedFastener),
-    [serializedFastener]
-  );
-
-  const cannotSave =
-    isDisabled ||
-    !permissions.can("update", "production") ||
-    !fastenerValidation.success;
-
-  // Motion is authored in the 3D viewer now; parse the saved value read-only
-  // for the timeline-length hint.
-  const savedMotion = useMemo(() => {
-    const parsed = motionSchema.safeParse(step.motion);
-    return parsed.success ? parsed.data : { type: "none" as const };
-  }, [step.motion]);
+  const cannotSave = isDisabled || !permissions.can("update", "production");
 
   const hasCamera = step.camera != null;
 
-  // Title shown when the title field is left blank (derived from parts)
-  const derivedTitle = useMemo(
-    () =>
-      describeStep(
-        {
-          title: null,
-          partNodeIds,
-          fastener: fastenerValidation.success ? fastenerValidation.data : null
-        },
-        graphIndex
-      ),
-    [partNodeIds, fastenerValidation, graphIndex]
-  );
+  // Title shown when the title field is left blank — derived from the parts
+  // plus any stored fastener, matching how the step is titled elsewhere.
+  const derivedTitle = useMemo(() => {
+    const parsedFastener = fastenerSchema.safeParse(step.fastener);
+    return describeStep(
+      {
+        title: null,
+        partNodeIds,
+        fastener: parsedFastener.success ? parsedFastener.data : null
+      },
+      graphIndex,
+      units
+    );
+  }, [partNodeIds, step.fastener, graphIndex, units]);
 
   // Planner flag: no collision-free path exists for these parts. The player
   // fades them in at the seated pose; a manual motion overrides the flag.
@@ -340,8 +318,7 @@ function StepForm({
         unitOfMeasureCode: step.unitOfMeasureCode ?? "",
         minValue: step.minValue ?? undefined,
         maxValue: step.maxValue ?? undefined,
-        listValues: step.listValues ?? [],
-        durationSeconds: step.durationSeconds ?? undefined
+        listValues: step.listValues ?? []
       }}
       fetcher={fetcher}
       className="w-full"
@@ -350,7 +327,6 @@ function StepForm({
       <Hidden name="assemblyInstructionId" />
       <Hidden name="description" value={JSON.stringify(description)} />
       <Hidden name="partNodeIds" value={JSON.stringify(partNodeIds)} />
-      <Hidden name="fastener" value={JSON.stringify(serializedFastener)} />
       <VStack spacing={4} className="w-full pb-4">
         <SelectControlled
           name="type"
@@ -412,20 +388,6 @@ function StepForm({
           label="Required"
           description="Operators must record this step to complete the operation"
         />
-
-        <VStack spacing={2} className="w-full">
-          <Label>Parts</Label>
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="tabular-nums">
-              {partNodeIds.length} selected
-            </Badge>
-            {hasUnsavedParts && <Badge variant="outline">Unsaved</Badge>}
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Click parts in the viewer to assign them to this step. Hold shift to
-            select multiple parts.
-          </p>
-        </VStack>
 
         <VStack spacing={2} className="w-full">
           <HStack className="w-full justify-between">
@@ -497,74 +459,17 @@ function StepForm({
           )}
         </VStack>
 
-        <VStack spacing={2} className="w-full">
-          <Label>Fastener</Label>
-          <div className="grid grid-cols-2 gap-2 w-full">
-            <FieldInput
-              label="Spec"
-              placeholder="M5 SHCS"
-              value={fastener.spec}
-              isDisabled={isDisabled}
-              onChange={(spec) =>
-                setFastener((previous) => ({ ...previous, spec }))
-              }
-            />
-            <FieldInput
-              label="Count"
-              type="number"
-              placeholder="4"
-              value={fastener.count}
-              isDisabled={isDisabled}
-              onChange={(count) =>
-                setFastener((previous) => ({ ...previous, count }))
-              }
-            />
-            <FieldInput
-              label="Torque (N·m)"
-              type="number"
-              placeholder="8"
-              value={fastener.torqueNm}
-              isDisabled={isDisabled}
-              onChange={(torqueNm) =>
-                setFastener((previous) => ({ ...previous, torqueNm }))
-              }
-            />
-            <FieldInput
-              label="Tool"
-              placeholder="4mm hex"
-              value={fastener.tool}
-              isDisabled={isDisabled}
-              onChange={(tool) =>
-                setFastener((previous) => ({ ...previous, tool }))
-              }
-            />
-          </div>
-          {!fastenerValidation.success && (
-            <p className="text-xs text-destructive">
-              Fastener is invalid — count must be a whole number and torque must
-              be positive
-            </p>
-          )}
-        </VStack>
-
-        <VStack spacing={1} className="w-full">
-          <Number
-            name="durationSeconds"
-            label="Duration (seconds)"
-            minValue={0}
-          />
-          <p className="text-xs text-muted-foreground">
-            Timeline length:{" "}
-            {stepTimelineSeconds({
-              motion: savedMotion,
-              durationSeconds: step.durationSeconds
-            }).toFixed(1)}
-            s{" "}
-            {step.durationSeconds
-              ? "(explicit override)"
-              : "(auto from motion — set a duration to override)"}
-          </p>
-        </VStack>
+        <StepPartsEditor
+          partNodeIds={partNodeIds}
+          graphIndex={graphIndex}
+          selectedNodeIds={selectedNodeIds}
+          isAddingParts={isAddingParts}
+          isDisabled={isDisabled}
+          onSelectParts={onSelectParts}
+          onStartAddParts={onStartAddParts}
+          onStopAddParts={onStopAddParts}
+          onRemoveParts={onRemoveParts}
+        />
 
         <Submit
           isDisabled={cannotSave || fetcher.state !== "idle"}
@@ -577,33 +482,120 @@ function StepForm({
   );
 }
 
-function FieldInput({
-  label,
-  value,
+/**
+ * The step's assigned parts as an explicit, editable list. Clicking a row makes
+ * that part the active selection (red in the viewer, marked in the Parts panel);
+ * the ✕ removes it from the step. Parts are only *added* through "Add parts",
+ * which clears the selection and appends whatever you pick next — so ordinary
+ * selection never mutates a step's parts. Add/remove autosave immediately.
+ */
+function StepPartsEditor({
+  partNodeIds,
+  graphIndex,
+  selectedNodeIds,
+  isAddingParts,
   isDisabled,
-  onChange,
-  type = "text",
-  placeholder
+  onSelectParts,
+  onStartAddParts,
+  onStopAddParts,
+  onRemoveParts
 }: {
-  label: string;
-  value: string;
+  partNodeIds: string[];
+  graphIndex: AssemblyGraphIndex | null;
+  selectedNodeIds: string[];
+  isAddingParts: boolean;
   isDisabled: boolean;
-  onChange: (value: string) => void;
-  type?: "text" | "number";
-  placeholder?: string;
+  onSelectParts: (nodeIds: string[]) => void;
+  onStartAddParts: () => void;
+  onStopAddParts: () => void;
+  onRemoveParts: (nodeIds: string[]) => void;
 }) {
+  const groups = useMemo(
+    () => (graphIndex ? groupPartNodeIds(partNodeIds, graphIndex) : []),
+    [partNodeIds, graphIndex]
+  );
+  const selectedSet = useMemo(
+    () => new Set(selectedNodeIds),
+    [selectedNodeIds]
+  );
+
   return (
-    <VStack spacing={1} className="w-full">
-      <Label>{label}</Label>
-      <InputBase
-        aria-label={label}
-        type={type}
-        step={type === "number" ? "any" : undefined}
-        placeholder={placeholder}
-        value={value}
-        isDisabled={isDisabled}
-        onChange={(e) => onChange(e.target.value)}
-      />
+    <VStack spacing={2} className="w-full">
+      <HStack className="w-full justify-between">
+        <Label>Parts</Label>
+        {!isDisabled && (
+          <Button
+            variant={isAddingParts ? "primary" : "secondary"}
+            size="sm"
+            leftIcon={isAddingParts ? undefined : <LuCirclePlus />}
+            onClick={() =>
+              isAddingParts ? onStopAddParts() : onStartAddParts()
+            }
+          >
+            {isAddingParts ? "Done adding" : "Add parts"}
+          </Button>
+        )}
+      </HStack>
+      {isAddingParts && (
+        <p className="text-xs text-muted-foreground">
+          Click parts in the viewer or the Parts panel to add them to this step.
+          Shift-click to add several.
+        </p>
+      )}
+      {groups.length === 0 ? (
+        <p className="text-xs text-muted-foreground">
+          {isAddingParts
+            ? "No parts yet — pick parts in the viewer to add them."
+            : "No parts assigned. Click Add parts, then pick parts in the viewer."}
+        </p>
+      ) : (
+        <ul className="max-h-64 w-full divide-y divide-border overflow-y-auto rounded-lg border border-border scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent">
+          {groups.map((group) => {
+            const isSelected = group.nodeIds.every((nodeId) =>
+              selectedSet.has(nodeId)
+            );
+            return (
+              <li
+                key={group.key}
+                role="button"
+                tabIndex={0}
+                className={cn(
+                  "group flex w-full cursor-pointer select-none items-center gap-2 px-2 py-1.5 text-sm hover:bg-accent/30",
+                  isSelected && "bg-red-500/10 hover:bg-red-500/10"
+                )}
+                onClick={() => onSelectParts(group.nodeIds)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    onSelectParts(group.nodeIds);
+                  }
+                }}
+              >
+                <PartColorSwatch color={group.color} />
+                <span className="min-w-0 flex-1 truncate" title={group.name}>
+                  {group.name}
+                </span>
+                <Badge variant="secondary" className="tabular-nums">
+                  ×{group.count}
+                </Badge>
+                {!isDisabled && (
+                  <IconButton
+                    aria-label={`Remove ${group.name} from this step`}
+                    icon={<LuX />}
+                    variant="ghost"
+                    size="sm"
+                    className="opacity-0 group-hover:opacity-100 focus:opacity-100"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onRemoveParts(group.nodeIds);
+                    }}
+                  />
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </VStack>
   );
 }

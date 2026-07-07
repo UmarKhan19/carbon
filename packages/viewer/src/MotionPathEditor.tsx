@@ -1,15 +1,17 @@
-import { Line, TransformControls } from "@react-three/drei";
-import type { ThreeEvent } from "@react-three/fiber";
+import { Line } from "@react-three/drei";
+import { type ThreeEvent, useThree } from "@react-three/fiber";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Object3D, Vector3 } from "three";
+import { Plane, Vector3 } from "three";
+import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import { motionToWaypoints, waypointsToMotion } from "./motion";
 import type { Motion, Vec3 } from "./types";
 
 /**
  * In-scene editor for a step's insertion motion, rendered as a red path with
- * drag-and-drop waypoints. The LAST waypoint is the seated (final) pose and is
- * locked; the first and intermediate waypoints are draggable. Double-click the
- * path to insert a waypoint; select one and press Delete to remove it.
+ * drag-and-drop waypoints. Grab a sphere and drag it (it moves in the plane
+ * facing the camera); the LAST waypoint is the seated (final) pose and is
+ * locked. Double-click the path to insert a waypoint; select one and press
+ * Delete to remove it.
  *
  * Edits serialize back to a RELATIVE motion (`linear`/`L`) via
  * `waypointsToMotion`, so they apply to every part of a rigid-group step. Pure
@@ -32,22 +34,28 @@ export function MotionPathEditor({
   scale: number;
   onMotionChange: (motion: Motion) => void;
 }) {
+  const camera = useThree((state) => state.camera);
+  const controls = useThree(
+    (state) => state.controls
+  ) as unknown as OrbitControlsImpl | null;
+
   const [points, setPoints] = useState<Vector3[]>(() =>
     motionToWaypoints(motion, seatedPosition, {
       defaultDistance: scale > 0 ? scale * 0.25 : undefined
     }).map((point) => new Vector3(...point))
   );
   const [selected, setSelected] = useState<number | null>(null);
-  // Persistent object the transform gizmo drives; the visible sphere follows it.
-  const proxy = useMemo(() => new Object3D(), []);
+  const [hovered, setHovered] = useState<number | null>(null);
   // Mirror of `points` for the drag-end commit (state is async).
   const pointsRef = useRef(points);
   useEffect(() => {
     pointsRef.current = points;
   }, [points]);
+  // Active drag: which waypoint, and the camera-facing plane it slides in.
+  const dragRef = useRef<{ index: number; plane: Plane } | null>(null);
 
   const lastIndex = points.length - 1;
-  const handleRadius = Math.max(scale * 0.012, 0.5);
+  const handleRadius = Math.max(scale * 0.014, 0.5);
 
   const commit = useCallback(
     (pts: Vector3[]) =>
@@ -60,22 +68,52 @@ export function MotionPathEditor({
     [onMotionChange, seatedPosition]
   );
 
-  // Keep the transform gizmo's proxy object sitting on the selected waypoint.
-  useEffect(() => {
-    const point = selected != null ? points[selected] : null;
-    if (point) proxy.position.copy(point);
-  }, [selected, points, proxy]);
+  const onPointerDown = useCallback(
+    (index: number, event: ThreeEvent<PointerEvent>) => {
+      if (index === lastIndex) return; // seated pose is locked
+      event.stopPropagation();
+      (event.target as Element).setPointerCapture?.(event.pointerId);
+      setSelected(index);
+      const anchor = pointsRef.current[index];
+      if (!anchor) return;
+      // Slide in the plane facing the camera, through the grabbed waypoint.
+      const normal = camera.getWorldDirection(new Vector3());
+      dragRef.current = {
+        index,
+        plane: new Plane().setFromNormalAndCoplanarPoint(normal, anchor.clone())
+      };
+      if (controls) controls.enabled = false;
+    },
+    [camera, controls, lastIndex]
+  );
 
-  const onDrag = useCallback(() => {
-    if (selected == null) return;
+  const onPointerMove = useCallback((event: ThreeEvent<PointerEvent>) => {
+    const drag = dragRef.current;
+    if (!drag) return;
+    event.stopPropagation();
+    const hit = new Vector3();
+    if (!event.ray.intersectPlane(drag.plane, hit)) return;
     setPoints((previous) => {
       const next = previous.map((point, index) =>
-        index === selected ? proxy.position.clone() : point
+        index === drag.index ? hit.clone() : point
       );
       pointsRef.current = next;
       return next;
     });
-  }, [selected, proxy]);
+  }, []);
+
+  const endDrag = useCallback(
+    (event: ThreeEvent<PointerEvent>) => {
+      const drag = dragRef.current;
+      if (!drag) return;
+      event.stopPropagation();
+      (event.target as Element).releasePointerCapture?.(event.pointerId);
+      dragRef.current = null;
+      if (controls) controls.enabled = true;
+      commit(pointsRef.current);
+    },
+    [commit, controls]
+  );
 
   const insertWaypoint = useCallback(
     (event: ThreeEvent<MouseEvent>) => {
@@ -121,6 +159,13 @@ export function MotionPathEditor({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [selected, lastIndex, commit]);
 
+  // Restore orbit controls if we unmount mid-drag.
+  useEffect(() => {
+    return () => {
+      if (dragRef.current && controls) controls.enabled = true;
+    };
+  }, [controls]);
+
   const linePoints = useMemo(
     () => points.map((point) => point.toArray() as Vec3),
     [points]
@@ -138,42 +183,37 @@ export function MotionPathEditor({
       />
       {points.map((point, index) => {
         const isSeated = index === lastIndex;
+        const isActive = index === selected || index === hovered;
         return (
           <mesh
             key={index}
             position={point}
             renderOrder={11}
-            onClick={(event) => {
+            onPointerDown={(event) => onPointerDown(index, event)}
+            onPointerMove={onPointerMove}
+            onPointerUp={endDrag}
+            onPointerOver={(event) => {
               if (isSeated) return;
               event.stopPropagation();
-              setSelected(index);
+              setHovered(index);
             }}
+            onPointerOut={() => setHovered((h) => (h === index ? null : h))}
           >
-            <sphereGeometry args={[handleRadius, 20, 20]} />
+            <sphereGeometry
+              args={[
+                isActive && !isSeated ? handleRadius * 1.3 : handleRadius,
+                20,
+                20
+              ]}
+            />
             <meshBasicMaterial
-              color={
-                isSeated
-                  ? "#9ca3af"
-                  : index === selected
-                    ? "#f59e0b"
-                    : "#ef4444"
-              }
+              color={isSeated ? "#9ca3af" : isActive ? "#f59e0b" : "#ef4444"}
               depthTest={false}
               transparent
             />
           </mesh>
         );
       })}
-      {/* Invisible proxy the gizmo drags; visible sphere above follows it. */}
-      <primitive object={proxy} />
-      {selected != null && selected !== lastIndex && (
-        <TransformControls
-          object={proxy}
-          mode="translate"
-          onObjectChange={onDrag}
-          onMouseUp={() => commit(pointsRef.current)}
-        />
-      )}
     </group>
   );
 }

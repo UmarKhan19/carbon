@@ -5,7 +5,7 @@ export {
   type FuturePartsMode
 } from "./AssemblyPlayer";
 export { AssemblyViewer, type AssemblyViewerProps } from "./AssemblyViewer";
-export { describeStep } from "./describe";
+export { describeStep, type NamedUnit } from "./describe";
 export { synthesizeFallbackMotion } from "./fallback";
 export {
   type AssemblyGraphIndex,

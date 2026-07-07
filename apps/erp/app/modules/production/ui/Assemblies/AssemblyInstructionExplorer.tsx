@@ -29,7 +29,6 @@ import type { AssemblyGraphIndex } from "@carbon/viewer";
 import {
   describeStep,
   groupPartNodeIds,
-  stepTimelineSeconds,
   synthesizeFallbackMotion
 } from "@carbon/viewer";
 import type { DragControls } from "framer-motion";
@@ -141,30 +140,13 @@ export default function AssemblyInstructionExplorer({
       setIsAwaitingPlan(true);
     } else if (generateFetcher.data?.success) {
       setIsAwaitingPlan(false);
-      setShowRegenerate(false);
     }
   }, [generateFetcher.data]);
 
-  // A successful plan newer than the generated steps can rebuild them.
-  // Destructive but guarded: the server refuses while any step is manually
-  // authored or Done.
-  const [showRegenerate, setShowRegenerate] = useState(false);
-  const newestStepAt = useMemo(
-    () =>
-      steps.reduce(
-        (latest, step) => (step.createdAt > latest ? step.createdAt : latest),
-        ""
-      ),
-    [steps]
-  );
-  const canRegenerate =
-    steps.length > 0 &&
-    planJob?.status === "Success" &&
-    planJob.createdAt > newestStepAt &&
-    permissions.can("update", "production");
+  const [showRerunConfirm, setShowRerunConfirm] = useState(false);
 
   // Poll while planning runs (awaiting-plan generate flow, or an explicit
-  // re-plan) so the fresh plan surfaces the Regenerate affordance
+  // re-plan) so the fresh plan and its generated steps surface on their own
   const isPlanning =
     planJob?.status === "Queued" || planJob?.status === "Processing";
   useInterval(
@@ -251,15 +233,27 @@ export default function AssemblyInstructionExplorer({
     [steps]
   );
 
+  // Authored subassembly units, normalized for step-title derivation: a step
+  // whose parts are exactly a unit is titled by its name, not by every part.
+  const namedUnits = useMemo(
+    () =>
+      units.map((unit) => ({
+        name: unit.name,
+        partNodeIds: unit.partNodeIds ?? []
+      })),
+    [units]
+  );
+
   const stepTitles = useMemo(
     () =>
       new Map(
         steps.map((step) => [
           step.id,
-          describeStep(toViewerStep(step), graphIndex) ?? "Untitled step"
+          describeStep(toViewerStep(step), graphIndex, namedUnits) ??
+            "Untitled step"
         ])
       ),
-    [steps, graphIndex]
+    [steps, graphIndex, namedUnits]
   );
 
   const [search, setSearch] = useState("");
@@ -299,15 +293,6 @@ export default function AssemblyInstructionExplorer({
     );
   }, [sortOrder, isSearching, search, searchText]);
 
-  const totalSeconds = useMemo(
-    () =>
-      steps.reduce(
-        (sum, step) => sum + stepTimelineSeconds(toViewerStep(step)),
-        0
-      ),
-    [steps]
-  );
-
   const updateSortOrder = useDebounce(
     (updates: Record<string, number>) => {
       const formData = new FormData();
@@ -336,20 +321,16 @@ export default function AssemblyInstructionExplorer({
     const formData = new FormData();
     formData.append("assemblyInstructionId", id);
 
-    // When parts are selected, seed the new step with them: assign the parts,
-    // a basic synthesized insertion animation, and a description from their
-    // names. Otherwise create an empty process-only step.
+    // When parts are selected, seed the new step with the parts and a basic
+    // synthesized insertion animation. Otherwise create an empty process-only
+    // step. The title is left blank on purpose — it derives live from the
+    // parts (describeStep) everywhere it is displayed.
     if (selectedNodeIds.length > 0) {
       formData.append("partNodeIds", JSON.stringify(selectedNodeIds));
       const motion = graphIndex
         ? synthesizeFallbackMotion(graphIndex, selectedNodeIds)
         : null;
       formData.append("motion", JSON.stringify(motion ?? { type: "none" }));
-      const description = describeStep(
-        { title: null, partNodeIds: selectedNodeIds, fastener: null },
-        graphIndex
-      );
-      if (description) formData.append("description", description);
     } else {
       formData.append("motion", JSON.stringify({ type: "none" }));
     }
@@ -476,61 +457,41 @@ export default function AssemblyInstructionExplorer({
               </p>
             )}
           </VStack>
-          <div className="w-full flex-none border-t border-border p-4">
-            {steps.length > 0 && (
-              <p className="pb-2 text-center text-xs tabular-nums text-muted-foreground">
-                {steps.length} step{steps.length === 1 ? "" : "s"} · est.{" "}
-                {formatDurationSummary(totalSeconds)}
-              </p>
-            )}
-            {canRegenerate && (
+          {steps.length > 0 && (
+            <div className="w-full flex-none border-t border-border p-4">
+              {steps.length > 0 &&
+                modelUploadId &&
+                permissions.can("update", "production") && (
+                  <Button
+                    className="mb-2 w-full"
+                    isDisabled={
+                      isDisabled ||
+                      isPlanning ||
+                      rerunPlanFetcher.state !== "idle"
+                    }
+                    isLoading={isPlanning || rerunPlanFetcher.state !== "idle"}
+                    variant="ghost"
+                    onClick={() => setShowRerunConfirm(true)}
+                  >
+                    {isPlanning ? "Planning motions…" : "Run Motion Planning"}
+                  </Button>
+                )}
               <Button
-                className="mb-2 w-full"
-                isDisabled={isDisabled || generateFetcher.state !== "idle"}
-                leftIcon={<LuSparkles />}
+                className="w-full"
+                isDisabled={
+                  isDisabled ||
+                  !permissions.can("update", "production") ||
+                  newStepFetcher.state !== "idle"
+                }
+                isLoading={newStepFetcher.state !== "idle"}
+                leftIcon={<LuCirclePlus />}
                 variant="secondary"
-                onClick={() => setShowRegenerate(true)}
+                onClick={onAddStep}
               >
-                Regenerate from Plan
+                Add Step
               </Button>
-            )}
-            {steps.length > 0 &&
-              modelUploadId &&
-              permissions.can("update", "production") && (
-                <Button
-                  className="mb-2 w-full"
-                  isDisabled={
-                    isDisabled ||
-                    isPlanning ||
-                    rerunPlanFetcher.state !== "idle"
-                  }
-                  isLoading={isPlanning || rerunPlanFetcher.state !== "idle"}
-                  variant="ghost"
-                  onClick={() => {
-                    rerunPlanFetcher.submit(new FormData(), {
-                      method: "post",
-                      action: path.to.assemblyPlanRerun(id)
-                    });
-                  }}
-                >
-                  {isPlanning ? "Planning motions…" : "Re-run Motion Planning"}
-                </Button>
-              )}
-            <Button
-              className="w-full"
-              isDisabled={
-                isDisabled ||
-                !permissions.can("update", "production") ||
-                newStepFetcher.state !== "idle"
-              }
-              isLoading={newStepFetcher.state !== "idle"}
-              leftIcon={<LuCirclePlus />}
-              variant="secondary"
-              onClick={onAddStep}
-            >
-              Add Step
-            </Button>
-          </div>
+            </div>
+          )}
         </TabsContent>
         {/* forceMount keeps the BOM selection (and viewer highlight) alive across tab switches */}
         <TabsContent
@@ -548,9 +509,11 @@ export default function AssemblyInstructionExplorer({
             bomMaterials={bomMaterials}
             selectedNodeIds={selectedNodeIds}
             isActive={tab === "parts"}
+            isAddingStep={newStepFetcher.state !== "idle"}
             onHighlightParts={onHighlightParts}
             onHideParts={onHideParts}
             onSelectStep={onSelectStep}
+            onAddStep={onAddStep}
           />
         </TabsContent>
       </Tabs>
@@ -565,45 +528,41 @@ export default function AssemblyInstructionExplorer({
           onSubmit={() => setStepToDelete(null)}
         />
       )}
-      {showRegenerate && (
+      {showRerunConfirm && (
         <Modal
           open
           onOpenChange={(open) => {
-            if (!open) setShowRegenerate(false);
+            if (!open) setShowRerunConfirm(false);
           }}
         >
           <ModalContent>
             <ModalHeader>
-              <ModalTitle>Regenerate steps from the motion plan?</ModalTitle>
+              <ModalTitle>Run motion planning?</ModalTitle>
               <ModalDescription>
-                A newer motion plan exists for this model. Regenerating replaces
-                all {steps.length} draft {steps.length === 1 ? "step" : "steps"}{" "}
-                — including their notes, requirements, and materials — with
-                fresh steps from the plan. Manually authored or completed steps
-                block regeneration.
+                Recomputes how each step's parts move into place, using the
+                current step order and avoiding collisions with parts from
+                earlier steps. Steps you've marked Done are left as-is.
               </ModalDescription>
             </ModalHeader>
             <ModalFooter>
               <Button
                 variant="secondary"
-                onClick={() => setShowRegenerate(false)}
+                onClick={() => setShowRerunConfirm(false)}
               >
                 Cancel
               </Button>
               <Button
-                variant="destructive"
-                isDisabled={generateFetcher.state !== "idle"}
-                isLoading={generateFetcher.state !== "idle"}
+                isDisabled={rerunPlanFetcher.state !== "idle"}
+                isLoading={rerunPlanFetcher.state !== "idle"}
                 onClick={() => {
-                  const formData = new FormData();
-                  formData.append("mode", "regenerate");
-                  generateFetcher.submit(formData, {
+                  rerunPlanFetcher.submit(new FormData(), {
                     method: "post",
-                    action: path.to.generateAssemblyInstructionSteps(id)
+                    action: path.to.assemblyPlanRerun(id)
                   });
+                  setShowRerunConfirm(false);
                 }}
               >
-                Regenerate
+                Run
               </Button>
             </ModalFooter>
           </ModalContent>
@@ -611,14 +570,6 @@ export default function AssemblyInstructionExplorer({
       )}
     </>
   );
-}
-
-function formatDurationSummary(seconds: number): string {
-  const safe = Math.max(0, Math.round(seconds));
-  const minutes = Math.floor(safe / 60);
-  const remainder = safe % 60;
-  if (minutes === 0) return `${remainder} sec`;
-  return remainder > 0 ? `${minutes} min ${remainder} sec` : `${minutes} min`;
 }
 
 const stepStatusOrder = ["Todo", "Review", "Done"] as const;

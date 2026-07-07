@@ -8,6 +8,10 @@ import {
   assemblyInstructionStepValidator,
   upsertAssemblyInstructionStep
 } from "~/modules/production";
+import {
+  logAssemblyStep,
+  readAndLogFormData
+} from "~/modules/production/assembly-debug.server";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
@@ -18,11 +22,16 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const { stepId } = params;
   if (!stepId) throw notFound("step id is not found");
 
+  const formData = await readAndLogFormData(request, "update.action");
   const validation = await validator(assemblyInstructionStepValidator).validate(
-    await request.formData()
+    formData
   );
 
   if (validation.error) {
+    logAssemblyStep("update.validationError", {
+      stepId,
+      error: validation.error
+    });
     return data(
       { success: false },
       await flash(request, error(validation.error, "Failed to update step"))
@@ -35,6 +44,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
     companyId,
     createdBy: userId,
     updatedBy: userId
+  });
+  logAssemblyStep("update.result", {
+    stepId,
+    hasMotion: validation.data.motion !== undefined,
+    partNodeIds: validation.data.partNodeIds,
+    title: validation.data.title ?? null,
+    error: update.error?.message ?? null,
+    updatedId: update.data?.id ?? null
   });
   if (update.error) {
     return data(

@@ -20,10 +20,11 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
+  toast,
   VStack
 } from "@carbon/react";
 import type { AssemblyGraphIndex, PartGroup } from "@carbon/viewer";
-import { describeStep } from "@carbon/viewer";
+import { describeStep, groupPartNodeIds } from "@carbon/viewer";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import type { MouseEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -33,12 +34,15 @@ import {
   LuBlocks,
   LuChevronDown,
   LuChevronRight,
+  LuCirclePlus,
   LuEye,
   LuEyeOff,
   LuMerge,
+  LuPencil,
   LuSearch,
   LuSettings,
-  LuTrash
+  LuTrash,
+  LuX
 } from "react-icons/lu";
 import { useFetcher, useParams } from "react-router";
 import { Empty } from "~/components";
@@ -55,8 +59,22 @@ import { PartColorSwatch } from "./AssemblyStepBom";
 
 type SortMode = "count" | "alpha";
 
-/** One rendered row: a part group, or a single instance of an expanded group. */
+/** The distinct part types inside a subassembly, with the member instances of each. */
+type UnitChild = { group: PartGroup; nodeIds: string[] };
+
+/**
+ * One rendered row: a subassembly (virtual part) and its expanded member parts,
+ * or a part group and its expanded instances. Subassemblies and multi-quantity
+ * groups both expand the same way.
+ */
 type ListRow =
+  | { type: "unit"; unit: AssemblyUnit; children: UnitChild[] }
+  | {
+      type: "unitChild";
+      unit: AssemblyUnit;
+      group: PartGroup;
+      nodeIds: string[];
+    }
   | { type: "group"; group: PartGroup }
   | {
       type: "instance";
@@ -65,9 +83,18 @@ type ListRow =
       instanceIndex: number;
     };
 
-/** The instance nodeIds a row represents (all of them for a group row). */
+/** The instance nodeIds a row represents (all of them for a group/unit row). */
 function rowNodeIds(row: ListRow): string[] {
-  return row.type === "group" ? row.group.nodeIds : [row.nodeId];
+  switch (row.type) {
+    case "unit":
+      return row.unit.partNodeIds ?? [];
+    case "unitChild":
+      return row.nodeIds;
+    case "group":
+      return row.group.nodeIds;
+    case "instance":
+      return [row.nodeId];
+  }
 }
 
 type SelectionState = "none" | "partial" | "all";
@@ -94,9 +121,13 @@ type AssemblyBomTreeProps = {
   selectedNodeIds: string[];
   /** The Parts tab is the visible tab — gate scroll-to-selection on it */
   isActive: boolean;
+  /** A new-step create is in flight — disables the Add Step action */
+  isAddingStep: boolean;
   onHighlightParts: (nodeIds: string[]) => void;
   onHideParts: (nodeIds: string[]) => void;
   onSelectStep: (stepId: string) => void;
+  /** Create a step seeded with the current selection (shared with the parent) */
+  onAddStep: () => void;
 };
 
 /**
@@ -118,15 +149,18 @@ export default function AssemblyBomTree({
   bomMaterials,
   selectedNodeIds,
   isActive,
+  isAddingStep,
   onHighlightParts,
   onHideParts,
-  onSelectStep
+  onSelectStep,
+  onAddStep
 }: AssemblyBomTreeProps) {
   const { id } = useParams();
   if (!id) throw new Error("Could not find id");
 
   const permissions = usePermissions();
   const canGroup = !isDisabled && permissions.can("create", "production");
+  const canAddStep = !isDisabled && permissions.can("update", "production");
   const canMap =
     !isDisabled &&
     permissions.can("update", "production") &&
@@ -148,7 +182,6 @@ export default function AssemblyBomTree({
     () => new Set(selectedNodeIds),
     [selectedNodeIds]
   );
-  const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
   const [hiddenNodeIds, setHiddenNodeIds] = useState<ReadonlySet<string>>(
     new Set()
   );
@@ -156,18 +189,44 @@ export default function AssemblyBomTree({
     new Set()
   );
   const [showCreateUnit, setShowCreateUnit] = useState(false);
+  const [editingUnit, setEditingUnit] = useState<AssemblyUnit | null>(null);
   const lastClickedIndexRef = useRef<number | null>(null);
+
+  // Every instance that belongs to a subassembly — those show under the
+  // subassembly, so they're dropped from the flat list to avoid double-listing.
+  const unitMemberSet = useMemo(() => {
+    const set = new Set<string>();
+    for (const unit of units) {
+      for (const nodeId of unit.partNodeIds ?? []) set.add(nodeId);
+    }
+    return set;
+  }, [units]);
 
   const partGroups = useMemo(() => {
     if (!graphIndex) return [];
-    const sorted = [...graphIndex.groups];
-    if (sortMode === "count") {
-      sorted.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
-    } else {
-      sorted.sort((a, b) => a.name.localeCompare(b.name));
+    // Keep only the instances of each part that aren't inside a subassembly. A
+    // part half in a subassembly still lists its loose instances (with the
+    // reduced count); a part fully consumed by subassemblies drops out.
+    const groups: PartGroup[] = [];
+    for (const group of graphIndex.groups) {
+      const nodeIds =
+        unitMemberSet.size === 0
+          ? group.nodeIds
+          : group.nodeIds.filter((nodeId) => !unitMemberSet.has(nodeId));
+      if (nodeIds.length === 0) continue;
+      groups.push(
+        nodeIds.length === group.nodeIds.length
+          ? group
+          : { ...group, nodeIds, count: nodeIds.length }
+      );
     }
-    return sorted;
-  }, [graphIndex, sortMode]);
+    if (sortMode === "count") {
+      groups.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+    } else {
+      groups.sort((a, b) => a.name.localeCompare(b.name));
+    }
+    return groups;
+  }, [graphIndex, sortMode, unitMemberSet]);
 
   // Name filter for the rendered list. Selection/hiding still operate on the
   // full `partGroups` (they key by group, not display position); only the rows
@@ -179,6 +238,16 @@ export default function AssemblyBomTree({
       group.name.toLowerCase().includes(normalizedSearch)
     );
   }, [partGroups, normalizedSearch]);
+
+  // A step whose parts are exactly a subassembly unit is titled by its name.
+  const namedUnits = useMemo(
+    () =>
+      units.map((unit) => ({
+        name: unit.name,
+        partNodeIds: unit.partNodeIds ?? []
+      })),
+    [units]
+  );
 
   /** groupKey → steps that install instances of the part */
   const stepUsage = useMemo(() => {
@@ -197,19 +266,63 @@ export default function AssemblyBomTree({
         entry.push({
           stepId: step.id,
           index,
-          title: describeStep(toViewerStep(step), graphIndex) ?? "Untitled step"
+          title:
+            describeStep(toViewerStep(step), graphIndex, namedUnits) ??
+            "Untitled step"
         });
         usage.set(group.key, entry);
       }
     });
     return usage;
-  }, [steps, graphIndex]);
+  }, [steps, graphIndex, namedUnits]);
 
-  // Flatten groups (with their expanded instances) into the virtualized list.
-  // An expanded group with count > 1 is followed by one row per instance, so a
-  // subset can be selected or hidden individually.
+  // A subassembly's member instances, grouped by part type — so it expands into
+  // "Screw ×4 / Board ×1" child rows the same way a multi-quantity part does.
+  const unitChildren = useMemo(() => {
+    const map = new Map<string, UnitChild[]>();
+    if (!graphIndex) return map;
+    for (const unit of units) {
+      const byGroup = new Map<string, UnitChild>();
+      for (const nodeId of unit.partNodeIds ?? []) {
+        const group = graphIndex.groupByNodeId.get(nodeId);
+        if (!group) continue;
+        const existing = byGroup.get(group.key);
+        if (existing) existing.nodeIds.push(nodeId);
+        else byGroup.set(group.key, { group, nodeIds: [nodeId] });
+      }
+      map.set(unit.id, [...byGroup.values()]);
+    }
+    return map;
+  }, [units, graphIndex]);
+
+  const visibleUnits = useMemo(() => {
+    if (!normalizedSearch) return units;
+    return units.filter((unit) =>
+      unit.name.toLowerCase().includes(normalizedSearch)
+    );
+  }, [units, normalizedSearch]);
+
+  // Flatten subassemblies and part groups (each with their expanded children)
+  // into the virtualized list. Subassemblies lead — they're the higher-level
+  // grouping — and expand into their member parts; a part group with count > 1
+  // expands into one row per instance. Either way a subset can be selected or
+  // hidden individually.
   const visualRows = useMemo<ListRow[]>(() => {
     const list: ListRow[] = [];
+    for (const unit of visibleUnits) {
+      const children = unitChildren.get(unit.id) ?? [];
+      list.push({ type: "unit", unit, children });
+      if (expandedKeys.has(`unit:${unit.id}`)) {
+        for (const child of children) {
+          list.push({
+            type: "unitChild",
+            unit,
+            group: child.group,
+            nodeIds: child.nodeIds
+          });
+        }
+      }
+    }
     for (const group of rows) {
       list.push({ type: "group", group });
       if (group.count > 1 && expandedKeys.has(group.key)) {
@@ -219,7 +332,7 @@ export default function AssemblyBomTree({
       }
     }
     return list;
-  }, [rows, expandedKeys]);
+  }, [rows, expandedKeys, visibleUnits, unitChildren]);
 
   const hasSelection = selectedNodeIds.length > 0;
 
@@ -229,7 +342,6 @@ export default function AssemblyBomTree({
   }, [hiddenNodeIds, onHideParts]);
 
   const applyNodeSelection = (next: ReadonlySet<string>) => {
-    setSelectedUnitId(null);
     onHighlightParts([...next]);
   };
 
@@ -272,16 +384,6 @@ export default function AssemblyBomTree({
       else next.add(key);
       return next;
     });
-  };
-
-  const onToggleUnitHighlight = (unit: AssemblyUnit) => {
-    if (selectedUnitId === unit.id) {
-      setSelectedUnitId(null);
-      onHighlightParts([]);
-      return;
-    }
-    setSelectedUnitId(unit.id);
-    onHighlightParts(unit.partNodeIds ?? []);
   };
 
   const onHideSelection = () => {
@@ -349,25 +451,6 @@ export default function AssemblyBomTree({
 
   return (
     <div className="flex h-full w-full flex-col">
-      {units.length > 0 && (
-        <div className="w-full flex-none border-b border-border">
-          <h4 className="px-3 pt-2 text-xxs text-foreground/70 uppercase font-light tracking-wide">
-            Subassemblies
-          </h4>
-          <ul className="w-full pb-1">
-            {units.map((unit) => (
-              <UnitRow
-                key={unit.id}
-                unit={unit}
-                instructionId={id}
-                isSelected={selectedUnitId === unit.id}
-                isDisabled={isDisabled}
-                onClick={() => onToggleUnitHighlight(unit)}
-              />
-            ))}
-          </ul>
-        </div>
-      )}
       <div className="flex w-full flex-none items-center justify-between border-b border-border px-3 py-1.5">
         <span className="text-xs text-muted-foreground tabular-nums">
           {hasSelection
@@ -506,6 +589,42 @@ export default function AssemblyBomTree({
                   transform: `translateY(${virtualRow.start}px)`
                 };
                 const nodes = rowNodeIds(row);
+                if (row.type === "unit") {
+                  return (
+                    <UnitListRow
+                      key={`unit-${row.unit.id}`}
+                      unit={row.unit}
+                      memberCount={nodes.length}
+                      isExpandable={row.children.length > 0}
+                      isExpanded={expandedKeys.has(`unit:${row.unit.id}`)}
+                      selection={selectionStateOf(nodes, selectedSet)}
+                      hidden={selectionStateOf(nodes, hiddenNodeIds)}
+                      isDisabled={isDisabled}
+                      instructionId={id}
+                      style={style}
+                      onClick={(event) => onRowClick(event, virtualRow.index)}
+                      onToggleHide={() => onToggleHide(nodes)}
+                      onToggleExpand={() =>
+                        onToggleExpand(`unit:${row.unit.id}`)
+                      }
+                      onEdit={() => setEditingUnit(row.unit)}
+                    />
+                  );
+                }
+                if (row.type === "unitChild") {
+                  return (
+                    <UnitChildRow
+                      key={`unitchild-${row.unit.id}-${row.group.key}`}
+                      group={row.group}
+                      count={row.nodeIds.length}
+                      selection={selectionStateOf(nodes, selectedSet)}
+                      hidden={selectionStateOf(nodes, hiddenNodeIds)}
+                      style={style}
+                      onClick={(event) => onRowClick(event, virtualRow.index)}
+                      onToggleHide={() => onToggleHide(nodes)}
+                    />
+                  );
+                }
                 if (row.type === "instance") {
                   return (
                     <InstanceRow
@@ -543,14 +662,23 @@ export default function AssemblyBomTree({
                 );
               })}
             </div>
-            {rows.length === 0 && normalizedSearch && (
-              <p className="px-3 py-4 text-center text-xs text-muted-foreground">
-                No parts match “{search.trim()}”
-              </p>
-            )}
+            {rows.length === 0 &&
+              visibleUnits.length === 0 &&
+              normalizedSearch && (
+                <p className="px-3 py-4 text-center text-xs text-muted-foreground">
+                  No parts match “{search.trim()}”
+                </p>
+              )}
           </div>
         </ContextMenuTrigger>
         <ContextMenuContent>
+          <ContextMenuItem
+            disabled={!canAddStep || !hasSelection || isAddingStep}
+            onClick={onAddStep}
+          >
+            <LuCirclePlus className="mr-2 h-4 w-4" />
+            Add step
+          </ContextMenuItem>
           <ContextMenuItem
             disabled={!canGroup || !hasSelection}
             onClick={() => setShowCreateUnit(true)}
@@ -578,6 +706,24 @@ export default function AssemblyBomTree({
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
+      {canAddStep && (
+        <div className="w-full flex-none border-t border-border p-4">
+          <Button
+            className="w-full"
+            variant="secondary"
+            leftIcon={<LuCirclePlus />}
+            isDisabled={isAddingStep}
+            isLoading={isAddingStep}
+            onClick={onAddStep}
+          >
+            {hasSelection
+              ? `Add Step with ${selectedNodeIds.length} part${
+                  selectedNodeIds.length === 1 ? "" : "s"
+                }`
+              : "Add Step"}
+          </Button>
+        </div>
+      )}
       {showCreateUnit && modelUploadId && (
         <CreateUnitModal
           instructionId={id}
@@ -590,63 +736,249 @@ export default function AssemblyBomTree({
           }}
         />
       )}
+      {editingUnit && modelUploadId && (
+        <EditUnitModal
+          instructionId={id}
+          modelUploadId={modelUploadId}
+          unit={editingUnit}
+          graphIndex={graphIndex}
+          selectedNodeIds={selectedNodeIds}
+          onClose={() => setEditingUnit(null)}
+          onUpdated={() => {
+            setEditingUnit(null);
+            toast.success(
+              "Subassembly updated — re-run motion planning to apply the change"
+            );
+          }}
+        />
+      )}
     </div>
   );
 }
 
-function UnitRow({
+/**
+ * A subassembly as a virtual part row: click selects its members (red in the
+ * viewer), the chevron expands it into its member part types (UnitChildRow),
+ * and it carries the same hide / edit / delete affordances as the old section.
+ */
+function UnitListRow({
   unit,
-  instructionId,
-  isSelected,
+  memberCount,
+  isExpandable,
+  isExpanded,
+  selection,
+  hidden,
   isDisabled,
-  onClick
+  instructionId,
+  style,
+  onClick,
+  onToggleHide,
+  onToggleExpand,
+  onEdit
 }: {
   unit: AssemblyUnit;
-  instructionId: string;
-  isSelected: boolean;
+  memberCount: number;
+  isExpandable: boolean;
+  isExpanded: boolean;
+  selection: SelectionState;
+  hidden: SelectionState;
   isDisabled: boolean;
-  onClick: () => void;
+  instructionId: string;
+  style: React.CSSProperties;
+  onClick: (event: MouseEvent) => void;
+  onToggleHide: () => void;
+  onToggleExpand: () => void;
+  onEdit: () => void;
 }) {
   const permissions = usePermissions();
   const deleteFetcher = useFetcher<{ success: boolean }>();
+  const canUpdate = !isDisabled && permissions.can("update", "production");
+  const canDelete = !isDisabled && permissions.can("delete", "production");
+  const allHidden = hidden === "all";
 
   if (deleteFetcher.state !== "idle") return null;
 
   return (
-    <li
+    <div
+      role="button"
+      tabIndex={0}
+      style={style}
       className={cn(
-        "group flex w-full cursor-pointer select-none items-center gap-2 px-3 py-1 text-sm hover:bg-accent/30",
-        isSelected && "bg-accent/50 hover:bg-accent/50"
+        "group relative flex cursor-pointer select-none items-center gap-2 border-b border-border px-3 text-sm hover:bg-accent/30",
+        selection === "all" && "bg-red-500/10 hover:bg-red-500/10",
+        selection === "partial" && "bg-red-500/5 hover:bg-red-500/5",
+        allHidden && "opacity-50"
       )}
       onClick={onClick}
       onKeyDown={(event) => {
-        if (event.key === "Enter") onClick();
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onClick(event as unknown as MouseEvent);
+        }
       }}
     >
-      <LuBlocks className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-      <span className="min-w-0 flex-1 truncate" title={unit.name}>
-        {unit.name}
-      </span>
-      <span className="text-xs text-muted-foreground tabular-nums">
-        {unit.partNodeIds?.length ?? 0}
-      </span>
-      {!isDisabled && permissions.can("delete", "production") && (
-        <IconButton
-          aria-label={`Delete subassembly ${unit.name}`}
-          icon={<LuTrash />}
-          variant="ghost"
-          size="sm"
-          className="opacity-0 group-hover:opacity-100 focus:opacity-100"
-          onClick={(event) => {
-            event.stopPropagation();
-            deleteFetcher.submit(new FormData(), {
-              method: "post",
-              action: path.to.deleteAssemblyUnit(instructionId, unit.id)
-            });
-          }}
+      {selection !== "none" && (
+        <span
+          aria-hidden
+          className={cn(
+            "pointer-events-none absolute inset-y-0 left-0 w-0.5 bg-red-500",
+            selection === "partial" && "opacity-50"
+          )}
         />
       )}
-    </li>
+      {isExpandable ? (
+        <button
+          type="button"
+          aria-label={
+            isExpanded ? `Collapse ${unit.name}` : `Expand ${unit.name}`
+          }
+          className="flex h-5 w-5 shrink-0 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent"
+          onClick={(event) => {
+            event.stopPropagation();
+            onToggleExpand();
+          }}
+        >
+          {isExpanded ? (
+            <LuChevronDown className="h-3.5 w-3.5" />
+          ) : (
+            <LuChevronRight className="h-3.5 w-3.5" />
+          )}
+        </button>
+      ) : (
+        <span className="h-5 w-5 shrink-0" aria-hidden />
+      )}
+      <LuBlocks className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+      <span className="min-w-0 flex-1 truncate font-medium" title={unit.name}>
+        {unit.name}
+      </span>
+      <Badge variant="secondary" className="tabular-nums">
+        ×{memberCount}
+      </Badge>
+      <div className="flex items-center">
+        <IconButton
+          aria-label={allHidden ? `Show ${unit.name}` : `Hide ${unit.name}`}
+          icon={allHidden ? <LuEyeOff /> : <LuEye />}
+          variant="ghost"
+          size="sm"
+          className={cn(
+            "focus:opacity-100",
+            hidden !== "none"
+              ? "opacity-100 text-muted-foreground"
+              : "opacity-0 group-hover:opacity-100"
+          )}
+          onClick={(event) => {
+            event.stopPropagation();
+            onToggleHide();
+          }}
+        />
+        {canUpdate && (
+          <IconButton
+            aria-label={`Edit subassembly ${unit.name}`}
+            icon={<LuPencil />}
+            variant="ghost"
+            size="sm"
+            className="opacity-0 group-hover:opacity-100 focus:opacity-100"
+            onClick={(event) => {
+              event.stopPropagation();
+              onEdit();
+            }}
+          />
+        )}
+        {canDelete && (
+          <IconButton
+            aria-label={`Delete subassembly ${unit.name}`}
+            icon={<LuTrash />}
+            variant="ghost"
+            size="sm"
+            className="opacity-0 group-hover:opacity-100 focus:opacity-100"
+            onClick={(event) => {
+              event.stopPropagation();
+              deleteFetcher.submit(new FormData(), {
+                method: "post",
+                action: path.to.deleteAssemblyUnit(instructionId, unit.id)
+              });
+            }}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** One member part type inside an expanded subassembly (indented, selectable). */
+function UnitChildRow({
+  group,
+  count,
+  selection,
+  hidden,
+  style,
+  onClick,
+  onToggleHide
+}: {
+  group: PartGroup;
+  count: number;
+  selection: SelectionState;
+  hidden: SelectionState;
+  style: React.CSSProperties;
+  onClick: (event: MouseEvent) => void;
+  onToggleHide: () => void;
+}) {
+  const allHidden = hidden === "all";
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      style={style}
+      className={cn(
+        "group relative flex cursor-pointer select-none items-center gap-2 border-b border-border py-1 pl-9 pr-3 text-sm hover:bg-accent/30",
+        selection === "all" && "bg-red-500/10 hover:bg-red-500/10",
+        selection === "partial" && "bg-red-500/5 hover:bg-red-500/5",
+        allHidden && "opacity-50"
+      )}
+      onClick={onClick}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onClick(event as unknown as MouseEvent);
+        }
+      }}
+    >
+      {selection !== "none" && (
+        <span
+          aria-hidden
+          className={cn(
+            "pointer-events-none absolute inset-y-0 left-0 w-0.5 bg-red-500",
+            selection === "partial" && "opacity-50"
+          )}
+        />
+      )}
+      <PartColorSwatch color={group.color} />
+      <span
+        className="min-w-0 flex-1 truncate text-muted-foreground"
+        title={group.name}
+      >
+        {group.name}
+      </span>
+      <Badge variant="secondary" className="tabular-nums">
+        ×{count}
+      </Badge>
+      <IconButton
+        aria-label={allHidden ? `Show ${group.name}` : `Hide ${group.name}`}
+        icon={allHidden ? <LuEyeOff /> : <LuEye />}
+        variant="ghost"
+        size="sm"
+        className={cn(
+          "focus:opacity-100",
+          hidden !== "none"
+            ? "opacity-100 text-muted-foreground"
+            : "opacity-0 group-hover:opacity-100"
+        )}
+        onClick={(event) => {
+          event.stopPropagation();
+          onToggleHide();
+        }}
+      />
+    </div>
   );
 }
 
@@ -719,6 +1051,167 @@ function CreateUnitModal({
               onClick={onSubmit}
             >
               Create
+            </Button>
+          </VStack>
+        </ModalBody>
+      </ModalContent>
+    </Modal>
+  );
+}
+
+/**
+ * Edits an authored subassembly in place: rename it and change which parts it
+ * groups (remove a part type, or add the currently-selected parts). Membership
+ * feeds the motion planner, so the caller nudges the user to re-run planning
+ * after saving.
+ */
+function EditUnitModal({
+  instructionId,
+  modelUploadId,
+  unit,
+  graphIndex,
+  selectedNodeIds,
+  onClose,
+  onUpdated
+}: {
+  instructionId: string;
+  modelUploadId: string;
+  unit: AssemblyUnit;
+  graphIndex: AssemblyGraphIndex | null;
+  selectedNodeIds: string[];
+  onClose: () => void;
+  onUpdated: () => void;
+}) {
+  const fetcher = useFetcher<{ success: boolean }>();
+  const [name, setName] = useState(unit.name);
+  const [memberIds, setMemberIds] = useState<string[]>(unit.partNodeIds ?? []);
+
+  useEffect(() => {
+    if (fetcher.state === "idle" && fetcher.data?.success) {
+      onUpdated();
+    }
+  }, [fetcher.state, fetcher.data, onUpdated]);
+
+  const memberSet = useMemo(() => new Set(memberIds), [memberIds]);
+  // Distinct parts in the unit, so removal is per part type ("drop this cap"),
+  // not per individual instance.
+  const groups = useMemo(
+    () => (graphIndex ? groupPartNodeIds(memberIds, graphIndex) : []),
+    [graphIndex, memberIds]
+  );
+  // Parts currently selected in the tree/viewer that aren't yet members.
+  const addableIds = useMemo(
+    () => selectedNodeIds.filter((id) => !memberSet.has(id)),
+    [selectedNodeIds, memberSet]
+  );
+
+  const removeGroup = (group: PartGroup) => {
+    const drop = new Set(group.nodeIds);
+    setMemberIds((prev) => prev.filter((id) => !drop.has(id)));
+  };
+
+  const addSelected = () => {
+    setMemberIds((prev) => [...prev, ...addableIds]);
+  };
+
+  const onSubmit = () => {
+    if (!name.trim() || memberIds.length === 0) return;
+    const formData = new FormData();
+    formData.append("modelUploadId", modelUploadId);
+    formData.append("name", name.trim());
+    formData.append("partNodeIds", JSON.stringify(memberIds));
+    if (unit.itemId) formData.append("itemId", unit.itemId);
+    fetcher.submit(formData, {
+      method: "post",
+      action: path.to.updateAssemblyUnit(instructionId, unit.id)
+    });
+  };
+
+  const isSubmitting = fetcher.state !== "idle";
+
+  return (
+    <Modal
+      open
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
+      <ModalContent>
+        <ModalHeader>
+          <ModalTitle>Edit subassembly</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+          <VStack spacing={3} className="w-full">
+            <Input
+              aria-label="Subassembly name"
+              placeholder="Subassembly name"
+              value={name}
+              autoFocus
+              onChange={(nameEvent) => setName(nameEvent.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") onSubmit();
+              }}
+            />
+            <VStack spacing={1} className="w-full">
+              <div className="flex w-full items-center justify-between">
+                <span className="text-xs text-muted-foreground">
+                  {memberIds.length} part{memberIds.length === 1 ? "" : "s"} in
+                  this subassembly
+                </span>
+                {addableIds.length > 0 && (
+                  <Button variant="secondary" size="sm" onClick={addSelected}>
+                    Add {addableIds.length} selected
+                  </Button>
+                )}
+              </div>
+              {groups.length > 0 ? (
+                <ul className="max-h-64 w-full overflow-y-auto rounded-md border border-border">
+                  {groups.map((group) => (
+                    <li
+                      key={group.key}
+                      className="flex items-center gap-2 border-b border-border px-2 py-1 text-sm last:border-b-0"
+                    >
+                      <PartColorSwatch color={group.color} />
+                      <span
+                        className="min-w-0 flex-1 truncate"
+                        title={group.name}
+                      >
+                        {group.name}
+                      </span>
+                      <Badge variant="secondary" className="tabular-nums">
+                        ×{group.count}
+                      </Badge>
+                      <IconButton
+                        aria-label={`Remove ${group.name} from ${unit.name}`}
+                        icon={<LuX />}
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeGroup(group)}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  {graphIndex
+                    ? "No parts — add a selection or cancel."
+                    : "The model is still loading."}
+                </p>
+              )}
+            </VStack>
+            <p className="text-xs text-muted-foreground">
+              Changing the parts redefines the subassembly. Re-run Motion
+              Planning to apply the change to the steps.
+            </p>
+            <Button
+              className="self-end"
+              isDisabled={
+                !name.trim() || memberIds.length === 0 || isSubmitting
+              }
+              isLoading={isSubmitting}
+              onClick={onSubmit}
+            >
+              Save
             </Button>
           </VStack>
         </ModalBody>

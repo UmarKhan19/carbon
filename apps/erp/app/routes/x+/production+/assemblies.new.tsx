@@ -24,7 +24,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   return {
     initialValues: {
-      name: "",
       itemId: url.searchParams.get("itemId") ?? ""
     }
   };
@@ -44,7 +43,7 @@ export async function action({ request }: ActionFunctionArgs) {
     return validationError(validation.error);
   }
 
-  const { itemId, name, modelUploadId } = validation.data;
+  const { itemId, modelUploadId } = validation.data;
 
   // An explicitly provided model (e.g. from the part details page) wins when
   // it is usable; otherwise derive it from the item's CAD files
@@ -91,7 +90,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   const create = await upsertAssemblyInstruction(client, {
-    name: name?.trim() || derived.item.name || "Assembly",
+    name: derived.item.name || "Assembly",
     modelUploadId: model.id,
     itemId,
     companyId,

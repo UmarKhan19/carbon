@@ -1,7 +1,7 @@
 """Assembly-by-disassembly motion planner.
 
 Computes a collision-free removal motion for every leaf part plus a greedy
-assembly sequence (see docs/specs/animated-work-instructions-contracts.md,
+assembly sequence (see .ai/specs/2026-07-04-animated-work-instructions-contracts.md,
 POST /plan). The same STEP source is re-tessellated with the same nodeId
 derivation as /convert, so plan.json keys join against graph.json and the
 GLB extras.
@@ -13,6 +13,10 @@ Pipeline (per .ai/research/animated-work-instructions.md):
   though it unscrews in reality). Collision checks along the fastener's
   own axis ignore contacts with those mates ONLY — there is no blanket
   penetration allowance, so thin blockers can never be tunneled through.
+  Sandwiched thin parts (gaskets, seals — seated contact on BOTH sides
+  along one axis) similarly exchange a seated-interference allowance with
+  their flanges: the observed compressed squish never reads as a blocking
+  collision, and they never rigid-merge into a flange.
 - Merge: non-threaded pairs that deeply interpenetrate when seated
   (embedded logo solids, press fits) can never separate by rigid motion;
   they plan as one rigid unit and members record `mergedInto`.
@@ -39,6 +43,7 @@ the viewer contract.
 from __future__ import annotations
 
 import re
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -85,6 +90,24 @@ MAX_PATH_SAMPLES = 400
 # strict tolerance, so nothing can tunnel through thin blockers.
 MATE_MIN_DEPTH_MM = 0.2
 MATE_DEPTH_MARGIN_MM = 0.3
+
+# A thin part whose seated contacts press from BOTH sides along one axis
+# (gasket, seal, shim) is sandwiched: it assembles after one flange and
+# before the one that compresses it. Its seated interference is compliant
+# squish — allowed during separation exactly like thread interference on a
+# fastener (and like thread mates, ONLY along the sandwich axis) — and it
+# must never rigid-merge into a flange. The gates are strict because a
+# false positive corrupts collision truth: thickness along the sandwich
+# axis is capped both relative to the part's largest extent AND absolutely
+# (gaskets are thin in millimeters, not just in proportion — a 33mm plate
+# in a long assembly is not a seal), every partner's dominant contact
+# normal must share the axis, and the observed interference must be
+# squish-scale (real gaskets compress a few tenths; a 10mm bite is a
+# press fit or broken CAD, never a compliance allowance).
+SANDWICH_MAX_THICKNESS_RATIO = 0.3
+SANDWICH_MAX_THICKNESS_MM = 6.0
+SANDWICH_AXIS_ALIGNMENT = 0.9
+SANDWICH_MAX_SQUISH_MM = 0.6
 
 # Rigid merging is evidence-based, never depth-based: coincident duplicate
 # shells (containment-grade bbox overlap + full-rank contact-normal tensor)
@@ -140,6 +163,14 @@ class _Part:
     # Seated contact normals with neighbors — the natural separation
     # directions (filled by _plan_parts from the seated broadphase pass)
     contact_normals: list = field(default_factory=list)
+    # Seated-interference allowances with sandwich partners (nodeId → mm),
+    # each valid ONLY along its axis in seated_allowance_axes (nodeId →
+    # unit vector). A compliant part's squish against its flanges, granted
+    # during sweeps like thread interference on a fastener — and like
+    # thread mates, axis-gated so lateral motion is judged strictly
+    # (filled by _sandwiched_parts)
+    seated_allowance: dict = field(default_factory=dict)
+    seated_allowance_axes: dict = field(default_factory=dict)
 
 
 @dataclass
@@ -165,6 +196,21 @@ class _FastenerInfo:
     # tessellated mesh. Allowance value, like mates, is depth before the
     # shared margin applies.
     sliding: dict[str, float] = field(default_factory=dict)
+
+
+@dataclass
+class _SandwichInfo:
+    """A sandwiched compliant part (gasket, seal, shim) and its two sides.
+
+    `axis` is the shared dominant contact normal; `side_a`/`side_b` hold
+    the partner unit ids on each side of the part along that axis. Which
+    side assembles first is decided later by total material volume (the
+    enclosure side outweighs the compressor side).
+    """
+
+    axis: np.ndarray
+    side_a: set = field(default_factory=set)
+    side_b: set = field(default_factory=set)
 
 
 @dataclass
@@ -201,6 +247,7 @@ def plan_step(
     path_samples: int = 60,
     max_parts: int | None = None,
     units: list[dict] | None = None,
+    sequence: list[list[str]] | None = None,
 ) -> PlanResult:
     """Plan removal motions and an assembly sequence for a STEP file.
 
@@ -209,6 +256,12 @@ def plan_step(
     collision mesh for planning, then expanded back to its member leaves at
     emission (they share one step and one motion). This is what keeps a 400-part
     model — really ~7 assembled units — from being planned as 400 loose bodies.
+
+    ``sequence`` switches to fixed-sequence mode: the caller supplies the
+    assembly ORDER and GROUPING as an ordered list of leaf-nodeId groups, and
+    the planner uses that order as-is (no reordering) — it only computes each
+    group's forward-collision insertion motion (see ``_plan_fixed_sequence``).
+    plan.json comes out in the same shape either way.
     """
     try:
         import trimesh
@@ -226,15 +279,19 @@ def plan_step(
     parts = _collect_world_parts(root, trimesh)
     leaf_count = len(parts)
     expansion: dict[str, dict] = {}
-    if units:
+    if units and not sequence:
+        units = _eject_fastened_unit_members(parts, units, trimesh, warnings)
         parts, expansion = _merge_units(parts, units, trimesh)
 
-    # The limit applies to the bodies actually planned (post-merge), not the raw
-    # leaf count — a PCB's 300 internal solids collapse to one body.
-    if max_parts is not None and len(parts) > max_parts:
+    # The limit applies to the bodies actually planned, not the raw leaf count:
+    # post-unit-merge in the normal path (a PCB's 300 internal solids collapse
+    # to one body), one per caller group in fixed-sequence mode.
+    planned_body_count = len(sequence) if sequence else len(parts)
+    if max_parts is not None and planned_body_count > max_parts:
         raise ConvertError(
             "LIMIT_EXCEEDED",
-            f"assembly has {len(parts)} part instances; the limit is {max_parts}",
+            f"assembly has {planned_body_count} part instances; "
+            f"the limit is {max_parts}",
             413,
         )
     if any(part.is_proxy for part in parts):
@@ -242,14 +299,25 @@ def plan_step(
             "some parts use bounding-box proxy meshes; their motions are low confidence"
         )
 
-    outcome = _plan_parts(
-        parts,
-        trimesh,
-        clearance=clearance,
-        path_samples=path_samples,
-        warnings=warnings,
-        tolerance=_mesh_tolerance(linear_deflection),
-    )
+    if sequence:
+        outcome = _plan_fixed_sequence(
+            parts,
+            sequence,
+            trimesh,
+            clearance=clearance,
+            path_samples=path_samples,
+            warnings=warnings,
+            tolerance=_mesh_tolerance(linear_deflection),
+        )
+    else:
+        outcome = _plan_parts(
+            parts,
+            trimesh,
+            clearance=clearance,
+            path_samples=path_samples,
+            warnings=warnings,
+            tolerance=_mesh_tolerance(linear_deflection),
+        )
 
     # Expand merged units back to their member leaves: each member carries the
     # unit's motion + groupId, and the unit is one entry in `groups` (with its
@@ -307,6 +375,73 @@ def plan_step(
         warnings=warnings,
         verified_count=outcome.verified_count,
     )
+
+
+def _eject_fastened_unit_members(
+    parts: list[_Part],
+    units: list[dict],
+    trimesh_mod,
+    warnings: list[str],
+) -> list[dict]:
+    """Fastener joints define assembly boundaries.
+
+    A unit collapses parts that arrive pre-assembled (a purchased PCB's
+    solids). If a fastener OUTSIDE the unit clamps a member INSIDE it,
+    that member is assembled at THIS level — the joint is physical
+    evidence it was never part of the pre-assembly — so it leaves the
+    unit and plans as its own body (a connector screwed through the
+    enclosure wall, swallowed by an over-inclusive authored unit, would
+    otherwise hook the unit to the enclosure and poison the whole plan).
+
+    The unit's internal contact HUB — the member the rest of the unit is
+    mounted on, a PCB's bare board — is never ejected: the same fasteners
+    that secure the whole unit clamp it through its mounting holes, and
+    gutting the hub would orphan every other member.
+    """
+    by_id = {part.node_id: part for part in parts}
+    pair_depths = _seated_pair_depths(parts, trimesh_mod)
+    fasteners = _classify_fasteners(parts, pair_depths)
+    joints = _fastener_joints(parts, fasteners)
+
+    cleaned: list[dict] = []
+    for unit in units:
+        members = [n for n in unit.get("nodeIds", []) if n in by_id]
+        member_set = set(members)
+        if len(member_set) < 2:
+            cleaned.append(unit)
+            continue
+        internal: dict[str, int] = {node: 0 for node in member_set}
+        for pair in pair_depths:
+            a, b = tuple(pair)
+            if a in member_set and b in member_set:
+                internal[a] += 1
+                internal[b] += 1
+        # The most internally-connected member is the unit's fabric (a
+        # PCB's bare board) — the fasteners that secure the whole unit
+        # clamp it too, but ejecting it would orphan every other member
+        hub = max(member_set, key=lambda node: (internal[node], node))
+        ejected: list[str] = []
+        for fastener_id, joint in joints.items():
+            if fastener_id in member_set:
+                continue
+            for member in joint:
+                if member in member_set and member != hub:
+                    member_set.discard(member)
+                    ejected.append(member)
+        if ejected:
+            for node in sorted(ejected):
+                part = by_id[node]
+                warnings.append(
+                    f"'{part.name or node}' ejected from unit "
+                    f"'{unit.get('name') or unit.get('id')}': an outside "
+                    "fastener assembles it at this level"
+                )
+            unit = {
+                **unit,
+                "nodeIds": [n for n in members if n in member_set],
+            }
+        cleaned.append(unit)
+    return cleaned
 
 
 def _merge_units(
@@ -426,9 +561,38 @@ def _plan_parts(
             if member not in info.mates:
                 info.sliding[member] = tolerance
 
+    # Sandwiched compliant parts (gaskets, seals): detected before motion
+    # planning so their seated squish is granted as an allowance during
+    # every sweep, and so the greedy loop never rigid-merges them away
+    sandwiches = _sandwiched_parts(units, pair_depths, fasteners, merged_into)
+
+    # Secured-ness signals for ordering: which units a fastener engages
+    # (joints, post-remap so members are unit-level) and how many seated
+    # structural neighbors each unit has
+    fastened: set[str] = {
+        member for members in joints.values() for member in members
+    }
+    contact_count: dict[str, int] = {}
+    counted_pairs: set[frozenset] = set()
+    for pair in pair_depths:
+        a, b = tuple(pair)
+        unit_a = merged_into.get(a, a)
+        unit_b = merged_into.get(b, b)
+        if unit_a == unit_b:
+            continue
+        unit_pair = frozenset((unit_a, unit_b))
+        if unit_pair in counted_pairs:
+            continue
+        counted_pairs.add(unit_pair)
+        for me, other in ((unit_a, unit_b), (unit_b, unit_a)):
+            if other in fasteners:
+                continue
+            contact_count[me] = contact_count.get(me, 0) + 1
+
     # Parts with a deep external bite (embedded collars, interference
     # beyond thread scale) poison any group they join — deprioritize them
-    # as group members so clean pairs get tried first
+    # as group members so clean pairs get tried first. Sandwiched parts are
+    # exempt: their bite is compliant squish, not an embedding.
     deep_bitten: set[str] = set()
     for pair, (depth, _p, _n, _t, _b) in pair_depths.items():
         if depth > 1.0:
@@ -436,6 +600,8 @@ def _plan_parts(
                 info = fasteners.get(node_id)
                 (other,) = pair - {node_id}
                 if info is not None and other in info.mates:
+                    continue
+                if merged_into.get(node_id, node_id) in sandwiches:
                     continue
                 deep_bitten.add(node_id)
 
@@ -452,6 +618,7 @@ def _plan_parts(
         tolerance=tolerance,
         late_merges=late_merges,
         deep_bitten=deep_bitten,
+        sandwiched=set(sandwiches),
     )
     if late_merges:
         # Chase chains (A merged into B, B later merged into C)
@@ -478,6 +645,11 @@ def _plan_parts(
         planned, units_by_id, trimesh_mod, fasteners, path_samples, tolerance
     )
     _add_joint_edges(fasteners, joints, units_by_id, edges, warnings)
+    # Sandwich edges go in BEFORE support edges: the support pass compares
+    # bbox z-centers, which degenerate for a thin part on a thin flange —
+    # with the sandwich edge already present, a wrong-direction support
+    # edge is rejected by the cycle guard, and the right one is a no-op.
+    _add_sandwich_edges(sandwiches, units_by_id, merged_into, edges, warnings)
     _add_support_edges(parts, pair_depths, fasteners, merged_into, edges, warnings)
     sequence = _preference_topo_sort(
         planned,
@@ -492,6 +664,8 @@ def _plan_parts(
             for rep_id, (_combined, members) in group_units.items()
         },
         debug_trace=debug_trace,
+        fastened=fastened,
+        contact_count=contact_count,
     )
     _verify_sequence(
         sequence,
@@ -555,6 +729,224 @@ def _plan_parts(
         groups=groups_payload,
         verified_count=sum(1 for entry in planned if entry.verified),
         edges=edges,
+    )
+
+
+def _plan_fixed_sequence(
+    parts: list[_Part],
+    groups_in_order: list[list[str]],
+    trimesh_mod,
+    clearance: float,
+    path_samples: int,
+    warnings: list[str] | None = None,
+    tolerance: float = PENETRATION_TOLERANCE_MM,
+    debug_trace: list | None = None,
+) -> _PlanOutcome:
+    """Plan a caller-fixed order and grouping (no reordering).
+
+    Unlike ``_plan_parts``, the assembly ORDER and GROUPING are GIVEN: each
+    inner list of ``groups_in_order`` is one assembly step — a set of leaf
+    nodeIds installed together as one rigid body — and step i installs after
+    every earlier step. The planner never re-derives the order; it only
+    computes each group's insertion motion so it clears the parts of PREVIOUS
+    groups (forward collision), demoting a group to ``flagged`` (motion
+    "none", blockers recorded) when no such motion exists. The first group is
+    the placed base and keeps motion "none".
+
+    Returns a fully-expanded ``_PlanOutcome`` (one entry per member leaf, each
+    carrying its group's motion + groupId, plus a ``groups`` payload) so
+    ``plan_step`` emits plan.json identically to the normal path.
+    """
+    from trimesh.collision import CollisionManager
+
+    if warnings is None:
+        warnings = []
+
+    by_id = {part.node_id: part for part in parts}
+
+    # Map each caller group onto leaf parts, exactly like `_merge_units`: drop
+    # nodeIds absent from the model, drop leaves already claimed by an earlier
+    # group, and skip a group left with no members.
+    cleaned_groups: list[list[str]] = []
+    consumed: set[str] = set()
+    for index, group in enumerate(groups_in_order):
+        members: list[str] = []
+        for node_id in group:
+            if node_id not in by_id:
+                warnings.append(
+                    f"group {index + 1}: nodeId '{node_id}' is not in the "
+                    "model; dropped"
+                )
+                continue
+            if node_id in consumed:
+                warnings.append(
+                    f"group {index + 1}: nodeId '{node_id}' already belongs "
+                    "to an earlier group; dropped"
+                )
+                continue
+            members.append(node_id)
+            consumed.add(node_id)
+        if not members:
+            warnings.append(
+                f"group {index + 1} has no parts present in the model; skipped"
+            )
+            continue
+        cleaned_groups.append(members)
+
+    if not cleaned_groups:
+        return _PlanOutcome(
+            planned=[], sequence=[], tiers=_tally_tiers([]), merged_into={}
+        )
+
+    # Fastener axes are the only classification the motion search needs: they
+    # let a fastener exit through its bore and keep its threaded-mate
+    # interference. No greedy/precedence work runs — the order is given.
+    pair_depths = _seated_pair_depths(parts, trimesh_mod)
+    for _pair, (_depth, _points, normals, _tensor, _bounds) in pair_depths.items():
+        for node_id in _pair:
+            part = by_id.get(node_id)
+            if part is None or len(part.contact_normals) >= 128:
+                continue
+            part.contact_normals.extend(normals)
+    fasteners = _classify_fasteners(parts, pair_depths)
+
+    # Each group becomes one rigid collision body: a multi-member group is
+    # concatenated under its first member's nodeId (via `_merge_units`); a
+    # single-member group is the leaf itself.
+    units_spec = [
+        {"id": members[0], "nodeIds": members} for members in cleaned_groups
+    ]
+    merged_parts, _expansion = _merge_units(parts, units_spec, trimesh_mod)
+    merged_by_id = {part.node_id: part for part in merged_parts}
+    groups_ordered = [
+        (f"g{index + 1}", merged_by_id[members[0]], members)
+        for index, members in enumerate(cleaned_groups)
+    ]
+
+    # Forward pass: place each group in the GIVEN order and compute its
+    # insertion motion against ONLY the already-placed groups. The first group
+    # is the placed base (no insertion motion), matching the normal path.
+    manager = CollisionManager()
+    placed: dict[str, _Part] = {}
+    planned: list[PlannedPart] = []
+    planned_by_id: dict[str, PlannedPart] = {}
+    units_by_id: dict[str, _Part] = {}
+
+    for order_index, (_label, body, _members) in enumerate(groups_ordered):
+        units_by_id[body.node_id] = body
+        if order_index == 0:
+            entry = PlannedPart(
+                node_id=body.node_id,
+                motion={"type": "none"},
+                confidence="high",
+                removal_direction=None,
+                tier="base",
+            )
+        else:
+            # remaining = this group + every already-placed group; the manager
+            # holds only the placed groups, so the motion search (which reverses
+            # a removal into an insertion) clears exactly the previous parts.
+            remaining = {**placed, body.node_id: body}
+            entry = _plan_removal(
+                body,
+                remaining,
+                manager,
+                clearance,
+                path_samples,
+                fasteners,
+                tolerance,
+            )
+            if entry is None:
+                entry = _plan_escape(
+                    body,
+                    remaining,
+                    manager,
+                    path_samples,
+                    fasteners,
+                    tolerance,
+                )
+            if entry is None:
+                warnings.append(
+                    f"'{body.name or body.node_id}' has no collision-free "
+                    "insertion after the earlier groups; flagged for review — "
+                    "it fades in during playback"
+                )
+                entry = PlannedPart(
+                    node_id=body.node_id,
+                    motion={"type": "none"},
+                    confidence="low",
+                    removal_direction=None,
+                    blocked_by=_escape_blockers(
+                        body,
+                        remaining,
+                        manager,
+                        fasteners,
+                        tolerance,
+                        path_samples,
+                    ),
+                    tier="flagged",
+                )
+        planned.append(entry)
+        planned_by_id[body.node_id] = entry
+        manager.add_object(body.node_id, body.mesh)
+        placed[body.node_id] = body
+
+    # Confirm/flag each group's motion against exactly the parts present at its
+    # point in the fixed sequence (the same forward check the normal path runs)
+    # and record the verified flag; a numerical edge demotes to flagged.
+    sequence_bodies = [
+        body.node_id for _label, body, _members in groups_ordered
+    ]
+    _verify_sequence(
+        sequence_bodies,
+        planned_by_id,
+        units_by_id,
+        trimesh_mod,
+        fasteners,
+        path_samples,
+        warnings,
+        tolerance,
+    )
+    tiers = _tally_tiers(planned)
+
+    # Expand each group body back to its member leaves: every member carries
+    # the group's motion + groupId, and the group is one `groups` entry so the
+    # viewer/step-mapper renders it as a single step.
+    groups_payload: dict = {}
+    expanded_planned: list[PlannedPart] = []
+    sequence: list[str] = []
+    for label, body, members in groups_ordered:
+        rep_entry = planned_by_id[body.node_id]
+        rep_entry.group_id = label
+        groups_payload[label] = {
+            "partNodeIds": members,
+            "motion": rep_entry.motion,
+        }
+        sequence.extend(members)
+        for member_id in members:
+            if member_id == body.node_id:
+                expanded_planned.append(rep_entry)
+            else:
+                expanded_planned.append(
+                    PlannedPart(
+                        node_id=member_id,
+                        motion=rep_entry.motion,
+                        confidence=rep_entry.confidence,
+                        removal_direction=rep_entry.removal_direction,
+                        blocked_by=list(rep_entry.blocked_by),
+                        tier=rep_entry.tier,
+                        verified=rep_entry.verified,
+                        group_id=label,
+                    )
+                )
+
+    return _PlanOutcome(
+        planned=expanded_planned,
+        sequence=sequence,
+        tiers=tiers,
+        merged_into={},
+        groups=groups_payload,
+        verified_count=sum(1 for entry in expanded_planned if entry.verified),
     )
 
 
@@ -673,25 +1065,56 @@ def _path_blockers(
     """
     blockers: set[str] = set()
     offset = np.zeros(3)
-    for direction, distance in segments:
-        exempt = _mate_exempt(part, direction, fasteners)
-        if extra_exempt:
-            exempt = {**(exempt or {}), **extra_exempt}
-        count = min(
-            max(samples, int(distance / MAX_SAMPLE_SPACING_MM) + 1),
-            MAX_PATH_SAMPLES,
-        )
-        for s in np.linspace(0.0, distance, count, endpoint=True)[1:]:
-            translation = offset + direction * float(s)
-            for other, depth in _contacts_at(manager, part, translation):
-                if other is None:
-                    continue
-                if exempt is not None and other in exempt:
-                    if depth <= exempt[other] + MATE_DEPTH_MARGIN_MM:
+    # Once a partner is identified as a blocker its identity is all this
+    # function returns — but left registered, every further sample INSIDE
+    # it enumerates its full triangle-contact set (thousands of contact
+    # objects per sample for a deep pass-through). Unregister each blocker
+    # for the remainder of the sweep; re-register before returning.
+    # Sound: a recorded blocker can't be un-recorded, and removing it
+    # never hides another partner's contacts (fcl enumerates all pairs
+    # independently).
+    objs = getattr(manager, "_objs", {})
+    parked: list = []
+    try:
+        for direction, distance in segments:
+            exempt = _mate_exempt(part, direction, fasteners)
+            seated = _seated_exempt(part, direction)
+            if seated:
+                # Compliant squish along the sandwich axis never blocks
+                exempt = {**seated, **(exempt or {})}
+            if extra_exempt:
+                exempt = {**(exempt or {}), **extra_exempt}
+            count = min(
+                max(samples, int(distance / MAX_SAMPLE_SPACING_MM) + 1),
+                MAX_PATH_SAMPLES,
+            )
+            for s in np.linspace(0.0, distance, count, endpoint=True)[1:]:
+                translation = offset + direction * float(s)
+                found = set()
+                for other, depth in _contacts_at(manager, part, translation):
+                    if other is None:
                         continue
-                if depth > tolerance:
-                    blockers.add(other)
-        offset = offset + direction * distance
+                    if exempt is not None and other in exempt:
+                        if depth <= exempt[other] + MATE_DEPTH_MARGIN_MM:
+                            continue
+                    if depth > tolerance:
+                        found.add(other)
+                fresh = found - blockers
+                if fresh:
+                    blockers |= fresh
+                    for other in fresh:
+                        entry = objs.get(other)
+                        if entry is not None:
+                            manager._manager.unregisterObject(entry["obj"])
+                            parked.append(entry["obj"])
+                    if parked:
+                        manager._manager.update()
+            offset = offset + direction * distance
+    finally:
+        for obj in parked:
+            manager._manager.registerObject(obj)
+        if parked:
+            manager._manager.update()
     return blockers
 
 
@@ -724,15 +1147,16 @@ def _derive_precedence(
         if not segments:
             continue
         part = units_by_id[entry.node_id]
-        edges[entry.node_id] |= _path_blockers(
-            part,
-            manager,
-            segments,
-            samples_segment,
-            fasteners,
-            extra_exempt={part.node_id: float("inf")},
-            tolerance=tolerance,
-        )
+        with _unregistered(manager, [part.node_id]):
+            edges[entry.node_id] |= _path_blockers(
+                part,
+                manager,
+                segments,
+                samples_segment,
+                fasteners,
+                extra_exempt={part.node_id: float("inf")},
+                tolerance=tolerance,
+            )
     return edges
 
 
@@ -828,6 +1252,185 @@ def _motion_travel(motion: dict) -> float:
     return 0.0
 
 
+def _sandwiched_parts(
+    units: list[_Part],
+    pair_depths: dict[frozenset, tuple[float, list, list, np.ndarray, np.ndarray]],
+    fasteners: dict[str, _FastenerInfo],
+    merged_into: dict[str, str],
+) -> dict[str, _SandwichInfo]:
+    """Thin parts pressed from BOTH sides along one axis (gaskets, seals).
+
+    A candidate is a non-fastener unit, thin along the shared dominant
+    contact axis, with seated partners on both sides of its center along
+    that axis. Detection uses contact-point positions and the winding-
+    invariant structure tensor — never normal signs (fcl normals follow
+    triangle winding) and never bbox z-centers (degenerate when the part
+    and its flange are both thin).
+
+    Side effect: sandwich partners exchange seated-interference allowances
+    (`_Part.seated_allowance`) so a compliant part's observed squish never
+    reads as a blocking collision during removal sweeps — the seated state
+    itself is the evidence the interference is intentional, the same
+    reasoning as thread-mate allowances.
+    """
+    units_by_id = {unit.node_id: unit for unit in units}
+    # Unit-level accumulation: unit -> partner -> [tensor, points, depth]
+    contacts: dict[str, dict[str, list]] = {}
+    for pair, (depth, points, _normals, tensor, _bounds) in pair_depths.items():
+        a, b = tuple(pair)
+        unit_a = merged_into.get(a, a)
+        unit_b = merged_into.get(b, b)
+        if unit_a == unit_b:
+            continue
+        if unit_a not in units_by_id or unit_b not in units_by_id:
+            continue
+        for me, other in ((unit_a, unit_b), (unit_b, unit_a)):
+            slot = contacts.setdefault(me, {}).setdefault(
+                other, [np.zeros((3, 3)), [], 0.0]
+            )
+            slot[0] = slot[0] + tensor
+            slot[1].extend(points)
+            slot[2] = max(slot[2], float(depth))
+
+    result: dict[str, _SandwichInfo] = {}
+    for unit in units:
+        if unit.is_proxy or unit.node_id in fasteners:
+            continue
+        partners = {
+            other: slot
+            for other, slot in contacts.get(unit.node_id, {}).items()
+            if other not in fasteners and slot[1]
+        }
+        if len(partners) < 2:
+            continue
+        # Every partner's dominant contact normal must share one axis
+        axes = []
+        for _tensor, _points, _depth in partners.values():
+            eigvecs = np.linalg.eigh(np.asarray(_tensor, dtype=np.float64))[1]
+            axes.append(np.asarray(eigvecs[:, -1], dtype=np.float64))
+        axis = axes[0]
+        if any(
+            abs(float(np.dot(axis, other_axis))) < SANDWICH_AXIS_ALIGNMENT
+            for other_axis in axes[1:]
+        ):
+            continue
+        # Thin along the axis (AABB support extent — conservative for
+        # tilted axes: overestimates thickness, never under). Both the
+        # ratio AND the absolute cap must hold: proportional thinness
+        # alone lets 30mm plates in long assemblies through.
+        extents = unit.bbox_max - unit.bbox_min
+        thickness = float(np.abs(axis) @ extents)
+        if thickness > SANDWICH_MAX_THICKNESS_RATIO * float(np.max(extents)):
+            continue
+        if thickness > SANDWICH_MAX_THICKNESS_MM:
+            continue
+        # Squish-scale interference only: a bite past compliance scale
+        # means a press fit or broken CAD — granting it an allowance
+        # would tunnel real geometry, so the part is not a sandwich at all
+        if any(
+            float(depth) > SANDWICH_MAX_SQUISH_MM
+            for (_tensor, _points, depth) in partners.values()
+        ):
+            continue
+        # Partners on both sides of the part's center along the axis
+        center = float(axis @ ((unit.bbox_min + unit.bbox_max) / 2.0))
+        info = _SandwichInfo(axis=axis)
+        for other, (_tensor, points, _depth) in partners.items():
+            mean = float(
+                axis @ np.mean(np.asarray(points, dtype=np.float64), axis=0)
+            )
+            (info.side_a if mean < center else info.side_b).add(other)
+        if not info.side_a or not info.side_b:
+            continue
+        result[unit.node_id] = info
+        for other, (_tensor, _points, depth) in partners.items():
+            allowance = max(float(depth), 0.0)
+            partner = units_by_id[other]
+            for me, them in ((unit, other), (partner, unit.node_id)):
+                if allowance > me.seated_allowance.get(them, 0.0):
+                    me.seated_allowance[them] = allowance
+                    me.seated_allowance_axes[them] = axis
+    return result
+
+
+def _add_sandwich_edges(
+    sandwiches: dict[str, _SandwichInfo],
+    units_by_id: dict[str, _Part],
+    merged_into: dict[str, str],
+    edges: dict[str, set[str]],
+    warnings: list[str],
+) -> None:
+    """Hard edges for sandwiched parts: enclosure side, part, compressor.
+
+    Collision constraints cannot express these — a flagged or interference-
+    fit gasket derives no sweep edges at all, so without explicit edges the
+    topo sort may legally place it anywhere. The side with the larger total
+    material volume is the enclosure (assembles first); the lighter side is
+    the compressor (assembles after the part). A near-tie is ambiguous and
+    adds nothing rather than guessing.
+    """
+
+    def reaches(source: str, target: str) -> bool:
+        stack, seen = [source], set()
+        while stack:
+            node = stack.pop()
+            if node == target:
+                return True
+            if node in seen:
+                continue
+            seen.add(node)
+            stack.extend(edges.get(node, ()))
+        return False
+
+    def add_edge(before: str, after: str) -> None:
+        if after in edges[before]:
+            return
+        if reaches(after, before):
+            warnings.append(
+                f"sandwich preference between '{before}' and "
+                f"'{after}' conflicts with collision constraints; skipped"
+            )
+            return
+        edges[before].add(after)
+
+    for node_id, info in sandwiches.items():
+        if node_id not in edges:
+            continue
+
+        def resolve(side: set) -> set[str]:
+            return {
+                merged_into.get(other, other)
+                for other in side
+                if merged_into.get(other, other) in edges
+            } - {node_id}
+
+        side_a = resolve(info.side_a)
+        side_b = resolve(info.side_b)
+        if not side_a or not side_b:
+            continue
+
+        def side_volume(side: set[str]) -> float:
+            return sum(_part_volume(units_by_id[other]) for other in side)
+
+        volume_a = side_volume(side_a)
+        volume_b = side_volume(side_b)
+        if max(volume_a, volume_b) <= 0:
+            continue
+        if abs(volume_a - volume_b) < 0.05 * max(volume_a, volume_b):
+            warnings.append(
+                f"sandwiched part '{node_id}' has near-equal sides; "
+                "no ordering preference added"
+            )
+            continue
+        first, second = (
+            (side_a, side_b) if volume_a > volume_b else (side_b, side_a)
+        )
+        for other in sorted(first):
+            add_edge(other, node_id)
+        for other in sorted(second):
+            add_edge(node_id, other)
+
+
 def _add_support_edges(
     parts: list[_Part],
     pair_depths: dict[frozenset, tuple[float, list, list, np.ndarray, np.ndarray]],
@@ -909,17 +1512,24 @@ def _preference_topo_sort(
     warnings: list[str],
     group_members: dict[str, list[str]] | None = None,
     debug_trace: list | None = None,
+    fastened: set[str] | None = None,
+    contact_count: dict[str, int] | None = None,
 ) -> list[str]:
     """Deterministic scored Kahn's sort over the precedence DAG.
 
     Preferences, in order: the base first; keep runs of identical parts
     together; SECURING fasteners (they pass through the parts they clamp)
-    install the moment their joint is complete; corridor-sweepers (long
-    insertion travel relative to the assembly) go while their path is
-    still open; then big-and-central structure before small/peripheral;
-    then bottom-up; nodeId breaks ties. Accessory fasteners — threaded
-    mates only, clamping nothing (knobs, set screws) — take no priority
-    jump and schedule like small structure.
+    install the moment their joint is complete; the DEPENDENCY SPINE —
+    parts that other parts are waiting on (outgoing precedence edges:
+    their insertion window closes, or later parts build on them) precede
+    terminal parts nothing depends on, regardless of size (sliders beat a
+    big badge subassembly); weakly-secured terminal parts (no fastener
+    engages them, nothing must follow them, one seated neighbor, verified
+    clean removal — snap clips, badges) go last of all; then
+    big-and-central structure before small/peripheral; then bottom-up;
+    nodeId breaks ties. Accessory fasteners — threaded mates only,
+    clamping nothing (knobs, set screws) — take no priority jump and
+    schedule like small structure.
     """
     units = list(units_by_id.values())
     centroid = _assembly_centroid(units)
@@ -953,6 +1563,39 @@ def _preference_topo_sort(
             ):
                 return True
         return False
+
+    fastened = fastened or set()
+    contact_count = contact_count or {}
+
+    def is_weakly_secured(node_id: str) -> bool:
+        # Terminal snap-ons (clips, badges): no fastener engages them,
+        # nothing is constrained to follow them, they seat against exactly
+        # one structural neighbor, AND their removal is a verified clean
+        # slide (tier 1/2). They assemble as late as their constraints
+        # allow, REGARDLESS of size — a large slide-on cover is still a
+        # terminal attachment. The gates matter on real CAD: fastener
+        # detection is name-only and clearance fits hide contacts, so
+        # without removability evidence this proxy matches half a wire
+        # harness. Anything with an outgoing edge (a slider whose
+        # insertion path a later part closes, a gasket that must precede
+        # its lid) is load-bearing for the sequence and exempt; zero
+        # structural contacts means fastener-positioned; escape/flagged
+        # parts and bbox proxies are never demoted.
+        if node_id in fastener_units:
+            return False
+        entry = by_id[node_id]
+        if entry.tier not in ("linear", "L"):
+            return False
+        if units_by_id[node_id].is_proxy:
+            return False
+        if edges.get(node_id):
+            return False
+        members = (node_id, *group_members.get(node_id, ()))
+        if any(member in fastened for member in members):
+            return False
+        return max(
+            (contact_count.get(member, 0) for member in members), default=0
+        ) == 1
 
     by_id = {entry.node_id: entry for entry in planned}
     predecessors: dict[str, set[str]] = {node_id: set() for node_id in edges}
@@ -1012,6 +1655,8 @@ def _preference_topo_sort(
                 and identity(node_id) == previous_identity
                 else 1,
                 0 if is_securing(node_id) else 1,
+                0 if edges.get(node_id) else 1,
+                1 if is_weakly_secured(node_id) else 0,
                 _structural_key(unit, centroid, diagonal),
                 float(unit.bbox_min[2]),
                 node_id,
@@ -1712,6 +2357,7 @@ def _greedy_disassembly(
     tolerance: float = PENETRATION_TOLERANCE_MM,
     late_merges: dict[str, str] | None = None,
     deep_bitten: set[str] | None = None,
+    sandwiched: set[str] | None = None,
 ) -> tuple[list[PlannedPart], list[str], dict]:
     from trimesh.collision import CollisionManager
 
@@ -1719,6 +2365,8 @@ def _greedy_disassembly(
         warnings = []
     if fasteners is None:
         fasteners = {}
+    if sandwiched is None:
+        sandwiched = set()
 
     by_id = {part.node_id: part for part in parts}
     remaining: dict[str, _Part] = dict(by_id)
@@ -1753,7 +2401,13 @@ def _greedy_disassembly(
     def removal_priority(pool: dict[str, _Part]) -> list[_Part]:
         # Fasteners come off first (so they assemble last, after the parts
         # they secure), then small/peripheral structure — the biggest, most
-        # central part survives to become the base; nodeId keeps ties stable
+        # central part survives to become the base; nodeId keeps ties
+        # stable. Deliberately NOT sensitive to the weakly-secured signal:
+        # this ranking schedules expensive removal attempts and picks
+        # flag/merge victims, and fronting hard-to-remove one-contact
+        # parts (cables, interlocked clips) multiplies failed sweeps.
+        # "Terminal parts last" is a display preference — the topo sort
+        # owns it.
         return sorted(
             pool.values(),
             key=lambda p: (
@@ -1787,19 +2441,24 @@ def _greedy_disassembly(
                 progressed = True
                 break
 
-            # The part stays registered in the manager during its own tests
-            # (its contacts are name-exempt): removing and re-adding per
-            # attempt rebuilds its BVH and dominated planning time
-            planned = _plan_removal(
-                part,
-                remaining,
-                manager,
-                clearance,
-                path_samples,
-                fasteners,
-                tolerance,
-                full_manager=full_manager,
-            )
+            # Pull the part out of the broadphase for its own tests —
+            # re-registering the same CollisionObject avoids the BVH
+            # rebuild that trimesh's remove/add cycle would pay, and the
+            # sweep stops enumerating self-contacts at every sample
+            with (
+                _unregistered(manager, [part.node_id]),
+                _unregistered(full_manager, [part.node_id]),
+            ):
+                planned = _plan_removal(
+                    part,
+                    remaining,
+                    manager,
+                    clearance,
+                    path_samples,
+                    fasteners,
+                    tolerance,
+                    full_manager=full_manager,
+                )
 
             if planned is not None:
                 manager.remove_object(part.node_id)
@@ -1816,9 +2475,15 @@ def _greedy_disassembly(
         if not progressed and len(remaining) > 1:
             # Tier 3: adaptive multi-segment escape for interlocked parts
             for part in removal_priority(remaining):
-                planned = _plan_escape(
-                    part, remaining, manager, path_samples, fasteners, tolerance
-                )
+                with _unregistered(manager, [part.node_id]):
+                    planned = _plan_escape(
+                        part,
+                        remaining,
+                        manager,
+                        path_samples,
+                        fasteners,
+                        tolerance,
+                    )
 
                 if planned is not None:
                     manager.remove_object(part.node_id)
@@ -1838,6 +2503,10 @@ def _greedy_disassembly(
             # continues as the neighbor.
             merged_here = False
             for part in removal_priority(remaining)[:8]:
+                if part.node_id in sandwiched:
+                    # A compliant part pressed into its flange is NOT a
+                    # rigid unit with it — never merge a gasket into a lid
+                    continue
                 cached = stuck_blockers_cache.get(part.node_id)
                 if cached is not None and all(
                     blocker in remaining for blocker in cached
@@ -1857,7 +2526,7 @@ def _greedy_disassembly(
                     continue
                 host_id = blockers[0]
                 host = remaining.get(host_id)
-                if host is None:
+                if host is None or host_id in sandwiched:
                     continue
                 combined_mesh = trimesh_mod.util.concatenate(
                     [host.mesh, part.mesh]
@@ -1865,6 +2534,14 @@ def _greedy_disassembly(
                 combined_mesh._carbon_volume = _part_volume(
                     host
                 ) + _part_volume(part)
+                merged_allowance = {**part.seated_allowance, **host.seated_allowance}
+                merged_axes = {
+                    **part.seated_allowance_axes,
+                    **host.seated_allowance_axes,
+                }
+                for stale in (host.node_id, part.node_id):
+                    merged_allowance.pop(stale, None)
+                    merged_axes.pop(stale, None)
                 combined = _Part(
                     node_id=host.node_id,
                     name=host.name,
@@ -1872,6 +2549,8 @@ def _greedy_disassembly(
                     bbox_min=np.minimum(host.bbox_min, part.bbox_min),
                     bbox_max=np.maximum(host.bbox_max, part.bbox_max),
                     is_proxy=host.is_proxy or part.is_proxy,
+                    seated_allowance=merged_allowance,
+                    seated_allowance_axes=merged_axes,
                 )
                 warnings.append(
                     f"'{part.name or part.node_id}' cannot separate from "
@@ -1968,6 +2647,37 @@ def _mesh_bvh(mesh):
         bvh = mesh_to_BVH(mesh)
         mesh._carbon_bvh = bvh
     return bvh
+
+
+@contextmanager
+def _unregistered(manager, node_ids):
+    """Temporarily pull parts out of the broadphase during their own sweep.
+
+    A moving part left registered collides with its own seated copy at
+    EVERY sample — thousands of triangle-pair contacts enumerated in C,
+    wrapped into Python objects, then discarded by name-filtering (the
+    self exemption). Profiled at ~86% of total planning time on the seat
+    rail (53M contact constructions). Unregistering re-registers the SAME
+    CollisionObject afterward, so the historical BVH-rebuild cost of
+    trimesh's remove/add cycle never happens — the BVH lives on the
+    geometry, not the registration. Name-based self exemptions stay in
+    place as belt-and-suspenders for callers that can't unregister.
+    """
+    entries = []
+    if manager is not None:
+        objs = getattr(manager, "_objs", {})
+        entries = [objs[n]["obj"] for n in node_ids if n in objs]
+    for obj in entries:
+        manager._manager.unregisterObject(obj)
+    if entries:
+        manager._manager.update()
+    try:
+        yield
+    finally:
+        for obj in entries:
+            manager._manager.registerObject(obj)
+        if entries:
+            manager._manager.update()
 
 
 def _contacts_at(
@@ -2078,6 +2788,29 @@ def _mate_exempt(
     if abs(float(np.dot(direction, info.axis))) > 0.99:
         return {**info.sliding, **info.mates}
     return None
+
+
+def _seated_exempt(
+    part: _Part, direction: np.ndarray
+) -> dict[str, float] | None:
+    """Sandwich-squish allowances valid along this direction.
+
+    Like `_mate_exempt`, axis-gated: a compliant part separates from its
+    flange along the sandwich axis (and the flange lifts off along the
+    same axis); motion in any other direction is judged strictly, so a
+    misclassified part can never slide laterally through real geometry.
+    """
+    if not part.seated_allowance:
+        return None
+    allowed = {
+        partner: depth
+        for partner, depth in part.seated_allowance.items()
+        if abs(
+            float(np.dot(direction, part.seated_allowance_axes[partner]))
+        )
+        > 0.99
+    }
+    return allowed or None
 
 
 def _plan_removal(
@@ -2378,15 +3111,25 @@ def _group_exempt(
     merged: dict[str, float] = {}
     for member in members:
         exempt = _mate_exempt(member, direction, fasteners)
-        if not exempt:
-            continue
-        # Mates AND sliding joints: a knob pair leaving through the opening
-        # of the bracket it threads through keeps its sliding engagement
-        for mate, depth in exempt.items():
-            if mate in member_ids:
-                continue
-            if depth > merged.get(mate, 0.0):
-                merged[mate] = depth
+        if exempt:
+            # Mates AND sliding joints: a knob pair leaving through the
+            # opening of the bracket it threads through keeps its sliding
+            # engagement
+            for mate, depth in exempt.items():
+                if mate in member_ids:
+                    continue
+                if depth > merged.get(mate, 0.0):
+                    merged[mate] = depth
+        # A member's compliant squish against an external sandwich partner
+        # travels with the group (a lid leaving with its gasket attached),
+        # axis-gated like everything else
+        seated = _seated_exempt(member, direction)
+        if seated:
+            for partner, depth in seated.items():
+                if partner in member_ids:
+                    continue
+                if depth > merged.get(partner, 0.0):
+                    merged[partner] = depth
     return merged or None
 
 
@@ -2512,54 +3255,62 @@ def _plan_group_removal(
                 if all(float(np.dot(world, d)) < 0.999 for d in directions):
                     directions.append(world)
 
-            # Members stay registered in the manager: their contacts are
-            # name-exempt during the group's own tests
-            for direction in directions:
-                tests += 1
-                travel = _exit_travel(
-                    combined, static_min, static_max, direction
-                )
-                if travel <= 0:
-                    continue
-                separation = _separation_distance(
-                    combined.bbox_min,
-                    combined.bbox_max,
-                    static_min,
-                    static_max,
-                    direction,
-                )
-                group_touch = _path_is_clear(
-                    combined,
-                    manager,
-                    direction,
-                    0.0,
-                    travel,
-                    samples_segment,
-                    tolerance,
-                    exempt=_self_exempt(
-                        _group_exempt(members, direction, fasteners, member_ids),
-                        list(member_ids),
-                    ),
-                    check_until=separation + 2 * MAX_SAMPLE_SPACING_MM,
-                )
-                if group_touch is not None:
-                    entry = PlannedPart(
-                        node_id=combined.node_id,
-                        motion={
-                            "type": "linear",
-                            "direction": [-float(c) for c in direction],
-                            "distance": _recorded_travel(
-                                combined, direction, travel, group_touch
-                            ),
-                        },
-                        confidence="low",
-                        removal_direction=[float(c) for c in direction],
-                        tier="group",
+            # Members leave the broadphase for the group's own tests —
+            # every member registered would flood the combined mesh with
+            # its full self-overlap contact set at every sample. The name
+            # exemption below stays as belt-and-suspenders.
+            with _unregistered(manager, list(member_ids)):
+                group_touch = None
+                for direction in directions:
+                    tests += 1
+                    travel = _exit_travel(
+                        combined, static_min, static_max, direction
                     )
-                    ordered = [member.node_id for member in members]
-                    return ordered, combined, entry
-                if tests >= MAX_GROUP_TESTS:
-                    break
+                    if travel <= 0:
+                        continue
+                    separation = _separation_distance(
+                        combined.bbox_min,
+                        combined.bbox_max,
+                        static_min,
+                        static_max,
+                        direction,
+                    )
+                    group_touch = _path_is_clear(
+                        combined,
+                        manager,
+                        direction,
+                        0.0,
+                        travel,
+                        samples_segment,
+                        tolerance,
+                        exempt=_self_exempt(
+                            _group_exempt(
+                                members, direction, fasteners, member_ids
+                            ),
+                            list(member_ids),
+                        ),
+                        check_until=separation + 2 * MAX_SAMPLE_SPACING_MM,
+                    )
+                    if group_touch is not None:
+                        break
+                    if tests >= MAX_GROUP_TESTS:
+                        break
+            if group_touch is not None:
+                entry = PlannedPart(
+                    node_id=combined.node_id,
+                    motion={
+                        "type": "linear",
+                        "direction": [-float(c) for c in direction],
+                        "distance": _recorded_travel(
+                            combined, direction, travel, group_touch
+                        ),
+                    },
+                    confidence="low",
+                    removal_direction=[float(c) for c in direction],
+                    tier="group",
+                )
+                ordered = [member.node_id for member in members]
+                return ordered, combined, entry
 
     return None
 
@@ -2750,6 +3501,14 @@ def _path_is_clear(
     """
     if end <= start:
         return None
+    seated = _seated_exempt(part, direction)
+    if seated:
+        # Compliant squish along the sandwich axis never blocks; explicit
+        # exemptions (self, mates) keep precedence when larger
+        merged_exempt = dict(seated)
+        for partner, depth in (exempt or {}).items():
+            merged_exempt[partner] = max(merged_exempt.get(partner, 0.0), depth)
+        exempt = merged_exempt
     samples = min(
         max(samples, int((end - start) / MAX_SAMPLE_SPACING_MM) + 1),
         MAX_PATH_SAMPLES,
@@ -2826,19 +3585,20 @@ def _escape_blockers(
         directions = _candidate_directions(part)
 
     blockers: set[str] = set()
-    for direction in directions:
-        travel = _exit_travel(part, static_min, static_max, direction)
-        if travel <= 0:
-            continue
-        blockers |= _path_blockers(
-            part,
-            manager,
-            [(direction, float(travel))],
-            samples_segment,
-            fasteners,
-            extra_exempt={part.node_id: float("inf")},
-            tolerance=tolerance,
-        )
+    with _unregistered(manager, [part.node_id]):
+        for direction in directions:
+            travel = _exit_travel(part, static_min, static_max, direction)
+            if travel <= 0:
+                continue
+            blockers |= _path_blockers(
+                part,
+                manager,
+                [(direction, float(travel))],
+                samples_segment,
+                fasteners,
+                extra_exempt={part.node_id: float("inf")},
+                tolerance=tolerance,
+            )
     blockers.discard(part.node_id)
     return sorted(blockers)[:8]
 

@@ -4179,6 +4179,28 @@ export async function updateAssemblyStepMotion(
     .single();
 }
 
+// Autosave target for the Details panel's Add/remove part controls: patches only
+// the step's assigned parts, leaving the title/typed fields and motion untouched.
+export async function updateAssemblyStepParts(
+  client: SupabaseClient<Database>,
+  data: {
+    id: string;
+    partNodeIds: string[];
+    updatedBy: string;
+  }
+) {
+  return client
+    .from("assemblyInstructionStep")
+    .update({
+      partNodeIds: data.partNodeIds,
+      updatedBy: data.updatedBy,
+      updatedAt: new Date().toISOString()
+    })
+    .eq("id", data.id)
+    .select("id")
+    .single();
+}
+
 async function getNextStepSortOrder(
   client: SupabaseClient<Database>,
   data: { assemblyInstructionId: string }

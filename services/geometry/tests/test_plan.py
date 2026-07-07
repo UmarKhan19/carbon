@@ -791,3 +791,455 @@ def test_merge_units_body_plans_as_a_single_step():
     assert "module" in by_id
     assert by_id["module"].motion["type"] == "linear"
     assert expansion["module"]["members"] == ["mod_a", "mod_b"]
+
+
+def test_large_snap_on_clip_assembles_last():
+    # A slide-on clip that nothing clamps and that seats against only the
+    # base is a terminal attachment: it assembles LAST even though it is
+    # much bigger than the screwed-down bracket. Volume alone must not
+    # drag it early — "least secured goes last" is the principle.
+    plate = trimesh.creation.box(extents=(100, 100, 10))
+    plate.apply_translation((0, 0, 5))
+    tapped = trimesh.creation.cylinder(radius=4.6, height=20)
+    tapped.apply_translation((0, 0, 5))
+    plate = plate.difference(tapped)
+    plate_part = _mesh_part("plate", plate)
+
+    bracket = trimesh.creation.box(extents=(30, 30, 8))
+    bracket.apply_translation((0, 0, 14))
+    clearance = trimesh.creation.cylinder(radius=5.4, height=20)
+    clearance.apply_translation((0, 0, 14))
+    bracket = bracket.difference(clearance)
+    bracket_part = _mesh_part("bracket", bracket)
+
+    shaft = trimesh.creation.cylinder(radius=5.0, height=18)
+    shaft.apply_translation((0, 0, 11))
+    head = trimesh.creation.cylinder(radius=8.0, height=4)
+    head.apply_translation((0, 0, 22))
+    screw = shaft.union(head)
+    screw_part = _mesh_part("screw", screw, name="Screw M6x20")
+
+    # Bigger than the bracket, seated 0.1mm into the plate, unfastened,
+    # clear of the bracket and screw head in X
+    clip = _box_part("clip", (30, 40, 24), (33, 0, 21.9))
+    assert clip.mesh.volume > bracket_part.mesh.volume
+
+    outcome, _warnings = _plan_full(
+        [plate_part, bracket_part, screw_part, clip]
+    )
+
+    assert outcome.sequence[0] == "plate"
+    assert outcome.sequence[-1] == "clip"
+    # The securing screw still fires right after its joint completes
+    assert (
+        outcome.sequence.index("screw")
+        == outcome.sequence.index("bracket") + 1
+    )
+    assert outcome.tiers["flagged"] == 0
+    assert all(entry.verified for entry in outcome.planned)
+
+
+def test_part_with_blocked_insertion_is_not_demoted():
+    # A slider in a blind channel also has exactly one seated neighbor and
+    # no fastener — but its only insertion path is closed by the end stop,
+    # so it carries an outgoing precedence edge and must NOT be demoted to
+    # the terminal tier (the seat-rail slider case).
+    rail = trimesh.creation.box(extents=(100, 40, 25))
+    rail.apply_translation((0, 0, 12.5))
+    # Blind tunnel: open at +X only, a 5mm plug remains at the -X end
+    tunnel = trimesh.creation.box(extents=(95, 20, 10))
+    tunnel.apply_translation((2.5, 0, 14))
+    # Subdivide like a real tessellation: giant coplanar box triangles
+    # report phantom penetration depths spanning the whole sliding face
+    rail = rail.difference(tunnel).subdivide_to_size(5.0)
+    rail_part = _mesh_part("rail", rail)
+
+    # Seated 0.05mm against the blind-end plug (x=-45), clearance to the
+    # tunnel floor and walls so the slide out is a clean fit
+    slider_mesh = trimesh.creation.box(extents=(80, 19.6, 9.6))
+    slider_mesh.apply_translation((-5.05, 0, 14))
+    slider = _mesh_part("slider", slider_mesh.subdivide_to_size(5.0))
+
+    # End stop seated 0.05mm against the rail's +X face, covering the
+    # tunnel opening
+    stop_mesh = trimesh.creation.box(extents=(10, 30, 20))
+    stop_mesh.apply_translation((54.95, 0, 10))
+    stop = _mesh_part("stop", stop_mesh.subdivide_to_size(5.0))
+
+    outcome, _warnings = _plan_full([rail_part, slider, stop])
+
+    assert outcome.sequence[0] == "rail"
+    # The slider's escape sweeps through the seated end stop: that edge
+    # keeps it early despite one contact and no fastener
+    assert "stop" in outcome.edges.get("slider", set())
+    assert outcome.sequence == ["rail", "slider", "stop"]
+    assert outcome.tiers["flagged"] == 0
+
+
+def _enclosure_with_gasket(gasket_bite: float, lid_bite: float):
+    """Open-top box, thin gasket frame on the rim, flat lid on the gasket.
+
+    The gasket ring (58x58 outer, 52x52 hole, 2mm thick) sits strictly
+    within the 5mm rim so its contacts with box and lid are purely
+    horizontal faces. `gasket_bite`/`lid_bite` control the seated
+    interpenetration at each interface.
+    """
+    box = trimesh.creation.box(extents=(60, 60, 30))
+    box.apply_translation((0, 0, 15))
+    cavity = trimesh.creation.box(extents=(50, 50, 30))
+    cavity.apply_translation((0, 0, 17))
+    # Subdivide like a real tessellation: giant coplanar box triangles
+    # report phantom penetration far beyond the geometric bite
+    box = box.difference(cavity).subdivide_to_size(5.0)
+    box_part = _mesh_part("box", box)
+
+    gasket = trimesh.creation.box(extents=(58, 58, 2))
+    hole = trimesh.creation.box(extents=(52, 52, 4))
+    gasket = gasket.difference(hole).subdivide_to_size(5.0)
+    # Box rim top is z=30; seat the gasket biting into it
+    gasket.apply_translation((0, 0, 31 - gasket_bite))
+    gasket_part = _mesh_part("gasket", gasket)
+
+    gasket_top = 32 - gasket_bite
+    lid_mesh = trimesh.creation.box(extents=(60, 60, 4))
+    lid_mesh.apply_translation((0, 0, gasket_top + 2 - lid_bite))
+    lid = _mesh_part("lid", lid_mesh.subdivide_to_size(5.0))
+    return box_part, gasket_part, lid
+
+
+def test_sandwiched_gasket_orders_between_flanges():
+    # A thin part with seated contact on BOTH sides along one axis is
+    # sandwiched: the enclosure side assembles first, then the part, then
+    # the compressor — even though the gasket is the smallest body and
+    # nothing else constrains it.
+    box_part, gasket_part, lid = _enclosure_with_gasket(0.05, 0.05)
+
+    outcome, _warnings = _plan_full([box_part, gasket_part, lid])
+
+    assert outcome.sequence == ["box", "gasket", "lid"]
+    assert outcome.tiers["flagged"] == 0
+    assert "gasket" not in outcome.merged_into
+    assert all(entry.verified for entry in outcome.planned)
+
+
+def test_interfering_gasket_still_plans():
+    # A compressed gasket modeled with real interference (0.4mm into both
+    # flanges, past the 0.15mm tolerance) must still plan: the seated
+    # squish is granted as a compliant allowance, the lid's sweep is not
+    # spuriously blocked, and the gasket is never rigid-merged into a
+    # flange or flagged.
+    box_part, gasket_part, lid = _enclosure_with_gasket(0.4, 0.4)
+
+    outcome, warnings = _plan_full([box_part, gasket_part, lid])
+
+    assert outcome.sequence == ["box", "gasket", "lid"]
+    assert outcome.tiers["flagged"] == 0
+    assert outcome.merged_into == {}
+    assert not any("rigid unit" in warning for warning in warnings)
+    assert all(entry.verified for entry in outcome.planned)
+
+
+def _detect_sandwiches(parts):
+    from app.plan import (
+        _classify_fasteners,
+        _sandwiched_parts,
+        _seated_pair_depths,
+    )
+
+    pair_depths = _seated_pair_depths(parts, trimesh)
+    fasteners = _classify_fasteners(parts, pair_depths)
+    return _sandwiched_parts(parts, pair_depths, fasteners, {})
+
+
+def test_thick_stack_is_not_a_sandwich():
+    # A 15mm plate seated between two bodies passes the proportional
+    # thinness ratio (15 <= 0.3 * 60) but is NOT a gasket: the absolute
+    # thickness cap rejects it, so no allowance corrupts its collisions.
+    bottom = _box_part("bottom", (60, 60, 10), (0, 0, 5))
+    middle = _box_part("middle", (60, 60, 15), (0, 0, 17.45))  # bites 0.05
+    top = _box_part("top", (60, 60, 10), (0, 0, 29.9))  # bites 0.05
+
+    assert _detect_sandwiches([bottom, middle, top]) == {}
+    assert middle.seated_allowance == {}
+
+
+def test_deep_bite_is_not_a_sandwich():
+    # A thin ring with 1.5mm reported interference is a press fit or
+    # broken CAD, not compliant squish — granting an allowance would
+    # tunnel real geometry, so the part is not classified at all. The
+    # gate is pure logic on the reported depth, so feed it fabricated
+    # pair data (synthetic meshes report parallel-face penetration
+    # unreliably in both directions).
+    from app.plan import _sandwiched_parts
+
+    box = _box_part("box", (60, 60, 30), (0, 0, 14))
+    gasket = _box_part("gasket", (58, 58, 2), (0, 0, 30))
+    lid = _box_part("lid", (60, 60, 4), (0, 0, 33))
+    tensor = np.diag([0.0, 0.0, 8.0])
+
+    def pairs(depth):
+        def pair(z):
+            return (depth, [np.array([0.0, 0.0, z])] * 4, [], tensor, None)
+
+        return {
+            frozenset(("box", "gasket")): pair(29.2),
+            frozenset(("gasket", "lid")): pair(30.8),
+        }
+
+    parts = [box, gasket, lid]
+    assert _sandwiched_parts(parts, pairs(1.5), {}, {}) == {}
+    assert gasket.seated_allowance == {}
+    # The identical geometry with squish-scale interference IS a sandwich
+    assert "gasket" in _sandwiched_parts(parts, pairs(0.3), {}, {})
+    assert gasket.seated_allowance == {"box": 0.3, "lid": 0.3}
+
+
+def test_sandwich_allowance_is_axis_gated():
+    # A genuine gasket's squish allowance applies only along the sandwich
+    # axis (like a thread mate along its bore): lateral motion is judged
+    # strictly, so a misclassified part can never slide sideways through
+    # real geometry.
+    from app.plan import _seated_exempt
+
+    box_part, gasket_part, lid = _enclosure_with_gasket(0.4, 0.4)
+    sandwiches = _detect_sandwiches([box_part, gasket_part, lid])
+
+    assert "gasket" in sandwiches
+    along_axis = _seated_exempt(gasket_part, np.array([0.0, 0.0, 1.0]))
+    assert along_axis is not None and "lid" in along_axis
+    assert _seated_exempt(gasket_part, np.array([1.0, 0.0, 0.0])) is None
+    # The flange side gets the mirrored, equally axis-gated allowance
+    lid_along = _seated_exempt(lid, np.array([0.0, 0.0, -1.0]))
+    assert lid_along is not None and "gasket" in lid_along
+    assert _seated_exempt(lid, np.array([0.0, 1.0, 0.0])) is None
+
+
+def test_parts_with_dependents_precede_terminal_accessories():
+    # The dependency spine: a small slider that a later part waits on
+    # (its insertion path is closed by the end stop) assembles before a
+    # BIGGER terminal bridge nothing depends on. Volume must not drag the
+    # terminal accessory early — the assembly proceeds along the spine.
+    rail = trimesh.creation.box(extents=(100, 40, 25))
+    rail.apply_translation((0, 0, 12.5))
+    tunnel = trimesh.creation.box(extents=(95, 20, 10))
+    tunnel.apply_translation((2.5, 0, 14))
+    rail = rail.difference(tunnel).subdivide_to_size(5.0)
+    rail_part = _mesh_part("rail", rail)
+
+    slider_mesh = trimesh.creation.box(extents=(80, 19.6, 9.6))
+    slider_mesh.apply_translation((-5.05, 0, 14))
+    slider = _mesh_part("slider", slider_mesh.subdivide_to_size(5.0))
+
+    stop_mesh = trimesh.creation.box(extents=(10, 30, 20))
+    stop_mesh.apply_translation((54.95, 0, 10))
+    stop = _mesh_part("stop", stop_mesh.subdivide_to_size(5.0))
+
+    # Two risers on the rail top carrying a large terminal bridge: the
+    # bridge has TWO structural contacts (so the weakly-secured gate does
+    # not apply) and nothing depends on it
+    riser_a = _box_part("riser_a", (10, 10, 10), (0, 12, 29.95))
+    riser_b = _box_part("riser_b", (10, 10, 10), (30, 12, 29.95))
+    bridge = _box_part("bridge", (50, 30, 20), (15, 12, 44.9))
+    assert bridge.mesh.volume > slider.mesh.volume
+
+    outcome, _warnings = _plan_full(
+        [rail_part, slider, stop, riser_a, riser_b, bridge]
+    )
+
+    assert outcome.sequence[0] == "rail"
+    assert outcome.sequence.index("slider") < outcome.sequence.index("bridge")
+    # Risers carry the bridge (support edges) — they are spine parts too
+    assert outcome.sequence.index("riser_a") < outcome.sequence.index("bridge")
+    assert outcome.tiers["flagged"] == 0
+
+
+def test_outside_fastener_ejects_unit_member():
+    # Unit hygiene: an external screw clamping a unit member means that
+    # member is assembled at THIS level, so it leaves the unit and plans
+    # as its own body. The hub (most internally-connected member — the
+    # board the others mount on) is never ejected, even though the same
+    # screws secure it too. Exercises the ejection path end to end.
+    from app.plan import _eject_fastened_unit_members
+
+    board = _box_part("board", (60, 60, 4), (0, 0, 2))
+    left = _box_part("left", (12, 12, 10), (-18, 0, 7.95))
+    right = _box_part("right", (12, 12, 10), (18, 0, 7.95))
+    # A screw biting into `right` from above (a threaded mate → joint),
+    # clearing the board so it doesn't mate the hub
+    shaft = trimesh.creation.cylinder(radius=2.5, height=16)
+    shaft.apply_translation((18, 0, 13))
+    screw = _mesh_part("screw", shaft, name="M5 Screw")
+
+    units = [{"id": "u", "name": "Board", "nodeIds": ["board", "left", "right"]}]
+    warnings: list[str] = []
+    cleaned = _eject_fastened_unit_members(
+        [board, left, right, screw], units, trimesh, warnings
+    )
+
+    remaining = set(cleaned[0]["nodeIds"])
+    assert "right" not in remaining  # clamped by the external screw
+    assert {"board", "left"} <= remaining  # hub + unclamped member stay
+    assert any("ejected" in warning for warning in warnings)
+
+
+def test_eject_is_a_noop_without_outside_fasteners():
+    # A self-contained unit (no external fastener touches its members)
+    # passes through unchanged — and never raises.
+    from app.plan import _eject_fastened_unit_members
+
+    a = _box_part("a", (20, 20, 10), (0, 0, 5))
+    b = _box_part("b", (20, 20, 10), (0, 0, 15.05))
+    units = [{"id": "u", "name": "Stack", "nodeIds": ["a", "b"]}]
+    warnings: list[str] = []
+    cleaned = _eject_fastened_unit_members([a, b], units, trimesh, warnings)
+    assert set(cleaned[0]["nodeIds"]) == {"a", "b"}
+    assert warnings == []
+
+
+# --- Fixed-sequence mode ------------------------------------------------
+# The caller supplies the assembly ORDER and GROUPING; the planner uses it
+# as-is and only computes each group's forward-collision insertion motion.
+
+
+def _plan_fixed(parts, groups):
+    from app.plan import _plan_fixed_sequence
+
+    warnings: list[str] = []
+    outcome = _plan_fixed_sequence(
+        parts,
+        groups,
+        trimesh,
+        clearance=0.5,
+        path_samples=40,
+        warnings=warnings,
+        tolerance=0.15,
+    )
+    return outcome, warnings
+
+
+def _blind_channel_blocks():
+    """A rail with a horizontal blind pocket open only at +X, holding two
+    blocks that slide in along -X and stack: `deep` seats at the closed -X
+    end, `near` behind it toward the opening. The correct install order is
+    deep-first — `near` placed first boxes `deep` in against the plug."""
+    rail = trimesh.creation.box(extents=(100, 40, 30))
+    rail.apply_translation((0, 0, 15))
+    # Pocket spans x[-40, 50] (open at the +X rail face, a plug remains at -X)
+    pocket = trimesh.creation.box(extents=(90, 22, 12))
+    pocket.apply_translation((5, 0, 15))
+    rail = rail.difference(pocket).subdivide_to_size(5.0)
+    rail_part = _mesh_part("rail", rail)
+
+    deep_mesh = trimesh.creation.box(extents=(40, 20, 10))
+    deep_mesh.apply_translation((-20, 0, 15))  # x[-40, 0], against the plug
+    deep = _mesh_part("deep", deep_mesh.subdivide_to_size(5.0))
+
+    near_mesh = trimesh.creation.box(extents=(40, 20, 10))
+    near_mesh.apply_translation((20.2, 0, 15))  # x[0.2, 40.2], toward the opening
+    near = _mesh_part("near", near_mesh.subdivide_to_size(5.0))
+    return rail_part, deep, near
+
+
+def test_fixed_sequence_stacked_boxes_all_clear():
+    # (a) Given the correct bottom -> top order, every group gets a non-"none"
+    # forward-collision-clear motion (except the placed base) and verifies.
+    bottom = _box_part("bottom", (100, 100, 10), (0, 0, 5))
+    middle = _box_part("middle", (60, 60, 10), (0, 0, 15.05))
+    top = _box_part("top", (40, 40, 10), (0, 0, 25.10))
+
+    outcome, _warnings = _plan_fixed(
+        [bottom, middle, top], [["bottom"], ["middle"], ["top"]]
+    )
+    by_id = {entry.node_id: entry for entry in outcome.planned}
+
+    # Order is used as given
+    assert outcome.sequence == ["bottom", "middle", "top"]
+    # Base is placed (no insertion); the rest drop straight down onto it
+    assert by_id["bottom"].motion["type"] == "none"
+    assert by_id["bottom"].tier == "base"
+    assert by_id["middle"].motion["type"] != "none"
+    assert by_id["top"].motion["type"] != "none"
+    # Forward-collision clear against the parts present at their step
+    assert all(entry.verified for entry in outcome.planned)
+    # Every member carries a groupId so a step can be matched by its group
+    assert all(entry.group_id is not None for entry in outcome.planned)
+    assert len(outcome.groups) == 3
+
+
+def test_fixed_sequence_bad_order_flags_boxed_in_group():
+    # (b) An order that forces a collision: placing `near` first boxes `deep`
+    # in against the plug, so `deep` cannot be inserted and is flagged.
+    rail, deep, near = _blind_channel_blocks()
+
+    outcome, _warnings = _plan_fixed([rail, deep, near], [["rail"], ["near"], ["deep"]])
+    by_id = {entry.node_id: entry for entry in outcome.planned}
+
+    assert outcome.sequence == ["rail", "near", "deep"]
+    assert by_id["deep"].tier == "flagged"
+    assert by_id["deep"].motion["type"] == "none"
+    assert by_id["deep"].blocked_by  # non-empty: the plug rail + the blocking near
+    assert not by_id["deep"].verified
+    # `near` (installed toward the opening first) still slides in cleanly
+    assert by_id["near"].motion["type"] != "none"
+    assert by_id["near"].verified
+
+
+def test_fixed_sequence_respects_order_not_re_derives_it():
+    # (c) The SAME parts planned with the correct order flag nothing; reversing
+    # the two blocks moves the flag onto `deep` — proving the given order is
+    # respected, not re-derived (a re-deriving planner would pick the good order
+    # either way).
+    rail, deep, near = _blind_channel_blocks()
+    good, _ = _plan_fixed([rail, deep, near], [["rail"], ["deep"], ["near"]])
+
+    rail, deep, near = _blind_channel_blocks()
+    reversed_, _ = _plan_fixed([rail, deep, near], [["rail"], ["near"], ["deep"]])
+
+    good_flagged = {e.node_id for e in good.planned if e.tier == "flagged"}
+    reversed_flagged = {e.node_id for e in reversed_.planned if e.tier == "flagged"}
+
+    assert good_flagged == set()
+    assert reversed_flagged == {"deep"}
+    assert good_flagged != reversed_flagged
+    assert all(entry.verified for entry in good.planned)
+
+
+def test_fixed_sequence_single_group_is_the_base():
+    # (d) A single group spanning the whole model is the placed base: it keeps
+    # motion "none" and every member shares that one step.
+    a = _box_part("a", (40, 40, 10), (0, 0, 5))
+    b = _box_part("b", (40, 40, 10), (0, 0, 15.05))
+
+    outcome, _warnings = _plan_fixed([a, b], [["a", "b"]])
+    by_id = {entry.node_id: entry for entry in outcome.planned}
+
+    assert set(outcome.sequence) == {"a", "b"}
+    assert by_id["a"].motion["type"] == "none"
+    assert by_id["b"].motion["type"] == "none"
+    assert by_id["a"].verified and by_id["b"].verified
+    assert by_id["a"].group_id == by_id["b"].group_id
+    assert len(outcome.groups) == 1
+    group = next(iter(outcome.groups.values()))
+    assert set(group["partNodeIds"]) == {"a", "b"}
+    assert group["motion"]["type"] == "none"
+
+
+def test_fixed_sequence_drops_unknown_nodeids():
+    # (e) NodeIds absent from the model are dropped from their group; a group
+    # left all-unknown is skipped with a warning.
+    base = _box_part("base", (100, 100, 10), (0, 0, 5))
+    top = _box_part("top", (40, 40, 10), (0, 0, 15.05))
+
+    outcome, warnings = _plan_fixed(
+        [base, top],
+        [["base", "ghost"], ["nope1", "nope2"], ["top"]],
+    )
+    by_id = {entry.node_id: entry for entry in outcome.planned}
+
+    # The unknown ids never appear; the all-unknown middle group is skipped
+    assert outcome.sequence == ["base", "top"]
+    assert "ghost" not in by_id and "nope1" not in by_id
+    assert by_id["base"].motion["type"] == "none"
+    assert by_id["top"].motion["type"] != "none"
+    assert any("ghost" in warning for warning in warnings)
+    assert any("skipped" in warning.lower() for warning in warnings)

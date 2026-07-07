@@ -39,8 +39,6 @@ import {
 } from "~/modules/items/ui/Item";
 import ItemManufacturingForm from "~/modules/items/ui/Item/ItemManufacturingForm";
 import { ConfigurationParametersForm } from "~/modules/items/ui/Parts";
-import { getAssemblyModelState } from "~/modules/production";
-import CreateAssemblyInstruction from "~/modules/production/ui/Assemblies/CreateAssemblyInstruction";
 import type { MethodItemType, MethodType } from "~/modules/shared";
 import { getTagsList } from "~/modules/shared";
 import { getCustomFields, setCustomFields } from "~/utils/form";
@@ -59,31 +57,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const requestedMethodId = url.searchParams.get("methodId");
 
-  const [makeMethods, itemModel] = await Promise.all([
-    getMakeMethods(client, itemId, companyId),
-    client
-      .from("item")
-      .select(
-        "modelUploadId, modelUpload(id, name, processingStatus, glbPath, graphPath, modelPath)"
-      )
-      .eq("id", itemId)
-      .single()
-    // client.storage
-    //   .from("private")
-    //   .list(`${companyId}/default-attachments/item/${itemId}`)
-  ]);
-  // const defaultAttachments = defaultAttachmentsResult.data ?? [];
-
-  // Conversion is lazy, so any usable model (converted or convertible STEP)
-  // enables the create-assembly-instruction entry point
-  const assemblyModel =
-    itemModel.data?.modelUpload &&
-    getAssemblyModelState(itemModel.data.modelUpload) !== "none"
-      ? {
-          id: itemModel.data.modelUpload.id,
-          name: itemModel.data.modelUpload.name
-        }
-      : null;
+  const makeMethods = await getMakeMethods(client, itemId, companyId);
 
   const makeMethod = requestedMethodId
     ? (makeMethods.data?.find((m) => m.id === requestedMethodId) ??
@@ -93,12 +67,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       makeMethods.data?.[0]);
 
   if (!makeMethod) {
-    return { methodData: null, tags: [], assemblyModel };
+    return { methodData: null, tags: [] };
   }
 
   const fullMethod = await getMakeMethodById(client, makeMethod.id, companyId);
   if (fullMethod.error || !fullMethod.data) {
-    return { methodData: null, tags: [], assemblyModel };
+    return { methodData: null, tags: [] };
   }
 
   const [methodMaterials, methodOperations, tags, partManufacturing] =
@@ -148,8 +122,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       partManufacturing: partManufacturing.data,
       ...configData
     },
-    tags: tags.data ?? [],
-    assemblyModel
+    tags: tags.data ?? []
   };
 }
 
@@ -240,7 +213,7 @@ export default function PartDetailsRoute() {
   if (!itemId) throw new Error("Could not find itemId");
 
   const permissions = usePermissions();
-  const { methodData, tags, assemblyModel } = useLoaderData<typeof loader>();
+  const { methodData, tags } = useLoaderData<typeof loader>();
 
   const partData = useRouteData<{
     partSummary: PartSummary;
@@ -368,15 +341,6 @@ export default function PartDetailsRoute() {
             modelPath={partData?.partSummary?.modelPath ?? null}
             title={t`CAD Model`}
           />
-          {assemblyModel && permissions.can("create", "production") && (
-            <CreateAssemblyInstruction
-              itemId={itemId}
-              modelUploadId={assemblyModel.id}
-              name={
-                partData.partSummary?.name ?? assemblyModel.name ?? "Assembly"
-              }
-            />
-          )}
           <ItemRiskRegister itemId={itemId} />
         </>
       )}
