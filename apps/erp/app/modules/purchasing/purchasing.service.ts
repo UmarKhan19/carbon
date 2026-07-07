@@ -521,8 +521,7 @@ export async function getSupplierApprovalContext(
     {
       amount: req?.amount ?? null,
       documentType: "supplier",
-      companyId,
-      requestedBy: req?.requestedBy ?? ""
+      companyId
     },
     userId
   );
@@ -2363,8 +2362,8 @@ export async function getPurchasingRFQSuppliers(
   client: SupabaseClient<Database>,
   purchasingRfqId: string
 ) {
-  // @ts-ignore excessively deep type instantiation (embedded relation over the
-  // enlarged Database type); runtime shape is unchanged.
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error TS2589 tsgo type-depth false positive
   return client
     .from("purchasingRfqSupplier")
     .select("*, supplier:supplierId(id, name)")
