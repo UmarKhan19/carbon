@@ -86,6 +86,22 @@ type PurchaseOrderLineFormProps = {
   onClose?: () => void;
 };
 
+const getLineSubtotal = (
+  unitPrice: number,
+  quantity: number,
+  shippingCost: number
+) => unitPrice * quantity + shippingCost;
+
+const getLineTaxPercent = (
+  unitPrice: number,
+  quantity: number,
+  shippingCost: number,
+  taxAmount: number
+) => {
+  const subtotal = getLineSubtotal(unitPrice, quantity, shippingCost);
+  return subtotal > 0 ? taxAmount / subtotal : 0;
+};
+
 const PurchaseOrderLineForm = ({
   initialValues,
   type,
@@ -146,25 +162,23 @@ const PurchaseOrderLineForm = ({
     supplierShippingCost: initialValues.supplierShippingCost ?? 0,
     supplierTaxAmount: initialValues.supplierTaxAmount ?? 0,
     supplierUnitPrice: initialValues.supplierUnitPrice ?? 0,
-    taxPercent:
-      (initialValues.supplierUnitPrice ?? 0) *
-        (initialValues.purchaseQuantity ?? 1) +
-        (initialValues.supplierShippingCost ?? 0) >
-      0
-        ? (initialValues.supplierTaxAmount ?? 0) /
-          ((initialValues.supplierUnitPrice ?? 0) *
-            (initialValues.purchaseQuantity ?? 1) +
-            (initialValues.supplierShippingCost ?? 0))
-        : 0
+    taxPercent: getLineTaxPercent(
+      initialValues.supplierUnitPrice ?? 0,
+      initialValues.purchaseQuantity ?? 1,
+      initialValues.supplierShippingCost ?? 0,
+      initialValues.supplierTaxAmount ?? 0
+    )
   });
 
   const controlledDrawing = useItemControlledDrawing(itemData.itemId);
 
   // update tax amount when quantity or unit price changes
   useEffect(() => {
-    const subtotal =
-      itemData.supplierUnitPrice * itemData.purchaseQuantity +
-      itemData.supplierShippingCost;
+    const subtotal = getLineSubtotal(
+      itemData.supplierUnitPrice,
+      itemData.purchaseQuantity,
+      itemData.supplierShippingCost
+    );
     if (itemData.taxPercent !== 0) {
       setItemData((d) => ({
         ...d,
@@ -206,22 +220,20 @@ const PurchaseOrderLineForm = ({
     supplierUnitPrice: initialValues.supplierUnitPrice ?? 0,
     supplierShippingCost: initialValues.supplierShippingCost ?? 0,
     supplierTaxAmount: initialValues.supplierTaxAmount ?? 0,
-    taxPercent:
-      (initialValues.supplierUnitPrice ?? 0) *
-        (initialValues.purchaseQuantity ?? 1) +
-        (initialValues.supplierShippingCost ?? 0) >
-      0
-        ? (initialValues.supplierTaxAmount ?? 0) /
-          ((initialValues.supplierUnitPrice ?? 0) *
-            (initialValues.purchaseQuantity ?? 1) +
-            (initialValues.supplierShippingCost ?? 0))
-        : 0
+    taxPercent: getLineTaxPercent(
+      initialValues.supplierUnitPrice ?? 0,
+      initialValues.purchaseQuantity ?? 1,
+      initialValues.supplierShippingCost ?? 0,
+      initialValues.supplierTaxAmount ?? 0
+    )
   });
 
   useEffect(() => {
-    const subtotal =
-      indirectData.supplierUnitPrice * indirectData.purchaseQuantity +
-      indirectData.supplierShippingCost;
+    const subtotal = getLineSubtotal(
+      indirectData.supplierUnitPrice,
+      indirectData.purchaseQuantity,
+      indirectData.supplierShippingCost
+    );
     if (indirectData.taxPercent !== 0) {
       setIndirectData((d) => ({
         ...d,
@@ -452,6 +464,13 @@ const PurchaseOrderLineForm = ({
     }));
   };
 
+  const collapsedTaxPercent = getLineTaxPercent(
+    initialValues?.supplierUnitPrice ?? 0,
+    initialValues?.purchaseQuantity ?? 1,
+    initialValues?.supplierShippingCost ?? 0,
+    initialValues?.supplierTaxAmount ?? 0
+  );
+
   return (
     <>
       <Tabs
@@ -545,13 +564,9 @@ const PurchaseOrderLineForm = ({
                               )}{" "}
                               {initialValues?.purchaseUnitOfMeasureCode}
                             </Badge>
-                            {/* @ts-expect-error TS2339 */}
-                            {initialValues?.taxPercent > 0 ? (
+                            {collapsedTaxPercent > 0 ? (
                               <Badge variant="red">
-                                {percentFormatter.format(
-                                  /* @ts-expect-error TS2339 */
-                                  initialValues?.taxPercent ?? 0
-                                )}{" "}
+                                {percentFormatter.format(collapsedTaxPercent)}{" "}
                                 Tax
                               </Badge>
                             ) : null}
