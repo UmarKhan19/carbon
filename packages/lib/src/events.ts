@@ -57,6 +57,13 @@ export type Events = {
         | { filename: string; path: string }
       >;
       companyId: string;
+      // Recurring notification emails only: after the provider accepts the
+      // send, the send-email function bumps the delivery counters for these.
+      tracking?: {
+        event: NotificationEvent;
+        userId: string;
+        documentIds: string[];
+      };
     };
   };
 

@@ -62,6 +62,24 @@ export type NotificationDetail = {
   value: string;
 };
 
+// Max successful email deliveries of the same recurring notification per
+// (user, event, document+period); past it the reminder is acknowledged rather
+// than re-sent forever. Only provider-accepted sends count.
+export const MAX_NOTIFICATION_DELIVERIES = 5;
+
+// Cron reminders that re-fire for the same document. Only these attach
+// delivery tracking and are subject to MAX_NOTIFICATION_DELIVERIES.
+export function isRecurringNotificationEvent(
+  event: NotificationEvent
+): boolean {
+  switch (event) {
+    case NotificationEvent.TrainingReminder:
+      return true;
+    default:
+      return false;
+  }
+}
+
 // Fan-out targets understood by the notify Inngest function. inApp is
 // always included regardless of what the caller passes — the topbar reflects
 // every notification. email and slack are opt-in extras.

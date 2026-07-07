@@ -11,6 +11,7 @@ import {
   getNotificationEmailCtaLabel,
   getNotificationEmailHeading,
   getNotificationTopic,
+  isRecurringNotificationEvent,
   NotificationDestination,
   NotificationEvent
 } from "@carbon/notifications";
@@ -495,6 +496,18 @@ export const notifyFunction = inngest.createFunction(
 
           const recipients = (users ?? []).filter((u) => u.email);
 
+          // Recurring reminders carry delivery tracking; the recurrence
+          // period is folded into the tracked id ("ta_1:2026") so each period
+          // gets a fresh MAX_NOTIFICATION_DELIVERIES budget, while a plain id
+          // (no period) caps permanently.
+          const trackedDocumentIds = isRecurringNotificationEvent(payload.event)
+            ? (digestItems?.map((item) =>
+                item.period
+                  ? `${item.documentId}:${item.period}`
+                  : item.documentId
+              ) ?? [primaryDocumentId])
+            : null;
+
           // Render the template once per recipient because the greeting bakes
           // in the user's name. The template itself is small so this is cheap;
           // if it ever becomes hot we can split into a shared body + per-user
@@ -534,7 +547,14 @@ export const notifyFunction = inngest.createFunction(
                   html,
                   subject,
                   text,
-                  to: u.email
+                  to: u.email,
+                  ...(trackedDocumentIds && {
+                    tracking: {
+                      documentIds: trackedDocumentIds,
+                      event: payload.event,
+                      userId: u.id
+                    }
+                  })
                 },
                 name: "carbon/send-email" as const
               };

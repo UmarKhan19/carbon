@@ -37,6 +37,9 @@ export type DigestItem = {
   status?: ReminderItemStatus;
   detail?: string;
   url?: string;
+  // Recurrence period ("2026", "Q3-2026") — scopes delivery tracking so the
+  // cap resets each period. Absent for one-shot documents (frequency "Once").
+  period?: string;
 };
 
 export type NotificationContent = {
@@ -666,6 +669,7 @@ async function buildEventContent(
       // Status from the same RPC the weekly job uses; a missing row (e.g.
       // completed in flight) renders without a status label.
       const statusByAssignment = new Map<string, ReminderItemStatus>();
+      const periodByAssignment = new Map<string, string>();
       if (opts?.userId) {
         // p_employee_id (migration 20260702205625) scopes the RPC to this
         // recipient; drop the cast once db:migrate regenerates the DB types.
@@ -686,6 +690,12 @@ async function buildEventContent(
           for (const row of status.data ?? []) {
             if (row.employeeId !== opts.userId) continue;
             if (!ids.includes(row.trainingAssignmentId)) continue;
+            if (row.currentPeriod) {
+              periodByAssignment.set(
+                row.trainingAssignmentId,
+                row.currentPeriod
+              );
+            }
             if (!isReminderItemStatus(row.status)) continue;
             // Overdue always wins; Pending only fills an empty slot.
             if (
@@ -710,6 +720,7 @@ async function buildEventContent(
             .filter(Boolean)
             .join(" · "),
           documentId: assignment.id,
+          period: periodByAssignment.get(assignment.id),
           status: statusByAssignment.get(assignment.id),
           title,
           url: opts?.companyId

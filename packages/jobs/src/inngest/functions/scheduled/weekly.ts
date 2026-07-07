@@ -1,6 +1,10 @@
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
+import { fetchAllFromTable } from "@carbon/database";
 import { isReminderItemStatus } from "@carbon/documents/email";
-import { NotificationEvent } from "@carbon/notifications";
+import {
+  MAX_NOTIFICATION_DELIVERIES,
+  NotificationEvent
+} from "@carbon/notifications";
 import { Edition } from "@carbon/utils";
 import { inngest } from "../../client";
 
@@ -156,12 +160,14 @@ export const weeklyFunction = inngest.createFunction(
       }> = [];
 
       try {
-        // Get all companies with training assignments
+        // fetchAllFromTable pages past PostgREST's 1000-row cap — one big
+        // company would otherwise starve the rest out of reminders.
         const { data: companiesWithTrainings, error: companiesError } =
-          await serviceRole
-            .from("trainingAssignment")
-            .select("companyId")
-            .limit(1000);
+          await fetchAllFromTable<{ companyId: string }>(
+            serviceRole,
+            "trainingAssignment",
+            "companyId"
+          );
 
         if (companiesError) {
           console.error(
@@ -209,8 +215,52 @@ export const weeklyFunction = inngest.createFunction(
             }
           }
 
-          const assignments = [...assignmentsByEmployee.values()];
+          let assignments = [...assignmentsByEmployee.values()];
           if (assignments.length === 0) continue;
+
+          // Delivery cap: drop (employee, assignment, period) tuples that
+          // already received MAX_NOTIFICATION_DELIVERIES successful emails.
+          // Counter documentIds carry the recurrence period ("ta_1:2026", set
+          // in notify.ts) so the budget resets each period; frequency "Once"
+          // has no period and stays capped permanently. fetchAllFromTable so
+          // capped rows past the 1000-row page aren't silently missed.
+          const { data: cappedDeliveries, error: cappedError } =
+            await fetchAllFromTable<{ userId: string; documentId: string }>(
+              serviceRole,
+              "notificationDelivery",
+              "userId, documentId",
+              (query) =>
+                query
+                  .eq("companyId", companyId)
+                  .eq("event", NotificationEvent.TrainingReminder)
+                  .gte("successCount", MAX_NOTIFICATION_DELIVERIES)
+            );
+
+          if (cappedError) {
+            // Fail open: a broken cap lookup shouldn't stop reminders.
+            console.error(
+              `Failed to fetch delivery caps for company ${companyId}: ${cappedError.message}`
+            );
+          } else if (cappedDeliveries && cappedDeliveries.length > 0) {
+            const capped = new Set(
+              cappedDeliveries.map((d) => `${d.userId}:${d.documentId}`)
+            );
+            const before = assignments.length;
+            assignments = assignments.filter((a) => {
+              const trackedId = a.currentPeriod
+                ? `${a.trainingAssignmentId}:${a.currentPeriod}`
+                : a.trainingAssignmentId;
+              return !capped.has(`${a.employeeId}:${trackedId}`);
+            });
+            if (assignments.length < before) {
+              console.log(
+                `Company ${companyId}: acknowledged ${
+                  before - assignments.length
+                } training reminders that reached ${MAX_NOTIFICATION_DELIVERIES} deliveries`
+              );
+            }
+            if (assignments.length === 0) continue;
+          }
 
           const byEmployee = new Map<string, typeof assignments>();
           for (const assignment of assignments) {
