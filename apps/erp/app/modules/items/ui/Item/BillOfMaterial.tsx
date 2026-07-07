@@ -511,7 +511,26 @@ const BillOfMaterial = ({
       <HStack className="justify-between">
         <CardHeader>
           <CardTitle className="flex flex-row items-center gap-2">
-            <Trans>Bill of Material</Trans> {isReadOnly && <LuLock />}
+            <Trans>Bill of Material</Trans>
+            {isReadOnly && (
+              <Tooltip>
+                <TooltipTrigger tabIndex={-1} className="text-muted-foreground">
+                  <LuLock />
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  {makeMethod.status !== "Draft" ? (
+                    <Trans>
+                      This method version is read-only. Create a new version
+                      from the method menu to make changes.
+                    </Trans>
+                  ) : (
+                    <Trans>
+                      You don't have permission to edit this bill of material.
+                    </Trans>
+                  )}
+                </TooltipContent>
+              </Tooltip>
+            )}
           </CardTitle>
         </CardHeader>
 

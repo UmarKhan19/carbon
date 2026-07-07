@@ -3888,10 +3888,7 @@ msgstr "Скачать шаблон"
 msgid "Draft"
 msgstr "Черновик"
 
-msgid "Draft = editable · Active = in use, create a new version to change · Archived = retired"
-msgstr ""
-
-msgid "Draft = editable · Active = read-only (create a new version to change) · Archived = history"
+msgid "Draft is editable; Active is in use and requires a new version to change; Archived is retired."
 msgstr ""
 
 msgid "Drag & drop files, or click to browse"
@@ -12090,6 +12087,9 @@ msgstr "Эта партия истекла и не может быть выбр�
 msgid "This may take a moment. Hang tight."
 msgstr "Это может занять некоторое время. Не волнуйтесь."
 
+msgid "This method version is read-only. Create a new version from the method menu to make changes."
+msgstr ""
+
 msgid "This Month"
 msgstr "Этот месяц"
 
@@ -13612,6 +13612,9 @@ msgid ""
 "                        ordered quantity of {1}. What would you like\n"
 "                        to do with the extra parts?"
 msgstr "Вы завершили {leftoverQuantity} больше {0}, чем заказанное количество {1}. Что вы хотите сделать с дополнительными деталями?"
+
+msgid "You don't have permission to edit this bill of material."
+msgstr ""
 
 msgid "You drive it; we make sure it's done right. Expert eyes on your setup, data, and go-live."
 msgstr "Вы управляете процессом; мы следим, чтобы всё было сделано правильно. Опытный взгляд на вашу настройку, данные и запуск."

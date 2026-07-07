@@ -3888,10 +3888,7 @@ msgstr "Baixar modelo"
 msgid "Draft"
 msgstr "Rascunho"
 
-msgid "Draft = editable · Active = in use, create a new version to change · Archived = retired"
-msgstr ""
-
-msgid "Draft = editable · Active = read-only (create a new version to change) · Archived = history"
+msgid "Draft is editable; Active is in use and requires a new version to change; Archived is retired."
 msgstr ""
 
 msgid "Drag & drop files, or click to browse"
@@ -12090,6 +12087,9 @@ msgstr "Este lote expirou e não pode ser selecionado."
 msgid "This may take a moment. Hang tight."
 msgstr "Isto pode levar um momento. Aguarde."
 
+msgid "This method version is read-only. Create a new version from the method menu to make changes."
+msgstr ""
+
 msgid "This Month"
 msgstr "Este Mês"
 
@@ -13612,6 +13612,9 @@ msgid ""
 "                        ordered quantity of {1}. What would you like\n"
 "                        to do with the extra parts?"
 msgstr "Você completou {leftoverQuantity} {0} a mais do que a quantidade solicitada de {1}. O que você gostaria de fazer com as peças extras?"
+
+msgid "You don't have permission to edit this bill of material."
+msgstr ""
 
 msgid "You drive it; we make sure it's done right. Expert eyes on your setup, data, and go-live."
 msgstr "Você conduz; nós garantimos que seja feito corretamente. Olhos especialistas na sua configuração, dados e lançamento."

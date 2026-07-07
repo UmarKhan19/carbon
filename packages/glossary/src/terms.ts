@@ -1284,6 +1284,10 @@ export const terms = {
     term: msg`Version`,
     definition: msg`The version stamp for this procedure; new versions create a copy that supersedes the previous one without deleting it.`
   },
+  "procedure-status": {
+    term: msg`Status`,
+    definition: msg`Draft is editable; Active is in use and requires a new version to change; Archived is retired.`
+  },
 
   // ── Purchasing: Supplier (SupplierForm, SupplierPaymentForm, SupplierShippingForm) ──
   "supplier-status": {

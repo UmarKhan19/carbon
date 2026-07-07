@@ -172,23 +172,12 @@ const ProcedureProperties = () => {
         <span className="text-sm tracking-tight">
           <Select
             label={t`Status`}
+            termId="procedure-status"
             name="status"
             inline={(value) => (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="inline-flex cursor-help">
-                    <ProcedureStatus
-                      status={value as "Draft" | "Active" | "Archived"}
-                    />
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent className="max-w-xs">
-                  <Trans>
-                    Draft = editable · Active = in use, create a new version to
-                    change · Archived = retired
-                  </Trans>
-                </TooltipContent>
-              </Tooltip>
+              <ProcedureStatus
+                status={value as "Draft" | "Active" | "Archived"}
+              />
             )}
             options={procedureStatus.map((status) => ({
               value: status,
