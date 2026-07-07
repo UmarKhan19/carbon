@@ -1266,6 +1266,16 @@ export const assemblyInstructionStepValidator = z
     }
   });
 
+/**
+ * Partial update for a step's viewer-authored motion path and/or camera pose,
+ * saved directly from the 3D editor (drag autosave, "Set view" button) without
+ * round-tripping the whole step form. `camera: null` clears it (auto-frame).
+ */
+export const assemblyInstructionStepMotionValidator = z.object({
+  motion: jsonField(motionSchema.optional()),
+  camera: jsonField(cameraSchema.nullable().optional())
+});
+
 export const assemblyInstructionStepStatusValidator = z.object({
   status: z.enum(assemblyStepStatuses)
 });

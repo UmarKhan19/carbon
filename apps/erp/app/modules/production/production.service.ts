@@ -4148,6 +4148,37 @@ export async function upsertAssemblyInstructionStep(
     .single();
 }
 
+/**
+ * Partial update of a step's viewer-authored motion path and/or camera pose.
+ * Kept separate from `upsertAssemblyInstructionStep` (which always rewrites
+ * `title` and the typed-step fields) so the 3D editor can autosave a drag or a
+ * "Set view" click without touching the rest of the step. `camera: null` clears
+ * the pose (return to auto-framing); omitting a field leaves it untouched.
+ */
+export async function updateAssemblyStepMotion(
+  client: SupabaseClient<Database>,
+  data: {
+    id: string;
+    motion?: z.infer<typeof motionSchema>;
+    camera?: z.infer<typeof cameraSchema> | null;
+    updatedBy: string;
+  }
+) {
+  return client
+    .from("assemblyInstructionStep")
+    .update({
+      ...(data.motion !== undefined ? { motion: data.motion as Json } : {}),
+      ...(data.camera !== undefined
+        ? { camera: data.camera as Json | null }
+        : {}),
+      updatedBy: data.updatedBy,
+      updatedAt: new Date().toISOString()
+    })
+    .eq("id", data.id)
+    .select("id")
+    .single();
+}
+
 async function getNextStepSortOrder(
   client: SupabaseClient<Database>,
   data: { assemblyInstructionId: string }

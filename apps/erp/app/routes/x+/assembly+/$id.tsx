@@ -6,13 +6,19 @@ import {
   Button,
   ClientOnly,
   Spinner,
+  toast,
   useInterval,
   useMode
 } from "@carbon/react";
-import type { AssemblyGraph } from "@carbon/viewer";
+import type {
+  AssemblyGraph,
+  AssemblyPlayerHandle,
+  CameraPose,
+  Motion
+} from "@carbon/viewer";
 import { AssemblyPlayer, indexAssemblyGraph } from "@carbon/viewer";
 import { msg } from "@lingui/core/macro";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   data,
@@ -209,6 +215,9 @@ export default function AssemblyInstructionRoute() {
   const onSelectStep = useCallback((stepId: string) => {
     setSelectedStepId(stepId);
     setDraftPartNodeIds(null);
+    // Leave any open motion-path edit session when moving to another step.
+    setEditingStepId(null);
+    setDraftMotion(null);
   }, []);
 
   // Picking parts (in the viewer or the Parts panel) drives the shared
@@ -238,6 +247,78 @@ export default function AssemblyInstructionRoute() {
   const revalidator = useRevalidator();
   useInterval(() => revalidator.revalidate(), isConverting ? 5000 : null);
   const retryFetcher = useFetcher<{}>();
+
+  // --- Motion path + camera editing (viewer-driven) ------------------------
+  // The 3D viewer edits the active step's motion path (drag waypoints) and
+  // captures its camera; both autosave via a dedicated partial-update route so
+  // they never round-trip the whole step form. `draftMotion` is the controlled
+  // value the viewer renders while editing.
+  const playerRef = useRef<AssemblyPlayerHandle>(null);
+  const motionFetcher = useFetcher<{ success: boolean }>();
+  const [editingStepId, setEditingStepId] = useState<string | null>(null);
+  const [draftMotion, setDraftMotion] = useState<Motion | null>(null);
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const saveMotion = useCallback(
+    (stepId: string, body: { motion?: Motion; camera?: CameraPose | null }) => {
+      const formData = new FormData();
+      if (body.motion !== undefined) {
+        formData.set("motion", JSON.stringify(body.motion));
+      }
+      if (body.camera !== undefined) {
+        formData.set("camera", JSON.stringify(body.camera));
+      }
+      motionFetcher.submit(formData, {
+        method: "post",
+        action: path.to.assemblyInstructionStepMotion(id, stepId)
+      });
+    },
+    [motionFetcher, id]
+  );
+
+  const onEditMotion = useCallback(
+    (stepId: string) => {
+      const viewerStep = viewerSteps.find((s) => s.id === stepId);
+      setSelectedStepId(stepId);
+      setEditingStepId(stepId);
+      setDraftMotion(viewerStep?.motion ?? { type: "none" });
+    },
+    [viewerSteps]
+  );
+
+  const onStopEditMotion = useCallback(() => {
+    setEditingStepId(null);
+    setDraftMotion(null);
+  }, []);
+
+  const onMotionChange = useCallback(
+    (stepId: string, motion: Motion) => {
+      setDraftMotion(motion);
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+      saveTimer.current = setTimeout(() => saveMotion(stepId, { motion }), 400);
+    },
+    [saveMotion]
+  );
+
+  const onSetCamera = useCallback(
+    (stepId: string) => {
+      const pose = playerRef.current?.captureCameraPose();
+      if (!pose) {
+        toast.error("The model isn't ready yet");
+        return;
+      }
+      saveMotion(stepId, { camera: pose });
+    },
+    [saveMotion]
+  );
+
+  const onClearCamera = useCallback(
+    (stepId: string) => saveMotion(stepId, { camera: null }),
+    [saveMotion]
+  );
+
+  const isEditingSelectedMotion =
+    editingStepId !== null && selectedStep?.id === editingStepId;
 
   return (
     <PanelProvider key={id}>
@@ -277,6 +358,7 @@ export default function AssemblyInstructionRoute() {
                     >
                       {() => (
                         <AssemblyPlayer
+                          ref={playerRef}
                           glbUrl={getPrivateUrl(glbPath)}
                           graphUrl={getPrivateUrl(graphPath)}
                           steps={viewerSteps}
@@ -290,6 +372,14 @@ export default function AssemblyInstructionRoute() {
                           highlightedNodeIds={selectedNodeIds}
                           hiddenNodeIds={hiddenNodeIds}
                           readOnly={isDisabled}
+                          editMotion={
+                            editingStepId &&
+                            selectedStep?.id === editingStepId &&
+                            draftMotion
+                              ? { stepId: editingStepId, motion: draftMotion }
+                              : null
+                          }
+                          onMotionChange={onMotionChange}
                           mode={mode}
                           className="h-full"
                         />
@@ -343,7 +433,11 @@ export default function AssemblyInstructionRoute() {
                   draftPartNodeIds={draftPartNodeIds}
                   isDisabled={isDisabled}
                   graphIndex={graphIndex}
-                  plan={plan}
+                  isEditingMotion={isEditingSelectedMotion}
+                  onEditMotion={onEditMotion}
+                  onStopEditMotion={onStopEditMotion}
+                  onSetCamera={onSetCamera}
+                  onClearCamera={onClearCamera}
                   requirements={
                     selectedStep
                       ? requirements.filter(

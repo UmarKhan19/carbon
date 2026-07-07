@@ -29,7 +29,8 @@ import type { AssemblyGraphIndex } from "@carbon/viewer";
 import {
   describeStep,
   groupPartNodeIds,
-  stepTimelineSeconds
+  stepTimelineSeconds,
+  synthesizeFallbackMotion
 } from "@carbon/viewer";
 import type { DragControls } from "framer-motion";
 import { Reorder, useDragControls } from "framer-motion";
@@ -334,7 +335,25 @@ export default function AssemblyInstructionExplorer({
   const onAddStep = () => {
     const formData = new FormData();
     formData.append("assemblyInstructionId", id);
-    formData.append("motion", JSON.stringify({ type: "none" }));
+
+    // When parts are selected, seed the new step with them: assign the parts,
+    // a basic synthesized insertion animation, and a description from their
+    // names. Otherwise create an empty process-only step.
+    if (selectedNodeIds.length > 0) {
+      formData.append("partNodeIds", JSON.stringify(selectedNodeIds));
+      const motion = graphIndex
+        ? synthesizeFallbackMotion(graphIndex, selectedNodeIds)
+        : null;
+      formData.append("motion", JSON.stringify(motion ?? { type: "none" }));
+      const description = describeStep(
+        { title: null, partNodeIds: selectedNodeIds, fastener: null },
+        graphIndex
+      );
+      if (description) formData.append("description", description);
+    } else {
+      formData.append("motion", JSON.stringify({ type: "none" }));
+    }
+
     newStepFetcher.submit(formData, {
       method: "post",
       action: path.to.newAssemblyInstructionStep(id)

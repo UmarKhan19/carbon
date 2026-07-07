@@ -1,5 +1,13 @@
 import { type ThreeEvent, useFrame, useThree } from "@react-three/fiber";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState
+} from "react";
 import {
   AnimationMixer,
   Box3,
@@ -17,13 +25,20 @@ import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import { AssemblyViewer } from "./AssemblyViewer";
 import { describeStep } from "./describe";
 import { indexAssemblyGraph } from "./graph";
+import { MotionPathEditor } from "./MotionPathEditor";
 import {
   buildStepClip,
   displayMotionForStep,
   exaggerateMotion,
   stepTimelineSeconds
 } from "./motion";
-import type { AssemblyGraph, AssemblyStep } from "./types";
+import type {
+  AssemblyGraph,
+  AssemblyStep,
+  CameraPose,
+  Motion,
+  Vec3
+} from "./types";
 import { useAssembly } from "./useAssembly";
 import { cn } from "./utils";
 
@@ -50,10 +65,24 @@ export type AssemblyPlayerProps = {
   hiddenNodeIds?: string[];
   /** Disables part selection (MES playback) */
   readOnly?: boolean;
+  /**
+   * Puts the active step's insertion motion into the draggable red-path editor.
+   * Must reference the active step; the draft `motion` is what renders (so the
+   * route can hold it as controlled state). Playback is paused while set.
+   */
+  editMotion?: { stepId: string; motion: Motion } | null;
+  /** Drag/insert/delete of a waypoint emits the new relative motion. */
+  onMotionChange?: (stepId: string, motion: Motion) => void;
   /** Initial render mode for future-step parts */
   defaultFutureMode?: FuturePartsMode;
   mode?: "dark" | "light";
   className?: string;
+};
+
+/** Imperative handle for reading the live camera (per-step "Set view"). */
+export type AssemblyPlayerHandle = {
+  /** The current camera pose, or null before the scene is ready. */
+  captureCameraPose: () => CameraPose | null;
 };
 
 /**
@@ -69,21 +98,29 @@ export type AssemblyPlayerProps = {
  * automatically, the scrubber maps to global seconds (step boundaries are
  * tick marks), and the footer shows elapsed / total time.
  */
-export function AssemblyPlayer({
-  glbUrl,
-  graphUrl,
-  steps,
-  activeStepIndex,
-  onStepChange,
-  onSelectParts,
-  onGraphLoaded,
-  highlightedNodeIds,
-  hiddenNodeIds,
-  readOnly = false,
-  defaultFutureMode = "ghost",
-  mode = "dark",
-  className
-}: AssemblyPlayerProps) {
+export const AssemblyPlayer = forwardRef<
+  AssemblyPlayerHandle,
+  AssemblyPlayerProps
+>(function AssemblyPlayer(
+  {
+    glbUrl,
+    graphUrl,
+    steps,
+    activeStepIndex,
+    onStepChange,
+    onSelectParts,
+    onGraphLoaded,
+    highlightedNodeIds,
+    hiddenNodeIds,
+    readOnly = false,
+    editMotion,
+    onMotionChange,
+    defaultFutureMode = "ghost",
+    mode = "dark",
+    className
+  },
+  ref
+) {
   const { scene, nodesById, graph, isLoading, error } = useAssembly(
     glbUrl,
     graphUrl
@@ -91,6 +128,20 @@ export function AssemblyPlayer({
   const [isPlaying, setIsPlaying] = useState(true);
   const [futureMode, setFutureMode] =
     useState<FuturePartsMode>(defaultFutureMode);
+
+  // The scene writes the live camera reader here; the imperative handle reads it.
+  const capturePoseRef = useRef<(() => CameraPose | null) | null>(null);
+  useImperativeHandle(
+    ref,
+    () => ({ captureCameraPose: () => capturePoseRef.current?.() ?? null }),
+    []
+  );
+
+  // Editing the motion path pauses playback so drags aren't fought by the clip.
+  const isEditingMotion = Boolean(editMotion);
+  useEffect(() => {
+    if (isEditingMotion) setIsPlaying(false);
+  }, [isEditingMotion]);
 
   useEffect(() => {
     if (graph) onGraphLoaded?.(graph);
@@ -100,6 +151,16 @@ export function AssemblyPlayer({
     () => (graph ? indexAssemblyGraph(graph) : null),
     [graph]
   );
+
+  const assemblyDiagonal = useMemo(() => {
+    const bbox = graphIndex?.graph.root.bbox;
+    if (!bbox) return 0;
+    return Math.hypot(
+      bbox.max[0] - bbox.min[0],
+      bbox.max[1] - bbox.min[1],
+      bbox.max[2] - bbox.min[2]
+    );
+  }, [graphIndex]);
 
   const stepCount = steps.length;
   const clampedIndex = Math.min(Math.max(activeStepIndex, 0), stepCount - 1);
@@ -265,6 +326,10 @@ export function AssemblyPlayer({
               hiddenNodeIds={hiddenNodeIds}
               readOnly={readOnly}
               onSelectParts={onSelectParts}
+              editMotion={editMotion ?? null}
+              onMotionChange={onMotionChange}
+              assemblyDiagonal={assemblyDiagonal}
+              capturePoseRef={capturePoseRef}
               assemblyBounds={graphIndex?.graph.root.bbox ?? null}
               leafBounds={graphIndex?.leaves ?? null}
               segments={segments}
@@ -333,6 +398,7 @@ export function AssemblyPlayer({
         </ControlButton>
         <ControlButton
           aria-label={isPlaying ? "Pause" : "Play"}
+          disabled={isEditingMotion}
           onClick={() => {
             // Pressing play at the end restarts from the beginning
             if (
@@ -432,7 +498,7 @@ export function AssemblyPlayer({
       )}
     </div>
   );
-}
+});
 
 type PartVisual = "solid" | "active" | "hidden" | "ghost";
 
@@ -449,8 +515,11 @@ type MaterialOverrides = {
 };
 
 const HIGHLIGHT_COLOR = 0x3b82f6;
-const SELECTED_COLOR = 0xf59e0b;
-const EXTERNAL_COLOR = 0x10b981;
+// Selection is always red — both an in-scene click selection ("selected") and a
+// parts-panel selection ("external", forced visible) tint the part red so the
+// current selection reads the same everywhere, Onshape-style.
+const SELECTED_COLOR = 0xef4444;
+const EXTERNAL_COLOR = 0xef4444;
 const GHOST_OPACITY = 0.3;
 /** Seconds a flagged step's parts take to fade in at the seated pose */
 const FADE_SECONDS = 1.2;
@@ -466,6 +535,10 @@ function AssemblyScene({
   hiddenNodeIds,
   readOnly,
   onSelectParts,
+  editMotion,
+  onMotionChange,
+  assemblyDiagonal,
+  capturePoseRef,
   assemblyBounds,
   leafBounds,
   segments,
@@ -485,6 +558,13 @@ function AssemblyScene({
   hiddenNodeIds?: string[];
   readOnly: boolean;
   onSelectParts?: (nodeIds: string[]) => void;
+  /** Active-step motion draft to edit (null = play normally) */
+  editMotion: { stepId: string; motion: Motion } | null;
+  onMotionChange?: (stepId: string, motion: Motion) => void;
+  /** Assembly diagonal (world units) for sizing the waypoint handles */
+  assemblyDiagonal: number;
+  /** The scene writes the live-camera reader here for the imperative handle */
+  capturePoseRef: React.MutableRefObject<(() => CameraPose | null) | null>;
   /** Seated world bounds from graph.json (stable under animation) */
   assemblyBounds: { min: number[]; max: number[] } | null;
   /** Seated per-leaf bounds for camera occlusion scoring */
@@ -511,6 +591,29 @@ function AssemblyScene({
   const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(
     new Set()
   );
+
+  const activeStep = steps[activeStepIndex] ?? null;
+  const isEditingActive = Boolean(
+    editMotion && activeStep && editMotion.stepId === activeStep.id
+  );
+
+  // Anchor for the editable path: centroid of the step's parts' seated world
+  // positions. Parts sit seated while editing (the clip is skipped below), so
+  // their world matrices are the final poses.
+  const seatedCentroid = useMemo<Vec3 | null>(() => {
+    if (!isEditingActive || !activeStep) return null;
+    const sum = new Vector3();
+    let count = 0;
+    for (const nodeId of activeStep.partNodeIds) {
+      const node = nodesById.get(nodeId);
+      if (!node) continue;
+      node.updateWorldMatrix(true, false);
+      sum.add(new Vector3().setFromMatrixPosition(node.matrixWorld));
+      count++;
+    }
+    if (count === 0) return null;
+    return sum.divideScalar(count).toArray() as Vec3;
+  }, [isEditingActive, activeStep, nodesById]);
 
   const highlightedSet = useMemo(
     () => new Set(highlightedNodeIds ?? []),
@@ -665,6 +768,10 @@ function AssemblyScene({
 
     if (!step) return;
 
+    // Editing this step's path: keep parts at their seated pose, skip the clip
+    // so the animation doesn't fight the drag handles.
+    if (editMotion && step.id === editMotion.stepId) return;
+
     const clip = buildStepClip(step, nodesById);
     if (!clip) return;
 
@@ -706,7 +813,8 @@ function AssemblyScene({
     seekVersion,
     seekRef,
     playheadRef,
-    startTimes
+    startTimes,
+    editMotion
   ]);
 
   useEffect(() => {
@@ -726,6 +834,11 @@ function AssemblyScene({
 
   useEffect(() => {
     const step = steps[activeStepIndex];
+    // Editing this step: keep its parts solid at the seated pose, no fade.
+    if (editMotion && step && editMotion.stepId === step.id) {
+      fadeRef.current = null;
+      return;
+    }
     if (!step?.flagged || step.motion.type !== "none") {
       fadeRef.current = null;
       return;
@@ -772,7 +885,7 @@ function AssemblyScene({
       // Materials are reassigned by the visual-state pass on step change
       for (const mesh of meshes) mesh.renderOrder = 0;
     };
-  }, [steps, activeStepIndex, nodesById, segments]);
+  }, [steps, activeStepIndex, nodesById, segments, editMotion]);
 
   useFrame(() => {
     const fade = fadeRef.current;
@@ -808,6 +921,22 @@ function AssemblyScene({
   });
 
   // --- Camera ----------------------------------------------------------------
+
+  // Expose a live-camera reader for the "Set view" button (per-step camera).
+  useEffect(() => {
+    capturePoseRef.current = () => {
+      if (!controls) return null;
+      const fov = camera instanceof PerspectiveCamera ? camera.fov : 45;
+      return {
+        position: camera.position.toArray() as Vec3,
+        target: controls.target.toArray() as Vec3,
+        fov
+      };
+    };
+    return () => {
+      capturePoseRef.current = null;
+    };
+  }, [camera, controls, capturePoseRef]);
 
   const frameBox = useCallback(
     (box: Box3) => {
@@ -1069,7 +1198,11 @@ function AssemblyScene({
     (clickEvent: ThreeEvent<MouseEvent>) => {
       if (readOnly || !onSelectParts) return;
       clickEvent.stopPropagation();
-      const nodeId = findNodeId(clickEvent.object);
+      // three.js raycasting ignores Object3D.visible, so a hidden enclosing
+      // part still reports as the closest hit. Walk the front-to-back
+      // intersections and pick the nearest part that is actually rendered,
+      // letting clicks pass through hidden geometry to the parts inside it.
+      const nodeId = findVisibleNodeId(clickEvent.intersections);
       if (!nodeId) return;
       setSelectedIds((previous) => {
         const next = clickEvent.nativeEvent.shiftKey
@@ -1100,11 +1233,22 @@ function AssemblyScene({
   );
 
   return (
-    <primitive
-      object={scene}
-      onClick={handleClick}
-      onPointerMissed={handlePointerMissed}
-    />
+    <>
+      <primitive
+        object={scene}
+        onClick={handleClick}
+        onPointerMissed={handlePointerMissed}
+      />
+      {isEditingActive && editMotion && onMotionChange && seatedCentroid && (
+        <MotionPathEditor
+          key={editMotion.stepId}
+          motion={editMotion.motion}
+          seatedPosition={seatedCentroid}
+          scale={assemblyDiagonal}
+          onMotionChange={(motion) => onMotionChange(editMotion.stepId, motion)}
+        />
+      )}
+    </>
   );
 }
 
@@ -1206,6 +1350,32 @@ function findNodeId(object: Object3D): string | null {
     const nodeId = current.userData?.nodeId;
     if (typeof nodeId === "string" && nodeId.length > 0) return nodeId;
     current = current.parent;
+  }
+  return null;
+}
+
+/** True only if the object and every ancestor are visible (i.e. rendered). */
+function isRendered(object: Object3D): boolean {
+  let current: Object3D | null = object;
+  while (current) {
+    if (!current.visible) return false;
+    current = current.parent;
+  }
+  return true;
+}
+
+/**
+ * The part id of the nearest intersection that is actually rendered. Skips
+ * hidden geometry (raycasting ignores `visible`) so clicks fall through to the
+ * frontmost visible part behind or inside it.
+ */
+function findVisibleNodeId(
+  intersections: readonly { object: Object3D }[]
+): string | null {
+  for (const intersection of intersections) {
+    if (!isRendered(intersection.object)) continue;
+    const nodeId = findNodeId(intersection.object);
+    if (nodeId) return nodeId;
   }
   return null;
 }

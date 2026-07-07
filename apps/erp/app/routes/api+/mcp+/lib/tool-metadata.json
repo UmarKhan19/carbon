@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-06T04:08:56.142Z",
-  "totalTools": 1290,
+  "generated": "2026-07-07T00:01:43.652Z",
+  "totalTools": 1291,
   "modules": 15,
   "tools": [
     {
@@ -19756,6 +19756,34 @@
         },
         "required": [
           "assemblyInstructionId"
+        ]
+      }
+    },
+    {
+      "name": "production_updateAssemblyStepMotion",
+      "module": "production",
+      "classification": "WRITE",
+      "description": "update assembly step motion",
+      "paramCount": 3,
+      "serviceParams": [
+        "client",
+        "data"
+      ],
+      "injectAuth": [
+        "companyId",
+        "updatedBy"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "motion": {},
+          "camera": {}
+        },
+        "required": [
+          "id"
         ]
       }
     },

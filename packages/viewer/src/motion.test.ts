@@ -10,15 +10,18 @@ import { describe, expect, it } from "vitest";
 import { indexAssemblyGraph } from "./graph";
 import {
   buildStepClip,
+  DEFAULT_WAYPOINT_DISTANCE,
   displayMotionForStep,
   exaggerateMotion,
   type MotionKeyframes,
   motionDuration,
   motionToKeyframes,
+  motionToWaypoints,
   motionTravelDistance,
-  type Pose
+  type Pose,
+  waypointsToMotion
 } from "./motion";
-import type { AssemblyStep, Motion } from "./types";
+import type { AssemblyStep, Motion, Vec3 } from "./types";
 
 const IDENTITY_POSE: Pose = {
   position: [0, 0, 0],
@@ -598,5 +601,100 @@ describe("displayMotionForStep", () => {
     expect(displayMotionForStep(step({ motion: stored }), 1, graphIndex)).toBe(
       stored
     );
+  });
+});
+
+describe("motionToWaypoints / waypointsToMotion", () => {
+  const seated: Vec3 = [10, 5, -2];
+
+  function expectVec3Close(actual: Vec3, expected: Vec3) {
+    actual.forEach((value, index) => {
+      expect(value).toBeCloseTo(expected[index] ?? Number.NaN, 6);
+    });
+  }
+
+  it("samples a linear motion to a start + seated waypoint", () => {
+    const motion: Motion = {
+      type: "linear",
+      direction: [0, 1, 0],
+      distance: 20
+    };
+    const waypoints = motionToWaypoints(motion, seated);
+    expect(waypoints).toHaveLength(2);
+    expectVec3Close(waypoints[0]!, [10, -15, -2]); // seated - dir*distance
+    expectVec3Close(waypoints[1]!, seated); // last === seated
+  });
+
+  it("round-trips a linear motion exactly", () => {
+    const motion: Motion = {
+      type: "linear",
+      direction: [0, 0, 1],
+      distance: 12
+    };
+    const back = waypointsToMotion(motionToWaypoints(motion, seated), seated);
+    expect(back.type).toBe("linear");
+    if (back.type === "linear") {
+      expectVec3Close(back.direction, [0, 0, 1]);
+      expect(back.distance).toBeCloseTo(12, 6);
+    }
+  });
+
+  it("round-trips an L motion, preserving segment order and directions", () => {
+    const motion: Motion = {
+      type: "L",
+      segments: [
+        { direction: [1, 0, 0], distance: 8 },
+        { direction: [0, 1, 0], distance: 5 }
+      ]
+    };
+    const back = waypointsToMotion(motionToWaypoints(motion, seated), seated);
+    expect(back.type).toBe("L");
+    if (back.type === "L") {
+      expect(back.segments).toHaveLength(2);
+      expectVec3Close(back.segments[0]!.direction, [1, 0, 0]);
+      expect(back.segments[0]!.distance).toBeCloseTo(8, 6);
+      expectVec3Close(back.segments[1]!.direction, [0, 1, 0]);
+      expect(back.segments[1]!.distance).toBeCloseTo(5, 6);
+    }
+  });
+
+  it("forces the last waypoint to the seated position", () => {
+    const back = waypointsToMotion(
+      [
+        [0, 0, 0],
+        [99, 99, 99]
+      ],
+      seated
+    );
+    // The seated end is pinned, so travel is start -> seated.
+    expect(back.type).toBe("linear");
+    if (back.type === "linear") {
+      expect(back.distance).toBeCloseTo(
+        Math.hypot(seated[0], seated[1], seated[2]),
+        6
+      );
+    }
+  });
+
+  it("synthesizes a default straight path for a none motion", () => {
+    const waypoints = motionToWaypoints({ type: "none" }, seated);
+    expect(waypoints).toHaveLength(2);
+    expectVec3Close(waypoints[0]!, [
+      seated[0],
+      seated[1] + DEFAULT_WAYPOINT_DISTANCE,
+      seated[2]
+    ]);
+    expectVec3Close(waypoints[1]!, seated);
+  });
+
+  it("collapses degenerate (coincident) waypoints to none", () => {
+    expect(waypointsToMotion([seated, seated], seated)).toEqual({
+      type: "none"
+    });
+  });
+
+  it("drops a zero-length middle segment (3 pts, collinear) to linear", () => {
+    const back = waypointsToMotion([[0, 0, 0], [0, 0, 0], seated], seated);
+    expect(back.type).toBe("linear");
   });
 });

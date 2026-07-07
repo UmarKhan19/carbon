@@ -1352,6 +1352,9 @@ msgstr "Bitten Sie einen Admin mit {0}-Berechtigung, das erste {1} hinzuzufügen
 msgid "Assemblies"
 msgstr ""
 
+msgid "Assembly Instructions"
+msgstr ""
+
 msgid "Assembly:"
 msgstr "Baugruppe:"
 

@@ -1,5 +1,6 @@
 export {
   AssemblyPlayer,
+  type AssemblyPlayerHandle,
   type AssemblyPlayerProps,
   type FuturePartsMode
 } from "./AssemblyPlayer";

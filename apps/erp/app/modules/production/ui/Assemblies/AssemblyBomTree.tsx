@@ -17,6 +17,9 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
   VStack
 } from "@carbon/react";
 import type { AssemblyGraphIndex, PartGroup } from "@carbon/viewer";
@@ -28,8 +31,12 @@ import {
   LuArrowDownAZ,
   LuArrowDownWideNarrow,
   LuBlocks,
+  LuChevronDown,
+  LuChevronRight,
   LuEye,
   LuEyeOff,
+  LuMerge,
+  LuSearch,
   LuSettings,
   LuTrash
 } from "react-icons/lu";
@@ -47,6 +54,33 @@ import type {
 import { PartColorSwatch } from "./AssemblyStepBom";
 
 type SortMode = "count" | "alpha";
+
+/** One rendered row: a part group, or a single instance of an expanded group. */
+type ListRow =
+  | { type: "group"; group: PartGroup }
+  | {
+      type: "instance";
+      group: PartGroup;
+      nodeId: string;
+      instanceIndex: number;
+    };
+
+/** The instance nodeIds a row represents (all of them for a group row). */
+function rowNodeIds(row: ListRow): string[] {
+  return row.type === "group" ? row.group.nodeIds : [row.nodeId];
+}
+
+type SelectionState = "none" | "partial" | "all";
+
+function selectionStateOf(
+  nodeIds: string[],
+  selected: ReadonlySet<string>
+): SelectionState {
+  let count = 0;
+  for (const id of nodeIds) if (selected.has(id)) count++;
+  if (count === 0) return "none";
+  return count === nodeIds.length ? "all" : "partial";
+}
 
 type AssemblyBomTreeProps = {
   graphIndex: AssemblyGraphIndex | null;
@@ -106,19 +140,21 @@ export default function AssemblyBomTree({
   );
 
   const [sortMode, setSortMode] = useState<SortMode>("count");
-  // Selection is controlled by the parent (shared with the viewer). A part row
-  // is selected when any of its instances is in the current selection.
-  const selectedKeys = useMemo<ReadonlySet<string>>(() => {
-    const keys = new Set<string>();
-    if (!graphIndex) return keys;
-    for (const nodeId of selectedNodeIds) {
-      const group = graphIndex.groupByNodeId.get(nodeId);
-      if (group) keys.add(group.key);
-    }
-    return keys;
-  }, [selectedNodeIds, graphIndex]);
+  const [search, setSearch] = useState("");
+  // Selection and visibility are tracked per instance (nodeId), so a group with
+  // several instances can be partly selected or hidden — e.g. 2 of 4 screws.
+  // Selection round-trips through the parent (shared with the viewer).
+  const selectedSet = useMemo(
+    () => new Set(selectedNodeIds),
+    [selectedNodeIds]
+  );
   const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
-  const [hiddenKeys, setHiddenKeys] = useState<ReadonlySet<string>>(new Set());
+  const [hiddenNodeIds, setHiddenNodeIds] = useState<ReadonlySet<string>>(
+    new Set()
+  );
+  const [expandedKeys, setExpandedKeys] = useState<ReadonlySet<string>>(
+    new Set()
+  );
   const [showCreateUnit, setShowCreateUnit] = useState(false);
   const lastClickedIndexRef = useRef<number | null>(null);
 
@@ -132,6 +168,17 @@ export default function AssemblyBomTree({
     }
     return sorted;
   }, [graphIndex, sortMode]);
+
+  // Name filter for the rendered list. Selection/hiding still operate on the
+  // full `partGroups` (they key by group, not display position); only the rows
+  // shown, the shift-click range, and scroll-to-selection use `rows`.
+  const normalizedSearch = search.trim().toLowerCase();
+  const rows = useMemo(() => {
+    if (!normalizedSearch) return partGroups;
+    return partGroups.filter((group) =>
+      group.name.toLowerCase().includes(normalizedSearch)
+    );
+  }, [partGroups, normalizedSearch]);
 
   /** groupKey → steps that install instances of the part */
   const stepUsage = useMemo(() => {
@@ -158,62 +205,73 @@ export default function AssemblyBomTree({
     return usage;
   }, [steps, graphIndex]);
 
-  // Every instance of every selected part — the unit for grouping/hiding
-  const selectedGroupNodeIds = useMemo(
-    () =>
-      partGroups
-        .filter((group) => selectedKeys.has(group.key))
-        .flatMap((group) => group.nodeIds),
-    [partGroups, selectedKeys]
-  );
+  // Flatten groups (with their expanded instances) into the virtualized list.
+  // An expanded group with count > 1 is followed by one row per instance, so a
+  // subset can be selected or hidden individually.
+  const visualRows = useMemo<ListRow[]>(() => {
+    const list: ListRow[] = [];
+    for (const group of rows) {
+      list.push({ type: "group", group });
+      if (group.count > 1 && expandedKeys.has(group.key)) {
+        group.nodeIds.forEach((nodeId, instanceIndex) => {
+          list.push({ type: "instance", group, nodeId, instanceIndex });
+        });
+      }
+    }
+    return list;
+  }, [rows, expandedKeys]);
 
-  // Hidden parts: union of all hidden part-group keys
+  const hasSelection = selectedNodeIds.length > 0;
+
+  // Push the hidden instance set up to the viewer.
   useEffect(() => {
-    onHideParts(
-      partGroups
-        .filter((group) => hiddenKeys.has(group.key))
-        .flatMap((group) => group.nodeIds)
-    );
-  }, [hiddenKeys, partGroups, onHideParts]);
+    onHideParts([...hiddenNodeIds]);
+  }, [hiddenNodeIds, onHideParts]);
 
-  const applySelection = (next: ReadonlySet<string>) => {
+  const applyNodeSelection = (next: ReadonlySet<string>) => {
     setSelectedUnitId(null);
-    onHighlightParts(
-      partGroups
-        .filter((group) => next.has(group.key))
-        .flatMap((group) => group.nodeIds)
-    );
+    onHighlightParts([...next]);
   };
 
-  const onRowClick = (
-    event: MouseEvent,
-    group: PartGroup,
-    rowIndex: number
-  ) => {
+  const onRowClick = (event: MouseEvent, rowIndex: number) => {
+    const row = visualRows[rowIndex];
+    if (!row) return;
+    const rowNodes = rowNodeIds(row);
     let next: Set<string>;
     if (event.shiftKey && lastClickedIndexRef.current !== null) {
-      next = new Set(selectedKeys);
+      next = new Set(selectedNodeIds);
       const start = Math.min(lastClickedIndexRef.current, rowIndex);
       const end = Math.max(lastClickedIndexRef.current, rowIndex);
       for (let i = start; i <= end; i++) {
-        const inRange = partGroups[i];
-        if (inRange) next.add(inRange.key);
+        const inRange = visualRows[i];
+        if (inRange) for (const id of rowNodeIds(inRange)) next.add(id);
       }
     } else if (event.metaKey || event.ctrlKey) {
-      next = new Set(selectedKeys);
-      if (next.has(group.key)) {
-        next.delete(group.key);
-      } else {
-        next.add(group.key);
+      next = new Set(selectedNodeIds);
+      const allSelected = rowNodes.every((id) => next.has(id));
+      for (const id of rowNodes) {
+        if (allSelected) next.delete(id);
+        else next.add(id);
       }
-    } else if (selectedKeys.size === 1 && selectedKeys.has(group.key)) {
-      // Clicking the only selected row clears the highlight
-      next = new Set();
     } else {
-      next = new Set([group.key]);
+      // Plain click selects just this row; clicking it when it is already the
+      // entire selection clears it.
+      const isOnlySelection =
+        selectedNodeIds.length === rowNodes.length &&
+        rowNodes.every((id) => selectedSet.has(id));
+      next = isOnlySelection ? new Set() : new Set(rowNodes);
     }
     lastClickedIndexRef.current = rowIndex;
-    applySelection(next);
+    applyNodeSelection(next);
+  };
+
+  const onToggleExpand = (key: string) => {
+    setExpandedKeys((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
   };
 
   const onToggleUnitHighlight = (unit: AssemblyUnit) => {
@@ -227,27 +285,34 @@ export default function AssemblyBomTree({
   };
 
   const onHideSelection = () => {
-    const next = new Set(hiddenKeys);
-    for (const key of selectedKeys) next.add(key);
-    setHiddenKeys(next);
-    applySelection(new Set());
+    setHiddenNodeIds((prev) => {
+      const next = new Set(prev);
+      for (const id of selectedNodeIds) next.add(id);
+      return next;
+    });
+    applyNodeSelection(new Set());
   };
 
-  // Toggle a single part's visibility (Onshape-style per-row eye)
-  const onToggleHide = (key: string) => {
-    setHiddenKeys((prev) => {
+  // Toggle visibility of a set of instances (a whole group, or one instance).
+  // A group hides unless every instance is already hidden, in which case it
+  // reveals them (Onshape-style per-row eye).
+  const onToggleHide = (nodeIds: string[]) => {
+    setHiddenNodeIds((prev) => {
       const next = new Set(prev);
-      if (next.has(key)) next.delete(key);
-      else next.add(key);
+      const allHidden = nodeIds.every((id) => next.has(id));
+      for (const id of nodeIds) {
+        if (allHidden) next.delete(id);
+        else next.add(id);
+      }
       return next;
     });
   };
 
-  const onShowAll = () => setHiddenKeys(new Set());
+  const onShowAll = () => setHiddenNodeIds(new Set());
 
   const parentRef = useRef<HTMLDivElement>(null);
   const virtualizer = useVirtualizer({
-    count: partGroups.length,
+    count: visualRows.length,
     getScrollElement: () => parentRef.current,
     estimateSize: () => 36,
     overscan: 12
@@ -258,8 +323,11 @@ export default function AssemblyBomTree({
   // The scroll container has no dimensions while the tab is hidden, so gate on
   // isActive and defer a frame so the just-shown list can measure.
   const firstSelectedIndex = useMemo(
-    () => partGroups.findIndex((group) => selectedKeys.has(group.key)),
-    [partGroups, selectedKeys]
+    () =>
+      visualRows.findIndex((row) =>
+        rowNodeIds(row).some((id) => selectedSet.has(id))
+      ),
+    [visualRows, selectedSet]
   );
   useEffect(() => {
     if (!isActive || firstSelectedIndex < 0) return;
@@ -302,84 +370,123 @@ export default function AssemblyBomTree({
       )}
       <div className="flex w-full flex-none items-center justify-between border-b border-border px-3 py-1.5">
         <span className="text-xs text-muted-foreground tabular-nums">
-          {selectedKeys.size > 0
-            ? `${selectedKeys.size} selected`
+          {hasSelection
+            ? `${selectedNodeIds.length} selected`
             : bomMaterials.length > 0
               ? `${partGroups.length} parts · ${mappingsByHash.size} mapped to BOM`
               : `${partGroups.length} part${partGroups.length === 1 ? "" : "s"} · ${graphIndex.graph.partCount} instance${graphIndex.graph.partCount === 1 ? "" : "s"}`}
         </span>
         <div className="flex items-center gap-1">
-          {selectedKeys.size === 0 && canMap && bomMaterials.length > 0 && (
-            <Button
-              variant="secondary"
-              size="sm"
-              isDisabled={autoMatchFetcher.state !== "idle"}
-              isLoading={autoMatchFetcher.state !== "idle"}
-              onClick={() => {
-                autoMatchFetcher.submit(new FormData(), {
-                  method: "post",
-                  action: path.to.autoMatchAssemblyParts(id)
-                });
-              }}
-            >
-              Match BOM
-            </Button>
+          {!hasSelection && canMap && bomMaterials.length > 0 && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  isDisabled={autoMatchFetcher.state !== "idle"}
+                  isLoading={autoMatchFetcher.state !== "idle"}
+                  onClick={() => {
+                    autoMatchFetcher.submit(new FormData(), {
+                      method: "post",
+                      action: path.to.autoMatchAssemblyParts(id)
+                    });
+                  }}
+                >
+                  Match BOM
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Match parts to BOM items</TooltipContent>
+            </Tooltip>
           )}
-          {selectedKeys.size > 0 && canGroup && (
-            <Button
-              variant="secondary"
-              size="sm"
-              leftIcon={<LuBlocks />}
-              onClick={() => setShowCreateUnit(true)}
-            >
-              Plan as one part
-            </Button>
+          {hasSelection && canGroup && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <IconButton
+                  aria-label="Plan as one part"
+                  icon={<LuMerge />}
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowCreateUnit(true)}
+                />
+              </TooltipTrigger>
+              <TooltipContent>Plan as one part</TooltipContent>
+            </Tooltip>
           )}
-          {selectedKeys.size > 0 && (
-            <IconButton
-              aria-label="Hide selected parts"
-              icon={<LuEyeOff />}
-              variant="ghost"
-              size="sm"
-              onClick={onHideSelection}
-            />
+          {hasSelection && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <IconButton
+                  aria-label="Hide selected parts"
+                  icon={<LuEyeOff />}
+                  variant="ghost"
+                  size="sm"
+                  onClick={onHideSelection}
+                />
+              </TooltipTrigger>
+              <TooltipContent>Hide selected parts</TooltipContent>
+            </Tooltip>
           )}
-          {hiddenKeys.size > 0 && (
-            <IconButton
-              aria-label="Show all hidden parts"
-              icon={<LuEye />}
-              variant="ghost"
-              size="sm"
-              onClick={onShowAll}
-            />
+          {hiddenNodeIds.size > 0 && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <IconButton
+                  aria-label="Show all hidden parts"
+                  icon={<LuEye />}
+                  variant="ghost"
+                  size="sm"
+                  onClick={onShowAll}
+                />
+              </TooltipTrigger>
+              <TooltipContent>Show all hidden parts</TooltipContent>
+            </Tooltip>
           )}
-          <IconButton
-            aria-label={
-              sortMode === "count" ? "Sort alphabetically" : "Sort by count"
-            }
-            icon={
-              sortMode === "count" ? (
-                <LuArrowDownWideNarrow />
-              ) : (
-                <LuArrowDownAZ />
-              )
-            }
-            variant="ghost"
-            size="sm"
-            onClick={() =>
-              setSortMode((mode) => (mode === "count" ? "alpha" : "count"))
-            }
-          />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <IconButton
+                aria-label={
+                  sortMode === "count" ? "Sort alphabetically" : "Sort by count"
+                }
+                icon={
+                  sortMode === "count" ? (
+                    <LuArrowDownWideNarrow />
+                  ) : (
+                    <LuArrowDownAZ />
+                  )
+                }
+                variant="ghost"
+                size="sm"
+                onClick={() =>
+                  setSortMode((mode) => (mode === "count" ? "alpha" : "count"))
+                }
+              />
+            </TooltipTrigger>
+            <TooltipContent>
+              {sortMode === "count" ? "Sort alphabetically" : "Sort by count"}
+            </TooltipContent>
+          </Tooltip>
         </div>
       </div>
+      {partGroups.length > 0 && (
+        <div className="relative w-full flex-none border-b border-border px-2 py-1.5">
+          <LuSearch className="pointer-events-none absolute left-4 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            aria-label="Search parts"
+            placeholder="Search parts"
+            size="sm"
+            className="pl-7"
+            value={search}
+            onChange={(searchEvent) => setSearch(searchEvent.target.value)}
+          />
+        </div>
+      )}
       <ContextMenu>
         <ContextMenuTrigger asChild>
           <div
             ref={parentRef}
             className="w-full flex-1 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent"
             onKeyDown={(event) => {
-              if (event.key === "Escape" && selectedKeys.size > 0) {
-                applySelection(new Set());
+              if (event.key === "Escape" && hasSelection) {
+                applyNodeSelection(new Set());
               }
             }}
           >
@@ -388,62 +495,84 @@ export default function AssemblyBomTree({
               style={{ height: virtualizer.getTotalSize() }}
             >
               {virtualizer.getVirtualItems().map((virtualRow) => {
-                const group = partGroups[virtualRow.index];
-                if (!group) return null;
+                const row = visualRows[virtualRow.index];
+                if (!row) return null;
+                const style: React.CSSProperties = {
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: virtualRow.size,
+                  transform: `translateY(${virtualRow.start}px)`
+                };
+                const nodes = rowNodeIds(row);
+                if (row.type === "instance") {
+                  return (
+                    <InstanceRow
+                      key={row.nodeId}
+                      group={row.group}
+                      instanceIndex={row.instanceIndex}
+                      isSelected={selectedSet.has(row.nodeId)}
+                      isHidden={hiddenNodeIds.has(row.nodeId)}
+                      style={style}
+                      onClick={(event) => onRowClick(event, virtualRow.index)}
+                      onToggleHide={() => onToggleHide(nodes)}
+                    />
+                  );
+                }
+                const group = row.group;
                 return (
                   <BomRow
                     key={group.key}
                     group={group}
-                    isSelected={selectedKeys.has(group.key)}
-                    isHidden={hiddenKeys.has(group.key)}
+                    selection={selectionStateOf(nodes, selectedSet)}
+                    hidden={selectionStateOf(nodes, hiddenNodeIds)}
+                    isExpanded={expandedKeys.has(group.key)}
                     usage={stepUsage.get(group.key) ?? []}
                     mapping={mappingsByHash.get(group.key) ?? null}
                     bomMaterials={bomMaterials}
                     canMap={canMap}
                     modelUploadId={modelUploadId}
                     instructionId={id}
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      width: "100%",
-                      height: virtualRow.size,
-                      transform: `translateY(${virtualRow.start}px)`
-                    }}
-                    onClick={(event) =>
-                      onRowClick(event, group, virtualRow.index)
-                    }
-                    onToggleHide={() => onToggleHide(group.key)}
+                    style={style}
+                    onClick={(event) => onRowClick(event, virtualRow.index)}
+                    onToggleHide={() => onToggleHide(nodes)}
+                    onToggleExpand={() => onToggleExpand(group.key)}
                     onSelectStep={onSelectStep}
                   />
                 );
               })}
             </div>
+            {rows.length === 0 && normalizedSearch && (
+              <p className="px-3 py-4 text-center text-xs text-muted-foreground">
+                No parts match “{search.trim()}”
+              </p>
+            )}
           </div>
         </ContextMenuTrigger>
         <ContextMenuContent>
           <ContextMenuItem
-            disabled={!canGroup || selectedKeys.size === 0}
+            disabled={!canGroup || !hasSelection}
             onClick={() => setShowCreateUnit(true)}
           >
-            <LuBlocks className="mr-2 h-4 w-4" />
+            <LuMerge className="mr-2 h-4 w-4" />
             Plan as one part
           </ContextMenuItem>
           <ContextMenuSeparator />
-          <ContextMenuItem
-            disabled={selectedKeys.size === 0}
-            onClick={onHideSelection}
-          >
+          <ContextMenuItem disabled={!hasSelection} onClick={onHideSelection}>
             <LuEyeOff className="mr-2 h-4 w-4" />
             Hide selected parts
           </ContextMenuItem>
-          <ContextMenuItem disabled={hiddenKeys.size === 0} onClick={onShowAll}>
+          <ContextMenuItem
+            disabled={hiddenNodeIds.size === 0}
+            onClick={onShowAll}
+          >
             <LuEye className="mr-2 h-4 w-4" />
             Show all hidden parts
           </ContextMenuItem>
           <ContextMenuItem
-            disabled={selectedKeys.size === 0}
-            onClick={() => applySelection(new Set())}
+            disabled={!hasSelection}
+            onClick={() => applyNodeSelection(new Set())}
           >
             Clear selection
           </ContextMenuItem>
@@ -453,11 +582,11 @@ export default function AssemblyBomTree({
         <CreateUnitModal
           instructionId={id}
           modelUploadId={modelUploadId}
-          partNodeIds={selectedGroupNodeIds}
+          partNodeIds={selectedNodeIds}
           onClose={() => setShowCreateUnit(false)}
           onCreated={() => {
             setShowCreateUnit(false);
-            applySelection(new Set());
+            applyNodeSelection(new Set());
           }}
         />
       )}
@@ -600,8 +729,9 @@ function CreateUnitModal({
 
 function BomRow({
   group,
-  isSelected,
-  isHidden,
+  selection,
+  hidden,
+  isExpanded,
   usage,
   mapping,
   bomMaterials,
@@ -611,11 +741,13 @@ function BomRow({
   style,
   onClick,
   onToggleHide,
+  onToggleExpand,
   onSelectStep
 }: {
   group: PartGroup;
-  isSelected: boolean;
-  isHidden: boolean;
+  selection: SelectionState;
+  hidden: SelectionState;
+  isExpanded: boolean;
   usage: { stepId: string; index: number; title: string }[];
   mapping: AssemblyPartMapping | null;
   bomMaterials: FlattenedBomMaterial[];
@@ -625,6 +757,7 @@ function BomRow({
   style: React.CSSProperties;
   onClick: (event: MouseEvent) => void;
   onToggleHide: () => void;
+  onToggleExpand: () => void;
   onSelectStep: (stepId: string) => void;
 }) {
   const bomLine = mapping
@@ -632,6 +765,8 @@ function BomRow({
     : undefined;
   const quantityMismatch =
     bomLine !== undefined && Math.round(bomLine.quantity) !== group.count;
+  const allHidden = hidden === "all";
+  const expandable = group.count > 1;
 
   return (
     <div
@@ -640,10 +775,11 @@ function BomRow({
       style={style}
       className={cn(
         "group relative flex cursor-pointer select-none items-center gap-2 border-b border-border px-3 text-sm hover:bg-accent/30",
-        // Selection is red everywhere (matches the viewer highlight): a solid
-        // left bar plus a red wash so it reads clearly, not just a faint accent
-        isSelected && "bg-red-500/10 hover:bg-red-500/10",
-        isHidden && "opacity-50"
+        // Selection is red everywhere (matches the viewer highlight): a left bar
+        // plus a red wash. A partly-selected group reads lighter than a full one.
+        selection === "all" && "bg-red-500/10 hover:bg-red-500/10",
+        selection === "partial" && "bg-red-500/5 hover:bg-red-500/5",
+        allHidden && "opacity-50"
       )}
       onClick={onClick}
       onKeyDown={(event) => {
@@ -653,11 +789,35 @@ function BomRow({
         }
       }}
     >
-      {isSelected && (
+      {selection !== "none" && (
         <span
           aria-hidden
-          className="pointer-events-none absolute inset-y-0 left-0 w-0.5 bg-red-500"
+          className={cn(
+            "pointer-events-none absolute inset-y-0 left-0 w-0.5 bg-red-500",
+            selection === "partial" && "opacity-50"
+          )}
         />
+      )}
+      {expandable ? (
+        <button
+          type="button"
+          aria-label={
+            isExpanded ? `Collapse ${group.name}` : `Expand ${group.name}`
+          }
+          className="flex h-5 w-5 shrink-0 items-center justify-center rounded-sm text-muted-foreground hover:bg-accent"
+          onClick={(event) => {
+            event.stopPropagation();
+            onToggleExpand();
+          }}
+        >
+          {isExpanded ? (
+            <LuChevronDown className="h-3.5 w-3.5" />
+          ) : (
+            <LuChevronRight className="h-3.5 w-3.5" />
+          )}
+        </button>
+      ) : (
+        <span className="h-5 w-5 shrink-0" aria-hidden />
       )}
       <PartColorSwatch color={group.color} />
       <div className="flex min-w-0 flex-1 flex-col">
@@ -681,21 +841,21 @@ function BomRow({
           </span>
         )}
       </div>
-      <span className="text-xs text-muted-foreground tabular-nums">
-        — {group.count}
-      </span>
+      <Badge variant="secondary" className="tabular-nums">
+        ×{group.count}
+      </Badge>
       {/* Ghost icon buttons sit flush together (no gap between them) */}
       <div className="flex items-center">
         <IconButton
-          aria-label={isHidden ? `Show ${group.name}` : `Hide ${group.name}`}
-          icon={isHidden ? <LuEyeOff /> : <LuEye />}
+          aria-label={allHidden ? `Show ${group.name}` : `Hide ${group.name}`}
+          icon={allHidden ? <LuEyeOff /> : <LuEye />}
           variant="ghost"
           size="sm"
           className={cn(
             "focus:opacity-100",
-            // Hidden rows keep the crossed eye visible as their status + control;
-            // visible rows reveal the eye on hover, Onshape-style
-            isHidden
+            // A group with any hidden instance keeps the eye visible as its
+            // status + control; fully-visible groups reveal it on hover.
+            hidden !== "none"
               ? "opacity-100 text-muted-foreground"
               : "opacity-0 group-hover:opacity-100"
           )}
@@ -733,6 +893,79 @@ function BomRow({
           </PopoverContent>
         </Popover>
       </div>
+    </div>
+  );
+}
+
+/** A single instance of an expanded group — selectable and hideable on its own. */
+function InstanceRow({
+  group,
+  instanceIndex,
+  isSelected,
+  isHidden,
+  style,
+  onClick,
+  onToggleHide
+}: {
+  group: PartGroup;
+  instanceIndex: number;
+  isSelected: boolean;
+  isHidden: boolean;
+  style: React.CSSProperties;
+  onClick: (event: MouseEvent) => void;
+  onToggleHide: () => void;
+}) {
+  const label = `${group.name} #${instanceIndex + 1}`;
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      style={style}
+      className={cn(
+        "group relative flex cursor-pointer select-none items-center gap-2 border-b border-border py-1 pl-9 pr-3 text-sm hover:bg-accent/30",
+        isSelected && "bg-red-500/10 hover:bg-red-500/10",
+        isHidden && "opacity-50"
+      )}
+      onClick={onClick}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onClick(event as unknown as MouseEvent);
+        }
+      }}
+    >
+      {isSelected && (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-y-0 left-0 w-0.5 bg-red-500"
+        />
+      )}
+      <PartColorSwatch color={group.color} />
+      <span
+        className="min-w-0 flex-1 truncate text-muted-foreground"
+        title={label}
+      >
+        {group.name}{" "}
+        <span className="tabular-nums text-foreground">
+          #{instanceIndex + 1}
+        </span>
+      </span>
+      <IconButton
+        aria-label={isHidden ? `Show ${label}` : `Hide ${label}`}
+        icon={isHidden ? <LuEyeOff /> : <LuEye />}
+        variant="ghost"
+        size="sm"
+        className={cn(
+          "focus:opacity-100",
+          isHidden
+            ? "opacity-100 text-muted-foreground"
+            : "opacity-0 group-hover:opacity-100"
+        )}
+        onClick={(event) => {
+          event.stopPropagation();
+          onToggleHide();
+        }}
+      />
     </div>
   );
 }

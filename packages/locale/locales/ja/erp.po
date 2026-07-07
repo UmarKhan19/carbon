@@ -1352,6 +1352,9 @@ msgstr "{0}権限を持つ管理者に最初の{1}を追加するよう依頼し
 msgid "Assemblies"
 msgstr ""
 
+msgid "Assembly Instructions"
+msgstr ""
+
 msgid "Assembly:"
 msgstr "アセンブリ:"
 
