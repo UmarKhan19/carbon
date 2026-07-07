@@ -57,10 +57,10 @@ import {
   Hidden,
   InputControlled,
   Item,
+  MultiSelect,
   Number,
   NumberControlled,
   Select,
-  SelectControlled,
   StorageUnit,
   Submit,
   UnitOfMeasure
@@ -1067,27 +1067,28 @@ function MaterialForm({
               }));
             }}
           />
-          {/* Part ↔ step: a part is scoped to a SINGLE step so the MES shows it only on that
-              step. No selection = unassigned, surfaced in the MES "General" bucket. */}
+          {/* Part ↔ step (many-to-many): tag the step(s) where this part is used so the MES
+              can show it there. Display-only — quantity/issuing stays at the part level, so
+              multiple steps never multiply the requirement. No selection = the MES "General"
+              bucket (shown on every step). */}
           {(() => {
             const operationSteps =
               jobOperations.find((o) => o.id === itemData.jobOperationId)
                 ?.jobOperationStep ?? [];
             if (operationSteps.length === 0) return null;
             return (
-              <SelectControlled
+              <MultiSelect
                 name="jobOperationStepIds"
-                label={t`Step`}
-                isOptional
-                value={itemData.jobOperationStepIds?.[0] ?? ""}
+                label={t`Steps`}
+                value={itemData.jobOperationStepIds ?? []}
                 options={operationSteps.map((s) => ({
                   value: s.id,
                   label: s.name ?? t`Step`
                 }))}
-                onChange={(option) =>
+                onChange={(values) =>
                   setItemData((d) => ({
                     ...d,
-                    jobOperationStepIds: option ? [option.value] : []
+                    jobOperationStepIds: (values ?? []).map((v) => v.value)
                   }))
                 }
               />

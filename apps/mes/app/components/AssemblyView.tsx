@@ -218,8 +218,6 @@ const TYPE_ORDER = [
   "Tool",
   "Service"
 ];
-const pluralize = (type: string) =>
-  !type ? "Items" : type.endsWith("s") ? type : `${type}s`;
 
 // Increasing bar heights for the unit-progress "signal" flourish in the header.
 const SIGNAL_HEIGHTS = [
@@ -548,31 +546,28 @@ export function AssemblyView({
   );
   const step = steps[currentStep] ?? null;
 
-  // Part ↔ step: a part is scoped to a SINGLE step. Parts linked to the current step show in
-  // their type group (Part / Material / Consumable / …). Parts with NO step link are
-  // "unassigned" and surface in a dedicated General bucket shown on every step, so nothing
-  // silently disappears while a step is selected.
+  // Part ↔ step (many-to-many) is display-only "where used" metadata. Quantity and issuing
+  // live on the jobMaterial (the part), so a part is shown ONCE no matter how many steps use
+  // it — the requirement is never multiplied and issuing it once marks it fulfilled
+  // everywhere. Order by relevance: used at the current step first, then unassigned
+  // ("General", applies to every step), then parts used only at other steps.
+  const stepNumberById = new Map(steps.map((s, i) => [s.id, i + 1] as const));
   const allMaterials: any[] = materials?.materials ?? [];
-  const stepMaterials = allMaterials.filter(
-    (m: any) =>
-      step?.id != null && (m.jobOperationStepIds ?? []).includes(step.id)
-  );
-  const generalMaterials = allMaterials.filter(
-    (m: any) => (m.jobOperationStepIds ?? []).length === 0
-  );
-  // Union drives the tracked-scan pre-select below (a part still needing issue).
-  const rawMaterials: any[] = [...stepMaterials, ...generalMaterials];
-  const materialGroups = new Map<string, any[]>();
-  for (const m of stepMaterials) {
-    const t = m.itemType ?? "Other";
-    if (!materialGroups.has(t)) materialGroups.set(t, []);
-    materialGroups.get(t)?.push(m);
-  }
-  const groupEntries = [...materialGroups.entries()].toSorted((a, b) => {
-    const ai = TYPE_ORDER.indexOf(a[0]);
-    const bi = TYPE_ORDER.indexOf(b[0]);
-    return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi);
+  const materialRank = (m: any) => {
+    const ids: string[] = m.jobOperationStepIds ?? [];
+    if (step?.id != null && ids.includes(step.id)) return 0;
+    if (ids.length === 0) return 1;
+    return 2;
+  };
+  const consolidatedMaterials: any[] = [...allMaterials].sort((a, b) => {
+    const r = materialRank(a) - materialRank(b);
+    if (r !== 0) return r;
+    const at = TYPE_ORDER.indexOf(a.itemType ?? "");
+    const bt = TYPE_ORDER.indexOf(b.itemType ?? "");
+    return (at < 0 ? 99 : at) - (bt < 0 ? 99 : bt);
   });
+  // Drives the tracked-scan pre-select below (a part still needing issue).
+  const rawMaterials: any[] = allMaterials;
 
   // Phase 2 (tool ↔ step, many-to-many): show only the tools involved in the current step —
   // a tool scoped to steps (jobOperationStepIds) appears on those steps; operation-level tools
@@ -1368,38 +1363,32 @@ export function AssemblyView({
         {/* ── SIDEBAR: materials, tools, NCRs, parameters ── */}
         <aside className="flex w-full shrink-0 flex-col border-t border-border bg-card lg:w-[280px] lg:overflow-hidden lg:border-l lg:border-t-0 xl:w-[320px]">
           <div className="flex flex-col lg:min-h-0 lg:flex-1 lg:overflow-hidden">
-            {groupEntries.map(([type, mats]) => (
-              <SidebarSection key={type} title={pluralize(type)} scrollable>
-                {mats.map((m, i) => (
-                  <MaterialRow
-                    key={m.id ?? i}
-                    material={m}
-                    onIssue={() => {
-                      setSelectedMaterial(m);
-                      issueModal.onOpen();
-                    }}
-                  />
-                ))}
+            {/* One authoritative Parts list for the whole operation: each part appears once
+                with its part-level quantity/issue status and chips for the step(s) it's used
+                at (or "General" if unassigned). Parts used at the current step sort to the
+                top and are highlighted. Rendering once makes double-counting impossible. */}
+            {consolidatedMaterials.length > 0 ? (
+              <SidebarSection title="Parts" scrollable>
+                {consolidatedMaterials.map((m, i) => {
+                  const stepNumbers = ((m.jobOperationStepIds ?? []) as string[])
+                    .map((id) => stepNumberById.get(id))
+                    .filter((n): n is number => n != null)
+                    .sort((a, b) => a - b);
+                  return (
+                    <MaterialRow
+                      key={m.id ?? i}
+                      material={m}
+                      stepNumbers={stepNumbers}
+                      currentStepNumber={currentStep + 1}
+                      onIssue={() => {
+                        setSelectedMaterial(m);
+                        issueModal.onOpen();
+                      }}
+                    />
+                  );
+                })}
               </SidebarSection>
-            ))}
-
-            {/* Unassigned parts (no step link) — shown regardless of the selected step. */}
-            {generalMaterials.length > 0 && (
-              <SidebarSection title="General" scrollable>
-                {generalMaterials.map((m, i) => (
-                  <MaterialRow
-                    key={m.id ?? i}
-                    material={m}
-                    onIssue={() => {
-                      setSelectedMaterial(m);
-                      issueModal.onOpen();
-                    }}
-                  />
-                ))}
-              </SidebarSection>
-            )}
-
-            {groupEntries.length === 0 && generalMaterials.length === 0 && (
+            ) : (
               <SidebarSection title="Parts">
                 <p className="text-xs text-muted-foreground">
                   No materials assigned
@@ -1947,10 +1936,15 @@ function SidebarSection({
 
 function MaterialRow({
   material,
-  onIssue
+  onIssue,
+  stepNumbers = [],
+  currentStepNumber
 }: {
   material: any;
   onIssue?: () => void;
+  // 1-based step numbers where this part is used ("where used"); empty = General.
+  stepNumbers?: number[];
+  currentStepNumber?: number;
 }) {
   const isTracked =
     material.requiresSerialTracking || material.requiresBatchTracking;
@@ -1973,51 +1967,87 @@ function MaterialRow({
       : { icon: LuCircle, className: "text-muted-foreground/50", label: "Not issued" };
   const StatusIcon = issueStatus.icon;
 
+  const isGeneral = stepNumbers.length === 0;
+  const usedHere =
+    currentStepNumber != null && stepNumbers.includes(currentStepNumber);
+
   return (
-    <div className="flex items-center gap-2 py-1">
-      <StatusIcon
-        aria-label={issueStatus.label}
-        className={cn("size-3.5 shrink-0", issueStatus.className)}
-      />
-      <span className="w-[56px] shrink-0 truncate font-mono text-[10px] text-muted-foreground">
-        {material.itemReadableId}
-      </span>
-      <div className="flex min-w-0 flex-1 items-center gap-1.5">
-        <span className="truncate text-xs">{material.description}</span>
-        {material.requiresSerialTracking && <Badge variant="blue">S/N</Badge>}
-        {material.requiresBatchTracking && (
-          <Badge variant="purple">Batch</Badge>
-        )}
+    <div
+      className={cn(
+        "flex flex-col gap-1 rounded-md px-1 py-1",
+        usedHere && "bg-foreground/5"
+      )}
+    >
+      <div className="flex items-center gap-2">
+        <StatusIcon
+          aria-label={issueStatus.label}
+          className={cn("size-3.5 shrink-0", issueStatus.className)}
+        />
+        <span className="w-[56px] shrink-0 truncate font-mono text-[10px] text-muted-foreground">
+          {material.itemReadableId}
+        </span>
+        <div className="flex min-w-0 flex-1 items-center gap-1.5">
+          <span className="truncate text-xs">{material.description}</span>
+          {material.requiresSerialTracking && <Badge variant="blue">S/N</Badge>}
+          {material.requiresBatchTracking && (
+            <Badge variant="purple">Batch</Badge>
+          )}
+        </div>
+        <div className="flex shrink-0 items-center gap-1">
+          {fullyIssued ? (
+            <span className="flex items-center gap-1 text-[10px] font-medium tabular-nums text-emerald-500">
+              {issued}/{required}
+              <LuCheck className="size-3" />
+            </span>
+          ) : partiallyIssued ? (
+            <span className="text-[10px] tabular-nums text-amber-500">
+              {issued}/{required}
+            </span>
+          ) : (
+            <span className="text-xs tabular-nums text-muted-foreground">
+              ×{required}
+            </span>
+          )}
+          {/* Once fully issued there's nothing left to scan/add — hide the action. */}
+          {onIssue && !fullyIssued && (
+            <button
+              type="button"
+              aria-label={isTracked ? "Scan material" : "Issue material"}
+              onClick={onIssue}
+              className="ml-0.5 flex size-9 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors active:scale-[0.96]"
+            >
+              {isTracked ? (
+                <LuQrCode className="size-4" />
+              ) : (
+                <LuGitBranchPlus className="size-4" />
+              )}
+            </button>
+          )}
+        </div>
       </div>
-      <div className="flex shrink-0 items-center gap-1">
-        {fullyIssued ? (
-          <span className="flex items-center gap-1 text-[10px] font-medium tabular-nums text-emerald-500">
-            {issued}/{required}
-            <LuCheck className="size-3" />
-          </span>
-        ) : partiallyIssued ? (
-          <span className="text-[10px] tabular-nums text-amber-500">
-            {issued}/{required}
+
+      {/* Where-used: chips for the step(s) this part belongs to (current step highlighted),
+          or a "General" tag when it isn't tied to any step. Quantity above is the single
+          part-level requirement — these chips only say where it's consumed. */}
+      <div className="flex flex-wrap items-center gap-1 pl-[22px]">
+        {isGeneral ? (
+          <span className="rounded-full bg-muted px-1.5 py-px text-[9px] font-medium text-muted-foreground">
+            General
           </span>
         ) : (
-          <span className="text-xs tabular-nums text-muted-foreground">
-            ×{required}
-          </span>
-        )}
-        {/* Once fully issued there's nothing left to scan/add — hide the action. */}
-        {onIssue && !fullyIssued && (
-          <button
-            type="button"
-            aria-label={isTracked ? "Scan material" : "Issue material"}
-            onClick={onIssue}
-            className="ml-0.5 flex size-9 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors active:scale-[0.96]"
-          >
-            {isTracked ? (
-              <LuQrCode className="size-4" />
-            ) : (
-              <LuGitBranchPlus className="size-4" />
-            )}
-          </button>
+          stepNumbers.map((n) => (
+            <span
+              key={n}
+              className={cn(
+                "flex min-w-[16px] items-center justify-center rounded-full px-1 py-px text-[9px] font-semibold tabular-nums",
+                n === currentStepNumber
+                  ? "bg-foreground text-background"
+                  : "bg-muted text-muted-foreground"
+              )}
+            >
+              {n}
+            </span>
+          ))
         )}
       </div>
     </div>
