@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-06T23:03:56.678Z",
+  "generated": "2026-07-07T00:45:25.557Z",
   "totalTools": 1267,
   "modules": 15,
   "tools": [
@@ -2151,6 +2151,7 @@
       "paramCount": 1,
       "serviceParams": [
         "client",
+        "db",
         "id",
         "userId"
       ],
