@@ -4439,6 +4439,12 @@ msgstr "Mühendislik Değişiklikleri ve CAD"
 msgid "Engineering Contact"
 msgstr "Mühendislik İletişim Kişisi"
 
+msgid "Enroll"
+msgstr "Kaydol"
+
+msgid "Enroll this company in the Implementation Hub"
+msgstr "Bu şirketi Uygulama merkezine kaydedin"
+
 msgid "Enter a batch number before setting the expiration date"
 msgstr "Son kullanma tarihini ayarlamadan önce bir parti numarası girin"
 
@@ -10426,6 +10432,9 @@ msgstr "Miktarı Ayarla"
 
 msgid "Set up the right way"
 msgstr "Doğru şekilde ayarla"
+
+msgid "Set up your company with a step-by-step implementation plan covering setup, data, training, and go-live."
+msgstr "Kurulum, veri, eğitim ve canlıya geçişi kapsayan adım adım bir uygulama planıyla şirketinizi kurun."
 
 msgid "Set up your own data with import tools and LLM help"
 msgstr "İçe aktarma araçları ve LLM yardımıyla kendi verilerinizi ayarlayın"
