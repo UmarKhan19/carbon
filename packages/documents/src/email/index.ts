@@ -1,4 +1,5 @@
 import GetStartedEmail from "./GetStartedEmail";
+import ImplementationHubEmail from "./ImplementationHubEmail";
 import InviteEmail from "./InviteEmail";
 import NotificationEmail from "./NotificationEmail";
 import PurchaseOrderEmail from "./PurchaseOrderEmail";
@@ -17,6 +18,7 @@ export {
 
 export {
   GetStartedEmail,
+  ImplementationHubEmail,
   InviteEmail,
   NotificationEmail,
   PurchaseOrderEmail,

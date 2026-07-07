@@ -111,6 +111,7 @@ export const path = {
       materialTypes: (substanceId: string, formId: string) =>
         generatePath(`${api}/items/types/${substanceId}/${formId}`),
       materialSubstances: `${api}/items/substances`,
+      itemMpns: `${api}/items/mpns`,
       messagingNotify: `${api}/messaging/notify`,
       mrp: (locationId?: string) =>
         generatePath(
@@ -169,6 +170,9 @@ export const path = {
         ),
       resourcesKpi: (key: string) =>
         generatePath(`${api}/resources/kpi/${key}`),
+      purchaseInvoice: (id: string) =>
+        generatePath(`${api}/purchase-invoice/${id}`),
+      salesRfq: (id: string) => generatePath(`${api}/sales-rfq/${id}`),
       salesCustomerOverride: `${api}/sales/customer-override`,
       salesKpi: (key: string) => generatePath(`${api}/sales/kpi/${key}`),
       salesResolvePrice: `${api}/sales/resolve-price`,
@@ -564,14 +568,22 @@ export const path = {
     chartOfAccount: (id: string) =>
       generatePath(`${x}/accounting/charts/${id}`),
     chartOfAccounts: `${x}/accounting/charts`,
+    chartOfAccountsLedger: (id: string) =>
+      generatePath(`${x}/accounting/charts/ledger/${id}`),
     moveChartOfAccount: (id: string) =>
       generatePath(`${x}/accounting/charts/move/${id}`),
     costCenter: (id: string) =>
       generatePath(`${x}/accounting/cost-centers/${id}`),
     costCenters: `${x}/accounting/cost-centers`,
     trialBalance: `${x}/accounting/trial-balance`,
+    trialBalanceLedger: (id: string) =>
+      generatePath(`${x}/accounting/trial-balance/${id}`),
     balanceSheet: `${x}/accounting/balance-sheet`,
+    balanceSheetLedger: (id: string) =>
+      generatePath(`${x}/accounting/balance-sheet/${id}`),
     incomeStatement: `${x}/accounting/income-statement`,
+    incomeStatementLedger: (id: string) =>
+      generatePath(`${x}/accounting/income-statement/${id}`),
     company: `${x}/settings/company`,
     companySwitch: (companyId: string) =>
       generatePath(`${x}/settings/company/switch/${companyId}`),
@@ -1073,6 +1085,8 @@ export const path = {
     locations: `${x}/resources/locations`,
     login: "/login",
     logout: "/logout",
+    download: (token: string) => `/download/${token}`,
+    downloadError: (reason: string) => `/download/error?reason=${reason}`,
     logos: `${x}/settings/logos`,
     maintenanceDispatch: (id: string) => generatePath(`${x}/maintenance/${id}`),
     maintenanceDispatchComments: (id: string) =>

@@ -244,11 +244,7 @@ export async function deleteSupplierProcess(
   client: SupabaseClient<Database>,
   supplierProcessId: string
 ) {
-  return client
-    .from("supplierProcess")
-    .delete()
-    .eq("id", supplierProcessId)
-    .single();
+  return client.from("supplierProcess").delete().eq("id", supplierProcessId);
 }
 
 export async function deleteSupplierQuote(
@@ -1843,7 +1839,7 @@ export async function upsertSupplier(
     return client
       .from("supplier")
       .insert([supplier])
-      .select("id, name")
+      .select("id, name, website, supplierStatus, readableId")
       .single();
   }
   return client
