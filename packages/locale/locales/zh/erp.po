@@ -4439,6 +4439,12 @@ msgstr "工程变更和CAD"
 msgid "Engineering Contact"
 msgstr "工程联系人"
 
+msgid "Enroll"
+msgstr "注册"
+
+msgid "Enroll this company in the Implementation Hub"
+msgstr "将此公司注册到实施中心"
+
 msgid "Enter a batch number before setting the expiration date"
 msgstr "在设置过期日期前请输入批号"
 
@@ -10414,6 +10420,9 @@ msgstr "设置数量"
 
 msgid "Set up the right way"
 msgstr "以正确的方式设置"
+
+msgid "Set up your company with a step-by-step implementation plan covering setup, data, training, and go-live."
+msgstr "通过涵盖设置、数据、培训和上线的分步实施计划来设置您的公司。"
 
 msgid "Set up your own data with import tools and LLM help"
 msgstr "使用导入工具和LLM帮助设置您自己的数据"

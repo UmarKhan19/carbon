@@ -4439,6 +4439,12 @@ msgstr "Engineering Changes and CAD"
 msgid "Engineering Contact"
 msgstr "Engineering Contact"
 
+msgid "Enroll"
+msgstr "Enroll"
+
+msgid "Enroll this company in the Implementation Hub"
+msgstr "Enroll this company in the Implementation Hub"
+
 msgid "Enter a batch number before setting the expiration date"
 msgstr "Enter a batch number before setting the expiration date"
 
@@ -10414,6 +10420,9 @@ msgstr "Set Quantity"
 
 msgid "Set up the right way"
 msgstr "Set up the right way"
+
+msgid "Set up your company with a step-by-step implementation plan covering setup, data, training, and go-live."
+msgstr "Set up your company with a step-by-step implementation plan covering setup, data, training, and go-live."
 
 msgid "Set up your own data with import tools and LLM help"
 msgstr "Set up your own data with import tools and LLM help"
