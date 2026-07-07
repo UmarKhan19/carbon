@@ -121,7 +121,7 @@ IMPORTANT: Before any research or coding, match the task to this table. A single
 | Execute an approved plan | `.ai/skills/execute/SKILL.md` |
 | Bug fix: root-cause analysis (read-only) | `.ai/skills/root-cause/SKILL.md` |
 | Bug fix: runtime instrumentation | `.ai/skills/debugging-difficult-bugs/SKILL.md` |
-| Bug fix: implement the fix | `.ai/skills/fix/SKILL.md` |
+| Bug fix: end-to-end pipeline (diagnose → fix → verify → commit) | `.ai/skills/fix/SKILL.md` |
 | Pre-commit verification gate | `.ai/skills/check-and-commit/SKILL.md` |
 | Feature build (doer→gate→judge loop) | `.ai/skills/conductor/SKILL.md` |
 | Browser-verify a feature | `.ai/skills/test/SKILL.md` |
