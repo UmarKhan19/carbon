@@ -106,6 +106,7 @@ const SalesInvoiceForm = ({ initialValues }: SalesInvoiceFormProps) => {
       });
 
       const [customerData, paymentTermData] = await Promise.all([
+        // @ts-expect-error Supabase composite key issue
         carbon
           ?.from("customer")
           .select(
