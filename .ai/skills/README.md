@@ -13,14 +13,29 @@ manually: `pnpm install-skills`). Authoring rules: `writing-skills/SKILL.md`.
                  🛑 open questions      🛑 plan approval
 ```
 
-`/feature` runs this pipeline end-to-end. `/spec-writing` resolves its Open
-Questions via `/grill`. `/execute` commits per task via `/check-and-commit`.
+`/feature` runs this pipeline. At start it picks an **autonomy mode**
+(approval-before-each-phase vs fully autonomous — autonomous auto-resolves the
+🛑 gates and records the decision) and a **phase set** (`/plan` + `/execute` are
+mandatory; research, spec, test, self-review are optional, auto-detected from
+the request), and keeps a run record at `.ai/runs/{date}-{slug}.md`.
+`/spec-writing` resolves its Open Questions via `/grill`. `/execute` commits per
+task via `/check-and-commit`.
 
 **Bug fix**:
 
 ```
-/root-cause → (/debugging-difficult-bugs if runtime evidence needed) → /fix → /check-and-commit
+/root-cause → (/debugging-difficult-bugs if runtime evidence needed) → fix (implements) → /test → /check-and-commit
 ```
+
+`/fix` runs this pipeline end-to-end: it orchestrates the diagnosis and
+verification phases **and** implements the fix itself (the minimal change plus a
+red→green regression test). At start it picks an **autonomy mode**
+(approval-before-each-phase vs fully autonomous — autonomous auto-resolves the
+conditional branches and records each choice) and a **phase set** (root-cause +
+fix are mandatory; runtime instrumentation is conditional on confidence, test is
+optional, commit runs only on explicit ask), and keeps a run record at
+`.ai/runs/{date}-{slug}.md`. The two 🛑 hard stops (architectural three-strikes
+in root-cause, BLOCKED in fix) always surface to the human.
 
 **Autonomous loop** (single scoped item, doer→gate→judge, no mid-loop human input, gated PR): `/conductor`.
 
@@ -38,7 +53,7 @@ Questions via `/grill`. `/execute` commits per task via `/check-and-commit`.
 | `feature` | The full pipeline above, orchestrated | all of the above |
 | `root-cause` | Read-only bug analysis → brief | root-cause brief (chat) |
 | `debugging-difficult-bugs` | Temporary JSONL runtime instrumentation | log-backed root cause |
-| `fix` | Minimal fix from a brief + red→green regression test | ready-to-commit change |
+| `fix` | End-to-end bug-fix pipeline; diagnoses via /root-cause, implements the minimal fix + red→green regression test, verifies, commits on explicit ask | ready-to-commit change (+ run record) |
 | `check-and-commit` | Gate suite, then commit specific files | conventional commit |
 | `self-review` | Review your own branch before/at PR time | Must fix / Risks / Suggestions |
 | `conductor` | Autonomous doer→gate→judge loop to a gated PR (no mid-loop human input) | PR + ledger |
