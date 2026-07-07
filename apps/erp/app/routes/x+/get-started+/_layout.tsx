@@ -133,7 +133,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const hub = await getImplementationHub(client, companyId);
   // Only enrolled companies have a hub row — others never reach this surface.
-  // Enrollment is the gate (manual today; Cloud auto-enroll later), not staff.
+  // Enrollment is the gate (self-serve from the home page), not staff.
   if (!hub.data) {
     throw redirect(path.to.authenticatedRoot);
   }
@@ -240,7 +240,7 @@ export default function GetStartedLayout() {
       <div className="grid grid-cols-[auto_1fr] grid-rows-[minmax(0,1fr)] w-full h-full overflow-hidden">
         <GroupedContentSidebar groups={groups} exactMatch />
         <div className="relative min-w-0 overflow-hidden">
-          <MeshGradientBackground />
+          <MeshGradientBackground darkOnly />
           <div ref={scrollRef} className="relative z-10 h-full overflow-y-auto">
             {isInternal ? (
               <PreviewBar previewing={previewingAsCustomer} />

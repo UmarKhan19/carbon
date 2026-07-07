@@ -93,7 +93,7 @@ const QuoteForm = ({ initialValues }: QuoteFormProps) => {
       });
 
       const { data, error } = await carbon
-        ?.from("customer")
+        .from("customer")
         .select(
           "currencyCode, salesContactId, customerShipping!customerId(shippingCustomerLocationId)"
         )
