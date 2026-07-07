@@ -1855,9 +1855,6 @@ msgstr "保存されていない操作にステップを追加できません"
 msgid "Cannot add tools to unsaved operation"
 msgstr "保存されていない操作にツールを追加できません"
 
-msgid "Cannot close yet"
-msgstr ""
-
 msgid "Cannot convert RFQ to quote"
 msgstr "RFQを見積に変換できません"
 
@@ -2084,14 +2081,8 @@ msgstr "{0}以来クロックイン中"
 msgid "Close"
 msgstr "閉じる"
 
-msgid "Close {periodLabel}"
-msgstr ""
-
 msgid "Close Date"
 msgstr "終了日"
-
-msgid "Close Period"
-msgstr ""
 
 msgid "Closed"
 msgstr "クローズ"
@@ -2348,9 +2339,6 @@ msgstr "マッピングを確認"
 
 msgid "Confirm Password"
 msgstr "パスワードを確認"
-
-msgid "Confirm Skip"
-msgstr ""
 
 msgid "Confirmed incoming stock — purchase & production orders (bars above zero)."
 msgstr "確認された入荷在庫 — 購買および生産注文（ゼロ以上のバー）。"
@@ -4607,9 +4595,6 @@ msgstr "すべての条件が一致する必要があります"
 msgid "Every in-scope test passes in your configured system, with your data."
 msgstr "スコープ内のすべてのテストが、設定されたシステムで、あなたのデータを使用して合格します。"
 
-msgid "Every required task must be Done or Skipped before the period can be closed."
-msgstr ""
-
 msgid "Every row was imported successfully."
 msgstr "すべての行が正常にインポートされました。"
 
@@ -6843,9 +6828,6 @@ msgstr "マークダークモード"
 
 msgid "Mark done"
 msgstr "完了にマーク"
-
-msgid "Mark Done"
-msgstr ""
 
 msgid "Mark Light Mode"
 msgstr "マークライトモード"
@@ -9260,9 +9242,6 @@ msgstr "理由アカウント"
 msgid "Reason for declining (Optional)"
 msgstr "辞退する理由（オプション）"
 
-msgid "Reason for skipping (required)"
-msgstr ""
-
 msgid "Reasons"
 msgstr "理由"
 
@@ -10692,9 +10671,6 @@ msgstr "サイズ"
 msgid "Sizes"
 msgstr "サイズ"
 
-msgid "Skip"
-msgstr ""
-
 msgid "Skip Existing"
 msgstr "既存をスキップ"
 
@@ -11300,9 +11276,6 @@ msgstr "ターゲットバージョン"
 
 msgid "Target Version"
 msgstr "ターゲットバージョン"
-
-msgid "Task"
-msgstr ""
 
 msgid "tasks"
 msgstr "タスク"

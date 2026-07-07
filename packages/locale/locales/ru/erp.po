@@ -1855,9 +1855,6 @@ msgstr "Невозможно добавить шаги к несохраненн
 msgid "Cannot add tools to unsaved operation"
 msgstr "Невозможно добавить инструменты к несохраненной операции"
 
-msgid "Cannot close yet"
-msgstr ""
-
 msgid "Cannot convert RFQ to quote"
 msgstr "Невозможно преобразовать RFQ в предложение"
 
@@ -2084,14 +2081,8 @@ msgstr "Зарегистрирован с {0}"
 msgid "Close"
 msgstr "Закрыть"
 
-msgid "Close {periodLabel}"
-msgstr ""
-
 msgid "Close Date"
 msgstr "Дата закрытия"
-
-msgid "Close Period"
-msgstr ""
 
 msgid "Closed"
 msgstr "Закрыто"
@@ -2348,9 +2339,6 @@ msgstr "Подтвердить сопоставление"
 
 msgid "Confirm Password"
 msgstr "Подтвердить пароль"
-
-msgid "Confirm Skip"
-msgstr ""
 
 msgid "Confirmed incoming stock — purchase & production orders (bars above zero)."
 msgstr "Подтвержденный входящий запас — заказы на покупку и производство (столбцы выше нуля)."
@@ -4607,9 +4595,6 @@ msgstr "Каждое условие должно совпадать"
 msgid "Every in-scope test passes in your configured system, with your data."
 msgstr "Все тесты в области действия проходят в вашей настроенной системе с вашими данными."
 
-msgid "Every required task must be Done or Skipped before the period can be closed."
-msgstr ""
-
 msgid "Every row was imported successfully."
 msgstr "Каждая строка была успешно импортирована."
 
@@ -6843,9 +6828,6 @@ msgstr "Логотип в тёмном режиме"
 
 msgid "Mark done"
 msgstr "Отметить выполненным"
-
-msgid "Mark Done"
-msgstr ""
 
 msgid "Mark Light Mode"
 msgstr "Логотип в светлом режиме"
@@ -9260,9 +9242,6 @@ msgstr "Счет причины"
 msgid "Reason for declining (Optional)"
 msgstr "Причина отказа (Необязательно)"
 
-msgid "Reason for skipping (required)"
-msgstr ""
-
 msgid "Reasons"
 msgstr "Причины"
 
@@ -10692,9 +10671,6 @@ msgstr "Размер"
 msgid "Sizes"
 msgstr "Размеры"
 
-msgid "Skip"
-msgstr ""
-
 msgid "Skip Existing"
 msgstr "Пропустить существующие"
 
@@ -11300,9 +11276,6 @@ msgstr "Целевая версия"
 
 msgid "Target Version"
 msgstr "Целевая версия"
-
-msgid "Task"
-msgstr ""
 
 msgid "tasks"
 msgstr "задачи"
