@@ -91,7 +91,7 @@ Check `apps/erp/app/modules/accounting/index.ts` — ensure these are exported:
 After all code is written:
 ```bash
 cd /home/openclaw/carbon-worktrees/loop-1031
-pnpm exec biome check --write --no-errors-on-unmatched apps/erp/app/routes/x+/accounting+/periods.tsx 'apps/erp/app/routes/x+/accounting+/periods.$periodId.close.tsx' apps/erp/app/modules/accounting/index.ts 2>&1 || true
+pnpm exec biome check --write --no-errors-on-unmatched apps/erp/app/routes/x+/accounting+/periods.tsx apps/erp/app/routes/x+/accounting+/periods.\$periodId.close.tsx apps/erp/app/modules/accounting/index.ts 2>&1 || true
 pnpm --filter @carbon/erp typecheck 2>&1
 pnpm --filter @carbon/database typecheck 2>&1
 pnpm run lint 2>&1
