@@ -117,6 +117,12 @@ msgstr "{total} aşama şirketinizi Carbon'da canlı hale getirmek için. Her bi
 msgid "{total} phases to go live"
 msgstr "{total} aşama canlı yayına alınacak"
 
+msgid "{uncounted, plural, one {# uncounted line} other {# uncounted lines}}"
+msgstr ""
+
+msgid "{variances, plural, one {# line differs from the expected quantity} other {# lines differ from the expected quantity}}"
+msgstr ""
+
 msgid "/month/user"
 msgstr "/ay/kullanıcı"
 
@@ -734,6 +740,9 @@ msgstr "Tüm Müşteriler"
 
 msgid "All Documents"
 msgstr "Tüm Belgeler"
+
+msgid "All item types"
+msgstr ""
 
 msgid "All Items"
 msgstr "Tüm Öğeler"
@@ -1595,6 +1604,9 @@ msgstr "Temel Bilgiler"
 msgid "Batch"
 msgstr "Parti"
 
+msgid "Batch / Serial"
+msgstr ""
+
 msgid "Batch items require a sales order"
 msgstr "Parti toplu ürünler için satış siparişi gereklidir"
 
@@ -1649,6 +1661,9 @@ msgstr "Faturalama Adresi"
 
 msgid "Bills of material"
 msgstr "Malzeme Faturaları"
+
+msgid "Blind Count"
+msgstr ""
 
 msgid "Block with an error"
 msgstr "Hata ile engelle"
@@ -2304,6 +2319,9 @@ msgstr "Onayla {0}"
 msgid "Confirm and sign the scope"
 msgstr "Kapsamı onaylayın ve imzalayın"
 
+msgid "Confirm Count"
+msgstr ""
+
 msgid "Confirm how your company runs and lock the scope."
 msgstr "Şirketinizin nasıl çalıştığını doğrulayın ve kapsamı kilitleyin."
 
@@ -2312,6 +2330,9 @@ msgstr "Kimlik Değişikliğini Onayla"
 
 msgid "Confirm Import"
 msgstr "İçe Aktarmayı Onayla"
+
+msgid "Confirm Inventory Count"
+msgstr ""
 
 msgid "Confirm Mapping"
 msgstr "Eşleştirmeyi Onayla"
@@ -2324,6 +2345,9 @@ msgstr "Onaylanan gelen stok — satın alma ve üretim siparişleri (sıfırın
 
 msgid "Confirmed outgoing stock — sales orders & job materials (bars below zero)."
 msgstr "Onaylanan giden stok — satış siparişleri ve iş malzemeleri (sıfırın altındaki çubuklar)."
+
+msgid "Confirming locks the counted quantities. Review the warnings below, then post the count to apply the adjustments."
+msgstr ""
 
 msgid "Connect Carbon to your accounting, project management, and CAD tools and much more."
 msgstr "Carbon'ı muhasebe, proje yönetimi ve CAD araçlarınızla ve çok daha fazlasıyla bağlayın."
@@ -2672,6 +2696,12 @@ msgstr "Belgeler yüklenemedi"
 msgid "Count"
 msgstr "Adet"
 
+msgid "Count ID"
+msgstr ""
+
+msgid "Counted Qty"
+msgstr ""
+
 msgid "Counterparties"
 msgstr "Muhasebeleştirilecek Taraflar"
 
@@ -2692,6 +2722,9 @@ msgstr "{0} Oluştur"
 #. placeholder {0}: unmatchedValues.length
 msgid "Create {0} values"
 msgstr "{0} değerleri oluştur"
+
+msgid "Create & Snapshot"
+msgstr ""
 
 msgid "Create a new kanban card for scan-based replenishment."
 msgstr "Tarama tabanlı ikmal için yeni bir kanban kartı oluştur."
@@ -3389,6 +3422,9 @@ msgstr "İletişim Bilgisini Sil"
 msgid "Delete Contractor"
 msgstr "Yükleniciyi Sil"
 
+msgid "Delete Count"
+msgstr ""
+
 msgid "Delete Custom Field"
 msgstr "Özel Alan Sil"
 
@@ -4013,6 +4049,9 @@ msgstr "İletişim Bilgisini Düzenle"
 msgid "Edit Contractor"
 msgstr "Yüklenici Düzenle"
 
+msgid "Edit Count"
+msgstr ""
+
 msgid "Edit Currency"
 msgstr "Para Birimi Düzenle"
 
@@ -4387,6 +4426,12 @@ msgstr "Mühendislik Değişiklikleri ve CAD"
 
 msgid "Engineering Contact"
 msgstr "Mühendislik İletişim Kişisi"
+
+msgid "Enroll"
+msgstr "Kaydol"
+
+msgid "Enroll this company in the Implementation Hub"
+msgstr "Bu şirketi Uygulama merkezine kaydedin"
 
 msgid "Enter a batch number before setting the expiration date"
 msgstr "Son kullanma tarihini ayarlamadan önce bir parti numarası girin"
@@ -4949,6 +4994,9 @@ msgstr "Kategori eklemeleri güncellenemedi"
 
 msgid "Failed to update configuration parameter"
 msgstr "Yapılandırma parametresi güncellenemedi"
+
+msgid "Failed to update count"
+msgstr ""
 
 msgid "Failed to update item cost"
 msgstr "Ürün maliyeti güncellenemedi"
@@ -5541,6 +5589,9 @@ msgstr "Yardım"
 msgid "Hide"
 msgstr "Gizle"
 
+msgid "Hide system quantities until the review step"
+msgstr ""
+
 msgid "Hide, pin and reorder columns"
 msgstr "Sütunları gizle, sabitle ve yeniden sırala"
 
@@ -6009,6 +6060,9 @@ msgstr "Envanter Kontrolü"
 msgid "Inventory control and counts"
 msgstr "Envanter kontrolü ve sayımları"
 
+msgid "Inventory Count"
+msgstr ""
+
 msgid "Inventory History"
 msgstr "Envanter Geçmişi"
 
@@ -6200,6 +6254,9 @@ msgstr "Ürün Kapsamı"
 
 msgid "Item Type"
 msgstr "Ürün Tipi"
+
+msgid "Item Type (optional)"
+msgstr ""
 
 msgid "Item types"
 msgstr "Ürün tipleri"
@@ -6455,6 +6512,9 @@ msgstr "Satır Durumu"
 
 msgid "Linear Team"
 msgstr "Lineer Takım"
+
+msgid "Lines"
+msgstr ""
 
 msgid "Lines need internal part numbers"
 msgstr "Satırlar dahili parça numaralarına ihtiyaç duyuyor"
@@ -7259,6 +7319,9 @@ msgstr "Yeni IC İşlemi"
 
 msgid "New Inspection Document"
 msgstr "Yeni Muayene Belgesi"
+
+msgid "New Inventory Count"
+msgstr ""
 
 msgid "New Invoice"
 msgstr "Yeni Fatura"
@@ -8564,6 +8627,9 @@ msgstr "Posta Kodu"
 msgid "Posted"
 msgstr "Yayınlandı"
 
+msgid "Posted At"
+msgstr ""
+
 msgid "Posted By"
 msgstr "Gönderen"
 
@@ -9187,6 +9253,9 @@ msgstr "Yeniden Hesapla"
 
 msgid "Recalculate Unit Cost"
 msgstr "Birim Maliyetini Yeniden Hesapla"
+
+msgid "Recalculating…"
+msgstr ""
 
 msgid "Receipt"
 msgstr "Makbuz"
@@ -10331,6 +10400,9 @@ msgstr "Miktarı Ayarla"
 msgid "Set up the right way"
 msgstr "Doğru şekilde ayarla"
 
+msgid "Set up your company with a step-by-step implementation plan covering setup, data, training, and go-live."
+msgstr "Kurulum, veri, eğitim ve canlıya geçişi kapsayan adım adım bir uygulama planıyla şirketinizi kurun."
+
 msgid "Set up your own data with import tools and LLM help"
 msgstr "İçe aktarma araçları ve LLM yardımıyla kendi verilerinizi ayarlayın"
 
@@ -10868,6 +10940,9 @@ msgstr "depolama birimi"
 msgid "Storage Unit"
 msgstr "Depolama Birimi"
 
+msgid "Storage Unit (optional)"
+msgstr ""
+
 msgid "storage units"
 msgstr "depolama birimleri"
 
@@ -11144,6 +11219,9 @@ msgstr "Sistem"
 
 msgid "System configured"
 msgstr "Sistem yapılandırıldı"
+
+msgid "System Qty"
+msgstr ""
 
 msgid "Table"
 msgstr "Tablo"
@@ -12413,6 +12491,9 @@ msgstr "Atanmamış"
 msgid "Unballoon"
 msgstr "Balonu Kaldır"
 
+msgid "Uncounted lines are left unchanged at post — they are not zeroed."
+msgstr ""
+
 msgid "Under Demand-Based Reorder, planning sums demand inside this rolling window when computing a replenishment quantity."
 msgstr "Talep Tabanlı Yeniden Sipariş Altında, planlama bir yenileme miktarı hesaplanırken bu kayan pencere içinde talebi toplar."
 
@@ -12428,8 +12509,8 @@ msgstr "Geri Al"
 msgid "Uninstall"
 msgstr "Kaldır"
 
-msgid "Unique, uppercase, without spaces"
-msgstr "Benzersiz, büyük harfli, boşluksuz"
+msgid "Unique, uppercase, without spaces (max 10 characters)"
+msgstr "Benzersiz, büyük harf, boşluksuz (en fazla 10 karakter)"
 
 msgid "Unit"
 msgstr "Birim"
@@ -12828,6 +12909,9 @@ msgstr "İletişim Bilgilerini Görüntüle"
 msgid "View Contained Issues"
 msgstr "Kontrol Altına Alınan Sorunları Görüntüle"
 
+msgid "View Count"
+msgstr ""
+
 msgid "View Custom Fields"
 msgstr "Özel Alanları Görüntüle"
 
@@ -12863,6 +12947,9 @@ msgstr "Memo Görüntüle"
 
 msgid "View missing values"
 msgstr "Eksik değerleri görüntüle"
+
+msgid "View notes"
+msgstr ""
 
 msgid "View Open"
 msgstr "Açık Gör"

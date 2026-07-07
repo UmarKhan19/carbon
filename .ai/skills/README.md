@@ -37,7 +37,7 @@ optional, commit runs only on explicit ask), and keeps a run record at
 `.ai/runs/{date}-{slug}.md`. The two 🛑 hard stops (architectural three-strikes
 in root-cause, BLOCKED in fix) always surface to the human.
 
-**Supervised loop** (single scoped item, doer→gate→judge): `/conductor`.
+**Autonomous loop** (single scoped item, doer→gate→judge, no mid-loop human input, gated PR): `/conductor`.
 
 **Advisory audit** (read-only, produces handoff plans): `/improve`.
 
@@ -56,7 +56,7 @@ in root-cause, BLOCKED in fix) always surface to the human.
 | `fix` | End-to-end bug-fix pipeline; diagnoses via /root-cause, implements the minimal fix + red→green regression test, verifies, commits on explicit ask | ready-to-commit change (+ run record) |
 | `check-and-commit` | Gate suite, then commit specific files | conventional commit |
 | `self-review` | Review your own branch before/at PR time | Must fix / Risks / Suggestions |
-| `conductor` | Supervised doer→gate→judge loop to a gated PR | PR + ledger |
+| `conductor` | Autonomous doer→gate→judge loop to a gated PR (no mid-loop human input) | PR + ledger |
 | `improve` | Senior-advisor audit; plans for other agents to execute | `.ai/plans/improve/` |
 | `test` | Drive changed flows in the browser; cache playbooks | pass/fail + `.ai/playbooks/{slug}.md` |
 | `smoke-test` | Do all core modules load? | pass/fail table |
