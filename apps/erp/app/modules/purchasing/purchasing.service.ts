@@ -521,7 +521,8 @@ export async function getSupplierApprovalContext(
     {
       amount: req?.amount ?? null,
       documentType: "supplier",
-      companyId
+      companyId,
+      requestedBy: req?.requestedBy ?? ""
     },
     userId
   );

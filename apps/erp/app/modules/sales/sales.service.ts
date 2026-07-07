@@ -2814,6 +2814,7 @@ export async function getCustomerItemPriceOverrideById(
   id: string,
   companyId: string
 ) {
+  // @ts-ignore TS2589: type instantiation is excessively deep — tsgo depth on composite relation
   return client
     .from("customerItemPriceOverride")
     .select(
