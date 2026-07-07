@@ -140,7 +140,7 @@ CREATE TABLE "agent_chat_message_part" (
       REFERENCES "agent_chat_message"("id", "companyId") ON DELETE CASCADE
 );
 
-CREATE INDEX "agent_chat_message_part_messageId_idx"
+CREATE UNIQUE INDEX "agent_chat_message_part_messageId_orderIndex_idx"
   ON "agent_chat_message_part" ("messageId", "orderIndex");
 
 ALTER TABLE "agent_chat_message_part" ENABLE ROW LEVEL SECURITY;
