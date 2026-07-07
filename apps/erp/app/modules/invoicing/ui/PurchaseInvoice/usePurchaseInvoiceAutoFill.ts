@@ -113,6 +113,7 @@ export function usePurchaseInvoiceAutoFill(
       });
 
       const [supplierDetails, paymentTermData] = await Promise.all([
+        // @ts-ignore TS2589: type instantiation is excessively deep — tsgo depth on composite relation
         carbon
           .from("supplier")
           .select(
