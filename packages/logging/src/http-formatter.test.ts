@@ -25,6 +25,26 @@ describe("httpDevFormatter", () => {
     expect(line).toBe("GET /dashboard \x1b[32m200\x1b[0m 12.3 ms");
   });
 
+  it("truncates rather than rounds, and drops a padded trailing zero", () => {
+    // 12.36 rounds to 12.4 but truncates to 12.3 — must match truncation.
+    expect(
+      httpDevFormatter(
+        record({
+          method: "GET",
+          pathname: "/x",
+          status: 200,
+          responseTime: 12.36
+        })
+      )
+    ).toBe("GET /x \x1b[32m200\x1b[0m 12.3 ms");
+    // Exact integer ms — no forced ".0".
+    expect(
+      httpDevFormatter(
+        record({ method: "GET", pathname: "/x", status: 200, responseTime: 5 })
+      )
+    ).toBe("GET /x \x1b[32m200\x1b[0m 5 ms");
+  });
+
   it("colors 3xx cyan, 4xx yellow, 5xx red", () => {
     expect(
       httpDevFormatter(record({ method: "GET", pathname: "/x", status: 301 }))

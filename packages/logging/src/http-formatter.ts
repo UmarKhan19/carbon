@@ -30,7 +30,10 @@ export const httpDevFormatter: TextFormatter = (record: LogRecord) => {
   }
 
   const color = statusColor(status);
+  // Truncate (not round) to at most 1 decimal — no padded trailing zero.
   const time =
-    typeof responseTime === "number" ? ` ${responseTime.toFixed(1)} ms` : "";
+    typeof responseTime === "number"
+      ? ` ${Math.trunc(responseTime * 10) / 10} ms`
+      : "";
   return `${method} ${pathname} ${color}${status}${RESET}${time}`;
 };
