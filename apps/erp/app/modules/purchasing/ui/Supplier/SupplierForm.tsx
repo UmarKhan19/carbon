@@ -172,30 +172,13 @@ const SupplierForm = ({
                       />
                     ))}
                   <Input autoFocus={!isEditing} name="name" label={t`Name`} />
-                  {supplierApprovalRequired ? (
-                    <>
-                      <Hidden
-                        name="supplierStatus"
-                        value={initialValues.supplierStatus ?? "Pending"}
-                      />
-                      <SupplierStatus
-                        name="supplierStatusDisplay"
-                        label={t`Supplier Status`}
-                        placeholder={t`Select Supplier Status`}
-                        value={initialValues.supplierStatus ?? "Pending"}
-                        isReadOnly
-                        helperText={t`Managed by the approval workflow`}
-                        termId="supplier-status"
-                      />
-                    </>
-                  ) : (
-                    <SupplierStatus
-                      name="supplierStatus"
-                      label={t`Supplier Status`}
-                      placeholder={t`Select Supplier Status`}
-                      termId="supplier-status"
-                    />
-                  )}
+                  <SupplierStatus
+                    name="supplierStatus"
+                    label={t`Supplier Status`}
+                    placeholder={t`Select Supplier Status`}
+                    disabled={supplierApprovalRequired}
+                    termId="supplier-status"
+                  />
                   <SupplierType
                     name="supplierTypeId"
                     label={t`Supplier Type`}

@@ -4432,9 +4432,6 @@ msgstr "エンジニアリング担当者"
 msgid "Enter a batch number before setting the expiration date"
 msgstr "有効期限を設定する前にバッチ番号を入力してください"
 
-msgid "Enter a percentage, e.g. 10%"
-msgstr ""
-
 msgid "Enter and approve vendor bills against a PO (three-way match)"
 msgstr "ベンダー請求書をPOに対して入力および承認する（3者間照合）"
 
@@ -6752,9 +6749,6 @@ msgstr "サブスクリプションを管理"
 msgid "Manage your subscription and billing information"
 msgstr "サブスクリプションと請求情報を管理する"
 
-msgid "Managed by the approval workflow"
-msgstr ""
-
 msgid "Manager"
 msgstr "マネージャー"
 
@@ -7936,9 +7930,6 @@ msgstr "現在庫が残っています"
 
 msgid "On-time delivery"
 msgstr "オンタイム配送"
-
-msgid "On: pricing rules apply on top of this override. Off: use only the override price."
-msgstr ""
 
 msgid "One serial unit or one batch that Carbon follows individually, carrying its own status and attributes such as an expiry date."
 msgstr "Carbonが個別に追跡する1つのシリアルユニットまたは1つのバッチであり、有効期限などの独自のステータスと属性を持ちます。"
@@ -9572,9 +9563,6 @@ msgstr "必要なアクション（順番に）"
 
 msgid "Required Date"
 msgstr "必須日付"
-
-msgid "Required when tax exempt"
-msgstr ""
 
 msgid "Requirement"
 msgstr "要件"

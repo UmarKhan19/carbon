@@ -4432,9 +4432,6 @@ msgstr "Technischer Kontakt"
 msgid "Enter a batch number before setting the expiration date"
 msgstr "Geben Sie eine Chargennummer ein, bevor Sie das Ablaufdatum festlegen"
 
-msgid "Enter a percentage, e.g. 10%"
-msgstr ""
-
 msgid "Enter and approve vendor bills against a PO (three-way match)"
 msgstr "Lieferantenrechnungen gegen eine Bestellung eingeben und genehmigen (dreigliedriger Abgleich)"
 
@@ -6752,9 +6749,6 @@ msgstr "Abonnement verwalten"
 msgid "Manage your subscription and billing information"
 msgstr "Verwalten Sie Ihr Abonnement und Ihre Abrechnungsinformationen"
 
-msgid "Managed by the approval workflow"
-msgstr ""
-
 msgid "Manager"
 msgstr "Manager"
 
@@ -7936,9 +7930,6 @@ msgstr "Bestandsinventar vorhanden"
 
 msgid "On-time delivery"
 msgstr "Pünktliche Lieferung"
-
-msgid "On: pricing rules apply on top of this override. Off: use only the override price."
-msgstr ""
 
 msgid "One serial unit or one batch that Carbon follows individually, carrying its own status and attributes such as an expiry date."
 msgstr "Eine Serieneinheit oder eine Partie, die Carbon einzeln verfolgt und ihre eigenen Status und Attribute wie ein Verfallsdatum trägt."
@@ -9572,9 +9563,6 @@ msgstr "Erforderliche Aktionen (in Reihenfolge)"
 
 msgid "Required Date"
 msgstr "Erforderliches Datum"
-
-msgid "Required when tax exempt"
-msgstr ""
 
 msgid "Requirement"
 msgstr "Anforderung"

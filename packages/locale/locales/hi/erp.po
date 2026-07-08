@@ -4432,9 +4432,6 @@ msgstr "इंजीनियरिंग संपर्क"
 msgid "Enter a batch number before setting the expiration date"
 msgstr "समाप्ति तारीख सेट करने से पहले एक बैच नंबर दर्ज करें"
 
-msgid "Enter a percentage, e.g. 10%"
-msgstr ""
-
 msgid "Enter and approve vendor bills against a PO (three-way match)"
 msgstr "विक्रेता बिलों को PO के विरुद्ध दर्ज करें और अनुमोदित करें (तीन-तरफा मिलान)"
 
@@ -6752,9 +6749,6 @@ msgstr "सदस्यता प्रबंधित करें"
 msgid "Manage your subscription and billing information"
 msgstr "अपनी सदस्यता और बिलिंग जानकारी प्रबंधित करें"
 
-msgid "Managed by the approval workflow"
-msgstr ""
-
 msgid "Manager"
 msgstr "प्रबंधक"
 
@@ -7936,9 +7930,6 @@ msgstr "हाथ में इन्वेंटरी बची है"
 
 msgid "On-time delivery"
 msgstr "समय पर डिलीवरी"
-
-msgid "On: pricing rules apply on top of this override. Off: use only the override price."
-msgstr ""
 
 msgid "One serial unit or one batch that Carbon follows individually, carrying its own status and attributes such as an expiry date."
 msgstr "एक सीरीज यूनिट या एक बैच जो Carbon व्यक्तिगत रूप से अनुसरण करता है, अपनी स्वयं की स्थिति और विशेषताएं जैसे समाप्ति तिथि ले जाता है।"
@@ -9572,9 +9563,6 @@ msgstr "आवश्यक क्रियाएं (क्रम में)"
 
 msgid "Required Date"
 msgstr "आवश्यक तारीख"
-
-msgid "Required when tax exempt"
-msgstr ""
 
 msgid "Requirement"
 msgstr "आवश्यकता"

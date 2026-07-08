@@ -133,7 +133,6 @@ const PricingRuleForm = ({ initialValues, onClose }: PricingRuleFormProps) => {
                   <Number
                     name="amount"
                     label={t`Amount`}
-                    helperText={t`Enter a percentage, e.g. 10%`}
                     minValue={0}
                     maxValue={1}
                     step={0.01}

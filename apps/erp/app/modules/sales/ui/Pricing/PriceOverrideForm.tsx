@@ -213,7 +213,6 @@ const PriceOverrideForm = ({
                     name="applyRulesOnTop"
                     label={t`Apply pricing rules`}
                     termId="price-override-apply-rules-on-top"
-                    description={t`On: pricing rules apply on top of this override. Off: use only the override price.`}
                   />
                 </div>
 

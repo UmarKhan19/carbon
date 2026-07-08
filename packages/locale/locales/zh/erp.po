@@ -4432,9 +4432,6 @@ msgstr "工程联系人"
 msgid "Enter a batch number before setting the expiration date"
 msgstr "在设置过期日期前请输入批号"
 
-msgid "Enter a percentage, e.g. 10%"
-msgstr ""
-
 msgid "Enter and approve vendor bills against a PO (three-way match)"
 msgstr "输入并批准针对采购订单的供应商账单（三方匹配）"
 
@@ -6752,9 +6749,6 @@ msgstr "管理订阅"
 msgid "Manage your subscription and billing information"
 msgstr "管理您的订阅和账单信息"
 
-msgid "Managed by the approval workflow"
-msgstr ""
-
 msgid "Manager"
 msgstr "经理"
 
@@ -7936,9 +7930,6 @@ msgstr "现有库存仍然存在"
 
 msgid "On-time delivery"
 msgstr "准时交付"
-
-msgid "On: pricing rules apply on top of this override. Off: use only the override price."
-msgstr ""
 
 msgid "One serial unit or one batch that Carbon follows individually, carrying its own status and attributes such as an expiry date."
 msgstr "Carbon单独跟踪的一个序列号单位或一个批次，具有自己的状态和属性，例如过期日期。"
@@ -9572,9 +9563,6 @@ msgstr "必需的操作（按顺序）"
 
 msgid "Required Date"
 msgstr "所需日期"
-
-msgid "Required when tax exempt"
-msgstr ""
 
 msgid "Requirement"
 msgstr "需求"

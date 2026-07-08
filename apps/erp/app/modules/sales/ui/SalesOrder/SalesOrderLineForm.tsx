@@ -796,7 +796,6 @@ const SalesOrderLineForm = ({
                               <Number
                                 name="taxPercent"
                                 label={t`Tax Percent`}
-                                helperText={t`Enter a percentage, e.g. 10%`}
                                 minValue={0}
                                 maxValue={1}
                                 step={0.0001}
@@ -974,7 +973,6 @@ const SalesOrderLineForm = ({
                             <NumberControlled
                               name="taxPercent"
                               label={t`Tax Percent`}
-                              helperText={t`Enter a percentage, e.g. 10%`}
                               value={assetData.taxPercent}
                               minValue={0}
                               maxValue={1}

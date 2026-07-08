@@ -192,7 +192,6 @@ const CustomerForm = ({
                   <Number
                     name="taxPercent"
                     label={t`Tax Percent`}
-                    helperText={t`Enter a percentage, e.g. 10%`}
                     termId="customer-default-tax-percent"
                     minValue={0}
                     maxValue={1}
