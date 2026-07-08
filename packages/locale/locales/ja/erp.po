@@ -118,10 +118,10 @@ msgid "{total} phases to go live"
 msgstr "{total}個のフェーズをライブにする"
 
 msgid "{uncounted, plural, one {# uncounted line} other {# uncounted lines}}"
-msgstr ""
+msgstr "{uncounted, plural, one {# 未計数行} other {# 未計数行}}"
 
 msgid "{variances, plural, one {# line differs from the expected quantity} other {# lines differ from the expected quantity}}"
-msgstr ""
+msgstr "{variances, plural, one {# 行が予想数量と異なります} other {# 行が予想数量と異なります}}"
 
 msgid "/month/user"
 msgstr "/月/ユーザー"
@@ -745,7 +745,7 @@ msgid "All Documents"
 msgstr "すべてのドキュメント"
 
 msgid "All item types"
-msgstr ""
+msgstr "すべてのアイテムタイプ"
 
 msgid "All Items"
 msgstr "すべてのアイテム"
@@ -1608,7 +1608,7 @@ msgid "Batch"
 msgstr "バッチ"
 
 msgid "Batch / Serial"
-msgstr ""
+msgstr "バッチ / シリアル"
 
 msgid "Batch items require a sales order"
 msgstr "バッチ品目は販売注文が必要です"
@@ -1666,7 +1666,7 @@ msgid "Bills of material"
 msgstr "部品表"
 
 msgid "Blind Count"
-msgstr ""
+msgstr "ブラインドカウント"
 
 msgid "Block with an error"
 msgstr "エラーでブロック"
@@ -2335,7 +2335,7 @@ msgid "Confirm and sign the scope"
 msgstr "スコープを確認して署名する"
 
 msgid "Confirm Count"
-msgstr ""
+msgstr "数量確認"
 
 msgid "Confirm how your company runs and lock the scope."
 msgstr "貴社の運営方法を確認し、スコープをロックします。"
@@ -2347,7 +2347,7 @@ msgid "Confirm Import"
 msgstr "インポートを確認"
 
 msgid "Confirm Inventory Count"
-msgstr ""
+msgstr "在庫数確認"
 
 msgid "Confirm Mapping"
 msgstr "マッピングを確認"
@@ -2365,7 +2365,7 @@ msgid "Confirmed outgoing stock — sales orders & job materials (bars below zer
 msgstr "確認された出荷在庫 — 販売注文とジョブ材料（ゼロ未満のバー）。"
 
 msgid "Confirming locks the counted quantities. Review the warnings below, then post the count to apply the adjustments."
-msgstr ""
+msgstr "確認すると、カウント済みの数量がロックされます。以下の警告を確認してから、カウントを転記して調整を適用してください。"
 
 msgid "Connect Carbon to your accounting, project management, and CAD tools and much more."
 msgstr "Carbonを会計、プロジェクト管理、CADツールなど、さまざまなツールに接続できます。"
@@ -2715,10 +2715,10 @@ msgid "Count"
 msgstr "数"
 
 msgid "Count ID"
-msgstr ""
+msgstr "カウントID"
 
 msgid "Counted Qty"
-msgstr ""
+msgstr "計数数量"
 
 msgid "Counterparties"
 msgstr "取引先"
@@ -2742,7 +2742,7 @@ msgid "Create {0} values"
 msgstr "{0}個の値を作成"
 
 msgid "Create & Snapshot"
-msgstr ""
+msgstr "作成とスナップショット"
 
 msgid "Create a new kanban card for scan-based replenishment."
 msgstr "スキャンベースの補充用に新しいかんばんカードを作成します。"
@@ -3444,7 +3444,7 @@ msgid "Delete Contractor"
 msgstr "契約者を削除"
 
 msgid "Delete Count"
-msgstr ""
+msgstr "カウントを削除"
 
 msgid "Delete Custom Field"
 msgstr "カスタムフィールドを削除"
@@ -4071,7 +4071,7 @@ msgid "Edit Contractor"
 msgstr "契約者を編集"
 
 msgid "Edit Count"
-msgstr ""
+msgstr "カウントを編集"
 
 msgid "Edit Currency"
 msgstr "通貨を編集"
@@ -5020,7 +5020,7 @@ msgid "Failed to update configuration parameter"
 msgstr "設定パラメータの更新に失敗しました"
 
 msgid "Failed to update count"
-msgstr ""
+msgstr "カウントの更新に失敗しました"
 
 msgid "Failed to update item cost"
 msgstr "アイテムコストの更新に失敗しました"
@@ -5614,7 +5614,7 @@ msgid "Hide"
 msgstr "非表示"
 
 msgid "Hide system quantities until the review step"
-msgstr ""
+msgstr "レビューステップまでシステム数量を非表示にする"
 
 msgid "Hide, pin and reorder columns"
 msgstr "列を非表示、ピン留め、並び替え"
@@ -6085,7 +6085,7 @@ msgid "Inventory control and counts"
 msgstr "在庫管理と棚卸"
 
 msgid "Inventory Count"
-msgstr ""
+msgstr "在庫数"
 
 msgid "Inventory History"
 msgstr "在庫履歴"
@@ -6280,7 +6280,7 @@ msgid "Item Type"
 msgstr "アイテムタイプ"
 
 msgid "Item Type (optional)"
-msgstr ""
+msgstr "アイテムタイプ（オプション）"
 
 msgid "Item types"
 msgstr "アイテムタイプ"
@@ -6538,7 +6538,7 @@ msgid "Linear Team"
 msgstr "Linear Team"
 
 msgid "Lines"
-msgstr ""
+msgstr "行"
 
 msgid "Lines need internal part numbers"
 msgstr "ラインには内部部品番号が必要です"
@@ -7348,7 +7348,7 @@ msgid "New Inspection Document"
 msgstr "新しい検査文書"
 
 msgid "New Inventory Count"
-msgstr ""
+msgstr "新しい在庫数"
 
 msgid "New Invoice"
 msgstr "新しい請求書"
@@ -8658,7 +8658,7 @@ msgid "Posted"
 msgstr "転記済み"
 
 msgid "Posted At"
-msgstr ""
+msgstr "投稿日時"
 
 msgid "Posted By"
 msgstr "投稿者"
@@ -9288,7 +9288,7 @@ msgid "Recalculate Unit Cost"
 msgstr "単位原価を再計算"
 
 msgid "Recalculating…"
-msgstr ""
+msgstr "計算中…"
 
 msgid "Receipt"
 msgstr "領収書"
@@ -10977,7 +10977,7 @@ msgid "Storage Unit"
 msgstr "保管単位"
 
 msgid "Storage Unit (optional)"
-msgstr ""
+msgstr "ストレージユニット（オプション）"
 
 msgid "storage units"
 msgstr "ストレージユニット"
@@ -11257,7 +11257,7 @@ msgid "System configured"
 msgstr "システムが構成されました"
 
 msgid "System Qty"
-msgstr ""
+msgstr "システム数量"
 
 msgid "Table"
 msgstr "テーブル"
@@ -12531,7 +12531,7 @@ msgid "Unballoon"
 msgstr "バルーンを削除"
 
 msgid "Uncounted lines are left unchanged at post — they are not zeroed."
-msgstr ""
+msgstr "未計数行は投稿時に変更されないままです — ゼロにはなりません。"
 
 msgid "Under Demand-Based Reorder, planning sums demand inside this rolling window when computing a replenishment quantity."
 msgstr "需要ベースの再注文の下では、計画は補充数量を計算する際にこのローリングウィンドウ内の需要を合計します。"
@@ -12949,7 +12949,7 @@ msgid "View Contained Issues"
 msgstr "含まれた問題を表示"
 
 msgid "View Count"
-msgstr ""
+msgstr "カウントを表示"
 
 msgid "View Custom Fields"
 msgstr "カスタムフィールドを表示"
@@ -12988,7 +12988,7 @@ msgid "View missing values"
 msgstr "欠落値を表示"
 
 msgid "View notes"
-msgstr ""
+msgstr "ノートを表示"
 
 msgid "View Open"
 msgstr "開く"

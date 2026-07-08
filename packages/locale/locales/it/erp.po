@@ -118,10 +118,10 @@ msgid "{total} phases to go live"
 msgstr "{total} fasi per andare live"
 
 msgid "{uncounted, plural, one {# uncounted line} other {# uncounted lines}}"
-msgstr ""
+msgstr "{uncounted, plural, one {# riga non conteggiata} other {# righe non conteggiate}}"
 
 msgid "{variances, plural, one {# line differs from the expected quantity} other {# lines differ from the expected quantity}}"
-msgstr ""
+msgstr "{variances, plural, one {# riga differisce dalla quantità prevista} other {# righe differiscono dalla quantità prevista}}"
 
 msgid "/month/user"
 msgstr "/mese/utente"
@@ -745,7 +745,7 @@ msgid "All Documents"
 msgstr "Tutti i documenti"
 
 msgid "All item types"
-msgstr ""
+msgstr "Tutti i tipi di articoli"
 
 msgid "All Items"
 msgstr "Tutti gli articoli"
@@ -1608,7 +1608,7 @@ msgid "Batch"
 msgstr "Lotto"
 
 msgid "Batch / Serial"
-msgstr ""
+msgstr "Lotto / Seriale"
 
 msgid "Batch items require a sales order"
 msgstr "Gli articoli in lotto richiedono un ordine di vendita"
@@ -1666,7 +1666,7 @@ msgid "Bills of material"
 msgstr "Distinte base"
 
 msgid "Blind Count"
-msgstr ""
+msgstr "Conteggio Cieco"
 
 msgid "Block with an error"
 msgstr "Blocca con un errore"
@@ -2335,7 +2335,7 @@ msgid "Confirm and sign the scope"
 msgstr "Conferma e firma l'ambito"
 
 msgid "Confirm Count"
-msgstr ""
+msgstr "Conferma Conteggio"
 
 msgid "Confirm how your company runs and lock the scope."
 msgstr "Conferma come funziona la tua azienda e blocca l'ambito."
@@ -2347,7 +2347,7 @@ msgid "Confirm Import"
 msgstr "Conferma importazione"
 
 msgid "Confirm Inventory Count"
-msgstr ""
+msgstr "Conferma Conteggio Inventario"
 
 msgid "Confirm Mapping"
 msgstr "Conferma Mapping"
@@ -2365,7 +2365,7 @@ msgid "Confirmed outgoing stock — sales orders & job materials (bars below zer
 msgstr "Stock in uscita confermato — ordini di vendita e materiali di lavoro (barre sotto zero)."
 
 msgid "Confirming locks the counted quantities. Review the warnings below, then post the count to apply the adjustments."
-msgstr ""
+msgstr "La conferma blocca le quantità conteggiate. Rivedi gli avvisi di seguito, quindi pubblica il conteggio per applicare gli adeguamenti."
 
 msgid "Connect Carbon to your accounting, project management, and CAD tools and much more."
 msgstr "Connetti Carbon ai tuoi strumenti di contabilità, gestione dei progetti, CAD e molto altro."
@@ -2715,10 +2715,10 @@ msgid "Count"
 msgstr "Conteggio"
 
 msgid "Count ID"
-msgstr ""
+msgstr "ID Conteggio"
 
 msgid "Counted Qty"
-msgstr ""
+msgstr "Qtà Conteggiata"
 
 msgid "Counterparties"
 msgstr "Controparte"
@@ -2742,7 +2742,7 @@ msgid "Create {0} values"
 msgstr "Crea {0} valori"
 
 msgid "Create & Snapshot"
-msgstr ""
+msgstr "Crea e Snapshot"
 
 msgid "Create a new kanban card for scan-based replenishment."
 msgstr "Crea una nuova scheda kanban per il rifornimento basato su scansione."
@@ -3444,7 +3444,7 @@ msgid "Delete Contractor"
 msgstr "Elimina Appaltatore"
 
 msgid "Delete Count"
-msgstr ""
+msgstr "Elimina Conteggio"
 
 msgid "Delete Custom Field"
 msgstr "Elimina Campo Personalizzato"
@@ -4071,7 +4071,7 @@ msgid "Edit Contractor"
 msgstr "Modifica Appaltatore"
 
 msgid "Edit Count"
-msgstr ""
+msgstr "Modifica Conteggio"
 
 msgid "Edit Currency"
 msgstr "Modifica Valuta"
@@ -5020,7 +5020,7 @@ msgid "Failed to update configuration parameter"
 msgstr "Impossibile aggiornare il parametro di configurazione"
 
 msgid "Failed to update count"
-msgstr ""
+msgstr "Impossibile aggiornare il conteggio"
 
 msgid "Failed to update item cost"
 msgstr "Impossibile aggiornare il costo dell'articolo"
@@ -5614,7 +5614,7 @@ msgid "Hide"
 msgstr "Nascondi"
 
 msgid "Hide system quantities until the review step"
-msgstr ""
+msgstr "Nascondi le quantità di sistema fino al passaggio di revisione"
 
 msgid "Hide, pin and reorder columns"
 msgstr "Nascondi, fissa e riordina le colonne"
@@ -6085,7 +6085,7 @@ msgid "Inventory control and counts"
 msgstr "Controllo inventario e conteggi"
 
 msgid "Inventory Count"
-msgstr ""
+msgstr "Conteggio Inventario"
 
 msgid "Inventory History"
 msgstr "Cronologia Inventario"
@@ -6280,7 +6280,7 @@ msgid "Item Type"
 msgstr "Tipo di articolo"
 
 msgid "Item Type (optional)"
-msgstr ""
+msgstr "Tipo di articolo (facoltativo)"
 
 msgid "Item types"
 msgstr "Tipi di articolo"
@@ -6538,7 +6538,7 @@ msgid "Linear Team"
 msgstr "Team Linear"
 
 msgid "Lines"
-msgstr ""
+msgstr "Righe"
 
 msgid "Lines need internal part numbers"
 msgstr "Le righe necessitano di numeri di parte interni"
@@ -7348,7 +7348,7 @@ msgid "New Inspection Document"
 msgstr "Nuovo Documento di Ispezione"
 
 msgid "New Inventory Count"
-msgstr ""
+msgstr "Nuovo Conteggio Inventario"
 
 msgid "New Invoice"
 msgstr "Nuova Fattura"
@@ -8658,7 +8658,7 @@ msgid "Posted"
 msgstr "Registrato"
 
 msgid "Posted At"
-msgstr ""
+msgstr "Pubblicato il"
 
 msgid "Posted By"
 msgstr "Pubblicato da"
@@ -9288,7 +9288,7 @@ msgid "Recalculate Unit Cost"
 msgstr "Ricalcola Costo Unitario"
 
 msgid "Recalculating…"
-msgstr ""
+msgstr "Ricalcolo in corso…"
 
 msgid "Receipt"
 msgstr "Ricevuta"
@@ -10977,7 +10977,7 @@ msgid "Storage Unit"
 msgstr "Unità di Stoccaggio"
 
 msgid "Storage Unit (optional)"
-msgstr ""
+msgstr "Unità di Stoccaggio (facoltativo)"
 
 msgid "storage units"
 msgstr "unità di archiviazione"
@@ -11257,7 +11257,7 @@ msgid "System configured"
 msgstr "Sistema configurato"
 
 msgid "System Qty"
-msgstr ""
+msgstr "Qty Sistema"
 
 msgid "Table"
 msgstr "Tabella"
@@ -12531,7 +12531,7 @@ msgid "Unballoon"
 msgstr "Rimuovi palloncino"
 
 msgid "Uncounted lines are left unchanged at post — they are not zeroed."
-msgstr ""
+msgstr "Le righe non conteggiate rimangono invariate al post — non vengono azzerate."
 
 msgid "Under Demand-Based Reorder, planning sums demand inside this rolling window when computing a replenishment quantity."
 msgstr "Nel Reorder Basato sulla Domanda, la pianificazione somma la domanda all'interno di questa finestra mobile quando calcola una quantità di rifornimento."
@@ -12949,7 +12949,7 @@ msgid "View Contained Issues"
 msgstr "Visualizza problemi contenuti"
 
 msgid "View Count"
-msgstr ""
+msgstr "Visualizza Conteggio"
 
 msgid "View Custom Fields"
 msgstr "Visualizza Campi Personalizzati"
@@ -12988,7 +12988,7 @@ msgid "View missing values"
 msgstr "Visualizza valori mancanti"
 
 msgid "View notes"
-msgstr ""
+msgstr "Visualizza note"
 
 msgid "View Open"
 msgstr "Visualizza Aperto"
