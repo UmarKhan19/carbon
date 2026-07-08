@@ -74,7 +74,11 @@ const JobForm = ({ initialValues }: JobFormProps) => {
   const [deadlineType, setDeadlineType] = useState<string>(
     initialValues.deadlineType ?? ""
   );
+  const [bulkDeadlineType, setBulkDeadlineType] = useState<string>(
+    initialValues.deadlineType ?? ""
+  );
   const showDueDate = deadlineRequiresDueDate(deadlineType);
+  const showBulkDueDate = deadlineRequiresDueDate(bulkDeadlineType);
 
   const isLocked = isJobLocked(initialValues.status);
   const isDisabled = isLocked;
@@ -495,7 +499,7 @@ const JobForm = ({ initialValues }: JobFormProps) => {
                           minValue={0}
                         />
 
-                        {showDueDate && (
+                        {showBulkDueDate && (
                           <>
                             <DatePicker
                               name="dueDateOfFirstJob"
@@ -519,7 +523,7 @@ const JobForm = ({ initialValues }: JobFormProps) => {
                           label={t`Deadline Type`}
                           termId="job-deadline-type"
                           onChange={(option) =>
-                            setDeadlineType(option?.value ?? "")
+                            setBulkDeadlineType(option?.value ?? "")
                           }
                           options={deadlineTypes.map((d) => ({
                             value: d,
