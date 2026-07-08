@@ -42,6 +42,15 @@ catalogs:
     '@lingui/vite-plugin':
       specifier: 5.9.4
       version: 5.9.4
+    '@logtape/logtape':
+      specifier: 2.2.3
+      version: 2.2.3
+    '@logtape/redaction':
+      specifier: 2.2.3
+      version: 2.2.3
+    '@logtape/testing':
+      specifier: 2.2.3
+      version: 2.2.3
     '@nanostores/react':
       specifier: 0.7.3
       version: 0.7.3
@@ -403,6 +412,9 @@ importers:
       '@carbon/kv':
         specifier: workspace:*
         version: link:../../packages/kv
+      '@carbon/logging':
+        specifier: workspace:*
+        version: link:../../packages/logging
       '@carbon/react':
         specifier: workspace:*
         version: link:../../packages/react
@@ -593,6 +605,9 @@ importers:
       '@carbon/locale':
         specifier: workspace:*
         version: link:../../packages/locale
+      '@carbon/logging':
+        specifier: workspace:*
+        version: link:../../packages/logging
       '@carbon/notifications':
         specifier: workspace:*
         version: link:../../packages/notifications
@@ -1050,6 +1065,9 @@ importers:
       '@carbon/locale':
         specifier: workspace:*
         version: link:../../packages/locale
+      '@carbon/logging':
+        specifier: workspace:*
+        version: link:../../packages/logging
       '@carbon/notifications':
         specifier: workspace:*
         version: link:../../packages/notifications
@@ -1318,6 +1336,9 @@ importers:
       '@carbon/kv':
         specifier: workspace:*
         version: link:../../packages/kv
+      '@carbon/logging':
+        specifier: workspace:*
+        version: link:../../packages/logging
       '@carbon/react':
         specifier: workspace:*
         version: link:../../packages/react
@@ -2555,6 +2576,9 @@ importers:
       '@carbon/kv':
         specifier: workspace:*
         version: link:../kv
+      '@carbon/logging':
+        specifier: workspace:*
+        version: link:../logging
       '@carbon/notifications':
         specifier: workspace:*
         version: link:../notifications
@@ -2632,6 +2656,40 @@ importers:
       vitest:
         specifier: 'catalog:'
         version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@26.1.0)(vite@8.0.10(@types/node@26.1.0)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.3))
+
+  packages/logging:
+    dependencies:
+      '@logtape/logtape':
+        specifier: 'catalog:'
+        version: 2.2.3
+      '@logtape/redaction':
+        specifier: 'catalog:'
+        version: 2.2.3(@logtape/logtape@2.2.3)
+      nanoid:
+        specifier: 'catalog:'
+        version: 5.1.7
+    devDependencies:
+      '@carbon/config':
+        specifier: workspace:*
+        version: link:../config
+      '@logtape/testing':
+        specifier: 'catalog:'
+        version: 2.2.3(@logtape/logtape@2.2.3)
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.12.2
+      react-router:
+        specifier: 'catalog:'
+        version: 7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      rimraf:
+        specifier: 'catalog:'
+        version: 5.0.10
+      typescript:
+        specifier: 'catalog:'
+        version: 5.8.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.12.2)(vite@8.0.10(@types/node@24.12.2)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.3))
 
   packages/notifications:
     devDependencies:
@@ -4903,6 +4961,19 @@ packages:
     engines: {node: '>=20.0.0'}
     peerDependencies:
       vite: ^3 || ^4 || ^5.0.9 || ^6 || ^7 || ^8
+
+  '@logtape/logtape@2.2.3':
+    resolution: {integrity: sha512-NIPzXBJneBv7Ar6sFBbEo5L8zZr2lopQnlVeT881y68qGNcJBy/Y8s8uAwUaVhobB8GIiMluOY7j3bOsaaIhQQ==}
+
+  '@logtape/redaction@2.2.3':
+    resolution: {integrity: sha512-yHrAFtSCBEUcwAC/n72mbxkv9HLdEf5gLFC/SJ8j+HuUinED5i+NlHJJJ3LSd/ix7fJ2E5VSLnRQ08lWb4zWjQ==}
+    peerDependencies:
+      '@logtape/logtape': ^2.2.3
+
+  '@logtape/testing@2.2.3':
+    resolution: {integrity: sha512-pE4OaagL1WtBmTvHVgsnlYWvuh/cXJa7aCZxJGd/C0/Kx3BIf7OVhSk0NQEdyDo4o4zISP/5E3mJmlfoiFwxAA==}
+    peerDependencies:
+      '@logtape/logtape': ^2.2.3
 
   '@madeja-studio/cepillo@0.7.1':
     resolution: {integrity: sha512-S38JVFCuj+QmA5Hv78i3egepF2durkeNxYS98Y6VBiK+9TXJYqRAl2ZA/+g877IkRTud/wKLzykFAKcmKdhKyQ==}
@@ -16587,6 +16658,16 @@ snapshots:
       - supports-color
       - typescript
 
+  '@logtape/logtape@2.2.3': {}
+
+  '@logtape/redaction@2.2.3(@logtape/logtape@2.2.3)':
+    dependencies:
+      '@logtape/logtape': 2.2.3
+
+  '@logtape/testing@2.2.3(@logtape/logtape@2.2.3)':
+    dependencies:
+      '@logtape/logtape': 2.2.3
+
   '@madeja-studio/cepillo@0.7.1(react-native-uuid@2.0.4)(tiny-invariant@1.3.3)':
     dependencies:
       react-native-uuid: 2.0.4
@@ -22190,6 +22271,14 @@ snapshots:
       magic-string: 0.30.21
     optionalDependencies:
       vite: 8.0.10(@types/node@22.19.7)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.3)
+
+  '@vitest/mocker@4.1.6(vite@8.0.10(@types/node@24.12.2)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.3))':
+    dependencies:
+      '@vitest/spy': 4.1.6
+      estree-walker: 3.0.3
+      magic-string: 0.30.21
+    optionalDependencies:
+      vite: 8.0.10(@types/node@24.12.2)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.3)
 
   '@vitest/mocker@4.1.6(vite@8.0.10(@types/node@26.1.0)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.3))':
     dependencies:
@@ -28657,6 +28746,34 @@ snapshots:
     optionalDependencies:
       '@opentelemetry/api': 1.9.0
       '@types/node': 22.19.7
+    transitivePeerDependencies:
+      - msw
+
+  vitest@4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.12.2)(vite@8.0.10(@types/node@24.12.2)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.3)):
+    dependencies:
+      '@vitest/expect': 4.1.6
+      '@vitest/mocker': 4.1.6(vite@8.0.10(@types/node@24.12.2)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.3))
+      '@vitest/pretty-format': 4.1.6
+      '@vitest/runner': 4.1.6
+      '@vitest/snapshot': 4.1.6
+      '@vitest/spy': 4.1.6
+      '@vitest/utils': 4.1.6
+      es-module-lexer: 2.0.0
+      expect-type: 1.3.0
+      magic-string: 0.30.21
+      obug: 2.1.1
+      pathe: 2.0.3
+      picomatch: 4.0.4
+      std-env: 4.0.0
+      tinybench: 2.9.0
+      tinyexec: 1.2.4
+      tinyglobby: 0.2.17
+      tinyrainbow: 3.1.0
+      vite: 8.0.10(@types/node@24.12.2)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.21.0)(yaml@2.8.3)
+      why-is-node-running: 2.3.0
+    optionalDependencies:
+      '@opentelemetry/api': 1.9.0
+      '@types/node': 24.12.2
     transitivePeerDependencies:
       - msw
 

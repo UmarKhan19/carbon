@@ -12,6 +12,7 @@ import {
 } from "@carbon/auth/middleware/flash.server";
 import { getOrRefreshAuthSession } from "@carbon/auth/session.server";
 import { validator } from "@carbon/form";
+import { requestIdMiddleware } from "@carbon/logging/middleware.server";
 import {
   Button,
   cn,
@@ -57,7 +58,7 @@ import AvatarMenu from "./components/AvatarMenu";
 import { useOptionalUser } from "./hooks/useUser";
 import { path } from "./utils/path";
 
-export const middleware = [flashMiddleware];
+export const middleware = [requestIdMiddleware, flashMiddleware];
 export const clientMiddleware = [flashClientMiddleware];
 
 export const links: LinksFunction = () => [
@@ -107,6 +108,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
   const {
     CARBON_EDITION,
     CARBON_API_URL,
+    LOG_LEVEL,
     POSTHOG_API_HOST,
     POSTHOG_PROJECT_PUBLIC_KEY,
     SUPABASE_URL,
@@ -155,6 +157,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
       env: {
         CARBON_EDITION,
         CARBON_API_URL,
+        LOG_LEVEL,
         POSTHOG_API_HOST,
         POSTHOG_PROJECT_PUBLIC_KEY,
         SUPABASE_URL,
