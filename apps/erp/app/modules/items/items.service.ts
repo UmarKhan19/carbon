@@ -3959,24 +3959,6 @@ export async function upsertMethodOperationTool(
 
 // Replace a method tool's step links (tool ↔ step is many-to-many). No ids = the tool
 // applies to the whole operation (shown on every step in the MES). Delete-then-insert.
-export async function replaceMethodOperationToolSteps(
-  client: SupabaseClient<Database>,
-  methodOperationToolId: string,
-  methodOperationStepIds: string[]
-) {
-  const del = await client
-    .from("methodOperationToolStep")
-    .delete()
-    .eq("methodOperationToolId", methodOperationToolId);
-  if (del.error || methodOperationStepIds.length === 0) return del;
-  return client.from("methodOperationToolStep").insert(
-    methodOperationStepIds.map((methodOperationStepId) => ({
-      methodOperationToolId,
-      methodOperationStepId
-    }))
-  );
-}
-
 // Replace a method material's step links (part ↔ step, many-to-many). See above.
 export async function replaceMethodMaterialSteps(
   client: SupabaseClient<Database>,
@@ -4024,6 +4006,38 @@ export async function setMethodMaterialStepLink(
     .from("methodMaterialStep")
     .delete()
     .eq("methodMaterialId", args.methodMaterialId)
+    .eq("methodOperationStepId", args.methodOperationStepId);
+}
+
+// Toggle a single tool↔step link from the STEP side (the step editor's Tools picker).
+// `linked` true = link the tool to the step, false = unlink. Idempotent on link. Twin of
+// setMethodMaterialStepLink.
+export async function setMethodOperationToolStepLink(
+  client: SupabaseClient<Database>,
+  args: {
+    methodOperationToolId: string;
+    methodOperationStepId: string;
+    linked: boolean;
+  }
+) {
+  if (args.linked) {
+    return client.from("methodOperationToolStep").upsert(
+      [
+        {
+          methodOperationToolId: args.methodOperationToolId,
+          methodOperationStepId: args.methodOperationStepId
+        }
+      ],
+      {
+        onConflict: "methodOperationToolId,methodOperationStepId",
+        ignoreDuplicates: true
+      }
+    );
+  }
+  return client
+    .from("methodOperationToolStep")
+    .delete()
+    .eq("methodOperationToolId", args.methodOperationToolId)
     .eq("methodOperationStepId", args.methodOperationStepId);
 }
 

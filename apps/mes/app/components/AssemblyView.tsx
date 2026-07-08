@@ -47,7 +47,6 @@ import {
   LuEye,
   LuEyeOff,
   LuFlag,
-  LuGitBranchPlus,
   LuGitPullRequest,
   LuHammer,
   LuHardHat,
@@ -721,7 +720,7 @@ export function AssemblyView({
               className="h-7 w-auto max-w-[140px] object-contain"
             />
           ) : (
-            <span className="whitespace-nowrap text-base font-bold tracking-tight">
+            <span className="whitespace-nowrap text-base font-medium tracking-tight text-foreground/90">
               {user.company.name}
             </span>
           )}
@@ -1236,24 +1235,28 @@ export function AssemblyView({
                 requirement from ever being double-counted. */}
             {visibleMaterials.length > 0 ? (
               <SidebarSection title="Parts" scrollable>
-                {visibleMaterials.map((m, i) => {
-                  const stepNumbers = ((m.jobOperationStepIds ?? []) as string[])
-                    .map((id) => stepNumberById.get(id))
-                    .filter((n): n is number => n != null)
-                    .sort((a, b) => a - b);
-                  return (
-                    <MaterialRow
-                      key={m.id ?? i}
-                      material={m}
-                      stepNumbers={stepNumbers}
-                      currentStepNumber={currentStep + 1}
-                      onIssue={() => {
-                        setSelectedMaterial(m);
-                        issueModal.onOpen();
-                      }}
-                    />
-                  );
-                })}
+                <div className="flex flex-col gap-1.5">
+                  {visibleMaterials.map((m, i) => {
+                    const stepNumbers = (
+                      (m.jobOperationStepIds ?? []) as string[]
+                    )
+                      .map((id) => stepNumberById.get(id))
+                      .filter((n): n is number => n != null)
+                      .sort((a, b) => a - b);
+                    return (
+                      <MaterialRow
+                        key={m.id ?? i}
+                        material={m}
+                        stepNumbers={stepNumbers}
+                        currentStepNumber={currentStep + 1}
+                        onIssue={() => {
+                          setSelectedMaterial(m);
+                          issueModal.onOpen();
+                        }}
+                      />
+                    );
+                  })}
+                </div>
               </SidebarSection>
             ) : (
               <SidebarSection title="Parts">
@@ -1837,90 +1840,72 @@ function MaterialRow({
       : { icon: LuCircle, className: "text-muted-foreground/50", label: "Not issued" };
   const StatusIcon = issueStatus.icon;
 
-  const isGeneral = stepNumbers.length === 0;
   const usedHere =
     currentStepNumber != null && stepNumbers.includes(currentStepNumber);
 
+  // The whole card is the action: clicking it opens the scan/issue flow. Tracked
+  // parts stay clickable even once issued, so with several serialized parts each
+  // one can be (re)scanned straight from its own card instead of the single
+  // bottom Scan button. Non-tracked parts drop the affordance once fully issued
+  // (nothing left to add).
+  const interactive = !!onIssue && (isTracked || !fullyIssued);
+  const Wrapper = interactive ? "button" : "div";
+
   return (
-    <div
+    <Wrapper
+      {...(interactive
+        ? {
+            type: "button" as const,
+            onClick: onIssue,
+            "aria-label": isTracked ? "Scan material" : "Issue material"
+          }
+        : {})}
       className={cn(
-        "flex flex-col gap-1 rounded-md px-1 py-1",
-        usedHere && "bg-foreground/5"
+        "flex w-full items-start gap-2.5 rounded-lg border border-border bg-accent/30 px-3 py-2.5 text-left transition-colors",
+        interactive && "cursor-pointer hover:bg-accent/60 active:scale-[0.99]",
+        usedHere && "ring-1 ring-inset ring-foreground/20"
       )}
     >
-      <div className="flex items-center gap-2">
-        <StatusIcon
-          aria-label={issueStatus.label}
-          className={cn("size-3.5 shrink-0", issueStatus.className)}
-        />
-        <span className="w-[56px] shrink-0 truncate font-mono text-[10px] text-muted-foreground">
+      <StatusIcon
+        aria-label={issueStatus.label}
+        className={cn("mt-0.5 size-3.5 shrink-0", issueStatus.className)}
+      />
+      {/* Name + id stacked; each stays on a single line and truncates if long. */}
+      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <span className="truncate text-sm font-medium leading-snug text-foreground">
+          {material.description}
+        </span>
+        <span className="truncate font-mono text-[10px] text-muted-foreground">
           {material.itemReadableId}
         </span>
-        <div className="flex min-w-0 flex-1 items-center gap-1.5">
-          <span className="truncate text-xs">{material.description}</span>
-          {material.requiresSerialTracking && <Badge variant="blue">S/N</Badge>}
-          {material.requiresBatchTracking && (
-            <Badge variant="purple">Batch</Badge>
-          )}
-        </div>
-        <div className="flex shrink-0 items-center gap-1">
-          {fullyIssued ? (
-            <span className="flex items-center gap-1 text-[10px] font-medium tabular-nums text-emerald-500">
-              {issued}/{required}
-              <LuCheck className="size-3" />
-            </span>
-          ) : partiallyIssued ? (
-            <span className="text-[10px] tabular-nums text-amber-500">
-              {issued}/{required}
-            </span>
-          ) : (
-            <span className="text-xs tabular-nums text-muted-foreground">
-              ×{required}
-            </span>
-          )}
-          {/* Once fully issued there's nothing left to scan/add — hide the action. */}
-          {onIssue && !fullyIssued && (
-            <button
-              type="button"
-              aria-label={isTracked ? "Scan material" : "Issue material"}
-              onClick={onIssue}
-              className="ml-0.5 flex size-9 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors active:scale-[0.96]"
-            >
-              {isTracked ? (
-                <LuQrCode className="size-4" />
-              ) : (
-                <LuGitBranchPlus className="size-4" />
-              )}
-            </button>
-          )}
-        </div>
       </div>
-
-      {/* Where-used: chips for the step(s) this part belongs to (current step highlighted),
-          or a "General" tag when it isn't tied to any step. Quantity above is the single
-          part-level requirement — these chips only say where it's consumed. */}
-      <div className="flex flex-wrap items-center gap-1 pl-[22px]">
-        {isGeneral ? (
-          <span className="rounded-full bg-muted px-1.5 py-px text-[9px] font-medium text-muted-foreground">
-            NA
+      {/* Count hard-right, with the tracking badges tucked beneath it. */}
+      <div className="flex shrink-0 flex-col items-end gap-1">
+        {fullyIssued ? (
+          <span className="flex items-center gap-1 text-[11px] font-medium tabular-nums text-emerald-500">
+            {issued}/{required}
+            <LuCheck className="size-3" />
+          </span>
+        ) : partiallyIssued ? (
+          <span className="text-[11px] tabular-nums text-amber-500">
+            {issued}/{required}
           </span>
         ) : (
-          stepNumbers.map((n) => (
-            <span
-              key={n}
-              className={cn(
-                "flex min-w-[16px] items-center justify-center rounded-full px-1 py-px text-[9px] font-semibold tabular-nums",
-                n === currentStepNumber
-                  ? "bg-foreground text-background"
-                  : "bg-muted text-muted-foreground"
-              )}
-            >
-              {n}
-            </span>
-          ))
+          <span className="text-xs tabular-nums text-muted-foreground">
+            ×{required}
+          </span>
+        )}
+        {isTracked && (
+          <div className="flex flex-wrap items-center justify-end gap-1">
+            {material.requiresSerialTracking && <Badge variant="blue">S/N</Badge>}
+            {material.requiresBatchTracking && (
+              <Badge variant="purple">Batch</Badge>
+            )}
+            {!fullyIssued && <Badge variant="orange">Requires Scan</Badge>}
+          </div>
         )}
       </div>
-    </div>
+    </Wrapper>
   );
 }
 

@@ -87,7 +87,6 @@ import type { Configuration } from "~/components/Configurator/types";
 import {
   Hidden,
   InputControlled,
-  MultiSelect,
   Number,
   NumberControlled,
   Process,
@@ -110,7 +109,7 @@ import { ProcedureStepTypeIcon } from "~/components/Icons";
 import { ConfirmDelete } from "~/components/Modals";
 import type { Item, SortableItemRenderProps } from "~/components/SortableList";
 import { SlidesEditor } from "~/components/SlidesEditor";
-import { StepPartsEditor } from "~/components/StepPartsEditor";
+import { StepLinkEditor } from "~/components/StepLinkEditor";
 import { SortableList, SortableListItem } from "~/components/SortableList";
 import { useDateFormatter, usePermissions, useUser } from "~/hooks";
 import { useTags } from "~/hooks/useTags";
@@ -708,7 +707,6 @@ const BillOfProcess = ({
           <div className="flex w-full flex-col py-4">
             <ToolsForm
               tools={tools}
-              steps={steps}
               operationId={item.id!}
               temporaryItems={temporaryItems}
               isDisabled={
@@ -1884,6 +1882,25 @@ function AttributesForm({
   );
   const [draftParts, setDraftParts] = useState<string[]>([]);
 
+  // Tools (this operation's tools) the operator can assign to a step — the tool twin of
+  // operationParts/draftParts. Tools picked while CREATING a step are buffered here and
+  // attached right after the step is created (see the effect below).
+  const allTools = useTools();
+  const operationTools = useMemo(
+    () =>
+      (tools ?? []).map((tl) => {
+        const tool = allTools.find((x) => x.id === tl.toolId);
+        return {
+          id: tl.id ?? "",
+          name: tool?.readableIdWithRevision ?? tl.toolId ?? "",
+          secondary: tool?.name ?? undefined,
+          quantity: tl.quantity ?? 1
+        };
+      }),
+    [tools, allTools]
+  );
+  const [draftTools, setDraftTools] = useState<string[]>([]);
+
   const onUploadImage = async (file: File) => {
     const fileType = file.name.split(".").pop();
     const fileName = `${companyId}/parts/${nanoid()}.${fileType}`;
@@ -1985,6 +2002,32 @@ function AttributesForm({
         return;
       }
       setDraftParts([]);
+      revalidator.revalidate();
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [fetcher.data]);
+
+  // When the new step is created, attach any buffered tools, then revalidate + reset.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: keyed off the created step id
+  useEffect(() => {
+    const newStepId = (fetcher.data as { id?: string | null } | undefined)?.id;
+    if (!newStepId || draftTools.length === 0 || !carbon) return;
+    let cancelled = false;
+    (async () => {
+      const { error } = await carbon.from("methodOperationToolStep").insert(
+        draftTools.map((methodOperationToolId) => ({
+          methodOperationToolId,
+          methodOperationStepId: newStepId
+        }))
+      );
+      if (cancelled) return;
+      if (error) {
+        toast.error(t`Failed to save tools`);
+        return;
+      }
+      setDraftTools([]);
       revalidator.revalidate();
     })();
     return () => {
@@ -2152,9 +2195,14 @@ function AttributesForm({
                 }
               />
 
-              <StepPartsEditor
-                parts={operationParts}
-                linkedPartIds={draftParts}
+              <StepLinkEditor
+                label={t`Parts`}
+                addLabel={t`Add parts`}
+                emptyLabel={t`No parts`}
+                searchPlaceholder={t`Search parts...`}
+                removeLabel={t`Remove part`}
+                items={operationParts}
+                linkedIds={draftParts}
                 isDisabled={isDisabled}
                 onAdd={(partId) =>
                   setDraftParts((prev) =>
@@ -2163,6 +2211,26 @@ function AttributesForm({
                 }
                 onRemove={(partId) =>
                   setDraftParts((prev) => prev.filter((id) => id !== partId))
+                }
+              />
+
+              <StepLinkEditor
+                label={t`Tools`}
+                addLabel={t`Add tools`}
+                emptyLabel={t`No tools`}
+                searchPlaceholder={t`Search tools...`}
+                removeLabel={t`Remove tool`}
+                icon={<LuHammer />}
+                items={operationTools}
+                linkedIds={draftTools}
+                isDisabled={isDisabled}
+                onAdd={(toolId) =>
+                  setDraftTools((prev) =>
+                    prev.includes(toolId) ? prev : [...prev, toolId]
+                  )
+                }
+                onRemove={(toolId) =>
+                  setDraftTools((prev) => prev.filter((id) => id !== toolId))
                 }
               />
 
@@ -2179,7 +2247,7 @@ function AttributesForm({
       )}
 
       {steps.length > 0 && (
-        <div className="border bg-card rounded-lg">
+        <div className="border rounded-lg">
           <Reorder.Group
             axis="y"
             values={sortOrder}
@@ -2202,11 +2270,14 @@ function AttributesForm({
                       operationId={operationId}
                       typeOptions={typeOptions}
                       materials={materials}
+                      tools={tools}
                       isDisabled={isDisabled}
                       dragControls={dragControls}
-                      className={
-                        index === sortOrder.length - 1 ? "border-none" : ""
-                      }
+                      className={cn(
+                        index === 0 && "rounded-t-lg",
+                        index === sortOrder.length - 1 &&
+                          "rounded-b-lg border-none"
+                      )}
                       configurable={configurable}
                       rulesByField={rulesByField}
                       onConfigure={onConfigure}
@@ -2255,6 +2326,7 @@ function AttributesListItem({
   operationId,
   typeOptions,
   materials,
+  tools,
   className,
   configurable,
   rulesByField,
@@ -2267,6 +2339,7 @@ function AttributesListItem({
   operationId: string;
   typeOptions: { label: JSX.Element; value: string }[];
   materials: MethodMaterialType[];
+  tools: OperationTool[];
   className?: string;
   configurable: boolean;
   rulesByField: Map<string, ConfigurationRule>;
@@ -2358,7 +2431,7 @@ function AttributesListItem({
       rulesByField.has(getFieldKey(`attribute:${id}:maxValue`, operationId)));
 
   return (
-    <div className={cn("border-b p-6", className)}>
+    <div className={cn("border-b p-6 bg-card", className)}>
       {disclosure.isOpen ? (
         <ValidatedForm
           action={path.to.methodOperationStep(id)}
@@ -2510,6 +2583,11 @@ function AttributesListItem({
               step={attribute}
               operationId={operationId}
               materials={materials}
+              isDisabled={isDisabled}
+            />
+            <StepTools
+              step={attribute}
+              tools={tools}
               isDisabled={isDisabled}
             />
             <HStack className="w-full justify-end" spacing={2}>
@@ -2717,6 +2795,7 @@ function StepParts({
   materials: MethodMaterialType[];
   isDisabled: boolean;
 }) {
+  const { t } = useLingui();
   const fetcher = useFetcher();
 
   const operationParts = (materials ?? [])
@@ -2748,9 +2827,82 @@ function StepParts({
   };
 
   return (
-    <StepPartsEditor
-      parts={operationParts}
-      linkedPartIds={linkedPartIds}
+    <StepLinkEditor
+      label={t`Parts`}
+      addLabel={t`Add parts`}
+      emptyLabel={t`No parts`}
+      searchPlaceholder={t`Search parts...`}
+      removeLabel={t`Remove part`}
+      items={operationParts}
+      linkedIds={linkedPartIds}
+      isDisabled={isDisabled}
+      busy={fetcher.state !== "idle"}
+      onAdd={(id) => toggle(id, true)}
+      onRemove={(id) => toggle(id, false)}
+    />
+  );
+}
+
+// Tools assigned to an EXISTING step — the step-side of the tool↔step link. Lists this
+// operation's tools and toggles each link immediately via the tool route (assignment now
+// lives on the step, not the tool modal). Twin of StepParts.
+function StepTools({
+  step,
+  tools,
+  isDisabled
+}: {
+  step: OperationStep;
+  tools: OperationTool[];
+  isDisabled: boolean;
+}) {
+  const { t } = useLingui();
+  const fetcher = useFetcher();
+  const allTools = useTools();
+
+  const operationTools = (tools ?? []).map((tl) => {
+    const tool = allTools.find((x) => x.id === tl.toolId);
+    return {
+      id: tl.id ?? "",
+      name: tool?.readableIdWithRevision ?? tl.toolId ?? "",
+      secondary: tool?.name ?? undefined,
+      quantity: tl.quantity ?? 1
+    };
+  });
+
+  const linkedToolIds = (tools ?? [])
+    .filter((tl) =>
+      (
+        tl.methodOperationStepIds ??
+        (
+          (tl as { methodOperationToolStep?: { methodOperationStepId: string }[] })
+            .methodOperationToolStep ?? []
+        ).map((s) => s.methodOperationStepId)
+      ).some((stepId) => stepId === step.id)
+    )
+    .map((tl) => tl.id ?? "");
+
+  const toggle = (toolId: string, linked: boolean) => {
+    if (!step.id) return;
+    const fd = new FormData();
+    fd.append("toolId", toolId);
+    fd.append("stepId", step.id);
+    fd.append("linked", String(linked));
+    fetcher.submit(fd, {
+      method: "post",
+      action: path.to.methodOperationStepTool
+    });
+  };
+
+  return (
+    <StepLinkEditor
+      label={t`Tools`}
+      addLabel={t`Add tools`}
+      emptyLabel={t`No tools`}
+      searchPlaceholder={t`Search tools...`}
+      removeLabel={t`Remove tool`}
+      icon={<LuHammer />}
+      items={operationTools}
+      linkedIds={linkedToolIds}
       isDisabled={isDisabled}
       busy={fetcher.state !== "idle"}
       onAdd={(id) => toggle(id, true)}
@@ -3309,13 +3461,11 @@ function ToolsForm({
   operationId,
   isDisabled,
   tools,
-  steps,
   temporaryItems
 }: {
   operationId: string;
   isDisabled: boolean;
   tools: OperationTool[];
-  steps: OperationStep[];
   temporaryItems: TemporaryItems;
 }) {
   const { t } = useLingui();
@@ -3364,18 +3514,8 @@ function ToolsForm({
                 <Number name="quantity" label={t`Quantity`} />
               </div>
 
-              {/* Scope this tool to any subset of steps (Phase 2, many-to-many). No
-                  selection = whole operation, shown on every step in the MES. */}
-              {steps.length > 0 && (
-                <MultiSelect
-                  name="methodOperationStepIds"
-                  label={t`Steps`}
-                  options={steps.map((s) => ({
-                    value: s.id ?? "",
-                    label: s.name ?? t`Step`
-                  }))}
-                />
-              )}
+              {/* Tool↔step assignment lives on the step editor now, not here — a tool added
+                  from this form starts operation-level (shown on every step in the MES). */}
 
               <Submit
                 leftIcon={<LuCirclePlus />}
@@ -3398,23 +3538,12 @@ function ToolsForm({
             .map((t, index) => (
               <ToolsListItem
                 key={t.id}
-                tool={{
-                  ...t,
-                  // Flatten the embedded methodOperationToolStep join rows into the plural id
-                  // array the form + list item expect (tool ↔ step, many-to-many).
-                  methodOperationStepIds:
-                    t.methodOperationStepIds ??
-                    (
-                      (t as {
-                        methodOperationToolStep?: {
-                          methodOperationStepId: string;
-                        }[];
-                      }).methodOperationToolStep ?? []
-                    ).map((s) => s.methodOperationStepId)
-                }}
+                tool={t}
                 operationId={operationId}
-                steps={steps}
-                className={index === tools.length - 1 ? "border-none" : ""}
+                className={cn(
+                  index === 0 && "rounded-t-lg",
+                  index === tools.length - 1 && "rounded-b-lg border-none"
+                )}
                 isDisabled={isDisabled}
               />
             ))}
@@ -3430,24 +3559,13 @@ function ToolsForm({
 }
 
 function ToolsListItem({
-  tool: {
-    toolId,
-    quantity,
-    id,
-    methodOperationStepIds,
-    updatedBy,
-    updatedAt,
-    createdBy,
-    createdAt
-  },
+  tool: { toolId, quantity, id, updatedBy, updatedAt, createdBy, createdAt },
   operationId,
-  steps,
   className,
   isDisabled = false
 }: {
   tool: OperationTool;
   operationId: string;
-  steps: OperationStep[];
   className?: string;
   isDisabled?: boolean;
 }) {
@@ -3490,11 +3608,7 @@ function ToolsListItem({
             id: id,
             toolId: toolId ?? "",
             quantity: quantity ?? 1,
-            operationId,
-            // methodOperationStepIds isn't in the tier-agnostic validator; spread it in
-            // (bypasses excess-property check) so the Step picker pre-selects the tool's
-            // current steps. The edit route reads them from formData directly.
-            methodOperationStepIds: methodOperationStepIds ?? []
+            operationId
           }}
           className="w-full"
         >
@@ -3505,18 +3619,7 @@ function ToolsListItem({
               <Number name="quantity" label={t`Quantity`} />
             </div>
 
-            {/* Optionally scope this tool to a single step (Phase 2). Empty = the
-                whole operation, shown on every step in the MES. Mirrors the add form. */}
-            {steps.length > 0 && (
-              <MultiSelect
-                name="methodOperationStepIds"
-                label={t`Steps`}
-                options={steps.map((s) => ({
-                  value: s.id ?? "",
-                  label: s.name ?? t`Step`
-                }))}
-              />
-            )}
+            {/* Tool↔step assignment lives on the step editor now (not here). */}
 
             <HStack className="w-full justify-end" spacing={2}>
               <Button variant="secondary" onClick={disclosure.onClose}>

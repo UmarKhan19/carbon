@@ -3173,24 +3173,6 @@ export async function upsertJobOperationTool(
 
 // Replace a job tool's step links (part/tool ↔ step is many-to-many). No ids = the tool
 // applies to the whole operation (shown on every step in the MES). Delete-then-insert.
-export async function replaceJobOperationToolSteps(
-  client: SupabaseClient<Database>,
-  jobOperationToolId: string,
-  jobOperationStepIds: string[]
-) {
-  const del = await client
-    .from("jobOperationToolStep")
-    .delete()
-    .eq("jobOperationToolId", jobOperationToolId);
-  if (del.error || jobOperationStepIds.length === 0) return del;
-  return client.from("jobOperationToolStep").insert(
-    jobOperationStepIds.map((jobOperationStepId) => ({
-      jobOperationToolId,
-      jobOperationStepId
-    }))
-  );
-}
-
 // Replace a job material's step links (part ↔ step, many-to-many). See above.
 export async function replaceJobMaterialSteps(
   client: SupabaseClient<Database>,
@@ -3234,6 +3216,38 @@ export async function setJobMaterialStepLink(
     .from("jobMaterialStep")
     .delete()
     .eq("jobMaterialId", args.jobMaterialId)
+    .eq("jobOperationStepId", args.jobOperationStepId);
+}
+
+// Toggle a single tool↔step link from the STEP side (the step editor's Tools picker).
+// `linked` true = link the tool to the step, false = unlink. Idempotent on link. Twin of
+// setJobMaterialStepLink.
+export async function setJobOperationToolStepLink(
+  client: SupabaseClient<Database>,
+  args: {
+    jobOperationToolId: string;
+    jobOperationStepId: string;
+    linked: boolean;
+  }
+) {
+  if (args.linked) {
+    return client.from("jobOperationToolStep").upsert(
+      [
+        {
+          jobOperationToolId: args.jobOperationToolId,
+          jobOperationStepId: args.jobOperationStepId
+        }
+      ],
+      {
+        onConflict: "jobOperationToolId,jobOperationStepId",
+        ignoreDuplicates: true
+      }
+    );
+  }
+  return client
+    .from("jobOperationToolStep")
+    .delete()
+    .eq("jobOperationToolId", args.jobOperationToolId)
     .eq("jobOperationStepId", args.jobOperationStepId);
 }
 

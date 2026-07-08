@@ -104,7 +104,6 @@ import Activity from "~/components/Activity";
 import {
   Hidden,
   InputControlled,
-  MultiSelect,
   Number,
   NumberControlled,
   Process,
@@ -127,7 +126,7 @@ import { ProcedureStepTypeIcon } from "~/components/Icons";
 import InfiniteScroll from "~/components/InfiniteScroll";
 import { ConfirmDelete } from "~/components/Modals";
 import { SlidesEditor } from "~/components/SlidesEditor";
-import { StepPartsEditor } from "~/components/StepPartsEditor";
+import { StepLinkEditor } from "~/components/StepLinkEditor";
 import type { Item, SortableItemRenderProps } from "~/components/SortableList";
 import { SortableList, SortableListItem } from "~/components/SortableList";
 import {
@@ -958,7 +957,6 @@ const JobBillOfProcess = ({
                 selectedItemId === null || !!temporaryItems[selectedItemId]
               }
               temporaryItems={temporaryItems}
-              steps={steps}
             />
           </div>
         )
@@ -1250,6 +1248,25 @@ function StepsForm({
   );
   const [draftParts, setDraftParts] = useState<string[]>([]);
 
+  // Tools (this operation's tools) the operator can assign to a step — the tool twin of
+  // operationParts/draftParts. Tools picked while CREATING a step are buffered here and
+  // attached right after the step is created (see the effect below).
+  const allTools = useTools();
+  const operationTools = useMemo(
+    () =>
+      (tools ?? []).map((tl) => {
+        const tool = allTools.find((x) => x.id === tl.toolId);
+        return {
+          id: tl.id ?? "",
+          name: tool?.readableIdWithRevision ?? tl.toolId ?? "",
+          secondary: tool?.name ?? undefined,
+          quantity: tl.quantity ?? 1
+        };
+      }),
+    [tools, allTools]
+  );
+  const [draftTools, setDraftTools] = useState<string[]>([]);
+
   const materialItemIds = useMemo(
     () => new Set((materials ?? []).map((m) => m.itemId)),
     [materials]
@@ -1367,6 +1384,32 @@ function StepsForm({
         return;
       }
       setDraftParts([]);
+      revalidator.revalidate();
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [fetcher.data]);
+
+  // When the new step is created, attach any buffered tools, then revalidate + reset.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: keyed off the created step id
+  useEffect(() => {
+    const newStepId = (fetcher.data as { id?: string | null } | undefined)?.id;
+    if (!newStepId || draftTools.length === 0 || !carbon) return;
+    let cancelled = false;
+    (async () => {
+      const { error } = await carbon.from("jobOperationToolStep").insert(
+        draftTools.map((jobOperationToolId) => ({
+          jobOperationToolId,
+          jobOperationStepId: newStepId
+        }))
+      );
+      if (cancelled) return;
+      if (error) {
+        toast.error(t`Failed to save tools`);
+        return;
+      }
+      setDraftTools([]);
       revalidator.revalidate();
     })();
     return () => {
@@ -1535,9 +1578,14 @@ function StepsForm({
                 }
               />
 
-              <StepPartsEditor
-                parts={operationParts}
-                linkedPartIds={draftParts}
+              <StepLinkEditor
+                label={t`Parts`}
+                addLabel={t`Add parts`}
+                emptyLabel={t`No parts`}
+                searchPlaceholder={t`Search parts...`}
+                removeLabel={t`Remove part`}
+                items={operationParts}
+                linkedIds={draftParts}
                 isDisabled={isDisabled}
                 onAdd={(partId) =>
                   setDraftParts((prev) =>
@@ -1546,6 +1594,26 @@ function StepsForm({
                 }
                 onRemove={(partId) =>
                   setDraftParts((prev) => prev.filter((id) => id !== partId))
+                }
+              />
+
+              <StepLinkEditor
+                label={t`Tools`}
+                addLabel={t`Add tools`}
+                emptyLabel={t`No tools`}
+                searchPlaceholder={t`Search tools...`}
+                removeLabel={t`Remove tool`}
+                icon={<LuHammer />}
+                items={operationTools}
+                linkedIds={draftTools}
+                isDisabled={isDisabled}
+                onAdd={(toolId) =>
+                  setDraftTools((prev) =>
+                    prev.includes(toolId) ? prev : [...prev, toolId]
+                  )
+                }
+                onRemove={(toolId) =>
+                  setDraftTools((prev) => prev.filter((id) => id !== toolId))
                 }
               />
 
@@ -1591,12 +1659,15 @@ function StepsForm({
                       operationId={operationId}
                       typeOptions={typeOptions}
                       materials={materials}
+                      tools={tools}
                       isDisabled={isDisabled}
                       dragControls={dragControls}
                       itemMentions={itemMentions}
-                      className={
-                        index === sortOrder.length - 1 ? "border-none" : ""
-                      }
+                      className={cn(
+                        index === 0 && "rounded-t-lg",
+                        index === sortOrder.length - 1 &&
+                          "rounded-b-lg border-none"
+                      )}
                     />
                   )}
                 </DraggableStepItem>
@@ -1622,6 +1693,7 @@ function JobStepParts({
   materials: JobMaterial[];
   isDisabled: boolean;
 }) {
+  const { t } = useLingui();
   const fetcher = useFetcher();
 
   const operationParts = (materials ?? [])
@@ -1653,9 +1725,81 @@ function JobStepParts({
   };
 
   return (
-    <StepPartsEditor
-      parts={operationParts}
-      linkedPartIds={linkedPartIds}
+    <StepLinkEditor
+      label={t`Parts`}
+      addLabel={t`Add parts`}
+      emptyLabel={t`No parts`}
+      searchPlaceholder={t`Search parts...`}
+      removeLabel={t`Remove part`}
+      items={operationParts}
+      linkedIds={linkedPartIds}
+      isDisabled={isDisabled}
+      busy={fetcher.state !== "idle"}
+      onAdd={(id) => toggle(id, true)}
+      onRemove={(id) => toggle(id, false)}
+    />
+  );
+}
+
+// Tools assigned to an EXISTING job step — the step-side of the tool↔step link. Toggles each
+// jobOperationToolStep link immediately via the tool route. Job-tier twin of StepTools.
+function JobStepTools({
+  step,
+  tools,
+  isDisabled
+}: {
+  step: JobOperationStep;
+  tools: OperationTool[];
+  isDisabled: boolean;
+}) {
+  const { t } = useLingui();
+  const fetcher = useFetcher();
+  const allTools = useTools();
+
+  const operationTools = (tools ?? []).map((tl) => {
+    const tool = allTools.find((x) => x.id === tl.toolId);
+    return {
+      id: tl.id ?? "",
+      name: tool?.readableIdWithRevision ?? tl.toolId ?? "",
+      secondary: tool?.name ?? undefined,
+      quantity: tl.quantity ?? 1
+    };
+  });
+
+  const linkedToolIds = (tools ?? [])
+    .filter((tl) =>
+      (
+        tl.jobOperationStepIds ??
+        (
+          (tl as { jobOperationToolStep?: { jobOperationStepId: string }[] })
+            .jobOperationToolStep ?? []
+        ).map((s) => s.jobOperationStepId)
+      ).some((stepId) => stepId === step.id)
+    )
+    .map((tl) => tl.id ?? "");
+
+  const toggle = (toolId: string, linked: boolean) => {
+    if (!step.id) return;
+    const fd = new FormData();
+    fd.append("toolId", toolId);
+    fd.append("stepId", step.id);
+    fd.append("linked", String(linked));
+    fetcher.submit(fd, {
+      method: "post",
+      action: path.to.jobOperationStepTool
+    });
+  };
+
+  return (
+    <StepLinkEditor
+      label={t`Tools`}
+      addLabel={t`Add tools`}
+      emptyLabel={t`No tools`}
+      searchPlaceholder={t`Search tools...`}
+      removeLabel={t`Remove tool`}
+      icon={<LuHammer />}
+      items={operationTools}
+      linkedIds={linkedToolIds}
       isDisabled={isDisabled}
       busy={fetcher.state !== "idle"}
       onAdd={(id) => toggle(id, true)}
@@ -1801,6 +1945,7 @@ function StepsListItem({
   operationId,
   typeOptions,
   materials,
+  tools,
   isDisabled = false,
   dragControls,
   itemMentions,
@@ -1810,6 +1955,7 @@ function StepsListItem({
   operationId: string;
   typeOptions: { label: JSX.Element; value: string }[];
   materials: JobMaterial[];
+  tools: OperationTool[];
   isDisabled?: boolean;
   dragControls?: DragControls;
   itemMentions: { id: string; label: string }[];
@@ -1901,7 +2047,7 @@ function StepsListItem({
   if (!id) return null;
 
   return (
-    <div className={cn("border-b p-6", className)}>
+    <div className={cn("border-b p-6 bg-card", className)}>
       {disclosure.isOpen ? (
         <ValidatedForm
           action={path.to.jobOperationStep(id)}
@@ -2003,6 +2149,11 @@ function StepsListItem({
               step={attribute}
               operationId={operationId}
               materials={materials}
+              isDisabled={isDisabled}
+            />
+            <JobStepTools
+              step={attribute}
+              tools={tools}
               isDisabled={isDisabled}
             />
             <HStack className="w-full justify-end" spacing={2}>
@@ -3441,23 +3592,12 @@ const ProductionEventActivity = ({ item }: ProductionEventActivityProps) => {
 };
 
 function ToolsListItem({
-  tool: {
-    toolId,
-    quantity,
-    id,
-    jobOperationStepIds,
-    updatedBy,
-    updatedAt,
-    createdBy,
-    createdAt
-  },
+  tool: { toolId, quantity, id, updatedBy, updatedAt, createdBy, createdAt },
   operationId,
-  steps,
   className
 }: {
   tool: OperationTool;
   operationId: string;
-  steps: JobOperationStep[];
   className?: string;
 }) {
   const { formatRelativeTime } = useDateFormatter();
@@ -3499,11 +3639,7 @@ function ToolsListItem({
             id: id,
             toolId: toolId ?? "",
             quantity: quantity ?? 1,
-            operationId,
-            // jobOperationStepIds isn't in the tier-agnostic validator; spread it in
-            // (bypasses excess-property check) so the Step picker pre-selects the tool's
-            // current steps. The edit route reads them from formData directly.
-            jobOperationStepIds: jobOperationStepIds ?? []
+            operationId
           }}
           className="w-full"
         >
@@ -3514,18 +3650,7 @@ function ToolsListItem({
               <Number name="quantity" label={t`Quantity`} />
             </div>
 
-            {/* Optionally scope this tool to a single step. Empty = the whole operation,
-                shown on every step in the MES. Mirrors the add form. */}
-            {steps.length > 0 && (
-              <MultiSelect
-                name="jobOperationStepIds"
-                label={t`Steps`}
-                options={steps.map((s) => ({
-                  value: s.id ?? "",
-                  label: s.name ?? t`Step`
-                }))}
-              />
-            )}
+            {/* Tool↔step assignment lives on the step editor now (not here). */}
 
             <HStack className="w-full justify-end" spacing={2}>
               <Button variant="secondary" onClick={disclosure.onClose}>
@@ -3612,14 +3737,12 @@ function ToolsForm({
   operationId,
   isDisabled,
   tools,
-  temporaryItems,
-  steps
+  temporaryItems
 }: {
   operationId: string;
   isDisabled: boolean;
   tools: OperationTool[];
   temporaryItems: TemporaryItems;
-  steps: JobOperationStep[];
 }) {
   const fetcher = useFetcher<typeof newJobOperationToolAction>();
   const { t } = useLingui();
@@ -3662,18 +3785,8 @@ function ToolsForm({
               <Number name="quantity" label={t`Quantity`} />
             </div>
 
-            {/* Optionally scope this tool to a single step. Empty = the whole operation,
-                shown on every step in the MES. */}
-            {steps.length > 0 && (
-              <MultiSelect
-                name="jobOperationStepIds"
-                label={t`Steps`}
-                options={steps.map((s) => ({
-                  value: s.id ?? "",
-                  label: s.name ?? t`Step`
-                }))}
-              />
-            )}
+            {/* Tool↔step assignment lives on the step editor now, not here — a tool added
+                from this form starts operation-level (shown on every step in the MES). */}
 
             <Submit
               leftIcon={<LuCirclePlus />}
@@ -3695,25 +3808,12 @@ function ToolsForm({
             .map((t, index) => (
               <ToolsListItem
                 key={t.id}
-                tool={{
-                  ...t,
-                  // Flatten the embedded jobOperationToolStep join rows into the plural id
-                  // array the form + list item expect (tool ↔ step, many-to-many).
-                  jobOperationStepIds:
-                    t.jobOperationStepIds ??
-                    (
-                      (
-                        t as {
-                          jobOperationToolStep?: {
-                            jobOperationStepId: string;
-                          }[];
-                        }
-                      ).jobOperationToolStep ?? []
-                    ).map((s) => s.jobOperationStepId)
-                }}
+                tool={t}
                 operationId={operationId}
-                steps={steps}
-                className={index === tools.length - 1 ? "border-none" : ""}
+                className={cn(
+                  index === 0 && "rounded-t-lg",
+                  index === tools.length - 1 && "rounded-b-lg border-none"
+                )}
               />
             ))}
         </div>
