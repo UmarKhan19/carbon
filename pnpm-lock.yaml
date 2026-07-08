@@ -2424,6 +2424,9 @@ importers:
       '@carbon/lib':
         specifier: workspace:*
         version: link:../lib
+      '@carbon/logger':
+        specifier: workspace:*
+        version: link:../logger
       '@carbon/notifications':
         specifier: workspace:*
         version: link:../notifications
