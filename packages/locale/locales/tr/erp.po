@@ -38,10 +38,6 @@ msgstr "\"{taskName}\" tamamlandı — tüm {0} Setup Haritası öğesi yapılan
 msgid "(excluded for this customer)"
 msgstr "(bu müşteri için hariç tutulmuş)"
 
-#. placeholder {0}: entries.length
-msgid "{0} affected items"
-msgstr ""
-
 #. placeholder {0}: ar.count
 msgid "{0} customers with a balance"
 msgstr "{0} müşteri bakiye ile"
@@ -58,10 +54,6 @@ msgstr "{0} başarıyla silindi"
 #. placeholder {0}: mappings.length
 msgid "{0} lines to map"
 msgstr "{0} satır eşlenecek"
-
-#. placeholder {0}: itemTotal - reviewedCount
-msgid "{0} not reviewed"
-msgstr ""
 
 #. placeholder {0}: history.length
 msgid "{0} orders"
@@ -192,9 +184,6 @@ msgstr "90G"
 
 msgid "A Carbon-run data migration — you load your own data"
 msgstr "Bir Carbon tarafından yönetilen veri taşıması — kendi verilerinizi yüklersiniz"
-
-msgid "A change order tracks engineering and manufacturing changes through review, approval, and release."
-msgstr ""
 
 msgid "A clearing account holding the value of goods received but not yet billed; the supplier invoice clears it."
 msgstr "Alınan ancak henüz faturalanmayan malların değerini tutan bir takas hesabı; tedarikçi faturası bunu temizler."
@@ -333,9 +322,6 @@ msgstr "Bir tedarikçinin satın alma RFQ'ya verilen fiyatlı yanıtı — tedar
 
 msgid "A taxable surcharge (handling, setup, fuel) added to the line; rolls into the tax base."
 msgstr "Vergilendirilecek bir ek ücret (işçilik, kurulum, yakıt) satıra eklenir ve vergi matrahına dahil edilir."
-
-msgid "A template defines the preset values for a new change order — its priority, approval type, and default approvers."
-msgstr ""
 
 msgid "A timed record of Setup, Labor, or Machine work logged against a job operation, whose duration rolls up into the operation's actual cost."
 msgstr "Bir iş operasyonuna karşı kaydedilen Kurulum, İşçilik veya Makine çalışmasının zamanlanmış kaydı; süresi operasyonun gerçek maliyetine toplanır."
@@ -568,12 +554,6 @@ msgstr "Bir adım ekle"
 msgid "Add Actions"
 msgstr "Eylemler Ekle"
 
-msgid "Add affected item"
-msgstr ""
-
-msgid "Add another approver"
-msgstr ""
-
 msgid "Add any notes about your decision..."
 msgstr "Kararınızla ilgili herhangi bir not ekleyin..."
 
@@ -701,9 +681,6 @@ msgstr "Ek Üzerine Ek"
 msgid "Add-On Cost"
 msgstr "Ek Üst Ek Maliyeti"
 
-msgid "Added"
-msgstr ""
-
 msgid "Added for this customer"
 msgstr "Bu müşteri için eklendi"
 
@@ -724,12 +701,6 @@ msgstr "Ayarlama Türü"
 
 msgid "Advanced"
 msgstr "Gelişmiş"
-
-msgid "Affected Item"
-msgstr ""
-
-msgid "Affected Items"
-msgstr ""
 
 msgid "After"
 msgstr "Sonra"
@@ -961,17 +932,11 @@ msgstr "Faturaları uygula"
 msgid "Approaching {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB cap."
 msgstr "Yaklaşan {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB sınırı."
 
-msgid "Approval"
-msgstr ""
-
 msgid "Approval Date"
 msgstr "Onay Tarihi"
 
 msgid "Approval is required at or above this amount, up to the next rule's minimum"
 msgstr "Onay, bu tutar veya daha yüksek bir tutarda ve sonraki kuralın minimumuna kadar gereklidir"
-
-msgid "Approval notes"
-msgstr ""
 
 msgid "Approval Requirements"
 msgstr "Onay Gereksinimleri"
@@ -979,26 +944,11 @@ msgstr "Onay Gereksinimleri"
 msgid "Approval Rules"
 msgstr "Onay Kuralları"
 
-msgid "Approval Type"
-msgstr ""
-
-msgid "Approvals"
-msgstr ""
-
 msgid "Approve"
 msgstr "Onayla"
 
-msgid "Approve Change Order"
-msgstr ""
-
-msgid "Approved"
-msgstr ""
-
 msgid "Approved By"
 msgstr "Onaylayan"
-
-msgid "Approvers"
-msgstr ""
 
 msgid "AQL"
 msgstr "AQL"
@@ -1281,12 +1231,6 @@ msgstr "Webhook'u silmek istediğinizden emin misiniz: {0}? Bu geri alınamaz."
 
 msgid "Are you sure you want to delete this approval rule? This cannot be undone."
 msgstr "Bu onay kuralını silmek istediğinizden emin misiniz? Bu geri alınamaz."
-
-msgid "Are you sure you want to delete this change order template?"
-msgstr ""
-
-msgid "Are you sure you want to delete this change order?"
-msgstr ""
 
 msgid "Are you sure you want to delete this gauge?"
 msgstr "Bu kalibratörü silmek istediğinizden emin misiniz?"
@@ -1684,9 +1628,6 @@ msgstr "Batch takibi"
 msgid "Batch Tracking"
 msgstr "Lot Takibi"
 
-msgid "Before"
-msgstr ""
-
 #. placeholder {0}: successorItem.readableIdWithRevision
 msgid "Being phased out — successor: <0>{0}</0>"
 msgstr "Aşamalı olarak kaldırılıyor — halef: <0>{0}</0>"
@@ -2034,12 +1975,6 @@ msgstr "Şampiyonlar"
 msgid "Change"
 msgstr "Değiştir"
 
-msgid "Change Order"
-msgstr ""
-
-msgid "Change Order Templates"
-msgstr ""
-
 msgid "Change Orders"
 msgstr ""
 
@@ -2052,19 +1987,11 @@ msgstr "Ürün türünü değiştirin (örneğin Parça, Malzeme, Alet vb.)"
 msgid "Change Type"
 msgstr "Tipi Değiştir"
 
-msgid "Changed"
-msgstr ""
-
 msgid "Changed By"
 msgstr "Değiştiren"
 
 msgid "Changes"
 msgstr "Değişiklikler"
-
-#. placeholder {0}: changeOrder.changeOrderId
-#. placeholder {1}: changeOrder.status
-msgid "Changes are being tracked by <0>{0}</0> ({1})."
-msgstr ""
 
 msgid "Changing this will overwrite the existing method"
 msgstr "Bunu değiştirmek mevcut yöntemi geçersiz kılacaktır"
@@ -2591,9 +2518,6 @@ msgstr "Tüm öğeleri ve fiyatlandırmayı başka bir müşteriye veya türe ko
 msgid "Copy API Key"
 msgstr "API Anahtarını Kopyala"
 
-msgid "Copy change order number"
-msgstr ""
-
 msgid "Copy company unique identifier"
 msgstr "Şirket benzersiz tanımlayıcısını kopyala"
 
@@ -2626,9 +2550,6 @@ msgstr "İş Numarasını Kopyala"
 
 msgid "Copy link"
 msgstr "Bağlantıyı kopyala"
-
-msgid "Copy link to change order"
-msgstr ""
 
 msgid "Copy link to consumable"
 msgstr "Tüketilebilir bağlantısını kopyala"
@@ -2999,9 +2920,6 @@ msgstr "Depolama türü oluşturuldu"
 #. placeholder {0}: created.name
 msgid "Created supplier: {0}"
 msgstr "Oluşturulan tedarikçi: {0}"
-
-msgid "Created template"
-msgstr ""
 
 msgid "Created tool"
 msgstr "Oluşturulan araç"
@@ -3406,9 +3324,6 @@ msgstr "Vergi ile ilgili işlemler için varsayılan hesaplar"
 msgid "Default Approver"
 msgstr "Varsayılan Onaylayıcı"
 
-msgid "Default Approvers"
-msgstr ""
-
 msgid "Default Attachments"
 msgstr "Varsayılan Ekler"
 
@@ -3519,9 +3434,6 @@ msgstr "Özniteliği Sil"
 
 msgid "Delete Category"
 msgstr "Kategoriyi Sil"
-
-msgid "Delete Change Order"
-msgstr ""
 
 msgid "Delete Consumable"
 msgstr "Tüketilebilir Malı Sil"
@@ -4313,9 +4225,6 @@ msgstr "Üretim Projeksiyonunu Düzenle"
 msgid "Edit Production Quantity"
 msgstr "Üretim Miktarını Düzenle"
 
-msgid "Edit proposed revision"
-msgstr ""
-
 msgid "Edit purchase order line type"
 msgstr "Satın alma siparişi satır türünü düzenle"
 
@@ -4388,9 +4297,6 @@ msgstr "Tedarikçi sürecini düzenle"
 msgid "Edit Supplier Type"
 msgstr "Tedarikçi Türünü Düzenle"
 
-msgid "Edit Template"
-msgstr ""
-
 msgid "Edit the rule to remove the \"Applies to all\" flag"
 msgstr "Kuralı düzenleyerek \"Tümüne uygulanır\" işaretini kaldırın"
 
@@ -4422,9 +4328,6 @@ msgid "Edit Work Center"
 msgstr "İş Merkezi Düzenle"
 
 msgid "Editable draft; becomes Production when released."
-msgstr ""
-
-msgid "Effective Date"
 msgstr ""
 
 msgid "Effective From"
@@ -4549,9 +4452,6 @@ msgstr "Katılım seviyesi"
 
 msgid "Engineering"
 msgstr "Mühendislik"
-
-msgid "Engineering Change"
-msgstr ""
 
 msgid "Engineering changes and CAD"
 msgstr "Mühendislik değişiklikleri ve CAD"
@@ -5000,10 +4900,6 @@ msgstr "Depolama türü oluşturulamadı: {0}"
 #. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create supplier: {0}"
 msgstr "Tedarikçi oluşturulamadı: {0}"
-
-#. placeholder {0}: fetcher.data.error
-msgid "Failed to create template: {0}"
-msgstr ""
 
 #. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create tool: {0}"
@@ -5957,9 +5853,6 @@ msgstr "Uygulama Müdürü"
 msgid "Implementation Support"
 msgstr "Kurulum Desteği"
 
-msgid "Import"
-msgstr ""
-
 msgid "Import {label} CSV"
 msgstr "İçe aktarılacak {label} CSV"
 
@@ -5968,9 +5861,6 @@ msgstr "İçe Aktarma Sonuçları"
 
 msgid "Import your BOM"
 msgstr "BOM'unuzu İçe Aktarın"
-
-msgid "Imported into draft change order"
-msgstr ""
 
 msgid "In order to convert this RFQ to a quote, all lines must have an internal part number."
 msgstr "Bu Fiyat Teklifi'ni (RFQ) bir teklife dönüştürmek için tüm satırların dahili bir parça numarasına sahip olması gerekir."
@@ -6990,9 +6880,6 @@ msgstr "Yapılmadı olarak işaretle"
 msgid "Mark Partial"
 msgstr "Kısmi Olarak İşaretle"
 
-msgid "Mark reviewed"
-msgstr ""
-
 msgid "Mark scope as agreed"
 msgstr "Kapsamı kabul edildi olarak işaretle"
 
@@ -7103,9 +6990,6 @@ msgstr "Malzemeler"
 
 msgid "Materials"
 msgstr "Malzemeler"
-
-msgid "Materials (BOM)"
-msgstr ""
 
 msgid "Max Qty"
 msgstr "Maks. Miktar"
@@ -7336,9 +7220,6 @@ msgstr "MRP otomatik olarak her 3 saatte bir çalışır, ancak buradan manuel o
 
 msgid "Must be in the same location"
 msgstr "Aynı konumda olmalıdır"
-
-msgid "My Change Orders"
-msgstr ""
 
 msgid "My Documents"
 msgstr "Belgelerim"
@@ -7634,9 +7515,6 @@ msgstr "Yeni Tedarikçi"
 msgid "New Supplier Part"
 msgstr "Yeni Tedarikçi Parçası"
 
-msgid "New Template"
-msgstr ""
-
 msgid "New Timecard"
 msgstr "Yeni Vardiya"
 
@@ -7732,17 +7610,8 @@ msgstr "Aktif Teklif Yok"
 msgid "No addresses found"
 msgstr "Adres bulunamadı"
 
-msgid "No affected items to review yet."
-msgstr ""
-
-msgid "No affected items yet"
-msgstr ""
-
 msgid "No applications. Payment will be on-account."
 msgstr "Başvuru yok. Ödeme hesap üzerinden yapılacak."
-
-msgid "No approvers yet. Add approvers in the Properties panel to route this change order for review."
-msgstr ""
 
 #. placeholder {0}: auditConfig.retentionDays
 msgid "No archived logs yet. Logs older than {0} days will be automatically archived and available for download here."
@@ -7762,12 +7631,6 @@ msgstr "Hiçbir BOM girdisi raf ömrü politikasına sahip değil"
 
 msgid "No calibration records found"
 msgstr "Kalibrasyon kaydı bulunamadı"
-
-msgid "No changes"
-msgstr ""
-
-msgid "No changes proposed yet"
-msgstr ""
 
 msgid "No changes recorded"
 msgstr "Değişiklik kaydedilmedi"
@@ -7865,9 +7728,6 @@ msgstr "\"{query}\" için eşleşme bulunamadı. Farklı bir arama terbi deneyin
 msgid "No matches. Type to create one."
 msgstr ""
 
-msgid "No method changes between revisions."
-msgstr ""
-
 msgid "No new notifications"
 msgstr "Yeni bildirim yok"
 
@@ -7904,9 +7764,6 @@ msgstr "Henüz üst kaynaklar kaydedilmedi. Atıfı yenilemek için planlama say
 msgid "No part ID"
 msgstr "Parça kimliği yok"
 
-msgid "No Part Number"
-msgstr ""
-
 msgid "No payables"
 msgstr "Ödeme yükümlülüğü yok"
 
@@ -7939,9 +7796,6 @@ msgstr "Teklif Nedeni Yok"
 
 msgid "No receivables"
 msgstr "Alacak yok"
-
-msgid "No released revisions in this document."
-msgstr ""
 
 msgid "No remaining entities to inspect."
 msgstr "İncelenecek kalan varlık yok."
@@ -8156,9 +8010,6 @@ msgstr "Bir işin yönlendirilmesinde bir adım, bir süreci ve bir iş merkezin
 msgid "One system from quote to cash"
 msgstr "Teklif'ten nakite kadar tek bir sistem"
 
-msgid "OnShape"
-msgstr ""
-
 msgid "Onshape Status"
 msgstr "Onshape Durumu"
 
@@ -8185,9 +8036,6 @@ msgstr "Açık AR"
 
 msgid "Open Audit Log"
 msgstr "Denetim Kaydını Aç"
-
-msgid "Open change order"
-msgstr ""
 
 msgid "Open Date"
 msgstr "Açılış Tarihi"
@@ -8269,9 +8117,6 @@ msgstr "Operasyon Türü"
 
 msgid "Operations"
 msgstr "Operasyonlar"
-
-msgid "Operations (BOP)"
-msgstr ""
 
 msgid "Operations / steps"
 msgstr "İşlemler / adımlar"
@@ -8658,9 +8503,6 @@ msgstr "Topla"
 
 msgid "Pick a column to sort by"
 msgstr "Sıralamak için bir sütun seçin"
-
-msgid "Pick a connected document, then a released object to import into a draft change order."
-msgstr ""
 
 msgid "Pick a customer or customer type to view their pricing."
 msgstr "Fiyatlandırmalarını görüntülemek için bir müşteri veya müşteri türü seçin."
@@ -9101,10 +8943,6 @@ msgstr "Planlanan Tarih"
 msgid "Properties"
 msgstr "Özellikler"
 
-#. placeholder {0}: changeOrder.changeOrderId
-msgid "Proposed under change order {0}. Its method becomes active when the change order is released."
-msgstr ""
-
 msgid "Protect the go-live date"
 msgstr "Go-live tarihini koruyun"
 
@@ -9286,9 +9124,6 @@ msgstr "Kalite Belgesi onay kuralı"
 msgid "Quality Documents"
 msgstr "Kalite Belgeleri"
 
-msgid "Quality Issue"
-msgstr ""
-
 msgid "Quality Type"
 msgstr "Kalite Türü"
 
@@ -9458,9 +9293,6 @@ msgstr "Neden Hesabı"
 msgid "Reason for declining (Optional)"
 msgstr "Reddetme nedeni (İsteğe bağlı)"
 
-msgid "Reason for rejection"
-msgstr ""
-
 msgid "Reasons"
 msgstr "Nedenler"
 
@@ -9573,9 +9405,6 @@ msgstr "Bir parça ve bir işe bağlı muayeneleri kaydedin"
 msgid "Record the inspection result for this sample."
 msgstr "Bu numune için muayene sonucunu kaydedin."
 
-msgid "Record your approval. Add a note for the audit trail."
-msgstr ""
-
 msgid "Recorded that follow-up is needed after this calibration; surfaces this gauge on the open-actions queue."
 msgstr "Bu kalibrasyon sonrasında takip gerektiği kaydedildi; bu göstergeyi açık eylemler kuyruğunda gösterir."
 
@@ -9618,9 +9447,6 @@ msgstr "Kayıtlı"
 msgid "Reject"
 msgstr "Reddet"
 
-msgid "Reject Change Order"
-msgstr ""
-
 msgid "Reject Lot"
 msgstr "Lotu Reddet"
 
@@ -9636,9 +9462,6 @@ msgstr "Tarafından Reddedildi"
 msgid "Rejected Date"
 msgstr "Reddeden Tarihi"
 
-msgid "Rejecting returns the change order to Draft and resets all reviewers. Explain what needs to change."
-msgstr ""
-
 msgid "Relabels the hub and frames the deal."
 msgstr "Hub'u yeniden etiketler ve anlaşmayı çerçevelendirir."
 
@@ -9650,12 +9473,6 @@ msgstr "Göreceli zaman çizelgesi · tarihler onaylanacak"
 
 msgid "Release"
 msgstr "Serbest Bırakma"
-
-msgid "Release {sourceId}"
-msgstr ""
-
-msgid "Release blocked"
-msgstr ""
 
 msgid "Release control"
 msgstr ""
@@ -9670,9 +9487,6 @@ msgid "Released"
 msgstr "Yayınlandı"
 
 msgid "Released and locked; change via a change order."
-msgstr ""
-
-msgid "Released Object"
 msgstr ""
 
 msgid "Released revision"
@@ -9709,9 +9523,6 @@ msgstr "Filtreyi kaldır"
 msgid "Remove Filters"
 msgstr "Filtreleri Kaldır"
 
-msgid "Remove from change order"
-msgstr ""
-
 msgid "Remove from Price List"
 msgstr "Fiyat Listesinden Kaldır"
 
@@ -9729,9 +9540,6 @@ msgstr "Sıralamayı kaldır"
 
 msgid "Remove this storage type from all referencing storage units and delete it. This cannot be undone."
 msgstr "Bu depolama türünü tüm referans veren depolama birimlerinden kaldırır ve siler. Bu geri alınamaz."
-
-msgid "Removed"
-msgstr ""
 
 msgid "Rendering label preview..."
 msgstr "Etiket önizlemesi oluşturuluyor..."
@@ -9947,18 +9755,6 @@ msgstr "Ters yükleme satış vergisi (varsayılan)"
 
 msgid "Reverse the related journal entries"
 msgstr "İlgili günlük girişlerini tersine çevir"
-
-msgid "Review all changes"
-msgstr ""
-
-msgid "reviewed"
-msgstr ""
-
-msgid "Reviewed"
-msgstr ""
-
-msgid "Reviewers"
-msgstr ""
 
 msgid "Revision"
 msgstr "Revizyon"
@@ -10410,12 +10206,6 @@ msgstr "Bir atanan seçin"
 msgid "Select a default approver"
 msgstr "Varsayılan onaylayıcı seçin"
 
-msgid "Select a document"
-msgstr ""
-
-msgid "Select a document to list released objects."
-msgstr ""
-
 msgid "Select a new owner"
 msgstr "Yeni bir sahip seç"
 
@@ -10461,9 +10251,6 @@ msgstr "Yapılandırılacak bir öğe seçin"
 
 msgid "Select an option"
 msgstr "Bir seçenek seçin"
-
-msgid "Select approvers"
-msgstr ""
 
 msgid "Select Contact"
 msgstr "İletişim Kişisi Seçin"
@@ -10896,9 +10683,6 @@ msgstr "Tedarikçi listesinde, tedarikçi formlarında ve açılır menülerde o
 msgid "Show Customer IDs"
 msgstr "Müşteri Kimliklerini Göster"
 
-msgid "Show decision reason"
-msgstr ""
-
 msgid "Show Durations"
 msgstr "Süreleri Göster"
 
@@ -10955,9 +10739,6 @@ msgstr "Boyut"
 
 msgid "Sizes"
 msgstr "Boyutlar"
-
-msgid "Skip"
-msgstr ""
 
 msgid "Skip Existing"
 msgstr "Mevcut Olanı Atla"
@@ -11276,9 +11057,6 @@ msgstr "Anonim olarak gönder"
 msgid "Submit for approval"
 msgstr "Onay için gönder"
 
-msgid "Submit for Review"
-msgstr ""
-
 msgid "Submit Inspection"
 msgstr "Muayene Et"
 
@@ -11508,12 +11286,6 @@ msgstr "Çalışan türünü burada değiştirmek mevcut izinlerini değiştirme
 msgid "Sync"
 msgstr "Senkronize Et"
 
-msgid "Sync from Onshape"
-msgstr ""
-
-msgid "Sync from OnShape"
-msgstr ""
-
 msgid "System"
 msgstr "Sistem"
 
@@ -11576,9 +11348,6 @@ msgstr "Bir veya daha fazla öğeyi hedefleyin."
 
 msgid "Target Version"
 msgstr "Hedef Sürüm"
-
-msgid "Task"
-msgstr ""
 
 msgid "tasks"
 msgstr "görevler"
@@ -11657,9 +11426,6 @@ msgstr "Takım eğitildi"
 
 msgid "Temperature"
 msgstr "Sıcaklık"
-
-msgid "Template"
-msgstr ""
 
 msgid "Template ID"
 msgstr "Şablon Kimliği"
@@ -12127,9 +11893,6 @@ msgstr "Teknikerin bu bakım gerçekleştirildiğinde izlediği prosedür; krono
 msgid "The processes this work center can run; appears in process-pickers when scheduling operations, and limits which jobs can route through this work center."
 msgstr "Bu iş merkezinin çalıştırabileceği süreçler; işlem planlanırken işlem seçicilerinde görünür ve hangi işlerin bu iş merkezi aracılığıyla yönlendirilebileceğini sınırlar."
 
-msgid "The proposed revision is an exact copy of the current revision. Use “Edit proposed revision” above to redline its BOM/BOP."
-msgstr ""
-
 msgid "The quantity breakpoints this line is priced at; each column carries its own per-unit price for buyer–supplier negotiation and for converting to downstream documents."
 msgstr "Bu satırın fiyatlandırıldığı miktar kırılım noktaları; her sütun, alıcı-tedarikçi müzakere ve aşağı akış belgelere dönüştürme için kendi birim fiyatını taşır."
 
@@ -12370,9 +12133,6 @@ msgstr "Bu bilgiler belge başlıklarında kullanılacaktır"
 msgid "This information will be visible to all users, so be careful what you share."
 msgstr "Bu bilgiler tüm kullanıcılar tarafından görülecektir, bu yüzden ne paylaştığınıza dikkat edin."
 
-msgid "This is a configured object — its configuration will be imported."
-msgstr ""
-
 msgid "This is a unique identifier for the webhook"
 msgstr "Bu, web kancası için benzersiz bir tanımlayıcıdır"
 
@@ -12382,17 +12142,8 @@ msgstr "Bu, mali yılınızın başladığı aydır."
 msgid "This is the month your tax year starts."
 msgstr "Bu, vergi yılınızın başladığı aydır."
 
-msgid "This item has no proposed revision, so there is nothing to redline."
-msgstr ""
-
-msgid "This item has no proposed revision."
-msgstr ""
-
 msgid "This item is built via a configurator and resolves its components per-order; jobs created for it inherit the configurator's resolved BOM."
 msgstr "Bu öğe bir configuratör aracılığıyla oluşturulmuş ve bileşenlerini siparişe göre çözer; bunun için oluşturulan işler configuratörün çözülmüş BOM'unu devralır."
-
-msgid "This item is under change order"
-msgstr ""
 
 msgid "This item's bill of materials has no inputs with shelf-life enabled, so no expiry will be calculated from the BOM."
 msgstr "Bu ürünün malzeme listesindeki hiçbir bileşeni raf ömrü özelliğine sahip değil, bu nedenle BOM'dan bir son kullanma tarihi hesaplanmayacaktır."
@@ -13230,9 +12981,6 @@ msgstr "Öznitelikleri Görüntüle"
 msgid "View Certificate"
 msgstr "Sertifikayı Görüntüle"
 
-msgid "View Change Order"
-msgstr ""
-
 msgid "View Contact"
 msgstr "İletişim Bilgilerini Görüntüle"
 
@@ -13436,9 +13184,6 @@ msgstr "Gelen bir ürünü kontrol eden kişinin, onu alan kişiyle aynı olmas�
 
 msgid "Warning"
 msgstr "Uyarı"
-
-msgid "Warnings"
-msgstr ""
 
 msgid "Watch"
 msgstr "İzle"
@@ -13968,10 +13713,6 @@ msgstr "Bu ürünü siz aldınız"
 
 msgid "You received this lot"
 msgstr "Bu partiyi aldınız"
-
-#. placeholder {0}: entries.length
-msgid "you: {reviewedCount}/{0} reviewed"
-msgstr ""
 
 msgid "You're live on Carbon"
 msgstr "Carbon'da canlısınız"

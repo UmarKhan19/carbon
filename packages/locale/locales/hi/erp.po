@@ -38,10 +38,6 @@ msgstr "\"{taskName}\" पूरा हो गया — इसके सभी 
 msgid "(excluded for this customer)"
 msgstr "(इस ग्राहक के लिए बाहर रखा गया)"
 
-#. placeholder {0}: entries.length
-msgid "{0} affected items"
-msgstr ""
-
 #. placeholder {0}: ar.count
 msgid "{0} customers with a balance"
 msgstr "{0} ग्राहकों के साथ शेष"
@@ -58,10 +54,6 @@ msgstr "{0} सफलतापूर्वक हटाया गया"
 #. placeholder {0}: mappings.length
 msgid "{0} lines to map"
 msgstr "{0} लाइनें मैप करने के लिए"
-
-#. placeholder {0}: itemTotal - reviewedCount
-msgid "{0} not reviewed"
-msgstr ""
 
 #. placeholder {0}: history.length
 msgid "{0} orders"
@@ -192,9 +184,6 @@ msgstr "90 दिन"
 
 msgid "A Carbon-run data migration — you load your own data"
 msgstr "एक कार्बन-चलाया गया डेटा माइग्रेशन — आप अपना डेटा लोड करते हैं"
-
-msgid "A change order tracks engineering and manufacturing changes through review, approval, and release."
-msgstr ""
 
 msgid "A clearing account holding the value of goods received but not yet billed; the supplier invoice clears it."
 msgstr "एक क्लीयरिंग खाता जो प्राप्त किए गए लेकिन अभी तक चालान नहीं किए गए सामान का मूल्य रखता है; आपूर्तिकर्ता चालान इसे साफ करता है।"
@@ -333,9 +322,6 @@ msgstr "एक आपूर्तिकर्ता की खरीद RFQ क�
 
 msgid "A taxable surcharge (handling, setup, fuel) added to the line; rolls into the tax base."
 msgstr "एक कर योग्य अधिभार (हैंडलिंग, सेटअप, ईंधन) जो पंक्ति में जोड़ा जाता है और कर आधार में शामिल किया जाता है।"
-
-msgid "A template defines the preset values for a new change order — its priority, approval type, and default approvers."
-msgstr ""
 
 msgid "A timed record of Setup, Labor, or Machine work logged against a job operation, whose duration rolls up into the operation's actual cost."
 msgstr "एक समय-निर्धारित रिकॉर्ड जो किसी जॉब ऑपरेशन के विरुद्ध लॉग किए गए सेटअप, लेबर या मशीन कार्य का है, जिसकी अवधि ऑपरेशन की वास्तविक लागत में जोड़ी जाती है।"
@@ -568,12 +554,6 @@ msgstr "एक चरण जोड़ें"
 msgid "Add Actions"
 msgstr "कार्य जोड़ें"
 
-msgid "Add affected item"
-msgstr ""
-
-msgid "Add another approver"
-msgstr ""
-
 msgid "Add any notes about your decision..."
 msgstr "अपने निर्णय के बारे में कोई भी नोट्स जोड़ें..."
 
@@ -701,9 +681,6 @@ msgstr "ऐड-ऑन"
 msgid "Add-On Cost"
 msgstr "ऐड-ऑन लागत"
 
-msgid "Added"
-msgstr ""
-
 msgid "Added for this customer"
 msgstr "इस ग्राहक के लिए जोड़ा गया"
 
@@ -724,12 +701,6 @@ msgstr "समायोजन प्रकार"
 
 msgid "Advanced"
 msgstr "उन्नत"
-
-msgid "Affected Item"
-msgstr ""
-
-msgid "Affected Items"
-msgstr ""
 
 msgid "After"
 msgstr "के बाद"
@@ -961,17 +932,11 @@ msgstr "चालानों पर लागू करें"
 msgid "Approaching {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB cap."
 msgstr "{PO_EMAIL_ATTACHMENT_LIMIT_MB} MB सीमा के करीब पहुंच रहे हैं।"
 
-msgid "Approval"
-msgstr ""
-
 msgid "Approval Date"
 msgstr "अनुमोदन तारीख"
 
 msgid "Approval is required at or above this amount, up to the next rule's minimum"
 msgstr "इस राशि पर या इससे अधिक पर अनुमोदन आवश्यक है, अगले नियम की न्यूनतम राशि तक"
-
-msgid "Approval notes"
-msgstr ""
 
 msgid "Approval Requirements"
 msgstr "अनुमोदन आवश्यकताएं"
@@ -979,26 +944,11 @@ msgstr "अनुमोदन आवश्यकताएं"
 msgid "Approval Rules"
 msgstr "अनुमोदन नियम"
 
-msgid "Approval Type"
-msgstr ""
-
-msgid "Approvals"
-msgstr ""
-
 msgid "Approve"
 msgstr "मंजूरी दें"
 
-msgid "Approve Change Order"
-msgstr ""
-
-msgid "Approved"
-msgstr ""
-
 msgid "Approved By"
 msgstr "द्वारा अनुमोदित"
-
-msgid "Approvers"
-msgstr ""
 
 msgid "AQL"
 msgstr "AQL"
@@ -1281,12 +1231,6 @@ msgstr "क्या आप सुनिश्चित हैं कि आप 
 
 msgid "Are you sure you want to delete this approval rule? This cannot be undone."
 msgstr "क्या आप सुनिश्चित हैं कि आप इस अनुमोदन नियम को हटाना चाहते हैं? यह पूर्ववत नहीं किया जा सकता।"
-
-msgid "Are you sure you want to delete this change order template?"
-msgstr ""
-
-msgid "Are you sure you want to delete this change order?"
-msgstr ""
 
 msgid "Are you sure you want to delete this gauge?"
 msgstr "क्या आप सुनिश्चित हैं कि आप इस गेज को हटाना चाहते हैं?"
@@ -1684,9 +1628,6 @@ msgstr "बैच ट्रैकिंग"
 msgid "Batch Tracking"
 msgstr "बैच ट्रैकिंग"
 
-msgid "Before"
-msgstr ""
-
 #. placeholder {0}: successorItem.readableIdWithRevision
 msgid "Being phased out — successor: <0>{0}</0>"
 msgstr "चरणबद्ध रूप से बंद किया जा रहा है — उत्तराधिकारी: <0>{0}</0>"
@@ -2034,12 +1975,6 @@ msgstr "चैंपियन"
 msgid "Change"
 msgstr "बदलें"
 
-msgid "Change Order"
-msgstr ""
-
-msgid "Change Order Templates"
-msgstr ""
-
 msgid "Change Orders"
 msgstr ""
 
@@ -2052,19 +1987,11 @@ msgstr "आइटम प्रकार बदलें (जैसे भाग,
 msgid "Change Type"
 msgstr "प्रकार बदलें"
 
-msgid "Changed"
-msgstr ""
-
 msgid "Changed By"
 msgstr "द्वारा परिवर्तित"
 
 msgid "Changes"
 msgstr "परिवर्तन"
-
-#. placeholder {0}: changeOrder.changeOrderId
-#. placeholder {1}: changeOrder.status
-msgid "Changes are being tracked by <0>{0}</0> ({1})."
-msgstr ""
 
 msgid "Changing this will overwrite the existing method"
 msgstr "इसे बदलने से मौजूदा विधि अधिलेखित हो जाएगी"
@@ -2591,9 +2518,6 @@ msgstr "सभी आइटम और मूल्य निर्धारण �
 msgid "Copy API Key"
 msgstr "API Key कॉपी करें"
 
-msgid "Copy change order number"
-msgstr ""
-
 msgid "Copy company unique identifier"
 msgstr "कंपनी के अद्वितीय पहचानकर्ता की प्रतिलिपि बनाएं"
 
@@ -2626,9 +2550,6 @@ msgstr "जॉब नंबर कॉपी करें"
 
 msgid "Copy link"
 msgstr "लिंक कॉपी करें"
-
-msgid "Copy link to change order"
-msgstr ""
 
 msgid "Copy link to consumable"
 msgstr "उपभोग्य के लिए लिंक कॉपी करें"
@@ -2999,9 +2920,6 @@ msgstr "भंडारण प्रकार बनाया गया"
 #. placeholder {0}: created.name
 msgid "Created supplier: {0}"
 msgstr "आपूर्तिकर्ता बनाया गया: {0}"
-
-msgid "Created template"
-msgstr ""
 
 msgid "Created tool"
 msgstr "टूल बनाया गया"
@@ -3406,9 +3324,6 @@ msgstr "कर संबंधी लेनदेन के लिए डिफ�
 msgid "Default Approver"
 msgstr "डिफ़ॉल्ट अनुमोदक"
 
-msgid "Default Approvers"
-msgstr ""
-
 msgid "Default Attachments"
 msgstr "डिफ़ॉल्ट अटैचमेंट"
 
@@ -3519,9 +3434,6 @@ msgstr "विशेषता हटाएं"
 
 msgid "Delete Category"
 msgstr "श्रेणी हटाएं"
-
-msgid "Delete Change Order"
-msgstr ""
 
 msgid "Delete Consumable"
 msgstr "उपभोग्य हटाएं"
@@ -4313,9 +4225,6 @@ msgstr "उत्पादन प्रक्षेपण संपादित 
 msgid "Edit Production Quantity"
 msgstr "उत्पादन मात्रा संपादित करें"
 
-msgid "Edit proposed revision"
-msgstr ""
-
 msgid "Edit purchase order line type"
 msgstr "क्रय आदेश लाइन प्रकार संपादित करें"
 
@@ -4388,9 +4297,6 @@ msgstr "आपूर्तिकर्ता प्रक्रिया सं�
 msgid "Edit Supplier Type"
 msgstr "आपूर्तिकर्ता प्रकार संपादित करें"
 
-msgid "Edit Template"
-msgstr ""
-
 msgid "Edit the rule to remove the \"Applies to all\" flag"
 msgstr "नियम को संपादित करें \"सभी पर लागू करें\" फ़्लैग को हटाने के लिए"
 
@@ -4422,9 +4328,6 @@ msgid "Edit Work Center"
 msgstr "कार्य केंद्र संपादित करें"
 
 msgid "Editable draft; becomes Production when released."
-msgstr ""
-
-msgid "Effective Date"
 msgstr ""
 
 msgid "Effective From"
@@ -4549,9 +4452,6 @@ msgstr "एनगेजमेंट टियर"
 
 msgid "Engineering"
 msgstr "इंजीनियरिंग"
-
-msgid "Engineering Change"
-msgstr ""
 
 msgid "Engineering changes and CAD"
 msgstr "इंजीनियरिंग परिवर्तन और CAD"
@@ -5000,10 +4900,6 @@ msgstr "भंडारण प्रकार बनाने में वि�
 #. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create supplier: {0}"
 msgstr "आपूर्तिकर्ता बनाने में विफल: {0}"
-
-#. placeholder {0}: fetcher.data.error
-msgid "Failed to create template: {0}"
-msgstr ""
 
 #. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create tool: {0}"
@@ -5957,9 +5853,6 @@ msgstr "कार्यान्वयन नेता"
 msgid "Implementation Support"
 msgstr "कार्यान्वयन समर्थन"
 
-msgid "Import"
-msgstr ""
-
 msgid "Import {label} CSV"
 msgstr "{label} CSV आयात करें"
 
@@ -5968,9 +5861,6 @@ msgstr "आयात परिणाम"
 
 msgid "Import your BOM"
 msgstr "अपना BOM आयात करें"
-
-msgid "Imported into draft change order"
-msgstr ""
 
 msgid "In order to convert this RFQ to a quote, all lines must have an internal part number."
 msgstr "इस RFQ को उद्धरण में परिवर्तित करने के लिए, सभी पंक्तियों के पास एक आंतरिक भाग संख्या होनी चाहिए।"
@@ -6990,9 +6880,6 @@ msgstr "पूर्ण नहीं किया गया चिह्नि�
 msgid "Mark Partial"
 msgstr "आंशिक रूप से चिह्नित करें"
 
-msgid "Mark reviewed"
-msgstr ""
-
 msgid "Mark scope as agreed"
 msgstr "स्कोप को सहमत के रूप में चिह्नित करें"
 
@@ -7103,9 +6990,6 @@ msgstr "सामग्रियां"
 
 msgid "Materials"
 msgstr "सामग्री"
-
-msgid "Materials (BOM)"
-msgstr ""
 
 msgid "Max Qty"
 msgstr "अधिकतम मात्रा"
@@ -7336,9 +7220,6 @@ msgstr "MRP हर 3 घंटे में स्वचालित रूप �
 
 msgid "Must be in the same location"
 msgstr "एक ही स्थान में होना चाहिए"
-
-msgid "My Change Orders"
-msgstr ""
 
 msgid "My Documents"
 msgstr "मेरे दस्तावेज़"
@@ -7634,9 +7515,6 @@ msgstr "नया आपूर्तिकर्ता"
 msgid "New Supplier Part"
 msgstr "नया आपूर्तिकर्ता भाग"
 
-msgid "New Template"
-msgstr ""
-
 msgid "New Timecard"
 msgstr "नया टाइमकार्ड"
 
@@ -7732,17 +7610,8 @@ msgstr "कोई सक्रिय उद्धरण नहीं"
 msgid "No addresses found"
 msgstr "कोई पता नहीं मिला"
 
-msgid "No affected items to review yet."
-msgstr ""
-
-msgid "No affected items yet"
-msgstr ""
-
 msgid "No applications. Payment will be on-account."
 msgstr "कोई आवेदन नहीं। भुगतान खाते पर होगा।"
-
-msgid "No approvers yet. Add approvers in the Properties panel to route this change order for review."
-msgstr ""
 
 #. placeholder {0}: auditConfig.retentionDays
 msgid "No archived logs yet. Logs older than {0} days will be automatically archived and available for download here."
@@ -7762,12 +7631,6 @@ msgstr "कोई BOM इनपुट शेल्फ-लाइफ नीति 
 
 msgid "No calibration records found"
 msgstr "कोई अंशांकन रिकॉर्ड नहीं मिला"
-
-msgid "No changes"
-msgstr ""
-
-msgid "No changes proposed yet"
-msgstr ""
 
 msgid "No changes recorded"
 msgstr "कोई परिवर्तन दर्ज नहीं किया गया"
@@ -7865,9 +7728,6 @@ msgstr "\"{query}\" के लिए कोई मिलान नहीं। �
 msgid "No matches. Type to create one."
 msgstr ""
 
-msgid "No method changes between revisions."
-msgstr ""
-
 msgid "No new notifications"
 msgstr "कोई नई सूचनाएं नहीं"
 
@@ -7904,9 +7764,6 @@ msgstr "अभी तक कोई मूल स्रोत दर्ज नह
 msgid "No part ID"
 msgstr "कोई भाग ID नहीं"
 
-msgid "No Part Number"
-msgstr ""
-
 msgid "No payables"
 msgstr "कोई देय नहीं"
 
@@ -7939,9 +7796,6 @@ msgstr "कोई उद्धरण कारण नहीं"
 
 msgid "No receivables"
 msgstr "कोई प्राप्य नहीं"
-
-msgid "No released revisions in this document."
-msgstr ""
 
 msgid "No remaining entities to inspect."
 msgstr "निरीक्षण के लिए कोई शेष इकाई नहीं है।"
@@ -8156,9 +8010,6 @@ msgstr "एक काम के मार्ग में एक कदम, ए�
 msgid "One system from quote to cash"
 msgstr "उद्धरण से नकद तक एक प्रणाली"
 
-msgid "OnShape"
-msgstr ""
-
 msgid "Onshape Status"
 msgstr "Onshape स्थिति"
 
@@ -8185,9 +8036,6 @@ msgstr "खुला AR"
 
 msgid "Open Audit Log"
 msgstr "ऑडिट लॉग खोलें"
-
-msgid "Open change order"
-msgstr ""
 
 msgid "Open Date"
 msgstr "खुली तारीख"
@@ -8269,9 +8117,6 @@ msgstr "ऑपरेशन प्रकार"
 
 msgid "Operations"
 msgstr "संचालन"
-
-msgid "Operations (BOP)"
-msgstr ""
 
 msgid "Operations / steps"
 msgstr "संचालन / चरण"
@@ -8658,9 +8503,6 @@ msgstr "चुनें"
 
 msgid "Pick a column to sort by"
 msgstr "सॉर्ट करने के लिए एक कॉलम चुनें"
-
-msgid "Pick a connected document, then a released object to import into a draft change order."
-msgstr ""
 
 msgid "Pick a customer or customer type to view their pricing."
 msgstr "उनकी मूल्य निर्धारण देखने के लिए एक ग्राहक या ग्राहक प्रकार चुनें।"
@@ -9101,10 +8943,6 @@ msgstr "वादा की गई तारीख"
 msgid "Properties"
 msgstr "गुण"
 
-#. placeholder {0}: changeOrder.changeOrderId
-msgid "Proposed under change order {0}. Its method becomes active when the change order is released."
-msgstr ""
-
 msgid "Protect the go-live date"
 msgstr "गो-लाइव की तारीख की सुरक्षा करें"
 
@@ -9286,9 +9124,6 @@ msgstr "गुणवत्ता दस्तावेज़ अनुमोद�
 msgid "Quality Documents"
 msgstr "गुणवत्ता दस्तावेज़"
 
-msgid "Quality Issue"
-msgstr ""
-
 msgid "Quality Type"
 msgstr "गुणवत्ता प्रकार"
 
@@ -9458,9 +9293,6 @@ msgstr "कारण खाता"
 msgid "Reason for declining (Optional)"
 msgstr "अस्वीकार करने का कारण (वैकल्पिक)"
 
-msgid "Reason for rejection"
-msgstr ""
-
 msgid "Reasons"
 msgstr "कारणें"
 
@@ -9573,9 +9405,6 @@ msgstr "एक भाग और एक कार्य से जुड़े �
 msgid "Record the inspection result for this sample."
 msgstr "इस नमूने के लिए निरीक्षण परिणाम दर्ज करें।"
 
-msgid "Record your approval. Add a note for the audit trail."
-msgstr ""
-
 msgid "Recorded that follow-up is needed after this calibration; surfaces this gauge on the open-actions queue."
 msgstr "दर्ज किया गया कि इस अंशांकन के बाद अनुवर्ती कार्रवाई की आवश्यकता है; खुली कार्रवाइयों की कतार में इस गेज को सामने लाता है।"
 
@@ -9618,9 +9447,6 @@ msgstr "पुन: आदेश बिंदु"
 msgid "Reject"
 msgstr "अस्वीकार करें"
 
-msgid "Reject Change Order"
-msgstr ""
-
 msgid "Reject Lot"
 msgstr "लॉट को अस्वीकार करें"
 
@@ -9636,9 +9462,6 @@ msgstr "द्वारा अस्वीकृत"
 msgid "Rejected Date"
 msgstr "अस्वीकृत तारीख"
 
-msgid "Rejecting returns the change order to Draft and resets all reviewers. Explain what needs to change."
-msgstr ""
-
 msgid "Relabels the hub and frames the deal."
 msgstr "हब को फिर से लेबल करता है और डील को फ्रेम करता है।"
 
@@ -9650,12 +9473,6 @@ msgstr "सापेक्ष समयरेखा · तारीखें प
 
 msgid "Release"
 msgstr "रिलीज़"
-
-msgid "Release {sourceId}"
-msgstr ""
-
-msgid "Release blocked"
-msgstr ""
 
 msgid "Release control"
 msgstr ""
@@ -9670,9 +9487,6 @@ msgid "Released"
 msgstr "जारी किया गया"
 
 msgid "Released and locked; change via a change order."
-msgstr ""
-
-msgid "Released Object"
 msgstr ""
 
 msgid "Released revision"
@@ -9709,9 +9523,6 @@ msgstr "फ़िल्टर हटाएं"
 msgid "Remove Filters"
 msgstr "फ़िल्टर हटाएं"
 
-msgid "Remove from change order"
-msgstr ""
-
 msgid "Remove from Price List"
 msgstr "मूल्य सूची से हटाएं"
 
@@ -9729,9 +9540,6 @@ msgstr "कॉलम द्वारा सॉर्ट हटाएं"
 
 msgid "Remove this storage type from all referencing storage units and delete it. This cannot be undone."
 msgstr "इस स्टोरेज प्रकार को सभी संदर्भित स्टोरेज इकाइयों से हटाएं और इसे हटाएं। यह पूर्ववत नहीं किया जा सकता।"
-
-msgid "Removed"
-msgstr ""
 
 msgid "Rendering label preview..."
 msgstr "लेबल पूर्वावलोकन प्रस्तुत किया जा रहा है..."
@@ -9947,18 +9755,6 @@ msgstr "रिवर्स चार्ज बिक्रय कर (डिफ�
 
 msgid "Reverse the related journal entries"
 msgstr "संबंधित जर्नल प्रविष्टियों को उलट दें"
-
-msgid "Review all changes"
-msgstr ""
-
-msgid "reviewed"
-msgstr ""
-
-msgid "Reviewed"
-msgstr ""
-
-msgid "Reviewers"
-msgstr ""
 
 msgid "Revision"
 msgstr "संस्करण"
@@ -10410,12 +10206,6 @@ msgstr "एक असाइनी चुनें"
 msgid "Select a default approver"
 msgstr "एक डिफ़ॉल्ट अनुमोदक चुनें"
 
-msgid "Select a document"
-msgstr ""
-
-msgid "Select a document to list released objects."
-msgstr ""
-
 msgid "Select a new owner"
 msgstr "एक नया मालिक चुनें"
 
@@ -10461,9 +10251,6 @@ msgstr "कॉन्फ़िगर करने के लिए एक आइ�
 
 msgid "Select an option"
 msgstr "एक विकल्प चुनें"
-
-msgid "Select approvers"
-msgstr ""
 
 msgid "Select Contact"
 msgstr "संपर्क चुनें"
@@ -10896,9 +10683,6 @@ msgstr "आपूर्तिकर्ता सूची, आपूर्ति
 msgid "Show Customer IDs"
 msgstr "ग्राहक आईडी दिखाएं"
 
-msgid "Show decision reason"
-msgstr ""
-
 msgid "Show Durations"
 msgstr "अवधि दिखाएं"
 
@@ -10955,9 +10739,6 @@ msgstr "आकार"
 
 msgid "Sizes"
 msgstr "आकार"
-
-msgid "Skip"
-msgstr ""
 
 msgid "Skip Existing"
 msgstr "मौजूदा को छोड़ें"
@@ -11276,9 +11057,6 @@ msgstr "गुमनाम रूप से सबमिट करें"
 msgid "Submit for approval"
 msgstr "अनुमोदन के लिए सबमिट करें"
 
-msgid "Submit for Review"
-msgstr ""
-
 msgid "Submit Inspection"
 msgstr "निरीक्षण जमा करें"
 
@@ -11508,12 +11286,6 @@ msgstr "यहां कर्मचारी के प्रकार को �
 msgid "Sync"
 msgstr "सिंक करें"
 
-msgid "Sync from Onshape"
-msgstr ""
-
-msgid "Sync from OnShape"
-msgstr ""
-
 msgid "System"
 msgstr "सिस्टम"
 
@@ -11576,9 +11348,6 @@ msgstr "लक्ष्य संस्करण"
 
 msgid "Target Version"
 msgstr "लक्ष्य संस्करण"
-
-msgid "Task"
-msgstr ""
 
 msgid "tasks"
 msgstr "कार्य"
@@ -11657,9 +11426,6 @@ msgstr "टीम प्रशिक्षित"
 
 msgid "Temperature"
 msgstr "तापमान"
-
-msgid "Template"
-msgstr ""
 
 msgid "Template ID"
 msgstr "टेम्पलेट आईडी"
@@ -12127,9 +11893,6 @@ msgstr "प्रक्रिया जो तकनीशियन इस र�
 msgid "The processes this work center can run; appears in process-pickers when scheduling operations, and limits which jobs can route through this work center."
 msgstr "प्रक्रियाएं जो यह कार्य केंद्र चला सकता है; संचालन निर्धारण करते समय प्रक्रिया-पिकर्स में दिखाई देता है, और इस कार्य केंद्र के माध्यम से कौन से नौकरियां रूट कर सकती हैं।"
 
-msgid "The proposed revision is an exact copy of the current revision. Use “Edit proposed revision” above to redline its BOM/BOP."
-msgstr ""
-
 msgid "The quantity breakpoints this line is priced at; each column carries its own per-unit price for buyer–supplier negotiation and for converting to downstream documents."
 msgstr "मात्रा विभाजन बिंदु जिन पर इस पंक्ति की कीमत है; प्रत्येक कॉलम क्रेता-आपूर्तिकर्ता बातचीत और डाउनस्ट्रीम दस्तावेजों में परिवर्तित करने के लिए अपनी स्वयं की प्रति-यूनिट कीमत रखता है।"
 
@@ -12370,9 +12133,6 @@ msgstr "यह जानकारी दस्तावेज़ शीर्ष
 msgid "This information will be visible to all users, so be careful what you share."
 msgstr "यह जानकारी सभी उपयोगकर्ताओं को दिखाई देगी, इसलिए सावधान रहें कि आप क्या साझा करते हैं।"
 
-msgid "This is a configured object — its configuration will be imported."
-msgstr ""
-
 msgid "This is a unique identifier for the webhook"
 msgstr "यह वेबहुक के लिए एक अद्वितीय पहचानकर्ता है"
 
@@ -12382,17 +12142,8 @@ msgstr "यह वह महीना है जब आपका वित्त
 msgid "This is the month your tax year starts."
 msgstr "यह वह महीना है जब आपका कर वर्ष शुरू होता है।"
 
-msgid "This item has no proposed revision, so there is nothing to redline."
-msgstr ""
-
-msgid "This item has no proposed revision."
-msgstr ""
-
 msgid "This item is built via a configurator and resolves its components per-order; jobs created for it inherit the configurator's resolved BOM."
 msgstr "इस आइटम को एक कॉन्फ़िगरेटर के माध्यम से बनाया जाता है और प्रति-आदेश अपने घटकों को हल करता है; इसके लिए बनाई गई नौकरियां कॉन्फ़िगरेटर के हल बिल को विरासत में पाती हैं।"
-
-msgid "This item is under change order"
-msgstr ""
 
 msgid "This item's bill of materials has no inputs with shelf-life enabled, so no expiry will be calculated from the BOM."
 msgstr "इस आइटम के बिल ऑफ मेटेरियल्स में शेल्फ-लाइफ सक्षम इनपुट नहीं हैं, इसलिए BOM से कोई एक्सपायरी की गणना नहीं की जाएगी।"
@@ -13230,9 +12981,6 @@ msgstr "विशेषताएं देखें"
 msgid "View Certificate"
 msgstr "प्रमाणपत्र देखें"
 
-msgid "View Change Order"
-msgstr ""
-
 msgid "View Contact"
 msgstr "संपर्क देखें"
 
@@ -13436,9 +13184,6 @@ msgstr "चेतावनी दें जब आने वाली वस्�
 
 msgid "Warning"
 msgstr "चेतावनी"
-
-msgid "Warnings"
-msgstr ""
 
 msgid "Watch"
 msgstr "देखें"
@@ -13968,10 +13713,6 @@ msgstr "आपने यह आइटम प्राप्त किया"
 
 msgid "You received this lot"
 msgstr "आपने यह लॉट प्राप्त किया"
-
-#. placeholder {0}: entries.length
-msgid "you: {reviewedCount}/{0} reviewed"
-msgstr ""
 
 msgid "You're live on Carbon"
 msgstr "आप Carbon पर लाइव हैं"
