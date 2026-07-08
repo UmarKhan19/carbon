@@ -118,10 +118,10 @@ msgid "{total} phases to go live"
 msgstr "{total} 个阶段即可上线"
 
 msgid "{uncounted, plural, one {# uncounted line} other {# uncounted lines}}"
-msgstr ""
+msgstr "{uncounted, plural, one {# 未计数行} other {# 未计数行}}"
 
 msgid "{variances, plural, one {# line differs from the expected quantity} other {# lines differ from the expected quantity}}"
-msgstr ""
+msgstr "{variances, plural, one {# 行与预期数量不同} other {# 行与预期数量不同}}"
 
 msgid "/month/user"
 msgstr "/月/用户"
@@ -742,7 +742,7 @@ msgid "All Documents"
 msgstr "所有文档"
 
 msgid "All item types"
-msgstr ""
+msgstr "所有项目类型"
 
 msgid "All Items"
 msgstr "所有项目"
@@ -1605,7 +1605,7 @@ msgid "Batch"
 msgstr "批次"
 
 msgid "Batch / Serial"
-msgstr ""
+msgstr "批次 / 序列号"
 
 msgid "Batch items require a sales order"
 msgstr "批次项目需要销售订单"
@@ -1663,7 +1663,7 @@ msgid "Bills of material"
 msgstr "物料清单"
 
 msgid "Blind Count"
-msgstr ""
+msgstr "盲点库存"
 
 msgid "Block with an error"
 msgstr "用错误阻止"
@@ -2320,7 +2320,7 @@ msgid "Confirm and sign the scope"
 msgstr "确认并签署范围"
 
 msgid "Confirm Count"
-msgstr ""
+msgstr "确认盘点"
 
 msgid "Confirm how your company runs and lock the scope."
 msgstr "确认您的公司如何运营并锁定范围。"
@@ -2332,7 +2332,7 @@ msgid "Confirm Import"
 msgstr "确认导入"
 
 msgid "Confirm Inventory Count"
-msgstr ""
+msgstr "确认库存盘点"
 
 msgid "Confirm Mapping"
 msgstr "确认映射"
@@ -2347,7 +2347,7 @@ msgid "Confirmed outgoing stock — sales orders & job materials (bars below zer
 msgstr "确认的出库存货 — 销售订单和工作物料（零以下的条形图）。"
 
 msgid "Confirming locks the counted quantities. Review the warnings below, then post the count to apply the adjustments."
-msgstr ""
+msgstr "确认将锁定计数数量。查看下面的警告，然后发布计数以应用调整。"
 
 msgid "Connect Carbon to your accounting, project management, and CAD tools and much more."
 msgstr "将 Carbon 连接到您的会计、项目管理和 CAD 工具等更多应用。"
@@ -2697,10 +2697,10 @@ msgid "Count"
 msgstr "数量"
 
 msgid "Count ID"
-msgstr ""
+msgstr "盘点ID"
 
 msgid "Counted Qty"
-msgstr ""
+msgstr "已计数数量"
 
 msgid "Counterparties"
 msgstr "交易对手"
@@ -2724,7 +2724,7 @@ msgid "Create {0} values"
 msgstr "创建 {0} 个值"
 
 msgid "Create & Snapshot"
-msgstr ""
+msgstr "创建并快照"
 
 msgid "Create a new kanban card for scan-based replenishment."
 msgstr "为扫描式补货创建新的看板卡。"
@@ -3423,7 +3423,7 @@ msgid "Delete Contractor"
 msgstr "删除承包商"
 
 msgid "Delete Count"
-msgstr ""
+msgstr "删除计数"
 
 msgid "Delete Custom Field"
 msgstr "删除自定义字段"
@@ -4050,7 +4050,7 @@ msgid "Edit Contractor"
 msgstr "编辑承包商"
 
 msgid "Edit Count"
-msgstr ""
+msgstr "编辑计数"
 
 msgid "Edit Currency"
 msgstr "编辑货币"
@@ -4996,7 +4996,7 @@ msgid "Failed to update configuration parameter"
 msgstr "更新配置参数失败"
 
 msgid "Failed to update count"
-msgstr ""
+msgstr "更新计数失败"
 
 msgid "Failed to update item cost"
 msgstr "更新项目成本失败"
@@ -5590,7 +5590,7 @@ msgid "Hide"
 msgstr "隐藏"
 
 msgid "Hide system quantities until the review step"
-msgstr ""
+msgstr "隐藏系统数量直到审核步骤"
 
 msgid "Hide, pin and reorder columns"
 msgstr "隐藏、固定和重新排序列"
@@ -6061,7 +6061,7 @@ msgid "Inventory control and counts"
 msgstr "库存控制和盘点"
 
 msgid "Inventory Count"
-msgstr ""
+msgstr "库存盘点"
 
 msgid "Inventory History"
 msgstr "库存历史"
@@ -6256,7 +6256,7 @@ msgid "Item Type"
 msgstr "物品类型"
 
 msgid "Item Type (optional)"
-msgstr ""
+msgstr "物品类型（可选）"
 
 msgid "Item types"
 msgstr "物品类型"
@@ -6514,7 +6514,7 @@ msgid "Linear Team"
 msgstr "Linear 团队"
 
 msgid "Lines"
-msgstr ""
+msgstr "行"
 
 msgid "Lines need internal part numbers"
 msgstr "行需要内部零件号"
@@ -7321,7 +7321,7 @@ msgid "New Inspection Document"
 msgstr "新检验文件"
 
 msgid "New Inventory Count"
-msgstr ""
+msgstr "新库存盘点"
 
 msgid "New Invoice"
 msgstr "新发票"
@@ -8628,7 +8628,7 @@ msgid "Posted"
 msgstr "已发布"
 
 msgid "Posted At"
-msgstr ""
+msgstr "发布于"
 
 msgid "Posted By"
 msgstr "发布者"
@@ -9255,7 +9255,7 @@ msgid "Recalculate Unit Cost"
 msgstr "重新计算单位成本"
 
 msgid "Recalculating…"
-msgstr ""
+msgstr "重新计算中…"
 
 msgid "Receipt"
 msgstr "收据"
@@ -10941,7 +10941,7 @@ msgid "Storage Unit"
 msgstr "存储单位"
 
 msgid "Storage Unit (optional)"
-msgstr ""
+msgstr "存储单位（可选）"
 
 msgid "storage units"
 msgstr "存储单位"
@@ -11221,7 +11221,7 @@ msgid "System configured"
 msgstr "系统已配置"
 
 msgid "System Qty"
-msgstr ""
+msgstr "系统数量"
 
 msgid "Table"
 msgstr "表"
@@ -12492,7 +12492,7 @@ msgid "Unballoon"
 msgstr "取消气球标注"
 
 msgid "Uncounted lines are left unchanged at post — they are not zeroed."
-msgstr ""
+msgstr "未计数的行在过账时保持不变——它们不会被清零。"
 
 msgid "Under Demand-Based Reorder, planning sums demand inside this rolling window when computing a replenishment quantity."
 msgstr "在基于需求的重新订购下，规划在计算补充数量时对此滚动窗口内的需求求和。"
@@ -12910,7 +12910,7 @@ msgid "View Contained Issues"
 msgstr "查看已遏制的问题"
 
 msgid "View Count"
-msgstr ""
+msgstr "查看计数"
 
 msgid "View Custom Fields"
 msgstr "查看自定义字段"
@@ -12949,7 +12949,7 @@ msgid "View missing values"
 msgstr "查看缺失值"
 
 msgid "View notes"
-msgstr ""
+msgstr "查看备注"
 
 msgid "View Open"
 msgstr "查看开放"

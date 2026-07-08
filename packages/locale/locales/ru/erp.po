@@ -118,10 +118,10 @@ msgid "{total} phases to go live"
 msgstr "{total} этапов до запуска"
 
 msgid "{uncounted, plural, one {# uncounted line} other {# uncounted lines}}"
-msgstr ""
+msgstr "{uncounted, plural, one {# непосчитанная строка} other {# непосчитанные строки}}"
 
 msgid "{variances, plural, one {# line differs from the expected quantity} other {# lines differ from the expected quantity}}"
-msgstr ""
+msgstr "{variances, plural, one {# строка отличается от ожидаемого количества} other {# строк отличаются от ожидаемого количества}}"
 
 msgid "/month/user"
 msgstr "/месяц/пользователь"
@@ -742,7 +742,7 @@ msgid "All Documents"
 msgstr "Все документы"
 
 msgid "All item types"
-msgstr ""
+msgstr "Все типы товаров"
 
 msgid "All Items"
 msgstr "Все элементы"
@@ -1605,7 +1605,7 @@ msgid "Batch"
 msgstr "Партия"
 
 msgid "Batch / Serial"
-msgstr ""
+msgstr "Партия / Серийный номер"
 
 msgid "Batch items require a sales order"
 msgstr "Товары партии требуют заказ на продажу"
@@ -1663,7 +1663,7 @@ msgid "Bills of material"
 msgstr "Спецификации материалов"
 
 msgid "Blind Count"
-msgstr ""
+msgstr "Слепой подсчет"
 
 msgid "Block with an error"
 msgstr "Заблокировать с ошибкой"
@@ -2320,7 +2320,7 @@ msgid "Confirm and sign the scope"
 msgstr "Подтвердите и подпишите объем работ"
 
 msgid "Confirm Count"
-msgstr ""
+msgstr "Подтвердить подсчет"
 
 msgid "Confirm how your company runs and lock the scope."
 msgstr "Подтвердите, как работает ваша компания, и зафиксируйте область охвата."
@@ -2332,7 +2332,7 @@ msgid "Confirm Import"
 msgstr "Подтвердить импорт"
 
 msgid "Confirm Inventory Count"
-msgstr ""
+msgstr "Подтвердить инвентаризацию"
 
 msgid "Confirm Mapping"
 msgstr "Подтвердить сопоставление"
@@ -2347,7 +2347,7 @@ msgid "Confirmed outgoing stock — sales orders & job materials (bars below zer
 msgstr "Подтвержденный исходящий запас — заказы на продажу и материалы работ (столбцы ниже нуля)."
 
 msgid "Confirming locks the counted quantities. Review the warnings below, then post the count to apply the adjustments."
-msgstr ""
+msgstr "Подтверждение блокирует подсчитанные количества. Проверьте предупреждения ниже, а затем опубликуйте подсчет, чтобы применить корректировки."
 
 msgid "Connect Carbon to your accounting, project management, and CAD tools and much more."
 msgstr "Подключите Carbon к своим инструментам бухгалтерского учета, управления проектами, CAD и многому другому."
@@ -2697,10 +2697,10 @@ msgid "Count"
 msgstr "Количество"
 
 msgid "Count ID"
-msgstr ""
+msgstr "ID подсчета"
 
 msgid "Counted Qty"
-msgstr ""
+msgstr "Подсчитанное кол-во"
 
 msgid "Counterparties"
 msgstr "Контрагенты"
@@ -2724,7 +2724,7 @@ msgid "Create {0} values"
 msgstr "Создать {0} значений"
 
 msgid "Create & Snapshot"
-msgstr ""
+msgstr "Создать и снимок"
 
 msgid "Create a new kanban card for scan-based replenishment."
 msgstr "Создайте новую карточку канбана для пополнения на основе сканирования."
@@ -3423,7 +3423,7 @@ msgid "Delete Contractor"
 msgstr "Удалить подрядчика"
 
 msgid "Delete Count"
-msgstr ""
+msgstr "Удалить подсчет"
 
 msgid "Delete Custom Field"
 msgstr "Удалить пользовательское поле"
@@ -4050,7 +4050,7 @@ msgid "Edit Contractor"
 msgstr "Редактировать подрядчика"
 
 msgid "Edit Count"
-msgstr ""
+msgstr "Редактировать подсчет"
 
 msgid "Edit Currency"
 msgstr "Редактировать валюту"
@@ -4996,7 +4996,7 @@ msgid "Failed to update configuration parameter"
 msgstr "Ошибка при обновлении параметра конфигурации"
 
 msgid "Failed to update count"
-msgstr ""
+msgstr "Ошибка обновления подсчета"
 
 msgid "Failed to update item cost"
 msgstr "Не удалось обновить стоимость товара"
@@ -5590,7 +5590,7 @@ msgid "Hide"
 msgstr "Скрыть"
 
 msgid "Hide system quantities until the review step"
-msgstr ""
+msgstr "Скрыть системные количества до этапа проверки"
 
 msgid "Hide, pin and reorder columns"
 msgstr "Скрывать, закреплять и переупорядочивать столбцы"
@@ -6061,7 +6061,7 @@ msgid "Inventory control and counts"
 msgstr "Контроль и учет запасов"
 
 msgid "Inventory Count"
-msgstr ""
+msgstr "Инвентаризация"
 
 msgid "Inventory History"
 msgstr "История инвентаря"
@@ -6256,7 +6256,7 @@ msgid "Item Type"
 msgstr "Тип товара"
 
 msgid "Item Type (optional)"
-msgstr ""
+msgstr "Тип товара (опционально)"
 
 msgid "Item types"
 msgstr "Типы товаров"
@@ -6514,7 +6514,7 @@ msgid "Linear Team"
 msgstr "Команда Linear"
 
 msgid "Lines"
-msgstr ""
+msgstr "Строки"
 
 msgid "Lines need internal part numbers"
 msgstr "Строки требуют внутренние номера деталей"
@@ -7321,7 +7321,7 @@ msgid "New Inspection Document"
 msgstr "Новый документ проверки"
 
 msgid "New Inventory Count"
-msgstr ""
+msgstr "Новый подсчет инвентаря"
 
 msgid "New Invoice"
 msgstr "Новый счет"
@@ -8628,7 +8628,7 @@ msgid "Posted"
 msgstr "Опубликовано"
 
 msgid "Posted At"
-msgstr ""
+msgstr "Опубликовано в"
 
 msgid "Posted By"
 msgstr "Опубликовано"
@@ -9255,7 +9255,7 @@ msgid "Recalculate Unit Cost"
 msgstr "Пересчитать себестоимость единицы"
 
 msgid "Recalculating…"
-msgstr ""
+msgstr "Пересчет…"
 
 msgid "Receipt"
 msgstr "Квитанция"
@@ -10941,7 +10941,7 @@ msgid "Storage Unit"
 msgstr "Единица хранения"
 
 msgid "Storage Unit (optional)"
-msgstr ""
+msgstr "Единица хранения (опционально)"
 
 msgid "storage units"
 msgstr "единицы хранения"
@@ -11221,7 +11221,7 @@ msgid "System configured"
 msgstr "Система настроена"
 
 msgid "System Qty"
-msgstr ""
+msgstr "Системное кол-во"
 
 msgid "Table"
 msgstr "Таблица"
@@ -12492,7 +12492,7 @@ msgid "Unballoon"
 msgstr "Удалить выноску"
 
 msgid "Uncounted lines are left unchanged at post — they are not zeroed."
-msgstr ""
+msgstr "Неучтённые строки остаются неизменными при отправке — они не обнуляются."
 
 msgid "Under Demand-Based Reorder, planning sums demand inside this rolling window when computing a replenishment quantity."
 msgstr "При переупорядочении на основе спроса планирование суммирует спрос в пределах этого скользящего окна при расчете количества пополнения."
@@ -12910,7 +12910,7 @@ msgid "View Contained Issues"
 msgstr "Просмотреть содержащиеся проблемы"
 
 msgid "View Count"
-msgstr ""
+msgstr "Просмотр подсчета"
 
 msgid "View Custom Fields"
 msgstr "Просмотр пользовательских полей"
@@ -12949,7 +12949,7 @@ msgid "View missing values"
 msgstr "Просмотреть отсутствующие значения"
 
 msgid "View notes"
-msgstr ""
+msgstr "Просмотр заметок"
 
 msgid "View Open"
 msgstr "Просмотреть открытые"

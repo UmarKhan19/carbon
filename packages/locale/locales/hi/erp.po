@@ -118,10 +118,10 @@ msgid "{total} phases to go live"
 msgstr "{total} चरण लाइव होने के लिए"
 
 msgid "{uncounted, plural, one {# uncounted line} other {# uncounted lines}}"
-msgstr ""
+msgstr "{uncounted, plural, one {# अनगिनती लाइन} other {# अनगिनती लाइनें}}"
 
 msgid "{variances, plural, one {# line differs from the expected quantity} other {# lines differ from the expected quantity}}"
-msgstr ""
+msgstr "{variances, plural, one {# लाइन अपेक्षित मात्रा से भिन्न है} other {# लाइनें अपेक्षित मात्रा से भिन्न हैं}}"
 
 msgid "/month/user"
 msgstr "/माह/उपयोगकर्ता"
@@ -742,7 +742,7 @@ msgid "All Documents"
 msgstr "सभी दस्तावेज़"
 
 msgid "All item types"
-msgstr ""
+msgstr "सभी आइटम प्रकार"
 
 msgid "All Items"
 msgstr "सभी आइटम"
@@ -1605,7 +1605,7 @@ msgid "Batch"
 msgstr "बैच"
 
 msgid "Batch / Serial"
-msgstr ""
+msgstr "बैच / सीरीज़"
 
 msgid "Batch items require a sales order"
 msgstr "बैच आइटम के लिए बिक्री आदेश आवश्यक है"
@@ -1663,7 +1663,7 @@ msgid "Bills of material"
 msgstr "सामग्री के बिल"
 
 msgid "Blind Count"
-msgstr ""
+msgstr "ब्लाइंड काउंट"
 
 msgid "Block with an error"
 msgstr "त्रुटि के साथ ब्लॉक करें"
@@ -2320,7 +2320,7 @@ msgid "Confirm and sign the scope"
 msgstr "स्कोप की पुष्टि करें और हस्ताक्षर करें"
 
 msgid "Confirm Count"
-msgstr ""
+msgstr "गणना की पुष्टि करें"
 
 msgid "Confirm how your company runs and lock the scope."
 msgstr "अपनी कंपनी कैसे चलती है यह पुष्टि करें और स्कोप को लॉक करें।"
@@ -2332,7 +2332,7 @@ msgid "Confirm Import"
 msgstr "आयात की पुष्टि करें"
 
 msgid "Confirm Inventory Count"
-msgstr ""
+msgstr "इन्वेंटरी गणना की पुष्टि करें"
 
 msgid "Confirm Mapping"
 msgstr "मैपिंग की पुष्टि करें"
@@ -2347,7 +2347,7 @@ msgid "Confirmed outgoing stock — sales orders & job materials (bars below zer
 msgstr "पुष्टि की गई आने वाली स्टॉक — बिक्री आदेश और नौकरी सामग्री (बार शून्य से नीचे)।"
 
 msgid "Confirming locks the counted quantities. Review the warnings below, then post the count to apply the adjustments."
-msgstr ""
+msgstr "पुष्टि करने से गिनी गई मात्राएं लॉक हो जाती हैं। नीचे दी गई चेतावनियों की समीक्षा करें, फिर समायोजन लागू करने के लिए गणना पोस्ट करें।"
 
 msgid "Connect Carbon to your accounting, project management, and CAD tools and much more."
 msgstr "Carbon को अपने लेखांकन, परियोजना प्रबंधन, और CAD उपकरणों और बहुत कुछ से जोड़ें।"
@@ -2697,10 +2697,10 @@ msgid "Count"
 msgstr "गिनती"
 
 msgid "Count ID"
-msgstr ""
+msgstr "गणना आईडी"
 
 msgid "Counted Qty"
-msgstr ""
+msgstr "गिनी गई मात्रा"
 
 msgid "Counterparties"
 msgstr "प्रतिपक्ष"
@@ -2724,7 +2724,7 @@ msgid "Create {0} values"
 msgstr "{0} मान बनाएं"
 
 msgid "Create & Snapshot"
-msgstr ""
+msgstr "बनाएं और स्नैपशॉट लें"
 
 msgid "Create a new kanban card for scan-based replenishment."
 msgstr "स्कैन-आधारित पुनःपूर्ति के लिए एक नया कानबन कार्ड बनाएं।"
@@ -3423,7 +3423,7 @@ msgid "Delete Contractor"
 msgstr "ठेकेदार हटाएं"
 
 msgid "Delete Count"
-msgstr ""
+msgstr "गणना हटाएं"
 
 msgid "Delete Custom Field"
 msgstr "कस्टम फील्ड हटाएं"
@@ -4050,7 +4050,7 @@ msgid "Edit Contractor"
 msgstr "ठेकेदार संपादित करें"
 
 msgid "Edit Count"
-msgstr ""
+msgstr "गणना संपादित करें"
 
 msgid "Edit Currency"
 msgstr "मुद्रा संपादित करें"
@@ -4996,7 +4996,7 @@ msgid "Failed to update configuration parameter"
 msgstr "कॉन्फ़िगरेशन पैरामीटर को अपडेट करने में विफल"
 
 msgid "Failed to update count"
-msgstr ""
+msgstr "गिनती अपडेट करने में विफल"
 
 msgid "Failed to update item cost"
 msgstr "आइटम लागत अपडेट करने में विफल"
@@ -5590,7 +5590,7 @@ msgid "Hide"
 msgstr "छिपाएं"
 
 msgid "Hide system quantities until the review step"
-msgstr ""
+msgstr "समीक्षा चरण तक सिस्टम मात्रा को छिपाएं"
 
 msgid "Hide, pin and reorder columns"
 msgstr "कॉलम को छिपाएं, पिन करें और पुनः क्रमित करें"
@@ -6061,7 +6061,7 @@ msgid "Inventory control and counts"
 msgstr "इन्वेंटरी नियंत्रण और गणना"
 
 msgid "Inventory Count"
-msgstr ""
+msgstr "इन्वेंटरी काउंट"
 
 msgid "Inventory History"
 msgstr "इन्वेंटरी इतिहास"
@@ -6256,7 +6256,7 @@ msgid "Item Type"
 msgstr "आइटम प्रकार"
 
 msgid "Item Type (optional)"
-msgstr ""
+msgstr "आइटम प्रकार (वैकल्पिक)"
 
 msgid "Item types"
 msgstr "आइटम प्रकार"
@@ -6514,7 +6514,7 @@ msgid "Linear Team"
 msgstr "Linear Team"
 
 msgid "Lines"
-msgstr ""
+msgstr "पंक्तियाँ"
 
 msgid "Lines need internal part numbers"
 msgstr "लाइनों को आंतरिक भाग संख्याओं की आवश्यकता है"
@@ -7321,7 +7321,7 @@ msgid "New Inspection Document"
 msgstr "नया निरीक्षण दस्तावेज़"
 
 msgid "New Inventory Count"
-msgstr ""
+msgstr "नई इन्वेंटरी गणना"
 
 msgid "New Invoice"
 msgstr "नया चालान"
@@ -8628,7 +8628,7 @@ msgid "Posted"
 msgstr "पोस्ट किया गया"
 
 msgid "Posted At"
-msgstr ""
+msgstr "पोस्ट किया गया"
 
 msgid "Posted By"
 msgstr "द्वारा पोस्ट किया गया"
@@ -9255,7 +9255,7 @@ msgid "Recalculate Unit Cost"
 msgstr "यूनिट कॉस्ट की पुनः गणना करें"
 
 msgid "Recalculating…"
-msgstr ""
+msgstr "पुनः गणना की जा रही है…"
 
 msgid "Receipt"
 msgstr "रसीद"
@@ -10941,7 +10941,7 @@ msgid "Storage Unit"
 msgstr "भंडारण इकाई"
 
 msgid "Storage Unit (optional)"
-msgstr ""
+msgstr "स्टोरेज यूनिट (वैकल्पिक)"
 
 msgid "storage units"
 msgstr "भंडारण इकाइयां"
@@ -11221,7 +11221,7 @@ msgid "System configured"
 msgstr "सिस्टम कॉन्फ़िगर किया गया"
 
 msgid "System Qty"
-msgstr ""
+msgstr "सिस्टम मात्रा"
 
 msgid "Table"
 msgstr "तालिका"
@@ -12492,7 +12492,7 @@ msgid "Unballoon"
 msgstr "गुब्बारा हटाएं"
 
 msgid "Uncounted lines are left unchanged at post — they are not zeroed."
-msgstr ""
+msgstr "गिनती न किए गए लाइनें पोस्ट पर अपरिवर्तित रहती हैं — उन्हें शून्य नहीं किया जाता है।"
 
 msgid "Under Demand-Based Reorder, planning sums demand inside this rolling window when computing a replenishment quantity."
 msgstr "Demand-आधारित पुनः आदेश के तहत, योजना एक पुनः भरण मात्रा की गणना करते समय इस रोलिंग विंडो के भीतर मांग को जोड़ता है।"
@@ -12910,7 +12910,7 @@ msgid "View Contained Issues"
 msgstr "नियंत्रित समस्याओं को देखें"
 
 msgid "View Count"
-msgstr ""
+msgstr "गणना देखें"
 
 msgid "View Custom Fields"
 msgstr "कस्टम फील्ड्स देखें"
@@ -12949,7 +12949,7 @@ msgid "View missing values"
 msgstr "लापता मानों को देखें"
 
 msgid "View notes"
-msgstr ""
+msgstr "नोट्स देखें"
 
 msgid "View Open"
 msgstr "खुला देखें"

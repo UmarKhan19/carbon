@@ -118,10 +118,10 @@ msgid "{total} phases to go live"
 msgstr "{total} aşama canlı yayına alınacak"
 
 msgid "{uncounted, plural, one {# uncounted line} other {# uncounted lines}}"
-msgstr ""
+msgstr "{uncounted, plural, one {# sayılmamış satır} other {# sayılmamış satırlar}}"
 
 msgid "{variances, plural, one {# line differs from the expected quantity} other {# lines differ from the expected quantity}}"
-msgstr ""
+msgstr "{variances, plural, one {# satır beklenen miktardan farklı} other {# satırlar beklenen miktardan farklı}}"
 
 msgid "/month/user"
 msgstr "/ay/kullanıcı"
@@ -742,7 +742,7 @@ msgid "All Documents"
 msgstr "Tüm Belgeler"
 
 msgid "All item types"
-msgstr ""
+msgstr "Tüm öğe türleri"
 
 msgid "All Items"
 msgstr "Tüm Öğeler"
@@ -1605,7 +1605,7 @@ msgid "Batch"
 msgstr "Parti"
 
 msgid "Batch / Serial"
-msgstr ""
+msgstr "Parti / Seri"
 
 msgid "Batch items require a sales order"
 msgstr "Parti toplu ürünler için satış siparişi gereklidir"
@@ -1663,7 +1663,7 @@ msgid "Bills of material"
 msgstr "Malzeme Faturaları"
 
 msgid "Blind Count"
-msgstr ""
+msgstr "Kör Sayımı"
 
 msgid "Block with an error"
 msgstr "Hata ile engelle"
@@ -2320,7 +2320,7 @@ msgid "Confirm and sign the scope"
 msgstr "Kapsamı onaylayın ve imzalayın"
 
 msgid "Confirm Count"
-msgstr ""
+msgstr "Sayımı Onayla"
 
 msgid "Confirm how your company runs and lock the scope."
 msgstr "Şirketinizin nasıl çalıştığını doğrulayın ve kapsamı kilitleyin."
@@ -2332,7 +2332,7 @@ msgid "Confirm Import"
 msgstr "İçe Aktarmayı Onayla"
 
 msgid "Confirm Inventory Count"
-msgstr ""
+msgstr "Envanter Sayımını Onayla"
 
 msgid "Confirm Mapping"
 msgstr "Eşleştirmeyi Onayla"
@@ -2347,7 +2347,7 @@ msgid "Confirmed outgoing stock — sales orders & job materials (bars below zer
 msgstr "Onaylanan giden stok — satış siparişleri ve iş malzemeleri (sıfırın altındaki çubuklar)."
 
 msgid "Confirming locks the counted quantities. Review the warnings below, then post the count to apply the adjustments."
-msgstr ""
+msgstr "Sayıyı onaylamak, sayılan miktarları kilitler. Aşağıdaki uyarıları gözden geçirin, ardından ayarlamaları uygulamak için sayıyı gönderin."
 
 msgid "Connect Carbon to your accounting, project management, and CAD tools and much more."
 msgstr "Carbon'ı muhasebe, proje yönetimi ve CAD araçlarınızla ve çok daha fazlasıyla bağlayın."
@@ -2697,10 +2697,10 @@ msgid "Count"
 msgstr "Adet"
 
 msgid "Count ID"
-msgstr ""
+msgstr "Sayım Kimliği"
 
 msgid "Counted Qty"
-msgstr ""
+msgstr "Sayılan Mik."
 
 msgid "Counterparties"
 msgstr "Muhasebeleştirilecek Taraflar"
@@ -2724,7 +2724,7 @@ msgid "Create {0} values"
 msgstr "{0} değerleri oluştur"
 
 msgid "Create & Snapshot"
-msgstr ""
+msgstr "Oluştur & Anlık Görüntü"
 
 msgid "Create a new kanban card for scan-based replenishment."
 msgstr "Tarama tabanlı ikmal için yeni bir kanban kartı oluştur."
@@ -3423,7 +3423,7 @@ msgid "Delete Contractor"
 msgstr "Yükleniciyi Sil"
 
 msgid "Delete Count"
-msgstr ""
+msgstr "Sayımı Sil"
 
 msgid "Delete Custom Field"
 msgstr "Özel Alan Sil"
@@ -4050,7 +4050,7 @@ msgid "Edit Contractor"
 msgstr "Yüklenici Düzenle"
 
 msgid "Edit Count"
-msgstr ""
+msgstr "Sayımı Düzenle"
 
 msgid "Edit Currency"
 msgstr "Para Birimi Düzenle"
@@ -4996,7 +4996,7 @@ msgid "Failed to update configuration parameter"
 msgstr "Yapılandırma parametresi güncellenemedi"
 
 msgid "Failed to update count"
-msgstr ""
+msgstr "Sayı güncelleme başarısız"
 
 msgid "Failed to update item cost"
 msgstr "Ürün maliyeti güncellenemedi"
@@ -5590,7 +5590,7 @@ msgid "Hide"
 msgstr "Gizle"
 
 msgid "Hide system quantities until the review step"
-msgstr ""
+msgstr "Sistem miktarlarını inceleme adımına kadar gizle"
 
 msgid "Hide, pin and reorder columns"
 msgstr "Sütunları gizle, sabitle ve yeniden sırala"
@@ -6061,7 +6061,7 @@ msgid "Inventory control and counts"
 msgstr "Envanter kontrolü ve sayımları"
 
 msgid "Inventory Count"
-msgstr ""
+msgstr "Envanter Sayımı"
 
 msgid "Inventory History"
 msgstr "Envanter Geçmişi"
@@ -6256,7 +6256,7 @@ msgid "Item Type"
 msgstr "Ürün Tipi"
 
 msgid "Item Type (optional)"
-msgstr ""
+msgstr "Madde Türü (isteğe bağlı)"
 
 msgid "Item types"
 msgstr "Ürün tipleri"
@@ -6514,7 +6514,7 @@ msgid "Linear Team"
 msgstr "Lineer Takım"
 
 msgid "Lines"
-msgstr ""
+msgstr "Satırlar"
 
 msgid "Lines need internal part numbers"
 msgstr "Satırlar dahili parça numaralarına ihtiyaç duyuyor"
@@ -7321,7 +7321,7 @@ msgid "New Inspection Document"
 msgstr "Yeni Muayene Belgesi"
 
 msgid "New Inventory Count"
-msgstr ""
+msgstr "Yeni Envanter Sayımı"
 
 msgid "New Invoice"
 msgstr "Yeni Fatura"
@@ -8628,7 +8628,7 @@ msgid "Posted"
 msgstr "Yayınlandı"
 
 msgid "Posted At"
-msgstr ""
+msgstr "Gönderilen Tarih"
 
 msgid "Posted By"
 msgstr "Gönderen"
@@ -9255,7 +9255,7 @@ msgid "Recalculate Unit Cost"
 msgstr "Birim Maliyetini Yeniden Hesapla"
 
 msgid "Recalculating…"
-msgstr ""
+msgstr "Yeniden hesaplanıyor…"
 
 msgid "Receipt"
 msgstr "Makbuz"
@@ -10941,7 +10941,7 @@ msgid "Storage Unit"
 msgstr "Depolama Birimi"
 
 msgid "Storage Unit (optional)"
-msgstr ""
+msgstr "Depolama Birimi (isteğe bağlı)"
 
 msgid "storage units"
 msgstr "depolama birimleri"
@@ -11221,7 +11221,7 @@ msgid "System configured"
 msgstr "Sistem yapılandırıldı"
 
 msgid "System Qty"
-msgstr ""
+msgstr "Sistem Mik."
 
 msgid "Table"
 msgstr "Tablo"
@@ -12492,7 +12492,7 @@ msgid "Unballoon"
 msgstr "Balonu Kaldır"
 
 msgid "Uncounted lines are left unchanged at post — they are not zeroed."
-msgstr ""
+msgstr "Sayılmayan satırlar gönderide değiştirilmeden bırakılır — sıfırlanmaz."
 
 msgid "Under Demand-Based Reorder, planning sums demand inside this rolling window when computing a replenishment quantity."
 msgstr "Talep Tabanlı Yeniden Sipariş Altında, planlama bir yenileme miktarı hesaplanırken bu kayan pencere içinde talebi toplar."
@@ -12910,7 +12910,7 @@ msgid "View Contained Issues"
 msgstr "Kontrol Altına Alınan Sorunları Görüntüle"
 
 msgid "View Count"
-msgstr ""
+msgstr "Sayımı Görüntüle"
 
 msgid "View Custom Fields"
 msgstr "Özel Alanları Görüntüle"
@@ -12949,7 +12949,7 @@ msgid "View missing values"
 msgstr "Eksik değerleri görüntüle"
 
 msgid "View notes"
-msgstr ""
+msgstr "Notları görüntüle"
 
 msgid "View Open"
 msgstr "Açık Gör"
