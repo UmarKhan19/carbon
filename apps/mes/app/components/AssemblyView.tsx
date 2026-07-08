@@ -655,8 +655,6 @@ export function AssemblyView({
     typeof selected === "number"
       ? (stepSlides[selected]?.caption ?? null)
       : null;
-  // The finished-item image fills the panel; step slides render at a consistent width.
-  const isFinishedImage = selected === "finished";
   // Annotation pins for the shown slide (empty for the finished-item view).
   const selectedAnnotations =
     typeof selected === "number"
@@ -1084,15 +1082,10 @@ export function AssemblyView({
             <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
               <div className="flex shrink-0 flex-col gap-2 border-b border-border p-4">
                 {mainImage ? (
-                  // The finished-item image fills the panel; step slides render at a
-                  // consistent width and center. Height follows the image's own aspect
-                  // ratio (capped at 65vh); the details column scrolls if it overflows.
-                  <div
-                    className={cn(
-                      "relative mx-auto w-full overflow-hidden rounded-lg border border-border bg-muted/40",
-                      isFinishedImage ? "max-w-full" : "max-w-[70%]"
-                    )}
-                  >
+                  // Both step slides and the finished-item image fill the panel (large by
+                  // default). Height follows the image's own aspect ratio (capped at 65vh);
+                  // the details column scrolls if it overflows.
+                  <div className="relative mx-auto w-full max-w-full overflow-hidden rounded-lg border border-border bg-muted/40">
                     <img
                       src={mainImage}
                       alt="Assembly reference"
