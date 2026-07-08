@@ -554,6 +554,9 @@ msgstr "Add a step"
 msgid "Add Actions"
 msgstr "Add Actions"
 
+msgid "Add Adjustment"
+msgstr "Add Adjustment"
+
 msgid "Add any notes about your decision..."
 msgstr "Add any notes about your decision..."
 

@@ -20,7 +20,7 @@ import { getLocalTimeZone, startOfWeek, today } from "@internationalized/date";
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react/macro";
 import { useNumberFormatter } from "@react-aria/i18n";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useFetcher, useLoaderData } from "react-router";
 import {
   Bar,
@@ -107,6 +107,17 @@ const DemandProjectionsForm = ({
       toFinite((initialValues as Record<string, unknown>)[`week${i}`])
     )
   );
+
+  // Re-seed the chart when the drawer is reused for a different projection
+  // (same route, new item/location) — otherwise it keeps the prior values.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    setWeekValues(
+      Array.from({ length: WEEK_COUNT }, (_, i) =>
+        toFinite((initialValues as Record<string, unknown>)[`week${i}`])
+      )
+    );
+  }, [initialValues.itemId, initialValues.locationId]);
 
   const handleWeekChange = (index: number, value: number) => {
     setWeekValues((prev) => {

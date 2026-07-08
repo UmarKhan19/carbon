@@ -554,6 +554,9 @@ msgstr "ステップを追加"
 msgid "Add Actions"
 msgstr "アクションを追加"
 
+msgid "Add Adjustment"
+msgstr ""
+
 msgid "Add any notes about your decision..."
 msgstr "あなたの決定についてのメモを追加してください..."
 

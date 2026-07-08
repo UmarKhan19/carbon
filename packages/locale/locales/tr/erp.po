@@ -554,6 +554,9 @@ msgstr "Bir adım ekle"
 msgid "Add Actions"
 msgstr "Eylemler Ekle"
 
+msgid "Add Adjustment"
+msgstr ""
+
 msgid "Add any notes about your decision..."
 msgstr "Kararınızla ilgili herhangi bir not ekleyin..."
 

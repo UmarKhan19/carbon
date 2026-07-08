@@ -554,6 +554,9 @@ msgstr "添加步骤"
 msgid "Add Actions"
 msgstr "添加操作"
 
+msgid "Add Adjustment"
+msgstr ""
+
 msgid "Add any notes about your decision..."
 msgstr "添加关于您的决定的任何备注..."
 

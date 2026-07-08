@@ -133,7 +133,7 @@ const SupplierQuoteToOrderDrawer = ({
                     isDisabled={isSubmitting || !hasSelectedLines}
                     isLoading={isSubmitting}
                   >
-                    Convert
+                    {t`Convert`}
                   </Button>
                 </span>
               </TooltipTrigger>
@@ -551,7 +551,7 @@ const LinePricingOptions = ({
                 setSelectedValue("custom");
               }}
             >
-              Add Adjustment
+              {t`Add Adjustment`}
             </Button>
           </TooltipTrigger>
           <TooltipContent>
