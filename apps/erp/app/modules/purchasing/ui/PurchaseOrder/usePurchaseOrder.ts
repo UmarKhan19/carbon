@@ -1,6 +1,6 @@
 import { useCarbon } from "@carbon/auth";
 import { toast } from "@carbon/react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useSubmit } from "react-router";
 import type { Receipt, Shipment } from "~/modules/inventory";
 import type { PurchaseInvoice } from "~/modules/invoicing";
@@ -70,14 +70,13 @@ export const usePurchaseOrderRelatedDocuments = (
     Pick<Shipment, "id" | "shipmentId" | "status">[]
   >([]);
   const [hasError, setHasError] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const retryTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
   const { carbon } = useCarbon();
 
   const getRelatedDocuments = useCallback(
     async (supplierInteractionId: string, attempt = 0) => {
       if (!carbon || !supplierInteractionId) return;
-      setIsLoading(true);
       const [receipts, invoices, shipments] = await Promise.all([
         carbon
           .from("receipt")
@@ -128,7 +127,7 @@ export const usePurchaseOrderRelatedDocuments = (
       }
 
       if (willRetry) {
-        setTimeout(
+        retryTimeoutRef.current = setTimeout(
           () => getRelatedDocuments(supplierInteractionId, attempt + 1),
           RELATED_DOCS_RETRY_DELAY_MS * (attempt + 1)
         );
@@ -136,14 +135,16 @@ export const usePurchaseOrderRelatedDocuments = (
       }
 
       setHasError(failed);
-      setIsLoading(false);
     },
     [carbon, isOutsideProcessing]
   );
 
   useEffect(() => {
     getRelatedDocuments(supplierInteractionId);
+    return () => {
+      if (retryTimeoutRef.current) clearTimeout(retryTimeoutRef.current);
+    };
   }, [getRelatedDocuments, supplierInteractionId]);
 
-  return { receipts, invoices, shipments, hasError, isLoading };
+  return { receipts, invoices, shipments, hasError };
 };

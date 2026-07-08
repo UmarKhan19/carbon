@@ -46,6 +46,7 @@ import { path } from "~/utils/path";
 import type { jobStatus } from "../../production.models";
 import {
   bulkJobValidator,
+  deadlineRequiresDueDate,
   deadlineTypes,
   isJobLocked,
   jobValidator
@@ -73,7 +74,7 @@ const JobForm = ({ initialValues }: JobFormProps) => {
   const [deadlineType, setDeadlineType] = useState<string>(
     initialValues.deadlineType ?? ""
   );
-  const showDueDate = ["Hard Deadline", "Soft Deadline"].includes(deadlineType);
+  const showDueDate = deadlineRequiresDueDate(deadlineType);
 
   const isLocked = isJobLocked(initialValues.status);
   const isDisabled = isLocked;

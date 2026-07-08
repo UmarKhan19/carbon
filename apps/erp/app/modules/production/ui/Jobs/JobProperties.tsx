@@ -53,7 +53,11 @@ import type { MethodItemType } from "~/modules/shared";
 import type { action } from "~/routes/x+/items+/update";
 import { path } from "~/utils/path";
 import { copyToClipboard } from "~/utils/string";
-import { deadlineTypes, isJobLocked } from "../../production.models";
+import {
+  deadlineRequiresDueDate,
+  deadlineTypes,
+  isJobLocked
+} from "../../production.models";
 import type { Job } from "../../types";
 import { getDeadlineIcon } from "./Deadline";
 
@@ -83,7 +87,7 @@ const JobProperties = () => {
   const [deadlineType, setDeadlineType] = useState<string>(
     routeData?.job?.deadlineType ?? ""
   );
-  const showDueDate = ["Hard Deadline", "Soft Deadline"].includes(deadlineType);
+  const showDueDate = deadlineRequiresDueDate(deadlineType);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   const onUpdate = useCallback(
@@ -490,7 +494,7 @@ const JobProperties = () => {
             const next = value?.value ?? "";
             setDeadlineType(next);
             onUpdate("deadlineType", next || null);
-            if (!["Hard Deadline", "Soft Deadline"].includes(next)) {
+            if (!deadlineRequiresDueDate(next)) {
               onUpdate("dueDate", null);
             }
           }}

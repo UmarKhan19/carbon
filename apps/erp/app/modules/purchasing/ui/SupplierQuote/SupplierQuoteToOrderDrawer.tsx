@@ -125,28 +125,24 @@ const SupplierQuoteToOrderDrawer = ({
             action={path.to.convertSupplierQuoteToOrder(quote.id!)}
             method="post"
           >
-            {hasSelectedLines ? (
-              <Button
-                type="submit"
-                isDisabled={isSubmitting}
-                isLoading={isSubmitting}
-              >
-                Convert
-              </Button>
-            ) : (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span>
-                    <Button type="submit" isDisabled isLoading={isSubmitting}>
-                      Convert
-                    </Button>
-                  </span>
-                </TooltipTrigger>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span>
+                  <Button
+                    type="submit"
+                    isDisabled={isSubmitting || !hasSelectedLines}
+                    isLoading={isSubmitting}
+                  >
+                    Convert
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              {!hasSelectedLines && (
                 <TooltipContent>
                   {t`Select at least one line to convert`}
                 </TooltipContent>
-              </Tooltip>
-            )}
+              )}
+            </Tooltip>
             <input
               type="hidden"
               name="selectedLines"
