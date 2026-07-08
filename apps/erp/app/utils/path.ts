@@ -539,8 +539,8 @@ export const path = {
       generatePath(`${x}/assembly/${id}/steps/${stepId}`),
     assemblyInstructionStepMotion: (id: string, stepId: string) =>
       generatePath(`${x}/assembly/${id}/steps/motion/${stepId}`),
-    assemblyInstructionStepParts: (id: string, stepId: string) =>
-      generatePath(`${x}/assembly/${id}/steps/parts/${stepId}`),
+    assemblyInstructionStepComponents: (id: string, stepId: string) =>
+      generatePath(`${x}/assembly/${id}/steps/components/${stepId}`),
     deleteAssemblyInstructionStep: (id: string, stepId: string) =>
       generatePath(`${x}/assembly/${id}/steps/delete/${stepId}`),
     assemblyInstructionStepOrder: (id: string) =>
@@ -569,12 +569,14 @@ export const path = {
       generatePath(`${x}/assembly/${id}/units/new`),
     updateAssemblyUnit: (id: string, unitId: string) =>
       generatePath(`${x}/assembly/${id}/units/${unitId}`),
-    newAssemblyPartMapping: (id: string) =>
-      generatePath(`${x}/assembly/${id}/part-mappings/new`),
-    deleteAssemblyPartMapping: (id: string, mappingId: string) =>
-      generatePath(`${x}/assembly/${id}/part-mappings/delete/${mappingId}`),
-    autoMatchAssemblyParts: (id: string) =>
-      generatePath(`${x}/assembly/${id}/part-mappings/auto`),
+    newAssemblyComponentMapping: (id: string) =>
+      generatePath(`${x}/assembly/${id}/component-mappings/new`),
+    deleteAssemblyComponentMapping: (id: string, mappingId: string) =>
+      generatePath(
+        `${x}/assembly/${id}/component-mappings/delete/${mappingId}`
+      ),
+    autoMatchAssemblyComponents: (id: string) =>
+      generatePath(`${x}/assembly/${id}/component-mappings/auto`),
     deleteAssemblyUnit: (id: string, unitId: string) =>
       generatePath(`${x}/assembly/${id}/units/delete/${unitId}`),
     newAssemblyStandardNote: `${x}/assembly/standard-notes/new`,

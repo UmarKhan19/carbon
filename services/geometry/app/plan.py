@@ -139,7 +139,7 @@ MAX_GROUP_TESTS = 40
 GROUP_PROXIMITY_MM = 2.0
 
 
-def _is_fastener(part: "_Part") -> bool:
+def _is_fastener(part: "_Component") -> bool:
     return bool(FASTENER_NAME_RE.search(part.name or ""))
 
 WORLD_AXES = [
@@ -153,7 +153,7 @@ WORLD_AXES = [
 
 
 @dataclass
-class _Part:
+class _Component:
     node_id: str
     name: str
     mesh: "object"  # trimesh.Trimesh, world space
@@ -214,7 +214,7 @@ class _SandwichInfo:
 
 
 @dataclass
-class PlannedPart:
+class PlannedComponent:
     node_id: str
     motion: dict
     confidence: str | None  # "high" | "low" | None for unplanned
@@ -232,7 +232,7 @@ class PlannedPart:
 @dataclass
 class PlanResult:
     plan: dict
-    part_count: int
+    component_count: int
     planned_count: int
     tiers: dict
     warnings: list[str]
@@ -323,18 +323,18 @@ def plan_step(
     # unit's motion + groupId, and the unit is one entry in `groups` (with its
     # name) so the viewer/step generator render it as a single step.
     groups: dict = dict(outcome.groups)
-    plan_parts_payload: dict = {}
+    plan_components_payload: dict = {}
     for entry in outcome.planned:
         unit = expansion.get(entry.node_id)
         if unit is None:
-            plan_parts_payload[entry.node_id] = _part_to_dict(entry)
+            plan_components_payload[entry.node_id] = _part_to_dict(entry)
             continue
         member_payload = _part_to_dict(entry)
         member_payload["groupId"] = entry.node_id
         for member in unit["members"]:
-            plan_parts_payload[member] = dict(member_payload)
+            plan_components_payload[member] = dict(member_payload)
         group_payload: dict = {
-            "partNodeIds": unit["members"],
+            "componentNodeIds": unit["members"],
             "motion": entry.motion,
         }
         if unit.get("name"):
@@ -342,7 +342,7 @@ def plan_step(
         groups[entry.node_id] = group_payload
 
     for member, rep in outcome.merged_into.items():
-        plan_parts_payload[member] = {
+        plan_components_payload[member] = {
             "motion": {"type": "none"},
             "mergedInto": rep,
         }
@@ -359,7 +359,7 @@ def plan_step(
         "version": PLAN_VERSION,
         "unit": OUTPUT_UNIT,
         "sequence": sequence,
-        "parts": plan_parts_payload,
+        "components": plan_components_payload,
         "warnings": warnings,
     }
     if groups:
@@ -369,7 +369,7 @@ def plan_step(
     )
     return PlanResult(
         plan=plan,
-        part_count=leaf_count,
+        component_count=leaf_count,
         planned_count=planned_count,
         tiers=outcome.tiers,
         warnings=warnings,
@@ -378,7 +378,7 @@ def plan_step(
 
 
 def _eject_fastened_unit_members(
-    parts: list[_Part],
+    parts: list[_Component],
     units: list[dict],
     trimesh_mod,
     warnings: list[str],
@@ -445,8 +445,8 @@ def _eject_fastened_unit_members(
 
 
 def _merge_units(
-    parts: list[_Part], units: list[dict], trimesh_mod
-) -> tuple[list[_Part], dict[str, dict]]:
+    parts: list[_Component], units: list[dict], trimesh_mod
+) -> tuple[list[_Component], dict[str, dict]]:
     """Merge each multi-member unit's leaf meshes into one rigid collision body.
 
     Returns the reduced parts list (unit bodies replace their members) plus an
@@ -456,7 +456,7 @@ def _merge_units(
     by_id = {p.node_id: p for p in parts}
     expansion: dict[str, dict] = {}
     consumed: set[str] = set()
-    merged: list[_Part] = []
+    merged: list[_Component] = []
 
     for unit in units:
         unit_id = unit.get("id")
@@ -471,7 +471,7 @@ def _merge_units(
         bbox_min = np.min([by_id[nid].bbox_min for nid in members], axis=0)
         bbox_max = np.max([by_id[nid].bbox_max for nid in members], axis=0)
         merged.append(
-            _Part(
+            _Component(
                 node_id=unit_id,
                 name=unit.get("name") or by_id[members[0]].name,
                 mesh=combined,
@@ -489,11 +489,11 @@ def _merge_units(
 
 @dataclass
 class _PlanOutcome:
-    planned: list[PlannedPart]
+    planned: list[PlannedComponent]
     sequence: list[str]
     tiers: dict
     merged_into: dict[str, str]
-    # groupId → { partNodeIds, motion } for subassembly units
+    # groupId → { componentNodeIds, motion } for subassembly units
     groups: dict = field(default_factory=dict)
     verified_count: int = 0
     # U → set of X meaning U must assemble before X (diagnostics)
@@ -501,7 +501,7 @@ class _PlanOutcome:
 
 
 def _plan_parts(
-    parts: list[_Part],
+    parts: list[_Component],
     trimesh_mod,
     clearance: float,
     path_samples: int,
@@ -605,7 +605,7 @@ def _plan_parts(
                     continue
                 deep_bitten.add(node_id)
 
-    group_units: dict[str, tuple[_Part, list[str]]] = {}
+    group_units: dict[str, tuple[_Component, list[str]]] = {}
     late_merges: dict[str, str] = {}
     planned, greedy_sequence, _greedy_tiers = _greedy_disassembly(
         units,
@@ -702,14 +702,14 @@ def _plan_parts(
             group_id = group_ids[rep_id]
             rep_entry.group_id = group_id
             groups_payload[group_id] = {
-                "partNodeIds": members,
+                "componentNodeIds": members,
                 "motion": rep_entry.motion,
             }
             for member_id in members:
                 if member_id == rep_id:
                     continue
                 planned.append(
-                    PlannedPart(
+                    PlannedComponent(
                         node_id=member_id,
                         motion=rep_entry.motion,
                         confidence=rep_entry.confidence,
@@ -733,7 +733,7 @@ def _plan_parts(
 
 
 def _plan_fixed_sequence(
-    parts: list[_Part],
+    parts: list[_Component],
     groups_in_order: list[list[str]],
     trimesh_mod,
     clearance: float,
@@ -827,15 +827,15 @@ def _plan_fixed_sequence(
     # insertion motion against ONLY the already-placed groups. The first group
     # is the placed base (no insertion motion), matching the normal path.
     manager = CollisionManager()
-    placed: dict[str, _Part] = {}
-    planned: list[PlannedPart] = []
-    planned_by_id: dict[str, PlannedPart] = {}
-    units_by_id: dict[str, _Part] = {}
+    placed: dict[str, _Component] = {}
+    planned: list[PlannedComponent] = []
+    planned_by_id: dict[str, PlannedComponent] = {}
+    units_by_id: dict[str, _Component] = {}
 
     for order_index, (_label, body, _members) in enumerate(groups_ordered):
         units_by_id[body.node_id] = body
         if order_index == 0:
-            entry = PlannedPart(
+            entry = PlannedComponent(
                 node_id=body.node_id,
                 motion={"type": "none"},
                 confidence="high",
@@ -871,7 +871,7 @@ def _plan_fixed_sequence(
                     "insertion after the earlier groups; flagged for review — "
                     "it fades in during playback"
                 )
-                entry = PlannedPart(
+                entry = PlannedComponent(
                     node_id=body.node_id,
                     motion={"type": "none"},
                     confidence="low",
@@ -913,13 +913,13 @@ def _plan_fixed_sequence(
     # the group's motion + groupId, and the group is one `groups` entry so the
     # viewer/step-mapper renders it as a single step.
     groups_payload: dict = {}
-    expanded_planned: list[PlannedPart] = []
+    expanded_planned: list[PlannedComponent] = []
     sequence: list[str] = []
     for label, body, members in groups_ordered:
         rep_entry = planned_by_id[body.node_id]
         rep_entry.group_id = label
         groups_payload[label] = {
-            "partNodeIds": members,
+            "componentNodeIds": members,
             "motion": rep_entry.motion,
         }
         sequence.extend(members)
@@ -928,7 +928,7 @@ def _plan_fixed_sequence(
                 expanded_planned.append(rep_entry)
             else:
                 expanded_planned.append(
-                    PlannedPart(
+                    PlannedComponent(
                         node_id=member_id,
                         motion=rep_entry.motion,
                         confidence=rep_entry.confidence,
@@ -950,7 +950,7 @@ def _plan_fixed_sequence(
     )
 
 
-def _tally_tiers(planned: list[PlannedPart]) -> dict:
+def _tally_tiers(planned: list[PlannedComponent]) -> dict:
     """Tier stats from the final planned entries (post-verification)."""
     tiers = {
         "linear": 0,
@@ -980,7 +980,7 @@ def _tally_tiers(planned: list[PlannedPart]) -> dict:
     return tiers
 
 
-def _part_volume(part: _Part) -> float:
+def _part_volume(part: _Component) -> float:
     """Material volume (mm³): mesh volume when watertight, else bbox.
 
     Bbox volume lies for tilted parts (a 45° bolt inflates 5×) and for
@@ -1009,7 +1009,7 @@ def _part_volume(part: _Part) -> float:
 
 
 def _structural_key(
-    part: _Part, centroid: np.ndarray, diagonal: float
+    part: _Component, centroid: np.ndarray, diagonal: float
 ) -> tuple[float, float]:
     """Big first (ascending key).
 
@@ -1049,7 +1049,7 @@ def _removal_segments(motion: dict) -> list[tuple[np.ndarray, float]] | None:
 
 
 def _path_blockers(
-    part: _Part,
+    part: _Component,
     manager,
     segments: list[tuple[np.ndarray, float]],
     samples: int,
@@ -1119,8 +1119,8 @@ def _path_blockers(
 
 
 def _derive_precedence(
-    planned: list[PlannedPart],
-    units_by_id: dict[str, _Part],
+    planned: list[PlannedComponent],
+    units_by_id: dict[str, _Component],
     trimesh_mod,
     fasteners: dict[str, _FastenerInfo],
     path_samples: int,
@@ -1163,7 +1163,7 @@ def _derive_precedence(
 def _add_joint_edges(
     fasteners: dict[str, _FastenerInfo],
     joints: dict[str, dict[str, float]],
-    units_by_id: dict[str, _Part],
+    units_by_id: dict[str, _Component],
     edges: dict[str, set[str]],
     warnings: list[str],
 ) -> None:
@@ -1253,7 +1253,7 @@ def _motion_travel(motion: dict) -> float:
 
 
 def _sandwiched_parts(
-    units: list[_Part],
+    units: list[_Component],
     pair_depths: dict[frozenset, tuple[float, list, list, np.ndarray, np.ndarray]],
     fasteners: dict[str, _FastenerInfo],
     merged_into: dict[str, str],
@@ -1268,7 +1268,7 @@ def _sandwiched_parts(
     and its flange are both thin).
 
     Side effect: sandwich partners exchange seated-interference allowances
-    (`_Part.seated_allowance`) so a compliant part's observed squish never
+    (`_Component.seated_allowance`) so a compliant part's observed squish never
     reads as a blocking collision during removal sweeps — the seated state
     itself is the evidence the interference is intentional, the same
     reasoning as thread-mate allowances.
@@ -1355,7 +1355,7 @@ def _sandwiched_parts(
 
 def _add_sandwich_edges(
     sandwiches: dict[str, _SandwichInfo],
-    units_by_id: dict[str, _Part],
+    units_by_id: dict[str, _Component],
     merged_into: dict[str, str],
     edges: dict[str, set[str]],
     warnings: list[str],
@@ -1432,7 +1432,7 @@ def _add_sandwich_edges(
 
 
 def _add_support_edges(
-    parts: list[_Part],
+    parts: list[_Component],
     pair_depths: dict[frozenset, tuple[float, list, list, np.ndarray, np.ndarray]],
     fasteners: dict[str, _FastenerInfo],
     merged_into: dict[str, str],
@@ -1503,8 +1503,8 @@ def _add_support_edges(
 
 
 def _preference_topo_sort(
-    planned: list[PlannedPart],
-    units_by_id: dict[str, _Part],
+    planned: list[PlannedComponent],
+    units_by_id: dict[str, _Component],
     edges: dict[str, set[str]],
     fasteners: dict[str, _FastenerInfo],
     joints: dict[str, dict[str, float]],
@@ -1678,8 +1678,8 @@ def _preference_topo_sort(
 
 def _verify_sequence(
     sequence: list[str],
-    planned_by_id: dict[str, PlannedPart],
-    units_by_id: dict[str, _Part],
+    planned_by_id: dict[str, PlannedComponent],
+    units_by_id: dict[str, _Component],
     trimesh_mod,
     fasteners: dict[str, _FastenerInfo],
     path_samples: int,
@@ -1726,7 +1726,7 @@ def _verify_sequence(
         manager.add_object(node_id, part.mesh)
 
 
-def _part_to_dict(entry: PlannedPart) -> dict:
+def _part_to_dict(entry: PlannedComponent) -> dict:
     payload: dict = {"motion": entry.motion}
     if entry.confidence is not None:
         payload["confidence"] = entry.confidence
@@ -1742,8 +1742,8 @@ def _part_to_dict(entry: PlannedPart) -> dict:
     return payload
 
 
-def _collect_world_parts(root: AssemblyNode, trimesh_mod) -> list[_Part]:
-    parts: list[_Part] = []
+def _collect_world_parts(root: AssemblyNode, trimesh_mod) -> list[_Component]:
+    parts: list[_Component] = []
 
     def visit(node: AssemblyNode, parent_world: np.ndarray) -> None:
         local = np.asarray(node.transform, dtype=np.float64).reshape(4, 4).T
@@ -1757,7 +1757,7 @@ def _collect_world_parts(root: AssemblyNode, trimesh_mod) -> list[_Part]:
                 process=False,
             )
             parts.append(
-                _Part(
+                _Component(
                     node_id=node.node_id,
                     name=node.name,
                     mesh=mesh,
@@ -1774,7 +1774,7 @@ def _collect_world_parts(root: AssemblyNode, trimesh_mod) -> list[_Part]:
 
 
 def _seated_pair_depths(
-    parts: list[_Part], trimesh_mod
+    parts: list[_Component], trimesh_mod
 ) -> dict[frozenset, tuple[float, list, list]]:
     """Max depth + contact points + contact normals per touching pair.
 
@@ -1835,7 +1835,7 @@ def _seated_pair_depths(
 
 
 def _classify_fasteners(
-    parts: list[_Part], pair_depths: dict[frozenset, tuple[float, list]]
+    parts: list[_Component], pair_depths: dict[frozenset, tuple[float, list]]
 ) -> dict[str, _FastenerInfo]:
     """Symmetry axis + threaded mates for every part with a fastener name.
 
@@ -1896,7 +1896,7 @@ def _classify_fasteners(
 
 
 def _shank_radius(
-    part: _Part, axis: np.ndarray, mate_points: list
+    part: _Component, axis: np.ndarray, mate_points: list
 ) -> float | None:
     """The fastener's shank radius around its axis.
 
@@ -1923,7 +1923,7 @@ def _shank_radius(
 
 
 def _fastener_joints(
-    parts: list[_Part],
+    parts: list[_Component],
     fasteners: dict[str, _FastenerInfo],
 ) -> dict[str, dict[str, float]]:
     """The parts each fastener joins → their position along its axis.
@@ -2055,7 +2055,7 @@ def _fastener_joints(
 
 
 def _axis_span(
-    part: _Part, axis: np.ndarray, origin: np.ndarray
+    part: _Component, axis: np.ndarray, origin: np.ndarray
 ) -> tuple[float, float]:
     """The part's bbox extent projected onto an axis line through origin."""
     corners = np.array(
@@ -2115,7 +2115,7 @@ def _axis_from_contacts(points: list) -> np.ndarray | None:
     return best_axis
 
 
-def _bbox_axis_kind(part: _Part) -> tuple[np.ndarray, str] | None:
+def _bbox_axis_kind(part: _Component) -> tuple[np.ndarray, str] | None:
     """Rod/disc axis from bbox extents when SVD is inconclusive.
 
     Rod: clearly longest extent is the axis. Disc: clearly thinnest extent
@@ -2136,7 +2136,7 @@ def _bbox_axis_kind(part: _Part) -> tuple[np.ndarray, str] | None:
     return None
 
 
-def _embedded_pairs(parts: list[_Part]) -> list[tuple[str, str]]:
+def _embedded_pairs(parts: list[_Component]) -> list[tuple[str, str]]:
     """(inner, outer) pairs where one part sits fully inside another.
 
     Fully-embedded solids (logo/text bodies inside their parent) produce
@@ -2169,12 +2169,12 @@ def _embedded_pairs(parts: list[_Part]) -> list[tuple[str, str]]:
 
 
 def _merge_rigid_groups(
-    parts: list[_Part],
+    parts: list[_Component],
     pair_depths: dict[frozenset, tuple[float, list, list, np.ndarray, np.ndarray]],
     fasteners: dict[str, _FastenerInfo],
     trimesh_mod,
     warnings: list[str],
-) -> tuple[list[_Part], dict[str, str]]:
+) -> tuple[list[_Component], dict[str, str]]:
     """Union-find over rigidly bound pairs.
 
     Two ways a pair can never separate by a rigid motion: deep seated
@@ -2199,15 +2199,15 @@ def _merge_rigid_groups(
     for inner, outer in _embedded_pairs(parts):
         union(inner, outer)
 
-    clusters: dict[str, list[_Part]] = {}
+    clusters: dict[str, list[_Component]] = {}
     for part in parts:
         clusters.setdefault(find(part.node_id), []).append(part)
 
-    def bbox_volume(part: _Part) -> float:
+    def bbox_volume(part: _Component) -> float:
         extents = part.bbox_max - part.bbox_min
         return float(abs(extents[0] * extents[1] * extents[2]))
 
-    units: list[_Part] = []
+    units: list[_Component] = []
     merged_into: dict[str, str] = {}
     for members in clusters.values():
         if len(members) == 1:
@@ -2231,7 +2231,7 @@ def _merge_rigid_groups(
             _part_volume(member) for member in members
         )
         units.append(
-            _Part(
+            _Component(
                 node_id=rep.node_id,
                 name=rep.name,
                 mesh=combined,
@@ -2252,7 +2252,7 @@ def _merge_rigid_groups(
     return units, merged_into
 
 
-def _symmetry_axis_kind(part: _Part) -> tuple[np.ndarray, str] | None:
+def _symmetry_axis_kind(part: _Component) -> tuple[np.ndarray, str] | None:
     """The natural insertion axis of a fastener-like part, with its kind.
 
     Rod-like parts (bolts, pins, screws: one dominant extent) insert along
@@ -2289,7 +2289,7 @@ def _symmetry_axis_kind(part: _Part) -> tuple[np.ndarray, str] | None:
     return axis, kind
 
 
-def _symmetry_axis(part: _Part) -> np.ndarray | None:
+def _symmetry_axis(part: _Component) -> np.ndarray | None:
     result = _symmetry_axis_kind(part)
     return result[0] if result is not None else None
 
@@ -2320,7 +2320,7 @@ def _normal_clusters(normals: list, top: int = 3) -> list[np.ndarray]:
     return results
 
 
-def _candidate_directions(part: _Part) -> list[np.ndarray]:
+def _candidate_directions(part: _Component) -> list[np.ndarray]:
     """Removal directions to try, most natural first.
 
     A part's own symmetry axis comes first, then the dominant seated
@@ -2347,18 +2347,18 @@ def _candidate_directions(part: _Part) -> list[np.ndarray]:
 
 
 def _greedy_disassembly(
-    parts: list[_Part],
+    parts: list[_Component],
     trimesh_mod,
     clearance: float,
     path_samples: int,
     warnings: list[str] | None = None,
     fasteners: dict[str, _FastenerInfo] | None = None,
-    group_units: dict[str, tuple[_Part, list[str]]] | None = None,
+    group_units: dict[str, tuple[_Component, list[str]]] | None = None,
     tolerance: float = PENETRATION_TOLERANCE_MM,
     late_merges: dict[str, str] | None = None,
     deep_bitten: set[str] | None = None,
     sandwiched: set[str] | None = None,
-) -> tuple[list[PlannedPart], list[str], dict]:
+) -> tuple[list[PlannedComponent], list[str], dict]:
     from trimesh.collision import CollisionManager
 
     if warnings is None:
@@ -2369,7 +2369,7 @@ def _greedy_disassembly(
         sandwiched = set()
 
     by_id = {part.node_id: part for part in parts}
-    remaining: dict[str, _Part] = dict(by_id)
+    remaining: dict[str, _Component] = dict(by_id)
 
     manager = CollisionManager()
     full_manager = CollisionManager()
@@ -2377,7 +2377,7 @@ def _greedy_disassembly(
         manager.add_object(part.node_id, part.mesh)
         full_manager.add_object(part.node_id, part.mesh)
 
-    removal_order: list[PlannedPart] = []
+    removal_order: list[PlannedComponent] = []
     group_mesh_cache: dict = {}
     stuck_blockers_cache: dict[str, list[str]] = {}
     # "forced" and "unplanned" stay at 0 for stats compatibility: the
@@ -2398,7 +2398,7 @@ def _greedy_disassembly(
     _amax = np.max([p.bbox_max for p in parts], axis=0)
     assembly_diagonal = float(np.linalg.norm(_amax - _amin)) or 1.0
 
-    def removal_priority(pool: dict[str, _Part]) -> list[_Part]:
+    def removal_priority(pool: dict[str, _Component]) -> list[_Component]:
         # Fasteners come off first (so they assemble last, after the parts
         # they secure), then small/peripheral structure — the biggest, most
         # central part survives to become the base; nodeId keeps ties
@@ -2430,7 +2430,7 @@ def _greedy_disassembly(
                 # The last part is the base: it "assembles" by being placed
                 remaining.pop(part.node_id)
                 removal_order.append(
-                    PlannedPart(
+                    PlannedComponent(
                         node_id=part.node_id,
                         motion={"type": "none"},
                         confidence="high",
@@ -2542,7 +2542,7 @@ def _greedy_disassembly(
                 for stale in (host.node_id, part.node_id):
                     merged_allowance.pop(stale, None)
                     merged_axes.pop(stale, None)
-                combined = _Part(
+                combined = _Component(
                     node_id=host.node_id,
                     name=host.name,
                     mesh=combined_mesh,
@@ -2607,7 +2607,7 @@ def _greedy_disassembly(
                 "flagged for review — it fades in during playback"
             )
             removal_order.append(
-                PlannedPart(
+                PlannedComponent(
                     node_id=part.node_id,
                     motion={"type": "none"},
                     confidence="low",
@@ -2681,7 +2681,7 @@ def _unregistered(manager, node_ids):
 
 
 def _contacts_at(
-    manager, part: _Part, translation: np.ndarray
+    manager, part: _Component, translation: np.ndarray
 ) -> list[tuple[str | None, float]]:
     """(otherName, depth) contacts of `part` translated by `translation`
     against the manager's objects.
@@ -2730,9 +2730,9 @@ def _self_exempt(
 
 
 def _head_direction(
-    part: _Part,
+    part: _Component,
     info: _FastenerInfo,
-    units_by_id: dict[str, _Part] | None = None,
+    units_by_id: dict[str, _Component] | None = None,
 ) -> np.ndarray:
     """Tip → head sense of a fastener's axis.
 
@@ -2772,7 +2772,7 @@ def _head_direction(
 
 
 def _mate_exempt(
-    part: _Part,
+    part: _Component,
     direction: np.ndarray,
     fasteners: dict[str, _FastenerInfo],
 ) -> dict[str, float] | None:
@@ -2791,7 +2791,7 @@ def _mate_exempt(
 
 
 def _seated_exempt(
-    part: _Part, direction: np.ndarray
+    part: _Component, direction: np.ndarray
 ) -> dict[str, float] | None:
     """Sandwich-squish allowances valid along this direction.
 
@@ -2814,15 +2814,15 @@ def _seated_exempt(
 
 
 def _plan_removal(
-    part: _Part,
-    remaining: dict[str, _Part],
+    part: _Component,
+    remaining: dict[str, _Component],
     manager,
     clearance: float,
     path_samples: int,
     fasteners: dict[str, _FastenerInfo],
     tolerance: float = PENETRATION_TOLERANCE_MM,
     full_manager=None,
-) -> PlannedPart | None:
+) -> PlannedComponent | None:
     others = [p for p in remaining.values() if p.node_id != part.node_id]
     if not others:
         return None
@@ -2900,7 +2900,7 @@ def _plan_removal(
 
             _index, direction, recorded = min(clear, key=entanglement)
         confidence = "low" if part.is_proxy else "high"
-        return PlannedPart(
+        return PlannedComponent(
             node_id=part.node_id,
             motion={
                 "type": "linear",
@@ -2964,7 +2964,7 @@ def _plan_removal(
             )
             if second_touch is not None:
                 # Insertion motion reverses the removal: slide in, then drop
-                return PlannedPart(
+                return PlannedComponent(
                     node_id=part.node_id,
                     motion={
                         "type": "L",
@@ -2990,13 +2990,13 @@ def _plan_removal(
 
 
 def _plan_escape(
-    part: _Part,
-    remaining: dict[str, _Part],
+    part: _Component,
+    remaining: dict[str, _Component],
     manager,
     path_samples: int,
     fasteners: dict[str, _FastenerInfo],
     tolerance: float = PENETRATION_TOLERANCE_MM,
-) -> PlannedPart | None:
+) -> PlannedComponent | None:
     """Tier 3: BFS over axis-aligned hops until the part clears the assembly.
 
     Unlike tier 2's fixed lift-then-slide, each hop travels as far as the
@@ -3097,7 +3097,7 @@ def _plan_escape(
 
 
 def _group_exempt(
-    members: list[_Part],
+    members: list[_Component],
     direction: np.ndarray,
     fasteners: dict[str, _FastenerInfo],
     member_ids: set[str],
@@ -3134,7 +3134,7 @@ def _group_exempt(
 
 
 def _plan_group_removal(
-    remaining: dict[str, _Part],
+    remaining: dict[str, _Component],
     manager,
     path_samples: int,
     fasteners: dict[str, _FastenerInfo],
@@ -3142,7 +3142,7 @@ def _plan_group_removal(
     combined_cache: dict | None = None,
     tolerance: float = PENETRATION_TOLERANCE_MM,
     deep_bitten: set[str] | None = None,
-) -> tuple[list[str], _Part, PlannedPart] | None:
+) -> tuple[list[str], _Component, PlannedComponent] | None:
     """Find a connected subassembly that removes as one unit.
 
     Candidate groups grow from a seed part through a proximity graph
@@ -3164,7 +3164,7 @@ def _plan_group_removal(
                 adjacency[a.node_id].add(b.node_id)
                 adjacency[b.node_id].add(a.node_id)
 
-    def diagonal(part: _Part) -> float:
+    def diagonal(part: _Component) -> float:
         return float(np.linalg.norm(part.bbox_max - part.bbox_min))
 
     samples_segment = max(12, path_samples // 3)
@@ -3219,7 +3219,7 @@ def _plan_group_removal(
                 combined_mesh._carbon_volume = sum(
                     _part_volume(member) for member in members
                 )
-                combined = _Part(
+                combined = _Component(
                     node_id=max(
                         members,
                         key=lambda p: float(
@@ -3296,7 +3296,7 @@ def _plan_group_removal(
                     if tests >= MAX_GROUP_TESTS:
                         break
             if group_touch is not None:
-                entry = PlannedPart(
+                entry = PlannedComponent(
                     node_id=combined.node_id,
                     motion={
                         "type": "linear",
@@ -3316,8 +3316,8 @@ def _plan_group_removal(
 
 
 def _removal_segments_to_planned(
-    part: _Part, removal: list[tuple[np.ndarray, float]]
-) -> PlannedPart:
+    part: _Component, removal: list[tuple[np.ndarray, float]]
+) -> PlannedComponent:
     """Reverse a removal segment chain into an insertion motion."""
     first_direction = removal[0][0]
     if len(removal) == 1:
@@ -3338,7 +3338,7 @@ def _removal_segments_to_planned(
                 for direction, distance in reversed(removal)
             ],
         }
-    return PlannedPart(
+    return PlannedComponent(
         node_id=part.node_id,
         motion=motion,
         confidence="low",
@@ -3369,7 +3369,7 @@ def _blocking_depth(
 
 
 def _free_travel(
-    part: _Part,
+    part: _Component,
     manager,
     direction: np.ndarray,
     base_offset: np.ndarray,
@@ -3403,7 +3403,7 @@ def _free_travel(
 
 
 def _recorded_travel(
-    part: _Part,
+    part: _Component,
     direction: np.ndarray,
     full_travel: float,
     last_touch: float,
@@ -3442,7 +3442,7 @@ def _separation_distance(
 
 
 def _exit_travel(
-    part: _Part,
+    part: _Component,
     static_min: np.ndarray,
     static_max: np.ndarray,
     direction: np.ndarray,
@@ -3469,7 +3469,7 @@ def _exit_travel(
 
 
 def _path_is_clear(
-    part: _Part,
+    part: _Component,
     manager,
     direction: np.ndarray,
     start: float,
@@ -3558,8 +3558,8 @@ def _path_is_clear(
 
 
 def _escape_blockers(
-    part: _Part,
-    remaining: dict[str, _Part],
+    part: _Component,
+    remaining: dict[str, _Component],
     manager,
     fasteners: dict[str, _FastenerInfo],
     tolerance: float,
@@ -3603,7 +3603,7 @@ def _escape_blockers(
     return sorted(blockers)[:8]
 
 
-def _blockers(part: _Part, remaining: dict[str, _Part], trimesh_mod) -> list[str]:
+def _blockers(part: _Component, remaining: dict[str, _Component], trimesh_mod) -> list[str]:
     """Parts whose bounding boxes overlap this part's (rough blocking set)."""
     blockers: list[str] = []
     for other in remaining.values():

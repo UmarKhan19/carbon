@@ -15,8 +15,8 @@ import type { AssemblyStep, Motion, Quat, Vec3 } from "./types";
  * Pure keyframe construction for step motions. No WebGL — everything here is
  * unit-testable in node.
  *
- * Motion JSON describes the INSERTION of a part: keyframes start at the
- * displaced (pre-insertion) pose and end at the part's final (seated) pose.
+ * Motion JSON describes the INSERTION of a component: keyframes start at the
+ * displaced (pre-insertion) pose and end at the component's final (seated) pose.
  * All poses produced by `motionToKeyframes` are world-space; `buildStepClip`
  * converts them into each node's parent-local space for animation.
  */
@@ -117,13 +117,13 @@ export function motionDuration(motion: Motion): number {
 /**
  * The motion a step should display. Flagged steps (the planner proved no
  * collision-free path exists) keep motion "none" — the player fades their
- * parts in at the seated pose rather than animating a fabricated
+ * components in at the seated pose rather than animating a fabricated
  * fly-through. Other non-first steps stored with "none" (legacy plans,
- * manually authored steps) get the AABB fallback so parts never pop into
+ * manually authored steps) get the AABB fallback so components never pop into
  * place. The first step is the base: placed, not inserted.
  */
 export function displayMotionForStep(
-  step: Pick<AssemblyStep, "motion" | "partNodeIds" | "flagged">,
+  step: Pick<AssemblyStep, "motion" | "componentNodeIds" | "flagged">,
   index: number,
   graphIndex: AssemblyGraphIndex | null
 ): Motion {
@@ -131,35 +131,36 @@ export function displayMotionForStep(
     index === 0 ||
     step.flagged ||
     step.motion.type !== "none" ||
-    step.partNodeIds.length === 0 ||
+    step.componentNodeIds.length === 0 ||
     !graphIndex
   ) {
     return step.motion;
   }
-  const fallback = synthesizeFallbackMotion(graphIndex, step.partNodeIds);
+  const fallback = synthesizeFallbackMotion(graphIndex, step.componentNodeIds);
   return fallback && fallback.type !== "none" ? fallback : step.motion;
 }
 
-/** Parts smaller than this fraction of the assembly count as "small". */
-const SMALL_PART_FRACTION = 0.15;
-/** Small parts travel at least this many times their own size. */
-const SMALL_PART_TRAVEL_FACTOR = 2.5;
+/** Components smaller than this fraction of the assembly count as "small". */
+const SMALL_COMPONENT_FRACTION = 0.15;
+/** Small components travel at least this many times their own size. */
+const SMALL_COMPONENT_TRAVEL_FACTOR = 2.5;
 
 /**
- * Exaggerates the travel of small parts (bolts, washers, pins) so their
+ * Exaggerates the travel of small components (bolts, washers, pins) so their
  * insertion reads clearly at assembly scale. Display-only: the stored plan
- * keeps the geometric travel. Returns the motion unchanged for large parts
+ * keeps the geometric travel. Returns the motion unchanged for large components
  * or non-translating motions.
  */
 export function exaggerateMotion(
   motion: Motion,
-  partDiagonal: number,
+  componentDiagonal: number,
   assemblyDiagonal: number
 ): Motion {
-  if (partDiagonal <= 0 || assemblyDiagonal <= 0) return motion;
-  if (partDiagonal >= assemblyDiagonal * SMALL_PART_FRACTION) return motion;
+  if (componentDiagonal <= 0 || assemblyDiagonal <= 0) return motion;
+  if (componentDiagonal >= assemblyDiagonal * SMALL_COMPONENT_FRACTION)
+    return motion;
 
-  const minTravel = partDiagonal * SMALL_PART_TRAVEL_FACTOR;
+  const minTravel = componentDiagonal * SMALL_COMPONENT_TRAVEL_FACTOR;
 
   switch (motion.type) {
     case "linear": {
@@ -187,7 +188,7 @@ export function exaggerateMotion(
 }
 
 /**
- * Builds world-space insertion keyframes for a part whose final (seated)
+ * Builds world-space insertion keyframes for a component whose final (seated)
  * world pose is `basePose`. The last keyframe always equals `basePose`.
  * Returns `null` for `none` motions.
  */
@@ -342,7 +343,7 @@ export function motionToKeyframes(
           1 - epsilon
       ) {
         throw new Error(
-          "path motion's last keyframe must equal the part's final pose"
+          "path motion's last keyframe must equal the component's final pose"
         );
       }
       return fromPoses(
@@ -358,20 +359,20 @@ export function motionToKeyframes(
 
 /**
  * Builds a looping insertion AnimationClip for one step, with position and
- * quaternion tracks for each of the step's parts. Tracks are bound by node
+ * quaternion tracks for each of the step's components. Tracks are bound by node
  * uuid so duplicate node names cannot collide. World-space keyframes are
  * converted into each node's parent-local space, so nested assembly
  * transforms are respected. Nodes are assumed to currently sit at their
  * final (seated) pose.
  *
- * Returns `null` for `none` motions or when no part resolves to a node.
+ * Returns `null` for `none` motions or when no component resolves to a node.
  */
 export function buildStepClip(
   step: AssemblyStep,
   nodesById: Map<string, Object3D>,
   options: StepClipOptions = {}
 ): AnimationClip | null {
-  if (step.motion.type === "none" || step.partNodeIds.length === 0) {
+  if (step.motion.type === "none" || step.componentNodeIds.length === 0) {
     return null;
   }
 
@@ -379,7 +380,7 @@ export function buildStepClip(
   const holdSeconds = options.holdSeconds ?? DEFAULT_HOLD_SECONDS;
   const tracks: (VectorKeyframeTrack | QuaternionKeyframeTrack)[] = [];
 
-  for (const nodeId of step.partNodeIds) {
+  for (const nodeId of step.componentNodeIds) {
     const node = nodesById.get(nodeId);
     if (!node) continue;
 
@@ -455,12 +456,12 @@ export function buildStepClip(
 /**
  * World-space waypoints describing a step's insertion travel, for the visual
  * path editor. The LAST waypoint is the seated reference position; earlier
- * waypoints are where the part(s) travel FROM. Relative motions
+ * waypoints are where the component(s) travel FROM. Relative motions
  * (linear/L/helix) are anchored to `seatedPosition`; a `path` motion's absolute
  * keyframe positions are used directly. `none` — or any motion that can't be
  * sampled — yields a straight default offset so there is always a path to drag.
  *
- * For a multi-part (rigid group) step, pass the centroid of the parts' seated
+ * For a multi-component (rigid group) step, pass the centroid of the components' seated
  * positions: the shared relative motion renders as one path anchored there.
  */
 export function motionToWaypoints(
@@ -494,8 +495,8 @@ export function motionToWaypoints(
 /**
  * Converts dragged world-space waypoints back into a RELATIVE motion — 2
  * waypoints → `linear`, 3+ → `L` (multi-segment). Relative (not absolute
- * `path`) so it applies to every part in a rigid-group step. Pure translation:
- * parts keep their seated orientation. The last waypoint is forced to the
+ * `path`) so it applies to every component in a rigid-group step. Pure translation:
+ * components keep their seated orientation. The last waypoint is forced to the
  * seated position; zero-length segments are dropped; degenerate input collapses
  * to `none`. Directions/distances match `motionToKeyframes`' reconstruction, so
  * `motionToWaypoints` → `waypointsToMotion` round-trips exactly for linear/L.

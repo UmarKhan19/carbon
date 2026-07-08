@@ -78,7 +78,7 @@ class AssemblyNode:
 @dataclass
 class ConversionResult:
     graph: dict
-    part_count: int
+    component_count: int
     triangles: int
     warnings: list[str]
 
@@ -116,17 +116,17 @@ def convert_step(
             "TESSELLATION_FAILED", f"failed to tessellate or export model: {exc}"
         ) from exc
 
-    part_count = _count_leaves(root)
+    component_count = _count_leaves(root)
     triangles = _count_triangles(root)
     graph = {
         "version": GRAPH_VERSION,
         "unit": OUTPUT_UNIT,
         "sourceUnit": source_unit,
-        "partCount": part_count,
+        "componentCount": component_count,
         "root": _node_to_dict(root),
     }
     return ConversionResult(
-        graph=graph, part_count=part_count, triangles=triangles, warnings=warnings
+        graph=graph, component_count=component_count, triangles=triangles, warnings=warnings
     )
 
 

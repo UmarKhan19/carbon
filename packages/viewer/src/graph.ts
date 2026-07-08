@@ -1,13 +1,13 @@
 import type { AssemblyGraph, AssemblyGraphNode, Vec3 } from "./types";
 
-/** Distinct part (identical geometry) across the assembly, with its instances. */
-export type PartGroup = {
+/** Distinct component (identical geometry) across the assembly, with its instances. */
+export type ComponentGroup = {
   /** geometryHash, or `name:${name}` for leaves without one */
   key: string;
   name: string;
   count: number;
   color: [number, number, number, number] | null;
-  /** nodeIds of every instance of this part */
+  /** nodeIds of every instance of this component */
   nodeIds: string[];
   /** Per-instance volume (mm³) from the representative leaf */
   volume: number | null;
@@ -22,9 +22,9 @@ export type AssemblyGraphIndex = {
   /** Leaf instances in depth-first order */
   leaves: AssemblyGraphNode[];
   /** All leaves grouped by identical geometry */
-  groups: PartGroup[];
+  groups: ComponentGroup[];
   /** Leaf nodeId → its group */
-  groupByNodeId: Map<string, PartGroup>;
+  groupByNodeId: Map<string, ComponentGroup>;
 };
 
 function groupKey(node: AssemblyGraphNode): string {
@@ -35,9 +35,9 @@ function groupKey(node: AssemblyGraphNode): string {
 export function indexAssemblyGraph(graph: AssemblyGraph): AssemblyGraphIndex {
   const nodesById = new Map<string, AssemblyGraphNode>();
   const leaves: AssemblyGraphNode[] = [];
-  const groups: PartGroup[] = [];
-  const groupsByKey = new Map<string, PartGroup>();
-  const groupByNodeId = new Map<string, PartGroup>();
+  const groups: ComponentGroup[] = [];
+  const groupsByKey = new Map<string, ComponentGroup>();
+  const groupByNodeId = new Map<string, ComponentGroup>();
 
   const visit = (node: AssemblyGraphNode) => {
     nodesById.set(node.nodeId, node);
@@ -73,17 +73,17 @@ export function indexAssemblyGraph(graph: AssemblyGraph): AssemblyGraphIndex {
 }
 
 /**
- * Groups the given part nodeIds by identical geometry. Unknown/stale nodeIds
+ * Groups the given component nodeIds by identical geometry. Unknown/stale nodeIds
  * (e.g. after a model re-upload) are skipped.
  */
-export function groupPartNodeIds(
-  partNodeIds: string[],
+export function groupComponentNodeIds(
+  componentNodeIds: string[],
   index: AssemblyGraphIndex
-): PartGroup[] {
-  const result: PartGroup[] = [];
-  const byKey = new Map<string, PartGroup>();
+): ComponentGroup[] {
+  const result: ComponentGroup[] = [];
+  const byKey = new Map<string, ComponentGroup>();
 
-  for (const nodeId of partNodeIds) {
+  for (const nodeId of componentNodeIds) {
     const source = index.groupByNodeId.get(nodeId);
     if (!source) continue;
     let group = byKey.get(source.key);

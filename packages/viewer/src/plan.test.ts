@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { indexAssemblyGraph } from "./graph";
 import type { AssemblyPlan } from "./plan";
-import { buildAssemblyStepGroups, planMotionForParts } from "./plan";
+import { buildAssemblyStepGroups, planMotionForComponents } from "./plan";
 import type { AssemblyGraph, AssemblyGraphNode, Motion, Vec3 } from "./types";
 
 const lift: Motion = {
@@ -20,7 +20,7 @@ const plan: AssemblyPlan = {
   version: 1,
   unit: "mm",
   sequence: ["base", "bolt-1", "bolt-2", "cover"],
-  parts: {
+  components: {
     base: { motion: { type: "none" } },
     "bolt-1": { motion: lift, confidence: "high" },
     "bolt-2": { motion: lift, confidence: "high" },
@@ -29,33 +29,33 @@ const plan: AssemblyPlan = {
   warnings: []
 };
 
-describe("planMotionForParts", () => {
-  it("uses the part's own motion for a single part", () => {
-    expect(planMotionForParts(plan, ["bolt-1"])).toEqual({
+describe("planMotionForComponents", () => {
+  it("uses the component's own motion for a single component", () => {
+    expect(planMotionForComponents(plan, ["bolt-1"])).toEqual({
       motion: lift,
       confidence: "high"
     });
   });
 
-  it("uses the shared motion when all parts agree", () => {
-    expect(planMotionForParts(plan, ["bolt-1", "bolt-2"])).toEqual({
+  it("uses the shared motion when all components agree", () => {
+    expect(planMotionForComponents(plan, ["bolt-1", "bolt-2"])).toEqual({
       motion: lift,
       confidence: "high"
     });
   });
 
   it("falls back to the first motion with low confidence on disagreement", () => {
-    expect(planMotionForParts(plan, ["bolt-1", "cover"])).toEqual({
+    expect(planMotionForComponents(plan, ["bolt-1", "cover"])).toEqual({
       motion: lift,
       confidence: "low"
     });
   });
 
-  it("returns null for unplanned or unknown parts", () => {
-    expect(planMotionForParts(plan, ["base"])).toBeNull();
-    expect(planMotionForParts(plan, ["missing"])).toBeNull();
-    expect(planMotionForParts(plan, [])).toBeNull();
-    expect(planMotionForParts(null, ["bolt-1"])).toBeNull();
+  it("returns null for unplanned or unknown components", () => {
+    expect(planMotionForComponents(plan, ["base"])).toBeNull();
+    expect(planMotionForComponents(plan, ["missing"])).toBeNull();
+    expect(planMotionForComponents(plan, [])).toBeNull();
+    expect(planMotionForComponents(null, ["bolt-1"])).toBeNull();
   });
 });
 
@@ -84,7 +84,7 @@ function graphOf(leaves: AssemblyGraphNode[]): AssemblyGraph {
     version: 1,
     unit: "mm",
     sourceUnit: "mm",
-    partCount: leaves.length,
+    componentCount: leaves.length,
     root: {
       nodeId: "root",
       name: "Assembly",
@@ -117,12 +117,12 @@ describe("buildAssemblyStepGroups", () => {
     ])
   );
 
-  it("walks the sequence, merging consecutive identical parts with the longest travel", () => {
+  it("walks the sequence, merging consecutive identical components with the longest travel", () => {
     const stepPlan: AssemblyPlan = {
       version: 1,
       unit: "mm",
       sequence: ["base", "bolt-1", "bolt-2"],
-      parts: {
+      components: {
         base: { motion: { type: "none" } },
         "bolt-1": {
           motion: { type: "linear", direction: [0, 0, -1], distance: 20 },
@@ -139,9 +139,9 @@ describe("buildAssemblyStepGroups", () => {
     const groups = buildAssemblyStepGroups(stepPlan, graphIndex);
 
     expect(groups).toHaveLength(2);
-    expect(groups[0]?.partNodeIds).toEqual(["base"]);
+    expect(groups[0]?.componentNodeIds).toEqual(["base"]);
     expect(groups[0]?.motion).toEqual({ type: "none" });
-    expect(groups[1]?.partNodeIds).toEqual(["bolt-1", "bolt-2"]);
+    expect(groups[1]?.componentNodeIds).toEqual(["bolt-1", "bolt-2"]);
     expect(groups[1]?.motion).toEqual({
       type: "linear",
       direction: [0, 0, -1],
@@ -151,7 +151,7 @@ describe("buildAssemblyStepGroups", () => {
     expect(groups[1]?.blockedBy).toEqual([]);
   });
 
-  it("drops fabricated motions on flagged parts and never synthesizes a fallback for them", () => {
+  it("drops fabricated motions on flagged components and never synthesizes a fallback for them", () => {
     const fabricated: Motion = {
       type: "linear",
       direction: [1, 0, 0],
@@ -161,7 +161,7 @@ describe("buildAssemblyStepGroups", () => {
       version: 1,
       unit: "mm",
       sequence: ["base", "bolt-1", "bolt-2"],
-      parts: {
+      components: {
         base: { motion: { type: "none" } },
         "bolt-1": {
           motion: fabricated,
@@ -182,7 +182,7 @@ describe("buildAssemblyStepGroups", () => {
     expect(groups).toHaveLength(2);
     const flagged = groups[1];
     // Identical flagged twins share a step; their blockers merge
-    expect(flagged?.partNodeIds).toEqual(["bolt-1", "bolt-2"]);
+    expect(flagged?.componentNodeIds).toEqual(["bolt-1", "bolt-2"]);
     expect(flagged?.motion).toEqual({ type: "none" });
     expect(flagged?.blockedBy).toEqual(["base", "cover"]);
     expect(flagged?.confidence).toBe("low");
@@ -193,7 +193,7 @@ describe("buildAssemblyStepGroups", () => {
       version: 1,
       unit: "mm",
       sequence: ["bolt-1", "bolt-2"],
-      parts: {
+      components: {
         "bolt-1": {
           motion: { type: "linear", direction: [0, 0, -1], distance: 20 },
           confidence: "high"
@@ -211,7 +211,7 @@ describe("buildAssemblyStepGroups", () => {
 
     expect(groups).toHaveLength(2);
     expect(groups[0]?.blockedBy).toEqual([]);
-    expect(groups[1]?.partNodeIds).toEqual(["bolt-2"]);
+    expect(groups[1]?.componentNodeIds).toEqual(["bolt-2"]);
     expect(groups[1]?.motion).toEqual({ type: "none" });
   });
 
@@ -220,7 +220,7 @@ describe("buildAssemblyStepGroups", () => {
       version: 3,
       unit: "mm",
       sequence: ["pcb-a", "pcb-b"],
-      parts: {
+      components: {
         "pcb-a": {
           motion: { type: "linear", direction: [0, 0, 1], distance: 30 },
           confidence: "high",
@@ -234,7 +234,7 @@ describe("buildAssemblyStepGroups", () => {
       },
       groups: {
         pcb: {
-          partNodeIds: ["pcb-a", "pcb-b"],
+          componentNodeIds: ["pcb-a", "pcb-b"],
           motion: { type: "linear", direction: [0, 0, 1], distance: 30 },
           name: "PCB Assembly"
         }
@@ -245,16 +245,16 @@ describe("buildAssemblyStepGroups", () => {
     const groups = buildAssemblyStepGroups(stepPlan, graphIndex);
 
     expect(groups).toHaveLength(1);
-    expect(groups[0]?.partNodeIds).toEqual(["pcb-a", "pcb-b"]);
+    expect(groups[0]?.componentNodeIds).toEqual(["pcb-a", "pcb-b"]);
     expect(groups[0]?.name).toBe("PCB Assembly");
   });
 
-  it("synthesizes an AABB fallback for unflagged none-motion parts, but never the base", () => {
+  it("synthesizes an AABB fallback for unflagged none-motion components, but never the base", () => {
     const stepPlan: AssemblyPlan = {
       version: 1,
       unit: "mm",
       sequence: ["base", "cover"],
-      parts: {
+      components: {
         base: { motion: { type: "none" } },
         // Legacy plan: unplanned but not flagged
         cover: { motion: { type: "none" } }
@@ -290,7 +290,7 @@ describe("buildAssemblyStepGroups v2", () => {
       version: 2,
       unit: "mm",
       sequence: ["rail", "slider", "knob"],
-      parts: {
+      components: {
         rail: { motion: { type: "none" }, tier: "base", verified: true },
         slider: {
           motion: slide,
@@ -307,18 +307,18 @@ describe("buildAssemblyStepGroups v2", () => {
           verified: true
         }
       },
-      groups: { g1: { partNodeIds: ["slider", "knob"], motion: slide } },
+      groups: { g1: { componentNodeIds: ["slider", "knob"], motion: slide } },
       warnings: []
     };
 
     const groups = buildAssemblyStepGroups(v2, graphIndex);
 
     expect(groups).toHaveLength(2);
-    expect(groups[1]?.partNodeIds).toEqual(["slider", "knob"]);
+    expect(groups[1]?.componentNodeIds).toEqual(["slider", "knob"]);
     expect(groups[1]?.motion).toEqual(slide);
   });
 
-  it("folds rigidly merged parts into their host's step", () => {
+  it("folds rigidly merged components into their host's step", () => {
     const lift: Motion = {
       type: "linear",
       direction: [0, 0, -1],
@@ -328,7 +328,7 @@ describe("buildAssemblyStepGroups v2", () => {
       version: 2,
       unit: "mm",
       sequence: ["rail", "slider"],
-      parts: {
+      components: {
         rail: { motion: { type: "none" }, tier: "base", verified: true },
         slider: { motion: lift, confidence: "high", verified: true },
         logo: { motion: { type: "none" }, mergedInto: "slider" }
@@ -339,7 +339,7 @@ describe("buildAssemblyStepGroups v2", () => {
     const groups = buildAssemblyStepGroups(v2, graphIndex);
 
     expect(groups).toHaveLength(2);
-    expect(groups[1]?.partNodeIds).toEqual(["slider", "logo"]);
+    expect(groups[1]?.componentNodeIds).toEqual(["slider", "logo"]);
     expect(groups[1]?.motion).toEqual(lift);
   });
 
@@ -348,7 +348,7 @@ describe("buildAssemblyStepGroups v2", () => {
       version: 2,
       unit: "mm",
       sequence: ["rail", "slider"],
-      parts: {
+      components: {
         rail: { motion: { type: "none" }, tier: "base", verified: true },
         slider: {
           motion: { type: "linear", direction: [0, 0, -1], distance: 40 },
@@ -395,7 +395,7 @@ describe("corridor-aware simultaneous steps", () => {
     version: 1,
     unit: "mm",
     sequence: ["clip-0", "clip-1", "clip-2", "clip-3"],
-    parts: Object.fromEntries(
+    components: Object.fromEntries(
       [0, 1, 2, 3].map((index) => [
         `clip-${index}`,
         { motion: inlineSlide, confidence: "high" as const }
@@ -406,7 +406,7 @@ describe("corridor-aware simultaneous steps", () => {
 
   it("splits in-line slide-ins into independent steps", () => {
     const groups = buildAssemblyStepGroups(inlinePlan, inlineGraph);
-    expect(groups.map((group) => group.partNodeIds)).toEqual([
+    expect(groups.map((group) => group.componentNodeIds)).toEqual([
       ["clip-0"],
       ["clip-1"],
       ["clip-2"],
@@ -414,7 +414,7 @@ describe("corridor-aware simultaneous steps", () => {
     ]);
   });
 
-  it("keeps side-by-side same-direction parts on one simultaneous step", () => {
+  it("keeps side-by-side same-direction components on one simultaneous step", () => {
     // Same four clips, but seated side by side across Y: corridors are
     // parallel and disjoint, simultaneous insertion is collision-free
     const sideGraph = indexAssemblyGraph(
@@ -433,7 +433,7 @@ describe("corridor-aware simultaneous steps", () => {
     );
     const groups = buildAssemblyStepGroups(inlinePlan, sideGraph);
     expect(groups).toHaveLength(1);
-    expect(groups[0]?.partNodeIds).toEqual([
+    expect(groups[0]?.componentNodeIds).toEqual([
       "clip-0",
       "clip-1",
       "clip-2",
@@ -443,7 +443,7 @@ describe("corridor-aware simultaneous steps", () => {
 
   it("never shares steps without a graph (hash falls back to nodeId)", () => {
     // Pre-existing behavior, unchanged by the corridor gate: with no
-    // graph there is no geometryHash, so parts can't be identified as
+    // graph there is no geometryHash, so components can't be identified as
     // identical in the first place
     const groups = buildAssemblyStepGroups(inlinePlan, null);
     expect(groups).toHaveLength(4);

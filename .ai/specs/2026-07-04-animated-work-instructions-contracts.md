@@ -19,7 +19,7 @@ nodeId = sha1(geometryHash : parentPath : siblingOrdinal)[:16]
   parent (disambiguates 4 identical brackets).
 
 The `nodeId` appears in (a) glTF node `extras.nodeId`, (b) `graph.json` nodes,
-(c) `assemblyInstructionStep.partNodeIds`.
+(c) `assemblyInstructionStep.componentNodeIds`.
 
 ## 2. graph.json (written by /convert)
 
@@ -28,7 +28,7 @@ The `nodeId` appears in (a) glTF node `extras.nodeId`, (b) `graph.json` nodes,
   "version": 1,
   "unit": "mm",                  // normalized output unit (always mm in Phase 0)
   "sourceUnit": "inch",          // unit declared in the STEP file
-  "partCount": 42,               // count of leaf instances
+  "componentCount": 42,               // count of leaf instances
   "root": {                      // assembly tree, root has no geometry
     "nodeId": "a1b2c3d4e5f60718",
     "name": "MAIN-ASSY",
@@ -61,7 +61,7 @@ both sides).
   "options": { "linearDeflection": 0.1, "angularDeflection": 0.5 } // optional
 }
 // response 200 (synchronous in Phase 0; Inngest applies its own timeout/retries)
-{ "ok": true, "partCount": 42, "unit": "mm", "stats": { "convertMs": 1234, "meshTriangles": 100000 } }
+{ "ok": true, "componentCount": 42, "unit": "mm", "stats": { "convertMs": 1234, "meshTriangles": 100000 } }
 // response 4xx/5xx
 { "ok": false, "error": "human-readable message", "code": "READ_FAILED" | "TESSELLATION_FAILED" | "UPLOAD_FAILED" | "INVALID_INPUT" | "LIMIT_EXCEEDED" | "BUSY" }
 // status mapping: 400 INVALID_INPUT (incl. URL policy violations), 413
@@ -117,8 +117,8 @@ unit's motion + `groupId`; the unit is one `groups` entry).
 // GET /plan/{jobId} response 200
 { "ok": true, "status": "pending" | "running" | "done" | "error",
   // present only when status == "done":
-  "plan": { "version": 3, "unit": "mm", "sequence": ["..."], "parts": { }, "groups": { } },
-  "partCount": 431, "plannedCount": 424,
+  "plan": { "version": 3, "unit": "mm", "sequence": ["..."], "components": { }, "groups": { } },
+  "componentCount": 431, "plannedCount": 424,
   "stats": { "planMs": 105000, "verifiedCount": 18,
              "tiers": { "linear": 13, "l": 4, "escape": 0, "group": 0, "flagged": 2, "forced": 0, "unplanned": 0 },
              "warnings": [] },
@@ -236,7 +236,7 @@ plan.json (returned inline in the `done` poll response; the caller persists it):
   "version": 3,
   "unit": "mm",
   "sequence": ["nodeId", "..."],     // constraint-consistent assembly order; [0] is the base
-  "parts": {
+  "components": {
     "<nodeId>": {
       "motion": { /* INSERTION motion per §4 (removal reversed) */ },
       "confidence": "high" | "low",
@@ -249,7 +249,7 @@ plan.json (returned inline in the `done` poll response; the caller persists it):
     }
   },
   "groups": {                        // subassembly units (optional)
-    "g1": { "partNodeIds": ["nodeId", "..."], "motion": { /* shared */ },
+    "g1": { "componentNodeIds": ["nodeId", "..."], "motion": { /* shared */ },
             "name": "BCU PCB" }      // v3: unit name → step title (optional)
   },
   "warnings": ["..."]                // one entry per flagged part / merge / skipped preference
@@ -260,7 +260,7 @@ All v2/v3 fields are optional additions — older files keep parsing. Bumping th
 version invalidates stored plans (consumers treat below-current as absent and
 re-plan), which is how pre-grouping (v2) plans get replaced.
 
-Editor semantics: when a step's `partNodeIds` change, motion is auto-filled
+Editor semantics: when a step's `componentNodeIds` change, motion is auto-filled
 from plan.json (single part → its motion; multiple parts → the shared motion
 if all agree, else the first part's motion with confidence low). Parts the
 plan flagged are never auto-filled — their recorded motion is "none" and the
@@ -338,7 +338,7 @@ type AssemblyStep = {
   title: string | null;
   instructionText: string | null; // derived plain-text snapshot of the step's
                                   // rich-text `description` (tiptap JSON)
-  partNodeIds: string[];     // parts installed in this step
+  componentNodeIds: string[];     // components installed in this step
   motion: Motion;            // section 4
   camera: CameraPose | null;
   fastener: Fastener | null;

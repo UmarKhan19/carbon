@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-07T04:39:46.292Z",
+  "generated": "2026-07-08T04:23:00.390Z",
   "totalTools": 1292,
   "modules": 15,
   "tools": [
@@ -19735,7 +19735,7 @@
               "type": "string"
             }
           },
-          "partNodeIds": {
+          "componentNodeIds": {
             "type": "array",
             "items": {
               "type": "string"
@@ -19788,10 +19788,10 @@
       }
     },
     {
-      "name": "production_updateAssemblyStepParts",
+      "name": "production_updateAssemblyStepComponents",
       "module": "production",
       "classification": "WRITE",
-      "description": "update assembly step parts",
+      "description": "update assembly step components",
       "paramCount": 2,
       "serviceParams": [
         "client",
@@ -19807,7 +19807,7 @@
           "id": {
             "type": "string"
           },
-          "partNodeIds": {
+          "componentNodeIds": {
             "type": "array",
             "items": {
               "type": "string"
@@ -19816,7 +19816,7 @@
         },
         "required": [
           "id",
-          "partNodeIds"
+          "componentNodeIds"
         ]
       }
     },
@@ -20351,7 +20351,7 @@
           "name": {
             "type": "string"
           },
-          "partNodeIds": {
+          "componentNodeIds": {
             "type": "array",
             "items": {
               "type": "string"
@@ -20367,7 +20367,7 @@
         "required": [
           "modelUploadId",
           "name",
-          "partNodeIds"
+          "componentNodeIds"
         ]
       }
     },
@@ -20472,10 +20472,10 @@
       }
     },
     {
-      "name": "production_getAssemblyPartMappings",
+      "name": "production_getAssemblyComponentMappings",
       "module": "production",
       "classification": "READ",
-      "description": "get assembly part mappings",
+      "description": "get assembly component mappings",
       "paramCount": 1,
       "serviceParams": [
         "client",
@@ -20497,10 +20497,10 @@
       }
     },
     {
-      "name": "production_upsertAssemblyPartMapping",
+      "name": "production_upsertAssemblyComponentMapping",
       "module": "production",
       "classification": "WRITE",
-      "description": "upsert assembly part mapping",
+      "description": "upsert assembly component mapping",
       "paramCount": 4,
       "serviceParams": [
         "client",
@@ -20539,10 +20539,10 @@
       }
     },
     {
-      "name": "production_deleteAssemblyPartMapping",
+      "name": "production_deleteAssemblyComponentMapping",
       "module": "production",
       "classification": "DESTRUCTIVE",
-      "description": "delete assembly part mapping",
+      "description": "delete assembly component mapping",
       "paramCount": 1,
       "serviceParams": [
         "client",
@@ -20590,10 +20590,10 @@
       }
     },
     {
-      "name": "production_autoMatchAssemblyParts",
+      "name": "production_autoMatchAssemblyComponents",
       "module": "production",
       "classification": "WRITE",
-      "description": "auto match assembly parts",
+      "description": "auto match assembly components",
       "paramCount": 1,
       "serviceParams": [
         "client",

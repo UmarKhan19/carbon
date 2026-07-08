@@ -27,7 +27,7 @@ function graphOf(leaves: AssemblyGraphNode[]): AssemblyGraph {
     version: 1,
     unit: "mm",
     sourceUnit: "mm",
-    partCount: leaves.length,
+    componentCount: leaves.length,
     root: {
       nodeId: "root",
       name: "Assembly",
@@ -43,7 +43,7 @@ function graphOf(leaves: AssemblyGraphNode[]): AssemblyGraph {
 }
 
 describe("synthesizeFallbackMotion", () => {
-  it("returns null when no part resolves to leaf geometry", () => {
+  it("returns null when no component resolves to leaf geometry", () => {
     const index = indexAssemblyGraph(
       graphOf([leaf("base", { min: [0, 0, 0], max: [100, 100, 10] })])
     );
@@ -51,7 +51,7 @@ describe("synthesizeFallbackMotion", () => {
     expect(synthesizeFallbackMotion(index, [])).toBeNull();
   });
 
-  it("lifts an unobstructed top part straight up", () => {
+  it("lifts an unobstructed top component straight up", () => {
     // Small box sitting on a plate: nothing above it, exits +Z
     const index = indexAssemblyGraph(
       graphOf([
@@ -69,64 +69,64 @@ describe("synthesizeFallbackMotion", () => {
   });
 
   it("escapes sideways-then-up from under an overhang", () => {
-    // Part under a canopy that blocks +Z and walls blocking +X/-X/±Y at its
-    // level, open toward -X above the walls... simpler: canopy over the part
-    // only; the part must hop +X past the canopy edge, then exit +Z
+    // Component under a canopy that blocks +Z and walls blocking +X/-X/±Y at its
+    // level, open toward -X above the walls... simpler: canopy over the component
+    // only; the component must hop +X past the canopy edge, then exit +Z
     const index = indexAssemblyGraph(
       graphOf([
         leaf("base", { min: [-50, -50, 0], max: [50, 50, 10] }),
-        // canopy directly above the part, wider than it on -X/±Y so the only
+        // canopy directly above the component, wider than it on -X/±Y so the only
         // short hop past its footprint is +X
         leaf("canopy", { min: [-50, -50, 30], max: [20, 50, 40] }),
-        leaf("part", { min: [-10, -10, 10], max: [10, 10, 20] })
+        leaf("component", { min: [-10, -10, 10], max: [10, 10, 20] })
       ])
     );
 
-    const motion = synthesizeFallbackMotion(index, ["part"]);
+    const motion = synthesizeFallbackMotion(index, ["component"]);
     expect(motion).not.toBeNull();
-    // The part exits +X (only unobstructed straight direction: -X/±Y sweep
+    // The component exits +X (only unobstructed straight direction: -X/±Y sweep
     // under the canopy... all lateral sweeps at z10-20 are actually free of
     // the canopy at z30 — so this stays linear along a lateral axis
     expect(motion?.type).toBe("linear");
   });
 
   it("hops past blockers when every straight exit is obstructed", () => {
-    // The part is ringed by boxes at its own level on all four sides and
+    // The component is ringed by boxes at its own level on all four sides and
     // covered above and below by slabs that leave a gap over the +X blocker:
     // straight exits all collide; the escape is +X after hopping... instead
     // craft the canonical case: blockers above AND laterally except one hop
     const index = indexAssemblyGraph(
       graphOf([
-        leaf("part", { min: [-10, -10, 10], max: [10, 10, 20] }),
+        leaf("component", { min: [-10, -10, 10], max: [10, 10, 20] }),
         // slabs above and below, spanning the whole footprint
         leaf("above", { min: [-40, -40, 25], max: [40, 40, 35] }),
         leaf("below", { min: [-40, -40, -5], max: [40, 40, 5] }),
-        // lateral blockers on -X and ±Y at the part's level
+        // lateral blockers on -X and ±Y at the component's level
         leaf("wallNX", { min: [-40, -40, 5], max: [-20, 40, 25] }),
         leaf("wallPY", { min: [-40, 20, 5], max: [40, 40, 25] }),
         leaf("wallNY", { min: [-40, -40, 5], max: [40, -20, 25] })
       ])
     );
 
-    const motion = synthesizeFallbackMotion(index, ["part"]);
-    // +X at the part's level is the only clear straight exit
+    const motion = synthesizeFallbackMotion(index, ["component"]);
+    // +X at the component's level is the only clear straight exit
     expect(motion?.type).toBe("linear");
     if (motion?.type !== "linear") throw new Error("expected linear");
     expect(motion.direction).toEqual([-1, -0, -0]);
   });
 
   it("emits a two-segment escape when no straight exit exists", () => {
-    // Fully ringed at its level, capped above over the part footprint only:
-    // the part must hop +X (free lane at its level), then exit +Z past the
+    // Fully ringed at its level, capped above over the component footprint only:
+    // the component must hop +X (free lane at its level), then exit +Z past the
     // cap's edge
     const index = indexAssemblyGraph(
       graphOf([
-        leaf("part", { min: [-10, -10, 10], max: [10, 10, 20] }),
-        // cap above the part only (footprint ends at x=15)
+        leaf("component", { min: [-10, -10, 10], max: [10, 10, 20] }),
+        // cap above the component only (footprint ends at x=15)
         leaf("cap", { min: [-40, -40, 25], max: [15, 40, 35] }),
         // floor below everything
         leaf("floor", { min: [-40, -40, 0], max: [60, 40, 5] }),
-        // walls on -X and ±Y at the part's level; +X lane is open but a
+        // walls on -X and ±Y at the component's level; +X lane is open but a
         // distant wall blocks the straight +X exit
         leaf("wallNX", { min: [-40, -40, 5], max: [-20, 40, 25] }),
         leaf("wallPY", { min: [-40, 20, 5], max: [60, 40, 25] }),
@@ -135,7 +135,7 @@ describe("synthesizeFallbackMotion", () => {
       ])
     );
 
-    const motion = synthesizeFallbackMotion(index, ["part"]);
+    const motion = synthesizeFallbackMotion(index, ["component"]);
     expect(motion?.type).toBe("L");
     if (motion?.type !== "L") throw new Error("expected L");
     expect(motion.segments.length).toBe(2);
@@ -152,7 +152,7 @@ describe("synthesizeFallbackMotion", () => {
   it("falls back to a best-effort linear motion when fully enclosed", () => {
     const index = indexAssemblyGraph(
       graphOf([
-        leaf("part", { min: [-10, -10, -10], max: [10, 10, 10] }),
+        leaf("component", { min: [-10, -10, -10], max: [10, 10, 10] }),
         // six enclosing slabs
         leaf("top", { min: [-30, -30, 20], max: [30, 30, 30] }),
         leaf("bottom", { min: [-30, -30, -30], max: [30, 30, -20] }),
@@ -163,7 +163,7 @@ describe("synthesizeFallbackMotion", () => {
       ])
     );
 
-    const motion = synthesizeFallbackMotion(index, ["part"]);
+    const motion = synthesizeFallbackMotion(index, ["component"]);
     // Still animates: best-effort straight line, never "none"
     expect(motion?.type).toBe("linear");
   });

@@ -1,7 +1,7 @@
 -- Assembly units: sets of model leaf nodes the motion planner treats as one
 -- rigid body (e.g. a purchased PCB whose CAD model shows every component). A
 -- user override on top of the automatic BOM-driven unit derivation. Scoped to
--- the model upload (like assemblyPartMapping) so it survives instruction
+-- the model upload (like assemblyComponentMapping) so it survives instruction
 -- delete/recreate; instructions attach to items, so a subassembly with its own
 -- build steps is simply the child item's own instruction — no child link here.
 
@@ -9,7 +9,7 @@ CREATE TABLE "assemblyUnit" (
   "id" TEXT NOT NULL DEFAULT xid(),
   "modelUploadId" TEXT NOT NULL,
   "name" TEXT NOT NULL,
-  "partNodeIds" TEXT[] NOT NULL DEFAULT '{}',
+  "componentNodeIds" TEXT[] NOT NULL DEFAULT '{}',
   "itemId" TEXT,
   "companyId" TEXT NOT NULL,
   "createdBy" TEXT NOT NULL,

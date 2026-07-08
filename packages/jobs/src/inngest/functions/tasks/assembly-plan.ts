@@ -111,13 +111,13 @@ export const assemblyPlanFunction = inngest.createFunction(
           const client = getCarbonServiceRole();
           const steps = await client
             .from("assemblyInstructionStep")
-            .select("partNodeIds")
+            .select("componentNodeIds")
             .eq("assemblyInstructionId", reMotionFor)
             .eq("companyId", companyId)
             .order("sortOrder", { ascending: true });
           // Every step's parts (Done included — they're obstacles) in order.
           return (steps.data ?? [])
-            .map((row) => row.partNodeIds ?? [])
+            .map((row) => row.componentNodeIds ?? [])
             .filter((group) => group.length > 0);
         })
       : null;

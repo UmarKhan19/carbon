@@ -5,12 +5,12 @@ import { validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import {
-  assemblyInstructionStepPartsValidator,
-  updateAssemblyStepParts
+  assemblyInstructionStepComponentsValidator,
+  updateAssemblyStepComponents
 } from "~/modules/production";
 
-// Autosave target for the Details panel's Add/remove part controls: patches only
-// the step's assigned parts, leaving the rest of the step untouched.
+// Autosave target for the Details panel's Add/remove component controls: patches
+// only the step's assigned components, leaving the rest of the step untouched.
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
   const { client, userId } = await requirePermissions(request, {
@@ -21,26 +21,29 @@ export async function action({ request, params }: ActionFunctionArgs) {
   if (!stepId) throw notFound("step id is not found");
 
   const validation = await validator(
-    assemblyInstructionStepPartsValidator
+    assemblyInstructionStepComponentsValidator
   ).validate(await request.formData());
 
   if (validation.error) {
     return data(
       { success: false },
-      await flash(request, error(validation.error, "Failed to update parts"))
+      await flash(
+        request,
+        error(validation.error, "Failed to update components")
+      )
     );
   }
 
-  const update = await updateAssemblyStepParts(client, {
+  const update = await updateAssemblyStepComponents(client, {
     id: stepId,
-    partNodeIds: validation.data.partNodeIds,
+    componentNodeIds: validation.data.componentNodeIds,
     updatedBy: userId
   });
 
   if (update.error) {
     return data(
       { success: false },
-      await flash(request, error(update.error, "Failed to update parts"))
+      await flash(request, error(update.error, "Failed to update components"))
     );
   }
 

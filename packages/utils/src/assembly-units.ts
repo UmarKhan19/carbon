@@ -1,6 +1,6 @@
 /**
  * Deriving the "units" a motion planner should treat as one rigid body from a
- * CAD assembly graph, its item BOM, geometry↔BOM mappings, an LLM part→BOM
+ * CAD assembly graph, its item BOM, geometry↔BOM mappings, an LLM component→BOM
  * assignment, and user overrides. Pure (no IO), so the planner worker, the
  * editor UI, and tests all share one implementation.
  *
@@ -12,7 +12,7 @@
  * subassembly nesting (a populated PCB's hundreds of R/C/IC solids are
  * top-level siblings of the enclosure and screws). So units are grouped by
  * which BOM line each leaf belongs to, not by tree position: the LLM assigns
- * each distinct part name to a BOM line (electronic components → the "PCB"
+ * each distinct component name to a BOM line (electronic components → the "PCB"
  * line), leaves group by assignment, and a line collapses into ONE rigid body
  * only when it's a single instance shown in detail (quantity ≤ 1 with ≥ 2
  * leaves) — the PCB, never the 8 screws.
@@ -51,7 +51,7 @@ export function nameSimilarity(a: string, b: string): number {
   return shared / (tokensA.size + tokensB.size - shared);
 }
 
-/** Threshold above which two names are treated as the same part. */
+/** Threshold above which two names are treated as the same component. */
 export const NAME_MATCH_THRESHOLD = 0.45;
 
 // --- Leaf collection -----------------------------------------------------
@@ -77,10 +77,10 @@ export function collectLeafNodes(graph: UnitGraph): UnitGraphNode[] {
 }
 
 /**
- * Distinct leaf part names with their instance counts — the input to the LLM
- * BOM-assignment prompt (semantic matching happens on the name).
+ * Distinct leaf component names with their instance counts — the input to the
+ * LLM BOM-assignment prompt (semantic matching happens on the name).
  */
-export function distinctPartNames(
+export function distinctComponentNames(
   graph: UnitGraph
 ): { name: string; count: number }[] {
   const counts = new Map<string, number>();
@@ -93,7 +93,7 @@ export function distinctPartNames(
 // --- Unit derivation -----------------------------------------------------
 
 /**
- * A planned unit: the set of leaf parts the planner should treat as one rigid
+ * A planned unit: the set of leaf components the planner should treat as one rigid
  * body (and that becomes one assembly step). A purchased PCB whose CAD model
  * carries hundreds of tiny child solids collapses to a single unit.
  */
@@ -109,10 +109,10 @@ export type AssemblyUnit = {
 };
 
 type BomMaterial = { itemId: string; name: string | null; quantity?: number };
-type PartMapping = { geometryHash: string; itemId: string };
-type AuthoredUnit = { id: string; partNodeIds: string[]; name?: string };
-/** Part name → BOM itemId, as decided by the LLM assigner. */
-type PartMatch = { name: string; itemId: string };
+type ComponentMapping = { geometryHash: string; itemId: string };
+type AuthoredUnit = { id: string; componentNodeIds: string[]; name?: string };
+/** Component name → BOM itemId, as decided by the LLM assigner. */
+type ComponentMatch = { name: string; itemId: string };
 
 /**
  * Derives the planned units for a model.
@@ -120,41 +120,41 @@ type PartMatch = { name: string; itemId: string };
  * Precedence:
  *  1. Authored units are explicit overrides.
  *  2. Each remaining leaf is assigned a BOM item — geometry↔BOM mapping first
- *     (exact), then the LLM part-name assignment.
+ *     (exact), then the LLM component-name assignment.
  *  3. Leaves group by assigned item. A group collapses into one rigid unit only
  *     when the BOM quantity is ≤ 1 and it has ≥ 2 leaves (a single subassembly
- *     shown in full detail — the PCB). Otherwise each leaf stays its own part
+ *     shown in full detail — the PCB). Otherwise each leaf stays its own component
  *     (8 screws remain 8 bodies; the viewer still groups identical ones into a
  *     step). Unassigned leaves are loose units.
  */
 export function deriveAssemblyUnits(args: {
   graph: UnitGraph;
   bomMaterials: BomMaterial[];
-  partMappings: PartMapping[];
+  componentMappings: ComponentMapping[];
   authoredUnits: AuthoredUnit[];
-  /** Part name → itemId assignments from the LLM (optional). */
-  partMatches?: PartMatch[];
+  /** Component name → itemId assignments from the LLM (optional). */
+  componentMatches?: ComponentMatch[];
 }): AssemblyUnit[] {
   const {
     graph,
     bomMaterials,
-    partMappings,
+    componentMappings,
     authoredUnits,
-    partMatches = []
+    componentMatches = []
   } = args;
 
   const bomByItem = new Map(bomMaterials.map((m) => [m.itemId, m]));
   const itemByHash = new Map(
-    partMappings.map((m) => [m.geometryHash, m.itemId])
+    componentMappings.map((m) => [m.geometryHash, m.itemId])
   );
-  const itemByName = new Map(partMatches.map((m) => [m.name, m.itemId]));
+  const itemByName = new Map(componentMatches.map((m) => [m.name, m.itemId]));
 
   const units: AssemblyUnit[] = [];
   const claimed = new Set<string>();
 
   // 1. Authored overrides win; their leaves leave the automatic pass.
   for (const authored of authoredUnits) {
-    const nodeIds = authored.partNodeIds.filter((id) => !claimed.has(id));
+    const nodeIds = authored.componentNodeIds.filter((id) => !claimed.has(id));
     if (nodeIds.length === 0) continue;
     for (const id of nodeIds) claimed.add(id);
     const itemId = soleItem(nodeIds, graph, itemByHash, itemByName);
@@ -198,7 +198,7 @@ export function deriveAssemblyUnits(args: {
         source: "bom"
       });
     } else {
-      // Multiple instances (or a lone part) → keep each leaf separate.
+      // Multiple instances (or a lone component) → keep each leaf separate.
       for (const leaf of leaves) {
         units.push({
           id: leaf.nodeId,

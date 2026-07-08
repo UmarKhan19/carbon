@@ -2006,7 +2006,7 @@ export type Database = {
           itemId: string | null
           modelUploadId: string
           name: string
-          partNodeIds: string[]
+          componentNodeIds: string[]
           updatedAt: string | null
           updatedBy: string | null
         }
@@ -2018,7 +2018,7 @@ export type Database = {
           itemId?: string | null
           modelUploadId: string
           name: string
-          partNodeIds?: string[]
+          componentNodeIds?: string[]
           updatedAt?: string | null
           updatedBy?: string | null
         }
@@ -2030,7 +2030,7 @@ export type Database = {
           itemId?: string | null
           modelUploadId?: string
           name?: string
-          partNodeIds?: string[]
+          componentNodeIds?: string[]
           updatedAt?: string | null
           updatedBy?: string | null
         }
@@ -2444,7 +2444,7 @@ export type Database = {
           motion: Json
           notes: Json | null
           parentStepId: string | null
-          partNodeIds: string[]
+          componentNodeIds: string[]
           planConfidence: string
           required: boolean | null
           sortOrder: number
@@ -2475,7 +2475,7 @@ export type Database = {
           motion?: Json
           notes?: Json | null
           parentStepId?: string | null
-          partNodeIds?: string[]
+          componentNodeIds?: string[]
           planConfidence?: string
           required?: boolean | null
           sortOrder?: number
@@ -2506,7 +2506,7 @@ export type Database = {
           motion?: Json
           notes?: Json | null
           parentStepId?: string | null
-          partNodeIds?: string[]
+          componentNodeIds?: string[]
           planConfidence?: string
           required?: boolean | null
           sortOrder?: number
@@ -3029,7 +3029,7 @@ export type Database = {
           },
         ]
       }
-      assemblyPartMapping: {
+      assemblyComponentMapping: {
         Row: {
           companyId: string
           confidence: string
@@ -3068,161 +3068,161 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "assemblyPartMapping_companyId_fkey"
+            foreignKeyName: "assemblyComponentMapping_companyId_fkey"
             columns: ["companyId"]
             isOneToOne: false
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "assemblyPartMapping_companyId_fkey"
+            foreignKeyName: "assemblyComponentMapping_companyId_fkey"
             columns: ["companyId"]
             isOneToOne: false
             referencedRelation: "company"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "assemblyPartMapping_companyId_fkey"
+            foreignKeyName: "assemblyComponentMapping_companyId_fkey"
             columns: ["companyId"]
             isOneToOne: false
             referencedRelation: "customFieldTables"
             referencedColumns: ["companyId"]
           },
           {
-            foreignKeyName: "assemblyPartMapping_companyId_fkey"
+            foreignKeyName: "assemblyComponentMapping_companyId_fkey"
             columns: ["companyId"]
             isOneToOne: false
             referencedRelation: "integrations"
             referencedColumns: ["companyId"]
           },
           {
-            foreignKeyName: "assemblyPartMapping_createdBy_fkey"
+            foreignKeyName: "assemblyComponentMapping_createdBy_fkey"
             columns: ["createdBy"]
             isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "assemblyPartMapping_createdBy_fkey"
+            foreignKeyName: "assemblyComponentMapping_createdBy_fkey"
             columns: ["createdBy"]
             isOneToOne: false
             referencedRelation: "employeesAcrossCompanies"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "assemblyPartMapping_createdBy_fkey"
+            foreignKeyName: "assemblyComponentMapping_createdBy_fkey"
             columns: ["createdBy"]
             isOneToOne: false
             referencedRelation: "employeeSummary"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "assemblyPartMapping_createdBy_fkey"
+            foreignKeyName: "assemblyComponentMapping_createdBy_fkey"
             columns: ["createdBy"]
             isOneToOne: false
             referencedRelation: "user"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "assemblyPartMapping_createdBy_fkey"
+            foreignKeyName: "assemblyComponentMapping_createdBy_fkey"
             columns: ["createdBy"]
             isOneToOne: false
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
           },
           {
-            foreignKeyName: "assemblyPartMapping_itemId_fkey"
+            foreignKeyName: "assemblyComponentMapping_itemId_fkey"
             columns: ["itemId"]
             isOneToOne: false
             referencedRelation: "consumables"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "assemblyPartMapping_itemId_fkey"
+            foreignKeyName: "assemblyComponentMapping_itemId_fkey"
             columns: ["itemId"]
             isOneToOne: false
             referencedRelation: "item"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "assemblyPartMapping_itemId_fkey"
+            foreignKeyName: "assemblyComponentMapping_itemId_fkey"
             columns: ["itemId"]
             isOneToOne: false
             referencedRelation: "materials"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "assemblyPartMapping_itemId_fkey"
+            foreignKeyName: "assemblyComponentMapping_itemId_fkey"
             columns: ["itemId"]
             isOneToOne: false
             referencedRelation: "parts"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "assemblyPartMapping_itemId_fkey"
+            foreignKeyName: "assemblyComponentMapping_itemId_fkey"
             columns: ["itemId"]
             isOneToOne: false
             referencedRelation: "services"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "assemblyPartMapping_itemId_fkey"
+            foreignKeyName: "assemblyComponentMapping_itemId_fkey"
             columns: ["itemId"]
             isOneToOne: false
             referencedRelation: "tools"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "assemblyPartMapping_modelUploadId_fkey"
+            foreignKeyName: "assemblyComponentMapping_modelUploadId_fkey"
             columns: ["modelUploadId"]
             isOneToOne: false
             referencedRelation: "jobs"
             referencedColumns: ["modelId"]
           },
           {
-            foreignKeyName: "assemblyPartMapping_modelUploadId_fkey"
+            foreignKeyName: "assemblyComponentMapping_modelUploadId_fkey"
             columns: ["modelUploadId"]
             isOneToOne: false
             referencedRelation: "modelUpload"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "assemblyPartMapping_modelUploadId_fkey"
+            foreignKeyName: "assemblyComponentMapping_modelUploadId_fkey"
             columns: ["modelUploadId"]
             isOneToOne: false
             referencedRelation: "salesRfqLines"
             referencedColumns: ["modelId"]
           },
           {
-            foreignKeyName: "assemblyPartMapping_updatedBy_fkey"
+            foreignKeyName: "assemblyComponentMapping_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "assemblyPartMapping_updatedBy_fkey"
+            foreignKeyName: "assemblyComponentMapping_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "employeesAcrossCompanies"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "assemblyPartMapping_updatedBy_fkey"
+            foreignKeyName: "assemblyComponentMapping_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "employeeSummary"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "assemblyPartMapping_updatedBy_fkey"
+            foreignKeyName: "assemblyComponentMapping_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "user"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "assemblyPartMapping_updatedBy_fkey"
+            foreignKeyName: "assemblyComponentMapping_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "userDefaults"
@@ -25534,7 +25534,7 @@ export type Database = {
           id: string
           modelPath: string
           name: string | null
-          partCount: number | null
+          componentCount: number | null
           processedAt: string | null
           processingError: string | null
           processingStatus: Database["public"]["Enums"]["modelProcessingStatus"]
@@ -25553,7 +25553,7 @@ export type Database = {
           id?: string
           modelPath: string
           name?: string | null
-          partCount?: number | null
+          componentCount?: number | null
           processedAt?: string | null
           processingError?: string | null
           processingStatus?: Database["public"]["Enums"]["modelProcessingStatus"]
@@ -25572,7 +25572,7 @@ export type Database = {
           id?: string
           modelPath?: string
           name?: string | null
-          partCount?: number | null
+          componentCount?: number | null
           processedAt?: string | null
           processingError?: string | null
           processingStatus?: Database["public"]["Enums"]["modelProcessingStatus"]

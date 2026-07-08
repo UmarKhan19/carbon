@@ -141,7 +141,7 @@ export const assemblyConvertFunction = inngest.createFunction(
 
       const result = (await response.json().catch(() => null)) as {
         ok: boolean;
-        partCount?: number;
+        componentCount?: number;
         stats?: Record<string, unknown>;
         error?: string;
       } | null;
@@ -159,7 +159,7 @@ export const assemblyConvertFunction = inngest.createFunction(
           processingError: null,
           glbPath,
           graphPath,
-          partCount: result.partCount ?? null,
+          componentCount: result.componentCount ?? null,
           processedAt: new Date().toISOString()
         })
         .eq("id", modelUploadId);

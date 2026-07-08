@@ -3,7 +3,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
-import { deleteAssemblyPartMapping } from "~/modules/production";
+import { deleteAssemblyComponentMapping } from "~/modules/production";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const { client } = await requirePermissions(request, {
@@ -13,7 +13,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const { mappingId } = params;
   if (!mappingId) throw new Error("mappingId is not found");
 
-  const deleteMapping = await deleteAssemblyPartMapping(client, mappingId);
+  const deleteMapping = await deleteAssemblyComponentMapping(client, mappingId);
   if (deleteMapping.error) {
     return data(
       { success: false },

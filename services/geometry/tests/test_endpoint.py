@@ -42,7 +42,7 @@ def test_convert_endpoint_round_trip(
 
     body = response.json()
     assert body["ok"] is True
-    assert body["partCount"] == 5
+    assert body["componentCount"] == 5
     assert body["unit"] == "mm"
     assert body["stats"]["convertMs"] >= 0
     assert body["stats"]["meshTriangles"] > 0
@@ -50,7 +50,7 @@ def test_convert_endpoint_round_trip(
     glb = storage.puts["/out/model.glb"]
     assert glb[:4] == b"glTF"
     graph = json.loads(storage.puts["/out/graph.json"])
-    assert graph["partCount"] == 5
+    assert graph["componentCount"] == 5
     assert graph["root"]["isAssembly"] is True
 
 
@@ -90,9 +90,9 @@ def test_plan_async_submit_poll_result(monkeypatch: pytest.MonkeyPatch) -> None:
                 "version": 3,
                 "unit": "mm",
                 "sequence": ["n1"],
-                "parts": {"n1": {"motion": {"type": "none"}}},
+                "components": {"n1": {"motion": {"type": "none"}}},
             },
-            part_count=1,
+            component_count=1,
             planned_count=1,
             tiers={"linear": 1},
             warnings=[],
@@ -119,7 +119,7 @@ def test_plan_async_submit_poll_result(monkeypatch: pytest.MonkeyPatch) -> None:
         body = poll.json()
         if body["status"] == "done":
             assert body["plan"]["version"] == 3
-            assert body["partCount"] == 1
+            assert body["componentCount"] == 1
             assert body["plannedCount"] == 1
             break
         if body["status"] == "error":

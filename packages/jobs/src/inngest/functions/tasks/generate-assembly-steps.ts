@@ -60,7 +60,7 @@ export async function generateAssemblyStepsFromPlan(
     // A pre-grouped unit (e.g. a purchased PCB) titles its step with the unit
     // name; ungrouped steps derive their title from their parts.
     title: group.name ?? null,
-    partNodeIds: group.partNodeIds,
+    componentNodeIds: group.componentNodeIds,
     motion: group.motion as unknown as Json,
     warnings:
       group.blockedBy.length > 0

@@ -1,23 +1,23 @@
-import { type AssemblyGraphIndex, groupPartNodeIds } from "./graph";
+import { type AssemblyGraphIndex, groupComponentNodeIds } from "./graph";
 import type { AssemblyStep, Fastener } from "./types";
 
 /**
- * A named subassembly unit for title derivation: a set of leaf parts that
+ * A named subassembly unit for title derivation: a set of leaf components that
  * assemble as one body and share a single step titled by `name` (e.g. an
- * authored "Board" or a purchased PCB), rather than enumerating every part.
+ * authored "Board" or a purchased PCB), rather than enumerating every component.
  */
-export type NamedUnit = { name: string; partNodeIds: string[] };
+export type NamedUnit = { name: string; componentNodeIds: string[] };
 
 /**
  * Display title for a step. An explicit title always wins. When the step's
- * parts are exactly a named subassembly unit, the unit's name is used
- * ("Add Board") instead of listing every part inside it. Otherwise the title
- * is derived from the step's parts and fastener, e.g.
+ * components are exactly a named subassembly unit, the unit's name is used
+ * ("Add Board") instead of listing every component inside it. Otherwise the title
+ * is derived from the step's components and fastener, e.g.
  * "Add Seat Rail Clamp, M5 SHCS (×4)". Returns null when there is nothing to
- * derive from (no title, no known parts, no fastener).
+ * derive from (no title, no known components, no fastener).
  */
 export function describeStep(
-  step: Pick<AssemblyStep, "title" | "partNodeIds" | "fastener">,
+  step: Pick<AssemblyStep, "title" | "componentNodeIds" | "fastener">,
   index: AssemblyGraphIndex | null,
   units?: NamedUnit[]
 ): string | null {
@@ -25,16 +25,18 @@ export function describeStep(
 
   const fastenerSegment = describeFastener(step.fastener);
 
-  // A step whose parts are exactly a named subassembly is titled by that
-  // subassembly's name, never by listing each of its (often hundreds of) parts.
-  const unit = units ? matchNamedUnit(step.partNodeIds, units) : null;
+  // A step whose components are exactly a named subassembly is titled by that
+  // subassembly's name, never by listing each of its (often hundreds of) components.
+  const unit = units ? matchNamedUnit(step.componentNodeIds, units) : null;
   if (unit) {
     const segments = [unit.name];
     if (fastenerSegment) segments.push(fastenerSegment);
     return `Add ${segments.join(", ")}`;
   }
 
-  const groups = index ? groupPartNodeIds(step.partNodeIds, index) : [];
+  const groups = index
+    ? groupComponentNodeIds(step.componentNodeIds, index)
+    : [];
 
   if (groups.length === 0 && !fastenerSegment) return null;
 
@@ -57,15 +59,15 @@ function describeFastener(fastener: Fastener | null): string | null {
   return count && count > 1 ? `${spec} (×${count})` : spec;
 }
 
-/** The named unit whose parts set-equal the step's parts, if any. */
+/** The named unit whose components set-equal the step's components, if any. */
 function matchNamedUnit(
-  partNodeIds: string[],
+  componentNodeIds: string[],
   units: NamedUnit[]
 ): NamedUnit | null {
-  if (partNodeIds.length === 0) return null;
-  const stepSet = new Set(partNodeIds);
+  if (componentNodeIds.length === 0) return null;
+  const stepSet = new Set(componentNodeIds);
   for (const unit of units) {
-    const unitSet = new Set(unit.partNodeIds);
+    const unitSet = new Set(unit.componentNodeIds);
     if (unitSet.size === 0 || unitSet.size !== stepSet.size) continue;
     let equal = true;
     for (const nodeId of unitSet) {

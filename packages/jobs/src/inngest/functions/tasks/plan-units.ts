@@ -2,23 +2,23 @@ import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { Database } from "@carbon/database";
 import {
   deriveAssemblyUnits,
-  distinctPartNames,
+  distinctComponentNames,
   type UnitGraph
 } from "@carbon/utils";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { assignPartsToBom } from "./match-units";
+import { assignComponentsToBom } from "./match-units";
 
 /** A pre-grouped rigid body for the geometry planner's `options.units`. */
 export type PlanUnit = { id: string; name: string | null; nodeIds: string[] };
 
 /**
- * Derives the planned units for a model — the sets of leaf parts the planner
+ * Derives the planned units for a model — the sets of leaf components the planner
  * should treat as one rigid body — from its CAD graph, the item's BOM, the
  * geometry↔BOM mappings, and an LLM matcher. Best-effort: any failure (no
  * graph, no BOM, storage/parse error) returns `[]`, and the planner falls back
  * to planning every leaf.
  *
- * Only multi-leaf units are returned; a single-leaf unit is just a normal part.
+ * Only multi-leaf units are returned; a single-leaf unit is just a normal component.
  */
 export async function loadPlanUnits(args: {
   modelUploadId: string;
@@ -49,28 +49,31 @@ export async function loadPlanUnits(args: {
     const bom = itemId ? await loadItemBom(client, itemId, companyId) : [];
 
     const mappings = await client
-      .from("assemblyPartMapping")
+      .from("assemblyComponentMapping")
       .select("geometryHash, itemId")
       .eq("modelUploadId", modelUploadId);
 
-    // User "plan as one part" overrides — explicit units that always collapse.
+    // User "plan as one component" overrides — explicit units that always collapse.
     const authored = await client
       .from("assemblyUnit")
-      .select("id, name, partNodeIds")
+      .select("id, name, componentNodeIds")
       .eq("modelUploadId", modelUploadId);
 
-    const partMatches = await assignPartsToBom(distinctPartNames(graph), bom);
+    const componentMatches = await assignComponentsToBom(
+      distinctComponentNames(graph),
+      bom
+    );
 
     const units = deriveAssemblyUnits({
       graph,
       bomMaterials: bom,
-      partMappings: mappings.data ?? [],
+      componentMappings: mappings.data ?? [],
       authoredUnits: (authored.data ?? []).map((unit) => ({
         id: unit.id,
         name: unit.name,
-        partNodeIds: unit.partNodeIds ?? []
+        componentNodeIds: unit.componentNodeIds ?? []
       })),
-      partMatches
+      componentMatches
     });
 
     return units

@@ -2,16 +2,17 @@ export {
   AssemblyPlayer,
   type AssemblyPlayerHandle,
   type AssemblyPlayerProps,
-  type FuturePartsMode
+  type FutureComponentsMode
 } from "./AssemblyPlayer";
 export { AssemblyViewer, type AssemblyViewerProps } from "./AssemblyViewer";
+export { computeStepCameraPose, computeStepCameras } from "./camera";
 export { describeStep, type NamedUnit } from "./describe";
 export { synthesizeFallbackMotion } from "./fallback";
 export {
   type AssemblyGraphIndex,
-  groupPartNodeIds,
-  indexAssemblyGraph,
-  type PartGroup
+  type ComponentGroup,
+  groupComponentNodeIds,
+  indexAssemblyGraph
 } from "./graph";
 export {
   buildStepClip,
@@ -28,12 +29,12 @@ export {
 } from "./motion";
 export {
   type AssemblyPlan,
-  type AssemblyPlanPart,
+  type AssemblyPlanComponent,
   type AssemblyStepGroup,
   buildAssemblyStepGroups,
   CURRENT_PLAN_VERSION,
   type PlannedMotion,
-  planMotionForParts
+  planMotionForComponents
 } from "./plan";
 export type {
   AssemblyGraph,

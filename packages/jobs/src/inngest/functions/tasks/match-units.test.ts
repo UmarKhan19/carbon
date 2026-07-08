@@ -1,13 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { assignPartsToBom } from "./match-units";
+import { assignComponentsToBom } from "./match-units";
 
-const parts = [
+const components = [
   { name: "R_0402_1005Metric_49", count: 40 },
   { name: "minimalBCU_gen2_PCB", count: 1 }
 ];
 const bom = [{ itemId: "i_pcb", name: "BCU PCB" }];
 
-describe("assignPartsToBom guards", () => {
+describe("assignComponentsToBom guards", () => {
   const original = process.env.OPENAI_API_KEY;
   beforeEach(() => {
     process.env.OPENAI_API_KEY = "test-key";
@@ -17,24 +17,24 @@ describe("assignPartsToBom guards", () => {
     else process.env.OPENAI_API_KEY = original;
   });
 
-  it("returns [] with no parts", async () => {
-    expect(await assignPartsToBom([], bom)).toEqual([]);
+  it("returns [] with no components", async () => {
+    expect(await assignComponentsToBom([], bom)).toEqual([]);
   });
 
   it("returns [] with an empty BOM", async () => {
-    expect(await assignPartsToBom(parts, [])).toEqual([]);
+    expect(await assignComponentsToBom(components, [])).toEqual([]);
   });
 
-  it("returns [] when the part set is implausibly large", async () => {
+  it("returns [] when the component set is implausibly large", async () => {
     const many = Array.from({ length: 601 }, (_, i) => ({
       name: `P${i}`,
       count: 1
     }));
-    expect(await assignPartsToBom(many, bom)).toEqual([]);
+    expect(await assignComponentsToBom(many, bom)).toEqual([]);
   });
 
   it("returns [] (no throw) when the OpenAI key is absent", async () => {
     delete process.env.OPENAI_API_KEY;
-    expect(await assignPartsToBom(parts, bom)).toEqual([]);
+    expect(await assignComponentsToBom(components, bom)).toEqual([]);
   });
 });

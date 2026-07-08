@@ -56,12 +56,12 @@ function expectMonotonicTimes(keyframes: MotionKeyframes) {
   }
 }
 
-function makeStep(motion: Motion, partNodeIds: string[]): AssemblyStep {
+function makeStep(motion: Motion, componentNodeIds: string[]): AssemblyStep {
   return {
     id: "step-1",
     title: null,
     instructionText: null,
-    partNodeIds,
+    componentNodeIds,
     motion,
     camera: null,
     fastener: null
@@ -188,7 +188,7 @@ describe("motionToKeyframes", () => {
     const motion: Motion = {
       type: "helix",
       axis: [0, 0, -1],
-      origin: [10, 20, 5], // through the part center so rotation keeps position
+      origin: [10, 20, 5], // through the component center so rotation keeps position
       pitch: 0.8,
       turns: 6,
       approach: 30
@@ -222,7 +222,7 @@ describe("motionToKeyframes", () => {
     expect(Math.abs(dot)).toBeLessThan(0.999);
   });
 
-  it("helix: ends exactly at the final pose even when origin is off-axis from the part", () => {
+  it("helix: ends exactly at the final pose even when origin is off-axis from the component", () => {
     const basePose: Pose = {
       position: [10, 0, 0],
       quaternion: [0, 0, 0, 1]
@@ -327,15 +327,20 @@ describe("buildStepClip", () => {
     const parent = new Group();
     parent.position.set(5, 0, 0);
     root.add(parent);
-    const part = new Object3D();
-    part.position.set(1, 2, 3);
-    part.userData.nodeId = "node-a";
-    parent.add(part);
+    const component = new Object3D();
+    component.position.set(1, 2, 3);
+    component.userData.nodeId = "node-a";
+    parent.add(component);
     root.updateMatrixWorld(true);
-    return { root, part, parent, nodesById: new Map([["node-a", part]]) };
+    return {
+      root,
+      component,
+      parent,
+      nodesById: new Map([["node-a", component]])
+    };
   }
 
-  it("returns null for none motions and for steps with no resolvable parts", () => {
+  it("returns null for none motions and for steps with no resolvable components", () => {
     const { nodesById } = makeAssembly();
     expect(
       buildStepClip(makeStep({ type: "none" }, ["node-a"]), nodesById)
@@ -357,7 +362,7 @@ describe("buildStepClip", () => {
   });
 
   it("builds uuid-bound position/quaternion tracks in parent-local space with a seated hold", () => {
-    const { part, nodesById } = makeAssembly();
+    const { component, nodesById } = makeAssembly();
     const step = makeStep(
       { type: "linear", direction: [1, 0, 0], distance: 10 },
       ["node-a"]
@@ -374,12 +379,12 @@ describe("buildStepClip", () => {
     expect(clip.tracks.length).toBe(2);
     const [positionTrack, quaternionTrack] = clip.tracks;
     if (!positionTrack || !quaternionTrack) throw new Error("expected tracks");
-    expect(positionTrack.name).toBe(`${part.uuid}.position`);
-    expect(quaternionTrack.name).toBe(`${part.uuid}.quaternion`);
+    expect(positionTrack.name).toBe(`${component.uuid}.position`);
+    expect(quaternionTrack.name).toBe(`${component.uuid}.quaternion`);
 
     // World start [6,2,3] - [10,0,0] = [-4,2,3] → parent-local [-9,2,3]
     expectVectorClose([...positionTrack.values.slice(0, 3)], [-9, 2, 3]);
-    // Seated keyframe and hold keyframe both equal the part's local pose
+    // Seated keyframe and hold keyframe both equal the component's local pose
     expectVectorClose([...positionTrack.values.slice(-6, -3)], [1, 2, 3]);
     expectVectorClose([...positionTrack.values.slice(-3)], [1, 2, 3]);
     // Hold keyframe extends the timeline
@@ -393,11 +398,11 @@ describe("buildStepClip", () => {
     const parent = new Group();
     parent.rotation.z = Math.PI / 2;
     root.add(parent);
-    const part = new Object3D();
-    part.userData.nodeId = "node-b";
-    parent.add(part);
+    const component = new Object3D();
+    component.userData.nodeId = "node-b";
+    parent.add(component);
     root.updateMatrixWorld(true);
-    const nodesById = new Map([["node-b", part]]);
+    const nodesById = new Map([["node-b", component]]);
 
     const step = makeStep(
       { type: "linear", direction: [0, 1, 0], distance: 10 },
@@ -417,7 +422,7 @@ describe("buildStepClip", () => {
     );
     expectVectorClose([...positionTrack.values.slice(-3)], [0, 0, 0]);
 
-    const localQuaternion = new Quaternion().copy(part.quaternion);
+    const localQuaternion = new Quaternion().copy(component.quaternion);
     expectVectorClose(
       [...quaternionTrack.values.slice(-4)],
       [
@@ -450,7 +455,7 @@ describe("buildStepClip", () => {
   });
 
   it("drives nodes through an AnimationMixer via uuid-bound tracks", () => {
-    const { root, part, nodesById } = makeAssembly();
+    const { root, component, nodesById } = makeAssembly();
     const step = makeStep(
       { type: "linear", direction: [1, 0, 0], distance: 10 },
       ["node-a"]
@@ -465,11 +470,11 @@ describe("buildStepClip", () => {
     mixer.clipAction(clip).play();
 
     mixer.update(0); // t = 0 → displaced start pose (local [-9, 2, 3])
-    expect(part.position.x).toBeCloseTo(-9);
+    expect(component.position.x).toBeCloseTo(-9);
     mixer.update(1); // t = 1 → halfway back to seated
-    expect(part.position.x).toBeCloseTo(-4);
-    expect(part.position.y).toBeCloseTo(2);
-    expect(part.position.z).toBeCloseTo(3);
+    expect(component.position.x).toBeCloseTo(-4);
+    expect(component.position.y).toBeCloseTo(2);
+    expect(component.position.z).toBeCloseTo(3);
   });
 });
 
@@ -480,7 +485,7 @@ describe("exaggerateMotion", () => {
     distance: 15
   } as const;
 
-  it("stretches small-part travel to a readable distance", () => {
+  it("stretches small-component travel to a readable distance", () => {
     // 20mm bolt in a 1000mm assembly travels at least 2.5x its size
     const result = exaggerateMotion(lift, 20, 1000);
     expect(result.type).toBe("linear");
@@ -489,7 +494,7 @@ describe("exaggerateMotion", () => {
     }
   });
 
-  it("leaves large parts unchanged", () => {
+  it("leaves large components unchanged", () => {
     expect(exaggerateMotion(lift, 400, 1000)).toBe(lift);
   });
 
@@ -530,7 +535,7 @@ describe("displayMotionForStep", () => {
     version: 1,
     unit: "mm",
     sourceUnit: "mm",
-    partCount: 2,
+    componentCount: 2,
     root: {
       nodeId: "root",
       name: "Assembly",
@@ -568,10 +573,12 @@ describe("displayMotionForStep", () => {
   });
 
   const step = (
-    overrides: Partial<Pick<AssemblyStep, "motion" | "partNodeIds" | "flagged">>
+    overrides: Partial<
+      Pick<AssemblyStep, "motion" | "componentNodeIds" | "flagged">
+    >
   ) => ({
     motion: { type: "none" } as Motion,
-    partNodeIds: ["top"],
+    componentNodeIds: ["top"],
     ...overrides
   });
 

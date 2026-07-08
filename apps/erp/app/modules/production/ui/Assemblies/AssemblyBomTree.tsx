@@ -23,8 +23,8 @@ import {
   toast,
   VStack
 } from "@carbon/react";
-import type { AssemblyGraphIndex, PartGroup } from "@carbon/viewer";
-import { describeStep, groupPartNodeIds } from "@carbon/viewer";
+import type { AssemblyGraphIndex, ComponentGroup } from "@carbon/viewer";
+import { describeStep, groupComponentNodeIds } from "@carbon/viewer";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import type { MouseEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -51,20 +51,20 @@ import { path } from "~/utils/path";
 import type { FlattenedBomMaterial } from "../../production.service";
 import { toViewerStep } from "../../production.service";
 import type {
+  AssemblyComponentMapping,
   AssemblyInstructionStepRow,
-  AssemblyPartMapping,
   AssemblyUnit
 } from "../../types";
-import { PartColorSwatch } from "./AssemblyStepBom";
+import { ComponentColorSwatch } from "./AssemblyStepBom";
 
 type SortMode = "count" | "alpha";
 
-/** The distinct part types inside a subassembly, with the member instances of each. */
-type UnitChild = { group: PartGroup; nodeIds: string[] };
+/** The distinct component types inside a subassembly, with the member instances of each. */
+type UnitChild = { group: ComponentGroup; nodeIds: string[] };
 
 /**
- * One rendered row: a subassembly (virtual part) and its expanded member parts,
- * or a part group and its expanded instances. Subassemblies and multi-quantity
+ * One rendered row: a subassembly (virtual component) and its expanded member
+ * components, or a component group and its expanded instances. Subassemblies and multi-quantity
  * groups both expand the same way.
  */
 type ListRow =
@@ -72,13 +72,13 @@ type ListRow =
   | {
       type: "unitChild";
       unit: AssemblyUnit;
-      group: PartGroup;
+      group: ComponentGroup;
       nodeIds: string[];
     }
-  | { type: "group"; group: PartGroup }
+  | { type: "group"; group: ComponentGroup }
   | {
       type: "instance";
-      group: PartGroup;
+      group: ComponentGroup;
       nodeId: string;
       instanceIndex: number;
     };
@@ -87,7 +87,7 @@ type ListRow =
 function rowNodeIds(row: ListRow): string[] {
   switch (row.type) {
     case "unit":
-      return row.unit.partNodeIds ?? [];
+      return row.unit.componentNodeIds ?? [];
     case "unitChild":
       return row.nodeIds;
     case "group":
@@ -115,16 +115,16 @@ type AssemblyBomTreeProps = {
   units: AssemblyUnit[];
   isDisabled: boolean;
   modelUploadId: string | null;
-  partMappings: AssemblyPartMapping[];
+  componentMappings: AssemblyComponentMapping[];
   bomMaterials: FlattenedBomMaterial[];
   /** Current selection (shared with the viewer) — marks + scrolls to the rows */
   selectedNodeIds: string[];
-  /** The Parts tab is the visible tab — gate scroll-to-selection on it */
+  /** The Components tab is the visible tab — gate scroll-to-selection on it */
   isActive: boolean;
   /** A new-step create is in flight — disables the Add Step action */
   isAddingStep: boolean;
-  onHighlightParts: (nodeIds: string[]) => void;
-  onHideParts: (nodeIds: string[]) => void;
+  onHighlightComponents: (nodeIds: string[]) => void;
+  onHideComponents: (nodeIds: string[]) => void;
   onSelectStep: (stepId: string) => void;
   /** Create a step seeded with the current selection (shared with the parent) */
   onAddStep: () => void;
@@ -132,12 +132,12 @@ type AssemblyBomTreeProps = {
 
 /**
  * Bill of materials derived from the model's assembly graph: every distinct
- * part with its instance count, plus authored subassembly units — sets of parts
- * the planner treats as one rigid body (overriding the automatic BOM-driven
- * derivation). Selecting rows highlights all instances in the viewer; a
- * selection can be planned as one part via the toolbar or right-click menu.
- * Parts map to engineering BOM items (methodMaterial) by geometry hash —
- * auto-matched by name/quantity, adjustable per part in the detail popover.
+ * component with its instance count, plus authored subassembly units — sets of
+ * components the planner treats as one rigid body (overriding the automatic
+ * BOM-driven derivation). Selecting rows highlights all instances in the viewer;
+ * a selection can be planned as one component via the toolbar or right-click menu.
+ * Components map to engineering BOM items (methodMaterial) by geometry hash —
+ * auto-matched by name/quantity, adjustable per component in the detail popover.
  */
 export default function AssemblyBomTree({
   graphIndex,
@@ -145,13 +145,13 @@ export default function AssemblyBomTree({
   units,
   isDisabled,
   modelUploadId,
-  partMappings,
+  componentMappings,
   bomMaterials,
   selectedNodeIds,
   isActive,
   isAddingStep,
-  onHighlightParts,
-  onHideParts,
+  onHighlightComponents,
+  onHideComponents,
   onSelectStep,
   onAddStep
 }: AssemblyBomTreeProps) {
@@ -169,8 +169,10 @@ export default function AssemblyBomTree({
   const autoMatchFetcher = useFetcher<{ success: boolean }>();
   const mappingsByHash = useMemo(
     () =>
-      new Map(partMappings.map((mapping) => [mapping.geometryHash, mapping])),
-    [partMappings]
+      new Map(
+        componentMappings.map((mapping) => [mapping.geometryHash, mapping])
+      ),
+    [componentMappings]
   );
 
   const [sortMode, setSortMode] = useState<SortMode>("count");
@@ -197,17 +199,17 @@ export default function AssemblyBomTree({
   const unitMemberSet = useMemo(() => {
     const set = new Set<string>();
     for (const unit of units) {
-      for (const nodeId of unit.partNodeIds ?? []) set.add(nodeId);
+      for (const nodeId of unit.componentNodeIds ?? []) set.add(nodeId);
     }
     return set;
   }, [units]);
 
-  const partGroups = useMemo(() => {
+  const componentGroups = useMemo(() => {
     if (!graphIndex) return [];
-    // Keep only the instances of each part that aren't inside a subassembly. A
-    // part half in a subassembly still lists its loose instances (with the
-    // reduced count); a part fully consumed by subassemblies drops out.
-    const groups: PartGroup[] = [];
+    // Keep only the instances of each component that aren't inside a subassembly.
+    // A component half in a subassembly still lists its loose instances (with the
+    // reduced count); a component fully consumed by subassemblies drops out.
+    const groups: ComponentGroup[] = [];
     for (const group of graphIndex.groups) {
       const nodeIds =
         unitMemberSet.size === 0
@@ -229,27 +231,27 @@ export default function AssemblyBomTree({
   }, [graphIndex, sortMode, unitMemberSet]);
 
   // Name filter for the rendered list. Selection/hiding still operate on the
-  // full `partGroups` (they key by group, not display position); only the rows
+  // full `componentGroups` (they key by group, not display position); only the rows
   // shown, the shift-click range, and scroll-to-selection use `rows`.
   const normalizedSearch = search.trim().toLowerCase();
   const rows = useMemo(() => {
-    if (!normalizedSearch) return partGroups;
-    return partGroups.filter((group) =>
+    if (!normalizedSearch) return componentGroups;
+    return componentGroups.filter((group) =>
       group.name.toLowerCase().includes(normalizedSearch)
     );
-  }, [partGroups, normalizedSearch]);
+  }, [componentGroups, normalizedSearch]);
 
-  // A step whose parts are exactly a subassembly unit is titled by its name.
+  // A step whose components are exactly a subassembly unit is titled by its name.
   const namedUnits = useMemo(
     () =>
       units.map((unit) => ({
         name: unit.name,
-        partNodeIds: unit.partNodeIds ?? []
+        componentNodeIds: unit.componentNodeIds ?? []
       })),
     [units]
   );
 
-  /** groupKey → steps that install instances of the part */
+  /** groupKey → steps that install instances of the component */
   const stepUsage = useMemo(() => {
     const usage = new Map<
       string,
@@ -258,7 +260,7 @@ export default function AssemblyBomTree({
     if (!graphIndex) return usage;
     steps.forEach((step, index) => {
       const seen = new Set<string>();
-      for (const nodeId of step.partNodeIds ?? []) {
+      for (const nodeId of step.componentNodeIds ?? []) {
         const group = graphIndex.groupByNodeId.get(nodeId);
         if (!group || seen.has(group.key)) continue;
         seen.add(group.key);
@@ -276,14 +278,14 @@ export default function AssemblyBomTree({
     return usage;
   }, [steps, graphIndex, namedUnits]);
 
-  // A subassembly's member instances, grouped by part type — so it expands into
-  // "Screw ×4 / Board ×1" child rows the same way a multi-quantity part does.
+  // A subassembly's member instances, grouped by component type — so it expands
+  // into "Screw ×4 / Board ×1" child rows the same way a multi-quantity component does.
   const unitChildren = useMemo(() => {
     const map = new Map<string, UnitChild[]>();
     if (!graphIndex) return map;
     for (const unit of units) {
       const byGroup = new Map<string, UnitChild>();
-      for (const nodeId of unit.partNodeIds ?? []) {
+      for (const nodeId of unit.componentNodeIds ?? []) {
         const group = graphIndex.groupByNodeId.get(nodeId);
         if (!group) continue;
         const existing = byGroup.get(group.key);
@@ -302,9 +304,9 @@ export default function AssemblyBomTree({
     );
   }, [units, normalizedSearch]);
 
-  // Flatten subassemblies and part groups (each with their expanded children)
+  // Flatten subassemblies and component groups (each with their expanded children)
   // into the virtualized list. Subassemblies lead — they're the higher-level
-  // grouping — and expand into their member parts; a part group with count > 1
+  // grouping — and expand into their member components; a component group with count > 1
   // expands into one row per instance. Either way a subset can be selected or
   // hidden individually.
   const visualRows = useMemo<ListRow[]>(() => {
@@ -338,11 +340,11 @@ export default function AssemblyBomTree({
 
   // Push the hidden instance set up to the viewer.
   useEffect(() => {
-    onHideParts([...hiddenNodeIds]);
-  }, [hiddenNodeIds, onHideParts]);
+    onHideComponents([...hiddenNodeIds]);
+  }, [hiddenNodeIds, onHideComponents]);
 
   const applyNodeSelection = (next: ReadonlySet<string>) => {
-    onHighlightParts([...next]);
+    onHighlightComponents([...next]);
   };
 
   const onRowClick = (event: MouseEvent, rowIndex: number) => {
@@ -420,7 +422,7 @@ export default function AssemblyBomTree({
     overscan: 12
   });
 
-  // Bring the current selection into view — when it changes while the Parts tab
+  // Bring the current selection into view — when it changes while the Components tab
   // is open, and when the tab becomes active with a selection already present.
   // The scroll container has no dimensions while the tab is hidden, so gate on
   // isActive and defer a frame so the just-shown list can measure.
@@ -456,8 +458,8 @@ export default function AssemblyBomTree({
           {hasSelection
             ? `${selectedNodeIds.length} selected`
             : bomMaterials.length > 0
-              ? `${partGroups.length} parts · ${mappingsByHash.size} mapped to BOM`
-              : `${partGroups.length} part${partGroups.length === 1 ? "" : "s"} · ${graphIndex.graph.partCount} instance${graphIndex.graph.partCount === 1 ? "" : "s"}`}
+              ? `${componentGroups.length} components · ${mappingsByHash.size} mapped to BOM`
+              : `${componentGroups.length} component${componentGroups.length === 1 ? "" : "s"} · ${graphIndex.graph.componentCount} instance${graphIndex.graph.componentCount === 1 ? "" : "s"}`}
         </span>
         <div className="flex items-center gap-1">
           {!hasSelection && canMap && bomMaterials.length > 0 && (
@@ -471,56 +473,56 @@ export default function AssemblyBomTree({
                   onClick={() => {
                     autoMatchFetcher.submit(new FormData(), {
                       method: "post",
-                      action: path.to.autoMatchAssemblyParts(id)
+                      action: path.to.autoMatchAssemblyComponents(id)
                     });
                   }}
                 >
                   Match BOM
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Match parts to BOM items</TooltipContent>
+              <TooltipContent>Match components to BOM items</TooltipContent>
             </Tooltip>
           )}
           {hasSelection && canGroup && (
             <Tooltip>
               <TooltipTrigger asChild>
                 <IconButton
-                  aria-label="Plan as one part"
+                  aria-label="Plan as one component"
                   icon={<LuMerge />}
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowCreateUnit(true)}
                 />
               </TooltipTrigger>
-              <TooltipContent>Plan as one part</TooltipContent>
+              <TooltipContent>Plan as one component</TooltipContent>
             </Tooltip>
           )}
           {hasSelection && (
             <Tooltip>
               <TooltipTrigger asChild>
                 <IconButton
-                  aria-label="Hide selected parts"
+                  aria-label="Hide selected components"
                   icon={<LuEyeOff />}
                   variant="ghost"
                   size="sm"
                   onClick={onHideSelection}
                 />
               </TooltipTrigger>
-              <TooltipContent>Hide selected parts</TooltipContent>
+              <TooltipContent>Hide selected components</TooltipContent>
             </Tooltip>
           )}
           {hiddenNodeIds.size > 0 && (
             <Tooltip>
               <TooltipTrigger asChild>
                 <IconButton
-                  aria-label="Show all hidden parts"
+                  aria-label="Show all hidden components"
                   icon={<LuEye />}
                   variant="ghost"
                   size="sm"
                   onClick={onShowAll}
                 />
               </TooltipTrigger>
-              <TooltipContent>Show all hidden parts</TooltipContent>
+              <TooltipContent>Show all hidden components</TooltipContent>
             </Tooltip>
           )}
           <Tooltip>
@@ -549,12 +551,12 @@ export default function AssemblyBomTree({
           </Tooltip>
         </div>
       </div>
-      {partGroups.length > 0 && (
+      {componentGroups.length > 0 && (
         <div className="relative w-full flex-none border-b border-border px-2 py-1.5">
           <LuSearch className="pointer-events-none absolute left-4 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
           <Input
-            aria-label="Search parts"
-            placeholder="Search parts"
+            aria-label="Search components"
+            placeholder="Search components"
             size="sm"
             className="pl-7"
             value={search}
@@ -641,7 +643,7 @@ export default function AssemblyBomTree({
                 }
                 const group = row.group;
                 return (
-                  <BomRow
+                  <ComponentRow
                     key={group.key}
                     group={group}
                     selection={selectionStateOf(nodes, selectedSet)}
@@ -666,7 +668,7 @@ export default function AssemblyBomTree({
               visibleUnits.length === 0 &&
               normalizedSearch && (
                 <p className="px-3 py-4 text-center text-xs text-muted-foreground">
-                  No parts match “{search.trim()}”
+                  No components match “{search.trim()}”
                 </p>
               )}
           </div>
@@ -684,19 +686,19 @@ export default function AssemblyBomTree({
             onClick={() => setShowCreateUnit(true)}
           >
             <LuMerge className="mr-2 h-4 w-4" />
-            Plan as one part
+            Plan as one component
           </ContextMenuItem>
           <ContextMenuSeparator />
           <ContextMenuItem disabled={!hasSelection} onClick={onHideSelection}>
             <LuEyeOff className="mr-2 h-4 w-4" />
-            Hide selected parts
+            Hide selected components
           </ContextMenuItem>
           <ContextMenuItem
             disabled={hiddenNodeIds.size === 0}
             onClick={onShowAll}
           >
             <LuEye className="mr-2 h-4 w-4" />
-            Show all hidden parts
+            Show all hidden components
           </ContextMenuItem>
           <ContextMenuItem
             disabled={!hasSelection}
@@ -717,7 +719,7 @@ export default function AssemblyBomTree({
             onClick={onAddStep}
           >
             {hasSelection
-              ? `Add Step with ${selectedNodeIds.length} part${
+              ? `Add Step with ${selectedNodeIds.length} component${
                   selectedNodeIds.length === 1 ? "" : "s"
                 }`
               : "Add Step"}
@@ -728,7 +730,7 @@ export default function AssemblyBomTree({
         <CreateUnitModal
           instructionId={id}
           modelUploadId={modelUploadId}
-          partNodeIds={selectedNodeIds}
+          componentNodeIds={selectedNodeIds}
           onClose={() => setShowCreateUnit(false)}
           onCreated={() => {
             setShowCreateUnit(false);
@@ -757,8 +759,8 @@ export default function AssemblyBomTree({
 }
 
 /**
- * A subassembly as a virtual part row: click selects its members (red in the
- * viewer), the chevron expands it into its member part types (UnitChildRow),
+ * A subassembly as a virtual component row: click selects its members (red in the
+ * viewer), the chevron expands it into its member component types (UnitChildRow),
  * and it carries the same hide / edit / delete affordances as the old section.
  */
 function UnitListRow({
@@ -805,8 +807,8 @@ function UnitListRow({
       style={style}
       className={cn(
         "group relative flex cursor-pointer select-none items-center gap-2 border-b border-border px-3 text-sm hover:bg-accent/30",
-        selection === "all" && "bg-red-500/10 hover:bg-red-500/10",
-        selection === "partial" && "bg-red-500/5 hover:bg-red-500/5",
+        selection === "all" && "bg-blue-500/10 hover:bg-blue-500/10",
+        selection === "partial" && "bg-blue-500/5 hover:bg-blue-500/5",
         allHidden && "opacity-50"
       )}
       onClick={onClick}
@@ -821,7 +823,7 @@ function UnitListRow({
         <span
           aria-hidden
           className={cn(
-            "pointer-events-none absolute inset-y-0 left-0 w-0.5 bg-red-500",
+            "pointer-events-none absolute inset-y-0 left-0 w-0.5 bg-blue-500",
             selection === "partial" && "opacity-50"
           )}
         />
@@ -905,7 +907,7 @@ function UnitListRow({
   );
 }
 
-/** One member part type inside an expanded subassembly (indented, selectable). */
+/** One member component type inside an expanded subassembly (indented, selectable). */
 function UnitChildRow({
   group,
   count,
@@ -915,7 +917,7 @@ function UnitChildRow({
   onClick,
   onToggleHide
 }: {
-  group: PartGroup;
+  group: ComponentGroup;
   count: number;
   selection: SelectionState;
   hidden: SelectionState;
@@ -931,8 +933,8 @@ function UnitChildRow({
       style={style}
       className={cn(
         "group relative flex cursor-pointer select-none items-center gap-2 border-b border-border py-1 pl-9 pr-3 text-sm hover:bg-accent/30",
-        selection === "all" && "bg-red-500/10 hover:bg-red-500/10",
-        selection === "partial" && "bg-red-500/5 hover:bg-red-500/5",
+        selection === "all" && "bg-blue-500/10 hover:bg-blue-500/10",
+        selection === "partial" && "bg-blue-500/5 hover:bg-blue-500/5",
         allHidden && "opacity-50"
       )}
       onClick={onClick}
@@ -947,12 +949,12 @@ function UnitChildRow({
         <span
           aria-hidden
           className={cn(
-            "pointer-events-none absolute inset-y-0 left-0 w-0.5 bg-red-500",
+            "pointer-events-none absolute inset-y-0 left-0 w-0.5 bg-blue-500",
             selection === "partial" && "opacity-50"
           )}
         />
       )}
-      <PartColorSwatch color={group.color} />
+      <ComponentColorSwatch color={group.color} />
       <span
         className="min-w-0 flex-1 truncate text-muted-foreground"
         title={group.name}
@@ -985,13 +987,13 @@ function UnitChildRow({
 function CreateUnitModal({
   instructionId,
   modelUploadId,
-  partNodeIds,
+  componentNodeIds,
   onClose,
   onCreated
 }: {
   instructionId: string;
   modelUploadId: string;
-  partNodeIds: string[];
+  componentNodeIds: string[];
   onClose: () => void;
   onCreated: () => void;
 }) {
@@ -1009,7 +1011,7 @@ function CreateUnitModal({
     const formData = new FormData();
     formData.append("modelUploadId", modelUploadId);
     formData.append("name", name.trim());
-    formData.append("partNodeIds", JSON.stringify(partNodeIds));
+    formData.append("componentNodeIds", JSON.stringify(componentNodeIds));
     fetcher.submit(formData, {
       method: "post",
       action: path.to.newAssemblyUnit(instructionId)
@@ -1025,14 +1027,14 @@ function CreateUnitModal({
     >
       <ModalContent>
         <ModalHeader>
-          <ModalTitle>Plan as one part</ModalTitle>
+          <ModalTitle>Plan as one component</ModalTitle>
         </ModalHeader>
         <ModalBody>
           <VStack spacing={3} className="w-full">
             <p className="text-sm text-muted-foreground">
-              The planner treats these {partNodeIds.length} part
-              {partNodeIds.length === 1 ? "" : "s"} as one rigid body — one step
-              in the instructions. Re-run the plan to apply.
+              The planner treats these {componentNodeIds.length} component
+              {componentNodeIds.length === 1 ? "" : "s"} as one rigid body — one
+              step in the instructions. Re-run the plan to apply.
             </p>
             <Input
               aria-label="Subassembly name"
@@ -1060,8 +1062,8 @@ function CreateUnitModal({
 }
 
 /**
- * Edits an authored subassembly in place: rename it and change which parts it
- * groups (remove a part type, or add the currently-selected parts). Membership
+ * Edits an authored subassembly in place: rename it and change which components it
+ * groups (remove a component type, or add the currently-selected components). Membership
  * feeds the motion planner, so the caller nudges the user to re-run planning
  * after saving.
  */
@@ -1084,7 +1086,9 @@ function EditUnitModal({
 }) {
   const fetcher = useFetcher<{ success: boolean }>();
   const [name, setName] = useState(unit.name);
-  const [memberIds, setMemberIds] = useState<string[]>(unit.partNodeIds ?? []);
+  const [memberIds, setMemberIds] = useState<string[]>(
+    unit.componentNodeIds ?? []
+  );
 
   useEffect(() => {
     if (fetcher.state === "idle" && fetcher.data?.success) {
@@ -1093,19 +1097,19 @@ function EditUnitModal({
   }, [fetcher.state, fetcher.data, onUpdated]);
 
   const memberSet = useMemo(() => new Set(memberIds), [memberIds]);
-  // Distinct parts in the unit, so removal is per part type ("drop this cap"),
+  // Distinct components in the unit, so removal is per component type ("drop this cap"),
   // not per individual instance.
   const groups = useMemo(
-    () => (graphIndex ? groupPartNodeIds(memberIds, graphIndex) : []),
+    () => (graphIndex ? groupComponentNodeIds(memberIds, graphIndex) : []),
     [graphIndex, memberIds]
   );
-  // Parts currently selected in the tree/viewer that aren't yet members.
+  // Components currently selected in the tree/viewer that aren't yet members.
   const addableIds = useMemo(
     () => selectedNodeIds.filter((id) => !memberSet.has(id)),
     [selectedNodeIds, memberSet]
   );
 
-  const removeGroup = (group: PartGroup) => {
+  const removeGroup = (group: ComponentGroup) => {
     const drop = new Set(group.nodeIds);
     setMemberIds((prev) => prev.filter((id) => !drop.has(id)));
   };
@@ -1119,7 +1123,7 @@ function EditUnitModal({
     const formData = new FormData();
     formData.append("modelUploadId", modelUploadId);
     formData.append("name", name.trim());
-    formData.append("partNodeIds", JSON.stringify(memberIds));
+    formData.append("componentNodeIds", JSON.stringify(memberIds));
     if (unit.itemId) formData.append("itemId", unit.itemId);
     fetcher.submit(formData, {
       method: "post",
@@ -1155,8 +1159,8 @@ function EditUnitModal({
             <VStack spacing={1} className="w-full">
               <div className="flex w-full items-center justify-between">
                 <span className="text-xs text-muted-foreground">
-                  {memberIds.length} part{memberIds.length === 1 ? "" : "s"} in
-                  this subassembly
+                  {memberIds.length} component
+                  {memberIds.length === 1 ? "" : "s"} in this subassembly
                 </span>
                 {addableIds.length > 0 && (
                   <Button variant="secondary" size="sm" onClick={addSelected}>
@@ -1171,7 +1175,7 @@ function EditUnitModal({
                       key={group.key}
                       className="flex items-center gap-2 border-b border-border px-2 py-1 text-sm last:border-b-0"
                     >
-                      <PartColorSwatch color={group.color} />
+                      <ComponentColorSwatch color={group.color} />
                       <span
                         className="min-w-0 flex-1 truncate"
                         title={group.name}
@@ -1194,13 +1198,13 @@ function EditUnitModal({
               ) : (
                 <p className="text-xs text-muted-foreground">
                   {graphIndex
-                    ? "No parts — add a selection or cancel."
+                    ? "No components — add a selection or cancel."
                     : "The model is still loading."}
                 </p>
               )}
             </VStack>
             <p className="text-xs text-muted-foreground">
-              Changing the parts redefines the subassembly. Re-run Motion
+              Changing the components redefines the subassembly. Re-run Motion
               Planning to apply the change to the steps.
             </p>
             <Button
@@ -1220,7 +1224,7 @@ function EditUnitModal({
   );
 }
 
-function BomRow({
+function ComponentRow({
   group,
   selection,
   hidden,
@@ -1237,12 +1241,12 @@ function BomRow({
   onToggleExpand,
   onSelectStep
 }: {
-  group: PartGroup;
+  group: ComponentGroup;
   selection: SelectionState;
   hidden: SelectionState;
   isExpanded: boolean;
   usage: { stepId: string; index: number; title: string }[];
-  mapping: AssemblyPartMapping | null;
+  mapping: AssemblyComponentMapping | null;
   bomMaterials: FlattenedBomMaterial[];
   canMap: boolean;
   modelUploadId: string | null;
@@ -1268,10 +1272,10 @@ function BomRow({
       style={style}
       className={cn(
         "group relative flex cursor-pointer select-none items-center gap-2 border-b border-border px-3 text-sm hover:bg-accent/30",
-        // Selection is red everywhere (matches the viewer highlight): a left bar
-        // plus a red wash. A partly-selected group reads lighter than a full one.
-        selection === "all" && "bg-red-500/10 hover:bg-red-500/10",
-        selection === "partial" && "bg-red-500/5 hover:bg-red-500/5",
+        // Selection gets a blue left bar plus a blue wash. A partly-selected
+        // group reads lighter than a full one.
+        selection === "all" && "bg-blue-500/10 hover:bg-blue-500/10",
+        selection === "partial" && "bg-blue-500/5 hover:bg-blue-500/5",
         allHidden && "opacity-50"
       )}
       onClick={onClick}
@@ -1286,7 +1290,7 @@ function BomRow({
         <span
           aria-hidden
           className={cn(
-            "pointer-events-none absolute inset-y-0 left-0 w-0.5 bg-red-500",
+            "pointer-events-none absolute inset-y-0 left-0 w-0.5 bg-blue-500",
             selection === "partial" && "opacity-50"
           )}
         />
@@ -1312,7 +1316,7 @@ function BomRow({
       ) : (
         <span className="h-5 w-5 shrink-0" aria-hidden />
       )}
-      <PartColorSwatch color={group.color} />
+      <ComponentColorSwatch color={group.color} />
       <div className="flex min-w-0 flex-1 flex-col">
         <span className="truncate" title={group.name}>
           {group.name}
@@ -1360,7 +1364,7 @@ function BomRow({
         <Popover>
           <PopoverTrigger asChild>
             <IconButton
-              aria-label={`Part details: ${group.name}`}
+              aria-label={`Component details: ${group.name}`}
               icon={<LuSettings />}
               variant="ghost"
               size="sm"
@@ -1373,7 +1377,7 @@ function BomRow({
             className="w-72 text-sm"
             onClick={(event) => event.stopPropagation()}
           >
-            <PartDetails
+            <ComponentDetails
               group={group}
               usage={usage}
               mapping={mapping}
@@ -1400,7 +1404,7 @@ function InstanceRow({
   onClick,
   onToggleHide
 }: {
-  group: PartGroup;
+  group: ComponentGroup;
   instanceIndex: number;
   isSelected: boolean;
   isHidden: boolean;
@@ -1416,7 +1420,7 @@ function InstanceRow({
       style={style}
       className={cn(
         "group relative flex cursor-pointer select-none items-center gap-2 border-b border-border py-1 pl-9 pr-3 text-sm hover:bg-accent/30",
-        isSelected && "bg-red-500/10 hover:bg-red-500/10",
+        isSelected && "bg-blue-500/10 hover:bg-blue-500/10",
         isHidden && "opacity-50"
       )}
       onClick={onClick}
@@ -1430,10 +1434,10 @@ function InstanceRow({
       {isSelected && (
         <span
           aria-hidden
-          className="pointer-events-none absolute inset-y-0 left-0 w-0.5 bg-red-500"
+          className="pointer-events-none absolute inset-y-0 left-0 w-0.5 bg-blue-500"
         />
       )}
-      <PartColorSwatch color={group.color} />
+      <ComponentColorSwatch color={group.color} />
       <span
         className="min-w-0 flex-1 truncate text-muted-foreground"
         title={label}
@@ -1463,7 +1467,7 @@ function InstanceRow({
   );
 }
 
-function PartDetails({
+function ComponentDetails({
   group,
   usage,
   mapping,
@@ -1473,9 +1477,9 @@ function PartDetails({
   instructionId,
   onSelectStep
 }: {
-  group: PartGroup;
+  group: ComponentGroup;
   usage: { stepId: string; index: number; title: string }[];
-  mapping: AssemblyPartMapping | null;
+  mapping: AssemblyComponentMapping | null;
   bomMaterials: FlattenedBomMaterial[];
   canMap: boolean;
   modelUploadId: string | null;
@@ -1497,14 +1501,14 @@ function PartDetails({
     formData.append("itemId", itemId);
     mapFetcher.submit(formData, {
       method: "post",
-      action: path.to.newAssemblyPartMapping(instructionId)
+      action: path.to.newAssemblyComponentMapping(instructionId)
     });
   };
 
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-2">
-        <PartColorSwatch color={group.color} />
+        <ComponentColorSwatch color={group.color} />
         <p className="min-w-0 flex-1 truncate font-medium" title={group.name}>
           {group.name}
         </p>
@@ -1538,7 +1542,7 @@ function PartDetails({
                   onClick={() => {
                     mapFetcher.submit(new FormData(), {
                       method: "post",
-                      action: path.to.deleteAssemblyPartMapping(
+                      action: path.to.deleteAssemblyComponentMapping(
                         instructionId,
                         mapping.id
                       )

@@ -1225,7 +1225,7 @@ export const assemblyInstructionStepValidator = z
     minValue: zfd.numeric(z.number().min(0).optional()),
     maxValue: zfd.numeric(z.number().min(0).optional()),
     listValues: z.array(z.string()).optional(),
-    partNodeIds: jsonField(z.array(z.string()).optional()),
+    componentNodeIds: jsonField(z.array(z.string()).optional()),
     motion: jsonField(motionSchema.optional()),
     camera: jsonField(cameraSchema.nullable().optional()),
     fastener: jsonField(fastenerSchema.nullable().optional()),
@@ -1277,12 +1277,12 @@ export const assemblyInstructionStepMotionValidator = z.object({
 });
 
 /**
- * Partial update for a step's assigned parts, saved directly from the Details
- * panel's Add/remove controls without round-tripping the whole step form. An
- * empty array is valid — a process-only step with no parts.
+ * Partial update for a step's assigned components, saved directly from the
+ * Details panel's Add/remove controls without round-tripping the whole step
+ * form. An empty array is valid — a process-only step with no components.
  */
-export const assemblyInstructionStepPartsValidator = z.object({
-  partNodeIds: jsonField(z.array(z.string()))
+export const assemblyInstructionStepComponentsValidator = z.object({
+  componentNodeIds: jsonField(z.array(z.string()))
 });
 
 export const assemblyInstructionStepStatusValidator = z.object({
@@ -1362,12 +1362,12 @@ export const assemblyStandardNoteValidator = z.object({
 
 // An assembly unit: model leaf nodes the planner treats as one rigid body — a
 // user override on the automatic BOM-driven derivation. Scoped to the model
-// upload so it survives instruction delete/recreate (like part mappings).
+// upload so it survives instruction delete/recreate (like component mappings).
 export const assemblyUnitValidator = z.object({
   id: zfd.text(z.string().optional()),
   modelUploadId: z.string().min(1),
   name: z.string().min(1, { message: "Name is required" }),
-  partNodeIds: jsonField(z.array(z.string()).min(1)),
+  componentNodeIds: jsonField(z.array(z.string()).min(1)),
   itemId: zfd.text(z.string().optional())
 });
 

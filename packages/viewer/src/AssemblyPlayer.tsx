@@ -42,8 +42,8 @@ import type {
 import { useAssembly } from "./useAssembly";
 import { cn } from "./utils";
 
-/** How parts of steps after the active one are rendered. */
-export type FuturePartsMode = "ghost" | "hidden" | "solid";
+/** How components of steps after the active one are rendered. */
+export type FutureComponentsMode = "ghost" | "hidden" | "solid";
 
 /** Marquee rectangle in canvas-local CSS pixels while box-selecting. */
 type BoxRect = { left: number; top: number; width: number; height: number };
@@ -54,19 +54,19 @@ export type AssemblyPlayerProps = {
   steps: AssemblyStep[];
   activeStepIndex: number;
   onStepChange?: (index: number) => void;
-  /** Click-to-select part nodeIds for the editor (additive with shift held) */
-  onSelectParts?: (nodeIds: string[]) => void;
+  /** Click-to-select component nodeIds for the editor (additive with shift held) */
+  onSelectComponents?: (nodeIds: string[]) => void;
   /** Surfaces the parsed graph.json once loaded (for BOM/title derivation) */
   onGraphLoaded?: (graph: AssemblyGraph) => void;
   /**
-   * External (e.g. BOM-driven) highlight. Highlighted parts render with an
+   * External (e.g. BOM-driven) highlight. Highlighted components render with an
    * emissive tint and stay visible even when their step would hide them.
    * Independent of click-selection.
    */
   highlightedNodeIds?: string[];
-  /** Parts hidden from the viewer entirely (fixtures, reference geometry) */
+  /** Components hidden from the viewer entirely (fixtures, reference geometry) */
   hiddenNodeIds?: string[];
-  /** Disables part selection (MES playback) */
+  /** Disables component selection (MES playback) */
   readOnly?: boolean;
   /**
    * Puts the active step's insertion motion into the draggable red-path editor.
@@ -76,8 +76,8 @@ export type AssemblyPlayerProps = {
   editMotion?: { stepId: string; motion: Motion } | null;
   /** Drag/insert/delete of a waypoint emits the new relative motion. */
   onMotionChange?: (stepId: string, motion: Motion) => void;
-  /** Initial render mode for future-step parts */
-  defaultFutureMode?: FuturePartsMode;
+  /** Initial render mode for future-step components */
+  defaultFutureMode?: FutureComponentsMode;
   /**
    * When true (default), the whole sequence auto-plays on load and runs through
    * every step. When false, the player starts paused: selecting a step plays
@@ -85,9 +85,9 @@ export type AssemblyPlayerProps = {
    */
   autoPlay?: boolean;
   /**
-   * Named subassembly units (authored "plan as one part" groups). A step whose
-   * parts are exactly one of these is titled by the unit's name rather than by
-   * listing every part inside it.
+   * Named subassembly units (authored "plan as one component" groups). A step whose
+   * components are exactly one of these is titled by the unit's name rather than by
+   * listing every component inside it.
    */
   units?: NamedUnit[];
   mode?: "dark" | "light";
@@ -102,12 +102,12 @@ export type AssemblyPlayerHandle = {
 
 /**
  * Animated assembly playback per the assembly contracts (section 5):
- * - parts of steps before the active step are shown solid at their final pose
- * - parts of the active step play their insertion motion once, holding the
+ * - components of steps before the active step are shown solid at their final pose
+ * - components of the active step play their insertion motion once, holding the
  *   seated pose; flagged steps (no collision-free path) fade in instead
- * - parts of later steps render per the future-parts mode: ghosted at low
+ * - components of later steps render per the future-components mode: ghosted at low
  *   opacity in their original color (default), hidden, or solid
- * - parts in no step (base/fixture parts) are always shown solid
+ * - components in no step (base/fixture components) are always shown solid
  *
  * All steps form one continuous timeline: playing advances through steps
  * automatically, the scrubber maps to global seconds (step boundaries are
@@ -123,7 +123,7 @@ export const AssemblyPlayer = forwardRef<
     steps,
     activeStepIndex,
     onStepChange,
-    onSelectParts,
+    onSelectComponents,
     onGraphLoaded,
     highlightedNodeIds,
     hiddenNodeIds,
@@ -148,7 +148,7 @@ export const AssemblyPlayer = forwardRef<
   const [isPlaying, setIsPlaying] = useState(autoPlay);
   const [continuous, setContinuous] = useState(autoPlay);
   const [futureMode, setFutureMode] =
-    useState<FuturePartsMode>(defaultFutureMode);
+    useState<FutureComponentsMode>(defaultFutureMode);
   // Live marquee rectangle while box-selecting (drawn as a DOM overlay).
   const [boxRect, setBoxRect] = useState<BoxRect | null>(null);
 
@@ -168,7 +168,7 @@ export const AssemblyPlayer = forwardRef<
 
   // Selecting a step plays that one step's animation (single-step). Skip the
   // initial mount so the player is paused by default, and don't auto-play while
-  // the motion-path editor is open (parts must sit seated for the drag handles).
+  // the motion-path editor is open (components must sit seated for the drag handles).
   const isEditingMotionRef = useRef(isEditingMotion);
   isEditingMotionRef.current = isEditingMotion;
   const prevStepIndexRef = useRef<number | null>(null);
@@ -212,12 +212,12 @@ export const AssemblyPlayer = forwardRef<
     setIsPlaying(true);
   }, [autoPlay, clampedIndex]);
 
-  // Cmd/Ctrl+A selects every currently visible part (skipping hidden ones and,
-  // per the future-parts mode, any that aren't rendered). Ignored while typing
+  // Cmd/Ctrl+A selects every currently visible component (skipping hidden ones and,
+  // per the future-components mode, any that aren't rendered). Ignored while typing
   // in a field and in read-only playback, so the browser's own select-all still
   // works there.
   useEffect(() => {
-    if (readOnly || !onSelectParts) return;
+    if (readOnly || !onSelectComponents) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (
         !(event.metaKey || event.ctrlKey) ||
@@ -231,18 +231,18 @@ export const AssemblyPlayer = forwardRef<
         .map((leaf) => leaf.nodeId)
         .filter((nodeId) => nodesById.get(nodeId)?.visible);
       event.preventDefault();
-      onSelectParts(visible);
+      onSelectComponents(visible);
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [readOnly, onSelectParts, graphIndex, nodesById]);
+  }, [readOnly, onSelectComponents, graphIndex, nodesById]);
 
   // Display-only motion adjustments — the stored data is untouched:
   // 1. Non-flagged steps saved with motion "none" (legacy plans, manual
-  //    steps) get an AABB-synthesized insertion so parts never pop into
+  //    steps) get an AABB-synthesized insertion so components never pop into
   //    place. Flagged steps (no collision-free path exists) keep "none" and
   //    fade in instead. The first step is the base — placed, not inserted.
-  // 2. Small parts (bolts, washers) get exaggerated travel so their
+  // 2. Small components (bolts, washers) get exaggerated travel so their
   //    insertion reads clearly at assembly scale.
   const displaySteps = useMemo(() => {
     if (!graphIndex) return steps;
@@ -257,7 +257,7 @@ export const AssemblyPlayer = forwardRef<
 
       let minBox: [number, number, number] | null = null;
       let maxBox: [number, number, number] | null = null;
-      for (const nodeId of step.partNodeIds) {
+      for (const nodeId of step.componentNodeIds) {
         const node = graphIndex.nodesById.get(nodeId);
         if (!node) continue;
         if (!minBox || !maxBox) {
@@ -281,14 +281,14 @@ export const AssemblyPlayer = forwardRef<
           ? step
           : { ...step, motion: baseMotion };
       }
-      const partDiagonal = Math.hypot(
+      const componentDiagonal = Math.hypot(
         maxBox[0] - minBox[0],
         maxBox[1] - minBox[1],
         maxBox[2] - minBox[2]
       );
       const motion = exaggerateMotion(
         baseMotion,
-        partDiagonal,
+        componentDiagonal,
         assemblyDiagonal
       );
       return motion === step.motion ? step : { ...step, motion };
@@ -397,7 +397,7 @@ export const AssemblyPlayer = forwardRef<
               highlightedNodeIds={highlightedNodeIds}
               hiddenNodeIds={hiddenNodeIds}
               readOnly={readOnly}
-              onSelectParts={onSelectParts}
+              onSelectComponents={onSelectComponents}
               editMotion={editMotion ?? null}
               onMotionChange={onMotionChange}
               assemblyDiagonal={assemblyDiagonal}
@@ -556,7 +556,7 @@ export const AssemblyPlayer = forwardRef<
         </span>
         <div className="flex items-center rounded-md border border-border">
           <ControlButton
-            aria-label="Show future parts ghosted"
+            aria-label="Show future components ghosted"
             aria-pressed={futureMode === "ghost"}
             isActive={futureMode === "ghost"}
             onClick={() => setFutureMode("ghost")}
@@ -564,7 +564,7 @@ export const AssemblyPlayer = forwardRef<
             <GhostIcon />
           </ControlButton>
           <ControlButton
-            aria-label="Hide future parts"
+            aria-label="Hide future components"
             aria-pressed={futureMode === "hidden"}
             isActive={futureMode === "hidden"}
             onClick={() => setFutureMode("hidden")}
@@ -572,7 +572,7 @@ export const AssemblyPlayer = forwardRef<
             <HiddenIcon />
           </ControlButton>
           <ControlButton
-            aria-label="Show all parts solid"
+            aria-label="Show all components solid"
             aria-pressed={futureMode === "solid"}
             isActive={futureMode === "solid"}
             onClick={() => setFutureMode("solid")}
@@ -600,7 +600,7 @@ export const AssemblyPlayer = forwardRef<
   );
 });
 
-type PartVisual = "solid" | "active" | "hidden" | "ghost";
+type ComponentVisual = "solid" | "active" | "hidden" | "ghost";
 
 type OverrideKind = "ghost" | "highlight" | "selected" | "external" | "fade";
 
@@ -616,12 +616,12 @@ type MaterialOverrides = {
 
 const HIGHLIGHT_COLOR = 0x3b82f6;
 // Selection is always red — both an in-scene click selection ("selected") and a
-// parts-panel selection ("external", forced visible) tint the part red so the
+// components-panel selection ("external", forced visible) tint the component red so the
 // current selection reads the same everywhere, Onshape-style.
 const SELECTED_COLOR = 0xef4444;
 const EXTERNAL_COLOR = 0xef4444;
 const GHOST_OPACITY = 0.3;
-/** Seconds a flagged step's parts take to fade in at the seated pose */
+/** Seconds a flagged step's components take to fade in at the seated pose */
 const FADE_SECONDS = 1.2;
 
 function AssemblyScene({
@@ -634,7 +634,7 @@ function AssemblyScene({
   highlightedNodeIds,
   hiddenNodeIds,
   readOnly,
-  onSelectParts,
+  onSelectComponents,
   editMotion,
   onMotionChange,
   assemblyDiagonal,
@@ -654,11 +654,11 @@ function AssemblyScene({
   steps: AssemblyStep[];
   activeStepIndex: number;
   isPlaying: boolean;
-  futureMode: FuturePartsMode;
+  futureMode: FutureComponentsMode;
   highlightedNodeIds?: string[];
   hiddenNodeIds?: string[];
   readOnly: boolean;
-  onSelectParts?: (nodeIds: string[]) => void;
+  onSelectComponents?: (nodeIds: string[]) => void;
   /** Active-step motion draft to edit (null = play normally) */
   editMotion: { stepId: string; motion: Motion } | null;
   onMotionChange?: (stepId: string, motion: Motion) => void;
@@ -698,15 +698,15 @@ function AssemblyScene({
     editMotion && activeStep && editMotion.stepId === activeStep.id
   );
 
-  // Anchor for the editable path: center of the step's parts' seated world
+  // Anchor for the editable path: center of the step's components' seated world
   // bounds — the visual center of the object at its final location. Node
   // origins won't do: CAD exports often pivot far from the geometry, which
-  // would draw the locked endpoint away from the part. Parts sit seated while
+  // would draw the locked endpoint away from the component. Components sit seated while
   // editing (the clip is skipped below), so world space IS the final pose.
   const seatedCentroid = useMemo<Vec3 | null>(() => {
     if (!isEditingActive || !activeStep) return null;
     const box = new Box3();
-    for (const nodeId of activeStep.partNodeIds) {
+    for (const nodeId of activeStep.componentNodeIds) {
       const node = nodesById.get(nodeId);
       if (!node) continue;
       node.updateWorldMatrix(true, false);
@@ -730,14 +730,14 @@ function AssemblyScene({
   const stepIndexByNode = useMemo(() => {
     const map = new Map<string, number>();
     steps.forEach((step, index) => {
-      for (const nodeId of step.partNodeIds) {
+      for (const nodeId of step.componentNodeIds) {
         if (!map.has(nodeId)) map.set(nodeId, index);
       }
     });
     return map;
   }, [steps]);
 
-  // --- Part visual states (visibility + material overrides) ---------------
+  // --- Component visual states (visibility + material overrides) ---------------
 
   const overridesRef = useRef(new Map<Mesh, MaterialOverrides>());
 
@@ -769,7 +769,7 @@ function AssemblyScene({
       mesh.renderOrder = 0;
     }
 
-    const applyVisual = (node: Object3D, visual: PartVisual) => {
+    const applyVisual = (node: Object3D, visual: ComponentVisual) => {
       if (visual === "hidden") {
         node.visible = false;
         return;
@@ -780,7 +780,7 @@ function AssemblyScene({
         const mesh = object as Mesh;
         if (visual === "ghost") {
           mesh.material = getOverride(mesh, overrides, "ghost");
-          // Draw transparent ghosts after opaque parts to limit sorting artifacts
+          // Draw transparent ghosts after opaque components to limit sorting artifacts
           mesh.renderOrder = 1;
         } else {
           mesh.material = getOverride(mesh, overrides, "highlight");
@@ -788,17 +788,17 @@ function AssemblyScene({
       });
     };
 
-    // While the animation plays, later-step parts stay hidden until their own
+    // While the animation plays, later-step components stay hidden until their own
     // step installs them, so playback reads as a real build-up rather than a
-    // ghosted preview. The future-parts toggle still applies while paused.
-    const effectiveFutureMode: FuturePartsMode = isPlaying
+    // ghosted preview. The future-components toggle still applies while paused.
+    const effectiveFutureMode: FutureComponentsMode = isPlaying
       ? "hidden"
       : futureMode;
 
     for (const [nodeId, stepIndex] of stepIndexByNode) {
       const node = nodesById.get(nodeId);
       if (!node) continue;
-      const visual: PartVisual =
+      const visual: ComponentVisual =
         stepIndex < activeStepIndex
           ? "solid"
           : stepIndex === activeStepIndex
@@ -812,7 +812,7 @@ function AssemblyScene({
     }
 
     // External (BOM) highlight: emissive tint, forced visible even when the
-    // part's step would hide it ("show me all the M8 bolts")
+    // component's step would hide it ("show me all the M8 bolts")
     for (const nodeId of highlightedSet) {
       const node = nodesById.get(nodeId);
       if (!node) continue;
@@ -825,7 +825,7 @@ function AssemblyScene({
       });
     }
 
-    // Explicitly hidden parts (fixtures/reference geometry) always hide,
+    // Explicitly hidden components (fixtures/reference geometry) always hide,
     // even when highlighted
     for (const nodeId of hiddenSet) {
       const node = nodesById.get(nodeId);
@@ -834,9 +834,9 @@ function AssemblyScene({
 
     // The selection renders on top of everything else. It's the same set as the
     // external highlight above (both come from `highlightedNodeIds`), so a
-    // selected part is forced visible there, then gets the strong "selected"
+    // selected component is forced visible there, then gets the strong "selected"
     // material here — regardless of whether it was picked in the viewer or the
-    // Parts panel.
+    // Components panel.
     for (const nodeId of highlightedSet) {
       const node = nodesById.get(nodeId);
       if (!node || !node.visible) continue;
@@ -880,7 +880,7 @@ function AssemblyScene({
 
     if (!step) return;
 
-    // Editing this step's path: keep parts at their seated pose, skip the clip
+    // Editing this step's path: keep components at their seated pose, skip the clip
     // so the animation doesn't fight the drag handles.
     if (editMotion && step.id === editMotion.stepId) return;
 
@@ -888,7 +888,7 @@ function AssemblyScene({
     if (!clip) return;
 
     // Save seated transforms so we can restore them when the step changes
-    const restore = step.partNodeIds
+    const restore = step.componentNodeIds
       .map((nodeId) => nodesById.get(nodeId))
       .filter((node): node is Object3D => Boolean(node))
       .map((node) => ({
@@ -935,7 +935,7 @@ function AssemblyScene({
 
   // --- Flagged fade-in -------------------------------------------------
   // Steps the planner flagged (no collision-free path exists) have motion
-  // "none": their parts fade in at the seated pose instead of animating a
+  // "none": their components fade in at the seated pose instead of animating a
   // fabricated fly-through. Runs after the visual-state pass, which assigns
   // the base materials this overrides.
   const fadeRef = useRef<{
@@ -946,7 +946,7 @@ function AssemblyScene({
 
   useEffect(() => {
     const step = steps[activeStepIndex];
-    // Editing this step: keep its parts solid at the seated pose, no fade.
+    // Editing this step: keep its components solid at the seated pose, no fade.
     if (editMotion && step && editMotion.stepId === step.id) {
       fadeRef.current = null;
       return;
@@ -959,7 +959,7 @@ function AssemblyScene({
     const overrides = overridesRef.current;
     const meshes: Mesh[] = [];
     const materials: Material[] = [];
-    for (const nodeId of step.partNodeIds) {
+    for (const nodeId of step.componentNodeIds) {
       const node = nodesById.get(nodeId);
       if (!node) continue;
       node.traverse((object) => {
@@ -975,7 +975,7 @@ function AssemblyScene({
           materials.push(material);
         }
         mesh.material = override;
-        // Draw after opaque parts while transparent
+        // Draw after opaque components while transparent
         mesh.renderOrder = 1;
         meshes.push(mesh);
       });
@@ -1075,7 +1075,7 @@ function AssemblyScene({
   // The whole-assembly bounds set the standing camera distance: per-step
   // transitions keep this distance and only rotate, so the zoom never jumps
   // between steps. Prefer the graph's seated bounds — measuring the scene
-  // mid-animation would inflate the box with displaced parts.
+  // mid-animation would inflate the box with displaced components.
   const getAssemblyBox = useCallback((): Box3 => {
     if (assemblyBounds) {
       return new Box3(
@@ -1102,9 +1102,9 @@ function AssemblyScene({
 
   // Signature of the last pose the per-step effect framed. Guards against
   // re-framing when nothing framing-relevant changed — the effect otherwise
-  // re-runs on every new `steps` array reference (any revalidation, or a part
+  // re-runs on every new `steps` array reference (any revalidation, or a component
   // selection that restages the draft), silently yanking the camera back and
-  // discarding the orbit the user did to inspect the selected part.
+  // discarding the orbit the user did to inspect the selected component.
   const lastFramedKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -1153,26 +1153,26 @@ function AssemblyScene({
     }
   });
 
-  // Selecting/highlighting parts intentionally does NOT move the camera —
+  // Selecting/highlighting components intentionally does NOT move the camera —
   // the red tint (+ forced visibility) is the feedback. Auto-framing here
-  // yanked the view away every time a part was picked in the parts panel.
+  // yanked the view away every time a component was picked in the components panel.
 
   // Per-step camera: explicit pose wins; otherwise keep the standing
-  // whole-assembly distance and rotate so the active part and its travel
+  // whole-assembly distance and rotate so the active component and its travel
   // face the camera — the zoom stays steady, only the view angle changes.
   useEffect(() => {
     const step = steps[activeStepIndex];
     if (!step || !controls) return;
 
     // Only re-frame when the active step (or a framing-relevant input) actually
-    // changes. A bare re-render — or a revalidation / part selection that hands
+    // changes. A bare re-render — or a revalidation / component selection that hands
     // us a new-but-equivalent `steps` array — must not recompute a pose and pull
     // the camera off wherever the user orbited it to.
     const framingKey = [
       activeStepIndex,
       step.id,
       JSON.stringify(step.camera ?? null),
-      JSON.stringify(step.partNodeIds),
+      JSON.stringify(step.componentNodeIds),
       JSON.stringify(step.motion),
       futureMode,
       [...hiddenSet].sort().join(",")
@@ -1192,7 +1192,7 @@ function AssemblyScene({
       return;
     }
 
-    if (step.partNodeIds.length === 0) return;
+    if (step.componentNodeIds.length === 0) return;
 
     const assemblyBox = getAssemblyBox();
     if (assemblyBox.isEmpty()) return;
@@ -1204,31 +1204,33 @@ function AssemblyScene({
       radius * 2
     );
 
-    const partBox = new Box3();
-    for (const nodeId of step.partNodeIds) {
+    const componentBox = new Box3();
+    for (const nodeId of step.componentNodeIds) {
       const node = nodesById.get(nodeId);
-      if (node) partBox.expandByObject(node);
+      if (node) componentBox.expandByObject(node);
     }
-    if (partBox.isEmpty()) return;
-    const partCenter = partBox.getCenter(new Vector3());
+    if (componentBox.isEmpty()) return;
+    const componentCenter = componentBox.getCenter(new Vector3());
 
-    // Aim mostly at the assembly (context) with a nudge toward the part
-    const target = center.clone().lerp(partCenter, 0.3);
+    // Aim mostly at the assembly (context) with a nudge toward the component
+    const target = center.clone().lerp(componentCenter, 0.3);
 
     // Where the action happens: the seated pose and the travel midpoint
     const motionDirection = insertionDirection(step.motion);
-    const lookPoints = [partCenter];
+    const lookPoints = [componentCenter];
     const startOffset = insertionStartOffset(step.motion);
     if (startOffset) {
-      lookPoints.push(partCenter.clone().addScaledVector(startOffset, 0.5));
+      lookPoints.push(
+        componentCenter.clone().addScaledVector(startOffset, 0.5)
+      );
     }
 
     // Occluders: everything that renders during this step, weighted by how
-    // strongly it hides the action (ghosted future parts barely count)
-    const stepParts = new Set(step.partNodeIds);
+    // strongly it hides the action (ghosted future components barely count)
+    const stepComponents = new Set(step.componentNodeIds);
     const occluders: { min: Vector3; max: Vector3; weight: number }[] = [];
     for (const leaf of leafBounds ?? []) {
-      if (stepParts.has(leaf.nodeId)) continue;
+      if (stepComponents.has(leaf.nodeId)) continue;
       if (hiddenSet.has(leaf.nodeId)) continue;
       const leafStep = stepIndexByNode.get(leaf.nodeId);
       const isFuture = leafStep !== undefined && leafStep > activeStepIndex;
@@ -1242,7 +1244,7 @@ function AssemblyScene({
 
     // Candidate view directions: two elevation rings around the up axis,
     // plus the current view. Pick the one that sees the action with the
-    // fewest parts in the way, preferring lateral travel and small turns.
+    // fewest components in the way, preferring lateral travel and small turns.
     const up = camera.up.clone().normalize();
     let basisU = new Vector3().crossVectors(up, new Vector3(0, 0, 1));
     if (basisU.lengthSq() < 1e-6) {
@@ -1318,18 +1320,18 @@ function AssemblyScene({
 
   const handleClick = useCallback(
     (clickEvent: ThreeEvent<MouseEvent>) => {
-      if (readOnly || !onSelectParts) return;
+      if (readOnly || !onSelectComponents) return;
       clickEvent.stopPropagation();
       // three.js raycasting ignores Object3D.visible, so a hidden enclosing
-      // part still reports as the closest hit. Walk the front-to-back
-      // intersections and pick the nearest part that is actually rendered,
-      // letting clicks pass through hidden geometry to the parts inside it.
+      // component still reports as the closest hit. Walk the front-to-back
+      // intersections and pick the nearest component that is actually rendered,
+      // letting clicks pass through hidden geometry to the components inside it.
       const nodeId = findVisibleNodeId(clickEvent.intersections);
       if (!nodeId) return;
       // Selection is controlled by `highlightedNodeIds`: shift-click extends the
       // current selection, a plain click replaces it. Emit the new set and let
-      // the parent own the state so it stays in lockstep with the Parts panel
-      // and clears instantly when the parent resets it (e.g. starting Add parts).
+      // the parent own the state so it stays in lockstep with the Components panel
+      // and clears instantly when the parent resets it (e.g. starting Add components).
       const next = clickEvent.nativeEvent.shiftKey
         ? new Set(highlightedSet)
         : new Set<string>();
@@ -1338,9 +1340,9 @@ function AssemblyScene({
       } else {
         next.add(nodeId);
       }
-      onSelectParts([...next]);
+      onSelectComponents([...next]);
     },
-    [readOnly, onSelectParts, highlightedSet]
+    [readOnly, onSelectComponents, highlightedSet]
   );
 
   // A box drag just completed the selection — swallow the click that fires at
@@ -1349,26 +1351,26 @@ function AssemblyScene({
 
   const handlePointerMissed = useCallback(
     (pointerEvent: MouseEvent) => {
-      if (readOnly || !onSelectParts || pointerEvent.shiftKey) return;
+      if (readOnly || !onSelectComponents || pointerEvent.shiftKey) return;
       if (boxJustSelectedRef.current) {
         boxJustSelectedRef.current = false;
         return;
       }
       if (highlightedSet.size === 0) return;
-      onSelectParts([]);
+      onSelectComponents([]);
     },
-    [readOnly, onSelectParts, highlightedSet]
+    [readOnly, onSelectComponents, highlightedSet]
   );
 
   // --- Box (marquee) selection ---------------------------------------------
   // Plain drag orbits as usual. Holding Shift turns the drag into a rubber-band
-  // rectangle that adds every visible part whose center falls inside it to the
+  // rectangle that adds every visible component whose center falls inside it to the
   // selection (the CAD Shift+box = add convention). Env is read through a ref so
   // the window listeners attach once yet always see the latest camera,
   // selection, and callbacks.
   const boxEnvRef = useRef({
     readOnly,
-    onSelectParts,
+    onSelectComponents,
     editMotion,
     leafBounds,
     nodesById,
@@ -1380,7 +1382,7 @@ function AssemblyScene({
   });
   boxEnvRef.current = {
     readOnly,
-    onSelectParts,
+    onSelectComponents,
     editMotion,
     leafBounds,
     nodesById,
@@ -1411,7 +1413,7 @@ function AssemblyScene({
         event.button !== 0 ||
         !event.shiftKey ||
         env.readOnly ||
-        !env.onSelectParts ||
+        !env.onSelectComponents ||
         env.editMotion ||
         event.target !== env.gl.domElement
       ) {
@@ -1455,7 +1457,7 @@ function AssemblyScene({
       if (env.controls) env.controls.enabled = true;
       env.onBoxRect?.(null);
       // A click, not a drag — let the miss handler clear the selection instead.
-      if (!drag.moved || !env.onSelectParts) return;
+      if (!drag.moved || !env.onSelectComponents) return;
       const rect = env.gl.domElement.getBoundingClientRect();
       const endX = localX(event, rect);
       const endY = localY(event, rect);
@@ -1487,7 +1489,7 @@ function AssemblyScene({
       // Shift+box adds to the current selection.
       const set = new Set(env.highlightedSet);
       for (const nodeId of inside) set.add(nodeId);
-      env.onSelectParts([...set]);
+      env.onSelectComponents([...set]);
     };
 
     window.addEventListener("pointerdown", onDown, { capture: true });
@@ -1551,8 +1553,8 @@ function segmentIntersectsBox(
 }
 
 /**
- * Where a part starts relative to its seated pose for the given insertion
- * motion. Null when the motion does not translate the part.
+ * Where a component starts relative to its seated pose for the given insertion
+ * motion. Null when the motion does not translate the component.
  */
 function insertionStartOffset(motion: AssemblyStep["motion"]): Vector3 | null {
   switch (motion.type) {
@@ -1581,7 +1583,7 @@ function insertionStartOffset(motion: AssemblyStep["motion"]): Vector3 | null {
 /**
  * The dominant travel direction of an insertion motion (used to pick a
  * camera angle where the motion reads laterally). Null for motions that
- * do not translate the part.
+ * do not translate the component.
  */
 function insertionDirection(motion: AssemblyStep["motion"]): Vector3 | null {
   switch (motion.type) {
@@ -1646,9 +1648,9 @@ function isRendered(object: Object3D): boolean {
 }
 
 /**
- * The part id of the nearest intersection that is actually rendered. Skips
+ * The component id of the nearest intersection that is actually rendered. Skips
  * hidden geometry (raycasting ignores `visible`) so clicks fall through to the
- * frontmost visible part behind or inside it.
+ * frontmost visible component behind or inside it.
  */
 function findVisibleNodeId(
   intersections: readonly { object: Object3D }[]
@@ -1691,9 +1693,9 @@ function getOverride(
 }
 
 /**
- * Fading-in flagged part: the original material starting fully transparent.
+ * Fading-in flagged component: the original material starting fully transparent.
  * The scene animates opacity 0 → 1 across the step; at 1 the material is
- * switched back to opaque so it renders like any seated part.
+ * switched back to opaque so it renders like any seated component.
  */
 function cloneAsFade(material: Material | Material[]): Material | Material[] {
   const clone = (source: Material): Material => {
@@ -1707,7 +1709,7 @@ function cloneAsFade(material: Material | Material[]): Material | Material[] {
 }
 
 /**
- * Ghosted future part: the original material at low opacity so parts keep
+ * Ghosted future component: the original material at low opacity so components keep
  * their color while reading as "not installed yet".
  */
 function cloneAsGhost(material: Material | Material[]): Material | Material[] {

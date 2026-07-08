@@ -15,7 +15,7 @@ const steps: AssemblyStep[] = [
     id: "step-1",
     title: "Install base plate",
     instructionText: "Lower the base plate onto the fixture.",
-    partNodeIds: ["a1b2c3d4e5f60718"],
+    componentNodeIds: ["a1b2c3d4e5f60718"],
     motion: { type: "linear", direction: [0, 0, -1], distance: 80 },
     camera: null,
     fastener: null

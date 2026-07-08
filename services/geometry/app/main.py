@@ -129,12 +129,12 @@ def convert(request: ConvertRequest) -> ConvertResponse:
     logger.info(
         "[%s] convert done: %d parts, %d triangles, %dms",
         request.jobId,
-        result.part_count,
+        result.component_count,
         result.triangles,
         convert_ms,
     )
     return ConvertResponse(
-        partCount=result.part_count,
+        componentCount=result.component_count,
         unit=result.graph["unit"],
         stats=ConvertStats(
             convertMs=convert_ms,
@@ -206,7 +206,7 @@ def _run_plan_job(job_id: str, source_url: str, options: PlanOptions) -> None:
             "[%s] plan done: %d/%d parts planned, tiers=%s, %dms",
             job_id,
             result.planned_count,
-            result.part_count,
+            result.component_count,
             result.tiers,
             plan_ms,
         )
@@ -214,7 +214,7 @@ def _run_plan_job(job_id: str, source_url: str, options: PlanOptions) -> None:
             job_id,
             status="done",
             plan=result.plan,
-            partCount=result.part_count,
+            componentCount=result.component_count,
             plannedCount=result.planned_count,
             stats={
                 "planMs": plan_ms,
@@ -282,7 +282,7 @@ def plan_status(job_id: str) -> PlanStatusResponse:
         return PlanStatusResponse(
             status="done",
             plan=job["plan"],
-            partCount=job["partCount"],
+            componentCount=job["componentCount"],
             plannedCount=job["plannedCount"],
             stats=PlanStats(**job["stats"]),
         )

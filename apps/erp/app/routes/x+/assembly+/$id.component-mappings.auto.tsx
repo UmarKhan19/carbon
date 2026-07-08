@@ -3,7 +3,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
-import { autoMatchAssemblyParts } from "~/modules/production";
+import { autoMatchAssemblyComponents } from "~/modules/production";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
@@ -14,7 +14,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const { id } = params;
   if (!id) throw new Error("Could not find id");
 
-  const result = await autoMatchAssemblyParts(client, {
+  const result = await autoMatchAssemblyComponents(client, {
     assemblyInstructionId: id,
     companyId,
     userId
@@ -37,7 +37,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     await flash(
       request,
       success(
-        `Mapped ${result.mapped} of ${result.totalParts} parts to the bill of materials${summary}`
+        `Mapped ${result.mapped} of ${result.totalComponents} components to the bill of materials${summary}`
       )
     )
   );

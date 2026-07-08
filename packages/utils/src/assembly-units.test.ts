@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   deriveAssemblyUnits,
-  distinctPartNames,
+  distinctComponentNames,
   type UnitGraph,
   type UnitGraphNode
 } from "./assembly-units";
@@ -36,7 +36,7 @@ describe("deriveAssemblyUnits", () => {
     const units = deriveAssemblyUnits({
       graph,
       bomMaterials: [],
-      partMappings: [],
+      componentMappings: [],
       authoredUnits: []
     });
     expect(units).toHaveLength(3);
@@ -61,7 +61,7 @@ describe("deriveAssemblyUnits", () => {
     { itemId: "i_screw", name: "Flanged Screws", quantity: 8 },
     { itemId: "i_pcb", name: "BCU PCB", quantity: 1 }
   ];
-  // The LLM assigns each distinct part name to a BOM line.
+  // The LLM assigns each distinct component name to a BOM line.
   const bcuMatches = [
     { name: "Seal Electronics Box", itemId: "i_seal" },
     { name: "Flanged Screw", itemId: "i_screw" },
@@ -75,9 +75,9 @@ describe("deriveAssemblyUnits", () => {
     const units = deriveAssemblyUnits({
       graph: bcuGraph(),
       bomMaterials: bcuBom,
-      partMappings: [],
+      componentMappings: [],
       authoredUnits: [],
-      partMatches: bcuMatches
+      componentMatches: bcuMatches
     });
 
     const pcb = units.find((u) => u.id === "unit:i_pcb");
@@ -85,12 +85,12 @@ describe("deriveAssemblyUnits", () => {
     expect(pcb?.name).toBe("BCU PCB");
     expect(pcb?.source).toBe("bom");
 
-    // 8 screws stay as 8 separate parts (qty 8, not merged).
+    // 8 screws stay as 8 separate components (qty 8, not merged).
     const screws = units.filter((u) => u.itemId === "i_screw");
     expect(screws).toHaveLength(8);
     expect(screws.every((u) => u.nodeIds.length === 1)).toBe(true);
 
-    // Seal is a lone matched part.
+    // Seal is a lone matched component.
     const seal = units.find((u) => u.id === "seal");
     expect(seal?.itemId).toBe("i_seal");
 
@@ -105,9 +105,9 @@ describe("deriveAssemblyUnits", () => {
     const units = deriveAssemblyUnits({
       graph,
       bomMaterials: [{ itemId: "i", name: "Screw", quantity: 12 }],
-      partMappings: [],
+      componentMappings: [],
       authoredUnits: [],
-      partMatches: [{ name: "Screw", itemId: "i" }]
+      componentMatches: [{ name: "Screw", itemId: "i" }]
     });
     expect(units).toHaveLength(12);
     expect(units.every((u) => u.nodeIds.length === 1)).toBe(true);
@@ -122,9 +122,9 @@ describe("deriveAssemblyUnits", () => {
         { itemId: "i_llm", name: "Guessed", quantity: 1 }
       ],
       // Exact mapping says hA → i_map; the LLM guesses the name → i_llm.
-      partMappings: [{ geometryHash: "hA", itemId: "i_map" }],
+      componentMappings: [{ geometryHash: "hA", itemId: "i_map" }],
       authoredUnits: [],
-      partMatches: [{ name: "Widget", itemId: "i_llm" }]
+      componentMatches: [{ name: "Widget", itemId: "i_llm" }]
     });
     expect(units.find((u) => u.id === "a")?.itemId).toBe("i_map");
     expect(units.find((u) => u.id === "b")?.itemId).toBe("i_llm");
@@ -139,9 +139,9 @@ describe("deriveAssemblyUnits", () => {
     const units = deriveAssemblyUnits({
       graph,
       bomMaterials: [],
-      partMappings: [],
+      componentMappings: [],
       authoredUnits: [
-        { id: "unit-1", name: "Fastener Kit", partNodeIds: ["b", "c"] }
+        { id: "unit-1", name: "Fastener Kit", componentNodeIds: ["b", "c"] }
       ]
     });
     const authored = units.find((u) => u.id === "unit-1");
@@ -151,8 +151,8 @@ describe("deriveAssemblyUnits", () => {
     expect(units.find((u) => u.id === "a")?.source).toBe("loose");
   });
 
-  it("summarizes distinct part names with counts for the matcher", () => {
-    const names = distinctPartNames(bcuGraph());
+  it("summarizes distinct component names with counts for the matcher", () => {
+    const names = distinctComponentNames(bcuGraph());
     const byName = new Map(names.map((n) => [n.name, n.count]));
     expect(byName.get("Flanged Screw")).toBe(8);
     expect(byName.get("Seal Electronics Box")).toBe(1);

@@ -6,14 +6,14 @@ import pytest
 trimesh = pytest.importorskip("trimesh")
 pytest.importorskip("fcl")
 
-from app.plan import _greedy_disassembly, _Part, _plan_parts  # noqa: E402
+from app.plan import _greedy_disassembly, _Component, _plan_parts  # noqa: E402
 
 
-def _box_part(node_id: str, extents, center, name: str | None = None) -> _Part:
+def _box_part(node_id: str, extents, center, name: str | None = None) -> _Component:
     mesh = trimesh.creation.box(extents=extents)
     mesh.apply_translation(center)
     bounds = mesh.bounds
-    return _Part(
+    return _Component(
         node_id=node_id,
         name=name or node_id,
         mesh=mesh,
@@ -23,9 +23,9 @@ def _box_part(node_id: str, extents, center, name: str | None = None) -> _Part:
     )
 
 
-def _mesh_part(node_id: str, mesh, name: str | None = None) -> _Part:
+def _mesh_part(node_id: str, mesh, name: str | None = None) -> _Component:
     bounds = mesh.bounds
-    return _Part(
+    return _Component(
         node_id=node_id,
         name=name or node_id,
         mesh=mesh,
@@ -75,7 +75,7 @@ def test_pin_in_bore_slides_out_along_axis():
     cylinder = trimesh.creation.cylinder(radius=5.2, height=30)
     plate = plate.difference(cylinder)
     bounds = plate.bounds
-    plate_part = _Part(
+    plate_part = _Component(
         node_id="plate",
         name="plate",
         mesh=plate,
@@ -86,7 +86,7 @@ def test_pin_in_bore_slides_out_along_axis():
 
     pin = trimesh.creation.cylinder(radius=5.0, height=40)
     pin_bounds = pin.bounds
-    pin_part = _Part(
+    pin_part = _Component(
         node_id="pin",
         name="pin",
         mesh=pin,
@@ -155,7 +155,7 @@ def test_rod_prefers_its_own_axis():
     rod.apply_transform(rotate)
     rod.apply_translation((0, 0, 14.2))
     bounds = rod.bounds
-    rod_part = _Part(
+    rod_part = _Component(
         node_id="rod",
         name="rod",
         mesh=rod,
@@ -196,7 +196,7 @@ def test_blind_pocket_escapes_with_multi_segment_motion():
     container = trimesh.util.concatenate(
         [floor, wall_px, wall_nx, wall_py, wall_ny, lip]
     )
-    container_part = _Part(
+    container_part = _Component(
         node_id="container",
         name="container",
         mesh=container,
@@ -234,7 +234,7 @@ def test_captive_washer_assembles_before_its_bolt():
     hole = trimesh.creation.cylinder(radius=5.2, height=30)
     hole.apply_translation((0, 0, 10))
     plate = plate.difference(hole)
-    plate_part = _Part(
+    plate_part = _Component(
         node_id="plate",
         name="plate",
         mesh=plate,
@@ -245,7 +245,7 @@ def test_captive_washer_assembles_before_its_bolt():
 
     washer = trimesh.creation.annulus(r_min=4.4, r_max=9.0, height=1.5)
     washer.apply_translation((0, 0, 20.85))
-    washer_part = _Part(
+    washer_part = _Component(
         node_id="washer",
         name="washer",
         mesh=washer,
@@ -259,7 +259,7 @@ def test_captive_washer_assembles_before_its_bolt():
     head = trimesh.creation.cylinder(radius=8.0, height=5)
     head.apply_translation((0, 0, 24.2))
     bolt = shaft.union(head)
-    bolt_part = _Part(
+    bolt_part = _Component(
         node_id="bolt",
         name="bolt",
         mesh=bolt,
@@ -570,7 +570,7 @@ def test_group_unit_flows_through_sequence_and_payload(monkeypatch):
     assert outcome.tiers["group"] == 1
     assert len(outcome.groups) == 1
     group = next(iter(outcome.groups.values()))
-    assert set(group["partNodeIds"]) == {"hub", "key"}
+    assert set(group["componentNodeIds"]) == {"hub", "key"}
     assert group["motion"]["type"] == "linear"
     # Both members carry the shared motion and groupId
     assert by_id["hub"].group_id == by_id["key"].group_id
@@ -1220,7 +1220,7 @@ def test_fixed_sequence_single_group_is_the_base():
     assert by_id["a"].group_id == by_id["b"].group_id
     assert len(outcome.groups) == 1
     group = next(iter(outcome.groups.values()))
-    assert set(group["partNodeIds"]) == {"a", "b"}
+    assert set(group["componentNodeIds"]) == {"a", "b"}
     assert group["motion"]["type"] == "none"
 
 

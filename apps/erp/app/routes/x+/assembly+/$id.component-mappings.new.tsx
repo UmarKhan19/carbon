@@ -3,7 +3,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
-import { upsertAssemblyPartMapping } from "~/modules/production";
+import { upsertAssemblyComponentMapping } from "~/modules/production";
 
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
@@ -23,7 +23,7 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 
-  const upsert = await upsertAssemblyPartMapping(client, {
+  const upsert = await upsertAssemblyComponentMapping(client, {
     modelUploadId,
     geometryHash,
     itemId,

@@ -14,11 +14,11 @@ import type { Motion, Vec3 } from "./types";
  * Delete to remove it.
  *
  * Edits serialize back to a RELATIVE motion (`linear`/`L`) via
- * `waypointsToMotion`, so they apply to every part of a rigid-group step. Pure
- * translation — parts keep their seated orientation (see the plan / decision #2).
+ * `waypointsToMotion`, so they apply to every component of a rigid-group step. Pure
+ * translation — components keep their seated orientation (see the plan / decision #2).
  *
  * Lives outside the AnimationMixer clip lifecycle: while editing, the player
- * skips building the step clip so parts stay seated and the handles are not
+ * skips building the step clip so components stay seated and the handles are not
  * fought by playback.
  */
 export function MotionPathEditor({
@@ -28,7 +28,7 @@ export function MotionPathEditor({
   onMotionChange
 }: {
   motion: Motion;
-  /** Centroid of the step's parts' seated world positions (path anchor). */
+  /** Centroid of the step's components' seated world positions (path anchor). */
   seatedPosition: Vec3;
   /** Assembly diagonal (world units) — sizes the waypoint handles. */
   scale: number;

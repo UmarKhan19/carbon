@@ -16,7 +16,7 @@ ALTER TABLE "modelUpload" ADD COLUMN "processingStatus" "modelProcessingStatus" 
 ALTER TABLE "modelUpload" ADD COLUMN "processingError" TEXT;
 ALTER TABLE "modelUpload" ADD COLUMN "glbPath" TEXT;
 ALTER TABLE "modelUpload" ADD COLUMN "graphPath" TEXT;
-ALTER TABLE "modelUpload" ADD COLUMN "partCount" INTEGER;
+ALTER TABLE "modelUpload" ADD COLUMN "componentCount" INTEGER;
 ALTER TABLE "modelUpload" ADD COLUMN "processedAt" TIMESTAMP WITH TIME ZONE;
 
 -- 2. Geometry pipeline runs (conversion now, sequence planning later)

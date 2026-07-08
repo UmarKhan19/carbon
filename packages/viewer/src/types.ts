@@ -39,8 +39,8 @@ export type HelixMotion = {
 
 /**
  * Explicit keyframe path (planner tier 5 / manual freeform).
- * Keyframes are absolute world poses for the part; `t` is normalized 0..1 and
- * must be strictly increasing. The last keyframe must equal the part's final
+ * Keyframes are absolute world poses for the component; `t` is normalized 0..1 and
+ * must be strictly increasing. The last keyframe must equal the component's final
  * (seated) pose.
  */
 export type PathMotion = {
@@ -54,7 +54,7 @@ export type NoneMotion = {
 };
 
 /**
- * Describes the insertion motion of a step's parts into the assembly. The
+ * Describes the insertion motion of a step's components into the assembly. The
  * viewer derives removal (the reverse) and start poses from it.
  */
 export type Motion =
@@ -64,7 +64,7 @@ export type Motion =
   | PathMotion
   | NoneMotion;
 
-/** Step camera. `null` on a step means the viewer auto-frames the active parts. */
+/** Step camera. `null` on a step means the viewer auto-frames the active components. */
 export type CameraPose = {
   position: Vec3;
   target: Vec3;
@@ -83,15 +83,15 @@ export type AssemblyStep = {
   id: string;
   title: string | null;
   instructionText: string | null;
-  /** Parts installed in this step (stable nodeIds from glTF extras/graph.json) */
-  partNodeIds: string[];
+  /** Components installed in this step (stable nodeIds from glTF extras/graph.json) */
+  componentNodeIds: string[];
   motion: Motion;
   camera: CameraPose | null;
   fastener: Fastener | null;
   /** Optional authored override for the step's timeline length (seconds) */
   durationSeconds?: number | null;
   /**
-   * The planner proved no collision-free path for these parts. The player
+   * The planner proved no collision-free path for these components. The player
    * fades them in at the seated pose instead of synthesizing a fallback
    * motion — a fabricated path would animate straight through geometry.
    */
@@ -125,7 +125,7 @@ export type AssemblyGraph = {
   /** Unit declared in the STEP file */
   sourceUnit: string;
   /** Count of leaf instances */
-  partCount: number;
+  componentCount: number;
   /** Assembly tree; root has no geometry */
   root: AssemblyGraphNode;
 };

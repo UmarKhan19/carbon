@@ -114,7 +114,7 @@ export default function AssemblyStepMaterials({
               <VStack spacing={2} className="w-full">
                 <Combobox
                   name="itemId"
-                  placeholder="Pick a BOM part"
+                  placeholder="Pick a BOM item"
                   options={options}
                   onChange={(option) =>
                     setSelectedItemId(option?.value ?? null)

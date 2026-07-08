@@ -12,6 +12,7 @@ import type {
 import {
   buildAssemblyStepGroups,
   CURRENT_PLAN_VERSION,
+  computeStepCameras,
   indexAssemblyGraph
 } from "@carbon/viewer";
 import { parseDate } from "@internationalized/date";
@@ -3806,7 +3807,7 @@ export async function getAssemblyInstruction(
   return client
     .from("assemblyInstruction")
     .select(
-      "*, modelUpload(id, name, modelPath, glbPath, graphPath, partCount, processingStatus, processingError)"
+      "*, modelUpload(id, name, modelPath, glbPath, graphPath, componentCount, processingStatus, processingError)"
     )
     .eq("id", id)
     .single();
@@ -3825,7 +3826,7 @@ export async function getAssemblyInstructions(
 ) {
   let query = client
     .from("assemblyInstruction")
-    .select("*, modelUpload(id, name, partCount, processingStatus)", {
+    .select("*, modelUpload(id, name, componentCount, processingStatus)", {
       count: "exact"
     })
     .eq("companyId", args.companyId);
@@ -3877,7 +3878,7 @@ export async function getModelForItem(
   const model = await client
     .from("modelUpload")
     .select(
-      "id, name, partCount, processingStatus, processingError, glbPath, graphPath, modelPath"
+      "id, name, componentCount, processingStatus, processingError, glbPath, graphPath, modelPath"
     )
     .eq("id", item.data.modelUploadId)
     .maybeSingle();
@@ -4054,7 +4055,7 @@ export async function upsertAssemblyInstructionStep(
     minValue?: number | null;
     maxValue?: number | null;
     listValues?: string[] | null;
-    partNodeIds?: string[];
+    componentNodeIds?: string[];
     motion?: z.infer<typeof motionSchema>;
     camera?: z.infer<typeof cameraSchema> | null;
     fastener?: z.infer<typeof fastenerSchema> | null;
@@ -4098,7 +4099,9 @@ export async function upsertAssemblyInstructionStep(
           : {}),
         ...derivedInstructionText,
         ...(data.required !== undefined ? { required: data.required } : {}),
-        ...(data.partNodeIds ? { partNodeIds: data.partNodeIds } : {}),
+        ...(data.componentNodeIds
+          ? { componentNodeIds: data.componentNodeIds }
+          : {}),
         ...(data.motion ? { motion: data.motion as Json } : {}),
         ...(data.camera !== undefined
           ? { camera: data.camera as Json | null }
@@ -4135,7 +4138,7 @@ export async function upsertAssemblyInstructionStep(
       minValue: data.type === "Measurement" ? (data.minValue ?? null) : null,
       maxValue: data.type === "Measurement" ? (data.maxValue ?? null) : null,
       listValues: data.type === "List" ? (data.listValues ?? null) : null,
-      partNodeIds: data.partNodeIds ?? [],
+      componentNodeIds: data.componentNodeIds ?? [],
       motion: (data.motion ?? { type: "none" }) as Json,
       camera: (data.camera ?? null) as Json | null,
       fastener: (data.fastener ?? null) as Json | null,
@@ -4179,20 +4182,21 @@ export async function updateAssemblyStepMotion(
     .single();
 }
 
-// Autosave target for the Details panel's Add/remove part controls: patches only
-// the step's assigned parts, leaving the title/typed fields and motion untouched.
-export async function updateAssemblyStepParts(
+// Autosave target for the Details panel's Add/remove component controls: patches
+// only the step's assigned components, leaving the title/typed fields and motion
+// untouched.
+export async function updateAssemblyStepComponents(
   client: SupabaseClient<Database>,
   data: {
     id: string;
-    partNodeIds: string[];
+    componentNodeIds: string[];
     updatedBy: string;
   }
 ) {
   return client
     .from("assemblyInstructionStep")
     .update({
-      partNodeIds: data.partNodeIds,
+      componentNodeIds: data.componentNodeIds,
       updatedBy: data.updatedBy,
       updatedAt: new Date().toISOString()
     })
@@ -4562,7 +4566,7 @@ export async function upsertAssemblyUnit(
     id?: string;
     modelUploadId: string;
     name: string;
-    partNodeIds: string[];
+    componentNodeIds: string[];
     itemId?: string | null;
     companyId: string;
     createdBy: string;
@@ -4574,7 +4578,7 @@ export async function upsertAssemblyUnit(
       .from("assemblyUnit")
       .update({
         name: data.name,
-        partNodeIds: data.partNodeIds,
+        componentNodeIds: data.componentNodeIds,
         itemId: data.itemId ?? null,
         updatedBy: data.updatedBy ?? data.createdBy,
         updatedAt: new Date().toISOString()
@@ -4589,7 +4593,7 @@ export async function upsertAssemblyUnit(
     .insert({
       modelUploadId: data.modelUploadId,
       name: data.name,
-      partNodeIds: data.partNodeIds,
+      componentNodeIds: data.componentNodeIds,
       itemId: data.itemId ?? null,
       companyId: data.companyId,
       createdBy: data.createdBy
@@ -4673,20 +4677,20 @@ export async function getAssemblyPlanJson(
   }
 }
 
-// --- Model part ↔ engineering BOM mappings -------------------------------
+// --- Model component ↔ engineering BOM mappings --------------------------
 
-/** Mappings from distinct model parts (geometry hashes) to BOM items. */
-export async function getAssemblyPartMappings(
+/** Mappings from distinct model components (geometry hashes) to BOM items. */
+export async function getAssemblyComponentMappings(
   client: SupabaseClient<Database>,
   modelUploadId: string
 ) {
   return client
-    .from("assemblyPartMapping")
+    .from("assemblyComponentMapping")
     .select("*, item(id, name, readableIdWithRevision)")
     .eq("modelUploadId", modelUploadId);
 }
 
-export async function upsertAssemblyPartMapping(
+export async function upsertAssemblyComponentMapping(
   client: SupabaseClient<Database>,
   data: {
     modelUploadId: string;
@@ -4698,7 +4702,7 @@ export async function upsertAssemblyPartMapping(
   }
 ) {
   return client
-    .from("assemblyPartMapping")
+    .from("assemblyComponentMapping")
     .upsert(
       {
         modelUploadId: data.modelUploadId,
@@ -4716,11 +4720,11 @@ export async function upsertAssemblyPartMapping(
     .single();
 }
 
-export async function deleteAssemblyPartMapping(
+export async function deleteAssemblyComponentMapping(
   client: SupabaseClient<Database>,
   id: string
 ) {
-  return client.from("assemblyPartMapping").delete().eq("id", id);
+  return client.from("assemblyComponentMapping").delete().eq("id", id);
 }
 
 export type FlattenedBomMaterial = {
@@ -4798,17 +4802,17 @@ export async function getFlattenedBomMaterials(
 
 export type AutoMatchResult = {
   mapped: number;
-  totalParts: number;
+  totalComponents: number;
   unmatchedBomItems: string[];
 };
 
 /**
- * Suggests and persists part→BOM mappings for an instruction's model:
+ * Suggests and persists component→BOM mappings for an instruction's model:
  * strong name matches first (greedy, best score wins), then unique
- * quantity matches (a part appearing N times matched to the only BOM line
+ * quantity matches (a component appearing N times matched to the only BOM line
  * with quantity N) as low-confidence fallbacks. Existing mappings are kept.
  */
-export async function autoMatchAssemblyParts(
+export async function autoMatchAssemblyComponents(
   client: SupabaseClient<Database>,
   args: { assemblyInstructionId: string; companyId: string; userId: string }
 ): Promise<AutoMatchResult | { error: string }> {
@@ -4840,13 +4844,13 @@ export async function autoMatchAssemblyParts(
   }
 
   // Distinct parts: hash → { name, count }
-  const partGroups = new Map<string, { name: string; count: number }>();
+  const componentGroups = new Map<string, { name: string; count: number }>();
   const visit = (node: AssemblyGraph["root"]) => {
     if (!node.children.length) {
       const key = node.geometryHash ?? `name:${node.name}`;
-      const group = partGroups.get(key);
+      const group = componentGroups.get(key);
       if (group) group.count++;
-      else partGroups.set(key, { name: node.name, count: 1 });
+      else componentGroups.set(key, { name: node.name, count: 1 });
     }
     for (const child of node.children) visit(child);
   };
@@ -4861,7 +4865,7 @@ export async function autoMatchAssemblyParts(
     return { error: "The item has no bill of materials" };
   }
 
-  const existing = await getAssemblyPartMappings(
+  const existing = await getAssemblyComponentMappings(
     client,
     instruction.data.modelUploadId
   );
@@ -4881,7 +4885,7 @@ export async function autoMatchAssemblyParts(
   const suggestions: Suggestion[] = [];
 
   // Name-based candidates, all pairs above threshold, greedy by score
-  for (const [hash, group] of partGroups) {
+  for (const [hash, group] of componentGroups) {
     if (mappedHashes.has(hash)) continue;
     for (const material of bom) {
       const score = nameSimilarity(group.name, material.name ?? "");
@@ -4910,19 +4914,23 @@ export async function autoMatchAssemblyParts(
 
   // Quantity fallback: a still-unmatched part whose instance count equals
   // exactly one still-unmatched BOM line's quantity
-  for (const [hash, group] of partGroups) {
+  for (const [hash, group] of componentGroups) {
     if (matchedHashes.has(hash)) continue;
     const candidates = bom.filter(
       (material) =>
         !matchedItems.has(material.itemId) &&
         Math.round(material.quantity) === group.count
     );
-    const sameCountParts = [...partGroups.entries()].filter(
+    const sameCountComponents = [...componentGroups.entries()].filter(
       ([otherHash, other]) =>
         !matchedHashes.has(otherHash) && other.count === group.count
     );
     const candidate = candidates[0];
-    if (candidates.length === 1 && sameCountParts.length === 1 && candidate) {
+    if (
+      candidates.length === 1 &&
+      sameCountComponents.length === 1 &&
+      candidate
+    ) {
       matchedHashes.add(hash);
       matchedItems.add(candidate.itemId);
       accepted.push({
@@ -4935,7 +4943,7 @@ export async function autoMatchAssemblyParts(
   }
 
   for (const suggestion of accepted) {
-    await upsertAssemblyPartMapping(client, {
+    await upsertAssemblyComponentMapping(client, {
       modelUploadId: instruction.data.modelUploadId,
       geometryHash: suggestion.geometryHash,
       itemId: suggestion.itemId,
@@ -4947,7 +4955,7 @@ export async function autoMatchAssemblyParts(
 
   return {
     mapped: matchedHashes.size,
-    totalParts: partGroups.size,
+    totalComponents: componentGroups.size,
     unmatchedBomItems: bom
       .filter((material) => !matchedItems.has(material.itemId))
       .map(
@@ -5053,6 +5061,12 @@ export async function generateAssemblyStepsFromPlan(
     return { ok: false, reason: "error", message: "The plan has no parts" };
   }
 
+  // Bake an occlusion-aware camera per step: an unobstructed view of the step's
+  // components on their motion path, given only the components already animated
+  // by earlier steps. Falls back to the viewer's live framing (camera: null)
+  // when the graph is unavailable.
+  const cameras = graphIndex ? computeStepCameras(groups, graphIndex) : [];
+
   const rows = groups.map((group, index) => {
     const motion = motionSchema.safeParse(group.motion);
     return {
@@ -5061,8 +5075,9 @@ export async function generateAssemblyStepsFromPlan(
       // A pre-grouped unit (e.g. a purchased PCB) titles its step with the
       // unit name; ungrouped steps derive their title from their parts.
       title: group.name ?? null,
-      partNodeIds: group.partNodeIds,
+      componentNodeIds: group.componentNodeIds,
       motion: (motion.success ? motion.data : { type: "none" }) as Json,
+      camera: (cameras[index] ?? null) as Json | null,
       warnings:
         group.blockedBy.length > 0
           ? ({ flagged: true, blockedBy: group.blockedBy } as Json)
@@ -5097,7 +5112,7 @@ export function toViewerStep(step: AssemblyInstructionStepRow): AssemblyStep {
     id: step.id,
     title: step.title,
     instructionText: step.instructionText,
-    partNodeIds: step.partNodeIds ?? [],
+    componentNodeIds: step.componentNodeIds ?? [],
     motion: motion.success ? motion.data : { type: "none" },
     camera: camera.success ? camera.data : null,
     fastener: fastener.success ? fastener.data : null,

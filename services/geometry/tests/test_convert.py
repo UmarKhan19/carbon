@@ -46,7 +46,7 @@ def test_single_part_box(step_fixtures: dict[str, Path], tmp_path: Path) -> None
     assert graph["version"] == 1
     assert graph["unit"] == "mm"
     assert graph["sourceUnit"] == "mm"
-    assert graph["partCount"] == 1
+    assert graph["componentCount"] == 1
 
     root = graph["root"]
     assert root["isAssembly"] is False
@@ -63,7 +63,7 @@ def test_plates_assembly_counts_and_duplicates(
 ) -> None:
     result, _ = _convert(step_fixtures["plates"], tmp_path, "plates")
     graph = result.graph
-    assert graph["partCount"] == 5
+    assert graph["componentCount"] == 5
 
     root = graph["root"]
     assert root["isAssembly"] is True
@@ -134,7 +134,7 @@ def test_nested_assembly_structure(
 ) -> None:
     result, _ = _convert(step_fixtures["nested"], tmp_path, "nested")
     graph = result.graph
-    assert graph["partCount"] == 3
+    assert graph["componentCount"] == 3
 
     root = graph["root"]
     assert root["isAssembly"] is True

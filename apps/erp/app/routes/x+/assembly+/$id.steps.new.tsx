@@ -45,7 +45,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   });
   logAssemblyStep("new.result", {
     createdId: create.data?.id ?? null,
-    partNodeIds: rest.partNodeIds,
+    componentNodeIds: rest.componentNodeIds,
     error: create.error?.message ?? null
   });
   if (create.error) {

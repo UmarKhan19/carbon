@@ -9,12 +9,12 @@ import type { Motion, Vec3 } from "./types";
  * verification, subassembly groups, and rigid merges; all new fields are
  * optional so version-1 files keep parsing.
  */
-export type AssemblyPlanPart = {
+export type AssemblyPlanComponent = {
   /** INSERTION motion (removal reversed) */
   motion: Motion;
   confidence?: "high" | "low";
   removalDirection?: [number, number, number];
-  /** Obstructions for flagged parts (no collision-free path exists) */
+  /** Obstructions for flagged components (no collision-free path exists) */
   blockedBy?: string[];
   /** v2: how the motion was found */
   tier?: "linear" | "L" | "escape" | "group" | "flagged" | "base";
@@ -22,7 +22,7 @@ export type AssemblyPlanPart = {
   verified?: boolean;
   /** v2: subassembly unit — members share one step and one motion */
   groupId?: string;
-  /** v2: rigidly merged into this part (rides its step) */
+  /** v2: rigidly merged into this component (rides its step) */
   mergedInto?: string;
 };
 
@@ -39,14 +39,14 @@ export type AssemblyPlan = {
   unit: "mm";
   /** Assembly order (constraint-consistent; v1: reversed greedy disassembly) */
   sequence: string[];
-  parts: Record<string, AssemblyPlanPart>;
+  components: Record<string, AssemblyPlanComponent>;
   /**
    * v2: subassembly units keyed by groupId. v3 adds `name` — a pre-grouped unit
    * (e.g. a purchased PCB) carries its BOM/subassembly name for the step title.
    */
   groups?: Record<
     string,
-    { partNodeIds: string[]; motion: Motion; name?: string }
+    { componentNodeIds: string[]; motion: Motion; name?: string }
   >;
   warnings: string[];
 };
@@ -57,21 +57,21 @@ export type PlannedMotion = {
 };
 
 /**
- * The auto-planned motion for a step's parts, per the contract: a single
- * part uses its own motion; multiple parts use the shared motion when all
- * agree, otherwise the first part's motion with confidence low. Returns
- * null when the plan has nothing useful for these parts.
+ * The auto-planned motion for a step's components, per the contract: a single
+ * component uses its own motion; multiple components use the shared motion when all
+ * agree, otherwise the first component's motion with confidence low. Returns
+ * null when the plan has nothing useful for these components.
  */
-export function planMotionForParts(
+export function planMotionForComponents(
   plan: AssemblyPlan | null,
-  partNodeIds: string[]
+  componentNodeIds: string[]
 ): PlannedMotion | null {
-  if (!plan || partNodeIds.length === 0) return null;
+  if (!plan || componentNodeIds.length === 0) return null;
 
-  const entries = partNodeIds
-    .map((nodeId) => plan.parts[nodeId])
+  const entries = componentNodeIds
+    .map((nodeId) => plan.components[nodeId])
     .filter(
-      (entry): entry is AssemblyPlanPart =>
+      (entry): entry is AssemblyPlanComponent =>
         entry !== undefined && entry.motion.type !== "none"
     );
   if (entries.length === 0) return null;
@@ -79,13 +79,13 @@ export function planMotionForParts(
   const first = entries[0];
   if (!first) return null;
 
-  if (entries.length === 1 && partNodeIds.length === 1) {
+  if (entries.length === 1 && componentNodeIds.length === 1) {
     return { motion: first.motion, confidence: first.confidence ?? "low" };
   }
 
   const firstKey = JSON.stringify(first.motion);
   const allAgree =
-    entries.length === partNodeIds.length &&
+    entries.length === componentNodeIds.length &&
     entries.every((entry) => JSON.stringify(entry.motion) === firstKey);
 
   if (allAgree) {
@@ -110,13 +110,13 @@ function isMotion(value: unknown): value is Motion {
 }
 
 export type AssemblyStepGroup = {
-  partNodeIds: string[];
+  componentNodeIds: string[];
   motion: Motion;
   confidence: "high" | "low";
   /**
    * Planner-recorded obstructions. Non-empty means the group is flagged: no
    * collision-free path exists, the motion is "none", and the player fades
-   * the parts in at their seated pose.
+   * the components in at their seated pose.
    */
   blockedBy: string[];
   /** v3: the pre-grouped unit's name (e.g. "PCB Assembly"), for the step title. */
@@ -139,9 +139,9 @@ function motionKey(motion: Motion): string {
 type Aabb = { min: Vec3; max: Vec3 };
 
 /**
- * Conservative swept volume of a part's insertion: the AABB of its seat
+ * Conservative swept volume of a component's insertion: the AABB of its seat
  * pose union every pose along the motion (segment corners included). Two
- * parts whose corridors are AABB-disjoint cannot collide while animating
+ * components whose corridors are AABB-disjoint cannot collide while animating
  * simultaneously; overlapping corridors (e.g. clips sliding in-line into
  * the same channel) must insert on separate steps.
  */
@@ -197,13 +197,13 @@ function corridorsOverlap(a: Aabb, b: Aabb): boolean {
 
 /**
  * Groups a plan's assembly sequence into draft steps: consecutive identical
- * parts (same geometry, same motion direction, same flag state) share a
+ * components (same geometry, same motion direction, same flag state) share a
  * step, keeping the longest travel so instances at different depths all
  * reach their seat. Subassembly units (shared `groupId`) always share one
- * step regardless of geometry, and rigidly merged parts ride their host's
- * step. Parts the planner flagged via `blockedBy` (or that failed forward
+ * step regardless of geometry, and rigidly merged components ride their host's
+ * step. Components the planner flagged via `blockedBy` (or that failed forward
  * verification) get motion "none" — a fabricated path would animate
- * straight through geometry. Unflagged parts old plans left with motion
+ * straight through geometry. Unflagged components old plans left with motion
  * "none" get an AABB fallback so they never pop into place; the first
  * group is exempt (the base is placed, not inserted).
  */
@@ -214,52 +214,52 @@ export function buildAssemblyStepGroups(
   type WorkingGroup = AssemblyStepGroup & { key: string; corridors: Aabb[] };
   const groups: WorkingGroup[] = [];
 
-  // Rigidly merged parts (v2) are absent from the sequence: they install
+  // Rigidly merged components (v2) are absent from the sequence: they install
   // with their host, animating as one body
   const mergedByHost = new Map<string, string[]>();
-  for (const [nodeId, part] of Object.entries(plan.parts)) {
-    if (!part.mergedInto) continue;
-    const members = mergedByHost.get(part.mergedInto) ?? [];
+  for (const [nodeId, component] of Object.entries(plan.components)) {
+    if (!component.mergedInto) continue;
+    const members = mergedByHost.get(component.mergedInto) ?? [];
     members.push(nodeId);
-    mergedByHost.set(part.mergedInto, members);
+    mergedByHost.set(component.mergedInto, members);
   }
 
   for (const nodeId of plan.sequence) {
-    const part = plan.parts[nodeId];
-    if (part?.mergedInto) continue; // defensive: hosts carry their merges
-    const blockedBy = part?.blockedBy ?? [];
-    const flagged = blockedBy.length > 0 || part?.verified === false;
+    const component = plan.components[nodeId];
+    if (component?.mergedInto) continue; // defensive: hosts carry their merges
+    const blockedBy = component?.blockedBy ?? [];
+    const flagged = blockedBy.length > 0 || component?.verified === false;
     const motion: Motion = flagged
       ? { type: "none" }
-      : part && isMotion(part.motion)
-        ? part.motion
+      : component && isMotion(component.motion)
+        ? component.motion
         : { type: "none" };
     const confidence: "high" | "low" =
-      !flagged && part?.confidence === "high" ? "high" : "low";
+      !flagged && component?.confidence === "high" ? "high" : "low";
     const hash = graphIndex?.nodesById.get(nodeId)?.geometryHash ?? nodeId;
     // Subassembly members share a step no matter their geometry
-    const key = part?.groupId
-      ? `group:${part.groupId}`
+    const key = component?.groupId
+      ? `group:${component.groupId}`
       : `${hash}|${motionKey(motion)}|${confidence}|${flagged}`;
 
     const withMerged = [nodeId, ...(mergedByHost.get(nodeId) ?? [])];
 
-    // A step's parts animate SIMULTANEOUSLY, which is only legitimate
+    // A step's components animate SIMULTANEOUSLY, which is only legitimate
     // when their swept corridors can't intersect — side-by-side screws
     // pass, clips sliding in-line into the same channel must each take
     // their own step. Subassembly units are one rigid body and exempt.
-    const corridor = part?.groupId
+    const corridor = component?.groupId
       ? null
       : motionCorridor(graphIndex?.nodesById.get(nodeId)?.bbox, motion);
 
     const previous = groups[groups.length - 1];
     const corridorClear =
-      part?.groupId != null ||
+      component?.groupId != null ||
       corridor == null ||
       previous == null ||
       previous.corridors.every((other) => !corridorsOverlap(corridor, other));
     if (previous && previous.key === key && corridorClear) {
-      previous.partNodeIds.push(...withMerged);
+      previous.componentNodeIds.push(...withMerged);
       if (corridor) {
         previous.corridors.push(corridor);
       }
@@ -268,7 +268,7 @@ export function buildAssemblyStepGroups(
           previous.blockedBy.push(blocker);
         }
       }
-      // Identical parts can sit at different depths: animate the longest
+      // Identical components can sit at different depths: animate the longest
       if (motion.type === "linear" && previous.motion.type === "linear") {
         previous.motion = {
           ...previous.motion,
@@ -278,11 +278,13 @@ export function buildAssemblyStepGroups(
       continue;
     }
     groups.push({
-      partNodeIds: withMerged,
+      componentNodeIds: withMerged,
       motion,
       confidence,
       blockedBy: [...blockedBy],
-      name: part?.groupId ? plan.groups?.[part.groupId]?.name : undefined,
+      name: component?.groupId
+        ? plan.groups?.[component.groupId]?.name
+        : undefined,
       key,
       corridors: corridor ? [corridor] : []
     });
@@ -298,7 +300,10 @@ export function buildAssemblyStepGroups(
       ) {
         continue;
       }
-      const fallback = synthesizeFallbackMotion(graphIndex, group.partNodeIds);
+      const fallback = synthesizeFallbackMotion(
+        graphIndex,
+        group.componentNodeIds
+      );
       if (fallback && fallback.type !== "none") {
         group.motion = fallback;
         group.confidence = "low";

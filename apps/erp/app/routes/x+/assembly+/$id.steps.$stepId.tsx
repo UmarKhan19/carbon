@@ -48,7 +48,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   logAssemblyStep("update.result", {
     stepId,
     hasMotion: validation.data.motion !== undefined,
-    partNodeIds: validation.data.partNodeIds,
+    componentNodeIds: validation.data.componentNodeIds,
     title: validation.data.title ?? null,
     error: update.error?.message ?? null,
     updatedId: update.data?.id ?? null

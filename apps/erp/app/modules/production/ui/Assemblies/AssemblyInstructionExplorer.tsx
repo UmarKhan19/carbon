@@ -28,7 +28,7 @@ import {
 import type { AssemblyGraphIndex } from "@carbon/viewer";
 import {
   describeStep,
-  groupPartNodeIds,
+  groupComponentNodeIds,
   synthesizeFallbackMotion
 } from "@carbon/viewer";
 import type { DragControls } from "framer-motion";
@@ -53,8 +53,8 @@ import { path } from "~/utils/path";
 import type { FlattenedBomMaterial } from "../../production.service";
 import { toViewerStep } from "../../production.service";
 import type {
+  AssemblyComponentMapping,
   AssemblyInstructionStepRow,
-  AssemblyPartMapping,
   AssemblyUnit
 } from "../../types";
 import AssemblyBomTree from "./AssemblyBomTree";
@@ -77,13 +77,13 @@ type AssemblyInstructionExplorerProps = {
     createdAt: string;
   } | null;
   modelUploadId: string | null;
-  partMappings: AssemblyPartMapping[];
+  componentMappings: AssemblyComponentMapping[];
   bomMaterials: FlattenedBomMaterial[];
-  /** Current part selection (shared with the viewer) — highlighted in the Parts tab */
+  /** Current component selection (shared with the viewer) — highlighted in the Components tab */
   selectedNodeIds: string[];
   onSelectStep: (stepId: string) => void;
-  onHighlightParts: (nodeIds: string[]) => void;
-  onHideParts: (nodeIds: string[]) => void;
+  onHighlightComponents: (nodeIds: string[]) => void;
+  onHideComponents: (nodeIds: string[]) => void;
 };
 
 export default function AssemblyInstructionExplorer({
@@ -96,12 +96,12 @@ export default function AssemblyInstructionExplorer({
   hasPlan,
   planJob,
   modelUploadId,
-  partMappings,
+  componentMappings,
   bomMaterials,
   selectedNodeIds,
   onSelectStep,
-  onHighlightParts,
-  onHideParts
+  onHighlightComponents,
+  onHideComponents
 }: AssemblyInstructionExplorerProps) {
   const { id } = useParams();
   if (!id) throw new Error("Could not find id");
@@ -123,9 +123,9 @@ export default function AssemblyInstructionExplorer({
   // the steps appear without further clicks.
   const [isAwaitingPlan, setIsAwaitingPlan] = useState(false);
 
-  // Controlled so the Parts tab knows when it becomes active — it scrolls the
+  // Controlled so the Components tab knows when it becomes active — it scrolls the
   // current selection into view on activation
-  const [tab, setTab] = useState<"steps" | "parts">("steps");
+  const [tab, setTab] = useState<"steps" | "components">("steps");
   // A pre-existing Failed job stays the latest row until the freshly
   // triggered run inserts its own — remember it so it doesn't read as the
   // outcome of the run we're waiting on.
@@ -234,12 +234,12 @@ export default function AssemblyInstructionExplorer({
   );
 
   // Authored subassembly units, normalized for step-title derivation: a step
-  // whose parts are exactly a unit is titled by its name, not by every part.
+  // whose components are exactly a unit is titled by its name, not by every component.
   const namedUnits = useMemo(
     () =>
       units.map((unit) => ({
         name: unit.name,
-        partNodeIds: unit.partNodeIds ?? []
+        componentNodeIds: unit.componentNodeIds ?? []
       })),
     [units]
   );
@@ -259,13 +259,13 @@ export default function AssemblyInstructionExplorer({
   const [search, setSearch] = useState("");
   const isSearching = search.trim().length > 0;
 
-  /** stepId → lowercase haystack of title, part names, and fastener spec */
+  /** stepId → lowercase haystack of title, component names, and fastener spec */
   const searchText = useMemo(() => {
     const map = new Map<string, string>();
     for (const step of steps) {
       const viewerStep = toViewerStep(step);
-      const partNames = graphIndex
-        ? groupPartNodeIds(viewerStep.partNodeIds, graphIndex)
+      const componentNames = graphIndex
+        ? groupComponentNodeIds(viewerStep.componentNodeIds, graphIndex)
             .map((group) => group.name)
             .join(" ")
         : "";
@@ -274,7 +274,7 @@ export default function AssemblyInstructionExplorer({
         [
           step.title ?? "",
           stepTitles.get(step.id) ?? "",
-          partNames,
+          componentNames,
           viewerStep.fastener?.spec ?? "",
           step.instructionText ?? ""
         ]
@@ -321,12 +321,12 @@ export default function AssemblyInstructionExplorer({
     const formData = new FormData();
     formData.append("assemblyInstructionId", id);
 
-    // When parts are selected, seed the new step with the parts and a basic
-    // synthesized insertion animation. Otherwise create an empty process-only
-    // step. The title is left blank on purpose — it derives live from the
-    // parts (describeStep) everywhere it is displayed.
+    // When components are selected, seed the new step with the components and a
+    // basic synthesized insertion animation. Otherwise create an empty
+    // process-only step. The title is left blank on purpose — it derives live
+    // from the components (describeStep) everywhere it is displayed.
     if (selectedNodeIds.length > 0) {
-      formData.append("partNodeIds", JSON.stringify(selectedNodeIds));
+      formData.append("componentNodeIds", JSON.stringify(selectedNodeIds));
       const motion = graphIndex
         ? synthesizeFallbackMotion(graphIndex, selectedNodeIds)
         : null;
@@ -345,15 +345,15 @@ export default function AssemblyInstructionExplorer({
     <>
       <Tabs
         value={tab}
-        onValueChange={(value) => setTab(value as "steps" | "parts")}
+        onValueChange={(value) => setTab(value as "steps" | "components")}
         className="flex h-[calc(100dvh-99px)] w-full flex-col"
       >
         <TabsList className="w-auto flex-none gap-1 mx-3 mt-3">
           <TabsTrigger className="flex-1" value="steps">
             Steps
           </TabsTrigger>
-          <TabsTrigger className="flex-1" value="parts">
-            Parts
+          <TabsTrigger className="flex-1" value="components">
+            Components
           </TabsTrigger>
         </TabsList>
         <TabsContent
@@ -495,7 +495,7 @@ export default function AssemblyInstructionExplorer({
         </TabsContent>
         {/* forceMount keeps the BOM selection (and viewer highlight) alive across tab switches */}
         <TabsContent
-          value="parts"
+          value="components"
           forceMount
           className="min-h-0 flex-1 data-[state=inactive]:hidden"
         >
@@ -505,13 +505,13 @@ export default function AssemblyInstructionExplorer({
             units={units}
             isDisabled={isDisabled}
             modelUploadId={modelUploadId}
-            partMappings={partMappings}
+            componentMappings={componentMappings}
             bomMaterials={bomMaterials}
             selectedNodeIds={selectedNodeIds}
-            isActive={tab === "parts"}
+            isActive={tab === "components"}
             isAddingStep={newStepFetcher.state !== "idle"}
-            onHighlightParts={onHighlightParts}
-            onHideParts={onHideParts}
+            onHighlightComponents={onHighlightComponents}
+            onHideComponents={onHideComponents}
             onSelectStep={onSelectStep}
             onAddStep={onAddStep}
           />
@@ -539,8 +539,8 @@ export default function AssemblyInstructionExplorer({
             <ModalHeader>
               <ModalTitle>Run motion planning?</ModalTitle>
               <ModalDescription>
-                Recomputes how each step's parts move into place, using the
-                current step order and avoiding collisions with parts from
+                Recomputes how each step's components move into place, using the
+                current step order and avoiding collisions with components from
                 earlier steps. Steps you've marked Done are left as-is.
               </ModalDescription>
             </ModalHeader>
@@ -711,7 +711,7 @@ function StepItem({
   const permissions = usePermissions();
   if (!step) return null;
 
-  const partCount = step.partNodeIds?.length ?? 0;
+  const componentCount = step.componentNodeIds?.length ?? 0;
 
   return (
     <HStack
@@ -750,7 +750,7 @@ function StepItem({
             isDisabled={isDisabled}
           />
           <p className="text-muted-foreground text-xs">
-            {partCount} part{partCount === 1 ? "" : "s"}
+            {componentCount} component{componentCount === 1 ? "" : "s"}
           </p>
         </HStack>
       </VStack>

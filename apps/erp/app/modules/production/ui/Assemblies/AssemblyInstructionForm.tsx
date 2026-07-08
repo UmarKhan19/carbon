@@ -75,7 +75,7 @@ const AssemblyInstructionForm = ({
       const { data: model } = await carbon
         .from("modelUpload")
         .select(
-          "id, name, partCount, processingStatus, processingError, glbPath, graphPath, modelPath"
+          "id, name, componentCount, processingStatus, processingError, glbPath, graphPath, modelPath"
         )
         .eq("id", item.modelUploadId)
         .maybeSingle();
@@ -87,8 +87,8 @@ const AssemblyInstructionForm = ({
           setModelStatus({
             state,
             label:
-              typeof model!.partCount === "number"
-                ? `${name} (${model!.partCount} parts)`
+              typeof model!.componentCount === "number"
+                ? `${name} (${model!.componentCount} components)`
                 : name
           });
           break;

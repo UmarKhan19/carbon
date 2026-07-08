@@ -118,9 +118,10 @@ const AssemblyInstructionsTable = memo(
             return (
               <VStack spacing={0}>
                 <span className="truncate">{model.name ?? model.id}</span>
-                {typeof model.partCount === "number" && (
+                {typeof model.componentCount === "number" && (
                   <span className="text-xs text-muted-foreground tabular-nums">
-                    {model.partCount} part{model.partCount === 1 ? "" : "s"}
+                    {model.componentCount} component
+                    {model.componentCount === 1 ? "" : "s"}
                   </span>
                 )}
               </VStack>

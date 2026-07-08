@@ -57,7 +57,7 @@ CREATE TABLE "assemblyInstructionStep" (
   "listValues" TEXT[],
   "fileTypes" TEXT[],
   "notes" JSON,
-  "partNodeIds" TEXT[] NOT NULL DEFAULT '{}',
+  "componentNodeIds" TEXT[] NOT NULL DEFAULT '{}',
   "motion" JSONB NOT NULL DEFAULT '{"type": "none"}',
   "camera" JSONB,
   "explode" JSONB,

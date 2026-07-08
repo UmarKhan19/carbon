@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { describeStep } from "./describe";
-import { groupPartNodeIds, indexAssemblyGraph } from "./graph";
+import { groupComponentNodeIds, indexAssemblyGraph } from "./graph";
 import type { AssemblyGraph, AssemblyGraphNode } from "./types";
 
 const IDENTITY = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
@@ -45,7 +45,7 @@ const graph: AssemblyGraph = {
   version: 1,
   unit: "mm",
   sourceUnit: "mm",
-  partCount: 5,
+  componentCount: 5,
   root: assembly("root", "Assembly", [
     leaf("bolt-1", "M8 Bolt", "hash-bolt"),
     leaf("bolt-2", "M8 Bolt", "hash-bolt"),
@@ -88,11 +88,14 @@ describe("indexAssemblyGraph", () => {
   });
 });
 
-describe("groupPartNodeIds", () => {
+describe("groupComponentNodeIds", () => {
   const index = indexAssemblyGraph(graph);
 
   it("groups only the given ids", () => {
-    const groups = groupPartNodeIds(["bolt-1", "bolt-3", "plate-1"], index);
+    const groups = groupComponentNodeIds(
+      ["bolt-1", "bolt-3", "plate-1"],
+      index
+    );
     expect(groups.map((group) => [group.name, group.count])).toEqual([
       ["M8 Bolt", 2],
       ["Base Plate", 1]
@@ -100,13 +103,13 @@ describe("groupPartNodeIds", () => {
   });
 
   it("skips unknown/stale nodeIds", () => {
-    const groups = groupPartNodeIds(["bolt-1", "gone-1"], index);
+    const groups = groupComponentNodeIds(["bolt-1", "gone-1"], index);
     expect(groups).toHaveLength(1);
     expect(groups[0]?.count).toBe(1);
   });
 
   it("does not mutate the index groups", () => {
-    groupPartNodeIds(["bolt-1"], index);
+    groupComponentNodeIds(["bolt-1"], index);
     const bolts = index.groups.find((group) => group.key === "hash-bolt");
     expect(bolts?.count).toBe(3);
   });
@@ -118,27 +121,31 @@ describe("describeStep", () => {
   it("uses an explicit title verbatim", () => {
     expect(
       describeStep(
-        { title: "Torque the head", partNodeIds: ["bolt-1"], fastener: null },
+        {
+          title: "Torque the head",
+          componentNodeIds: ["bolt-1"],
+          fastener: null
+        },
         index
       )
     ).toBe("Torque the head");
   });
 
-  it("describes a single part", () => {
+  it("describes a single component", () => {
     expect(
       describeStep(
-        { title: null, partNodeIds: ["plate-1"], fastener: null },
+        { title: null, componentNodeIds: ["plate-1"], fastener: null },
         index
       )
     ).toBe("Add Base Plate");
   });
 
-  it("counts duplicate parts and appends the fastener spec", () => {
+  it("counts duplicate components and appends the fastener spec", () => {
     expect(
       describeStep(
         {
           title: null,
-          partNodeIds: ["bolt-1", "bolt-2", "bolt-3"],
+          componentNodeIds: ["bolt-1", "bolt-2", "bolt-3"],
           fastener: { spec: "M8 SHCS", count: 3 }
         },
         index
@@ -146,10 +153,14 @@ describe("describeStep", () => {
     ).toBe("Add M8 Bolt (×3), M8 SHCS (×3)");
   });
 
-  it("uses Assemble for multiple distinct parts", () => {
+  it("uses Assemble for multiple distinct components", () => {
     expect(
       describeStep(
-        { title: null, partNodeIds: ["plate-1", "gasket-1"], fastener: null },
+        {
+          title: null,
+          componentNodeIds: ["plate-1", "gasket-1"],
+          fastener: null
+        },
         index
       )
     ).toBe("Assemble Base Plate, Gasket");
@@ -160,7 +171,7 @@ describe("describeStep", () => {
       describeStep(
         {
           title: null,
-          partNodeIds: [],
+          componentNodeIds: [],
           fastener: { spec: "M5 SHCS", count: 4 }
         },
         index
@@ -170,17 +181,17 @@ describe("describeStep", () => {
 
   it("returns null when there is nothing to describe", () => {
     expect(
-      describeStep({ title: null, partNodeIds: [], fastener: null }, index)
+      describeStep({ title: null, componentNodeIds: [], fastener: null }, index)
     ).toBeNull();
     expect(
       describeStep(
-        { title: null, partNodeIds: ["gone"], fastener: null },
+        { title: null, componentNodeIds: ["gone"], fastener: null },
         index
       )
     ).toBeNull();
     expect(
       describeStep(
-        { title: null, partNodeIds: ["bolt-1"], fastener: null },
+        { title: null, componentNodeIds: ["bolt-1"], fastener: null },
         null
       )
     ).toBeNull();
@@ -189,12 +200,18 @@ describe("describeStep", () => {
 
 describe("describeStep with named subassembly units", () => {
   const index = indexAssemblyGraph(graph);
-  const units = [{ name: "Bracket Sub", partNodeIds: ["plate-1", "bolt-3"] }];
+  const units = [
+    { name: "Bracket Sub", componentNodeIds: ["plate-1", "bolt-3"] }
+  ];
 
-  it("titles a step by the unit name when its parts match the unit", () => {
+  it("titles a step by the unit name when its components match the unit", () => {
     expect(
       describeStep(
-        { title: null, partNodeIds: ["bolt-3", "plate-1"], fastener: null },
+        {
+          title: null,
+          componentNodeIds: ["bolt-3", "plate-1"],
+          fastener: null
+        },
         index,
         units
       )
@@ -206,7 +223,7 @@ describe("describeStep with named subassembly units", () => {
       describeStep(
         {
           title: null,
-          partNodeIds: ["plate-1", "bolt-3", "plate-1"],
+          componentNodeIds: ["plate-1", "bolt-3", "plate-1"],
           fastener: null
         },
         index,
@@ -220,7 +237,7 @@ describe("describeStep with named subassembly units", () => {
       describeStep(
         {
           title: null,
-          partNodeIds: ["plate-1", "bolt-3"],
+          componentNodeIds: ["plate-1", "bolt-3"],
           fastener: { spec: "M5 SHCS", count: 4 }
         },
         index,
@@ -234,7 +251,7 @@ describe("describeStep with named subassembly units", () => {
       describeStep(
         {
           title: "Seat the bracket",
-          partNodeIds: ["plate-1", "bolt-3"],
+          componentNodeIds: ["plate-1", "bolt-3"],
           fastener: null
         },
         index,
@@ -243,13 +260,13 @@ describe("describeStep with named subassembly units", () => {
     ).toBe("Seat the bracket");
   });
 
-  it("falls back to enumerating parts when the set does not match a unit", () => {
+  it("falls back to enumerating components when the set does not match a unit", () => {
     // A superset of the unit (extra bolt) is not the unit → enumerate.
     expect(
       describeStep(
         {
           title: null,
-          partNodeIds: ["plate-1", "bolt-3", "bolt-1"],
+          componentNodeIds: ["plate-1", "bolt-3", "bolt-1"],
           fastener: null
         },
         index,

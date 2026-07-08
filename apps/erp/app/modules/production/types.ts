@@ -1,12 +1,12 @@
 import type { Database } from "@carbon/database";
 import type {
   getActiveProductionEvents,
+  getAssemblyComponentMappings,
   getAssemblyInstruction,
   getAssemblyInstructionStepMaterials,
   getAssemblyInstructionStepRequirements,
   getAssemblyInstructionSteps,
   getAssemblyInstructions,
-  getAssemblyPartMappings,
   getAssemblyStandardNotes,
   getAssemblyUnits,
   getFailureMode,
@@ -220,6 +220,6 @@ export type AssemblyUnit = NonNullable<
   Awaited<ReturnType<typeof getAssemblyUnits>>["data"]
 >[number];
 
-export type AssemblyPartMapping = NonNullable<
-  Awaited<ReturnType<typeof getAssemblyPartMappings>>["data"]
+export type AssemblyComponentMapping = NonNullable<
+  Awaited<ReturnType<typeof getAssemblyComponentMappings>>["data"]
 >[number];

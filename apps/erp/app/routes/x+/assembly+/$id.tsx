@@ -33,11 +33,11 @@ import { PanelProvider, ResizablePanels } from "~/components/Layout/Panels";
 import { usePermissions } from "~/hooks";
 import {
   assemblyInstructionValidator,
+  getAssemblyComponentMappings,
   getAssemblyInstruction,
   getAssemblyInstructionStepMaterials,
   getAssemblyInstructionStepRequirements,
   getAssemblyInstructionSteps,
-  getAssemblyPartMappings,
   getAssemblyPlanJson,
   getAssemblyStandardNotes,
   getAssemblyUnits,
@@ -89,7 +89,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     stepMaterials,
     plan,
     planJob,
-    partMappings,
+    componentMappings,
     units,
     bomMaterials
   ] = await Promise.all([
@@ -102,7 +102,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       ? getLatestAssemblyPlanJob(client, instruction.data.modelUploadId)
       : Promise.resolve({ data: null }),
     instruction.data.modelUploadId
-      ? getAssemblyPartMappings(client, instruction.data.modelUploadId)
+      ? getAssemblyComponentMappings(client, instruction.data.modelUploadId)
       : Promise.resolve({ data: [] }),
     instruction.data.modelUploadId
       ? getAssemblyUnits(client, instruction.data.modelUploadId)
@@ -121,7 +121,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     units: units.data ?? [],
     plan,
     planJob: planJob.data ?? null,
-    partMappings: partMappings.data ?? [],
+    componentMappings: componentMappings.data ?? [],
     bomMaterials
   };
 }
@@ -180,7 +180,7 @@ export default function AssemblyInstructionRoute() {
     units,
     plan,
     planJob,
-    partMappings,
+    componentMappings,
     bomMaterials
   } = useLoaderData<typeof loader>();
   const permissions = usePermissions();
@@ -192,23 +192,23 @@ export default function AssemblyInstructionRoute() {
   const [selectedStepId, setSelectedStepId] = useState<string | null>(
     steps[0]?.id ?? null
   );
-  const [draftPartNodeIds, setDraftPartNodeIds] = useState<string[] | null>(
-    null
-  );
+  const [draftComponentNodeIds, setDraftComponentNodeIds] = useState<
+    string[] | null
+  >(null);
   const [graph, setGraph] = useState<AssemblyGraph | null>(null);
   const graphIndex = useMemo(
     () => (graph ? indexAssemblyGraph(graph) : null),
     [graph]
   );
-  // The current part selection — a single source of truth shared by all three
-  // panels: it renders red in the viewer, marks + scrolls to the row in the
-  // Parts panel, and (while authoring a step) stages the step's draft parts.
+  // The current component selection — a single source of truth shared by all
+  // three panels: it renders red in the viewer, marks + scrolls to the row in the
+  // Components panel, and (while authoring a step) stages the step's draft components.
   const [selectedNodeIds, setSelectedNodeIds] = useState<string[]>([]);
   const [hiddenNodeIds, setHiddenNodeIds] = useState<string[]>([]);
-  // Add-mode: while on, picking parts (in the viewer or the Parts panel) appends
-  // them to the active step. Off by default, so plain selection never mutates a
-  // step's parts — you must explicitly start adding.
-  const [isAddingParts, setIsAddingParts] = useState(false);
+  // Add-mode: while on, picking components (in the viewer or the Components panel)
+  // appends them to the active step. Off by default, so plain selection never
+  // mutates a step's components — you must explicitly start adding.
+  const [isAddingComponents, setIsAddingComponents] = useState(false);
 
   const selectedStep =
     steps.find((step) => step.id === selectedStepId) ?? steps[0] ?? null;
@@ -221,95 +221,105 @@ export default function AssemblyInstructionRoute() {
   const stepsRef = useRef(steps);
   stepsRef.current = steps;
 
-  // Autosave the active step's parts (Add/remove in the Details panel) via a
+  // Autosave the active step's components (Add/remove in the Details panel) via a
   // partial-update route, mirroring the motion-path autosave — never touching
   // the title/typed fields.
-  const partsFetcher = useFetcher<{ success: boolean }>();
-  const savePartNodeIds = useCallback(
-    (stepId: string, partNodeIds: string[]) => {
+  const componentsFetcher = useFetcher<{ success: boolean }>();
+  const saveComponentNodeIds = useCallback(
+    (stepId: string, componentNodeIds: string[]) => {
       const formData = new FormData();
-      formData.set("partNodeIds", JSON.stringify(partNodeIds));
-      partsFetcher.submit(formData, {
+      formData.set("componentNodeIds", JSON.stringify(componentNodeIds));
+      componentsFetcher.submit(formData, {
         method: "post",
-        action: path.to.assemblyInstructionStepParts(id, stepId)
+        action: path.to.assemblyInstructionStepComponents(id, stepId)
       });
     },
-    [partsFetcher, id]
+    [componentsFetcher, id]
   );
 
   const onSelectStep = useCallback(
-    (stepId: string, options?: { selectParts?: boolean }) => {
+    (stepId: string, options?: { selectComponents?: boolean }) => {
       setSelectedStepId(stepId);
-      setDraftPartNodeIds(null);
-      setIsAddingParts(false);
+      setDraftComponentNodeIds(null);
+      setIsAddingComponents(false);
       // Leave any open motion-path edit session when moving to another step.
       setEditingStepId(null);
       setDraftMotion(null);
-      // Selecting a step makes its parts the active selection — red in the
-      // viewer, marked in the Parts panel. Viewer-driven changes (playback,
-      // scrub, on-screen nav) pass selectParts:false so auto-advance doesn't
+      // Selecting a step makes its components the active selection — red in the
+      // viewer, marked in the Components panel. Viewer-driven changes (playback,
+      // scrub, on-screen nav) pass selectComponents:false so auto-advance doesn't
       // stomp the selection the user is working with.
-      if (options?.selectParts !== false) {
+      if (options?.selectComponents !== false) {
         const step = stepsRef.current.find(
           (candidate) => candidate.id === stepId
         );
-        if (step) setSelectedNodeIds(step.partNodeIds ?? []);
+        if (step) setSelectedNodeIds(step.componentNodeIds ?? []);
       }
     },
     []
   );
 
-  // Picking parts (in the viewer or the Parts panel) drives the shared
-  // selection. It only touches the active step's parts while add-mode is on —
+  // Picking components (in the viewer or the Components panel) drives the shared
+  // selection. It only touches the active step's components while add-mode is on —
   // then each selection is appended (union) and autosaved immediately.
-  const onSelectParts = useCallback(
+  const onSelectComponents = useCallback(
     (nodeIds: string[]) => {
       setSelectedNodeIds(nodeIds);
-      if (isAddingParts && !isDisabled && selectedStep) {
-        const base = draftPartNodeIds ?? selectedStep.partNodeIds ?? [];
+      if (isAddingComponents && !isDisabled && selectedStep) {
+        const base =
+          draftComponentNodeIds ?? selectedStep.componentNodeIds ?? [];
         const next = Array.from(new Set([...base, ...nodeIds]));
-        setDraftPartNodeIds(next);
-        savePartNodeIds(selectedStep.id, next);
+        setDraftComponentNodeIds(next);
+        saveComponentNodeIds(selectedStep.id, next);
       }
     },
-    [isAddingParts, isDisabled, selectedStep, draftPartNodeIds, savePartNodeIds]
+    [
+      isAddingComponents,
+      isDisabled,
+      selectedStep,
+      draftComponentNodeIds,
+      saveComponentNodeIds
+    ]
   );
 
-  // Enter add-mode with a clean slate: clear the selection so the parts picked
+  // Enter add-mode with a clean slate: clear the selection so the components picked
   // *next* are the ones added, not whatever happened to be highlighted.
-  const onStartAddParts = useCallback(() => {
-    setIsAddingParts(true);
+  const onStartAddComponents = useCallback(() => {
+    setIsAddingComponents(true);
     setSelectedNodeIds([]);
   }, []);
 
-  const onStopAddParts = useCallback(() => setIsAddingParts(false), []);
+  const onStopAddComponents = useCallback(
+    () => setIsAddingComponents(false),
+    []
+  );
 
-  // Remove a part group from the active step (autosaved), dropping it from the
+  // Remove a component group from the active step (autosaved), dropping it from the
   // current selection so the viewer highlight stays in sync.
-  const onRemoveParts = useCallback(
+  const onRemoveComponents = useCallback(
     (nodeIds: string[]) => {
       if (isDisabled || !selectedStep) return;
       const remove = new Set(nodeIds);
-      const base = draftPartNodeIds ?? selectedStep.partNodeIds ?? [];
+      const base = draftComponentNodeIds ?? selectedStep.componentNodeIds ?? [];
       const next = base.filter((nodeId) => !remove.has(nodeId));
-      setDraftPartNodeIds(next);
-      savePartNodeIds(selectedStep.id, next);
+      setDraftComponentNodeIds(next);
+      saveComponentNodeIds(selectedStep.id, next);
       setSelectedNodeIds((prev) =>
         prev.filter((nodeId) => !remove.has(nodeId))
       );
     },
-    [isDisabled, selectedStep, draftPartNodeIds, savePartNodeIds]
+    [isDisabled, selectedStep, draftComponentNodeIds, saveComponentNodeIds]
   );
 
   const viewerSteps = useMemo(() => steps.map(toViewerStep), [steps]);
 
   // Authored subassembly units, normalized for step-title derivation: a step
-  // whose parts are exactly a unit is titled by the unit's name ("Add Board").
+  // whose components are exactly a unit is titled by the unit's name ("Add Board").
   const namedUnits = useMemo(
     () =>
       units.map((unit) => ({
         name: unit.name,
-        partNodeIds: unit.partNodeIds ?? []
+        componentNodeIds: unit.componentNodeIds ?? []
       })),
     [units]
   );
@@ -420,12 +430,12 @@ export default function AssemblyInstructionRoute() {
                   hasPlan={Boolean(plan)}
                   planJob={planJob}
                   modelUploadId={instruction.modelUploadId}
-                  partMappings={partMappings}
+                  componentMappings={componentMappings}
                   bomMaterials={bomMaterials}
                   selectedNodeIds={selectedNodeIds}
                   onSelectStep={onSelectStep}
-                  onHighlightParts={onSelectParts}
-                  onHideParts={setHiddenNodeIds}
+                  onHighlightComponents={onSelectComponents}
+                  onHideComponents={setHiddenNodeIds}
                 />
               }
               content={
@@ -448,9 +458,11 @@ export default function AssemblyInstructionRoute() {
                           onStepChange={(index) => {
                             const step = steps[index];
                             if (step)
-                              onSelectStep(step.id, { selectParts: false });
+                              onSelectStep(step.id, {
+                                selectComponents: false
+                              });
                           }}
-                          onSelectParts={onSelectParts}
+                          onSelectComponents={onSelectComponents}
                           onGraphLoaded={setGraph}
                           highlightedNodeIds={selectedNodeIds}
                           hiddenNodeIds={hiddenNodeIds}
@@ -515,16 +527,16 @@ export default function AssemblyInstructionRoute() {
                 <AssemblyInstructionProperties
                   key={selectedStep?.id ?? "empty"}
                   step={selectedStep}
-                  draftPartNodeIds={draftPartNodeIds}
+                  draftComponentNodeIds={draftComponentNodeIds}
                   selectedNodeIds={selectedNodeIds}
-                  isAddingParts={isAddingParts}
+                  isAddingComponents={isAddingComponents}
                   isDisabled={isDisabled}
                   graphIndex={graphIndex}
                   units={namedUnits}
-                  onSelectParts={onSelectParts}
-                  onStartAddParts={onStartAddParts}
-                  onStopAddParts={onStopAddParts}
-                  onRemoveParts={onRemoveParts}
+                  onSelectComponents={onSelectComponents}
+                  onStartAddComponents={onStartAddComponents}
+                  onStopAddComponents={onStopAddComponents}
+                  onRemoveComponents={onRemoveComponents}
                   isEditingMotion={isEditingSelectedMotion}
                   onEditMotion={onEditMotion}
                   onStopEditMotion={onStopEditMotion}

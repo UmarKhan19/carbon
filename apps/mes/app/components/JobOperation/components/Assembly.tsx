@@ -28,7 +28,7 @@ export type AssemblyInstructionData = {
     id: string;
     title: string | null;
     instructionText: string | null;
-    partNodeIds: string[];
+    componentNodeIds: string[];
     motion: Json;
     camera: Json | null;
     fastener: Json | null;
@@ -55,13 +55,13 @@ function toViewerStep(
   step: AssemblyInstructionData["steps"][number]
 ): AssemblyStep {
   const motion = step.motion as Motion | null;
-  // Planner flag: no collision-free path — the player fades the parts in
+  // Planner flag: no collision-free path — the player fades the components in
   const warnings = step.warnings as { flagged?: boolean } | null;
   return {
     id: step.id,
     title: step.title,
     instructionText: step.instructionText,
-    partNodeIds: step.partNodeIds ?? [],
+    componentNodeIds: step.componentNodeIds ?? [],
     motion:
       motion && typeof motion === "object" && motionTypes.includes(motion.type)
         ? motion

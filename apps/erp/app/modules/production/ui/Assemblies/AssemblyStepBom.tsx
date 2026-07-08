@@ -1,22 +1,23 @@
 import { Badge, VStack } from "@carbon/react";
 import type { AssemblyGraphIndex } from "@carbon/viewer";
-import { groupPartNodeIds } from "@carbon/viewer";
+import { groupComponentNodeIds } from "@carbon/viewer";
 import { useMemo } from "react";
 import { Empty } from "~/components";
 
 type AssemblyStepBomProps = {
-  partNodeIds: string[];
+  componentNodeIds: string[];
   graphIndex: AssemblyGraphIndex | null;
 };
 
-/** Parts used by the selected step, grouped by identical geometry. */
+/** Components used by the selected step, grouped by identical geometry. */
 export default function AssemblyStepBom({
-  partNodeIds,
+  componentNodeIds,
   graphIndex
 }: AssemblyStepBomProps) {
   const groups = useMemo(
-    () => (graphIndex ? groupPartNodeIds(partNodeIds, graphIndex) : []),
-    [partNodeIds, graphIndex]
+    () =>
+      graphIndex ? groupComponentNodeIds(componentNodeIds, graphIndex) : [],
+    [componentNodeIds, graphIndex]
   );
 
   if (!graphIndex) {
@@ -33,7 +34,7 @@ export default function AssemblyStepBom({
     return (
       <Empty className="border-none">
         <p className="text-sm text-muted-foreground max-w-[320px] text-center">
-          Click parts in the viewer to assign them to this step
+          Click components in the viewer to assign them to this step
         </p>
       </Empty>
     );
@@ -47,7 +48,7 @@ export default function AssemblyStepBom({
             key={group.key}
             className="flex w-full items-center gap-2 py-2 text-sm"
           >
-            <PartColorSwatch color={group.color} />
+            <ComponentColorSwatch color={group.color} />
             <span className="min-w-0 flex-1 truncate" title={group.name}>
               {group.name}
             </span>
@@ -61,7 +62,7 @@ export default function AssemblyStepBom({
   );
 }
 
-export function PartColorSwatch({
+export function ComponentColorSwatch({
   color
 }: {
   color: [number, number, number, number] | null;

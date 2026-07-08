@@ -46,7 +46,7 @@ class ConvertStats(BaseModel):
 
 class ConvertResponse(BaseModel):
     ok: Literal[True] = True
-    partCount: int
+    componentCount: int
     unit: str
     stats: ConvertStats
 
@@ -133,7 +133,7 @@ class PlanStatusResponse(BaseModel):
     status: str  # "pending" | "running" | "done" | "error"
     # Present only when status == "done":
     plan: dict | None = None
-    partCount: int | None = None
+    componentCount: int | None = None
     plannedCount: int | None = None
     stats: PlanStats | None = None
     # Present only when status == "error":

@@ -26,7 +26,7 @@ import {
 } from "@carbon/react";
 import { Editor } from "@carbon/react/Editor";
 import type { AssemblyGraphIndex, NamedUnit } from "@carbon/viewer";
-import { describeStep, groupPartNodeIds } from "@carbon/viewer";
+import { describeStep, groupComponentNodeIds } from "@carbon/viewer";
 import { nanoid } from "nanoid";
 import { useMemo, useState } from "react";
 import { LuCirclePlus, LuX } from "react-icons/lu";
@@ -49,17 +49,17 @@ import type {
   AssemblyStepMaterial,
   AssemblyStepRequirement
 } from "../../types";
-import AssemblyStepBom, { PartColorSwatch } from "./AssemblyStepBom";
+import AssemblyStepBom, { ComponentColorSwatch } from "./AssemblyStepBom";
 import AssemblyStepMaterials from "./AssemblyStepMaterials";
 import AssemblyStepRequirements from "./AssemblyStepRequirements";
 
 type AssemblyInstructionPropertiesProps = {
   step: AssemblyInstructionStepRow | null;
-  draftPartNodeIds: string[] | null;
-  /** Current viewer/Parts-panel selection — marks the matching part rows */
+  draftComponentNodeIds: string[] | null;
+  /** Current viewer/Components-panel selection — marks the matching component rows */
   selectedNodeIds: string[];
-  /** Add-mode is on — picking parts appends them to this step */
-  isAddingParts: boolean;
+  /** Add-mode is on — picking components appends them to this step */
+  isAddingComponents: boolean;
   isDisabled: boolean;
   graphIndex: AssemblyGraphIndex | null;
   /** Authored subassembly units — a step matching one is titled by its name. */
@@ -68,10 +68,10 @@ type AssemblyInstructionPropertiesProps = {
   stepMaterials: AssemblyStepMaterial[];
   bomMaterials: FlattenedBomMaterial[];
   standardNotes: AssemblyStandardNote[];
-  onSelectParts: (nodeIds: string[]) => void;
-  onStartAddParts: () => void;
-  onStopAddParts: () => void;
-  onRemoveParts: (nodeIds: string[]) => void;
+  onSelectComponents: (nodeIds: string[]) => void;
+  onStartAddComponents: () => void;
+  onStopAddComponents: () => void;
+  onRemoveComponents: (nodeIds: string[]) => void;
   /** The active step's motion path is open in the 3D editor */
   isEditingMotion: boolean;
   onEditMotion: (stepId: string) => void;
@@ -82,9 +82,9 @@ type AssemblyInstructionPropertiesProps = {
 
 const AssemblyInstructionProperties = ({
   step,
-  draftPartNodeIds,
+  draftComponentNodeIds,
   selectedNodeIds,
-  isAddingParts,
+  isAddingComponents,
   isDisabled,
   graphIndex,
   units,
@@ -92,10 +92,10 @@ const AssemblyInstructionProperties = ({
   stepMaterials,
   bomMaterials,
   standardNotes,
-  onSelectParts,
-  onStartAddParts,
-  onStopAddParts,
-  onRemoveParts,
+  onSelectComponents,
+  onStartAddComponents,
+  onStopAddComponents,
+  onRemoveComponents,
   isEditingMotion,
   onEditMotion,
   onStopEditMotion,
@@ -137,16 +137,16 @@ const AssemblyInstructionProperties = ({
             <StepForm
               key={step.id}
               step={step}
-              draftPartNodeIds={draftPartNodeIds}
+              draftComponentNodeIds={draftComponentNodeIds}
               selectedNodeIds={selectedNodeIds}
-              isAddingParts={isAddingParts}
+              isAddingComponents={isAddingComponents}
               isDisabled={isDisabled}
               graphIndex={graphIndex}
               units={units}
-              onSelectParts={onSelectParts}
-              onStartAddParts={onStartAddParts}
-              onStopAddParts={onStopAddParts}
-              onRemoveParts={onRemoveParts}
+              onSelectComponents={onSelectComponents}
+              onStartAddComponents={onStartAddComponents}
+              onStopAddComponents={onStopAddComponents}
+              onRemoveComponents={onRemoveComponents}
               isEditingMotion={isEditingMotion}
               onEditMotion={onEditMotion}
               onStopEditMotion={onStopEditMotion}
@@ -164,7 +164,9 @@ const AssemblyInstructionProperties = ({
                 isDisabled={isDisabled}
               />
               <AssemblyStepBom
-                partNodeIds={draftPartNodeIds ?? step.partNodeIds ?? []}
+                componentNodeIds={
+                  draftComponentNodeIds ?? step.componentNodeIds ?? []
+                }
                 graphIndex={graphIndex}
               />
             </VStack>
@@ -190,16 +192,16 @@ export default AssemblyInstructionProperties;
 
 function StepForm({
   step,
-  draftPartNodeIds,
+  draftComponentNodeIds,
   selectedNodeIds,
-  isAddingParts,
+  isAddingComponents,
   isDisabled,
   graphIndex,
   units,
-  onSelectParts,
-  onStartAddParts,
-  onStopAddParts,
-  onRemoveParts,
+  onSelectComponents,
+  onStartAddComponents,
+  onStopAddComponents,
+  onRemoveComponents,
   isEditingMotion,
   onEditMotion,
   onStopEditMotion,
@@ -207,16 +209,16 @@ function StepForm({
   onClearCamera
 }: {
   step: AssemblyInstructionStepRow;
-  draftPartNodeIds: string[] | null;
+  draftComponentNodeIds: string[] | null;
   selectedNodeIds: string[];
-  isAddingParts: boolean;
+  isAddingComponents: boolean;
   isDisabled: boolean;
   graphIndex: AssemblyGraphIndex | null;
   units: NamedUnit[];
-  onSelectParts: (nodeIds: string[]) => void;
-  onStartAddParts: () => void;
-  onStopAddParts: () => void;
-  onRemoveParts: (nodeIds: string[]) => void;
+  onSelectComponents: (nodeIds: string[]) => void;
+  onStartAddComponents: () => void;
+  onStopAddComponents: () => void;
+  onRemoveComponents: (nodeIds: string[]) => void;
   isEditingMotion: boolean;
   onEditMotion: (stepId: string) => void;
   onStopEditMotion: () => void;
@@ -272,28 +274,28 @@ function StepForm({
     return getPrivateUrl(result.data.path);
   };
 
-  const partNodeIds = draftPartNodeIds ?? step.partNodeIds ?? [];
+  const componentNodeIds = draftComponentNodeIds ?? step.componentNodeIds ?? [];
 
   const cannotSave = isDisabled || !permissions.can("update", "production");
 
   const hasCamera = step.camera != null;
 
-  // Title shown when the title field is left blank — derived from the parts
+  // Title shown when the title field is left blank — derived from the components
   // plus any stored fastener, matching how the step is titled elsewhere.
   const derivedTitle = useMemo(() => {
     const parsedFastener = fastenerSchema.safeParse(step.fastener);
     return describeStep(
       {
         title: null,
-        partNodeIds,
+        componentNodeIds,
         fastener: parsedFastener.success ? parsedFastener.data : null
       },
       graphIndex,
       units
     );
-  }, [partNodeIds, step.fastener, graphIndex, units]);
+  }, [componentNodeIds, step.fastener, graphIndex, units]);
 
-  // Planner flag: no collision-free path exists for these parts. The player
+  // Planner flag: no collision-free path exists for these components. The player
   // fades them in at the seated pose; a manual motion overrides the flag.
   const planFlag = useMemo(() => {
     const parsed = stepPlanWarningsSchema.safeParse(step.warnings);
@@ -326,7 +328,10 @@ function StepForm({
       <Hidden name="id" />
       <Hidden name="assemblyInstructionId" />
       <Hidden name="description" value={JSON.stringify(description)} />
-      <Hidden name="partNodeIds" value={JSON.stringify(partNodeIds)} />
+      <Hidden
+        name="componentNodeIds"
+        value={JSON.stringify(componentNodeIds)}
+      />
       <VStack spacing={4} className="w-full pb-4">
         <SelectControlled
           name="type"
@@ -396,7 +401,7 @@ function StepForm({
               <Button
                 variant={isEditingMotion ? "primary" : "secondary"}
                 size="sm"
-                isDisabled={partNodeIds.length === 0}
+                isDisabled={componentNodeIds.length === 0}
                 onClick={() =>
                   isEditingMotion ? onStopEditMotion() : onEditMotion(step.id)
                 }
@@ -405,9 +410,9 @@ function StepForm({
               </Button>
             )}
           </HStack>
-          {partNodeIds.length === 0 ? (
+          {componentNodeIds.length === 0 ? (
             <p className="text-xs text-muted-foreground">
-              Assign parts to this step to edit its motion path.
+              Assign components to this step to edit its motion path.
             </p>
           ) : isEditingMotion ? (
             <p className="text-xs text-muted-foreground">
@@ -425,7 +430,7 @@ function StepForm({
             </p>
           ) : (
             <p className="text-xs text-muted-foreground">
-              Edit the path to adjust how these parts move into place.
+              Edit the path to adjust how these components move into place.
             </p>
           )}
         </VStack>
@@ -459,16 +464,16 @@ function StepForm({
           )}
         </VStack>
 
-        <StepPartsEditor
-          partNodeIds={partNodeIds}
+        <StepComponentsEditor
+          componentNodeIds={componentNodeIds}
           graphIndex={graphIndex}
           selectedNodeIds={selectedNodeIds}
-          isAddingParts={isAddingParts}
+          isAddingComponents={isAddingComponents}
           isDisabled={isDisabled}
-          onSelectParts={onSelectParts}
-          onStartAddParts={onStartAddParts}
-          onStopAddParts={onStopAddParts}
-          onRemoveParts={onRemoveParts}
+          onSelectComponents={onSelectComponents}
+          onStartAddComponents={onStartAddComponents}
+          onStopAddComponents={onStopAddComponents}
+          onRemoveComponents={onRemoveComponents}
         />
 
         <Submit
@@ -483,36 +488,38 @@ function StepForm({
 }
 
 /**
- * The step's assigned parts as an explicit, editable list. Clicking a row makes
- * that part the active selection (red in the viewer, marked in the Parts panel);
- * the ✕ removes it from the step. Parts are only *added* through "Add parts",
- * which clears the selection and appends whatever you pick next — so ordinary
- * selection never mutates a step's parts. Add/remove autosave immediately.
+ * The step's assigned components as an explicit, editable list. Clicking a row
+ * makes that component the active selection (red in the viewer, marked in the
+ * Components panel); the ✕ removes it from the step. Components are only *added*
+ * through "Add components", which clears the selection and appends whatever you
+ * pick next — so ordinary selection never mutates a step's components. Add/remove
+ * autosave immediately.
  */
-function StepPartsEditor({
-  partNodeIds,
+function StepComponentsEditor({
+  componentNodeIds,
   graphIndex,
   selectedNodeIds,
-  isAddingParts,
+  isAddingComponents,
   isDisabled,
-  onSelectParts,
-  onStartAddParts,
-  onStopAddParts,
-  onRemoveParts
+  onSelectComponents,
+  onStartAddComponents,
+  onStopAddComponents,
+  onRemoveComponents
 }: {
-  partNodeIds: string[];
+  componentNodeIds: string[];
   graphIndex: AssemblyGraphIndex | null;
   selectedNodeIds: string[];
-  isAddingParts: boolean;
+  isAddingComponents: boolean;
   isDisabled: boolean;
-  onSelectParts: (nodeIds: string[]) => void;
-  onStartAddParts: () => void;
-  onStopAddParts: () => void;
-  onRemoveParts: (nodeIds: string[]) => void;
+  onSelectComponents: (nodeIds: string[]) => void;
+  onStartAddComponents: () => void;
+  onStopAddComponents: () => void;
+  onRemoveComponents: (nodeIds: string[]) => void;
 }) {
   const groups = useMemo(
-    () => (graphIndex ? groupPartNodeIds(partNodeIds, graphIndex) : []),
-    [partNodeIds, graphIndex]
+    () =>
+      graphIndex ? groupComponentNodeIds(componentNodeIds, graphIndex) : [],
+    [componentNodeIds, graphIndex]
   );
   const selectedSet = useMemo(
     () => new Set(selectedNodeIds),
@@ -522,31 +529,33 @@ function StepPartsEditor({
   return (
     <VStack spacing={2} className="w-full">
       <HStack className="w-full justify-between">
-        <Label>Parts</Label>
+        <Label>Components</Label>
         {!isDisabled && (
           <Button
-            variant={isAddingParts ? "primary" : "secondary"}
+            variant={isAddingComponents ? "primary" : "secondary"}
             size="sm"
-            leftIcon={isAddingParts ? undefined : <LuCirclePlus />}
+            leftIcon={isAddingComponents ? undefined : <LuCirclePlus />}
             onClick={() =>
-              isAddingParts ? onStopAddParts() : onStartAddParts()
+              isAddingComponents
+                ? onStopAddComponents()
+                : onStartAddComponents()
             }
           >
-            {isAddingParts ? "Done adding" : "Add parts"}
+            {isAddingComponents ? "Done adding" : "Add components"}
           </Button>
         )}
       </HStack>
-      {isAddingParts && (
+      {isAddingComponents && (
         <p className="text-xs text-muted-foreground">
-          Click parts in the viewer or the Parts panel to add them to this step.
-          Shift-click to add several.
+          Click components in the viewer or the Components panel to add them to
+          this step. Shift-click to add several.
         </p>
       )}
       {groups.length === 0 ? (
         <p className="text-xs text-muted-foreground">
-          {isAddingParts
-            ? "No parts yet — pick parts in the viewer to add them."
-            : "No parts assigned. Click Add parts, then pick parts in the viewer."}
+          {isAddingComponents
+            ? "No components yet — pick components in the viewer to add them."
+            : "No components assigned. Click Add components, then pick components in the viewer."}
         </p>
       ) : (
         <ul className="max-h-64 w-full divide-y divide-border overflow-y-auto rounded-lg border border-border scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent">
@@ -561,17 +570,17 @@ function StepPartsEditor({
                 tabIndex={0}
                 className={cn(
                   "group flex w-full cursor-pointer select-none items-center gap-2 px-2 py-1.5 text-sm hover:bg-accent/30",
-                  isSelected && "bg-red-500/10 hover:bg-red-500/10"
+                  isSelected && "bg-blue-500/10 hover:bg-blue-500/10"
                 )}
-                onClick={() => onSelectParts(group.nodeIds)}
+                onClick={() => onSelectComponents(group.nodeIds)}
                 onKeyDown={(event) => {
                   if (event.key === "Enter" || event.key === " ") {
                     event.preventDefault();
-                    onSelectParts(group.nodeIds);
+                    onSelectComponents(group.nodeIds);
                   }
                 }}
               >
-                <PartColorSwatch color={group.color} />
+                <ComponentColorSwatch color={group.color} />
                 <span className="min-w-0 flex-1 truncate" title={group.name}>
                   {group.name}
                 </span>
@@ -587,7 +596,7 @@ function StepPartsEditor({
                     className="opacity-0 group-hover:opacity-100 focus:opacity-100"
                     onClick={(event) => {
                       event.stopPropagation();
-                      onRemoveParts(group.nodeIds);
+                      onRemoveComponents(group.nodeIds);
                     }}
                   />
                 )}
