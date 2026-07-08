@@ -6764,9 +6764,6 @@ msgstr "メーカー部品番号"
 msgid "Manufacturing"
 msgstr "製造"
 
-msgid "Manufacturing is blocked for this item, so a job cannot be created from planning."
-msgstr ""
-
 msgid "Map Extracted Invoice Lines"
 msgstr "抽出された請求書行をマップする"
 
@@ -10015,9 +10012,6 @@ msgstr "定期メンテナンス"
 
 msgid "Schedules"
 msgstr "スケジュール"
-
-msgid "Scheduling conflict: the computed start date is in the past. Move the due date out or reduce lead time."
-msgstr ""
 
 msgid "Scope"
 msgstr "スコープ"

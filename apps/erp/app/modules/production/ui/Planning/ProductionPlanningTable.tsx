@@ -401,41 +401,27 @@ const ProductionPlanningTable = ({
           );
           const isBlocked = row.original.manufacturingBlocked;
           const hasOrders = orders.length > 0 && orderQuantity > 0;
-          const makeButton = (
-            <Button
-              variant="secondary"
-              leftIcon={hasOrders ? undefined : <LuCircleCheck />}
-              isDisabled={isDisabled || isBlocked}
-              onClick={() => {
-                setSelectedItem(row.original);
-              }}
-            >
-              {isBlocked ? (
-                <Trans>Blocked</Trans>
-              ) : hasOrders ? (
-                <HStack>
-                  <PulsingDot />
-                  <span>Make {orderQuantity}</span>
-                </HStack>
-              ) : (
-                "Make"
-              )}
-            </Button>
-          );
           return (
             <div className="flex justify-end">
-              {isBlocked ? (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span tabIndex={0}>{makeButton}</span>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    {t`Manufacturing is blocked for this item, so a job cannot be created from planning.`}
-                  </TooltipContent>
-                </Tooltip>
-              ) : (
-                makeButton
-              )}
+              <Button
+                variant="secondary"
+                leftIcon={hasOrders ? undefined : <LuCircleCheck />}
+                isDisabled={isDisabled || isBlocked}
+                onClick={() => {
+                  setSelectedItem(row.original);
+                }}
+              >
+                {isBlocked ? (
+                  "Blocked"
+                ) : hasOrders ? (
+                  <HStack>
+                    <PulsingDot />
+                    <span>Make {orderQuantity}</span>
+                  </HStack>
+                ) : (
+                  "Make"
+                )}
+              </Button>
             </div>
           );
         }

@@ -6764,9 +6764,6 @@ msgstr "制造商零件号"
 msgid "Manufacturing"
 msgstr "制造"
 
-msgid "Manufacturing is blocked for this item, so a job cannot be created from planning."
-msgstr ""
-
 msgid "Map Extracted Invoice Lines"
 msgstr "映射提取的发票行项目"
 
@@ -10015,9 +10012,6 @@ msgstr "定时维护"
 
 msgid "Schedules"
 msgstr "日程"
-
-msgid "Scheduling conflict: the computed start date is in the past. Move the due date out or reduce lead time."
-msgstr ""
 
 msgid "Scope"
 msgstr "范围"

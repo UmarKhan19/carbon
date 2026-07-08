@@ -6764,9 +6764,6 @@ msgstr "Número de Parte del Fabricante"
 msgid "Manufacturing"
 msgstr "Fabricación"
 
-msgid "Manufacturing is blocked for this item, so a job cannot be created from planning."
-msgstr ""
-
 msgid "Map Extracted Invoice Lines"
 msgstr "Mapear Líneas de Factura Extraídas"
 
@@ -10015,9 +10012,6 @@ msgstr "Mantenimientos Programados"
 
 msgid "Schedules"
 msgstr "Horarios"
-
-msgid "Scheduling conflict: the computed start date is in the past. Move the due date out or reduce lead time."
-msgstr ""
 
 msgid "Scope"
 msgstr "Alcance"
