@@ -120,22 +120,67 @@ BEGIN
   END LOOP;
 END \$\$;
 " >/dev/null 2>&1 || true
+# pgmq queue tables restored from a prod DB whose queues predate pgmq >= 1.4 are
+# missing the `headers` column the local pgmq read/send functions write to. This
+# surfaces at runtime as: `column m.headers does not exist` (from pgmq.read/send,
+# e.g. packages/jobs event queue). The dump also omits the pgmq.meta registry
+# rows, so list_queues() comes back empty. Backfill both directly against the
+# restored q_*/a_* tables — idempotent, safe on fresh DBs (no queues → no-op).
+echo "▶ Backfilling pgmq queue headers + meta registry"
+$PSQL_PG -c "
+DO \$\$
+DECLARE t RECORD;
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pgmq') THEN RETURN; END IF;
+  FOR t IN
+    SELECT c.relname
+    FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
+    WHERE n.nspname = 'pgmq' AND c.relkind = 'r'
+      AND (c.relname LIKE 'q\_%' OR c.relname LIKE 'a\_%')
+  LOOP
+    EXECUTE format('ALTER TABLE pgmq.%I ADD COLUMN IF NOT EXISTS headers JSONB', t.relname);
+  END LOOP;
+END \$\$;
+INSERT INTO pgmq.meta (queue_name, is_partitioned, is_unlogged, created_at)
+SELECT substring(c.relname FROM 3), false, false, now()
+FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
+WHERE n.nspname = 'pgmq' AND c.relkind = 'r' AND c.relname LIKE 'q\_%'
+ON CONFLICT (queue_name) DO NOTHING;
+" >/dev/null 2>&1 || true
 # Storage: custom-format dumps DO carry storage.objects/prefixes rows, but
 # the actual file bytes live in prod's storage backend, not in the DB — so
 # those rows would point at files that don't exist locally and downloads
 # would 404. Clear the metadata, keep/create the buckets the app expects.
-echo "▶ Resetting storage metadata + ensuring buckets (public / avatars / private)"
+echo "▶ Resetting storage metadata + ensuring buckets (fixed + per-company)"
+# Guard each TRUNCATE with to_regclass so a table that doesn't exist in this
+# Supabase version can't abort — and thereby roll back — the whole block.
 $PSQL_SA -v ON_ERROR_STOP=0 -c "
-TRUNCATE storage.objects CASCADE;
-TRUNCATE storage.prefixes CASCADE;
-TRUNCATE storage.s3_multipart_uploads_parts CASCADE;
-TRUNCATE storage.s3_multipart_uploads CASCADE;
-TRUNCATE storage.buckets CASCADE;
-INSERT INTO storage.buckets (id, name, public) VALUES
-  ('public',  'public',  true),
-  ('avatars', 'avatars', true),
-  ('private', 'private', false);
+DO \$\$
+BEGIN
+  IF to_regclass('storage.objects') IS NOT NULL THEN TRUNCATE storage.objects CASCADE; END IF;
+  IF to_regclass('storage.prefixes') IS NOT NULL THEN TRUNCATE storage.prefixes CASCADE; END IF;
+  IF to_regclass('storage.s3_multipart_uploads_parts') IS NOT NULL THEN TRUNCATE storage.s3_multipart_uploads_parts CASCADE; END IF;
+  IF to_regclass('storage.s3_multipart_uploads') IS NOT NULL THEN TRUNCATE storage.s3_multipart_uploads CASCADE; END IF;
+  IF to_regclass('storage.buckets') IS NOT NULL THEN TRUNCATE storage.buckets CASCADE; END IF;
+END \$\$;
 " >/dev/null 2>&1 || true
+# Re-seed buckets in a SEPARATE statement so the TRUNCATE outcome above can never
+# roll it back: the fixed app buckets plus one private bucket per restored
+# company (id = company id), matching the bucket-seeding migrations.
+$PSQL_SA -v ON_ERROR_STOP=0 -c "
+INSERT INTO storage.buckets (id, name, public) VALUES
+  ('public',            'public',            true),
+  ('avatars',           'avatars',           true),
+  ('private',           'private',           false),
+  ('feedback',          'feedback',          true),
+  ('company-templates', 'company-templates', false)
+ON CONFLICT (id) DO NOTHING;
+INSERT INTO storage.buckets (id, name, public)
+SELECT id, id, false FROM public.company
+ON CONFLICT (id) DO NOTHING;
+" >/dev/null 2>&1 || true
+BUCKET_COUNT=$($PSQL_PG -At -c "SELECT count(*) FROM storage.buckets;" 2>/dev/null || echo "?")
+echo "  ✓ $BUCKET_COUNT storage buckets present (5 fixed + one per company)"
 # ── 4. If ADMIN_EMAIL is set, resolve the user_id ───────────────────────────
 ADMIN_USER_ID=""
 if [[ -n "$ADMIN_EMAIL" ]]; then
