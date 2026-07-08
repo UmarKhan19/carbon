@@ -36,15 +36,19 @@ export const requestIdMiddleware: MiddlewareFunction<Response> = async (
 
   const { method } = request;
   const { pathname } = new URL(request.url);
+  const start = performance.now();
 
   const response = await withContext({ requestId }, async () => {
     const res = await next();
     // Debug-level so it is visible in dev but filtered by the prod `info`
     // default — the pipeline is observable with zero migrated call sites.
-    log.debug("{method} {pathname} → {status}", {
+    // Rendered as a Morgan "dev"-style colored line in dev (see
+    // http-formatter.ts) and as a structured JSONL record in prod.
+    log.debug("{method} {pathname} → {status} in {responseTime}ms", {
       method,
       pathname,
-      status: res.status
+      status: res.status,
+      responseTime: performance.now() - start
     });
     return res;
   });

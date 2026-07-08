@@ -6,6 +6,7 @@ import {
   getJsonLinesFormatter
 } from "@logtape/logtape";
 import { redactByField } from "@logtape/redaction";
+import { httpDevFormatter } from "./http-formatter";
 import { type CarbonLogLevel, resolveLevel } from "./levels";
 import { CARBON_ROOT_CATEGORY } from "./logger";
 
@@ -43,15 +44,29 @@ export function ensureLoggingConfigured(
   // reach the sink. Cheap: matches field names, not values.
   const sink = pretty ? consoleSink : redactByField(consoleSink);
 
+  // HTTP access logs (`requestIdMiddleware`) get their own sink: a Morgan
+  // "dev"-style colored line in dev, the same structured+redacted sink as
+  // everything else in prod (still JSONL — no separate treatment needed there).
+  const httpSink = pretty
+    ? getConsoleSink({ formatter: httpDevFormatter })
+    : sink;
+
   configureSync({
     reset: true,
     contextLocalStorage: new AsyncLocalStorage(),
-    sinks: { console: sink },
+    sinks: { console: sink, httpConsole: httpSink },
     loggers: [
       {
         category: [CARBON_ROOT_CATEGORY],
         lowestLevel: level,
         sinks: ["console"]
+      },
+      {
+        category: [CARBON_ROOT_CATEGORY, "http"],
+        lowestLevel: level,
+        sinks: ["httpConsole"],
+        // Don't also emit through the root "console" sink — one line per request.
+        parentSinks: "override"
       },
       {
         category: ["logtape", "meta"],
