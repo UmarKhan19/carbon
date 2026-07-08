@@ -162,7 +162,7 @@ msgid "5-8 weeks"
 msgstr "5～8週間"
 
 msgid "52-week demand"
-msgstr ""
+msgstr "52週間の需要"
 
 msgid "5MB file limit"
 msgstr "5MBファイル制限"
@@ -537,7 +537,7 @@ msgid "Add a comment..."
 msgstr "コメントを追加..."
 
 msgid "Add a custom pricing row to override quantity, price, shipping, lead time, and tax"
-msgstr ""
+msgstr "数量、価格、送料、リードタイム、税金を上書きするカスタム価格行を追加します"
 
 msgid "Add a printer in the printing settings to print labels directly."
 msgstr "プリンター設定にプリンターを追加して、ラベルを直接印刷します。"
@@ -555,7 +555,7 @@ msgid "Add Actions"
 msgstr "アクションを追加"
 
 msgid "Add Adjustment"
-msgstr ""
+msgstr "調整を追加"
 
 msgid "Add any notes about your decision..."
 msgstr "あなたの決定についてのメモを追加してください..."
@@ -994,7 +994,7 @@ msgstr "{0}をキャンセルしてもよろしいですか？これにより、
 
 #. placeholder {0}: routeData?.purchaseOrder?.purchaseOrderId ?? "this purchase order"
 msgid "Are you sure you want to cancel {0}? This will close the order."
-msgstr ""
+msgstr "{0}をキャンセルしてもよろしいですか？注文が閉じられます。"
 
 msgid "Are you sure you want to cancel this job? It will no longer be available on the shop floor."
 msgstr "このジョブをキャンセルしてもよろしいですか？ショップフロアで利用できなくなります。"
@@ -1737,7 +1737,7 @@ msgid "Build tailored, role-based training materials"
 msgstr "カスタマイズされたロールベースのトレーニング資料を作成"
 
 msgid "Built and costed as its own method"
-msgstr ""
+msgstr "独自の方法として構築および原価計算"
 
 msgid "Bulk Import"
 msgstr "一括インポート"
@@ -1824,10 +1824,10 @@ msgid "Cancel Job"
 msgstr "ジョブをキャンセル"
 
 msgid "Cancel Order"
-msgstr ""
+msgstr "注文をキャンセル"
 
 msgid "Cancel Purchase Order"
-msgstr ""
+msgstr "発注書をキャンセル"
 
 msgid "Cancel Sales Order"
 msgstr "販売注文をキャンセル"
@@ -2692,10 +2692,10 @@ msgid "Couldn't load documents"
 msgstr "ドキュメントを読み込めませんでした"
 
 msgid "Couldn't load related documents. Refresh before creating a new one to avoid duplicates."
-msgstr ""
+msgstr "関連ドキュメントを読み込めませんでした。重複を避けるため、新規作成前に更新してください。"
 
 msgid "Couldn't reschedule the job. Please try again."
-msgstr ""
+msgstr "ジョブを再スケジュールできませんでした。もう一度お試しください。"
 
 msgid "Count"
 msgstr "数"
@@ -2937,7 +2937,7 @@ msgid "CSV file must have at least 2 rows."
 msgstr "CSVファイルは最低2行必要です。"
 
 msgid "Cumulative"
-msgstr ""
+msgstr "累積"
 
 msgid "Cumulative %"
 msgstr "累積%"
@@ -3460,7 +3460,7 @@ msgid "Delete Issue"
 msgstr "問題を削除"
 
 msgid "Delete Item Group"
-msgstr ""
+msgstr "アイテムグループを削除"
 
 msgid "Delete Line"
 msgstr "行を削除"
@@ -3611,7 +3611,7 @@ msgstr "サプライヤータイプを削除"
 
 #. placeholder {0}: pendingDelete.quantity
 msgid "Delete the price break for quantity {0}? This can't be undone."
-msgstr ""
+msgstr "数量{0}の価格ブレークを削除しますか？この操作は元に戻せません。"
 
 msgid "Delete Timecard"
 msgstr "タイムカードを削除"
@@ -3629,7 +3629,7 @@ msgid "Delete Transfer Line"
 msgstr "転送ラインを削除"
 
 msgid "Delete Unit of Measure"
-msgstr ""
+msgstr "測定単位を削除"
 
 msgid "Delete View"
 msgstr "ビューを削除"
@@ -3892,7 +3892,7 @@ msgid "Draft"
 msgstr "下書き"
 
 msgid "Draft is editable; Active is in use and requires a new version to change; Archived is retired."
-msgstr ""
+msgstr "下書きは編集可能です。アクティブは使用中で変更には新しいバージョンが必要です。アーカイブ済みは廃止されています。"
 
 msgid "Drag & drop files, or click to browse"
 msgstr "ファイルをドラッグ&ドロップするか、クリックして参照"
@@ -7650,7 +7650,7 @@ msgid "No issue types configured"
 msgstr "問題タイプが設定されていません"
 
 msgid "No items"
-msgstr ""
+msgstr "アイテムなし"
 
 msgid "No lines to map"
 msgstr "マップするラインがありません"
@@ -7944,7 +7944,7 @@ msgid "One system from quote to cash"
 msgstr "見積から現金化まで一つのシステム"
 
 msgid "Only Draft procedures are editable. Create a new version to change an Active or Archived procedure."
-msgstr ""
+msgstr "編集可能なのは下書き手順のみです。アクティブまたはアーカイブされた手順を変更するには、新しいバージョンを作成してください。"
 
 msgid "Onshape Status"
 msgstr "Onshape ステータス"
@@ -8122,7 +8122,7 @@ msgid "Order quantities must be whole multiples of this number (a multiple of 12
 msgstr "注文数量はこの数の整数倍である必要があります（12の倍数→12、24、36 …）。"
 
 msgid "Order rules are evaluated in — for discounts only the highest-priority match applies (no stacking); markups all apply and compound in priority order."
-msgstr ""
+msgstr "注文ルールは順に評価されます — 割引の場合は最も優先度の高い一致のみが適用されます（積み重ね不可）。マークアップはすべて適用され、優先度順に複合されます。"
 
 msgid "Order Total"
 msgstr "注文合計"
@@ -8459,7 +8459,7 @@ msgid "Pick tracked item"
 msgstr "追跡品目をピック"
 
 msgid "Picked and consumed as separate components"
-msgstr ""
+msgstr "別個のコンポーネントとしてピッキングおよび消費"
 
 msgid "Picked quantity"
 msgstr "ピック数量"
@@ -9502,7 +9502,7 @@ msgid "Reordering Policy"
 msgstr "再注文ポリシー"
 
 msgid "Reorders dispatch sequence and work center only — does not reschedule. Change dates on the Dates board."
-msgstr ""
+msgstr "出荷順序と作業センターのみを並べ替えます — 再スケジュールはしません。日付ボードで日付を変更してください。"
 
 msgid "Replace drawing?"
 msgstr "図面を置き換えますか？"
@@ -10171,7 +10171,7 @@ msgid "Select an option"
 msgstr "オプションを選択"
 
 msgid "Select at least one line to convert"
-msgstr ""
+msgstr "変換する行を少なくとも1つ選択してください"
 
 msgid "Select Contact"
 msgstr "連絡先を選択"
@@ -12073,7 +12073,7 @@ msgid "This may take a moment. Hang tight."
 msgstr "これには少し時間がかかる場合があります。お待ちください。"
 
 msgid "This method version is read-only. Create a new version from the method menu to make changes."
-msgstr ""
+msgstr "このメソッドバージョンは読み取り専用です。変更を加えるには、メソッドメニューから新しいバージョンを作成してください。"
 
 msgid "This Month"
 msgstr "今月"
@@ -13123,7 +13123,7 @@ msgstr "水曜日"
 
 #. placeholder {0}: d.week
 msgid "Week {0}"
-msgstr ""
+msgstr "第{0}週"
 
 #. placeholder {0}: i + 1
 msgid "Week {0} ({formattedDate})"
@@ -13143,7 +13143,7 @@ msgid "Weekly"
 msgstr "毎週"
 
 msgid "Weekly demand"
-msgstr ""
+msgstr "週次需要"
 
 #. placeholder {0}: Math.round(startWeek) + 1
 #. placeholder {1}: Math.round(endWeek)
@@ -13471,7 +13471,7 @@ msgstr "仕掛品"
 #. placeholder {0}: quarter.start + 1
 #. placeholder {1}: quarter.end
 msgid "Wk {0}–{1}"
-msgstr ""
+msgstr "第{0}–{1}週"
 
 msgid "wks"
 msgstr "週"
@@ -13599,7 +13599,7 @@ msgid ""
 msgstr "あなたは注文数量 {1} より {leftoverQuantity} 個多く {0} を完了しました。余った部品をどうしたいですか？"
 
 msgid "You don't have permission to edit this bill of material."
-msgstr ""
+msgstr "この部品表を編集する権限がありません。"
 
 msgid "You drive it; we make sure it's done right. Expert eyes on your setup, data, and go-live."
 msgstr "あなたが主導し、私たちが確実に正しく実行します。セットアップ、データ、本番稼働に関する専門家の目が入ります。"

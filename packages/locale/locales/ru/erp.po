@@ -162,7 +162,7 @@ msgid "5-8 weeks"
 msgstr "5-8 недель"
 
 msgid "52-week demand"
-msgstr ""
+msgstr "Спрос за 52 недели"
 
 msgid "5MB file limit"
 msgstr "Лимит файла 5МБ"
@@ -537,7 +537,7 @@ msgid "Add a comment..."
 msgstr "Добавить комментарий..."
 
 msgid "Add a custom pricing row to override quantity, price, shipping, lead time, and tax"
-msgstr ""
+msgstr "Добавьте пользовательскую строку ценообразования для переопределения количества, цены, доставки, времени выполнения заказа и налога"
 
 msgid "Add a printer in the printing settings to print labels directly."
 msgstr "Добавьте принтер в параметры печати, чтобы печатать этикетки напрямую."
@@ -555,7 +555,7 @@ msgid "Add Actions"
 msgstr "Добавить действия"
 
 msgid "Add Adjustment"
-msgstr ""
+msgstr "Добавить корректировку"
 
 msgid "Add any notes about your decision..."
 msgstr "Добавьте любые заметки о вашем решении..."
@@ -994,7 +994,7 @@ msgstr "Вы уверены, что хотите отменить {0}? Это т
 
 #. placeholder {0}: routeData?.purchaseOrder?.purchaseOrderId ?? "this purchase order"
 msgid "Are you sure you want to cancel {0}? This will close the order."
-msgstr ""
+msgstr "Вы уверены, что хотите отменить {0}? Это закроет заказ."
 
 msgid "Are you sure you want to cancel this job? It will no longer be available on the shop floor."
 msgstr "Вы уверены, что хотите отменить эту работу? Она больше не будет доступна на производственном участке."
@@ -1737,7 +1737,7 @@ msgid "Build tailored, role-based training materials"
 msgstr "Создавайте адаптированные учебные материалы на основе ролей"
 
 msgid "Built and costed as its own method"
-msgstr ""
+msgstr "Построен и рассчитан как собственный метод"
 
 msgid "Bulk Import"
 msgstr "Массовый импорт"
@@ -1824,10 +1824,10 @@ msgid "Cancel Job"
 msgstr "Отменить задание"
 
 msgid "Cancel Order"
-msgstr ""
+msgstr "Отменить заказ"
 
 msgid "Cancel Purchase Order"
-msgstr ""
+msgstr "Отменить заказ на покупку"
 
 msgid "Cancel Sales Order"
 msgstr "Отмена заказа на продажу"
@@ -2692,10 +2692,10 @@ msgid "Couldn't load documents"
 msgstr "Не удалось загрузить документы"
 
 msgid "Couldn't load related documents. Refresh before creating a new one to avoid duplicates."
-msgstr ""
+msgstr "Не удалось загрузить связанные документы. Обновите страницу перед созданием нового, чтобы избежать дублирования."
 
 msgid "Couldn't reschedule the job. Please try again."
-msgstr ""
+msgstr "Не удалось перепланировать задание. Пожалуйста, попробуйте еще раз."
 
 msgid "Count"
 msgstr "Количество"
@@ -2937,7 +2937,7 @@ msgid "CSV file must have at least 2 rows."
 msgstr "CSV файл должен содержать минимум 2 строки."
 
 msgid "Cumulative"
-msgstr ""
+msgstr "Нарастающий итог"
 
 msgid "Cumulative %"
 msgstr "Кумулятивный %"
@@ -3460,7 +3460,7 @@ msgid "Delete Issue"
 msgstr "Удалить проблему"
 
 msgid "Delete Item Group"
-msgstr ""
+msgstr "Удалить группу позиций"
 
 msgid "Delete Line"
 msgstr "Удалить строку"
@@ -3611,7 +3611,7 @@ msgstr "Удалить тип поставщика"
 
 #. placeholder {0}: pendingDelete.quantity
 msgid "Delete the price break for quantity {0}? This can't be undone."
-msgstr ""
+msgstr "Удалить ценовой порог для количества {0}? Это действие нельзя отменить."
 
 msgid "Delete Timecard"
 msgstr "Удалить табель учета рабочего времени"
@@ -3629,7 +3629,7 @@ msgid "Delete Transfer Line"
 msgstr "Удалить строку передачи"
 
 msgid "Delete Unit of Measure"
-msgstr ""
+msgstr "Удалить единицу измерения"
 
 msgid "Delete View"
 msgstr "Удалить представление"
@@ -3892,7 +3892,7 @@ msgid "Draft"
 msgstr "Черновик"
 
 msgid "Draft is editable; Active is in use and requires a new version to change; Archived is retired."
-msgstr ""
+msgstr "Черновик доступен для редактирования; Активный используется и требует новой версии для изменения; Архивный — выведен из обращения."
 
 msgid "Drag & drop files, or click to browse"
 msgstr "Перетащите файлы или нажмите для обзора"
@@ -7650,7 +7650,7 @@ msgid "No issue types configured"
 msgstr "Типы проблем не настроены"
 
 msgid "No items"
-msgstr ""
+msgstr "Нет позиций"
 
 msgid "No lines to map"
 msgstr "Нет строк для сопоставления"
@@ -7944,7 +7944,7 @@ msgid "One system from quote to cash"
 msgstr "Одна система от предложения до оплаты"
 
 msgid "Only Draft procedures are editable. Create a new version to change an Active or Archived procedure."
-msgstr ""
+msgstr "Редактировать можно только процедуры в статусе «Черновик». Создайте новую версию, чтобы изменить активную или архивную процедуру."
 
 msgid "Onshape Status"
 msgstr "Статус Onshape"
@@ -8122,7 +8122,7 @@ msgid "Order quantities must be whole multiples of this number (a multiple of 12
 msgstr "Количества заказов должны быть целыми кратными этому числу (кратное 12 → 12, 24, 36 …)."
 
 msgid "Order rules are evaluated in — for discounts only the highest-priority match applies (no stacking); markups all apply and compound in priority order."
-msgstr ""
+msgstr "Правила заказов оцениваются по порядку — для скидок применяется только совпадение с наивысшим приоритетом (без накопления); наценки применяются все и накапливаются в порядке приоритета."
 
 msgid "Order Total"
 msgstr "Итого по заказу"
@@ -8459,7 +8459,7 @@ msgid "Pick tracked item"
 msgstr "Выбрать отслеживаемый товар"
 
 msgid "Picked and consumed as separate components"
-msgstr ""
+msgstr "Подобрано и потреблено как отдельные компоненты"
 
 msgid "Picked quantity"
 msgstr "Выбранное количество"
@@ -9502,7 +9502,7 @@ msgid "Reordering Policy"
 msgstr "Политика переупорядочения"
 
 msgid "Reorders dispatch sequence and work center only — does not reschedule. Change dates on the Dates board."
-msgstr ""
+msgstr "Перераспределяет только последовательность диспетчеризации и рабочий центр — не перепланирует. Изменяйте даты на доске дат."
 
 msgid "Replace drawing?"
 msgstr "Заменить чертёж?"
@@ -10171,7 +10171,7 @@ msgid "Select an option"
 msgstr "Выберите опцию"
 
 msgid "Select at least one line to convert"
-msgstr ""
+msgstr "Выберите хотя бы одну строку для конвертации"
 
 msgid "Select Contact"
 msgstr "Выберите контакт"
@@ -12073,7 +12073,7 @@ msgid "This may take a moment. Hang tight."
 msgstr "Это может занять некоторое время. Не волнуйтесь."
 
 msgid "This method version is read-only. Create a new version from the method menu to make changes."
-msgstr ""
+msgstr "Эта версия метода доступна только для чтения. Создайте новую версию в меню метода, чтобы внести изменения."
 
 msgid "This Month"
 msgstr "Этот месяц"
@@ -13123,7 +13123,7 @@ msgstr "Среда"
 
 #. placeholder {0}: d.week
 msgid "Week {0}"
-msgstr ""
+msgstr "Неделя {0}"
 
 #. placeholder {0}: i + 1
 msgid "Week {0} ({formattedDate})"
@@ -13143,7 +13143,7 @@ msgid "Weekly"
 msgstr "Еженедельно"
 
 msgid "Weekly demand"
-msgstr ""
+msgstr "Еженедельный спрос"
 
 #. placeholder {0}: Math.round(startWeek) + 1
 #. placeholder {1}: Math.round(endWeek)
@@ -13471,7 +13471,7 @@ msgstr "НЗП"
 #. placeholder {0}: quarter.start + 1
 #. placeholder {1}: quarter.end
 msgid "Wk {0}–{1}"
-msgstr ""
+msgstr "Нед {0}–{1}"
 
 msgid "wks"
 msgstr "нед"
@@ -13599,7 +13599,7 @@ msgid ""
 msgstr "Вы завершили {leftoverQuantity} больше {0}, чем заказанное количество {1}. Что вы хотите сделать с дополнительными деталями?"
 
 msgid "You don't have permission to edit this bill of material."
-msgstr ""
+msgstr "У вас нет разрешения на редактирование этой ведомости материалов."
 
 msgid "You drive it; we make sure it's done right. Expert eyes on your setup, data, and go-live."
 msgstr "Вы управляете процессом; мы следим, чтобы всё было сделано правильно. Опытный взгляд на вашу настройку, данные и запуск."

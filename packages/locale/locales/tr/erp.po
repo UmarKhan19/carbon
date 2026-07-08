@@ -162,7 +162,7 @@ msgid "5-8 weeks"
 msgstr "5-8 hafta"
 
 msgid "52-week demand"
-msgstr ""
+msgstr "52 haftalık talep"
 
 msgid "5MB file limit"
 msgstr "5 MB dosya sınırı"
@@ -537,7 +537,7 @@ msgid "Add a comment..."
 msgstr "Bir yorum ekle..."
 
 msgid "Add a custom pricing row to override quantity, price, shipping, lead time, and tax"
-msgstr ""
+msgstr "Miktar, fiyat, kargo, teslim süresi ve vergiyi geçersiz kılmak için özel bir fiyatlandırma satırı ekleyin"
 
 msgid "Add a printer in the printing settings to print labels directly."
 msgstr "Etiketleri doğrudan yazdırmak için yazdırma ayarlarında bir yazıcı ekleyin."
@@ -555,7 +555,7 @@ msgid "Add Actions"
 msgstr "Eylemler Ekle"
 
 msgid "Add Adjustment"
-msgstr ""
+msgstr "Ayarlama ekle"
 
 msgid "Add any notes about your decision..."
 msgstr "Kararınızla ilgili herhangi bir not ekleyin..."
@@ -994,7 +994,7 @@ msgstr "{0}'yi iptal etmek istediğinizden emin misiniz? Bu aynı zamanda tüm i
 
 #. placeholder {0}: routeData?.purchaseOrder?.purchaseOrderId ?? "this purchase order"
 msgid "Are you sure you want to cancel {0}? This will close the order."
-msgstr ""
+msgstr "{0} siparişini iptal etmek istediğinizden emin misiniz? Bu siparişi kapatacaktır."
 
 msgid "Are you sure you want to cancel this job? It will no longer be available on the shop floor."
 msgstr "Bu işi iptal etmek istediğinizden emin misiniz? Artık atölyede kullanılamayacak."
@@ -1737,7 +1737,7 @@ msgid "Build tailored, role-based training materials"
 msgstr "Özelleştirilmiş, rol tabanlı eğitim materyalleri oluşturun"
 
 msgid "Built and costed as its own method"
-msgstr ""
+msgstr "Kendi yöntemi olarak oluşturulmuş ve maliyetlendirilmiş"
 
 msgid "Bulk Import"
 msgstr "Toplu İçe Aktarma"
@@ -1824,10 +1824,10 @@ msgid "Cancel Job"
 msgstr "İşi İptal Et"
 
 msgid "Cancel Order"
-msgstr ""
+msgstr "Siparişi İptal Et"
 
 msgid "Cancel Purchase Order"
-msgstr ""
+msgstr "Satın Alma Siparişini İptal Et"
 
 msgid "Cancel Sales Order"
 msgstr "Satış Siparişini İptal Et"
@@ -2692,10 +2692,10 @@ msgid "Couldn't load documents"
 msgstr "Belgeler yüklenemedi"
 
 msgid "Couldn't load related documents. Refresh before creating a new one to avoid duplicates."
-msgstr ""
+msgstr "İlgili belgeler yüklenemedi. Yeni bir tane oluşturmadan önce yenileyerek tekrarları önleyin."
 
 msgid "Couldn't reschedule the job. Please try again."
-msgstr ""
+msgstr "İş yeniden planlanamadı. Lütfen tekrar deneyin."
 
 msgid "Count"
 msgstr "Adet"
@@ -2937,7 +2937,7 @@ msgid "CSV file must have at least 2 rows."
 msgstr "CSV dosyası en az 2 satır içermelidir."
 
 msgid "Cumulative"
-msgstr ""
+msgstr "Kümülatif"
 
 msgid "Cumulative %"
 msgstr "Kümülatif %"
@@ -3460,7 +3460,7 @@ msgid "Delete Issue"
 msgstr "Sorunu Sil"
 
 msgid "Delete Item Group"
-msgstr ""
+msgstr "Öğe Grubunu Sil"
 
 msgid "Delete Line"
 msgstr "Satırı Sil"
@@ -3611,7 +3611,7 @@ msgstr "Tedarikçi Türünü Sil"
 
 #. placeholder {0}: pendingDelete.quantity
 msgid "Delete the price break for quantity {0}? This can't be undone."
-msgstr ""
+msgstr "{0} miktarı için fiyat kırılımı silinsin mi? Bu işlem geri alınamaz."
 
 msgid "Delete Timecard"
 msgstr "Çalışma Kaydını Sil"
@@ -3629,7 +3629,7 @@ msgid "Delete Transfer Line"
 msgstr "Transfer Satırını Sil"
 
 msgid "Delete Unit of Measure"
-msgstr ""
+msgstr "Ölçü Birimini Sil"
 
 msgid "Delete View"
 msgstr "Görünümü Sil"
@@ -3892,7 +3892,7 @@ msgid "Draft"
 msgstr "Taslak"
 
 msgid "Draft is editable; Active is in use and requires a new version to change; Archived is retired."
-msgstr ""
+msgstr "Taslak düzenlenebilir; Aktif kullanımda ve değiştirmek için yeni bir sürüm gerektirir; Arşivlendi kullanımdan kaldırılmıştır."
 
 msgid "Drag & drop files, or click to browse"
 msgstr "Dosyaları sürükleyip bırakın veya göz atmak için tıklayın"
@@ -7650,7 +7650,7 @@ msgid "No issue types configured"
 msgstr "Hiçbir sorun türü yapılandırılmamış"
 
 msgid "No items"
-msgstr ""
+msgstr "Öğe yok"
 
 msgid "No lines to map"
 msgstr "Eşlenecek satır yok"
@@ -7944,7 +7944,7 @@ msgid "One system from quote to cash"
 msgstr "Teklif'ten nakite kadar tek bir sistem"
 
 msgid "Only Draft procedures are editable. Create a new version to change an Active or Archived procedure."
-msgstr ""
+msgstr "Yalnızca Taslak prosedürler düzenlenebilir. Aktif veya Arşivlenmiş bir prosedürü değiştirmek için yeni bir sürüm oluşturun."
 
 msgid "Onshape Status"
 msgstr "Onshape Durumu"
@@ -8122,7 +8122,7 @@ msgid "Order quantities must be whole multiples of this number (a multiple of 12
 msgstr "Sipariş miktarları bu sayının tam katları olmalıdır (12'nin katı → 12, 24, 36 …)."
 
 msgid "Order rules are evaluated in — for discounts only the highest-priority match applies (no stacking); markups all apply and compound in priority order."
-msgstr ""
+msgstr "Sipariş kuralları sırayla değerlendirilir — indirimler için yalnızca en yüksek öncelikli eşleşme uygulanır (yığma yok); işaretlemeler hepsi uygulanır ve öncelik sırasına göre birleşir."
 
 msgid "Order Total"
 msgstr "Toplam Sipariş Tutarı"
@@ -8459,7 +8459,7 @@ msgid "Pick tracked item"
 msgstr "Takip edilen öğeyi seç"
 
 msgid "Picked and consumed as separate components"
-msgstr ""
+msgstr "Ayrı bileşenler olarak toplanmış ve tüketilmiş"
 
 msgid "Picked quantity"
 msgstr "Alınan miktar"
@@ -9502,7 +9502,7 @@ msgid "Reordering Policy"
 msgstr "Yeniden Sipariş Politikası"
 
 msgid "Reorders dispatch sequence and work center only — does not reschedule. Change dates on the Dates board."
-msgstr ""
+msgstr "Yalnızca sevkiyat sırasını ve iş merkezini yeniden sıralar — yeniden planlamaz. Tarih panosunda tarihleri değiştirin."
 
 msgid "Replace drawing?"
 msgstr "Çizimi değiştir?"
@@ -10171,7 +10171,7 @@ msgid "Select an option"
 msgstr "Bir seçenek seçin"
 
 msgid "Select at least one line to convert"
-msgstr ""
+msgstr "Dönüştürmek için en az bir satır seçin"
 
 msgid "Select Contact"
 msgstr "İletişim Kişisi Seçin"
@@ -12073,7 +12073,7 @@ msgid "This may take a moment. Hang tight."
 msgstr "Bu biraz zaman alabilir. Sabrın."
 
 msgid "This method version is read-only. Create a new version from the method menu to make changes."
-msgstr ""
+msgstr "Bu yöntem sürümü salt okunurdur. Değişiklik yapmak için yöntem menüsünden yeni bir sürüm oluşturun."
 
 msgid "This Month"
 msgstr "Bu Ay"
@@ -13123,7 +13123,7 @@ msgstr "Çarşamba"
 
 #. placeholder {0}: d.week
 msgid "Week {0}"
-msgstr ""
+msgstr "Hafta {0}"
 
 #. placeholder {0}: i + 1
 msgid "Week {0} ({formattedDate})"
@@ -13143,7 +13143,7 @@ msgid "Weekly"
 msgstr "Haftalık"
 
 msgid "Weekly demand"
-msgstr ""
+msgstr "Haftalık talep"
 
 #. placeholder {0}: Math.round(startWeek) + 1
 #. placeholder {1}: Math.round(endWeek)
@@ -13471,7 +13471,7 @@ msgstr "Yarı Mamul"
 #. placeholder {0}: quarter.start + 1
 #. placeholder {1}: quarter.end
 msgid "Wk {0}–{1}"
-msgstr ""
+msgstr "Hft {0}–{1}"
 
 msgid "wks"
 msgstr "hf"
@@ -13599,7 +13599,7 @@ msgid ""
 msgstr "Sipariş edilen miktardan {leftoverQuantity} fazla {0} tamamladınız. Fazla parçalarla ne yapmak istersiniz?{1}"
 
 msgid "You don't have permission to edit this bill of material."
-msgstr ""
+msgstr "Bu malzeme listesini düzenleme izniniz yok."
 
 msgid "You drive it; we make sure it's done right. Expert eyes on your setup, data, and go-live."
 msgstr "Siz yönetirsiniz; biz doğru yapıldığından emin oluruz. Kurulumunuz, verileriniz ve canlı yayına geçişiniz üzerinde uzman gözler."
