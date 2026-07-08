@@ -1,6 +1,6 @@
 import { getCarbon } from "@carbon/auth";
 import { getOrRefreshAuthSession } from "@carbon/auth/session.server";
-import { getLogger } from "@carbon/logging";
+import { getLogger } from "@carbon/logger";
 import { Button, Spinner } from "@carbon/react";
 import { useEffect } from "react";
 import {

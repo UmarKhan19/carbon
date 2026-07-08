@@ -12,7 +12,7 @@ import {
 } from "@carbon/auth/middleware/flash.server";
 import { getOrRefreshAuthSession } from "@carbon/auth/session.server";
 import { validator } from "@carbon/form";
-import { requestIdMiddleware } from "@carbon/logging/middleware.server";
+import { requestIdMiddleware } from "@carbon/logger/middleware.server";
 import {
   Button,
   cn,

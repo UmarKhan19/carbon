@@ -1,4 +1,4 @@
-import { createInngestLogger } from "@carbon/logging/inngest";
+import { createInngestLogger } from "@carbon/logger/inngest";
 import { Inngest } from "inngest";
 
 /**

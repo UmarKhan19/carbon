@@ -1,5 +1,5 @@
 import type { Database, Json } from "@carbon/database";
-import { getLogger } from "@carbon/logging";
+import { getLogger } from "@carbon/logger";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { SUPABASE_URL } from "../config/env";
 import type { Permission } from "../types";

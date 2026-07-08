@@ -5,7 +5,7 @@ import {
   TextAreaControlled,
   ValidatedForm
 } from "@carbon/form";
-import { getLogger } from "@carbon/logging";
+import { getLogger } from "@carbon/logger";
 import {
   Badge,
   BadgeCloseButton,

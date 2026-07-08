@@ -1,5 +1,5 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
-import { getLogger } from "@carbon/logging";
+import { getLogger } from "@carbon/logger";
 import { Alert, AlertDescription, AlertTitle, Button, cn } from "@carbon/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ConfettiExplosion from "react-confetti-explosion";

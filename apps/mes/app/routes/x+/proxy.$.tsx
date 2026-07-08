@@ -1,4 +1,4 @@
-import { getLogger } from "@carbon/logging";
+import { getLogger } from "@carbon/logger";
 import type { ActionFunctionArgs } from "react-router";
 import { ERP_URL } from "~/utils/path";
 

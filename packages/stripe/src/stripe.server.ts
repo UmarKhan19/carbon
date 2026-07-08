@@ -10,7 +10,7 @@ import {
 } from "@carbon/env";
 import { redis } from "@carbon/kv";
 import { trigger } from "@carbon/lib/trigger";
-import { getLogger } from "@carbon/logging";
+import { getLogger } from "@carbon/logger";
 import { Edition, Plan } from "@carbon/utils";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { Stripe } from "stripe";

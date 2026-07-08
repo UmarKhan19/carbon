@@ -5,7 +5,7 @@ import {
   evaluateLinesForSurface,
   isBlocked
 } from "@carbon/ee/storage-rules.server";
-import { getLogger } from "@carbon/logging";
+import { getLogger } from "@carbon/logger";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { issueTrackedEntityValidator } from "~/services/models";

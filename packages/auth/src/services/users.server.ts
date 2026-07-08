@@ -1,6 +1,6 @@
 import type { Database, Json } from "@carbon/database";
 import { redis } from "@carbon/kv";
-import { getLogger } from "@carbon/logging";
+import { getLogger } from "@carbon/logger";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getCarbonServiceRole } from "../lib/supabase/client.server";
 import type { Permission, Result } from "../types";

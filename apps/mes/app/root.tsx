@@ -7,7 +7,7 @@ import {
 } from "@carbon/auth/middleware/flash.server";
 import { validator } from "@carbon/form";
 import { LocaleProvider, resolveLanguage } from "@carbon/locale";
-import { requestIdMiddleware } from "@carbon/logging/middleware.server";
+import { requestIdMiddleware } from "@carbon/logger/middleware.server";
 import {
   Button,
   Heading,

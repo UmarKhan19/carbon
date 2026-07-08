@@ -1,5 +1,5 @@
 {
-  "name": "@carbon/logging",
+  "name": "@carbon/logger",
   "dependencies": {
     "@logtape/logtape": "catalog:",
     "@logtape/redaction": "catalog:",

@@ -1,5 +1,5 @@
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
-import { getLogger } from "@carbon/logging";
+import { getLogger } from "@carbon/logger";
 
 const log = getLogger("starter");
 

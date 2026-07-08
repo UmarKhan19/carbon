@@ -1,5 +1,5 @@
 import { GTM_EVENTS_API_SECRET_KEY, GTM_URL } from "@carbon/env";
-import { getLogger } from "@carbon/logging";
+import { getLogger } from "@carbon/logger";
 
 const log = getLogger("stripe", "gtm-events");
 

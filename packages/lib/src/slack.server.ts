@@ -1,5 +1,5 @@
 import { getAppUrl, SLACK_BOT_TOKEN } from "@carbon/env";
-import { getLogger } from "@carbon/logging";
+import { getLogger } from "@carbon/logger";
 import { WebClient } from "@slack/web-api";
 
 const log = getLogger("lib", "slack");

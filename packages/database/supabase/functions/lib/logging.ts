@@ -10,12 +10,12 @@ import {
 import { redactByField } from "@logtape/redaction";
 
 /**
- * Deno-native twin of `@carbon/logging` for Supabase edge functions.
+ * Deno-native twin of `@carbon/logger` for Supabase edge functions.
  *
  * Edge functions run on Deno and cannot import the workspace package, so this
  * mirrors its config: LogTape configured on first use, always JSON Lines (edge
  * logs go to the Supabase log drain), field-redacted, level from `LOG_LEVEL`.
- * Keep this in sync with `packages/logging/src/config.server.ts`.
+ * Keep this in sync with `packages/logger/src/config.server.ts`.
  */
 const LOG_LEVELS = [
   "trace",

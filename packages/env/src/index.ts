@@ -371,7 +371,7 @@ export const DEFAULT_LANGUAGE =
     isSecret: false
   }) ?? "en";
 
-// Level for @carbon/logging. Optional + non-secret so it reaches the browser.
+// Level for @carbon/logger. Optional + non-secret so it reaches the browser.
 // The logger derives a sensible default when unset (dev: debug, prod: info,
 // browser prod: warning), so an invalid/absent value never throws.
 export const LOG_LEVEL = getEnv("LOG_LEVEL", {

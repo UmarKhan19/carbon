@@ -1,5 +1,5 @@
 import { useCarbon } from "@carbon/auth";
-import { getLogger } from "@carbon/logging";
+import { getLogger } from "@carbon/logger";
 import {
   Avatar,
   Button,

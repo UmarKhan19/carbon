@@ -1,5 +1,5 @@
 import { NODE_ENV } from "@carbon/env";
-import { getLogger } from "@carbon/logging";
+import { getLogger } from "@carbon/logger";
 import type { RealtimeChannel, SupabaseClient } from "@supabase/supabase-js";
 import { REALTIME_SUBSCRIBE_STATES } from "@supabase/supabase-js";
 import { useCallback, useEffect, useRef } from "react";

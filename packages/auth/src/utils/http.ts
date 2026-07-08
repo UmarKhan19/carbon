@@ -1,4 +1,4 @@
-import { getLogger } from "@carbon/logging";
+import { getLogger } from "@carbon/logger";
 import { path } from "./path";
 
 const log = getLogger("auth");

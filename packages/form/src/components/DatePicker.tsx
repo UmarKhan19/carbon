@@ -1,6 +1,6 @@
 import { useFormContext } from "@carbon/form";
 import type { TermId } from "@carbon/glossary";
-import { getLogger } from "@carbon/logging";
+import { getLogger } from "@carbon/logger";
 import {
   DatePicker as DatePickerBase,
   FormControl,

@@ -1,7 +1,7 @@
 import { VerificationEmail } from "@carbon/documents/email";
 import { redis } from "@carbon/kv";
 import { sendEmail } from "@carbon/lib/resend.server";
-import { getLogger } from "@carbon/logging";
+import { getLogger } from "@carbon/logger";
 import { render } from "@react-email/components";
 import { RESEND_DOMAIN } from "../config/env";
 

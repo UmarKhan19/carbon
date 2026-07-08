@@ -1,4 +1,4 @@
-import { getLogger } from "@carbon/logging";
+import { getLogger } from "@carbon/logger";
 import { toast } from "@carbon/react";
 import { useCallback } from "react";
 import { useUser } from "~/hooks";

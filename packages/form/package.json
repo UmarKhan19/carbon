@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@carbon/glossary": "workspace:*",
-    "@carbon/logging": "workspace:*",
+    "@carbon/logger": "workspace:*",
     "@internationalized/date": "catalog:",
     "@react-aria/i18n": "catalog:",
     "cookie": "catalog:",

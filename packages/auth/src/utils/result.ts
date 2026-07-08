@@ -1,4 +1,4 @@
-import { getLogger } from "@carbon/logging";
+import { getLogger } from "@carbon/logger";
 import type { Result } from "../types";
 
 const log = getLogger("auth");

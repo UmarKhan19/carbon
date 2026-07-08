@@ -30,7 +30,7 @@ export function parseLogLevel(
   if (value) {
     // biome-ignore lint/suspicious/noConsole: pre-configure, only safe channel
     console.warn(
-      `[@carbon/logging] invalid LOG_LEVEL "${value}", using "${fallback}"`
+      `[@carbon/logger] invalid LOG_LEVEL "${value}", using "${fallback}"`
     );
   }
   return fallback;

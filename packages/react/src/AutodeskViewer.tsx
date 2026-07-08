@@ -1,5 +1,5 @@
 /// <reference path="./autodesk.d.ts" />
-import { getLogger } from "@carbon/logging";
+import { getLogger } from "@carbon/logger";
 import {
   createContext,
   useCallback,

@@ -1,4 +1,4 @@
-# @carbon/logging
+# @carbon/logger
 
 Centralized, isomorphic logger built on [LogTape](https://logtape.org). Works in
 browser, Node (SSR + Inngest jobs), and — via a separate self-contained copy —
@@ -23,7 +23,7 @@ categories, env-driven levels, and cloud-agnostic request-id correlation.
 - Request id is automatic inside loaders/actions/services: `requestIdMiddleware`
   (registered first in each app's `root.tsx`) puts `{ requestId }` into implicit
   context, so every server log during a request carries it. Read it explicitly
-  with `getRequestId(context)` from `@carbon/logging/middleware.server`.
+  with `getRequestId(context)` from `@carbon/logger/middleware.server`.
 
 ## Ask First
 
@@ -49,8 +49,8 @@ categories, env-driven levels, and cloud-agnostic request-id correlation.
 ## Validation Commands
 
 ```bash
-pnpm --filter @carbon/logging typecheck
-pnpm --filter @carbon/logging test
+pnpm --filter @carbon/logger typecheck
+pnpm --filter @carbon/logger test
 ```
 
 ## Key Exports
@@ -65,8 +65,8 @@ pnpm --filter @carbon/logging test
 
 ## Wiring (per app)
 
-- `entry.server.tsx`: `import { ensureLoggingConfigured } from "@carbon/logging/config.server"; ensureLoggingConfigured();` at top.
-- `entry.client.tsx`: same from `@carbon/logging/config.client`.
+- `entry.server.tsx`: `import { ensureLoggingConfigured } from "@carbon/logger/config.server"; ensureLoggingConfigured();` at top.
+- `entry.client.tsx`: same from `@carbon/logger/config.client`.
 - `root.tsx`: `export const middleware = [requestIdMiddleware, flashMiddleware]`
   (request id FIRST so downstream runs inside its context scope).
 

@@ -6,7 +6,7 @@ import {
   flashResultContext
 } from "@carbon/auth/middleware/flash.server";
 import { validator } from "@carbon/form";
-import { requestIdMiddleware } from "@carbon/logging/middleware.server";
+import { requestIdMiddleware } from "@carbon/logger/middleware.server";
 import { Button, Heading, Toaster, useMode } from "@carbon/react";
 import type { Theme } from "@carbon/utils";
 import { modeValidator, themes } from "@carbon/utils";

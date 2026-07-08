@@ -1,4 +1,4 @@
-import { getLogger } from "@carbon/logging";
+import { getLogger } from "@carbon/logger";
 import type Redis from "ioredis";
 
 export const REDIS_TIMEOUT_MS = 2000;

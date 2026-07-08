@@ -1,4 +1,4 @@
-import { ensureLoggingConfigured } from "@carbon/logging/config.server";
+import { ensureLoggingConfigured } from "@carbon/logger/config.server";
 import { handleRequest as vercelHandleRequest } from "@vercel/react-router/entry.server";
 import type { EntryContext, RouterContextProvider } from "react-router";
 

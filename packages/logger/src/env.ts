@@ -1,7 +1,7 @@
 /**
  * Minimal isomorphic env reader for the logging package only.
  *
- * `@carbon/logging` deliberately does NOT depend on `@carbon/env`: that module
+ * `@carbon/logger` deliberately does NOT depend on `@carbon/env`: that module
  * throws at load time when a required var is missing, which would make the
  * logger un-importable in bare contexts (tests, scripts, edge). Logging must be
  * a true leaf. We read the two non-secret vars we need directly.
