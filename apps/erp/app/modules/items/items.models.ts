@@ -856,7 +856,7 @@ export const unitOfMeasureValidator = z.object({
   name: z.string().min(1, { message: "Name is required" }).max(50)
 });
 
-// PLM / change-order enums — mirror the DB enums in the plm-change-orders migration.
+// PLM / change-order enums — mirror the DB enums in the change-orders migration.
 export const changeOrderType = [
   "Engineering",
   "Manufacturing",
