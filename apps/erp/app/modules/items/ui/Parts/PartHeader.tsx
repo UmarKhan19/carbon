@@ -1,4 +1,5 @@
 import {
+  Button,
   Copy,
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +15,12 @@ import {
   VStack
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { LuEllipsisVertical, LuTrash } from "react-icons/lu";
+import {
+  LuArrowUpRight,
+  LuEllipsisVertical,
+  LuGitPullRequestArrow,
+  LuTrash
+} from "react-icons/lu";
 import { Link, useParams } from "react-router";
 import { useAuditLog } from "~/components/AuditLog";
 import { DetailsTopbar } from "~/components/Layout";
@@ -50,11 +56,18 @@ const PartHeader = () => {
         | "Stock Only"
         | "No Stock";
     } | null;
+    openChangeOrder: { id: string; changeOrderId: string } | null;
+    pendingRevisionChangeOrder: { id: string; changeOrderId: string } | null;
   }>(path.to.part(itemId));
 
   const lifecycleStatus = getItemLifecycleStatus(
     routeData?.supersession?.supersessionMode
   );
+
+  // The part is tied to an open change order either as the current revision
+  // (openChangeOrder) or as the proposed revision (pendingRevisionChangeOrder).
+  const changeOrder =
+    routeData?.openChangeOrder ?? routeData?.pendingRevisionChangeOrder;
 
   return (
     <>
@@ -73,6 +86,19 @@ const PartHeader = () => {
                 {lifecycleStatus.label}
               </Status>
             )}
+            {changeOrder && (
+              <Button
+                asChild
+                size="sm"
+                variant="secondary"
+                leftIcon={<LuGitPullRequestArrow />}
+                rightIcon={<LuArrowUpRight />}
+              >
+                <Link to={path.to.changeOrder(changeOrder.id)}>
+                  <Trans>Open change order</Trans>
+                </Link>
+              </Button>
+            )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <IconButton
@@ -84,6 +110,16 @@ const PartHeader = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 {auditLogTrigger}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  disabled={!permissions.can("create", "parts")}
+                  asChild
+                >
+                  <Link to={`${path.to.newChangeOrder}?itemId=${itemId}`}>
+                    <DropdownMenuIcon icon={<LuGitPullRequestArrow />} />
+                    <Trans>Create Change Order</Trans>
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   disabled={

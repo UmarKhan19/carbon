@@ -3,7 +3,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
-import { Menubar, VStack } from "@carbon/react";
+import { HStack, Menubar, VStack } from "@carbon/react";
 import { useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { Suspense } from "react";
@@ -11,8 +11,14 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { Await, redirect, useLoaderData, useParams } from "react-router";
 import { CadModel, DeferredFiles } from "~/components";
 import { usePermissions, useRouteData } from "~/hooks";
-import type { ItemFile, MakeMethod, ToolSummary } from "~/modules/items";
+import type {
+  ItemFile,
+  MakeMethod,
+  OpenChangeOrder,
+  ToolSummary
+} from "~/modules/items";
 import {
+  getControlledDrawing,
   getItemManufacturing,
   getMakeMethodById,
   getMakeMethods,
@@ -23,11 +29,13 @@ import {
   upsertItemManufacturing,
   upsertTool
 } from "~/modules/items";
+import { getRevisionLock } from "~/modules/items/items.server";
 import {
   BillOfMaterial,
   BillOfProcess,
   ItemDocuments,
   ItemNotes,
+  ItemRevisionStatus,
   ItemRiskRegister,
   MakeMethodTools
 } from "~/modules/items/ui/Item";
@@ -49,7 +57,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const requestedMethodId = url.searchParams.get("methodId");
 
-  const makeMethods = await getMakeMethods(client, itemId, companyId);
+  const [makeMethods, revisionLock, controlledDrawing] = await Promise.all([
+    getMakeMethods(client, itemId, companyId),
+    getRevisionLock(client, { itemId, companyId }),
+    getControlledDrawing(client, { itemId, companyId })
+  ]);
+  const revisionStatus = revisionLock.revisionStatus;
+  const releaseControl = revisionLock.releaseControl;
   const makeMethod = requestedMethodId
     ? (makeMethods.data?.find((m) => m.id === requestedMethodId) ??
       makeMethods.data?.find((m) => m.status === "Active") ??
@@ -58,12 +72,24 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       makeMethods.data?.[0]);
 
   if (!makeMethod) {
-    return { methodData: null, tags: [] };
+    return {
+      methodData: null,
+      tags: [],
+      revisionStatus,
+      releaseControl,
+      controlledDrawing
+    };
   }
 
   const fullMethod = await getMakeMethodById(client, makeMethod.id, companyId);
   if (fullMethod.error || !fullMethod.data) {
-    return { methodData: null, tags: [] };
+    return {
+      methodData: null,
+      tags: [],
+      revisionStatus,
+      releaseControl,
+      controlledDrawing
+    };
   }
 
   const [methodMaterials, methodOperations, tags, toolManufacturing] =
@@ -94,7 +120,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         })) ?? [],
       toolManufacturing: toolManufacturing.data
     },
-    tags: tags.data ?? []
+    tags: tags.data ?? [],
+    revisionStatus,
+    releaseControl,
+    controlledDrawing
   };
 }
 
@@ -176,12 +205,19 @@ export default function ToolDetailsRoute() {
   if (!itemId) throw new Error("Could not find itemId");
 
   const permissions = usePermissions();
-  const { methodData, tags } = useLoaderData<typeof loader>();
+  const {
+    methodData,
+    tags,
+    revisionStatus,
+    releaseControl,
+    controlledDrawing
+  } = useLoaderData<typeof loader>();
 
   const toolData = useRouteData<{
     toolSummary: ToolSummary;
     files: Promise<ItemFile[]>;
     makeMethods: Promise<PostgrestResponse<MakeMethod>>;
+    pendingRevisionChangeOrder: OpenChangeOrder | null;
   }>(path.to.tool(itemId));
 
   if (!toolData) throw new Error("Could not find tool data");
@@ -196,6 +232,11 @@ export default function ToolDetailsRoute() {
 
   return (
     <VStack spacing={2} className="p-2">
+      {revisionStatus && (
+        <HStack className="w-full justify-end px-2">
+          <ItemRevisionStatus status={revisionStatus} />
+        </HStack>
+      )}
       {permissions.is("employee") && methodData && (
         <>
           <Suspense fallback={<Menubar />}>
@@ -206,6 +247,7 @@ export default function ToolDetailsRoute() {
                   makeMethods={makeMethods?.data ?? []}
                   type="Tool"
                   currentMethodId={methodData.makeMethod.id}
+                  changeOrder={toolData.pendingRevisionChangeOrder}
                 />
               )}
             </Await>
@@ -237,6 +279,8 @@ export default function ToolDetailsRoute() {
                 // @ts-ignore
                 operations={methodData.methodOperations}
                 replenishmentSystem={toolData.toolSummary?.replenishmentSystem}
+                revisionStatus={revisionStatus}
+                releaseControl={releaseControl}
               />
               <BillOfProcess
                 key={`bop:${itemId}`}
@@ -244,6 +288,8 @@ export default function ToolDetailsRoute() {
                 // @ts-ignore
                 operations={methodData.methodOperations ?? []}
                 tags={tags}
+                revisionStatus={revisionStatus}
+                releaseControl={releaseControl}
               />
             </>
           )}
@@ -257,6 +303,7 @@ export default function ToolDetailsRoute() {
                 files={resolvedFiles}
                 itemId={itemId}
                 modelUpload={toolData.toolSummary ?? undefined}
+                controlledDrawing={controlledDrawing}
                 type="Tool"
               />
             )}

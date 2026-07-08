@@ -17,6 +17,43 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     throw new Response("Group ID is required", { status: 400 });
   }
 
+  const url = new URL(request.url);
+  const transitive = url.searchParams.get("transitive") === "true";
+
+  // Transitive: resolve members through nested subgroups so expanding a group
+  // reveals actual people even when its only direct member is another group
+  // (e.g. "All Employees" → "Admin" → the person). `users_for_groups` walks the
+  // membership graph; we then hydrate the ids into user rows.
+  if (transitive) {
+    const resolved = await client.rpc("users_for_groups", {
+      groups: [groupId]
+    });
+    if (resolved.error) {
+      return data(
+        { users: [], error: resolved.error },
+        await flash(
+          request,
+          error(resolved.error, "Failed to load group members")
+        )
+      );
+    }
+    const ids = Array.isArray(resolved.data) ? (resolved.data as string[]) : [];
+    if (ids.length === 0) {
+      return { users: [] };
+    }
+    const users = await client
+      .from("user")
+      .select("id, firstName, lastName, fullName, email, avatarUrl")
+      .in("id", ids);
+    if (users.error) {
+      return data(
+        { users: [], error: users.error },
+        await flash(request, error(users.error, "Failed to load group members"))
+      );
+    }
+    return { users: users.data ?? [] };
+  }
+
   // The `groups` view returns multiple rows per id for nested groups (members
   // are identical), so take one row instead of erroring with `.single()`.
   const query = await client

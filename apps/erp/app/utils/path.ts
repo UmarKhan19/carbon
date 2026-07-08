@@ -70,6 +70,7 @@ export const path = {
       usersBatch: (ids: string[]) =>
         generatePath(`${api}/users/batch?ids=${ids.join(",")}`),
       item: (type: string) => generatePath(`${api}/item/${type}`),
+      itemDrawing: `${api}/item/drawing`,
       itemCostRecalculate: (itemId: string) =>
         generatePath(`${api}/items/${itemId}/recalculate-cost`),
       itemConfigurable: `${api}/items/configurable`,
@@ -130,6 +131,9 @@ export const path = {
           `${api}/integrations/onshape/d/${documentId}/v/${versionId}/elements`
         ),
       onShapeSync: `${api}/integrations/onshape/sync`,
+      onShapeReleasedRevisions: (documentId: string) =>
+        generatePath(`${api}/integrations/onshape/d/${documentId}/revisions`),
+      onShapeImport: `${api}/integrations/onshape/import`,
       linearCreateIssue: `${api}/integrations/linear/issue/create`,
       linearLinkExistingIssue: `${api}/integrations/linear/issue/link`,
       linearSyncNotes: `${api}/integrations/linear/issue/sync-notes`,
@@ -605,6 +609,38 @@ export const path = {
       generatePath(`${x}/part/${itemId}/parameter/order`),
     configurationRule: (itemId: string) =>
       generatePath(`${x}/part/${itemId}/rule`),
+    changeOrders: `${x}/items/change-order/change-orders`,
+    changeOrder: (id: string) => generatePath(`${x}/change-order/${id}`),
+    changeOrderDetails: (id: string) =>
+      generatePath(`${x}/change-order/${id}/details`),
+    changeOrderItem: (id: string, coItemId: string) =>
+      generatePath(`${x}/change-order/${id}/item/${coItemId}`),
+    changeOrderReview: (id: string) =>
+      generatePath(`${x}/change-order/${id}/review`),
+    changeOrderStatus: (id: string) =>
+      generatePath(`${x}/change-order/${id}/status`),
+    changeOrderDecision: (id: string) =>
+      generatePath(`${x}/change-order/${id}/decision`),
+    changeOrderApprovers: (id: string) =>
+      generatePath(`${x}/change-order/${id}/approvers`),
+    releaseChangeOrder: (id: string) =>
+      generatePath(`${x}/change-order/${id}/release`),
+    changeOrderTaskStatus: (id: string) =>
+      generatePath(`${x}/change-order/task/${id}/status`),
+    newChangeOrder: `${x}/change-order/new`,
+    newChangeOrderWorkflow: `${x}/change-order-workflow/new`,
+    deleteChangeOrder: (id: string) =>
+      generatePath(`${x}/change-order/delete/${id}`),
+    bulkUpdateChangeOrder: `${x}/change-order/update`,
+    updateChangeOrderItem: `${x}/change-order/item/update`,
+    deleteChangeOrderItem: (coItemId: string) =>
+      generatePath(`${x}/change-order/item/delete/${coItemId}`),
+    deleteChangeOrderWorkflow: (id: string) =>
+      generatePath(`${x}/change-order-workflow/delete/${id}`),
+    myChangeOrderTasks: `${x}/items/change-order-tasks`,
+    changeOrderWorkflows: `${x}/items/change-order/change-order-workflows`,
+    changeOrderWorkflow: (id: string) =>
+      generatePath(`${x}/change-order-workflow/${id}`),
     contractor: (id: string) =>
       generatePath(`${x}/resources/contractors/${id}`),
     contractors: `${x}/resources/contractors`,

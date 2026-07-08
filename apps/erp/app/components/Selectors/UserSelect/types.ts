@@ -59,6 +59,11 @@ export type OptionGroup = {
   expanded: boolean;
   items: IndividualOrGroup[];
   name: string;
+  // The group's own selectable representation, surfaced on the header so a
+  // group can be picked without also appearing as a duplicate row in its list.
+  groupItem?: IndividualOrGroup;
+  // Real (transitive) member count from the server, shown on the header.
+  memberCount?: number;
 };
 
 export type TreeNode = {

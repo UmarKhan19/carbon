@@ -19,6 +19,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const searchParams = new URLSearchParams(url.search);
   const type = searchParams.get("type");
   const includeUsers = searchParams.get("include") === "users";
+  const withCounts = searchParams.get("counts") === "true";
 
   const selectCols = includeUsers
     ? "id, name, companyId, isEmployeeTypeGroup, isCustomerOrgGroup, isCustomerTypeGroup, isSupplierOrgGroup, isSupplierTypeGroup, parentId, users"
@@ -49,8 +50,30 @@ export async function loader({ request }: LoaderFunctionArgs) {
     );
   }
 
+  let rows = groups.data ?? [];
+
+  // Attach a real (transitive) member count per group so the picker can show
+  // "N members" without expanding. `users_for_groups` resolves nested
+  // subgroups — a direct-user count would read 0 for a group whose members are
+  // all in subgroups (e.g. "All Employees" containing an "Admin" group).
+  if (withCounts) {
+    const ids = Array.from(new Set(rows.map((g: any) => g.id).filter(Boolean)));
+    const counts = await Promise.all(
+      ids.map(async (id) => {
+        const res = await client.rpc("users_for_groups", { groups: [id] });
+        const members = Array.isArray(res.data) ? (res.data as string[]) : [];
+        return [id, members.length] as const;
+      })
+    );
+    const countById = new Map(counts);
+    rows = rows.map((g: any) => ({
+      ...g,
+      memberCount: countById.get(g.id) ?? 0
+    }));
+  }
+
   return {
-    groups: arrayToTree(groups.data) as Group[]
+    groups: arrayToTree(rows) as Group[]
   };
 }
 

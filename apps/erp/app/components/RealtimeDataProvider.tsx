@@ -121,6 +121,8 @@ const RealtimeDataProvider = ({ children }: { children: React.ReactNode }) => {
       await Promise.all([
         fetchAllFromTable<{
           id: string;
+          readableId: string;
+          revision: string;
           readableIdWithRevision: string;
           unitOfMeasureCode: string;
           name: string;
@@ -131,7 +133,7 @@ const RealtimeDataProvider = ({ children }: { children: React.ReactNode }) => {
         }>(
           carbon,
           "item",
-          "id, readableIdWithRevision, unitOfMeasureCode, name, type, replenishmentSystem, active, itemTrackingType",
+          "id, readableId, revision, readableIdWithRevision, unitOfMeasureCode, name, type, replenishmentSystem, active, itemTrackingType",
           (query) =>
             query
               .eq("companyId", companyId)

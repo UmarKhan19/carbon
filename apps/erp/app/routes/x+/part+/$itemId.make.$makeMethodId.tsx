@@ -10,7 +10,7 @@ import { Await, redirect, useLoaderData, useParams } from "react-router";
 import { CadModel } from "~/components";
 import { useRouteData } from "~/hooks";
 import { usePermissions } from "~/hooks/usePermissions";
-import type { PartSummary } from "~/modules/items";
+import type { OpenChangeOrder, PartSummary } from "~/modules/items";
 import {
   getConfigurationParameters,
   getConfigurationRules,
@@ -20,6 +20,7 @@ import {
   getMethodMaterialsByMakeMethod,
   getMethodOperationsByMakeMethodId
 } from "~/modules/items";
+import { getRevisionLock } from "~/modules/items/items.server";
 import {
   BillOfMaterial,
   BillOfProcess,
@@ -43,13 +44,15 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     methodMaterials,
     methodOperations,
     tags,
-    partManufacturing
+    partManufacturing,
+    revisionLock
   ] = await Promise.all([
     getMakeMethodById(client, makeMethodId, companyId),
     getMethodMaterialsByMakeMethod(client, makeMethodId),
     getMethodOperationsByMakeMethodId(client, makeMethodId),
     getTagsList(client, companyId, "operation"),
-    getItemManufacturing(client, itemId, companyId)
+    getItemManufacturing(client, itemId, companyId),
+    getRevisionLock(client, { itemId, companyId })
   ]);
 
   if (makeMethod.error) {
@@ -127,7 +130,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     ...configData,
     model: getModelByItemId(client, makeMethod.data.itemId),
     makeMethods: getMakeMethods(client, makeMethod.data.itemId, companyId),
-    tags: tags.data ?? []
+    tags: tags.data ?? [],
+    revisionStatus: revisionLock.revisionStatus,
+    releaseControl: revisionLock.releaseControl
   };
 }
 
@@ -143,7 +148,9 @@ export default function PartMakeMethodPage() {
     partManufacturing,
     configurationParametersAndGroups,
     configurationRules,
-    tags
+    tags,
+    revisionStatus,
+    releaseControl
   } = loaderData;
 
   const { itemId, makeMethodId } = useParams();
@@ -152,6 +159,7 @@ export default function PartMakeMethodPage() {
 
   const partData = useRouteData<{
     partSummary: PartSummary;
+    pendingRevisionChangeOrder: OpenChangeOrder | null;
   }>(path.to.part(itemId));
 
   return (
@@ -164,6 +172,7 @@ export default function PartMakeMethodPage() {
               makeMethods={makeMethods.data ?? []}
               type="Part"
               currentMethodId={makeMethod.id}
+              changeOrder={partData?.pendingRevisionChangeOrder ?? null}
             />
           )}
         </Await>
@@ -179,6 +188,8 @@ export default function PartMakeMethodPage() {
         configurationRules={configurationRules}
         parameters={configurationParametersAndGroups.parameters}
         replenishmentSystem={partData?.partSummary?.replenishmentSystem}
+        revisionStatus={revisionStatus}
+        releaseControl={releaseControl}
       />
       <BillOfProcess
         key={`bop:${makeMethodId}`}
@@ -190,6 +201,8 @@ export default function PartMakeMethodPage() {
         configurationRules={configurationRules}
         parameters={configurationParametersAndGroups.parameters}
         tags={tags}
+        revisionStatus={revisionStatus}
+        releaseControl={releaseControl}
       />
       <Suspense fallback={null}>
         <Await resolve={loaderData.model}>

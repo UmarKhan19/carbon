@@ -3,7 +3,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
-import { Menubar, VStack } from "@carbon/react";
+import { HStack, Menubar, VStack } from "@carbon/react";
 import { useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { Suspense } from "react";
@@ -15,10 +15,16 @@ import type {
 import { Await, redirect, useLoaderData, useParams } from "react-router";
 import { CadModel, DeferredFiles } from "~/components";
 import { usePermissions, useRouteData } from "~/hooks";
-import type { ItemFile, MakeMethod, PartSummary } from "~/modules/items";
+import type {
+  ItemFile,
+  MakeMethod,
+  OpenChangeOrder,
+  PartSummary
+} from "~/modules/items";
 import {
   getConfigurationParameters,
   getConfigurationRules,
+  getControlledDrawing,
   getItemManufacturing,
   getMakeMethodById,
   getMakeMethods,
@@ -29,11 +35,13 @@ import {
   upsertItemManufacturing,
   upsertPart
 } from "~/modules/items";
+import { getRevisionLock } from "~/modules/items/items.server";
 import {
   BillOfMaterial,
   BillOfProcess,
   ItemDocuments,
   ItemNotes,
+  ItemRevisionStatus,
   ItemRiskRegister,
   MakeMethodTools
 } from "~/modules/items/ui/Item";
@@ -57,13 +65,17 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const requestedMethodId = url.searchParams.get("methodId");
 
-  const [makeMethods] = await Promise.all([
-    getMakeMethods(client, itemId, companyId)
+  const [makeMethods, revisionLock, controlledDrawing] = await Promise.all([
+    getMakeMethods(client, itemId, companyId),
+    getRevisionLock(client, { itemId, companyId }),
+    getControlledDrawing(client, { itemId, companyId })
     // client.storage
     //   .from("private")
     //   .list(`${companyId}/default-attachments/item/${itemId}`)
   ]);
   // const defaultAttachments = defaultAttachmentsResult.data ?? [];
+  const revisionStatus = revisionLock.revisionStatus;
+  const releaseControl = revisionLock.releaseControl;
 
   const makeMethod = requestedMethodId
     ? (makeMethods.data?.find((m) => m.id === requestedMethodId) ??
@@ -73,12 +85,24 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       makeMethods.data?.[0]);
 
   if (!makeMethod) {
-    return { methodData: null, tags: [] };
+    return {
+      methodData: null,
+      tags: [],
+      revisionStatus,
+      releaseControl,
+      controlledDrawing
+    };
   }
 
   const fullMethod = await getMakeMethodById(client, makeMethod.id, companyId);
   if (fullMethod.error || !fullMethod.data) {
-    return { methodData: null, tags: [] };
+    return {
+      methodData: null,
+      tags: [],
+      revisionStatus,
+      releaseControl,
+      controlledDrawing
+    };
   }
 
   const [methodMaterials, methodOperations, tags, partManufacturing] =
@@ -128,7 +152,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       partManufacturing: partManufacturing.data,
       ...configData
     },
-    tags: tags.data ?? []
+    tags: tags.data ?? [],
+    revisionStatus,
+    releaseControl,
+    controlledDrawing
   };
 }
 
@@ -219,12 +246,19 @@ export default function PartDetailsRoute() {
   if (!itemId) throw new Error("Could not find itemId");
 
   const permissions = usePermissions();
-  const { methodData, tags } = useLoaderData<typeof loader>();
+  const {
+    methodData,
+    tags,
+    revisionStatus,
+    releaseControl,
+    controlledDrawing
+  } = useLoaderData<typeof loader>();
 
   const partData = useRouteData<{
     partSummary: PartSummary;
     files: Promise<ItemFile[]>;
     makeMethods: Promise<PostgrestResponse<MakeMethod>>;
+    pendingRevisionChangeOrder: OpenChangeOrder | null;
   }>(path.to.part(itemId));
 
   if (!partData) throw new Error("Could not find part data");
@@ -239,6 +273,11 @@ export default function PartDetailsRoute() {
 
   return (
     <VStack spacing={2} className="p-2">
+      {revisionStatus && (
+        <HStack className="w-full justify-end px-2">
+          <ItemRevisionStatus status={revisionStatus} />
+        </HStack>
+      )}
       {permissions.is("employee") && methodData && (
         <>
           {["Make", "Buy and Make"].includes(
@@ -253,6 +292,7 @@ export default function PartDetailsRoute() {
                       makeMethods={makeMethods?.data ?? []}
                       type="Part"
                       currentMethodId={methodData.makeMethod.id}
+                      changeOrder={partData.pendingRevisionChangeOrder}
                     />
                   )}
                 </Await>
@@ -300,6 +340,8 @@ export default function PartDetailsRoute() {
                   methodData.configurationParametersAndGroups.parameters
                 }
                 replenishmentSystem={partData.partSummary?.replenishmentSystem}
+                revisionStatus={revisionStatus}
+                releaseControl={releaseControl}
               />
               <BillOfProcess
                 key={`bop:${itemId}`}
@@ -316,6 +358,8 @@ export default function PartDetailsRoute() {
                   methodData.configurationParametersAndGroups.parameters
                 }
                 tags={tags}
+                revisionStatus={revisionStatus}
+                releaseControl={releaseControl}
               />
             </>
           )}
@@ -329,6 +373,7 @@ export default function PartDetailsRoute() {
                 files={resolvedFiles}
                 itemId={itemId}
                 modelUpload={partData.partSummary ?? undefined}
+                controlledDrawing={controlledDrawing}
                 type="Part"
               />
             )}

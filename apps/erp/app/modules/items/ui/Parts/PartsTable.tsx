@@ -574,7 +574,7 @@ const PartsTable = memo(({ data, tags, count }: PartsTableProps) => {
             <MenuSub>
               <MenuSubTrigger>
                 <MenuIcon icon={<LuGitPullRequestArrow />} />
-                <Trans>Versions</Trans>
+                <Trans>Revisions</Trans>
               </MenuSubTrigger>
               <MenuSubContent>
                 {revisions.map((revision) => (

@@ -527,6 +527,35 @@ async function getDescription(
       return "Your approval request was rejected";
     }
 
+    case NotificationEvent.ChangeOrderSubmittedForReview:
+    case NotificationEvent.ChangeOrderApproved:
+    case NotificationEvent.ChangeOrderRejected:
+    case NotificationEvent.ChangeOrderReleased: {
+      const changeOrder = await client
+        .from("changeOrder")
+        .select("changeOrderId")
+        .eq("id", documentId)
+        .single();
+
+      if (changeOrder.error || !changeOrder.data) {
+        console.error("Failed to get changeOrder", changeOrder.error);
+        throw changeOrder.error;
+      }
+
+      const readableId = changeOrder.data.changeOrderId;
+      switch (type) {
+        case NotificationEvent.ChangeOrderSubmittedForReview:
+          return `Change order ${readableId} is ready for your review`;
+        case NotificationEvent.ChangeOrderApproved:
+          return `Change order ${readableId} was approved`;
+        case NotificationEvent.ChangeOrderRejected:
+          return `Change order ${readableId} was rejected`;
+        case NotificationEvent.ChangeOrderReleased:
+          return `Change order ${readableId} was released`;
+      }
+      return null;
+    }
+
     default:
       return null;
   }
@@ -547,6 +576,22 @@ const defaultDestinations: Partial<
     NotificationDestination.Slack
   ],
   [NotificationEvent.ApprovalRequested]: [
+    NotificationDestination.Email,
+    NotificationDestination.Slack
+  ],
+  [NotificationEvent.ChangeOrderApproved]: [
+    NotificationDestination.Email,
+    NotificationDestination.Slack
+  ],
+  [NotificationEvent.ChangeOrderRejected]: [
+    NotificationDestination.Email,
+    NotificationDestination.Slack
+  ],
+  [NotificationEvent.ChangeOrderReleased]: [
+    NotificationDestination.Email,
+    NotificationDestination.Slack
+  ],
+  [NotificationEvent.ChangeOrderSubmittedForReview]: [
     NotificationDestination.Email,
     NotificationDestination.Slack
   ],

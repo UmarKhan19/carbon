@@ -616,6 +616,9 @@ msgstr "影響なし"
 msgid "No maintenance scheduled for today"
 msgstr "本日のメンテナンス予定はありません"
 
+msgid "No matches. Type to create one."
+msgstr ""
+
 msgid "No materials"
 msgstr "材料なし"
 

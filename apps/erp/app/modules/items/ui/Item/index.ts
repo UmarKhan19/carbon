@@ -1,6 +1,10 @@
 import BillOfMaterial from "./BillOfMaterial";
 import BillOfProcess from "./BillOfProcess";
 import BoMExplorer, { BoMActions } from "./BoMExplorer";
+import {
+  ControlledDrawingLink,
+  useItemControlledDrawing
+} from "./ControlledDrawing";
 import { FileBadge } from "./FileBadge";
 import ItemCostingForm from "./ItemCostingForm";
 import ItemDescription from "./ItemDescription";
@@ -9,6 +13,7 @@ import ItemForm from "./ItemForm";
 import ItemNotes from "./ItemNotes";
 import ItemPlanningForm from "./ItemPlanningForm";
 import ItemPurchasingForm from "./ItemPurchasingForm";
+import ItemRevisionStatus from "./ItemRevisionStatus";
 import ItemRiskRegister from "./ItemRiskRegister";
 import ItemSalePriceForm from "./ItemSalePriceForm";
 import ItemSupersessionForm, {
@@ -16,16 +21,19 @@ import ItemSupersessionForm, {
 } from "./ItemSupersessionForm";
 import MakeMethodTools from "./MakeMethodTools";
 import PickMethodForm from "./PickMethodForm";
+import ReleaseLockAlert from "./ReleaseLockAlert";
 import { SelectedItemProperties } from "./SelectedItemProperties";
 import { SourcingTypeProperty } from "./SourcingTypeProperty";
 import SupplierPartForm from "./SupplierPartForm";
 import SupplierParts from "./SupplierParts";
+import UnderChangeOrderAlert from "./UnderChangeOrderAlert";
 
 export {
   BillOfMaterial,
   BillOfProcess,
   BoMActions,
   BoMExplorer,
+  ControlledDrawingLink,
   FileBadge,
   ItemCostingForm,
   ItemDescription,
@@ -34,14 +42,18 @@ export {
   ItemNotes,
   ItemPlanningForm,
   ItemPurchasingForm,
+  ItemRevisionStatus,
   ItemRiskRegister,
   ItemSupersessionForm,
   getItemLifecycleStatus,
   ItemSalePriceForm,
   MakeMethodTools,
   PickMethodForm,
+  ReleaseLockAlert,
   SelectedItemProperties,
   SourcingTypeProperty,
   SupplierPartForm,
-  SupplierParts
+  SupplierParts,
+  UnderChangeOrderAlert,
+  useItemControlledDrawing
 };
