@@ -1,6 +1,8 @@
 import { getAnsiColorFormatter, type TextFormatter } from "@logtape/logtape";
 
 const RESET = "\x1b[0m";
+const BOLD = "\x1b[1m";
+const DIM = "\x1b[2m";
 
 /** Morgan "dev"-style status color: red 5xx, yellow 4xx, cyan 3xx, green 2xx. */
 function statusColor(status: number): string {
@@ -32,9 +34,9 @@ export const httpDevFormatter: TextFormatter = getAnsiColorFormatter({
       // Truncate (not round) to at most 1 decimal — no padded trailing zero.
       const time =
         typeof responseTime === "number"
-          ? ` ${Math.trunc(responseTime * 10) / 10} ms`
+          ? ` ${DIM}${Math.trunc(responseTime * 10) / 10} ms${RESET}`
           : "";
-      line = `${method} ${pathname} ${statusColor(status)}${status}${RESET}${time}`;
+      line = `${BOLD}${method}${RESET} ${pathname} ${statusColor(status)}${status}${RESET}${time}`;
     }
 
     return `${timestamp ? `${timestamp} ` : ""}${level} ${category}: ${line}`;

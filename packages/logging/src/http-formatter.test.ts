@@ -21,7 +21,7 @@ describe("httpDevFormatter", () => {
     expect(line).toContain("carbon·http");
   });
 
-  it("renders the message portion as a morgan dev-style access line", () => {
+  it("renders the message portion as a morgan dev-style access line — bold method, dimmed duration", () => {
     const line = httpDevFormatter(
       record({
         method: "GET",
@@ -30,7 +30,9 @@ describe("httpDevFormatter", () => {
         responseTime: 12.34
       })
     );
-    expect(line).toContain("GET /dashboard \x1b[32m200\x1b[0m 12.3 ms");
+    expect(line).toContain(
+      "\x1b[1mGET\x1b[0m /dashboard \x1b[32m200\x1b[0m \x1b[2m12.3 ms\x1b[0m"
+    );
   });
 
   it("colors 3xx cyan, 4xx yellow, 5xx red", () => {
@@ -56,20 +58,20 @@ describe("httpDevFormatter", () => {
           responseTime: 12.36
         })
       )
-    ).toContain("GET /x \x1b[32m200\x1b[0m 12.3 ms");
+    ).toContain("\x1b[2m12.3 ms\x1b[0m");
     // Exact integer ms — no forced ".0".
     expect(
       httpDevFormatter(
         record({ method: "GET", pathname: "/x", status: 200, responseTime: 5 })
       )
-    ).toContain("GET /x \x1b[32m200\x1b[0m 5 ms");
+    ).toContain("\x1b[2m5 ms\x1b[0m");
   });
 
   it("omits response time when absent", () => {
     const line = httpDevFormatter(
       record({ method: "GET", pathname: "/x", status: 200 })
     );
-    expect(line).toContain("GET /x \x1b[32m200\x1b[0m");
+    expect(line).toContain("\x1b[1mGET\x1b[0m /x \x1b[32m200\x1b[0m");
     expect(line).not.toContain("ms");
   });
 
