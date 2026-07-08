@@ -7,13 +7,21 @@ function record(properties: Record<string, unknown>) {
     level: "debug",
     message: ["access log"],
     rawMessage: "access log",
-    timestamp: 0,
+    timestamp: Date.now(),
     properties
   } as never;
 }
 
 describe("httpDevFormatter", () => {
-  it("colors 2xx green", () => {
+  it("keeps the standard timestamp/level/category prefix", () => {
+    const line = httpDevFormatter(
+      record({ method: "GET", pathname: "/dashboard", status: 200 })
+    );
+    expect(line).toContain("DBG");
+    expect(line).toContain("carbon·http");
+  });
+
+  it("renders the message portion as a morgan dev-style access line", () => {
     const line = httpDevFormatter(
       record({
         method: "GET",
@@ -22,27 +30,7 @@ describe("httpDevFormatter", () => {
         responseTime: 12.34
       })
     );
-    expect(line).toBe("GET /dashboard \x1b[32m200\x1b[0m 12.3 ms");
-  });
-
-  it("truncates rather than rounds, and drops a padded trailing zero", () => {
-    // 12.36 rounds to 12.4 but truncates to 12.3 — must match truncation.
-    expect(
-      httpDevFormatter(
-        record({
-          method: "GET",
-          pathname: "/x",
-          status: 200,
-          responseTime: 12.36
-        })
-      )
-    ).toBe("GET /x \x1b[32m200\x1b[0m 12.3 ms");
-    // Exact integer ms — no forced ".0".
-    expect(
-      httpDevFormatter(
-        record({ method: "GET", pathname: "/x", status: 200, responseTime: 5 })
-      )
-    ).toBe("GET /x \x1b[32m200\x1b[0m 5 ms");
+    expect(line).toContain("GET /dashboard \x1b[32m200\x1b[0m 12.3 ms");
   });
 
   it("colors 3xx cyan, 4xx yellow, 5xx red", () => {
@@ -57,16 +45,36 @@ describe("httpDevFormatter", () => {
     ).toContain("\x1b[31m500\x1b[0m");
   });
 
+  it("truncates rather than rounds, and drops a padded trailing zero", () => {
+    // 12.36 rounds to 12.4 but truncates to 12.3 — must match truncation.
+    expect(
+      httpDevFormatter(
+        record({
+          method: "GET",
+          pathname: "/x",
+          status: 200,
+          responseTime: 12.36
+        })
+      )
+    ).toContain("GET /x \x1b[32m200\x1b[0m 12.3 ms");
+    // Exact integer ms — no forced ".0".
+    expect(
+      httpDevFormatter(
+        record({ method: "GET", pathname: "/x", status: 200, responseTime: 5 })
+      )
+    ).toContain("GET /x \x1b[32m200\x1b[0m 5 ms");
+  });
+
   it("omits response time when absent", () => {
     const line = httpDevFormatter(
       record({ method: "GET", pathname: "/x", status: 200 })
     );
-    expect(line).toBe("GET /x \x1b[32m200\x1b[0m");
+    expect(line).toContain("GET /x \x1b[32m200\x1b[0m");
+    expect(line).not.toContain("ms");
   });
 
-  it("falls back to ansiColorFormatter for non-access-log records", () => {
+  it("falls back to the default rendered message for non-access-log records", () => {
     const line = httpDevFormatter(record({ note: "not an access log" }));
-    expect(line).not.toBe("");
-    expect(line).not.toContain("undefined");
+    expect(line).toContain("access log");
   });
 });

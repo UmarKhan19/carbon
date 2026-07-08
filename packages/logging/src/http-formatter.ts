@@ -1,5 +1,4 @@
-import type { LogRecord, TextFormatter } from "@logtape/logtape";
-import { ansiColorFormatter } from "@logtape/logtape";
+import { getAnsiColorFormatter, type TextFormatter } from "@logtape/logtape";
 
 const RESET = "\x1b[0m";
 
@@ -13,27 +12,31 @@ function statusColor(status: number): string {
 }
 
 /**
- * Colored HTTP access-log line in the style of Morgan's "dev" format:
- * `GET /dashboard 200 12.3 ms`. Reads `method`/`pathname`/`status`/
- * `responseTime` off `record.properties` (set by `requestIdMiddleware`).
- * Falls back to `ansiColorFormatter` for any `carbon.http` record that
- * doesn't look like an access log (e.g. a manual `getLogger("http")` call).
+ * Same timestamp/level/category prefix as the standard `ansiColorFormatter`,
+ * but the message portion of an HTTP access-log record (set by
+ * `requestIdMiddleware`) renders Morgan "dev"-style: `GET /dashboard 200
+ * 12.3 ms`, with the status colored by range. Any `carbon.http` record that
+ * isn't a recognized access log (e.g. a manual `getLogger("http")` call)
+ * falls back to the normally-rendered message.
  */
-export const httpDevFormatter: TextFormatter = (record: LogRecord) => {
-  const { method, pathname, status, responseTime } = record.properties;
-  if (
-    typeof method !== "string" ||
-    typeof pathname !== "string" ||
-    typeof status !== "number"
-  ) {
-    return ansiColorFormatter(record);
-  }
+export const httpDevFormatter: TextFormatter = getAnsiColorFormatter({
+  format({ timestamp, level, category, message, record }) {
+    const { method, pathname, status, responseTime } = record.properties;
 
-  const color = statusColor(status);
-  // Truncate (not round) to at most 1 decimal — no padded trailing zero.
-  const time =
-    typeof responseTime === "number"
-      ? ` ${Math.trunc(responseTime * 10) / 10} ms`
-      : "";
-  return `${method} ${pathname} ${color}${status}${RESET}${time}`;
-};
+    let line = message;
+    if (
+      typeof method === "string" &&
+      typeof pathname === "string" &&
+      typeof status === "number"
+    ) {
+      // Truncate (not round) to at most 1 decimal — no padded trailing zero.
+      const time =
+        typeof responseTime === "number"
+          ? ` ${Math.trunc(responseTime * 10) / 10} ms`
+          : "";
+      line = `${method} ${pathname} ${statusColor(status)}${status}${RESET}${time}`;
+    }
+
+    return `${timestamp ? `${timestamp} ` : ""}${level} ${category}: ${line}`;
+  }
+});
