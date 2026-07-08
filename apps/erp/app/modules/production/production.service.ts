@@ -3210,6 +3210,33 @@ export async function replaceJobMaterialSteps(
   );
 }
 
+// Toggle a single part↔step link from the STEP side (the step editor's Parts picker).
+// `linked` true = link the material to the step, false = unlink. Idempotent on link.
+export async function setJobMaterialStepLink(
+  client: SupabaseClient<Database>,
+  args: { jobMaterialId: string; jobOperationStepId: string; linked: boolean }
+) {
+  if (args.linked) {
+    return client.from("jobMaterialStep").upsert(
+      [
+        {
+          jobMaterialId: args.jobMaterialId,
+          jobOperationStepId: args.jobOperationStepId
+        }
+      ],
+      {
+        onConflict: "jobMaterialId,jobOperationStepId",
+        ignoreDuplicates: true
+      }
+    );
+  }
+  return client
+    .from("jobMaterialStep")
+    .delete()
+    .eq("jobMaterialId", args.jobMaterialId)
+    .eq("jobOperationStepId", args.jobOperationStepId);
+}
+
 export async function upsertJobMethod(
   client: SupabaseClient<Database>,
   type: "itemToJob" | "quoteLineToJob",

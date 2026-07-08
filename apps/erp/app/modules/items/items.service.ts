@@ -3996,6 +3996,37 @@ export async function replaceMethodMaterialSteps(
   );
 }
 
+// Toggle a single part↔step link from the STEP side (the step editor's Parts picker).
+// `linked` true = link the material to the step, false = unlink. Idempotent on link.
+export async function setMethodMaterialStepLink(
+  client: SupabaseClient<Database>,
+  args: {
+    methodMaterialId: string;
+    methodOperationStepId: string;
+    linked: boolean;
+  }
+) {
+  if (args.linked) {
+    return client.from("methodMaterialStep").upsert(
+      [
+        {
+          methodMaterialId: args.methodMaterialId,
+          methodOperationStepId: args.methodOperationStepId
+        }
+      ],
+      {
+        onConflict: "methodMaterialId,methodOperationStepId",
+        ignoreDuplicates: true
+      }
+    );
+  }
+  return client
+    .from("methodMaterialStep")
+    .delete()
+    .eq("methodMaterialId", args.methodMaterialId)
+    .eq("methodOperationStepId", args.methodOperationStepId);
+}
+
 export async function upsertMaterial(
   client: SupabaseClient<Database>,
   material:

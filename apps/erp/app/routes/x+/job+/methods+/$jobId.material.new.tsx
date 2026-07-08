@@ -9,11 +9,10 @@ import {
   jobMaterialValidator,
   recalculateJobMakeMethodRequirements,
   recalculateJobOperationDependencies,
-  replaceJobMaterialSteps,
   upsertJobMaterial,
   upsertJobMaterialMakeMethod
 } from "~/modules/production";
-import { getFormDataArray, setCustomFields } from "~/utils/form";
+import { setCustomFields } from "~/utils/form";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
@@ -66,20 +65,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
-  // Per-step assignment (part ↔ step is many-to-many). Read from formData directly and write
-  // jobMaterialStep rows after the material exists.
-  const jobOperationStepIds = getFormDataArray(formData, "jobOperationStepIds");
-  const stepLink = await replaceJobMaterialSteps(
-    serviceRole,
-    jobMaterialId,
-    jobOperationStepIds
-  );
-  if (stepLink.error) {
-    return data(
-      { id: jobMaterialId },
-      await flash(request, error(stepLink.error, "Failed to link part to steps"))
-    );
-  }
+  // Part ↔ step links are managed from the STEP side (the BoP step editor's "Parts" picker),
+  // so the material save no longer touches jobMaterialStep.
 
   // Check if job is released (not Draft or Planned)
   const job = await serviceRole

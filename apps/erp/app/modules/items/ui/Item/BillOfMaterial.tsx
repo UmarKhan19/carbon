@@ -72,7 +72,6 @@ import {
   Hidden,
   Item,
   Location,
-  MultiSelect,
   Number,
   Select,
   StorageUnit,
@@ -1121,34 +1120,8 @@ function MaterialForm({
               }));
             }}
           />
-          {/* Part ↔ step (many-to-many): tag the step(s) where this part is used so the MES
-              can show it there. Display-only — quantity/issuing stays at the part level, so
-              multiple steps never multiply the requirement. No selection = the MES "General"
-              bucket (shown on every step). */}
-          {(() => {
-            const operationSteps =
-              methodOperations.find(
-                (o) => o.id === itemData.methodOperationId
-              )?.methodOperationStep ?? [];
-            if (operationSteps.length === 0) return null;
-            return (
-              <MultiSelect
-                name="methodOperationStepIds"
-                label={t`Steps`}
-                value={itemData.methodOperationStepIds ?? []}
-                options={operationSteps.map((s) => ({
-                  value: s.id,
-                  label: s.name ?? t`Step`
-                }))}
-                onChange={(values) =>
-                  setItemData((d) => ({
-                    ...d,
-                    methodOperationStepIds: (values ?? []).map((v) => v.value)
-                  }))
-                }
-              />
-            );
-          })()}
+          {/* Part ↔ step assignment now lives on the STEP (the BoP step editor's "Parts"
+              picker), not here — so there is no per-material "Steps" dropdown in the BOM. */}
         </div>
       </div>
 

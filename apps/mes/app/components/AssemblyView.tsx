@@ -38,10 +38,7 @@ import { formatDurationMilliseconds } from "@carbon/utils";
 import { getLocalTimeZone } from "@internationalized/date";
 import { useEffect, useRef, useState } from "react";
 import {
-  LuBarcode,
   LuCheck,
-  LuChevronLeft,
-  LuChevronRight,
   LuCircle,
   LuCircleCheck,
   LuCircleDot,
@@ -59,7 +56,6 @@ import {
   LuListFilter,
   LuPause,
   LuPlay,
-  LuPrinter,
   LuQrCode,
   LuSkipForward,
   LuTimer,
@@ -217,17 +213,6 @@ const TYPE_ORDER = [
   "Fixture",
   "Tool",
   "Service"
-];
-
-// Increasing bar heights for the unit-progress "signal" flourish in the header.
-const SIGNAL_HEIGHTS = [
-  "h-1.5",
-  "h-2",
-  "h-2.5",
-  "h-3",
-  "h-3.5",
-  "h-4",
-  "h-[18px]"
 ];
 
 // Walk a TipTap/ProseMirror doc and collect text (incl. @mention labels).
@@ -546,28 +531,29 @@ export function AssemblyView({
   );
   const step = steps[currentStep] ?? null;
 
-  // Part ↔ step (many-to-many) is display-only "where used" metadata. Quantity and issuing
-  // live on the jobMaterial (the part), so a part is shown ONCE no matter how many steps use
-  // it — the requirement is never multiplied and issuing it once marks it fulfilled
-  // everywhere. Order by relevance: used at the current step first, then unassigned
-  // ("General", applies to every step), then parts used only at other steps.
+  // Part ↔ step (many-to-many): a part is shown ONLY on the step(s) it's assigned to. Parts
+  // with NO step link are unassigned and show on every step ("General"). Quantity and issuing
+  // live on the jobMaterial (the part), so showing it on several assigned steps never
+  // multiplies the requirement — issuing it once marks it fulfilled everywhere.
   const stepNumberById = new Map(steps.map((s, i) => [s.id, i + 1] as const));
   const allMaterials: any[] = materials?.materials ?? [];
-  const materialRank = (m: any) => {
-    const ids: string[] = m.jobOperationStepIds ?? [];
-    if (step?.id != null && ids.includes(step.id)) return 0;
-    if (ids.length === 0) return 1;
-    return 2;
-  };
-  const consolidatedMaterials: any[] = [...allMaterials].sort((a, b) => {
-    const r = materialRank(a) - materialRank(b);
-    if (r !== 0) return r;
-    const at = TYPE_ORDER.indexOf(a.itemType ?? "");
-    const bt = TYPE_ORDER.indexOf(b.itemType ?? "");
-    return (at < 0 ? 99 : at) - (bt < 0 ? 99 : bt);
-  });
+  const isGeneralMaterial = (m: any) =>
+    (m.jobOperationStepIds ?? []).length === 0;
+  const isOnCurrentStep = (m: any) =>
+    step?.id != null && (m.jobOperationStepIds ?? []).includes(step.id);
+  // Visible here = parts assigned to the current step + unassigned (General) parts. Parts
+  // assigned only to other steps are hidden. Assigned parts sort first, General after.
+  const visibleMaterials: any[] = allMaterials
+    .filter((m) => isOnCurrentStep(m) || isGeneralMaterial(m))
+    .sort((a, b) => {
+      const r = (isOnCurrentStep(a) ? 0 : 1) - (isOnCurrentStep(b) ? 0 : 1);
+      if (r !== 0) return r;
+      const at = TYPE_ORDER.indexOf(a.itemType ?? "");
+      const bt = TYPE_ORDER.indexOf(b.itemType ?? "");
+      return (at < 0 ? 99 : at) - (bt < 0 ? 99 : bt);
+    });
   // Drives the tracked-scan pre-select below (a part still needing issue).
-  const rawMaterials: any[] = allMaterials;
+  const rawMaterials: any[] = visibleMaterials;
 
   // Phase 2 (tool ↔ step, many-to-many): show only the tools involved in the current step —
   // a tool scoped to steps (jobOperationStepIds) appears on those steps; operation-level tools
@@ -627,18 +613,9 @@ export function AssemblyView({
   const currentUnit = units[currentUnitIndex] ?? units[0];
   const currentEntity = currentUnit?.entity ?? undefined;
 
-  // FIX-2: the old `isSerial` was true for batch and false for untracked — it actually
-  // means "there is more than one unit to page through", for any tracking type.
-  const hasUnits = units.length > 1;
-
   // Step records key off the unit index for ALL tracking types, identical to the
   // Operation view (FIX-1 / FIX-5) — this is what isolates unit i's records.
   const activeIndex = currentUnitIndex;
-  const displayUnitIndex = currentUnitIndex;
-
-  const prevUnit = currentUnitIndex > 0 ? units[currentUnitIndex - 1] : null;
-  const nextUnit =
-    currentUnitIndex < units.length - 1 ? units[currentUnitIndex + 1] : null;
 
   const isStepDone = (step: Step) =>
     (step.jobOperationStepRecord ?? []).some((r) => r.index === activeIndex);
@@ -730,25 +707,6 @@ export function AssemblyView({
   // Navigate to a unit by its axis position. Tracked units key off their entity (the
   // loader refetches that entity's materials); untracked units key off ?unit (no entity
   // to scan — FIX-3/FIX-4), which the loader resolves without a tracked entity.
-  function navigateToUnit(unit: {
-    index: number;
-    entity: { id: string } | null;
-  }) {
-    if (unit.entity) {
-      navigateEntity(unit.entity);
-      return;
-    }
-    setSearchParams(
-      (prev) => {
-        const next = new URLSearchParams(prev);
-        next.set("unit", String(unit.index));
-        next.delete("trackedEntityId");
-        return next;
-      },
-      { replace: true, preventScrollReset: true }
-    );
-  }
-
   const companyLogo =
     mode === "dark" ? user.company.logoDarkIcon : user.company.logoLightIcon;
 
@@ -785,90 +743,6 @@ export function AssemblyView({
           ) : null}
         </div>
 
-        {hasUnits && (
-          <div className="flex h-full shrink-0 items-center gap-1.5 border-r border-border px-2 md:gap-3 md:px-5">
-            <span className="whitespace-nowrap text-sm font-medium">
-              Unit <span className="font-bold">{displayUnitIndex + 1}</span>{" "}
-              <span className="text-muted-foreground">of {units.length}</span>
-            </span>
-            <div className="hidden h-[18px] items-end gap-0.5 md:flex">
-              {SIGNAL_HEIGHTS.map((h, i) => {
-                const filled =
-                  i <=
-                  Math.floor(
-                    ((displayUnitIndex + 1) / units.length) *
-                      SIGNAL_HEIGHTS.length
-                  );
-                return (
-                  <div
-                    key={h}
-                    className={cn(
-                      "w-[3px] rounded-sm",
-                      h,
-                      filled ? "bg-foreground" : "bg-muted-foreground/30"
-                    )}
-                  />
-                );
-              })}
-            </div>
-            <div className="flex">
-              <Button
-                variant="ghost"
-                size="md"
-                isIcon
-                aria-label="Previous unit"
-                isDisabled={!prevUnit}
-                onClick={() => prevUnit && navigateToUnit(prevUnit)}
-              >
-                <LuChevronLeft />
-              </Button>
-              <Button
-                variant="ghost"
-                size="md"
-                isIcon
-                aria-label="Next unit"
-                isDisabled={!nextUnit}
-                onClick={() => nextUnit && navigateToUnit(nextUnit)}
-              >
-                <LuChevronRight />
-              </Button>
-              {/* Scan + print-label are entity-specific — hidden when the current unit
-                  has no tracked identity (untracked parents). */}
-              {currentEntity && (
-                <>
-                  <Button
-                    variant="ghost"
-                    size="md"
-                    isIcon
-                    aria-label="Select unit"
-                    className="hidden sm:inline-flex"
-                    onClick={serialModal.onOpen}
-                  >
-                    <LuBarcode />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="md"
-                    isIcon
-                    aria-label="Print label"
-                    className="hidden sm:inline-flex"
-                    onClick={() =>
-                      window.open(
-                        window.location.origin +
-                          path.to.file.operationLabelsPdf(operationId, {
-                            trackedEntityId: currentEntity?.id
-                          }),
-                        "_blank"
-                      )
-                    }
-                  >
-                    <LuPrinter />
-                  </Button>
-                </>
-              )}
-            </div>
-          </div>
-        )}
 
         <div className="flex-1" />
 
@@ -1363,13 +1237,13 @@ export function AssemblyView({
         {/* ── SIDEBAR: materials, tools, NCRs, parameters ── */}
         <aside className="flex w-full shrink-0 flex-col border-t border-border bg-card lg:w-[280px] lg:overflow-hidden lg:border-l lg:border-t-0 xl:w-[320px]">
           <div className="flex flex-col lg:min-h-0 lg:flex-1 lg:overflow-hidden">
-            {/* One authoritative Parts list for the whole operation: each part appears once
-                with its part-level quantity/issue status and chips for the step(s) it's used
-                at (or "General" if unassigned). Parts used at the current step sort to the
-                top and are highlighted. Rendering once makes double-counting impossible. */}
-            {consolidatedMaterials.length > 0 ? (
+            {/* Parts assigned to this step (+ unassigned "General" parts). Each part appears
+                once with its part-level quantity/issue status and chips for the step(s) it's
+                assigned to; the current step's chip is highlighted. Rendering once keeps the
+                requirement from ever being double-counted. */}
+            {visibleMaterials.length > 0 ? (
               <SidebarSection title="Parts" scrollable>
-                {consolidatedMaterials.map((m, i) => {
+                {visibleMaterials.map((m, i) => {
                   const stepNumbers = ((m.jobOperationStepIds ?? []) as string[])
                     .map((id) => stepNumberById.get(id))
                     .filter((n): n is number => n != null)
@@ -1745,7 +1619,10 @@ export function AssemblyView({
         onClose={imageViewer.onClose}
       />
 
-      {operation && autoStartOperationTimer && (
+      {/* Only auto-start when the operation actually has a timer to track (a configured
+          Setup/Labor/Machine duration). With no work types there's nothing to time, so we
+          don't start a stray Labor event. */}
+      {operation && autoStartOperationTimer && workTypes.length > 0 && (
         <AutoTimer
           operationId={operationId}
           enabled={autoStartOperationTimer}
@@ -2032,7 +1909,7 @@ function MaterialRow({
       <div className="flex flex-wrap items-center gap-1 pl-[22px]">
         {isGeneral ? (
           <span className="rounded-full bg-muted px-1.5 py-px text-[9px] font-medium text-muted-foreground">
-            General
+            NA
           </span>
         ) : (
           stepNumbers.map((n) => (

@@ -127,6 +127,7 @@ import { ProcedureStepTypeIcon } from "~/components/Icons";
 import InfiniteScroll from "~/components/InfiniteScroll";
 import { ConfirmDelete } from "~/components/Modals";
 import { SlidesEditor } from "~/components/SlidesEditor";
+import { StepPartsEditor } from "~/components/StepPartsEditor";
 import type { Item, SortableItemRenderProps } from "~/components/SortableList";
 import { SortableList, SortableListItem } from "~/components/SortableList";
 import {
@@ -192,7 +193,12 @@ type JobOperationStep = OperationStep & {
 };
 
 type JobMaterial = {
+  id: string;
   itemId: string;
+  description?: string | null;
+  quantity?: number | null;
+  jobOperationId?: string | null;
+  jobMaterialStep?: { jobOperationStepId: string }[] | null;
 };
 
 type JobBillOfProcessProps = {
@@ -1229,6 +1235,21 @@ function StepsForm({
   const [draftUploading, setDraftUploading] = useState(false);
   const draftFileInputRef = useRef<HTMLInputElement>(null);
 
+  // Parts (this operation's BOM materials) the operator can assign to a step. Parts picked
+  // while CREATING a step are buffered here and attached right after the step is created.
+  const operationParts = useMemo(
+    () =>
+      (materials ?? [])
+        .filter((m) => m.jobOperationId === operationId)
+        .map((m) => ({
+          id: m.id,
+          name: m.description || m.itemId,
+          quantity: m.quantity ?? 1
+        })),
+    [materials, operationId]
+  );
+  const [draftParts, setDraftParts] = useState<string[]>([]);
+
   const materialItemIds = useMemo(
     () => new Set((materials ?? []).map((m) => m.itemId)),
     [materials]
@@ -1320,6 +1341,32 @@ function StepsForm({
         return;
       }
       setDraftSlides([]);
+      revalidator.revalidate();
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [fetcher.data]);
+
+  // When the new step is created, attach any buffered parts, then revalidate + reset.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: keyed off the created step id
+  useEffect(() => {
+    const newStepId = (fetcher.data as { id?: string | null } | undefined)?.id;
+    if (!newStepId || draftParts.length === 0 || !carbon) return;
+    let cancelled = false;
+    (async () => {
+      const { error } = await carbon.from("jobMaterialStep").insert(
+        draftParts.map((jobMaterialId) => ({
+          jobMaterialId,
+          jobOperationStepId: newStepId
+        }))
+      );
+      if (cancelled) return;
+      if (error) {
+        toast.error(t`Failed to save parts`);
+        return;
+      }
+      setDraftParts([]);
       revalidator.revalidate();
     })();
     return () => {
@@ -1488,6 +1535,20 @@ function StepsForm({
                 }
               />
 
+              <StepPartsEditor
+                parts={operationParts}
+                linkedPartIds={draftParts}
+                isDisabled={isDisabled}
+                onAdd={(partId) =>
+                  setDraftParts((prev) =>
+                    prev.includes(partId) ? prev : [...prev, partId]
+                  )
+                }
+                onRemove={(partId) =>
+                  setDraftParts((prev) => prev.filter((id) => id !== partId))
+                }
+              />
+
               <Submit
                 leftIcon={<LuCirclePlus />}
                 isDisabled={isDisabled || fetcher.state !== "idle"}
@@ -1529,6 +1590,7 @@ function StepsForm({
                       attribute={step}
                       operationId={operationId}
                       typeOptions={typeOptions}
+                      materials={materials}
                       isDisabled={isDisabled}
                       dragControls={dragControls}
                       itemMentions={itemMentions}
@@ -1544,6 +1606,61 @@ function StepsForm({
         </div>
       )}
     </Loading>
+  );
+}
+
+// Parts assigned to an EXISTING job step — the step-side of the part↔step link. Toggles each
+// jobMaterialStep link immediately via the material route. Job-tier twin of StepParts.
+function JobStepParts({
+  step,
+  operationId,
+  materials,
+  isDisabled
+}: {
+  step: JobOperationStep;
+  operationId: string;
+  materials: JobMaterial[];
+  isDisabled: boolean;
+}) {
+  const fetcher = useFetcher();
+
+  const operationParts = (materials ?? [])
+    .filter((m) => m.jobOperationId === operationId)
+    .map((m) => ({
+      id: m.id,
+      name: m.description || m.itemId,
+      quantity: m.quantity ?? 1
+    }));
+
+  const linkedPartIds = (materials ?? [])
+    .filter((m) =>
+      (m.jobMaterialStep ?? []).some(
+        (s) => s.jobOperationStepId === step.id
+      )
+    )
+    .map((m) => m.id);
+
+  const toggle = (partId: string, linked: boolean) => {
+    if (!step.id) return;
+    const fd = new FormData();
+    fd.append("materialId", partId);
+    fd.append("stepId", step.id);
+    fd.append("linked", String(linked));
+    fetcher.submit(fd, {
+      method: "post",
+      action: path.to.jobOperationStepMaterial
+    });
+  };
+
+  return (
+    <StepPartsEditor
+      parts={operationParts}
+      linkedPartIds={linkedPartIds}
+      isDisabled={isDisabled}
+      busy={fetcher.state !== "idle"}
+      onAdd={(id) => toggle(id, true)}
+      onRemove={(id) => toggle(id, false)}
+    />
   );
 }
 
@@ -1683,6 +1800,7 @@ function StepsListItem({
   attribute,
   operationId,
   typeOptions,
+  materials,
   isDisabled = false,
   dragControls,
   itemMentions,
@@ -1691,6 +1809,7 @@ function StepsListItem({
   attribute: JobOperationStep;
   operationId: string;
   typeOptions: { label: JSX.Element; value: string }[];
+  materials: JobMaterial[];
   isDisabled?: boolean;
   dragControls?: DragControls;
   itemMentions: { id: string; label: string }[];
@@ -1880,6 +1999,12 @@ function StepsListItem({
               <ArrayInput name="listValues" label={t`List Options`} />
             )}
             <JobStepSlides step={attribute} isDisabled={isDisabled} />
+            <JobStepParts
+              step={attribute}
+              operationId={operationId}
+              materials={materials}
+              isDisabled={isDisabled}
+            />
             <HStack className="w-full justify-end" spacing={2}>
               <Button variant="secondary" onClick={disclosure.onClose}>
                 Cancel

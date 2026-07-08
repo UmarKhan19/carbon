@@ -110,6 +110,7 @@ import { ProcedureStepTypeIcon } from "~/components/Icons";
 import { ConfirmDelete } from "~/components/Modals";
 import type { Item, SortableItemRenderProps } from "~/components/SortableList";
 import { SlidesEditor } from "~/components/SlidesEditor";
+import { StepPartsEditor } from "~/components/StepPartsEditor";
 import { SortableList, SortableListItem } from "~/components/SortableList";
 import { useDateFormatter, usePermissions, useUser } from "~/hooks";
 import { useTags } from "~/hooks/useTags";
@@ -156,7 +157,12 @@ type ItemWithData = Item & {
 };
 
 type MethodMaterialType = {
+  id: string;
   itemId: string;
+  description?: string | null;
+  quantity?: number | null;
+  methodOperationId?: string | null;
+  methodMaterialStep?: { methodOperationStepId: string }[] | null;
 };
 
 type BillOfProcessProps = {
@@ -672,6 +678,7 @@ const BillOfProcess = ({
             <AttributesForm
               steps={steps}
               tools={tools}
+              materials={materials}
               operationId={item.id!}
               temporaryItems={temporaryItems}
               isDisabled={
@@ -1765,6 +1772,7 @@ function AttributesForm({
   isDisabled,
   steps,
   tools,
+  materials,
   temporaryItems,
   rulesByField,
   onConfigure,
@@ -1775,6 +1783,7 @@ function AttributesForm({
   isDisabled: boolean;
   steps: OperationStep[];
   tools: OperationTool[];
+  materials: MethodMaterialType[];
   temporaryItems: TemporaryItems;
   rulesByField: Map<string, ConfigurationRule>;
   onConfigure?: (c: Configuration) => void;
@@ -1860,6 +1869,21 @@ function AttributesForm({
   const [draftUploading, setDraftUploading] = useState(false);
   const draftFileInputRef = useRef<HTMLInputElement>(null);
 
+  // Parts (this operation's BOM materials) the operator can assign to a step. Parts picked
+  // while CREATING a step are buffered here and attached right after the step is created.
+  const operationParts = useMemo(
+    () =>
+      (materials ?? [])
+        .filter((m) => m.methodOperationId === operationId)
+        .map((m) => ({
+          id: m.id,
+          name: m.description || m.itemId,
+          quantity: m.quantity ?? 1
+        })),
+    [materials, operationId]
+  );
+  const [draftParts, setDraftParts] = useState<string[]>([]);
+
   const onUploadImage = async (file: File) => {
     const fileType = file.name.split(".").pop();
     const fileName = `${companyId}/parts/${nanoid()}.${fileType}`;
@@ -1935,6 +1959,32 @@ function AttributesForm({
         return;
       }
       setDraftSlides([]);
+      revalidator.revalidate();
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [fetcher.data]);
+
+  // When the new step is created, attach any buffered parts, then revalidate + reset.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: keyed off the created step id
+  useEffect(() => {
+    const newStepId = (fetcher.data as { id?: string | null } | undefined)?.id;
+    if (!newStepId || draftParts.length === 0 || !carbon) return;
+    let cancelled = false;
+    (async () => {
+      const { error } = await carbon.from("methodMaterialStep").insert(
+        draftParts.map((methodMaterialId) => ({
+          methodMaterialId,
+          methodOperationStepId: newStepId
+        }))
+      );
+      if (cancelled) return;
+      if (error) {
+        toast.error(t`Failed to save parts`);
+        return;
+      }
+      setDraftParts([]);
       revalidator.revalidate();
     })();
     return () => {
@@ -2102,6 +2152,20 @@ function AttributesForm({
                 }
               />
 
+              <StepPartsEditor
+                parts={operationParts}
+                linkedPartIds={draftParts}
+                isDisabled={isDisabled}
+                onAdd={(partId) =>
+                  setDraftParts((prev) =>
+                    prev.includes(partId) ? prev : [...prev, partId]
+                  )
+                }
+                onRemove={(partId) =>
+                  setDraftParts((prev) => prev.filter((id) => id !== partId))
+                }
+              />
+
               <Submit
                 leftIcon={<LuCirclePlus />}
                 isDisabled={isDisabled || fetcher.state !== "idle"}
@@ -2137,6 +2201,7 @@ function AttributesForm({
                       attribute={step}
                       operationId={operationId}
                       typeOptions={typeOptions}
+                      materials={materials}
                       isDisabled={isDisabled}
                       dragControls={dragControls}
                       className={
@@ -2189,6 +2254,7 @@ function AttributesListItem({
   attribute,
   operationId,
   typeOptions,
+  materials,
   className,
   configurable,
   rulesByField,
@@ -2200,6 +2266,7 @@ function AttributesListItem({
   attribute: OperationStep;
   operationId: string;
   typeOptions: { label: JSX.Element; value: string }[];
+  materials: MethodMaterialType[];
   className?: string;
   configurable: boolean;
   rulesByField: Map<string, ConfigurationRule>;
@@ -2439,6 +2506,12 @@ function AttributesListItem({
               <ArrayInput name="listValues" label={t`List Options`} />
             )}
             <StepSlides step={attribute} isDisabled={isDisabled} />
+            <StepParts
+              step={attribute}
+              operationId={operationId}
+              materials={materials}
+              isDisabled={isDisabled}
+            />
             <HStack className="w-full justify-end" spacing={2}>
               <Button variant="secondary" onClick={disclosure.onClose}>
                 Cancel
@@ -2627,6 +2700,62 @@ function AttributesListItem({
         />
       )}
     </div>
+  );
+}
+
+// Parts assigned to an EXISTING step — the step-side of the part↔step link. Lists this
+// operation's BOM parts and toggles each link immediately via the material route. Replaces
+// the old BOM "Steps" dropdown (assignment now lives on the step).
+function StepParts({
+  step,
+  operationId,
+  materials,
+  isDisabled
+}: {
+  step: OperationStep;
+  operationId: string;
+  materials: MethodMaterialType[];
+  isDisabled: boolean;
+}) {
+  const fetcher = useFetcher();
+
+  const operationParts = (materials ?? [])
+    .filter((m) => m.methodOperationId === operationId)
+    .map((m) => ({
+      id: m.id,
+      name: m.description || m.itemId,
+      quantity: m.quantity ?? 1
+    }));
+
+  const linkedPartIds = (materials ?? [])
+    .filter((m) =>
+      (m.methodMaterialStep ?? []).some(
+        (s) => s.methodOperationStepId === step.id
+      )
+    )
+    .map((m) => m.id);
+
+  const toggle = (partId: string, linked: boolean) => {
+    if (!step.id) return;
+    const fd = new FormData();
+    fd.append("materialId", partId);
+    fd.append("stepId", step.id);
+    fd.append("linked", String(linked));
+    fetcher.submit(fd, {
+      method: "post",
+      action: path.to.methodOperationStepMaterial
+    });
+  };
+
+  return (
+    <StepPartsEditor
+      parts={operationParts}
+      linkedPartIds={linkedPartIds}
+      isDisabled={isDisabled}
+      busy={fetcher.state !== "idle"}
+      onAdd={(id) => toggle(id, true)}
+      onRemove={(id) => toggle(id, false)}
+    />
   );
 }
 
