@@ -185,8 +185,6 @@ export const syncExternalAccountingFunction = inngest.createFunction(
       }
     } catch (error) {
       console.error("Sync task failed:", error);
-    } finally {
-      await pool.end();
     }
 
     return results;
