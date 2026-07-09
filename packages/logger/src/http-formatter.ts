@@ -72,7 +72,7 @@ export const httpDevFormatter: TextFormatter = getAnsiColorFormatter({
           ? ` ${DIM}${Math.trunc(responseTime * 10) / 10} ms${RESET}`
           : "";
       const methodColor = METHOD_COLOR[method] ?? RESET;
-      line = `${BOLD}${methodColor}${method}${RESET} ${pathname}${query} ${statusColor(status)}${status}${RESET}${time}`;
+      line = `${BOLD}${methodColor}${method}${RESET} ${statusColor(status)}${status}${RESET} ${pathname}${query}${time}`;
       // The Morgan line only renders method/path/status/time, so a captured
       // request body (debug only, already redacted) would otherwise be dropped
       // — append it dimmed on its own line.

@@ -49,7 +49,7 @@ describe("httpDevFormatter", () => {
       })
     );
     expect(line).toContain(
-      "\x1b[1m\x1b[32mGET\x1b[0m /dashboard \x1b[32m200\x1b[0m \x1b[2m12.3 ms\x1b[0m"
+      "\x1b[1m\x1b[32mGET\x1b[0m \x1b[32m200\x1b[0m /dashboard \x1b[2m12.3 ms\x1b[0m"
     );
   });
 
@@ -103,7 +103,7 @@ describe("httpDevFormatter", () => {
     const line = httpDevFormatter(
       record({ method: "GET", pathname: "/x", status: 200 })
     );
-    expect(line).toContain("\x1b[1m\x1b[32mGET\x1b[0m /x \x1b[32m200\x1b[0m");
+    expect(line).toContain("\x1b[1m\x1b[32mGET\x1b[0m \x1b[32m200\x1b[0m /x");
     expect(line).not.toContain("ms");
   });
 
