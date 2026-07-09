@@ -105,3 +105,23 @@ Format: `Context → Problem → Rule → Applies to`
 **Rule:** In SQL functions: (1) any UPDATE issued by a trigger/interceptor that other interceptors may react to must stamp `"updatedBy"` (from the payload's `createdBy`/`updatedBy`) and `"updatedAt"`; (2) never write a payload user field into a NOT NULL column without a fallback — `COALESCE(p_new->>'updatedBy', p_new->>'createdBy')` (`createdBy` is NOT NULL on source tables); (3) functions taking `p_user_id` that write audit columns must not default it to NULL, or must guard right after `BEGIN` with a fallback to the entity's `createdBy` (see `20260706182830_fix-null-user-audit-columns.sql`). When forking a large function to add such a guard, extract the newest body verbatim (sed) and diff-verify instead of retyping.
 
 **Applies to:** `packages/database/supabase/migrations/` — all `sync_*` interceptors and any PL/pgSQL function writing `createdBy`/`updatedBy`/`postedBy`; reviews of new event-system interceptors.
+
+## A LANGUAGE sql set-returning function's internal ORDER BY is not guaranteed through PostgREST
+
+**Context:** `get_available_tracked_entities` (a `LANGUAGE sql STABLE` set-returning function) was extended with a `p_sort_method` param and a CASE-based `ORDER BY` (FEFO/FIFO/LIFO) to power an on-the-fly picking suggestion. FEFO worked, but calling the RPC for FIFO returned rows in the wrong order — its only effective sort key was the trailing `te."createdAt" ASC`, which came back unordered. Adding an explicit outer `ORDER BY "createdAt"` at the call site fixed it, proving the function's internal order was being dropped.
+
+**Problem:** The Postgres planner **inlines** simple `LANGUAGE sql` functions into the calling query; when the caller (here, PostgREST via `client.rpc(...)`) supplies no outer `ORDER BY`, the inlined subquery's `ORDER BY` can be optimized away. Ordering that leads with a real indexed/leading column (expiration for FEFO) may survive by luck; ordering whose only key is a trailing column silently does not. Unit tests and typecheck can't catch this — only real-data querying does.
+
+**Rule:** Do not rely on a `LANGUAGE sql` set-returning function's internal `ORDER BY` to reach the app. Either (a) sort authoritatively in the app after the RPC returns (return the sort columns and order in TS — see `apps/mes/app/services/allocation.ts` `sortLotsByPickMethod`, applied in `getSuggestedAllocationForMaterial`), or (b) if ordering must live in SQL, use `LANGUAGE plpgsql` with `RETURN QUERY ... ORDER BY` (plpgsql is never inlined). Always verify RPC ordering against seeded real data, not just unit tests.
+
+**Applies to:** `packages/database/supabase/migrations/` set-returning `LANGUAGE sql` functions consumed via `client.rpc(...)`; any app code that greedy-fills / picks "the first row" from an RPC result.
+
+## Tracked consumption/split must book against the entity's ACTUAL bin, not an arbitrary ledger row
+
+**Context:** Building "return unused picks at job complete" surfaced a pre-existing bug in the `issue` edge function (`trackedEntitiesToOperation`). Consuming a batch that had been picked to a lineside shelf booked the Consumption + split `itemLedger` rows against `itemLedgers.find(il => il.trackedEntityId === id)?.storageUnitId` — the FIRST row for the entity in a `createdBy`-ordered list, i.e. an arbitrary bin. A picked entity has ledger rows in BOTH its warehouse source and its lineside bin, so consumption landed on the warehouse bin, leaving the entity at −N on-hand in one bin / +N in another: a per-bin-negative, internally inconsistent ledger, and the un-consumed remainder (a split entity) stranded on the wrong bin.
+
+**Problem:** For a tracked entity that has moved between bins (pick/transfer), "which bin holds the stock" is NOT the first ledger row — it's the bin whose net on-hand is positive. Picking any row's `storageUnitId` silently misplaces consumption and breaks any downstream feature that reasons about physical location (e.g. returning lineside remainder to source).
+
+**Rule:** When booking a consumption/split/movement ledger row for a tracked entity, resolve the storage unit from **net on-hand per bin** (the bin with the highest positive net), never `.find(...)?.storageUnitId` over an unordered/`createdBy`-ordered list. See `resolveTrackedEntityBin` (`packages/database/supabase/functions/issue/resolve-tracked-entity-bin.ts`, pure + `deno test`-covered). Scope such a fix to the path you can verify — the same `.find` pattern exists in other cases (e.g. `unconsumeTrackedEntities`); don't blanket-replace untested paths.
+
+**Applies to:** `packages/database/supabase/functions/issue/index.ts` and any edge function inserting `itemLedger` rows for a tracked entity that may hold stock in multiple bins.
