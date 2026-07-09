@@ -1192,11 +1192,16 @@ export type Database = {
         Row: {
           closedAt: string | null
           closedBy: string | null
+          closeStatus: Database["public"]["Enums"]["periodCloseStatus"]
           companyId: string
           createdAt: string
           createdBy: string
           endDate: string
+          fiscalYear: number | null
           id: string
+          lockedAt: string | null
+          lockedBy: string | null
+          periodNumber: number | null
           startDate: string
           status: Database["public"]["Enums"]["accountingPeriodStatus"]
           updatedAt: string | null
@@ -1205,11 +1210,16 @@ export type Database = {
         Insert: {
           closedAt?: string | null
           closedBy?: string | null
+          closeStatus?: Database["public"]["Enums"]["periodCloseStatus"]
           companyId: string
           createdAt?: string
           createdBy: string
           endDate: string
+          fiscalYear?: number | null
           id?: string
+          lockedAt?: string | null
+          lockedBy?: string | null
+          periodNumber?: number | null
           startDate: string
           status?: Database["public"]["Enums"]["accountingPeriodStatus"]
           updatedAt?: string | null
@@ -1218,11 +1228,16 @@ export type Database = {
         Update: {
           closedAt?: string | null
           closedBy?: string | null
+          closeStatus?: Database["public"]["Enums"]["periodCloseStatus"]
           companyId?: string
           createdAt?: string
           createdBy?: string
           endDate?: string
+          fiscalYear?: number | null
           id?: string
+          lockedAt?: string | null
+          lockedBy?: string | null
+          periodNumber?: number | null
           startDate?: string
           status?: Database["public"]["Enums"]["accountingPeriodStatus"]
           updatedAt?: string | null
@@ -1326,6 +1341,41 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "integrations"
             referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "accountingPeriod_lockedBy_fkey"
+            columns: ["lockedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accountingPeriod_lockedBy_fkey"
+            columns: ["lockedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accountingPeriod_lockedBy_fkey"
+            columns: ["lockedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accountingPeriod_lockedBy_fkey"
+            columns: ["lockedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accountingPeriod_lockedBy_fkey"
+            columns: ["lockedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
           },
           {
             foreignKeyName: "accountingPeriod_updatedBy_fkey"
@@ -28313,6 +28363,106 @@ export type Database = {
           },
           {
             foreignKeyName: "notification_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+        ]
+      }
+      notificationDelivery: {
+        Row: {
+          companyId: string
+          createdAt: string
+          documentId: string
+          event: string
+          id: string
+          lastDeliveredAt: string
+          lastDeliveryId: string | null
+          successCount: number
+          userId: string
+        }
+        Insert: {
+          companyId: string
+          createdAt?: string
+          documentId: string
+          event: string
+          id?: string
+          lastDeliveredAt?: string
+          lastDeliveryId?: string | null
+          successCount?: number
+          userId: string
+        }
+        Update: {
+          companyId?: string
+          createdAt?: string
+          documentId?: string
+          event?: string
+          id?: string
+          lastDeliveredAt?: string
+          lastDeliveryId?: string | null
+          successCount?: number
+          userId?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notificationDelivery_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notificationDelivery_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notificationDelivery_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "notificationDelivery_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "notificationDelivery_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notificationDelivery_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notificationDelivery_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notificationDelivery_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notificationDelivery_userId_fkey"
             columns: ["userId"]
             isOneToOne: false
             referencedRelation: "userDefaults"
@@ -59946,14 +60096,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["supplierCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["supplierCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -63330,14 +63480,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["shipmentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["shipmentCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -68931,7 +69081,7 @@ export type Database = {
         }[]
       }
       get_training_assignment_status: {
-        Args: { p_company_id: string }
+        Args: { p_company_id: string; p_employee_id?: string }
         Returns: {
           avatarUrl: string
           companyId: string
@@ -69054,6 +69204,16 @@ export type Database = {
         Returns: boolean
       }
       id: { Args: { _prefix?: string }; Returns: string }
+      increment_notification_delivery: {
+        Args: {
+          p_company_id: string
+          p_delivery_id: string
+          p_document_ids: string[]
+          p_event: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
       increment_webhook_error: {
         Args: { webhook_id: string }
         Returns: undefined
@@ -69937,6 +70097,7 @@ export type Database = {
       paymentStatus: "Draft" | "Posted" | "Voided"
       paymentTermCalculationMethod: "Net" | "End of Month" | "Day of Month"
       paymentType: "Receipt" | "Disbursement"
+      periodCloseStatus: "Open" | "Locked" | "Closed"
       periodType: "Week" | "Day" | "Month"
       pickingListLineStatus: "Pending" | "Picked" | "Short" | "Cancelled"
       pickingListStatus: "Draft" | "In Progress" | "Completed" | "Cancelled"
@@ -71287,6 +71448,7 @@ export const Constants = {
       paymentStatus: ["Draft", "Posted", "Voided"],
       paymentTermCalculationMethod: ["Net", "End of Month", "Day of Month"],
       paymentType: ["Receipt", "Disbursement"],
+      periodCloseStatus: ["Open", "Locked", "Closed"],
       periodType: ["Week", "Day", "Month"],
       pickingListLineStatus: ["Pending", "Picked", "Short", "Cancelled"],
       pickingListStatus: ["Draft", "In Progress", "Completed", "Cancelled"],
