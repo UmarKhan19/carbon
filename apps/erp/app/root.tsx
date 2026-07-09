@@ -253,7 +253,7 @@ export function Document({
         <Toaster position="bottom-right" visibleToasts={5} />
         <ScrollRestoration />
         <Scripts />
-        {!CONTROLLED_ENVIRONMENT && <Analytics />}
+        {!CONTROLLED_ENVIRONMENT && import.meta.env.PROD && <Analytics />}
       </body>
     </html>
   );
