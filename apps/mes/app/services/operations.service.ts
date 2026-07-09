@@ -1,4 +1,3 @@
-import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { Database } from "@carbon/database";
 import { getLogger } from "@carbon/logger";
 import type { JSONContent } from "@carbon/react";
@@ -193,7 +192,7 @@ export async function finishJobOperation(
     // last operation. At that point, return any picking-list-allocated batch/serial
     // stock that was staged to lineside but not consumed back to its warehouse
     // source — the SQL trigger can't call edge functions, so we orchestrate it here.
-    await returnAllocatedRemaindersAtJobComplete(args);
+    await returnAllocatedRemaindersAtJobComplete(client, args);
   }
 
   return result;
@@ -206,19 +205,20 @@ export async function finishJobOperation(
  * reflects only what was actually consumed). No-op unless the job is 'Completed'.
  * Idempotent: `returnPickedRemainder` returns nothing once lineside on-hand is 0.
  *
- * Runs with the service-role client: reads the picking allocations (an inventory
- * table the finishing operator may not have RLS access to) and invokes the
- * privileged return — otherwise the returns would be silently skipped for
- * production-only roles.
+ * Uses the client `finishJobOperation` is given — every caller passes a
+ * service-role client, so the picking allocations (an inventory table the
+ * finishing operator may not have RLS access to) are always readable and the
+ * returns aren't silently skipped for production-only roles.
  */
-async function returnAllocatedRemaindersAtJobComplete(args: {
-  jobOperationId: string;
-  userId: string;
-  companyId: string;
-}) {
-  const serviceRole = getCarbonServiceRole();
-
-  const op = await serviceRole
+async function returnAllocatedRemaindersAtJobComplete(
+  client: SupabaseClient<Database>,
+  args: {
+    jobOperationId: string;
+    userId: string;
+    companyId: string;
+  }
+) {
+  const op = await client
     .from("jobOperation")
     .select("jobId")
     .eq("id", args.jobOperationId)
@@ -226,7 +226,7 @@ async function returnAllocatedRemaindersAtJobComplete(args: {
   const jobId = op.data?.jobId;
   if (!jobId) return;
 
-  const job = await serviceRole
+  const job = await client
     .from("job")
     .select("status, locationId")
     .eq("id", jobId)
@@ -234,7 +234,7 @@ async function returnAllocatedRemaindersAtJobComplete(args: {
   const locationId = job.data?.locationId;
   if (job.data?.status !== "Completed" || !locationId) return;
 
-  const { data: lines } = await serviceRole
+  const { data: lines } = await client
     .from("pickingListLine")
     .select("id, pickingListId, pickingListLineTrackedEntity(trackedEntityId)")
     .eq("jobId", jobId)
@@ -247,7 +247,7 @@ async function returnAllocatedRemaindersAtJobComplete(args: {
         trackedEntityId: string;
       }> | null) ?? [];
     return allocations.map((allocation) =>
-      serviceRole.functions.invoke("post-picking", {
+      client.functions.invoke("post-picking", {
         body: {
           type: "returnPickedRemainder",
           pickingListId: line.pickingListId,
