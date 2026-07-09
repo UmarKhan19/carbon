@@ -41,9 +41,13 @@ import type {
 } from "./types";
 import { useAssembly } from "./useAssembly";
 import { cn } from "./utils";
+import {
+  type ComponentVisual,
+  type FutureComponentsMode,
+  visualForComponent
+} from "./visibility";
 
-/** How components of steps after the active one are rendered. */
-export type FutureComponentsMode = "ghost" | "hidden" | "solid";
+export type { FutureComponentsMode } from "./visibility";
 
 /** Marquee rectangle in canvas-local CSS pixels while box-selecting. */
 type BoxRect = { left: number; top: number; width: number; height: number };
@@ -90,6 +94,13 @@ export type AssemblyPlayerProps = {
    * listing every component inside it.
    */
   units?: NamedUnit[];
+  /**
+   * Skips AABB fallback synthesis for steps stored with motion "none" so they
+   * fade in at the seated pose instead. Set while motion planning is running —
+   * the fresh plan is about to replace those motions, so animating a fabricated
+   * path would be misleading.
+   */
+  suppressFallbackMotions?: boolean;
   mode?: "dark" | "light";
   className?: string;
 };
@@ -107,7 +118,8 @@ export type AssemblyPlayerHandle = {
  *   seated pose; flagged steps (no collision-free path) fade in instead
  * - components of later steps render per the future-components mode: ghosted at low
  *   opacity in their original color (default), hidden, or solid
- * - components in no step (base/fixture components) are always shown solid
+ * - components no step installs are never present: they render like future-step
+ *   components (hidden during playback, the future-components mode while paused)
  *
  * All steps form one continuous timeline: playing advances through steps
  * automatically, the scrubber maps to global seconds (step boundaries are
@@ -133,6 +145,7 @@ export const AssemblyPlayer = forwardRef<
     defaultFutureMode = "ghost",
     autoPlay = true,
     units,
+    suppressFallbackMotions = false,
     mode = "dark",
     className
   },
@@ -252,8 +265,14 @@ export const AssemblyPlayer = forwardRef<
       root.max[1] - root.min[1],
       root.max[2] - root.min[2]
     );
+    // Fallback synthesis sees only the components already installed by earlier
+    // steps — the parts actually on the canvas when this step plays
+    const present = new Set<string>();
     return steps.map((step, index) => {
-      const baseMotion = displayMotionForStep(step, index, graphIndex);
+      const baseMotion = suppressFallbackMotions
+        ? step.motion
+        : displayMotionForStep(step, index, graphIndex, present);
+      for (const nodeId of step.componentNodeIds) present.add(nodeId);
 
       let minBox: [number, number, number] | null = null;
       let maxBox: [number, number, number] | null = null;
@@ -293,7 +312,7 @@ export const AssemblyPlayer = forwardRef<
       );
       return motion === step.motion ? step : { ...step, motion };
     });
-  }, [steps, graphIndex]);
+  }, [steps, graphIndex, suppressFallbackMotions]);
 
   // --- Continuous timeline ---------------------------------------------
   const segments = useMemo(
@@ -600,8 +619,6 @@ export const AssemblyPlayer = forwardRef<
   );
 });
 
-type ComponentVisual = "solid" | "active" | "hidden" | "ghost";
-
 type OverrideKind = "ghost" | "highlight" | "selected" | "external" | "fade";
 
 type MaterialOverrides = {
@@ -798,17 +815,28 @@ function AssemblyScene({
     for (const [nodeId, stepIndex] of stepIndexByNode) {
       const node = nodesById.get(nodeId);
       if (!node) continue;
-      const visual: ComponentVisual =
-        stepIndex < activeStepIndex
-          ? "solid"
-          : stepIndex === activeStepIndex
-            ? "active"
-            : effectiveFutureMode === "ghost"
-              ? "ghost"
-              : effectiveFutureMode === "hidden"
-                ? "hidden"
-                : "solid";
-      applyVisual(node, visual);
+      applyVisual(
+        node,
+        visualForComponent(stepIndex, activeStepIndex, effectiveFutureMode)
+      );
+    }
+
+    // Components no step installs are never "already there": they get the same
+    // treatment as future-step components (hidden during playback, the
+    // future-components toggle while paused). Skipped when there are no steps
+    // at all — a plain model preview should show everything.
+    if (steps.length > 0 && leafBounds) {
+      const unassignedVisual = visualForComponent(
+        undefined,
+        activeStepIndex,
+        effectiveFutureMode
+      );
+      for (const leaf of leafBounds) {
+        if (stepIndexByNode.has(leaf.nodeId)) continue;
+        const node = nodesById.get(leaf.nodeId);
+        if (!node) continue;
+        applyVisual(node, unassignedVisual);
+      }
     }
 
     // External (BOM) highlight: emissive tint, forced visible even when the
@@ -849,6 +877,8 @@ function AssemblyScene({
   }, [
     nodesById,
     stepIndexByNode,
+    steps.length,
+    leafBounds,
     activeStepIndex,
     futureMode,
     isPlaying,
@@ -933,11 +963,12 @@ function AssemblyScene({
     if (actionRef.current) actionRef.current.paused = !isPlaying;
   }, [isPlaying]);
 
-  // --- Flagged fade-in -------------------------------------------------
-  // Steps the planner flagged (no collision-free path exists) have motion
-  // "none": their components fade in at the seated pose instead of animating a
-  // fabricated fly-through. Runs after the visual-state pass, which assigns
-  // the base materials this overrides.
+  // --- Seated fade-in ---------------------------------------------------
+  // Steps that install components without an animation fade them in at the
+  // seated pose instead of popping: planner-flagged steps (no collision-free
+  // path exists) and any non-first step whose display motion resolved to
+  // "none" (no stored motion and no collision-free fallback). Runs after the
+  // visual-state pass, which assigns the base materials this overrides.
   const fadeRef = useRef<{
     meshes: Mesh[];
     materials: Material[];
@@ -951,7 +982,12 @@ function AssemblyScene({
       fadeRef.current = null;
       return;
     }
-    if (!step?.flagged || step.motion.type !== "none") {
+    const fadesIn =
+      step &&
+      step.motion.type === "none" &&
+      step.componentNodeIds.length > 0 &&
+      (step.flagged || activeStepIndex > 0);
+    if (!fadesIn) {
       fadeRef.current = null;
       return;
     }
@@ -1064,7 +1100,8 @@ function AssemblyScene({
         .clone()
         .sub(controls.target)
         .normalize();
-      if (direction.lengthSq() === 0) direction.set(1, 1, 1).normalize();
+      // Front-top-right isometric (models are Z-up, -Y front)
+      if (direction.lengthSq() === 0) direction.set(1, -1, 1).normalize();
       camera.position.copy(center).addScaledVector(direction, distance);
       controls.target.copy(center);
       controls.update();

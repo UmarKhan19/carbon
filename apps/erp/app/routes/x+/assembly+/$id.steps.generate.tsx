@@ -5,8 +5,10 @@ import { trigger } from "@carbon/jobs";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import {
+  createAssemblyPlanJob,
   generateAssemblyStepsFromPlan,
-  getLatestAssemblyPlanJob
+  getLatestAssemblyPlanJob,
+  isAssemblyPlanRunning
 } from "~/modules/production";
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -44,10 +46,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   if (result.reason === "no-plan" && result.modelUploadId) {
-    // No plan yet. The caller polls and re-submits once the plan lands, so
-    // just make sure a planner run is (or will be) in flight — conversion
-    // chains planning automatically, and a Queued/Processing plan job must
-    // not be duplicated.
+    // No plan yet — planning is lazy, so this click is what starts it. The
+    // caller polls and re-submits once the plan lands (or once a still-running
+    // conversion finishes). Don't start a run while the model is converting or
+    // a plan job is already Queued/Processing.
     const [model, planJob] = await Promise.all([
       client
         .from("modelUpload")
@@ -60,18 +62,23 @@ export async function action({ request, params }: ActionFunctionArgs) {
     const isConverting =
       model.data?.processingStatus === "Queued" ||
       model.data?.processingStatus === "Processing";
-    const isPlanning =
-      planJob.data?.status === "Queued" ||
-      planJob.data?.status === "Processing";
+    const isPlanning = isAssemblyPlanRunning(planJob.data);
 
     if (!isConverting && !isPlanning) {
+      // Pre-create the job row so the run is visible to the very next loader
+      // read; the worker adopts it via planJobId (falls back to inserting its
+      // own row when the insert fails).
+      const created = await createAssemblyPlanJob(client, {
+        modelUploadId: result.modelUploadId,
+        companyId,
+        userId
+      });
+
       await trigger("assembly-plan", {
         modelUploadId: result.modelUploadId,
         companyId,
         userId,
-        // Generate the steps server-side once the plan lands, so this completes
-        // even if the user navigates away while it's solving.
-        generateStepsFor: id
+        ...(created.data?.id ? { planJobId: created.data.id } : {})
       });
     }
 

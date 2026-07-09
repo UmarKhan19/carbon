@@ -159,4 +159,51 @@ describe("deriveAssemblyUnits", () => {
     // 300 distinct R_0402_* names + screw + seal.
     expect(names).toHaveLength(302);
   });
+
+  it("folds leaves mapped to nested-subassembly items into the top-level line's unit", () => {
+    // The bare board and its connector are geometry-mapped to items that live
+    // INSIDE the "BCU PCB" line's Make BOM — without lineByItem they escape
+    // the populated-PCB unit and the component swarm installs with nothing
+    // to mate to.
+    const graph = flat([
+      leaf("board", "minimalBCU_gen2_PCB", "hboard"),
+      leaf("conn", "C-1-776163-1", "hconn"),
+      ...Array.from({ length: 10 }, (_, i) =>
+        leaf(`pcb-${i}`, `R_0402_${i}`, `hr${i}`)
+      )
+    ]);
+    const bom = [{ itemId: "i_pcb", name: "BCU PCB", quantity: 1 }];
+    const matches = Array.from({ length: 10 }, (_, i) => ({
+      name: `R_0402_${i}`,
+      itemId: "i_pcb"
+    }));
+    const mappings = [
+      { geometryHash: "hboard", itemId: "i_bareboard" },
+      { geometryHash: "hconn", itemId: "i_connector" }
+    ];
+
+    const without = deriveAssemblyUnits({
+      graph,
+      bomMaterials: bom,
+      componentMappings: mappings,
+      authoredUnits: [],
+      componentMatches: matches
+    });
+    expect(without.find((u) => u.id === "unit:i_pcb")?.nodeIds).toHaveLength(
+      10
+    );
+
+    const withAliases = deriveAssemblyUnits({
+      graph,
+      bomMaterials: bom,
+      componentMappings: mappings,
+      authoredUnits: [],
+      componentMatches: matches,
+      lineByItem: { i_bareboard: "i_pcb", i_connector: "i_pcb" }
+    });
+    const unit = withAliases.find((u) => u.id === "unit:i_pcb");
+    expect(unit?.nodeIds).toHaveLength(12);
+    expect(unit?.nodeIds).toContain("board");
+    expect(unit?.nodeIds).toContain("conn");
+  });
 });

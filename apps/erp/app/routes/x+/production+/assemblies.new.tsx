@@ -7,6 +7,7 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { data, redirect, useLoaderData, useNavigate } from "react-router";
 import {
   assemblyInstructionFromItemValidator,
+  createAssemblyPlanJob,
   getAssemblyModelState,
   getLatestAssemblyPlanJob,
   getModelForItem,
@@ -128,10 +129,19 @@ export async function action({ request }: ActionFunctionArgs) {
         planStatus !== "Processing" &&
         planStatus !== "Queued")
     ) {
+      // Pre-create the job row so the instruction page shows "planning" on
+      // first load; the worker adopts it via planJobId
+      const created = await createAssemblyPlanJob(client, {
+        modelUploadId: model.id,
+        companyId,
+        userId
+      });
+
       await trigger("assembly-plan", {
         companyId,
         modelUploadId: model.id,
-        userId
+        userId,
+        ...(created.data?.id ? { planJobId: created.data.id } : {})
       });
     }
   }

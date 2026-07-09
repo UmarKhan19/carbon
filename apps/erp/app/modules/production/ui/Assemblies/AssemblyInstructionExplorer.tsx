@@ -42,7 +42,8 @@ import {
   LuGripVertical,
   LuSearch,
   LuSparkles,
-  LuTrash
+  LuTrash,
+  LuWaypoints
 } from "react-icons/lu";
 import { useFetcher, useParams, useRevalidator } from "react-router";
 import { Empty } from "~/components";
@@ -50,6 +51,7 @@ import { ProcedureStepTypeIcon } from "~/components/Icons";
 import { ConfirmDelete } from "~/components/Modals";
 import { usePermissions } from "~/hooks";
 import { path } from "~/utils/path";
+import { isAssemblyPlanRunning } from "../../production.models";
 import type { FlattenedBomMaterial } from "../../production.service";
 import { toViewerStep } from "../../production.service";
 import type {
@@ -116,11 +118,12 @@ export default function AssemblyInstructionExplorer({
     planning?: boolean;
   }>();
 
-  // Generate Steps needs a motion plan. Planning is computed lazily, so a
-  // click can land before plan.json exists — the action then (idempotently)
-  // kicks the planner and returns planning:true. We hold the button in a
-  // pending state, poll until the plan lands, and re-submit automatically so
-  // the steps appear without further clicks.
+  // Generate Steps needs a motion plan. Planning is lazy (nothing runs until
+  // the user asks), so the first click usually lands before plan.json exists —
+  // the action then (idempotently) kicks the planner and returns
+  // planning:true. We hold the button in a pending state, poll until the plan
+  // lands, then generate the steps automatically — the click already
+  // expressed the intent.
   const [isAwaitingPlan, setIsAwaitingPlan] = useState(false);
 
   // Controlled so the Components tab knows when it becomes active — it scrolls the
@@ -147,8 +150,7 @@ export default function AssemblyInstructionExplorer({
 
   // Poll while planning runs (awaiting-plan generate flow, or an explicit
   // re-plan) so the fresh plan and its generated steps surface on their own
-  const isPlanning =
-    planJob?.status === "Queued" || planJob?.status === "Processing";
+  const isPlanning = isAssemblyPlanRunning(planJob);
   useInterval(
     () => revalidator.revalidate(),
     (isAwaitingPlan && !hasPlan && !planFailed) || isPlanning ? 5000 : null
@@ -191,20 +193,31 @@ export default function AssemblyInstructionExplorer({
 
   const rerunPlanFetcher = useFetcher<{ success: boolean }>();
 
+  // The user's click is waiting on a plan. When it lands, generate the steps —
+  // no second click. If the wait stalls with nothing running (the click raced
+  // the model conversion, and planning is no longer chained to conversion),
+  // re-submit so the action kicks the planner. Fetcher "idle" implies the
+  // post-action revalidation is done, so isPlanning/isConverting are fresh.
   useEffect(() => {
-    if (
-      isAwaitingPlan &&
-      hasPlan &&
-      steps.length === 0 &&
-      generateFetcher.state === "idle"
-    ) {
+    if (!isAwaitingPlan || generateFetcher.state !== "idle") return;
+    if (hasPlan) {
       setIsAwaitingPlan(false);
-      generateFetcher.submit(new FormData(), {
-        method: "post",
-        action: path.to.generateAssemblyInstructionSteps(id)
-      });
+    } else if (isConverting || isPlanning || planFailed) {
+      return;
     }
-  }, [isAwaitingPlan, hasPlan, steps.length, generateFetcher, id]);
+    generateFetcher.submit(new FormData(), {
+      method: "post",
+      action: path.to.generateAssemblyInstructionSteps(id)
+    });
+  }, [
+    isAwaitingPlan,
+    hasPlan,
+    isConverting,
+    isPlanning,
+    planFailed,
+    generateFetcher,
+    id
+  ]);
 
   const [stepToDelete, setStepToDelete] =
     useState<AssemblyInstructionStepRow | null>(null);
@@ -326,10 +339,15 @@ export default function AssemblyInstructionExplorer({
     // process-only step. The title is left blank on purpose — it derives live
     // from the components (describeStep) everywhere it is displayed.
     if (selectedNodeIds.length > 0) {
-      formData.append("componentNodeIds", JSON.stringify(selectedNodeIds));
+      // The new step appends after every existing step, so its obstacle world
+      // is everything those steps install ("none" fades in when blocked)
+      const present = new Set(
+        steps.flatMap((step) => step.componentNodeIds ?? [])
+      );
       const motion = graphIndex
-        ? synthesizeFallbackMotion(graphIndex, selectedNodeIds)
+        ? synthesizeFallbackMotion(graphIndex, selectedNodeIds, present)
         : null;
+      formData.append("componentNodeIds", JSON.stringify(selectedNodeIds));
       formData.append("motion", JSON.stringify(motion ?? { type: "none" }));
     } else {
       formData.append("motion", JSON.stringify({ type: "none" }));
@@ -434,7 +452,7 @@ export default function AssemblyInstructionExplorer({
                         ? (planJob?.error ??
                           "Motion planning failed — retry to run it again")
                         : isSolving
-                          ? `Solving assembly motions from the model's geometry — this usually takes 1–3 minutes (${solveElapsedLabel} elapsed). Steps appear automatically.`
+                          ? `Solving assembly motions from the model's geometry — this usually takes 1–3 minutes (${solveElapsedLabel} elapsed)`
                           : hasPlan
                             ? "Creates draft steps with motions solved from the model's geometry"
                             : "Runs the motion planner over the model, then creates draft steps"}
@@ -470,10 +488,11 @@ export default function AssemblyInstructionExplorer({
                       rerunPlanFetcher.state !== "idle"
                     }
                     isLoading={isPlanning || rerunPlanFetcher.state !== "idle"}
-                    variant="ghost"
+                    leftIcon={<LuWaypoints />}
+                    variant="secondary"
                     onClick={() => setShowRerunConfirm(true)}
                   >
-                    {isPlanning ? "Planning motions…" : "Run Motion Planning"}
+                    {isPlanning ? "Planning motion…" : "Run Motion Planning"}
                   </Button>
                 )}
               <Button

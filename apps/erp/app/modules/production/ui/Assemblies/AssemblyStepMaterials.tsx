@@ -120,27 +120,27 @@ export default function AssemblyStepMaterials({
                     setSelectedItemId(option?.value ?? null)
                   }
                 />
-                <HStack className="w-full items-end" spacing={2}>
-                  <div className="flex-1 min-w-0">
-                    <Number
-                      name="quantity"
-                      label="Quantity"
-                      minValue={0}
-                      helperText={
-                        selectedBomLine
-                          ? `${selectedBomLine.quantity} on the BOM — leave blank for as needed`
-                          : "Leave blank for as needed"
-                      }
-                    />
-                  </div>
-                  <Submit
-                    variant="secondary"
-                    leftIcon={<LuCirclePlus />}
-                    isDisabled={fetcher.state !== "idle"}
-                  >
-                    Add
-                  </Submit>
-                </HStack>
+                {/* The hint sits under the whole row so the Add button
+                    bottom-aligns with the quantity input itself */}
+                <VStack spacing={1} className="w-full">
+                  <HStack className="w-full items-end" spacing={2}>
+                    <div className="flex-1 min-w-0">
+                      <Number name="quantity" label="Quantity" minValue={0} />
+                    </div>
+                    <Submit
+                      variant="secondary"
+                      leftIcon={<LuCirclePlus />}
+                      isDisabled={fetcher.state !== "idle"}
+                    >
+                      Add
+                    </Submit>
+                  </HStack>
+                  <p className="font-normal text-xs text-muted-foreground">
+                    {selectedBomLine
+                      ? `${selectedBomLine.quantity} on the BOM — leave blank for as needed`
+                      : "Leave blank for as needed"}
+                  </p>
+                </VStack>
               </VStack>
             </ValidatedForm>
           )

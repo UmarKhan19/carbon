@@ -21,8 +21,9 @@ function leaf(nodeId: string, min: Vec3, max: Vec3): AssemblyGraphNode {
 }
 
 // partA sits small at the origin. partB is a wide wall standing between the
-// origin and the +X viewpoints, so it genuinely blocks partA's default sight
-// line — which lets us prove that excluding it (as a future part) matters.
+// origin and the +Y viewpoints (the Z-up candidate rings lead with +Y), so it
+// genuinely blocks partA's default sight line — which lets us prove that
+// excluding it (as a future part) matters.
 const graph: AssemblyGraph = {
   version: 1,
   unit: "mm",
@@ -34,12 +35,12 @@ const graph: AssemblyGraph = {
     isAssembly: true,
     geometryHash: null,
     transform: IDENTITY,
-    bbox: { min: [-5, -50, -50], max: [60, 50, 50] },
+    bbox: { min: [-50, -5, -50], max: [50, 60, 50] },
     volume: null,
     color: null,
     children: [
       leaf("partA", [-5, -5, -5], [5, 5, 5]),
-      leaf("partB", [40, -50, -50], [60, 50, 50])
+      leaf("partB", [-50, 40, -50], [50, 60, 50])
     ]
   }
 };
@@ -81,8 +82,8 @@ describe("computeStepCameraPose", () => {
     expect(pose).not.toBeNull();
     expect(pose?.fov).toBe(45);
     // target is the assembly center nudged toward the part
-    expect(pose?.target[0]).toBeGreaterThan(0);
-    expect(pose?.target[0]).toBeLessThan(28);
+    expect(pose?.target[1]).toBeGreaterThan(0);
+    expect(pose?.target[1]).toBeLessThan(28);
   });
 
   it("returns null for degenerate geometry", () => {
@@ -122,10 +123,39 @@ describe("computeStepCameras", () => {
     const pose = cameras[1];
     expect(pose).not.toBeNull();
     if (!pose) return;
-    const partBCenter: Vec3 = [50, 0, 0];
+    const partBCenter: Vec3 = [0, 50, 0];
     const partA = index.nodesById.get("partA");
     expect(partA).toBeDefined();
     if (!partA) return;
     expect(blocked(pose.position, partBCenter, partA.bbox)).toBe(false);
+  });
+
+  it("ignores components no step installs — they are never on the canvas", () => {
+    // Same layout plus a stray wall assigned to NO group. Never-installed
+    // components render like future ones (not present), so the stray wall
+    // must not push the camera either.
+    const strayGraph: AssemblyGraph = {
+      ...graph,
+      componentCount: 3,
+      root: {
+        ...graph.root,
+        children: [
+          ...graph.root.children,
+          leaf("stray", [-50, 40, -50], [50, 60, 50])
+        ]
+      }
+    };
+    const strayIndex = indexAssemblyGraph(strayGraph);
+    const strayCameras = computeStepCameras(
+      [{ componentNodeIds: ["partA"], motion: NONE }],
+      strayIndex
+    );
+    expect(strayCameras[0]).toEqual(
+      computeStepCameraPose(strayIndex, ["partA"], NONE, [])
+    );
+    // Not vacuous: treated as an occluder, the stray wall would change the pose
+    expect(
+      computeStepCameraPose(strayIndex, ["partA"], NONE, ["stray"])
+    ).not.toEqual(strayCameras[0]);
   });
 });

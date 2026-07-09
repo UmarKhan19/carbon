@@ -3,13 +3,19 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
-import { upsertAssemblyComponentMapping } from "~/modules/production";
+import {
+  syncAssemblyStepMaterialsFromMappings,
+  upsertAssemblyComponentMapping
+} from "~/modules/production";
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
   const { client, companyId, userId } = await requirePermissions(request, {
     update: "production"
   });
+
+  const { id } = params;
+  if (!id) throw new Error("Could not find id");
 
   const formData = await request.formData();
   const modelUploadId = formData.get("modelUploadId") as string;
@@ -38,6 +44,15 @@ export async function action({ request }: ActionFunctionArgs) {
       await flash(request, error(upsert.error, "Failed to map part"))
     );
   }
+
+  // The new mapping flows onto every step that installs this component —
+  // additive, so existing step materials are untouched.
+  await syncAssemblyStepMaterialsFromMappings(client, {
+    assemblyInstructionId: id,
+    companyId,
+    userId,
+    geometryHashes: [geometryHash]
+  });
 
   return { success: true };
 }

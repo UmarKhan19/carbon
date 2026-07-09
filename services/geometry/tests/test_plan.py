@@ -141,7 +141,9 @@ def test_captive_parts_merge_or_flag_never_forced():
     assert outcome.tiers["forced"] == 0
     assert by_id["core"].tier == "flagged"
     assert by_id["core"].motion["type"] == "none"
-    assert len(by_id["core"].blocked_by) >= 2
+    # blocked_by is recomputed against the FULL seated assembly, where the
+    # inner shell has rigid-merged into the outer — one pinning body
+    assert by_id["core"].blocked_by == ["outer-shell"]
     assert outcome.merged_into.get("inner-shell") == "outer-shell"
 
 
@@ -1243,3 +1245,261 @@ def test_fixed_sequence_drops_unknown_nodeids():
     assert by_id["top"].motion["type"] != "none"
     assert any("ghost" in warning for warning in warnings)
     assert any("skipped" in warning.lower() for warning in warnings)
+
+
+def test_fixed_sequence_ignores_parts_outside_the_sequence():
+    # (f) The planning world is the sequence: a model part assigned to NO
+    # group is never on the canvas — it is not an obstacle, it is not
+    # classified, and it never appears in the outcome. The canopy hovers
+    # directly over `top`, so treating it as present would block (or flag)
+    # the straight +Z removal.
+    base = _box_part("base", (100, 100, 10), (0, 0, 5))
+    top = _box_part("top", (40, 40, 10), (0, 0, 15.05))
+    canopy = _box_part("canopy", (100, 100, 10), (0, 0, 30))
+
+    outcome, _warnings = _plan_fixed([base, top, canopy], [["base"], ["top"]])
+    by_id = {entry.node_id: entry for entry in outcome.planned}
+
+    assert outcome.sequence == ["base", "top"]
+    assert "canopy" not in by_id
+    # `top` lifts straight up as if the canopy didn't exist
+    assert by_id["top"].motion["type"] == "linear"
+    assert by_id["top"].removal_direction == [0.0, 0.0, 1.0]
+    assert by_id["top"].verified
+
+
+def test_fixed_sequence_tie_break_prefers_less_entangled_sense():
+    # (g) Both channel exits are collision-free against the PLACED parts, but
+    # the +X exit sweeps through the seat of `plug` (a later group in the
+    # sequence). The least-entanglement tie-break must pick the -X sense —
+    # committing to the first clear candidate would risk sliding the block
+    # through a part that installs later.
+    rail_mesh = trimesh.creation.box(extents=(100, 40, 30))
+    rail_mesh.apply_translation((0, 0, 15))
+    channel = trimesh.creation.box(extents=(102, 22, 12))
+    channel.apply_translation((0, 0, 15))  # through-pocket, open at both ±X
+    rail = _mesh_part("rail", rail_mesh.difference(channel).subdivide_to_size(5.0))
+
+    slider = _box_part("slider", (40, 20, 10), (0, 0, 15))
+    plug = _box_part("plug", (20, 20, 10), (62, 0, 15))  # beyond the +X exit
+
+    outcome, _warnings = _plan_fixed(
+        [rail, slider, plug], [["rail"], ["slider"], ["plug"]]
+    )
+    by_id = {entry.node_id: entry for entry in outcome.planned}
+
+    assert by_id["slider"].motion["type"] == "linear"
+    direction = by_id["slider"].removal_direction
+    assert direction is not None
+    # Removal exits -X (away from the plug's seat); insertion reverses it
+    assert direction[0] == pytest.approx(-1.0, abs=1e-6)
+    assert by_id["slider"].verified
+
+
+# --- Connected-growth ordering -------------------------------------------
+# The assembly must grow as a CONNECTED body from a principled base: the
+# base is the part everything mounts into (highest mate degree + volume),
+# every pick must touch the already-placed set, and caller-authored units
+# never lose their identity inside another part's step.
+
+
+def test_reselect_base_prefers_connected_massive_part():
+    from app.plan import PlannedComponent, _reselect_base
+
+    seal = _box_part("seal", (40, 40, 2), (0, 0, 41))
+    box = _box_part("box", (60, 60, 40), (0, 0, 20))
+    lid = _box_part("lid", (40, 40, 5), (0, 0, 45))
+    units_by_id = {"seal": seal, "box": box, "lid": lid}
+    planned = [
+        PlannedComponent("seal", {"type": "none"}, "high", None, tier="base"),
+        PlannedComponent(
+            "box",
+            {"type": "none"},
+            "low",
+            None,
+            blocked_by=["seal", "lid"],
+            tier="flagged",
+        ),
+        PlannedComponent(
+            "lid",
+            {"type": "linear", "direction": [0, 0, -1], "distance": 20},
+            "high",
+            [0, 0, 1],
+            tier="linear",
+        ),
+    ]
+    adjacency = {
+        "box": {"seal", "lid", "screw1", "screw2"},
+        "seal": {"box", "lid"},
+        "lid": {"box", "seal"},
+    }
+    warnings: list[str] = []
+
+    _reselect_base(planned, units_by_id, adjacency, {}, warnings)
+
+    by_id = {entry.node_id: entry for entry in planned}
+    assert by_id["box"].tier == "base"
+    assert by_id["box"].motion == {"type": "none"}
+    assert by_id["box"].confidence == "high"
+    assert by_id["seal"].tier == "flagged"
+    assert by_id["seal"].motion == {"type": "none"}
+    assert any("re-anchored" in warning for warning in warnings)
+
+
+def test_reselect_base_requires_a_clear_margin():
+    from app.plan import PlannedComponent, _reselect_base
+
+    # The challenger matches the base on degree (no 1.5x dominance) — no churn.
+    base = _box_part("base", (40, 40, 10), (0, 0, 5))
+    other = _box_part("other", (50, 50, 12), (0, 0, 20))
+    units_by_id = {"base": base, "other": other}
+    planned = [
+        PlannedComponent("base", {"type": "none"}, "high", None, tier="base"),
+        PlannedComponent(
+            "other", {"type": "none"}, "low", None, tier="flagged"
+        ),
+    ]
+    adjacency = {"base": {"other", "x"}, "other": {"base", "y"}}
+    warnings: list[str] = []
+
+    _reselect_base(planned, units_by_id, adjacency, {}, warnings)
+
+    by_id = {entry.node_id: entry for entry in planned}
+    assert by_id["base"].tier == "base"
+    assert by_id["other"].tier == "flagged"
+    assert warnings == []
+
+
+def _connected_growth_fixture():
+    from app.plan import PlannedComponent
+
+    linear = {"type": "linear", "direction": [0.0, 0.0, -1.0], "distance": 10}
+    units = {
+        "a": _box_part("a", (20, 20, 10), (0, 0, 5)),
+        "b": _box_part("b", (10, 10, 10), (15, 0, 5)),
+        "c": _box_part("c", (10, 10, 10), (30, 0, 5)),
+        # d is the biggest, most central-looking part: without the
+        # connectivity filter the structural preference picks it right
+        # after the base
+        "d": _box_part("d", (30, 30, 30), (55, 0, 15)),
+    }
+    planned = [
+        PlannedComponent("a", {"type": "none"}, "high", None, tier="base"),
+        PlannedComponent("b", dict(linear), "high", [0, 0, 1], tier="linear"),
+        PlannedComponent("c", dict(linear), "high", [0, 0, 1], tier="linear"),
+        PlannedComponent("d", dict(linear), "high", [0, 0, 1], tier="linear"),
+    ]
+    edges: dict[str, set] = {node_id: set() for node_id in units}
+    return planned, units, edges
+
+
+def test_topo_sort_grows_connected():
+    from app.plan import _preference_topo_sort
+
+    planned, units, edges = _connected_growth_fixture()
+    adjacency = {"a": {"b"}, "b": {"a", "c"}, "c": {"b", "d"}, "d": {"c"}}
+
+    unconstrained = _preference_topo_sort(
+        planned, units, {k: set(v) for k, v in edges.items()},
+        {}, {}, list(units), [],
+    )
+    connected = _preference_topo_sort(
+        planned, units, {k: set(v) for k, v in edges.items()},
+        {}, {}, list(units), [], adjacency=adjacency,
+    )
+
+    # Without the filter the big part jumps the queue and installs in
+    # space next to nothing; with it the assembly grows hand over hand.
+    assert unconstrained.index("d") < unconstrained.index("c")
+    assert connected == ["a", "b", "c", "d"]
+
+
+def test_topo_sort_anchors_detached_island_with_warning():
+    from app.plan import _preference_topo_sort
+
+    planned, units, edges = _connected_growth_fixture()
+    from app.plan import PlannedComponent
+
+    units["e"] = _box_part("e", (8, 8, 8), (200, 0, 4))
+    planned.append(
+        PlannedComponent(
+            "e",
+            {"type": "linear", "direction": [0.0, 0.0, -1.0], "distance": 10},
+            "high",
+            [0, 0, 1],
+            tier="linear",
+        )
+    )
+    edges["e"] = set()
+    adjacency = {
+        "a": {"b"},
+        "b": {"a", "c"},
+        "c": {"b", "d"},
+        "d": {"c"},
+        "e": set(),
+    }
+    warnings: list[str] = []
+
+    order = _preference_topo_sort(
+        planned, units, edges, {}, {}, list(units), warnings,
+        adjacency=adjacency,
+    )
+
+    assert order[:4] == ["a", "b", "c", "d"]
+    assert order[-1] == "e"
+    assert any("detached island" in warning for warning in warnings)
+
+
+def test_protected_unit_never_rides_another_part():
+    # Same captive fixture that normally rigid-merges inner -> shell; as a
+    # caller-authored unit (protected) the captive keeps its own identity —
+    # here the greedy simply lifts the shell off instead, leaving the inner
+    # block as the placed base (block first, shell lowered over it).
+    def hollow(outer_extent, cavity_extent, name):
+        outer = trimesh.creation.box(
+            extents=(outer_extent, outer_extent, outer_extent)
+        )
+        cavity = trimesh.creation.box(
+            extents=(cavity_extent, cavity_extent, cavity_extent)
+        )
+        return _mesh_part(name, outer.difference(cavity))
+
+    parts = [
+        hollow(50, 40, "shell"),
+        _box_part("inner", (30, 30, 30), (0, 0, 0)),
+    ]
+    outcome = _plan_parts(
+        parts, trimesh, clearance=0.5, path_samples=40, warnings=[],
+        protected={"inner"},
+    )
+
+    by_id = {entry.node_id: entry for entry in outcome.planned}
+    assert outcome.merged_into.get("inner") is None
+    assert "inner" in outcome.sequence
+    # Never fabricated and never absorbed: the unit is either the placed
+    # base or fades in as its own step
+    assert by_id["inner"].tier in ("base", "flagged")
+    assert by_id["inner"].motion["type"] == "none"
+
+
+def test_fastener_classification_ignores_connectors_and_structure():
+    from app.plan import _classify_fasteners, _is_fastener
+
+    # "36 Pin" is a connector pin count — "pin" alone never marks hardware
+    housing = _box_part(
+        "housing", (120, 120, 51), (0, 0, 25), name="Electronics Box - 36 Pin"
+    )
+    assert not _is_fastener(housing)
+    # Dowel pins still classify via "dowel"
+    dowel = _box_part("dowel", (4, 4, 20), (0, 0, 10), name="Dowel Pin 4x20")
+    assert _is_fastener(dowel)
+
+    # Size sanity: a structural part with a spec-suffixed name (matches M8)
+    # is too big to be hardware and keeps its structural role
+    rail = _box_part(
+        "rail", (300, 40, 40), (0, 0, 20), name="Rail M8 slot pattern"
+    )
+    plate = _box_part("plate", (400, 200, 10), (0, 0, -10))
+    fasteners = _classify_fasteners([plate, rail, dowel], {})
+    assert "rail" not in fasteners
+    assert "dowel" in fasteners

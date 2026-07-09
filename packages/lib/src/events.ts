@@ -71,16 +71,18 @@ export type Events = {
       modelUploadId: string;
       companyId: string;
       userId: string;
-      // When set (the user clicked "Generate Steps" before a plan existed),
-      // the job generates draft steps for this instruction once the plan lands
-      // — so it works whether or not they stay on the page.
-      generateStepsFor?: string;
       // When set (the user clicked "Re-run Motion Planning" on an instruction
       // that already has steps), the planner runs in order-preserving mode: it
       // takes the existing step order as fixed (options.sequence) and recomputes
       // each step's motion to avoid collision with parts from earlier steps, then
       // updates the step motions in place. Mutually exclusive with reordering.
       reMotionFor?: string;
+      // A pre-created `assemblyPlanJob` row (status Queued) the worker should
+      // adopt instead of inserting its own. User-facing triggers create the row
+      // synchronously so the UI reflects "planning" immediately — the worker's
+      // own insert only lands after event pickup, and a page revalidation in
+      // that gap would see no running job and never start polling.
+      planJobId?: string;
     };
   };
 

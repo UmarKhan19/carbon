@@ -7,9 +7,20 @@ import type { Motion, Vec3 } from "./types";
  * no WebGL, unit-testable in node, same conventions as the Python planner:
  * distances in mm, stored motion is the INSERTION (removal reversed).
  *
- * This is display guidance, not physics: obstacles are leaf bounding boxes,
- * and anything already overlapping the component at its seated pose (mating
- * geometry an AABB cannot reason about) is ignored.
+ * This is display guidance, not physics: obstacles are leaf bounding boxes.
+ * The obstacle world is the caller-provided PRESENT set — the components
+ * already installed by earlier steps. Components of later steps and components
+ * no step installs are not on the canvas, so they neither block nor redirect a
+ * fallback path.
+ *
+ * MATED components get no fallback at all: when a present component's box
+ * interpenetrates the seated box, the part engages geometry an AABB cannot
+ * reason about (a slider wrapping its rail, a screw in its bore). The one
+ * obstacle that matters would have to be ignored to synthesize anything, and
+ * whatever direction survives cuts straight through the mate on screen — a
+ * slider "inserted" sideways through its rail. Those steps return null and
+ * fade in at the seated pose until the planner or the author supplies a real
+ * motion.
  */
 
 type Box = { min: Vec3; max: Vec3 };
@@ -113,22 +124,30 @@ function negate(direction: AxisDirection): Vec3 {
 /**
  * Synthesizes an insertion motion for a step's components from graph bounding
  * boxes: a straight exit along the least-obstructed axis when one exists,
- * else a two-segment escape (hop past the blockers, then exit), else a
- * best-effort straight line through the fewest boxes. Returns null only
- * when the components resolve to no leaf geometry.
+ * else a two-segment escape (hop past the blockers, then exit). Obstacles are
+ * ONLY the leaves in `presentNodeIds` — the components already installed by
+ * earlier steps. Returns null when the components resolve to no leaf geometry,
+ * when a present component interpenetrates the seated box (a mating
+ * engagement the AABB sweep cannot respect — see module doc), or when every
+ * candidate path collides with a present component: a fabricated path that
+ * animates through geometry is worse than fading in at the seated pose, so
+ * the caller keeps motion "none" in those cases.
  */
 export function synthesizeFallbackMotion(
   index: AssemblyGraphIndex,
-  componentNodeIds: string[]
+  componentNodeIds: string[],
+  presentNodeIds: ReadonlySet<string>
 ): Motion | null {
   const componentSet = new Set(componentNodeIds);
   const componentBoxes: Box[] = [];
   const otherBoxes: Box[] = [];
   for (const node of index.leaves) {
     if (!node.bbox) continue;
-    (componentSet.has(node.nodeId) ? componentBoxes : otherBoxes).push(
-      node.bbox
-    );
+    if (componentSet.has(node.nodeId)) {
+      componentBoxes.push(node.bbox);
+    } else if (presentNodeIds.has(node.nodeId)) {
+      otherBoxes.push(node.bbox);
+    }
   }
 
   const component = unionBox(componentBoxes);
@@ -136,11 +155,15 @@ export function synthesizeFallbackMotion(
   const assembly = unionBox([component, ...otherBoxes]);
   if (!assembly) return null;
 
-  // Mating components overlap the seated box; an AABB sweep cannot distinguish
-  // them from real blockers, so they are excluded from obstruction counts
-  const obstacles = otherBoxes.filter(
-    (box) => !boxesOverlap(component, box, CONTACT_EPSILON_MM)
-  );
+  // A present component interpenetrating the seated box (beyond surface
+  // contact) is a mate — refuse to fabricate a path through it. Face-on-face
+  // stacking stays within CONTACT_EPSILON_MM and still synthesizes.
+  if (
+    otherBoxes.some((box) => boxesOverlap(component, box, CONTACT_EPSILON_MM))
+  ) {
+    return null;
+  }
+  const obstacles = otherBoxes;
 
   const candidates = DIRECTIONS.map((direction) => {
     const travel = exitTravel(component, assembly, direction);
@@ -204,13 +227,9 @@ export function synthesizeFallbackMotion(
     }
   }
 
-  // Best effort: straight through the fewest boxes — still better than
-  // popping into place
-  return {
-    type: "linear",
-    direction: negate(best.direction),
-    distance: round(best.travel)
-  };
+  // Every candidate path collides with a present component — fade in at the
+  // seated pose instead of fabricating a fly-through
+  return null;
 }
 
 function round(value: number): number {

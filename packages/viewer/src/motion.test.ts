@@ -582,19 +582,21 @@ describe("displayMotionForStep", () => {
     ...overrides
   });
 
+  const present = new Set(["base"]);
+
   it("keeps motion none for flagged steps — no fabricated fallback", () => {
     expect(
-      displayMotionForStep(step({ flagged: true }), 1, graphIndex)
+      displayMotionForStep(step({ flagged: true }), 1, graphIndex, present)
     ).toEqual({ type: "none" });
   });
 
   it("synthesizes a fallback for unflagged none-motion steps after the base", () => {
-    const motion = displayMotionForStep(step({}), 1, graphIndex);
+    const motion = displayMotionForStep(step({}), 1, graphIndex, present);
     expect(motion.type).toBe("linear");
   });
 
   it("keeps the base step still", () => {
-    expect(displayMotionForStep(step({}), 0, graphIndex)).toEqual({
+    expect(displayMotionForStep(step({}), 0, graphIndex, present)).toEqual({
       type: "none"
     });
   });
@@ -605,9 +607,38 @@ describe("displayMotionForStep", () => {
       direction: [0, 0, -1],
       distance: 5
     };
-    expect(displayMotionForStep(step({ motion: stored }), 1, graphIndex)).toBe(
-      stored
-    );
+    expect(
+      displayMotionForStep(step({ motion: stored }), 1, graphIndex, present)
+    ).toBe(stored);
+  });
+
+  it("only treats present components as obstacles", () => {
+    // "base" fully covers the region above "top"… here instead: a canopy leaf
+    // over "top" that is NOT in the present set must not redirect the fallback
+    const canopyIndex = indexAssemblyGraph({
+      ...graphIndex.graph,
+      root: {
+        ...graphIndex.graph.root,
+        children: [
+          ...graphIndex.graph.root.children,
+          {
+            nodeId: "canopy",
+            name: "canopy",
+            isAssembly: false,
+            geometryHash: "hash-canopy",
+            transform: IDENTITY,
+            bbox: { min: [-50, -50, 30], max: [50, 50, 40] },
+            volume: 1000,
+            color: null,
+            children: []
+          }
+        ]
+      }
+    });
+    const motion = displayMotionForStep(step({}), 1, canopyIndex, present);
+    // Insertion still approaches from above: the absent canopy doesn't block
+    if (motion.type !== "linear") throw new Error("expected linear");
+    expect(motion.direction[2]).toBe(-1);
   });
 });
 

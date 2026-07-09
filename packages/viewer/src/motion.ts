@@ -120,12 +120,17 @@ export function motionDuration(motion: Motion): number {
  * components in at the seated pose rather than animating a fabricated
  * fly-through. Other non-first steps stored with "none" (legacy plans,
  * manually authored steps) get the AABB fallback so components never pop into
- * place. The first step is the base: placed, not inserted.
+ * place; the fallback's obstacle world is `presentNodeIds`, the components
+ * already installed by EARLIER steps — later-step and never-installed
+ * components are not on the canvas. When no collision-free fallback exists the
+ * step keeps "none" and fades in. The first step is the base: placed, not
+ * inserted.
  */
 export function displayMotionForStep(
   step: Pick<AssemblyStep, "motion" | "componentNodeIds" | "flagged">,
   index: number,
-  graphIndex: AssemblyGraphIndex | null
+  graphIndex: AssemblyGraphIndex | null,
+  presentNodeIds: ReadonlySet<string>
 ): Motion {
   if (
     index === 0 ||
@@ -136,7 +141,11 @@ export function displayMotionForStep(
   ) {
     return step.motion;
   }
-  const fallback = synthesizeFallbackMotion(graphIndex, step.componentNodeIds);
+  const fallback = synthesizeFallbackMotion(
+    graphIndex,
+    step.componentNodeIds,
+    presentNodeIds
+  );
   return fallback && fallback.type !== "none" ? fallback : step.motion;
 }
 

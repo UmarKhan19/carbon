@@ -43,6 +43,7 @@ import {
   getAssemblyUnits,
   getFlattenedBomMaterials,
   getLatestAssemblyPlanJob,
+  isAssemblyPlanRunning,
   toViewerStep,
   upsertAssemblyInstruction
 } from "~/modules/production";
@@ -188,6 +189,12 @@ export default function AssemblyInstructionRoute() {
 
   const isDisabled =
     instruction.status !== "Draft" || !permissions.can("update", "production");
+
+  // Motion planning runs server-side and patches step motions when it lands
+  // (the explorer polls while it runs). Until then the stored motions are
+  // stale or missing — surface that over the viewer and fade "none"-motion
+  // steps in rather than animating fallback paths the plan is about to replace.
+  const isPlanning = isAssemblyPlanRunning(planJob);
 
   const [selectedStepId, setSelectedStepId] = useState<string | null>(
     steps[0]?.id ?? null
@@ -439,7 +446,15 @@ export default function AssemblyInstructionRoute() {
                 />
               }
               content={
-                <div className="bg-background h-[calc(100dvh-99px)] w-full">
+                <div className="relative bg-background h-[calc(100dvh-99px)] w-full">
+                  {glbPath && graphPath && isPlanning && (
+                    <div className="pointer-events-none absolute left-1/2 top-3 z-10 flex -translate-x-1/2 items-center gap-2 rounded-full border border-border bg-background/90 px-3 py-1.5 shadow-sm">
+                      <Spinner className="h-3.5 w-3.5" />
+                      <span className="whitespace-nowrap text-xs text-muted-foreground">
+                        Planning motion
+                      </span>
+                    </div>
+                  )}
                   {glbPath && graphPath ? (
                     <ClientOnly
                       fallback={
@@ -476,6 +491,7 @@ export default function AssemblyInstructionRoute() {
                           }
                           onMotionChange={onMotionChange}
                           units={namedUnits}
+                          suppressFallbackMotions={isPlanning}
                           autoPlay={false}
                           mode={mode}
                           className="h-full"

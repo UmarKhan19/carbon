@@ -3,7 +3,6 @@ import type { Json } from "@carbon/database";
 import { GEOMETRY_SERVICE_API_KEY, GEOMETRY_SERVICE_URL } from "@carbon/env";
 import type { AssemblyPlan } from "@carbon/viewer/steps";
 import { inngest } from "../../client";
-import { generateAssemblyStepsFromPlan } from "./generate-assembly-steps";
 import { loadPlanUnits } from "./plan-units";
 import { updateAssemblyStepMotionsFromPlan } from "./update-step-motions";
 
@@ -39,6 +38,8 @@ export const assemblyPlanFunction = inngest.createFunction(
       const { modelUploadId } = event.data.event.data;
       const client = getCarbonServiceRole();
 
+      // Queued included: a pre-created row (planJobId) stays Queued when the
+      // function fails before its "queue" step promotes it to Processing.
       await client
         .from("assemblyPlanJob")
         .update({
@@ -48,12 +49,13 @@ export const assemblyPlanFunction = inngest.createFunction(
         })
         .eq("modelUploadId", modelUploadId)
         .eq("kind", "plan")
-        .eq("status", "Processing");
+        .in("status", ["Queued", "Processing"]);
     }
   },
   { event: "carbon/assembly-plan" },
   async ({ event, step }) => {
-    const { modelUploadId, companyId, userId, reMotionFor } = event.data;
+    const { modelUploadId, companyId, userId, reMotionFor, planJobId } =
+      event.data;
 
     const job = await step.run("queue", async () => {
       const client = getCarbonServiceRole();
@@ -69,6 +71,27 @@ export const assemblyPlanFunction = inngest.createFunction(
         throw new Error(
           `Model upload ${modelUploadId} not found or has no file`
         );
+      }
+
+      // Adopt the trigger's pre-created row when given (created Queued so the
+      // UI shows "planning" from the moment of the click); fall back to
+      // inserting a row when adoption fails.
+      if (planJobId) {
+        const adopted = await client
+          .from("assemblyPlanJob")
+          .update({ status: "Processing", updatedAt: new Date().toISOString() })
+          .eq("id", planJobId)
+          .eq("companyId", companyId)
+          .select("id")
+          .maybeSingle();
+
+        if (adopted.data?.id) {
+          return {
+            id: adopted.data.id,
+            modelPath: modelUpload.data.modelPath,
+            graphPath: modelUpload.data.graphPath
+          };
+        }
       }
 
       const planJob = await client
@@ -268,23 +291,6 @@ export const assemblyPlanFunction = inngest.createFunction(
         const client = getCarbonServiceRole();
         await updateAssemblyStepMotionsFromPlan(client, {
           assemblyInstructionId: reMotionFor,
-          plan: planData as unknown as AssemblyPlan,
-          graphPath: job.graphPath,
-          companyId,
-          userId
-        });
-      });
-    }
-
-    // The user clicked "Generate Steps" before a plan existed — create the
-    // draft steps now that it's ready, so it completes whether or not they
-    // stayed on the page. No-op if the instruction already has steps.
-    if (event.data.generateStepsFor) {
-      const generateStepsFor = event.data.generateStepsFor;
-      await step.run("generate-steps", async () => {
-        const client = getCarbonServiceRole();
-        await generateAssemblyStepsFromPlan(client, {
-          assemblyInstructionId: generateStepsFor,
           plan: planData as unknown as AssemblyPlan,
           graphPath: job.graphPath,
           companyId,

@@ -186,8 +186,9 @@ export function computeStepCameraPose(
 
   const motionDirection = insertionDirection(motion);
 
-  // Candidate directions: two elevation rings around the up axis
-  const up: Vec3 = [0, 1, 0];
+  // Candidate directions: two elevation rings around the up axis (models
+  // keep CAD coordinates, so up is +Z and "elevated" means above the model)
+  const up: Vec3 = [0, 0, 1];
   let basisU = cross(up, [0, 0, 1]);
   if (len(basisU) < 1e-6) basisU = cross(up, [1, 0, 0]);
   basisU = normalize(basisU);
@@ -243,9 +244,10 @@ export function computeStepCameraPose(
 /**
  * Bakes a camera pose for each step group in sequence order. A step's occluders
  * are exactly the components already animated by the time it plays — parts from
- * earlier groups plus any always-present base geometry (leaves in no group).
- * Components from LATER groups are not yet installed, so they never push the
- * camera around. Returns one entry per group (null where geometry is degenerate).
+ * earlier groups. Components from LATER groups and components in no group are
+ * not on the canvas (never-installed parts render like future ones), so they
+ * never push the camera around. Returns one entry per group (null where
+ * geometry is degenerate).
  */
 export function computeStepCameras(
   groups: readonly { componentNodeIds: string[]; motion: Motion }[],
@@ -265,8 +267,8 @@ export function computeStepCameras(
     for (const leaf of graphIndex.leaves) {
       if (subject.has(leaf.nodeId)) continue;
       const leafGroup = groupIndexByNode.get(leaf.nodeId);
-      // Present if it belongs to no step (base geometry) or to an earlier step.
-      if (leafGroup === undefined || leafGroup < index) {
+      // Present only if it belongs to an earlier step.
+      if (leafGroup !== undefined && leafGroup < index) {
         occluders.push(leaf.nodeId);
       }
     }

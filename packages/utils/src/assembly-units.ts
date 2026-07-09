@@ -16,6 +16,13 @@
  * line), leaves group by assignment, and a line collapses into ONE rigid body
  * only when it's a single instance shown in detail (quantity ≤ 1 with ≥ 2
  * leaves) — the PCB, never the 8 screws.
+ *
+ * Assignments resolve to the TOP-LEVEL line: a leaf mapped (by geometry hash
+ * or name) to an item that lives INSIDE a top-level Make subassembly's BOM —
+ * the bare board and its connector inside the "PCB assembly" line — belongs
+ * to that line's unit, via `lineByItem` (descendant itemId → top-level line
+ * itemId). Without it the bare board escapes its own populated-PCB unit and
+ * the planner installs the component swarm with nothing to mate to.
  */
 
 /** Minimal structural view of a graph.json node. */
@@ -134,13 +141,20 @@ export function deriveAssemblyUnits(args: {
   authoredUnits: AuthoredUnit[];
   /** Component name → itemId assignments from the LLM (optional). */
   componentMatches?: ComponentMatch[];
+  /**
+   * Descendant BOM itemId → the top-level BOM line it belongs to (items
+   * nested inside a line's Make-subassembly BOM). Lets a leaf mapped to the
+   * bare board join the populated-PCB line's unit.
+   */
+  lineByItem?: Record<string, string>;
 }): AssemblyUnit[] {
   const {
     graph,
     bomMaterials,
     componentMappings,
     authoredUnits,
-    componentMatches = []
+    componentMatches = [],
+    lineByItem = {}
   } = args;
 
   const bomByItem = new Map(bomMaterials.map((m) => [m.itemId, m]));
@@ -167,14 +181,16 @@ export function deriveAssemblyUnits(args: {
     });
   }
 
-  // 2. Assign each remaining leaf a BOM item (mapping first, then LLM).
+  // 2. Assign each remaining leaf a BOM item (mapping first, then LLM),
+  // then resolve nested-subassembly items up to their top-level line.
   const byItem = new Map<string, UnitGraphNode[]>();
   const loose: UnitGraphNode[] = [];
   for (const leaf of collectLeafNodes(graph)) {
     if (claimed.has(leaf.nodeId)) continue;
-    const itemId =
+    const assigned =
       (leaf.geometryHash ? itemByHash.get(leaf.geometryHash) : undefined) ??
       itemByName.get(leaf.name);
+    const itemId = assigned ? (lineByItem[assigned] ?? assigned) : undefined;
     if (itemId) {
       const group = byItem.get(itemId) ?? [];
       group.push(leaf);

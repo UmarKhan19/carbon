@@ -34,7 +34,16 @@ export function AssemblyViewer({
     >
       <Canvas
         gl={{ antialias: true, alpha: true }}
-        camera={{ position: [100, 100, 100], fov: 45, near: 0.1, far: 100000 }}
+        // CAD-style home view: models are Z-up with -Y as front, so +Z is
+        // screen-up (bottom faces down) and the (+X, -Y, +Z) octant shows the
+        // front, right, and top faces
+        camera={{
+          position: [100, -100, 100],
+          up: [0, 0, 1],
+          fov: 45,
+          near: 0.1,
+          far: 100000
+        }}
         resize={{ debounce: 0 }}
         style={{ position: "absolute", inset: 0 }}
       >
@@ -51,6 +60,10 @@ export function AssemblyViewer({
           // GizmoHelper animates the default OrbitControls on face clicks
           <GizmoHelper alignment="top-right" margin={[56, 56]}>
             <GizmoViewcube
+              // Converted models keep raw CAD coordinates (Z-up, like
+              // Onshape/STEP), so label the axes with CAD semantics instead of
+              // drei's Y-up default. Order is [+X, -X, +Y, -Y, +Z, -Z].
+              faces={["Right", "Left", "Back", "Front", "Top", "Bottom"]}
               color={isDarkMode ? "#2a2d33" : "#e4e4e7"}
               hoverColor={isDarkMode ? "#3f4450" : "#cbd5e1"}
               textColor={isDarkMode ? "#e4e4e7" : "#27272a"}

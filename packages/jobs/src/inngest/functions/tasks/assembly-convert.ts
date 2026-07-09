@@ -174,10 +174,8 @@ export const assemblyConvertFunction = inngest.createFunction(
         .eq("id", job.id);
     });
 
-    // Conversion succeeded — kick off motion planning for the same model.
-    await step.sendEvent("enqueue-plan", {
-      name: "carbon/assembly-plan",
-      data: { modelUploadId, companyId, userId }
-    });
+    // Planning is NOT chained here — it's expensive (minutes) and the user may
+    // author steps manually. It runs lazily on the first "Generate Steps"
+    // click (or an explicit re-plan), which then auto-creates the steps.
   }
 );

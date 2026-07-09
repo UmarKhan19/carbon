@@ -91,6 +91,22 @@ MAX_PATH_SAMPLES = 400
 MATE_MIN_DEPTH_MM = 0.2
 MATE_DEPTH_MARGIN_MM = 0.3
 
+# Ordering adjacency: two parts "mate" when their meshes come within this
+# distance at the seated pose. Colliding pairs (pair_depths) are adjacent by
+# definition; this tolerance additionally captures real CAD clearances — an
+# SMD chip floats ~0.05mm above its pads, a clearance-fit boss sits ~0.2mm
+# from its pocket — which a penetration-only contact model cannot see. Used
+# ONLY for ordering (base selection, connected-growth constraint), never for
+# collision truth.
+ORDERING_CONTACT_MM = 0.5
+# AABB-prefiltered candidate pairs beyond this budget skip the exact distance
+# query and count as adjacent from the bbox overlap alone. Degrading to MORE
+# adjacency only weakens the connectivity constraint (extra candidate picks);
+# it can never wrongly block a part.
+MAX_ADJACENCY_DISTANCE_PAIRS = 20000
+
+EMPTY_SET: frozenset = frozenset()
+
 # A thin part whose seated contacts press from BOTH sides along one axis
 # (gasket, seal, shim) is sandwiched: it assembles after one flange and
 # before the one that compresses it. Its seated interference is compliant
@@ -115,11 +131,23 @@ SANDWICH_MAX_SQUISH_MM = 0.6
 # contacts). Deep local interpenetration alone is NOT a merge signal: a
 # spring plunger embeds millimeters into its detent yet must stay separate.
 
+# "pin" is deliberately absent: on real CAD it names connector pins, pin
+# headers, and pin COUNTS ("Electronics Box - 36 Pin") far more often than
+# hardware — a dowel pin still matches via "dowel". Plurals match too:
+# catalog names run "…Self Tapping Screws".
 FASTENER_NAME_RE = re.compile(
-    r"(?i)\b(screw|bolt|nut|washer|rivet|stud|dowel|pin)\b"
+    r"(?i)\b(screw|bolt|nut|washer|rivet|stud|dowel)s?\b"
     r"|\bM\d+(x[\d.]+)?\b"
     r"|\bDIN ?\d+|\bISO ?\d+"
 )
+# A fastener is SMALL — relative to its assembly AND in absolute terms.
+# A name-matched part bigger than BOTH bounds (a rail with a spec-suffixed
+# name, a housing) keeps its structural role: misclassifying structure as
+# hardware fronts it in removal priority, grants it bore exemptions, and
+# bars it from being the base. The absolute floor keeps tiny two-part
+# fixtures honest (a bolt IS a third of a 3-part test assembly).
+MAX_FASTENER_DIAGONAL_FRACTION = 0.35
+MAX_FASTENER_EXTENT_MM = 100.0
 
 # Tier-3 escape search bounds: BFS over axis-aligned hops. Each expansion
 # costs dense collision sampling, so the search is tightly capped.
@@ -317,6 +345,10 @@ def plan_step(
             path_samples=path_samples,
             warnings=warnings,
             tolerance=_mesh_tolerance(linear_deflection),
+            # Multi-member caller units (a populated PCB) keep their own
+            # step: they must never rigid-merge into another part or vanish
+            # into an extracted interlock group
+            protected=set(expansion.keys()),
         )
 
     # Expand merged units back to their member leaves: each member carries the
@@ -498,6 +530,8 @@ class _PlanOutcome:
     verified_count: int = 0
     # U → set of X meaning U must assemble before X (diagnostics)
     edges: dict = field(default_factory=dict)
+    # Unit-level "mates with" graph used for ordering (diagnostics)
+    adjacency: dict = field(default_factory=dict)
 
 
 def _plan_parts(
@@ -508,6 +542,7 @@ def _plan_parts(
     warnings: list[str] | None = None,
     tolerance: float = PENETRATION_TOLERANCE_MM,
     debug_trace: list | None = None,
+    protected: set[str] | None = None,
 ) -> _PlanOutcome:
     """The full pipeline over world-space parts.
 
@@ -522,6 +557,10 @@ def _plan_parts(
         warnings = []
 
     pair_depths = _seated_pair_depths(parts, trimesh_mod)
+    # "Mates with" graph for ordering: colliding pairs plus near-contact
+    # pairs within real CAD clearance. Drives base selection and the
+    # connected-growth constraint; collision truth stays penetration-based.
+    leaf_adjacency = _ordering_adjacency(parts, pair_depths)
     parts_by_id = {part.node_id: part for part in parts}
     for _pair, (_depth, _points, normals, _tensor, _bounds) in pair_depths.items():
         for node_id in _pair:
@@ -619,6 +658,7 @@ def _plan_parts(
         late_merges=late_merges,
         deep_bitten=deep_bitten,
         sandwiched=set(sandwiches),
+        protected=protected,
     )
     if late_merges:
         # Chase chains (A merged into B, B later merged into C)
@@ -641,16 +681,82 @@ def _plan_parts(
 
     planned_by_id = {entry.node_id: entry for entry in planned}
 
+    # Lift the mate graph to the final planning units, then anchor the
+    # assembly on the most-connected massive part — the greedy loop's base is
+    # only "the last part it could remove", which inverts on enclosures.
+    unit_adjacency = _rollup_adjacency(
+        leaf_adjacency, merged_into, group_units, units_by_id
+    )
+    _reselect_base(planned, units_by_id, unit_adjacency, fasteners, warnings)
+
+    # Greedy-time blockers are an artifact of removal order: a part flagged
+    # late was tested against a half-emptied world ("blocked by the box"
+    # when the lid and seal were already removed). Recompute against the
+    # FULL seated assembly so blocked_by names everything that pins the part
+    # — the flagged-before-blocker edges below and the viewer's blocker list
+    # both depend on it.
+    flagged_structural = [
+        entry
+        for entry in planned
+        if entry.tier == "flagged"
+        and entry.node_id in units_by_id
+        and entry.node_id not in fasteners
+    ]
+    if flagged_structural:
+        from trimesh.collision import CollisionManager
+
+        seated = CollisionManager()
+        for unit_id, unit in units_by_id.items():
+            seated.add_object(unit_id, unit.mesh)
+        for entry in flagged_structural:
+            blockers = _escape_blockers(
+                units_by_id[entry.node_id],
+                units_by_id,
+                seated,
+                fasteners,
+                tolerance,
+                path_samples,
+            )
+            if blockers:
+                entry.blocked_by = blockers
+
     edges = _derive_precedence(
         planned, units_by_id, trimesh_mod, fasteners, path_samples, tolerance
     )
     _add_joint_edges(fasteners, joints, units_by_id, edges, warnings)
-    # Sandwich edges go in BEFORE support edges: the support pass compares
-    # bbox z-centers, which degenerate for a thin part on a thin flange —
-    # with the sandwich edge already present, a wrong-direction support
-    # edge is rejected by the cycle guard, and the right one is a no-op.
-    _add_sandwich_edges(sandwiches, units_by_id, merged_into, edges, warnings)
-    _add_support_edges(parts, pair_depths, fasteners, merged_into, edges, warnings)
+    # Sandwich and support orderings are PREFERENCES (gravity stacking,
+    # enclosure-before-gasket-before-compressor), not collision physics —
+    # they live in a SOFT graph the sort favors but never blocks on. As hard
+    # DAG edges they can force the far end of a hanging pair before the end
+    # that touches the assembly, installing parts in mid-air. Sandwich goes
+    # in BEFORE support: the support pass compares bbox z-centers, which
+    # degenerate for a thin part on a thin flange — with the sandwich edge
+    # already present, a wrong-direction support edge is rejected by the
+    # cycle guard, and the right one is a no-op.
+    soft_edges: dict[str, set[str]] = {
+        unit_id: set() for unit_id in units_by_id
+    }
+    _add_sandwich_edges(
+        sandwiches, units_by_id, merged_into, soft_edges, warnings
+    )
+    _add_support_edges(
+        parts, pair_depths, fasteners, merged_into, soft_edges, warnings
+    )
+    # The base is PLACED, not inserted — nothing can be required to precede
+    # it. Derived/support/sandwich edges pointing INTO the base (a support
+    # edge from a part physically below it, a stale derived edge from a
+    # greedy replay where a re-anchored base was out of the world) would
+    # push the anchor into the middle of the sequence; drop them all. Any
+    # insertion that truly conflicts with the seated base is caught by
+    # forward verification and fades in instead.
+    base_id = next(
+        (entry.node_id for entry in planned if entry.tier == "base"), None
+    )
+    if base_id is not None:
+        for afters in edges.values():
+            afters.discard(base_id)
+        for afters in soft_edges.values():
+            afters.discard(base_id)
     sequence = _preference_topo_sort(
         planned,
         units_by_id,
@@ -666,6 +772,8 @@ def _plan_parts(
         debug_trace=debug_trace,
         fastened=fastened,
         contact_count=contact_count,
+        adjacency=unit_adjacency,
+        soft_edges=soft_edges,
     )
     _verify_sequence(
         sequence,
@@ -729,6 +837,7 @@ def _plan_parts(
         groups=groups_payload,
         verified_count=sum(1 for entry in planned if entry.verified),
         edges=edges,
+        adjacency=unit_adjacency,
     )
 
 
@@ -752,6 +861,11 @@ def _plan_fixed_sequence(
     groups (forward collision), demoting a group to ``flagged`` (motion
     "none", blockers recorded) when no such motion exists. The first group is
     the placed base and keeps motion "none".
+
+    The planning WORLD is the sequence: model parts absent from every group
+    are never on the canvas, so they are invisible here end to end — they are
+    not obstacles, they don't seed fastener mates/axes or contact normals, and
+    they don't weigh on the least-entanglement tie-break.
 
     Returns a fully-expanded ``_PlanOutcome`` (one entry per member leaf, each
     carrying its group's motion + groupId, plus a ``groups`` payload) so
@@ -801,14 +915,18 @@ def _plan_fixed_sequence(
     # Fastener axes are the only classification the motion search needs: they
     # let a fastener exit through its bore and keep its threaded-mate
     # interference. No greedy/precedence work runs — the order is given.
-    pair_depths = _seated_pair_depths(parts, trimesh_mod)
+    # Classification runs over the SEQUENCE parts only: components the caller
+    # never installs are not on the canvas, so they must not contribute mates,
+    # sliding allowances, bore axes, or contact normals.
+    sequence_parts = [part for part in parts if part.node_id in consumed]
+    pair_depths = _seated_pair_depths(sequence_parts, trimesh_mod)
     for _pair, (_depth, _points, normals, _tensor, _bounds) in pair_depths.items():
         for node_id in _pair:
             part = by_id.get(node_id)
             if part is None or len(part.contact_normals) >= 128:
                 continue
             part.contact_normals.extend(normals)
-    fasteners = _classify_fasteners(parts, pair_depths)
+    fasteners = _classify_fasteners(sequence_parts, pair_depths)
 
     # Each group becomes one rigid collision body: a multi-member group is
     # concatenated under its first member's nodeId (via `_merge_units`); a
@@ -826,11 +944,18 @@ def _plan_fixed_sequence(
     # Forward pass: place each group in the GIVEN order and compute its
     # insertion motion against ONLY the already-placed groups. The first group
     # is the placed base (no insertion motion), matching the normal path.
+    # `full_manager` holds every sequence body at its seated pose so the
+    # motion search's least-entanglement tie-break can rank multiple clear
+    # directions (the normal path builds the same thing from all parts).
     manager = CollisionManager()
+    full_manager = CollisionManager()
     placed: dict[str, _Component] = {}
     planned: list[PlannedComponent] = []
     planned_by_id: dict[str, PlannedComponent] = {}
     units_by_id: dict[str, _Component] = {}
+
+    for _label, body, _members in groups_ordered:
+        full_manager.add_object(body.node_id, body.mesh)
 
     for order_index, (_label, body, _members) in enumerate(groups_ordered):
         units_by_id[body.node_id] = body
@@ -847,15 +972,17 @@ def _plan_fixed_sequence(
             # holds only the placed groups, so the motion search (which reverses
             # a removal into an insertion) clears exactly the previous parts.
             remaining = {**placed, body.node_id: body}
-            entry = _plan_removal(
-                body,
-                remaining,
-                manager,
-                clearance,
-                path_samples,
-                fasteners,
-                tolerance,
-            )
+            with _unregistered(full_manager, [body.node_id]):
+                entry = _plan_removal(
+                    body,
+                    remaining,
+                    manager,
+                    clearance,
+                    path_samples,
+                    fasteners,
+                    tolerance,
+                    full_manager=full_manager,
+                )
             if entry is None:
                 entry = _plan_escape(
                     body,
@@ -1502,6 +1629,235 @@ def _add_support_edges(
         edges[lower].add(upper)
 
 
+def _ordering_adjacency(
+    parts: list[_Component],
+    pair_depths: dict[frozenset, tuple],
+    contact_mm: float = ORDERING_CONTACT_MM,
+) -> dict[str, set[str]]:
+    """Leaf-level "mates with" graph for ordering decisions.
+
+    Seeded from the colliding pairs (`pair_depths`), then augmented with
+    near-contact pairs: an inflated-AABB prefilter proposes candidates, an
+    exact FCL distance query confirms them within `contact_mm`. Real CAD
+    clearances (chip above its pads, boss in its pocket) become edges here
+    even though they never interpenetrate. Ordering-only — collision truth
+    is untouched.
+    """
+    import fcl
+
+    adjacency: dict[str, set[str]] = {part.node_id: set() for part in parts}
+    for pair in pair_depths:
+        if len(pair) != 2:
+            continue
+        a, b = tuple(pair)
+        if a in adjacency and b in adjacency:
+            adjacency[a].add(b)
+            adjacency[b].add(a)
+
+    count = len(parts)
+    if count < 2:
+        return adjacency
+    mins = np.array([part.bbox_min for part in parts]) - contact_mm
+    maxs = np.array([part.bbox_max for part in parts]) + contact_mm
+
+    candidates: list[tuple[int, int]] = []
+    for i in range(count - 1):
+        overlap = np.all(
+            (mins[i + 1 :] <= maxs[i]) & (maxs[i + 1 :] >= mins[i]), axis=1
+        )
+        for offset in np.nonzero(overlap)[0]:
+            j = i + 1 + int(offset)
+            if parts[j].node_id in adjacency[parts[i].node_id]:
+                continue
+            candidates.append((i, j))
+
+    # Past the budget, bbox proximity alone counts as adjacency — a degrade
+    # toward MORE edges, which only weakens the connectivity filter.
+    exact = len(candidates) <= MAX_ADJACENCY_DISTANCE_PAIRS
+    objects: dict[int, "fcl.CollisionObject"] = {}
+
+    def object_for(index: int):
+        obj = objects.get(index)
+        if obj is None:
+            obj = fcl.CollisionObject(
+                _mesh_bvh(parts[index].mesh), fcl.Transform()
+            )
+            objects[index] = obj
+        return obj
+
+    for i, j in candidates:
+        if exact:
+            request = fcl.DistanceRequest()
+            result = fcl.DistanceResult()
+            distance = fcl.distance(
+                object_for(i), object_for(j), request, result
+            )
+            if distance > contact_mm:
+                continue
+        adjacency[parts[i].node_id].add(parts[j].node_id)
+        adjacency[parts[j].node_id].add(parts[i].node_id)
+    return adjacency
+
+
+def _rollup_adjacency(
+    leaf_adjacency: dict[str, set[str]],
+    merged_into: dict[str, str],
+    group_units: dict[str, tuple[_Component, list[str]]],
+    units_by_id: dict[str, _Component],
+) -> dict[str, set[str]]:
+    """Leaf adjacency lifted to the FINAL planning units (rigid merges chased,
+    subassembly-group members folded into their representative)."""
+    member_to_rep: dict[str, str] = {}
+    for rep_id, (_combined, members) in group_units.items():
+        for member in members:
+            member_to_rep[member] = rep_id
+
+    def final_unit(leaf_id: str) -> str:
+        unit = merged_into.get(leaf_id, leaf_id)
+        return member_to_rep.get(unit, unit)
+
+    adjacency: dict[str, set[str]] = {
+        unit_id: set() for unit_id in units_by_id
+    }
+    for leaf_id, neighbors in leaf_adjacency.items():
+        unit_a = final_unit(leaf_id)
+        if unit_a not in adjacency:
+            continue
+        for neighbor in neighbors:
+            unit_b = final_unit(neighbor)
+            if unit_b == unit_a or unit_b not in adjacency:
+                continue
+            adjacency[unit_a].add(unit_b)
+            adjacency[unit_b].add(unit_a)
+    return adjacency
+
+
+def _reselect_base(
+    planned: list[PlannedComponent],
+    units_by_id: dict[str, _Component],
+    unit_adjacency: dict[str, set[str]],
+    fasteners: dict[str, _FastenerInfo],
+    warnings: list[str],
+) -> None:
+    """Re-anchor the assembly on the most-connected massive part.
+
+    The greedy loop's base is whatever it could not remove until last — on an
+    enclosure model that deadlocks (box pinned by its contents, seal pinned
+    between box and lid), the box gets FLAGGED and the compressed seal
+    "wins", inverting the whole sequence: the lid stack assembles hanging in
+    midair and the true anchor arrives late as an afterthought. From first
+    principles the base is the part everything mounts INTO: the structural
+    part with the highest mate degree and volume. When any structural part
+    beats the greedy base by a clear margin on BOTH axes, it becomes the
+    base (motion "none", placed first — a planned removal motion is
+    discarded; the anchor is placed, not inserted) and the ex-base fades in
+    at its ordered position like any other flagged part — for a compressed
+    seal that reads exactly right.
+    """
+    base_entry = next(
+        (entry for entry in planned if entry.tier == "base"), None
+    )
+    if base_entry is None:
+        return
+
+    def score(node_id: str) -> tuple[int, float]:
+        return (
+            len(unit_adjacency.get(node_id, ())),
+            _part_volume(units_by_id[node_id]),
+        )
+
+    candidates = [
+        entry
+        for entry in planned
+        if entry.tier != "base"
+        and entry.node_id in units_by_id
+        and entry.node_id not in fasteners
+        and not units_by_id[entry.node_id].is_proxy
+    ]
+    if not candidates:
+        return
+
+    winner = max(
+        candidates, key=lambda entry: (*score(entry.node_id), entry.node_id)
+    )
+    base_degree, base_volume = score(base_entry.node_id)
+    win_degree, win_volume = score(winner.node_id)
+    # Mate DEGREE is the anchor signal — the box everything screws into wins
+    # on degree even though its thin shell loses on mesh volume to a potted
+    # blob of components. The greedy base is an accident (the last removable
+    # part), so it earns no strong deference: a challenger that clearly
+    # dominates on connectivity (1.5x) with comparable mass takes over;
+    # near-ties keep the greedy base for stability.
+    if win_degree < 1.5 * max(base_degree, 1) or win_volume < 0.5 * base_volume:
+        return
+
+    winner_unit = units_by_id[winner.node_id]
+    base_unit = units_by_id[base_entry.node_id]
+    warnings.append(
+        f"base re-anchored to '{winner_unit.name or winner.node_id}' "
+        f"({win_degree} mates) — '{base_unit.name or base_entry.node_id}' "
+        "was the last removable part, not the part the assembly mounts into; "
+        "it fades in at its ordered position instead"
+    )
+    winner.tier = "base"
+    winner.motion = {"type": "none"}
+    winner.confidence = "high"
+    winner.removal_direction = None
+    winner.blocked_by = []
+    base_entry.tier = "flagged"
+    base_entry.motion = {"type": "none"}
+    base_entry.confidence = "low"
+    base_entry.removal_direction = None
+    base_entry.blocked_by = sorted(
+        unit_adjacency.get(base_entry.node_id, ())
+    )[:8]
+
+
+def _connectivity_repair(
+    order: list[str],
+    adjacency: dict[str, set[str]],
+) -> list[str]:
+    """Rebuild the order connectivity-first, preserving relative order
+    otherwise: a part that touches nothing placed is DEFERRED until
+    something it mates with has landed (a bracket emitted before the
+    support it hangs from waits those few steps). When neither the stream
+    nor the deferred pool offers a touching part, the earliest deferred
+    part anchors a detached island.
+
+    Reordering may violate a derived (collision-witness) edge: the deferred
+    part's insertion window may have closed. That is deliberate and SAFE —
+    forward verification replays every motion against the final order and
+    demotes a now-colliding insertion to a fade-in. A part fading in
+    attached to the assembly beats a part animating into empty space."""
+    result: list[str] = []
+    placed: set[str] = set()
+    deferred: list[str] = []
+    remaining = list(order)
+
+    def touches(node_id: str) -> bool:
+        return not placed or bool(adjacency.get(node_id, EMPTY_SET) & placed)
+
+    while remaining or deferred:
+        pick = None
+        for index, node_id in enumerate(deferred):
+            if touches(node_id):
+                pick = deferred.pop(index)
+                break
+        if pick is None:
+            while remaining:
+                node_id = remaining.pop(0)
+                if touches(node_id):
+                    pick = node_id
+                    break
+                deferred.append(node_id)
+        if pick is None:
+            # Nothing anywhere touches: a detached island starts here
+            pick = deferred.pop(0)
+        result.append(pick)
+        placed.add(pick)
+    return result
+
+
 def _preference_topo_sort(
     planned: list[PlannedComponent],
     units_by_id: dict[str, _Component],
@@ -1514,6 +1870,8 @@ def _preference_topo_sort(
     debug_trace: list | None = None,
     fastened: set[str] | None = None,
     contact_count: dict[str, int] | None = None,
+    adjacency: dict[str, set[str]] | None = None,
+    soft_edges: dict[str, set[str]] | None = None,
 ) -> list[str]:
     """Deterministic scored Kahn's sort over the precedence DAG.
 
@@ -1530,6 +1888,12 @@ def _preference_topo_sort(
     nodeId breaks ties. Accessory fasteners — threaded mates only,
     clamping nothing (knobs, set screws) — take no priority jump and
     schedule like small structure.
+
+    When `adjacency` is given, growth is CONNECTED: each pick must mate with
+    something already placed. A genuinely detached island (fixture,
+    reference geometry — nothing pending touches the placed set) anchors on
+    its own most-connected massive part with a warning; parts never install
+    suspended in space next to nothing.
     """
     units = list(units_by_id.values())
     centroid = _assembly_centroid(units)
@@ -1588,7 +1952,7 @@ def _preference_topo_sort(
             return False
         if units_by_id[node_id].is_proxy:
             return False
-        if edges.get(node_id):
+        if outgoing(node_id):
             return False
         members = (node_id, *group_members.get(node_id, ()))
         if any(member in fastened for member in members):
@@ -1602,6 +1966,18 @@ def _preference_topo_sort(
     for before, afters in edges.items():
         for after in afters:
             predecessors[after].add(before)
+
+    soft_edges = soft_edges or {}
+    soft_predecessors: dict[str, set[str]] = {
+        node_id: set() for node_id in edges
+    }
+    for before, afters in soft_edges.items():
+        for after in afters:
+            if after in soft_predecessors:
+                soft_predecessors[after].add(before)
+
+    def outgoing(node_id: str) -> bool:
+        return bool(edges.get(node_id)) or bool(soft_edges.get(node_id))
 
     placed: list[str] = []
     placed_set: set[str] = set()
@@ -1645,6 +2021,57 @@ def _preference_topo_sort(
             )
             break
 
+        # Connected growth: prefer parts that mate with the placed set. When
+        # no AVAILABLE part touches but some edge-blocked pending part does,
+        # restrict this pick to that part's unplaced ANCESTORS (the work
+        # that unlocks it) — never wander off to an unrelated floating part.
+        # Only when NOTHING pending touches is the remainder a detached
+        # island: anchor it on its most-connected massive part.
+        if adjacency is not None and placed_set:
+            touching = [
+                node_id
+                for node_id in available
+                if adjacency.get(node_id, EMPTY_SET) & placed_set
+            ]
+            if touching:
+                available = touching
+            else:
+                pending_touchers = [
+                    node_id
+                    for node_id in pending
+                    if adjacency.get(node_id, EMPTY_SET) & placed_set
+                ]
+                if pending_touchers:
+                    need: set[str] = set()
+                    stack = list(pending_touchers)
+                    while stack:
+                        node_id = stack.pop()
+                        for before in predecessors.get(node_id, EMPTY_SET):
+                            if before not in placed_set and before not in need:
+                                need.add(before)
+                                stack.append(before)
+                    gated = [
+                        node_id for node_id in available if node_id in need
+                    ]
+                    if gated:
+                        available = gated
+                    # else: the DAG forces work outside every toucher's
+                    # ancestry before anything can connect — proceed unfiltered
+                else:
+                    anchor = max(
+                        available,
+                        key=lambda node_id: (
+                            len(adjacency.get(node_id, ())),
+                            _part_volume(units_by_id[node_id]),
+                            node_id,
+                        ),
+                    )
+                    warnings.append(
+                        f"'{units_by_id[anchor].name or anchor}' starts a "
+                        "detached island — nothing already placed touches it"
+                    )
+                    available = [anchor]
+
         def sort_key(node_id: str) -> tuple:
             entry = by_id[node_id]
             unit = units_by_id[node_id]
@@ -1655,7 +2082,28 @@ def _preference_topo_sort(
                 and identity(node_id) == previous_identity
                 else 1,
                 0 if is_securing(node_id) else 1,
-                0 if edges.get(node_id) else 1,
+                # A flagged structural part whose blockers are still pending
+                # fades in BEFORE they exist (a boxed-in PCB before the lid
+                # that traps it) — a preference, never a DAG edge, so it can
+                # never force a disconnected pick. Flagged fasteners follow
+                # their joints like everything else.
+                0
+                if (
+                    entry.tier == "flagged"
+                    and node_id not in fastener_units
+                    and any(
+                        blocker in pending for blocker in entry.blocked_by
+                    )
+                )
+                else 1,
+                # Soft ordering (support stacking, sandwich sides): prefer
+                # parts whose soft prerequisites are already placed — a
+                # PREFERENCE the connectivity filter can override, never a
+                # DAG constraint that forces a mid-air pick
+                1
+                if soft_predecessors.get(node_id, EMPTY_SET) - placed_set
+                else 0,
+                0 if outgoing(node_id) else 1,
                 1 if is_weakly_secured(node_id) else 0,
                 _structural_key(unit, centroid, diagonal),
                 float(unit.bbox_min[2]),
@@ -1673,6 +2121,8 @@ def _preference_topo_sort(
         pending.remove(chosen)
         previous_identity = identity(chosen)
 
+    if adjacency is not None:
+        placed = _connectivity_repair(placed, adjacency)
     return placed
 
 
@@ -1848,10 +2298,26 @@ def _classify_fasteners(
     discs) → bbox shape (stubby screws) → the mate-contact ring (flange
     heads and knobs whose overall shape hides the bore axis — the thread
     contact points form a cylindrical band whose axis IS the bore).
+
+    Size sanity: hardware is SMALL relative to its assembly. A name-matched
+    part spanning more than MAX_FASTENER_DIAGONAL_FRACTION of the assembly
+    diagonal keeps its structural role — name-only detection otherwise
+    turns housings and rails with spec-suffixed names into "fasteners",
+    fronting them in removal priority and granting them bore exemptions.
     """
+    assembly_min = np.min([part.bbox_min for part in parts], axis=0)
+    assembly_max = np.max([part.bbox_max for part in parts], axis=0)
+    assembly_diagonal = float(np.linalg.norm(assembly_max - assembly_min))
+    max_extent = max(
+        MAX_FASTENER_EXTENT_MM,
+        MAX_FASTENER_DIAGONAL_FRACTION * assembly_diagonal,
+    )
+
     fasteners: dict[str, _FastenerInfo] = {}
     for part in parts:
         if not _is_fastener(part):
+            continue
+        if float(np.linalg.norm(part.bbox_max - part.bbox_min)) > max_extent:
             continue
 
         mates: dict[str, float] = {}
@@ -2358,6 +2824,7 @@ def _greedy_disassembly(
     late_merges: dict[str, str] | None = None,
     deep_bitten: set[str] | None = None,
     sandwiched: set[str] | None = None,
+    protected: set[str] | None = None,
 ) -> tuple[list[PlannedComponent], list[str], dict]:
     from trimesh.collision import CollisionManager
 
@@ -2507,6 +2974,11 @@ def _greedy_disassembly(
                     # A compliant part pressed into its flange is NOT a
                     # rigid unit with it — never merge a gasket into a lid
                     continue
+                if protected and part.node_id in protected:
+                    # A caller-authored unit (a populated PCB) never loses
+                    # its identity by riding another part's step — a stuck
+                    # unit flags and fades in as its own step instead
+                    continue
                 cached = stuck_blockers_cache.get(part.node_id)
                 if cached is not None and all(
                     blocker in remaining for blocker in cached
@@ -2527,6 +2999,11 @@ def _greedy_disassembly(
                 host_id = blockers[0]
                 host = remaining.get(host_id)
                 if host is None or host_id in sandwiched:
+                    continue
+                if protected and host_id in protected:
+                    # Caller-authored units are a FIXED grouping — parts never
+                    # join them either (an enclosure "captive" around a
+                    # populated PCB is a separate step, not a rider)
                     continue
                 combined_mesh = trimesh_mod.util.concatenate(
                     [host.mesh, part.mesh]
@@ -2583,6 +3060,14 @@ def _greedy_disassembly(
                 tolerance=tolerance,
                 deep_bitten=deep_bitten,
             )
+            if (
+                group is not None
+                and protected
+                and any(member in protected for member in group[0])
+            ):
+                # Caller-authored units keep their own step — never absorb
+                # one into an extracted interlock group
+                group = None
             if group is not None:
                 members, combined, entry = group
                 for member_id in members:

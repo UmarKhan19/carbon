@@ -52,3 +52,4 @@ export type {
   Vec3
 } from "./types";
 export { type UseAssemblyResult, useAssembly } from "./useAssembly";
+export { type ComponentVisual, visualForComponent } from "./visibility";

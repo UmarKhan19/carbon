@@ -64,6 +64,12 @@ export async function loadPlanUnits(args: {
       bom
     );
 
+    // Geometry↔BOM mappings can point at items NESTED inside a top-level
+    // Make line's BOM (the bare board inside the "PCB assembly" line);
+    // resolve those up to the line so the whole populated subassembly
+    // derives as ONE unit.
+    const lineByItem = await loadLineByItem(client, bom, companyId);
+
     const units = deriveAssemblyUnits({
       graph,
       bomMaterials: bom,
@@ -73,7 +79,8 @@ export async function loadPlanUnits(args: {
         name: unit.name,
         componentNodeIds: unit.componentNodeIds ?? []
       })),
-      componentMatches
+      componentMatches,
+      lineByItem
     });
 
     return units
@@ -87,6 +94,74 @@ export async function loadPlanUnits(args: {
     console.error("loadPlanUnits failed; planning every leaf instead:", error);
     return [];
   }
+}
+
+/**
+ * Descendant BOM itemId → its top-level line's itemId, walking each direct
+ * line's Make-subassembly BOM breadth-first (bounded depth). The bare board
+ * and connector inside a "PCB assembly" line resolve to that line, so a
+ * geometry mapping that points at the nested item still lands the leaf in
+ * the line's unit. First line wins when an item appears under two lines.
+ */
+async function loadLineByItem(
+  client: SupabaseClient<Database>,
+  bomLines: { itemId: string }[],
+  companyId: string
+): Promise<Record<string, string>> {
+  const lineByItem: Record<string, string> = {};
+  const topLevel = new Set(bomLines.map((line) => line.itemId));
+  let frontier = bomLines.map((line) => ({
+    itemId: line.itemId,
+    line: line.itemId
+  }));
+
+  for (let depth = 0; depth < 5 && frontier.length > 0; depth++) {
+    const methods = await client
+      .from("makeMethod")
+      .select("id, itemId, status")
+      .in(
+        "itemId",
+        frontier.map((entry) => entry.itemId)
+      )
+      .eq("companyId", companyId);
+    if (methods.error || !methods.data?.length) break;
+
+    // Active method first, else the first one, per item
+    const methodByItem = new Map<string, string>();
+    for (const method of methods.data) {
+      if (!methodByItem.has(method.itemId) || method.status === "Active") {
+        methodByItem.set(method.itemId, method.id);
+      }
+    }
+    const lineByMethod = new Map<string, string>();
+    for (const entry of frontier) {
+      const methodId = methodByItem.get(entry.itemId);
+      if (methodId) lineByMethod.set(methodId, entry.line);
+    }
+    if (lineByMethod.size === 0) break;
+
+    const materials = await client
+      .from("methodMaterial")
+      .select("makeMethodId, itemId")
+      .in("makeMethodId", [...lineByMethod.keys()])
+      .eq("companyId", companyId);
+    if (materials.error) break;
+
+    const next: { itemId: string; line: string }[] = [];
+    for (const material of materials.data ?? []) {
+      if (!material.itemId || !material.makeMethodId) continue;
+      const line = lineByMethod.get(material.makeMethodId);
+      if (!line) continue;
+      if (topLevel.has(material.itemId) || lineByItem[material.itemId]) {
+        continue;
+      }
+      lineByItem[material.itemId] = line;
+      next.push({ itemId: material.itemId, line });
+    }
+    frontier = next;
+  }
+
+  return lineByItem;
 }
 
 /**

@@ -718,11 +718,7 @@ export default function AssemblyBomTree({
             isLoading={isAddingStep}
             onClick={onAddStep}
           >
-            {hasSelection
-              ? `Add Step with ${selectedNodeIds.length} component${
-                  selectedNodeIds.length === 1 ? "" : "s"
-                }`
-              : "Add Step"}
+            Add Step
           </Button>
         </div>
       )}

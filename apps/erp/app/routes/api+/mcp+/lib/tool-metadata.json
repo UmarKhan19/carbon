@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-08T04:23:00.390Z",
-  "totalTools": 1292,
+  "generated": "2026-07-09T13:53:25.228Z",
+  "totalTools": 1294,
   "modules": 15,
   "tools": [
     {
@@ -20219,6 +20219,50 @@
       }
     },
     {
+      "name": "production_syncAssemblyStepMaterialsFromMappings",
+      "module": "production",
+      "classification": "WRITE",
+      "description": "sync assembly step materials from mappings",
+      "paramCount": 4,
+      "serviceParams": [
+        "client",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId",
+        "updatedBy"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "assemblyInstructionId": {
+            "type": "string"
+          },
+          "/** Limit to these steps (default: every step of the instruction) */\n    stepIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "/** Limit to these mappings (e.g. one just created) */\n    geometryHashes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "/** Limit to component groups containing one of these instances */\n    onlyComponentNodeIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "assemblyInstructionId"
+        ]
+      }
+    },
+    {
       "name": "production_getAssemblyStandardNotes",
       "module": "production",
       "classification": "READ",
@@ -20433,6 +20477,33 @@
       ],
       "injectAuth": [
         "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "modelUploadId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "modelUploadId"
+        ]
+      }
+    },
+    {
+      "name": "production_createAssemblyPlanJob",
+      "module": "production",
+      "classification": "WRITE",
+      "description": "create assembly plan job",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId",
+        "createdBy",
+        "updatedBy"
       ],
       "schema": {
         "type": "object",

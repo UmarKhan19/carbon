@@ -67,6 +67,28 @@ export function isJobLocked(status: string | null | undefined): boolean {
   );
 }
 
+/**
+ * A Queued assemblyPlanJob older than this never got picked up by the worker
+ * (pickup normally takes seconds) — treat it as dead rather than blocking the
+ * UI and re-runs forever. Processing rows are alive regardless of age: large
+ * models legitimately plan for many minutes, and the worker's onFailure flips
+ * them to Failed.
+ */
+const ASSEMBLY_PLAN_QUEUED_STALE_MS = 2 * 60 * 1000;
+
+/** Whether a motion-planning run is live (drives badges, polling, re-run guards). */
+export function isAssemblyPlanRunning(
+  job: { status: string; createdAt: string } | null | undefined
+): boolean {
+  if (!job) return false;
+  if (job.status === "Processing") return true;
+  return (
+    job.status === "Queued" &&
+    Date.now() - new Date(job.createdAt).getTime() <
+      ASSEMBLY_PLAN_QUEUED_STALE_MS
+  );
+}
+
 export const jobOperationStatus = [
   "Todo",
   "Ready",

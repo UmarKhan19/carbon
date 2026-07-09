@@ -99,7 +99,7 @@ const AssemblyInstructionHeader = () => {
           variant="ghost"
         />
         <Input
-          className="w-auto min-w-0 max-w-[320px] font-semibold text-foreground field-sizing-content"
+          className="mr-2 w-auto min-w-0 max-w-[320px] font-semibold text-foreground field-sizing-content"
           value={name}
           borderless
           onChange={

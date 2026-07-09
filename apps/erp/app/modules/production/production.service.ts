@@ -13,6 +13,7 @@ import {
   buildAssemblyStepGroups,
   CURRENT_PLAN_VERSION,
   computeStepCameras,
+  groupComponentNodeIds,
   indexAssemblyGraph
 } from "@carbon/viewer";
 import { parseDate } from "@internationalized/date";
@@ -4491,6 +4492,168 @@ export async function deleteAssemblyInstructionStepMaterial(
   return client.from("assemblyInstructionStepMaterial").delete().eq("id", id);
 }
 
+type AssemblyStepMaterialSeed = {
+  stepId: string;
+  itemId: string;
+  quantity: number;
+  sortOrder: number;
+};
+
+/**
+ * The step-material rows implied by each step's components: groups a step's
+ * componentNodeIds by geometry, resolves each group through the model's
+ * component→BOM mappings, and returns rows for matches the step doesn't
+ * already have. Quantity is the component's instance count within the step.
+ */
+function deriveAssemblyStepMaterialSeeds(args: {
+  steps: { id: string; componentNodeIds: string[] | null }[];
+  graphIndex: AssemblyGraphIndex;
+  itemIdByGeometryHash: Map<string, string>;
+  /** stepId → already-linked itemIds; never re-added, so manual edits win */
+  existingItemIds?: Map<string, Set<string>>;
+  /** stepId → sortOrder to start appending at */
+  nextSortOrder?: Map<string, number>;
+  /** Restrict to component groups containing one of these instances */
+  onlyComponentNodeIds?: Set<string>;
+}): AssemblyStepMaterialSeed[] {
+  const only = args.onlyComponentNodeIds;
+  const seeds: AssemblyStepMaterialSeed[] = [];
+  for (const step of args.steps) {
+    const groups = groupComponentNodeIds(
+      step.componentNodeIds ?? [],
+      args.graphIndex
+    );
+    const used = args.existingItemIds?.get(step.id);
+    // Two geometries can map to the same BOM item — aggregate their counts
+    const quantities = new Map<string, number>();
+    for (const group of groups) {
+      if (only && !group.nodeIds.some((nodeId) => only.has(nodeId))) {
+        continue;
+      }
+      const itemId = args.itemIdByGeometryHash.get(group.key);
+      if (!itemId || used?.has(itemId)) continue;
+      quantities.set(itemId, (quantities.get(itemId) ?? 0) + group.count);
+    }
+    let sortOrder = args.nextSortOrder?.get(step.id) ?? 1;
+    for (const [itemId, quantity] of quantities) {
+      seeds.push({ stepId: step.id, itemId, quantity, sortOrder: sortOrder++ });
+    }
+  }
+  return seeds;
+}
+
+function insertAssemblyStepMaterialSeeds(
+  client: SupabaseClient<Database>,
+  seeds: AssemblyStepMaterialSeed[],
+  args: { companyId: string; userId: string }
+) {
+  // ignoreDuplicates makes concurrent syncs race-safe on (stepId, itemId)
+  return client.from("assemblyInstructionStepMaterial").upsert(
+    seeds.map((seed) => ({
+      ...seed,
+      companyId: args.companyId,
+      createdBy: args.userId
+    })),
+    { onConflict: "stepId,itemId", ignoreDuplicates: true }
+  );
+}
+
+/**
+ * Adds the BOM items matched to each step's components (via
+ * assemblyComponentMapping) as step materials. Additive and best-effort:
+ * existing rows are never updated or removed — manual quantities and
+ * deliberate deletions survive — and failures never block the caller.
+ */
+export async function syncAssemblyStepMaterialsFromMappings(
+  client: SupabaseClient<Database>,
+  args: {
+    assemblyInstructionId: string;
+    companyId: string;
+    userId: string;
+    /** Limit to these steps (default: every step of the instruction) */
+    stepIds?: string[];
+    /** Limit to these mappings (e.g. one just created) */
+    geometryHashes?: string[];
+    /** Limit to component groups containing one of these instances */
+    onlyComponentNodeIds?: string[];
+  }
+): Promise<{ created: number }> {
+  const instruction = await client
+    .from("assemblyInstruction")
+    .select("id, modelUploadId, modelUpload(graphPath)")
+    .eq("id", args.assemblyInstructionId)
+    .single();
+  const modelUploadId = instruction.data?.modelUploadId;
+  const graphPath = instruction.data?.modelUpload?.graphPath;
+  if (instruction.error || !modelUploadId || !graphPath) {
+    return { created: 0 };
+  }
+
+  const mappings = await getAssemblyComponentMappings(client, modelUploadId);
+  const hashFilter = args.geometryHashes ? new Set(args.geometryHashes) : null;
+  const itemIdByGeometryHash = new Map<string, string>();
+  for (const mapping of mappings.data ?? []) {
+    if (hashFilter && !hashFilter.has(mapping.geometryHash)) continue;
+    itemIdByGeometryHash.set(mapping.geometryHash, mapping.itemId);
+  }
+  if (itemIdByGeometryHash.size === 0) return { created: 0 };
+
+  let stepsQuery = client
+    .from("assemblyInstructionStep")
+    .select("id, componentNodeIds")
+    .eq("assemblyInstructionId", args.assemblyInstructionId);
+  if (args.stepIds?.length) {
+    stepsQuery = stepsQuery.in("id", args.stepIds);
+  }
+  const steps = await stepsQuery;
+  if (!steps.data?.length) return { created: 0 };
+
+  const graphFile = await client.storage.from("private").download(graphPath);
+  if (graphFile.error || !graphFile.data) return { created: 0 };
+  let graphIndex: AssemblyGraphIndex;
+  try {
+    graphIndex = indexAssemblyGraph(
+      JSON.parse(await graphFile.data.text()) as AssemblyGraph
+    );
+  } catch {
+    return { created: 0 };
+  }
+
+  const existing = await client
+    .from("assemblyInstructionStepMaterial")
+    .select("stepId, itemId, sortOrder")
+    .in(
+      "stepId",
+      steps.data.map((step) => step.id)
+    );
+  const existingItemIds = new Map<string, Set<string>>();
+  const nextSortOrder = new Map<string, number>();
+  for (const row of existing.data ?? []) {
+    const itemIds = existingItemIds.get(row.stepId) ?? new Set<string>();
+    itemIds.add(row.itemId);
+    existingItemIds.set(row.stepId, itemIds);
+    nextSortOrder.set(
+      row.stepId,
+      Math.max(nextSortOrder.get(row.stepId) ?? 1, row.sortOrder + 1)
+    );
+  }
+
+  const seeds = deriveAssemblyStepMaterialSeeds({
+    steps: steps.data,
+    graphIndex,
+    itemIdByGeometryHash,
+    existingItemIds,
+    nextSortOrder,
+    onlyComponentNodeIds: args.onlyComponentNodeIds
+      ? new Set(args.onlyComponentNodeIds)
+      : undefined
+  });
+  if (seeds.length === 0) return { created: 0 };
+
+  const insert = await insertAssemblyStepMaterialSeeds(client, seeds, args);
+  return { created: insert.error ? 0 : seeds.length };
+}
+
 export async function getAssemblyStandardNotes(
   client: SupabaseClient<Database>,
   companyId: string
@@ -4645,6 +4808,31 @@ export async function getLatestAssemblyPlanJob(
     .order("createdAt", { ascending: false })
     .limit(1)
     .maybeSingle();
+}
+
+/**
+ * Pre-creates the Queued plan job row BEFORE the `assembly-plan` event is
+ * sent, so the very next loader read sees a live run (badge, disabled button,
+ * polling). The worker adopts the row via the event's `planJobId` and flips
+ * it to Processing; without this the row only exists after event pickup, and
+ * the post-action revalidation lands in that gap — nothing polls, and the run
+ * (and its finished motions) never surface without a manual reload.
+ */
+export async function createAssemblyPlanJob(
+  client: SupabaseClient<Database>,
+  args: { modelUploadId: string; companyId: string; userId: string }
+) {
+  return client
+    .from("assemblyPlanJob")
+    .insert({
+      modelUploadId: args.modelUploadId,
+      kind: "plan",
+      status: "Queued",
+      companyId: args.companyId,
+      createdBy: args.userId
+    })
+    .select("id")
+    .single();
 }
 
 /** Downloads and parses plan.json for a model's latest successful plan.
@@ -5089,9 +5277,34 @@ export async function generateAssemblyStepsFromPlan(
     };
   });
 
-  const insert = await client.from("assemblyInstructionStep").insert(rows);
+  const insert = await client
+    .from("assemblyInstructionStep")
+    .insert(rows)
+    .select("id, componentNodeIds");
   if (insert.error) {
     return { ok: false, reason: "error", message: insert.error.message };
+  }
+
+  // Seed each step's materials from the model's component→BOM mappings —
+  // best-effort; generation succeeds regardless.
+  if (graphIndex && insert.data?.length) {
+    const mappings = await getAssemblyComponentMappings(client, modelUploadId);
+    const itemIdByGeometryHash = new Map(
+      (mappings.data ?? []).map((mapping) => [
+        mapping.geometryHash,
+        mapping.itemId
+      ])
+    );
+    if (itemIdByGeometryHash.size > 0) {
+      const seeds = deriveAssemblyStepMaterialSeeds({
+        steps: insert.data,
+        graphIndex,
+        itemIdByGeometryHash
+      });
+      if (seeds.length > 0) {
+        await insertAssemblyStepMaterialSeeds(client, seeds, args);
+      }
+    }
   }
 
   return { ok: true, created: rows.length };

@@ -204,8 +204,10 @@ function corridorsOverlap(a: Aabb, b: Aabb): boolean {
  * step. Components the planner flagged via `blockedBy` (or that failed forward
  * verification) get motion "none" — a fabricated path would animate
  * straight through geometry. Unflagged components old plans left with motion
- * "none" get an AABB fallback so they never pop into place; the first
- * group is exempt (the base is placed, not inserted).
+ * "none" get an AABB fallback checked against earlier groups' components only
+ * (the parts on the canvas when the step plays); with no collision-free
+ * fallback they keep "none" and fade in. The first group is exempt (the base
+ * is placed, not inserted).
  */
 export function buildAssemblyStepGroups(
   plan: AssemblyPlan,
@@ -291,23 +293,24 @@ export function buildAssemblyStepGroups(
   }
 
   if (graphIndex) {
+    // Fallbacks see only earlier groups' components — the parts on the canvas
+    // when the group's step plays
+    const present = new Set<string>(groups[0]?.componentNodeIds ?? []);
     for (let index = 1; index < groups.length; index++) {
       const group = groups[index];
-      if (
-        !group ||
-        group.motion.type !== "none" ||
-        group.blockedBy.length > 0
-      ) {
-        continue;
+      if (!group) continue;
+      if (group.motion.type === "none" && group.blockedBy.length === 0) {
+        const fallback = synthesizeFallbackMotion(
+          graphIndex,
+          group.componentNodeIds,
+          present
+        );
+        if (fallback && fallback.type !== "none") {
+          group.motion = fallback;
+          group.confidence = "low";
+        }
       }
-      const fallback = synthesizeFallbackMotion(
-        graphIndex,
-        group.componentNodeIds
-      );
-      if (fallback && fallback.type !== "none") {
-        group.motion = fallback;
-        group.confidence = "low";
-      }
+      for (const nodeId of group.componentNodeIds) present.add(nodeId);
     }
   }
 
