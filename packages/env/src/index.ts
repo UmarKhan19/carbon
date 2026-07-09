@@ -13,6 +13,7 @@ declare global {
       JIRA_CLIENT_ID: string;
       LOG_LEVEL: string;
       MES_URL: string;
+      NODE_ENV: string;
       ONSHAPE_CLIENT_ID: string;
       POSTHOG_API_HOST: string;
       POSTHOG_PROJECT_PUBLIC_KEY: string;

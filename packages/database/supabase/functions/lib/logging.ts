@@ -80,7 +80,14 @@ export function withRequestLogging(
       { requestId, function: fnName },
       async () => await handler(req)
     );
-    response.headers.set(REQUEST_ID_HEADER, requestId);
-    return response;
+    // Rebuild with copied headers — a handler may return a Response with an
+    // immutable header guard (e.g. one from `fetch`), where `.set()` throws.
+    const headers = new Headers(response.headers);
+    headers.set(REQUEST_ID_HEADER, requestId);
+    return new Response(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers,
+    });
   };
 }
