@@ -1,6 +1,7 @@
 import type { Database, Json } from "@carbon/database";
 import { fetchAllFromTable } from "@carbon/database";
 import type { Kysely, KyselyDatabase } from "@carbon/database/client";
+import { getLogger } from "@carbon/logger";
 import type { PickPartial } from "@carbon/utils";
 import { getLocalTimeZone, now, today } from "@internationalized/date";
 import type {
@@ -69,6 +70,8 @@ import type {
   SalesOrder,
   SalesRFQ
 } from "./types";
+
+const logger = getLogger("erp", "sales");
 
 export function applyPriceRules(
   startingPrice: number,
@@ -500,12 +503,16 @@ export async function getConfigurationParametersByQuoteLineId(
   ]);
 
   if (parameters.error) {
-    console.error(parameters.error);
+    logger.error("Failed to get configuration parameters", {
+      error: parameters.error
+    });
     return { groups: [], parameters: [] };
   }
 
   if (groups.error) {
-    console.error(groups.error);
+    logger.error("Failed to get configuration parameter groups", {
+      error: groups.error
+    });
     return { groups: [], parameters: [] };
   }
 
@@ -1032,7 +1039,9 @@ export async function getOpportunityDocuments(
     .list(`${companyId}/opportunity/${opportunityId}`);
 
   if (result.error) {
-    console.error("Failed to list opportunity documents", result.error);
+    logger.error("Failed to list opportunity documents", {
+      error: result.error
+    });
     return [];
   }
 
@@ -1055,13 +1064,12 @@ export async function getOpportunityLineDocuments(
   ]);
 
   if (opportunityLineResult.error) {
-    console.error(
-      "Failed to list opportunity line documents",
-      opportunityLineResult.error
-    );
+    logger.error("Failed to list opportunity line documents", {
+      error: opportunityLineResult.error
+    });
   }
   if (itemResult.error) {
-    console.error("Failed to list item documents", itemResult.error);
+    logger.error("Failed to list item documents", { error: itemResult.error });
   }
 
   const opportunityLineDocs =
@@ -4256,7 +4264,7 @@ export async function calculatePricesForQuantities(
 
   const insertResult = await client.from("quoteLinePrice").insert(priceRows);
   if (insertResult.error) {
-    console.error("[qpricing][MtO calc] INSERT ERROR", {
+    logger.error("Failed to insert MtO calc quote line prices", {
       quoteLineId,
       error: insertResult.error
     });
@@ -4321,7 +4329,7 @@ export async function resolveQuoteLinePrices(
 
   const insertResult = await client.from("quoteLinePrice").insert(priceRows);
   if (insertResult.error) {
-    console.error("[qpricing][Pull] INSERT ERROR", {
+    logger.error("Failed to insert Pull quote line prices", {
       quoteLineId,
       error: insertResult.error
     });
@@ -4389,7 +4397,7 @@ export async function resolvePurchaseToOrderPrices(
 
   const insertResult = await client.from("quoteLinePrice").insert(priceRows);
   if (insertResult.error) {
-    console.error("[qpricing][P2O] INSERT ERROR", {
+    logger.error("Failed to insert P2O quote line prices", {
       quoteLineId,
       error: insertResult.error
     });
@@ -4510,7 +4518,7 @@ export async function recalculateQuoteLinePrices(
     .eq("quoteLineId", quoteLineId);
 
   if (deleteResult.error) {
-    console.error("[qpricing][recalc] DELETE ERROR", {
+    logger.error("Failed to delete quote line prices during recalc", {
       quoteLineId,
       error: deleteResult.error
     });
@@ -4519,7 +4527,7 @@ export async function recalculateQuoteLinePrices(
 
   const insertResult = await client.from("quoteLinePrice").insert(updatedRows);
   if (insertResult.error) {
-    console.error("[qpricing][recalc] INSERT ERROR", {
+    logger.error("Failed to insert quote line prices during recalc", {
       quoteLineId,
       error: insertResult.error
     });

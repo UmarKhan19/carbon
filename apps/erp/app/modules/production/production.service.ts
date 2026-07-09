@@ -1,5 +1,6 @@
 import type { Database, Json } from "@carbon/database";
 import { fetchAllFromTable } from "@carbon/database";
+import { getLogger } from "@carbon/logger";
 import type { JSONContent } from "@carbon/react";
 import { parseDate } from "@internationalized/date";
 import type { FileObject, StorageError } from "@supabase/storage-js";
@@ -52,6 +53,8 @@ import type {
   JobMaterialPurchaseOrderLine,
   JobMaterialSupplyJobLine
 } from "./types";
+
+const logger = getLogger("erp", "production");
 
 export async function convertSalesOrderLinesToJobs(
   client: SupabaseClient<Database>,
@@ -271,7 +274,7 @@ export async function convertSalesOrderLinesToJobs(
   }
 
   if (errors.length > 0) {
-    console.error(errors);
+    logger.error("Failed to convert sales order lines to jobs", { errors });
     return {
       data: null,
       error: {
@@ -2735,7 +2738,7 @@ export async function insertJob(
       if (input.configuration) body.configuration = input.configuration;
       const { error } = await client.functions.invoke("get-method", { body });
       if (error) {
-        console.error("Failed to copy method from quote line:", error);
+        logger.error("Failed to copy method from quote line", { error });
       }
     } else {
       const body: Record<string, unknown> = {
@@ -2748,7 +2751,7 @@ export async function insertJob(
       if (input.configuration) body.configuration = input.configuration;
       const { error } = await client.functions.invoke("get-method", { body });
       if (error) {
-        console.error("Failed to copy method from item:", error);
+        logger.error("Failed to copy method from item", { error });
       }
     }
   }

@@ -167,7 +167,7 @@ IMPORTANT: Before any research or coding, match the task to this table. A single
 - **Database**: Supabase (Postgres) with RLS, typed via `@carbon/database` + Kysely
 - **Background jobs**: Inngest (NOT Trigger.dev), via `@carbon/jobs`
 - **Apps**: `erp` (main), `mes` (shop floor), `academy` (training), `starter` (example)
-- **Packages**: 22 under `packages/` — auth, database, lib, react, form, documents, jobs, notifications, config, env, checks, harness, dev, stripe, ee, tiptap, locale, glossary, utils, kv, printing, onboarding
+- **Packages**: 23 under `packages/` — auth, database, lib, react, form, documents, jobs, notifications, config, env, checks, harness, dev, stripe, ee, tiptap, locale, glossary, utils, kv, printing, onboarding, logger
 - **Multi-tenancy**: every table has `companyId` + composite PK `("id", "companyId")`
 - **IDs**: `id('prefix')` default in SQL
 - **Imports**: `~/*` → app code; `@carbon/*` → workspace packages

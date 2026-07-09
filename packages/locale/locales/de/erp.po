@@ -167,6 +167,9 @@ msgstr "5 Benutzer Minimum"
 msgid "5-8 weeks"
 msgstr "5-8 Wochen"
 
+msgid "52-week demand"
+msgstr "52-Wochen-Nachfrage"
+
 msgid "5MB file limit"
 msgstr "5MB Dateigrößenlimit"
 
@@ -539,6 +542,9 @@ msgstr "Fügen Sie unten eine Spalte hinzu, um die Ansicht zu sortieren"
 msgid "Add a comment..."
 msgstr "Einen Kommentar hinzufügen..."
 
+msgid "Add a custom pricing row to override quantity, price, shipping, lead time, and tax"
+msgstr "Fügen Sie eine benutzerdefinierte Preiszeile hinzu, um Menge, Preis, Versand, Lieferzeit und Steuer zu überschreiben"
+
 msgid "Add a printer in the printing settings to print labels directly."
 msgstr "Fügen Sie einen Drucker in den Druckeinstellungen hinzu, um Etiketten direkt zu drucken."
 
@@ -553,6 +559,9 @@ msgstr "Einen Schritt hinzufügen"
 
 msgid "Add Actions"
 msgstr "Aktionen hinzufügen"
+
+msgid "Add Adjustment"
+msgstr "Anpassung hinzufügen"
 
 msgid "Add any notes about your decision..."
 msgstr "Fügen Sie Notizen zu Ihrer Entscheidung hinzu..."
@@ -991,6 +1000,10 @@ msgstr "Sind Sie sicher, dass Sie dieses Messinstrument aktivieren möchten?."
 #. placeholder {0}: routeData?.rfqSummary ?.rfqId!
 msgid "Are you sure you want to cancel {0}? This will also cancel all related supplier quotes."
 msgstr "Sind Sie sicher, dass Sie {0} stornieren möchten? Dies storniert auch alle zugehörigen Lieferantenofferten."
+
+#. placeholder {0}: routeData?.purchaseOrder?.purchaseOrderId ?? "this purchase order"
+msgid "Are you sure you want to cancel {0}? This will close the order."
+msgstr "Sind Sie sicher, dass Sie {0} stornieren möchten? Dadurch wird die Bestellung geschlossen."
 
 msgid "Are you sure you want to cancel this job? It will no longer be available on the shop floor."
 msgstr "Sind Sie sicher, dass Sie diesen Auftrag stornieren möchten? Er ist dann nicht mehr auf der Werkstatt verfügbar."
@@ -1738,6 +1751,9 @@ msgstr "Erstellen Sie rollenbasierte Schulungsmaterialien"
 msgid "Build tailored, role-based training materials"
 msgstr "Erstellen Sie maßgeschneiderte, rollenbasierte Schulungsmaterialien"
 
+msgid "Built and costed as its own method"
+msgstr "Als eigene Methode aufgebaut und kalkuliert"
+
 msgid "Bulk Import"
 msgstr "Massenimport"
 
@@ -1821,6 +1837,12 @@ msgstr "Abbrechen"
 
 msgid "Cancel Job"
 msgstr "Auftrag abbrechen"
+
+msgid "Cancel Order"
+msgstr "Auftrag stornieren"
+
+msgid "Cancel Purchase Order"
+msgstr "Bestellung stornieren"
 
 msgid "Cancel Sales Order"
 msgstr "Verkaufsauftrag stornieren"
@@ -2693,6 +2715,12 @@ msgstr "Dokument konnte nicht gelesen werden: {0}"
 msgid "Couldn't load documents"
 msgstr "Dokumente konnten nicht geladen werden"
 
+msgid "Couldn't load related documents. Refresh before creating a new one to avoid duplicates."
+msgstr "Verwandte Dokumente konnten nicht geladen werden. Aktualisieren Sie die Seite, bevor Sie ein neues erstellen, um Duplikate zu vermeiden."
+
+msgid "Couldn't reschedule the job. Please try again."
+msgstr "Der Auftrag konnte nicht umgeplant werden. Bitte versuchen Sie es erneut."
+
 msgid "Count"
 msgstr "Anzahl"
 
@@ -2940,6 +2968,9 @@ msgstr "CSV-Spalte"
 
 msgid "CSV file must have at least 2 rows."
 msgstr "CSV-Datei muss mindestens 2 Zeilen enthalten."
+
+msgid "Cumulative"
+msgstr "Kumulativ"
 
 msgid "Cumulative %"
 msgstr "Kumulativ %"
@@ -3464,6 +3495,9 @@ msgstr "Feiertag löschen"
 msgid "Delete Issue"
 msgstr "Problem löschen"
 
+msgid "Delete Item Group"
+msgstr "Artikelgruppe löschen"
+
 msgid "Delete Line"
 msgstr "Zeile löschen"
 
@@ -3611,6 +3645,10 @@ msgstr "Lieferantenangebotsanfrage löschen"
 msgid "Delete Supplier Type"
 msgstr "Lieferantentyp löschen"
 
+#. placeholder {0}: pendingDelete.quantity
+msgid "Delete the price break for quantity {0}? This can't be undone."
+msgstr "Den Preisrabatt für Menge {0} löschen? Dies kann nicht rückgängig gemacht werden."
+
 msgid "Delete Timecard"
 msgstr "Zeitkarte löschen"
 
@@ -3625,6 +3663,9 @@ msgstr "Übertragung löschen"
 
 msgid "Delete Transfer Line"
 msgstr "Transferzeile löschen"
+
+msgid "Delete Unit of Measure"
+msgstr "Maßeinheit löschen"
 
 msgid "Delete View"
 msgstr "Ansicht löschen"
@@ -3885,6 +3926,9 @@ msgstr "Vorlage herunterladen"
 
 msgid "Draft"
 msgstr "Entwurf"
+
+msgid "Draft is editable; Active is in use and requires a new version to change; Archived is retired."
+msgstr "Entwurf ist bearbeitbar; Aktiv ist in Verwendung und erfordert eine neue Version zum Ändern; Archiviert ist deaktiviert."
 
 msgid "Drag & drop files, or click to browse"
 msgstr "Dateien ziehen und ablegen oder zum Durchsuchen klicken"
@@ -5597,9 +5641,6 @@ msgstr "Spalten ausblenden, fixieren und neu anordnen"
 
 msgid "High"
 msgstr "Hoch"
-
-msgid "Higher priority wins ties and applies first for markups"
-msgstr "Höhere Priorität gewinnt bei Gleichständen und wird zuerst für Aufschläge angewendet"
 
 msgid "Hints in the first row"
 msgstr "Hinweise in der ersten Zeile"
@@ -7671,6 +7712,9 @@ msgstr "Kein Bild"
 msgid "No issue types configured"
 msgstr "Keine Problemtypen konfiguriert"
 
+msgid "No items"
+msgstr "Keine Artikel"
+
 msgid "No lines to map"
 msgstr "Keine Zeilen zum Zuordnen"
 
@@ -7962,6 +8006,9 @@ msgstr "Ein Schritt in der Routing eines Auftrags, der einen Prozess und ein Arb
 msgid "One system from quote to cash"
 msgstr "Ein System von der Anfrage bis zur Bezahlung"
 
+msgid "Only Draft procedures are editable. Create a new version to change an Active or Archived procedure."
+msgstr "Nur Entwurfsverfahren sind bearbeitbar. Erstellen Sie eine neue Version, um ein aktives oder archiviertes Verfahren zu ändern."
+
 msgid "Onshape Status"
 msgstr "Onshape-Status"
 
@@ -8136,6 +8183,9 @@ msgstr "Bestellmenge"
 
 msgid "Order quantities must be whole multiples of this number (a multiple of 12 → 12, 24, 36 …)."
 msgstr "Bestellmengen müssen ganze Vielfache dieser Zahl sein (ein Vielfaches von 12 → 12, 24, 36 …)."
+
+msgid "Order rules are evaluated in — for discounts only the highest-priority match applies (no stacking); markups all apply and compound in priority order."
+msgstr "Bestellregeln werden der Reihe nach ausgewertet — bei Rabatten gilt nur die Übereinstimmung mit der höchsten Priorität (keine Stapelung); Aufschläge gelten alle und werden in Prioritätsreihenfolge angewendet."
 
 msgid "Order Total"
 msgstr "Bestellsumme"
@@ -8470,6 +8520,9 @@ msgstr "Entnahmereihenfol­ge"
 
 msgid "Pick tracked item"
 msgstr "Verfolgtes Element auswählen"
+
+msgid "Picked and consumed as separate components"
+msgstr "Als separate Komponenten entnommen und verbraucht"
 
 msgid "Picked quantity"
 msgstr "Gepickte Menge"
@@ -9517,6 +9570,9 @@ msgstr "Nachbestellungsrichtlinie"
 msgid "Reordering Policy"
 msgstr "Nachbestellungsrichtlinie"
 
+msgid "Reorders dispatch sequence and work center only — does not reschedule. Change dates on the Dates board."
+msgstr "Ordnet nur Versandsequenz und Arbeitsplatz neu — plant nicht um. Termine auf dem Datumsboard ändern."
+
 msgid "Replace drawing?"
 msgstr "Zeichnung ersetzen?"
 
@@ -10182,6 +10238,9 @@ msgstr "Wählen Sie einen Artikel zum Konfigurieren aus"
 
 msgid "Select an option"
 msgstr "Wählen Sie eine Option"
+
+msgid "Select at least one line to convert"
+msgstr "Wählen Sie mindestens eine Zeile zum Konvertieren aus"
 
 msgid "Select Contact"
 msgstr "Kontakt auswählen"
@@ -12091,6 +12150,9 @@ msgstr "Dieses Los ist abgelaufen und kann nicht entnommen werden."
 msgid "This may take a moment. Hang tight."
 msgstr "Das kann einen Moment dauern. Bleib dran."
 
+msgid "This method version is read-only. Create a new version from the method menu to make changes."
+msgstr "Diese Methodenversion ist schreibgeschützt. Erstellen Sie eine neue Version aus dem Methodenmenü, um Änderungen vorzunehmen."
+
 msgid "This Month"
 msgstr "Dieser Monat"
 
@@ -13146,6 +13208,10 @@ msgstr "Website"
 msgid "Wednesday"
 msgstr "Mittwoch"
 
+#. placeholder {0}: d.week
+msgid "Week {0}"
+msgstr "Woche {0}"
+
 #. placeholder {0}: i + 1
 msgid "Week {0} ({formattedDate})"
 msgstr "Woche {0} ({formattedDate})"
@@ -13162,6 +13228,9 @@ msgstr "Woche des {0}"
 
 msgid "Weekly"
 msgstr "Wöchentlich"
+
+msgid "Weekly demand"
+msgstr "Wöchentliche Nachfrage"
 
 #. placeholder {0}: Math.round(startWeek) + 1
 #. placeholder {1}: Math.round(endWeek)
@@ -13486,6 +13555,11 @@ msgstr "Fenster:"
 msgid "WIP"
 msgstr "WIP"
 
+#. placeholder {0}: quarter.start + 1
+#. placeholder {1}: quarter.end
+msgid "Wk {0}–{1}"
+msgstr "KW {0}–{1}"
+
 msgid "wks"
 msgstr "Wo."
 
@@ -13610,6 +13684,9 @@ msgid ""
 "                        ordered quantity of {1}. What would you like\n"
 "                        to do with the extra parts?"
 msgstr "Sie haben {leftoverQuantity} weitere {0} als die bestellte Menge von {1} fertiggestellt. Was möchten Sie mit den zusätzlichen Teilen tun?"
+
+msgid "You don't have permission to edit this bill of material."
+msgstr "Sie haben keine Berechtigung, diese Stückliste zu bearbeiten."
 
 msgid "You drive it; we make sure it's done right. Expert eyes on your setup, data, and go-live."
 msgstr "Du bestimmst das Tempo; wir sorgen dafür, dass es richtig gemacht wird. Fachkundige Augen auf dein Setup, deine Daten und deinen Go-Live."
