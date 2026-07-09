@@ -83,5 +83,5 @@ pnpm --filter @carbon/logger test
 
 - `packages/lib/src/inngest/client.ts` — consumes `createInngestLogger()`.
 - `packages/database/supabase/functions/lib/logging.ts` — Deno-native twin
-  (`getFunctionLogger`, `withRequestLogging`), configured from `jsr:@logtape/*`.
+  (`getFunctionLogger`), configured from `jsr:@logtape/*`.
 - `packages/env/` — defines `LOG_LEVEL` (also exposed to `window.env`).
