@@ -8,6 +8,7 @@
     "@carbon/env": "workspace:*",
     "@carbon/kv": "workspace:*",
     "@carbon/lib": "workspace:*",
+    "@carbon/logger": "workspace:*",
     "@carbon/notifications": "workspace:*",
     "@carbon/printing": "workspace:*",
     "@carbon/stripe": "workspace:*",

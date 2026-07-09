@@ -52,10 +52,10 @@ export const syncFunction = inngest.createFunction(
     retries: 3
   },
   { event: "carbon/event-sync" },
-  async ({ event, step }) => {
+  async ({ event, step, logger }) => {
     const payload = SyncPayloadSchema.parse(event.data);
 
-    console.log(`Processing ${payload.records.length} sync events`);
+    logger.info(`Processing ${payload.records.length} sync events`);
 
     const results = {
       success: [] as BatchSyncResult[],
@@ -163,7 +163,7 @@ export const syncFunction = inngest.createFunction(
               if (toSync.length > 0) {
                 const entityIds = pluckUnique(toSync, (r) => r.event.recordId);
 
-                console.log(
+                logger.info(
                   `Pushing ${entityIds.length} ${entityType} entities to accounting`
                 );
 
@@ -174,8 +174,8 @@ export const syncFunction = inngest.createFunction(
                 } catch (error) {
                   if (error instanceof RatelimitError) {
                     const { retryAfterSeconds } = error.rateLimitInfo;
-                    console.warn(
-                      `[RATE LIMIT] Hit rate limit, will retry after ${retryAfterSeconds}s`
+                    logger.warn(
+                      `Hit rate limit, will retry after ${retryAfterSeconds}s`
                     );
                     // Let inngest handle the retry by throwing
                     throw error;
@@ -183,7 +183,7 @@ export const syncFunction = inngest.createFunction(
                   throw error;
                 }
 
-                console.log("Sync result:", { entityType, result });
+                logger.info("Sync result", { entityType, result });
                 groupResults.success.push(result);
               }
 
@@ -196,7 +196,7 @@ export const syncFunction = inngest.createFunction(
               }
             }
           } catch (error) {
-            console.error(`Failed to process sync for ${key}:`, error);
+            logger.error(`Failed to process sync for ${key}`, { error });
             for (const r of records) {
               groupResults.failed.push({
                 recordId: r.event.recordId,
@@ -214,7 +214,7 @@ export const syncFunction = inngest.createFunction(
       results.skipped.push(...groupResult.skipped);
     }
 
-    console.log("Sync function completed", {
+    logger.info("Sync function completed", {
       successCount: results.success.reduce((acc, r) => acc + r.successCount, 0),
       failedCount: results.failed.length,
       skippedCount: results.skipped.length

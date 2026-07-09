@@ -1,6 +1,9 @@
+import { getLogger } from "@carbon/logger";
 import { useCarbon, useRealtimeChannel } from "@carbon/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Notification } from "~/types";
+
+const logger = getLogger("erp", "usenotifications");
 
 type NotificationRow = {
   id: string;
@@ -50,7 +53,7 @@ export function useNotifications({
 
       if (cancelled) return;
       if (error) {
-        console.error("Failed to load notifications", error);
+        logger.error("Failed to load notifications", error);
         setLoading(false);
         return;
       }
@@ -152,7 +155,7 @@ export function useNotifications({
         .eq("digestedInto", digestId)
         .order("createdAt", { ascending: false });
       if (error) {
-        console.error("Failed to load digest children", error);
+        logger.error("Failed to load digest children", error);
         return [];
       }
       return ((data ?? []) as NotificationRow[]).map(rowToNotification);

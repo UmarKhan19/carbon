@@ -9,7 +9,7 @@ const PURGE_DIGESTED_AFTER_DAYS = 30;
 export const notificationPurgeFunction = inngest.createFunction(
   { id: "notification-purge", retries: 2 },
   { cron: "0 3 * * *" },
-  async ({ step }) => {
+  async ({ step, logger }) => {
     const client = getCarbonServiceRole();
 
     const purgedRead = await step.run("purge-read", async () => {
@@ -24,7 +24,7 @@ export const notificationPurgeFunction = inngest.createFunction(
         .select("id");
 
       if (error) {
-        console.error("Failed to purge read notifications", error);
+        logger.error("Failed to purge read notifications", { error });
         throw error;
       }
       return data?.length ?? 0;
@@ -42,7 +42,7 @@ export const notificationPurgeFunction = inngest.createFunction(
         .select("id");
 
       if (error) {
-        console.error("Failed to purge digested notifications", error);
+        logger.error("Failed to purge digested notifications", { error });
         throw error;
       }
       return data?.length ?? 0;
