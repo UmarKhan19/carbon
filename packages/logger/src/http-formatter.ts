@@ -23,7 +23,7 @@ function statusColor(status: number): string {
  */
 export const httpDevFormatter: TextFormatter = getAnsiColorFormatter({
   format({ timestamp, level, category, message, record }) {
-    const { method, pathname, status, responseTime } = record.properties;
+    const { method, pathname, status, responseTime, body } = record.properties;
 
     let line = message;
     if (
@@ -37,6 +37,13 @@ export const httpDevFormatter: TextFormatter = getAnsiColorFormatter({
           ? ` ${DIM}${Math.trunc(responseTime * 10) / 10} ms${RESET}`
           : "";
       line = `${BOLD}${method}${RESET} ${pathname} ${statusColor(status)}${status}${RESET}${time}`;
+      // The Morgan line only renders method/path/status/time, so a captured
+      // request body (debug only, already redacted) would otherwise be dropped
+      // in dev — append it dimmed on its own line.
+      if (body !== undefined) {
+        const rendered = typeof body === "string" ? body : JSON.stringify(body);
+        line += `\n  ${DIM}body ${rendered}${RESET}`;
+      }
     }
 
     return `${timestamp ? `${timestamp} ` : ""}${level} ${category}: ${line}`;

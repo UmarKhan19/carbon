@@ -88,3 +88,117 @@ describe("requestIdMiddleware", () => {
     expect(record?.properties.requestId).toBe("trace-me");
   });
 });
+
+function httpRecord() {
+  return recorder.records.find((r) => r.category.join(".") === "carbon.http");
+}
+
+function jsonRequest(body: string) {
+  return new Request("http://x/action", {
+    method: "POST",
+    body,
+    headers: {
+      "content-type": "application/json",
+      "content-length": String(new TextEncoder().encode(body).length)
+    }
+  });
+}
+
+describe("requestIdMiddleware body logging", () => {
+  it("captures a JSON body and redacts sensitive fields", async () => {
+    const request = jsonRequest(
+      JSON.stringify({
+        name: "Widget",
+        password: "hunter2",
+        nested: { token: "t" }
+      })
+    );
+    await requestIdMiddleware(
+      { request, context: makeContext() } as never,
+      async () => new Response("ok")
+    );
+
+    const body = httpRecord()?.properties.body as Record<string, unknown>;
+    expect(body).toBeDefined();
+    expect(body.name).toBe("Widget");
+    expect(body.password).toBe("[REDACTED]");
+    expect((body.nested as Record<string, unknown>).token).toBe("[REDACTED]");
+  });
+
+  it("leaves the body stream intact for the handler", async () => {
+    const request = jsonRequest(JSON.stringify({ hello: "world" }));
+    let handlerSaw: unknown;
+    await requestIdMiddleware(
+      { request, context: makeContext() } as never,
+      async () => {
+        handlerSaw = await request.json();
+        return new Response("ok");
+      }
+    );
+    expect(handlerSaw).toEqual({ hello: "world" });
+  });
+
+  it("captures a form-urlencoded body and redacts sensitive fields", async () => {
+    const body = "email=a%40b.com&note=hi";
+    const request = new Request("http://x/action", {
+      method: "POST",
+      body,
+      headers: {
+        "content-type": "application/x-www-form-urlencoded",
+        "content-length": String(body.length)
+      }
+    });
+    await requestIdMiddleware(
+      { request, context: makeContext() } as never,
+      async () => new Response("ok")
+    );
+    const captured = httpRecord()?.properties.body as Record<string, unknown>;
+    expect(captured.email).toBe("[REDACTED]");
+    expect(captured.note).toBe("hi");
+  });
+
+  it("skips multipart bodies", async () => {
+    const request = new Request("http://x/upload", {
+      method: "POST",
+      body: "----x",
+      headers: {
+        "content-type": "multipart/form-data; boundary=x",
+        "content-length": "5"
+      }
+    });
+    await requestIdMiddleware(
+      { request, context: makeContext() } as never,
+      async () => new Response("ok")
+    );
+    expect(httpRecord()?.properties.body).toBe(
+      "<multipart form-data not captured>"
+    );
+  });
+
+  it("skips oversized bodies by content-length", async () => {
+    const request = new Request("http://x/action", {
+      method: "POST",
+      body: "{}",
+      headers: {
+        "content-type": "application/json",
+        "content-length": String(64 * 1024)
+      }
+    });
+    await requestIdMiddleware(
+      { request, context: makeContext() } as never,
+      async () => new Response("ok")
+    );
+    expect(httpRecord()?.properties.body).toBe(
+      `<${64 * 1024} bytes not captured>`
+    );
+  });
+
+  it("adds no body for GET requests", async () => {
+    const request = new Request("http://x/dashboard");
+    await requestIdMiddleware(
+      { request, context: makeContext() } as never,
+      async () => new Response("ok")
+    );
+    expect(httpRecord()?.properties.body).toBeUndefined();
+  });
+});
