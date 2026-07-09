@@ -113,7 +113,6 @@ export function usePurchaseInvoiceAutoFill(
       });
 
       const [supplierDetails, paymentTermData] = await Promise.all([
-        // @ts-expect-error Supabase composite key issue
         carbon
           .from("supplier")
           .select(

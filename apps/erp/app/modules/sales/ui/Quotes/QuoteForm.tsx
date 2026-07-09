@@ -92,6 +92,7 @@ const QuoteForm = ({ initialValues }: QuoteFormProps) => {
         });
       });
 
+      // @ts-expect-error TS2589: type instantiation depth on Supabase composite relation
       const { data, error } = await carbon
         .from("customer")
         .select(
