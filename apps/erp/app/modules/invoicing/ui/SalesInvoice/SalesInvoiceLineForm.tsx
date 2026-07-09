@@ -62,8 +62,11 @@ import {
 } from "~/hooks";
 import type { SalesInvoice } from "~/modules/invoicing";
 import { salesInvoiceLineValidator } from "~/modules/invoicing";
-import type { MethodItemType } from "~/modules/shared";
-import { methodType } from "~/modules/shared";
+import {
+  methodType,
+  type OrderLineItemType,
+  orderLineItemType
+} from "~/modules/shared";
 import { useItems } from "~/stores";
 import { path } from "~/utils/path";
 import { isSalesInvoiceLocked } from "../../invoicing.models";
@@ -102,8 +105,8 @@ const SalesInvoiceLineForm = ({
   const isLocked = isSalesInvoiceLocked(routeData?.salesInvoice?.status);
   const isEditable = !isLocked;
 
-  const [itemType, setItemType] = useState<MethodItemType>(
-    initialValues.invoiceLineType as MethodItemType
+  const [itemType, setItemType] = useState<OrderLineItemType>(
+    initialValues.invoiceLineType as OrderLineItemType
   );
   const [locationId, setLocationId] = useState(defaults.locationId ?? "");
   const [itemData, setItemData] = useState<{
@@ -226,9 +229,9 @@ const SalesInvoiceLineForm = ({
         ? !permissions.can("update", "purchasing")
         : !permissions.can("create", "purchasing");
 
-  const onTypeChange = (t: MethodItemType | "Item") => {
+  const onTypeChange = (t: OrderLineItemType | "Item") => {
     if (t === itemType) return;
-    setItemType(t as MethodItemType);
+    setItemType(t as OrderLineItemType);
     setItemData({
       itemId: "",
       methodType: "",
@@ -252,7 +255,6 @@ const SalesInvoiceLineForm = ({
       case "Material":
       case "Part":
       case "Tool":
-      // @ts-expect-error
       case "Service":
       // @ts-expect-error
       case "Fixture":
@@ -315,7 +317,7 @@ const SalesInvoiceLineForm = ({
         }));
 
         if (item.data?.type) {
-          setItemType(item.data.type as MethodItemType);
+          setItemType(item.data.type as OrderLineItemType);
         }
 
         break;
@@ -492,8 +494,8 @@ const SalesInvoiceLineForm = ({
                       <Item
                         name="itemId"
                         label={itemType}
-                        // @ts-ignore
                         type={itemType}
+                        validItemTypes={[...orderLineItemType]}
                         locationId={locationId}
                         onChange={(value) => {
                           onItemChange(value?.value as string);

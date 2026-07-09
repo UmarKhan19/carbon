@@ -114,6 +114,7 @@ export const tablesWithTags = [
   "job",
   "material",
   "part",
+  "service",
   "suggestion",
   "tool"
 ];
@@ -123,8 +124,14 @@ export const methodItemType = [
   "Material",
   "Tool",
   "Consumable"
-  // "Service",
+  // Service is intentionally excluded — services are never BOM/method
+  // components. Use orderLineItemType for quote/order/invoice line pickers.
 ] as const;
+
+// Item types that can appear as a top-level quote/sales-order/purchase-order/
+// invoice line. Services are billable but never a method component, so they
+// live here rather than in methodItemType.
+export const orderLineItemType = [...methodItemType, "Service"] as const;
 
 export const months = [
   "January",

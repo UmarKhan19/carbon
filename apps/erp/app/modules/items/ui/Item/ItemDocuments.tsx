@@ -41,7 +41,7 @@ type ItemDocumentsProps = {
   files: ItemFile[];
   itemId: string;
   modelUpload?: ModelUpload;
-  type: MethodItemType;
+  type: MethodItemType | "Service";
 };
 
 const ItemDocuments = ({
@@ -263,7 +263,7 @@ export default ItemDocuments;
 
 type ItemDocumentFormProps = {
   itemId: string;
-  type: MethodItemType;
+  type: MethodItemType | "Service";
 };
 
 const ItemDocumentForm = ({ itemId, type }: ItemDocumentFormProps) => {
@@ -290,7 +290,7 @@ const ItemDocumentForm = ({ itemId, type }: ItemDocumentFormProps) => {
 
 type Props = {
   itemId: string;
-  type: MethodItemType;
+  type: MethodItemType | "Service";
 };
 
 export const useItemDocuments = ({ itemId, type }: Props) => {

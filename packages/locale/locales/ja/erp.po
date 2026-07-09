@@ -305,6 +305,9 @@ msgstr "販売RFQ（顧客が見積りを依頼）または購買RFQ（仕入先
 msgid "A separate schedule for tax reporting when tax rules require a method different from book depreciation."
 msgstr "税務規則が帳簿折旧と異なる方法を要求する場合の税務報告用の別個のスケジュール。"
 
+msgid "A service is a billable activity that is bought or performed — it is never shipped, received, or stocked"
+msgstr ""
+
 msgid "A set of companies under one owner that share group-scoped configuration — the chart of accounts, currencies, and dimensions — so the same accounting setup spans every company in the group."
 msgstr "同一の所有者の下にある会社の集合で、グループ単位の構成（勘定科目表、通貨、ディメンション）を共有し、同じ会計設定がグループ内のすべての会社に適用されます。"
 
@@ -2532,6 +2535,9 @@ msgstr "パーツへのリンクをコピー"
 msgid "Copy link to procedure"
 msgstr "プロシージャへのリンクをコピー"
 
+msgid "Copy link to service"
+msgstr ""
+
 msgid "Copy link to tool"
 msgstr "ツールへのリンクをコピー"
 
@@ -2579,6 +2585,12 @@ msgstr "見積書をコピー"
 
 msgid "Copy Quote number"
 msgstr "見積番号をコピー"
+
+msgid "Copy service number"
+msgstr ""
+
+msgid "Copy service unique identifier"
+msgstr ""
 
 msgid "Copy this item's pricing to another scope."
 msgstr "このアイテムの価格設定を別のスコープにコピーします。"
@@ -2852,6 +2864,9 @@ msgstr "必須アクションを作成しました"
 
 msgid "Created scrap reason"
 msgstr "スクラップ理由を作成しました"
+
+msgid "Created service"
+msgstr ""
 
 msgid "Created shipping method"
 msgstr "配送方法を作成しました"
@@ -3533,6 +3548,9 @@ msgstr "販売注文を削除"
 msgid "Delete Schedule"
 msgstr "スケジュールを削除"
 
+msgid "Delete Service"
+msgstr ""
+
 msgid "Delete Shift"
 msgstr "シフトを削除"
 
@@ -4187,6 +4205,9 @@ msgstr "スケジュール済みメンテナンスを編集"
 msgid "Edit Sequence"
 msgstr "シーケンスを編集"
 
+msgid "Edit Service"
+msgstr ""
+
 msgid "Edit Shift"
 msgstr "シフトを編集"
 
@@ -4804,6 +4825,10 @@ msgstr "支払い条件の作成に失敗しました: {0}"
 #. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create process: {0}"
 msgstr "プロセスの作成に失敗しました: {0}"
+
+#. placeholder {0}: fetcher.data.error.message
+msgid "Failed to create service: {0}"
+msgstr ""
 
 #. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create shipping method: {0}"
@@ -7388,6 +7413,9 @@ msgstr "新しい販売注文行"
 
 msgid "New Scheduled Maintenance"
 msgstr "新しいスケジュール済みメンテナンス"
+
+msgid "New Service"
+msgstr ""
 
 msgid "New Shift"
 msgstr "新しいシフト"
@@ -10292,11 +10320,17 @@ msgstr "サービス料金"
 msgid "Service Charges (default)"
 msgstr "サービス料金 (既定)"
 
+msgid "Service Details"
+msgstr ""
+
 msgid "Service ID"
 msgstr "サービスID"
 
 msgid "services"
 msgstr "サービス"
+
+msgid "Services"
+msgstr ""
 
 msgid "Set a target"
 msgstr "ターゲットを設定"
@@ -12641,6 +12675,9 @@ msgstr "「...」を使用して次の材料IDを取得します"
 
 msgid "Use ... to get the next part ID"
 msgstr "「...」を使用して次のパートIDを取得します"
+
+msgid "Use ... to get the next service ID"
+msgstr ""
 
 msgid "Use ... to get the next tool ID"
 msgstr "「...」を使用して次のツールIDを取得します"

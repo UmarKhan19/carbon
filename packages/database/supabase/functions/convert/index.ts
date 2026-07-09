@@ -544,7 +544,14 @@ serve(async (req: Request) => {
               selectedLines[line.id].quantity === 0
           );
 
-          const salesOrderStatus = "To Ship and Invoice";
+          // Services are never shipped — a service-only order goes straight to
+          // "To Invoice" so it isn't stuck waiting on a shipment that can't happen.
+          const hasShippableLine = quoteLines.data.some(
+            (line) => line.itemType !== "Service"
+          );
+          const salesOrderStatus = hasShippableLine
+            ? "To Ship and Invoice"
+            : "To Invoice";
 
           const salesOrder = await trx
             .insertInto("salesOrder")

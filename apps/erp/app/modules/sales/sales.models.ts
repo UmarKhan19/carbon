@@ -8,6 +8,7 @@ import {
   methodOperationOrders,
   methodType,
   operationTypes,
+  orderLineItemType,
   standardFactorType,
   taxExemptionReasons
 } from "../shared";
@@ -326,6 +327,7 @@ export const quoteLineCategoryMarkupsValidator = z
 export const quoteLineValidator = z.object({
   id: zfd.text(z.string().optional()),
   quoteId: z.string(),
+  itemType: z.enum(orderLineItemType).optional(),
   itemId: z.string().min(1, { message: "Part is required" }),
   status: z.enum(quoteLineStatusType, {
     errorMap: () => ({ message: "Status is required" })
@@ -656,7 +658,7 @@ export const quoteShipmentValidator = z.object({
 
 export const salesOrderLineType = [
   "Part",
-  // "Service",
+  "Service",
   "Material",
   "Tool",
   "Consumable",

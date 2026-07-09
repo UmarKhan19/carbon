@@ -60,7 +60,11 @@ import {
 import type { PurchaseInvoice } from "~/modules/invoicing";
 import { purchaseInvoiceLineValidator } from "~/modules/invoicing";
 import { getSupplierPartPriceBreaks } from "~/modules/items";
-import { type MethodItemType, resolveSupplierPrice } from "~/modules/shared";
+import {
+  type OrderLineItemType,
+  orderLineItemType,
+  resolveSupplierPrice
+} from "~/modules/shared";
 import { useItems } from "~/stores";
 import { path } from "~/utils/path";
 
@@ -97,8 +101,8 @@ const PurchaseInvoiceLineForm = ({
     routeData?.purchaseInvoice?.status ?? ""
   );
 
-  const [itemType, setItemType] = useState<MethodItemType>(
-    initialValues.invoiceLineType as MethodItemType
+  const [itemType, setItemType] = useState<OrderLineItemType>(
+    initialValues.invoiceLineType as OrderLineItemType
   );
   const [locationId, setLocationId] = useState(defaults.locationId ?? "");
   const [itemData, setItemData] = useState<{
@@ -272,9 +276,9 @@ const PurchaseInvoiceLineForm = ({
   const currencyFormatter = useCurrencyFormatter();
   const percentFormatter = usePercentFormatter();
 
-  const onTypeChange = (t: MethodItemType | "Item") => {
+  const onTypeChange = (t: OrderLineItemType | "Item") => {
     if (t === itemType) return;
-    setItemType(t as MethodItemType);
+    setItemType(t as OrderLineItemType);
     setItemData({
       itemId: "",
       description: "",
@@ -302,7 +306,6 @@ const PurchaseInvoiceLineForm = ({
       case "Material":
       case "Part":
       case "Tool":
-      // @ts-expect-error
       case "Service":
       // @ts-expect-error
       case "Fixture":
@@ -375,7 +378,7 @@ const PurchaseInvoiceLineForm = ({
         });
 
         if (item.data?.type) {
-          setItemType(item.data.type as MethodItemType);
+          setItemType(item.data.type as OrderLineItemType);
         }
 
         break;
@@ -538,8 +541,8 @@ const PurchaseInvoiceLineForm = ({
                       <Item
                         name="itemId"
                         label={itemType}
-                        // @ts-ignore
                         type={itemType}
+                        validItemTypes={[...orderLineItemType]}
                         locationId={locationId}
                         replenishmentSystem="Buy"
                         onChange={(value) => {

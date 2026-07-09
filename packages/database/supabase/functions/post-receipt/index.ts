@@ -366,7 +366,8 @@ serve(async (req: Request) => {
         (line) => {
           if (
             line.purchaseOrderLineType === "Comment" ||
-            line.purchaseOrderLineType === "G/L Account"
+            line.purchaseOrderLineType === "G/L Account" ||
+            line.purchaseOrderLineType === "Service"
           )
             return true;
           const target = line.purchaseQuantity ?? 0;
@@ -1348,6 +1349,7 @@ serve(async (req: Request) => {
             (line) =>
               line.purchaseOrderLineType === "Comment" ||
               line.purchaseOrderLineType === "G/L Account" ||
+              line.purchaseOrderLineType === "Service" ||
               line.receivedComplete
           );
 

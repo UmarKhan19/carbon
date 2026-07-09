@@ -197,7 +197,10 @@ const ItemForm = ({ initialValues, type }: ItemFormProps) => {
 
 export default ItemForm;
 
-export function getLinkToItemDetails(type: MethodItemType, id: string) {
+export function getLinkToItemDetails(
+  type: MethodItemType | "Service",
+  id: string
+) {
   switch (type) {
     case "Part":
       return path.to.partDetails(id);
@@ -207,19 +210,24 @@ export function getLinkToItemDetails(type: MethodItemType, id: string) {
       return path.to.toolDetails(id);
     case "Consumable":
       return path.to.consumableDetails(id);
-    // case "Service":
-    //   return path.to.serviceDetails(id);
+    case "Service":
+      return path.to.serviceDetails(id);
     default:
       throw new Error("Invalid type");
   }
 }
 
-export function getLinkToItemManufacturing(type: MethodItemType, id: string) {
+export function getLinkToItemManufacturing(
+  type: MethodItemType | "Service",
+  id: string
+) {
   switch (type) {
     case "Part":
       return path.to.partDetails(id);
     case "Tool":
       return path.to.toolDetails(id);
+    case "Service":
+      return path.to.serviceDetails(id);
     default:
       return getLinkToItemDetails(type, id);
   }

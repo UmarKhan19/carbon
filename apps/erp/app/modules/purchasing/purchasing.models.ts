@@ -33,7 +33,7 @@ export const KPIs = [
 
 export const purchaseOrderLineType = [
   "Part",
-  // "Service",
+  "Service",
   "Material",
   "Tool",
   "Consumable",
@@ -475,9 +475,12 @@ export const supplierQuoteLineValidator = z
   .object({
     id: zfd.text(z.string().optional()),
     supplierQuoteId: z.string(),
-    supplierQuoteLineType: z.enum([...methodItemType, "G/L Account"], {
-      errorMap: () => ({ message: "Type is required" })
-    }),
+    supplierQuoteLineType: z.enum(
+      [...methodItemType, "Service", "G/L Account"],
+      {
+        errorMap: () => ({ message: "Type is required" })
+      }
+    ),
     itemId: zfd.text(z.string().optional()),
     accountId: zfd.text(z.string().optional()),
     costCenterId: zfd.text(z.string().optional()),

@@ -7,7 +7,7 @@ import { incoterms, methodItemType, methodType } from "../shared/shared.models";
 
 export const purchaseInvoiceLineType = [
   "Part",
-  // "Service",
+  "Service",
   "Material",
   "Tool",
   "Consumable",
@@ -41,7 +41,7 @@ export function isPurchaseInvoiceLocked(
 
 export const salesInvoiceLineType = [
   "Part",
-  // "Service",
+  "Service",
   "Material",
   "Tool",
   "Consumable",

@@ -80,7 +80,7 @@ export type UsedInNode = {
     documentReadableId: string;
     documentId?: string;
     documentParentId?: string;
-    itemType?: MethodItemType;
+    itemType?: MethodItemType | "Service";
     methodType?: string;
     revision?: string;
     version?: number;

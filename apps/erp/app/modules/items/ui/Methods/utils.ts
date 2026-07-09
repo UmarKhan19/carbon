@@ -2,7 +2,7 @@ import type { MethodItemType } from "~/modules/shared";
 import { path } from "~/utils/path";
 
 export function getPathToMakeMethod(
-  type: MethodItemType,
+  type: MethodItemType | "Service",
   id: string,
   methodId: string
 ) {
@@ -11,6 +11,8 @@ export function getPathToMakeMethod(
       return `${path.to.partDetails(id)}?methodId=${methodId}`;
     case "Tool":
       return `${path.to.toolDetails(id)}?methodId=${methodId}`;
+    case "Service":
+      return `${path.to.serviceDetails(id)}?methodId=${methodId}`;
     default:
       return "#";
   }

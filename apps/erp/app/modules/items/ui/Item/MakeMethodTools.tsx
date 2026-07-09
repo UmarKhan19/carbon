@@ -66,7 +66,7 @@ import MakeMethodVersionStatus from "./MakeMethodVersionStatus";
 
 type MakeMethodToolsProps = {
   itemId: string;
-  type: MethodItemType;
+  type: MethodItemType | "Service";
   makeMethods: MakeMethod[];
   currentMethodId?: string;
 };

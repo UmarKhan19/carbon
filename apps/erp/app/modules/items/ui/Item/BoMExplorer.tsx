@@ -51,7 +51,7 @@ import type { MakeMethod, Method, MethodOperation } from "../../types";
 import { getLinkToItemDetails } from "./ItemForm";
 
 type BoMExplorerProps = {
-  itemType: MethodItemType;
+  itemType: MethodItemType | "Service";
   makeMethod: MakeMethod;
   methods: FlatTreeItem<Method>[];
   methodId?: string;
@@ -644,7 +644,7 @@ function NodePreview({ node }: { node: FlatTreeItem<Method> }) {
 }
 
 function getRootLink(
-  itemType: MethodItemType,
+  itemType: MethodItemType | "Service",
   itemId: string,
   methodId: string
 ) {
@@ -653,13 +653,15 @@ function getRootLink(
       return `${path.to.partDetails(itemId)}?methodId=${methodId}`;
     case "Tool":
       return `${path.to.toolDetails(itemId)}?methodId=${methodId}`;
+    case "Service":
+      return `${path.to.serviceDetails(itemId)}?methodId=${methodId}`;
     default:
       throw new Error(`Unimplemented BoMExplorer itemType: ${itemType}`);
   }
 }
 
 function getMaterialLink(
-  itemType: MethodItemType,
+  itemType: MethodItemType | "Service",
   itemId: string,
   methodId: string,
   makeMethodId: string,
@@ -670,6 +672,8 @@ function getMaterialLink(
       return `${path.to.partMake(itemId, makeMethodId)}?methodId=${methodId}`;
     case "Tool":
       return `${path.to.toolMake(itemId, makeMethodId)}?methodId=${methodId}`;
+    case "Service":
+      return `${path.to.serviceMake(itemId, makeMethodId)}?methodId=${methodId}`;
     default:
       throw new Error(`Unimplemented BoMExplorer itemType: ${itemType}`);
   }

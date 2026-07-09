@@ -67,7 +67,11 @@ import {
   isPurchaseOrderLocked,
   purchaseOrderLineValidator
 } from "~/modules/purchasing";
-import { type MethodItemType, resolveSupplierPrice } from "~/modules/shared";
+import {
+  type OrderLineItemType,
+  orderLineItemType,
+  resolveSupplierPrice
+} from "~/modules/shared";
 import type { action } from "~/routes/x+/purchase-order+/$orderId.$lineId.details";
 import { useItems } from "~/stores";
 import { path } from "~/utils/path";
@@ -121,8 +125,8 @@ const PurchaseOrderLineForm = ({
     routeData?.purchaseOrder?.purchaseOrderType === "Outside Processing";
   const isLocked = isPurchaseOrderLocked(routeData?.purchaseOrder?.status);
 
-  const [itemType, setItemType] = useState<MethodItemType>(
-    initialValues.purchaseOrderLineType as MethodItemType
+  const [itemType, setItemType] = useState<OrderLineItemType>(
+    initialValues.purchaseOrderLineType as OrderLineItemType
   );
   const [locationId, setLocationId] = useState(initialValues.locationId);
   const [itemData, setItemData] = useState<{
@@ -315,9 +319,9 @@ const PurchaseOrderLineForm = ({
   const currencyFormatter = useCurrencyFormatter();
   const percentFormatter = usePercentFormatter();
 
-  const onTypeChange = (t: MethodItemType | "Item") => {
+  const onTypeChange = (t: OrderLineItemType | "Item") => {
     if (t === itemType) return;
-    setItemType(t as MethodItemType);
+    setItemType(t as OrderLineItemType);
     setItemData({
       itemId: "",
       conversionFactor: 1,
@@ -347,7 +351,6 @@ const PurchaseOrderLineForm = ({
       case "Material":
       case "Part":
       case "Tool":
-      // @ts-expect-error
       case "Service":
       // @ts-expect-error
       case "Fixture":
@@ -426,7 +429,7 @@ const PurchaseOrderLineForm = ({
         });
 
         if (item.data?.type) {
-          setItemType(item.data.type as MethodItemType);
+          setItemType(item.data.type as OrderLineItemType);
         }
 
         break;
@@ -610,6 +613,7 @@ const PurchaseOrderLineForm = ({
                           name="itemId"
                           label={i18n._(itemTypeLabel(itemType))}
                           type={itemType}
+                          validItemTypes={[...orderLineItemType]}
                           locationId={locationId}
                           replenishmentSystem={
                             isOutsideProcessing ? undefined : "Buy"

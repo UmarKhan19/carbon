@@ -10,7 +10,7 @@ import { useItemDocuments } from "./ItemDocuments";
 type FileBadgeProps = {
   file: ItemFile;
   itemId: string;
-  itemType: MethodItemType;
+  itemType: MethodItemType | "Service";
   className?: string;
 };
 

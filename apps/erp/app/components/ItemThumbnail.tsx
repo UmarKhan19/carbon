@@ -7,7 +7,7 @@ import { MethodItemTypeIcon } from "./Icons";
 
 interface ItemThumbnailProps {
   thumbnailPath?: string | null;
-  type?: MethodItemType;
+  type?: MethodItemType | "Service";
   size?: "sm" | "md" | "lg" | "xl";
 }
 

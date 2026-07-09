@@ -1,7 +1,7 @@
 import type { Database } from "@carbon/database";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
-import { methodItemType } from "~/modules/shared";
+import { orderLineItemType } from "~/modules/shared";
 
 export const documentSourceTypes = [
   "Job",
@@ -16,7 +16,7 @@ export const documentSourceTypes = [
   "Sales Order",
   "Sales Invoice",
   "Shipment",
-  ...methodItemType
+  ...orderLineItemType
 ] as const;
 
 export const documentValidator = z.object({

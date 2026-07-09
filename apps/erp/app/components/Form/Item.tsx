@@ -34,8 +34,8 @@ import ConsumableForm from "~/modules/items/ui/Consumables/ConsumableForm";
 import MaterialForm from "~/modules/items/ui/Materials/MaterialForm";
 import PartForm from "~/modules/items/ui/Parts/PartForm";
 import ToolForm from "~/modules/items/ui/Tools/ToolForm";
-import type { MethodItemType } from "~/modules/shared";
-import { methodItemType } from "~/modules/shared";
+import type { MethodItemType, OrderLineItemType } from "~/modules/shared";
+import { methodItemType, orderLineItemType } from "~/modules/shared";
 import { useItems } from "~/stores";
 import { path } from "~/utils/path";
 import { MethodItemTypeIcon } from "../Icons";
@@ -51,11 +51,15 @@ type ItemSelectProps = Omit<ComboboxProps, "options" | "type" | "inline"> & {
   isConfigured?: boolean;
   locationId?: string;
   replenishmentSystem?: "Buy" | "Make";
-  type: MethodItemType | "Item";
+  type: OrderLineItemType | "Item";
   typeFieldName?: string;
-  validItemTypes?: MethodItemType[];
+  validItemTypes?: OrderLineItemType[];
   whitelist?: string[];
   onConfigure?: () => void;
+  // Narrower than `type`/`validItemTypes` on purpose: BOM/method callers pass a
+  // MethodItemType handler, and order-line callers pass a wider handler that is
+  // still assignable here (contravariance). The dropdown's emit is cast, so it
+  // can still surface "Service" when validItemTypes includes it.
   onTypeChange?: (type: MethodItemType | "Item") => void;
 };
 
@@ -70,7 +74,7 @@ const ItemPreview = (
 
 const useTranslatedItemType = () => {
   const { t } = useLingui();
-  return (type: MethodItemType | "Item") => {
+  return (type: OrderLineItemType | "Item") => {
     switch (type) {
       case "Item":
         return t`Item`;
@@ -82,6 +86,8 @@ const useTranslatedItemType = () => {
         return t`Tool`;
       case "Consumable":
         return t`Consumable`;
+      case "Service":
+        return t`Service`;
       default:
         return type;
     }
@@ -354,12 +360,14 @@ const Item = ({
                       <Trans>All Items</Trans>
                     </span>
                   </DropdownMenuRadioItem>
-                  {Object.values(methodItemType)
-                    .filter(
-                      (itemType) =>
-                        validItemTypes === undefined ||
-                        (Array.isArray(validItemTypes) &&
-                          validItemTypes.includes(itemType))
+                  {orderLineItemType
+                    .filter((itemType) =>
+                      // Default to methodItemType so BOM/method pickers never
+                      // surface Service; order-line forms opt in by passing
+                      // validItemTypes that include it.
+                      (validItemTypes ?? methodItemType).some(
+                        (t) => t === itemType
+                      )
                     )
                     .map((itemType) => (
                       <DropdownMenuRadioItem

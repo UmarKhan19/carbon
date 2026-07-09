@@ -356,20 +356,24 @@ serve(async (req: Request) => {
                   invoiceLine.salesOrderLineId === null &&
                   invoiceLine.methodType !== "Make to Order"
                 ) {
-                  // create the shipment line
-                  shipmentLineInserts.push({
-                    itemId: invoiceLine.itemId!,
-                    lineId: invoiceLine.id,
-                    orderQuantity: invoiceLineQuantityInInventoryUnit,
-                    outstandingQuantity: invoiceLineQuantityInInventoryUnit,
-                    shippedQuantity: invoiceLineQuantityInInventoryUnit,
-                    locationId: invoiceLine.locationId,
-                    storageUnitId: invoiceLine.storageUnitId,
-                    unitOfMeasure: invoiceLine.unitOfMeasureCode ?? "EA",
-                    unitPrice: invoiceLine.unitPrice ?? 0,
-                    createdBy: invoiceLine.createdBy,
-                    companyId,
-                  });
+                  // Services are never shipped, so they must not materialize a
+                  // shipment document — only the revenue + AR entries below.
+                  if (invoiceLine.invoiceLineType !== "Service") {
+                    // create the shipment line
+                    shipmentLineInserts.push({
+                      itemId: invoiceLine.itemId!,
+                      lineId: invoiceLine.id,
+                      orderQuantity: invoiceLineQuantityInInventoryUnit,
+                      outstandingQuantity: invoiceLineQuantityInInventoryUnit,
+                      shippedQuantity: invoiceLineQuantityInInventoryUnit,
+                      locationId: invoiceLine.locationId,
+                      storageUnitId: invoiceLine.storageUnitId,
+                      unitOfMeasure: invoiceLine.unitOfMeasureCode ?? "EA",
+                      unitPrice: invoiceLine.unitPrice ?? 0,
+                      createdBy: invoiceLine.createdBy,
+                      companyId,
+                    });
+                  }
 
                   if (itemTrackingType === "Inventory") {
                     // create the part ledger line
@@ -959,7 +963,9 @@ serve(async (req: Request) => {
 
             const areAllLinesShipped = salesOrderLines.every(
               (line) =>
-                line.salesOrderLineType === "Comment" || line.sentComplete
+                line.salesOrderLineType === "Comment" ||
+                  line.salesOrderLineType === "Service" ||
+                  line.sentComplete
             );
 
             let status: Database["public"]["Tables"]["salesOrder"]["Row"]["status"] =
@@ -1372,7 +1378,9 @@ serve(async (req: Request) => {
 
             const areAllLinesShipped = salesOrderLines.every(
               (line) =>
-                line.salesOrderLineType === "Comment" || line.sentComplete
+                line.salesOrderLineType === "Comment" ||
+                  line.salesOrderLineType === "Service" ||
+                  line.sentComplete
             );
 
             let status: Database["public"]["Tables"]["salesOrder"]["Row"]["status"] =
