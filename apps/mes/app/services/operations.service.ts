@@ -582,58 +582,6 @@ export async function getJobOperationById(
   });
 }
 
-export async function getJobOperationAssembly(
-  client: SupabaseClient<Database>,
-  operationId: string
-) {
-  const operation = await client
-    .from("jobOperation")
-    .select("assemblyInstructionId")
-    .eq("id", operationId)
-    .single();
-
-  const assemblyInstructionId = operation.data?.assemblyInstructionId;
-  if (!assemblyInstructionId) return null;
-
-  const [instruction, steps] = await Promise.all([
-    client
-      .from("assemblyInstruction")
-      .select("id, name, modelUpload(glbPath, graphPath)")
-      .eq("id", assemblyInstructionId)
-      .single(),
-    client
-      .from("assemblyInstructionStep")
-      .select(
-        "id, title, instructionText, componentNodeIds, motion, camera, fastener, durationSeconds, warnings"
-      )
-      .eq("assemblyInstructionId", assemblyInstructionId)
-      .order("sortOrder", { ascending: true })
-  ]);
-
-  const modelUpload = instruction.data?.modelUpload;
-  if (!modelUpload?.glbPath || !modelUpload?.graphPath) return null;
-
-  // Per-step process data (tools/notes/media); name and severity are
-  // denormalized on the row so no joins are needed for display
-  const stepIds = (steps.data ?? []).map((step) => step.id);
-  const requirements =
-    stepIds.length > 0
-      ? await client
-          .from("assemblyInstructionStepRequirement")
-          .select("id, stepId, type, name, text, severity, filePath, quantity")
-          .in("stepId", stepIds)
-          .order("sortOrder", { ascending: true })
-      : { data: [] };
-
-  return {
-    name: instruction.data?.name ?? null,
-    glbPath: modelUpload.glbPath,
-    graphPath: modelUpload.graphPath,
-    steps: steps.data ?? [],
-    requirements: requirements.data ?? []
-  };
-}
-
 export async function getJobOperationsByWorkCenter(
   client: SupabaseClient<Database>,
   { locationId, workCenterId }: { locationId: string; workCenterId: string }
