@@ -12355,6 +12355,9 @@ msgstr "这个零件已过时（无库存）。"
 msgid "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 msgstr "此零件已被替代并设置为仅库存 — 它补充到其备件储备下限，与需求无关。"
 
+msgid "This part isn't on any other assembly to delete from."
+msgstr ""
+
 msgid "This Quarter"
 msgstr "本季度"
 

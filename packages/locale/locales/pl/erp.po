@@ -12355,6 +12355,9 @@ msgstr "Ta część jest przestarzała (Brak zapasu)."
 msgid "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 msgstr "Ta część jest zastąpiona i ustawiona na Stock Only — jest uzupełniana do poziomu rezerwy części zamiennych, niezależnie od popytu."
 
+msgid "This part isn't on any other assembly to delete from."
+msgstr ""
+
 msgid "This Quarter"
 msgstr "Ten Kwartał"
 

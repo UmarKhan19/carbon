@@ -12355,6 +12355,9 @@ msgstr "Эта деталь снята с производства (нет в н
 msgid "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 msgstr "Эта деталь снята с производства и установлена в режим «Только запас» — она пополняется до минимального уровня резервного запаса независимо от спроса."
 
+msgid "This part isn't on any other assembly to delete from."
+msgstr ""
+
 msgid "This Quarter"
 msgstr "Этот квартал"
 

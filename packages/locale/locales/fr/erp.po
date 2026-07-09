@@ -12355,6 +12355,9 @@ msgstr "Cette pièce est obsolète (Pas de stock)."
 msgid "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 msgstr "Cette pièce est obsolète et définie sur Stock Only — elle est réapprovisionnée jusqu'à son plancher de réserve de pièces de rechange, indépendamment de la demande."
 
+msgid "This part isn't on any other assembly to delete from."
+msgstr ""
+
 msgid "This Quarter"
 msgstr "Ce trimestre"
 

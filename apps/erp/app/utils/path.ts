@@ -609,48 +609,52 @@ export const path = {
       generatePath(`${x}/part/${itemId}/parameter/order`),
     configurationRule: (itemId: string) =>
       generatePath(`${x}/part/${itemId}/rule`),
-    // Change Orders — standalone module (V1). List + config live under
-    // /x/change-orders; the detail record lives under /x/change-order/:id.
-    changeOrders: `${x}/change-orders`,
-    changeOrder: (id: string) => generatePath(`${x}/change-order/${id}`),
+    // Change Orders — a sub-area of the Items module. List + config live under
+    // /x/items/change-orders; the detail record lives under /x/items/change-order/:id.
+    changeOrders: `${x}/items/change-orders`,
+    changeOrder: (id: string) => generatePath(`${x}/items/change-order/${id}`),
     changeOrderDetails: (id: string) =>
-      generatePath(`${x}/change-order/${id}/details`),
+      generatePath(`${x}/items/change-order/${id}/details`),
     changeOrderStatus: (id: string) =>
-      generatePath(`${x}/change-order/${id}/status`),
-    newChangeOrder: `${x}/change-order/new`,
+      generatePath(`${x}/items/change-order/${id}/status`),
+    newChangeOrder: `${x}/items/change-order/new`,
     deleteChangeOrder: (id: string) =>
-      generatePath(`${x}/change-order/delete/${id}`),
-    updateChangeOrder: `${x}/change-order/update`,
-    changeOrderTypes: `${x}/change-orders/types`,
-    newChangeOrderType: `${x}/change-orders/types/new`,
+      generatePath(`${x}/items/change-order/delete/${id}`),
+    updateChangeOrder: `${x}/items/change-order/update`,
+    // Change Order Types — a sibling of the CO list (not nested under it), so the
+    // Items sidebar doesn't highlight both entries via prefix matching.
+    changeOrderTypes: `${x}/items/change-order-types`,
+    newChangeOrderType: `${x}/items/change-order-types/new`,
     changeOrderType: (id: string) =>
-      generatePath(`${x}/change-orders/types/${id}`),
+      generatePath(`${x}/items/change-order-types/${id}`),
     deleteChangeOrderType: (id: string) =>
-      generatePath(`${x}/change-orders/types/delete/${id}`),
+      generatePath(`${x}/items/change-order-types/delete/${id}`),
     // Change Order content (Phase 2): products affected, BOM change rows +
     // per-assembly targets, and freeform actions.
     changeOrderProduct: (id: string) =>
-      generatePath(`${x}/change-order/${id}/product`),
+      generatePath(`${x}/items/change-order/${id}/product`),
     deleteChangeOrderProduct: (id: string, productId: string) =>
-      generatePath(`${x}/change-order/${id}/product/delete/${productId}`),
+      generatePath(`${x}/items/change-order/${id}/product/delete/${productId}`),
     changeOrderBomChange: (id: string) =>
-      generatePath(`${x}/change-order/${id}/bom-change`),
+      generatePath(`${x}/items/change-order/${id}/bom-change`),
     deleteChangeOrderBomChange: (id: string, rowId: string) =>
-      generatePath(`${x}/change-order/${id}/bom-change/delete/${rowId}`),
+      generatePath(`${x}/items/change-order/${id}/bom-change/delete/${rowId}`),
     changeOrderBomChangeAssembly: (id: string, rowId: string) =>
-      generatePath(`${x}/change-order/${id}/bom-change/${rowId}/assembly`),
+      generatePath(
+        `${x}/items/change-order/${id}/bom-change/${rowId}/assembly`
+      ),
     deleteChangeOrderBomChangeAssembly: (id: string, assemblyId: string) =>
       generatePath(
-        `${x}/change-order/${id}/bom-change/assembly/delete/${assemblyId}`
+        `${x}/items/change-order/${id}/bom-change/assembly/delete/${assemblyId}`
       ),
     changeOrderAction: (id: string) =>
-      generatePath(`${x}/change-order/${id}/action`),
+      generatePath(`${x}/items/change-order/${id}/action`),
     deleteChangeOrderAction: (id: string, actionId: string) =>
-      generatePath(`${x}/change-order/${id}/action/delete/${actionId}`),
+      generatePath(`${x}/items/change-order/${id}/action/delete/${actionId}`),
     changeOrderActionStatus: (id: string, actionId: string) =>
-      generatePath(`${x}/change-order/${id}/action/${actionId}/status`),
+      generatePath(`${x}/items/change-order/${id}/action/${actionId}/status`),
     changeOrderActionOrder: (id: string) =>
-      generatePath(`${x}/change-order/${id}/action/order`),
+      generatePath(`${x}/items/change-order/${id}/action/order`),
     contractor: (id: string) =>
       generatePath(`${x}/resources/contractors/${id}`),
     contractors: `${x}/resources/contractors`,

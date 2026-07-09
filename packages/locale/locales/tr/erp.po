@@ -12355,6 +12355,9 @@ msgstr "Bu parça kullanımdan kaldırılmıştır (Stok Yok)."
 msgid "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 msgstr "Bu parça kullanımdan kaldırılmış ve Yalnızca Stok olarak ayarlanmıştır — talep bağımsız olarak yedek rezerv tabanına kadar yenilenir."
 
+msgid "This part isn't on any other assembly to delete from."
+msgstr ""
+
 msgid "This Quarter"
 msgstr "Bu Çeyrek"
 

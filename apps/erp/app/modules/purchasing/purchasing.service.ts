@@ -2362,6 +2362,9 @@ export async function getPurchasingRFQSuppliers(
   client: SupabaseClient<Database>,
   purchasingRfqId: string
 ) {
+  // @ts-expect-error TS2589: composite-key embed pushes past TS's instantiation
+  // budget once the program's type surface grows (this file imports nothing from
+  // the change to items); a flat select + JS shape would be the alternative fix.
   return client
     .from("purchasingRfqSupplier")
     .select("*, supplier:supplierId(id, name)")

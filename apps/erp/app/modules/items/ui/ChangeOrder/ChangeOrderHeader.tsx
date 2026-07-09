@@ -1,0 +1,173 @@
+import {
+  Button,
+  Copy,
+  cn,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuIcon,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  Heading,
+  HStack,
+  IconButton,
+  useDisclosure,
+  VStack
+} from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
+import {
+  LuChevronRight,
+  LuCircleCheck,
+  LuEllipsisVertical,
+  LuTrash
+} from "react-icons/lu";
+import { Link, useFetcher, useParams } from "react-router";
+import { useAuditLog } from "~/components/AuditLog";
+import ConfirmDelete from "~/components/Modals/ConfirmDelete";
+import { usePermissions, useRouteData, useUser } from "~/hooks";
+import { path } from "~/utils/path";
+import {
+  changeOrderStatus,
+  changeOrderStatusTransitions,
+  isChangeOrderLocked
+} from "../../changeOrder.models";
+import type { ChangeOrder } from "../../types";
+import ChangeOrderStatus from "./ChangeOrderStatus";
+
+const ChangeOrderHeader = () => {
+  const { id } = useParams();
+  if (!id) throw new Error("id not found");
+
+  const routeData = useRouteData<{ changeOrder: ChangeOrder }>(
+    path.to.changeOrder(id)
+  );
+
+  const status = routeData?.changeOrder?.status ?? "Draft";
+  const { t } = useLingui();
+  const permissions = usePermissions();
+  const { company } = useUser();
+  const statusFetcher = useFetcher<{}>();
+  const deleteModal = useDisclosure();
+
+  const { trigger: auditLogTrigger, drawer: auditLogDrawer } = useAuditLog({
+    entityType: "changeOrder",
+    entityId: id,
+    companyId: company.id,
+    variant: "dropdown"
+  });
+
+  const isLocked = isChangeOrderLocked(status);
+  const nextStatus =
+    changeOrderStatusTransitions[
+      status as (typeof changeOrderStatus)[number]
+    ]?.[0] ?? null;
+
+  return (
+    <>
+      <div className="flex flex-shrink-0 items-center justify-between px-4 py-2 bg-card border-b border-border h-[50px] overflow-x-auto scrollbar-hide dark:border-none dark:shadow-[inset_0_0_1px_rgb(255_255_255_/_0.24),_0_0_0_0.5px_rgb(0,0,0,1),0px_0px_4px_rgba(0,_0,_0,_0.08)]">
+        <VStack spacing={0}>
+          <HStack>
+            <Link to={path.to.changeOrderDetails(id)}>
+              <Heading size="h4" className="flex items-center gap-2">
+                <span>{routeData?.changeOrder?.changeOrderId}</span>
+              </Heading>
+            </Link>
+            <ChangeOrderStatus status={routeData?.changeOrder?.status} />
+            <Copy text={routeData?.changeOrder?.changeOrderId ?? ""} />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <IconButton
+                  aria-label={t`More options`}
+                  icon={<LuEllipsisVertical />}
+                  variant="secondary"
+                  size="sm"
+                />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                {auditLogTrigger}
+                <DropdownMenuItem
+                  destructive
+                  disabled={
+                    !permissions.can("delete", "parts") ||
+                    !permissions.is("employee")
+                  }
+                  onClick={deleteModal.onOpen}
+                >
+                  <DropdownMenuIcon icon={<LuTrash />} />
+                  {t`Delete Change Order`}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </HStack>
+        </VStack>
+
+        <HStack spacing={2}>
+          {/* Stage bar — the five stages with the current one highlighted. */}
+          <HStack spacing={1} className="hidden md:flex">
+            {changeOrderStatus.map((stage, index) => {
+              const isCurrent = stage === status;
+              const isPast =
+                changeOrderStatus.indexOf(
+                  status as (typeof changeOrderStatus)[number]
+                ) > index;
+              return (
+                <HStack spacing={1} key={stage}>
+                  {index > 0 && (
+                    <LuChevronRight className="size-3 text-muted-foreground" />
+                  )}
+                  <span
+                    className={cn(
+                      "text-xs whitespace-nowrap",
+                      isCurrent && "font-semibold text-foreground",
+                      isPast && "text-muted-foreground line-through",
+                      !isCurrent && !isPast && "text-muted-foreground"
+                    )}
+                  >
+                    {stage}
+                  </span>
+                </HStack>
+              );
+            })}
+          </HStack>
+
+          {nextStatus && !isLocked && (
+            <statusFetcher.Form
+              method="post"
+              action={path.to.changeOrderStatus(id)}
+            >
+              <input type="hidden" name="id" value={id} />
+              <input type="hidden" name="fromStatus" value={status} />
+              <input type="hidden" name="status" value={nextStatus} />
+              <Button
+                type="submit"
+                leftIcon={<LuCircleCheck />}
+                variant="primary"
+                isDisabled={
+                  statusFetcher.state !== "idle" ||
+                  !permissions.can("update", "parts")
+                }
+                isLoading={statusFetcher.state !== "idle"}
+              >
+                {t`Advance to ${nextStatus}`}
+              </Button>
+            </statusFetcher.Form>
+          )}
+        </HStack>
+      </div>
+      {deleteModal.isOpen && (
+        <ConfirmDelete
+          action={path.to.deleteChangeOrder(id)}
+          isOpen={deleteModal.isOpen}
+          name={routeData?.changeOrder?.changeOrderId ?? ""}
+          text={t`Are you sure you want to delete ${
+            routeData?.changeOrder?.changeOrderId ?? ""
+          }? This cannot be undone.`}
+          onCancel={deleteModal.onClose}
+          onSubmit={deleteModal.onClose}
+        />
+      )}
+      {auditLogDrawer}
+    </>
+  );
+};
+
+export default ChangeOrderHeader;

@@ -11,14 +11,10 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { Await, redirect, useLoaderData, useParams } from "react-router";
 import { CadModel, DeferredFiles } from "~/components";
 import { usePermissions, useRouteData } from "~/hooks";
-import { getItemChangeOrderData } from "~/modules/change-orders";
-import {
-  ItemChangeOrders,
-  ItemOpenChangeOrderAlert
-} from "~/modules/change-orders/ui/ChangeOrder";
 import type { ItemFile, MakeMethod, ToolSummary } from "~/modules/items";
 import {
   getControlledDrawing,
+  getItemChangeOrderData,
   getItemManufacturing,
   getMakeMethodById,
   getMakeMethods,
@@ -30,6 +26,10 @@ import {
   upsertTool
 } from "~/modules/items";
 import { getRevisionLock } from "~/modules/items/items.server";
+import {
+  ItemChangeOrders,
+  ItemOpenChangeOrderAlert
+} from "~/modules/items/ui/ChangeOrder";
 import {
   BillOfMaterial,
   BillOfProcess,

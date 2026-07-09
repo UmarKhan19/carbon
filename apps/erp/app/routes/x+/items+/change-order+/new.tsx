@@ -1,0 +1,116 @@
+import { assertIsPost, error } from "@carbon/auth";
+import { requirePermissions } from "@carbon/auth/auth.server";
+import { flash } from "@carbon/auth/session.server";
+import type { Json } from "@carbon/database";
+import { validationError, validator } from "@carbon/form";
+import { getLocalTimeZone, today } from "@internationalized/date";
+import { msg } from "@lingui/core/macro";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { redirect, useLoaderData } from "react-router";
+import {
+  changeOrderValidator,
+  getChangeOrderTypesList,
+  insertChangeOrder
+} from "~/modules/items";
+import { ChangeOrderForm } from "~/modules/items/ui/ChangeOrder";
+import { setCustomFields } from "~/utils/form";
+import type { Handle } from "~/utils/handle";
+import { path } from "~/utils/path";
+
+export const handle: Handle = {
+  breadcrumb: msg`Change Orders`,
+  to: path.to.changeOrders
+};
+
+// The reason/description form fields arrive as plain text; the columns are
+// tiptap JSON, so wrap non-empty text into a minimal doc (the inline Editor on
+// the detail page then edits it as rich text). Empty stays undefined.
+function toRichText(value: string | undefined): Json | undefined {
+  if (!value) return undefined;
+  return {
+    type: "doc",
+    content: [{ type: "paragraph", content: [{ type: "text", text: value }] }]
+  } as unknown as Json;
+}
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const { client, companyId } = await requirePermissions(request, {
+    view: "parts"
+  });
+
+  const types = await getChangeOrderTypesList(client, companyId);
+
+  return {
+    types: types.data ?? []
+  };
+}
+
+export async function action({ request }: ActionFunctionArgs) {
+  assertIsPost(request);
+  const { client, companyId, userId } = await requirePermissions(request, {
+    create: "parts"
+  });
+
+  const formData = await request.formData();
+  const validation = await validator(changeOrderValidator).validate(formData);
+
+  if (validation.error) {
+    return validationError(validation.error);
+  }
+
+  const d = validation.data;
+
+  const createResult = await insertChangeOrder(client, {
+    changeOrderId: d.changeOrderId || undefined,
+    name: d.name,
+    reasonForChange: toRichText(d.reasonForChange),
+    description: toRichText(d.description),
+    priority: d.priority,
+    changeOrderTypeId: d.changeOrderTypeId || undefined,
+    nonConformanceId: d.nonConformanceId || undefined,
+    openDate: d.openDate || today(getLocalTimeZone()).toString(),
+    dueDate: d.dueDate || undefined,
+    effectiveDate: d.effectiveDate || undefined,
+    assignee: d.assignee || undefined,
+    companyId,
+    createdBy: userId,
+    customFields: setCustomFields(formData)
+  });
+
+  if (createResult.error || !createResult.data) {
+    throw redirect(
+      path.to.changeOrders,
+      await flash(
+        request,
+        error(createResult.error, "Failed to create change order")
+      )
+    );
+  }
+
+  throw redirect(path.to.changeOrderDetails(createResult.data.id));
+}
+
+export default function ChangeOrderNewRoute() {
+  const { types } = useLoaderData<typeof loader>();
+
+  const initialValues = {
+    id: undefined,
+    changeOrderId: undefined,
+    name: "",
+    reasonForChange: "",
+    description: "",
+    changeOrderTypeId: "",
+    assignee: "",
+    priority: "Medium" as const,
+    openDate: today(getLocalTimeZone()).toString(),
+    dueDate: "",
+    effectiveDate: "",
+    nonConformanceId: ""
+  };
+
+  return (
+    <div className="max-w-4xl w-full p-2 sm:p-0 mx-auto mt-0 md:mt-8">
+      <ChangeOrderForm initialValues={initialValues} types={types} />
+    </div>
+  );
+}

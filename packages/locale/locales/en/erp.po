@@ -12355,6 +12355,9 @@ msgstr "This part is obsolete (No Stock)."
 msgid "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 msgstr "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 
+msgid "This part isn't on any other assembly to delete from."
+msgstr "This part isn't on any other assembly to delete from."
+
 msgid "This Quarter"
 msgstr "This Quarter"
 

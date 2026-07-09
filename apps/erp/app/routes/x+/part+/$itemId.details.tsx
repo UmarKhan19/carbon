@@ -15,16 +15,12 @@ import type {
 import { Await, redirect, useLoaderData, useParams } from "react-router";
 import { CadModel, DeferredFiles } from "~/components";
 import { usePermissions, useRouteData } from "~/hooks";
-import { getItemChangeOrderData } from "~/modules/change-orders";
-import {
-  ItemChangeOrders,
-  ItemOpenChangeOrderAlert
-} from "~/modules/change-orders/ui/ChangeOrder";
 import type { ItemFile, MakeMethod, PartSummary } from "~/modules/items";
 import {
   getConfigurationParameters,
   getConfigurationRules,
   getControlledDrawing,
+  getItemChangeOrderData,
   getItemManufacturing,
   getMakeMethodById,
   getMakeMethods,
@@ -36,6 +32,10 @@ import {
   upsertPart
 } from "~/modules/items";
 import { getRevisionLock } from "~/modules/items/items.server";
+import {
+  ItemChangeOrders,
+  ItemOpenChangeOrderAlert
+} from "~/modules/items/ui/ChangeOrder";
 import {
   BillOfMaterial,
   BillOfProcess,

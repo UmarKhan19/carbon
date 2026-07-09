@@ -5,13 +5,15 @@ import {
   LuAxis3D,
   LuBeef,
   LuDessert,
+  LuGitPullRequestArrow,
   LuGlassWater,
   LuGroup,
   LuHammer,
   LuPizza,
   LuPuzzle,
   LuRuler,
-  LuShapes
+  LuShapes,
+  LuTags
 } from "react-icons/lu";
 import { usePermissions } from "~/hooks";
 import { useSavedViews } from "~/hooks/useSavedViews";
@@ -89,6 +91,23 @@ export default function useItemsSubmodules() {
           name: t`Types`,
           to: path.to.materialTypes,
           icon: <LuPuzzle />,
+          role: "employee"
+        }
+      ]
+    },
+    {
+      name: t`Change Orders`,
+      routes: [
+        {
+          name: t`Change Orders`,
+          to: path.to.changeOrders,
+          icon: <LuGitPullRequestArrow />,
+          table: "changeOrder"
+        },
+        {
+          name: t`Change Order Types`,
+          to: path.to.changeOrderTypes,
+          icon: <LuTags />,
           role: "employee"
         }
       ]

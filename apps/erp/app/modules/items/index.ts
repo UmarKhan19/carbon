@@ -1,3 +1,7 @@
+export * from "./changeOrder.actions";
+export * from "./changeOrder.models";
+export * from "./changeOrder.reads";
+export * from "./changeOrder.service";
 export * from "./items.models";
 export * from "./items.service";
 export * from "./types";

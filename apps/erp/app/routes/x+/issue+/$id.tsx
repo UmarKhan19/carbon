@@ -14,8 +14,10 @@ import {
   useParams
 } from "react-router";
 import { PanelProvider, ResizablePanels } from "~/components/Layout/Panels";
-import { getChangeOrdersForNonConformance } from "~/modules/change-orders";
-import { getItemFiles } from "~/modules/items";
+import {
+  getChangeOrdersForNonConformance,
+  getItemFiles
+} from "~/modules/items";
 import {
   getIssue,
   getIssueAssociations,
