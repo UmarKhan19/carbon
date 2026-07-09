@@ -520,7 +520,7 @@ export const itemCostValidator = z.object({
       message: "Costing method is required"
     })
   }),
-  // standardCost: zfd.numeric(z.number().min(0)),
+  standardCost: zfd.numeric(z.number().min(0).optional()),
   unitCost: zfd.numeric(z.number().min(0))
   // costIsAdjusted: zfd.checkbox(),
 });

@@ -5267,6 +5267,9 @@ msgstr "hesap kredisinden"
 msgid "From Storage Unit"
 msgstr "Kaynak Depo Birimi"
 
+msgid "Frozen standard cost used to value this item's inventory and COGS"
+msgstr ""
+
 msgid "Fulfillment Location"
 msgstr "Yerine Getirme Konumu"
 
@@ -10796,6 +10799,9 @@ msgstr "Standart"
 
 msgid "Standard cloud Carbon fits how your company runs"
 msgstr "Standart bulut Carbon, şirketinizin nasıl çalıştığına uygun"
+
+msgid "Standard Cost"
+msgstr ""
 
 msgid "Standard factor"
 msgstr "Standart faktör"

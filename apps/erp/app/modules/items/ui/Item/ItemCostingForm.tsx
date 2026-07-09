@@ -9,6 +9,7 @@ import {
   useDisclosure
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
+import { useState } from "react";
 import type { z } from "zod";
 import {
   CustomFormFields,
@@ -39,6 +40,10 @@ const ItemCostingForm = ({ initialValues }: ItemCostingFormProps) => {
   const baseCurrency = company?.baseCurrencyCode ?? "USD";
 
   const recalculateModal = useDisclosure();
+
+  const [costingMethod, setCostingMethod] = useState(
+    initialValues.costingMethod
+  );
 
   return (
     <Card>
@@ -71,6 +76,12 @@ const ItemCostingForm = ({ initialValues }: ItemCostingFormProps) => {
                 label: method,
                 value: method
               }))}
+              onChange={(option) =>
+                setCostingMethod(
+                  (option?.value as (typeof itemCostingMethods)[number]) ??
+                    initialValues.costingMethod
+                )
+              }
             />
 
             <Number
@@ -86,6 +97,18 @@ const ItemCostingForm = ({ initialValues }: ItemCostingFormProps) => {
                   : t`Weighted average cost over last year calculated when the invoice is posted`
               }
             />
+
+            {costingMethod === "Standard" && (
+              <Number
+                name="standardCost"
+                label={t`Standard Cost`}
+                formatOptions={{
+                  style: "currency",
+                  currency: baseCurrency
+                }}
+                helperText={t`Frozen standard cost used to value this item's inventory and COGS`}
+              />
+            )}
 
             {/* <Boolean name="costIsAdjusted" label={t`Cost Is Adjusted`} /> */}
             <CustomFormFields table="partCost" />

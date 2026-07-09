@@ -5267,6 +5267,9 @@ msgstr "オンアカウントクレジットから"
 msgid "From Storage Unit"
 msgstr "保管場所から"
 
+msgid "Frozen standard cost used to value this item's inventory and COGS"
+msgstr ""
+
 msgid "Fulfillment Location"
 msgstr "履行場所"
 
@@ -10796,6 +10799,9 @@ msgstr "標準"
 
 msgid "Standard cloud Carbon fits how your company runs"
 msgstr "標準クラウドCarbonはあなたの会社の運営方法に適合します"
+
+msgid "Standard Cost"
+msgstr ""
 
 msgid "Standard factor"
 msgstr "標準係数"

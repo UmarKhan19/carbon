@@ -5267,6 +5267,9 @@ msgstr "aus dem Gutschrift-Konto"
 msgid "From Storage Unit"
 msgstr "Von Lagereinheit"
 
+msgid "Frozen standard cost used to value this item's inventory and COGS"
+msgstr ""
+
 msgid "Fulfillment Location"
 msgstr "Erfüllungsort"
 
@@ -10796,6 +10799,9 @@ msgstr "Standard"
 
 msgid "Standard cloud Carbon fits how your company runs"
 msgstr "Standard Cloud Carbon passt zu Ihrer Unternehmensweise"
+
+msgid "Standard Cost"
+msgstr ""
 
 msgid "Standard factor"
 msgstr "Standardfaktor"

@@ -5267,6 +5267,9 @@ msgstr "from on-account credit"
 msgid "From Storage Unit"
 msgstr "From Storage Unit"
 
+msgid "Frozen standard cost used to value this item's inventory and COGS"
+msgstr "Frozen standard cost used to value this item's inventory and COGS"
+
 msgid "Fulfillment Location"
 msgstr "Fulfillment Location"
 
@@ -10796,6 +10799,9 @@ msgstr "Standard"
 
 msgid "Standard cloud Carbon fits how your company runs"
 msgstr "Standard cloud Carbon fits how your company runs"
+
+msgid "Standard Cost"
+msgstr "Standard Cost"
 
 msgid "Standard factor"
 msgstr "Standard factor"

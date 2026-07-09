@@ -5267,6 +5267,9 @@ msgstr "do crédito em conta"
 msgid "From Storage Unit"
 msgstr "Unidade de Armazenamento De"
 
+msgid "Frozen standard cost used to value this item's inventory and COGS"
+msgstr ""
+
 msgid "Fulfillment Location"
 msgstr "Local de Cumprimento"
 
@@ -10796,6 +10799,9 @@ msgstr "Padrão"
 
 msgid "Standard cloud Carbon fits how your company runs"
 msgstr "O Carbon em nuvem padrão se adequa ao modo como sua empresa funciona"
+
+msgid "Standard Cost"
+msgstr ""
 
 msgid "Standard factor"
 msgstr "Fator padrão"

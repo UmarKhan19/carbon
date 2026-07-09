@@ -5267,6 +5267,9 @@ msgstr "从应收账款信用额度"
 msgid "From Storage Unit"
 msgstr "从存储单位"
 
+msgid "Frozen standard cost used to value this item's inventory and COGS"
+msgstr ""
+
 msgid "Fulfillment Location"
 msgstr "履行地点"
 
@@ -10796,6 +10799,9 @@ msgstr "标准"
 
 msgid "Standard cloud Carbon fits how your company runs"
 msgstr "标准云 Carbon 适合您公司的运营方式"
+
+msgid "Standard Cost"
+msgstr ""
 
 msgid "Standard factor"
 msgstr "标准系数"
