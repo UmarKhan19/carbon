@@ -1,26 +1,19 @@
 import type { Database, Json } from "@carbon/database";
-import type { Kysely, KyselyDatabase } from "@carbon/database/client";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { GenericQueryFilters } from "~/utils/query";
 import { setGenericQueryFilters } from "~/utils/query";
 import { sanitize } from "~/utils/supabase";
 import type { nonConformancePriority } from "../quality/quality.models";
 import type {
-  changeOrderApprovalType,
+  ChangeOrderError,
   changeOrderStatus,
-  changeOrderTaskStatus,
   changeOrderType,
   supersessionModes
 } from "./change-orders.models";
-import {
-  changeOrderOpenStatuses,
-  isAllowedChangeOrderTransition
-} from "./change-orders.models";
+import { isAllowedChangeOrderTransition } from "./change-orders.models";
 
 // =============================================================================
 // Change Orders — header CRUD, stage transitions, list, and CO Types config.
-// Reviewer/approval reads are retained for the optional approval flow (Phase 3c,
-// gated by companySettings.changeOrderRequireApproval).
 // =============================================================================
 
 // -----------------------------------------------------------------------------
@@ -64,183 +57,6 @@ export async function getChangeOrders(
   return query;
 }
 
-// G6 — the SINGLE canonical "change orders referencing this item" query,
-// parameterized by status. The item-detail history (all COs), the open-CO alert
-// (open statuses), and the single-open-CO guard all call this — no forked
-// implementations. Spans the three ways a CO references an item: a top-level
-// Product Affected, a BOM-change part (Add/Delete), or a BOM-change assembly
-// target. Scoped by readableId so it matches the part across all its revisions.
-// Flat queries + JS union (no embeds — TS2589 budget).
-export type ChangeOrderForItem = {
-  id: string;
-  changeOrderId: string;
-  name: string;
-  status: Database["public"]["Enums"]["changeOrderStatus"];
-  changeOrderTypeId: string | null;
-  effectiveDate: string | null;
-  createdAt: string;
-};
-
-export async function findChangeOrdersForItem(
-  client: SupabaseClient<Database>,
-  args: {
-    itemId: string;
-    companyId: string;
-    statuses?: Database["public"]["Enums"]["changeOrderStatus"][];
-  }
-): Promise<{ data: ChangeOrderForItem[]; error: { message: string } | null }> {
-  const { itemId, companyId, statuses } = args;
-
-  // Resolve every revision (item row) sharing this part's readableId.
-  const item = await client
-    .from("item")
-    .select("readableId")
-    .eq("id", itemId)
-    .eq("companyId", companyId)
-    .maybeSingle();
-  if (item.error) return { data: [], error: item.error };
-  if (!item.data?.readableId) return { data: [], error: null };
-
-  const siblings = await client
-    .from("item")
-    .select("id")
-    .eq("readableId", item.data.readableId)
-    .eq("companyId", companyId);
-  if (siblings.error) return { data: [], error: siblings.error };
-  const itemIds = (siblings.data ?? []).map((s) => s.id);
-  if (itemIds.length === 0) return { data: [], error: null };
-
-  // Collect referencing changeOrderIds from the three relations.
-  const [products, bomParts, assemblies] = await Promise.all([
-    client
-      .from("changeOrderProductAffected")
-      .select("changeOrderId")
-      .in("itemId", itemIds)
-      .eq("companyId", companyId),
-    client
-      .from("changeOrderBomChange")
-      .select("changeOrderId")
-      .in("itemId", itemIds)
-      .eq("companyId", companyId),
-    client
-      .from("changeOrderBomChangeAssembly")
-      .select("bomChangeId")
-      .in("assemblyItemId", itemIds)
-      .eq("companyId", companyId)
-  ]);
-  if (products.error) return { data: [], error: products.error };
-  if (bomParts.error) return { data: [], error: bomParts.error };
-  if (assemblies.error) return { data: [], error: assemblies.error };
-
-  const coIds = new Set<string>();
-  for (const p of products.data ?? []) coIds.add(p.changeOrderId);
-  for (const b of bomParts.data ?? []) coIds.add(b.changeOrderId);
-
-  // Assemblies reference the CO via their bom-change row — resolve that hop.
-  const bomChangeIds = [
-    ...new Set((assemblies.data ?? []).map((a) => a.bomChangeId))
-  ];
-  if (bomChangeIds.length > 0) {
-    const parents = await client
-      .from("changeOrderBomChange")
-      .select("changeOrderId")
-      .in("id", bomChangeIds)
-      .eq("companyId", companyId);
-    if (parents.error) return { data: [], error: parents.error };
-    for (const p of parents.data ?? []) coIds.add(p.changeOrderId);
-  }
-
-  if (coIds.size === 0) return { data: [], error: null };
-
-  let query = client
-    .from("changeOrder")
-    .select(
-      "id, changeOrderId, name, status, changeOrderTypeId, effectiveDate, createdAt"
-    )
-    .in("id", [...coIds])
-    .eq("companyId", companyId);
-  if (statuses && statuses.length > 0) query = query.in("status", statuses);
-  query = query.order("createdAt", { ascending: false });
-
-  const result = await query;
-  if (result.error) return { data: [], error: result.error };
-  return { data: result.data ?? [], error: null };
-}
-
-// Reverse of the Linked-NCR cross-link (4a): every change order that references
-// a given non-conformance. Read-only, minimal columns; rendered on the Issue
-// detail. Flat select (no embeds — TS2589 budget).
-export async function getChangeOrdersForNonConformance(
-  client: SupabaseClient<Database>,
-  nonConformanceId: string,
-  companyId: string
-) {
-  return client
-    .from("changeOrder")
-    .select("id, changeOrderId, name, status")
-    .eq("nonConformanceId", nonConformanceId)
-    .eq("companyId", companyId)
-    .order("createdAt", { ascending: false });
-}
-
-// Single-open-CO-per-part guard (V1 — no parallel change orders): the OTHER
-// open change orders that already reference a part, excluding the current CO.
-// Reuses the canonical G6 query at the open-status filter. A non-empty result
-// means adding the part here would create a parallel open CO — the routes reject.
-export async function findOtherOpenChangeOrdersForItem(
-  client: SupabaseClient<Database>,
-  args: { itemId: string; companyId: string; excludeChangeOrderId: string }
-): Promise<ChangeOrderForItem[]> {
-  const { data } = await findChangeOrdersForItem(client, {
-    itemId: args.itemId,
-    companyId: args.companyId,
-    statuses: changeOrderOpenStatuses
-  });
-  return data.filter((co) => co.id !== args.excludeChangeOrderId);
-}
-
-export async function getChangeOrderActionTasks(
-  client: SupabaseClient<Database>,
-  id: string,
-  companyId: string
-) {
-  return client
-    .from("changeOrderActionTask")
-    .select("*")
-    .eq("changeOrderId", id)
-    .eq("companyId", companyId)
-    .order("sortOrder", { ascending: true })
-    .order("createdAt", { ascending: true });
-}
-
-export async function getChangeOrderApprovalTasks(
-  client: SupabaseClient<Database>,
-  id: string,
-  companyId: string
-) {
-  return client
-    .from("changeOrderApprovalTask")
-    .select("*")
-    .eq("changeOrderId", id)
-    .eq("companyId", companyId)
-    .order("sortOrder", { ascending: true })
-    .order("createdAt", { ascending: true });
-}
-
-export async function getChangeOrderReviewers(
-  client: SupabaseClient<Database>,
-  id: string,
-  companyId: string
-) {
-  return client
-    .from("changeOrderReviewer")
-    .select("*")
-    .eq("changeOrderId", id)
-    .eq("companyId", companyId)
-    .order("sortOrder", { ascending: true })
-    .order("id", { ascending: true });
-}
-
 // -----------------------------------------------------------------------------
 // Header CRUD
 // -----------------------------------------------------------------------------
@@ -252,14 +68,12 @@ export async function insertChangeOrder(
     changeOrderId?: string;
     name: string;
     type?: (typeof changeOrderType)[number];
-    approvalType?: (typeof changeOrderApprovalType)[number];
     priority?: (typeof nonConformancePriority)[number];
     changeOrderTypeId?: string;
     nonConformanceId?: string;
     openDate: string;
     reasonForChange?: Json;
     description?: Json;
-    changeOrderWorkflowId?: string;
     dueDate?: string;
     effectiveDate?: string;
     assignee?: string;
@@ -267,7 +81,7 @@ export async function insertChangeOrder(
   }
 ): Promise<{
   data: { id: string; changeOrderId: string } | null;
-  error: import("@supabase/supabase-js").PostgrestError | null;
+  error: ChangeOrderError | null;
 }> {
   let changeOrderId: string;
   if (input.changeOrderId) {
@@ -280,11 +94,9 @@ export async function insertChangeOrder(
     if (seq.error || !seq.data) {
       return {
         data: null,
-        error:
-          seq.error ??
-          ({
-            message: "Failed to generate changeOrder sequence"
-          } as import("@supabase/supabase-js").PostgrestError)
+        error: seq.error ?? {
+          message: "Failed to generate changeOrder sequence"
+        }
       };
     }
     changeOrderId = seq.data;
@@ -296,14 +108,12 @@ export async function insertChangeOrder(
       changeOrderId,
       name: input.name,
       type: input.type ?? "Engineering",
-      approvalType: input.approvalType ?? "Unanimous",
       priority: input.priority ?? null,
       changeOrderTypeId: input.changeOrderTypeId ?? null,
       nonConformanceId: input.nonConformanceId ?? null,
       openDate: input.openDate,
       reasonForChange: input.reasonForChange ?? {},
       description: input.description ?? {},
-      changeOrderWorkflowId: input.changeOrderWorkflowId ?? null,
       dueDate: input.dueDate ?? null,
       effectiveDate: input.effectiveDate ?? null,
       assignee: input.assignee ?? null,
@@ -332,14 +142,12 @@ export async function updateChangeOrder(
     changeOrderId?: string;
     name?: string;
     type?: (typeof changeOrderType)[number];
-    approvalType?: (typeof changeOrderApprovalType)[number];
     priority?: (typeof nonConformancePriority)[number] | null;
     changeOrderTypeId?: string | null;
     nonConformanceId?: string | null;
     openDate?: string;
     reasonForChange?: Json;
     description?: Json;
-    changeOrderWorkflowId?: string | null;
     dueDate?: string | null;
     effectiveDate?: string | null;
     assignee?: string | null;
@@ -347,7 +155,7 @@ export async function updateChangeOrder(
   }
 ): Promise<{
   data: { id: string } | null;
-  error: import("@supabase/supabase-js").PostgrestError | null;
+  error: ChangeOrderError | null;
 }> {
   const { id, ...rest } = input;
   const result = await client
@@ -366,8 +174,8 @@ export async function deleteChangeOrder(
   changeOrderId: string,
   companyId: string
 ) {
-  // Children (products affected, BOM changes + assemblies, action/approval
-  // tasks, reviewers) cascade via their FK ON DELETE CASCADE.
+  // Children (products affected, BOM changes + assemblies, action tasks)
+  // cascade via their FK ON DELETE CASCADE.
   return client
     .from("changeOrder")
     .delete()
@@ -377,10 +185,7 @@ export async function deleteChangeOrder(
 
 // -----------------------------------------------------------------------------
 // Stage transition — the single guarded writer (G8), a compare-and-swap (G2).
-// Forward-only (isAllowedChangeOrderTransition). When the company toggle
-// changeOrderRequireApproval is on, the transition INTO Implementation is
-// blocked until every approval task is Completed (Phase 3c gate; the toggle
-// defaults off, so Minimal advances freely).
+// Forward-only (isAllowedChangeOrderTransition).
 // -----------------------------------------------------------------------------
 export async function updateChangeOrderStatus(
   client: SupabaseClient<Database>,
@@ -406,33 +211,6 @@ export async function updateChangeOrderStatus(
         message: `Cannot change status from ${fromStatus} to ${toStatus}`
       }
     };
-  }
-
-  if (toStatus === "Implementation") {
-    const settings = await client
-      .from("companySettings")
-      .select("changeOrderRequireApproval")
-      .eq("id", companyId)
-      .single();
-    if (settings.data?.changeOrderRequireApproval) {
-      const approvals = await client
-        .from("changeOrderApprovalTask")
-        .select("status")
-        .eq("changeOrderId", id)
-        .eq("companyId", companyId);
-      if (approvals.error) return { data: null, error: approvals.error };
-      const tasks = approvals.data ?? [];
-      const outstanding = tasks.filter((t) => t.status !== "Completed").length;
-      if (tasks.length === 0 || outstanding > 0) {
-        return {
-          data: null,
-          error: {
-            message:
-              "Approvals must be completed before moving to Implementation."
-          }
-        };
-      }
-    }
   }
 
   // Build the update explicitly rather than sanitize({...rest}): sanitize coerces
@@ -598,7 +376,7 @@ export async function getChangeOrderProductsAffected(
       item: ChangeOrderItemLabel | null;
     }
   > | null;
-  error: import("@supabase/supabase-js").PostgrestError | null;
+  error: ChangeOrderError | null;
 }> {
   const rows = await client
     .from("changeOrderProductAffected")
@@ -687,7 +465,7 @@ export async function getChangeOrderBomChanges(
   companyId: string
 ): Promise<{
   data: ChangeOrderBomChangeWithAssemblies[] | null;
-  error: import("@supabase/supabase-js").PostgrestError | null;
+  error: ChangeOrderError | null;
 }> {
   const rows = await client
     .from("changeOrderBomChange")
@@ -841,7 +619,7 @@ export async function mintPlaceholderPart(
   }
 ): Promise<{
   data: { id: string } | null;
-  error: import("@supabase/supabase-js").PostgrestError | null;
+  error: ChangeOrderError | null;
 }> {
   const item = await client
     .from("item")
@@ -967,7 +745,7 @@ export async function upsertChangeOrderBomChangeAssembly(
   // a removal's stock cutover, an addition has none).
   const parent = await client
     .from("changeOrderBomChange")
-    .select("changeType")
+    .select("changeType, changeOrderId")
     .eq("id", input.bomChangeId)
     .single();
   const supersessionMode =
@@ -989,10 +767,19 @@ export async function upsertChangeOrderBomChangeAssembly(
       .single();
   }
 
+  if (!parent.data?.changeOrderId) {
+    return {
+      data: null,
+      error: { message: "Parent BOM change row not found" }
+    };
+  }
+
   return client
     .from("changeOrderBomChangeAssembly")
     .insert({
       bomChangeId: input.bomChangeId,
+      // Denormalized for audit rollup to the owning CO (set once at insert).
+      changeOrderId: parent.data.changeOrderId,
       assemblyItemId: input.assemblyItemId,
       quantity: input.quantity,
       supersessionMode,
@@ -1108,107 +895,4 @@ export async function getChangeOrderImpact(
   }
 
   return { data: [...byPart.values()], error: null };
-}
-
-// =============================================================================
-// Phase 2 — Actions (freeform tasks; reuse changeOrderActionTask)
-// =============================================================================
-export async function getChangeOrderActions(
-  client: SupabaseClient<Database>,
-  changeOrderId: string,
-  companyId: string
-) {
-  return client
-    .from("changeOrderActionTask")
-    .select("*")
-    .eq("changeOrderId", changeOrderId)
-    .eq("companyId", companyId)
-    .order("sortOrder", { ascending: true })
-    .order("createdAt", { ascending: true });
-}
-
-export async function upsertChangeOrderAction(
-  client: SupabaseClient<Database>,
-  input: {
-    id?: string;
-    changeOrderId: string;
-    name: string;
-    assignee?: string | null;
-    dueDate?: string | null;
-    companyId: string;
-    userId: string;
-  }
-) {
-  if (input.id) {
-    return client
-      .from("changeOrderActionTask")
-      .update({
-        name: input.name,
-        assignee: input.assignee ?? null,
-        dueDate: input.dueDate ?? null,
-        updatedBy: input.userId
-      })
-      .eq("id", input.id)
-      .select("id")
-      .single();
-  }
-
-  return client
-    .from("changeOrderActionTask")
-    .insert({
-      changeOrderId: input.changeOrderId,
-      name: input.name,
-      assignee: input.assignee ?? null,
-      dueDate: input.dueDate ?? null,
-      status: "Pending",
-      companyId: input.companyId,
-      createdBy: input.userId
-    })
-    .select("id")
-    .single();
-}
-
-export async function updateChangeOrderActionStatus(
-  client: SupabaseClient<Database>,
-  input: {
-    id: string;
-    status: (typeof changeOrderTaskStatus)[number];
-    userId: string;
-  }
-) {
-  const today = new Date().toISOString().split("T")[0];
-  return client
-    .from("changeOrderActionTask")
-    .update({
-      status: input.status,
-      completedDate: input.status === "Completed" ? today : null,
-      updatedBy: input.userId
-    })
-    .eq("id", input.id)
-    .select("id")
-    .single();
-}
-
-export async function deleteChangeOrderAction(
-  client: SupabaseClient<Database>,
-  id: string
-) {
-  return client.from("changeOrderActionTask").delete().eq("id", id);
-}
-
-// Bulk reorder (drag-sort) — a multi-row write, so Kysely (route passes
-// getDatabaseClient()).
-export async function updateChangeOrderActionOrder(
-  db: Kysely<KyselyDatabase>,
-  updates: { id: string; sortOrder: number; updatedBy: string }[]
-) {
-  return db.transaction().execute(async (trx) => {
-    for (const { id, sortOrder, updatedBy } of updates) {
-      await trx
-        .updateTable("changeOrderActionTask")
-        .set({ sortOrder, updatedBy })
-        .where("id", "=", id)
-        .execute();
-    }
-  });
 }

@@ -2022,9 +2022,6 @@ msgstr "Изменить"
 msgid "Change Order"
 msgstr ""
 
-msgid "Change Order Approval"
-msgstr ""
-
 msgid "Change Order Categories"
 msgstr ""
 
@@ -9805,12 +9802,6 @@ msgstr "Требовать утверждение для заказов на п�
 msgid "Require approval for quality documents in your workflow"
 msgstr "Требуется одобрение для документов качества в вашем рабочем процессе"
 
-msgid "Require change order approval"
-msgstr ""
-
-msgid "Require change order approval before implementation."
-msgstr ""
-
 msgid "Required"
 msgstr "Обязательно"
 
@@ -13536,9 +13527,6 @@ msgstr "Когда используется истекший товар"
 
 msgid "When MRP uses the successor for new demand"
 msgstr "Когда MRP использует преемника для новых потребностей"
-
-msgid "When on, a change order can't move to Implementation until its approval tasks are complete."
-msgstr ""
 
 msgid "When on, attributes in this category show up on a person's public profile; otherwise they're visible to admins only."
 msgstr "Когда включено, атрибуты в этой категории отображаются в открытом профиле человека; в противном случае они видны только администраторам."

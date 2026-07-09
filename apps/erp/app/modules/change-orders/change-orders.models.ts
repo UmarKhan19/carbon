@@ -1,6 +1,12 @@
+import type { PostgrestError } from "@supabase/supabase-js";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 import { nonConformancePriority } from "../quality/quality.models";
+
+// Error shape returned by the change-orders service functions: either a real
+// Supabase PostgrestError or a hand-built message (sequence/lookup failures that
+// don't originate from a query). One alias so callers get a consistent contract.
+export type ChangeOrderError = PostgrestError | { message: string };
 
 // Mirrors the DB "supersessionMode" enum (20260618171234_material-supersession).
 // Declared locally rather than imported from the large items.models to keep the
@@ -40,12 +46,6 @@ export const changeOrderStatus = [
   "Done"
 ] as const;
 
-export const changeOrderApprovalType = [
-  "Unanimous",
-  "Majority",
-  "First-In"
-] as const;
-
 export const itemRevisionStatus = [
   "Design",
   "Prototype",
@@ -63,14 +63,9 @@ export const changeOrderTaskStatus = [
 // changeOrder.priority reuses quality's nonConformancePriority DB enum.
 export const changeOrderPriority = nonConformancePriority;
 
-// companySettings.changeOrderRequireApproval gates the optional approval flow.
-// (companySettings.plmReleaseControl is legacy PLM state, retired in Phase 4.)
-
 // -----------------------------------------------------------------------------
-// Stage state machine (G8 — one place). Forward-only, single step. The approval
-// gate (transition INTO Implementation requires approvals when the company
-// toggle is on) is enforced inside updateChangeOrderStatus, NOT here — this map
-// only encodes the allowed shape of a transition.
+// Stage state machine (G8 — one place). Forward-only, single step. This map only
+// encodes the allowed shape of a transition.
 // -----------------------------------------------------------------------------
 export const changeOrderStatusTransitions: Record<
   (typeof changeOrderStatus)[number],
@@ -131,9 +126,7 @@ export const changeOrderValidator = z.object({
   description: zfd.text(z.string().optional()),
   type: z.enum(changeOrderType).optional(),
   priority: z.enum(nonConformancePriority).optional(),
-  approvalType: z.enum(changeOrderApprovalType).optional(),
   changeOrderTypeId: zfd.text(z.string().optional()),
-  changeOrderWorkflowId: zfd.text(z.string().optional()),
   nonConformanceId: zfd.text(z.string().optional()),
   openDate: z.string().min(1, { message: "Open date is required" }),
   dueDate: zfd.text(z.string().optional()),
@@ -254,67 +247,3 @@ export const changeOrderTypeValidator = z.object({
   id: zfd.text(z.string().optional()),
   name: z.string().min(1, { message: "Name is required" })
 });
-
-// -----------------------------------------------------------------------------
-// Approval machinery (retained; only gates when the company toggle is on —
-// Phase 3c). Kept here so the reviewer/approval UI can import from the module.
-// -----------------------------------------------------------------------------
-export const changeOrderWorkflowValidator = z.object({
-  id: zfd.text(z.string().optional()),
-  name: z.string().min(1, { message: "Name is required" }),
-  priority: z.enum(nonConformancePriority).optional(),
-  approvalType: z.enum(changeOrderApprovalType),
-  approvers: z.array(z.string()).optional()
-});
-
-export const changeOrderWorkflowContentValidator = z.object({
-  priority: z.enum(nonConformancePriority).nullish(),
-  approvalType: z.enum(changeOrderApprovalType).nullish(),
-  approvers: z.array(z.string()).nullish()
-});
-
-export type ChangeOrderWorkflowContent = z.infer<
-  typeof changeOrderWorkflowContentValidator
->;
-
-export function parseChangeOrderWorkflowContent(
-  content: unknown
-): ChangeOrderWorkflowContent {
-  const result = changeOrderWorkflowContentValidator.safeParse(content);
-  return result.success ? result.data : {};
-}
-
-export const changeOrderApprovalTaskValidator = z.object({
-  id: zfd.text(z.string().optional()),
-  changeOrderId: z.string().min(1, { message: "Change order is required" }),
-  status: z.enum(changeOrderTaskStatus).optional(),
-  dueDate: zfd.text(z.string().optional()),
-  assignee: zfd.text(z.string().optional())
-});
-
-export const changeOrderDecisionValidator = z.object({
-  decision: z.enum(["approve", "reject"]),
-  reason: z.string().min(1, { message: "A reason is required" })
-});
-
-// Peer-review threshold (Unanimous/Majority/First-In). A Skipped reviewer is a
-// recusal — excluded from the denominator.
-export function evaluateApprovalThreshold(
-  approvalType: (typeof changeOrderApprovalType)[number],
-  decisions: { status: (typeof changeOrderTaskStatus)[number] }[]
-): boolean {
-  const considered = decisions.filter((d) => d.status !== "Skipped");
-  const total = considered.length;
-  if (total === 0) return false;
-  const completed = considered.filter((d) => d.status === "Completed").length;
-  switch (approvalType) {
-    case "Unanimous":
-      return completed === total;
-    case "Majority":
-      return completed * 2 > total;
-    case "First-In":
-      return completed >= 1;
-    default:
-      return false;
-  }
-}

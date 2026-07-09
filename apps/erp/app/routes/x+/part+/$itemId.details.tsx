@@ -15,10 +15,7 @@ import type {
 import { Await, redirect, useLoaderData, useParams } from "react-router";
 import { CadModel, DeferredFiles } from "~/components";
 import { usePermissions, useRouteData } from "~/hooks";
-import {
-  findChangeOrdersForItem,
-  getChangeOrderTypesList
-} from "~/modules/change-orders";
+import { getItemChangeOrderData } from "~/modules/change-orders";
 import {
   ItemChangeOrders,
   ItemOpenChangeOrderAlert
@@ -68,27 +65,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const requestedMethodId = url.searchParams.get("methodId");
 
-  const [
-    makeMethods,
-    revisionLock,
-    controlledDrawing,
-    changeOrders,
-    changeOrderTypes
-  ] = await Promise.all([
-    getMakeMethods(client, itemId, companyId),
-    getRevisionLock(client, { itemId, companyId }),
-    getControlledDrawing(client, { itemId, companyId }),
-    // Part → CO traceability (4b): every CO referencing this part, all statuses.
-    findChangeOrdersForItem(client, { itemId, companyId }),
-    getChangeOrderTypesList(client, companyId)
-    // client.storage
-    //   .from("private")
-    //   .list(`${companyId}/default-attachments/item/${itemId}`)
-  ]);
-  const changeOrderData = {
-    changeOrders: changeOrders.data,
-    changeOrderTypes: changeOrderTypes.data ?? []
-  };
+  const [makeMethods, revisionLock, controlledDrawing, changeOrderData] =
+    await Promise.all([
+      getMakeMethods(client, itemId, companyId),
+      getRevisionLock(client, { itemId, companyId }),
+      getControlledDrawing(client, { itemId, companyId }),
+      // Part → CO traceability (4b): CO history for this part + type labels.
+      getItemChangeOrderData(client, itemId, companyId)
+    ]);
   // const defaultAttachments = defaultAttachmentsResult.data ?? [];
   const revisionStatus = revisionLock.revisionStatus;
   const releaseControl = revisionLock.releaseControl;

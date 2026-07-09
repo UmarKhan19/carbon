@@ -2022,9 +2022,6 @@ msgstr "Değiştir"
 msgid "Change Order"
 msgstr ""
 
-msgid "Change Order Approval"
-msgstr ""
-
 msgid "Change Order Categories"
 msgstr ""
 
@@ -9805,12 +9802,6 @@ msgstr "Belirli tutar eşiklerine göre satın alma siparişleri için onay gere
 msgid "Require approval for quality documents in your workflow"
 msgstr "İş akışınızdaki kalite belgeleri için onay gerektirir"
 
-msgid "Require change order approval"
-msgstr ""
-
-msgid "Require change order approval before implementation."
-msgstr ""
-
 msgid "Required"
 msgstr "Gerekli"
 
@@ -13536,9 +13527,6 @@ msgstr "Süresi dolmuş stok kullanıldığında"
 
 msgid "When MRP uses the successor for new demand"
 msgstr "MRP yeni talep için halef kullandığında"
-
-msgid "When on, a change order can't move to Implementation until its approval tasks are complete."
-msgstr ""
 
 msgid "When on, attributes in this category show up on a person's public profile; otherwise they're visible to admins only."
 msgstr "Etkinleştirildiğinde, bu kategorideki öznitelikler bir kişinin genel profilinde görünür; aksi takdirde yalnızca yöneticiler tarafından görülebilir."

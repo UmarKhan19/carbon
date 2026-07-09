@@ -2022,9 +2022,6 @@ msgstr "更改"
 msgid "Change Order"
 msgstr ""
 
-msgid "Change Order Approval"
-msgstr ""
-
 msgid "Change Order Categories"
 msgstr ""
 
@@ -9805,12 +9802,6 @@ msgstr "根据金额阈值要求采购订单获得批准"
 msgid "Require approval for quality documents in your workflow"
 msgstr "在您的工作流程中需要质量文件的批准"
 
-msgid "Require change order approval"
-msgstr ""
-
-msgid "Require change order approval before implementation."
-msgstr ""
-
 msgid "Required"
 msgstr "必需"
 
@@ -13536,9 +13527,6 @@ msgstr "当使用过期库存时"
 
 msgid "When MRP uses the successor for new demand"
 msgstr "当 MRP 为新需求使用后继产品时"
-
-msgid "When on, a change order can't move to Implementation until its approval tasks are complete."
-msgstr ""
 
 msgid "When on, attributes in this category show up on a person's public profile; otherwise they're visible to admins only."
 msgstr "启用后,此类别中的属性会显示在人员的公开个人资料中;否则,仅管理员可见。"

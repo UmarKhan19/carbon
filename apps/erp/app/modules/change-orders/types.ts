@@ -15,11 +15,5 @@ export type ChangeOrderType = NonNullable<
 export type ChangeOrderStatus =
   Database["public"]["Enums"]["changeOrderStatus"];
 
-export type ChangeOrderReviewer =
-  Database["public"]["Tables"]["changeOrderReviewer"]["Row"];
-
 export type ChangeOrderActionTask =
   Database["public"]["Tables"]["changeOrderActionTask"]["Row"];
-
-export type ChangeOrderApprovalTask =
-  Database["public"]["Tables"]["changeOrderApprovalTask"]["Row"];

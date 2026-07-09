@@ -1022,20 +1022,6 @@ export async function updatePlmReleaseControlSetting(
     .eq("id", companyId);
 }
 
-// Change Orders — optional approval gate (Phase 3c). When true, a CO can't move
-// into Implementation until its approval tasks are complete (enforced in
-// updateChangeOrderStatus). Default false (Minimal advances on notification).
-export async function updateChangeOrderRequireApprovalSetting(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  changeOrderRequireApproval: boolean
-) {
-  return client
-    .from("companySettings")
-    .update({ changeOrderRequireApproval })
-    .eq("id", companyId);
-}
-
 export async function updateProductLabelSize(
   client: SupabaseClient<Database>,
   companyId: string,

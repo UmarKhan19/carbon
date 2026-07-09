@@ -306,9 +306,8 @@ export const auditConfig = {
         changeOrder: { role: "root" },
         changeOrderProductAffected: { entityIdColumn: "changeOrderId" },
         changeOrderBomChange: { entityIdColumn: "changeOrderId" },
-        changeOrderActionTask: { entityIdColumn: "changeOrderId" },
-        changeOrderReviewer: { entityIdColumn: "changeOrderId" },
-        changeOrderApprovalTask: { entityIdColumn: "changeOrderId" }
+        changeOrderBomChangeAssembly: { entityIdColumn: "changeOrderId" },
+        changeOrderActionTask: { entityIdColumn: "changeOrderId" }
       }
     },
 

@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-09T07:07:56.456Z",
-  "totalTools": 1269,
+  "generated": "2026-07-09T12:36:53.886Z",
+  "totalTools": 1268,
   "modules": 15,
   "tools": [
     {
@@ -36647,33 +36647,6 @@
         },
         "required": [
           "plmReleaseControl"
-        ]
-      }
-    },
-    {
-      "name": "settings_updateChangeOrderRequireApprovalSetting",
-      "module": "settings",
-      "classification": "WRITE",
-      "description": "update change order require approval setting",
-      "paramCount": 1,
-      "serviceParams": [
-        "client",
-        "companyId",
-        "changeOrderRequireApproval"
-      ],
-      "injectAuth": [
-        "companyId",
-        "updatedBy"
-      ],
-      "schema": {
-        "type": "object",
-        "properties": {
-          "changeOrderRequireApproval": {
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "changeOrderRequireApproval"
         ]
       }
     },

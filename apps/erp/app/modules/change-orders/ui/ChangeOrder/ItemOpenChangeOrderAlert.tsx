@@ -4,7 +4,7 @@ import { LuGitPullRequestArrow } from "react-icons/lu";
 import { Link } from "react-router";
 import { path } from "~/utils/path";
 import { changeOrderOpenStatuses } from "../../change-orders.models";
-import type { ChangeOrderForItem } from "../../change-orders.service";
+import type { ChangeOrderForItem } from "../../change-orders.reads";
 
 type ItemOpenChangeOrderAlertProps = {
   changeOrders: ChangeOrderForItem[];

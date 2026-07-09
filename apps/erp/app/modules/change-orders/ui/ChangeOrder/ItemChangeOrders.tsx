@@ -5,7 +5,7 @@ import { Enumerable } from "~/components/Enumerable";
 import type { ListItem } from "~/types";
 import { path } from "~/utils/path";
 import { isChangeOrderLocked } from "../../change-orders.models";
-import type { ChangeOrderForItem } from "../../change-orders.service";
+import type { ChangeOrderForItem } from "../../change-orders.reads";
 import ChangeOrderStatus from "./ChangeOrderStatus";
 
 type ItemChangeOrdersProps = {

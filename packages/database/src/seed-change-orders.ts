@@ -440,9 +440,9 @@ async function createChangeOrder(
   const res = await client.query(
     `INSERT INTO "changeOrder" (
       "changeOrderId", name, "openDate", "createdBy", status, "companyId",
-      type, "approvalType", "changeOrderTypeId", assignee, "effectiveDate",
+      type, "changeOrderTypeId", assignee, "effectiveDate",
       "reasonForChange", "description", "nonConformanceId"
-    ) VALUES ($1, $2, $3, $4, $5, $6, 'Engineering', 'Unanimous', $7, $8, $9, $10, $11, $12)
+    ) VALUES ($1, $2, $3, $4, $5, $6, 'Engineering', $7, $8, $9, $10, $11, $12)
     RETURNING id`,
     [
       input.changeOrderId,
@@ -497,10 +497,11 @@ async function addBomChange(
   for (const a of assemblies) {
     await client.query(
       `INSERT INTO "changeOrderBomChangeAssembly" (
-        "bomChangeId", "assemblyItemId", quantity, "supersessionMode", "companyId", "createdBy"
-      ) VALUES ($1, $2, $3, $4, $5, $6)`,
+        "bomChangeId", "changeOrderId", "assemblyItemId", quantity, "supersessionMode", "companyId", "createdBy"
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
       [
         bomChangeId,
+        changeOrderId,
         a.assemblyItemId,
         a.quantity,
         a.supersessionMode ?? null,
@@ -535,37 +536,6 @@ async function addActionTask(
       companyId,
       userId
     ]
-  );
-}
-
-async function addReviewer(
-  ctx: Ctx,
-  changeOrderId: string,
-  title: string,
-  assignee: string | null,
-  sortOrder: number
-) {
-  const { client, companyId, userId } = ctx;
-  await client.query(
-    `INSERT INTO "changeOrderReviewer" (
-      title, "changeOrderId", status, assignee, "sortOrder", "companyId", "createdBy"
-    ) VALUES ($1, $2, 'Pending', $3, $4, $5, $6)`,
-    [title, changeOrderId, assignee, sortOrder, companyId, userId]
-  );
-}
-
-async function addApprovalTask(
-  ctx: Ctx,
-  changeOrderId: string,
-  assignee: string | null,
-  sortOrder: number
-) {
-  const { client, companyId, userId } = ctx;
-  await client.query(
-    `INSERT INTO "changeOrderApprovalTask" (
-      "changeOrderId", status, assignee, "sortOrder", "companyId", "createdBy"
-    ) VALUES ($1, 'Pending', $2, $3, $4, $5)`,
-    [changeOrderId, assignee, sortOrder, companyId, userId]
   );
 }
 
@@ -1056,9 +1026,6 @@ async function seed() {
       await addBomChange(ctx, co7, "Add", fst102, 1, [
         { assemblyItemId: ga0020.itemId, quantity: 2 }
       ]);
-      await addReviewer(ctx, co7, "Design Review", userId, 1);
-      await addReviewer(ctx, co7, "Manufacturing Review", userId, 2);
-      await addApprovalTask(ctx, co7, userId, 1);
 
       // --- Bump the CO sequence past the seeded ids ---
       console.log("9. Bumping changeOrder sequence...");
@@ -1142,18 +1109,6 @@ async function printSummary(client: PoolClient, companyId: string) {
      WHERE co."companyId" = $1 AND co."changeOrderId" = ANY($2)`,
     [companyId, CHANGE_ORDER_IDS]
   );
-  const reviewers = await q(
-    `SELECT count(*)::int n FROM "changeOrderReviewer" r
-     JOIN "changeOrder" co ON co.id = r."changeOrderId"
-     WHERE co."companyId" = $1 AND co."changeOrderId" = ANY($2)`,
-    [companyId, CHANGE_ORDER_IDS]
-  );
-  const approvals = await q(
-    `SELECT count(*)::int n FROM "changeOrderApprovalTask" ap
-     JOIN "changeOrder" co ON co.id = ap."changeOrderId"
-     WHERE co."companyId" = $1 AND co."changeOrderId" = ANY($2)`,
-    [companyId, CHANGE_ORDER_IDS]
-  );
   const ncrs = await q(
     `SELECT count(*)::int n FROM "nonConformance" WHERE "companyId" = $1 AND "nonConformanceId" = $2`,
     [companyId, NCR_ID]
@@ -1179,8 +1134,6 @@ async function printSummary(client: PoolClient, companyId: string) {
   console.log(`  BOM change rows:        ${bomChanges[0].n}`);
   console.log(`  BOM change assemblies:  ${assemblies[0].n}`);
   console.log(`  Action tasks:           ${actions[0].n}`);
-  console.log(`  Reviewers:              ${reviewers[0].n}`);
-  console.log(`  Approval tasks:         ${approvals[0].n}`);
   console.log("========================================\n");
 }
 

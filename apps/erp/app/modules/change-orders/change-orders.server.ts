@@ -101,6 +101,61 @@ export async function applyChangeOrder(
   if (bom.error) return { data: null, error: { message: bom.error.message } };
   const rows = bom.data ?? [];
 
+  // Resolve each targeted assembly's active make method ONCE, up front — shared
+  // by the pre-flight validation and the apply loop (one lookup per assembly).
+  const activeByAssembly = new Map<
+    string,
+    { id: string; version: number } | null
+  >();
+  for (const assemblyItemId of new Set(
+    rows.flatMap((r) => r.assemblies.map((a) => a.assemblyItemId))
+  )) {
+    const active = await client
+      .from("activeMakeMethods")
+      .select("id, version")
+      .eq("itemId", assemblyItemId)
+      .eq("companyId", companyId)
+      .maybeSingle();
+    if (active.error) return { data: null, error: active.error };
+    activeByAssembly.set(
+      assemblyItemId,
+      active.data?.id
+        ? { id: active.data.id, version: active.data.version ?? 1 }
+        : null
+    );
+  }
+
+  // Pre-flight validation (plan §3b): a Delete target must be applicable — the
+  // targeted assembly must have an Active make method AND that method must
+  // currently carry the part being removed. Without this, a mismatched Delete
+  // would silently no-op below (skip an assembly with no method / find no
+  // material to delete) and the CO would flip to Done having changed nothing.
+  const deleteRowsToValidate = rows.filter((r) => r.changeType === "Delete");
+  const problems: string[] = [];
+  for (const row of deleteRowsToValidate) {
+    for (const asm of row.assemblies) {
+      const active = activeByAssembly.get(asm.assemblyItemId);
+      if (!active) {
+        problems.push(
+          `Assembly ${asm.assemblyItemId} has no active make method to remove ${row.itemId} from`
+        );
+        continue;
+      }
+      const materials = await getMethodMaterialsByMakeMethod(client, active.id);
+      const present = (materials.data ?? []).some(
+        (m) => m.itemId === row.itemId
+      );
+      if (!present) {
+        problems.push(
+          `${row.itemId} is not on the active method of assembly ${asm.assemblyItemId}`
+        );
+      }
+    }
+  }
+  if (problems.length > 0) {
+    return { data: null, error: { message: problems.join("; ") } };
+  }
+
   // Group the row ops by the assembly they target: deletes remove that part's
   // methodMaterial, adds insert a new methodMaterial (qty per assembly).
   const assemblyOps = new Map<
@@ -122,18 +177,12 @@ export async function applyChangeOrder(
   // Per-assembly: spin a Draft version off the current Active method, copy its
   // BOM/BOP, apply the row ops on the draft, then activate (Draft→Active).
   for (const [assemblyItemId, ops] of assemblyOps) {
-    const active = await client
-      .from("activeMakeMethods")
-      .select("id, version")
-      .eq("itemId", assemblyItemId)
-      .eq("companyId", companyId)
-      .maybeSingle();
-    if (active.error) return { data: null, error: active.error };
-    if (!active.data?.id) continue; // no make method on this assembly — skip
+    const active = activeByAssembly.get(assemblyItemId);
+    if (!active) continue; // no make method on this assembly — skip
 
     const version = await upsertMakeMethodVersion(client, {
-      copyFromId: active.data.id,
-      version: (active.data.version ?? 1) + 1,
+      copyFromId: active.id,
+      version: active.version + 1,
       companyId,
       createdBy: userId
     });
@@ -146,7 +195,7 @@ export async function applyChangeOrder(
     const draftId = version.data.id;
 
     const copy = await copyMakeMethod(client, {
-      sourceId: active.data.id,
+      sourceId: active.id,
       targetId: draftId,
       billOfMaterial: true,
       billOfProcess: true,
@@ -215,7 +264,12 @@ export async function applyChangeOrder(
   // instructions on the CO.
   const deleteRows = rows.filter((r) => r.changeType === "Delete");
   const addRows = rows.filter((r) => r.changeType === "Add");
-  const successor = addRows[0]; // the added part is the successor (single-swap V1)
+  // Successor link is recorded only for an unambiguous 1→1 replacement (V1
+  // single-swap): with multiple distinct added parts we can't say which one
+  // succeeds an obsoleted part, so we record the discontinuation without an
+  // auto-successor rather than arbitrarily pick the first Add row.
+  const addItemIds = [...new Set(addRows.map((r) => r.itemId))];
+  const successorItemId = addItemIds.length === 1 ? addItemIds[0] : undefined;
   for (const del of deleteRows) {
     const using = await getAssembliesUsingItem(client, del.itemId, companyId);
     const fullyObsoleted = isItemFullyObsoleted({
@@ -229,7 +283,7 @@ export async function applyChangeOrder(
     )?.supersessionMode;
     const sup = await upsertItemSupersession(client, {
       itemId: del.itemId,
-      successorItemId: successor?.itemId,
+      successorItemId,
       supersessionMode: mode ?? undefined,
       discontinuationDate: effectiveFrom,
       successorEffectivityDate: effectiveFrom,

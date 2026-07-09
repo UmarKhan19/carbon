@@ -2022,9 +2022,6 @@ msgstr "बदलें"
 msgid "Change Order"
 msgstr ""
 
-msgid "Change Order Approval"
-msgstr ""
-
 msgid "Change Order Categories"
 msgstr ""
 
@@ -9805,12 +9802,6 @@ msgstr "राशि सीमा के आधार पर क्रय आद
 msgid "Require approval for quality documents in your workflow"
 msgstr "आपके वर्कफ़्लो में गुणवत्ता दस्तावेज़ों के लिए अनुमोदन की आवश्यकता है"
 
-msgid "Require change order approval"
-msgstr ""
-
-msgid "Require change order approval before implementation."
-msgstr ""
-
 msgid "Required"
 msgstr "आवश्यक"
 
@@ -13536,9 +13527,6 @@ msgstr "जब समाप्त हो चुका स्टॉक उपय�
 
 msgid "When MRP uses the successor for new demand"
 msgstr "जब MRP नई मांग के लिए उत्तराधिकारी का उपयोग करता है"
-
-msgid "When on, a change order can't move to Implementation until its approval tasks are complete."
-msgstr ""
 
 msgid "When on, attributes in this category show up on a person's public profile; otherwise they're visible to admins only."
 msgstr "जब सक्षम हो, तो इस श्रेणी की विशेषताएँ किसी के सार्वजनिक प्रोफ़ाइल पर दिखाई देती हैं; अन्यथा वे केवल व्यवस्थापकों के लिए दृश्यमान हैं।"

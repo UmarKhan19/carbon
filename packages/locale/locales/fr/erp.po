@@ -2022,9 +2022,6 @@ msgstr "Modifier"
 msgid "Change Order"
 msgstr ""
 
-msgid "Change Order Approval"
-msgstr ""
-
 msgid "Change Order Categories"
 msgstr ""
 
@@ -9805,12 +9802,6 @@ msgstr "Exiger une approbation pour les commandes d'achat en fonction des seuils
 msgid "Require approval for quality documents in your workflow"
 msgstr "Exiger une approbation pour les documents de qualité dans votre flux de travail"
 
-msgid "Require change order approval"
-msgstr ""
-
-msgid "Require change order approval before implementation."
-msgstr ""
-
 msgid "Required"
 msgstr "Requis"
 
@@ -13536,9 +13527,6 @@ msgstr "Lorsque du stock expiré est utilisé"
 
 msgid "When MRP uses the successor for new demand"
 msgstr "Quand MRP utilise le successeur pour la nouvelle demande"
-
-msgid "When on, a change order can't move to Implementation until its approval tasks are complete."
-msgstr ""
 
 msgid "When on, attributes in this category show up on a person's public profile; otherwise they're visible to admins only."
 msgstr "Quand il est activé, les attributs de cette catégorie s'affichent dans le profil public d'une personne ; sinon, ils ne sont visibles que pour les administrateurs."
