@@ -6,7 +6,7 @@ const cookieName = "theme";
 
 /**
  * Read the persisted theme from the cookie, normalizing legacy/aliased names
- * (e.g. "blue" → "cobalt") and falling back to the default when absent/unknown.
+ * and falling back to the default when absent/unknown.
  */
 export function getTheme(request: Request): string {
   const cookieHeader = request.headers.get("cookie");

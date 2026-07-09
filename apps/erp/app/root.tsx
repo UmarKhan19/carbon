@@ -7,6 +7,7 @@ import {
 } from "@carbon/auth/middleware/flash.server";
 import { validator } from "@carbon/form";
 import { LocaleProvider, resolveLanguage } from "@carbon/locale";
+import { requestIdMiddleware } from "@carbon/logger/middleware.server";
 import {
   Button,
   Heading,
@@ -54,7 +55,7 @@ import type { Route } from "./+types/root";
 import "./polyfill";
 import { getTheme } from "./services/theme.server";
 
-export const middleware = [flashMiddleware];
+export const middleware = [requestIdMiddleware, flashMiddleware];
 export const clientMiddleware = [flashClientMiddleware];
 
 export const links: LinksFunction = () => {
@@ -114,6 +115,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     ERP_URL,
     GOOGLE_PLACES_API_KEY,
     JIRA_CLIENT_ID,
+    LOG_LEVEL,
     MES_URL,
     ONSHAPE_CLIENT_ID,
     POSTHOG_API_HOST,
@@ -143,6 +145,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
         ERP_URL,
         GOOGLE_PLACES_API_KEY,
         JIRA_CLIENT_ID,
+        LOG_LEVEL,
         MES_URL,
         ONSHAPE_CLIENT_ID,
         POSTHOG_API_HOST,

@@ -1,6 +1,7 @@
 import type { Database, Json } from "@carbon/database";
 import { fetchAllFromTable } from "@carbon/database";
 import type { Kysely, KyselyDatabase } from "@carbon/database/client";
+import { getLogger } from "@carbon/logger";
 import { getPurchaseOrderStatus } from "@carbon/utils";
 import { getLocalTimeZone, today } from "@internationalized/date";
 import type {
@@ -41,6 +42,8 @@ import type {
   supplierValidator
 } from "./purchasing.models";
 import type { PurchaseOrder, PurchasingRFQ, SupplierQuote } from "./types";
+
+const logger = getLogger("erp", "purchasing-service");
 
 export async function closePurchaseOrder(
   client: SupabaseClient<Database>,
@@ -244,11 +247,7 @@ export async function deleteSupplierProcess(
   client: SupabaseClient<Database>,
   supplierProcessId: string
 ) {
-  return client
-    .from("supplierProcess")
-    .delete()
-    .eq("id", supplierProcessId)
-    .single();
+  return client.from("supplierProcess").delete().eq("id", supplierProcessId);
 }
 
 export async function deleteSupplierQuote(
@@ -646,10 +645,7 @@ export async function getSupplierInteractionDocuments(
     .list(`${companyId}/supplier-interaction/${interactionId}`);
 
   if (result.error) {
-    console.error(
-      "Failed to list supplier interaction documents",
-      result.error
-    );
+    logger.error("Failed to list supplier interaction documents", result.error);
     return [];
   }
 
@@ -668,7 +664,7 @@ export async function getSupplierInteractionLineDocuments(
     .list(`${companyId}/supplier-interaction-line/${lineId}`);
 
   if (result.error) {
-    console.error(
+    logger.error(
       "Failed to list supplier interaction line documents",
       result.error
     );
@@ -1843,7 +1839,7 @@ export async function upsertSupplier(
     return client
       .from("supplier")
       .insert([supplier])
-      .select("id, name")
+      .select("id, name, website, supplierStatus, readableId")
       .single();
   }
   return client

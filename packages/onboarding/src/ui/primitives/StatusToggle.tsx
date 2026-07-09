@@ -1,5 +1,5 @@
 // Binary status pill button (validated / in-scope / done toggles). Active =
-// emerald, inactive = muted. `withIcon` shows a check when active (the
+// status-green, inactive = muted. `withIcon` shows a check when active (the
 // "Validated / Not yet" style); off gives the compact "In scope / Out" style.
 
 import { cn } from "@carbon/react";
@@ -25,11 +25,11 @@ export function StatusToggle({
       type="button"
       onClick={onToggle}
       className={cn(
-        "shrink-0 inline-flex items-center gap-1.5 rounded-full text-xs font-medium active:scale-[0.96] transition-transform",
+        "shrink-0 inline-flex items-center gap-1.5 rounded-full text-xs font-medium cursor-pointer active:scale-[0.96] transition-[transform,background-color,border-color,color]",
         withIcon ? "pl-2 pr-2.5 py-1" : "px-2.5 py-0.5",
         active
-          ? "bg-status-green/12 text-status-green-fg"
-          : "border text-muted-foreground",
+          ? "bg-status-green/12 text-status-green-fg hover:bg-status-green/20"
+          : "border bg-background text-muted-foreground hover:bg-muted hover:text-foreground",
         className
       )}
     >

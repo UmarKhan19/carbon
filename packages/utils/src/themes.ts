@@ -243,36 +243,25 @@ function buildTheme(spec: ThemeSpec) {
 }
 
 /**
- * Theme specs. Legacy names (zinc, neutral, red…) are preserved for backward
- * compatibility with stored theme cookies/settings; `zinc` remains the default
- * "Modern" graphite. New modern themes are appended.
+ * Theme specs — Carbon's existing eight themes, expressed in OKLCH.
+ *
+ * Each `{hue, chroma, kind}` was derived from that theme's original HSL brand
+ * primary converted to OKLCH, so the palette identity is preserved — this is the
+ * same set of themes, moved to a perceptual color space, not a new palette.
+ * `zinc` (Modern) remains the default graphite. `blue` (Blueberry) and `violet`
+ * (Lavender) shared a near-identical raw hue and were separated only by
+ * lightness; since the engine fixes lightness per kind, `violet` is nudged toward
+ * purple so the two stay visually distinct.
  */
 const THEME_SPECS: ThemeSpec[] = [
-  { name: "zinc", label: "Modern", hue: 260, chroma: 0, kind: "neutral" },
-  {
-    name: "indigo",
-    label: "Electric Indigo",
-    hue: 275,
-    chroma: 0.16,
-    kind: "accent"
-  },
-  { name: "cobalt", label: "Cobalt", hue: 255, chroma: 0.15, kind: "accent" },
-  {
-    name: "emerald",
-    label: "Emerald Tech",
-    hue: 155,
-    chroma: 0.15,
-    kind: "accent"
-  },
-  { name: "acid", label: "Signal Acid", hue: 128, chroma: 0.19, kind: "acid" },
-  {
-    name: "coral",
-    label: "Sunset Coral",
-    hue: 40,
-    chroma: 0.15,
-    kind: "accent"
-  },
-  { name: "dusk", label: "Violet Dusk", hue: 310, chroma: 0.15, kind: "accent" }
+  { name: "zinc", label: "Modern", hue: 264, chroma: 0, kind: "neutral" },
+  { name: "neutral", label: "Brutal", hue: 0, chroma: 0, kind: "neutral" },
+  { name: "red", label: "Cherry", hue: 27, chroma: 0.2, kind: "accent" },
+  { name: "orange", label: "Apricot", hue: 40, chroma: 0.17, kind: "accent" },
+  { name: "yellow", label: "Lemon", hue: 92, chroma: 0.17, kind: "acid" },
+  { name: "green", label: "Mint", hue: 175, chroma: 0.12, kind: "accent" },
+  { name: "blue", label: "Blueberry", hue: 265, chroma: 0.14, kind: "accent" },
+  { name: "violet", label: "Lavender", hue: 295, chroma: 0.18, kind: "accent" }
 ];
 
 export const themes = THEME_SPECS.map(buildTheme);
@@ -280,18 +269,11 @@ export const themes = THEME_SPECS.map(buildTheme);
 export type Theme = (typeof themes)[number];
 
 /**
- * Retired theme names → nearest current theme. Keeps companies that stored a
- * legacy selection (Cherry, Blueberry, …) rendering correctly after pruning.
+ * Retired theme names → nearest current theme. Empty for now: every current name
+ * is a real theme, so stored cookies/settings resolve directly. Add an entry
+ * here if a theme name is ever renamed or removed.
  */
-export const THEME_ALIASES: Record<string, string> = {
-  neutral: "zinc", // Brutal → Modern (visually near-identical)
-  red: "coral", // Cherry → Sunset Coral
-  orange: "coral", // Apricot → Sunset Coral
-  yellow: "acid", // Lemon → Signal Acid
-  green: "emerald", // Mint → Emerald Tech
-  blue: "cobalt", // Blueberry → Cobalt
-  violet: "dusk" // Lavender → Violet Dusk
-};
+export const THEME_ALIASES: Record<string, string> = {};
 
 /** Resolve a stored/selected theme name (applying aliases) to a Theme. */
 export function resolveTheme(

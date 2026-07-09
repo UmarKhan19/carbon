@@ -170,6 +170,9 @@ export const path = {
         ),
       resourcesKpi: (key: string) =>
         generatePath(`${api}/resources/kpi/${key}`),
+      purchaseInvoice: (id: string) =>
+        generatePath(`${api}/purchase-invoice/${id}`),
+      salesRfq: (id: string) => generatePath(`${api}/sales-rfq/${id}`),
       salesCustomerOverride: `${api}/sales/customer-override`,
       salesKpi: (key: string) => generatePath(`${api}/sales/kpi/${key}`),
       salesResolvePrice: `${api}/sales/resolve-price`,
@@ -565,14 +568,22 @@ export const path = {
     chartOfAccount: (id: string) =>
       generatePath(`${x}/accounting/charts/${id}`),
     chartOfAccounts: `${x}/accounting/charts`,
+    chartOfAccountsLedger: (id: string) =>
+      generatePath(`${x}/accounting/charts/ledger/${id}`),
     moveChartOfAccount: (id: string) =>
       generatePath(`${x}/accounting/charts/move/${id}`),
     costCenter: (id: string) =>
       generatePath(`${x}/accounting/cost-centers/${id}`),
     costCenters: `${x}/accounting/cost-centers`,
     trialBalance: `${x}/accounting/trial-balance`,
+    trialBalanceLedger: (id: string) =>
+      generatePath(`${x}/accounting/trial-balance/${id}`),
     balanceSheet: `${x}/accounting/balance-sheet`,
+    balanceSheetLedger: (id: string) =>
+      generatePath(`${x}/accounting/balance-sheet/${id}`),
     incomeStatement: `${x}/accounting/income-statement`,
+    incomeStatementLedger: (id: string) =>
+      generatePath(`${x}/accounting/income-statement/${id}`),
     company: `${x}/settings/company`,
     companySwitch: (companyId: string) =>
       generatePath(`${x}/settings/company/switch/${companyId}`),
@@ -1074,6 +1085,8 @@ export const path = {
     locations: `${x}/resources/locations`,
     login: "/login",
     logout: "/logout",
+    download: (token: string) => `/download/${token}`,
+    downloadError: (reason: string) => `/download/error?reason=${reason}`,
     logos: `${x}/settings/logos`,
     maintenanceDispatch: (id: string) => generatePath(`${x}/maintenance/${id}`),
     maintenanceDispatchComments: (id: string) =>
@@ -1577,6 +1590,18 @@ export const path = {
     receiptPost: (id: string) => generatePath(`${x}/receipt/${id}/post`),
     receiptRoot: `${x}/receipt`,
     receiptVoid: (id: string) => generatePath(`${x}/receipt/${id}/void`),
+    inventoryCounts: `${x}/inventory/inventory-count`,
+    newInventoryCount: `${x}/inventory/inventory-count/new`,
+    inventoryCount: (id: string) => generatePath(`${x}/inventory-count/${id}`),
+    inventoryCountConfirm: (id: string) =>
+      generatePath(`${x}/inventory-count/${id}/confirm`),
+    inventoryCountReopen: (id: string) =>
+      generatePath(`${x}/inventory-count/${id}/reopen`),
+    inventoryCountPost: (id: string) =>
+      generatePath(`${x}/inventory-count/${id}/post`),
+    inventoryCountDelete: (id: string) =>
+      generatePath(`${x}/inventory-count/${id}/delete`),
+    inventoryCountLineUpdate: `${x}/inventory-count/lines/update`,
     refreshSession: "/refresh-session",
     requiredAction: (id: string) =>
       generatePath(`${x}/quality/required-actions/${id}`),

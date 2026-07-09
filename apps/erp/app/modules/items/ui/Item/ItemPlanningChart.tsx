@@ -569,6 +569,7 @@ export const ItemPlanningChart = ({
             stockoutDate={chartData.stockoutDate}
             belowSafetyDate={chartData.belowSafetyDate}
             hasSafetyStock={hasSafetyStock}
+            includesPlannedOrders={plannedOrders.length > 0}
           />
           <div className="w-full h-[360px]">
             <Loading isLoading={isFetching}>
@@ -1051,11 +1052,13 @@ function ChartHelpContent() {
 function PlanningStatusBanner({
   stockoutDate,
   belowSafetyDate,
-  hasSafetyStock
+  hasSafetyStock,
+  includesPlannedOrders
 }: {
   stockoutDate: string | null;
   belowSafetyDate: string | null;
   hasSafetyStock: boolean;
+  includesPlannedOrders: boolean;
 }) {
   const { t } = useLingui();
   const dateFormatter = useDateFormatter({ month: "short", day: "numeric" });
@@ -1080,7 +1083,9 @@ function PlanningStatusBanner({
     icon = <LuCircleCheck className="size-4 shrink-0" />;
     message = hasSafetyStock
       ? t`Projected to stay above safety stock`
-      : t`No stockout projected in the next 48 weeks`;
+      : includesPlannedOrders
+        ? t`If ordered, no stockout projected in the next 48 weeks`
+        : t`No stockout projected in the next 48 weeks`;
   }
 
   const color =

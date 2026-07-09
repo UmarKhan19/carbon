@@ -1,5 +1,6 @@
 import type { Database, Json } from "@carbon/database";
 import { fetchAllFromTable } from "@carbon/database";
+import { getLogger } from "@carbon/logger";
 import type { JSONContent } from "@carbon/react";
 import { parseDate } from "@internationalized/date";
 import type { FileObject, StorageError } from "@supabase/storage-js";
@@ -52,6 +53,8 @@ import type {
   JobMaterialPurchaseOrderLine,
   JobMaterialSupplyJobLine
 } from "./types";
+
+const logger = getLogger("erp", "production");
 
 export async function convertSalesOrderLinesToJobs(
   client: SupabaseClient<Database>,
@@ -271,7 +274,7 @@ export async function convertSalesOrderLinesToJobs(
   }
 
   if (errors.length > 0) {
-    console.error(errors);
+    logger.error("Failed to convert sales order lines to jobs", { errors });
     return {
       data: null,
       error: {
@@ -520,9 +523,55 @@ export async function deleteProcedureParameter(
 
 export async function deleteProductionEvent(
   client: SupabaseClient<Database>,
-  productionEventId: string
+  productionEventId: string,
+  companyId: string,
+  userId: string
 ) {
-  return client.from("productionEvent").delete().eq("id", productionEventId);
+  const event = await client
+    .from("productionEvent")
+    .select("id, postedToGL")
+    .eq("id", productionEventId)
+    .eq("companyId", companyId)
+    .single();
+  if (event.error) return event;
+
+  // A posted event's journal entry must be reversed before the row goes
+  // away, otherwise WIP keeps the orphaned absorption.
+  if (event.data.postedToGL) {
+    const reversal = await client.functions.invoke<{
+      success: boolean;
+      reason?: string;
+    }>("post-production-event", {
+      body: { productionEventId, companyId, userId, reverse: true }
+    });
+    if (reversal.error) {
+      return {
+        data: null,
+        error: {
+          message: `Failed to reverse the event's journal entry: ${reversal.error.message}`
+        }
+      };
+    }
+    if (reversal.data && reversal.data.success === false) {
+      return {
+        data: null,
+        error: {
+          message: `Cannot delete a posted production event: ${
+            reversal.data.reason ?? "unknown reason"
+          }`
+        }
+      };
+    }
+  }
+
+  // Recorded output quantities reference this event via ON DELETE SET NULL FKs
+  // (migration below), so they survive with their link cleared — the quantities
+  // are real output and outlive an individual time card.
+  return client
+    .from("productionEvent")
+    .delete()
+    .eq("id", productionEventId)
+    .eq("companyId", companyId);
 }
 
 export async function deleteProductionQuantity(
@@ -2689,7 +2738,7 @@ export async function insertJob(
       if (input.configuration) body.configuration = input.configuration;
       const { error } = await client.functions.invoke("get-method", { body });
       if (error) {
-        console.error("Failed to copy method from quote line:", error);
+        logger.error("Failed to copy method from quote line", { error });
       }
     } else {
       const body: Record<string, unknown> = {
@@ -2702,7 +2751,7 @@ export async function insertJob(
       if (input.configuration) body.configuration = input.configuration;
       const { error } = await client.functions.invoke("get-method", { body });
       if (error) {
-        console.error("Failed to copy method from item:", error);
+        logger.error("Failed to copy method from item", { error });
       }
     }
   }

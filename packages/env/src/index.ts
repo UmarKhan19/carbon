@@ -11,6 +11,7 @@ declare global {
       CONTROLLED_ENVIRONMENT: string;
       ERP_URL: string;
       JIRA_CLIENT_ID: string;
+      LOG_LEVEL: string;
       MES_URL: string;
       ONSHAPE_CLIENT_ID: string;
       POSTHOG_API_HOST: string;
@@ -39,6 +40,7 @@ declare global {
       JIRA_CLIENT_SECRET: string;
       JIRA_OAUTH_REDIRECT_URL: string;
       JIRA_STATE_SECRET: string;
+      LOG_LEVEL: string;
       MES_URL: string;
       ONSHAPE_CLIENT_ID: string;
       ONSHAPE_CLIENT_SECRET: string;
@@ -77,6 +79,7 @@ declare global {
       XERO_CLIENT_SECRET: string;
       XERO_WEBHOOK_SECRET: string;
       DEFAULT_LANGUAGE: string;
+      EXTRACTION_CONFIDENCE_THRESHOLD: string;
     }
   }
 }
@@ -165,6 +168,13 @@ export const EXCHANGE_RATES_API_KEY = getEnv("EXCHANGE_RATES_API_KEY", {
   isRequired: false,
   isSecret: true
 });
+
+export const EXTRACTION_CONFIDENCE_THRESHOLD = Number.parseFloat(
+  getEnv("EXTRACTION_CONFIDENCE_THRESHOLD", {
+    isRequired: false,
+    isSecret: false
+  }) ?? "0.85"
+);
 
 const INNGEST_DEV = getEnv("INNGEST_DEV", { isRequired: false });
 
@@ -361,6 +371,14 @@ export const DEFAULT_LANGUAGE =
     isSecret: false
   }) ?? "en";
 
+// Level for @carbon/logger. Optional + non-secret so it reaches the browser.
+// The logger derives a sensible default when unset (dev: debug, prod: info,
+// browser prod: warning), so an invalid/absent value never throws.
+export const LOG_LEVEL = getEnv("LOG_LEVEL", {
+  isRequired: false,
+  isSecret: false
+});
+
 export const RATE_LIMIT = parseInt(
   getEnv("RATE_LIMIT", { isRequired: false, isSecret: false }) || "5",
   10
@@ -415,6 +433,7 @@ export function getBrowserEnv() {
     ERP_URL,
     GOOGLE_PLACES_API_KEY,
     JIRA_CLIENT_ID,
+    LOG_LEVEL,
     MES_URL,
     NODE_ENV,
     ONSHAPE_CLIENT_ID,
