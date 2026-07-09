@@ -30,6 +30,23 @@ function isSensitiveKey(key: string): boolean {
 }
 
 /**
+ * Mask sensitive query-param values (`?code=…`, `?token=…`, …) while keeping the
+ * rest of the query string readable. Returns "" for a bodyless query.
+ */
+function redactSearch(search: string): string {
+  if (!search || search === "?") return "";
+  const params = new URLSearchParams(search);
+  let changed = false;
+  for (const key of params.keys()) {
+    if (isSensitiveKey(key)) {
+      params.set(key, REDACTED);
+      changed = true;
+    }
+  }
+  return changed ? `?${params.toString()}` : search;
+}
+
+/**
  * Recursively mask values whose key matches a sensitive-field pattern (the same
  * `DEFAULT_REDACT_FIELDS` LogTape's `redactByField` uses: password/token/secret/
  * key/auth/email/phone/address/…). The sink-level redactor only runs in prod
@@ -118,7 +135,7 @@ export const requestIdMiddleware: MiddlewareFunction<Response> = async (
   context.set(requestIdContext, requestId);
 
   const { method } = request;
-  const { pathname } = new URL(request.url);
+  const { pathname, search } = new URL(request.url);
   const start = performance.now();
 
   // Capture the body only when debug is actually enabled — skips the clone +
@@ -138,6 +155,7 @@ export const requestIdMiddleware: MiddlewareFunction<Response> = async (
     log.debug("{method} {pathname} → {status} in {responseTime}ms", {
       method,
       pathname,
+      search: redactSearch(search),
       status: res.status,
       responseTime: performance.now() - start,
       ...(body === undefined ? {} : { body })

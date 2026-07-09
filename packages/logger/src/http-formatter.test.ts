@@ -13,12 +13,30 @@ function record(properties: Record<string, unknown>) {
 }
 
 describe("httpDevFormatter", () => {
-  it("keeps the standard timestamp/level/category prefix", () => {
+  it("renders a pino-style time-only / level / pid / module prefix", () => {
     const line = httpDevFormatter(
       record({ method: "GET", pathname: "/dashboard", status: 200 })
     );
-    expect(line).toContain("DBG");
-    expect(line).toContain("carbon·http");
+    // [HH:MM:SS.mmm] — time only, no date.
+    expect(line).toMatch(/\[\d{2}:\d{2}:\d{2}\.\d{3}\]/);
+    // Uppercase level, pid, and the `carbon`-stripped module.
+    expect(line).toContain("DEBUG");
+    expect(line).toContain(`(${process.pid})`);
+    expect(line).toContain("[http]");
+    // No full date in the line.
+    expect(line).not.toMatch(/\d{4}-\d{2}-\d{2}/);
+  });
+
+  it("includes the query string, redacting sensitive params", () => {
+    const line = httpDevFormatter(
+      record({
+        method: "GET",
+        pathname: "/callback",
+        search: "?ref=home&token=%5BREDACTED%5D",
+        status: 200
+      })
+    );
+    expect(line).toContain("/callback?ref=home&token=%5BREDACTED%5D");
   });
 
   it("renders the message portion as a morgan dev-style access line — bold method, dimmed duration", () => {

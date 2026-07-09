@@ -201,4 +201,25 @@ describe("requestIdMiddleware body logging", () => {
     );
     expect(httpRecord()?.properties.body).toBeUndefined();
   });
+
+  it("captures the query string and redacts sensitive params", async () => {
+    const request = new Request("http://x/callback?ref=home&token=abc123");
+    await requestIdMiddleware(
+      { request, context: makeContext() } as never,
+      async () => new Response("ok")
+    );
+    const search = httpRecord()?.properties.search as string;
+    expect(search).toContain("ref=home");
+    expect(search).toContain("token=%5BREDACTED%5D");
+    expect(search).not.toContain("abc123");
+  });
+
+  it("logs an empty search for a query-less request", async () => {
+    const request = new Request("http://x/dashboard");
+    await requestIdMiddleware(
+      { request, context: makeContext() } as never,
+      async () => new Response("ok")
+    );
+    expect(httpRecord()?.properties.search).toBe("");
+  });
 });
