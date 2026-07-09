@@ -23,6 +23,17 @@ const LEVEL_COLOR: Record<string, string> = {
   fatal: "\x1b[35m"
 };
 
+/** Per-method color: read green, create yellow, replace blue, patch cyan, delete red. */
+const METHOD_COLOR: Record<string, string> = {
+  GET: "\x1b[32m",
+  HEAD: "\x1b[32m",
+  POST: "\x1b[33m",
+  PUT: "\x1b[34m",
+  PATCH: "\x1b[36m",
+  DELETE: "\x1b[31m",
+  OPTIONS: "\x1b[35m"
+};
+
 /** Time-only `HH:MM:SS.mmm` from an epoch-ms timestamp (no date). */
 function clockTime(ts: number): string {
   const d = new Date(ts);
@@ -60,7 +71,8 @@ export const httpDevFormatter: TextFormatter = getAnsiColorFormatter({
         typeof responseTime === "number"
           ? ` ${DIM}${Math.trunc(responseTime * 10) / 10} ms${RESET}`
           : "";
-      line = `${BOLD}${method}${RESET} ${pathname}${query} ${statusColor(status)}${status}${RESET}${time}`;
+      const methodColor = METHOD_COLOR[method] ?? RESET;
+      line = `${BOLD}${methodColor}${method}${RESET} ${pathname}${query} ${statusColor(status)}${status}${RESET}${time}`;
       // The Morgan line only renders method/path/status/time, so a captured
       // request body (debug only, already redacted) would otherwise be dropped
       // — append it dimmed on its own line.

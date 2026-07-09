@@ -39,7 +39,7 @@ describe("httpDevFormatter", () => {
     expect(line).toContain("/callback?ref=home&token=%5BREDACTED%5D");
   });
 
-  it("renders the message portion as a morgan dev-style access line — bold method, dimmed duration", () => {
+  it("renders the message portion as a morgan dev-style access line — bold colored method, dimmed duration", () => {
     const line = httpDevFormatter(
       record({
         method: "GET",
@@ -49,8 +49,22 @@ describe("httpDevFormatter", () => {
       })
     );
     expect(line).toContain(
-      "\x1b[1mGET\x1b[0m /dashboard \x1b[32m200\x1b[0m \x1b[2m12.3 ms\x1b[0m"
+      "\x1b[1m\x1b[32mGET\x1b[0m /dashboard \x1b[32m200\x1b[0m \x1b[2m12.3 ms\x1b[0m"
     );
+  });
+
+  it("colors the method: GET green, POST yellow, DELETE red", () => {
+    expect(
+      httpDevFormatter(record({ method: "GET", pathname: "/x", status: 200 }))
+    ).toContain("\x1b[1m\x1b[32mGET\x1b[0m");
+    expect(
+      httpDevFormatter(record({ method: "POST", pathname: "/x", status: 200 }))
+    ).toContain("\x1b[1m\x1b[33mPOST\x1b[0m");
+    expect(
+      httpDevFormatter(
+        record({ method: "DELETE", pathname: "/x", status: 200 })
+      )
+    ).toContain("\x1b[1m\x1b[31mDELETE\x1b[0m");
   });
 
   it("colors 3xx cyan, 4xx yellow, 5xx red", () => {
@@ -89,7 +103,7 @@ describe("httpDevFormatter", () => {
     const line = httpDevFormatter(
       record({ method: "GET", pathname: "/x", status: 200 })
     );
-    expect(line).toContain("\x1b[1mGET\x1b[0m /x \x1b[32m200\x1b[0m");
+    expect(line).toContain("\x1b[1m\x1b[32mGET\x1b[0m /x \x1b[32m200\x1b[0m");
     expect(line).not.toContain("ms");
   });
 
