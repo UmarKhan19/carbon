@@ -139,11 +139,11 @@ Dependency: 0 → 1, 0 → 2 → 3, then 4. Phases 1 and 2 can proceed in parall
 
 ### Phase 0 — Foundations
 
-- [ ] **0.1 Enable `standardCost` in the item Costing UI.** Uncomment/re-enable in
+- [x] **0.1 Enable `standardCost` in the item Costing UI.** _(done — 866e6cb22)_ Uncomment/re-enable in
   `apps/erp/app/modules/items/items.models.ts:512-514` and render the field in
   `ItemCostingForm.tsx` (guard: editable only when `costingMethod === 'Standard'`;
   show read-only rolled value + `standardCostRolledAt` for manufactured items).
-- [ ] **0.2 Migration — standard cost components.** `pnpm db:migrate:new add-standard-cost-components`.
+- [x] **0.2 Migration — standard cost components.** _(done — 4f80bad05)_ `pnpm db:migrate:new add-standard-cost-components`.
   Add `standardMaterialCost`, `standardLaborCost`, `standardOverheadCost`
   (`NUMERIC` default 0), `standardCostRolledAt TIMESTAMP NULL` to `itemCost`.
   Idempotent (`ADD COLUMN IF NOT EXISTS`), randomized HHMMSS timestamp.
@@ -153,8 +153,12 @@ Dependency: 0 → 1, 0 → 2 → 3, then 4. Phases 1 and 2 can proceed in parall
   in `apps/erp/app/modules/items/.../update.tsx:~430` from `'Standard'` to `'Average'`.
   Add a data-quality check/migration note for existing `Standard` items with
   `standardCost = 0` (report, do not auto-mutate).
-- [ ] **0.5** `pnpm run generate:types`; propagate via `Awaited<ReturnType<>>` in
-  `items` `types.ts`. Then `pnpm exec turbo run typecheck --filter=@carbon/erp`.
+- [x] **0.5** _(done)_ Scoped typecheck `pnpm exec turbo run typecheck --filter=erp`
+  (filter is `erp`, not `@carbon/erp`) — no new errors; 4 pre-existing baseline
+  errors unrelated to this change, confirmed by stashing the edits and re-running.
+  `generate:types` intentionally **deferred**: local regen produces a large spurious
+  diff (types.ts is cloud-generated) and no code consumes the new columns yet —
+  they'll be typed when the cloud regenerates or read via cast in Phase 2.
 - **Verify:** item Costing card shows `standardCost` for a Standard item; new items are
   created as `Average`; types compile.
 
