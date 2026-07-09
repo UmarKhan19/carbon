@@ -6,6 +6,7 @@ import type {
   KyselyDatabase,
   KyselyTx
 } from "@carbon/database/client";
+import { getLogger } from "@carbon/logger";
 import { getLocalTimeZone, now, today } from "@internationalized/date";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { nanoid } from "nanoid";
@@ -64,6 +65,8 @@ import {
   type unitOfMeasureValidator
 } from "./items.models";
 import type { InventoryItemType } from "./types";
+
+const logger = getLogger("erp", "items");
 
 export async function activateMethodVersion(
   client: SupabaseClient<Database>,
@@ -369,12 +372,16 @@ export async function getConfigurationParameters(
   ]);
 
   if (parameters.error) {
-    console.error(parameters.error);
+    logger.error("Failed to get configuration parameters", {
+      error: parameters.error
+    });
     return { groups: [], parameters: [] };
   }
 
   if (groups.error) {
-    console.error(groups.error);
+    logger.error("Failed to get configuration parameter groups", {
+      error: groups.error
+    });
     return { groups: [], parameters: [] };
   }
 
@@ -392,7 +399,7 @@ export async function getConfigurationRules(
     .eq("itemId", itemId)
     .eq("companyId", companyId);
   if (result.error) {
-    console.error(result.error);
+    logger.error("Failed to get configuration rules", { error: result.error });
     return [];
   }
   return result.data ?? [];
@@ -3303,7 +3310,9 @@ export async function upsertPart(
 
     if (partInsert.error) return partInsert;
     if (itemCostUpdate.error) {
-      console.error(itemCostUpdate.error);
+      logger.error("Failed to update item cost", {
+        error: itemCostUpdate.error
+      });
     }
 
     if (part.replenishmentSystem !== "Buy") {
@@ -4028,7 +4037,9 @@ export async function upsertMaterial(
         )
       );
       if (itemCostUpdate.some((update) => update.error)) {
-        console.error(itemCostUpdate.find((update) => update.error));
+        logger.error("Failed to update item cost", {
+          error: itemCostUpdate.find((update) => update.error)?.error
+        });
       }
     } else {
       const itemInsert = await client
@@ -4061,7 +4072,9 @@ export async function upsertMaterial(
         )
         .eq("itemId", itemId);
       if (itemCostUpdate.error) {
-        console.error(itemCostUpdate.error);
+        logger.error("Failed to update item cost", {
+          error: itemCostUpdate.error
+        });
       }
     }
 

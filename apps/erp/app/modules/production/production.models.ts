@@ -42,6 +42,14 @@ export const deadlineTypes = [
   "No Deadline"
 ] as const;
 
+// A due date only applies to the two dated deadline types; ASAP / No Deadline
+// ignore it. Single source for both the validators below and the job form UI.
+export function deadlineRequiresDueDate(
+  deadlineType: string | null | undefined
+): boolean {
+  return deadlineType === "Hard Deadline" || deadlineType === "Soft Deadline";
+}
+
 export const jobStatus = [
   "Draft",
   "Planned",
@@ -192,7 +200,7 @@ export const bulkJobValidator = z
   )
   .refine(
     (data) => {
-      if (["Hard Deadline", "Soft Deadline"].includes(data.deadlineType)) {
+      if (deadlineRequiresDueDate(data.deadlineType)) {
         return !!data.dueDateOfFirstJob;
       }
       return true;
@@ -204,7 +212,7 @@ export const bulkJobValidator = z
   )
   .refine(
     (data) => {
-      if (["Hard Deadline", "Soft Deadline"].includes(data.deadlineType)) {
+      if (deadlineRequiresDueDate(data.deadlineType)) {
         return !!data.dueDateOfLastJob;
       }
       return true;
@@ -217,10 +225,7 @@ export const bulkJobValidator = z
 
 export const jobValidator = baseJobValidator.refine(
   (data) => {
-    if (
-      ["Hard Deadline", "Soft Deadline"].includes(data.deadlineType) &&
-      !data.dueDate
-    ) {
+    if (deadlineRequiresDueDate(data.deadlineType) && !data.dueDate) {
       return false;
     }
     return true;
@@ -255,10 +260,7 @@ export const salesOrderToJobValidator = baseJobValidator
   })
   .refine(
     (data) => {
-      if (
-        ["Hard Deadline", "Soft Deadline"].includes(data.deadlineType) &&
-        !data.dueDate
-      ) {
+      if (deadlineRequiresDueDate(data.deadlineType) && !data.dueDate) {
         return false;
       }
       return true;
@@ -913,17 +915,22 @@ export const productionOrderValidator = z.object({
 
 export type ProductionOrder = z.infer<typeof productionOrderValidator>;
 
-export const productionQuantityValidator = z.object({
-  id: zfd.text(z.string().optional()),
-  jobOperationId: z.string().min(1, { message: "Operation is required" }),
-  type: z.enum(["Rework", "Scrap", "Production"], {
-    errorMap: () => ({ message: "Quantity type is required" })
-  }),
-  scrapReasonId: zfd.text(z.string().optional()),
-  notes: zfd.text(z.string().optional()),
-  createdBy: zfd.text(z.string().optional()),
-  quantity: zfd.numeric(z.number().min(0))
-});
+export const productionQuantityValidator = z
+  .object({
+    id: zfd.text(z.string().optional()),
+    jobOperationId: z.string().min(1, { message: "Operation is required" }),
+    type: z.enum(["Rework", "Scrap", "Production"], {
+      errorMap: () => ({ message: "Quantity type is required" })
+    }),
+    scrapReasonId: zfd.text(z.string().optional()),
+    notes: zfd.text(z.string().optional()),
+    createdBy: zfd.text(z.string().optional()),
+    quantity: zfd.numeric(z.number().min(0))
+  })
+  .refine((data) => data.type !== "Scrap" || !!data.scrapReasonId, {
+    message: "Scrap reason is required",
+    path: ["scrapReasonId"]
+  });
 
 export const scheduleOperationUpdateValidator = z.object({
   id: z.string().min(1, { message: "ID is required" }),

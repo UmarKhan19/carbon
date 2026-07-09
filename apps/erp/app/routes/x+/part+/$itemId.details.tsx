@@ -2,6 +2,7 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
+import { getLogger } from "@carbon/logger";
 import type { JSONContent } from "@carbon/react";
 import { Menubar, VStack } from "@carbon/react";
 import { useLingui } from "@lingui/react/macro";
@@ -44,6 +45,8 @@ import { getTagsList } from "~/modules/shared";
 import { getCustomFields, setCustomFields } from "~/utils/form";
 import { path } from "~/utils/path";
 import { configurableItemsQuery, getCompanyId } from "~/utils/react-query";
+
+const logger = getLogger("erp", "itemid-details");
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { client, companyId } = await requirePermissions(request, {
@@ -144,7 +147,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
 
     if (validation.error) {
-      console.error(validation.error);
+      logger.error(validation.error);
       return validationError(validation.error);
     }
 
