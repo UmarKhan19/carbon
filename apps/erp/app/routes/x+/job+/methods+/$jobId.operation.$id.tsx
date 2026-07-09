@@ -6,6 +6,7 @@ import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import {
   jobOperationValidator,
+  syncJobOperationAbilities,
   upsertJobOperation
 } from "~/modules/production";
 import { setCustomFields } from "~/utils/form";
@@ -31,9 +32,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return validationError(validation.error);
   }
 
+  const { abilities, ...operationData } = validation.data;
+
   const updateJobOperation = await upsertJobOperation(client, {
     jobId,
-    ...validation.data,
+    ...operationData,
     id: id,
     companyId,
     updatedBy: userId,
@@ -60,6 +63,25 @@ export async function action({ request, params }: ActionFunctionArgs) {
       await flash(
         request,
         error(updateJobOperation, "Failed to update job operation")
+      )
+    );
+  }
+
+  const syncAbilities = await syncJobOperationAbilities(
+    client,
+    jobOperationId,
+    companyId,
+    abilities ?? [],
+    userId
+  );
+  if (syncAbilities.error) {
+    return data(
+      {
+        id: jobOperationId
+      },
+      await flash(
+        request,
+        error(syncAbilities.error, "Failed to update job operation abilities")
       )
     );
   }

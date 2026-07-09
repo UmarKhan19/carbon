@@ -852,6 +852,9 @@ msgstr "Escanear o buscar número de serie..."
 msgid "Schedule"
 msgstr "Programación"
 
+msgid "Scheduling conflict"
+msgstr ""
+
 msgid "Scrap"
 msgstr "Descartar"
 

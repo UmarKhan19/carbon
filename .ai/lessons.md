@@ -65,3 +65,13 @@ Format: `Context → Problem → Rule → Applies to`
 **Rule:** In migrations that insert `account` rows, resolve the parent group by `"isGroup" = TRUE AND name = '<Group Name>'` (optionally + class), never by number — and treat a NULL parent as an error or explicit fallback, never insert silently orphaned. `20260630093809_ar-ap-payments.sql` is the correct precedent. When a past migration did orphan accounts, ship a follow-up UPDATE re-parenting `parentId IS NULL` rows to the group `seed.data.ts` assigns (see `20260702192816`).
 
 **Applies to:** `packages/database/supabase/migrations/` touching `account`; `packages/database/supabase/functions/lib/seed.data.ts`; anything walking the chart-of-accounts tree.
+
+## Postgres DATE columns via Kysely/pg are JS Dates — never String() them into comparisons
+
+**Context:** The scheduling engine's operator-pool filter compared `employeeAbility.expiresAt > startDateStr` ("YYYY-MM-DD" strings). The master-data provider mapped the Kysely row with `String(r.expiresAt)`.
+
+**Problem:** The `pg` driver parses `date` columns as JS `Date` objects (local midnight), so `String(...)` yields `"Tue Jul 07 2026 …"` — which is lexicographically GREATER than any `"YYYY-MM-DD"` string (letters > digits). The expiry check therefore never disqualified anyone: an expired welder still counted as a qualified operator and `OperatorPool` reservations were written. The mirror-image failure hit `workCenterCapacity.effectiveFrom <= dateStr` (overrides never applied). Invisible in unit tests because fixtures pass proper ISO strings.
+
+**Rule:** Any date value read via Kysely/pg that feeds a string comparison must be normalized with an explicit converter (`toIsoDate` in `master-data-provider.ts`): pass strings through, format `Date` objects with LOCAL getters (matching pg's local-midnight construction) — never `String(date)` or `date.toISOString()` (UTC shift risk). Supabase-js/PostgREST paths are unaffected (already strings). When a scheduling filter mysteriously never fires, check the runtime type of the DATE column first.
+
+**Applies to:** `packages/database/supabase/functions/lib/scheduling/master-data-provider.ts` and any Kysely read of `DATE` columns compared as strings (`expiresAt`, `lastTrainingDate`, `effectiveFrom/To`, `startDate/dueDate`).

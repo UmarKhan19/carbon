@@ -14,6 +14,7 @@ import { Trans } from "@lingui/react/macro";
 import {
   LuCalendar,
   LuCalendarDays,
+  LuChartNoAxesGantt,
   LuChevronDown,
   LuCog,
   LuList
@@ -26,6 +27,7 @@ export function ScheduleNavigation() {
   const navigate = useNavigate();
 
   const getCurrentView = () => {
+    if (location.pathname.includes(path.to.scheduleGantt())) return "timeline";
     if (location.pathname.includes(path.to.scheduleOperation))
       return "operations";
     if (location.pathname.includes(path.to.scheduleDates)) {
@@ -48,6 +50,8 @@ export function ScheduleNavigation() {
         return "Week";
       case "month":
         return "Month";
+      case "timeline":
+        return "Timeline";
       default:
         return "";
     }
@@ -61,6 +65,8 @@ export function ScheduleNavigation() {
         return <LuCalendarDays />;
       case "month":
         return <LuCalendar />;
+      case "timeline":
+        return <LuChartNoAxesGantt />;
       default:
         return <LuList />;
     }
@@ -80,6 +86,9 @@ export function ScheduleNavigation() {
       case "month":
         searchParams.set("view", "month");
         navigate(path.to.scheduleDates + "?" + searchParams.toString());
+        break;
+      case "timeline":
+        navigate(path.to.scheduleGantt());
         break;
     }
   };
@@ -119,6 +128,10 @@ export function ScheduleNavigation() {
             <DropdownMenuRadioItem value="month">
               <DropdownMenuIcon icon={getViewIcon("month")} />
               {getViewLabel("month")}
+            </DropdownMenuRadioItem>
+            <DropdownMenuRadioItem value="timeline">
+              <DropdownMenuIcon icon={getViewIcon("timeline")} />
+              {getViewLabel("timeline")}
             </DropdownMenuRadioItem>
           </DropdownMenuGroup>
         </DropdownMenuRadioGroup>

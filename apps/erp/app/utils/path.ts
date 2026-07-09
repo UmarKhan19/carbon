@@ -168,6 +168,7 @@ export const path = {
         generatePath(
           `${api}/settings/sequence/rollback?table=${table}&currentSequence=${id}`
         ),
+      resourceCalendars: `${api}/resources/calendars`,
       resourcesKpi: (key: string) =>
         generatePath(`${api}/resources/kpi/${key}`),
       purchaseInvoice: (id: string) =>
@@ -464,6 +465,8 @@ export const path = {
       generatePath(`${x}/settings/approval-rules/${id}/delete`),
     abilities: `${x}/resources/abilities`,
     ability: (id: string) => generatePath(`${x}/resources/ability/${id}`),
+    abilityDetails: (id: string) =>
+      generatePath(`${x}/resources/ability/${id}/details`),
     account: `${x}/account`,
     accountPersonal: `${x}/account/personal`,
     accountPassword: `${x}/account/password`,
@@ -921,6 +924,8 @@ export const path = {
       generatePath(`${x}/warehouse-transfer/${id}/delete`),
     deleteWorkCenter: (id: string) =>
       generatePath(`${x}/resources/work-centers/delete/${id}`),
+    deleteResourceCalendar: (id: string) =>
+      generatePath(`${x}/resources/calendars/delete/${id}`),
     demandProjection: (itemId: string, locationId: string) =>
       generatePath(`${x}/production/projections/${itemId}/${locationId}`),
     demandProjections: `${x}/production/projections`,
@@ -1213,6 +1218,8 @@ export const path = {
     newOperator: `${x}/users/operators/new`,
     newEmployeeAbility: (id: string) =>
       generatePath(`${x}/resources/ability/${id}/employee/new`),
+    newPersonAbility: (personId: string) =>
+      generatePath(`${x}/resources/person/${personId}/ability/new`),
     newEmployeeType: `${x}/users/employee-types/new`,
     newFailureMode: `${x}/resources/failure-modes/new`,
     newFixture: `${x}/fixture/new`,
@@ -1298,6 +1305,7 @@ export const path = {
       generatePath(`${x}/quote/methods/${quoteId}/${lineId}/material/new`),
     newReceipt: `${x}/receipt/new`,
     newRequiredAction: `${x}/quality/required-actions/new`,
+    newResourceCalendar: `${x}/resources/calendars/new`,
     newRevision: `${x}/items/revisions/new`,
     newRisk: `${x}/quality/risks/new`,
     newSalesInvoice: `${x}/sales-invoice/new`,
@@ -1595,6 +1603,9 @@ export const path = {
       generatePath(`${x}/quality/required-actions/${id}`),
     requiredActions: `${x}/quality/required-actions`,
     resendInvite: `${x}/users/resend-invite`,
+    resourceCalendar: (id: string) =>
+      generatePath(`${x}/resources/calendars/${id}`),
+    resourceCalendars: `${x}/resources/calendars`,
     resources: `${x}/resources`,
     resourcesSettings: `${x}/settings/resources`,
     revision: (id: string) => generatePath(`${x}/items/revisions/${id}`),
@@ -1727,6 +1738,8 @@ export const path = {
     scheduleOperationUpdate: `${x}/schedule/operations/update`,
     scheduleDates: `${x}/schedule/dates`,
     scheduleDatesUpdate: `${x}/schedule/dates/update`,
+    scheduleGantt: (jobId?: string) =>
+      jobId ? `${x}/scheduling/gantt?jobId=${jobId}` : `${x}/scheduling/gantt`,
     scrapReason: (id: string) =>
       generatePath(`${x}/production/scrap-reasons/${id}`),
     scrapReasons: `${x}/production/scrap-reasons`,
@@ -1898,7 +1911,9 @@ export const path = {
     workCenter: (id: string) =>
       generatePath(`${x}/resources/work-centers/${id}`),
     workCenterActivate: (id: string) =>
-      generatePath(`${x}/resources/work-centers/activate/${id}`)
+      generatePath(`${x}/resources/work-centers/activate/${id}`),
+    workCenterCapacity: (workCenterId: string) =>
+      generatePath(`${x}/resources/work-centers/${workCenterId}/capacity`)
   }
 } as const;
 

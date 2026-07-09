@@ -1,7 +1,9 @@
 export { auditArchiveFunction } from "./audit-archive";
+export { capacityRollupFunction } from "./capacity-rollup";
 export { cleanupFunction } from "./cleanup";
 export { dispatchFunction } from "./dispatch";
 export { mrpFunction } from "./mrp";
+export { nightlyReplanFunction } from "./nightly-replan";
 export { notificationDigestFunction } from "./notification-digest";
 export { notificationPurgeFunction } from "./notification-purge";
 export { updateExchangeRatesFunction } from "./update-exchange-rates";

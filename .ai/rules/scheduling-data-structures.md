@@ -22,7 +22,16 @@ first match.
   `packages/database/supabase/functions/lib/scheduling/` (`scheduling-engine.ts`,
   `dependency-manager.ts`, `date-calculator.ts`, `work-center-selector.ts`,
   `priority-calculator.ts`, `material-manager.ts`, `duration-calculator.ts`,
-  `assembly-handler.ts`, `resource-manager.ts`, `types.ts`).
+  `assembly-handler.ts`, `master-data-provider.ts`, `calendar-utils.ts`,
+  `slot-allocator.ts`, `proficiency.ts`, `types.ts`). All engine READS go
+  through the `MasterDataProvider` interface (`KyselyMasterDataProvider` is the
+  live impl); writes stay on Kysely. `resource-manager.ts` was dead code and
+  has been deleted. `calendar-utils.ts` / `slot-allocator.ts` /
+  `date-utils.ts` / `operator-eligibility.ts` are pure and have Deno tests
+  (`deno test lib/scheduling/` from the functions dir). `date-utils.toIsoDate`
+  normalizes pg DATE columns (JS Date at local midnight) to "YYYY-MM-DD" —
+  required before any lexicographic date comparison (operator expiry,
+  capacity-override effectivity).
 - **ERP authoring boards** (`apps/erp/app/routes/x+/schedule+/`): `operations.tsx`
   (ops Kanban; drag → `operations.update.tsx` writes `jobOperation.workCenterId` +
   `priority`, no reschedule) and `dates.tsx` (jobs-by-due-date Kanban; drag →
@@ -54,15 +63,34 @@ selectWorkCenters → calculatePriorities → persistChanges`.
   parallel — `With Previous` copies the predecessor's start/due dates (parallel);
   `After Previous` chains sequentially. Plus assembly edges (a sub-make-method's last
   op feeds the parent's consuming op). Final order = topological sort.
-- **Dates** = **infinite-capacity backward scheduling** (`date-calculator.ts`): anchor on
+- **Dates, pass 1** = infinite-capacity backward scheduling (`date-calculator.ts`): anchor on
   `job.dueDate`, walk reverse-topo, each op `dueDate` = min dependent constraint − lead
   time, `startDate` = `dueDate` − duration in **business days** (`subtractBusinessDays`,
   skips weekends). Duration = `setup + max(labor, machine)`, ceil to 8-hour days.
-  Work-center capacity is **never** consulted for dates — only to pick *which* WC.
+- **Dates, pass 2 (finite/DRC placement)** — `selectWorkCenters` builds a
+  `FiniteSchedulingContext` (work-center capacity info, expanded calendars,
+  time-phased `workCenterCapacity` overrides, live `capacityReservation` rows
+  excluding this job, required abilities per op with process/work-center
+  fallbacks, qualified-operator pools with derived proficiency) and, per op,
+  walks each candidate work center's calendar **forward** from
+  max(backward start, now, in-run predecessor finish) to the first slot where
+  a machine slot (`< parallelCapacity` concurrent) AND ≥1 qualified operator
+  per required ability are simultaneously free (`slot-allocator.ts`). Picks
+  the earliest-finish candidate (tie → least reserved). Placement overwrites
+  `startDate`/`dueDate`; placements past the backward due date set
+  `hasConflict`/`conflictReason` but keep the placement. Work centers with
+  `schedulingMode = 'Infinite'` keep the legacy least-loaded pick with
+  pass-1 dates. In `mode: "reschedule"` selection is **sticky**: an op with an
+  assigned `workCenterId` keeps it (`ctx.stickyWorkCenters`); free selection
+  happens only at `mode: "initial"` or via the ops board drag. Reservations persist to `capacityReservation`
+  (delete-by-job + bulk insert per run, `scenarioId IS NULL` = live plan).
 - **Priority** = per-work-center dispatch sequence number (`priority-calculator.ts`): ops
-  grouped by `workCenterId`, sorted by start date → job priority → deadline type, then
-  numbered 1, 2, 3…. Boards sort by `priority` ascending. (Job-level `job.priority` is a
-  separate fractional index set at job creation by `calculateJobPriority`.)
+  grouped by `workCenterId`, sorted by the work center's **dispatch rule**
+  (`schedulingPolicy`: per-WC row → company default row → `EDD`; rules
+  FIFO/EDD/SPT/WSPT/CR/MinSlack) with the legacy chain (start date → job
+  priority → deadline type) as tie-break, then numbered 1, 2, 3…. Boards sort
+  by `priority` ascending. (Job-level `job.priority` is a separate fractional
+  index set at job creation by `calculateJobPriority`.)
 
 ## Manual scheduling
 
@@ -77,24 +105,35 @@ date from the pinned due date in that case.
 
 `jobOperation."hasConflict" BOOLEAN DEFAULT false` + `"conflictReason" TEXT`
 (`20251123000001_job-operation-conflicts.sql`, plus index
-`idx_job_operation_wc_priority` on `("workCenterId","priority","status")`). A conflict
-means **the computed start date is in the past** (`startDate < today` in
-`date-calculator.ts`) — it is NOT capacity/overlap detection. The read RPCs roll it up
-per job with `BOOL_OR(...)` so the board shows a red flag.
+`idx_job_operation_wc_priority` on `("workCenterId","priority","status")`). Two
+sources now: (1) pass-1 date calc — computed start date in the past
+(`startDate < today` in `date-calculator.ts`); (2) finite placement — no
+feasible slot (machine capacity, missing/expired operator qualification, or
+calendar exhaustion — `conflictReason` names the cause), or a placement that
+finishes after the backward-computed due date. Conflicts surface; scheduling
+never hard-fails. The read RPCs roll it up per job with `BOOL_OR(...)` so the
+board shows a red flag.
 
 ## Read RPCs (display only; do not compute schedules)
 
 ### `get_active_job_operations_by_location(location_id, work_center_ids[])`
-Newest: `20260304000000_add-operation-due-date-to-functions.sql`. TS wrappers (identical):
-`apps/mes/app/services/operations.service.ts` `getActiveJobOperationsByLocation` and
-`apps/erp/app/modules/production/production.service.ts`. Returns 36 cols incl.:
+Newest: `20260707143131_operation-conflicts-in-schedule-rpc.sql` (adds
+`hasConflict` + `conflictReason`; prior revisions `20260531084723_rework-serial-flow.sql`
+added `quantityReworked`/`reworkId`, `20260304000000` added `operationDueDate`).
+TS wrappers (identical): `apps/mes/app/services/operations.service.ts`
+`getActiveJobOperationsByLocation` and
+`apps/erp/app/modules/production/production.service.ts`. Returns 40 cols incl.:
 `id, jobId, jobMakeMethodId, operationOrder` (← `jo."order"`)`, priority, processId,
 workCenterId, description, setup/labor/machineTime+Unit, operationOrderType` (←
 `jo."operationOrder"`, serial/parallel enum)`, jobReadableId, jobStatus, jobDueDate,
 jobDeadlineType, jobCustomerId, customerName, parentMaterialId, itemReadableId,
 itemDescription, operationStatus` (`'Paused'` if job paused)`, targetQuantity,
-operationQuantity, quantityComplete, quantityScrapped, salesOrderId/LineId/ReadableId,
-assignee, tags, thumbnailPath, operationDueDate`.
+operationQuantity, quantityComplete, quantityReworked, quantityScrapped,
+salesOrderId/LineId/ReadableId, assignee, tags, thumbnailPath, operationDueDate,
+reworkId, hasConflict` (COALESCEd, never null)`, conflictReason`. The ERP ops board
+(`schedule+/operations.tsx` → `ItemCard`) and MES schedule loader map
+`hasConflict`/`conflictReason` onto Kanban items (red border + triangle tooltip on
+the ERP card).
 
 <!-- The old cache said customerName is NOT returned (must join) — WRONG now.
      customerName (← customer.name LEFT JOIN) was added 20251123000000, plus
@@ -130,8 +169,11 @@ thumbnailPath, operationCount, completedOperationCount, hasConflict, jobMakeMeth
 
 ## Gotchas
 
-- The engine schedules **infinite-capacity, backward** from `job.dueDate`. Capacity is
-  only used to choose the work center, never the timing. There is no finite scheduling.
+- The engine backward-computes target dates, then **finite forward placement**
+  decides actual timing on `Finite` work centers (the default). Only
+  `schedulingMode = 'Infinite'` work centers keep pure load-balanced,
+  capacity-blind placement. Manually scheduled ops are not reallocated — their
+  existing window is reserved as-is.
 - `jobOperation."order"` (topo position) vs `"operationOrder"` (serial/parallel enum) are
   distinct columns — easy to confuse; the RPC surfaces them as `operationOrder` and
   `operationOrderType` respectively.

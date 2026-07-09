@@ -26,6 +26,7 @@ export const abilityValidator = z
     shadowWeeks: zfd.numeric(
       z.number().min(0, { message: "Shadow is required" })
     ),
+    recertifyEveryDays: zfd.numeric(z.number().int().min(1).optional()),
     employees: z
       .array(z.string().min(1, { message: "Invalid selection" }))
       .min(1, { message: "Group members are required" })
@@ -47,11 +48,14 @@ export const contractorValidator = z.object({
   assignee: zfd.text(z.string().optional())
 });
 
-export const employeeAbilityValidator = z.object({
+export const employeeAbilityCellValidator = z.object({
   employeeId: z.string().min(1, { message: "Employee is required" }),
-  trainingStatus: z.string().min(1, { message: "Status is required" }),
-  trainingPercent: zfd.numeric(z.number().optional()),
-  trainingDays: zfd.numeric(z.number().optional())
+  abilityId: z.string().min(1, { message: "Ability is required" }),
+  active: zfd.checkbox(),
+  trainingCompleted: zfd.checkbox(),
+  lastTrainingDate: zfd.text(z.string().optional()),
+  expiresAt: zfd.text(z.string().optional()),
+  proficiencyOverride: zfd.numeric(z.number().min(0).max(1).optional())
 });
 
 export const maintenanceFailureModeType = [
@@ -473,7 +477,8 @@ export const trainingType = ["Mandatory", "Optional"] as const;
 export const trainingValidator = z.object({
   id: zfd.text(z.string().optional()),
   name: z.string().min(1, { message: "Name is required" }),
-  content: zfd.text(z.string().optional())
+  content: zfd.text(z.string().optional()),
+  grantsAbilityId: zfd.text(z.string().optional())
 });
 
 export const workCenterValidator = z.object({
@@ -490,6 +495,44 @@ export const workCenterValidator = z.object({
   overheadRate: zfd.numeric(z.number().min(0)),
   processes: z
     .array(z.string().min(1, { message: "Invalid process" }))
-    .optional()
-  // requiredAbilityId: zfd.text(z.string().optional()),
+    .optional(),
+  parallelCapacity: zfd.numeric(z.number().int().min(1)),
+  efficiencyFactor: zfd.numeric(z.number().gt(0)),
+  schedulingMode: z.enum(["Finite", "Infinite"]),
+  resourceCalendarId: zfd.text(z.string().optional()),
+  requiredAbilityId: zfd.text(z.string().optional())
+});
+
+export const resourceCalendarValidator = z.object({
+  id: zfd.text(z.string().optional()),
+  name: z.string().min(1, { message: "Name is required" }),
+  locationId: zfd.text(z.string().optional())
+});
+
+export const resourceCalendarShiftValidator = z.object({
+  id: zfd.text(z.string().optional()),
+  resourceCalendarId: z.string().min(1, { message: "Calendar is required" }),
+  dayOfWeek: zfd.numeric(z.number().int().min(0).max(6)),
+  startTime: z.string().min(1, { message: "Start time is required" }),
+  endTime: z.string().min(1, { message: "End time is required" })
+});
+
+export const resourceCalendarExceptionValidator = z.object({
+  id: zfd.text(z.string().optional()),
+  resourceCalendarId: z.string().min(1, { message: "Calendar is required" }),
+  name: z.string().min(1, { message: "Name is required" }),
+  startAt: z.string().min(1, { message: "Start is required" }),
+  endAt: z.string().min(1, { message: "End is required" }),
+  type: z.enum(["Closed", "Open", "ReducedCapacity"], {
+    errorMap: () => ({ message: "Type is required" })
+  }),
+  capacityOverride: zfd.numeric(z.number().optional())
+});
+
+export const workCenterCapacityValidator = z.object({
+  id: zfd.text(z.string().optional()),
+  workCenterId: z.string().min(1, { message: "Work center is required" }),
+  effectiveFrom: z.string().min(1, { message: "Effective from is required" }),
+  effectiveTo: zfd.text(z.string().optional()),
+  parallelCapacity: zfd.numeric(z.number().int().min(0))
 });

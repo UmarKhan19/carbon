@@ -3,6 +3,7 @@ import { z } from "npm:zod@^3.24.1";
 
 import { DB, getConnectionPool, getDatabaseClient } from "../lib/database.ts";
 import { corsHeaders } from "../lib/headers.ts";
+import { KyselyMasterDataProvider } from "../lib/scheduling/master-data-provider.ts";
 import { SchedulingEngine } from "../lib/scheduling/scheduling-engine.ts";
 import type {
   SchedulingDirection,
@@ -36,9 +37,12 @@ serve(async (req: Request) => {
 
     const client = await requirePermissions(req, companyId, userId, { update: "production" });
 
+    const provider = new KyselyMasterDataProvider(db, client, companyId);
+
     const engine = new SchedulingEngine({
       client,
       db,
+      provider,
       jobId,
       companyId,
       userId,

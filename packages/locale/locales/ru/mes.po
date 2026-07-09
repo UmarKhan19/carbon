@@ -852,6 +852,9 @@ msgstr "Сканируйте или ищите серийный номер..."
 msgid "Schedule"
 msgstr "Расписание"
 
+msgid "Scheduling conflict"
+msgstr ""
+
 msgid "Scrap"
 msgstr "Брак"
 

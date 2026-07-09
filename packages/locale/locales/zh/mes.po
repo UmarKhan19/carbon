@@ -852,6 +852,9 @@ msgstr "扫描或搜索序列号..."
 msgid "Schedule"
 msgstr "排程"
 
+msgid "Scheduling conflict"
+msgstr ""
+
 msgid "Scrap"
 msgstr "报废"
 

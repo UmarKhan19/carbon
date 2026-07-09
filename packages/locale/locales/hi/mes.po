@@ -852,6 +852,9 @@ msgstr "सीरियल नंबर स्कैन या खोजें..
 msgid "Schedule"
 msgstr "शेड्यूल"
 
+msgid "Scheduling conflict"
+msgstr ""
+
 msgid "Scrap"
 msgstr "स्क्रैप"
 

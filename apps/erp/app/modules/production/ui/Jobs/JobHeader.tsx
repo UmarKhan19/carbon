@@ -41,6 +41,7 @@ import { useMemo, useState } from "react";
 import { flushSync } from "react-dom";
 import {
   LuBlocks,
+  LuChartNoAxesGantt,
   LuCheckCheck,
   LuChevronDown,
   LuCircleCheck,
@@ -275,6 +276,12 @@ const JobHeader = () => {
                   <DropdownMenuIcon icon={<LuQrCode />} />
                   Job Traveler
                 </a>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to={path.to.scheduleGantt(jobId)}>
+                  <DropdownMenuIcon icon={<LuChartNoAxesGantt />} />
+                  Timeline
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuRadioGroup
                 value={currentValue}

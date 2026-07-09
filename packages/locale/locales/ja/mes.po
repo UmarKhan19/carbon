@@ -852,6 +852,9 @@ msgstr "シリアル番号をスキャンまたは検索..."
 msgid "Schedule"
 msgstr "スケジュール"
 
+msgid "Scheduling conflict"
+msgstr ""
+
 msgid "Scrap"
 msgstr "廃棄"
 

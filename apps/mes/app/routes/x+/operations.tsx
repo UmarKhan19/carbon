@@ -269,7 +269,9 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
           reworkId: op.reworkId,
           setupDuration: operation.setupDuration,
           laborDuration: operation.laborDuration,
-          machineDuration: operation.machineDuration
+          machineDuration: operation.machineDuration,
+          hasConflict: op.hasConflict ?? undefined,
+          conflictReason: op.conflictReason ?? undefined
         };
       }) ?? []) satisfies Item[],
       processes: processes.data ?? [],

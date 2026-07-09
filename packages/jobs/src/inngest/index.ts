@@ -31,9 +31,11 @@ import {
 } from "./functions/notifications";
 import {
   auditArchiveFunction,
+  capacityRollupFunction,
   cleanupFunction,
   dispatchFunction,
   mrpFunction,
+  nightlyReplanFunction,
   notificationDigestFunction,
   notificationPurgeFunction,
   updateExchangeRatesFunction,
@@ -89,7 +91,9 @@ export const functions = [
   cleanupFunction,
   dispatchFunction,
   auditArchiveFunction,
+  capacityRollupFunction,
   mrpFunction,
+  nightlyReplanFunction,
   weeklyFunction,
   updateExchangeRatesFunction,
   notificationDigestFunction,

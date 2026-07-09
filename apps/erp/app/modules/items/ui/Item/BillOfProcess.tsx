@@ -79,6 +79,7 @@ import {
 import { ConfigurationEditor } from "~/components/Configurator/ConfigurationEditor";
 import type { Configuration } from "~/components/Configurator/types";
 import {
+  Abilities,
   Hidden,
   InputControlled,
   Number,
@@ -180,6 +181,7 @@ const initialOperation: Omit<
   Operation,
   "makeMethodId" | "order" | "tools" | "id"
 > = {
+  abilities: [],
   description: "",
   laborTime: 0,
   laborUnit: "Minutes/Piece",
@@ -1271,6 +1273,7 @@ function OperationForm({
                 }
               }}
             />
+            <Abilities name="abilities" label={t`Required Abilities`} />
           </>
         )}
       </div>

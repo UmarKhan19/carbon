@@ -141,6 +141,19 @@ export type WorkCenterSelection = {
   priority: number;
   load?: number;
   error?: string;
+  // Finite placement (present when the selected work center is Finite and a
+  // slot was allocated). ISO timestamps.
+  placedStart?: string;
+  placedEnd?: string;
+  conflict?: string | null;
+};
+
+export type PlannedReservation = {
+  resourceKind: "WorkCenter" | "OperatorPool";
+  resourceId: string; // workCenter.id or ability.id
+  operationId: string;
+  startAt: Date;
+  endAt: Date;
 };
 
 // ============================================================================
@@ -161,6 +174,7 @@ export type SchedulingResult = {
   conflictsDetected: number;
   workCentersAffected: string[];
   assemblyDepth: number;
+  reservationsWritten?: number;
 };
 
 // ============================================================================
@@ -175,4 +189,8 @@ export type OperationWithJobInfo = {
   deadlineType: DeadlineType | null;
   jobPriority: number | null;
   workCenterId: string | null;
+  durationHours?: number | null; // needed by SPT/WSPT/CR/MinSlack dispatch rules
+  createdAt?: string | null; // needed by FIFO
 };
+
+export type DispatchRule = "FIFO" | "EDD" | "SPT" | "WSPT" | "CR" | "MinSlack";

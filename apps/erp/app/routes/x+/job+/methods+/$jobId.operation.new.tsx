@@ -9,6 +9,7 @@ import {
   jobOperationValidator,
   recalculateJobMakeMethodRequirements,
   recalculateJobOperationDependencies,
+  syncJobOperationAbilities,
   upsertJobOperation
 } from "~/modules/production";
 import { setCustomFields } from "~/utils/form";
@@ -32,8 +33,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return validationError(validation.error);
   }
 
+  const { abilities, ...operationData } = validation.data;
+
   const insertJobOperation = await upsertJobOperation(serviceRole, {
-    ...validation.data,
+    ...operationData,
     jobId,
     companyId,
     createdBy: userId,
@@ -60,6 +63,23 @@ export async function action({ request, params }: ActionFunctionArgs) {
       await flash(
         request,
         error(insertJobOperation, "Failed to insert job operation")
+      )
+    );
+  }
+
+  const syncAbilities = await syncJobOperationAbilities(
+    serviceRole,
+    jobOperationId,
+    companyId,
+    abilities ?? [],
+    userId
+  );
+  if (syncAbilities.error) {
+    return data(
+      { id: jobOperationId },
+      await flash(
+        request,
+        error(syncAbilities.error, "Failed to insert job operation abilities")
       )
     );
   }

@@ -28,6 +28,7 @@ import { useLingui } from "@lingui/react/macro";
 import { cva } from "class-variance-authority";
 import {
   LuCalendarDays,
+  LuChartNoAxesGantt,
   LuCircleCheck,
   LuCirclePlay,
   LuClipboardCheck,
@@ -40,6 +41,7 @@ import {
   LuSquareUser,
   LuTimer,
   LuTrash,
+  LuTriangleAlert,
   LuUsers
 } from "react-icons/lu";
 import { RiProgress8Line } from "react-icons/ri";
@@ -146,6 +148,7 @@ export function ItemCard({ item, isOverlay, progressByItemId }: ItemCardProps) {
       style={style}
       className={cn(
         "max-w-[330px]",
+        item.hasConflict && "border-red-500 border-2",
         cardVariants({
           dragging: isOverlay ? "overlay" : isDragging ? "over" : undefined,
           // @ts-expect-error TS2322 - TODO: fix type
@@ -170,6 +173,16 @@ export function ItemCard({ item, isOverlay, progressByItemId }: ItemCardProps) {
             </Link>
           </div>
           <HStack spacing={1} className="flex-shrink-0 -mr-2">
+            {item.hasConflict && (
+              <Tooltip>
+                <TooltipTrigger>
+                  <LuTriangleAlert className="h-4 w-4 text-red-500 flex-shrink-0" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  {item.conflictReason ?? t`Scheduling conflict`}
+                </TooltipContent>
+              </Tooltip>
+            )}
             <IconButton
               aria-label={t`Move item`}
               icon={<LuGripVertical />}
@@ -215,6 +228,12 @@ export function ItemCard({ item, isOverlay, progressByItemId }: ItemCardProps) {
                     <DropdownMenuIcon icon={<LuPlay />} />
                     Open in MES
                   </a>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to={path.to.scheduleGantt(item.jobId)}>
+                    <DropdownMenuIcon icon={<LuChartNoAxesGantt />} />
+                    View Timeline
+                  </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

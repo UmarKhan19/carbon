@@ -5,9 +5,10 @@ Locations, work centers, processes, abilities (skills), partners, contractors, e
 ## Key Domain Concepts
 
 - **Location** — physical site/facility. Every inventory record, job, and employee is scoped to a location. Has address, timezone, and GPS coordinates. Company-scoped.
-- **Work Center** — production station within a location. Operations schedule onto work centers. Have capacity, rates, and active/inactive status. MUST soft-delete via `active: false`.
+- **Work Center** — production station within a location. Operations schedule onto work centers. Have capacity, rates, and active/inactive status. MUST soft-delete via `active: false`. Finite-capacity fields: `parallelCapacity` (simultaneous operations), `efficiencyFactor`, `schedulingMode` (`Finite`|`Infinite`), optional `resourceCalendarId`, plus time-phased `workCenterCapacity` override rows (effective-dated).
+- **Resource Calendar** — named working-time calendar (`resourceCalendar` + recurring `resourceCalendarShift` rows [multiple per day = split shifts] + one-off `resourceCalendarException` rows: Closed/Open/ReducedCapacity). Assignable to work centers; a work center with no calendar falls back to all active calendars at its location; no calendars at all = always open (24×7).
 - **Process** — type of work (e.g., "CNC Milling", "Welding"). Operations reference a process. Linked to work centers via `workCenterProcess`. MUST soft-delete via `active: false`.
-- **Ability** — employee skill/certification with a learning curve. Tracked per employee via `employeeAbility` with training status, shadow weeks, and completion tracking.
+- **Ability** — employee skill/certification with a learning curve. Tracked per employee via `employeeAbility` with training status, shadow weeks, and completion tracking. Qualification expiry: `ability.recertifyEveryDays` + `employeeAbility.expiresAt`; manual `employeeAbility.proficiencyOverride` (0–1) beats the derived curve value (`deriveProficiency` in `utils/proficiency.ts` — duplicated in MES and the Deno scheduling lib, keep in sync). Admin UI at `x/resources/abilities`; each ability's detail page carries the roster of its qualified employees, and the person page's abilities panel is editable. Primary qualification path is Training: `training.grantsAbilityId` + the `grant_ability_on_training_completion` trigger upsert `employeeAbility` (sets `trainingCompleted`, `lastTrainingDate`, `expiresAt` from `recertifyEveryDays`) on completion.
 - **Partner** — external supplier location with ability mappings for outsourced work.
 - **Contractor** — supplier contact working as contract labor, with hours-per-week and ability assignments via `contractorAbility`.
 - **Maintenance Dispatch** — reactive or scheduled work order for equipment. Statuses: Open → Assigned → In Progress → Completed / Cancelled. Tracks time events, consumed parts, and affected work centers.
@@ -46,6 +47,9 @@ pnpm --filter @carbon/erp test -- --testPathPattern=resources
 |---|---|
 | `location` | Physical sites: address, timezone, coordinates |
 | `workCenter` / `workCenters` (view) / `workCentersWithBlockingStatus` (view) | Production stations with capacity and blocking info |
+| `resourceCalendar` / `resourceCalendarShift` / `resourceCalendarException` | Working-time calendars: weekly pattern + Closed/Open/ReducedCapacity exceptions |
+| `workCenterCapacity` | Time-phased (effective-dated) parallelCapacity overrides per work center |
+| `processAbility` | Process-level default required abilities (scheduler fallback) |
 | `process` / `processes` (view) | Work types with active flag |
 | `workCenterProcess` | Many-to-many link between work centers and processes |
 | `ability` / `employeeAbility` | Skills with learning curves and per-employee tracking |
@@ -65,6 +69,11 @@ pnpm --filter @carbon/erp test -- --testPathPattern=resources
 - `getWorkCenters` / `getWorkCentersByLocation` / `activateWorkCenter` / `deleteWorkCenter` (soft) — work center management
 - `getProcesses` / `getProcessesList` / `activateProcess` / `processDeactivate` — process management
 - `getAbilities` / `getAbility` / `getEmployeeAbilities` / `insertAbility` — skill tracking
+- `getEmployeeAbility` / `upsertEmployeeAbilityCell` / `deleteEmployeeAbility` (soft) / `resolveEmployeeAbilityExpiresAt` — per-employee qualification reads/writes (ability roster + person panel drawers)
+- `getResourceCalendars(List)` / `getResourceCalendar` / `upsertResourceCalendar` / `deleteResourceCalendar` (soft) — calendar headers
+- `getResourceCalendarShifts` / `upsertResourceCalendarShift` / `deleteResourceCalendarShift` — weekly pattern rows
+- `getResourceCalendarExceptions` / `upsertResourceCalendarException` / `deleteResourceCalendarException` — exceptions
+- `getWorkCenterCapacities` / `upsertWorkCenterCapacity` / `deleteWorkCenterCapacity` — time-phased capacity
 - `getPartners` / `getContractors` / `upsertContractor` — external resources
 - `insertMaintenanceDispatch` / `updateMaintenanceDispatch` / `getMaintenanceDispatch(es)` — dispatch lifecycle
 - `getMaintenanceDispatchEvents` / `getMaintenanceDispatchComments` / `getMaintenanceDispatchItems` — dispatch details

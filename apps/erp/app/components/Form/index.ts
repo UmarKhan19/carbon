@@ -60,6 +60,7 @@ import PaymentTerm from "./PaymentTerm";
 import Procedure from "./Procedure";
 import Process from "./Process";
 import Processes from "./Processes";
+import ResourceCalendar from "./ResourceCalendar";
 import Sequence from "./Sequence";
 import SequenceOrCustomId from "./SequenceOrCustomId";
 import Service from "./Service";
@@ -147,6 +148,7 @@ export {
   ShelfLifeStartProcess,
   ShelfLifeStartTiming,
   Radios,
+  ResourceCalendar,
   Select,
   SelectControlled,
   Sequence,

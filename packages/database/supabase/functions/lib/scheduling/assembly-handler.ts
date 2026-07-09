@@ -1,8 +1,5 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Kysely } from "kysely";
-import type { DB } from "../database.ts";
-import { getJobMethodTree, type JobMethodTreeItem } from "../methods.ts";
-import type { Database } from "../types.ts";
+import type { JobMethodTreeItem } from "../methods.ts";
+import type { MasterDataProvider } from "./master-data-provider.ts";
 import type { AssemblyNode, BaseOperation } from "./types.ts";
 
 /**
@@ -10,18 +7,10 @@ import type { AssemblyNode, BaseOperation } from "./types.ts";
  * Manages assembly hierarchy and transforms job method trees into scheduling structures
  */
 export class AssemblyHandler {
-  private client: SupabaseClient<Database>;
-  private db: Kysely<DB>;
-  private companyId: string;
+  private provider: MasterDataProvider;
 
-  constructor(
-    client: SupabaseClient<Database>,
-    db: Kysely<DB>,
-    companyId: string
-  ) {
-    this.client = client;
-    this.db = db;
-    this.companyId = companyId;
+  constructor(provider: MasterDataProvider) {
+    this.provider = provider;
   }
 
   /**
@@ -29,31 +18,20 @@ export class AssemblyHandler {
    */
   async buildAssemblyTree(jobId: string): Promise<AssemblyNode | null> {
     // Get the root job make method
-    const rootMethod = await this.db
-      .selectFrom("jobMakeMethod")
-      .select(["id", "itemId"])
-      .where("jobId", "=", jobId)
-      .where("parentMaterialId", "is", null)
-      .executeTakeFirst();
+    const rootMethod = await this.provider.getRootMakeMethod(jobId);
 
     if (!rootMethod?.id) {
       return null;
     }
 
     // Get the job method tree using the existing function
-    const treeResult = await getJobMethodTree(this.client, rootMethod.id);
+    const treeResult = await this.provider.getJobMethodTree(rootMethod.id);
     if (treeResult.error || !treeResult.data || treeResult.data.length === 0) {
       return null;
     }
 
     // Get all operations for this job
-    const operations = await this.db
-      .selectFrom("jobOperation")
-      .selectAll()
-      .where("jobId", "=", jobId)
-      .where("status", "not in", ["Done", "Canceled"])
-      .orderBy("order")
-      .execute();
+    const operations = await this.provider.getOperations(jobId);
 
     // Group operations by jobMakeMethodId
     const operationsByMethod = new Map<string, BaseOperation[]>();

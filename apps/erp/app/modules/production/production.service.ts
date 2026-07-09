@@ -907,6 +907,44 @@ export async function getJobPurchaseOrderLines(
     .eq("jobId", jobId);
 }
 
+export async function getJobOperationsForTimeline(
+  client: SupabaseClient<Database>,
+  jobId: string
+) {
+  return client
+    .from("jobOperation")
+    .select(
+      `id, description, order, status, startDate, dueDate, hasConflict, conflictReason, assignee, workCenterId,
+       workCenter(name),
+       jobMakeMethod(id, parentMaterialId, item(readableId, name))`
+    )
+    .eq("jobId", jobId)
+    .order("order");
+}
+
+export async function getCapacityReservationsByJob(
+  client: SupabaseClient<Database>,
+  jobId: string
+) {
+  return client
+    .from("capacityReservation")
+    .select("id, operationId, resourceKind, resourceId, startAt, endAt")
+    .eq("jobId", jobId)
+    .is("scenarioId", null);
+}
+
+export async function getProductionEventsByJob(
+  client: SupabaseClient<Database>,
+  jobId: string
+) {
+  return client
+    .from("productionEvent")
+    .select(
+      "id, jobOperationId, type, startTime, endTime, employeeId, jobOperation!inner(jobId)"
+    )
+    .eq("jobOperation.jobId", jobId);
+}
+
 export async function getJobs(
   client: SupabaseClient<Database>,
   companyId: string,
@@ -1554,7 +1592,7 @@ export async function getJobOperationsByMethodId(
   return client
     .from("jobOperation")
     .select(
-      "*, jobOperationTool(*), jobOperationParameter(*), jobOperationStep(*, jobOperationStepRecord(*))"
+      "*, jobOperationTool(*), jobOperationParameter(*), jobOperationStep(*, jobOperationStepRecord(*)), jobOperationAbility(abilityId)"
     )
     .eq("jobMakeMethodId", jobMakeMethodId)
     .order("order", { ascending: true });
@@ -3024,6 +3062,74 @@ export async function upsertJobOperationParameter(
     .eq("id", jobOperationParameter.id)
     .select("id")
     .single();
+}
+
+/**
+ * v1 of the spec's predictLeadTime: promise date = scheduled finish of the
+ * job's last operation. Recomputed implicitly on every reschedule because it
+ * reads live jobOperation dates.
+ */
+export async function getJobPromiseDate(
+  client: SupabaseClient<Database>,
+  jobId: string,
+  companyId: string
+) {
+  const operations = await client
+    .from("jobOperation")
+    .select("id, dueDate, hasConflict")
+    .eq("jobId", jobId)
+    .eq("companyId", companyId)
+    .in("status", ["Todo", "Waiting", "Ready", "In Progress", "Paused"]);
+  if (operations.error) return operations;
+  const dates = (operations.data ?? [])
+    .map((o) => o.dueDate)
+    .filter(Boolean) as string[];
+  const promiseDate = dates.length
+    ? dates.reduce((a, b) => (a > b ? a : b))
+    : null;
+  const hasConflict = (operations.data ?? []).some((o) => o.hasConflict);
+  return {
+    data: {
+      promiseDate,
+      basis: "schedule" as const,
+      confidence: hasConflict ? ("low" as const) : ("scheduled" as const)
+    },
+    error: null
+  };
+}
+
+export async function getJobOperationAbilities(
+  client: SupabaseClient<Database>,
+  operationId: string
+) {
+  return client
+    .from("jobOperationAbility")
+    .select("*")
+    .eq("operationId", operationId);
+}
+
+export async function syncJobOperationAbilities(
+  client: SupabaseClient<Database>,
+  operationId: string,
+  companyId: string,
+  abilityIds: string[],
+  userId: string
+) {
+  const del = await client
+    .from("jobOperationAbility")
+    .delete()
+    .eq("operationId", operationId)
+    .eq("companyId", companyId);
+  if (del.error) return del;
+  if (abilityIds.length === 0) return del;
+  return client.from("jobOperationAbility").insert(
+    abilityIds.map((abilityId) => ({
+      operationId,
+      abilityId,
+      companyId,
+      createdBy: userId
+    }))
+  );
 }
 
 export async function upsertJobOperationTool(

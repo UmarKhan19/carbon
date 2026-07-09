@@ -11,6 +11,7 @@ import type { LoaderFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { getWorkCenterWithBlockingStatus } from "~/services/maintenance.service";
 import {
+  getOperationEligibility,
   getTrackedEntitiesByMakeMethodId,
   startProductionEvent
 } from "~/services/operations.service";
@@ -88,6 +89,23 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         )
       );
     }
+  }
+
+  // Check if the operator is qualified for the operation's required abilities
+  const eligibility = await getOperationEligibility(serviceRole, {
+    operationId,
+    employeeId: userId,
+    companyId
+  });
+
+  if (!eligibility.eligible) {
+    throw redirect(
+      path.to.operation(operationId),
+      await flash(
+        request,
+        error(null, eligibility.reason ?? "Not qualified to start operation")
+      )
+    );
   }
 
   // Get tracked entities if jobMakeMethodId exists

@@ -1,5 +1,6 @@
 import type {
   DeadlineType,
+  DispatchRule,
   OperationWithJobInfo,
   ScheduledOperation,
 } from "./types.ts";
@@ -28,9 +29,14 @@ function getDeadlinePriority(deadlineType: DeadlineType | string | null | undefi
  * 3. Deadline Type (ASAP > Hard > Soft > No Deadline) - Tie-breaker
  */
 export function sortOperationsByPriority<T extends OperationWithJobInfo>(
-  operations: T[]
+  operations: T[],
+  rule: DispatchRule = "EDD"
 ): T[] {
   return [...operations].sort((a, b) => {
+    const ruleCompare = compareByDispatchRule(a, b, rule);
+    if (ruleCompare !== 0) return ruleCompare;
+
+    // Legacy tie-break chain (was the whole comparator before dispatch rules):
     // 1. Start date (earliest first, nulls last)
     if (a.startDate && b.startDate) {
       const dateCompare =
@@ -54,6 +60,83 @@ export function sortOperationsByPriority<T extends OperationWithJobInfo>(
     const bDeadline = getDeadlinePriority(b.deadlineType);
     return aDeadline - bDeadline;
   });
+}
+
+/** Compare two nullable keys ascending, nulls last; 0 when tied/unknown. */
+function compareNullable(a: number | null, b: number | null): number {
+  if (a !== null && b !== null) return a - b;
+  if (a !== null) return -1;
+  if (b !== null) return 1;
+  return 0;
+}
+
+/**
+ * Primary sort key per dispatch rule. Ties (and missing data) fall through to
+ * the legacy chain in sortOperationsByPriority.
+ *
+ * - FIFO: createdAt ascending
+ * - EDD: operation dueDate ascending (the default; for backward-scheduled
+ *   jobs this closely mirrors the legacy startDate-first ordering)
+ * - SPT: shortest duration first
+ * - WSPT: jobPriority × duration ascending (lower job priority number =
+ *   more important, so important+short work leads)
+ * - CR: (dueDate − now) / duration ascending
+ * - MinSlack: (dueDate − now) − duration ascending
+ */
+function compareByDispatchRule(
+  a: OperationWithJobInfo,
+  b: OperationWithJobInfo,
+  rule: DispatchRule
+): number {
+  const HOUR_MS = 3_600_000;
+  const now = Date.now();
+  const due = (op: OperationWithJobInfo) =>
+    op.dueDate ? new Date(op.dueDate).getTime() : null;
+  const duration = (op: OperationWithJobInfo) =>
+    op.durationHours !== null && op.durationHours !== undefined
+      ? Math.max(op.durationHours, 0.01)
+      : null;
+
+  switch (rule) {
+    case "FIFO": {
+      const aKey = a.createdAt ? new Date(a.createdAt).getTime() : null;
+      const bKey = b.createdAt ? new Date(b.createdAt).getTime() : null;
+      return compareNullable(aKey, bKey);
+    }
+    case "EDD":
+      return compareNullable(due(a), due(b));
+    case "SPT":
+      return compareNullable(duration(a), duration(b));
+    case "WSPT": {
+      const aDur = duration(a);
+      const bDur = duration(b);
+      const aKey = aDur === null ? null : (a.jobPriority ?? 99) * aDur;
+      const bKey = bDur === null ? null : (b.jobPriority ?? 99) * bDur;
+      return compareNullable(aKey, bKey);
+    }
+    case "CR": {
+      const aDue = due(a);
+      const bDue = due(b);
+      const aDur = duration(a);
+      const bDur = duration(b);
+      const aKey =
+        aDue === null || aDur === null ? null : (aDue - now) / (aDur * HOUR_MS);
+      const bKey =
+        bDue === null || bDur === null ? null : (bDue - now) / (bDur * HOUR_MS);
+      return compareNullable(aKey, bKey);
+    }
+    case "MinSlack": {
+      const aDue = due(a);
+      const bDue = due(b);
+      const aDur = duration(a);
+      const bDur = duration(b);
+      const aKey =
+        aDue === null || aDur === null ? null : aDue - now - aDur * HOUR_MS;
+      const bKey =
+        bDue === null || bDur === null ? null : bDue - now - bDur * HOUR_MS;
+      return compareNullable(aKey, bKey);
+    }
+  }
 }
 
 /**
@@ -110,7 +193,8 @@ export function groupOperationsByWorkCenter<T extends { workCenterId: string | n
  * Returns a map of operation ID to priority number
  */
 export function calculatePrioritiesByWorkCenter(
-  operations: OperationWithJobInfo[]
+  operations: OperationWithJobInfo[],
+  resolveRule?: (workCenterId: string | null) => DispatchRule
 ): Map<string, number> {
   const allPriorities = new Map<string, number>();
 
@@ -118,9 +202,10 @@ export function calculatePrioritiesByWorkCenter(
   const byWorkCenter = groupOperationsByWorkCenter(operations);
 
   // Calculate priorities for each work center independently
-  for (const [_wcId, wcOperations] of byWorkCenter) {
-    // Sort operations for this work center
-    const sorted = sortOperationsByPriority(wcOperations);
+  for (const [wcId, wcOperations] of byWorkCenter) {
+    // Sort operations for this work center using its dispatch rule
+    const rule = resolveRule ? resolveRule(wcId) : "EDD";
+    const sorted = sortOperationsByPriority(wcOperations, rule);
 
     // Assign sequential priorities
     const priorities = assignSequentialPriorities(sorted);
@@ -151,6 +236,7 @@ export function toOperationWithJobInfo(
     deadlineType: operation.deadlineType ?? jobDeadlineType,
     jobPriority,
     workCenterId: operation.workCenterId ?? null,
+    durationHours: operation.durationHours ?? null,
   };
 }
 

@@ -852,6 +852,9 @@ msgstr "Digitalize ou procure número de série..."
 msgid "Schedule"
 msgstr "Cronograma"
 
+msgid "Scheduling conflict"
+msgstr ""
+
 msgid "Scrap"
 msgstr "Sucata"
 

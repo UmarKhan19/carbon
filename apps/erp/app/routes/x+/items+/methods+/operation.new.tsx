@@ -6,6 +6,7 @@ import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import {
   methodOperationValidator,
+  syncMethodOperationAbilities,
   upsertMethodOperation
 } from "~/modules/items";
 import { setCustomFields } from "~/utils/form";
@@ -25,8 +26,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return validationError(validation.error);
   }
 
+  const { abilities, ...operationData } = validation.data;
+
   const insertMethodOperation = await upsertMethodOperation(client, {
-    ...validation.data,
+    ...operationData,
     companyId,
     createdBy: userId,
     customFields: setCustomFields(formData)
@@ -52,6 +55,28 @@ export async function action({ request, params }: ActionFunctionArgs) {
       await flash(
         request,
         error(insertMethodOperation, "Failed to insert method operation")
+      )
+    );
+  }
+
+  const syncAbilities = await syncMethodOperationAbilities(
+    client,
+    methodOperationId,
+    companyId,
+    abilities ?? [],
+    userId
+  );
+  if (syncAbilities.error) {
+    return data(
+      {
+        id: methodOperationId
+      },
+      await flash(
+        request,
+        error(
+          syncAbilities.error,
+          "Failed to insert method operation abilities"
+        )
       )
     );
   }

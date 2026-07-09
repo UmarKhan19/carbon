@@ -278,7 +278,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
         setupDuration: operation.setupDuration,
         laborDuration: operation.laborDuration,
         machineDuration: operation.machineDuration,
-        thumbnailPath: op.thumbnailPath
+        thumbnailPath: op.thumbnailPath,
+        hasConflict: op.hasConflict ?? undefined,
+        conflictReason: op.conflictReason ?? undefined
       };
     }) ?? []) satisfies OperationItem[],
     processes: processes.data ?? [],

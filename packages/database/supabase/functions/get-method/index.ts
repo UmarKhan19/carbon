@@ -547,7 +547,7 @@ serve(async (req: Request) => {
             const relatedOperations = await client
               .from("methodOperation")
               .select(
-                "*, methodOperationTool(*), methodOperationParameter(*), methodOperationStep(*)"
+                "*, methodOperationTool(*), methodOperationParameter(*), methodOperationStep(*), methodOperationAbility(*)"
               )
               .eq("makeMethodId", node.data.materialMakeMethodId);
 
@@ -707,6 +707,7 @@ serve(async (req: Request) => {
                     methodOperationTool,
                     methodOperationParameter,
                     methodOperationStep,
+                    methodOperationAbility,
                     procedureId,
                   } = operation;
 
@@ -721,6 +722,24 @@ serve(async (req: Request) => {
                         methodOperationTool.map((tool) => ({
                           toolId: tool.toolId,
                           quantity: tool.quantity,
+                          operationId,
+                          companyId,
+                          createdBy: userId,
+                        }))
+                      )
+                      .execute();
+                  }
+
+                  if (
+                    Array.isArray(methodOperationAbility) &&
+                    methodOperationAbility.length > 0
+                  ) {
+                    await trx
+                      .insertInto("jobOperationAbility")
+                      .values(
+                        methodOperationAbility.map((ability) => ({
+                          abilityId: ability.abilityId,
+                          minimumProficiency: ability.minimumProficiency,
                           operationId,
                           companyId,
                           createdBy: userId,
@@ -1287,7 +1306,7 @@ serve(async (req: Request) => {
             const relatedOperations = await client
               .from("methodOperation")
               .select(
-                "*, methodOperationTool(*), methodOperationParameter(*), methodOperationStep(*)"
+                "*, methodOperationTool(*), methodOperationParameter(*), methodOperationStep(*), methodOperationAbility(*)"
               )
               .eq("makeMethodId", node.data.materialMakeMethodId);
 
@@ -1344,6 +1363,7 @@ serve(async (req: Request) => {
                     methodOperationTool,
                     methodOperationParameter,
                     methodOperationStep,
+                    methodOperationAbility,
                     procedureId,
                   } = operation;
 
@@ -1358,6 +1378,24 @@ serve(async (req: Request) => {
                         methodOperationTool.map((tool) => ({
                           toolId: tool.toolId,
                           quantity: tool.quantity,
+                          operationId,
+                          companyId,
+                          createdBy: userId,
+                        }))
+                      )
+                      .execute();
+                  }
+
+                  if (
+                    Array.isArray(methodOperationAbility) &&
+                    methodOperationAbility.length > 0
+                  ) {
+                    await trx
+                      .insertInto("jobOperationAbility")
+                      .values(
+                        methodOperationAbility.map((ability) => ({
+                          abilityId: ability.abilityId,
+                          minimumProficiency: ability.minimumProficiency,
                           operationId,
                           companyId,
                           createdBy: userId,
@@ -4596,6 +4634,7 @@ serve(async (req: Request) => {
                   quoteOperationStep,
                   procedureId,
                 } = operation;
+                // abilities are not copied on this path (no quoteOperationAbility table)
 
                 if (
                   parts.tools &&

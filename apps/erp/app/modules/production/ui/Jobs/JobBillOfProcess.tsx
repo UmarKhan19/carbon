@@ -96,6 +96,7 @@ import {
 } from "~/components";
 import Activity from "~/components/Activity";
 import {
+  Abilities,
   Hidden,
   InputControlled,
   Number,
@@ -339,6 +340,7 @@ const initialOperation: Omit<
   Operation,
   "jobMakeMethodId" | "order" | "jobOperationTool" | "id"
 > = {
+  abilities: [],
   assignee: null,
   description: "",
   laborRate: 0,
@@ -2439,20 +2441,23 @@ function OperationForm({
             />
           </>
         ) : (
-          <WorkCenter
-            name="workCenterId"
-            label={t`Work Center`}
-            termId="work-center"
-            autoSelectSingleOption={Boolean(processData.processId)}
-            locationId={locationId}
-            isOptional={["Draft", "Planned"].includes(job?.status ?? "")}
-            processId={processData.processId}
-            onChange={(value) => {
-              if (value) {
-                onWorkCenterChange(value?.value as string);
-              }
-            }}
-          />
+          <>
+            <WorkCenter
+              name="workCenterId"
+              label={t`Work Center`}
+              termId="work-center"
+              autoSelectSingleOption={Boolean(processData.processId)}
+              locationId={locationId}
+              isOptional={["Draft", "Planned"].includes(job?.status ?? "")}
+              processId={processData.processId}
+              onChange={(value) => {
+                if (value) {
+                  onWorkCenterChange(value?.value as string);
+                }
+              }}
+            />
+            <Abilities name="abilities" label={t`Required Abilities`} />
+          </>
         )}
       </div>
 

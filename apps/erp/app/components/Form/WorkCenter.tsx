@@ -81,7 +81,10 @@ const WorkCenter = (props: WorkCenterSelectProps) => {
             locationId: props?.locationId ?? defaults?.locationId ?? "",
             machineRate: 0,
             processes: props?.processId ? [props.processId] : [],
-            defaultStandardFactor: "Minutes/Piece" as "Total Hours"
+            defaultStandardFactor: "Minutes/Piece" as "Total Hours",
+            parallelCapacity: 1,
+            efficiencyFactor: 1,
+            schedulingMode: "Finite" as const
           }}
         />
       )}

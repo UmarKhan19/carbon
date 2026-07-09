@@ -90,6 +90,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
           workCenterId: operation.workCenterId ?? undefined,
           operationSupplierProcessId:
             operation.operationSupplierProcessId ?? undefined,
+          abilities:
+            operation.methodOperationAbility?.map(
+              (a: { abilityId: string }) => a.abilityId
+            ) ?? [],
           workInstruction: operation.workInstruction as JSONContent | null
         })) ?? [],
       toolManufacturing: toolManufacturing.data

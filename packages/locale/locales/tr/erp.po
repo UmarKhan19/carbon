@@ -335,6 +335,9 @@ msgstr "Yetenekler"
 msgid "ability"
 msgstr "yetenek"
 
+msgid "Ability"
+msgstr ""
+
 msgid "About"
 msgstr "Hakkında"
 
@@ -545,6 +548,9 @@ msgstr "Bir satır ekle"
 msgid "Add a step"
 msgstr "Bir adım ekle"
 
+msgid "Add Ability"
+msgstr ""
+
 msgid "Add Actions"
 msgstr "Eylemler Ekle"
 
@@ -569,8 +575,14 @@ msgstr "Koşul ekle"
 msgid "Add Contractor"
 msgstr "Yüklenici Ekle"
 
+msgid "Add Employee"
+msgstr ""
+
 msgid "Add Entry"
 msgstr "Giri Ekle"
+
+msgid "Add Exception"
+msgstr ""
 
 msgid "Add Feature"
 msgstr "Özellik Ekle"
@@ -601,6 +613,9 @@ msgstr "İşlem Ekle"
 
 msgid "Add options above first"
 msgstr "Önce yukarıda seçenekler ekleyin"
+
+msgid "Add Override"
+msgstr ""
 
 msgid "Add Pair"
 msgstr "Ekle"
@@ -640,6 +655,9 @@ msgstr "Kural ekle"
 
 msgid "Add Selector"
 msgstr "Seçici Ekle"
+
+msgid "Add Shift"
+msgstr ""
 
 msgid "Add Shipment"
 msgstr "Sevkiyat Ekle"
@@ -941,6 +959,9 @@ msgstr "Onayla"
 msgid "Approved By"
 msgstr "Onaylayan"
 
+msgid "Approximate — derived from scheduled dates; no capacity reservation exists for this row."
+msgstr ""
+
 msgid "AQL"
 msgstr "AQL"
 
@@ -1015,6 +1036,12 @@ msgstr "{0} özelliğini devre dışı bırakmak istediğinizden emin misiniz?"
 
 msgid "Are you sure you want to deactivate the {label} configuration rule?"
 msgstr "{label} yapılandırma kuralını devre dışı bırakmak istediğinizden emin misiniz?"
+
+msgid "Are you sure you want to deactivate the ability: {name}?"
+msgstr ""
+
+msgid "Are you sure you want to deactivate the calendar: {name}?"
+msgstr ""
 
 msgid "Are you sure you want to deactivate the process: {name}? It will no longer appear in dropdowns."
 msgstr "İş sürecini devre dışı bırakmak istediğinizden emin misiniz: {name}? Artık açılır menülerde görünmeyecektir."
@@ -1295,6 +1322,9 @@ msgstr "Bu teklifi reddetmek istediğinizden emin misiniz?"
 msgid "Are you sure you want to release this job? It will become available to the shop floor, and drive purchasing and production."
 msgstr "Bu işi yayınlamak istediğinizden emin misiniz? Atölye zemininde kullanılabilir hale gelecek ve satın alma ile üretimi tetikleyecektir."
 
+msgid "Are you sure you want to remove this employee from {name}? The training history is kept and the employee can be re-added later."
+msgstr ""
+
 msgid "Are you sure you want to remove this item from the price list? This cannot be undone."
 msgstr "Bu öğeyi fiyat listesinden kaldırmak istediğinizden emin misiniz? Bu geri alınamaz."
 
@@ -1348,6 +1378,9 @@ msgstr "Artan"
 #. placeholder {1}: copy.noun
 msgid "Ask an admin with {0} permission to add the first {1}."
 msgstr "{0} izni olan bir yöneticiye ilk {1}i eklemesini isteyin."
+
+msgid "Assembly"
+msgstr ""
 
 msgid "Assembly:"
 msgstr "Montaj:"
@@ -1650,6 +1683,9 @@ msgstr "Faturalama Adresi"
 msgid "Bills of material"
 msgstr "Malzeme Faturaları"
 
+msgid "Blank = computed from the ability's recertification period"
+msgstr ""
+
 msgid "Block with an error"
 msgstr "Hata ile engelle"
 
@@ -1768,6 +1804,12 @@ msgstr "Hesaplanan bitmiş ürün son kullanma tarihi"
 msgid "Calculation Method"
 msgstr "Hesaplama Yöntemi"
 
+msgid "Calendar"
+msgstr ""
+
+msgid "Calendars"
+msgstr ""
+
 msgid "Calibration Attempts"
 msgstr "Kalibrasyon denemeleri"
 
@@ -1860,6 +1902,12 @@ msgstr "Yüklenemiyor — tedarikçi etkileşimi henüz oluşturulmadı"
 
 msgid "Cannot upload to parts bucket without item ID"
 msgstr "Öğe kimliği olmadan parçalar klasörüne yüklenemez"
+
+msgid "Capacity Override"
+msgstr ""
+
+msgid "Capacity Overrides: {workCenterName}"
+msgstr ""
 
 msgid "Carbon"
 msgstr "Karbon"
@@ -2201,6 +2249,9 @@ msgstr "Tamamlanan İş Bildirimleri"
 msgid "Completed Qty"
 msgstr "Tamamlanan Miktar"
 
+msgid "Completing this training grants or renews the selected ability."
+msgstr ""
+
 msgid "Completion Barcode"
 msgstr "Tamamlama Barkodu"
 
@@ -2324,6 +2375,9 @@ msgstr "Onaylanan gelen stok — satın alma ve üretim siparişleri (sıfırın
 
 msgid "Confirmed outgoing stock — sales orders & job materials (bars below zero)."
 msgstr "Onaylanan giden stok — satış siparişleri ve iş malzemeleri (sıfırın altındaki çubuklar)."
+
+msgid "Conflict"
+msgstr ""
 
 msgid "Connect Carbon to your accounting, project management, and CAD tools and much more."
 msgstr "Carbon'ı muhasebe, proje yönetimi ve CAD araçlarınızla ve çok daha fazlasıyla bağlayın."
@@ -2935,9 +2989,6 @@ msgstr "Mevcut Şifre"
 msgid "Current quantity"
 msgstr "Mevcut miktar"
 
-msgid "Currently training for"
-msgstr "Şu anda eğitim alıyor"
-
 msgid "Custom"
 msgstr "Özel"
 
@@ -3169,6 +3220,9 @@ msgstr "Ödeme Tarihi"
 msgid "Dates"
 msgstr "Tarihler"
 
+msgid "Day"
+msgstr ""
+
 msgid "Day-to-day questions and hypercare after launch"
 msgstr "Günlük sorular ve başlatmadan sonra hiper bakım"
 
@@ -3203,8 +3257,14 @@ msgstr "Devre Dışı Bırak {0}"
 msgid "Deactivate {name}"
 msgstr "{name} sürecini devre dışı bırak"
 
+msgid "Deactivate Ability"
+msgstr ""
+
 msgid "Deactivate Account"
 msgstr "Hesabı Devre Dışı Bırak"
+
+msgid "Deactivate Calendar"
+msgstr ""
 
 msgid "Deactivate Employee"
 msgstr "Çalışanı Devre Dışı Bırak"
@@ -3377,6 +3437,9 @@ msgstr "İlişkiyi Sil"
 msgid "Delete Attribute"
 msgstr "Özniteliği Sil"
 
+msgid "Delete capacity override"
+msgstr ""
+
 msgid "Delete Category"
 msgstr "Kategoriyi Sil"
 
@@ -3412,6 +3475,9 @@ msgstr "Belgeyi Sil"
 
 msgid "Delete Employee Type"
 msgstr "Çalışan Türünü Sil"
+
+msgid "Delete exception"
+msgstr ""
 
 msgid "Delete Failure Mode"
 msgstr "Hata Modunu Sil"
@@ -3532,6 +3598,9 @@ msgstr "Satış Siparişini Sil"
 
 msgid "Delete Schedule"
 msgstr "Programı Sil"
+
+msgid "Delete shift"
+msgstr ""
 
 msgid "Delete Shift"
 msgstr "Vardaki Vardiyayı Sil"
@@ -3667,6 +3736,9 @@ msgstr "Amortisman Başlangıç Tarihi"
 
 msgid "Derive this item's shelf life from the shortest shelf life of its components, ignoring the Days field above."
 msgstr "Bu öğenin raf ömrünü, bileşenlerinin en kısa raf ömründen türet, yukarıdaki Günler alanını yok say."
+
+msgid "Derived"
+msgstr ""
 
 msgid "Description"
 msgstr "Açıklama"
@@ -3980,6 +4052,12 @@ msgstr "Düzenle"
 msgid "Edit <0>Issue</0> Workflow"
 msgstr "<0>Sorun</0> İş Akışını Düzenle"
 
+msgid "Edit ability"
+msgstr ""
+
+msgid "Edit Ability"
+msgstr ""
+
 msgid "Edit Account"
 msgstr "Hesabı Düzenle"
 
@@ -4000,6 +4078,15 @@ msgstr "Özniteliği Düzenle"
 
 msgid "Edit Attribute Category"
 msgstr "Öznitelik Kategorisini Düzenle"
+
+msgid "Edit Calendar"
+msgstr ""
+
+msgid "Edit capacity override"
+msgstr ""
+
+msgid "Edit Capacity Overrides"
+msgstr ""
 
 msgid "Edit Category"
 msgstr "Kategoriyi Düzenle"
@@ -4039,6 +4126,9 @@ msgstr "Görev Düzenle"
 
 msgid "Edit Employee"
 msgstr "Çalışanı Düzenle"
+
+msgid "Edit Employee Ability"
+msgstr ""
 
 msgid "Edit Employee Type"
 msgstr "Çalışan Türünü Düzenle"
@@ -4265,6 +4355,9 @@ msgstr "Geçerlilik Başlangıcı"
 msgid "Effective To"
 msgstr "Geçerli Olacağı Tarih"
 
+msgid "Efficiency Factor"
+msgstr ""
+
 msgid "Email"
 msgstr "E-posta"
 
@@ -4355,6 +4448,9 @@ msgstr "Malzeme boyutları için metrik birim kullanmak üzere etkinleştirin."
 msgid "Enabled"
 msgstr "Etkinleştirilmiş"
 
+msgid "End"
+msgstr ""
+
 msgid "End Date"
 msgstr "Bitiş Tarihi"
 
@@ -4369,6 +4465,9 @@ msgstr "Son Çeyreğin Sonu"
 
 msgid "End Time"
 msgstr "Bitiş Saati"
+
+msgid "Ends"
+msgstr ""
 
 msgid "Enforce per-item validation and guidelines across receipts, shipments, transfers, and adjustments."
 msgstr "Alışmalar, sevkiyatlar, transferler ve ayarlamalarda kalem bazında doğrulama ve yönergeleri zorunlu kılın."
@@ -4517,6 +4616,9 @@ msgstr "Yükseltme"
 msgid "Est. Duration"
 msgstr "Tahmini Süre"
 
+msgid "Estimated"
+msgstr ""
+
 msgid "Estimated Duration"
 msgstr "Tahmini Süre"
 
@@ -4558,6 +4660,9 @@ msgstr "Başlangıç'tan her şey"
 
 msgid "Exceeds {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB total — remove some attachments to send."
 msgstr "Toplamda {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB'ı aşıyor — göndermek için bazı ekler kaldırın."
+
+msgid "Exceptions"
+msgstr ""
 
 msgid "Exchange Rate"
 msgstr "Döviz Kuru"
@@ -4647,6 +4752,10 @@ msgstr "Son Kullanma Tarihi (bu satırdaki tüm seri numaraları için geçerlid
 msgid "Expired"
 msgstr "Süresi Dolmuş"
 
+#. placeholder {0}: formatDate(status.expiresAt)
+msgid "Expired {0}"
+msgstr ""
+
 msgid "Expired {date}"
 msgstr "Süresi Dolmuş {date}"
 
@@ -4659,11 +4768,22 @@ msgstr "Süresi Dolmuş Lotlar"
 msgid "Expires"
 msgstr "Süresi Doluyor"
 
+#. placeholder {0}: formatDate(status.expiresAt)
+msgid "Expires {0}"
+msgstr ""
+
 msgid "Expires {date}"
 msgstr "Son kullanma tarihi {date}'de"
 
+msgid "Expires At"
+msgstr ""
+
 msgid "Expires At (optional)"
 msgstr "Son Kullanma Tarihi (isteğe bağlı)"
+
+#. placeholder {0}: status.daysLeft
+msgid "Expires in {0}d"
+msgstr ""
 
 msgid "Expiring first"
 msgstr "İlk sona eren"
@@ -5111,6 +5231,9 @@ msgstr "Normal MACRS programı başlamadan önce alınan ilk yıl ek indirimi."
 msgid "Finishes"
 msgstr "Kaplamalar"
 
+msgid "Finite"
+msgstr ""
+
 msgid "First Name"
 msgstr "Adı Soyad"
 
@@ -5221,9 +5344,6 @@ msgstr "Kaynak Depo Birimi"
 
 msgid "Fulfillment Location"
 msgstr "Yerine Getirme Konumu"
-
-msgid "Fully trained for"
-msgstr "Tamamen eğitilmiş"
 
 msgid "FX G/L"
 msgstr "FX K/Z"
@@ -5504,6 +5624,9 @@ msgstr "sınıflar"
 
 msgid "Grades"
 msgstr "Dereceler"
+
+msgid "Grants Ability"
+msgstr ""
 
 msgid "Group"
 msgstr "Grup"
@@ -5808,6 +5931,9 @@ msgstr "Stokta"
 msgid "In the loop together"
 msgstr "Birlikte döngüde"
 
+msgid "In Training"
+msgstr ""
+
 msgid "Inactive"
 msgstr "Pasif"
 
@@ -5864,6 +5990,9 @@ msgstr "Dolaylı Malzemeler ve Hizmetler"
 
 msgid "Indirect Materials & Services (default)"
 msgstr "Dolaylı Malzemeler ve Hizmetler (varsayılan)"
+
+msgid "Infinite"
+msgstr ""
 
 msgid "Infrastructure"
 msgstr "Altyapı"
@@ -6356,6 +6485,12 @@ msgstr "Son Çeyrek"
 #. placeholder {0}: formatDateTime(lastSyncedAt)
 msgid "Last synced: {0}"
 msgstr "Son senkronize edildi: {0}"
+
+msgid "Last Training"
+msgstr ""
+
+msgid "Last Training Date"
+msgstr ""
 
 msgid "Last updated: {formattedDate}"
 msgstr "Son güncellendi: {formattedDate}"
@@ -7179,6 +7314,9 @@ msgstr "Yeni"
 msgid "New <0>Issue</0> Workflow"
 msgstr "Yeni <0>Issue</0> İş Akışı"
 
+msgid "New Ability"
+msgstr ""
+
 msgid "New Account"
 msgstr "Yeni Hesap"
 
@@ -7199,6 +7337,9 @@ msgstr "Yeni Öznitelik"
 
 msgid "New Attribute Category"
 msgstr "Yeni Öznitelik Kategorisi"
+
+msgid "New Calendar"
+msgstr ""
 
 msgid "New Consumable"
 msgstr "Yeni Sarf Malzemesi"
@@ -7530,6 +7671,9 @@ msgstr "Hiçbir BOM girdisi raf ömrü politikasına sahip değil"
 msgid "No calibration records found"
 msgstr "Kalibrasyon kaydı bulunamadı"
 
+msgid "No capacity overrides defined"
+msgstr ""
+
 msgid "No changes recorded"
 msgstr "Değişiklik kaydedilmedi"
 
@@ -7571,6 +7715,9 @@ msgstr "Henüz çalışan atanmadı. Durumu görmek için gruplar ekleyin."
 
 msgid "No employees found"
 msgstr "Hiç çalışan bulunamadı"
+
+msgid "No exceptions defined"
+msgstr ""
 
 msgid "No extra cutover steps yet. Add anything specific to this customer."
 msgstr "Henüz ek cutover adımı yok. Bu müşteriye özgü herhangi bir şey ekleyin."
@@ -7692,6 +7839,9 @@ msgstr "Teklif Nedeni Yok"
 msgid "No receivables"
 msgstr "Alacak yok"
 
+msgid "No released jobs to visualize. Release a job to see its schedule."
+msgstr ""
+
 msgid "No remaining entities to inspect."
 msgstr "İncelenecek kalan varlık yok."
 
@@ -7709,6 +7859,9 @@ msgstr "Atanmış kural yok"
 
 msgid "No samples inspected yet."
 msgstr "Henüz örnek incelenmedi."
+
+msgid "No shifts defined"
+msgstr ""
 
 msgid "No single, trusted number for inventory or job status"
 msgstr "Envanter veya iş durumu için tek bir güvenilir sayı yok"
@@ -7791,8 +7944,8 @@ msgstr "Belirtilmemiş"
 msgid "Not started"
 msgstr "Başlanmadı"
 
-msgid "Not started training for"
-msgstr "Henüz eğitim alınmadı"
+msgid "Not Started"
+msgstr ""
 
 msgid "Not yet"
 msgstr "Henüz değil"
@@ -7941,6 +8094,9 @@ msgstr "MES'te Aç"
 msgid "Open Issues"
 msgstr "Açık Sorunlar"
 
+msgid "Open Job"
+msgstr ""
+
 msgid "Open jobs"
 msgstr "Açık işler"
 
@@ -7983,6 +8139,9 @@ msgstr "Kurulum Haritasını Aç"
 msgid "Open transactions"
 msgstr "Açık işlemler"
 
+msgid "open-ended"
+msgstr ""
+
 msgid "Opened"
 msgstr "Açık"
 
@@ -8021,6 +8180,9 @@ msgstr "Operatöre bir uyarı verilir. Stok yine de geçer."
 
 msgid "Operator must pick a different batch/serial."
 msgstr "Operatör farklı bir parti/seri seçmelidir."
+
+msgid "Operator Pool Reservation"
+msgstr ""
 
 msgid "Operators"
 msgstr "Operatörler"
@@ -8149,6 +8311,9 @@ msgstr "Bir türdeki tüm müşteriler için fiyatı geçersiz kıl"
 msgid "Override the expiration on {label}."
 msgstr "Süre bitişini {label} üzerinde geçersiz kıl."
 
+msgid "Overrides the derived learning-curve proficiency (0 to 1); blank = derived"
+msgstr ""
+
 msgid "Overtime"
 msgstr "Fazla Mesai"
 
@@ -8185,6 +8350,9 @@ msgstr "Ödenen Tutar:"
 
 msgid "Paid Date"
 msgstr "Ödeme Tarihi"
+
+msgid "Parallel Capacity"
+msgstr ""
 
 msgid "Parameters"
 msgstr "Parametreler"
@@ -8776,6 +8944,9 @@ msgstr "BOM'lar ve tahminlerden açılmış öngörülen talep."
 msgid "Production: shop-floor app and scheduling"
 msgstr "Üretim: atölye uygulaması ve planlama"
 
+msgid "Proficiency Override"
+msgstr ""
+
 msgid "Profile"
 msgstr "Profil"
 
@@ -8994,6 +9165,15 @@ msgstr "Revize Edilen Miktar"
 
 msgid "Qty. Scrapped"
 msgstr "Hur. Hurda"
+
+msgid "Qualification expires this many days after training; blank = never"
+msgstr ""
+
+msgid "Qualified"
+msgstr ""
+
+msgid "Qualified Employees"
+msgstr ""
 
 msgid "quality"
 msgstr "Teklif Fiyatından Nakde"
@@ -9264,6 +9444,9 @@ msgstr "Son ödemeler"
 msgid "Recently Created"
 msgstr "Son Oluşturulanlar"
 
+msgid "Recertify Every (Days)"
+msgstr ""
+
 msgid "Reconciling a purchase order against what was received and invoiced — implicit in Carbon, via the line quantities and GR/IR balance."
 msgstr "Geri Kazanım Süresi"
 
@@ -9305,6 +9488,9 @@ msgstr "Doğrulama sayfasına yönlendiriliyor..."
 
 msgid "Reduced"
 msgstr "Azaltılmış"
+
+msgid "Reduced Capacity"
+msgstr ""
 
 msgid "Reference"
 msgstr "Referans"
@@ -9378,6 +9564,9 @@ msgstr "Kaldır {0}"
 
 msgid "Remove condition"
 msgstr "Koşulu kaldır"
+
+msgid "Remove Employee"
+msgstr ""
 
 msgid "Remove feature"
 msgstr "Özelliği kaldır"
@@ -9495,6 +9684,12 @@ msgstr "İş akışınızdaki kalite belgeleri için onay gerektirir"
 
 msgid "Required"
 msgstr "Gerekli"
+
+msgid "Required Abilities"
+msgstr ""
+
+msgid "Required Ability"
+msgstr ""
 
 msgid "Required Action"
 msgstr "Gerekli Eylem"
@@ -9951,6 +10146,9 @@ msgstr "İşleri iş merkezi kapasitesine karşı planlayın"
 msgid "Schedule Name"
 msgstr "Planlama Adı"
 
+msgid "Scheduled"
+msgstr ""
+
 msgid "Scheduled Maintenance"
 msgstr "Planlanmış Bakım"
 
@@ -9959,6 +10157,12 @@ msgstr "Planlanmış Bakımlar"
 
 msgid "Schedules"
 msgstr "Programlar"
+
+msgid "Scheduling conflict"
+msgstr ""
+
+msgid "Scheduling Mode"
+msgstr ""
 
 msgid "Scope"
 msgstr "Kapsam"
@@ -10067,6 +10271,9 @@ msgstr "Bir atanan seçin"
 
 msgid "Select a default approver"
 msgstr "Varsayılan onaylayıcı seçin"
+
+msgid "Select a job"
+msgstr ""
 
 msgid "Select a new owner"
 msgstr "Yeni bir sahip seç"
@@ -10371,6 +10578,9 @@ msgstr "Şiddetler"
 msgid "Severity"
 msgstr "Şiddet"
 
+msgid "Shadow Weeks"
+msgstr ""
+
 msgid "shape"
 msgstr "şekil"
 
@@ -10587,6 +10797,9 @@ msgstr "Bu sorun kapatılmadan önce kaydedilmesi gereken onaylar; iş akışı 
 msgid "Signed in as {name}"
 msgstr "Oturum açıldı olarak {name}"
 
+msgid "Simultaneous operations this work center can run"
+msgstr ""
+
 msgid "Sites & locations"
 msgstr "Siteler & konumlar"
 
@@ -10773,6 +10986,13 @@ msgstr "Başla"
 
 msgid "Started"
 msgstr "Başlangıç"
+
+msgid "Starts"
+msgstr ""
+
+#. placeholder {0}: new Date(trace.rootStartedAt).toLocaleString()
+msgid "Starts {0}"
+msgstr ""
 
 msgid "State / Province"
 msgstr "Eyalet / İl"
@@ -11962,6 +12182,9 @@ msgstr "Bu e-posta adresleri, müşterilere gönderilen tüm teklif e-postaları
 msgid "These jobs have operations assigned to this work center:"
 msgstr "Bu işler bu iş merkezine atanmış işlemlere sahiptir:"
 
+msgid "this ability"
+msgstr ""
+
 msgid "This completes the Discovery step."
 msgstr "Bu, Keşif adımını tamamlar."
 
@@ -12320,6 +12543,9 @@ msgstr "Eğitim"
 msgid "Training Assignments"
 msgstr "Eğitim Atamaları"
 
+msgid "Training Completed"
+msgstr ""
+
 msgid "Training Plan"
 msgstr "Eğitim Planı"
 
@@ -12534,6 +12760,9 @@ msgstr "Kanban'ı Güncelle"
 msgid "Update Linear issue"
 msgstr "Linear sorununu güncelle"
 
+msgid "Update Override"
+msgstr ""
+
 msgid "Update part lead times from posted purchase receipts."
 msgstr "Yayınlanan satın alma makbuzlarından parça teslim sürelerini güncelleyin."
 
@@ -12672,6 +12901,9 @@ msgstr "Ana sayfada ve dijital tekliflerde kullanılır"
 msgid "Used on the home screen in dark mode"
 msgstr "Karanlık modda ana ekranda kullanılır"
 
+msgid "Used to build the default learning curve"
+msgstr ""
+
 msgid "Used to categorize items for reporting and analysis"
 msgstr "Raporlama ve analiz için ürünleri kategorize etmek amacıyla kullanılır"
 
@@ -12800,6 +13032,9 @@ msgstr "Video"
 
 msgid "View"
 msgstr "Görüntüle"
+
+msgid "View Ability"
+msgstr ""
 
 msgid "View Active Jobs"
 msgstr "Aktif İşleri Görüntüle"
@@ -13076,6 +13311,9 @@ msgstr "{0} haftası"
 msgid "Weekly"
 msgstr "Haftalık"
 
+msgid "Weekly Pattern"
+msgstr ""
+
 #. placeholder {0}: Math.round(startWeek) + 1
 #. placeholder {1}: Math.round(endWeek)
 msgid "Weeks {0} to {1}"
@@ -13096,8 +13334,14 @@ msgstr "5. ile 7. Haftalar"
 msgid "Weeks 7 to 8"
 msgstr "Haftalar 7 ila 8"
 
+msgid "Weeks of shadowing before an employee is productive"
+msgstr ""
+
 msgid "Weeks Open"
 msgstr "Açık Haftalar"
+
+msgid "Weeks to Full Proficiency"
+msgstr ""
 
 msgid "Weighted Average"
 msgstr "Ağırlıklı Ortalama"
@@ -13419,6 +13663,9 @@ msgstr "Çalışma Merkezi"
 
 msgid "Work Center"
 msgstr "İş Merkezi"
+
+msgid "Work Center Reservation"
+msgstr ""
 
 msgid "Work Center Utilization"
 msgstr "İş Merkezi Kullanımı"

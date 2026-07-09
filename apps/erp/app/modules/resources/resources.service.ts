@@ -19,8 +19,12 @@ import type {
   oeeImpact,
   partnerValidator,
   processValidator,
+  resourceCalendarExceptionValidator,
+  resourceCalendarShiftValidator,
+  resourceCalendarValidator,
   trainingQuestionValidator,
   trainingValidator,
+  workCenterCapacityValidator,
   workCenterValidator
 } from "./resources.models";
 
@@ -232,6 +236,7 @@ export async function getAbilitiesList(
     .from("ability")
     .select(`id, name`)
     .eq("companyId", companyId)
+    .eq("active", true)
     .order("name");
 }
 
@@ -242,14 +247,13 @@ export async function getAbility(
   return client
     .from("ability")
     .select(
-      `*, employeeAbility(id, employeeId, lastTrainingDate, trainingDays, trainingCompleted)`,
+      `*, employeeAbility(id, employeeId, lastTrainingDate, trainingDays, trainingCompleted, expiresAt, proficiencyOverride, active)`,
       {
         count: "exact"
       }
     )
     .eq("id", abilityId)
     .eq("active", true)
-    .eq("employeeAbility.active", true)
     .single();
 }
 
@@ -292,13 +296,26 @@ export async function getContractors(
 
 export async function getEmployeeAbilities(
   client: SupabaseClient<Database>,
-  employeeId: string
+  employeeId: string,
+  companyId: string
 ) {
   return client
     .from("employeeAbility")
     .select(`*, ability(id, name, curve, shadowWeeks)`)
     .eq("employeeId", employeeId)
+    .eq("companyId", companyId)
     .eq("active", true);
+}
+
+export async function getEmployeeAbility(
+  client: SupabaseClient<Database>,
+  employeeAbilityId: string
+) {
+  return client
+    .from("employeeAbility")
+    .select("*")
+    .eq("id", employeeAbilityId)
+    .single();
 }
 
 export async function getFailureMode(
@@ -1037,6 +1054,222 @@ export async function getWorkCentersListWithBlockingStatus(
     .order("name");
 }
 
+export async function getResourceCalendars(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  args?: { search: string | null } & GenericQueryFilters
+) {
+  let query = client
+    .from("resourceCalendar")
+    .select("*", {
+      count: "exact"
+    })
+    .eq("companyId", companyId);
+
+  if (args?.search) {
+    query = query.ilike("name", `%${args.search}%`);
+  }
+
+  if (args) {
+    query = setGenericQueryFilters(query, args, [
+      { column: "name", ascending: true }
+    ]);
+  }
+
+  return query;
+}
+
+export async function getResourceCalendarsList(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  return client
+    .from("resourceCalendar")
+    .select("id, name, locationId")
+    .eq("companyId", companyId)
+    .eq("active", true)
+    .order("name");
+}
+
+export async function getResourceCalendar(
+  client: SupabaseClient<Database>,
+  id: string
+) {
+  return client.from("resourceCalendar").select("*").eq("id", id).single();
+}
+
+export async function getResourceCalendarShifts(
+  client: SupabaseClient<Database>,
+  resourceCalendarId: string
+) {
+  return client
+    .from("resourceCalendarShift")
+    .select("*")
+    .eq("resourceCalendarId", resourceCalendarId)
+    .order("dayOfWeek")
+    .order("startTime");
+}
+
+export async function getResourceCalendarExceptions(
+  client: SupabaseClient<Database>,
+  resourceCalendarId: string
+) {
+  return client
+    .from("resourceCalendarException")
+    .select("*")
+    .eq("resourceCalendarId", resourceCalendarId)
+    .order("startAt");
+}
+
+export async function upsertResourceCalendar(
+  client: SupabaseClient<Database>,
+  resourceCalendar:
+    | (Omit<z.infer<typeof resourceCalendarValidator>, "id"> & {
+        companyId: string;
+        createdBy: string;
+        customFields?: Json;
+      })
+    | (Omit<z.infer<typeof resourceCalendarValidator>, "id"> & {
+        id: string;
+        updatedBy: string;
+        customFields?: Json;
+      })
+) {
+  if ("createdBy" in resourceCalendar) {
+    return client
+      .from("resourceCalendar")
+      .insert([resourceCalendar])
+      .select("id")
+      .single();
+  }
+  return client
+    .from("resourceCalendar")
+    .update(sanitize(resourceCalendar))
+    .eq("id", resourceCalendar.id)
+    .select("id")
+    .single();
+}
+
+export async function deleteResourceCalendar(
+  client: SupabaseClient<Database>,
+  id: string
+) {
+  return client.from("resourceCalendar").update({ active: false }).eq("id", id);
+}
+
+export async function upsertResourceCalendarShift(
+  client: SupabaseClient<Database>,
+  shift:
+    | (Omit<z.infer<typeof resourceCalendarShiftValidator>, "id"> & {
+        companyId: string;
+        createdBy: string;
+      })
+    | (Omit<z.infer<typeof resourceCalendarShiftValidator>, "id"> & {
+        id: string;
+        updatedBy: string;
+      })
+) {
+  if ("createdBy" in shift) {
+    return client
+      .from("resourceCalendarShift")
+      .insert([shift])
+      .select("id")
+      .single();
+  }
+  return client
+    .from("resourceCalendarShift")
+    .update(sanitize(shift))
+    .eq("id", shift.id)
+    .select("id")
+    .single();
+}
+
+export async function deleteResourceCalendarShift(
+  client: SupabaseClient<Database>,
+  id: string
+) {
+  return client.from("resourceCalendarShift").delete().eq("id", id);
+}
+
+export async function upsertResourceCalendarException(
+  client: SupabaseClient<Database>,
+  exception:
+    | (Omit<z.infer<typeof resourceCalendarExceptionValidator>, "id"> & {
+        companyId: string;
+        createdBy: string;
+      })
+    | (Omit<z.infer<typeof resourceCalendarExceptionValidator>, "id"> & {
+        id: string;
+        updatedBy: string;
+      })
+) {
+  if ("createdBy" in exception) {
+    return client
+      .from("resourceCalendarException")
+      .insert([exception])
+      .select("id")
+      .single();
+  }
+  return client
+    .from("resourceCalendarException")
+    .update(sanitize(exception))
+    .eq("id", exception.id)
+    .select("id")
+    .single();
+}
+
+export async function deleteResourceCalendarException(
+  client: SupabaseClient<Database>,
+  id: string
+) {
+  return client.from("resourceCalendarException").delete().eq("id", id);
+}
+
+export async function getWorkCenterCapacities(
+  client: SupabaseClient<Database>,
+  workCenterId: string
+) {
+  return client
+    .from("workCenterCapacity")
+    .select("*")
+    .eq("workCenterId", workCenterId)
+    .order("effectiveFrom");
+}
+
+export async function upsertWorkCenterCapacity(
+  client: SupabaseClient<Database>,
+  capacity:
+    | (Omit<z.infer<typeof workCenterCapacityValidator>, "id"> & {
+        companyId: string;
+        createdBy: string;
+      })
+    | (Omit<z.infer<typeof workCenterCapacityValidator>, "id"> & {
+        id: string;
+        updatedBy: string;
+      })
+) {
+  if ("createdBy" in capacity) {
+    return client
+      .from("workCenterCapacity")
+      .insert([capacity])
+      .select("id")
+      .single();
+  }
+  return client
+    .from("workCenterCapacity")
+    .update(sanitize(capacity))
+    .eq("id", capacity.id)
+    .select("id")
+    .single();
+}
+
+export async function deleteWorkCenterCapacity(
+  client: SupabaseClient<Database>,
+  id: string
+) {
+  return client.from("workCenterCapacity").delete().eq("id", id);
+}
+
 export async function insertAbility(
   client: SupabaseClient<Database>,
   ability: {
@@ -1048,6 +1281,7 @@ export async function insertAbility(
       }[];
     };
     shadowWeeks: number;
+    recertifyEveryDays?: number | null;
     companyId: string;
     createdBy: string;
   }
@@ -1108,9 +1342,57 @@ export async function updateAbility(
       }[];
     };
     shadowWeeks: number;
+    recertifyEveryDays: number | null;
   }>
 ) {
   return client.from("ability").update(sanitize(ability)).eq("id", id);
+}
+
+/**
+ * Resolves the qualification expiry for an employee ability. An explicit
+ * expiresAt wins; otherwise it is computed from lastTrainingDate + the
+ * ability's recertifyEveryDays (null when the ability never expires).
+ */
+export async function resolveEmployeeAbilityExpiresAt(
+  client: SupabaseClient<Database>,
+  abilityId: string,
+  lastTrainingDate: string | null,
+  expiresAt: string | null
+): Promise<string | null> {
+  if (expiresAt || !lastTrainingDate) return expiresAt;
+
+  const ability = await client
+    .from("ability")
+    .select("recertifyEveryDays")
+    .eq("id", abilityId)
+    .single();
+
+  if (!ability.data?.recertifyEveryDays) return null;
+
+  const [y, m, d] = lastTrainingDate.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d + ability.data.recertifyEveryDays))
+    .toISOString()
+    .slice(0, 10);
+}
+
+export async function upsertEmployeeAbilityCell(
+  client: SupabaseClient<Database>,
+  cell: {
+    employeeId: string;
+    abilityId: string;
+    companyId: string;
+    active: boolean;
+    trainingCompleted: boolean;
+    lastTrainingDate: string | null;
+    expiresAt: string | null;
+    proficiencyOverride: number | null;
+  }
+) {
+  return client
+    .from("employeeAbility")
+    .upsert(cell, { onConflict: "employeeId,abilityId" })
+    .select("id")
+    .single();
 }
 
 export async function updateSuggestionEmoji(

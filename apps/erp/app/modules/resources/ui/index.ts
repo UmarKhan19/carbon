@@ -1,5 +1,7 @@
 import useResourcesSubmodules from "./useResourcesSubmodules";
 
+export * from "./Abilities";
+export * from "./Calendars";
 export * from "./Contractors";
 export * from "./Locations";
 export * from "./Partners";

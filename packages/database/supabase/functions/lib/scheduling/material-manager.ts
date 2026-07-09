@@ -1,29 +1,26 @@
 import { Kysely } from "kysely";
 
 import { DB } from "../database.ts";
+import type { MasterDataProvider } from "./master-data-provider.ts";
 import { BaseOperation } from "./types.ts";
 
 class MaterialManager {
   private db: Kysely<DB>;
-  private companyId: string;
+  private provider: MasterDataProvider;
   private materialsWithoutOperations: {
     id: string;
     jobMakeMethodId: string;
   }[] = [];
 
-  constructor(db: Kysely<DB>, companyId: string) {
+  constructor(db: Kysely<DB>, provider: MasterDataProvider) {
     this.db = db;
-    this.companyId = companyId;
+    this.provider = provider;
     this.materialsWithoutOperations = [];
   }
 
   async initialize(jobId: string) {
-    const materialsWithoutOperations = await this.db
-      .selectFrom("jobMaterial")
-      .select(["id", "jobMakeMethodId"])
-      .where("jobId", "=", jobId)
-      .where("jobOperationId", "is", null)
-      .execute();
+    const materialsWithoutOperations =
+      await this.provider.getUnlinkedMaterials(jobId);
 
     this.materialsWithoutOperations = materialsWithoutOperations.reduce<
       { id: string; jobMakeMethodId: string }[]

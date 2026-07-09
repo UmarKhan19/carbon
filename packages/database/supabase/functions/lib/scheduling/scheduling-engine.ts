@@ -6,20 +6,30 @@ import {
   AssemblyHandler,
   buildMakeMethodDependencies,
 } from "./assembly-handler.ts";
+import {
+  type CalendarExceptionRow,
+  expandCalendar,
+} from "./calendar-utils.ts";
 import { calculateOperationDates } from "./date-calculator.ts";
 import {
   buildOperationDependencies,
   dependenciesToRecords,
   DependencyGraphImpl,
 } from "./dependency-manager.ts";
+import {
+  KyselyMasterDataProvider,
+  type MasterDataProvider,
+} from "./master-data-provider.ts";
 import { MaterialManager } from "./material-manager.ts";
 import {
   applyPriorities,
   calculatePrioritiesByWorkCenter,
   toOperationWithJobInfo,
 } from "./priority-calculator.ts";
+import type { ResourceCapacityData } from "./slot-allocator.ts";
 import type {
   BaseOperation,
+  DispatchRule,
   Job,
   JobOperationDependency,
   OperationWithJobInfo,
@@ -30,9 +40,14 @@ import type {
   SchedulingResult,
 } from "./types.ts";
 import {
+  type AbilityRequirement,
   applyWorkCenterSelections,
+  type FiniteSchedulingContext,
+  type QualifiedEmployee,
   WorkCenterSelector,
 } from "./work-center-selector.ts";
+
+const SCHEDULING_HORIZON_DAYS = 365;
 
 /**
  * Unified Scheduling Engine
@@ -58,11 +73,17 @@ export class SchedulingEngine {
   private assemblyHandler: AssemblyHandler;
   private workCenterSelector: WorkCenterSelector | null = null;
   private materialManager: MaterialManager;
+  private dispatchRuleByWorkCenter: Map<string | null, DispatchRule> | null =
+    null;
+  private reservationsWritten = 0;
+
+  private provider: MasterDataProvider;
 
   constructor(
     options: SchedulingOptions & {
       client: SupabaseClient<Database>;
       db: Kysely<DB>;
+      provider?: MasterDataProvider;
     }
   ) {
     this.client = options.client;
@@ -73,12 +94,12 @@ export class SchedulingEngine {
     this.direction = options.direction;
     this.mode = options.mode;
 
-    this.assemblyHandler = new AssemblyHandler(
-      this.client,
-      this.db,
-      this.companyId
-    );
-    this.materialManager = new MaterialManager(this.db, this.companyId);
+    this.provider =
+      options.provider ??
+      new KyselyMasterDataProvider(this.db, this.client, this.companyId);
+
+    this.assemblyHandler = new AssemblyHandler(this.provider);
+    this.materialManager = new MaterialManager(this.db, this.provider);
   }
 
   /**
@@ -86,11 +107,7 @@ export class SchedulingEngine {
    */
   async initialize(): Promise<void> {
     // Load job
-    const job = await this.db
-      .selectFrom("job")
-      .select(["id", "dueDate", "deadlineType", "locationId", "priority"])
-      .where("id", "=", this.jobId)
-      .executeTakeFirst();
+    const job = await this.provider.getJob(this.jobId);
 
     if (!job) {
       throw new Error(`Job ${this.jobId} not found`);
@@ -101,35 +118,18 @@ export class SchedulingEngine {
     // Initialize work center selector with location
     if (job.locationId) {
       this.workCenterSelector = new WorkCenterSelector(
-        this.db,
-        this.companyId,
+        this.provider,
         job.locationId
       );
       await this.workCenterSelector.initialize();
     }
 
     // Load operations
-    this.operations = (await this.db
-      .selectFrom("jobOperation")
-      .selectAll()
-      .where("jobId", "=", this.jobId)
-      .where("status", "not in", ["Done", "Canceled"])
-      .orderBy("order")
-      .execute()) as BaseOperation[];
+    this.operations = await this.provider.getOperations(this.jobId);
 
     // Load existing dependencies (for reschedule mode)
     if (this.mode === "reschedule") {
-      const deps = await this.db
-        .selectFrom("jobOperationDependency")
-        .selectAll()
-        .where("jobId", "=", this.jobId)
-        .execute();
-
-      this.dependencies = deps.map((d) => ({
-        operationId: d.operationId,
-        dependsOnId: d.dependsOnId,
-        jobId: d.jobId,
-      }));
+      this.dependencies = await this.provider.getDependencies(this.jobId);
     }
 
     // Initialize material manager
@@ -169,12 +169,9 @@ export class SchedulingEngine {
    */
   async createDependencies(): Promise<void> {
     // Load all operations for dependency building (not just active ones)
-    const allOperations = (await this.db
-      .selectFrom("jobOperation")
-      .selectAll()
-      .where("jobId", "=", this.jobId)
-      .orderBy("order")
-      .execute()) as BaseOperation[];
+    const allOperations = await this.provider.getOperations(this.jobId, {
+      includeDone: true,
+    });
 
     // Build assembly tree
     const assemblyTree = await this.assemblyHandler.buildAssemblyTree(
@@ -190,11 +187,9 @@ export class SchedulingEngine {
       this.assemblyHandler.getAllJobMakeMethodIds(assemblyTree);
 
     // Get job materials for linking
-    const jobMaterials = await this.db
-      .selectFrom("jobMaterialWithMakeMethodId")
-      .selectAll()
-      .where("jobMakeMethodId", "in", makeMethodIds)
-      .execute();
+    const jobMaterials = await this.provider.getMaterialsWithMakeMethod(
+      makeMethodIds
+    );
 
     // Build map from make method to operation
     const jobMakeMethodToOperationId: Record<string, string | null> = {};
@@ -325,24 +320,13 @@ export class SchedulingEngine {
 
     // Append rework dependency edges so rework ops are correctly scheduled
     if (reworkOpIds.length > 0) {
-      const reworkDeps = await this.db
-        .selectFrom("jobOperationDependency")
-        .selectAll()
-        .where("jobId", "=", this.jobId)
-        .where((eb) =>
-          eb.or([
-            eb("operationId", "in", reworkOpIds),
-            eb("dependsOnId", "in", reworkOpIds),
-          ])
-        )
-        .execute();
+      const reworkDeps = await this.provider.getReworkDependencies(
+        this.jobId,
+        reworkOpIds
+      );
 
       for (const d of reworkDeps) {
-        this.dependencies.push({
-          operationId: d.operationId,
-          dependsOnId: d.dependsOnId,
-          jobId: d.jobId,
-        });
+        this.dependencies.push(d);
       }
     }
   }
@@ -376,12 +360,190 @@ export class SchedulingEngine {
   }
 
   /**
+   * Build the finite-capacity context: calendars, capacity, live
+   * reservations, skill requirements, and qualified-operator pools for every
+   * candidate work center. Runs just before selection so the rebuilt
+   * dependency DAG is final. When every candidate work center is Infinite the
+   * context still works — those candidates take the legacy load path.
+   */
+  private async buildFiniteContext(): Promise<FiniteSchedulingContext | null> {
+    if (!this.workCenterSelector) {
+      return null;
+    }
+
+    const now = new Date();
+    const operations = Array.from(this.scheduledOperations.values());
+    const processIds = Array.from(
+      new Set(operations.map((op) => op.processId).filter(Boolean))
+    ) as string[];
+
+    // Candidates for selection + current assignments (manually scheduled ops
+    // reserve on their existing work center)
+    const workCenterIds = new Set(
+      this.workCenterSelector.getAllCandidateWorkCenterIds(processIds)
+    );
+    for (const op of operations) {
+      if (op.workCenterId) {
+        workCenterIds.add(op.workCenterId);
+      }
+    }
+
+    const wcInfos = await this.provider.getWorkCenterCapacityInfo(
+      Array.from(workCenterIds)
+    );
+    if (wcInfos.length === 0) {
+      return null;
+    }
+
+    const [calendars, overrides, liveReservations, opAbilities, processAbilities] =
+      await Promise.all([
+        this.provider.getWorkCenterCalendars(wcInfos),
+        this.provider.getWorkCenterCapacityOverrides(
+          wcInfos.map((wc) => wc.id)
+        ),
+        this.provider.getLiveReservations(now, this.jobId),
+        this.provider.getOperationRequiredAbilities(
+          operations.map((op) => op.id)
+        ),
+        this.provider.getProcessAbilities(processIds),
+      ]);
+
+    // Qualified employees + names for every ability in play
+    const abilityIds = new Set<string>();
+    for (const a of opAbilities) abilityIds.add(a.abilityId);
+    for (const a of processAbilities) abilityIds.add(a.abilityId);
+    for (const wc of wcInfos) {
+      if (wc.requiredAbilityId) abilityIds.add(wc.requiredAbilityId);
+    }
+    const [employees, abilityNames] = await Promise.all([
+      this.provider.getQualifiedEmployees(Array.from(abilityIds)),
+      this.provider.getAbilityNames(Array.from(abilityIds)),
+    ]);
+
+    // Expand each work center's calendar over the scheduling horizon
+    const rangeStart = now;
+    const rangeEnd = new Date(
+      now.getTime() + (SCHEDULING_HORIZON_DAYS + 7) * 24 * 3_600_000
+    );
+    const calendarByWorkCenter = new Map(
+      calendars.map((c) => [c.workCenterId, c])
+    );
+
+    const capacityByWorkCenter = new Map<string, ResourceCapacityData>();
+    for (const wc of wcInfos) {
+      const pattern = calendarByWorkCenter.get(wc.id);
+      const exceptions: CalendarExceptionRow[] = (
+        pattern?.exceptions ?? []
+      ).map((e) => ({
+        startAt: new Date(e.startAt),
+        endAt: new Date(e.endAt),
+        type: e.type,
+        capacityOverride: e.capacityOverride,
+      }));
+      const windows = expandCalendar(
+        pattern?.shifts ?? [],
+        exceptions,
+        rangeStart,
+        rangeEnd,
+        wc.timezone
+      );
+
+      capacityByWorkCenter.set(wc.id, {
+        workCenter: {
+          id: wc.id,
+          parallelCapacity: wc.parallelCapacity,
+          efficiencyFactor: wc.efficiencyFactor,
+          schedulingMode: wc.schedulingMode,
+          requiredAbilityId: wc.requiredAbilityId,
+        },
+        windows,
+        capacityOverrides: overrides
+          .filter((o) => o.workCenterId === wc.id)
+          .map((o) => ({
+            effectiveFrom: o.effectiveFrom,
+            effectiveTo: o.effectiveTo,
+            parallelCapacity: o.parallelCapacity,
+          })),
+        reservations: liveReservations
+          .filter(
+            (r) => r.resourceKind === "WorkCenter" && r.resourceId === wc.id
+          )
+          .map((r) => ({ startAt: r.startAt, endAt: r.endAt })),
+      });
+    }
+
+    const requiredAbilitiesByOperation = new Map<
+      string,
+      AbilityRequirement[]
+    >();
+    for (const a of opAbilities) {
+      const list = requiredAbilitiesByOperation.get(a.operationId) ?? [];
+      list.push({
+        abilityId: a.abilityId,
+        abilityName: a.abilityName,
+        minimumProficiency: a.minimumProficiency,
+      });
+      requiredAbilitiesByOperation.set(a.operationId, list);
+    }
+
+    const processAbilitiesByProcess = new Map<string, AbilityRequirement[]>();
+    for (const a of processAbilities) {
+      const list = processAbilitiesByProcess.get(a.processId) ?? [];
+      list.push({
+        abilityId: a.abilityId,
+        abilityName: a.abilityName,
+        minimumProficiency: a.minimumProficiency,
+      });
+      processAbilitiesByProcess.set(a.processId, list);
+    }
+
+    const employeesByAbility = new Map<string, QualifiedEmployee[]>();
+    for (const e of employees) {
+      const list = employeesByAbility.get(e.abilityId) ?? [];
+      list.push(e);
+      employeesByAbility.set(e.abilityId, list);
+    }
+
+    const poolReservationsByAbility = new Map<
+      string,
+      { startAt: Date; endAt: Date }[]
+    >();
+    for (const r of liveReservations) {
+      if (r.resourceKind !== "OperatorPool") continue;
+      const list = poolReservationsByAbility.get(r.resourceId) ?? [];
+      list.push({ startAt: r.startAt, endAt: r.endAt });
+      poolReservationsByAbility.set(r.resourceId, list);
+    }
+
+    return {
+      capacityByWorkCenter,
+      requiredAbilitiesByOperation,
+      processAbilitiesByProcess,
+      employeesByAbility,
+      poolReservationsByAbility,
+      abilityNamesById: new Map(abilityNames.map((a) => [a.id, a.name])),
+      dependencies: this.dependencies,
+      now,
+      horizonDays: SCHEDULING_HORIZON_DAYS,
+      // Reschedules (incl. the nightly replan) keep operations on their
+      // assigned work center — machines only get (re)picked at initial
+      // scheduling or by an explicit human move on the operations board.
+      stickyWorkCenters: this.mode === "reschedule",
+    };
+  }
+
+  /**
    * Select work centers for all operations
    */
   async selectWorkCenters(): Promise<void> {
     if (!this.workCenterSelector) {
       console.warn("Work center selector not initialized");
       return;
+    }
+
+    const finiteContext = await this.buildFiniteContext();
+    if (finiteContext) {
+      this.workCenterSelector.setFiniteContext(finiteContext);
     }
 
     const operations = Array.from(this.scheduledOperations.values());
@@ -400,12 +562,41 @@ export class SchedulingEngine {
         this.affectedWorkCenters.add(selection.workCenterId);
       }
     }
+
+    // Recount conflicts — finite allocation may add or resolve them
+    this.conflictsDetected = 0;
+    for (const op of this.scheduledOperations.values()) {
+      if (op.hasConflict) {
+        this.conflictsDetected++;
+      }
+    }
   }
 
   /**
    * Calculate priorities for all operations grouped by work center
    */
+  /**
+   * Dispatch rule for a work center: per-WC policy row → company default row
+   * (workCenterId null) → 'EDD'.
+   */
+  private async resolveDispatchRules(): Promise<
+    (workCenterId: string | null) => DispatchRule
+  > {
+    if (!this.dispatchRuleByWorkCenter) {
+      const policies = await this.provider.getSchedulingPolicies();
+      this.dispatchRuleByWorkCenter = new Map(
+        policies.map((p) => [p.workCenterId, p.dispatchRule])
+      );
+    }
+    const rules = this.dispatchRuleByWorkCenter;
+    const companyDefault = rules.get(null) ?? "EDD";
+    return (workCenterId) =>
+      (workCenterId ? rules.get(workCenterId) : undefined) ?? companyDefault;
+  }
+
   async calculatePriorities(): Promise<void> {
+    const resolveRule = await this.resolveDispatchRules();
+
     // Get all operations at affected work centers (not just from this job)
     const workCenterIds = Array.from(this.affectedWorkCenters);
 
@@ -422,7 +613,10 @@ export class SchedulingEngine {
         );
       }
 
-      const priorities = calculatePrioritiesByWorkCenter(opsWithInfo);
+      const priorities = calculatePrioritiesByWorkCenter(
+        opsWithInfo,
+        resolveRule
+      );
       this.scheduledOperations = applyPriorities(
         this.scheduledOperations,
         priorities
@@ -432,21 +626,9 @@ export class SchedulingEngine {
 
     // Get all active operations at affected work centers from OTHER jobs
     // (current job's operations aren't in DB yet with their new work centers)
-    const allWcOps = await this.db
-      .selectFrom("jobOperation as jo")
-      .innerJoin("job as j", "j.id", "jo.jobId")
-      .select([
-        "jo.id",
-        "jo.dueDate",
-        "jo.startDate",
-        "jo.priority",
-        "j.deadlineType",
-        "j.priority as jobPriority",
-        "jo.workCenterId",
-      ])
-      .where("jo.workCenterId", "in", workCenterIds)
-      .where("jo.status", "not in", ["Done", "Canceled"])
-      .execute();
+    const allWcOps = await this.provider.getCrossJobOperationsAtWorkCenters(
+      workCenterIds
+    );
 
     // Build a set of operation IDs from the database query
     const dbOpIds = new Set(allWcOps.map((op) => op.id).filter(Boolean));
@@ -498,7 +680,7 @@ export class SchedulingEngine {
     }
 
     // Calculate priorities
-    const priorities = calculatePrioritiesByWorkCenter(mergedOps);
+    const priorities = calculatePrioritiesByWorkCenter(mergedOps, resolveRule);
 
     // Apply to our scheduled operations
     this.scheduledOperations = applyPriorities(
@@ -512,12 +694,9 @@ export class SchedulingEngine {
    */
   async assignMaterials(): Promise<void> {
     // Load all operations (including Done) to find first ops correctly
-    const allOperations = (await this.db
-      .selectFrom("jobOperation")
-      .selectAll()
-      .where("jobId", "=", this.jobId)
-      .orderBy("order")
-      .execute()) as BaseOperation[];
+    const allOperations = await this.provider.getOperations(this.jobId, {
+      includeDone: true,
+    });
 
     // Build assembly tree
     const assemblyTree = await this.assemblyHandler.buildAssemblyTree(
@@ -611,6 +790,39 @@ export class SchedulingEngine {
       }
     }
 
+    // Rebuild this job's live capacity reservations from this run's
+    // placements (reservations are authoritative across jobs and runs)
+    await this.db
+      .deleteFrom("capacityReservation")
+      .where("jobId", "=", this.jobId)
+      .where("companyId", "=", this.companyId)
+      .where("scenarioId", "is", null)
+      .execute();
+
+    // Zero-duration operations (all times = 0) place a start === end slot,
+    // which occupies no capacity and violates the endAt > startAt check.
+    const planned = (
+      this.workCenterSelector?.getPlannedReservations() ?? []
+    ).filter((p) => p.endAt.getTime() > p.startAt.getTime());
+    if (planned.length > 0) {
+      await this.db
+        .insertInto("capacityReservation")
+        .values(
+          planned.map((p) => ({
+            resourceKind: p.resourceKind,
+            resourceId: p.resourceId,
+            operationId: p.operationId,
+            jobId: this.jobId,
+            companyId: this.companyId,
+            startAt: p.startAt.toISOString(),
+            endAt: p.endAt.toISOString(),
+            createdBy: this.userId,
+          }))
+        )
+        .execute();
+    }
+    this.reservationsWritten = planned.length;
+
     // Update job status if initial scheduling
     if (this.mode === "initial") {
       await this.db
@@ -631,6 +843,7 @@ export class SchedulingEngine {
       conflictsDetected: this.conflictsDetected,
       workCentersAffected: Array.from(this.affectedWorkCenters),
       assemblyDepth: this.assemblyDepth,
+      reservationsWritten: this.reservationsWritten,
     };
   }
 

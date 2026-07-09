@@ -852,6 +852,9 @@ msgstr "Seri numaras tarayın veya arayın..."
 msgid "Schedule"
 msgstr "Planlama"
 
+msgid "Scheduling conflict"
+msgstr ""
+
 msgid "Scrap"
 msgstr "Hurda"
 

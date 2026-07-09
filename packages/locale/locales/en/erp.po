@@ -335,6 +335,9 @@ msgstr "Abilities"
 msgid "ability"
 msgstr "ability"
 
+msgid "Ability"
+msgstr "Ability"
+
 msgid "About"
 msgstr "About"
 
@@ -545,6 +548,9 @@ msgstr "Add a row"
 msgid "Add a step"
 msgstr "Add a step"
 
+msgid "Add Ability"
+msgstr "Add Ability"
+
 msgid "Add Actions"
 msgstr "Add Actions"
 
@@ -569,8 +575,14 @@ msgstr "Add condition"
 msgid "Add Contractor"
 msgstr "Add Contractor"
 
+msgid "Add Employee"
+msgstr "Add Employee"
+
 msgid "Add Entry"
 msgstr "Add Entry"
+
+msgid "Add Exception"
+msgstr "Add Exception"
 
 msgid "Add Feature"
 msgstr "Add Feature"
@@ -601,6 +613,9 @@ msgstr "Add Operation"
 
 msgid "Add options above first"
 msgstr "Add options above first"
+
+msgid "Add Override"
+msgstr "Add Override"
 
 msgid "Add Pair"
 msgstr "Add Pair"
@@ -640,6 +655,9 @@ msgstr "Add rule"
 
 msgid "Add Selector"
 msgstr "Add Selector"
+
+msgid "Add Shift"
+msgstr "Add Shift"
 
 msgid "Add Shipment"
 msgstr "Add Shipment"
@@ -941,6 +959,9 @@ msgstr "Approve"
 msgid "Approved By"
 msgstr "Approved By"
 
+msgid "Approximate — derived from scheduled dates; no capacity reservation exists for this row."
+msgstr "Approximate — derived from scheduled dates; no capacity reservation exists for this row."
+
 msgid "AQL"
 msgstr "AQL"
 
@@ -1015,6 +1036,12 @@ msgstr "Are you sure you want to deactivate the {0} attribute?"
 
 msgid "Are you sure you want to deactivate the {label} configuration rule?"
 msgstr "Are you sure you want to deactivate the {label} configuration rule?"
+
+msgid "Are you sure you want to deactivate the ability: {name}?"
+msgstr "Are you sure you want to deactivate the ability: {name}?"
+
+msgid "Are you sure you want to deactivate the calendar: {name}?"
+msgstr "Are you sure you want to deactivate the calendar: {name}?"
 
 msgid "Are you sure you want to deactivate the process: {name}? It will no longer appear in dropdowns."
 msgstr "Are you sure you want to deactivate the process: {name}? It will no longer appear in dropdowns."
@@ -1295,6 +1322,9 @@ msgstr "Are you sure you want to reject this quote?"
 msgid "Are you sure you want to release this job? It will become available to the shop floor, and drive purchasing and production."
 msgstr "Are you sure you want to release this job? It will become available to the shop floor, and drive purchasing and production."
 
+msgid "Are you sure you want to remove this employee from {name}? The training history is kept and the employee can be re-added later."
+msgstr "Are you sure you want to remove this employee from {name}? The training history is kept and the employee can be re-added later."
+
 msgid "Are you sure you want to remove this item from the price list? This cannot be undone."
 msgstr "Are you sure you want to remove this item from the price list? This cannot be undone."
 
@@ -1348,6 +1378,9 @@ msgstr "Ascending"
 #. placeholder {1}: copy.noun
 msgid "Ask an admin with {0} permission to add the first {1}."
 msgstr "Ask an admin with {0} permission to add the first {1}."
+
+msgid "Assembly"
+msgstr "Assembly"
 
 msgid "Assembly:"
 msgstr "Assembly:"
@@ -1650,6 +1683,9 @@ msgstr "Billing Address"
 msgid "Bills of material"
 msgstr "Bills of material"
 
+msgid "Blank = computed from the ability's recertification period"
+msgstr "Blank = computed from the ability's recertification period"
+
 msgid "Block with an error"
 msgstr "Block with an error"
 
@@ -1768,6 +1804,12 @@ msgstr "Calculated finished-good expiry"
 msgid "Calculation Method"
 msgstr "Calculation Method"
 
+msgid "Calendar"
+msgstr "Calendar"
+
+msgid "Calendars"
+msgstr "Calendars"
+
 msgid "Calibration Attempts"
 msgstr "Calibration Attempts"
 
@@ -1860,6 +1902,12 @@ msgstr "Cannot upload — supplier interaction not yet created"
 
 msgid "Cannot upload to parts bucket without item ID"
 msgstr "Cannot upload to parts bucket without item ID"
+
+msgid "Capacity Override"
+msgstr "Capacity Override"
+
+msgid "Capacity Overrides: {workCenterName}"
+msgstr "Capacity Overrides: {workCenterName}"
 
 msgid "Carbon"
 msgstr "Carbon"
@@ -2201,6 +2249,9 @@ msgstr "Completed Job Notifications"
 msgid "Completed Qty"
 msgstr "Completed Qty"
 
+msgid "Completing this training grants or renews the selected ability."
+msgstr "Completing this training grants or renews the selected ability."
+
 msgid "Completion Barcode"
 msgstr "Completion Barcode"
 
@@ -2324,6 +2375,9 @@ msgstr "Confirmed incoming stock — purchase & production orders (bars above ze
 
 msgid "Confirmed outgoing stock — sales orders & job materials (bars below zero)."
 msgstr "Confirmed outgoing stock — sales orders & job materials (bars below zero)."
+
+msgid "Conflict"
+msgstr "Conflict"
 
 msgid "Connect Carbon to your accounting, project management, and CAD tools and much more."
 msgstr "Connect Carbon to your accounting, project management, and CAD tools and much more."
@@ -2935,9 +2989,6 @@ msgstr "Current Password"
 msgid "Current quantity"
 msgstr "Current quantity"
 
-msgid "Currently training for"
-msgstr "Currently training for"
-
 msgid "Custom"
 msgstr "Custom"
 
@@ -3169,6 +3220,9 @@ msgstr "Date Paid"
 msgid "Dates"
 msgstr "Dates"
 
+msgid "Day"
+msgstr "Day"
+
 msgid "Day-to-day questions and hypercare after launch"
 msgstr "Day-to-day questions and hypercare after launch"
 
@@ -3203,8 +3257,14 @@ msgstr "Deactivate {0}"
 msgid "Deactivate {name}"
 msgstr "Deactivate {name}"
 
+msgid "Deactivate Ability"
+msgstr "Deactivate Ability"
+
 msgid "Deactivate Account"
 msgstr "Deactivate Account"
+
+msgid "Deactivate Calendar"
+msgstr "Deactivate Calendar"
 
 msgid "Deactivate Employee"
 msgstr "Deactivate Employee"
@@ -3377,6 +3437,9 @@ msgstr "Delete Association"
 msgid "Delete Attribute"
 msgstr "Delete Attribute"
 
+msgid "Delete capacity override"
+msgstr "Delete capacity override"
+
 msgid "Delete Category"
 msgstr "Delete Category"
 
@@ -3412,6 +3475,9 @@ msgstr "Delete Document"
 
 msgid "Delete Employee Type"
 msgstr "Delete Employee Type"
+
+msgid "Delete exception"
+msgstr "Delete exception"
 
 msgid "Delete Failure Mode"
 msgstr "Delete Failure Mode"
@@ -3532,6 +3598,9 @@ msgstr "Delete Sales Order"
 
 msgid "Delete Schedule"
 msgstr "Delete Schedule"
+
+msgid "Delete shift"
+msgstr "Delete shift"
 
 msgid "Delete Shift"
 msgstr "Delete Shift"
@@ -3667,6 +3736,9 @@ msgstr "Depreciation Start Date"
 
 msgid "Derive this item's shelf life from the shortest shelf life of its components, ignoring the Days field above."
 msgstr "Derive this item's shelf life from the shortest shelf life of its components, ignoring the Days field above."
+
+msgid "Derived"
+msgstr "Derived"
 
 msgid "Description"
 msgstr "Description"
@@ -3980,6 +4052,12 @@ msgstr "Edit"
 msgid "Edit <0>Issue</0> Workflow"
 msgstr "Edit <0>Issue</0> Workflow"
 
+msgid "Edit ability"
+msgstr "Edit ability"
+
+msgid "Edit Ability"
+msgstr "Edit Ability"
+
 msgid "Edit Account"
 msgstr "Edit Account"
 
@@ -4000,6 +4078,15 @@ msgstr "Edit Attribute"
 
 msgid "Edit Attribute Category"
 msgstr "Edit Attribute Category"
+
+msgid "Edit Calendar"
+msgstr "Edit Calendar"
+
+msgid "Edit capacity override"
+msgstr "Edit capacity override"
+
+msgid "Edit Capacity Overrides"
+msgstr "Edit Capacity Overrides"
 
 msgid "Edit Category"
 msgstr "Edit Category"
@@ -4039,6 +4126,9 @@ msgstr "Edit Dispatch"
 
 msgid "Edit Employee"
 msgstr "Edit Employee"
+
+msgid "Edit Employee Ability"
+msgstr "Edit Employee Ability"
 
 msgid "Edit Employee Type"
 msgstr "Edit Employee Type"
@@ -4265,6 +4355,9 @@ msgstr "Effective From"
 msgid "Effective To"
 msgstr "Effective To"
 
+msgid "Efficiency Factor"
+msgstr "Efficiency Factor"
+
 msgid "Email"
 msgstr "Email"
 
@@ -4355,6 +4448,9 @@ msgstr "Enable to use metric units for material dimensions."
 msgid "Enabled"
 msgstr "Enabled"
 
+msgid "End"
+msgstr "End"
+
 msgid "End Date"
 msgstr "End Date"
 
@@ -4369,6 +4465,9 @@ msgstr "End of Last Quarter"
 
 msgid "End Time"
 msgstr "End Time"
+
+msgid "Ends"
+msgstr "Ends"
 
 msgid "Enforce per-item validation and guidelines across receipts, shipments, transfers, and adjustments."
 msgstr "Enforce per-item validation and guidelines across receipts, shipments, transfers, and adjustments."
@@ -4517,6 +4616,9 @@ msgstr "Escalation"
 msgid "Est. Duration"
 msgstr "Est. Duration"
 
+msgid "Estimated"
+msgstr "Estimated"
+
 msgid "Estimated Duration"
 msgstr "Estimated Duration"
 
@@ -4558,6 +4660,9 @@ msgstr "Everything from Starter"
 
 msgid "Exceeds {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB total — remove some attachments to send."
 msgstr "Exceeds {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB total — remove some attachments to send."
+
+msgid "Exceptions"
+msgstr "Exceptions"
 
 msgid "Exchange Rate"
 msgstr "Exchange Rate"
@@ -4647,6 +4752,10 @@ msgstr "Expiration Date (applies to all serials on this line)"
 msgid "Expired"
 msgstr "Expired"
 
+#. placeholder {0}: formatDate(status.expiresAt)
+msgid "Expired {0}"
+msgstr "Expired {0}"
+
 msgid "Expired {date}"
 msgstr "Expired {date}"
 
@@ -4659,11 +4768,22 @@ msgstr "Expired Batches"
 msgid "Expires"
 msgstr "Expires"
 
+#. placeholder {0}: formatDate(status.expiresAt)
+msgid "Expires {0}"
+msgstr "Expires {0}"
+
 msgid "Expires {date}"
 msgstr "Expires {date}"
 
+msgid "Expires At"
+msgstr "Expires At"
+
 msgid "Expires At (optional)"
 msgstr "Expires At (optional)"
+
+#. placeholder {0}: status.daysLeft
+msgid "Expires in {0}d"
+msgstr "Expires in {0}d"
 
 msgid "Expiring first"
 msgstr "Expiring first"
@@ -5111,6 +5231,9 @@ msgstr "finishes"
 msgid "Finishes"
 msgstr "Finishes"
 
+msgid "Finite"
+msgstr "Finite"
+
 msgid "First Name"
 msgstr "First Name"
 
@@ -5221,9 +5344,6 @@ msgstr "From Storage Unit"
 
 msgid "Fulfillment Location"
 msgstr "Fulfillment Location"
-
-msgid "Fully trained for"
-msgstr "Fully trained for"
 
 msgid "FX G/L"
 msgstr "FX G/L"
@@ -5504,6 +5624,9 @@ msgstr "grades"
 
 msgid "Grades"
 msgstr "Grades"
+
+msgid "Grants Ability"
+msgstr "Grants Ability"
 
 msgid "Group"
 msgstr "Group"
@@ -5808,6 +5931,9 @@ msgstr "In stock"
 msgid "In the loop together"
 msgstr "In the loop together"
 
+msgid "In Training"
+msgstr "In Training"
+
 msgid "Inactive"
 msgstr "Inactive"
 
@@ -5864,6 +5990,9 @@ msgstr "Indirect Materials & Services"
 
 msgid "Indirect Materials & Services (default)"
 msgstr "Indirect Materials & Services (default)"
+
+msgid "Infinite"
+msgstr "Infinite"
 
 msgid "Infrastructure"
 msgstr "Infrastructure"
@@ -6356,6 +6485,12 @@ msgstr "Last Quarter"
 #. placeholder {0}: formatDateTime(lastSyncedAt)
 msgid "Last synced: {0}"
 msgstr "Last synced: {0}"
+
+msgid "Last Training"
+msgstr "Last Training"
+
+msgid "Last Training Date"
+msgstr "Last Training Date"
 
 msgid "Last updated: {formattedDate}"
 msgstr "Last updated: {formattedDate}"
@@ -7179,6 +7314,9 @@ msgstr "New"
 msgid "New <0>Issue</0> Workflow"
 msgstr "New <0>Issue</0> Workflow"
 
+msgid "New Ability"
+msgstr "New Ability"
+
 msgid "New Account"
 msgstr "New Account"
 
@@ -7199,6 +7337,9 @@ msgstr "New Attribute"
 
 msgid "New Attribute Category"
 msgstr "New Attribute Category"
+
+msgid "New Calendar"
+msgstr "New Calendar"
 
 msgid "New Consumable"
 msgstr "New Consumable"
@@ -7530,6 +7671,9 @@ msgstr "No BOM input has a shelf-life policy"
 msgid "No calibration records found"
 msgstr "No calibration records found"
 
+msgid "No capacity overrides defined"
+msgstr "No capacity overrides defined"
+
 msgid "No changes recorded"
 msgstr "No changes recorded"
 
@@ -7571,6 +7715,9 @@ msgstr "No employees assigned yet. Add groups to see status."
 
 msgid "No employees found"
 msgstr "No employees found"
+
+msgid "No exceptions defined"
+msgstr "No exceptions defined"
 
 msgid "No extra cutover steps yet. Add anything specific to this customer."
 msgstr "No extra cutover steps yet. Add anything specific to this customer."
@@ -7692,6 +7839,9 @@ msgstr "No Quote Reasons"
 msgid "No receivables"
 msgstr "No receivables"
 
+msgid "No released jobs to visualize. Release a job to see its schedule."
+msgstr "No released jobs to visualize. Release a job to see its schedule."
+
 msgid "No remaining entities to inspect."
 msgstr "No remaining entities to inspect."
 
@@ -7709,6 +7859,9 @@ msgstr "No rules assigned"
 
 msgid "No samples inspected yet."
 msgstr "No samples inspected yet."
+
+msgid "No shifts defined"
+msgstr "No shifts defined"
 
 msgid "No single, trusted number for inventory or job status"
 msgstr "No single, trusted number for inventory or job status"
@@ -7791,8 +7944,8 @@ msgstr "Not set"
 msgid "Not started"
 msgstr "Not started"
 
-msgid "Not started training for"
-msgstr "Not started training for"
+msgid "Not Started"
+msgstr "Not Started"
 
 msgid "Not yet"
 msgstr "Not yet"
@@ -7941,6 +8094,9 @@ msgstr "Open in MES"
 msgid "Open Issues"
 msgstr "Open Issues"
 
+msgid "Open Job"
+msgstr "Open Job"
+
 msgid "Open jobs"
 msgstr "Open jobs"
 
@@ -7983,6 +8139,9 @@ msgstr "Open the Setup Map"
 msgid "Open transactions"
 msgstr "Open transactions"
 
+msgid "open-ended"
+msgstr "open-ended"
+
 msgid "Opened"
 msgstr "Opened"
 
@@ -8021,6 +8180,9 @@ msgstr "Operator gets a warning. Stock still goes through."
 
 msgid "Operator must pick a different batch/serial."
 msgstr "Operator must pick a different batch/serial."
+
+msgid "Operator Pool Reservation"
+msgstr "Operator Pool Reservation"
 
 msgid "Operators"
 msgstr "Operators"
@@ -8149,6 +8311,9 @@ msgstr "Override price for all customers of a type"
 msgid "Override the expiration on {label}."
 msgstr "Override the expiration on {label}."
 
+msgid "Overrides the derived learning-curve proficiency (0 to 1); blank = derived"
+msgstr "Overrides the derived learning-curve proficiency (0 to 1); blank = derived"
+
 msgid "Overtime"
 msgstr "Overtime"
 
@@ -8185,6 +8350,9 @@ msgstr "Paid Amount:"
 
 msgid "Paid Date"
 msgstr "Paid Date"
+
+msgid "Parallel Capacity"
+msgstr "Parallel Capacity"
 
 msgid "Parameters"
 msgstr "Parameters"
@@ -8776,6 +8944,9 @@ msgstr "Production variance"
 msgid "Production: shop-floor app and scheduling"
 msgstr "Production: shop-floor app and scheduling"
 
+msgid "Proficiency Override"
+msgstr "Proficiency Override"
+
 msgid "Profile"
 msgstr "Profile"
 
@@ -8994,6 +9165,15 @@ msgstr "Qty. Reworked"
 
 msgid "Qty. Scrapped"
 msgstr "Qty. Scrapped"
+
+msgid "Qualification expires this many days after training; blank = never"
+msgstr "Qualification expires this many days after training; blank = never"
+
+msgid "Qualified"
+msgstr "Qualified"
+
+msgid "Qualified Employees"
+msgstr "Qualified Employees"
 
 msgid "quality"
 msgstr "quality"
@@ -9264,6 +9444,9 @@ msgstr "Recent payments"
 msgid "Recently Created"
 msgstr "Recently Created"
 
+msgid "Recertify Every (Days)"
+msgstr "Recertify Every (Days)"
+
 msgid "Reconciling a purchase order against what was received and invoiced — implicit in Carbon, via the line quantities and GR/IR balance."
 msgstr "Reconciling a purchase order against what was received and invoiced — implicit in Carbon, via the line quantities and GR/IR balance."
 
@@ -9305,6 +9488,9 @@ msgstr "Redirecting to verification page..."
 
 msgid "Reduced"
 msgstr "Reduced"
+
+msgid "Reduced Capacity"
+msgstr "Reduced Capacity"
 
 msgid "Reference"
 msgstr "Reference"
@@ -9378,6 +9564,9 @@ msgstr "Remove {0}"
 
 msgid "Remove condition"
 msgstr "Remove condition"
+
+msgid "Remove Employee"
+msgstr "Remove Employee"
 
 msgid "Remove feature"
 msgstr "Remove feature"
@@ -9495,6 +9684,12 @@ msgstr "Require approval for quality documents in your workflow"
 
 msgid "Required"
 msgstr "Required"
+
+msgid "Required Abilities"
+msgstr "Required Abilities"
+
+msgid "Required Ability"
+msgstr "Required Ability"
 
 msgid "Required Action"
 msgstr "Required Action"
@@ -9951,6 +10146,9 @@ msgstr "Schedule jobs against work-center capacity"
 msgid "Schedule Name"
 msgstr "Schedule Name"
 
+msgid "Scheduled"
+msgstr "Scheduled"
+
 msgid "Scheduled Maintenance"
 msgstr "Scheduled Maintenance"
 
@@ -9959,6 +10157,12 @@ msgstr "Scheduled Maintenances"
 
 msgid "Schedules"
 msgstr "Schedules"
+
+msgid "Scheduling conflict"
+msgstr "Scheduling conflict"
+
+msgid "Scheduling Mode"
+msgstr "Scheduling Mode"
 
 msgid "Scope"
 msgstr "Scope"
@@ -10067,6 +10271,9 @@ msgstr "Select a assignee"
 
 msgid "Select a default approver"
 msgstr "Select a default approver"
+
+msgid "Select a job"
+msgstr "Select a job"
 
 msgid "Select a new owner"
 msgstr "Select a new owner"
@@ -10371,6 +10578,9 @@ msgstr "Severities"
 msgid "Severity"
 msgstr "Severity"
 
+msgid "Shadow Weeks"
+msgstr "Shadow Weeks"
+
 msgid "shape"
 msgstr "shape"
 
@@ -10587,6 +10797,9 @@ msgstr "Sign-offs that must be recorded before this issue can be closed; in addi
 msgid "Signed in as {name}"
 msgstr "Signed in as {name}"
 
+msgid "Simultaneous operations this work center can run"
+msgstr "Simultaneous operations this work center can run"
+
 msgid "Sites & locations"
 msgstr "Sites & locations"
 
@@ -10773,6 +10986,13 @@ msgstr "Start with"
 
 msgid "Started"
 msgstr "Started"
+
+msgid "Starts"
+msgstr "Starts"
+
+#. placeholder {0}: new Date(trace.rootStartedAt).toLocaleString()
+msgid "Starts {0}"
+msgstr "Starts {0}"
 
 msgid "State / Province"
 msgstr "State / Province"
@@ -11962,6 +12182,9 @@ msgstr "These email addresses will be automatically CC'd on all quote emails sen
 msgid "These jobs have operations assigned to this work center:"
 msgstr "These jobs have operations assigned to this work center:"
 
+msgid "this ability"
+msgstr "this ability"
+
 msgid "This completes the Discovery step."
 msgstr "This completes the Discovery step."
 
@@ -12320,6 +12543,9 @@ msgstr "Training"
 msgid "Training Assignments"
 msgstr "Training Assignments"
 
+msgid "Training Completed"
+msgstr "Training Completed"
+
 msgid "Training Plan"
 msgstr "Training Plan"
 
@@ -12534,6 +12760,9 @@ msgstr "Update Kanban"
 msgid "Update Linear issue"
 msgstr "Update Linear issue"
 
+msgid "Update Override"
+msgstr "Update Override"
+
 msgid "Update part lead times from posted purchase receipts."
 msgstr "Update part lead times from posted purchase receipts."
 
@@ -12672,6 +12901,9 @@ msgstr "Used on the home screen and digital quotes"
 msgid "Used on the home screen in dark mode"
 msgstr "Used on the home screen in dark mode"
 
+msgid "Used to build the default learning curve"
+msgstr "Used to build the default learning curve"
+
 msgid "Used to categorize items for reporting and analysis"
 msgstr "Used to categorize items for reporting and analysis"
 
@@ -12800,6 +13032,9 @@ msgstr "Video"
 
 msgid "View"
 msgstr "View"
+
+msgid "View Ability"
+msgstr "View Ability"
 
 msgid "View Active Jobs"
 msgstr "View Active Jobs"
@@ -13076,6 +13311,9 @@ msgstr "Week of {0}"
 msgid "Weekly"
 msgstr "Weekly"
 
+msgid "Weekly Pattern"
+msgstr "Weekly Pattern"
+
 #. placeholder {0}: Math.round(startWeek) + 1
 #. placeholder {1}: Math.round(endWeek)
 msgid "Weeks {0} to {1}"
@@ -13096,8 +13334,14 @@ msgstr "Weeks 5 to 7"
 msgid "Weeks 7 to 8"
 msgstr "Weeks 7 to 8"
 
+msgid "Weeks of shadowing before an employee is productive"
+msgstr "Weeks of shadowing before an employee is productive"
+
 msgid "Weeks Open"
 msgstr "Weeks Open"
+
+msgid "Weeks to Full Proficiency"
+msgstr "Weeks to Full Proficiency"
 
 msgid "Weighted Average"
 msgstr "Weighted Average"
@@ -13419,6 +13663,9 @@ msgstr "Work center"
 
 msgid "Work Center"
 msgstr "Work Center"
+
+msgid "Work Center Reservation"
+msgstr "Work Center Reservation"
 
 msgid "Work Center Utilization"
 msgstr "Work Center Utilization"
