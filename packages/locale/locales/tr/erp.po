@@ -38,6 +38,10 @@ msgstr "\"{taskName}\" tamamlandı — tüm {0} Setup Haritası öğesi yapılan
 msgid "(excluded for this customer)"
 msgstr "(bu müşteri için hariç tutulmuş)"
 
+#. placeholder {0}: open.length
+msgid "{0, plural, one {This part is on 1 open change order} other {This part is on # open change orders}}"
+msgstr ""
+
 #. placeholder {0}: ar.count
 msgid "{0} customers with a balance"
 msgstr "{0} müşteri bakiye ile"
@@ -104,6 +108,9 @@ msgstr "{maxSizeMB}MB sınırı"
 
 msgid "{name} deleted"
 msgstr "{name} silindi"
+
+msgid "{openLineCount} open POs for deleted parts"
+msgstr ""
 
 msgid "{remaining, plural, one {# phase left} other {# phases left}}"
 msgstr "{remaining, plural, one {# aşama kaldı} other {# aşama kaldı}}"
@@ -184,6 +191,9 @@ msgstr "90G"
 
 msgid "A Carbon-run data migration — you load your own data"
 msgstr "Bir Carbon tarafından yönetilen veri taşıması — kendi verilerinizi yüklersiniz"
+
+msgid "A change order tracks a controlled engineering or manufacturing change through review and implementation."
+msgstr ""
 
 msgid "A clearing account holding the value of goods received but not yet billed; the supplier invoice clears it."
 msgstr "Alınan ancak henüz faturalanmayan malların değerini tutan bir takas hesabı; tedarikçi faturası bunu temizler."
@@ -554,11 +564,17 @@ msgstr "Bir adım ekle"
 msgid "Add Actions"
 msgstr "Eylemler Ekle"
 
+msgid "Add add row"
+msgstr ""
+
 msgid "Add any notes about your decision..."
 msgstr "Kararınızla ilgili herhangi bir not ekleyin..."
 
 msgid "Add Approval Requirement"
 msgstr "Onay Gereksinimi Ekle"
+
+msgid "Add assembly"
+msgstr ""
 
 msgid "Add Calibration Record"
 msgstr "Kalibrasyon Kaydı Ekle"
@@ -574,6 +590,9 @@ msgstr "Koşul ekle"
 
 msgid "Add Contractor"
 msgstr "Yüklenici Ekle"
+
+msgid "Add delete row"
+msgstr ""
 
 msgid "Add Entry"
 msgstr "Giri Ekle"
@@ -617,11 +636,17 @@ msgstr "Parametre Ekle"
 msgid "Add Partner"
 msgstr "Ortak Ekle"
 
+msgid "Add parts"
+msgstr ""
+
 msgid "Add Permissions"
 msgstr "İzin Ekle"
 
 msgid "Add Printer"
 msgstr "Yazıcı Ekle"
+
+msgid "Add product"
+msgstr ""
 
 msgid "Add Property"
 msgstr "Özellik Ekle"
@@ -699,8 +724,14 @@ msgstr "Adres Satırı 2"
 msgid "Adjustment Type"
 msgstr "Ayarlama Türü"
 
+msgid "Advance to {nextStatus}"
+msgstr ""
+
 msgid "Advanced"
 msgstr "Gelişmiş"
+
+msgid "Affected assemblies"
+msgstr ""
 
 msgid "After"
 msgstr "Sonra"
@@ -1074,6 +1105,10 @@ msgstr "Hesabı silmek istediğinizden emin misiniz: {0}{1}? Bu geri alınamaz."
 msgid "Are you sure you want to delete the API key: {0}? This cannot be undone."
 msgstr "API anahtarını silmek istediğinizden emin misiniz: {0}? Bu geri alınamaz."
 
+#. placeholder {0}: changeOrderType.name
+msgid "Are you sure you want to delete the change order category: {0}? This cannot be undone."
+msgstr ""
+
 msgid "Are you sure you want to delete the contractor: {name}? This cannot be undone."
 msgstr "Yükleniciyi silmek istediğinizden emin misiniz: {name}? Bu geri alınamaz."
 
@@ -1232,6 +1267,9 @@ msgstr "Webhook'u silmek istediğinizden emin misiniz: {0}? Bu geri alınamaz."
 msgid "Are you sure you want to delete this approval rule? This cannot be undone."
 msgstr "Bu onay kuralını silmek istediğinizden emin misiniz? Bu geri alınamaz."
 
+msgid "Are you sure you want to delete this change order?"
+msgstr ""
+
 msgid "Are you sure you want to delete this gauge?"
 msgstr "Bu kalibratörü silmek istediğinizden emin misiniz?"
 
@@ -1357,6 +1395,9 @@ msgstr "Artan"
 #. placeholder {1}: copy.noun
 msgid "Ask an admin with {0} permission to add the first {1}."
 msgstr "{0} izni olan bir yöneticiye ilk {1}i eklemesini isteyin."
+
+msgid "Assembly"
+msgstr ""
 
 msgid "Assembly:"
 msgstr "Montaj:"
@@ -1690,6 +1731,9 @@ msgstr "BOM"
 msgid "BoM + BoP"
 msgstr "BOM + BOP"
 
+msgid "BOM Changes"
+msgstr ""
+
 msgid "BOM synced successfully"
 msgstr "BOM başarıyla senkronize edildi"
 
@@ -1974,6 +2018,18 @@ msgstr "Şampiyonlar"
 
 msgid "Change"
 msgstr "Değiştir"
+
+msgid "Change Order"
+msgstr ""
+
+msgid "Change Order Approval"
+msgstr ""
+
+msgid "Change Order Categories"
+msgstr ""
+
+msgid "Change Order Types"
+msgstr ""
 
 msgid "Change Orders"
 msgstr ""
@@ -2551,6 +2607,9 @@ msgstr "İş Numarasını Kopyala"
 msgid "Copy link"
 msgstr "Bağlantıyı kopyala"
 
+msgid "Copy link to change order"
+msgstr ""
+
 msgid "Copy link to consumable"
 msgstr "Tüketilebilir bağlantısını kopyala"
 
@@ -2831,6 +2890,9 @@ msgstr "Oluşturulma Tarihi"
 
 msgid "Created By"
 msgstr "Oluşturan"
+
+msgid "Created change order category"
+msgstr ""
 
 msgid "Created consumable"
 msgstr "Tüketilebilir malzeme oluşturuldu"
@@ -3435,6 +3497,9 @@ msgstr "Özniteliği Sil"
 msgid "Delete Category"
 msgstr "Kategoriyi Sil"
 
+msgid "Delete Change Order"
+msgstr ""
+
 msgid "Delete Consumable"
 msgstr "Tüketilebilir Malı Sil"
 
@@ -3518,6 +3583,9 @@ msgstr "Parçayı Sil"
 
 msgid "Delete Partner"
 msgstr "Partneri Sil"
+
+msgid "Delete parts"
+msgstr ""
 
 msgid "Delete Payment"
 msgstr "Ödemeyi Sil"
@@ -3731,6 +3799,9 @@ msgstr "Açıklama"
 
 msgid "Description (optional)"
 msgstr "Açıklama (isteğe bağlı)"
+
+msgid "Description of Change"
+msgstr ""
 
 msgid "Description of Issue"
 msgstr "Sorun Açıklaması"
@@ -3967,6 +4038,9 @@ msgstr "Vade"
 msgid "Due {0}"
 msgstr "Vadesi {0}"
 
+msgid "Due date"
+msgstr ""
+
 msgid "Due Date"
 msgstr "Son Kullanma Tarihi"
 
@@ -4068,6 +4142,12 @@ msgstr "Öznitelik Kategorisini Düzenle"
 
 msgid "Edit Category"
 msgstr "Kategoriyi Düzenle"
+
+msgid "Edit Change Order"
+msgstr ""
+
+msgid "Edit Change Order Category"
+msgstr ""
 
 msgid "Edit column visibility"
 msgstr "Sütun görünürlüğünü düzenle"
@@ -4335,6 +4415,15 @@ msgstr "Geçerlilik Başlangıcı"
 
 msgid "Effective To"
 msgstr "Geçerli Olacağı Tarih"
+
+msgid "Effectivity date"
+msgstr ""
+
+msgid "Effectivity Date"
+msgstr ""
+
+msgid "Effectivity version"
+msgstr ""
 
 msgid "Email"
 msgstr "E-posta"
@@ -4994,14 +5083,23 @@ msgstr "Tedarikçi parça detayları yüklenemedi"
 msgid "Failed to load tracked entities"
 msgstr "Takip edilen varlıklar yüklenemedi"
 
+msgid "Failed to remove assembly"
+msgstr ""
+
 msgid "Failed to remove image: {errorMessage}"
 msgstr "Görsel kaldırılamadı: {errorMessage}"
 
 msgid "Failed to remove model thumbnail"
 msgstr "Model küçük resmini kaldırmada başarısız oldu"
 
+msgid "Failed to remove product"
+msgstr ""
+
 msgid "Failed to remove purchase order"
 msgstr "Satın alma emri kaldırılamadı"
+
+msgid "Failed to remove row"
+msgstr ""
 
 msgid "Failed to remove thumbnail"
 msgstr "Küçük resim kaldırılamadı"
@@ -5841,6 +5939,9 @@ msgstr "II (normal varsayılan)"
 msgid "III (tightened)"
 msgstr "III (sıklaştırılmış)"
 
+msgid "Impact"
+msgstr ""
+
 msgid "Imperial"
 msgstr "İmparatorluk"
 
@@ -6578,6 +6679,9 @@ msgstr "Linear sorununu bağla"
 msgid "Linked entity quantity ({0}) does not match row quantity ({1})."
 msgstr "Bağlantılı varlık miktarı ({0}) satır miktarıyla eşleşmiyor ({1})."
 
+msgid "Linked NCR"
+msgstr ""
+
 msgid "Linked PO"
 msgstr "Bağlantılı Sipariş"
 
@@ -7281,6 +7385,9 @@ msgstr "Yeni <0>Issue</0> İş Akışı"
 msgid "New Account"
 msgstr "Yeni Hesap"
 
+msgid "New action"
+msgstr ""
+
 msgid "New API Key"
 msgstr "Yeni API Anahtarı"
 
@@ -7298,6 +7405,12 @@ msgstr "Yeni Öznitelik"
 
 msgid "New Attribute Category"
 msgstr "Yeni Öznitelik Kategorisi"
+
+msgid "New Change Order"
+msgstr ""
+
+msgid "New Change Order Category"
+msgstr ""
 
 msgid "New Consumable"
 msgstr "Yeni Sarf Malzemesi"
@@ -7415,6 +7528,15 @@ msgstr "Yeni Sahip"
 
 msgid "New Part"
 msgstr "Yeni Ürün"
+
+msgid "New part (not yet synced)"
+msgstr ""
+
+msgid "New part id"
+msgstr ""
+
+msgid "New part name"
+msgstr ""
 
 msgid "New Password"
 msgstr "Yeni Şifre"
@@ -7610,12 +7732,18 @@ msgstr "Aktif Teklif Yok"
 msgid "No addresses found"
 msgstr "Adres bulunamadı"
 
+msgid "No affected assemblies yet."
+msgstr ""
+
 msgid "No applications. Payment will be on-account."
 msgstr "Başvuru yok. Ödeme hesap üzerinden yapılacak."
 
 #. placeholder {0}: auditConfig.retentionDays
 msgid "No archived logs yet. Logs older than {0} days will be automatically archived and available for download here."
 msgstr "Henüz arşivlenmiş günlük yok. {0} günden eski günlükler otomatik olarak arşivlenecek ve buradan indirilmeye hazır olacak."
+
+msgid "No assemblies targeted yet."
+msgstr ""
 
 msgid "No attachments."
 msgstr "Ek ekli değil."
@@ -7737,6 +7865,9 @@ msgstr "Notlar yok"
 msgid "No open invoices"
 msgstr "Açık fatura yok"
 
+msgid "No open purchase orders for deleted parts"
+msgstr ""
+
 msgid "No operations require picking at this location"
 msgstr "Bu konumda toplama gerektiren işlem yok"
 
@@ -7764,6 +7895,12 @@ msgstr "Henüz üst kaynaklar kaydedilmedi. Atıfı yenilemek için planlama say
 msgid "No part ID"
 msgstr "Parça kimliği yok"
 
+msgid "No parts to add."
+msgstr ""
+
+msgid "No parts to delete."
+msgstr ""
+
 msgid "No payables"
 msgstr "Ödeme yükümlülüğü yok"
 
@@ -7784,6 +7921,9 @@ msgstr "Yazıcı yapılandırılmadı"
 
 msgid "No printers configured. Click \"Add Printer\" to create one."
 msgstr "Yapılandırılmış yazıcı yok. Bir tane oluşturmak için \"Yazıcı Ekle\"'ye tıklayın."
+
+msgid "No products affected yet."
+msgstr ""
 
 msgid "No Quote"
 msgstr "Teklif Yok"
@@ -7901,6 +8041,9 @@ msgstr "Henüz eğitim alınmadı"
 
 msgid "Not yet"
 msgstr "Henüz değil"
+
+msgid "Not yet synced"
+msgstr ""
 
 msgid "Not you?"
 msgstr "Sen siz misiniz?"
@@ -8036,6 +8179,9 @@ msgstr "Açık AR"
 
 msgid "Open Audit Log"
 msgstr "Denetim Kaydını Aç"
+
+msgid "Open change orders affecting this part"
+msgstr ""
 
 msgid "Open Date"
 msgstr "Açılış Tarihi"
@@ -8275,6 +8421,9 @@ msgstr "Teklif yöntemini kaynak yöntemle üzerine yaz"
 msgid "Overwrite the target manufacturing method with the quote method"
 msgstr "Hedef üretim yöntemini teklif yöntemiyle üzerine yaz"
 
+msgid "Owner"
+msgstr ""
+
 msgid "Owner (cost center)"
 msgstr "Ana maliyet merkezi"
 
@@ -8509,6 +8658,9 @@ msgstr "Fiyatlandırmalarını görüntülemek için bir müşteri veya müşter
 
 msgid "Pick a date or leave blank to clear it."
 msgstr "Bir tarih seçin veya temizlemek için boş bırakın."
+
+msgid "Pick existing part"
+msgstr ""
 
 msgid "Pick List"
 msgstr "Seçim Listesi"
@@ -8890,6 +9042,9 @@ msgstr "BOM'lar ve tahminlerden açılmış öngörülen talep."
 msgid "Production: shop-floor app and scheduling"
 msgstr "Üretim: atölye uygulaması ve planlama"
 
+msgid "Products Affected"
+msgstr ""
+
 msgid "Profile"
 msgstr "Profil"
 
@@ -9100,6 +9255,10 @@ msgstr "Miktar"
 msgid "Qty to Order"
 msgstr "Sipariş Edilecek Miktar"
 
+#. placeholder {0}: line.quantityToReceive ?? 0
+msgid "Qty to receive: {0}"
+msgstr ""
+
 msgid "Qty. Complete"
 msgstr "Tamamlanan Miktar"
 
@@ -9289,6 +9448,9 @@ msgstr "Neden"
 
 msgid "Reason Account"
 msgstr "Neden Hesabı"
+
+msgid "Reason for Change"
+msgstr ""
 
 msgid "Reason for declining (Optional)"
 msgstr "Reddetme nedeni (İsteğe bağlı)"
@@ -9511,8 +9673,20 @@ msgstr "Kaldır"
 msgid "Remove {0}"
 msgstr "Kaldır {0}"
 
+msgid "Remove action"
+msgstr ""
+
+msgid "Remove add row"
+msgstr ""
+
+msgid "Remove assembly"
+msgstr ""
+
 msgid "Remove condition"
 msgstr "Koşulu kaldır"
+
+msgid "Remove delete row"
+msgstr ""
 
 msgid "Remove feature"
 msgstr "Özelliği kaldır"
@@ -9534,6 +9708,9 @@ msgstr "Siparişi kaldır"
 
 msgid "Remove pair"
 msgstr "Çifti kaldır"
+
+msgid "Remove product"
+msgstr ""
 
 msgid "Remove sort by column"
 msgstr "Sıralamayı kaldır"
@@ -9627,6 +9804,12 @@ msgstr "Belirli tutar eşiklerine göre satın alma siparişleri için onay gere
 
 msgid "Require approval for quality documents in your workflow"
 msgstr "İş akışınızdaki kalite belgeleri için onay gerektirir"
+
+msgid "Require change order approval"
+msgstr ""
+
+msgid "Require change order approval before implementation."
+msgstr ""
 
 msgid "Required"
 msgstr "Gerekli"
@@ -13353,6 +13536,9 @@ msgstr "Süresi dolmuş stok kullanıldığında"
 
 msgid "When MRP uses the successor for new demand"
 msgstr "MRP yeni talep için halef kullandığında"
+
+msgid "When on, a change order can't move to Implementation until its approval tasks are complete."
+msgstr ""
 
 msgid "When on, attributes in this category show up on a person's public profile; otherwise they're visible to admins only."
 msgstr "Etkinleştirildiğinde, bu kategorideki öznitelikler bir kişinin genel profilinde görünür; aksi takdirde yalnızca yöneticiler tarafından görülebilir."

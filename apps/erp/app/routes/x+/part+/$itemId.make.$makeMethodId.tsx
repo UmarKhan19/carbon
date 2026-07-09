@@ -10,7 +10,7 @@ import { Await, redirect, useLoaderData, useParams } from "react-router";
 import { CadModel } from "~/components";
 import { useRouteData } from "~/hooks";
 import { usePermissions } from "~/hooks/usePermissions";
-import type { OpenChangeOrder, PartSummary } from "~/modules/items";
+import type { PartSummary } from "~/modules/items";
 import {
   getConfigurationParameters,
   getConfigurationRules,
@@ -159,7 +159,6 @@ export default function PartMakeMethodPage() {
 
   const partData = useRouteData<{
     partSummary: PartSummary;
-    pendingRevisionChangeOrder: OpenChangeOrder | null;
   }>(path.to.part(itemId));
 
   return (
@@ -172,7 +171,6 @@ export default function PartMakeMethodPage() {
               makeMethods={makeMethods.data ?? []}
               type="Part"
               currentMethodId={makeMethod.id}
-              changeOrder={partData?.pendingRevisionChangeOrder ?? null}
             />
           )}
         </Await>

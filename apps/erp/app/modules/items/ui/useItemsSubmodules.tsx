@@ -5,15 +5,13 @@ import {
   LuAxis3D,
   LuBeef,
   LuDessert,
-  LuGitPullRequestArrow,
   LuGlassWater,
   LuGroup,
   LuHammer,
   LuPizza,
   LuPuzzle,
   LuRuler,
-  LuShapes,
-  LuWorkflow
+  LuShapes
 } from "react-icons/lu";
 import { usePermissions } from "~/hooks";
 import { useSavedViews } from "~/hooks/useSavedViews";
@@ -51,17 +49,6 @@ export default function useItemsSubmodules() {
           to: path.to.consumables,
           icon: <LuPizza />,
           table: "consumable"
-        }
-      ]
-    },
-    {
-      name: t`Engineering Change`,
-      routes: [
-        {
-          name: t`Change Orders`,
-          to: path.to.changeOrders,
-          icon: <LuGitPullRequestArrow />,
-          table: "changeOrder"
         }
       ]
     },
@@ -120,12 +107,6 @@ export default function useItemsSubmodules() {
           to: path.to.uoms,
           role: "employee",
           icon: <LuRuler />
-        },
-        {
-          name: t`Change Order Templates`,
-          to: path.to.changeOrderWorkflows,
-          role: "employee",
-          icon: <LuWorkflow />
         }
       ]
     }

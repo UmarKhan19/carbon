@@ -81,10 +81,11 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 
-  // changeOrderId is the CO row UUID (what path.to.changeOrder expects).
+  // TODO(change-orders): re-point Onshape import at the standalone module
+  // (Phase 4). V1 returns the imported item id; there is no change order yet.
   return data({
     success: true as const,
-    changeOrderId: result.data.changeOrderId,
+    itemId: result.data.itemId,
     warnings: result.data.warnings ?? []
   });
 }

@@ -25,6 +25,7 @@ import { plmReleaseControl } from "~/modules/items";
 import {
   getCompanySettings,
   plmReleaseControlValidator,
+  updateChangeOrderRequireApprovalSetting,
   updateMaterialGeneratedIdsSetting,
   updateMetricSettings,
   updatePlmReleaseControlSetting
@@ -101,6 +102,20 @@ export async function action({ request }: ActionFunctionArgs) {
         return { success: false, message: result.error.message };
       return { success: true, message: "Release control setting updated" };
     }
+
+    case "changeOrderRequireApproval": {
+      const result = await updateChangeOrderRequireApprovalSetting(
+        client,
+        companyId,
+        enabled
+      );
+      if (result.error)
+        return { success: false, message: result.error.message };
+      return {
+        success: true,
+        message: "Change order approval setting updated"
+      };
+    }
   }
 
   return { success: false, message: "Invalid form data" };
@@ -146,6 +161,16 @@ export default function ItemsSettingsRoute() {
     (checked: boolean) => {
       fetcher.submit(
         { intent: "materialUnits", enabled: String(checked) },
+        { method: "POST" }
+      );
+    },
+    [fetcher]
+  );
+
+  const handleChangeOrderApprovalToggle = useCallback(
+    (checked: boolean) => {
+      fetcher.submit(
+        { intent: "changeOrderRequireApproval", enabled: String(checked) },
         { method: "POST" }
       );
     },
@@ -280,6 +305,38 @@ export default function ItemsSettingsRoute() {
               </Submit>
             </CardFooter>
           </ValidatedForm>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              <Trans>Change Order Approval</Trans>
+            </CardTitle>
+            <CardDescription>
+              <Trans>
+                Require change order approval before implementation.
+              </Trans>
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <HStack className="justify-between items-center">
+              <VStack className="items-start" spacing={1}>
+                <span className="font-medium">
+                  <Trans>Require change order approval</Trans>
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  <Trans>
+                    When on, a change order can't move to Implementation until
+                    its approval tasks are complete.
+                  </Trans>
+                </span>
+              </VStack>
+              <Switch
+                checked={companySettings.changeOrderRequireApproval ?? false}
+                onCheckedChange={handleChangeOrderApprovalToggle}
+                disabled={isToggling}
+              />
+            </HStack>
+          </CardContent>
         </Card>
       </VStack>
     </ScrollArea>

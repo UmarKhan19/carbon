@@ -20,12 +20,14 @@ CREATE TYPE "changeOrderTypeEnum" AS ENUM (
   'Documentation'
 );
 
+-- V1 stage flow (forward, one step at a time): Draft → Start → Engineering
+-- Complete → Implementation → Done. Broadcast on Start / Implementation / Done.
 CREATE TYPE "changeOrderStatus" AS ENUM (
   'Draft',
-  'In Review',
-  'Approved',
-  'Released',
-  'Cancelled'
+  'Start',
+  'Engineering Complete',
+  'Implementation',
+  'Done'
 );
 
 CREATE TYPE "changeOrderApprovalType" AS ENUM (
@@ -34,11 +36,12 @@ CREATE TYPE "changeOrderApprovalType" AS ENUM (
   'First-In'
 );
 
-CREATE TYPE "changeOrderDisposition" AS ENUM (
-  'No Change',
-  'Use Up',
-  'Rework',
-  'Scrap'
+-- BOM-change rows are part-first: Delete (from assemblies, with a per-assembly
+-- supersession mode) or Add (to assemblies, quantity only). Reuses the existing
+-- "supersessionMode" enum (20260618171234_material-supersession.sql).
+CREATE TYPE "changeOrderBomChangeType" AS ENUM (
+  'Add',
+  'Delete'
 );
 
 CREATE TYPE "itemRevisionStatus" AS ENUM (
@@ -121,11 +124,9 @@ FOR DELETE USING (
 -- Seed change order types for all existing companies
 WITH co_types AS (
   SELECT unnest(ARRAY[
-    'Design Change',
-    'BOM Change',
-    'Process/BOP Change',
-    'Document Change',
-    'Obsolescence'
+    'Design improvement',
+    'Obsolescence',
+    'Cost reduction'
   ]) AS name
 )
 INSERT INTO "changeOrderType" ("name", "companyId", "createdBy")
@@ -212,6 +213,9 @@ CREATE TABLE "changeOrder" (
   "id" TEXT NOT NULL DEFAULT id('co'),
   "changeOrderId" TEXT NOT NULL,
   "name" TEXT NOT NULL,
+  -- "reasonForChange" = why (PRD "Reason for Change"); "description" = what (PRD
+  -- "Description of Change"). Both are rich-text JSON editors on the detail page.
+  "reasonForChange" JSON NOT NULL DEFAULT '{}',
   "description" JSON NOT NULL DEFAULT '{}',
   "type" "changeOrderTypeEnum" NOT NULL DEFAULT 'Engineering',
   "status" "changeOrderStatus" NOT NULL DEFAULT 'Draft',
@@ -219,6 +223,9 @@ CREATE TABLE "changeOrder" (
   "priority" "nonConformancePriority",
   "changeOrderTypeId" TEXT,
   "changeOrderWorkflowId" TEXT,
+  -- Optional link to the Quality NCR that originated this change (navigable
+  -- both ways; SET NULL so deleting the NCR doesn't cascade-delete the CO).
+  "nonConformanceId" TEXT,
   "openDate" DATE NOT NULL,
   "dueDate" DATE,
   "effectiveDate" DATE,
@@ -238,6 +245,7 @@ CREATE TABLE "changeOrder" (
   CONSTRAINT "changeOrder_pkey" PRIMARY KEY ("id"),
   CONSTRAINT "changeOrder_changeOrderTypeId_fkey" FOREIGN KEY ("changeOrderTypeId") REFERENCES "changeOrderType"("id") ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT "changeOrder_changeOrderWorkflowId_fkey" FOREIGN KEY ("changeOrderWorkflowId") REFERENCES "changeOrderWorkflow"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "changeOrder_nonConformanceId_fkey" FOREIGN KEY ("nonConformanceId") REFERENCES "nonConformance"("id") ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT "changeOrder_assignee_fkey" FOREIGN KEY ("assignee") REFERENCES "user"("id") ON UPDATE CASCADE,
   CONSTRAINT "changeOrder_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT "changeOrder_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "user"("id") ON UPDATE CASCADE,
@@ -247,6 +255,7 @@ CREATE TABLE "changeOrder" (
 CREATE INDEX "changeOrder_companyId_idx" ON "changeOrder" ("companyId");
 CREATE INDEX "changeOrder_changeOrderTypeId_idx" ON "changeOrder" ("changeOrderTypeId");
 CREATE INDEX "changeOrder_changeOrderWorkflowId_idx" ON "changeOrder" ("changeOrderWorkflowId");
+CREATE INDEX "changeOrder_nonConformanceId_idx" ON "changeOrder" ("nonConformanceId");
 CREATE INDEX "changeOrder_status_idx" ON "changeOrder" ("status");
 CREATE INDEX "changeOrder_assignee_idx" ON "changeOrder" ("assignee");
 
@@ -293,75 +302,156 @@ FOR DELETE USING (
 );
 
 -- -----------------------------------------------------------------------------
--- 6. changeOrderItem (affected items) — unique (changeOrderId, itemId)
+-- 6. changeOrderProductAffected — top-level products the CO affects
+--    Drives the Implementation effectivity-version list. unique (changeOrderId, itemId)
 -- -----------------------------------------------------------------------------
-CREATE TABLE "changeOrderItem" (
-  "id" TEXT NOT NULL DEFAULT id('coi'),
+CREATE TABLE "changeOrderProductAffected" (
+  "id" TEXT NOT NULL DEFAULT id('copa'),
   "changeOrderId" TEXT NOT NULL,
   "itemId" TEXT NOT NULL,
-  "pendingItemId" TEXT,
-  "disposition" "changeOrderDisposition" NOT NULL DEFAULT 'No Change',
-  "dispositionNotes" TEXT,
   "companyId" TEXT NOT NULL,
   "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
   "createdBy" TEXT NOT NULL,
   "updatedAt" TIMESTAMP WITH TIME ZONE,
   "updatedBy" TEXT,
 
-  CONSTRAINT "changeOrderItem_pkey" PRIMARY KEY ("id"),
-  CONSTRAINT "changeOrderItem_changeOrderId_itemId_key" UNIQUE ("changeOrderId", "itemId"),
-  CONSTRAINT "changeOrderItem_changeOrderId_fkey" FOREIGN KEY ("changeOrderId") REFERENCES "changeOrder"("id") ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT "changeOrderItem_itemId_fkey" FOREIGN KEY ("itemId") REFERENCES "item"("id") ON UPDATE CASCADE ON DELETE CASCADE,
-  CONSTRAINT "changeOrderItem_pendingItemId_fkey" FOREIGN KEY ("pendingItemId") REFERENCES "item"("id") ON UPDATE CASCADE ON DELETE SET NULL,
-  CONSTRAINT "changeOrderItem_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT "changeOrderItem_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "user"("id") ON UPDATE CASCADE,
-  CONSTRAINT "changeOrderItem_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "user"("id") ON UPDATE CASCADE
+  CONSTRAINT "changeOrderProductAffected_pkey" PRIMARY KEY ("id"),
+  CONSTRAINT "changeOrderProductAffected_changeOrderId_itemId_key" UNIQUE ("changeOrderId", "itemId"),
+  CONSTRAINT "changeOrderProductAffected_changeOrderId_fkey" FOREIGN KEY ("changeOrderId") REFERENCES "changeOrder"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "changeOrderProductAffected_itemId_fkey" FOREIGN KEY ("itemId") REFERENCES "item"("id") ON UPDATE CASCADE ON DELETE CASCADE,
+  CONSTRAINT "changeOrderProductAffected_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "changeOrderProductAffected_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "user"("id") ON UPDATE CASCADE,
+  CONSTRAINT "changeOrderProductAffected_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "user"("id") ON UPDATE CASCADE
 );
 
-CREATE INDEX "changeOrderItem_changeOrderId_idx" ON "changeOrderItem" ("changeOrderId");
-CREATE INDEX "changeOrderItem_itemId_idx" ON "changeOrderItem" ("itemId");
-CREATE INDEX "changeOrderItem_pendingItemId_idx" ON "changeOrderItem" ("pendingItemId");
+CREATE INDEX "changeOrderProductAffected_changeOrderId_idx" ON "changeOrderProductAffected" ("changeOrderId");
+CREATE INDEX "changeOrderProductAffected_itemId_idx" ON "changeOrderProductAffected" ("itemId");
+CREATE INDEX "changeOrderProductAffected_companyId_idx" ON "changeOrderProductAffected" ("companyId");
 
-ALTER TABLE "changeOrderItem" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "changeOrderProductAffected" ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "SELECT" ON "public"."changeOrderItem"
+CREATE POLICY "SELECT" ON "public"."changeOrderProductAffected"
 FOR SELECT USING (
-  "companyId" = ANY (
-    (
-      SELECT
-        get_companies_with_employee_permission ('parts_view')
-    )::text[]
-  )
+  "companyId" = ANY ((SELECT get_companies_with_employee_permission ('parts_view'))::text[])
 );
 
-CREATE POLICY "INSERT" ON "public"."changeOrderItem"
+CREATE POLICY "INSERT" ON "public"."changeOrderProductAffected"
 FOR INSERT WITH CHECK (
-  "companyId" = ANY (
-    (
-      SELECT
-        get_companies_with_employee_permission ('parts_create')
-    )::text[]
-  )
+  "companyId" = ANY ((SELECT get_companies_with_employee_permission ('parts_create'))::text[])
 );
 
-CREATE POLICY "UPDATE" ON "public"."changeOrderItem"
+CREATE POLICY "UPDATE" ON "public"."changeOrderProductAffected"
 FOR UPDATE USING (
-  "companyId" = ANY (
-    (
-      SELECT
-        get_companies_with_employee_permission ('parts_update')
-    )::text[]
-  )
+  "companyId" = ANY ((SELECT get_companies_with_employee_permission ('parts_update'))::text[])
 );
 
-CREATE POLICY "DELETE" ON "public"."changeOrderItem"
+CREATE POLICY "DELETE" ON "public"."changeOrderProductAffected"
 FOR DELETE USING (
-  "companyId" = ANY (
-    (
-      SELECT
-        get_companies_with_employee_permission ('parts_delete')
-    )::text[]
-  )
+  "companyId" = ANY ((SELECT get_companies_with_employee_permission ('parts_delete'))::text[])
+);
+
+-- -----------------------------------------------------------------------------
+-- 6b. changeOrderBomChange — one part-first Add/Delete row per CO
+--     itemId is ALWAYS non-null (G3: forward-references mint a real inactive
+--     item rather than threading a nullable placeholder everywhere).
+-- -----------------------------------------------------------------------------
+CREATE TABLE "changeOrderBomChange" (
+  "id" TEXT NOT NULL DEFAULT id('cobc'),
+  "changeOrderId" TEXT NOT NULL,
+  "changeType" "changeOrderBomChangeType" NOT NULL,
+  "itemId" TEXT NOT NULL,
+  "sortOrder" INTEGER NOT NULL DEFAULT 0,
+  "companyId" TEXT NOT NULL,
+  "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+  "createdBy" TEXT NOT NULL,
+  "updatedAt" TIMESTAMP WITH TIME ZONE,
+  "updatedBy" TEXT,
+
+  CONSTRAINT "changeOrderBomChange_pkey" PRIMARY KEY ("id"),
+  CONSTRAINT "changeOrderBomChange_changeOrderId_changeType_itemId_key" UNIQUE ("changeOrderId", "changeType", "itemId"),
+  CONSTRAINT "changeOrderBomChange_changeOrderId_fkey" FOREIGN KEY ("changeOrderId") REFERENCES "changeOrder"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "changeOrderBomChange_itemId_fkey" FOREIGN KEY ("itemId") REFERENCES "item"("id") ON UPDATE CASCADE ON DELETE CASCADE,
+  CONSTRAINT "changeOrderBomChange_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "changeOrderBomChange_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "user"("id") ON UPDATE CASCADE,
+  CONSTRAINT "changeOrderBomChange_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "user"("id") ON UPDATE CASCADE
+);
+
+CREATE INDEX "changeOrderBomChange_changeOrderId_idx" ON "changeOrderBomChange" ("changeOrderId");
+CREATE INDEX "changeOrderBomChange_itemId_idx" ON "changeOrderBomChange" ("itemId");
+CREATE INDEX "changeOrderBomChange_companyId_idx" ON "changeOrderBomChange" ("companyId");
+
+ALTER TABLE "changeOrderBomChange" ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "SELECT" ON "public"."changeOrderBomChange"
+FOR SELECT USING (
+  "companyId" = ANY ((SELECT get_companies_with_employee_permission ('parts_view'))::text[])
+);
+
+CREATE POLICY "INSERT" ON "public"."changeOrderBomChange"
+FOR INSERT WITH CHECK (
+  "companyId" = ANY ((SELECT get_companies_with_employee_permission ('parts_create'))::text[])
+);
+
+CREATE POLICY "UPDATE" ON "public"."changeOrderBomChange"
+FOR UPDATE USING (
+  "companyId" = ANY ((SELECT get_companies_with_employee_permission ('parts_update'))::text[])
+);
+
+CREATE POLICY "DELETE" ON "public"."changeOrderBomChange"
+FOR DELETE USING (
+  "companyId" = ANY ((SELECT get_companies_with_employee_permission ('parts_delete'))::text[])
+);
+
+-- -----------------------------------------------------------------------------
+-- 6c. changeOrderBomChangeAssembly — per-assembly target of a BOM change row
+--     Delete rows carry a per-assembly supersessionMode (Q3: modes vary per
+--     assembly within one CO); Add rows leave it NULL. quantity per assembly.
+-- -----------------------------------------------------------------------------
+CREATE TABLE "changeOrderBomChangeAssembly" (
+  "id" TEXT NOT NULL DEFAULT id('cobca'),
+  "bomChangeId" TEXT NOT NULL,
+  "assemblyItemId" TEXT NOT NULL,
+  "quantity" NUMERIC NOT NULL DEFAULT 1,
+  "supersessionMode" "supersessionMode",
+  "companyId" TEXT NOT NULL,
+  "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+  "createdBy" TEXT NOT NULL,
+  "updatedAt" TIMESTAMP WITH TIME ZONE,
+  "updatedBy" TEXT,
+
+  CONSTRAINT "changeOrderBomChangeAssembly_pkey" PRIMARY KEY ("id"),
+  CONSTRAINT "changeOrderBomChangeAssembly_bomChangeId_assemblyItemId_key" UNIQUE ("bomChangeId", "assemblyItemId"),
+  CONSTRAINT "changeOrderBomChangeAssembly_bomChangeId_fkey" FOREIGN KEY ("bomChangeId") REFERENCES "changeOrderBomChange"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "changeOrderBomChangeAssembly_assemblyItemId_fkey" FOREIGN KEY ("assemblyItemId") REFERENCES "item"("id") ON UPDATE CASCADE ON DELETE CASCADE,
+  CONSTRAINT "changeOrderBomChangeAssembly_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "changeOrderBomChangeAssembly_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "user"("id") ON UPDATE CASCADE,
+  CONSTRAINT "changeOrderBomChangeAssembly_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "user"("id") ON UPDATE CASCADE
+);
+
+CREATE INDEX "changeOrderBomChangeAssembly_bomChangeId_idx" ON "changeOrderBomChangeAssembly" ("bomChangeId");
+CREATE INDEX "changeOrderBomChangeAssembly_assemblyItemId_idx" ON "changeOrderBomChangeAssembly" ("assemblyItemId");
+CREATE INDEX "changeOrderBomChangeAssembly_companyId_idx" ON "changeOrderBomChangeAssembly" ("companyId");
+
+ALTER TABLE "changeOrderBomChangeAssembly" ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "SELECT" ON "public"."changeOrderBomChangeAssembly"
+FOR SELECT USING (
+  "companyId" = ANY ((SELECT get_companies_with_employee_permission ('parts_view'))::text[])
+);
+
+CREATE POLICY "INSERT" ON "public"."changeOrderBomChangeAssembly"
+FOR INSERT WITH CHECK (
+  "companyId" = ANY ((SELECT get_companies_with_employee_permission ('parts_create'))::text[])
+);
+
+CREATE POLICY "UPDATE" ON "public"."changeOrderBomChangeAssembly"
+FOR UPDATE USING (
+  "companyId" = ANY ((SELECT get_companies_with_employee_permission ('parts_update'))::text[])
+);
+
+CREATE POLICY "DELETE" ON "public"."changeOrderBomChangeAssembly"
+FOR DELETE USING (
+  "companyId" = ANY ((SELECT get_companies_with_employee_permission ('parts_delete'))::text[])
 );
 
 -- -----------------------------------------------------------------------------
@@ -601,6 +691,12 @@ ALTER TABLE "item" ADD COLUMN "revisionStatus" "itemRevisionStatus" NOT NULL DEF
 -- -----------------------------------------------------------------------------
 ALTER TABLE "companySettings" ADD COLUMN "plmReleaseControl" TEXT NOT NULL DEFAULT 'enforce' CHECK ("plmReleaseControl" IN ('off', 'warn', 'enforce'));
 
+-- Change Orders: optional approval gate. OFF (default, Minimal) => stages advance
+-- freely on notification alone; ON => transition into Implementation is blocked
+-- until approval tasks complete. The reviewer/approval machinery only *gates* when
+-- this is true (Phase 3c).
+ALTER TABLE "companySettings" ADD COLUMN "changeOrderRequireApproval" BOOLEAN NOT NULL DEFAULT FALSE;
+
 -- -----------------------------------------------------------------------------
 -- 12. Custom fields registration
 -- -----------------------------------------------------------------------------
@@ -608,13 +704,13 @@ INSERT INTO "customFieldTable" ("table", "name", "module")
 VALUES ('changeOrder', 'Change Order', 'Items');
 
 -- -----------------------------------------------------------------------------
--- 13. Sequence seed — ECO readable id per company (clones the NCR seed)
+-- 13. Sequence seed — CO readable id per company (CO-000001), size 6
 -- -----------------------------------------------------------------------------
 INSERT INTO "sequence" ("table", "name", "prefix", "suffix", "next", "size", "step", "companyId")
 SELECT
   'changeOrder',
   'Change Order',
-  'ECO',
+  'CO-',
   NULL,
   0,
   6,

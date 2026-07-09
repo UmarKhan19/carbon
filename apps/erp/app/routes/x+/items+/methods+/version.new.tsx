@@ -7,7 +7,6 @@ import type { ActionFunctionArgs } from "react-router";
 import { data, redirect } from "react-router";
 import {
   copyMakeMethod,
-  getOpenChangeOrderForPendingRevision,
   makeMethodVersionValidator,
   upsertMakeMethodVersion
 } from "~/modules/items";
@@ -28,34 +27,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return validationError(validation.error);
   }
 
-  // ECO governance: a proposed (draft) revision must carry a single make-method
-  // that release promotes. Adding versions to it would make release's
-  // "Draft → Active" promotion ambiguous, so block new versions while an open
-  // change order owns the revision (mirrors the activate-version gate).
-  const source = await client
-    .from("makeMethod")
-    .select("itemId")
-    .eq("id", validation.data.copyFromId)
-    .eq("companyId", companyId)
-    .single();
-  if (source.data?.itemId) {
-    const openCO = await getOpenChangeOrderForPendingRevision(client, {
-      pendingItemId: source.data.itemId,
-      companyId
-    });
-    if (openCO.data) {
-      return data(
-        { id: null },
-        await flash(
-          request,
-          error(
-            openCO,
-            `This revision is proposed under change order ${openCO.data.changeOrderId}. Add new versions after it is released.`
-          )
-        )
-      );
-    }
-  }
+  // TODO(change-orders): re-add revision governance via the standalone module (Phase 4)
 
   const insertMethodOperation = await upsertMakeMethodVersion(client, {
     ...validation.data,

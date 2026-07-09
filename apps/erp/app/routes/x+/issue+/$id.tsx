@@ -14,6 +14,7 @@ import {
   useParams
 } from "react-router";
 import { PanelProvider, ResizablePanels } from "~/components/Layout/Panels";
+import { getChangeOrdersForNonConformance } from "~/modules/change-orders";
 import { getItemFiles } from "~/modules/items";
 import {
   getIssue,
@@ -53,13 +54,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     nonConformanceTypes,
     requiredActions,
     suppliers,
-    tags
+    tags,
+    changeOrders
   ] = await Promise.all([
     getIssue(client, id),
     getIssueTypesList(client, companyId),
     getRequiredActionsList(client, companyId),
     getIssueSuppliers(client, id, companyId),
-    getTagsList(client, companyId, "nonConformance")
+    getTagsList(client, companyId, "nonConformance"),
+    // Reverse Linked-NCR cross-link (4a): COs referencing this issue.
+    getChangeOrdersForNonConformance(client, id, companyId)
   ]);
 
   if (nonConformance.error) {
@@ -76,7 +80,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     nonConformanceTypes: nonConformanceTypes.data ?? [],
     requiredActions: requiredActions.data ?? [],
     suppliers: suppliers.data ?? [],
-    tags: tags.data ?? []
+    tags: tags.data ?? [],
+    changeOrders: changeOrders.data ?? []
   };
 }
 

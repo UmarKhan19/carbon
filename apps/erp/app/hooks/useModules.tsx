@@ -3,6 +3,7 @@ import { useLingui } from "@lingui/react/macro";
 import {
   LuBlocks,
   LuBox,
+  LuClipboardPen,
   LuCreditCard,
   LuCrown,
   LuFactory,
@@ -52,6 +53,13 @@ function useModuleDefinitions(): ModuleDefinition[] {
       name: t`Accounting`,
       to: path.to.chartOfAccounts,
       icon: LuLandmark
+    },
+    {
+      key: "changeOrders",
+      permission: "parts",
+      name: t`Change Orders`,
+      to: path.to.changeOrders,
+      icon: LuClipboardPen
     },
     {
       key: "documents",

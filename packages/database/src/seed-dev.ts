@@ -15,6 +15,7 @@ import * as dotenv from "dotenv";
 import {
   accountDefaults,
   accounts,
+  changeOrderTypes,
   currencies,
   customerStatuses,
   defaultLocation,
@@ -335,6 +336,14 @@ async function seedDev() {
         await client.query(
           `INSERT INTO "nonConformanceType" (name, "companyId", "createdBy") VALUES ($1, $2, 'system')`,
           [nct.name, companyId]
+        );
+      }
+
+      // Seed change order categories
+      for (const cot of changeOrderTypes) {
+        await client.query(
+          `INSERT INTO "changeOrderType" (name, "companyId", "createdBy") VALUES ($1, $2, 'system')`,
+          [cot.name, companyId]
         );
       }
 

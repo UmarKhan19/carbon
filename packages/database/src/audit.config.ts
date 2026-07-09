@@ -300,6 +300,18 @@ export const auditConfig = {
       }
     },
 
+    changeOrder: {
+      label: "Change Order",
+      tables: {
+        changeOrder: { role: "root" },
+        changeOrderProductAffected: { entityIdColumn: "changeOrderId" },
+        changeOrderBomChange: { entityIdColumn: "changeOrderId" },
+        changeOrderActionTask: { entityIdColumn: "changeOrderId" },
+        changeOrderReviewer: { entityIdColumn: "changeOrderId" },
+        changeOrderApprovalTask: { entityIdColumn: "changeOrderId" }
+      }
+    },
+
     gauge: {
       label: "Gauge",
       tables: {

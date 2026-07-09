@@ -26,7 +26,6 @@ import { SelectedItemProperties } from "./SelectedItemProperties";
 import { SourcingTypeProperty } from "./SourcingTypeProperty";
 import SupplierPartForm from "./SupplierPartForm";
 import SupplierParts from "./SupplierParts";
-import UnderChangeOrderAlert from "./UnderChangeOrderAlert";
 
 export {
   BillOfMaterial,
@@ -54,6 +53,5 @@ export {
   SourcingTypeProperty,
   SupplierPartForm,
   SupplierParts,
-  UnderChangeOrderAlert,
   useItemControlledDrawing
 };

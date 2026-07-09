@@ -1192,11 +1192,16 @@ export type Database = {
         Row: {
           closedAt: string | null
           closedBy: string | null
+          closeStatus: Database["public"]["Enums"]["periodCloseStatus"]
           companyId: string
           createdAt: string
           createdBy: string
           endDate: string
+          fiscalYear: number | null
           id: string
+          lockedAt: string | null
+          lockedBy: string | null
+          periodNumber: number | null
           startDate: string
           status: Database["public"]["Enums"]["accountingPeriodStatus"]
           updatedAt: string | null
@@ -1205,11 +1210,16 @@ export type Database = {
         Insert: {
           closedAt?: string | null
           closedBy?: string | null
+          closeStatus?: Database["public"]["Enums"]["periodCloseStatus"]
           companyId: string
           createdAt?: string
           createdBy: string
           endDate: string
+          fiscalYear?: number | null
           id?: string
+          lockedAt?: string | null
+          lockedBy?: string | null
+          periodNumber?: number | null
           startDate: string
           status?: Database["public"]["Enums"]["accountingPeriodStatus"]
           updatedAt?: string | null
@@ -1218,11 +1228,16 @@ export type Database = {
         Update: {
           closedAt?: string | null
           closedBy?: string | null
+          closeStatus?: Database["public"]["Enums"]["periodCloseStatus"]
           companyId?: string
           createdAt?: string
           createdBy?: string
           endDate?: string
+          fiscalYear?: number | null
           id?: string
+          lockedAt?: string | null
+          lockedBy?: string | null
+          periodNumber?: number | null
           startDate?: string
           status?: Database["public"]["Enums"]["accountingPeriodStatus"]
           updatedAt?: string | null
@@ -1326,6 +1341,41 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "integrations"
             referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "accountingPeriod_lockedBy_fkey"
+            columns: ["lockedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accountingPeriod_lockedBy_fkey"
+            columns: ["lockedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accountingPeriod_lockedBy_fkey"
+            columns: ["lockedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accountingPeriod_lockedBy_fkey"
+            columns: ["lockedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accountingPeriod_lockedBy_fkey"
+            columns: ["lockedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
           },
           {
             foreignKeyName: "accountingPeriod_updatedBy_fkey"
@@ -2555,8 +2605,10 @@ export type Database = {
           effectiveDate: string | null
           id: string
           name: string
+          nonConformanceId: string | null
           openDate: string
           priority: Database["public"]["Enums"]["nonConformancePriority"] | null
+          reasonForChange: Json
           requiredActionIds: string[] | null
           sourceId: string | null
           sourceType: string | null
@@ -2582,10 +2634,12 @@ export type Database = {
           effectiveDate?: string | null
           id?: string
           name: string
+          nonConformanceId?: string | null
           openDate: string
           priority?:
             | Database["public"]["Enums"]["nonConformancePriority"]
             | null
+          reasonForChange?: Json
           requiredActionIds?: string[] | null
           sourceId?: string | null
           sourceType?: string | null
@@ -2611,10 +2665,12 @@ export type Database = {
           effectiveDate?: string | null
           id?: string
           name?: string
+          nonConformanceId?: string | null
           openDate?: string
           priority?:
             | Database["public"]["Enums"]["nonConformancePriority"]
             | null
+          reasonForChange?: Json
           requiredActionIds?: string[] | null
           sourceId?: string | null
           sourceType?: string | null
@@ -2736,6 +2792,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "changeOrder_nonConformanceId_fkey"
+            columns: ["nonConformanceId"]
+            isOneToOne: false
+            referencedRelation: "issues"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrder_nonConformanceId_fkey"
+            columns: ["nonConformanceId"]
+            isOneToOne: false
+            referencedRelation: "nonConformance"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "changeOrder_updatedBy_fkey"
@@ -3164,17 +3234,394 @@ export type Database = {
           },
         ]
       }
-      changeOrderItem: {
+      changeOrderBomChange: {
+        Row: {
+          changeOrderId: string
+          changeType: Database["public"]["Enums"]["changeOrderBomChangeType"]
+          companyId: string
+          createdAt: string
+          createdBy: string
+          id: string
+          itemId: string
+          sortOrder: number
+          updatedAt: string | null
+          updatedBy: string | null
+        }
+        Insert: {
+          changeOrderId: string
+          changeType: Database["public"]["Enums"]["changeOrderBomChangeType"]
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          id?: string
+          itemId: string
+          sortOrder?: number
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Update: {
+          changeOrderId?: string
+          changeType?: Database["public"]["Enums"]["changeOrderBomChangeType"]
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          id?: string
+          itemId?: string
+          sortOrder?: number
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "changeOrderBomChange_changeOrderId_fkey"
+            columns: ["changeOrderId"]
+            isOneToOne: false
+            referencedRelation: "changeOrder"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChange_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChange_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChange_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChange_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChange_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChange_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChange_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChange_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChange_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChange_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "consumables"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChange_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "item"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChange_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChange_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "parts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChange_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChange_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "tools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChange_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChange_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChange_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChange_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChange_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+        ]
+      }
+      changeOrderBomChangeAssembly: {
+        Row: {
+          assemblyItemId: string
+          bomChangeId: string
+          companyId: string
+          createdAt: string
+          createdBy: string
+          id: string
+          quantity: number
+          supersessionMode:
+            | Database["public"]["Enums"]["supersessionMode"]
+            | null
+          updatedAt: string | null
+          updatedBy: string | null
+        }
+        Insert: {
+          assemblyItemId: string
+          bomChangeId: string
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          id?: string
+          quantity?: number
+          supersessionMode?:
+            | Database["public"]["Enums"]["supersessionMode"]
+            | null
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Update: {
+          assemblyItemId?: string
+          bomChangeId?: string
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          id?: string
+          quantity?: number
+          supersessionMode?:
+            | Database["public"]["Enums"]["supersessionMode"]
+            | null
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "changeOrderBomChangeAssembly_assemblyItemId_fkey"
+            columns: ["assemblyItemId"]
+            isOneToOne: false
+            referencedRelation: "consumables"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChangeAssembly_assemblyItemId_fkey"
+            columns: ["assemblyItemId"]
+            isOneToOne: false
+            referencedRelation: "item"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChangeAssembly_assemblyItemId_fkey"
+            columns: ["assemblyItemId"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChangeAssembly_assemblyItemId_fkey"
+            columns: ["assemblyItemId"]
+            isOneToOne: false
+            referencedRelation: "parts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChangeAssembly_assemblyItemId_fkey"
+            columns: ["assemblyItemId"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChangeAssembly_assemblyItemId_fkey"
+            columns: ["assemblyItemId"]
+            isOneToOne: false
+            referencedRelation: "tools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChangeAssembly_bomChangeId_fkey"
+            columns: ["bomChangeId"]
+            isOneToOne: false
+            referencedRelation: "changeOrderBomChange"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChangeAssembly_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChangeAssembly_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChangeAssembly_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChangeAssembly_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChangeAssembly_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChangeAssembly_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChangeAssembly_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChangeAssembly_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChangeAssembly_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChangeAssembly_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChangeAssembly_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChangeAssembly_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChangeAssembly_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderBomChangeAssembly_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+        ]
+      }
+      changeOrderProductAffected: {
         Row: {
           changeOrderId: string
           companyId: string
           createdAt: string
           createdBy: string
-          disposition: Database["public"]["Enums"]["changeOrderDisposition"]
-          dispositionNotes: string | null
           id: string
           itemId: string
-          pendingItemId: string | null
           updatedAt: string | null
           updatedBy: string | null
         }
@@ -3183,11 +3630,8 @@ export type Database = {
           companyId: string
           createdAt?: string
           createdBy: string
-          disposition?: Database["public"]["Enums"]["changeOrderDisposition"]
-          dispositionNotes?: string | null
           id?: string
           itemId: string
-          pendingItemId?: string | null
           updatedAt?: string | null
           updatedBy?: string | null
         }
@@ -3196,199 +3640,154 @@ export type Database = {
           companyId?: string
           createdAt?: string
           createdBy?: string
-          disposition?: Database["public"]["Enums"]["changeOrderDisposition"]
-          dispositionNotes?: string | null
           id?: string
           itemId?: string
-          pendingItemId?: string | null
           updatedAt?: string | null
           updatedBy?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "changeOrderItem_changeOrderId_fkey"
+            foreignKeyName: "changeOrderProductAffected_changeOrderId_fkey"
             columns: ["changeOrderId"]
             isOneToOne: false
             referencedRelation: "changeOrder"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "changeOrderItem_companyId_fkey"
+            foreignKeyName: "changeOrderProductAffected_companyId_fkey"
             columns: ["companyId"]
             isOneToOne: false
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "changeOrderItem_companyId_fkey"
+            foreignKeyName: "changeOrderProductAffected_companyId_fkey"
             columns: ["companyId"]
             isOneToOne: false
             referencedRelation: "company"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "changeOrderItem_companyId_fkey"
+            foreignKeyName: "changeOrderProductAffected_companyId_fkey"
             columns: ["companyId"]
             isOneToOne: false
             referencedRelation: "customFieldTables"
             referencedColumns: ["companyId"]
           },
           {
-            foreignKeyName: "changeOrderItem_companyId_fkey"
+            foreignKeyName: "changeOrderProductAffected_companyId_fkey"
             columns: ["companyId"]
             isOneToOne: false
             referencedRelation: "integrations"
             referencedColumns: ["companyId"]
           },
           {
-            foreignKeyName: "changeOrderItem_createdBy_fkey"
+            foreignKeyName: "changeOrderProductAffected_createdBy_fkey"
             columns: ["createdBy"]
             isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "changeOrderItem_createdBy_fkey"
+            foreignKeyName: "changeOrderProductAffected_createdBy_fkey"
             columns: ["createdBy"]
             isOneToOne: false
             referencedRelation: "employeesAcrossCompanies"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "changeOrderItem_createdBy_fkey"
+            foreignKeyName: "changeOrderProductAffected_createdBy_fkey"
             columns: ["createdBy"]
             isOneToOne: false
             referencedRelation: "employeeSummary"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "changeOrderItem_createdBy_fkey"
+            foreignKeyName: "changeOrderProductAffected_createdBy_fkey"
             columns: ["createdBy"]
             isOneToOne: false
             referencedRelation: "user"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "changeOrderItem_createdBy_fkey"
+            foreignKeyName: "changeOrderProductAffected_createdBy_fkey"
             columns: ["createdBy"]
             isOneToOne: false
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
           },
           {
-            foreignKeyName: "changeOrderItem_itemId_fkey"
+            foreignKeyName: "changeOrderProductAffected_itemId_fkey"
             columns: ["itemId"]
             isOneToOne: false
             referencedRelation: "consumables"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "changeOrderItem_itemId_fkey"
+            foreignKeyName: "changeOrderProductAffected_itemId_fkey"
             columns: ["itemId"]
             isOneToOne: false
             referencedRelation: "item"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "changeOrderItem_itemId_fkey"
+            foreignKeyName: "changeOrderProductAffected_itemId_fkey"
             columns: ["itemId"]
             isOneToOne: false
             referencedRelation: "materials"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "changeOrderItem_itemId_fkey"
+            foreignKeyName: "changeOrderProductAffected_itemId_fkey"
             columns: ["itemId"]
             isOneToOne: false
             referencedRelation: "parts"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "changeOrderItem_itemId_fkey"
+            foreignKeyName: "changeOrderProductAffected_itemId_fkey"
             columns: ["itemId"]
             isOneToOne: false
             referencedRelation: "services"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "changeOrderItem_itemId_fkey"
+            foreignKeyName: "changeOrderProductAffected_itemId_fkey"
             columns: ["itemId"]
             isOneToOne: false
             referencedRelation: "tools"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "changeOrderItem_pendingItemId_fkey"
-            columns: ["pendingItemId"]
-            isOneToOne: false
-            referencedRelation: "consumables"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "changeOrderItem_pendingItemId_fkey"
-            columns: ["pendingItemId"]
-            isOneToOne: false
-            referencedRelation: "item"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "changeOrderItem_pendingItemId_fkey"
-            columns: ["pendingItemId"]
-            isOneToOne: false
-            referencedRelation: "materials"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "changeOrderItem_pendingItemId_fkey"
-            columns: ["pendingItemId"]
-            isOneToOne: false
-            referencedRelation: "parts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "changeOrderItem_pendingItemId_fkey"
-            columns: ["pendingItemId"]
-            isOneToOne: false
-            referencedRelation: "services"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "changeOrderItem_pendingItemId_fkey"
-            columns: ["pendingItemId"]
-            isOneToOne: false
-            referencedRelation: "tools"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "changeOrderItem_updatedBy_fkey"
+            foreignKeyName: "changeOrderProductAffected_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "changeOrderItem_updatedBy_fkey"
+            foreignKeyName: "changeOrderProductAffected_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "employeesAcrossCompanies"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "changeOrderItem_updatedBy_fkey"
+            foreignKeyName: "changeOrderProductAffected_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "employeeSummary"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "changeOrderItem_updatedBy_fkey"
+            foreignKeyName: "changeOrderProductAffected_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "user"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "changeOrderItem_updatedBy_fkey"
+            foreignKeyName: "changeOrderProductAffected_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "userDefaults"
@@ -4516,6 +4915,7 @@ export type Database = {
           accountsReceivableEmail: string | null
           assetTaxDepreciationEnabled: boolean
           assetTaxRate: number | null
+          changeOrderRequireApproval: boolean
           consoleEnabled: boolean
           defaultCustomerCc: string[] | null
           defaultSupplierCc: string[] | null
@@ -4560,6 +4960,7 @@ export type Database = {
           accountsReceivableEmail?: string | null
           assetTaxDepreciationEnabled?: boolean
           assetTaxRate?: number | null
+          changeOrderRequireApproval?: boolean
           consoleEnabled?: boolean
           defaultCustomerCc?: string[] | null
           defaultSupplierCc?: string[] | null
@@ -4604,6 +5005,7 @@ export type Database = {
           accountsReceivableEmail?: string | null
           assetTaxDepreciationEnabled?: boolean
           assetTaxRate?: number | null
+          changeOrderRequireApproval?: boolean
           consoleEnabled?: boolean
           defaultCustomerCc?: string[] | null
           defaultSupplierCc?: string[] | null
@@ -59637,14 +60039,14 @@ export type Database = {
           },
           {
             foreignKeyName: "partner_id_fkey"
-            columns: ["id"]
+            columns: ["supplierLocationId"]
             isOneToOne: false
             referencedRelation: "supplierLocation"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "partner_id_fkey"
-            columns: ["supplierLocationId"]
+            columns: ["id"]
             isOneToOne: false
             referencedRelation: "supplierLocation"
             referencedColumns: ["id"]
@@ -61284,14 +61686,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["supplierCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["supplierCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -64668,14 +65070,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["shipmentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["shipmentCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -65230,14 +65632,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["paymentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["paymentCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -70896,13 +71298,13 @@ export type Database = {
       approvalDocumentType: "purchaseOrder" | "qualityDocument" | "supplier"
       approvalStatus: "Pending" | "Approved" | "Rejected" | "Cancelled"
       changeOrderApprovalType: "Unanimous" | "Majority" | "First-In"
-      changeOrderDisposition: "No Change" | "Use Up" | "Rework" | "Scrap"
+      changeOrderBomChangeType: "Add" | "Delete"
       changeOrderStatus:
         | "Draft"
-        | "In Review"
-        | "Approved"
-        | "Released"
-        | "Cancelled"
+        | "Start"
+        | "Engineering Complete"
+        | "Implementation"
+        | "Done"
       changeOrderTaskStatus: "Pending" | "In Progress" | "Completed" | "Skipped"
       changeOrderTypeEnum: "Engineering" | "Manufacturing" | "Documentation"
       configurationParameterDataType:
@@ -71286,6 +71688,7 @@ export type Database = {
       paymentStatus: "Draft" | "Posted" | "Voided"
       paymentTermCalculationMethod: "Net" | "End of Month" | "Day of Month"
       paymentType: "Receipt" | "Disbursement"
+      periodCloseStatus: "Open" | "Locked" | "Closed"
       periodType: "Week" | "Day" | "Month"
       pickingListLineStatus: "Pending" | "Picked" | "Short" | "Cancelled"
       pickingListStatus: "Draft" | "In Progress" | "Completed" | "Cancelled"
@@ -72221,13 +72624,13 @@ export const Constants = {
       approvalDocumentType: ["purchaseOrder", "qualityDocument", "supplier"],
       approvalStatus: ["Pending", "Approved", "Rejected", "Cancelled"],
       changeOrderApprovalType: ["Unanimous", "Majority", "First-In"],
-      changeOrderDisposition: ["No Change", "Use Up", "Rework", "Scrap"],
+      changeOrderBomChangeType: ["Add", "Delete"],
       changeOrderStatus: [
         "Draft",
-        "In Review",
-        "Approved",
-        "Released",
-        "Cancelled",
+        "Start",
+        "Engineering Complete",
+        "Implementation",
+        "Done",
       ],
       changeOrderTaskStatus: ["Pending", "In Progress", "Completed", "Skipped"],
       changeOrderTypeEnum: ["Engineering", "Manufacturing", "Documentation"],
@@ -72648,6 +73051,7 @@ export const Constants = {
       paymentStatus: ["Draft", "Posted", "Voided"],
       paymentTermCalculationMethod: ["Net", "End of Month", "Day of Month"],
       paymentType: ["Receipt", "Disbursement"],
+      periodCloseStatus: ["Open", "Locked", "Closed"],
       periodType: ["Week", "Day", "Month"],
       pickingListLineStatus: ["Pending", "Picked", "Short", "Cancelled"],
       pickingListStatus: ["Draft", "In Progress", "Completed", "Cancelled"],

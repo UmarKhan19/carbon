@@ -87,8 +87,8 @@ export async function createBaseItem(
   const { object, companyId, userId } = args;
   const top = pickTopRow(object.bomRows);
 
-  // Create the family head at revision "0" — createPendingRevision computes the
-  // next label; we don't seed Onshape's literal one. Replenishment/method
+  // Create the family head at revision "0" — the import computes the next label
+  // via getNextRevision; we don't seed Onshape's literal one. Replenishment/method
   // default off the BOM top row, else a Make assembly head.
   const part = await upsertPart(client, {
     id: object.partNumber,

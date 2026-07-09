@@ -15,12 +15,15 @@ import type {
 import { Await, redirect, useLoaderData, useParams } from "react-router";
 import { CadModel, DeferredFiles } from "~/components";
 import { usePermissions, useRouteData } from "~/hooks";
-import type {
-  ItemFile,
-  MakeMethod,
-  OpenChangeOrder,
-  PartSummary
-} from "~/modules/items";
+import {
+  findChangeOrdersForItem,
+  getChangeOrderTypesList
+} from "~/modules/change-orders";
+import {
+  ItemChangeOrders,
+  ItemOpenChangeOrderAlert
+} from "~/modules/change-orders/ui/ChangeOrder";
+import type { ItemFile, MakeMethod, PartSummary } from "~/modules/items";
 import {
   getConfigurationParameters,
   getConfigurationRules,
@@ -65,14 +68,27 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const requestedMethodId = url.searchParams.get("methodId");
 
-  const [makeMethods, revisionLock, controlledDrawing] = await Promise.all([
+  const [
+    makeMethods,
+    revisionLock,
+    controlledDrawing,
+    changeOrders,
+    changeOrderTypes
+  ] = await Promise.all([
     getMakeMethods(client, itemId, companyId),
     getRevisionLock(client, { itemId, companyId }),
-    getControlledDrawing(client, { itemId, companyId })
+    getControlledDrawing(client, { itemId, companyId }),
+    // Part → CO traceability (4b): every CO referencing this part, all statuses.
+    findChangeOrdersForItem(client, { itemId, companyId }),
+    getChangeOrderTypesList(client, companyId)
     // client.storage
     //   .from("private")
     //   .list(`${companyId}/default-attachments/item/${itemId}`)
   ]);
+  const changeOrderData = {
+    changeOrders: changeOrders.data,
+    changeOrderTypes: changeOrderTypes.data ?? []
+  };
   // const defaultAttachments = defaultAttachmentsResult.data ?? [];
   const revisionStatus = revisionLock.revisionStatus;
   const releaseControl = revisionLock.releaseControl;
@@ -90,7 +106,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       tags: [],
       revisionStatus,
       releaseControl,
-      controlledDrawing
+      controlledDrawing,
+      ...changeOrderData
     };
   }
 
@@ -101,7 +118,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       tags: [],
       revisionStatus,
       releaseControl,
-      controlledDrawing
+      controlledDrawing,
+      ...changeOrderData
     };
   }
 
@@ -155,7 +173,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     tags: tags.data ?? [],
     revisionStatus,
     releaseControl,
-    controlledDrawing
+    controlledDrawing,
+    ...changeOrderData
   };
 }
 
@@ -251,14 +270,15 @@ export default function PartDetailsRoute() {
     tags,
     revisionStatus,
     releaseControl,
-    controlledDrawing
+    controlledDrawing,
+    changeOrders,
+    changeOrderTypes
   } = useLoaderData<typeof loader>();
 
   const partData = useRouteData<{
     partSummary: PartSummary;
     files: Promise<ItemFile[]>;
     makeMethods: Promise<PostgrestResponse<MakeMethod>>;
-    pendingRevisionChangeOrder: OpenChangeOrder | null;
   }>(path.to.part(itemId));
 
   if (!partData) throw new Error("Could not find part data");
@@ -278,6 +298,9 @@ export default function PartDetailsRoute() {
           <ItemRevisionStatus status={revisionStatus} />
         </HStack>
       )}
+      {permissions.is("employee") && (
+        <ItemOpenChangeOrderAlert changeOrders={changeOrders ?? []} />
+      )}
       {permissions.is("employee") && methodData && (
         <>
           {["Make", "Buy and Make"].includes(
@@ -292,7 +315,6 @@ export default function PartDetailsRoute() {
                       makeMethods={makeMethods?.data ?? []}
                       type="Part"
                       currentMethodId={methodData.makeMethod.id}
-                      changeOrder={partData.pendingRevisionChangeOrder}
                     />
                   )}
                 </Await>
@@ -393,6 +415,10 @@ export default function PartDetailsRoute() {
             title={t`CAD Model`}
           />
           <ItemRiskRegister itemId={itemId} />
+          <ItemChangeOrders
+            changeOrders={changeOrders ?? []}
+            types={changeOrderTypes ?? []}
+          />
         </>
       )}
     </VStack>

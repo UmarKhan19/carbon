@@ -38,14 +38,11 @@ export type SyncPayloadRow = {
 };
 
 export type OnshapeImportResult = {
-  itemId: string; // resolved/created carbon item.id (the new revision)
-  changeOrderId: string; // the CO uuid (changeOrder.id) — for path.to.changeOrder()
-  changeOrderReadableId: string;
-  changeOrderItemId: string;
-  makeMethodId: string; // the new revision's Draft makeMethod
+  itemId: string; // resolved/created carbon item.id (the imported revision)
+  makeMethodId: string; // the imported item's Draft makeMethod
   revision: string; // carbon-computed label
   created: boolean; // true if base item family was created
-  // Per-object NON-FATAL warnings (drawing/geometry pull failures). The ECO +
+  // Per-object NON-FATAL warnings (drawing/geometry pull failures). The item +
   // BOM still land; the UI can surface "drawing not pulled" etc.
   warnings?: string[];
 };
@@ -73,11 +70,3 @@ export type ResolveItemFamily =
   | { kind: "alreadySynced"; itemId: string }
   | { kind: "family"; itemId: string }
   | { kind: "none" };
-
-// A change-order reference that keeps the UUID (the only value
-// path.to.changeOrder() accepts) distinct from the human-readable id, so the
-// two can never be confused at a boundary.
-export type ChangeOrderRef = {
-  id: string; // UUID — changeOrder.id
-  readableId: string; // "CO-000001" — display only
-};

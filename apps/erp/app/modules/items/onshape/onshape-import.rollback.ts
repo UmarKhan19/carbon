@@ -1,19 +1,14 @@
 import type { Database } from "@carbon/database";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import {
-  deleteChangeOrder,
-  deleteChangeOrderItem,
-  deleteItem
-} from "../items.service";
+import { deleteItem } from "../items.service";
 
 // =============================================================================
 // Ordered teardown for a partially-completed Onshape import.
 // The orchestrator fills this "created artifacts" object as it progresses; on
 // any step failure it calls rollbackImport to delete ONLY what this import
 // created, in the safe order:
-//   externalIntegrationMapping → revision item → changeOrderItem → changeOrder
-//   → base item.
+//   externalIntegrationMapping → revision item → base item.
 // The controlled-drawing PDF + STEP geometry (storage blobs + modelUpload row)
 // are created out-of-band by the `onshape-file-pull` job, which owns their
 // lifecycle — they are intentionally NOT tracked or torn down here.
@@ -22,16 +17,12 @@ import {
 
 export type ImportArtifacts = {
   baseItemId: string | null;
-  coUuid: string | null;
-  changeOrderItemId: string | null;
   revisionItemId: string | null;
 };
 
 export function newImportArtifacts(): ImportArtifacts {
   return {
     baseItemId: null,
-    coUuid: null,
-    changeOrderItemId: null,
     revisionItemId: null
   };
 }
@@ -57,19 +48,6 @@ export async function rollbackImport(
       );
     await deleteItem(serviceClient, artifacts.revisionItemId).catch((e) =>
       console.error("onshape rollback cleanup failed (revision item)", e)
-    );
-  }
-  if (artifacts.changeOrderItemId) {
-    await deleteChangeOrderItem(
-      serviceClient,
-      artifacts.changeOrderItemId
-    ).catch((e) =>
-      console.error("onshape rollback cleanup failed (changeOrderItem)", e)
-    );
-  }
-  if (artifacts.coUuid) {
-    await deleteChangeOrder(serviceClient, artifacts.coUuid, companyId).catch(
-      (e) => console.error("onshape rollback cleanup failed (changeOrder)", e)
     );
   }
   if (artifacts.baseItemId) {

@@ -10,7 +10,7 @@ import { Await, redirect, useLoaderData, useParams } from "react-router";
 import { CadModel } from "~/components";
 import { useRouteData } from "~/hooks";
 import { usePermissions } from "~/hooks/usePermissions";
-import type { OpenChangeOrder, ToolSummary } from "~/modules/items";
+import type { ToolSummary } from "~/modules/items";
 import {
   getMakeMethodById,
   getMakeMethods,
@@ -126,7 +126,6 @@ export default function ToolMakeMethodPage() {
 
   const toolData = useRouteData<{
     toolSummary: ToolSummary;
-    pendingRevisionChangeOrder: OpenChangeOrder | null;
   }>(path.to.tool(itemId));
 
   return (
@@ -139,7 +138,6 @@ export default function ToolMakeMethodPage() {
               makeMethods={makeMethods.data ?? []}
               type="Tool"
               currentMethodId={makeMethod.id}
-              changeOrder={toolData?.pendingRevisionChangeOrder ?? null}
             />
           )}
         </Await>

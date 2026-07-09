@@ -5,11 +5,10 @@ import { trigger } from "@carbon/jobs";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getReadableIdWithRevision } from "~/utils/string";
 import {
-  addChangeOrderItem,
-  createPendingRevision,
+  createRevision,
+  getItem,
   getMakeMethods,
-  getOpenChangeOrderForItem,
-  insertChangeOrder
+  getNextRevision
 } from "./items.service";
 import {
   flattenBomResponse,
@@ -39,124 +38,9 @@ import {
 // is written this enqueues the `onshape-file-pull` job and returns fast (Onshape
 // translations can take minutes).
 
-type OpenOrAttachResult = {
-  id: string; // CO uuid
-  changeOrderId: string; // human-readable, e.g. CO-000001
-  attached: boolean; // true when an existing open CO was attached (not created)
-  // On the ATTACH branch this is the pre-existing changeOrderItem — the caller
-  // must NOT re-insert (would violate UNIQUE(changeOrderId, itemId)). null on
-  // the CREATE branch, where the caller inserts it.
-  changeOrderItemId: string | null;
-};
-
-async function openOrAttachDraftCO(
-  client: SupabaseClient<Database>,
-  args: {
-    itemId: string;
-    object: OnshapeReleasedObject;
-    companyId: string;
-    userId: string;
-  }
-): Promise<{
-  data: OpenOrAttachResult | null;
-  error: { message: string } | null;
-}> {
-  const { itemId, object, companyId, userId } = args;
-
-  // getOpenChangeOrderForItem returns the human changeOrderId, not the uuid — so
-  // on a hit we re-fetch the uuid and attach (don't create).
-  const open = await getOpenChangeOrderForItem(client, { itemId, companyId });
-  if (open.error) {
-    return { data: null, error: { message: open.error.message } };
-  }
-
-  if (open.data?.changeOrderId) {
-    const co = await client
-      .from("changeOrder")
-      .select("id, changeOrderId, status")
-      .eq("changeOrderId", open.data.changeOrderId)
-      .eq("companyId", companyId)
-      .single();
-    if (co.error || !co.data) {
-      return {
-        data: null,
-        error: { message: co.error?.message ?? "Open change order not found" }
-      };
-    }
-
-    // The open CO already has a changeOrderItem for this item — reuse it;
-    // inserting would violate UNIQUE(changeOrderId, itemId).
-    const existing = await client
-      .from("changeOrderItem")
-      .select("id, pendingItemId")
-      .eq("changeOrderId", co.data.id)
-      .eq("itemId", itemId)
-      .eq("companyId", companyId)
-      .maybeSingle();
-    if (existing.error) {
-      return { data: null, error: { message: existing.error.message } };
-    }
-    if (!existing.data) {
-      return {
-        data: null,
-        error: {
-          message: `Open change order (${co.data.changeOrderId}) is missing its change order item for this item`
-        }
-      };
-    }
-    // Never stack a second pending revision on the same open CO line — the
-    // in-flight revision must be released/cancelled before re-importing.
-    if (existing.data.pendingItemId) {
-      return {
-        data: null,
-        error: {
-          message: `An open change order (${co.data.changeOrderId}) already has a pending revision for this item; resolve it before importing again.`
-        }
-      };
-    }
-
-    return {
-      data: {
-        id: co.data.id,
-        changeOrderId: co.data.changeOrderId,
-        attached: true,
-        changeOrderItemId: existing.data.id
-      },
-      error: null
-    };
-  }
-
-  // No open CO — create a Draft one (sourceId = the Onshape revisionId).
-  const created = await insertChangeOrder(client, {
-    name: `Onshape import — ${object.partNumber} Rev ${object.revisionLabel}`,
-    type: "Engineering",
-    approvalType: "First-In",
-    openDate: new Date().toISOString().split("T")[0],
-    sourceType: "onshape",
-    sourceId: object.revisionId,
-    companyId,
-    createdBy: userId
-  });
-
-  if (created.error || !created.data) {
-    return {
-      data: null,
-      error: {
-        message: created.error?.message ?? "Failed to create change order"
-      }
-    };
-  }
-
-  return {
-    data: {
-      id: created.data.id,
-      changeOrderId: created.data.changeOrderId,
-      attached: false,
-      changeOrderItemId: null
-    },
-    error: null
-  };
-}
+// TODO(change-orders): re-point Onshape import at the standalone module (Phase 4).
+// V1 imports parts only and creates the revision + BOM directly, with no change
+// order attached; Phase 4 will wire the created revision into a change order.
 
 // Write the revision-level externalIntegrationMapping via delete-then-insert:
 // the (integration, externalId, entityType, companyId) unique index is PARTIAL,
@@ -217,7 +101,7 @@ async function writeRevisionMapping(
 }
 
 // Idempotent short-circuit for a revisionId that already maps to a Carbon
-// revision: return the existing revision item + its open change order.
+// revision: return the existing revision item + its Draft make method.
 async function resolveAlreadySyncedResult(
   client: SupabaseClient<Database>,
   args: {
@@ -247,42 +131,6 @@ async function resolveAlreadySyncedResult(
     };
   }
 
-  // The revision item is referenced by a changeOrderItem as either the pending
-  // revision (pendingItemId) or the source item (itemId).
-  const coItem = await client
-    .from("changeOrderItem")
-    .select(
-      "id, changeOrderId, itemId, pendingItemId, changeOrder:changeOrderId(id, changeOrderId, status)"
-    )
-    .or(`pendingItemId.eq.${existingItemId},itemId.eq.${existingItemId}`)
-    .eq("companyId", companyId)
-    .limit(1)
-    .maybeSingle();
-  if (coItem.error) {
-    return { data: null, error: { message: coItem.error.message } };
-  }
-  if (!coItem.data) {
-    return {
-      data: null,
-      error: {
-        message:
-          "Already-synced revision has no change order line; resolve it in Carbon before re-importing"
-      }
-    };
-  }
-
-  const co = coItem.data.changeOrder as {
-    id: string;
-    changeOrderId: string;
-    status: string;
-  } | null;
-  if (!co) {
-    return {
-      data: null,
-      error: { message: "Already-synced revision's change order not found" }
-    };
-  }
-
   const mms = await getMakeMethods(client, existingItemId, companyId);
   if (mms.error) {
     return { data: null, error: { message: mms.error.message } };
@@ -300,9 +148,6 @@ async function resolveAlreadySyncedResult(
   return {
     data: {
       itemId: existingItemId,
-      changeOrderId: co.id,
-      changeOrderReadableId: co.changeOrderId,
-      changeOrderItemId: coItem.data.id,
       makeMethodId: draft.id,
       revision: existingItem.data.revision ?? "0",
       created: false
@@ -417,54 +262,25 @@ export async function importOnshapeReleasedObject(
     created = true;
   }
 
-  const co = await openOrAttachDraftCO(serviceClient, {
-    itemId: seedItemId,
-    object,
-    companyId,
-    userId
-  });
-  if (co.error || !co.data) {
-    return bail(co.error, "Failed to open change order");
-  }
-  if (!co.data.attached) {
-    artifacts.coUuid = co.data.id;
+  // TODO(change-orders): re-point Onshape import at the standalone module
+  // (Phase 4). V1 creates the new revision directly (no change order) and loads
+  // the BOM into it. The seed item supplies the readableId + method tree to clone.
+  const seedItem = await getItem(serviceClient, seedItemId);
+  if (seedItem.error || !seedItem.data) {
+    return bail(seedItem.error, "Failed to load seed item");
   }
 
-  // ATTACH reuses the pre-existing changeOrderItem; only the freshly-created CO
-  // branch inserts the line.
-  let changeOrderItemId: string;
-  if (co.data.attached) {
-    if (!co.data.changeOrderItemId) {
-      return bail(null, "Failed to resolve existing change order item");
-    }
-    changeOrderItemId = co.data.changeOrderItemId;
-  } else {
-    const cItem = await addChangeOrderItem(serviceClient, {
-      changeOrderId: co.data.id,
-      itemId: seedItemId,
-      companyId,
-      createdBy: userId
-    });
-    if (cItem.error || !cItem.data) {
-      return bail(cItem.error, "Failed to add change order item");
-    }
-    artifacts.changeOrderItemId = cItem.data.id;
-    changeOrderItemId = cItem.data.id;
-  }
-
-  const pending = await createPendingRevision(serviceClient, {
-    changeOrderId: co.data.id,
-    changeOrderItemId,
-    itemId: seedItemId,
-    userId,
-    companyId
+  const revision = getNextRevision(seedItem.data.revision ?? "0");
+  const newRevision = await createRevision(serviceClient, {
+    item: seedItem.data,
+    revision,
+    createdBy: userId
   });
-  if (pending.error || !pending.data) {
-    return bail(pending.error, "Failed to create pending revision");
+  if (newRevision.error || !newRevision.data) {
+    return bail(newRevision.error, "Failed to create revision");
   }
-  artifacts.revisionItemId = pending.data.id;
-  const newItemId = pending.data.id;
-  const revision = pending.data.revision;
+  artifacts.revisionItemId = newRevision.data.id;
+  const newItemId = newRevision.data.id;
 
   const mms = await getMakeMethods(serviceClient, newItemId, companyId);
   if (mms.error) {
@@ -545,9 +361,6 @@ export async function importOnshapeReleasedObject(
   return {
     data: {
       itemId: newItemId,
-      changeOrderId: co.data.id, // CO uuid
-      changeOrderReadableId: co.data.changeOrderId,
-      changeOrderItemId,
       makeMethodId,
       revision,
       created,
@@ -558,7 +371,7 @@ export async function importOnshapeReleasedObject(
 }
 
 // Route entry point: fetch the revision detail + flatten the multi-level BOM,
-// then delegate to importOnshapeReleasedObject and return the CO uuid.
+// then delegate to importOnshapeReleasedObject and return the imported item id.
 export async function importReleasedRevision(
   client: SupabaseClient<Database>,
   input: {
@@ -573,7 +386,7 @@ export async function importReleasedRevision(
     fullConfiguration?: string | null;
   }
 ): Promise<{
-  data: { changeOrderId: string; warnings?: string[] } | null;
+  data: { itemId: string; warnings?: string[] } | null;
   error: { message: string } | null;
 }> {
   const { companyId, userId, documentId, sourceVid, revisionId, partNumber } =
@@ -694,7 +507,7 @@ export async function importReleasedRevision(
 
   return {
     data: {
-      changeOrderId: result.data.changeOrderId,
+      itemId: result.data.itemId,
       warnings: result.data.warnings
     },
     error: null

@@ -609,38 +609,48 @@ export const path = {
       generatePath(`${x}/part/${itemId}/parameter/order`),
     configurationRule: (itemId: string) =>
       generatePath(`${x}/part/${itemId}/rule`),
-    changeOrders: `${x}/items/change-order/change-orders`,
+    // Change Orders — standalone module (V1). List + config live under
+    // /x/change-orders; the detail record lives under /x/change-order/:id.
+    changeOrders: `${x}/change-orders`,
     changeOrder: (id: string) => generatePath(`${x}/change-order/${id}`),
     changeOrderDetails: (id: string) =>
       generatePath(`${x}/change-order/${id}/details`),
-    changeOrderItem: (id: string, coItemId: string) =>
-      generatePath(`${x}/change-order/${id}/item/${coItemId}`),
-    changeOrderReview: (id: string) =>
-      generatePath(`${x}/change-order/${id}/review`),
     changeOrderStatus: (id: string) =>
       generatePath(`${x}/change-order/${id}/status`),
-    changeOrderDecision: (id: string) =>
-      generatePath(`${x}/change-order/${id}/decision`),
-    changeOrderApprovers: (id: string) =>
-      generatePath(`${x}/change-order/${id}/approvers`),
-    releaseChangeOrder: (id: string) =>
-      generatePath(`${x}/change-order/${id}/release`),
-    changeOrderTaskStatus: (id: string) =>
-      generatePath(`${x}/change-order/task/${id}/status`),
     newChangeOrder: `${x}/change-order/new`,
-    newChangeOrderWorkflow: `${x}/change-order-workflow/new`,
     deleteChangeOrder: (id: string) =>
       generatePath(`${x}/change-order/delete/${id}`),
-    bulkUpdateChangeOrder: `${x}/change-order/update`,
-    updateChangeOrderItem: `${x}/change-order/item/update`,
-    deleteChangeOrderItem: (coItemId: string) =>
-      generatePath(`${x}/change-order/item/delete/${coItemId}`),
-    deleteChangeOrderWorkflow: (id: string) =>
-      generatePath(`${x}/change-order-workflow/delete/${id}`),
-    myChangeOrderTasks: `${x}/items/change-order-tasks`,
-    changeOrderWorkflows: `${x}/items/change-order/change-order-workflows`,
-    changeOrderWorkflow: (id: string) =>
-      generatePath(`${x}/change-order-workflow/${id}`),
+    updateChangeOrder: `${x}/change-order/update`,
+    changeOrderTypes: `${x}/change-orders/types`,
+    newChangeOrderType: `${x}/change-orders/types/new`,
+    changeOrderType: (id: string) =>
+      generatePath(`${x}/change-orders/types/${id}`),
+    deleteChangeOrderType: (id: string) =>
+      generatePath(`${x}/change-orders/types/delete/${id}`),
+    // Change Order content (Phase 2): products affected, BOM change rows +
+    // per-assembly targets, and freeform actions.
+    changeOrderProduct: (id: string) =>
+      generatePath(`${x}/change-order/${id}/product`),
+    deleteChangeOrderProduct: (id: string, productId: string) =>
+      generatePath(`${x}/change-order/${id}/product/delete/${productId}`),
+    changeOrderBomChange: (id: string) =>
+      generatePath(`${x}/change-order/${id}/bom-change`),
+    deleteChangeOrderBomChange: (id: string, rowId: string) =>
+      generatePath(`${x}/change-order/${id}/bom-change/delete/${rowId}`),
+    changeOrderBomChangeAssembly: (id: string, rowId: string) =>
+      generatePath(`${x}/change-order/${id}/bom-change/${rowId}/assembly`),
+    deleteChangeOrderBomChangeAssembly: (id: string, assemblyId: string) =>
+      generatePath(
+        `${x}/change-order/${id}/bom-change/assembly/delete/${assemblyId}`
+      ),
+    changeOrderAction: (id: string) =>
+      generatePath(`${x}/change-order/${id}/action`),
+    deleteChangeOrderAction: (id: string, actionId: string) =>
+      generatePath(`${x}/change-order/${id}/action/delete/${actionId}`),
+    changeOrderActionStatus: (id: string, actionId: string) =>
+      generatePath(`${x}/change-order/${id}/action/${actionId}/status`),
+    changeOrderActionOrder: (id: string) =>
+      generatePath(`${x}/change-order/${id}/action/order`),
     contractor: (id: string) =>
       generatePath(`${x}/resources/contractors/${id}`),
     contractors: `${x}/resources/contractors`,

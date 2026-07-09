@@ -30,15 +30,11 @@ import {
   ModalFooter,
   ModalHeader,
   ModalTitle,
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
   toast,
   useDisclosure,
   VStack
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
-import type { ReactNode } from "react";
 import { Fragment, useEffect, useState } from "react";
 import { flushSync } from "react-dom";
 import {
@@ -57,7 +53,6 @@ import { Link, useFetcher, useParams } from "react-router";
 import { Hidden, Item, useConfigurableItems } from "~/components/Form";
 import { Confirm } from "~/components/Modals";
 import { usePermissions, useUser } from "~/hooks";
-import type { OpenChangeOrder } from "~/modules/items";
 import type { MethodItemType } from "~/modules/shared";
 import { path } from "~/utils/path";
 import {
@@ -74,45 +69,13 @@ type MakeMethodToolsProps = {
   type: MethodItemType;
   makeMethods: MakeMethod[];
   currentMethodId?: string;
-  // Set when this item is the proposed (draft) revision of an open change
-  // order — its method versions are governed by the CO (activate/new version
-  // happen on release), so those actions are disabled here up front.
-  changeOrder?: OpenChangeOrder | null;
 };
-
-// Wraps a version-action menu item in a tooltip explaining why it's disabled
-// when the revision is governed by an open change order. Renders the item
-// as-is otherwise. The wrapper div keeps hover working even though the inner
-// DropdownMenuItem is disabled (pointer-events-none).
-function GovernedMenuItem({
-  changeOrder,
-  children
-}: {
-  changeOrder?: OpenChangeOrder | null;
-  children: ReactNode;
-}) {
-  if (!changeOrder) return <>{children}</>;
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <div>{children}</div>
-      </TooltipTrigger>
-      <TooltipContent className="max-w-xs">
-        <Trans>
-          Proposed under change order {changeOrder.changeOrderId}. Its method
-          becomes active when the change order is released.
-        </Trans>
-      </TooltipContent>
-    </Tooltip>
-  );
-}
 
 const MakeMethodTools = ({
   itemId,
   makeMethods,
   type,
-  currentMethodId,
-  changeOrder
+  currentMethodId
 }: MakeMethodToolsProps) => {
   const permissions = usePermissions();
   const { t } = useLingui();
@@ -349,23 +312,18 @@ const MakeMethodTools = ({
                                 Delete Version
                               </DropdownMenuItem> */}
                               <DropdownMenuSeparator />
-                              <GovernedMenuItem changeOrder={changeOrder}>
-                                <DropdownMenuItem
-                                  disabled={
-                                    makeMethod.status === "Active" ||
-                                    Boolean(changeOrder)
-                                  }
-                                  onClick={() => {
-                                    flushSync(() => {
-                                      setSelectedVersion(makeMethod);
-                                    });
-                                    activeMethodModal.onOpen();
-                                  }}
-                                >
-                                  <DropdownMenuIcon icon={<LuStar />} />
-                                  Set as Active Version
-                                </DropdownMenuItem>
-                              </GovernedMenuItem>
+                              <DropdownMenuItem
+                                disabled={makeMethod.status === "Active"}
+                                onClick={() => {
+                                  flushSync(() => {
+                                    setSelectedVersion(makeMethod);
+                                  });
+                                  activeMethodModal.onOpen();
+                                }}
+                              >
+                                <DropdownMenuIcon icon={<LuStar />} />
+                                Set as Active Version
+                              </DropdownMenuItem>
                             </DropdownMenuSubContent>
                           </DropdownMenuPortal>
                         </DropdownMenuSub>
@@ -373,15 +331,10 @@ const MakeMethodTools = ({
                     })}
                   <DropdownMenuSeparator />
                   {permissions.can("create", "production") && (
-                    <GovernedMenuItem changeOrder={changeOrder}>
-                      <DropdownMenuItem
-                        disabled={Boolean(changeOrder)}
-                        onClick={newVersionModal.onOpen}
-                      >
-                        <DropdownMenuIcon icon={<LuCirclePlus />} />
-                        New Version
-                      </DropdownMenuItem>
-                    </GovernedMenuItem>
+                    <DropdownMenuItem onClick={newVersionModal.onOpen}>
+                      <DropdownMenuIcon icon={<LuCirclePlus />} />
+                      New Version
+                    </DropdownMenuItem>
                   )}
                 </>
               )}

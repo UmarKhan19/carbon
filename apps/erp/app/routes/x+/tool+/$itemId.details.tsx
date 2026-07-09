@@ -11,12 +11,15 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { Await, redirect, useLoaderData, useParams } from "react-router";
 import { CadModel, DeferredFiles } from "~/components";
 import { usePermissions, useRouteData } from "~/hooks";
-import type {
-  ItemFile,
-  MakeMethod,
-  OpenChangeOrder,
-  ToolSummary
-} from "~/modules/items";
+import {
+  findChangeOrdersForItem,
+  getChangeOrderTypesList
+} from "~/modules/change-orders";
+import {
+  ItemChangeOrders,
+  ItemOpenChangeOrderAlert
+} from "~/modules/change-orders/ui/ChangeOrder";
+import type { ItemFile, MakeMethod, ToolSummary } from "~/modules/items";
 import {
   getControlledDrawing,
   getItemManufacturing,
@@ -57,11 +60,24 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const requestedMethodId = url.searchParams.get("methodId");
 
-  const [makeMethods, revisionLock, controlledDrawing] = await Promise.all([
+  const [
+    makeMethods,
+    revisionLock,
+    controlledDrawing,
+    changeOrders,
+    changeOrderTypes
+  ] = await Promise.all([
     getMakeMethods(client, itemId, companyId),
     getRevisionLock(client, { itemId, companyId }),
-    getControlledDrawing(client, { itemId, companyId })
+    getControlledDrawing(client, { itemId, companyId }),
+    // Tool → CO traceability (4b): every CO referencing this tool, all statuses.
+    findChangeOrdersForItem(client, { itemId, companyId }),
+    getChangeOrderTypesList(client, companyId)
   ]);
+  const changeOrderData = {
+    changeOrders: changeOrders.data,
+    changeOrderTypes: changeOrderTypes.data ?? []
+  };
   const revisionStatus = revisionLock.revisionStatus;
   const releaseControl = revisionLock.releaseControl;
   const makeMethod = requestedMethodId
@@ -77,7 +93,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       tags: [],
       revisionStatus,
       releaseControl,
-      controlledDrawing
+      controlledDrawing,
+      ...changeOrderData
     };
   }
 
@@ -88,7 +105,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       tags: [],
       revisionStatus,
       releaseControl,
-      controlledDrawing
+      controlledDrawing,
+      ...changeOrderData
     };
   }
 
@@ -123,7 +141,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     tags: tags.data ?? [],
     revisionStatus,
     releaseControl,
-    controlledDrawing
+    controlledDrawing,
+    ...changeOrderData
   };
 }
 
@@ -210,14 +229,15 @@ export default function ToolDetailsRoute() {
     tags,
     revisionStatus,
     releaseControl,
-    controlledDrawing
+    controlledDrawing,
+    changeOrders,
+    changeOrderTypes
   } = useLoaderData<typeof loader>();
 
   const toolData = useRouteData<{
     toolSummary: ToolSummary;
     files: Promise<ItemFile[]>;
     makeMethods: Promise<PostgrestResponse<MakeMethod>>;
-    pendingRevisionChangeOrder: OpenChangeOrder | null;
   }>(path.to.tool(itemId));
 
   if (!toolData) throw new Error("Could not find tool data");
@@ -237,6 +257,9 @@ export default function ToolDetailsRoute() {
           <ItemRevisionStatus status={revisionStatus} />
         </HStack>
       )}
+      {permissions.is("employee") && (
+        <ItemOpenChangeOrderAlert changeOrders={changeOrders ?? []} />
+      )}
       {permissions.is("employee") && methodData && (
         <>
           <Suspense fallback={<Menubar />}>
@@ -247,7 +270,6 @@ export default function ToolDetailsRoute() {
                   makeMethods={makeMethods?.data ?? []}
                   type="Tool"
                   currentMethodId={methodData.makeMethod.id}
-                  changeOrder={toolData.pendingRevisionChangeOrder}
                 />
               )}
             </Await>
@@ -317,6 +339,10 @@ export default function ToolDetailsRoute() {
           />
 
           <ItemRiskRegister itemId={itemId} />
+          <ItemChangeOrders
+            changeOrders={changeOrders ?? []}
+            types={changeOrderTypes ?? []}
+          />
         </>
       )}
     </VStack>
