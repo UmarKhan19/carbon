@@ -334,12 +334,22 @@ export default function ProcedureExplorer() {
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <HStack>
-                    <span>
-                      <Trans>Add Step</Trans>
-                    </span>
-                    <Kbd>{prettifyShortcut("Command+Shift+a")}</Kbd>
-                  </HStack>
+                  <VStack spacing={1}>
+                    <HStack>
+                      <span>
+                        <Trans>Add Step</Trans>
+                      </span>
+                      <Kbd>{prettifyShortcut("Command+Shift+a")}</Kbd>
+                    </HStack>
+                    {isDisabled && (
+                      <span className="text-muted-foreground">
+                        <Trans>
+                          Only Draft procedures are editable. Create a new
+                          version to change an Active or Archived procedure.
+                        </Trans>
+                      </span>
+                    )}
+                  </VStack>
                 </TooltipContent>
               </Tooltip>
             </div>

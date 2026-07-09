@@ -203,115 +203,111 @@ export const accountingBackfillFunction = inngest.createFunction(
             const pool = getPostgresConnectionPool(5);
             const kysely = getPostgresClient(pool, PostgresDriver);
 
-            try {
-              console.info(`[PULL] Fetching contacts page ${currentPage}`);
-              const response = await withRateLimitRetry(
-                () =>
-                  pullProvider.listContacts({
-                    page: currentPage,
-                    summaryOnly: true
-                  }),
-                `listContacts page ${currentPage}`,
-                step
-              );
+            console.info(`[PULL] Fetching contacts page ${currentPage}`);
+            const response = await withRateLimitRetry(
+              () =>
+                pullProvider.listContacts({
+                  page: currentPage,
+                  summaryOnly: true
+                }),
+              `listContacts page ${currentPage}`,
+              step
+            );
 
-              console.info(`[PULL] Contacts page ${currentPage} response`, {
-                count: response.contacts.length,
-                hasMore: response.hasMore,
-                contacts: response.contacts.map((c) => ({
-                  id: c.ContactID,
-                  name: c.Name,
-                  isCustomer: c.IsCustomer,
-                  isSupplier: c.IsSupplier
-                }))
-              });
+            console.info(`[PULL] Contacts page ${currentPage} response`, {
+              count: response.contacts.length,
+              hasMore: response.hasMore,
+              contacts: response.contacts.map((c) => ({
+                id: c.ContactID,
+                name: c.Name,
+                isCustomer: c.IsCustomer,
+                isSupplier: c.IsSupplier
+              }))
+            });
 
-              if (response.contacts.length === 0) {
-                return {
-                  hasMore: false,
-                  pulled: { customers: 0, vendors: 0 }
-                };
-              }
-
-              let customersPulled = 0;
-              let vendorsPulled = 0;
-
-              // Pull customers
-              if (pullCustomers) {
-                const customers = response.contacts.filter((c) => c.IsCustomer);
-                if (customers.length > 0) {
-                  const syncer = SyncFactory.getSyncer({
-                    database: kysely,
-                    companyId: payload.companyId,
-                    provider: pullProvider,
-                    config: pullProvider.getSyncConfig("customer"),
-                    entityType: "customer"
-                  });
-                  const ids = customers.map((c) => c.ContactID);
-                  const syncResult = await withRateLimitRetry(
-                    () => syncer.pullBatchFromAccounting(ids),
-                    `pullBatchFromAccounting customers page ${currentPage}`,
-                    step
-                  );
-                  customersPulled = syncResult.successCount;
-                  console.info(
-                    `[PULL] Page ${currentPage}: pulled ${customersPulled} customers`,
-                    {
-                      results: syncResult.results.map((r) => ({
-                        status: r.status,
-                        action: r.action,
-                        localId: r.localId,
-                        remoteId: r.remoteId,
-                        error: r.error
-                      }))
-                    }
-                  );
-                }
-              }
-
-              // Pull vendors
-              if (pullVendors) {
-                const vendors = response.contacts.filter((c) => c.IsSupplier);
-                if (vendors.length > 0) {
-                  const syncer = SyncFactory.getSyncer({
-                    database: kysely,
-                    companyId: payload.companyId,
-                    provider: pullProvider,
-                    config: pullProvider.getSyncConfig("vendor"),
-                    entityType: "vendor"
-                  });
-                  const ids = vendors.map((c) => c.ContactID);
-                  const syncResult = await withRateLimitRetry(
-                    () => syncer.pullBatchFromAccounting(ids),
-                    `pullBatchFromAccounting vendors page ${currentPage}`,
-                    step
-                  );
-                  vendorsPulled = syncResult.successCount;
-                  console.info(
-                    `[PULL] Page ${currentPage}: pulled ${vendorsPulled} vendors`,
-                    {
-                      results: syncResult.results.map((r) => ({
-                        status: r.status,
-                        action: r.action,
-                        localId: r.localId,
-                        remoteId: r.remoteId,
-                        error: r.error
-                      }))
-                    }
-                  );
-                }
-              }
-
+            if (response.contacts.length === 0) {
               return {
-                hasMore: response.hasMore,
-                pulled: {
-                  customers: customersPulled,
-                  vendors: vendorsPulled
-                }
+                hasMore: false,
+                pulled: { customers: 0, vendors: 0 }
               };
-            } finally {
-              await pool.end();
             }
+
+            let customersPulled = 0;
+            let vendorsPulled = 0;
+
+            // Pull customers
+            if (pullCustomers) {
+              const customers = response.contacts.filter((c) => c.IsCustomer);
+              if (customers.length > 0) {
+                const syncer = SyncFactory.getSyncer({
+                  database: kysely,
+                  companyId: payload.companyId,
+                  provider: pullProvider,
+                  config: pullProvider.getSyncConfig("customer"),
+                  entityType: "customer"
+                });
+                const ids = customers.map((c) => c.ContactID);
+                const syncResult = await withRateLimitRetry(
+                  () => syncer.pullBatchFromAccounting(ids),
+                  `pullBatchFromAccounting customers page ${currentPage}`,
+                  step
+                );
+                customersPulled = syncResult.successCount;
+                console.info(
+                  `[PULL] Page ${currentPage}: pulled ${customersPulled} customers`,
+                  {
+                    results: syncResult.results.map((r) => ({
+                      status: r.status,
+                      action: r.action,
+                      localId: r.localId,
+                      remoteId: r.remoteId,
+                      error: r.error
+                    }))
+                  }
+                );
+              }
+            }
+
+            // Pull vendors
+            if (pullVendors) {
+              const vendors = response.contacts.filter((c) => c.IsSupplier);
+              if (vendors.length > 0) {
+                const syncer = SyncFactory.getSyncer({
+                  database: kysely,
+                  companyId: payload.companyId,
+                  provider: pullProvider,
+                  config: pullProvider.getSyncConfig("vendor"),
+                  entityType: "vendor"
+                });
+                const ids = vendors.map((c) => c.ContactID);
+                const syncResult = await withRateLimitRetry(
+                  () => syncer.pullBatchFromAccounting(ids),
+                  `pullBatchFromAccounting vendors page ${currentPage}`,
+                  step
+                );
+                vendorsPulled = syncResult.successCount;
+                console.info(
+                  `[PULL] Page ${currentPage}: pulled ${vendorsPulled} vendors`,
+                  {
+                    results: syncResult.results.map((r) => ({
+                      status: r.status,
+                      action: r.action,
+                      localId: r.localId,
+                      remoteId: r.remoteId,
+                      error: r.error
+                    }))
+                  }
+                );
+              }
+            }
+
+            return {
+              hasMore: response.hasMore,
+              pulled: {
+                customers: customersPulled,
+                vendors: vendorsPulled
+              }
+            };
           }
         );
 
@@ -368,62 +364,58 @@ export const accountingBackfillFunction = inngest.createFunction(
             const pool = getPostgresConnectionPool(5);
             const kysely = getPostgresClient(pool, PostgresDriver);
 
-            try {
-              console.info(`[PULL] Fetching items page ${currentPage}`);
-              const response = await withRateLimitRetry(
-                () => pullProvider.listItems({ page: currentPage }),
-                `listItems page ${currentPage}`,
-                step
-              );
+            console.info(`[PULL] Fetching items page ${currentPage}`);
+            const response = await withRateLimitRetry(
+              () => pullProvider.listItems({ page: currentPage }),
+              `listItems page ${currentPage}`,
+              step
+            );
 
-              console.info(`[PULL] Items page ${currentPage} response`, {
-                count: response.items.length,
-                hasMore: response.hasMore,
-                items: response.items.map((i) => ({
-                  id: i.ItemID,
-                  code: i.Code,
-                  name: i.Name
-                }))
-              });
+            console.info(`[PULL] Items page ${currentPage} response`, {
+              count: response.items.length,
+              hasMore: response.hasMore,
+              items: response.items.map((i) => ({
+                id: i.ItemID,
+                code: i.Code,
+                name: i.Name
+              }))
+            });
 
-              if (response.items.length === 0) {
-                return { hasMore: false, pulled: { items: 0 } };
-              }
-
-              const syncer = SyncFactory.getSyncer({
-                database: kysely,
-                companyId: payload.companyId,
-                provider: pullProvider,
-                config: pullProvider.getSyncConfig("item"),
-                entityType: "item"
-              });
-              const ids = response.items.map((item) => item.ItemID);
-              const syncResult = await withRateLimitRetry(
-                () => syncer.pullBatchFromAccounting(ids),
-                `pullBatchFromAccounting items page ${currentPage}`,
-                step
-              );
-
-              console.info(
-                `[PULL] Page ${currentPage}: pulled ${syncResult.successCount} items`,
-                {
-                  results: syncResult.results.map((r) => ({
-                    status: r.status,
-                    action: r.action,
-                    localId: r.localId,
-                    remoteId: r.remoteId,
-                    error: r.error
-                  }))
-                }
-              );
-
-              return {
-                hasMore: response.hasMore,
-                pulled: { items: syncResult.successCount }
-              };
-            } finally {
-              await pool.end();
+            if (response.items.length === 0) {
+              return { hasMore: false, pulled: { items: 0 } };
             }
+
+            const syncer = SyncFactory.getSyncer({
+              database: kysely,
+              companyId: payload.companyId,
+              provider: pullProvider,
+              config: pullProvider.getSyncConfig("item"),
+              entityType: "item"
+            });
+            const ids = response.items.map((item) => item.ItemID);
+            const syncResult = await withRateLimitRetry(
+              () => syncer.pullBatchFromAccounting(ids),
+              `pullBatchFromAccounting items page ${currentPage}`,
+              step
+            );
+
+            console.info(
+              `[PULL] Page ${currentPage}: pulled ${syncResult.successCount} items`,
+              {
+                results: syncResult.results.map((r) => ({
+                  status: r.status,
+                  action: r.action,
+                  localId: r.localId,
+                  remoteId: r.remoteId,
+                  error: r.error
+                }))
+              }
+            );
+
+            return {
+              hasMore: response.hasMore,
+              pulled: { items: syncResult.successCount }
+            };
           }
         );
 
@@ -479,61 +471,57 @@ export const accountingBackfillFunction = inngest.createFunction(
             const pool = getPostgresConnectionPool(5);
             const kysely = getPostgresClient(pool, PostgresDriver);
 
-            try {
-              const mappingService = createMappingService(
-                kysely,
-                payload.companyId
-              );
+            const mappingService = createMappingService(
+              kysely,
+              payload.companyId
+            );
 
-              const unsyncedIds = await mappingService.getUnsyncedEntityIds(
-                "customer",
-                "customer",
-                pushProvider.id,
-                payload.batchSize
-              );
+            const unsyncedIds = await mappingService.getUnsyncedEntityIds(
+              "customer",
+              "customer",
+              pushProvider.id,
+              payload.batchSize
+            );
 
-              if (unsyncedIds.length === 0) {
-                return {
-                  successCount: 0,
-                  hasMore: false
-                };
-              }
-
-              const syncer = SyncFactory.getSyncer({
-                database: kysely,
-                companyId: payload.companyId,
-                provider: pushProvider,
-                config: pushProvider.getSyncConfig("customer"),
-                entityType: "customer"
-              });
-
-              const syncResult = await withRateLimitRetry(
-                () => syncer.pushBatchToAccounting(unsyncedIds),
-                `pushBatchToAccounting customers`,
-                step
-              );
-
-              console.info(
-                `[PUSH] Pushed ${syncResult.successCount}/${unsyncedIds.length} customer entities`,
-                {
-                  entityIds: unsyncedIds,
-                  results: syncResult.results.map((r) => ({
-                    status: r.status,
-                    action: r.action,
-                    localId: r.localId,
-                    remoteId: r.remoteId,
-                    error: r.error
-                  }))
-                }
-              );
-
+            if (unsyncedIds.length === 0) {
               return {
-                successCount: syncResult.successCount,
-                hasMore: unsyncedIds.length >= payload.batchSize
+                successCount: 0,
+                hasMore: false
               };
-            } finally {
-              await pool.end();
             }
+
+            const syncer = SyncFactory.getSyncer({
+              database: kysely,
+              companyId: payload.companyId,
+              provider: pushProvider,
+              config: pushProvider.getSyncConfig("customer"),
+              entityType: "customer"
+            });
+
+            const syncResult = await withRateLimitRetry(
+              () => syncer.pushBatchToAccounting(unsyncedIds),
+              `pushBatchToAccounting customers`,
+              step
+            );
+
+            console.info(
+              `[PUSH] Pushed ${syncResult.successCount}/${unsyncedIds.length} customer entities`,
+              {
+                entityIds: unsyncedIds,
+                results: syncResult.results.map((r) => ({
+                  status: r.status,
+                  action: r.action,
+                  localId: r.localId,
+                  remoteId: r.remoteId,
+                  error: r.error
+                }))
+              }
+            );
+
+            return {
+              successCount: syncResult.successCount,
+              hasMore: unsyncedIds.length >= payload.batchSize
+            };
           }
         );
 
@@ -585,61 +573,57 @@ export const accountingBackfillFunction = inngest.createFunction(
             const pool = getPostgresConnectionPool(5);
             const kysely = getPostgresClient(pool, PostgresDriver);
 
-            try {
-              const mappingService = createMappingService(
-                kysely,
-                payload.companyId
-              );
+            const mappingService = createMappingService(
+              kysely,
+              payload.companyId
+            );
 
-              const unsyncedIds = await mappingService.getUnsyncedEntityIds(
-                "vendor",
-                "supplier",
-                pushProvider.id,
-                payload.batchSize
-              );
+            const unsyncedIds = await mappingService.getUnsyncedEntityIds(
+              "vendor",
+              "supplier",
+              pushProvider.id,
+              payload.batchSize
+            );
 
-              if (unsyncedIds.length === 0) {
-                return {
-                  successCount: 0,
-                  hasMore: false
-                };
-              }
-
-              const syncer = SyncFactory.getSyncer({
-                database: kysely,
-                companyId: payload.companyId,
-                provider: pushProvider,
-                config: pushProvider.getSyncConfig("vendor"),
-                entityType: "vendor"
-              });
-
-              const syncResult = await withRateLimitRetry(
-                () => syncer.pushBatchToAccounting(unsyncedIds),
-                `pushBatchToAccounting vendors`,
-                step
-              );
-
-              console.info(
-                `[PUSH] Pushed ${syncResult.successCount}/${unsyncedIds.length} vendor entities`,
-                {
-                  entityIds: unsyncedIds,
-                  results: syncResult.results.map((r) => ({
-                    status: r.status,
-                    action: r.action,
-                    localId: r.localId,
-                    remoteId: r.remoteId,
-                    error: r.error
-                  }))
-                }
-              );
-
+            if (unsyncedIds.length === 0) {
               return {
-                successCount: syncResult.successCount,
-                hasMore: unsyncedIds.length >= payload.batchSize
+                successCount: 0,
+                hasMore: false
               };
-            } finally {
-              await pool.end();
             }
+
+            const syncer = SyncFactory.getSyncer({
+              database: kysely,
+              companyId: payload.companyId,
+              provider: pushProvider,
+              config: pushProvider.getSyncConfig("vendor"),
+              entityType: "vendor"
+            });
+
+            const syncResult = await withRateLimitRetry(
+              () => syncer.pushBatchToAccounting(unsyncedIds),
+              `pushBatchToAccounting vendors`,
+              step
+            );
+
+            console.info(
+              `[PUSH] Pushed ${syncResult.successCount}/${unsyncedIds.length} vendor entities`,
+              {
+                entityIds: unsyncedIds,
+                results: syncResult.results.map((r) => ({
+                  status: r.status,
+                  action: r.action,
+                  localId: r.localId,
+                  remoteId: r.remoteId,
+                  error: r.error
+                }))
+              }
+            );
+
+            return {
+              successCount: syncResult.successCount,
+              hasMore: unsyncedIds.length >= payload.batchSize
+            };
           }
         );
 
@@ -690,61 +674,57 @@ export const accountingBackfillFunction = inngest.createFunction(
             const pool = getPostgresConnectionPool(5);
             const kysely = getPostgresClient(pool, PostgresDriver);
 
-            try {
-              const mappingService = createMappingService(
-                kysely,
-                payload.companyId
-              );
+            const mappingService = createMappingService(
+              kysely,
+              payload.companyId
+            );
 
-              const unsyncedIds = await mappingService.getUnsyncedEntityIds(
-                "item",
-                "item",
-                pushProvider.id,
-                payload.batchSize
-              );
+            const unsyncedIds = await mappingService.getUnsyncedEntityIds(
+              "item",
+              "item",
+              pushProvider.id,
+              payload.batchSize
+            );
 
-              if (unsyncedIds.length === 0) {
-                return {
-                  successCount: 0,
-                  hasMore: false
-                };
-              }
-
-              const syncer = SyncFactory.getSyncer({
-                database: kysely,
-                companyId: payload.companyId,
-                provider: pushProvider,
-                config: pushProvider.getSyncConfig("item"),
-                entityType: "item"
-              });
-
-              const syncResult = await withRateLimitRetry(
-                () => syncer.pushBatchToAccounting(unsyncedIds),
-                `pushBatchToAccounting items`,
-                step
-              );
-
-              console.info(
-                `[PUSH] Pushed ${syncResult.successCount}/${unsyncedIds.length} item entities`,
-                {
-                  entityIds: unsyncedIds,
-                  results: syncResult.results.map((r) => ({
-                    status: r.status,
-                    action: r.action,
-                    localId: r.localId,
-                    remoteId: r.remoteId,
-                    error: r.error
-                  }))
-                }
-              );
-
+            if (unsyncedIds.length === 0) {
               return {
-                successCount: syncResult.successCount,
-                hasMore: unsyncedIds.length >= payload.batchSize
+                successCount: 0,
+                hasMore: false
               };
-            } finally {
-              await pool.end();
             }
+
+            const syncer = SyncFactory.getSyncer({
+              database: kysely,
+              companyId: payload.companyId,
+              provider: pushProvider,
+              config: pushProvider.getSyncConfig("item"),
+              entityType: "item"
+            });
+
+            const syncResult = await withRateLimitRetry(
+              () => syncer.pushBatchToAccounting(unsyncedIds),
+              `pushBatchToAccounting items`,
+              step
+            );
+
+            console.info(
+              `[PUSH] Pushed ${syncResult.successCount}/${unsyncedIds.length} item entities`,
+              {
+                entityIds: unsyncedIds,
+                results: syncResult.results.map((r) => ({
+                  status: r.status,
+                  action: r.action,
+                  localId: r.localId,
+                  remoteId: r.remoteId,
+                  error: r.error
+                }))
+              }
+            );
+
+            return {
+              successCount: syncResult.successCount,
+              hasMore: unsyncedIds.length >= payload.batchSize
+            };
           }
         );
 
