@@ -427,7 +427,7 @@ export async function action({ request }: ActionFunctionArgs) {
             return client.from("itemCost").insert({
               itemId,
               itemPostingGroupId: value || null,
-              costingMethod: "Standard",
+              costingMethod: "FIFO",
               standardCost: 0,
               unitCost: 0,
               costIsAdjusted: false,

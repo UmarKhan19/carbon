@@ -98,7 +98,7 @@ export async function seedPrinting(
   // Item costs (required by post-receipt and post-shipment)
   for (const itemId of itemIds) {
     await client.query(
-      `INSERT INTO "itemCost" ("itemId", "costingMethod", "companyId", "createdBy") VALUES ($1, 'Standard', $2, $3)`,
+      `INSERT INTO "itemCost" ("itemId", "costingMethod", "companyId", "createdBy") VALUES ($1, 'FIFO', $2, $3)`,
       [itemId, companyId, userId]
     );
   }
