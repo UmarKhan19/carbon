@@ -1372,10 +1372,10 @@ msgid "Ask an admin with {0} permission to add the first {1}."
 msgstr "{0} अनुमति वाले व्यवस्थापक से पहली {1} जोड़ने के लिए कहें।"
 
 msgid "Assemblies"
-msgstr ""
+msgstr "असेंबलीज"
 
 msgid "Assembly Instructions"
-msgstr ""
+msgstr "असेंबली निर्देश"
 
 msgid "Assembly:"
 msgstr "असेंबली:"

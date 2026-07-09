@@ -765,7 +765,7 @@ msgid "Preventive"
 msgstr "Prewencyjne"
 
 msgid "Previous"
-msgstr ""
+msgstr "Poprzedni"
 
 msgid "Print"
 msgstr "Drukuj"

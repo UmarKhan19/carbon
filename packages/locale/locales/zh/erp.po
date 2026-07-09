@@ -1372,10 +1372,10 @@ msgid "Ask an admin with {0} permission to add the first {1}."
 msgstr "请求具有{0}权限的管理员添加第一个{1}。"
 
 msgid "Assemblies"
-msgstr ""
+msgstr "装配件"
 
 msgid "Assembly Instructions"
-msgstr ""
+msgstr "装配说明"
 
 msgid "Assembly:"
 msgstr "装配体："

@@ -765,7 +765,7 @@ msgid "Preventive"
 msgstr "निवारक"
 
 msgid "Previous"
-msgstr ""
+msgstr "पिछला"
 
 msgid "Print"
 msgstr "प्रिंट करें"
