@@ -9,13 +9,17 @@ import {
   LuTrash
 } from "react-icons/lu";
 import { usePermissions } from "~/hooks";
+import { useFlags } from "~/hooks/useFlags";
 import { useSavedViews } from "~/hooks/useSavedViews";
 import type { AuthenticatedRouteGroup } from "~/types";
 import { path } from "~/utils/path";
 
+const internalOnlyRoutes = new Set<string>([path.to.assemblyInstructions]);
+
 export default function useProductionSubmodules() {
   const { t } = useLingui();
   const permissions = usePermissions();
+  const { isInternal } = useFlags();
 
   const productionRoutes: AuthenticatedRouteGroup[] = [
     {
@@ -83,30 +87,18 @@ export default function useProductionSubmodules() {
   ];
   const { addSavedViewsToRoutes } = useSavedViews();
 
+  const isRouteVisible = (route: AuthenticatedRouteGroup["routes"][number]) => {
+    if (route.role && !permissions.is(route.role)) return false;
+    if (!isInternal && internalOnlyRoutes.has(route.to)) return false;
+    return true;
+  };
+
   return {
     groups: productionRoutes
-      .filter((group) => {
-        const filteredRoutes = group.routes.filter((route) => {
-          if (route.role) {
-            return permissions.is(route.role);
-          } else {
-            return true;
-          }
-        });
-
-        return filteredRoutes.length > 0;
-      })
+      .filter((group) => group.routes.some(isRouteVisible))
       .map((group) => ({
         ...group,
-        routes: group.routes
-          .filter((route) => {
-            if (route.role) {
-              return permissions.is(route.role);
-            } else {
-              return true;
-            }
-          })
-          .map(addSavedViewsToRoutes)
+        routes: group.routes.filter(isRouteVisible).map(addSavedViewsToRoutes)
       }))
   };
 }

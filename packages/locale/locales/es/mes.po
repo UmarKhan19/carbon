@@ -87,9 +87,6 @@ msgstr "¿Está seguro de que desea finalizar esta operación? Esto terminará t
 msgid "Are you sure you want to leave this page?"
 msgstr "¿Estás seguro de que quieres salir de esta página?"
 
-msgid "Assembly"
-msgstr ""
-
 msgid "Assigned"
 msgstr "Asignado"
 

@@ -87,9 +87,6 @@ msgstr "この操作を終了してもよろしいですか？これにより、
 msgid "Are you sure you want to leave this page?"
 msgstr "このページを離れてもよろしいですか？"
 
-msgid "Assembly"
-msgstr ""
-
 msgid "Assigned"
 msgstr "割当済み"
 

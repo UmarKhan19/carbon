@@ -13,13 +13,15 @@ import {
   getModelForItem,
   upsertAssemblyInstruction
 } from "~/modules/production";
+import { requireAssembliesInternal } from "~/modules/production/production.server";
 import AssemblyInstructionForm from "~/modules/production/ui/Assemblies/AssemblyInstructionForm";
 import { path } from "~/utils/path";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  await requirePermissions(request, {
+  const { email } = await requirePermissions(request, {
     create: "production"
   });
+  requireAssembliesInternal(email);
 
   const url = new URL(request.url);
 
@@ -32,9 +34,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, companyId, userId } = await requirePermissions(request, {
-    create: "production"
-  });
+  const { client, companyId, userId, email } = await requirePermissions(
+    request,
+    {
+      create: "production"
+    }
+  );
+  requireAssembliesInternal(email);
 
   const validation = await validator(
     assemblyInstructionFromItemValidator

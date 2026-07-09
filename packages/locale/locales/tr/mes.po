@@ -87,9 +87,6 @@ msgstr "Bu işlemi bitirmek istediğinizden emin misiniz? Bu, bu işlem için t�
 msgid "Are you sure you want to leave this page?"
 msgstr "Bu sayfadan ayrılmak istediğinizden emin misiniz?"
 
-msgid "Assembly"
-msgstr ""
-
 msgid "Assigned"
 msgstr "Atanmış"
 

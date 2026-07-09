@@ -87,9 +87,6 @@ msgstr "Are you sure you want to finish this operation? This will end all active
 msgid "Are you sure you want to leave this page?"
 msgstr "Are you sure you want to leave this page?"
 
-msgid "Assembly"
-msgstr "Assembly"
-
 msgid "Assigned"
 msgstr "Assigned"
 
