@@ -2817,11 +2817,25 @@ export async function deleteCustomerItemPriceOverride(
     .eq("companyId", companyId);
 }
 
+type CustomerItemPriceOverrideWithRelations =
+  Database["public"]["Tables"]["customerItemPriceOverride"]["Row"] & {
+    customer: { id: string; name: string } | null;
+    customerType: { id: string; name: string } | null;
+    item: { id: string; name: string } | null;
+    breaks: {
+      id: string;
+      quantity: number;
+      overridePrice: number;
+      active: boolean;
+    }[];
+  };
+
 export async function getCustomerItemPriceOverrideById(
   client: SupabaseClient<Database>,
   id: string,
   companyId: string
-) {
+): Promise<PostgrestSingleResponse<CustomerItemPriceOverrideWithRelations>> {
+  // @ts-ignore - nested select instantiation exceeds tsgo depth limit
   return client
     .from("customerItemPriceOverride")
     .select(
