@@ -780,24 +780,28 @@ serve(async (req: Request) => {
                 });
               }
 
-              // create the cost ledger line
-              costLedgerInserts.push({
-                itemLedgerType: "Purchase",
-                costLedgerType: "Direct Cost",
-                adjustment: false,
-                documentType: "Purchase Invoice",
-                documentId: purchaseInvoice.data?.id ?? undefined,
-                externalDocumentId:
-                  purchaseInvoice.data?.supplierReference ?? undefined,
-                itemId: invoiceLine.itemId,
-                quantity: invoiceLineQuantityInInventoryUnit,
-                nominalCost:
-                  invoiceLine.quantity * (invoiceLine.unitPrice ?? 0),
-                cost: totalLineCostWithWeightedShipping,
-                remainingQuantity: invoiceLineQuantityInInventoryUnit,
-                supplierId: purchaseInvoice.data?.supplierId,
-                companyId,
-              });
+              // Services are never stocked — a cost ledger layer would pollute
+              // inventory valuation, so only the journal entries below apply.
+              if (invoiceLine.invoiceLineType !== "Service") {
+                // create the cost ledger line
+                costLedgerInserts.push({
+                  itemLedgerType: "Purchase",
+                  costLedgerType: "Direct Cost",
+                  adjustment: false,
+                  documentType: "Purchase Invoice",
+                  documentId: purchaseInvoice.data?.id ?? undefined,
+                  externalDocumentId:
+                    purchaseInvoice.data?.supplierReference ?? undefined,
+                  itemId: invoiceLine.itemId,
+                  quantity: invoiceLineQuantityInInventoryUnit,
+                  nominalCost:
+                    invoiceLine.quantity * (invoiceLine.unitPrice ?? 0),
+                  cost: totalLineCostWithWeightedShipping,
+                  remainingQuantity: invoiceLineQuantityInInventoryUnit,
+                  supplierId: purchaseInvoice.data?.supplierId,
+                  companyId,
+                });
+              }
 
               // create the GL entries for a direct invoice (no PO)
               if (accountingEnabled && accountDefaults?.data) {
@@ -858,24 +862,28 @@ serve(async (req: Request) => {
               }
             } // if the line is associated with a purchase order line, we do accrual/reversing
             else {
-              // create the cost entry
-              costLedgerInserts.push({
-                itemLedgerType: "Purchase",
-                costLedgerType: "Direct Cost",
-                adjustment: false,
-                documentType: "Purchase Invoice",
-                documentId: purchaseInvoice.data?.id ?? undefined,
-                externalDocumentId:
-                  purchaseInvoice.data?.supplierReference ?? undefined,
-                itemId: invoiceLine.itemId,
-                quantity: invoiceLineQuantityInInventoryUnit,
-                nominalCost:
-                  invoiceLine.quantity * (invoiceLine.unitPrice ?? 0),
-                cost: totalLineCostWithWeightedShipping,
-                remainingQuantity: invoiceLineQuantityInInventoryUnit,
-                supplierId: purchaseInvoice.data?.supplierId,
-                companyId,
-              });
+              // Services are never stocked — a cost ledger layer would pollute
+              // inventory valuation, so only the journal entries below apply.
+              if (invoiceLine.invoiceLineType !== "Service") {
+                // create the cost entry
+                costLedgerInserts.push({
+                  itemLedgerType: "Purchase",
+                  costLedgerType: "Direct Cost",
+                  adjustment: false,
+                  documentType: "Purchase Invoice",
+                  documentId: purchaseInvoice.data?.id ?? undefined,
+                  externalDocumentId:
+                    purchaseInvoice.data?.supplierReference ?? undefined,
+                  itemId: invoiceLine.itemId,
+                  quantity: invoiceLineQuantityInInventoryUnit,
+                  nominalCost:
+                    invoiceLine.quantity * (invoiceLine.unitPrice ?? 0),
+                  cost: totalLineCostWithWeightedShipping,
+                  remainingQuantity: invoiceLineQuantityInInventoryUnit,
+                  supplierId: purchaseInvoice.data?.supplierId,
+                  companyId,
+                });
+              }
 
               // determine the journal lines that should be reversed
               const existingJournalLines = invoiceLine.purchaseOrderLineId

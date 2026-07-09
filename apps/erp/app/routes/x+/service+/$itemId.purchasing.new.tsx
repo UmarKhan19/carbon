@@ -88,7 +88,7 @@ export default function NewServiceSupplierRoute() {
   const initialValues = {
     itemId: itemId,
     supplierId: "",
-    supplierServiceId: "",
+    supplierPartId: "",
     unitPrice: 0,
     supplierUnitOfMeasureCode: "EA",
     minimumOrderQuantity: 1,

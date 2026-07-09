@@ -226,9 +226,7 @@ export default function ServiceDetailsRoute() {
             subTitle={serviceData.serviceSummary?.readableIdWithRevision ?? ""}
             notes={serviceData.serviceSummary?.notes as JSONContent}
           />
-          {["Make", "Buy and Make"].includes(
-            serviceData.serviceSummary?.replenishmentSystem ?? ""
-          ) && (
+          {serviceData.serviceSummary?.replenishmentSystem === "Make" && (
             <>
               <BillOfMaterial
                 key={`bom:${itemId}`}

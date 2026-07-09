@@ -145,6 +145,129 @@ export default function ServiceRoute() {
 
   const [filterText, setFilterText] = useState("");
 
+  const renderUsedInTree = (resolvedUsedIn: Awaited<typeof usedIn>) => {
+    const {
+      issues,
+      jobMaterials,
+      jobs,
+      maintenanceDispatchItems,
+      methodMaterials,
+      purchaseOrderLines,
+      receiptLines,
+      quoteLines,
+      quoteMaterials,
+      salesOrderLines,
+      shipmentLines,
+      supplierQuotes,
+      jobMaterialUsage
+    } = resolvedUsedIn;
+
+    const tree: UsedInNode[] = [
+      {
+        key: "issues",
+        name: t`Issues`,
+        module: "quality",
+        children: issues
+      },
+      {
+        key: "jobs",
+        name: t`Jobs`,
+        module: "production",
+        children: jobs.map((job) => ({
+          ...job,
+          methodType: "Make to Order"
+        }))
+      },
+      {
+        key: "jobMaterials",
+        name: t`Job Materials`,
+        module: "production",
+        children: jobMaterials
+      },
+      {
+        key: "maintenanceDispatchItems",
+        name: t`Maintenance`,
+        module: "resources",
+        children: maintenanceDispatchItems
+      },
+      {
+        key: "methodMaterials",
+        name: t`Method Materials`,
+        module: "parts",
+        // @ts-expect-error
+        children: methodMaterials
+      },
+      {
+        key: "purchaseOrderLines",
+        name: t`Purchase Orders`,
+        module: "purchasing",
+        children: purchaseOrderLines.map((po) => ({
+          ...po,
+          methodType: "Purchase to Order"
+        }))
+      },
+      {
+        key: "receiptLines",
+        name: t`Receipts`,
+        module: "inventory",
+        children: receiptLines.map((receipt) => ({
+          ...receipt,
+          methodType: "Pull from Inventory"
+        }))
+      },
+      {
+        key: "quoteLines",
+        name: t`Quotes`,
+        module: "sales",
+        children: quoteLines
+      },
+      {
+        key: "quoteMaterials",
+        name: t`Quote Materials`,
+        module: "sales",
+        children: quoteMaterials?.map((qm) => ({
+          ...qm,
+          documentReadableId: qm.documentReadableId ?? ""
+        }))
+      },
+      {
+        key: "salesOrderLines",
+        name: t`Sales Orders`,
+        module: "sales",
+        children: salesOrderLines
+      },
+      {
+        key: "shipmentLines",
+        name: t`Shipments`,
+        module: "inventory",
+        children: shipmentLines.map((shipment) => ({
+          ...shipment,
+          methodType: "Shipment"
+        }))
+      },
+      {
+        key: "supplierQuotes",
+        name: t`Supplier Quotes`,
+        module: "purchasing",
+        children: supplierQuotes
+      }
+    ];
+
+    return (
+      <UsedInTree
+        tree={tree}
+        revisions={serviceData.serviceSummary?.revisions}
+        itemReadableId={serviceData.serviceSummary?.readableId ?? ""}
+        itemReadableIdWithRevision={
+          serviceData.serviceSummary?.readableIdWithRevision ?? ""
+        }
+        jobMaterialUsage={jobMaterialUsage}
+        filterText={filterText}
+        hideSearch
+      />
+    );
+  };
+
   return (
     <div className="flex flex-col h-[calc(100dvh-49px)] overflow-hidden w-full">
       <ServiceHeader />
@@ -221,136 +344,7 @@ export default function ServiceRoute() {
                       </TabsContent>
                       <TabsContent value="used-in">
                         <Suspense fallback={<UsedInSkeleton />}>
-                          <Await resolve={usedIn}>
-                            {(resolvedUsedIn) => {
-                              const {
-                                issues,
-                                jobMaterials,
-                                jobs,
-                                maintenanceDispatchItems,
-                                methodMaterials,
-                                purchaseOrderLines,
-                                receiptLines,
-                                quoteLines,
-                                quoteMaterials,
-                                salesOrderLines,
-                                shipmentLines,
-                                supplierQuotes,
-                                jobMaterialUsage
-                              } = resolvedUsedIn;
-
-                              const tree: UsedInNode[] = [
-                                {
-                                  key: "issues",
-                                  name: t`Issues`,
-                                  module: "quality",
-                                  children: issues
-                                },
-                                {
-                                  key: "jobs",
-                                  name: t`Jobs`,
-                                  module: "production",
-                                  children: jobs.map((job) => ({
-                                    ...job,
-                                    methodType: "Make to Order"
-                                  }))
-                                },
-                                {
-                                  key: "jobMaterials",
-                                  name: t`Job Materials`,
-                                  module: "production",
-                                  children: jobMaterials
-                                },
-                                {
-                                  key: "maintenanceDispatchItems",
-                                  name: t`Maintenance`,
-                                  module: "resources",
-                                  children: maintenanceDispatchItems
-                                },
-                                {
-                                  key: "methodMaterials",
-                                  name: t`Method Materials`,
-                                  module: "parts",
-                                  // @ts-expect-error
-                                  children: methodMaterials
-                                },
-                                {
-                                  key: "purchaseOrderLines",
-                                  name: t`Purchase Orders`,
-                                  module: "purchasing",
-                                  children: purchaseOrderLines.map((po) => ({
-                                    ...po,
-                                    methodType: "Purchase to Order"
-                                  }))
-                                },
-                                {
-                                  key: "receiptLines",
-                                  name: t`Receipts`,
-                                  module: "inventory",
-                                  children: receiptLines.map((receipt) => ({
-                                    ...receipt,
-                                    methodType: "Pull from Inventory"
-                                  }))
-                                },
-                                {
-                                  key: "quoteLines",
-                                  name: t`Quotes`,
-                                  module: "sales",
-                                  children: quoteLines
-                                },
-                                {
-                                  key: "quoteMaterials",
-                                  name: t`Quote Materials`,
-                                  module: "sales",
-                                  children: quoteMaterials?.map((qm) => ({
-                                    ...qm,
-                                    documentReadableId:
-                                      qm.documentReadableId ?? ""
-                                  }))
-                                },
-                                {
-                                  key: "salesOrderLines",
-                                  name: t`Sales Orders`,
-                                  module: "sales",
-                                  children: salesOrderLines
-                                },
-                                {
-                                  key: "shipmentLines",
-                                  name: t`Shipments`,
-                                  module: "inventory",
-                                  children: shipmentLines.map((shipment) => ({
-                                    ...shipment,
-                                    methodType: "Shipment"
-                                  }))
-                                },
-                                {
-                                  key: "supplierQuotes",
-                                  name: t`Supplier Quotes`,
-                                  module: "purchasing",
-                                  children: supplierQuotes
-                                }
-                              ];
-
-                              return (
-                                <UsedInTree
-                                  tree={tree}
-                                  revisions={
-                                    serviceData.serviceSummary?.revisions
-                                  }
-                                  itemReadableId={
-                                    serviceData.serviceSummary?.readableId ?? ""
-                                  }
-                                  itemReadableIdWithRevision={
-                                    serviceData.serviceSummary
-                                      ?.readableIdWithRevision ?? ""
-                                  }
-                                  jobMaterialUsage={jobMaterialUsage}
-                                  filterText={filterText}
-                                  hideSearch
-                                />
-                              );
-                            }}
-                          </Await>
+                          <Await resolve={usedIn}>{renderUsedInTree}</Await>
                         </Suspense>
                       </TabsContent>
                     </div>
@@ -371,136 +365,7 @@ export default function ServiceRoute() {
                     </HStack>
                     <div className="flex-1 overflow-y-auto">
                       <Suspense fallback={<UsedInSkeleton />}>
-                        <Await resolve={usedIn}>
-                          {(resolvedUsedIn) => {
-                            const {
-                              issues,
-                              jobMaterials,
-                              jobs,
-                              maintenanceDispatchItems,
-                              methodMaterials,
-                              purchaseOrderLines,
-                              receiptLines,
-                              quoteLines,
-                              quoteMaterials,
-                              salesOrderLines,
-                              shipmentLines,
-                              supplierQuotes,
-                              jobMaterialUsage
-                            } = resolvedUsedIn;
-
-                            const tree: UsedInNode[] = [
-                              {
-                                key: "issues",
-                                name: "Issues",
-                                module: "quality",
-                                children: issues
-                              },
-                              {
-                                key: "jobs",
-                                name: "Jobs",
-                                module: "production",
-                                children: jobs.map((job) => ({
-                                  ...job,
-                                  methodType: "Make to Order"
-                                }))
-                              },
-                              {
-                                key: "jobMaterials",
-                                name: "Job Materials",
-                                module: "production",
-                                children: jobMaterials
-                              },
-                              {
-                                key: "maintenanceDispatchItems",
-                                name: "Maintenance",
-                                module: "resources",
-                                children: maintenanceDispatchItems
-                              },
-                              {
-                                key: "methodMaterials",
-                                name: "Method Materials",
-                                module: "parts",
-                                // @ts-expect-error
-                                children: methodMaterials
-                              },
-                              {
-                                key: "purchaseOrderLines",
-                                name: "Purchase Orders",
-                                module: "purchasing",
-                                children: purchaseOrderLines.map((po) => ({
-                                  ...po,
-                                  methodType: "Purchase to Order"
-                                }))
-                              },
-                              {
-                                key: "receiptLines",
-                                name: "Receipts",
-                                module: "inventory",
-                                children: receiptLines.map((receipt) => ({
-                                  ...receipt,
-                                  methodType: "Pull from Inventory"
-                                }))
-                              },
-                              {
-                                key: "quoteLines",
-                                name: "Quotes",
-                                module: "sales",
-                                children: quoteLines
-                              },
-                              {
-                                key: "quoteMaterials",
-                                name: "Quote Materials",
-                                module: "sales",
-                                children: quoteMaterials?.map((qm) => ({
-                                  ...qm,
-                                  documentReadableId:
-                                    qm.documentReadableId ?? ""
-                                }))
-                              },
-                              {
-                                key: "salesOrderLines",
-                                name: "Sales Orders",
-                                module: "sales",
-                                children: salesOrderLines
-                              },
-                              {
-                                key: "shipmentLines",
-                                name: "Shipments",
-                                module: "inventory",
-                                children: shipmentLines.map((shipment) => ({
-                                  ...shipment,
-                                  methodType: "Shipment"
-                                }))
-                              },
-                              {
-                                key: "supplierQuotes",
-                                name: "Supplier Quotes",
-                                module: "purchasing",
-                                children: supplierQuotes
-                              }
-                            ];
-
-                            return (
-                              <UsedInTree
-                                tree={tree}
-                                revisions={
-                                  serviceData.serviceSummary?.revisions
-                                }
-                                itemReadableId={
-                                  serviceData.serviceSummary?.readableId ?? ""
-                                }
-                                itemReadableIdWithRevision={
-                                  serviceData.serviceSummary
-                                    ?.readableIdWithRevision ?? ""
-                                }
-                                jobMaterialUsage={jobMaterialUsage}
-                                filterText={filterText}
-                                hideSearch
-                              />
-                            );
-                          }}
-                        </Await>
+                        <Await resolve={usedIn}>{renderUsedInTree}</Await>
                       </Suspense>
                     </div>
                   </>

@@ -544,9 +544,18 @@ serve(async (req: Request) => {
               selectedLines[line.id].quantity === 0
           );
 
+          // Only the selected lines become sales order lines below.
+          const selectedQuoteLines = quoteLines.data.filter(
+            (line) =>
+              line.id &&
+              selectedLines &&
+              line.id in selectedLines &&
+              selectedLines[line.id].quantity > 0
+          );
+
           // Services are never shipped — a service-only order goes straight to
           // "To Invoice" so it isn't stuck waiting on a shipment that can't happen.
-          const hasShippableLine = quoteLines.data.some(
+          const hasShippableLine = selectedQuoteLines.some(
             (line) => line.itemType !== "Service"
           );
           const salesOrderStatus = hasShippableLine
@@ -608,14 +617,6 @@ serve(async (req: Request) => {
               id: insertedSalesOrderId,
             })
             .execute();
-
-          const selectedQuoteLines = quoteLines.data.filter(
-            (line) =>
-              line.id &&
-              selectedLines &&
-              line.id in selectedLines &&
-              selectedLines[line.id].quantity > 0
-          );
 
           const pickMethodDefaultsByLineId = new Map<string, string | null>();
           await Promise.all(

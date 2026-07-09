@@ -46,7 +46,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   ]);
 
   if (services.error) {
-    redirect(
+    throw redirect(
       path.to.authenticatedRoot,
       await flash(request, error(services.error, "Failed to fetch services"))
     );
