@@ -1,4 +1,5 @@
 import type { Database } from "@carbon/database";
+import { getLogger } from "@carbon/logger";
 import type { JSONContent } from "@carbon/react";
 import {
   type FlatTree,
@@ -20,6 +21,8 @@ import type {
   stepRecordValidator
 } from "./models";
 import type { BaseOperationWithDetails, Job, StorageItem } from "./types";
+
+const log = getLogger("mes", "operations");
 
 export async function getOpenJobs(
   client: SupabaseClient<Database>,
@@ -1072,7 +1075,9 @@ export async function startProductionEvent(
       .single();
 
     if (trackedActivityInsert.error) {
-      console.error(trackedActivityInsert.error);
+      log.error("Failed to insert tracked activity", {
+        error: trackedActivityInsert.error
+      });
       return trackedActivityInsert;
     }
 
@@ -1087,7 +1092,9 @@ export async function startProductionEvent(
       });
 
     if (trackedActivityOutputInsert.error) {
-      console.error(trackedActivityOutputInsert.error);
+      log.error("Failed to insert tracked activity output", {
+        error: trackedActivityOutputInsert.error
+      });
       return trackedActivityOutputInsert;
     }
 

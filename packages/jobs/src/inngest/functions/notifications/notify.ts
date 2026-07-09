@@ -9,6 +9,7 @@ import { companyHasPlan } from "@carbon/ee/plan.server";
 import { getSlackUserIdByCarbonId } from "@carbon/ee/slack.server";
 import { ERP_URL } from "@carbon/env";
 import type { Events } from "@carbon/lib/events";
+import { getLogger } from "@carbon/logger";
 import {
   getNotificationEmailCtaLabel,
   getNotificationEmailHeading,
@@ -18,6 +19,8 @@ import {
 } from "@carbon/notifications";
 import { render } from "@react-email/components";
 import { inngest } from "../../client";
+
+const log = getLogger("jobs", "notify");
 
 type ApprovalDocumentType = Database["public"]["Enums"]["approvalDocumentType"];
 
@@ -58,7 +61,7 @@ async function getDescription(
         .single();
 
       if (salesRfq.error) {
-        console.error("Failed to get salesRfq", salesRfq.error);
+        log.error("Failed to get salesRfq", { error: salesRfq.error });
         throw salesRfq.error;
       }
 
@@ -77,7 +80,7 @@ async function getDescription(
         .eq("id", documentId)
         .single();
       if (quote.error) {
-        console.error("Failed to get quote", quote.error);
+        log.error("Failed to get quote", { error: quote.error });
         throw quote.error;
       }
       return `Quote ${quote?.data?.quoteId} assigned to you`;
@@ -90,7 +93,7 @@ async function getDescription(
         .eq("id", documentId)
         .single();
       if (expiredQuote.error) {
-        console.error("Failed to get quote", expiredQuote.error);
+        log.error("Failed to get quote", { error: expiredQuote.error });
         throw expiredQuote.error;
       }
       return `Quote ${expiredQuote?.data?.quoteId} has expired`;
@@ -104,7 +107,7 @@ async function getDescription(
         .single();
 
       if (salesOrder.error) {
-        console.error("Failed to get salesOrder", salesOrder.error);
+        log.error("Failed to get salesOrder", { error: salesOrder.error });
         throw salesOrder.error;
       }
 
@@ -119,10 +122,9 @@ async function getDescription(
         .single();
 
       if (maintenanceDispatchCreated.error) {
-        console.error(
-          "Failed to get maintenanceDispatchCreated",
-          maintenanceDispatchCreated.error
-        );
+        log.error("Failed to get maintenanceDispatchCreated", {
+          error: maintenanceDispatchCreated.error
+        });
         throw maintenanceDispatchCreated.error;
       }
 
@@ -137,10 +139,9 @@ async function getDescription(
         .single();
 
       if (maintenanceDispatch.error) {
-        console.error(
-          "Failed to get maintenanceDispatch",
-          maintenanceDispatch.error
-        );
+        log.error("Failed to get maintenanceDispatch", {
+          error: maintenanceDispatch.error
+        });
         throw maintenanceDispatch.error;
       }
 
@@ -159,7 +160,9 @@ async function getDescription(
         .single();
 
       if (nonConformance.error) {
-        console.error("Failed to get nonConformance", nonConformance.error);
+        log.error("Failed to get nonConformance", {
+          error: nonConformance.error
+        });
         throw nonConformance.error;
       }
 
@@ -174,7 +177,7 @@ async function getDescription(
         .single();
 
       if (job.error) {
-        console.error("Failed to get job", job.error);
+        log.error("Failed to get job", { error: job.error });
         throw job.error;
       }
 
@@ -189,7 +192,7 @@ async function getDescription(
         .single();
 
       if (completedJob.error) {
-        console.error("Failed to get job", completedJob.error);
+        log.error("Failed to get job", { error: completedJob.error });
         throw completedJob.error;
       }
 
@@ -206,7 +209,9 @@ async function getDescription(
         .single();
 
       if (jobOperation.error) {
-        console.error("Failed to get jobOperation", jobOperation.error);
+        log.error("Failed to get jobOperation", {
+          error: jobOperation.error
+        });
         throw jobOperation.error;
       }
 
@@ -226,7 +231,7 @@ async function getDescription(
         .single();
 
       if (procedure.error) {
-        console.error("Failed to get procedure", procedure.error);
+        log.error("Failed to get procedure", { error: procedure.error });
         throw procedure.error;
       }
 
@@ -241,7 +246,9 @@ async function getDescription(
         .single();
 
       if (digitalQuote.error) {
-        console.error("Failed to get digital quote", digitalQuote.error);
+        log.error("Failed to get digital quote", {
+          error: digitalQuote.error
+        });
         throw digitalQuote.error;
       }
 
@@ -264,7 +271,9 @@ async function getDescription(
         .single();
 
       if (gaugeCalibration.error) {
-        console.error("Failed to get gaugeCalibration", gaugeCalibration.error);
+        log.error("Failed to get gaugeCalibration", {
+          error: gaugeCalibration.error
+        });
         throw gaugeCalibration.error;
       }
 
@@ -279,7 +288,9 @@ async function getDescription(
         .single();
 
       if (stockTransfer.error) {
-        console.error("Failed to get stockTransfer", stockTransfer.error);
+        log.error("Failed to get stockTransfer", {
+          error: stockTransfer.error
+        });
         throw stockTransfer.error;
       }
 
@@ -294,7 +305,9 @@ async function getDescription(
         .single();
 
       if (pickingList.error) {
-        console.error("Failed to get pickingList", pickingList.error);
+        log.error("Failed to get pickingList", {
+          error: pickingList.error
+        });
         throw pickingList.error;
       }
 
@@ -309,10 +322,9 @@ async function getDescription(
         .single();
 
       if (trainingAssignment.error) {
-        console.error(
-          "Failed to get trainingAssignment",
-          trainingAssignment.error
-        );
+        log.error("Failed to get trainingAssignment", {
+          error: trainingAssignment.error
+        });
         throw trainingAssignment.error;
       }
 
@@ -327,7 +339,7 @@ async function getDescription(
         .single();
 
       if (training.error) {
-        console.error("Failed to get training", training.error);
+        log.error("Failed to get training", { error: training.error });
         throw training.error;
       }
 
@@ -342,7 +354,9 @@ async function getDescription(
         .single();
 
       if (purchaseOrder.error) {
-        console.error("Failed to get purchaseOrder", purchaseOrder.error);
+        log.error("Failed to get purchaseOrder", {
+          error: purchaseOrder.error
+        });
         throw purchaseOrder.error;
       }
 
@@ -357,7 +371,9 @@ async function getDescription(
         .single();
 
       if (purchaseInvoice.error) {
-        console.error("Failed to get purchaseInvoice", purchaseInvoice.error);
+        log.error("Failed to get purchaseInvoice", {
+          error: purchaseInvoice.error
+        });
         throw purchaseInvoice.error;
       }
 
@@ -372,7 +388,7 @@ async function getDescription(
         .single();
 
       if (suggestion.error) {
-        console.error("Failed to get suggestion", suggestion.error);
+        log.error("Failed to get suggestion", { error: suggestion.error });
         throw suggestion.error;
       }
 
@@ -388,7 +404,7 @@ async function getDescription(
         .single();
 
       if (risk.error) {
-        console.error("Failed to get risk", risk.error);
+        log.error("Failed to get risk", { error: risk.error });
         throw risk.error;
       }
 
@@ -403,10 +419,9 @@ async function getDescription(
         .single();
 
       if (supplierQuoteAssignment.error) {
-        console.error(
-          "Failed to get supplier quote",
-          supplierQuoteAssignment.error
-        );
+        log.error("Failed to get supplier quote", {
+          error: supplierQuoteAssignment.error
+        });
         throw supplierQuoteAssignment.error;
       }
 
@@ -421,7 +436,9 @@ async function getDescription(
         .single();
 
       if (supplierQuote.error) {
-        console.error("Failed to get supplier quote", supplierQuote.error);
+        log.error("Failed to get supplier quote", {
+          error: supplierQuote.error
+        });
         throw supplierQuote.error;
       }
 
@@ -443,9 +460,11 @@ async function getDescription(
           .single();
 
         if (purchaseOrderResult.error || !purchaseOrderResult.data) {
-          console.error(
+          log.error(
             "Failed to retrieve purchase order for approval notification",
-            purchaseOrderResult.error
+            {
+              error: purchaseOrderResult.error
+            }
           );
           return "Purchase order requires your approval";
         }
@@ -461,9 +480,11 @@ async function getDescription(
           .single();
 
         if (qualityDocumentResult.error || !qualityDocumentResult.data) {
-          console.error(
+          log.error(
             "Failed to retrieve quality document for approval notification",
-            qualityDocumentResult.error
+            {
+              error: qualityDocumentResult.error
+            }
           );
           return "Quality document requires your approval";
         }
@@ -658,7 +679,7 @@ export const notifyFunction = inngest.createFunction(
     retries: 3
   },
   { event: "carbon/notify" },
-  async ({ event, step }) => {
+  async ({ event, step, logger }) => {
     const payload = event.data as Events["carbon/notify"]["data"];
     // inApp is always on so the topbar reflects every notification. Callers
     // can request additional channels (email, slack) but cannot opt out of
@@ -699,7 +720,9 @@ export const notifyFunction = inngest.createFunction(
           groups: payload.recipient.groupIds
         });
         if (result.error) {
-          console.error("Failed to get userIds for groups", result.error);
+          logger.error("Failed to get userIds for groups", {
+            error: result.error
+          });
           throw result.error;
         }
         ids = (result.data ?? []) as string[];
@@ -748,10 +771,9 @@ export const notifyFunction = inngest.createFunction(
             );
           }
         } catch (error) {
-          console.error(
-            "Failed to send integration assignment notification:",
+          logger.error("Failed to send integration assignment notification", {
             error
-          );
+          });
         }
       });
     }
@@ -784,7 +806,7 @@ export const notifyFunction = inngest.createFunction(
           .insert(rows)
           .select("id");
         if (error) {
-          console.error("Failed to insert notification rows", error);
+          logger.error("Failed to insert notification rows", { error });
           throw error;
         }
         return { inserted: data?.length ?? 0, userIds };
@@ -799,7 +821,7 @@ export const notifyFunction = inngest.createFunction(
         })
       );
       if (!emailAllowed) {
-        console.warn("Email not allowed");
+        logger.warn("Email not allowed");
         return;
       }
       const emailEvents = await step.run(
@@ -810,7 +832,7 @@ export const notifyFunction = inngest.createFunction(
             .select("id, email, fullName")
             .in("id", userIds);
           if (error) {
-            console.error("Failed to resolve email recipients", error);
+            logger.error("Failed to resolve email recipients", { error });
             throw error;
           }
 
@@ -877,7 +899,7 @@ export const notifyFunction = inngest.createFunction(
             .maybeSingle();
 
           if (error) {
-            console.error("Failed to resolve Slack integration", error);
+            logger.error("Failed to resolve Slack integration", { error });
             return [];
           }
           if (!integration?.active) return [];

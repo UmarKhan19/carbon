@@ -41,6 +41,14 @@ export const deadlineTypes = [
   "No Deadline"
 ] as const;
 
+// A due date only applies to the two dated deadline types; ASAP / No Deadline
+// ignore it. Single source for both the validators below and the job form UI.
+export function deadlineRequiresDueDate(
+  deadlineType: string | null | undefined
+): boolean {
+  return deadlineType === "Hard Deadline" || deadlineType === "Soft Deadline";
+}
+
 export const jobStatus = [
   "Draft",
   "Planned",
@@ -169,7 +177,7 @@ export const bulkJobValidator = z
   )
   .refine(
     (data) => {
-      if (["Hard Deadline", "Soft Deadline"].includes(data.deadlineType)) {
+      if (deadlineRequiresDueDate(data.deadlineType)) {
         return !!data.dueDateOfFirstJob;
       }
       return true;
@@ -181,7 +189,7 @@ export const bulkJobValidator = z
   )
   .refine(
     (data) => {
-      if (["Hard Deadline", "Soft Deadline"].includes(data.deadlineType)) {
+      if (deadlineRequiresDueDate(data.deadlineType)) {
         return !!data.dueDateOfLastJob;
       }
       return true;
@@ -194,10 +202,7 @@ export const bulkJobValidator = z
 
 export const jobValidator = baseJobValidator.refine(
   (data) => {
-    if (
-      ["Hard Deadline", "Soft Deadline"].includes(data.deadlineType) &&
-      !data.dueDate
-    ) {
+    if (deadlineRequiresDueDate(data.deadlineType) && !data.dueDate) {
       return false;
     }
     return true;
@@ -232,10 +237,7 @@ export const salesOrderToJobValidator = baseJobValidator
   })
   .refine(
     (data) => {
-      if (
-        ["Hard Deadline", "Soft Deadline"].includes(data.deadlineType) &&
-        !data.dueDate
-      ) {
+      if (deadlineRequiresDueDate(data.deadlineType) && !data.dueDate) {
         return false;
       }
       return true;
