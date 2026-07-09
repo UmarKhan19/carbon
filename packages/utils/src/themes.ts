@@ -1,17 +1,20 @@
 /**
  * OKLCH color system + theme engine.
  *
- * Every theme is generated from a compact spec (brand hue + chroma + kind) by
- * `buildTheme`, which emits full `oklch(...)` strings for all semantic tokens in
- * both light and dark modes. Dark mode follows a perceptual-lightness formula
- * rather than hand-picked values.
+ * Every theme is generated from a compact spec (a brand hue plus its primary
+ * lightness/chroma in each mode) by `buildTheme`, which emits full `oklch(...)`
+ * strings for all semantic tokens in both light and dark modes.
+ *
+ * Surfaces are intentionally achromatic (Vercel/Geist-style crisp grays, pure
+ * white / pure black extremes); only the brand tokens (primary, active, ring,
+ * sidebar-primary) carry the theme hue. The eight themes are Carbon's existing
+ * palette — the same identities, expressed in OKLCH and enriched, not a new set.
  *
  * Token values are complete color strings (not bare HSL triplets), so every
  * consumer references them directly as `var(--token)` — never `hsl(var(--token))`.
  */
 
 type Mode = "light" | "dark";
-type ThemeKind = "accent" | "neutral" | "acid";
 
 const ok = (l: number, c: number, h: number) =>
   `oklch(${+l.toFixed(4)} ${+c.toFixed(4)} ${h})`;
@@ -27,14 +30,18 @@ const STATUS = {
 /** Fixed, categorical chart hues at constant lightness (data identity is stable). */
 const CHART_HUES = [25, 160, 240, 80, 300, 50] as const;
 
+/** Brand primary in one mode. */
+type Brand = { l: number; c: number };
+
 export type ThemeSpec = {
   name: string;
   label: string;
   /** Brand hue in OKLCH degrees. */
   hue: number;
-  /** Brand chroma (0 = achromatic graphite). */
-  chroma: number;
-  kind: ThemeKind;
+  /** Brand primary lightness/chroma in light mode (chroma 0 = achromatic graphite). */
+  light: Brand;
+  /** Brand primary lightness/chroma in dark mode. */
+  dark: Brand;
 };
 
 type CssVars = Record<string, string>;
@@ -84,135 +91,120 @@ function chartTokens(mode: Mode): CssVars {
   }, {});
 }
 
-/** Brand-derived tokens: primary, active, ring. */
+/**
+ * Brand-derived tokens: primary, active, ring. Neutral themes (light chroma 0)
+ * render a crisp graphite ramp — near-black primary in light, pure white in dark
+ * — like the original Modern/Brutal themes. Colored themes tint primary/active/
+ * ring with the brand hue while surfaces stay achromatic.
+ */
 function brandTokens(spec: ThemeSpec, mode: Mode): BrandVars {
-  const { hue: h, chroma: c, kind } = spec;
-  const nh = h; // neutrals carry a faint brand tint
+  const h = spec.hue;
+  const { l, c } = spec[mode];
+  const isNeutral = spec.light.c === 0;
 
-  if (kind === "neutral") {
-    // Achromatic near-fg primary (graphite / brutal look).
+  if (isNeutral) {
     if (mode === "light") {
       return {
-        primary: ok(0.24, c, nh),
-        "primary-foreground": ok(0.98, 0, 0),
-        active: ok(0.92, c, nh),
-        "active-foreground": ok(0.28, c, nh),
-        ring: ok(0.35, c, nh)
+        primary: ok(l, 0, 0),
+        "primary-foreground": ok(0.985, 0, 0),
+        active: ok(0.904, 0, 0),
+        "active-foreground": ok(0.213, 0, 0),
+        ring: ok(l, 0, 0)
       };
     }
     return {
-      primary: ok(0.93, c, nh),
-      "primary-foreground": ok(0.14, c, nh),
-      active: ok(0.22, c, nh),
-      "active-foreground": ok(0.92, c, nh),
-      ring: ok(0.55, c, nh)
+      primary: ok(l, 0, 0),
+      "primary-foreground": ok(0, 0, 0),
+      active: ok(0.216, 0, 0),
+      "active-foreground": ok(0.985, 0, 0),
+      ring: ok(0.465, 0, 0)
     };
   }
 
-  if (kind === "acid") {
-    // High-lightness electric accent on graphite (Signal Acid).
-    if (mode === "light") {
-      return {
-        primary: ok(0.82, c, h),
-        "primary-foreground": ok(0.28, c * 0.5, h),
-        active: ok(0.94, c * 0.5, h),
-        "active-foreground": ok(0.4, c * 0.65, h),
-        ring: ok(0.82, c, h)
-      };
-    }
-    return {
-      primary: ok(0.85, c, h),
-      "primary-foreground": ok(0.24, c * 0.55, h),
-      active: ok(0.28, c * 0.45, h),
-      "active-foreground": ok(0.85, c * 0.75, h),
-      ring: ok(0.85, c, h)
-    };
-  }
+  // Dark ink on light/bright primaries (yellow, orange); near-white otherwise.
+  const primaryFg = l > 0.68 ? ok(0.2, c * 0.35, h) : ok(0.985, c * 0.02, h);
 
-  // Standard colored accent.
   if (mode === "light") {
     return {
-      primary: ok(0.52, c, h),
-      "primary-foreground": ok(0.98, c * 0.05, h),
-      active: ok(0.93, c * 0.25, h),
-      "active-foreground": ok(0.4, c * 0.8, h),
-      ring: ok(0.52, c, h)
+      primary: ok(l, c, h),
+      "primary-foreground": primaryFg,
+      active: ok(0.95, c * 0.16, h),
+      "active-foreground": ok(0.42, c * 0.7, h),
+      ring: ok(l, c, h)
     };
   }
   return {
-    primary: ok(0.72, c * 0.85, h),
-    "primary-foreground": ok(0.14, c * 0.15, h),
-    active: ok(0.24, c * 0.35, h),
-    "active-foreground": ok(0.8, c * 0.75, h),
-    ring: ok(0.72, c * 0.85, h)
+    primary: ok(l, c, h),
+    "primary-foreground": primaryFg,
+    active: ok(0.26, c * 0.4, h),
+    "active-foreground": ok(0.82, c * 0.7, h),
+    ring: ok(l, c, h)
   };
 }
 
-/** Neutral surfaces, text, borders — faintly tinted with the brand hue. */
-function neutralTokens(spec: ThemeSpec, mode: Mode): CssVars {
-  const nh = spec.hue;
-  const nc = spec.kind === "neutral" ? 0.004 : 0.006;
-
+/**
+ * Neutral surfaces, text, borders — achromatic (Vercel/Geist grays). Identical
+ * across every theme; pure white background in light, pure black in dark.
+ */
+function neutralTokens(mode: Mode): CssVars {
   if (mode === "light") {
     return {
       background: ok(1, 0, 0),
-      foreground: ok(0.16, nc, nh),
-      card: ok(0.99, nc, nh),
-      "card-foreground": ok(0.16, nc, nh),
-      popover: ok(0.985, nc, nh),
-      "popover-foreground": ok(0.16, nc, nh),
-      secondary: ok(0.95, nc, nh),
-      "secondary-foreground": ok(0.24, nc, nh),
-      muted: ok(0.95, nc, nh),
-      "muted-foreground": ok(0.55, nc, nh),
-      accent: ok(0.955, nc, nh),
-      "accent-foreground": ok(0.24, nc, nh),
-      border: ok(0.9, nc, nh),
-      input: ok(0.9, nc, nh)
+      foreground: ok(0.145, 0, 0),
+      card: ok(1, 0, 0),
+      "card-foreground": ok(0.145, 0, 0),
+      popover: ok(1, 0, 0),
+      "popover-foreground": ok(0.145, 0, 0),
+      secondary: ok(0.968, 0, 0),
+      "secondary-foreground": ok(0.213, 0, 0),
+      muted: ok(0.968, 0, 0),
+      "muted-foreground": ok(0.556, 0, 0),
+      accent: ok(0.968, 0, 0),
+      "accent-foreground": ok(0.213, 0, 0),
+      border: ok(0.922, 0, 0),
+      input: ok(0.922, 0, 0)
     };
   }
   return {
-    background: ok(0.08, nc, nh),
-    foreground: ok(0.93, nc, nh),
-    card: ok(0.12, nc, nh),
-    "card-foreground": ok(0.93, nc, nh),
-    popover: ok(0.15, nc, nh),
-    "popover-foreground": ok(0.93, nc, nh),
-    secondary: ok(0.18, nc, nh),
-    "secondary-foreground": ok(0.92, nc, nh),
-    muted: ok(0.2, nc, nh),
-    "muted-foreground": ok(0.62, nc, nh),
-    accent: ok(0.18, nc, nh),
-    "accent-foreground": ok(0.92, nc, nh),
-    border: ok(0.25, nc, nh),
-    input: ok(0.25, nc, nh)
+    background: ok(0, 0, 0),
+    foreground: ok(0.947, 0, 0),
+    card: ok(0.146, 0, 0),
+    "card-foreground": ok(0.947, 0, 0),
+    popover: ok(0.182, 0, 0),
+    "popover-foreground": ok(0.947, 0, 0),
+    secondary: ok(0.182, 0, 0),
+    "secondary-foreground": ok(0.947, 0, 0),
+    muted: ok(0.27, 0, 0),
+    "muted-foreground": ok(0.708, 0, 0),
+    accent: ok(0.216, 0, 0),
+    "accent-foreground": ok(0.947, 0, 0),
+    border: ok(0.27, 0, 0),
+    input: ok(0.27, 0, 0)
   };
 }
 
-/** Sidebar surfaces derived from the neutral + brand ramp. */
-function sidebarTokens(spec: ThemeSpec, mode: Mode, brand: BrandVars): CssVars {
-  const nh = spec.hue;
-  const nc = spec.kind === "neutral" ? 0.004 : 0.006;
+/** Sidebar surfaces (achromatic) with the brand primary/ring threaded through. */
+function sidebarTokens(mode: Mode, brand: BrandVars): CssVars {
   if (mode === "light") {
     return {
-      "sidebar-background": ok(0.985, nc, nh),
-      "sidebar-foreground": ok(0.35, nc, nh),
+      "sidebar-background": ok(0.985, 0, 0),
+      "sidebar-foreground": ok(0.35, 0, 0),
       "sidebar-primary": brand.primary,
       "sidebar-primary-foreground": brand["primary-foreground"],
-      "sidebar-accent": ok(0.95, nc, nh),
-      "sidebar-accent-foreground": ok(0.24, nc, nh),
-      "sidebar-border": ok(0.9, nc, nh),
+      "sidebar-accent": ok(0.955, 0, 0),
+      "sidebar-accent-foreground": ok(0.213, 0, 0),
+      "sidebar-border": ok(0.922, 0, 0),
       "sidebar-ring": brand.ring
     };
   }
   return {
-    "sidebar-background": ok(0.11, nc, nh),
-    "sidebar-foreground": ok(0.9, nc, nh),
+    "sidebar-background": ok(0.11, 0, 0),
+    "sidebar-foreground": ok(0.9, 0, 0),
     "sidebar-primary": brand.primary,
     "sidebar-primary-foreground": brand["primary-foreground"],
-    "sidebar-accent": ok(0.18, nc, nh),
-    "sidebar-accent-foreground": ok(0.92, nc, nh),
-    "sidebar-border": ok(0.25, nc, nh),
+    "sidebar-accent": ok(0.2, 0, 0),
+    "sidebar-accent-foreground": ok(0.947, 0, 0),
+    "sidebar-border": ok(0.27, 0, 0),
     "sidebar-ring": brand.ring
   };
 }
@@ -220,11 +212,11 @@ function sidebarTokens(spec: ThemeSpec, mode: Mode, brand: BrandVars): CssVars {
 function buildMode(spec: ThemeSpec, mode: Mode): CssVars {
   const brand = brandTokens(spec, mode);
   return {
-    ...neutralTokens(spec, mode),
+    ...neutralTokens(mode),
     ...brand,
     ...statusTokens(mode),
     ...chartTokens(mode),
-    ...sidebarTokens(spec, mode, brand)
+    ...sidebarTokens(mode, brand)
   };
 }
 
@@ -243,25 +235,68 @@ function buildTheme(spec: ThemeSpec) {
 }
 
 /**
- * Theme specs — Carbon's existing eight themes, expressed in OKLCH.
- *
- * Each `{hue, chroma, kind}` was derived from that theme's original HSL brand
- * primary converted to OKLCH, so the palette identity is preserved — this is the
- * same set of themes, moved to a perceptual color space, not a new palette.
- * `zinc` (Modern) remains the default graphite. `blue` (Blueberry) and `violet`
- * (Lavender) shared a near-identical raw hue and were separated only by
- * lightness; since the engine fixes lightness per kind, `violet` is nudged toward
- * purple so the two stay visually distinct.
+ * Carbon's eight themes, in OKLCH. Each brand primary is anchored on that theme's
+ * original identity, enriched (higher chroma) and brought into the crisp
+ * Vercel-neutral chassis. Blue is de-purpled (its old hue sat at ~273); violet
+ * holds the purple end so the two stay distinct. `zinc` (Modern) is the default.
  */
 const THEME_SPECS: ThemeSpec[] = [
-  { name: "zinc", label: "Modern", hue: 264, chroma: 0, kind: "neutral" },
-  { name: "neutral", label: "Brutal", hue: 0, chroma: 0, kind: "neutral" },
-  { name: "red", label: "Cherry", hue: 27, chroma: 0.2, kind: "accent" },
-  { name: "orange", label: "Apricot", hue: 40, chroma: 0.17, kind: "accent" },
-  { name: "yellow", label: "Lemon", hue: 92, chroma: 0.17, kind: "acid" },
-  { name: "green", label: "Mint", hue: 175, chroma: 0.12, kind: "accent" },
-  { name: "blue", label: "Blueberry", hue: 265, chroma: 0.14, kind: "accent" },
-  { name: "violet", label: "Lavender", hue: 295, chroma: 0.18, kind: "accent" }
+  {
+    name: "zinc",
+    label: "Modern",
+    hue: 0,
+    light: { l: 0.213, c: 0 },
+    dark: { l: 1, c: 0 }
+  },
+  {
+    name: "neutral",
+    label: "Brutal",
+    hue: 0,
+    light: { l: 0.213, c: 0 },
+    dark: { l: 1, c: 0 }
+  },
+  {
+    name: "red",
+    label: "Cherry",
+    hue: 27,
+    light: { l: 0.6, c: 0.215 },
+    dark: { l: 0.64, c: 0.2 }
+  },
+  {
+    name: "orange",
+    label: "Apricot",
+    hue: 47,
+    light: { l: 0.705, c: 0.185 },
+    dark: { l: 0.75, c: 0.15 }
+  },
+  {
+    name: "yellow",
+    label: "Lemon",
+    hue: 92,
+    light: { l: 0.85, c: 0.17 },
+    dark: { l: 0.87, c: 0.17 }
+  },
+  {
+    name: "green",
+    label: "Mint",
+    hue: 165,
+    light: { l: 0.66, c: 0.13 },
+    dark: { l: 0.74, c: 0.14 }
+  },
+  {
+    name: "blue",
+    label: "Blueberry",
+    hue: 250,
+    light: { l: 0.58, c: 0.16 },
+    dark: { l: 0.68, c: 0.17 }
+  },
+  {
+    name: "violet",
+    label: "Lavender",
+    hue: 300,
+    light: { l: 0.53, c: 0.235 },
+    dark: { l: 0.67, c: 0.19 }
+  }
 ];
 
 export const themes = THEME_SPECS.map(buildTheme);

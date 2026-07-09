@@ -14,8 +14,8 @@ const meshColorsByTheme: Record<
   }
 > = {
   zinc: {
-    light: ["#edecef", "#f4f4f6", "#fafafb", "#f0eff2"],
-    dark: ["#18181b", "#000000", "#0D0D0D", "#050505"]
+    light: ["#ededed", "#f3f3f3", "#fcfcfc", "#eeeeee"],
+    dark: ["#131313", "#000000", "#070707", "#010101"]
   },
   neutral: {
     light: ["#ededed", "#f3f3f3", "#fcfcfc", "#eeeeee"],
@@ -26,24 +26,24 @@ const meshColorsByTheme: Record<
     dark: ["#200c0a", "#000000", "#130302", "#060000"]
   },
   orange: {
-    light: ["#f4eae7", "#fbf1ed", "#fffbf9", "#f6ece8"],
-    dark: ["#200d07", "#000000", "#120301", "#060000"]
+    light: ["#f4ebe6", "#fbf1ed", "#fffbf9", "#f6ece8"],
+    dark: ["#1f0d05", "#000000", "#120300", "#060000"]
   },
   yellow: {
     light: ["#f0ede4", "#f6f3eb", "#fdfcf8", "#f1eee6"],
     dark: ["#181201", "#000000", "#0c0700", "#030100"]
   },
   green: {
-    light: ["#e5f0ec", "#ecf6f3", "#f9fdfb", "#e7f1ee"],
-    dark: ["#001812", "#000000", "#000b07", "#000301"]
+    light: ["#e6efeb", "#ecf6f1", "#f9fdfb", "#e8f1ec"],
+    dark: ["#02170f", "#000000", "#000b05", "#000301"]
   },
   blue: {
-    light: ["#e9edf5", "#eff4fc", "#fafcff", "#eaeff7"],
-    dark: ["#0b1222", "#000000", "#030715", "#000109"]
+    light: ["#e7eef5", "#eef4fb", "#f9fcff", "#e9eff6"],
+    dark: ["#061422", "#000000", "#000815", "#000108"]
   },
   violet: {
-    light: ["#edebf4", "#f4f2fb", "#fcfbff", "#efedf6"],
-    dark: ["#140f21", "#000000", "#080514", "#020007"]
+    light: ["#eeebf4", "#f4f2fb", "#fcfbff", "#efedf6"],
+    dark: ["#150f20", "#000000", "#090413", "#020007"]
   }
 };
 
