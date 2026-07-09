@@ -11,6 +11,7 @@ declare global {
       CONTROLLED_ENVIRONMENT: string;
       ERP_URL: string;
       JIRA_CLIENT_ID: string;
+      LOG_LEVEL: string;
       MES_URL: string;
       ONSHAPE_CLIENT_ID: string;
       POSTHOG_API_HOST: string;
@@ -39,6 +40,7 @@ declare global {
       JIRA_CLIENT_SECRET: string;
       JIRA_OAUTH_REDIRECT_URL: string;
       JIRA_STATE_SECRET: string;
+      LOG_LEVEL: string;
       MES_URL: string;
       ONSHAPE_CLIENT_ID: string;
       ONSHAPE_CLIENT_SECRET: string;
@@ -369,6 +371,14 @@ export const DEFAULT_LANGUAGE =
     isSecret: false
   }) ?? "en";
 
+// Level for @carbon/logger. Optional + non-secret so it reaches the browser.
+// The logger derives a sensible default when unset (dev: debug, prod: info,
+// browser prod: warning), so an invalid/absent value never throws.
+export const LOG_LEVEL = getEnv("LOG_LEVEL", {
+  isRequired: false,
+  isSecret: false
+});
+
 export const RATE_LIMIT = parseInt(
   getEnv("RATE_LIMIT", { isRequired: false, isSecret: false }) || "5",
   10
@@ -423,6 +433,7 @@ export function getBrowserEnv() {
     ERP_URL,
     GOOGLE_PLACES_API_KEY,
     JIRA_CLIENT_ID,
+    LOG_LEVEL,
     MES_URL,
     NODE_ENV,
     ONSHAPE_CLIENT_ID,
