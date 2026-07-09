@@ -1136,6 +1136,53 @@ export async function updateSuggestionNotificationSetting(
     .eq("id", companyId);
 }
 
+// The target Slack channel for new-suggestion posts lives on the Slack
+// integration's metadata (co-located with the token used to post), so no
+// schema change is needed. Returns null when Slack isn't connected or no
+// channel has been configured.
+export async function getSuggestionSlackChannel(
+  client: SupabaseClient<Database>,
+  companyId: string
+): Promise<string | null> {
+  const { data } = await client
+    .from("companyIntegration")
+    .select("metadata")
+    .eq("id", "slack")
+    .eq("companyId", companyId)
+    .maybeSingle();
+
+  const metadata = data?.metadata as { suggestionChannelId?: string } | null;
+  return metadata?.suggestionChannelId ?? null;
+}
+
+export async function updateSuggestionSlackChannel(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  channelId: string | null
+) {
+  const { data } = await client
+    .from("companyIntegration")
+    .select("metadata")
+    .eq("id", "slack")
+    .eq("companyId", companyId)
+    .maybeSingle();
+
+  // Slack must be connected for the channel to be usable — the same row holds
+  // the token used to post. No row ⇒ nothing to persist (silent no-op).
+  if (!data) return { data: null, error: null };
+
+  const metadata: Record<string, Json> = {
+    ...((data.metadata as Record<string, Json>) ?? {}),
+    suggestionChannelId: channelId ?? null
+  };
+
+  return client
+    .from("companyIntegration")
+    .update({ metadata })
+    .eq("id", "slack")
+    .eq("companyId", companyId);
+}
+
 export async function updateSupplierQuoteNotificationSetting(
   client: SupabaseClient<Database>,
   companyId: string,

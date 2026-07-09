@@ -231,7 +231,8 @@ export const rfqReadyValidator = z.object({
 export const suggestionNotificationValidator = z.object({
   suggestionNotificationGroup: z
     .array(z.string().min(1, { message: "Invalid selection" }))
-    .optional()
+    .optional(),
+  suggestionSlackChannel: z.string().optional()
 });
 
 export const maintenanceDispatchNotificationValidator = z.object({

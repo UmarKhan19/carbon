@@ -3,6 +3,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import {
   Boolean,
+  Input,
   Number,
   Submit,
   ValidatedForm,
@@ -30,11 +31,13 @@ import { Users } from "~/components/Form";
 import {
   getCompany,
   getCompanySettings,
+  getSuggestionSlackChannel,
   maintenanceDispatchNotificationValidator,
   maintenanceSettingsValidator,
   suggestionNotificationValidator,
   updateMaintenanceDispatchNotificationSettings,
-  updateSuggestionNotificationSetting
+  updateSuggestionNotificationSetting,
+  updateSuggestionSlackChannel
 } from "~/modules/settings";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
@@ -49,9 +52,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     view: "settings"
   });
 
-  const [company, companySettings] = await Promise.all([
+  const [company, companySettings, suggestionSlackChannel] = await Promise.all([
     getCompany(client, companyId),
-    getCompanySettings(client, companyId)
+    getCompanySettings(client, companyId),
+    getSuggestionSlackChannel(client, companyId)
   ]);
 
   if (!company.data)
@@ -69,7 +73,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
       )
     );
 
-  return { company: company.data, companySettings: companySettings.data };
+  return {
+    company: company.data,
+    companySettings: companySettings.data,
+    suggestionSlackChannel
+  };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -120,6 +128,15 @@ export async function action({ request }: ActionFunctionArgs) {
 
     if (update.error) return { success: false, message: update.error.message };
 
+    const channelUpdate = await updateSuggestionSlackChannel(
+      client,
+      companyId,
+      validation.data.suggestionSlackChannel?.trim() || null
+    );
+
+    if (channelUpdate.error)
+      return { success: false, message: channelUpdate.error.message };
+
     return {
       success: true,
       message: "Suggestion notification settings updated"
@@ -163,7 +180,8 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function ResourcesSettingsRoute() {
   const { t } = useLingui();
-  const { company, companySettings } = useLoaderData<typeof loader>();
+  const { company, companySettings, suggestionSlackChannel } =
+    useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
   const [maintenanceGenerateInAdvance, setMaintenanceGenerateInAdvance] =
     useState(companySettings.maintenanceGenerateInAdvance ?? false);
@@ -347,7 +365,8 @@ export default function ResourcesSettingsRoute() {
             validator={suggestionNotificationValidator}
             defaultValues={{
               suggestionNotificationGroup:
-                company.suggestionNotificationGroup ?? []
+                company.suggestionNotificationGroup ?? [],
+              suggestionSlackChannel: suggestionSlackChannel ?? ""
             }}
             fetcher={fetcher}
           >
@@ -373,6 +392,13 @@ export default function ResourcesSettingsRoute() {
                     name="suggestionNotificationGroup"
                     label={t`Who should receive notifications when a new suggestion is submitted?`}
                     type="employee"
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Input
+                    name="suggestionSlackChannel"
+                    label={t`Slack channel`}
+                    helperText={t`Post new suggestions to this Slack channel ID (e.g. C0123456789). Requires the Slack integration to be connected.`}
                   />
                 </div>
               </div>
