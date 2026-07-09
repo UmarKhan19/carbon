@@ -6,19 +6,19 @@ import { inngest } from "../../client";
 export const weeklyFunction = inngest.createFunction(
   { id: "weekly", retries: 2 },
   { cron: "0 21 * * 0" },
-  async ({ step }) => {
+  async ({ step, logger }) => {
     const serviceRole = getCarbonServiceRole();
     await step.run("cloud-cleanup", async () => {
-      console.log(`Starting weekly tasks: ${new Date().toISOString()}`);
+      logger.info("Starting weekly tasks");
 
       try {
         if (process.env.CARBON_EDITION === Edition.Cloud) {
           const bypassUrl = `${process.env.VERCEL_URL}/api/settings/bypass`;
           const bypassResponse = await fetch(bypassUrl);
           if (!bypassResponse.ok) {
-            console.error(
-              `Failed to fetch bypass list: ${bypassResponse.statusText}`
-            );
+            logger.error("Failed to fetch bypass list", {
+              statusText: bypassResponse.statusText
+            });
             return;
           }
           const bypassData = (await bypassResponse.json()) as {
@@ -26,7 +26,7 @@ export const weeklyFunction = inngest.createFunction(
           };
           const bypassList = bypassData.bypassList ?? [];
 
-          console.log(`Bypass list: ${bypassList}`);
+          logger.info("Bypass list", { bypassList });
 
           // Get all companies
           const { data: companies, error: companiesError } = await serviceRole
@@ -34,13 +34,13 @@ export const weeklyFunction = inngest.createFunction(
             .select("id, name, createdAt");
 
           if (companiesError) {
-            console.error(
-              `Failed to fetch companies: ${companiesError.message}`
-            );
+            logger.error("Failed to fetch companies", {
+              error: companiesError
+            });
             return;
           }
 
-          console.log(`Found ${companies?.length || 0} companies`);
+          logger.info("Found companies", { count: companies?.length || 0 });
 
           // Get all company plans
           const { data: companyPlans, error: plansError } = await serviceRole
@@ -48,9 +48,9 @@ export const weeklyFunction = inngest.createFunction(
             .select("id, stripeSubscriptionStatus");
 
           if (plansError) {
-            console.error(
-              `Failed to fetch company plans: ${plansError.message}`
-            );
+            logger.error("Failed to fetch company plans", {
+              error: plansError
+            });
             return;
           }
 
@@ -90,7 +90,9 @@ export const weeklyFunction = inngest.createFunction(
               return true;
             }) || [];
 
-          console.log(`Companies to delete: ${companiesToDelete.length}`);
+          logger.info("Companies to delete", {
+            count: companiesToDelete.length
+          });
 
           const { error: deletedCompaniesError } = await serviceRole
             .from("company")
@@ -101,14 +103,16 @@ export const weeklyFunction = inngest.createFunction(
             );
 
           if (deletedCompaniesError) {
-            console.error(
-              `Failed to delete companies: ${deletedCompaniesError.message}`
-            );
+            logger.error("Failed to delete companies", {
+              error: deletedCompaniesError
+            });
             return;
           } else {
-            console.log(`Deleted ${companiesToDelete.length} companies`);
+            logger.info("Deleted companies", {
+              count: companiesToDelete.length
+            });
             for (const company of companiesToDelete) {
-              console.log(`Deleted company ${company.name}`);
+              logger.info("Deleted company", { company: company.name });
             }
           }
 
@@ -119,26 +123,25 @@ export const weeklyFunction = inngest.createFunction(
               { p_company_id: company.id }
             );
             if (dropSearchError) {
-              console.error(
-                `Failed to drop search index for company ${company.name}: ${dropSearchError.message}`
-              );
+              logger.error("Failed to drop search index for company", {
+                company: company.name,
+                error: dropSearchError
+              });
             } else {
-              console.log(`Dropped search index for company ${company.name}`);
+              logger.info("Dropped search index for company", {
+                company: company.name
+              });
             }
           }
         }
       } catch (error) {
-        console.error(
-          `Unexpected error in cloud cleanup: ${
-            error instanceof Error ? error.message : String(error)
-          }`
-        );
+        logger.error("Unexpected error in cloud cleanup", { error });
       }
     });
 
     await step.run("notify-outstanding-trainings", async () => {
       // Notify employees with outstanding trainings (Pending or Overdue)
-      console.log(`Checking for outstanding training assignments...`);
+      logger.info("Checking for outstanding training assignments");
 
       try {
         // Get all companies with training assignments
@@ -149,9 +152,9 @@ export const weeklyFunction = inngest.createFunction(
             .limit(1000);
 
         if (companiesError) {
-          console.error(
-            `Failed to fetch companies with trainings: ${companiesError.message}`
-          );
+          logger.error("Failed to fetch companies with trainings", {
+            error: companiesError
+          });
           return;
         }
 
@@ -159,9 +162,9 @@ export const weeklyFunction = inngest.createFunction(
           ...new Set(companiesWithTrainings?.map((c) => c.companyId) ?? [])
         ];
 
-        console.log(
-          `Found ${uniqueCompanyIds.length} companies with training assignments`
-        );
+        logger.info("Found companies with training assignments", {
+          count: uniqueCompanyIds.length
+        });
 
         let totalNotifications = 0;
 
@@ -172,9 +175,10 @@ export const weeklyFunction = inngest.createFunction(
             });
 
           if (trainingsError) {
-            console.error(
-              `Failed to fetch trainings for company ${companyId}: ${trainingsError.message}`
-            );
+            logger.error("Failed to fetch trainings for company", {
+              companyId,
+              error: trainingsError
+            });
             continue;
           }
 
@@ -217,32 +221,27 @@ export const weeklyFunction = inngest.createFunction(
                   }
                 }
               });
-              console.log(
-                `Sent reminder for training "${assignment.trainingName}" to employee ${assignment.employeeId}`
-              );
+              logger.info("Sent training reminder", {
+                training: assignment.trainingName,
+                employeeId: assignment.employeeId
+              });
               totalNotifications++;
             } catch (err) {
-              console.error(
-                `Failed to send training reminder: ${
-                  err instanceof Error ? err.message : String(err)
-                }`
-              );
+              logger.error("Failed to send training reminder", {
+                error: err
+              });
             }
           }
         }
 
-        console.log(
-          `Sent ${totalNotifications} training reminder notifications`
-        );
+        logger.info("Sent training reminder notifications", {
+          count: totalNotifications
+        });
       } catch (error) {
-        console.error(
-          `Unexpected error in training notifications: ${
-            error instanceof Error ? error.message : String(error)
-          }`
-        );
+        logger.error("Unexpected error in training notifications", { error });
       }
 
-      console.log(`Weekly tasks completed: ${new Date().toISOString()}`);
+      logger.info("Weekly tasks completed");
     });
   }
 );
