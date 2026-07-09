@@ -159,8 +159,10 @@ Dependency: 0 → 1, 0 → 2 → 3, then 4. Phases 1 and 2 can proceed in parall
   `generate:types` intentionally **deferred**: local regen produces a large spurious
   diff (types.ts is cloud-generated) and no code consumes the new columns yet —
   they'll be typed when the cloud regenerates or read via cast in Phase 2.
-- **Verify:** item Costing card shows `standardCost` for a Standard item; new items are
-  created as `Average`; types compile.
+- **Verify:** _(done — browser-verified 2026-07-09)_ New part **STDTEST1** defaults to
+  **FIFO**; the `Standard Cost` field is hidden for FIFO and appears (with helper text)
+  when the method is set to **Standard**. Types compile (no new errors). Screenshot:
+  `.ai/scratch/e2e/phase0-standard-cost-field.png`.
 
 ### Phase 1 — Purchased-item standard costing (inventory @ standard + PPV at receipt)
 
