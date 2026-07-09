@@ -1371,6 +1371,12 @@ msgstr "Artan"
 msgid "Ask an admin with {0} permission to add the first {1}."
 msgstr "{0} izni olan bir yöneticiye ilk {1}i eklemesini isteyin."
 
+msgid "Assemblies"
+msgstr "Montajlar"
+
+msgid "Assembly Instructions"
+msgstr "Montaj Talimatları"
+
 msgid "Assembly:"
 msgstr "Montaj:"
 

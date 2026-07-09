@@ -1371,6 +1371,12 @@ msgstr "Aufsteigend"
 msgid "Ask an admin with {0} permission to add the first {1}."
 msgstr "Bitten Sie einen Admin mit {0}-Berechtigung, das erste {1} hinzuzufügen."
 
+msgid "Assemblies"
+msgstr "Montagen"
+
+msgid "Assembly Instructions"
+msgstr "Montageanleitungen"
+
 msgid "Assembly:"
 msgstr "Baugruppe:"
 

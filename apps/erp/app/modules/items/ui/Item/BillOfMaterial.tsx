@@ -382,7 +382,6 @@ const BillOfMaterial = ({
         onToggleItem={onToggleItem}
         onRemoveItem={onRemoveItem}
         handleDrag={onCloseOnDrag}
-        className="my-2 "
         renderExtra={(item) => (
           <div key={`${isOpen}`}>
             <motion.button

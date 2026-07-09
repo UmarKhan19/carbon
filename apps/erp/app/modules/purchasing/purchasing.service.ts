@@ -5,6 +5,7 @@ import { getLogger } from "@carbon/logger";
 import { getPurchaseOrderStatus } from "@carbon/utils";
 import { getLocalTimeZone, today } from "@internationalized/date";
 import type {
+  PostgrestResponse,
   PostgrestSingleResponse,
   SupabaseClient
 } from "@supabase/supabase-js";
@@ -2358,10 +2359,25 @@ export async function getPurchasingRFQLines(
     .order("order", { ascending: true });
 }
 
+type PurchasingRfqSupplierWithSupplier =
+  Database["public"]["Tables"]["purchasingRfqSupplier"]["Row"] & {
+    supplier: { id: string; name: string };
+  };
+
+type LinkedSupplierQuote = {
+  supplierQuoteId: string;
+  supplierQuote:
+    | (Database["public"]["Tables"]["supplierQuote"]["Row"] & {
+        supplier: Database["public"]["Tables"]["supplier"]["Row"] | null;
+      })
+    | null;
+};
+
 export async function getPurchasingRFQSuppliers(
   client: SupabaseClient<Database>,
   purchasingRfqId: string
-) {
+): Promise<PostgrestResponse<PurchasingRfqSupplierWithSupplier>> {
+  // @ts-ignore - nested select instantiation exceeds tsgo depth limit
   return client
     .from("purchasingRfqSupplier")
     .select("*, supplier(id, name)")
@@ -2610,7 +2626,8 @@ export async function updatePurchasingRFQStatus(
 export async function getLinkedSupplierQuotes(
   client: SupabaseClient<Database>,
   purchasingRfqId: string
-) {
+): Promise<PostgrestResponse<LinkedSupplierQuote>> {
+  // @ts-ignore - nested select instantiation exceeds tsgo depth limit
   return client
     .from("purchasingRfqToSupplierQuote")
     .select(
@@ -2669,7 +2686,7 @@ export async function getLinkedPurchasingRfqsForInteraction(
 export async function getSiblingQuotesForQuote(
   client: SupabaseClient<Database>,
   supplierQuoteId: string
-) {
+): Promise<PostgrestResponse<LinkedSupplierQuote>> {
   // First get all RFQ IDs linked to this quote
   const { data: linkedRfqs, error: rfqError } = await client
     .from("purchasingRfqToSupplierQuote")
@@ -2677,12 +2694,16 @@ export async function getSiblingQuotesForQuote(
     .eq("supplierQuoteId", supplierQuoteId);
 
   if (rfqError || !linkedRfqs || linkedRfqs.length === 0) {
-    return { data: [], error: rfqError };
+    return {
+      data: [],
+      error: rfqError
+    } as unknown as PostgrestResponse<LinkedSupplierQuote>;
   }
 
   const rfqIds = linkedRfqs.map((r) => r.purchasingRfqId);
 
   // Get all quotes linked to any of these RFQs (excluding current quote)
+  // @ts-ignore - nested select instantiation exceeds tsgo depth limit
   return client
     .from("purchasingRfqToSupplierQuote")
     .select(
@@ -2716,7 +2737,8 @@ export async function getSupplierQuotesForComparison(
   purchasingRfqId: string
 ) {
   // 1. Get all supplier quote IDs linked to this RFQ with supplier info
-  const { data: links, error: linksError } = await client
+  // @ts-ignore - nested select instantiation exceeds tsgo depth limit
+  const linksResult: PostgrestResponse<LinkedSupplierQuote> = await client
     .from("purchasingRfqToSupplierQuote")
     .select(
       `
@@ -2725,6 +2747,7 @@ export async function getSupplierQuotesForComparison(
     `
     )
     .eq("purchasingRfqId", purchasingRfqId);
+  const { data: links, error: linksError } = linksResult;
 
   if (linksError || !links?.length) {
     return { data: { quotes: [], lines: [], prices: [] }, error: linksError };
@@ -2777,7 +2800,8 @@ export async function getSupplierQuotesForComparison(
 export async function getPurchasingRFQSuppliersWithLinks(
   client: SupabaseClient<Database>,
   purchasingRfqId: string
-) {
+): Promise<PostgrestResponse<PurchasingRfqSupplierWithSupplier>> {
+  // @ts-ignore - nested select instantiation exceeds tsgo depth limit
   return client
     .from("purchasingRfqSupplier")
     .select("*, supplier(id, name)")

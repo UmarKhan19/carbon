@@ -1371,6 +1371,12 @@ msgstr "Rosnąco"
 msgid "Ask an admin with {0} permission to add the first {1}."
 msgstr "Poproś administratora z uprawnieniami {0} o dodanie pierwszego {1}."
 
+msgid "Assemblies"
+msgstr "Zespoły"
+
+msgid "Assembly Instructions"
+msgstr "Instrukcje montażu"
+
 msgid "Assembly:"
 msgstr "Zespół:"
 
