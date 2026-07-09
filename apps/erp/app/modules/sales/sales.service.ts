@@ -2827,7 +2827,7 @@ export async function getCustomerItemPriceOverrideById(
     .select(
       `
       *,
-      customer:customerId(id, name),
+      customer(id, name),
       customerType:customerTypeId(id, name),
       item:itemId(id, name),
       breaks:customerItemPriceOverrideBreak(id, quantity, overridePrice, active)
@@ -2853,7 +2853,7 @@ export async function getCustomerItemPriceOverridesList(
     .select(
       `
       *,
-      customer:customerId(id, name),
+      customer(id, name),
       customerType:customerTypeId(id, name),
       item:itemId(id, name, unitSalePrice:itemUnitSalePrice(unitSalePrice))
     `,

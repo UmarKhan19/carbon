@@ -2364,7 +2364,7 @@ export async function getPurchasingRFQSuppliers(
 ) {
   return client
     .from("purchasingRfqSupplier")
-    .select("*, supplier:supplierId(id, name)")
+    .select("*, supplier(id, name)")
     .eq("purchasingRfqId", purchasingRfqId);
 }
 
@@ -2616,7 +2616,7 @@ export async function getLinkedSupplierQuotes(
     .select(
       `
       supplierQuoteId,
-      supplierQuote:supplierQuoteId (*, supplier:supplierId (*))
+      supplierQuote:supplierQuoteId (*, supplier(*))
     `
     )
     .eq("purchasingRfqId", purchasingRfqId);
@@ -2688,7 +2688,7 @@ export async function getSiblingQuotesForQuote(
     .select(
       `
       supplierQuoteId,
-      supplierQuote:supplierQuoteId (*, supplier:supplierId (*))
+      supplierQuote:supplierQuoteId (*, supplier(*))
     `
     )
     .in("purchasingRfqId", rfqIds)
@@ -2721,7 +2721,7 @@ export async function getSupplierQuotesForComparison(
     .select(
       `
       supplierQuoteId,
-      supplierQuote:supplierQuoteId (*, supplier:supplierId (*))
+      supplierQuote:supplierQuoteId (*, supplier(*))
     `
     )
     .eq("purchasingRfqId", purchasingRfqId);
@@ -2780,7 +2780,7 @@ export async function getPurchasingRFQSuppliersWithLinks(
 ) {
   return client
     .from("purchasingRfqSupplier")
-    .select("*, supplier:supplierId(id, name)")
+    .select("*, supplier(id, name)")
     .eq("purchasingRfqId", purchasingRfqId);
 }
 
