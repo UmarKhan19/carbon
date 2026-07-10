@@ -8,6 +8,10 @@ import { requirePermissions } from "../lib/supabase.ts";
 import type { Database } from "../lib/types.ts";
 import { credit, debit, journalReference } from "../lib/utils.ts";
 import { getCurrentAccountingPeriod } from "../shared/get-accounting-period.ts";
+import {
+  allocateVarianceAcrossLayers,
+  type VarianceAllocation,
+} from "../shared/purchase-cost-adjustment.ts";
 import { getNextSequence } from "../shared/get-next-sequence.ts";
 import { getDefaultPostingGroup } from "../shared/get-posting-group.ts";
 
@@ -488,7 +492,7 @@ serve(async (req: Request) => {
         .eq("companyId", companyId),
       client
         .from("itemCost")
-        .select("itemId, itemPostingGroupId")
+        .select("itemId, itemPostingGroupId, costingMethod")
         .in("itemId", itemIds),
       client
         .from("purchaseOrderLine")
@@ -854,24 +858,9 @@ serve(async (req: Request) => {
               }
             } // if the line is associated with a purchase order line, we do accrual/reversing
             else {
-              // create the cost entry
-              costLedgerInserts.push({
-                itemLedgerType: "Purchase",
-                costLedgerType: "Direct Cost",
-                adjustment: false,
-                documentType: "Purchase Invoice",
-                documentId: purchaseInvoice.data?.id ?? undefined,
-                externalDocumentId:
-                  purchaseInvoice.data?.supplierReference ?? undefined,
-                itemId: invoiceLine.itemId,
-                quantity: invoiceLineQuantityInInventoryUnit,
-                nominalCost:
-                  invoiceLine.quantity * (invoiceLine.unitPrice ?? 0),
-                cost: totalLineCostWithWeightedShipping,
-                remainingQuantity: invoiceLineQuantityInInventoryUnit,
-                supplierId: purchaseInvoice.data?.supplierId,
-                companyId,
-              });
+              // The receipt is the sole creator of purchase cost layers; this
+              // invoice adjusts the receipt's layers (below) instead of
+              // creating its own.
 
               // determine the journal lines that should be reversed
               const existingJournalLines = invoiceLine.purchaseOrderLineId
@@ -991,12 +980,195 @@ serve(async (req: Request) => {
                   companyId,
                 });
 
-                // DR/CR Purchase Price Variance if invoice cost differs from receipt cost
-                if (Math.abs(variance) > 0.005) {
+                // Split the invoice-vs-receipt variance by stock coverage:
+                // the on-hand share writes up Inventory (GL) and the receipt
+                // layers (adjustment child rows); the consumed share posts to
+                // PPV. Standard-cost items and outside-processing or
+                // non-inventory lines keep the full variance in PPV — they
+                // have no layers to adjust.
+                const lineItemTrackingType =
+                  items.data.find(
+                    (item: { id: string }) => item.id === invoiceLine.itemId
+                  )?.itemTrackingType ?? "Inventory";
+                const lineCostingMethod =
+                  itemCosts.data.find(
+                    (cost: { itemId: string }) =>
+                      cost.itemId === invoiceLine.itemId
+                  )?.costingMethod ?? "FIFO";
+                const usesLayers =
+                  !isOutsideProcessing &&
+                  lineItemTrackingType !== "Non-Inventory" &&
+                  lineCostingMethod !== "Standard" &&
+                  !!invoiceLine.itemId;
+
+                let allocation: VarianceAllocation = {
+                  inventoryShare: 0,
+                  ppvShare: Math.abs(variance) > 0.005 ? variance : 0,
+                  perLayer: [],
+                };
+
+                if (usesLayers && Math.abs(variance) > 0.005) {
+                  const receiptLinesForPoLine = await client
+                    .from("receiptLine")
+                    .select("receiptId")
+                    .eq("lineId", invoiceLine.purchaseOrderLineId!)
+                    .eq("companyId", companyId);
+                  if (receiptLinesForPoLine.error) {
+                    throw new Error("Failed to fetch receipt lines for PO line");
+                  }
+                  const receiptIds = [
+                    ...new Set(
+                      (receiptLinesForPoLine.data ?? [])
+                        .map(
+                          (line: { receiptId: string | null }) =>
+                            line.receiptId
+                        )
+                        .filter((id: string | null): id is string => !!id)
+                    ),
+                  ];
+
+                  const receiptLayers =
+                    receiptIds.length > 0
+                      ? await client
+                          .from("costLedger")
+                          .select("id, quantity, remainingQuantity")
+                          .eq("documentType", "Purchase Receipt")
+                          .in("documentId", receiptIds)
+                          .eq("itemId", invoiceLine.itemId!)
+                          .eq("adjustment", false)
+                          .eq("companyId", companyId)
+                          .order("postingDate", { ascending: true })
+                          .order("createdAt", { ascending: true })
+                      : { data: [], error: null };
+                  if (receiptLayers.error) {
+                    throw new Error("Failed to fetch receipt cost layers");
+                  }
+
+                  if ((receiptLayers.data ?? []).length > 0) {
+                    allocation = allocateVarianceAcrossLayers(
+                      (receiptLayers.data ?? []).map(
+                        (layer: {
+                          id: string;
+                          quantity: number | null;
+                          remainingQuantity: number | null;
+                        }) => ({
+                          id: layer.id,
+                          quantity: Number(layer.quantity),
+                          remainingQuantity: Number(
+                            layer.remainingQuantity ?? 0
+                          ),
+                        })
+                      ),
+                      quantityToReverse,
+                      variance
+                    );
+
+                    // Subledger: adjustment child rows on the covered layers,
+                    // consumed alongside their parent by calculateCOGS.
+                    for (const entry of allocation.perLayer) {
+                      costLedgerInserts.push({
+                        itemLedgerType: "Purchase",
+                        costLedgerType: "Direct Cost",
+                        adjustment: true,
+                        appliesToCostLedgerId: entry.costLedgerId,
+                        documentType: "Purchase Invoice",
+                        documentId: purchaseInvoice.data?.id ?? undefined,
+                        externalDocumentId:
+                          purchaseInvoice.data?.supplierReference ?? undefined,
+                        itemId: invoiceLine.itemId,
+                        quantity: entry.appliedQuantity,
+                        nominalCost: entry.adjustmentCost,
+                        cost: entry.adjustmentCost,
+                        remainingQuantity: entry.appliedQuantity,
+                        supplierId: purchaseInvoice.data?.supplierId,
+                        companyId,
+                      });
+                    }
+                  } else {
+                    // Legacy self-heal: goods received before receipt-created
+                    // layers shipped. Measure coverage from on-hand quantity
+                    // (itemInventory cache) and create the layer now at
+                    // receipt cost + on-hand variance share, so downstream
+                    // consumption converges instead of double-counting.
+                    const itemInventoryRows = await client
+                      .from("itemInventory")
+                      .select("quantityOnHand")
+                      .eq("itemId", invoiceLine.itemId!)
+                      .eq("companyId", companyId);
+                    const onHandQuantity = Math.max(
+                      0,
+                      (itemInventoryRows.data ?? []).reduce(
+                        (
+                          acc: number,
+                          row: { quantityOnHand: number | null }
+                        ) => acc + Number(row.quantityOnHand ?? 0),
+                        0
+                      )
+                    );
+                    allocation = allocateVarianceAcrossLayers(
+                      [
+                        {
+                          id: "legacy-self-heal",
+                          quantity: quantityToReverse,
+                          remainingQuantity: Math.min(
+                            onHandQuantity,
+                            quantityToReverse
+                          ),
+                        },
+                      ],
+                      quantityToReverse,
+                      variance
+                    );
+                    costLedgerInserts.push({
+                      itemLedgerType: "Purchase",
+                      costLedgerType: "Direct Cost",
+                      adjustment: false,
+                      documentType: "Purchase Receipt",
+                      documentId: purchaseInvoice.data?.id ?? undefined,
+                      externalDocumentId:
+                        purchaseInvoice.data?.supplierReference ?? undefined,
+                      itemId: invoiceLine.itemId,
+                      quantity: quantityToReverse,
+                      nominalCost:
+                        invoiceLine.quantity * (invoiceLine.unitPrice ?? 0),
+                      cost:
+                        receiptCostForReversedQty + allocation.inventoryShare,
+                      remainingQuantity: quantityToReverse,
+                      supplierId: purchaseInvoice.data?.supplierId,
+                      companyId,
+                    });
+                    // The write-up is baked into the layer; no child rows.
+                    allocation = {
+                      ...allocation,
+                      perLayer: [],
+                    };
+                  }
+                }
+
+                // DR Inventory for the on-hand share of the variance
+                if (Math.abs(allocation.inventoryShare) > 0.005) {
+                  journalLineInserts.push({
+                    accountId: accountDefaults.data.inventoryAccount,
+                    description: "Inventory Account",
+                    amount: debit("asset", allocation.inventoryShare),
+                    quantity: quantityToReverse,
+                    documentType: "Invoice",
+                    documentId: purchaseInvoice.data?.id,
+                    externalDocumentId: purchaseInvoice.data?.supplierReference,
+                    documentLineReference: journalReference.to.purchaseInvoice(
+                      invoiceLine.purchaseOrderLineId!
+                    ),
+                    journalLineReference,
+                    companyId,
+                  });
+                }
+
+                // DR/CR Purchase Price Variance for the consumed share
+                if (Math.abs(allocation.ppvShare) > 0.005) {
                   journalLineInserts.push({
                     accountId: accountDefaults.data.purchaseVarianceAccount,
                     description: "Purchase Price Variance",
-                    amount: debit("expense", variance),
+                    amount: debit("expense", allocation.ppvShare),
                     quantity: quantityToReverse,
                     documentType: "Invoice",
                     documentId: purchaseInvoice.data?.id,
