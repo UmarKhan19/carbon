@@ -296,3 +296,66 @@ All idempotent, randomized HHMMSS, views redefined with `SELECT *` after column 
 Confirm/adjust §4 decisions and §5 scope, then execute **Phase 0 → Phase 1** via
 `/execute`, committing per-task through the `/check-and-commit` gate. Phase 1 lands as
 the first PR (fixes purchased-item drift); Phases 2–4 stack behind it.
+
+---
+
+## Addendum (2026-07-10): Inbound Freight Breakout — DECIDED: Option A (capitalize + break out)
+
+Research: [`.ai/research/inbound-freight-landed-cost.md`](../research/inbound-freight-landed-cost.md).
+User steer: freight visibility is wanted for **all** costing methods (catch a purchaser
+next-day-airing everything). SAP (freight condition types + FR1 freight clearing) and
+NetSuite (landed-cost category → holding account) both **capitalize freight into
+inventory but break it out** through a dedicated freight account. **Decision (user,
+2026-07-10): Option A — capitalize + break out** (not expense-to-P&L).
+
+Today `post-receipt/index.ts:916` folds `lineWeightedShippingCost` into the single
+inventory debit → freight is invisible. There is **no** inbound-freight account in
+`accountDefault` (only outbound `6040 "Freight & Shipping Out"`).
+
+### Target postings (freight = allocated `lineWeightedShippingCost`; goods = `lineCost`)
+
+The freight **credit** always accrues to a new **Inbound Freight** clearing account
+(uniform across methods → this is the reportable freight figure, tagged with the
+supplier dimension). The freight **debit** side differs by method:
+
+- **FIFO / Average / LIFO** (freight capitalized into inventory value):
+  `DR Inventory (goods + freight)` · `CR GR/IR (goods)` · `CR Inbound Freight (freight)`
+- **Standard** (inventory held at standard; freight can't capitalize):
+  `DR Inventory (standard value)` · `DR PPV (goods PO − standard)` ·
+  `DR PPV (freight — not capitalizable into standard)` ·
+  `CR GR/IR (goods)` · `CR Inbound Freight (freight)`
+
+At **purchase invoice**: clear `GR/IR (goods)` and `Inbound Freight (freight)` against
+AP; invoice-vs-PO deltas → PPV (goods) and PPV/Inbound-Freight (freight). No inventory
+revaluation for Standard (already at standard from receipt).
+
+### Revised Phase 1 tasks (supersede/expand §6 Phase 1)
+
+- [ ] **1.0 New account `purchaseFreightAccount`** ("Inbound Freight", balance-sheet
+  clearing/liability, sibling of GR/IR 2125 → number **2126**). Migration: `ADD COLUMN
+  IF NOT EXISTS` on `accountDefault`; seed 2126 for new companies (seed.data.ts +
+  accountDefault mapping); **backfill existing companies** idempotently (`DO $$` loop:
+  create the 2126 account per company if missing, set `purchaseFreightAccount`; guard
+  companies lacking a chart). Cascade to posting groups if applicable. Types: read via
+  cast if local `generate:types` is unavailable.
+- [ ] **1.1 `post-receipt`** — load `itemCost.{costingMethod,standardCost}` per line;
+  split freight out of the inventory debit to `purchaseFreightAccount` (all methods);
+  for Standard, value inventory at `standardCost × qty`, goods PO−std → PPV, freight →
+  PPV. Preserve FIFO/Avg/LIFO goods behavior byte-for-byte except the freight credit
+  split. Write a `costLedger` layer at the capitalized value.
+- [ ] **1.2 `post-purchase-invoice`** — clear GR/IR (goods) + Inbound Freight (freight);
+  invoice-vs-PO deltas → PPV; no inventory revalue for Standard.
+- [ ] **1.3 Tie-out test** — FIFO and Standard, receive (goods+freight) → invoice:
+  assert freight lands in Inbound Freight, inventory = expected (landed for FIFO,
+  standard for Standard), PPV = expected, GR/IR + Inbound Freight net to zero after
+  invoice. Rolled-back psql-txn validation for the SQL/edge path.
+- [ ] **1.4 Browser verify** — PO with `supplierShippingCost` → receipt → invoice;
+  inspect the GL journal shows the separate Inbound Freight line; screenshot.
+
+### Notes / risks
+- Cross-cutting: changes FIFO/Average/LIFO postings too (freight credit now splits) —
+  regression-guard the goods lines.
+- `purchaseFreightAccount` backfill for existing companies is the delicate part (new
+  account per company); follow the `20260228023426` `DO $$` per-company loop precedent.
+- The migration must be applied (`crbn migrate`) before the edge functions reference the
+  new account.
