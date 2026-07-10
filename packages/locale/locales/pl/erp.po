@@ -92,7 +92,7 @@ msgid "{count, plural, one {# course} other {# courses}}"
 msgstr "{count, plural, one {# kurs} other {# kursy}}"
 
 msgid "{done} of {total} phases complete"
-msgstr ""
+msgstr "{done} z {total} faz ukończonych"
 
 msgid "{from}–{to} of {count}"
 msgstr "{from}–{to} z {count}"

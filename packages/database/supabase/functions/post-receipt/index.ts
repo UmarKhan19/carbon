@@ -587,10 +587,12 @@ serve(async (req: Request) => {
           [];
         // Cost layers created by this receipt (the receipt is the sole creator
         // of purchase layers; the invoice adjusts them later). Rows flagged
-        // isInvoiceFirst are skipped at flush time if a legacy invoice-created
-        // layer already covers the goods (pre-fix in-flight documents).
+        // isInvoiceFirst carry their PO line so the flush can exclude quantity
+        // already represented by a legacy invoice-created layer (documents
+        // posted before receipt-created layers shipped).
         const costLedgerInserts: (Database["public"]["Tables"]["costLedger"]["Insert"] & {
           isInvoiceFirst?: boolean;
+          poLineId?: string;
         })[] = [];
         // Negative receipts consume layers at layer cost inside the
         // transaction (calculateCOGS); GL amounts are patched to match.
@@ -843,6 +845,7 @@ serve(async (req: Request) => {
         // Detect invoice-first scenario: PO lines where qty invoiced > qty received
         const invoiceFirstQtyByPoLine = new Map<string, number>();
         const accrualUnitCostByPoLine = new Map<string, number>();
+        const receivedBeforeInvUnitsByPoLine = new Map<string, number>();
 
         if (accountingEnabled) {
           for (const pol of purchaseOrderLines.data) {
@@ -856,6 +859,7 @@ serve(async (req: Request) => {
             );
             if (invoiceFirstQty > 0) {
               invoiceFirstQtyByPoLine.set(pol.id, invoiceFirstQty);
+              receivedBeforeInvUnitsByPoLine.set(pol.id, receivedInInventoryUnit);
             }
           }
 
@@ -866,7 +870,7 @@ serve(async (req: Request) => {
 
             const accrualJournalLines = await client
               .from("journalLine")
-              .select("documentLineReference, amount, quantity")
+              .select("documentLineReference, amount, quantity, accountId")
               .in("documentLineReference", accrualDocRefs)
               .eq("accrual", true)
               .eq("companyId", companyId);
@@ -875,13 +879,21 @@ serve(async (req: Request) => {
               throw new Error("Failed to fetch accrual journal lines");
             }
 
-            // GR/IR debit entries have negative amounts (debit on a liability)
+            // GR/IR debit entries have non-positive amounts (debit on a
+            // liability; zero-priced invoices accrue at exactly 0). Matching
+            // the GR/IR account keeps the paired AP credit lines, which are
+            // also 0 on zero-priced invoices, out of the quantity sum.
             const accrualCostByPoLine: Record<
               string,
               { totalCost: number; totalQty: number }
             > = {};
             for (const jl of accrualJournalLines.data ?? []) {
-              if ((jl.amount ?? 0) < 0 && (jl.quantity ?? 0) > 0) {
+              if (
+                (jl.amount ?? 0) <= 0 &&
+                (jl.quantity ?? 0) > 0 &&
+                jl.accountId ===
+                  accountDefaults?.data?.goodsReceivedNotInvoicedAccount
+              ) {
                 const [, poLineId] = (
                   jl.documentLineReference ?? ""
                 ).split(":");
@@ -959,8 +971,11 @@ serve(async (req: Request) => {
               absReceivedQuantity,
               remainingInvoiceFirstQty
             );
-            const claimedUnitCost = accrualUnitCostByPoLine.get(poLineId) ?? 0;
-            if (claimedQty > 0 && claimedUnitCost > 0) {
+            const claimedUnitCost = accrualUnitCostByPoLine.get(poLineId);
+            // A recorded accrual basis is claimed even at zero unit cost
+            // (zero-priced invoices); only a missing basis falls through to
+            // the normal PO-cost path.
+            if (claimedQty > 0 && claimedUnitCost !== undefined) {
               invoiceFirstQty = claimedQty;
               accrualUnitCost = claimedUnitCost;
               invoiceFirstQtyByPoLine.set(
@@ -1105,6 +1120,7 @@ serve(async (req: Request) => {
                 supplierId: purchaseOrder.data?.supplierId ?? undefined,
                 companyId,
                 isInvoiceFirst: true,
+                poLineId: poLineId ?? undefined,
               });
             }
             if (normalQty > 0) {
@@ -1376,8 +1392,13 @@ serve(async (req: Request) => {
               quantity: consumption.quantity,
               companyId,
             });
+            // A consumed layer's total is authoritative even at zero or
+            // negative (free goods, credit-adjusted layers): the GL credit
+            // must match the value actually relieved from the subledger. The
+            // PO-cost fallback applies only when nothing was consumed and no
+            // cost basis was found.
             const consumedCost =
-              cogsResult.totalCost > 0
+              cogsResult.layersConsumed.length > 0 || cogsResult.totalCost > 0
                 ? cogsResult.totalCost
                 : consumption.fallbackCost;
             if (consumption.grIrLineIndex !== null) {
@@ -1405,22 +1426,26 @@ serve(async (req: Request) => {
             });
           }
 
-          // Flush cost layers. Transition guard: skip invoice-first rows for
-          // items whose goods already have a legacy invoice-created layer
-          // (documents posted before receipt-created layers shipped).
+          // Flush cost layers. Transition guard: invoices posted before
+          // receipt-created layers shipped created their own layers, so the
+          // invoice-first quantity those legacy layers already represent must
+          // not create a second one. Coverage is matched to the receipt's PO
+          // lines through the legacy invoices' own lines, net of quantity
+          // received before this receipt (which already consumed coverage);
+          // only the covered quantity is excluded — any remainder still
+          // creates a layer.
           if (costLedgerInserts.length > 0) {
-            const invoiceFirstItemIds = [
-              ...new Set(
-                costLedgerInserts
-                  .filter((row) => row.isInvoiceFirst && row.itemId)
-                  .map((row) => row.itemId!)
-              ),
-            ];
-            const legacyItemIds = new Set<string>();
-            if (invoiceFirstItemIds.length > 0) {
+            const invoiceFirstRows = costLedgerInserts.filter(
+              (row) => row.isInvoiceFirst && row.itemId && row.poLineId
+            );
+            const legacyCoverageByPoLine = new Map<string, number>();
+            if (invoiceFirstRows.length > 0) {
+              const invoiceFirstItemIds = [
+                ...new Set(invoiceFirstRows.map((row) => row.itemId!)),
+              ];
               const legacyLayers = await trx
                 .selectFrom("costLedger")
-                .select(["itemId"])
+                .select(["documentId"])
                 .where("documentType", "=", "Purchase Invoice")
                 .where("itemId", "in", invoiceFirstItemIds)
                 .where("companyId", "=", companyId)
@@ -1430,28 +1455,84 @@ serve(async (req: Request) => {
                 .where("adjustment", "=", false)
                 .where("appliesToCostLedgerId", "is", null)
                 .execute();
-              for (const layer of legacyLayers) {
-                if (layer.itemId) legacyItemIds.add(layer.itemId);
-              }
-              if (legacyItemIds.size > 0) {
-                console.log({
-                  function: "post-receipt",
-                  message:
-                    "skipping invoice-first layer creation for items with legacy invoice-created layers",
-                  itemIds: [...legacyItemIds],
-                });
+              const legacyInvoiceIds = [
+                ...new Set(
+                  legacyLayers
+                    .map((layer) => layer.documentId)
+                    .filter((id): id is string => !!id)
+                ),
+              ];
+              if (legacyInvoiceIds.length > 0) {
+                const invoiceFirstPoLineIds = [
+                  ...new Set(invoiceFirstRows.map((row) => row.poLineId!)),
+                ];
+                const legacyInvoiceLines = await trx
+                  .selectFrom("purchaseInvoiceLine")
+                  .select(["purchaseOrderLineId", "quantity", "conversionFactor"])
+                  .where("invoiceId", "in", legacyInvoiceIds)
+                  .where("purchaseOrderLineId", "in", invoiceFirstPoLineIds)
+                  .where("companyId", "=", companyId)
+                  .execute();
+                for (const line of legacyInvoiceLines) {
+                  if (!line.purchaseOrderLineId) continue;
+                  legacyCoverageByPoLine.set(
+                    line.purchaseOrderLineId,
+                    (legacyCoverageByPoLine.get(line.purchaseOrderLineId) ?? 0) +
+                      Number(line.quantity ?? 0) *
+                        Number(line.conversionFactor ?? 1)
+                  );
+                }
+                // Legacy layers were created for the full invoiced quantity,
+                // and units received earlier consumed that coverage first —
+                // subtracting received-to-date leaves exactly the coverage
+                // this and future receipts may still exclude.
+                for (const [linePoId, covered] of legacyCoverageByPoLine) {
+                  const receivedBefore =
+                    receivedBeforeInvUnitsByPoLine.get(linePoId) ?? 0;
+                  legacyCoverageByPoLine.set(
+                    linePoId,
+                    Math.max(0, covered - receivedBefore)
+                  );
+                }
               }
             }
-            const costLedgerRows = costLedgerInserts
-              .filter(
-                (row) =>
-                  !(
-                    row.isInvoiceFirst &&
-                    row.itemId &&
-                    legacyItemIds.has(row.itemId)
-                  )
-              )
-              .map(({ isInvoiceFirst: _isInvoiceFirst, ...row }) => row);
+            const costLedgerRows: Database["public"]["Tables"]["costLedger"]["Insert"][] =
+              [];
+            for (const row of costLedgerInserts) {
+              const {
+                isInvoiceFirst,
+                poLineId: rowPoLineId,
+                ...insertRow
+              } = row;
+              if (isInvoiceFirst && rowPoLineId) {
+                const coverage = legacyCoverageByPoLine.get(rowPoLineId) ?? 0;
+                const rowQty = Number(insertRow.quantity ?? 0);
+                const excludedQty = Math.min(rowQty, coverage);
+                if (excludedQty > 0) {
+                  legacyCoverageByPoLine.set(
+                    rowPoLineId,
+                    coverage - excludedQty
+                  );
+                  console.log({
+                    function: "post-receipt",
+                    message:
+                      "excluding invoice-first quantity already represented by legacy invoice-created layers",
+                    itemId: insertRow.itemId,
+                    purchaseOrderLineId: rowPoLineId,
+                    excludedQty,
+                  });
+                  const layerQty = rowQty - excludedQty;
+                  if (layerQty <= 0) continue;
+                  const scale = layerQty / rowQty;
+                  insertRow.quantity = layerQty;
+                  insertRow.cost = Number(insertRow.cost ?? 0) * scale;
+                  insertRow.nominalCost =
+                    Number(insertRow.nominalCost ?? 0) * scale;
+                  insertRow.remainingQuantity = layerQty;
+                }
+              }
+              costLedgerRows.push(insertRow);
+            }
             if (costLedgerRows.length > 0) {
               await trx.insertInto("costLedger").values(costLedgerRows).execute();
             }

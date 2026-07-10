@@ -1202,38 +1202,46 @@ serve(async (req: Request) => {
                         0
                       )
                     );
+                    const coveredQuantity = Math.min(
+                      onHandQuantity,
+                      quantityToReverse
+                    );
                     allocation = allocateVarianceAcrossLayers(
                       [
                         {
                           id: "legacy-self-heal",
                           quantity: quantityToReverse,
-                          remainingQuantity: Math.min(
-                            onHandQuantity,
-                            quantityToReverse
-                          ),
+                          remainingQuantity: coveredQuantity,
                         },
                       ],
                       quantityToReverse,
                       variance
                     );
-                    costLedgerInserts.push({
-                      itemLedgerType: "Purchase",
-                      costLedgerType: "Direct Cost",
-                      adjustment: false,
-                      documentType: "Purchase Receipt",
-                      documentId: purchaseInvoice.data?.id ?? undefined,
-                      externalDocumentId:
-                        purchaseInvoice.data?.supplierReference ?? undefined,
-                      itemId: invoiceLine.itemId,
-                      quantity: quantityToReverse,
-                      nominalCost:
-                        invoiceLine.quantity * (invoiceLine.unitPrice ?? 0),
-                      cost:
-                        receiptCostForReversedQty + allocation.inventoryShare,
-                      remainingQuantity: quantityToReverse,
-                      supplierId: purchaseInvoice.data?.supplierId,
-                      companyId,
-                    });
+                    // The layer only represents stock still on hand — the
+                    // consumed remainder's variance is PPV and must not become
+                    // consumable subledger value.
+                    if (coveredQuantity > 0) {
+                      const coverageRatio = coveredQuantity / quantityToReverse;
+                      costLedgerInserts.push({
+                        itemLedgerType: "Purchase",
+                        costLedgerType: "Direct Cost",
+                        adjustment: false,
+                        documentType: "Purchase Receipt",
+                        documentId: purchaseInvoice.data?.id ?? undefined,
+                        externalDocumentId:
+                          purchaseInvoice.data?.supplierReference ?? undefined,
+                        itemId: invoiceLine.itemId,
+                        quantity: coveredQuantity,
+                        nominalCost:
+                          coveredQuantity * invoiceLineUnitCostInInventoryUnit,
+                        cost:
+                          receiptCostForReversedQty * coverageRatio +
+                          allocation.inventoryShare,
+                        remainingQuantity: coveredQuantity,
+                        supplierId: purchaseInvoice.data?.supplierId,
+                        companyId,
+                      });
+                    }
                     // The write-up is baked into the layer; no child rows.
                     allocation = {
                       ...allocation,
