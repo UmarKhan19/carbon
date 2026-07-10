@@ -1320,6 +1320,13 @@ msgstr "Tem a certeza de que deseja rejeitar esta cotação?"
 msgid "Are you sure you want to release this job? It will become available to the shop floor, and drive purchasing and production."
 msgstr "Tem a certeza de que deseja liberar este trabalho? Ele ficará disponível para o chão de fábrica e impulsionará compras e produção."
 
+#. placeholder {0}: supplierName(deleteTarget.supplierId)
+msgid "Are you sure you want to remove {0} as a supplier for this item? This cannot be undone."
+msgstr ""
+
+msgid "Are you sure you want to remove {supplierName} as a supplier for this item? This cannot be undone."
+msgstr ""
+
 msgid "Are you sure you want to remove this item from the price list? This cannot be undone."
 msgstr "Tem a certeza de que deseja remover este item da lista de preços? Esta ação não pode ser desfeita."
 
@@ -3644,6 +3651,9 @@ msgstr "Eliminar Substância"
 
 msgid "Delete Suggestion"
 msgstr "Eliminar Sugestão"
+
+msgid "Delete supplier"
+msgstr ""
 
 msgid "Delete Supplier"
 msgstr "Eliminar Fornecedor"
@@ -11161,6 +11171,9 @@ msgstr "Número de Pedido do Fornecedor"
 msgid "Supplier Overview"
 msgstr "Visão Geral do Fornecedor"
 
+msgid "Supplier Part"
+msgstr ""
+
 msgid "Supplier Part ID"
 msgstr "ID da Peça do Fornecedor"
 
@@ -12189,6 +12202,9 @@ msgstr "Esta ordem de venda tem linhas que requerem a criação de trabalhos"
 #. placeholder {0}: usageCount === 1 ? "" : "s"
 msgid "This storage type is currently used by {usageCount} storage unit{0}."
 msgstr "Este tipo de armazenamento está sendo usado por {usageCount} unidade de armazenamento{0}."
+
+msgid "this supplier"
+msgstr ""
 
 msgid "This updates the theme for all users of the application"
 msgstr "Isto atualiza o tema para todos os utilizadores da aplicação"

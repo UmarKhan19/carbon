@@ -1320,6 +1320,13 @@ msgstr "क्या आप सुनिश्चित हैं कि आप 
 msgid "Are you sure you want to release this job? It will become available to the shop floor, and drive purchasing and production."
 msgstr "क्या आप सुनिश्चित हैं कि आप इस कार्य को जारी करना चाहते हैं? यह शॉप फ्लोर पर उपलब्ध हो जाएगा, और खरीद और उत्पादन को चलाएगा।"
 
+#. placeholder {0}: supplierName(deleteTarget.supplierId)
+msgid "Are you sure you want to remove {0} as a supplier for this item? This cannot be undone."
+msgstr ""
+
+msgid "Are you sure you want to remove {supplierName} as a supplier for this item? This cannot be undone."
+msgstr ""
+
 msgid "Are you sure you want to remove this item from the price list? This cannot be undone."
 msgstr "क्या आप सुनिश्चित हैं कि आप इस आइटम को मूल्य सूची से हटाना चाहते हैं? यह पूर्ववत नहीं किया जा सकता।"
 
@@ -3644,6 +3651,9 @@ msgstr "पदार्थ हटाएं"
 
 msgid "Delete Suggestion"
 msgstr "सुझाव हटाएं"
+
+msgid "Delete supplier"
+msgstr ""
 
 msgid "Delete Supplier"
 msgstr "आपूर्तिकर्ता हटाएं"
@@ -11161,6 +11171,9 @@ msgstr "आपूर्तिकर्ता ऑर्डर संख्या"
 msgid "Supplier Overview"
 msgstr "आपूर्तिकर्ता अवलोकन"
 
+msgid "Supplier Part"
+msgstr ""
+
 msgid "Supplier Part ID"
 msgstr "आपूर्तिकर्ता भाग ID"
 
@@ -12189,6 +12202,9 @@ msgstr "इस बिक्रय आदेश में ऐसी पंक्�
 #. placeholder {0}: usageCount === 1 ? "" : "s"
 msgid "This storage type is currently used by {usageCount} storage unit{0}."
 msgstr "यह स्टोरेज प्रकार वर्तमान में {usageCount} स्टोरेज यूनिट{0} द्वारा उपयोग किया जा रहा है।"
+
+msgid "this supplier"
+msgstr ""
 
 msgid "This updates the theme for all users of the application"
 msgstr "यह एप्लिकेशन के सभी उपयोगकर्ताओं के लिए थीम को अपडेट करता है"
