@@ -5,9 +5,10 @@
 - **Research:** [`.ai/research/inventory-valuation-variances.md`](../research/inventory-valuation-variances.md)
 - **Date:** 2026-07-08
 - **Rebased on (2026-07-10):** `fix/purchase-cost-layer-gl-consistency` merged into
-  this branch (merge commit; that branch lands on main first). §2 and Phase 1 are
-  rewritten against its architecture — see §2.5 for the primitives it introduced
-  and the invariants this plan must preserve. Its plan:
+  this branch, and its squash-merge to main (`008aaa08e`, PR #1117 — includes late
+  refinements to the self-heal layer and invoice-first flush) merged in after it
+  landed. §2 and Phase 1 are rewritten against its architecture — see §2.5 for the
+  primitives it introduced and the invariants this plan must preserve. Its plan:
   [`.ai/plans/2026-07-10-purchase-cost-layer-gl-consistency.md`](2026-07-10-purchase-cost-layer-gl-consistency.md).
 
 ---
