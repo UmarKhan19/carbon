@@ -98,10 +98,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
     Object.assign(allRuleNames, ruleNames);
   }
 
-  // Over-receipt check: warn (and require acknowledgment) when posting would
-  // push a PO line's received quantity past its ordered quantity. Uses the
-  // live PO lines rather than the receipt's outstanding-quantity snapshot so
-  // concurrent receipts are counted.
+  // Check over-receipt against the live PO lines rather than the receipt's
+  // outstanding-quantity snapshot so concurrent receipts are counted.
   if (receiptForSurface?.sourceDocument === "Purchase Order") {
     const purchaseOrderLineIds = [
       ...new Set(

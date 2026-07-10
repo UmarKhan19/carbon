@@ -446,8 +446,6 @@ function ReceiptLineItem({
   const splitDisclosure = useDisclosure();
   const deleteDisclosure = useDisclosure();
 
-  // Negative remaining means more was received than ordered — shown as a
-  // positive "Surplus" instead of a negative "Outstanding".
   const remainingQuantity =
     (line.outstandingQuantity ?? 0) - (line.receivedQuantity ?? 0);
   const isSurplus = remainingQuantity < 0;

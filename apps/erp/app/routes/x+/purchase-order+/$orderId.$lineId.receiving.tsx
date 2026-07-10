@@ -11,9 +11,8 @@ import {
 import { getDatabaseClient } from "~/services/database.server";
 import { path } from "~/utils/path";
 
-// Short-close ("Stop Receiving") or reopen a purchase order line whose
-// remaining quantity will never arrive. Intentionally does NOT use
-// requireUnlocked — short close only makes sense on released (locked) orders.
+// Intentionally does NOT use requireUnlocked — short close only makes sense
+// on released (locked) orders.
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
   const { client, companyId, userId } = await requirePermissions(request, {

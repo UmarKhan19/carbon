@@ -295,9 +295,6 @@ function PurchaseOrderLineItem({
   const isSelected =
     location.pathname === path.to.purchaseOrderLine(orderId, line.id!);
 
-  // Short close ("Stop Receiving"): settle a line whose remainder will never
-  // arrive. Only receivable line types, only on a released order, and only
-  // while the line still has an outstanding quantity.
   const isReceivableLineType =
     line.purchaseOrderLineType !== "Comment" &&
     line.purchaseOrderLineType !== "G/L Account";
