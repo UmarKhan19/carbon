@@ -18,7 +18,7 @@ export function GuidedUpsellCard({
         <LuSparkles className="text-xl" />
       </div>
       <div className="flex-1 min-w-0">
-        <div className="text-xxs uppercase text-muted-foreground tracking-wide font-medium text-primary">
+        <div className="text-xxs uppercase text-muted-foreground tracking-wide font-medium">
           {i18n._(GUIDED_UPSELL.eyebrow)}
         </div>
         <div className="text-base font-semibold tracking-tight mt-0.5 text-balance">

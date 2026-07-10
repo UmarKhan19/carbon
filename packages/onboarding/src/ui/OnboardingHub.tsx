@@ -245,7 +245,7 @@ function NextStepCard({
         {action.gateNumber}
       </div>
       <div className="flex-1 min-w-0">
-        <div className="text-xxs uppercase text-muted-foreground tracking-wide font-medium text-primary">
+        <div className="text-xxs uppercase text-muted-foreground tracking-wide font-medium">
           <Trans>Next step</Trans>
         </div>
         <div className="text-base font-medium tracking-tight mt-0.5">
