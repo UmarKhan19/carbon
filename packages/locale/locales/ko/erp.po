@@ -1320,6 +1320,13 @@ msgstr "이 견적을 반려하시겠습니까?"
 msgid "Are you sure you want to release this job? It will become available to the shop floor, and drive purchasing and production."
 msgstr "이 작업을 릴리즈하시겠습니까? 현장에서 사용할 수 있게 되며 구매와 생산을 유발합니다."
 
+#. placeholder {0}: supplierName(deleteTarget.supplierId)
+msgid "Are you sure you want to remove {0} as a supplier for this item? This cannot be undone."
+msgstr ""
+
+msgid "Are you sure you want to remove {supplierName} as a supplier for this item? This cannot be undone."
+msgstr ""
+
 msgid "Are you sure you want to remove this item from the price list? This cannot be undone."
 msgstr "이 품목을 가격표에서 제거하시겠습니까? 이 작업은 되돌릴 수 없습니다."
 
@@ -3644,6 +3651,9 @@ msgstr "재질 삭제"
 
 msgid "Delete Suggestion"
 msgstr "제안 삭제"
+
+msgid "Delete supplier"
+msgstr ""
 
 msgid "Delete Supplier"
 msgstr "공급업체 삭제"
@@ -11161,6 +11171,9 @@ msgstr "공급업체 주문 번호"
 msgid "Supplier Overview"
 msgstr "공급업체 개요"
 
+msgid "Supplier Part"
+msgstr ""
+
 msgid "Supplier Part ID"
 msgstr "공급업체 부품 ID"
 
@@ -12189,6 +12202,9 @@ msgstr "이 판매주문에는 작업 생성이 필요한 라인이 있습니다
 #. placeholder {0}: usageCount === 1 ? "" : "s"
 msgid "This storage type is currently used by {usageCount} storage unit{0}."
 msgstr "이 저장 유형은 현재 저장 단위 {usageCount}개{0}에서 사용 중입니다."
+
+msgid "this supplier"
+msgstr ""
 
 msgid "This updates the theme for all users of the application"
 msgstr "이 설정은 애플리케이션의 모든 사용자에 대한 테마를 업데이트합니다"
