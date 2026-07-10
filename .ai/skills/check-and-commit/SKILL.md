@@ -18,10 +18,13 @@ then committing."
 
 ```bash
 git status --porcelain
-git diff --name-only
+git diff --name-only HEAD   # staged + unstaged vs HEAD — the full change set
 ```
 
-From the changed paths, derive:
+Derive every flag below from `git diff --name-only HEAD` (all changes vs the last
+commit). Plain `git diff --name-only` omits already-staged files, which would let
+staged UI/`.po` files slip past `I18N_RELEVANT` and skip Gate 6. From the changed
+paths, derive:
 
 - `SCHEMA_CHANGED` — any file under `packages/database/supabase/migrations/`
 - `I18N_RELEVANT` — the diff adds/edits UI source that can introduce new
