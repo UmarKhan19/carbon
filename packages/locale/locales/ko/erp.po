@@ -92,7 +92,7 @@ msgid "{count, plural, one {# course} other {# courses}}"
 msgstr "교육과정 {count}개"
 
 msgid "{done} of {total} phases complete"
-msgstr ""
+msgstr "{done}개 중 {total}개 단계 완료"
 
 msgid "{from}–{to} of {count}"
 msgstr "{count}개 중 {from}–{to}"
@@ -1375,10 +1375,10 @@ msgid "Ask an admin with {0} permission to add the first {1}."
 msgstr "{0} 권한이 있는 관리자에게 첫 {1} 추가를 요청하세요."
 
 msgid "Assemblies"
-msgstr ""
+msgstr "조립품"
 
 msgid "Assembly Instructions"
-msgstr ""
+msgstr "조립 지침"
 
 msgid "Assembly:"
 msgstr "조립:"
