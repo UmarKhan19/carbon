@@ -91,6 +91,9 @@ msgstr "{chainLabel}. Considere apontar esta peça diretamente para o sucessor f
 msgid "{count, plural, one {# course} other {# courses}}"
 msgstr "{count, plural, one {# curso} other {# cursos}}"
 
+msgid "{done} of {total} phases complete"
+msgstr "{done} de {total} fases concluídas"
+
 msgid "{from}–{to} of {count}"
 msgstr "{from}–{to} de {count}"
 
@@ -166,6 +169,9 @@ msgstr "Mínimo de 5 Usuários"
 
 msgid "5-8 weeks"
 msgstr "5-8 semanas"
+
+msgid "52-week demand"
+msgstr "Demanda de 52 semanas"
 
 msgid "5MB file limit"
 msgstr "Limite de ficheiro de 5MB"
@@ -416,9 +422,6 @@ msgstr "Contabilidade está ativada"
 msgid "Accounting period"
 msgstr "Período contábil"
 
-msgid "Accounting Periods"
-msgstr ""
-
 msgid "Accounting: GL, AR, AP, and month-end close"
 msgstr "Contabilidade: GL, AR, AP e encerramento mensal"
 
@@ -542,6 +545,9 @@ msgstr "Adicione uma coluna abaixo para ordenar a visualização"
 msgid "Add a comment..."
 msgstr "Adicione um comentário..."
 
+msgid "Add a custom pricing row to override quantity, price, shipping, lead time, and tax"
+msgstr "Adicione uma linha de preço personalizada para substituir quantidade, preço, frete, prazo de entrega e imposto"
+
 msgid "Add a printer in the printing settings to print labels directly."
 msgstr "Adicione uma impressora nas configurações de impressão para imprimir etiquetas diretamente."
 
@@ -556,6 +562,9 @@ msgstr "Adicionar uma etapa"
 
 msgid "Add Actions"
 msgstr "Adicionar Ações"
+
+msgid "Add Adjustment"
+msgstr "Adicionar ajuste"
 
 msgid "Add any notes about your decision..."
 msgstr "Adicione qualquer nota sobre sua decisão..."
@@ -995,6 +1004,10 @@ msgstr "Tem certeza de que deseja ativar este medidor?."
 msgid "Are you sure you want to cancel {0}? This will also cancel all related supplier quotes."
 msgstr "Tem a certeza de que deseja cancelar {0}? Isto também cancelará todas as cotações de fornecedores relacionadas."
 
+#. placeholder {0}: routeData?.purchaseOrder?.purchaseOrderId ?? "this purchase order"
+msgid "Are you sure you want to cancel {0}? This will close the order."
+msgstr "Tem certeza que deseja cancelar {0}? Isso fechará o pedido."
+
 msgid "Are you sure you want to cancel this job? It will no longer be available on the shop floor."
 msgstr "Tem a certeza de que deseja cancelar este trabalho? Deixará de estar disponível no chão de fábrica."
 
@@ -1307,6 +1320,13 @@ msgstr "Tem a certeza de que deseja rejeitar esta cotação?"
 msgid "Are you sure you want to release this job? It will become available to the shop floor, and drive purchasing and production."
 msgstr "Tem a certeza de que deseja liberar este trabalho? Ele ficará disponível para o chão de fábrica e impulsionará compras e produção."
 
+#. placeholder {0}: supplierName(deleteTarget.supplierId)
+msgid "Are you sure you want to remove {0} as a supplier for this item? This cannot be undone."
+msgstr ""
+
+msgid "Are you sure you want to remove {supplierName} as a supplier for this item? This cannot be undone."
+msgstr ""
+
 msgid "Are you sure you want to remove this item from the price list? This cannot be undone."
 msgstr "Tem a certeza de que deseja remover este item da lista de preços? Esta ação não pode ser desfeita."
 
@@ -1360,6 +1380,12 @@ msgstr "Ascendente"
 #. placeholder {1}: copy.noun
 msgid "Ask an admin with {0} permission to add the first {1}."
 msgstr "Peça a um administrador com permissão {0} para adicionar o primeiro {1}."
+
+msgid "Assemblies"
+msgstr "Montagens"
+
+msgid "Assembly Instructions"
+msgstr "Instruções de Montagem"
 
 msgid "Assembly:"
 msgstr "Montagem:"
@@ -1741,6 +1767,9 @@ msgstr "Criar materiais de treinamento baseados em funções"
 msgid "Build tailored, role-based training materials"
 msgstr "Criar materiais de treinamento personalizados baseados em funções"
 
+msgid "Built and costed as its own method"
+msgstr "Construído e calculado como seu próprio método"
+
 msgid "Bulk Import"
 msgstr "Importação em Massa"
 
@@ -1825,6 +1854,12 @@ msgstr "Cancelar"
 msgid "Cancel Job"
 msgstr "Cancelar Trabalho"
 
+msgid "Cancel Order"
+msgstr "Cancelar pedido"
+
+msgid "Cancel Purchase Order"
+msgstr "Cancelar ordem de compra"
+
 msgid "Cancel Sales Order"
 msgstr "Cancelar Pedido de Venda"
 
@@ -1857,9 +1892,6 @@ msgstr "Não é possível adicionar etapas a uma operação não salva"
 
 msgid "Cannot add tools to unsaved operation"
 msgstr "Não é possível adicionar ferramentas a uma operação não salva"
-
-msgid "Cannot close yet"
-msgstr ""
 
 msgid "Cannot convert RFQ to quote"
 msgstr "Não é possível converter RFQ para cotação"
@@ -2087,17 +2119,8 @@ msgstr "Registado desde {0}"
 msgid "Close"
 msgstr "Fechar"
 
-msgid "Close {periodLabel}"
-msgstr ""
-
 msgid "Close Date"
 msgstr "Data de Encerramento"
-
-msgid "Close Period"
-msgstr ""
-
-msgid "Close Status"
-msgstr ""
 
 msgid "Closed"
 msgstr "Fechado"
@@ -2354,9 +2377,6 @@ msgstr "Confirmar Mapeamento"
 
 msgid "Confirm Password"
 msgstr "Confirmar Senha"
-
-msgid "Confirm Skip"
-msgstr ""
 
 msgid "Confirmed incoming stock — purchase & production orders (bars above zero)."
 msgstr "Estoque de entrada confirmado — pedidos de compra e produção (barras acima de zero)."
@@ -2711,6 +2731,12 @@ msgstr "Não foi possível ler o documento: {0}"
 msgid "Couldn't load documents"
 msgstr "Não foi possível carregar documentos"
 
+msgid "Couldn't load related documents. Refresh before creating a new one to avoid duplicates."
+msgstr "Não foi possível carregar os documentos relacionados. Atualize antes de criar um novo para evitar duplicatas."
+
+msgid "Couldn't reschedule the job. Please try again."
+msgstr "Não foi possível reagendar o trabalho. Por favor, tente novamente."
+
 msgid "Count"
 msgstr "Contagem"
 
@@ -2958,6 +2984,9 @@ msgstr "Coluna CSV"
 
 msgid "CSV file must have at least 2 rows."
 msgstr "O arquivo CSV deve ter pelo menos 2 linhas."
+
+msgid "Cumulative"
+msgstr "Cumulativo"
 
 msgid "Cumulative %"
 msgstr "% Cumulativo"
@@ -3216,9 +3245,6 @@ msgstr "Data de Emissão"
 
 msgid "Date Paid"
 msgstr "Data de Pagamento"
-
-msgid "Date Range"
-msgstr ""
 
 msgid "Dates"
 msgstr "Datas"
@@ -3485,6 +3511,9 @@ msgstr "Excluir Feriado"
 msgid "Delete Issue"
 msgstr "Eliminar Problema"
 
+msgid "Delete Item Group"
+msgstr "Excluir grupo de itens"
+
 msgid "Delete Line"
 msgstr "Eliminar Linha"
 
@@ -3623,6 +3652,9 @@ msgstr "Eliminar Substância"
 msgid "Delete Suggestion"
 msgstr "Eliminar Sugestão"
 
+msgid "Delete supplier"
+msgstr ""
+
 msgid "Delete Supplier"
 msgstr "Eliminar Fornecedor"
 
@@ -3631,6 +3663,10 @@ msgstr "Eliminar Cotação de Fornecedor"
 
 msgid "Delete Supplier Type"
 msgstr "Eliminar Tipo de Fornecedor"
+
+#. placeholder {0}: pendingDelete.quantity
+msgid "Delete the price break for quantity {0}? This can't be undone."
+msgstr "Excluir a quebra de preço para a quantidade {0}? Isso não pode ser desfeito."
 
 msgid "Delete Timecard"
 msgstr "Eliminar Cartão de Ponto"
@@ -3646,6 +3682,9 @@ msgstr "Excluir Transferência"
 
 msgid "Delete Transfer Line"
 msgstr "Eliminar Linha de Transferência"
+
+msgid "Delete Unit of Measure"
+msgstr "Excluir unidade de medida"
 
 msgid "Delete View"
 msgstr "Eliminar Visualização"
@@ -3906,6 +3945,9 @@ msgstr "Baixar modelo"
 
 msgid "Draft"
 msgstr "Rascunho"
+
+msgid "Draft is editable; Active is in use and requires a new version to change; Archived is retired."
+msgstr "Rascunho é editável; Ativo está em uso e requer uma nova versão para alterar; Arquivado está desativado."
 
 msgid "Drag & drop files, or click to browse"
 msgstr "Arraste e solte arquivos, ou clique para procurar"
@@ -4615,9 +4657,6 @@ msgstr "Todas as condições devem corresponder"
 
 msgid "Every in-scope test passes in your configured system, with your data."
 msgstr "Todos os testes no escopo passam no seu sistema configurado, com seus dados."
-
-msgid "Every required task must be Done or Skipped before the period can be closed."
-msgstr ""
 
 msgid "Every row was imported successfully."
 msgstr "Cada linha foi importada com sucesso."
@@ -5621,9 +5660,6 @@ msgstr "Ocultar, fixar e reordenar colunas"
 
 msgid "High"
 msgstr "Alto"
-
-msgid "Higher priority wins ties and applies first for markups"
-msgstr "Prioridade mais alta vence empates e se aplica primeiro para margens"
 
 msgid "Hints in the first row"
 msgstr "Dicas na primeira linha"
@@ -6853,9 +6889,6 @@ msgstr "Marca Modo Escuro"
 msgid "Mark done"
 msgstr "Marcar como concluído"
 
-msgid "Mark Done"
-msgstr ""
-
 msgid "Mark Light Mode"
 msgstr "Marca Modo Claro"
 
@@ -7580,9 +7613,6 @@ msgstr "Nenhuma habilidade adicionada"
 msgid "No Access"
 msgstr "Sem Acesso"
 
-msgid "No accounting periods yet"
-msgstr ""
-
 msgid "No action needed"
 msgstr "Nenhuma ação necessária"
 
@@ -7700,6 +7730,9 @@ msgstr "Sem imagem"
 
 msgid "No issue types configured"
 msgstr "Nenhum tipo de problema configurado"
+
+msgid "No items"
+msgstr "Nenhum item"
 
 msgid "No lines to map"
 msgstr "Nenhuma linha para mapear"
@@ -7926,9 +7959,6 @@ msgstr "OEM (fabricante de equipamento original)"
 msgid "of"
 msgstr "de"
 
-msgid "of {total} phases complete"
-msgstr "de {total} fases completas"
-
 msgid "OK"
 msgstr "OK"
 
@@ -7991,6 +8021,9 @@ msgstr "Uma etapa na rota de um trabalho, nomeando um processo e um centro de tr
 
 msgid "One system from quote to cash"
 msgstr "Um sistema do orçamento ao pagamento"
+
+msgid "Only Draft procedures are editable. Create a new version to change an Active or Archived procedure."
+msgstr "Somente procedimentos em rascunho são editáveis. Crie uma nova versão para alterar um procedimento ativo ou arquivado."
 
 msgid "Onshape Status"
 msgstr "Status do Onshape"
@@ -8166,6 +8199,9 @@ msgstr "Qtd. Pedido"
 
 msgid "Order quantities must be whole multiples of this number (a multiple of 12 → 12, 24, 36 …)."
 msgstr "As quantidades de pedido devem ser múltiplos inteiros desse número (múltiplo de 12 → 12, 24, 36 …)."
+
+msgid "Order rules are evaluated in — for discounts only the highest-priority match applies (no stacking); markups all apply and compound in priority order."
+msgstr "As regras de pedido são avaliadas em ordem — para descontos, apenas a correspondência de maior prioridade se aplica (sem acumulação); as margens se aplicam todas e se compõem em ordem de prioridade."
 
 msgid "Order Total"
 msgstr "Total do Pedido"
@@ -8500,6 +8536,9 @@ msgstr "Ordem de Coleta"
 
 msgid "Pick tracked item"
 msgstr "Selecionar item rastreado"
+
+msgid "Picked and consumed as separate components"
+msgstr "Selecionado e consumido como componentes separados"
 
 msgid "Picked quantity"
 msgstr "Quantidade colhida"
@@ -9272,9 +9311,6 @@ msgstr "Conta de Motivo"
 msgid "Reason for declining (Optional)"
 msgstr "Motivo da recusa (Opcional)"
 
-msgid "Reason for skipping (required)"
-msgstr ""
-
 msgid "Reasons"
 msgstr "Razões"
 
@@ -9549,6 +9585,9 @@ msgstr "Política de reordenação"
 
 msgid "Reordering Policy"
 msgstr "Política de Reordenação"
+
+msgid "Reorders dispatch sequence and work center only — does not reschedule. Change dates on the Dates board."
+msgstr "Reordena apenas a sequência de despacho e o centro de trabalho — não reagenda. Altere as datas no quadro de datas."
 
 msgid "Replace drawing?"
 msgstr "Substituir desenho?"
@@ -10216,6 +10255,9 @@ msgstr "Selecione um item para configurar"
 msgid "Select an option"
 msgstr "Selecione uma opção"
 
+msgid "Select at least one line to convert"
+msgstr "Selecione pelo menos uma linha para converter"
+
 msgid "Select Contact"
 msgstr "Selecionar Contato"
 
@@ -10704,9 +10746,6 @@ msgstr "Tamanho"
 msgid "Sizes"
 msgstr "Tamanhos"
 
-msgid "Skip"
-msgstr ""
-
 msgid "Skip Existing"
 msgstr "Ignorar Existentes"
 
@@ -11132,6 +11171,9 @@ msgstr "Número de Pedido do Fornecedor"
 msgid "Supplier Overview"
 msgstr "Visão Geral do Fornecedor"
 
+msgid "Supplier Part"
+msgstr ""
+
 msgid "Supplier Part ID"
 msgstr "ID da Peça do Fornecedor"
 
@@ -11312,9 +11354,6 @@ msgstr "Versão de Destino"
 
 msgid "Target Version"
 msgstr "Versão de Destino"
-
-msgid "Task"
-msgstr ""
 
 msgid "tasks"
 msgstr "tarefas"
@@ -12130,6 +12169,9 @@ msgstr "Este lote expirou e não pode ser selecionado."
 msgid "This may take a moment. Hang tight."
 msgstr "Isto pode levar um momento. Aguarde."
 
+msgid "This method version is read-only. Create a new version from the method menu to make changes."
+msgstr "Esta versão do método é somente leitura. Crie uma nova versão no menu do método para fazer alterações."
+
 msgid "This Month"
 msgstr "Este Mês"
 
@@ -12160,6 +12202,9 @@ msgstr "Esta ordem de venda tem linhas que requerem a criação de trabalhos"
 #. placeholder {0}: usageCount === 1 ? "" : "s"
 msgid "This storage type is currently used by {usageCount} storage unit{0}."
 msgstr "Este tipo de armazenamento está sendo usado por {usageCount} unidade de armazenamento{0}."
+
+msgid "this supplier"
+msgstr ""
 
 msgid "This updates the theme for all users of the application"
 msgstr "Isto atualiza o tema para todos os utilizadores da aplicação"
@@ -13185,6 +13230,10 @@ msgstr "Website"
 msgid "Wednesday"
 msgstr "Quarta-feira"
 
+#. placeholder {0}: d.week
+msgid "Week {0}"
+msgstr "Semana {0}"
+
 #. placeholder {0}: i + 1
 msgid "Week {0} ({formattedDate})"
 msgstr "Semana {0} ({formattedDate})"
@@ -13201,6 +13250,9 @@ msgstr "Semana de {0}"
 
 msgid "Weekly"
 msgstr "Semanal"
+
+msgid "Weekly demand"
+msgstr "Demanda semanal"
 
 #. placeholder {0}: Math.round(startWeek) + 1
 #. placeholder {1}: Math.round(endWeek)
@@ -13525,6 +13577,11 @@ msgstr "Janela:"
 msgid "WIP"
 msgstr "WIP"
 
+#. placeholder {0}: quarter.start + 1
+#. placeholder {1}: quarter.end
+msgid "Wk {0}–{1}"
+msgstr "Sem {0}–{1}"
+
 msgid "wks"
 msgstr "sem"
 
@@ -13649,6 +13706,9 @@ msgid ""
 "                        ordered quantity of {1}. What would you like\n"
 "                        to do with the extra parts?"
 msgstr "Você completou {leftoverQuantity} {0} a mais do que a quantidade solicitada de {1}. O que você gostaria de fazer com as peças extras?"
+
+msgid "You don't have permission to edit this bill of material."
+msgstr "Você não tem permissão para editar esta lista de materiais."
 
 msgid "You drive it; we make sure it's done right. Expert eyes on your setup, data, and go-live."
 msgstr "Você conduz; nós garantimos que seja feito corretamente. Olhos especialistas na sua configuração, dados e lançamento."

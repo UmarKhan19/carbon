@@ -1,5 +1,6 @@
 import type { Database, Tables } from "@carbon/database";
 import type { Kysely, KyselyDatabase } from "@carbon/database/client";
+import { getLogger } from "@carbon/logger";
 import { getPurchaseOrderStatus, supportedModelTypes } from "@carbon/utils";
 import type {
   PostgrestSingleResponse,
@@ -23,6 +24,8 @@ import type {
   CreateApprovalRequestInput,
   UpsertApprovalRuleInput
 } from "./types";
+
+const logger = getLogger("erp", "shared-service");
 
 export async function approveRequest(
   db: Kysely<KyselyDatabase>,
@@ -467,7 +470,7 @@ export async function getApproverUserIdsForRule(
       : { data: [] as string[], error: null };
 
   if (fromGroups.error) {
-    console.error(
+    logger.error(
       "getApproverUserIdsForRule: users_for_groups failed",
       fromGroups.error
     );

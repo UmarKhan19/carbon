@@ -117,7 +117,7 @@ export function usePurchaseInvoiceAutoFill(
         carbon
           .from("supplier")
           .select(
-            "currencyCode, purchasingContactId, supplierShipping!supplierId(shippingSupplierLocationId)"
+            "currencyCode, purchasingContactId, supplierShipping!supplierShipping_supplierId_fkey(shippingSupplierLocationId)"
           )
           .eq("id", resolvedSupplierId)
           .single(),
@@ -142,7 +142,8 @@ export function usePurchaseInvoiceAutoFill(
         finalLocationId =
           resolvedLocationId ??
           paymentTermData.data.invoiceSupplierLocationId ??
-          supplierDetails.data.supplierShipping?.shippingSupplierLocationId ??
+          supplierDetails.data.supplierShipping?.[0]
+            ?.shippingSupplierLocationId ??
           undefined;
 
         resolvedCurrencyCode =
@@ -240,7 +241,7 @@ export function usePurchaseInvoiceAutoFill(
         carbon
           .from("supplier")
           .select(
-            "currencyCode, purchasingContactId, supplierShipping!supplierId(shippingSupplierLocationId)"
+            "currencyCode, purchasingContactId, supplierShipping!supplierShipping_supplierId_fkey(shippingSupplierLocationId)"
           )
           .eq("id", newValue.value)
           .single(),
@@ -263,7 +264,8 @@ export function usePurchaseInvoiceAutoFill(
             undefined,
           invoiceSupplierLocationId:
             paymentTermData.data.invoiceSupplierLocationId ??
-            supplierData.data.supplierShipping?.shippingSupplierLocationId ??
+            supplierData.data.supplierShipping?.[0]
+              ?.shippingSupplierLocationId ??
             undefined,
           currencyCode: supplierData.data.currencyCode ?? undefined,
           paymentTermId: paymentTermData.data.paymentTermId ?? undefined
