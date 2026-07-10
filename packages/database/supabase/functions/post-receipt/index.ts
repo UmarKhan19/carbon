@@ -870,7 +870,7 @@ serve(async (req: Request) => {
 
             const accrualJournalLines = await client
               .from("journalLine")
-              .select("documentLineReference, amount, quantity")
+              .select("documentLineReference, amount, quantity, accountId")
               .in("documentLineReference", accrualDocRefs)
               .eq("accrual", true)
               .eq("companyId", companyId);
@@ -879,13 +879,21 @@ serve(async (req: Request) => {
               throw new Error("Failed to fetch accrual journal lines");
             }
 
-            // GR/IR debit entries have negative amounts (debit on a liability)
+            // GR/IR debit entries have non-positive amounts (debit on a
+            // liability; zero-priced invoices accrue at exactly 0). Matching
+            // the GR/IR account keeps the paired AP credit lines, which are
+            // also 0 on zero-priced invoices, out of the quantity sum.
             const accrualCostByPoLine: Record<
               string,
               { totalCost: number; totalQty: number }
             > = {};
             for (const jl of accrualJournalLines.data ?? []) {
-              if ((jl.amount ?? 0) < 0 && (jl.quantity ?? 0) > 0) {
+              if (
+                (jl.amount ?? 0) <= 0 &&
+                (jl.quantity ?? 0) > 0 &&
+                jl.accountId ===
+                  accountDefaults?.data?.goodsReceivedNotInvoicedAccount
+              ) {
                 const [, poLineId] = (
                   jl.documentLineReference ?? ""
                 ).split(":");
@@ -963,8 +971,11 @@ serve(async (req: Request) => {
               absReceivedQuantity,
               remainingInvoiceFirstQty
             );
-            const claimedUnitCost = accrualUnitCostByPoLine.get(poLineId) ?? 0;
-            if (claimedQty > 0 && claimedUnitCost > 0) {
+            const claimedUnitCost = accrualUnitCostByPoLine.get(poLineId);
+            // A recorded accrual basis is claimed even at zero unit cost
+            // (zero-priced invoices); only a missing basis falls through to
+            // the normal PO-cost path.
+            if (claimedQty > 0 && claimedUnitCost !== undefined) {
               invoiceFirstQty = claimedQty;
               accrualUnitCost = claimedUnitCost;
               invoiceFirstQtyByPoLine.set(
@@ -1381,8 +1392,13 @@ serve(async (req: Request) => {
               quantity: consumption.quantity,
               companyId,
             });
+            // A consumed layer's total is authoritative even at zero or
+            // negative (free goods, credit-adjusted layers): the GL credit
+            // must match the value actually relieved from the subledger. The
+            // PO-cost fallback applies only when nothing was consumed and no
+            // cost basis was found.
             const consumedCost =
-              cogsResult.totalCost > 0
+              cogsResult.layersConsumed.length > 0 || cogsResult.totalCost > 0
                 ? cogsResult.totalCost
                 : consumption.fallbackCost;
             if (consumption.grIrLineIndex !== null) {
