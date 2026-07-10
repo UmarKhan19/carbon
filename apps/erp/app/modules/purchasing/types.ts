@@ -25,8 +25,6 @@ export type PurchaseOrderAttachment = FileObject; // TODO: remove
 export type PurchaseOrder = NonNullable<
   Awaited<ReturnType<typeof getPurchaseOrders>>["data"]
 >[number] & {
-  // TODO: remove this intersection once database types are regenerated
-  // (columns added to the "purchaseOrders" view by migration 20260708204214)
   receivableQuantity?: number | null;
   receivedQuantity?: number | null;
 };
