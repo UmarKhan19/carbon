@@ -1,21 +1,13 @@
-import { ValidatedForm } from "@carbon/form";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
   HStack,
-  IconButton,
-  toast,
   VStack
 } from "@carbon/react";
-import { Trans, useLingui } from "@lingui/react/macro";
-import { useEffect } from "react";
-import { LuTrash2 } from "react-icons/lu";
-import { useFetcher } from "react-router";
-import { Hidden, Item, Submit } from "~/components/Form";
-import { path } from "~/utils/path";
-import { changeOrderProductAffectedValidator } from "../../changeOrder.models";
+import { Trans } from "@lingui/react/macro";
+import ItemLink from "./ItemLink";
 
 export type ProductAffected = {
   id: string;
@@ -26,122 +18,75 @@ export type ProductAffected = {
     name: string | null;
     type: string | null;
   } | null;
+  // The targeted assemblies that rolled up into this product.
+  affectedBy: Array<{
+    id: string;
+    readableIdWithRevision: string | null;
+    name: string | null;
+  }>;
 };
 
+// Products Affected are DERIVED from the BOM changes (the top-level products the
+// targeted assemblies roll up into) and recomputed whenever a BOM change is saved.
+// This card is read-only by design — editing it directly would let it drift from
+// the BOM changes.
 export default function ProductsAffected({
-  changeOrderId,
-  products,
-  isDisabled
+  products
 }: {
-  changeOrderId: string;
   products: ProductAffected[];
-  isDisabled: boolean;
 }) {
-  const { t } = useLingui();
-
-  const addFetcher = useFetcher<{ success: boolean }>();
-
-  const alreadyAdded = products.map((p) => p.itemId);
-
   return (
     <Card className="w-full">
       <CardHeader>
         <CardTitle>
           <Trans>Products Affected</Trans>
         </CardTitle>
+        <span className="text-xs text-muted-foreground">
+          <Trans>Derived automatically from the BOM changes below.</Trans>
+        </span>
       </CardHeader>
       <CardContent>
         <VStack spacing={2}>
           {products.length === 0 ? (
             <span className="text-sm text-muted-foreground italic">
-              <Trans>No products affected yet.</Trans>
+              <Trans>
+                No products affected yet — add a BOM change to populate this.
+              </Trans>
             </span>
           ) : (
             products.map((product) => (
-              <ProductRow
+              <HStack
                 key={product.id}
-                changeOrderId={changeOrderId}
-                product={product}
-                isDisabled={isDisabled}
-              />
-            ))
-          )}
-
-          {!isDisabled && (
-            <ValidatedForm
-              fetcher={addFetcher}
-              method="post"
-              action={path.to.changeOrderProduct(changeOrderId)}
-              validator={changeOrderProductAffectedValidator}
-              defaultValues={{ changeOrderId, itemId: "" }}
-              className="w-full"
-              resetAfterSubmit
-            >
-              <Hidden name="changeOrderId" value={changeOrderId} />
-              <HStack className="w-full items-end gap-2">
-                <div className="flex-grow">
-                  <Item
-                    name="itemId"
-                    label={t`Add product`}
-                    type="Item"
-                    blacklist={alreadyAdded}
-                  />
-                </div>
-                <Submit>
-                  <Trans>Add</Trans>
-                </Submit>
+                className="w-full justify-between border-b border-border py-2"
+              >
+                <VStack spacing={0}>
+                  <ItemLink
+                    itemId={product.item?.id ?? product.itemId}
+                    type={product.item?.type}
+                    className="text-sm font-medium"
+                  >
+                    {product.item?.readableIdWithRevision ?? product.itemId}
+                  </ItemLink>
+                  {product.item?.name && (
+                    <span className="text-xs text-muted-foreground">
+                      {product.item.name}
+                    </span>
+                  )}
+                  {product.affectedBy.length > 0 && (
+                    <span className="text-xs text-muted-foreground italic">
+                      (affected by{" "}
+                      {product.affectedBy
+                        .map((a) => a.readableIdWithRevision ?? a.id)
+                        .join(", ")}
+                      )
+                    </span>
+                  )}
+                </VStack>
               </HStack>
-            </ValidatedForm>
+            ))
           )}
         </VStack>
       </CardContent>
     </Card>
-  );
-}
-
-function ProductRow({
-  changeOrderId,
-  product,
-  isDisabled
-}: {
-  changeOrderId: string;
-  product: ProductAffected;
-  isDisabled: boolean;
-}) {
-  const { t } = useLingui();
-  const deleteFetcher = useFetcher<{ success: boolean }>();
-
-  useEffect(() => {
-    if (deleteFetcher.data && !deleteFetcher.data.success) {
-      toast.error(t`Failed to remove product`);
-    }
-  }, [deleteFetcher.data, t]);
-
-  return (
-    <HStack className="w-full justify-between border-b border-border py-2">
-      <VStack spacing={0}>
-        <span className="text-sm font-medium">
-          {product.item?.readableIdWithRevision ?? product.itemId}
-        </span>
-        {product.item?.name && (
-          <span className="text-xs text-muted-foreground">
-            {product.item.name}
-          </span>
-        )}
-      </VStack>
-      {!isDisabled && (
-        <deleteFetcher.Form
-          method="post"
-          action={path.to.deleteChangeOrderProduct(changeOrderId, product.id)}
-        >
-          <IconButton
-            type="submit"
-            aria-label={t`Remove product`}
-            variant="ghost"
-            icon={<LuTrash2 />}
-          />
-        </deleteFetcher.Form>
-      )}
-    </HStack>
   );
 }

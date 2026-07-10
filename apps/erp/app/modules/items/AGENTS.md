@@ -107,7 +107,7 @@ Service code is split by concern (every file < 1000 lines, G4): `changeOrder.ser
 |---|---|
 | `changeOrder` | Header: `changeOrderId`, `name`, `status`, `changeOrderTypeId`, `type` (legacy), `priority`, `nonConformanceId`, dates, `assignee`, `reasonForChange`/`description` |
 | `changeOrderType` | The "Category" lookup (configured like Issue Types) |
-| `changeOrderProductAffected` | Top-level products the CO touches |
+| `changeOrderProductAffected` | Top-level products the CO touches — **DERIVED** (not hand-entered): `syncChangeOrderProductsAffected` recomputes these from the BOM-change assemblies (via `getTopLevelProductsForItems`, a cycle-safe BOM where-used rollup) after every BOM-change write. Read-only in the UI; no manual add/delete route. |
 | `changeOrderBomChange` | Part-first Add/Delete rows (`changeType`, `itemId`) |
 | `changeOrderBomChangeAssembly` | Per-assembly target (`assemblyItemId`, `quantity`, `supersessionMode`) |
 | `changeOrderActionTask` | Freeform non-gating tasks (Actions) |

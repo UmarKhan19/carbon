@@ -6,10 +6,11 @@ import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import {
   changeOrderBomChangeAssemblyValidator,
+  syncChangeOrderProductsAffected,
   upsertChangeOrderBomChangeAssembly
 } from "~/modules/items";
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
   const { client, companyId, userId } = await requirePermissions(request, {
     update: "parts"
@@ -42,6 +43,11 @@ export async function action({ request }: ActionFunctionArgs) {
       { success: false },
       await flash(request, error(upsert.error, "Failed to save assembly"))
     );
+  }
+
+  // Products Affected are derived from the BOM-change assemblies — recompute now.
+  if (params.id) {
+    await syncChangeOrderProductsAffected(client, params.id, companyId, userId);
   }
 
   return { success: true };

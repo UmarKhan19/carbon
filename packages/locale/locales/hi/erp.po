@@ -645,9 +645,6 @@ msgstr "अनुमतियां जोड़ें"
 msgid "Add Printer"
 msgstr "प्रिंटर जोड़ें"
 
-msgid "Add product"
-msgstr ""
-
 msgid "Add Property"
 msgstr "प्रॉपर्टी जोड़ें"
 
@@ -3791,6 +3788,9 @@ msgstr "मूल्यह्रास शुरुआत की तारीख
 msgid "Derive this item's shelf life from the shortest shelf life of its components, ignoring the Days field above."
 msgstr "इस आइटम की शेल्फ लाइफ को इसके घटकों की सबसे कम शेल्फ लाइफ से निकालें, ऊपर दिए गए डेज़ फील्ड को अनदेखा करते हुए।"
 
+msgid "Derived automatically from the BOM changes below."
+msgstr ""
+
 msgid "Description"
 msgstr "विवरण"
 
@@ -5088,9 +5088,6 @@ msgstr "छवि हटाने में विफल: {errorMessage}"
 
 msgid "Failed to remove model thumbnail"
 msgstr "मॉडल थंबनेल हटाने में विफल"
-
-msgid "Failed to remove product"
-msgstr ""
 
 msgid "Failed to remove purchase order"
 msgstr "खरीद आदेश हटाने में विफल"
@@ -7919,6 +7916,9 @@ msgstr "कोई प्रिंटर कॉन्फ़िगर नहीं
 msgid "No printers configured. Click \"Add Printer\" to create one."
 msgstr "कोई प्रिंटर कॉन्फ़िगर नहीं किया गया है। एक बनाने के लिए \"प्रिंटर जोड़ें\" पर क्लिक करें।"
 
+msgid "No products affected yet — add a BOM change to populate this."
+msgstr ""
+
 msgid "No products affected yet."
 msgstr ""
 
@@ -9705,9 +9705,6 @@ msgstr "ऑर्डर हटाएं"
 
 msgid "Remove pair"
 msgstr "जोड़ी हटाएं"
-
-msgid "Remove product"
-msgstr ""
 
 msgid "Remove sort by column"
 msgstr "कॉलम द्वारा सॉर्ट हटाएं"

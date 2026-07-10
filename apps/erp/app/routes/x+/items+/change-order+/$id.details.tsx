@@ -55,11 +55,7 @@ export default function ChangeOrderDetailsRoute() {
         isDisabled={isDisabled}
       />
 
-      <ProductsAffected
-        changeOrderId={id}
-        products={routeData?.productsAffected ?? []}
-        isDisabled={isDisabled}
-      />
+      <ProductsAffected products={routeData?.productsAffected ?? []} />
 
       <BomChanges
         changeOrderId={id}

@@ -645,9 +645,6 @@ msgstr "添加权限"
 msgid "Add Printer"
 msgstr "添加打印机"
 
-msgid "Add product"
-msgstr ""
-
 msgid "Add Property"
 msgstr "添加属性"
 
@@ -3791,6 +3788,9 @@ msgstr "折旧开始日期"
 msgid "Derive this item's shelf life from the shortest shelf life of its components, ignoring the Days field above."
 msgstr "从其组件的最短货架寿命推导该物品的货架寿命，忽略上面的Days字段。"
 
+msgid "Derived automatically from the BOM changes below."
+msgstr ""
+
 msgid "Description"
 msgstr "描述"
 
@@ -5088,9 +5088,6 @@ msgstr "删除图像失败：{errorMessage}"
 
 msgid "Failed to remove model thumbnail"
 msgstr "未能删除模型缩略图"
-
-msgid "Failed to remove product"
-msgstr ""
 
 msgid "Failed to remove purchase order"
 msgstr "未能删除采购订单"
@@ -7919,6 +7916,9 @@ msgstr "未配置打印机"
 msgid "No printers configured. Click \"Add Printer\" to create one."
 msgstr "未配置打印机。点击\"添加打印机\"创建一个。"
 
+msgid "No products affected yet — add a BOM change to populate this."
+msgstr ""
+
 msgid "No products affected yet."
 msgstr ""
 
@@ -9705,9 +9705,6 @@ msgstr "删除订单"
 
 msgid "Remove pair"
 msgstr "移除配对"
-
-msgid "Remove product"
-msgstr ""
 
 msgid "Remove sort by column"
 msgstr "删除按列排序"

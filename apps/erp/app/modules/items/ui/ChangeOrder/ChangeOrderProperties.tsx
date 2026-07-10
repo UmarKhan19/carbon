@@ -26,6 +26,7 @@ import {
   isChangeOrderLocked
 } from "../../changeOrder.models";
 import type { ChangeOrder } from "../../types";
+import ItemLink from "./ItemLink";
 
 const ChangeOrderProperties = () => {
   const { id } = useParams();
@@ -272,15 +273,16 @@ const ChangeOrderProperties = () => {
         ) : (
           <VStack spacing={1}>
             {affectedAssemblies.map((assembly) => (
-              <Link
+              <ItemLink
                 key={assembly.id}
-                to={path.to.part(assembly.id)}
-                className="text-sm text-primary hover:underline"
+                itemId={assembly.id}
+                type={null}
+                className="text-sm text-primary"
               >
                 {assembly.readableIdWithRevision ??
                   assembly.name ??
                   assembly.id}
-              </Link>
+              </ItemLink>
             ))}
           </VStack>
         )}

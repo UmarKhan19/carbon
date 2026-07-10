@@ -6,6 +6,7 @@ import { useFetcher } from "react-router";
 import { path } from "~/utils/path";
 import BomChangeAssemblyTable from "./BomChangeAssemblyTable";
 import type { BomChangeRow } from "./BomChanges";
+import ItemLink from "./ItemLink";
 
 export default function BomChangeDeleteRow({
   changeOrderId,
@@ -34,9 +35,17 @@ export default function BomChangeDeleteRow({
     >
       <HStack className="w-full justify-between">
         <VStack spacing={0}>
-          <span className="text-sm font-medium">
-            {row.item?.readableIdWithRevision ?? row.itemId}
-          </span>
+          {row.item ? (
+            <ItemLink
+              itemId={row.item.id}
+              type={row.item.type}
+              className="text-sm font-medium"
+            >
+              {row.item.readableIdWithRevision ?? row.itemId}
+            </ItemLink>
+          ) : (
+            <span className="text-sm font-medium">{row.itemId}</span>
+          )}
           {row.item?.name && (
             <span className="text-xs text-muted-foreground">
               {row.item.name}

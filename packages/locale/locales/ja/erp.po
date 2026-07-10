@@ -645,9 +645,6 @@ msgstr "権限を追加"
 msgid "Add Printer"
 msgstr "プリンターを追加"
 
-msgid "Add product"
-msgstr ""
-
 msgid "Add Property"
 msgstr "プロパティを追加"
 
@@ -3791,6 +3788,9 @@ msgstr "減価償却開始日"
 msgid "Derive this item's shelf life from the shortest shelf life of its components, ignoring the Days field above."
 msgstr "このアイテムの有効期間を、その成分の最短有効期間から導き出します。上記のDaysフィールドは無視します。"
 
+msgid "Derived automatically from the BOM changes below."
+msgstr ""
+
 msgid "Description"
 msgstr "説明"
 
@@ -5088,9 +5088,6 @@ msgstr "画像の削除に失敗しました: {errorMessage}"
 
 msgid "Failed to remove model thumbnail"
 msgstr "モデルサムネイルの削除に失敗しました"
-
-msgid "Failed to remove product"
-msgstr ""
 
 msgid "Failed to remove purchase order"
 msgstr "購買注文の削除に失敗しました"
@@ -7919,6 +7916,9 @@ msgstr "プリンターが設定されていません"
 msgid "No printers configured. Click \"Add Printer\" to create one."
 msgstr "プリンターが設定されていません。「プリンターを追加」をクリックして作成してください。"
 
+msgid "No products affected yet — add a BOM change to populate this."
+msgstr ""
+
 msgid "No products affected yet."
 msgstr ""
 
@@ -9705,9 +9705,6 @@ msgstr "注文を削除"
 
 msgid "Remove pair"
 msgstr "ペアを削除"
-
-msgid "Remove product"
-msgstr ""
 
 msgid "Remove sort by column"
 msgstr "列でソートを削除"

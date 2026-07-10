@@ -374,6 +374,13 @@ export async function getChangeOrderProductsAffected(
   data: Array<
     Database["public"]["Tables"]["changeOrderProductAffected"]["Row"] & {
       item: ChangeOrderItemLabel | null;
+      // The targeted assemblies that rolled up into this product (provenance for
+      // the "affected by" display). Excludes the product itself.
+      affectedBy: Array<{
+        id: string;
+        readableIdWithRevision: string | null;
+        name: string | null;
+      }>;
     }
   > | null;
   error: ChangeOrderError | null;
@@ -386,42 +393,238 @@ export async function getChangeOrderProductsAffected(
     .order("createdAt", { ascending: true });
   if (rows.error) return { data: null, error: rows.error };
 
-  const items = await getItemLabelMap(
+  // Recompute provenance (product → the targeted assemblies under it) from the CO's
+  // BOM-change assemblies — same derivation that materialized the rows.
+  const bomRows = await client
+    .from("changeOrderBomChange")
+    .select("id")
+    .eq("changeOrderId", changeOrderId)
+    .eq("companyId", companyId);
+  const bomIds = (bomRows.data ?? []).map((r) => r.id);
+
+  let assemblyItemIds: string[] = [];
+  if (bomIds.length > 0) {
+    const asm = await client
+      .from("changeOrderBomChangeAssembly")
+      .select("assemblyItemId")
+      .in("bomChangeId", bomIds)
+      .eq("companyId", companyId);
+    assemblyItemIds = [
+      ...new Set((asm.data ?? []).map((a) => a.assemblyItemId))
+    ];
+  }
+
+  const provenance = await getTopLevelProductsForItems(
     client,
-    (rows.data ?? []).map((r) => r.itemId),
+    assemblyItemIds,
     companyId
   );
+  const sourcesByProduct = new Map(
+    provenance.data.map((p) => [p.productId, p.sourceItemIds])
+  );
+
+  const labelIds = [
+    ...new Set([
+      ...(rows.data ?? []).map((r) => r.itemId),
+      ...provenance.data.flatMap((p) => p.sourceItemIds)
+    ])
+  ];
+  const items = await getItemLabelMap(client, labelIds, companyId);
 
   return {
     data: (rows.data ?? []).map((r) => ({
       ...r,
-      item: items.get(r.itemId) ?? null
+      item: items.get(r.itemId) ?? null,
+      affectedBy: (sourcesByProduct.get(r.itemId) ?? [])
+        .filter((sourceId) => sourceId !== r.itemId)
+        .map((sourceId) => {
+          const label = items.get(sourceId);
+          return {
+            id: sourceId,
+            readableIdWithRevision: label?.readableIdWithRevision ?? null,
+            name: label?.name ?? null
+          };
+        })
     })),
     error: null
   };
 }
 
-export async function upsertChangeOrderProductAffected(
+// Products Affected are DERIVED, not hand-entered: they are the top-level products
+// that the BOM-change assemblies roll up into. `syncChangeOrderProductsAffected`
+// recomputes and reconciles the rows whenever a BOM change is written, so the two
+// can never drift. See `getTopLevelProductsForItems` for the rollup.
+
+// Climb the BOM (methodMaterial → makeMethod → item) from a set of start items up
+// to the top-level products — items that are used by nothing. Returns each product
+// with `sourceItemIds`: which of the start items (the targeted assemblies) rolled up
+// into it (provenance, for the "affected by" display). Flat queries (no PostgREST
+// embeds — TS2589 budget); a per-item origin set that only grows drives a fixpoint,
+// so a corrupt/cyclic BOM can't loop forever and provenance fully propagates.
+// `nodeBudget` is a pure infinite-loop backstop, not a depth limit.
+export async function getTopLevelProductsForItems(
   client: SupabaseClient<Database>,
-  input: {
-    changeOrderId: string;
-    itemId: string;
-    companyId: string;
-    createdBy: string;
+  itemIds: string[],
+  companyId: string
+): Promise<{
+  data: Array<{ productId: string; sourceItemIds: string[] }>;
+  error: { message: string } | null;
+}> {
+  const start = [...new Set(itemIds.filter(Boolean))];
+  if (start.length === 0) return { data: [], error: null };
+
+  // origins[item] = the start items (targeted assemblies) that reach it.
+  const origins = new Map<string, Set<string>>();
+  for (const s of start) origins.set(s, new Set([s]));
+  // parentsCache[item] = its immediate parent items (one level up), fetched once.
+  const parentsCache = new Map<string, Set<string>>();
+  const roots = new Map<string, Set<string>>();
+
+  const fetchParents = async (ids: string[]) => {
+    const unknown = ids.filter((id) => !parentsCache.has(id));
+    if (unknown.length === 0) return;
+    for (const id of unknown) parentsCache.set(id, new Set());
+
+    const materials = await client
+      .from("methodMaterial")
+      .select("itemId, makeMethodId")
+      .in("itemId", unknown)
+      .eq("companyId", companyId);
+    if (materials.error) throw materials.error;
+
+    const makeMethodIds = [
+      ...new Set((materials.data ?? []).map((m) => m.makeMethodId))
+    ];
+    const parentByMethod = new Map<string, string>();
+    if (makeMethodIds.length > 0) {
+      const methods = await client
+        .from("makeMethod")
+        .select("id, itemId")
+        .in("id", makeMethodIds)
+        .eq("companyId", companyId);
+      if (methods.error) throw methods.error;
+      for (const mm of methods.data ?? []) parentByMethod.set(mm.id, mm.itemId);
+    }
+    for (const row of materials.data ?? []) {
+      const parent = parentByMethod.get(row.makeMethodId);
+      if (parent) parentsCache.get(row.itemId)?.add(parent);
+    }
+  };
+
+  let queue = [...start];
+  let nodeBudget = 20000;
+  try {
+    while (queue.length > 0 && nodeBudget > 0) {
+      const batch = [...new Set(queue)];
+      queue = [];
+      nodeBudget -= batch.length;
+      await fetchParents(batch);
+
+      for (const id of batch) {
+        const parents = parentsCache.get(id);
+        const idOrigins = origins.get(id) ?? new Set<string>();
+
+        if (!parents || parents.size === 0) {
+          // used by nothing → a top-level product; record its origins
+          if (!roots.has(id)) roots.set(id, new Set());
+          const rootOrigins = roots.get(id)!;
+          for (const o of idOrigins) rootOrigins.add(o);
+          continue;
+        }
+
+        for (const parent of parents) {
+          if (!origins.has(parent)) origins.set(parent, new Set());
+          const target = origins.get(parent)!;
+          const before = target.size;
+          for (const o of idOrigins) target.add(o);
+          // Re-enqueue when the parent's origin set grew (monotonic, finite → the
+          // loop terminates even on cyclic data) so provenance fully propagates.
+          if (target.size > before) queue.push(parent);
+        }
+      }
+    }
+  } catch (err) {
+    return { data: [], error: { message: (err as Error).message } };
   }
-) {
-  return client
-    .from("changeOrderProductAffected")
-    .insert([input])
-    .select("id")
-    .single();
+
+  return {
+    data: [...roots.entries()].map(([productId, srcs]) => ({
+      productId,
+      sourceItemIds: [...srcs]
+    })),
+    error: null
+  };
 }
 
-export async function deleteChangeOrderProductAffected(
+// Recompute Products Affected for a CO from its BOM-change assemblies and reconcile
+// the `changeOrderProductAffected` rows (insert new / delete stale). Best-effort:
+// the caller runs it after a BOM change write; a failure just means the next write
+// recomputes. Returns the raw {error} so the route can log without blocking.
+export async function syncChangeOrderProductsAffected(
   client: SupabaseClient<Database>,
-  id: string
-) {
-  return client.from("changeOrderProductAffected").delete().eq("id", id);
+  changeOrderId: string,
+  companyId: string,
+  userId: string
+): Promise<{ error: { message: string } | null }> {
+  const bomChanges = await getChangeOrderBomChanges(
+    client,
+    changeOrderId,
+    companyId
+  );
+  if (bomChanges.error) return { error: bomChanges.error };
+
+  const assemblyItemIds = [
+    ...new Set(
+      (bomChanges.data ?? []).flatMap((row) =>
+        row.assemblies.map((a) => a.assemblyItemId)
+      )
+    )
+  ];
+
+  const products = await getTopLevelProductsForItems(
+    client,
+    assemblyItemIds,
+    companyId
+  );
+  if (products.error) return { error: products.error };
+  const desired = new Set(products.data.map((p) => p.productId));
+
+  const existing = await client
+    .from("changeOrderProductAffected")
+    .select("id, itemId")
+    .eq("changeOrderId", changeOrderId)
+    .eq("companyId", companyId);
+  if (existing.error) return { error: existing.error };
+
+  const existingItemIds = new Set((existing.data ?? []).map((r) => r.itemId));
+  const toInsert = [...desired].filter(
+    (itemId) => !existingItemIds.has(itemId)
+  );
+  const toDeleteIds = (existing.data ?? [])
+    .filter((r) => !desired.has(r.itemId))
+    .map((r) => r.id);
+
+  if (toInsert.length > 0) {
+    const ins = await client.from("changeOrderProductAffected").insert(
+      toInsert.map((itemId) => ({
+        changeOrderId,
+        itemId,
+        companyId,
+        createdBy: userId
+      }))
+    );
+    if (ins.error) return { error: ins.error };
+  }
+
+  if (toDeleteIds.length > 0) {
+    const del = await client
+      .from("changeOrderProductAffected")
+      .delete()
+      .in("id", toDeleteIds);
+    if (del.error) return { error: del.error };
+  }
+
+  return { error: null };
 }
 
 // =============================================================================

@@ -26,6 +26,7 @@ import {
 import { supersessionModes } from "~/modules/items";
 import { path } from "~/utils/path";
 import { changeOrderBomChangeAssemblyValidator } from "../../changeOrder.models";
+import ItemLink from "./ItemLink";
 
 export type BomChangeAssembly = {
   id: string;
@@ -241,10 +242,14 @@ function AssemblyRow({
     <Tr>
       <Td>
         <VStack spacing={0}>
-          <span className="text-sm font-medium">
+          <ItemLink
+            itemId={assembly.assemblyItemId}
+            type={null}
+            className="text-sm font-medium"
+          >
             {assembly.assembly?.readableIdWithRevision ??
               assembly.assemblyItemId}
-          </span>
+          </ItemLink>
           {assembly.assembly?.name && (
             <span className="text-xs text-muted-foreground">
               {assembly.assembly.name}

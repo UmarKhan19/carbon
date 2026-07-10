@@ -7,6 +7,7 @@ import { data } from "react-router";
 import {
   changeOrderBomChangeValidator,
   findOtherOpenChangeOrdersForItem,
+  syncChangeOrderProductsAffected,
   upsertBomChange
 } from "~/modules/items";
 
@@ -73,6 +74,14 @@ export async function action({ request }: ActionFunctionArgs) {
       )
     );
   }
+
+  // Products Affected are derived from the BOM-change assemblies — recompute now.
+  await syncChangeOrderProductsAffected(
+    client,
+    d.changeOrderId,
+    companyId,
+    userId
+  );
 
   return { success: true, id: upsert.data.id };
 }

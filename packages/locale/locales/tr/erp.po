@@ -645,9 +645,6 @@ msgstr "İzin Ekle"
 msgid "Add Printer"
 msgstr "Yazıcı Ekle"
 
-msgid "Add product"
-msgstr ""
-
 msgid "Add Property"
 msgstr "Özellik Ekle"
 
@@ -3791,6 +3788,9 @@ msgstr "Amortisman Başlangıç Tarihi"
 msgid "Derive this item's shelf life from the shortest shelf life of its components, ignoring the Days field above."
 msgstr "Bu öğenin raf ömrünü, bileşenlerinin en kısa raf ömründen türet, yukarıdaki Günler alanını yok say."
 
+msgid "Derived automatically from the BOM changes below."
+msgstr ""
+
 msgid "Description"
 msgstr "Açıklama"
 
@@ -5088,9 +5088,6 @@ msgstr "Görsel kaldırılamadı: {errorMessage}"
 
 msgid "Failed to remove model thumbnail"
 msgstr "Model küçük resmini kaldırmada başarısız oldu"
-
-msgid "Failed to remove product"
-msgstr ""
 
 msgid "Failed to remove purchase order"
 msgstr "Satın alma emri kaldırılamadı"
@@ -7919,6 +7916,9 @@ msgstr "Yazıcı yapılandırılmadı"
 msgid "No printers configured. Click \"Add Printer\" to create one."
 msgstr "Yapılandırılmış yazıcı yok. Bir tane oluşturmak için \"Yazıcı Ekle\"'ye tıklayın."
 
+msgid "No products affected yet — add a BOM change to populate this."
+msgstr ""
+
 msgid "No products affected yet."
 msgstr ""
 
@@ -9705,9 +9705,6 @@ msgstr "Siparişi kaldır"
 
 msgid "Remove pair"
 msgstr "Çifti kaldır"
-
-msgid "Remove product"
-msgstr ""
 
 msgid "Remove sort by column"
 msgstr "Sıralamayı kaldır"

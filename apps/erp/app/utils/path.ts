@@ -629,12 +629,9 @@ export const path = {
       generatePath(`${x}/items/change-order-types/${id}`),
     deleteChangeOrderType: (id: string) =>
       generatePath(`${x}/items/change-order-types/delete/${id}`),
-    // Change Order content (Phase 2): products affected, BOM change rows +
-    // per-assembly targets, and freeform actions.
-    changeOrderProduct: (id: string) =>
-      generatePath(`${x}/items/change-order/${id}/product`),
-    deleteChangeOrderProduct: (id: string, productId: string) =>
-      generatePath(`${x}/items/change-order/${id}/product/delete/${productId}`),
+    // Change Order content (Phase 2): BOM change rows + per-assembly targets, and
+    // freeform actions. (Products Affected are derived from the BOM changes — no
+    // manual add/delete route.)
     changeOrderBomChange: (id: string) =>
       generatePath(`${x}/items/change-order/${id}/bom-change`),
     deleteChangeOrderBomChange: (id: string, rowId: string) =>
@@ -1992,4 +1989,25 @@ export const getPrivateUrl = (path: string) => {
 
 export const getPublicModelUrl = (path: string) => {
   return `/file/model/public/${path}`;
+};
+
+// Map an item to its type-specific detail route. Used where a CO references an
+// item by name and we want a link to the item page. Assemblies and unknown/blank
+// types default to the Part route (assemblies are Parts in practice).
+export const getItemDetailPath = (
+  type: string | null | undefined,
+  id: string
+): string => {
+  switch (type) {
+    case "Tool":
+      return path.to.tool(id);
+    case "Material":
+      return path.to.material(id);
+    case "Consumable":
+      return path.to.consumable(id);
+    case "Service":
+      return path.to.service(id);
+    default:
+      return path.to.part(id);
+  }
 };

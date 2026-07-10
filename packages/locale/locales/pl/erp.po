@@ -645,9 +645,6 @@ msgstr "Dodaj uprawnienia"
 msgid "Add Printer"
 msgstr "Dodaj drukarkę"
 
-msgid "Add product"
-msgstr ""
-
 msgid "Add Property"
 msgstr "Dodaj właściwość"
 
@@ -3791,6 +3788,9 @@ msgstr "Data Rozpoczęcia Amortyzacji"
 msgid "Derive this item's shelf life from the shortest shelf life of its components, ignoring the Days field above."
 msgstr "Wyprowadź trwałość tego artykułu z najkrótszej trwałości jego komponentów, ignorując powyższe pole Dni."
 
+msgid "Derived automatically from the BOM changes below."
+msgstr ""
+
 msgid "Description"
 msgstr "Opis"
 
@@ -5088,9 +5088,6 @@ msgstr "Nie udało się usunąć obrazu: {errorMessage}"
 
 msgid "Failed to remove model thumbnail"
 msgstr "Nie udało się usunąć miniatury modelu"
-
-msgid "Failed to remove product"
-msgstr ""
 
 msgid "Failed to remove purchase order"
 msgstr "Nie udało się usunąć zamówienia zakupu"
@@ -7919,6 +7916,9 @@ msgstr "Brak skonfigurowanej drukarki"
 msgid "No printers configured. Click \"Add Printer\" to create one."
 msgstr "Brak skonfigurowanych drukarek. Kliknij „Dodaj drukarkę\", aby utworzyć jedną."
 
+msgid "No products affected yet — add a BOM change to populate this."
+msgstr ""
+
 msgid "No products affected yet."
 msgstr ""
 
@@ -9705,9 +9705,6 @@ msgstr "Usuń zamówienie"
 
 msgid "Remove pair"
 msgstr "Usuń parę"
-
-msgid "Remove product"
-msgstr ""
 
 msgid "Remove sort by column"
 msgstr "Usuń sortowanie według kolumny"

@@ -645,9 +645,6 @@ msgstr "Add Permissions"
 msgid "Add Printer"
 msgstr "Add Printer"
 
-msgid "Add product"
-msgstr "Add product"
-
 msgid "Add Property"
 msgstr "Add Property"
 
@@ -3791,6 +3788,9 @@ msgstr "Depreciation Start Date"
 msgid "Derive this item's shelf life from the shortest shelf life of its components, ignoring the Days field above."
 msgstr "Derive this item's shelf life from the shortest shelf life of its components, ignoring the Days field above."
 
+msgid "Derived automatically from the BOM changes below."
+msgstr "Derived automatically from the BOM changes below."
+
 msgid "Description"
 msgstr "Description"
 
@@ -5088,9 +5088,6 @@ msgstr "Failed to remove image: {errorMessage}"
 
 msgid "Failed to remove model thumbnail"
 msgstr "Failed to remove model thumbnail"
-
-msgid "Failed to remove product"
-msgstr "Failed to remove product"
 
 msgid "Failed to remove purchase order"
 msgstr "Failed to remove purchase order"
@@ -7919,6 +7916,9 @@ msgstr "No printer configured"
 msgid "No printers configured. Click \"Add Printer\" to create one."
 msgstr "No printers configured. Click \"Add Printer\" to create one."
 
+msgid "No products affected yet — add a BOM change to populate this."
+msgstr "No products affected yet — add a BOM change to populate this."
+
 msgid "No products affected yet."
 msgstr "No products affected yet."
 
@@ -9705,9 +9705,6 @@ msgstr "Remove order"
 
 msgid "Remove pair"
 msgstr "Remove pair"
-
-msgid "Remove product"
-msgstr "Remove product"
 
 msgid "Remove sort by column"
 msgstr "Remove sort by column"

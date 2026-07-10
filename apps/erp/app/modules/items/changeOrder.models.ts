@@ -134,13 +134,10 @@ export const changeOrderStatusValidator = z.object({
 // Phase 2 — change content (Products Affected, BOM change rows, Actions)
 // =============================================================================
 
-// Products Affected — the top-level products the CO touches (drives the
-// Implementation effectivity-version list).
-export const changeOrderProductAffectedValidator = z.object({
-  id: zfd.text(z.string().optional()),
-  changeOrderId: z.string().min(1, { message: "Change order is required" }),
-  itemId: z.string().min(1, { message: "Product is required" })
-});
+// Products Affected are DERIVED (not hand-entered) — the top-level products the
+// CO's BOM-change assemblies roll up into; they drive the Implementation
+// effectivity-version list. Recomputed by `syncChangeOrderProductsAffected`, so
+// there is no user-facing validator/form for them.
 
 // BOM change rows are part-first. A discriminated union on changeType (G8) so an
 // Add row structurally can't be a Delete and vice-versa:
