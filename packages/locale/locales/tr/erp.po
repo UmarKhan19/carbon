@@ -1322,10 +1322,10 @@ msgstr "Bu işi yayınlamak istediğinizden emin misiniz? Atölye zemininde kull
 
 #. placeholder {0}: supplierName(deleteTarget.supplierId)
 msgid "Are you sure you want to remove {0} as a supplier for this item? This cannot be undone."
-msgstr ""
+msgstr "Bu öğe için {0} tedarikçi olarak kaldırmak istediğinizden emin misiniz? Bu işlem geri alınamaz."
 
 msgid "Are you sure you want to remove {supplierName} as a supplier for this item? This cannot be undone."
-msgstr ""
+msgstr "Bu öğe için {supplierName} tedarikçisini kaldırmak istediğinizden emin misiniz? Bu işlem geri alınamaz."
 
 msgid "Are you sure you want to remove this item from the price list? This cannot be undone."
 msgstr "Bu öğeyi fiyat listesinden kaldırmak istediğinizden emin misiniz? Bu geri alınamaz."
@@ -3653,7 +3653,7 @@ msgid "Delete Suggestion"
 msgstr "Öneriyi Sil"
 
 msgid "Delete supplier"
-msgstr ""
+msgstr "Tedarikçiyi sil"
 
 msgid "Delete Supplier"
 msgstr "Tedarikçiyi Sil"
@@ -11172,7 +11172,7 @@ msgid "Supplier Overview"
 msgstr "Tedarikçi Genel Bakışı"
 
 msgid "Supplier Part"
-msgstr ""
+msgstr "Tedarikçi Parçası"
 
 msgid "Supplier Part ID"
 msgstr "Tedarikçi Parça Kimliği"
@@ -12204,7 +12204,7 @@ msgid "This storage type is currently used by {usageCount} storage unit{0}."
 msgstr "Bu depolama türü şu anda {usageCount} depolama birimi{0} tarafından kullanılıyor."
 
 msgid "this supplier"
-msgstr ""
+msgstr "bu tedarikçi"
 
 msgid "This updates the theme for all users of the application"
 msgstr "Bu, uygulamanın tüm kullanıcıları için temayı günceller"

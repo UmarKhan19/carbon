@@ -1322,10 +1322,10 @@ msgstr "このジョブをリリースしてもよろしいですか？ショッ
 
 #. placeholder {0}: supplierName(deleteTarget.supplierId)
 msgid "Are you sure you want to remove {0} as a supplier for this item? This cannot be undone."
-msgstr ""
+msgstr "本当に{0}をこのアイテムのサプライヤーから削除してもよろしいですか?この操作は取り消せません。"
 
 msgid "Are you sure you want to remove {supplierName} as a supplier for this item? This cannot be undone."
-msgstr ""
+msgstr "このアイテムのサプライヤーとして{supplierName}を削除してもよろしいですか？この操作は取り消せません。"
 
 msgid "Are you sure you want to remove this item from the price list? This cannot be undone."
 msgstr "このアイテムを価格リストから削除してもよろしいですか？この操作は取り消せません。"
@@ -3653,7 +3653,7 @@ msgid "Delete Suggestion"
 msgstr "提案を削除"
 
 msgid "Delete supplier"
-msgstr ""
+msgstr "サプライヤーを削除"
 
 msgid "Delete Supplier"
 msgstr "サプライヤーを削除"
@@ -11172,7 +11172,7 @@ msgid "Supplier Overview"
 msgstr "仕入先概要"
 
 msgid "Supplier Part"
-msgstr ""
+msgstr "サプライヤー部品"
 
 msgid "Supplier Part ID"
 msgstr "仕入先部品ID"
@@ -12204,7 +12204,7 @@ msgid "This storage type is currently used by {usageCount} storage unit{0}."
 msgstr "このストレージタイプは現在{usageCount}個のストレージユニット{0}で使用されています。"
 
 msgid "this supplier"
-msgstr ""
+msgstr "このサプライヤー"
 
 msgid "This updates the theme for all users of the application"
 msgstr "これはアプリケーションのすべてのユーザーのテーマを更新します"

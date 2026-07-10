@@ -1322,10 +1322,10 @@ msgstr "Sei sicuro di voler rilasciare questo lavoro? Diventerà disponibile per
 
 #. placeholder {0}: supplierName(deleteTarget.supplierId)
 msgid "Are you sure you want to remove {0} as a supplier for this item? This cannot be undone."
-msgstr ""
+msgstr "Sei sicuro di voler rimuovere {0} come fornitore per questo articolo? Questa azione non può essere annullata."
 
 msgid "Are you sure you want to remove {supplierName} as a supplier for this item? This cannot be undone."
-msgstr ""
+msgstr "Sei sicuro di voler rimuovere {supplierName} come fornitore per questo articolo? Questa azione non può essere annullata."
 
 msgid "Are you sure you want to remove this item from the price list? This cannot be undone."
 msgstr "Sei sicuro di voler rimuovere questo articolo dall'elenco dei prezzi? Questa azione non può essere annullata."
@@ -3653,7 +3653,7 @@ msgid "Delete Suggestion"
 msgstr "Elimina Suggerimento"
 
 msgid "Delete supplier"
-msgstr ""
+msgstr "Elimina fornitore"
 
 msgid "Delete Supplier"
 msgstr "Elimina Fornitore"
@@ -11172,7 +11172,7 @@ msgid "Supplier Overview"
 msgstr "Panoramica Fornitore"
 
 msgid "Supplier Part"
-msgstr ""
+msgstr "Parte Fornitore"
 
 msgid "Supplier Part ID"
 msgstr "ID Parte Fornitore"
@@ -12204,7 +12204,7 @@ msgid "This storage type is currently used by {usageCount} storage unit{0}."
 msgstr "Questo tipo di archiviazione è attualmente utilizzato da {usageCount} unità di archiviazione{0}."
 
 msgid "this supplier"
-msgstr ""
+msgstr "questo fornitore"
 
 msgid "This updates the theme for all users of the application"
 msgstr "Questo aggiorna il tema per tutti gli utenti dell'applicazione"
