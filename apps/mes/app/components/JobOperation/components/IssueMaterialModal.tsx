@@ -501,15 +501,20 @@ export function IssueMaterialModal({
 
   const addSerialNumber = useCallback(() => {
     setSelectedSerialNumbers((prev) => {
-      // Pre-fill the new row with the next available serial (in picker order)
-      // not already chosen, skipping expired — a starting point, still editable.
+      // Pre-fill the new row with the next unused serial. Prefer the remaining
+      // pick-method-ordered suggestion (FEFO/FIFO/LIFO), so added rows stay
+      // consistent with the seeded ones; only fall back to the picker's default
+      // FEFO/FIFO order once the suggestion is exhausted. Editable either way.
       const used = new Set(prev.map((s) => s.id).filter(Boolean));
-      const next = serialOptions.find(
-        (o) => !used.has(o.value) && !o.isExpired
+      const fromSuggestion = suggestedAllocation.find(
+        (lot) => !used.has(lot.trackedEntityId)
       );
+      const next = fromSuggestion
+        ? serialOptions.find((o) => o.value === fromSuggestion.trackedEntityId)
+        : serialOptions.find((o) => !used.has(o.value) && !o.isExpired);
       return [...prev, { index: prev.length, id: next?.value ?? "" }];
     });
-  }, [serialOptions]);
+  }, [serialOptions, suggestedAllocation]);
 
   const removeSerialNumber = useCallback((indexToRemove: number) => {
     setSelectedSerialNumbers((prev) => {
@@ -546,18 +551,27 @@ export function IssueMaterialModal({
 
   const addBatchNumber = useCallback(() => {
     setSelectedBatchNumbers((prev) => {
-      // Pre-fill the new row with the next available batch (in picker order)
-      // not already chosen, skipping expired — a starting point, still editable.
+      // Pre-fill the new row with the next unused batch. Prefer the remaining
+      // pick-method-ordered suggestion (FEFO/FIFO/LIFO) so added rows match the
+      // seeded ones; fall back to the picker's default FEFO/FIFO order once the
+      // suggestion is exhausted. Default qty is clamped to the lot's on-hand.
       const used = new Set(prev.map((b) => b.id).filter(Boolean));
-      const next = batchOptions.find(
-        (o) => !used.has(o.value) && !o.isExpired
+      const fromSuggestion = suggestedAllocation.find(
+        (lot) => !used.has(lot.trackedEntityId)
       );
+      const next = fromSuggestion
+        ? batchOptions.find((o) => o.value === fromSuggestion.trackedEntityId)
+        : batchOptions.find((o) => !used.has(o.value) && !o.isExpired);
       return [
         ...prev,
-        { index: prev.length, id: next?.value ?? "", quantity: 1 }
+        {
+          index: prev.length,
+          id: next?.value ?? "",
+          quantity: next ? Math.min(1, next.availableQuantity) : 1
+        }
       ];
     });
-  }, [batchOptions]);
+  }, [batchOptions, suggestedAllocation]);
 
   const removeBatchNumber = useCallback((indexToRemove: number) => {
     setSelectedBatchNumbers((prev) => {
