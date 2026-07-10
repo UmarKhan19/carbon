@@ -6045,6 +6045,7 @@ export type Database = {
       costLedger: {
         Row: {
           adjustment: boolean
+          appliesToCostLedgerId: string | null
           companyId: string
           cost: number
           costLedgerType: Database["public"]["Enums"]["costLedgerType"]
@@ -6066,6 +6067,7 @@ export type Database = {
         }
         Insert: {
           adjustment?: boolean
+          appliesToCostLedgerId?: string | null
           companyId: string
           cost?: number
           costLedgerType: Database["public"]["Enums"]["costLedgerType"]
@@ -6087,6 +6089,7 @@ export type Database = {
         }
         Update: {
           adjustment?: boolean
+          appliesToCostLedgerId?: string | null
           companyId?: string
           cost?: number
           costLedgerType?: Database["public"]["Enums"]["costLedgerType"]
