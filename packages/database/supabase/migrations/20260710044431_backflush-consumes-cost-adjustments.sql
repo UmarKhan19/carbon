@@ -57,6 +57,7 @@ DECLARE
   v_bf_jl_id TEXT;
   v_bf_jl_ids TEXT[];
   v_bf_posting_group_ids TEXT[];
+  v_bf_line_item_ids TEXT[];
 BEGIN
   -- Never let a NULL user reach NOT NULL audit columns; fall back to the job creator
   p_user_id := COALESCE(p_user_id, (SELECT "createdBy" FROM "job" WHERE id = p_job_id));
@@ -222,6 +223,7 @@ BEGIN
 
   v_bf_jl_ids := '{}';
   v_bf_posting_group_ids := '{}';
+  v_bf_line_item_ids := '{}';
 
   FOR i IN 1..array_length(v_bf_item_ids, 1)
   LOOP
@@ -337,6 +339,7 @@ BEGIN
 
     v_bf_jl_ids := v_bf_jl_ids || v_bf_jl_id;
     v_bf_posting_group_ids := v_bf_posting_group_ids || COALESCE(v_material_item_posting_group_id, '');
+    v_bf_line_item_ids := v_bf_line_item_ids || COALESCE(v_bf_item_ids[i], '');
 
     -- CR Inventory
     INSERT INTO "journalLine" (
@@ -353,6 +356,7 @@ BEGIN
 
     v_bf_jl_ids := v_bf_jl_ids || v_bf_jl_id;
     v_bf_posting_group_ids := v_bf_posting_group_ids || COALESCE(v_material_item_posting_group_id, '');
+    v_bf_line_item_ids := v_bf_line_item_ids || COALESCE(v_bf_item_ids[i], '');
 
     -- Cost ledger entry for consumption
     INSERT INTO "costLedger" (
@@ -379,11 +383,11 @@ BEGIN
         );
       END IF;
 
-      IF v_dimension_item IS NOT NULL AND v_bf_item_ids[i] IS NOT NULL AND v_bf_item_ids[i] != '' THEN
+      IF v_dimension_item IS NOT NULL AND v_bf_line_item_ids[i] != '' THEN
         INSERT INTO "journalLineDimension" (
           "journalLineId", "dimensionId", "valueId", "companyId"
         ) VALUES (
-          v_bf_jl_ids[i], v_dimension_item, v_bf_item_ids[i], p_company_id
+          v_bf_jl_ids[i], v_dimension_item, v_bf_line_item_ids[i], p_company_id
         );
       END IF;
 
