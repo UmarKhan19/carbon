@@ -100,6 +100,7 @@ const SupplierParts = ({
       cols.push({
         id: "delete",
         header: "",
+        size: 40,
         cell: ({ row }) => (
           <button
             type="button"
@@ -112,11 +113,7 @@ const SupplierParts = ({
           >
             <LuTrash className="w-4 h-4" />
           </button>
-        ),
-        meta: {
-          // prevent the row click / edit from firing
-          getCellContext: () => ({ className: "w-8" })
-        }
+        )
       });
     }
 
