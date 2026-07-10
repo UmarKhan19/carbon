@@ -91,6 +91,9 @@ msgstr "{chainLabel}。このパーツを最終的な後継品に直接指定す
 msgid "{count, plural, one {# course} other {# courses}}"
 msgstr "{count, plural, one {# コース} other {# コース}}"
 
+msgid "{done} of {total} phases complete"
+msgstr "{done} / {total} フェーズ完了"
+
 msgid "{from}–{to} of {count}"
 msgstr "{from}–{to} / {count}"
 
@@ -7945,9 +7948,6 @@ msgstr "OEM (オリジナル機器メーカー)"
 
 msgid "of"
 msgstr "の"
-
-msgid "of {total} phases complete"
-msgstr "{total}フェーズ中完了"
 
 msgid "OK"
 msgstr "OK"

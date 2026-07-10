@@ -91,6 +91,9 @@ msgstr "{chainLabel}. इस भाग को सीधे अंतिम उ�
 msgid "{count, plural, one {# course} other {# courses}}"
 msgstr "{count, plural, one {# कोर्स} other {# कोर्स}}"
 
+msgid "{done} of {total} phases complete"
+msgstr "{done} में से {total} चरण पूर्ण"
+
 msgid "{from}–{to} of {count}"
 msgstr "{from}–{to} में से {count}"
 
@@ -7945,9 +7948,6 @@ msgstr "OEM (मूल उपकरण निर्माता)"
 
 msgid "of"
 msgstr "का"
-
-msgid "of {total} phases complete"
-msgstr "of {total} phases complete"
 
 msgid "OK"
 msgstr "ठीक है"

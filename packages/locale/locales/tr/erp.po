@@ -91,6 +91,9 @@ msgstr "{chainLabel}. Bu parçayı doğrudan son halefine yönlendirmeyi düşü
 msgid "{count, plural, one {# course} other {# courses}}"
 msgstr "{count, plural, one {# kurs} other {# kurs}}"
 
+msgid "{done} of {total} phases complete"
+msgstr "{done} / {total} aşama tamamlandı"
+
 msgid "{from}–{to} of {count}"
 msgstr "{from}–{to} / {count}"
 
@@ -7945,9 +7948,6 @@ msgstr "OEM (Orijinal Ekipman Üreticisi)"
 
 msgid "of"
 msgstr "adet"
-
-msgid "of {total} phases complete"
-msgstr "{total} aşamanın tamamlandığı"
 
 msgid "OK"
 msgstr "Tamam"

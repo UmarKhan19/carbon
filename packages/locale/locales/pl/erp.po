@@ -91,6 +91,9 @@ msgstr "{chainLabel}. Rozważ wskazanie tej części bezpośrednio na ostateczne
 msgid "{count, plural, one {# course} other {# courses}}"
 msgstr "{count, plural, one {# kurs} other {# kursy}}"
 
+msgid "{done} of {total} phases complete"
+msgstr "{done} z {total} faz ukończonych"
+
 msgid "{from}–{to} of {count}"
 msgstr "{from}–{to} z {count}"
 
@@ -7945,9 +7948,6 @@ msgstr "OEM (producent oryginalnego sprzętu)"
 
 msgid "of"
 msgstr "z"
-
-msgid "of {total} phases complete"
-msgstr "z {total} faz ukończonych"
 
 msgid "OK"
 msgstr "OK"

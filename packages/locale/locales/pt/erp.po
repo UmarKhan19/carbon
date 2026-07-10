@@ -91,6 +91,9 @@ msgstr "{chainLabel}. Considere apontar esta peça diretamente para o sucessor f
 msgid "{count, plural, one {# course} other {# courses}}"
 msgstr "{count, plural, one {# curso} other {# cursos}}"
 
+msgid "{done} of {total} phases complete"
+msgstr "{done} de {total} fases concluídas"
+
 msgid "{from}–{to} of {count}"
 msgstr "{from}–{to} de {count}"
 
@@ -7945,9 +7948,6 @@ msgstr "OEM (fabricante de equipamento original)"
 
 msgid "of"
 msgstr "de"
-
-msgid "of {total} phases complete"
-msgstr "de {total} fases completas"
 
 msgid "OK"
 msgstr "OK"

@@ -91,6 +91,9 @@ msgstr "{chainLabel}。考虑将此零件直接指向最终后继产品。"
 msgid "{count, plural, one {# course} other {# courses}}"
 msgstr "{count, plural, one {# 门课程} other {# 门课程}}"
 
+msgid "{done} of {total} phases complete"
+msgstr "{done} 个，共 {total} 个阶段已完成"
+
 msgid "{from}–{to} of {count}"
 msgstr "{from}–{to} 共 {count}"
 
@@ -7945,9 +7948,6 @@ msgstr "OEM (原始设备制造商)"
 
 msgid "of"
 msgstr "的"
-
-msgid "of {total} phases complete"
-msgstr "的 {total} 个阶段已完成"
 
 msgid "OK"
 msgstr "确定"
