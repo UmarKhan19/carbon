@@ -96,7 +96,9 @@ serve(async (req: Request) => {
             .from("costLedger")
             .select("*")
             .eq("documentId", invoiceId)
-            .eq("documentType", "Purchase Invoice")
+            // 'Purchase Receipt' + documentId=invoiceId are the legacy
+            // self-heal layers this invoice may have created
+            .in("documentType", ["Purchase Invoice", "Purchase Receipt"])
             .eq("companyId", companyId),
         ]);
 
@@ -284,8 +286,27 @@ serve(async (req: Request) => {
           companyId,
         }));
 
+      // Partition invoice-created costLedger rows for reversal:
+      // - adjustment children (variance bumps on receipt layers)
+      // - legacy self-heal layers (documentType 'Purchase Receipt')
+      // - plain rows (no-PO direct-invoice layers): negative-mirror as before
+      type CostLedgerRow = Database["public"]["Tables"]["costLedger"]["Row"];
+      const adjustmentChildrenVoid = originalCostLedger.data.filter(
+        (entry: CostLedgerRow) =>
+          entry.adjustment && entry.appliesToCostLedgerId
+      );
+      const selfHealLayersVoid = originalCostLedger.data.filter(
+        (entry: CostLedgerRow) =>
+          !entry.adjustment && entry.documentType === "Purchase Receipt"
+      );
+      const plainCostLedgerVoid = originalCostLedger.data.filter(
+        (entry: CostLedgerRow) =>
+          !adjustmentChildrenVoid.includes(entry) &&
+          !selfHealLayersVoid.includes(entry)
+      );
+
       const reversingCostLedger: Database["public"]["Tables"]["costLedger"]["Insert"][] =
-        originalCostLedger.data.map((entry) => ({
+        plainCostLedgerVoid.map((entry) => ({
           itemLedgerType: entry.itemLedgerType,
           costLedgerType: entry.costLedgerType,
           adjustment: entry.adjustment,
@@ -376,6 +397,82 @@ serve(async (req: Request) => {
             .insertInto("costLedger")
             .values(reversingCostLedger)
             .execute();
+        }
+
+        // Reverse variance adjustment children created by this invoice.
+        // Untouched children are deleted; partially consumed ones get a
+        // counter-child with the SAME remainingQuantity while the original
+        // stays live — future consumption applies +bump and −bump together,
+        // netting remaining units back to base cost. Already-consumed bumps
+        // stay in posted COGS (no retroactive restatement).
+        for (const child of adjustmentChildrenVoid) {
+          if (
+            Number(child.remainingQuantity ?? 0) === Number(child.quantity)
+          ) {
+            await trx
+              .deleteFrom("costLedger")
+              .where("id", "=", child.id)
+              .execute();
+          } else {
+            await trx
+              .insertInto("costLedger")
+              .values({
+                itemLedgerType: child.itemLedgerType,
+                costLedgerType: child.costLedgerType,
+                adjustment: true,
+                appliesToCostLedgerId: child.appliesToCostLedgerId,
+                documentType: child.documentType,
+                documentId: child.documentId,
+                externalDocumentId: child.externalDocumentId,
+                itemId: child.itemId,
+                quantity: child.quantity,
+                nominalCost: -child.nominalCost,
+                cost: -child.cost,
+                remainingQuantity: child.remainingQuantity,
+                supplierId: child.supplierId,
+                companyId,
+              })
+              .execute();
+          }
+        }
+
+        // Reverse legacy self-heal layers created by this invoice. Unconsumed
+        // layers are deleted (restores the pre-invoice no-layer state);
+        // partially consumed ones get a negative mirror row and stop feeding
+        // consumption (remainingQuantity zeroed).
+        for (const layer of selfHealLayersVoid) {
+          if (
+            Number(layer.remainingQuantity ?? 0) === Number(layer.quantity)
+          ) {
+            await trx
+              .deleteFrom("costLedger")
+              .where("id", "=", layer.id)
+              .execute();
+          } else {
+            await trx
+              .insertInto("costLedger")
+              .values({
+                itemLedgerType: layer.itemLedgerType,
+                costLedgerType: layer.costLedgerType,
+                adjustment: layer.adjustment,
+                documentType: layer.documentType,
+                documentId: layer.documentId,
+                externalDocumentId: layer.externalDocumentId,
+                itemId: layer.itemId,
+                quantity: -layer.quantity,
+                nominalCost: -layer.nominalCost,
+                cost: -layer.cost,
+                remainingQuantity: 0,
+                supplierId: layer.supplierId,
+                companyId,
+              })
+              .execute();
+            await trx
+              .updateTable("costLedger")
+              .set({ remainingQuantity: 0 })
+              .where("id", "=", layer.id)
+              .execute();
+          }
         }
 
         await trx
