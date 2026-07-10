@@ -64,6 +64,7 @@ in root-cause, BLOCKED in fix) always surface to the human.
 | `error` | Capture screenshot + snapshot on browser failure | `.ai/scratch/e2e/…` (building block) |
 | `create-agents-md` | Generate/refresh a grounded AGENTS.md | `AGENTS.md` |
 | `carbon-docs` | Author reader-facing docs in the docs app | `docs/content/**` |
+| `translate` | Fill missing i18n .po translations via cheap Haiku subagents | `packages/locale/locales/*/*.po` |
 | `test-driven-development` | Red→green→refactor discipline (vitest) | tests-first code |
 | `writing-skills` | House guide for authoring skills | skills |
 | `pr-explainer` | Self-contained HTML review aid for a PR | `.pr-review/*.html` |
