@@ -12,6 +12,7 @@ import {
   journalReference,
   TrackedEntityAttributes,
 } from "../lib/utils.ts";
+import { calculateCOGS } from "../shared/calculate-cogs.ts";
 import { getCurrentAccountingPeriod } from "../shared/get-accounting-period.ts";
 import { getNextSequence } from "../shared/get-next-sequence.ts";
 import { getDefaultPostingGroup } from "../shared/get-posting-group.ts";
@@ -584,6 +585,23 @@ serve(async (req: Request) => {
 
         const itemLedgerInserts: Database["public"]["Tables"]["itemLedger"]["Insert"][] =
           [];
+        // Cost layers created by this receipt (the receipt is the sole creator
+        // of purchase layers; the invoice adjusts them later). Rows flagged
+        // isInvoiceFirst are skipped at flush time if a legacy invoice-created
+        // layer already covers the goods (pre-fix in-flight documents).
+        const costLedgerInserts: (Database["public"]["Tables"]["costLedger"]["Insert"] & {
+          isInvoiceFirst?: boolean;
+        })[] = [];
+        // Negative receipts consume layers at layer cost inside the
+        // transaction (calculateCOGS); GL amounts are patched to match.
+        // fallbackCost (PO cost) is used when no layers yield a cost.
+        const negativeReceiptConsumptions: {
+          itemId: string;
+          quantity: number;
+          fallbackCost: number;
+          grIrLineIndex: number | null;
+          inventoryLineIndex: number | null;
+        }[] = [];
         const journalLineInserts: Omit<
           Database["public"]["Tables"]["journalLine"]["Insert"],
           "journalId"
@@ -906,21 +924,58 @@ serve(async (req: Request) => {
           const isNegativeReceipt = receivedQuantity < 0;
           const absReceivedQuantity = Math.abs(receivedQuantity);
 
-          if (accountingEnabled && accountDefaults?.data && absReceivedQuantity > 0) {
-            const lineCost = absReceivedQuantity * receiptLine.unitPrice;
+          // Line cost at PO price + proportional shipping. Computed outside
+          // the accounting gate: cost layers are created regardless of
+          // whether GL posting is enabled.
+          const lineCost = absReceivedQuantity * receiptLine.unitPrice;
+          const lineValuePercentage =
+            totalLinesCost === 0 ? 0 : lineCost / totalLinesCost;
+          const lineWeightedShippingCost = shippingCost * lineValuePercentage;
+          const cost = lineCost + lineWeightedShippingCost;
+          const poUnitCost =
+            absReceivedQuantity > 0 ? cost / absReceivedQuantity : 0;
 
-            // Add proportional shipping cost based on line value percentage
-            const lineValuePercentage =
-              totalLinesCost === 0 ? 0 : lineCost / totalLinesCost;
-            const lineWeightedShippingCost = shippingCost * lineValuePercentage;
-            const cost = lineCost + lineWeightedShippingCost;
+          const createsLayers =
+            itemTrackingType !== "Non-Inventory" &&
+            !isOutsideProcessing &&
+            !!receiptLine.itemId &&
+            absReceivedQuantity > 0;
 
-            const journalLineReference = nanoid();
-
-            // Find the PO line for this receipt line
-            const poLine = purchaseOrderLines.data.find(
-              (pol) => pol.id === receiptLine.lineId
+          // Invoice-first split: the portion of this line that was invoiced
+          // before receipt is valued at the accrual (invoice) unit cost — the
+          // actual cost is already known, so no variance arises. The
+          // remainder stays at PO cost until its invoice adjusts it.
+          const poLineId = receiptLine.lineId;
+          let invoiceFirstQty = 0;
+          let accrualUnitCost = 0;
+          if (
+            !isNegativeReceipt &&
+            poLineId &&
+            invoiceFirstQtyByPoLine.has(poLineId)
+          ) {
+            const remainingInvoiceFirstQty =
+              invoiceFirstQtyByPoLine.get(poLineId)!;
+            const claimedQty = Math.min(
+              absReceivedQuantity,
+              remainingInvoiceFirstQty
             );
+            const claimedUnitCost = accrualUnitCostByPoLine.get(poLineId) ?? 0;
+            if (claimedQty > 0 && claimedUnitCost > 0) {
+              invoiceFirstQty = claimedQty;
+              accrualUnitCost = claimedUnitCost;
+              invoiceFirstQtyByPoLine.set(
+                poLineId,
+                remainingInvoiceFirstQty - claimedQty
+              );
+            }
+          }
+          const normalQty = absReceivedQuantity - invoiceFirstQty;
+          const invoiceFirstPortionCost = invoiceFirstQty * accrualUnitCost;
+          const normalPortionCost = normalQty * poUnitCost;
+          const glCost = invoiceFirstPortionCost + normalPortionCost;
+
+          if (accountingEnabled && accountDefaults?.data && absReceivedQuantity > 0) {
+            const journalLineReference = nanoid();
 
             // Determine the debit account based on item type
             let debitAccount: string;
@@ -938,6 +993,10 @@ serve(async (req: Request) => {
             }
 
             if (isNegativeReceipt) {
+              // Amounts are placeholders at PO cost; for layer-backed lines
+              // they are patched to the consumed layer cost inside the
+              // transaction (calculateCOGS).
+              const grIrLineIndex = journalLineInserts.length;
               journalLineInserts.push({
                 accountId: accountDefaults.data.goodsReceivedNotInvoicedAccount,
                 description: "Goods Received Not Invoiced",
@@ -954,6 +1013,7 @@ serve(async (req: Request) => {
                 companyId,
               });
 
+              const inventoryLineIndex = journalLineInserts.length;
               journalLineInserts.push({
                 accountId: debitAccount,
                 description: debitDescription,
@@ -969,11 +1029,23 @@ serve(async (req: Request) => {
                 journalLineReference,
                 companyId,
               });
+
+              if (createsLayers) {
+                negativeReceiptConsumptions.push({
+                  itemId: receiptLine.itemId!,
+                  quantity: absReceivedQuantity,
+                  fallbackCost: cost,
+                  grIrLineIndex,
+                  inventoryLineIndex,
+                });
+              }
             } else {
+              // The invoice-first portion posts at accrual (invoice) cost so
+              // the invoice's GR/IR debit accrual clears exactly — no PPV.
               journalLineInserts.push({
                 accountId: debitAccount,
                 description: debitDescription,
-                amount: debit("asset", cost),
+                amount: debit("asset", glCost),
                 quantity: absReceivedQuantity,
                 documentType: "Receipt",
                 documentId: receipt.data?.id ?? undefined,
@@ -989,7 +1061,7 @@ serve(async (req: Request) => {
               journalLineInserts.push({
                 accountId: accountDefaults.data.goodsReceivedNotInvoicedAccount,
                 description: "Goods Received Not Invoiced",
-                amount: credit("liability", cost),
+                amount: credit("liability", glCost),
                 quantity: absReceivedQuantity,
                 documentType: "Receipt",
                 documentId: receipt.data?.id ?? undefined,
@@ -1001,70 +1073,57 @@ serve(async (req: Request) => {
                 journalLineReference,
                 companyId,
               });
+            }
+          } else if (isNegativeReceipt && createsLayers) {
+            // Accounting disabled: still consume layers in the subledger
+            negativeReceiptConsumptions.push({
+              itemId: receiptLine.itemId!,
+              quantity: absReceivedQuantity,
+              fallbackCost: cost,
+              grIrLineIndex: null,
+              inventoryLineIndex: null,
+            });
+          }
 
-              // Invoice-first PPV: when invoice was posted before receipt,
-              // accrual entries used invoice cost for GR/IR. The standard
-              // entries above credited GR/IR at PO cost. Add adjustment
-              // entries so GR/IR clears at invoice cost and PPV captures
-              // the difference.
-              const poLineId = receiptLine.lineId;
-              if (poLineId && invoiceFirstQtyByPoLine.has(poLineId)) {
-                const remainingInvoiceFirstQty =
-                  invoiceFirstQtyByPoLine.get(poLineId)!;
-                const invoiceFirstQty = Math.min(
-                  absReceivedQuantity,
-                  remainingInvoiceFirstQty
-                );
-
-                if (invoiceFirstQty > 0) {
-                  invoiceFirstQtyByPoLine.set(
-                    poLineId,
-                    remainingInvoiceFirstQty - invoiceFirstQty
-                  );
-
-                  const accrualUnitCost =
-                    accrualUnitCostByPoLine.get(poLineId) ?? 0;
-                  const poUnitCost = cost / absReceivedQuantity;
-                  const variance =
-                    invoiceFirstQty * (accrualUnitCost - poUnitCost);
-
-                  if (Math.abs(variance) > 0.005) {
-                    journalLineInserts.push({
-                      accountId:
-                        accountDefaults.data.goodsReceivedNotInvoicedAccount,
-                      description: "GR/IR Clearing",
-                      amount: credit("liability", variance),
-                      quantity: invoiceFirstQty,
-                      documentType: "Receipt",
-                      documentId: receipt.data?.id ?? undefined,
-                      externalDocumentId:
-                        purchaseOrder.data?.supplierReference ?? undefined,
-                      documentLineReference: journalReference.to.receipt(
-                        poLineId
-                      ),
-                      journalLineReference,
-                      companyId,
-                    });
-
-                    journalLineInserts.push({
-                      accountId:
-                        accountDefaults.data.purchaseVarianceAccount,
-                      description: "Purchase Price Variance",
-                      amount: debit("expense", variance),
-                      quantity: invoiceFirstQty,
-                      documentType: "Receipt",
-                      documentId: receipt.data?.id ?? undefined,
-                      externalDocumentId:
-                        purchaseOrder.data?.supplierReference ?? undefined,
-                      documentLineReference: journalReference.to.receipt(
-                        poLineId
-                      ),
-                      journalLineReference,
-                      companyId,
-                    });
-                  }
-                }
-              }
+          // Cost layers: the receipt is the sole creator of purchase layers.
+          // The invoice later adjusts them via appliesToCostLedgerId children.
+          if (createsLayers && !isNegativeReceipt) {
+            if (invoiceFirstQty > 0) {
+              costLedgerInserts.push({
+                itemLedgerType: "Purchase",
+                costLedgerType: "Direct Cost",
+                adjustment: false,
+                documentType: "Purchase Receipt",
+                documentId: receipt.data?.id ?? undefined,
+                externalDocumentId:
+                  receipt.data?.externalDocumentId ?? undefined,
+                itemId: receiptLine.itemId,
+                quantity: invoiceFirstQty,
+                nominalCost: invoiceFirstQty * (receiptLine.unitPrice ?? 0),
+                cost: invoiceFirstPortionCost,
+                remainingQuantity: invoiceFirstQty,
+                supplierId: purchaseOrder.data?.supplierId ?? undefined,
+                companyId,
+                isInvoiceFirst: true,
+              });
+            }
+            if (normalQty > 0) {
+              costLedgerInserts.push({
+                itemLedgerType: "Purchase",
+                costLedgerType: "Direct Cost",
+                adjustment: false,
+                documentType: "Purchase Receipt",
+                documentId: receipt.data?.id ?? undefined,
+                externalDocumentId:
+                  receipt.data?.externalDocumentId ?? undefined,
+                itemId: receiptLine.itemId,
+                quantity: normalQty,
+                nominalCost: normalQty * (receiptLine.unitPrice ?? 0),
+                cost: normalPortionCost,
+                remainingQuantity: normalQty,
+                supplierId: purchaseOrder.data?.supplierId ?? undefined,
+                companyId,
+              });
             }
           }
 
@@ -1308,6 +1367,92 @@ serve(async (req: Request) => {
           : null;
 
         await db.transaction().execute(async (trx) => {
+          // Negative receipts: consume layers at layer cost (FIFO/LIFO with
+          // adjustment children) and patch the placeholder GL amounts so the
+          // GL credit matches what actually left the subledger.
+          for (const consumption of negativeReceiptConsumptions) {
+            const cogsResult = await calculateCOGS(trx, {
+              itemId: consumption.itemId,
+              quantity: consumption.quantity,
+              companyId,
+            });
+            const consumedCost =
+              cogsResult.totalCost > 0
+                ? cogsResult.totalCost
+                : consumption.fallbackCost;
+            if (consumption.grIrLineIndex !== null) {
+              journalLineInserts[consumption.grIrLineIndex].amount = debit(
+                "liability",
+                consumedCost
+              );
+            }
+            if (consumption.inventoryLineIndex !== null) {
+              journalLineInserts[consumption.inventoryLineIndex].amount =
+                credit("asset", consumedCost);
+            }
+            costLedgerInserts.push({
+              itemLedgerType: "Purchase",
+              costLedgerType: "Direct Cost",
+              adjustment: false,
+              documentType: "Purchase Receipt",
+              documentId: receipt.data?.id ?? undefined,
+              itemId: consumption.itemId,
+              quantity: -consumption.quantity,
+              cost: -consumedCost,
+              remainingQuantity: 0,
+              supplierId: purchaseOrder.data?.supplierId ?? undefined,
+              companyId,
+            });
+          }
+
+          // Flush cost layers. Transition guard: skip invoice-first rows for
+          // items whose goods already have a legacy invoice-created layer
+          // (documents posted before receipt-created layers shipped).
+          if (costLedgerInserts.length > 0) {
+            const invoiceFirstItemIds = [
+              ...new Set(
+                costLedgerInserts
+                  .filter((row) => row.isInvoiceFirst && row.itemId)
+                  .map((row) => row.itemId!)
+              ),
+            ];
+            const legacyItemIds = new Set<string>();
+            if (invoiceFirstItemIds.length > 0) {
+              const legacyLayers = await trx
+                .selectFrom("costLedger")
+                .select(["itemId"])
+                .where("documentType", "=", "Purchase Invoice")
+                .where("itemId", "in", invoiceFirstItemIds)
+                .where("companyId", "=", companyId)
+                .where("remainingQuantity", ">", 0)
+                .execute();
+              for (const layer of legacyLayers) {
+                if (layer.itemId) legacyItemIds.add(layer.itemId);
+              }
+              if (legacyItemIds.size > 0) {
+                console.log({
+                  function: "post-receipt",
+                  message:
+                    "skipping invoice-first layer creation for items with legacy invoice-created layers",
+                  itemIds: [...legacyItemIds],
+                });
+              }
+            }
+            const costLedgerRows = costLedgerInserts
+              .filter(
+                (row) =>
+                  !(
+                    row.isInvoiceFirst &&
+                    row.itemId &&
+                    legacyItemIds.has(row.itemId)
+                  )
+              )
+              .map(({ isInvoiceFirst: _isInvoiceFirst, ...row }) => row);
+            if (costLedgerRows.length > 0) {
+              await trx.insertInto("costLedger").values(costLedgerRows).execute();
+            }
+          }
+
           for await (const [purchaseOrderLineId, update] of Object.entries(
             purchaseOrderLineUpdates
           )) {
