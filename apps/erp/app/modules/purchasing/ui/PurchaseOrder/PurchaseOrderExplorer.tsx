@@ -24,6 +24,8 @@ import { useMemo, useRef, useState } from "react";
 import {
   LuCirclePlus,
   LuEllipsisVertical,
+  LuPackageCheck,
+  LuPackageX,
   LuSettings2,
   LuTrash
 } from "react-icons/lu";
@@ -36,6 +38,7 @@ import {
   ReorderEditBar,
   useLineOrderEditMode
 } from "~/components/LineReorder";
+import { Confirm } from "~/components/Modals";
 import {
   useOptimisticLocation,
   usePermissions,
@@ -277,7 +280,11 @@ function PurchaseOrderLineItem({
   if (!orderId) throw new Error("Could not find orderId");
   const permissions = usePermissions();
   const disclosure = useDisclosure();
+  const receivingDisclosure = useDisclosure();
   const location = useOptimisticLocation();
+  const orderData = useRouteData<{ purchaseOrder: PurchaseOrder }>(
+    path.to.purchaseOrder(orderId)
+  );
 
   useMount(() => {
     if (lineId === line.id) {
@@ -287,6 +294,33 @@ function PurchaseOrderLineItem({
 
   const isSelected =
     location.pathname === path.to.purchaseOrderLine(orderId, line.id!);
+
+  // Short close ("Stop Receiving"): settle a line whose remainder will never
+  // arrive. Only receivable line types, only on a released order, and only
+  // while the line still has an outstanding quantity.
+  const isReceivableLineType =
+    line.purchaseOrderLineType !== "Comment" &&
+    line.purchaseOrderLineType !== "G/L Account";
+  const hasOutstandingQuantity = (line.quantityToReceive ?? 0) > 0;
+  const orderStatus = orderData?.purchaseOrder?.status ?? "";
+  const canUpdate = permissions.can("update", "purchasing");
+  const canStopReceiving =
+    canUpdate &&
+    isReceivableLineType &&
+    hasOutstandingQuantity &&
+    !line.receivedComplete &&
+    ["To Receive", "To Receive and Invoice"].includes(orderStatus);
+  const canResumeReceiving =
+    canUpdate &&
+    isReceivableLineType &&
+    hasOutstandingQuantity &&
+    !!line.receivedComplete &&
+    [
+      "To Receive",
+      "To Receive and Invoice",
+      "To Invoice",
+      "Completed"
+    ].includes(orderStatus);
 
   return (
     <VStack spacing={0} className="border-b">
@@ -349,6 +383,26 @@ function PurchaseOrderLineItem({
                   <DropdownMenuIcon icon={<LuTrash />} />
                   <Trans>Delete Line</Trans>
                 </DropdownMenuItem>
+                {(canStopReceiving || canResumeReceiving) && (
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      receivingDisclosure.onOpen();
+                    }}
+                  >
+                    <DropdownMenuIcon
+                      icon={
+                        canStopReceiving ? <LuPackageX /> : <LuPackageCheck />
+                      }
+                    />
+                    {canStopReceiving ? (
+                      <Trans>Stop Receiving</Trans>
+                    ) : (
+                      <Trans>Resume Receiving</Trans>
+                    )}
+                  </DropdownMenuItem>
+                )}
                 {/* @ts-expect-error */}
                 {methodItemType.includes(line?.purchaseOrderLineType ?? "") && (
                   <DropdownMenuItem asChild>
@@ -370,6 +424,32 @@ function PurchaseOrderLineItem({
           </div>
         </HStack>
       </Link>
+      {receivingDisclosure.isOpen && (
+        <Confirm
+          action={path.to.purchaseOrderLineReceiving(orderId, line.id!)}
+          title={canStopReceiving ? t`Stop Receiving` : t`Resume Receiving`}
+          text={
+            canStopReceiving
+              ? t`The remaining ${line.quantityToReceive} ${
+                  line.purchaseUnitOfMeasureCode ?? ""
+                } will no longer be expected. On-order supply and MRP will stop counting it. The ordered quantity and pricing are unchanged.`
+              : t`The remaining ${line.quantityToReceive} ${
+                  line.purchaseUnitOfMeasureCode ?? ""
+                } will be expected again and counted as incoming supply.`
+          }
+          confirmText={
+            canStopReceiving ? t`Stop Receiving` : t`Resume Receiving`
+          }
+          onCancel={receivingDisclosure.onClose}
+          onSubmit={receivingDisclosure.onClose}
+        >
+          <input
+            type="hidden"
+            name="intent"
+            value={canStopReceiving ? "close" : "reopen"}
+          />
+        </Confirm>
+      )}
     </VStack>
   );
 }

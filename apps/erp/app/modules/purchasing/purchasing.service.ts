@@ -1793,6 +1793,65 @@ export async function updatePurchaseOrderLineOrder(
   });
 }
 
+/**
+ * Short-close ("stop receiving") or reopen a purchase order line whose
+ * remaining quantity will never arrive. Sets `receivedComplete` without
+ * touching quantities or pricing, then recomputes the header status from the
+ * line completeness flags. Open-PO supply queries (get_inventory_quantities,
+ * openPurchaseOrderLines) exclude `receivedComplete` lines, so the undelivered
+ * remainder stops counting as incoming stock.
+ */
+export async function shortClosePurchaseOrderLine(
+  db: Kysely<KyselyDatabase>,
+  {
+    lineId,
+    purchaseOrderId,
+    companyId,
+    userId,
+    intent
+  }: {
+    lineId: string;
+    purchaseOrderId: string;
+    companyId: string;
+    userId: string;
+    intent: "close" | "reopen";
+  }
+) {
+  return db.transaction().execute(async (trx) => {
+    await trx
+      .updateTable("purchaseOrderLine")
+      .set({
+        receivedComplete: intent === "close",
+        updatedBy: userId,
+        updatedAt: new Date().toISOString()
+      })
+      .where("id", "=", lineId)
+      .where("purchaseOrderId", "=", purchaseOrderId)
+      .where("companyId", "=", companyId)
+      .execute();
+
+    const lines = await trx
+      .selectFrom("purchaseOrderLine")
+      .select(["purchaseOrderLineType", "invoicedComplete", "receivedComplete"])
+      .where("purchaseOrderId", "=", purchaseOrderId)
+      .where("companyId", "=", companyId)
+      .execute();
+
+    const { status } = getPurchaseOrderStatus(lines);
+
+    await trx
+      .updateTable("purchaseOrder")
+      .set({
+        status,
+        updatedBy: userId,
+        updatedAt: new Date().toISOString()
+      })
+      .where("id", "=", purchaseOrderId)
+      .where("companyId", "=", companyId)
+      .execute();
+  });
+}
+
 export async function upsertPurchaseOrderPayment(
   client: SupabaseClient<Database>,
   purchaseOrderPayment:

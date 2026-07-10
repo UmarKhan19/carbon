@@ -24,7 +24,14 @@ export type PurchaseOrderAttachment = FileObject; // TODO: remove
 
 export type PurchaseOrder = NonNullable<
   Awaited<ReturnType<typeof getPurchaseOrders>>["data"]
->[number];
+>[number] & // migration 20260708204214 but the generated DB types could not be // TEMPORARY: these columns were added to the "purchaseOrders" view by
+// regenerated (local dev DB was restored from a backup older than the
+// checked-in types, so `pnpm db:types` would clobber unrelated types).
+// Remove this intersection after rebuilding the DB and regenerating types.
+{
+  receivableQuantity?: number | null;
+  receivedQuantity?: number | null;
+};
 
 export type PurchaseOrderDelivery = NonNullable<
   Awaited<ReturnType<typeof getPurchaseOrderDelivery>>["data"]

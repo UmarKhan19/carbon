@@ -63,7 +63,7 @@ Validators in `inventory.models.ts`: `inventoryAdjustmentValidator`, `receiptVal
 - **`storageRule`** + assignment tables — renamed from `customRule`/`itemRule` (`20260603130000`).
 
 `get_inventory_quantities(company_id TEXT, location_id TEXT)` — the central read. Newest definition is
-`20260512130000_inventory-storage-unit-filter.sql` (NOT the old-doc's 2025 migration). Returns ~52 cols:
+`20260708204214_partial-gr-visibility-and-short-close.sql` (NOT the old-doc's 2025 migration). Returns ~52 cols:
 item identity + material props, planning fields, and quantities `quantityOnHand`, `quantityOnHold`,
 `quantityRejected` (status-aware: excludes `Rejected`, surfaces `On Hold`), `quantityOnSalesOrder`,
 `quantityOnPurchaseOrder`, `quantityOnProductionOrder`, `quantityOnProductionDemand`, `demandForecast`,
@@ -81,8 +81,13 @@ Relevant enums: `itemLedgerType`, `itemLedgerDocumentType`, `trackedEntityStatus
   `customRule`→`storageRule`. Grep the NEWEST migration for the real name; never trust an older one or the
   old cache. The `shelf`→`storageUnit` rename was split across paired migrations
   `20260417000100` (rename, M2) + `..000300` (recreate dependents, M4) — they must apply together.
-- **`get_inventory_quantities` has many revisions.** Always read the newest (`20260512130000`), not the
+- **`get_inventory_quantities` has many revisions.** Always read the newest (`20260708204214`), not the
   first match. `quantityOnHand` is status-aware: `Rejected` tracked entities are excluded.
+- **Short-closed PO lines don't count as incoming supply.** `get_inventory_quantities`,
+  `get_job_quantity_on_hand`, and the `openPurchaseOrderLines` view (MRP) all filter open-PO supply with
+  `pol."receivedComplete" = false` (`20260708204214`). A line short-closed via
+  `shortClosePurchaseOrderLine` ("Stop Receiving") keeps `quantityToReceive > 0` but is excluded from
+  `quantityOnPurchaseOrder`.
 - **The auto-generated MCP reference (`.ai/rules/mcp-tools-reference.md`) is stale** for storage units —
   it still lists `getShelf`/`getDefaultShelfForJob`. The real service exports `getStorageUnit*` /
   `getDefaultStorageUnitForJob`. Trust the service file.
