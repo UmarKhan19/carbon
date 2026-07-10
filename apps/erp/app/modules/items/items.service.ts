@@ -214,6 +214,18 @@ export async function deleteItemCustomerPart(
     .eq("companyId", companyId);
 }
 
+export async function deleteSupplierPart(
+  client: SupabaseClient<Database>,
+  id: string,
+  companyId: string
+) {
+  return client
+    .from("supplierPart")
+    .delete()
+    .eq("id", id)
+    .eq("companyId", companyId);
+}
+
 export async function deleteConfigurationParameterGroup(
   client: SupabaseClient<Database>,
   id: string
@@ -1698,6 +1710,7 @@ export async function getPartUsedIn(
     salesOrderLines,
     shipmentLines,
     supplierQuotes,
+    assemblyInstructions,
     jobMaterialUsage
   ] = await Promise.all([
     client
@@ -1799,6 +1812,13 @@ export async function getPartUsedIn(
       .eq("itemId", itemId)
       .eq("companyId", companyId)
       .limit(100),
+    client
+      .from("assemblyInstruction")
+      .select("id, documentReadableId:name, version")
+      .eq("itemId", itemId)
+      .eq("companyId", companyId)
+      .limit(100)
+      .order("createdAt", { ascending: false }),
     getJobMaterialUsageForItem(client, { itemId, companyId })
   ]);
 
@@ -1815,6 +1835,7 @@ export async function getPartUsedIn(
     salesOrderLines: salesOrderLines.data ?? [],
     shipmentLines: shipmentLines.data ?? [],
     supplierQuotes: supplierQuotes.data ?? [],
+    assemblyInstructions: assemblyInstructions.data ?? [],
     jobMaterialUsage
   };
 }

@@ -13,15 +13,33 @@ function record(properties: Record<string, unknown>) {
 }
 
 describe("httpDevFormatter", () => {
-  it("keeps the standard timestamp/level/category prefix", () => {
+  it("renders a pino-style time-only / level / pid / module prefix", () => {
     const line = httpDevFormatter(
       record({ method: "GET", pathname: "/dashboard", status: 200 })
     );
-    expect(line).toContain("DBG");
-    expect(line).toContain("carbon·http");
+    // [HH:MM:SS.mmm] — time only, no date.
+    expect(line).toMatch(/\[\d{2}:\d{2}:\d{2}\.\d{3}\]/);
+    // Uppercase level, pid, and the `carbon`-stripped module.
+    expect(line).toContain("DEBUG");
+    expect(line).toContain(`(${process.pid})`);
+    expect(line).toContain("[http]");
+    // No full date in the line.
+    expect(line).not.toMatch(/\d{4}-\d{2}-\d{2}/);
   });
 
-  it("renders the message portion as a morgan dev-style access line — bold method, dimmed duration", () => {
+  it("includes the query string, redacting sensitive params", () => {
+    const line = httpDevFormatter(
+      record({
+        method: "GET",
+        pathname: "/callback",
+        search: "?ref=home&token=%5BREDACTED%5D",
+        status: 200
+      })
+    );
+    expect(line).toContain("/callback?ref=home&token=%5BREDACTED%5D");
+  });
+
+  it("renders the message portion as a morgan dev-style access line — bold colored method, dimmed duration", () => {
     const line = httpDevFormatter(
       record({
         method: "GET",
@@ -31,8 +49,22 @@ describe("httpDevFormatter", () => {
       })
     );
     expect(line).toContain(
-      "\x1b[1mGET\x1b[0m /dashboard \x1b[32m200\x1b[0m \x1b[2m12.3 ms\x1b[0m"
+      "\x1b[1m\x1b[32mGET\x1b[0m \x1b[32m200\x1b[0m /dashboard \x1b[2m12.3 ms\x1b[0m"
     );
+  });
+
+  it("colors the method: GET green, POST yellow, DELETE red", () => {
+    expect(
+      httpDevFormatter(record({ method: "GET", pathname: "/x", status: 200 }))
+    ).toContain("\x1b[1m\x1b[32mGET\x1b[0m");
+    expect(
+      httpDevFormatter(record({ method: "POST", pathname: "/x", status: 200 }))
+    ).toContain("\x1b[1m\x1b[33mPOST\x1b[0m");
+    expect(
+      httpDevFormatter(
+        record({ method: "DELETE", pathname: "/x", status: 200 })
+      )
+    ).toContain("\x1b[1m\x1b[31mDELETE\x1b[0m");
   });
 
   it("colors 3xx cyan, 4xx yellow, 5xx red", () => {
@@ -71,7 +103,7 @@ describe("httpDevFormatter", () => {
     const line = httpDevFormatter(
       record({ method: "GET", pathname: "/x", status: 200 })
     );
-    expect(line).toContain("\x1b[1mGET\x1b[0m /x \x1b[32m200\x1b[0m");
+    expect(line).toContain("\x1b[1m\x1b[32mGET\x1b[0m \x1b[32m200\x1b[0m /x");
     expect(line).not.toContain("ms");
   });
 

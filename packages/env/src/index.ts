@@ -13,6 +13,7 @@ declare global {
       JIRA_CLIENT_ID: string;
       LOG_LEVEL: string;
       MES_URL: string;
+      NODE_ENV: string;
       ONSHAPE_CLIENT_ID: string;
       POSTHOG_API_HOST: string;
       POSTHOG_PROJECT_PUBLIC_KEY: string;
@@ -193,6 +194,14 @@ export const ERP_URL =
 export const MES_URL =
   getEnv("MES_URL", { isRequired: false, isSecret: false }) ??
   "https://mes.carbon.ms";
+
+export const GEOMETRY_SERVICE_URL = getEnv("GEOMETRY_SERVICE_URL", {
+  isRequired: false
+});
+export const GEOMETRY_SERVICE_API_KEY = getEnv("GEOMETRY_SERVICE_API_KEY", {
+  isRequired: false,
+  isSecret: true
+});
 
 export const GOOGLE_PLACES_API_KEY = getEnv("GOOGLE_PLACES_API_KEY", {
   isRequired: false

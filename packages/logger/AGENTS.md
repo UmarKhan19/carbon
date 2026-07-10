@@ -24,6 +24,15 @@ categories, env-driven levels, and cloud-agnostic request-id correlation.
   (registered first in each app's `root.tsx`) puts `{ requestId }` into implicit
   context, so every server log during a request carries it. Read it explicitly
   with `getRequestId(context)` from `@carbon/logger/middleware.server`.
+- Request-body logging is **debug-only** and guarded: `requestIdMiddleware`
+  captures the body onto the access-log record's `body` prop **only** when
+  `LOG_LEVEL=debug` (skipped entirely at the prod `info` default — no clone, no
+  parse). It covers `POST/PUT/PATCH/DELETE` with `application/json` or
+  `application/x-www-form-urlencoded` bodies at/under 8KB (`content-length`
+  required); multipart uploads, oversized, and unknown-length bodies log a short
+  marker instead. Sensitive fields (`password`/`token`/`secret`/`email`/… — the
+  `DEFAULT_REDACT_FIELDS` set) are masked `[REDACTED]` in the captured object.
+  The body is read from a clone, so the route handler's stream stays intact.
 
 ## Ask First
 
@@ -74,5 +83,5 @@ pnpm --filter @carbon/logger test
 
 - `packages/lib/src/inngest/client.ts` — consumes `createInngestLogger()`.
 - `packages/database/supabase/functions/lib/logging.ts` — Deno-native twin
-  (`getFunctionLogger`, `withRequestLogging`), configured from `jsr:@logtape/*`.
+  (`getFunctionLogger`), configured from `jsr:@logtape/*`.
 - `packages/env/` — defines `LOG_LEVEL` (also exposed to `window.env`).

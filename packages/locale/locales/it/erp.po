@@ -91,6 +91,9 @@ msgstr "{chainLabel}. Considera di indirizzare direttamente questa parte al succ
 msgid "{count, plural, one {# course} other {# courses}}"
 msgstr "{count, plural, one {# corso} other {# corsi}}"
 
+msgid "{done} of {total} phases complete"
+msgstr "{done} di {total} fasi completate"
+
 msgid "{from}–{to} of {count}"
 msgstr "{from}–{to} di {count}"
 
@@ -1320,6 +1323,13 @@ msgstr "Sei sicuro di voler rifiutare questa offerta?"
 msgid "Are you sure you want to release this job? It will become available to the shop floor, and drive purchasing and production."
 msgstr "Sei sicuro di voler rilasciare questo lavoro? Diventerà disponibile per il reparto di produzione e guiderà gli acquisti e la produzione."
 
+#. placeholder {0}: supplierName(deleteTarget.supplierId)
+msgid "Are you sure you want to remove {0} as a supplier for this item? This cannot be undone."
+msgstr ""
+
+msgid "Are you sure you want to remove {supplierName} as a supplier for this item? This cannot be undone."
+msgstr ""
+
 msgid "Are you sure you want to remove this item from the price list? This cannot be undone."
 msgstr "Sei sicuro di voler rimuovere questo articolo dall'elenco dei prezzi? Questa azione non può essere annullata."
 
@@ -1373,6 +1383,12 @@ msgstr "Ascendente"
 #. placeholder {1}: copy.noun
 msgid "Ask an admin with {0} permission to add the first {1}."
 msgstr "Chiedi a un amministratore con autorizzazione {0} di aggiungere il primo {1}."
+
+msgid "Assemblies"
+msgstr "Assiemi"
+
+msgid "Assembly Instructions"
+msgstr "Istruzioni di Montaggio"
 
 msgid "Assembly:"
 msgstr "Assieme:"
@@ -3656,6 +3672,9 @@ msgstr "Elimina Sostanza"
 
 msgid "Delete Suggestion"
 msgstr "Elimina Suggerimento"
+
+msgid "Delete supplier"
+msgstr ""
 
 msgid "Delete Supplier"
 msgstr "Elimina Fornitore"
@@ -7970,9 +7989,6 @@ msgstr "OEM (Original Equipment Manufacturer)"
 msgid "of"
 msgstr "di"
 
-msgid "of {total} phases complete"
-msgstr "di {total} fasi completate"
-
 msgid "OK"
 msgstr "OK"
 
@@ -11191,6 +11207,9 @@ msgstr "Numero Ordine Fornitore"
 msgid "Supplier Overview"
 msgstr "Panoramica Fornitore"
 
+msgid "Supplier Part"
+msgstr ""
+
 msgid "Supplier Part ID"
 msgstr "ID Parte Fornitore"
 
@@ -12222,6 +12241,9 @@ msgstr "Questo ordine di vendita ha righe che richiedono la creazione di lavori"
 #. placeholder {0}: usageCount === 1 ? "" : "s"
 msgid "This storage type is currently used by {usageCount} storage unit{0}."
 msgstr "Questo tipo di archiviazione è attualmente utilizzato da {usageCount} unità di archiviazione{0}."
+
+msgid "this supplier"
+msgstr ""
 
 msgid "This updates the theme for all users of the application"
 msgstr "Questo aggiorna il tema per tutti gli utenti dell'applicazione"
