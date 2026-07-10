@@ -1425,6 +1425,10 @@ serve(async (req: Request) => {
                 .where("itemId", "in", invoiceFirstItemIds)
                 .where("companyId", "=", companyId)
                 .where("remainingQuantity", ">", 0)
+                // adjustment children are corrections on receipt layers, not
+                // legacy invoice-created layers — must not trip this guard
+                .where("adjustment", "=", false)
+                .where("appliesToCostLedgerId", "is", null)
                 .execute();
               for (const layer of legacyLayers) {
                 if (layer.itemId) legacyItemIds.add(layer.itemId);
