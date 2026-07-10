@@ -8,6 +8,7 @@ import {
   Submit,
   ValidatedForm
 } from "@carbon/form";
+import { getLogger } from "@carbon/logger";
 import type { JSONContent } from "@carbon/react";
 import {
   Button,
@@ -75,6 +76,8 @@ import {
   procedureStepValidator
 } from "../../production.models";
 import type { Procedure, ProcedureParameter, ProcedureStep } from "../../types";
+
+const logger = getLogger("erp", "procedureexplorer");
 
 export default function ProcedureExplorer() {
   const prettifyShortcut = usePrettifyShortcut();
@@ -722,7 +725,7 @@ function ProcedureStepForm({
       }
       return {} as JSONContent;
     } catch (e) {
-      console.error("Error parsing description:", e);
+      logger.error("Error parsing description", { error: e });
       return {} as JSONContent;
     }
   });

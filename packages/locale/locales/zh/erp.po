@@ -91,6 +91,9 @@ msgstr "{chainLabel}。考虑将此零件直接指向最终后继产品。"
 msgid "{count, plural, one {# course} other {# courses}}"
 msgstr "{count, plural, one {# 门课程} other {# 门课程}}"
 
+msgid "{done} of {total} phases complete"
+msgstr "{done} 个，共 {total} 个阶段已完成"
+
 msgid "{from}–{to} of {count}"
 msgstr "{from}–{to} 共 {count}"
 
@@ -1370,6 +1373,12 @@ msgstr "升序"
 #. placeholder {1}: copy.noun
 msgid "Ask an admin with {0} permission to add the first {1}."
 msgstr "请求具有{0}权限的管理员添加第一个{1}。"
+
+msgid "Assemblies"
+msgstr "装配件"
+
+msgid "Assembly Instructions"
+msgstr "装配说明"
 
 msgid "Assembly:"
 msgstr "装配体："
@@ -7939,9 +7948,6 @@ msgstr "OEM (原始设备制造商)"
 
 msgid "of"
 msgstr "的"
-
-msgid "of {total} phases complete"
-msgstr "的 {total} 个阶段已完成"
 
 msgid "OK"
 msgstr "确定"

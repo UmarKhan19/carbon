@@ -24,9 +24,12 @@ import {
   SyncFactory,
   type XeroProvider
 } from "@carbon/ee/accounting";
+import { getLogger } from "@carbon/logger";
 import { PostgresDriver } from "kysely";
 import z from "zod";
 import { inngest } from "../../client";
+
+const log = getLogger("jobs", "accounting-backfill");
 
 // ============================================================
 // HELPERS
@@ -48,7 +51,7 @@ async function withRateLimitRetry<T>(
   } catch (error) {
     if (error instanceof RatelimitError) {
       const { retryAfterSeconds, limitType, details } = error.rateLimitInfo;
-      console.warn(`[RATE LIMIT] ${operationName} hit rate limit`, {
+      log.warning(`${operationName} hit rate limit`, {
         limitType,
         retryAfterSeconds,
         ...details
@@ -57,9 +60,7 @@ async function withRateLimitRetry<T>(
         `rate-limit-wait-${operationName}`,
         `${retryAfterSeconds}s`
       );
-      console.info(
-        `[RATE LIMIT] Retrying ${operationName} after ${retryAfterSeconds}s wait`
-      );
+      log.info(`Retrying ${operationName} after ${retryAfterSeconds}s wait`);
       return await operation();
     }
     throw error;
@@ -103,7 +104,7 @@ type ParsedBackfillPayload = z.output<typeof BackfillPayloadSchema>;
 export const accountingBackfillFunction = inngest.createFunction(
   { id: "accounting-backfill", retries: 3 },
   { event: "carbon/accounting-backfill" },
-  async ({ event, step }) => {
+  async ({ event, step, logger }) => {
     const payload: ParsedBackfillPayload = BackfillPayloadSchema.parse(
       event.data
     );
@@ -136,7 +137,7 @@ export const accountingBackfillFunction = inngest.createFunction(
     };
 
     // Log the sync directions for visibility
-    console.info("[BACKFILL] Starting with entity sync directions:", {
+    logger.info("Starting with entity sync directions", {
       customer: {
         enabled: customerConfig?.enabled,
         direction: customerConfig?.direction,
@@ -177,7 +178,7 @@ export const accountingBackfillFunction = inngest.createFunction(
       let page = 1;
       let hasMore = true;
 
-      console.info("[PULL] Starting contact pull phase", {
+      logger.info("Starting contact pull phase", {
         pullCustomers,
         pullVendors
       });
@@ -203,7 +204,7 @@ export const accountingBackfillFunction = inngest.createFunction(
             const pool = getPostgresConnectionPool(5);
             const kysely = getPostgresClient(pool, PostgresDriver);
 
-            console.info(`[PULL] Fetching contacts page ${currentPage}`);
+            logger.info(`Fetching contacts page ${currentPage}`);
             const response = await withRateLimitRetry(
               () =>
                 pullProvider.listContacts({
@@ -214,7 +215,7 @@ export const accountingBackfillFunction = inngest.createFunction(
               step
             );
 
-            console.info(`[PULL] Contacts page ${currentPage} response`, {
+            logger.info(`Contacts page ${currentPage} response`, {
               count: response.contacts.length,
               hasMore: response.hasMore,
               contacts: response.contacts.map((c) => ({
@@ -253,8 +254,8 @@ export const accountingBackfillFunction = inngest.createFunction(
                   step
                 );
                 customersPulled = syncResult.successCount;
-                console.info(
-                  `[PULL] Page ${currentPage}: pulled ${customersPulled} customers`,
+                logger.info(
+                  `Page ${currentPage}: pulled ${customersPulled} customers`,
                   {
                     results: syncResult.results.map((r) => ({
                       status: r.status,
@@ -286,8 +287,8 @@ export const accountingBackfillFunction = inngest.createFunction(
                   step
                 );
                 vendorsPulled = syncResult.successCount;
-                console.info(
-                  `[PULL] Page ${currentPage}: pulled ${vendorsPulled} vendors`,
+                logger.info(
+                  `Page ${currentPage}: pulled ${vendorsPulled} vendors`,
                   {
                     results: syncResult.results.map((r) => ({
                       status: r.status,
@@ -323,8 +324,8 @@ export const accountingBackfillFunction = inngest.createFunction(
         }
       }
     } else {
-      console.info(
-        "[PULL] Skipping contact pull - not enabled or direction is push-only"
+      logger.info(
+        "Skipping contact pull - not enabled or direction is push-only"
       );
     }
 
@@ -341,7 +342,7 @@ export const accountingBackfillFunction = inngest.createFunction(
       let page = 1;
       let hasMore = true;
 
-      console.info("[PULL] Starting items pull phase");
+      logger.info("Starting items pull phase");
 
       while (hasMore) {
         const currentPage = page;
@@ -364,14 +365,14 @@ export const accountingBackfillFunction = inngest.createFunction(
             const pool = getPostgresConnectionPool(5);
             const kysely = getPostgresClient(pool, PostgresDriver);
 
-            console.info(`[PULL] Fetching items page ${currentPage}`);
+            logger.info(`Fetching items page ${currentPage}`);
             const response = await withRateLimitRetry(
               () => pullProvider.listItems({ page: currentPage }),
               `listItems page ${currentPage}`,
               step
             );
 
-            console.info(`[PULL] Items page ${currentPage} response`, {
+            logger.info(`Items page ${currentPage} response`, {
               count: response.items.length,
               hasMore: response.hasMore,
               items: response.items.map((i) => ({
@@ -399,8 +400,8 @@ export const accountingBackfillFunction = inngest.createFunction(
               step
             );
 
-            console.info(
-              `[PULL] Page ${currentPage}: pulled ${syncResult.successCount} items`,
+            logger.info(
+              `Page ${currentPage}: pulled ${syncResult.successCount} items`,
               {
                 results: syncResult.results.map((r) => ({
                   status: r.status,
@@ -429,8 +430,8 @@ export const accountingBackfillFunction = inngest.createFunction(
         }
       }
     } else {
-      console.info(
-        "[PULL] Skipping items pull - not enabled or direction is push-only"
+      logger.info(
+        "Skipping items pull - not enabled or direction is push-only"
       );
     }
 
@@ -448,7 +449,7 @@ export const accountingBackfillFunction = inngest.createFunction(
       let hasMore = true;
       let batchIndex = 0;
 
-      console.info("[PUSH] Starting customers push phase");
+      logger.info("Starting customers push phase");
 
       while (hasMore) {
         const currentBatchIndex = batchIndex;
@@ -504,8 +505,8 @@ export const accountingBackfillFunction = inngest.createFunction(
               step
             );
 
-            console.info(
-              `[PUSH] Pushed ${syncResult.successCount}/${unsyncedIds.length} customer entities`,
+            logger.info(
+              `Pushed ${syncResult.successCount}/${unsyncedIds.length} customer entities`,
               {
                 entityIds: unsyncedIds,
                 results: syncResult.results.map((r) => ({
@@ -535,8 +536,8 @@ export const accountingBackfillFunction = inngest.createFunction(
         }
       }
     } else {
-      console.info(
-        "[PUSH] Skipping customers push - not enabled or direction is pull-only"
+      logger.info(
+        "Skipping customers push - not enabled or direction is pull-only"
       );
     }
 
@@ -550,7 +551,7 @@ export const accountingBackfillFunction = inngest.createFunction(
       let hasMore = true;
       let batchIndex = 0;
 
-      console.info("[PUSH] Starting vendors push phase");
+      logger.info("Starting vendors push phase");
 
       while (hasMore) {
         const currentBatchIndex = batchIndex;
@@ -606,8 +607,8 @@ export const accountingBackfillFunction = inngest.createFunction(
               step
             );
 
-            console.info(
-              `[PUSH] Pushed ${syncResult.successCount}/${unsyncedIds.length} vendor entities`,
+            logger.info(
+              `Pushed ${syncResult.successCount}/${unsyncedIds.length} vendor entities`,
               {
                 entityIds: unsyncedIds,
                 results: syncResult.results.map((r) => ({
@@ -636,8 +637,8 @@ export const accountingBackfillFunction = inngest.createFunction(
         }
       }
     } else {
-      console.info(
-        "[PUSH] Skipping vendors push - not enabled or direction is pull-only"
+      logger.info(
+        "Skipping vendors push - not enabled or direction is pull-only"
       );
     }
 
@@ -651,7 +652,7 @@ export const accountingBackfillFunction = inngest.createFunction(
       let hasMore = true;
       let batchIndex = 0;
 
-      console.info("[PUSH] Starting items push phase");
+      logger.info("Starting items push phase");
 
       while (hasMore) {
         const currentBatchIndex = batchIndex;
@@ -707,8 +708,8 @@ export const accountingBackfillFunction = inngest.createFunction(
               step
             );
 
-            console.info(
-              `[PUSH] Pushed ${syncResult.successCount}/${unsyncedIds.length} item entities`,
+            logger.info(
+              `Pushed ${syncResult.successCount}/${unsyncedIds.length} item entities`,
               {
                 entityIds: unsyncedIds,
                 results: syncResult.results.map((r) => ({
@@ -737,8 +738,8 @@ export const accountingBackfillFunction = inngest.createFunction(
         }
       }
     } else {
-      console.info(
-        "[PUSH] Skipping items push - not enabled or direction is pull-only"
+      logger.info(
+        "Skipping items push - not enabled or direction is pull-only"
       );
     }
 
@@ -748,8 +749,8 @@ export const accountingBackfillFunction = inngest.createFunction(
     result.totalPushed =
       result.customers.pushed + result.vendors.pushed + result.items.pushed;
 
-    console.info(
-      `[COMPLETE] Backfill finished. Pulled: ${result.totalPulled}, Pushed: ${result.totalPushed}`
+    logger.info(
+      `Backfill finished. Pulled: ${result.totalPulled}, Pushed: ${result.totalPushed}`
     );
 
     return result;

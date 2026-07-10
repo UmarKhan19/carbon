@@ -1,3 +1,4 @@
+import { getLogger } from "@carbon/logger";
 import { ClientOnly, toast } from "@carbon/react";
 import type { DragOverEvent, DragStartEvent } from "@dnd-kit/core";
 import {
@@ -19,6 +20,8 @@ import { JobCard } from "./components/JobCard";
 import { KanbanProvider } from "./context/KanbanContext";
 import type { Column, DisplaySettings, JobItem, Progress } from "./types";
 import { hasDraggableData } from "./utils";
+
+const logger = getLogger("erp", "datekanban");
 
 type DateKanbanProps = {
   columns: Column[];
@@ -78,7 +81,8 @@ function useDateUpdateFailureToast() {
       if (data?.success === false && !toastedKeys.current.has(key)) {
         toastedKeys.current.add(key);
         // Surface a friendly, translated message; log the raw server detail.
-        if (data.message) console.error("Reschedule failed:", data.message);
+        if (data.message)
+          logger.error("Reschedule failed", { error: data.message });
         toast.error(t`Couldn't reschedule the job. Please try again.`);
       }
     }

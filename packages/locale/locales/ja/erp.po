@@ -91,6 +91,9 @@ msgstr "{chainLabel}。このパーツを最終的な後継品に直接指定す
 msgid "{count, plural, one {# course} other {# courses}}"
 msgstr "{count, plural, one {# コース} other {# コース}}"
 
+msgid "{done} of {total} phases complete"
+msgstr "{done} / {total} フェーズ完了"
+
 msgid "{from}–{to} of {count}"
 msgstr "{from}–{to} / {count}"
 
@@ -1370,6 +1373,12 @@ msgstr "昇順"
 #. placeholder {1}: copy.noun
 msgid "Ask an admin with {0} permission to add the first {1}."
 msgstr "{0}権限を持つ管理者に最初の{1}を追加するよう依頼してください。"
+
+msgid "Assemblies"
+msgstr "アセンブリ"
+
+msgid "Assembly Instructions"
+msgstr "組立指示"
 
 msgid "Assembly:"
 msgstr "アセンブリ:"
@@ -7939,9 +7948,6 @@ msgstr "OEM (オリジナル機器メーカー)"
 
 msgid "of"
 msgstr "の"
-
-msgid "of {total} phases complete"
-msgstr "{total}フェーズ中完了"
 
 msgid "OK"
 msgstr "OK"

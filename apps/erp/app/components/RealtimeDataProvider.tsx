@@ -2,6 +2,7 @@
 
 import { useCarbon } from "@carbon/auth";
 import { type Database, fetchAllFromTable } from "@carbon/database";
+import { getLogger } from "@carbon/logger";
 import { useInterval, useRealtimeChannel } from "@carbon/react";
 import { useEffect } from "react";
 import { useUser } from "~/hooks";
@@ -14,6 +15,8 @@ import {
 } from "~/stores";
 import type { Item } from "~/stores/items";
 import type { ListItem } from "~/types";
+
+const logger = getLogger("erp", "realtime-data-provider");
 
 // IndexedDB entries are keyed per company (`customers:<companyId>`) — a global
 // key let one company's cached list hydrate the pickers after switching to
@@ -225,7 +228,7 @@ const RealtimeDataProvider = ({ children }: { children: React.ReactNode }) => {
   // biome-ignore lint/correctness/useExhaustiveDependencies: hydrate closes over setters + idb
   useEffect(() => {
     if (!companyId) return;
-    hydrate().catch((err) => console.error("hydrate failed:", err));
+    hydrate().catch((err) => logger.error("hydrate failed", { error: err }));
   }, [companyId, carbon, accessToken]);
 
   useInterval(fetchQuantities, companyId ? 10 * 60 * 1000 : null);

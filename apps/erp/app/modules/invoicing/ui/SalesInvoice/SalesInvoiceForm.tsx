@@ -112,7 +112,7 @@ const SalesInvoiceForm = ({ initialValues }: SalesInvoiceFormProps) => {
         carbon
           ?.from("customer")
           .select(
-            "currencyCode, salesContactId, customerShipping!customerId(shippingCustomerLocationId)"
+            "currencyCode, salesContactId, customerShipping!customerShipping_customerId_fkey(shippingCustomerLocationId)"
           )
           .eq("id", newValue.value)
           .single(),
@@ -135,7 +135,8 @@ const SalesInvoiceForm = ({ initialValues }: SalesInvoiceFormProps) => {
             undefined,
           invoiceCustomerLocationId:
             paymentTermData.data.invoiceCustomerLocationId ??
-            customerData.data.customerShipping?.shippingCustomerLocationId ??
+            customerData.data.customerShipping?.[0]
+              ?.shippingCustomerLocationId ??
             undefined,
           currencyCode: customerData.data.currencyCode ?? undefined,
           paymentTermId: paymentTermData.data.paymentTermId ?? undefined

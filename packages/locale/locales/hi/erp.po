@@ -91,6 +91,9 @@ msgstr "{chainLabel}. इस भाग को सीधे अंतिम उ�
 msgid "{count, plural, one {# course} other {# courses}}"
 msgstr "{count, plural, one {# कोर्स} other {# कोर्स}}"
 
+msgid "{done} of {total} phases complete"
+msgstr "{done} में से {total} चरण पूर्ण"
+
 msgid "{from}–{to} of {count}"
 msgstr "{from}–{to} में से {count}"
 
@@ -1370,6 +1373,12 @@ msgstr "आरोही"
 #. placeholder {1}: copy.noun
 msgid "Ask an admin with {0} permission to add the first {1}."
 msgstr "{0} अनुमति वाले व्यवस्थापक से पहली {1} जोड़ने के लिए कहें।"
+
+msgid "Assemblies"
+msgstr "असेंबलीज"
+
+msgid "Assembly Instructions"
+msgstr "असेंबली निर्देश"
 
 msgid "Assembly:"
 msgstr "असेंबली:"
@@ -7939,9 +7948,6 @@ msgstr "OEM (मूल उपकरण निर्माता)"
 
 msgid "of"
 msgstr "का"
-
-msgid "of {total} phases complete"
-msgstr "of {total} phases complete"
 
 msgid "OK"
 msgstr "ठीक है"

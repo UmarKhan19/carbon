@@ -91,6 +91,9 @@ msgstr "{chainLabel}. Considera di indirizzare direttamente questa parte al succ
 msgid "{count, plural, one {# course} other {# courses}}"
 msgstr "{count, plural, one {# corso} other {# corsi}}"
 
+msgid "{done} of {total} phases complete"
+msgstr "{done} di {total} fasi completate"
+
 msgid "{from}–{to} of {count}"
 msgstr "{from}–{to} di {count}"
 
@@ -1370,6 +1373,12 @@ msgstr "Ascendente"
 #. placeholder {1}: copy.noun
 msgid "Ask an admin with {0} permission to add the first {1}."
 msgstr "Chiedi a un amministratore con autorizzazione {0} di aggiungere il primo {1}."
+
+msgid "Assemblies"
+msgstr "Assiemi"
+
+msgid "Assembly Instructions"
+msgstr "Istruzioni di Montaggio"
 
 msgid "Assembly:"
 msgstr "Assieme:"
@@ -7939,9 +7948,6 @@ msgstr "OEM (Original Equipment Manufacturer)"
 
 msgid "of"
 msgstr "di"
-
-msgid "of {total} phases complete"
-msgstr "di {total} fasi completate"
 
 msgid "OK"
 msgstr "OK"
