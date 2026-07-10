@@ -443,23 +443,33 @@ const Item = ({
             </ModalHeader>
             <ModalBody>
               <div className="grid grid-cols-2 gap-4">
-                {Object.values(methodItemType).map((itemType) => (
-                  <Button
-                    key={itemType}
-                    leftIcon={<MethodItemTypeIcon type={itemType} />}
-                    className="flex w-full"
-                    variant={type === itemType ? "primary" : "secondary"}
-                    size="lg"
-                    onClick={() => {
-                      onTypeChange?.(itemType);
-                      setTimeout(() => {
-                        submitRef.current?.focus();
-                      }, 0);
-                    }}
-                  >
-                    {translateItemType(itemType)}
-                  </Button>
-                ))}
+                {orderLineItemType
+                  .filter((itemType) =>
+                    // Same narrowing as the dropdown above: BOM/method pickers
+                    // never surface Tool or Service; order-line forms opt in
+                    // via validItemTypes.
+                    (validItemTypes ?? methodItemType).some(
+                      (t) => t === itemType
+                    )
+                  )
+                  .map((itemType) => (
+                    <Button
+                      key={itemType}
+                      leftIcon={<MethodItemTypeIcon type={itemType} />}
+                      className="flex w-full"
+                      variant={type === itemType ? "primary" : "secondary"}
+                      size="lg"
+                      onClick={() => {
+                        // Same contravariance cast as the dropdown emit above.
+                        onTypeChange?.(itemType as MethodItemType);
+                        setTimeout(() => {
+                          submitRef.current?.focus();
+                        }, 0);
+                      }}
+                    >
+                      {translateItemType(itemType)}
+                    </Button>
+                  ))}
               </div>
             </ModalBody>
             <ModalFooter>

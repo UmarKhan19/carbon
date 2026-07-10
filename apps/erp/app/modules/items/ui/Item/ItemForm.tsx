@@ -35,7 +35,7 @@ import {
 import { itemTypeIdLabel } from "~/components/Form/itemTypeLabel";
 import { ReplenishmentSystemIcon } from "~/components/Icons";
 import { usePermissions } from "~/hooks";
-import type { MethodItemType } from "~/modules/shared";
+import type { OrderLineItemType } from "~/modules/shared";
 import { path } from "~/utils/path";
 import {
   itemReplenishmentSystems,
@@ -197,10 +197,7 @@ const ItemForm = ({ initialValues, type }: ItemFormProps) => {
 
 export default ItemForm;
 
-export function getLinkToItemDetails(
-  type: MethodItemType | "Service",
-  id: string
-) {
+export function getLinkToItemDetails(type: OrderLineItemType, id: string) {
   switch (type) {
     case "Part":
       return path.to.partDetails(id);
@@ -218,7 +215,7 @@ export function getLinkToItemDetails(
 }
 
 export function getLinkToItemManufacturing(
-  type: MethodItemType | "Service",
+  type: OrderLineItemType,
   id: string
 ) {
   switch (type) {
@@ -233,7 +230,7 @@ export function getLinkToItemManufacturing(
   }
 }
 
-export function getLinkToItemPlanning(type: MethodItemType, id: string) {
+export function getLinkToItemPlanning(type: OrderLineItemType, id: string) {
   switch (type) {
     case "Part":
       return path.to.partPlanning(id);
@@ -243,8 +240,7 @@ export function getLinkToItemPlanning(type: MethodItemType, id: string) {
       return path.to.toolPlanning(id);
     case "Consumable":
       return path.to.consumablePlanning(id);
-    // case "Service":
-    //   return path.to.serviceDetails(id);
+    // Services are Non-Inventory and never planned — no planning page.
     default:
       throw new Error("Invalid type");
   }

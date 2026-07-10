@@ -20,8 +20,8 @@ import {
   upsertSupplierQuoteLine
 } from "~/modules/purchasing";
 import { getCompany } from "~/modules/settings";
-import type { MethodItemType } from "~/modules/shared";
-import { methodItemType, upsertExternalLink } from "~/modules/shared";
+import type { OrderLineItemType } from "~/modules/shared";
+import { orderLineItemType, upsertExternalLink } from "~/modules/shared";
 import { getUser } from "~/modules/users/users.server";
 import { path } from "~/utils/path";
 
@@ -148,10 +148,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       await upsertSupplierQuoteLine(client, {
         supplierQuoteId,
-        supplierQuoteLineType: methodItemType.includes(
-          line.itemType as MethodItemType
+        supplierQuoteLineType: orderLineItemType.includes(
+          line.itemType as OrderLineItemType
         )
-          ? (line.itemType as MethodItemType)
+          ? (line.itemType as OrderLineItemType)
           : "Part",
         itemId: line.itemId,
         description: line.description ?? "",

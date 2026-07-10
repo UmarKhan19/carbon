@@ -39,7 +39,7 @@ import {
   UnitOfMeasure
 } from "~/components/Form";
 import { usePermissions, useRouteData, useUser } from "~/hooks";
-import type { MethodItemType } from "~/modules/shared/types";
+import type { OrderLineItemType } from "~/modules/shared/types";
 import { path } from "~/utils/path";
 import {
   isRfqLocked,
@@ -50,7 +50,7 @@ import DeletePurchasingRFQLine from "./DeletePurchasingRFQLine";
 
 type PurchasingRFQLineFormProps = {
   initialValues: z.infer<typeof purchasingRfqLineValidator> & {
-    itemType: MethodItemType;
+    itemType: OrderLineItemType;
   };
   type?: "card" | "modal";
   onClose?: () => void;
@@ -78,7 +78,7 @@ const PurchasingRFQLineForm = ({
 
   const isEditing = initialValues.id !== undefined;
 
-  const [itemType, setItemType] = useState<MethodItemType>(
+  const [itemType, setItemType] = useState<OrderLineItemType>(
     initialValues.itemType
   );
   const [itemData, setItemData] = useState<{
@@ -124,7 +124,7 @@ const PurchasingRFQLineForm = ({
 
     setItemData(newItemData);
     if (item.data?.type) {
-      setItemType(item.data.type as MethodItemType);
+      setItemType(item.data.type as OrderLineItemType);
     }
   };
 
@@ -225,7 +225,7 @@ const PurchasingRFQLineForm = ({
                           onItemChange(value?.value as string);
                         }}
                         onTypeChange={(type) => {
-                          setItemType(type as MethodItemType);
+                          setItemType(type as OrderLineItemType);
                           setItemData({
                             ...itemData,
                             itemId: "",

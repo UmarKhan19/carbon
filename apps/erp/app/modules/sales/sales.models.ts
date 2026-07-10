@@ -407,18 +407,6 @@ export const quoteMaterialValidator = z
   )
   .refine(
     (data) => {
-      if (data.itemType === "Tool") {
-        return !!data.itemId;
-      }
-      return true;
-    },
-    {
-      message: "Tool ID is required",
-      path: ["itemId"]
-    }
-  )
-  .refine(
-    (data) => {
       if (data.itemType === "Consumable") {
         return !!data.itemId;
       }

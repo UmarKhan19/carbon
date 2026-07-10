@@ -38,8 +38,8 @@ import {
 } from "~/components/LineReorder";
 import { useOptimisticLocation, usePermissions, useRouteData } from "~/hooks";
 import { getLinkToItemDetails } from "~/modules/items/ui/Item/ItemForm";
-import type { MethodItemType } from "~/modules/shared";
-import { methodItemType } from "~/modules/shared";
+import type { OrderLineItemType } from "~/modules/shared";
+import { orderLineItemType } from "~/modules/shared";
 import { useItems } from "~/stores";
 import { path } from "~/utils/path";
 import { isSupplierQuoteLocked } from "../../purchasing.models";
@@ -333,21 +333,21 @@ function SupplierQuoteLineItem({
                 </DropdownMenuItem>
 
                 {itemType &&
-                  methodItemType.includes(itemType as MethodItemType) && (
+                  orderLineItemType.includes(itemType as OrderLineItemType) && (
                     <DropdownMenuItem
                       asChild
                       onClick={(e) => e.stopPropagation()}
                     >
                       <Link
                         to={getLinkToItemDetails(
-                          itemType as MethodItemType,
+                          itemType as OrderLineItemType,
                           line.itemId!
                         )}
                       >
                         <DropdownMenuIcon
                           icon={
                             <MethodItemTypeIcon
-                              type={itemType as MethodItemType}
+                              type={itemType as OrderLineItemType}
                             />
                           }
                         />
