@@ -617,7 +617,7 @@ msgid "No maintenance scheduled for today"
 msgstr "Aucune maintenance planifiée pour aujourd'hui"
 
 msgid "No matches. Type to create one."
-msgstr ""
+msgstr "Aucune correspondance. Tapez pour en créer une."
 
 msgid "No materials"
 msgstr "Aucun matériau"

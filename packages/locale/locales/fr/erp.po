@@ -40,7 +40,7 @@ msgstr "(exclu pour ce client)"
 
 #. placeholder {0}: open.length
 msgid "{0, plural, one {This part is on 1 open change order} other {This part is on # open change orders}}"
-msgstr ""
+msgstr "{0, plural, one {Cette pièce est sur 1 ordre de modification ouvert} other {Cette pièce est sur # ordres de modification ouverts}}"
 
 #. placeholder {0}: ar.count
 msgid "{0} customers with a balance"
@@ -113,7 +113,7 @@ msgid "{name} deleted"
 msgstr "{name} supprimé"
 
 msgid "{openLineCount} open POs for deleted parts"
-msgstr ""
+msgstr "{openLineCount} bons de commande ouverts pour les pièces supprimées"
 
 msgid "{remaining, plural, one {# phase left} other {# phases left}}"
 msgstr "{remaining, plural, one {# phase restante} other {# phases restantes}}"
@@ -199,7 +199,7 @@ msgid "A Carbon-run data migration — you load your own data"
 msgstr "Une migration de données gérée par Carbon — vous chargez vos propres données"
 
 msgid "A change order tracks a controlled engineering or manufacturing change through review and implementation."
-msgstr ""
+msgstr "Un ordre de modification suit une modification technique ou manufacturière contrôlée tout au long de l'examen et de la mise en œuvre."
 
 msgid "A clearing account holding the value of goods received but not yet billed; the supplier invoice clears it."
 msgstr "Un compte de compensation tenant la valeur des marchandises reçues mais non encore facturées ; la facture du fournisseur l'apure."
@@ -574,7 +574,7 @@ msgid "Add Actions"
 msgstr "Ajouter des actions"
 
 msgid "Add add row"
-msgstr ""
+msgstr "Ajouter une ligne"
 
 msgid "Add Adjustment"
 msgstr "Ajouter un ajustement"
@@ -586,7 +586,7 @@ msgid "Add Approval Requirement"
 msgstr "Ajouter une exigence d'approbation"
 
 msgid "Add assembly"
-msgstr ""
+msgstr "Ajouter un assemblage"
 
 msgid "Add Calibration Record"
 msgstr "Ajouter un enregistrement d'étalonnage"
@@ -604,7 +604,7 @@ msgid "Add Contractor"
 msgstr "Ajouter un entrepreneur"
 
 msgid "Add delete row"
-msgstr ""
+msgstr "Supprimer une ligne"
 
 msgid "Add Entry"
 msgstr "Ajouter une entrée"
@@ -649,7 +649,7 @@ msgid "Add Partner"
 msgstr "Ajouter un partenaire"
 
 msgid "Add parts"
-msgstr ""
+msgstr "Ajouter des pièces"
 
 msgid "Add Permissions"
 msgstr "Ajouter des autorisations"
@@ -734,13 +734,13 @@ msgid "Adjustment Type"
 msgstr "Type d'ajustement"
 
 msgid "Advance to {nextStatus}"
-msgstr ""
+msgstr "Avancer vers {nextStatus}"
 
 msgid "Advanced"
 msgstr "Avancé"
 
 msgid "Affected assemblies"
-msgstr ""
+msgstr "Assemblages affectés"
 
 msgid "After"
 msgstr "Après"
@@ -1120,7 +1120,7 @@ msgstr "Êtes-vous sûr de vouloir supprimer la clé API : {0}? Cette action ne 
 
 #. placeholder {0}: changeOrderType.name
 msgid "Are you sure you want to delete the change order category: {0}? This cannot be undone."
-msgstr ""
+msgstr "Êtes-vous sûr de vouloir supprimer la catégorie d'ordre de modification : {0} ? Cette action ne peut pas être annulée."
 
 msgid "Are you sure you want to delete the contractor: {name}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer l'entrepreneur : {name} ? Cette action ne peut pas être annulée."
@@ -1281,7 +1281,7 @@ msgid "Are you sure you want to delete this approval rule? This cannot be undone
 msgstr "Êtes-vous sûr de vouloir supprimer cette règle d'approbation ? Cette action ne peut pas être annulée."
 
 msgid "Are you sure you want to delete this change order?"
-msgstr ""
+msgstr "Êtes-vous sûr de vouloir supprimer cet ordre de modification ?"
 
 msgid "Are you sure you want to delete this gauge?"
 msgstr "Êtes-vous sûr de vouloir supprimer ce jauge ?"
@@ -1413,7 +1413,7 @@ msgid "Assemblies"
 msgstr "Assemblages"
 
 msgid "Assembly"
-msgstr ""
+msgstr "Assemblage"
 
 msgid "Assembly Instructions"
 msgstr "Instructions d'assemblage"
@@ -1693,7 +1693,7 @@ msgid "Being phased out — successor: <0>{0}</0>"
 msgstr "En cours de suppression — successeur : <0>{0}</0>"
 
 msgid "Being validated before production."
-msgstr ""
+msgstr "En cours de validation avant la production."
 
 msgid "Below safety stock"
 msgstr "Sous stock de sécurité"
@@ -1751,7 +1751,7 @@ msgid "BoM + BoP"
 msgstr "BoM + BoP"
 
 msgid "BOM Changes"
-msgstr ""
+msgstr "Modifications de nomenclature"
 
 msgid "BOM synced successfully"
 msgstr "BOM synchronisé avec succès"
@@ -2048,16 +2048,16 @@ msgid "Change"
 msgstr "Modifier"
 
 msgid "Change Order"
-msgstr ""
+msgstr "Ordre de modification"
 
 msgid "Change Order Categories"
-msgstr ""
+msgstr "Catégories d'ordres de modification"
 
 msgid "Change Order Types"
-msgstr ""
+msgstr "Types d'ordres de modification"
 
 msgid "Change Orders"
-msgstr ""
+msgstr "Ordres de modification"
 
 msgid "Change status"
 msgstr "Modifier le statut"
@@ -2533,14 +2533,14 @@ msgid "Control design changes with revisions / ECOs"
 msgstr "Contrôler les modifications de conception avec des révisions / ECOs"
 
 msgid "Controlled Drawing"
-msgstr ""
+msgstr "Dessin contrôlé"
 
 #. placeholder {0}: drawing.drawingRevisionLabel
 msgid "Controlled Drawing (Rev {0})"
-msgstr ""
+msgstr "Dessin contrôlé (Rév {0})"
 
 msgid "Controlled drawing uploaded"
-msgstr ""
+msgstr "Dessin contrôlé téléchargé"
 
 msgid "Controller, Accountant"
 msgstr "Contrôleur, Comptable"
@@ -2549,7 +2549,7 @@ msgid "Controls how planning handles a discontinued item: Consume First exhausts
 msgstr "Contrôle la façon dont la planification gère un article discontinué : Consommer d'abord épuise le stock existant avant de basculer vers le successeur, Préférer le nouveau redirige immédiatement la nouvelle demande vers le successeur, Stock uniquement conserve uniquement une réserve de service minimale, et Pas de stock supprime l'article de la planification entièrement."
 
 msgid "Controls whether the bill of material and bill of process of a released (Production) revision can be edited outside a change order."
-msgstr ""
+msgstr "Contrôle si la nomenclature et le processus de fabrication d'une révision publiée (Production) peuvent être modifiés en dehors d'un ordre de modification."
 
 msgid "Convention"
 msgstr "Convention"
@@ -2633,7 +2633,7 @@ msgid "Copy link"
 msgstr "Copier le lien"
 
 msgid "Copy link to change order"
-msgstr ""
+msgstr "Copier le lien vers l'ordre de modification"
 
 msgid "Copy link to consumable"
 msgstr "Copier le lien vers le consommable"
@@ -2863,7 +2863,7 @@ msgid "Create audit trail entries"
 msgstr "Créer des entrées de piste d'audit"
 
 msgid "Create Change Order"
-msgstr ""
+msgstr "Créer un ordre de modification"
 
 msgid "Create Issue"
 msgstr "Créer un problème"
@@ -2923,7 +2923,7 @@ msgid "Created By"
 msgstr "Créé par"
 
 msgid "Created change order category"
-msgstr ""
+msgstr "Catégorie d'ordre de modification créée"
 
 msgid "Created consumable"
 msgstr "Consommable créé"
@@ -3532,7 +3532,7 @@ msgid "Delete Category"
 msgstr "Supprimer la catégorie"
 
 msgid "Delete Change Order"
-msgstr ""
+msgstr "Supprimer l'ordre de modification"
 
 msgid "Delete Consumable"
 msgstr "Supprimer la consommable"
@@ -3622,7 +3622,7 @@ msgid "Delete Partner"
 msgstr "Supprimer le partenaire"
 
 msgid "Delete parts"
-msgstr ""
+msgstr "Supprimer les pièces"
 
 msgid "Delete Payment"
 msgstr "Supprimer le paiement"
@@ -3839,7 +3839,7 @@ msgid "Derive this item's shelf life from the shortest shelf life of its compone
 msgstr "Dérivez la durée de vie de cet article de la durée de vie la plus courte de ses composants, en ignorant le champ Jours ci-dessus."
 
 msgid "Derived automatically from the BOM changes below."
-msgstr ""
+msgstr "Dérivé automatiquement des modifications de nomenclature ci-dessous."
 
 msgid "Description"
 msgstr "Description"
@@ -3848,13 +3848,13 @@ msgid "Description (optional)"
 msgstr "Description (facultatif)"
 
 msgid "Description of Change"
-msgstr ""
+msgstr "Description du changement"
 
 msgid "Description of Issue"
 msgstr "Description du problème"
 
 msgid "Design"
-msgstr ""
+msgstr "Conception"
 
 msgid "Detail"
 msgstr "Détail"
@@ -4058,7 +4058,7 @@ msgstr "Prélèvement"
 
 #. placeholder {0}: drawing.drawingRevisionLabel
 msgid "Drawing (Rev {0})"
-msgstr ""
+msgstr "Dessin (Rév {0})"
 
 msgid "Drawing Number"
 msgstr "Numéro de dessin"
@@ -4089,7 +4089,7 @@ msgid "Due {0}"
 msgstr "Échéance {0}"
 
 msgid "Due date"
-msgstr ""
+msgstr "Date d'échéance"
 
 msgid "Due Date"
 msgstr "Date d'échéance"
@@ -4194,10 +4194,10 @@ msgid "Edit Category"
 msgstr "Modifier la catégorie"
 
 msgid "Edit Change Order"
-msgstr ""
+msgstr "Modifier l'ordre de modification"
 
 msgid "Edit Change Order Category"
-msgstr ""
+msgstr "Modifier la catégorie d'ordre de modification"
 
 msgid "Edit column visibility"
 msgstr "Modifier la visibilité des colonnes"
@@ -4458,7 +4458,7 @@ msgid "Edit Work Center"
 msgstr "Modifier le centre de travail"
 
 msgid "Editable draft; becomes Production when released."
-msgstr ""
+msgstr "Brouillon modifiable ; devient Production une fois publié."
 
 msgid "Effective From"
 msgstr "À partir de"
@@ -4467,13 +4467,13 @@ msgid "Effective To"
 msgstr "Effectif jusqu'au"
 
 msgid "Effectivity date"
-msgstr ""
+msgstr "Date d'effectivité"
 
 msgid "Effectivity Date"
-msgstr ""
+msgstr "Date d'effectivité"
 
 msgid "Effectivity version"
-msgstr ""
+msgstr "Version d'effectivité"
 
 msgid "Email"
 msgstr "E-mail"
@@ -4581,7 +4581,7 @@ msgid "End Time"
 msgstr "Heure de fin"
 
 msgid "Enforce — edits are blocked"
-msgstr ""
+msgstr "Appliquer — les modifications sont bloquées"
 
 msgid "Enforce per-item validation and guidelines across receipts, shipments, transfers, and adjustments."
 msgstr "Appliquer la validation et les directives par article dans les reçus, les expéditions, les transferts et les ajustements."
@@ -5134,7 +5134,7 @@ msgid "Failed to load tracked entities"
 msgstr "Impossible de charger les entités suivies"
 
 msgid "Failed to remove assembly"
-msgstr ""
+msgstr "Impossible de supprimer l'assemblage"
 
 msgid "Failed to remove image: {errorMessage}"
 msgstr "Échec de la suppression de l'image : {errorMessage}"
@@ -5146,7 +5146,7 @@ msgid "Failed to remove purchase order"
 msgstr "Échec de la suppression du bon de commande"
 
 msgid "Failed to remove row"
-msgstr ""
+msgstr "Impossible de supprimer la ligne"
 
 msgid "Failed to remove thumbnail"
 msgstr "Échec de la suppression de la miniature"
@@ -5205,7 +5205,7 @@ msgstr "Échec du téléchargement du fichier CSV."
 
 #. placeholder {0}: file.name
 msgid "Failed to upload drawing: {0}"
-msgstr ""
+msgstr "Impossible de charger le dessin : {0}"
 
 msgid "Failed to upload file"
 msgstr "Échec du téléchargement du fichier"
@@ -5984,7 +5984,7 @@ msgid "III (tightened)"
 msgstr "III (renforcé)"
 
 msgid "Impact"
-msgstr ""
+msgstr "Impact"
 
 msgid "Imperial"
 msgstr "Impérial"
@@ -6724,7 +6724,7 @@ msgid "Linked entity quantity ({0}) does not match row quantity ({1})."
 msgstr "La quantité d'entité liée ({0}) ne correspond pas à la quantité de ligne ({1})."
 
 msgid "Linked NCR"
-msgstr ""
+msgstr "RNC lié"
 
 msgid "Linked PO"
 msgstr "Bon de commande lié"
@@ -7430,7 +7430,7 @@ msgid "New Account"
 msgstr "Nouveau Compte"
 
 msgid "New action"
-msgstr ""
+msgstr "Nouvelle action"
 
 msgid "New API Key"
 msgstr "Nouvelle clé API"
@@ -7451,10 +7451,10 @@ msgid "New Attribute Category"
 msgstr "Nouvelle Catégorie d'Attribut"
 
 msgid "New Change Order"
-msgstr ""
+msgstr "Nouvelle demande de modification"
 
 msgid "New Change Order Category"
-msgstr ""
+msgstr "Nouvelle catégorie de demande de modification"
 
 msgid "New Consumable"
 msgstr "Nouveau consommable"
@@ -7574,13 +7574,13 @@ msgid "New Part"
 msgstr "Nouvelle Pièce"
 
 msgid "New part (not yet synced)"
-msgstr ""
+msgstr "Nouvelle pièce (pas encore synchronisée)"
 
 msgid "New part id"
-msgstr ""
+msgstr "Nouvel identifiant de pièce"
 
 msgid "New part name"
-msgstr ""
+msgstr "Nouveau nom de pièce"
 
 msgid "New Password"
 msgstr "Nouveau mot de passe"
@@ -7777,7 +7777,7 @@ msgid "No addresses found"
 msgstr "Aucune adresse trouvée"
 
 msgid "No affected assemblies yet."
-msgstr ""
+msgstr "Aucun assemblage affecté pour le moment."
 
 msgid "No applications. Payment will be on-account."
 msgstr "Aucune application. Le paiement sera sur compte."
@@ -7787,7 +7787,7 @@ msgid "No archived logs yet. Logs older than {0} days will be automatically arch
 msgstr "Aucun journal archivé pour le moment. Les journaux antérieurs à {0} jours seront automatiquement archivés et disponibles au téléchargement ici."
 
 msgid "No assemblies targeted yet."
-msgstr ""
+msgstr "Aucun assemblage ciblé pour le moment."
 
 msgid "No attachments."
 msgstr "Aucune pièce jointe."
@@ -7901,7 +7901,7 @@ msgid "No matches for \"{query}\". Try a different search term."
 msgstr "Aucune correspondance pour « {query} ». Essayez un terme de recherche différent."
 
 msgid "No matches. Type to create one."
-msgstr ""
+msgstr "Aucune correspondance. Tapez pour en créer une."
 
 msgid "No new notifications"
 msgstr "Aucune nouvelle notification"
@@ -7913,7 +7913,7 @@ msgid "No open invoices"
 msgstr "Aucune facture ouverte"
 
 msgid "No open purchase orders for deleted parts"
-msgstr ""
+msgstr "Aucune commande d'achat ouverte pour les pièces supprimées"
 
 msgid "No operations require picking at this location"
 msgstr "Aucune opération ne nécessite de prélèvement à cet endroit"
@@ -7943,10 +7943,10 @@ msgid "No part ID"
 msgstr "Aucun ID de pièce"
 
 msgid "No parts to add."
-msgstr ""
+msgstr "Aucune pièce à ajouter."
 
 msgid "No parts to delete."
-msgstr ""
+msgstr "Aucune pièce à supprimer."
 
 msgid "No payables"
 msgstr "Aucun compte créditeur"
@@ -7970,10 +7970,10 @@ msgid "No printers configured. Click \"Add Printer\" to create one."
 msgstr "Aucune imprimante configurée. Cliquez sur « Ajouter une imprimante » pour en créer une."
 
 msgid "No products affected yet — add a BOM change to populate this."
-msgstr ""
+msgstr "Aucun produit affecté pour le moment — ajoutez une modification de nomenclature pour remplir ceci."
 
 msgid "No products affected yet."
-msgstr ""
+msgstr "Aucun produit affecté pour le moment."
 
 msgid "No Quote"
 msgstr "Pas de devis"
@@ -8093,7 +8093,7 @@ msgid "Not yet"
 msgstr "Pas encore"
 
 msgid "Not yet synced"
-msgstr ""
+msgstr "Pas encore synchronisée"
 
 msgid "Not you?"
 msgstr "Ce n'est pas vous ?"
@@ -8123,7 +8123,7 @@ msgid "Number of inventory units per purchase unit"
 msgstr "Nombre d'unités d'inventaire par unité d'achat"
 
 msgid "Obsolete"
-msgstr ""
+msgstr "Obsolète"
 
 msgid "OEE Impact"
 msgstr "Impact OEE"
@@ -8135,7 +8135,7 @@ msgid "of"
 msgstr "de"
 
 msgid "Off — released revisions stay editable"
-msgstr ""
+msgstr "Désactivé — les révisions publiées restent modifiables"
 
 msgid "OK"
 msgstr "OK"
@@ -8231,7 +8231,7 @@ msgid "Open Audit Log"
 msgstr "Ouvrir le journal d'audit"
 
 msgid "Open change orders affecting this part"
-msgstr ""
+msgstr "Demandes de modification ouvertes affectant cette pièce"
 
 msgid "Open Date"
 msgstr "Date d'ouverture"
@@ -8475,7 +8475,7 @@ msgid "Overwrite the target manufacturing method with the quote method"
 msgstr "Remplacer la méthode de fabrication cible par la méthode de devis"
 
 msgid "Owner"
-msgstr ""
+msgstr "Propriétaire"
 
 msgid "Owner (cost center)"
 msgstr "Centre de coûts parent"
@@ -8713,7 +8713,7 @@ msgid "Pick a date or leave blank to clear it."
 msgstr "Choisissez une date ou laissez vide pour l'effacer."
 
 msgid "Pick existing part"
-msgstr ""
+msgstr "Sélectionner une pièce existante"
 
 msgid "Pick List"
 msgstr "Liste de prélèvement"
@@ -9099,7 +9099,7 @@ msgid "Production: shop-floor app and scheduling"
 msgstr "Production : application d'atelier et planification"
 
 msgid "Products Affected"
-msgstr ""
+msgstr "Produits affectés"
 
 msgid "Profile"
 msgstr "Profil"
@@ -9161,7 +9161,7 @@ msgid "Protect training time and attend"
 msgstr "Protégez le temps de formation et participez"
 
 msgid "Prototype"
-msgstr ""
+msgstr "Prototype"
 
 msgid "Provide process knowledge and inputs"
 msgstr "Fournir les connaissances et les données du processus"
@@ -9313,7 +9313,7 @@ msgstr "Qté à commander"
 
 #. placeholder {0}: line.quantityToReceive ?? 0
 msgid "Qty to receive: {0}"
-msgstr ""
+msgstr "Quantité à recevoir : {0}"
 
 msgid "Qty. Complete"
 msgstr "Qté. Complète"
@@ -9506,7 +9506,7 @@ msgid "Reason Account"
 msgstr "Compte de raison"
 
 msgid "Reason for Change"
-msgstr ""
+msgstr "Raison du changement"
 
 msgid "Reason for declining (Optional)"
 msgstr "Raison du refus (Facultatif)"
@@ -9693,10 +9693,10 @@ msgid "Release"
 msgstr "Libération"
 
 msgid "Release control"
-msgstr ""
+msgstr "Contrôle de la version"
 
 msgid "Release Control"
-msgstr ""
+msgstr "Contrôle de la version"
 
 msgid "Release Job"
 msgstr "Lancer le travail"
@@ -9705,13 +9705,13 @@ msgid "Released"
 msgstr "Libéré"
 
 msgid "Released and locked; change via a change order."
-msgstr ""
+msgstr "Publiée et verrouillée ; modifiez-la via une demande de modification."
 
 msgid "Released revision"
-msgstr ""
+msgstr "Révision publiée"
 
 msgid "Released revision is locked"
-msgstr ""
+msgstr "La révision publiée est verrouillée"
 
 msgid "Remaining"
 msgstr "Restant"
@@ -9730,19 +9730,19 @@ msgid "Remove {0}"
 msgstr "Supprimer {0}"
 
 msgid "Remove action"
-msgstr ""
+msgstr "Supprimer l'action"
 
 msgid "Remove add row"
-msgstr ""
+msgstr "Supprimer l'ajout de ligne"
 
 msgid "Remove assembly"
-msgstr ""
+msgstr "Supprimer l'assemblage"
 
 msgid "Remove condition"
 msgstr "Supprimer la condition"
 
 msgid "Remove delete row"
-msgstr ""
+msgstr "Supprimer la suppression de ligne"
 
 msgid "Remove feature"
 msgstr "Supprimer la fonctionnalité"
@@ -9997,7 +9997,7 @@ msgid "Revision {0}"
 msgstr "Révision {0}"
 
 msgid "Revisions"
-msgstr ""
+msgstr "Révisions"
 
 msgid "Revoke"
 msgstr "Révoquer"
@@ -11357,7 +11357,7 @@ msgid "Superseded By"
 msgstr "Remplacé par"
 
 msgid "Superseded by a newer revision."
-msgstr ""
+msgstr "Remplacée par une révision plus récente."
 
 msgid "Supersedes"
 msgstr "Remplace"
@@ -12421,16 +12421,16 @@ msgid "This part is superseded and set to Stock Only — it's replenished to its
 msgstr "Cette pièce est obsolète et définie sur Stock Only — elle est réapprovisionnée jusqu'à son plancher de réserve de pièces de rechange, indépendamment de la demande."
 
 msgid "This part isn't on any other assembly to delete from."
-msgstr ""
+msgstr "Cette pièce n'existe sur aucun autre assemblage à supprimer."
 
 msgid "This Quarter"
 msgstr "Ce trimestre"
 
 msgid "This revision is released (Production). Changes should normally flow through a change order."
-msgstr ""
+msgstr "Cette révision est libérée (Production). Les modifications doivent normalement transiter par un ordre de changement."
 
 msgid "This revision is released (Production). Open a change order to modify it."
-msgstr ""
+msgstr "Cette révision est libérée (Production). Ouvrez un ordre de changement pour la modifier."
 
 msgid "This sales order has associated jobs. Choose what to do with them."
 msgstr "Cette commande client a des tâches associées. Choisissez ce que vous souhaitez en faire."
@@ -13413,7 +13413,7 @@ msgid "Warn"
 msgstr "Avertissement"
 
 msgid "Warn — edits succeed with a warning"
-msgstr ""
+msgstr "Avertissement — les modifications réussissent avec un avertissement"
 
 msgid "Warn but allow"
 msgstr "Avertir mais autoriser"

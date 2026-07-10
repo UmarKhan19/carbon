@@ -40,7 +40,7 @@ msgstr "(bu müşteri için hariç tutulmuş)"
 
 #. placeholder {0}: open.length
 msgid "{0, plural, one {This part is on 1 open change order} other {This part is on # open change orders}}"
-msgstr ""
+msgstr "{0, plural, one {Bu parça 1 açık değişiklik emrinde} other {Bu parça # açık değişiklik emrinde}}"
 
 #. placeholder {0}: ar.count
 msgid "{0} customers with a balance"
@@ -113,7 +113,7 @@ msgid "{name} deleted"
 msgstr "{name} silindi"
 
 msgid "{openLineCount} open POs for deleted parts"
-msgstr ""
+msgstr "Silinen parçalar için {openLineCount} açık satın alma siparişi"
 
 msgid "{remaining, plural, one {# phase left} other {# phases left}}"
 msgstr "{remaining, plural, one {# aşama kaldı} other {# aşama kaldı}}"
@@ -199,7 +199,7 @@ msgid "A Carbon-run data migration — you load your own data"
 msgstr "Bir Carbon tarafından yönetilen veri taşıması — kendi verilerinizi yüklersiniz"
 
 msgid "A change order tracks a controlled engineering or manufacturing change through review and implementation."
-msgstr ""
+msgstr "Değişiklik emri, kontrollü bir mühendislik veya üretim değişikliğini inceleme ve uygulanmasında takip eder."
 
 msgid "A clearing account holding the value of goods received but not yet billed; the supplier invoice clears it."
 msgstr "Alınan ancak henüz faturalanmayan malların değerini tutan bir takas hesabı; tedarikçi faturası bunu temizler."
@@ -574,7 +574,7 @@ msgid "Add Actions"
 msgstr "Eylemler Ekle"
 
 msgid "Add add row"
-msgstr ""
+msgstr "Satır ekle"
 
 msgid "Add Adjustment"
 msgstr "Ayarlama ekle"
@@ -586,7 +586,7 @@ msgid "Add Approval Requirement"
 msgstr "Onay Gereksinimi Ekle"
 
 msgid "Add assembly"
-msgstr ""
+msgstr "Montaj ekle"
 
 msgid "Add Calibration Record"
 msgstr "Kalibrasyon Kaydı Ekle"
@@ -604,7 +604,7 @@ msgid "Add Contractor"
 msgstr "Yüklenici Ekle"
 
 msgid "Add delete row"
-msgstr ""
+msgstr "Satırı sil"
 
 msgid "Add Entry"
 msgstr "Giri Ekle"
@@ -649,7 +649,7 @@ msgid "Add Partner"
 msgstr "Ortak Ekle"
 
 msgid "Add parts"
-msgstr ""
+msgstr "Parça ekle"
 
 msgid "Add Permissions"
 msgstr "İzin Ekle"
@@ -734,13 +734,13 @@ msgid "Adjustment Type"
 msgstr "Ayarlama Türü"
 
 msgid "Advance to {nextStatus}"
-msgstr ""
+msgstr "{nextStatus} konumuna geç"
 
 msgid "Advanced"
 msgstr "Gelişmiş"
 
 msgid "Affected assemblies"
-msgstr ""
+msgstr "Etkilenen montajlar"
 
 msgid "After"
 msgstr "Sonra"
@@ -1120,7 +1120,7 @@ msgstr "API anahtarını silmek istediğinizden emin misiniz: {0}? Bu geri alın
 
 #. placeholder {0}: changeOrderType.name
 msgid "Are you sure you want to delete the change order category: {0}? This cannot be undone."
-msgstr ""
+msgstr "Değişiklik emri kategorisini silmek istediğinizden emin misiniz: {0}? Bu işlem geri alınamaz."
 
 msgid "Are you sure you want to delete the contractor: {name}? This cannot be undone."
 msgstr "Yükleniciyi silmek istediğinizden emin misiniz: {name}? Bu geri alınamaz."
@@ -1281,7 +1281,7 @@ msgid "Are you sure you want to delete this approval rule? This cannot be undone
 msgstr "Bu onay kuralını silmek istediğinizden emin misiniz? Bu geri alınamaz."
 
 msgid "Are you sure you want to delete this change order?"
-msgstr ""
+msgstr "Bu değişiklik emrini silmek istediğinizden emin misiniz?"
 
 msgid "Are you sure you want to delete this gauge?"
 msgstr "Bu kalibratörü silmek istediğinizden emin misiniz?"
@@ -1413,7 +1413,7 @@ msgid "Assemblies"
 msgstr "Montajlar"
 
 msgid "Assembly"
-msgstr ""
+msgstr "Montaj"
 
 msgid "Assembly Instructions"
 msgstr "Montaj Talimatları"
@@ -1693,7 +1693,7 @@ msgid "Being phased out — successor: <0>{0}</0>"
 msgstr "Aşamalı olarak kaldırılıyor — halef: <0>{0}</0>"
 
 msgid "Being validated before production."
-msgstr ""
+msgstr "Üretim öncesi doğrulanıyor."
 
 msgid "Below safety stock"
 msgstr "Emniyet stoğunun altında"
@@ -1751,7 +1751,7 @@ msgid "BoM + BoP"
 msgstr "BOM + BOP"
 
 msgid "BOM Changes"
-msgstr ""
+msgstr "BOM Değişiklikleri"
 
 msgid "BOM synced successfully"
 msgstr "BOM başarıyla senkronize edildi"
@@ -2048,16 +2048,16 @@ msgid "Change"
 msgstr "Değiştir"
 
 msgid "Change Order"
-msgstr ""
+msgstr "Değişiklik Emri"
 
 msgid "Change Order Categories"
-msgstr ""
+msgstr "Değişiklik Emri Kategorileri"
 
 msgid "Change Order Types"
-msgstr ""
+msgstr "Değişiklik Emri Türleri"
 
 msgid "Change Orders"
-msgstr ""
+msgstr "Değişiklik Emirleri"
 
 msgid "Change status"
 msgstr "Durum değiştir"
@@ -2533,14 +2533,14 @@ msgid "Control design changes with revisions / ECOs"
 msgstr "Tasarım değişikliklerini revizyonlar / ECO'lar ile kontrol edin"
 
 msgid "Controlled Drawing"
-msgstr ""
+msgstr "Kontrollü Çizim"
 
 #. placeholder {0}: drawing.drawingRevisionLabel
 msgid "Controlled Drawing (Rev {0})"
-msgstr ""
+msgstr "Kontrollü Çizim (Rev {0})"
 
 msgid "Controlled drawing uploaded"
-msgstr ""
+msgstr "Kontrollü çizim yüklendi"
 
 msgid "Controller, Accountant"
 msgstr "Kontrolör, Muhasebeci"
@@ -2549,7 +2549,7 @@ msgid "Controls how planning handles a discontinued item: Consume First exhausts
 msgstr "Planlamanın kullanımdan kaldırılan bir öğeyi nasıl işlediğini kontrol eder: Önce Tüket mevcut stoğu tüketir ve ardından halefi kullanmaya geçer, Yeni Tercih et yeni talebi hemen halefi yönlendirir, Yalnızca Stok minimum bir hizmet rezervi tutar ve Stok Yok öğeyi planlama işleminden tamamen çıkarır.\""
 
 msgid "Controls whether the bill of material and bill of process of a released (Production) revision can be edited outside a change order."
-msgstr ""
+msgstr "Yayınlanan (Üretim) revizyonunun malzeme listesi ve işlem listesinin bir değişiklik emri dışında düzenlenip düzenlenmeyeceğini kontrol eder."
 
 msgid "Convention"
 msgstr "Sözleşme"
@@ -2633,7 +2633,7 @@ msgid "Copy link"
 msgstr "Bağlantıyı kopyala"
 
 msgid "Copy link to change order"
-msgstr ""
+msgstr "Değişiklik emri bağlantısını kopyala"
 
 msgid "Copy link to consumable"
 msgstr "Tüketilebilir bağlantısını kopyala"
@@ -2863,7 +2863,7 @@ msgid "Create audit trail entries"
 msgstr "Denetim izi girdileri oluştur"
 
 msgid "Create Change Order"
-msgstr ""
+msgstr "Değişiklik Emri Oluştur"
 
 msgid "Create Issue"
 msgstr "Sorun Oluştur"
@@ -2923,7 +2923,7 @@ msgid "Created By"
 msgstr "Oluşturan"
 
 msgid "Created change order category"
-msgstr ""
+msgstr "Oluşturulan değişiklik emri kategorisi"
 
 msgid "Created consumable"
 msgstr "Tüketilebilir malzeme oluşturuldu"
@@ -3532,7 +3532,7 @@ msgid "Delete Category"
 msgstr "Kategoriyi Sil"
 
 msgid "Delete Change Order"
-msgstr ""
+msgstr "Değişiklik Emrini Sil"
 
 msgid "Delete Consumable"
 msgstr "Tüketilebilir Malı Sil"
@@ -3622,7 +3622,7 @@ msgid "Delete Partner"
 msgstr "Partneri Sil"
 
 msgid "Delete parts"
-msgstr ""
+msgstr "Parçaları sil"
 
 msgid "Delete Payment"
 msgstr "Ödemeyi Sil"
@@ -3839,7 +3839,7 @@ msgid "Derive this item's shelf life from the shortest shelf life of its compone
 msgstr "Bu öğenin raf ömrünü, bileşenlerinin en kısa raf ömründen türet, yukarıdaki Günler alanını yok say."
 
 msgid "Derived automatically from the BOM changes below."
-msgstr ""
+msgstr "Aşağıdaki BOM değişikliklerinden otomatik olarak türetildi."
 
 msgid "Description"
 msgstr "Açıklama"
@@ -3848,13 +3848,13 @@ msgid "Description (optional)"
 msgstr "Açıklama (isteğe bağlı)"
 
 msgid "Description of Change"
-msgstr ""
+msgstr "Değişiklimin Açıklaması"
 
 msgid "Description of Issue"
 msgstr "Sorun Açıklaması"
 
 msgid "Design"
-msgstr ""
+msgstr "Tasarım"
 
 msgid "Detail"
 msgstr "Detay"
@@ -4058,7 +4058,7 @@ msgstr "Çekiliyor"
 
 #. placeholder {0}: drawing.drawingRevisionLabel
 msgid "Drawing (Rev {0})"
-msgstr ""
+msgstr "Çizim (Rev {0})"
 
 msgid "Drawing Number"
 msgstr "Çizim Numarası"
@@ -4089,7 +4089,7 @@ msgid "Due {0}"
 msgstr "Vadesi {0}"
 
 msgid "Due date"
-msgstr ""
+msgstr "Son Tarih"
 
 msgid "Due Date"
 msgstr "Son Kullanma Tarihi"
@@ -4194,10 +4194,10 @@ msgid "Edit Category"
 msgstr "Kategoriyi Düzenle"
 
 msgid "Edit Change Order"
-msgstr ""
+msgstr "Değişiklik Emrini Düzenle"
 
 msgid "Edit Change Order Category"
-msgstr ""
+msgstr "Değişiklik Emri Kategorisini Düzenle"
 
 msgid "Edit column visibility"
 msgstr "Sütun görünürlüğünü düzenle"
@@ -4458,7 +4458,7 @@ msgid "Edit Work Center"
 msgstr "İş Merkezi Düzenle"
 
 msgid "Editable draft; becomes Production when released."
-msgstr ""
+msgstr "Düzenlenebilir taslak; yayınlandığında Üretim olur."
 
 msgid "Effective From"
 msgstr "Geçerlilik Başlangıcı"
@@ -4467,13 +4467,13 @@ msgid "Effective To"
 msgstr "Geçerli Olacağı Tarih"
 
 msgid "Effectivity date"
-msgstr ""
+msgstr "Yürürlük tarihi"
 
 msgid "Effectivity Date"
-msgstr ""
+msgstr "Yürürlük Tarihi"
 
 msgid "Effectivity version"
-msgstr ""
+msgstr "Yürürlük sürümü"
 
 msgid "Email"
 msgstr "E-posta"
@@ -4581,7 +4581,7 @@ msgid "End Time"
 msgstr "Bitiş Saati"
 
 msgid "Enforce — edits are blocked"
-msgstr ""
+msgstr "Zorunlu — düzenlemeler engellendi"
 
 msgid "Enforce per-item validation and guidelines across receipts, shipments, transfers, and adjustments."
 msgstr "Alışmalar, sevkiyatlar, transferler ve ayarlamalarda kalem bazında doğrulama ve yönergeleri zorunlu kılın."
@@ -5134,7 +5134,7 @@ msgid "Failed to load tracked entities"
 msgstr "Takip edilen varlıklar yüklenemedi"
 
 msgid "Failed to remove assembly"
-msgstr ""
+msgstr "Montajı kaldırmak başarısız oldu"
 
 msgid "Failed to remove image: {errorMessage}"
 msgstr "Görsel kaldırılamadı: {errorMessage}"
@@ -5146,7 +5146,7 @@ msgid "Failed to remove purchase order"
 msgstr "Satın alma emri kaldırılamadı"
 
 msgid "Failed to remove row"
-msgstr ""
+msgstr "Satır kaldırılamadı"
 
 msgid "Failed to remove thumbnail"
 msgstr "Küçük resim kaldırılamadı"
@@ -5205,7 +5205,7 @@ msgstr "CSV dosyası yüklenemedi."
 
 #. placeholder {0}: file.name
 msgid "Failed to upload drawing: {0}"
-msgstr ""
+msgstr "Çizim yüklenemedi: {0}"
 
 msgid "Failed to upload file"
 msgstr "Dosyayı yüklemede başarısız oldu"
@@ -5984,7 +5984,7 @@ msgid "III (tightened)"
 msgstr "III (sıklaştırılmış)"
 
 msgid "Impact"
-msgstr ""
+msgstr "Etki"
 
 msgid "Imperial"
 msgstr "İmparatorluk"
@@ -6724,7 +6724,7 @@ msgid "Linked entity quantity ({0}) does not match row quantity ({1})."
 msgstr "Bağlantılı varlık miktarı ({0}) satır miktarıyla eşleşmiyor ({1})."
 
 msgid "Linked NCR"
-msgstr ""
+msgstr "Bağlantılı NCR"
 
 msgid "Linked PO"
 msgstr "Bağlantılı Sipariş"
@@ -7430,7 +7430,7 @@ msgid "New Account"
 msgstr "Yeni Hesap"
 
 msgid "New action"
-msgstr ""
+msgstr "Yeni işlem"
 
 msgid "New API Key"
 msgstr "Yeni API Anahtarı"
@@ -7451,10 +7451,10 @@ msgid "New Attribute Category"
 msgstr "Yeni Öznitelik Kategorisi"
 
 msgid "New Change Order"
-msgstr ""
+msgstr "Yeni Değişiklik Emri"
 
 msgid "New Change Order Category"
-msgstr ""
+msgstr "Yeni Değişiklik Emri Kategorisi"
 
 msgid "New Consumable"
 msgstr "Yeni Sarf Malzemesi"
@@ -7574,13 +7574,13 @@ msgid "New Part"
 msgstr "Yeni Ürün"
 
 msgid "New part (not yet synced)"
-msgstr ""
+msgstr "Yeni parça (henüz senkronize edilmedi)"
 
 msgid "New part id"
-msgstr ""
+msgstr "Yeni parça kimliği"
 
 msgid "New part name"
-msgstr ""
+msgstr "Yeni parça adı"
 
 msgid "New Password"
 msgstr "Yeni Şifre"
@@ -7777,7 +7777,7 @@ msgid "No addresses found"
 msgstr "Adres bulunamadı"
 
 msgid "No affected assemblies yet."
-msgstr ""
+msgstr "Henüz etkilenen montajlar yok."
 
 msgid "No applications. Payment will be on-account."
 msgstr "Başvuru yok. Ödeme hesap üzerinden yapılacak."
@@ -7787,7 +7787,7 @@ msgid "No archived logs yet. Logs older than {0} days will be automatically arch
 msgstr "Henüz arşivlenmiş günlük yok. {0} günden eski günlükler otomatik olarak arşivlenecek ve buradan indirilmeye hazır olacak."
 
 msgid "No assemblies targeted yet."
-msgstr ""
+msgstr "Henüz hedeflenen montajlar yok."
 
 msgid "No attachments."
 msgstr "Ek ekli değil."
@@ -7901,7 +7901,7 @@ msgid "No matches for \"{query}\". Try a different search term."
 msgstr "\"{query}\" için eşleşme bulunamadı. Farklı bir arama terbi deneyin."
 
 msgid "No matches. Type to create one."
-msgstr ""
+msgstr "Eşleşme yok. Bir tane oluşturmak için yazın."
 
 msgid "No new notifications"
 msgstr "Yeni bildirim yok"
@@ -7913,7 +7913,7 @@ msgid "No open invoices"
 msgstr "Açık fatura yok"
 
 msgid "No open purchase orders for deleted parts"
-msgstr ""
+msgstr "Silinen parçalar için açık satın alma siparişi yok"
 
 msgid "No operations require picking at this location"
 msgstr "Bu konumda toplama gerektiren işlem yok"
@@ -7943,10 +7943,10 @@ msgid "No part ID"
 msgstr "Parça kimliği yok"
 
 msgid "No parts to add."
-msgstr ""
+msgstr "Eklenecek parça yok."
 
 msgid "No parts to delete."
-msgstr ""
+msgstr "Silinecek parça yok."
 
 msgid "No payables"
 msgstr "Ödeme yükümlülüğü yok"
@@ -7970,10 +7970,10 @@ msgid "No printers configured. Click \"Add Printer\" to create one."
 msgstr "Yapılandırılmış yazıcı yok. Bir tane oluşturmak için \"Yazıcı Ekle\"'ye tıklayın."
 
 msgid "No products affected yet — add a BOM change to populate this."
-msgstr ""
+msgstr "Henüz etkilenen ürün yok — bunu doldurmak için bir BOM değişikliği ekleyin."
 
 msgid "No products affected yet."
-msgstr ""
+msgstr "Henüz etkilenen ürün yok."
 
 msgid "No Quote"
 msgstr "Teklif Yok"
@@ -8093,7 +8093,7 @@ msgid "Not yet"
 msgstr "Henüz değil"
 
 msgid "Not yet synced"
-msgstr ""
+msgstr "Henüz senkronize edilmedi"
 
 msgid "Not you?"
 msgstr "Sen siz misiniz?"
@@ -8123,7 +8123,7 @@ msgid "Number of inventory units per purchase unit"
 msgstr "Satın alma birimi başına envanter birimi sayısı"
 
 msgid "Obsolete"
-msgstr ""
+msgstr "Eski"
 
 msgid "OEE Impact"
 msgstr "OEE Etkisi"
@@ -8135,7 +8135,7 @@ msgid "of"
 msgstr "adet"
 
 msgid "Off — released revisions stay editable"
-msgstr ""
+msgstr "Kapalı — yayınlanan revizyonlar düzenlenebilir kalır"
 
 msgid "OK"
 msgstr "Tamam"
@@ -8231,7 +8231,7 @@ msgid "Open Audit Log"
 msgstr "Denetim Kaydını Aç"
 
 msgid "Open change orders affecting this part"
-msgstr ""
+msgstr "Bu parçayı etkileyen açık değişiklik emirleri"
 
 msgid "Open Date"
 msgstr "Açılış Tarihi"
@@ -8475,7 +8475,7 @@ msgid "Overwrite the target manufacturing method with the quote method"
 msgstr "Hedef üretim yöntemini teklif yöntemiyle üzerine yaz"
 
 msgid "Owner"
-msgstr ""
+msgstr "Sahip"
 
 msgid "Owner (cost center)"
 msgstr "Ana maliyet merkezi"
@@ -8713,7 +8713,7 @@ msgid "Pick a date or leave blank to clear it."
 msgstr "Bir tarih seçin veya temizlemek için boş bırakın."
 
 msgid "Pick existing part"
-msgstr ""
+msgstr "Mevcut parçayı seç"
 
 msgid "Pick List"
 msgstr "Seçim Listesi"
@@ -9099,7 +9099,7 @@ msgid "Production: shop-floor app and scheduling"
 msgstr "Üretim: atölye uygulaması ve planlama"
 
 msgid "Products Affected"
-msgstr ""
+msgstr "Etkilenen Ürünler"
 
 msgid "Profile"
 msgstr "Profil"
@@ -9161,7 +9161,7 @@ msgid "Protect training time and attend"
 msgstr "Eğitim zamanını koru ve katıl"
 
 msgid "Prototype"
-msgstr ""
+msgstr "Prototip"
 
 msgid "Provide process knowledge and inputs"
 msgstr "Süreç bilgisi ve girdileri sağlayın"
@@ -9313,7 +9313,7 @@ msgstr "Sipariş Edilecek Miktar"
 
 #. placeholder {0}: line.quantityToReceive ?? 0
 msgid "Qty to receive: {0}"
-msgstr ""
+msgstr "Alınacak miktar: {0}"
 
 msgid "Qty. Complete"
 msgstr "Tamamlanan Miktar"
@@ -9506,7 +9506,7 @@ msgid "Reason Account"
 msgstr "Neden Hesabı"
 
 msgid "Reason for Change"
-msgstr ""
+msgstr "Değişiklik Nedeni"
 
 msgid "Reason for declining (Optional)"
 msgstr "Reddetme nedeni (İsteğe bağlı)"
@@ -9693,10 +9693,10 @@ msgid "Release"
 msgstr "Serbest Bırakma"
 
 msgid "Release control"
-msgstr ""
+msgstr "Yayın kontrolü"
 
 msgid "Release Control"
-msgstr ""
+msgstr "Yayın Kontrolü"
 
 msgid "Release Job"
 msgstr "İşi Yayınla"
@@ -9705,13 +9705,13 @@ msgid "Released"
 msgstr "Yayınlandı"
 
 msgid "Released and locked; change via a change order."
-msgstr ""
+msgstr "Yayınlandı ve kilitlendi; bir değişiklik emri aracılığıyla değiştirin."
 
 msgid "Released revision"
-msgstr ""
+msgstr "Yayınlanan revizyon"
 
 msgid "Released revision is locked"
-msgstr ""
+msgstr "Yayınlanan revizyon kilitlidir"
 
 msgid "Remaining"
 msgstr "Kalan"
@@ -9730,19 +9730,19 @@ msgid "Remove {0}"
 msgstr "Kaldır {0}"
 
 msgid "Remove action"
-msgstr ""
+msgstr "İşlemi kaldır"
 
 msgid "Remove add row"
-msgstr ""
+msgstr "Satır eklemeyi kaldır"
 
 msgid "Remove assembly"
-msgstr ""
+msgstr "Montajı kaldır"
 
 msgid "Remove condition"
 msgstr "Koşulu kaldır"
 
 msgid "Remove delete row"
-msgstr ""
+msgstr "Satır silmeyi kaldır"
 
 msgid "Remove feature"
 msgstr "Özelliği kaldır"
@@ -9997,7 +9997,7 @@ msgid "Revision {0}"
 msgstr "Revizyon {0}"
 
 msgid "Revisions"
-msgstr ""
+msgstr "Revizyonlar"
 
 msgid "Revoke"
 msgstr "İptal et"
@@ -11357,7 +11357,7 @@ msgid "Superseded By"
 msgstr "Yerine Geçirildi"
 
 msgid "Superseded by a newer revision."
-msgstr ""
+msgstr "Daha yeni bir revizyon tarafından değiştirildi."
 
 msgid "Supersedes"
 msgstr "Yerine Geçer"
@@ -12421,16 +12421,16 @@ msgid "This part is superseded and set to Stock Only — it's replenished to its
 msgstr "Bu parça kullanımdan kaldırılmış ve Yalnızca Stok olarak ayarlanmıştır — talep bağımsız olarak yedek rezerv tabanına kadar yenilenir."
 
 msgid "This part isn't on any other assembly to delete from."
-msgstr ""
+msgstr "Bu parça silmek için başka bir montajda değil."
 
 msgid "This Quarter"
 msgstr "Bu Çeyrek"
 
 msgid "This revision is released (Production). Changes should normally flow through a change order."
-msgstr ""
+msgstr "Bu revizyon yayımlandı (Üretim). Değişiklikler normalde bir değişiklik siparişi aracılığıyla akmalıdır."
 
 msgid "This revision is released (Production). Open a change order to modify it."
-msgstr ""
+msgstr "Bu revizyon yayımlandı (Üretim). Bunu değiştirmek için bir değişiklik siparişi açın."
 
 msgid "This sales order has associated jobs. Choose what to do with them."
 msgstr "Bu satış siparişi ilgili işlere sahiptir. Onlarla ne yapılacağına karar verin."
@@ -13413,7 +13413,7 @@ msgid "Warn"
 msgstr "Uyarı"
 
 msgid "Warn — edits succeed with a warning"
-msgstr ""
+msgstr "Uyar — düzenlemeler bir uyarı ile başarılı olur"
 
 msgid "Warn but allow"
 msgstr "Uyarı ver ama izin ver"
