@@ -91,6 +91,9 @@ msgstr "{chainLabel}。このパーツを最終的な後継品に直接指定す
 msgid "{count, plural, one {# course} other {# courses}}"
 msgstr "{count, plural, one {# コース} other {# コース}}"
 
+msgid "{done} of {total} phases complete"
+msgstr "{done} / {total} フェーズ完了"
+
 msgid "{from}–{to} of {count}"
 msgstr "{from}–{to} / {count}"
 
@@ -1320,6 +1323,13 @@ msgstr "このクォートを拒否してもよろしいですか？"
 msgid "Are you sure you want to release this job? It will become available to the shop floor, and drive purchasing and production."
 msgstr "このジョブをリリースしてもよろしいですか？ショップフロアで利用可能になり、購買と生産を推進します。"
 
+#. placeholder {0}: supplierName(deleteTarget.supplierId)
+msgid "Are you sure you want to remove {0} as a supplier for this item? This cannot be undone."
+msgstr ""
+
+msgid "Are you sure you want to remove {supplierName} as a supplier for this item? This cannot be undone."
+msgstr ""
+
 msgid "Are you sure you want to remove this item from the price list? This cannot be undone."
 msgstr "このアイテムを価格リストから削除してもよろしいですか？この操作は取り消せません。"
 
@@ -1373,6 +1383,12 @@ msgstr "昇順"
 #. placeholder {1}: copy.noun
 msgid "Ask an admin with {0} permission to add the first {1}."
 msgstr "{0}権限を持つ管理者に最初の{1}を追加するよう依頼してください。"
+
+msgid "Assemblies"
+msgstr "アセンブリ"
+
+msgid "Assembly Instructions"
+msgstr "組立指示"
 
 msgid "Assembly:"
 msgstr "アセンブリ:"
@@ -3656,6 +3672,9 @@ msgstr "物質を削除"
 
 msgid "Delete Suggestion"
 msgstr "提案を削除"
+
+msgid "Delete supplier"
+msgstr ""
 
 msgid "Delete Supplier"
 msgstr "サプライヤーを削除"
@@ -7970,9 +7989,6 @@ msgstr "OEM (オリジナル機器メーカー)"
 msgid "of"
 msgstr "の"
 
-msgid "of {total} phases complete"
-msgstr "{total}フェーズ中完了"
-
 msgid "OK"
 msgstr "OK"
 
@@ -11191,6 +11207,9 @@ msgstr "仕入先注文番号"
 msgid "Supplier Overview"
 msgstr "仕入先概要"
 
+msgid "Supplier Part"
+msgstr ""
+
 msgid "Supplier Part ID"
 msgstr "仕入先部品ID"
 
@@ -12222,6 +12241,9 @@ msgstr "この販売注文には、ジョブを作成する必要があるライ
 #. placeholder {0}: usageCount === 1 ? "" : "s"
 msgid "This storage type is currently used by {usageCount} storage unit{0}."
 msgstr "このストレージタイプは現在{usageCount}個のストレージユニット{0}で使用されています。"
+
+msgid "this supplier"
+msgstr ""
 
 msgid "This updates the theme for all users of the application"
 msgstr "これはアプリケーションのすべてのユーザーのテーマを更新します"

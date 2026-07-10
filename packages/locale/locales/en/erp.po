@@ -91,6 +91,9 @@ msgstr "{chainLabel}. Consider pointing this part directly at the final successo
 msgid "{count, plural, one {# course} other {# courses}}"
 msgstr "{count, plural, one {# course} other {# courses}}"
 
+msgid "{done} of {total} phases complete"
+msgstr "{done} of {total} phases complete"
+
 msgid "{from}–{to} of {count}"
 msgstr "{from}–{to} of {count}"
 
@@ -1320,6 +1323,13 @@ msgstr "Are you sure you want to reject this quote?"
 msgid "Are you sure you want to release this job? It will become available to the shop floor, and drive purchasing and production."
 msgstr "Are you sure you want to release this job? It will become available to the shop floor, and drive purchasing and production."
 
+#. placeholder {0}: supplierName(deleteTarget.supplierId)
+msgid "Are you sure you want to remove {0} as a supplier for this item? This cannot be undone."
+msgstr "Are you sure you want to remove {0} as a supplier for this item? This cannot be undone."
+
+msgid "Are you sure you want to remove {supplierName} as a supplier for this item? This cannot be undone."
+msgstr "Are you sure you want to remove {supplierName} as a supplier for this item? This cannot be undone."
+
 msgid "Are you sure you want to remove this item from the price list? This cannot be undone."
 msgstr "Are you sure you want to remove this item from the price list? This cannot be undone."
 
@@ -1373,6 +1383,12 @@ msgstr "Ascending"
 #. placeholder {1}: copy.noun
 msgid "Ask an admin with {0} permission to add the first {1}."
 msgstr "Ask an admin with {0} permission to add the first {1}."
+
+msgid "Assemblies"
+msgstr "Assemblies"
+
+msgid "Assembly Instructions"
+msgstr "Assembly Instructions"
 
 msgid "Assembly:"
 msgstr "Assembly:"
@@ -3656,6 +3672,9 @@ msgstr "Delete Substance"
 
 msgid "Delete Suggestion"
 msgstr "Delete Suggestion"
+
+msgid "Delete supplier"
+msgstr "Delete supplier"
 
 msgid "Delete Supplier"
 msgstr "Delete Supplier"
@@ -7970,9 +7989,6 @@ msgstr "OEM (original equipment manufacturer)"
 msgid "of"
 msgstr "of"
 
-msgid "of {total} phases complete"
-msgstr "of {total} phases complete"
-
 msgid "OK"
 msgstr "OK"
 
@@ -11191,6 +11207,9 @@ msgstr "Supplier Order Number"
 msgid "Supplier Overview"
 msgstr "Supplier Overview"
 
+msgid "Supplier Part"
+msgstr "Supplier Part"
+
 msgid "Supplier Part ID"
 msgstr "Supplier Part ID"
 
@@ -12222,6 +12241,9 @@ msgstr "This sales order has lines that require jobs to be created"
 #. placeholder {0}: usageCount === 1 ? "" : "s"
 msgid "This storage type is currently used by {usageCount} storage unit{0}."
 msgstr "This storage type is currently used by {usageCount} storage unit{0}."
+
+msgid "this supplier"
+msgstr "this supplier"
 
 msgid "This updates the theme for all users of the application"
 msgstr "This updates the theme for all users of the application"

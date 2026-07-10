@@ -60,13 +60,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const requestedMethodId = url.searchParams.get("methodId");
 
-  const [makeMethods] = await Promise.all([
-    getMakeMethods(client, itemId, companyId)
-    // client.storage
-    //   .from("private")
-    //   .list(`${companyId}/default-attachments/item/${itemId}`)
-  ]);
-  // const defaultAttachments = defaultAttachmentsResult.data ?? [];
+  const makeMethods = await getMakeMethods(client, itemId, companyId);
 
   const makeMethod = requestedMethodId
     ? (makeMethods.data?.find((m) => m.id === requestedMethodId) ??
