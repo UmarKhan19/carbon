@@ -11,6 +11,7 @@ import {
   installDeps,
   installSkills,
   spawnApps,
+  spawnGeometry,
   spawnStripeListener,
   syncEnvSymlinks
 } from "../services/apps.js";
@@ -194,7 +195,9 @@ export async function up(opts: UpOpts = {}) {
     await waitForServices(ctx);
   }
   await runDatabaseMigrations(ctx, { shouldMigrate, shouldRegen });
-  await seedSmokeTestUser(ctx);
+  // Skip when migrations are skipped: the `user` table may not exist yet, and
+  // seeding would fail with `relation "user" does not exist`.
+  if (shouldMigrate) await seedSmokeTestUser(ctx);
   if (portless) {
     await setupPortless(ctx, selectedApps);
     await ensureHostsFile();
@@ -203,6 +206,10 @@ export async function up(opts: UpOpts = {}) {
   if (process.env.CARBON_EDITION === "cloud") {
     stripeChild = spawnStripeListener(root);
     log.info("stripe listener spawned (CARBON_EDITION=cloud)");
+  }
+
+  if (selectedApps.includes("geometry")) {
+    spawnGeometry({ root, ports: ctx.ports });
   }
 
   box(
@@ -588,7 +595,8 @@ async function runAppsThenTeardown(
   portless: boolean,
   stripeChild?: ExecaChildProcess
 ) {
-  await spawnApps({ root, apps: selectedApps, ports, portless });
+  const reactRouterApps = selectedApps.filter((id) => id !== "geometry");
+  await spawnApps({ root, apps: reactRouterApps, ports, portless });
 
   // Apps exit on Ctrl+C; auto-`down` so compose stack isn't orphaned.
   // Swallow further signals so a second Ctrl+C during teardown doesn't

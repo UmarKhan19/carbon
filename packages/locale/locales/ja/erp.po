@@ -1371,6 +1371,12 @@ msgstr "昇順"
 msgid "Ask an admin with {0} permission to add the first {1}."
 msgstr "{0}権限を持つ管理者に最初の{1}を追加するよう依頼してください。"
 
+msgid "Assemblies"
+msgstr "アセンブリ"
+
+msgid "Assembly Instructions"
+msgstr "組立指示"
+
 msgid "Assembly:"
 msgstr "アセンブリ:"
 

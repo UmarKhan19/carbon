@@ -13,6 +13,7 @@
     "@carbon/printing": "workspace:*",
     "@carbon/stripe": "workspace:*",
     "@carbon/utils": "workspace:*",
+    "@carbon/viewer": "workspace:*",
     "@internationalized/date": "catalog:",
     "@react-email/components": "catalog:",
     "@react-pdf/renderer": "catalog:",
