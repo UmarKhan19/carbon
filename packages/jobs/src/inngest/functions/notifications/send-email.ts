@@ -9,7 +9,7 @@ export const sendEmailFunction = inngest.createFunction(
     retries: 3
   },
   { event: "carbon/send-email" },
-  async ({ event, step }) => {
+  async ({ event, step, logger }) => {
     const payload = event.data;
 
     // Resend rejects the request if `to` or `cc` contain null/undefined
@@ -40,7 +40,7 @@ export const sendEmailFunction = inngest.createFunction(
 
     const result = await step.run("send-email", async () => {
       if (process.env.DISABLE_RESEND) {
-        console.info(`Resend disabled — skipping send to`, toRecipients);
+        logger.info("Resend disabled — skipping send", { toRecipients });
         return null;
       }
 
@@ -57,7 +57,7 @@ export const sendEmailFunction = inngest.createFunction(
         to: toRecipients
       };
 
-      console.info(`Resend Email Job`);
+      logger.info("Resend Email Job");
       const response = await resend.emails.send(email);
       if (response.error) {
         if (response.error.name === "validation_error") {

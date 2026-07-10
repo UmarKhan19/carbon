@@ -72,10 +72,14 @@ const ItemCostingForm = ({ initialValues }: ItemCostingFormProps) => {
               name="costingMethod"
               label={t`Costing Method`}
               termId="costing-method"
-              options={itemCostingMethods.map((method) => ({
-                label: method,
-                value: method
-              }))}
+              options={itemCostingMethods
+                // Standard costing isn't implemented yet — hidden until
+                // Phase 1 of the standard-costing plan makes posting honor it
+                .filter((method) => method !== "Standard")
+                .map((method) => ({
+                  label: method,
+                  value: method
+                }))}
               onChange={(option) =>
                 setCostingMethod(
                   (option?.value as (typeof itemCostingMethods)[number]) ??
