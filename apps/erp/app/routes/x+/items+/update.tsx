@@ -1,5 +1,6 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import type { Database } from "@carbon/database";
+import { getLogger } from "@carbon/logger";
 import { getMaterialDescription, getMaterialId } from "@carbon/utils";
 import type { ActionFunctionArgs } from "react-router";
 import type { InventoryItemType } from "~/modules/items";
@@ -10,6 +11,8 @@ import {
 import { getCompanySettings } from "~/modules/settings";
 import type { MethodType, SourcingType } from "~/modules/shared";
 import { getDatabaseClient } from "~/services/database.server";
+
+const logger = getLogger("erp", "update");
 
 type ItemReplenishmentSystem =
   Database["public"]["Enums"]["itemReplenishmentSystem"];
@@ -129,11 +132,11 @@ export async function action({ request }: ActionFunctionArgs) {
           userId
         });
       } catch (err) {
-        console.error(
-          "Failed to cascade item tracking type",
-          { field, itemIds: items },
-          err
-        );
+        logger.error("Failed to cascade item tracking type", {
+          field,
+          itemIds: items,
+          error: err
+        });
         return {
           error: { message: "Failed to cascade tracking flags" },
           data: null
@@ -171,11 +174,12 @@ export async function action({ request }: ActionFunctionArgs) {
           cascade
         });
       } catch (err) {
-        console.error(
-          "Failed to update item method/sourcing",
-          { field, value, itemIds: items },
-          err
-        );
+        logger.error("Failed to update item method/sourcing", {
+          field,
+          value,
+          itemIds: items,
+          error: err
+        });
         return { error: { message: "Failed to update item" }, data: null };
       }
       return { data: null, error: null };

@@ -1,5 +1,6 @@
 import { ONSHAPE_CLIENT_ID, ONSHAPE_CLIENT_SECRET } from "@carbon/auth";
 import type { Database } from "@carbon/database";
+import { getLogger } from "@carbon/logger";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import axios from "axios";
 import type { OnshapeCompaniesResponse } from "./company.type";
@@ -15,6 +16,8 @@ import type {
   OnshapeTranslationRequest,
   OnshapeTranslationResponse
 } from "./translation.type";
+
+const logger = getLogger("ee", "onshape");
 
 interface OnshapeClientConfig {
   baseUrl: string;
@@ -467,7 +470,7 @@ export async function getOnshapeClient(
         .eq("id", "onshape")
         .eq("companyId", companyId);
     } catch (error) {
-      console.error("Failed to refresh Onshape token:", error);
+      logger.error("Failed to refresh Onshape token", { error });
       return { client: null, error: "Failed to refresh Onshape token" };
     }
   }

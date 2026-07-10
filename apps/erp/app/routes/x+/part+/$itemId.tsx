@@ -260,6 +260,7 @@ export default function PartRoute() {
                                 salesOrderLines,
                                 shipmentLines,
                                 supplierQuotes,
+                                assemblyInstructions,
                                 jobMaterialUsage
                               } = resolvedUsedIn;
 
@@ -355,6 +356,16 @@ export default function PartRoute() {
                                 }
                               ];
 
+                              // Assembly instructions only exist for make parts
+                              if (isManufactured) {
+                                tree.splice(2, 0, {
+                                  key: "assemblyInstructions",
+                                  name: t`Assembly Instructions`,
+                                  module: "production",
+                                  children: assemblyInstructions
+                                });
+                              }
+
                               return (
                                 <UsedInTree
                                   tree={tree}
@@ -409,6 +420,7 @@ export default function PartRoute() {
                               salesOrderLines,
                               shipmentLines,
                               supplierQuotes,
+                              assemblyInstructions,
                               jobMaterialUsage
                             } = resolvedUsedIn;
 
@@ -503,6 +515,16 @@ export default function PartRoute() {
                                 children: supplierQuotes
                               }
                             ];
+
+                            // Assembly instructions only exist for make parts
+                            if (isManufactured) {
+                              tree.splice(2, 0, {
+                                key: "assemblyInstructions",
+                                name: "Assembly Instructions",
+                                module: "production",
+                                children: assemblyInstructions
+                              });
+                            }
 
                             return (
                               <UsedInTree

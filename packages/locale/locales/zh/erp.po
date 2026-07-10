@@ -95,6 +95,9 @@ msgstr "{chainLabel}。考虑将此零件直接指向最终后继产品。"
 msgid "{count, plural, one {# course} other {# courses}}"
 msgstr "{count, plural, one {# 门课程} other {# 门课程}}"
 
+msgid "{done} of {total} phases complete"
+msgstr "{done} 个，共 {total} 个阶段已完成"
+
 msgid "{from}–{to} of {count}"
 msgstr "{from}–{to} 共 {count}"
 
@@ -173,6 +176,9 @@ msgstr "5 个用户最少"
 
 msgid "5-8 weeks"
 msgstr "5-8 周"
+
+msgid "52-week demand"
+msgstr "52周需求"
 
 msgid "5MB file limit"
 msgstr "5MB 文件大小限制"
@@ -549,6 +555,9 @@ msgstr "在下方添加列以对视图进行排序"
 msgid "Add a comment..."
 msgstr "添加评论..."
 
+msgid "Add a custom pricing row to override quantity, price, shipping, lead time, and tax"
+msgstr "添加自定义定价行以覆盖数量、价格、运费、交货期和税费"
+
 msgid "Add a printer in the printing settings to print labels directly."
 msgstr "在打印设置中添加打印机以直接打印标签。"
 
@@ -566,6 +575,9 @@ msgstr "添加操作"
 
 msgid "Add add row"
 msgstr ""
+
+msgid "Add Adjustment"
+msgstr "添加调整"
 
 msgid "Add any notes about your decision..."
 msgstr "添加关于您的决定的任何备注..."
@@ -1020,6 +1032,10 @@ msgstr "您确定要激活此量规吗？"
 msgid "Are you sure you want to cancel {0}? This will also cancel all related supplier quotes."
 msgstr "您确定要取消 {0} 吗？这也将取消所有相关的供应商报价。"
 
+#. placeholder {0}: routeData?.purchaseOrder?.purchaseOrderId ?? "this purchase order"
+msgid "Are you sure you want to cancel {0}? This will close the order."
+msgstr "确定要取消{0}吗？这将关闭订单。"
+
 msgid "Are you sure you want to cancel this job? It will no longer be available on the shop floor."
 msgstr "你确定要取消此工作吗？它将不再在车间可用。"
 
@@ -1393,8 +1409,14 @@ msgstr "升序"
 msgid "Ask an admin with {0} permission to add the first {1}."
 msgstr "请求具有{0}权限的管理员添加第一个{1}。"
 
+msgid "Assemblies"
+msgstr "装配件"
+
 msgid "Assembly"
 msgstr ""
+
+msgid "Assembly Instructions"
+msgstr "装配说明"
 
 msgid "Assembly:"
 msgstr "装配体："
@@ -1782,6 +1804,9 @@ msgstr "构建基于角色的培训材料"
 msgid "Build tailored, role-based training materials"
 msgstr "构建定制化、基于角色的培训材料"
 
+msgid "Built and costed as its own method"
+msgstr "作为独立方法构建和计算成本"
+
 msgid "Bulk Import"
 msgstr "批量导入"
 
@@ -1865,6 +1890,12 @@ msgstr "取消"
 
 msgid "Cancel Job"
 msgstr "取消工作"
+
+msgid "Cancel Order"
+msgstr "取消订单"
+
+msgid "Cancel Purchase Order"
+msgstr "取消采购订单"
 
 msgid "Cancel Sales Order"
 msgstr "取消销售订单"
@@ -2765,6 +2796,12 @@ msgstr "无法读取文档：{0}"
 msgid "Couldn't load documents"
 msgstr "无法加载文档"
 
+msgid "Couldn't load related documents. Refresh before creating a new one to avoid duplicates."
+msgstr "无法加载相关文档。创建新文档前请先刷新以避免重复。"
+
+msgid "Couldn't reschedule the job. Please try again."
+msgstr "无法重新安排作业。请重试。"
+
 msgid "Count"
 msgstr "数量"
 
@@ -3018,6 +3055,9 @@ msgstr "CSV 列"
 
 msgid "CSV file must have at least 2 rows."
 msgstr "CSV 文件必须至少有 2 行。"
+
+msgid "Cumulative"
+msgstr "累计"
 
 msgid "Cumulative %"
 msgstr "累积%"
@@ -3545,6 +3585,9 @@ msgstr "删除假期"
 msgid "Delete Issue"
 msgstr "删除问题"
 
+msgid "Delete Item Group"
+msgstr "删除物品组"
+
 msgid "Delete Line"
 msgstr "删除行"
 
@@ -3695,6 +3738,10 @@ msgstr "删除供应商报价"
 msgid "Delete Supplier Type"
 msgstr "删除供应商类型"
 
+#. placeholder {0}: pendingDelete.quantity
+msgid "Delete the price break for quantity {0}? This can't be undone."
+msgstr "删除数量{0}的价格区间？此操作无法撤销。"
+
 msgid "Delete Timecard"
 msgstr "删除时间卡"
 
@@ -3709,6 +3756,9 @@ msgstr "删除转移"
 
 msgid "Delete Transfer Line"
 msgstr "删除转移行"
+
+msgid "Delete Unit of Measure"
+msgstr "删除计量单位"
 
 msgid "Delete View"
 msgstr "删除视图"
@@ -3978,6 +4028,9 @@ msgstr "下载模板"
 
 msgid "Draft"
 msgstr "草稿"
+
+msgid "Draft is editable; Active is in use and requires a new version to change; Archived is retired."
+msgstr "草稿可编辑；活动中正在使用，需要新版本才能更改；已归档已停用。"
 
 msgid "Drag & drop files, or click to browse"
 msgstr "拖放文件，或点击浏览"
@@ -5728,9 +5781,6 @@ msgstr "隐藏、固定和重新排序列"
 
 msgid "High"
 msgstr "高"
-
-msgid "Higher priority wins ties and applies first for markups"
-msgstr "更高的优先级在平局时获胜，并首先应用于加价"
 
 msgid "Hints in the first row"
 msgstr "第一行中的提示"
@@ -7832,6 +7882,9 @@ msgstr "没有图像"
 msgid "No issue types configured"
 msgstr "未配置问题类型"
 
+msgid "No items"
+msgstr "无项目"
+
 msgid "No lines to map"
 msgstr "没有行需要映射"
 
@@ -8081,9 +8134,6 @@ msgstr "OEM (原始设备制造商)"
 msgid "of"
 msgstr "的"
 
-msgid "of {total} phases complete"
-msgstr "的 {total} 个阶段已完成"
-
 msgid "Off — released revisions stay editable"
 msgstr ""
 
@@ -8149,6 +8199,9 @@ msgstr "工作路线中的一个步骤，命名流程和工作中心，并携带
 
 msgid "One system from quote to cash"
 msgstr "从报价到收款的一个系统"
+
+msgid "Only Draft procedures are editable. Create a new version to change an Active or Archived procedure."
+msgstr "只有草稿程序可以编辑。创建新版本以更改活动或已归档的程序。"
 
 msgid "Onshape Status"
 msgstr "Onshape 状态"
@@ -8327,6 +8380,9 @@ msgstr "订单数量"
 
 msgid "Order quantities must be whole multiples of this number (a multiple of 12 → 12, 24, 36 …)."
 msgstr "订单数量必须是此数字的整数倍（12的倍数→12、24、36…）。"
+
+msgid "Order rules are evaluated in — for discounts only the highest-priority match applies (no stacking); markups all apply and compound in priority order."
+msgstr "订单规则按顺序评估 — 对于折扣，只应用最高优先级的匹配（不叠加）；加价全部应用并按优先级顺序复合。"
 
 msgid "Order Total"
 msgstr "订单总额"
@@ -8667,6 +8723,9 @@ msgstr "拣选顺序"
 
 msgid "Pick tracked item"
 msgstr "拣选追踪项目"
+
+msgid "Picked and consumed as separate components"
+msgstr "作为独立组件拣选和消耗"
 
 msgid "Picked quantity"
 msgstr "已拣选数量"
@@ -9754,6 +9813,9 @@ msgstr "重新订购政策"
 msgid "Reordering Policy"
 msgstr "重新订购政策"
 
+msgid "Reorders dispatch sequence and work center only — does not reschedule. Change dates on the Dates board."
+msgstr "仅重新排列调度顺序和工作中心 — 不重新排程。在日期面板上更改日期。"
+
 msgid "Replace drawing?"
 msgstr "替换绘图？"
 
@@ -10422,6 +10484,9 @@ msgstr "选择要配置的项目"
 
 msgid "Select an option"
 msgstr "选择一个选项"
+
+msgid "Select at least one line to convert"
+msgstr "至少选择一行进行转换"
 
 msgid "Select Contact"
 msgstr "选择联系人"
@@ -12334,6 +12399,9 @@ msgstr "此批次已过期，无法领取。"
 msgid "This may take a moment. Hang tight."
 msgstr "这可能需要一些时间。请稍候。"
 
+msgid "This method version is read-only. Create a new version from the method menu to make changes."
+msgstr "此方法版本为只读。从方法菜单创建新版本以进行更改。"
+
 msgid "This Month"
 msgstr "本月"
 
@@ -13401,6 +13469,10 @@ msgstr "网站"
 msgid "Wednesday"
 msgstr "星期三"
 
+#. placeholder {0}: d.week
+msgid "Week {0}"
+msgstr "第{0}周"
+
 #. placeholder {0}: i + 1
 msgid "Week {0} ({formattedDate})"
 msgstr "第 {0} 周 ({formattedDate})"
@@ -13417,6 +13489,9 @@ msgstr "{0} 的周"
 
 msgid "Weekly"
 msgstr "每周"
+
+msgid "Weekly demand"
+msgstr "每周需求"
 
 #. placeholder {0}: Math.round(startWeek) + 1
 #. placeholder {1}: Math.round(endWeek)
@@ -13741,6 +13816,11 @@ msgstr "窗口："
 msgid "WIP"
 msgstr "在制品"
 
+#. placeholder {0}: quarter.start + 1
+#. placeholder {1}: quarter.end
+msgid "Wk {0}–{1}"
+msgstr "第{0}–{1}周"
+
 msgid "wks"
 msgstr "周"
 
@@ -13865,6 +13945,9 @@ msgid ""
 "                        ordered quantity of {1}. What would you like\n"
 "                        to do with the extra parts?"
 msgstr "您完成了 {leftoverQuantity} 个以上的 {0}，超过了订购数量 {1}。您想如何处理这些额外的零件？"
+
+msgid "You don't have permission to edit this bill of material."
+msgstr "您没有编辑此物料清单的权限。"
 
 msgid "You drive it; we make sure it's done right. Expert eyes on your setup, data, and go-live."
 msgstr "你来主导；我们确保一切正确无误。我们的专家会审视你的设置、数据和上线过程。"

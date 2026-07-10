@@ -526,6 +526,68 @@ export const path = {
       generatePath(`${x}/items/methods/versions/activate/${id}`),
     activateGauge: (id: string) =>
       generatePath(`${x}/quality/gauges/activate/${id}`),
+    assemblyInstruction: (id: string) => generatePath(`${x}/assembly/${id}`),
+    assemblyInstructions: `${x}/production/assemblies`,
+    assemblyInstructionStatus: (id: string) =>
+      generatePath(`${x}/assembly/${id}/status`),
+    assemblyModelConvert: (id: string) =>
+      generatePath(`${x}/assembly/${id}/model/convert`),
+    assemblyPlanRerun: (id: string) =>
+      generatePath(`${x}/assembly/${id}/plan/rerun`),
+    deleteAssemblyInstruction: (id: string) =>
+      generatePath(`${x}/assembly/delete/${id}`),
+    newAssemblyInstruction: `${x}/production/assemblies/new`,
+    newAssemblyInstructionStep: (id: string) =>
+      generatePath(`${x}/assembly/${id}/steps/new`),
+    assemblyInstructionStep: (id: string, stepId: string) =>
+      generatePath(`${x}/assembly/${id}/steps/${stepId}`),
+    assemblyInstructionStepMotion: (id: string, stepId: string) =>
+      generatePath(`${x}/assembly/${id}/steps/motion/${stepId}`),
+    assemblyInstructionStepComponents: (id: string, stepId: string) =>
+      generatePath(`${x}/assembly/${id}/steps/components/${stepId}`),
+    deleteAssemblyInstructionStep: (id: string, stepId: string) =>
+      generatePath(`${x}/assembly/${id}/steps/delete/${stepId}`),
+    assemblyInstructionStepOrder: (id: string) =>
+      generatePath(`${x}/assembly/${id}/steps/order`),
+    assemblyInstructionStepStatus: (id: string, stepId: string) =>
+      generatePath(`${x}/assembly/${id}/steps/status/${stepId}`),
+    generateAssemblyInstructionSteps: (id: string) =>
+      generatePath(`${x}/assembly/${id}/steps/generate`),
+    newAssemblyStepRequirement: (id: string) =>
+      generatePath(`${x}/assembly/${id}/requirements/new`),
+    assemblyStepRequirement: (id: string, requirementId: string) =>
+      generatePath(`${x}/assembly/${id}/requirements/${requirementId}`),
+    deleteAssemblyStepRequirement: (id: string, requirementId: string) =>
+      generatePath(`${x}/assembly/${id}/requirements/delete/${requirementId}`),
+    assemblyStepRequirementOrder: (id: string) =>
+      generatePath(`${x}/assembly/${id}/requirements/order`),
+    newAssemblyStepMaterial: (id: string) =>
+      generatePath(`${x}/assembly/${id}/materials/new`),
+    assemblyStepMaterial: (id: string, materialId: string) =>
+      generatePath(`${x}/assembly/${id}/materials/${materialId}`),
+    deleteAssemblyStepMaterial: (id: string, materialId: string) =>
+      generatePath(`${x}/assembly/${id}/materials/delete/${materialId}`),
+    assemblyStepMaterialOrder: (id: string) =>
+      generatePath(`${x}/assembly/${id}/materials/order`),
+    newAssemblyUnit: (id: string) =>
+      generatePath(`${x}/assembly/${id}/units/new`),
+    updateAssemblyUnit: (id: string, unitId: string) =>
+      generatePath(`${x}/assembly/${id}/units/${unitId}`),
+    newAssemblyComponentMapping: (id: string) =>
+      generatePath(`${x}/assembly/${id}/component-mappings/new`),
+    deleteAssemblyComponentMapping: (id: string, mappingId: string) =>
+      generatePath(
+        `${x}/assembly/${id}/component-mappings/delete/${mappingId}`
+      ),
+    autoMatchAssemblyComponents: (id: string) =>
+      generatePath(`${x}/assembly/${id}/component-mappings/auto`),
+    deleteAssemblyUnit: (id: string, unitId: string) =>
+      generatePath(`${x}/assembly/${id}/units/delete/${unitId}`),
+    newAssemblyStandardNote: `${x}/assembly/standard-notes/new`,
+    assemblyStandardNote: (noteId: string) =>
+      generatePath(`${x}/assembly/standard-notes/${noteId}`),
+    deleteAssemblyStandardNote: (noteId: string) =>
+      generatePath(`${x}/assembly/standard-notes/delete/${noteId}`),
     attribute: (id: string) => generatePath(`${x}/people/attribute/${id}`),
     attributes: `${x}/people/attributes`,
     apiDocs: "https://docs.carbon.ms/api-reference",

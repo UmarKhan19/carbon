@@ -8,6 +8,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { Onshape } from "@carbon/ee";
 import { OnshapeClient } from "@carbon/ee/onshape";
+import { getLogger } from "@carbon/logger";
 import type { LoaderFunctionArgs } from "react-router";
 import { data, redirect } from "react-router";
 import { upsertCompanyIntegration } from "~/modules/settings/settings.server";
@@ -17,6 +18,8 @@ import { path } from "~/utils/path";
 export const config = {
   runtime: "nodejs"
 };
+
+const logger = getLogger("erp", "onshape", "oauth");
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { userId, companyId } = await requirePermissions(request, {
@@ -62,11 +65,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     });
 
     if (!tokenResponse.ok) {
-      console.error(
-        "Onshape token exchange failed:",
-        tokenResponse.status,
-        await tokenResponse.text()
-      );
+      logger.error("Onshape token exchange failed", {
+        status: tokenResponse.status,
+        body: await tokenResponse.text()
+      });
       return data(
         { error: "Failed to exchange code for token" },
         { status: 500 }
@@ -128,14 +130,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
       return redirect(redirectUrl);
     } else {
-      console.error({ createdIntegration });
+      logger.error("Failed to save Onshape integration", {
+        createdIntegration
+      });
       return data(
         { error: "Failed to save Onshape integration" },
         { status: 500 }
       );
     }
   } catch (err) {
-    console.error("Onshape OAuth Error:", err);
+    logger.error("Onshape OAuth Error", { error: err });
     return data(
       { error: "Failed to exchange code for token" },
       { status: 500 }

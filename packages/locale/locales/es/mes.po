@@ -767,6 +767,9 @@ msgstr "Anterior"
 msgid "Preventive"
 msgstr "Preventivo"
 
+msgid "Previous"
+msgstr "Anterior"
+
 msgid "Print"
 msgstr "Imprimir"
 

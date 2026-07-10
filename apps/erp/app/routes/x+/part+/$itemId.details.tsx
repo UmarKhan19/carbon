@@ -2,6 +2,7 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
+import { getLogger } from "@carbon/logger";
 import type { JSONContent } from "@carbon/react";
 import { HStack, Menubar, VStack } from "@carbon/react";
 import { useLingui } from "@lingui/react/macro";
@@ -53,6 +54,8 @@ import { getCustomFields, setCustomFields } from "~/utils/form";
 import { path } from "~/utils/path";
 import { configurableItemsQuery, getCompanyId } from "~/utils/react-query";
 
+const logger = getLogger("erp", "itemid-details");
+
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { client, companyId } = await requirePermissions(request, {
     view: "parts",
@@ -73,7 +76,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       // Part → CO traceability (4b): CO history for this part + type labels.
       getItemChangeOrderData(client, itemId, companyId)
     ]);
-  // const defaultAttachments = defaultAttachmentsResult.data ?? [];
   const revisionStatus = revisionLock.revisionStatus;
   const releaseControl = revisionLock.releaseControl;
 
@@ -180,7 +182,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
 
     if (validation.error) {
-      console.error(validation.error);
+      logger.error(validation.error);
       return validationError(validation.error);
     }
 

@@ -229,6 +229,86 @@ export function spawnApps(opts: {
     });
 }
 
+export function spawnGeometry(opts: {
+  root: string;
+  ports: PortMap;
+}): ExecaChildProcess | null {
+  const { root, ports } = opts;
+  const serviceDir = join(root, "services", "geometry");
+  const venvPython = join(serviceDir, ".venv", "bin", "python");
+
+  if (!existsSync(venvPython)) {
+    const prefix = pc.yellow(pc.bold("geo | "));
+    process.stderr.write(
+      `${prefix}${pc.dim("skipped — no .venv (run: cd services/geometry && python3 -m venv .venv && .venv/bin/pip install -e .)")}\n`
+    );
+    return null;
+  }
+
+  const color = pc.yellow;
+  const port = ports.PORT_GEOMETRY;
+
+  // Trust portless's self-signed CA so the service can fetch signed URLs
+  // from the local Supabase storage (served over HTTPS via portless).
+  const caPath = join(homedir(), ".portless", "ca.pem");
+  const caEnv = existsSync(caPath)
+    ? { SSL_CERT_FILE: caPath, REQUESTS_CA_BUNDLE: caPath }
+    : {};
+
+  const child = execa(
+    venvPython,
+    [
+      "-m",
+      "uvicorn",
+      "app.main:app",
+      "--port",
+      String(port),
+      "--host",
+      "127.0.0.1",
+      "--reload"
+    ],
+    {
+      cwd: serviceDir,
+      env: {
+        ...process.env,
+        ...caEnv,
+        GEOMETRY_SERVICE_API_KEY: "dev-local-key",
+        GEOMETRY_DEV_MODE: "true"
+      },
+      reject: false,
+      stdin: "ignore",
+      detached: true
+    }
+  );
+
+  const prefix = color(pc.bold("geo | "));
+  const pipe = (
+    stream: NodeJS.ReadableStream | null,
+    sink: NodeJS.WriteStream
+  ) => {
+    if (!stream) return;
+    readLines(stream, (line) => {
+      if (isNoiseLine(line)) return;
+      sink.write(`${prefix}${line}\n`);
+    });
+  };
+  pipe(child.stdout, process.stdout);
+  pipe(child.stderr, process.stderr);
+
+  onShutdown(() => {
+    if (child.exitCode !== null || !child.pid) return;
+    try {
+      process.kill(-child.pid, "SIGTERM");
+    } catch {
+      try {
+        child.kill("SIGTERM");
+      } catch {}
+    }
+  });
+
+  return child;
+}
+
 // Detached + reject:false so the caller owns the lifecycle: kill the whole
 // process group on teardown (apps mode) or `unref()` it to outlive crbn
 // (services-only mode). Previously fire-and-forget `.unref()`, which orphaned
