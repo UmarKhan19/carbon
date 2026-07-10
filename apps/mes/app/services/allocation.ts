@@ -45,7 +45,7 @@ function cmpNullable(
  */
 export function sortLotsByPickMethod<T extends SortableLot>(
   lots: T[],
-  sortMethod: PickMethodSortMethod | string
+  sortMethod: PickMethodSortMethod
 ): T[] {
   const sorted = [...lots];
   if (sortMethod === "FIFO") {

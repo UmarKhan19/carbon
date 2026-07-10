@@ -501,10 +501,15 @@ export function IssueMaterialModal({
 
   const addSerialNumber = useCallback(() => {
     setSelectedSerialNumbers((prev) => {
-      const newIndex = prev.length;
-      return [...prev, { index: newIndex, id: "" }];
+      // Pre-fill the new row with the next available serial (in picker order)
+      // not already chosen, skipping expired — a starting point, still editable.
+      const used = new Set(prev.map((s) => s.id).filter(Boolean));
+      const next = serialOptions.find(
+        (o) => !used.has(o.value) && !o.isExpired
+      );
+      return [...prev, { index: prev.length, id: next?.value ?? "" }];
     });
-  }, []);
+  }, [serialOptions]);
 
   const removeSerialNumber = useCallback((indexToRemove: number) => {
     setSelectedSerialNumbers((prev) => {
@@ -541,10 +546,18 @@ export function IssueMaterialModal({
 
   const addBatchNumber = useCallback(() => {
     setSelectedBatchNumbers((prev) => {
-      const newIndex = prev.length;
-      return [...prev, { index: newIndex, id: "", quantity: 1 }];
+      // Pre-fill the new row with the next available batch (in picker order)
+      // not already chosen, skipping expired — a starting point, still editable.
+      const used = new Set(prev.map((b) => b.id).filter(Boolean));
+      const next = batchOptions.find(
+        (o) => !used.has(o.value) && !o.isExpired
+      );
+      return [
+        ...prev,
+        { index: prev.length, id: next?.value ?? "", quantity: 1 }
+      ];
     });
-  }, []);
+  }, [batchOptions]);
 
   const removeBatchNumber = useCallback((indexToRemove: number) => {
     setSelectedBatchNumbers((prev) => {

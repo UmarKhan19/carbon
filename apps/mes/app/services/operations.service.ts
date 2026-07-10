@@ -261,7 +261,19 @@ async function returnAllocatedRemaindersAtJobComplete(
     );
   });
 
-  await Promise.all(returns);
+  // `functions.invoke` resolves to `{ data, error }` rather than rejecting, so a
+  // failed return never surfaces through Promise.all — inspect each result and log
+  // it, otherwise a stranded lineside remainder is lost silently.
+  const results = await Promise.all(returns);
+  for (const { error } of results) {
+    if (error) {
+      log.error("returnPickedRemainder failed at job complete", {
+        error,
+        jobId,
+        companyId: args.companyId
+      });
+    }
+  }
 }
 
 export async function getActiveJobOperationsByEmployee(
