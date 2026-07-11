@@ -1,0 +1,437 @@
+import type { Kysely, KyselyDatabase, KyselyTx } from "@carbon/database/client";
+import type z from "zod";
+import type { ExternalIntegrationMapping } from "./external-mapping";
+import { createMappingService } from "./external-mapping";
+import type {
+  ProviderChartAccountSchema,
+  UpsertAccountMappingSchema
+} from "./models";
+
+/**
+ * Account-mapping service: thin wrappers over
+ * ExternalIntegrationMappingService with entityType = "account", linking
+ * Carbon GL accounts to the provider's chart of accounts.
+ *
+ * The Carbon side of a mapping is always account.id — never the account
+ * number. account.number is only ever compared against the provider-side
+ * code in matchAccountsByCode (external-code matching is the documented
+ * legitimate use of numbers).
+ */
+
+export const ACCOUNT_MAPPING_ENTITY_TYPE = "account";
+
+export type ProviderChartAccount = z.infer<typeof ProviderChartAccountSchema>;
+export type UpsertAccountMappingInput = z.infer<
+  typeof UpsertAccountMappingSchema
+>;
+
+type Db = Kysely<KyselyDatabase> | KyselyTx;
+
+/**
+ * An account mapping row joined with the Carbon account for display.
+ * accountNumber/accountName are null when the mapped account no longer
+ * exists (or has no number).
+ */
+export interface AccountMapping {
+  id: string;
+  accountId: string;
+  accountNumber: string | null;
+  accountName: string | null;
+  externalId: string | null;
+  externalCode: string | null;
+  externalName: string | null;
+  lastSyncedAt: string | null;
+  metadata: Record<string, unknown> | null;
+}
+
+/**
+ * A Carbon account referenced by posting configuration or journal history
+ * that has no mapping for the integration yet.
+ */
+export interface UnmappedPostingAccount {
+  id: string;
+  number: string | null;
+  name: string;
+}
+
+/**
+ * A proposed (not written) match between a Carbon account and a provider
+ * account. The UI confirms proposals and calls upsertAccountMapping.
+ */
+export interface AccountMatchProposal {
+  accountId: string;
+  accountNumber: string;
+  accountName: string;
+  externalId: string;
+  externalCode: string;
+  externalName: string | null;
+}
+
+function toErrorMessage(err: unknown): string {
+  return err instanceof Error ? err.message : String(err);
+}
+
+async function getCompanyGroupId(
+  db: Db,
+  companyId: string
+): Promise<string | null> {
+  const company = await db
+    .selectFrom("company")
+    .select("companyGroupId")
+    .where("id", "=", companyId)
+    .executeTakeFirst();
+
+  return company?.companyGroupId ?? null;
+}
+
+/**
+ * Every account reference on the accountDefault row lives in a column
+ * ending in "Account" (or "AccountId" for the deferred-tax pair), and since
+ * the chart-of-accounts reset every one of them stores an account.id FK.
+ * Collects the distinct non-empty ids; robust to future column additions.
+ */
+export function collectAccountDefaultAccountIds(
+  row: Record<string, unknown> | null | undefined
+): string[] {
+  if (!row) return [];
+
+  const ids = new Set<string>();
+  for (const [column, value] of Object.entries(row)) {
+    if (!/Account(Id)?$/.test(column)) continue;
+    if (typeof value === "string" && value.length > 0) ids.add(value);
+  }
+
+  return [...ids];
+}
+
+/**
+ * Union of posting-relevant account ids (accountDefault columns + accounts
+ * used on journal lines), minus already-mapped ids, deduped. Pure merge
+ * logic for getUnmappedPostingAccounts.
+ */
+export function mergeUnmappedAccountIds(args: {
+  accountDefaultRow: Record<string, unknown> | null | undefined;
+  journalLineAccountIds: Array<string | null | undefined>;
+  mappedAccountIds: Iterable<string>;
+}): string[] {
+  const mapped = new Set(args.mappedAccountIds);
+  const unmapped = new Set<string>();
+
+  for (const id of collectAccountDefaultAccountIds(args.accountDefaultRow)) {
+    if (!mapped.has(id)) unmapped.add(id);
+  }
+
+  for (const id of args.journalLineAccountIds) {
+    if (id && !mapped.has(id)) unmapped.add(id);
+  }
+
+  return [...unmapped];
+}
+
+/**
+ * Shape the display-only provider fields into mapping metadata. Returns
+ * undefined when neither field is provided so the mapping stores null.
+ */
+export function buildAccountMappingMetadata(args: {
+  externalCode?: string;
+  externalName?: string;
+}): Record<string, unknown> | undefined {
+  const metadata: Record<string, unknown> = {};
+  if (args.externalCode) metadata.externalCode = args.externalCode;
+  if (args.externalName) metadata.externalName = args.externalName;
+
+  return Object.keys(metadata).length > 0 ? metadata : undefined;
+}
+
+/**
+ * Safely read the display fields back out of stored mapping metadata.
+ */
+export function getAccountMappingDisplayMetadata(metadata: unknown): {
+  externalCode: string | null;
+  externalName: string | null;
+} {
+  if (
+    typeof metadata !== "object" ||
+    metadata === null ||
+    Array.isArray(metadata)
+  ) {
+    return { externalCode: null, externalName: null };
+  }
+
+  const { externalCode, externalName } = metadata as Record<string, unknown>;
+  return {
+    externalCode: typeof externalCode === "string" ? externalCode : null,
+    externalName: typeof externalName === "string" ? externalName : null
+  };
+}
+
+/**
+ * Propose matches where Carbon account.number equals the provider account
+ * code exactly (no trimming, no case folding). Ambiguous candidates are
+ * skipped: duplicate Carbon numbers, duplicate provider codes, accounts
+ * already mapped, and provider accounts already used by a mapping.
+ */
+export function proposeAccountMatchesByCode(args: {
+  accounts: Array<{ id: string; number: string | null; name: string }>;
+  providerAccounts: ProviderChartAccount[];
+  mappedAccountIds?: Iterable<string>;
+  mappedExternalIds?: Iterable<string>;
+}): AccountMatchProposal[] {
+  const mappedAccountIds = new Set(args.mappedAccountIds ?? []);
+  const mappedExternalIds = new Set(args.mappedExternalIds ?? []);
+
+  const providerByCode = new Map<string, ProviderChartAccount>();
+  const ambiguousCodes = new Set<string>();
+  for (const providerAccount of args.providerAccounts) {
+    const code = providerAccount.code;
+    if (!code) continue;
+    if (providerByCode.has(code)) {
+      ambiguousCodes.add(code);
+      continue;
+    }
+    providerByCode.set(code, providerAccount);
+  }
+
+  const numberCounts = new Map<string, number>();
+  for (const account of args.accounts) {
+    if (!account.number) continue;
+    numberCounts.set(
+      account.number,
+      (numberCounts.get(account.number) ?? 0) + 1
+    );
+  }
+
+  const proposals: AccountMatchProposal[] = [];
+  for (const account of args.accounts) {
+    if (!account.number) continue;
+    if (mappedAccountIds.has(account.id)) continue;
+    if ((numberCounts.get(account.number) ?? 0) > 1) continue;
+    if (ambiguousCodes.has(account.number)) continue;
+
+    const providerAccount = providerByCode.get(account.number);
+    if (!providerAccount) continue;
+    if (mappedExternalIds.has(providerAccount.id)) continue;
+
+    proposals.push({
+      accountId: account.id,
+      accountNumber: account.number,
+      accountName: account.name,
+      externalId: providerAccount.id,
+      externalCode: providerAccount.code ?? account.number,
+      externalName: providerAccount.name ?? null
+    });
+  }
+
+  return proposals;
+}
+
+/**
+ * Get all account mappings for an integration, joined with the Carbon
+ * account (id, number, name) for display, ordered by account number.
+ */
+export async function getAccountMappings(
+  db: Db,
+  args: { companyId: string; integration: string }
+): Promise<{ data: AccountMapping[] | null; error: string | null }> {
+  try {
+    const rows = await db
+      .selectFrom("externalIntegrationMapping as m")
+      .leftJoin("account as a", "a.id", "m.entityId")
+      .select([
+        "m.id",
+        "m.entityId as accountId",
+        "m.externalId",
+        "m.metadata",
+        "m.lastSyncedAt",
+        "a.number as accountNumber",
+        "a.name as accountName"
+      ])
+      .where("m.entityType", "=", ACCOUNT_MAPPING_ENTITY_TYPE)
+      .where("m.integration", "=", args.integration)
+      .where("m.companyId", "=", args.companyId)
+      .orderBy("accountNumber", "asc")
+      .execute();
+
+    const data = rows.map((row) => {
+      const display = getAccountMappingDisplayMetadata(row.metadata);
+      return {
+        id: row.id,
+        accountId: row.accountId,
+        accountNumber: row.accountNumber ?? null,
+        accountName: row.accountName ?? null,
+        externalId: row.externalId ?? null,
+        externalCode: display.externalCode,
+        externalName: display.externalName,
+        lastSyncedAt: (row.lastSyncedAt as string | null) ?? null,
+        metadata: (row.metadata as Record<string, unknown> | null) ?? null
+      };
+    });
+
+    return { data, error: null };
+  } catch (err) {
+    return { data: null, error: toErrorMessage(err) };
+  }
+}
+
+/**
+ * Upsert an account mapping (Carbon account.id → provider account id).
+ * externalCode/externalName go into the mapping metadata for display.
+ * Consolidation is a legitimate many-to-one: several Carbon detail
+ * accounts may map to a single provider account, so duplicate external
+ * ids are allowed.
+ */
+export async function upsertAccountMapping(
+  db: Db,
+  args: UpsertAccountMappingInput
+): Promise<{ data: ExternalIntegrationMapping | null; error: string | null }> {
+  try {
+    const mappingService = createMappingService(db, args.companyId);
+
+    await mappingService.link(
+      ACCOUNT_MAPPING_ENTITY_TYPE,
+      args.accountId,
+      args.integration,
+      args.externalId,
+      {
+        metadata: buildAccountMappingMetadata(args),
+        createdBy: args.userId,
+        allowDuplicateExternalId: true
+      }
+    );
+
+    const data = await mappingService.getByEntity(
+      ACCOUNT_MAPPING_ENTITY_TYPE,
+      args.accountId,
+      args.integration
+    );
+
+    return { data, error: null };
+  } catch (err) {
+    return { data: null, error: toErrorMessage(err) };
+  }
+}
+
+/**
+ * Carbon accounts that posting can hit but that have no mapping yet:
+ * accounts referenced by accountDefault columns plus accounts used on at
+ * least one journalLine, minus already-mapped ids, minus group headers.
+ *
+ * Gathered with three scoped queries and merged in TypeScript. (The plan's
+ * third source — itemPostingGroup account columns — no longer exists: the
+ * posting-group matrix was dropped in 20260229000000_drop-posting-groups
+ * and itemPostingGroup carries no account columns.)
+ */
+export async function getUnmappedPostingAccounts(
+  db: Db,
+  args: { companyId: string; integration: string }
+): Promise<{ data: UnmappedPostingAccount[] | null; error: string | null }> {
+  try {
+    const accountDefaultRow = await db
+      .selectFrom("accountDefault")
+      .selectAll()
+      .where("companyId", "=", args.companyId)
+      .executeTakeFirst();
+
+    const journalLineRows = await db
+      .selectFrom("journalLine")
+      .select("accountId")
+      .distinct()
+      .where("companyId", "=", args.companyId)
+      .where("accountId", "is not", null)
+      .execute();
+
+    const mappedRows = await db
+      .selectFrom("externalIntegrationMapping")
+      .select("entityId")
+      .where("entityType", "=", ACCOUNT_MAPPING_ENTITY_TYPE)
+      .where("integration", "=", args.integration)
+      .where("companyId", "=", args.companyId)
+      .execute();
+
+    const unmappedIds = mergeUnmappedAccountIds({
+      accountDefaultRow: accountDefaultRow ? { ...accountDefaultRow } : null,
+      journalLineAccountIds: journalLineRows.map((row) => row.accountId),
+      mappedAccountIds: mappedRows.map((row) => row.entityId)
+    });
+
+    if (unmappedIds.length === 0) {
+      return { data: [], error: null };
+    }
+
+    const companyGroupId = await getCompanyGroupId(db, args.companyId);
+    if (!companyGroupId) {
+      return {
+        data: null,
+        error: `No company group found for company ${args.companyId}`
+      };
+    }
+
+    const accounts = await db
+      .selectFrom("account")
+      .select(["id", "number", "name"])
+      .where("companyGroupId", "=", companyGroupId)
+      .where("isGroup", "=", false)
+      .where("id", "in", unmappedIds)
+      .orderBy("number", "asc")
+      .execute();
+
+    return { data: accounts, error: null };
+  } catch (err) {
+    return { data: null, error: toErrorMessage(err) };
+  }
+}
+
+/**
+ * Propose (not write) exact matches between Carbon account numbers and the
+ * provider's chart-of-accounts codes. Only active, non-group, numbered
+ * accounts without an existing mapping are considered; the UI confirms
+ * each proposal and calls upsertAccountMapping.
+ */
+export async function matchAccountsByCode(
+  db: Db,
+  args: {
+    companyId: string;
+    integration: string;
+    providerAccounts: ProviderChartAccount[];
+  }
+): Promise<{ data: AccountMatchProposal[] | null; error: string | null }> {
+  try {
+    const companyGroupId = await getCompanyGroupId(db, args.companyId);
+    if (!companyGroupId) {
+      return {
+        data: null,
+        error: `No company group found for company ${args.companyId}`
+      };
+    }
+
+    const accounts = await db
+      .selectFrom("account")
+      .select(["id", "number", "name"])
+      .where("companyGroupId", "=", companyGroupId)
+      .where("isGroup", "=", false)
+      .where("active", "=", true)
+      .where("number", "is not", null)
+      .execute();
+
+    const mappings = await db
+      .selectFrom("externalIntegrationMapping")
+      .select(["entityId", "externalId"])
+      .where("entityType", "=", ACCOUNT_MAPPING_ENTITY_TYPE)
+      .where("integration", "=", args.integration)
+      .where("companyId", "=", args.companyId)
+      .execute();
+
+    const data = proposeAccountMatchesByCode({
+      accounts,
+      providerAccounts: args.providerAccounts,
+      mappedAccountIds: mappings.map((mapping) => mapping.entityId),
+      mappedExternalIds: mappings
+        .map((mapping) => mapping.externalId)
+        .filter((externalId): externalId is string => externalId !== null)
+    });
+
+    return { data, error: null };
+  } catch (err) {
+    return { data: null, error: toErrorMessage(err) };
+  }
+}

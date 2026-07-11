@@ -338,6 +338,11 @@ export namespace Xero {
     FinancialYearEndMonth: z.number().optional(),
     DefaultSalesTax: z.string().optional(),
     DefaultPurchasesTax: z.string().optional(),
+    // Lock dates (serialized /Date(...)/): transactions dated on or before
+    // these are locked. PeriodLockDate stops non-advisors; EndOfYearLockDate
+    // stops everyone. Posting sync treats the max of both as THE lock date.
+    PeriodLockDate: z.string().optional(),
+    EndOfYearLockDate: z.string().optional(),
     ShortCode: z.string().optional(),
     Edition: z.string().optional(),
     Class: z.string().optional(),

@@ -424,7 +424,7 @@ export function createOAuthClient({
   const basicAuth = btoa(`${clientId}:${clientSecret}`);
   const http = new HTTPClient();
 
-  let creds: ProviderCredentials = {
+  let creds: Extract<ProviderCredentials, { type: "oauth2" }> = {
     type: "oauth2",
     accessToken: options.accessToken!,
     refreshToken: options.refreshToken!
@@ -504,7 +504,7 @@ export function createOAuthClient({
         expiresAt: new Date(
           Date.now() + response.data.expires_in * 1000
         ).toISOString(),
-        tenantId: creds?.tenantId
+        providerMetadata: creds?.providerMetadata
       } satisfies ProviderCredentials;
 
       creds = {

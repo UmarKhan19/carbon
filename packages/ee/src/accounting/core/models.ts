@@ -11,8 +11,8 @@ function withNullable<T extends z.ZodTypeAny>(schema: T) {
 }
 
 export enum ProviderID {
-  XERO = "xero"
-  // QUICKBOOKS = "quickbooks"
+  XERO = "xero",
+  QUICKBOOKS = "quickbooks"
   // SAGE = "sage",
 }
 
@@ -27,10 +27,76 @@ export const ProviderCredentialsSchema = z.discriminatedUnion("type", [
     refreshToken: z.string().optional(),
     expiresAt: z.string().datetime().optional(),
     scope: z.array(z.string()).optional(),
-    tenantId: z.string().optional(),
-    tenantName: z.string().optional()
+    providerMetadata: z.record(z.string(), z.unknown()).optional() // xero: { tenantId, tenantName }; qbo: { realmId }
+  }),
+  z.object({
+    type: z.literal("webConnector"),
+    username: z.string(),
+    passwordHash: z.string(),
+    ownerId: z.string(), // GUID in the generated .QWC
+    fileId: z.string().optional(), // stamped on first connect
+    qbxmlVersion: z.string().optional()
+  }),
+  z.object({
+    type: z.literal("bridge"),
+    vendor: z.string(), // e.g. "conductor"
+    externalConnectionId: z.string() // e.g. Conductor end-user id
   })
 ]);
+
+/**
+ * Legacy stored oauth2 credentials kept provider-specific fields
+ * (`tenantId`/`tenantName`) at the top level. Fold them into
+ * `providerMetadata` before parsing — zod strips unknown keys, so parsing
+ * the flat shape directly against the union would silently drop the tenant.
+ */
+function normalizeStoredCredentials(raw: unknown): unknown {
+  if (
+    typeof raw !== "object" ||
+    raw === null ||
+    (raw as Record<string, unknown>).type !== "oauth2" ||
+    (!("tenantId" in raw) && !("tenantName" in raw))
+  ) {
+    return raw;
+  }
+
+  const { tenantId, tenantName, providerMetadata, ...rest } = raw as Record<
+    string,
+    unknown
+  >;
+
+  return {
+    ...rest,
+    providerMetadata: {
+      ...(tenantId !== undefined ? { tenantId } : {}),
+      ...(tenantName !== undefined ? { tenantName } : {}),
+      ...(typeof providerMetadata === "object" && providerMetadata !== null
+        ? providerMetadata
+        : {})
+    }
+  };
+}
+
+/**
+ * Credentials as they are stored on `companyIntegration.metadata` — reads the
+ * new discriminated union, transparently upgrading the legacy flat oauth2
+ * shape. Writes always use the new shape.
+ */
+export const StoredProviderCredentialsSchema = z.preprocess(
+  normalizeStoredCredentials,
+  ProviderCredentialsSchema
+);
+
+/**
+ * Parse credentials read from storage. Accepts the new union and the legacy
+ * flat oauth2 shape (mapped into `providerMetadata`). Throws if neither
+ * parses.
+ */
+export function parseStoredCredentials(
+  raw: unknown
+): z.output<typeof ProviderCredentialsSchema> {
+  return StoredProviderCredentialsSchema.parse(raw);
+}
 
 /**
  * Direction of data flow.
@@ -117,6 +183,11 @@ export const ENTITY_DEFINITIONS: Record<
     type: "transaction",
     dependsOn: ["item"],
     supportedDirections: ["push-to-accounting"]
+  },
+  journalEntry: {
+    label: "Journal Entries",
+    type: "transaction",
+    supportedDirections: ["push-to-accounting"]
   }
 };
 
@@ -158,9 +229,79 @@ export const DEFAULT_SYNC_CONFIG: GlobalSyncConfig = {
       enabled: false,
       direction: "push-to-accounting",
       owner: "carbon"
+    },
+    journalEntry: {
+      enabled: false, // posting sync is opt-in per company
+      direction: "push-to-accounting",
+      owner: "carbon"
     }
   }
 };
+
+// /********************************************************\
+// *              Posting Sync (journalEntry)               *
+// \********************************************************/
+
+/**
+ * journal.sourceType values pushed to the accounting provider by default
+ * (inventory-economics postings — the provider has no document for these).
+ * Values mirror the "journalEntrySourceType" Postgres enum; the spec's
+ * candidates "Inbound Transfer", "Outbound Transfer" and "Inventory Count"
+ * do not exist in that enum and are deliberately absent.
+ */
+export const POSTING_SYNC_DEFAULT_SOURCE_TYPES = [
+  "Purchase Receipt",
+  "Sales Shipment",
+  "Transfer Receipt",
+  "Inventory Adjustment",
+  "Production Order",
+  "Production Event",
+  "Job Consumption",
+  "Job Receipt",
+  "Job Close",
+  "Asset Depreciation",
+  "Asset Disposal"
+] as const;
+
+/**
+ * journal.sourceType values that are NEVER pushed as journals: their
+ * financial representation is the synced document (invoice/bill/payment
+ * syncers) — pushing the journal too would double-post in the provider.
+ * ("Opening Balance" from the spec's candidates does not exist in the
+ * "journalEntrySourceType" enum and is deliberately absent.)
+ *
+ * "Manual" is in neither list: manual journals push only when the
+ * company's posting-sync settings enable `includeManual`.
+ */
+export const POSTING_SYNC_EXCLUDED_SOURCE_TYPES = [
+  "Sales Invoice",
+  "Purchase Invoice",
+  "Payment",
+  "Credit Memo",
+  "Debit Memo",
+  "Sales Return",
+  "Purchase Return"
+] as const;
+
+/**
+ * Per-company posting-sync settings fragment stored at
+ * `companyIntegration.metadata.settings.postingSync`. Resolved with
+ * `resolvePostingSyncSettings` (core/posting.ts) — never parsed directly
+ * from storage, and a bad stored fragment must never break sync.
+ */
+export const PostingSyncSettingsSchema = z.object({
+  enabled: z.boolean().default(false),
+  /** Overrides POSTING_SYNC_DEFAULT_SOURCE_TYPES when present. Excluded source types stay excluded regardless. */
+  sourceTypes: z.array(z.string()).optional(),
+  /** Manual journals are off by default (per-company toggle). */
+  includeManual: z.boolean().default(false),
+  /** Individual = one provider journal per Carbon journal; daily = one aggregated journal per posting date (cron). */
+  consolidation: z.enum(["individual", "daily"]).default("individual"),
+  /** park = journals dated in a locked period land Warning; redate = push at lock date + 1 with the original date in the narration. */
+  periodLockPolicy: z.enum(["park", "redate"]).default("park"),
+  /** Manually captured provider lock date (YYYY-MM-DD) — required for providers whose API cannot report it (QBO); merged with the provider-reported lock date when both exist. */
+  lockDate: z.string().optional()
+});
 
 // ============================================================================
 // 4. VALIDATION LOGIC
@@ -226,7 +367,8 @@ export const SyncConfigSchema = z
         salesOrder: createEntityConfigSchema().optional(),
         invoice: createEntityConfigSchema().optional(),
         payment: createEntityConfigSchema().optional(),
-        inventoryAdjustment: createEntityConfigSchema().optional()
+        inventoryAdjustment: createEntityConfigSchema().optional(),
+        journalEntry: createEntityConfigSchema().optional()
       })
       .optional()
   })
@@ -234,11 +376,129 @@ export const SyncConfigSchema = z
 
 export const ProviderIntegrationMetadataSchema = z.object({
   syncConfig: SyncConfigSchema.optional(),
-  credentials: ProviderCredentialsSchema.optional(),
+  credentials: StoredProviderCredentialsSchema.optional(),
+  // Per-company integration settings (e.g. settings.postingSync). Kept as a
+  // permissive record so parsing never strips or rewrites stored keys —
+  // fragments are validated where they are consumed (resolvePostingSyncSettings)
+  settings: z.record(z.string(), z.unknown()).optional(),
   // Integration-specific settings (e.g., default account codes for Xero)
   // These are stored at the top level of metadata and passed through to the provider
   defaultSalesAccountCode: z.string().optional(),
   defaultPurchaseAccountCode: z.string().optional()
+});
+
+// /********************************************************\
+// *              Sync Operation Schemas                    *
+// \********************************************************/
+
+/**
+ * Status lifecycle of a sync operation (matches the "syncOperationStatus"
+ * Postgres enum): Pending → In Flight → Completed | Failed | Warning |
+ * Skipped.
+ */
+export const SyncOperationStatusSchema = z.enum([
+  "Pending",
+  "In Flight",
+  "Completed",
+  "Failed",
+  "Warning",
+  "Skipped"
+]);
+
+export const SyncOperationDirectionSchema = z.enum([
+  "push-to-accounting",
+  "pull-from-accounting"
+]);
+
+export const SyncOperationTriggerSchema = z.enum([
+  "event",
+  "webhook",
+  "backfill",
+  "manual",
+  "posting",
+  "retry"
+]);
+
+/**
+ * A row of the "accountingSyncOperation" ledger: one attempted sync of one
+ * entity in one direction.
+ */
+export const SyncOperationSchema = z.object({
+  id: z.string(),
+  companyId: z.string(),
+  integration: z.string(),
+  entityType: z.string(),
+  entityId: z.string(),
+  direction: SyncOperationDirectionSchema,
+  trigger: SyncOperationTriggerSchema,
+  status: SyncOperationStatusSchema,
+  idempotencyKey: z.string(),
+  attemptCount: z.number().int(),
+  lastAttemptAt: z.string().nullable(),
+  completedAt: z.string().nullable(),
+  errorCode: z.string().nullable(),
+  errorMessage: z.string().nullable(),
+  externalId: z.string().nullable(),
+  metadata: z.record(z.any()).nullable(),
+  createdBy: z.string(),
+  createdAt: z.string(),
+  updatedBy: z.string().nullable(),
+  updatedAt: z.string().nullable()
+});
+
+/**
+ * UI-driven status transitions: Retry (Failed/Warning → Pending), Skip
+ * (Failed/Warning/Pending → Skipped), Re-send (Completed → Pending).
+ * Everything else is invalid.
+ */
+export const SYNC_OPERATION_ALLOWED_TRANSITIONS: Record<
+  z.infer<typeof SyncOperationStatusSchema>,
+  ReadonlyArray<z.infer<typeof SyncOperationStatusSchema>>
+> = {
+  Pending: ["Skipped"],
+  "In Flight": [],
+  Completed: ["Pending"],
+  Failed: ["Pending", "Skipped"],
+  Warning: ["Pending", "Skipped"],
+  Skipped: []
+};
+
+export const SyncOperationTransitionSchema = z.object({
+  id: z.string(),
+  companyId: z.string(),
+  to: SyncOperationStatusSchema,
+  userId: z.string()
+});
+
+// /********************************************************\
+// *               Account Mapping Schemas                  *
+// \********************************************************/
+
+/**
+ * An account in the provider's chart of accounts as fetched from the
+ * provider API (e.g. Xero GET /Accounts). `code` is the provider-side
+ * account code that matchAccountsByCode compares against Carbon
+ * `account.number`.
+ */
+export const ProviderChartAccountSchema = z.object({
+  id: z.string(),
+  code: z.string().nullish(),
+  name: z.string().nullish()
+});
+
+/**
+ * Payload for upserting an account mapping (Carbon account.id → provider
+ * account id). externalCode/externalName are stored in the mapping
+ * metadata for display only — the mapping itself is by id on both sides.
+ */
+export const UpsertAccountMappingSchema = z.object({
+  companyId: z.string(),
+  integration: z.string(),
+  accountId: z.string(),
+  externalId: z.string(),
+  externalCode: z.string().optional(),
+  externalName: z.string().optional(),
+  userId: z.string()
 });
 
 // /********************************************************\
@@ -404,6 +664,8 @@ export const BillLineSchema = z.object({
   unitPrice: z.number(),
   itemId: withNullable(z.string()),
   itemCode: withNullable(z.string()),
+  /** Carbon account.id FK — needed by providers that resolve G/L lines through the account-mapping service (QBO AccountRef). */
+  accountId: withNullable(z.string()),
   accountNumber: withNullable(z.string()),
   taxPercent: withNullable(z.number()),
   taxAmount: withNullable(z.number()),
@@ -452,6 +714,8 @@ export const PurchaseOrderLineSchema = z.object({
   unitPrice: z.number(),
   itemId: withNullable(z.string()),
   itemCode: withNullable(z.string()),
+  /** Carbon account.id FK — needed by providers that resolve G/L lines through the account-mapping service (QBO AccountRef). */
+  accountId: withNullable(z.string()),
   accountNumber: withNullable(z.string()),
   taxPercent: withNullable(z.number()),
   taxAmount: withNullable(z.number()),
@@ -503,7 +767,17 @@ export const ItemSchema = z.object({
   name: z.string(),
   description: withNullable(z.string()),
   companyId: z.string(),
-  type: z.enum(["Part", "Material", "Tool", "Consumable", "Fixture"]),
+  // Mirrors the "itemType" Postgres enum. "Service" distinguishes service
+  // items for providers whose item objects are typed (QBO Service vs
+  // NonInventory).
+  type: z.enum([
+    "Part",
+    "Material",
+    "Tool",
+    "Service",
+    "Consumable",
+    "Fixture"
+  ]),
   unitOfMeasureCode: withNullable(z.string()),
   unitCost: z.number(),
   unitSalePrice: z.number(),
@@ -531,5 +805,40 @@ export const InventoryAdjustmentSchema = z.object({
   inventoryAccount: z.string(), // GL account code from accountDefault
   adjustmentVarianceAccount: z.string(), // GL account code from accountDefault
   updatedAt: z.string().datetime(),
+  raw: z.record(z.any()).optional()
+});
+
+// ============================================================================
+// JOURNAL ENTRY (posting sync — journal + journalLine, push-only)
+// ============================================================================
+
+export const JournalEntryLineSchema = z.object({
+  id: z.string(),
+  accountId: withNullable(z.string()),
+  /** Signed: positive = debit, negative = credit. */
+  amount: z.number(),
+  description: withNullable(z.string())
+});
+
+export const JournalEntrySchema = z.object({
+  /** journal.id (Carbon internal id). */
+  id: z.string(),
+  companyId: z.string(),
+  /** Human-readable journal entry number (journal.journalEntryId). */
+  journalEntryId: z.string(),
+  description: withNullable(z.string()),
+  postingDate: z.string(), // YYYY-MM-DD
+  status: z.enum(["Draft", "Posted", "Reversed"]),
+  sourceType: withNullable(z.string()), // journalEntrySourceType enum value
+  reversalOfId: withNullable(z.string()),
+  reversedById: withNullable(z.string()),
+  /**
+   * True when this fetch is a reversal push (entity id carried the
+   * ":reversal" suffix): the syncer pushes negated line amounts for the
+   * original journal instead of the journal itself.
+   */
+  reversal: z.boolean(),
+  lines: z.array(JournalEntryLineSchema),
+  updatedAt: z.string(),
   raw: z.record(z.any()).optional()
 });

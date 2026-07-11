@@ -15,6 +15,8 @@ import type {
   EmployeeSchema,
   InventoryAdjustmentSchema,
   ItemSchema,
+  JournalEntryLineSchema,
+  JournalEntrySchema,
   ProviderCredentialsSchema,
   ProviderID,
   ProviderIntegrationMetadataSchema,
@@ -24,7 +26,11 @@ import type {
   SalesInvoiceSchema,
   SalesOrderLineSchema,
   SalesOrderSchema,
-  SyncDirectionSchema
+  SyncDirectionSchema,
+  SyncOperationDirectionSchema,
+  SyncOperationSchema,
+  SyncOperationStatusSchema,
+  SyncOperationTriggerSchema
 } from "./models";
 import { AccountingApiError, withTriggersDisabled } from "./utils";
 
@@ -61,8 +67,29 @@ export type ProviderConfig<T = unknown> = {
   onTokenRefresh?: OAuthClientOptions["onTokenRefresh"];
 } & T;
 
+/**
+ * Static description of how a provider communicates and what it supports.
+ * Informational for now — nothing reads it yet (the jobs drain does not
+ * branch on it); it exists so providers self-describe as they are added.
+ */
+export interface ProviderCapabilities {
+  /** How the provider is reached. */
+  transport: "rest" | "webConnector" | "bridge";
+  /** Whether the provider can push change notifications to Carbon. */
+  supportsWebhooks: boolean;
+  /** Whether Carbon journals can be pushed as provider journal entries. */
+  supportsJournalPush: boolean;
+}
+
 export abstract class BaseProvider {
   static id: ProviderID;
+
+  /**
+   * Optional capability declaration. When absent, callers should assume a
+   * REST provider (`transport: "rest"`) — the default for all providers
+   * that predate this field (e.g. Xero).
+   */
+  readonly capabilities?: ProviderCapabilities;
 
   protected creds?: ProviderCredentials;
   public auth!: AuthProvider;
@@ -86,6 +113,13 @@ export abstract class BaseProvider {
 
 export type SyncDirection = z.infer<typeof SyncDirectionSchema>;
 
+export type SyncOperation = z.infer<typeof SyncOperationSchema>;
+export type SyncOperationStatus = z.infer<typeof SyncOperationStatusSchema>;
+export type SyncOperationDirection = z.infer<
+  typeof SyncOperationDirectionSchema
+>;
+export type SyncOperationTrigger = z.infer<typeof SyncOperationTriggerSchema>;
+
 /**
  * Defines which system owns the data integrity.
  * - 'carbon': Carbon data overwrites Accounting data.
@@ -108,7 +142,8 @@ export type AccountingEntityType =
   | "salesOrder"
   | "invoice"
   | "payment"
-  | "inventoryAdjustment";
+  | "inventoryAdjustment"
+  | "journalEntry";
 
 export interface EntityConfig {
   /** Is this entity sync active? */
@@ -1003,6 +1038,8 @@ export namespace Accounting {
   export type InventoryAdjustment = z.infer<typeof InventoryAdjustmentSchema>;
   export type SalesOrder = z.infer<typeof SalesOrderSchema>;
   export type SalesOrderLine = z.infer<typeof SalesOrderLineSchema>;
+  export type JournalEntry = z.infer<typeof JournalEntrySchema>;
+  export type JournalEntryLine = z.infer<typeof JournalEntryLineSchema>;
 }
 
 export interface RequestContext {

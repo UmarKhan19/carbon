@@ -10,7 +10,8 @@ import type {
 import {
   createOAuthClient,
   HTTPClient,
-  type HttpResponse
+  type HttpResponse,
+  throwXeroApiError
 } from "../../core/utils";
 import type { Xero } from "./models";
 
@@ -41,6 +42,42 @@ export interface ListItemsResponse {
 export interface XeroSettings {
   defaultSalesAccountCode?: string;
   defaultPurchaseAccountCode?: string;
+}
+
+function getOAuth2Credentials(
+  credentials: ProviderCredentials
+): Extract<ProviderCredentials, { type: "oauth2" }> {
+  if (credentials.type !== "oauth2") {
+    throw new Error(
+      `Xero requires oauth2 credentials, received "${credentials.type}"`
+    );
+  }
+  return credentials;
+}
+
+/**
+ * Xero stores its tenant under `providerMetadata.tenantId`. Throws when the
+ * tenant is missing — every Xero API call requires the `xero-tenant-id`
+ * header, and a descriptive error beats an opaque Xero 401/403.
+ */
+function getXeroTenantId(
+  credentials: ProviderCredentials,
+  fallbackTenantId?: string
+): string {
+  const { providerMetadata } = getOAuth2Credentials(credentials);
+  const metadataTenantId = providerMetadata?.tenantId;
+  const tenantId =
+    typeof metadataTenantId === "string" && metadataTenantId.length > 0
+      ? metadataTenantId
+      : fallbackTenantId;
+
+  if (!tenantId) {
+    throw new Error(
+      "Xero credentials are missing tenantId (providerMetadata.tenantId). Reconnect the Xero integration to select an organisation."
+    );
+  }
+
+  return tenantId;
 }
 
 type XeroProviderConfig = ProviderConfig<{
@@ -119,20 +156,17 @@ export class XeroProvider implements BaseProvider {
     url: string,
     options?: RequestInit
   ): Promise<HttpResponse<T>> {
-    const { accessToken, ...creds } = this.auth.getCredentials();
-
-    const tenantId = creds.tenantId || this.config.tenantId;
+    const credentials = this.auth.getCredentials();
+    const { accessToken } = getOAuth2Credentials(credentials);
+    const tenantId = getXeroTenantId(credentials, this.config.tenantId);
 
     const headers: Record<string, string> = {
       Authorization: `Bearer ${accessToken}`,
       Accept: "application/json",
       "Content-Type": "application/json",
-      ...((options?.headers ?? {}) as Record<string, string>)
+      ...((options?.headers ?? {}) as Record<string, string>),
+      "xero-tenant-id": tenantId
     };
-
-    if (tenantId) {
-      headers["xero-tenant-id"] = tenantId;
-    }
 
     const response = await this.http.request<T>(method, url, {
       ...options,
@@ -142,16 +176,14 @@ export class XeroProvider implements BaseProvider {
     if (response.code === 401) {
       await this.auth.refresh();
 
-      const c = this.auth.getCredentials();
+      const { accessToken: refreshedAccessToken } = getOAuth2Credentials(
+        this.auth.getCredentials()
+      );
 
       const retryHeaders: Record<string, string> = {
         ...headers,
-        Authorization: `Bearer ${c.accessToken}`
+        Authorization: `Bearer ${refreshedAccessToken}`
       };
-
-      if (tenantId) {
-        retryHeaders["xero-tenant-id"] = tenantId;
-      }
 
       return this.http.request<T>(method, url, {
         ...options,
@@ -224,6 +256,52 @@ export class XeroProvider implements BaseProvider {
     return (response.data?.Accounts ?? []).filter(
       (account) => account.Status === "ACTIVE"
     );
+  }
+
+  /**
+   * Create a manual journal (POST /ManualJournals). Throws an
+   * AccountingApiError when Xero rejects the payload. Pass ManualJournalID
+   * to update an existing manual journal instead of creating one.
+   */
+  async createManualJournal(
+    journal: Omit<Xero.ManualJournal, "UpdatedDateUTC" | "ManualJournalID"> & {
+      ManualJournalID?: string;
+    }
+  ): Promise<Xero.ManualJournal> {
+    const response = await this.request<{
+      ManualJournals: Xero.ManualJournal[];
+    }>("POST", "/ManualJournals", {
+      body: JSON.stringify({ ManualJournals: [journal] })
+    });
+
+    if (response.error) {
+      throwXeroApiError("create manual journal", response);
+    }
+
+    const created = response.data?.ManualJournals?.[0];
+    if (!created?.ManualJournalID) {
+      throw new Error(
+        "Xero API returned success but no ManualJournalID was returned"
+      );
+    }
+
+    return created;
+  }
+
+  /**
+   * Fetch one manual journal by id (GET /ManualJournals/{id}).
+   * Returns null when it does not exist or the request fails.
+   */
+  async getManualJournal(id: string): Promise<Xero.ManualJournal | null> {
+    const response = await this.request<{
+      ManualJournals: Xero.ManualJournal[];
+    }>("GET", `/ManualJournals/${id}`);
+
+    if (response.error) {
+      return null;
+    }
+
+    return response.data?.ManualJournals?.[0] ?? null;
   }
 
   /**
