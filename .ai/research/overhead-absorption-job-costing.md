@@ -63,12 +63,18 @@ In S/4HANA with Universal Journal, all CO postings also write to ACDOCA — so C
 
 ### 4. Is it standard to absorb overhead at labor posting time or separately?
 
-**Separately, as a period-end process.** The mandatory SAP period-end close sequence is:
+**Depends on the flow.** In the classic costing-sheet flow, overhead is absorbed
+separately at period-end:
 
 1. **CO43** — Overhead calculation (debits production orders, credits cost centers using costing sheet rates)
 2. **KKAO** — WIP calculation
 3. **KKS1** — Variance calculation (assigns total variance to categories)
 4. **CO88** — Settlement (posts variance to FI/GL)
+
+S/4HANA's recommended event-based flow (scope item 3F0, "Event-Based Production
+Cost Posting") instead posts overhead with each activity confirmation — no
+period-end run. Event-based is the modern reference model and the closer
+comparison for Carbon, which posts per production event.
 
 Quote from SAP Community: "If you don't run KGI2 [CO43], there will not be any change in your actual overhead, which is entirely wrong practice. It will impact on the WIP, Variance and settlement values."
 
@@ -80,7 +86,7 @@ Quote from SAP Community: "If you don't run KGI2 [CO43], there will not be any c
 - Without CO43, those costs stay on the cost center forever — never transferred to production orders
 - Production orders show understated actual costs → WIP is understated → COGS is understated
 - The overhead appears as a period operating expense on the cost center P&L (via KSU5 assessment to CO-PA) — it lands **below gross profit** as an operating expense instead of **inside COGS**
-- Under GAAP (ASC 330) and IFRS (IAS 2), overhead must be inventorialized — it should flow through WIP → Finished Goods → COGS
+- Under GAAP (ASC 330) and IFRS (IAS 2), production overhead allocated at normal capacity must be inventorialized — it should flow through WIP → Finished Goods → COGS. (Unallocated fixed overhead from abnormally low production is expensed in the period, not capitalized.)
 
 **Dual P&L impact when overhead is unabsorbed:**
 - Production order overhead variance (COGS-level): difference between standard overhead in cost estimate and actual overhead applied to order → settles via CO88 to price difference account
@@ -117,11 +123,11 @@ If the period can't be reopened (audited/reported year), the workaround is a man
 
 Carbon's job costing posts actual GL journal entries at labor time (not CO-only like SAP). This means Carbon's overhead absorption should also create GL journal entries when it runs.
 
-**Two viable patterns:**
+**Three viable patterns:**
 
-### Option A: Period-End Overhead Absorption (SAP pattern)
+### Option A: Period-End Overhead Absorption (classic SAP pattern)
 - Run a job at period close that reads each open work order's actual costs, applies the overhead rate from the routing/work center, and posts DR WIP / CR Overhead Absorbed
-- Pros: matches industry standard; overhead rate applies to actual costs of the period
+- Pros: overhead rate applies to actual costs of the period
 - Cons: requires a period-close workflow; COGS is inaccurate intra-period
 
 ### Option B: Absorb at Work Order Receipt/Close (simpler)
@@ -129,7 +135,13 @@ Carbon's job costing posts actual GL journal entries at labor time (not CO-only 
 - Pros: no separate period-close process; ties out at order close
 - Cons: doesn't match intra-period WIP balances; may miss partial completions
 
-### Data model needed (either pattern):
+### Option C: Absorb per Production Event (event-based; IMPLEMENTED)
+- When each production event posts, apply the work center's overhead rate to the event's hours and post DR WIP / CR Overhead Absorption alongside the labor lines
+- Matches S/4HANA's recommended event-based flow (3F0); WIP is accurate intra-period with no period-close dependency
+- Cons: overhead is only as accurate as the per-work-center rate; rate changes don't retro-apply to posted events
+- This is what Carbon implemented in `post-production-event` (overhead rate on `workCenter.overheadRate`, credit to `accountDefault.overheadAbsorptionAccount`)
+
+### Data model needed (any pattern):
 - Overhead rates defined per work center or cost center (% of labor, % of machine time, $/hour, etc.)
 - A new journal entry source type (e.g., `overheadAbsorption`)
 - GL accounts: Overhead Absorbed (credit, income-statement contra), WIP (debit) for the absorption entry

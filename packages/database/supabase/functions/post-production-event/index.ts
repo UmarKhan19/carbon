@@ -82,6 +82,9 @@ serve(async (req: Request) => {
     if (!accountDefaults.data.laborAbsorptionAccount) {
       throw new Error("laborAbsorptionAccount not configured in account defaults");
     }
+    // Cast until the cloud-generated DB types include the new column.
+    const overheadAbsorptionAccount = (accountDefaults.data as any)
+      .overheadAbsorptionAccount as string | undefined;
 
     const event = productionEvent.data;
 
@@ -126,6 +129,12 @@ serve(async (req: Request) => {
 
       cost = durationHours * rate;
       overheadCost = durationHours * Number(workCenter.data.overheadRate ?? 0);
+
+      if (overheadCost > 0 && !overheadAbsorptionAccount) {
+        throw new Error(
+          "overheadAbsorptionAccount not configured in account defaults"
+        );
+      }
     }
 
     // Net amount already posted for this specific event, grouped by account.
@@ -264,7 +273,7 @@ serve(async (req: Request) => {
             },
           ]
         : []),
-      ...(!reverse && overheadCost > 0 && (accountDefaults.data as any).overheadAbsorptionAccount
+      ...(!reverse && overheadCost > 0
         ? [
             {
               accountId: accountDefaults.data.workInProgressAccount,
@@ -278,7 +287,7 @@ serve(async (req: Request) => {
               companyId,
             },
             {
-              accountId: (accountDefaults.data as any).overheadAbsorptionAccount as string,
+              accountId: overheadAbsorptionAccount!,
               description: "Overhead Absorption",
               amount: credit("expense", overheadCost),
               quantity: 1,

@@ -50,6 +50,7 @@ FROM "account" a
 JOIN "company" c ON c."companyGroupId" = a."companyGroupId"
 WHERE c."id" = ad."companyId"
   AND a."number" = '1150'
+  AND a."isGroup" = false
   AND ad."supplierPrepaymentAccount" IS NULL;
 
 -- Step 4: Enforce NOT NULL now that every row is populated.

@@ -129,19 +129,25 @@ lot size, remaining) — but CO-PA is CO-only with no additional FI document.
 
 ---
 
-## Period-End Close Sequence (Mandatory Order)
+## Period-End Close Sequence (Classic Costing-Sheet Flow)
 
 ```
 1. Goods issues (MT 261) — material components charged to order
 2. Activity confirmations (CO11N) — labor/machine hours confirmed
-3. Actual overhead (CO43) ← costing sheet absorption happens here
-4. Activity price revaluation (KSII) — reprices confirmations at actual rates
+3. Activity price revaluation (KSII) — reprices confirmations at actual rates
+4. Actual overhead (CO43) ← costing sheet absorption happens here (on revalued base)
 5. WIP calculation (KKAX / KKAO)
 6. Variance calculation (KKS1 / KKS2)
 7. Settlement (CO88 / KO88) — the ONLY step that posts WIP/variance to FI
 ```
 
 CO43 is idempotent: re-running it in the same period reverses and recalculates from the base.
+
+This sequence applies to the classic period-end costing-sheet flow. S/4HANA's
+recommended event-based flow (scope item 3F0, "Event-Based Production Cost
+Posting") posts overhead, WIP, and variances with each business event (goods
+issue, confirmation) instead — no period-end run required. Carbon's per-event
+posting corresponds to the event-based model.
 
 ---
 
@@ -171,8 +177,8 @@ Production order balance at settlement =
 
 **Step 3:** At CO88, this favorable variance settles to the PRD / overhead variance account:
 ```
-FI: DR Overhead Variance Account (favorable = credit to P&L)
-    CR Production Order (cleared)
+FI: DR Production Order (cleared)
+    CR Overhead Variance Account (favorable = credit to P&L)
 ```
 
 **Net P&L effect: zero**, but presentation is severely distorted:
