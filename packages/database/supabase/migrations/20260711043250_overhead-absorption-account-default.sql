@@ -14,7 +14,7 @@ SELECT
   '5070',
   'Overhead Absorption',
   FALSE,
-  'Expense'::"accountType",
+  'Cost of Goods Sold'::"accountType",
   'Income Statement'::"glIncomeBalance",
   'Expense'::"glAccountClass",
   cogs."id",
