@@ -17,7 +17,7 @@ msgstr "Bir tedarikçi, size parça veya hizmet satan bir işletme veya kişidir
 
 #. placeholder {0}: formatDateTime(lastReconciliation.runAt)
 msgid "— last checked {0}"
-msgstr ""
+msgstr "— son kontrol {0}"
 
 #. placeholder {0}: fieldDef?.label ?? condition.field
 msgid "\"{0}\" isn't available on the selected surface(s). Pick another field."
@@ -99,7 +99,7 @@ msgid "{from}–{to} of {count}"
 msgstr "{from}–{to} / {count}"
 
 msgid "{from}–{to} of {count} operations"
-msgstr ""
+msgstr "{from}–{to} / {count} işlem"
 
 #. placeholder {0}: errors.length
 #. placeholder {1}: skipped.length
@@ -110,13 +110,13 @@ msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB sınırı"
 
 msgid "{mismatchCount} months with mismatched totals"
-msgstr ""
+msgstr "{mismatchCount} ay tutarları uyuşmazlığı"
 
 msgid "{missingCount} journals missing in the provider"
-msgstr ""
+msgstr "sağlayıcıda eksik {missingCount} yevmiye"
 
 msgid "{missingCount} missing journals and {mismatchCount} mismatched months"
-msgstr ""
+msgstr "{missingCount} eksik yevmiye ve {mismatchCount} tutarları uyuşmazlığı olan ay"
 
 msgid "{name} deleted"
 msgstr "{name} silindi"
@@ -151,7 +151,7 @@ msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
 msgstr "<0>Bu ürün için bir tedarikçi parçası ekleyin</0> tercih edilen tedarikçi ayarlamak için."
 
 msgid "0 operations"
-msgstr ""
+msgstr "0 işlem"
 
 msgid "0-4 weeks"
 msgstr "0-4 hafta"
@@ -409,7 +409,7 @@ msgid "Account Manager"
 msgstr "Hesap Yöneticisi"
 
 msgid "Account Mapping"
-msgstr ""
+msgstr "Hesap Haritalama"
 
 msgid "Account Number"
 msgstr "Hesap Numarası"
@@ -457,7 +457,7 @@ msgid "Accounts receivable for amounts owed by customers"
 msgstr "Müşteriler tarafından borçlu olunan tutarlar için alacak hesapları."
 
 msgid "Accounts referenced by posting defaults or journal history that have no provider mapping yet."
-msgstr ""
+msgstr "Deftere nakil varsayılanları veya yevmiye geçmişi tarafından referans verilen ancak henüz sağlayıcı haritalaması olmayan hesaplar."
 
 msgid "Accrual account debited at shipment to recognize the receivable before the sales invoice posts; cleared when the invoice posts."
 msgstr "Satış faturası deftere geçmeden önce alacağı tanımak için sevkiyat sırasında borçlandırılan bir tahakkuk hesabı; fatura deftere geçildiğinde temizlenir."
@@ -779,7 +779,7 @@ msgid "All members of selected groups and selected individuals will be able to a
 msgstr "Seçilen gruplardaki ve bireylerdeki tüm üyeler talepleri onaylayabilecektir"
 
 msgid "All posting accounts are mapped"
-msgstr ""
+msgstr "Tüm deftere nakil hesapları haritalanmış"
 
 msgid "All rows imported — {inserted} inserted, {updated} updated."
 msgstr "{inserted} eklendi, {updated} güncellendi — tüm satırlar içe aktarıldı."
@@ -1471,7 +1471,7 @@ msgid "Attachments"
 msgstr "Ekler"
 
 msgid "Attempts"
-msgstr ""
+msgstr "Denemeler"
 
 msgid "Attribute"
 msgstr "Öznitelik"
@@ -1734,7 +1734,7 @@ msgid "Book a call with Carbon"
 msgstr "Carbon ile bir çağrı ayarlayın"
 
 msgid "Books lock date (manual)"
-msgstr ""
+msgstr "Defterlerin kilitlenme tarihi (manuel)"
 
 msgid "Breadcrumb"
 msgstr "Sayfa Yolu"
@@ -1917,7 +1917,7 @@ msgid "Carbon + you"
 msgstr "Carbon + siz"
 
 msgid "Carbon account"
-msgstr ""
+msgstr "Carbon hesabı"
 
 msgid "Carbon client is not available"
 msgstr "Carbon istemcisi mevcut değil"
@@ -2354,7 +2354,7 @@ msgid "Confirm {0}"
 msgstr "Onayla {0}"
 
 msgid "Confirm all"
-msgstr ""
+msgstr "Tümünü onayla"
 
 msgid "Confirm and sign the scope"
 msgstr "Kapsamı onaylayın ve imzalayın"
@@ -2420,7 +2420,7 @@ msgid "Console Operator"
 msgstr "Konsol Operatörü"
 
 msgid "Consolidation"
-msgstr ""
+msgstr "Konsolidasyon"
 
 msgid "consumable"
 msgstr "tüketilir"
@@ -3189,7 +3189,7 @@ msgid "Daily check-ins while your team finds its feet on the live system"
 msgstr "Canlı sistemde ekibiniz ayağa kalkarken günlük kontrol toplantıları"
 
 msgid "Daily summary"
-msgstr ""
+msgstr "Günlük özet"
 
 msgid "Daily Usage"
 msgstr "Günlük Kullanım"
@@ -4408,7 +4408,7 @@ msgid "Enable notifications when an RFQ is marked as ready for quote."
 msgstr "Bir RFQ teklif için hazır olarak işaretlendiğinde bildirimleri etkinleştir."
 
 msgid "Enable posting sync"
-msgstr ""
+msgstr "Deftere nakil eşitlemesini etkinleştir"
 
 msgid "Enable shared workstation mode for MES terminals. Operators identify themselves via PIN before performing work."
 msgstr "MES terminalleri için paylaşımlı iş istasyonu modunu etkinleştirin. Operatörler çalışmaya başlamadan önce kendilerini PIN ile tanımlarlar."
@@ -4669,7 +4669,7 @@ msgid "Exemption Reason"
 msgstr "İstisnai Nedeni"
 
 msgid "Existing mappings. Pick a different provider account to re-map."
-msgstr ""
+msgstr "Mevcut haritalamalar. Yeniden haritalamak için farklı bir sağlayıcı hesabı seçin."
 
 msgid "Expand"
 msgstr "Genişlet"
@@ -4793,7 +4793,7 @@ msgid "External"
 msgstr "Harici"
 
 msgid "External ID"
-msgstr ""
+msgstr "Harici Kimlik"
 
 msgid "External Notes"
 msgstr "Harici Notlar"
@@ -5831,7 +5831,7 @@ msgid "Ideas, suggestions or problems?"
 msgstr "Fikirler, öneriler veya sorunlar?"
 
 msgid "Idempotency key"
-msgstr ""
+msgstr "İdempotentlik Anahtarı"
 
 msgid "IDs and descriptions are generated for raw materials."
 msgstr "Kimlikler ve açıklamalar ham malzemeler için oluşturulur."
@@ -5975,10 +5975,10 @@ msgid "Indirect Materials & Services (default)"
 msgstr "Dolaylı Malzemeler ve Hizmetler (varsayılan)"
 
 msgid "Individual"
-msgstr ""
+msgstr "Bireysel"
 
 msgid "Individual pushes one provider journal per Carbon journal. Daily summary pushes one aggregated journal per posting date."
-msgstr ""
+msgstr "Bireysel, her Carbon yevmiyesi için bir sağlayıcı yevmiyesi gönderir. Günlük özet, her deftere nakil tarihi için bir toplanmış yevmiye gönderir."
 
 msgid "Infrastructure"
 msgstr "Altyapı"
@@ -6387,7 +6387,7 @@ msgid "Journal Entries"
 msgstr "Yevrak Girişleri"
 
 msgid "Journals dated on or before this date are treated as locked. Merged with the provider-reported lock date when both exist."
-msgstr ""
+msgstr "Bu tarih veya öncesine tarihlenmiş yevmiyeler kilitli olarak kabul edilir. Her ikisi de mevcut olduğunda sağlayıcı tarafından bildirilen kilitlenme tarihi ile birleştirilir."
 
 msgid "Kanban"
 msgstr "Kanban"
@@ -6460,10 +6460,10 @@ msgid "Language"
 msgstr "Dil"
 
 msgid "Last attempt"
-msgstr ""
+msgstr "Son deneme"
 
 msgid "Last Attempt"
-msgstr ""
+msgstr "Son Deneme"
 
 msgid "Last Calibration"
 msgstr "Son Kalibrasyon"
@@ -6851,7 +6851,7 @@ msgid "Manual"
 msgstr "Manuel"
 
 msgid "Manual journals are pushed only when explicitly enabled."
-msgstr ""
+msgstr "Manuel yevmiyeler yalnızca açıkça etkinleştirildiğinde gönderilir."
 
 msgid "Manufacturer"
 msgstr "Üretici"
@@ -6863,7 +6863,7 @@ msgid "Manufacturing"
 msgstr "Üretim"
 
 msgid "Map Carbon accounts to the provider's chart of accounts. Posted journals push using the mapped provider account code."
-msgstr ""
+msgstr "Carbon hesaplarını sağlayıcının hesap planına haritalayın. Deftere nakledilen yevmiyeler, haritalanan sağlayıcı hesap kodunu kullanarak gönderilir."
 
 msgid "Map Extracted Invoice Lines"
 msgstr "Çıkarılan Fatura Satırlarını Eşle"
@@ -6878,7 +6878,7 @@ msgid "Map your current process, systems, and data"
 msgstr "Mevcut sürecinizi, sistemlerinizi ve verilerinizi eşleyin"
 
 msgid "Mapped accounts"
-msgstr ""
+msgstr "Haritalanan hesaplar"
 
 #. placeholder {0}: i18n._(step.gate)
 msgid "Mark \"{0}\" as passed?"
@@ -6951,7 +6951,7 @@ msgid "Match any (OR)"
 msgstr "Herhangi bir eşleşme (VEYA)"
 
 msgid "Match by code"
-msgstr ""
+msgstr "Koda göre eşleştir"
 
 msgid "Match none"
 msgstr "Hiçbiriyle eşleşme"
@@ -7098,7 +7098,7 @@ msgid "Message"
 msgstr "Mesaj"
 
 msgid "Metadata"
-msgstr ""
+msgstr "Meta Veri"
 
 msgid "Method"
 msgstr "Yöntem"
@@ -7167,10 +7167,10 @@ msgid "Minutes/Piece"
 msgstr "Dakika/Adet"
 
 msgid "Mismatch"
-msgstr ""
+msgstr "Uyuşmazlık"
 
 msgid "Missing"
-msgstr ""
+msgstr "Eksik"
 
 msgid "Missing Information"
 msgstr "Eksik Bilgi"
@@ -7639,7 +7639,7 @@ msgstr "Hiç {0} bulunamadı"
 
 #. placeholder {0}: status.toLowerCase()
 msgid "No {0} sync operations"
-msgstr ""
+msgstr "{0} eşitleme işlemi yok"
 
 #. placeholder {0}: copy.pluralNoun
 msgid "No {0} yet"
@@ -7652,7 +7652,7 @@ msgid "No Access"
 msgstr "Erişim Yok"
 
 msgid "No accounts mapped yet"
-msgstr ""
+msgstr "Henüz hiçbir hesap haritalanmamış"
 
 msgid "No action needed"
 msgstr "Yapılacak işlem yok"
@@ -7890,7 +7890,7 @@ msgid "No suppliers yet"
 msgstr "Henüz tedarikçi yok"
 
 msgid "No sync operations yet"
-msgstr ""
+msgstr "Henüz hiçbir eşitleme işlemi yok"
 
 msgid "No time entries for this week"
 msgstr "Bu hafta için zaman girişi yok"
@@ -7899,7 +7899,7 @@ msgid "No transactions in this period"
 msgstr "Bu dönemde işlem yok"
 
 msgid "No unmapped accounts match a provider code"
-msgstr ""
+msgstr "Haritalanmamış hesaplar sağlayıcı kodundan herhangi biriyle uyuşmıyor"
 
 msgid "No value needed"
 msgstr "Değer gerekmiyor"
@@ -8384,7 +8384,7 @@ msgid "Pareto by Type"
 msgstr "Tür Tipine Göre Pareto"
 
 msgid "Park as error"
-msgstr ""
+msgstr "Hata olarak kaydet"
 
 msgid "part"
 msgstr "parçalar"
@@ -8528,7 +8528,7 @@ msgid "Period"
 msgstr "Dönem"
 
 msgid "Period lock policy"
-msgstr ""
+msgstr "Dönem kilit politikası"
 
 msgid "Periodic depreciation expense for fixed assets"
 msgstr "Toplama, izlenen varlıkları en erken son kullanma tarihine göre sunar, bu nedenle en erken son kullanma tarihine sahip stok varsayılan olarak ilk olarak çıkar."
@@ -8747,7 +8747,7 @@ msgid "Posted By"
 msgstr "Gönderen"
 
 msgid "Posted journals with these source types are pushed. Document-backed journals (invoices, payments) are always excluded — the synced document already books them."
-msgstr ""
+msgstr "Bu kaynak türlerine sahip deftere nakledilen yevmiyeler gönderilir. Belge destekli yevmiyeler (faturalar, ödemeler) her zaman hariç tutulur — eşitlenen belge zaten bunları deftere nakleder."
 
 msgid "Posting"
 msgstr "Ön Ödemeler"
@@ -9012,7 +9012,7 @@ msgid "Properties"
 msgstr "Özellikler"
 
 msgid "Proposed matches where the Carbon account number equals the provider account code exactly."
-msgstr ""
+msgstr "Carbon hesap numarasının sağlayıcı hesap koduyla tam olarak eşleştiği önerilen eşleşmeler."
 
 msgid "Protect the go-live date"
 msgstr "Go-live tarihini koruyun"
@@ -9024,10 +9024,10 @@ msgid "Provide process knowledge and inputs"
 msgstr "Süreç bilgisi ve girdileri sağlayın"
 
 msgid "Provider"
-msgstr ""
+msgstr "Sağlayıcı"
 
 msgid "Provider account"
-msgstr ""
+msgstr "Sağlayıcı hesabı"
 
 msgid "Public"
 msgstr "Herkese açık"
@@ -9039,13 +9039,13 @@ msgid "Published by Carbon"
 msgstr "Carbon tarafından yayınlandı"
 
 msgid "Pull"
-msgstr ""
+msgstr "Çek"
 
 msgid "Pull From"
 msgstr "Çekme Kaynağından"
 
 msgid "Pull from accounting"
-msgstr ""
+msgstr "Muhasebeden çek"
 
 msgid "Pull from Inventory"
 msgstr "Stoktan Çek"
@@ -9165,16 +9165,16 @@ msgid "Purchasing Unit of Measure"
 msgstr "Satın Alma Birimi"
 
 msgid "Push"
-msgstr ""
+msgstr "Gönder"
 
 msgid "Push posted journals for the enabled source types to the accounting provider."
-msgstr ""
+msgstr "Etkinleştirilen kaynak türleri için yayınlanan günlükleri muhasebe sağlayıcısına gönderin."
 
 msgid "Push record changes to external systems the moment they happen."
 msgstr "Kayıt değişikliklerini gerçekleştiği anda harici sistemlere gönderin."
 
 msgid "Push to accounting"
-msgstr ""
+msgstr "Muhasebede gönder"
 
 #. placeholder {0}: row.original.replenishmentSystem === "Make" ? "Job" : "Order"
 msgid "QR Code to create a {0} for this kanban"
@@ -9344,13 +9344,13 @@ msgid "Rate Limit"
 msgstr "Hız Sınırı"
 
 msgid "Re-date to first open day"
-msgstr ""
+msgstr "İlk açık güne yeniden tarihlendir"
 
 msgid "Re-keying between quoting, the floor, and finance"
 msgstr "Tekliflendirme, üretim ve muhasebe arasında veri yeniden girişi"
 
 msgid "Re-send"
-msgstr ""
+msgstr "Yeniden gönder"
 
 msgid "Reactivate"
 msgstr "Yeniden etkinleştir"
@@ -9480,7 +9480,7 @@ msgid "Recently Created"
 msgstr "Son Oluşturulanlar"
 
 msgid "Reconciliation found discrepancies with the provider"
-msgstr ""
+msgstr "Mutabakat sağlayıcıyla tutarsızlıklar buldu"
 
 msgid "Reconciling a purchase order against what was received and invoiced — implicit in Carbon, via the line quantities and GR/IR balance."
 msgstr "Geri Kazanım Süresi"
@@ -9816,7 +9816,7 @@ msgid "Retry"
 msgstr "Tekrar Dene"
 
 msgid "Retry all"
-msgstr ""
+msgstr "Tümünü yeniden dene"
 
 msgid "Return Home"
 msgstr "Ana Sayfaya Dön"
@@ -10387,7 +10387,7 @@ msgid "Select Printer"
 msgstr "Yazıcı Seçin"
 
 msgid "Select provider account"
-msgstr ""
+msgstr "Sağlayıcı hesabı seç"
 
 msgid "Select Quantities"
 msgstr "Miktarları Seçin"
@@ -10827,7 +10827,7 @@ msgid "Sizes"
 msgstr "Boyutlar"
 
 msgid "Skip"
-msgstr ""
+msgstr "Atla"
 
 msgid "Skip Existing"
 msgstr "Mevcut Olanı Atla"
@@ -10905,7 +10905,7 @@ msgid "Source Method"
 msgstr "Kaynak Yöntem"
 
 msgid "Source types"
-msgstr ""
+msgstr "Kaynak türleri"
 
 msgid "Source Version"
 msgstr "Kaynak Sürüm"
@@ -11376,10 +11376,10 @@ msgid "Sync"
 msgstr "Senkronize Et"
 
 msgid "Sync Activity"
-msgstr ""
+msgstr "Senkronizasyon Etkinliği"
 
 msgid "Sync operation"
-msgstr ""
+msgstr "Senkronizasyon işlemi"
 
 msgid "System"
 msgstr "Sistem"
@@ -12608,7 +12608,7 @@ msgid "Trial Balance"
 msgstr "Mizan"
 
 msgid "Trigger"
-msgstr ""
+msgstr "Tetikle"
 
 msgid "Triggers"
 msgstr "Tetikleyiciler"
@@ -12737,7 +12737,7 @@ msgid "Unlink job from sales order?"
 msgstr "İş emrini satış siparişinden ayır?"
 
 msgid "Unmapped accounts"
-msgstr ""
+msgstr "Eşleştirilmemiş hesaplar"
 
 msgid "Unmapped Extracted Lines"
 msgstr "Eşlenmemiş Çıkarılan Satırlar"
@@ -13384,7 +13384,7 @@ msgid "What data"
 msgstr "Hangi veri"
 
 msgid "What happens when a journal is dated in a locked period: park it as a warning to fix, or push it re-dated to the first open day with the original date in the narration."
-msgstr ""
+msgstr "Bir günlük kilitli bir dönemde tarihlendirildiğinde ne olur: bunu düzeltmek için bir uyarı olarak park edin veya orijinal tarih anlatımda olacak şekilde ilk açık güne yeniden tarihlendirilmiş olarak gönderin."
 
 msgid "What is {translatedTerm}?"
 msgstr "{translatedTerm} nedir?"

@@ -17,7 +17,7 @@ msgstr "サプライヤーは、あなたに部品またはサービスを販売
 
 #. placeholder {0}: formatDateTime(lastReconciliation.runAt)
 msgid "— last checked {0}"
-msgstr ""
+msgstr "— 最終確認: {0}"
 
 #. placeholder {0}: fieldDef?.label ?? condition.field
 msgid "\"{0}\" isn't available on the selected surface(s). Pick another field."
@@ -99,7 +99,7 @@ msgid "{from}–{to} of {count}"
 msgstr "{from}–{to} / {count}"
 
 msgid "{from}–{to} of {count} operations"
-msgstr ""
+msgstr "{from}～{to}件 (合計{count}件の操作)"
 
 #. placeholder {0}: errors.length
 #. placeholder {1}: skipped.length
@@ -110,13 +110,13 @@ msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB制限"
 
 msgid "{mismatchCount} months with mismatched totals"
-msgstr ""
+msgstr "{mismatchCount}ヶ月の合計が一致していません"
 
 msgid "{missingCount} journals missing in the provider"
-msgstr ""
+msgstr "プロバイダーで{missingCount}件のジャーナルが見つかりません"
 
 msgid "{missingCount} missing journals and {mismatchCount} mismatched months"
-msgstr ""
+msgstr "{missingCount}件のジャーナルが見つからず、{mismatchCount}ヶ月の合計が一致していません"
 
 msgid "{name} deleted"
 msgstr "{name}が削除されました"
@@ -151,7 +151,7 @@ msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
 msgstr "<0>この商品の仕入先部品を追加</0>して、優先仕入先を設定してください。"
 
 msgid "0 operations"
-msgstr ""
+msgstr "0件の操作"
 
 msgid "0-4 weeks"
 msgstr "0～4週間"
@@ -409,7 +409,7 @@ msgid "Account Manager"
 msgstr "アカウントマネージャー"
 
 msgid "Account Mapping"
-msgstr ""
+msgstr "勘定科目マッピング"
 
 msgid "Account Number"
 msgstr "勘定番号"
@@ -457,7 +457,7 @@ msgid "Accounts receivable for amounts owed by customers"
 msgstr "顧客に支払う金額の売掛金。"
 
 msgid "Accounts referenced by posting defaults or journal history that have no provider mapping yet."
-msgstr ""
+msgstr "転記デフォルトまたはジャーナル履歴で参照されているが、プロバイダーマッピングがまだない勘定科目。"
 
 msgid "Accrual account debited at shipment to recognize the receivable before the sales invoice posts; cleared when the invoice posts."
 msgstr "販売請求書が転記される前に売掛金を認識するために転記の際にデビットされる発生主義勘定。請求書が転記されるとクリアされます。"
@@ -779,7 +779,7 @@ msgid "All members of selected groups and selected individuals will be able to a
 msgstr "選択されたグループのすべてのメンバーと選択された個人が承認リクエストを承認できます"
 
 msgid "All posting accounts are mapped"
-msgstr ""
+msgstr "すべての転記勘定科目がマップされています"
 
 msgid "All rows imported — {inserted} inserted, {updated} updated."
 msgstr "すべての行をインポート—{inserted}行挿入、{updated}行更新。"
@@ -1471,7 +1471,7 @@ msgid "Attachments"
 msgstr "添付ファイル"
 
 msgid "Attempts"
-msgstr ""
+msgstr "試行"
 
 msgid "Attribute"
 msgstr "属性"
@@ -1734,7 +1734,7 @@ msgid "Book a call with Carbon"
 msgstr "Carbonとの通話を予約する"
 
 msgid "Books lock date (manual)"
-msgstr ""
+msgstr "帳簿ロック日 (手動)"
 
 msgid "Breadcrumb"
 msgstr "パンくずリスト"
@@ -1917,7 +1917,7 @@ msgid "Carbon + you"
 msgstr "Carbon + あなた"
 
 msgid "Carbon account"
-msgstr ""
+msgstr "Carbon勘定科目"
 
 msgid "Carbon client is not available"
 msgstr "Carbonクライアントは利用できません"
@@ -2354,7 +2354,7 @@ msgid "Confirm {0}"
 msgstr "{0}を確認"
 
 msgid "Confirm all"
-msgstr ""
+msgstr "すべて確認"
 
 msgid "Confirm and sign the scope"
 msgstr "スコープを確認して署名する"
@@ -2420,7 +2420,7 @@ msgid "Console Operator"
 msgstr "コンソールオペレーター"
 
 msgid "Consolidation"
-msgstr ""
+msgstr "連結"
 
 msgid "consumable"
 msgstr "消耗品"
@@ -3189,7 +3189,7 @@ msgid "Daily check-ins while your team finds its feet on the live system"
 msgstr "ライブシステムでチームが軌道に乗るまでの毎日のチェックイン"
 
 msgid "Daily summary"
-msgstr ""
+msgstr "日次集約"
 
 msgid "Daily Usage"
 msgstr "日次使用量"
@@ -4408,7 +4408,7 @@ msgid "Enable notifications when an RFQ is marked as ready for quote."
 msgstr "RFQが見積もり準備完了としてマークされたときに通知を有効にします。"
 
 msgid "Enable posting sync"
-msgstr ""
+msgstr "転記同期を有効にする"
 
 msgid "Enable shared workstation mode for MES terminals. Operators identify themselves via PIN before performing work."
 msgstr "MESターミナル用の共有ワークステーションモードを有効にします。オペレーターは作業を実行する前にPINで自分自身を識別します。"
@@ -4669,7 +4669,7 @@ msgid "Exemption Reason"
 msgstr "免除理由"
 
 msgid "Existing mappings. Pick a different provider account to re-map."
-msgstr ""
+msgstr "既存のマッピング。再マップするには別のプロバイダー勘定科目を選択してください。"
 
 msgid "Expand"
 msgstr "展開"
@@ -4793,7 +4793,7 @@ msgid "External"
 msgstr "外部"
 
 msgid "External ID"
-msgstr ""
+msgstr "外部ID"
 
 msgid "External Notes"
 msgstr "外部メモ"
@@ -5831,7 +5831,7 @@ msgid "Ideas, suggestions or problems?"
 msgstr "アイデア、提案、または問題はありますか？"
 
 msgid "Idempotency key"
-msgstr ""
+msgstr "冪等性キー"
 
 msgid "IDs and descriptions are generated for raw materials."
 msgstr "IDと説明は原材料に対して生成されます。"
@@ -5975,10 +5975,10 @@ msgid "Indirect Materials & Services (default)"
 msgstr "間接材料とサービス（デフォルト）"
 
 msgid "Individual"
-msgstr ""
+msgstr "個別"
 
 msgid "Individual pushes one provider journal per Carbon journal. Daily summary pushes one aggregated journal per posting date."
-msgstr ""
+msgstr "「個別」は1つのCarbon ジャーナルごとに1つのプロバイダージャーナルを転記します。「日次集約」は転記日ごとに1つの集約ジャーナルを転記します。"
 
 msgid "Infrastructure"
 msgstr "インフラストラクチャ"
@@ -6387,7 +6387,7 @@ msgid "Journal Entries"
 msgstr "仕訳帳"
 
 msgid "Journals dated on or before this date are treated as locked. Merged with the provider-reported lock date when both exist."
-msgstr ""
+msgstr "この日付以前の日付のジャーナルはロック済みとして扱われます。両方存在する場合はプロバイダーが報告するロック日と統合されます。"
 
 msgid "Kanban"
 msgstr "カンバン"
@@ -6460,10 +6460,10 @@ msgid "Language"
 msgstr "言語"
 
 msgid "Last attempt"
-msgstr ""
+msgstr "最後の試行"
 
 msgid "Last Attempt"
-msgstr ""
+msgstr "最後の試行"
 
 msgid "Last Calibration"
 msgstr "最後のキャリブレーション"
@@ -6851,7 +6851,7 @@ msgid "Manual"
 msgstr "手動"
 
 msgid "Manual journals are pushed only when explicitly enabled."
-msgstr ""
+msgstr "手動ジャーナルは明示的に有効にされた場合にのみ転記されます。"
 
 msgid "Manufacturer"
 msgstr "製造業者"
@@ -6863,7 +6863,7 @@ msgid "Manufacturing"
 msgstr "製造"
 
 msgid "Map Carbon accounts to the provider's chart of accounts. Posted journals push using the mapped provider account code."
-msgstr ""
+msgstr "Carbon勘定科目をプロバイダーの勘定科目体系にマップします。転記されたジャーナルはマップされたプロバイダー勘定科目コードを使用して転記されます。"
 
 msgid "Map Extracted Invoice Lines"
 msgstr "抽出された請求書行をマップする"
@@ -6878,7 +6878,7 @@ msgid "Map your current process, systems, and data"
 msgstr "現在のプロセス、システム、データをマップする"
 
 msgid "Mapped accounts"
-msgstr ""
+msgstr "マップ済み勘定科目"
 
 #. placeholder {0}: i18n._(step.gate)
 msgid "Mark \"{0}\" as passed?"
@@ -6951,7 +6951,7 @@ msgid "Match any (OR)"
 msgstr "任意に一致 (OR)"
 
 msgid "Match by code"
-msgstr ""
+msgstr "コードで一致"
 
 msgid "Match none"
 msgstr "いずれにも一致しない"
@@ -7098,7 +7098,7 @@ msgid "Message"
 msgstr "メッセージ"
 
 msgid "Metadata"
-msgstr ""
+msgstr "メタデータ"
 
 msgid "Method"
 msgstr "方法"
@@ -7167,10 +7167,10 @@ msgid "Minutes/Piece"
 msgstr "分/個"
 
 msgid "Mismatch"
-msgstr ""
+msgstr "不一致"
 
 msgid "Missing"
-msgstr ""
+msgstr "見つかりません"
 
 msgid "Missing Information"
 msgstr "不足している情報"
@@ -7639,7 +7639,7 @@ msgstr "{0}が見つかりません"
 
 #. placeholder {0}: status.toLowerCase()
 msgid "No {0} sync operations"
-msgstr ""
+msgstr "{0}同期操作はありません"
 
 #. placeholder {0}: copy.pluralNoun
 msgid "No {0} yet"
@@ -7652,7 +7652,7 @@ msgid "No Access"
 msgstr "アクセスなし"
 
 msgid "No accounts mapped yet"
-msgstr ""
+msgstr "マップされた勘定科目がまだありません"
 
 msgid "No action needed"
 msgstr "対応は不要です"
@@ -7890,7 +7890,7 @@ msgid "No suppliers yet"
 msgstr "まだサプライヤーがありません"
 
 msgid "No sync operations yet"
-msgstr ""
+msgstr "同期操作がまだありません"
 
 msgid "No time entries for this week"
 msgstr "今週のタイムエントリがありません"
@@ -7899,7 +7899,7 @@ msgid "No transactions in this period"
 msgstr "この期間に取引がありません"
 
 msgid "No unmapped accounts match a provider code"
-msgstr ""
+msgstr "マップされていない勘定科目でプロバイダーコードと一致するものがありません"
 
 msgid "No value needed"
 msgstr "値が不要です"
@@ -8384,7 +8384,7 @@ msgid "Pareto by Type"
 msgstr "タイプ別パレート"
 
 msgid "Park as error"
-msgstr ""
+msgstr "エラーとして保留"
 
 msgid "part"
 msgstr "部品"
@@ -8528,7 +8528,7 @@ msgid "Period"
 msgstr "期間"
 
 msgid "Period lock policy"
-msgstr ""
+msgstr "期間ロックポリシー"
 
 msgid "Periodic depreciation expense for fixed assets"
 msgstr "ピッキングは追跡対象エンティティを最も早い有効期限順に提供するため、デフォルトで最初に期限切れになる在庫が最初に出庫されます。"
@@ -8747,7 +8747,7 @@ msgid "Posted By"
 msgstr "投稿者"
 
 msgid "Posted journals with these source types are pushed. Document-backed journals (invoices, payments) are always excluded — the synced document already books them."
-msgstr ""
+msgstr "これらのソースタイプの転記されたジャーナルが転記されます。ドキュメント対応ジャーナル(請求書、支払い)は常に除外されます。同期されたドキュメントは既にそれらを記帳しています。"
 
 msgid "Posting"
 msgstr "前払金"
@@ -9012,7 +9012,7 @@ msgid "Properties"
 msgstr "プロパティ"
 
 msgid "Proposed matches where the Carbon account number equals the provider account code exactly."
-msgstr ""
+msgstr "Carbon勘定科目番号がプロバイダー勘定科目コードと正確に一致する提案されたマッチ。"
 
 msgid "Protect the go-live date"
 msgstr "ゴーライブ日を保護する"
@@ -9024,10 +9024,10 @@ msgid "Provide process knowledge and inputs"
 msgstr "プロセスの知識と入力を提供する"
 
 msgid "Provider"
-msgstr ""
+msgstr "プロバイダー"
 
 msgid "Provider account"
-msgstr ""
+msgstr "プロバイダアカウント"
 
 msgid "Public"
 msgstr "公開"
@@ -9039,13 +9039,13 @@ msgid "Published by Carbon"
 msgstr "Carbonによって公開"
 
 msgid "Pull"
-msgstr ""
+msgstr "プル"
 
 msgid "Pull From"
 msgstr "から取得"
 
 msgid "Pull from accounting"
-msgstr ""
+msgstr "会計から引き出す"
 
 msgid "Pull from Inventory"
 msgstr "在庫から取得"
@@ -9165,16 +9165,16 @@ msgid "Purchasing Unit of Measure"
 msgstr "購買単位"
 
 msgid "Push"
-msgstr ""
+msgstr "プッシュ"
 
 msgid "Push posted journals for the enabled source types to the accounting provider."
-msgstr ""
+msgstr "有効なソースタイプの転記済みジャーナルを会計プロバイダにプッシュします。"
 
 msgid "Push record changes to external systems the moment they happen."
 msgstr "レコードの変更が発生した瞬間に外部システムにプッシュします。"
 
 msgid "Push to accounting"
-msgstr ""
+msgstr "会計にプッシュ"
 
 #. placeholder {0}: row.original.replenishmentSystem === "Make" ? "Job" : "Order"
 msgid "QR Code to create a {0} for this kanban"
@@ -9344,13 +9344,13 @@ msgid "Rate Limit"
 msgstr "レート制限"
 
 msgid "Re-date to first open day"
-msgstr ""
+msgstr "最初の営業日に再日付け"
 
 msgid "Re-keying between quoting, the floor, and finance"
 msgstr "見積、現場、財務間での再入力"
 
 msgid "Re-send"
-msgstr ""
+msgstr "再送信"
 
 msgid "Reactivate"
 msgstr "再度有効化"
@@ -9480,7 +9480,7 @@ msgid "Recently Created"
 msgstr "最近作成"
 
 msgid "Reconciliation found discrepancies with the provider"
-msgstr ""
+msgstr "調整でプロバイダとの不一致が見つかりました"
 
 msgid "Reconciling a purchase order against what was received and invoiced — implicit in Carbon, via the line quantities and GR/IR balance."
 msgstr "回収期間"
@@ -9816,7 +9816,7 @@ msgid "Retry"
 msgstr "再試行"
 
 msgid "Retry all"
-msgstr ""
+msgstr "すべてを再試行"
 
 msgid "Return Home"
 msgstr "ホームに戻る"
@@ -10387,7 +10387,7 @@ msgid "Select Printer"
 msgstr "プリンターを選択"
 
 msgid "Select provider account"
-msgstr ""
+msgstr "プロバイダアカウントを選択"
 
 msgid "Select Quantities"
 msgstr "数量を選択"
@@ -10827,7 +10827,7 @@ msgid "Sizes"
 msgstr "サイズ"
 
 msgid "Skip"
-msgstr ""
+msgstr "スキップ"
 
 msgid "Skip Existing"
 msgstr "既存をスキップ"
@@ -10905,7 +10905,7 @@ msgid "Source Method"
 msgstr "ソース方法"
 
 msgid "Source types"
-msgstr ""
+msgstr "ソースタイプ"
 
 msgid "Source Version"
 msgstr "ソースバージョン"
@@ -11376,10 +11376,10 @@ msgid "Sync"
 msgstr "同期"
 
 msgid "Sync Activity"
-msgstr ""
+msgstr "同期アクティビティ"
 
 msgid "Sync operation"
-msgstr ""
+msgstr "同期操作"
 
 msgid "System"
 msgstr "システム"
@@ -12608,7 +12608,7 @@ msgid "Trial Balance"
 msgstr "試算表"
 
 msgid "Trigger"
-msgstr ""
+msgstr "トリガー"
 
 msgid "Triggers"
 msgstr "トリガー"
@@ -12737,7 +12737,7 @@ msgid "Unlink job from sales order?"
 msgstr "販売注文からジョブのリンクを解除しますか？"
 
 msgid "Unmapped accounts"
-msgstr ""
+msgstr "マップされていないアカウント"
 
 msgid "Unmapped Extracted Lines"
 msgstr "マップされていない抽出行"
@@ -13384,7 +13384,7 @@ msgid "What data"
 msgstr "どのデータ"
 
 msgid "What happens when a journal is dated in a locked period: park it as a warning to fix, or push it re-dated to the first open day with the original date in the narration."
-msgstr ""
+msgstr "ジャーナルがロックされた期間に日付が付けられた場合、修正を警告として保留するか、元の日付が説明に記載された最初の営業日に再日付けされたジャーナルをプッシュします。"
 
 msgid "What is {translatedTerm}?"
 msgstr "{translatedTerm}とは何ですか?"

@@ -17,7 +17,7 @@ msgstr "Un proveedor es una empresa o persona que te vende piezas o servicios."
 
 #. placeholder {0}: formatDateTime(lastReconciliation.runAt)
 msgid "— last checked {0}"
-msgstr ""
+msgstr "— última verificación {0}"
 
 #. placeholder {0}: fieldDef?.label ?? condition.field
 msgid "\"{0}\" isn't available on the selected surface(s). Pick another field."
@@ -99,7 +99,7 @@ msgid "{from}–{to} of {count}"
 msgstr "{from}–{to} de {count}"
 
 msgid "{from}–{to} of {count} operations"
-msgstr ""
+msgstr "{from}–{to} de {count} operaciones"
 
 #. placeholder {0}: errors.length
 #. placeholder {1}: skipped.length
@@ -110,13 +110,13 @@ msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB límite"
 
 msgid "{mismatchCount} months with mismatched totals"
-msgstr ""
+msgstr "{mismatchCount} meses con totales no coincidentes"
 
 msgid "{missingCount} journals missing in the provider"
-msgstr ""
+msgstr "{missingCount} diarios faltantes en el proveedor"
 
 msgid "{missingCount} missing journals and {mismatchCount} mismatched months"
-msgstr ""
+msgstr "{missingCount} diarios faltantes y {mismatchCount} meses no coincidentes"
 
 msgid "{name} deleted"
 msgstr "{name} eliminado"
@@ -151,7 +151,7 @@ msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
 msgstr "<0>Agregue una parte de proveedor</0> para este artículo para establecer un proveedor preferido."
 
 msgid "0 operations"
-msgstr ""
+msgstr "0 operaciones"
 
 msgid "0-4 weeks"
 msgstr "0-4 semanas"
@@ -409,7 +409,7 @@ msgid "Account Manager"
 msgstr "Gerente de Cuenta"
 
 msgid "Account Mapping"
-msgstr ""
+msgstr "Asignación de Cuentas"
 
 msgid "Account Number"
 msgstr "Número de Cuenta"
@@ -457,7 +457,7 @@ msgid "Accounts receivable for amounts owed by customers"
 msgstr "Cuentas por cobrar para montos adeudados por clientes."
 
 msgid "Accounts referenced by posting defaults or journal history that have no provider mapping yet."
-msgstr ""
+msgstr "Cuentas referenciadas por defectos de registro o historial de diarios que aún no tienen asignación de proveedor."
 
 msgid "Accrual account debited at shipment to recognize the receivable before the sales invoice posts; cleared when the invoice posts."
 msgstr "Cuenta de acumulación cargada al envío para reconocer la cuenta por cobrar antes de que se publique la factura de ventas; se cancela cuando se publica la factura."
@@ -779,7 +779,7 @@ msgid "All members of selected groups and selected individuals will be able to a
 msgstr "Todos los miembros de los grupos seleccionados e individuos seleccionados podrán aprobar solicitudes"
 
 msgid "All posting accounts are mapped"
-msgstr ""
+msgstr "Todas las cuentas de registro están asignadas"
 
 msgid "All rows imported — {inserted} inserted, {updated} updated."
 msgstr "Todas las filas importadas — {inserted} insertadas, {updated} actualizadas."
@@ -1471,7 +1471,7 @@ msgid "Attachments"
 msgstr "Adjuntos"
 
 msgid "Attempts"
-msgstr ""
+msgstr "Intentos"
 
 msgid "Attribute"
 msgstr "Atributo"
@@ -1734,7 +1734,7 @@ msgid "Book a call with Carbon"
 msgstr "Reserva una llamada con Carbon"
 
 msgid "Books lock date (manual)"
-msgstr ""
+msgstr "Fecha de bloqueo de libros (manual)"
 
 msgid "Breadcrumb"
 msgstr "Migas de pan"
@@ -1917,7 +1917,7 @@ msgid "Carbon + you"
 msgstr "Carbon + tú"
 
 msgid "Carbon account"
-msgstr ""
+msgstr "Cuenta de Carbon"
 
 msgid "Carbon client is not available"
 msgstr "El cliente de Carbon no está disponible"
@@ -2354,7 +2354,7 @@ msgid "Confirm {0}"
 msgstr "Confirmar {0}"
 
 msgid "Confirm all"
-msgstr ""
+msgstr "Confirmar todo"
 
 msgid "Confirm and sign the scope"
 msgstr "Confirmar y firmar el alcance"
@@ -2420,7 +2420,7 @@ msgid "Console Operator"
 msgstr "Operador de Consola"
 
 msgid "Consolidation"
-msgstr ""
+msgstr "Consolidación"
 
 msgid "consumable"
 msgstr "consumible"
@@ -3189,7 +3189,7 @@ msgid "Daily check-ins while your team finds its feet on the live system"
 msgstr "Controles diarios mientras tu equipo se adapta al sistema en vivo"
 
 msgid "Daily summary"
-msgstr ""
+msgstr "Resumen diario"
 
 msgid "Daily Usage"
 msgstr "Uso Diario"
@@ -4408,7 +4408,7 @@ msgid "Enable notifications when an RFQ is marked as ready for quote."
 msgstr "Habilitar notificaciones cuando una RFQ está marcada como lista para cotizar."
 
 msgid "Enable posting sync"
-msgstr ""
+msgstr "Habilitar sincronización de registro"
 
 msgid "Enable shared workstation mode for MES terminals. Operators identify themselves via PIN before performing work."
 msgstr "Habilitar modo de estación de trabajo compartida para terminales MES. Los operadores se identifican mediante PIN antes de realizar el trabajo."
@@ -4669,7 +4669,7 @@ msgid "Exemption Reason"
 msgstr "Motivo de Exención"
 
 msgid "Existing mappings. Pick a different provider account to re-map."
-msgstr ""
+msgstr "Asignaciones existentes. Selecciona una cuenta de proveedor diferente para reasignar."
 
 msgid "Expand"
 msgstr "Expandir"
@@ -4793,7 +4793,7 @@ msgid "External"
 msgstr "Externo"
 
 msgid "External ID"
-msgstr ""
+msgstr "ID Externo"
 
 msgid "External Notes"
 msgstr "Notas Externas"
@@ -5831,7 +5831,7 @@ msgid "Ideas, suggestions or problems?"
 msgstr "¿Ideas, sugerencias o problemas?"
 
 msgid "Idempotency key"
-msgstr ""
+msgstr "Clave de Idempotencia"
 
 msgid "IDs and descriptions are generated for raw materials."
 msgstr "Los IDs y descripciones se generan para materias primas."
@@ -5975,10 +5975,10 @@ msgid "Indirect Materials & Services (default)"
 msgstr "Materiales Indirectos y Servicios (predeterminado)"
 
 msgid "Individual"
-msgstr ""
+msgstr "Individual"
 
 msgid "Individual pushes one provider journal per Carbon journal. Daily summary pushes one aggregated journal per posting date."
-msgstr ""
+msgstr "Individual envía un diario de proveedor por cada diario de Carbon. El resumen diario envía un diario agregado por fecha de registro."
 
 msgid "Infrastructure"
 msgstr "Infraestructura"
@@ -6387,7 +6387,7 @@ msgid "Journal Entries"
 msgstr "Asientos de Diario"
 
 msgid "Journals dated on or before this date are treated as locked. Merged with the provider-reported lock date when both exist."
-msgstr ""
+msgstr "Los diarios con fecha en o antes de esta fecha se tratan como bloqueados. Se fusionan con la fecha de bloqueo reportada por el proveedor cuando ambas existen."
 
 msgid "Kanban"
 msgstr "Kanban"
@@ -6460,10 +6460,10 @@ msgid "Language"
 msgstr "Idioma"
 
 msgid "Last attempt"
-msgstr ""
+msgstr "Último intento"
 
 msgid "Last Attempt"
-msgstr ""
+msgstr "Último Intento"
 
 msgid "Last Calibration"
 msgstr "Última Calibración"
@@ -6851,7 +6851,7 @@ msgid "Manual"
 msgstr "Manual"
 
 msgid "Manual journals are pushed only when explicitly enabled."
-msgstr ""
+msgstr "Los diarios manuales se envían solo cuando se habilitan explícitamente."
 
 msgid "Manufacturer"
 msgstr "Fabricante"
@@ -6863,7 +6863,7 @@ msgid "Manufacturing"
 msgstr "Fabricación"
 
 msgid "Map Carbon accounts to the provider's chart of accounts. Posted journals push using the mapped provider account code."
-msgstr ""
+msgstr "Asigna cuentas de Carbon al catálogo de cuentas del proveedor. Los diarios registrados se envían utilizando el código de cuenta de proveedor asignado."
 
 msgid "Map Extracted Invoice Lines"
 msgstr "Mapear Líneas de Factura Extraídas"
@@ -6878,7 +6878,7 @@ msgid "Map your current process, systems, and data"
 msgstr "Mapea tu proceso actual, sistemas y datos"
 
 msgid "Mapped accounts"
-msgstr ""
+msgstr "Cuentas Asignadas"
 
 #. placeholder {0}: i18n._(step.gate)
 msgid "Mark \"{0}\" as passed?"
@@ -6951,7 +6951,7 @@ msgid "Match any (OR)"
 msgstr "Coincidir con cualquiera (O)"
 
 msgid "Match by code"
-msgstr ""
+msgstr "Coincidir por código"
 
 msgid "Match none"
 msgstr "No coincide ninguno"
@@ -7098,7 +7098,7 @@ msgid "Message"
 msgstr "Mensaje"
 
 msgid "Metadata"
-msgstr ""
+msgstr "Metadatos"
 
 msgid "Method"
 msgstr "Método"
@@ -7167,10 +7167,10 @@ msgid "Minutes/Piece"
 msgstr "Minutos/Pieza"
 
 msgid "Mismatch"
-msgstr ""
+msgstr "No Coincide"
 
 msgid "Missing"
-msgstr ""
+msgstr "Faltante"
 
 msgid "Missing Information"
 msgstr "Información Faltante"
@@ -7639,7 +7639,7 @@ msgstr "No {0} encontrado"
 
 #. placeholder {0}: status.toLowerCase()
 msgid "No {0} sync operations"
-msgstr ""
+msgstr "Sin operaciones de sincronización de {0}"
 
 #. placeholder {0}: copy.pluralNoun
 msgid "No {0} yet"
@@ -7652,7 +7652,7 @@ msgid "No Access"
 msgstr "Sin acceso"
 
 msgid "No accounts mapped yet"
-msgstr ""
+msgstr "Aún no hay cuentas asignadas"
 
 msgid "No action needed"
 msgstr "Sin acción necesaria"
@@ -7890,7 +7890,7 @@ msgid "No suppliers yet"
 msgstr "Sin proveedores aún"
 
 msgid "No sync operations yet"
-msgstr ""
+msgstr "Sin operaciones de sincronización aún"
 
 msgid "No time entries for this week"
 msgstr "No hay entradas de tiempo para esta semana"
@@ -7899,7 +7899,7 @@ msgid "No transactions in this period"
 msgstr "No hay transacciones en este período"
 
 msgid "No unmapped accounts match a provider code"
-msgstr ""
+msgstr "Ninguna cuenta no asignada coincide con un código de proveedor"
 
 msgid "No value needed"
 msgstr "No se necesita valor"
@@ -8384,7 +8384,7 @@ msgid "Pareto by Type"
 msgstr "Pareto por Tipo"
 
 msgid "Park as error"
-msgstr ""
+msgstr "Estacionar como error"
 
 msgid "part"
 msgstr "piezas"
@@ -8528,7 +8528,7 @@ msgid "Period"
 msgstr "Período"
 
 msgid "Period lock policy"
-msgstr ""
+msgstr "Política de Bloqueo de Período"
 
 msgid "Periodic depreciation expense for fixed assets"
 msgstr "La selección ofrece entidades rastreadas en orden de vencimiento más antiguo primero, por lo que el inventario que expira más pronto se agota primero de forma predeterminada."
@@ -8747,7 +8747,7 @@ msgid "Posted By"
 msgstr "Publicado por"
 
 msgid "Posted journals with these source types are pushed. Document-backed journals (invoices, payments) are always excluded — the synced document already books them."
-msgstr ""
+msgstr "Se envían los diarios registrados con estos tipos de origen. Los diarios respaldados por documentos (facturas, pagos) siempre se excluyen — el documento sincronizado ya los registra."
 
 msgid "Posting"
 msgstr "Anticipos"
@@ -9012,7 +9012,7 @@ msgid "Properties"
 msgstr "Propiedades"
 
 msgid "Proposed matches where the Carbon account number equals the provider account code exactly."
-msgstr ""
+msgstr "Coincidencias propuestas donde el número de cuenta de Carbon es exactamente igual al código de cuenta del proveedor."
 
 msgid "Protect the go-live date"
 msgstr "Proteger la fecha de puesta en marcha"
@@ -9024,10 +9024,10 @@ msgid "Provide process knowledge and inputs"
 msgstr "Proporcionar conocimiento del proceso e información"
 
 msgid "Provider"
-msgstr ""
+msgstr "Proveedor"
 
 msgid "Provider account"
-msgstr ""
+msgstr "Cuenta del proveedor"
 
 msgid "Public"
 msgstr "Público"
@@ -9039,13 +9039,13 @@ msgid "Published by Carbon"
 msgstr "Publicado por Carbon"
 
 msgid "Pull"
-msgstr ""
+msgstr "Extraer"
 
 msgid "Pull From"
 msgstr "Extraer de"
 
 msgid "Pull from accounting"
-msgstr ""
+msgstr "Extraer de contabilidad"
 
 msgid "Pull from Inventory"
 msgstr "Extraer del Inventario"
@@ -9165,16 +9165,16 @@ msgid "Purchasing Unit of Measure"
 msgstr "Unidad de Medida de Compra"
 
 msgid "Push"
-msgstr ""
+msgstr "Enviar"
 
 msgid "Push posted journals for the enabled source types to the accounting provider."
-msgstr ""
+msgstr "Enviar diarios registrados para los tipos de origen habilitados al proveedor de contabilidad."
 
 msgid "Push record changes to external systems the moment they happen."
 msgstr "Envía cambios de registros a sistemas externos en el momento en que ocurren."
 
 msgid "Push to accounting"
-msgstr ""
+msgstr "Enviar a contabilidad"
 
 #. placeholder {0}: row.original.replenishmentSystem === "Make" ? "Job" : "Order"
 msgid "QR Code to create a {0} for this kanban"
@@ -9344,13 +9344,13 @@ msgid "Rate Limit"
 msgstr "Límite de Velocidad"
 
 msgid "Re-date to first open day"
-msgstr ""
+msgstr "Redatar al primer día abierto"
 
 msgid "Re-keying between quoting, the floor, and finance"
 msgstr "Re-ingreso de datos entre cotización, piso de producción y finanzas"
 
 msgid "Re-send"
-msgstr ""
+msgstr "Reenviar"
 
 msgid "Reactivate"
 msgstr "Reactivar"
@@ -9480,7 +9480,7 @@ msgid "Recently Created"
 msgstr "Creado Recientemente"
 
 msgid "Reconciliation found discrepancies with the provider"
-msgstr ""
+msgstr "La reconciliación encontró discrepancias con el proveedor"
 
 msgid "Reconciling a purchase order against what was received and invoiced — implicit in Carbon, via the line quantities and GR/IR balance."
 msgstr "Período de Recuperación"
@@ -9816,7 +9816,7 @@ msgid "Retry"
 msgstr "Reintentar"
 
 msgid "Retry all"
-msgstr ""
+msgstr "Reintentar todo"
 
 msgid "Return Home"
 msgstr "Volver al Inicio"
@@ -10387,7 +10387,7 @@ msgid "Select Printer"
 msgstr "Seleccionar Impresora"
 
 msgid "Select provider account"
-msgstr ""
+msgstr "Seleccionar cuenta del proveedor"
 
 msgid "Select Quantities"
 msgstr "Seleccionar Cantidades"
@@ -10827,7 +10827,7 @@ msgid "Sizes"
 msgstr "Tamaños"
 
 msgid "Skip"
-msgstr ""
+msgstr "Omitir"
 
 msgid "Skip Existing"
 msgstr "Omitir Existentes"
@@ -10905,7 +10905,7 @@ msgid "Source Method"
 msgstr "Método de Origen"
 
 msgid "Source types"
-msgstr ""
+msgstr "Tipos de origen"
 
 msgid "Source Version"
 msgstr "Versión de Origen"
@@ -11376,10 +11376,10 @@ msgid "Sync"
 msgstr "Sincronizar"
 
 msgid "Sync Activity"
-msgstr ""
+msgstr "Actividad de sincronización"
 
 msgid "Sync operation"
-msgstr ""
+msgstr "Operación de sincronización"
 
 msgid "System"
 msgstr "Sistema"
@@ -12608,7 +12608,7 @@ msgid "Trial Balance"
 msgstr "Balance de Comprobación"
 
 msgid "Trigger"
-msgstr ""
+msgstr "Desencadenar"
 
 msgid "Triggers"
 msgstr "Disparadores"
@@ -12737,7 +12737,7 @@ msgid "Unlink job from sales order?"
 msgstr "¿Desenlazar trabajo de la orden de venta?"
 
 msgid "Unmapped accounts"
-msgstr ""
+msgstr "Cuentas no asignadas"
 
 msgid "Unmapped Extracted Lines"
 msgstr "Líneas Extraídas Sin Asignar"
@@ -13384,7 +13384,7 @@ msgid "What data"
 msgstr "Qué datos"
 
 msgid "What happens when a journal is dated in a locked period: park it as a warning to fix, or push it re-dated to the first open day with the original date in the narration."
-msgstr ""
+msgstr "Qué sucede cuando un diario está fechado en un período bloqueado: aparcarlo como una advertencia para corregir, o enviarlo refechado al primer día abierto con la fecha original en la narración."
 
 msgid "What is {translatedTerm}?"
 msgstr "¿Qué es {translatedTerm}?"

@@ -17,7 +17,7 @@ msgstr "एक आपूर्तिकर्ता एक व्यवसाय
 
 #. placeholder {0}: formatDateTime(lastReconciliation.runAt)
 msgid "— last checked {0}"
-msgstr ""
+msgstr "— अंतिम जांच {0}"
 
 #. placeholder {0}: fieldDef?.label ?? condition.field
 msgid "\"{0}\" isn't available on the selected surface(s). Pick another field."
@@ -99,7 +99,7 @@ msgid "{from}–{to} of {count}"
 msgstr "{from}–{to} में से {count}"
 
 msgid "{from}–{to} of {count} operations"
-msgstr ""
+msgstr "{from}–{to} में से {count} परिचालन"
 
 #. placeholder {0}: errors.length
 #. placeholder {1}: skipped.length
@@ -110,13 +110,13 @@ msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB सीमा"
 
 msgid "{mismatchCount} months with mismatched totals"
-msgstr ""
+msgstr "{mismatchCount} महीने बेमेल कुल के साथ"
 
 msgid "{missingCount} journals missing in the provider"
-msgstr ""
+msgstr "{missingCount} पत्रिकाएं प्रदाता में नहीं हैं"
 
 msgid "{missingCount} missing journals and {mismatchCount} mismatched months"
-msgstr ""
+msgstr "{missingCount} नहीं मिली पत्रिकाएं और {mismatchCount} बेमेल महीने"
 
 msgid "{name} deleted"
 msgstr "{name} हटाया गया"
@@ -151,7 +151,7 @@ msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
 msgstr "<0>इस आइटम के लिए एक आपूर्तिकर्ता भाग जोड़ें</0> एक पसंदीदा आपूर्तिकर्ता सेट करने के लिए।"
 
 msgid "0 operations"
-msgstr ""
+msgstr "0 परिचालन"
 
 msgid "0-4 weeks"
 msgstr "0-4 सप्ताह"
@@ -409,7 +409,7 @@ msgid "Account Manager"
 msgstr "खाता प्रबंधक"
 
 msgid "Account Mapping"
-msgstr ""
+msgstr "खाता मानचित्रण"
 
 msgid "Account Number"
 msgstr "खाता संख्या"
@@ -457,7 +457,7 @@ msgid "Accounts receivable for amounts owed by customers"
 msgstr "ग्राहकों द्वारा देय राशियों के लिए प्राप्य खाते।"
 
 msgid "Accounts referenced by posting defaults or journal history that have no provider mapping yet."
-msgstr ""
+msgstr "पोस्टिंग डिफ़ॉल्ट या जर्नल इतिहास द्वारा संदर्भित खाते जिनके पास अभी तक कोई प्रदाता मानचित्रण नहीं है।"
 
 msgid "Accrual account debited at shipment to recognize the receivable before the sales invoice posts; cleared when the invoice posts."
 msgstr "एक अप्रैल खाता जो शिपमेंट पर डेबिट किया जाता है ताकि बिक्रय चालान पोस्ट होने से पहले प्राप्य को पहचाना जा सके; जब चालान पोस्ट होता है तो क्लीयर किया जाता है।"
@@ -779,7 +779,7 @@ msgid "All members of selected groups and selected individuals will be able to a
 msgstr "चयनित समूहों के सभी सदस्य और चयनित व्यक्ति अनुरोधों को मंजूरी दे सकेंगे"
 
 msgid "All posting accounts are mapped"
-msgstr ""
+msgstr "सभी पोस्टिंग खाते मैप किए गए हैं"
 
 msgid "All rows imported — {inserted} inserted, {updated} updated."
 msgstr "सभी पंक्तियाँ आयात की गईं — {inserted} डाली गईं, {updated} अपडेट की गईं।"
@@ -1471,7 +1471,7 @@ msgid "Attachments"
 msgstr "संलग्नताएं"
 
 msgid "Attempts"
-msgstr ""
+msgstr "प्रयास"
 
 msgid "Attribute"
 msgstr "विशेषता"
@@ -1734,7 +1734,7 @@ msgid "Book a call with Carbon"
 msgstr "Carbon के साथ कॉल बुक करें"
 
 msgid "Books lock date (manual)"
-msgstr ""
+msgstr "पुस्तकें लॉक तारीख (मैनुअल)"
 
 msgid "Breadcrumb"
 msgstr "ब्रेडक्रम्ब"
@@ -1917,7 +1917,7 @@ msgid "Carbon + you"
 msgstr "Carbon + आप"
 
 msgid "Carbon account"
-msgstr ""
+msgstr "कार्बन खाता"
 
 msgid "Carbon client is not available"
 msgstr "Carbon क्लाइंट उपलब्ध नहीं है"
@@ -2354,7 +2354,7 @@ msgid "Confirm {0}"
 msgstr "की पुष्टि करें {0}"
 
 msgid "Confirm all"
-msgstr ""
+msgstr "सभी की पुष्टि करें"
 
 msgid "Confirm and sign the scope"
 msgstr "स्कोप की पुष्टि करें और हस्ताक्षर करें"
@@ -2420,7 +2420,7 @@ msgid "Console Operator"
 msgstr "कंसोल ऑपरेटर"
 
 msgid "Consolidation"
-msgstr ""
+msgstr "समेकन"
 
 msgid "consumable"
 msgstr "उपभोग्य"
@@ -3189,7 +3189,7 @@ msgid "Daily check-ins while your team finds its feet on the live system"
 msgstr "दैनिक चेक-इन जबकि आपकी टीम लाइव सिस्टम पर अपने पैर जमाती है"
 
 msgid "Daily summary"
-msgstr ""
+msgstr "दैनिक सारांश"
 
 msgid "Daily Usage"
 msgstr "दैनिक उपयोग"
@@ -4408,7 +4408,7 @@ msgid "Enable notifications when an RFQ is marked as ready for quote."
 msgstr "जब कोई RFQ उद्धरण के लिए तैयार के रूप में चिह्नित किया जाता है तो सूचनाएं सक्षम करें।"
 
 msgid "Enable posting sync"
-msgstr ""
+msgstr "पोस्टिंग सिंक सक्षम करें"
 
 msgid "Enable shared workstation mode for MES terminals. Operators identify themselves via PIN before performing work."
 msgstr "MES टर्मिनल के लिए साझा वर्कस्टेशन मोड सक्षम करें। ऑपरेटर काम करने से पहले PIN के माध्यम से स्वयं की पहचान करते हैं।"
@@ -4669,7 +4669,7 @@ msgid "Exemption Reason"
 msgstr "छूट कारण"
 
 msgid "Existing mappings. Pick a different provider account to re-map."
-msgstr ""
+msgstr "मौजूदा मानचित्रण। पुनः मानचित्रण के लिए एक अलग प्रदाता खाता चुनें।"
 
 msgid "Expand"
 msgstr "विस्तार करें"
@@ -4793,7 +4793,7 @@ msgid "External"
 msgstr "बाहरी"
 
 msgid "External ID"
-msgstr ""
+msgstr "बाहरी आईडी"
 
 msgid "External Notes"
 msgstr "बाहरी नोट्स"
@@ -5831,7 +5831,7 @@ msgid "Ideas, suggestions or problems?"
 msgstr "विचार, सुझाव या समस्याएं?"
 
 msgid "Idempotency key"
-msgstr ""
+msgstr "समरूपता कुंजी"
 
 msgid "IDs and descriptions are generated for raw materials."
 msgstr "कच्चे माल के लिए आईडी और विवरण उत्पन्न किए जाते हैं।"
@@ -5975,10 +5975,10 @@ msgid "Indirect Materials & Services (default)"
 msgstr "अप्रत्यक्ष सामग्री और सेवाएं (डिफ़ॉल्ट)"
 
 msgid "Individual"
-msgstr ""
+msgstr "व्यक्तिगत"
 
 msgid "Individual pushes one provider journal per Carbon journal. Daily summary pushes one aggregated journal per posting date."
-msgstr ""
+msgstr "व्यक्तिगत प्रति कार्बन जर्नल एक प्रदाता पत्रिका को धकेलता है। दैनिक सारांश पोस्टिंग तारीख प्रति एक एकत्रित पत्रिका को धकेलता है।"
 
 msgid "Infrastructure"
 msgstr "बुनियादी ढांचा"
@@ -6387,7 +6387,7 @@ msgid "Journal Entries"
 msgstr "जर्नल प्रविष्टियां"
 
 msgid "Journals dated on or before this date are treated as locked. Merged with the provider-reported lock date when both exist."
-msgstr ""
+msgstr "इस तारीख को या उससे पहले की तारीख वाली पत्रिकाओं को लॉक किए गए के रूप में माना जाता है। प्रदाता द्वारा रिपोर्ट की गई लॉक तारीख के साथ विलय किया जाता है जब दोनों मौजूद हों।"
 
 msgid "Kanban"
 msgstr "कनबन"
@@ -6460,10 +6460,10 @@ msgid "Language"
 msgstr "भाषा"
 
 msgid "Last attempt"
-msgstr ""
+msgstr "अंतिम प्रयास"
 
 msgid "Last Attempt"
-msgstr ""
+msgstr "अंतिम प्रयास"
 
 msgid "Last Calibration"
 msgstr "अंतिम अंशांकन"
@@ -6851,7 +6851,7 @@ msgid "Manual"
 msgstr "मैनुअल"
 
 msgid "Manual journals are pushed only when explicitly enabled."
-msgstr ""
+msgstr "मैनुअल पत्रिकाओं को केवल तभी धकेला जाता है जब स्पष्ट रूप से सक्षम हो।"
 
 msgid "Manufacturer"
 msgstr "निर्माता"
@@ -6863,7 +6863,7 @@ msgid "Manufacturing"
 msgstr "विनिर्माण"
 
 msgid "Map Carbon accounts to the provider's chart of accounts. Posted journals push using the mapped provider account code."
-msgstr ""
+msgstr "कार्बन खातों को प्रदाता के खातों के चार्ट से मैप करें। पोस्ट की गई पत्रिकाएं मैप किए गए प्रदाता खाता कोड का उपयोग करके धकेली जाती हैं।"
 
 msgid "Map Extracted Invoice Lines"
 msgstr "निकाली गई चालान पंक्तियों को मैप करें"
@@ -6878,7 +6878,7 @@ msgid "Map your current process, systems, and data"
 msgstr "अपनी वर्तमान प्रक्रिया, सिस्टम और डेटा को मैप करें"
 
 msgid "Mapped accounts"
-msgstr ""
+msgstr "मैप किए गए खाते"
 
 #. placeholder {0}: i18n._(step.gate)
 msgid "Mark \"{0}\" as passed?"
@@ -6951,7 +6951,7 @@ msgid "Match any (OR)"
 msgstr "किसी भी को मिलाएं (OR)"
 
 msgid "Match by code"
-msgstr ""
+msgstr "कोड से मेल खाएं"
 
 msgid "Match none"
 msgstr "कोई भी मेल न खाएं"
@@ -7098,7 +7098,7 @@ msgid "Message"
 msgstr "संदेश"
 
 msgid "Metadata"
-msgstr ""
+msgstr "मेटाडेटा"
 
 msgid "Method"
 msgstr "तरीका"
@@ -7167,10 +7167,10 @@ msgid "Minutes/Piece"
 msgstr "मिनट/टुकड़ा"
 
 msgid "Mismatch"
-msgstr ""
+msgstr "बेमेल"
 
 msgid "Missing"
-msgstr ""
+msgstr "नहीं मिला"
 
 msgid "Missing Information"
 msgstr "लापता जानकारी"
@@ -7639,7 +7639,7 @@ msgstr "कोई {0} नहीं मिला"
 
 #. placeholder {0}: status.toLowerCase()
 msgid "No {0} sync operations"
-msgstr ""
+msgstr "{0} सिंक परिचालन नहीं हैं"
 
 #. placeholder {0}: copy.pluralNoun
 msgid "No {0} yet"
@@ -7652,7 +7652,7 @@ msgid "No Access"
 msgstr "कोई एक्सेस नहीं"
 
 msgid "No accounts mapped yet"
-msgstr ""
+msgstr "अभी तक कोई खाते मैप नहीं किए गए"
 
 msgid "No action needed"
 msgstr "कोई कार्रवाई की आवश्यकता नहीं है"
@@ -7890,7 +7890,7 @@ msgid "No suppliers yet"
 msgstr "अभी तक कोई आपूर्तिकर्ता नहीं"
 
 msgid "No sync operations yet"
-msgstr ""
+msgstr "अभी तक कोई सिंक परिचालन नहीं है"
 
 msgid "No time entries for this week"
 msgstr "इस सप्ताह के लिए कोई समय प्रविष्टि नहीं"
@@ -7899,7 +7899,7 @@ msgid "No transactions in this period"
 msgstr "इस अवधि में कोई लेनदेन नहीं"
 
 msgid "No unmapped accounts match a provider code"
-msgstr ""
+msgstr "कोई भी अनमैप किया गया खाता प्रदाता कोड से मेल नहीं खाता"
 
 msgid "No value needed"
 msgstr "कोई मान आवश्यक नहीं"
@@ -8384,7 +8384,7 @@ msgid "Pareto by Type"
 msgstr "प्रकार के अनुसार पेरेटो"
 
 msgid "Park as error"
-msgstr ""
+msgstr "त्रुटि के रूप में पार्क करें"
 
 msgid "part"
 msgstr "भाग"
@@ -8528,7 +8528,7 @@ msgid "Period"
 msgstr "अवधि"
 
 msgid "Period lock policy"
-msgstr ""
+msgstr "अवधि लॉक नीति"
 
 msgid "Periodic depreciation expense for fixed assets"
 msgstr "पिकिंग ट्रैक किए गए इकाइयों को सबसे पहले समाप्ति के क्रम में प्रदान करती है, इसलिए सबसे जल्दी समाप्त होने वाला स्टॉक डिफ़ॉल्ट रूप से पहले छोड़ा जाता है।"
@@ -8747,7 +8747,7 @@ msgid "Posted By"
 msgstr "द्वारा पोस्ट किया गया"
 
 msgid "Posted journals with these source types are pushed. Document-backed journals (invoices, payments) are always excluded — the synced document already books them."
-msgstr ""
+msgstr "इन स्रोत प्रकारों वाली पोस्ट की गई पत्रिकाओं को धकेला जाता है। दस्तावेज़-समर्थित पत्रिकाएं (चालान, भुगतान) हमेशा बाहर रखी जाती हैं — सिंक किया गया दस्तावेज़ पहले से ही उन्हें बुक कर चुका है।"
 
 msgid "Posting"
 msgstr "अग्रिम भुगतान"
@@ -9012,7 +9012,7 @@ msgid "Properties"
 msgstr "गुण"
 
 msgid "Proposed matches where the Carbon account number equals the provider account code exactly."
-msgstr ""
+msgstr "प्रस्तावित मेल जहां कार्बन खाता संख्या प्रदाता खाता कोड के बिल्कुल बराबर है।"
 
 msgid "Protect the go-live date"
 msgstr "गो-लाइव की तारीख की सुरक्षा करें"
@@ -9024,10 +9024,10 @@ msgid "Provide process knowledge and inputs"
 msgstr "प्रक्रिया ज्ञान और इनपुट प्रदान करें"
 
 msgid "Provider"
-msgstr ""
+msgstr "प्रदाता"
 
 msgid "Provider account"
-msgstr ""
+msgstr "प्रदाता खाता"
 
 msgid "Public"
 msgstr "सार्वजनिक"
@@ -9039,13 +9039,13 @@ msgid "Published by Carbon"
 msgstr "Carbon द्वारा प्रकाशित"
 
 msgid "Pull"
-msgstr ""
+msgstr "खींचें"
 
 msgid "Pull From"
 msgstr "से खींचें"
 
 msgid "Pull from accounting"
-msgstr ""
+msgstr "लेखांकन से खींचें"
 
 msgid "Pull from Inventory"
 msgstr "इन्वेंटरी से खींचें"
@@ -9165,16 +9165,16 @@ msgid "Purchasing Unit of Measure"
 msgstr "क्रय माप की इकाई"
 
 msgid "Push"
-msgstr ""
+msgstr "धकेलें"
 
 msgid "Push posted journals for the enabled source types to the accounting provider."
-msgstr ""
+msgstr "सक्षम स्रोत प्रकारों के लिए पोस्ट की गई जर्नल को लेखांकन प्रदाता को धकेलें।"
 
 msgid "Push record changes to external systems the moment they happen."
 msgstr "रिकॉर्ड परिवर्तनों को बाहरी सिस्टम में तुरंत भेजें जब वे होते हैं।"
 
 msgid "Push to accounting"
-msgstr ""
+msgstr "लेखांकन को धकेलें"
 
 #. placeholder {0}: row.original.replenishmentSystem === "Make" ? "Job" : "Order"
 msgid "QR Code to create a {0} for this kanban"
@@ -9344,13 +9344,13 @@ msgid "Rate Limit"
 msgstr "दर सीमा"
 
 msgid "Re-date to first open day"
-msgstr ""
+msgstr "पहले खुले दिन को फिर से डेट करें"
 
 msgid "Re-keying between quoting, the floor, and finance"
 msgstr "उद्धरण, फर्श और वित्त के बीच पुनः-कुंजीकरण"
 
 msgid "Re-send"
-msgstr ""
+msgstr "फिर से भेजें"
 
 msgid "Reactivate"
 msgstr "पुनः सक्रिय करें"
@@ -9480,7 +9480,7 @@ msgid "Recently Created"
 msgstr "हाल ही में बनाया गया"
 
 msgid "Reconciliation found discrepancies with the provider"
-msgstr ""
+msgstr "समन्वय ने प्रदाता के साथ विसंगतियां पाईं"
 
 msgid "Reconciling a purchase order against what was received and invoiced — implicit in Carbon, via the line quantities and GR/IR balance."
 msgstr "वसूली अवधि"
@@ -9816,7 +9816,7 @@ msgid "Retry"
 msgstr "पुनः प्रयास करें"
 
 msgid "Retry all"
-msgstr ""
+msgstr "सभी को पुनः प्रयास करें"
 
 msgid "Return Home"
 msgstr "घर लौटें"
@@ -10387,7 +10387,7 @@ msgid "Select Printer"
 msgstr "प्रिंटर चुनें"
 
 msgid "Select provider account"
-msgstr ""
+msgstr "प्रदाता खाता चुनें"
 
 msgid "Select Quantities"
 msgstr "मात्रा चुनें"
@@ -10827,7 +10827,7 @@ msgid "Sizes"
 msgstr "आकार"
 
 msgid "Skip"
-msgstr ""
+msgstr "छोड़ें"
 
 msgid "Skip Existing"
 msgstr "मौजूदा को छोड़ें"
@@ -10905,7 +10905,7 @@ msgid "Source Method"
 msgstr "स्रोत विधि"
 
 msgid "Source types"
-msgstr ""
+msgstr "स्रोत प्रकार"
 
 msgid "Source Version"
 msgstr "स्रोत संस्करण"
@@ -11376,10 +11376,10 @@ msgid "Sync"
 msgstr "सिंक करें"
 
 msgid "Sync Activity"
-msgstr ""
+msgstr "सिंक गतिविधि"
 
 msgid "Sync operation"
-msgstr ""
+msgstr "सिंक संचालन"
 
 msgid "System"
 msgstr "सिस्टम"
@@ -12608,7 +12608,7 @@ msgid "Trial Balance"
 msgstr "ट्रायल बैलेंस"
 
 msgid "Trigger"
-msgstr ""
+msgstr "ट्रिगर"
 
 msgid "Triggers"
 msgstr "ट्रिगर"
@@ -12737,7 +12737,7 @@ msgid "Unlink job from sales order?"
 msgstr "बिक्रय आदेश से नौकरी को अनलिंक करें?"
 
 msgid "Unmapped accounts"
-msgstr ""
+msgstr "असंबद्ध खाते"
 
 msgid "Unmapped Extracted Lines"
 msgstr "अनमैप किए गए निकाली गई लाइनें"
@@ -13384,7 +13384,7 @@ msgid "What data"
 msgstr "कौन सा डेटा"
 
 msgid "What happens when a journal is dated in a locked period: park it as a warning to fix, or push it re-dated to the first open day with the original date in the narration."
-msgstr ""
+msgstr "जब कोई जर्नल एक बंद अवधि में डेट किया जाता है तो क्या होता है: इसे ठीक करने के लिए एक चेतावनी के रूप में पार्क करें, या इसे मूल तारीख को कथा में पहले खुले दिन को फिर से डेट करके धकेलें।"
 
 msgid "What is {translatedTerm}?"
 msgstr "{translatedTerm} क्या है?"

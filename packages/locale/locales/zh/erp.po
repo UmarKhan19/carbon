@@ -17,7 +17,7 @@ msgstr "供应商是向您销售零件或服务的企业或个人。"
 
 #. placeholder {0}: formatDateTime(lastReconciliation.runAt)
 msgid "— last checked {0}"
-msgstr ""
+msgstr "— 上次检查于 {0}"
 
 #. placeholder {0}: fieldDef?.label ?? condition.field
 msgid "\"{0}\" isn't available on the selected surface(s). Pick another field."
@@ -99,7 +99,7 @@ msgid "{from}–{to} of {count}"
 msgstr "{from}–{to} 共 {count}"
 
 msgid "{from}–{to} of {count} operations"
-msgstr ""
+msgstr "{from}–{to} / {count} 条操作"
 
 #. placeholder {0}: errors.length
 #. placeholder {1}: skipped.length
@@ -110,13 +110,13 @@ msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB 限制"
 
 msgid "{mismatchCount} months with mismatched totals"
-msgstr ""
+msgstr "{mismatchCount} 个月的总额不匹配"
 
 msgid "{missingCount} journals missing in the provider"
-msgstr ""
+msgstr "提供商中缺少 {missingCount} 份日记账"
 
 msgid "{missingCount} missing journals and {mismatchCount} mismatched months"
-msgstr ""
+msgstr "{missingCount} 份缺失日记账和 {mismatchCount} 个月不匹配"
 
 msgid "{name} deleted"
 msgstr "{name} 已删除"
@@ -151,7 +151,7 @@ msgid "<0>Add a supplier part</0> for this item to set a preferred supplier."
 msgstr "<0>为此项目添加供应商零件</0>以设置首选供应商。"
 
 msgid "0 operations"
-msgstr ""
+msgstr "0 条操作"
 
 msgid "0-4 weeks"
 msgstr "0-4 周"
@@ -409,7 +409,7 @@ msgid "Account Manager"
 msgstr "账户经理"
 
 msgid "Account Mapping"
-msgstr ""
+msgstr "账户映射"
 
 msgid "Account Number"
 msgstr "账户编号"
@@ -457,7 +457,7 @@ msgid "Accounts receivable for amounts owed by customers"
 msgstr "客户应付金额的应收账款。"
 
 msgid "Accounts referenced by posting defaults or journal history that have no provider mapping yet."
-msgstr ""
+msgstr "由过账默认值或日记账历史记录引用但尚无提供商映射的账户。"
 
 msgid "Accrual account debited at shipment to recognize the receivable before the sales invoice posts; cleared when the invoice posts."
 msgstr "在装运时借记的应计账户，以在销售发票转记之前确认应收账款；转记发票时清除。"
@@ -779,7 +779,7 @@ msgid "All members of selected groups and selected individuals will be able to a
 msgstr "所选组的所有成员和所选个人将能够批准请求"
 
 msgid "All posting accounts are mapped"
-msgstr ""
+msgstr "所有过账账户已映射"
 
 msgid "All rows imported — {inserted} inserted, {updated} updated."
 msgstr "所有行已导入—{inserted}行插入，{updated}行更新。"
@@ -1471,7 +1471,7 @@ msgid "Attachments"
 msgstr "附件"
 
 msgid "Attempts"
-msgstr ""
+msgstr "尝试次数"
 
 msgid "Attribute"
 msgstr "属性"
@@ -1734,7 +1734,7 @@ msgid "Book a call with Carbon"
 msgstr "与 Carbon 预约通话"
 
 msgid "Books lock date (manual)"
-msgstr ""
+msgstr "账册锁定日期（手动）"
 
 msgid "Breadcrumb"
 msgstr "面包屑"
@@ -1917,7 +1917,7 @@ msgid "Carbon + you"
 msgstr "Carbon + 你"
 
 msgid "Carbon account"
-msgstr ""
+msgstr "Carbon 账户"
 
 msgid "Carbon client is not available"
 msgstr "Carbon 客户端不可用"
@@ -2354,7 +2354,7 @@ msgid "Confirm {0}"
 msgstr "确认 {0}"
 
 msgid "Confirm all"
-msgstr ""
+msgstr "全部确认"
 
 msgid "Confirm and sign the scope"
 msgstr "确认并签署范围"
@@ -2420,7 +2420,7 @@ msgid "Console Operator"
 msgstr "控制台操作员"
 
 msgid "Consolidation"
-msgstr ""
+msgstr "合并"
 
 msgid "consumable"
 msgstr "消耗品"
@@ -3189,7 +3189,7 @@ msgid "Daily check-ins while your team finds its feet on the live system"
 msgstr "每日检查，帮助您的团队在实时系统上站稳脚跟"
 
 msgid "Daily summary"
-msgstr ""
+msgstr "每日汇总"
 
 msgid "Daily Usage"
 msgstr "日常使用"
@@ -4408,7 +4408,7 @@ msgid "Enable notifications when an RFQ is marked as ready for quote."
 msgstr "在RFQ标记为准备报价时启用通知。"
 
 msgid "Enable posting sync"
-msgstr ""
+msgstr "启用过账同步"
 
 msgid "Enable shared workstation mode for MES terminals. Operators identify themselves via PIN before performing work."
 msgstr "为MES终端启用共享工作站模式。操作员在执行工作前通过PIN进行身份识别。"
@@ -4669,7 +4669,7 @@ msgid "Exemption Reason"
 msgstr "豁免原因"
 
 msgid "Existing mappings. Pick a different provider account to re-map."
-msgstr ""
+msgstr "现有映射。选择不同的提供商账户以重新映射。"
 
 msgid "Expand"
 msgstr "展开"
@@ -4793,7 +4793,7 @@ msgid "External"
 msgstr "外部"
 
 msgid "External ID"
-msgstr ""
+msgstr "外部 ID"
 
 msgid "External Notes"
 msgstr "外部备注"
@@ -5831,7 +5831,7 @@ msgid "Ideas, suggestions or problems?"
 msgstr "想法、建议或问题？"
 
 msgid "Idempotency key"
-msgstr ""
+msgstr "幂等键"
 
 msgid "IDs and descriptions are generated for raw materials."
 msgstr "ID 和描述是为原材料生成的。"
@@ -5975,10 +5975,10 @@ msgid "Indirect Materials & Services (default)"
 msgstr "间接材料和服务（默认）"
 
 msgid "Individual"
-msgstr ""
+msgstr "单独"
 
 msgid "Individual pushes one provider journal per Carbon journal. Daily summary pushes one aggregated journal per posting date."
-msgstr ""
+msgstr "单独会为每个 Carbon 日记账推送一份提供商日记账。每日汇总会为每个过账日期推送一份聚合日记账。"
 
 msgid "Infrastructure"
 msgstr "基础设施"
@@ -6387,7 +6387,7 @@ msgid "Journal Entries"
 msgstr "日记账分录"
 
 msgid "Journals dated on or before this date are treated as locked. Merged with the provider-reported lock date when both exist."
-msgstr ""
+msgstr "日期在此日期及之前的日记账被视为已锁定。当两者都存在时，与提供商报告的锁定日期合并。"
 
 msgid "Kanban"
 msgstr "看板"
@@ -6460,10 +6460,10 @@ msgid "Language"
 msgstr "语言"
 
 msgid "Last attempt"
-msgstr ""
+msgstr "上次尝试"
 
 msgid "Last Attempt"
-msgstr ""
+msgstr "上次尝试"
 
 msgid "Last Calibration"
 msgstr "最后校准"
@@ -6851,7 +6851,7 @@ msgid "Manual"
 msgstr "手动"
 
 msgid "Manual journals are pushed only when explicitly enabled."
-msgstr ""
+msgstr "手动日记账仅在明确启用时才推送。"
 
 msgid "Manufacturer"
 msgstr "制造商"
@@ -6863,7 +6863,7 @@ msgid "Manufacturing"
 msgstr "制造"
 
 msgid "Map Carbon accounts to the provider's chart of accounts. Posted journals push using the mapped provider account code."
-msgstr ""
+msgstr "将 Carbon 账户映射到提供商的科目表。已过账日记账使用映射的提供商账户代码推送。"
 
 msgid "Map Extracted Invoice Lines"
 msgstr "映射提取的发票行项目"
@@ -6878,7 +6878,7 @@ msgid "Map your current process, systems, and data"
 msgstr "映射您当前的流程、系统和数据"
 
 msgid "Mapped accounts"
-msgstr ""
+msgstr "已映射账户"
 
 #. placeholder {0}: i18n._(step.gate)
 msgid "Mark \"{0}\" as passed?"
@@ -6951,7 +6951,7 @@ msgid "Match any (OR)"
 msgstr "匹配任意项 (OR)"
 
 msgid "Match by code"
-msgstr ""
+msgstr "按代码匹配"
 
 msgid "Match none"
 msgstr "不匹配任何条件"
@@ -7098,7 +7098,7 @@ msgid "Message"
 msgstr "消息"
 
 msgid "Metadata"
-msgstr ""
+msgstr "元数据"
 
 msgid "Method"
 msgstr "方法"
@@ -7167,10 +7167,10 @@ msgid "Minutes/Piece"
 msgstr "分钟/件"
 
 msgid "Mismatch"
-msgstr ""
+msgstr "不匹配"
 
 msgid "Missing"
-msgstr ""
+msgstr "缺失"
 
 msgid "Missing Information"
 msgstr "缺少信息"
@@ -7639,7 +7639,7 @@ msgstr "未找到 {0}"
 
 #. placeholder {0}: status.toLowerCase()
 msgid "No {0} sync operations"
-msgstr ""
+msgstr "没有 {0} 同步操作"
 
 #. placeholder {0}: copy.pluralNoun
 msgid "No {0} yet"
@@ -7652,7 +7652,7 @@ msgid "No Access"
 msgstr "无权限"
 
 msgid "No accounts mapped yet"
-msgstr ""
+msgstr "尚未映射账户"
 
 msgid "No action needed"
 msgstr "无需操作"
@@ -7890,7 +7890,7 @@ msgid "No suppliers yet"
 msgstr "还没有供应商"
 
 msgid "No sync operations yet"
-msgstr ""
+msgstr "尚无同步操作"
 
 msgid "No time entries for this week"
 msgstr "本周没有时间条目"
@@ -7899,7 +7899,7 @@ msgid "No transactions in this period"
 msgstr "此期间无交易"
 
 msgid "No unmapped accounts match a provider code"
-msgstr ""
+msgstr "没有未映射的账户与提供商代码匹配"
 
 msgid "No value needed"
 msgstr "不需要值"
@@ -8384,7 +8384,7 @@ msgid "Pareto by Type"
 msgstr "按类型的帕累托"
 
 msgid "Park as error"
-msgstr ""
+msgstr "停靠为错误"
 
 msgid "part"
 msgstr "零件"
@@ -8528,7 +8528,7 @@ msgid "Period"
 msgstr "期间"
 
 msgid "Period lock policy"
-msgstr ""
+msgstr "期间锁定政策"
 
 msgid "Periodic depreciation expense for fixed assets"
 msgstr "拣选按最早过期日期优先提供跟踪实体，因此最快过期的库存默认首先出库。"
@@ -8747,7 +8747,7 @@ msgid "Posted By"
 msgstr "发布者"
 
 msgid "Posted journals with these source types are pushed. Document-backed journals (invoices, payments) are always excluded — the synced document already books them."
-msgstr ""
+msgstr "推送具有这些源类型的已过账日记账。文件支持的日记账（发票、付款）始终被排除 — 同步的文件已将其记录。"
 
 msgid "Posting"
 msgstr "预付款"
@@ -9012,7 +9012,7 @@ msgid "Properties"
 msgstr "属性"
 
 msgid "Proposed matches where the Carbon account number equals the provider account code exactly."
-msgstr ""
+msgstr "提议的匹配项，其中 Carbon 账户编号与提供商账户代码完全相等。"
 
 msgid "Protect the go-live date"
 msgstr "保护上线日期"
@@ -9024,10 +9024,10 @@ msgid "Provide process knowledge and inputs"
 msgstr "提供流程知识和输入"
 
 msgid "Provider"
-msgstr ""
+msgstr "提供商"
 
 msgid "Provider account"
-msgstr ""
+msgstr "提供商账户"
 
 msgid "Public"
 msgstr "公开"
@@ -9039,13 +9039,13 @@ msgid "Published by Carbon"
 msgstr "由 Carbon 发布"
 
 msgid "Pull"
-msgstr ""
+msgstr "拉取"
 
 msgid "Pull From"
 msgstr "从以下位置提取"
 
 msgid "Pull from accounting"
-msgstr ""
+msgstr "从会计系统拉取"
 
 msgid "Pull from Inventory"
 msgstr "从库存中提取"
@@ -9165,16 +9165,16 @@ msgid "Purchasing Unit of Measure"
 msgstr "采购计量单位"
 
 msgid "Push"
-msgstr ""
+msgstr "推送"
 
 msgid "Push posted journals for the enabled source types to the accounting provider."
-msgstr ""
+msgstr "将已过账日记账的启用源类型推送到会计提供商。"
 
 msgid "Push record changes to external systems the moment they happen."
 msgstr "将记录更改实时推送到外部系统。"
 
 msgid "Push to accounting"
-msgstr ""
+msgstr "推送到会计系统"
 
 #. placeholder {0}: row.original.replenishmentSystem === "Make" ? "Job" : "Order"
 msgid "QR Code to create a {0} for this kanban"
@@ -9344,13 +9344,13 @@ msgid "Rate Limit"
 msgstr "速率限制"
 
 msgid "Re-date to first open day"
-msgstr ""
+msgstr "重新日期至第一个开放日"
 
 msgid "Re-keying between quoting, the floor, and finance"
 msgstr "在报价、车间和财务之间重复输入数据"
 
 msgid "Re-send"
-msgstr ""
+msgstr "重新发送"
 
 msgid "Reactivate"
 msgstr "重新激活"
@@ -9480,7 +9480,7 @@ msgid "Recently Created"
 msgstr "最近创建"
 
 msgid "Reconciliation found discrepancies with the provider"
-msgstr ""
+msgstr "对账发现与提供商的差异"
 
 msgid "Reconciling a purchase order against what was received and invoiced — implicit in Carbon, via the line quantities and GR/IR balance."
 msgstr "回收期"
@@ -9816,7 +9816,7 @@ msgid "Retry"
 msgstr "重试"
 
 msgid "Retry all"
-msgstr ""
+msgstr "全部重试"
 
 msgid "Return Home"
 msgstr "返回首页"
@@ -10387,7 +10387,7 @@ msgid "Select Printer"
 msgstr "选择打印机"
 
 msgid "Select provider account"
-msgstr ""
+msgstr "选择提供商账户"
 
 msgid "Select Quantities"
 msgstr "选择数量"
@@ -10827,7 +10827,7 @@ msgid "Sizes"
 msgstr "尺寸"
 
 msgid "Skip"
-msgstr ""
+msgstr "跳过"
 
 msgid "Skip Existing"
 msgstr "跳过现有"
@@ -10905,7 +10905,7 @@ msgid "Source Method"
 msgstr "源方法"
 
 msgid "Source types"
-msgstr ""
+msgstr "源类型"
 
 msgid "Source Version"
 msgstr "源版本"
@@ -11376,10 +11376,10 @@ msgid "Sync"
 msgstr "同步"
 
 msgid "Sync Activity"
-msgstr ""
+msgstr "同步活动"
 
 msgid "Sync operation"
-msgstr ""
+msgstr "同步操作"
 
 msgid "System"
 msgstr "系统"
@@ -12608,7 +12608,7 @@ msgid "Trial Balance"
 msgstr "试算平衡表"
 
 msgid "Trigger"
-msgstr ""
+msgstr "触发"
 
 msgid "Triggers"
 msgstr "触发器"
@@ -12737,7 +12737,7 @@ msgid "Unlink job from sales order?"
 msgstr "从销售订单取消关联工作？"
 
 msgid "Unmapped accounts"
-msgstr ""
+msgstr "未映射的账户"
 
 msgid "Unmapped Extracted Lines"
 msgstr "未映射的提取行"
@@ -13384,7 +13384,7 @@ msgid "What data"
 msgstr "什么数据"
 
 msgid "What happens when a journal is dated in a locked period: park it as a warning to fix, or push it re-dated to the first open day with the original date in the narration."
-msgstr ""
+msgstr "当日记账的日期在锁定期间时会发生什么：将其作为警告停放以供修复，或推送已重新日期至第一个开放日的日记账，原始日期在摘要中。"
 
 msgid "What is {translatedTerm}?"
 msgstr "{translatedTerm}是什么?"
