@@ -351,7 +351,7 @@ msgid "About"
 msgstr "Acerca de"
 
 msgid "Absorption"
-msgstr ""
+msgstr "Absorción"
 
 msgid "Academy"
 msgstr "Academia"
@@ -432,7 +432,7 @@ msgid "Accounts"
 msgstr "Cuentas"
 
 msgid "Accounts for recording differences between actual and standard costs"
-msgstr ""
+msgstr "Cuentas para registrar diferencias entre costos reales y estándar"
 
 msgid "Accounts Payable"
 msgstr "Cuentas por pagar"
@@ -1403,7 +1403,7 @@ msgid "Asset Account"
 msgstr "Cuenta de activos"
 
 msgid "Asset account for advance payments made to suppliers before goods or services are received"
-msgstr ""
+msgstr "Cuenta de activo para pagos anticipados realizados a proveedores antes de recibir bienes o servicios"
 
 msgid "Asset Acquisition Cost"
 msgstr "Costo de adquisición de activos"
@@ -2977,10 +2977,10 @@ msgid "Credit account when labor/machine time is absorbed into WIP"
 msgstr "Cuenta de Crédito cuando se absorbe el tiempo de trabajo/máquina en WIP"
 
 msgid "Credit account when overhead is absorbed into WIP"
-msgstr ""
+msgstr "Cuenta de crédito cuando el gasto indirecto se absorbe en WIP"
 
 msgid "Credit accounts used when manufacturing costs are absorbed into WIP"
-msgstr ""
+msgstr "Cuentas de crédito utilizadas cuando los costos de fabricación se absorben en WIP"
 
 msgid "Credits & Debits"
 msgstr "Créditos y Débitos"
@@ -3359,7 +3359,7 @@ msgid "Default accounts for tax-related transactions"
 msgstr "Cuentas predeterminadas para transacciones relacionadas con impuestos"
 
 msgid "Default accounts for the cost of goods sold and indirect purchases"
-msgstr ""
+msgstr "Cuentas predeterminadas para el costo de bienes vendidos y compras indirectas"
 
 msgid "Default Approver"
 msgstr "Aprobador Predeterminado"
@@ -5475,7 +5475,7 @@ msgid "GL account credited when labor or machine cost is absorbed into a product
 msgstr "Cuenta GL debitada para limpiar la depreciación acumulada cuando se dispone de un activo."
 
 msgid "GL account credited when manufacturing overhead is absorbed into a production job."
-msgstr ""
+msgstr "Cuenta GL acreditada cuando el gasto indirecto de fabricación se absorbe en un trabajo de producción."
 
 msgid "GL account debited to clear accumulated depreciation when an asset is disposed."
 msgstr "Cuenta GL debitada cuando se registra una factura del cliente; se limpia cuando el cliente paga."
@@ -8270,10 +8270,10 @@ msgid "Overdue"
 msgstr "Vencido"
 
 msgid "Overhead Absorption"
-msgstr ""
+msgstr "Absorción de Gasto Indirecto"
 
 msgid "Overhead Absorption (default)"
-msgstr ""
+msgstr "Absorción de Gasto Indirecto (predeterminado)"
 
 msgid "Overhead Rate"
 msgstr "Tasa de Gastos Generales"
@@ -10894,7 +10894,7 @@ msgid "Standard cloud Carbon fits how your company runs"
 msgstr "Carbon en la nube estándar se adapta a cómo funciona tu empresa"
 
 msgid "Standard Cost Variances"
-msgstr ""
+msgstr "Varianzas de Costo Estándar"
 
 msgid "Standard factor"
 msgstr "Factor estándar"
@@ -11217,7 +11217,7 @@ msgid "Supplier Payment Discounts (default)"
 msgstr "Descuentos de Pago del Proveedor (predeterminado)"
 
 msgid "Supplier Prepayments"
-msgstr ""
+msgstr "Pagos Anticipados de Proveedores"
 
 msgid "supplier process"
 msgstr "Proceso de Proveedor"

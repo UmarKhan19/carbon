@@ -351,7 +351,7 @@ msgid "About"
 msgstr "정보"
 
 msgid "Absorption"
-msgstr ""
+msgstr "흡수"
 
 msgid "Academy"
 msgstr "아카데미"
@@ -432,7 +432,7 @@ msgid "Accounts"
 msgstr "계정"
 
 msgid "Accounts for recording differences between actual and standard costs"
-msgstr ""
+msgstr "실제 비용과 표준 비용의 차이를 기록하는 계정"
 
 msgid "Accounts Payable"
 msgstr "매입채무"
@@ -1403,7 +1403,7 @@ msgid "Asset Account"
 msgstr "자산 계정"
 
 msgid "Asset account for advance payments made to suppliers before goods or services are received"
-msgstr ""
+msgstr "공급업체에 상품 또는 서비스를 받기 전에 선금으로 지불한 금액을 기록하는 자산 계정"
 
 msgid "Asset Acquisition Cost"
 msgstr "자산 취득원가"
@@ -2977,10 +2977,10 @@ msgid "Credit account when labor/machine time is absorbed into WIP"
 msgstr "노무/기계 시간이 재공품(WIP)에 흡수될 때의 대변 계정"
 
 msgid "Credit account when overhead is absorbed into WIP"
-msgstr ""
+msgstr "제조 간접비가 진행 중인 작업(WIP)에 흡수될 때의 외상 계정"
 
 msgid "Credit accounts used when manufacturing costs are absorbed into WIP"
-msgstr ""
+msgstr "제조 비용이 진행 중인 작업(WIP)에 흡수될 때 사용되는 외상 계정"
 
 msgid "Credits & Debits"
 msgstr "대변 및 차변"
@@ -3359,7 +3359,7 @@ msgid "Default accounts for tax-related transactions"
 msgstr "세금 관련 거래에 대한 기본 계정"
 
 msgid "Default accounts for the cost of goods sold and indirect purchases"
-msgstr ""
+msgstr "매출원가와 간접 구매를 위한 기본 계정"
 
 msgid "Default Approver"
 msgstr "기본 승인자"
@@ -5475,7 +5475,7 @@ msgid "GL account credited when labor or machine cost is absorbed into a product
 msgstr "노무비 또는 기계비가 생산 작업에 흡수될 때 대변에 기록되는 총계정원장 계정입니다."
 
 msgid "GL account credited when manufacturing overhead is absorbed into a production job."
-msgstr ""
+msgstr "제조 간접비가 생산 작업에 흡수될 때 외상으로 처리되는 총계정원장 계정"
 
 msgid "GL account debited to clear accumulated depreciation when an asset is disposed."
 msgstr "자산 처분 시 감가상각누계액을 정산하기 위해 차변에 기록되는 총계정원장 계정입니다."
@@ -8270,10 +8270,10 @@ msgid "Overdue"
 msgstr "연체"
 
 msgid "Overhead Absorption"
-msgstr ""
+msgstr "간접비 흡수"
 
 msgid "Overhead Absorption (default)"
-msgstr ""
+msgstr "간접비 흡수 (기본값)"
 
 msgid "Overhead Rate"
 msgstr "제조간접비율"
@@ -10894,7 +10894,7 @@ msgid "Standard cloud Carbon fits how your company runs"
 msgstr "표준 클라우드 Carbon이 귀사의 운영 방식에 맞습니다"
 
 msgid "Standard Cost Variances"
-msgstr ""
+msgstr "표준 비용 편차"
 
 msgid "Standard factor"
 msgstr "표준 계수"
@@ -11217,7 +11217,7 @@ msgid "Supplier Payment Discounts (default)"
 msgstr "공급업체 결제 할인(기본값)"
 
 msgid "Supplier Prepayments"
-msgstr ""
+msgstr "공급업체 선금"
 
 msgid "supplier process"
 msgstr "공급업체 공정"

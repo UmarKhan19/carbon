@@ -351,7 +351,7 @@ msgid "About"
 msgstr "关于"
 
 msgid "Absorption"
-msgstr ""
+msgstr "吸收"
 
 msgid "Academy"
 msgstr "学院"
@@ -432,7 +432,7 @@ msgid "Accounts"
 msgstr "账户"
 
 msgid "Accounts for recording differences between actual and standard costs"
-msgstr ""
+msgstr "用于记录实际成本与标准成本之间的差异的科目"
 
 msgid "Accounts Payable"
 msgstr "应付账款"
@@ -1403,7 +1403,7 @@ msgid "Asset Account"
 msgstr "资产账户"
 
 msgid "Asset account for advance payments made to suppliers before goods or services are received"
-msgstr ""
+msgstr "供应商在收到商品或服务前预先支付的预付款的资产科目"
 
 msgid "Asset Acquisition Cost"
 msgstr "资产收购成本"
@@ -2977,10 +2977,10 @@ msgid "Credit account when labor/machine time is absorbed into WIP"
 msgstr "当劳动力/机器时间被吸收到WIP中时的信用账户"
 
 msgid "Credit account when overhead is absorbed into WIP"
-msgstr ""
+msgstr "制造费用吸收到在产品中时的贷方科目"
 
 msgid "Credit accounts used when manufacturing costs are absorbed into WIP"
-msgstr ""
+msgstr "制造成本吸收到在产品中时使用的贷方科目"
 
 msgid "Credits & Debits"
 msgstr "贷项和借项"
@@ -3359,7 +3359,7 @@ msgid "Default accounts for tax-related transactions"
 msgstr "税务交易的默认账户"
 
 msgid "Default accounts for the cost of goods sold and indirect purchases"
-msgstr ""
+msgstr "销售成本和间接采购的默认科目"
 
 msgid "Default Approver"
 msgstr "默认审批人"
@@ -5475,7 +5475,7 @@ msgid "GL account credited when labor or machine cost is absorbed into a product
 msgstr "在处置资产时借记以清除累积折旧的GL账户。"
 
 msgid "GL account credited when manufacturing overhead is absorbed into a production job."
-msgstr ""
+msgstr "当制造费用被吸收到生产作业中时被贷记的总分类账科目。"
 
 msgid "GL account debited to clear accumulated depreciation when an asset is disposed."
 msgstr "当客户发票过账时借记的GL账户；当客户支付时清除。"
@@ -8270,10 +8270,10 @@ msgid "Overdue"
 msgstr "逾期"
 
 msgid "Overhead Absorption"
-msgstr ""
+msgstr "制造费用吸收"
 
 msgid "Overhead Absorption (default)"
-msgstr ""
+msgstr "制造费用吸收（默认）"
 
 msgid "Overhead Rate"
 msgstr "间接费率"
@@ -10894,7 +10894,7 @@ msgid "Standard cloud Carbon fits how your company runs"
 msgstr "标准云 Carbon 适合您公司的运营方式"
 
 msgid "Standard Cost Variances"
-msgstr ""
+msgstr "标准成本差异"
 
 msgid "Standard factor"
 msgstr "标准系数"
@@ -11217,7 +11217,7 @@ msgid "Supplier Payment Discounts (default)"
 msgstr "供应商付款折扣（默认）"
 
 msgid "Supplier Prepayments"
-msgstr ""
+msgstr "供应商预付款"
 
 msgid "supplier process"
 msgstr "供应商流程"
