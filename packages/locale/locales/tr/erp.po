@@ -350,6 +350,9 @@ msgstr "yetenek"
 msgid "About"
 msgstr "Hakkında"
 
+msgid "Absorption"
+msgstr ""
+
 msgid "Academy"
 msgstr "Akademi"
 
@@ -427,6 +430,9 @@ msgstr "Muhasebe: GL, AR, AP ve ay sonu kapanışı"
 
 msgid "Accounts"
 msgstr "Hesaplar"
+
+msgid "Accounts for recording differences between actual and standard costs"
+msgstr ""
 
 msgid "Accounts Payable"
 msgstr "Ödenecek hesaplar"
@@ -1396,6 +1402,9 @@ msgstr "Varlık"
 msgid "Asset Account"
 msgstr "Varlık hesabı"
 
+msgid "Asset account for advance payments made to suppliers before goods or services are received"
+msgstr ""
+
 msgid "Asset Acquisition Cost"
 msgstr "Varlık satın alma maliyeti"
 
@@ -2287,9 +2296,6 @@ msgstr "Nakit ve banka işlemleri için varsayılan hesapları yapılandırın"
 msgid "Configure default accounts for inventory management"
 msgstr "Envanter yönetimi için varsayılan hesapları yapılandırın"
 
-msgid "Configure default accounts for purchasing and COGS"
-msgstr "Satın alma ve COGS için varsayılan hesapları yapılandırın"
-
 msgid "Configure default accounts for vendor and supplier transactions"
 msgstr "Satıcı ve tedarikçi işlemleri için varsayılan hesapları yapılandırın"
 
@@ -2970,6 +2976,12 @@ msgstr "Kredi Hesabı"
 msgid "Credit account when labor/machine time is absorbed into WIP"
 msgstr "İşçilik/makine zamanı WIP'de emildiğinde kredi hesabı"
 
+msgid "Credit account when overhead is absorbed into WIP"
+msgstr ""
+
+msgid "Credit accounts used when manufacturing costs are absorbed into WIP"
+msgstr ""
+
 msgid "Credits & Debits"
 msgstr "Krediler ve Borçlar"
 
@@ -3345,6 +3357,9 @@ msgstr "Satış ve gelir için varsayılan hesaplar"
 
 msgid "Default accounts for tax-related transactions"
 msgstr "Vergi ile ilgili işlemler için varsayılan hesaplar"
+
+msgid "Default accounts for the cost of goods sold and indirect purchases"
+msgstr ""
 
 msgid "Default Approver"
 msgstr "Varsayılan Onaylayıcı"
@@ -5458,6 +5473,9 @@ msgstr "İşçilik veya makine maliyeti bir üretim işine emildiğinde kredilen
 
 msgid "GL account credited when labor or machine cost is absorbed into a production job."
 msgstr "Bir varlık elden çıkarıldığında birikmiş amortisman temizlemek için borçlandırılan GL hesabı."
+
+msgid "GL account credited when manufacturing overhead is absorbed into a production job."
+msgstr ""
 
 msgid "GL account debited to clear accumulated depreciation when an asset is disposed."
 msgstr "Müşteri faturası gönderildiğinde borçlandırılan GL hesabı; müşteri ödediğinde temizlenir."
@@ -8251,6 +8269,12 @@ msgstr "Fazla uygulandı"
 msgid "Overdue"
 msgstr "Geçmiş"
 
+msgid "Overhead Absorption"
+msgstr ""
+
+msgid "Overhead Absorption (default)"
+msgstr ""
+
 msgid "Overhead Rate"
 msgstr "Genel Gider Oranı"
 
@@ -9083,9 +9107,6 @@ msgstr "Satın Alma ve Satılan Malların Maliyeti"
 
 msgid "Purchasing"
 msgstr "Satın Alma"
-
-msgid "Purchasing & Cost of Goods"
-msgstr "kalite"
 
 msgid "Purchasing & Inventory"
 msgstr "Satın Alma & Envanter"
@@ -10872,6 +10893,9 @@ msgstr "Standart"
 msgid "Standard cloud Carbon fits how your company runs"
 msgstr "Standart bulut Carbon, şirketinizin nasıl çalıştığına uygun"
 
+msgid "Standard Cost Variances"
+msgstr ""
+
 msgid "Standard factor"
 msgstr "Standart faktör"
 
@@ -11191,6 +11215,9 @@ msgstr "Tedarikçi Ödeme İndirimleri"
 
 msgid "Supplier Payment Discounts (default)"
 msgstr "Tedarikçi Ödeme İndirimleri (varsayılan)"
+
+msgid "Supplier Prepayments"
+msgstr ""
 
 msgid "supplier process"
 msgstr "Tedarikçi Süreci"

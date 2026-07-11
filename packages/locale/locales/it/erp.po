@@ -350,6 +350,9 @@ msgstr "capacità"
 msgid "About"
 msgstr "Informazioni"
 
+msgid "Absorption"
+msgstr ""
+
 msgid "Academy"
 msgstr "Academy"
 
@@ -427,6 +430,9 @@ msgstr "Contabilità: GL, AR, AP e chiusura di fine mese"
 
 msgid "Accounts"
 msgstr "Account"
+
+msgid "Accounts for recording differences between actual and standard costs"
+msgstr ""
 
 msgid "Accounts Payable"
 msgstr "Debiti verso fornitori"
@@ -1396,6 +1402,9 @@ msgstr "Cespite"
 msgid "Asset Account"
 msgstr "Conto patrimoniale"
 
+msgid "Asset account for advance payments made to suppliers before goods or services are received"
+msgstr ""
+
 msgid "Asset Acquisition Cost"
 msgstr "Costo di acquisizione dell'asset"
 
@@ -2287,9 +2296,6 @@ msgstr "Configurare i conti predefiniti per le transazioni di cassa e banca"
 msgid "Configure default accounts for inventory management"
 msgstr "Configurare i conti predefiniti per la gestione dell'inventario"
 
-msgid "Configure default accounts for purchasing and COGS"
-msgstr "Configurare i conti predefiniti per gli acquisti e il COGS"
-
 msgid "Configure default accounts for vendor and supplier transactions"
 msgstr "Configurare i conti predefiniti per le transazioni di fornitore e venditore"
 
@@ -2970,6 +2976,12 @@ msgstr "Conto Credito"
 msgid "Credit account when labor/machine time is absorbed into WIP"
 msgstr "Conto credito quando il tempo di lavoro/macchina viene assorbito in WIP"
 
+msgid "Credit account when overhead is absorbed into WIP"
+msgstr ""
+
+msgid "Credit accounts used when manufacturing costs are absorbed into WIP"
+msgstr ""
+
 msgid "Credits & Debits"
 msgstr "Crediti e Debiti"
 
@@ -3345,6 +3357,9 @@ msgstr "Conti predefiniti per le vendite e i ricavi"
 
 msgid "Default accounts for tax-related transactions"
 msgstr "Conti predefiniti per le transazioni relative alle imposte"
+
+msgid "Default accounts for the cost of goods sold and indirect purchases"
+msgstr ""
 
 msgid "Default Approver"
 msgstr "Approvatore Predefinito"
@@ -5458,6 +5473,9 @@ msgstr "Conto GL accreditato quando il costo del lavoro o della macchina viene a
 
 msgid "GL account credited when labor or machine cost is absorbed into a production job."
 msgstr "Conto GL addebitato per cancellare l'ammortamento cumulato quando un cespite viene dismesso."
+
+msgid "GL account credited when manufacturing overhead is absorbed into a production job."
+msgstr ""
 
 msgid "GL account debited to clear accumulated depreciation when an asset is disposed."
 msgstr "Conto GL addebitato quando una fattura cliente viene registrata; cancellato quando il cliente paga."
@@ -8251,6 +8269,12 @@ msgstr "Applicato in eccesso di"
 msgid "Overdue"
 msgstr "Scaduto"
 
+msgid "Overhead Absorption"
+msgstr ""
+
+msgid "Overhead Absorption (default)"
+msgstr ""
+
 msgid "Overhead Rate"
 msgstr "Tasso di Overhead"
 
@@ -9083,9 +9107,6 @@ msgstr "Acquisti e Costo del Venduto"
 
 msgid "Purchasing"
 msgstr "Acquisti"
-
-msgid "Purchasing & Cost of Goods"
-msgstr "qualità"
 
 msgid "Purchasing & Inventory"
 msgstr "Acquisti e Inventario"
@@ -10872,6 +10893,9 @@ msgstr "Standard"
 msgid "Standard cloud Carbon fits how your company runs"
 msgstr "Carbon cloud standard si adatta a come la tua azienda funziona"
 
+msgid "Standard Cost Variances"
+msgstr ""
+
 msgid "Standard factor"
 msgstr "Fattore standard"
 
@@ -11191,6 +11215,9 @@ msgstr "Sconti per il Pagamento dei Fornitori"
 
 msgid "Supplier Payment Discounts (default)"
 msgstr "Sconti per il Pagamento dei Fornitori (predefinito)"
+
+msgid "Supplier Prepayments"
+msgstr ""
 
 msgid "supplier process"
 msgstr "Processo Fornitore"

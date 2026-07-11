@@ -350,6 +350,9 @@ msgstr "Fähigkeit"
 msgid "About"
 msgstr "Über"
 
+msgid "Absorption"
+msgstr ""
+
 msgid "Academy"
 msgstr "Academy"
 
@@ -427,6 +430,9 @@ msgstr "Buchhaltung: Hauptbuch, Debitorenbuchhaltung, Kreditorenbuchhaltung und 
 
 msgid "Accounts"
 msgstr "Konten"
+
+msgid "Accounts for recording differences between actual and standard costs"
+msgstr ""
 
 msgid "Accounts Payable"
 msgstr "Verbindlichkeiten aus Lieferungen und Leistungen"
@@ -1396,6 +1402,9 @@ msgstr "Anlage"
 msgid "Asset Account"
 msgstr "Vermögenskonto"
 
+msgid "Asset account for advance payments made to suppliers before goods or services are received"
+msgstr ""
+
 msgid "Asset Acquisition Cost"
 msgstr "Vermögensanschaffungskosten"
 
@@ -2287,9 +2296,6 @@ msgstr "Standardkonten für Bargeld- und Banktransaktionen konfigurieren"
 msgid "Configure default accounts for inventory management"
 msgstr "Standardkonten für Bestandsverwaltung konfigurieren"
 
-msgid "Configure default accounts for purchasing and COGS"
-msgstr "Standardkonten für Einkauf und COGS konfigurieren"
-
 msgid "Configure default accounts for vendor and supplier transactions"
 msgstr "Standardkonten für Anbieter- und Lieferantentransaktionen konfigurieren"
 
@@ -2970,6 +2976,12 @@ msgstr "Gutschriftkonto"
 msgid "Credit account when labor/machine time is absorbed into WIP"
 msgstr "Gutschriftkonto, wenn Arbeits- / Maschinenzeit in WIP aufgenommen wird"
 
+msgid "Credit account when overhead is absorbed into WIP"
+msgstr ""
+
+msgid "Credit accounts used when manufacturing costs are absorbed into WIP"
+msgstr ""
+
 msgid "Credits & Debits"
 msgstr "Gutschriften & Belastungen"
 
@@ -3345,6 +3357,9 @@ msgstr "Standardkonten für Verkauf und Einkommen"
 
 msgid "Default accounts for tax-related transactions"
 msgstr "Standardkonten für steuerbezogene Transaktionen"
+
+msgid "Default accounts for the cost of goods sold and indirect purchases"
+msgstr ""
 
 msgid "Default Approver"
 msgstr "Standardgenehmiger"
@@ -5458,6 +5473,9 @@ msgstr "GL-Konto, das gutgeschrieben wird, wenn Arbeits- oder Maschinenkosten in
 
 msgid "GL account credited when labor or machine cost is absorbed into a production job."
 msgstr "GL-Konto, das belastet wird, um die angesammelte Abschreibung zu löschen, wenn ein Vermögenswert veräußert wird."
+
+msgid "GL account credited when manufacturing overhead is absorbed into a production job."
+msgstr ""
 
 msgid "GL account debited to clear accumulated depreciation when an asset is disposed."
 msgstr "GL-Konto, das belastet wird, wenn eine Kundenrechnung gebucht wird; gelöscht, wenn der Kunde bezahlt."
@@ -8251,6 +8269,12 @@ msgstr "Überangewendet um"
 msgid "Overdue"
 msgstr "Überfällig"
 
+msgid "Overhead Absorption"
+msgstr ""
+
+msgid "Overhead Absorption (default)"
+msgstr ""
+
 msgid "Overhead Rate"
 msgstr "Gemeinkostensatz"
 
@@ -9083,9 +9107,6 @@ msgstr "Einkauf & Kosten der verkauften Waren"
 
 msgid "Purchasing"
 msgstr "Beschaffung"
-
-msgid "Purchasing & Cost of Goods"
-msgstr "Qualität"
 
 msgid "Purchasing & Inventory"
 msgstr "Beschaffung & Bestand"
@@ -10872,6 +10893,9 @@ msgstr "Standard"
 msgid "Standard cloud Carbon fits how your company runs"
 msgstr "Standard Cloud Carbon passt zu Ihrer Unternehmensweise"
 
+msgid "Standard Cost Variances"
+msgstr ""
+
 msgid "Standard factor"
 msgstr "Standardfaktor"
 
@@ -11191,6 +11215,9 @@ msgstr "Lieferanten-Zahlungsrabatte"
 
 msgid "Supplier Payment Discounts (default)"
 msgstr "Lieferanten-Zahlungsrabatte (Standard)"
+
+msgid "Supplier Prepayments"
+msgstr ""
 
 msgid "supplier process"
 msgstr "Lieferantenprozess"

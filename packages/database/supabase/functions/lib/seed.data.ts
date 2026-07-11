@@ -586,6 +586,7 @@ export const accounts = [
   { key: "receivables", number: null, name: "Receivables", isGroup: true, parentKey: "assets", accountType: "Accounts Receivable", incomeBalance: "Balance Sheet", class: "Asset", consolidatedRate: "Current", createdBy: "system" },
   { key: "1110", number: "1110", name: "Accounts Receivable", isGroup: false, parentKey: "receivables", accountType: "Accounts Receivable", incomeBalance: "Balance Sheet", class: "Asset", consolidatedRate: "Current", createdBy: "system" },
   { key: "1130", number: "1130", name: "Inter-Company Receivables", isGroup: false, parentKey: "receivables", accountType: "Accounts Receivable", incomeBalance: "Balance Sheet", class: "Asset", consolidatedRate: "Current", createdBy: "system" },
+  { key: "1150", number: "1150", name: "Supplier Prepayments", isGroup: false, parentKey: "receivables", accountType: "Other Current Asset", incomeBalance: "Balance Sheet", class: "Asset", consolidatedRate: "Current", createdBy: "system" },
 
   // Inventory
   { key: "inventory", number: null, name: "Inventory & Stock", isGroup: true, parentKey: "assets", accountType: "Inventory", incomeBalance: "Balance Sheet", class: "Asset", consolidatedRate: "Current", createdBy: "system" },
@@ -747,6 +748,7 @@ export const accountDefaults = {
   bankLocalCurrencyAccount: "1020",
   bankForeignCurrencyAccount: "1030",
   prepaymentAccount: "2110",
+  supplierPrepaymentAccount: "1150",
   payablesAccount: "2010",
   goodsReceivedNotInvoicedAccount: "2125",
   inventoryShippedNotInvoicedAccount: "2130",
