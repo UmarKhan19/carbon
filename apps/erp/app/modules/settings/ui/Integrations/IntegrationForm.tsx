@@ -39,7 +39,7 @@ import {
 import { SUPPORT_EMAIL } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { ReactNode } from "react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router";
 import { Processes } from "~/components/Form";
 import { MethodIcon, TrackingTypeIcon } from "~/components/Icons";
@@ -525,6 +525,15 @@ export function IntegrationForm({
 
   const { id: integrationId } = useParams();
 
+  // Controlled tab state seeded from (and following) the ?tab= deep link:
+  // links inside tab content (e.g. the QBD checklist's "Open Account
+  // Mapping") update the search param, and this effect switches the tab
+  // without a remount. Manual tab clicks don't write the URL.
+  const [activeTab, setActiveTab] = useState(defaultTab ?? "settings");
+  useEffect(() => {
+    if (defaultTab) setActiveTab(defaultTab);
+  }, [defaultTab]);
+
   const integration = integrationId
     ? availableIntegrations.find((i) => i.id === integrationId)
     : undefined;
@@ -767,7 +776,8 @@ export function IntegrationForm({
       <DrawerContent size={hasTabs ? "lg" : "md"}>
         {hasTabs ? (
           <Tabs
-            defaultValue={defaultTab ?? "settings"}
+            value={activeTab}
+            onValueChange={setActiveTab}
             className="flex h-full min-h-0 flex-col"
           >
             <DrawerHeader>

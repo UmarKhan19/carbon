@@ -3,11 +3,13 @@ import { SyncOperationStatusSchema } from "./models";
 import {
   getClaimEntityTypeExclusion,
   getClaimEntityTypeFilterError,
+  getSyncOperationsByIds,
   getSyncOperationTransitionError,
   isCooldownTrigger,
   isLiveSyncOperationStatus,
   SYNC_OPERATION_COOLDOWN_MS,
-  shouldSkipForCooldown
+  shouldSkipForCooldown,
+  updateOperationMetadata
 } from "./operations";
 import type { SyncOperationStatus, SyncOperationTrigger } from "./types";
 
@@ -188,5 +190,148 @@ describe("getClaimEntityTypeFilterError", () => {
     ).toBe(
       "entityTypes and excludeEntityTypes are mutually exclusive claim filters"
     );
+  });
+});
+
+// /********************************************************\
+// *      QBWC work-loop additions (byIds + metadata)       *
+// \********************************************************/
+// Minimal chainable stub emulating the exact supabase-js chains these two
+// functions use (select().eq().in() thenable; update().eq().eq().select()
+// .single()). Rows mutate in place so assertions read the "table" back.
+
+function makeOperationTableStub(rows: Array<Record<string, unknown>>) {
+  const client = {
+    from(table: string) {
+      if (table !== "accountingSyncOperation") {
+        throw new Error(`unexpected table ${table}`);
+      }
+
+      let matched = rows;
+      let patch: Record<string, unknown> | null = null;
+
+      const applyPatch = () => {
+        if (!patch) return;
+        for (const row of matched) Object.assign(row, patch);
+        patch = null;
+      };
+
+      const builder = {
+        select() {
+          return builder;
+        },
+        update(update: Record<string, unknown>) {
+          patch = update;
+          return builder;
+        },
+        eq(column: string, value: unknown) {
+          matched = matched.filter((row) => row[column] === value);
+          return builder;
+        },
+        in(column: string, values: readonly unknown[]) {
+          matched = matched.filter((row) => values.includes(row[column]));
+          return builder;
+        },
+        single() {
+          applyPatch();
+          return Promise.resolve(
+            matched.length === 1
+              ? { data: matched[0], error: null }
+              : {
+                  data: null,
+                  error: { message: `expected 1 row, got ${matched.length}` }
+                }
+          );
+        },
+        then(
+          onfulfilled?: (value: {
+            data: Array<Record<string, unknown>>;
+            error: null;
+          }) => unknown
+        ) {
+          applyPatch();
+          return Promise.resolve({ data: matched, error: null }).then(
+            onfulfilled
+          );
+        }
+      };
+
+      return builder;
+    }
+  };
+
+  return client as unknown as Parameters<typeof getSyncOperationsByIds>[0];
+}
+
+describe("getSyncOperationsByIds", () => {
+  it("returns only the requested ids scoped to the company", async () => {
+    const rows = [
+      { id: "op-1", companyId: "company-1", status: "In Flight" },
+      { id: "op-2", companyId: "company-1", status: "Pending" },
+      { id: "op-1", companyId: "company-2", status: "In Flight" }
+    ];
+
+    const result = await getSyncOperationsByIds(makeOperationTableStub(rows), {
+      companyId: "company-1",
+      ids: ["op-1", "op-3"]
+    });
+
+    expect(result.error).toBeNull();
+    expect(result.data).toEqual([
+      { id: "op-1", companyId: "company-1", status: "In Flight" }
+    ]);
+  });
+
+  it("short-circuits an empty id list without touching the client", async () => {
+    const client = {
+      from() {
+        throw new Error("should not query for an empty id list");
+      }
+    } as unknown as Parameters<typeof getSyncOperationsByIds>[0];
+
+    const result = await getSyncOperationsByIds(client, {
+      companyId: "company-1",
+      ids: []
+    });
+    expect(result).toEqual({ data: [], error: null });
+  });
+});
+
+describe("updateOperationMetadata", () => {
+  it("replaces metadata (not merges) and leaves the status untouched", async () => {
+    const rows = [
+      {
+        id: "op-1",
+        companyId: "company-1",
+        status: "In Flight",
+        metadata: { qbdPhase: "query", stale: true },
+        updatedAt: null
+      }
+    ];
+
+    const result = await updateOperationMetadata(makeOperationTableStub(rows), {
+      id: "op-1",
+      companyId: "company-1",
+      metadata: { qbdPhase: "mod" }
+    });
+
+    expect(result.error).toBeNull();
+    expect(rows[0]).toMatchObject({
+      status: "In Flight",
+      metadata: { qbdPhase: "mod" }
+    });
+    expect(rows[0]?.metadata).not.toHaveProperty("stale");
+    expect(rows[0]?.updatedAt).toBeTruthy();
+  });
+
+  it("returns an error for a missing operation", async () => {
+    const result = await updateOperationMetadata(makeOperationTableStub([]), {
+      id: "op-missing",
+      companyId: "company-1",
+      metadata: { qbdPhase: "add" }
+    });
+
+    expect(result.data).toBeNull();
+    expect(result.error).toMatch(/expected 1 row, got 0/);
   });
 });

@@ -2362,6 +2362,10 @@ export async function getPurchasingRFQSuppliers(
   client: SupabaseClient<Database>,
   purchasingRfqId: string
 ) {
+  // @ts-expect-error TS2589 — supabase select-string instantiation depth;
+  // the cliff shifted here when the quickbooks-desktop connection modules
+  // joined the program (same class as the suppression that previously
+  // lived in SalesInvoiceForm.tsx)
   return client
     .from("purchasingRfqSupplier")
     .select("*, supplier:supplierId(id, name)")

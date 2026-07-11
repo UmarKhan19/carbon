@@ -19,9 +19,16 @@ export * from "./entities/purchase-order";
 export * from "./entities/shared";
 export * from "./entities/vendor";
 export * from "./provider";
+// Web Connector connection plumbing consumed by the ERP settings UI
+// (credential issuance + rotation, .qwc file generation, poll health).
+export * from "./qbwc/credentials";
+export * from "./qbwc/qwc-file";
+export * from "./qbwc/session";
 // The qbXML layer (./qbxml/**) is deliberately NOT star-exported: its
 // entity modules each export buildAddRq/buildQueryRq/parseRet and would
-// collide. The QBWC handler imports from ./qbxml/* directly.
+// collide. The QBWC handler imports from ./qbxml/* directly, and the
+// protocol handler modules (./qbwc/handler, ./qbwc/soap) stay unexported
+// too — the SOAP resource route imports them by file path.
 
 /**
  * Every syncer QuickBooks Desktop implements, keyed by entity type — ALL

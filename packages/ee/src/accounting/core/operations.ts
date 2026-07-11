@@ -367,6 +367,58 @@ export async function claimPendingOperations(
 }
 
 /**
+ * Fetch operations by id, companyId-scoped. The QBWC work loop re-loads
+ * the operations pinned to a session (qbwcSession.claimedOperationIds)
+ * across stateless SOAP callbacks — claim state lives in the ledger, not
+ * in handler memory.
+ */
+export async function getSyncOperationsByIds(
+  client: SupabaseClient<Database>,
+  args: { companyId: string; ids: string[] }
+): Promise<{ data: SyncOperation[]; error: string | null }> {
+  if (args.ids.length === 0) return { data: [], error: null };
+
+  const result = await syncOperationTable(client)
+    .select("*")
+    .eq("companyId", args.companyId)
+    .in("id", args.ids);
+
+  if (result.error) return { data: [], error: result.error.message };
+  return { data: (result.data ?? []) as SyncOperation[], error: null };
+}
+
+/**
+ * Replace an operation's metadata without touching its status. The QBWC
+ * work loop persists polled-transport progression on "In Flight"
+ * operations between SOAP callbacks (metadata.qbdPhase before a request is
+ * sent, the editSequenceRetry flag on a stale-EditSequence retry) —
+ * completeOperation/failOperation cannot express that because they always
+ * transition the status. Same replace-not-merge metadata contract as those
+ * two.
+ */
+export async function updateOperationMetadata(
+  client: SupabaseClient<Database>,
+  args: {
+    id: string;
+    companyId: string;
+    metadata: Record<string, unknown>;
+  }
+): Promise<{ data: SyncOperation | null; error: string | null }> {
+  const updated = await syncOperationTable(client)
+    .update({
+      metadata: args.metadata,
+      updatedAt: new Date().toISOString()
+    })
+    .eq("id", args.id)
+    .eq("companyId", args.companyId)
+    .select("*")
+    .single();
+
+  if (updated.error) return { data: null, error: updated.error.message };
+  return { data: updated.data as SyncOperation, error: null };
+}
+
+/**
  * Mark an operation Completed (clears any previous error fields).
  *
  * `metadata`, when provided, replaces the operation's metadata (same

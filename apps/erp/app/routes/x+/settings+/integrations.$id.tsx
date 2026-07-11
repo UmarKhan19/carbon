@@ -4,16 +4,21 @@ import { flash } from "@carbon/auth/session.server";
 import type { Json } from "@carbon/database";
 import { integrations as availableIntegrations } from "@carbon/ee";
 import {
+  generateConnectionCredentials,
   getAccountingIntegration,
   getAccountMappings,
+  getLastPollAt,
   getProviderIntegration,
   getSyncOperations,
   getUnmappedPostingAccounts,
+  hashPassword,
   matchAccountsByCode,
   POSTING_SYNC_DEFAULT_SOURCE_TYPES,
   ProviderID,
+  parseStoredCredentials,
   type QboProvider,
   resolvePostingSyncSettings,
+  rotateConnectionPassword,
   type SyncOperation,
   type SyncOperationStatus,
   SyncOperationStatusSchema,
@@ -52,9 +57,17 @@ import {
 import { AccountMapping } from "~/modules/settings/ui/Integrations/AccountMapping";
 import type { IntegrationFormTab } from "~/modules/settings/ui/Integrations/IntegrationForm";
 import { PostingSyncSettings } from "~/modules/settings/ui/Integrations/PostingSyncSettings";
+import { QbdConnectionCard } from "~/modules/settings/ui/Integrations/QbdConnectionCard";
 import type { SyncReconciliationReport } from "~/modules/settings/ui/Integrations/SyncActivity";
 import { getDatabaseClient } from "~/services/database.server";
 import { path } from "~/utils/path";
+
+/**
+ * A QuickBooks Web Connector that hasn't polled within this window is
+ * considered stale — QBWC's default schedule is every 5 minutes, so 24
+ * hours of silence means the desktop machine or the connector is off.
+ */
+const QBD_STALE_POLL_MS = 24 * 60 * 60 * 1000;
 
 /**
  * Transforms flat owner settings (customerOwner, vendorOwner, etc.) into
@@ -209,7 +222,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       dynamicOptions: {},
       syncActivity: null,
       accountMapping: null,
-      postingSync: null
+      postingSync: null,
+      qbdConnection: null
     };
   }
 
@@ -368,6 +382,50 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     }
   }
 
+  // QuickBooks Desktop connection tab data: whether Web Connector
+  // credentials exist (username only — the password hash never leaves the
+  // server via this fragment) plus poll health from qbwcSession.
+  let qbdConnection: {
+    hasCredentials: boolean;
+    username: string | null;
+    lastPollAt: string | null;
+    stale: boolean;
+  } | null = null;
+
+  if (integrationId === "quickbooks-desktop" && integrationData.data.active) {
+    let hasCredentials = false;
+    let username: string | null = null;
+    if (metadata.credentials) {
+      try {
+        const credentials = parseStoredCredentials(metadata.credentials);
+        if (credentials.type === "webConnector") {
+          hasCredentials = true;
+          username = credentials.username;
+        }
+      } catch (credentialsError) {
+        // Malformed stored credentials render as "not generated yet" so
+        // the user can re-generate; the cause is logged for support.
+        console.error(
+          "Failed to parse QuickBooks Desktop credentials:",
+          credentialsError
+        );
+      }
+    }
+
+    const lastPoll = await getLastPollAt(client, companyId, integrationId);
+    if (lastPoll.error) {
+      // Don't block the settings drawer on a health-read failure — render
+      // "never polled" and log the cause.
+      console.error("Failed to load QBWC poll health:", lastPoll.error);
+    }
+    const lastPollAt = lastPoll.data;
+    const stale =
+      !lastPollAt ||
+      Date.now() - new Date(lastPollAt).getTime() > QBD_STALE_POLL_MS;
+
+    qbdConnection = { hasCredentials, username, lastPollAt, stale };
+  }
+
   const accountMapping = isAccountingInstalled
     ? await getAccountMappingTabData(companyId, integrationId, chartAccounts)
     : null;
@@ -385,7 +443,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     dynamicOptions,
     syncActivity,
     accountMapping,
-    postingSync
+    postingSync,
+    qbdConnection
   };
 }
 
@@ -656,6 +715,103 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
+  // Issue (or rotate) the QuickBooks Web Connector credentials (QBD
+  // Connection tab). Read-modify-write of the companyIntegration metadata
+  // JSONB so settings/syncConfig keys are never clobbered (same merge
+  // discipline as update-posting-settings). The plaintext password is
+  // returned in the action data for one-time display and never persisted
+  // — only the scrypt hash is stored (ApiKeys shown-once pattern). Stays
+  // on the page.
+  if (formData.get("intent") === "qbd-generate-credentials") {
+    const existing = await getIntegration(client, integrationId, companyId);
+    if (existing.error || !existing.data) {
+      return data(
+        {},
+        await flash(
+          request,
+          error(existing.error, "Failed to load integration settings")
+        )
+      );
+    }
+
+    const existingMetadata =
+      (existing.data.metadata as Record<string, unknown>) ?? {};
+
+    // An existing webConnector credential set makes this a ROTATION:
+    // username/ownerId and especially fileId are preserved — QuickBooks
+    // stamped the FileID into the company file on first connect, and
+    // changing it breaks the pairing. Malformed stored credentials fall
+    // back to a fresh set.
+    let existingCredentials: ReturnType<typeof parseStoredCredentials> | null =
+      null;
+    if (existingMetadata.credentials) {
+      try {
+        existingCredentials = parseStoredCredentials(
+          existingMetadata.credentials
+        );
+      } catch {
+        existingCredentials = null;
+      }
+    }
+    const existingWebConnector =
+      existingCredentials?.type === "webConnector" ? existingCredentials : null;
+
+    const credentials = existingWebConnector
+      ? rotateConnectionPassword({
+          username: existingWebConnector.username,
+          ownerId: existingWebConnector.ownerId,
+          fileId: existingWebConnector.fileId
+        })
+      : generateConnectionCredentials(companyId);
+
+    const metadata = {
+      ...existingMetadata,
+      credentials: {
+        type: "webConnector",
+        username: credentials.username,
+        passwordHash: hashPassword(credentials.password),
+        ownerId: credentials.ownerId,
+        fileId: credentials.fileId,
+        // qbxmlVersion is written by the QBWC handshake — survive rotation
+        ...(existingWebConnector?.qbxmlVersion
+          ? { qbxmlVersion: existingWebConnector.qbxmlVersion }
+          : {})
+      }
+    };
+
+    const update = await upsertCompanyIntegration(client, {
+      id: integrationId,
+      active: existing.data.active ?? true,
+      metadata: metadata as Json,
+      companyId,
+      updatedBy: userId
+    });
+
+    if (update.error) {
+      return data(
+        {},
+        await flash(
+          request,
+          error(update.error, "Failed to generate Web Connector credentials")
+        )
+      );
+    }
+
+    await invalidateIntegrationHealthCache(integrationId, companyId);
+
+    return data(
+      { qbdPassword: credentials.password },
+      await flash(
+        request,
+        success(
+          existingWebConnector
+            ? "Rotated Web Connector password"
+            : "Generated Web Connector credentials"
+        )
+      )
+    );
+  }
+
   if (!isIntegrationWhitelisted(integrationId)) {
     await requirePlan({
       request,
@@ -758,7 +914,8 @@ export default function IntegrationRoute() {
     dynamicOptions,
     syncActivity,
     accountMapping,
-    postingSync
+    postingSync,
+    qbdConnection
   } = useLoaderData<typeof loader>();
 
   const navigate = useNavigate();
@@ -766,8 +923,16 @@ export default function IntegrationRoute() {
 
   // Accounting-category integrations get Account Mapping, Posting and
   // Sync Activity tabs next to the Settings form (deep-linkable via
-  // ?tab=<value>).
+  // ?tab=<value>). QuickBooks Desktop additionally gets a Connection tab
+  // first (Web Connector credentials, .qwc download, setup checklist).
   const tabs: IntegrationFormTab[] = [];
+  if (qbdConnection) {
+    tabs.push({
+      value: "connection",
+      label: <Trans>Connection</Trans>,
+      content: <QbdConnectionCard connection={qbdConnection} />
+    });
+  }
   if (accountMapping) {
     tabs.push({
       value: "account-mapping",

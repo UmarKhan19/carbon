@@ -2,10 +2,11 @@ import { IntegrationForm } from "./IntegrationForm";
 import IntegrationsList from "./IntegrationsList";
 import { SyncActivity } from "./SyncActivity";
 
-// AccountMapping and PostingSyncSettings are deliberately NOT re-exported
-// here: adding them to this barrel pushes unrelated supabase select-string
-// parses (usePurchaseInvoiceAutoFill.ts, purchasing.service.ts) over
-// TS2589's instantiation-depth limit — the same cliff SyncActivity's ee
-// imports hit (see the note in SyncActivity.tsx). Their only consumer, the
-// integrations.$id route, imports them directly from their files.
+// AccountMapping, PostingSyncSettings and QbdConnectionCard are
+// deliberately NOT re-exported here: adding them to this barrel pushes
+// unrelated supabase select-string parses (usePurchaseInvoiceAutoFill.ts,
+// purchasing.service.ts) over TS2589's instantiation-depth limit — the
+// same cliff SyncActivity's ee imports hit (see the note in
+// SyncActivity.tsx). Their only consumer, the integrations.$id route,
+// imports them directly from their files.
 export { IntegrationForm, IntegrationsList, SyncActivity };

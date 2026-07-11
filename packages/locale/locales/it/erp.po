@@ -1934,6 +1934,9 @@ msgstr "Colonna Carbon"
 msgid "Carbon is configured the way your company runs, your data is loaded, and your team is confident using it. When that's true, you're ready to go live."
 msgstr "Carbon è configurato secondo il modo in cui la tua azienda opera, i tuoi dati sono caricati e il tuo team è sicuro nell'utilizzarlo. Quando questo è vero, sei pronto per andare in produzione."
 
+msgid "Carbon issues a username and one-time password for the QuickBooks Web Connector. After generating, download the .qwc file and install it in the Web Connector on the QuickBooks machine."
+msgstr ""
+
 msgid "Carbon leads"
 msgstr "Carbon guida"
 
@@ -2038,6 +2041,9 @@ msgstr "Piano dei Conti"
 
 msgid "Chat"
 msgstr "Chat"
+
+msgid "Check that the QuickBooks machine is on and the QuickBooks Web Connector is running with the Carbon application enabled."
+msgstr ""
 
 msgid "Check your email"
 msgstr "Controlla la tua email"
@@ -2238,6 +2244,9 @@ msgstr "Completa Lavoro"
 msgid "Complete Stock Transfer"
 msgstr "Completa Trasferimento Magazzino"
 
+msgid "Complete the account mapping so posted journal lines resolve to accounts in your QuickBooks chart of accounts."
+msgstr ""
+
 msgid "Completed"
 msgstr "Completato"
 
@@ -2403,6 +2412,9 @@ msgstr "Collega gli strumenti esterni su cui la tua azienda è già in esecuzion
 
 msgid "Connected to"
 msgstr "Connesso a"
+
+msgid "Connection"
+msgstr ""
 
 msgid "Console Mode"
 msgstr "Modalità Console"
@@ -2619,6 +2631,9 @@ msgstr "Copia numero parte"
 
 msgid "Copy part unique identifier"
 msgstr "Copia identificatore univoco della parte"
+
+msgid "Copy password"
+msgstr ""
 
 msgid "Copy PIN"
 msgstr "Copia PIN"
@@ -3909,6 +3924,9 @@ msgstr "Completato quando le operazioni quotidiane funzionano senza il nostro su
 
 msgid "Download"
 msgstr "Scarica"
+
+msgid "Download .qwc file"
+msgstr ""
 
 #. placeholder {0}: errors.length
 msgid "Download {0} row(s) to fix"
@@ -5385,6 +5403,9 @@ msgstr "Genera un nuovo PIN a 4 cifre. Condividilo con l'operatore in modo che p
 msgid "Generate and send customer invoices"
 msgstr "Genera e invia fatture ai clienti"
 
+msgid "Generate credentials"
+msgstr ""
+
 msgid "Generate material IDs and descriptions based on the properties of the material."
 msgstr "Genera ID materiali e descrizioni in base alle proprietà del materiale."
 
@@ -5901,6 +5922,9 @@ msgstr "In corso"
 
 msgid "In Progress"
 msgstr "In corso"
+
+msgid "In QuickBooks Web Connector, choose Add an Application and select the downloaded carbon-quickbooks.qwc file, then enter the password when prompted. The connector polls Carbon every 5 minutes."
+msgstr ""
 
 msgid "in scope"
 msgstr "in ambito"
@@ -6479,6 +6503,9 @@ msgstr "Mese Scorso"
 
 msgid "Last Name"
 msgstr "Cognome"
+
+msgid "Last poll"
+msgstr ""
 
 msgid "Last Quarter"
 msgstr "Ultimo Trimestre"
@@ -8081,6 +8108,9 @@ msgstr "Oops! Il link che stai cercando di accedere non è valido."
 msgid "Open"
 msgstr "Apri"
 
+msgid "Open Account Mapping"
+msgstr ""
+
 msgid "Open Actions"
 msgstr "Azioni Aperte"
 
@@ -8152,6 +8182,9 @@ msgstr "Apri la Mappa di Configurazione"
 
 msgid "Open transactions"
 msgstr "Transazioni aperte"
+
+msgid "Open your company file in QuickBooks as Admin in single-user mode. When the Web Connector first connects, approve the Carbon application certificate — choose \"Yes, always; allow access even if QuickBooks is not running\" so sync runs unattended."
+msgstr ""
 
 msgid "Opened"
 msgstr "Aperto"
@@ -8500,6 +8533,9 @@ msgstr "Filigrana PDF"
 msgid "Pending"
 msgstr "In sospeso"
 
+msgid "Pending operations wait for the Web Connector poll. Generate credentials and install the .qwc file below to start syncing."
+msgstr ""
+
 msgid "people"
 msgstr "Spesa di ammortamento periodico per immobilizzazioni"
 
@@ -8568,6 +8604,9 @@ msgstr "Preleva"
 
 msgid "Pick a column to sort by"
 msgstr "Scegli una colonna per ordinare"
+
+msgid "Pick a conversion date with your bookkeeper. Only documents and journals dated after the cutover should sync — earlier history stays in QuickBooks."
+msgstr ""
 
 msgid "Pick a customer or customer type to view their pricing."
 msgstr "Seleziona un cliente o un tipo di cliente per visualizzare i loro prezzi."
@@ -9918,6 +9957,12 @@ msgstr "Ruoli che impostano le autorizzazioni predefinite per i nuovi dipendenti
 msgid "Room to grow without bolting on more tools"
 msgstr "Spazio per crescere senza aggiungere altri strumenti"
 
+msgid "Rotate password"
+msgstr ""
+
+msgid "Rotate Web Connector password"
+msgstr ""
+
 msgid "Rounding Account"
 msgstr "Conto di arrotondamento"
 
@@ -10579,6 +10624,9 @@ msgstr "Configurazione"
 
 msgid "Setup & Controls"
 msgstr "Configurazione e Controlli"
+
+msgid "Setup checklist"
+msgstr ""
 
 msgid "Setup instructions"
 msgstr "Istruzioni di configurazione"
@@ -11649,6 +11697,9 @@ msgstr "La data di scadenza corretta per questo lotto/numero di serie; l'inventa
 msgid "The currencies you trade in and their rates"
 msgstr "Le valute in cui fai trading e i loro tassi"
 
+msgid "The current password stops working immediately and syncing pauses until you enter the new password in the QuickBooks Web Connector on the QuickBooks machine. The installed .qwc file stays valid — do not re-add it."
+msgstr ""
+
 msgid "The customer record this portal account links to; only contacts already on that customer can be selected as the account holder below."
 msgstr "Il record cliente a cui è collegato questo account del portale; solo i contatti già su quel cliente possono essere selezionati come titolare dell'account di seguito."
 
@@ -12177,6 +12228,12 @@ msgstr "Il magazzino da cui verranno spediti i beni di questo preventivo; la pos
 msgid "The ways equipment fails, for maintenance and quality tracking"
 msgstr "I modi in cui l'attrezzatura si guasta, per la manutenzione e il monitoraggio della qualità"
 
+msgid "The Web Connector has never connected"
+msgstr ""
+
+msgid "The Web Connector has not polled in the last 24 hours"
+msgstr ""
+
 msgid "The working hours and calendars that drive scheduling"
 msgstr "Gli orari di lavoro e i calendari che guidano la pianificazione"
 
@@ -12619,6 +12676,9 @@ msgstr "Martedì"
 msgid "Turn on the built-in pieces"
 msgstr "Attiva i componenti integrati"
 
+msgid "Turn QuickBooks inventory features off. Carbon owns inventory and posts its value as journal entries; items sync as non-inventory items."
+msgstr ""
+
 msgid "Type"
 msgstr "Tipo"
 
@@ -12946,6 +13006,9 @@ msgstr "Utente"
 
 msgid "User roles"
 msgstr "Ruoli utente"
+
+msgid "Username"
+msgstr ""
 
 msgid "users"
 msgstr "utenti"
@@ -13297,6 +13360,12 @@ msgstr "Abbiamo inviato un codice di verifica a {signupEmail}"
 
 msgid "We've sent you a magic link to sign in to your account."
 msgstr "Ti abbiamo inviato un link magico per accedere al tuo account."
+
+msgid "Web Connector connection"
+msgstr ""
+
+msgid "Web Connector password"
+msgstr ""
 
 msgid "Webhook"
 msgstr "Webhook"
@@ -13773,6 +13842,9 @@ msgstr "Puoi cambiare lo stile dell'interfaccia in qualsiasi momento attraverso 
 
 msgid "You can only see this key once. Store it safely."
 msgstr "Puoi visualizzare questa chiave solo una volta. Conservala in modo sicuro."
+
+msgid "You can only see this password once. Enter it in the QuickBooks Web Connector."
+msgstr ""
 
 #. placeholder {0}: new Date(openClockEntry.clockIn).toLocaleString(locale)
 msgid "You clocked in at {0}. You can edit your clock-out time below or acknowledge that you're still working."

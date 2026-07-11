@@ -197,6 +197,26 @@ export async function getOpenSession(
 }
 
 /**
+ * Fetch a session by ticket regardless of status, without bumping
+ * lastSeenAt. getLastError needs this: QBWC asks for the error text AFTER
+ * receiveResponseXML's hresult branch (or connectionError) already closed
+ * the session with status 'Error', so the lookup must see Closed/Error
+ * rows that getOpenSession deliberately hides.
+ */
+export async function getSession(
+  client: SupabaseClient<Database>,
+  ticket: string
+): Promise<{ data: QbwcSession | null; error: string | null }> {
+  const result = await qbwcSessionTable(client)
+    .select("*")
+    .eq("id", ticket)
+    .maybeSingle();
+
+  if (result.error) return { data: null, error: result.error.message };
+  return { data: (result.data as QbwcSession | null) ?? null, error: null };
+}
+
+/**
  * Persist the in-flight batch on the session: the message set's
  * newMessageSetID (the crash-recovery handle) and the claimed operation
  * ids, incrementing requestsSent (one batch = one request payload handed

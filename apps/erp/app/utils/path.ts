@@ -986,6 +986,8 @@ export const path = {
       generatePath(`${x}/settings/integrations/${id}`),
     integrationDeactivate: (id: string) =>
       generatePath(`${x}/settings/integrations/deactivate/${id}`),
+    integrationQwcFile: (id: string) =>
+      generatePath(`${x}/settings/integrations/${id}/qwc`),
     integrations: `${x}/settings/integrations`,
     inventory: `${x}/inventory/quantities`,
     inventoryItem: (id: string) =>
