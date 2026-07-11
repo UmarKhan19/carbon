@@ -2,6 +2,7 @@ import type { KyselyTx } from "@carbon/database/client";
 import { type Accounting, BaseEntitySyncer } from "../../../core/types";
 import { throwXeroApiError } from "../../../core/utils";
 import { parseDotnetDate, type Xero } from "../models";
+import type { XeroProvider } from "../provider";
 
 // Type for rows returned from item queries with cost/price joins
 type ItemRow = {
@@ -25,6 +26,10 @@ export class ItemSyncer extends BaseEntitySyncer<
   Xero.Item,
   "UpdatedDateUTC"
 > {
+  private get xeroProvider(): XeroProvider {
+    return this.provider as XeroProvider;
+  }
+
   // =================================================================
   // 1. ID MAPPING - Uses default implementation from BaseEntitySyncer
   // =================================================================
@@ -120,7 +125,7 @@ export class ItemSyncer extends BaseEntitySyncer<
   // =================================================================
 
   async fetchRemote(id: string): Promise<Xero.Item | null> {
-    const result = await this.provider.request<{ Items: Xero.Item[] }>(
+    const result = await this.xeroProvider.request<{ Items: Xero.Item[] }>(
       "GET",
       `/Items/${id}`
     );
@@ -133,7 +138,7 @@ export class ItemSyncer extends BaseEntitySyncer<
     const result = new Map<string, Xero.Item>();
     if (ids.length === 0) return result;
 
-    const response = await this.provider.request<{ Items: Xero.Item[] }>(
+    const response = await this.xeroProvider.request<{ Items: Xero.Item[] }>(
       "GET",
       `/Items?IDs=${ids.join(",")}`
     );
@@ -284,7 +289,7 @@ export class ItemSyncer extends BaseEntitySyncer<
    */
   private async findRemoteItemByCode(code: string): Promise<string | null> {
     const escapedCode = code.replace(/"/g, '\\"');
-    const result = await this.provider.request<{ Items: Xero.Item[] }>(
+    const result = await this.xeroProvider.request<{ Items: Xero.Item[] }>(
       "GET",
       `/Items?where=Code=="${escapedCode}"`
     );
@@ -316,7 +321,7 @@ export class ItemSyncer extends BaseEntitySyncer<
       ? [{ ...data, ItemID: existingRemoteId }]
       : [data];
 
-    const result = await this.provider.request<{ Items: Xero.Item[] }>(
+    const result = await this.xeroProvider.request<{ Items: Xero.Item[] }>(
       "POST",
       "/Items",
       { body: JSON.stringify({ Items: items }) }
@@ -358,7 +363,7 @@ export class ItemSyncer extends BaseEntitySyncer<
       localIdOrder.push(localId);
     }
 
-    const response = await this.provider.request<{ Items: Xero.Item[] }>(
+    const response = await this.xeroProvider.request<{ Items: Xero.Item[] }>(
       "POST",
       "/Items",
       { body: JSON.stringify({ Items: items }) }

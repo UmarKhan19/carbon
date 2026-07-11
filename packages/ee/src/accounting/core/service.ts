@@ -2,6 +2,7 @@ import type { Database } from "@carbon/database";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import z from "zod";
 import type { AccountingProvider } from "../providers";
+import { QbdProvider } from "../providers/quickbooks-desktop";
 import { QboProvider } from "../providers/quickbooks-online";
 import { XeroProvider } from "../providers/xero";
 import type { ProviderID } from "./models";
@@ -140,6 +141,12 @@ export function getProviderIntegration(
 export function getProviderIntegration(
   client: SupabaseClient<Database>,
   companyId: string,
+  provider: ProviderID.QUICKBOOKS_DESKTOP,
+  config?: ProviderIntegrationMetadata
+): QbdProvider;
+export function getProviderIntegration(
+  client: SupabaseClient<Database>,
+  companyId: string,
   provider: ProviderID,
   config?: ProviderIntegrationMetadata
 ): AccountingProvider;
@@ -211,6 +218,15 @@ export function getProviderIntegration(
   };
 
   switch (provider) {
+    case "quickbooks-desktop": {
+      // No OAuth client: the Web Connector credentials variant is the
+      // whole connection (the QBWC SOAP handshake performs the real auth)
+      return new QbdProvider({
+        companyId,
+        credentials,
+        syncConfig
+      });
+    }
     case "quickbooks": {
       // Hosts default to production; sandbox is an explicit opt-in
       const environment =

@@ -23,8 +23,8 @@ import { XERO_WEBHOOK_SECRET } from "@carbon/auth";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type {
   AccountingEntity,
-  AccountingProvider,
-  AccountingSyncPayload
+  AccountingSyncPayload,
+  XeroProvider
 } from "@carbon/ee/accounting";
 import {
   getAccountingIntegration,
@@ -305,10 +305,7 @@ export async function action({ request }: ActionFunctionArgs) {
   };
 }
 
-const fetchContactType = async (
-  provider: AccountingProvider,
-  resourceId: string
-) => {
+const fetchContactType = async (provider: XeroProvider, resourceId: string) => {
   const res = await provider.request<{
     Contacts: { IsSupplier: boolean; IsCustomer: boolean }[];
   }>("GET", `/Contacts/${resourceId}`);
@@ -336,7 +333,7 @@ const fetchContactType = async (
  * - ACCPAY (Accounts Payable) = Purchase Invoice/Bill -> maps to "bill"
  */
 const fetchInvoiceType = async (
-  provider: AccountingProvider,
+  provider: XeroProvider,
   resourceId: string
 ): Promise<"invoice" | "bill" | null> => {
   const res = await provider.request<{

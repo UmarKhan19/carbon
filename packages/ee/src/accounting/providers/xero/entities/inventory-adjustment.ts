@@ -2,6 +2,7 @@ import type { KyselyTx } from "@carbon/database/client";
 import { type Accounting, BaseEntitySyncer } from "../../../core/types";
 import { throwXeroApiError } from "../../../core/utils";
 import { parseDotnetDate, type Xero } from "../models";
+import type { XeroProvider } from "../provider";
 
 // Note: This is a push-only syncer (Carbon -> Xero).
 // Inventory adjustments are pushed as Manual Journals to Xero since
@@ -29,6 +30,10 @@ export class InventoryAdjustmentSyncer extends BaseEntitySyncer<
   Xero.ManualJournal,
   "UpdatedDateUTC"
 > {
+  private get xeroProvider(): XeroProvider {
+    return this.provider as XeroProvider;
+  }
+
   // =================================================================
   // 1. ID MAPPING - Uses default implementation from BaseEntitySyncer
   // =================================================================
@@ -133,7 +138,7 @@ export class InventoryAdjustmentSyncer extends BaseEntitySyncer<
   // =================================================================
 
   async fetchRemote(id: string): Promise<Xero.ManualJournal | null> {
-    const result = await this.provider.request<{
+    const result = await this.xeroProvider.request<{
       ManualJournals: Xero.ManualJournal[];
     }>("GET", `/ManualJournals/${id}`);
     return result.error ? null : (result.data?.ManualJournals?.[0] ?? null);
@@ -145,7 +150,7 @@ export class InventoryAdjustmentSyncer extends BaseEntitySyncer<
     const result = new Map<string, Xero.ManualJournal>();
     if (ids.length === 0) return result;
 
-    const response = await this.provider.request<{
+    const response = await this.xeroProvider.request<{
       ManualJournals: Xero.ManualJournal[];
     }>("GET", `/ManualJournals?IDs=${ids.join(",")}`);
 
@@ -246,7 +251,7 @@ export class InventoryAdjustmentSyncer extends BaseEntitySyncer<
       ? [{ ...data, ManualJournalID: existingRemoteId }]
       : [data];
 
-    const result = await this.provider.request<{
+    const result = await this.xeroProvider.request<{
       ManualJournals: Xero.ManualJournal[];
     }>("POST", "/ManualJournals", {
       body: JSON.stringify({ ManualJournals: journals })
@@ -295,7 +300,7 @@ export class InventoryAdjustmentSyncer extends BaseEntitySyncer<
       localIdOrder.push(localId);
     }
 
-    const response = await this.provider.request<{
+    const response = await this.xeroProvider.request<{
       ManualJournals: Xero.ManualJournal[];
     }>("POST", "/ManualJournals", {
       body: JSON.stringify({ ManualJournals: journals })

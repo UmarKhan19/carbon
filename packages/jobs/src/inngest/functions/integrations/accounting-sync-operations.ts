@@ -38,6 +38,7 @@ import {
   getJournalEntrySyncEntityId,
   isJournalEntrySyncFailure,
   netJournalLinesPerAccount,
+  type ProviderCapabilities,
   parseJournalEntrySyncEntityId,
   RatelimitError,
   resolvePostingSyncSettings,
@@ -297,7 +298,29 @@ export type DrainSummary = {
   failed: number;
   skipped: number;
   groups: DrainedGroup[];
+  /**
+   * Set when the drain returned without claiming anything because the
+   * provider's transport is polled: its operations must accumulate as
+   * Pending for the external poll (the QuickBooks Web Connector session
+   * loop) instead of being pushed synchronously.
+   */
+  skippedReason?: "polled-transport";
 };
+
+/**
+ * Whether a drain must skip this provider entirely, as a reason string
+ * (null = drain normally). Polled providers (capabilities.transport
+ * "polled", e.g. QuickBooks Desktop via the Web Connector) never drain
+ * here — the QBWC handler claims and completes their operations during the
+ * poll. Providers without a capability declaration are legacy REST (Xero)
+ * and drain normally. The ENQUEUE paths are intentionally untouched:
+ * operations must accumulate for the poll.
+ */
+export function getDrainTransportSkipReason(
+  capabilities: Pick<ProviderCapabilities, "transport"> | undefined
+): "polled-transport" | null {
+  return capabilities?.transport === "polled" ? "polled-transport" : null;
+}
 
 function toSyncErrorMessage(error: unknown): string {
   if (error instanceof Error) return error.message;
@@ -385,6 +408,16 @@ export async function drainSyncOperations(args: {
     skipped: 0,
     groups: []
   };
+
+  // Polled-transport gate: the Web Connector poll drains these operations
+  // (QBWC handler → syncer buildRequest/processResponse); claiming them
+  // here would strand them In Flight with no transport to send them on.
+  const transportSkipReason = getDrainTransportSkipReason(
+    args.provider.capabilities
+  );
+  if (transportSkipReason) {
+    return { ...summary, skippedReason: transportSkipReason };
+  }
 
   const postingSyncSettings = resolvePostingSyncSettings(
     args.integrationMetadata

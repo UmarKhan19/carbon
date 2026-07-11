@@ -4,6 +4,7 @@ import type {
   AuthProvider,
   BaseProvider,
   GlobalSyncConfig,
+  ProviderCapabilities,
   ProviderConfig,
   ProviderCredentials
 } from "../../core/types";
@@ -94,6 +95,13 @@ type XeroProviderConfig = ProviderConfig<{
 
 export class XeroProvider implements BaseProvider {
   static id = ProviderID.XERO;
+
+  /**
+   * Undeclared on purpose: absent capabilities = legacy REST provider (the
+   * documented default in core/types.ts) — the drain treats Xero exactly
+   * as before the field existed.
+   */
+  readonly capabilities?: ProviderCapabilities;
 
   http: HTTPClient;
   auth: AuthProvider;

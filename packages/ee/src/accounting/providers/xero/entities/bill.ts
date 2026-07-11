@@ -87,6 +87,10 @@ export class BillSyncer extends BaseEntitySyncer<
   Xero.Invoice,
   "UpdatedDateUTC"
 > {
+  private get xeroProvider(): XeroProvider {
+    return this.provider as XeroProvider;
+  }
+
   // =================================================================
   // 1. ID MAPPING - Uses default implementation from BaseEntitySyncer
   // The entityType "bill" maps to the purchaseInvoice table
@@ -269,10 +273,9 @@ export class BillSyncer extends BaseEntitySyncer<
   // =================================================================
 
   async fetchRemote(id: string): Promise<Xero.Invoice | null> {
-    const result = await this.provider.request<{ Invoices: Xero.Invoice[] }>(
-      "GET",
-      `/Invoices/${id}`
-    );
+    const result = await this.xeroProvider.request<{
+      Invoices: Xero.Invoice[];
+    }>("GET", `/Invoices/${id}`);
 
     if (result.error) return null;
 
@@ -293,10 +296,9 @@ export class BillSyncer extends BaseEntitySyncer<
     const result = new Map<string, Xero.Invoice>();
     if (ids.length === 0) return result;
 
-    const response = await this.provider.request<{ Invoices: Xero.Invoice[] }>(
-      "GET",
-      `/Invoices?IDs=${ids.join(",")}`
-    );
+    const response = await this.xeroProvider.request<{
+      Invoices: Xero.Invoice[];
+    }>("GET", `/Invoices?IDs=${ids.join(",")}`);
 
     if (response.error) {
       throwXeroApiError("fetch bills batch", response);
@@ -746,11 +748,9 @@ export class BillSyncer extends BaseEntitySyncer<
       ? [{ ...data, InvoiceID: existingRemoteId }]
       : [data];
 
-    const result = await this.provider.request<{ Invoices: Xero.Invoice[] }>(
-      "POST",
-      "/Invoices",
-      { body: JSON.stringify({ Invoices: invoices }) }
-    );
+    const result = await this.xeroProvider.request<{
+      Invoices: Xero.Invoice[];
+    }>("POST", "/Invoices", { body: JSON.stringify({ Invoices: invoices }) });
 
     if (result.error) {
       throwXeroApiError(
@@ -790,11 +790,9 @@ export class BillSyncer extends BaseEntitySyncer<
       localIdOrder.push(localId);
     }
 
-    const response = await this.provider.request<{ Invoices: Xero.Invoice[] }>(
-      "POST",
-      "/Invoices",
-      { body: JSON.stringify({ Invoices: invoices }) }
-    );
+    const response = await this.xeroProvider.request<{
+      Invoices: Xero.Invoice[];
+    }>("POST", "/Invoices", { body: JSON.stringify({ Invoices: invoices }) });
 
     if (response.error) {
       throwXeroApiError("batch upsert bills", response);

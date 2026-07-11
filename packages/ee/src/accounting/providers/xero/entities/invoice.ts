@@ -98,6 +98,10 @@ export class SalesInvoiceSyncer extends BaseEntitySyncer<
   Xero.Invoice,
   "UpdatedDateUTC"
 > {
+  private get xeroProvider(): XeroProvider {
+    return this.provider as XeroProvider;
+  }
+
   // =================================================================
   // 1. ID MAPPING - Uses default implementation from BaseEntitySyncer
   // The entityType "invoice" maps to the salesInvoice table
@@ -273,10 +277,9 @@ export class SalesInvoiceSyncer extends BaseEntitySyncer<
   // =================================================================
 
   async fetchRemote(id: string): Promise<Xero.Invoice | null> {
-    const result = await this.provider.request<{ Invoices: Xero.Invoice[] }>(
-      "GET",
-      `/Invoices/${id}`
-    );
+    const result = await this.xeroProvider.request<{
+      Invoices: Xero.Invoice[];
+    }>("GET", `/Invoices/${id}`);
     return result.error ? null : (result.data?.Invoices?.[0] ?? null);
   }
 
@@ -286,10 +289,9 @@ export class SalesInvoiceSyncer extends BaseEntitySyncer<
     const result = new Map<string, Xero.Invoice>();
     if (ids.length === 0) return result;
 
-    const response = await this.provider.request<{ Invoices: Xero.Invoice[] }>(
-      "GET",
-      `/Invoices?IDs=${ids.join(",")}`
-    );
+    const response = await this.xeroProvider.request<{
+      Invoices: Xero.Invoice[];
+    }>("GET", `/Invoices?IDs=${ids.join(",")}`);
 
     if (response.error) {
       throwXeroApiError("fetch invoices batch", response);
@@ -492,11 +494,9 @@ export class SalesInvoiceSyncer extends BaseEntitySyncer<
       ? [{ ...data, InvoiceID: existingRemoteId }]
       : [data];
 
-    const result = await this.provider.request<{ Invoices: Xero.Invoice[] }>(
-      "POST",
-      "/Invoices",
-      { body: JSON.stringify({ Invoices: invoices }) }
-    );
+    const result = await this.xeroProvider.request<{
+      Invoices: Xero.Invoice[];
+    }>("POST", "/Invoices", { body: JSON.stringify({ Invoices: invoices }) });
 
     if (result.error) {
       throwXeroApiError(
@@ -536,11 +536,9 @@ export class SalesInvoiceSyncer extends BaseEntitySyncer<
       localIdOrder.push(localId);
     }
 
-    const response = await this.provider.request<{ Invoices: Xero.Invoice[] }>(
-      "POST",
-      "/Invoices",
-      { body: JSON.stringify({ Invoices: invoices }) }
-    );
+    const response = await this.xeroProvider.request<{
+      Invoices: Xero.Invoice[];
+    }>("POST", "/Invoices", { body: JSON.stringify({ Invoices: invoices }) });
 
     if (response.error) {
       throwXeroApiError("batch upsert invoices", response);

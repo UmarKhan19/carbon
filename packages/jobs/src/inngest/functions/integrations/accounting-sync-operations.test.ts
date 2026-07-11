@@ -1,12 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
   compareMonthlyTotals,
+  drainSyncOperations,
   getAdvancedCdcCursor,
   getCdcCursorDecision,
   getCdcEntityType,
   getCdcIdempotencyScope,
   getCdcPullEntityNames,
   getDailyConsolidationBatchKey,
+  getDrainTransportSkipReason,
   getJournalPostingDecision,
   getNettedPositiveCents,
   getPositiveCents,
@@ -901,6 +903,63 @@ describe("mergeCdcCursor", () => {
   it("builds the settings path from nothing", () => {
     expect(mergeCdcCursor(null, "2026-07-08T00:00:00.000Z")).toEqual({
       settings: { cdcCursor: "2026-07-08T00:00:00.000Z" }
+    });
+  });
+});
+
+// ── Polled-transport drain gate ──────────────────────────────────────────────
+// Polled providers (QuickBooks Desktop via the Web Connector) never drain
+// through drainSyncOperations: their operations must accumulate as Pending
+// for the QBWC session loop. Only the DRAIN is gated — enqueue paths are
+// untouched.
+
+describe("getDrainTransportSkipReason", () => {
+  it("skips polled-transport providers", () => {
+    expect(getDrainTransportSkipReason({ transport: "polled" })).toBe(
+      "polled-transport"
+    );
+  });
+
+  it("drains REST providers normally", () => {
+    expect(getDrainTransportSkipReason({ transport: "rest" })).toBeNull();
+  });
+
+  it("drains bridge providers normally", () => {
+    expect(getDrainTransportSkipReason({ transport: "bridge" })).toBeNull();
+  });
+
+  it("treats absent capabilities as legacy REST (Xero) and drains", () => {
+    expect(getDrainTransportSkipReason(undefined)).toBeNull();
+  });
+});
+
+describe("drainSyncOperations polled-transport gate", () => {
+  it("returns an empty summary with skippedReason before touching the ledger", async () => {
+    // client/database are never used when the gate fires — empty stubs
+    // prove the early return happens before any claim
+    const summary = await drainSyncOperations({
+      client: {} as never,
+      database: {} as never,
+      companyId: "company-1",
+      integration: "quickbooks-desktop",
+      provider: {
+        id: "quickbooks-desktop",
+        capabilities: {
+          transport: "polled",
+          supportsWebhooks: false,
+          supportsJournalPush: true
+        }
+      } as never,
+      integrationMetadata: null
+    });
+
+    expect(summary).toEqual({
+      claimed: 0,
+      completed: 0,
+      failed: 0,
+      skipped: 0,
+      groups: [],
+      skippedReason: "polled-transport"
     });
   });
 });

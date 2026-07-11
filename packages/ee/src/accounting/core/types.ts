@@ -69,12 +69,19 @@ export type ProviderConfig<T = unknown> = {
 
 /**
  * Static description of how a provider communicates and what it supports.
- * Informational for now — nothing reads it yet (the jobs drain does not
- * branch on it); it exists so providers self-describe as they are added.
+ * The jobs drain branches on `transport`: "polled" providers are skipped by
+ * drainSyncOperations — their claimed work is performed by an external poll
+ * (the QuickBooks Web Connector session loop), so operations must
+ * accumulate as Pending instead of being pushed synchronously.
  */
 export interface ProviderCapabilities {
-  /** How the provider is reached. */
-  transport: "rest" | "webConnector" | "bridge";
+  /**
+   * How the provider is reached: "rest" = Carbon calls the provider API
+   * synchronously; "polled" = the provider's agent polls Carbon and drains
+   * queued operations (QuickBooks Web Connector); "bridge" = a third-party
+   * vendor bridge performs the calls.
+   */
+  transport: "rest" | "polled" | "bridge";
   /** Whether the provider can push change notifications to Carbon. */
   supportsWebhooks: boolean;
   /** Whether Carbon journals can be pushed as provider journal entries. */
