@@ -331,6 +331,90 @@ export const consoleSettingsValidator = z.object({
   consoleEnabled: zfd.checkbox()
 });
 
+/**
+ * Retry / Skip / Re-send actions on accounting sync operations. `ids` is a
+ * repeated form field (one entry per selected operation) so bulk retry can
+ * submit many operations in one POST. The only user-driven target statuses
+ * are "Pending" (retry / re-send) and "Skipped" — the service's transition
+ * guard re-validates against the row's current status.
+ */
+export const syncOperationTransitionValidator = z.object({
+  intent: z.literal("transition-sync-operation"),
+  ids: zfd.repeatable(
+    z.array(z.string().min(1)).min(1, { message: "No operations selected" })
+  ),
+  to: z.enum(["Pending", "Skipped"])
+});
+
+/**
+ * Saves one account mapping row (Carbon account.id → provider account id)
+ * from the integration drawer's Account Mapping tab. externalCode /
+ * externalName are display metadata captured from the selected provider
+ * account — the journal syncer resolves provider account codes from the
+ * mapping's stored externalCode, so the code must be persisted.
+ */
+export const accountMappingUpsertValidator = z.object({
+  intent: z.literal("upsert-account-mapping"),
+  accountId: z.string().min(1, { message: "Account is required" }),
+  externalId: z.string().min(1, { message: "Provider account is required" }),
+  externalCode: zfd.text(z.string().optional()),
+  externalName: zfd.text(z.string().optional())
+});
+
+const accountMappingEntrySchema = z.object({
+  accountId: z.string().min(1),
+  externalId: z.string().min(1),
+  externalCode: z.string().optional(),
+  externalName: z.string().optional()
+});
+
+/**
+ * Confirm-all from the match-by-code drawer. `mappings` is a repeated form
+ * field (per the sync-operation `ids` precedent) — each entry a
+ * JSON-encoded proposal validated against the same shape as the single-row
+ * upsert.
+ */
+export const accountMappingBulkUpsertValidator = z.object({
+  intent: z.literal("bulk-upsert-account-mappings"),
+  mappings: zfd.repeatable(
+    z
+      .array(
+        z
+          .string()
+          .transform((value, ctx) => {
+            try {
+              return JSON.parse(value);
+            } catch {
+              ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "Invalid account mapping payload"
+              });
+              return z.NEVER;
+            }
+          })
+          .pipe(accountMappingEntrySchema)
+      )
+      .min(1, { message: "No account mappings to save" })
+  )
+});
+
+/**
+ * Posting-sync settings persisted (deep-merged) at
+ * companyIntegration.metadata.settings.postingSync. Field semantics mirror
+ * @carbon/ee/accounting's PostingSyncSettingsSchema; switches arrive as
+ * checkbox values ("on"/absent) and the sourceTypes checklist as a
+ * repeated field.
+ */
+export const postingSyncSettingsValidator = z.object({
+  intent: z.literal("update-posting-settings"),
+  enabled: zfd.checkbox(),
+  sourceTypes: zfd.repeatable(z.array(z.string())),
+  includeManual: zfd.checkbox(),
+  consolidation: z.enum(["individual", "daily"]),
+  periodLockPolicy: z.enum(["park", "redate"]),
+  lockDate: zfd.text(z.string().optional())
+});
+
 export const quoteLineCategoryMarkupsSettingsValidator = z.object({
   materialCost: zfd.numeric(z.number().min(0).default(0)),
   partCost: zfd.numeric(z.number().min(0).default(0)),
