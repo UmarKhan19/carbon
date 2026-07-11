@@ -20,6 +20,7 @@
     "./slack.server": "./src/slack.server.ts",
     "./slack/messages": "./src/slack/lib/messages.ts",
     "./hooks.server": "./src/hooks.server.ts",
+    "./quickbooks/hooks.server": "./src/quickbooks/hooks.server.ts",
     "./xero": "./src/accounting/providers/xero.ts",
     "./xero/hooks.server": "./src/xero/hooks.server.ts"
   },
@@ -49,6 +50,7 @@
     "axios": "catalog:",
     "cookie": "catalog:",
     "dompurify": "catalog:",
+    "fast-xml-parser": "catalog:",
     "kysely": "catalog:",
     "nanoid": "catalog:",
     "nodemailer": "6.10.1",
