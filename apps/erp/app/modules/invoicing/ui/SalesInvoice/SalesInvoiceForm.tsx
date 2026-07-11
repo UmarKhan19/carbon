@@ -106,6 +106,11 @@ const SalesInvoiceForm = ({ initialValues }: SalesInvoiceFormProps) => {
       });
 
       const [customerData, paymentTermData] = await Promise.all([
+        // @ts-ignore TS2589: the composite customerShipping embed sits on the
+        // instantiation-depth cliff; the cliff returned here when the QBWC
+        // SOAP route pulled @carbon/ee/accounting/qbwc into the program (same
+        // class as the purchasing.service suppression). @ts-ignore rather
+        // than @ts-expect-error so the directive survives the cliff receding.
         carbon
           ?.from("customer")
           .select(

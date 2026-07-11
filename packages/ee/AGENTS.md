@@ -35,7 +35,7 @@ pnpm --filter @carbon/ee typecheck   # tsgo --noEmit
 - **60s cooldown**: `SYNC_COOLDOWN_MS` skips recently-synced entities
 - **Dependency sync**: transaction syncers use `ensureDependencySynced()` for JIT deps (e.g. push customer before invoice)
 - **Integration pattern**: `defineIntegration()` → config with id, name, settings, OAuth, actions
-- **Exports**: `./accounting`, `./plan`, `./plan.server`, `./exchange-rates.server`, `./slack.server`, `./hooks.server`, `./jira`, `./linear`, `./xero`, etc.
+- **Exports**: `./accounting`, `./accounting/qbwc` (QBWC SOAP endpoint surface only — `handleQbwcRequest` + `buildQbwcSoapFault`; the protocol internals stay unexported), `./plan`, `./plan.server`, `./exchange-rates.server`, `./slack.server`, `./hooks.server`, `./jira`, `./linear`, `./xero`, etc.
 
 ## Cross-References
 
