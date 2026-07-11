@@ -43,15 +43,23 @@ ALTER TABLE "accountDefault"
   FOREIGN KEY ("supplierPrepaymentAccount") REFERENCES "account"("id")
   ON UPDATE CASCADE ON DELETE RESTRICT;
 
--- Step 3: Backfill from the newly inserted account.
+-- Step 3: Backfill from the newly inserted account. A group with a customized
+-- COA (renamed/deleted 'Receivables' group) never got an 1150 inserted above,
+-- so COALESCE to an existing, always-NOT-NULL default of the same nature
+-- (supplier prepayments are a receivable-like current asset) so no NULL
+-- survives and SET NOT NULL below can never fail — the deploy runner retries
+-- a failed file over committed partial state. Admins override in settings.
 UPDATE "accountDefault" ad
-SET "supplierPrepaymentAccount" = a."id"
-FROM "account" a
-JOIN "company" c ON c."companyGroupId" = a."companyGroupId"
-WHERE c."id" = ad."companyId"
-  AND a."number" = '1150'
-  AND a."isGroup" = false
-  AND ad."supplierPrepaymentAccount" IS NULL;
+SET "supplierPrepaymentAccount" = COALESCE(
+  (SELECT a."id" FROM "account" a
+    INNER JOIN "company" c ON c."companyGroupId" = a."companyGroupId"
+    WHERE c."id" = ad."companyId"
+      AND a."number" = '1150'
+      AND a."isGroup" = false
+    LIMIT 1),
+  ad."receivablesAccount"
+)
+WHERE ad."supplierPrepaymentAccount" IS NULL;
 
 -- Step 4: Enforce NOT NULL now that every row is populated.
 ALTER TABLE "accountDefault"
