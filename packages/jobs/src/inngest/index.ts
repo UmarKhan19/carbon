@@ -13,9 +13,12 @@ import {
 import { extractDocumentFunction } from "./functions/extraction";
 import {
   accountingBackfillFunction,
+  accountingConsolidationFunction,
+  accountingReconciliationFunction,
   jiraSyncFunction,
   linearSyncFunction,
   paperlessPartsFunction,
+  quickbooksCdcFunction,
   slackDocumentAssignmentUpdateFunction,
   slackDocumentCreatedFunction,
   slackDocumentStatusUpdateFunction,
@@ -99,6 +102,9 @@ export const functions = [
   linearSyncFunction,
   paperlessPartsFunction,
   accountingBackfillFunction,
+  accountingConsolidationFunction,
+  accountingReconciliationFunction,
+  quickbooksCdcFunction,
   syncExternalAccountingFunction,
   slackDocumentCreatedFunction,
   slackDocumentStatusUpdateFunction,

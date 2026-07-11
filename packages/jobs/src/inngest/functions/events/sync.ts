@@ -9,14 +9,21 @@ import {
   type BatchSyncResult,
   getAccountingIntegration,
   getProviderIntegration,
-  ProviderID,
-  RatelimitError,
-  SyncFactory
+  ProviderID
 } from "@carbon/ee/accounting";
-import { groupBy, pluckUnique } from "@carbon/utils";
+import { groupBy } from "@carbon/utils";
 import { PostgresDriver } from "kysely";
 import { z } from "zod";
 import { inngest } from "../../client";
+import {
+  type DrainSummary,
+  drainSyncOperations,
+  enqueueSyncOperations,
+  getJournalPostingDecision,
+  getSyncOperationActor,
+  isJournalEntryPostingEnabled,
+  type SyncOperationRequest
+} from "../integrations/accounting-sync-operations";
 
 const SyncRecordSchema = z.object({
   event: EventSchema,
@@ -39,7 +46,8 @@ const TABLE_TO_ENTITY_MAP: Partial<Record<string, AccountingEntityType>> = {
   item: "item",
   purchaseOrder: "purchaseOrder",
   purchaseInvoice: "bill",
-  salesInvoice: "invoice"
+  salesInvoice: "invoice",
+  journal: "journalEntry"
 };
 
 function getEntityTypeFromTable(table: string): AccountingEntityType | null {
@@ -52,12 +60,17 @@ export const syncFunction = inngest.createFunction(
     retries: 3
   },
   { event: "carbon/event-sync" },
-  async ({ event, step }) => {
+  async ({ event, step, runId }) => {
     const payload = SyncPayloadSchema.parse(event.data);
 
     console.log(`Processing ${payload.records.length} sync events`);
 
+    // Scopes the ledger idempotency keys to this delivery: Inngest retries
+    // reuse the same event id (absorbed), later deliveries get fresh keys
+    const enqueueScope = event.id ?? runId;
+
     const results = {
+      enqueued: 0,
       success: [] as BatchSyncResult[],
       failed: [] as { recordId: string; error: string }[],
       skipped: [] as { recordId: string; reason: string }[]
@@ -88,121 +101,155 @@ export const syncFunction = inngest.createFunction(
           continue;
         }
 
-        // Process each company-provider group as a step for checkpointing
-        type GroupResults = {
-          success: BatchSyncResult[];
+        // Step 1: enqueue one ledger operation per INSERT/UPDATE record
+        // (checkpointed so a retry replays the enqueue result)
+        type EnqueueStepSummary = {
+          enqueued: number;
+          aborted: boolean;
           failed: { recordId: string; error: string }[];
           skipped: { recordId: string; reason: string }[];
         };
 
-        const groupResult = (await step.run(
-          `sync-${companyId}-${provider}`,
+        const enqueueSummary = (await step.run(
+          `enqueue-${companyId}-${provider}`,
           async () => {
-            const groupResults: GroupResults = {
-              success: [],
+            const stepSummary: EnqueueStepSummary = {
+              enqueued: 0,
+              aborted: false,
               failed: [],
               skipped: []
             };
 
             try {
-              // Get integration and provider instance
               const integration = await getAccountingIntegration(
                 client,
                 companyId,
                 provider as ProviderID
               );
 
-              const providerInstance = getProviderIntegration(
-                client,
-                companyId,
-                provider as ProviderID,
+              // Posting sync is opt-in per company: journal events enqueue
+              // only when the resolved sync config enables journalEntry
+              const journalEntryPostingEnabled = isJournalEntryPostingEnabled(
                 integration.metadata
               );
 
-              // Group by entity type
-              const byEntityType = groupBy(records, (r) => {
-                const entityType = getEntityTypeFromTable(r.event.table);
-                return entityType ?? "unknown";
-              });
+              const requests: SyncOperationRequest[] = [];
+              // Journal posting transitions enqueue with trigger "posting"
+              // (the ledger trigger is per enqueue call, not per request)
+              const postingRequests: SyncOperationRequest[] = [];
 
-              for (const [entityType, entityRecords] of Object.entries(
-                byEntityType
-              )) {
-                if (entityType === "unknown") {
-                  for (const r of entityRecords) {
-                    groupResults.skipped.push({
-                      recordId: r.event.recordId,
-                      reason: `Table '${r.event.table}' has no entity mapping`
-                    });
-                  }
+              for (const r of records) {
+                const entityType = getEntityTypeFromTable(r.event.table);
+
+                if (!entityType) {
+                  stepSummary.skipped.push({
+                    recordId: r.event.recordId,
+                    reason: `Table '${r.event.table}' has no entity mapping`
+                  });
                   continue;
                 }
 
-                // Separate by operation
-                const inserts = entityRecords.filter(
-                  (r) => r.event.operation === "INSERT"
-                );
-                const updates = entityRecords.filter(
-                  (r) => r.event.operation === "UPDATE"
-                );
-                const deletes = entityRecords.filter(
-                  (r) => r.event.operation === "DELETE"
-                );
-
-                const syncer = SyncFactory.getSyncer({
-                  database: kysely,
-                  companyId,
-                  provider: providerInstance,
-                  config: providerInstance.getSyncConfig(
-                    entityType as AccountingEntityType
-                  ),
-                  entityType: entityType as AccountingEntityType
-                });
-
-                // Process INSERTs and UPDATEs (push to accounting)
-                const toSync = [...inserts, ...updates];
-                if (toSync.length > 0) {
-                  const entityIds = pluckUnique(
-                    toSync,
-                    (r) => r.event.recordId
-                  );
-
-                  console.log(
-                    `Pushing ${entityIds.length} ${entityType} entities to accounting`
-                  );
-
-                  // Handle rate limiting with retry
-                  let result: BatchSyncResult;
-                  try {
-                    result = await syncer.pushBatchToAccounting(entityIds);
-                  } catch (error) {
-                    if (error instanceof RatelimitError) {
-                      const { retryAfterSeconds } = error.rateLimitInfo;
-                      console.warn(
-                        `[RATE LIMIT] Hit rate limit, will retry after ${retryAfterSeconds}s`
-                      );
-                      // Let inngest handle the retry by throwing
-                      throw error;
-                    }
-                    throw error;
+                // Journal rows enqueue when INSERTed born Posted (the post-*
+                // edge functions never UPDATE from Draft; reversal inserts
+                // skip via reversalOfId) or when an UPDATE transitions status
+                // to Posted/Reversed — non-transition UPDATEs and DELETEs skip
+                if (entityType === "journalEntry") {
+                  if (!journalEntryPostingEnabled) {
+                    stepSummary.skipped.push({
+                      recordId: r.event.recordId,
+                      reason:
+                        "Posting sync (journalEntry) is disabled in the integration's sync config"
+                    });
+                    continue;
                   }
 
-                  console.log("Sync result:", { entityType, result });
-                  groupResults.success.push(result);
+                  const decision = getJournalPostingDecision(r.event);
+
+                  if (decision.action === "skip") {
+                    stepSummary.skipped.push({
+                      recordId: r.event.recordId,
+                      reason: decision.reason
+                    });
+                    continue;
+                  }
+
+                  postingRequests.push({
+                    entityType,
+                    entityId: decision.entityId,
+                    direction: "push-to-accounting",
+                    ...(decision.reversal
+                      ? { metadata: { reversal: true } }
+                      : {})
+                  });
+                  continue;
                 }
 
                 // Handle DELETEs (log for now, not yet implemented in syncers)
-                for (const del of deletes) {
-                  groupResults.skipped.push({
-                    recordId: del.event.recordId,
+                if (r.event.operation === "DELETE") {
+                  stepSummary.skipped.push({
+                    recordId: r.event.recordId,
                     reason: "DELETE operations not yet implemented"
+                  });
+                  continue;
+                }
+
+                if (
+                  r.event.operation !== "INSERT" &&
+                  r.event.operation !== "UPDATE"
+                ) {
+                  continue;
+                }
+
+                // INSERTs and UPDATEs push to accounting
+                requests.push({
+                  entityType,
+                  entityId: r.event.recordId,
+                  direction: "push-to-accounting"
+                });
+              }
+
+              const outcomes = [
+                ...(await enqueueSyncOperations(client, {
+                  companyId,
+                  integration: provider,
+                  trigger: "event",
+                  createdBy: getSyncOperationActor(integration),
+                  scope: enqueueScope,
+                  requests
+                })),
+                ...(await enqueueSyncOperations(client, {
+                  companyId,
+                  integration: provider,
+                  trigger: "posting",
+                  createdBy: getSyncOperationActor(integration),
+                  scope: enqueueScope,
+                  requests: postingRequests
+                }))
+              ];
+
+              for (const outcome of outcomes) {
+                if (outcome.outcome === "enqueued") {
+                  stepSummary.enqueued++;
+                } else if (outcome.outcome === "cooldown") {
+                  stepSummary.skipped.push({
+                    recordId: outcome.entityId,
+                    reason: "Synced within the cooldown window"
+                  });
+                } else {
+                  stepSummary.failed.push({
+                    recordId: outcome.entityId,
+                    error: outcome.error ?? "Failed to enqueue sync operation"
                   });
                 }
               }
             } catch (error) {
-              console.error(`Failed to process sync for ${key}:`, error);
+              console.error(
+                `Failed to enqueue sync operations for ${key}:`,
+                error
+              );
+              stepSummary.aborted = true;
               for (const r of records) {
-                groupResults.failed.push({
+                stepSummary.failed.push({
                   recordId: r.event.recordId,
                   error:
                     error instanceof Error ? error.message : "Unknown error"
@@ -210,13 +257,59 @@ export const syncFunction = inngest.createFunction(
               }
             }
 
-            return groupResults;
+            return stepSummary;
           }
-        )) as GroupResults;
+        )) as EnqueueStepSummary;
 
-        results.success.push(...groupResult.success);
-        results.failed.push(...groupResult.failed);
-        results.skipped.push(...groupResult.skipped);
+        results.enqueued += enqueueSummary.enqueued;
+        results.failed.push(...enqueueSummary.failed);
+        results.skipped.push(...enqueueSummary.skipped);
+
+        // The integration could not be resolved — there is nothing to drain
+        // for this group (matches the pre-ledger behavior of recording the
+        // failure without failing the run)
+        if (enqueueSummary.aborted) continue;
+
+        // Step 2: drain — claim Pending operations (including UI retries and
+        // stale In Flight rows) and run the entity syncers. A throw re-runs
+        // the step; claim/complete are idempotent so retries cannot
+        // duplicate work.
+        const drainSummary = (await step.run(
+          `drain-${companyId}-${provider}`,
+          async () => {
+            const integration = await getAccountingIntegration(
+              client,
+              companyId,
+              provider as ProviderID
+            );
+
+            const providerInstance = getProviderIntegration(
+              client,
+              companyId,
+              provider as ProviderID,
+              integration.metadata
+            );
+
+            return drainSyncOperations({
+              client,
+              database: kysely,
+              companyId,
+              integration: provider,
+              provider: providerInstance,
+              integrationMetadata: integration.metadata
+            });
+          }
+        )) as DrainSummary;
+
+        for (const group of drainSummary.groups) {
+          console.log("Sync result:", {
+            entityType: group.entityType,
+            direction: group.direction,
+            result: group.result
+          });
+        }
+
+        results.success.push(...drainSummary.groups.map((g) => g.result));
       }
     } finally {
       await pool.end();

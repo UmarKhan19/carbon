@@ -1,0 +1,971 @@
+/**
+ * Shared machinery for routing Inngest accounting-sync entry points through
+ * the "accountingSyncOperation" ledger.
+ *
+ * Every entry point (event sync, webhook/scheduled sync, backfill) follows
+ * the same two phases:
+ *
+ * 1. Enqueue — one ledger row per (entityType, entityId, direction) via
+ *    enqueueSyncOperation. Re-triggers are absorbed into the live
+ *    (Pending/In Flight) row, and event/webhook triggers respect the 60s
+ *    completed-row cooldown enforced inside the operations service.
+ * 2. Drain — claimPendingOperations moves Pending rows (plus In Flight rows
+ *    abandoned for more than 10 minutes) to In Flight, the same entity
+ *    syncers that ran before the ledger existed perform the work, and every
+ *    claimed row is closed out with completeOperation / failOperation.
+ *
+ * Because enqueue absorbs duplicates and claim/complete are idempotent, an
+ * Inngest retry that re-runs an enqueue or drain step cannot duplicate work.
+ *
+ * Posting sync (journalEntry) rides the same machinery with two twists:
+ * journal events enqueue on an INSERT born Posted (the post-* edge functions
+ * insert journals already Posted; reversal inserts skip via reversalOfId) or
+ * on a status TRANSITION to Posted/Reversed (getJournalPostingDecision) with
+ * trigger "posting", and companies whose posting-sync settings resolve to
+ * consolidation "daily" have their journalEntry operations held Pending at
+ * claim time for the daily-consolidation cron instead of being pushed
+ * individually.
+ */
+import type { Database } from "@carbon/database";
+import {
+  type AccountingEntityType,
+  type AccountingProvider,
+  type BatchSyncResult,
+  claimPendingOperations,
+  completeOperation,
+  enqueueSyncOperation,
+  failOperation,
+  getJournalEntrySyncEntityId,
+  isJournalEntrySyncFailure,
+  netJournalLinesPerAccount,
+  parseJournalEntrySyncEntityId,
+  RatelimitError,
+  resolvePostingSyncSettings,
+  resolveSyncConfig,
+  SYNC_OPERATION_STALE_IN_FLIGHT_MS,
+  type SyncContext,
+  SyncFactory,
+  type SyncOperation,
+  type SyncOperationDirection,
+  type SyncOperationTrigger,
+  type SyncResult
+} from "@carbon/ee/accounting";
+import { groupBy } from "@carbon/utils";
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+/**
+ * Upper bound on claim iterations per drain so a single Inngest step cannot
+ * spin forever on a queue that keeps refilling (25 iterations × the claim
+ * batch of 20 = 500 operations).
+ */
+const MAX_DRAIN_ITERATIONS = 25;
+
+/**
+ * The sync jobs run with a service-role client, but ledger rows need a
+ * non-null createdBy (FK to "user"). None of the sync payloads carry a
+ * userId, so operations are attributed to whoever last configured the
+ * integration, falling back to the seeded "system" user.
+ */
+export function getSyncOperationActor(integration: {
+  updatedBy: string | null;
+}): string {
+  return integration.updatedBy ?? "system";
+}
+
+/**
+ * Idempotency key for one requested sync of one entity in one direction.
+ *
+ * The ledger has a total unique index on (companyId, integration,
+ * idempotencyKey), so the scope must identify the triggering occurrence: the
+ * Inngest event id (stable across retries of a run) for live event/webhook
+ * syncs, or the backfill run id for backfill runs. Retries of the same
+ * delivery are absorbed by the key; later deliveries get a new scope and are
+ * deduped by live-row absorption and the completed-row cooldown instead.
+ */
+export function getSyncOperationIdempotencyKey(args: {
+  entityType: string;
+  entityId: string;
+  direction: SyncOperationDirection;
+  scope: string;
+}): string {
+  return `${args.entityType}:${args.entityId}:${args.direction}:${args.scope}`;
+}
+
+export type SyncOperationRequest = {
+  entityType: string;
+  entityId: string;
+  direction: SyncOperationDirection;
+  /** Stored on the ledger row (e.g. `{ reversal: true }` for journal reversal pushes). */
+  metadata?: Record<string, unknown>;
+};
+
+// /********************************************************\
+// *        Journal posting decisions (events/sync)         *
+// \********************************************************/
+
+/**
+ * The slice of the event-system envelope the posting decision needs. The
+ * discriminated EventSystemEvent union is assignable: UPDATE events carry
+ * the full old AND new rows (`row_to_json` in dispatch_event_batch), which
+ * is what makes status-transition detection possible at all.
+ */
+export type JournalPostingEventInput = {
+  operation: "INSERT" | "UPDATE" | "DELETE" | "TRUNCATE";
+  recordId: string;
+  new: Record<string, unknown> | null;
+  old: Record<string, unknown> | null;
+};
+
+export type JournalPostingDecision =
+  | { action: "enqueue"; entityId: string; reversal: boolean }
+  | { action: "skip"; reason: string };
+
+/**
+ * Decide whether a `journal` table event is a posting event worth a ledger
+ * operation. Two paths enqueue (spec Phase B §2, amended 2026-07-09):
+ *
+ * - INSERT born `status='Posted'` with no `reversalOfId` — Carbon's `post-*`
+ *   edge functions insert journals already Posted (they are never UPDATEd
+ *   from Draft), so INSERT is the posting event on the main path. Reversal
+ *   inserts (`reversalOfId` set, see `reverseJournalEntry`) skip: they are
+ *   represented by the original journal's Reversed transition below.
+ * - UPDATE whose status MOVED to 'Posted' (Draft→Posted flows) or 'Reversed'
+ *   (reversal push, suffixed entity id). An UPDATE that touches unrelated
+ *   columns while status stays 'Posted' must not re-push.
+ */
+export function getJournalPostingDecision(
+  event: JournalPostingEventInput
+): JournalPostingDecision {
+  if (event.operation === "INSERT") {
+    const insertedStatus =
+      typeof event.new?.status === "string" ? event.new.status : null;
+    if (insertedStatus !== "Posted") {
+      return {
+        action: "skip",
+        reason: `Journal INSERT with status '${insertedStatus ?? "unknown"}' is not a posting event (only journals born Posted enqueue on INSERT)`
+      };
+    }
+    if (event.new?.reversalOfId != null) {
+      return {
+        action: "skip",
+        reason:
+          "Journal INSERT is a reversal entry (reversalOfId set); the original journal's Reversed transition carries the reversal push"
+      };
+    }
+    return {
+      action: "enqueue",
+      entityId: getJournalEntrySyncEntityId(event.recordId, false),
+      reversal: false
+    };
+  }
+
+  if (event.operation !== "UPDATE") {
+    return {
+      action: "skip",
+      reason: `Journal ${event.operation} is not a posting event (journals enqueue on INSERT born Posted or when an UPDATE moves status to Posted or Reversed)`
+    };
+  }
+
+  const newStatus =
+    typeof event.new?.status === "string" ? event.new.status : null;
+  const oldStatus =
+    typeof event.old?.status === "string" ? event.old.status : null;
+
+  if (!newStatus || !oldStatus) {
+    return {
+      action: "skip",
+      reason:
+        "Journal UPDATE event is missing the old or new status; cannot detect a posting transition"
+    };
+  }
+
+  if (newStatus === oldStatus) {
+    return {
+      action: "skip",
+      reason: `Journal status did not change (still '${newStatus}'); not a posting transition`
+    };
+  }
+
+  if (newStatus === "Posted") {
+    return {
+      action: "enqueue",
+      entityId: getJournalEntrySyncEntityId(event.recordId, false),
+      reversal: false
+    };
+  }
+
+  if (newStatus === "Reversed") {
+    return {
+      action: "enqueue",
+      entityId: getJournalEntrySyncEntityId(event.recordId, true),
+      reversal: true
+    };
+  }
+
+  return {
+    action: "skip",
+    reason: `Journal status transitioned to '${newStatus}', which is not a posting status (only Posted and Reversed enqueue)`
+  };
+}
+
+/**
+ * Posting sync is opt-in per company: journal events enqueue only when the
+ * integration's RESOLVED sync config enables the journalEntry entity
+ * (disabled in DEFAULT_SYNC_CONFIG, so a company must have stored an
+ * override).
+ */
+export function isJournalEntryPostingEnabled(
+  integrationMetadata: unknown
+): boolean {
+  return resolveSyncConfig(integrationMetadata).entities.journalEntry.enabled;
+}
+
+export type EnqueueOutcome = {
+  entityType: string;
+  entityId: string;
+  direction: SyncOperationDirection;
+  /**
+   * "enqueued" covers both a newly inserted row and absorption into an
+   * existing one — either way an operation now covers the request.
+   * "cooldown" means a Completed row for the same tuple finished inside the
+   * 60s window (event/webhook triggers only).
+   */
+  outcome: "enqueued" | "cooldown" | "error";
+  error?: string;
+};
+
+/**
+ * Enqueue one ledger operation per unique request. Duplicate requests in the
+ * same call (same entityType, entityId, and direction) are deduped locally.
+ */
+export async function enqueueSyncOperations(
+  client: SupabaseClient<Database>,
+  args: {
+    companyId: string;
+    integration: string;
+    trigger: SyncOperationTrigger;
+    createdBy: string;
+    scope: string;
+    requests: SyncOperationRequest[];
+  }
+): Promise<EnqueueOutcome[]> {
+  const outcomes: EnqueueOutcome[] = [];
+  const seen = new Set<string>();
+
+  for (const request of args.requests) {
+    const idempotencyKey = getSyncOperationIdempotencyKey({
+      ...request,
+      scope: args.scope
+    });
+
+    if (seen.has(idempotencyKey)) continue;
+    seen.add(idempotencyKey);
+
+    const { data, error } = await enqueueSyncOperation(client, {
+      companyId: args.companyId,
+      integration: args.integration,
+      entityType: request.entityType,
+      entityId: request.entityId,
+      direction: request.direction,
+      trigger: args.trigger,
+      idempotencyKey,
+      createdBy: args.createdBy,
+      ...(request.metadata ? { metadata: request.metadata } : {})
+    });
+
+    if (error) {
+      outcomes.push({ ...request, outcome: "error", error });
+    } else if (data) {
+      outcomes.push({ ...request, outcome: "enqueued" });
+    } else {
+      outcomes.push({ ...request, outcome: "cooldown" });
+    }
+  }
+
+  return outcomes;
+}
+
+export type DrainedGroup = {
+  entityType: string;
+  direction: SyncOperationDirection;
+  result: BatchSyncResult;
+};
+
+export type DrainSummary = {
+  claimed: number;
+  completed: number;
+  failed: number;
+  skipped: number;
+  groups: DrainedGroup[];
+};
+
+function toSyncErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (typeof error === "string") return error;
+  if (error == null) return "Unknown sync error";
+  return JSON.stringify(error);
+}
+
+export type SyncOperationFailureRecord = {
+  errorCode?: string;
+  errorMessage: string;
+  warning?: boolean;
+  metadata?: Record<string, unknown>;
+};
+
+/**
+ * Map a sync result's error onto the failOperation payload.
+ *
+ * Structured journal pre-flight failures (isJournalEntrySyncFailure on
+ * SyncResult.error) keep their machine-readable errorCode, land Warning or
+ * Failed per the envelope's `warning` flag, and merge the failure's
+ * metadata (e.g. unmappedAccountIds) over the operation's existing
+ * metadata (so enqueue-time keys like `reversal` survive). Every other
+ * error keeps the flattened-string behavior.
+ */
+export function getSyncOperationFailureRecord(
+  operation: Pick<SyncOperation, "metadata">,
+  syncResult: Pick<SyncResult, "error"> | undefined
+): SyncOperationFailureRecord {
+  if (!syncResult) {
+    return { errorMessage: "No sync result returned for entity" };
+  }
+
+  if (isJournalEntrySyncFailure(syncResult.error)) {
+    const failure = syncResult.error;
+    return {
+      errorCode: failure.errorCode,
+      errorMessage: failure.message,
+      warning: failure.warning,
+      ...(failure.metadata
+        ? { metadata: { ...(operation.metadata ?? {}), ...failure.metadata } }
+        : {})
+    };
+  }
+
+  return { errorMessage: toSyncErrorMessage(syncResult.error) };
+}
+
+/**
+ * Drain the ledger for one company + integration: claim Pending (and stale
+ * In Flight) operations, run the same entity syncers the entry points used
+ * to call directly, and close every claimed operation out. Claimed rows are
+ * grouped by (entityType, direction) so each group is one syncer batch call,
+ * exactly like the pre-ledger dispatch.
+ *
+ * Daily-consolidation hold: when the company's posting-sync settings
+ * (resolved from `integrationMetadata`) have consolidation "daily",
+ * journalEntry operations are never claimed — they stay Pending for the
+ * daily-consolidation cron, which pushes one aggregated provider journal
+ * per posting date. Individual-mode journal operations drain normally
+ * through the JournalEntrySyncer.
+ *
+ * A RatelimitError propagates so the caller's retry machinery applies;
+ * claimed rows stay In Flight and become re-claimable once stale. Any other
+ * group-level error marks that group's operations Failed and the drain
+ * continues with the next group.
+ */
+export async function drainSyncOperations(args: {
+  client: SupabaseClient<Database>;
+  database: SyncContext["database"];
+  companyId: string;
+  integration: string;
+  provider: AccountingProvider;
+  /**
+   * `metadata` of the companyIntegration row (already loaded by every
+   * caller via getAccountingIntegration) — required so no drain path can
+   * silently push daily-consolidation journal operations individually.
+   */
+  integrationMetadata: unknown;
+}): Promise<DrainSummary> {
+  const summary: DrainSummary = {
+    claimed: 0,
+    completed: 0,
+    failed: 0,
+    skipped: 0,
+    groups: []
+  };
+
+  const postingSyncSettings = resolvePostingSyncSettings(
+    args.integrationMetadata
+  );
+  const excludeEntityTypes: AccountingEntityType[] | undefined =
+    postingSyncSettings.consolidation === "daily"
+      ? ["journalEntry"]
+      : undefined;
+
+  for (let iteration = 0; iteration < MAX_DRAIN_ITERATIONS; iteration++) {
+    const claimed = await claimPendingOperations(args.client, {
+      companyId: args.companyId,
+      integration: args.integration,
+      ...(excludeEntityTypes ? { excludeEntityTypes } : {})
+    });
+
+    if (claimed.error) {
+      throw new Error(`Failed to claim sync operations: ${claimed.error}`);
+    }
+
+    if (claimed.data.length === 0) break;
+
+    summary.claimed += claimed.data.length;
+
+    const groups = groupBy(
+      claimed.data,
+      (operation) => `${operation.entityType}:${operation.direction}`
+    );
+
+    for (const operations of Object.values(groups)) {
+      const first = operations[0];
+      if (!first) continue;
+
+      const { entityType, direction } = first;
+
+      try {
+        const syncer = SyncFactory.getSyncer({
+          database: args.database,
+          companyId: args.companyId,
+          provider: args.provider,
+          config: args.provider.getSyncConfig(
+            entityType as AccountingEntityType
+          ),
+          entityType: entityType as AccountingEntityType
+        });
+
+        const entityIds = operations.map((operation) => operation.entityId);
+        const result =
+          direction === "push-to-accounting"
+            ? await syncer.pushBatchToAccounting(entityIds)
+            : await syncer.pullBatchFromAccounting(entityIds);
+
+        summary.groups.push({ entityType, direction, result });
+
+        for (const operation of operations) {
+          const syncResult = result.results.find((r) =>
+            direction === "push-to-accounting"
+              ? r.localId === operation.entityId
+              : r.remoteId === operation.entityId
+          );
+
+          if (!syncResult || syncResult.status === "error") {
+            summary.failed++;
+            // Structured journal pre-flight failures keep their errorCode,
+            // Warning/Failed flag and metadata; other errors flatten to a
+            // string exactly as before
+            await failOperation(args.client, {
+              id: operation.id,
+              companyId: operation.companyId,
+              ...getSyncOperationFailureRecord(operation, syncResult)
+            });
+            continue;
+          }
+
+          // "skipped" (already synced, gated by shouldSync, or disabled in
+          // config) is terminal for this attempt: the drain has no skip
+          // marker in the ledger API, so it closes as Completed just like a
+          // successful sync.
+          if (syncResult.status === "skipped") {
+            summary.skipped++;
+          } else {
+            summary.completed++;
+          }
+
+          await completeOperation(args.client, {
+            id: operation.id,
+            companyId: operation.companyId,
+            ...(syncResult.remoteId ? { externalId: syncResult.remoteId } : {})
+          });
+        }
+      } catch (error) {
+        if (error instanceof RatelimitError) {
+          const { retryAfterSeconds } = error.rateLimitInfo;
+          console.warn(
+            `[RATE LIMIT] Drain hit rate limit, will retry after ${retryAfterSeconds}s`
+          );
+          throw error;
+        }
+
+        const errorMessage =
+          error instanceof Error ? error.message : "Unknown error";
+
+        for (const operation of operations) {
+          summary.failed++;
+          await failOperation(args.client, {
+            id: operation.id,
+            companyId: operation.companyId,
+            errorMessage
+          });
+        }
+      }
+    }
+  }
+
+  return summary;
+}
+
+// /********************************************************\
+// *      Daily-consolidation decisions (cron, Task 12)     *
+// \********************************************************/
+// Pure helpers for the accounting-consolidation cron, kept in this
+// import-light module (like the journal posting decisions above) so they
+// are unit-testable without booting the Inngest client.
+
+export const DAILY_CONSOLIDATION_PREFIX = "daily:";
+
+/**
+ * Batch key for one integration + posting date. Used as the marker
+ * operation's entityId AND idempotencyKey, and recorded on member
+ * operations as `metadata.consolidatedInto`.
+ */
+export function getDailyConsolidationBatchKey(
+  integration: string,
+  postingDate: string
+): string {
+  return `${DAILY_CONSOLIDATION_PREFIX}${integration}:${postingDate}`;
+}
+
+/** Marker operations are recognized by their entityId prefix. */
+export function isDailyConsolidationMarker(entityId: string): boolean {
+  return entityId.startsWith(DAILY_CONSOLIDATION_PREFIX);
+}
+
+/** YYYY-MM-DD in UTC. */
+export function getUtcDateString(now: Date = new Date()): string {
+  return now.toISOString().slice(0, 10);
+}
+
+/**
+ * Normalize a posting date read from the database (ISO string or Date,
+ * depending on driver type parsers) to YYYY-MM-DD, or null when it is
+ * neither.
+ */
+export function toIsoDateString(value: unknown): string | null {
+  if (value instanceof Date) {
+    return Number.isNaN(value.getTime())
+      ? null
+      : value.toISOString().slice(0, 10);
+  }
+  if (typeof value === "string" && value.length >= 10) {
+    return value.slice(0, 10);
+  }
+  return null;
+}
+
+/**
+ * Mirror of claimPendingOperations' candidate rule so the consolidation
+ * pre-scan only plans work the claim can actually take: Pending rows, plus
+ * In Flight rows abandoned longer than the stale window.
+ */
+export function isClaimableConsolidationOperation(
+  operation: Pick<SyncOperation, "status" | "lastAttemptAt">,
+  now: Date = new Date()
+): boolean {
+  if (operation.status === "Pending") return true;
+  if (operation.status !== "In Flight") return false;
+  if (!operation.lastAttemptAt) return false;
+
+  const lastAttemptMs = new Date(operation.lastAttemptAt).getTime();
+  if (Number.isNaN(lastAttemptMs)) return false;
+  return now.getTime() - lastAttemptMs > SYNC_OPERATION_STALE_IN_FLIGHT_MS;
+}
+
+export type ConsolidationOperation = Pick<
+  SyncOperation,
+  "id" | "entityId" | "metadata"
+>;
+
+export type ConsolidationPartition<T extends ConsolidationOperation> = {
+  /** Batch marker rows (entityId prefixed "daily:"). */
+  markers: T[];
+  /** Reversal pushes — individual syncer path, never consolidated. */
+  reversals: T[];
+  /** Consolidation members grouped by posting date (strictly before today). */
+  byDate: Map<string, T[]>;
+  /**
+   * Members of a date whose daily summary was already pushed (marker
+   * Completed) — late backdated arrivals, pushed individually.
+   */
+  individual: T[];
+  /** Dated today or later — left In Flight for a later run. */
+  held: T[];
+  /** Journal row not found — failed. */
+  missing: T[];
+};
+
+/**
+ * Split claimed journalEntry operations into their consolidation buckets.
+ * Reversals are detected by enqueue metadata (`reversal: true`) with the
+ * ":reversal" entityId suffix as a fallback.
+ */
+export function partitionConsolidationOperations<
+  T extends ConsolidationOperation
+>(args: {
+  operations: T[];
+  postingDateByJournalId: ReadonlyMap<string, string>;
+  today: string;
+  consolidatedDates: ReadonlySet<string>;
+}): ConsolidationPartition<T> {
+  const partition: ConsolidationPartition<T> = {
+    markers: [],
+    reversals: [],
+    byDate: new Map(),
+    individual: [],
+    held: [],
+    missing: []
+  };
+
+  for (const operation of args.operations) {
+    if (isDailyConsolidationMarker(operation.entityId)) {
+      partition.markers.push(operation);
+      continue;
+    }
+
+    const { journalId, reversal } = parseJournalEntrySyncEntityId(
+      operation.entityId
+    );
+    if (operation.metadata?.reversal === true || reversal) {
+      partition.reversals.push(operation);
+      continue;
+    }
+
+    const postingDate = args.postingDateByJournalId.get(journalId);
+    if (!postingDate) {
+      partition.missing.push(operation);
+      continue;
+    }
+
+    if (postingDate >= args.today) {
+      partition.held.push(operation);
+      continue;
+    }
+
+    if (args.consolidatedDates.has(postingDate)) {
+      partition.individual.push(operation);
+      continue;
+    }
+
+    const group = partition.byDate.get(postingDate);
+    if (group) {
+      group.push(operation);
+    } else {
+      partition.byDate.set(postingDate, [operation]);
+    }
+  }
+
+  return partition;
+}
+
+// /********************************************************\
+// *       Reconciliation comparisons (cron, Task 13)       *
+// \********************************************************/
+// Pure helpers for the accounting-reconciliation cron (same import-light
+// rationale as the consolidation decisions above).
+
+export const MAX_RECONCILIATION_DRIFT_ENTRIES = 100;
+
+export type ReconciliationDriftEntry =
+  | { type: "missing"; externalId: string; journalId: string; amount?: number }
+  | {
+      type: "mismatch";
+      month: string;
+      carbonTotal: number;
+      providerTotal: number;
+    };
+
+export type ReconciliationReport = {
+  runAt: string;
+  drift: ReconciliationDriftEntry[];
+};
+
+/** Sum of positive (debit) line amounts, in cents. */
+export function getPositiveCents(
+  lines: ReadonlyArray<{ amount: number }>
+): number {
+  return lines.reduce((sum, line) => {
+    const cents = Math.round(line.amount * 100);
+    return cents > 0 ? sum + cents : sum;
+  }, 0);
+}
+
+/**
+ * Debit total (cents) of what a consolidated batch actually booked: member
+ * lines are netted per account first (zero nets drop), mirroring
+ * aggregateJournalEntriesForDate.
+ */
+export function getNettedPositiveCents(
+  lines: ReadonlyArray<{ accountId: string | null; amount: number }>
+): number {
+  let sum = 0;
+  for (const amount of netJournalLinesPerAccount(lines).values()) {
+    const cents = Math.round(amount * 100);
+    if (cents > 0) sum += cents;
+  }
+  return sum;
+}
+
+/**
+ * Compare per-month debit totals (cents). A month drifts when the absolute
+ * difference exceeds 0.01 (strictly more than one cent — a single rounding
+ * cent is tolerated). Months present on either side participate; a missing
+ * side counts as zero.
+ */
+export function compareMonthlyTotals(args: {
+  carbonCentsByMonth: ReadonlyMap<string, number>;
+  providerCentsByMonth: ReadonlyMap<string, number>;
+}): Array<Extract<ReconciliationDriftEntry, { type: "mismatch" }>> {
+  const months = new Set([
+    ...args.carbonCentsByMonth.keys(),
+    ...args.providerCentsByMonth.keys()
+  ]);
+
+  const drift: Array<Extract<ReconciliationDriftEntry, { type: "mismatch" }>> =
+    [];
+
+  for (const month of [...months].sort()) {
+    const carbonCents = args.carbonCentsByMonth.get(month) ?? 0;
+    const providerCents = args.providerCentsByMonth.get(month) ?? 0;
+    if (Math.abs(carbonCents - providerCents) > 1) {
+      drift.push({
+        type: "mismatch",
+        month,
+        carbonTotal: carbonCents / 100,
+        providerTotal: providerCents / 100
+      });
+    }
+  }
+
+  return drift;
+}
+
+/**
+ * Merge `lastReconciliation` into
+ * `metadata.settings.postingSync.lastReconciliation` without clobbering any
+ * other key: credentials, syncConfig, sibling settings keys and the stored
+ * postingSync fields (enabled, sourceTypes, ...) all survive. Drift is
+ * capped at MAX_RECONCILIATION_DRIFT_ENTRIES.
+ */
+export function mergePostingSyncReconciliation(
+  metadata: unknown,
+  report: ReconciliationReport
+): Record<string, unknown> {
+  const base =
+    typeof metadata === "object" && metadata !== null
+      ? (metadata as Record<string, unknown>)
+      : {};
+  const settings =
+    typeof base.settings === "object" && base.settings !== null
+      ? (base.settings as Record<string, unknown>)
+      : {};
+  const postingSync =
+    typeof settings.postingSync === "object" && settings.postingSync !== null
+      ? (settings.postingSync as Record<string, unknown>)
+      : {};
+
+  return {
+    ...base,
+    settings: {
+      ...settings,
+      postingSync: {
+        ...postingSync,
+        lastReconciliation: {
+          runAt: report.runAt,
+          drift: report.drift.slice(0, MAX_RECONCILIATION_DRIFT_ENTRIES)
+        }
+      }
+    }
+  };
+}
+
+// /********************************************************\
+// *           QBO CDC decisions (cron, Task C9)            *
+// \********************************************************/
+// Pure helpers for the quickbooks-cdc cron (same import-light rationale as
+// the consolidation and reconciliation helpers above).
+
+/**
+ * QBO CDC entity name → Carbon accounting entity type, limited to the
+ * entity types the QBO integration syncs. The CDC call is asked only about
+ * these names.
+ */
+export const QBO_CDC_ENTITY_TYPES = {
+  Customer: "customer",
+  Vendor: "vendor",
+  Item: "item",
+  Invoice: "invoice",
+  Bill: "bill",
+  PurchaseOrder: "purchaseOrder"
+} as const satisfies Record<string, AccountingEntityType>;
+
+export type QboCdcEntityName = keyof typeof QBO_CDC_ENTITY_TYPES;
+
+/** Carbon entity type for a CDC entity name; null for unknown names. */
+export function getCdcEntityType(
+  entityName: string
+): AccountingEntityType | null {
+  return (
+    (QBO_CDC_ENTITY_TYPES as Record<string, AccountingEntityType>)[
+      entityName
+    ] ?? null
+  );
+}
+
+/**
+ * QBO entity names worth a CDC subscription for a company: entities whose
+ * RESOLVED sync config is enabled with a direction that includes pull.
+ * Push-only entities (item and purchaseOrder under DEFAULT_SYNC_CONFIG)
+ * never flow QBO → Carbon, so their remote changes are not fetched.
+ */
+export function getCdcPullEntityNames(
+  integrationMetadata: unknown
+): QboCdcEntityName[] {
+  const config = resolveSyncConfig(integrationMetadata);
+  return (Object.keys(QBO_CDC_ENTITY_TYPES) as QboCdcEntityName[]).filter(
+    (entityName) => {
+      const entityConfig = config.entities[QBO_CDC_ENTITY_TYPES[entityName]];
+      return (
+        entityConfig.enabled &&
+        (entityConfig.direction === "pull-from-accounting" ||
+          entityConfig.direction === "two-way")
+      );
+    }
+  );
+}
+
+/**
+ * QBO's CDC endpoint reaches back at most 30 days; the cron clamps its
+ * cursor to 29 to keep a margin for clock skew and call latency.
+ */
+export const QBO_CDC_MAX_LOOKBACK_DAYS = 29;
+
+const QBO_CDC_MAX_LOOKBACK_MS = QBO_CDC_MAX_LOOKBACK_DAYS * 24 * 60 * 60_000;
+
+/**
+ * Normalize any ISO 8601 string (offsets included — QBO timestamps arrive
+ * like "2026-07-08T13:07:59-07:00") to UTC ISO; null when unparseable.
+ */
+function toUtcIsoString(value: unknown): string | null {
+  if (typeof value !== "string" || value.length === 0) return null;
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
+}
+
+export type CdcCursorDecision = {
+  /** UTC ISO timestamp for the CDC call's changedSince parameter. */
+  changedSince: string;
+  /** True when the wanted cursor predates the CDC lookback cap. */
+  clamped: boolean;
+  /** Where the pre-clamp cursor came from. */
+  source: "cursor" | "connectTime" | "fallback";
+};
+
+/**
+ * Resolve the changedSince cursor for one CDC run:
+ *
+ * - Stored cursor `metadata.settings.cdcCursor` (advanced by prior runs).
+ * - Default: the integration row's `updatedAt` — the closest thing to
+ *   connect time available (companyIntegration has no createdAt column);
+ *   it is at-or-after the OAuth connect, so pre-connect history is never
+ *   pulled.
+ * - Clamp: CDC only reaches back 30 days, so older cursors are clamped to
+ *   QBO_CDC_MAX_LOOKBACK_DAYS ago and reported (`clamped`); the pre-window
+ *   tail is left to two-way owner semantics / a manual backfill to recover.
+ */
+export function getCdcCursorDecision(args: {
+  integrationMetadata: unknown;
+  integrationUpdatedAt: string | null;
+  now?: Date;
+}): CdcCursorDecision {
+  const now = args.now ?? new Date();
+
+  const settings =
+    typeof args.integrationMetadata === "object" &&
+    args.integrationMetadata !== null
+      ? (args.integrationMetadata as { settings?: unknown }).settings
+      : undefined;
+  const storedCursor = toUtcIsoString(
+    typeof settings === "object" && settings !== null
+      ? (settings as Record<string, unknown>).cdcCursor
+      : undefined
+  );
+  const connectTime = toUtcIsoString(args.integrationUpdatedAt);
+
+  const clampFloor = new Date(
+    now.getTime() - QBO_CDC_MAX_LOOKBACK_MS
+  ).toISOString();
+
+  const cursor = storedCursor ?? connectTime;
+  if (!cursor) {
+    return { changedSince: clampFloor, clamped: false, source: "fallback" };
+  }
+
+  const source = storedCursor ? ("cursor" as const) : ("connectTime" as const);
+  // Both sides are toISOString output, so lexicographic order is
+  // chronological order
+  if (cursor < clampFloor) {
+    return { changedSince: clampFloor, clamped: true, source };
+  }
+  return { changedSince: cursor, clamped: false, source };
+}
+
+/**
+ * Cursor advance rule (Celigo: the cursor only moves over provably-covered
+ * work): the max of the changedSince actually used and every
+ * LastUpdatedTime CDC returned — deleted stubs included, because
+ * log-and-skip is their terminal handling. Never the CDC response's server
+ * time, which could outrun a lagging snapshot. The cron calls this only
+ * after every enqueue succeeded and the drain returned.
+ */
+export function getAdvancedCdcCursor(args: {
+  changedSince: string;
+  lastUpdatedTimes: ReadonlyArray<string | null>;
+}): string {
+  let max = toUtcIsoString(args.changedSince) ?? args.changedSince;
+  for (const value of args.lastUpdatedTimes) {
+    const iso = toUtcIsoString(value);
+    if (iso && iso > max) max = iso;
+  }
+  return max;
+}
+
+/**
+ * Idempotency scope for one CDC-observed change: `cdc:<LastUpdatedTime>`
+ * is stable across cron retries — the cursor only advances after success,
+ * so a retried run re-reads the same window and rebuilds the same keys,
+ * absorbing into the existing ledger rows. Records missing
+ * LastUpdatedTime fall back to the run's changedSince (still stable for
+ * unclamped runs; live-row absorption and the completed-row cooldown cover
+ * the clamped edge, where changedSince shifts with `now`).
+ */
+export function getCdcIdempotencyScope(
+  lastUpdatedTime: string | null,
+  changedSince: string
+): string {
+  return `cdc:${lastUpdatedTime ?? changedSince}`;
+}
+
+/**
+ * Merge `cursor` into `metadata.settings.cdcCursor` without clobbering any
+ * sibling key — same raw-metadata read-modify-write contract as
+ * mergePostingSyncReconciliation, but the cursor is a settings-level key,
+ * NOT a postingSync one.
+ */
+export function mergeCdcCursor(
+  metadata: unknown,
+  cursor: string
+): Record<string, unknown> {
+  const base =
+    typeof metadata === "object" && metadata !== null
+      ? (metadata as Record<string, unknown>)
+      : {};
+  const settings =
+    typeof base.settings === "object" && base.settings !== null
+      ? (base.settings as Record<string, unknown>)
+      : {};
+
+  return {
+    ...base,
+    settings: {
+      ...settings,
+      cdcCursor: cursor
+    }
+  };
+}

@@ -11,7 +11,12 @@
  * - If entity has remote ID but no local mapping -> Pull from accounting
  * - If entity has both -> Use the entity config's "owner" to determine direction
  *
- * Includes cooldown protection to prevent redundant syncs of the same entity.
+ * Every requested sync routes through the "accountingSyncOperation" ledger:
+ * an enqueue step records one operation per entity + direction (re-triggers
+ * are absorbed into the live row, and event/webhook triggers respect the 60s
+ * completed-row cooldown inside the operations service — the mapping-table
+ * cooldown check that used to live here), then a drain step claims Pending
+ * operations and runs the entity syncers.
  */
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import {
@@ -19,295 +24,235 @@ import {
   getPostgresConnectionPool
 } from "@carbon/database/client";
 import {
-  type AccountingEntity,
   type AccountingEntityType,
   AccountingSyncSchema,
-  type BatchSyncResult,
   createMappingService,
   getAccountingIntegration,
   getProviderIntegration,
-  SyncFactory
+  type SyncOperationTrigger
 } from "@carbon/ee/accounting";
 
 import { groupBy } from "@carbon/utils";
 import { PostgresDriver } from "kysely";
 import { inngest } from "../../client";
-
-// Cooldown period in milliseconds to prevent redundant syncs
-// If an entity was synced within this period, skip syncing it again
-const SYNC_COOLDOWN_MS = 60000; // 1 minute
+import {
+  type DrainSummary,
+  drainSyncOperations,
+  enqueueSyncOperations,
+  getSyncOperationActor,
+  type SyncOperationRequest
+} from "./accounting-sync-operations";
 
 const PayloadSchema = AccountingSyncSchema.extend({
   syncDirection: AccountingSyncSchema.shape.syncDirection
 });
 
+/**
+ * Map the payload's syncType onto the ledger trigger: webhooks keep their
+ * own trigger; scheduled/trigger syncs are machine re-triggers and enqueue
+ * as "event". Both trigger kinds respect the completed-row cooldown
+ * enforced inside enqueueSyncOperation.
+ */
+function getLedgerTrigger(
+  syncType: "webhook" | "scheduled" | "trigger"
+): SyncOperationTrigger {
+  return syncType === "webhook" ? "webhook" : "event";
+}
+
 export const syncExternalAccountingFunction = inngest.createFunction(
   { id: "sync-external-accounting", retries: 1 },
   { event: "carbon/sync-external-accounting" },
-  async ({ event, step }) => {
+  async ({ event, step, runId }) => {
     const payload = PayloadSchema.parse(event.data);
 
     const client = getCarbonServiceRole();
 
-    const integration = await getAccountingIntegration(
-      client,
-      payload.companyId,
-      payload.provider
-    );
-
-    const provider = getProviderIntegration(
-      client,
-      payload.companyId,
-      integration.id,
-      integration.metadata
-    );
+    // Scopes the ledger idempotency keys to this delivery: Inngest retries
+    // reuse the same event id (absorbed), later deliveries get fresh keys
+    const enqueueScope = event.id ?? runId;
 
     const pool = getPostgresConnectionPool(10);
     const kysely = getPostgresClient(pool, PostgresDriver);
-    const mappingService = createMappingService(kysely, payload.companyId);
-
-    const results = {
-      success: [] as BatchSyncResult[],
-      failed: [] as { entities: AccountingEntity[]; error: string }[]
-    };
 
     try {
-      const group = groupBy(payload.entities, (e) => e.entityType);
+      // Step 1: resolve each entity's effective direction and enqueue one
+      // ledger operation per entity + direction
+      type EnqueueStepSummary = {
+        enqueued: number;
+        cooldownSkipped: number;
+        disabled: string[];
+        errors: { entityId: string; error: string }[];
+      };
 
-      for (const [entityType, entities] of Object.entries(group)) {
-        const type = entityType as AccountingEntityType;
-        const entityConfig = provider.getSyncConfig(type);
-
-        if (!entityConfig?.enabled) {
-          console.info(`Sync disabled for ${entityType}, skipping`);
-          continue;
-        }
-
-        try {
-          console.info(
-            `Starting sync for ${entities.length} ${entityType} entities`,
-            {
-              direction: payload.syncDirection,
-              configDirection: entityConfig.direction
-            }
+      const enqueueSummary = (await step.run(
+        "enqueue-sync-operations",
+        async () => {
+          const integration = await getAccountingIntegration(
+            client,
+            payload.companyId,
+            payload.provider
           );
 
-          const syncer = SyncFactory.getSyncer({
+          const provider = getProviderIntegration(
+            client,
+            payload.companyId,
+            integration.id,
+            integration.metadata
+          );
+
+          const mappingService = createMappingService(
+            kysely,
+            payload.companyId
+          );
+
+          const requests: SyncOperationRequest[] = [];
+          const disabled: string[] = [];
+
+          const group = groupBy(payload.entities, (e) => e.entityType);
+
+          for (const [entityType, entities] of Object.entries(group)) {
+            const type = entityType as AccountingEntityType;
+            const entityConfig = provider.getSyncConfig(type);
+
+            if (!entityConfig?.enabled) {
+              console.info(`Sync disabled for ${entityType}, skipping`);
+              disabled.push(entityType);
+              continue;
+            }
+
+            // Determine the effective sync direction
+            const effectiveDirection =
+              payload.syncDirection === "two-way"
+                ? entityConfig.direction // Use the entity's configured direction
+                : payload.syncDirection;
+
+            for (const entity of entities) {
+              if (effectiveDirection === "push-to-accounting") {
+                requests.push({
+                  entityType: type,
+                  entityId: entity.entityId,
+                  direction: "push-to-accounting"
+                });
+              } else if (effectiveDirection === "pull-from-accounting") {
+                requests.push({
+                  entityType: type,
+                  entityId: entity.entityId,
+                  direction: "pull-from-accounting"
+                });
+              } else {
+                // Two-way: determine the direction per entity based on
+                // whether a mapping exists and which system owns the record
+                const mapping = await mappingService.getByEntity(
+                  type,
+                  entity.entityId,
+                  provider.id
+                );
+
+                if (mapping && entityConfig.owner === "accounting") {
+                  requests.push({
+                    entityType: type,
+                    entityId: mapping.externalId,
+                    direction: "pull-from-accounting"
+                  });
+                } else {
+                  // No mapping exists (likely a Carbon-only entity that
+                  // needs pushing) or Carbon owns the record
+                  requests.push({
+                    entityType: type,
+                    entityId: entity.entityId,
+                    direction: "push-to-accounting"
+                  });
+                }
+              }
+            }
+          }
+
+          const outcomes = await enqueueSyncOperations(client, {
+            companyId: payload.companyId,
+            integration: payload.provider,
+            trigger: getLedgerTrigger(payload.syncType),
+            createdBy: getSyncOperationActor(integration),
+            scope: enqueueScope,
+            requests
+          });
+
+          const summary: EnqueueStepSummary = {
+            enqueued: 0,
+            cooldownSkipped: 0,
+            disabled,
+            errors: []
+          };
+
+          for (const outcome of outcomes) {
+            if (outcome.outcome === "enqueued") {
+              summary.enqueued++;
+            } else if (outcome.outcome === "cooldown") {
+              summary.cooldownSkipped++;
+            } else {
+              summary.errors.push({
+                entityId: outcome.entityId,
+                error: outcome.error ?? "Failed to enqueue sync operation"
+              });
+            }
+          }
+
+          return summary;
+        }
+      )) as EnqueueStepSummary;
+
+      console.info("Enqueued sync operations", enqueueSummary);
+
+      // Step 2: drain — claim Pending operations (including UI retries and
+      // stale In Flight rows) and run the entity syncers. A throw re-runs
+      // the step; claim/complete are idempotent so retries cannot duplicate
+      // work.
+      const drainSummary = (await step.run(
+        "drain-sync-operations",
+        async () => {
+          const integration = await getAccountingIntegration(
+            client,
+            payload.companyId,
+            payload.provider
+          );
+
+          const provider = getProviderIntegration(
+            client,
+            payload.companyId,
+            integration.id,
+            integration.metadata
+          );
+
+          return drainSyncOperations({
+            client,
             database: kysely,
             companyId: payload.companyId,
+            integration: payload.provider,
             provider,
-            config: entityConfig,
-            entityType: type
-          });
-
-          if (entities.length === 0) {
-            console.info(`No entities to sync for type ${entityType}`);
-            continue;
-          }
-
-          // Determine the effective sync direction
-          const effectiveDirection =
-            payload.syncDirection === "two-way"
-              ? entityConfig.direction // Use the entity's configured direction
-              : payload.syncDirection;
-
-          if (effectiveDirection === "push-to-accounting") {
-            // Filter out entities that were synced recently (cooldown)
-            const entitiesToSync = await filterByCooldown(
-              mappingService,
-              type,
-              entities,
-              provider.id
-            );
-
-            if (entitiesToSync.length === 0) {
-              console.info(
-                `All ${entityType} entities were synced recently, skipping`
-              );
-              continue;
-            }
-
-            const result = await syncer.pushBatchToAccounting(
-              entitiesToSync.map((e) => e.entityId)
-            );
-
-            console.info("Push sync result:", { entityType, result });
-            results.success.push(result);
-          } else if (effectiveDirection === "pull-from-accounting") {
-            // Filter out entities that were synced recently (cooldown)
-            const entitiesToSync = await filterByCooldown(
-              mappingService,
-              type,
-              entities,
-              provider.id
-            );
-
-            if (entitiesToSync.length === 0) {
-              console.info(
-                `All ${entityType} entities were synced recently, skipping`
-              );
-              continue;
-            }
-
-            const result = await syncer.pullBatchFromAccounting(
-              entitiesToSync.map((e) => e.entityId)
-            );
-
-            console.info("Pull sync result:", { entityType, result });
-            results.success.push(result);
-          } else if (effectiveDirection === "two-way") {
-            // For two-way sync, we need to determine direction per-entity
-            // based on whether it has a local ID, remote ID, or both
-            const twoWayResult = await handleTwoWaySync(
-              syncer,
-              mappingService,
-              type,
-              entities,
-              provider.id,
-              entityConfig.owner
-            );
-
-            console.info("Two-way sync result:", {
-              entityType,
-              ...twoWayResult
-            });
-            results.success.push(twoWayResult.pushed);
-            results.success.push(twoWayResult.pulled);
-          }
-        } catch (error) {
-          console.error(`Failed to process ${entityType} entities:`, error);
-
-          results.failed.push({
-            entities: entities,
-            error: error instanceof Error ? error.message : "Unknown error"
+            integrationMetadata: integration.metadata
           });
         }
+      )) as DrainSummary;
+
+      for (const group of drainSummary.groups) {
+        console.info("Sync result:", {
+          entityType: group.entityType,
+          direction: group.direction,
+          result: group.result
+        });
       }
-    } catch (error) {
-      console.error("Sync task failed:", error);
+
+      return {
+        success: drainSummary.groups.map((g) => g.result),
+        enqueue: enqueueSummary,
+        drain: {
+          claimed: drainSummary.claimed,
+          completed: drainSummary.completed,
+          failed: drainSummary.failed,
+          skipped: drainSummary.skipped
+        }
+      };
     } finally {
       await pool.end();
     }
-
-    return results;
   }
 );
-
-/**
- * Filter entities that were synced within the cooldown period.
- * Returns only entities that are eligible for syncing.
- */
-async function filterByCooldown(
-  mappingService: ReturnType<typeof createMappingService>,
-  entityType: AccountingEntityType,
-  entities: AccountingEntity[],
-  integration: string
-): Promise<AccountingEntity[]> {
-  const now = Date.now();
-  const eligibleEntities: AccountingEntity[] = [];
-
-  for (const entity of entities) {
-    const mapping = await mappingService.getByEntity(
-      entityType,
-      entity.entityId,
-      integration
-    );
-
-    // If no mapping exists or lastSyncedAt is old enough, include it
-    if (!mapping?.lastSyncedAt) {
-      eligibleEntities.push(entity);
-      continue;
-    }
-
-    const lastSyncedAt = new Date(mapping.lastSyncedAt).getTime();
-    if (now - lastSyncedAt > SYNC_COOLDOWN_MS) {
-      eligibleEntities.push(entity);
-    } else {
-      console.debug(
-        `Skipping ${entityType} ${entity.entityId} - synced ${
-          now - lastSyncedAt
-        }ms ago`
-      );
-    }
-  }
-
-  return eligibleEntities;
-}
-
-/**
- * Handle two-way sync by determining the appropriate direction for each entity.
- *
- * Logic:
- * - If entity has entityId (Carbon ID) but no remote mapping -> Push to accounting
- * - If entity has entityId that is actually a remote ID (no local entity) -> Pull from accounting
- * - If entity has both local and remote -> Use "owner" config to determine winner
- */
-async function handleTwoWaySync(
-  syncer: ReturnType<typeof SyncFactory.getSyncer>,
-  mappingService: ReturnType<typeof createMappingService>,
-  entityType: AccountingEntityType,
-  entities: AccountingEntity[],
-  integration: string,
-  owner: "carbon" | "accounting"
-): Promise<{ pushed: BatchSyncResult; pulled: BatchSyncResult }> {
-  const toPush: string[] = [];
-  const toPull: string[] = [];
-  const now = Date.now();
-
-  for (const entity of entities) {
-    // Check if this entity was synced recently
-    const mapping = await mappingService.getByEntity(
-      entityType,
-      entity.entityId,
-      integration
-    );
-
-    if (mapping?.lastSyncedAt) {
-      const lastSyncedAt = new Date(mapping.lastSyncedAt).getTime();
-      if (now - lastSyncedAt <= SYNC_COOLDOWN_MS) {
-        console.debug(
-          `Skipping two-way sync for ${entityType} ${entity.entityId} - synced recently`
-        );
-        continue;
-      }
-    }
-
-    if (mapping) {
-      // Entity exists in both systems - use owner to determine direction
-      if (owner === "carbon") {
-        toPush.push(entity.entityId);
-      } else {
-        // owner === "accounting"
-        toPull.push(mapping.externalId);
-      }
-    } else {
-      // No mapping exists - this is likely a Carbon-only entity that needs pushing
-      // Or it could be a remote ID that needs pulling
-      // For now, assume entityId is a Carbon ID and push it
-      toPush.push(entity.entityId);
-    }
-  }
-
-  // Execute push and pull operations
-  const pushResult =
-    toPush.length > 0
-      ? await syncer.pushBatchToAccounting(toPush)
-      : {
-          results: [],
-          successCount: 0,
-          errorCount: 0,
-          skippedCount: 0
-        };
-
-  const pullResult =
-    toPull.length > 0
-      ? await syncer.pullBatchFromAccounting(toPull)
-      : {
-          results: [],
-          successCount: 0,
-          errorCount: 0,
-          skippedCount: 0
-        };
-
-  return { pushed: pushResult, pulled: pullResult };
-}
