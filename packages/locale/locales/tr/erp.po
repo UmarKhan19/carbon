@@ -91,6 +91,9 @@ msgstr "{chainLabel}. Bu parçayı doğrudan son halefine yönlendirmeyi düşü
 msgid "{count, plural, one {# course} other {# courses}}"
 msgstr "{count, plural, one {# kurs} other {# kurs}}"
 
+msgid "{done} of {total} phases complete"
+msgstr "{done} / {total} aşama tamamlandı"
+
 msgid "{from}–{to} of {count}"
 msgstr "{from}–{to} / {count}"
 
@@ -1320,6 +1323,13 @@ msgstr "Bu teklifi reddetmek istediğinizden emin misiniz?"
 msgid "Are you sure you want to release this job? It will become available to the shop floor, and drive purchasing and production."
 msgstr "Bu işi yayınlamak istediğinizden emin misiniz? Atölye zemininde kullanılabilir hale gelecek ve satın alma ile üretimi tetikleyecektir."
 
+#. placeholder {0}: supplierName(deleteTarget.supplierId)
+msgid "Are you sure you want to remove {0} as a supplier for this item? This cannot be undone."
+msgstr ""
+
+msgid "Are you sure you want to remove {supplierName} as a supplier for this item? This cannot be undone."
+msgstr ""
+
 msgid "Are you sure you want to remove this item from the price list? This cannot be undone."
 msgstr "Bu öğeyi fiyat listesinden kaldırmak istediğinizden emin misiniz? Bu geri alınamaz."
 
@@ -1373,6 +1383,12 @@ msgstr "Artan"
 #. placeholder {1}: copy.noun
 msgid "Ask an admin with {0} permission to add the first {1}."
 msgstr "{0} izni olan bir yöneticiye ilk {1}i eklemesini isteyin."
+
+msgid "Assemblies"
+msgstr "Montajlar"
+
+msgid "Assembly Instructions"
+msgstr "Montaj Talimatları"
 
 msgid "Assembly:"
 msgstr "Montaj:"
@@ -3647,6 +3663,9 @@ msgstr "Madde Sil"
 
 msgid "Delete Suggestion"
 msgstr "Öneriyi Sil"
+
+msgid "Delete supplier"
+msgstr ""
 
 msgid "Delete Supplier"
 msgstr "Tedarikçiyi Sil"
@@ -7958,9 +7977,6 @@ msgstr "OEM (Orijinal Ekipman Üreticisi)"
 msgid "of"
 msgstr "adet"
 
-msgid "of {total} phases complete"
-msgstr "{total} aşamanın tamamlandığı"
-
 msgid "OK"
 msgstr "Tamam"
 
@@ -11194,6 +11210,9 @@ msgstr "Tedarikçi Sipariş Numarası"
 msgid "Supplier Overview"
 msgstr "Tedarikçi Genel Bakışı"
 
+msgid "Supplier Part"
+msgstr ""
+
 msgid "Supplier Part ID"
 msgstr "Tedarikçi Parça Kimliği"
 
@@ -12222,6 +12241,9 @@ msgstr "Bu satış siparişi, iş oluşturulmasını gerektiren satırlara sahip
 #. placeholder {0}: usageCount === 1 ? "" : "s"
 msgid "This storage type is currently used by {usageCount} storage unit{0}."
 msgstr "Bu depolama türü şu anda {usageCount} depolama birimi{0} tarafından kullanılıyor."
+
+msgid "this supplier"
+msgstr ""
 
 msgid "This updates the theme for all users of the application"
 msgstr "Bu, uygulamanın tüm kullanıcıları için temayı günceller"

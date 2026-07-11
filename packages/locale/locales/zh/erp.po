@@ -91,6 +91,9 @@ msgstr "{chainLabel}。考虑将此零件直接指向最终后继产品。"
 msgid "{count, plural, one {# course} other {# courses}}"
 msgstr "{count, plural, one {# 门课程} other {# 门课程}}"
 
+msgid "{done} of {total} phases complete"
+msgstr "{done} 个，共 {total} 个阶段已完成"
+
 msgid "{from}–{to} of {count}"
 msgstr "{from}–{to} 共 {count}"
 
@@ -1320,6 +1323,13 @@ msgstr "你确定要拒绝此报价吗？"
 msgid "Are you sure you want to release this job? It will become available to the shop floor, and drive purchasing and production."
 msgstr "你确定要发布此工作吗？它将在车间可用，并推动采购和生产。"
 
+#. placeholder {0}: supplierName(deleteTarget.supplierId)
+msgid "Are you sure you want to remove {0} as a supplier for this item? This cannot be undone."
+msgstr "您确定要将 {0} 从此项目的供应商中移除吗？此操作无法撤销。"
+
+msgid "Are you sure you want to remove {supplierName} as a supplier for this item? This cannot be undone."
+msgstr "您确定要将 {supplierName} 从此项目的供应商中移除吗？此操作无法撤销。"
+
 msgid "Are you sure you want to remove this item from the price list? This cannot be undone."
 msgstr "你确定要从价格列表中删除此项目吗？此操作无法撤销。"
 
@@ -1373,6 +1383,12 @@ msgstr "升序"
 #. placeholder {1}: copy.noun
 msgid "Ask an admin with {0} permission to add the first {1}."
 msgstr "请求具有{0}权限的管理员添加第一个{1}。"
+
+msgid "Assemblies"
+msgstr "装配件"
+
+msgid "Assembly Instructions"
+msgstr "装配说明"
 
 msgid "Assembly:"
 msgstr "装配体："
@@ -3647,6 +3663,9 @@ msgstr "删除物质"
 
 msgid "Delete Suggestion"
 msgstr "删除建议"
+
+msgid "Delete supplier"
+msgstr "删除供应商"
 
 msgid "Delete Supplier"
 msgstr "删除供应商"
@@ -7958,9 +7977,6 @@ msgstr "OEM (原始设备制造商)"
 msgid "of"
 msgstr "的"
 
-msgid "of {total} phases complete"
-msgstr "的 {total} 个阶段已完成"
-
 msgid "OK"
 msgstr "确定"
 
@@ -11194,6 +11210,9 @@ msgstr "供应商订单号"
 msgid "Supplier Overview"
 msgstr "供应商概览"
 
+msgid "Supplier Part"
+msgstr "供应商零件"
+
 msgid "Supplier Part ID"
 msgstr "供应商零件ID"
 
@@ -12222,6 +12241,9 @@ msgstr "此销售订单有需要创建工作的行项目"
 #. placeholder {0}: usageCount === 1 ? "" : "s"
 msgid "This storage type is currently used by {usageCount} storage unit{0}."
 msgstr "此存储类型当前被 {usageCount} 个存储单元{0}使用。"
+
+msgid "this supplier"
+msgstr "此供应商"
 
 msgid "This updates the theme for all users of the application"
 msgstr "这会更新应用程序所有用户的主题"

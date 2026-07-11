@@ -91,6 +91,9 @@ msgstr "{chainLabel}. Envisagez de pointer cette pièce directement vers le succ
 msgid "{count, plural, one {# course} other {# courses}}"
 msgstr "{count, plural, one {# cours} other {# cours}}"
 
+msgid "{done} of {total} phases complete"
+msgstr "{done} sur {total} phases terminées"
+
 msgid "{from}–{to} of {count}"
 msgstr "{from}–{to} sur {count}"
 
@@ -1320,6 +1323,13 @@ msgstr "Êtes-vous sûr de vouloir rejeter ce devis ?"
 msgid "Are you sure you want to release this job? It will become available to the shop floor, and drive purchasing and production."
 msgstr "Êtes-vous sûr de vouloir libérer ce travail ? Il deviendra disponible pour l'atelier et entraînera les achats et la production."
 
+#. placeholder {0}: supplierName(deleteTarget.supplierId)
+msgid "Are you sure you want to remove {0} as a supplier for this item? This cannot be undone."
+msgstr ""
+
+msgid "Are you sure you want to remove {supplierName} as a supplier for this item? This cannot be undone."
+msgstr ""
+
 msgid "Are you sure you want to remove this item from the price list? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer cet article de la liste de prix ? Cette action ne peut pas être annulée."
 
@@ -1373,6 +1383,12 @@ msgstr "Croissant"
 #. placeholder {1}: copy.noun
 msgid "Ask an admin with {0} permission to add the first {1}."
 msgstr "Demandez à un administrador disposant de la permission {0} d'ajouter le premier {1}."
+
+msgid "Assemblies"
+msgstr "Assemblages"
+
+msgid "Assembly Instructions"
+msgstr "Instructions d'assemblage"
 
 msgid "Assembly:"
 msgstr "Assemblage :"
@@ -3647,6 +3663,9 @@ msgstr "Supprimer la substance"
 
 msgid "Delete Suggestion"
 msgstr "Supprimer la suggestion"
+
+msgid "Delete supplier"
+msgstr ""
 
 msgid "Delete Supplier"
 msgstr "Supprimer le fournisseur"
@@ -7958,9 +7977,6 @@ msgstr "OEM (fabricant d'équipement d'origine)"
 msgid "of"
 msgstr "de"
 
-msgid "of {total} phases complete"
-msgstr "de {total} phases complètes"
-
 msgid "OK"
 msgstr "OK"
 
@@ -11194,6 +11210,9 @@ msgstr "Numéro de commande fournisseur"
 msgid "Supplier Overview"
 msgstr "Aperçu du fournisseur"
 
+msgid "Supplier Part"
+msgstr ""
+
 msgid "Supplier Part ID"
 msgstr "ID de pièce fournisseur"
 
@@ -12222,6 +12241,9 @@ msgstr "Cette commande client contient des lignes qui nécessitent la création 
 #. placeholder {0}: usageCount === 1 ? "" : "s"
 msgid "This storage type is currently used by {usageCount} storage unit{0}."
 msgstr "Ce type de stockage est actuellement utilisé par {usageCount} unité de stockage{0}."
+
+msgid "this supplier"
+msgstr ""
 
 msgid "This updates the theme for all users of the application"
 msgstr "Cela met à jour le thème pour tous les utilisateurs de l'application"
