@@ -1,6 +1,7 @@
 import { emailHealthcheck } from "./email/hooks.server";
 import { jiraHealthcheck } from "./jira/hooks.server";
 import { linearHealthcheck } from "./linear/hooks.server";
+import { quickbooksOnInstall } from "./quickbooks/hooks.server";
 import type { IntegrationServerHooks } from "./types";
 import {
   xeroHealthcheck,
@@ -25,6 +26,9 @@ const serverHooks: Record<string, IntegrationServerHooks> = {
   },
   linear: {
     onHealthcheck: linearHealthcheck
+  },
+  quickbooks: {
+    onInstall: quickbooksOnInstall
   },
   xero: {
     onHealthcheck: xeroHealthcheck,
