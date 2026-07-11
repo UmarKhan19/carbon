@@ -1,30 +1,19 @@
--- ============================================================
 -- Partial GR visibility + per-line short close
 --
--- 1. "purchaseOrders" view: add received-progress aggregates
---    (receivableQuantity / receivedQuantity over non-Comment,
---    non-G/L lines) so the PO list and header can show ordered
---    vs received without loading lines.
---    Forked verbatim from 20260702061504_fix-supplier-shipping-
---    cost-exchange-rate.sql (the newest definition) — only the
---    two aggregates and their outer-select exposure are new.
---
--- 2. Short close: a purchaseOrderLine whose remainder will never
---    arrive gets "receivedComplete" = true while quantityToReceive
---    (GENERATED purchaseQuantity - quantityReceived) stays > 0.
---    Every open-PO supply computation must stop counting such
---    lines, so add `AND pol."receivedComplete" = false` to:
---      * get_inventory_quantities  (forked from 20260512130000)
---      * get_job_quantity_on_hand  (forked from 20260625090248)
---      * "openPurchaseOrderLines"  (forked from 20260529074512;
---        feeds MRP + purchasing planning)
---    Fully-received lines have quantityToReceive = 0, so the
---    filter only changes behavior for short-closed lines.
--- ============================================================
+-- 1. "purchaseOrders" view: adds receivableQuantity / receivedQuantity
+--    aggregates (over non-Comment, non-G/L lines) so the PO list and
+--    header can show ordered vs received without loading lines.
+-- 2. Short close: a purchaseOrderLine whose remainder will never arrive
+--    gets "receivedComplete" = true while quantityToReceive (GENERATED
+--    purchaseQuantity - quantityReceived) stays > 0. Open-PO supply
+--    computations must stop counting such lines, so
+--    `AND pol."receivedComplete" = false` is added to
+--    get_inventory_quantities, get_job_quantity_on_hand, and
+--    "openPurchaseOrderLines" (feeds MRP + purchasing planning).
+--    Fully-received lines have quantityToReceive = 0, so the filter only
+--    changes behavior for short-closed lines.
 
--- ------------------------------------------------------------
--- 1. purchaseOrders view: received-progress aggregates
--- ------------------------------------------------------------
+-- purchaseOrders view: received-progress aggregates
 
 DROP VIEW IF EXISTS "purchaseOrders";
 CREATE VIEW "purchaseOrders" WITH(SECURITY_INVOKER=true) AS
@@ -81,9 +70,7 @@ CREATE VIEW "purchaseOrders" WITH(SECURITY_INVOKER=true) AS
   LEFT JOIN "supplier" s ON s."id" = p."supplierId"
   LEFT JOIN "user" uam ON uam."id" = s."accountManagerId";
 
--- ------------------------------------------------------------
--- 2a. openPurchaseOrderLines: exclude short-closed lines
--- ------------------------------------------------------------
+-- openPurchaseOrderLines: exclude short-closed lines
 
 CREATE OR REPLACE VIEW "openPurchaseOrderLines" WITH (security_invoker=true) AS (
   SELECT
@@ -115,11 +102,7 @@ CREATE OR REPLACE VIEW "openPurchaseOrderLines" WITH (security_invoker=true) AS 
     AND pol."receivedComplete" = false
 );
 
--- ------------------------------------------------------------
--- 2b. get_inventory_quantities: exclude short-closed lines
---     (forked verbatim from 20260512130000; only the
---     receivedComplete filter in open_purchase_orders is new)
--- ------------------------------------------------------------
+-- get_inventory_quantities: exclude short-closed lines
 
 DROP FUNCTION IF EXISTS get_inventory_quantities(TEXT, TEXT);
 
@@ -390,11 +373,7 @@ WHERE
   END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- ------------------------------------------------------------
--- 2c. get_job_quantity_on_hand: exclude short-closed lines
---     (forked verbatim from 20260625090248; only the
---     receivedComplete filter in open_purchase_orders is new)
--- ------------------------------------------------------------
+-- get_job_quantity_on_hand: exclude short-closed lines
 
 DROP FUNCTION IF EXISTS get_job_quantity_on_hand;
 CREATE OR REPLACE FUNCTION get_job_quantity_on_hand(job_id TEXT, company_id TEXT, location_id TEXT)
