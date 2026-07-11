@@ -55,6 +55,10 @@ Stop on failure, apply the fix policy (Step 3), re-run the failed gate.
 pnpm run generate:types
 # then include the regenerated files in the commit
 
+# Gate 1.5 — conformance (only if SCHEMA_CHANGED)
+# Catches anti-patterns like NUMERIC(x,y), legacy RLS helpers, etc.
+pnpm --filter @carbon/checks test
+
 # Gate 2 — format + lint (auto-fixes in place)
 pnpm exec biome check --write --no-errors-on-unmatched <changed paths>
 
@@ -136,6 +140,7 @@ git commit -m "<type>(<scope>): <description>"
 | Gate | Result | Notes |
 |------|--------|-------|
 | generate:types | PASS / SKIP | |
+| conformance | PASS / SKIP | |
 | biome | PASS | <files auto-fixed> |
 | typecheck (<pkgs>) | PASS | |
 | test (<pkgs>) | PASS | <pre-existing failures noted> |

@@ -15,9 +15,9 @@ CREATE OR REPLACE FUNCTION "accountTreeBalances" (
 )
 RETURNS TABLE (
   "accountId" TEXT,
-  "balance" NUMERIC(19, 4),
-  "balanceAtDate" NUMERIC(19, 4),
-  "netChange" NUMERIC(19, 4)
+  "balance" NUMERIC,
+  "balanceAtDate" NUMERIC,
+  "netChange" NUMERIC
 ) LANGUAGE "plpgsql" SECURITY INVOKER SET search_path = public
 AS $$
 BEGIN
@@ -59,9 +59,9 @@ BEGIN
     )
     SELECT
       t."rootId" AS "accountId",
-      COALESCE(SUM(lb."balance"), 0)::NUMERIC(19, 4) AS "balance",
-      COALESCE(SUM(lb."balanceAtDate"), 0)::NUMERIC(19, 4) AS "balanceAtDate",
-      COALESCE(SUM(lb."netChange"), 0)::NUMERIC(19, 4) AS "netChange"
+      COALESCE(SUM(lb."balance"), 0)::NUMERIC AS "balance",
+      COALESCE(SUM(lb."balanceAtDate"), 0)::NUMERIC AS "balanceAtDate",
+      COALESCE(SUM(lb."netChange"), 0)::NUMERIC AS "netChange"
     FROM "accountTree" t
     LEFT JOIN "leafBalances" lb ON lb."accountId" = t."id" AND t."isGroup" = false
     GROUP BY t."rootId";
@@ -81,9 +81,9 @@ CREATE OR REPLACE FUNCTION "accountTreeBalancesByCompany" (
 )
 RETURNS TABLE (
   "accountId" TEXT,
-  "balance" NUMERIC(19, 4),
-  "balanceAtDate" NUMERIC(19, 4),
-  "netChange" NUMERIC(19, 4)
+  "balance" NUMERIC,
+  "balanceAtDate" NUMERIC,
+  "netChange" NUMERIC
 ) LANGUAGE "plpgsql" SECURITY INVOKER SET search_path = public
 AS $$
 BEGIN
@@ -126,9 +126,9 @@ BEGIN
     )
     SELECT
       t."rootId" AS "accountId",
-      COALESCE(SUM(lb."balance"), 0)::NUMERIC(19, 4) AS "balance",
-      COALESCE(SUM(lb."balanceAtDate"), 0)::NUMERIC(19, 4) AS "balanceAtDate",
-      COALESCE(SUM(lb."netChange"), 0)::NUMERIC(19, 4) AS "netChange"
+      COALESCE(SUM(lb."balance"), 0)::NUMERIC AS "balance",
+      COALESCE(SUM(lb."balanceAtDate"), 0)::NUMERIC AS "balanceAtDate",
+      COALESCE(SUM(lb."netChange"), 0)::NUMERIC AS "netChange"
     FROM "accountTree" t
     LEFT JOIN "leafBalances" lb ON lb."accountId" = t."id" AND t."isGroup" = false
     GROUP BY t."rootId";
@@ -149,9 +149,9 @@ CREATE OR REPLACE FUNCTION "journalLinesByAccountNumber" (
 RETURNS TABLE (
   "number" TEXT,
   "companyGroupId" TEXT,
-  "balance" NUMERIC(19, 4),
-  "balanceAtDate" NUMERIC(19, 4),
-  "netChange" NUMERIC(19, 4)
+  "balance" NUMERIC,
+  "balanceAtDate" NUMERIC,
+  "netChange" NUMERIC
 ) LANGUAGE "plpgsql" SECURITY INVOKER SET search_path = public
 AS $$
   BEGIN
