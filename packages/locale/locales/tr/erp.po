@@ -333,6 +333,9 @@ msgstr "Tek bir sahip altında, grup kapsamlı yapılandırmayı — hesap plan�
 msgid "A shipment line sent straight from supplier to customer, bypassing your warehouse — set per line, not on the header."
 msgstr "Deponuzu atlayarak doğrudan tedarikçiden müşteriye gönderilen bir gönderim satırı — satır başına ayarlanır, başlıkta değil."
 
+msgid "A summary of every staged change in this change order."
+msgstr ""
+
 msgid "A supplier's priced response to a purchasing RFQ — one per supplier; Draft → Active when they submit, or Declined."
 msgstr "Bir tedarikçinin satın alma RFQ'ya verilen fiyatlı yanıtı — tedarikçi başına bir; Taslak → Gönderirken Etkin veya Reddedildi."
 
@@ -573,20 +576,17 @@ msgstr "Bir adım ekle"
 msgid "Add Actions"
 msgstr "Eylemler Ekle"
 
-msgid "Add add row"
-msgstr "Satır ekle"
-
 msgid "Add Adjustment"
 msgstr "Ayarlama ekle"
+
+msgid "Add affected item"
+msgstr ""
 
 msgid "Add any notes about your decision..."
 msgstr "Kararınızla ilgili herhangi bir not ekleyin..."
 
 msgid "Add Approval Requirement"
 msgstr "Onay Gereksinimi Ekle"
-
-msgid "Add assembly"
-msgstr "Montaj ekle"
 
 msgid "Add Calibration Record"
 msgstr "Kalibrasyon Kaydı Ekle"
@@ -602,9 +602,6 @@ msgstr "Koşul ekle"
 
 msgid "Add Contractor"
 msgstr "Yüklenici Ekle"
-
-msgid "Add delete row"
-msgstr "Satırı sil"
 
 msgid "Add Entry"
 msgstr "Giri Ekle"
@@ -627,6 +624,9 @@ msgstr "Satır Ekle"
 msgid "Add Line Item"
 msgstr "Satır Ekle"
 
+msgid "Add material"
+msgstr ""
+
 msgid "Add Note"
 msgstr "Not Ekle"
 
@@ -647,9 +647,6 @@ msgstr "Parametre Ekle"
 
 msgid "Add Partner"
 msgstr "Ortak Ekle"
-
-msgid "Add parts"
-msgstr "Parça ekle"
 
 msgid "Add Permissions"
 msgstr "İzin Ekle"
@@ -715,6 +712,9 @@ msgstr "Ek Üzerine Ek"
 msgid "Add-On Cost"
 msgstr "Ek Üst Ek Maliyeti"
 
+msgid "Added"
+msgstr ""
+
 msgid "Added for this customer"
 msgstr "Bu müşteri için eklendi"
 
@@ -741,6 +741,9 @@ msgstr "Gelişmiş"
 
 msgid "Affected assemblies"
 msgstr "Etkilenen montajlar"
+
+msgid "Affected Items"
+msgstr ""
 
 msgid "After"
 msgstr "Sonra"
@@ -1412,9 +1415,6 @@ msgstr "{0} izni olan bir yöneticiye ilk {1}i eklemesini isteyin."
 msgid "Assemblies"
 msgstr "Montajlar"
 
-msgid "Assembly"
-msgstr "Montaj"
-
 msgid "Assembly Instructions"
 msgstr "Montaj Talimatları"
 
@@ -1749,9 +1749,6 @@ msgstr "BOM"
 
 msgid "BoM + BoP"
 msgstr "BOM + BOP"
-
-msgid "BOM Changes"
-msgstr "BOM Değişiklikleri"
 
 msgid "BOM synced successfully"
 msgstr "BOM başarıyla senkronize edildi"
@@ -3251,6 +3248,9 @@ msgstr "Geçiş yapın, eski sistemi dondurun ve Carbon'da canlı olduğunuzu do
 msgid "Cutover checklist"
 msgstr "Geçiş kontrol listesi"
 
+msgid "Cutover mode"
+msgstr ""
+
 msgid "Cutover step"
 msgstr "Geçiş adımı"
 
@@ -3621,9 +3621,6 @@ msgstr "Parçayı Sil"
 msgid "Delete Partner"
 msgstr "Partneri Sil"
 
-msgid "Delete parts"
-msgstr "Parçaları sil"
-
 msgid "Delete Payment"
 msgstr "Ödemeyi Sil"
 
@@ -3838,9 +3835,6 @@ msgstr "Amortisman Başlangıç Tarihi"
 msgid "Derive this item's shelf life from the shortest shelf life of its components, ignoring the Days field above."
 msgstr "Bu öğenin raf ömrünü, bileşenlerinin en kısa raf ömründen türet, yukarıdaki Günler alanını yok say."
 
-msgid "Derived automatically from the BOM changes below."
-msgstr "Aşağıdaki BOM değişikliklerinden otomatik olarak türetildi."
-
 msgid "Description"
 msgstr "Açıklama"
 
@@ -3898,8 +3892,14 @@ msgstr "Devre Dışı"
 msgid "Discard"
 msgstr "Atıkla"
 
+msgid "Discontinuation date"
+msgstr ""
+
 msgid "Discontinuation Date"
 msgstr "Üretim Durdurma Tarihi"
+
+msgid "Discontinued"
+msgstr ""
 
 msgid "Discount"
 msgstr "İskonto"
@@ -5133,9 +5133,6 @@ msgstr "Tedarikçi parça detayları yüklenemedi"
 msgid "Failed to load tracked entities"
 msgstr "Takip edilen varlıklar yüklenemedi"
 
-msgid "Failed to remove assembly"
-msgstr "Montajı kaldırmak başarısız oldu"
-
 msgid "Failed to remove image: {errorMessage}"
 msgstr "Görsel kaldırılamadı: {errorMessage}"
 
@@ -5144,9 +5141,6 @@ msgstr "Model küçük resmini kaldırmada başarısız oldu"
 
 msgid "Failed to remove purchase order"
 msgstr "Satın alma emri kaldırılamadı"
-
-msgid "Failed to remove row"
-msgstr "Satır kaldırılamadı"
 
 msgid "Failed to remove thumbnail"
 msgstr "Küçük resim kaldırılamadı"
@@ -7280,6 +7274,9 @@ msgstr "Tedarikçi Eksikleri"
 msgid "Mobile Phone"
 msgstr "Cep Telefonu"
 
+msgid "Mode"
+msgstr ""
+
 msgid "Model data is missing"
 msgstr "Model verisi eksik"
 
@@ -7300,6 +7297,9 @@ msgstr "Model işten kaldırıldı"
 
 msgid "Model removed from line"
 msgstr "Model satırdan kaldırıldı"
+
+msgid "Modified"
+msgstr ""
 
 msgid "Module"
 msgstr "Modül"
@@ -7573,15 +7573,6 @@ msgstr "Yeni Sahip"
 msgid "New Part"
 msgstr "Yeni Ürün"
 
-msgid "New part (not yet synced)"
-msgstr "Yeni parça (henüz senkronize edilmedi)"
-
-msgid "New part id"
-msgstr "Yeni parça kimliği"
-
-msgid "New part name"
-msgstr "Yeni parça adı"
-
 msgid "New Password"
 msgstr "Yeni Şifre"
 
@@ -7779,15 +7770,15 @@ msgstr "Adres bulunamadı"
 msgid "No affected assemblies yet."
 msgstr "Henüz etkilenen montajlar yok."
 
+msgid "No affected items yet — add a part or tool below."
+msgstr ""
+
 msgid "No applications. Payment will be on-account."
 msgstr "Başvuru yok. Ödeme hesap üzerinden yapılacak."
 
 #. placeholder {0}: auditConfig.retentionDays
 msgid "No archived logs yet. Logs older than {0} days will be automatically archived and available for download here."
 msgstr "Henüz arşivlenmiş günlük yok. {0} günden eski günlükler otomatik olarak arşivlenecek ve buradan indirilmeye hazır olacak."
-
-msgid "No assemblies targeted yet."
-msgstr "Henüz hedeflenen montajlar yok."
 
 msgid "No attachments."
 msgstr "Ek ekli değil."
@@ -7806,6 +7797,9 @@ msgstr "Kalibrasyon kaydı bulunamadı"
 
 msgid "No changes recorded"
 msgstr "Değişiklik kaydedilmedi"
+
+msgid "No changes staged yet."
+msgstr ""
 
 msgid "No comments yet. Be the first to add a comment."
 msgstr "Henüz yorum yok. İlk yorumu siz yapın."
@@ -7903,6 +7897,9 @@ msgstr "\"{query}\" için eşleşme bulunamadı. Farklı bir arama terbi deneyin
 msgid "No matches. Type to create one."
 msgstr "Eşleşme yok. Bir tane oluşturmak için yazın."
 
+msgid "No materials staged for this item."
+msgstr ""
+
 msgid "No new notifications"
 msgstr "Yeni bildirim yok"
 
@@ -7917,6 +7914,9 @@ msgstr "Silinen parçalar için açık satın alma siparişi yok"
 
 msgid "No operations require picking at this location"
 msgstr "Bu konumda toplama gerektiren işlem yok"
+
+msgid "No operations staged for this item."
+msgstr ""
 
 msgid "No operators."
 msgstr "Hiç operatör yok."
@@ -7942,12 +7942,6 @@ msgstr "Henüz üst kaynaklar kaydedilmedi. Atıfı yenilemek için planlama say
 msgid "No part ID"
 msgstr "Parça kimliği yok"
 
-msgid "No parts to add."
-msgstr "Eklenecek parça yok."
-
-msgid "No parts to delete."
-msgstr "Silinecek parça yok."
-
 msgid "No payables"
 msgstr "Ödeme yükümlülüğü yok"
 
@@ -7968,9 +7962,6 @@ msgstr "Yazıcı yapılandırılmadı"
 
 msgid "No printers configured. Click \"Add Printer\" to create one."
 msgstr "Yapılandırılmış yazıcı yok. Bir tane oluşturmak için \"Yazıcı Ekle\"'ye tıklayın."
-
-msgid "No products affected yet — add a BOM change to populate this."
-msgstr "Henüz etkilenen ürün yok — bunu doldurmak için bir BOM değişikliği ekleyin."
 
 msgid "No products affected yet."
 msgstr "Henüz etkilenen ürün yok."
@@ -8011,11 +8002,17 @@ msgstr "Envanter veya iş durumu için tek bir güvenilir sayı yok"
 msgid "No sorts applied to this view"
 msgstr "Bu görünüme herhangi bir sıralama uygulanmadı"
 
+msgid "No staged attributes for this item."
+msgstr ""
+
 msgid "No stock"
 msgstr "Stok yok"
 
 msgid "No stockout projected in the next 48 weeks"
 msgstr "Önümüzdeki 48 haftada stok tükenmesi öngörülmemiştir"
+
+msgid "No supersessions declared."
+msgstr ""
 
 msgid "No suppliers yet"
 msgstr "Henüz tedarikçi yok"
@@ -8091,9 +8088,6 @@ msgstr "Henüz eğitim alınmadı"
 
 msgid "Not yet"
 msgstr "Henüz değil"
-
-msgid "Not yet synced"
-msgstr "Henüz senkronize edilmedi"
 
 msgid "Not you?"
 msgstr "Sen siz misiniz?"
@@ -8712,14 +8706,14 @@ msgstr "Fiyatlandırmalarını görüntülemek için bir müşteri veya müşter
 msgid "Pick a date or leave blank to clear it."
 msgstr "Bir tarih seçin veya temizlemek için boş bırakın."
 
-msgid "Pick existing part"
-msgstr "Mevcut parçayı seç"
-
 msgid "Pick List"
 msgstr "Seçim Listesi"
 
 msgid "Pick Order"
 msgstr "Seçim Sırası"
+
+msgid "Pick the parts or tools to change. Each gets a staged copy of its current method and attributes to edit."
+msgstr ""
 
 msgid "Pick tracked item"
 msgstr "Takip edilen öğeyi seç"
@@ -8903,6 +8897,9 @@ msgstr "Potansiyel Veri Kaybı"
 
 msgid "Pre-filled for a new item when expiry is Fixed Duration."
 msgstr "Son kullanma tarihi Sabit Süre olduğunda yeni bir ürün için önceden doldurulur."
+
+msgid "Predecessor"
+msgstr ""
 
 msgid "Preferred Supplier"
 msgstr "Tercih Edilen Tedarikçi"
@@ -9097,9 +9094,6 @@ msgstr "BOM'lar ve tahminlerden açılmış öngörülen talep."
 
 msgid "Production: shop-floor app and scheduling"
 msgstr "Üretim: atölye uygulaması ve planlama"
-
-msgid "Products Affected"
-msgstr "Etkilenen Ürünler"
 
 msgid "Profile"
 msgstr "Profil"
@@ -9732,17 +9726,11 @@ msgstr "Kaldır {0}"
 msgid "Remove action"
 msgstr "İşlemi kaldır"
 
-msgid "Remove add row"
-msgstr "Satır eklemeyi kaldır"
-
-msgid "Remove assembly"
-msgstr "Montajı kaldır"
+msgid "Remove affected item"
+msgstr ""
 
 msgid "Remove condition"
 msgstr "Koşulu kaldır"
-
-msgid "Remove delete row"
-msgstr "Satır silmeyi kaldır"
 
 msgid "Remove feature"
 msgstr "Özelliği kaldır"
@@ -9759,6 +9747,12 @@ msgstr "Fiyat Listesinden Kaldır"
 msgid "Remove item"
 msgstr "Ürünü kaldır"
 
+msgid "Remove material"
+msgstr ""
+
+msgid "Remove operation"
+msgstr ""
+
 msgid "Remove order"
 msgstr "Siparişi kaldır"
 
@@ -9768,8 +9762,14 @@ msgstr "Çifti kaldır"
 msgid "Remove sort by column"
 msgstr "Sıralamayı kaldır"
 
+msgid "Remove supersession"
+msgstr ""
+
 msgid "Remove this storage type from all referencing storage units and delete it. This cannot be undone."
 msgstr "Bu depolama türünü tüm referans veren depolama birimlerinden kaldırır ve siler. Bu geri alınamaz."
+
+msgid "Removed"
+msgstr ""
 
 msgid "Rendering label preview..."
 msgstr "Etiket önizlemesi oluşturuluyor..."
@@ -9821,6 +9821,9 @@ msgstr "Çizimi değiştir?"
 
 msgid "Replace existing pricing with source values"
 msgstr "Mevcut fiyatlandırmayı kaynak değerlerle değiştir"
+
+msgid "Replace one part with a different part. For a revision bump of the same part, use the cutover on the affected item above."
+msgstr ""
 
 msgid "Replace PDF"
 msgstr "PDF'i Değiştir"
@@ -9988,6 +9991,9 @@ msgstr "Ters yükleme satış vergisi (varsayılan)"
 
 msgid "Reverse the related journal entries"
 msgstr "İlgili günlük girişlerini tersine çevir"
+
+msgid "Review"
+msgstr ""
 
 msgid "Revision"
 msgstr "Revizyon"
@@ -11190,6 +11196,9 @@ msgstr "adımlar"
 msgid "Steps"
 msgstr "Adımlar"
 
+msgid "Steps, parameters & tools are edited in a later phase"
+msgstr ""
+
 msgid "Stock Movements"
 msgstr "Stok Hareketleri"
 
@@ -11329,6 +11338,12 @@ msgstr "Başarıyla kopyalandı"
 msgid "Successfully created a new revision"
 msgstr "Başarıyla yeni bir revizyon oluşturuldu"
 
+msgid "Successor (optional)"
+msgstr ""
+
+msgid "Successor effectivity"
+msgstr ""
+
 msgid "Successor Effectivity Date"
 msgstr "Halef Etkinlik Tarihi"
 
@@ -11370,6 +11385,9 @@ msgstr "Süpersesyon zinciri algılandı"
 
 msgid "Supersession Mode"
 msgstr "Yerine Geçme Modu"
+
+msgid "Supersessions"
+msgstr ""
 
 msgid "supplier"
 msgstr "Tedarikçi"
@@ -12420,9 +12438,6 @@ msgstr "Bu parça kullanımdan kaldırılmıştır (Stok Yok)."
 msgid "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 msgstr "Bu parça kullanımdan kaldırılmış ve Yalnızca Stok olarak ayarlanmıştır — talep bağımsız olarak yedek rezerv tabanına kadar yenilenir."
 
-msgid "This part isn't on any other assembly to delete from."
-msgstr "Bu parça silmek için başka bir montajda değil."
-
 msgid "This Quarter"
 msgstr "Bu Çeyrek"
 
@@ -12444,6 +12459,9 @@ msgstr "Bu depolama türü şu anda {usageCount} depolama birimi{0} tarafından 
 
 msgid "This updates the theme for all users of the application"
 msgstr "Bu, uygulamanın tüm kullanıcıları için temayı günceller"
+
+msgid "This will create a new revision that supersedes the current one."
+msgstr ""
 
 msgid "This will make this version read-only and replace any material make methods with this version."
 msgstr "Bu sürümü salt okunur yapacak ve herhangi bir malzeme üretim yöntemini bu sürümle değiştirecektir."
@@ -12873,6 +12891,9 @@ msgstr "Bir işlemde kurtarılamaz olarak raporlanan birimler, bir nedenle — y
 
 msgid "Unknown"
 msgstr "Bilinmeyen"
+
+msgid "Unknown item"
+msgstr ""
 
 msgid "unknown location"
 msgstr "bilinmeyen konum"
@@ -13426,6 +13447,11 @@ msgstr "Gelen bir ürünü kontrol eden kişinin, onu alan kişiyle aynı olmas�
 
 msgid "Warning"
 msgstr "Uyarı"
+
+#. placeholder {0}: source.requiresInspection ? t`Yes` : t`No`
+#. placeholder {0}: sourceValue || "—"
+msgid "was: {0}"
+msgstr ""
 
 msgid "Watch"
 msgstr "İzle"

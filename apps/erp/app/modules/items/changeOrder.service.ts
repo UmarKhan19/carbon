@@ -10,7 +10,6 @@ import type {
   changeOrderType
 } from "./changeOrder.models";
 import { isAllowedChangeOrderTransition } from "./changeOrder.models";
-import type { supersessionModes } from "./items.models";
 
 // =============================================================================
 // Change Orders — header CRUD, stage transitions, list, and CO Types config.
@@ -366,95 +365,6 @@ async function getItemLabelMap(
   return map;
 }
 
-export async function getChangeOrderProductsAffected(
-  client: SupabaseClient<Database>,
-  changeOrderId: string,
-  companyId: string
-): Promise<{
-  data: Array<
-    Database["public"]["Tables"]["changeOrderProductAffected"]["Row"] & {
-      item: ChangeOrderItemLabel | null;
-      // The targeted assemblies that rolled up into this product (provenance for
-      // the "affected by" display). Excludes the product itself.
-      affectedBy: Array<{
-        id: string;
-        readableIdWithRevision: string | null;
-        name: string | null;
-      }>;
-    }
-  > | null;
-  error: ChangeOrderError | null;
-}> {
-  const rows = await client
-    .from("changeOrderProductAffected")
-    .select("*")
-    .eq("changeOrderId", changeOrderId)
-    .eq("companyId", companyId)
-    .order("createdAt", { ascending: true });
-  if (rows.error) return { data: null, error: rows.error };
-
-  // Recompute provenance (product → the targeted assemblies under it) from the CO's
-  // BOM-change assemblies — same derivation that materialized the rows.
-  const bomRows = await client
-    .from("changeOrderBomChange")
-    .select("id")
-    .eq("changeOrderId", changeOrderId)
-    .eq("companyId", companyId);
-  const bomIds = (bomRows.data ?? []).map((r) => r.id);
-
-  let assemblyItemIds: string[] = [];
-  if (bomIds.length > 0) {
-    const asm = await client
-      .from("changeOrderBomChangeAssembly")
-      .select("assemblyItemId")
-      .in("bomChangeId", bomIds)
-      .eq("companyId", companyId);
-    assemblyItemIds = [
-      ...new Set((asm.data ?? []).map((a) => a.assemblyItemId))
-    ];
-  }
-
-  const provenance = await getTopLevelProductsForItems(
-    client,
-    assemblyItemIds,
-    companyId
-  );
-  const sourcesByProduct = new Map(
-    provenance.data.map((p) => [p.productId, p.sourceItemIds])
-  );
-
-  const labelIds = [
-    ...new Set([
-      ...(rows.data ?? []).map((r) => r.itemId),
-      ...provenance.data.flatMap((p) => p.sourceItemIds)
-    ])
-  ];
-  const items = await getItemLabelMap(client, labelIds, companyId);
-
-  return {
-    data: (rows.data ?? []).map((r) => ({
-      ...r,
-      item: items.get(r.itemId) ?? null,
-      affectedBy: (sourcesByProduct.get(r.itemId) ?? [])
-        .filter((sourceId) => sourceId !== r.itemId)
-        .map((sourceId) => {
-          const label = items.get(sourceId);
-          return {
-            id: sourceId,
-            readableIdWithRevision: label?.readableIdWithRevision ?? null,
-            name: label?.name ?? null
-          };
-        })
-    })),
-    error: null
-  };
-}
-
-// Products Affected are DERIVED, not hand-entered: they are the top-level products
-// that the BOM-change assemblies roll up into. `syncChangeOrderProductsAffected`
-// recomputes and reconciles the rows whenever a BOM change is written, so the two
-// can never drift. See `getTopLevelProductsForItems` for the rollup.
-
 // Climb the BOM (methodMaterial → makeMethod → item) from a set of start items up
 // to the top-level products — items that are used by nothing. Returns each product
 // with `sourceItemIds`: which of the start items (the targeted assemblies) rolled up
@@ -556,259 +466,10 @@ export async function getTopLevelProductsForItems(
   };
 }
 
-// Recompute Products Affected for a CO from its BOM-change assemblies and reconcile
-// the `changeOrderProductAffected` rows (insert new / delete stale). Best-effort:
-// the caller runs it after a BOM change write; a failure just means the next write
-// recomputes. Returns the raw {error} so the route can log without blocking.
-export async function syncChangeOrderProductsAffected(
-  client: SupabaseClient<Database>,
-  changeOrderId: string,
-  companyId: string,
-  userId: string
-): Promise<{ error: { message: string } | null }> {
-  const bomChanges = await getChangeOrderBomChanges(
-    client,
-    changeOrderId,
-    companyId
-  );
-  if (bomChanges.error) return { error: bomChanges.error };
-
-  const assemblyItemIds = [
-    ...new Set(
-      (bomChanges.data ?? []).flatMap((row) =>
-        row.assemblies.map((a) => a.assemblyItemId)
-      )
-    )
-  ];
-
-  const products = await getTopLevelProductsForItems(
-    client,
-    assemblyItemIds,
-    companyId
-  );
-  if (products.error) return { error: products.error };
-  const desired = new Set(products.data.map((p) => p.productId));
-
-  const existing = await client
-    .from("changeOrderProductAffected")
-    .select("id, itemId")
-    .eq("changeOrderId", changeOrderId)
-    .eq("companyId", companyId);
-  if (existing.error) return { error: existing.error };
-
-  const existingItemIds = new Set((existing.data ?? []).map((r) => r.itemId));
-  const toInsert = [...desired].filter(
-    (itemId) => !existingItemIds.has(itemId)
-  );
-  const toDeleteIds = (existing.data ?? [])
-    .filter((r) => !desired.has(r.itemId))
-    .map((r) => r.id);
-
-  if (toInsert.length > 0) {
-    const ins = await client.from("changeOrderProductAffected").insert(
-      toInsert.map((itemId) => ({
-        changeOrderId,
-        itemId,
-        companyId,
-        createdBy: userId
-      }))
-    );
-    if (ins.error) return { error: ins.error };
-  }
-
-  if (toDeleteIds.length > 0) {
-    const del = await client
-      .from("changeOrderProductAffected")
-      .delete()
-      .in("id", toDeleteIds);
-    if (del.error) return { error: del.error };
-  }
-
-  return { error: null };
-}
-
-// =============================================================================
-// Phase 2 — BOM change rows (Delete / Add, per-assembly)
-// =============================================================================
-// Fetched as two shallow queries and stitched, rather than one 3-level nested
-// select: PostgREST's inferred type for deeply-nested embeds blows TS's
-// instantiation-depth budget (TS2589) and surfaces "excessively deep" errors in
-// unrelated files. Two 1-level selects keep the inferred types shallow.
-export type ChangeOrderBomChangeWithAssemblies =
-  Database["public"]["Tables"]["changeOrderBomChange"]["Row"] & {
-    item: {
-      id: string;
-      readableIdWithRevision: string | null;
-      name: string;
-      type: Database["public"]["Enums"]["itemType"];
-      active: boolean;
-      revisionStatus: Database["public"]["Enums"]["itemRevisionStatus"];
-    } | null;
-    assemblies: Array<{
-      id: string;
-      bomChangeId: string;
-      assemblyItemId: string;
-      quantity: number;
-      supersessionMode: Database["public"]["Enums"]["supersessionMode"] | null;
-      assembly: {
-        id: string;
-        readableIdWithRevision: string | null;
-        name: string;
-      } | null;
-    }>;
-  };
-
-// Explicit return type (built from cheap Database Row references, not the deep
-// inferred PostgREST select type) so the shape does NOT re-instantiate through
-// the loader's Promise.all + useLoaderData + UI props — that multiplication is
-// what exhausts TS's global instantiation budget (TS2589) in unrelated files.
-export async function getChangeOrderBomChanges(
-  client: SupabaseClient<Database>,
-  changeOrderId: string,
-  companyId: string
-): Promise<{
-  data: ChangeOrderBomChangeWithAssemblies[] | null;
-  error: ChangeOrderError | null;
-}> {
-  const rows = await client
-    .from("changeOrderBomChange")
-    .select("*")
-    .eq("changeOrderId", changeOrderId)
-    .eq("companyId", companyId)
-    .order("sortOrder", { ascending: true })
-    .order("createdAt", { ascending: true });
-
-  if (rows.error) return { data: null, error: rows.error };
-
-  const rowIds = (rows.data ?? []).map((r) => r.id);
-  const assemblies = await client
-    .from("changeOrderBomChangeAssembly")
-    .select("*")
-    .in("bomChangeId", rowIds)
-    .eq("companyId", companyId)
-    .order("createdAt", { ascending: true });
-
-  if (assemblies.error) return { data: null, error: assemblies.error };
-
-  // One flat item fetch covering both the change-row parts and the assembly
-  // targets, then stitch (no embeds — see ChangeOrderItemLabel note above).
-  const itemIds = [
-    ...(rows.data ?? []).map((r) => r.itemId),
-    ...(assemblies.data ?? []).map((a) => a.assemblyItemId)
-  ];
-  const items = await getItemLabelMap(client, itemIds, companyId);
-
-  const byRow = new Map<
-    string,
-    ChangeOrderBomChangeWithAssemblies["assemblies"]
-  >();
-  for (const a of assemblies.data ?? []) {
-    const label = items.get(a.assemblyItemId);
-    const list = byRow.get(a.bomChangeId) ?? [];
-    list.push({
-      id: a.id,
-      bomChangeId: a.bomChangeId,
-      assemblyItemId: a.assemblyItemId,
-      quantity: a.quantity,
-      supersessionMode: a.supersessionMode,
-      assembly: label
-        ? {
-            id: label.id,
-            readableIdWithRevision: label.readableIdWithRevision,
-            name: label.name
-          }
-        : null
-    });
-    byRow.set(a.bomChangeId, list);
-  }
-
-  const data: ChangeOrderBomChangeWithAssemblies[] = (rows.data ?? []).map(
-    (r) => {
-      const label = items.get(r.itemId);
-      return {
-        ...r,
-        item: label ?? null,
-        assemblies: byRow.get(r.id) ?? []
-      };
-    }
-  );
-
-  return { data, error: null };
-}
-
-// G7 — the single canonical "which assemblies consume this part" query, used by
-// the Delete-row assembly picker to suggest the assemblies that reference a
-// part. An assembly is any item whose make method's BOM (methodMaterial) lists
-// the part. Returns one row per referencing make method; callers dedupe by
-// assemblyId.
-export async function getAssembliesUsingItem(
-  client: SupabaseClient<Database>,
-  itemId: string,
-  companyId: string
-): Promise<{
-  data: Array<{
-    assemblyId: string;
-    assemblyReadableId: string | null;
-    assemblyName: string | null;
-    assemblyType: string | null;
-  }>;
-  error: { message: string } | null;
-}> {
-  // Two flat queries (methodMaterial → makeMethod → item) instead of a nested
-  // spread select: keeps the inferred types shallow (TS2589 budget) and yields
-  // the distinct assemblies that consume this part.
-  const materials = await client
-    .from("methodMaterial")
-    .select("makeMethodId")
-    .eq("itemId", itemId)
-    .eq("companyId", companyId)
-    .limit(500);
-  if (materials.error) return { data: [], error: materials.error };
-
-  const makeMethodIds = [
-    ...new Set((materials.data ?? []).map((m) => m.makeMethodId))
-  ];
-  if (makeMethodIds.length === 0) return { data: [], error: null };
-
-  const methods = await client
-    .from("makeMethod")
-    .select("itemId")
-    .in("id", makeMethodIds)
-    .eq("companyId", companyId);
-  if (methods.error) return { data: [], error: methods.error };
-
-  const assemblyItems = await getItemLabelMap(
-    client,
-    (methods.data ?? []).map((m) => m.itemId),
-    companyId
-  );
-
-  const byId = new Map<
-    string,
-    {
-      assemblyId: string;
-      assemblyReadableId: string | null;
-      assemblyName: string | null;
-      assemblyType: string | null;
-    }
-  >();
-  for (const label of assemblyItems.values()) {
-    if (!byId.has(label.id)) {
-      byId.set(label.id, {
-        assemblyId: label.id,
-        assemblyReadableId: label.readableIdWithRevision,
-        assemblyName: label.name,
-        assemblyType: label.type
-      });
-    }
-  }
-  return { data: [...byId.values()], error: null };
-}
-
 // G3 — forward-reference to a not-yet-synced part. Mints a REAL item row
 // (active=false, revisionStatus='Design') through the standard item shape so
-// `changeOrderBomChange.itemId` is always non-null and no placeholder branch is
-// threaded downstream. Onshape sync reconciles by matching readableId+company
+// `changeOrderStagedMaterial.itemId` is always non-null and no placeholder branch
+// is threaded downstream. Onshape sync reconciles by matching readableId+company
 // (flip active, fill details). A cancelled CO can leave an inactive stub — it's
 // filterable and tied to the CO, far cheaper than nullable-threading everywhere.
 export async function mintPlaceholderPart(
@@ -855,151 +516,6 @@ export async function mintPlaceholderPart(
   return { data: { id: item.data.id }, error: null };
 }
 
-// upsertBomChange — resolves the target part (existing itemId, or a minted
-// placeholder for an Add forward-reference) then writes the row.
-export async function upsertBomChange(
-  client: SupabaseClient<Database>,
-  input: {
-    id?: string;
-    changeOrderId: string;
-    changeType: "Add" | "Delete";
-    itemId?: string;
-    newItemReadableId?: string;
-    newItemName?: string;
-    companyId: string;
-    userId: string;
-  }
-): Promise<{
-  data: { id: string } | null;
-  error: { message: string } | null;
-}> {
-  let itemId = input.itemId;
-
-  if (!itemId) {
-    if (
-      input.changeType !== "Add" ||
-      !input.newItemReadableId ||
-      !input.newItemName
-    ) {
-      return { data: null, error: { message: "A part is required" } };
-    }
-    const minted = await mintPlaceholderPart(client, {
-      readableId: input.newItemReadableId,
-      name: input.newItemName,
-      companyId: input.companyId,
-      createdBy: input.userId
-    });
-    if (minted.error || !minted.data) {
-      return {
-        data: null,
-        error: { message: minted.error?.message ?? "Failed to create part" }
-      };
-    }
-    itemId = minted.data.id;
-  }
-
-  if (input.id) {
-    const result = await client
-      .from("changeOrderBomChange")
-      .update({ itemId, changeType: input.changeType, updatedBy: input.userId })
-      .eq("id", input.id)
-      .select("id")
-      .single();
-    if (result.error) return { data: null, error: result.error };
-    return { data: { id: result.data.id }, error: null };
-  }
-
-  const result = await client
-    .from("changeOrderBomChange")
-    .insert({
-      changeOrderId: input.changeOrderId,
-      changeType: input.changeType,
-      itemId,
-      companyId: input.companyId,
-      createdBy: input.userId
-    })
-    .select("id")
-    .single();
-  if (result.error) return { data: null, error: result.error };
-  return { data: { id: result.data.id }, error: null };
-}
-
-export async function deleteChangeOrderBomChange(
-  client: SupabaseClient<Database>,
-  id: string
-) {
-  return client.from("changeOrderBomChange").delete().eq("id", id);
-}
-
-export async function upsertChangeOrderBomChangeAssembly(
-  client: SupabaseClient<Database>,
-  input: {
-    id?: string;
-    bomChangeId: string;
-    assemblyItemId: string;
-    quantity: number;
-    supersessionMode?: (typeof supersessionModes)[number];
-    companyId: string;
-    userId: string;
-  }
-) {
-  // Supersession mode is only meaningful on a Delete row's assemblies; null it
-  // out on Add rows regardless of what the client sent (G8 — the mode belongs to
-  // a removal's stock cutover, an addition has none).
-  const parent = await client
-    .from("changeOrderBomChange")
-    .select("changeType, changeOrderId")
-    .eq("id", input.bomChangeId)
-    .single();
-  const supersessionMode =
-    parent.data?.changeType === "Delete"
-      ? (input.supersessionMode ?? null)
-      : null;
-
-  if (input.id) {
-    return client
-      .from("changeOrderBomChangeAssembly")
-      .update({
-        assemblyItemId: input.assemblyItemId,
-        quantity: input.quantity,
-        supersessionMode,
-        updatedBy: input.userId
-      })
-      .eq("id", input.id)
-      .select("id")
-      .single();
-  }
-
-  if (!parent.data?.changeOrderId) {
-    return {
-      data: null,
-      error: { message: "Parent BOM change row not found" }
-    };
-  }
-
-  return client
-    .from("changeOrderBomChangeAssembly")
-    .insert({
-      bomChangeId: input.bomChangeId,
-      // Denormalized for audit rollup to the owning CO (set once at insert).
-      changeOrderId: parent.data.changeOrderId,
-      assemblyItemId: input.assemblyItemId,
-      quantity: input.quantity,
-      supersessionMode,
-      companyId: input.companyId,
-      createdBy: input.userId
-    })
-    .select("id")
-    .single();
-}
-
-export async function deleteChangeOrderBomChangeAssembly(
-  client: SupabaseClient<Database>,
-  id: string
-) {
-  return client.from("changeOrderBomChangeAssembly").delete().eq("id", id);
-}
-
 // =============================================================================
 // Phase 3 — Impact panel (open POs for deleted parts, at Implementation)
 // =============================================================================
@@ -1027,15 +543,94 @@ export async function getChangeOrderImpact(
   data: ChangeOrderImpactRow[];
   error: { message: string } | null;
 }> {
-  const deletes = await client
-    .from("changeOrderBomChange")
-    .select("itemId")
+  // Top-to-bottom model: a "removed part" is a component that appears on an
+  // affected item's live source (Active) make method but has NO surviving staged
+  // material referencing it — i.e. the user deleted that staged line. We compute
+  // it here by comparing, per affected item, the live methodMaterial itemIds
+  // against the staged material itemIds still present in the CO.
+  const affected = await client
+    .from("changeOrderAffectedItem")
+    .select("id, itemId")
     .eq("changeOrderId", changeOrderId)
-    .eq("changeType", "Delete")
     .eq("companyId", companyId);
-  if (deletes.error) return { data: [], error: deletes.error };
+  if (affected.error) return { data: [], error: affected.error };
 
-  const partIds = [...new Set((deletes.data ?? []).map((d) => d.itemId))];
+  const affectedItems = affected.data ?? [];
+  if (affectedItems.length === 0) return { data: [], error: null };
+
+  // Resolve each affected item's current Active make method (per item).
+  const affectedItemIds = [
+    ...new Set(affectedItems.map((a) => a.itemId).filter(Boolean))
+  ] as string[];
+  const activeMethods = affectedItemIds.length
+    ? await client
+        .from("activeMakeMethods")
+        .select("id, itemId")
+        .in("itemId", affectedItemIds)
+        .eq("companyId", companyId)
+    : { data: [], error: null };
+  if (activeMethods.error) return { data: [], error: activeMethods.error };
+  const makeMethodIdByItem = new Map<string, string>();
+  for (const m of activeMethods.data ?? []) {
+    if (m.id && m.itemId) makeMethodIdByItem.set(m.itemId, m.id);
+  }
+
+  const makeMethodIds = [...new Set([...makeMethodIdByItem.values()])];
+
+  // Live component itemIds on the source methods, and staged material itemIds
+  // still present (keyed by affectedItemId so removal is scoped per assembly).
+  const [liveMaterials, stagedMaterials] = await Promise.all([
+    makeMethodIds.length
+      ? client
+          .from("methodMaterial")
+          .select("itemId, makeMethodId")
+          .in("makeMethodId", makeMethodIds)
+          .eq("companyId", companyId)
+      : Promise.resolve({ data: [], error: null }),
+    client
+      .from("changeOrderStagedMaterial")
+      .select("itemId, affectedItemId")
+      .eq("changeOrderId", changeOrderId)
+      .eq("companyId", companyId)
+  ]);
+  if (liveMaterials.error) return { data: [], error: liveMaterials.error };
+  if (stagedMaterials.error) return { data: [], error: stagedMaterials.error };
+
+  // Staged component itemIds per affected item (the surviving BOM).
+  const stagedByAffected = new Map<string, Set<string>>();
+  for (const s of stagedMaterials.data ?? []) {
+    if (!s.affectedItemId || !s.itemId) continue;
+    const set = stagedByAffected.get(s.affectedItemId) ?? new Set<string>();
+    set.add(s.itemId);
+    stagedByAffected.set(s.affectedItemId, set);
+  }
+
+  // Live component itemIds per make method → map back to affected items.
+  const liveByMakeMethod = new Map<string, Set<string>>();
+  for (const l of liveMaterials.data ?? []) {
+    if (!l.makeMethodId || !l.itemId) continue;
+    const set = liveByMakeMethod.get(l.makeMethodId) ?? new Set<string>();
+    set.add(l.itemId);
+    liveByMakeMethod.set(l.makeMethodId, set);
+  }
+
+  // Removed = live component present on the source method with no surviving
+  // staged material referencing it, for that affected item.
+  const removedItemIds = new Set<string>();
+  for (const a of affectedItems) {
+    const makeMethodId = a.itemId
+      ? makeMethodIdByItem.get(a.itemId)
+      : undefined;
+    if (!makeMethodId) continue;
+    const live = liveByMakeMethod.get(makeMethodId);
+    if (!live) continue;
+    const staged = stagedByAffected.get(a.id) ?? new Set<string>();
+    for (const componentId of live) {
+      if (!staged.has(componentId)) removedItemIds.add(componentId);
+    }
+  }
+
+  const partIds = [...removedItemIds];
   if (partIds.length === 0) return { data: [], error: null };
 
   const lines = await client

@@ -692,19 +692,59 @@ export const path = {
     deleteChangeOrderType: (id: string) =>
       generatePath(`${x}/items/change-order-types/delete/${id}`),
     // Change Order content (Phase 2): BOM change rows + per-assembly targets, and
-    // freeform actions. (Products Affected are derived from the BOM changes — no
-    // manual add/delete route.)
-    changeOrderBomChange: (id: string) =>
-      generatePath(`${x}/items/change-order/${id}/bom-change`),
-    deleteChangeOrderBomChange: (id: string, rowId: string) =>
-      generatePath(`${x}/items/change-order/${id}/bom-change/delete/${rowId}`),
-    changeOrderBomChangeAssembly: (id: string, rowId: string) =>
+    // freeform actions. Top-to-bottom: affected items selected first, then
+    // per-item staged BOM/BOP/attributes edited in place.
+    changeOrderAffected: (id: string) =>
+      generatePath(`${x}/items/change-order/${id}/affected`),
+    deleteChangeOrderAffected: (id: string, affectedId: string) =>
       generatePath(
-        `${x}/items/change-order/${id}/bom-change/${rowId}/assembly`
+        `${x}/items/change-order/${id}/affected/delete/${affectedId}`
       ),
-    deleteChangeOrderBomChangeAssembly: (id: string, assemblyId: string) =>
+    changeOrderAffectedCutover: (id: string, affectedId: string) =>
       generatePath(
-        `${x}/items/change-order/${id}/bom-change/assembly/delete/${assemblyId}`
+        `${x}/items/change-order/${id}/affected/${affectedId}/cutover`
+      ),
+    changeOrderStagedMaterial: (id: string, affectedId: string) =>
+      generatePath(
+        `${x}/items/change-order/${id}/affected/${affectedId}/material`
+      ),
+    deleteChangeOrderStagedMaterial: (
+      id: string,
+      affectedId: string,
+      materialId: string
+    ) =>
+      generatePath(
+        `${x}/items/change-order/${id}/affected/${affectedId}/material/delete/${materialId}`
+      ),
+    changeOrderStagedMaterialOrder: (id: string, affectedId: string) =>
+      generatePath(
+        `${x}/items/change-order/${id}/affected/${affectedId}/material/order`
+      ),
+    changeOrderStagedOperation: (id: string, affectedId: string) =>
+      generatePath(
+        `${x}/items/change-order/${id}/affected/${affectedId}/operation`
+      ),
+    deleteChangeOrderStagedOperation: (
+      id: string,
+      affectedId: string,
+      operationId: string
+    ) =>
+      generatePath(
+        `${x}/items/change-order/${id}/affected/${affectedId}/operation/delete/${operationId}`
+      ),
+    changeOrderStagedOperationOrder: (id: string, affectedId: string) =>
+      generatePath(
+        `${x}/items/change-order/${id}/affected/${affectedId}/operation/order`
+      ),
+    changeOrderStagedAttributes: (id: string, affectedId: string) =>
+      generatePath(
+        `${x}/items/change-order/${id}/affected/${affectedId}/attributes`
+      ),
+    changeOrderSupersession: (id: string) =>
+      generatePath(`${x}/items/change-order/${id}/supersession`),
+    deleteChangeOrderSupersession: (id: string, supersessionId: string) =>
+      generatePath(
+        `${x}/items/change-order/${id}/supersession/delete/${supersessionId}`
       ),
     changeOrderAction: (id: string) =>
       generatePath(`${x}/items/change-order/${id}/action`),

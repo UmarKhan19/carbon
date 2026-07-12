@@ -6,14 +6,18 @@ import { msg } from "@lingui/core/macro";
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useLoaderData, useParams } from "react-router";
 import {
-  getAssembliesUsingItem,
   getChangeOrder,
   getChangeOrderActions,
-  getChangeOrderBomChanges,
+  getChangeOrderAffectedItems,
+  getChangeOrderDiff,
   getChangeOrderImpact,
-  getChangeOrderProductsAffected,
+  getChangeOrderStagedItemAttributes,
+  getChangeOrderStagedMaterials,
+  getChangeOrderStagedOperations,
+  getChangeOrderSupersessions,
   getChangeOrderTypesList
 } from "~/modules/items";
+import type { AffectedItemStaging } from "~/modules/items/ui/ChangeOrder";
 import {
   ChangeOrderHeader,
   ChangeOrderProperties
@@ -39,16 +43,18 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const [
     changeOrder,
     types,
-    productsAffected,
-    bomChanges,
+    affected,
+    diff,
+    supersessions,
     actions,
     impact,
     nonConformances
   ] = await Promise.all([
     getChangeOrder(client, id, companyId),
     getChangeOrderTypesList(client, companyId),
-    getChangeOrderProductsAffected(client, id, companyId),
-    getChangeOrderBomChanges(client, id, companyId),
+    getChangeOrderAffectedItems(client, id, companyId),
+    getChangeOrderDiff(client, id, companyId),
+    getChangeOrderSupersessions(client, id, companyId),
     getChangeOrderActions(client, id, companyId),
     getChangeOrderImpact(client, id, companyId),
     // NCR cross-link picker options (4a).
@@ -72,53 +78,60 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     ? (await getIssue(client, linkedNonConformanceId)).data
     : null;
 
-  const bomChangeRows = bomChanges.data ?? [];
-
-  // Per Delete row: the assemblies whose make method actually consumes the part
-  // — the only valid targets to delete it from. These become the row's assembly
-  // picker options (a fixed list, no free-text/create). Add rows choose freely,
-  // so they get no options here.
-  const suggestedEntries = await Promise.all(
-    bomChangeRows
-      .filter((r) => r.changeType === "Delete" && r.itemId)
-      .map(async (r) => {
-        const using = await getAssembliesUsingItem(
-          client,
-          r.itemId as string,
-          companyId
-        );
-        const options = (using.data ?? []).map((a) => ({
-          value: a.assemblyId,
-          label: a.assemblyName
-            ? `${a.assemblyReadableId ?? a.assemblyId} — ${a.assemblyName}`
-            : (a.assemblyReadableId ?? a.assemblyId)
-        }));
-        return [r.id, options] as const;
-      })
+  const affectedRows = affected.data ?? [];
+  const diffByAffectedId = new Map(
+    (diff.data?.items ?? []).map((entry) => [entry.affectedItemId, entry])
   );
-  const suggestedAssembliesByRow: Record<
-    string,
-    { value: string; label: string }[]
-  > = Object.fromEntries(suggestedEntries);
 
-  // Distinct assemblies referenced by any BOM-change row (for the Properties
-  // sidebar). Deduped by assembly id.
-  const affectedAssembliesMap = new Map<
-    string,
-    { id: string; readableIdWithRevision: string | null; name: string | null }
-  >();
-  for (const row of bomChangeRows) {
-    for (const assembly of row.assemblies ?? []) {
-      const a = assembly.assembly;
-      if (a && !affectedAssembliesMap.has(a.id)) {
-        affectedAssembliesMap.set(a.id, {
-          id: a.id,
-          readableIdWithRevision: a.readableIdWithRevision,
-          name: a.name
-        });
-      }
-    }
-  }
+  // Per affected item: load its staged BOM/BOP/attributes + the source item's
+  // current editable attributes (the "old" side of the redline). Flat reads +
+  // JS stitch (no composite-FK embeds — the erp TS2589 budget).
+  const affectedItems: AffectedItemStaging[] = await Promise.all(
+    affectedRows.map(async (affectedItem) => {
+      const [materials, operations, attributes, source] = await Promise.all([
+        getChangeOrderStagedMaterials(client, affectedItem.id, companyId),
+        getChangeOrderStagedOperations(client, affectedItem.id, companyId),
+        getChangeOrderStagedItemAttributes(client, affectedItem.id, companyId),
+        client
+          .from("item")
+          .select(
+            "name, description, unitOfMeasureCode, itemTrackingType, defaultMethodType, replenishmentSystem, sourcingType, requiresInspection, thumbnailPath, modelUploadId"
+          )
+          .eq("id", affectedItem.itemId)
+          .eq("companyId", companyId)
+          .maybeSingle()
+      ]);
+
+      return {
+        affectedItem,
+        materials: materials.data ?? [],
+        operations: operations.data ?? [],
+        attributes: attributes.data ?? null,
+        source: {
+          itemId: affectedItem.itemId,
+          name: source.data?.name ?? null,
+          description: source.data?.description ?? null,
+          unitOfMeasureCode: source.data?.unitOfMeasureCode ?? null,
+          itemTrackingType: source.data?.itemTrackingType ?? null,
+          defaultMethodType: source.data?.defaultMethodType ?? null,
+          replenishmentSystem: source.data?.replenishmentSystem ?? null,
+          sourcingType: source.data?.sourcingType ?? null,
+          requiresInspection: source.data?.requiresInspection ?? null,
+          thumbnailPath: source.data?.thumbnailPath ?? null,
+          modelId: source.data?.modelUploadId ?? null
+        },
+        diff: diffByAffectedId.get(affectedItem.id)
+      };
+    })
+  );
+
+  // Affected assemblies (Properties sidebar): in the top-to-bottom model the
+  // affected items themselves are the changed products.
+  const affectedAssemblies = affectedRows.map((r) => ({
+    id: r.itemId,
+    readableIdWithRevision: r.item?.readableIdWithRevision ?? null,
+    name: r.item?.name ?? null
+  }));
 
   // Minimal, explicit option shape (cheap type — avoids widening the loader's
   // instantiation surface with the full issues-view row).
@@ -141,11 +154,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   return {
     changeOrder: changeOrder.data,
     types: types.data ?? [],
-    productsAffected: productsAffected.data ?? [],
-    bomChanges: bomChangeRows,
-    suggestedAssembliesByRow,
+    affectedItems,
+    diff: diff.data ?? { items: [], supersessions: [] },
+    supersessions: supersessions.data ?? [],
     actions: actions.data ?? [],
-    affectedAssemblies: Array.from(affectedAssembliesMap.values()),
+    affectedAssemblies,
     impact: impact.data ?? [],
     nonConformanceOptions,
     linkedNonConformance: linkedNonConformance

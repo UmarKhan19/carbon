@@ -349,7 +349,11 @@ FOR DELETE USING (
 );
 
 -- -----------------------------------------------------------------------------
--- 6c. changeOrderStagedOperation — CO-owned mirror of methodOperation (headers)
+-- 6c. changeOrderStagedOperation — CO-owned mirror of methodOperation (headers).
+--     Columns mirror the CURRENT methodOperation schema (processId/workCenterId,
+--     setup/labor/machine time+unit, operationType) — verified against generated
+--     types, not the original CREATE TABLE. Process/type are nullable here
+--     (authoring WIP); required at release-time materialization + validation.
 -- -----------------------------------------------------------------------------
 CREATE TABLE "changeOrderStagedOperation" (
   "id" TEXT NOT NULL DEFAULT id('coso'),
@@ -357,14 +361,19 @@ CREATE TABLE "changeOrderStagedOperation" (
   "affectedItemId" TEXT NOT NULL,
   "order" DOUBLE PRECISION NOT NULL DEFAULT 1,
   "operationOrder" "methodOperationOrder" NOT NULL DEFAULT 'After Previous',
-  -- Nullable on the staging table (authoring WIP); required at release-time
-  -- materialization + validation. The live methodOperation.workCellTypeId is NOT NULL.
-  "workCellTypeId" TEXT,
-  "equipmentTypeId" TEXT,
+  "operationType" "operationType",
+  "processId" TEXT,
+  "workCenterId" TEXT,
+  "operationSupplierProcessId" TEXT,
+  "procedureId" TEXT,
   "description" TEXT,
-  "setupHours" NUMERIC NOT NULL DEFAULT 0,
-  "standardFactor" "factor" NOT NULL DEFAULT 'Hours/Piece',
-  "productionStandard" NUMERIC NOT NULL DEFAULT 0,
+  "setupTime" NUMERIC NOT NULL DEFAULT 0,
+  "setupUnit" "factor" NOT NULL DEFAULT 'Total Hours',
+  "laborTime" NUMERIC NOT NULL DEFAULT 0,
+  "laborUnit" "factor" NOT NULL DEFAULT 'Hours/Piece',
+  "machineTime" NUMERIC NOT NULL DEFAULT 0,
+  "machineUnit" "factor" NOT NULL DEFAULT 'Hours/Piece',
+  "workInstruction" JSON NOT NULL DEFAULT '{}',
   "sourceOperationId" TEXT,
   "companyId" TEXT NOT NULL,
   "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,

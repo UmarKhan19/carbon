@@ -12,10 +12,12 @@ import { getChangeOrderTypesList } from "./changeOrder.service";
 // G6 — the SINGLE canonical "change orders referencing this item" query,
 // parameterized by status. The item-detail history (all COs), the open-CO alert
 // (open statuses), and the single-open-CO guard all call this — no forked
-// implementations. Spans the three ways a CO references an item: a top-level
-// Product Affected, a BOM-change part (Add/Delete), or a BOM-change assembly
-// target. Scoped by readableId so it matches the part across all its revisions.
-// Flat queries + JS union (no embeds — TS2589 budget).
+// implementations. Spans every way a CO references an item in the top-to-bottom
+// model: an affected item the user selected to change, a staged BOM component,
+// a manual supersession (predecessor or successor), and the reverse link from a
+// released revision (`item.changeOrderId`). Scoped by readableId so it matches
+// the part across all its revisions. Flat queries + JS union (no embeds —
+// TS2589 budget).
 export type ChangeOrderForItem = {
   id: string;
   changeOrderId: string;
@@ -48,51 +50,50 @@ export async function findChangeOrdersForItem(
 
   const siblings = await client
     .from("item")
-    .select("id")
+    .select("id, changeOrderId")
     .eq("readableId", item.data.readableId)
     .eq("companyId", companyId);
   if (siblings.error) return { data: [], error: siblings.error };
   const itemIds = (siblings.data ?? []).map((s) => s.id);
   if (itemIds.length === 0) return { data: [], error: null };
 
-  // Collect referencing changeOrderIds from the three relations.
-  const [products, bomParts, assemblies] = await Promise.all([
+  // Collect referencing changeOrderIds from every relation.
+  const [affected, staged, predecessors, successors] = await Promise.all([
     client
-      .from("changeOrderProductAffected")
+      .from("changeOrderAffectedItem")
       .select("changeOrderId")
       .in("itemId", itemIds)
       .eq("companyId", companyId),
     client
-      .from("changeOrderBomChange")
+      .from("changeOrderStagedMaterial")
       .select("changeOrderId")
       .in("itemId", itemIds)
       .eq("companyId", companyId),
     client
-      .from("changeOrderBomChangeAssembly")
-      .select("bomChangeId")
-      .in("assemblyItemId", itemIds)
+      .from("changeOrderSupersession")
+      .select("changeOrderId")
+      .in("predecessorItemId", itemIds)
+      .eq("companyId", companyId),
+    client
+      .from("changeOrderSupersession")
+      .select("changeOrderId")
+      .in("successorItemId", itemIds)
       .eq("companyId", companyId)
   ]);
-  if (products.error) return { data: [], error: products.error };
-  if (bomParts.error) return { data: [], error: bomParts.error };
-  if (assemblies.error) return { data: [], error: assemblies.error };
+  if (affected.error) return { data: [], error: affected.error };
+  if (staged.error) return { data: [], error: staged.error };
+  if (predecessors.error) return { data: [], error: predecessors.error };
+  if (successors.error) return { data: [], error: successors.error };
 
   const coIds = new Set<string>();
-  for (const p of products.data ?? []) coIds.add(p.changeOrderId);
-  for (const b of bomParts.data ?? []) coIds.add(b.changeOrderId);
+  for (const a of affected.data ?? []) coIds.add(a.changeOrderId);
+  for (const s of staged.data ?? []) coIds.add(s.changeOrderId);
+  for (const p of predecessors.data ?? []) coIds.add(p.changeOrderId);
+  for (const s of successors.data ?? []) coIds.add(s.changeOrderId);
 
-  // Assemblies reference the CO via their bom-change row — resolve that hop.
-  const bomChangeIds = [
-    ...new Set((assemblies.data ?? []).map((a) => a.bomChangeId))
-  ];
-  if (bomChangeIds.length > 0) {
-    const parents = await client
-      .from("changeOrderBomChange")
-      .select("changeOrderId")
-      .in("id", bomChangeIds)
-      .eq("companyId", companyId);
-    if (parents.error) return { data: [], error: parents.error };
-    for (const p of parents.data ?? []) coIds.add(p.changeOrderId);
+  // Reverse link: a released revision points at the CO that created it.
+  for (const s of siblings.data ?? []) {
+    if (s.changeOrderId) coIds.add(s.changeOrderId);
   }
 
   if (coIds.size === 0) return { data: [], error: null };
@@ -131,7 +132,8 @@ export async function getChangeOrdersForNonConformance(
 // Single-open-CO-per-part guard (V1 — no parallel change orders): the OTHER
 // open change orders that already reference a part, excluding the current CO.
 // Reuses the canonical G6 query at the open-status filter. A non-empty result
-// means adding the part here would create a parallel open CO — the routes reject.
+// means adding the part here would create a parallel open CO — the routes (and
+// the staging service) reject it.
 export async function findOtherOpenChangeOrdersForItem(
   client: SupabaseClient<Database>,
   args: { itemId: string; companyId: string; excludeChangeOrderId: string }

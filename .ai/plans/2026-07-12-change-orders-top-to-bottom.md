@@ -29,23 +29,23 @@
 ## Progress
 - [x] Task 1: Migration — drop bottom-to-top tables, add top-to-bottom tables + `item.changeOrderId`
 - [x] Task 2: Regenerate DB types
-- [ ] Task 3: Models — replace BOM-change validators with the top-to-bottom validators + diff types
-- [ ] Task 4: Service shell — remove BOM-change fns; keep header/status/types/mint/rollup
-- [ ] Task 5: Affected-items + staged-material service (snapshot-on-add, staging CRUD)
-- [ ] Task 6: Affected-items + staged-material routes
-- [ ] Task 7: AffectedItems UI + CO-scoped BOM editor
-- [ ] Task 8: Staged-operation service + routes
-- [ ] Task 9: CO-scoped BOP editor UI
-- [ ] Task 10: Staged item-attributes service + routes + spec-diff UI
-- [ ] Task 11: Supersession — per-item cutover config + manual different-part table
-- [ ] Task 12: `diffMethod` engine + `getChangeOrderDiff` + ChangeOrderReview UI
-- [ ] Task 13: Impact panel re-fed from removed staged materials
-- [ ] Task 14: Release orchestration — rewrite `applyChangeOrder` (revision + supersession)
-- [ ] Task 15: Status route wiring for release + `getChangeOrderValidations`
+- [x] Task 3: Models — replace BOM-change validators with the top-to-bottom validators + diff types
+- [x] Task 4: Service shell — remove BOM-change fns; keep header/status/types/mint/rollup
+- [x] Task 5: Affected-items + staged-material service (snapshot-on-add, staging CRUD) — NOTE: operation-snapshot field mapping to be completed in Task 8 (staged-operation columns were corrected post-Task-5)
+- [x] Task 6: Affected-items + staged-material routes
+- [x] Task 7: AffectedItems UI + CO-scoped BOM editor
+- [x] Task 8: Staged-operation service + routes
+- [x] Task 9: CO-scoped BOP editor UI
+- [x] Task 10: attributes service + routes + spec-diff UI
+- [x] Task 11: supersession service + routes + UI
+- [x] Task 12: `diffMethod` engine + `getChangeOrderDiff` + ChangeOrderReview UI
+- [x] Task 13: Impact panel re-fed from removed staged materials
+- [x] Task 14: Release orchestration — rewrite `applyChangeOrder` (revision + supersession)
+- [x] Task 15: Status route wiring for release (getChangeOrderValidations never existed; optional drift-warning deferred)
 - [ ] Task 16: BOP operation-children staging + release reconciliation
-- [ ] Task 17: Traceability re-point + revision history + diff UI on part page
+- [x] Task 17: Traceability re-point + revision history + diff UI on part page
 - [x] Task 18: Audit config — re-register the new CO children (pulled forward — typecheck gate)
-- [ ] Task 19: Cleanup dead bottom-to-top code + AGENTS.md refresh
+- [x] Task 19: Cleanup dead code + seed rewrite + AGENTS.md refresh
 - [ ] Task 20: Browser verification via /test
 
 ## Dependencies

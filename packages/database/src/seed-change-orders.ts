@@ -4,8 +4,16 @@
  * Populates rich, re-runnable test data for the Change Orders (ECO) feature:
  * a bike-manufacturer catalog (parts, make methods with BOM + BOP), downstream
  * documents (open PO, in-progress job, sales order), an NCR, and seven change
- * orders spanning every stage of the PRD flow (Draft → Start → Engineering
- * Complete → Implementation → Done) plus the optional approval gate.
+ * orders spanning every stage of the flow (Draft → Start → Engineering
+ * Complete → Implementation → Done).
+ *
+ * The change-content follows the TOP-TO-BOTTOM model: each CO selects affected
+ * ASSEMBLIES first (changeOrderAffectedItem), snapshots their live make method
+ * into CO-owned staging tables (changeOrderStaged{Material,Operation,ItemAttributes}),
+ * then edits the staged end-state (git-style). CO-000001 is the worked example:
+ * it swaps bracket PRT-001186.A → PRT-001186.B across four assemblies (a removed
+ * staged material + an added one per assembly) and declares one manual
+ * changeOrderSupersession (bracketA → bracketB).
  *
  * The pg connection needs SUPABASE_DB_URL, which lives in the repo-root
  * `.env.local` (not `.env`). Both are loaded below.
@@ -462,54 +470,163 @@ async function createChangeOrder(
   return res.rows[0].id as string;
 }
 
-async function addProductAffected(
+// ---------------------------------------------------------------------------
+// TOP-TO-BOTTOM change-content builders.
+//
+// The flow mirrors the real staging path (changeOrder.staging.ts):
+//   1. addAffectedItem — insert a changeOrderAffectedItem row for an assembly the
+//      user is changing, then SNAPSHOT its live make method into CO-owned staging
+//      (methodMaterial → changeOrderStagedMaterial with sourceMaterialId = live id;
+//       methodOperation → changeOrderStagedOperation with sourceOperationId = live
+//       id; plus one changeOrderStagedItemAttributes row from the item's columns).
+//   2. Then EDIT the staged content to represent the desired end-state (git-style):
+//      delete a staged material (a "removed" line) and/or insert one with
+//      sourceMaterialId = NULL (an "added" line). The diff engine derives the
+//      change from the snapshot vs. the edited end-state.
+// ---------------------------------------------------------------------------
+
+// Snapshot one assembly's live make method + attributes into CO staging and
+// return the affectedItemId. `makeMethodId` is the assembly's Active make method.
+async function addAffectedItem(
   ctx: Ctx,
   changeOrderId: string,
-  itemId: string
-) {
+  affected: { itemId: string; makeMethodId: string },
+  sortOrder: number,
+  supersessionMode = "Consume First"
+): Promise<string> {
   const { client, companyId, userId } = ctx;
+
+  const aiRes = await client.query(
+    `INSERT INTO "changeOrderAffectedItem" (
+      "changeOrderId", "itemId", "sortOrder", "supersessionMode", "companyId", "createdBy"
+    ) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
+    [
+      changeOrderId,
+      affected.itemId,
+      sortOrder,
+      supersessionMode,
+      companyId,
+      userId
+    ]
+  );
+  const affectedItemId = aiRes.rows[0].id as string;
+
+  // Snapshot the item's editable attributes (one row per affected item).
   await client.query(
-    `INSERT INTO "changeOrderProductAffected" ("changeOrderId", "itemId", "companyId", "createdBy")
-     VALUES ($1, $2, $3, $4)`,
-    [changeOrderId, itemId, companyId, userId]
+    `INSERT INTO "changeOrderStagedItemAttributes" (
+      "changeOrderId", "affectedItemId", name, description, "unitOfMeasureCode",
+      "itemTrackingType", "defaultMethodType", "replenishmentSystem", "sourcingType",
+      "requiresInspection", "thumbnailPath", "companyId", "createdBy"
+    )
+    SELECT $1, $2, i.name, i.description, i."unitOfMeasureCode",
+      i."itemTrackingType", i."defaultMethodType", i."replenishmentSystem", i."sourcingType",
+      i."requiresInspection", i."thumbnailPath", $3, $4
+    FROM item i WHERE i.id = $5`,
+    [changeOrderId, affectedItemId, companyId, userId, affected.itemId]
+  );
+
+  // Snapshot the live methodMaterial rows → changeOrderStagedMaterial
+  // (sourceMaterialId = live methodMaterial.id ⇒ these are "unchanged" lines).
+  await client.query(
+    `INSERT INTO "changeOrderStagedMaterial" (
+      "changeOrderId", "affectedItemId", "itemId", quantity, "unitOfMeasureCode",
+      "methodType", "sourcingType", "materialMakeMethodId", "order", "itemType",
+      "sourceMaterialId", "companyId", "createdBy"
+    )
+    SELECT $1, $2, mm."itemId", mm.quantity, mm."unitOfMeasureCode",
+      mm."methodType", mm."sourcingType", mm."materialMakeMethodId", mm."order", mm."itemType",
+      mm.id, $3, $4
+    FROM "methodMaterial" mm WHERE mm."makeMethodId" = $5`,
+    [changeOrderId, affectedItemId, companyId, userId, affected.makeMethodId]
+  );
+
+  // Snapshot the live methodOperation rows → changeOrderStagedOperation
+  // (sourceOperationId = live methodOperation.id). Mirror the corrected columns.
+  await client.query(
+    `INSERT INTO "changeOrderStagedOperation" (
+      "changeOrderId", "affectedItemId", "order", "operationOrder", "operationType",
+      "processId", "workCenterId", "operationSupplierProcessId", "procedureId",
+      description, "setupTime", "setupUnit", "laborTime", "laborUnit",
+      "machineTime", "machineUnit", "workInstruction", "sourceOperationId",
+      "companyId", "createdBy"
+    )
+    SELECT $1, $2, mo."order", mo."operationOrder", mo."operationType",
+      mo."processId", mo."workCenterId", mo."operationSupplierProcessId", mo."procedureId",
+      mo.description, mo."setupTime", mo."setupUnit", mo."laborTime", mo."laborUnit",
+      mo."machineTime", mo."machineUnit", mo."workInstruction", mo.id,
+      $3, $4
+    FROM "methodOperation" mo WHERE mo."makeMethodId" = $5`,
+    [changeOrderId, affectedItemId, companyId, userId, affected.makeMethodId]
+  );
+
+  return affectedItemId;
+}
+
+// Delete a staged material line for a given component item (models "remove a line").
+async function deleteStagedMaterial(
+  ctx: Ctx,
+  affectedItemId: string,
+  componentItemId: string
+) {
+  const { client, companyId } = ctx;
+  await client.query(
+    `DELETE FROM "changeOrderStagedMaterial"
+     WHERE "affectedItemId" = $1 AND "itemId" = $2 AND "companyId" = $3`,
+    [affectedItemId, componentItemId, companyId]
   );
 }
 
-async function addBomChange(
+// Insert a staged material with sourceMaterialId = NULL (models "add a line").
+async function addStagedMaterial(
   ctx: Ctx,
   changeOrderId: string,
-  changeType: "Add" | "Delete",
-  itemId: string,
-  sortOrder: number,
-  assemblies: {
-    assemblyItemId: string;
-    quantity: number;
-    supersessionMode?: string | null;
-  }[]
+  affectedItemId: string,
+  componentItemId: string,
+  quantity: number,
+  order: number
 ) {
   const { client, companyId, userId } = ctx;
-  const res = await client.query(
-    `INSERT INTO "changeOrderBomChange" ("changeOrderId", "changeType", "itemId", "companyId", "createdBy", "sortOrder")
-     VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
-    [changeOrderId, changeType, itemId, companyId, userId, sortOrder]
+  await client.query(
+    `INSERT INTO "changeOrderStagedMaterial" (
+      "changeOrderId", "affectedItemId", "itemId", quantity, "unitOfMeasureCode",
+      "methodType", "sourcingType", "order", "itemType", "sourceMaterialId",
+      "companyId", "createdBy"
+    ) VALUES ($1, $2, $3, $4, 'EA', 'Pull from Inventory', 'Specified', $5, 'Part', NULL, $6, $7)`,
+    [
+      changeOrderId,
+      affectedItemId,
+      componentItemId,
+      quantity,
+      order,
+      companyId,
+      userId
+    ]
   );
-  const bomChangeId = res.rows[0].id as string;
-  for (const a of assemblies) {
-    await client.query(
-      `INSERT INTO "changeOrderBomChangeAssembly" (
-        "bomChangeId", "changeOrderId", "assemblyItemId", quantity, "supersessionMode", "companyId", "createdBy"
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-      [
-        bomChangeId,
-        changeOrderId,
-        a.assemblyItemId,
-        a.quantity,
-        a.supersessionMode ?? null,
-        companyId,
-        userId
-      ]
-    );
-  }
+}
+
+// A MANUAL different-part supersession declaration (predecessor → successor).
+async function addSupersession(
+  ctx: Ctx,
+  changeOrderId: string,
+  predecessorItemId: string,
+  successorItemId: string,
+  supersessionMode = "Consume First"
+) {
+  const { client, companyId, userId } = ctx;
+  await client.query(
+    `INSERT INTO "changeOrderSupersession" (
+      "changeOrderId", "predecessorItemId", "successorItemId", "supersessionMode",
+      "companyId", "createdBy"
+    ) VALUES ($1, $2, $3, $4, $5, $6)`,
+    [
+      changeOrderId,
+      predecessorItemId,
+      successorItemId,
+      supersessionMode,
+      companyId,
+      userId
+    ]
+  );
 }
 
 async function addActionTask(
@@ -865,26 +982,30 @@ async function seed() {
           "PRT-001186.B across all affected assemblies. New CAD released via Onshape.",
         nonConformanceId: ncrId
       });
-      await addProductAffected(ctx, co1, veh1.itemId);
-      await addProductAffected(ctx, co1, veh6.itemId);
-      // Delete PRT-001186.A across 4 assemblies (modes vary per assembly)
-      await addBomChange(ctx, co1, "Delete", bracketA, 1, [
-        { assemblyItemId: ga0020.itemId, quantity: 1, supersessionMode: null },
-        {
-          assemblyItemId: ga0022.itemId,
-          quantity: 1,
-          supersessionMode: "Prefer New"
-        },
-        { assemblyItemId: ga0044.itemId, quantity: 1, supersessionMode: null },
-        { assemblyItemId: sa0065.itemId, quantity: 1, supersessionMode: null }
-      ]);
-      // Add PRT-001186.B to the same 4 assemblies
-      await addBomChange(ctx, co1, "Add", bracketB, 2, [
-        { assemblyItemId: ga0020.itemId, quantity: 1 },
-        { assemblyItemId: ga0022.itemId, quantity: 1 },
-        { assemblyItemId: ga0044.itemId, quantity: 1 },
-        { assemblyItemId: sa0065.itemId, quantity: 1 }
-      ]);
+      // Top-to-bottom: the user selects the affected ASSEMBLIES first, then edits
+      // each one's staged (snapshotted) BOM. Here the PRD change is swapping the
+      // bracket PRT-001186.A → PRT-001186.B on every assembly that uses it.
+      const co1Assemblies: {
+        key: string;
+        a: { itemId: string; makeMethodId: string };
+      }[] = [
+        { key: "GA-0020", a: ga0020 },
+        { key: "GA-0022", a: ga0022 },
+        { key: "GA-0044", a: ga0044 },
+        { key: "SA-0065", a: sa0065 }
+      ];
+      let co1Sort = 0;
+      for (const { a } of co1Assemblies) {
+        // 1. Snapshot the assembly's live method into staging.
+        const affectedItemId = await addAffectedItem(ctx, co1, a, co1Sort++);
+        // 2. Edit staged content: remove bracketA (a "removed" line) and add
+        //    bracketB (sourceMaterialId = NULL ⇒ an "added" line). Real diff.
+        await deleteStagedMaterial(ctx, affectedItemId, bracketA);
+        await addStagedMaterial(ctx, co1, affectedItemId, bracketB, 1, 1);
+      }
+      // Optional manual supersession row (bracketA → bracketB) to exercise that
+      // surface (different-part obsolescence, distinct from the auto revision cutover).
+      await addSupersession(ctx, co1, bracketA, bracketB, "Consume First");
       await addActionTask(
         ctx,
         co1,
@@ -916,17 +1037,10 @@ async function seed() {
         description:
           "Remove M5 Bolt from Stage 3 and add a Sealed Bearing detent."
       });
-      await addProductAffected(ctx, co2, veh1.itemId);
-      await addBomChange(ctx, co2, "Delete", fst100, 1, [
-        {
-          assemblyItemId: ga0022.itemId,
-          quantity: 1,
-          supersessionMode: "Consume First"
-        }
-      ]);
-      await addBomChange(ctx, co2, "Add", brg200, 2, [
-        { assemblyItemId: ga0022.itemId, quantity: 1 }
-      ]);
+      // One affected item (GA-0022): swap the M5 Bolt for a Sealed Bearing detent.
+      const co2Affected = await addAffectedItem(ctx, co2, ga0022, 0);
+      await deleteStagedMaterial(ctx, co2Affected, fst100);
+      await addStagedMaterial(ctx, co2, co2Affected, brg200, 1, 1);
 
       // CO-000003 — Start
       const co3 = await createChangeOrder(ctx, {
@@ -939,14 +1053,9 @@ async function seed() {
           "Cargo box bracket alignment dowel is over-specified; remove to reduce cost and weight.",
         description: "Delete Alignment Dowel from Pedal2 Sync3 sub-assembly."
       });
-      await addProductAffected(ctx, co3, veh6.itemId);
-      await addBomChange(ctx, co3, "Delete", fst101, 1, [
-        {
-          assemblyItemId: sa0065.itemId,
-          quantity: 1,
-          supersessionMode: "Stock Only"
-        }
-      ]);
+      // One affected item (SA-0065): delete the Alignment Dowel (a "removed" line).
+      const co3Affected = await addAffectedItem(ctx, co3, sa0065, 0);
+      await deleteStagedMaterial(ctx, co3Affected, fst101);
 
       // CO-000004 — Start
       const co4 = await createChangeOrder(ctx, {
@@ -959,13 +1068,7 @@ async function seed() {
           "Internal cable routing eliminates the external cable housing.",
         description: "Delete Cable Housing from the Stage 2 Alt gear assembly."
       });
-      await addBomChange(ctx, co4, "Delete", cbl300, 1, [
-        {
-          assemblyItemId: ga0044.itemId,
-          quantity: 1,
-          supersessionMode: "No Stock"
-        }
-      ]);
+      // Headers + action tasks only (no staged content needed here).
       await addActionTask(
         ctx,
         co4,
@@ -989,7 +1092,6 @@ async function seed() {
         description:
           "Obsolescence supersession applied across affected vehicles."
       });
-      await addProductAffected(ctx, co5, veh6.itemId);
       await addActionTask(
         ctx,
         co5,
@@ -1009,7 +1111,8 @@ async function seed() {
         assignee: null
       });
 
-      // CO-000007 — Start, with approval flow
+      // CO-000007 — Start. One affected item (VEH0000001, a top-level product not
+      // touched by another open CO): add a Locking Washer to its staged BOM.
       const co7 = await createChangeOrder(ctx, {
         changeOrderId: "CO-000007",
         name: "Fork Crown Reinforcement",
@@ -1019,13 +1122,11 @@ async function seed() {
         reasonForChange:
           "Add a locking washer to the fork crown assembly to prevent loosening.",
         description:
-          "Add Locking Washer (FST-102) x2 to the Stage 2 gear assembly."
+          "Add Locking Washer (FST-102) x2 to the top-level Pedal4 Sync3 assembly."
       });
-      await addProductAffected(ctx, co7, veh1.itemId);
-      // Add FST-102 (distinct free part — resolves the FST-101 single-open-CO overlap)
-      await addBomChange(ctx, co7, "Add", fst102, 1, [
-        { assemblyItemId: ga0020.itemId, quantity: 2 }
-      ]);
+      const co7Affected = await addAffectedItem(ctx, co7, veh1, 0);
+      // Add FST-102 (sourceMaterialId = NULL ⇒ an "added" line).
+      await addStagedMaterial(ctx, co7, co7Affected, fst102, 2, 99);
 
       // --- Bump the CO sequence past the seeded ids ---
       console.log("9. Bumping changeOrder sequence...");
@@ -1084,22 +1185,27 @@ async function printSummary(client: PoolClient, companyId: string) {
      WHERE "companyId" = $1 AND "changeOrderId" = ANY($2) GROUP BY status ORDER BY status`,
     [companyId, CHANGE_ORDER_IDS]
   );
-  const productsAffected = await q(
-    `SELECT count(*)::int n FROM "changeOrderProductAffected" pa
-     JOIN "changeOrder" co ON co.id = pa."changeOrderId"
+  const affectedItems = await q(
+    `SELECT count(*)::int n FROM "changeOrderAffectedItem" ai
+     JOIN "changeOrder" co ON co.id = ai."changeOrderId"
      WHERE co."companyId" = $1 AND co."changeOrderId" = ANY($2)`,
     [companyId, CHANGE_ORDER_IDS]
   );
-  const bomChanges = await q(
-    `SELECT count(*)::int n FROM "changeOrderBomChange" bc
-     JOIN "changeOrder" co ON co.id = bc."changeOrderId"
+  const stagedMaterials = await q(
+    `SELECT count(*)::int n FROM "changeOrderStagedMaterial" sm
+     JOIN "changeOrder" co ON co.id = sm."changeOrderId"
      WHERE co."companyId" = $1 AND co."changeOrderId" = ANY($2)`,
     [companyId, CHANGE_ORDER_IDS]
   );
-  const assemblies = await q(
-    `SELECT count(*)::int n FROM "changeOrderBomChangeAssembly" a
-     JOIN "changeOrderBomChange" bc ON bc.id = a."bomChangeId"
-     JOIN "changeOrder" co ON co.id = bc."changeOrderId"
+  const stagedOperations = await q(
+    `SELECT count(*)::int n FROM "changeOrderStagedOperation" so
+     JOIN "changeOrder" co ON co.id = so."changeOrderId"
+     WHERE co."companyId" = $1 AND co."changeOrderId" = ANY($2)`,
+    [companyId, CHANGE_ORDER_IDS]
+  );
+  const supersessions = await q(
+    `SELECT count(*)::int n FROM "changeOrderSupersession" s
+     JOIN "changeOrder" co ON co.id = s."changeOrderId"
      WHERE co."companyId" = $1 AND co."changeOrderId" = ANY($2)`,
     [companyId, CHANGE_ORDER_IDS]
   );
@@ -1130,9 +1236,10 @@ async function printSummary(client: PoolClient, companyId: string) {
   console.log(`  NCR:              ${ncrs[0].n > 0 ? NCR_ID : "MISSING"}`);
   console.log("  Change Orders by status:");
   for (const r of cosByStatus) console.log(`    ${r.status.padEnd(22)} ${r.n}`);
-  console.log(`  Products Affected rows: ${productsAffected[0].n}`);
-  console.log(`  BOM change rows:        ${bomChanges[0].n}`);
-  console.log(`  BOM change assemblies:  ${assemblies[0].n}`);
+  console.log(`  Affected items:         ${affectedItems[0].n}`);
+  console.log(`  Staged materials:       ${stagedMaterials[0].n}`);
+  console.log(`  Staged operations:      ${stagedOperations[0].n}`);
+  console.log(`  Supersessions:          ${supersessions[0].n}`);
   console.log(`  Action tasks:           ${actions[0].n}`);
   console.log("========================================\n");
 }

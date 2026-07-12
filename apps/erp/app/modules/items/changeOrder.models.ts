@@ -131,65 +131,105 @@ export const changeOrderStatusValidator = z.object({
 });
 
 // =============================================================================
-// Phase 2 — change content (Products Affected, BOM change rows, Actions)
+// Top-to-bottom change content — affected items + staged BOM/BOP/attributes +
+// supersession. The user selects affected parts first, then edits each part's
+// method/attributes staged in CO-owned tables (full desired end-state, git-style).
+// All validators are flat objects (no discriminated unions / heavy generics) to
+// stay clear of TS2589 when threaded through @carbon/form's `validator()`.
 // =============================================================================
 
-// Products Affected are DERIVED (not hand-entered) — the top-level products the
-// CO's BOM-change assemblies roll up into; they drive the Implementation
-// effectivity-version list. Recomputed by `syncChangeOrderProductsAffected`, so
-// there is no user-facing validator/form for them.
-
-// BOM change rows are part-first. A discriminated union on changeType (G8) so an
-// Add row structurally can't be a Delete and vice-versa:
-//   - Delete: targets an EXISTING part being removed from assemblies.
-//   - Add: an existing part, OR a forward-reference to a not-yet-synced part
-//     (newItemReadableId + newItemName) which the service mints as a real
-//     inactive item (G3 — no nullable placeholder threading).
-// Per-assembly quantity + supersession mode live on the assembly rows below.
-// A single flat object (not a discriminatedUnion of ZodEffects): the union form
-// is structurally nicer but, threaded through @carbon/form's `validator()`
-// generics, its type instantiation is heavy enough to trip TS2589 elsewhere. The
-// superRefine enforces the same rules — a Delete row targets an existing part; an
-// Add row is either an existing part or a forward-reference (id + name) that the
-// service mints (G3/G8 intent preserved at runtime).
-export const changeOrderBomChangeValidator = z
-  .object({
-    id: zfd.text(z.string().optional()),
-    changeOrderId: z.string().min(1, { message: "Change order is required" }),
-    changeType: z.enum(["Add", "Delete"]),
-    itemId: zfd.text(z.string().optional()),
-    newItemReadableId: zfd.text(z.string().optional()),
-    newItemName: zfd.text(z.string().optional())
-  })
-  .superRefine((d, ctx) => {
-    if (d.changeType === "Delete" && !d.itemId) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Part is required",
-        path: ["itemId"]
-      });
-    }
-    if (
-      d.changeType === "Add" &&
-      !d.itemId &&
-      !(d.newItemReadableId && d.newItemName)
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Select a part or provide an id and name for the new part",
-        path: ["itemId"]
-      });
-    }
-  });
-
-// Per-assembly target of a BOM change. supersessionMode is only meaningful on a
-// Delete row's assemblies; the service ignores it for Add rows.
-export const changeOrderBomChangeAssemblyValidator = z.object({
+// Affected item — the source revision the user selects to change. Adding one
+// snapshots its current method + attributes into staging (service side).
+export const changeOrderAffectedItemValidator = z.object({
   id: zfd.text(z.string().optional()),
-  bomChangeId: z.string().min(1, { message: "BOM change is required" }),
-  assemblyItemId: z.string().min(1, { message: "Assembly is required" }),
+  changeOrderId: z.string().min(1, { message: "Change order is required" }),
+  itemId: z.string().min(1, { message: "Item is required" })
+});
+
+// Per-item revision cutover config (Q3): existence of the oldRev→newRev
+// supersession is automatic at release; the user only tunes mode + dates here.
+export const changeOrderAffectedItemCutoverValidator = z.object({
+  id: z.string().min(1, { message: "Id is required" }),
+  supersessionMode: z.enum(supersessionModes),
+  discontinuationDate: zfd.text(z.string().optional()),
+  successorEffectivityDate: zfd.text(z.string().optional())
+});
+
+// Staged BOM line — mirrors methodMaterial. methodType/sourcingType are
+// re-derived from the component item by the service (advisory here). An Add of a
+// not-yet-synced part forward-references via newItemReadableId + newItemName (G3).
+export const changeOrderStagedMaterialValidator = z.object({
+  id: zfd.text(z.string().optional()),
+  changeOrderId: z.string().min(1, { message: "Change order is required" }),
+  affectedItemId: z.string().min(1, { message: "Affected item is required" }),
+  itemId: zfd.text(z.string().optional()),
+  newItemReadableId: zfd.text(z.string().optional()),
+  newItemName: zfd.text(z.string().optional()),
   quantity: zfd.numeric(z.number().gt(0, { message: "Quantity must be > 0" })),
-  supersessionMode: zfd.text(z.enum(supersessionModes).optional())
+  unitOfMeasureCode: zfd.text(z.string().optional()),
+  methodType: zfd.text(z.string().optional()),
+  sourcingType: zfd.text(z.string().optional()),
+  materialMakeMethodId: zfd.text(z.string().optional()),
+  stagedOperationId: zfd.text(z.string().optional()),
+  order: zfd.numeric(z.number().optional()),
+  itemType: zfd.text(z.string().optional()),
+  sourceMaterialId: zfd.text(z.string().optional())
+});
+
+// Staged BOP operation — mirrors the CURRENT methodOperation columns
+// (processId/workCenterId, setup/labor/machine time+unit, operationType).
+// Children (steps/params/tools) are Phase 5. Enum-typed fields are text here
+// (the DB enum column is the real guard); process/type nullable = authoring WIP.
+export const changeOrderStagedOperationValidator = z.object({
+  id: zfd.text(z.string().optional()),
+  changeOrderId: z.string().min(1, { message: "Change order is required" }),
+  affectedItemId: z.string().min(1, { message: "Affected item is required" }),
+  order: zfd.numeric(z.number().optional()),
+  operationOrder: zfd.text(z.string().optional()),
+  operationType: zfd.text(z.string().optional()),
+  processId: zfd.text(z.string().optional()),
+  workCenterId: zfd.text(z.string().optional()),
+  operationSupplierProcessId: zfd.text(z.string().optional()),
+  procedureId: zfd.text(z.string().optional()),
+  description: zfd.text(z.string().optional()),
+  setupTime: zfd.numeric(z.number().optional()),
+  setupUnit: zfd.text(z.string().optional()),
+  laborTime: zfd.numeric(z.number().optional()),
+  laborUnit: zfd.text(z.string().optional()),
+  machineTime: zfd.numeric(z.number().optional()),
+  machineUnit: zfd.text(z.string().optional()),
+  sourceOperationId: zfd.text(z.string().optional())
+});
+
+// Staged item attributes — CO-owned redline of an affected item's editable
+// fields (Q6). All optional; the exact set is finalized in Phase 3b against
+// PartProperties. One row per affected item.
+export const changeOrderStagedItemAttributesValidator = z.object({
+  id: zfd.text(z.string().optional()),
+  changeOrderId: z.string().min(1, { message: "Change order is required" }),
+  affectedItemId: z.string().min(1, { message: "Affected item is required" }),
+  name: zfd.text(z.string().optional()),
+  description: zfd.text(z.string().optional()),
+  unitOfMeasureCode: zfd.text(z.string().optional()),
+  itemTrackingType: zfd.text(z.string().optional()),
+  defaultMethodType: zfd.text(z.string().optional()),
+  replenishmentSystem: zfd.text(z.string().optional()),
+  sourcingType: zfd.text(z.string().optional()),
+  requiresInspection: zfd.checkbox(),
+  thumbnailPath: zfd.text(z.string().optional())
+});
+
+// Manual different-part supersession declaration (NOT revision cutover — that is
+// auto-generated per affected item). predecessor → successor (successor optional
+// for a pure discontinuation).
+export const changeOrderSupersessionValidator = z.object({
+  id: zfd.text(z.string().optional()),
+  changeOrderId: z.string().min(1, { message: "Change order is required" }),
+  predecessorItemId: z.string().min(1, { message: "Predecessor is required" }),
+  successorItemId: zfd.text(z.string().optional()),
+  supersessionMode: z.enum(supersessionModes),
+  discontinuationDate: zfd.text(z.string().optional()),
+  successorEffectivityDate: zfd.text(z.string().optional())
 });
 
 // Actions — freeform tasks (reuse changeOrderActionTask). Any user, any stage;
@@ -207,21 +247,27 @@ export const changeOrderActionStatusValidator = z.object({
   status: z.enum(changeOrderTaskStatus)
 });
 
-// Full-obsolescence predicate (G8 — the SINGLE place that decides whether the
-// apply writes a GLOBAL itemSupersession for a deleted part). A part is fully
-// obsoleted when the CO removes it from every assembly that currently consumes
-// it AND no Add row re-introduces it. Per-assembly supersession modes are the
-// stock instructions; this rollup is the global old→successor link.
-export function isItemFullyObsoleted(args: {
-  deleteAssemblyIds: string[];
-  assembliesUsingItem: string[];
-  isReAddedElsewhere: boolean;
-}): boolean {
-  if (args.isReAddedElsewhere) return false;
-  if (args.assembliesUsingItem.length === 0) return false;
-  const deleted = new Set(args.deleteAssemblyIds);
-  return args.assembliesUsingItem.every((id) => deleted.has(id));
-}
+// -----------------------------------------------------------------------------
+// Diff types (Q5 git-style) — one shape reused for the pre-release "tips"
+// (staged-vs-live) and the post-release revision redline (oldRev-vs-newRev).
+// -----------------------------------------------------------------------------
+export type MethodDiffStatus = "added" | "removed" | "modified" | "unchanged";
+
+export type MethodDiffEntry<T> = {
+  status: MethodDiffStatus;
+  before: T | null;
+  after: T | null;
+  // Field-level changes for a "modified" entry: { field: { before, after } }.
+  changedFields?: Record<string, { before: unknown; after: unknown }>;
+};
+
+export type ChangeOrderItemDiff = {
+  affectedItemId: string;
+  itemId: string;
+  materials: MethodDiffEntry<Record<string, unknown>>[];
+  operations: MethodDiffEntry<Record<string, unknown>>[];
+  attributes: MethodDiffEntry<Record<string, unknown>>[];
+};
 
 // -----------------------------------------------------------------------------
 // Change Order Types (the "Category" lookup — configured like Issue Types)

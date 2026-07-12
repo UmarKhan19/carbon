@@ -6,18 +6,17 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { nanoid } from "nanoid";
 import {
   activateMethodVersion,
-  copyMakeMethod,
+  assertMethodOperationIsDraft,
+  createRevision,
   deleteMethodMaterial,
-  getMethodMaterialsByMakeMethod,
+  deleteMethodOperation,
+  getItem,
+  getNextRevision,
   upsertItemSupersession,
-  upsertMakeMethodVersion,
-  upsertMethodMaterial
+  upsertMethodMaterial,
+  upsertMethodOperation
 } from "~/modules/items";
-import { isItemFullyObsoleted } from "./changeOrder.models";
-import {
-  getAssembliesUsingItem,
-  getChangeOrderBomChanges
-} from "./changeOrder.service";
+import { supersessionModes } from "./items.models";
 
 // =============================================================================
 // Change Orders — server-only helpers (imports @carbon/jobs).
@@ -57,20 +56,22 @@ export async function notifyChangeOrderTransition(args: {
 }
 
 // =============================================================================
-// applyChangeOrder — the "release" equivalent, run on the Implementation → Done
-// transition (this function IS that transition). Orchestrates Carbon's canonical
-// make-method helpers (G1) — it does NOT re-implement version lifecycle.
+// applyChangeOrder — the top-to-bottom "release", run on the Implementation →
+// Done transition (this function IS that transition). It materializes each
+// affected item's CO-staged end-state onto a NEW inactive revision, activates
+// it, then auto-writes the oldRev → newRev supersession (Q1/Q2/Q5).
 //
-// Atomicity (G2): copyMakeMethod / activateMethodVersion are edge-function
-// (functions.invoke) calls, so they cannot run inside a Kysely transaction. The
-// apply is therefore an idempotent, CAS-guarded orchestration, NOT one txn:
-//   - the final flip to 'Done' is a compare-and-swap on status='Implementation',
-//     so a re-run can't double-apply at the CO level (a Done CO returns early);
-//   - only the closing status flip is transactional.
-// Known V1 limitation: after a PARTIAL failure (some assemblies activated, CO
-// still Implementation) a re-run reprocesses every assembly and may create extra
-// draft versions — there is no per-assembly applied-marker yet. The CO-level CAS
-// still prevents a double transition to Done.
+// Atomicity (G2): createRevision + activateMethodVersion are edge-function
+// (functions.invoke → get-method / convert) calls, so this CANNOT be one Kysely
+// transaction. The apply is therefore an idempotent, CAS-guarded orchestration:
+//   - PER-AFFECTED-ITEM idempotency: each changeOrderAffectedItem gets its
+//     created revision id stamped into `newItemId` at the END of its processing.
+//     A re-run skips any affected item whose `newItemId` is already set, so a
+//     partial failure re-run resumes at the first unprocessed item instead of
+//     re-creating revisions.
+//   - CO-LEVEL idempotency: the final flip to 'Done' is a compare-and-swap on
+//     status='Implementation', so a re-run can't double-transition the CO; only
+//     the closing status flip is transactional.
 // =============================================================================
 export async function applyChangeOrder(
   client: SupabaseClient<Database>,
@@ -94,204 +95,62 @@ export async function applyChangeOrder(
       error: { message: "Change order must be at Implementation to apply" }
     };
   }
-  const effectiveFrom =
+  const effectiveDate =
     co.data.effectiveDate ?? new Date().toISOString().split("T")[0];
 
-  const bom = await getChangeOrderBomChanges(client, changeOrderId, companyId);
-  if (bom.error) return { data: null, error: { message: bom.error.message } };
-  const rows = bom.data ?? [];
-
-  // Resolve each targeted assembly's active make method ONCE, up front — shared
-  // by the pre-flight validation and the apply loop (one lookup per assembly).
-  const activeByAssembly = new Map<
-    string,
-    { id: string; version: number } | null
-  >();
-  for (const assemblyItemId of new Set(
-    rows.flatMap((r) => r.assemblies.map((a) => a.assemblyItemId))
-  )) {
-    const active = await client
-      .from("activeMakeMethods")
-      .select("id, version")
-      .eq("itemId", assemblyItemId)
-      .eq("companyId", companyId)
-      .maybeSingle();
-    if (active.error) return { data: null, error: active.error };
-    activeByAssembly.set(
-      assemblyItemId,
-      active.data?.id
-        ? { id: active.data.id, version: active.data.version ?? 1 }
-        : null
-    );
+  // Load the affected items with the per-item cutover config. `newItemId` is the
+  // idempotency marker — a non-null value means this item was already released.
+  const affectedItems = await client
+    .from("changeOrderAffectedItem")
+    .select(
+      "id, itemId, newItemId, supersessionMode, discontinuationDate, successorEffectivityDate"
+    )
+    .eq("changeOrderId", changeOrderId)
+    .eq("companyId", companyId)
+    .order("sortOrder", { ascending: true })
+    .order("createdAt", { ascending: true });
+  if (affectedItems.error) {
+    return { data: null, error: affectedItems.error };
   }
 
-  // Pre-flight validation (plan §3b): a Delete target must be applicable — the
-  // targeted assembly must have an Active make method AND that method must
-  // currently carry the part being removed. Without this, a mismatched Delete
-  // would silently no-op below (skip an assembly with no method / find no
-  // material to delete) and the CO would flip to Done having changed nothing.
-  const deleteRowsToValidate = rows.filter((r) => r.changeType === "Delete");
-  const problems: string[] = [];
-  for (const row of deleteRowsToValidate) {
-    for (const asm of row.assemblies) {
-      const active = activeByAssembly.get(asm.assemblyItemId);
-      if (!active) {
-        problems.push(
-          `Assembly ${asm.assemblyItemId} has no active make method to remove ${row.itemId} from`
-        );
-        continue;
-      }
-      const materials = await getMethodMaterialsByMakeMethod(client, active.id);
-      const present = (materials.data ?? []).some(
-        (m) => m.itemId === row.itemId
-      );
-      if (!present) {
-        problems.push(
-          `${row.itemId} is not on the active method of assembly ${asm.assemblyItemId}`
-        );
-      }
-    }
-  }
-  if (problems.length > 0) {
-    return { data: null, error: { message: problems.join("; ") } };
-  }
+  for (const affected of affectedItems.data ?? []) {
+    // Idempotent skip: this affected item already produced a revision.
+    if (affected.newItemId) continue;
 
-  // Group the row ops by the assembly they target: deletes remove that part's
-  // methodMaterial, adds insert a new methodMaterial (qty per assembly).
-  const assemblyOps = new Map<
-    string,
-    { deletes: Set<string>; adds: Array<{ itemId: string; quantity: number }> }
-  >();
-  for (const row of rows) {
-    for (const asm of row.assemblies) {
-      const ops = assemblyOps.get(asm.assemblyItemId) ?? {
-        deletes: new Set<string>(),
-        adds: []
-      };
-      if (row.changeType === "Delete") ops.deletes.add(row.itemId);
-      else ops.adds.push({ itemId: row.itemId, quantity: asm.quantity });
-      assemblyOps.set(asm.assemblyItemId, ops);
-    }
-  }
-
-  // Per-assembly: spin a Draft version off the current Active method, copy its
-  // BOM/BOP, apply the row ops on the draft, then activate (Draft→Active).
-  for (const [assemblyItemId, ops] of assemblyOps) {
-    const active = activeByAssembly.get(assemblyItemId);
-    if (!active) continue; // no make method on this assembly — skip
-
-    const version = await upsertMakeMethodVersion(client, {
-      copyFromId: active.id,
-      version: active.version + 1,
+    const result = await releaseAffectedItem(client, {
+      changeOrderId,
       companyId,
-      createdBy: userId
+      userId,
+      effectiveDate,
+      affected
     });
-    if (version.error || !version.data?.id) {
-      return {
-        data: null,
-        error: { message: "Failed to create method version" }
-      };
-    }
-    const draftId = version.data.id;
-
-    const copy = await copyMakeMethod(client, {
-      sourceId: active.id,
-      targetId: draftId,
-      billOfMaterial: true,
-      billOfProcess: true,
-      parameters: true,
-      tools: true,
-      steps: true,
-      workInstructions: true,
-      companyId,
-      userId
-    });
-    if (copy.error)
-      return { data: null, error: { message: "Failed to copy method" } };
-
-    const materials = await getMethodMaterialsByMakeMethod(client, draftId);
-    const draftMaterials = materials.data ?? [];
-    for (const m of draftMaterials) {
-      if (m.itemId && ops.deletes.has(m.itemId)) {
-        const del = await deleteMethodMaterial(client, m.id);
-        if (del.error) {
-          return {
-            data: null,
-            error: { message: "Failed to remove material" }
-          };
-        }
-      }
-    }
-
-    let order = draftMaterials.length + 1;
-    for (const add of ops.adds) {
-      const upsert = await upsertMethodMaterial(client, {
-        id: nanoid(),
-        makeMethodId: draftId,
-        itemId: add.itemId,
-        quantity: add.quantity,
-        unitOfMeasureCode: "EA",
-        order: order++,
-        itemType: "Part",
-        // methodType / sourcingType are re-derived from the component item by
-        // upsertMethodMaterial; these satisfy the validator shape only.
-        methodType: "Pull from Inventory",
-        sourcingType: "Specified",
-        kit: false,
-        storageUnitIds: {} as unknown as Record<string, string>,
-        effectiveFrom,
-        companyId,
-        createdBy: userId
-      });
-      if (upsert.error) {
-        return { data: null, error: { message: "Failed to add material" } };
-      }
-    }
-
-    const activate = await activateMethodVersion(client, {
-      id: draftId,
-      companyId,
-      userId
-    });
-    if (activate.error) {
-      return { data: null, error: { message: "Failed to activate method" } };
-    }
+    if (result.error) return { data: null, error: result.error };
   }
 
-  // Supersession (G8 predicate): write a GLOBAL itemSupersession only for a
-  // deleted part that is fully obsoleted (removed from every assembly using it
-  // and not re-added). The per-assembly modes remain the recorded stock
-  // instructions on the CO.
-  const deleteRows = rows.filter((r) => r.changeType === "Delete");
-  const addRows = rows.filter((r) => r.changeType === "Add");
-  // Successor link is recorded only for an unambiguous 1→1 replacement (V1
-  // single-swap): with multiple distinct added parts we can't say which one
-  // succeeds an obsoleted part, so we record the discontinuation without an
-  // auto-successor rather than arbitrarily pick the first Add row.
-  const addItemIds = [...new Set(addRows.map((r) => r.itemId))];
-  const successorItemId = addItemIds.length === 1 ? addItemIds[0] : undefined;
-  for (const del of deleteRows) {
-    const using = await getAssembliesUsingItem(client, del.itemId, companyId);
-    const fullyObsoleted = isItemFullyObsoleted({
-      deleteAssemblyIds: del.assemblies.map((a) => a.assemblyItemId),
-      assembliesUsingItem: (using.data ?? []).map((a) => a.assemblyId),
-      isReAddedElsewhere: addRows.some((a) => a.itemId === del.itemId)
-    });
-    if (!fullyObsoleted) continue;
-    const mode = del.assemblies.find(
-      (a) => a.supersessionMode
-    )?.supersessionMode;
-    const sup = await upsertItemSupersession(client, {
-      itemId: del.itemId,
-      successorItemId,
-      supersessionMode: mode ?? undefined,
-      discontinuationDate: effectiveFrom,
-      successorEffectivityDate: effectiveFrom,
+  // Manual different-part supersessions (declared on the CO, not revision
+  // cutover). Written after all revisions exist so successors resolve.
+  const supersessions = await client
+    .from("changeOrderSupersession")
+    .select(
+      "predecessorItemId, successorItemId, supersessionMode, discontinuationDate, successorEffectivityDate"
+    )
+    .eq("changeOrderId", changeOrderId)
+    .eq("companyId", companyId);
+  if (supersessions.error) return { data: null, error: supersessions.error };
+  for (const sup of supersessions.data ?? []) {
+    const written = await upsertItemSupersession(client, {
+      itemId: sup.predecessorItemId,
+      successorItemId: sup.successorItemId ?? undefined,
+      supersessionMode: normalizeSupersessionMode(sup.supersessionMode),
+      discontinuationDate: sup.discontinuationDate ?? effectiveDate,
+      successorEffectivityDate: sup.successorEffectivityDate ?? effectiveDate,
       companyId,
       createdBy: userId,
       updatedBy: userId
     });
-    if (sup.error) console.error("Failed to write supersession", sup.error);
+    if (written.error) {
+      console.error("Failed to write manual supersession", written.error);
+    }
   }
 
   // Final compare-and-swap: Implementation → Done (the only transactional write).
@@ -320,4 +179,390 @@ export async function applyChangeOrder(
   }
 
   return { data: { id: changeOrderId }, error: null };
+}
+
+// -----------------------------------------------------------------------------
+// releaseAffectedItem — the 7-step per-item release (see applyChangeOrder).
+// -----------------------------------------------------------------------------
+async function releaseAffectedItem(
+  client: SupabaseClient<Database>,
+  input: {
+    changeOrderId: string;
+    companyId: string;
+    userId: string;
+    effectiveDate: string;
+    affected: {
+      id: string;
+      itemId: string;
+      supersessionMode: Database["public"]["Enums"]["supersessionMode"] | null;
+      discontinuationDate: string | null;
+      successorEffectivityDate: string | null;
+    };
+  }
+): Promise<{ error: { message: string } | null }> {
+  const { changeOrderId, companyId, userId, effectiveDate, affected } = input;
+  const sourceItemId = affected.itemId;
+
+  // Load the full source item row (createRevision copies its core fields +
+  // modelUploadId, i.e. the drawing/CAD reference, onto the new revision).
+  const source = await getItem(client, sourceItemId);
+  if (source.error || !source.data) {
+    return { error: { message: "Failed to load source item" } };
+  }
+  const sourceItem = source.data;
+  const isBuy = sourceItem.replenishmentSystem === "Buy";
+
+  // ---- Step 1: create the new inactive revision -----------------------------
+  // Derive the next revision letter from the source's sibling revisions (same
+  // readableId + type + company), reusing getNextRevision (the same helper the
+  // manual "New Revision" flow uses via the type-table version switcher).
+  const nextRevision = await computeNextRevision(client, sourceItem, companyId);
+  if (nextRevision.error) return { error: nextRevision.error };
+
+  const revision = await createRevision(client, {
+    item: sourceItem,
+    revision: nextRevision.data,
+    active: false,
+    createdBy: userId
+  });
+  if (revision.error || !revision.data?.id) {
+    return { error: { message: "Failed to create revision" } };
+  }
+  const newItemId = revision.data.id;
+
+  // The new revision's auto-created make method is Draft (create_make_method
+  // trigger default). For non-Buy items createRevision copied the source method
+  // into it. Resolve it so we can materialize the staged end-state onto it.
+  let draftMakeMethodId: string | null = null;
+  if (!isBuy) {
+    const draft = await client
+      .from("makeMethod")
+      .select("id")
+      .eq("itemId", newItemId)
+      .eq("companyId", companyId)
+      .eq("status", "Draft")
+      .order("version", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (draft.error) return { error: draft.error };
+    draftMakeMethodId = draft.data?.id ?? null;
+  }
+
+  // ---- Step 2: materialize the staged end-state onto the Draft method -------
+  // Q5 end-state (not delta-replay): the staged rows ARE the desired method.
+  if (draftMakeMethodId) {
+    const materialized = await materializeMethod(client, {
+      affectedItemId: affected.id,
+      draftMakeMethodId,
+      companyId,
+      userId
+    });
+    if (materialized.error) return { error: materialized.error };
+  }
+
+  // ---- Step 3: apply staged attributes onto the new revision item -----------
+  const attributes = await applyStagedAttributes(client, {
+    affectedItemId: affected.id,
+    newItemId,
+    companyId,
+    userId
+  });
+  if (attributes.error) return { error: attributes.error };
+
+  // ---- Step 4: activate the Draft method (Make items only) ------------------
+  if (draftMakeMethodId) {
+    const activated = await activateMethodVersion(client, {
+      id: draftMakeMethodId,
+      companyId,
+      userId
+    });
+    if (activated.error) {
+      return { error: { message: "Failed to activate method" } };
+    }
+  }
+
+  // ---- Step 5: flip the new revision active + stamp its originating CO -------
+  const activate = await client
+    .from("item")
+    .update({
+      active: true,
+      changeOrderId,
+      updatedBy: userId,
+      updatedAt: new Date().toISOString()
+    })
+    .eq("id", newItemId)
+    .eq("companyId", companyId);
+  if (activate.error) return { error: activate.error };
+
+  // ---- Step 6: auto-write the oldRev → newRev supersession ------------------
+  const sup = await upsertItemSupersession(client, {
+    itemId: sourceItemId,
+    successorItemId: newItemId,
+    supersessionMode: normalizeSupersessionMode(affected.supersessionMode),
+    discontinuationDate: affected.discontinuationDate ?? effectiveDate,
+    successorEffectivityDate:
+      affected.successorEffectivityDate ?? effectiveDate,
+    companyId,
+    createdBy: userId,
+    updatedBy: userId
+  });
+  if (sup.error) {
+    console.error("Failed to write revision supersession", sup.error);
+  }
+
+  // ---- Step 7: stamp newItemId (per-item idempotency marker) ----------------
+  const marker = await client
+    .from("changeOrderAffectedItem")
+    .update({
+      newItemId,
+      updatedBy: userId,
+      updatedAt: new Date().toISOString()
+    })
+    .eq("id", affected.id)
+    .eq("companyId", companyId);
+  if (marker.error) return { error: marker.error };
+
+  return { error: null };
+}
+
+// Derive the next revision string from the source's sibling revisions. Siblings
+// share readableId + type + company (revision-system.md). getNextRevision does
+// the numeric/alpha bump (…0→1, A→B, Z→AA). Pick the max sibling revision.
+async function computeNextRevision(
+  client: SupabaseClient<Database>,
+  sourceItem: {
+    readableId: string;
+    type: Database["public"]["Enums"]["itemType"];
+  },
+  companyId: string
+): Promise<{ data: string; error: { message: string } | null }> {
+  const siblings = await client
+    .from("item")
+    .select("revision")
+    .eq("readableId", sourceItem.readableId)
+    .eq("type", sourceItem.type)
+    .eq("companyId", companyId);
+  if (siblings.error) return { data: "", error: siblings.error };
+
+  const revisions = (siblings.data ?? [])
+    .map((r) => r.revision)
+    .filter((r): r is string => !!r);
+  // Prefer the max NAMED (alpha) revision, else the max numeric, mirroring the
+  // list view's "named beats initial" ordering. getNextRevision handles both.
+  const alpha = revisions.filter((r) => /^[A-Z]{1,2}$/.test(r)).sort();
+  const numeric = revisions
+    .filter((r) => /^\d+$/.test(r))
+    .sort((a, b) => Number(a) - Number(b));
+  const max =
+    alpha.length > 0
+      ? alpha[alpha.length - 1]
+      : (numeric[numeric.length - 1] ?? "0");
+  return { data: getNextRevision(max), error: null };
+}
+
+// Materialize staged operations + materials onto the new revision's Draft
+// method (Q5 end-state — a FULL replace, not delta-replay). createRevision
+// copied the source method into the Draft; that copy produces fresh op/material
+// ids with NO back-pointer to the source, so the staged rows' sourceOperationId
+// / sourceMaterialId cannot be mapped onto the copied Draft rows. We therefore
+// wipe the copied Draft method and re-insert the staged end-state verbatim.
+// Operations FIRST (materials reference them via stagedOperationId → the new
+// methodOperation id, kept in a map). No per-line effectiveFrom (revision-level
+// cutover is handled by the supersession in step 6).
+async function materializeMethod(
+  client: SupabaseClient<Database>,
+  input: {
+    affectedItemId: string;
+    draftMakeMethodId: string;
+    companyId: string;
+    userId: string;
+  }
+): Promise<{ error: { message: string } | null }> {
+  const { affectedItemId, draftMakeMethodId, companyId, userId } = input;
+
+  // --- Operations: wipe the copied Draft ops, then re-insert every staged op --
+  const [stagedOps, draftOps] = await Promise.all([
+    client
+      .from("changeOrderStagedOperation")
+      .select("*")
+      .eq("affectedItemId", affectedItemId)
+      .eq("companyId", companyId)
+      .order("order", { ascending: true }),
+    client
+      .from("methodOperation")
+      .select("id")
+      .eq("makeMethodId", draftMakeMethodId)
+      .eq("companyId", companyId)
+  ]);
+  if (stagedOps.error) return { error: stagedOps.error };
+  if (draftOps.error) return { error: draftOps.error };
+
+  // The Draft method is fresh (just created by createRevision), but guard each
+  // delete with assertMethodOperationIsDraft (throws on Active/Archived) as a
+  // defense-in-depth invariant before removing a copied op.
+  for (const op of draftOps.data ?? []) {
+    try {
+      await assertMethodOperationIsDraft(client, op.id);
+    } catch (err) {
+      return {
+        error: {
+          message: err instanceof Error ? err.message : "Operation not Draft"
+        }
+      };
+    }
+    const del = await deleteMethodOperation(client, op.id);
+    if (del.error) return { error: del.error };
+  }
+
+  // Insert every staged op. Keep stagedOpId → new methodOperation id for the
+  // material → operation link.
+  const stagedOpToNewOpId = new Map<string, string>();
+  for (const op of stagedOps.data ?? []) {
+    const written = await upsertMethodOperation(client, {
+      // Cast: the staged columns mirror methodOperation; the validator-shaped
+      // insert type is narrower than the raw row, and the DB enum columns are
+      // the real guard.
+      id: nanoid(),
+      makeMethodId: draftMakeMethodId,
+      order: op.order,
+      operationOrder: op.operationOrder,
+      operationType: op.operationType,
+      processId: op.processId ?? "",
+      workCenterId: op.workCenterId ?? undefined,
+      operationSupplierProcessId: op.operationSupplierProcessId ?? undefined,
+      procedureId: op.procedureId ?? undefined,
+      description: op.description ?? "",
+      setupTime: op.setupTime ?? undefined,
+      setupUnit: op.setupUnit ?? undefined,
+      laborTime: op.laborTime ?? undefined,
+      laborUnit: op.laborUnit ?? undefined,
+      machineTime: op.machineTime ?? undefined,
+      machineUnit: op.machineUnit ?? undefined,
+      companyId,
+      createdBy: userId
+    } as never);
+    if (written.error || !written.data?.id) {
+      return { error: { message: "Failed to materialize operation" } };
+    }
+    stagedOpToNewOpId.set(op.id, written.data.id);
+  }
+
+  // --- Materials: wipe the copied Draft materials, then re-insert staged set --
+  const [stagedMaterials, draftMaterials] = await Promise.all([
+    client
+      .from("changeOrderStagedMaterial")
+      .select("*")
+      .eq("affectedItemId", affectedItemId)
+      .eq("companyId", companyId)
+      .order("order", { ascending: true }),
+    client
+      .from("methodMaterial")
+      .select("id")
+      .eq("makeMethodId", draftMakeMethodId)
+      .eq("companyId", companyId)
+  ]);
+  if (stagedMaterials.error) return { error: stagedMaterials.error };
+  if (draftMaterials.error) return { error: draftMaterials.error };
+
+  for (const m of draftMaterials.data ?? []) {
+    const del = await deleteMethodMaterial(client, m.id);
+    if (del.error) return { error: del.error };
+  }
+
+  for (const m of stagedMaterials.data ?? []) {
+    const newOperationId = m.stagedOperationId
+      ? stagedOpToNewOpId.get(m.stagedOperationId)
+      : undefined;
+
+    const written = await upsertMethodMaterial(client, {
+      // upsertMethodMaterial re-derives methodType/sourcingType from the
+      // component item; the values here only satisfy the validator shape (the
+      // staged columns are DB `string`, narrower than the zod enums — cast).
+      id: nanoid(),
+      makeMethodId: draftMakeMethodId,
+      itemId: m.itemId,
+      quantity: m.quantity,
+      unitOfMeasureCode: m.unitOfMeasureCode ?? "EA",
+      order: m.order,
+      itemType: (m.itemType ?? "Part") as never,
+      methodType: m.methodType as never,
+      sourcingType: m.sourcingType as never,
+      materialMakeMethodId: m.materialMakeMethodId ?? undefined,
+      methodOperationId: newOperationId,
+      kit: false,
+      storageUnitIds: {} as unknown as Record<string, string>,
+      companyId,
+      createdBy: userId
+    } as never);
+    if (written.error) {
+      return { error: { message: "Failed to materialize material" } };
+    }
+  }
+
+  return { error: null };
+}
+
+// Apply the staged attribute redline onto the new revision's item columns.
+// Only item-table columns are staged (name/description/uom/tracking/method/
+// sourcing/inspection/thumbnail); no extension-table writes needed. Buy items
+// with no method still get their attributes applied here.
+async function applyStagedAttributes(
+  client: SupabaseClient<Database>,
+  input: {
+    affectedItemId: string;
+    newItemId: string;
+    companyId: string;
+    userId: string;
+  }
+): Promise<{ error: { message: string } | null }> {
+  const { affectedItemId, newItemId, companyId, userId } = input;
+  const staged = await client
+    .from("changeOrderStagedItemAttributes")
+    .select("*")
+    .eq("affectedItemId", affectedItemId)
+    .eq("companyId", companyId)
+    .maybeSingle();
+  if (staged.error) return { error: staged.error };
+  if (!staged.data) return { error: null };
+
+  const a = staged.data;
+  // Build an update of only the mirrored item columns that were staged.
+  const update: Database["public"]["Tables"]["item"]["Update"] = {
+    updatedBy: userId,
+    updatedAt: new Date().toISOString()
+  };
+  if (a.name != null) update.name = a.name;
+  if (a.description != null) update.description = a.description;
+  if (a.unitOfMeasureCode != null)
+    update.unitOfMeasureCode = a.unitOfMeasureCode;
+  if (a.itemTrackingType != null)
+    update.itemTrackingType =
+      a.itemTrackingType as Database["public"]["Enums"]["itemTrackingType"];
+  if (a.defaultMethodType != null)
+    update.defaultMethodType = a.defaultMethodType;
+  if (a.replenishmentSystem != null)
+    update.replenishmentSystem =
+      a.replenishmentSystem as Database["public"]["Enums"]["itemReplenishmentSystem"];
+  if (a.sourcingType != null) update.sourcingType = a.sourcingType;
+  if (a.requiresInspection != null)
+    update.requiresInspection = a.requiresInspection;
+  if (a.thumbnailPath != null) update.thumbnailPath = a.thumbnailPath;
+
+  const written = await client
+    .from("item")
+    .update(update)
+    .eq("id", newItemId)
+    .eq("companyId", companyId);
+  if (written.error) return { error: written.error };
+  return { error: null };
+}
+
+// Coerce a possibly-null DB supersession mode to a valid enum member, defaulting
+// to 'Consume First' (Q3 default) when unset/invalid.
+function normalizeSupersessionMode(
+  mode: string | null | undefined
+): Database["public"]["Enums"]["supersessionMode"] {
+  return (supersessionModes as readonly string[]).includes(mode ?? "")
+    ? (mode as Database["public"]["Enums"]["supersessionMode"])
+    : "Consume First";
 }

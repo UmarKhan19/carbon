@@ -333,6 +333,9 @@ msgstr "Un insieme di aziende sotto un unico proprietario che condividono una co
 msgid "A shipment line sent straight from supplier to customer, bypassing your warehouse — set per line, not on the header."
 msgstr "Una linea di spedizione inviata direttamente dal fornitore al cliente, ignorando il tuo magazzino — impostata per riga, non nell'intestazione."
 
+msgid "A summary of every staged change in this change order."
+msgstr ""
+
 msgid "A supplier's priced response to a purchasing RFQ — one per supplier; Draft → Active when they submit, or Declined."
 msgstr "La risposta con prezzo di un fornitore a un RFQ di acquisto — una per fornitore ; Bozza → Attivo quando presentano, o Rifiutato."
 
@@ -573,20 +576,17 @@ msgstr "Aggiungi un passaggio"
 msgid "Add Actions"
 msgstr "Aggiungi Azioni"
 
-msgid "Add add row"
-msgstr "Aggiungi riga"
-
 msgid "Add Adjustment"
 msgstr "Aggiungi rettifica"
+
+msgid "Add affected item"
+msgstr ""
 
 msgid "Add any notes about your decision..."
 msgstr "Aggiungi eventuali note sulla tua decisione..."
 
 msgid "Add Approval Requirement"
 msgstr "Aggiungi Requisito di Approvazione"
-
-msgid "Add assembly"
-msgstr "Aggiungi assieme"
 
 msgid "Add Calibration Record"
 msgstr "Aggiungi Record di Calibrazione"
@@ -602,9 +602,6 @@ msgstr "Aggiungi condizione"
 
 msgid "Add Contractor"
 msgstr "Aggiungi Appaltatore"
-
-msgid "Add delete row"
-msgstr "Aggiungi riga di eliminazione"
 
 msgid "Add Entry"
 msgstr "Aggiungi Voce"
@@ -627,6 +624,9 @@ msgstr "Aggiungi Riga"
 msgid "Add Line Item"
 msgstr "Aggiungi Voce"
 
+msgid "Add material"
+msgstr ""
+
 msgid "Add Note"
 msgstr "Aggiungi Nota"
 
@@ -647,9 +647,6 @@ msgstr "Aggiungi Parametro"
 
 msgid "Add Partner"
 msgstr "Aggiungi Partner"
-
-msgid "Add parts"
-msgstr "Aggiungi parti"
 
 msgid "Add Permissions"
 msgstr "Aggiungi Autorizzazioni"
@@ -715,6 +712,9 @@ msgstr "Componente aggiuntivo"
 msgid "Add-On Cost"
 msgstr "Costo Aggiuntivo"
 
+msgid "Added"
+msgstr ""
+
 msgid "Added for this customer"
 msgstr "Aggiunto per questo cliente"
 
@@ -741,6 +741,9 @@ msgstr "Avanzate"
 
 msgid "Affected assemblies"
 msgstr "Assiemi interessati"
+
+msgid "Affected Items"
+msgstr ""
 
 msgid "After"
 msgstr "Dopo"
@@ -1412,9 +1415,6 @@ msgstr "Chiedi a un amministratore con autorizzazione {0} di aggiungere il primo
 msgid "Assemblies"
 msgstr "Assiemi"
 
-msgid "Assembly"
-msgstr "Assieme"
-
 msgid "Assembly Instructions"
 msgstr "Istruzioni di Montaggio"
 
@@ -1749,9 +1749,6 @@ msgstr "BoM"
 
 msgid "BoM + BoP"
 msgstr "BoM + BoP"
-
-msgid "BOM Changes"
-msgstr "Modifiche BOM"
 
 msgid "BOM synced successfully"
 msgstr "BOM sincronizzato con successo"
@@ -3251,6 +3248,9 @@ msgstr "Passa al nuovo sistema, blocca il vecchio sistema e conferma che sei liv
 msgid "Cutover checklist"
 msgstr "Elenco di controllo della migrazione"
 
+msgid "Cutover mode"
+msgstr ""
+
 msgid "Cutover step"
 msgstr "Fase di cutover"
 
@@ -3621,9 +3621,6 @@ msgstr "Elimina Parte"
 msgid "Delete Partner"
 msgstr "Elimina Partner"
 
-msgid "Delete parts"
-msgstr "Elimina parti"
-
 msgid "Delete Payment"
 msgstr "Elimina Pagamento"
 
@@ -3838,9 +3835,6 @@ msgstr "Data di Inizio Ammortamento"
 msgid "Derive this item's shelf life from the shortest shelf life of its components, ignoring the Days field above."
 msgstr "Deriva la vita utile di questo articolo dalla vita utile più breve dei suoi componenti, ignorando il campo Giorni sopra."
 
-msgid "Derived automatically from the BOM changes below."
-msgstr "Derivato automaticamente dalle modifiche BOM di seguito."
-
 msgid "Description"
 msgstr "Descrizione"
 
@@ -3898,8 +3892,14 @@ msgstr "Disabilitato"
 msgid "Discard"
 msgstr "Scarta"
 
+msgid "Discontinuation date"
+msgstr ""
+
 msgid "Discontinuation Date"
 msgstr "Data di interruzione"
+
+msgid "Discontinued"
+msgstr ""
 
 msgid "Discount"
 msgstr "Sconto"
@@ -5133,9 +5133,6 @@ msgstr "Impossibile caricare i dettagli della parte fornitore"
 msgid "Failed to load tracked entities"
 msgstr "Impossibile caricare le entità tracciate"
 
-msgid "Failed to remove assembly"
-msgstr "Impossibile rimuovere l'assieme"
-
 msgid "Failed to remove image: {errorMessage}"
 msgstr "Impossibile rimuovere l'immagine: {errorMessage}"
 
@@ -5144,9 +5141,6 @@ msgstr "Impossibile rimuovere la miniatura del modello"
 
 msgid "Failed to remove purchase order"
 msgstr "Impossibile rimuovere l'ordine di acquisto"
-
-msgid "Failed to remove row"
-msgstr "Impossibile rimuovere la riga"
 
 msgid "Failed to remove thumbnail"
 msgstr "Impossibile rimuovere l'anteprima"
@@ -7280,6 +7274,9 @@ msgstr "Fornitori Mancanti"
 msgid "Mobile Phone"
 msgstr "Telefono Mobile"
 
+msgid "Mode"
+msgstr ""
+
 msgid "Model data is missing"
 msgstr "I dati del modello sono mancanti"
 
@@ -7300,6 +7297,9 @@ msgstr "Modello rimosso dal lavoro"
 
 msgid "Model removed from line"
 msgstr "Modello rimosso dalla riga"
+
+msgid "Modified"
+msgstr ""
 
 msgid "Module"
 msgstr "Modulo"
@@ -7573,15 +7573,6 @@ msgstr "Nuovo Proprietario"
 msgid "New Part"
 msgstr "Nuova Parte"
 
-msgid "New part (not yet synced)"
-msgstr "Nuova parte (non ancora sincronizzata)"
-
-msgid "New part id"
-msgstr "Nuovo ID parte"
-
-msgid "New part name"
-msgstr "Nuovo nome parte"
-
 msgid "New Password"
 msgstr "Nuova Password"
 
@@ -7779,15 +7770,15 @@ msgstr "Nessun indirizzo trovato"
 msgid "No affected assemblies yet."
 msgstr "Nessun assieme interessato ancora."
 
+msgid "No affected items yet — add a part or tool below."
+msgstr ""
+
 msgid "No applications. Payment will be on-account."
 msgstr "Nessuna applicazione. Il pagamento sarà a conto."
 
 #. placeholder {0}: auditConfig.retentionDays
 msgid "No archived logs yet. Logs older than {0} days will be automatically archived and available for download here."
 msgstr "Nessun log archiviato ancora. I log più vecchi di {0} giorni verranno archiviati automaticamente e disponibili per il download qui."
-
-msgid "No assemblies targeted yet."
-msgstr "Nessun assieme selezionato ancora."
 
 msgid "No attachments."
 msgstr "Nessun allegato."
@@ -7806,6 +7797,9 @@ msgstr "Nessun record di calibrazione trovato"
 
 msgid "No changes recorded"
 msgstr "Nessuna modifica registrata"
+
+msgid "No changes staged yet."
+msgstr ""
 
 msgid "No comments yet. Be the first to add a comment."
 msgstr "Nessun commento ancora. Sii il primo ad aggiungere un commento."
@@ -7903,6 +7897,9 @@ msgstr "Nessuna corrispondenza per \"{query}\". Prova un termine di ricerca dive
 msgid "No matches. Type to create one."
 msgstr "Nessuna corrispondenza. Digita per crearne uno."
 
+msgid "No materials staged for this item."
+msgstr ""
+
 msgid "No new notifications"
 msgstr "Nessuna nuova notifica"
 
@@ -7917,6 +7914,9 @@ msgstr "Nessun ordine di acquisto aperto per parti eliminate"
 
 msgid "No operations require picking at this location"
 msgstr "Nessuna operazione richiede il prelievo in questa posizione"
+
+msgid "No operations staged for this item."
+msgstr ""
 
 msgid "No operators."
 msgstr "Nessun operatore."
@@ -7942,12 +7942,6 @@ msgstr "Nessuna fonte padre registrata ancora. Fai clic su Ricalcola nella pagin
 msgid "No part ID"
 msgstr "Nessun ID parte"
 
-msgid "No parts to add."
-msgstr "Nessuna parte da aggiungere."
-
-msgid "No parts to delete."
-msgstr "Nessuna parte da eliminare."
-
 msgid "No payables"
 msgstr "Nessun debito"
 
@@ -7968,9 +7962,6 @@ msgstr "Nessuna stampante configurata"
 
 msgid "No printers configured. Click \"Add Printer\" to create one."
 msgstr "Nessuna stampante configurata. Fai clic su \"Aggiungi stampante\" per crearne una."
-
-msgid "No products affected yet — add a BOM change to populate this."
-msgstr "Nessun prodotto interessato ancora — aggiungi una modifica BOM per popolare questo."
 
 msgid "No products affected yet."
 msgstr "Nessun prodotto interessato ancora."
@@ -8011,11 +8002,17 @@ msgstr "Nessun numero unico e affidabile per l'inventario o lo stato del lavoro"
 msgid "No sorts applied to this view"
 msgstr "Nessun ordinamento applicato a questa visualizzazione"
 
+msgid "No staged attributes for this item."
+msgstr ""
+
 msgid "No stock"
 msgstr "Nessun stock"
 
 msgid "No stockout projected in the next 48 weeks"
 msgstr "Nessuna esaurimento previsto nelle prossime 48 settimane"
+
+msgid "No supersessions declared."
+msgstr ""
 
 msgid "No suppliers yet"
 msgstr "Nessun fornitore ancora"
@@ -8091,9 +8088,6 @@ msgstr "Non ha iniziato l'addestramento per"
 
 msgid "Not yet"
 msgstr "Non ancora"
-
-msgid "Not yet synced"
-msgstr "Non ancora sincronizzato"
 
 msgid "Not you?"
 msgstr "Non sei tu?"
@@ -8712,14 +8706,14 @@ msgstr "Seleziona un cliente o un tipo di cliente per visualizzare i loro prezzi
 msgid "Pick a date or leave blank to clear it."
 msgstr "Scegli una data o lascia vuoto per cancellarla."
 
-msgid "Pick existing part"
-msgstr "Seleziona parte esistente"
-
 msgid "Pick List"
 msgstr "Elenco di prelievo"
 
 msgid "Pick Order"
 msgstr "Ordine di Prelievo"
+
+msgid "Pick the parts or tools to change. Each gets a staged copy of its current method and attributes to edit."
+msgstr ""
 
 msgid "Pick tracked item"
 msgstr "Seleziona articolo tracciato"
@@ -8903,6 +8897,9 @@ msgstr "Potenziale perdita di dati"
 
 msgid "Pre-filled for a new item when expiry is Fixed Duration."
 msgstr "Pre-compilato per un nuovo articolo quando la scadenza è Durata Fissa."
+
+msgid "Predecessor"
+msgstr ""
 
 msgid "Preferred Supplier"
 msgstr "Fornitore Preferito"
@@ -9097,9 +9094,6 @@ msgstr "Domanda proiettata esplosa da distinte base e previsioni."
 
 msgid "Production: shop-floor app and scheduling"
 msgstr "Produzione: app shop-floor e pianificazione"
-
-msgid "Products Affected"
-msgstr "Prodotti Interessati"
 
 msgid "Profile"
 msgstr "Profilo"
@@ -9732,17 +9726,11 @@ msgstr "Rimuovi {0}"
 msgid "Remove action"
 msgstr "Rimuovi azione"
 
-msgid "Remove add row"
-msgstr "Rimuovi riga aggiunta"
-
-msgid "Remove assembly"
-msgstr "Rimuovi assieme"
+msgid "Remove affected item"
+msgstr ""
 
 msgid "Remove condition"
 msgstr "Rimuovi condizione"
-
-msgid "Remove delete row"
-msgstr "Rimuovi riga eliminata"
 
 msgid "Remove feature"
 msgstr "Rimuovi funzione"
@@ -9759,6 +9747,12 @@ msgstr "Rimuovi da Listino Prezzi"
 msgid "Remove item"
 msgstr "Rimuovi elemento"
 
+msgid "Remove material"
+msgstr ""
+
+msgid "Remove operation"
+msgstr ""
+
 msgid "Remove order"
 msgstr "Rimuovi ordine"
 
@@ -9768,8 +9762,14 @@ msgstr "Rimuovi coppia"
 msgid "Remove sort by column"
 msgstr "Rimuovi ordinamento per colonna"
 
+msgid "Remove supersession"
+msgstr ""
+
 msgid "Remove this storage type from all referencing storage units and delete it. This cannot be undone."
 msgstr "Rimuovi questo tipo di archiviazione da tutte le unità di archiviazione che lo referenziano ed eliminalo. Questa azione non può essere annullata."
+
+msgid "Removed"
+msgstr ""
 
 msgid "Rendering label preview..."
 msgstr "Rendering dell'anteprima dell'etichetta..."
@@ -9821,6 +9821,9 @@ msgstr "Sostituire il disegno?"
 
 msgid "Replace existing pricing with source values"
 msgstr "Sostituisci i prezzi esistenti con i valori di origine"
+
+msgid "Replace one part with a different part. For a revision bump of the same part, use the cutover on the affected item above."
+msgstr ""
 
 msgid "Replace PDF"
 msgstr "Sostituisci PDF"
@@ -9988,6 +9991,9 @@ msgstr "Imposta di vendita con inversione contabile (predefinito)"
 
 msgid "Reverse the related journal entries"
 msgstr "Storna le relative registrazioni contabili"
+
+msgid "Review"
+msgstr ""
 
 msgid "Revision"
 msgstr "Revisione"
@@ -11190,6 +11196,9 @@ msgstr "passaggi"
 msgid "Steps"
 msgstr "Passaggi"
 
+msgid "Steps, parameters & tools are edited in a later phase"
+msgstr ""
+
 msgid "Stock Movements"
 msgstr "Movimenti di Magazzino"
 
@@ -11329,6 +11338,12 @@ msgstr "Preventivo copiato con successo"
 msgid "Successfully created a new revision"
 msgstr "Revisione creata con successo"
 
+msgid "Successor (optional)"
+msgstr ""
+
+msgid "Successor effectivity"
+msgstr ""
+
 msgid "Successor Effectivity Date"
 msgstr "Data di Efficacia del Successore"
 
@@ -11370,6 +11385,9 @@ msgstr "Catena di sostituzione rilevata"
 
 msgid "Supersession Mode"
 msgstr "Modalità di sostituzione"
+
+msgid "Supersessions"
+msgstr ""
 
 msgid "supplier"
 msgstr "Fornitore"
@@ -12420,9 +12438,6 @@ msgstr "Questo pezzo è obsoleto (Nessun Stock)."
 msgid "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 msgstr "Questa parte è superata e impostata su Solo Stock — viene reintegrata al suo livello di riserva di ricambi, indipendentemente dalla domanda."
 
-msgid "This part isn't on any other assembly to delete from."
-msgstr "Questa parte non è su nessun altro assieme da cui eliminarla."
-
 msgid "This Quarter"
 msgstr "Questo Trimestre"
 
@@ -12444,6 +12459,9 @@ msgstr "Questo tipo di archiviazione è attualmente utilizzato da {usageCount} u
 
 msgid "This updates the theme for all users of the application"
 msgstr "Questo aggiorna il tema per tutti gli utenti dell'applicazione"
+
+msgid "This will create a new revision that supersedes the current one."
+msgstr ""
 
 msgid "This will make this version read-only and replace any material make methods with this version."
 msgstr "Questo renderà questa versione di sola lettura e sostituirà tutti i metodi di produzione dei materiali con questa versione."
@@ -12873,6 +12891,9 @@ msgstr "Unità segnalate come non recuperabili in un'operazione, con un motivo �
 
 msgid "Unknown"
 msgstr "Sconosciuto"
+
+msgid "Unknown item"
+msgstr ""
 
 msgid "unknown location"
 msgstr "posizione sconosciuta"
@@ -13426,6 +13447,11 @@ msgstr "Avvisa quando la persona che ispeziona un articolo in entrata è la stes
 
 msgid "Warning"
 msgstr "Avvertenza"
+
+#. placeholder {0}: source.requiresInspection ? t`Yes` : t`No`
+#. placeholder {0}: sourceValue || "—"
+msgid "was: {0}"
+msgstr ""
 
 msgid "Watch"
 msgstr "Guarda"

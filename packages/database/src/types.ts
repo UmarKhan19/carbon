@@ -5164,17 +5164,24 @@ export type Database = {
           createdAt: string
           createdBy: string
           description: string | null
-          equipmentTypeId: string | null
           id: string
+          laborTime: number
+          laborUnit: Database["public"]["Enums"]["factor"]
+          machineTime: number
+          machineUnit: Database["public"]["Enums"]["factor"]
           operationOrder: Database["public"]["Enums"]["methodOperationOrder"]
+          operationSupplierProcessId: string | null
+          operationType: Database["public"]["Enums"]["operationType"] | null
           order: number
-          productionStandard: number
-          setupHours: number
+          procedureId: string | null
+          processId: string | null
+          setupTime: number
+          setupUnit: Database["public"]["Enums"]["factor"]
           sourceOperationId: string | null
-          standardFactor: Database["public"]["Enums"]["factor"]
           updatedAt: string | null
           updatedBy: string | null
-          workCellTypeId: string | null
+          workCenterId: string | null
+          workInstruction: Json
         }
         Insert: {
           affectedItemId: string
@@ -5183,17 +5190,24 @@ export type Database = {
           createdAt?: string
           createdBy: string
           description?: string | null
-          equipmentTypeId?: string | null
           id?: string
+          laborTime?: number
+          laborUnit?: Database["public"]["Enums"]["factor"]
+          machineTime?: number
+          machineUnit?: Database["public"]["Enums"]["factor"]
           operationOrder?: Database["public"]["Enums"]["methodOperationOrder"]
+          operationSupplierProcessId?: string | null
+          operationType?: Database["public"]["Enums"]["operationType"] | null
           order?: number
-          productionStandard?: number
-          setupHours?: number
+          procedureId?: string | null
+          processId?: string | null
+          setupTime?: number
+          setupUnit?: Database["public"]["Enums"]["factor"]
           sourceOperationId?: string | null
-          standardFactor?: Database["public"]["Enums"]["factor"]
           updatedAt?: string | null
           updatedBy?: string | null
-          workCellTypeId?: string | null
+          workCenterId?: string | null
+          workInstruction?: Json
         }
         Update: {
           affectedItemId?: string
@@ -5202,17 +5216,24 @@ export type Database = {
           createdAt?: string
           createdBy?: string
           description?: string | null
-          equipmentTypeId?: string | null
           id?: string
+          laborTime?: number
+          laborUnit?: Database["public"]["Enums"]["factor"]
+          machineTime?: number
+          machineUnit?: Database["public"]["Enums"]["factor"]
           operationOrder?: Database["public"]["Enums"]["methodOperationOrder"]
+          operationSupplierProcessId?: string | null
+          operationType?: Database["public"]["Enums"]["operationType"] | null
           order?: number
-          productionStandard?: number
-          setupHours?: number
+          procedureId?: string | null
+          processId?: string | null
+          setupTime?: number
+          setupUnit?: Database["public"]["Enums"]["factor"]
           sourceOperationId?: string | null
-          standardFactor?: Database["public"]["Enums"]["factor"]
           updatedAt?: string | null
           updatedBy?: string | null
-          workCellTypeId?: string | null
+          workCenterId?: string | null
+          workInstruction?: Json
         }
         Relationships: [
           {
@@ -61629,14 +61650,14 @@ export type Database = {
           },
           {
             foreignKeyName: "partner_id_fkey"
-            columns: ["id"]
+            columns: ["supplierLocationId"]
             isOneToOne: false
             referencedRelation: "supplierLocation"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "partner_id_fkey"
-            columns: ["supplierLocationId"]
+            columns: ["id"]
             isOneToOne: false
             referencedRelation: "supplierLocation"
             referencedColumns: ["id"]
@@ -66667,14 +66688,14 @@ export type Database = {
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["shipmentCountryCode"]
+            columns: ["invoiceCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["invoiceCountryCode"]
+            columns: ["shipmentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -67222,14 +67243,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["paymentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["paymentCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]

@@ -15,7 +15,15 @@ import { usePermissions } from "~/hooks";
 import type { action } from "~/routes/x+/items+/change-order+/update";
 import { path } from "~/utils/path";
 import { isChangeOrderLocked } from "../../changeOrder.models";
-import type { ProductAffected } from "./ProductsAffected";
+
+// A minimal product-label shape for the read-only effectivity list. Previously
+// sourced from the derived Products Affected; in the top-to-bottom model the
+// affected items themselves are the products, passed in by the detail route.
+export type ImplementationProduct = {
+  id: string;
+  itemId: string;
+  item: { readableIdWithRevision: string | null; name: string | null } | null;
+};
 
 // PRD §3.2: shown from the Implementation stage onward. Surfaces the effectivity
 // date (inline-editable) and the effectivity version (the read-only list of
@@ -29,7 +37,7 @@ export default function ImplementationSection({
   changeOrderId: string;
   effectiveDate: string | null;
   status: string | null;
-  products: ProductAffected[];
+  products: ImplementationProduct[];
 }) {
   const { t } = useLingui();
   const permissions = usePermissions();
