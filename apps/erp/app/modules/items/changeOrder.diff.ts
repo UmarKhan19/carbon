@@ -7,7 +7,8 @@ import type {
 } from "./changeOrder.models";
 import {
   getChangeOrderAffectedItems,
-  getChangeOrderStagedMaterials
+  getChangeOrderStagedMaterials,
+  getChangeOrderStagedOperationChildren
 } from "./changeOrder.staging";
 
 // =============================================================================
@@ -31,9 +32,12 @@ import {
 type Row = Record<string, unknown>;
 
 // Materials are matched by identity: a staged/target row's `sourceMaterialId`
-// links it to a base row's `id`. Operations use `sourceOperationId`.
+// links it to a base row's `id`. Operations use `sourceOperationId`. Operation
+// CHILDREN (steps / parameters / tools) use `sourceId` (the staged child's
+// pointer at the live child it was copied from; NULL ⇒ added child line).
 const MATERIAL_SOURCE_KEY = "sourceMaterialId";
 const OPERATION_SOURCE_KEY = "sourceOperationId";
+const CHILD_SOURCE_KEY = "sourceId";
 
 // The business-meaningful field subset compared for a "modified" verdict. Audit
 // and linkage columns are intentionally excluded (see IGNORED_FIELDS) so that a
@@ -66,6 +70,24 @@ const OPERATION_COMPARE_FIELDS = [
   "operationSupplierProcessId"
 ] as const;
 
+// The compared field subsets for operation children. As with operations, audit /
+// linkage columns are excluded (see IGNORED_FIELDS) so a snapshot that only
+// differs by id/pointers/timestamps reads as "unchanged".
+const STEP_COMPARE_FIELDS = [
+  "name",
+  "description",
+  "type",
+  "required",
+  "sortOrder",
+  "unitOfMeasureCode",
+  "minValue",
+  "maxValue"
+] as const;
+
+const PARAMETER_COMPARE_FIELDS = ["key", "value"] as const;
+
+const TOOL_COMPARE_FIELDS = ["toolId", "quantity"] as const;
+
 // Never compared — audit / linkage / tenancy columns. Used by the attribute diff
 // (which is column-driven rather than a fixed subset) and as a guard elsewhere.
 const IGNORED_FIELDS = new Set<string>([
@@ -75,6 +97,8 @@ const IGNORED_FIELDS = new Set<string>([
   "affectedItemId",
   "sourceMaterialId",
   "sourceOperationId",
+  "sourceId",
+  "stagedOperationId",
   "createdAt",
   "createdBy",
   "updatedAt",
@@ -168,6 +192,106 @@ function diffRows(
   return entries;
 }
 
+// -----------------------------------------------------------------------------
+// Operation children (steps / parameters / tools)
+// -----------------------------------------------------------------------------
+
+// The three staged child buckets for a single operation, keyed by the staged
+// operation's id. Both the live (base) children and the staged (target) children
+// share this shape.
+export type OperationChildren = {
+  steps: Row[];
+  parameters: Row[];
+  tools: Row[];
+};
+
+// The per-operation child diff: each bucket classified added/removed/modified/
+// unchanged, matched by the staged child's `sourceId` (mirrors materials).
+export type OperationChildrenDiff = {
+  steps: MethodDiffEntry<Row>[];
+  parameters: MethodDiffEntry<Row>[];
+  tools: MethodDiffEntry<Row>[];
+};
+
+// An operation diff entry, optionally carrying its child-level diff. Backward
+// compatible with MethodDiffEntry<Row> — `children` is additive and undefined
+// for callers that don't supply children.
+export type OperationDiffEntry = MethodDiffEntry<Row> & {
+  children?: OperationChildrenDiff;
+};
+
+// Base/target children keyed by operation id. For target (staged) operations the
+// key is the staged operation's own id; for base (live) operations it's the live
+// operation's id. Matching a staged operation to its base children goes through
+// the operation's `sourceOperationId`.
+export type ChildrenByOperationId = Record<string, OperationChildren>;
+
+function emptyChildren(): OperationChildren {
+  return { steps: [], parameters: [], tools: [] };
+}
+
+// Diff one operation's children. `base`/`target` are the live/staged child
+// buckets; each bucket is matched by `sourceId` over its own compare-field set.
+function diffOperationChildren(
+  base: OperationChildren,
+  target: OperationChildren
+): OperationChildrenDiff {
+  return {
+    steps: diffRows(
+      base.steps,
+      target.steps,
+      CHILD_SOURCE_KEY,
+      STEP_COMPARE_FIELDS
+    ),
+    parameters: diffRows(
+      base.parameters,
+      target.parameters,
+      CHILD_SOURCE_KEY,
+      PARAMETER_COMPARE_FIELDS
+    ),
+    tools: diffRows(
+      base.tools,
+      target.tools,
+      CHILD_SOURCE_KEY,
+      TOOL_COMPARE_FIELDS
+    )
+  };
+}
+
+// Diff operations AND, when child buckets are supplied, attach a per-operation
+// child diff. Matches operations exactly like diffRows (by `sourceOperationId`);
+// for each entry it pairs the base children (via the matched base operation id)
+// with the target children (via the staged operation id) and runs
+// `diffOperationChildren`. When no child maps are supplied it degrades to the
+// plain operation diff (identical to `diffRows`), so existing callers/tests are
+// unaffected.
+function diffOperations(
+  base: Row[],
+  target: Row[],
+  baseChildren?: ChildrenByOperationId,
+  targetChildren?: ChildrenByOperationId
+): OperationDiffEntry[] {
+  const entries = diffRows(
+    base,
+    target,
+    OPERATION_SOURCE_KEY,
+    OPERATION_COMPARE_FIELDS
+  ) as OperationDiffEntry[];
+
+  if (!baseChildren && !targetChildren) return entries;
+
+  for (const entry of entries) {
+    const baseId = (entry.before as { id?: string } | null)?.id;
+    const targetId = (entry.after as { id?: string } | null)?.id;
+    const baseKids = (baseId && baseChildren?.[baseId]) || emptyChildren();
+    const targetKids =
+      (targetId && targetChildren?.[targetId]) || emptyChildren();
+    entry.children = diffOperationChildren(baseKids, targetKids);
+  }
+
+  return entries;
+}
+
 // Column-by-column diff of two attribute objects. Every key present in either
 // object (minus the ignored audit/linkage set) is compared; each changed column
 // becomes one MethodDiffEntry whose `changedFields` holds the single field. When
@@ -212,16 +336,26 @@ export type DiffMethodInput = {
   targetOperations: Row[];
   baseAttributes?: Row | null;
   targetAttributes?: Row | null;
+  // Optional per-operation children (steps/parameters/tools), keyed by operation
+  // id (live op id for base, staged op id for target). When omitted, operation
+  // entries carry no `children` and the result is identical to the pre-Task-16
+  // shape.
+  baseOperationChildren?: ChildrenByOperationId;
+  targetOperationChildren?: ChildrenByOperationId;
 };
 
 export type DiffMethodResult = {
   materials: MethodDiffEntry<Row>[];
-  operations: MethodDiffEntry<Row>[];
+  // Operations may carry an optional child-level diff (see OperationDiffEntry).
+  // OperationDiffEntry is a superset of MethodDiffEntry<Row>, so consumers typed
+  // against MethodDiffEntry<Row>[] keep working.
+  operations: OperationDiffEntry[];
   attributes: MethodDiffEntry<Row>[];
 };
 
 // PURE. Compares two method snapshots. No DB access — the caller supplies plain
-// rows (live method rows as `base`, CO-staged rows as `target`).
+// rows (live method rows as `base`, CO-staged rows as `target`), and optionally
+// the per-operation child buckets to also diff steps/parameters/tools.
 export function diffMethod(input: DiffMethodInput): DiffMethodResult {
   return {
     materials: diffRows(
@@ -230,11 +364,11 @@ export function diffMethod(input: DiffMethodInput): DiffMethodResult {
       MATERIAL_SOURCE_KEY,
       MATERIAL_COMPARE_FIELDS
     ),
-    operations: diffRows(
+    operations: diffOperations(
       input.baseOperations,
       input.targetOperations,
-      OPERATION_SOURCE_KEY,
-      OPERATION_COMPARE_FIELDS
+      input.baseOperationChildren,
+      input.targetOperationChildren
     ),
     attributes: diffAttributes(
       input.baseAttributes ?? null,
@@ -294,6 +428,8 @@ export async function getChangeOrderDiff(
     // Live method snapshot (the diff base). Empty for Buy items with no method.
     let baseMaterials: Row[] = [];
     let baseOperations: Row[] = [];
+    // Live operation children keyed by live operation id.
+    const baseOperationChildren: ChildrenByOperationId = {};
     if (makeMethodId) {
       const [liveMaterials, liveOperations] = await Promise.all([
         client
@@ -321,6 +457,68 @@ export async function getChangeOrderDiff(
         };
       baseMaterials = (liveMaterials.data ?? []) as Row[];
       baseOperations = (liveOperations.data ?? []) as Row[];
+
+      // Live operation children (steps/parameters/tools) for every base
+      // operation, fetched in one query per child table and bucketed by
+      // operationId. Flat selects scoped by companyId — no PostgREST embeds.
+      const operationIds = baseOperations
+        .map((o) => o.id)
+        .filter((id): id is string => typeof id === "string");
+      if (operationIds.length > 0) {
+        const [liveSteps, liveParameters, liveTools] = await Promise.all([
+          client
+            .from("methodOperationStep")
+            .select("*")
+            .in("operationId", operationIds)
+            .eq("companyId", companyId),
+          client
+            .from("methodOperationParameter")
+            .select("*")
+            .in("operationId", operationIds)
+            .eq("companyId", companyId),
+          client
+            .from("methodOperationTool")
+            .select("*")
+            .in("operationId", operationIds)
+            .eq("companyId", companyId)
+        ]);
+        if (liveSteps.error)
+          return {
+            data: { items: [], supersessions: [] },
+            error: liveSteps.error
+          };
+        if (liveParameters.error)
+          return {
+            data: { items: [], supersessions: [] },
+            error: liveParameters.error
+          };
+        if (liveTools.error)
+          return {
+            data: { items: [], supersessions: [] },
+            error: liveTools.error
+          };
+        for (const id of operationIds)
+          baseOperationChildren[id] = {
+            steps: [],
+            parameters: [],
+            tools: []
+          };
+        for (const row of (liveSteps.data ?? []) as Row[]) {
+          const opId = row.operationId;
+          if (typeof opId === "string")
+            baseOperationChildren[opId]?.steps.push(row);
+        }
+        for (const row of (liveParameters.data ?? []) as Row[]) {
+          const opId = row.operationId;
+          if (typeof opId === "string")
+            baseOperationChildren[opId]?.parameters.push(row);
+        }
+        for (const row of (liveTools.data ?? []) as Row[]) {
+          const opId = row.operationId;
+          if (typeof opId === "string")
+            baseOperationChildren[opId]?.tools.push(row);
+        }
+      }
     }
 
     // Staged end-state (the diff target). Materials via the shared staging read;
@@ -376,13 +574,40 @@ export async function getChangeOrderDiff(
         error: liveAttributes.error
       };
 
+    // Staged operation children (steps/parameters/tools) for every staged
+    // operation, bucketed by staged operation id. Uses the shared combined
+    // staging read per operation.
+    const targetOperations = (stagedOperations.data ?? []) as Row[];
+    const targetOperationChildren: ChildrenByOperationId = {};
+    for (const op of targetOperations) {
+      const opId = op.id;
+      if (typeof opId !== "string") continue;
+      const children = await getChangeOrderStagedOperationChildren(
+        client,
+        opId,
+        companyId
+      );
+      if (children.error)
+        return {
+          data: { items: [], supersessions: [] },
+          error: children.error
+        };
+      targetOperationChildren[opId] = {
+        steps: (children.data.steps ?? []) as Row[],
+        parameters: (children.data.parameters ?? []) as Row[],
+        tools: (children.data.tools ?? []) as Row[]
+      };
+    }
+
     const diff = diffMethod({
       baseMaterials,
       targetMaterials: stagedMaterials.data as unknown as Row[],
       baseOperations,
-      targetOperations: (stagedOperations.data ?? []) as Row[],
+      targetOperations,
       baseAttributes: (liveAttributes.data ?? null) as Row | null,
-      targetAttributes: (stagedAttributes.data ?? null) as Row | null
+      targetAttributes: (stagedAttributes.data ?? null) as Row | null,
+      baseOperationChildren,
+      targetOperationChildren
     });
 
     items.push({

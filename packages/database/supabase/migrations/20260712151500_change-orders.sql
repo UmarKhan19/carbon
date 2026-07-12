@@ -416,6 +416,110 @@ FOR DELETE USING (
 );
 
 -- -----------------------------------------------------------------------------
+-- 6c-i/ii/iii. Staged operation CHILDREN — CO-owned mirrors of methodOperationStep
+--     / methodOperationParameter / methodOperationTool, scoped to a staged
+--     operation. sourceId = the live child row copied on snapshot (NULL ⇒ added).
+-- -----------------------------------------------------------------------------
+CREATE TABLE "changeOrderStagedOperationStep" (
+  "id" TEXT NOT NULL DEFAULT id('cosos'),
+  "changeOrderId" TEXT NOT NULL,
+  "stagedOperationId" TEXT NOT NULL,
+  "name" TEXT NOT NULL,
+  "description" JSON,
+  "type" "procedureStepType" NOT NULL DEFAULT 'Value',
+  "required" BOOLEAN DEFAULT FALSE,
+  "sortOrder" INTEGER NOT NULL DEFAULT 1,
+  "unitOfMeasureCode" TEXT,
+  "minValue" NUMERIC,
+  "maxValue" NUMERIC,
+  "listValues" TEXT[],
+  "fileTypes" TEXT[],
+  "sourceId" TEXT,
+  "companyId" TEXT NOT NULL,
+  "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+  "createdBy" TEXT NOT NULL,
+  "updatedAt" TIMESTAMP WITH TIME ZONE,
+  "updatedBy" TEXT,
+
+  CONSTRAINT "changeOrderStagedOperationStep_pkey" PRIMARY KEY ("id"),
+  CONSTRAINT "changeOrderStagedOperationStep_changeOrderId_fkey" FOREIGN KEY ("changeOrderId") REFERENCES "changeOrder"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "changeOrderStagedOperationStep_stagedOperationId_fkey" FOREIGN KEY ("stagedOperationId") REFERENCES "changeOrderStagedOperation"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "changeOrderStagedOperationStep_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "changeOrderStagedOperationStep_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "user"("id") ON UPDATE CASCADE,
+  CONSTRAINT "changeOrderStagedOperationStep_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "user"("id") ON UPDATE CASCADE
+);
+CREATE INDEX "changeOrderStagedOperationStep_stagedOperationId_idx" ON "changeOrderStagedOperationStep" ("stagedOperationId");
+CREATE INDEX "changeOrderStagedOperationStep_changeOrderId_idx" ON "changeOrderStagedOperationStep" ("changeOrderId");
+CREATE INDEX "changeOrderStagedOperationStep_companyId_idx" ON "changeOrderStagedOperationStep" ("companyId");
+
+ALTER TABLE "changeOrderStagedOperationStep" ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "SELECT" ON "public"."changeOrderStagedOperationStep" FOR SELECT USING ("companyId" = ANY ((SELECT get_companies_with_employee_permission ('parts_view'))::text[]));
+CREATE POLICY "INSERT" ON "public"."changeOrderStagedOperationStep" FOR INSERT WITH CHECK ("companyId" = ANY ((SELECT get_companies_with_employee_permission ('parts_create'))::text[]));
+CREATE POLICY "UPDATE" ON "public"."changeOrderStagedOperationStep" FOR UPDATE USING ("companyId" = ANY ((SELECT get_companies_with_employee_permission ('parts_update'))::text[]));
+CREATE POLICY "DELETE" ON "public"."changeOrderStagedOperationStep" FOR DELETE USING ("companyId" = ANY ((SELECT get_companies_with_employee_permission ('parts_delete'))::text[]));
+
+CREATE TABLE "changeOrderStagedOperationParameter" (
+  "id" TEXT NOT NULL DEFAULT id('cosop'),
+  "changeOrderId" TEXT NOT NULL,
+  "stagedOperationId" TEXT NOT NULL,
+  "key" TEXT NOT NULL,
+  "value" TEXT NOT NULL,
+  "sourceId" TEXT,
+  "companyId" TEXT NOT NULL,
+  "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+  "createdBy" TEXT NOT NULL,
+  "updatedAt" TIMESTAMP WITH TIME ZONE,
+  "updatedBy" TEXT,
+
+  CONSTRAINT "changeOrderStagedOperationParameter_pkey" PRIMARY KEY ("id"),
+  CONSTRAINT "changeOrderStagedOperationParameter_changeOrderId_fkey" FOREIGN KEY ("changeOrderId") REFERENCES "changeOrder"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "changeOrderStagedOperationParameter_stagedOperationId_fkey" FOREIGN KEY ("stagedOperationId") REFERENCES "changeOrderStagedOperation"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "changeOrderStagedOperationParameter_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "changeOrderStagedOperationParameter_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "user"("id") ON UPDATE CASCADE,
+  CONSTRAINT "changeOrderStagedOperationParameter_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "user"("id") ON UPDATE CASCADE
+);
+CREATE INDEX "changeOrderStagedOperationParameter_stagedOperationId_idx" ON "changeOrderStagedOperationParameter" ("stagedOperationId");
+CREATE INDEX "changeOrderStagedOperationParameter_changeOrderId_idx" ON "changeOrderStagedOperationParameter" ("changeOrderId");
+CREATE INDEX "changeOrderStagedOperationParameter_companyId_idx" ON "changeOrderStagedOperationParameter" ("companyId");
+
+ALTER TABLE "changeOrderStagedOperationParameter" ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "SELECT" ON "public"."changeOrderStagedOperationParameter" FOR SELECT USING ("companyId" = ANY ((SELECT get_companies_with_employee_permission ('parts_view'))::text[]));
+CREATE POLICY "INSERT" ON "public"."changeOrderStagedOperationParameter" FOR INSERT WITH CHECK ("companyId" = ANY ((SELECT get_companies_with_employee_permission ('parts_create'))::text[]));
+CREATE POLICY "UPDATE" ON "public"."changeOrderStagedOperationParameter" FOR UPDATE USING ("companyId" = ANY ((SELECT get_companies_with_employee_permission ('parts_update'))::text[]));
+CREATE POLICY "DELETE" ON "public"."changeOrderStagedOperationParameter" FOR DELETE USING ("companyId" = ANY ((SELECT get_companies_with_employee_permission ('parts_delete'))::text[]));
+
+CREATE TABLE "changeOrderStagedOperationTool" (
+  "id" TEXT NOT NULL DEFAULT id('cosot'),
+  "changeOrderId" TEXT NOT NULL,
+  "stagedOperationId" TEXT NOT NULL,
+  "toolId" TEXT NOT NULL,
+  "quantity" NUMERIC NOT NULL DEFAULT 1,
+  "sourceId" TEXT,
+  "companyId" TEXT NOT NULL,
+  "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+  "createdBy" TEXT NOT NULL,
+  "updatedAt" TIMESTAMP WITH TIME ZONE,
+  "updatedBy" TEXT,
+
+  CONSTRAINT "changeOrderStagedOperationTool_pkey" PRIMARY KEY ("id"),
+  CONSTRAINT "changeOrderStagedOperationTool_changeOrderId_fkey" FOREIGN KEY ("changeOrderId") REFERENCES "changeOrder"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "changeOrderStagedOperationTool_stagedOperationId_fkey" FOREIGN KEY ("stagedOperationId") REFERENCES "changeOrderStagedOperation"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "changeOrderStagedOperationTool_toolId_fkey" FOREIGN KEY ("toolId") REFERENCES "item"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "changeOrderStagedOperationTool_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "changeOrderStagedOperationTool_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "user"("id") ON UPDATE CASCADE,
+  CONSTRAINT "changeOrderStagedOperationTool_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "user"("id") ON UPDATE CASCADE
+);
+CREATE INDEX "changeOrderStagedOperationTool_stagedOperationId_idx" ON "changeOrderStagedOperationTool" ("stagedOperationId");
+CREATE INDEX "changeOrderStagedOperationTool_changeOrderId_idx" ON "changeOrderStagedOperationTool" ("changeOrderId");
+CREATE INDEX "changeOrderStagedOperationTool_companyId_idx" ON "changeOrderStagedOperationTool" ("companyId");
+
+ALTER TABLE "changeOrderStagedOperationTool" ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "SELECT" ON "public"."changeOrderStagedOperationTool" FOR SELECT USING ("companyId" = ANY ((SELECT get_companies_with_employee_permission ('parts_view'))::text[]));
+CREATE POLICY "INSERT" ON "public"."changeOrderStagedOperationTool" FOR INSERT WITH CHECK ("companyId" = ANY ((SELECT get_companies_with_employee_permission ('parts_create'))::text[]));
+CREATE POLICY "UPDATE" ON "public"."changeOrderStagedOperationTool" FOR UPDATE USING ("companyId" = ANY ((SELECT get_companies_with_employee_permission ('parts_update'))::text[]));
+CREATE POLICY "DELETE" ON "public"."changeOrderStagedOperationTool" FOR DELETE USING ("companyId" = ANY ((SELECT get_companies_with_employee_permission ('parts_delete'))::text[]));
+
+-- -----------------------------------------------------------------------------
 -- 6d. changeOrderStagedItemAttributes — CO-owned staged copy of item attributes
 --     One row per affected item (Make and Buy). Drawing refs are reference-level;
 --     files are copied to the new revision at release (no CAD content diff).

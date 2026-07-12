@@ -702,6 +702,9 @@ msgstr "Adicionar Cartão de Ponto"
 msgid "Add to stock for future use"
 msgstr "Adicionar ao estoque para uso futuro"
 
+msgid "Add Tool"
+msgstr ""
+
 #. placeholder {0}: copy.noun
 msgid "Add your first {0}"
 msgstr "Adicione seu primeiro {0}"
@@ -7139,6 +7142,9 @@ msgstr "Qtd Máx"
 msgid "Max Quantity"
 msgstr "Quantidade Máxima"
 
+msgid "Max Value"
+msgstr ""
+
 msgid "Maximum"
 msgstr "Máximo"
 
@@ -7231,6 +7237,9 @@ msgstr "Migrar dados"
 
 msgid "Min Qty"
 msgstr "Qtd Mín"
+
+msgid "Min Value"
+msgstr ""
 
 msgid "Minimum"
 msgstr "Mínimo"
@@ -7936,6 +7945,9 @@ msgstr "Nenhum treinamento pendente"
 msgid "No overtime scheduled"
 msgstr "Nenhuma hora extra agendada"
 
+msgid "No parameters."
+msgstr ""
+
 msgid "No parent sources recorded yet. Click Recalculate on the planning page to refresh attribution."
 msgstr "Nenhuma fonte pai registrada ainda. Clique em Recalcular na página de planejamento para atualizar a atribuição."
 
@@ -8005,6 +8017,9 @@ msgstr "Nenhuma ordenação aplicada a esta visualização"
 msgid "No staged attributes for this item."
 msgstr ""
 
+msgid "No steps."
+msgstr ""
+
 msgid "No stock"
 msgstr "Sem stock"
 
@@ -8019,6 +8034,9 @@ msgstr "Nenhum fornecedor ainda"
 
 msgid "No time entries for this week"
 msgstr "Sem registros de tempo para esta semana"
+
+msgid "No tools."
+msgstr ""
 
 msgid "No transactions in this period"
 msgstr "Nenhuma transação neste período"
@@ -8492,6 +8510,9 @@ msgstr "Valor Pago:"
 
 msgid "Paid Date"
 msgstr "Data de Pagamento"
+
+msgid "Parameter"
+msgstr ""
 
 msgid "Parameters"
 msgstr "Parâmetros"
@@ -9759,14 +9780,23 @@ msgstr "Remover pedido"
 msgid "Remove pair"
 msgstr "Remover par"
 
+msgid "Remove parameter"
+msgstr ""
+
 msgid "Remove sort by column"
 msgstr "Remover ordenação por coluna"
+
+msgid "Remove step"
+msgstr ""
 
 msgid "Remove supersession"
 msgstr ""
 
 msgid "Remove this storage type from all referencing storage units and delete it. This cannot be undone."
 msgstr "Remova este tipo de armazenamento de todas as unidades de armazenamento que o referenciam e o delete. Isto não pode ser desfeito."
+
+msgid "Remove tool"
+msgstr ""
 
 msgid "Removed"
 msgstr ""
@@ -11036,6 +11066,9 @@ msgstr "Ordenar por"
 msgid "Sort Descending"
 msgstr "Ordenar Descendente"
 
+msgid "Sort Order"
+msgstr ""
+
 msgid "Source"
 msgstr "Origem"
 
@@ -11195,9 +11228,6 @@ msgstr "passos"
 
 msgid "Steps"
 msgstr "Etapas"
-
-msgid "Steps, parameters & tools are edited in a later phase"
-msgstr ""
 
 msgid "Stock Movements"
 msgstr "Movimentos de Estoque"

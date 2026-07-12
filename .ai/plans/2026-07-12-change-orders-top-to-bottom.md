@@ -42,7 +42,7 @@
 - [x] Task 13: Impact panel re-fed from removed staged materials
 - [x] Task 14: Release orchestration — rewrite `applyChangeOrder` (revision + supersession)
 - [x] Task 15: Status route wiring for release (getChangeOrderValidations never existed; optional drift-warning deferred)
-- [ ] Task 16: BOP operation-children staging + release reconciliation
+- [x] Task 16: BOP operation-children staging + release reconciliation
 - [x] Task 17: Traceability re-point + revision history + diff UI on part page
 - [x] Task 18: Audit config — re-register the new CO children (pulled forward — typecheck gate)
 - [x] Task 19: Cleanup dead code + seed rewrite + AGENTS.md refresh

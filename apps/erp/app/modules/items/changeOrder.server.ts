@@ -14,7 +14,10 @@ import {
   getNextRevision,
   upsertItemSupersession,
   upsertMethodMaterial,
-  upsertMethodOperation
+  upsertMethodOperation,
+  upsertMethodOperationParameter,
+  upsertMethodOperationStep,
+  upsertMethodOperationTool
 } from "~/modules/items";
 import { supersessionModes } from "./items.models";
 
@@ -444,7 +447,20 @@ async function materializeMethod(
     if (written.error || !written.data?.id) {
       return { error: { message: "Failed to materialize operation" } };
     }
-    stagedOpToNewOpId.set(op.id, written.data.id);
+    const newOperationId = written.data.id;
+    stagedOpToNewOpId.set(op.id, newOperationId);
+
+    // Materialize this staged operation's staged CHILDREN (steps/parameters/
+    // tools) onto the freshly-created methodOperation. The op is brand-new and
+    // therefore starts with no children, so this is a plain create (mirroring
+    // the operation full-replace — no delete-diff needed).
+    const children = await materializeOperationChildren(client, {
+      stagedOperationId: op.id,
+      newOperationId,
+      companyId,
+      userId
+    });
+    if (children.error) return { error: children.error };
   }
 
   // --- Materials: wipe the copied Draft materials, then re-insert staged set --
@@ -496,6 +512,100 @@ async function materializeMethod(
     } as never);
     if (written.error) {
       return { error: { message: "Failed to materialize material" } };
+    }
+  }
+
+  return { error: null };
+}
+
+// Materialize one staged operation's staged children (steps / parameters / tools)
+// onto a freshly-created live methodOperation. The new op starts empty (it was
+// just inserted by materializeMethod's full-replace), so every staged child is
+// created verbatim via the canonical upsert helpers — no delete-diff. Mirrored
+// columns are mapped 1:1 (steps: name/description/type/required/sortOrder/
+// unitOfMeasureCode/minValue/maxValue/listValues/fileTypes; parameters: key/
+// value; tools: toolId/quantity). Casts: the staged rows are DB-typed (nullable,
+// Json description) and narrower/wider than the validator-shaped helper inputs;
+// the DB columns are the real guard.
+async function materializeOperationChildren(
+  client: SupabaseClient<Database>,
+  input: {
+    stagedOperationId: string;
+    newOperationId: string;
+    companyId: string;
+    userId: string;
+  }
+): Promise<{ error: { message: string } | null }> {
+  const { stagedOperationId, newOperationId, companyId, userId } = input;
+
+  const [stagedSteps, stagedParameters, stagedTools] = await Promise.all([
+    client
+      .from("changeOrderStagedOperationStep")
+      .select("*")
+      .eq("stagedOperationId", stagedOperationId)
+      .eq("companyId", companyId)
+      .order("sortOrder", { ascending: true }),
+    client
+      .from("changeOrderStagedOperationParameter")
+      .select("*")
+      .eq("stagedOperationId", stagedOperationId)
+      .eq("companyId", companyId),
+    client
+      .from("changeOrderStagedOperationTool")
+      .select("*")
+      .eq("stagedOperationId", stagedOperationId)
+      .eq("companyId", companyId)
+  ]);
+  if (stagedSteps.error) return { error: stagedSteps.error };
+  if (stagedParameters.error) return { error: stagedParameters.error };
+  if (stagedTools.error) return { error: stagedTools.error };
+
+  for (const s of stagedSteps.data ?? []) {
+    const written = await upsertMethodOperationStep(client, {
+      operationId: newOperationId,
+      name: s.name,
+      description: s.description,
+      type: s.type,
+      required: s.required ?? undefined,
+      sortOrder: s.sortOrder,
+      unitOfMeasureCode: s.unitOfMeasureCode ?? undefined,
+      minValue: s.minValue ?? undefined,
+      maxValue: s.maxValue ?? undefined,
+      listValues: s.listValues ?? undefined,
+      fileTypes: s.fileTypes ?? undefined,
+      companyId,
+      createdBy: userId
+    } as never);
+    if (written.error) {
+      return { error: { message: "Failed to materialize operation step" } };
+    }
+  }
+
+  for (const p of stagedParameters.data ?? []) {
+    const written = await upsertMethodOperationParameter(client, {
+      operationId: newOperationId,
+      key: p.key,
+      value: p.value,
+      companyId,
+      createdBy: userId
+    } as never);
+    if (written.error) {
+      return {
+        error: { message: "Failed to materialize operation parameter" }
+      };
+    }
+  }
+
+  for (const t of stagedTools.data ?? []) {
+    const written = await upsertMethodOperationTool(client, {
+      operationId: newOperationId,
+      toolId: t.toolId,
+      quantity: t.quantity,
+      companyId,
+      createdBy: userId
+    } as never);
+    if (written.error) {
+      return { error: { message: "Failed to materialize operation tool" } };
     }
   }
 

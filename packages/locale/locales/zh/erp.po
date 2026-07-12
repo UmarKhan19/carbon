@@ -702,6 +702,9 @@ msgstr "添加工时卡"
 msgid "Add to stock for future use"
 msgstr "添加到库存以供将来使用"
 
+msgid "Add Tool"
+msgstr ""
+
 #. placeholder {0}: copy.noun
 msgid "Add your first {0}"
 msgstr "添加您的第一个{0}"
@@ -7139,6 +7142,9 @@ msgstr "最大数量"
 msgid "Max Quantity"
 msgstr "最大数量"
 
+msgid "Max Value"
+msgstr ""
+
 msgid "Maximum"
 msgstr "最大值"
 
@@ -7231,6 +7237,9 @@ msgstr "迁移数据"
 
 msgid "Min Qty"
 msgstr "最小数量"
+
+msgid "Min Value"
+msgstr ""
 
 msgid "Minimum"
 msgstr "最小值"
@@ -7936,6 +7945,9 @@ msgstr "没有未完成的培训"
 msgid "No overtime scheduled"
 msgstr "没有安排加班"
 
+msgid "No parameters."
+msgstr ""
+
 msgid "No parent sources recorded yet. Click Recalculate on the planning page to refresh attribution."
 msgstr "尚未记录任何父源。点击计划页面上的\"重新计算\"以刷新归因。"
 
@@ -8005,6 +8017,9 @@ msgstr "此视图未应用排序"
 msgid "No staged attributes for this item."
 msgstr ""
 
+msgid "No steps."
+msgstr ""
+
 msgid "No stock"
 msgstr "无库存"
 
@@ -8019,6 +8034,9 @@ msgstr "还没有供应商"
 
 msgid "No time entries for this week"
 msgstr "本周没有时间条目"
+
+msgid "No tools."
+msgstr ""
 
 msgid "No transactions in this period"
 msgstr "此期间无交易"
@@ -8492,6 +8510,9 @@ msgstr "已支付金额："
 
 msgid "Paid Date"
 msgstr "支付日期"
+
+msgid "Parameter"
+msgstr ""
 
 msgid "Parameters"
 msgstr "参数"
@@ -9759,14 +9780,23 @@ msgstr "删除订单"
 msgid "Remove pair"
 msgstr "移除配对"
 
+msgid "Remove parameter"
+msgstr ""
+
 msgid "Remove sort by column"
 msgstr "删除按列排序"
+
+msgid "Remove step"
+msgstr ""
 
 msgid "Remove supersession"
 msgstr ""
 
 msgid "Remove this storage type from all referencing storage units and delete it. This cannot be undone."
 msgstr "从所有引用此存储类型的存储单元中移除它并将其删除。此操作无法撤销。"
+
+msgid "Remove tool"
+msgstr ""
 
 msgid "Removed"
 msgstr ""
@@ -11036,6 +11066,9 @@ msgstr "按排序"
 msgid "Sort Descending"
 msgstr "按降序排序"
 
+msgid "Sort Order"
+msgstr ""
+
 msgid "Source"
 msgstr "来源"
 
@@ -11195,9 +11228,6 @@ msgstr "步骤"
 
 msgid "Steps"
 msgstr "步骤"
-
-msgid "Steps, parameters & tools are edited in a later phase"
-msgstr ""
 
 msgid "Stock Movements"
 msgstr "库存移动"

@@ -170,6 +170,65 @@ describe("diffMethod — operations", () => {
   });
 });
 
+describe("diffMethod — operation children", () => {
+  it("carries no children when child maps are omitted (backward compatible)", () => {
+    const { operations } = diffMethod({
+      ...EMPTY,
+      baseOperations: [baseOperation()],
+      targetOperations: [stagedOperation()]
+    });
+    expect(operations[0].children).toBeUndefined();
+  });
+
+  it("diffs steps/parameters/tools by sourceId per matched operation", () => {
+    const { operations } = diffMethod({
+      ...EMPTY,
+      baseOperations: [baseOperation()],
+      targetOperations: [stagedOperation()],
+      baseOperationChildren: {
+        // keyed by the LIVE operation id (mo_1)
+        mo_1: {
+          steps: [{ id: "mos_1", name: "Inspect", sortOrder: 1 }],
+          parameters: [{ id: "mop_1", key: "speed", value: "100" }],
+          tools: [{ id: "mot_1", toolId: "T1", quantity: 1 }]
+        }
+      },
+      targetOperationChildren: {
+        // keyed by the STAGED operation id (coso_1)
+        coso_1: {
+          steps: [
+            // modified: sortOrder changed
+            { id: "coss_1", sourceId: "mos_1", name: "Inspect", sortOrder: 2 }
+          ],
+          parameters: [
+            // added: no sourceId
+            { id: "cosp_1", sourceId: null, key: "feed", value: "5" }
+          ],
+          // tools: mot_1 nothing points at ⇒ removed
+          tools: []
+        }
+      }
+    });
+
+    const children = operations[0].children!;
+    expect(children.steps).toHaveLength(1);
+    expect(children.steps[0].status).toBe("modified");
+    expect(children.steps[0].changedFields).toEqual({
+      sortOrder: { before: 1, after: 2 }
+    });
+
+    // base mop_1 dropped (removed) + staged cosp_1 with no sourceId (added)
+    expect(children.parameters).toHaveLength(2);
+    expect(children.parameters.map((e) => e.status).sort()).toEqual([
+      "added",
+      "removed"
+    ]);
+
+    expect(children.tools).toHaveLength(1);
+    expect(children.tools[0].status).toBe("removed");
+  });
+});
+
 describe("diffMethod — attributes", () => {
   it("reports one entry per changed attribute column", () => {
     const { attributes } = diffMethod({

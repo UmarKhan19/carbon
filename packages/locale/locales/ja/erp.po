@@ -702,6 +702,9 @@ msgstr "タイムカードを追加"
 msgid "Add to stock for future use"
 msgstr "将来の使用のためにストックに追加"
 
+msgid "Add Tool"
+msgstr ""
+
 #. placeholder {0}: copy.noun
 msgid "Add your first {0}"
 msgstr "最初の{0}を追加"
@@ -7139,6 +7142,9 @@ msgstr "最大数量"
 msgid "Max Quantity"
 msgstr "最大数量"
 
+msgid "Max Value"
+msgstr ""
+
 msgid "Maximum"
 msgstr "最大"
 
@@ -7231,6 +7237,9 @@ msgstr "データを移行"
 
 msgid "Min Qty"
 msgstr "最小数量"
+
+msgid "Min Value"
+msgstr ""
 
 msgid "Minimum"
 msgstr "最小"
@@ -7936,6 +7945,9 @@ msgstr "未処理のトレーニングはありません"
 msgid "No overtime scheduled"
 msgstr "残業予定なし"
 
+msgid "No parameters."
+msgstr ""
+
 msgid "No parent sources recorded yet. Click Recalculate on the planning page to refresh attribution."
 msgstr "親ソースはまだ記録されていません。計画ページの「再計算」をクリックして属性を更新してください。"
 
@@ -8005,6 +8017,9 @@ msgstr "このビューに適用されたソートはありません"
 msgid "No staged attributes for this item."
 msgstr ""
 
+msgid "No steps."
+msgstr ""
+
 msgid "No stock"
 msgstr "在庫なし"
 
@@ -8019,6 +8034,9 @@ msgstr "まだサプライヤーがありません"
 
 msgid "No time entries for this week"
 msgstr "今週のタイムエントリがありません"
+
+msgid "No tools."
+msgstr ""
 
 msgid "No transactions in this period"
 msgstr "この期間に取引がありません"
@@ -8492,6 +8510,9 @@ msgstr "支払済み金額:"
 
 msgid "Paid Date"
 msgstr "支払日"
+
+msgid "Parameter"
+msgstr ""
 
 msgid "Parameters"
 msgstr "パラメータ"
@@ -9759,14 +9780,23 @@ msgstr "注文を削除"
 msgid "Remove pair"
 msgstr "ペアを削除"
 
+msgid "Remove parameter"
+msgstr ""
+
 msgid "Remove sort by column"
 msgstr "列でソートを削除"
+
+msgid "Remove step"
+msgstr ""
 
 msgid "Remove supersession"
 msgstr ""
 
 msgid "Remove this storage type from all referencing storage units and delete it. This cannot be undone."
 msgstr "このストレージタイプをすべての参照ストレージユニットから削除し、削除します。これは元に戻すことはできません。"
+
+msgid "Remove tool"
+msgstr ""
 
 msgid "Removed"
 msgstr ""
@@ -11036,6 +11066,9 @@ msgstr "並べ替え"
 msgid "Sort Descending"
 msgstr "降順でソート"
 
+msgid "Sort Order"
+msgstr ""
+
 msgid "Source"
 msgstr "ソース"
 
@@ -11195,9 +11228,6 @@ msgstr "ステップ"
 
 msgid "Steps"
 msgstr "ステップ"
-
-msgid "Steps, parameters & tools are edited in a later phase"
-msgstr ""
 
 msgid "Stock Movements"
 msgstr "在庫移動"

@@ -13,6 +13,7 @@ import {
   getChangeOrderImpact,
   getChangeOrderStagedItemAttributes,
   getChangeOrderStagedMaterials,
+  getChangeOrderStagedOperationChildren,
   getChangeOrderStagedOperations,
   getChangeOrderSupersessions,
   getChangeOrderTypesList
@@ -102,10 +103,27 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
           .maybeSingle()
       ]);
 
+      // Staged BOP operation children (steps/params/tools) per staged operation,
+      // keyed by staged operation id — so existing children render in the editor,
+      // not just the add-forms. Flat reads + JS stitch (TS2589 budget).
+      const operationRows = operations.data ?? [];
+      const childrenEntries = await Promise.all(
+        operationRows.map(async (operation) => {
+          const children = await getChangeOrderStagedOperationChildren(
+            client,
+            operation.id,
+            companyId
+          );
+          return [operation.id, children.data] as const;
+        })
+      );
+      const operationChildren = Object.fromEntries(childrenEntries);
+
       return {
         affectedItem,
         materials: materials.data ?? [],
-        operations: operations.data ?? [],
+        operations: operationRows,
+        operationChildren,
         attributes: attributes.data ?? null,
         source: {
           itemId: affectedItem.itemId,

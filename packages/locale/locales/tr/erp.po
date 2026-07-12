@@ -702,6 +702,9 @@ msgstr "Zaman Kartı Ekle"
 msgid "Add to stock for future use"
 msgstr "Gelecekteki kullanım için stoğa ekle"
 
+msgid "Add Tool"
+msgstr ""
+
 #. placeholder {0}: copy.noun
 msgid "Add your first {0}"
 msgstr "İlk {0}inizi ekleyin"
@@ -7139,6 +7142,9 @@ msgstr "Maks. Miktar"
 msgid "Max Quantity"
 msgstr "Maksimum Miktar"
 
+msgid "Max Value"
+msgstr ""
+
 msgid "Maximum"
 msgstr "Maksimum"
 
@@ -7231,6 +7237,9 @@ msgstr "Verileri Taşı"
 
 msgid "Min Qty"
 msgstr "Min Miktar"
+
+msgid "Min Value"
+msgstr ""
 
 msgid "Minimum"
 msgstr "Minimum"
@@ -7936,6 +7945,9 @@ msgstr "Bekleyen eğitim yok"
 msgid "No overtime scheduled"
 msgstr "Planlanmış fazla mesai yok"
 
+msgid "No parameters."
+msgstr ""
+
 msgid "No parent sources recorded yet. Click Recalculate on the planning page to refresh attribution."
 msgstr "Henüz üst kaynaklar kaydedilmedi. Atıfı yenilemek için planlama sayfasındaki Yeniden Hesapla düğmesine tıklayın."
 
@@ -8005,6 +8017,9 @@ msgstr "Bu görünüme herhangi bir sıralama uygulanmadı"
 msgid "No staged attributes for this item."
 msgstr ""
 
+msgid "No steps."
+msgstr ""
+
 msgid "No stock"
 msgstr "Stok yok"
 
@@ -8019,6 +8034,9 @@ msgstr "Henüz tedarikçi yok"
 
 msgid "No time entries for this week"
 msgstr "Bu hafta için zaman girişi yok"
+
+msgid "No tools."
+msgstr ""
 
 msgid "No transactions in this period"
 msgstr "Bu dönemde işlem yok"
@@ -8492,6 +8510,9 @@ msgstr "Ödenen Tutar:"
 
 msgid "Paid Date"
 msgstr "Ödeme Tarihi"
+
+msgid "Parameter"
+msgstr ""
 
 msgid "Parameters"
 msgstr "Parametreler"
@@ -9759,14 +9780,23 @@ msgstr "Siparişi kaldır"
 msgid "Remove pair"
 msgstr "Çifti kaldır"
 
+msgid "Remove parameter"
+msgstr ""
+
 msgid "Remove sort by column"
 msgstr "Sıralamayı kaldır"
+
+msgid "Remove step"
+msgstr ""
 
 msgid "Remove supersession"
 msgstr ""
 
 msgid "Remove this storage type from all referencing storage units and delete it. This cannot be undone."
 msgstr "Bu depolama türünü tüm referans veren depolama birimlerinden kaldırır ve siler. Bu geri alınamaz."
+
+msgid "Remove tool"
+msgstr ""
 
 msgid "Removed"
 msgstr ""
@@ -11036,6 +11066,9 @@ msgstr "Sırala"
 msgid "Sort Descending"
 msgstr "Azalan Sıra"
 
+msgid "Sort Order"
+msgstr ""
+
 msgid "Source"
 msgstr "Kaynak"
 
@@ -11195,9 +11228,6 @@ msgstr "adımlar"
 
 msgid "Steps"
 msgstr "Adımlar"
-
-msgid "Steps, parameters & tools are edited in a later phase"
-msgstr ""
 
 msgid "Stock Movements"
 msgstr "Stok Hareketleri"

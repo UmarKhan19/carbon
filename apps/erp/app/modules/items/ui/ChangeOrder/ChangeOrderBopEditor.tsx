@@ -28,17 +28,37 @@ import { methodOperationOrders, operationTypes } from "~/modules/shared";
 import { path } from "~/utils/path";
 import type { MethodDiffEntry } from "../../changeOrder.models";
 import { changeOrderStagedOperationValidator } from "../../changeOrder.models";
+import type {
+  ChangeOrderBopChildrenData,
+  ChangeOrderBopChildrenDiff
+} from "./ChangeOrderBopChildren";
+import ChangeOrderBopChildren from "./ChangeOrderBopChildren";
 
 type StagedOperation =
   Database["public"]["Tables"]["changeOrderStagedOperation"]["Row"];
 
-type OperationDiff = MethodDiffEntry<Record<string, unknown>>;
+// The operation diff carries an optional child-level diff (steps/parameters/
+// tools) — see OperationDiffEntry in changeOrder.diff.ts. Typed structurally
+// here so the editor stays decoupled from the diff module.
+type OperationDiff = MethodDiffEntry<Record<string, unknown>> & {
+  children?: ChangeOrderBopChildrenDiff;
+};
+
+const EMPTY_CHILDREN: ChangeOrderBopChildrenData = {
+  steps: [],
+  parameters: [],
+  tools: []
+};
 
 type ChangeOrderBopEditorProps = {
   changeOrderId: string;
   affectedId: string;
   operations: StagedOperation[];
   diff?: OperationDiff[];
+  // Staged operation children keyed by staged operation id. Optional — when the
+  // loader hasn't threaded children yet the child editors render empty and the
+  // add-forms still POST to the child routes.
+  children?: Record<string, ChangeOrderBopChildrenData>;
   isDisabled: boolean;
 };
 
@@ -91,6 +111,7 @@ export default function ChangeOrderBopEditor({
   affectedId,
   operations,
   diff,
+  children,
   isDisabled
 }: ChangeOrderBopEditorProps) {
   const { t } = useLingui();
@@ -128,6 +149,8 @@ export default function ChangeOrderBopEditor({
                 affectedId={affectedId}
                 operation={operation}
                 status={diffMap.get(operation.id)?.status}
+                children={children?.[operation.id] ?? EMPTY_CHILDREN}
+                childDiff={diffMap.get(operation.id)?.children}
                 isDisabled={isDisabled}
               />
             ))}
@@ -150,10 +173,6 @@ export default function ChangeOrderBopEditor({
             );
           })}
 
-          <p className="text-xs text-muted-foreground">
-            <Trans>Steps, parameters & tools are edited in a later phase</Trans>
-          </p>
-
           {!isDisabled && (
             <NewBopOperation
               changeOrderId={changeOrderId}
@@ -174,12 +193,16 @@ function BopOperation({
   affectedId,
   operation,
   status,
+  children,
+  childDiff,
   isDisabled
 }: {
   changeOrderId: string;
   affectedId: string;
   operation: StagedOperation;
   status?: MethodDiffEntry<unknown>["status"];
+  children: ChangeOrderBopChildrenData;
+  childDiff?: ChangeOrderBopChildrenDiff;
   isDisabled: boolean;
 }) {
   const { t } = useLingui();
@@ -265,6 +288,17 @@ function BopOperation({
           </Submit>
         </HStack>
       </ValidatedForm>
+
+      <div className="mt-4 border-t border-border pt-3">
+        <ChangeOrderBopChildren
+          changeOrderId={changeOrderId}
+          affectedId={affectedId}
+          operationId={operation.id}
+          children={children}
+          diff={childDiff}
+          isDisabled={isDisabled}
+        />
+      </div>
     </div>
   );
 }

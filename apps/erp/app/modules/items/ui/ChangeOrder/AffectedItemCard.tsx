@@ -120,6 +120,7 @@ export default function AffectedItemCard({
                   changeOrderId={changeOrderId}
                   affectedId={affectedItem.id}
                   operations={affected.operations}
+                  children={affected.operationChildren}
                   diff={affected.diff?.operations}
                   isDisabled={isDisabled}
                 />

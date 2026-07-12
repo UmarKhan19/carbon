@@ -201,6 +201,38 @@ export const changeOrderStagedOperationValidator = z.object({
   sourceOperationId: zfd.text(z.string().optional())
 });
 
+// Staged BOP operation children (Task 16) — mirror methodOperationStep /
+// Parameter / Tool, scoped to a staged operation.
+export const changeOrderStagedOperationStepValidator = z.object({
+  id: zfd.text(z.string().optional()),
+  changeOrderId: z.string().min(1, { message: "Change order is required" }),
+  stagedOperationId: z.string().min(1, { message: "Operation is required" }),
+  name: z.string().min(1, { message: "Name is required" }),
+  description: zfd.text(z.string().optional()),
+  type: zfd.text(z.string().optional()),
+  required: zfd.checkbox(),
+  sortOrder: zfd.numeric(z.number().optional()),
+  unitOfMeasureCode: zfd.text(z.string().optional()),
+  minValue: zfd.numeric(z.number().optional()),
+  maxValue: zfd.numeric(z.number().optional())
+});
+
+export const changeOrderStagedOperationParameterValidator = z.object({
+  id: zfd.text(z.string().optional()),
+  changeOrderId: z.string().min(1, { message: "Change order is required" }),
+  stagedOperationId: z.string().min(1, { message: "Operation is required" }),
+  key: z.string().min(1, { message: "Key is required" }),
+  value: z.string().min(1, { message: "Value is required" })
+});
+
+export const changeOrderStagedOperationToolValidator = z.object({
+  id: zfd.text(z.string().optional()),
+  changeOrderId: z.string().min(1, { message: "Change order is required" }),
+  stagedOperationId: z.string().min(1, { message: "Operation is required" }),
+  toolId: z.string().min(1, { message: "Tool is required" }),
+  quantity: zfd.numeric(z.number().gt(0, { message: "Quantity must be > 0" }))
+});
+
 // Staged item attributes — CO-owned redline of an affected item's editable
 // fields (Q6). All optional; the exact set is finalized in Phase 3b against
 // PartProperties. One row per affected item.

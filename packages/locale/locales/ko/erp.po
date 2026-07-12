@@ -702,6 +702,9 @@ msgstr "근무기록 추가"
 msgid "Add to stock for future use"
 msgstr "향후 사용을 위해 재고에 추가"
 
+msgid "Add Tool"
+msgstr ""
+
 #. placeholder {0}: copy.noun
 msgid "Add your first {0}"
 msgstr "첫 {0}을(를) 추가하세요"
@@ -7139,6 +7142,9 @@ msgstr "최대 수량"
 msgid "Max Quantity"
 msgstr "최대 수량"
 
+msgid "Max Value"
+msgstr ""
+
 msgid "Maximum"
 msgstr "최대"
 
@@ -7231,6 +7237,9 @@ msgstr "데이터 마이그레이션"
 
 msgid "Min Qty"
 msgstr "최소 수량"
+
+msgid "Min Value"
+msgstr ""
 
 msgid "Minimum"
 msgstr "최소"
@@ -7936,6 +7945,9 @@ msgstr "미완료 교육이 없습니다"
 msgid "No overtime scheduled"
 msgstr "예정된 초과근무가 없습니다"
 
+msgid "No parameters."
+msgstr ""
+
 msgid "No parent sources recorded yet. Click Recalculate on the planning page to refresh attribution."
 msgstr "아직 기록된 상위 소스가 없습니다. 계획 페이지에서 재계산을 클릭하여 귀속 정보를 새로고침하세요."
 
@@ -8005,6 +8017,9 @@ msgstr "이 보기에는 정렬이 적용되지 않았습니다"
 msgid "No staged attributes for this item."
 msgstr ""
 
+msgid "No steps."
+msgstr ""
+
 msgid "No stock"
 msgstr "재고 없음"
 
@@ -8019,6 +8034,9 @@ msgstr "아직 공급업체가 없습니다"
 
 msgid "No time entries for this week"
 msgstr "이번 주 시간 기록이 없습니다"
+
+msgid "No tools."
+msgstr ""
 
 msgid "No transactions in this period"
 msgstr "이 기간에 거래가 없습니다"
@@ -8492,6 +8510,9 @@ msgstr "지급액:"
 
 msgid "Paid Date"
 msgstr "지급일"
+
+msgid "Parameter"
+msgstr ""
 
 msgid "Parameters"
 msgstr "파라미터"
@@ -9759,14 +9780,23 @@ msgstr "주문 제거"
 msgid "Remove pair"
 msgstr "쌍 제거"
 
+msgid "Remove parameter"
+msgstr ""
+
 msgid "Remove sort by column"
 msgstr "열 정렬 제거"
+
+msgid "Remove step"
+msgstr ""
 
 msgid "Remove supersession"
 msgstr ""
 
 msgid "Remove this storage type from all referencing storage units and delete it. This cannot be undone."
 msgstr "이 저장 유형을 참조하는 모든 저장 단위에서 제거하고 삭제합니다. 이 작업은 되돌릴 수 없습니다."
+
+msgid "Remove tool"
+msgstr ""
 
 msgid "Removed"
 msgstr ""
@@ -11036,6 +11066,9 @@ msgstr "정렬 기준"
 msgid "Sort Descending"
 msgstr "내림차순 정렬"
 
+msgid "Sort Order"
+msgstr ""
+
 msgid "Source"
 msgstr "소스"
 
@@ -11195,9 +11228,6 @@ msgstr "단계"
 
 msgid "Steps"
 msgstr "단계"
-
-msgid "Steps, parameters & tools are edited in a later phase"
-msgstr ""
 
 msgid "Stock Movements"
 msgstr "재고 이동"

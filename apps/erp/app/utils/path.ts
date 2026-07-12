@@ -740,6 +740,58 @@ export const path = {
       generatePath(
         `${x}/items/change-order/${id}/affected/${affectedId}/attributes`
       ),
+    // Staged operation children (Task 16) — keyed by staged operation id.
+    changeOrderStagedOperationStep: (
+      id: string,
+      affectedId: string,
+      operationId: string
+    ) =>
+      generatePath(
+        `${x}/items/change-order/${id}/affected/${affectedId}/operation/${operationId}/step`
+      ),
+    deleteChangeOrderStagedOperationStep: (
+      id: string,
+      affectedId: string,
+      operationId: string,
+      stepId: string
+    ) =>
+      generatePath(
+        `${x}/items/change-order/${id}/affected/${affectedId}/operation/${operationId}/step/delete/${stepId}`
+      ),
+    changeOrderStagedOperationParameter: (
+      id: string,
+      affectedId: string,
+      operationId: string
+    ) =>
+      generatePath(
+        `${x}/items/change-order/${id}/affected/${affectedId}/operation/${operationId}/parameter`
+      ),
+    deleteChangeOrderStagedOperationParameter: (
+      id: string,
+      affectedId: string,
+      operationId: string,
+      parameterId: string
+    ) =>
+      generatePath(
+        `${x}/items/change-order/${id}/affected/${affectedId}/operation/${operationId}/parameter/delete/${parameterId}`
+      ),
+    changeOrderStagedOperationTool: (
+      id: string,
+      affectedId: string,
+      operationId: string
+    ) =>
+      generatePath(
+        `${x}/items/change-order/${id}/affected/${affectedId}/operation/${operationId}/tool`
+      ),
+    deleteChangeOrderStagedOperationTool: (
+      id: string,
+      affectedId: string,
+      operationId: string,
+      toolId: string
+    ) =>
+      generatePath(
+        `${x}/items/change-order/${id}/affected/${affectedId}/operation/${operationId}/tool/delete/${toolId}`
+      ),
     changeOrderSupersession: (id: string) =>
       generatePath(`${x}/items/change-order/${id}/supersession`),
     deleteChangeOrderSupersession: (id: string, supersessionId: string) =>

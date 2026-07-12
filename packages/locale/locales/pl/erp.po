@@ -702,6 +702,9 @@ msgstr "Dodaj kartę czasu pracy"
 msgid "Add to stock for future use"
 msgstr "Dodaj do zapasów do przyszłego użytku"
 
+msgid "Add Tool"
+msgstr ""
+
 #. placeholder {0}: copy.noun
 msgid "Add your first {0}"
 msgstr "Dodaj swój pierwszy {0}"
@@ -7139,6 +7142,9 @@ msgstr "Maks. Ilość"
 msgid "Max Quantity"
 msgstr "Maks. Ilość"
 
+msgid "Max Value"
+msgstr ""
+
 msgid "Maximum"
 msgstr "Maksimum"
 
@@ -7231,6 +7237,9 @@ msgstr "Migruj dane"
 
 msgid "Min Qty"
 msgstr "Min Ilość"
+
+msgid "Min Value"
+msgstr ""
 
 msgid "Minimum"
 msgstr "Minimum"
@@ -7936,6 +7945,9 @@ msgstr "Brak zaległych szkoleń"
 msgid "No overtime scheduled"
 msgstr "Brak zaplanowanych nadgodzin"
 
+msgid "No parameters."
+msgstr ""
+
 msgid "No parent sources recorded yet. Click Recalculate on the planning page to refresh attribution."
 msgstr "Brak zarejestrowanych źródeł nadrzędnych. Kliknij Przelicz na stronie planowania, aby odświeżyć przypisanie."
 
@@ -8005,6 +8017,9 @@ msgstr "Brak zastosowanych sortowań w tym widoku"
 msgid "No staged attributes for this item."
 msgstr ""
 
+msgid "No steps."
+msgstr ""
+
 msgid "No stock"
 msgstr "Brak zapasu"
 
@@ -8019,6 +8034,9 @@ msgstr "Brak dostawców"
 
 msgid "No time entries for this week"
 msgstr "Brak wpisów czasu pracy w tym tygodniu"
+
+msgid "No tools."
+msgstr ""
 
 msgid "No transactions in this period"
 msgstr "Brak transakcji w tym okresie"
@@ -8492,6 +8510,9 @@ msgstr "Kwota zapłacona:"
 
 msgid "Paid Date"
 msgstr "Data zapłaty"
+
+msgid "Parameter"
+msgstr ""
 
 msgid "Parameters"
 msgstr "Parametry"
@@ -9759,14 +9780,23 @@ msgstr "Usuń zamówienie"
 msgid "Remove pair"
 msgstr "Usuń parę"
 
+msgid "Remove parameter"
+msgstr ""
+
 msgid "Remove sort by column"
 msgstr "Usuń sortowanie według kolumny"
+
+msgid "Remove step"
+msgstr ""
 
 msgid "Remove supersession"
 msgstr ""
 
 msgid "Remove this storage type from all referencing storage units and delete it. This cannot be undone."
 msgstr "Usuń ten typ magazynu ze wszystkich jednostek magazynowych, które się do niego odwołują, i usuń go. Tej operacji nie można cofnąć."
+
+msgid "Remove tool"
+msgstr ""
 
 msgid "Removed"
 msgstr ""
@@ -11036,6 +11066,9 @@ msgstr "Sortuj według"
 msgid "Sort Descending"
 msgstr "Sortuj malejąco"
 
+msgid "Sort Order"
+msgstr ""
+
 msgid "Source"
 msgstr "Źródło"
 
@@ -11195,9 +11228,6 @@ msgstr "kroki"
 
 msgid "Steps"
 msgstr "Kroki"
-
-msgid "Steps, parameters & tools are edited in a later phase"
-msgstr ""
 
 msgid "Stock Movements"
 msgstr "Ruchy Zapasów"

@@ -20,6 +20,7 @@ import type {
   ChangeOrderStagedMaterialWithLabel
 } from "../../changeOrder.staging";
 import AffectedItemCard from "./AffectedItemCard";
+import type { ChangeOrderBopChildrenData } from "./ChangeOrderBopChildren";
 
 type StagedOperation =
   Database["public"]["Tables"]["changeOrderStagedOperation"]["Row"];
@@ -48,6 +49,8 @@ export type AffectedItemStaging = {
   affectedItem: ChangeOrderAffectedItemWithLabel;
   materials: ChangeOrderStagedMaterialWithLabel[];
   operations: StagedOperation[];
+  // Staged BOP operation children keyed by staged operation id.
+  operationChildren: Record<string, ChangeOrderBopChildrenData>;
   attributes: StagedAttributes | null;
   source: AffectedItemSourceAttributes;
   diff?: ChangeOrderItemDiff;

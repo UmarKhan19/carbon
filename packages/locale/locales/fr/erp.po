@@ -702,6 +702,9 @@ msgstr "Ajouter une feuille de temps"
 msgid "Add to stock for future use"
 msgstr "Ajouter au stock pour utilisation future"
 
+msgid "Add Tool"
+msgstr ""
+
 #. placeholder {0}: copy.noun
 msgid "Add your first {0}"
 msgstr "Ajoutez votre premier {0}"
@@ -7139,6 +7142,9 @@ msgstr "Qté Max"
 msgid "Max Quantity"
 msgstr "Quantité Max"
 
+msgid "Max Value"
+msgstr ""
+
 msgid "Maximum"
 msgstr "Maximum"
 
@@ -7231,6 +7237,9 @@ msgstr "Migrer les données"
 
 msgid "Min Qty"
 msgstr "Qté min"
+
+msgid "Min Value"
+msgstr ""
 
 msgid "Minimum"
 msgstr "Minimum"
@@ -7936,6 +7945,9 @@ msgstr "Aucune formation en attente"
 msgid "No overtime scheduled"
 msgstr "Aucune heure supplémentaire prévue"
 
+msgid "No parameters."
+msgstr ""
+
 msgid "No parent sources recorded yet. Click Recalculate on the planning page to refresh attribution."
 msgstr "Aucune source parent enregistrée pour le moment. Cliquez sur Recalculer sur la page de planification pour actualiser l'attribution."
 
@@ -8005,6 +8017,9 @@ msgstr "Aucun tri appliqué à cette vue"
 msgid "No staged attributes for this item."
 msgstr ""
 
+msgid "No steps."
+msgstr ""
+
 msgid "No stock"
 msgstr "Aucun stock"
 
@@ -8019,6 +8034,9 @@ msgstr "Aucun fournisseur pour le moment"
 
 msgid "No time entries for this week"
 msgstr "Aucune entrée de temps pour cette semaine"
+
+msgid "No tools."
+msgstr ""
 
 msgid "No transactions in this period"
 msgstr "Aucune transaction au cours de cette période"
@@ -8492,6 +8510,9 @@ msgstr "Montant payé :"
 
 msgid "Paid Date"
 msgstr "Date de paiement"
+
+msgid "Parameter"
+msgstr ""
 
 msgid "Parameters"
 msgstr "Paramètres"
@@ -9759,14 +9780,23 @@ msgstr "Supprimer la commande"
 msgid "Remove pair"
 msgstr "Supprimer la paire"
 
+msgid "Remove parameter"
+msgstr ""
+
 msgid "Remove sort by column"
 msgstr "Supprimer le tri par colonne"
+
+msgid "Remove step"
+msgstr ""
 
 msgid "Remove supersession"
 msgstr ""
 
 msgid "Remove this storage type from all referencing storage units and delete it. This cannot be undone."
 msgstr "Supprimez ce type de stockage de toutes les unités de stockage qui le référencent et supprimez-le. Cette action ne peut pas être annulée."
+
+msgid "Remove tool"
+msgstr ""
 
 msgid "Removed"
 msgstr ""
@@ -11036,6 +11066,9 @@ msgstr "Trier par"
 msgid "Sort Descending"
 msgstr "Trier par ordre décroissant"
 
+msgid "Sort Order"
+msgstr ""
+
 msgid "Source"
 msgstr "Source"
 
@@ -11195,9 +11228,6 @@ msgstr "étapes"
 
 msgid "Steps"
 msgstr "Étapes"
-
-msgid "Steps, parameters & tools are edited in a later phase"
-msgstr ""
 
 msgid "Stock Movements"
 msgstr "Mouvements de Stock"

@@ -5350,6 +5350,537 @@ export type Database = {
           },
         ]
       }
+      changeOrderStagedOperationParameter: {
+        Row: {
+          changeOrderId: string
+          companyId: string
+          createdAt: string
+          createdBy: string
+          id: string
+          key: string
+          sourceId: string | null
+          stagedOperationId: string
+          updatedAt: string | null
+          updatedBy: string | null
+          value: string
+        }
+        Insert: {
+          changeOrderId: string
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          id?: string
+          key: string
+          sourceId?: string | null
+          stagedOperationId: string
+          updatedAt?: string | null
+          updatedBy?: string | null
+          value: string
+        }
+        Update: {
+          changeOrderId?: string
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          id?: string
+          key?: string
+          sourceId?: string | null
+          stagedOperationId?: string
+          updatedAt?: string | null
+          updatedBy?: string | null
+          value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "changeOrderStagedOperationParameter_changeOrderId_fkey"
+            columns: ["changeOrderId"]
+            isOneToOne: false
+            referencedRelation: "changeOrder"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationParameter_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationParameter_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationParameter_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationParameter_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationParameter_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationParameter_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationParameter_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationParameter_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationParameter_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationParameter_stagedOperationId_fkey"
+            columns: ["stagedOperationId"]
+            isOneToOne: false
+            referencedRelation: "changeOrderStagedOperation"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationParameter_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationParameter_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationParameter_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationParameter_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationParameter_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+        ]
+      }
+      changeOrderStagedOperationStep: {
+        Row: {
+          changeOrderId: string
+          companyId: string
+          createdAt: string
+          createdBy: string
+          description: Json | null
+          fileTypes: string[] | null
+          id: string
+          listValues: string[] | null
+          maxValue: number | null
+          minValue: number | null
+          name: string
+          required: boolean | null
+          sortOrder: number
+          sourceId: string | null
+          stagedOperationId: string
+          type: Database["public"]["Enums"]["procedureStepType"]
+          unitOfMeasureCode: string | null
+          updatedAt: string | null
+          updatedBy: string | null
+        }
+        Insert: {
+          changeOrderId: string
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          description?: Json | null
+          fileTypes?: string[] | null
+          id?: string
+          listValues?: string[] | null
+          maxValue?: number | null
+          minValue?: number | null
+          name: string
+          required?: boolean | null
+          sortOrder?: number
+          sourceId?: string | null
+          stagedOperationId: string
+          type?: Database["public"]["Enums"]["procedureStepType"]
+          unitOfMeasureCode?: string | null
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Update: {
+          changeOrderId?: string
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          description?: Json | null
+          fileTypes?: string[] | null
+          id?: string
+          listValues?: string[] | null
+          maxValue?: number | null
+          minValue?: number | null
+          name?: string
+          required?: boolean | null
+          sortOrder?: number
+          sourceId?: string | null
+          stagedOperationId?: string
+          type?: Database["public"]["Enums"]["procedureStepType"]
+          unitOfMeasureCode?: string | null
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "changeOrderStagedOperationStep_changeOrderId_fkey"
+            columns: ["changeOrderId"]
+            isOneToOne: false
+            referencedRelation: "changeOrder"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationStep_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationStep_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationStep_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationStep_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationStep_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationStep_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationStep_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationStep_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationStep_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationStep_stagedOperationId_fkey"
+            columns: ["stagedOperationId"]
+            isOneToOne: false
+            referencedRelation: "changeOrderStagedOperation"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationStep_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationStep_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationStep_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationStep_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationStep_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+        ]
+      }
+      changeOrderStagedOperationTool: {
+        Row: {
+          changeOrderId: string
+          companyId: string
+          createdAt: string
+          createdBy: string
+          id: string
+          quantity: number
+          sourceId: string | null
+          stagedOperationId: string
+          toolId: string
+          updatedAt: string | null
+          updatedBy: string | null
+        }
+        Insert: {
+          changeOrderId: string
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          id?: string
+          quantity?: number
+          sourceId?: string | null
+          stagedOperationId: string
+          toolId: string
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Update: {
+          changeOrderId?: string
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          id?: string
+          quantity?: number
+          sourceId?: string | null
+          stagedOperationId?: string
+          toolId?: string
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "changeOrderStagedOperationTool_changeOrderId_fkey"
+            columns: ["changeOrderId"]
+            isOneToOne: false
+            referencedRelation: "changeOrder"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationTool_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationTool_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationTool_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationTool_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationTool_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationTool_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationTool_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationTool_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationTool_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationTool_stagedOperationId_fkey"
+            columns: ["stagedOperationId"]
+            isOneToOne: false
+            referencedRelation: "changeOrderStagedOperation"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationTool_toolId_fkey"
+            columns: ["toolId"]
+            isOneToOne: false
+            referencedRelation: "consumables"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationTool_toolId_fkey"
+            columns: ["toolId"]
+            isOneToOne: false
+            referencedRelation: "item"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationTool_toolId_fkey"
+            columns: ["toolId"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationTool_toolId_fkey"
+            columns: ["toolId"]
+            isOneToOne: false
+            referencedRelation: "parts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationTool_toolId_fkey"
+            columns: ["toolId"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationTool_toolId_fkey"
+            columns: ["toolId"]
+            isOneToOne: false
+            referencedRelation: "tools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationTool_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationTool_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationTool_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationTool_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "changeOrderStagedOperationTool_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+        ]
+      }
       changeOrderSupersession: {
         Row: {
           changeOrderId: string
@@ -63297,14 +63828,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["supplierCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["supplierCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -66681,14 +67212,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["invoiceCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["invoiceCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -67243,14 +67774,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["paymentCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["paymentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]

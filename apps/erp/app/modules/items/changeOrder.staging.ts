@@ -7,6 +7,9 @@ import type {
   changeOrderAffectedItemValidator,
   changeOrderStagedItemAttributesValidator,
   changeOrderStagedMaterialValidator,
+  changeOrderStagedOperationParameterValidator,
+  changeOrderStagedOperationStepValidator,
+  changeOrderStagedOperationToolValidator,
   changeOrderStagedOperationValidator,
   changeOrderSupersessionValidator
 } from "./changeOrder.models";
@@ -200,6 +203,42 @@ export async function addChangeOrderAffectedItem(
     liveOperations = operations.data ?? [];
   }
 
+  // Read the live operations' children (steps/parameters/tools) to snapshot,
+  // keyed by live operation id so we can attach them to the staged operation
+  // once we know its new id. Uses the supabase client (RLS) BEFORE the txn.
+  let liveSteps: Database["public"]["Tables"]["methodOperationStep"]["Row"][] =
+    [];
+  let liveParameters: Database["public"]["Tables"]["methodOperationParameter"]["Row"][] =
+    [];
+  let liveTools: Database["public"]["Tables"]["methodOperationTool"]["Row"][] =
+    [];
+  const liveOperationIds = liveOperations.map((o) => o.id);
+  if (liveOperationIds.length > 0) {
+    const [steps, parameters, tools] = await Promise.all([
+      client
+        .from("methodOperationStep")
+        .select("*")
+        .in("operationId", liveOperationIds)
+        .eq("companyId", companyId),
+      client
+        .from("methodOperationParameter")
+        .select("*")
+        .in("operationId", liveOperationIds)
+        .eq("companyId", companyId),
+      client
+        .from("methodOperationTool")
+        .select("*")
+        .in("operationId", liveOperationIds)
+        .eq("companyId", companyId)
+    ]);
+    if (steps.error) return { data: null, error: steps.error };
+    if (parameters.error) return { data: null, error: parameters.error };
+    if (tools.error) return { data: null, error: tools.error };
+    liveSteps = steps.data ?? [];
+    liveParameters = parameters.data ?? [];
+    liveTools = tools.data ?? [];
+  }
+
   const now = new Date().toISOString();
 
   try {
@@ -265,34 +304,122 @@ export async function addChangeOrderAffectedItem(
       // Snapshot the live make method's operations (sourceOperationId = live id).
       // The staged-operation columns mirror the CURRENT methodOperation header;
       // copy every mirrored field so the staged copy is a faithful end-state.
-      if (liveOperations.length > 0) {
-        await trx
+      // Insert one at a time (returning id) to build the live-op → staged-op id
+      // map needed to attach the copied children below.
+      const stagedOperationIdByLiveId = new Map<string, string>();
+      for (const o of liveOperations) {
+        const stagedOp = await trx
           .insertInto("changeOrderStagedOperation")
-          .values(
-            liveOperations.map((o) => ({
-              changeOrderId,
-              affectedItemId: affected.id,
-              order: o.order,
-              operationOrder: o.operationOrder,
-              operationType: o.operationType,
-              processId: o.processId,
-              workCenterId: o.workCenterId,
-              operationSupplierProcessId: o.operationSupplierProcessId,
-              procedureId: o.procedureId,
-              description: o.description,
-              setupTime: o.setupTime,
-              setupUnit: o.setupUnit,
-              laborTime: o.laborTime,
-              laborUnit: o.laborUnit,
-              machineTime: o.machineTime,
-              machineUnit: o.machineUnit,
-              workInstruction: o.workInstruction,
-              sourceOperationId: o.id,
-              companyId,
-              createdBy: userId,
-              createdAt: now
-            }))
-          )
+          .values({
+            changeOrderId,
+            affectedItemId: affected.id,
+            order: o.order,
+            operationOrder: o.operationOrder,
+            operationType: o.operationType,
+            processId: o.processId,
+            workCenterId: o.workCenterId,
+            operationSupplierProcessId: o.operationSupplierProcessId,
+            procedureId: o.procedureId,
+            description: o.description,
+            setupTime: o.setupTime,
+            setupUnit: o.setupUnit,
+            laborTime: o.laborTime,
+            laborUnit: o.laborUnit,
+            machineTime: o.machineTime,
+            machineUnit: o.machineUnit,
+            workInstruction: o.workInstruction,
+            sourceOperationId: o.id,
+            companyId,
+            createdBy: userId,
+            createdAt: now
+          })
+          .returning("id")
+          .executeTakeFirstOrThrow();
+        stagedOperationIdByLiveId.set(o.id, stagedOp.id);
+      }
+
+      // Snapshot the operations' children into the CO-owned mirror tables
+      // (sourceId = live child id). stagedOperationId resolves via the map.
+      const stagedSteps = liveSteps
+        .map((s) => {
+          const stagedOperationId = stagedOperationIdByLiveId.get(
+            s.operationId
+          );
+          if (!stagedOperationId) return null;
+          return {
+            changeOrderId,
+            stagedOperationId,
+            name: s.name,
+            description: s.description,
+            type: s.type,
+            required: s.required,
+            sortOrder: s.sortOrder,
+            unitOfMeasureCode: s.unitOfMeasureCode,
+            minValue: s.minValue,
+            maxValue: s.maxValue,
+            listValues: s.listValues,
+            fileTypes: s.fileTypes,
+            sourceId: s.id,
+            companyId,
+            createdBy: userId,
+            createdAt: now
+          };
+        })
+        .filter((v): v is NonNullable<typeof v> => v !== null);
+      if (stagedSteps.length > 0) {
+        await trx
+          .insertInto("changeOrderStagedOperationStep")
+          .values(stagedSteps)
+          .execute();
+      }
+
+      const stagedParameters = liveParameters
+        .map((p) => {
+          const stagedOperationId = stagedOperationIdByLiveId.get(
+            p.operationId
+          );
+          if (!stagedOperationId) return null;
+          return {
+            changeOrderId,
+            stagedOperationId,
+            key: p.key,
+            value: p.value,
+            sourceId: p.id,
+            companyId,
+            createdBy: userId,
+            createdAt: now
+          };
+        })
+        .filter((v): v is NonNullable<typeof v> => v !== null);
+      if (stagedParameters.length > 0) {
+        await trx
+          .insertInto("changeOrderStagedOperationParameter")
+          .values(stagedParameters)
+          .execute();
+      }
+
+      const stagedTools = liveTools
+        .map((t) => {
+          const stagedOperationId = stagedOperationIdByLiveId.get(
+            t.operationId
+          );
+          if (!stagedOperationId) return null;
+          return {
+            changeOrderId,
+            stagedOperationId,
+            toolId: t.toolId,
+            quantity: t.quantity,
+            sourceId: t.id,
+            companyId,
+            createdBy: userId,
+            createdAt: now
+          };
+        })
+        .filter((v): v is NonNullable<typeof v> => v !== null);
+      if (stagedTools.length > 0) {
+        await trx
+          .insertInto("changeOrderStagedOperationTool")
+          .values(stagedTools)
           .execute();
       }
 
@@ -615,6 +742,259 @@ export async function reorderChangeOrderStagedOperations(
         .execute();
     }
   });
+}
+
+// -----------------------------------------------------------------------------
+// Staged BOP operation CHILDREN (Task 16) — CO-owned mirrors of
+// methodOperationStep / methodOperationParameter / methodOperationTool, scoped to
+// a staged operation. Snapshotted on affected-item add (sourceId = live child
+// id; NULL ⇒ added line); edited here to the desired end-state. Flat selects, no
+// embeds. Enum-typed fields arrive as text from the validators and are cast to
+// the generated Insert types (the DB enum is the real guard).
+// -----------------------------------------------------------------------------
+
+// --- Steps -------------------------------------------------------------------
+
+export async function getChangeOrderStagedOperationSteps(
+  client: SupabaseClient<Database>,
+  stagedOperationId: string,
+  companyId: string
+) {
+  return client
+    .from("changeOrderStagedOperationStep")
+    .select("*")
+    .eq("stagedOperationId", stagedOperationId)
+    .eq("companyId", companyId)
+    .order("sortOrder", { ascending: true });
+}
+
+export async function upsertChangeOrderStagedOperationStep(
+  client: SupabaseClient<Database>,
+  input: z.infer<typeof changeOrderStagedOperationStepValidator> & {
+    companyId: string;
+    userId: string;
+  }
+): Promise<{ data: { id: string } | null; error: { message: string } | null }> {
+  const { id, companyId, userId, changeOrderId, stagedOperationId, ...rest } =
+    input;
+
+  type StepInsert =
+    Database["public"]["Tables"]["changeOrderStagedOperationStep"]["Insert"];
+
+  const payload = {
+    name: rest.name,
+    description: rest.description,
+    type: rest.type as StepInsert["type"],
+    required: rest.required,
+    sortOrder: rest.sortOrder,
+    unitOfMeasureCode: rest.unitOfMeasureCode,
+    minValue: rest.minValue,
+    maxValue: rest.maxValue
+  };
+
+  if (id) {
+    return client
+      .from("changeOrderStagedOperationStep")
+      .update({
+        ...sanitize(payload),
+        updatedBy: userId,
+        updatedAt: new Date().toISOString()
+      })
+      .eq("id", id)
+      .eq("companyId", companyId)
+      .select("id")
+      .single();
+  }
+
+  return client
+    .from("changeOrderStagedOperationStep")
+    .insert({
+      changeOrderId,
+      stagedOperationId,
+      companyId,
+      createdBy: userId,
+      ...sanitize(payload)
+    })
+    .select("id")
+    .single();
+}
+
+export async function deleteChangeOrderStagedOperationStep(
+  client: SupabaseClient<Database>,
+  id: string
+) {
+  return client.from("changeOrderStagedOperationStep").delete().eq("id", id);
+}
+
+// --- Parameters --------------------------------------------------------------
+
+export async function getChangeOrderStagedOperationParameters(
+  client: SupabaseClient<Database>,
+  stagedOperationId: string,
+  companyId: string
+) {
+  return client
+    .from("changeOrderStagedOperationParameter")
+    .select("*")
+    .eq("stagedOperationId", stagedOperationId)
+    .eq("companyId", companyId)
+    .order("createdAt", { ascending: true });
+}
+
+export async function upsertChangeOrderStagedOperationParameter(
+  client: SupabaseClient<Database>,
+  input: z.infer<typeof changeOrderStagedOperationParameterValidator> & {
+    companyId: string;
+    userId: string;
+  }
+): Promise<{ data: { id: string } | null; error: { message: string } | null }> {
+  const { id, companyId, userId, changeOrderId, stagedOperationId, ...rest } =
+    input;
+
+  const payload = {
+    key: rest.key,
+    value: rest.value
+  };
+
+  if (id) {
+    return client
+      .from("changeOrderStagedOperationParameter")
+      .update({
+        ...sanitize(payload),
+        updatedBy: userId,
+        updatedAt: new Date().toISOString()
+      })
+      .eq("id", id)
+      .eq("companyId", companyId)
+      .select("id")
+      .single();
+  }
+
+  return client
+    .from("changeOrderStagedOperationParameter")
+    .insert({
+      changeOrderId,
+      stagedOperationId,
+      companyId,
+      createdBy: userId,
+      ...sanitize(payload)
+    })
+    .select("id")
+    .single();
+}
+
+export async function deleteChangeOrderStagedOperationParameter(
+  client: SupabaseClient<Database>,
+  id: string
+) {
+  return client
+    .from("changeOrderStagedOperationParameter")
+    .delete()
+    .eq("id", id);
+}
+
+// --- Tools -------------------------------------------------------------------
+
+export async function getChangeOrderStagedOperationTools(
+  client: SupabaseClient<Database>,
+  stagedOperationId: string,
+  companyId: string
+) {
+  return client
+    .from("changeOrderStagedOperationTool")
+    .select("*")
+    .eq("stagedOperationId", stagedOperationId)
+    .eq("companyId", companyId)
+    .order("createdAt", { ascending: true });
+}
+
+export async function upsertChangeOrderStagedOperationTool(
+  client: SupabaseClient<Database>,
+  input: z.infer<typeof changeOrderStagedOperationToolValidator> & {
+    companyId: string;
+    userId: string;
+  }
+): Promise<{ data: { id: string } | null; error: { message: string } | null }> {
+  const { id, companyId, userId, changeOrderId, stagedOperationId, ...rest } =
+    input;
+
+  const payload = {
+    toolId: rest.toolId,
+    quantity: rest.quantity
+  };
+
+  if (id) {
+    return client
+      .from("changeOrderStagedOperationTool")
+      .update({
+        ...sanitize(payload),
+        updatedBy: userId,
+        updatedAt: new Date().toISOString()
+      })
+      .eq("id", id)
+      .eq("companyId", companyId)
+      .select("id")
+      .single();
+  }
+
+  return client
+    .from("changeOrderStagedOperationTool")
+    .insert({
+      changeOrderId,
+      stagedOperationId,
+      companyId,
+      createdBy: userId,
+      ...sanitize(payload)
+    })
+    .select("id")
+    .single();
+}
+
+export async function deleteChangeOrderStagedOperationTool(
+  client: SupabaseClient<Database>,
+  id: string
+) {
+  return client.from("changeOrderStagedOperationTool").delete().eq("id", id);
+}
+
+// Combined fetch of a staged operation's children — one round of reads returning
+// { steps, parameters, tools }. Convenience for the operation detail loader; each
+// underlying read is the corresponding get above.
+export async function getChangeOrderStagedOperationChildren(
+  client: SupabaseClient<Database>,
+  stagedOperationId: string,
+  companyId: string
+): Promise<{
+  data: {
+    steps: Database["public"]["Tables"]["changeOrderStagedOperationStep"]["Row"][];
+    parameters: Database["public"]["Tables"]["changeOrderStagedOperationParameter"]["Row"][];
+    tools: Database["public"]["Tables"]["changeOrderStagedOperationTool"]["Row"][];
+  };
+  error: { message: string } | null;
+}> {
+  const [steps, parameters, tools] = await Promise.all([
+    getChangeOrderStagedOperationSteps(client, stagedOperationId, companyId),
+    getChangeOrderStagedOperationParameters(
+      client,
+      stagedOperationId,
+      companyId
+    ),
+    getChangeOrderStagedOperationTools(client, stagedOperationId, companyId)
+  ]);
+
+  const error = steps.error ?? parameters.error ?? tools.error;
+  if (error) {
+    return { data: { steps: [], parameters: [], tools: [] }, error };
+  }
+
+  return {
+    data: {
+      steps: steps.data ?? [],
+      parameters: parameters.data ?? [],
+      tools: tools.data ?? []
+    },
+    error: null
+  };
 }
 
 // -----------------------------------------------------------------------------
