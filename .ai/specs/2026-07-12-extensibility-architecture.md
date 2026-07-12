@@ -118,10 +118,22 @@ Carbon closes this window with a **transactional outbox**:
   Kysely transaction. Either both land or neither does — the event's existence
   is now as durable as the business fact that produced it.
 - **A background relay dispatches to Inngest.** A relay (an Inngest cron/poller
-  in `@carbon/jobs`) reads `pending` outbox rows in commit order, calls
-  `inngest.send()` with the stored `eventId`, and on ack marks the row
-  `sent`. This decouples "the fact happened" (transactional) from "the fact was
-  announced" (best-effort, retried).
+  in `@carbon/jobs`) polls `pending` outbox rows ordered by `(status,
+  createdAt)`, calls `inngest.send()` with the stored `eventId`, and on ack
+  marks the row `sent`. This decouples "the fact happened" (transactional) from
+  "the fact was announced" (best-effort, retried). **Dispatch ordering is
+  best-effort, not strict commit order.** `createdAt` is a wall-clock timestamp,
+  not a commit sequence number — two transactions can commit in an order that
+  differs from their `createdAt` values (clock skew, differing transaction
+  durations), so polling by `(status, createdAt)` approximates but does not
+  guarantee commit order. The guarantee this design actually provides is
+  **at-least-once delivery with `eventId` deduplication**, *without* strict
+  cross-event ordering. Consumers (`after:` hooks, workflows) must not assume two
+  events arrive in the order their domain transactions committed. If strict
+  per-aggregate ordering later becomes a hard requirement, the path forward is a
+  per-aggregate monotonic sequence number (assigned inside the domain
+  transaction) that the relay drains in sequence — that is explicitly **out of
+  scope for this spec**, which needs only at-least-once + dedup.
 - **Retry policy.** A failed relay send is retried with exponential backoff
   (e.g. base 2s, factor 2, jitter, cap ~5m) up to a bounded `maxRetries`
   (e.g. 8). `attemptCount` and `lastError` are recorded on the outbox row.
@@ -163,64 +175,80 @@ access.
 ### Schema extension without EAV
 
 Every piece of extension data lives in a real, typed, platform-generated
-Postgres table. Two shapes:
+Postgres table inside the extension's **own dedicated Postgres schema**
+(`ext_<camelCaseSlug>`, e.g. `ext_coatingInspection`) — never in `public`
+alongside core tables. The schema, not a name prefix, is the privilege boundary
+(see Security and access control). Two shapes:
 
 - **Entity augmentation — side tables.** Adding fields to a core entity
-  generates a 1:1 side table keyed `(id, companyId)` to the core row with a
-  composite FK and `ON DELETE CASCADE`. Core tables are never ALTERed;
-  orphaned extension data is impossible. Declared augment fields auto-render
-  at the entity's form slot.
-- **New entities — namespaced tables** (`ext_{extension}_{table}`) with the
-  full platform conventions: `id('prefix')`, `companyId`, composite PK, RLS,
-  audit columns. Extensions get a scoped, typed Kysely client covering **their
-  namespace only**, backed by a DB role with no grants outside it.
+  generates a 1:1 side table (e.g. `ext_coatingInspection.receiptLine`) keyed
+  `(id, companyId)` to the core row with a composite FK and `ON DELETE CASCADE`.
+  Core tables are never ALTERed; orphaned extension data is impossible. Declared
+  augment fields auto-render at the entity's form slot.
+- **New entities — schema-owned tables** (`ext_<camelCaseSlug>.<tableName>`)
+  with the full platform conventions: `id('prefix')`, `companyId`, composite PK,
+  RLS, audit columns. Extensions get a scoped, typed Kysely client covering
+  **their schema only**, backed by a runtime DB role whose grants do not extend
+  outside that schema.
 
 Authors do not write SQL. They declare schema in the manifest; `carbon ext
 generate` diffs against the last generated version and emits a numbered,
-immutable, checksummed migration into the extension package. The generator
-statically rejects references to non-contract core relations, triggers on core
-tables, and any ALTER outside the extension namespace — the generated SQL is
-the only SQL an extension can ship.
+immutable, checksummed migration into the extension package. The first
+migration for an extension also scaffolds the extension's dedicated schema
+(`CREATE SCHEMA ext_<camelCaseSlug>`) and its two least-privilege roles with
+schema-scoped grants (see Security and access control) — authors never write
+`CREATE ROLE`/`GRANT` either. The generator statically rejects references to
+non-contract core relations, triggers on core tables, and any DDL targeting a
+schema other than the extension's own — the generated SQL is the only SQL an
+extension can ship.
 
-#### Canonical table-name normalization
+#### Canonical schema- and table-name normalization
 
-Table identifiers are **generated deterministically** from the manifest, never
-authored, so the same manifest always yields the same physical name across
-implementations. The rules are canonical:
+Schema and table identifiers are **generated deterministically** from the
+manifest, never authored, so the same manifest always yields the same physical
+names across implementations. The rules are canonical:
 
 - **Slug normalization.** The manifest `slug` is kebab-case
-  (`^[a-z][a-z0-9-]*$`); it is normalized to a camelCase identifier segment by
+  (`^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$`) — it must start with a letter and every
+  hyphen must be followed by at least one alphanumeric character, so **trailing
+  hyphens (`foo-`) and consecutive hyphens (`foo--bar`) are rejected** at
+  manifest validation. It is normalized to a camelCase identifier segment by
   removing each hyphen and upper-casing the following character
   (`coating-inspection` → `coatingInspection`). No other transformation (no
   case folding of the first character, no stripping of digits).
-- **Prefix and pattern.** Every extension table name is
-  **`ext_<camelCaseSlug>_<tableName>`**, where `<tableName>` is the manifest's
+- **Schema name and table pattern.** Every extension owns one schema named
+  **`ext_<camelCaseSlug>`** and all of its tables live inside it as
+  **`ext_<camelCaseSlug>.<tableName>`**, where `<tableName>` is the manifest's
   table key (side tables use the augmented core table's name, e.g.
   `receiptLine`; owned entities use the author-declared table key, validated
   against the same `^[a-z][a-zA-Z0-9]*$` shape). Thus manifest slug
-  `coating-inspection` augmenting `receiptLine` **must** derive
-  `ext_coatingInspection_receiptLine` — the example below is generated from
-  exactly this rule, not hand-picked.
-- **63-byte limit handling.** PostgreSQL truncates identifiers at 63 bytes,
-  which would silently collide two long names. The generator computes the full
-  identifier and, **if it exceeds 63 bytes**, deterministically truncates the
-  variable portion and appends a short hash suffix of the *pre-truncation full
-  name* (`…_<base36(hash)[0..6]>`) so the result stays unique and stable. If
-  even the prefix + hash cannot fit (pathologically long fixed parts), it is a
+  `coating-inspection` augmenting `receiptLine` **must** derive schema
+  `ext_coatingInspection` and table `ext_coatingInspection.receiptLine` — the
+  example below is generated from exactly this rule, not hand-picked.
+- **63-byte limit handling.** PostgreSQL truncates identifiers at 63 bytes, and
+  the limit applies to the schema name and each table name *independently*
+  (they are separate identifiers). The generator computes each identifier and,
+  **if one exceeds 63 bytes**, deterministically truncates the variable portion
+  and appends a short hash suffix of the *pre-truncation full name*
+  (`…_<base36(hash)[0..6]>`) so the result stays unique and stable. If even the
+  fixed part + hash cannot fit (pathologically long slug or table key), it is a
   **manifest validation error** telling the author to shorten the slug/table
   key — the generator never emits an identifier Postgres would truncate on its
   own.
-- **Collision detection.** Two extensions (or two tables within one) that
-  normalize to the same `ext_*` identifier are a **hard manifest/registry
-  validation error** at `carbon ext generate`/`publish` time — the corpus
-  registry rejects a publish whose derived table names collide with an existing
-  registered extension's. Names are reserved by the **normalized** identifier,
-  not the raw slug, so any two slugs that derive the same `ext_*` name (or the
-  same name after 63-byte truncation + hashing) cannot both register.
+- **Collision detection.** Because each extension lives in its own schema, two
+  tables *within* one extension collide only if they normalize to the same
+  table name (a hard manifest validation error at `carbon ext generate`), and
+  cross-extension table-name overlap is impossible by construction — different
+  schemas. The globally-unique identifier is therefore the **schema name**: two
+  slugs that normalize to the same `ext_<camelCaseSlug>` schema (or the same
+  name after 63-byte truncation + hashing) are a **hard manifest/registry
+  validation error** at `carbon ext generate`/`publish` time. The corpus
+  registry reserves schemas by the **normalized** name, not the raw slug, so no
+  two extensions can claim the same schema.
 
 Because names are a pure function of the manifest, the generator, the migration
 applier, the scoped Kysely client's type generation, and the conformance
-checker all derive the identifier the same way — there is no second source of
+checker all derive the identifiers the same way — there is no second source of
 truth to drift.
 
 ### Module isolation at package boundaries
@@ -233,9 +261,10 @@ not survive contact with deadlines:
    `@carbon/extension-sdk`, `@carbon/contracts/*`, their own files, and
    declared npm deps; core modules get the mirror-image rule.
 2. **Typecheck** — internal types are not exported from module barrels; the
-   scoped Kysely client makes out-of-namespace table access a type error.
-3. **Runtime** — the namespace-scoped DB role and tenant-scoped service
-   registry make the first two non-bypassable even by dynamic code.
+   scoped Kysely client makes out-of-schema table access a type error.
+3. **Runtime** — the schema-scoped DB role (grants confined to
+   `ext_<camelCaseSlug>`) and tenant-scoped service registry make the first two
+   non-bypassable even by dynamic code.
 
 Extensions may depend on other extensions only if the dependency publishes its
 own contract; the platform topologically orders install/migration/hook
@@ -274,7 +303,7 @@ is acceptable in v1 *only because the gating corpus is first-party/reviewed
 code*, not arbitrary untrusted uploads. The runtime restricts extensions by
 capability rather than OS sandboxing: extension code receives its powers solely
 through injected `HookContext`/`WorkflowContext` (tenant-scoped contract
-services + the namespace-scoped Kysely client) and may import only
+services + the schema-scoped Kysely client) and may import only
 `@carbon/extension-sdk`, `@carbon/contracts/*`, and declared npm deps — no
 `@carbon/database`, no core service internals, no ambient DB handle (enforced at
 lint + typecheck, backstopped by the DB role). `before:` hooks additionally get
@@ -286,32 +315,80 @@ without contract changes) — and is a **hard prerequisite** before any unreview
 community extension is allowed to execute (as opposed to today's report-only
 corpus, which only runs tests, never production hooks).
 
-**Schema-extension DDL authorization.** Extension migrations are **not** run by
-the extension, by the app's request-time DB role, or by a superuser. They are
-applied by the platform's **migration applier** (in `extension-host`) using a
-dedicated, least-privilege **migrator role** that may `CREATE`/`ALTER`/`DROP`
-only within the `ext_*` namespace and may reference core tables **only** as FK
-targets (never `ALTER` them). The generator statically rejects any DDL outside
-the extension namespace, triggers on core tables, or ALTERs of core relations
-before the SQL is ever emitted, so the migrator role is a defense-in-depth
-backstop, not the first line. After migration, the extension's **runtime** role
-is a separate, even-narrower role scoped to its namespace tables with no DDL
-grants at all — so a compromised extension at runtime cannot alter schema, and
-the migrator role is never available on the request path. Neither role can read
-or write another extension's namespace or core tables outside the sanctioned
-contract views.
+**Schema-extension DDL authorization.** The privilege boundary is a real
+PostgreSQL **schema**, not a name prefix — a `ext_*` naming convention alone
+grants no isolation, because any role with rights on `public` could touch a
+`public.ext_foo_bar` table regardless of what it is called. Instead, each
+extension owns a dedicated schema `ext_<camelCaseSlug>` and gets **two
+least-privilege roles**, both scaffolded by the generator (never authored) and
+granted only against that one schema:
+
+- **Migrator role (`ext_<slug>_migrator`)** — `CONNECT` plus `CREATE`, `ALTER`,
+  and `DROP` **only inside schema `ext_<camelCaseSlug>`** (`GRANT ... ON SCHEMA
+  ext_<camelCaseSlug>`), and no `CREATE` on any other schema. It may reference
+  core relations in `public` **only** as FK targets (a grant that permits the
+  `REFERENCES` privilege, never `ALTER`/`DROP` on them). Extension migrations are
+  applied by the platform's **migration applier** (in `extension-host`) as this
+  role — never by the extension, the app's request-time role, or a superuser.
+- **Runtime role (`ext_<slug>_runtime`)** — `SELECT`/`INSERT`/`UPDATE`/`DELETE`
+  on the extension's tables **inside `ext_<camelCaseSlug>` only**, with **no DDL
+  grants at all** and no `CREATE` on any schema. This is the role the scoped
+  Kysely client connects as on the request path, so a compromised extension at
+  runtime cannot alter schema, and the migrator role is never reachable from a
+  request.
+
+Core schema (`public`) and every *other* extension's schema are off-limits to
+both roles: neither is granted `USAGE`/`CREATE` on another `ext_<...>` schema,
+and read/write access to core data is only ever through the sanctioned contract
+views (themselves granted explicitly to the runtime role). The generator is
+still the single emitter of DDL and statically rejects any statement targeting a
+schema other than the extension's own, any trigger on a core table, or any
+`ALTER` of a core relation before the SQL is emitted — so the schema-scoped
+roles are a defense-in-depth backstop enforced by Postgres itself, not the first
+line.
 
 **Uninstall / removal safety.** Removal never runs author-supplied teardown
-SQL. Uninstall defaults to **archive** (rename the namespace to `ext_removed_*`
-and revoke the runtime role's grants — non-destructive, reversible); **drop** is
-a separate, destructive, double-confirmed action. Because every side table is
-keyed to core via `ON DELETE CASCADE` on the *extension* side only (core rows
-reference nothing in `ext_*`), removing an extension can never cascade into or
-lock core data. DDL for removal is generated and namespace-scoped exactly like
-install, so an extension cannot script a `DROP` of a core object or another
-extension's table during uninstall. Disabling an extension is instantaneous and
-non-schema-touching: it flips `extensionInstall.enabled`, which immediately
-stops hook/workflow dispatch while leaving data intact.
+SQL. Uninstall defaults to **archive** — non-destructive and reversible — which
+does three things atomically:
+
+1. **Rename the schema** `ext_<camelCaseSlug>` → `ext_removed_<camelCaseSlug>`
+   and revoke the runtime role's grants, so the extension's code and RLS no
+   longer reach the data.
+2. **Sever the live FK to core.** Every extension→core FK is generated
+   `ON DELETE CASCADE` (on the *extension* side only — core rows reference
+   nothing in `ext_*`), which means that while the archived data still carries a
+   live cascade FK, a later delete of the referenced core row would **silently
+   destroy the archived extension data** — breaking the reversibility guarantee.
+   Archive therefore neutralizes the FK before it can fire. The choice depends on
+   table shape:
+   - **Side tables** key `(id, companyId)` to core as *both* the primary key and
+     the FK, so the columns cannot be nulled. Archive **drops the FK
+     constraint** outright; the `id`/`companyId` values are retained as plain
+     recorded data (no longer enforced against `public`), so a subsequent core
+     delete cannot cascade into the archive.
+   - **Owned entity tables** that merely *reference* a core row through a
+     nullable FK column have the constraint converted to **`ON DELETE SET NULL`**
+     (preferred) — the archived row survives a core delete with the reference
+     cleared. `ON DELETE RESTRICT` is available where the reference must not be
+     silently lost, at the cost of blocking the core delete until reconciled.
+3. **Leave all rows in place** — no `DELETE`, no `TRUNCATE`.
+
+Restoration (re-enabling an archived extension) renames the schema back and
+re-establishes each severed FK **only where the referenced core row still
+exists**; if a core row was deleted while the extension was archived, the
+dependent side-table/entity row is **orphaned** and restoration leaves it with
+the FK unre-established, flagged for an admin to reconcile (delete the orphan or
+re-point it) rather than silently dropping it. (A future variant may instead
+copy archived data into a fully detached structure with no FK to core at all;
+either way the FK lifecycle is explicit and no core delete ever destroys
+archived data.)
+
+**Drop** is a separate, destructive, double-confirmed action. DDL for removal
+is generated and schema-scoped exactly like install (targeting only
+`ext_<camelCaseSlug>`), so an extension cannot script a `DROP` of a core object
+or another extension's table during uninstall. Disabling an extension is
+instantaneous and non-schema-touching: it flips `extensionInstall.enabled`,
+which immediately stops hook/workflow dispatch while leaving data intact.
 
 ### Workflow engine as a first-class extension primitive
 
@@ -529,7 +606,9 @@ CREATE TABLE "eventOutbox" (
     CONSTRAINT "eventOutbox_pkey" PRIMARY KEY ("id", "companyId"),
     CONSTRAINT "eventOutbox_eventId_unique" UNIQUE ("eventId")
 );
--- Relay scans by (status, createdAt); commit-order dispatch per company.
+-- Relay polls by (status, createdAt): best-effort ordering, NOT strict commit
+-- order (createdAt is wall-clock, not a commit sequence). Guarantee is
+-- at-least-once delivery + eventId dedup, without cross-event ordering.
 CREATE INDEX "eventOutbox_pending_idx" ON "eventOutbox" ("status", "createdAt");
 -- RLS enabled, no permissive policies: written by the emitting domain
 -- transaction (service-role) and drained by the relay only.
@@ -544,7 +623,19 @@ Example of **generated** extension SQL (emitted by `carbon ext generate`,
 never hand-written) — a side table augmenting `receiptLine`:
 
 ```sql
-CREATE TABLE "ext_coatingInspection_receiptLine" (
+-- The extension's dedicated schema and its two least-privilege roles are
+-- scaffolded by the first generated migration (never hand-written). Grants are
+-- confined to this one schema — the privilege boundary is the schema, not the
+-- name prefix.
+CREATE SCHEMA IF NOT EXISTS "ext_coatingInspection";
+-- CREATE ROLE "ext_coatingInspection_migrator";   -- CREATE/ALTER/DROP in schema only
+-- CREATE ROLE "ext_coatingInspection_runtime";    -- SELECT/INSERT/UPDATE/DELETE in schema only
+-- GRANT USAGE, CREATE ON SCHEMA "ext_coatingInspection" TO "ext_coatingInspection_migrator";
+-- GRANT USAGE ON SCHEMA "ext_coatingInspection" TO "ext_coatingInspection_runtime";
+-- (no grants to either role on "public" or any other ext_* schema; REFERENCES
+--  on core FK targets only, contract views granted explicitly to runtime)
+
+CREATE TABLE "ext_coatingInspection"."receiptLine" (
     "id" TEXT NOT NULL,                     -- = receiptLine.id (1:1)
     "companyId" TEXT NOT NULL,
     "coatingSpec" TEXT,
@@ -553,9 +644,13 @@ CREATE TABLE "ext_coatingInspection_receiptLine" (
     "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     "updatedBy" TEXT REFERENCES "user"("id"),
     "updatedAt" TIMESTAMP WITH TIME ZONE,
-    CONSTRAINT "ext_coatingInspection_receiptLine_pkey" PRIMARY KEY ("id", "companyId"),
-    CONSTRAINT "ext_coatingInspection_receiptLine_id_fkey" FOREIGN KEY ("id", "companyId")
-      REFERENCES "receiptLine"("id", "companyId") ON DELETE CASCADE
+    CONSTRAINT "receiptLine_pkey" PRIMARY KEY ("id", "companyId"),
+    -- Live FK is ON DELETE CASCADE (extension side only). At ARCHIVE time this
+    -- constraint is DROPPED (the id/companyId columns are also the PK and cannot
+    -- be nulled), so a later delete of the core receiptLine can never cascade
+    -- into and destroy archived extension data. See Uninstall / removal safety.
+    CONSTRAINT "receiptLine_id_fkey" FOREIGN KEY ("id", "companyId")
+      REFERENCES "public"."receiptLine"("id", "companyId") ON DELETE CASCADE
 );
 -- Full audit columns are generated on EVERY extension table, side tables
 -- included: createdBy/updatedBy are user FK references, matching Carbon's DB
@@ -567,11 +662,14 @@ CREATE TABLE "ext_coatingInspection_receiptLine" (
 -- + generated companyId index. Core tables are never ALTERed.
 ```
 
-Extension-owned entity tables (`ext_{extension}_{table}`) follow the full
-platform template (`id('prefix')`, `companyId`, composite PK, RLS, audit
-columns), all generated. Uninstall offers **archive** (rename namespace to
-`ext_removed_*`, revoke access — the default) or **drop** (destructive,
-double-confirmed). Downgrade is unsupported; migrations are forward-only.
+Extension-owned entity tables (`ext_<camelCaseSlug>.<tableName>`) follow the
+full platform template (`id('prefix')`, `companyId`, composite PK, RLS, audit
+columns), all generated. Uninstall offers **archive** (rename the schema to
+`ext_removed_<camelCaseSlug>`, revoke access, and sever the live core FK —
+drop it on side tables, convert it to `ON DELETE SET NULL` on nullable entity
+references — so no later core delete destroys archived data; the default) or
+**drop** (destructive, double-confirmed). Downgrade is unsupported; migrations
+are forward-only.
 
 No changes to any existing core table.
 
@@ -652,9 +750,9 @@ CI changes: boundary lint rules; corpus gate job on release candidates
 - [ ] An extension source file containing
       `import ... from "~/modules/inventory/inventory.service"` or
       `import { Database } from "@carbon/database"` fails `pnpm run lint`;
-      a query against a table outside the extension's namespace through its
-      scoped client fails typecheck; the same query issued dynamically at
-      runtime is rejected by the DB role.
+      a query against a table outside the extension's schema
+      (`ext_<camelCaseSlug>`) through its scoped client fails typecheck; the
+      same query issued dynamically at runtime is rejected by the DB role.
 - [ ] Editing a committed file under an extension's `migrations/` causes
       install/upgrade to fail with a checksum error.
 - [ ] A core PR that changes an emitted extension-point payload without
@@ -669,8 +767,11 @@ CI changes: boundary lint rules; corpus gate job on release candidates
       available-update) before touching the database, and applies extension
       migrations after core migrations in dependency order.
 - [ ] Uninstalling an extension with the default archive option renames its
-      namespace to `ext_removed_*` and revokes access without deleting data;
-      no core rows are affected.
+      schema to `ext_removed_<camelCaseSlug>`, revokes access, and severs the
+      live core FK (dropped on side tables, `ON DELETE SET NULL` on nullable
+      entity references) without deleting data; a subsequent delete of a
+      referenced core row leaves the archived rows intact rather than cascading
+      them away; no core rows are affected by the archive itself.
 
 ## Risks
 
