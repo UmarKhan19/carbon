@@ -18,9 +18,11 @@ engine** (on the existing Inngest backbone) as the primary primitive for
 multi-step processes, and (5) declared **UI slots and routes**. Module
 isolation is enforced at lint, typecheck, and DB-role level. Upgrade safety is
 an executable guarantee: contract tests in core CI plus a registry **corpus
-gate** that runs every published extension's suite against each release
-candidate, so `carbon upgrade` is a preflight-checked command, not a
-consulting project. Prior art: open-mercato's (MIT) contract discipline,
+gate** that runs extensions' suites against each release candidate —
+**first-party extensions gate the release** (a red suite blocks merge to
+main), while **community/third-party extensions are report-only** (failures
+produce a report but never block a release) — so `carbon upgrade` is a
+preflight-checked command, not a consulting project. Prior art: open-mercato's (MIT) contract discipline,
 applied to a deep ERP domain — see `.ai/research/extensibility-architecture.md`.
 
 ## Problem Statement
@@ -95,6 +97,54 @@ core-maintained adapter through the deprecation window. Hooks are registered
 in the extension manifest, so the platform knows statically which extension
 consumes which point at which version — the basis for upgrade impact reports.
 
+### Atomic post-commit event delivery: transactional outbox
+
+`after:` hooks and workflow triggers depend on `inventory.receipt.posted@1`
+(and every other point) actually reaching Inngest after the domain transaction
+commits. The naive path — commit the domain write, then call
+`inngest.send()` — has a lost-event window: if the process dies (or the Inngest
+enqueue fails) *between* commit and send, the event is gone, the workflow never
+starts, and `eventId` deduplication cannot help because there is no duplicate
+to dedupe — the event was **never produced**. `eventId` dedup protects against
+*duplicate* delivery (the relay sending the same event twice); it does **not**
+recover an event that was never written.
+
+Carbon closes this window with a **transactional outbox**:
+
+- **Write the outbox record in the same DB transaction as the domain write.**
+  When `post-receipt` commits the receipt, it also inserts a row into an
+  `eventOutbox` table (event point + version, `companyId`, the versioned
+  payload, a generated `eventId`, `status = 'pending'`) inside the *same*
+  Kysely transaction. Either both land or neither does — the event's existence
+  is now as durable as the business fact that produced it.
+- **A background relay dispatches to Inngest.** A relay (an Inngest cron/poller
+  in `@carbon/jobs`) reads `pending` outbox rows in commit order, calls
+  `inngest.send()` with the stored `eventId`, and on ack marks the row
+  `sent`. This decouples "the fact happened" (transactional) from "the fact was
+  announced" (best-effort, retried).
+- **Retry policy.** A failed relay send is retried with exponential backoff
+  (e.g. base 2s, factor 2, jitter, cap ~5m) up to a bounded `maxRetries`
+  (e.g. 8). `attemptCount` and `lastError` are recorded on the outbox row.
+  Because the send carries a stable `eventId` and all `after:` hooks/workflow
+  steps are idempotent, a retry that actually did succeed downstream is
+  harmless.
+- **Dead-letter handling.** After `maxRetries` the row moves to
+  `status = 'dead'` (a dead-letter partition of the same table, or an
+  `eventOutboxDeadLetter` table) with its full payload and error trail. Dead
+  rows raise an admin alert on the workflow-observability surface and are
+  replayable by an operator once the cause is fixed; they are never silently
+  dropped.
+- **What dedup does and does not cover.** `eventId` dedup (Inngest-side +
+  idempotency keys on `after:` handlers) makes at-least-once delivery safe
+  against the relay's duplicates. It is *orthogonal* to the outbox: the outbox
+  guarantees the event is **produced exactly when the domain write commits**;
+  dedup guarantees it is **consumed at most once in effect** even if delivered
+  more than once. Neither alone is sufficient — the spec requires both.
+
+The outbox lives in core (the platform owns the emission path); extensions
+consume the resulting events and never touch the outbox directly. The
+`eventOutbox` table is added to Data Model Changes below.
+
 ### Contract packages and reading core data
 
 Every core module publishes a **contract package** — the only importable
@@ -132,6 +182,47 @@ statically rejects references to non-contract core relations, triggers on core
 tables, and any ALTER outside the extension namespace — the generated SQL is
 the only SQL an extension can ship.
 
+#### Canonical table-name normalization
+
+Table identifiers are **generated deterministically** from the manifest, never
+authored, so the same manifest always yields the same physical name across
+implementations. The rules are canonical:
+
+- **Slug normalization.** The manifest `slug` is kebab-case
+  (`^[a-z][a-z0-9-]*$`); it is normalized to a camelCase identifier segment by
+  removing each hyphen and upper-casing the following character
+  (`coating-inspection` → `coatingInspection`). No other transformation (no
+  case folding of the first character, no stripping of digits).
+- **Prefix and pattern.** Every extension table name is
+  **`ext_<camelCaseSlug>_<tableName>`**, where `<tableName>` is the manifest's
+  table key (side tables use the augmented core table's name, e.g.
+  `receiptLine`; owned entities use the author-declared table key, validated
+  against the same `^[a-z][a-zA-Z0-9]*$` shape). Thus manifest slug
+  `coating-inspection` augmenting `receiptLine` **must** derive
+  `ext_coatingInspection_receiptLine` — the example below is generated from
+  exactly this rule, not hand-picked.
+- **63-byte limit handling.** PostgreSQL truncates identifiers at 63 bytes,
+  which would silently collide two long names. The generator computes the full
+  identifier and, **if it exceeds 63 bytes**, deterministically truncates the
+  variable portion and appends a short hash suffix of the *pre-truncation full
+  name* (`…_<base36(hash)[0..6]>`) so the result stays unique and stable. If
+  even the prefix + hash cannot fit (pathologically long fixed parts), it is a
+  **manifest validation error** telling the author to shorten the slug/table
+  key — the generator never emits an identifier Postgres would truncate on its
+  own.
+- **Collision detection.** Two extensions (or two tables within one) that
+  normalize to the same `ext_*` identifier are a **hard manifest/registry
+  validation error** at `carbon ext generate`/`publish` time — the corpus
+  registry rejects a publish whose derived table names collide with an existing
+  registered extension's. Names are reserved by the **normalized** identifier,
+  not the raw slug, so any two slugs that derive the same `ext_*` name (or the
+  same name after 63-byte truncation + hashing) cannot both register.
+
+Because names are a pure function of the manifest, the generator, the migration
+applier, the scoped Kysely client's type generation, and the conformance
+checker all derive the identifier the same way — there is no second source of
+truth to drift.
+
 ### Module isolation at package boundaries
 
 One rule: a module (core or extension) may import another module **only
@@ -158,6 +249,70 @@ core components, raw SQL, service overrides. If a real use case can't be
 expressed, the answer is a new extension point in core — a PR, not a
 workaround.
 
+### Security and access control
+
+Extensions run privileged code and own real tables, so authorization is part of
+the architecture, not an afterthought. Four boundaries:
+
+**Hook and workflow registration.** Registration is **static, not dynamic** —
+hooks, workflows, crons, routes, and schema are declared in an extension's
+`manifest.ts` and bound at build/install time; there is no runtime "register a
+hook" API for arbitrary callers to reach. Installing or enabling an extension
+for a company is a privileged operation gated by a core permission
+(`extensions_install` / `extensions_update`, held by company admins), enforced
+by `requirePermissions` on the Settings → Extensions route. At runtime the
+dispatcher only invokes hooks whose owning extension is present in the signed,
+build-time manifest set **and** enabled for the event's `companyId` (via
+`extensionInstall`); hooks are not authenticated by a caller-supplied token —
+their authority derives from the manifest binding and the per-company enable
+record, both of which the platform, not the extension, controls.
+
+**Extension code sandbox (v1 threat model).** v1 runs extension code
+**in-process with the app** (see Open Questions H-runtime): `before:` hooks and
+Inngest-backed `after:` hooks/workflows execute in the app's Node process. This
+is acceptable in v1 *only because the gating corpus is first-party/reviewed
+code*, not arbitrary untrusted uploads. The runtime restricts extensions by
+capability rather than OS sandboxing: extension code receives its powers solely
+through injected `HookContext`/`WorkflowContext` (tenant-scoped contract
+services + the namespace-scoped Kysely client) and may import only
+`@carbon/extension-sdk`, `@carbon/contracts/*`, and declared npm deps — no
+`@carbon/database`, no core service internals, no ambient DB handle (enforced at
+lint + typecheck, backstopped by the DB role). `before:` hooks additionally get
+a hard 250ms budget and a **no-external-I/O** restriction enforced by the SDK
+runtime, bounding the blast radius on hot posting paths. Out-of-process/worker
+isolation is the documented upgrade path for when the corpus admits untrusted
+third-party code (manifest/contract design is placement-agnostic, so it lands
+without contract changes) — and is a **hard prerequisite** before any unreviewed
+community extension is allowed to execute (as opposed to today's report-only
+corpus, which only runs tests, never production hooks).
+
+**Schema-extension DDL authorization.** Extension migrations are **not** run by
+the extension, by the app's request-time DB role, or by a superuser. They are
+applied by the platform's **migration applier** (in `extension-host`) using a
+dedicated, least-privilege **migrator role** that may `CREATE`/`ALTER`/`DROP`
+only within the `ext_*` namespace and may reference core tables **only** as FK
+targets (never `ALTER` them). The generator statically rejects any DDL outside
+the extension namespace, triggers on core tables, or ALTERs of core relations
+before the SQL is ever emitted, so the migrator role is a defense-in-depth
+backstop, not the first line. After migration, the extension's **runtime** role
+is a separate, even-narrower role scoped to its namespace tables with no DDL
+grants at all — so a compromised extension at runtime cannot alter schema, and
+the migrator role is never available on the request path. Neither role can read
+or write another extension's namespace or core tables outside the sanctioned
+contract views.
+
+**Uninstall / removal safety.** Removal never runs author-supplied teardown
+SQL. Uninstall defaults to **archive** (rename the namespace to `ext_removed_*`
+and revoke the runtime role's grants — non-destructive, reversible); **drop** is
+a separate, destructive, double-confirmed action. Because every side table is
+keyed to core via `ON DELETE CASCADE` on the *extension* side only (core rows
+reference nothing in `ext_*`), removing an extension can never cascade into or
+lock core data. DDL for removal is generated and namespace-scoped exactly like
+install, so an extension cannot script a `DROP` of a core object or another
+extension's table during uninstall. Disabling an extension is instantaneous and
+non-schema-touching: it flips `extensionInstall.enabled`, which immediately
+stops hook/workflow dispatch while leaving data intact.
+
 ### Workflow engine as a first-class extension primitive
 
 Most manufacturing extensibility needs are processes, not single steps:
@@ -167,15 +322,42 @@ Hand-rolling that with hooks means hand-rolling persistence, retries,
 timeouts, and cleanup — the graveyard of every plugin ecosystem.
 
 Workflows are TypeScript definitions (`defineWorkflow`) registered in the
-manifest: a typed trigger (`on("inventory.receipt.posted", { filter })`),
-named steps calling contract services, `waitForEvent`/`sleep` with timeouts,
-and per-step saga-style compensators. The platform (executing on the existing
+manifest: a typed trigger (`on("inventory.receipt.posted@1", { filter })`),
+named steps calling contract services, `waitForEvent("quality.inspection.dispositioned@1", …)`/`sleep`
+with timeouts, and per-step saga-style compensators. **Every event reference —
+in a trigger or a `waitForEvent` — must carry a version suffix
+(`{point}@{version}`).** An unversioned reference is a manifest validation
+error: it would silently accept whatever payload shape the point currently
+emits, so the moment the point ships a `@2` the workflow would receive an
+incompatible payload with no signal. The version pins the workflow to a
+payload schema the platform can guarantee. The platform (executing on the existing
 Inngest durable-execution backbone, not a bespoke runner) guarantees
 durability (crash-resume, never restart), per-step retries with idempotency
 keys, versioning (in-flight runs finish on the version they started),
 observability (per-company, per-extension run/step/retry admin surface), and
 tenancy (runs are companyId-scoped; triggers fire per company with the
 extension enabled).
+
+**Event-version compatibility resolver.** When a workflow references
+`{point}@{v}`, the platform resolves the reference at dispatch time:
+
+- **`@v` still emitted** — deliver the native `@v` payload. Normal case.
+- **`@v` deprecated but within its window** — the point now emits `@v+1`
+  natively; core delivers `@v` to this workflow through the
+  **core-maintained backward-compatible adapter** for that point (the same
+  adapter the deprecation policy requires). The workflow is unaware anything
+  changed. A structured deprecation warning is emitted, attributed to the
+  consuming extension, and the corpus impact report names it.
+- **`@v` past its deprecation window / no adapter** — the reference is
+  **unresolvable**. It is caught statically first: the corpus gate's impact
+  report flags any workflow referencing a version the RC no longer supports,
+  and `carbon upgrade` preflight marks that extension `incompatible`. Such a
+  workflow will not arm its trigger; upgrading past the window requires the
+  extension to **explicitly opt in** by publishing a new version that
+  references `@v+1` (with its own migration if the payload shape it consumes
+  changed). Upgrades are never silent — the platform maintains
+  backward-compatible shims *within* the window and forces an explicit opt-in
+  *past* it.
 
 This is also the most upgrade-safe surface: a workflow touches core only
 through events in and service calls out — both versioned contracts.
@@ -211,10 +393,27 @@ The decisive mechanism is the **corpus gate**: core CI maintains a registry
 corpus of published extensions' manifests + contract tests (first-party
 always; community opt-in). Every core release candidate gets a static pass
 (diff every manifest against the RC's contract versions → machine-generated
-impact report) and a dynamic pass (run every corpus suite against the RC). A
-red corpus must produce a fix, an adapter, or an explicit breaking-changes
-entry with remediation — silent breakage is the failure mode this
-architecture exists to eliminate.
+impact report) and a dynamic pass (run every corpus suite against the RC).
+
+The gate has **two tiers with different consequences**, so a flaky or broken
+third-party suite can never hold the release hostage:
+
+- **First-party extensions gate the release.** A red first-party corpus suite
+  (or a static impact report flagging an unversioned breaking change against a
+  first-party consumer) **blocks merge to main**. It must produce a fix, an
+  adapter, or an explicit breaking-changes entry with remediation before the
+  RC can ship.
+- **Community/third-party extensions are report-only.** Their suites run
+  against the RC and their results are published in the impact report, but a
+  red community suite **does not block the release**. It surfaces the breakage
+  (and notifies the extension author) so it can be remediated on the
+  extension's own timeline; the community bar to enter the report-only corpus
+  is a green `carbon ext test`, manifest lint, and semver discipline.
+
+Silent breakage — a first-party consumer broken with no report — is the
+failure mode this architecture exists to eliminate; the report-only tier
+extends visibility to the community without transferring their test health
+onto core's release path.
 
 ### Competitor comparison
 
@@ -274,12 +473,20 @@ CREATE TABLE "extensionInstall" (
     "extensionSlug" TEXT NOT NULL,          -- e.g. 'coating-inspection'
     "version" TEXT NOT NULL,                -- installed extension version
     "enabled" BOOLEAN NOT NULL DEFAULT TRUE,
-    "settings" JSONB,                       -- values for the manifest's settings schema
+    "settings" JSONB,                       -- structured; see note below
     "createdBy" TEXT NOT NULL REFERENCES "user"("id"),
     "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     "updatedBy" TEXT REFERENCES "user"("id"),
     "updatedAt" TIMESTAMP WITH TIME ZONE,
-    "customFields" JSONB,
+    -- NOTE: no "customFields" JSONB column. Carbon's default table template
+    -- ships one, but this spec's core principle rejects unstructured JSONB
+    -- growth, so platform tables introduced by this spec deliberately omit it.
+    -- The only JSONB here is "settings", which is NOT an unstructured escape
+    -- hatch: it is written by the Settings → Extensions install/settings flow
+    -- (core, service-role) and read by the extension host; every value is
+    -- validated at write time against the manifest's declared settings schema
+    -- (Zod), and its shape is versioned with the extension. It is structured
+    -- config keyed by a known schema, not open-ended custom fields.
     CONSTRAINT "extensionInstall_pkey" PRIMARY KEY ("id", "companyId"),
     CONSTRAINT "extensionInstall_companyId_fkey" FOREIGN KEY ("companyId")
       REFERENCES "company"("id") ON DELETE CASCADE ON UPDATE CASCADE,
@@ -304,7 +511,34 @@ CREATE TABLE "extensionMigration" (
 );
 -- RLS enabled, no permissive policies: service-role/installer access only.
 ALTER TABLE "extensionMigration" ENABLE ROW LEVEL SECURITY;
+
+-- Transactional outbox for atomic post-commit event delivery. A row is written
+-- in the SAME transaction as the domain write that produces the event; a relay
+-- (@carbon/jobs cron) dispatches pending rows to Inngest and marks them sent.
+CREATE TABLE "eventOutbox" (
+    "id" TEXT NOT NULL DEFAULT id('evtob'),
+    "companyId" TEXT NOT NULL,
+    "eventId" TEXT NOT NULL,                 -- stable dedup key carried to Inngest
+    "eventPoint" TEXT NOT NULL,              -- versioned, e.g. 'inventory.receipt.posted@1'
+    "payload" JSONB NOT NULL,                -- the versioned, schema-validated payload
+    "status" TEXT NOT NULL DEFAULT 'pending',-- 'pending' | 'sent' | 'dead'
+    "attemptCount" INTEGER NOT NULL DEFAULT 0,
+    "lastError" TEXT,
+    "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    "sentAt" TIMESTAMP WITH TIME ZONE,
+    CONSTRAINT "eventOutbox_pkey" PRIMARY KEY ("id", "companyId"),
+    CONSTRAINT "eventOutbox_eventId_unique" UNIQUE ("eventId")
+);
+-- Relay scans by (status, createdAt); commit-order dispatch per company.
+CREATE INDEX "eventOutbox_pending_idx" ON "eventOutbox" ("status", "createdAt");
+-- RLS enabled, no permissive policies: written by the emitting domain
+-- transaction (service-role) and drained by the relay only.
+ALTER TABLE "eventOutbox" ENABLE ROW LEVEL SECURITY;
 ```
+
+Dead-lettered events (status `'dead'` after `maxRetries`) retain their full
+`payload` and `lastError` for operator replay from the workflow-observability
+surface; they are never dropped.
 
 Example of **generated** extension SQL (emitted by `carbon ext generate`,
 never hand-written) — a side table augmenting `receiptLine`:
@@ -315,12 +549,20 @@ CREATE TABLE "ext_coatingInspection_receiptLine" (
     "companyId" TEXT NOT NULL,
     "coatingSpec" TEXT,
     "cureTempC" NUMERIC,                    -- bare NUMERIC per conformance rules
+    "createdBy" TEXT NOT NULL REFERENCES "user"("id"),
     "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    "updatedBy" TEXT REFERENCES "user"("id"),
     "updatedAt" TIMESTAMP WITH TIME ZONE,
     CONSTRAINT "ext_coatingInspection_receiptLine_pkey" PRIMARY KEY ("id", "companyId"),
     CONSTRAINT "ext_coatingInspection_receiptLine_id_fkey" FOREIGN KEY ("id", "companyId")
       REFERENCES "receiptLine"("id", "companyId") ON DELETE CASCADE
 );
+-- Full audit columns are generated on EVERY extension table, side tables
+-- included: createdBy/updatedBy are user FK references, matching Carbon's DB
+-- conventions and the acceptance criterion below. Side tables are 1:1 with a
+-- core row but are still independently written by extension hooks/forms, so
+-- "who set the coating spec" is a distinct fact from "who created the receipt
+-- line" — the user references are not redundant with the core row's audit.
 -- + generated RLS (four standard policies on '{slug}_{action}' permissions),
 -- + generated companyId index. Core tables are never ALTERed.
 ```
@@ -357,7 +599,7 @@ corpus), `add` / `enable --company` (install + per-company enablement).
 
 Core module changes: each module that publishes extension points emits them
 at the declared lifecycle sites (e.g. `post-receipt` emits
-`inventory.receipt.posted` with its versioned payload) and ships platform-side
+`inventory.receipt.posted@1` with its versioned payload) and ships platform-side
 contract tests. App services for the new platform tables live in a new
 `extensions` settings module following the standard service shape (client
 first, `{ data, error }`, `companyId`-scoped).
@@ -395,12 +637,15 @@ CI changes: boundary lint rules; corpus gate job on release candidates
 - [ ] Posting a valid coated receipt starts the inspection workflow; killing
       the app process mid-run and restarting resumes the run at the last
       completed step (no duplicate inspection is created).
-- [ ] A workflow run parked on `waitForEvent` resumes when the matching
-      `quality.inspection.dispositioned` event fires, and routes to its
-      declared timeout handler when the timeout elapses.
-- [ ] Every generated extension table has `companyId`, composite PK, the four
-      standard RLS policies, and audit columns — verified by the
-      `@carbon/checks` conformance suite with zero manual SQL edits.
+- [ ] A workflow run parked on `waitForEvent("quality.inspection.dispositioned@1", …)`
+      resumes when the matching `quality.inspection.dispositioned@1` event
+      fires, and routes to its declared timeout handler when the timeout
+      elapses.
+- [ ] Every generated extension table — owned entities **and** side tables —
+      has `companyId`, composite PK, the four standard RLS policies, and the
+      full audit columns including `createdBy`/`updatedBy` user FK references
+      to `user("id")` — verified by the `@carbon/checks` conformance suite with
+      zero manual SQL edits (side tables are explicitly not exempt).
 - [ ] With two companies on one database and the extension enabled for only
       one, users of the other company see no extension UI, cannot read
       extension tables (RLS), and trigger no extension hooks or workflows.
