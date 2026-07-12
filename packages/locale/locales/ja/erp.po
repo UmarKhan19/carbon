@@ -157,6 +157,9 @@ msgstr "1件の下書き仕訳"
 msgid "1 unposted document"
 msgstr "1件の未転記書類"
 
+msgid "12 monthly periods"
+msgstr "12ヶ月間の期間"
+
 msgid "13+ weeks"
 msgstr "13週間以上"
 
@@ -1872,6 +1875,9 @@ msgstr "キャリブレーション"
 msgid "Called a method in Carbon — the components plus operations that produce a part."
 msgstr "Carbonで呼ばれるメソッド—部品を生成するコンポーネントと操作。"
 
+msgid "Can't delete this period"
+msgstr "この期間は削除できません"
+
 msgid "Can't disable the only active break. Add another break or toggle the override's Active instead."
 msgstr "唯一のアクティブなブレークを無効にすることはできません。別のブレークを追加するか、オーバーライドのアクティブを切り替えてください。"
 
@@ -2072,6 +2078,9 @@ msgstr "勘定科目表"
 
 msgid "Chat"
 msgstr "チャット"
+
+msgid "Check the item ledger for any items with a negative on-hand quantity as of period end — usually a missing receipt or an out-of-order posting that distorts inventory value and cost of goods sold. Mark it done once reviewed, or skip with a reason."
+msgstr "期末時点で保有数量がマイナスの品目がないか品目台帳を確認してください — 通常、納品漏れまたは順序外の転記により、在庫価値および売上原価が歪む可能性があります。確認済みの場合はマーク完了し、スキップする場合は理由を記入してください。"
 
 msgid "Check your email"
 msgstr "メールを確認してください"
@@ -3000,6 +3009,9 @@ msgstr "ウェブフックを作成しました"
 msgid "Created work center"
 msgstr "ワークセンターを作成しました"
 
+msgid "Creates the 12 monthly periods for a fiscal year. Periods that already exist are kept."
+msgstr "会計年度の12ヶ月間の期間を作成します。既に存在する期間は保持されます。"
+
 msgid "Creating part..."
 msgstr "パーツを作成中..."
 
@@ -3502,6 +3514,9 @@ msgstr "削除"
 msgid "Delete {name}"
 msgstr "{name}を削除"
 
+msgid "Delete {periodLabel}"
+msgstr "{periodLabel}を削除"
+
 msgid "Delete {storageUnitName}"
 msgstr "{storageUnitName}を削除"
 
@@ -3612,6 +3627,9 @@ msgstr "支払いを削除"
 
 msgid "Delete Payment Term"
 msgstr "支払い条件を削除"
+
+msgid "Delete Period"
+msgstr "期間を削除"
 
 msgid "Delete Picking List"
 msgstr "ピッキングリストを削除"
@@ -5300,6 +5318,9 @@ msgstr "最初の操作"
 msgid "First-year additional deduction taken before the regular MACRS schedule begins."
 msgstr "固定資産"
 
+msgid "Fiscal year"
+msgstr "会計年度"
+
 msgid "Fiscal Year"
 msgstr "会計年度"
 
@@ -5326,6 +5347,9 @@ msgstr "固定資産"
 
 msgid "Fixed cost amortization variance when batch size differs from standard"
 msgstr "利益と損失"
+
+msgid "Fixed once accounting periods have been posted to or closed. Delete all open periods to change it."
+msgstr "会計期間に転記またはクローズされた後は固定されます。変更するにはすべてのオープン期間を削除してください。"
 
 msgid "Fixed Reorder"
 msgstr "固定再注文"
@@ -5456,11 +5480,20 @@ msgstr "総勘定元帳"
 msgid "General Ledger and month-end close"
 msgstr "総勘定元帳と月末決算"
 
+msgid "Generate"
+msgstr "生成"
+
 msgid "Generate a new 4-digit PIN. Share it with the operator so they can pin in at MES terminals."
 msgstr "新しい4桁のPINを生成します。オペレーターと共有して、MES端末にピンインできるようにしてください。"
 
 msgid "Generate and send customer invoices"
 msgstr "顧客請求書を生成して送信"
+
+msgid "Generate fiscal year"
+msgstr "会計年度を生成"
+
+msgid "Generate Fiscal Year"
+msgstr "会計年度を生成"
 
 msgid "Generate material IDs and descriptions based on the properties of the material."
 msgstr "材料のプロパティに基づいて材料IDと説明を生成します。"
@@ -8118,6 +8151,9 @@ msgstr "見積から現金化まで一つのシステム"
 msgid "Only Draft procedures are editable. Create a new version to change an Active or Archived procedure."
 msgstr "編集可能なのは下書き手順のみです。アクティブまたはアーカイブされた手順を変更するには、新しいバージョンを作成してください。"
 
+msgid "Only empty, open periods can be deleted."
+msgstr "空のオープン期間のみ削除できます。"
+
 msgid "Onshape Status"
 msgstr "Onshape ステータス"
 
@@ -9863,9 +9899,6 @@ msgstr "逆請求売上税 (既定)"
 
 msgid "Reverse the related journal entries"
 msgstr "関連する仕訳エントリを取り消す"
-
-msgid "Review any items showing negative on-hand quantity as of period end — usually a missing receipt or an out-of-order posting that distorts inventory value and cost of goods sold. Automated detection isn't wired up yet, so this always needs a manual review or a skip."
-msgstr "期末時点で負の在庫数量を示すアイテムを確認してください。通常、受領書の欠落または順序外の転記があり、在庫価値と売上原価を歪めています。自動検出はまだ実装されていないため、常に手動確認またはスキップが必要です。"
 
 msgid "Review the period's balance sheet and income statement and confirm the figures look right. This is a manual sign-off — mark it done once you have reviewed them."
 msgstr "当期の貸借対照表と損益計算書を確認し、数字が正しいことを確認してください。これは手動による認可です。確認後、完了とマークしてください。"
@@ -11617,6 +11650,9 @@ msgstr "投稿されたすべての仕訳行のブック（勘定ごとに合計
 msgid "The buckets you track costs against"
 msgstr "コストを追跡するバケット"
 
+msgid "The capital assets you own and depreciate"
+msgstr "所有・減価償却する固定資産"
+
 msgid "The Carbon user responsible for this customer relationship; emails and reminders about this customer route to them."
 msgstr "この顧客関係を担当するCarbonユーザー。この顧客に関するメールとリマインダーが彼らにルーティングされます。"
 
@@ -11931,6 +11967,9 @@ msgstr "財務年度が開始される月。期間はこの月から番号が付
 
 msgid "The month your tax year begins; may differ from the fiscal year in some jurisdictions."
 msgstr "税務年度が開始される月。一部の管轄区域では会計年度と異なる場合があります。"
+
+msgid "The monthly periods you post into and close"
+msgstr "転記およびクローズする月次期間"
 
 msgid "The most likely failure mode the requester suspects; the technician confirms or replaces this on close-out, and the difference between suspected and actual feeds reliability reports."
 msgstr "リクエスターが疑う最も可能性の高い故障モード。技術者はクローズ時にこれを確認または置き換え、疑われたものと実際のものの違いが信頼性レポートに表示されます。"
@@ -12315,6 +12354,9 @@ msgstr "このパーツは廃止されています（在庫なし）。"
 
 msgid "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 msgstr "このパーツは廃止予定であり、「Stock Only」に設定されています。予備部品の予備フロアまで補充され、需要とは無関係に運用されます。"
+
+msgid "This period has no journal entries posted to it and can be permanently deleted. This cannot be undone."
+msgstr "この期間には転記された仕訳がなく、永久に削除できます。この処理は取り消せません。"
 
 msgid "This Quarter"
 msgstr "今四半期"
@@ -13580,6 +13622,9 @@ msgstr "この特定のロット/シリアルが期限切れになるとき。FE
 msgid "When you committed to deliver; planning treats this as the demand-due-date for fulfillment."
 msgstr "あなたが配送を約束したいつ。計画はこれをフルフィルメントの需要-到期日として扱います。"
 
+msgid "When your fiscal and tax years start"
+msgstr "会計年度および税務年度の開始時期"
+
 msgid "Where an operation runs; carries labor and quoting rates, with overhead the difference between them."
 msgstr "操作が実行される場所。労働と見積もりレート、オーバーヘッドはそれらの違いです。"
 
@@ -13896,9 +13941,6 @@ msgstr "あなたのデータはアクセス可能で、適切にクリーンで
 
 msgid "Your Email"
 msgstr "あなたのメールアドレス"
-
-msgid "Your fiscal year and its accounting periods"
-msgstr "あなたの会計年度とその会計期間"
 
 msgid "Your general-ledger accounts and their structure"
 msgstr "あなたの総勘定元帳アカウントとその構造"

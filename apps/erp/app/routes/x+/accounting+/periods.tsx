@@ -1,10 +1,13 @@
 import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import { VStack } from "@carbon/react";
+import { Button, VStack } from "@carbon/react";
 import { msg } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
+import { LuCalendarPlus } from "react-icons/lu";
 import type { LoaderFunctionArgs } from "react-router";
-import { Outlet, redirect, useLoaderData } from "react-router";
+import { Outlet, redirect, useLoaderData, useNavigate } from "react-router";
+import { usePermissions } from "~/hooks";
 import { getAccountingPeriods } from "~/modules/accounting";
 import { PeriodsTable } from "~/modules/accounting/ui/Periods";
 import type { Handle } from "~/utils/handle";
@@ -37,10 +40,26 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function AccountingPeriodsRoute() {
   const { periods, count } = useLoaderData<typeof loader>();
+  const permissions = usePermissions();
+  const navigate = useNavigate();
 
   return (
     <VStack spacing={0} className="h-full">
-      <PeriodsTable data={periods} count={count} />
+      <PeriodsTable
+        data={periods}
+        count={count}
+        primaryAction={
+          permissions.can("create", "accounting") ? (
+            <Button
+              leftIcon={<LuCalendarPlus />}
+              variant="primary"
+              onClick={() => navigate(path.to.accountingPeriodsGenerate)}
+            >
+              <Trans>Generate Fiscal Year</Trans>
+            </Button>
+          ) : undefined
+        }
+      />
       <Outlet />
     </VStack>
   );

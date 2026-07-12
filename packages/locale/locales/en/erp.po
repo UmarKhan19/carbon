@@ -157,6 +157,9 @@ msgstr "1 draft journal entry"
 msgid "1 unposted document"
 msgstr "1 unposted document"
 
+msgid "12 monthly periods"
+msgstr "12 monthly periods"
+
 msgid "13+ weeks"
 msgstr "13+ weeks"
 
@@ -1872,6 +1875,9 @@ msgstr "Calibrations"
 msgid "Called a method in Carbon — the components plus operations that produce a part."
 msgstr "Called a method in Carbon — the components plus operations that produce a part."
 
+msgid "Can't delete this period"
+msgstr "Can't delete this period"
+
 msgid "Can't disable the only active break. Add another break or toggle the override's Active instead."
 msgstr "Can't disable the only active break. Add another break or toggle the override's Active instead."
 
@@ -2072,6 +2078,9 @@ msgstr "Chart of Accounts"
 
 msgid "Chat"
 msgstr "Chat"
+
+msgid "Check the item ledger for any items with a negative on-hand quantity as of period end — usually a missing receipt or an out-of-order posting that distorts inventory value and cost of goods sold. Mark it done once reviewed, or skip with a reason."
+msgstr "Check the item ledger for any items with a negative on-hand quantity as of period end — usually a missing receipt or an out-of-order posting that distorts inventory value and cost of goods sold. Mark it done once reviewed, or skip with a reason."
 
 msgid "Check your email"
 msgstr "Check your email"
@@ -3000,6 +3009,9 @@ msgstr "Created webhook"
 msgid "Created work center"
 msgstr "Created work center"
 
+msgid "Creates the 12 monthly periods for a fiscal year. Periods that already exist are kept."
+msgstr "Creates the 12 monthly periods for a fiscal year. Periods that already exist are kept."
+
 msgid "Creating part..."
 msgstr "Creating part..."
 
@@ -3502,6 +3514,9 @@ msgstr "Delete"
 msgid "Delete {name}"
 msgstr "Delete {name}"
 
+msgid "Delete {periodLabel}"
+msgstr "Delete {periodLabel}"
+
 msgid "Delete {storageUnitName}"
 msgstr "Delete {storageUnitName}"
 
@@ -3612,6 +3627,9 @@ msgstr "Delete Payment"
 
 msgid "Delete Payment Term"
 msgstr "Delete Payment Term"
+
+msgid "Delete Period"
+msgstr "Delete Period"
 
 msgid "Delete Picking List"
 msgstr "Delete Picking List"
@@ -5300,6 +5318,9 @@ msgstr "First Operation"
 msgid "First-year additional deduction taken before the regular MACRS schedule begins."
 msgstr "First-year additional deduction taken before the regular MACRS schedule begins."
 
+msgid "Fiscal year"
+msgstr "Fiscal year"
+
 msgid "Fiscal Year"
 msgstr "Fiscal Year"
 
@@ -5326,6 +5347,9 @@ msgstr "Fixed Assets"
 
 msgid "Fixed cost amortization variance when batch size differs from standard"
 msgstr "Fixed cost amortization variance when batch size differs from standard"
+
+msgid "Fixed once accounting periods have been posted to or closed. Delete all open periods to change it."
+msgstr "Fixed once accounting periods have been posted to or closed. Delete all open periods to change it."
 
 msgid "Fixed Reorder"
 msgstr "Fixed Reorder"
@@ -5456,11 +5480,20 @@ msgstr "General Ledger"
 msgid "General Ledger and month-end close"
 msgstr "General Ledger and month-end close"
 
+msgid "Generate"
+msgstr "Generate"
+
 msgid "Generate a new 4-digit PIN. Share it with the operator so they can pin in at MES terminals."
 msgstr "Generate a new 4-digit PIN. Share it with the operator so they can pin in at MES terminals."
 
 msgid "Generate and send customer invoices"
 msgstr "Generate and send customer invoices"
+
+msgid "Generate fiscal year"
+msgstr "Generate fiscal year"
+
+msgid "Generate Fiscal Year"
+msgstr "Generate Fiscal Year"
 
 msgid "Generate material IDs and descriptions based on the properties of the material."
 msgstr "Generate material IDs and descriptions based on the properties of the material."
@@ -8118,6 +8151,9 @@ msgstr "One system from quote to cash"
 msgid "Only Draft procedures are editable. Create a new version to change an Active or Archived procedure."
 msgstr "Only Draft procedures are editable. Create a new version to change an Active or Archived procedure."
 
+msgid "Only empty, open periods can be deleted."
+msgstr "Only empty, open periods can be deleted."
+
 msgid "Onshape Status"
 msgstr "Onshape Status"
 
@@ -9863,9 +9899,6 @@ msgstr "Reverse Charge Sales Tax (default)"
 
 msgid "Reverse the related journal entries"
 msgstr "Reverse the related journal entries"
-
-msgid "Review any items showing negative on-hand quantity as of period end — usually a missing receipt or an out-of-order posting that distorts inventory value and cost of goods sold. Automated detection isn't wired up yet, so this always needs a manual review or a skip."
-msgstr "Review any items showing negative on-hand quantity as of period end — usually a missing receipt or an out-of-order posting that distorts inventory value and cost of goods sold. Automated detection isn't wired up yet, so this always needs a manual review or a skip."
 
 msgid "Review the period's balance sheet and income statement and confirm the figures look right. This is a manual sign-off — mark it done once you have reviewed them."
 msgstr "Review the period's balance sheet and income statement and confirm the figures look right. This is a manual sign-off — mark it done once you have reviewed them."
@@ -11617,6 +11650,9 @@ msgstr "The book of all posted journal lines, summed by account — written only
 msgid "The buckets you track costs against"
 msgstr "The buckets you track costs against"
 
+msgid "The capital assets you own and depreciate"
+msgstr "The capital assets you own and depreciate"
+
 msgid "The Carbon user responsible for this customer relationship; emails and reminders about this customer route to them."
 msgstr "The Carbon user responsible for this customer relationship; emails and reminders about this customer route to them."
 
@@ -11931,6 +11967,9 @@ msgstr "The month your financial year begins; periods are numbered from this mon
 
 msgid "The month your tax year begins; may differ from the fiscal year in some jurisdictions."
 msgstr "The month your tax year begins; may differ from the fiscal year in some jurisdictions."
+
+msgid "The monthly periods you post into and close"
+msgstr "The monthly periods you post into and close"
 
 msgid "The most likely failure mode the requester suspects; the technician confirms or replaces this on close-out, and the difference between suspected and actual feeds reliability reports."
 msgstr "The most likely failure mode the requester suspects; the technician confirms or replaces this on close-out, and the difference between suspected and actual feeds reliability reports."
@@ -12315,6 +12354,9 @@ msgstr "This part is obsolete (No Stock)."
 
 msgid "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 msgstr "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
+
+msgid "This period has no journal entries posted to it and can be permanently deleted. This cannot be undone."
+msgstr "This period has no journal entries posted to it and can be permanently deleted. This cannot be undone."
 
 msgid "This Quarter"
 msgstr "This Quarter"
@@ -13580,6 +13622,9 @@ msgstr "When this specific lot/serial expires; drives FEFO picking and the shelf
 msgid "When you committed to deliver; planning treats this as the demand-due-date for fulfillment."
 msgstr "When you committed to deliver; planning treats this as the demand-due-date for fulfillment."
 
+msgid "When your fiscal and tax years start"
+msgstr "When your fiscal and tax years start"
+
 msgid "Where an operation runs; carries labor and quoting rates, with overhead the difference between them."
 msgstr "Where an operation runs; carries labor and quoting rates, with overhead the difference between them."
 
@@ -13900,9 +13945,6 @@ msgstr "Your data is accessible and reasonably clean"
 
 msgid "Your Email"
 msgstr "Your Email"
-
-msgid "Your fiscal year and its accounting periods"
-msgstr "Your fiscal year and its accounting periods"
 
 msgid "Your general-ledger accounts and their structure"
 msgstr "Your general-ledger accounts and their structure"

@@ -9,7 +9,8 @@ import {
   LuCalendarCheck,
   LuCircleCheck,
   LuLockKeyhole,
-  LuToggleLeft
+  LuToggleLeft,
+  LuTrash
 } from "react-icons/lu";
 import { useNavigate } from "react-router";
 import { Hyperlink, Table } from "~/components";
@@ -133,13 +134,25 @@ const PeriodsTable = memo(
 
     const renderContextMenu = useCallback(
       (row: AccountingPeriodListItem) => (
-        <MenuItem
-          disabled={!permissions.can("view", "accounting")}
-          onClick={() => navigate(path.to.accountingPeriodClose(row.id))}
-        >
-          <MenuIcon icon={<LuCircleCheck />} />
-          {row.closeStatus === "Closed" ? t`View Period` : t`Close Period`}
-        </MenuItem>
+        <>
+          <MenuItem
+            disabled={!permissions.can("view", "accounting")}
+            onClick={() => navigate(path.to.accountingPeriodClose(row.id))}
+          >
+            <MenuIcon icon={<LuCircleCheck />} />
+            {row.closeStatus === "Closed" ? t`View Period` : t`Close Period`}
+          </MenuItem>
+          {row.closeStatus === "Open" &&
+            permissions.can("delete", "accounting") && (
+              <MenuItem
+                destructive
+                onClick={() => navigate(path.to.accountingPeriodDelete(row.id))}
+              >
+                <MenuIcon icon={<LuTrash />} />
+                {t`Delete Period`}
+              </MenuItem>
+            )}
+        </>
       ),
       [navigate, permissions, t]
     );

@@ -157,6 +157,9 @@ msgstr "1 taslak muhasebe kaydı"
 msgid "1 unposted document"
 msgstr "1 deftere geçmemiş belge"
 
+msgid "12 monthly periods"
+msgstr "12 aylık dönem"
+
 msgid "13+ weeks"
 msgstr "13+ hafta"
 
@@ -1872,6 +1875,9 @@ msgstr "Kalibrasyonlar"
 msgid "Called a method in Carbon — the components plus operations that produce a part."
 msgstr "Carbon'da çağrılan bir yöntem — bir parça üreten bileşenler ve işlemler."
 
+msgid "Can't delete this period"
+msgstr "Bu dönem silinemez"
+
 msgid "Can't disable the only active break. Add another break or toggle the override's Active instead."
 msgstr "Yalnızca aktif olan aralığı devre dışı bırakamazsınız. Başka bir aralık ekleyin veya geçersiz kılmanın Aktif özelliğini değiştirin."
 
@@ -2072,6 +2078,9 @@ msgstr "Hesap Planı"
 
 msgid "Chat"
 msgstr "Sohbet"
+
+msgid "Check the item ledger for any items with a negative on-hand quantity as of period end — usually a missing receipt or an out-of-order posting that distorts inventory value and cost of goods sold. Mark it done once reviewed, or skip with a reason."
+msgstr "Dönem sonunda negatif el altında miktarı olan herhangi bir madde için madde defterini kontrol edin — genellikle eksik bir makbuz veya envanter değerini ve satılan mal maliyetini bozacak düzensiz bir posting vardır. Gözden geçirildikten sonra tamamlandı olarak işaretleyin veya nedenli olarak atlayın."
 
 msgid "Check your email"
 msgstr "E-postanızı kontrol edin"
@@ -3000,6 +3009,9 @@ msgstr "Webhook başarıyla oluşturuldu"
 msgid "Created work center"
 msgstr "İş merkezi oluşturuldu"
 
+msgid "Creates the 12 monthly periods for a fiscal year. Periods that already exist are kept."
+msgstr "Mali yıl için 12 aylık dönem oluşturur. Zaten mevcut olan dönemler korunur."
+
 msgid "Creating part..."
 msgstr "Parça oluşturuluyor..."
 
@@ -3502,6 +3514,9 @@ msgstr "Sil"
 msgid "Delete {name}"
 msgstr "{name} sil"
 
+msgid "Delete {periodLabel}"
+msgstr "{periodLabel} öğesini sil"
+
 msgid "Delete {storageUnitName}"
 msgstr "Delete {storageUnitName}"
 
@@ -3612,6 +3627,9 @@ msgstr "Ödemeyi Sil"
 
 msgid "Delete Payment Term"
 msgstr "Ödeme Şartını Sil"
+
+msgid "Delete Period"
+msgstr "Dönemi Sil"
 
 msgid "Delete Picking List"
 msgstr "Seçim Listesini Sil"
@@ -5300,6 +5318,9 @@ msgstr "İlk İşlem"
 msgid "First-year additional deduction taken before the regular MACRS schedule begins."
 msgstr "Sabit Kıymet"
 
+msgid "Fiscal year"
+msgstr "Mali yıl"
+
 msgid "Fiscal Year"
 msgstr "Mali Yılı"
 
@@ -5326,6 +5347,9 @@ msgstr "Sabit Varlıklar"
 
 msgid "Fixed cost amortization variance when batch size differs from standard"
 msgstr "Kazançlar ve Zararlar"
+
+msgid "Fixed once accounting periods have been posted to or closed. Delete all open periods to change it."
+msgstr "Muhasebe dönemleri bir kez nakliye yapıldığında veya kapatıldığında sabitlenir. Değiştirmek için tüm açık dönemleri silin."
 
 msgid "Fixed Reorder"
 msgstr "Sabit Yeniden Sipariş"
@@ -5456,11 +5480,20 @@ msgstr "Genel Defter"
 msgid "General Ledger and month-end close"
 msgstr "Genel Muhasebe ve ay sonu kapanışı"
 
+msgid "Generate"
+msgstr "Oluştur"
+
 msgid "Generate a new 4-digit PIN. Share it with the operator so they can pin in at MES terminals."
 msgstr "Yeni bir 4 haneli PIN oluşturun. Operatörün MES terminallerinde giriş yapabilmesi için bunu onunla paylaşın."
 
 msgid "Generate and send customer invoices"
 msgstr "Müşteri faturalarını oluştur ve gönder"
+
+msgid "Generate fiscal year"
+msgstr "Mali yıl oluştur"
+
+msgid "Generate Fiscal Year"
+msgstr "Mali Yıl Oluştur"
 
 msgid "Generate material IDs and descriptions based on the properties of the material."
 msgstr "Malzemenin özelliklerine göre malzeme kimlikleri ve açıklamaları oluşturun."
@@ -8118,6 +8151,9 @@ msgstr "Teklif'ten nakite kadar tek bir sistem"
 msgid "Only Draft procedures are editable. Create a new version to change an Active or Archived procedure."
 msgstr "Yalnızca Taslak prosedürler düzenlenebilir. Aktif veya Arşivlenmiş bir prosedürü değiştirmek için yeni bir sürüm oluşturun."
 
+msgid "Only empty, open periods can be deleted."
+msgstr "Yalnızca boş, açık dönemler silinebilir."
+
 msgid "Onshape Status"
 msgstr "Onshape Durumu"
 
@@ -9863,9 +9899,6 @@ msgstr "Ters yükleme satış vergisi (varsayılan)"
 
 msgid "Reverse the related journal entries"
 msgstr "İlgili günlük girişlerini tersine çevir"
-
-msgid "Review any items showing negative on-hand quantity as of period end — usually a missing receipt or an out-of-order posting that distorts inventory value and cost of goods sold. Automated detection isn't wired up yet, so this always needs a manual review or a skip."
-msgstr "Dönem sonunda negatif eldeki miktar gösteren öğeleri gözden geçirin — genellikle eksik bir makbuz veya envanter değerini ve satılan mal maliyetini bozan sıradışı bir deftere geçiş. Otomatik algılama henüz bağlanmadığı için, bu her zaman manuel inceleme veya atlama gerektirir."
 
 msgid "Review the period's balance sheet and income statement and confirm the figures look right. This is a manual sign-off — mark it done once you have reviewed them."
 msgstr "Dönemin bilançosunu ve gelir tablosunu gözden geçirin ve rakamların doğru göründüğünü doğrulayın. Bu manuel bir onay — bunları gözden geçirdikten sonra bitti olarak işaretleyin."
@@ -11617,6 +11650,9 @@ msgstr "Tüm kaydedilen günlük satırlarının defteri, hesaba göre özetlenm
 msgid "The buckets you track costs against"
 msgstr "Maliyetleri takip ettiğiniz gruplar"
 
+msgid "The capital assets you own and depreciate"
+msgstr "Sahip olduğunuz ve amortiye ettiğiniz sabit kıymetler"
+
 msgid "The Carbon user responsible for this customer relationship; emails and reminders about this customer route to them."
 msgstr "Bu müşteri ilişkisinden sorumlu Carbon kullanıcısı; bu müşteri hakkında e-postalar ve hatırlatmalar onlara yönlendirilir."
 
@@ -11931,6 +11967,9 @@ msgstr "Mali yılınızın başladığı ay; dönemler bu aydan itibaren numaral
 
 msgid "The month your tax year begins; may differ from the fiscal year in some jurisdictions."
 msgstr "Vergi yılınızın başladığı ay; bazı yetki alanlarında mali yıldan farklı olabilir."
+
+msgid "The monthly periods you post into and close"
+msgstr "Nakliye yaptığınız ve kapattığınız aylık dönemler"
 
 msgid "The most likely failure mode the requester suspects; the technician confirms or replaces this on close-out, and the difference between suspected and actual feeds reliability reports."
 msgstr "İstekçinin şüphelendiği en olası hata modu; teknisyen bunu kapatırken doğrular veya değiştirir ve şüphelenilen ile gerçek arasındaki fark güvenilirlik raporlarını besler."
@@ -12315,6 +12354,9 @@ msgstr "Bu parça kullanımdan kaldırılmıştır (Stok Yok)."
 
 msgid "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 msgstr "Bu parça kullanımdan kaldırılmış ve Yalnızca Stok olarak ayarlanmıştır — talep bağımsız olarak yedek rezerv tabanına kadar yenilenir."
+
+msgid "This period has no journal entries posted to it and can be permanently deleted. This cannot be undone."
+msgstr "Bu döneme nakledilen günlük girişi yoktur ve kalıcı olarak silinebilir. Bu geri alınamaz."
 
 msgid "This Quarter"
 msgstr "Bu Çeyrek"
@@ -13580,6 +13622,9 @@ msgstr "Bu spesifik lot/seri numarası ne zaman sona erdiği; FEFO seçimini ve 
 msgid "When you committed to deliver; planning treats this as the demand-due-date for fulfillment."
 msgstr "Teslim etmeyi taahhüt ettiğiniz zaman; planlama bunu karşılama için talep vadesi tarihi olarak değerlendirir."
 
+msgid "When your fiscal and tax years start"
+msgstr "Mali ve vergi yıllarınız ne zaman başlar"
+
 msgid "Where an operation runs; carries labor and quoting rates, with overhead the difference between them."
 msgstr "Bir operasyonun nerede çalıştırıldığı; işçilik ve teklif oranlarını taşır, genel giderler aralarındaki fark."
 
@@ -13896,9 +13941,6 @@ msgstr "Verileriniz erişilebilir ve makul ölçüde temizdir"
 
 msgid "Your Email"
 msgstr "E-posta Adresiniz"
-
-msgid "Your fiscal year and its accounting periods"
-msgstr "Mali yılınız ve muhasebe dönemleri"
 
 msgid "Your general-ledger accounts and their structure"
 msgstr "Genel muhasebe hesaplarınız ve bunların yapısı"

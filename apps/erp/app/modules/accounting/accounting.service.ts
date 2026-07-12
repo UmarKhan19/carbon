@@ -752,6 +752,110 @@ async function getAccountingPeriodById(
   };
 }
 
+// Deletability check (industry rule: delete only empty, open periods). A journal
+// referencing the period (journal.accountingPeriodId, FK ON DELETE RESTRICT)
+// means it has postings; Locked/Closed periods are structurally frozen.
+// periodCloseTask rows cascade on delete, so they never block.
+export async function getAccountingPeriodDeletability(
+  client: SupabaseClient<Database>,
+  periodId: string,
+  companyId: string
+) {
+  const period = await getAccountingPeriodById(client, periodId, companyId);
+  if (period.error || !period.data) {
+    return {
+      data: null,
+      error: period.error ?? { message: "Period not found" }
+    };
+  }
+
+  const journals = await (client.from("journal") as any)
+    .select("id", { count: "exact", head: true })
+    .eq("companyId", companyId)
+    .eq("accountingPeriodId", periodId);
+  if (journals.error) return { data: null, error: journals.error };
+
+  const journalCount = (journals.count as number | null) ?? 0;
+  const closeStatus = period.data.closeStatus;
+  const reason =
+    closeStatus !== "Open"
+      ? `Only open periods can be deleted — this period is ${closeStatus}.`
+      : journalCount > 0
+        ? `This period has ${journalCount} journal ${
+            journalCount === 1 ? "entry" : "entries"
+          } posted to it and cannot be deleted.`
+        : null;
+
+  return {
+    data: {
+      canDelete: reason === null,
+      reason,
+      closeStatus,
+      journalCount,
+      startDate: period.data.startDate
+    },
+    error: null
+  };
+}
+
+export async function deleteAccountingPeriod(
+  client: SupabaseClient<Database>,
+  args: { periodId: string; companyId: string }
+) {
+  // Re-check server-side — never trust the client's disabled button.
+  const check = await getAccountingPeriodDeletability(
+    client,
+    args.periodId,
+    args.companyId
+  );
+  if (check.error || !check.data) {
+    return {
+      data: null,
+      error: check.error ?? { message: "Period not found" }
+    };
+  }
+  if (!check.data.canDelete) {
+    return {
+      data: null,
+      error: { message: check.data.reason ?? "Period cannot be deleted" }
+    };
+  }
+
+  return (client.from("accountingPeriod") as any)
+    .delete()
+    .eq("companyId", args.companyId)
+    .eq("id", args.periodId);
+}
+
+// The fiscal-year START month is fixed once the calendar is "committed" — any
+// Locked/Closed period, or any posting. Re-labeling committed periods would
+// retroactively rewrite already-reported fiscal years (and needs a short-year
+// bridge, not an edit), so the setting locks. Open, empty periods stay freely
+// changeable via delete + regenerate.
+export async function getFiscalCalendarCommitted(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  const [nonOpen, journals] = await Promise.all([
+    (client.from("accountingPeriod") as any)
+      .select("id", { count: "exact", head: true })
+      .eq("companyId", companyId)
+      .neq("closeStatus", "Open"),
+    (client.from("journal") as any)
+      .select("id", { count: "exact", head: true })
+      .eq("companyId", companyId)
+  ]);
+  if (nonOpen.error) return { data: null, error: nonOpen.error };
+  if (journals.error) return { data: null, error: journals.error };
+
+  return {
+    data: {
+      committed: (nonOpen.count ?? 0) > 0 || (journals.count ?? 0) > 0
+    },
+    error: null
+  };
+}
+
 export async function lockAccountingPeriod(
   client: SupabaseClient<Database>,
   args: { periodId: string; companyId: string; userId: string }

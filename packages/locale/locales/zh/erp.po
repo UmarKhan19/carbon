@@ -157,6 +157,9 @@ msgstr "1 份草稿日记账条目"
 msgid "1 unposted document"
 msgstr "1 份未过账单据"
 
+msgid "12 monthly periods"
+msgstr "12个月度期间"
+
 msgid "13+ weeks"
 msgstr "13周以上"
 
@@ -1872,6 +1875,9 @@ msgstr "校准"
 msgid "Called a method in Carbon — the components plus operations that produce a part."
 msgstr "在Carbon中称为方法—生成零件的组件和操作。"
 
+msgid "Can't delete this period"
+msgstr "无法删除此期间"
+
 msgid "Can't disable the only active break. Add another break or toggle the override's Active instead."
 msgstr "无法禁用唯一的活跃价格段。请添加另一个价格段或改为切换覆盖的\"活跃\"状态。"
 
@@ -2072,6 +2078,9 @@ msgstr "会计科目表"
 
 msgid "Chat"
 msgstr "聊天"
+
+msgid "Check the item ledger for any items with a negative on-hand quantity as of period end — usually a missing receipt or an out-of-order posting that distorts inventory value and cost of goods sold. Mark it done once reviewed, or skip with a reason."
+msgstr "检查物料分类账中期末库存数量为负的任何物料——通常是缺少收货或发布顺序不对导致库存价值和销货成本失真。审查后标记为完成，或跳过并说明原因。"
 
 msgid "Check your email"
 msgstr "检查您的电子邮件"
@@ -3000,6 +3009,9 @@ msgstr "已创建 webhook"
 msgid "Created work center"
 msgstr "已创建工作中心"
 
+msgid "Creates the 12 monthly periods for a fiscal year. Periods that already exist are kept."
+msgstr "为会计年度创建12个月度期间。已存在的期间保持不变。"
+
 msgid "Creating part..."
 msgstr "正在创建零件..."
 
@@ -3502,6 +3514,9 @@ msgstr "删除"
 msgid "Delete {name}"
 msgstr "删除 {name}"
 
+msgid "Delete {periodLabel}"
+msgstr "删除{periodLabel}"
+
 msgid "Delete {storageUnitName}"
 msgstr "删除 {storageUnitName}"
 
@@ -3612,6 +3627,9 @@ msgstr "删除付款"
 
 msgid "Delete Payment Term"
 msgstr "删除付款条款"
+
+msgid "Delete Period"
+msgstr "删除期间"
 
 msgid "Delete Picking List"
 msgstr "删除拣货单"
@@ -5300,6 +5318,9 @@ msgstr "首次操作"
 msgid "First-year additional deduction taken before the regular MACRS schedule begins."
 msgstr "固定资产"
 
+msgid "Fiscal year"
+msgstr "会计年度"
+
 msgid "Fiscal Year"
 msgstr "财政年度"
 
@@ -5326,6 +5347,9 @@ msgstr "固定资产"
 
 msgid "Fixed cost amortization variance when batch size differs from standard"
 msgstr "收益和损失"
+
+msgid "Fixed once accounting periods have been posted to or closed. Delete all open periods to change it."
+msgstr "会计期间过账或关闭后即固定。删除所有开放期间以更改。"
 
 msgid "Fixed Reorder"
 msgstr "固定重新订购"
@@ -5456,11 +5480,20 @@ msgstr "总分类账"
 msgid "General Ledger and month-end close"
 msgstr "总账和月末结账"
 
+msgid "Generate"
+msgstr "生成"
+
 msgid "Generate a new 4-digit PIN. Share it with the operator so they can pin in at MES terminals."
 msgstr "生成新的4位PIN码。与操作员分享，以便他们可以在MES终端上登录。"
 
 msgid "Generate and send customer invoices"
 msgstr "生成并发送客户发票"
+
+msgid "Generate fiscal year"
+msgstr "生成会计年度"
+
+msgid "Generate Fiscal Year"
+msgstr "生成会计年度"
 
 msgid "Generate material IDs and descriptions based on the properties of the material."
 msgstr "根据材料的属性生成材料ID和描述。"
@@ -8118,6 +8151,9 @@ msgstr "从报价到收款的一个系统"
 msgid "Only Draft procedures are editable. Create a new version to change an Active or Archived procedure."
 msgstr "只有草稿程序可以编辑。创建新版本以更改活动或已归档的程序。"
 
+msgid "Only empty, open periods can be deleted."
+msgstr "仅可删除空白的开放期间。"
+
 msgid "Onshape Status"
 msgstr "Onshape 状态"
 
@@ -9863,9 +9899,6 @@ msgstr "反向收费销售税 (默认)"
 
 msgid "Reverse the related journal entries"
 msgstr "反转相关日记账分录"
-
-msgid "Review any items showing negative on-hand quantity as of period end — usually a missing receipt or an out-of-order posting that distorts inventory value and cost of goods sold. Automated detection isn't wired up yet, so this always needs a manual review or a skip."
-msgstr "检查期末显示负库存的任何物料 — 通常是遗漏的收据或乱序过账，会扭曲库存价值和销售成本。自动检测还未配置，因此这总是需要手动审查或跳过。"
 
 msgid "Review the period's balance sheet and income statement and confirm the figures look right. This is a manual sign-off — mark it done once you have reviewed them."
 msgstr "审查期间的资产负债表和损益表，并确认数字正确。这是手动签核 — 审查后标记为完成。"
@@ -11617,6 +11650,9 @@ msgstr "所有已记账的日记账行书，按账户汇总 - 仅在公司启用
 msgid "The buckets you track costs against"
 msgstr "您用来追踪成本的分类"
 
+msgid "The capital assets you own and depreciate"
+msgstr "您拥有并折旧的固定资产"
+
 msgid "The Carbon user responsible for this customer relationship; emails and reminders about this customer route to them."
 msgstr "负责此客户关系的Carbon用户；关于此客户的电子邮件和提醒会路由给他们。"
 
@@ -11931,6 +11967,9 @@ msgstr "财政年度开始的月份；期间从该月份开始编号。"
 
 msgid "The month your tax year begins; may differ from the fiscal year in some jurisdictions."
 msgstr "税务年度开始的月份；在某些司法管辖区可能与财政年度不同。"
+
+msgid "The monthly periods you post into and close"
+msgstr "您过账并关闭的月度期间"
 
 msgid "The most likely failure mode the requester suspects; the technician confirms or replaces this on close-out, and the difference between suspected and actual feeds reliability reports."
 msgstr "请求者怀疑的最可能的失败模式；技术人员在关闭时确认或替换此项，疑似与实际之间的差异会影响可靠性报告。"
@@ -12315,6 +12354,9 @@ msgstr "这个零件已过时（无库存）。"
 
 msgid "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 msgstr "此零件已被替代并设置为仅库存 — 它补充到其备件储备下限，与需求无关。"
+
+msgid "This period has no journal entries posted to it and can be permanently deleted. This cannot be undone."
+msgstr "此期间未过账任何日记账分录，可以永久删除。此操作无法撤销。"
 
 msgid "This Quarter"
 msgstr "本季度"
@@ -13580,6 +13622,9 @@ msgstr "当此特定批次/序列号过期时;驱动FEFO选择和消费时的保
 msgid "When you committed to deliver; planning treats this as the demand-due-date for fulfillment."
 msgstr "当您承诺交货时;计划将其视为履行的需求到期日期。"
 
+msgid "When your fiscal and tax years start"
+msgstr "您的会计年度和税务年度的开始时间"
+
 msgid "Where an operation runs; carries labor and quoting rates, with overhead the difference between them."
 msgstr "操作执行的位置。carries劳动和报价费率,开销是它们之间的差异。"
 
@@ -13896,9 +13941,6 @@ msgstr "您的数据可访问且相对干净"
 
 msgid "Your Email"
 msgstr "你的电子邮件"
-
-msgid "Your fiscal year and its accounting periods"
-msgstr "您的财政年度及其会计期间"
 
 msgid "Your general-ledger accounts and their structure"
 msgstr "您的总账账户及其结构"

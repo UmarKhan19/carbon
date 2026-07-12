@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-12T06:21:42.296Z",
-  "totalTools": 1320,
+  "generated": "2026-07-12T23:28:33.097Z",
+  "totalTools": 1323,
   "modules": 15,
   "tools": [
     {
@@ -850,6 +850,75 @@
       "module": "accounting",
       "classification": "READ",
       "description": "get accounting periods",
+      "paramCount": 0,
+      "serviceParams": [
+        "client",
+        "companyId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "accounting_getAccountingPeriodDeletability",
+      "module": "accounting",
+      "classification": "READ",
+      "description": "get accounting period deletability",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "periodId",
+        "companyId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "periodId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "periodId"
+        ]
+      }
+    },
+    {
+      "name": "accounting_deleteAccountingPeriod",
+      "module": "accounting",
+      "classification": "DESTRUCTIVE",
+      "description": "delete accounting period",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "periodId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "periodId"
+        ]
+      }
+    },
+    {
+      "name": "accounting_getFiscalCalendarCommitted",
+      "module": "accounting",
+      "classification": "READ",
+      "description": "get fiscal calendar committed",
       "paramCount": 0,
       "serviceParams": [
         "client",

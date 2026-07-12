@@ -871,11 +871,11 @@ export const periodCloseTaskDefinitions = [
   },
   {
     name: "Review negative on-hand inventory",
-    taskType: "Auto",
-    autoCheckKey: "negative-inventory",
+    taskType: "Action",
+    autoCheckKey: null,
     sortOrder: 6,
     required: true,
-    severity: "Warning",
+    severity: null,
     active: true,
     isSystem: true
   },

@@ -157,6 +157,9 @@ msgstr "1 écriture de journal brouillon"
 msgid "1 unposted document"
 msgstr "1 document non comptabilisé"
 
+msgid "12 monthly periods"
+msgstr "12 périodes mensuelles"
+
 msgid "13+ weeks"
 msgstr "13+ semaines"
 
@@ -1872,6 +1875,9 @@ msgstr "Étalonnages"
 msgid "Called a method in Carbon — the components plus operations that produce a part."
 msgstr "Appelée une méthode en Carbon — les composants plus les opérations qui produisent une pièce."
 
+msgid "Can't delete this period"
+msgstr "Impossible de supprimer cette période"
+
 msgid "Can't disable the only active break. Add another break or toggle the override's Active instead."
 msgstr "Impossible de désactiver le seul palier actif. Ajoutez un autre palier ou basculez plutôt l'option Active de la substitution."
 
@@ -2072,6 +2078,9 @@ msgstr "Plan comptable"
 
 msgid "Chat"
 msgstr "Chat"
+
+msgid "Check the item ledger for any items with a negative on-hand quantity as of period end — usually a missing receipt or an out-of-order posting that distorts inventory value and cost of goods sold. Mark it done once reviewed, or skip with a reason."
+msgstr "Vérifiez le registre des articles pour tous les articles ayant une quantité disponible négative à la fin de la période — généralement un reçu manquant ou une comptabilisation désordonnée qui fausse la valeur des stocks et le coût des marchandises vendues. Marquez comme fait une fois examiné, ou ignorez avec une raison."
 
 msgid "Check your email"
 msgstr "Vérifiez votre email"
@@ -3000,6 +3009,9 @@ msgstr "Webhook créé"
 msgid "Created work center"
 msgstr "Centre de travail créé"
 
+msgid "Creates the 12 monthly periods for a fiscal year. Periods that already exist are kept."
+msgstr "Crée les 12 périodes mensuelles pour un exercice fiscal. Les périodes qui existent déjà sont conservées."
+
 msgid "Creating part..."
 msgstr "Création de la pièce..."
 
@@ -3502,6 +3514,9 @@ msgstr "Supprimer"
 msgid "Delete {name}"
 msgstr "Supprimer {name}"
 
+msgid "Delete {periodLabel}"
+msgstr "Supprimer {periodLabel}"
+
 msgid "Delete {storageUnitName}"
 msgstr "Supprimer {storageUnitName}"
 
@@ -3612,6 +3627,9 @@ msgstr "Supprimer le paiement"
 
 msgid "Delete Payment Term"
 msgstr "Supprimer le délai de paiement"
+
+msgid "Delete Period"
+msgstr "Supprimer la période"
 
 msgid "Delete Picking List"
 msgstr "Supprimer la liste de prélèvement"
@@ -5300,6 +5318,9 @@ msgstr "Première opération"
 msgid "First-year additional deduction taken before the regular MACRS schedule begins."
 msgstr "Immobilisation"
 
+msgid "Fiscal year"
+msgstr "Exercice fiscal"
+
 msgid "Fiscal Year"
 msgstr "Exercice fiscal"
 
@@ -5326,6 +5347,9 @@ msgstr "Immobilisations"
 
 msgid "Fixed cost amortization variance when batch size differs from standard"
 msgstr "Gains et Pertes"
+
+msgid "Fixed once accounting periods have been posted to or closed. Delete all open periods to change it."
+msgstr "Fixé une fois que les périodes comptables ont été comptabilisées ou fermées. Supprimez toutes les périodes ouvertes pour le modifier."
 
 msgid "Fixed Reorder"
 msgstr "Réapprovisionnement Fixe"
@@ -5456,11 +5480,20 @@ msgstr "Grand Livre"
 msgid "General Ledger and month-end close"
 msgstr "Grand livre et clôture de fin de mois"
 
+msgid "Generate"
+msgstr "Générer"
+
 msgid "Generate a new 4-digit PIN. Share it with the operator so they can pin in at MES terminals."
 msgstr "Générez un nouveau PIN à 4 chiffres. Partagez-le avec l'opérateur pour qu'il puisse se connecter aux terminaux MES."
 
 msgid "Generate and send customer invoices"
 msgstr "Générer et envoyer les factures clients"
+
+msgid "Generate fiscal year"
+msgstr "Générer l'exercice fiscal"
+
+msgid "Generate Fiscal Year"
+msgstr "Générer l'exercice fiscal"
 
 msgid "Generate material IDs and descriptions based on the properties of the material."
 msgstr "Générer les IDs de matériaux et les descriptions en fonction des propriétés du matériau."
@@ -8118,6 +8151,9 @@ msgstr "Un système du devis à la facturation"
 msgid "Only Draft procedures are editable. Create a new version to change an Active or Archived procedure."
 msgstr "Seules les procédures en brouillon sont modifiables. Créez une nouvelle version pour modifier une procédure active ou archivée."
 
+msgid "Only empty, open periods can be deleted."
+msgstr "Seules les périodes vides et ouvertes peuvent être supprimées."
+
 msgid "Onshape Status"
 msgstr "Statut Onshape"
 
@@ -9863,9 +9899,6 @@ msgstr "Taxe de vente d'autoliquidation (défaut)"
 
 msgid "Reverse the related journal entries"
 msgstr "Inverser les écritures comptables associées"
-
-msgid "Review any items showing negative on-hand quantity as of period end — usually a missing receipt or an out-of-order posting that distorts inventory value and cost of goods sold. Automated detection isn't wired up yet, so this always needs a manual review or a skip."
-msgstr "Vérifiez tous les articles affichant une quantité négative en main à la fin de la période — généralement un reçu manquant ou une comptabilisation hors ordre qui fausse la valeur des stocks et le coût des marchandises vendues. La détection automatisée n'est pas encore activée, donc cela nécessite toujours un examen manuel ou une omission."
 
 msgid "Review the period's balance sheet and income statement and confirm the figures look right. This is a manual sign-off — mark it done once you have reviewed them."
 msgstr "Examinez le bilan et le compte de résultat de la période et confirmez que les chiffres semblent corrects. Ceci est une approbation manuelle — marquez-la comme terminée une fois que vous les avez examinés."
@@ -11617,6 +11650,9 @@ msgstr "Le livre de toutes les lignes de journal enregistrées, sommées par com
 msgid "The buckets you track costs against"
 msgstr "Les compartiments par rapport auxquels vous suivez les coûts"
 
+msgid "The capital assets you own and depreciate"
+msgstr "Les immobilisations que vous possédez et dépréciiez"
+
 msgid "The Carbon user responsible for this customer relationship; emails and reminders about this customer route to them."
 msgstr "L'utilisateur Carbon responsable de cette relation client; les e-mails et les rappels à propos de ce client leur sont acheminés."
 
@@ -11931,6 +11967,9 @@ msgstr "Le mois où votre exercice financier commence; les périodes sont numér
 
 msgid "The month your tax year begins; may differ from the fiscal year in some jurisdictions."
 msgstr "Le mois où votre année fiscale commence; peut différer de l'exercice fiscal dans certaines juridictions."
+
+msgid "The monthly periods you post into and close"
+msgstr "Les périodes mensuelles dans lesquelles vous comptabilisez et fermez"
 
 msgid "The most likely failure mode the requester suspects; the technician confirms or replaces this on close-out, and the difference between suspected and actual feeds reliability reports."
 msgstr "Le mode de défaillance le plus probable que le demandeur soupçonne; le technicien confirme ou remplace celui-ci à la fermeture, et la différence entre suspects et réelles alimente les rapports de fiabilité."
@@ -12315,6 +12354,9 @@ msgstr "Cette pièce est obsolète (Pas de stock)."
 
 msgid "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 msgstr "Cette pièce est obsolète et définie sur Stock Only — elle est réapprovisionnée jusqu'à son plancher de réserve de pièces de rechange, indépendamment de la demande."
+
+msgid "This period has no journal entries posted to it and can be permanently deleted. This cannot be undone."
+msgstr "Cette période n'a aucune écriture de journal comptabilisée et peut être supprimée définitivement. Cela ne peut pas être annulé."
 
 msgid "This Quarter"
 msgstr "Ce trimestre"
@@ -13580,6 +13622,9 @@ msgstr "Quand ce lot/numéro de série spécifique expire ; détermine la sélec
 msgid "When you committed to deliver; planning treats this as the demand-due-date for fulfillment."
 msgstr "Quand vous vous êtes engagé à livrer ; la planification traite ceci comme la date d'exigence de demande pour l'exécution."
 
+msgid "When your fiscal and tax years start"
+msgstr "Quand commencent vos exercices fiscal et fiscal"
+
 msgid "Where an operation runs; carries labor and quoting rates, with overhead the difference between them."
 msgstr "Où un opération s'exécute ; porte les taux de travail et de devis, avec frais généraux la différence entre eux."
 
@@ -13896,9 +13941,6 @@ msgstr "Vos données sont accessibles et raisonnablement propres"
 
 msgid "Your Email"
 msgstr "Votre e-mail"
-
-msgid "Your fiscal year and its accounting periods"
-msgstr "Votre exercice fiscal et ses périodes comptables"
 
 msgid "Your general-ledger accounts and their structure"
 msgstr "Vos comptes du grand livre et leur structure"
