@@ -1,5 +1,9 @@
 import { MenuIcon, MenuItem, Status } from "@carbon/react";
-import { formatDate, PERIOD_CLOSE_STATUS_COLOR_MAP } from "@carbon/utils";
+import {
+  formatDate,
+  formatPeriodLabel,
+  PERIOD_CLOSE_STATUS_COLOR_MAP
+} from "@carbon/utils";
 import { useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { ReactNode } from "react";
@@ -31,7 +35,7 @@ const STATUS_COLOR = {
 } as const;
 
 const periodLabel = (period: AccountingPeriodListItem) =>
-  formatDate(period.startDate, { year: "numeric", month: "long" });
+  formatPeriodLabel(period.startDate);
 
 const PeriodsTable = memo(
   ({ data, count, primaryAction }: PeriodsTableProps) => {

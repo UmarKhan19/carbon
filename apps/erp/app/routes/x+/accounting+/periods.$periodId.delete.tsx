@@ -14,7 +14,7 @@ import {
   ModalHeader,
   ModalTitle
 } from "@carbon/react";
-import { formatDate } from "@carbon/utils";
+import { formatPeriodLabel } from "@carbon/utils";
 import { Trans } from "@lingui/react/macro";
 import { LuTrash, LuTriangleAlert } from "react-icons/lu";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
@@ -92,10 +92,7 @@ export default function DeleteAccountingPeriodRoute() {
   const navigate = useNavigate();
   const fetcher = useFetcher<typeof action>();
 
-  const periodLabel = formatDate(check.startDate, {
-    year: "numeric",
-    month: "long"
-  });
+  const periodLabel = formatPeriodLabel(check.startDate);
   const isBusy = fetcher.state !== "idle";
 
   return (

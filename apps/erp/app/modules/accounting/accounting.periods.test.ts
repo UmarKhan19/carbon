@@ -31,7 +31,11 @@ import {
   checklistTasksToCreate,
   closeAccountingPeriod,
   closePeriodWithChecklist,
+  createFiscalYearPeriods,
+  deleteAccountingPeriod,
   evaluateCloseChecklist,
+  getAccountingPeriodDeletability,
+  getFiscalCalendarCommitted,
   getOrCreateAccountingPeriod,
   postJournalEntry,
   reopenAccountingPeriod,
@@ -57,6 +61,7 @@ function makeClient(responses: Scripted[]) {
     select: () => builder,
     insert: () => builder,
     update: () => builder,
+    delete: () => builder,
     eq: () => builder,
     neq: () => builder,
     in: () => builder,
@@ -667,5 +672,159 @@ describe("skipCloseTask — skip guards", () => {
     });
     expect(result.error).toBeNull();
     expect(result.data).toEqual({ id: "T2" });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Period deletability + deletion guard, the fiscal-calendar "committed" check,
+// and fiscal-year generation. These exercise the real service functions against
+// the scripted fake supabase client; each awaited query / `.single()` shifts the
+// next scripted result off the queue in the order the function issues them.
+// ---------------------------------------------------------------------------
+
+// Like makeClient but records every `.insert(values)` so a test can assert the
+// rows a service generated (createFiscalYearPeriods' month math).
+function makeInsertRecordingClient(responses: Scripted[]) {
+  let i = 0;
+  const next = () => responses[i++] ?? { data: null, error: null };
+  const inserts: any[] = [];
+  const builder: any = {
+    select: () => builder,
+    insert: (values: any) => {
+      inserts.push(values);
+      return builder;
+    },
+    eq: () => builder,
+    single: () => Promise.resolve(next()),
+    then: (resolve: (v: Scripted) => unknown) => resolve(next())
+  };
+  return { client: { from: () => builder } as any, inserts };
+}
+
+describe("getAccountingPeriodDeletability", () => {
+  // Query order: getAccountingPeriodById (.single) -> journal count.
+  it("allows deleting an open period with no journals", async () => {
+    const client = makeClient([
+      { data: { id: "P1", closeStatus: "Open", startDate: "2026-03-01" } },
+      { count: 0 }
+    ]);
+    const result = await getAccountingPeriodDeletability(client, "P1", "C1");
+    expect(result.data?.canDelete).toBe(true);
+    expect(result.data?.reason).toBeNull();
+  });
+
+  it("blocks an open period that has journals posted to it", async () => {
+    const client = makeClient([
+      { data: { id: "P1", closeStatus: "Open", startDate: "2026-03-01" } },
+      { count: 3 }
+    ]);
+    const result = await getAccountingPeriodDeletability(client, "P1", "C1");
+    expect(result.data?.canDelete).toBe(false);
+    expect(result.data?.reason).toMatch(/3 journal entries/);
+  });
+
+  it("blocks a Locked/Closed period regardless of journals", async () => {
+    const client = makeClient([
+      { data: { id: "P1", closeStatus: "Locked", startDate: "2026-03-01" } },
+      { count: 0 }
+    ]);
+    const result = await getAccountingPeriodDeletability(client, "P1", "C1");
+    expect(result.data?.canDelete).toBe(false);
+    expect(result.data?.reason).toMatch(/Locked/);
+  });
+});
+
+describe("deleteAccountingPeriod — server-side guard", () => {
+  it("refuses to delete a non-open period (never issues the DELETE)", async () => {
+    const client = makeClient([
+      { data: { id: "P1", closeStatus: "Closed", startDate: "2026-03-01" } },
+      { count: 0 }
+    ]);
+    const result = await deleteAccountingPeriod(client, {
+      periodId: "P1",
+      companyId: "C1"
+    });
+    expect(result.error?.message).toMatch(/Closed/);
+    expect(result.data).toBeNull();
+  });
+
+  it("deletes an open, empty period", async () => {
+    const client = makeClient([
+      { data: { id: "P1", closeStatus: "Open", startDate: "2026-03-01" } },
+      { count: 0 },
+      { data: null, error: null } // the DELETE result
+    ]);
+    const result = await deleteAccountingPeriod(client, {
+      periodId: "P1",
+      companyId: "C1"
+    });
+    expect(result.error).toBeNull();
+  });
+});
+
+describe("getFiscalCalendarCommitted", () => {
+  // committed = (non-open periods) OR (postings); the OR is order-independent,
+  // so these assertions hold regardless of how the two counts are scripted.
+  it("is not committed when every period is Open and there are no postings", async () => {
+    const client = makeClient([{ count: 0 }, { count: 0 }]);
+    const result = await getFiscalCalendarCommitted(client, "C1");
+    expect(result.data?.committed).toBe(false);
+  });
+
+  it("is committed once a Locked/Closed period or a posting exists", async () => {
+    const client = makeClient([{ count: 1 }, { count: 0 }]);
+    const result = await getFiscalCalendarCommitted(client, "C1");
+    expect(result.data?.committed).toBe(true);
+  });
+});
+
+describe("createFiscalYearPeriods", () => {
+  // Query order: getFiscalYearSettings (.single) -> existing periodNumbers ->
+  // insert (only when there are rows to create).
+  it("is idempotent — creates nothing when all 12 periods already exist", async () => {
+    const existing = Array.from({ length: 12 }, (_, p) => ({
+      periodNumber: p + 1
+    }));
+    const client = makeClient([
+      { data: { startMonth: "January" } },
+      { data: existing }
+    ]);
+    const result = await createFiscalYearPeriods(client, {
+      companyId: "C1",
+      fiscalYear: 2027,
+      userId: "U1"
+    });
+    expect(result.error).toBeNull();
+    expect(result.data).toEqual([]);
+  });
+
+  it("generates 12 periods anchored on the fiscal start month (March)", async () => {
+    const { client, inserts } = makeInsertRecordingClient([
+      { data: { startMonth: "March" } },
+      { data: [] }, // none exist yet
+      { data: [{ id: "x" }] } // insert result
+    ]);
+    await createFiscalYearPeriods(client, {
+      companyId: "C1",
+      fiscalYear: 2027,
+      userId: "U1"
+    });
+    const rows = inserts[0] as {
+      periodNumber: number;
+      startDate: string;
+      fiscalYear: number;
+    }[];
+    expect(rows).toHaveLength(12);
+    // FY2027 with a March start spans Mar 2026 .. Feb 2027.
+    expect(rows[0]).toMatchObject({
+      periodNumber: 1,
+      startDate: "2026-03-01",
+      fiscalYear: 2027
+    });
+    expect(rows[11]).toMatchObject({
+      periodNumber: 12,
+      startDate: "2027-02-01",
+      fiscalYear: 2027
+    });
   });
 });

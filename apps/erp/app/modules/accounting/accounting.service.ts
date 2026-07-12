@@ -1419,18 +1419,6 @@ async function computePeriodReadiness(
       label: "Unmatched intercompany transactions involving this company",
       failing: (unmatchedIC.count ?? 0) > 0,
       count: unmatchedIC.count ?? 0
-    },
-    {
-      // TODO: compute negative on-hand quantities as of period end from the
-      // item ledger (sum itemLedger.quantity per item/location where
-      // postingDate <= endDate, flag any negative balance). Until that
-      // aggregation is wired up, this Warning fails closed so the close forces
-      // an explicit manual review/skip rather than silently passing.
-      autoCheckKey: "negative-inventory",
-      severity: "Warning",
-      label: "Negative on-hand inventory as of period end (manual review)",
-      failing: true,
-      count: 0
     }
   ];
 

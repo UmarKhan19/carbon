@@ -1,3 +1,5 @@
+import { formatDate } from "./date";
+
 type AccountType = "asset" | "liability" | "equity" | "revenue" | "expense";
 type AccountClass = "Asset" | "Liability" | "Equity" | "Revenue" | "Expense";
 
@@ -94,4 +96,10 @@ export function fiscalYearAndPeriodFor(
   const fiscalYear =
     startMonth === 1 ? year : month >= startMonth ? year + 1 : year;
   return { fiscalYear, periodNumber };
+}
+
+// Display label for a monthly accounting period — its start date as a localized
+// month + year (e.g. "July 2026"), no day.
+export function formatPeriodLabel(startDate: string, locale?: string): string {
+  return formatDate(startDate, { year: "numeric", month: "long" }, locale);
 }
