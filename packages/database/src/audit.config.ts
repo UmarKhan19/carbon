@@ -304,9 +304,11 @@ export const auditConfig = {
       label: "Change Order",
       tables: {
         changeOrder: { role: "root" },
-        changeOrderProductAffected: { entityIdColumn: "changeOrderId" },
-        changeOrderBomChange: { entityIdColumn: "changeOrderId" },
-        changeOrderBomChangeAssembly: { entityIdColumn: "changeOrderId" },
+        changeOrderAffectedItem: { entityIdColumn: "changeOrderId" },
+        changeOrderStagedMaterial: { entityIdColumn: "changeOrderId" },
+        changeOrderStagedOperation: { entityIdColumn: "changeOrderId" },
+        changeOrderStagedItemAttributes: { entityIdColumn: "changeOrderId" },
+        changeOrderSupersession: { entityIdColumn: "changeOrderId" },
         changeOrderActionTask: { entityIdColumn: "changeOrderId" }
       }
     },
