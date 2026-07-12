@@ -9,17 +9,25 @@ import {
   cn,
   HStack,
   IconButton,
+  Label,
+  NumberDecrementStepper,
+  NumberField,
+  NumberIncrementStepper,
+  NumberInput,
+  NumberInputGroup,
+  NumberInputStepper,
   VStack
 } from "@carbon/react";
 import { getItemReadableId } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { LuPlus, LuTrash2 } from "react-icons/lu";
+import { LuChevronDown, LuChevronUp, LuPlus, LuTrash2 } from "react-icons/lu";
 import { useFetcher } from "react-router";
 import { Hidden, Item, Number, Submit } from "~/components/Form";
 import { useItems } from "~/stores";
 import { path } from "~/utils/path";
 import type { MethodDiffEntry } from "../../changeOrder.models";
 import { changeOrderStagedMaterialValidator } from "../../changeOrder.models";
+import { buildDiffMap, DiffBadge, removedEntries } from "./diff-ui";
 
 type StagedMaterial =
   Database["public"]["Tables"]["changeOrderStagedMaterial"]["Row"];
@@ -36,44 +44,6 @@ type ChangeOrderBomEditorProps = {
   isDisabled: boolean;
 };
 
-// Map each staged material id → its diff status. A staged row is the diff
-// `after`; a removed line only exists as a `before` (no staged row), so those
-// are rendered separately below the staged lines.
-function buildDiffMap(diff?: MaterialDiff[]): Map<string, MaterialDiff> {
-  const map = new Map<string, MaterialDiff>();
-  if (!diff) return map;
-  for (const entry of diff) {
-    const afterId = (entry.after as { id?: string } | null)?.id;
-    if (afterId) map.set(afterId, entry);
-  }
-  return map;
-}
-
-function DiffBadge({ status }: { status: MethodDiffEntry<unknown>["status"] }) {
-  if (status === "added") {
-    return (
-      <Badge variant="green">
-        <Trans>Added</Trans>
-      </Badge>
-    );
-  }
-  if (status === "modified") {
-    return (
-      <Badge variant="yellow">
-        <Trans>Modified</Trans>
-      </Badge>
-    );
-  }
-  if (status === "removed") {
-    return (
-      <Badge variant="red">
-        <Trans>Removed</Trans>
-      </Badge>
-    );
-  }
-  return null;
-}
-
 export default function ChangeOrderBomEditor({
   changeOrderId,
   affectedId,
@@ -88,11 +58,7 @@ export default function ChangeOrderBomEditor({
 
   // Removed lines have a diff `before` but no matching staged material.
   const stagedIds = new Set(materials.map((m) => m.id));
-  const removedEntries = (diff ?? []).filter((entry) => {
-    if (entry.status !== "removed") return false;
-    const beforeId = (entry.before as { id?: string } | null)?.id;
-    return beforeId ? !stagedIds.has(beforeId) : true;
-  });
+  const removed = removedEntries(diff, stagedIds);
 
   return (
     <Card className="w-full">
@@ -103,7 +69,7 @@ export default function ChangeOrderBomEditor({
       </CardHeader>
       <CardContent>
         <VStack spacing={2}>
-          {materials.length === 0 && removedEntries.length === 0 && (
+          {materials.length === 0 && removed.length === 0 && (
             <p className="text-sm text-muted-foreground py-2">
               <Trans>No materials staged for this item.</Trans>
             </p>
@@ -123,7 +89,7 @@ export default function ChangeOrderBomEditor({
               />
             ))}
 
-          {removedEntries.map((entry, index) => {
+          {removed.map((entry, index) => {
             const before = entry.before as {
               id?: string;
               itemId?: string;
@@ -219,15 +185,27 @@ function BomLine({
         {status && <DiffBadge status={status} />}
       </HStack>
       <HStack spacing={2}>
-        <div className="w-28">
-          <Number
-            name={`quantity-${material.id}`}
-            label={t`Quantity`}
+        <div className="flex flex-col gap-1.5 w-28">
+          <Label>{t`Quantity`}</Label>
+          <NumberField
+            aria-label={t`Quantity`}
             defaultValue={material.quantity}
             minValue={0}
             isDisabled={isDisabled || quantityFetcher.state !== "idle"}
             onChange={onQuantityChange}
-          />
+          >
+            <NumberInputGroup className="relative">
+              <NumberInput />
+              <NumberInputStepper>
+                <NumberIncrementStepper>
+                  <LuChevronUp size="1em" strokeWidth="3" />
+                </NumberIncrementStepper>
+                <NumberDecrementStepper>
+                  <LuChevronDown size="1em" strokeWidth="3" />
+                </NumberDecrementStepper>
+              </NumberInputStepper>
+            </NumberInputGroup>
+          </NumberField>
         </div>
         {!isDisabled && (
           <deleteFetcher.Form

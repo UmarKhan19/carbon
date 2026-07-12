@@ -1,4 +1,5 @@
 import type { Database } from "@carbon/database";
+import { ValidatedForm } from "@carbon/form";
 import {
   Card,
   CardContent,
@@ -9,11 +10,13 @@ import {
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback } from "react";
 import { useFetcher } from "react-router";
+import { z } from "zod";
 import { Boolean, Input, Select } from "~/components/Form";
 import { ItemThumbnailUpload } from "~/components/ItemThumnailUpload";
 import { methodType, sourcingType } from "~/modules/shared";
 import { path } from "~/utils/path";
 import {
+  deriveItemMethodUpdate,
   itemReplenishmentSystems,
   itemTrackingTypes
 } from "../../items.models";
@@ -55,6 +58,18 @@ const replenishmentOptions = itemReplenishmentSystems.map((s) => ({
 }));
 const sourcingTypeOptions = sourcingType.map((s) => ({ value: s, label: s }));
 
+// Context-only validator — fields auto-save individually, this form is never
+// submitted, so every field is optional.
+const attributesFormValidator = z.object({
+  name: z.string().optional(),
+  description: z.string().optional(),
+  unitOfMeasureCode: z.string().optional(),
+  itemTrackingType: z.string().optional(),
+  defaultMethodType: z.string().optional(),
+  replenishmentSystem: z.string().optional(),
+  sourcingType: z.string().optional()
+});
+
 // Subtle "was: X" indicator, shown only when the staged value differs from the
 // live source value.
 function WasHint({
@@ -89,6 +104,28 @@ export default function ChangeOrderAttributesEditor({
   const onUpdate = useCallback(
     (patch: Partial<Record<keyof StagedAttributes, string | null>>) => {
       if (isDisabled) return;
+
+      // Interlock: editing one of the three method/sourcing fields derives the
+      // others (e.g. sourcing "Drop Ship" ⇒ method "Purchase to Order"), reusing
+      // the SAME rule as the canonical item editor so a consistent triple is
+      // always staged. Each select fires one field at a time, matching the
+      // per-field shape of deriveItemMethodUpdate.
+      let effectivePatch = patch;
+      for (const f of [
+        "replenishmentSystem",
+        "defaultMethodType",
+        "sourcingType"
+      ] as const) {
+        const v = patch[f];
+        if (typeof v === "string" && v.length > 0) {
+          effectivePatch = {
+            ...patch,
+            ...deriveItemMethodUpdate(f, v).itemUpdate
+          };
+          break;
+        }
+      }
+
       const formData = new FormData();
       formData.append("id", staged.id);
       formData.append("changeOrderId", changeOrderId);
@@ -102,7 +139,7 @@ export default function ChangeOrderAttributesEditor({
         defaultMethodType: staged.defaultMethodType,
         replenishmentSystem: staged.replenishmentSystem,
         sourcingType: staged.sourcingType,
-        ...patch
+        ...effectivePatch
       };
 
       formData.append("name", next.name ?? "");
@@ -157,137 +194,165 @@ export default function ChangeOrderAttributesEditor({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <VStack spacing={4}>
-          <VStack spacing={1}>
-            <Input
-              name="name"
-              label={t`Name`}
-              defaultValue={staged.name ?? ""}
-              isDisabled={isDisabled}
-              onBlur={(e) => onUpdate({ name: e.target.value })}
-            />
-            <WasHint staged={staged.name} source={source.name} />
-          </VStack>
+        {/* The ValidatedForm here only supplies the field context that
+            useField needs — each field auto-saves via `onUpdate` (fetcher),
+            so there is no Submit; this form is never itself submitted. */}
+        <ValidatedForm
+          validator={attributesFormValidator}
+          defaultValues={{
+            name: staged.name ?? "",
+            description: staged.description ?? "",
+            unitOfMeasureCode: staged.unitOfMeasureCode ?? "",
+            itemTrackingType: staged.itemTrackingType ?? "",
+            defaultMethodType: staged.defaultMethodType ?? "",
+            replenishmentSystem: staged.replenishmentSystem ?? "",
+            sourcingType: staged.sourcingType ?? ""
+          }}
+          className="w-full"
+        >
+          <VStack spacing={4}>
+            <VStack spacing={1}>
+              <Input
+                name="name"
+                label={t`Name`}
+                defaultValue={staged.name ?? ""}
+                isDisabled={isDisabled}
+                onBlur={(e) => onUpdate({ name: e.target.value })}
+              />
+              <WasHint staged={staged.name} source={source.name} />
+            </VStack>
 
-          <VStack spacing={1}>
-            <Input
-              name="description"
-              label={t`Description`}
-              defaultValue={staged.description ?? ""}
-              isDisabled={isDisabled}
-              onBlur={(e) => onUpdate({ description: e.target.value })}
-            />
-            <WasHint staged={staged.description} source={source.description} />
-          </VStack>
+            <VStack spacing={1}>
+              <Input
+                name="description"
+                label={t`Description`}
+                defaultValue={staged.description ?? ""}
+                isDisabled={isDisabled}
+                onBlur={(e) => onUpdate({ description: e.target.value })}
+              />
+              <WasHint
+                staged={staged.description}
+                source={source.description}
+              />
+            </VStack>
 
-          <VStack spacing={1}>
-            <Input
-              name="unitOfMeasureCode"
-              label={t`Unit of Measure`}
-              defaultValue={staged.unitOfMeasureCode ?? ""}
-              isDisabled={isDisabled}
-              onBlur={(e) => onUpdate({ unitOfMeasureCode: e.target.value })}
-            />
-            <WasHint
-              staged={staged.unitOfMeasureCode}
-              source={source.unitOfMeasureCode}
-            />
-          </VStack>
+            <VStack spacing={1}>
+              <Input
+                name="unitOfMeasureCode"
+                label={t`Unit of Measure`}
+                defaultValue={staged.unitOfMeasureCode ?? ""}
+                isDisabled={isDisabled}
+                onBlur={(e) => onUpdate({ unitOfMeasureCode: e.target.value })}
+              />
+              <WasHint
+                staged={staged.unitOfMeasureCode}
+                source={source.unitOfMeasureCode}
+              />
+            </VStack>
 
-          <VStack spacing={1}>
-            <Select
-              name="itemTrackingType"
-              label={t`Tracking Type`}
-              value={staged.itemTrackingType ?? undefined}
-              options={trackingTypeOptions}
-              isReadOnly={isDisabled}
-              onChange={(v) => onUpdate({ itemTrackingType: v?.value ?? null })}
-            />
-            <WasHint
-              staged={staged.itemTrackingType}
-              source={source.itemTrackingType}
-            />
-          </VStack>
+            <VStack spacing={1}>
+              <Select
+                name="itemTrackingType"
+                label={t`Tracking Type`}
+                value={staged.itemTrackingType ?? undefined}
+                options={trackingTypeOptions}
+                isReadOnly={isDisabled}
+                onChange={(v) =>
+                  onUpdate({ itemTrackingType: v?.value ?? null })
+                }
+              />
+              <WasHint
+                staged={staged.itemTrackingType}
+                source={source.itemTrackingType}
+              />
+            </VStack>
 
-          <VStack spacing={1}>
-            <Select
-              name="defaultMethodType"
-              label={t`Default Method Type`}
-              value={staged.defaultMethodType ?? undefined}
-              options={methodTypeOptions}
-              isReadOnly={isDisabled}
-              onChange={(v) =>
-                onUpdate({ defaultMethodType: v?.value ?? null })
-              }
-            />
-            <WasHint
-              staged={staged.defaultMethodType}
-              source={source.defaultMethodType}
-            />
-          </VStack>
+            <VStack spacing={1}>
+              <Select
+                name="defaultMethodType"
+                label={t`Default Method Type`}
+                value={staged.defaultMethodType ?? undefined}
+                options={methodTypeOptions}
+                isReadOnly={isDisabled}
+                onChange={(v) =>
+                  onUpdate({ defaultMethodType: v?.value ?? null })
+                }
+              />
+              <WasHint
+                staged={staged.defaultMethodType}
+                source={source.defaultMethodType}
+              />
+            </VStack>
 
-          <VStack spacing={1}>
-            <Select
-              name="replenishmentSystem"
-              label={t`Replenishment`}
-              value={staged.replenishmentSystem ?? undefined}
-              options={replenishmentOptions}
-              isReadOnly={isDisabled}
-              onChange={(v) =>
-                onUpdate({ replenishmentSystem: v?.value ?? null })
-              }
-            />
-            <WasHint
-              staged={staged.replenishmentSystem}
-              source={source.replenishmentSystem}
-            />
-          </VStack>
+            <VStack spacing={1}>
+              <Select
+                name="replenishmentSystem"
+                label={t`Replenishment`}
+                value={staged.replenishmentSystem ?? undefined}
+                options={replenishmentOptions}
+                isReadOnly={isDisabled}
+                onChange={(v) =>
+                  onUpdate({ replenishmentSystem: v?.value ?? null })
+                }
+              />
+              <WasHint
+                staged={staged.replenishmentSystem}
+                source={source.replenishmentSystem}
+              />
+            </VStack>
 
-          <VStack spacing={1}>
-            <Select
-              name="sourcingType"
-              label={t`Sourcing Type`}
-              value={staged.sourcingType ?? undefined}
-              options={sourcingTypeOptions}
-              isReadOnly={isDisabled}
-              onChange={(v) => onUpdate({ sourcingType: v?.value ?? null })}
-            />
-            <WasHint
-              staged={staged.sourcingType}
-              source={source.sourcingType}
-            />
-          </VStack>
-
-          <VStack spacing={1}>
-            <Boolean
-              name="requiresInspection"
-              label={t`Requires Inspection`}
-              variant="small"
-              value={staged.requiresInspection ?? false}
-              isDisabled={isDisabled}
-              onChange={(checked) =>
-                onUpdate({ requiresInspection: checked ? "on" : "" })
-              }
-            />
-            {(staged.requiresInspection ?? false) !==
-              (source.requiresInspection ?? false) && (
-              <span className="text-xs text-muted-foreground line-through">
-                <Trans>was: {source.requiresInspection ? t`Yes` : t`No`}</Trans>
-              </span>
+            {/* Sourcing only applies to "Buy and Make" items — matches the
+                canonical item editor (SourcingTypeProperty). */}
+            {staged.replenishmentSystem === "Buy and Make" && (
+              <VStack spacing={1}>
+                <Select
+                  name="sourcingType"
+                  label={t`Sourcing Type`}
+                  value={staged.sourcingType ?? undefined}
+                  options={sourcingTypeOptions}
+                  isReadOnly={isDisabled}
+                  onChange={(v) => onUpdate({ sourcingType: v?.value ?? null })}
+                />
+                <WasHint
+                  staged={staged.sourcingType}
+                  source={source.sourcingType}
+                />
+              </VStack>
             )}
-          </VStack>
 
-          <VStack spacing={2}>
-            <h3 className="text-xs text-muted-foreground">
-              <Trans>Thumbnail</Trans>
-            </h3>
-            <ItemThumbnailUpload
-              path={source.thumbnailPath}
-              itemId={source.itemId}
-              modelId={source.modelId}
-            />
+            <VStack spacing={1}>
+              <Boolean
+                name="requiresInspection"
+                label={t`Requires Inspection`}
+                variant="small"
+                value={staged.requiresInspection ?? false}
+                isDisabled={isDisabled}
+                onChange={(checked) =>
+                  onUpdate({ requiresInspection: checked ? "on" : "" })
+                }
+              />
+              {(staged.requiresInspection ?? false) !==
+                (source.requiresInspection ?? false) && (
+                <span className="text-xs text-muted-foreground line-through">
+                  <Trans>
+                    was: {source.requiresInspection ? t`Yes` : t`No`}
+                  </Trans>
+                </span>
+              )}
+            </VStack>
+
+            <VStack spacing={2}>
+              <h3 className="text-xs text-muted-foreground">
+                <Trans>Thumbnail</Trans>
+              </h3>
+              <ItemThumbnailUpload
+                path={source.thumbnailPath}
+                itemId={source.itemId}
+                modelId={source.modelId}
+              />
+            </VStack>
           </VStack>
-        </VStack>
+        </ValidatedForm>
       </CardContent>
     </Card>
   );

@@ -59,6 +59,90 @@ export const itemReplenishmentSystems = [
   "Buy and Make"
 ] as const;
 
+// Maps an edit of ONE of the three interlocked item-level fields
+// (replenishmentSystem, defaultMethodType, sourcingType) to the columns that must
+// change together on the item, plus the values to mirror down to method materials.
+// Pure — no DB access — so the interlock rule lives in ONE place, shared by the
+// inline item-update route (x+/items+/update.tsx) and the change-order attributes
+// editor. Keeping them in sync via a hand-copied mapping is exactly the drift this
+// avoids.
+export function deriveItemMethodUpdate(
+  field: "replenishmentSystem" | "defaultMethodType" | "sourcingType",
+  value: string
+): {
+  itemUpdate: {
+    replenishmentSystem?: (typeof itemReplenishmentSystems)[number];
+    defaultMethodType?: (typeof methodType)[number];
+    sourcingType?: (typeof sourcingType)[number];
+  };
+  cascade: {
+    sourcingType?: (typeof sourcingType)[number];
+    methodType?: (typeof methodType)[number];
+  };
+} {
+  switch (field) {
+    case "replenishmentSystem": {
+      const replenishmentSystem =
+        value as (typeof itemReplenishmentSystems)[number];
+      // Picking a concrete replenishment system pins the default method type.
+      if (value !== "Buy and Make") {
+        const defaultMethodType: (typeof methodType)[number] =
+          value === "Make"
+            ? "Make to Order"
+            : value === "Buy"
+              ? "Purchase to Order"
+              : "Pull from Inventory";
+        return {
+          itemUpdate: { replenishmentSystem, defaultMethodType },
+          cascade: { methodType: defaultMethodType }
+        };
+      }
+      return { itemUpdate: { replenishmentSystem }, cascade: {} };
+    }
+    case "defaultMethodType": {
+      const defaultMethodType = value as (typeof methodType)[number];
+      // A concrete method type pins the replenishment system to match.
+      if (value !== "Pull from Inventory") {
+        const replenishmentSystem: (typeof itemReplenishmentSystems)[number] =
+          value === "Make to Order"
+            ? "Make"
+            : value === "Purchase to Order"
+              ? "Buy"
+              : "Buy and Make";
+        return {
+          itemUpdate: { defaultMethodType, replenishmentSystem },
+          cascade: { methodType: defaultMethodType }
+        };
+      }
+      return {
+        itemUpdate: { defaultMethodType },
+        cascade: { methodType: defaultMethodType }
+      };
+    }
+    case "sourcingType": {
+      const sourcingTypeValue = value as (typeof sourcingType)[number];
+      // Sourcing drives method type: Drop Ship → Purchase to Order, Ship from
+      // Inventory → Pull from Inventory, Specified → leave method type as-is.
+      const derivedMethodType: (typeof methodType)[number] | undefined =
+        value === "Drop Ship"
+          ? "Purchase to Order"
+          : value === "Ship from Inventory"
+            ? "Pull from Inventory"
+            : undefined;
+      return {
+        itemUpdate: {
+          sourcingType: sourcingTypeValue,
+          ...(derivedMethodType ? { defaultMethodType: derivedMethodType } : {})
+        },
+        cascade: {
+          sourcingType: sourcingTypeValue,
+          methodType: derivedMethodType
+        }
+      };
+    }
+  }
+}
+
 export const shelfLifeModes = [
   "NotManaged",
   "Fixed Duration",

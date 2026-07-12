@@ -4,6 +4,7 @@ export * from "./changeOrder.models";
 export * from "./changeOrder.reads";
 export * from "./changeOrder.service";
 export * from "./changeOrder.staging";
+export * from "./changeOrder.staging.operations";
 export * from "./items.models";
 export * from "./items.service";
 export * from "./types";

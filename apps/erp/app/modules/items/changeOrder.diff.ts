@@ -7,9 +7,9 @@ import type {
 } from "./changeOrder.models";
 import {
   getChangeOrderAffectedItems,
-  getChangeOrderStagedMaterials,
-  getChangeOrderStagedOperationChildren
+  getChangeOrderStagedMaterials
 } from "./changeOrder.staging";
+import { getChangeOrderStagedOperationChildren } from "./changeOrder.staging.operations";
 
 // =============================================================================
 // Change Orders — the reusable method-diff engine (Q5 git-style end-state).
@@ -39,57 +39,10 @@ const MATERIAL_SOURCE_KEY = "sourceMaterialId";
 const OPERATION_SOURCE_KEY = "sourceOperationId";
 const CHILD_SOURCE_KEY = "sourceId";
 
-// The business-meaningful field subset compared for a "modified" verdict. Audit
-// and linkage columns are intentionally excluded (see IGNORED_FIELDS) so that a
-// snapshot which only differs by id/timestamps reads as "unchanged".
-const MATERIAL_COMPARE_FIELDS = [
-  "itemId",
-  "quantity",
-  "order",
-  "unitOfMeasureCode",
-  "methodType",
-  "sourcingType",
-  "materialMakeMethodId",
-  "itemType"
-] as const;
-
-const OPERATION_COMPARE_FIELDS = [
-  "order",
-  "operationOrder",
-  "operationType",
-  "processId",
-  "workCenterId",
-  "description",
-  "setupTime",
-  "setupUnit",
-  "laborTime",
-  "laborUnit",
-  "machineTime",
-  "machineUnit",
-  "procedureId",
-  "operationSupplierProcessId"
-] as const;
-
-// The compared field subsets for operation children. As with operations, audit /
-// linkage columns are excluded (see IGNORED_FIELDS) so a snapshot that only
-// differs by id/pointers/timestamps reads as "unchanged".
-const STEP_COMPARE_FIELDS = [
-  "name",
-  "description",
-  "type",
-  "required",
-  "sortOrder",
-  "unitOfMeasureCode",
-  "minValue",
-  "maxValue"
-] as const;
-
-const PARAMETER_COMPARE_FIELDS = ["key", "value"] as const;
-
-const TOOL_COMPARE_FIELDS = ["toolId", "quantity"] as const;
-
-// Never compared — audit / linkage / tenancy columns. Used by the attribute diff
-// (which is column-driven rather than a fixed subset) and as a guard elsewhere.
+// Never compared — audit / linkage / tenancy columns. The compared set for every
+// staged entity is derived as (staged row keys − this set), so adding a mirrored
+// business column to a staged table automatically includes it in the diff; only
+// genuine noise columns need listing here.
 const IGNORED_FIELDS = new Set<string>([
   "id",
   "companyId",
@@ -107,7 +60,10 @@ const IGNORED_FIELDS = new Set<string>([
 
 // Loose equality tolerant of the numeric-string ↔ number skew that Supabase
 // returns for NUMERIC columns (a live `quantity` may be `"1"` while a staged one
-// is `1`). null and undefined are treated as the same "empty" value.
+// is `1`). null and undefined are the same "empty" value. JSON/array columns
+// (workInstruction, step description, listValues/fileTypes) are separate object
+// instances on the live vs staged side, so they're compared structurally — a
+// reference check would report every non-null one as changed.
 function valuesEqual(a: unknown, b: unknown): boolean {
   if (a === b) return true;
   if (a == null && b == null) return true;
@@ -117,18 +73,30 @@ function valuesEqual(a: unknown, b: unknown): boolean {
     const nb = typeof b === "number" ? b : Number(b);
     if (!Number.isNaN(na) && !Number.isNaN(nb)) return na === nb;
   }
+  if (typeof a === "object" && typeof b === "object") {
+    return JSON.stringify(a) === JSON.stringify(b);
+  }
   return false;
 }
 
-// Build the field-level change map for a matched (base, target) pair over a fixed
-// field subset. Returns undefined when nothing in the subset differs.
+// The business columns to compare for a matched (base, target) pair: every key
+// the CO actually STAGED (the target row), minus the audit/linkage/tenancy set.
+// Deriving from the staged row — not a hand-maintained per-entity list, and not
+// the union with the live row — is what keeps the diff in lockstep with the
+// mirrored schema: staging copies exactly the changeable columns, live rows carry
+// extra columns (makeMethodId, …) that must NOT be compared against `undefined`.
+function comparedFields(target: Row): string[] {
+  return Object.keys(target).filter((k) => !IGNORED_FIELDS.has(k));
+}
+
+// Build the field-level change map for a matched (base, target) pair. Returns
+// undefined when nothing changed.
 function diffFields(
   base: Row,
-  target: Row,
-  fields: readonly string[]
+  target: Row
 ): Record<string, { before: unknown; after: unknown }> | undefined {
   const changed: Record<string, { before: unknown; after: unknown }> = {};
-  for (const field of fields) {
+  for (const field of comparedFields(target)) {
     if (!valuesEqual(base[field], target[field])) {
       changed[field] = {
         before: base[field] ?? null,
@@ -146,8 +114,7 @@ function diffFields(
 function diffRows(
   base: Row[],
   target: Row[],
-  sourceKey: string,
-  compareFields: readonly string[]
+  sourceKey: string
 ): MethodDiffEntry<Row>[] {
   const entries: MethodDiffEntry<Row>[] = [];
 
@@ -171,7 +138,7 @@ function diffRows(
     }
 
     matchedBaseIds.add(baseRow.id as string);
-    const changedFields = diffFields(baseRow, targetRow, compareFields);
+    const changedFields = diffFields(baseRow, targetRow);
     const status: MethodDiffStatus = changedFields ? "modified" : "unchanged";
     entries.push({
       status,
@@ -237,24 +204,9 @@ function diffOperationChildren(
   target: OperationChildren
 ): OperationChildrenDiff {
   return {
-    steps: diffRows(
-      base.steps,
-      target.steps,
-      CHILD_SOURCE_KEY,
-      STEP_COMPARE_FIELDS
-    ),
-    parameters: diffRows(
-      base.parameters,
-      target.parameters,
-      CHILD_SOURCE_KEY,
-      PARAMETER_COMPARE_FIELDS
-    ),
-    tools: diffRows(
-      base.tools,
-      target.tools,
-      CHILD_SOURCE_KEY,
-      TOOL_COMPARE_FIELDS
-    )
+    steps: diffRows(base.steps, target.steps, CHILD_SOURCE_KEY),
+    parameters: diffRows(base.parameters, target.parameters, CHILD_SOURCE_KEY),
+    tools: diffRows(base.tools, target.tools, CHILD_SOURCE_KEY)
   };
 }
 
@@ -274,8 +226,7 @@ function diffOperations(
   const entries = diffRows(
     base,
     target,
-    OPERATION_SOURCE_KEY,
-    OPERATION_COMPARE_FIELDS
+    OPERATION_SOURCE_KEY
   ) as OperationDiffEntry[];
 
   if (!baseChildren && !targetChildren) return entries;
@@ -303,11 +254,13 @@ function diffAttributes(
 ): MethodDiffEntry<Row>[] {
   const b = base ?? {};
   const t = target ?? {};
-  const keys = new Set<string>([...Object.keys(b), ...Object.keys(t)]);
+  // Compare only the columns the CO staged (target), minus audit/linkage — the
+  // live source select carries extra columns (e.g. modelUploadId) the staged row
+  // doesn't mirror, and comparing those against `undefined` would be spurious.
+  const keys = target ? comparedFields(target) : [];
 
   const entries: MethodDiffEntry<Row>[] = [];
   for (const key of keys) {
-    if (IGNORED_FIELDS.has(key)) continue;
     if (valuesEqual(b[key], t[key])) continue;
     entries.push({
       status: "modified",
@@ -361,8 +314,7 @@ export function diffMethod(input: DiffMethodInput): DiffMethodResult {
     materials: diffRows(
       input.baseMaterials,
       input.targetMaterials,
-      MATERIAL_SOURCE_KEY,
-      MATERIAL_COMPARE_FIELDS
+      MATERIAL_SOURCE_KEY
     ),
     operations: diffOperations(
       input.baseOperations,

@@ -1,7 +1,6 @@
 import type { Database } from "@carbon/database";
 import { ValidatedForm } from "@carbon/form";
 import {
-  Badge,
   Card,
   CardContent,
   CardHeader,
@@ -33,6 +32,7 @@ import type {
   ChangeOrderBopChildrenDiff
 } from "./ChangeOrderBopChildren";
 import ChangeOrderBopChildren from "./ChangeOrderBopChildren";
+import { buildDiffMap, DiffBadge, removedEntries } from "./diff-ui";
 
 type StagedOperation =
   Database["public"]["Tables"]["changeOrderStagedOperation"]["Row"];
@@ -62,41 +62,6 @@ type ChangeOrderBopEditorProps = {
   isDisabled: boolean;
 };
 
-function buildDiffMap(diff?: OperationDiff[]): Map<string, OperationDiff> {
-  const map = new Map<string, OperationDiff>();
-  if (!diff) return map;
-  for (const entry of diff) {
-    const afterId = (entry.after as { id?: string } | null)?.id;
-    if (afterId) map.set(afterId, entry);
-  }
-  return map;
-}
-
-function DiffBadge({ status }: { status: MethodDiffEntry<unknown>["status"] }) {
-  if (status === "added") {
-    return (
-      <Badge variant="green">
-        <Trans>Added</Trans>
-      </Badge>
-    );
-  }
-  if (status === "modified") {
-    return (
-      <Badge variant="yellow">
-        <Trans>Modified</Trans>
-      </Badge>
-    );
-  }
-  if (status === "removed") {
-    return (
-      <Badge variant="red">
-        <Trans>Removed</Trans>
-      </Badge>
-    );
-  }
-  return null;
-}
-
 const operationTypeOptions = operationTypes.map((o) => ({
   value: o,
   label: o
@@ -118,11 +83,7 @@ export default function ChangeOrderBopEditor({
   const diffMap = buildDiffMap(diff);
 
   const stagedIds = new Set(operations.map((o) => o.id));
-  const removedEntries = (diff ?? []).filter((entry) => {
-    if (entry.status !== "removed") return false;
-    const beforeId = (entry.before as { id?: string } | null)?.id;
-    return beforeId ? !stagedIds.has(beforeId) : true;
-  });
+  const removed = removedEntries(diff, stagedIds);
 
   return (
     <Card className="w-full">
@@ -133,7 +94,7 @@ export default function ChangeOrderBopEditor({
       </CardHeader>
       <CardContent>
         <VStack spacing={3}>
-          {operations.length === 0 && removedEntries.length === 0 && (
+          {operations.length === 0 && removed.length === 0 && (
             <p className="text-sm text-muted-foreground py-2">
               <Trans>No operations staged for this item.</Trans>
             </p>
@@ -155,7 +116,7 @@ export default function ChangeOrderBopEditor({
               />
             ))}
 
-          {removedEntries.map((entry, index) => {
+          {removed.map((entry, index) => {
             const before = entry.before as {
               id?: string;
               description?: string;

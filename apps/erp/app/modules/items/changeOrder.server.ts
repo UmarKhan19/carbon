@@ -637,6 +637,15 @@ async function applyStagedAttributes(
 
   const a = staged.data;
   // Build an update of only the mirrored item columns that were staged.
+  //
+  // Method/sourcing/tracking fields are written raw here, NOT through
+  // `updateItemMethodAndSourcing` / `cascadeItemTrackingType`. Two reasons this is
+  // safe: (1) the cascades those helpers run are no-ops on this brand-new
+  // `active:false` revision (nothing consumes it yet; it has no tracked entities);
+  // (2) the staged (sourcingType, defaultMethodType, replenishmentSystem) triple is
+  // already consistent — `ChangeOrderAttributesEditor` applies the shared
+  // `deriveItemMethodUpdate` interlock at staging time (same rule as the canonical
+  // item editor), so the values written below don't need re-derivation.
   const update: Database["public"]["Tables"]["item"]["Update"] = {
     updatedBy: userId,
     updatedAt: new Date().toISOString()
