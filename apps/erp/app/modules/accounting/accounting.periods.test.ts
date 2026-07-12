@@ -66,6 +66,7 @@ function makeClient(responses: Scripted[]) {
     lte: () => builder,
     or: () => builder,
     order: () => builder,
+    limit: () => builder,
     single: () => Promise.resolve(next()),
     then: (resolve: (v: Scripted) => unknown) => resolve(next())
   };
@@ -98,6 +99,7 @@ function makeRecordingClient(responses: Scripted[]) {
       lte: () => builder,
       or: () => builder,
       order: () => builder,
+      limit: () => builder,
       single: () => Promise.resolve(next()),
       then: (resolve: (v: Scripted) => unknown) => resolve(next())
     };
@@ -189,7 +191,9 @@ describe("closeAccountingPeriod — sequential close", () => {
       { count: 0 }, // readiness: pending receipts
       { count: 0 }, // readiness: pending shipments
       { count: 0 }, // readiness: pending sales invoices
-      { count: 0 } // readiness: pending purchase invoices
+      { count: 0 }, // readiness: pending purchase invoices
+      { count: 0 }, // readiness: draft payments
+      { count: 0 } // readiness: draft memos
     ]);
     // The period-flip write goes through the Kysely transaction, not supabase.
     const { db } = makeKyselyRecorder();
@@ -262,7 +266,9 @@ describe("closePeriodWithChecklist — Blocker gate + Auto-task persistence", ()
       { count: 0 }, // readiness: pending receipts
       { count: 0 }, // readiness: pending shipments
       { count: 0 }, // readiness: pending sales invoices
-      { count: 0 } // readiness: pending purchase invoices
+      { count: 0 }, // readiness: pending purchase invoices
+      { count: 0 }, // readiness: draft payments
+      { count: 0 } // readiness: draft memos
     ]);
     const { db, updates: txUpdates } = makeKyselyRecorder();
 
@@ -316,7 +322,9 @@ describe("closePeriodWithChecklist — Blocker gate + Auto-task persistence", ()
       { count: 0 }, // readiness: pending receipts
       { count: 0 }, // readiness: pending shipments
       { count: 0 }, // readiness: pending sales invoices
-      { count: 0 } // readiness: pending purchase invoices
+      { count: 0 }, // readiness: pending purchase invoices
+      { count: 0 }, // readiness: draft payments
+      { count: 0 } // readiness: draft memos
     ]);
     // The task persist + period flip both run inside the Kysely transaction.
     const { db, updates: txUpdates } = makeKyselyRecorder();
@@ -399,7 +407,8 @@ describe("evaluateCloseChecklist — close gate (criteria 7/10)", () => {
   it("blocks close when a required manual task is still Open", () => {
     const result = evaluateCloseChecklist(
       [task({ taskType: "Manual", status: "Open", name: "Review financials" })],
-      []
+      [],
+      "Locked"
     );
     expect(result.canClose).toBe(false);
     expect(result.blockingReason).toMatch(/Review financials/);
@@ -416,7 +425,8 @@ describe("evaluateCloseChecklist — close gate (criteria 7/10)", () => {
           name: "Post or re-date draft journal entries"
         })
       ],
-      [draftBlockerFailing]
+      [draftBlockerFailing],
+      "Locked"
     );
     expect(result.canClose).toBe(false);
     expect(result.blockingReason).toMatch(/draft journal/i);
@@ -433,7 +443,8 @@ describe("evaluateCloseChecklist — close gate (criteria 7/10)", () => {
           name: "Some future auto check"
         })
       ],
-      [] // no evaluator produced for this key
+      [], // no evaluator produced for this key
+      "Locked"
     );
     expect(result.canClose).toBe(false);
     expect(result.blockingReason).toMatch(/Some future auto check/);
@@ -451,10 +462,28 @@ describe("evaluateCloseChecklist — close gate (criteria 7/10)", () => {
         }),
         task({ taskType: "Manual", status: "Done" })
       ],
-      [draftBlockerPassing]
+      [draftBlockerPassing],
+      "Locked"
     );
     expect(result.canClose).toBe(true);
     expect(result.autoTaskStates).toEqual([{ id: "auto1", status: "Done" }]);
+  });
+
+  it("derives the Lock task status from closeStatus and gates the close on it", () => {
+    const lockTask = task({
+      taskType: "Action",
+      status: "Open",
+      name: "Lock the period"
+    });
+
+    const openState = evaluateCloseChecklist([lockTask], [], "Open");
+    expect(openState.tasks[0]?.effectiveStatus).toBe("Open");
+    expect(openState.canClose).toBe(false);
+    expect(openState.blockingReason).toMatch(/Lock the period/);
+
+    const lockedState = evaluateCloseChecklist([lockTask], [], "Locked");
+    expect(lockedState.tasks[0]?.effectiveStatus).toBe("Done");
+    expect(lockedState.canClose).toBe(true);
   });
 });
 

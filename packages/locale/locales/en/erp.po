@@ -51,6 +51,10 @@ msgstr "{0} days"
 msgid "{0} deleted successfully"
 msgstr "{0} deleted successfully"
 
+#. placeholder {0}: task.autoCheck.count
+msgid "{0} draft journal entries"
+msgstr "{0} draft journal entries"
+
 #. placeholder {0}: mappings.length
 msgid "{0} lines to map"
 msgstr "{0} lines to map"
@@ -70,6 +74,10 @@ msgstr "{0} suppliers with a balance"
 #. placeholder {0}: lotEntities.length - inspected
 msgid "{0} un-sampled entities will be released to Available. Sampled passes stay Available and sampled failures stay Rejected."
 msgstr "{0} un-sampled entities will be released to Available. Sampled passes stay Available and sampled failures stay Rejected."
+
+#. placeholder {0}: task.autoCheck.count
+msgid "{0} unposted documents"
+msgstr "{0} unposted documents"
 
 #. placeholder {0}: file.name
 msgid "{0} uploaded successfully"
@@ -142,6 +150,12 @@ msgstr "0-4 weeks"
 
 msgid "1 day"
 msgstr "1 day"
+
+msgid "1 draft journal entry"
+msgstr "1 draft journal entry"
+
+msgid "1 unposted document"
+msgstr "1 unposted document"
 
 msgid "13+ weeks"
 msgstr "13+ weeks"
@@ -834,6 +848,10 @@ msgstr "Anchors the Plan timeline to real dates. Leave blank for a relative, wee
 
 msgid "AND"
 msgstr "AND"
+
+#. placeholder {0}: count - documents.length
+msgid "And {0} more — resolve these to see the rest."
+msgstr "And {0} more — resolve these to see the rest."
 
 msgid "and {remaining} more"
 msgstr "and {remaining} more"
@@ -2405,6 +2423,9 @@ msgstr "Confirmed outgoing stock — sales orders & job materials (bars below ze
 msgid "Confirming locks the counted quantities. Review the warnings below, then post the count to apply the adjustments."
 msgstr "Confirming locks the counted quantities. Review the warnings below, then post the count to apply the adjustments."
 
+msgid "Confirms every posted journal entry in the period has equal debits and credits. If any entry is out of balance the trial balance won't tie out, so it must be corrected before the period can close."
+msgstr "Confirms every posted journal entry in the period has equal debits and credits. If any entry is out of balance the trial balance won't tie out, so it must be corrected before the period can close."
+
 msgid "Connect Carbon to your accounting, project management, and CAD tools and much more."
 msgstr "Connect Carbon to your accounting, project management, and CAD tools and much more."
 
@@ -2988,6 +3009,15 @@ msgstr "Credit Account"
 msgid "Credit account when labor/machine time is absorbed into WIP"
 msgstr "Credit account when labor/machine time is absorbed into WIP"
 
+msgid "Credit account when overhead is absorbed into WIP"
+msgstr "Credit account when overhead is absorbed into WIP"
+
+msgid "Credit accounts used when manufacturing costs are absorbed into WIP"
+msgstr "Credit accounts used when manufacturing costs are absorbed into WIP"
+
+msgid "Credit Memo"
+msgstr "Credit Memo"
+
 msgid "Credits & Debits"
 msgstr "Credits & Debits"
 
@@ -3264,9 +3294,6 @@ msgstr "Date Issued"
 msgid "Date Paid"
 msgstr "Date Paid"
 
-msgid "Date Range"
-msgstr "Date Range"
-
 msgid "Dates"
 msgstr "Dates"
 
@@ -3333,6 +3360,9 @@ msgstr "Debit"
 
 msgid "Debit Account"
 msgstr "Debit Account"
+
+msgid "Debit Memo"
+msgstr "Debit Memo"
 
 msgid "Decide what an operator sees if they try to issue a batch or serial that's already expired."
 msgstr "Decide what an operator sees if they try to issue a batch or serial that's already expired."
@@ -3779,6 +3809,9 @@ msgstr "Depreciation Method (default)"
 msgid "Depreciation reversal when a fixed asset is disposed"
 msgstr "Depreciation reversal when a fixed asset is disposed"
 
+msgid "Depreciation runs ending in this period that are still Draft should be posted so the period reflects the correct depreciation expense and accumulated depreciation. Skip with a reason if depreciation doesn't apply this period."
+msgstr "Depreciation runs ending in this period that are still Draft should be posted so the period reflects the correct depreciation expense and accumulated depreciation. Skip with a reason if depreciation doesn't apply this period."
+
 msgid "Depreciation Start Date"
 msgstr "Depreciation Start Date"
 
@@ -3969,6 +4002,9 @@ msgstr "Draft"
 
 msgid "Draft is editable; Active is in use and requires a new version to change; Archived is retired."
 msgstr "Draft is editable; Active is in use and requires a new version to change; Archived is retired."
+
+msgid "Draft Journal Entries"
+msgstr "Draft Journal Entries"
 
 msgid "Drag & drop files, or click to browse"
 msgstr "Drag & drop files, or click to browse"
@@ -6087,6 +6123,9 @@ msgstr "Integrations not named here"
 msgid "Intercompany"
 msgstr "Intercompany"
 
+msgid "Intercompany transactions involving this company that are still Unmatched should be matched and eliminated, so consolidated results don't double-count activity between entities."
+msgstr "Intercompany transactions involving this company that are still Unmatched should be matched and eliminated, so consolidated results don't double-count activity between entities."
+
 msgid "Interest"
 msgstr "Interest"
 
@@ -6406,6 +6445,12 @@ msgstr "Journal"
 msgid "Journal Entries"
 msgstr "Journal Entries"
 
+msgid "Journal entries dated in this period that are still Draft must be posted, or re-dated into a later open period. Draft entries aren't part of the ledger, so their debits and credits would be missing from the close."
+msgstr "Journal entries dated in this period that are still Draft must be posted, or re-dated into a later open period. Draft entries aren't part of the ledger, so their debits and credits would be missing from the close."
+
+msgid "Journal Entry"
+msgstr "Journal Entry"
+
 msgid "Kanban"
 msgstr "Kanban"
 
@@ -6682,6 +6727,15 @@ msgstr "Locations"
 
 msgid "Lock"
 msgstr "Lock"
+
+msgid "Lock Period"
+msgstr "Lock Period"
+
+msgid "Locked"
+msgstr "Locked"
+
+msgid "Locking makes the period read-only for operational documents (receipts, shipments, invoices) while still allowing accounting adjustments like depreciation and disposals. A period must be locked before it can be closed."
+msgstr "Locking makes the period read-only for operational documents (receipts, shipments, invoices) while still allowing accounting adjustments like depreciation and disposals. A period must be locked before it can be closed."
 
 msgid "Log In"
 msgstr "Log In"
@@ -7639,9 +7693,6 @@ msgstr "No abilities added"
 
 msgid "No Access"
 msgstr "No Access"
-
-msgid "No accounting periods yet"
-msgstr "No accounting periods yet"
 
 msgid "No action needed"
 msgstr "No action needed"
@@ -9380,6 +9431,9 @@ msgstr "Receipt Requested Date"
 msgid "Receipts"
 msgstr "Receipts"
 
+msgid "Receipts, shipments, sales invoices, purchase invoices, payments, and credit/debit memos that are still Draft or Pending must be posted or voided — both documents dated in this period and undated documents that would receive a date in it when posted. Until they post, their amounts aren't in the general ledger, so the period would be understated."
+msgstr "Receipts, shipments, sales invoices, purchase invoices, payments, and credit/debit memos that are still Draft or Pending must be posted or voided — both documents dated in this period and undated documents that would receive a date in it when posted. Until they post, their amounts aren't in the general ledger, so the period would be understated."
+
 msgid "Receivables"
 msgstr "Receivables"
 
@@ -9794,6 +9848,12 @@ msgstr "Reverse Charge Sales Tax (default)"
 
 msgid "Reverse the related journal entries"
 msgstr "Reverse the related journal entries"
+
+msgid "Review any items showing negative on-hand quantity as of period end — usually a missing receipt or an out-of-order posting that distorts inventory value and cost of goods sold. Automated detection isn't wired up yet, so this always needs a manual review or a skip."
+msgstr "Review any items showing negative on-hand quantity as of period end — usually a missing receipt or an out-of-order posting that distorts inventory value and cost of goods sold. Automated detection isn't wired up yet, so this always needs a manual review or a skip."
+
+msgid "Review the period's balance sheet and income statement and confirm the figures look right. This is a manual sign-off — mark it done once you have reviewed them."
+msgstr "Review the period's balance sheet and income statement and confirm the figures look right. This is a manual sign-off — mark it done once you have reviewed them."
 
 msgid "Revision"
 msgstr "Revision"
@@ -12148,6 +12208,9 @@ msgstr "There's nothing outstanding to apply these credits to."
 msgid "These custom fields will only be available for entities with the same tags"
 msgstr "These custom fields will only be available for entities with the same tags"
 
+msgid "These documents haven't posted to the general ledger, so their amounts are missing from this period. Post or void each one — an undated document receives the posting day's date when it posts."
+msgstr "These documents haven't posted to the general ledger, so their amounts are missing from this period. Post or void each one — an undated document receives the posting day's date when it posts."
+
 msgid "These email addresses will be automatically CC'd on all emails sent to suppliers (quotes, purchase orders, etc.)."
 msgstr "These email addresses will be automatically CC'd on all emails sent to suppliers (quotes, purchase orders, etc.)."
 
@@ -12156,6 +12219,9 @@ msgstr "These email addresses will be automatically CC'd on all quote emails sen
 
 msgid "These jobs have operations assigned to this work center:"
 msgstr "These jobs have operations assigned to this work center:"
+
+msgid "These journal entries are still Draft, so their debits and credits aren't in the ledger for this period. Post each one, or re-date it into a later open period."
+msgstr "These journal entries are still Draft, so their debits and credits aren't in the ledger for this period. Post each one, or re-date it into a later open period."
 
 msgid "This completes the Discovery step."
 msgstr "This completes the Discovery step."
@@ -12689,6 +12755,9 @@ msgstr "Unlink"
 msgid "Unlink job from sales order?"
 msgstr "Unlink job from sales order?"
 
+msgid "Unlock"
+msgstr "Unlock"
+
 msgid "Unmapped Extracted Lines"
 msgstr "Unmapped Extracted Lines"
 
@@ -12698,6 +12767,9 @@ msgstr "Unpick"
 #. placeholder {0}: pickedLots[0].trackedEntity.readableId
 msgid "Unpick {0}"
 msgstr "Unpick {0}"
+
+msgid "Unposted Documents"
+msgstr "Unposted Documents"
 
 msgid "Unreceived POs"
 msgstr "Unreceived POs"
@@ -13104,6 +13176,9 @@ msgstr "View Payables"
 msgid "View Payment"
 msgstr "View Payment"
 
+msgid "View Period"
+msgstr "View Period"
+
 msgid "View permissions"
 msgstr "View permissions"
 
@@ -13366,6 +13441,9 @@ msgstr "What this receipt is fulfilling — a purchase order, a return, an inbou
 
 msgid "What this shipment is fulfilling — a sales order, an outbound transfer, an RMA return, or a manual shipment."
 msgstr "What this shipment is fulfilling — a sales order, an outbound transfer, an RMA return, or a manual shipment."
+
+msgid "What this task means"
+msgstr "What this task means"
 
 msgid "What this time entry counts as — Labor (operator time), Machine (run time), or Setup (changeover time); each rolls up under a different rate."
 msgstr "What this time entry counts as — Labor (operator time), Machine (run time), or Setup (changeover time); each rolls up under a different rate."

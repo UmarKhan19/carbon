@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-10T18:49:23.459Z",
+  "generated": "2026-07-12T06:12:18.482Z",
   "totalTools": 1320,
   "modules": 15,
   "tools": [
@@ -1050,10 +1050,11 @@
       "module": "accounting",
       "classification": "WRITE",
       "description": "evaluate close checklist",
-      "paramCount": 2,
+      "paramCount": 3,
       "serviceParams": [
         "tasks",
-        "checks"
+        "checks",
+        "closeStatus"
       ],
       "injectAuth": [
         "companyId"
@@ -1068,11 +1069,15 @@
           "checks": {
             "type": "array",
             "items": {}
+          },
+          "closeStatus": {
+            "type": "string"
           }
         },
         "required": [
           "tasks",
-          "checks"
+          "checks",
+          "closeStatus"
         ]
       }
     },

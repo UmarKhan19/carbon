@@ -51,6 +51,10 @@ msgstr "{0} dias"
 msgid "{0} deleted successfully"
 msgstr "{0} eliminado com sucesso"
 
+#. placeholder {0}: task.autoCheck.count
+msgid "{0} draft journal entries"
+msgstr "{0} lançamentos de diário em rascunho"
+
 #. placeholder {0}: mappings.length
 msgid "{0} lines to map"
 msgstr "{0} linhas para mapear"
@@ -70,6 +74,10 @@ msgstr "{0} fornecedores com saldo"
 #. placeholder {0}: lotEntities.length - inspected
 msgid "{0} un-sampled entities will be released to Available. Sampled passes stay Available and sampled failures stay Rejected."
 msgstr "{0} entidades não amostradas serão liberadas para Disponível. Passes amostradas permanecem Disponível e falhas amostradas permanecem Rejeitadas."
+
+#. placeholder {0}: task.autoCheck.count
+msgid "{0} unposted documents"
+msgstr "{0} documentos não lançados"
 
 #. placeholder {0}: file.name
 msgid "{0} uploaded successfully"
@@ -142,6 +150,12 @@ msgstr "0-4 semanas"
 
 msgid "1 day"
 msgstr "1 dia"
+
+msgid "1 draft journal entry"
+msgstr "1 lançamento de diário em rascunho"
+
+msgid "1 unposted document"
+msgstr "1 documento não lançado"
 
 msgid "13+ weeks"
 msgstr "13+ semanas"
@@ -423,7 +437,7 @@ msgid "Accounting period"
 msgstr "Período contábil"
 
 msgid "Accounting Periods"
-msgstr ""
+msgstr "Períodos Contábeis"
 
 msgid "Accounting: GL, AR, AP, and month-end close"
 msgstr "Contabilidade: GL, AR, AP e encerramento mensal"
@@ -834,6 +848,10 @@ msgstr "Ancora a cronologia do Plano em datas reais. Deixe em branco para uma cr
 
 msgid "AND"
 msgstr "E"
+
+#. placeholder {0}: count - documents.length
+msgid "And {0} more — resolve these to see the rest."
+msgstr "E {0} mais — resolva estes para ver o resto."
 
 msgid "and {remaining} more"
 msgstr "e {remaining} mais"
@@ -1897,7 +1915,7 @@ msgid "Cannot add tools to unsaved operation"
 msgstr "Não é possível adicionar ferramentas a uma operação não salva"
 
 msgid "Cannot close yet"
-msgstr ""
+msgstr "Não é possível fechar ainda"
 
 msgid "Cannot convert RFQ to quote"
 msgstr "Não é possível converter RFQ para cotação"
@@ -2126,16 +2144,16 @@ msgid "Close"
 msgstr "Fechar"
 
 msgid "Close {periodLabel}"
-msgstr ""
+msgstr "Fechar {periodLabel}"
 
 msgid "Close Date"
 msgstr "Data de Encerramento"
 
 msgid "Close Period"
-msgstr ""
+msgstr "Fechar Período"
 
 msgid "Close Status"
-msgstr ""
+msgstr "Status de Fechamento"
 
 msgid "Closed"
 msgstr "Fechado"
@@ -2394,7 +2412,7 @@ msgid "Confirm Password"
 msgstr "Confirmar Senha"
 
 msgid "Confirm Skip"
-msgstr ""
+msgstr "Confirmar Salto"
 
 msgid "Confirmed incoming stock — purchase & production orders (bars above zero)."
 msgstr "Estoque de entrada confirmado — pedidos de compra e produção (barras acima de zero)."
@@ -2404,6 +2422,9 @@ msgstr "Estoque de saída confirmado — pedidos de vendas e materiais de trabal
 
 msgid "Confirming locks the counted quantities. Review the warnings below, then post the count to apply the adjustments."
 msgstr "Confirmar bloqueia as quantidades contadas. Revise os avisos abaixo e, em seguida, poste a contagem para aplicar os ajustes."
+
+msgid "Confirms every posted journal entry in the period has equal debits and credits. If any entry is out of balance the trial balance won't tie out, so it must be corrected before the period can close."
+msgstr "Confirma que cada lançamento de diário lançado no período tem débitos e créditos iguais. Se algum lançamento estiver fora de equilíbrio, o balancete não se equilibrará, portanto deve ser corrigido antes do fechamento do período."
 
 msgid "Connect Carbon to your accounting, project management, and CAD tools and much more."
 msgstr "Conecte o Carbon às suas ferramentas de contabilidade, gerenciamento de projetos, CAD e muito mais."
@@ -2988,6 +3009,15 @@ msgstr "Conta de Crédito"
 msgid "Credit account when labor/machine time is absorbed into WIP"
 msgstr "Conta de crédito quando tempo de mão de obra/máquina é absorvido em WIP"
 
+msgid "Credit account when overhead is absorbed into WIP"
+msgstr "Conta de crédito quando a sobrecarga é absorvida em WIP"
+
+msgid "Credit accounts used when manufacturing costs are absorbed into WIP"
+msgstr "Contas de crédito usadas quando custos de fabricação são absorvidos em WIP"
+
+msgid "Credit Memo"
+msgstr "Memorando de Crédito"
+
 msgid "Credits & Debits"
 msgstr "Créditos e Débitos"
 
@@ -3264,9 +3294,6 @@ msgstr "Data de Emissão"
 msgid "Date Paid"
 msgstr "Data de Pagamento"
 
-msgid "Date Range"
-msgstr ""
-
 msgid "Dates"
 msgstr "Datas"
 
@@ -3333,6 +3360,9 @@ msgstr "Débito"
 
 msgid "Debit Account"
 msgstr "Conta Devedora"
+
+msgid "Debit Memo"
+msgstr "Memorando de Débito"
 
 msgid "Decide what an operator sees if they try to issue a batch or serial that's already expired."
 msgstr "Decida o que um operador vê se tentar emitir um lote ou série que já expirou."
@@ -3779,6 +3809,9 @@ msgstr "Método de Depreciação (padrão)"
 msgid "Depreciation reversal when a fixed asset is disposed"
 msgstr "Reversão de depreciação quando um ativo fixo é descartado"
 
+msgid "Depreciation runs ending in this period that are still Draft should be posted so the period reflects the correct depreciation expense and accumulated depreciation. Skip with a reason if depreciation doesn't apply this period."
+msgstr "As execuções de depreciação terminando neste período que ainda estão em Rascunho devem ser lançadas para que o período reflita a despesa de depreciação correta e depreciação acumulada. Pule com um motivo se a depreciação não se aplicar neste período."
+
 msgid "Depreciation Start Date"
 msgstr "Data de Início da Depreciação"
 
@@ -3969,6 +4002,9 @@ msgstr "Rascunho"
 
 msgid "Draft is editable; Active is in use and requires a new version to change; Archived is retired."
 msgstr "Rascunho é editável; Ativo está em uso e requer uma nova versão para alterar; Arquivado está desativado."
+
+msgid "Draft Journal Entries"
+msgstr "Lançamentos de Diário em Rascunho"
 
 msgid "Drag & drop files, or click to browse"
 msgstr "Arraste e solte arquivos, ou clique para procurar"
@@ -4680,7 +4716,7 @@ msgid "Every in-scope test passes in your configured system, with your data."
 msgstr "Todos os testes no escopo passam no seu sistema configurado, com seus dados."
 
 msgid "Every required task must be Done or Skipped before the period can be closed."
-msgstr ""
+msgstr "Toda tarefa obrigatória deve ser Concluída ou Saltada antes que o período possa ser fechado."
 
 msgid "Every row was imported successfully."
 msgstr "Cada linha foi importada com sucesso."
@@ -6087,6 +6123,9 @@ msgstr "Integrações não mencionadas aqui"
 msgid "Intercompany"
 msgstr "Intercompanhia"
 
+msgid "Intercompany transactions involving this company that are still Unmatched should be matched and eliminated, so consolidated results don't double-count activity between entities."
+msgstr "Transações intercompanhias envolvendo esta empresa que ainda estão Não Combinadas devem ser combinadas e eliminadas, para que os resultados consolidados não contem duas vezes a atividade entre entidades."
+
 msgid "Interest"
 msgstr "Juros"
 
@@ -6406,6 +6445,12 @@ msgstr "Diário"
 msgid "Journal Entries"
 msgstr "Lançamentos no Diário"
 
+msgid "Journal entries dated in this period that are still Draft must be posted, or re-dated into a later open period. Draft entries aren't part of the ledger, so their debits and credits would be missing from the close."
+msgstr "Lançamentos de diário datados neste período que ainda estão em Rascunho devem ser lançados ou redatados para um período aberto posterior. Lançamentos em rascunho não fazem parte do livro-razão, portanto seus débitos e créditos estariam faltando no fechamento."
+
+msgid "Journal Entry"
+msgstr "Lançamento de Diário"
+
 msgid "Kanban"
 msgstr "Kanban"
 
@@ -6683,6 +6728,15 @@ msgstr "Localizações"
 msgid "Lock"
 msgstr "Bloquear"
 
+msgid "Lock Period"
+msgstr "Bloquear Período"
+
+msgid "Locked"
+msgstr "Bloqueado"
+
+msgid "Locking makes the period read-only for operational documents (receipts, shipments, invoices) while still allowing accounting adjustments like depreciation and disposals. A period must be locked before it can be closed."
+msgstr "O bloqueio torna o período somente leitura para documentos operacionais (recebimentos, remessas, faturas) enquanto ainda permite ajustes contábeis como depreciação e alienações. Um período deve ser bloqueado antes de poder ser fechado."
+
 msgid "Log In"
 msgstr "Entrar"
 
@@ -6914,7 +6968,7 @@ msgid "Mark done"
 msgstr "Marcar como concluído"
 
 msgid "Mark Done"
-msgstr ""
+msgstr "Marcar Como Concluído"
 
 msgid "Mark Light Mode"
 msgstr "Marca Modo Claro"
@@ -7639,9 +7693,6 @@ msgstr "Nenhuma habilidade adicionada"
 
 msgid "No Access"
 msgstr "Sem Acesso"
-
-msgid "No accounting periods yet"
-msgstr ""
 
 msgid "No action needed"
 msgstr "Nenhuma ação necessária"
@@ -9342,7 +9393,7 @@ msgid "Reason for declining (Optional)"
 msgstr "Motivo da recusa (Opcional)"
 
 msgid "Reason for skipping (required)"
-msgstr ""
+msgstr "Motivo para saltar (obrigatório)"
 
 msgid "Reasons"
 msgstr "Razões"
@@ -9379,6 +9430,9 @@ msgstr "Data de Recebimento Solicitada"
 
 msgid "Receipts"
 msgstr "Recibos"
+
+msgid "Receipts, shipments, sales invoices, purchase invoices, payments, and credit/debit memos that are still Draft or Pending must be posted or voided — both documents dated in this period and undated documents that would receive a date in it when posted. Until they post, their amounts aren't in the general ledger, so the period would be understated."
+msgstr "Recebimentos, remessas, faturas de vendas, faturas de compra, pagamentos e memorandos de crédito/débito que ainda estão em Rascunho ou Pendente devem ser lançados ou anulados — tanto documentos datados neste período quanto documentos sem data que receberiam uma data nele quando lançados. Até que sejam lançados, seus valores não estão no livro-razão geral, portanto o período estaria subestimado."
 
 msgid "Receivables"
 msgstr "Contas a Receber (padrão)"
@@ -9794,6 +9848,12 @@ msgstr "Imposto de vendas de cobrança reversa (padrão)"
 
 msgid "Reverse the related journal entries"
 msgstr "Reverter os lançamentos contábeis relacionados"
+
+msgid "Review any items showing negative on-hand quantity as of period end — usually a missing receipt or an out-of-order posting that distorts inventory value and cost of goods sold. Automated detection isn't wired up yet, so this always needs a manual review or a skip."
+msgstr "Revise todos os itens mostrando quantidade disponível negativa até o final do período — geralmente um recebimento faltando ou um lançamento fora de ordem que distorce o valor do inventário e custo das mercadorias vendidas. A detecção automatizada não está ativa ainda, portanto isso sempre precisa de uma revisão manual ou um salto."
+
+msgid "Review the period's balance sheet and income statement and confirm the figures look right. This is a manual sign-off — mark it done once you have reviewed them."
+msgstr "Revise o balanço patrimonial e demonstração de resultado do período e confirme se os valores parecem corretos. Esta é uma aprovação manual — marque como concluído depois de tê-los revisado."
 
 msgid "Revision"
 msgstr "Revisão"
@@ -10780,7 +10840,7 @@ msgid "Sizes"
 msgstr "Tamanhos"
 
 msgid "Skip"
-msgstr ""
+msgstr "Saltar"
 
 msgid "Skip Existing"
 msgstr "Ignorar Existentes"
@@ -11392,7 +11452,7 @@ msgid "Target Version"
 msgstr "Versão de Destino"
 
 msgid "Task"
-msgstr ""
+msgstr "Tarefa"
 
 msgid "tasks"
 msgstr "tarefas"
@@ -12148,6 +12208,9 @@ msgstr "Não há nada pendente para aplicar esses créditos."
 msgid "These custom fields will only be available for entities with the same tags"
 msgstr "Estes campos personalizados estarão disponíveis apenas para entidades com as mesmas tags"
 
+msgid "These documents haven't posted to the general ledger, so their amounts are missing from this period. Post or void each one — an undated document receives the posting day's date when it posts."
+msgstr "Estes documentos não foram lançados no livro-razão geral, portanto seus valores estão faltando neste período. Lance ou anule cada um — um documento sem data recebe a data do dia do lançamento quando é lançado."
+
 msgid "These email addresses will be automatically CC'd on all emails sent to suppliers (quotes, purchase orders, etc.)."
 msgstr "Estes endereços de email serão automaticamente copiados em todos os emails enviados para fornecedores (cotações, pedidos de compra, etc.)."
 
@@ -12156,6 +12219,9 @@ msgstr "Estes endereços de email serão automaticamente copiados em todos os em
 
 msgid "These jobs have operations assigned to this work center:"
 msgstr "Estes trabalhos têm operações atribuídas a este centro de trabalho:"
+
+msgid "These journal entries are still Draft, so their debits and credits aren't in the ledger for this period. Post each one, or re-date it into a later open period."
+msgstr "Estes lançamentos de diário ainda estão em Rascunho, portanto seus débitos e créditos não estão no livro-razão para este período. Lance cada um, ou redatē-o para um período aberto posterior."
 
 msgid "This completes the Discovery step."
 msgstr "Isto completa a etapa de Descoberta."
@@ -12689,6 +12755,9 @@ msgstr "Desvinculação"
 msgid "Unlink job from sales order?"
 msgstr "Desassociar trabalho da ordem de venda?"
 
+msgid "Unlock"
+msgstr "Desbloquear"
+
 msgid "Unmapped Extracted Lines"
 msgstr "Linhas Extraídas Não Mapeadas"
 
@@ -12698,6 +12767,9 @@ msgstr "Desmarcar"
 #. placeholder {0}: pickedLots[0].trackedEntity.readableId
 msgid "Unpick {0}"
 msgstr "Desmarcar {0}"
+
+msgid "Unposted Documents"
+msgstr "Documentos Não Lançados"
 
 msgid "Unreceived POs"
 msgstr "POs não recebidas"
@@ -13104,6 +13176,9 @@ msgstr "Ver Contas a Pagar"
 msgid "View Payment"
 msgstr "Ver Pagamento"
 
+msgid "View Period"
+msgstr "Visualizar Período"
+
 msgid "View permissions"
 msgstr "Permissões de visualização"
 
@@ -13366,6 +13441,9 @@ msgstr "O que este recebimento está atendendo — uma ordem de compra, uma devo
 
 msgid "What this shipment is fulfilling — a sales order, an outbound transfer, an RMA return, or a manual shipment."
 msgstr "O que este envio está atendendo — uma ordem de vendas, uma transferência de saída, uma devolução RMA ou um envio manual."
+
+msgid "What this task means"
+msgstr "O que esta tarefa significa"
 
 msgid "What this time entry counts as — Labor (operator time), Machine (run time), or Setup (changeover time); each rolls up under a different rate."
 msgstr "Como o que esta entrada de tempo conta — Trabalho (tempo do operador), Máquina (tempo de execução) ou Configuração (tempo de mudança); cada um resume sob uma taxa diferente."

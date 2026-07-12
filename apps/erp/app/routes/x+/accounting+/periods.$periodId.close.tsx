@@ -21,11 +21,23 @@ import {
   Td,
   Th,
   Thead,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
   Tr
 } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
+import {
+  LuCheck,
+  LuInfo,
+  LuLock,
+  LuLockOpen,
+  LuSkipForward,
+  LuTriangleAlert,
+  LuX
+} from "react-icons/lu";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   data,
@@ -34,7 +46,11 @@ import {
   useLoaderData,
   useNavigate
 } from "react-router";
-import type { PeriodCloseTaskView } from "~/modules/accounting";
+import { EmployeeAvatar } from "~/components";
+import type {
+  PeriodCloseStatus,
+  PeriodCloseTaskView
+} from "~/modules/accounting";
 import {
   closePeriodWithChecklist,
   closeTaskCompleteValidator,
@@ -42,8 +58,12 @@ import {
   completeCloseTask,
   getAccountingPeriods,
   getPeriodCloseChecklist,
-  skipCloseTask
+  LOCK_PERIOD_TASK_NAME,
+  lockAccountingPeriod,
+  skipCloseTask,
+  unlockAccountingPeriod
 } from "~/modules/accounting";
+import { PeriodCloseUnpostedDocumentsPopover } from "~/modules/accounting/ui/Periods";
 import { getDatabaseClient } from "~/services/database.server";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
@@ -136,6 +156,36 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return data({}, await flash(request, success("Task skipped")));
   }
 
+  if (intent === "lock") {
+    const result = await lockAccountingPeriod(client, {
+      periodId,
+      companyId,
+      userId
+    });
+    if (result.error) {
+      return data(
+        {},
+        await flash(request, error(result.error, "Failed to lock period"))
+      );
+    }
+    return data({}, await flash(request, success("Period locked")));
+  }
+
+  if (intent === "unlock") {
+    const result = await unlockAccountingPeriod(client, {
+      periodId,
+      companyId,
+      userId
+    });
+    if (result.error) {
+      return data(
+        {},
+        await flash(request, error(result.error, "Failed to unlock period"))
+      );
+    }
+    return data({}, await flash(request, success("Period unlocked")));
+  }
+
   if (intent === "close") {
     const result = await closePeriodWithChecklist(client, getDatabaseClient(), {
       companyId,
@@ -190,7 +240,7 @@ export default function AccountingPeriodCloseRoute() {
         if (!open) navigate(path.to.accountingPeriods);
       }}
     >
-      <ModalContent size="xlarge">
+      <ModalContent size="xxlarge">
         <ModalHeader>
           <ModalTitle>
             <Trans>Close {periodLabel}</Trans>
@@ -205,6 +255,7 @@ export default function AccountingPeriodCloseRoute() {
         <ModalBody>
           {checklist.blockingReason && (
             <Alert variant="destructive" className="mb-4">
+              <LuTriangleAlert className="h-4 w-4" />
               <AlertTitle>
                 <Trans>Cannot close yet</Trans>
               </AlertTitle>
@@ -233,7 +284,11 @@ export default function AccountingPeriodCloseRoute() {
             </Thead>
             <Tbody>
               {checklist.tasks.map((task) => (
-                <PeriodCloseTaskRow key={task.id} task={task} />
+                <PeriodCloseTaskRow
+                  key={task.id}
+                  task={task}
+                  closeStatus={period?.closeStatus}
+                />
               ))}
             </Tbody>
           </Table>
@@ -243,6 +298,7 @@ export default function AccountingPeriodCloseRoute() {
             <input type="hidden" name="intent" value="close" />
             <Button
               type="submit"
+              leftIcon={<LuLock />}
               isDisabled={!checklist.canClose}
               isLoading={closeFetcher.state !== "idle"}
             >
@@ -255,24 +311,131 @@ export default function AccountingPeriodCloseRoute() {
   );
 }
 
-function PeriodCloseTaskRow({ task }: { task: PeriodCloseTaskView }) {
+function PeriodCloseTaskRow({
+  task,
+  closeStatus
+}: {
+  task: PeriodCloseTaskView;
+  closeStatus?: PeriodCloseStatus;
+}) {
   const { t } = useLingui();
   const fetcher = useFetcher<typeof action>();
   const [skipping, setSkipping] = useState(false);
   const isBusy = fetcher.state !== "idle";
 
+  const description = ((): string | null => {
+    switch (task.autoCheckKey) {
+      case "pending-postings":
+        return t`Receipts, shipments, sales invoices, purchase invoices, payments, and credit/debit memos that are still Draft or Pending must be posted or voided — both documents dated in this period and undated documents that would receive a date in it when posted. Until they post, their amounts aren't in the general ledger, so the period would be understated.`;
+      case "draft-journals":
+        return t`Journal entries dated in this period that are still Draft must be posted, or re-dated into a later open period. Draft entries aren't part of the ledger, so their debits and credits would be missing from the close.`;
+      case "draft-depreciation":
+        return t`Depreciation runs ending in this period that are still Draft should be posted so the period reflects the correct depreciation expense and accumulated depreciation. Skip with a reason if depreciation doesn't apply this period.`;
+      case "unmatched-ic":
+        return t`Intercompany transactions involving this company that are still Unmatched should be matched and eliminated, so consolidated results don't double-count activity between entities.`;
+      case "negative-inventory":
+        return t`Review any items showing negative on-hand quantity as of period end — usually a missing receipt or an out-of-order posting that distorts inventory value and cost of goods sold. Automated detection isn't wired up yet, so this always needs a manual review or a skip.`;
+      case "tb-balanced":
+        return t`Confirms every posted journal entry in the period has equal debits and credits. If any entry is out of balance the trial balance won't tie out, so it must be corrected before the period can close.`;
+    }
+    switch (task.name) {
+      case "Lock the period":
+        return t`Locking makes the period read-only for operational documents (receipts, shipments, invoices) while still allowing accounting adjustments like depreciation and disposals. A period must be locked before it can be closed.`;
+      case "Review financial statements":
+        return t`Review the period's balance sheet and income statement and confirm the figures look right. This is a manual sign-off — mark it done once you have reviewed them.`;
+    }
+    return null;
+  })();
+
   const status = task.effectiveStatus;
   const isResolved = status === "Done" || status === "Skipped";
+  // The "Lock the period" step is an Action whose button performs the real
+  // Open <-> Locked transition (below), not a generic "Mark Done"/"Skip".
+  const isLockTask =
+    task.taskType === "Action" && task.name === LOCK_PERIOD_TASK_NAME;
   // Auto tasks are evaluated by the system; only Action/Manual tasks are
   // completed by hand. Blocker tasks can never be skipped (server enforces it),
   // so they get no Skip button.
-  const canComplete = task.taskType !== "Auto" && status === "Open";
-  const canSkip = task.severity !== "Blocker" && status === "Open";
+  const canComplete =
+    !isLockTask && task.taskType !== "Auto" && status === "Open";
+  const canSkip =
+    !isLockTask && task.severity !== "Blocker" && status === "Open";
 
   return (
     <>
       <Tr>
-        <Td className="font-medium">{task.name}</Td>
+        <Td className="font-medium">
+          <div className="flex flex-col gap-0.5">
+            <div className="flex items-center gap-1.5">
+              <span>{task.name}</span>
+              {description && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      aria-label={t`What this task means`}
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      <LuInfo className="size-3.5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    <p>{description}</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
+            </div>
+            {task.autoCheck?.documents &&
+              task.autoCheck.documents.length > 0 && (
+                <PeriodCloseUnpostedDocumentsPopover
+                  documents={task.autoCheck.documents}
+                  count={task.autoCheck.count}
+                  title={
+                    task.autoCheckKey === "draft-journals" ? (
+                      <Trans>Draft Journal Entries</Trans>
+                    ) : (
+                      <Trans>Unposted Documents</Trans>
+                    )
+                  }
+                  description={
+                    task.autoCheckKey === "draft-journals" ? (
+                      <Trans>
+                        These journal entries are still Draft, so their debits
+                        and credits aren't in the ledger for this period. Post
+                        each one, or re-date it into a later open period.
+                      </Trans>
+                    ) : (
+                      <Trans>
+                        These documents haven't posted to the general ledger, so
+                        their amounts are missing from this period. Post or void
+                        each one — an undated document receives the posting
+                        day's date when it posts.
+                      </Trans>
+                    )
+                  }
+                >
+                  <button
+                    type="button"
+                    className="w-fit text-xs font-normal text-primary hover:underline"
+                  >
+                    {task.autoCheckKey === "draft-journals" ? (
+                      task.autoCheck.count === 1 ? (
+                        <Trans>1 draft journal entry</Trans>
+                      ) : (
+                        <Trans>
+                          {task.autoCheck.count} draft journal entries
+                        </Trans>
+                      )
+                    ) : task.autoCheck.count === 1 ? (
+                      <Trans>1 unposted document</Trans>
+                    ) : (
+                      <Trans>{task.autoCheck.count} unposted documents</Trans>
+                    )}
+                  </button>
+                </PeriodCloseUnpostedDocumentsPopover>
+              )}
+          </div>
+        </Td>
         <Td>{task.taskType}</Td>
         <Td>
           {task.severity ? (
@@ -288,6 +451,34 @@ function PeriodCloseTaskRow({ task }: { task: PeriodCloseTaskView }) {
         </Td>
         <Td className="text-right">
           <div className="flex justify-end gap-2">
+            {isLockTask && closeStatus === "Open" && (
+              <fetcher.Form method="post">
+                <input type="hidden" name="intent" value="lock" />
+                <Button
+                  type="submit"
+                  variant="secondary"
+                  size="sm"
+                  leftIcon={<LuLock />}
+                  isLoading={isBusy}
+                >
+                  <Trans>Lock Period</Trans>
+                </Button>
+              </fetcher.Form>
+            )}
+            {isLockTask && closeStatus === "Locked" && (
+              <fetcher.Form method="post">
+                <input type="hidden" name="intent" value="unlock" />
+                <Button
+                  type="submit"
+                  variant="secondary"
+                  size="sm"
+                  leftIcon={<LuLockOpen />}
+                  isLoading={isBusy}
+                >
+                  <Trans>Unlock</Trans>
+                </Button>
+              </fetcher.Form>
+            )}
             {canComplete && (
               <fetcher.Form method="post">
                 <input type="hidden" name="intent" value="completeTask" />
@@ -296,6 +487,7 @@ function PeriodCloseTaskRow({ task }: { task: PeriodCloseTaskView }) {
                   type="submit"
                   variant="secondary"
                   size="sm"
+                  leftIcon={<LuCheck />}
                   isLoading={isBusy}
                 >
                   <Trans>Mark Done</Trans>
@@ -307,15 +499,18 @@ function PeriodCloseTaskRow({ task }: { task: PeriodCloseTaskView }) {
                 type="button"
                 variant="secondary"
                 size="sm"
+                leftIcon={<LuSkipForward />}
                 onClick={() => setSkipping(true)}
               >
                 <Trans>Skip</Trans>
               </Button>
             )}
-            {isResolved && task.skippedReason && (
-              <span className="text-muted-foreground text-sm">
-                {task.skippedReason}
-              </span>
+            {isResolved && task.completedBy && (
+              <EmployeeAvatar
+                employeeId={task.completedBy}
+                size="xs"
+                withName={false}
+              />
             )}
           </div>
         </Td>
@@ -335,13 +530,19 @@ function PeriodCloseTaskRow({ task }: { task: PeriodCloseTaskView }) {
                 placeholder={t`Reason for skipping (required)`}
                 className="flex-1"
               />
-              <Button type="submit" size="sm" isLoading={isBusy}>
+              <Button
+                type="submit"
+                size="sm"
+                leftIcon={<LuSkipForward />}
+                isLoading={isBusy}
+              >
                 <Trans>Confirm Skip</Trans>
               </Button>
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
+                leftIcon={<LuX />}
                 onClick={() => setSkipping(false)}
               >
                 <Trans>Cancel</Trans>

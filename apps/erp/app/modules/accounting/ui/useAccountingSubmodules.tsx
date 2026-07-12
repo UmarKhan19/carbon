@@ -29,6 +29,7 @@ const accountingOnlyRoutes = new Set<string>([
   path.to.trialBalance,
   path.to.intercompany,
   path.to.accountingJournals,
+  path.to.accountingPeriods,
   path.to.fixedAssets,
   path.to.depreciationRuns
 ]);

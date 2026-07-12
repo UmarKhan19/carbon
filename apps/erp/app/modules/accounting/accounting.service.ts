@@ -1072,7 +1072,28 @@ export type PeriodReadinessCheck = {
   label: string;
   failing: boolean;
   count: number;
+  documents?: PeriodCloseUnpostedDocument[];
 };
+
+// An operational document (receipt, shipment, invoice) that has not posted to
+// the general ledger, surfaced on the close checklist so the user can jump to
+// it. `count` on the check stays exact even when the fetched rows are capped.
+export type PeriodCloseUnpostedDocument = {
+  documentType:
+    | "Receipt"
+    | "Shipment"
+    | "Sales Invoice"
+    | "Purchase Invoice"
+    | "Payment"
+    | "Credit Memo"
+    | "Debit Memo"
+    | "Journal Entry";
+  id: string;
+  readableId: string;
+  status: string;
+};
+
+const UNPOSTED_DOCUMENT_LIMIT = 25;
 
 async function computePeriodReadiness(
   client: SupabaseClient<Database>,
@@ -1084,6 +1105,17 @@ async function computePeriodReadiness(
   blockers: { key: string; label: string; count: number }[];
   warnings: { key: string; label: string; count: number }[];
 }> {
+  // Un-posted operational documents have no postingDate until the post-*
+  // functions stamp them with the posting day's date. So a Draft/Pending
+  // document with no postingDate can only land in this period if the period is
+  // still running (or in the future) when it posts — closing an already-ended
+  // period is not blocked by new drafts, which would post into a later period.
+  const todayDate = new Date().toISOString().slice(0, 10);
+  const unpostedDateFilter =
+    endDate >= todayDate
+      ? `postingDate.is.null,and(postingDate.gte.${startDate},postingDate.lte.${endDate})`
+      : `and(postingDate.gte.${startDate},postingDate.lte.${endDate})`;
+
   const [
     draftJournals,
     journalsInPeriod,
@@ -1092,15 +1124,19 @@ async function computePeriodReadiness(
     pendingReceipts,
     pendingShipments,
     pendingSalesInvoices,
-    pendingPurchaseInvoices
+    pendingPurchaseInvoices,
+    pendingPayments,
+    pendingMemos
   ] = await Promise.all([
     client
       .from("journal")
-      .select("id", { count: "exact", head: true })
+      .select("id, journalEntryId, status", { count: "exact" })
       .eq("companyId", companyId)
       .eq("status", "Draft")
       .gte("postingDate", startDate)
-      .lte("postingDate", endDate),
+      .lte("postingDate", endDate)
+      .order("journalEntryId", { ascending: true })
+      .limit(UNPOSTED_DOCUMENT_LIMIT),
     client
       .from("journalEntries")
       .select("id, journalEntryId, totalDebits, totalCredits")
@@ -1120,38 +1156,62 @@ async function computePeriodReadiness(
       .select("id", { count: "exact", head: true })
       .eq("status", "Unmatched")
       .or(`sourceCompanyId.eq.${companyId},targetCompanyId.eq.${companyId}`),
-    // Un-posted operational documents dated in this period. Draft/Pending are
-    // the pre-posting states for receipts, shipments and invoices; Posted (or
-    // Open/Submitted for invoices) and Voided are terminal. postingDate is the
-    // period-anchoring date, matching the draft-journals check above.
+    // Un-posted operational documents that threaten this period. Draft/Pending
+    // are the pre-posting states for receipts, shipments and invoices; Posted
+    // (or Open/Submitted for invoices) and Voided are terminal. Rows are fetched
+    // (not just counted) so the checklist can list them; counts stay exact even
+    // when rows are capped.
     client
       .from("receipt")
-      .select("id", { count: "exact", head: true })
+      .select("id, receiptId, status", { count: "exact" })
       .eq("companyId", companyId)
       .in("status", ["Draft", "Pending"])
-      .gte("postingDate", startDate)
-      .lte("postingDate", endDate),
+      .or(unpostedDateFilter)
+      .order("receiptId", { ascending: true })
+      .limit(UNPOSTED_DOCUMENT_LIMIT),
     client
       .from("shipment")
-      .select("id", { count: "exact", head: true })
+      .select("id, shipmentId, status", { count: "exact" })
       .eq("companyId", companyId)
       .in("status", ["Draft", "Pending"])
-      .gte("postingDate", startDate)
-      .lte("postingDate", endDate),
+      .or(unpostedDateFilter)
+      .order("shipmentId", { ascending: true })
+      .limit(UNPOSTED_DOCUMENT_LIMIT),
     client
       .from("salesInvoice")
-      .select("id", { count: "exact", head: true })
+      .select("id, invoiceId, status", { count: "exact" })
       .eq("companyId", companyId)
       .in("status", ["Draft", "Pending"])
-      .gte("postingDate", startDate)
-      .lte("postingDate", endDate),
+      .or(unpostedDateFilter)
+      .order("invoiceId", { ascending: true })
+      .limit(UNPOSTED_DOCUMENT_LIMIT),
     client
       .from("purchaseInvoice")
-      .select("id", { count: "exact", head: true })
+      .select("id, invoiceId, status", { count: "exact" })
       .eq("companyId", companyId)
       .in("status", ["Draft", "Pending"])
-      .gte("postingDate", startDate)
-      .lte("postingDate", endDate)
+      .or(unpostedDateFilter)
+      .order("invoiceId", { ascending: true })
+      .limit(UNPOSTED_DOCUMENT_LIMIT),
+    // Payments and credit/debit memos are payment-shaped operational documents
+    // with the same Draft -> Posted -> Voided lifecycle; post-payment/post-memo
+    // stamp postingDate the same way the other post-* functions do.
+    client
+      .from("payment")
+      .select("id, paymentId, status", { count: "exact" })
+      .eq("companyId", companyId)
+      .eq("status", "Draft")
+      .or(unpostedDateFilter)
+      .order("paymentId", { ascending: true })
+      .limit(UNPOSTED_DOCUMENT_LIMIT),
+    client
+      .from("memo")
+      .select("id, memoId, status, direction", { count: "exact" })
+      .eq("companyId", companyId)
+      .eq("status", "Draft")
+      .or(unpostedDateFilter)
+      .order("memoId", { ascending: true })
+      .limit(UNPOSTED_DOCUMENT_LIMIT)
   ]);
 
   const unbalanced = (journalsInPeriod.data ?? []).filter(
@@ -1163,22 +1223,77 @@ async function computePeriodReadiness(
     (pendingReceipts.count ?? 0) +
     (pendingShipments.count ?? 0) +
     (pendingSalesInvoices.count ?? 0) +
-    (pendingPurchaseInvoices.count ?? 0);
+    (pendingPurchaseInvoices.count ?? 0) +
+    (pendingPayments.count ?? 0) +
+    (pendingMemos.count ?? 0);
+
+  const unpostedDocuments: PeriodCloseUnpostedDocument[] = [
+    ...(pendingReceipts.data ?? []).map((d) => ({
+      documentType: "Receipt" as const,
+      id: d.id,
+      readableId: d.receiptId,
+      status: d.status as string
+    })),
+    ...(pendingShipments.data ?? []).map((d) => ({
+      documentType: "Shipment" as const,
+      id: d.id,
+      readableId: d.shipmentId,
+      status: d.status as string
+    })),
+    ...(pendingSalesInvoices.data ?? []).map((d) => ({
+      documentType: "Sales Invoice" as const,
+      id: d.id,
+      readableId: d.invoiceId,
+      status: d.status as string
+    })),
+    ...(pendingPurchaseInvoices.data ?? []).map((d) => ({
+      documentType: "Purchase Invoice" as const,
+      id: d.id,
+      readableId: d.invoiceId,
+      status: d.status as string
+    })),
+    ...(pendingPayments.data ?? []).map((d) => ({
+      documentType: "Payment" as const,
+      id: d.id,
+      readableId: d.paymentId,
+      status: d.status as string
+    })),
+    ...(pendingMemos.data ?? []).map((d) => ({
+      documentType:
+        d.direction === "Debit"
+          ? ("Debit Memo" as const)
+          : ("Credit Memo" as const),
+      id: d.id,
+      readableId: d.memoId,
+      status: d.status as string
+    }))
+  ];
+
+  const draftJournalDocuments: PeriodCloseUnpostedDocument[] = (
+    draftJournals.data ?? []
+  ).map((d) => ({
+    documentType: "Journal Entry" as const,
+    id: d.id,
+    readableId: d.journalEntryId,
+    status: d.status as string
+  }));
 
   const checks: PeriodReadinessCheck[] = [
     {
       autoCheckKey: "pending-postings",
       severity: "Blocker",
-      label: "Un-posted operational documents dated in this period",
+      label: "Un-posted operational documents that would post into this period",
       failing: pendingPostings > 0,
-      count: pendingPostings
+      count: pendingPostings,
+      documents: unpostedDocuments
     },
     {
       autoCheckKey: "draft-journals",
       severity: "Blocker",
       label: "Draft journal entries dated in this period",
       failing: (draftJournals.count ?? 0) > 0,
-      count: draftJournals.count ?? 0
+      count: draftJournals.count ?? 0,
+      documents: draftJournalDocuments
     },
     {
       autoCheckKey: "tb-balanced",
@@ -1314,9 +1429,17 @@ export function checklistTasksToCreate<T extends { id: string }>(
 // close. An Auto task is Done when its evaluator passes (or has none), Open
 // when it fails; a manual Skip is preserved. Close is allowed only when every
 // required task resolves to Done/Skipped and no Blocker auto-check is failing.
+// The "Lock the period" checklist step is an Action task whose completion IS the
+// Open -> Locked transition. Its status is derived from the period's closeStatus
+// (Locked/Closed => Done) rather than a stored task status, and its button drives
+// lock/unlock instead of a generic "Mark Done". Identified by name (a stable,
+// non-deletable system definition).
+export const LOCK_PERIOD_TASK_NAME = "Lock the period";
+
 export function evaluateCloseChecklist(
   tasks: PeriodCloseTaskRow[],
-  checks: PeriodReadinessCheck[]
+  checks: PeriodReadinessCheck[],
+  closeStatus: (typeof periodCloseStatuses)[number]
 ): {
   tasks: PeriodCloseTaskView[];
   canClose: boolean;
@@ -1353,6 +1476,11 @@ export function evaluateCloseChecklist(
             : "Done";
       return { ...task, autoCheck, effectiveStatus };
     }
+    if (task.taskType === "Action" && task.name === LOCK_PERIOD_TASK_NAME) {
+      const effectiveStatus =
+        closeStatus === "Locked" || closeStatus === "Closed" ? "Done" : "Open";
+      return { ...task, autoCheck: null, effectiveStatus };
+    }
     return { ...task, autoCheck: null, effectiveStatus: task.status };
   });
 
@@ -1368,9 +1496,9 @@ export function evaluateCloseChecklist(
 
   const canClose = !failingBlocker && !incomplete;
   const blockingReason = failingBlocker
-    ? `Cannot close: "${failingBlocker.name}" has unresolved blocking issues`
+    ? `"${failingBlocker.name}" has unresolved blocking issues`
     : incomplete
-      ? `Cannot close: task "${incomplete.name}" is not complete`
+      ? `Task "${incomplete.name}" is not complete`
       : null;
 
   // Auto tasks whose derived state differs from what is persisted get flushed
@@ -1459,7 +1587,11 @@ export async function getPeriodCloseChecklist(
     period.data.endDate
   );
 
-  const evaluated = evaluateCloseChecklist(tasks, readiness.checks);
+  const evaluated = evaluateCloseChecklist(
+    tasks,
+    readiness.checks,
+    period.data.closeStatus
+  );
   evaluated.tasks.sort((a, b) => a.sortOrder - b.sortOrder);
 
   return {
