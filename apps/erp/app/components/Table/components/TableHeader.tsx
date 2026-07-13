@@ -82,8 +82,10 @@ type HeaderProps<T> = {
   setEditMode: (editMode: boolean) => void;
   table?: string;
   title?: string;
+  titleBadge?: ReactNode;
   withSavedView: boolean;
   withInlineEditing: boolean;
+  forceEditMode: boolean;
   withPagination: boolean;
   withSearch: boolean;
   withSelectableRows: boolean;
@@ -112,7 +114,9 @@ const TableHeader = <T extends object>({
   setEditMode,
   table,
   title,
+  titleBadge,
   withInlineEditing,
+  forceEditMode,
   withPagination,
   withSavedView,
   withSearch,
@@ -167,7 +171,8 @@ const TableHeader = <T extends object>({
     [t]
   );
 
-  const hideTitleBar = !viewTitle && !primaryAction && !canSaveView;
+  const hideTitleBar =
+    !viewTitle && !primaryAction && !canSaveView && !titleBadge;
 
   return (
     <div className={cn("w-full flex flex-col", !compact && "mb-8")}>
@@ -231,11 +236,12 @@ const TableHeader = <T extends object>({
                 : "px-4 md:px-0 py-6 justify-between bg-card w-full relative"
             )}
           >
-            <HStack spacing={1}>
+            <HStack spacing={2}>
               <CollapsibleSidebarTrigger />
               {viewTitle && (
                 <Heading size={compact ? "h3" : "h2"}>{viewTitle}</Heading>
               )}
+              {titleBadge}
             </HStack>
 
             <HStack>
@@ -355,6 +361,7 @@ const TableHeader = <T extends object>({
             )}
 
           {withInlineEditing &&
+            !forceEditMode &&
             (editMode ? (
               <Button
                 leftIcon={<LuLock />}
