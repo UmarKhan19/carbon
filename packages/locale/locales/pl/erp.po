@@ -2435,9 +2435,6 @@ msgstr "Potwierdzone zapasy przychodzące — zamówienia zakupu i produkcji (s�
 msgid "Confirmed outgoing stock — sales orders & job materials (bars below zero)."
 msgstr "Potwierdzone zapasy wychodzące — zamówienia sprzedaży i materiały pracy (słupki poniżej zera)."
 
-msgid "Confirming locks the counted quantities. Review the warnings below, then post the count to apply the adjustments."
-msgstr "Potwierdzenie blokuje zliczone ilości. Przejrzyj ostrzeżenia poniżej, a następnie opublikuj liczenie, aby zastosować korekty."
-
 msgid "Confirms every posted journal entry in the period has equal debits and credits. If any entry is out of balance the trial balance won't tie out, so it must be corrected before the period can close."
 msgstr "Potwierdza, że każdy opublikowany wpis dziennika w okresie ma równe obciążenia i kredyty. Jeśli jakiś wpis jest niezrównoważony, bilans próbny się nie zgramadzi, więc musi być poprawiony przed zamknięciem okresu."
 
@@ -2723,6 +2720,12 @@ msgstr "Prawidłowa odpowiedź"
 msgid "Correct Answers"
 msgstr "Prawidłowe odpowiedzi"
 
+msgid "Correction"
+msgstr "Korekta"
+
+msgid "Corrections"
+msgstr "Korekty"
+
 msgid "Corrective action"
 msgstr "Działanie naprawcze"
 
@@ -2793,6 +2796,9 @@ msgstr "Nie można przeplanować zadania. Spróbuj ponownie."
 
 msgid "Count"
 msgstr "Liczba"
+
+msgid "Count History"
+msgstr "Historia Liczenia"
 
 msgid "Count ID"
 msgstr "ID Liczenia"
@@ -8350,6 +8356,12 @@ msgstr "Zamówienia przesłane"
 msgid "Origin"
 msgstr "Pochodzenie"
 
+msgid "Original"
+msgstr "Oryginalne"
+
+msgid "Original Count"
+msgstr "Oryginalne Liczenie"
+
 msgid "Other Income account for FX gains when a payment settles a foreign-currency invoice at a more favorable rate"
 msgstr "Konto dochodów pozostałych dla zysków walutowych, gdy płatność rozlicza fakturę w walucie obcej po kursie bardziej korzystnym"
 
@@ -8836,6 +8848,15 @@ msgstr "Opublikowano o"
 
 msgid "Posted By"
 msgstr "Opublikowano przez"
+
+msgid "Posted once, no rectifications."
+msgstr "Opublikowane raz, bez sprostowań."
+
+msgid "Posted once, rectified {rectifications} times."
+msgstr "Opublikowane raz, sprostowane {rectifications} razy."
+
+msgid "Posted once, rectified 1 time."
+msgstr "Opublikowane raz, sprostowane 1 raz."
 
 msgid "Posting"
 msgstr "Przedpłaty"
@@ -9576,6 +9597,12 @@ msgstr "Rekordy"
 msgid "Recovery Period"
 msgstr "Zarejestruj"
 
+msgid "Rectification {rectifyNumber}"
+msgstr "Sprostowanie {rectifyNumber}"
+
+msgid "Rectify"
+msgstr "Sprostuj"
+
 msgid "Redirecting to verification page..."
 msgstr "Przekierowanie na stronę weryfikacji..."
 
@@ -9902,6 +9929,9 @@ msgstr "Odwróć powiązane wpisy w dzienniku"
 
 msgid "Review the period's balance sheet and income statement and confirm the figures look right. This is a manual sign-off — mark it done once you have reviewed them."
 msgstr "Przejrzyj bilans i rachunek zysków i strat okresu i potwierdź, że liczby wyglądają prawidłowo. To jest ręczne zatwierdzenie — oznacz jako gotowe po ich przejrzeniu."
+
+msgid "Review the warnings below, then post the count to apply the adjustments."
+msgstr "Przejrzyj ostrzeżenia poniżej, a następnie opublikuj liczenie, aby zastosować korekty."
 
 msgid "Revision"
 msgstr "Wersja"
