@@ -2673,10 +2673,10 @@ msgid "Correct Answers"
 msgstr "正解"
 
 msgid "Correction"
-msgstr ""
+msgstr "修正"
 
 msgid "Corrections"
-msgstr ""
+msgstr "修正"
 
 msgid "Corrective action"
 msgstr "是正処置"
@@ -2750,7 +2750,7 @@ msgid "Count"
 msgstr "数"
 
 msgid "Count History"
-msgstr ""
+msgstr "カウント履歴"
 
 msgid "Count ID"
 msgstr "カウントID"
@@ -8246,10 +8246,10 @@ msgid "Origin"
 msgstr "オリジン"
 
 msgid "Original"
-msgstr ""
+msgstr "元"
 
 msgid "Original Count"
-msgstr ""
+msgstr "元のカウント"
 
 msgid "Other Income account for FX gains when a payment settles a foreign-currency invoice at a more favorable rate"
 msgstr "支払いが外貨建て請求書をより有利なレートで決済する場合のFX利益に対するその他の収益勘定"
@@ -8739,13 +8739,13 @@ msgid "Posted By"
 msgstr "投稿者"
 
 msgid "Posted once, no rectifications."
-msgstr ""
+msgstr "1回投稿され、修正がありません。"
 
 msgid "Posted once, rectified {rectifications} times."
-msgstr ""
+msgstr "1回投稿され、{rectifications}回修正されました。"
 
 msgid "Posted once, rectified 1 time."
-msgstr ""
+msgstr "1回投稿され、1回修正されました。"
 
 msgid "Posting"
 msgstr "前払金"
@@ -9481,10 +9481,10 @@ msgid "Recovery Period"
 msgstr "登録"
 
 msgid "Rectification {rectifyNumber}"
-msgstr ""
+msgstr "修正 {rectifyNumber}"
 
 msgid "Rectify"
-msgstr ""
+msgstr "修正"
 
 msgid "Redirecting to verification page..."
 msgstr "検証ページにリダイレクト中..."
@@ -9811,7 +9811,7 @@ msgid "Reverse the related journal entries"
 msgstr "関連する仕訳エントリを取り消す"
 
 msgid "Review the warnings below, then post the count to apply the adjustments."
-msgstr ""
+msgstr "下の警告を確認してから、カウントを投稿して調整を適用してください。"
 
 msgid "Revision"
 msgstr "リビジョン"

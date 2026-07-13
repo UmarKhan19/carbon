@@ -2673,10 +2673,10 @@ msgid "Correct Answers"
 msgstr "Doğru Cevaplar"
 
 msgid "Correction"
-msgstr ""
+msgstr "Düzeltme"
 
 msgid "Corrections"
-msgstr ""
+msgstr "Düzeltmeler"
 
 msgid "Corrective action"
 msgstr "Düzeltici Eylem"
@@ -2750,7 +2750,7 @@ msgid "Count"
 msgstr "Adet"
 
 msgid "Count History"
-msgstr ""
+msgstr "Sayım Geçmişi"
 
 msgid "Count ID"
 msgstr "Sayım Kimliği"
@@ -8246,10 +8246,10 @@ msgid "Origin"
 msgstr "Kaynak"
 
 msgid "Original"
-msgstr ""
+msgstr "Orijinal"
 
 msgid "Original Count"
-msgstr ""
+msgstr "Orijinal Sayım"
 
 msgid "Other Income account for FX gains when a payment settles a foreign-currency invoice at a more favorable rate"
 msgstr "Bir ödeme yabancı para birimindeki bir faturayı daha uygun bir oranda kapatırken FX kazançları için Diğer Gelir hesabı"
@@ -8739,13 +8739,13 @@ msgid "Posted By"
 msgstr "Gönderen"
 
 msgid "Posted once, no rectifications."
-msgstr ""
+msgstr "Bir kez gönderildi, düzeltme yapılmadı."
 
 msgid "Posted once, rectified {rectifications} times."
-msgstr ""
+msgstr "Bir kez gönderildi, {rectifications} kez düzeltildi."
 
 msgid "Posted once, rectified 1 time."
-msgstr ""
+msgstr "Bir kez gönderildi, 1 kez düzeltildi."
 
 msgid "Posting"
 msgstr "Ön Ödemeler"
@@ -9481,10 +9481,10 @@ msgid "Recovery Period"
 msgstr "Kayıt Yap"
 
 msgid "Rectification {rectifyNumber}"
-msgstr ""
+msgstr "Düzeltme {rectifyNumber}"
 
 msgid "Rectify"
-msgstr ""
+msgstr "Düzelt"
 
 msgid "Redirecting to verification page..."
 msgstr "Doğrulama sayfasına yönlendiriliyor..."
@@ -9811,7 +9811,7 @@ msgid "Reverse the related journal entries"
 msgstr "İlgili günlük girişlerini tersine çevir"
 
 msgid "Review the warnings below, then post the count to apply the adjustments."
-msgstr ""
+msgstr "Aşağıdaki uyarıları gözden geçirin, ardından ayarlamaları uygulamak için sayımı gönderin."
 
 msgid "Revision"
 msgstr "Revizyon"

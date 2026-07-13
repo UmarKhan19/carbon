@@ -2673,10 +2673,10 @@ msgid "Correct Answers"
 msgstr "正确答案"
 
 msgid "Correction"
-msgstr ""
+msgstr "纠正"
 
 msgid "Corrections"
-msgstr ""
+msgstr "纠正"
 
 msgid "Corrective action"
 msgstr "纠正措施"
@@ -2750,7 +2750,7 @@ msgid "Count"
 msgstr "数量"
 
 msgid "Count History"
-msgstr ""
+msgstr "盘点历史"
 
 msgid "Count ID"
 msgstr "盘点ID"
@@ -8246,10 +8246,10 @@ msgid "Origin"
 msgstr "来源"
 
 msgid "Original"
-msgstr ""
+msgstr "原始"
 
 msgid "Original Count"
-msgstr ""
+msgstr "原始盘点"
 
 msgid "Other Income account for FX gains when a payment settles a foreign-currency invoice at a more favorable rate"
 msgstr "当付款以更优惠的汇率结清外币发票时，外汇收益的其他收入账户"
@@ -8739,13 +8739,13 @@ msgid "Posted By"
 msgstr "发布者"
 
 msgid "Posted once, no rectifications."
-msgstr ""
+msgstr "已过账一次，无纠正。"
 
 msgid "Posted once, rectified {rectifications} times."
-msgstr ""
+msgstr "已过账一次，已纠正 {rectifications} 次。"
 
 msgid "Posted once, rectified 1 time."
-msgstr ""
+msgstr "已过账一次，已纠正 1 次。"
 
 msgid "Posting"
 msgstr "预付款"
@@ -9481,10 +9481,10 @@ msgid "Recovery Period"
 msgstr "注册"
 
 msgid "Rectification {rectifyNumber}"
-msgstr ""
+msgstr "纠正 {rectifyNumber}"
 
 msgid "Rectify"
-msgstr ""
+msgstr "纠正"
 
 msgid "Redirecting to verification page..."
 msgstr "正在重定向到验证页面..."
@@ -9811,7 +9811,7 @@ msgid "Reverse the related journal entries"
 msgstr "反转相关日记账分录"
 
 msgid "Review the warnings below, then post the count to apply the adjustments."
-msgstr ""
+msgstr "查看下面的警告，然后过账盘点以应用调整。"
 
 msgid "Revision"
 msgstr "修订版"

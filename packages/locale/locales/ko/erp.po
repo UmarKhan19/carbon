@@ -2673,10 +2673,10 @@ msgid "Correct Answers"
 msgstr "정답"
 
 msgid "Correction"
-msgstr ""
+msgstr "수정"
 
 msgid "Corrections"
-msgstr ""
+msgstr "수정"
 
 msgid "Corrective action"
 msgstr "시정 조치"
@@ -2750,7 +2750,7 @@ msgid "Count"
 msgstr "실사"
 
 msgid "Count History"
-msgstr ""
+msgstr "계산 기록"
 
 msgid "Count ID"
 msgstr "실사 ID"
@@ -8246,10 +8246,10 @@ msgid "Origin"
 msgstr "출처"
 
 msgid "Original"
-msgstr ""
+msgstr "원본"
 
 msgid "Original Count"
-msgstr ""
+msgstr "원본 계산"
 
 msgid "Other Income account for FX gains when a payment settles a foreign-currency invoice at a more favorable rate"
 msgstr "외화 인보이스가 더 유리한 환율로 결제될 때 발생하는 환차익에 대한 기타수익 계정"
@@ -8739,13 +8739,13 @@ msgid "Posted By"
 msgstr "전기자"
 
 msgid "Posted once, no rectifications."
-msgstr ""
+msgstr "1회 게시, 수정 없음."
 
 msgid "Posted once, rectified {rectifications} times."
-msgstr ""
+msgstr "1회 게시, {rectifications}회 수정됨."
 
 msgid "Posted once, rectified 1 time."
-msgstr ""
+msgstr "1회 게시, 1회 수정됨."
 
 msgid "Posting"
 msgstr "전기"
@@ -9481,10 +9481,10 @@ msgid "Recovery Period"
 msgstr "회수 기간"
 
 msgid "Rectification {rectifyNumber}"
-msgstr ""
+msgstr "수정 {rectifyNumber}"
 
 msgid "Rectify"
-msgstr ""
+msgstr "수정"
 
 msgid "Redirecting to verification page..."
 msgstr "인증 페이지로 이동 중..."
@@ -9811,7 +9811,7 @@ msgid "Reverse the related journal entries"
 msgstr "관련 분개 취소"
 
 msgid "Review the warnings below, then post the count to apply the adjustments."
-msgstr ""
+msgstr "아래의 경고를 검토한 후 계산을 게시하여 조정을 적용하세요."
 
 msgid "Revision"
 msgstr "리비전"

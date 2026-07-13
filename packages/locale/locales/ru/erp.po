@@ -2673,10 +2673,10 @@ msgid "Correct Answers"
 msgstr "Правильные ответы"
 
 msgid "Correction"
-msgstr ""
+msgstr "Исправление"
 
 msgid "Corrections"
-msgstr ""
+msgstr "Исправления"
 
 msgid "Corrective action"
 msgstr "Корректирующее действие"
@@ -2750,7 +2750,7 @@ msgid "Count"
 msgstr "Количество"
 
 msgid "Count History"
-msgstr ""
+msgstr "История подсчета"
 
 msgid "Count ID"
 msgstr "ID подсчета"
@@ -8246,10 +8246,10 @@ msgid "Origin"
 msgstr "Источник"
 
 msgid "Original"
-msgstr ""
+msgstr "Оригинал"
 
 msgid "Original Count"
-msgstr ""
+msgstr "Исходный подсчет"
 
 msgid "Other Income account for FX gains when a payment settles a foreign-currency invoice at a more favorable rate"
 msgstr "Счет прочих доходов для прибыли от валютных операций при расчете по иностранной валюте по более выгодному курсу"
@@ -8739,13 +8739,13 @@ msgid "Posted By"
 msgstr "Опубликовано"
 
 msgid "Posted once, no rectifications."
-msgstr ""
+msgstr "Опубликовано один раз, без исправлений."
 
 msgid "Posted once, rectified {rectifications} times."
-msgstr ""
+msgstr "Опубликовано один раз, исправлено {rectifications} раз(а)."
 
 msgid "Posted once, rectified 1 time."
-msgstr ""
+msgstr "Опубликовано один раз, исправлено 1 раз."
 
 msgid "Posting"
 msgstr "Авансовые платежи"
@@ -9481,10 +9481,10 @@ msgid "Recovery Period"
 msgstr "Зарегистрировать"
 
 msgid "Rectification {rectifyNumber}"
-msgstr ""
+msgstr "Исправление {rectifyNumber}"
 
 msgid "Rectify"
-msgstr ""
+msgstr "Исправить"
 
 msgid "Redirecting to verification page..."
 msgstr "Перенаправление на страницу проверки..."
@@ -9811,7 +9811,7 @@ msgid "Reverse the related journal entries"
 msgstr "Отменить связанные записи в журнале"
 
 msgid "Review the warnings below, then post the count to apply the adjustments."
-msgstr ""
+msgstr "Просмотрите предупреждения ниже, а затем опубликуйте подсчет для применения корректировок."
 
 msgid "Revision"
 msgstr "Редакция"

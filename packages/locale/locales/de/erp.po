@@ -2673,10 +2673,10 @@ msgid "Correct Answers"
 msgstr "Richtige Antworten"
 
 msgid "Correction"
-msgstr ""
+msgstr "Korrektur"
 
 msgid "Corrections"
-msgstr ""
+msgstr "Korrektionen"
 
 msgid "Corrective action"
 msgstr "Korrekturmaßnahme"
@@ -2750,7 +2750,7 @@ msgid "Count"
 msgstr "Anzahl"
 
 msgid "Count History"
-msgstr ""
+msgstr "Zählverlauf"
 
 msgid "Count ID"
 msgstr "Zählung-ID"
@@ -8246,10 +8246,10 @@ msgid "Origin"
 msgstr "Ursprung"
 
 msgid "Original"
-msgstr ""
+msgstr "Original"
 
 msgid "Original Count"
-msgstr ""
+msgstr "Ursprüngliche Anzahl"
 
 msgid "Other Income account for FX gains when a payment settles a foreign-currency invoice at a more favorable rate"
 msgstr "Sonstige Einnahmen für Wechselkursgewinne, wenn eine Zahlung eine Rechnung in Fremdwährung zu einem günstigeren Kurs ausgleicht"
@@ -8739,13 +8739,13 @@ msgid "Posted By"
 msgstr "Gepostet von"
 
 msgid "Posted once, no rectifications."
-msgstr ""
+msgstr "Einmal gepostet, keine Berichtigungen."
 
 msgid "Posted once, rectified {rectifications} times."
-msgstr ""
+msgstr "Einmal gepostet, {rectifications} Mal berichtigt."
 
 msgid "Posted once, rectified 1 time."
-msgstr ""
+msgstr "Einmal gepostet, 1 Mal berichtigt."
 
 msgid "Posting"
 msgstr "Vorauszahlungen"
@@ -9481,10 +9481,10 @@ msgid "Recovery Period"
 msgstr "Registrieren"
 
 msgid "Rectification {rectifyNumber}"
-msgstr ""
+msgstr "Berichtigung {rectifyNumber}"
 
 msgid "Rectify"
-msgstr ""
+msgstr "Berichtigen"
 
 msgid "Redirecting to verification page..."
 msgstr "Wird zur Verifizierungsseite weitergeleitet..."
@@ -9811,7 +9811,7 @@ msgid "Reverse the related journal entries"
 msgstr "Kehren Sie die zugehörigen Journaleinträge um"
 
 msgid "Review the warnings below, then post the count to apply the adjustments."
-msgstr ""
+msgstr "Überprüfen Sie die folgenden Warnungen und posten Sie dann die Anzahl, um die Anpassungen anzuwenden."
 
 msgid "Revision"
 msgstr "Revision"

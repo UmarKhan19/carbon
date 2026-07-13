@@ -2673,10 +2673,10 @@ msgid "Correct Answers"
 msgstr "सही उत्तर"
 
 msgid "Correction"
-msgstr ""
+msgstr "सुधार"
 
 msgid "Corrections"
-msgstr ""
+msgstr "सुधार"
 
 msgid "Corrective action"
 msgstr "सुधारात्मक कार्रवाई"
@@ -2750,7 +2750,7 @@ msgid "Count"
 msgstr "गिनती"
 
 msgid "Count History"
-msgstr ""
+msgstr "गणना इतिहास"
 
 msgid "Count ID"
 msgstr "गणना आईडी"
@@ -8246,10 +8246,10 @@ msgid "Origin"
 msgstr "मूल"
 
 msgid "Original"
-msgstr ""
+msgstr "मूल"
 
 msgid "Original Count"
-msgstr ""
+msgstr "मूल गणना"
 
 msgid "Other Income account for FX gains when a payment settles a foreign-currency invoice at a more favorable rate"
 msgstr "विदेशी मुद्रा लाभ के लिए अन्य आय खाता जब कोई भुगतान विदेशी-मुद्रा चालान को अधिक अनुकूल दर पर निपटाता है"
@@ -8739,13 +8739,13 @@ msgid "Posted By"
 msgstr "द्वारा पोस्ट किया गया"
 
 msgid "Posted once, no rectifications."
-msgstr ""
+msgstr "एक बार पोस्ट किया गया, कोई सुधार नहीं।"
 
 msgid "Posted once, rectified {rectifications} times."
-msgstr ""
+msgstr "एक बार पोस्ट किया गया, {rectifications} बार सुधारा गया।"
 
 msgid "Posted once, rectified 1 time."
-msgstr ""
+msgstr "एक बार पोस्ट किया गया, 1 बार सुधारा गया।"
 
 msgid "Posting"
 msgstr "अग्रिम भुगतान"
@@ -9481,10 +9481,10 @@ msgid "Recovery Period"
 msgstr "पंजीकृत करें"
 
 msgid "Rectification {rectifyNumber}"
-msgstr ""
+msgstr "सुधार {rectifyNumber}"
 
 msgid "Rectify"
-msgstr ""
+msgstr "सुधारें"
 
 msgid "Redirecting to verification page..."
 msgstr "सत्यापन पृष्ठ पर पुनः निर्देशित किया जा रहा है..."
@@ -9811,7 +9811,7 @@ msgid "Reverse the related journal entries"
 msgstr "संबंधित जर्नल प्रविष्टियों को उलट दें"
 
 msgid "Review the warnings below, then post the count to apply the adjustments."
-msgstr ""
+msgstr "नीचे दी गई चेतावनियों की समीक्षा करें, फिर समायोजन लागू करने के लिए गणना पोस्ट करें।"
 
 msgid "Revision"
 msgstr "संस्करण"
