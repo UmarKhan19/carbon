@@ -8,7 +8,6 @@ import {
   addChangeOrderAffectedItem,
   changeOrderAffectedItemValidator
 } from "~/modules/items";
-import { getDatabaseClient } from "~/services/database.server";
 
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
@@ -25,11 +24,12 @@ export async function action({ request }: ActionFunctionArgs) {
     return validationError(validation.error);
   }
 
-  const { changeOrderId, itemId } = validation.data;
+  const { changeOrderId, itemId, changeType } = validation.data;
 
-  const add = await addChangeOrderAffectedItem(client, getDatabaseClient(), {
+  const add = await addChangeOrderAffectedItem(client, {
     changeOrderId,
     itemId,
+    changeType,
     companyId,
     userId
   });

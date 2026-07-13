@@ -3,22 +3,7 @@ import type { Kysely, KyselyDatabase } from "@carbon/database/client";
 import { trigger } from "@carbon/jobs";
 import { NotificationEvent } from "@carbon/notifications";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { nanoid } from "nanoid";
-import {
-  activateMethodVersion,
-  assertMethodOperationIsDraft,
-  createRevision,
-  deleteMethodMaterial,
-  deleteMethodOperation,
-  getItem,
-  getNextRevision,
-  upsertItemSupersession,
-  upsertMethodMaterial,
-  upsertMethodOperation,
-  upsertMethodOperationParameter,
-  upsertMethodOperationStep,
-  upsertMethodOperationTool
-} from "~/modules/items";
+import { activateMethodVersion, upsertItemSupersession } from "~/modules/items";
 import { supersessionModes } from "./items.models";
 
 // =============================================================================
@@ -101,12 +86,15 @@ export async function applyChangeOrder(
   const effectiveDate =
     co.data.effectiveDate ?? new Date().toISOString().split("T")[0];
 
-  // Load the affected items with the per-item cutover config. `newItemId` is the
-  // idempotency marker — a non-null value means this item was already released.
+  // Load the affected items with change type + draft refs + cutover config.
+  // v2: the draft make method already holds the edited BOM/BOP; release just
+  // activates it (and reveals the new item for Revision/New Part). Idempotency
+  // is per-item inside releaseAffectedItem (skip once the draft is no longer
+  // CO-owned).
   const affectedItems = await client
     .from("changeOrderAffectedItem")
     .select(
-      "id, itemId, newItemId, supersessionMode, discontinuationDate, successorEffectivityDate"
+      "id, itemId, changeType, draftMakeMethodId, newItemId, supersessionMode, discontinuationDate, successorEffectivityDate"
     )
     .eq("changeOrderId", changeOrderId)
     .eq("companyId", companyId)
@@ -117,9 +105,6 @@ export async function applyChangeOrder(
   }
 
   for (const affected of affectedItems.data ?? []) {
-    // Idempotent skip: this affected item already produced a revision.
-    if (affected.newItemId) continue;
-
     const result = await releaseAffectedItem(client, {
       changeOrderId,
       companyId,
@@ -185,7 +170,15 @@ export async function applyChangeOrder(
 }
 
 // -----------------------------------------------------------------------------
-// releaseAffectedItem — the 7-step per-item release (see applyChangeOrder).
+// releaseAffectedItem (v2) — dispatch by change type. The CO-owned Draft make
+// method already holds the edited BOM/BOP, so release just:
+//   Version  → activate the Draft on the SAME item (prior Active → Archived);
+//              no new item, no supersession (Q2).
+//   Revision → activate the Draft + reveal the new revision item + auto
+//              oldRev→newRev supersession.
+//   New Part → activate the Draft + reveal the new part + auto affectedPart→
+//              newPart supersession.
+// Idempotent: once the Draft's changeOrderId is cleared it counts as released.
 // -----------------------------------------------------------------------------
 async function releaseAffectedItem(
   client: SupabaseClient<Database>,
@@ -197,6 +190,9 @@ async function releaseAffectedItem(
     affected: {
       id: string;
       itemId: string;
+      changeType: Database["public"]["Enums"]["changeOrderChangeType"];
+      draftMakeMethodId: string | null;
+      newItemId: string | null;
       supersessionMode: Database["public"]["Enums"]["supersessionMode"] | null;
       discontinuationDate: string | null;
       successorEffectivityDate: string | null;
@@ -204,475 +200,78 @@ async function releaseAffectedItem(
   }
 ): Promise<{ error: { message: string } | null }> {
   const { changeOrderId, companyId, userId, effectiveDate, affected } = input;
+  const { changeType, draftMakeMethodId, newItemId } = affected;
   const sourceItemId = affected.itemId;
 
-  // Load the full source item row (createRevision copies its core fields +
-  // modelUploadId, i.e. the drawing/CAD reference, onto the new revision).
-  const source = await getItem(client, sourceItemId);
-  if (source.error || !source.data) {
-    return { error: { message: "Failed to load source item" } };
-  }
-  const sourceItem = source.data;
-  const isBuy = sourceItem.replenishmentSystem === "Buy";
-
-  // ---- Step 1: create the new inactive revision -----------------------------
-  // Derive the next revision letter from the source's sibling revisions (same
-  // readableId + type + company), reusing getNextRevision (the same helper the
-  // manual "New Revision" flow uses via the type-table version switcher).
-  const nextRevision = await computeNextRevision(client, sourceItem, companyId);
-  if (nextRevision.error) return { error: nextRevision.error };
-
-  const revision = await createRevision(client, {
-    item: sourceItem,
-    revision: nextRevision.data,
-    active: false,
-    createdBy: userId
-  });
-  if (revision.error || !revision.data?.id) {
-    return { error: { message: "Failed to create revision" } };
-  }
-  const newItemId = revision.data.id;
-
-  // The new revision's auto-created make method is Draft (create_make_method
-  // trigger default). For non-Buy items createRevision copied the source method
-  // into it. Resolve it so we can materialize the staged end-state onto it.
-  let draftMakeMethodId: string | null = null;
-  if (!isBuy) {
-    const draft = await client
-      .from("makeMethod")
-      .select("id")
-      .eq("itemId", newItemId)
-      .eq("companyId", companyId)
-      .eq("status", "Draft")
-      .order("version", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    if (draft.error) return { error: draft.error };
-    draftMakeMethodId = draft.data?.id ?? null;
+  if (!draftMakeMethodId) {
+    return { error: { message: "Affected item has no draft make method" } };
   }
 
-  // ---- Step 2: materialize the staged end-state onto the Draft method -------
-  // Q5 end-state (not delta-replay): the staged rows ARE the desired method.
-  if (draftMakeMethodId) {
-    const materialized = await materializeMethod(client, {
-      affectedItemId: affected.id,
-      draftMakeMethodId,
-      companyId,
-      userId
-    });
-    if (materialized.error) return { error: materialized.error };
+  // Idempotency: a Draft still owned by this CO has not been released yet; once
+  // released we clear changeOrderId, so a re-run skips it.
+  const draft = await client
+    .from("makeMethod")
+    .select("changeOrderId")
+    .eq("id", draftMakeMethodId)
+    .eq("companyId", companyId)
+    .maybeSingle();
+  if (draft.error) return { error: draft.error };
+  if (!draft.data || !draft.data.changeOrderId) {
+    return { error: null };
   }
 
-  // ---- Step 3: apply staged attributes onto the new revision item -----------
-  const attributes = await applyStagedAttributes(client, {
-    affectedItemId: affected.id,
-    newItemId,
+  // Activate the Draft method (Draft → Active; prior Active → Archived).
+  const activated = await activateMethodVersion(client, {
+    id: draftMakeMethodId,
     companyId,
     userId
   });
-  if (attributes.error) return { error: attributes.error };
+  if (activated.error) {
+    return { error: { message: "Failed to activate method" } };
+  }
 
-  // ---- Step 4: activate the Draft method (Make items only) ------------------
-  if (draftMakeMethodId) {
-    const activated = await activateMethodVersion(client, {
-      id: draftMakeMethodId,
+  // Reveal the new item for Revision / New Part (Version edits the same item).
+  if (newItemId) {
+    const reveal = await client
+      .from("item")
+      .update({
+        active: true,
+        changeOrderId,
+        updatedBy: userId,
+        updatedAt: new Date().toISOString()
+      })
+      .eq("id", newItemId)
+      .eq("companyId", companyId);
+    if (reveal.error) return { error: reveal.error };
+  }
+
+  // Clear CO ownership on the Draft — it's now normal method history.
+  const clear = await client
+    .from("makeMethod")
+    .update({ changeOrderId: null })
+    .eq("id", draftMakeMethodId)
+    .eq("companyId", companyId);
+  if (clear.error) return { error: clear.error };
+
+  // Auto supersession: Revision (oldRev→newRev) / New Part (affectedPart→newPart).
+  // Version keeps the same item — no supersession (Q2).
+  if (changeType !== "Version" && newItemId) {
+    const sup = await upsertItemSupersession(client, {
+      itemId: sourceItemId,
+      successorItemId: newItemId,
+      supersessionMode: normalizeSupersessionMode(affected.supersessionMode),
+      discontinuationDate: affected.discontinuationDate ?? effectiveDate,
+      successorEffectivityDate:
+        affected.successorEffectivityDate ?? effectiveDate,
       companyId,
-      userId
+      createdBy: userId,
+      updatedBy: userId
     });
-    if (activated.error) {
-      return { error: { message: "Failed to activate method" } };
+    if (sup.error) {
+      console.error("Failed to write revision supersession", sup.error);
     }
   }
 
-  // ---- Step 5: flip the new revision active + stamp its originating CO -------
-  const activate = await client
-    .from("item")
-    .update({
-      active: true,
-      changeOrderId,
-      updatedBy: userId,
-      updatedAt: new Date().toISOString()
-    })
-    .eq("id", newItemId)
-    .eq("companyId", companyId);
-  if (activate.error) return { error: activate.error };
-
-  // ---- Step 6: auto-write the oldRev → newRev supersession ------------------
-  const sup = await upsertItemSupersession(client, {
-    itemId: sourceItemId,
-    successorItemId: newItemId,
-    supersessionMode: normalizeSupersessionMode(affected.supersessionMode),
-    discontinuationDate: affected.discontinuationDate ?? effectiveDate,
-    successorEffectivityDate:
-      affected.successorEffectivityDate ?? effectiveDate,
-    companyId,
-    createdBy: userId,
-    updatedBy: userId
-  });
-  if (sup.error) {
-    console.error("Failed to write revision supersession", sup.error);
-  }
-
-  // ---- Step 7: stamp newItemId (per-item idempotency marker) ----------------
-  const marker = await client
-    .from("changeOrderAffectedItem")
-    .update({
-      newItemId,
-      updatedBy: userId,
-      updatedAt: new Date().toISOString()
-    })
-    .eq("id", affected.id)
-    .eq("companyId", companyId);
-  if (marker.error) return { error: marker.error };
-
-  return { error: null };
-}
-
-// Derive the next revision string from the source's sibling revisions. Siblings
-// share readableId + type + company (revision-system.md). getNextRevision does
-// the numeric/alpha bump (…0→1, A→B, Z→AA). Pick the max sibling revision.
-async function computeNextRevision(
-  client: SupabaseClient<Database>,
-  sourceItem: {
-    readableId: string;
-    type: Database["public"]["Enums"]["itemType"];
-  },
-  companyId: string
-): Promise<{ data: string; error: { message: string } | null }> {
-  const siblings = await client
-    .from("item")
-    .select("revision")
-    .eq("readableId", sourceItem.readableId)
-    .eq("type", sourceItem.type)
-    .eq("companyId", companyId);
-  if (siblings.error) return { data: "", error: siblings.error };
-
-  const revisions = (siblings.data ?? [])
-    .map((r) => r.revision)
-    .filter((r): r is string => !!r);
-  // Prefer the max NAMED (alpha) revision, else the max numeric, mirroring the
-  // list view's "named beats initial" ordering. getNextRevision handles both.
-  const alpha = revisions.filter((r) => /^[A-Z]{1,2}$/.test(r)).sort();
-  const numeric = revisions
-    .filter((r) => /^\d+$/.test(r))
-    .sort((a, b) => Number(a) - Number(b));
-  const max =
-    alpha.length > 0
-      ? alpha[alpha.length - 1]
-      : (numeric[numeric.length - 1] ?? "0");
-  return { data: getNextRevision(max), error: null };
-}
-
-// Materialize staged operations + materials onto the new revision's Draft
-// method (Q5 end-state — a FULL replace, not delta-replay). createRevision
-// copied the source method into the Draft; that copy produces fresh op/material
-// ids with NO back-pointer to the source, so the staged rows' sourceOperationId
-// / sourceMaterialId cannot be mapped onto the copied Draft rows. We therefore
-// wipe the copied Draft method and re-insert the staged end-state verbatim.
-// Operations FIRST (materials reference them via stagedOperationId → the new
-// methodOperation id, kept in a map). No per-line effectiveFrom (revision-level
-// cutover is handled by the supersession in step 6).
-async function materializeMethod(
-  client: SupabaseClient<Database>,
-  input: {
-    affectedItemId: string;
-    draftMakeMethodId: string;
-    companyId: string;
-    userId: string;
-  }
-): Promise<{ error: { message: string } | null }> {
-  const { affectedItemId, draftMakeMethodId, companyId, userId } = input;
-
-  // --- Operations: wipe the copied Draft ops, then re-insert every staged op --
-  const [stagedOps, draftOps] = await Promise.all([
-    client
-      .from("changeOrderStagedOperation")
-      .select("*")
-      .eq("affectedItemId", affectedItemId)
-      .eq("companyId", companyId)
-      .order("order", { ascending: true }),
-    client
-      .from("methodOperation")
-      .select("id")
-      .eq("makeMethodId", draftMakeMethodId)
-      .eq("companyId", companyId)
-  ]);
-  if (stagedOps.error) return { error: stagedOps.error };
-  if (draftOps.error) return { error: draftOps.error };
-
-  // The Draft method is fresh (just created by createRevision), but guard each
-  // delete with assertMethodOperationIsDraft (throws on Active/Archived) as a
-  // defense-in-depth invariant before removing a copied op.
-  for (const op of draftOps.data ?? []) {
-    try {
-      await assertMethodOperationIsDraft(client, op.id);
-    } catch (err) {
-      return {
-        error: {
-          message: err instanceof Error ? err.message : "Operation not Draft"
-        }
-      };
-    }
-    const del = await deleteMethodOperation(client, op.id);
-    if (del.error) return { error: del.error };
-  }
-
-  // Insert every staged op. Keep stagedOpId → new methodOperation id for the
-  // material → operation link.
-  const stagedOpToNewOpId = new Map<string, string>();
-  for (const op of stagedOps.data ?? []) {
-    const written = await upsertMethodOperation(client, {
-      // Cast: the staged columns mirror methodOperation; the validator-shaped
-      // insert type is narrower than the raw row, and the DB enum columns are
-      // the real guard.
-      id: nanoid(),
-      makeMethodId: draftMakeMethodId,
-      order: op.order,
-      operationOrder: op.operationOrder,
-      operationType: op.operationType,
-      processId: op.processId ?? "",
-      workCenterId: op.workCenterId ?? undefined,
-      operationSupplierProcessId: op.operationSupplierProcessId ?? undefined,
-      procedureId: op.procedureId ?? undefined,
-      description: op.description ?? "",
-      setupTime: op.setupTime ?? undefined,
-      setupUnit: op.setupUnit ?? undefined,
-      laborTime: op.laborTime ?? undefined,
-      laborUnit: op.laborUnit ?? undefined,
-      machineTime: op.machineTime ?? undefined,
-      machineUnit: op.machineUnit ?? undefined,
-      companyId,
-      createdBy: userId
-    } as never);
-    if (written.error || !written.data?.id) {
-      return { error: { message: "Failed to materialize operation" } };
-    }
-    const newOperationId = written.data.id;
-    stagedOpToNewOpId.set(op.id, newOperationId);
-
-    // Materialize this staged operation's staged CHILDREN (steps/parameters/
-    // tools) onto the freshly-created methodOperation. The op is brand-new and
-    // therefore starts with no children, so this is a plain create (mirroring
-    // the operation full-replace — no delete-diff needed).
-    const children = await materializeOperationChildren(client, {
-      stagedOperationId: op.id,
-      newOperationId,
-      companyId,
-      userId
-    });
-    if (children.error) return { error: children.error };
-  }
-
-  // --- Materials: wipe the copied Draft materials, then re-insert staged set --
-  const [stagedMaterials, draftMaterials] = await Promise.all([
-    client
-      .from("changeOrderStagedMaterial")
-      .select("*")
-      .eq("affectedItemId", affectedItemId)
-      .eq("companyId", companyId)
-      .order("order", { ascending: true }),
-    client
-      .from("methodMaterial")
-      .select("id")
-      .eq("makeMethodId", draftMakeMethodId)
-      .eq("companyId", companyId)
-  ]);
-  if (stagedMaterials.error) return { error: stagedMaterials.error };
-  if (draftMaterials.error) return { error: draftMaterials.error };
-
-  for (const m of draftMaterials.data ?? []) {
-    const del = await deleteMethodMaterial(client, m.id);
-    if (del.error) return { error: del.error };
-  }
-
-  for (const m of stagedMaterials.data ?? []) {
-    const newOperationId = m.stagedOperationId
-      ? stagedOpToNewOpId.get(m.stagedOperationId)
-      : undefined;
-
-    const written = await upsertMethodMaterial(client, {
-      // upsertMethodMaterial re-derives methodType/sourcingType from the
-      // component item; the values here only satisfy the validator shape (the
-      // staged columns are DB `string`, narrower than the zod enums — cast).
-      id: nanoid(),
-      makeMethodId: draftMakeMethodId,
-      itemId: m.itemId,
-      quantity: m.quantity,
-      unitOfMeasureCode: m.unitOfMeasureCode ?? "EA",
-      order: m.order,
-      itemType: (m.itemType ?? "Part") as never,
-      methodType: m.methodType as never,
-      sourcingType: m.sourcingType as never,
-      materialMakeMethodId: m.materialMakeMethodId ?? undefined,
-      methodOperationId: newOperationId,
-      kit: false,
-      storageUnitIds: {} as unknown as Record<string, string>,
-      companyId,
-      createdBy: userId
-    } as never);
-    if (written.error) {
-      return { error: { message: "Failed to materialize material" } };
-    }
-  }
-
-  return { error: null };
-}
-
-// Materialize one staged operation's staged children (steps / parameters / tools)
-// onto a freshly-created live methodOperation. The new op starts empty (it was
-// just inserted by materializeMethod's full-replace), so every staged child is
-// created verbatim via the canonical upsert helpers — no delete-diff. Mirrored
-// columns are mapped 1:1 (steps: name/description/type/required/sortOrder/
-// unitOfMeasureCode/minValue/maxValue/listValues/fileTypes; parameters: key/
-// value; tools: toolId/quantity). Casts: the staged rows are DB-typed (nullable,
-// Json description) and narrower/wider than the validator-shaped helper inputs;
-// the DB columns are the real guard.
-async function materializeOperationChildren(
-  client: SupabaseClient<Database>,
-  input: {
-    stagedOperationId: string;
-    newOperationId: string;
-    companyId: string;
-    userId: string;
-  }
-): Promise<{ error: { message: string } | null }> {
-  const { stagedOperationId, newOperationId, companyId, userId } = input;
-
-  const [stagedSteps, stagedParameters, stagedTools] = await Promise.all([
-    client
-      .from("changeOrderStagedOperationStep")
-      .select("*")
-      .eq("stagedOperationId", stagedOperationId)
-      .eq("companyId", companyId)
-      .order("sortOrder", { ascending: true }),
-    client
-      .from("changeOrderStagedOperationParameter")
-      .select("*")
-      .eq("stagedOperationId", stagedOperationId)
-      .eq("companyId", companyId),
-    client
-      .from("changeOrderStagedOperationTool")
-      .select("*")
-      .eq("stagedOperationId", stagedOperationId)
-      .eq("companyId", companyId)
-  ]);
-  if (stagedSteps.error) return { error: stagedSteps.error };
-  if (stagedParameters.error) return { error: stagedParameters.error };
-  if (stagedTools.error) return { error: stagedTools.error };
-
-  for (const s of stagedSteps.data ?? []) {
-    const written = await upsertMethodOperationStep(client, {
-      operationId: newOperationId,
-      name: s.name,
-      description: s.description,
-      type: s.type,
-      required: s.required ?? undefined,
-      sortOrder: s.sortOrder,
-      unitOfMeasureCode: s.unitOfMeasureCode ?? undefined,
-      minValue: s.minValue ?? undefined,
-      maxValue: s.maxValue ?? undefined,
-      listValues: s.listValues ?? undefined,
-      fileTypes: s.fileTypes ?? undefined,
-      companyId,
-      createdBy: userId
-    } as never);
-    if (written.error) {
-      return { error: { message: "Failed to materialize operation step" } };
-    }
-  }
-
-  for (const p of stagedParameters.data ?? []) {
-    const written = await upsertMethodOperationParameter(client, {
-      operationId: newOperationId,
-      key: p.key,
-      value: p.value,
-      companyId,
-      createdBy: userId
-    } as never);
-    if (written.error) {
-      return {
-        error: { message: "Failed to materialize operation parameter" }
-      };
-    }
-  }
-
-  for (const t of stagedTools.data ?? []) {
-    const written = await upsertMethodOperationTool(client, {
-      operationId: newOperationId,
-      toolId: t.toolId,
-      quantity: t.quantity,
-      companyId,
-      createdBy: userId
-    } as never);
-    if (written.error) {
-      return { error: { message: "Failed to materialize operation tool" } };
-    }
-  }
-
-  return { error: null };
-}
-
-// Apply the staged attribute redline onto the new revision's item columns.
-// Only item-table columns are staged (name/description/uom/tracking/method/
-// sourcing/inspection/thumbnail); no extension-table writes needed. Buy items
-// with no method still get their attributes applied here.
-async function applyStagedAttributes(
-  client: SupabaseClient<Database>,
-  input: {
-    affectedItemId: string;
-    newItemId: string;
-    companyId: string;
-    userId: string;
-  }
-): Promise<{ error: { message: string } | null }> {
-  const { affectedItemId, newItemId, companyId, userId } = input;
-  const staged = await client
-    .from("changeOrderStagedItemAttributes")
-    .select("*")
-    .eq("affectedItemId", affectedItemId)
-    .eq("companyId", companyId)
-    .maybeSingle();
-  if (staged.error) return { error: staged.error };
-  if (!staged.data) return { error: null };
-
-  const a = staged.data;
-  // Build an update of only the mirrored item columns that were staged.
-  //
-  // Method/sourcing/tracking fields are written raw here, NOT through
-  // `updateItemMethodAndSourcing` / `cascadeItemTrackingType`. Two reasons this is
-  // safe: (1) the cascades those helpers run are no-ops on this brand-new
-  // `active:false` revision (nothing consumes it yet; it has no tracked entities);
-  // (2) the staged (sourcingType, defaultMethodType, replenishmentSystem) triple is
-  // already consistent — `ChangeOrderAttributesEditor` applies the shared
-  // `deriveItemMethodUpdate` interlock at staging time (same rule as the canonical
-  // item editor), so the values written below don't need re-derivation.
-  const update: Database["public"]["Tables"]["item"]["Update"] = {
-    updatedBy: userId,
-    updatedAt: new Date().toISOString()
-  };
-  if (a.name != null) update.name = a.name;
-  if (a.description != null) update.description = a.description;
-  if (a.unitOfMeasureCode != null)
-    update.unitOfMeasureCode = a.unitOfMeasureCode;
-  if (a.itemTrackingType != null)
-    update.itemTrackingType =
-      a.itemTrackingType as Database["public"]["Enums"]["itemTrackingType"];
-  if (a.defaultMethodType != null)
-    update.defaultMethodType = a.defaultMethodType;
-  if (a.replenishmentSystem != null)
-    update.replenishmentSystem =
-      a.replenishmentSystem as Database["public"]["Enums"]["itemReplenishmentSystem"];
-  if (a.sourcingType != null) update.sourcingType = a.sourcingType;
-  if (a.requiresInspection != null)
-    update.requiresInspection = a.requiresInspection;
-  if (a.thumbnailPath != null) update.thumbnailPath = a.thumbnailPath;
-
-  const written = await client
-    .from("item")
-    .update(update)
-    .eq("id", newItemId)
-    .eq("companyId", companyId);
-  if (written.error) return { error: written.error };
   return { error: null };
 }
 

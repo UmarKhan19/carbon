@@ -5,11 +5,7 @@ import type {
   MethodDiffEntry,
   MethodDiffStatus
 } from "./changeOrder.models";
-import {
-  getChangeOrderAffectedItems,
-  getChangeOrderStagedMaterials
-} from "./changeOrder.staging";
-import { getChangeOrderStagedOperationChildren } from "./changeOrder.staging.operations";
+import { getChangeOrderAffectedItems } from "./changeOrder.service";
 
 // =============================================================================
 // Change Orders — the reusable method-diff engine (Q5 git-style end-state).
@@ -52,6 +48,10 @@ const IGNORED_FIELDS = new Set<string>([
   "sourceOperationId",
   "sourceId",
   "stagedOperationId",
+  // v2: base and draft rows live on different real methods/operations, so these
+  // linkage columns always differ and must never count as a business change.
+  "makeMethodId",
+  "operationId",
   "createdAt",
   "createdBy",
   "updatedAt",
@@ -341,12 +341,143 @@ export type ChangeOrderDiff = {
   supersessions: ChangeOrderSupersessionRow[];
 };
 
-// For every affected item: read the CURRENT source make method live
-// (activeMakeMethods → methodMaterial / methodOperation) as `base` and the CO's
-// staged rows as `target`, run `diffMethod`, and collect the results. Also reads
-// the manual supersession declarations for the whole change order. All reads are
-// flat selects scoped by companyId; the classification is delegated to the pure
-// `diffMethod`.
+// Editable item attribute columns compared for the attribute diff.
+const ITEM_ATTRIBUTE_COLUMNS =
+  "name, description, unitOfMeasureCode, itemTrackingType, defaultMethodType, replenishmentSystem, sourcingType, requiresInspection, thumbnailPath";
+
+// Read one make method's materials + operations + per-operation children (real
+// method tables — the v2 substrate). Empty for a null makeMethodId (e.g. a Buy
+// item with no method, or before a draft exists).
+async function readMethodRows(
+  client: SupabaseClient<Database>,
+  makeMethodId: string | null,
+  companyId: string
+): Promise<{
+  materials: Row[];
+  operations: Row[];
+  children: ChildrenByOperationId;
+  error: { message: string } | null;
+}> {
+  const empty = { materials: [], operations: [], children: {}, error: null };
+  if (!makeMethodId) return empty;
+
+  const [materials, operations] = await Promise.all([
+    client
+      .from("methodMaterial")
+      .select("*")
+      .eq("makeMethodId", makeMethodId)
+      .eq("companyId", companyId)
+      .order("order", { ascending: true }),
+    client
+      .from("methodOperation")
+      .select("*")
+      .eq("makeMethodId", makeMethodId)
+      .eq("companyId", companyId)
+      .order("order", { ascending: true })
+  ]);
+  if (materials.error) return { ...empty, error: materials.error };
+  if (operations.error) return { ...empty, error: operations.error };
+
+  const ops = (operations.data ?? []) as Row[];
+  const children: ChildrenByOperationId = {};
+  const opIds = ops
+    .map((o) => o.id)
+    .filter((id): id is string => typeof id === "string");
+
+  if (opIds.length > 0) {
+    const [steps, parameters, tools] = await Promise.all([
+      client
+        .from("methodOperationStep")
+        .select("*")
+        .in("operationId", opIds)
+        .eq("companyId", companyId),
+      client
+        .from("methodOperationParameter")
+        .select("*")
+        .in("operationId", opIds)
+        .eq("companyId", companyId),
+      client
+        .from("methodOperationTool")
+        .select("*")
+        .in("operationId", opIds)
+        .eq("companyId", companyId)
+    ]);
+    if (steps.error) return { ...empty, error: steps.error };
+    if (parameters.error) return { ...empty, error: parameters.error };
+    if (tools.error) return { ...empty, error: tools.error };
+
+    for (const id of opIds)
+      children[id] = { steps: [], parameters: [], tools: [] };
+    for (const r of (steps.data ?? []) as Row[]) {
+      const op = r.operationId;
+      if (typeof op === "string") children[op]?.steps.push(r);
+    }
+    for (const r of (parameters.data ?? []) as Row[]) {
+      const op = r.operationId;
+      if (typeof op === "string") children[op]?.parameters.push(r);
+    }
+    for (const r of (tools.data ?? []) as Row[]) {
+      const op = r.operationId;
+      if (typeof op === "string") children[op]?.tools.push(r);
+    }
+  }
+
+  return {
+    materials: (materials.data ?? []) as Row[],
+    operations: ops,
+    children,
+    error: null
+  };
+}
+
+// The v2 draft method is created by copying the base method, so it initially
+// mirrors the base 1:1 with NO back-pointer ids. We reconstruct the source
+// pointers the pure engine expects by matching each target row to a base row on
+// a natural key (materials → component itemId, operations → order, children →
+// name/key/toolId), first-unmatched-wins. An unmatched target row is an add; an
+// unmatched base row is a remove.
+function correlate(
+  base: Row[],
+  target: Row[],
+  keyField: string,
+  sourceKey: string
+): void {
+  const usedBaseIds = new Set<string>();
+  for (const t of target) {
+    const key = t[keyField];
+    const match = base.find(
+      (b) =>
+        b[keyField] === key &&
+        typeof b.id === "string" &&
+        !usedBaseIds.has(b.id)
+    );
+    if (match && typeof match.id === "string") {
+      usedBaseIds.add(match.id);
+      t[sourceKey] = match.id;
+    } else {
+      t[sourceKey] = null;
+    }
+  }
+}
+
+async function readItemAttributes(
+  client: SupabaseClient<Database>,
+  itemId: string,
+  companyId: string
+): Promise<Row | null> {
+  const item = await client
+    .from("item")
+    .select(ITEM_ATTRIBUTE_COLUMNS)
+    .eq("id", itemId)
+    .eq("companyId", companyId)
+    .maybeSingle();
+  return (item.data ?? null) as Row | null;
+}
+
+// For every affected item: read the base (source Active) method as `base` and the
+// CO-owned Draft method as `target` (both REAL method tables), correlate by
+// natural keys, run the pure `diffMethod`, and collect. Also returns the manual
+// supersession declarations. Flat selects scoped by companyId (no embeds).
 export async function getChangeOrderDiff(
   client: SupabaseClient<Database>,
   changeOrderId: string,
@@ -363,203 +494,64 @@ export async function getChangeOrderDiff(
   const items: ChangeOrderItemDiff[] = [];
 
   for (const affectedItem of affected.data) {
-    // Resolve the item's current Active make method (per item, status Active).
-    const activeMethod = await client
-      .from("activeMakeMethods")
-      .select("id")
-      .eq("itemId", affectedItem.itemId)
-      .eq("companyId", companyId)
-      .maybeSingle();
-    if (activeMethod.error)
-      return {
-        data: { items: [], supersessions: [] },
-        error: activeMethod.error
-      };
-    const makeMethodId = activeMethod.data?.id ?? null;
-
-    // Live method snapshot (the diff base). Empty for Buy items with no method.
-    let baseMaterials: Row[] = [];
-    let baseOperations: Row[] = [];
-    // Live operation children keyed by live operation id.
-    const baseOperationChildren: ChildrenByOperationId = {};
-    if (makeMethodId) {
-      const [liveMaterials, liveOperations] = await Promise.all([
-        client
-          .from("methodMaterial")
-          .select("*")
-          .eq("makeMethodId", makeMethodId)
-          .eq("companyId", companyId)
-          .order("order", { ascending: true }),
-        client
-          .from("methodOperation")
-          .select("*")
-          .eq("makeMethodId", makeMethodId)
-          .eq("companyId", companyId)
-          .order("order", { ascending: true })
-      ]);
-      if (liveMaterials.error)
-        return {
-          data: { items: [], supersessions: [] },
-          error: liveMaterials.error
-        };
-      if (liveOperations.error)
-        return {
-          data: { items: [], supersessions: [] },
-          error: liveOperations.error
-        };
-      baseMaterials = (liveMaterials.data ?? []) as Row[];
-      baseOperations = (liveOperations.data ?? []) as Row[];
-
-      // Live operation children (steps/parameters/tools) for every base
-      // operation, fetched in one query per child table and bucketed by
-      // operationId. Flat selects scoped by companyId — no PostgREST embeds.
-      const operationIds = baseOperations
-        .map((o) => o.id)
-        .filter((id): id is string => typeof id === "string");
-      if (operationIds.length > 0) {
-        const [liveSteps, liveParameters, liveTools] = await Promise.all([
-          client
-            .from("methodOperationStep")
-            .select("*")
-            .in("operationId", operationIds)
-            .eq("companyId", companyId),
-          client
-            .from("methodOperationParameter")
-            .select("*")
-            .in("operationId", operationIds)
-            .eq("companyId", companyId),
-          client
-            .from("methodOperationTool")
-            .select("*")
-            .in("operationId", operationIds)
-            .eq("companyId", companyId)
-        ]);
-        if (liveSteps.error)
-          return {
-            data: { items: [], supersessions: [] },
-            error: liveSteps.error
-          };
-        if (liveParameters.error)
-          return {
-            data: { items: [], supersessions: [] },
-            error: liveParameters.error
-          };
-        if (liveTools.error)
-          return {
-            data: { items: [], supersessions: [] },
-            error: liveTools.error
-          };
-        for (const id of operationIds)
-          baseOperationChildren[id] = {
-            steps: [],
-            parameters: [],
-            tools: []
-          };
-        for (const row of (liveSteps.data ?? []) as Row[]) {
-          const opId = row.operationId;
-          if (typeof opId === "string")
-            baseOperationChildren[opId]?.steps.push(row);
-        }
-        for (const row of (liveParameters.data ?? []) as Row[]) {
-          const opId = row.operationId;
-          if (typeof opId === "string")
-            baseOperationChildren[opId]?.parameters.push(row);
-        }
-        for (const row of (liveTools.data ?? []) as Row[]) {
-          const opId = row.operationId;
-          if (typeof opId === "string")
-            baseOperationChildren[opId]?.tools.push(row);
-        }
-      }
-    }
-
-    // Staged end-state (the diff target). Materials via the shared staging read;
-    // operations + attributes read flat here.
-    const stagedMaterials = await getChangeOrderStagedMaterials(
+    const base = await readMethodRows(
       client,
-      affectedItem.id,
+      affectedItem.baseMakeMethodId,
       companyId
     );
-    if (stagedMaterials.error)
-      return {
-        data: { items: [], supersessions: [] },
-        error: stagedMaterials.error
-      };
+    if (base.error)
+      return { data: { items: [], supersessions: [] }, error: base.error };
+    const target = await readMethodRows(
+      client,
+      affectedItem.draftMakeMethodId,
+      companyId
+    );
+    if (target.error)
+      return { data: { items: [], supersessions: [] }, error: target.error };
 
-    const [stagedOperations, stagedAttributes, liveAttributes] =
-      await Promise.all([
-        client
-          .from("changeOrderStagedOperation")
-          .select("*")
-          .eq("affectedItemId", affectedItem.id)
-          .eq("companyId", companyId)
-          .order("order", { ascending: true }),
-        client
-          .from("changeOrderStagedItemAttributes")
-          .select("*")
-          .eq("affectedItemId", affectedItem.id)
-          .eq("companyId", companyId)
-          .maybeSingle(),
-        // The live item's editable attributes form the attribute-diff base.
-        client
-          .from("item")
-          .select(
-            "name, description, unitOfMeasureCode, itemTrackingType, defaultMethodType, replenishmentSystem, sourcingType, requiresInspection, thumbnailPath"
-          )
-          .eq("id", affectedItem.itemId)
-          .eq("companyId", companyId)
-          .maybeSingle()
-      ]);
-    if (stagedOperations.error)
-      return {
-        data: { items: [], supersessions: [] },
-        error: stagedOperations.error
-      };
-    if (stagedAttributes.error)
-      return {
-        data: { items: [], supersessions: [] },
-        error: stagedAttributes.error
-      };
-    if (liveAttributes.error)
-      return {
-        data: { items: [], supersessions: [] },
-        error: liveAttributes.error
-      };
-
-    // Staged operation children (steps/parameters/tools) for every staged
-    // operation, bucketed by staged operation id. Uses the shared combined
-    // staging read per operation.
-    const targetOperations = (stagedOperations.data ?? []) as Row[];
-    const targetOperationChildren: ChildrenByOperationId = {};
-    for (const op of targetOperations) {
-      const opId = op.id;
-      if (typeof opId !== "string") continue;
-      const children = await getChangeOrderStagedOperationChildren(
-        client,
-        opId,
-        companyId
-      );
-      if (children.error)
-        return {
-          data: { items: [], supersessions: [] },
-          error: children.error
-        };
-      targetOperationChildren[opId] = {
-        steps: (children.data.steps ?? []) as Row[],
-        parameters: (children.data.parameters ?? []) as Row[],
-        tools: (children.data.tools ?? []) as Row[]
-      };
+    // Reconstruct source pointers by natural key.
+    correlate(base.materials, target.materials, "itemId", MATERIAL_SOURCE_KEY);
+    correlate(
+      base.operations,
+      target.operations,
+      "order",
+      OPERATION_SOURCE_KEY
+    );
+    for (const top of target.operations) {
+      const baseOpId = top[OPERATION_SOURCE_KEY];
+      const topId = top.id;
+      if (typeof baseOpId !== "string" || typeof topId !== "string") continue;
+      const bKids = base.children[baseOpId];
+      const tKids = target.children[topId];
+      if (!bKids || !tKids) continue;
+      correlate(bKids.steps, tKids.steps, "name", CHILD_SOURCE_KEY);
+      correlate(bKids.parameters, tKids.parameters, "key", CHILD_SOURCE_KEY);
+      correlate(bKids.tools, tKids.tools, "toolId", CHILD_SOURCE_KEY);
     }
 
+    // Attribute diff: base = source item columns; target = the draft item's
+    // columns. For a Version the draft is on the same item, so there is no
+    // attribute change (Q2) and both sides read the same row.
+    const draftItemId = affectedItem.newItemId ?? affectedItem.itemId;
+    const baseAttributes = await readItemAttributes(
+      client,
+      affectedItem.itemId,
+      companyId
+    );
+    const targetAttributes =
+      draftItemId === affectedItem.itemId
+        ? baseAttributes
+        : await readItemAttributes(client, draftItemId, companyId);
+
     const diff = diffMethod({
-      baseMaterials,
-      targetMaterials: stagedMaterials.data as unknown as Row[],
-      baseOperations,
-      targetOperations,
-      baseAttributes: (liveAttributes.data ?? null) as Row | null,
-      targetAttributes: (stagedAttributes.data ?? null) as Row | null,
-      baseOperationChildren,
-      targetOperationChildren
+      baseMaterials: base.materials,
+      targetMaterials: target.materials,
+      baseOperations: base.operations,
+      targetOperations: target.operations,
+      baseAttributes,
+      targetAttributes,
+      baseOperationChildren: base.children,
+      targetOperationChildren: target.children
     });
 
     items.push({
@@ -571,7 +563,6 @@ export async function getChangeOrderDiff(
     });
   }
 
-  // Manual different-part supersession declarations for the whole change order.
   const supersessions = await client
     .from("changeOrderSupersession")
     .select("*")

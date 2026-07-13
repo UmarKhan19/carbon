@@ -1,6 +1,7 @@
 import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import type { JSONContent } from "@carbon/react";
 import { VStack } from "@carbon/react";
 import { msg } from "@lingui/core/macro";
 import type { LoaderFunctionArgs } from "react-router";
@@ -11,19 +12,24 @@ import {
   getChangeOrderAffectedItems,
   getChangeOrderDiff,
   getChangeOrderImpact,
-  getChangeOrderStagedItemAttributes,
-  getChangeOrderStagedMaterials,
-  getChangeOrderStagedOperationChildren,
-  getChangeOrderStagedOperations,
   getChangeOrderSupersessions,
-  getChangeOrderTypesList
+  getChangeOrderTypesList,
+  getConfigurationParameters,
+  getConfigurationRules,
+  getItemManufacturing,
+  getMakeMethodById,
+  getMethodMaterialsByMakeMethod,
+  getMethodOperationsByMakeMethodId
 } from "~/modules/items";
-import type { AffectedItemStaging } from "~/modules/items/ui/ChangeOrder";
+import { getRevisionLock } from "~/modules/items/items.server";
+import type { AffectedItemDraft } from "~/modules/items/ui/ChangeOrder";
 import {
   ChangeOrderHeader,
   ChangeOrderProperties
 } from "~/modules/items/ui/ChangeOrder";
 import { getIssue, getIssues } from "~/modules/quality";
+import type { MethodItemType, MethodType } from "~/modules/shared";
+import { getTagsList } from "~/modules/shared";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
@@ -84,60 +90,102 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     (diff.data?.items ?? []).map((entry) => [entry.affectedItemId, entry])
   );
 
-  // Per affected item: load its staged BOM/BOP/attributes + the source item's
-  // current editable attributes (the "old" side of the redline). Flat reads +
-  // JS stitch (no composite-FK embeds — the erp TS2589 budget).
-  const affectedItems: AffectedItemStaging[] = await Promise.all(
+  // Per affected item: load its CO-owned Draft make method's real rows shaped
+  // exactly as the embedded BillOfMaterial / BillOfProcess editors expect (same
+  // assembly as x+/part+/$itemId.make.$makeMethodId). The draft lives on the
+  // same item for a Version, or on the new item (newItemId) for Revision/New Part.
+  const affectedItems: AffectedItemDraft[] = await Promise.all(
     affectedRows.map(async (affectedItem) => {
-      const [materials, operations, attributes, source] = await Promise.all([
-        getChangeOrderStagedMaterials(client, affectedItem.id, companyId),
-        getChangeOrderStagedOperations(client, affectedItem.id, companyId),
-        getChangeOrderStagedItemAttributes(client, affectedItem.id, companyId),
-        client
-          .from("item")
-          .select(
-            "name, description, unitOfMeasureCode, itemTrackingType, defaultMethodType, replenishmentSystem, sourcingType, requiresInspection, thumbnailPath, modelUploadId"
-          )
-          .eq("id", affectedItem.itemId)
-          .eq("companyId", companyId)
-          .maybeSingle()
+      const draftItemId = affectedItem.newItemId ?? affectedItem.itemId;
+      const draftMakeMethodId = affectedItem.draftMakeMethodId;
+
+      if (!draftMakeMethodId) {
+        return {
+          affectedItem,
+          draftItemId,
+          makeMethod: null,
+          methodMaterials: [],
+          methodOperations: [],
+          tags: [],
+          configurable: false,
+          configurationRules: [],
+          parameters: [],
+          replenishmentSystem: undefined,
+          revisionStatus: null,
+          releaseControl: null,
+          diff: diffByAffectedId.get(affectedItem.id)
+        };
+      }
+
+      const [
+        makeMethod,
+        methodMaterials,
+        methodOperations,
+        tags,
+        manufacturing,
+        revisionLock
+      ] = await Promise.all([
+        getMakeMethodById(client, draftMakeMethodId, companyId),
+        getMethodMaterialsByMakeMethod(client, draftMakeMethodId),
+        getMethodOperationsByMakeMethodId(client, draftMakeMethodId),
+        getTagsList(client, companyId, "operation"),
+        getItemManufacturing(client, draftItemId, companyId),
+        getRevisionLock(client, { itemId: draftItemId, companyId })
       ]);
 
-      // Staged BOP operation children (steps/params/tools) per staged operation,
-      // keyed by staged operation id — so existing children render in the editor,
-      // not just the add-forms. Flat reads + JS stitch (TS2589 budget).
-      const operationRows = operations.data ?? [];
-      const childrenEntries = await Promise.all(
-        operationRows.map(async (operation) => {
-          const children = await getChangeOrderStagedOperationChildren(
-            client,
-            operation.id,
-            companyId
-          );
-          return [operation.id, children.data] as const;
-        })
-      );
-      const operationChildren = Object.fromEntries(childrenEntries);
+      const config = manufacturing.data?.requiresConfiguration
+        ? {
+            parameters: (
+              await getConfigurationParameters(client, draftItemId, companyId)
+            ).parameters,
+            configurationRules: await getConfigurationRules(
+              client,
+              draftItemId,
+              companyId
+            )
+          }
+        : {
+            parameters: [] as Awaited<
+              ReturnType<typeof getConfigurationParameters>
+            >["parameters"],
+            configurationRules: [] as Awaited<
+              ReturnType<typeof getConfigurationRules>
+            >
+          };
 
       return {
         affectedItem,
-        materials: materials.data ?? [],
-        operations: operationRows,
-        operationChildren,
-        attributes: attributes.data ?? null,
-        source: {
-          itemId: affectedItem.itemId,
-          name: source.data?.name ?? null,
-          description: source.data?.description ?? null,
-          unitOfMeasureCode: source.data?.unitOfMeasureCode ?? null,
-          itemTrackingType: source.data?.itemTrackingType ?? null,
-          defaultMethodType: source.data?.defaultMethodType ?? null,
-          replenishmentSystem: source.data?.replenishmentSystem ?? null,
-          sourcingType: source.data?.sourcingType ?? null,
-          requiresInspection: source.data?.requiresInspection ?? null,
-          thumbnailPath: source.data?.thumbnailPath ?? null,
-          modelId: source.data?.modelUploadId ?? null
-        },
+        draftItemId,
+        makeMethod: makeMethod.data ?? null,
+        methodMaterials:
+          methodMaterials.data?.map((m) => ({
+            ...m,
+            description: m.item?.name ?? "",
+            methodOperationId: m.methodOperationId ?? undefined,
+            methodType: m.methodType as MethodType,
+            itemType: m.itemType as MethodItemType
+          })) ?? [],
+        methodOperations:
+          methodOperations.data?.map((operation) => ({
+            ...operation,
+            description: operation.description ?? "",
+            procedureId: operation.procedureId ?? undefined,
+            operationSupplierProcessId:
+              operation.operationSupplierProcessId ?? undefined,
+            operationMinimumCost: operation.operationMinimumCost ?? 0,
+            operationLeadTime: operation.operationLeadTime ?? 0,
+            operationUnitCost: operation.operationUnitCost ?? 0,
+            tags: operation.tags ?? [],
+            workCenterId: operation.workCenterId ?? undefined,
+            workInstruction: operation.workInstruction as JSONContent | null
+          })) ?? [],
+        tags: tags.data ?? [],
+        configurable: manufacturing.data?.requiresConfiguration ?? false,
+        configurationRules: config.configurationRules,
+        parameters: config.parameters,
+        replenishmentSystem: undefined as string | undefined,
+        revisionStatus: revisionLock.revisionStatus,
+        releaseControl: revisionLock.releaseControl,
         diff: diffByAffectedId.get(affectedItem.id)
       };
     })

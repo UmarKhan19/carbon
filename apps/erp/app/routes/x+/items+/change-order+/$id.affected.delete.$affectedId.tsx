@@ -7,14 +7,18 @@ import { removeChangeOrderAffectedItem } from "~/modules/items";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client } = await requirePermissions(request, {
+  const { client, companyId } = await requirePermissions(request, {
     delete: "parts"
   });
 
   const { affectedId } = params;
   if (!affectedId) throw new Error("Could not find affectedId");
 
-  const remove = await removeChangeOrderAffectedItem(client, affectedId);
+  const remove = await removeChangeOrderAffectedItem(
+    client,
+    affectedId,
+    companyId
+  );
 
   if (remove.error) {
     return data(

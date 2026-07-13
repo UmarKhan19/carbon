@@ -14,7 +14,7 @@ import { useFetcher } from "react-router";
 import { DatePicker, Hidden, Item, Select, Submit } from "~/components/Form";
 import { path } from "~/utils/path";
 import { changeOrderSupersessionValidator } from "../../changeOrder.models";
-import type { ChangeOrderSupersessionWithLabels } from "../../changeOrder.staging";
+import type { ChangeOrderSupersessionWithLabels } from "../../changeOrder.service";
 import { supersessionModes } from "../../items.models";
 import ItemLink from "./ItemLink";
 

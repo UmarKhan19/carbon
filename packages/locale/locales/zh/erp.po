@@ -300,6 +300,9 @@ msgstr "报价行包含特定零件的定价和交货期"
 msgid "A reusable, versioned set of work instructions attached to a process, giving an operation its ordered steps to record and check plus the parameters it runs at."
 msgstr "一套可重复使用的、版本化的工作说明，附加到流程中，为操作提供有序的步骤以记录和检查，以及它运行的参数。"
 
+msgid "A Revision changes part data / documentation only (no BoM/BoP). Edit the new revision's attributes and files on its part page; it stays hidden until this change order is released."
+msgstr ""
+
 msgid "A routing step on a released job, the job's own copy of an operation, carrying a status the floor drives from Todo through Done."
 msgstr "一个已发布工作的路由步骤，该工作自己的操作副本，携带一个状态，该状态由车间从待办事项驱动到完成。"
 
@@ -624,9 +627,6 @@ msgstr "添加行"
 msgid "Add Line Item"
 msgstr "添加行项目"
 
-msgid "Add material"
-msgstr ""
-
 msgid "Add Note"
 msgstr "添加备注"
 
@@ -701,9 +701,6 @@ msgstr "添加工时卡"
 
 msgid "Add to stock for future use"
 msgstr "添加到库存以供将来使用"
-
-msgid "Add Tool"
-msgstr ""
 
 #. placeholder {0}: copy.noun
 msgid "Add your first {0}"
@@ -2065,6 +2062,9 @@ msgstr "更改状态"
 msgid "Change the item type (e.g. Part, Material, Tool, etc.)"
 msgstr "更改项目类型（例如零件、材料、工具等）"
 
+msgid "Change type"
+msgstr ""
+
 msgid "Change Type"
 msgstr "更改类型"
 
@@ -2079,6 +2079,9 @@ msgstr "更改此项将覆盖现有方法"
 
 msgid "Changing this will update the part ID"
 msgstr "更改此项将更新零件ID"
+
+msgid "Changing type resets this item's draft edits."
+msgstr ""
 
 msgid "Chart of accounts"
 msgstr "会计科目表"
@@ -7142,9 +7145,6 @@ msgstr "最大数量"
 msgid "Max Quantity"
 msgstr "最大数量"
 
-msgid "Max Value"
-msgstr ""
-
 msgid "Maximum"
 msgstr "最大值"
 
@@ -7237,9 +7237,6 @@ msgstr "迁移数据"
 
 msgid "Min Qty"
 msgstr "最小数量"
-
-msgid "Min Value"
-msgstr ""
 
 msgid "Minimum"
 msgstr "最小值"
@@ -7837,6 +7834,9 @@ msgstr "未安排休息日"
 msgid "No default attachments yet."
 msgstr "还没有默认附件。"
 
+msgid "No draft make method for this item yet."
+msgstr ""
+
 msgid "No draft versions available"
 msgstr "没有可用的草稿版本"
 
@@ -7906,9 +7906,6 @@ msgstr "没有匹配\"{query}\"的结果。请尝试不同的搜索词。"
 msgid "No matches. Type to create one."
 msgstr "无匹配项。输入内容以创建一个。"
 
-msgid "No materials staged for this item."
-msgstr ""
-
 msgid "No new notifications"
 msgstr "没有新通知"
 
@@ -7923,9 +7920,6 @@ msgstr "无删除零件的未结采购订单"
 
 msgid "No operations require picking at this location"
 msgstr "此位置不需要进行任何操作拣选"
-
-msgid "No operations staged for this item."
-msgstr ""
 
 msgid "No operators."
 msgstr "没有运算符。"
@@ -7944,9 +7938,6 @@ msgstr "没有未完成的培训"
 
 msgid "No overtime scheduled"
 msgstr "没有安排加班"
-
-msgid "No parameters."
-msgstr ""
 
 msgid "No parent sources recorded yet. Click Recalculate on the planning page to refresh attribution."
 msgstr "尚未记录任何父源。点击计划页面上的\"重新计算\"以刷新归因。"
@@ -8014,12 +8005,6 @@ msgstr "没有单一的、可信的库存或工作状态数字"
 msgid "No sorts applied to this view"
 msgstr "此视图未应用排序"
 
-msgid "No staged attributes for this item."
-msgstr ""
-
-msgid "No steps."
-msgstr ""
-
 msgid "No stock"
 msgstr "无库存"
 
@@ -8034,9 +8019,6 @@ msgstr "还没有供应商"
 
 msgid "No time entries for this week"
 msgstr "本周没有时间条目"
-
-msgid "No tools."
-msgstr ""
 
 msgid "No transactions in this period"
 msgstr "此期间无交易"
@@ -8510,9 +8492,6 @@ msgstr "已支付金额："
 
 msgid "Paid Date"
 msgstr "支付日期"
-
-msgid "Parameter"
-msgstr ""
 
 msgid "Parameters"
 msgstr "参数"
@@ -9768,35 +9747,20 @@ msgstr "从价格列表中移除"
 msgid "Remove item"
 msgstr "删除项目"
 
-msgid "Remove material"
-msgstr ""
-
-msgid "Remove operation"
-msgstr ""
-
 msgid "Remove order"
 msgstr "删除订单"
 
 msgid "Remove pair"
 msgstr "移除配对"
 
-msgid "Remove parameter"
-msgstr ""
-
 msgid "Remove sort by column"
 msgstr "删除按列排序"
-
-msgid "Remove step"
-msgstr ""
 
 msgid "Remove supersession"
 msgstr ""
 
 msgid "Remove this storage type from all referencing storage units and delete it. This cannot be undone."
 msgstr "从所有引用此存储类型的存储单元中移除它并将其删除。此操作无法撤销。"
-
-msgid "Remove tool"
-msgstr ""
 
 msgid "Removed"
 msgstr ""
@@ -11065,9 +11029,6 @@ msgstr "按排序"
 
 msgid "Sort Descending"
 msgstr "按降序排序"
-
-msgid "Sort Order"
-msgstr ""
 
 msgid "Source"
 msgstr "来源"
@@ -12490,7 +12451,7 @@ msgstr "此存储类型当前被 {usageCount} 个存储单元{0}使用。"
 msgid "This updates the theme for all users of the application"
 msgstr "这会更新应用程序所有用户的主题"
 
-msgid "This will create a new revision that supersedes the current one."
+msgid "This will create a new revision/part that supersedes the current one."
 msgstr ""
 
 msgid "This will make this version read-only and replace any material make methods with this version."
@@ -12921,9 +12882,6 @@ msgstr "在操作中报告为无法恢复的单位,带有原因 — 返工的替
 
 msgid "Unknown"
 msgstr "未知"
-
-msgid "Unknown item"
-msgstr ""
 
 msgid "unknown location"
 msgstr "未知位置"
@@ -13477,11 +13435,6 @@ msgstr "当检查入库物品的人员与收货人员相同时发出警告。"
 
 msgid "Warning"
 msgstr "警告"
-
-#. placeholder {0}: source.requiresInspection ? t`Yes` : t`No`
-#. placeholder {0}: sourceValue || "—"
-msgid "was: {0}"
-msgstr ""
 
 msgid "Watch"
 msgstr "观看"

@@ -1,5 +1,5 @@
-import type { Database } from "@carbon/database";
 import { ValidatedForm } from "@carbon/form";
+import type { JSONContent } from "@carbon/react";
 import {
   Card,
   CardContent,
@@ -13,46 +13,86 @@ import { LuPlus } from "react-icons/lu";
 import { useFetcher } from "react-router";
 import { Hidden, Item, Submit } from "~/components/Form";
 import { path } from "~/utils/path";
+import type { MethodItemType, MethodType } from "../../../shared";
 import type { ChangeOrderItemDiff } from "../../changeOrder.models";
 import { changeOrderAffectedItemValidator } from "../../changeOrder.models";
+import type { ChangeOrderAffectedItemWithLabel } from "../../changeOrder.service";
+import type { getRevisionLock } from "../../items.server";
 import type {
-  ChangeOrderAffectedItemWithLabel,
-  ChangeOrderStagedMaterialWithLabel
-} from "../../changeOrder.staging";
+  getConfigurationParameters,
+  getConfigurationRules,
+  getMethodMaterialsByMakeMethod,
+  getMethodOperationsByMakeMethodId
+} from "../../items.service";
+import type { MakeMethod } from "../../types";
 import AffectedItemCard from "./AffectedItemCard";
-import type { ChangeOrderBopChildrenData } from "./ChangeOrderBopChildren";
 
-type StagedOperation =
-  Database["public"]["Tables"]["changeOrderStagedOperation"]["Row"];
-type StagedAttributes =
-  Database["public"]["Tables"]["changeOrderStagedItemAttributes"]["Row"];
+type RevisionLock = Awaited<ReturnType<typeof getRevisionLock>>;
 
-// The live item's current editable values — the "old" side of the attribute
-// redline shown by ChangeOrderAttributesEditor.
-export type AffectedItemSourceAttributes = {
-  itemId: string;
-  name: string | null;
-  description: string | null;
-  unitOfMeasureCode: string | null;
-  itemTrackingType: string | null;
-  defaultMethodType: string | null;
-  replenishmentSystem: string | null;
-  sourcingType: string | null;
-  requiresInspection: boolean | null;
-  thumbnailPath: string | null;
-  modelId?: string | null;
+type DraftMaterial = NonNullable<
+  Awaited<ReturnType<typeof getMethodMaterialsByMakeMethod>>["data"]
+>[number];
+type DraftOperation = NonNullable<
+  Awaited<ReturnType<typeof getMethodOperationsByMakeMethodId>>["data"]
+>[number];
+type DraftConfigParameters = Awaited<
+  ReturnType<typeof getConfigurationParameters>
+>["parameters"];
+type DraftConfigRules = Awaited<ReturnType<typeof getConfigurationRules>>;
+
+// The $id loader normalizes the raw rows (adds description, coerces nullable
+// ids to undefined) exactly as the part make-method route does — these mapped
+// shapes are what the embedded editors consume.
+type DraftMaterialMapped = Omit<
+  DraftMaterial,
+  "description" | "methodOperationId" | "methodType" | "itemType"
+> & {
+  description: string;
+  methodOperationId: string | undefined;
+  methodType: MethodType;
+  itemType: MethodItemType;
+};
+type DraftOperationMapped = Omit<
+  DraftOperation,
+  | "description"
+  | "procedureId"
+  | "operationSupplierProcessId"
+  | "operationMinimumCost"
+  | "operationLeadTime"
+  | "operationUnitCost"
+  | "tags"
+  | "workCenterId"
+  | "workInstruction"
+> & {
+  description: string;
+  procedureId: string | undefined;
+  operationSupplierProcessId: string | undefined;
+  operationMinimumCost: number;
+  operationLeadTime: number;
+  operationUnitCost: number;
+  tags: string[];
+  workCenterId: string | undefined;
+  workInstruction: JSONContent | null;
 };
 
-// One affected item plus its staged method + attributes + diff — the shape the
-// $id loader assembles per affected item and the card consumes.
-export type AffectedItemStaging = {
+// v2: one affected item plus its CO-owned Draft make method (real rows shaped
+// for the embedded BillOfMaterial / BillOfProcess editors), the change type, and
+// the read-only authoring diff. The $id loader assembles this per affected item.
+export type AffectedItemDraft = {
   affectedItem: ChangeOrderAffectedItemWithLabel;
-  materials: ChangeOrderStagedMaterialWithLabel[];
-  operations: StagedOperation[];
-  // Staged BOP operation children keyed by staged operation id.
-  operationChildren: Record<string, ChangeOrderBopChildrenData>;
-  attributes: StagedAttributes | null;
-  source: AffectedItemSourceAttributes;
+  // The item the draft edits — the same item for a Version, the new item for
+  // Revision / New Part.
+  draftItemId: string;
+  makeMethod: MakeMethod | null;
+  methodMaterials: DraftMaterialMapped[];
+  methodOperations: DraftOperationMapped[];
+  tags: { name: string }[];
+  configurable: boolean;
+  configurationRules: DraftConfigRules;
+  parameters: DraftConfigParameters;
+  replenishmentSystem?: string;
+  revisionStatus: RevisionLock["revisionStatus"];
+  releaseControl: RevisionLock["releaseControl"] | null;
   diff?: ChangeOrderItemDiff;
 };
 
@@ -65,7 +105,7 @@ export default function AffectedItems({
   isDisabled
 }: {
   id: string;
-  affectedItems: AffectedItemStaging[];
+  affectedItems: AffectedItemDraft[];
   isDisabled: boolean;
 }) {
   return (

@@ -104,12 +104,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const methodTree = getMakeMethods(client, itemId, companyId).then(
     async (makeMethods) => {
+      // Exclude CO-owned drafts (changeOrderId set) — hidden until release.
+      const selectable =
+        makeMethods.data?.filter((m) => !m.changeOrderId) ?? [];
       const makeMethod = requestedMethodId
-        ? (makeMethods.data?.find((m) => m.id === requestedMethodId) ??
-          makeMethods.data?.find((m) => m.status === "Active") ??
-          makeMethods.data?.[0])
-        : (makeMethods.data?.find((m) => m.status === "Active") ??
-          makeMethods.data?.[0]);
+        ? (selectable.find((m) => m.id === requestedMethodId) ??
+          selectable.find((m) => m.status === "Active") ??
+          selectable[0])
+        : (selectable.find((m) => m.status === "Active") ?? selectable[0]);
       if (!makeMethod) return null;
 
       const fullMethod = await getMakeMethodById(

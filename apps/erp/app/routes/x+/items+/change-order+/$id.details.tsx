@@ -5,12 +5,12 @@ import { useRouteData } from "~/hooks";
 import type {
   ChangeOrder,
   ChangeOrderActionTask,
-  ChangeOrderImpactRow
+  ChangeOrderImpactRow,
+  ChangeOrderSupersessionWithLabels
 } from "~/modules/items";
 import { canEditChangeOrder } from "~/modules/items";
 import type { ChangeOrderDiff } from "~/modules/items/changeOrder.diff";
-import type { ChangeOrderSupersessionWithLabels } from "~/modules/items/changeOrder.staging";
-import type { AffectedItemStaging } from "~/modules/items/ui/ChangeOrder";
+import type { AffectedItemDraft } from "~/modules/items/ui/ChangeOrder";
 import {
   AffectedItems,
   ChangeOrderActions,
@@ -28,7 +28,7 @@ export default function ChangeOrderDetailsRoute() {
 
   const routeData = useRouteData<{
     changeOrder: ChangeOrder;
-    affectedItems: AffectedItemStaging[];
+    affectedItems: AffectedItemDraft[];
     diff: ChangeOrderDiff;
     supersessions: ChangeOrderSupersessionWithLabels[];
     actions: ChangeOrderActionTask[];

@@ -704,93 +704,9 @@ export const path = {
       generatePath(
         `${x}/items/change-order/${id}/affected/${affectedId}/cutover`
       ),
-    changeOrderStagedMaterial: (id: string, affectedId: string) =>
+    changeOrderAffectedChangeType: (id: string, affectedId: string) =>
       generatePath(
-        `${x}/items/change-order/${id}/affected/${affectedId}/material`
-      ),
-    deleteChangeOrderStagedMaterial: (
-      id: string,
-      affectedId: string,
-      materialId: string
-    ) =>
-      generatePath(
-        `${x}/items/change-order/${id}/affected/${affectedId}/material/delete/${materialId}`
-      ),
-    changeOrderStagedMaterialOrder: (id: string, affectedId: string) =>
-      generatePath(
-        `${x}/items/change-order/${id}/affected/${affectedId}/material/order`
-      ),
-    changeOrderStagedOperation: (id: string, affectedId: string) =>
-      generatePath(
-        `${x}/items/change-order/${id}/affected/${affectedId}/operation`
-      ),
-    deleteChangeOrderStagedOperation: (
-      id: string,
-      affectedId: string,
-      operationId: string
-    ) =>
-      generatePath(
-        `${x}/items/change-order/${id}/affected/${affectedId}/operation/delete/${operationId}`
-      ),
-    changeOrderStagedOperationOrder: (id: string, affectedId: string) =>
-      generatePath(
-        `${x}/items/change-order/${id}/affected/${affectedId}/operation/order`
-      ),
-    changeOrderStagedAttributes: (id: string, affectedId: string) =>
-      generatePath(
-        `${x}/items/change-order/${id}/affected/${affectedId}/attributes`
-      ),
-    // Staged operation children (Task 16) — keyed by staged operation id.
-    changeOrderStagedOperationStep: (
-      id: string,
-      affectedId: string,
-      operationId: string
-    ) =>
-      generatePath(
-        `${x}/items/change-order/${id}/affected/${affectedId}/operation/${operationId}/step`
-      ),
-    deleteChangeOrderStagedOperationStep: (
-      id: string,
-      affectedId: string,
-      operationId: string,
-      stepId: string
-    ) =>
-      generatePath(
-        `${x}/items/change-order/${id}/affected/${affectedId}/operation/${operationId}/step/delete/${stepId}`
-      ),
-    changeOrderStagedOperationParameter: (
-      id: string,
-      affectedId: string,
-      operationId: string
-    ) =>
-      generatePath(
-        `${x}/items/change-order/${id}/affected/${affectedId}/operation/${operationId}/parameter`
-      ),
-    deleteChangeOrderStagedOperationParameter: (
-      id: string,
-      affectedId: string,
-      operationId: string,
-      parameterId: string
-    ) =>
-      generatePath(
-        `${x}/items/change-order/${id}/affected/${affectedId}/operation/${operationId}/parameter/delete/${parameterId}`
-      ),
-    changeOrderStagedOperationTool: (
-      id: string,
-      affectedId: string,
-      operationId: string
-    ) =>
-      generatePath(
-        `${x}/items/change-order/${id}/affected/${affectedId}/operation/${operationId}/tool`
-      ),
-    deleteChangeOrderStagedOperationTool: (
-      id: string,
-      affectedId: string,
-      operationId: string,
-      toolId: string
-    ) =>
-      generatePath(
-        `${x}/items/change-order/${id}/affected/${affectedId}/operation/${operationId}/tool/delete/${toolId}`
+        `${x}/items/change-order/${id}/affected/${affectedId}/change-type`
       ),
     changeOrderSupersession: (id: string) =>
       generatePath(`${x}/items/change-order/${id}/supersession`),

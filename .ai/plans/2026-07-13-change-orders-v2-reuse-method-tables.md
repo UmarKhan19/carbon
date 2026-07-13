@@ -17,22 +17,28 @@
 ---
 
 ## Progress
-- [ ] Task 1: Rewrite migration `20260712151500_change-orders.sql` in place to the v2 end-state
-- [ ] Task 2: Regenerate DB types
-- [ ] Task 3: Rewrite `changeOrder.models.ts` for v2 (change type, drop staged validators)
-- [ ] Task 4: Delete v1 staging service, forked editors, and staging routes
-- [ ] Task 5: Add draft-make-method orchestration + rewrite `addChangeOrderAffectedItem` (service)
-- [ ] Task 6: Change-type selector + switch handling (service + route + models)
-- [ ] Task 7: Drop the one-open-CO-per-part guard
+- [x] Task 1: Rewrite migration `20260712151500_change-orders.sql` in place to the v2 end-state
+- [x] Task 2: Regenerate DB types
+- [x] Task 3: Rewrite `changeOrder.models.ts` for v2 (change type, drop staged validators)
+- [x] Task 4: Delete v1 staging service, forked editors, and staging routes
+- [x] Task 5: Add draft-make-method orchestration + rewrite `addChangeOrderAffectedItem` (service)
+- [x] Task 6 (service+route): change-type switch service fn + route + path helper (UI selector pending in Task 11)
+- [x] Task 7: Drop the one-open-CO-per-part guard
 - [ ] Task 8: Hide CO-owned Draft methods from version list/copy-target sites
 - [ ] Task 9: CO detail loader loads each affected item's draft method rows
 - [ ] Task 10: Parameterize `BillOfMaterial` / `BillOfProcess` for embedding (prop tweaks)
-- [ ] Task 11: Embed the editors + `PartProperties` on the CO page per change-type
-- [ ] Task 12: Build the 2-way diff/merge component (authoring view-only + release interactive)
-- [ ] Task 13: Rewrite `applyChangeOrder` to dispatch by change type at release
+- [ ] Task 11: Embed the editors + `PartProperties` on the CO page per change-type + change-type selector
+- [x] Task 12 (backend): repurpose `changeOrder.diff.ts` (draft-vs-base real methods, natural-key correlation); interactive merge UI pending
+- [x] Task 13: Rewrite `applyChangeOrder` to dispatch by change type at release (+ impact panel + reads.ts + recovered supersession/affected fns)
 - [ ] Task 14: Barrel, path helpers, and AGENTS.md sync
 - [ ] Task 15: Scoped typecheck + unit tests
 - [ ] Task 16: Browser verification via `/test`
+
+> **Checkpoint note (mid-execute):** all backend is reworked to v2 and internally consistent —
+> only the CO-detail UI (`$id.tsx` loader + `AffectedItems.tsx` + `AffectedItemCard.tsx`) still
+> references deleted forked editors, so erp does not yet typecheck-green. Nothing past the
+> schema commit (Task 1–2, `61bcbe089`) is committed yet; Tasks 3–7,12b,13 are staged in the
+> working tree pending the UI landing (no green checkpoint exists before the UI compiles).
 
 ## Dependencies
 - Task 2 needs Task 1 (types regen after migration).

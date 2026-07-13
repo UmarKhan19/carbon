@@ -160,6 +160,7 @@ type BillOfProcessProps = {
   })[];
   parameters?: ConfigurationParameter[];
   tags: { name: string }[];
+  selectedMaterialId?: string;
 } & ReleaseLockProps;
 
 type PendingWorkInstructions = {
@@ -209,6 +210,7 @@ const BillOfProcess = ({
   operations: initialOperations,
   parameters,
   tags,
+  selectedMaterialId,
   revisionStatus,
   releaseControl
 }: BillOfProcessProps) => {
@@ -817,7 +819,8 @@ const BillOfProcess = ({
     configuratorDisclosure.onOpen();
   };
 
-  const { materialId } = useParams();
+  const { materialId: paramMaterialId } = useParams();
+  const materialId = selectedMaterialId ?? paramMaterialId;
 
   const rulesByField = new Map(
     configurationRules?.map((rule) => [rule.field, rule]) ?? []

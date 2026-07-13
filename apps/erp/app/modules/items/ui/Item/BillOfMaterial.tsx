@@ -131,6 +131,7 @@ type BillOfMaterialProps = {
   parameters?: ConfigurationParameter[];
   configurationRules?: ConfigurationRule[];
   replenishmentSystem?: string;
+  parentItemId?: string;
 } & ReleaseLockProps;
 
 type OrderState = {
@@ -167,6 +168,7 @@ const BillOfMaterial = ({
   operations,
   parameters,
   replenishmentSystem,
+  parentItemId,
   revisionStatus,
   releaseControl
 }: BillOfMaterialProps) => {
@@ -477,6 +479,7 @@ const BillOfMaterial = ({
                             rulesByField={rulesByField}
                             onConfigure={onConfigure}
                             replenishmentSystem={replenishmentSystem}
+                            parentItemId={parentItemId}
                             setOrderState={setOrderState}
                             setSelectedItemId={setSelectedItemId}
                             setTemporaryItems={setTemporaryItems}
@@ -620,6 +623,7 @@ function MaterialForm({
   rulesByField,
   onConfigure,
   replenishmentSystem,
+  parentItemId: propParentItemId,
   setOrderState,
   setSelectedItemId,
   setTemporaryItems,
@@ -633,6 +637,7 @@ function MaterialForm({
   temporaryItems: TemporaryItems;
   rulesByField: Map<string, ConfigurationRule>;
   replenishmentSystem?: string;
+  parentItemId?: string;
   setSelectedItemId: Dispatch<SetStateAction<string | null>>;
   setTemporaryItems: Dispatch<SetStateAction<TemporaryItems>>;
   setOrderState: Dispatch<SetStateAction<OrderState>>;
@@ -647,6 +652,7 @@ function MaterialForm({
     message: string;
   }>();
   const params = useParams();
+  const parentItemId = propParentItemId ?? params.itemId;
   const { company, defaults } = useUser();
   const [locationId, setLocationId] = useState<string | undefined>(
     defaults.locationId ?? undefined
@@ -736,7 +742,7 @@ function MaterialForm({
 
   const onItemChange = async (itemId: string) => {
     if (!carbon) return;
-    if (itemId === params.itemId) {
+    if (itemId === parentItemId) {
       toast.error(t`An item cannot be added to itself.`);
       return;
     }
@@ -815,7 +821,7 @@ function MaterialForm({
 
       <div className="grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3">
         <Item
-          blacklist={[params.itemId!]}
+          blacklist={[parentItemId!]}
           name="itemId"
           label={itemType}
           includeInactive

@@ -5,8 +5,8 @@ import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import {
-  changeOrderStagedMaterialValidator,
-  upsertChangeOrderStagedMaterial
+  changeOrderAffectedItemChangeTypeValidator,
+  updateChangeOrderAffectedItemChangeType
 } from "~/modules/items";
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -17,31 +17,28 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const formData = await request.formData();
   const validation = await validator(
-    changeOrderStagedMaterialValidator
+    changeOrderAffectedItemChangeTypeValidator
   ).validate(formData);
 
   if (validation.error) {
     return validationError(validation.error);
   }
 
-  const upsert = await upsertChangeOrderStagedMaterial(client, {
-    ...validation.data,
+  const { id, changeType } = validation.data;
+
+  const update = await updateChangeOrderAffectedItemChangeType(client, {
+    id,
+    changeType,
     companyId,
     userId
   });
 
-  if (upsert.error || !upsert.data) {
+  if (update.error) {
     return data(
       { success: false },
-      await flash(
-        request,
-        error(
-          upsert.error,
-          upsert.error?.message ?? "Failed to save staged material"
-        )
-      )
+      await flash(request, error(update.error, "Failed to change type"))
     );
   }
 
-  return { success: true, id: upsert.data.id };
+  return { success: true, id: update.data?.id };
 }

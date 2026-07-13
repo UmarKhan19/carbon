@@ -178,7 +178,7 @@ const MakeMethodTools = ({
     if (!carbon) return;
     const { data, error } = await carbon
       .from("makeMethod")
-      .select("id, version, status")
+      .select("id, version, status, changeOrderId")
       .eq("itemId", targetItemId)
       .eq("companyId", companyId)
       .order("version", { ascending: false });
@@ -187,9 +187,10 @@ const MakeMethodTools = ({
       toast.error(error.message);
     }
 
-    // Only Draft versions can be overwritten - Active and Archived are read-only
+    // Only Draft versions can be overwritten - Active and Archived are read-only.
+    // Exclude CO-owned drafts (changeOrderId set) — hidden until release.
     const availableVersions =
-      data?.filter(({ status }) => status === "Draft") ?? [];
+      data?.filter((m) => m.status === "Draft" && !m.changeOrderId) ?? [];
 
     setTargetMakeMethods(
       availableVersions.map(({ id, version, status }) => ({

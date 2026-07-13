@@ -57,37 +57,60 @@ export async function findChangeOrdersForItem(
   const itemIds = (siblings.data ?? []).map((s) => s.id);
   if (itemIds.length === 0) return { data: [], error: null };
 
-  // Collect referencing changeOrderIds from every relation.
-  const [affected, staged, predecessors, successors] = await Promise.all([
-    client
-      .from("changeOrderAffectedItem")
-      .select("changeOrderId")
-      .in("itemId", itemIds)
-      .eq("companyId", companyId),
-    client
-      .from("changeOrderStagedMaterial")
-      .select("changeOrderId")
-      .in("itemId", itemIds)
-      .eq("companyId", companyId),
-    client
-      .from("changeOrderSupersession")
-      .select("changeOrderId")
-      .in("predecessorItemId", itemIds)
-      .eq("companyId", companyId),
-    client
-      .from("changeOrderSupersession")
-      .select("changeOrderId")
-      .in("successorItemId", itemIds)
-      .eq("companyId", companyId)
-  ]);
+  // Collect referencing changeOrderIds from every relation. v2: instead of a
+  // staged-material mirror, "this item is a component in a CO's edited BOM" is
+  // found via methodMaterial rows on CO-owned draft methods (makeMethod with a
+  // non-null changeOrderId).
+  const [affected, componentMaterials, predecessors, successors] =
+    await Promise.all([
+      client
+        .from("changeOrderAffectedItem")
+        .select("changeOrderId")
+        .in("itemId", itemIds)
+        .eq("companyId", companyId),
+      client
+        .from("methodMaterial")
+        .select("makeMethodId")
+        .in("itemId", itemIds)
+        .eq("companyId", companyId),
+      client
+        .from("changeOrderSupersession")
+        .select("changeOrderId")
+        .in("predecessorItemId", itemIds)
+        .eq("companyId", companyId),
+      client
+        .from("changeOrderSupersession")
+        .select("changeOrderId")
+        .in("successorItemId", itemIds)
+        .eq("companyId", companyId)
+    ]);
   if (affected.error) return { data: [], error: affected.error };
-  if (staged.error) return { data: [], error: staged.error };
+  if (componentMaterials.error)
+    return { data: [], error: componentMaterials.error };
   if (predecessors.error) return { data: [], error: predecessors.error };
   if (successors.error) return { data: [], error: successors.error };
 
+  // Resolve which of those make methods are CO-owned drafts.
+  const makeMethodIds = [
+    ...new Set(
+      (componentMaterials.data ?? []).map((m) => m.makeMethodId).filter(Boolean)
+    )
+  ] as string[];
+  const coOwnedMethods = makeMethodIds.length
+    ? await client
+        .from("makeMethod")
+        .select("changeOrderId")
+        .in("id", makeMethodIds)
+        .not("changeOrderId", "is", null)
+        .eq("companyId", companyId)
+    : { data: [], error: null };
+  if (coOwnedMethods.error) return { data: [], error: coOwnedMethods.error };
+
   const coIds = new Set<string>();
   for (const a of affected.data ?? []) coIds.add(a.changeOrderId);
-  for (const s of staged.data ?? []) coIds.add(s.changeOrderId);
+  for (const m of coOwnedMethods.data ?? []) {
+    if (m.changeOrderId) coIds.add(m.changeOrderId);
+  }
   for (const p of predecessors.data ?? []) coIds.add(p.changeOrderId);
   for (const s of successors.data ?? []) coIds.add(s.changeOrderId);
 

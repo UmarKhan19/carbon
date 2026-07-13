@@ -1,9 +1,5 @@
 import { ValidatedForm } from "@carbon/form";
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
   Card,
   CardContent,
   CardHeader,
@@ -17,13 +13,15 @@ import { LuTrash2 } from "react-icons/lu";
 import { useFetcher } from "react-router";
 import { DatePicker, Hidden, Select, Submit } from "~/components/Form";
 import { path } from "~/utils/path";
-import { changeOrderAffectedItemCutoverValidator } from "../../changeOrder.models";
-import type { ChangeOrderAffectedItemWithLabel } from "../../changeOrder.staging";
+import {
+  changeOrderAffectedItemChangeTypeValidator,
+  changeOrderAffectedItemCutoverValidator,
+  changeOrderChangeTypes
+} from "../../changeOrder.models";
+import type { ChangeOrderAffectedItemWithLabel } from "../../changeOrder.service";
 import { supersessionModes } from "../../items.models";
-import type { AffectedItemStaging } from "./AffectedItems";
-import ChangeOrderAttributesEditor from "./ChangeOrderAttributesEditor";
-import ChangeOrderBomEditor from "./ChangeOrderBomEditor";
-import ChangeOrderBopEditor from "./ChangeOrderBopEditor";
+import { BillOfMaterial, BillOfProcess } from "../Item";
+import type { AffectedItemDraft } from "./AffectedItems";
 import ItemLink from "./ItemLink";
 
 const supersessionModeOptions = supersessionModes.map((m) => ({
@@ -31,23 +29,34 @@ const supersessionModeOptions = supersessionModes.map((m) => ({
   label: m
 }));
 
+const changeTypeOptions = changeOrderChangeTypes.map((c) => ({
+  value: c,
+  label: c
+}));
+
 // One expandable card per affected item: header (item link + remove), the
-// per-item revision cutover control, and an expander revealing the staged
-// BOM / BOP / attributes editors.
+// per-item change-type selector (Version / Revision / New Part), the cutover
+// control (for Revision / New Part), and the embedded real BillOfMaterial /
+// BillOfProcess editors pointed at the affected item's CO-owned Draft method.
 export default function AffectedItemCard({
   changeOrderId,
   affected,
   isDisabled
 }: {
   changeOrderId: string;
-  affected: AffectedItemStaging;
+  affected: AffectedItemDraft;
   isDisabled: boolean;
 }) {
   const { t } = useLingui();
   const removeFetcher = useFetcher<{ success: boolean }>();
 
-  const affectedItem: ChangeOrderAffectedItemWithLabel = affected.affectedItem;
+  const affectedItem = affected.affectedItem;
   const label = affectedItem.item;
+  const changeType = affectedItem.changeType;
+  // Q2 capability matrix: Version = BoM/BoP only; Revision = attrs/docs only (no
+  // BoM/BoP); New Part = both. Version has no supersession (same item).
+  const showBomBop = changeType === "Version" || changeType === "New Part";
+  const showCutover = changeType !== "Version";
 
   return (
     <Card className="w-full">
@@ -89,68 +98,115 @@ export default function AffectedItemCard({
       </HStack>
       <CardContent>
         <VStack spacing={4}>
-          <CutoverControl
+          <ChangeTypeControl
             changeOrderId={changeOrderId}
             affected={affectedItem}
             isDisabled={isDisabled}
           />
 
-          <Accordion type="multiple" className="w-full">
-            <AccordionItem value="bom">
-              <AccordionTrigger>
-                <Trans>Bill of Material</Trans>
-              </AccordionTrigger>
-              <AccordionContent>
-                <ChangeOrderBomEditor
-                  changeOrderId={changeOrderId}
-                  affectedId={affectedItem.id}
-                  materials={affected.materials}
-                  diff={affected.diff?.materials}
-                  isDisabled={isDisabled}
-                />
-              </AccordionContent>
-            </AccordionItem>
+          {showCutover && (
+            <CutoverControl
+              changeOrderId={changeOrderId}
+              affected={affectedItem}
+              isDisabled={isDisabled}
+            />
+          )}
 
-            <AccordionItem value="bop">
-              <AccordionTrigger>
-                <Trans>Bill of Process</Trans>
-              </AccordionTrigger>
-              <AccordionContent>
-                <ChangeOrderBopEditor
-                  changeOrderId={changeOrderId}
-                  affectedId={affectedItem.id}
-                  operations={affected.operations}
-                  children={affected.operationChildren}
-                  diff={affected.diff?.operations}
-                  isDisabled={isDisabled}
-                />
-              </AccordionContent>
-            </AccordionItem>
+          {changeType === "Revision" && (
+            <p className="text-sm text-muted-foreground py-2">
+              <Trans>
+                A Revision changes part data / documentation only (no BoM/BoP).
+                Edit the new revision's attributes and files on its part page;
+                it stays hidden until this change order is released.
+              </Trans>
+            </p>
+          )}
 
-            <AccordionItem value="attributes">
-              <AccordionTrigger>
-                <Trans>Attributes</Trans>
-              </AccordionTrigger>
-              <AccordionContent>
-                {affected.attributes ? (
-                  <ChangeOrderAttributesEditor
-                    changeOrderId={changeOrderId}
-                    affectedId={affectedItem.id}
-                    staged={affected.attributes}
-                    source={affected.source}
-                    isDisabled={isDisabled}
-                  />
-                ) : (
-                  <p className="text-sm text-muted-foreground py-2">
-                    <Trans>No staged attributes for this item.</Trans>
-                  </p>
-                )}
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
+          {showBomBop &&
+            (affected.makeMethod ? (
+              <VStack spacing={2} className="w-full">
+                <BillOfMaterial
+                  key={`bom:${affected.makeMethod.id}`}
+                  makeMethod={affected.makeMethod}
+                  parentItemId={affected.draftItemId}
+                  // @ts-expect-error mapped loader shape (mirrors the part route)
+                  materials={affected.methodMaterials}
+                  operations={affected.methodOperations}
+                  configurable={affected.configurable}
+                  configurationRules={affected.configurationRules}
+                  parameters={affected.parameters}
+                  replenishmentSystem={affected.replenishmentSystem}
+                  revisionStatus={affected.revisionStatus}
+                  releaseControl={affected.releaseControl ?? undefined}
+                />
+                <BillOfProcess
+                  key={`bop:${affected.makeMethod.id}`}
+                  makeMethod={affected.makeMethod}
+                  materials={affected.methodMaterials}
+                  // @ts-expect-error mapped loader shape (mirrors the part route)
+                  operations={affected.methodOperations}
+                  configurable={affected.configurable}
+                  configurationRules={affected.configurationRules}
+                  parameters={affected.parameters}
+                  tags={affected.tags}
+                  revisionStatus={affected.revisionStatus}
+                  releaseControl={affected.releaseControl ?? undefined}
+                />
+              </VStack>
+            ) : (
+              <p className="text-sm text-muted-foreground py-2">
+                <Trans>No draft make method for this item yet.</Trans>
+              </p>
+            ))}
         </VStack>
       </CardContent>
     </Card>
+  );
+}
+
+// Per-affected-item change-type selector. Switching rebuilds the CO-owned Draft
+// for the new type (edits reset — Q2). Explicit Apply avoids accidental resets.
+function ChangeTypeControl({
+  changeOrderId,
+  affected,
+  isDisabled
+}: {
+  changeOrderId: string;
+  affected: ChangeOrderAffectedItemWithLabel;
+  isDisabled: boolean;
+}) {
+  const { t } = useLingui();
+  const fetcher = useFetcher<{ success: boolean }>();
+
+  return (
+    <ValidatedForm
+      fetcher={fetcher}
+      method="post"
+      action={path.to.changeOrderAffectedChangeType(changeOrderId, affected.id)}
+      validator={changeOrderAffectedItemChangeTypeValidator}
+      defaultValues={{ id: affected.id, changeType: affected.changeType }}
+      className="w-full"
+    >
+      <Hidden name="id" value={affected.id} />
+      <HStack className="w-full items-end gap-2">
+        <div className="w-52">
+          <Select
+            name="changeType"
+            label={t`Change type`}
+            options={changeTypeOptions}
+            isReadOnly={isDisabled}
+          />
+        </div>
+        {!isDisabled && (
+          <Submit isDisabled={fetcher.state !== "idle"}>
+            <Trans>Apply</Trans>
+          </Submit>
+        )}
+        <span className="text-xs text-muted-foreground pb-2">
+          <Trans>Changing type resets this item's draft edits.</Trans>
+        </span>
+      </HStack>
+    </ValidatedForm>
   );
 }
 
@@ -184,7 +240,8 @@ function CutoverControl({
       <VStack spacing={2}>
         <p className="text-xs text-muted-foreground">
           <Trans>
-            This will create a new revision that supersedes the current one.
+            This will create a new revision/part that supersedes the current
+            one.
           </Trans>
         </p>
         <HStack className="w-full items-end gap-2 flex-wrap">

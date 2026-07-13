@@ -1,15 +1,26 @@
 import type { Database, Json } from "@carbon/database";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { z } from "zod";
 import type { GenericQueryFilters } from "~/utils/query";
 import { setGenericQueryFilters } from "~/utils/query";
 import { sanitize } from "~/utils/supabase";
 import type { nonConformancePriority } from "../quality/quality.models";
 import type {
+  ChangeOrderChangeType,
   ChangeOrderError,
   changeOrderStatus,
+  changeOrderSupersessionValidator,
   changeOrderType
 } from "./changeOrder.models";
 import { isAllowedChangeOrderTransition } from "./changeOrder.models";
+import {
+  copyItem,
+  copyMakeMethod,
+  createRevision,
+  getItem,
+  getNextRevision,
+  upsertMakeMethodVersion
+} from "./items.service";
 
 // =============================================================================
 // Change Orders — header CRUD, stage transitions, list, and CO Types config.
@@ -517,6 +528,683 @@ export async function mintPlaceholderPart(
 }
 
 // =============================================================================
+// v2 — CO-owned Draft make-method orchestration (affected items).
+//
+// A CO's edits for one affected item live on a REAL Draft makeMethod owned by
+// the CO (makeMethod.changeOrderId set) and hidden from version lists until
+// release. Creating an affected item spins that draft per the change type:
+//   Version  → new Draft method version on the SAME item (BoM/BoP edits).
+//   Revision → new inactive revision item + its Draft method (attrs/docs).
+//   New Part → new inactive part number (new readableId) + copied Draft method.
+// All three keep the user client (the release path uses the same client for the
+// same privileged method helpers — see applyChangeOrder / changeOrder.server).
+// =============================================================================
+
+// Mirror of the numeric branch of useNextItemId (collision-free in the numeric
+// readableId space). get_next_numeric_sequence returns the current MAX numeric
+// readableId for the type; we increment + zero-pad to its width. Prefix-based
+// company numbering is not derived server-side (a known simplification).
+async function getNextNumericItemId(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  itemType: Database["public"]["Enums"]["itemType"]
+): Promise<string> {
+  const maxId = await client.rpc("get_next_numeric_sequence", {
+    company_id: companyId,
+    item_type: itemType
+  });
+  const current = maxId.data;
+  if (!current || !/^\d+$/.test(current)) {
+    return (1).toString().padStart(9, "0");
+  }
+  return (parseInt(current, 10) + 1).toString().padStart(current.length, "0");
+}
+
+// Resolve the current Active make method id for an item (the base the draft is
+// copied from + the merge base at release). Falls back to the highest version.
+async function getActiveMakeMethodId(
+  client: SupabaseClient<Database>,
+  itemId: string,
+  companyId: string
+): Promise<{ id: string; version: number } | null> {
+  const methods = await client
+    .from("makeMethod")
+    .select("id, version, status")
+    .eq("itemId", itemId)
+    .eq("companyId", companyId)
+    .order("version", { ascending: false });
+  const rows = methods.data ?? [];
+  if (rows.length === 0) return null;
+  const active = rows.find((r) => r.status === "Active");
+  const chosen = active ?? rows[0];
+  return { id: chosen.id, version: chosen.version ?? 1 };
+}
+
+// Fetch the (single) Draft make method for a freshly-created item — the trigger
+// creates one and createRevision/copyItem populate it.
+async function getDraftMakeMethodIdForItem(
+  client: SupabaseClient<Database>,
+  itemId: string,
+  companyId: string
+): Promise<string | null> {
+  const draft = await client
+    .from("makeMethod")
+    .select("id")
+    .eq("itemId", itemId)
+    .eq("companyId", companyId)
+    .eq("status", "Draft")
+    .order("version", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return draft.data?.id ?? null;
+}
+
+type DraftMethodResult = {
+  data: {
+    draftMakeMethodId: string | null;
+    baseMakeMethodId: string | null;
+    newItemId: string | null;
+  } | null;
+  error: ChangeOrderError | null;
+};
+
+// Create the CO-owned Draft make method for an affected item per its change type.
+export async function createChangeOrderDraftMethod(
+  client: SupabaseClient<Database>,
+  input: {
+    changeOrderId: string;
+    itemId: string;
+    changeType: ChangeOrderChangeType;
+    companyId: string;
+    userId: string;
+  }
+): Promise<DraftMethodResult> {
+  const { changeOrderId, itemId, changeType, companyId, userId } = input;
+
+  const base = await getActiveMakeMethodId(client, itemId, companyId);
+
+  if (changeType === "Version") {
+    if (!base) {
+      return {
+        data: null,
+        error: { message: "Item has no make method to version" }
+      };
+    }
+    // New Draft version on the same item, then copy the BoM/BoP rows (the
+    // canonical new-version flow: header insert + copyMakeMethod).
+    const created = await upsertMakeMethodVersion(client, {
+      copyFromId: base.id,
+      version: base.version + 1,
+      companyId,
+      createdBy: userId
+    });
+    if (created.error || !created.data) {
+      return { data: null, error: created.error };
+    }
+    const draftId = created.data.id;
+    // @ts-expect-error TS2345 - getMethodValidator flags default via edge fn
+    const copy = await copyMakeMethod(client, {
+      sourceId: base.id,
+      targetId: draftId,
+      companyId,
+      userId
+    });
+    if (copy.error) {
+      return { data: null, error: { message: "Failed to copy make method" } };
+    }
+    const stamp = await client
+      .from("makeMethod")
+      .update({ changeOrderId })
+      .eq("id", draftId)
+      .eq("companyId", companyId);
+    if (stamp.error) return { data: null, error: stamp.error };
+    return {
+      data: {
+        draftMakeMethodId: draftId,
+        baseMakeMethodId: base.id,
+        newItemId: null
+      },
+      error: null
+    };
+  }
+
+  if (changeType === "Revision") {
+    const source = await getItem(client, itemId);
+    if (source.error || !source.data) {
+      return { data: null, error: { message: "Item not found" } };
+    }
+    // Next revision string across the item's readableId siblings.
+    const siblings = await client
+      .from("item")
+      .select("revision")
+      .eq("readableId", source.data.readableId)
+      .eq("companyId", companyId)
+      .eq("type", source.data.type)
+      .order("revision", { ascending: false });
+    const maxRevision = siblings.data?.[0]?.revision ?? "0";
+    const nextRevision = getNextRevision(maxRevision);
+
+    const revision = await createRevision(client, {
+      item: source.data,
+      revision: nextRevision,
+      createdBy: userId,
+      active: false
+    });
+    if (revision.error || !revision.data) {
+      return { data: null, error: revision.error };
+    }
+    const newItemId = revision.data.id;
+    const draftId = await getDraftMakeMethodIdForItem(
+      client,
+      newItemId,
+      companyId
+    );
+    const stampItem = await client
+      .from("item")
+      .update({ changeOrderId })
+      .eq("id", newItemId)
+      .eq("companyId", companyId);
+    if (stampItem.error) return { data: null, error: stampItem.error };
+    if (draftId) {
+      await client
+        .from("makeMethod")
+        .update({ changeOrderId })
+        .eq("id", draftId)
+        .eq("companyId", companyId);
+    }
+    return {
+      data: {
+        draftMakeMethodId: draftId,
+        baseMakeMethodId: base?.id ?? null,
+        newItemId
+      },
+      error: null
+    };
+  }
+
+  // New Part — a new part number derived from + (at release) superseding the
+  // affected part. ECO scope is Parts + Tools (Materials/Consumables/Services
+  // excluded); reject other types rather than mint a malformed row.
+  const source = await getItem(client, itemId);
+  if (source.error || !source.data) {
+    return { data: null, error: { message: "Item not found" } };
+  }
+  if (source.data.type !== "Part" && source.data.type !== "Tool") {
+    return {
+      data: null,
+      error: {
+        message: `New Part is only supported for Parts and Tools (got ${source.data.type})`
+      }
+    };
+  }
+  const newReadableId = await getNextNumericItemId(
+    client,
+    companyId,
+    source.data.type
+  );
+  const newItem = await client
+    .from("item")
+    .insert({
+      readableId: newReadableId,
+      revision: "0",
+      name: source.data.name,
+      type: source.data.type,
+      replenishmentSystem: source.data.replenishmentSystem,
+      defaultMethodType: source.data.defaultMethodType,
+      itemTrackingType: source.data.itemTrackingType,
+      unitOfMeasureCode: source.data.unitOfMeasureCode,
+      active: false,
+      revisionStatus: "Design",
+      changeOrderId,
+      companyId,
+      createdBy: userId
+    })
+    .select("id")
+    .single();
+  if (newItem.error || !newItem.data) {
+    return { data: null, error: newItem.error };
+  }
+  const newItemId = newItem.data.id;
+  const typeTable = source.data.type === "Part" ? "part" : "tool";
+  const typeRow = await client
+    .from(typeTable)
+    .insert({ id: newReadableId, companyId, createdBy: userId });
+  if (typeRow.error) return { data: null, error: typeRow.error };
+
+  // Copy the affected part's method into the new item's (trigger-created) draft.
+  // @ts-expect-error TS2345 - getMethodValidator flags default via edge fn
+  const copy = await copyItem(client, {
+    sourceId: itemId,
+    targetId: newItemId,
+    companyId,
+    userId
+  });
+  if (copy.error) {
+    return { data: null, error: { message: "Failed to copy make method" } };
+  }
+  const draftId = await getDraftMakeMethodIdForItem(
+    client,
+    newItemId,
+    companyId
+  );
+  if (draftId) {
+    await client
+      .from("makeMethod")
+      .update({ changeOrderId })
+      .eq("id", draftId)
+      .eq("companyId", companyId);
+  }
+  return {
+    data: {
+      draftMakeMethodId: draftId,
+      baseMakeMethodId: base?.id ?? null,
+      newItemId
+    },
+    error: null
+  };
+}
+
+// Discard an affected item's CO-owned Draft (used on change-type switch + when
+// removing the affected item). Deletes the new item for Revision/New Part
+// (cascades its method rows) or the Draft method for Version.
+async function discardChangeOrderDraft(
+  client: SupabaseClient<Database>,
+  affected: {
+    draftMakeMethodId: string | null;
+    newItemId: string | null;
+  },
+  companyId: string
+): Promise<void> {
+  if (affected.newItemId) {
+    await client
+      .from("item")
+      .delete()
+      .eq("id", affected.newItemId)
+      .eq("companyId", companyId);
+    return;
+  }
+  if (affected.draftMakeMethodId) {
+    await client
+      .from("makeMethod")
+      .delete()
+      .eq("id", affected.draftMakeMethodId)
+      .eq("companyId", companyId);
+  }
+}
+
+// Add an affected item to a CO: insert the row, then spin its CO-owned Draft
+// make method per the change type and write the draft refs back. Rolls the row
+// back if draft creation fails (edge-fn calls can't share one txn — G2).
+export async function addChangeOrderAffectedItem(
+  client: SupabaseClient<Database>,
+  input: {
+    changeOrderId: string;
+    itemId: string;
+    changeType: ChangeOrderChangeType;
+    companyId: string;
+    userId: string;
+  }
+): Promise<{
+  data: { id: string; draftMakeMethodId: string | null } | null;
+  error: ChangeOrderError | null;
+}> {
+  const { changeOrderId, itemId, changeType, companyId, userId } = input;
+
+  const last = await client
+    .from("changeOrderAffectedItem")
+    .select("sortOrder")
+    .eq("changeOrderId", changeOrderId)
+    .eq("companyId", companyId)
+    .order("sortOrder", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const sortOrder = (last.data?.sortOrder ?? -1) + 1;
+
+  const inserted = await client
+    .from("changeOrderAffectedItem")
+    .insert({
+      changeOrderId,
+      itemId,
+      changeType,
+      sortOrder,
+      companyId,
+      createdBy: userId
+    })
+    .select("id")
+    .single();
+  if (inserted.error || !inserted.data) {
+    return { data: null, error: inserted.error };
+  }
+  const affectedItemId = inserted.data.id;
+
+  const draft = await createChangeOrderDraftMethod(client, {
+    changeOrderId,
+    itemId,
+    changeType,
+    companyId,
+    userId
+  });
+  if (draft.error || !draft.data) {
+    await client
+      .from("changeOrderAffectedItem")
+      .delete()
+      .eq("id", affectedItemId)
+      .eq("companyId", companyId);
+    return { data: null, error: draft.error };
+  }
+
+  await client
+    .from("changeOrderAffectedItem")
+    .update({
+      draftMakeMethodId: draft.data.draftMakeMethodId,
+      baseMakeMethodId: draft.data.baseMakeMethodId,
+      newItemId: draft.data.newItemId,
+      updatedBy: userId
+    })
+    .eq("id", affectedItemId)
+    .eq("companyId", companyId);
+
+  return {
+    data: {
+      id: affectedItemId,
+      draftMakeMethodId: draft.data.draftMakeMethodId
+    },
+    error: null
+  };
+}
+
+// Switch an affected item's change type: discard its current draft and rebuild
+// for the new type (Q2 — the editable surface differs per type, so edits reset).
+export async function updateChangeOrderAffectedItemChangeType(
+  client: SupabaseClient<Database>,
+  input: {
+    id: string;
+    changeType: ChangeOrderChangeType;
+    companyId: string;
+    userId: string;
+  }
+): Promise<{ data: { id: string } | null; error: ChangeOrderError | null }> {
+  const { id, changeType, companyId, userId } = input;
+
+  const affected = await client
+    .from("changeOrderAffectedItem")
+    .select(
+      "id, changeOrderId, itemId, changeType, draftMakeMethodId, newItemId"
+    )
+    .eq("id", id)
+    .eq("companyId", companyId)
+    .single();
+  if (affected.error || !affected.data) {
+    return { data: null, error: { message: "Affected item not found" } };
+  }
+  if (affected.data.changeType === changeType) {
+    return { data: { id }, error: null };
+  }
+
+  await discardChangeOrderDraft(client, affected.data, companyId);
+
+  const draft = await createChangeOrderDraftMethod(client, {
+    changeOrderId: affected.data.changeOrderId,
+    itemId: affected.data.itemId,
+    changeType,
+    companyId,
+    userId
+  });
+  if (draft.error || !draft.data) {
+    return { data: null, error: draft.error };
+  }
+
+  const updated = await client
+    .from("changeOrderAffectedItem")
+    .update({
+      changeType,
+      draftMakeMethodId: draft.data.draftMakeMethodId,
+      baseMakeMethodId: draft.data.baseMakeMethodId,
+      newItemId: draft.data.newItemId,
+      updatedBy: userId
+    })
+    .eq("id", id)
+    .eq("companyId", companyId);
+  if (updated.error) return { data: null, error: updated.error };
+  return { data: { id }, error: null };
+}
+
+// Update the per-item revision cutover config (mode + dates). The existence of
+// the oldRev→newRev supersession is automatic at release; this only tunes it.
+export async function updateChangeOrderAffectedItemCutover(
+  client: SupabaseClient<Database>,
+  input: {
+    id: string;
+    supersessionMode: Database["public"]["Enums"]["supersessionMode"];
+    discontinuationDate?: string;
+    successorEffectivityDate?: string;
+    userId: string;
+  }
+) {
+  const { id, userId, ...rest } = input;
+  return client
+    .from("changeOrderAffectedItem")
+    .update({
+      ...sanitize(rest),
+      updatedBy: userId,
+      updatedAt: new Date().toISOString()
+    })
+    .eq("id", id)
+    .select("id")
+    .single();
+}
+
+// =============================================================================
+// Affected-item + supersession reads/writes (label-stitched). Flat selects + JS
+// stitch (no composite-FK PostgREST embeds — the erp TS2589 budget).
+// =============================================================================
+
+// The minimal item label rendered next to each affected item / supersession.
+export type ChangeOrderStagingItemLabel = {
+  id: string;
+  readableId: string;
+  readableIdWithRevision: string | null;
+  name: string;
+  type: Database["public"]["Enums"]["itemType"];
+  active: boolean;
+  revisionStatus: Database["public"]["Enums"]["itemRevisionStatus"];
+  replenishmentSystem: Database["public"]["Enums"]["itemReplenishmentSystem"];
+};
+
+type ChangeOrderAffectedItemRow =
+  Database["public"]["Tables"]["changeOrderAffectedItem"]["Row"];
+
+export type ChangeOrderAffectedItemWithLabel = ChangeOrderAffectedItemRow & {
+  item: ChangeOrderStagingItemLabel | null;
+};
+
+type ChangeOrderSupersessionRow =
+  Database["public"]["Tables"]["changeOrderSupersession"]["Row"];
+
+export type ChangeOrderSupersessionWithLabels = ChangeOrderSupersessionRow & {
+  predecessorItem: ChangeOrderStagingItemLabel | null;
+  successorItem: ChangeOrderStagingItemLabel | null;
+};
+
+const ITEM_LABEL_COLUMNS =
+  "id, readableId, readableIdWithRevision, name, type, active, revisionStatus, replenishmentSystem";
+
+// Fetch minimal item labels for a set of ids, indexed by item id.
+async function stitchItemLabels(
+  client: SupabaseClient<Database>,
+  itemIds: string[],
+  companyId: string
+): Promise<{
+  labels: Map<string, ChangeOrderStagingItemLabel>;
+  error: { message: string } | null;
+}> {
+  const uniqueIds = [...new Set(itemIds)];
+  const labels = new Map<string, ChangeOrderStagingItemLabel>();
+  if (uniqueIds.length === 0) return { labels, error: null };
+
+  const items = await client
+    .from("item")
+    .select(ITEM_LABEL_COLUMNS)
+    .in("id", uniqueIds)
+    .eq("companyId", companyId);
+
+  if (items.error) return { labels, error: items.error };
+  for (const it of items.data ?? [])
+    labels.set(it.id, it as ChangeOrderStagingItemLabel);
+
+  return { labels, error: null };
+}
+
+// The affected items of a CO, each stitched to a minimal item label.
+export async function getChangeOrderAffectedItems(
+  client: SupabaseClient<Database>,
+  changeOrderId: string,
+  companyId: string
+): Promise<{
+  data: ChangeOrderAffectedItemWithLabel[];
+  error: { message: string } | null;
+}> {
+  const affected = await client
+    .from("changeOrderAffectedItem")
+    .select("*")
+    .eq("changeOrderId", changeOrderId)
+    .eq("companyId", companyId)
+    .order("sortOrder", { ascending: true })
+    .order("createdAt", { ascending: true });
+
+  if (affected.error) return { data: [], error: affected.error };
+  const rows = affected.data ?? [];
+  if (rows.length === 0) return { data: [], error: null };
+
+  const { labels, error } = await stitchItemLabels(
+    client,
+    rows.map((r) => r.itemId),
+    companyId
+  );
+  if (error) return { data: [], error };
+
+  return {
+    data: rows.map((r) => ({ ...r, item: labels.get(r.itemId) ?? null })),
+    error: null
+  };
+}
+
+// Remove an affected item + discard its CO-owned Draft (delete the new item for
+// Revision/New Part, or the Draft method for Version) so no orphan draft leaks.
+export async function removeChangeOrderAffectedItem(
+  client: SupabaseClient<Database>,
+  id: string,
+  companyId: string
+) {
+  const affected = await client
+    .from("changeOrderAffectedItem")
+    .select("draftMakeMethodId, newItemId")
+    .eq("id", id)
+    .eq("companyId", companyId)
+    .maybeSingle();
+  if (!affected.error && affected.data) {
+    await discardChangeOrderDraft(client, affected.data, companyId);
+  }
+  return client
+    .from("changeOrderAffectedItem")
+    .delete()
+    .eq("id", id)
+    .eq("companyId", companyId);
+}
+
+// The manual supersessions of a CO, each stitched to predecessor/successor labels.
+export async function getChangeOrderSupersessions(
+  client: SupabaseClient<Database>,
+  changeOrderId: string,
+  companyId: string
+): Promise<{
+  data: ChangeOrderSupersessionWithLabels[];
+  error: { message: string } | null;
+}> {
+  const supersessions = await client
+    .from("changeOrderSupersession")
+    .select("*")
+    .eq("changeOrderId", changeOrderId)
+    .eq("companyId", companyId)
+    .order("createdAt", { ascending: true });
+
+  if (supersessions.error) return { data: [], error: supersessions.error };
+  const rows = supersessions.data ?? [];
+  if (rows.length === 0) return { data: [], error: null };
+
+  const { labels, error } = await stitchItemLabels(
+    client,
+    rows.flatMap((r) =>
+      [r.predecessorItemId, r.successorItemId].filter((v): v is string => !!v)
+    ),
+    companyId
+  );
+  if (error) return { data: [], error };
+
+  return {
+    data: rows.map((r) => ({
+      ...r,
+      predecessorItem: labels.get(r.predecessorItemId) ?? null,
+      successorItem: r.successorItemId
+        ? (labels.get(r.successorItemId) ?? null)
+        : null
+    })),
+    error: null
+  };
+}
+
+// Insert/update one manual supersession declaration.
+export async function upsertChangeOrderSupersession(
+  client: SupabaseClient<Database>,
+  input: z.infer<typeof changeOrderSupersessionValidator> & {
+    companyId: string;
+    userId: string;
+  }
+): Promise<{ data: { id: string } | null; error: { message: string } | null }> {
+  const { id, companyId, userId, changeOrderId, ...rest } = input;
+
+  const payload = {
+    predecessorItemId: rest.predecessorItemId,
+    successorItemId: rest.successorItemId,
+    supersessionMode: rest.supersessionMode,
+    discontinuationDate: rest.discontinuationDate,
+    successorEffectivityDate: rest.successorEffectivityDate
+  };
+
+  if (id) {
+    return client
+      .from("changeOrderSupersession")
+      .update({
+        ...sanitize(payload),
+        updatedBy: userId,
+        updatedAt: new Date().toISOString()
+      })
+      .eq("id", id)
+      .eq("companyId", companyId)
+      .select("id")
+      .single();
+  }
+
+  return client
+    .from("changeOrderSupersession")
+    .insert({
+      changeOrderId,
+      companyId,
+      createdBy: userId,
+      ...sanitize(payload)
+    })
+    .select("id")
+    .single();
+}
+
+export async function deleteChangeOrderSupersession(
+  client: SupabaseClient<Database>,
+  id: string
+) {
+  return client.from("changeOrderSupersession").delete().eq("id", id);
+}
+
+// =============================================================================
 // Phase 3 — Impact panel (open POs for deleted parts, at Implementation)
 // =============================================================================
 export type ChangeOrderImpactRow = {
@@ -543,14 +1231,14 @@ export async function getChangeOrderImpact(
   data: ChangeOrderImpactRow[];
   error: { message: string } | null;
 }> {
-  // Top-to-bottom model: a "removed part" is a component that appears on an
-  // affected item's live source (Active) make method but has NO surviving staged
-  // material referencing it — i.e. the user deleted that staged line. We compute
-  // it here by comparing, per affected item, the live methodMaterial itemIds
-  // against the staged material itemIds still present in the CO.
+  // v2 model: a "removed part" is a component that appears on an affected item's
+  // BASE (source Active) make method but has NO surviving line on the CO-owned
+  // DRAFT method — i.e. the user deleted that BOM line while editing the draft.
+  // We compute it by comparing, per affected item, the base method's component
+  // itemIds against the draft method's component itemIds.
   const affected = await client
     .from("changeOrderAffectedItem")
-    .select("id, itemId")
+    .select("id, itemId, draftMakeMethodId, baseMakeMethodId")
     .eq("changeOrderId", changeOrderId)
     .eq("companyId", companyId);
   if (affected.error) return { data: [], error: affected.error };
@@ -558,75 +1246,43 @@ export async function getChangeOrderImpact(
   const affectedItems = affected.data ?? [];
   if (affectedItems.length === 0) return { data: [], error: null };
 
-  // Resolve each affected item's current Active make method (per item).
-  const affectedItemIds = [
-    ...new Set(affectedItems.map((a) => a.itemId).filter(Boolean))
+  // All method ids involved (base = source Active, draft = CO-owned edit).
+  const methodIds = [
+    ...new Set(
+      affectedItems.flatMap((a) =>
+        [a.baseMakeMethodId, a.draftMakeMethodId].filter(Boolean)
+      )
+    )
   ] as string[];
-  const activeMethods = affectedItemIds.length
+  const materials = methodIds.length
     ? await client
-        .from("activeMakeMethods")
-        .select("id, itemId")
-        .in("itemId", affectedItemIds)
+        .from("methodMaterial")
+        .select("itemId, makeMethodId")
+        .in("makeMethodId", methodIds)
         .eq("companyId", companyId)
     : { data: [], error: null };
-  if (activeMethods.error) return { data: [], error: activeMethods.error };
-  const makeMethodIdByItem = new Map<string, string>();
-  for (const m of activeMethods.data ?? []) {
-    if (m.id && m.itemId) makeMethodIdByItem.set(m.itemId, m.id);
+  if (materials.error) return { data: [], error: materials.error };
+
+  // Component itemIds per make method.
+  const componentsByMethod = new Map<string, Set<string>>();
+  for (const m of materials.data ?? []) {
+    if (!m.makeMethodId || !m.itemId) continue;
+    const set = componentsByMethod.get(m.makeMethodId) ?? new Set<string>();
+    set.add(m.itemId);
+    componentsByMethod.set(m.makeMethodId, set);
   }
 
-  const makeMethodIds = [...new Set([...makeMethodIdByItem.values()])];
-
-  // Live component itemIds on the source methods, and staged material itemIds
-  // still present (keyed by affectedItemId so removal is scoped per assembly).
-  const [liveMaterials, stagedMaterials] = await Promise.all([
-    makeMethodIds.length
-      ? client
-          .from("methodMaterial")
-          .select("itemId, makeMethodId")
-          .in("makeMethodId", makeMethodIds)
-          .eq("companyId", companyId)
-      : Promise.resolve({ data: [], error: null }),
-    client
-      .from("changeOrderStagedMaterial")
-      .select("itemId, affectedItemId")
-      .eq("changeOrderId", changeOrderId)
-      .eq("companyId", companyId)
-  ]);
-  if (liveMaterials.error) return { data: [], error: liveMaterials.error };
-  if (stagedMaterials.error) return { data: [], error: stagedMaterials.error };
-
-  // Staged component itemIds per affected item (the surviving BOM).
-  const stagedByAffected = new Map<string, Set<string>>();
-  for (const s of stagedMaterials.data ?? []) {
-    if (!s.affectedItemId || !s.itemId) continue;
-    const set = stagedByAffected.get(s.affectedItemId) ?? new Set<string>();
-    set.add(s.itemId);
-    stagedByAffected.set(s.affectedItemId, set);
-  }
-
-  // Live component itemIds per make method → map back to affected items.
-  const liveByMakeMethod = new Map<string, Set<string>>();
-  for (const l of liveMaterials.data ?? []) {
-    if (!l.makeMethodId || !l.itemId) continue;
-    const set = liveByMakeMethod.get(l.makeMethodId) ?? new Set<string>();
-    set.add(l.itemId);
-    liveByMakeMethod.set(l.makeMethodId, set);
-  }
-
-  // Removed = live component present on the source method with no surviving
-  // staged material referencing it, for that affected item.
+  // Removed = component on the base method with no surviving draft line.
   const removedItemIds = new Set<string>();
   for (const a of affectedItems) {
-    const makeMethodId = a.itemId
-      ? makeMethodIdByItem.get(a.itemId)
-      : undefined;
-    if (!makeMethodId) continue;
-    const live = liveByMakeMethod.get(makeMethodId);
-    if (!live) continue;
-    const staged = stagedByAffected.get(a.id) ?? new Set<string>();
-    for (const componentId of live) {
-      if (!staged.has(componentId)) removedItemIds.add(componentId);
+    if (!a.baseMakeMethodId) continue;
+    const base =
+      componentsByMethod.get(a.baseMakeMethodId) ?? new Set<string>();
+    const draft = a.draftMakeMethodId
+      ? (componentsByMethod.get(a.draftMakeMethodId) ?? new Set<string>())
+      : new Set<string>();
+    for (const componentId of base) {
+      if (!draft.has(componentId)) removedItemIds.add(componentId);
     }
   }
 

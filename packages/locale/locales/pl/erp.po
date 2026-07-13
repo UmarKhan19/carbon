@@ -300,6 +300,9 @@ msgstr "Linia oferty zawiera ceny i czasy realizacji dla konkretnej części"
 msgid "A reusable, versioned set of work instructions attached to a process, giving an operation its ordered steps to record and check plus the parameters it runs at."
 msgstr "Zestaw wielokrotnego użytku, wersjonowany instrukcji pracy dołączonych do procesu, zapewniający operacji uporządkowane kroki do rejestracji i sprawdzenia oraz parametry, w których się wykonuje."
 
+msgid "A Revision changes part data / documentation only (no BoM/BoP). Edit the new revision's attributes and files on its part page; it stays hidden until this change order is released."
+msgstr ""
+
 msgid "A routing step on a released job, the job's own copy of an operation, carrying a status the floor drives from Todo through Done."
 msgstr "Krok routingu na zwolnionym zadaniu, własna kopia operacji zadania, niosąca status, który hala zmienia od Do zrobienia do Gotowe."
 
@@ -624,9 +627,6 @@ msgstr "Dodaj linię"
 msgid "Add Line Item"
 msgstr "Dodaj pozycję"
 
-msgid "Add material"
-msgstr ""
-
 msgid "Add Note"
 msgstr "Dodaj notatkę"
 
@@ -701,9 +701,6 @@ msgstr "Dodaj kartę czasu pracy"
 
 msgid "Add to stock for future use"
 msgstr "Dodaj do zapasów do przyszłego użytku"
-
-msgid "Add Tool"
-msgstr ""
 
 #. placeholder {0}: copy.noun
 msgid "Add your first {0}"
@@ -2065,6 +2062,9 @@ msgstr "Zmień status"
 msgid "Change the item type (e.g. Part, Material, Tool, etc.)"
 msgstr "Zmień typ przedmiotu (np. Część, Materiał, Narzędzie itp.)"
 
+msgid "Change type"
+msgstr ""
+
 msgid "Change Type"
 msgstr "Zmień typ"
 
@@ -2079,6 +2079,9 @@ msgstr "Zmiana tego spowoduje zastąpienie istniejącej metody"
 
 msgid "Changing this will update the part ID"
 msgstr "Zmiana tego zaktualizuje identyfikator części"
+
+msgid "Changing type resets this item's draft edits."
+msgstr ""
 
 msgid "Chart of accounts"
 msgstr "Plan kont"
@@ -7142,9 +7145,6 @@ msgstr "Maks. Ilość"
 msgid "Max Quantity"
 msgstr "Maks. Ilość"
 
-msgid "Max Value"
-msgstr ""
-
 msgid "Maximum"
 msgstr "Maksimum"
 
@@ -7237,9 +7237,6 @@ msgstr "Migruj dane"
 
 msgid "Min Qty"
 msgstr "Min Ilość"
-
-msgid "Min Value"
-msgstr ""
 
 msgid "Minimum"
 msgstr "Minimum"
@@ -7837,6 +7834,9 @@ msgstr "Brak zaplanowanych dni wolnych"
 msgid "No default attachments yet."
 msgstr "Brak domyślnych załączników."
 
+msgid "No draft make method for this item yet."
+msgstr ""
+
 msgid "No draft versions available"
 msgstr "Brak dostępnych wersji roboczych"
 
@@ -7906,9 +7906,6 @@ msgstr "Brak wyników dla „{query}\". Spróbuj innego terminu wyszukiwania."
 msgid "No matches. Type to create one."
 msgstr "Brak dopasowań. Wpisz, aby utworzyć jeden."
 
-msgid "No materials staged for this item."
-msgstr ""
-
 msgid "No new notifications"
 msgstr "Brak nowych powiadomień"
 
@@ -7923,9 +7920,6 @@ msgstr "Brak otwartych zamówień zakupu dla usuniętych części"
 
 msgid "No operations require picking at this location"
 msgstr "Żadne operacje nie wymagają pobrania w tej lokalizacji"
-
-msgid "No operations staged for this item."
-msgstr ""
 
 msgid "No operators."
 msgstr "Brak operatorów."
@@ -7944,9 +7938,6 @@ msgstr "Brak zaległych szkoleń"
 
 msgid "No overtime scheduled"
 msgstr "Brak zaplanowanych nadgodzin"
-
-msgid "No parameters."
-msgstr ""
 
 msgid "No parent sources recorded yet. Click Recalculate on the planning page to refresh attribution."
 msgstr "Brak zarejestrowanych źródeł nadrzędnych. Kliknij Przelicz na stronie planowania, aby odświeżyć przypisanie."
@@ -8014,12 +8005,6 @@ msgstr "Brak jednej, zaufanej liczby dla zapasów lub statusu zadania"
 msgid "No sorts applied to this view"
 msgstr "Brak zastosowanych sortowań w tym widoku"
 
-msgid "No staged attributes for this item."
-msgstr ""
-
-msgid "No steps."
-msgstr ""
-
 msgid "No stock"
 msgstr "Brak zapasu"
 
@@ -8034,9 +8019,6 @@ msgstr "Brak dostawców"
 
 msgid "No time entries for this week"
 msgstr "Brak wpisów czasu pracy w tym tygodniu"
-
-msgid "No tools."
-msgstr ""
 
 msgid "No transactions in this period"
 msgstr "Brak transakcji w tym okresie"
@@ -8510,9 +8492,6 @@ msgstr "Kwota zapłacona:"
 
 msgid "Paid Date"
 msgstr "Data zapłaty"
-
-msgid "Parameter"
-msgstr ""
 
 msgid "Parameters"
 msgstr "Parametry"
@@ -9768,35 +9747,20 @@ msgstr "Usuń z listy cen"
 msgid "Remove item"
 msgstr "Usuń element"
 
-msgid "Remove material"
-msgstr ""
-
-msgid "Remove operation"
-msgstr ""
-
 msgid "Remove order"
 msgstr "Usuń zamówienie"
 
 msgid "Remove pair"
 msgstr "Usuń parę"
 
-msgid "Remove parameter"
-msgstr ""
-
 msgid "Remove sort by column"
 msgstr "Usuń sortowanie według kolumny"
-
-msgid "Remove step"
-msgstr ""
 
 msgid "Remove supersession"
 msgstr ""
 
 msgid "Remove this storage type from all referencing storage units and delete it. This cannot be undone."
 msgstr "Usuń ten typ magazynu ze wszystkich jednostek magazynowych, które się do niego odwołują, i usuń go. Tej operacji nie można cofnąć."
-
-msgid "Remove tool"
-msgstr ""
 
 msgid "Removed"
 msgstr ""
@@ -11065,9 +11029,6 @@ msgstr "Sortuj według"
 
 msgid "Sort Descending"
 msgstr "Sortuj malejąco"
-
-msgid "Sort Order"
-msgstr ""
 
 msgid "Source"
 msgstr "Źródło"
@@ -12490,7 +12451,7 @@ msgstr "Ten typ magazynu jest obecnie używany przez {usageCount} jednostkę mag
 msgid "This updates the theme for all users of the application"
 msgstr "To aktualizuje motyw dla wszystkich użytkowników aplikacji"
 
-msgid "This will create a new revision that supersedes the current one."
+msgid "This will create a new revision/part that supersedes the current one."
 msgstr ""
 
 msgid "This will make this version read-only and replace any material make methods with this version."
@@ -12921,9 +12882,6 @@ msgstr "Jednostki zgłaszane jako niemożliwe do odzyskania w operacji, z przycz
 
 msgid "Unknown"
 msgstr "Nieznany"
-
-msgid "Unknown item"
-msgstr ""
 
 msgid "unknown location"
 msgstr "nieznana lokalizacja"
@@ -13477,11 +13435,6 @@ msgstr "Ostrzegaj, gdy osoba sprawdzająca przychodzący towar jest tą samą os
 
 msgid "Warning"
 msgstr "Ostrzeżenie"
-
-#. placeholder {0}: source.requiresInspection ? t`Yes` : t`No`
-#. placeholder {0}: sourceValue || "—"
-msgid "was: {0}"
-msgstr ""
 
 msgid "Watch"
 msgstr "Obejrzyj"
