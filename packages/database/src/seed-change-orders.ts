@@ -7,13 +7,19 @@
  * orders spanning every stage of the flow (Draft → Start → Engineering
  * Complete → Implementation → Done).
  *
- * The change-content follows the TOP-TO-BOTTOM model: each CO selects affected
- * ASSEMBLIES first (changeOrderAffectedItem), snapshots their live make method
- * into CO-owned staging tables (changeOrderStaged{Material,Operation,ItemAttributes}),
- * then edits the staged end-state (git-style). CO-000001 is the worked example:
- * it swaps bracket PRT-001186.A → PRT-001186.B across four assemblies (a removed
- * staged material + an added one per assembly) and declares one manual
- * changeOrderSupersession (bracketA → bracketB).
+ * The change-content follows the v2 model: each CO selects affected items first
+ * (changeOrderAffectedItem, with a per-item `changeType`), and each item's edits
+ * live on a REAL CO-owned Draft `makeMethod` (`makeMethod.changeOrderId` set),
+ * NOT in staging tables. Three change types are exercised:
+ *   - Version  → a new Draft method version on the SAME item (copied from the
+ *                Active method, then edited). CO-000001 is the worked example: it
+ *                swaps bracket PRT-001186.A → PRT-001186.B across four assemblies
+ *                (delete the bracketA BOM line on the draft + add bracketB) and
+ *                declares one manual changeOrderSupersession (bracketA → bracketB).
+ *   - Revision → a new inactive revision item (active:false, changeOrderId set)
+ *                with the method copied into its Draft (CO-000004, SA-0065).
+ *   - New Part → a new inactive part number (new readableId) with the method
+ *                copied into its Draft (CO-000004, derived from GA-0044).
  *
  * The pg connection needs SUPABASE_DB_URL, which lives in the repo-root
  * `.env.local` (not `.env`). Both are loaded below.
@@ -95,9 +101,15 @@ const MAKE_PARTS = [
   { readableId: "VEH000006", name: "Pedal2 Sync2" }
 ] as const;
 
+// New-Part readableIds this seed mints (v2 New Part change type). Deterministic
+// so delete-first cleanup can find them. (Revision new items reuse a seeded
+// readableId with a bumped revision, so they're cleaned by the item delete.)
+const NEW_PART_IDS = ["PRT-CO-NP1"];
+
 const ALL_SEEDED_ITEM_IDS = [
   ...PURCHASED_PARTS.map((p) => p.readableId),
-  ...MAKE_PARTS.map((p) => p.readableId)
+  ...MAKE_PARTS.map((p) => p.readableId),
+  ...NEW_PART_IDS
 ];
 
 const PROCESS_NAMES = ["Machining", "Welding", "Assembly", "Inspection"];
@@ -471,140 +483,210 @@ async function createChangeOrder(
 }
 
 // ---------------------------------------------------------------------------
-// TOP-TO-BOTTOM change-content builders.
+// v2 change-content builders — CO-owned Draft make methods (no staging tables).
 //
-// The flow mirrors the real staging path (changeOrder.staging.ts):
-//   1. addAffectedItem — insert a changeOrderAffectedItem row for an assembly the
-//      user is changing, then SNAPSHOT its live make method into CO-owned staging
-//      (methodMaterial → changeOrderStagedMaterial with sourceMaterialId = live id;
-//       methodOperation → changeOrderStagedOperation with sourceOperationId = live
-//       id; plus one changeOrderStagedItemAttributes row from the item's columns).
-//   2. Then EDIT the staged content to represent the desired end-state (git-style):
-//      delete a staged material (a "removed" line) and/or insert one with
-//      sourceMaterialId = NULL (an "added" line). The diff engine derives the
-//      change from the snapshot vs. the edited end-state.
+// Mirrors createChangeOrderDraftMethod (changeOrder.service.ts):
+//   Version  → new Draft method version on the SAME item, copying the Active
+//              method's BOM + BOP rows; changeOrderId stamped.
+//   Revision → new inactive revision item (same readableId, bumped revision);
+//              New Part → new inactive item with a new readableId. Both copy the
+//              source method into the new item's (trigger-created) Draft method.
+// The user then edits the Draft's real methodMaterial rows (delete/add lines).
 // ---------------------------------------------------------------------------
 
-// Snapshot one assembly's live make method + attributes into CO staging and
-// return the affectedItemId. `makeMethodId` is the assembly's Active make method.
+// Copy an Active method's BOM + BOP rows onto a target Draft make method.
+async function copyMethodRows(
+  ctx: Ctx,
+  sourceMakeMethodId: string,
+  targetMakeMethodId: string
+) {
+  const { client } = ctx;
+  await client.query(
+    `INSERT INTO "methodMaterial" (
+      "makeMethodId", "methodType", "itemType", "itemId", quantity,
+      "unitOfMeasureCode", "companyId", "createdBy", "order",
+      "scrapQuantity", kit, "storageUnitIds", "sourcingType", "materialMakeMethodId"
+    )
+    SELECT $1, "methodType", "itemType", "itemId", quantity,
+      "unitOfMeasureCode", "companyId", "createdBy", "order",
+      "scrapQuantity", kit, "storageUnitIds", "sourcingType", "materialMakeMethodId"
+    FROM "methodMaterial" WHERE "makeMethodId" = $2`,
+    [targetMakeMethodId, sourceMakeMethodId]
+  );
+  await client.query(
+    `INSERT INTO "methodOperation" (
+      "makeMethodId", description, "companyId", "createdBy",
+      "processId", "workCenterId", "order", "operationOrder",
+      "setupTime", "setupUnit", "laborTime", "laborUnit",
+      "machineTime", "machineUnit", "workInstruction"
+    )
+    SELECT $1, description, "companyId", "createdBy",
+      "processId", "workCenterId", "order", "operationOrder",
+      "setupTime", "setupUnit", "laborTime", "laborUnit",
+      "machineTime", "machineUnit", "workInstruction"
+    FROM "methodOperation" WHERE "makeMethodId" = $2`,
+    [targetMakeMethodId, sourceMakeMethodId]
+  );
+}
+
+// Version: new Draft method version on the SAME item, copying the Active method.
+async function createDraftVersionMethod(
+  ctx: Ctx,
+  changeOrderId: string,
+  activeMakeMethodId: string,
+  targetItemId: string
+): Promise<string> {
+  const { client, userId } = ctx;
+  const vRes = await client.query(
+    `SELECT COALESCE(MAX(version), 0) + 1 AS v FROM "makeMethod" WHERE "itemId" = $1`,
+    [targetItemId]
+  );
+  const nextVersion = vRes.rows[0].v;
+  const mmRes = await client.query(
+    `INSERT INTO "makeMethod" ("itemId", status, version, "changeOrderId", "companyId", "createdBy")
+     SELECT "itemId", 'Draft', $2, $3, "companyId", $4 FROM "makeMethod" WHERE id = $1
+     RETURNING id`,
+    [activeMakeMethodId, nextVersion, changeOrderId, userId]
+  );
+  const draftId = mmRes.rows[0].id as string;
+  await copyMethodRows(ctx, activeMakeMethodId, draftId);
+  return draftId;
+}
+
+// Revision / New Part: create a new inactive item (Revision = same readableId +
+// bumped revision; New Part = a new readableId), copy the source method into its
+// auto-created Draft, and stamp changeOrderId on both the item and the draft.
+async function createDraftItemMethod(
+  ctx: Ctx,
+  changeOrderId: string,
+  source: { itemId: string; makeMethodId: string },
+  kind: "Revision" | "NewPart",
+  newReadableId: string,
+  revision: string
+): Promise<{ itemId: string; draftMakeMethodId: string }> {
+  const { client, companyId, userId } = ctx;
+  const itemRes = await client.query(
+    `INSERT INTO item (
+      "readableId", revision, name, type, "replenishmentSystem",
+      "defaultMethodType", "itemTrackingType", "unitOfMeasureCode",
+      active, "revisionStatus", "changeOrderId", "companyId", "createdBy"
+    )
+    SELECT $1, $2, name, type, "replenishmentSystem",
+      "defaultMethodType", "itemTrackingType", "unitOfMeasureCode",
+      false, 'Design', $3, "companyId", $4
+    FROM item WHERE id = $5
+    RETURNING id`,
+    [newReadableId, revision, changeOrderId, userId, source.itemId]
+  );
+  const newItemId = itemRes.rows[0].id as string;
+  if (kind === "NewPart") {
+    await client.query(
+      `INSERT INTO part (id, "companyId", "createdBy") VALUES ($1, $2, $3) ON CONFLICT DO NOTHING`,
+      [newReadableId, companyId, userId]
+    );
+  }
+  // The item-insert interceptor auto-creates a Draft makeMethod; copy into it.
+  const mmRes = await client.query(
+    `SELECT id FROM "makeMethod" WHERE "itemId" = $1 ORDER BY version LIMIT 1`,
+    [newItemId]
+  );
+  if (mmRes.rows.length === 0) {
+    throw new Error(`No auto-created makeMethod for new item ${newReadableId}`);
+  }
+  const draftMakeMethodId = mmRes.rows[0].id as string;
+  await copyMethodRows(ctx, source.makeMethodId, draftMakeMethodId);
+  await client.query(
+    `UPDATE "makeMethod" SET "changeOrderId" = $1 WHERE id = $2`,
+    [changeOrderId, draftMakeMethodId]
+  );
+  return { itemId: newItemId, draftMakeMethodId };
+}
+
+// Add an affected item with its CO-owned Draft per change type. Returns the
+// affected-item id + the draft make method id (for subsequent BOM edits).
 async function addAffectedItem(
   ctx: Ctx,
   changeOrderId: string,
-  affected: { itemId: string; makeMethodId: string },
+  source: { itemId: string; makeMethodId: string },
+  changeType: "Version" | "Revision" | "NewPart",
   sortOrder: number,
-  supersessionMode = "Consume First"
-): Promise<string> {
+  opts: {
+    supersessionMode?: string;
+    newReadableId?: string;
+    revision?: string;
+  } = {}
+): Promise<{
+  affectedItemId: string;
+  draftMakeMethodId: string;
+  newItemId: string | null;
+}> {
   const { client, companyId, userId } = ctx;
+
+  let draftMakeMethodId: string;
+  let newItemId: string | null = null;
+  if (changeType === "Version") {
+    draftMakeMethodId = await createDraftVersionMethod(
+      ctx,
+      changeOrderId,
+      source.makeMethodId,
+      source.itemId
+    );
+  } else {
+    const created = await createDraftItemMethod(
+      ctx,
+      changeOrderId,
+      source,
+      changeType,
+      opts.newReadableId ?? `PRT-CO-${changeType}`,
+      opts.revision ?? "1"
+    );
+    draftMakeMethodId = created.draftMakeMethodId;
+    newItemId = created.itemId;
+  }
+
+  // DB enum value is 'New Part' (with a space); the TS union uses 'NewPart'.
+  const changeTypeValue = changeType === "NewPart" ? "New Part" : changeType;
 
   const aiRes = await client.query(
     `INSERT INTO "changeOrderAffectedItem" (
-      "changeOrderId", "itemId", "sortOrder", "supersessionMode", "companyId", "createdBy"
-    ) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
+      "changeOrderId", "itemId", "sortOrder", "changeType",
+      "draftMakeMethodId", "baseMakeMethodId", "newItemId",
+      "supersessionMode", "companyId", "createdBy"
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id`,
     [
       changeOrderId,
-      affected.itemId,
+      source.itemId,
       sortOrder,
-      supersessionMode,
+      changeTypeValue,
+      draftMakeMethodId,
+      source.makeMethodId,
+      newItemId,
+      opts.supersessionMode ?? "Consume First",
       companyId,
       userId
     ]
   );
-  const affectedItemId = aiRes.rows[0].id as string;
-
-  // Snapshot the item's editable attributes (one row per affected item).
-  await client.query(
-    `INSERT INTO "changeOrderStagedItemAttributes" (
-      "changeOrderId", "affectedItemId", name, description, "unitOfMeasureCode",
-      "itemTrackingType", "defaultMethodType", "replenishmentSystem", "sourcingType",
-      "requiresInspection", "thumbnailPath", "companyId", "createdBy"
-    )
-    SELECT $1, $2, i.name, i.description, i."unitOfMeasureCode",
-      i."itemTrackingType", i."defaultMethodType", i."replenishmentSystem", i."sourcingType",
-      i."requiresInspection", i."thumbnailPath", $3, $4
-    FROM item i WHERE i.id = $5`,
-    [changeOrderId, affectedItemId, companyId, userId, affected.itemId]
-  );
-
-  // Snapshot the live methodMaterial rows → changeOrderStagedMaterial
-  // (sourceMaterialId = live methodMaterial.id ⇒ these are "unchanged" lines).
-  await client.query(
-    `INSERT INTO "changeOrderStagedMaterial" (
-      "changeOrderId", "affectedItemId", "itemId", quantity, "unitOfMeasureCode",
-      "methodType", "sourcingType", "materialMakeMethodId", "order", "itemType",
-      "sourceMaterialId", "companyId", "createdBy"
-    )
-    SELECT $1, $2, mm."itemId", mm.quantity, mm."unitOfMeasureCode",
-      mm."methodType", mm."sourcingType", mm."materialMakeMethodId", mm."order", mm."itemType",
-      mm.id, $3, $4
-    FROM "methodMaterial" mm WHERE mm."makeMethodId" = $5`,
-    [changeOrderId, affectedItemId, companyId, userId, affected.makeMethodId]
-  );
-
-  // Snapshot the live methodOperation rows → changeOrderStagedOperation
-  // (sourceOperationId = live methodOperation.id). Mirror the corrected columns.
-  await client.query(
-    `INSERT INTO "changeOrderStagedOperation" (
-      "changeOrderId", "affectedItemId", "order", "operationOrder", "operationType",
-      "processId", "workCenterId", "operationSupplierProcessId", "procedureId",
-      description, "setupTime", "setupUnit", "laborTime", "laborUnit",
-      "machineTime", "machineUnit", "workInstruction", "sourceOperationId",
-      "companyId", "createdBy"
-    )
-    SELECT $1, $2, mo."order", mo."operationOrder", mo."operationType",
-      mo."processId", mo."workCenterId", mo."operationSupplierProcessId", mo."procedureId",
-      mo.description, mo."setupTime", mo."setupUnit", mo."laborTime", mo."laborUnit",
-      mo."machineTime", mo."machineUnit", mo."workInstruction", mo.id,
-      $3, $4
-    FROM "methodOperation" mo WHERE mo."makeMethodId" = $5`,
-    [changeOrderId, affectedItemId, companyId, userId, affected.makeMethodId]
-  );
-
-  return affectedItemId;
+  return {
+    affectedItemId: aiRes.rows[0].id as string,
+    draftMakeMethodId,
+    newItemId
+  };
 }
 
-// Delete a staged material line for a given component item (models "remove a line").
-async function deleteStagedMaterial(
+// Delete a BOM line from a Draft make method (models "remove a line").
+async function deleteDraftMaterial(
   ctx: Ctx,
-  affectedItemId: string,
+  draftMakeMethodId: string,
   componentItemId: string
 ) {
   const { client, companyId } = ctx;
   await client.query(
-    `DELETE FROM "changeOrderStagedMaterial"
-     WHERE "affectedItemId" = $1 AND "itemId" = $2 AND "companyId" = $3`,
-    [affectedItemId, componentItemId, companyId]
+    `DELETE FROM "methodMaterial"
+     WHERE "makeMethodId" = $1 AND "itemId" = $2 AND "companyId" = $3`,
+    [draftMakeMethodId, componentItemId, companyId]
   );
 }
 
-// Insert a staged material with sourceMaterialId = NULL (models "add a line").
-async function addStagedMaterial(
-  ctx: Ctx,
-  changeOrderId: string,
-  affectedItemId: string,
-  componentItemId: string,
-  quantity: number,
-  order: number
-) {
-  const { client, companyId, userId } = ctx;
-  await client.query(
-    `INSERT INTO "changeOrderStagedMaterial" (
-      "changeOrderId", "affectedItemId", "itemId", quantity, "unitOfMeasureCode",
-      "methodType", "sourcingType", "order", "itemType", "sourceMaterialId",
-      "companyId", "createdBy"
-    ) VALUES ($1, $2, $3, $4, 'EA', 'Pull from Inventory', 'Specified', $5, 'Part', NULL, $6, $7)`,
-    [
-      changeOrderId,
-      affectedItemId,
-      componentItemId,
-      quantity,
-      order,
-      companyId,
-      userId
-    ]
-  );
-}
-
-// A MANUAL different-part supersession declaration (predecessor → successor).
 async function addSupersession(
   ctx: Ctx,
   changeOrderId: string,
@@ -996,12 +1078,18 @@ async function seed() {
       ];
       let co1Sort = 0;
       for (const { a } of co1Assemblies) {
-        // 1. Snapshot the assembly's live method into staging.
-        const affectedItemId = await addAffectedItem(ctx, co1, a, co1Sort++);
-        // 2. Edit staged content: remove bracketA (a "removed" line) and add
-        //    bracketB (sourceMaterialId = NULL ⇒ an "added" line). Real diff.
-        await deleteStagedMaterial(ctx, affectedItemId, bracketA);
-        await addStagedMaterial(ctx, co1, affectedItemId, bracketB, 1, 1);
+        // 1. Version change: spin a CO-owned Draft method (copy of Active).
+        const { draftMakeMethodId } = await addAffectedItem(
+          ctx,
+          co1,
+          a,
+          "Version",
+          co1Sort++
+        );
+        // 2. Edit the Draft's real BOM: remove bracketA (a "removed" line) and
+        //    add bracketB (an "added" line). The diff derives from Draft-vs-base.
+        await deleteDraftMaterial(ctx, draftMakeMethodId, bracketA);
+        await addBomLine(ctx, draftMakeMethodId, bracketB, 1, 1);
       }
       // Optional manual supersession row (bracketA → bracketB) to exercise that
       // surface (different-part obsolescence, distinct from the auto revision cutover).
@@ -1037,10 +1125,10 @@ async function seed() {
         description:
           "Remove M5 Bolt from Stage 3 and add a Sealed Bearing detent."
       });
-      // One affected item (GA-0022): swap the M5 Bolt for a Sealed Bearing detent.
-      const co2Affected = await addAffectedItem(ctx, co2, ga0022, 0);
-      await deleteStagedMaterial(ctx, co2Affected, fst100);
-      await addStagedMaterial(ctx, co2, co2Affected, brg200, 1, 1);
+      // One affected item (GA-0022, Version): swap M5 Bolt → Sealed Bearing detent.
+      const co2Affected = await addAffectedItem(ctx, co2, ga0022, "Version", 0);
+      await deleteDraftMaterial(ctx, co2Affected.draftMakeMethodId, fst100);
+      await addBomLine(ctx, co2Affected.draftMakeMethodId, brg200, 1, 1);
 
       // CO-000003 — Start
       const co3 = await createChangeOrder(ctx, {
@@ -1053,22 +1141,32 @@ async function seed() {
           "Cargo box bracket alignment dowel is over-specified; remove to reduce cost and weight.",
         description: "Delete Alignment Dowel from Pedal2 Sync3 sub-assembly."
       });
-      // One affected item (SA-0065): delete the Alignment Dowel (a "removed" line).
-      const co3Affected = await addAffectedItem(ctx, co3, sa0065, 0);
-      await deleteStagedMaterial(ctx, co3Affected, fst101);
+      // One affected item (SA-0065, Version): delete the Alignment Dowel line.
+      const co3Affected = await addAffectedItem(ctx, co3, sa0065, "Version", 0);
+      await deleteDraftMaterial(ctx, co3Affected.draftMakeMethodId, fst101);
 
-      // CO-000004 — Start
+      // CO-000004 — Start. Demonstrates the Revision + New Part change types.
       const co4 = await createChangeOrder(ctx, {
         changeOrderId: "CO-000004",
-        name: "V18 Frame Cable Routing",
+        name: "Cable Routing Doc Update + FFF Replacement",
         status: "Start",
         changeOrderTypeId: cotDesign,
         assignee: userId,
         reasonForChange:
-          "Internal cable routing eliminates the external cable housing.",
-        description: "Delete Cable Housing from the Stage 2 Alt gear assembly."
+          "Documentation revision for the sub-assembly, plus a fit-form-function " +
+          "replacement introduced as a new part number.",
+        description:
+          "Revision: bump SA-0065 for a non-FFF doc/spec update (new revision, " +
+          "no BoM change). New Part: introduce a new P/N derived from GA-0044 " +
+          "(FFF replacement), superseding it at release."
       });
-      // Headers + action tasks only (no staged content needed here).
+      // Revision change type — new inactive revision item of SA-0065 (method
+      // copied into its Draft; no BoM edit — Revision is docs/attrs only).
+      await addAffectedItem(ctx, co4, sa0065, "Revision", 0);
+      // New Part change type — a new part number derived from GA-0044.
+      await addAffectedItem(ctx, co4, ga0044, "NewPart", 1, {
+        newReadableId: NEW_PART_IDS[0]
+      });
       await addActionTask(
         ctx,
         co4,
@@ -1124,9 +1222,9 @@ async function seed() {
         description:
           "Add Locking Washer (FST-102) x2 to the top-level Pedal4 Sync3 assembly."
       });
-      const co7Affected = await addAffectedItem(ctx, co7, veh1, 0);
-      // Add FST-102 (sourceMaterialId = NULL ⇒ an "added" line).
-      await addStagedMaterial(ctx, co7, co7Affected, fst102, 2, 99);
+      // Version change on the top-level product: add FST-102 to the Draft BOM.
+      const co7Affected = await addAffectedItem(ctx, co7, veh1, "Version", 0);
+      await addBomLine(ctx, co7Affected.draftMakeMethodId, fst102, 2, 99);
 
       // --- Bump the CO sequence past the seeded ids ---
       console.log("9. Bumping changeOrder sequence...");
@@ -1191,16 +1289,24 @@ async function printSummary(client: PoolClient, companyId: string) {
      WHERE co."companyId" = $1 AND co."changeOrderId" = ANY($2)`,
     [companyId, CHANGE_ORDER_IDS]
   );
-  const stagedMaterials = await q(
-    `SELECT count(*)::int n FROM "changeOrderStagedMaterial" sm
-     JOIN "changeOrder" co ON co.id = sm."changeOrderId"
+  const draftMethods = await q(
+    `SELECT count(*)::int n FROM "makeMethod" mk
+     JOIN "changeOrder" co ON co.id = mk."changeOrderId"
      WHERE co."companyId" = $1 AND co."changeOrderId" = ANY($2)`,
     [companyId, CHANGE_ORDER_IDS]
   );
-  const stagedOperations = await q(
-    `SELECT count(*)::int n FROM "changeOrderStagedOperation" so
-     JOIN "changeOrder" co ON co.id = so."changeOrderId"
+  const draftMaterials = await q(
+    `SELECT count(*)::int n FROM "methodMaterial" mm
+     JOIN "makeMethod" mk ON mk.id = mm."makeMethodId"
+     JOIN "changeOrder" co ON co.id = mk."changeOrderId"
      WHERE co."companyId" = $1 AND co."changeOrderId" = ANY($2)`,
+    [companyId, CHANGE_ORDER_IDS]
+  );
+  const changeTypes = await q(
+    `SELECT "changeType", count(*)::int n FROM "changeOrderAffectedItem" ai
+     JOIN "changeOrder" co ON co.id = ai."changeOrderId"
+     WHERE co."companyId" = $1 AND co."changeOrderId" = ANY($2)
+     GROUP BY "changeType" ORDER BY "changeType"`,
     [companyId, CHANGE_ORDER_IDS]
   );
   const supersessions = await q(
@@ -1237,8 +1343,11 @@ async function printSummary(client: PoolClient, companyId: string) {
   console.log("  Change Orders by status:");
   for (const r of cosByStatus) console.log(`    ${r.status.padEnd(22)} ${r.n}`);
   console.log(`  Affected items:         ${affectedItems[0].n}`);
-  console.log(`  Staged materials:       ${stagedMaterials[0].n}`);
-  console.log(`  Staged operations:      ${stagedOperations[0].n}`);
+  console.log("  Affected items by change type:");
+  for (const r of changeTypes)
+    console.log(`    ${String(r.changeType).padEnd(20)} ${r.n}`);
+  console.log(`  CO-owned draft methods: ${draftMethods[0].n}`);
+  console.log(`  Draft BOM lines:        ${draftMaterials[0].n}`);
   console.log(`  Supersessions:          ${supersessions[0].n}`);
   console.log(`  Action tasks:           ${actions[0].n}`);
   console.log("========================================\n");
