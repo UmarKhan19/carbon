@@ -1,11 +1,12 @@
-import { HStack, VStack } from "@carbon/react";
+import { Badge, HStack, VStack } from "@carbon/react";
 import { useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
-import { memo, useMemo } from "react";
+import { memo, useCallback, useMemo } from "react";
 import {
   LuArrowRightLeft,
   LuBlocks,
   LuCalendar,
+  LuCornerDownRight,
   LuFileText,
   LuHash,
   LuMapPin,
@@ -13,7 +14,8 @@ import {
   LuMoveUp,
   LuQrCode,
   LuUser,
-  LuWarehouse
+  LuWarehouse,
+  LuWrench
 } from "react-icons/lu";
 import { Link } from "react-router";
 import { EmployeeAvatar, Hyperlink, ItemThumbnail, Table } from "~/components";
@@ -111,32 +113,33 @@ const StockMovementsTable = memo(
           }
         },
         {
+          accessorKey: "isCorrection",
+          header: t`Correction`,
+          cell: ({ row }) =>
+            isCorrectionRow(row.original) ? (
+              <Badge variant="yellow">{t`Correction`}</Badge>
+            ) : (
+              ""
+            ),
+          meta: {
+            filter: {
+              type: "static",
+              options: [
+                { value: "true", label: t`Correction` },
+                { value: "false", label: t`Original` }
+              ]
+            },
+            pluralHeader: t`Corrections`,
+            icon: <LuWrench />,
+            // Export the corrected movement's id so the CSV keeps the linkage.
+            exportValue: (row: StockMovement) =>
+              row.correctionOfItemLedgerId ?? ""
+          }
+        },
+        {
           accessorKey: "quantity",
           header: t`Quantity`,
-          cell: ({ row }) => {
-            const value = row.original.quantity;
-            if (!value)
-              return (
-                <HStack
-                  spacing={1}
-                  className="font-medium text-muted-foreground"
-                >
-                  <LuMoveUp className="invisible text-lg" />
-                  <span>{value}</span>
-                </HStack>
-              );
-            const isPositive = value > 0;
-            return (
-              <HStack spacing={1} className="font-medium">
-                {isPositive ? (
-                  <LuMoveUp className="text-success text-lg" />
-                ) : (
-                  <LuMoveDown className="text-destructive text-lg" />
-                )}
-                <span>{Math.abs(value)}</span>
-              </HStack>
-            );
-          },
+          cell: ({ row }) => <QuantityDelta value={row.original.quantity} />,
           meta: {
             icon: <LuHash />
           }
@@ -230,14 +233,85 @@ const StockMovementsTable = memo(
       ];
     }, [people, locations, locationsById, t, formatDate]);
 
+    // Group corrections under the movement they fix. Corrections whose original
+    // is on this page are hidden from the flat list and revealed by expanding the
+    // original (chevron), like the accounting/audit-log expandable rows. A
+    // correction whose original isn't on the page stays inline (still badged).
+    const { displayData, correctionsByOriginal } = useMemo(() => {
+      const byId = new Map(data.map((m) => [m.id, m]));
+      const byOriginal = new Map<string, StockMovement[]>();
+      const nestedIds = new Set<string>();
+      for (const m of data) {
+        const parentId = m.correctionOfItemLedgerId;
+        if (parentId && byId.has(parentId)) {
+          const list = byOriginal.get(parentId) ?? [];
+          list.push(m);
+          byOriginal.set(parentId, list);
+          if (m.id) nestedIds.add(m.id);
+        }
+      }
+      return {
+        correctionsByOriginal: byOriginal,
+        displayData:
+          nestedIds.size === 0
+            ? data
+            : data.filter((m) => !(m.id && nestedIds.has(m.id)))
+      };
+    }, [data]);
+
+    const canExpandRow = useCallback(
+      (row: StockMovement) => !!row.id && correctionsByOriginal.has(row.id),
+      [correctionsByOriginal]
+    );
+
+    const renderExpandedRow = useCallback(
+      (row: StockMovement) => {
+        const corrections = row.id
+          ? correctionsByOriginal.get(row.id)
+          : undefined;
+        if (!corrections?.length) return null;
+        return (
+          <div className="pl-[52px] pr-4">
+            {corrections.map((c) => (
+              <div
+                key={c.id}
+                className="grid grid-cols-[16px_minmax(0,1fr)_auto] items-center gap-x-3 py-2 text-sm"
+              >
+                <LuCornerDownRight className="size-3.5 shrink-0 text-muted-foreground" />
+                <div className="flex min-w-0 items-center gap-2.5">
+                  <Badge variant="yellow" className="shrink-0">
+                    {t`Correction`}
+                  </Badge>
+                  <Enumerable value={c.entryType} />
+                  <QuantityDelta value={c.quantity} />
+                  <span className="truncate text-muted-foreground">
+                    {c.storageUnitName ?? c.locationName ?? "—"}
+                  </span>
+                </div>
+                <div className="flex shrink-0 items-center gap-2 text-muted-foreground">
+                  <span className="tabular-nums text-xs">
+                    {formatDate(c.postingDate)}
+                  </span>
+                  <EmployeeAvatar employeeId={c.createdBy} />
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+      },
+      [correctionsByOriginal, formatDate, t]
+    );
+
     return (
       <Table<(typeof data)[number]>
-        data={data}
+        data={displayData}
         columns={columns}
         count={count}
         defaultColumnPinning={{
           left: ["itemReadableId"]
         }}
+        renderExpandedRow={renderExpandedRow}
+        canExpandRow={canExpandRow}
         title={t`Stock Movements`}
         table="itemLedger"
         withSavedView
@@ -248,6 +322,38 @@ const StockMovementsTable = memo(
 
 StockMovementsTable.displayName = "StockMovementsTable";
 export default StockMovementsTable;
+
+// A movement is a correction when it points back at the movement it fixes.
+// Prefer the view's computed `isCorrection` flag; fall back to the raw link.
+function isCorrectionRow(movement: StockMovement) {
+  return (
+    (movement as { isCorrection?: boolean }).isCorrection ??
+    movement.correctionOfItemLedgerId != null
+  );
+}
+
+// Signed quantity with a direction arrow (NUMERIC arrives as a string).
+function QuantityDelta({ value }: { value: number | string | null }) {
+  const n = value == null ? 0 : Number(value);
+  if (!n) {
+    return (
+      <HStack spacing={1} className="font-medium text-muted-foreground">
+        <LuMoveUp className="invisible text-lg" />
+        <span className="tabular-nums">{n}</span>
+      </HStack>
+    );
+  }
+  return (
+    <HStack spacing={1} className="font-medium">
+      {n > 0 ? (
+        <LuMoveUp className="text-success text-lg" />
+      ) : (
+        <LuMoveDown className="text-destructive text-lg" />
+      )}
+      <span className="tabular-nums">{Math.abs(n)}</span>
+    </HStack>
+  );
+}
 
 // Opens the item's side panel on the Activity tab inside the Inventory
 // (Quantities) layout:

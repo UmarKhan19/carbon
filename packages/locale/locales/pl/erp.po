@@ -2390,9 +2390,6 @@ msgstr "Potwierdzone zapasy przychodzące — zamówienia zakupu i produkcji (s�
 msgid "Confirmed outgoing stock — sales orders & job materials (bars below zero)."
 msgstr "Potwierdzone zapasy wychodzące — zamówienia sprzedaży i materiały pracy (słupki poniżej zera)."
 
-msgid "Confirming locks the counted quantities. Review the warnings below, then post the count to apply the adjustments."
-msgstr "Potwierdzenie blokuje zliczone ilości. Przejrzyj ostrzeżenia poniżej, a następnie opublikuj liczenie, aby zastosować korekty."
-
 msgid "Connect Carbon to your accounting, project management, and CAD tools and much more."
 msgstr "Połącz Carbon ze swoimi narzędziami księgowości, zarządzania projektami, CAD i wieloma innymi."
 
@@ -2675,6 +2672,12 @@ msgstr "Prawidłowa odpowiedź"
 msgid "Correct Answers"
 msgstr "Prawidłowe odpowiedzi"
 
+msgid "Correction"
+msgstr ""
+
+msgid "Corrections"
+msgstr ""
+
 msgid "Corrective action"
 msgstr "Działanie naprawcze"
 
@@ -2745,6 +2748,9 @@ msgstr "Nie można przeplanować zadania. Spróbuj ponownie."
 
 msgid "Count"
 msgstr "Liczba"
+
+msgid "Count History"
+msgstr ""
 
 msgid "Count ID"
 msgstr "ID Liczenia"
@@ -8239,6 +8245,12 @@ msgstr "Zamówienia przesłane"
 msgid "Origin"
 msgstr "Pochodzenie"
 
+msgid "Original"
+msgstr ""
+
+msgid "Original Count"
+msgstr ""
+
 msgid "Other Income account for FX gains when a payment settles a foreign-currency invoice at a more favorable rate"
 msgstr "Konto dochodów pozostałych dla zysków walutowych, gdy płatność rozlicza fakturę w walucie obcej po kursie bardziej korzystnym"
 
@@ -8725,6 +8737,15 @@ msgstr "Opublikowano o"
 
 msgid "Posted By"
 msgstr "Opublikowano przez"
+
+msgid "Posted once, no rectifications."
+msgstr ""
+
+msgid "Posted once, rectified {rectifications} times."
+msgstr ""
+
+msgid "Posted once, rectified 1 time."
+msgstr ""
 
 msgid "Posting"
 msgstr "Przedpłaty"
@@ -9459,6 +9480,12 @@ msgstr "Rekordy"
 msgid "Recovery Period"
 msgstr "Zarejestruj"
 
+msgid "Rectification {rectifyNumber}"
+msgstr ""
+
+msgid "Rectify"
+msgstr ""
+
 msgid "Redirecting to verification page..."
 msgstr "Przekierowanie na stronę weryfikacji..."
 
@@ -9782,6 +9809,9 @@ msgstr "Odwrotne obciążenie podatkiem od sprzedaży (domyślnie)"
 
 msgid "Reverse the related journal entries"
 msgstr "Odwróć powiązane wpisy w dzienniku"
+
+msgid "Review the warnings below, then post the count to apply the adjustments."
+msgstr ""
 
 msgid "Revision"
 msgstr "Wersja"

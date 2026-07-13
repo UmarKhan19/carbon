@@ -2390,9 +2390,6 @@ msgstr "Bestätigter eingehender Bestand — Kauf- und Produktionsaufträge (Bal
 msgid "Confirmed outgoing stock — sales orders & job materials (bars below zero)."
 msgstr "Bestätigter ausgehender Bestand — Verkaufsaufträge & Auftragsmaterial (Balken unter Null)."
 
-msgid "Confirming locks the counted quantities. Review the warnings below, then post the count to apply the adjustments."
-msgstr "Das Bestätigen sperrt die gezählten Mengen. Überprüfen Sie die Warnungen unten und buchen Sie dann die Inventur, um die Anpassungen anzuwenden."
-
 msgid "Connect Carbon to your accounting, project management, and CAD tools and much more."
 msgstr "Verbinden Sie Carbon mit Ihren Buchhaltungs-, Projektmanagement- und CAD-Tools und vielem mehr."
 
@@ -2675,6 +2672,12 @@ msgstr "Richtige Antwort"
 msgid "Correct Answers"
 msgstr "Richtige Antworten"
 
+msgid "Correction"
+msgstr ""
+
+msgid "Corrections"
+msgstr ""
+
 msgid "Corrective action"
 msgstr "Korrekturmaßnahme"
 
@@ -2745,6 +2748,9 @@ msgstr "Der Auftrag konnte nicht umgeplant werden. Bitte versuchen Sie es erneut
 
 msgid "Count"
 msgstr "Anzahl"
+
+msgid "Count History"
+msgstr ""
 
 msgid "Count ID"
 msgstr "Zählung-ID"
@@ -8239,6 +8245,12 @@ msgstr "Bestellungen eingereicht"
 msgid "Origin"
 msgstr "Ursprung"
 
+msgid "Original"
+msgstr ""
+
+msgid "Original Count"
+msgstr ""
+
 msgid "Other Income account for FX gains when a payment settles a foreign-currency invoice at a more favorable rate"
 msgstr "Sonstige Einnahmen für Wechselkursgewinne, wenn eine Zahlung eine Rechnung in Fremdwährung zu einem günstigeren Kurs ausgleicht"
 
@@ -8725,6 +8737,15 @@ msgstr "Gepostet am"
 
 msgid "Posted By"
 msgstr "Gepostet von"
+
+msgid "Posted once, no rectifications."
+msgstr ""
+
+msgid "Posted once, rectified {rectifications} times."
+msgstr ""
+
+msgid "Posted once, rectified 1 time."
+msgstr ""
 
 msgid "Posting"
 msgstr "Vorauszahlungen"
@@ -9459,6 +9480,12 @@ msgstr "Aufzeichnungen"
 msgid "Recovery Period"
 msgstr "Registrieren"
 
+msgid "Rectification {rectifyNumber}"
+msgstr ""
+
+msgid "Rectify"
+msgstr ""
+
 msgid "Redirecting to verification page..."
 msgstr "Wird zur Verifizierungsseite weitergeleitet..."
 
@@ -9782,6 +9809,9 @@ msgstr "Umkehrbuchung Umsatzsteuer (Standard)"
 
 msgid "Reverse the related journal entries"
 msgstr "Kehren Sie die zugehörigen Journaleinträge um"
+
+msgid "Review the warnings below, then post the count to apply the adjustments."
+msgstr ""
 
 msgid "Revision"
 msgstr "Revision"
