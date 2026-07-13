@@ -33,6 +33,12 @@ if (
       message: error.message,
       error
     });
+    // An uncaught exception leaves the process in an undefined, possibly
+    // corrupted state. These apps are long-lived services, so we exit and let
+    // the supervisor restart a clean worker rather than serving from a broken
+    // one. (unhandledRejection is left log-only: a stray rejection is usually
+    // recoverable and crashing the whole server on each one is worse.)
+    process.exit(1);
   });
 }
 

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-13T12:36:14.442Z",
+  "generated": "2026-07-13T13:11:38.566Z",
   "totalTools": 1327,
   "modules": 15,
   "tools": [
@@ -6269,11 +6269,11 @@
       }
     },
     {
-      "name": "inventory_resnapshotInventoryCountLines",
+      "name": "inventory_rectifyInventoryCount",
       "module": "inventory",
       "classification": "WRITE",
-      "description": "resnapshot inventory count lines",
-      "paramCount": 2,
+      "description": "rectify inventory count",
+      "paramCount": 1,
       "serviceParams": [
         "db",
         "args"
@@ -6284,16 +6284,10 @@
       "schema": {
         "type": "object",
         "properties": {
-          "inventoryCountId": {
-            "type": "string"
-          },
-          "locationId": {
-            "type": "string"
-          }
+          "args": {}
         },
         "required": [
-          "inventoryCountId",
-          "locationId"
+          "args"
         ]
       }
     },

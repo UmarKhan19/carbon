@@ -228,8 +228,11 @@ serve(async (req: Request) => {
     // body — supabase-js otherwise only exposes a generic FunctionsHttpError.message.
     // For line-level validation errors we also return `invalidLineIds` so the UI
     // can highlight the offending rows.
-    const invalidLineIds =
-      err instanceof InvalidLinesError ? err.lineIds : undefined;
+    // Only line-level validation failures are client errors (400). Everything
+    // else — "not found", "no longer pending", DB/runtime failures — is a 500 so
+    // real outages surface in monitoring instead of hiding as a 400.
+    const isValidationError = err instanceof InvalidLinesError;
+    const invalidLineIds = isValidationError ? err.lineIds : undefined;
     return new Response(
       JSON.stringify({
         message: (err as Error).message,
@@ -237,7 +240,7 @@ serve(async (req: Request) => {
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 400
+        status: isValidationError ? 400 : 500
       }
     );
   }

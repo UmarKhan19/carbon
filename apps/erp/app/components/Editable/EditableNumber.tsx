@@ -3,6 +3,42 @@ import { NumberField, NumberInput } from "@carbon/react";
 import type { PostgrestSingleResponse } from "@supabase/supabase-js";
 import type { EditableTableCellComponentProps } from "~/components/Editable";
 
+// The active app locale, hook-free (the editable cell is a nested render fn, not
+// a hook context). `root.tsx` stamps it on <html lang>; fall back to the browser
+// locale, then "en".
+function getActiveLocale(): string {
+  if (typeof document !== "undefined" && document.documentElement.lang) {
+    return document.documentElement.lang;
+  }
+  if (typeof navigator !== "undefined" && navigator.language) {
+    return navigator.language;
+  }
+  return "en";
+}
+
+// Parse a user-typed number string in the active locale. We must read the DOM
+// text on blur (react-aria's own onChange is lost when moving to another cell
+// unmounts the input mid-commit — see the NumberField note below), but we must
+// NOT assume `.`/`,` roles: derive the locale's group + decimal separators from
+// Intl so "1.234,5" (de) and "1,234.5" (en) both parse correctly. Returns NaN
+// for empty/unparseable input so the caller treats it as "no value" rather than
+// silently persisting 0.
+function parseLocaleNumber(text: string, locale: string): number {
+  const trimmed = text.trim();
+  if (trimmed === "") return NaN;
+  const parts = new Intl.NumberFormat(locale).formatToParts(12345.6);
+  const group = parts.find((p) => p.type === "group")?.value ?? ",";
+  const decimal = parts.find((p) => p.type === "decimal")?.value ?? ".";
+  const normalized = trimmed
+    .split(group)
+    .join("") // drop grouping separators
+    .replace(decimal, ".") // localize the decimal separator
+    .replace(/[^0-9.-]/g, ""); // strip currency, spaces, RTL marks, etc.
+  if (normalized === "" || normalized === "-" || normalized === ".") return NaN;
+  const n = Number(normalized);
+  return Number.isFinite(n) ? n : NaN;
+}
+
 const EditableNumber =
   <T extends object>(
     mutation: (
@@ -88,13 +124,12 @@ const EditableNumber =
           autoFocus
           onFocus={(e) => e.currentTarget.select()}
           onBlur={(e) => {
-            const text = (e.currentTarget.value ?? "").trim();
-            if (text === "") {
-              commit(undefined);
-              return;
-            }
-            const parsed = Number(text.replace(/[^0-9.-]/g, ""));
-            commit(Number.isFinite(parsed) ? parsed : undefined);
+            const parsed = parseLocaleNumber(
+              e.currentTarget.value ?? "",
+              getActiveLocale()
+            );
+            // NaN → treat as empty/no-value (commit guards against persisting 0).
+            commit(Number.isNaN(parsed) ? undefined : parsed);
           }}
         />
       </NumberField>

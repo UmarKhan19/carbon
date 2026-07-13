@@ -338,7 +338,7 @@ export function IssueMaterialModal({
     hasPickingAllocation &&
     (trackingType === "Batch" || trackingType === "Serial");
   const { data: pickedAllocation } = usePickedAllocation(
-    shouldLoadPickedAllocation ? (material.id ?? undefined) : undefined
+    shouldLoadPickedAllocation ? (material?.id ?? undefined) : undefined
   );
   // One source feeds the seeding + add-row logic below: the picked lots when a
   // picking list exists, otherwise the on-the-fly suggestion.

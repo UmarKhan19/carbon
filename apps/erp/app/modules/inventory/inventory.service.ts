@@ -2100,14 +2100,20 @@ export async function generateInventoryCountLines(
 // count on top of current stock. A full regenerate would wipe the counts; this
 // only moves the baseline forward. The calling route guards status; re-stamps
 // `snapshotAt`.
-export async function resnapshotInventoryCountLines(
-  db: Kysely<KyselyDatabase>,
-  args: {
-    inventoryCountId: string;
-    companyId: string;
-    locationId: string;
-    updatedBy: string;
-  }
+type ResnapshotInventoryCountArgs = {
+  inventoryCountId: string;
+  companyId: string;
+  locationId: string;
+  updatedBy: string;
+};
+
+// Re-baseline each line's `systemQuantity` to fresh live on-hand, inside a
+// caller-supplied transaction. A `Transaction` is a `Kysely`, so callers pass
+// `trx`; this never opens its own transaction, letting a caller (rectify) bundle
+// it with a status guard + status flip atomically.
+async function resnapshotInventoryCountLinesInTrx(
+  trx: Kysely<KyselyDatabase>,
+  args: ResnapshotInventoryCountArgs
 ) {
   const { inventoryCountId, companyId, locationId, updatedBy } = args;
 
@@ -2117,63 +2123,98 @@ export async function resnapshotInventoryCountLines(
     trackedEntityId: string | null
   ) => `${itemId}|${storageUnitId ?? ""}|${trackedEntityId ?? ""}`;
 
-  return db.transaction().execute(async (trx) => {
-    const lines = await trx
-      .selectFrom("inventoryCountLine")
-      .select(["id", "itemId", "storageUnitId", "trackedEntityId"])
-      .where("inventoryCountId", "=", inventoryCountId)
-      .where("companyId", "=", companyId)
-      .execute();
+  const lines = await trx
+    .selectFrom("inventoryCountLine")
+    .select(["id", "itemId", "storageUnitId", "trackedEntityId"])
+    .where("inventoryCountId", "=", inventoryCountId)
+    .where("companyId", "=", companyId)
+    .execute();
 
-    // Fresh status-aware on-hand for the location, grouped by bucket (matches
-    // `generateInventoryCountLines` / `get_inventory_quantities`).
-    const onHandRows = await trx
-      .selectFrom("itemLedger")
-      .select(["itemId", "storageUnitId", "trackedEntityId"])
-      .select((eb) => eb.fn.sum<number>("quantity").as("quantity"))
-      .where("companyId", "=", companyId)
-      .where("locationId", "=", locationId)
-      .where((eb) =>
-        eb.or([
-          eb("trackedEntityStatus", "is", null),
-          eb("trackedEntityStatus", "!=", "Rejected")
-        ])
-      )
-      .groupBy(["itemId", "storageUnitId", "trackedEntityId"])
-      .execute();
-
-    const onHandByBucket = new Map(
-      onHandRows.map((r) => [
-        bucketKey(r.itemId, r.storageUnitId, r.trackedEntityId),
-        Number(r.quantity ?? 0)
+  // Fresh status-aware on-hand for the location, grouped by bucket (matches
+  // `generateInventoryCountLines` / `get_inventory_quantities`).
+  const onHandRows = await trx
+    .selectFrom("itemLedger")
+    .select(["itemId", "storageUnitId", "trackedEntityId"])
+    .select((eb) => eb.fn.sum<number>("quantity").as("quantity"))
+    .where("companyId", "=", companyId)
+    .where("locationId", "=", locationId)
+    .where((eb) =>
+      eb.or([
+        eb("trackedEntityStatus", "is", null),
+        eb("trackedEntityStatus", "!=", "Rejected")
       ])
-    );
+    )
+    .groupBy(["itemId", "storageUnitId", "trackedEntityId"])
+    .execute();
 
-    const now = new Date().toISOString();
-    for (const line of lines) {
-      await trx
-        .updateTable("inventoryCountLine")
-        .set({
-          systemQuantity:
-            onHandByBucket.get(
-              bucketKey(line.itemId, line.storageUnitId, line.trackedEntityId)
-            ) ?? 0,
-          updatedBy,
-          updatedAt: now
-        })
-        .where("id", "=", line.id)
-        .where("companyId", "=", companyId)
-        .execute();
+  const onHandByBucket = new Map(
+    onHandRows.map((r) => [
+      bucketKey(r.itemId, r.storageUnitId, r.trackedEntityId),
+      Number(r.quantity ?? 0)
+    ])
+  );
+
+  const now = new Date().toISOString();
+  for (const line of lines) {
+    await trx
+      .updateTable("inventoryCountLine")
+      .set({
+        systemQuantity:
+          onHandByBucket.get(
+            bucketKey(line.itemId, line.storageUnitId, line.trackedEntityId)
+          ) ?? 0,
+        updatedBy,
+        updatedAt: now
+      })
+      .where("id", "=", line.id)
+      .where("companyId", "=", companyId)
+      .execute();
+  }
+
+  await trx
+    .updateTable("inventoryCount")
+    .set({ snapshotAt: now, updatedBy, updatedAt: now })
+    .where("id", "=", inventoryCountId)
+    .where("companyId", "=", companyId)
+    .execute();
+
+  return lines.length;
+}
+
+// Rectify a posted count in one transaction: lock the row, verify it is still
+// Posted, re-baseline the lines, and flip it back to Draft — all-or-nothing.
+// This closes the race the previous two-step route left open (a count could be
+// re-snapshotted while remaining Posted if the second write failed or a
+// concurrent request slipped in between). Throws on rollback; the route maps it
+// to a flash. Kysely bypasses RLS — authorize at the route first.
+export async function rectifyInventoryCount(
+  db: Kysely<KyselyDatabase>,
+  args: ResnapshotInventoryCountArgs
+) {
+  const { inventoryCountId, companyId, updatedBy } = args;
+  return db.transaction().execute(async (trx) => {
+    const locked = await trx
+      .selectFrom("inventoryCount")
+      .select(["id", "status"])
+      .where("id", "=", inventoryCountId)
+      .where("companyId", "=", companyId)
+      .forUpdate()
+      .executeTakeFirst();
+
+    if (!locked) throw new Error("Inventory count not found");
+    if (locked.status !== "Posted") {
+      throw new Error("Only a posted count can be rectified");
     }
+
+    await resnapshotInventoryCountLinesInTrx(trx, args);
 
     await trx
       .updateTable("inventoryCount")
-      .set({ snapshotAt: now, updatedBy, updatedAt: now })
+      .set({ status: "Draft", updatedBy, updatedAt: new Date().toISOString() })
       .where("id", "=", inventoryCountId)
       .where("companyId", "=", companyId)
+      .where("status", "=", "Posted")
       .execute();
-
-    return lines.length;
   });
 }
 

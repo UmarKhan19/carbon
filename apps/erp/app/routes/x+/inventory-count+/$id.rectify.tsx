@@ -3,21 +3,19 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
-import {
-  getInventoryCount,
-  resnapshotInventoryCountLines,
-  updateInventoryCountStatus
-} from "~/modules/inventory";
+import { getInventoryCount, rectifyInventoryCount } from "~/modules/inventory";
 import { getDatabaseClient } from "~/services/database.server";
 import { path } from "~/utils/path";
 
 // Rectify (Posted -> Draft): reopen a posted count in place to fix wrong counted
-// quantities, then re-post. Re-snapshots each line's system quantity to current
-// live on-hand (so the reopened count starts drift-free and unchanged lines post
-// nothing), then flips the count back to Draft for editing. Re-posting writes a
-// new adjustment for each changed line, linked to its original movement
-// (`itemLedger.correctionOfItemLedgerId`), so both stay visible in Stock
-// Movements. The original posted movements are never mutated.
+// quantities, then re-post. `rectifyInventoryCount` does the whole thing in ONE
+// transaction — lock the row, verify it is still Posted, re-baseline each line's
+// system quantity to current live on-hand (so the reopened count starts
+// drift-free and unchanged lines post nothing), and flip to Draft — so a failure
+// or concurrent request can't leave it re-snapshotted-but-still-Posted.
+// Re-posting later writes a new adjustment for each changed line, linked to its
+// original movement (`itemLedger.correctionOfItemLedgerId`), so both stay visible
+// in Stock Movements. The original posted movements are never mutated.
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
   const { client, companyId, userId } = await requirePermissions(request, {
@@ -28,15 +26,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
   if (!id) throw new Error("Could not find id");
 
   const header = await getInventoryCount(client, id, companyId);
-  if (header.data?.status !== "Posted") {
+  if (!header.data) {
     throw redirect(
-      path.to.inventoryCount(id),
-      await flash(request, error(null, "Only a posted count can be rectified"))
+      path.to.inventoryCounts,
+      await flash(
+        request,
+        error(header.error, "Failed to load inventory count")
+      )
     );
   }
 
   try {
-    await resnapshotInventoryCountLines(getDatabaseClient(), {
+    await rectifyInventoryCount(getDatabaseClient(), {
       inventoryCountId: id,
       companyId,
       locationId: header.data.locationId,
@@ -49,21 +50,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
         request,
         error(err, "Failed to reopen count for rectification")
       )
-    );
-  }
-
-  const reopened = await updateInventoryCountStatus(client, {
-    id,
-    companyId,
-    status: "Draft",
-    expectedStatus: "Posted",
-    updatedBy: userId
-  });
-
-  if (reopened.error) {
-    throw redirect(
-      path.to.inventoryCount(id),
-      await flash(request, error(reopened.error, "Failed to reopen count"))
     );
   }
 

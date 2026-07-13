@@ -239,16 +239,42 @@ const StockMovementsTable = memo(
     // correction whose original isn't on the page stays inline (still badged).
     const { displayData, correctionsByOriginal } = useMemo(() => {
       const byId = new Map(data.map((m) => [m.id, m]));
+
+      // Walk a correction up its `correctionOfItemLedgerId` chain to the topmost
+      // ancestor present on this page. Corrections can chain (a rectification of
+      // a rectification links to the prior correction, not the original), so we
+      // must resolve to the ULTIMATE root — otherwise a grandchild correction
+      // would be hidden but never re-shown under any visible row.
+      const rootOf = (m: StockMovement) => {
+        let cur = m;
+        const seen = new Set<string>();
+        while (
+          cur.correctionOfItemLedgerId &&
+          byId.has(cur.correctionOfItemLedgerId) &&
+          cur.id &&
+          !seen.has(cur.id)
+        ) {
+          seen.add(cur.id);
+          cur = byId.get(cur.correctionOfItemLedgerId) as StockMovement;
+        }
+        return cur;
+      };
+
       const byOriginal = new Map<string, StockMovement[]>();
       const nestedIds = new Set<string>();
       for (const m of data) {
-        const parentId = m.correctionOfItemLedgerId;
-        if (parentId && byId.has(parentId)) {
-          const list = byOriginal.get(parentId) ?? [];
-          list.push(m);
-          byOriginal.set(parentId, list);
-          if (m.id) nestedIds.add(m.id);
-        }
+        if (!m.correctionOfItemLedgerId) continue;
+        const root = rootOf(m);
+        // No on-page ancestor (root resolves back to itself) → leave inline.
+        if (!root.id || root.id === m.id) continue;
+        const list = byOriginal.get(root.id) ?? [];
+        list.push(m);
+        byOriginal.set(root.id, list);
+        if (m.id) nestedIds.add(m.id);
+      }
+      // Order each group oldest-first so a chain reads original → fix → fix.
+      for (const list of byOriginal.values()) {
+        list.sort((a, b) => (a.entryNumber ?? 0) - (b.entryNumber ?? 0));
       }
       return {
         correctionsByOriginal: byOriginal,
