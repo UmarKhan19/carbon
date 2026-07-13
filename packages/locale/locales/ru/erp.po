@@ -9515,7 +9515,7 @@ msgid "Receive to Inventory"
 msgstr "Получить в инвентарь"
 
 msgid "Received"
-msgstr ""
+msgstr "Получено"
 
 #. placeholder {0}: status?.received
 #. placeholder {1}: status?.ordered
@@ -9868,7 +9868,7 @@ msgid "Results per page"
 msgstr "Результатов на странице"
 
 msgid "Resume Receiving"
-msgstr ""
+msgstr "Возобновить получение"
 
 msgid "Retained Earnings"
 msgstr "Нераспределенная прибыль"
@@ -11145,7 +11145,7 @@ msgid "Stop raising purchase orders after this date"
 msgstr "Прекратить создание заказов на покупку после этой даты"
 
 msgid "Stop Receiving"
-msgstr ""
+msgstr "Остановить получение"
 
 msgid "Storage client not available"
 msgstr "Клиент хранилища недоступен"
@@ -12100,12 +12100,12 @@ msgstr "Справочные данные, на которые опираетс�
 #. placeholder {0}: line.quantityToReceive
 #. placeholder {1}: line.purchaseUnitOfMeasureCode ?? ""
 msgid "The remaining {0} {1} will be expected again and counted as incoming supply."
-msgstr ""
+msgstr "Оставшиеся {0} {1} будут ожидаться вновь и учитываться как входящие поставки."
 
 #. placeholder {0}: line.quantityToReceive
 #. placeholder {1}: line.purchaseUnitOfMeasureCode ?? ""
 msgid "The remaining {0} {1} will no longer be expected. On-order supply and MRP will stop counting it. The ordered quantity and pricing are unchanged."
-msgstr ""
+msgstr "Оставшиеся {0} {1} больше не будут ожидаться. Входящие поставки и MRP прекратят их учет. Заказанное количество и цены остаются неизменными."
 
 msgid "The residual WIP a job has left at close, swept to a Production Variance account — the only variance Carbon books for a job."
 msgstr "Остаточное незавершенное производство, оставленное заданием при закрытии, перемещено на счет производственного отклонения — единственное отклонение, которое Carbon регистрирует для задания."

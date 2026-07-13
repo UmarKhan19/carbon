@@ -9515,7 +9515,7 @@ msgid "Receive to Inventory"
 msgstr "In Bestand empfangen"
 
 msgid "Received"
-msgstr ""
+msgstr "Eingegangen"
 
 #. placeholder {0}: status?.received
 #. placeholder {1}: status?.ordered
@@ -9868,7 +9868,7 @@ msgid "Results per page"
 msgstr "Ergebnisse pro Seite"
 
 msgid "Resume Receiving"
-msgstr ""
+msgstr "Empfang fortsetzen"
 
 msgid "Retained Earnings"
 msgstr "Thesaurierte Gewinne"
@@ -11145,7 +11145,7 @@ msgid "Stop raising purchase orders after this date"
 msgstr "Bestellungen nach diesem Datum nicht mehr aufgeben"
 
 msgid "Stop Receiving"
-msgstr ""
+msgstr "Empfang beenden"
 
 msgid "Storage client not available"
 msgstr "Speicherclient nicht verfügbar"
@@ -12100,12 +12100,12 @@ msgstr "Die Referenzdaten, auf denen alles andere aufbaut. Wird zuerst geladen."
 #. placeholder {0}: line.quantityToReceive
 #. placeholder {1}: line.purchaseUnitOfMeasureCode ?? ""
 msgid "The remaining {0} {1} will be expected again and counted as incoming supply."
-msgstr ""
+msgstr "Die restliche {0} {1} wird erneut erwartet und als eingehende Versorgung gezählt."
 
 #. placeholder {0}: line.quantityToReceive
 #. placeholder {1}: line.purchaseUnitOfMeasureCode ?? ""
 msgid "The remaining {0} {1} will no longer be expected. On-order supply and MRP will stop counting it. The ordered quantity and pricing are unchanged."
-msgstr ""
+msgstr "Die restliche {0} {1} wird nicht mehr erwartet. Die Bestellversorgung und MRP werden sie nicht mehr berücksichtigen. Die bestellte Menge und die Preisgestaltung bleiben unverändert."
 
 msgid "The residual WIP a job has left at close, swept to a Production Variance account — the only variance Carbon books for a job."
 msgstr "Das Residualwip, das ein Auftrag bei Schließung verlassen hat, gefegt auf ein Produktionsvarianzverkehr – die einzige Varianz Carbon Bücher für einen Auftrag."
