@@ -15,8 +15,6 @@ server/dist
 public/dist
 vite.config.ts.timestamp*
 .claude-flow
-.claude/settings.local.json
-.claude/scheduled_tasks.lock
 .mcp.json
 opencode.json
 .windsurf
@@ -63,24 +61,36 @@ packages/database/supabase/seed.sql
 .superpowers
 
 # Agent scratch — local-only, never commit
-.claude/scratch/
 apps/*/portless.json
 packages/database/supabase/snippets/**
 .pr-review
 
-# .claude/ and .codex/ rules+skills are symlinks created by .ai/scripts/install-skills.sh
-# Source of truth is .ai/rules/ and .ai/skills/ — never edit under .claude/ or .codex/ directly
-.claude/rules/
-.claude/skills/
-.claude/notes/
+# Agent harness dirs — generated/symlinked by .ai/scripts/install-skills.sh, or local-only.
+# Source of truth is .ai/rules/ and .ai/skills/ — never edit under these directly.
+.agents/
+.claude/
 .codex/
+
+# External skills manifest — locally resolved from skill sources, not committed
+skills-lock.json
+
+# Editor/IDE settings — local, not source
+.vscode/
 
 # .ai/ scratch — runtime, not source
 .ai/scratch/
+.ai/daily-notes/
 
-# Loop run artifacts (@carbon/harness RUNS_DIR) — directories only, so
-# committed markdown run logs (.ai/runs/*.md) stay tracked
-.ai/runs/*/
+# Daily notes — runtime scratch, not source
+memory/daily-notes/
+
+# Loop run artifacts (@carbon/harness RUNS_DIR).
+# Volatile files (screenshots, raw event log) are excluded; durable run records
+# (binding, ledger, outcome) are committed back to main after each build so any
+# agent can inspect history and resume partial work without the worktree.
+.ai/runs/*/screenshots/
+.ai/runs/*/run.log.jsonl
+.ai/runs/*/.tmp/
 
 # Legacy llm/ — consolidated into .ai/ (docs, specs, runs)
 llm/
