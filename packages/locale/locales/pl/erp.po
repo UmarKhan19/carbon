@@ -51,6 +51,10 @@ msgstr "{0} dni"
 msgid "{0} deleted successfully"
 msgstr "{0} usunięty pomyślnie"
 
+#. placeholder {0}: task.autoCheck.count
+msgid "{0} draft journal entries"
+msgstr "{0} wpisów dziennika w wersji roboczej"
+
 #. placeholder {0}: mappings.length
 msgid "{0} lines to map"
 msgstr "{0} linii do mapowania"
@@ -70,6 +74,10 @@ msgstr "{0} dostawców z saldem"
 #. placeholder {0}: lotEntities.length - inspected
 msgid "{0} un-sampled entities will be released to Available. Sampled passes stay Available and sampled failures stay Rejected."
 msgstr "{0} nieprzetestowane jednostki zostaną zwolnione do Dostępne. Przebadane pozytywne pozostają Dostępne, a przebadane negatywne pozostają Odrzucone."
+
+#. placeholder {0}: task.autoCheck.count
+msgid "{0} unposted documents"
+msgstr "{0} nieopublikowanych dokumentów"
 
 #. placeholder {0}: file.name
 msgid "{0} uploaded successfully"
@@ -142,6 +150,15 @@ msgstr "0-4 tygodnie"
 
 msgid "1 day"
 msgstr "1 dzień"
+
+msgid "1 draft journal entry"
+msgstr "1 wpis dziennika w wersji roboczej"
+
+msgid "1 unposted document"
+msgstr "1 nieopublikowany dokument"
+
+msgid "12 monthly periods"
+msgstr "12 miesięcznych okresów"
 
 msgid "13+ weeks"
 msgstr "13+ tygodni"
@@ -424,6 +441,9 @@ msgstr "Rachunkowość jest włączona"
 
 msgid "Accounting period"
 msgstr "Okres rozliczeniowy"
+
+msgid "Accounting Periods"
+msgstr "Okresy Księgowe"
 
 msgid "Accounting: GL, AR, AP, and month-end close"
 msgstr "Rachunkowość: GL, AR, AP i zamknięcie miesiąca"
@@ -837,6 +857,10 @@ msgstr "Zakotwicza oś czasu Planu do rzeczywistych dat. Pozostaw puste, aby uzy
 
 msgid "AND"
 msgstr "I"
+
+#. placeholder {0}: count - documents.length
+msgid "And {0} more — resolve these to see the rest."
+msgstr "I {0} więcej — rozwiąż te, aby zobaczyć resztę."
 
 msgid "and {remaining} more"
 msgstr "i {remaining} więcej"
@@ -1851,6 +1875,9 @@ msgstr "Kalibracje"
 msgid "Called a method in Carbon — the components plus operations that produce a part."
 msgstr "Zwana metodą w Carbon — komponenty plus operacje, które tworzą część."
 
+msgid "Can't delete this period"
+msgstr "Nie można usunąć tego okresu"
+
 msgid "Can't disable the only active break. Add another break or toggle the override's Active instead."
 msgstr "Nie można wyłączyć jedynego aktywnego przedziału. Dodaj inny przedział lub przełącz opcję Aktywne dla przesłonięcia."
 
@@ -1901,6 +1928,9 @@ msgstr "Nie można dodać kroków do niezapisanej operacji"
 
 msgid "Cannot add tools to unsaved operation"
 msgstr "Nie można dodać narzędzi do niezapisanej operacji"
+
+msgid "Cannot close yet"
+msgstr "Nie można zamknąć teraz"
 
 msgid "Cannot convert RFQ to quote"
 msgstr "Nie można skonwertować RFQ na ofertę"
@@ -2049,6 +2079,9 @@ msgstr "Plan kont"
 msgid "Chat"
 msgstr "Czat"
 
+msgid "Check the item ledger for any items with a negative on-hand quantity as of period end — usually a missing receipt or an out-of-order posting that distorts inventory value and cost of goods sold. Mark it done once reviewed, or skip with a reason."
+msgstr "Sprawdź księgę pozycji w poszukiwaniu pozycji z ujemną ilością dostępną na koniec okresu — zwykle wynika to z brakującego przychodu lub niechronologicznego wpisu, który zniekształca wartość zapasów i koszt sprzedanych towarów. Oznacz jako wykonane po sprawdzeniu lub pomiń, podając przyczynę."
+
 msgid "Check your email"
 msgstr "Sprawdź swoją pocztę"
 
@@ -2128,8 +2161,17 @@ msgstr "Zalogowany od {0}"
 msgid "Close"
 msgstr "Zamknij"
 
+msgid "Close {periodLabel}"
+msgstr "Zamknij {periodLabel}"
+
 msgid "Close Date"
 msgstr "Data zamknięcia"
+
+msgid "Close Period"
+msgstr "Zamknij Okres"
+
+msgid "Close Status"
+msgstr "Status Zamknięcia"
 
 msgid "Closed"
 msgstr "Zamknięty"
@@ -2384,6 +2426,9 @@ msgstr "Potwierdź mapowanie"
 msgid "Confirm Password"
 msgstr "Potwierdź hasło"
 
+msgid "Confirm Skip"
+msgstr "Potwierdź Pominięcie"
+
 msgid "Confirmed incoming stock — purchase & production orders (bars above zero)."
 msgstr "Potwierdzone zapasy przychodzące — zamówienia zakupu i produkcji (słupki powyżej zera)."
 
@@ -2392,6 +2437,9 @@ msgstr "Potwierdzone zapasy wychodzące — zamówienia sprzedaży i materiały 
 
 msgid "Confirming locks the counted quantities. Review the warnings below, then post the count to apply the adjustments."
 msgstr "Potwierdzenie blokuje zliczone ilości. Przejrzyj ostrzeżenia poniżej, a następnie opublikuj liczenie, aby zastosować korekty."
+
+msgid "Confirms every posted journal entry in the period has equal debits and credits. If any entry is out of balance the trial balance won't tie out, so it must be corrected before the period can close."
+msgstr "Potwierdza, że każdy opublikowany wpis dziennika w okresie ma równe obciążenia i kredyty. Jeśli jakiś wpis jest niezrównoważony, bilans próbny się nie zgramadzi, więc musi być poprawiony przed zamknięciem okresu."
 
 msgid "Connect Carbon to your accounting, project management, and CAD tools and much more."
 msgstr "Połącz Carbon ze swoimi narzędziami księgowości, zarządzania projektami, CAD i wieloma innymi."
@@ -2961,6 +3009,9 @@ msgstr "Webhook utworzony"
 msgid "Created work center"
 msgstr "Utworzono centrum pracy"
 
+msgid "Creates the 12 monthly periods for a fiscal year. Periods that already exist are kept."
+msgstr "Tworzy 12 miesięcznych okresów dla roku obrachunkowego. Istniejące okresy są zachowywane."
+
 msgid "Creating part..."
 msgstr "Tworzenie części..."
 
@@ -2981,6 +3032,9 @@ msgstr "Konto kredytowe, gdy koszty ogólne są absorbowane do ZW"
 
 msgid "Credit accounts used when manufacturing costs are absorbed into WIP"
 msgstr "Konta kredytowe używane, gdy koszty produkcji są absorbowane do ZW"
+
+msgid "Credit Memo"
+msgstr "Notatka kredytowa"
 
 msgid "Credits & Debits"
 msgstr "Kredyty i Debety"
@@ -3325,6 +3379,9 @@ msgstr "Obciążenie"
 msgid "Debit Account"
 msgstr "Konto Obciążeniowe"
 
+msgid "Debit Memo"
+msgstr "Notatka debetowa"
+
 msgid "Decide what an operator sees if they try to issue a batch or serial that's already expired."
 msgstr "Zdecyduj, co operator widzi, jeśli spróbuje wydać partię lub numer seryjny, który już wygasł."
 
@@ -3457,6 +3514,9 @@ msgstr "Usuń"
 msgid "Delete {name}"
 msgstr "Usuń {name}"
 
+msgid "Delete {periodLabel}"
+msgstr "Usuń {periodLabel}"
+
 msgid "Delete {storageUnitName}"
 msgstr "Usuń {storageUnitName}"
 
@@ -3567,6 +3627,9 @@ msgstr "Usuń płatność"
 
 msgid "Delete Payment Term"
 msgstr "Usuń Warunki Płatności"
+
+msgid "Delete Period"
+msgstr "Usuń Okres"
 
 msgid "Delete Picking List"
 msgstr "Usuń listę pobrania"
@@ -3773,6 +3836,9 @@ msgstr "Metoda Amortyzacji (domyślna)"
 msgid "Depreciation reversal when a fixed asset is disposed"
 msgstr "Wycofanie amortyzacji w przypadku pozbywania się środka trwałego"
 
+msgid "Depreciation runs ending in this period that are still Draft should be posted so the period reflects the correct depreciation expense and accumulated depreciation. Skip with a reason if depreciation doesn't apply this period."
+msgstr "Przebiegi amortyzacji kończące się w tym okresie, które są w wersji roboczej, powinny być opublikowane, aby okres odzwierciedlał prawidłowy koszt amortyzacji i skumulowaną amortyzację. Pomiń z uzasadnieniem, jeśli amortyzacja nie ma zastosowania w tym okresie."
+
 msgid "Depreciation Start Date"
 msgstr "Data Rozpoczęcia Amortyzacji"
 
@@ -3963,6 +4029,9 @@ msgstr "Wersja robocza"
 
 msgid "Draft is editable; Active is in use and requires a new version to change; Archived is retired."
 msgstr "Wersja robocza jest edytowalna; Aktywna jest w użyciu i wymaga nowej wersji do zmiany; Zarchiwizowana jest wycofana."
+
+msgid "Draft Journal Entries"
+msgstr "Wpisy dziennika w wersji roboczej"
 
 msgid "Drag & drop files, or click to browse"
 msgstr "Przeciągnij i upuść pliki, lub kliknij aby przeglądać"
@@ -4673,6 +4742,9 @@ msgstr "Każdy warunek musi się zgadzać"
 msgid "Every in-scope test passes in your configured system, with your data."
 msgstr "Każdy test w zakresie przechodzi w Twoim skonfigurowanym systemie, z Twoimi danymi."
 
+msgid "Every required task must be Done or Skipped before the period can be closed."
+msgstr "Każde wymagane zadanie musi być oznaczone jako Wykonane lub Pominięte zanim okres będzie mógł być zamknięty."
+
 msgid "Every row was imported successfully."
 msgstr "Każdy wiersz został pomyślnie zaimportowany."
 
@@ -5246,6 +5318,9 @@ msgstr "Pierwsza operacja"
 msgid "First-year additional deduction taken before the regular MACRS schedule begins."
 msgstr "Środek Trwały"
 
+msgid "Fiscal year"
+msgstr "Rok obrachunkowy"
+
 msgid "Fiscal Year"
 msgstr "Rok obrachunkowy"
 
@@ -5272,6 +5347,9 @@ msgstr "Środki trwałe"
 
 msgid "Fixed cost amortization variance when batch size differs from standard"
 msgstr "Zyski i Straty"
+
+msgid "Fixed once accounting periods have been posted to or closed. Delete all open periods to change it."
+msgstr "Ustalony po wpisaniu lub zamknięciu okresów obrachunkowych. Aby go zmienić, usuń wszystkie otwarte okresy."
 
 msgid "Fixed Reorder"
 msgstr "Stałe Zamówienie"
@@ -5402,11 +5480,20 @@ msgstr "Księga główna"
 msgid "General Ledger and month-end close"
 msgstr "Księga główna i zamknięcie na koniec miesiąca"
 
+msgid "Generate"
+msgstr "Generuj"
+
 msgid "Generate a new 4-digit PIN. Share it with the operator so they can pin in at MES terminals."
 msgstr "Wygeneruj nowy 4-cyfrowy PIN. Udostępnij go operatorowi, aby mógł się zalogować na terminalach MES."
 
 msgid "Generate and send customer invoices"
 msgstr "Generuj i wysyłaj faktury dla klientów"
+
+msgid "Generate fiscal year"
+msgstr "Generuj rok obrachunkowy"
+
+msgid "Generate Fiscal Year"
+msgstr "Generuj Rok Obrachunkowy"
 
 msgid "Generate material IDs and descriptions based on the properties of the material."
 msgstr "Generuj identyfikatory materiałów i opisy na podstawie właściwości materiału."
@@ -6081,6 +6168,9 @@ msgstr "Integracje niewymienione tutaj"
 msgid "Intercompany"
 msgstr "Transakcje międzyfirmowe"
 
+msgid "Intercompany transactions involving this company that are still Unmatched should be matched and eliminated, so consolidated results don't double-count activity between entities."
+msgstr "Transakcje między spółkami dotyczące tej spółki, które są jeszcze niepasujące, powinny być dopasowane i wyeliminowane, aby skonsolidowane wyniki nie liczyły dwukrotnie działalności między jednostkami."
+
 msgid "Interest"
 msgstr "Odsetki"
 
@@ -6400,6 +6490,12 @@ msgstr "Dziennik"
 msgid "Journal Entries"
 msgstr "Wpisy dziennika"
 
+msgid "Journal entries dated in this period that are still Draft must be posted, or re-dated into a later open period. Draft entries aren't part of the ledger, so their debits and credits would be missing from the close."
+msgstr "Wpisy dziennika datowane w tym okresie, które są w wersji roboczej, muszą być opublikowane lub przedatowane na późniejszy otwarty okres. Wpisy w wersji roboczej nie są częścią księgi, więc ich obciążenia i kredyty byłyby brakujące w zamknięciu."
+
+msgid "Journal Entry"
+msgstr "Wpis dziennika"
+
 msgid "Kanban"
 msgstr "Kanban"
 
@@ -6677,6 +6773,15 @@ msgstr "Lokalizacje"
 msgid "Lock"
 msgstr "Zablokuj"
 
+msgid "Lock Period"
+msgstr "Zablokuj okres"
+
+msgid "Locked"
+msgstr "Zablokowany"
+
+msgid "Locking makes the period read-only for operational documents (receipts, shipments, invoices) while still allowing accounting adjustments like depreciation and disposals. A period must be locked before it can be closed."
+msgstr "Zablokowanie uczynia okres tylko do odczytu dla dokumentów operacyjnych (pokwitowania, przesyłki, faktury), jednocześnie umożliwiając korekty księgowe, takie jak amortyzacja i zbycie. Okres musi być zablokowany, zanim będzie można go zamknąć."
+
 msgid "Log In"
 msgstr "Zaloguj się"
 
@@ -6906,6 +7011,9 @@ msgstr "Znak Tryb Ciemny"
 
 msgid "Mark done"
 msgstr "Oznacz jako gotowe"
+
+msgid "Mark Done"
+msgstr "Oznacz jako Wykonane"
 
 msgid "Mark Light Mode"
 msgstr "Znak w trybie jasnym"
@@ -8042,6 +8150,9 @@ msgstr "Jeden system od oferty do gotówki"
 
 msgid "Only Draft procedures are editable. Create a new version to change an Active or Archived procedure."
 msgstr "Edytowalne są tylko procedury w wersji roboczej. Utwórz nową wersję, aby zmienić aktywną lub zarchiwizowaną procedurę."
+
+msgid "Only empty, open periods can be deleted."
+msgstr "Usunięte mogą być tylko puste, otwarte okresy."
 
 msgid "Onshape Status"
 msgstr "Status Onshape"
@@ -9332,6 +9443,9 @@ msgstr "Konto przyczyny"
 msgid "Reason for declining (Optional)"
 msgstr "Powód odrzucenia (Opcjonalnie)"
 
+msgid "Reason for skipping (required)"
+msgstr "Powód pominięcia (wymagane)"
+
 msgid "Reasons"
 msgstr "Powody"
 
@@ -9367,6 +9481,9 @@ msgstr "Data żądanego odbioru"
 
 msgid "Receipts"
 msgstr "Paragony"
+
+msgid "Receipts, shipments, sales invoices, purchase invoices, payments, and credit/debit memos that are still Draft or Pending must be posted or voided — both documents dated in this period and undated documents that would receive a date in it when posted. Until they post, their amounts aren't in the general ledger, so the period would be understated."
+msgstr "Pokwitowania, przesyłki, faktury sprzedaży, faktury zakupu, płatności i noty kredytowe/debetowe, które są w wersji roboczej lub oczekujące, muszą być opublikowane lub unieważnione — zarówno dokumenty datowane w tym okresie, jak i niezdatowane dokumenty, które otrzymałyby datę w nim po opublikowaniu. Dopóki nie zostaną opublikowane, ich kwoty nie znajdują się w księdze głównej, więc okres byłby niedoszacowany."
 
 msgid "Receivables"
 msgstr "Należności (domyślnie)"
@@ -9782,6 +9899,9 @@ msgstr "Odwrotne obciążenie podatkiem od sprzedaży (domyślnie)"
 
 msgid "Reverse the related journal entries"
 msgstr "Odwróć powiązane wpisy w dzienniku"
+
+msgid "Review the period's balance sheet and income statement and confirm the figures look right. This is a manual sign-off — mark it done once you have reviewed them."
+msgstr "Przejrzyj bilans i rachunek zysków i strat okresu i potwierdź, że liczby wyglądają prawidłowo. To jest ręczne zatwierdzenie — oznacz jako gotowe po ich przejrzeniu."
 
 msgid "Revision"
 msgstr "Wersja"
@@ -10767,6 +10887,9 @@ msgstr "Rozmiar"
 msgid "Sizes"
 msgstr "Rozmiary"
 
+msgid "Skip"
+msgstr "Pomiń"
+
 msgid "Skip Existing"
 msgstr "Pomiń istniejące"
 
@@ -11382,6 +11505,9 @@ msgstr "Wersja docelowa"
 msgid "Target Version"
 msgstr "Wersja docelowa"
 
+msgid "Task"
+msgstr "Zadanie"
+
 msgid "tasks"
 msgstr "zadania"
 
@@ -11523,6 +11649,9 @@ msgstr "Księga wszystkich zaksięgowanych wierszy pamiętnika, zsumowanych wed�
 
 msgid "The buckets you track costs against"
 msgstr "Zasobniki, w których śledzisz koszty"
+
+msgid "The capital assets you own and depreciate"
+msgstr "Środki trwałe, które posiadasz i amortyzujesz"
 
 msgid "The Carbon user responsible for this customer relationship; emails and reminders about this customer route to them."
 msgstr "Użytkownik Carbon odpowiedzialny za tę relację z klientem; wiadomości e-mail i przypomnienia dotyczące tego klienta są do nich kierowane."
@@ -11839,6 +11968,9 @@ msgstr "Miesiąc, w którym rozpoczyna się Twój rok obrachunkowy; okresy są n
 msgid "The month your tax year begins; may differ from the fiscal year in some jurisdictions."
 msgstr "Miesiąc, w którym rozpoczyna się Twój rok podatkowy; może różnić się od roku obrachunkowego w niektórych jurysdykcjach."
 
+msgid "The monthly periods you post into and close"
+msgstr "Miesięczne okresy, w których dokonujesz wpisów i które zamykasz"
+
 msgid "The most likely failure mode the requester suspects; the technician confirms or replaces this on close-out, and the difference between suspected and actual feeds reliability reports."
 msgstr "Najewidentnie tryb awarii, który podejrzewa żądający; technik potwierdza lub zastępuje to przy zamknięciu, a różnica między podejrzanym a rzeczywistym zaopatruje raporty niezawodności."
 
@@ -12136,6 +12268,9 @@ msgstr "Nie ma nic do wyrównania, do czego można by zastosować te kredyty."
 msgid "These custom fields will only be available for entities with the same tags"
 msgstr "Te niestandardowe pola będą dostępne tylko dla jednostek z tymi samymi tagami"
 
+msgid "These documents haven't posted to the general ledger, so their amounts are missing from this period. Post or void each one — an undated document receives the posting day's date when it posts."
+msgstr "Te dokumenty nie zostały opublikowane w księdze głównej, więc ich kwoty brakują w tym okresie. Opublikuj lub unieważnij każdy — niezdatowany dokument otrzymuje datę dnia opublikowania po opublikowaniu."
+
 msgid "These email addresses will be automatically CC'd on all emails sent to suppliers (quotes, purchase orders, etc.)."
 msgstr "Te adresy e-mail będą automatycznie dodawane w polu DW do wszystkich wiadomości e-mail wysyłanych do dostawców (oferty, zamówienia zakupu itp.)."
 
@@ -12144,6 +12279,9 @@ msgstr "Te adresy e-mail będą automatycznie dodawane w polu DW do wszystkich w
 
 msgid "These jobs have operations assigned to this work center:"
 msgstr "Te zadania mają operacje przypisane do tego centrum pracy:"
+
+msgid "These journal entries are still Draft, so their debits and credits aren't in the ledger for this period. Post each one, or re-date it into a later open period."
+msgstr "Te wpisy dziennika są wciąż w wersji roboczej, więc ich obciążenia i kredyty nie znajdują się w księdze w tym okresie. Opublikuj każdy lub przedatuj go na późniejszy otwarty okres."
 
 msgid "This completes the Discovery step."
 msgstr "To uzupełnia krok Discovery."
@@ -12216,6 +12354,9 @@ msgstr "Ta część jest przestarzała (Brak zapasu)."
 
 msgid "This part is superseded and set to Stock Only — it's replenished to its spares reserve floor, independent of demand."
 msgstr "Ta część jest zastąpiona i ustawiona na Stock Only — jest uzupełniana do poziomu rezerwy części zamiennych, niezależnie od popytu."
+
+msgid "This period has no journal entries posted to it and can be permanently deleted. This cannot be undone."
+msgstr "Ten okres nie ma żadnych wpisów w dzienniku i może być trwale usunięty. Tej operacji nie można cofnąć."
 
 msgid "This Quarter"
 msgstr "Ten Kwartał"
@@ -12677,6 +12818,9 @@ msgstr "Odłącz"
 msgid "Unlink job from sales order?"
 msgstr "Odłączyć zadanie od zamówienia sprzedaży?"
 
+msgid "Unlock"
+msgstr "Odblokuj"
+
 msgid "Unmapped Extracted Lines"
 msgstr "Niemapowane wyodrębnione linie"
 
@@ -12686,6 +12830,9 @@ msgstr "Cofnij pobranie"
 #. placeholder {0}: pickedLots[0].trackedEntity.readableId
 msgid "Unpick {0}"
 msgstr "Cofnij {0}"
+
+msgid "Unposted Documents"
+msgstr "Nieopublikowane dokumenty"
 
 msgid "Unreceived POs"
 msgstr "Nieprzyjęte zamówienia"
@@ -13092,6 +13239,9 @@ msgstr "Wyświetl zobowiązania"
 msgid "View Payment"
 msgstr "Wyświetl Płatność"
 
+msgid "View Period"
+msgstr "Wyświetl Okres"
+
 msgid "View permissions"
 msgstr "Uprawnienia do podglądu"
 
@@ -13355,6 +13505,9 @@ msgstr "Co ten paragon spełnia — zamówienie zakupu, zwrot, transfer przychod
 msgid "What this shipment is fulfilling — a sales order, an outbound transfer, an RMA return, or a manual shipment."
 msgstr "Co ta wysyłka spełnia — zamówienie sprzedaży, transfer wychodzący, zwrot RMA lub wysyłka ręczna."
 
+msgid "What this task means"
+msgstr "Co to zadanie oznacza"
+
 msgid "What this time entry counts as — Labor (operator time), Machine (run time), or Setup (changeover time); each rolls up under a different rate."
 msgstr "Co ta wpis czasu liczy się jako — Praca (czas operatora), Maszyna (czas uruchomienia) lub Ustawienie (czas przezbroienia); każdy podsumowuje się na inną stawkę."
 
@@ -13468,6 +13621,9 @@ msgstr "Kiedy ten konkretny lot/numer seryjny wygasa; napędza selekcję FEFO i 
 
 msgid "When you committed to deliver; planning treats this as the demand-due-date for fulfillment."
 msgstr "Kiedy zobowiązałeś się do dostawy; planowanie traktuje to jako datę wymagalności popytu do spełnienia."
+
+msgid "When your fiscal and tax years start"
+msgstr "Kiedy rozpoczynają się Twoje lata obrachunkowe i podatkowe"
 
 msgid "Where an operation runs; carries labor and quoting rates, with overhead the difference between them."
 msgstr "Gdzie operacja przebiega; nosi stawki pracy i notowań, z ogólnymi kosztem różnicę między nimi."
@@ -13785,9 +13941,6 @@ msgstr "Twoje dane są dostępne i w rozsądnie czystej formie"
 
 msgid "Your Email"
 msgstr "Twój e-mail"
-
-msgid "Your fiscal year and its accounting periods"
-msgstr "Twój rok obrachunkowy i jego okresy rozliczeniowe"
 
 msgid "Your general-ledger accounts and their structure"
 msgstr "Twoje konta księgi głównej i ich struktura"
