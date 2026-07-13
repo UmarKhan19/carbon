@@ -305,14 +305,6 @@ export const auditConfig = {
       tables: {
         changeOrder: { role: "root" },
         changeOrderAffectedItem: { entityIdColumn: "changeOrderId" },
-        changeOrderStagedMaterial: { entityIdColumn: "changeOrderId" },
-        changeOrderStagedOperation: { entityIdColumn: "changeOrderId" },
-        changeOrderStagedOperationStep: { entityIdColumn: "changeOrderId" },
-        changeOrderStagedOperationParameter: {
-          entityIdColumn: "changeOrderId"
-        },
-        changeOrderStagedOperationTool: { entityIdColumn: "changeOrderId" },
-        changeOrderStagedItemAttributes: { entityIdColumn: "changeOrderId" },
         changeOrderSupersession: { entityIdColumn: "changeOrderId" },
         changeOrderActionTask: { entityIdColumn: "changeOrderId" }
       }
