@@ -16,11 +16,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { supplierPartId } = params;
   if (!supplierPartId) throw notFound("supplierPartId not found");
 
-  // Supabase's joined-select type is too deep for tsgo; the `as any` breaks the
-  // inference chain (result is only read for id / supplier name below). Avoids
-  // the fragile @ts-expect-error whose "used"/"unused" state flips as files are
-  // added elsewhere (TS2578/TS2589 whack-a-mole).
-  const result = await (client as any)
+  // @ts-ignore TS2589 — Supabase joined-select type instantiation too deep; it
+  // fires only under some checker states, so ignore (not expect-error) stays
+  // green whether or not it triggers.
+  const result = await client
     .from("supplierPart")
     .select("id, supplierId, supplier:supplierId(name)")
     .eq("id", supplierPartId)
