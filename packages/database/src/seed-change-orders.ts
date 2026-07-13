@@ -239,6 +239,20 @@ function need<T>(rec: Record<string, T>, key: string): T {
 // Idempotency — delete this script's prior seed in FK-safe order.
 // ---------------------------------------------------------------------------
 async function deletePriorSeed(client: PoolClient, companyId: string) {
+  // 0. v2: CO-owned drafts are SET NULL (not cascaded) when the CO is deleted, so
+  //    remove them WHILE the COs still exist. Delete CO-created items (Revision /
+  //    New Part, item.changeOrderId set) first — cascades their makeMethods — then
+  //    the Version draft methods (changeOrderId set) on existing items.
+  const coSubquery = `SELECT id FROM "changeOrder" WHERE "companyId" = $1 AND "changeOrderId" = ANY($2)`;
+  await client.query(
+    `DELETE FROM item WHERE "companyId" = $1 AND "changeOrderId" IN (${coSubquery})`,
+    [companyId, CHANGE_ORDER_IDS]
+  );
+  await client.query(
+    `DELETE FROM "makeMethod" WHERE "changeOrderId" IN (${coSubquery})`,
+    [companyId, CHANGE_ORDER_IDS]
+  );
+
   // 1. Change orders (children cascade via ON DELETE CASCADE).
   await client.query(
     `DELETE FROM "changeOrder" WHERE "companyId" = $1 AND "changeOrderId" = ANY($2)`,
@@ -274,6 +288,16 @@ async function deletePriorSeed(client: PoolClient, companyId: string) {
     `DELETE FROM "methodOperation" mo
      USING "makeMethod" mk, item i
      WHERE mo."makeMethodId" = mk.id AND mk."itemId" = i.id
+       AND i."companyId" = $1 AND i."readableId" = ANY($2)`,
+    [companyId, ALL_SEEDED_ITEM_IDS]
+  );
+  // 3b. Any remaining methodMaterial referencing a seeded item as a COMPONENT
+  //     (itemId), regardless of which method owns it — otherwise the item delete
+  //     below violates methodMaterial_itemId_fkey.
+  await client.query(
+    `DELETE FROM "methodMaterial" mm
+     USING item i
+     WHERE mm."itemId" = i.id
        AND i."companyId" = $1 AND i."readableId" = ANY($2)`,
     [companyId, ALL_SEEDED_ITEM_IDS]
   );
