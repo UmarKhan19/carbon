@@ -357,6 +357,7 @@ export type Database = {
           lotSizeVarianceAccount: string
           maintenanceAccount: string
           materialVarianceAccount: string
+          overheadAbsorptionAccount: string | null
           overheadVarianceAccount: string
           payablesAccount: string
           prepaymentAccount: string
@@ -374,6 +375,7 @@ export type Database = {
           serviceChargeAccount: string
           subcontractingVarianceAccount: string
           supplierPaymentDiscountAccount: string
+          supplierPrepaymentAccount: string
           supplierWriteOffAccount: string
           updatedBy: string | null
           workInProgressAccount: string
@@ -407,6 +409,7 @@ export type Database = {
           lotSizeVarianceAccount: string
           maintenanceAccount: string
           materialVarianceAccount: string
+          overheadAbsorptionAccount?: string | null
           overheadVarianceAccount: string
           payablesAccount: string
           prepaymentAccount: string
@@ -424,6 +427,7 @@ export type Database = {
           serviceChargeAccount: string
           subcontractingVarianceAccount: string
           supplierPaymentDiscountAccount: string
+          supplierPrepaymentAccount: string
           supplierWriteOffAccount: string
           updatedBy?: string | null
           workInProgressAccount: string
@@ -457,6 +461,7 @@ export type Database = {
           lotSizeVarianceAccount?: string
           maintenanceAccount?: string
           materialVarianceAccount?: string
+          overheadAbsorptionAccount?: string | null
           overheadVarianceAccount?: string
           payablesAccount?: string
           prepaymentAccount?: string
@@ -474,6 +479,7 @@ export type Database = {
           serviceChargeAccount?: string
           subcontractingVarianceAccount?: string
           supplierPaymentDiscountAccount?: string
+          supplierPrepaymentAccount?: string
           supplierWriteOffAccount?: string
           updatedBy?: string | null
           workInProgressAccount?: string
@@ -886,6 +892,20 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "accountDefault_overheadAbsorptionAccount_fkey"
+            columns: ["overheadAbsorptionAccount"]
+            isOneToOne: false
+            referencedRelation: "account"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accountDefault_overheadAbsorptionAccount_fkey"
+            columns: ["overheadAbsorptionAccount"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "accountDefault_overheadVarianceAccount_fkey"
             columns: ["overheadVarianceAccount"]
             isOneToOne: false
@@ -1119,6 +1139,20 @@ export type Database = {
           {
             foreignKeyName: "accountDefault_supplierPaymentDiscountAccount_fkey"
             columns: ["supplierPaymentDiscountAccount"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accountDefault_supplierPrepaymentAccount_fkey"
+            columns: ["supplierPrepaymentAccount"]
+            isOneToOne: false
+            referencedRelation: "account"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accountDefault_supplierPrepaymentAccount_fkey"
+            columns: ["supplierPrepaymentAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
             referencedColumns: ["id"]
@@ -1192,11 +1226,16 @@ export type Database = {
         Row: {
           closedAt: string | null
           closedBy: string | null
+          closeStatus: Database["public"]["Enums"]["periodCloseStatus"]
           companyId: string
           createdAt: string
           createdBy: string
           endDate: string
+          fiscalYear: number | null
           id: string
+          lockedAt: string | null
+          lockedBy: string | null
+          periodNumber: number | null
           startDate: string
           status: Database["public"]["Enums"]["accountingPeriodStatus"]
           updatedAt: string | null
@@ -1205,11 +1244,16 @@ export type Database = {
         Insert: {
           closedAt?: string | null
           closedBy?: string | null
+          closeStatus?: Database["public"]["Enums"]["periodCloseStatus"]
           companyId: string
           createdAt?: string
           createdBy: string
           endDate: string
+          fiscalYear?: number | null
           id?: string
+          lockedAt?: string | null
+          lockedBy?: string | null
+          periodNumber?: number | null
           startDate: string
           status?: Database["public"]["Enums"]["accountingPeriodStatus"]
           updatedAt?: string | null
@@ -1218,11 +1262,16 @@ export type Database = {
         Update: {
           closedAt?: string | null
           closedBy?: string | null
+          closeStatus?: Database["public"]["Enums"]["periodCloseStatus"]
           companyId?: string
           createdAt?: string
           createdBy?: string
           endDate?: string
+          fiscalYear?: number | null
           id?: string
+          lockedAt?: string | null
+          lockedBy?: string | null
+          periodNumber?: number | null
           startDate?: string
           status?: Database["public"]["Enums"]["accountingPeriodStatus"]
           updatedAt?: string | null
@@ -1326,6 +1375,41 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "integrations"
             referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "accountingPeriod_lockedBy_fkey"
+            columns: ["lockedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accountingPeriod_lockedBy_fkey"
+            columns: ["lockedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accountingPeriod_lockedBy_fkey"
+            columns: ["lockedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accountingPeriod_lockedBy_fkey"
+            columns: ["lockedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accountingPeriod_lockedBy_fkey"
+            columns: ["lockedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
           },
           {
             foreignKeyName: "accountingPeriod_updatedBy_fkey"
@@ -2007,6 +2091,1507 @@ export type Database = {
           },
           {
             foreignKeyName: "approvalRule_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+        ]
+      }
+      assemblyComponentMapping: {
+        Row: {
+          companyId: string
+          confidence: string
+          createdAt: string
+          createdBy: string
+          geometryHash: string
+          id: string
+          itemId: string
+          modelUploadId: string
+          updatedAt: string | null
+          updatedBy: string | null
+        }
+        Insert: {
+          companyId: string
+          confidence?: string
+          createdAt?: string
+          createdBy: string
+          geometryHash: string
+          id?: string
+          itemId: string
+          modelUploadId: string
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Update: {
+          companyId?: string
+          confidence?: string
+          createdAt?: string
+          createdBy?: string
+          geometryHash?: string
+          id?: string
+          itemId?: string
+          modelUploadId?: string
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assemblyComponentMapping_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyComponentMapping_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyComponentMapping_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "assemblyComponentMapping_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "assemblyComponentMapping_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyComponentMapping_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyComponentMapping_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyComponentMapping_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyComponentMapping_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "assemblyComponentMapping_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "consumables"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyComponentMapping_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "item"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyComponentMapping_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyComponentMapping_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "parts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyComponentMapping_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyComponentMapping_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "tools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyComponentMapping_modelUploadId_fkey"
+            columns: ["modelUploadId"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["modelId"]
+          },
+          {
+            foreignKeyName: "assemblyComponentMapping_modelUploadId_fkey"
+            columns: ["modelUploadId"]
+            isOneToOne: false
+            referencedRelation: "modelUpload"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyComponentMapping_modelUploadId_fkey"
+            columns: ["modelUploadId"]
+            isOneToOne: false
+            referencedRelation: "salesRfqLines"
+            referencedColumns: ["modelId"]
+          },
+          {
+            foreignKeyName: "assemblyComponentMapping_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyComponentMapping_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyComponentMapping_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyComponentMapping_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyComponentMapping_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+        ]
+      }
+      assemblyInstruction: {
+        Row: {
+          assemblyPlanJobId: string | null
+          companyId: string
+          createdAt: string
+          createdBy: string
+          customFields: Json | null
+          id: string
+          itemId: string | null
+          modelUploadId: string
+          name: string
+          publishedAt: string | null
+          settings: Json | null
+          status: Database["public"]["Enums"]["assemblyInstructionStatus"]
+          tags: string[] | null
+          updatedAt: string | null
+          updatedBy: string | null
+          version: number
+        }
+        Insert: {
+          assemblyPlanJobId?: string | null
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          customFields?: Json | null
+          id?: string
+          itemId?: string | null
+          modelUploadId: string
+          name: string
+          publishedAt?: string | null
+          settings?: Json | null
+          status?: Database["public"]["Enums"]["assemblyInstructionStatus"]
+          tags?: string[] | null
+          updatedAt?: string | null
+          updatedBy?: string | null
+          version?: number
+        }
+        Update: {
+          assemblyPlanJobId?: string | null
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          customFields?: Json | null
+          id?: string
+          itemId?: string | null
+          modelUploadId?: string
+          name?: string
+          publishedAt?: string | null
+          settings?: Json | null
+          status?: Database["public"]["Enums"]["assemblyInstructionStatus"]
+          tags?: string[] | null
+          updatedAt?: string | null
+          updatedBy?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assemblyInstruction_assemblyPlanJobId_fkey"
+            columns: ["assemblyPlanJobId"]
+            isOneToOne: false
+            referencedRelation: "assemblyPlanJob"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstruction_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstruction_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstruction_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "assemblyInstruction_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "assemblyInstruction_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstruction_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstruction_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstruction_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstruction_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "assemblyInstruction_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "consumables"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstruction_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "item"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstruction_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstruction_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "parts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstruction_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstruction_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "tools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstruction_modelUploadId_fkey"
+            columns: ["modelUploadId"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["modelId"]
+          },
+          {
+            foreignKeyName: "assemblyInstruction_modelUploadId_fkey"
+            columns: ["modelUploadId"]
+            isOneToOne: false
+            referencedRelation: "modelUpload"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstruction_modelUploadId_fkey"
+            columns: ["modelUploadId"]
+            isOneToOne: false
+            referencedRelation: "salesRfqLines"
+            referencedColumns: ["modelId"]
+          },
+          {
+            foreignKeyName: "assemblyInstruction_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstruction_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstruction_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstruction_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstruction_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+        ]
+      }
+      assemblyInstructionStep: {
+        Row: {
+          assemblyInstructionId: string
+          buildWave: number | null
+          camera: Json | null
+          companyId: string
+          componentNodeIds: string[]
+          createdAt: string
+          createdBy: string
+          description: Json | null
+          durationSeconds: number | null
+          explode: Json | null
+          fastener: Json | null
+          fileTypes: string[] | null
+          id: string
+          instructionText: string | null
+          listValues: string[] | null
+          maxValue: number | null
+          minValue: number | null
+          motion: Json
+          notes: Json | null
+          parentStepId: string | null
+          planConfidence: string
+          required: boolean | null
+          sortOrder: number
+          status: Database["public"]["Enums"]["assemblyStepStatus"]
+          title: string | null
+          type: Database["public"]["Enums"]["procedureStepType"]
+          unitOfMeasureCode: string | null
+          updatedAt: string | null
+          updatedBy: string | null
+          warnings: Json | null
+        }
+        Insert: {
+          assemblyInstructionId: string
+          buildWave?: number | null
+          camera?: Json | null
+          companyId: string
+          componentNodeIds?: string[]
+          createdAt?: string
+          createdBy: string
+          description?: Json | null
+          durationSeconds?: number | null
+          explode?: Json | null
+          fastener?: Json | null
+          fileTypes?: string[] | null
+          id?: string
+          instructionText?: string | null
+          listValues?: string[] | null
+          maxValue?: number | null
+          minValue?: number | null
+          motion?: Json
+          notes?: Json | null
+          parentStepId?: string | null
+          planConfidence?: string
+          required?: boolean | null
+          sortOrder?: number
+          status?: Database["public"]["Enums"]["assemblyStepStatus"]
+          title?: string | null
+          type?: Database["public"]["Enums"]["procedureStepType"]
+          unitOfMeasureCode?: string | null
+          updatedAt?: string | null
+          updatedBy?: string | null
+          warnings?: Json | null
+        }
+        Update: {
+          assemblyInstructionId?: string
+          buildWave?: number | null
+          camera?: Json | null
+          companyId?: string
+          componentNodeIds?: string[]
+          createdAt?: string
+          createdBy?: string
+          description?: Json | null
+          durationSeconds?: number | null
+          explode?: Json | null
+          fastener?: Json | null
+          fileTypes?: string[] | null
+          id?: string
+          instructionText?: string | null
+          listValues?: string[] | null
+          maxValue?: number | null
+          minValue?: number | null
+          motion?: Json
+          notes?: Json | null
+          parentStepId?: string | null
+          planConfidence?: string
+          required?: boolean | null
+          sortOrder?: number
+          status?: Database["public"]["Enums"]["assemblyStepStatus"]
+          title?: string | null
+          type?: Database["public"]["Enums"]["procedureStepType"]
+          unitOfMeasureCode?: string | null
+          updatedAt?: string | null
+          updatedBy?: string | null
+          warnings?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assemblyInstructionStep_assemblyInstructionId_fkey"
+            columns: ["assemblyInstructionId"]
+            isOneToOne: false
+            referencedRelation: "assemblyInstruction"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStep_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStep_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStep_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStep_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStep_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStep_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStep_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStep_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStep_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStep_parentStepId_fkey"
+            columns: ["parentStepId"]
+            isOneToOne: false
+            referencedRelation: "assemblyInstructionStep"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStep_unitOfMeasureCode_fkey"
+            columns: ["unitOfMeasureCode", "companyId"]
+            isOneToOne: false
+            referencedRelation: "unitOfMeasure"
+            referencedColumns: ["code", "companyId"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStep_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStep_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStep_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStep_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStep_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+        ]
+      }
+      assemblyInstructionStepMaterial: {
+        Row: {
+          companyId: string
+          createdAt: string
+          createdBy: string
+          id: string
+          itemId: string
+          quantity: number | null
+          sortOrder: number
+          stepId: string
+          updatedAt: string | null
+          updatedBy: string | null
+        }
+        Insert: {
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          id?: string
+          itemId: string
+          quantity?: number | null
+          sortOrder?: number
+          stepId: string
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Update: {
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          id?: string
+          itemId?: string
+          quantity?: number | null
+          sortOrder?: number
+          stepId?: string
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assemblyInstructionStepMaterial_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepMaterial_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepMaterial_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepMaterial_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepMaterial_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepMaterial_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepMaterial_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepMaterial_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepMaterial_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepMaterial_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "consumables"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepMaterial_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "item"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepMaterial_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepMaterial_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "parts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepMaterial_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepMaterial_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "tools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepMaterial_stepId_fkey"
+            columns: ["stepId"]
+            isOneToOne: false
+            referencedRelation: "assemblyInstructionStep"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepMaterial_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepMaterial_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepMaterial_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepMaterial_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepMaterial_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+        ]
+      }
+      assemblyInstructionStepRequirement: {
+        Row: {
+          companyId: string
+          createdAt: string
+          createdBy: string
+          filePath: string | null
+          id: string
+          itemId: string | null
+          name: string | null
+          quantity: number
+          severity: Database["public"]["Enums"]["assemblyNoteSeverity"] | null
+          sortOrder: number
+          stepId: string
+          text: string | null
+          type: Database["public"]["Enums"]["assemblyRequirementType"]
+          updatedAt: string | null
+          updatedBy: string | null
+        }
+        Insert: {
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          filePath?: string | null
+          id?: string
+          itemId?: string | null
+          name?: string | null
+          quantity?: number
+          severity?: Database["public"]["Enums"]["assemblyNoteSeverity"] | null
+          sortOrder?: number
+          stepId: string
+          text?: string | null
+          type: Database["public"]["Enums"]["assemblyRequirementType"]
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Update: {
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          filePath?: string | null
+          id?: string
+          itemId?: string | null
+          name?: string | null
+          quantity?: number
+          severity?: Database["public"]["Enums"]["assemblyNoteSeverity"] | null
+          sortOrder?: number
+          stepId?: string
+          text?: string | null
+          type?: Database["public"]["Enums"]["assemblyRequirementType"]
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assemblyInstructionStepRequirement_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepRequirement_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepRequirement_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepRequirement_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepRequirement_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepRequirement_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepRequirement_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepRequirement_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepRequirement_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepRequirement_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "consumables"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepRequirement_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "item"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepRequirement_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepRequirement_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "parts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepRequirement_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepRequirement_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "tools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepRequirement_stepId_fkey"
+            columns: ["stepId"]
+            isOneToOne: false
+            referencedRelation: "assemblyInstructionStep"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepRequirement_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepRequirement_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepRequirement_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepRequirement_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyInstructionStepRequirement_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+        ]
+      }
+      assemblyPlanJob: {
+        Row: {
+          companyId: string
+          createdAt: string
+          createdBy: string
+          error: string | null
+          id: string
+          kind: string
+          modelUploadId: string
+          planPath: string | null
+          stats: Json | null
+          status: Database["public"]["Enums"]["modelProcessingStatus"]
+          updatedAt: string | null
+        }
+        Insert: {
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          error?: string | null
+          id?: string
+          kind: string
+          modelUploadId: string
+          planPath?: string | null
+          stats?: Json | null
+          status?: Database["public"]["Enums"]["modelProcessingStatus"]
+          updatedAt?: string | null
+        }
+        Update: {
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          error?: string | null
+          id?: string
+          kind?: string
+          modelUploadId?: string
+          planPath?: string | null
+          stats?: Json | null
+          status?: Database["public"]["Enums"]["modelProcessingStatus"]
+          updatedAt?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assemblyPlanJob_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyPlanJob_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyPlanJob_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "assemblyPlanJob_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "assemblyPlanJob_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyPlanJob_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyPlanJob_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyPlanJob_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyPlanJob_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "assemblyPlanJob_modelUploadId_fkey"
+            columns: ["modelUploadId"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["modelId"]
+          },
+          {
+            foreignKeyName: "assemblyPlanJob_modelUploadId_fkey"
+            columns: ["modelUploadId"]
+            isOneToOne: false
+            referencedRelation: "modelUpload"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyPlanJob_modelUploadId_fkey"
+            columns: ["modelUploadId"]
+            isOneToOne: false
+            referencedRelation: "salesRfqLines"
+            referencedColumns: ["modelId"]
+          },
+        ]
+      }
+      assemblyStandardNote: {
+        Row: {
+          companyId: string
+          content: string
+          createdAt: string
+          createdBy: string
+          id: string
+          name: string
+          severity: Database["public"]["Enums"]["assemblyNoteSeverity"]
+          updatedAt: string | null
+          updatedBy: string | null
+        }
+        Insert: {
+          companyId: string
+          content: string
+          createdAt?: string
+          createdBy: string
+          id?: string
+          name: string
+          severity?: Database["public"]["Enums"]["assemblyNoteSeverity"]
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Update: {
+          companyId?: string
+          content?: string
+          createdAt?: string
+          createdBy?: string
+          id?: string
+          name?: string
+          severity?: Database["public"]["Enums"]["assemblyNoteSeverity"]
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assemblyStandardNote_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyStandardNote_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyStandardNote_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "assemblyStandardNote_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "assemblyStandardNote_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyStandardNote_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyStandardNote_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyStandardNote_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyStandardNote_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "assemblyStandardNote_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyStandardNote_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyStandardNote_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyStandardNote_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyStandardNote_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+        ]
+      }
+      assemblyUnit: {
+        Row: {
+          companyId: string
+          componentNodeIds: string[]
+          createdAt: string
+          createdBy: string
+          id: string
+          itemId: string | null
+          modelUploadId: string
+          name: string
+          sourceGroupId: string | null
+          updatedAt: string | null
+          updatedBy: string | null
+        }
+        Insert: {
+          companyId: string
+          componentNodeIds?: string[]
+          createdAt?: string
+          createdBy: string
+          id?: string
+          itemId?: string | null
+          modelUploadId: string
+          name: string
+          sourceGroupId?: string | null
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Update: {
+          companyId?: string
+          componentNodeIds?: string[]
+          createdAt?: string
+          createdBy?: string
+          id?: string
+          itemId?: string | null
+          modelUploadId?: string
+          name?: string
+          sourceGroupId?: string | null
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assemblyUnit_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyUnit_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyUnit_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "assemblyUnit_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "assemblyUnit_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyUnit_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyUnit_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyUnit_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyUnit_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "assemblyUnit_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "consumables"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyUnit_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "item"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyUnit_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyUnit_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "parts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyUnit_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyUnit_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "tools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyUnit_modelUploadId_fkey"
+            columns: ["modelUploadId"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["modelId"]
+          },
+          {
+            foreignKeyName: "assemblyUnit_modelUploadId_fkey"
+            columns: ["modelUploadId"]
+            isOneToOne: false
+            referencedRelation: "modelUpload"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyUnit_modelUploadId_fkey"
+            columns: ["modelUploadId"]
+            isOneToOne: false
+            referencedRelation: "salesRfqLines"
+            referencedColumns: ["modelId"]
+          },
+          {
+            foreignKeyName: "assemblyUnit_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyUnit_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyUnit_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyUnit_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assemblyUnit_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "userDefaults"
@@ -4550,6 +6135,7 @@ export type Database = {
       costLedger: {
         Row: {
           adjustment: boolean
+          appliesToCostLedgerId: string | null
           companyId: string
           cost: number
           costLedgerType: Database["public"]["Enums"]["costLedgerType"]
@@ -4571,6 +6157,7 @@ export type Database = {
         }
         Insert: {
           adjustment?: boolean
+          appliesToCostLedgerId?: string | null
           companyId: string
           cost?: number
           costLedgerType: Database["public"]["Enums"]["costLedgerType"]
@@ -4592,6 +6179,7 @@ export type Database = {
         }
         Update: {
           adjustment?: boolean
+          appliesToCostLedgerId?: string | null
           companyId?: string
           cost?: number
           costLedgerType?: Database["public"]["Enums"]["costLedgerType"]
@@ -18003,6 +19591,7 @@ export type Database = {
       }
       jobOperation: {
         Row: {
+          assemblyInstructionId: string | null
           assignee: string | null
           companyId: string
           conflictReason: string | null
@@ -18050,6 +19639,7 @@ export type Database = {
           workInstruction: Json
         }
         Insert: {
+          assemblyInstructionId?: string | null
           assignee?: string | null
           companyId: string
           conflictReason?: string | null
@@ -18097,6 +19687,7 @@ export type Database = {
           workInstruction?: Json
         }
         Update: {
+          assemblyInstructionId?: string | null
           assignee?: string | null
           companyId?: string
           conflictReason?: string | null
@@ -18144,6 +19735,13 @@ export type Database = {
           workInstruction?: Json
         }
         Relationships: [
+          {
+            foreignKeyName: "jobOperation_assemblyInstructionId_fkey"
+            columns: ["assemblyInstructionId"]
+            isOneToOne: false
+            referencedRelation: "assemblyInstruction"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "jobOperation_assignee_fkey"
             columns: ["assignee"]
@@ -23646,6 +25244,7 @@ export type Database = {
       }
       methodOperation: {
         Row: {
+          assemblyInstructionId: string | null
           companyId: string
           createdAt: string
           createdBy: string
@@ -23675,6 +25274,7 @@ export type Database = {
           workInstruction: Json
         }
         Insert: {
+          assemblyInstructionId?: string | null
           companyId: string
           createdAt?: string
           createdBy: string
@@ -23704,6 +25304,7 @@ export type Database = {
           workInstruction?: Json
         }
         Update: {
+          assemblyInstructionId?: string | null
           companyId?: string
           createdAt?: string
           createdBy?: string
@@ -23733,6 +25334,13 @@ export type Database = {
           workInstruction?: Json
         }
         Relationships: [
+          {
+            foreignKeyName: "methodOperation_assemblyInstructionId_fkey"
+            columns: ["assemblyInstructionId"]
+            isOneToOne: false
+            referencedRelation: "assemblyInstruction"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "methodOperation_companyId_fkey"
             columns: ["companyId"]
@@ -24371,11 +25979,17 @@ export type Database = {
         Row: {
           autodeskUrn: string | null
           companyId: string
+          componentCount: number | null
           createdAt: string | null
           createdBy: string
+          glbPath: string | null
+          graphPath: string | null
           id: string
           modelPath: string
           name: string | null
+          processedAt: string | null
+          processingError: string | null
+          processingStatus: Database["public"]["Enums"]["modelProcessingStatus"]
           size: number | null
           thumbnailPath: string | null
           updatedAt: string | null
@@ -24384,11 +25998,17 @@ export type Database = {
         Insert: {
           autodeskUrn?: string | null
           companyId: string
+          componentCount?: number | null
           createdAt?: string | null
           createdBy: string
+          glbPath?: string | null
+          graphPath?: string | null
           id?: string
           modelPath: string
           name?: string | null
+          processedAt?: string | null
+          processingError?: string | null
+          processingStatus?: Database["public"]["Enums"]["modelProcessingStatus"]
           size?: number | null
           thumbnailPath?: string | null
           updatedAt?: string | null
@@ -24397,11 +26017,17 @@ export type Database = {
         Update: {
           autodeskUrn?: string | null
           companyId?: string
+          componentCount?: number | null
           createdAt?: string | null
           createdBy?: string
+          glbPath?: string | null
+          graphPath?: string | null
           id?: string
           modelPath?: string
           name?: string | null
+          processedAt?: string | null
+          processingError?: string | null
+          processingStatus?: Database["public"]["Enums"]["modelProcessingStatus"]
           size?: number | null
           thumbnailPath?: string | null
           updatedAt?: string | null
@@ -28313,6 +29939,106 @@ export type Database = {
           },
           {
             foreignKeyName: "notification_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+        ]
+      }
+      notificationDelivery: {
+        Row: {
+          companyId: string
+          createdAt: string
+          documentId: string
+          event: string
+          id: string
+          lastDeliveredAt: string
+          lastDeliveryId: string | null
+          successCount: number
+          userId: string
+        }
+        Insert: {
+          companyId: string
+          createdAt?: string
+          documentId: string
+          event: string
+          id?: string
+          lastDeliveredAt?: string
+          lastDeliveryId?: string | null
+          successCount?: number
+          userId: string
+        }
+        Update: {
+          companyId?: string
+          createdAt?: string
+          documentId?: string
+          event?: string
+          id?: string
+          lastDeliveredAt?: string
+          lastDeliveryId?: string | null
+          successCount?: number
+          userId?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notificationDelivery_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notificationDelivery_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notificationDelivery_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "notificationDelivery_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "notificationDelivery_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notificationDelivery_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notificationDelivery_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notificationDelivery_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notificationDelivery_userId_fkey"
             columns: ["userId"]
             isOneToOne: false
             referencedRelation: "userDefaults"
@@ -55530,6 +57256,7 @@ export type Database = {
       }
       jobOperationsWithDependencies: {
         Row: {
+          assemblyInstructionId: string | null
           assignee: string | null
           companyId: string | null
           conflictReason: string | null
@@ -55580,6 +57307,7 @@ export type Database = {
           workInstruction: Json | null
         }
         Insert: {
+          assemblyInstructionId?: string | null
           assignee?: string | null
           companyId?: string | null
           conflictReason?: string | null
@@ -55630,6 +57358,7 @@ export type Database = {
           workInstruction?: Json | null
         }
         Update: {
+          assemblyInstructionId?: string | null
           assignee?: string | null
           companyId?: string | null
           conflictReason?: string | null
@@ -55680,6 +57409,13 @@ export type Database = {
           workInstruction?: Json | null
         }
         Relationships: [
+          {
+            foreignKeyName: "jobOperation_assemblyInstructionId_fkey"
+            columns: ["assemblyInstructionId"]
+            isOneToOne: false
+            referencedRelation: "assemblyInstruction"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "jobOperation_assignee_fkey"
             columns: ["assignee"]
@@ -55922,6 +57658,7 @@ export type Database = {
       }
       jobOperationsWithMakeMethods: {
         Row: {
+          assemblyInstructionId: string | null
           assignee: string | null
           companyId: string | null
           conflictReason: string | null
@@ -55972,6 +57709,13 @@ export type Database = {
           workInstruction: Json | null
         }
         Relationships: [
+          {
+            foreignKeyName: "jobOperation_assemblyInstructionId_fkey"
+            columns: ["assemblyInstructionId"]
+            isOneToOne: false
+            referencedRelation: "assemblyInstruction"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "jobOperation_assignee_fkey"
             columns: ["assignee"]
@@ -58299,14 +60043,14 @@ export type Database = {
           },
           {
             foreignKeyName: "partner_id_fkey"
-            columns: ["id"]
+            columns: ["supplierLocationId"]
             isOneToOne: false
             referencedRelation: "supplierLocation"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "partner_id_fkey"
-            columns: ["supplierLocationId"]
+            columns: ["id"]
             isOneToOne: false
             referencedRelation: "supplierLocation"
             referencedColumns: ["id"]
@@ -63337,14 +65081,14 @@ export type Database = {
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["shipmentCountryCode"]
+            columns: ["invoiceCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["invoiceCountryCode"]
+            columns: ["shipmentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -63892,14 +65636,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["paymentCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["paymentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -67652,6 +69396,7 @@ export type Database = {
           p_exclude_lineside?: boolean
           p_item_id: string
           p_location_id: string
+          p_sort_method?: string
         }
         Returns: {
           availableQuantity: number
@@ -68931,7 +70676,7 @@ export type Database = {
         }[]
       }
       get_training_assignment_status: {
-        Args: { p_company_id: string }
+        Args: { p_company_id: string; p_employee_id?: string }
         Returns: {
           avatarUrl: string
           companyId: string
@@ -69054,6 +70799,16 @@ export type Database = {
         Returns: boolean
       }
       id: { Args: { _prefix?: string }; Returns: string }
+      increment_notification_delivery: {
+        Args: {
+          p_company_id: string
+          p_delivery_id: string
+          p_document_ids: string[]
+          p_event: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
       increment_webhook_error: {
         Args: { webhook_id: string }
         Returns: undefined
@@ -69557,6 +71312,15 @@ export type Database = {
         | "Investments"
       approvalDocumentType: "purchaseOrder" | "qualityDocument" | "supplier"
       approvalStatus: "Pending" | "Approved" | "Rejected" | "Cancelled"
+      assemblyInstructionStatus: "Draft" | "Published" | "Archived"
+      assemblyNoteSeverity: "Info" | "Caution" | "Warning"
+      assemblyRequirementType:
+        | "Tool"
+        | "Fixture"
+        | "Consumable"
+        | "Note"
+        | "Media"
+      assemblyStepStatus: "Todo" | "Review" | "Done"
       configurationParameterDataType:
         | "text"
         | "numeric"
@@ -69877,6 +71641,12 @@ export type Database = {
       memoStatus: "Draft" | "Posted" | "Voided"
       methodOperationOrder: "After Previous" | "With Previous"
       methodType: "Purchase to Order" | "Pull from Inventory" | "Make to Order"
+      modelProcessingStatus:
+        | "Idle"
+        | "Queued"
+        | "Processing"
+        | "Success"
+        | "Failed"
       module:
         | "Accounting"
         | "Documents"
@@ -69937,6 +71707,7 @@ export type Database = {
       paymentStatus: "Draft" | "Posted" | "Voided"
       paymentTermCalculationMethod: "Net" | "End of Month" | "Day of Month"
       paymentType: "Receipt" | "Disbursement"
+      periodCloseStatus: "Open" | "Locked" | "Closed"
       periodType: "Week" | "Day" | "Month"
       pickingListLineStatus: "Pending" | "Picked" | "Short" | "Cancelled"
       pickingListStatus: "Draft" | "In Progress" | "Completed" | "Cancelled"
@@ -70871,6 +72642,16 @@ export const Constants = {
       ],
       approvalDocumentType: ["purchaseOrder", "qualityDocument", "supplier"],
       approvalStatus: ["Pending", "Approved", "Rejected", "Cancelled"],
+      assemblyInstructionStatus: ["Draft", "Published", "Archived"],
+      assemblyNoteSeverity: ["Info", "Caution", "Warning"],
+      assemblyRequirementType: [
+        "Tool",
+        "Fixture",
+        "Consumable",
+        "Note",
+        "Media",
+      ],
+      assemblyStepStatus: ["Todo", "Review", "Done"],
       configurationParameterDataType: [
         "text",
         "numeric",
@@ -71222,6 +73003,13 @@ export const Constants = {
       memoStatus: ["Draft", "Posted", "Voided"],
       methodOperationOrder: ["After Previous", "With Previous"],
       methodType: ["Purchase to Order", "Pull from Inventory", "Make to Order"],
+      modelProcessingStatus: [
+        "Idle",
+        "Queued",
+        "Processing",
+        "Success",
+        "Failed",
+      ],
       module: [
         "Accounting",
         "Documents",
@@ -71287,6 +73075,7 @@ export const Constants = {
       paymentStatus: ["Draft", "Posted", "Voided"],
       paymentTermCalculationMethod: ["Net", "End of Month", "Day of Month"],
       paymentType: ["Receipt", "Disbursement"],
+      periodCloseStatus: ["Open", "Locked", "Closed"],
       periodType: ["Week", "Day", "Month"],
       pickingListLineStatus: ["Pending", "Picked", "Short", "Cancelled"],
       pickingListStatus: ["Draft", "In Progress", "Completed", "Cancelled"],

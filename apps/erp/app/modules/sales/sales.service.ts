@@ -2817,17 +2817,31 @@ export async function deleteCustomerItemPriceOverride(
     .eq("companyId", companyId);
 }
 
+type CustomerItemPriceOverrideWithRelations =
+  Database["public"]["Tables"]["customerItemPriceOverride"]["Row"] & {
+    customer: { id: string; name: string } | null;
+    customerType: { id: string; name: string } | null;
+    item: { id: string; name: string } | null;
+    breaks: {
+      id: string;
+      quantity: number;
+      overridePrice: number;
+      active: boolean;
+    }[];
+  };
+
 export async function getCustomerItemPriceOverrideById(
   client: SupabaseClient<Database>,
   id: string,
   companyId: string
-) {
+): Promise<PostgrestSingleResponse<CustomerItemPriceOverrideWithRelations>> {
+  // @ts-ignore - nested select instantiation exceeds tsgo depth limit
   return client
     .from("customerItemPriceOverride")
     .select(
       `
       *,
-      customer:customerId(id, name),
+      customer(id, name),
       customerType:customerTypeId(id, name),
       item:itemId(id, name),
       breaks:customerItemPriceOverrideBreak(id, quantity, overridePrice, active)
@@ -2853,7 +2867,7 @@ export async function getCustomerItemPriceOverridesList(
     .select(
       `
       *,
-      customer:customerId(id, name),
+      customer(id, name),
       customerType:customerTypeId(id, name),
       item:itemId(id, name, unitSalePrice:itemUnitSalePrice(unitSalePrice))
     `,
@@ -4942,6 +4956,9 @@ export async function insertSalesOrder(
     requestedDate?: string;
     promisedDate?: string;
     notes?: string;
+    customerReference?: string;
+    customerEngineeringContactId?: string;
+    salesPersonId?: string;
     customFields?: Json;
   }
 ): Promise<{
@@ -5037,6 +5054,9 @@ export async function insertSalesOrder(
       customerId: input.customerId,
       customerContactId: input.customerContactId,
       customerLocationId: input.customerLocationId,
+      customerEngineeringContactId: input.customerEngineeringContactId ?? null,
+      customerReference: input.customerReference ?? null,
+      salesPersonId: input.salesPersonId ?? null,
       opportunityId,
       status: input.status ?? "Draft",
       orderDate: input.orderDate ?? new Date().toISOString().split("T")[0],
