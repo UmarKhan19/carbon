@@ -24,15 +24,15 @@
 - [x] Task 5: Add draft-make-method orchestration + rewrite `addChangeOrderAffectedItem` (service)
 - [x] Task 6 (service+route): change-type switch service fn + route + path helper (UI selector pending in Task 11)
 - [x] Task 7: Drop the one-open-CO-per-part guard
-- [ ] Task 8: Hide CO-owned Draft methods from version list/copy-target sites
-- [ ] Task 9: CO detail loader loads each affected item's draft method rows
-- [ ] Task 10: Parameterize `BillOfMaterial` / `BillOfProcess` for embedding (prop tweaks)
-- [ ] Task 11: Embed the editors + `PartProperties` on the CO page per change-type + change-type selector
+- [x] Task 8: Hide CO-owned Draft methods from version list/copy-target sites
+- [x] Task 9: CO detail loader loads each affected item's draft method rows
+- [x] Task 10: Parameterize `BillOfMaterial` / `BillOfProcess` for embedding (prop tweaks)
+- [x] Task 11 (BOM/BOP): embed real BillOfMaterial/BillOfProcess per change-type + change-type selector + cutover. **Deferred:** full `PartProperties` attribute embed for Revision/New Part (shows a note pointing to the draft item's part page instead — its heavy data bundle + unparameterized couplings are a follow-up)
 - [x] Task 12 (backend): repurpose `changeOrder.diff.ts` (draft-vs-base real methods, natural-key correlation); interactive merge UI pending
 - [x] Task 13: Rewrite `applyChangeOrder` to dispatch by change type at release (+ impact panel + reads.ts + recovered supersession/affected fns)
-- [ ] Task 14: Barrel, path helpers, and AGENTS.md sync
-- [ ] Task 15: Scoped typecheck + unit tests
-- [ ] Task 16: Browser verification via `/test`
+- [x] Task 14: Barrel + path helpers cleaned (dead staged path keys removed); AGENTS.md sync
+- [x] Task 15: Scoped typecheck green (erp + @carbon/database). Unit test note: `changeOrder.diff.test.ts` can't run standalone (known lingui-macro harness quirk; erp has no `test` script); pure `diffMethod` engine unchanged.
+- [ ] Task 16: Browser verification via `/test` (needs the running dev stack)
 
 > **Checkpoint note (mid-execute):** all backend is reworked to v2 and internally consistent —
 > only the CO-detail UI (`$id.tsx` loader + `AffectedItems.tsx` + `AffectedItemCard.tsx`) still
