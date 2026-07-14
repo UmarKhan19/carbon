@@ -200,6 +200,9 @@ msgstr "Abschließen"
 msgid "Complete All"
 msgstr "Alles abschließen"
 
+msgid "Complete Batch"
+msgstr ""
+
 msgid "Completed"
 msgstr "Abgeschlossen"
 
@@ -317,6 +320,9 @@ msgstr "E-Mail-Adresse"
 
 msgid "Empty work centers"
 msgstr "Leere Arbeitszentren"
+
+msgid "End Batch"
+msgstr ""
 
 msgid "End Operations"
 msgstr "Arbeitsgänge beenden"
@@ -834,6 +840,9 @@ msgstr "Überarbeitung"
 msgid "Rework created successfully"
 msgstr "Überarbeitung erfolgreich erstellt"
 
+msgid "Running"
+msgstr ""
+
 msgid "Sales Order"
 msgstr "Kundenauftrag"
 
@@ -986,6 +995,9 @@ msgstr "Verwendete Ersatzteile"
 
 msgid "Start"
 msgstr "Start"
+
+msgid "Start Batch"
+msgstr ""
 
 msgid "Station User"
 msgstr "Stationsbenutzer"

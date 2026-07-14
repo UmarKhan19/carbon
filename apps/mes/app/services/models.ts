@@ -211,6 +211,21 @@ export const batchCompleteValidator = z.object({
   })
 });
 
+// Maps the Complete Batch form's per-member rows into the `members` payload the
+// batchCompleteValidator expects. `scrapQuantity` is omitted unless a positive
+// scrap was entered, so members without scrap don't produce empty scrap rows.
+export function toBatchCompleteMembers(
+  rows: { jobOperationId: string; quantity: number; scrapQuantity?: number }[]
+) {
+  return rows.map((row) => ({
+    jobOperationId: row.jobOperationId,
+    quantity: row.quantity,
+    ...(row.scrapQuantity && row.scrapQuantity > 0
+      ? { scrapQuantity: row.scrapQuantity }
+      : {})
+  }));
+}
+
 export const finishValidator = z.object({
   jobOperationId: z.string(),
   setupProductionEventId: zfd.text(z.string().optional()),

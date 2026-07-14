@@ -103,6 +103,7 @@ export const path = {
     active: `${x}/active`,
     assigned: `${x}/assigned`,
     authenticatedRoot: x,
+    batch: (id: string) => generatePath(`${x}/batch/${id}`),
     batchComplete: `${x}/batch/complete`,
     batchEvent: `${x}/batch/event`,
     callback: "/callback",
