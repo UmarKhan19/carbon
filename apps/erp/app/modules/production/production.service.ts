@@ -5819,6 +5819,31 @@ export async function getJobOperationBatches(
     .eq("status", "Active");
 }
 
+// The candidate pool for the batch planning board: unstarted, unbatched job
+// operations whose PROCESS is batchable, at a location, each carrying the
+// resolved material facets of its own BOM lines so the board can group +
+// facet-filter (RPC get_batchable_operations, see migration
+// 20260714013500_batchable-operations-rpc.sql). Operations with no
+// material-bearing BOM lines come back with an empty `materials` array.
+export type BatchOperationMaterial = {
+  itemId: string | null;
+  itemReadableId: string | null;
+  substance: string | null;
+  grade: string | null;
+  dimension: string | null;
+  finish: string | null;
+  form: string | null;
+};
+
+export async function getBatchableOperations(
+  client: SupabaseClient<Database>,
+  locationId: string
+) {
+  return client.rpc("get_batchable_operations", {
+    location_id: locationId
+  });
+}
+
 export type BatchOperation =
   | {
       type: "create";

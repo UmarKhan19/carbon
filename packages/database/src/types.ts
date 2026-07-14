@@ -69959,6 +69959,7 @@ export type Database = {
           jobDueDate: string
           jobId: string
           jobMakeMethodId: string
+          jobOperationBatchId: string
           jobReadableId: string
           jobStatus: Database["public"]["Enums"]["jobStatus"]
           laborTime: number
@@ -70188,6 +70189,32 @@ export type Database = {
           storageUnitId: string
           storageUnitName: string
           trackedEntityId: string
+        }[]
+      }
+      get_batchable_operations: {
+        Args: { location_id: string }
+        Returns: {
+          customerName: string
+          description: string
+          id: string
+          itemDescription: string
+          itemReadableId: string
+          jobDeadlineType: Database["public"]["Enums"]["deadlineType"]
+          jobDueDate: string
+          jobId: string
+          jobMakeMethodId: string
+          jobReadableId: string
+          laborTime: number
+          locationId: string
+          machineTime: number
+          materials: Json
+          operationOrder: number
+          operationQuantity: number
+          priority: number
+          processId: string
+          processName: string
+          setupTime: number
+          workCenterId: string
         }[]
       }
       get_claims: { Args: { company: string; uid: string }; Returns: Json }
