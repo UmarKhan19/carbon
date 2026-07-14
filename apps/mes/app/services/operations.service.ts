@@ -1210,12 +1210,14 @@ export async function startBatchProductionEvent(
 
 export async function getJobOperationBatch(
   client: SupabaseClient<Database>,
-  batchId: string
+  batchId: string,
+  companyId: string
 ) {
   return client
     .from("jobOperationBatch")
     .select("*, process(id, name), workCenter(id, name)")
     .eq("id", batchId)
+    .eq("companyId", companyId)
     .single();
 }
 
@@ -1223,26 +1225,30 @@ export async function getJobOperationBatch(
 // row on the MES batch card and Complete Batch form.
 export async function getJobOperationsByBatch(
   client: SupabaseClient<Database>,
-  batchId: string
+  batchId: string,
+  companyId: string
 ) {
   return client
     .from("jobOperation")
     .select(
       "id, description, operationQuantity, quantityComplete, workCenterId, processId, status, jobId, job(jobId, itemReadableId)"
     )
-    .eq("jobOperationBatchId", batchId);
+    .eq("jobOperationBatchId", batchId)
+    .eq("companyId", companyId);
 }
 
 // The aggregate batch timers (tagged with jobOperationBatchId). A row with a
 // startTime and no endTime is a running timer; the card ticks off its startTime.
 export async function getBatchProductionEvents(
   client: SupabaseClient<Database>,
-  batchId: string
+  batchId: string,
+  companyId: string
 ) {
   return client
     .from("productionEvent")
     .select("id, type, startTime, endTime, duration, employeeId")
-    .eq("jobOperationBatchId", batchId);
+    .eq("jobOperationBatchId", batchId)
+    .eq("companyId", companyId);
 }
 
 type JobMethod = {

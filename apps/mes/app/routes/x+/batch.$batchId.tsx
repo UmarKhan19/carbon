@@ -47,7 +47,7 @@ import {
 import { path } from "~/utils/path";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  await requirePermissions(request, {});
+  const { companyId } = await requirePermissions(request, {});
 
   const { batchId } = params;
   if (!batchId) throw new Error("Batch ID is required");
@@ -55,9 +55,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const serviceRole = await getCarbonServiceRole();
 
   const [batch, operations, events] = await Promise.all([
-    getJobOperationBatch(serviceRole, batchId),
-    getJobOperationsByBatch(serviceRole, batchId),
-    getBatchProductionEvents(serviceRole, batchId)
+    getJobOperationBatch(serviceRole, batchId, companyId),
+    getJobOperationsByBatch(serviceRole, batchId, companyId),
+    getBatchProductionEvents(serviceRole, batchId, companyId)
   ]);
 
   if (batch.error || !batch.data) {
