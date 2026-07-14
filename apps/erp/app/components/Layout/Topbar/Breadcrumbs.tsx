@@ -78,7 +78,7 @@ const Breadcrumbs = () => {
       return {
         breadcrumb: translateBreadcrumb(
           typeof result.data.handle.breadcrumb === "function"
-            ? result.data.handle.breadcrumb(m.params)
+            ? result.data.handle.breadcrumb(m.params, m.data)
             : result.data.handle.breadcrumb
         ),
         to: result.data.handle?.to ?? m.pathname

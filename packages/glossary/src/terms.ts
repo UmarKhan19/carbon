@@ -1052,6 +1052,11 @@ export const terms = {
     definition: msg`Controls how planning handles a discontinued item: Consume First exhausts on-hand before switching to the successor, Prefer New redirects new demand to the successor immediately, Stock Only keeps only a minimum service reserve, and No Stock drops the item from planning entirely.`,
     aliases: ["phase-out", "spares-only", "obsolete"]
   },
+  "change-order-change-type": {
+    term: msg`Change Type`,
+    definition: msg`What kind of change this is: Version updates how the part is made, Revision edits its details and documents, and New Part replaces it with a new part number.`,
+    aliases: ["version", "revision", "new-part"]
+  },
 
   // ── Items: Pick method / shelf life (PickMethodForm) ────────────────────
   "item-default-storage-unit": {

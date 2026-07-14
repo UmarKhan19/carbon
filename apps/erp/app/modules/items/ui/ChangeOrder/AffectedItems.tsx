@@ -25,6 +25,7 @@ import type {
   getMethodOperationsByMakeMethodId
 } from "../../items.service";
 import type { MakeMethod } from "../../types";
+import type { PartPropertiesData } from "../Parts/PartProperties";
 import AffectedItemCard from "./AffectedItemCard";
 
 type RevisionLock = Awaited<ReturnType<typeof getRevisionLock>>;
@@ -90,9 +91,11 @@ export type AffectedItemDraft = {
   configurable: boolean;
   configurationRules: DraftConfigRules;
   parameters: DraftConfigParameters;
-  replenishmentSystem?: string;
   revisionStatus: RevisionLock["revisionStatus"];
   releaseControl: RevisionLock["releaseControl"] | null;
+  // Attribute/file bundle for the embedded PartProperties editor — set for
+  // Part-type Revision / New Part affected items, null otherwise.
+  partData: PartPropertiesData | null;
   diff?: ChangeOrderItemDiff;
 };
 
@@ -115,12 +118,6 @@ export default function AffectedItems({
           <CardTitle>
             <Trans>Affected Items</Trans>
           </CardTitle>
-          <span className="text-xs text-muted-foreground">
-            <Trans>
-              Pick the parts or tools to change. Each gets a staged copy of its
-              current method and attributes to edit.
-            </Trans>
-          </span>
         </CardHeader>
         <CardContent>
           <VStack spacing={2}>

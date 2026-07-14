@@ -2,6 +2,9 @@ import type { Database } from "@carbon/database";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type {
   ChangeOrderItemDiff,
+  ChangeOrderMergeChoice,
+  ChangeOrderReleaseConflict,
+  ChangeOrderReleaseConflictEntry,
   MethodDiffEntry,
   MethodDiffStatus
 } from "./changeOrder.models";
@@ -333,12 +336,8 @@ export function diffMethod(input: DiffMethodInput): DiffMethodResult {
 // DB-facing wrapper
 // -----------------------------------------------------------------------------
 
-type ChangeOrderSupersessionRow =
-  Database["public"]["Tables"]["changeOrderSupersession"]["Row"];
-
 export type ChangeOrderDiff = {
   items: ChangeOrderItemDiff[];
-  supersessions: ChangeOrderSupersessionRow[];
 };
 
 // Editable item attribute columns compared for the attribute diff.
@@ -488,8 +487,7 @@ export async function getChangeOrderDiff(
     changeOrderId,
     companyId
   );
-  if (affected.error)
-    return { data: { items: [], supersessions: [] }, error: affected.error };
+  if (affected.error) return { data: { items: [] }, error: affected.error };
 
   const items: ChangeOrderItemDiff[] = [];
 
@@ -499,15 +497,13 @@ export async function getChangeOrderDiff(
       affectedItem.baseMakeMethodId,
       companyId
     );
-    if (base.error)
-      return { data: { items: [], supersessions: [] }, error: base.error };
+    if (base.error) return { data: { items: [] }, error: base.error };
     const target = await readMethodRows(
       client,
       affectedItem.draftMakeMethodId,
       companyId
     );
-    if (target.error)
-      return { data: { items: [], supersessions: [] }, error: target.error };
+    if (target.error) return { data: { items: [] }, error: target.error };
 
     // Reconstruct source pointers by natural key.
     correlate(base.materials, target.materials, "itemId", MATERIAL_SOURCE_KEY);
@@ -563,17 +559,217 @@ export async function getChangeOrderDiff(
     });
   }
 
-  const supersessions = await client
-    .from("changeOrderSupersession")
-    .select("*")
-    .eq("changeOrderId", changeOrderId)
-    .eq("companyId", companyId)
-    .order("createdAt", { ascending: true });
-  if (supersessions.error)
-    return { data: { items, supersessions: [] }, error: supersessions.error };
+  return { data: { items }, error: null };
+}
 
-  return {
-    data: { items, supersessions: supersessions.data ?? [] },
-    error: null
-  };
+// -----------------------------------------------------------------------------
+// Release-time 2-way merge (Q3). Unlike getChangeOrderDiff (draft vs the base
+// the draft was copied from), this diffs the draft against the CURRENT live
+// Active method — which may have moved if a same-part parallel CO released
+// first. Only Version affected items can clobber (Revision/New Part make new
+// items), so only they are considered. A conflict exists only when the live
+// method actually moved (currentActive.id !== baseMakeMethodId).
+// -----------------------------------------------------------------------------
+
+// The item's current live Active method, excluding CO-owned drafts (changeOrderId
+// set). This is "theirs" — the merge target the draft activates over.
+export async function getCurrentActiveMakeMethodId(
+  client: SupabaseClient<Database>,
+  itemId: string,
+  companyId: string
+): Promise<string | null> {
+  const active = await client
+    .from("makeMethod")
+    .select("id")
+    .eq("itemId", itemId)
+    .eq("companyId", companyId)
+    .eq("status", "Active")
+    .is("changeOrderId", null)
+    .maybeSingle();
+  return active.data?.id ?? null;
+}
+
+function defaultChoiceFor(status: MethodDiffStatus): ChangeOrderMergeChoice {
+  // Protect a live-only line (another CO's addition) by defaulting to keep it;
+  // the CO's own adds/edits default to keeping the draft.
+  return status === "removed" ? "theirs" : "mine";
+}
+
+function childChangeCount(entry: OperationDiffEntry): number {
+  const c = entry.children;
+  if (!c) return 0;
+  const count = (rows: MethodDiffEntry<Row>[]) =>
+    rows.filter((r) => r.status !== "unchanged").length;
+  return count(c.steps) + count(c.parameters) + count(c.tools);
+}
+
+// Build the conflicting lines (draft="mine" vs live="theirs") for ONE affected
+// item, given the current live method id. Shared by the loader (UI) and the
+// server apply so both agree on the conflict set + default choices.
+export async function buildReleaseConflictEntries(
+  client: SupabaseClient<Database>,
+  affected: {
+    id: string;
+    itemId: string;
+    draftMakeMethodId: string | null;
+  },
+  liveMethodId: string,
+  companyId: string
+): Promise<{
+  entries: ChangeOrderReleaseConflictEntry[];
+  error: { message: string } | null;
+}> {
+  const live = await readMethodRows(client, liveMethodId, companyId);
+  if (live.error) return { entries: [], error: live.error };
+  const draft = await readMethodRows(
+    client,
+    affected.draftMakeMethodId,
+    companyId
+  );
+  if (draft.error) return { entries: [], error: draft.error };
+
+  // Reconstruct source pointers by natural key (base = live, target = draft).
+  correlate(live.materials, draft.materials, "itemId", MATERIAL_SOURCE_KEY);
+  correlate(live.operations, draft.operations, "order", OPERATION_SOURCE_KEY);
+  for (const top of draft.operations) {
+    const baseOpId = top[OPERATION_SOURCE_KEY];
+    const topId = top.id;
+    if (typeof baseOpId !== "string" || typeof topId !== "string") continue;
+    const bKids = live.children[baseOpId];
+    const tKids = draft.children[topId];
+    if (!bKids || !tKids) continue;
+    correlate(bKids.steps, tKids.steps, "name", CHILD_SOURCE_KEY);
+    correlate(bKids.parameters, tKids.parameters, "key", CHILD_SOURCE_KEY);
+    correlate(bKids.tools, tKids.tools, "toolId", CHILD_SOURCE_KEY);
+  }
+
+  const diff = diffMethod({
+    baseMaterials: live.materials,
+    targetMaterials: draft.materials,
+    baseOperations: live.operations,
+    targetOperations: draft.operations,
+    baseOperationChildren: live.children,
+    targetOperationChildren: draft.children
+  });
+
+  const entries: ChangeOrderReleaseConflictEntry[] = [];
+
+  for (const m of diff.materials) {
+    if (m.status === "unchanged") continue;
+    const row = (m.after ?? m.before) as {
+      id?: string;
+      itemId?: string;
+    } | null;
+    const fieldCount = m.changedFields
+      ? Object.keys(m.changedFields).length
+      : 0;
+    entries.push({
+      kind: "material",
+      status: m.status,
+      draftId: (m.after as { id?: string } | null)?.id ?? null,
+      liveId: (m.before as { id?: string } | null)?.id ?? null,
+      itemId: row?.itemId ?? null,
+      label: row?.itemId ?? "Material",
+      detail: fieldCount > 0 ? `${fieldCount} field change(s)` : null,
+      defaultChoice: defaultChoiceFor(m.status),
+      mine: (m.after as Record<string, unknown> | null) ?? null,
+      theirs: (m.before as Record<string, unknown> | null) ?? null,
+      ...(m.changedFields ? { changedFields: m.changedFields } : {})
+    });
+  }
+
+  for (const o of diff.operations) {
+    const kids = childChangeCount(o);
+    if (o.status === "unchanged" && kids === 0) continue;
+    const row = (o.after ?? o.before) as {
+      id?: string;
+      description?: string;
+      order?: number;
+    } | null;
+    const fieldCount = o.changedFields
+      ? Object.keys(o.changedFields).length
+      : 0;
+    const detailParts: string[] = [];
+    if (fieldCount > 0) detailParts.push(`${fieldCount} field change(s)`);
+    if (kids > 0) detailParts.push(`${kids} step/tool change(s)`);
+    const changedInBucket = (rows: MethodDiffEntry<Row>[]) =>
+      rows.filter((r) => r.status !== "unchanged").length;
+    const childChanges = o.children
+      ? {
+          steps: changedInBucket(o.children.steps),
+          parameters: changedInBucket(o.children.parameters),
+          tools: changedInBucket(o.children.tools)
+        }
+      : undefined;
+    entries.push({
+      kind: "operation",
+      // A child-only change surfaces as a "modified" operation conflict.
+      status: o.status === "unchanged" ? "modified" : o.status,
+      draftId: (o.after as { id?: string } | null)?.id ?? null,
+      liveId: (o.before as { id?: string } | null)?.id ?? null,
+      itemId: null,
+      label: row?.description || `Operation ${row?.order ?? ""}`.trim(),
+      detail: detailParts.length > 0 ? detailParts.join(", ") : null,
+      defaultChoice: defaultChoiceFor(
+        o.status === "unchanged" ? "modified" : o.status
+      ),
+      mine: (o.after as Record<string, unknown> | null) ?? null,
+      theirs: (o.before as Record<string, unknown> | null) ?? null,
+      ...(o.changedFields ? { changedFields: o.changedFields } : {}),
+      ...(childChanges && kids > 0 ? { childChanges } : {})
+    });
+  }
+
+  return { entries, error: null };
+}
+
+// For each Version affected item whose live method has moved since the draft was
+// created, return the conflicting lines for the release merge UI. Items with no
+// moved base (the common case) produce no conflict and are omitted.
+export async function getChangeOrderReleaseDiff(
+  client: SupabaseClient<Database>,
+  changeOrderId: string,
+  companyId: string
+): Promise<{
+  data: ChangeOrderReleaseConflict[];
+  error: { message: string } | null;
+}> {
+  const affected = await getChangeOrderAffectedItems(
+    client,
+    changeOrderId,
+    companyId
+  );
+  if (affected.error) return { data: [], error: affected.error };
+
+  const conflicts: ChangeOrderReleaseConflict[] = [];
+  for (const item of affected.data) {
+    if (item.changeType !== "Version" || !item.draftMakeMethodId) continue;
+    const liveId = await getCurrentActiveMakeMethodId(
+      client,
+      item.itemId,
+      companyId
+    );
+    // No live method, or the base hasn't moved → nothing to merge.
+    if (!liveId || liveId === item.baseMakeMethodId) continue;
+    const built = await buildReleaseConflictEntries(
+      client,
+      {
+        id: item.id,
+        itemId: item.itemId,
+        draftMakeMethodId: item.draftMakeMethodId
+      },
+      liveId,
+      companyId
+    );
+    if (built.error) return { data: [], error: built.error };
+    if (built.entries.length > 0) {
+      conflicts.push({
+        affectedItemId: item.id,
+        itemId: item.itemId,
+        entries: built.entries
+      });
+    }
+  }
+
+  return { data: conflicts, error: null };
 }

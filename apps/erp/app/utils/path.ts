@@ -708,12 +708,6 @@ export const path = {
       generatePath(
         `${x}/items/change-order/${id}/affected/${affectedId}/change-type`
       ),
-    changeOrderSupersession: (id: string) =>
-      generatePath(`${x}/items/change-order/${id}/supersession`),
-    deleteChangeOrderSupersession: (id: string, supersessionId: string) =>
-      generatePath(
-        `${x}/items/change-order/${id}/supersession/delete/${supersessionId}`
-      ),
     changeOrderAction: (id: string) =>
       generatePath(`${x}/items/change-order/${id}/action`),
     deleteChangeOrderAction: (id: string, actionId: string) =>

@@ -42,6 +42,10 @@ msgstr "(已为此客户排除)"
 msgid "{0, plural, one {This part is on 1 open change order} other {This part is on # open change orders}}"
 msgstr "{0, plural, one {此部件在1个开放的变更单上} other {此部件在#个开放的变更单上}}"
 
+#. placeholder {0}: c.entries.length
+msgid "{0} conflicting change(s)"
+msgstr ""
+
 #. placeholder {0}: ar.count
 msgid "{0} customers with a balance"
 msgstr "{0}个有余额的客户"
@@ -59,17 +63,33 @@ msgstr "{0} 已成功删除"
 msgid "{0} lines to map"
 msgstr "{0} 行待映射"
 
+#. placeholder {0}: conflicts.length
+msgid "{0} of these parts"
+msgstr ""
+
 #. placeholder {0}: history.length
 msgid "{0} orders"
 msgstr "{0} 个订单"
+
+#. placeholder {0}: cc.parameters
+msgid "{0} parameters"
+msgstr ""
 
 #. placeholder {0}: selectedProcesses.length
 msgid "{0} Processes"
 msgstr "{0} 个流程"
 
+#. placeholder {0}: cc.steps
+msgid "{0} steps"
+msgstr ""
+
 #. placeholder {0}: ap.count
 msgid "{0} suppliers with a balance"
 msgstr "{0}个有余额的供应商"
+
+#. placeholder {0}: cc.tools
+msgid "{0} tools"
+msgstr ""
 
 #. placeholder {0}: lotEntities.length - inspected
 msgid "{0} un-sampled entities will be released to Available. Sampled passes stay Available and sampled failures stay Rejected."
@@ -111,9 +131,6 @@ msgstr "{maxSizeMB}MB 限制"
 
 msgid "{name} deleted"
 msgstr "{name} 已删除"
-
-msgid "{openLineCount} open POs for deleted parts"
-msgstr "{openLineCount}个用于已删除零件的开放采购订单"
 
 msgid "{remaining, plural, one {# phase left} other {# phases left}}"
 msgstr "{remaining, plural, one {# 个阶段剩余} other {# 个阶段剩余}}"
@@ -261,6 +278,9 @@ msgstr "将使用当前版本的副本创建新版本"
 msgid "A new size will be created using a copy of the current size"
 msgstr "将使用当前尺寸的副本创建新尺寸"
 
+msgid "A newer version of this part was released while you were working. Choose which version to keep for each change."
+msgstr ""
+
 msgid "A non-taxable surcharge (e.g. recoverable expenses like permit fees) added to the line; excluded from the tax base."
 msgstr "不可征税的附加费（如可收回的费用，如许可证费用），添加到行中并从税基中排除。"
 
@@ -300,9 +320,6 @@ msgstr "报价行包含特定零件的定价和交货期"
 msgid "A reusable, versioned set of work instructions attached to a process, giving an operation its ordered steps to record and check plus the parameters it runs at."
 msgstr "一套可重复使用的、版本化的工作说明，附加到流程中，为操作提供有序的步骤以记录和检查，以及它运行的参数。"
 
-msgid "A Revision changes part data / documentation only (no BoM/BoP). Edit the new revision's attributes and files on its part page; it stays hidden until this change order is released."
-msgstr ""
-
 msgid "A routing step on a released job, the job's own copy of an operation, carrying a status the floor drives from Todo through Done."
 msgstr "一个已发布工作的路由步骤，该工作自己的操作副本，携带一个状态，该状态由车间从待办事项驱动到完成。"
 
@@ -335,9 +352,6 @@ msgstr "同一所有者下的一组公司，共享组范围的配置——会计
 
 msgid "A shipment line sent straight from supplier to customer, bypassing your warehouse — set per line, not on the header."
 msgstr "从供应商直接发送给客户，绕过您仓库的装运行——按行设置，而不是在标题上。"
-
-msgid "A summary of every staged change in this change order."
-msgstr ""
 
 msgid "A supplier's priced response to a purchasing RFQ — one per supplier; Draft → Active when they submit, or Declined."
 msgstr "供应商对采购RFQ的价格响应——每个供应商一个；草稿→提交时活跃或被拒绝。"
@@ -880,6 +894,10 @@ msgstr "注释文本是必需的"
 
 msgid "Annotation updated"
 msgstr "注释已更新"
+
+#. placeholder {0}: conflicts.length === 1 ? t`this part` : t`${conflicts.length} of these parts`
+msgid "Another change order released a newer version of {0}. Resolve each one to choose which changes to keep before releasing."
+msgstr ""
 
 msgid "Another cost center this one rolls up into, letting you nest a sub-department under its parent for hierarchical cost reporting."
 msgstr "该成本中心所归属的另一个成本中心，允许您在其父级下嵌套子成本中心，以进行分层成本报告。"
@@ -3254,9 +3272,6 @@ msgstr "切换系统，冻结旧系统，并确认您已在 Carbon 上线。"
 msgid "Cutover checklist"
 msgstr "转换检查清单"
 
-msgid "Cutover mode"
-msgstr ""
-
 msgid "Cutover step"
 msgstr "转换步骤"
 
@@ -3904,9 +3919,6 @@ msgstr ""
 msgid "Discontinuation Date"
 msgstr "停产日期"
 
-msgid "Discontinued"
-msgstr ""
-
 msgid "Discount"
 msgstr "折扣"
 
@@ -4472,14 +4484,8 @@ msgstr "生效日期"
 msgid "Effective To"
 msgstr "有效期至"
 
-msgid "Effectivity date"
-msgstr "生效日期"
-
 msgid "Effectivity Date"
 msgstr "生效日期"
-
-msgid "Effectivity version"
-msgstr "生效版本"
 
 msgid "Email"
 msgstr "电子邮件"
@@ -6043,6 +6049,9 @@ msgstr "有库存"
 msgid "In the loop together"
 msgstr "一起保持沟通"
 
+msgid "In-flight work and inventory this release touches. Informational — nothing here blocks releasing."
+msgstr ""
+
 msgid "Inactive"
 msgstr "未激活"
 
@@ -6524,6 +6533,9 @@ msgstr "保持当前"
 msgid "Keep existing pricing, only add new items"
 msgstr "保留现有定价，仅添加新项目"
 
+msgid "Keeping {keptMine} of {total} from your version"
+msgstr ""
+
 msgid "Key"
 msgstr "钥匙"
 
@@ -6600,6 +6612,9 @@ msgstr "最后同步: {0}"
 
 msgid "Last updated: {formattedDate}"
 msgstr "最后更新: {formattedDate}"
+
+msgid "Latest released"
+msgstr ""
 
 msgid "Lead time"
 msgstr "交货期"
@@ -7280,9 +7295,6 @@ msgstr "缺少供应商"
 msgid "Mobile Phone"
 msgstr "手机"
 
-msgid "Mode"
-msgstr ""
-
 msgid "Model data is missing"
 msgstr "模型数据缺失"
 
@@ -7804,9 +7816,6 @@ msgstr "未找到校准记录"
 msgid "No changes recorded"
 msgstr "未记录任何更改"
 
-msgid "No changes staged yet."
-msgstr ""
-
 msgid "No comments yet. Be the first to add a comment."
 msgstr "还没有评论。成为第一个添加评论的人。"
 
@@ -7843,6 +7852,9 @@ msgstr "没有可用的草稿版本"
 msgid "No due date"
 msgstr "无截止日期"
 
+msgid "No editable properties for this item."
+msgstr ""
+
 msgid "No employees assigned yet. Add groups to see status."
 msgstr "还未分配员工。添加组以查看状态。"
 
@@ -7866,6 +7878,9 @@ msgstr "未找到字段。"
 
 msgid "No files"
 msgstr "没有文件"
+
+msgid "No files for this item."
+msgstr ""
 
 msgid "No files uploaded"
 msgstr "未上传任何文件"
@@ -7915,9 +7930,6 @@ msgstr "没有备注"
 msgid "No open invoices"
 msgstr "没有未结发票"
 
-msgid "No open purchase orders for deleted parts"
-msgstr "无删除零件的未结采购订单"
-
 msgid "No operations require picking at this location"
 msgstr "此位置不需要进行任何操作拣选"
 
@@ -7966,9 +7978,6 @@ msgstr "未配置打印机"
 msgid "No printers configured. Click \"Add Printer\" to create one."
 msgstr "未配置打印机。点击\"添加打印机\"创建一个。"
 
-msgid "No products affected yet."
-msgstr "暂无受影响的产品。"
-
 msgid "No Quote"
 msgstr "无报价"
 
@@ -8010,9 +8019,6 @@ msgstr "无库存"
 
 msgid "No stockout projected in the next 48 weeks"
 msgstr "未来48周内未预测到库存短缺"
-
-msgid "No supersessions declared."
-msgstr ""
 
 msgid "No suppliers yet"
 msgstr "还没有供应商"
@@ -8074,6 +8080,9 @@ msgstr "不是表格而是总账余额：当发出工作物料时成本积累，
 msgid "Not enough jobs to cover quantity"
 msgstr "工作数量不足以覆盖数量"
 
+msgid "Not in the latest version"
+msgstr ""
+
 msgid "Not Required"
 msgstr "不需要"
 
@@ -8100,6 +8109,9 @@ msgstr "备注"
 
 msgid "Notes (optional)"
 msgstr "备注（可选）"
+
+msgid "Nothing downstream is affected by this release."
+msgstr ""
 
 msgid "Nothing in the archive"
 msgstr "存档中没有任何内容"
@@ -8242,8 +8254,14 @@ msgstr "在MES中打开"
 msgid "Open Issues"
 msgstr "未解决的问题"
 
+msgid "open job(s)"
+msgstr ""
+
 msgid "Open jobs"
 msgstr "未结工单"
+
+msgid "open line(s)"
+msgstr ""
 
 msgid "Open menu"
 msgstr "打开菜单"
@@ -8257,6 +8275,9 @@ msgstr "未结采购订单"
 msgid "Open Purchase Orders"
 msgstr "未结采购订单"
 
+msgid "Open purchase orders are still inbound for components this change removes from a BOM."
+msgstr ""
+
 msgid "Open Quotes"
 msgstr "未结报价"
 
@@ -8265,6 +8286,9 @@ msgstr "开放反应"
 
 msgid "Open RFQs"
 msgstr "未结RFQ"
+
+msgid "Open sales lines still reference the part being replaced. Move them to the successor if the change should apply."
+msgstr ""
 
 msgid "Open sales orders"
 msgstr "未结销售订单"
@@ -8712,9 +8736,6 @@ msgstr "拣货单"
 msgid "Pick Order"
 msgstr "拣选顺序"
 
-msgid "Pick the parts or tools to change. Each gets a staged copy of its current method and attributes to edit."
-msgstr ""
-
 msgid "Pick tracked item"
 msgstr "拣选追踪项目"
 
@@ -8897,9 +8918,6 @@ msgstr "潜在数据丢失"
 
 msgid "Pre-filled for a new item when expiry is Fixed Duration."
 msgstr "当过期时间设置为固定期限时，为新项目预填充。"
-
-msgid "Predecessor"
-msgstr ""
 
 msgid "Preferred Supplier"
 msgstr "首选供应商"
@@ -9142,6 +9160,9 @@ msgstr "预测"
 msgid "Projections"
 msgstr "预测"
 
+msgid "Promised"
+msgstr ""
+
 msgid "Promised Date"
 msgstr "承诺日期"
 
@@ -9304,10 +9325,6 @@ msgstr "数量"
 
 msgid "Qty to Order"
 msgstr "订购数量"
-
-#. placeholder {0}: line.quantityToReceive ?? 0
-msgid "Qty to receive: {0}"
-msgstr "待收数量：{0}"
 
 msgid "Qty. Complete"
 msgstr "数量. 完成"
@@ -9686,6 +9703,9 @@ msgstr "相对时间线 · 日期待确认"
 msgid "Release"
 msgstr "释放"
 
+msgid "Release Change Order"
+msgstr ""
+
 msgid "Release control"
 msgstr "发布控制"
 
@@ -9694,6 +9714,9 @@ msgstr "发布控制"
 
 msgid "Release Job"
 msgstr "发布工作"
+
+msgid "Release the change order to activate the changes."
+msgstr ""
 
 msgid "Released"
 msgstr "已发布"
@@ -9756,13 +9779,13 @@ msgstr "移除配对"
 msgid "Remove sort by column"
 msgstr "删除按列排序"
 
-msgid "Remove supersession"
-msgstr ""
-
 msgid "Remove this storage type from all referencing storage units and delete it. This cannot be undone."
 msgstr "从所有引用此存储类型的存储单元中移除它并将其删除。此操作无法撤销。"
 
 msgid "Removed"
+msgstr ""
+
+msgid "Removed in your version"
 msgstr ""
 
 msgid "Rendering label preview..."
@@ -9815,9 +9838,6 @@ msgstr "替换绘图？"
 
 msgid "Replace existing pricing with source values"
 msgstr "用源值替换现有定价"
-
-msgid "Replace one part with a different part. For a revision bump of the same part, use the cutover on the affected item above."
-msgstr ""
 
 msgid "Replace PDF"
 msgstr "替换 PDF"
@@ -9923,8 +9943,26 @@ msgstr "残差值"
 msgid "Residual Value %"
 msgstr "残差值 %"
 
+msgid "Resolve"
+msgstr ""
+
+msgid "Resolve & Release"
+msgstr ""
+
+msgid "Resolve conflicts"
+msgstr ""
+
+msgid "Resolve each part's conflicts below, then release. This activates every affected item's method."
+msgstr ""
+
+msgid "Resolve every part above to release."
+msgstr ""
+
 msgid "Resolve these before completing the NCR: every row must have a non-Pending disposition, and its linked entity quantities must match the row quantity."
 msgstr "在完成NCR之前解决这些问题：每一行必须有一个非待处理的处置，其关联实体数量必须与行数量匹配。"
+
+msgid "Resolved"
+msgstr ""
 
 msgid "Resolved Price"
 msgstr "已解决价格"
@@ -9987,6 +10025,9 @@ msgid "Reverse the related journal entries"
 msgstr "反转相关日记账分录"
 
 msgid "Review"
+msgstr ""
+
+msgid "Review required"
 msgstr ""
 
 msgid "Revision"
@@ -10221,6 +10262,9 @@ msgstr "销售订单位置"
 
 msgid "Sales Order Number"
 msgstr "销售订单号"
+
+msgid "Sales orders"
+msgstr ""
 
 msgid "Sales Orders"
 msgstr "销售订单"
@@ -11275,6 +11319,9 @@ msgstr "仅子组件过期日期"
 msgid "Sub-Departments"
 msgstr "子部门"
 
+msgid "sub-steps differ ({childNote}), kept with your pick"
+msgstr ""
+
 msgid "Subassembly"
 msgstr "小组件"
 
@@ -11329,9 +11376,6 @@ msgstr "成功复制报价"
 msgid "Successfully created a new revision"
 msgstr "成功创建新版本"
 
-msgid "Successor (optional)"
-msgstr ""
-
 msgid "Successor effectivity"
 msgstr ""
 
@@ -11376,9 +11420,6 @@ msgstr "检测到替代链"
 
 msgid "Supersession Mode"
 msgstr "替代模式"
-
-msgid "Supersessions"
-msgstr ""
 
 msgid "supplier"
 msgstr "供应商"
@@ -11551,6 +11592,12 @@ msgstr "标签"
 
 msgid "Tailor this hub for the customer. Changes apply live for everyone viewing it. Never shown to the customer here."
 msgstr "为客户定制此中心。更改对所有查看者实时生效。永远不会向客户显示此内容。"
+
+msgid "Take all latest"
+msgstr ""
+
+msgid "Take all mine"
+msgstr ""
 
 msgid "Take the shortest remaining shelf life across the materials consumed to make this item. Use when the product's expiry depends on its ingredients."
 msgstr "采用消耗的材料中最短的剩余保质期来制造此物品。当产品的有效期取决于其成分时使用。"
@@ -12000,6 +12047,9 @@ msgstr "此客户的生命周期状态 - 活跃、前景、非活跃等；只有
 msgid "The lifecycle state of this supplier — Active, Inactive, Pending Approval, etc.; only Active suppliers appear in PO / quote selectors."
 msgstr "此供应商的生命周期状态 - 活跃、非活跃、待批准等；只有活跃的供应商才会显示在采购单/报价选择器中。"
 
+msgid "The live method changed since you started"
+msgstr ""
+
 msgid "The local timezone this location reports time in; schedules, timecards, and shift hours at this location are interpreted in this zone regardless of the user's browser locale."
 msgstr "该位置报告时间的本地时区；该位置的时间表、时间卡和班次小时数将在此时区中解释，无论用户的浏览器区域设置如何。"
 
@@ -12357,6 +12407,9 @@ msgstr "这些电子邮件地址将自动抄送到发送给客户的所有报价
 msgid "These jobs have operations assigned to this work center:"
 msgstr "这些工作有分配给此工作中心的操作："
 
+msgid "These jobs were built on the previous method and won't change when you release — finish them as-is or re-pull the method."
+msgstr ""
+
 msgid "This completes the Discovery step."
 msgstr "这完成了发现步骤。"
 
@@ -12377,6 +12430,9 @@ msgstr "此信息将用于文档标题"
 
 msgid "This information will be visible to all users, so be careful what you share."
 msgstr "此信息将对所有用户可见，请谨慎分享。"
+
+msgid "This is a purchased item — it has no BoM/BoP; only its attributes and documents can change."
+msgstr ""
 
 msgid "This is a unique identifier for the webhook"
 msgstr "这是webhook的唯一标识符"
@@ -12417,6 +12473,9 @@ msgstr "本月"
 msgid "This page of your Implementation Hub is being built. Start from the command center while we finish it."
 msgstr "您的实现中心的此页面正在构建中。请从命令中心开始，我们将继续完成它。"
 
+msgid "this part"
+msgstr ""
+
 msgid "This part has {quantityOnHand} on hand at this location. No Stock means it will be neither planned nor consumed."
 msgstr "此零件在此位置有 {quantityOnHand} 件现货。\"无库存\"意味着它既不会被计划也不会被消耗。"
 
@@ -12450,9 +12509,6 @@ msgstr "此存储类型当前被 {usageCount} 个存储单元{0}使用。"
 
 msgid "This updates the theme for all users of the application"
 msgstr "这会更新应用程序所有用户的主题"
-
-msgid "This will create a new revision/part that supersedes the current one."
-msgstr ""
 
 msgid "This will make this version read-only and replace any material make methods with this version."
 msgstr "这将使此版本为只读，并用此版本替换任何物料制造方法。"
@@ -12532,8 +12588,14 @@ msgstr "标题"
 msgid "To Location"
 msgstr "至位置"
 
+msgid "To receive"
+msgstr ""
+
 msgid "To Receive"
 msgstr "待接收"
+
+msgid "To send"
+msgstr ""
 
 msgid "To Ship"
 msgstr "待发货"
@@ -13555,6 +13617,9 @@ msgstr "{translatedTerm}是什么?"
 msgid "What it is"
 msgstr "它是什么"
 
+msgid "What kind of change this is: Version updates how the part is made, Revision edits its details and documents, and New Part replaces it with a new part number."
+msgstr ""
+
 msgid "What kind of output this entry records — Production (good units), Scrap (unrecoverable), or Rework (sent back for correction); reveals Scrap Reason when Scrap."
 msgstr "此条目记录的输出类型 — 生产(合格单位)、报废(无法恢复)或返工(送回纠正);当报废时显示报废原因。"
 
@@ -14063,6 +14128,9 @@ msgstr "您的团队、结构和访问权限。"
 
 msgid "Your vendor list"
 msgstr "您的供应商列表"
+
+msgid "Your version"
+msgstr ""
 
 msgid "yourself"
 msgstr "你自己"

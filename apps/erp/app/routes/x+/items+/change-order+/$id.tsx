@@ -12,14 +12,19 @@ import {
   getChangeOrderAffectedItems,
   getChangeOrderDiff,
   getChangeOrderImpact,
-  getChangeOrderSupersessions,
+  getChangeOrderReleaseDiff,
   getChangeOrderTypesList,
   getConfigurationParameters,
   getConfigurationRules,
+  getItemFiles,
   getItemManufacturing,
   getMakeMethodById,
+  getMakeMethods,
   getMethodMaterialsByMakeMethod,
-  getMethodOperationsByMakeMethodId
+  getMethodOperationsByMakeMethodId,
+  getPart,
+  getPickMethods,
+  getSupplierParts
 } from "~/modules/items";
 import { getRevisionLock } from "~/modules/items/items.server";
 import type { AffectedItemDraft } from "~/modules/items/ui/ChangeOrder";
@@ -28,14 +33,19 @@ import {
   ChangeOrderProperties
 } from "~/modules/items/ui/ChangeOrder";
 import { getIssue, getIssues } from "~/modules/quality";
+import { getLocationsList } from "~/modules/resources";
 import type { MethodItemType, MethodType } from "~/modules/shared";
 import { getTagsList } from "~/modules/shared";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: msg`Change Orders`,
-  to: path.to.changeOrders,
+  // Leaf crumb: show the CO's readable number (from loader data), not a second
+  // static "Change Orders" (the parent _layout already renders the list crumb).
+  breadcrumb: (
+    _params: unknown,
+    data?: { changeOrder?: { changeOrderId?: string } }
+  ) => data?.changeOrder?.changeOrderId ?? msg`Change Order`,
   module: "parts"
 };
 
@@ -47,26 +57,20 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { id } = params;
   if (!id) throw new Error("Could not find id");
 
-  const [
-    changeOrder,
-    types,
-    affected,
-    diff,
-    supersessions,
-    actions,
-    impact,
-    nonConformances
-  ] = await Promise.all([
-    getChangeOrder(client, id, companyId),
-    getChangeOrderTypesList(client, companyId),
-    getChangeOrderAffectedItems(client, id, companyId),
-    getChangeOrderDiff(client, id, companyId),
-    getChangeOrderSupersessions(client, id, companyId),
-    getChangeOrderActions(client, id, companyId),
-    getChangeOrderImpact(client, id, companyId),
-    // NCR cross-link picker options (4a).
-    getIssues(client, companyId)
-  ]);
+  const [changeOrder, types, affected, diff, actions, impact, nonConformances] =
+    await Promise.all([
+      getChangeOrder(client, id, companyId),
+      getChangeOrderTypesList(client, companyId),
+      getChangeOrderAffectedItems(client, id, companyId),
+      getChangeOrderDiff(client, id, companyId),
+      getChangeOrderActions(client, id, companyId),
+      getChangeOrderImpact(client, id, companyId),
+      // NCR cross-link picker options (4a).
+      getIssues(client, companyId)
+    ]);
+
+  // Company locations feed the embedded PartProperties pick-method editor.
+  const locations = (await getLocationsList(client, companyId)).data ?? [];
 
   if (changeOrder.error) {
     throw redirect(
@@ -84,6 +88,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const linkedNonConformance = linkedNonConformanceId
     ? (await getIssue(client, linkedNonConformanceId)).data
     : null;
+
+  // Release-time merge conflicts (Q3) — only relevant at the release step. Empty
+  // unless a same-part parallel CO moved the live method under a Version draft.
+  const releaseConflicts =
+    changeOrder.data?.status === "Implementation"
+      ? (await getChangeOrderReleaseDiff(client, id, companyId)).data
+      : [];
 
   const affectedRows = affected.data ?? [];
   const diffByAffectedId = new Map(
@@ -110,11 +121,42 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
           configurable: false,
           configurationRules: [],
           parameters: [],
-          replenishmentSystem: undefined,
           revisionStatus: null,
           releaseControl: null,
+          partData: null,
           diff: diffByAffectedId.get(affectedItem.id)
         };
+      }
+
+      // Revision / New Part edit the item's attributes + files on the draft
+      // item — load the same bundle the part detail route feeds PartProperties,
+      // embedded on the CO card. Parts only (Tool attribute editing is a
+      // follow-up); Version has no attribute editing (Q2 matrix).
+      const needsAttributes =
+        (affectedItem.changeType === "Revision" ||
+          affectedItem.changeType === "New Part") &&
+        affectedItem.item?.type === "Part";
+      let partData = null;
+      if (needsAttributes) {
+        const [partSummary, supplierParts, pickMethods, partTags] =
+          await Promise.all([
+            getPart(client, draftItemId, companyId),
+            getSupplierParts(client, draftItemId, companyId),
+            getPickMethods(client, draftItemId, companyId),
+            getTagsList(client, companyId, "part")
+          ]);
+        if (partSummary.data) {
+          partData = {
+            itemId: draftItemId,
+            locations,
+            partSummary: partSummary.data,
+            files: getItemFiles(client, draftItemId, companyId),
+            supplierParts: supplierParts.data ?? [],
+            pickMethods: pickMethods.data ?? [],
+            makeMethods: getMakeMethods(client, draftItemId, companyId),
+            tags: partTags.data ?? []
+          };
+        }
       }
 
       const [
@@ -183,9 +225,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         configurable: manufacturing.data?.requiresConfiguration ?? false,
         configurationRules: config.configurationRules,
         parameters: config.parameters,
-        replenishmentSystem: undefined as string | undefined,
         revisionStatus: revisionLock.revisionStatus,
         releaseControl: revisionLock.releaseControl,
+        partData,
         diff: diffByAffectedId.get(affectedItem.id)
       };
     })
@@ -221,11 +263,15 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     changeOrder: changeOrder.data,
     types: types.data ?? [],
     affectedItems,
-    diff: diff.data ?? { items: [], supersessions: [] },
-    supersessions: supersessions.data ?? [],
+    diff: diff.data ?? { items: [] },
+    releaseConflicts,
     actions: actions.data ?? [],
     affectedAssemblies,
-    impact: impact.data ?? [],
+    impact: impact.data ?? {
+      removedParts: [],
+      affectedJobs: [],
+      supersededSalesOrders: []
+    },
     nonConformanceOptions,
     linkedNonConformance: linkedNonConformance
       ? {

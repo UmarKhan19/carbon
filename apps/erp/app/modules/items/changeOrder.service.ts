@@ -1,6 +1,5 @@
 import type { Database, Json } from "@carbon/database";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { z } from "zod";
 import type { GenericQueryFilters } from "~/utils/query";
 import { setGenericQueryFilters } from "~/utils/query";
 import { sanitize } from "~/utils/supabase";
@@ -9,7 +8,6 @@ import type {
   ChangeOrderChangeType,
   ChangeOrderError,
   changeOrderStatus,
-  changeOrderSupersessionValidator,
   changeOrderType
 } from "./changeOrder.models";
 import { isAllowedChangeOrderTransition } from "./changeOrder.models";
@@ -562,11 +560,16 @@ async function getNextNumericItemId(
 
 // Resolve the current Active make method id for an item (the base the draft is
 // copied from + the merge base at release). Falls back to the highest version.
+// Also returns `maxVersion` = the highest version number across ALL of the
+// item's methods (Draft/Active/Archived) — a new draft must be numbered above
+// this, not above the Active one, so parallel COs on the same item don't collide
+// on the `(itemId, version)` unique constraint (a hidden CO draft already holds
+// Active+1).
 async function getActiveMakeMethodId(
   client: SupabaseClient<Database>,
   itemId: string,
   companyId: string
-): Promise<{ id: string; version: number } | null> {
+): Promise<{ id: string; version: number; maxVersion: number } | null> {
   const methods = await client
     .from("makeMethod")
     .select("id, version, status")
@@ -577,7 +580,9 @@ async function getActiveMakeMethodId(
   if (rows.length === 0) return null;
   const active = rows.find((r) => r.status === "Active");
   const chosen = active ?? rows[0];
-  return { id: chosen.id, version: chosen.version ?? 1 };
+  // rows are ordered by version DESC, so rows[0] holds the highest version.
+  const maxVersion = rows[0].version ?? chosen.version ?? 1;
+  return { id: chosen.id, version: chosen.version ?? 1, maxVersion };
 }
 
 // Fetch the (single) Draft make method for a freshly-created item — the trigger
@@ -631,17 +636,41 @@ export async function createChangeOrderDraftMethod(
       };
     }
     // New Draft version on the same item, then copy the BoM/BoP rows (the
-    // canonical new-version flow: header insert + copyMakeMethod).
-    const created = await upsertMakeMethodVersion(client, {
-      copyFromId: base.id,
-      version: base.version + 1,
-      companyId,
-      createdBy: userId
-    });
-    if (created.error || !created.data) {
-      return { data: null, error: created.error };
+    // canonical new-version flow: header insert + copyMakeMethod). Number it
+    // above ALL existing versions (maxVersion + 1), not the Active one, so a
+    // second CO on the same part doesn't collide on (itemId, version). Retry on
+    // a concurrent unique-violation by recomputing the next free version.
+    let draftId: string | null = null;
+    let nextVersion = base.maxVersion + 1;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const res = await upsertMakeMethodVersion(client, {
+        copyFromId: base.id,
+        version: nextVersion,
+        companyId,
+        createdBy: userId
+      });
+      if (!res.error && res.data) {
+        draftId = res.data.id;
+        break;
+      }
+      // 23505 = unique_violation (makeMethod_unique_itemId_version); a parallel
+      // CO grabbed this number first — recompute the next free version + retry.
+      if (res.error?.code === "23505") {
+        const latest = await getActiveMakeMethodId(client, itemId, companyId);
+        nextVersion = (latest?.maxVersion ?? nextVersion) + 1;
+        continue;
+      }
+      return {
+        data: null,
+        error: res.error ?? { message: "Failed to create draft version" }
+      };
     }
-    const draftId = created.data.id;
+    if (!draftId) {
+      return {
+        data: null,
+        error: { message: "Failed to create draft version" }
+      };
+    }
     // @ts-expect-error TS2345 - getMethodValidator flags default via edge fn
     const copy = await copyMakeMethod(client, {
       sourceId: base.id,
@@ -850,6 +879,21 @@ export async function addChangeOrderAffectedItem(
 }> {
   const { changeOrderId, itemId, changeType, companyId, userId } = input;
 
+  // A purchased (Buy) item has no BoM/BoP, so a Version change is a no-op —
+  // default it to a Revision (part-data/docs), the meaningful change for Buy.
+  let effectiveChangeType = changeType;
+  if (changeType === "Version") {
+    const item = await client
+      .from("item")
+      .select("replenishmentSystem")
+      .eq("id", itemId)
+      .eq("companyId", companyId)
+      .maybeSingle();
+    if (item.data?.replenishmentSystem === "Buy") {
+      effectiveChangeType = "Revision";
+    }
+  }
+
   const last = await client
     .from("changeOrderAffectedItem")
     .select("sortOrder")
@@ -865,7 +909,7 @@ export async function addChangeOrderAffectedItem(
     .insert({
       changeOrderId,
       itemId,
-      changeType,
+      changeType: effectiveChangeType,
       sortOrder,
       companyId,
       createdBy: userId
@@ -880,7 +924,7 @@ export async function addChangeOrderAffectedItem(
   const draft = await createChangeOrderDraftMethod(client, {
     changeOrderId,
     itemId,
-    changeType,
+    changeType: effectiveChangeType,
     companyId,
     userId
   });
@@ -1018,14 +1062,6 @@ export type ChangeOrderAffectedItemWithLabel = ChangeOrderAffectedItemRow & {
   item: ChangeOrderStagingItemLabel | null;
 };
 
-type ChangeOrderSupersessionRow =
-  Database["public"]["Tables"]["changeOrderSupersession"]["Row"];
-
-export type ChangeOrderSupersessionWithLabels = ChangeOrderSupersessionRow & {
-  predecessorItem: ChangeOrderStagingItemLabel | null;
-  successorItem: ChangeOrderStagingItemLabel | null;
-};
-
 const ITEM_LABEL_COLUMNS =
   "id, readableId, readableIdWithRevision, name, type, active, revisionStatus, replenishmentSystem";
 
@@ -1112,98 +1148,6 @@ export async function removeChangeOrderAffectedItem(
     .eq("companyId", companyId);
 }
 
-// The manual supersessions of a CO, each stitched to predecessor/successor labels.
-export async function getChangeOrderSupersessions(
-  client: SupabaseClient<Database>,
-  changeOrderId: string,
-  companyId: string
-): Promise<{
-  data: ChangeOrderSupersessionWithLabels[];
-  error: { message: string } | null;
-}> {
-  const supersessions = await client
-    .from("changeOrderSupersession")
-    .select("*")
-    .eq("changeOrderId", changeOrderId)
-    .eq("companyId", companyId)
-    .order("createdAt", { ascending: true });
-
-  if (supersessions.error) return { data: [], error: supersessions.error };
-  const rows = supersessions.data ?? [];
-  if (rows.length === 0) return { data: [], error: null };
-
-  const { labels, error } = await stitchItemLabels(
-    client,
-    rows.flatMap((r) =>
-      [r.predecessorItemId, r.successorItemId].filter((v): v is string => !!v)
-    ),
-    companyId
-  );
-  if (error) return { data: [], error };
-
-  return {
-    data: rows.map((r) => ({
-      ...r,
-      predecessorItem: labels.get(r.predecessorItemId) ?? null,
-      successorItem: r.successorItemId
-        ? (labels.get(r.successorItemId) ?? null)
-        : null
-    })),
-    error: null
-  };
-}
-
-// Insert/update one manual supersession declaration.
-export async function upsertChangeOrderSupersession(
-  client: SupabaseClient<Database>,
-  input: z.infer<typeof changeOrderSupersessionValidator> & {
-    companyId: string;
-    userId: string;
-  }
-): Promise<{ data: { id: string } | null; error: { message: string } | null }> {
-  const { id, companyId, userId, changeOrderId, ...rest } = input;
-
-  const payload = {
-    predecessorItemId: rest.predecessorItemId,
-    successorItemId: rest.successorItemId,
-    supersessionMode: rest.supersessionMode,
-    discontinuationDate: rest.discontinuationDate,
-    successorEffectivityDate: rest.successorEffectivityDate
-  };
-
-  if (id) {
-    return client
-      .from("changeOrderSupersession")
-      .update({
-        ...sanitize(payload),
-        updatedBy: userId,
-        updatedAt: new Date().toISOString()
-      })
-      .eq("id", id)
-      .eq("companyId", companyId)
-      .select("id")
-      .single();
-  }
-
-  return client
-    .from("changeOrderSupersession")
-    .insert({
-      changeOrderId,
-      companyId,
-      createdBy: userId,
-      ...sanitize(payload)
-    })
-    .select("id")
-    .single();
-}
-
-export async function deleteChangeOrderSupersession(
-  client: SupabaseClient<Database>,
-  id: string
-) {
-  return client.from("changeOrderSupersession").delete().eq("id", id);
-}
-
 // =============================================================================
 // Phase 3 — Impact panel (open POs for deleted parts, at Implementation)
 // =============================================================================
@@ -1220,33 +1164,110 @@ export type ChangeOrderImpactRow = {
   }>;
 };
 
-// PRD §3.3: read-only, non-blocking. Surfaces open (not-yet-received) PO lines
-// for the parts being DELETED, so procurement has visibility before the change
-// goes live. Flat selects + JS stitch (no PostgREST embeds — TS2589 budget).
+// In-flight jobs building an affected item. Jobs snapshot their make method at
+// creation, so a release does NOT retroactively change them — this is a heads-up
+// that these jobs will keep running the previous method.
+export type ChangeOrderImpactJobRow = {
+  itemId: string;
+  itemReadableId: string | null;
+  itemName: string | null;
+  jobs: Array<{
+    id: string;
+    jobReadableId: string;
+    status: string;
+    quantity: number | null;
+    dueDate: string | null;
+  }>;
+};
+
+// Open sales-order lines still pointing at a part being replaced by a Revision /
+// New Part. Candidates to move to the successor — release does not rewrite them.
+export type ChangeOrderImpactSalesOrderRow = {
+  itemId: string;
+  itemReadableId: string | null;
+  itemName: string | null;
+  changeType: string;
+  lines: Array<{
+    id: string;
+    salesOrderId: string;
+    salesOrderReadableId: string | null;
+    quantityToSend: number | null;
+    promisedDate: string | null;
+  }>;
+};
+
+export type ChangeOrderImpact = {
+  removedParts: ChangeOrderImpactRow[];
+  affectedJobs: ChangeOrderImpactJobRow[];
+  supersededSalesOrders: ChangeOrderImpactSalesOrderRow[];
+};
+
+// Jobs that are still in-flight (not Completed / Cancelled / Closed).
+const OPEN_JOB_STATUSES: Database["public"]["Enums"]["jobStatus"][] = [
+  "Draft",
+  "Planned",
+  "Ready",
+  "In Progress",
+  "Paused",
+  "Overdue",
+  "Due Today"
+];
+
+// PRD §3.3 (expanded): read-only, non-blocking pre-release heads-up — three
+// slices of what a release will (and won't) touch, so procurement/planning/sales
+// have visibility before the change goes live:
+//   • removedParts          — open POs still inbound for components deleted from a BOM
+//   • affectedJobs          — in-flight jobs building an affected item; they snapshot
+//                             the method at creation, so they will NOT pick up this
+//                             change (finish as-is or re-pull the method manually)
+//   • supersededSalesOrders — open SO lines still pointing at a part being replaced
+//                             by a Revision / New Part (candidates for the successor)
+// Nothing here blocks the release. Flat selects + JS stitch (no PostgREST embeds —
+// TS2589 budget).
 export async function getChangeOrderImpact(
   client: SupabaseClient<Database>,
   changeOrderId: string,
   companyId: string
-): Promise<{
-  data: ChangeOrderImpactRow[];
-  error: { message: string } | null;
-}> {
-  // v2 model: a "removed part" is a component that appears on an affected item's
-  // BASE (source Active) make method but has NO surviving line on the CO-owned
-  // DRAFT method — i.e. the user deleted that BOM line while editing the draft.
-  // We compute it by comparing, per affected item, the base method's component
-  // itemIds against the draft method's component itemIds.
+): Promise<{ data: ChangeOrderImpact; error: { message: string } | null }> {
+  const empty: ChangeOrderImpact = {
+    removedParts: [],
+    affectedJobs: [],
+    supersededSalesOrders: []
+  };
+
   const affected = await client
     .from("changeOrderAffectedItem")
-    .select("id, itemId, draftMakeMethodId, baseMakeMethodId")
+    .select("id, itemId, changeType, draftMakeMethodId, baseMakeMethodId")
     .eq("changeOrderId", changeOrderId)
     .eq("companyId", companyId);
-  if (affected.error) return { data: [], error: affected.error };
+  if (affected.error) return { data: empty, error: affected.error };
 
   const affectedItems = affected.data ?? [];
-  if (affectedItems.length === 0) return { data: [], error: null };
+  if (affectedItems.length === 0) return { data: empty, error: null };
 
-  // All method ids involved (base = source Active, draft = CO-owned edit).
+  const affectedItemIds = [
+    ...new Set(affectedItems.map((a) => a.itemId).filter(Boolean))
+  ] as string[];
+  // Parts being replaced (Revision / New Part) — their open sales demand is the
+  // "superseded" slice; a plain Version keeps the same item, so it's excluded.
+  const supersededItems = affectedItems.filter(
+    (a) => a.changeType === "Revision" || a.changeType === "New Part"
+  );
+  const supersededItemIds = [
+    ...new Set(supersededItems.map((a) => a.itemId).filter(Boolean))
+  ] as string[];
+
+  // Labels for every affected item (jobs + sales sections) resolved once.
+  const affectedLabels = await getItemLabelMap(
+    client,
+    affectedItemIds,
+    companyId
+  );
+
+  // ---- Removed components → open POs ----------------------------------------
+  // A "removed part" is a component on an affected item's BASE (source Active)
+  // method with NO surviving line on the CO-owned DRAFT method (deleted while
+  // editing). Compare base vs draft component itemIds per affected item.
   const methodIds = [
     ...new Set(
       affectedItems.flatMap((a) =>
@@ -1261,9 +1282,8 @@ export async function getChangeOrderImpact(
         .in("makeMethodId", methodIds)
         .eq("companyId", companyId)
     : { data: [], error: null };
-  if (materials.error) return { data: [], error: materials.error };
+  if (materials.error) return { data: empty, error: materials.error };
 
-  // Component itemIds per make method.
   const componentsByMethod = new Map<string, Set<string>>();
   for (const m of materials.data ?? []) {
     if (!m.makeMethodId || !m.itemId) continue;
@@ -1272,7 +1292,6 @@ export async function getChangeOrderImpact(
     componentsByMethod.set(m.makeMethodId, set);
   }
 
-  // Removed = component on the base method with no surviving draft line.
   const removedItemIds = new Set<string>();
   for (const a of affectedItems) {
     if (!a.baseMakeMethodId) continue;
@@ -1285,68 +1304,198 @@ export async function getChangeOrderImpact(
       if (!draft.has(componentId)) removedItemIds.add(componentId);
     }
   }
-
   const partIds = [...removedItemIds];
-  if (partIds.length === 0) return { data: [], error: null };
 
-  const lines = await client
-    .from("openPurchaseOrderLines")
-    .select("id, itemId, quantityToReceive, purchaseOrderId")
-    .in("itemId", partIds)
+  const removedParts: ChangeOrderImpactRow[] = [];
+  if (partIds.length > 0) {
+    const lines = await client
+      .from("openPurchaseOrderLines")
+      .select("id, itemId, quantityToReceive, purchaseOrderId")
+      .in("itemId", partIds)
+      .eq("companyId", companyId)
+      .limit(500);
+    if (lines.error) return { data: empty, error: lines.error };
+
+    const poIds = [
+      ...new Set(
+        (lines.data ?? []).map((l) => l.purchaseOrderId).filter(Boolean)
+      )
+    ] as string[];
+    const pos = poIds.length
+      ? await client
+          .from("purchaseOrders")
+          .select("id, purchaseOrderId, supplierId")
+          .in("id", poIds)
+          .eq("companyId", companyId)
+      : { data: [], error: null };
+    if (pos.error) return { data: empty, error: pos.error };
+
+    // Resolve supplier ids → names (the view carries only the id).
+    const supplierIds = [
+      ...new Set((pos.data ?? []).map((p) => p.supplierId).filter(Boolean))
+    ] as string[];
+    const suppliers = supplierIds.length
+      ? await client
+          .from("supplier")
+          .select("id, name")
+          .in("id", supplierIds)
+          .eq("companyId", companyId)
+      : { data: [], error: null };
+    if (suppliers.error) return { data: empty, error: suppliers.error };
+    const supplierNameById = new Map<string, string>(
+      (suppliers.data ?? []).map((s) => [s.id, s.name])
+    );
+
+    const poById = new Map<
+      string,
+      { readable: string | null; supplier: string | null }
+    >(
+      (pos.data ?? []).flatMap((p) =>
+        p.id
+          ? [
+              [
+                p.id,
+                {
+                  readable: p.purchaseOrderId,
+                  supplier: p.supplierId
+                    ? (supplierNameById.get(p.supplierId) ?? null)
+                    : null
+                }
+              ]
+            ]
+          : []
+      )
+    );
+
+    const items = await getItemLabelMap(client, partIds, companyId);
+    const byPart = new Map<string, ChangeOrderImpactRow>();
+    for (const partId of partIds) {
+      const label = items.get(partId);
+      byPart.set(partId, {
+        itemId: partId,
+        itemReadableId: label?.readableIdWithRevision ?? null,
+        itemName: label?.name ?? null,
+        openPurchaseOrderLines: []
+      });
+    }
+    for (const l of lines.data ?? []) {
+      const itemId = l.itemId;
+      const poId = l.purchaseOrderId;
+      const lineId = l.id;
+      if (!itemId || !poId || !lineId) continue;
+      const row = byPart.get(itemId);
+      if (!row) continue;
+      const po = poById.get(poId);
+      row.openPurchaseOrderLines.push({
+        id: lineId,
+        purchaseOrderId: poId,
+        purchaseOrderReadableId: po?.readable ?? null,
+        supplierName: po?.supplier ?? null,
+        quantityToReceive: l.quantityToReceive
+      });
+    }
+    removedParts.push(
+      ...[...byPart.values()].filter((r) => r.openPurchaseOrderLines.length > 0)
+    );
+  }
+
+  // ---- Affected items → in-flight jobs --------------------------------------
+  const affectedJobs: ChangeOrderImpactJobRow[] = [];
+  const jobs = await client
+    .from("job")
+    .select("id, jobId, itemId, status, quantity, dueDate")
+    .in("itemId", affectedItemIds)
+    .in("status", OPEN_JOB_STATUSES)
     .eq("companyId", companyId)
     .limit(500);
-  if (lines.error) return { data: [], error: lines.error };
+  if (jobs.error) return { data: empty, error: jobs.error };
 
-  const poIds = [
-    ...new Set((lines.data ?? []).map((l) => l.purchaseOrderId).filter(Boolean))
-  ] as string[];
-  const pos = poIds.length
-    ? await client
-        .from("purchaseOrders")
-        .select("id, purchaseOrderId, supplierId")
-        .in("id", poIds)
-        .eq("companyId", companyId)
-    : { data: [], error: null };
-  if (pos.error) return { data: [], error: pos.error };
-  const poById = new Map<
-    string,
-    { readable: string | null; supplier: string | null }
-  >(
-    (pos.data ?? []).flatMap((p) =>
-      p.id
-        ? [[p.id, { readable: p.purchaseOrderId, supplier: p.supplierId }]]
-        : []
-    )
-  );
-
-  const items = await getItemLabelMap(client, partIds, companyId);
-
-  const byPart = new Map<string, ChangeOrderImpactRow>();
-  for (const partId of partIds) {
-    const label = items.get(partId);
-    byPart.set(partId, {
-      itemId: partId,
-      itemReadableId: label?.readableIdWithRevision ?? null,
-      itemName: label?.name ?? null,
-      openPurchaseOrderLines: []
+  const jobsByItem = new Map<string, ChangeOrderImpactJobRow>();
+  for (const j of jobs.data ?? []) {
+    if (!j.itemId) continue;
+    let row = jobsByItem.get(j.itemId);
+    if (!row) {
+      const label = affectedLabels.get(j.itemId);
+      row = {
+        itemId: j.itemId,
+        itemReadableId: label?.readableIdWithRevision ?? null,
+        itemName: label?.name ?? null,
+        jobs: []
+      };
+      jobsByItem.set(j.itemId, row);
+    }
+    row.jobs.push({
+      id: j.id,
+      jobReadableId: j.jobId,
+      status: j.status,
+      quantity: j.quantity,
+      dueDate: j.dueDate
     });
   }
-  for (const l of lines.data ?? []) {
-    const itemId = l.itemId;
-    const poId = l.purchaseOrderId;
-    const lineId = l.id;
-    if (!itemId || !poId || !lineId) continue;
-    const row = byPart.get(itemId);
-    if (!row) continue;
-    const po = poById.get(poId);
-    row.openPurchaseOrderLines.push({
-      id: lineId,
-      purchaseOrderId: poId,
-      purchaseOrderReadableId: po?.readable ?? null,
-      supplierName: po?.supplier ?? null,
-      quantityToReceive: l.quantityToReceive
-    });
+  affectedJobs.push(...jobsByItem.values());
+
+  // ---- Superseded parts (Revision / New Part) → open sales orders -----------
+  const supersededSalesOrders: ChangeOrderImpactSalesOrderRow[] = [];
+  if (supersededItemIds.length > 0) {
+    const soLines = await client
+      .from("openSalesOrderLines")
+      .select("id, itemId, salesOrderId, quantityToSend, promisedDate")
+      .in("itemId", supersededItemIds)
+      .eq("companyId", companyId)
+      .limit(500);
+    if (soLines.error) return { data: empty, error: soLines.error };
+
+    const soIds = [
+      ...new Set(
+        (soLines.data ?? []).map((l) => l.salesOrderId).filter(Boolean)
+      )
+    ] as string[];
+    const orders = soIds.length
+      ? await client
+          .from("salesOrders")
+          .select("id, salesOrderId")
+          .in("id", soIds)
+          .eq("companyId", companyId)
+      : { data: [], error: null };
+    if (orders.error) return { data: empty, error: orders.error };
+    const soReadableById = new Map<string, string | null>(
+      (orders.data ?? []).flatMap((o) => (o.id ? [[o.id, o.salesOrderId]] : []))
+    );
+    const changeTypeByItem = new Map(
+      supersededItems.map((a) => [a.itemId, a.changeType as string])
+    );
+
+    const soByItem = new Map<string, ChangeOrderImpactSalesOrderRow>();
+    for (const l of soLines.data ?? []) {
+      const itemId = l.itemId;
+      const soId = l.salesOrderId;
+      const lineId = l.id;
+      if (!itemId || !soId || !lineId) continue;
+      let row = soByItem.get(itemId);
+      if (!row) {
+        const label = affectedLabels.get(itemId);
+        row = {
+          itemId,
+          itemReadableId: label?.readableIdWithRevision ?? null,
+          itemName: label?.name ?? null,
+          changeType: changeTypeByItem.get(itemId) ?? "",
+          lines: []
+        };
+        soByItem.set(itemId, row);
+      }
+      row.lines.push({
+        id: lineId,
+        salesOrderId: soId,
+        salesOrderReadableId: soReadableById.get(soId) ?? null,
+        quantityToSend: l.quantityToSend,
+        promisedDate: l.promisedDate
+      });
+    }
+    supersededSalesOrders.push(...soByItem.values());
   }
 
-  return { data: [...byPart.values()], error: null };
+  return {
+    data: { removedParts, affectedJobs, supersededSalesOrders },
+    error: null
+  };
 }

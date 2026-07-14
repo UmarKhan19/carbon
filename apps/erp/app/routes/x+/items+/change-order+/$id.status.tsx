@@ -4,6 +4,7 @@ import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
+import type { ChangeOrderMergeResolution } from "~/modules/items";
 import {
   changeOrderBroadcastStages,
   changeOrderStatusValidator,
@@ -40,8 +41,21 @@ export async function action({ request, params }: ActionFunctionArgs) {
     fromStatus,
     status: toStatus,
     assignee,
-    effectiveDate
+    effectiveDate,
+    resolutions: resolutionsRaw,
+    mergeAcknowledged
   } = validation.data;
+
+  // Release-time merge picks (Q3), sent only when releasing through the merge UI.
+  let resolutions: ChangeOrderMergeResolution[] = [];
+  if (resolutionsRaw) {
+    try {
+      const parsed = JSON.parse(resolutionsRaw);
+      if (Array.isArray(parsed)) resolutions = parsed;
+    } catch {
+      // Ignore malformed picks — the server recomputes conflicts + defaults.
+    }
+  }
 
   // Implementation → Done IS the apply: applyChangeOrder edits each affected
   // assembly's BOM via the canonical make-method helpers and performs the final
@@ -51,7 +65,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
     const applied = await applyChangeOrder(client, getDatabaseClient(), {
       changeOrderId: id,
       userId,
-      companyId
+      companyId,
+      resolutions,
+      mergeAcknowledged: mergeAcknowledged === "true"
     });
     if (applied.error || !applied.data) {
       throw redirect(

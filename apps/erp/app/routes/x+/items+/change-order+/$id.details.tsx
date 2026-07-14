@@ -5,8 +5,8 @@ import { useRouteData } from "~/hooks";
 import type {
   ChangeOrder,
   ChangeOrderActionTask,
-  ChangeOrderImpactRow,
-  ChangeOrderSupersessionWithLabels
+  ChangeOrderImpact,
+  ChangeOrderReleaseConflict
 } from "~/modules/items";
 import { canEditChangeOrder } from "~/modules/items";
 import type { ChangeOrderDiff } from "~/modules/items/changeOrder.diff";
@@ -15,10 +15,8 @@ import {
   AffectedItems,
   ChangeOrderActions,
   ChangeOrderContent,
-  ChangeOrderReview,
-  ChangeOrderSupersession,
-  ImpactPanel,
-  ImplementationSection
+  ChangeOrderReleaseMerge,
+  ImpactPanel
 } from "~/modules/items/ui/ChangeOrder";
 import { path } from "~/utils/path";
 
@@ -30,9 +28,9 @@ export default function ChangeOrderDetailsRoute() {
     changeOrder: ChangeOrder;
     affectedItems: AffectedItemDraft[];
     diff: ChangeOrderDiff;
-    supersessions: ChangeOrderSupersessionWithLabels[];
+    releaseConflicts: ChangeOrderReleaseConflict[];
     actions: ChangeOrderActionTask[];
-    impact: ChangeOrderImpactRow[];
+    impact: ChangeOrderImpact;
   }>(path.to.changeOrder(id));
   const changeOrder = routeData?.changeOrder;
 
@@ -43,18 +41,6 @@ export default function ChangeOrderDetailsRoute() {
     changeOrder.status === "Implementation" || changeOrder.status === "Done";
 
   const affectedItems = routeData?.affectedItems ?? [];
-
-  // In the top-to-bottom model the affected items are the changed products.
-  const products = affectedItems.map((a) => ({
-    id: a.affectedItem.id,
-    itemId: a.affectedItem.itemId,
-    item: a.affectedItem.item
-      ? {
-          readableIdWithRevision: a.affectedItem.item.readableIdWithRevision,
-          name: a.affectedItem.item.name
-        }
-      : null
-  }));
 
   return (
     <VStack spacing={2}>
@@ -72,12 +58,6 @@ export default function ChangeOrderDetailsRoute() {
         isDisabled={isDisabled}
       />
 
-      <ChangeOrderSupersession
-        id={id}
-        supersessions={routeData?.supersessions ?? []}
-        isDisabled={isDisabled}
-      />
-
       <ChangeOrderActions
         changeOrderId={id}
         actions={routeData?.actions ?? []}
@@ -86,16 +66,20 @@ export default function ChangeOrderDetailsRoute() {
 
       {showImplementation && (
         <>
-          <ChangeOrderReview
-            diff={routeData?.diff ?? { items: [], supersessions: [] }}
+          <ImpactPanel
+            impact={
+              routeData?.impact ?? {
+                removedParts: [],
+                affectedJobs: [],
+                supersededSalesOrders: []
+              }
+            }
           />
-          <ImplementationSection
+          <ChangeOrderReleaseMerge
             changeOrderId={id}
-            effectiveDate={changeOrder.effectiveDate ?? null}
             status={changeOrder.status}
-            products={products}
+            conflicts={routeData?.releaseConflicts ?? []}
           />
-          <ImpactPanel impact={routeData?.impact ?? []} />
         </>
       )}
     </VStack>

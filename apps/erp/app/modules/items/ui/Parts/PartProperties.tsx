@@ -3,6 +3,7 @@ import { InputControlled, Select, ValidatedForm } from "@carbon/form";
 import {
   Badge,
   Button,
+  cn,
   HStack,
   Tooltip,
   TooltipContent,
@@ -53,20 +54,33 @@ import type {
 } from "../../types";
 import { FileBadge, ItemDescription, SourcingTypeProperty } from "../Item";
 
-type PartPropertiesProps = {
-  data?: {
-    itemId: string;
-    locations: ListItem[];
-    partSummary: PartSummary;
-    files: Promise<ItemFile[]>;
-    supplierParts: SupplierPart[];
-    pickMethods: PickMethod[];
-    makeMethods: Promise<PostgrestResponse<MakeMethod>>;
-    tags: { name: string }[];
-  };
+export type PartPropertiesData = {
+  itemId: string;
+  locations: ListItem[];
+  partSummary: PartSummary;
+  files: Promise<ItemFile[]>;
+  supplierParts: SupplierPart[];
+  pickMethods: PickMethod[];
+  makeMethods: Promise<PostgrestResponse<MakeMethod>>;
+  tags: { name: string }[];
 };
 
-const PartProperties = ({ data }: PartPropertiesProps) => {
+type PartPropertiesProps = {
+  data?: PartPropertiesData;
+  // When embedded (e.g. inside a change-order affected-item card) drop the
+  // fixed-width sidebar chrome and flow with the parent container.
+  embedded?: boolean;
+  // Which slice to render. "all" (default, the part sidebar) shows everything;
+  // "properties" omits the image + files; "files" shows only the image + files.
+  // Lets a caller (the CO card) split the panel across tabs.
+  section?: "all" | "properties" | "files";
+};
+
+const PartProperties = ({
+  data,
+  embedded,
+  section = "all"
+}: PartPropertiesProps) => {
   const { t } = useLingui();
   const params = useParams();
   const itemId = data?.itemId ?? params.itemId;
@@ -196,10 +210,73 @@ const PartProperties = ({ data }: PartPropertiesProps) => {
 
   const [suppliers] = useSuppliers();
 
+  // Image + files, factored so they can render inline ("all") or as the sole
+  // content of the "files" section without duplicating the markup.
+  const thumbnail = (
+    <ItemThumbnailUpload
+      path={routeData?.partSummary?.thumbnailPath}
+      itemId={itemId}
+      modelId={routeData?.partSummary?.modelId}
+    />
+  );
+  const filesBlock = (
+    <VStack spacing={2}>
+      <HStack className="w-full justify-between">
+        <h3 className="text-xs text-muted-foreground">
+          <Trans>Files</Trans>
+        </h3>
+      </HStack>
+      {routeData?.partSummary?.modelId && (
+        <Link
+          className="group flex items-center gap-1"
+          to={path.to.file.cadModel(routeData?.partSummary.modelId)}
+          target="_blank"
+        >
+          <Badge variant="secondary">
+            <LuMove3D className="w-3 h-3 mr-1 text-emerald-500" />
+            <Trans>3D Model</Trans>
+          </Badge>
+          <span className="group-hover:opacity-100 opacity-0 transition-opacity duration-200 w-4 h-4 text-foreground">
+            <LuExternalLink />
+          </span>
+        </Link>
+      )}
+      <Suspense fallback={null}>
+        <Await resolve={routeData?.files}>
+          {(files) =>
+            files?.map((file) => (
+              <FileBadge
+                key={file.id}
+                file={file}
+                itemId={itemId}
+                itemType="Part"
+              />
+            ))
+          }
+        </Await>
+      </Suspense>
+    </VStack>
+  );
+
+  // Files-only slice (a dedicated tab in the CO card): just the image + files.
+  if (section === "files") {
+    return (
+      <VStack spacing={4} className="w-full px-1 py-2 text-sm">
+        {thumbnail}
+        {filesBlock}
+      </VStack>
+    );
+  }
+
   return (
     <VStack
       spacing={4}
-      className="w-96 bg-card h-full overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent border-l border-border px-4 py-2 text-sm"
+      className={cn(
+        "text-sm",
+        embedded
+          ? "w-full px-1 py-2"
+          : "w-96 bg-card h-full overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent border-l border-border px-4 py-2"
+      )}
     >
       <VStack spacing={2}>
         <HStack className="w-full justify-between">
@@ -321,11 +398,7 @@ const PartProperties = ({ data }: PartPropertiesProps) => {
             </span>
           </ValidatedForm>
         </VStack>
-        <ItemThumbnailUpload
-          path={routeData?.partSummary?.thumbnailPath}
-          itemId={itemId}
-          modelId={routeData?.partSummary?.modelId}
-        />
+        {section === "all" && thumbnail}
       </VStack>
 
       {/* <VStack spacing={2}>
@@ -716,43 +789,7 @@ const PartProperties = ({ data }: PartPropertiesProps) => {
         onUpdate={onUpdateCustomFields}
       />
 
-      <VStack spacing={2}>
-        <HStack className="w-full justify-between">
-          <h3 className="text-xs text-muted-foreground">
-            <Trans>Files</Trans>
-          </h3>
-        </HStack>
-        {routeData?.partSummary?.modelId && (
-          <Link
-            className="group flex items-center gap-1"
-            to={path.to.file.cadModel(routeData?.partSummary.modelId)}
-            target="_blank"
-          >
-            <Badge variant="secondary">
-              <LuMove3D className="w-3 h-3 mr-1 text-emerald-500" />
-              <Trans>3D Model</Trans>
-            </Badge>
-            <span className="group-hover:opacity-100 opacity-0 transition-opacity duration-200 w-4 h-4 text-foreground">
-              <LuExternalLink />
-            </span>
-          </Link>
-        )}
-
-        <Suspense fallback={null}>
-          <Await resolve={routeData?.files}>
-            {(files) =>
-              files?.map((file) => (
-                <FileBadge
-                  key={file.id}
-                  file={file}
-                  itemId={itemId}
-                  itemType="Part"
-                />
-              ))
-            }
-          </Await>
-        </Suspense>
-      </VStack>
+      {section === "all" && filesBlock}
     </VStack>
   );
 };

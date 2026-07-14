@@ -129,7 +129,10 @@ const ChangeOrderHeader = () => {
             })}
           </HStack>
 
-          {nextStatus && !isLocked && (
+          {/* Implementation → Done ("Done") is released via the merge control
+              in the detail body (it carries the merge resolution); the header
+              only advances the earlier stages. */}
+          {nextStatus && nextStatus !== "Done" && !isLocked && (
             <statusFetcher.Form
               method="post"
               action={path.to.changeOrderStatus(id)}

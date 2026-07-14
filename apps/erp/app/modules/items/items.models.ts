@@ -679,6 +679,34 @@ export const supersessionModes = [
   "No Stock"
 ] as const;
 
+export type SupersessionMode = (typeof supersessionModes)[number];
+
+// Single source of truth for how each supersession mode is presented — the same
+// color + description is reused everywhere the mode shows up (the item
+// supersession picker, the item lifecycle badge, and the change-order cutover),
+// so they never drift.
+export const supersessionModeMeta: Record<
+  SupersessionMode,
+  { color: "green" | "blue" | "orange" | "red"; description: string }
+> = {
+  "Consume First": {
+    color: "green",
+    description: "Use remaining stock before switching to the successor"
+  },
+  "Prefer New": {
+    color: "blue",
+    description: "Default to the successor; old part as fallback only"
+  },
+  "Stock Only": {
+    color: "orange",
+    description: "Hold a minimum reserve for service; no production use"
+  },
+  "No Stock": {
+    color: "red",
+    description: "Fully obsolete — do not plan or stock"
+  }
+};
+
 export const itemSupersessionValidator = z
   .object({
     itemId: z.string().min(1, { message: "Item ID is required" }),
