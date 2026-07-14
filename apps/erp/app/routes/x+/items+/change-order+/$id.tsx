@@ -42,7 +42,10 @@ export const handle: Handle = {
     _params: unknown,
     data?: { changeOrder?: { changeOrderId?: string } }
   ) => data?.changeOrder?.changeOrderId ?? msg`Change Order`,
-  module: "parts"
+  module: "parts",
+  // The CO detail workspace has its own left affected-items sidebar — hide the
+  // Items module sidebar here so two left sidebars don't stack.
+  hideModuleSidebar: true
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
