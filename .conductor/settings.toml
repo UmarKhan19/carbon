@@ -1,0 +1,11 @@
+"$schema" = "https://conductor.build/schemas/settings.repo.schema.json"
+
+[scripts]
+archive = "./packages/dev/bin/crbn down --volumes"
+setup = "echo \"$CONDUCTOR_WORKSPACE_NAME\" > .carbon-worktree && pnpm install && ./packages/dev/bin/crbn env sync && bash .ai/scripts/install-skills.sh"
+
+[scripts.run.run]
+available_in = "local"
+command = "./packages/dev/bin/crbn up --all"
+default = true
+icon = "play"
