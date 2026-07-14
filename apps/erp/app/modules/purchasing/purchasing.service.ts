@@ -1801,6 +1801,12 @@ export async function updatePurchaseOrderLineOrder(
  * line completeness flags. Open-PO supply queries (get_inventory_quantities,
  * openPurchaseOrderLines) exclude `receivedComplete` lines, so the undelivered
  * remainder stops counting as incoming stock.
+ *
+ * Closing also caps the billable quantity at what was received (the convert
+ * and post-purchase-invoice functions apply the same rule), so a line whose
+ * received quantity is already fully invoiced gets `invoicedComplete` too —
+ * otherwise the order could never reach Completed. Reopening restores the
+ * natural rule (fully invoiced = ordered quantity).
  */
 export async function shortClosePurchaseOrderLine(
   db: Kysely<KyselyDatabase>,
@@ -1819,10 +1825,29 @@ export async function shortClosePurchaseOrderLine(
   }
 ) {
   return db.transaction().execute(async (trx) => {
+    const line = await trx
+      .selectFrom("purchaseOrderLine")
+      .select(["purchaseQuantity", "quantityReceived", "quantityInvoiced"])
+      .where("id", "=", lineId)
+      .where("purchaseOrderId", "=", purchaseOrderId)
+      .where("companyId", "=", companyId)
+      .executeTakeFirst();
+
+    if (!line) throw new Error("Purchase order line not found");
+
+    // NUMERIC columns come back from the pg driver as strings
+    const ordered = Number(line.purchaseQuantity ?? 0);
+    const received = Number(line.quantityReceived ?? 0);
+    const invoiced = Number(line.quantityInvoiced ?? 0);
+
+    const invoicedComplete =
+      intent === "close" ? invoiced >= received : invoiced >= ordered;
+
     await trx
       .updateTable("purchaseOrderLine")
       .set({
         receivedComplete: intent === "close",
+        invoicedComplete,
         updatedBy: userId,
         updatedAt: new Date().toISOString()
       })

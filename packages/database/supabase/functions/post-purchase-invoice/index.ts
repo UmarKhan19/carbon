@@ -14,6 +14,10 @@ import {
 } from "../shared/purchase-cost-adjustment.ts";
 import { getNextSequence } from "../shared/get-next-sequence.ts";
 import { getDefaultPostingGroup } from "../shared/get-posting-group.ts";
+import {
+  getBillableQuantity,
+  getRemainingQuantityToInvoice,
+} from "../shared/short-close.ts";
 
 const pool = getConnectionPool(1);
 const db = getDatabaseClient<DB>(pool);
@@ -192,8 +196,10 @@ serve(async (req: Request) => {
               invoicedQuantityInPurchaseUnit
           );
 
+          // Short-close aware: compare against the billable (received)
+          // quantity for short-closed lines, not the ordered quantity.
           const invoicedComplete =
-            newQuantityInvoiced >= purchaseOrderLine.purchaseQuantity;
+            newQuantityInvoiced >= getBillableQuantity(purchaseOrderLine);
 
           acc[invoiceLine.purchaseOrderLineId] = {
             quantityInvoiced: newQuantityInvoiced,
@@ -711,11 +717,12 @@ serve(async (req: Request) => {
         const newQuantityInvoiced =
           (purchaseOrderLine.quantityInvoiced ?? 0) + invoiceLine.quantity;
 
+        // Short-close aware: a line whose receiving was stopped is fully
+        // invoiced once the received (not ordered) quantity is billed.
         const invoicedComplete =
           purchaseOrderLine.invoicedComplete ||
           invoiceLine.quantity >=
-            (purchaseOrderLine.quantityToInvoice ??
-              purchaseOrderLine.purchaseQuantity);
+            getRemainingQuantityToInvoice(purchaseOrderLine);
 
         return {
           ...acc,
