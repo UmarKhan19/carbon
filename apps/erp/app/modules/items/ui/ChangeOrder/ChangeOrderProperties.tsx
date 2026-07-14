@@ -88,7 +88,9 @@ const ChangeOrderProperties = () => {
   return (
     <VStack
       spacing={4}
-      className="w-96 bg-card h-full overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent border-l border-border px-4 py-2 text-sm"
+      // Width / scroll / background / border are owned by the containing
+      // ChangeOrderRail; this panel just flows inside it.
+      className="w-full px-4 py-2 text-sm"
     >
       <VStack spacing={2}>
         <HStack className="w-full justify-between">
