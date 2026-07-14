@@ -6,9 +6,15 @@ import type {
   ChangeOrderReleaseConflict,
   ChangeOrderReleaseConflictEntry,
   MethodDiffEntry,
-  MethodDiffStatus
+  MethodDiffStatus,
+  OperationChildrenDiff,
+  OperationDiffEntry
 } from "./changeOrder.models";
 import { getChangeOrderAffectedItems } from "./changeOrder.service";
+
+// Re-export the operation diff types (now owned by changeOrder.models to avoid a
+// circular import) so existing `from "./changeOrder.diff"` callers keep working.
+export type { OperationChildrenDiff, OperationDiffEntry };
 
 // =============================================================================
 // Change Orders — the reusable method-diff engine (Q5 git-style end-state).
@@ -175,20 +181,10 @@ export type OperationChildren = {
   tools: Row[];
 };
 
-// The per-operation child diff: each bucket classified added/removed/modified/
-// unchanged, matched by the staged child's `sourceId` (mirrors materials).
-export type OperationChildrenDiff = {
-  steps: MethodDiffEntry<Row>[];
-  parameters: MethodDiffEntry<Row>[];
-  tools: MethodDiffEntry<Row>[];
-};
-
-// An operation diff entry, optionally carrying its child-level diff. Backward
-// compatible with MethodDiffEntry<Row> — `children` is additive and undefined
-// for callers that don't supply children.
-export type OperationDiffEntry = MethodDiffEntry<Row> & {
-  children?: OperationChildrenDiff;
-};
+// OperationChildrenDiff and OperationDiffEntry now live in changeOrder.models
+// (imported + re-exported above) so ChangeOrderItemDiff can reference them
+// without a circular import. Their shape is unchanged (Row = Record<string,
+// unknown>, the same as MethodDiffEntry's generic here).
 
 // Base/target children keyed by operation id. For target (staged) operations the
 // key is the staged operation's own id; for base (live) operations it's the live

@@ -213,11 +213,30 @@ export type MethodDiffEntry<T> = {
   changedFields?: Record<string, { before: unknown; after: unknown }>;
 };
 
+// One operation's child-level diff (steps / parameters / tools), each bucket
+// classified added/removed/modified/unchanged. Defined here (not in
+// changeOrder.diff.ts) so ChangeOrderItemDiff can carry the operation tree
+// without a circular import; changeOrder.diff.ts re-exports these for its own
+// callers.
+export type OperationChildrenDiff = {
+  steps: MethodDiffEntry<Record<string, unknown>>[];
+  parameters: MethodDiffEntry<Record<string, unknown>>[];
+  tools: MethodDiffEntry<Record<string, unknown>>[];
+};
+
+// An operation diff entry, optionally carrying its child-level diff. A superset
+// of MethodDiffEntry, so consumers typed against the base entry keep working.
+export type OperationDiffEntry = MethodDiffEntry<Record<string, unknown>> & {
+  children?: OperationChildrenDiff;
+};
+
 export type ChangeOrderItemDiff = {
   affectedItemId: string;
   itemId: string;
   materials: MethodDiffEntry<Record<string, unknown>>[];
-  operations: MethodDiffEntry<Record<string, unknown>>[];
+  // Operations carry the optional child (steps/parameters/tools) diff so the
+  // read-only diff viewer can render the BOP as a tree.
+  operations: OperationDiffEntry[];
   attributes: MethodDiffEntry<Record<string, unknown>>[];
 };
 
