@@ -1189,6 +1189,25 @@ export async function startProductionEvent(
   return client.from("productionEvent").insert(data).select("*");
 }
 
+// Starts an aggregate batch timer: a single productionEvent tagged with
+// jobOperationBatchId. The carried jobOperationId is a representative member
+// (the column is NOT NULL); completion slices this event across all members.
+export async function startBatchProductionEvent(
+  client: SupabaseClient<Database>,
+  data: {
+    jobOperationBatchId: string;
+    jobOperationId: string;
+    type: z.infer<typeof productionEventValidator>["type"];
+    workCenterId?: string;
+    startTime: string;
+    employeeId: string;
+    companyId: string;
+    createdBy: string;
+  }
+) {
+  return client.from("productionEvent").insert(data).select("*");
+}
+
 type JobMethod = {
   id: string;
   methodMaterialId: string;
