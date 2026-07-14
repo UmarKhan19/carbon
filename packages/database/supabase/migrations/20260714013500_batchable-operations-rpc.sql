@@ -107,6 +107,15 @@ BEGIN
   WHERE p."batchable" = true
     AND jo."jobOperationBatchId" IS NULL
     AND (jo."status" = 'Todo' OR jo."status" = 'Ready' OR jo."status" = 'Waiting')
+    -- Exclude operations already started via a timer (a recorded productionEvent)
+    -- even if their status has not flipped yet. This mirrors the batch-operations
+    -- edge function's create/add eligibility gate, so the board never surfaces a
+    -- candidate that would be rejected on drop.
+    AND NOT EXISTS (
+      SELECT 1 FROM "productionEvent" pe
+      WHERE pe."jobOperationId" = jo."id"
+        AND pe."companyId" = jo."companyId"
+    )
   ORDER BY rj."dueDate" NULLS LAST, jo."priority", jo."order";
 END;
 $$ LANGUAGE plpgsql;
