@@ -5,7 +5,9 @@ import { DB, getConnectionPool, getDatabaseClient } from "../lib/database.ts";
 import { corsHeaders } from "../lib/headers.ts";
 import { requirePermissions } from "../lib/supabase.ts";
 import {
+  assertAllOperationsClaimed,
   assertBatchCompletionMembership,
+  assertBatchWorkCenterMutable,
   buildBatchCompletionPlan,
   type PlannedMemberEvent,
 } from "../shared/batch-time-split.ts";
@@ -490,12 +492,21 @@ serve(async (req: Request) => {
             memberUpdate.workCenterId = parsed.workCenterId;
           }
 
-          await trx
+          // Atomic claim: only grab operations still unbatched. A concurrent
+          // create/add blocks on the row lock, then re-evaluates this WHERE
+          // against the committed row and skips any operation the other txn took.
+          const claimed = await trx
             .updateTable("jobOperation")
             .set(memberUpdate)
             .where("id", "in", jobOperationIds)
             .where("companyId", "=", companyId)
-            .execute();
+            .where("jobOperationBatchId", "is", null)
+            .executeTakeFirst();
+
+          assertAllOperationsClaimed(
+            jobOperationIds,
+            Number(claimed?.numUpdatedRows ?? 0n)
+          );
 
           return { id, readableId };
         }
@@ -541,12 +552,20 @@ serve(async (req: Request) => {
             memberUpdate.workCenterId = batch.workCenterId;
           }
 
-          await trx
+          // Atomic claim (see create): only grab operations still unbatched, so
+          // two concurrent adds can't both tag the same operation.
+          const claimed = await trx
             .updateTable("jobOperation")
             .set(memberUpdate)
             .where("id", "in", jobOperationIds)
             .where("companyId", "=", companyId)
-            .execute();
+            .where("jobOperationBatchId", "is", null)
+            .executeTakeFirst();
+
+          assertAllOperationsClaimed(
+            jobOperationIds,
+            Number(claimed?.numUpdatedRows ?? 0n)
+          );
 
           return { id: jobOperationBatchId };
         }
@@ -599,7 +618,7 @@ serve(async (req: Request) => {
 
           const batch = await trx
             .selectFrom("jobOperationBatch")
-            .select("id")
+            .select(["id", "status"])
             .where("id", "=", jobOperationBatchId)
             .where("companyId", "=", companyId)
             .executeTakeFirst();
@@ -607,6 +626,18 @@ serve(async (req: Request) => {
           if (!batch) {
             throw new Error(`Batch ${jobOperationBatchId} was not found`);
           }
+
+          // Reject the change on a terminal (Completed/Cancelled) batch, then —
+          // since a batch is Active for its whole working life — block it once
+          // production has started (any production event exists). Moving the work
+          // center after that would re-point recorded time to a different machine.
+          assertBatchWorkCenterMutable(batch.status);
+          await assertNoBatchProductionEvent(
+            trx,
+            jobOperationBatchId,
+            companyId,
+            "change the work center of"
+          );
 
           await trx
             .updateTable("jobOperationBatch")

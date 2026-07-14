@@ -215,3 +215,40 @@ export function assertBatchCompletionMembership(
     }
   }
 }
+
+/**
+ * Postcondition guard for the atomic "claim" of operations into a batch. The
+ * claim UPDATE carries `WHERE "jobOperationBatchId" IS NULL`, so a row already
+ * grabbed by a concurrent create/add is skipped by the WHERE rather than
+ * overwritten. If the number of rows actually updated falls short of the number
+ * of distinct operations requested, another transaction won the race for at
+ * least one operation — throw so the whole claim rolls back instead of silently
+ * batching a subset. Pure — keep in sync with packages/utils/src/batch-time-split.ts.
+ */
+export function assertAllOperationsClaimed(
+  requestedIds: string[],
+  updatedRowCount: number
+): void {
+  const expected = new Set(requestedIds).size;
+  if (updatedRowCount !== expected) {
+    throw new Error(
+      "One or more operations were already claimed by another batch — refresh and try again"
+    );
+  }
+}
+
+/**
+ * Guard for mutating a batch's work center. A Completed or Cancelled batch is
+ * terminal: its recorded production events are already attributed to a machine,
+ * so re-pointing the work center would rewrite history. Only an Active batch may
+ * be re-pointed — and the call site additionally blocks the change once any
+ * production event exists (production has started). Pure; the production-event
+ * check remains at the DB layer. Keep in sync with packages/utils/src/batch-time-split.ts.
+ */
+export function assertBatchWorkCenterMutable(status: string): void {
+  if (status !== "Active") {
+    throw new Error(
+      "Cannot change the work center of a batch that is not active"
+    );
+  }
+}

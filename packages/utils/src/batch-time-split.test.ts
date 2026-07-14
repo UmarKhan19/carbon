@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
+  assertAllOperationsClaimed,
   assertBatchCompletionMembership,
+  assertBatchWorkCenterMutable,
   buildBatchCompletionPlan,
   sliceEventByWeight,
   splitSecondsByWeight
@@ -176,5 +178,43 @@ describe("assertBatchCompletionMembership", () => {
     expect(() =>
       assertBatchCompletionMembership(["op-a"], ["op-a", "op-b"])
     ).toThrow(/must be included to complete it/);
+  });
+});
+
+describe("assertAllOperationsClaimed", () => {
+  it("passes when every requested operation was claimed", () => {
+    expect(() =>
+      assertAllOperationsClaimed(["op-a", "op-b", "op-c"], 3)
+    ).not.toThrow();
+  });
+
+  it("rejects when a concurrent batch claimed one of the operations", () => {
+    // Two requested, but the `IS NULL` guard only matched one row — the other
+    // was already batched by a racing transaction.
+    expect(() => assertAllOperationsClaimed(["op-a", "op-b"], 1)).toThrow(
+      /already claimed by another batch/
+    );
+  });
+
+  it("counts distinct requested ids, not raw list length", () => {
+    expect(() => assertAllOperationsClaimed(["op-a", "op-a"], 1)).not.toThrow();
+  });
+});
+
+describe("assertBatchWorkCenterMutable", () => {
+  it("allows changing the work center of an Active batch", () => {
+    expect(() => assertBatchWorkCenterMutable("Active")).not.toThrow();
+  });
+
+  it("rejects changing the work center of a Completed batch", () => {
+    expect(() => assertBatchWorkCenterMutable("Completed")).toThrow(
+      /not active/
+    );
+  });
+
+  it("rejects changing the work center of a Cancelled batch", () => {
+    expect(() => assertBatchWorkCenterMutable("Cancelled")).toThrow(
+      /not active/
+    );
   });
 });
