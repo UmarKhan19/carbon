@@ -16,7 +16,8 @@
 -- 1. Candidate pool for the batch planning board -----------------------------
 DROP FUNCTION IF EXISTS get_batchable_operations;
 CREATE OR REPLACE FUNCTION get_batchable_operations(
-  location_id TEXT
+  location_id TEXT,
+  company_id TEXT
 )
 RETURNS TABLE (
   "id" TEXT,
@@ -49,6 +50,7 @@ BEGIN
     SELECT *
     FROM "job"
     WHERE "job"."locationId" = location_id
+      AND "job"."companyId" = company_id
       AND ("job"."status" = 'Ready' OR "job"."status" = 'In Progress' OR "job"."status" = 'Paused')
   )
   SELECT
@@ -105,6 +107,7 @@ BEGIN
     WHERE jm."jobOperationId" = jo."id"
   ) mat ON true
   WHERE p."batchable" = true
+    AND jo."companyId" = company_id
     AND jo."jobOperationBatchId" IS NULL
     AND (jo."status" = 'Todo' OR jo."status" = 'Ready' OR jo."status" = 'Waiting')
     -- Exclude operations already started via a timer (a recorded productionEvent)

@@ -68,7 +68,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 
   const [candidates, batchesResult, workCenters] = await Promise.all([
-    getBatchableOperations(client, locationId),
+    getBatchableOperations(client, locationId, companyId),
     getJobOperationBatches(client, companyId, locationId),
     getWorkCentersByLocation(client, locationId)
   ]);

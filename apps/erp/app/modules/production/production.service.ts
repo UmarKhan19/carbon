@@ -5856,10 +5856,12 @@ export type BatchOperationMaterial = {
 
 export async function getBatchableOperations(
   client: SupabaseClient<Database>,
-  locationId: string
+  locationId: string,
+  companyId: string
 ) {
   return client.rpc("get_batchable_operations", {
-    location_id: locationId
+    location_id: locationId,
+    company_id: companyId
   });
 }
 
