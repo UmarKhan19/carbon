@@ -1672,6 +1672,9 @@ msgstr "Номер партии"
 msgid "Batch Number"
 msgstr "Номер партии"
 
+msgid "Batch Planning"
+msgstr ""
+
 msgid "Batch Properties"
 msgstr "Свойства партии"
 
@@ -1919,6 +1922,9 @@ msgstr "Отменено"
 
 msgid "Cancelled"
 msgstr "Отменено"
+
+msgid "Candidate Operations"
+msgstr ""
 
 msgid "Cannot add parameters to unsaved operation"
 msgstr "Невозможно добавить параметры к несохраненной операции"
@@ -7452,6 +7458,9 @@ msgstr "Новый атрибут"
 msgid "New Attribute Category"
 msgstr "Новая категория атрибутов"
 
+msgid "New batch"
+msgstr ""
+
 msgid "New Consumable"
 msgstr "Новый расходный материал"
 
@@ -7751,6 +7760,9 @@ msgstr "Никаких действий не требуется"
 msgid "No actions selected"
 msgstr "Действия не выбраны"
 
+msgid "No active batches. Drag an operation onto \"New batch\" to start one."
+msgstr ""
+
 msgid "No active jobs found for this sales order. The order will be cancelled directly."
 msgstr "Для этого заказа не найдено активных работ. Заказ будет отменен напрямую."
 
@@ -7778,6 +7790,9 @@ msgstr "Нет доступных фильтров"
 
 msgid "No available tracked entities found"
 msgstr "Не найдено доступных отслеживаемых объектов"
+
+msgid "No batchable operations"
+msgstr ""
 
 msgid "No BOM input has a shelf-life policy"
 msgstr "Ни один вход BOM не имеет политики срока хранения"
@@ -7880,6 +7895,9 @@ msgstr "Нет совпадений"
 
 msgid "No matches for \"{query}\". Try a different search term."
 msgstr "Нет совпадений для \"{query}\". Попробуйте другой поисковый запрос."
+
+msgid "No material properties"
+msgstr ""
 
 msgid "No new notifications"
 msgstr "Нет новых уведомлений"

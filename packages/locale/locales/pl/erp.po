@@ -1672,6 +1672,9 @@ msgstr "Numer partii"
 msgid "Batch Number"
 msgstr "Numer partii"
 
+msgid "Batch Planning"
+msgstr ""
+
 msgid "Batch Properties"
 msgstr "Właściwości partii"
 
@@ -1919,6 +1922,9 @@ msgstr "Anulowano"
 
 msgid "Cancelled"
 msgstr "Anulowano"
+
+msgid "Candidate Operations"
+msgstr ""
 
 msgid "Cannot add parameters to unsaved operation"
 msgstr "Nie można dodać parametrów do niezapisanej operacji"
@@ -7452,6 +7458,9 @@ msgstr "Nowy atrybut"
 msgid "New Attribute Category"
 msgstr "Nowa Kategoria Atrybutu"
 
+msgid "New batch"
+msgstr ""
+
 msgid "New Consumable"
 msgstr "Nowy materiał zużywalny"
 
@@ -7751,6 +7760,9 @@ msgstr "Brak wymaganych działań"
 msgid "No actions selected"
 msgstr "Nie wybrano żadnych akcji"
 
+msgid "No active batches. Drag an operation onto \"New batch\" to start one."
+msgstr ""
+
 msgid "No active jobs found for this sales order. The order will be cancelled directly."
 msgstr "Nie znaleziono aktywnych zadań dla tego zamówienia sprzedaży. Zamówienie zostanie anulowane bezpośrednio."
 
@@ -7778,6 +7790,9 @@ msgstr "Brak dostępnych filtrów"
 
 msgid "No available tracked entities found"
 msgstr "Nie znaleziono dostępnych śledzonych jednostek"
+
+msgid "No batchable operations"
+msgstr ""
 
 msgid "No BOM input has a shelf-life policy"
 msgstr "Żadne wejście BOM nie ma polityki przydatności do spożycia"
@@ -7880,6 +7895,9 @@ msgstr "Brak wyników"
 
 msgid "No matches for \"{query}\". Try a different search term."
 msgstr "Brak wyników dla „{query}\". Spróbuj innego terminu wyszukiwania."
+
+msgid "No material properties"
+msgstr ""
 
 msgid "No new notifications"
 msgstr "Brak nowych powiadomień"

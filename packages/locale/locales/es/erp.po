@@ -1672,6 +1672,9 @@ msgstr "Número de lote"
 msgid "Batch Number"
 msgstr "Número de Lote"
 
+msgid "Batch Planning"
+msgstr ""
+
 msgid "Batch Properties"
 msgstr "Propiedades de Lote"
 
@@ -1919,6 +1922,9 @@ msgstr "Cancelado"
 
 msgid "Cancelled"
 msgstr "Cancelado"
+
+msgid "Candidate Operations"
+msgstr ""
 
 msgid "Cannot add parameters to unsaved operation"
 msgstr "No se pueden agregar parámetros a una operación sin guardar"
@@ -7452,6 +7458,9 @@ msgstr "Nuevo Atributo"
 msgid "New Attribute Category"
 msgstr "Nueva Categoría de Atributo"
 
+msgid "New batch"
+msgstr ""
+
 msgid "New Consumable"
 msgstr "Nuevo Consumible"
 
@@ -7751,6 +7760,9 @@ msgstr "Sin acción necesaria"
 msgid "No actions selected"
 msgstr "No hay acciones seleccionadas"
 
+msgid "No active batches. Drag an operation onto \"New batch\" to start one."
+msgstr ""
+
 msgid "No active jobs found for this sales order. The order will be cancelled directly."
 msgstr "No se encontraron trabajos activos para esta orden de venta. La orden será cancelada directamente."
 
@@ -7778,6 +7790,9 @@ msgstr "No hay filtros disponibles"
 
 msgid "No available tracked entities found"
 msgstr "No se encontraron entidades rastreadas disponibles"
+
+msgid "No batchable operations"
+msgstr ""
 
 msgid "No BOM input has a shelf-life policy"
 msgstr "Ninguna entrada de BOM tiene una política de vida útil"
@@ -7880,6 +7895,9 @@ msgstr "Sin coincidencias"
 
 msgid "No matches for \"{query}\". Try a different search term."
 msgstr "No hay coincidencias para \"{query}\". Intenta un término de búsqueda diferente."
+
+msgid "No material properties"
+msgstr ""
 
 msgid "No new notifications"
 msgstr "Sin notificaciones nuevas"

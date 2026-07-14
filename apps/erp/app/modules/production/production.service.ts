@@ -5819,6 +5819,25 @@ export async function getJobOperationBatches(
     .eq("status", "Active");
 }
 
+// The member operations of the given batches, for rendering the batch lanes on
+// the planning board (the candidate-pool RPC only returns UNBATCHED operations).
+export async function getJobOperationsByBatch(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  batchIds: string[]
+) {
+  if (batchIds.length === 0) {
+    return { data: [], error: null };
+  }
+  return client
+    .from("jobOperation")
+    .select(
+      "id, description, operationQuantity, workCenterId, processId, jobOperationBatchId, status, jobId, job(jobId)"
+    )
+    .eq("companyId", companyId)
+    .in("jobOperationBatchId", batchIds);
+}
+
 // The candidate pool for the batch planning board: unstarted, unbatched job
 // operations whose PROCESS is batchable, at a location, each carrying the
 // resolved material facets of its own BOM lines so the board can group +

@@ -1672,6 +1672,9 @@ msgstr "バッチ番号"
 msgid "Batch Number"
 msgstr "バッチ番号"
 
+msgid "Batch Planning"
+msgstr ""
+
 msgid "Batch Properties"
 msgstr "バッチプロパティ"
 
@@ -1919,6 +1922,9 @@ msgstr "キャンセル済み"
 
 msgid "Cancelled"
 msgstr "キャンセル済み"
+
+msgid "Candidate Operations"
+msgstr ""
 
 msgid "Cannot add parameters to unsaved operation"
 msgstr "保存されていない操作にパラメータを追加できません"
@@ -7452,6 +7458,9 @@ msgstr "新しい属性"
 msgid "New Attribute Category"
 msgstr "新しい属性カテゴリ"
 
+msgid "New batch"
+msgstr ""
+
 msgid "New Consumable"
 msgstr "新しい消耗品"
 
@@ -7751,6 +7760,9 @@ msgstr "対応は不要です"
 msgid "No actions selected"
 msgstr "アクションが選択されていません"
 
+msgid "No active batches. Drag an operation onto \"New batch\" to start one."
+msgstr ""
+
 msgid "No active jobs found for this sales order. The order will be cancelled directly."
 msgstr "このセールスオーダーのアクティブなジョブが見つかりません。注文は直接キャンセルされます。"
 
@@ -7778,6 +7790,9 @@ msgstr "利用可能なフィルターがありません"
 
 msgid "No available tracked entities found"
 msgstr "利用可能な追跡対象エンティティが見つかりません"
+
+msgid "No batchable operations"
+msgstr ""
 
 msgid "No BOM input has a shelf-life policy"
 msgstr "BOMインプットに棚卸資産有効期限ポリシーがありません"
@@ -7880,6 +7895,9 @@ msgstr "一致するものがありません"
 
 msgid "No matches for \"{query}\". Try a different search term."
 msgstr "\"{query}\"に一致するものがありません。別の検索用語を試してください。"
+
+msgid "No material properties"
+msgstr ""
 
 msgid "No new notifications"
 msgstr "新しい通知はありません"

@@ -1672,6 +1672,9 @@ msgstr "Lot numarası"
 msgid "Batch Number"
 msgstr "Lot Numarası"
 
+msgid "Batch Planning"
+msgstr ""
+
 msgid "Batch Properties"
 msgstr "Toplu Özellikler"
 
@@ -1919,6 +1922,9 @@ msgstr "İptal edildi"
 
 msgid "Cancelled"
 msgstr "İptal edildi"
+
+msgid "Candidate Operations"
+msgstr ""
 
 msgid "Cannot add parameters to unsaved operation"
 msgstr "Kaydedilmemiş işleme parametre eklenemez"
@@ -7452,6 +7458,9 @@ msgstr "Yeni Öznitelik"
 msgid "New Attribute Category"
 msgstr "Yeni Öznitelik Kategorisi"
 
+msgid "New batch"
+msgstr ""
+
 msgid "New Consumable"
 msgstr "Yeni Sarf Malzemesi"
 
@@ -7751,6 +7760,9 @@ msgstr "Yapılacak işlem yok"
 msgid "No actions selected"
 msgstr "Hiçbir işlem seçilmedi"
 
+msgid "No active batches. Drag an operation onto \"New batch\" to start one."
+msgstr ""
+
 msgid "No active jobs found for this sales order. The order will be cancelled directly."
 msgstr "Bu satış siparişi için aktif iş bulunamadı. Sipariş doğrudan iptal edilecektir."
 
@@ -7778,6 +7790,9 @@ msgstr "Kullanılabilir filtre yok"
 
 msgid "No available tracked entities found"
 msgstr "Kullanılabilir izlenen varlık bulunamadı"
+
+msgid "No batchable operations"
+msgstr ""
 
 msgid "No BOM input has a shelf-life policy"
 msgstr "Hiçbir BOM girdisi raf ömrü politikasına sahip değil"
@@ -7880,6 +7895,9 @@ msgstr "Eşleşme yok"
 
 msgid "No matches for \"{query}\". Try a different search term."
 msgstr "\"{query}\" için eşleşme bulunamadı. Farklı bir arama terbi deneyin."
+
+msgid "No material properties"
+msgstr ""
 
 msgid "No new notifications"
 msgstr "Yeni bildirim yok"

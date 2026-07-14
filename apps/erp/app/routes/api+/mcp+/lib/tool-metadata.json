@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-14T02:15:00.162Z",
-  "totalTools": 1330,
+  "generated": "2026-07-14T02:28:58.914Z",
+  "totalTools": 1331,
   "modules": 15,
   "tools": [
     {
@@ -21699,6 +21699,35 @@
         },
         "required": [
           "locationId"
+        ]
+      }
+    },
+    {
+      "name": "production_getJobOperationsByBatch",
+      "module": "production",
+      "classification": "READ",
+      "description": "get job operations by batch",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "batchIds"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "batchIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "batchIds"
         ]
       }
     },

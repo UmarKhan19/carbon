@@ -1672,6 +1672,9 @@ msgstr "Numero di lotto"
 msgid "Batch Number"
 msgstr "Numero Lotto"
 
+msgid "Batch Planning"
+msgstr ""
+
 msgid "Batch Properties"
 msgstr "Proprietà Batch"
 
@@ -1919,6 +1922,9 @@ msgstr "Annullato"
 
 msgid "Cancelled"
 msgstr "Annullato"
+
+msgid "Candidate Operations"
+msgstr ""
 
 msgid "Cannot add parameters to unsaved operation"
 msgstr "Non è possibile aggiungere parametri a un'operazione non salvata"
@@ -7452,6 +7458,9 @@ msgstr "Nuovo Attributo"
 msgid "New Attribute Category"
 msgstr "Nuova Categoria Attributo"
 
+msgid "New batch"
+msgstr ""
+
 msgid "New Consumable"
 msgstr "Nuovo Consumabile"
 
@@ -7751,6 +7760,9 @@ msgstr "Nessuna azione necessaria"
 msgid "No actions selected"
 msgstr "Nessuna azione selezionata"
 
+msgid "No active batches. Drag an operation onto \"New batch\" to start one."
+msgstr ""
+
 msgid "No active jobs found for this sales order. The order will be cancelled directly."
 msgstr "Nessun lavoro attivo trovato per questo ordine di vendita. L'ordine verrà annullato direttamente."
 
@@ -7778,6 +7790,9 @@ msgstr "Nessun filtro disponibile"
 
 msgid "No available tracked entities found"
 msgstr "Nessuna entità tracciata disponibile trovata"
+
+msgid "No batchable operations"
+msgstr ""
 
 msgid "No BOM input has a shelf-life policy"
 msgstr "Nessun input della distinta base ha una politica di shelf-life"
@@ -7880,6 +7895,9 @@ msgstr "Nessuna corrispondenza"
 
 msgid "No matches for \"{query}\". Try a different search term."
 msgstr "Nessuna corrispondenza per \"{query}\". Prova un termine di ricerca diverso."
+
+msgid "No material properties"
+msgstr ""
 
 msgid "No new notifications"
 msgstr "Nessuna nuova notifica"

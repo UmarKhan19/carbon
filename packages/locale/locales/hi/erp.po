@@ -1672,6 +1672,9 @@ msgstr "बैच नंबर"
 msgid "Batch Number"
 msgstr "बैच नंबर"
 
+msgid "Batch Planning"
+msgstr ""
+
 msgid "Batch Properties"
 msgstr "बैच प्रॉपर्टीज़"
 
@@ -1919,6 +1922,9 @@ msgstr "रद्द किया गया"
 
 msgid "Cancelled"
 msgstr "रद्द किया गया"
+
+msgid "Candidate Operations"
+msgstr ""
 
 msgid "Cannot add parameters to unsaved operation"
 msgstr "असहेजे ऑपरेशन में पैरामीटर नहीं जोड़ सकते"
@@ -7452,6 +7458,9 @@ msgstr "नई विशेषता"
 msgid "New Attribute Category"
 msgstr "नई विशेषता श्रेणी"
 
+msgid "New batch"
+msgstr ""
+
 msgid "New Consumable"
 msgstr "नया उपभोग्य"
 
@@ -7751,6 +7760,9 @@ msgstr "कोई कार्रवाई की आवश्यकता न�
 msgid "No actions selected"
 msgstr "कोई क्रिया चयनित नहीं"
 
+msgid "No active batches. Drag an operation onto \"New batch\" to start one."
+msgstr ""
+
 msgid "No active jobs found for this sales order. The order will be cancelled directly."
 msgstr "इस बिक्रय आदेश के लिए कोई सक्रिय कार्य नहीं मिला। आदेश सीधे रद्द कर दिया जाएगा।"
 
@@ -7778,6 +7790,9 @@ msgstr "कोई उपलब्ध फ़िल्टर नहीं"
 
 msgid "No available tracked entities found"
 msgstr "कोई उपलब्ध ट्रैक किए गए इकाइयां नहीं मिलीं"
+
+msgid "No batchable operations"
+msgstr ""
 
 msgid "No BOM input has a shelf-life policy"
 msgstr "कोई BOM इनपुट शेल्फ-लाइफ नीति नहीं है"
@@ -7880,6 +7895,9 @@ msgstr "कोई मेल नहीं"
 
 msgid "No matches for \"{query}\". Try a different search term."
 msgstr "\"{query}\" के लिए कोई मिलान नहीं। एक अलग खोज शब्द आजमाएं।"
+
+msgid "No material properties"
+msgstr ""
 
 msgid "No new notifications"
 msgstr "कोई नई सूचनाएं नहीं"
