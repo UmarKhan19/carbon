@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-13T15:52:44.850Z",
-  "totalTools": 1327,
+  "generated": "2026-07-14T01:49:36.253Z",
+  "totalTools": 1329,
   "modules": 15,
   "tools": [
     {
@@ -1486,13 +1486,13 @@
       "schema": {
         "type": "object",
         "properties": {
-          "inventoryAccount": {
+          "rawMaterialsAccount": {
+            "type": "string"
+          },
+          "finishedGoodsAccount": {
             "type": "string"
           },
           "goodsReceivedNotInvoicedAccount": {
-            "type": "string"
-          },
-          "inventoryShippedNotInvoicedAccount": {
             "type": "string"
           },
           "workInProgressAccount": {
@@ -1551,9 +1551,9 @@
           }
         },
         "required": [
-          "inventoryAccount",
+          "rawMaterialsAccount",
+          "finishedGoodsAccount",
           "goodsReceivedNotInvoicedAccount",
-          "inventoryShippedNotInvoicedAccount",
           "workInProgressAccount",
           "receivablesAccount",
           "bankCashAccount",
@@ -21673,6 +21673,55 @@
         "required": [
           "materials",
           "locationId"
+        ]
+      }
+    },
+    {
+      "name": "production_getJobOperationBatches",
+      "module": "production",
+      "classification": "READ",
+      "description": "get job operation batches",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "locationId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "locationId"
+        ]
+      }
+    },
+    {
+      "name": "production_batchOperations",
+      "module": "production",
+      "classification": "WRITE",
+      "description": "batch operations",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "params"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "params": {}
+        },
+        "required": [
+          "params"
         ]
       }
     },

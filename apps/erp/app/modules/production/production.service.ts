@@ -5802,3 +5802,52 @@ export async function getJobMaterialSupplyJobLines(
     status: job.status
   }));
 }
+
+// Job Operation Batching — reads for the batch planning board and a thin wrapper
+// over the batch-operations edge function (which owns the eligibility gate and
+// the transactional membership writes). See production.models.ts for validators.
+export async function getJobOperationBatches(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  locationId: string
+) {
+  return client
+    .from("jobOperationBatch")
+    .select("*")
+    .eq("companyId", companyId)
+    .eq("locationId", locationId)
+    .eq("status", "Active");
+}
+
+export type BatchOperation =
+  | {
+      type: "create";
+      processId: string;
+      locationId: string;
+      workCenterId?: string | null;
+      notes?: string | null;
+      jobOperationIds: string[];
+    }
+  | { type: "add"; jobOperationBatchId: string; jobOperationIds: string[] }
+  | { type: "remove"; jobOperationBatchId: string; jobOperationIds: string[] }
+  | {
+      type: "updateWorkCenter";
+      jobOperationBatchId: string;
+      workCenterId: string | null;
+    }
+  | { type: "dissolve"; jobOperationBatchId: string };
+
+export async function batchOperations(
+  client: SupabaseClient<Database>,
+  params: BatchOperation & { companyId: string; userId: string }
+) {
+  return client.functions.invoke<{
+    success: boolean;
+    id?: string;
+    readableId?: string;
+    dissolved?: boolean;
+    error?: string;
+  }>("batch-operations", {
+    body: params
+  });
+}
