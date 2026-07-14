@@ -2,7 +2,6 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import type { JSONContent } from "@carbon/react";
-import { VStack } from "@carbon/react";
 import { msg } from "@lingui/core/macro";
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useLoaderData, useParams } from "react-router";
@@ -28,10 +27,7 @@ import {
 } from "~/modules/items";
 import { getRevisionLock } from "~/modules/items/items.server";
 import type { AffectedItemDraft } from "~/modules/items/ui/ChangeOrder";
-import {
-  ChangeOrderHeader,
-  ChangeOrderProperties
-} from "~/modules/items/ui/ChangeOrder";
+import { ChangeOrderHeader } from "~/modules/items/ui/ChangeOrder";
 import { getIssue, getIssues } from "~/modules/quality";
 import { getLocationsList } from "~/modules/resources";
 import type { MethodItemType, MethodType } from "~/modules/shared";
@@ -290,18 +286,13 @@ export default function ChangeOrderIdRoute() {
   useLoaderData<typeof loader>();
 
   return (
+    // The 3-pane workspace (rendered by the $id.details child via
+    // ChangeOrderWorkspace) owns the columns — left affected-items list, middle
+    // selected-item detail, right CO-centric rail — so the container is just the
+    // header plus a full-width Outlet.
     <div className="flex flex-col h-[calc(100dvh-49px)] overflow-hidden w-full">
       <ChangeOrderHeader />
-      <div className="flex h-[calc(100dvh-99px)] overflow-hidden w-full">
-        <div className="flex flex-grow overflow-hidden">
-          <div className="h-[calc(100dvh-99px)] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent w-full">
-            <VStack spacing={2} className="p-2">
-              <Outlet />
-            </VStack>
-          </div>
-          <ChangeOrderProperties key={id} />
-        </div>
-      </div>
+      <Outlet />
     </div>
   );
 }

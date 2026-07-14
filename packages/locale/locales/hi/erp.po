@@ -10514,6 +10514,9 @@ msgstr "एक टीम चुनें"
 msgid "Select all"
 msgstr "सभी का चयन करें"
 
+msgid "Select an affected item, or add one on the left."
+msgstr ""
+
 msgid "Select an assignee"
 msgstr "एक असाइनी चुनें"
 

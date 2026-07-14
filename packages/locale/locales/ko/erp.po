@@ -10514,6 +10514,9 @@ msgstr "팀 선택"
 msgid "Select all"
 msgstr "전체 선택"
 
+msgid "Select an affected item, or add one on the left."
+msgstr ""
+
 msgid "Select an assignee"
 msgstr "담당자 선택"
 

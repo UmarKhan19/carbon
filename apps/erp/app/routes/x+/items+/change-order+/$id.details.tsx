@@ -1,5 +1,3 @@
-import type { JSONContent } from "@carbon/react";
-import { VStack } from "@carbon/react";
 import { useParams } from "react-router";
 import { useRouteData } from "~/hooks";
 import type {
@@ -11,13 +9,7 @@ import type {
 import { canEditChangeOrder } from "~/modules/items";
 import type { ChangeOrderDiff } from "~/modules/items/changeOrder.diff";
 import type { AffectedItemDraft } from "~/modules/items/ui/ChangeOrder";
-import {
-  AffectedItems,
-  ChangeOrderActions,
-  ChangeOrderContent,
-  ChangeOrderReleaseMerge,
-  ImpactPanel
-} from "~/modules/items/ui/ChangeOrder";
+import ChangeOrderWorkspace from "~/modules/items/ui/ChangeOrder/ChangeOrderWorkspace";
 import { path } from "~/utils/path";
 
 export default function ChangeOrderDetailsRoute() {
@@ -40,48 +32,22 @@ export default function ChangeOrderDetailsRoute() {
   const showImplementation =
     changeOrder.status === "Implementation" || changeOrder.status === "Done";
 
-  const affectedItems = routeData?.affectedItems ?? [];
-
   return (
-    <VStack spacing={2}>
-      <ChangeOrderContent
-        key={id}
-        id={id}
-        reasonForChange={changeOrder.reasonForChange as JSONContent}
-        description={changeOrder.description as JSONContent}
-        isDisabled={isDisabled}
-      />
-
-      <AffectedItems
-        id={id}
-        affectedItems={affectedItems}
-        isDisabled={isDisabled}
-      />
-
-      <ChangeOrderActions
-        changeOrderId={id}
-        actions={routeData?.actions ?? []}
-        isDisabled={isDisabled}
-      />
-
-      {showImplementation && (
-        <>
-          <ImpactPanel
-            impact={
-              routeData?.impact ?? {
-                removedParts: [],
-                affectedJobs: [],
-                supersededSalesOrders: []
-              }
-            }
-          />
-          <ChangeOrderReleaseMerge
-            changeOrderId={id}
-            status={changeOrder.status}
-            conflicts={routeData?.releaseConflicts ?? []}
-          />
-        </>
-      )}
-    </VStack>
+    <ChangeOrderWorkspace
+      id={id}
+      changeOrder={changeOrder}
+      affectedItems={routeData?.affectedItems ?? []}
+      actions={routeData?.actions ?? []}
+      impact={
+        routeData?.impact ?? {
+          removedParts: [],
+          affectedJobs: [],
+          supersededSalesOrders: []
+        }
+      }
+      releaseConflicts={routeData?.releaseConflicts ?? []}
+      isDisabled={isDisabled}
+      showImplementation={showImplementation}
+    />
   );
 }

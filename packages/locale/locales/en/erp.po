@@ -10514,6 +10514,9 @@ msgstr "Select a team"
 msgid "Select all"
 msgstr "Select all"
 
+msgid "Select an affected item, or add one on the left."
+msgstr "Select an affected item, or add one on the left."
+
 msgid "Select an assignee"
 msgstr "Select an assignee"
 
