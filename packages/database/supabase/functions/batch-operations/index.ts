@@ -4,7 +4,11 @@ import z from "npm:zod@^3.24.1";
 import { DB, getConnectionPool, getDatabaseClient } from "../lib/database.ts";
 import { corsHeaders } from "../lib/headers.ts";
 import { requirePermissions } from "../lib/supabase.ts";
-import { buildBatchCompletionPlan } from "../shared/batch-time-split.ts";
+import {
+  assertBatchCompletionMembership,
+  buildBatchCompletionPlan,
+  type PlannedMemberEvent,
+} from "../shared/batch-time-split.ts";
 import { getNextSequence } from "../shared/get-next-sequence.ts";
 
 // Job Operation Batching — membership lifecycle for a jobOperationBatch, a
@@ -180,70 +184,102 @@ async function completeBatch(
   const { companyId, userId, now, jobOperationBatchId, members } = args;
   const memberIds = members.map((m) => m.jobOperationId);
 
-  // Load & guard the batch (must be Active) and the member operations (their
-  // planned operationQuantity is the proportional time weight).
-  const batch = await db
-    .selectFrom("jobOperationBatch")
-    .select(["id", "status"])
-    .where("id", "=", jobOperationBatchId)
-    .where("companyId", "=", companyId)
-    .executeTakeFirst();
+  // Per-member slice events, pre-assigned ids so we can post each to GL AFTER the
+  // transaction commits (post-production-event runs in a separate edge function
+  // and can only see committed rows). Populated inside the transaction below.
+  let memberEventRows: (PlannedMemberEvent & { id: string })[] = [];
 
-  if (!batch) throw new Error(`Batch ${jobOperationBatchId} was not found`);
-  if (batch.status !== "Active") {
-    throw new Error("Only an active batch can be completed");
-  }
+  // Everything up to (and including) the terminal status flip runs in ONE Kysely
+  // transaction. A FOR UPDATE lock on the batch row plus the guarded
+  // `WHERE status = 'Active'` flip at the end serialize completion: a concurrent
+  // completer blocks on the lock, then re-reads the row as Completed and is
+  // rejected before it can double-issue material or double-post GL.
+  await db.transaction().execute(async (trx) => {
+    const batch = await trx
+      .selectFrom("jobOperationBatch")
+      .select(["id", "status"])
+      .where("id", "=", jobOperationBatchId)
+      .where("companyId", "=", companyId)
+      .forUpdate()
+      .executeTakeFirst();
 
-  const operations = await db
-    .selectFrom("jobOperation")
-    .select(["id", "operationQuantity", "jobOperationBatchId"])
-    .where("id", "in", memberIds)
-    .where("companyId", "=", companyId)
-    .execute();
+    if (!batch) throw new Error(`Batch ${jobOperationBatchId} was not found`);
+    if (batch.status !== "Active") {
+      throw new Error("Only an active batch can be completed");
+    }
 
-  const opById = new Map(operations.map((o) => [o.id, o]));
-  for (const m of members) {
-    const op = opById.get(m.jobOperationId);
-    if (!op) throw new Error(`Operation ${m.jobOperationId} was not found`);
-    if (op.jobOperationBatchId !== jobOperationBatchId) {
+    // Load the ACTUAL membership (its planned operationQuantity is the proportional
+    // time weight) and validate the submitted list against it — reject duplicates,
+    // unknown ids, and omitted real members (all would corrupt quantities/issue).
+    const operations = await trx
+      .selectFrom("jobOperation")
+      .select(["id", "operationQuantity"])
+      .where("jobOperationBatchId", "=", jobOperationBatchId)
+      .where("companyId", "=", companyId)
+      .execute();
+
+    assertBatchCompletionMembership(
+      memberIds,
+      operations.map((o) => o.id)
+    );
+
+    const opById = new Map(operations.map((o) => [o.id, o]));
+
+    // Refuse to complete while any batch timer is still open (endTime IS NULL) —
+    // otherwise the still-running aggregate event is silently dropped and the
+    // "Start Batch" affordance can spawn a duplicate timer.
+    const openEvent = await trx
+      .selectFrom("productionEvent")
+      .select("id")
+      .where("jobOperationBatchId", "=", jobOperationBatchId)
+      .where("companyId", "=", companyId)
+      .where("endTime", "is", null)
+      .limit(1)
+      .executeTakeFirst();
+
+    if (openEvent) {
       throw new Error(
-        `Operation ${m.jobOperationId} is not a member of this batch`
+        "Cannot complete a batch while a timer is still running — stop the timer first"
       );
     }
-  }
 
-  // The recorded aggregate batch timers (ended). Each is sliced across members.
-  const recorded = await db
-    .selectFrom("productionEvent")
-    .select(["id", "type", "startTime", "endTime", "workCenterId", "employeeId"])
-    .where("jobOperationBatchId", "=", jobOperationBatchId)
-    .where("companyId", "=", companyId)
-    .where("endTime", "is not", null)
-    .execute();
+    // The recorded aggregate batch timers (ended). Each is sliced across members.
+    const recorded = await trx
+      .selectFrom("productionEvent")
+      .select([
+        "id",
+        "type",
+        "startTime",
+        "endTime",
+        "workCenterId",
+        "employeeId",
+      ])
+      .where("jobOperationBatchId", "=", jobOperationBatchId)
+      .where("companyId", "=", companyId)
+      .where("endTime", "is not", null)
+      .execute();
 
-  const plan = buildBatchCompletionPlan(
-    recorded
-      .filter((e) => e.endTime)
-      .map((e) => ({
-        id: e.id,
-        type: e.type,
-        startTime: e.startTime,
-        endTime: e.endTime as string,
-        workCenterId: e.workCenterId,
-        employeeId: e.employeeId,
-      })),
-    members.map((m) => ({
-      jobOperationId: m.jobOperationId,
-      operationQuantity: opById.get(m.jobOperationId)?.operationQuantity ?? 0,
-      quantity: m.quantity,
-      scrapQuantity: m.scrapQuantity,
-    }))
-  );
+    const plan = buildBatchCompletionPlan(
+      recorded
+        .filter((e) => e.endTime)
+        .map((e) => ({
+          id: e.id,
+          type: e.type,
+          startTime: e.startTime,
+          endTime: e.endTime as string,
+          workCenterId: e.workCenterId,
+          employeeId: e.employeeId,
+        })),
+      members.map((m) => ({
+        jobOperationId: m.jobOperationId,
+        operationQuantity: opById.get(m.jobOperationId)?.operationQuantity ?? 0,
+        quantity: m.quantity,
+        scrapQuantity: m.scrapQuantity,
+      }))
+    );
 
-  // Pre-assign ids to the slice events so we can post each to GL after commit.
-  const memberEventRows = plan.memberEvents.map((e) => ({ ...e, id: nanoid() }));
+    memberEventRows = plan.memberEvents.map((e) => ({ ...e, id: nanoid() }));
 
-  await db.transaction().execute(async (trx) => {
     // Replace the aggregate timers with the per-member slices.
     if (recorded.length) {
       await trx
@@ -295,17 +331,29 @@ async function completeBatch(
         .execute();
     }
 
-    await trx
+    // Guarded terminal flip. The `WHERE status = 'Active'` precondition is the
+    // backstop to the FOR UPDATE lock: if it matches 0 rows a concurrent completer
+    // won the race, so we throw and roll back every write in this transaction,
+    // leaving that completer's effects the only ones applied.
+    const completed = await trx
       .updateTable("jobOperationBatch")
       .set({ status: "Completed", updatedBy: userId, updatedAt: now })
       .where("id", "=", jobOperationBatchId)
       .where("companyId", "=", companyId)
-      .execute();
+      .where("status", "=", "Active")
+      .returning(["id"])
+      .executeTakeFirst();
+
+    if (!completed) {
+      throw new Error("Only an active batch can be completed");
+    }
   });
 
   // Post-commit orchestration (mirrors MES complete.tsx, which is likewise
-  // non-transactional across issue / finish / GL). Issue each member's OWN job
-  // BOM — the `issue` fn is backflush-capped, so per-member calls don't double-issue.
+  // non-transactional across issue / finish / GL). The batch is already terminal
+  // and serialized, so no other completion can interleave with these effects.
+  // Issue each member's OWN job BOM — the `issue` fn is backflush-capped, so
+  // per-member calls don't double-issue.
   for (const m of members) {
     const issue = await client.functions.invoke("issue", {
       body: {

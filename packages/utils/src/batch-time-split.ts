@@ -226,3 +226,43 @@ export function sliceEventByWeight(
     };
   });
 }
+
+/**
+ * Validate the members submitted to complete a batch against the batch's ACTUAL
+ * membership. Completion writes one Production quantity (and issues one BOM) per
+ * submitted member, so the submitted list must match the real membership EXACTLY:
+ *
+ *  - a duplicate submitted id would double-count that member's quantity/issue,
+ *  - a submitted id that is not a real member would fabricate output, and
+ *  - a real member left out would silently under-complete the batch.
+ *
+ * Throws a descriptive error on the first violation; returns nothing on success.
+ * Pure (set comparison only) so the completion path's guard is unit-testable
+ * without a database.
+ */
+export function assertBatchCompletionMembership(
+  submittedIds: string[],
+  actualMemberIds: string[]
+): void {
+  const submitted = new Set<string>();
+  for (const id of submittedIds) {
+    if (submitted.has(id)) {
+      throw new Error(`Operation ${id} was submitted more than once`);
+    }
+    submitted.add(id);
+  }
+
+  const actual = new Set(actualMemberIds);
+  for (const id of submitted) {
+    if (!actual.has(id)) {
+      throw new Error(`Operation ${id} is not a member of this batch`);
+    }
+  }
+  for (const id of actual) {
+    if (!submitted.has(id)) {
+      throw new Error(
+        `Operation ${id} is a member of this batch and must be included to complete it`
+      );
+    }
+  }
+}

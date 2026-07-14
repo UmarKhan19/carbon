@@ -180,3 +180,38 @@ export function buildBatchCompletionPlan(
 
   return { memberEvents, quantities };
 }
+
+/**
+ * Validate the members submitted to complete a batch against the batch's ACTUAL
+ * membership. The submitted list must match the real membership EXACTLY: a
+ * duplicate would double-count quantity/issue, an unknown id would fabricate
+ * output, and an omitted real member would silently under-complete the batch.
+ * Throws on the first violation; returns nothing on success. Pure — keep in sync
+ * with packages/utils/src/batch-time-split.ts (the vitest-covered canonical copy).
+ */
+export function assertBatchCompletionMembership(
+  submittedIds: string[],
+  actualMemberIds: string[]
+): void {
+  const submitted = new Set<string>();
+  for (const id of submittedIds) {
+    if (submitted.has(id)) {
+      throw new Error(`Operation ${id} was submitted more than once`);
+    }
+    submitted.add(id);
+  }
+
+  const actual = new Set(actualMemberIds);
+  for (const id of submitted) {
+    if (!actual.has(id)) {
+      throw new Error(`Operation ${id} is not a member of this batch`);
+    }
+  }
+  for (const id of actual) {
+    if (!submitted.has(id)) {
+      throw new Error(
+        `Operation ${id} is a member of this batch and must be included to complete it`
+      );
+    }
+  }
+}

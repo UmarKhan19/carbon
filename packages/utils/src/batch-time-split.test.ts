@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  assertBatchCompletionMembership,
   buildBatchCompletionPlan,
   sliceEventByWeight,
   splitSecondsByWeight
@@ -143,5 +144,37 @@ describe("buildBatchCompletionPlan", () => {
     expect(plan.quantities.filter((q) => q.type === "Production")).toHaveLength(
       3
     );
+  });
+});
+
+describe("assertBatchCompletionMembership", () => {
+  it("passes when the submitted members exactly match actual membership", () => {
+    expect(() =>
+      assertBatchCompletionMembership(
+        ["op-a", "op-b", "op-c"],
+        ["op-c", "op-a", "op-b"]
+      )
+    ).not.toThrow();
+  });
+
+  it("rejects a duplicate submitted member", () => {
+    expect(() =>
+      assertBatchCompletionMembership(
+        ["op-a", "op-a", "op-b"],
+        ["op-a", "op-b"]
+      )
+    ).toThrow(/submitted more than once/);
+  });
+
+  it("rejects a submitted id that is not a member of the batch", () => {
+    expect(() =>
+      assertBatchCompletionMembership(["op-a", "op-x"], ["op-a", "op-b"])
+    ).toThrow(/not a member of this batch/);
+  });
+
+  it("rejects when a real member is omitted from the submission", () => {
+    expect(() =>
+      assertBatchCompletionMembership(["op-a"], ["op-a", "op-b"])
+    ).toThrow(/must be included to complete it/);
   });
 });
