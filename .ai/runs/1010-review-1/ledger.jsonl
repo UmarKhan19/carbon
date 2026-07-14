@@ -1,0 +1,1 @@
+{"iteration":1,"change":"(doer session ended without a verdict)","gates":{"lint":true,"conformance":true,"clobbers":true},"decision":"checkpoint","reason":"fixing forward: doer session ended without a verdict (likely hit its turn/budget cap)","task":"1/6: Scope get_batchable_operations SQL + tenant-safe FKs via NOT VALID migration","at":"2026-07-14T04:31:30.897Z"}
