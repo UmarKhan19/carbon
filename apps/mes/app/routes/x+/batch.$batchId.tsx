@@ -67,6 +67,26 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
+  if (operations.error) {
+    throw redirect(
+      path.to.operations,
+      await flash(
+        request,
+        error(operations.error, "Failed to load batch operations")
+      )
+    );
+  }
+
+  if (events.error) {
+    throw redirect(
+      path.to.operations,
+      await flash(
+        request,
+        error(events.error, "Failed to load batch production events")
+      )
+    );
+  }
+
   const process = Array.isArray(batch.data.process)
     ? batch.data.process[0]
     : batch.data.process;
