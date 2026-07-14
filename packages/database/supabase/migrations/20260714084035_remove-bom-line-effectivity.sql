@@ -32,7 +32,7 @@ RETURNS TABLE (
     "kit" BOOLEAN,
     "revision" TEXT,
     "externalId" JSONB,
-    "version" NUMERIC(10,2),
+    "version" NUMERIC,
     "storageUnitIds" JSONB,
     "isPickDescendant" BOOLEAN,
     "replenishmentSystem" "itemReplenishmentSystem"
