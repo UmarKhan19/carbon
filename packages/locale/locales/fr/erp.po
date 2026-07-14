@@ -7816,6 +7816,9 @@ msgstr "Aucun enregistrement d'étalonnage trouvé"
 msgid "No changes recorded"
 msgstr "Aucune modification enregistrée"
 
+msgid "No changes yet."
+msgstr ""
+
 msgid "No comments yet. Be the first to add a comment."
 msgstr "Aucun commentaire pour le moment. Soyez le premier à ajouter un commentaire."
 
