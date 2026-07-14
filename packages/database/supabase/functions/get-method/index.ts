@@ -1063,7 +1063,6 @@ serve(async (req: Request) => {
                   client,
                   trx,
                   companyId,
-                  job: job.data,
                   child,
                   material,
                   materialId,
@@ -1571,7 +1570,6 @@ serve(async (req: Request) => {
                   client,
                   trx,
                   companyId,
-                  job: job.data,
                   child,
                   material,
                   materialId,
@@ -5550,7 +5548,6 @@ async function swapMadeSubAssembly(opts: {
   client: SupabaseClient<Database>;
   trx: Transaction<DB>;
   companyId: string;
-  job: { startDate?: string | null; dueDate?: string | null } | null | undefined;
   child: MethodTreeItem;
   material:
     | {
@@ -5573,7 +5570,6 @@ async function swapMadeSubAssembly(opts: {
     client,
     trx,
     companyId,
-    job,
     child,
     material,
     materialId,
