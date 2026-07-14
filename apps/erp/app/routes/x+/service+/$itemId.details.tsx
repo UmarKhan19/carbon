@@ -12,14 +12,11 @@ import { DeferredFiles } from "~/components";
 import { usePermissions, useRouteData } from "~/hooks";
 import type { ItemFile, MakeMethod, ServiceSummary } from "~/modules/items";
 import {
-  getItemManufacturing,
   getMakeMethodById,
   getMakeMethods,
   getMethodMaterialsByMakeMethod,
   getMethodOperationsByMakeMethodId,
-  itemManufacturingValidator,
   serviceValidator,
-  upsertItemManufacturing,
   upsertService
 } from "~/modules/items";
 import {
@@ -30,10 +27,9 @@ import {
   ItemRiskRegister,
   MakeMethodTools
 } from "~/modules/items/ui/Item";
-import ItemManufacturingForm from "~/modules/items/ui/Item/ItemManufacturingForm";
 import type { MethodItemType, MethodType } from "~/modules/shared";
 import { getTagsList } from "~/modules/shared";
-import { getCustomFields, setCustomFields } from "~/utils/form";
+import { setCustomFields } from "~/utils/form";
 import { path } from "~/utils/path";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -65,13 +61,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return { methodData: null, tags: [] };
   }
 
-  const [methodMaterials, methodOperations, tags, serviceManufacturing] =
-    await Promise.all([
-      getMethodMaterialsByMakeMethod(client, fullMethod.data.id),
-      getMethodOperationsByMakeMethodId(client, fullMethod.data.id),
-      getTagsList(client, companyId, "operation"),
-      getItemManufacturing(client, itemId, companyId)
-    ]);
+  const [methodMaterials, methodOperations, tags] = await Promise.all([
+    getMethodMaterialsByMakeMethod(client, fullMethod.data.id),
+    getMethodOperationsByMakeMethodId(client, fullMethod.data.id),
+    getTagsList(client, companyId, "operation")
+  ]);
 
   return {
     methodData: {
@@ -90,8 +84,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
           operationSupplierProcessId:
             operation.operationSupplierProcessId ?? undefined,
           workInstruction: operation.workInstruction as JSONContent | null
-        })) ?? [],
-      serviceManufacturing: serviceManufacturing.data
+        })) ?? []
     },
     tags: tags.data ?? []
   };
@@ -107,42 +100,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
   if (!itemId) throw new Error("Could not find itemId");
 
   const formData = await request.formData();
-  const intent = formData.get("intent");
-
-  if (intent === "manufacturing") {
-    const validation = await validator(itemManufacturingValidator).validate(
-      formData
-    );
-
-    if (validation.error) {
-      console.error(validation.error);
-      return validationError(validation.error);
-    }
-
-    const updateServiceManufacturing = await upsertItemManufacturing(client, {
-      ...validation.data,
-      itemId,
-      updatedBy: userId,
-      customFields: setCustomFields(formData)
-    });
-    if (updateServiceManufacturing.error) {
-      throw redirect(
-        path.to.service(itemId),
-        await flash(
-          request,
-          error(
-            updateServiceManufacturing.error,
-            "Failed to update service manufacturing"
-          )
-        )
-      );
-    }
-
-    throw redirect(
-      path.to.serviceDetails(itemId),
-      await flash(request, success("Updated service manufacturing"))
-    );
-  }
 
   const validation = await validator(serviceValidator).validate(formData);
 
@@ -187,14 +144,6 @@ export default function ServiceDetailsRoute() {
 
   if (!serviceData) throw new Error("Could not find service data");
 
-  const manufacturingInitialValues = methodData?.serviceManufacturing
-    ? {
-        ...methodData.serviceManufacturing,
-        lotSize: methodData.serviceManufacturing.lotSize ?? 0,
-        ...getCustomFields(methodData.serviceManufacturing.customFields)
-      }
-    : null;
-
   return (
     <VStack spacing={2} className="p-2">
       {permissions.is("employee") && methodData && (
@@ -212,14 +161,6 @@ export default function ServiceDetailsRoute() {
             </Await>
           </Suspense>
 
-          {manufacturingInitialValues && (
-            <ItemManufacturingForm
-              key={itemId}
-              // @ts-ignore
-              initialValues={manufacturingInitialValues}
-              withConfiguration={false}
-            />
-          )}
           <ItemNotes
             id={serviceData.serviceSummary?.id ?? null}
             title={serviceData.serviceSummary?.name ?? ""}

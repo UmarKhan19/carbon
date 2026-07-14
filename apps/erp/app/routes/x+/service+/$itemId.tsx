@@ -148,16 +148,10 @@ export default function ServiceRoute() {
   const renderUsedInTree = (resolvedUsedIn: Awaited<typeof usedIn>) => {
     const {
       issues,
-      jobMaterials,
       jobs,
-      maintenanceDispatchItems,
-      methodMaterials,
       purchaseOrderLines,
-      receiptLines,
       quoteLines,
-      quoteMaterials,
       salesOrderLines,
-      shipmentLines,
       supplierQuotes,
       jobMaterialUsage
     } = resolvedUsedIn;
@@ -179,25 +173,6 @@ export default function ServiceRoute() {
         }))
       },
       {
-        key: "jobMaterials",
-        name: t`Job Materials`,
-        module: "production",
-        children: jobMaterials
-      },
-      {
-        key: "maintenanceDispatchItems",
-        name: t`Maintenance`,
-        module: "resources",
-        children: maintenanceDispatchItems
-      },
-      {
-        key: "methodMaterials",
-        name: t`Method Materials`,
-        module: "parts",
-        // @ts-expect-error
-        children: methodMaterials
-      },
-      {
         key: "purchaseOrderLines",
         name: t`Purchase Orders`,
         module: "purchasing",
@@ -207,43 +182,16 @@ export default function ServiceRoute() {
         }))
       },
       {
-        key: "receiptLines",
-        name: t`Receipts`,
-        module: "inventory",
-        children: receiptLines.map((receipt) => ({
-          ...receipt,
-          methodType: "Pull from Inventory"
-        }))
-      },
-      {
         key: "quoteLines",
         name: t`Quotes`,
         module: "sales",
         children: quoteLines
       },
       {
-        key: "quoteMaterials",
-        name: t`Quote Materials`,
-        module: "sales",
-        children: quoteMaterials?.map((qm) => ({
-          ...qm,
-          documentReadableId: qm.documentReadableId ?? ""
-        }))
-      },
-      {
         key: "salesOrderLines",
         name: t`Sales Orders`,
         module: "sales",
         children: salesOrderLines
-      },
-      {
-        key: "shipmentLines",
-        name: t`Shipments`,
-        module: "inventory",
-        children: shipmentLines.map((shipment) => ({
-          ...shipment,
-          methodType: "Shipment"
-        }))
       },
       {
         key: "supplierQuotes",

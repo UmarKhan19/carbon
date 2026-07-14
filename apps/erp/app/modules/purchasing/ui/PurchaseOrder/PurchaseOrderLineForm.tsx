@@ -758,7 +758,6 @@ const PurchaseOrderLineForm = ({
                         {[
                           "Item",
                           "Part",
-                          "Service",
                           "Material",
                           "Tool",
                           "Consumable",

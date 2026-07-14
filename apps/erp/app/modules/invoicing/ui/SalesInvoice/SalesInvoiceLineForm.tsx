@@ -588,20 +588,22 @@ const SalesInvoiceLineForm = ({
                             value={locationId}
                             onChange={onLocationChange}
                           />
-                          <StorageUnit
-                            name="storageUnitId"
-                            label={t`Storage Unit`}
-                            locationId={locationId}
-                            value={itemData.storageUnitId ?? undefined}
-                            onChange={(newValue) => {
-                              if (newValue) {
-                                setItemData((d) => ({
-                                  ...d,
-                                  storageUnitId: newValue?.id
-                                }));
-                              }
-                            }}
-                          />
+                          {itemType !== "Service" && (
+                            <StorageUnit
+                              name="storageUnitId"
+                              label={t`Storage Unit`}
+                              locationId={locationId}
+                              value={itemData.storageUnitId ?? undefined}
+                              onChange={(newValue) => {
+                                if (newValue) {
+                                  setItemData((d) => ({
+                                    ...d,
+                                    storageUnitId: newValue?.id
+                                  }));
+                                }
+                              }}
+                            />
+                          )}
                         </>
                       )}
                       <CustomFormFields table="salesInvoiceLine" />

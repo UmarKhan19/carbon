@@ -22,14 +22,13 @@ import {
   Input,
   InputControlled,
   ItemPostingGroup,
-  Number,
   Select,
   Submit,
   TextArea,
   UnitOfMeasure
 } from "~/components/Form";
 import { ReplenishmentSystemIcon } from "~/components/Icons";
-import { useNextItemId, usePermissions, useUser } from "~/hooks";
+import { useNextItemId, usePermissions } from "~/hooks";
 import { path } from "~/utils/path";
 import {
   serviceReplenishmentSystems,
@@ -51,9 +50,6 @@ const ServiceForm = ({
   type = "card",
   onClose
 }: ServiceFormProps) => {
-  const { company } = useUser();
-  const baseCurrency = company?.baseCurrencyCode ?? "USD";
-
   const fetcher = useFetcher<PostgrestResponse<{ id: string }>>();
   const { t } = useLingui();
 
@@ -175,19 +171,6 @@ const ServiceForm = ({
                     isClearable
                   />
                 )}
-                {!isEditing && (
-                  <Number
-                    name="unitCost"
-                    label={t`Unit Cost`}
-                    formatOptions={{
-                      style: "currency",
-                      currency: baseCurrency
-                    }}
-                    minValue={0}
-                    isReadOnly={replenishmentSystem === "Make"}
-                  />
-                )}
-
                 <CustomFormFields table="service" tags={initialValues.tags} />
               </div>
               <div className="mt-4 w-full">
