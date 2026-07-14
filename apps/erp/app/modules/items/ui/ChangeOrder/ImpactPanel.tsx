@@ -87,12 +87,203 @@ const COL_ROW = `${COLS} items-center border-t border-border py-1.5 text-sm`;
 // PRD §3.3 (expanded): a non-blocking, read-only heads-up on the in-flight work
 // and inventory a release touches. Three sections — jobs, sales, purchasing —
 // each shown only when it has rows. Nothing here gates the release.
-export default function ImpactPanel({ impact }: { impact: ChangeOrderImpact }) {
+export default function ImpactPanel({
+  impact,
+  embedded = false
+}: {
+  impact: ChangeOrderImpact;
+  // When true, render without the Card chrome — the accordion rail supplies the
+  // section frame + title.
+  embedded?: boolean;
+}) {
   const { affectedJobs, supersededSalesOrders, removedParts } = impact;
   const hasAny =
     affectedJobs.length > 0 ||
     supersededSalesOrders.length > 0 ||
     removedParts.length > 0;
+
+  const body = (
+    <>
+      {!hasAny ? (
+        <HStack spacing={2} className="text-sm text-muted-foreground">
+          <LuCircleCheck className="size-4 shrink-0 text-emerald-500" />
+          <Trans>Nothing downstream is affected by this release.</Trans>
+        </HStack>
+      ) : (
+        <VStack spacing={8}>
+          {affectedJobs.length > 0 && (
+            <VStack spacing={2}>
+              <SectionHeader
+                icon={<LuHardHat className="size-4" />}
+                title={<Trans>Jobs in progress</Trans>}
+                description={
+                  <Trans>
+                    These jobs were built on the previous method and won't
+                    change when you release — finish them as-is or re-pull the
+                    method.
+                  </Trans>
+                }
+              />
+              {affectedJobs.map((row) => (
+                <Group
+                  key={row.itemId}
+                  itemReadableId={row.itemReadableId}
+                  itemName={row.itemName}
+                  count={row.jobs.length}
+                  countLabel={<Trans>open job(s)</Trans>}
+                  columns={
+                    <div className={COL_HEAD}>
+                      <span>
+                        <Trans>Job</Trans>
+                      </span>
+                      <span>
+                        <Trans>Status</Trans>
+                      </span>
+                      <span className="text-right">
+                        <Trans>Qty</Trans>
+                      </span>
+                    </div>
+                  }
+                >
+                  {row.jobs.map((job) => (
+                    <div key={job.id} className={COL_ROW}>
+                      <Link
+                        to={path.to.jobDetails(job.id)}
+                        className="truncate text-foreground hover:underline"
+                      >
+                        {job.jobReadableId}
+                      </Link>
+                      <span className="truncate text-muted-foreground">
+                        {job.status}
+                      </span>
+                      <span className="text-right tabular-nums">
+                        {job.quantity ?? 0}
+                      </span>
+                    </div>
+                  ))}
+                </Group>
+              ))}
+            </VStack>
+          )}
+
+          {supersededSalesOrders.length > 0 && (
+            <VStack spacing={2}>
+              <SectionHeader
+                icon={<RiProgress8Line className="size-4" />}
+                title={<Trans>Sales orders</Trans>}
+                description={
+                  <Trans>
+                    Open sales lines still reference the part being replaced.
+                    Move them to the successor if the change should apply.
+                  </Trans>
+                }
+              />
+              {supersededSalesOrders.map((row) => (
+                <Group
+                  key={row.itemId}
+                  itemReadableId={row.itemReadableId}
+                  itemName={row.itemName}
+                  tag={
+                    <Badge variant="gray" className="shrink-0">
+                      {row.changeType}
+                    </Badge>
+                  }
+                  count={row.lines.length}
+                  countLabel={<Trans>open line(s)</Trans>}
+                  columns={
+                    <div className={COL_HEAD}>
+                      <span>
+                        <Trans>Sales order</Trans>
+                      </span>
+                      <span>
+                        <Trans>Promised</Trans>
+                      </span>
+                      <span className="text-right">
+                        <Trans>To send</Trans>
+                      </span>
+                    </div>
+                  }
+                >
+                  {row.lines.map((line) => (
+                    <div key={line.id} className={COL_ROW}>
+                      <Link
+                        to={path.to.salesOrderDetails(line.salesOrderId)}
+                        className="truncate text-foreground hover:underline"
+                      >
+                        {line.salesOrderReadableId ?? line.salesOrderId}
+                      </Link>
+                      <span className="truncate text-muted-foreground">
+                        {line.promisedDate ?? "—"}
+                      </span>
+                      <span className="text-right tabular-nums">
+                        {line.quantityToSend ?? 0}
+                      </span>
+                    </div>
+                  ))}
+                </Group>
+              ))}
+            </VStack>
+          )}
+
+          {removedParts.length > 0 && (
+            <VStack spacing={2}>
+              <SectionHeader
+                icon={<LuShoppingCart className="size-4" />}
+                title={<Trans>Purchasing</Trans>}
+                description={
+                  <Trans>
+                    Open purchase orders are still inbound for components this
+                    change removes from a BOM.
+                  </Trans>
+                }
+              />
+              {removedParts.map((row) => (
+                <Group
+                  key={row.itemId}
+                  itemReadableId={row.itemReadableId}
+                  itemName={row.itemName}
+                  count={row.openPurchaseOrderLines.length}
+                  countLabel={<Trans>open line(s)</Trans>}
+                  columns={
+                    <div className={COL_HEAD}>
+                      <span>
+                        <Trans>Purchase order</Trans>
+                      </span>
+                      <span>
+                        <Trans>Supplier</Trans>
+                      </span>
+                      <span className="text-right">
+                        <Trans>To receive</Trans>
+                      </span>
+                    </div>
+                  }
+                >
+                  {row.openPurchaseOrderLines.map((line) => (
+                    <div key={line.id} className={COL_ROW}>
+                      <Link
+                        to={path.to.purchaseOrderDetails(line.purchaseOrderId)}
+                        className="truncate text-foreground hover:underline"
+                      >
+                        {line.purchaseOrderReadableId ?? line.purchaseOrderId}
+                      </Link>
+                      <span className="truncate text-muted-foreground">
+                        {line.supplierName ?? "—"}
+                      </span>
+                      <span className="text-right tabular-nums">
+                        {line.quantityToReceive ?? 0}
+                      </span>
+                    </div>
+                  ))}
+                </Group>
+              ))}
+            </VStack>
+          )}
+        </VStack>
+      )}
+    </>
+  );
+
+  if (embedded) return body;
 
   return (
     <Card className="w-full">
@@ -107,186 +298,7 @@ export default function ImpactPanel({ impact }: { impact: ChangeOrderImpact }) {
           </Trans>
         </span>
       </CardHeader>
-      <CardContent>
-        {!hasAny ? (
-          <HStack spacing={2} className="text-sm text-muted-foreground">
-            <LuCircleCheck className="size-4 shrink-0 text-emerald-500" />
-            <Trans>Nothing downstream is affected by this release.</Trans>
-          </HStack>
-        ) : (
-          <VStack spacing={8}>
-            {affectedJobs.length > 0 && (
-              <VStack spacing={2}>
-                <SectionHeader
-                  icon={<LuHardHat className="size-4" />}
-                  title={<Trans>Jobs in progress</Trans>}
-                  description={
-                    <Trans>
-                      These jobs were built on the previous method and won't
-                      change when you release — finish them as-is or re-pull the
-                      method.
-                    </Trans>
-                  }
-                />
-                {affectedJobs.map((row) => (
-                  <Group
-                    key={row.itemId}
-                    itemReadableId={row.itemReadableId}
-                    itemName={row.itemName}
-                    count={row.jobs.length}
-                    countLabel={<Trans>open job(s)</Trans>}
-                    columns={
-                      <div className={COL_HEAD}>
-                        <span>
-                          <Trans>Job</Trans>
-                        </span>
-                        <span>
-                          <Trans>Status</Trans>
-                        </span>
-                        <span className="text-right">
-                          <Trans>Qty</Trans>
-                        </span>
-                      </div>
-                    }
-                  >
-                    {row.jobs.map((job) => (
-                      <div key={job.id} className={COL_ROW}>
-                        <Link
-                          to={path.to.jobDetails(job.id)}
-                          className="truncate text-foreground hover:underline"
-                        >
-                          {job.jobReadableId}
-                        </Link>
-                        <span className="truncate text-muted-foreground">
-                          {job.status}
-                        </span>
-                        <span className="text-right tabular-nums">
-                          {job.quantity ?? 0}
-                        </span>
-                      </div>
-                    ))}
-                  </Group>
-                ))}
-              </VStack>
-            )}
-
-            {supersededSalesOrders.length > 0 && (
-              <VStack spacing={2}>
-                <SectionHeader
-                  icon={<RiProgress8Line className="size-4" />}
-                  title={<Trans>Sales orders</Trans>}
-                  description={
-                    <Trans>
-                      Open sales lines still reference the part being replaced.
-                      Move them to the successor if the change should apply.
-                    </Trans>
-                  }
-                />
-                {supersededSalesOrders.map((row) => (
-                  <Group
-                    key={row.itemId}
-                    itemReadableId={row.itemReadableId}
-                    itemName={row.itemName}
-                    tag={
-                      <Badge variant="gray" className="shrink-0">
-                        {row.changeType}
-                      </Badge>
-                    }
-                    count={row.lines.length}
-                    countLabel={<Trans>open line(s)</Trans>}
-                    columns={
-                      <div className={COL_HEAD}>
-                        <span>
-                          <Trans>Sales order</Trans>
-                        </span>
-                        <span>
-                          <Trans>Promised</Trans>
-                        </span>
-                        <span className="text-right">
-                          <Trans>To send</Trans>
-                        </span>
-                      </div>
-                    }
-                  >
-                    {row.lines.map((line) => (
-                      <div key={line.id} className={COL_ROW}>
-                        <Link
-                          to={path.to.salesOrderDetails(line.salesOrderId)}
-                          className="truncate text-foreground hover:underline"
-                        >
-                          {line.salesOrderReadableId ?? line.salesOrderId}
-                        </Link>
-                        <span className="truncate text-muted-foreground">
-                          {line.promisedDate ?? "—"}
-                        </span>
-                        <span className="text-right tabular-nums">
-                          {line.quantityToSend ?? 0}
-                        </span>
-                      </div>
-                    ))}
-                  </Group>
-                ))}
-              </VStack>
-            )}
-
-            {removedParts.length > 0 && (
-              <VStack spacing={2}>
-                <SectionHeader
-                  icon={<LuShoppingCart className="size-4" />}
-                  title={<Trans>Purchasing</Trans>}
-                  description={
-                    <Trans>
-                      Open purchase orders are still inbound for components this
-                      change removes from a BOM.
-                    </Trans>
-                  }
-                />
-                {removedParts.map((row) => (
-                  <Group
-                    key={row.itemId}
-                    itemReadableId={row.itemReadableId}
-                    itemName={row.itemName}
-                    count={row.openPurchaseOrderLines.length}
-                    countLabel={<Trans>open line(s)</Trans>}
-                    columns={
-                      <div className={COL_HEAD}>
-                        <span>
-                          <Trans>Purchase order</Trans>
-                        </span>
-                        <span>
-                          <Trans>Supplier</Trans>
-                        </span>
-                        <span className="text-right">
-                          <Trans>To receive</Trans>
-                        </span>
-                      </div>
-                    }
-                  >
-                    {row.openPurchaseOrderLines.map((line) => (
-                      <div key={line.id} className={COL_ROW}>
-                        <Link
-                          to={path.to.purchaseOrderDetails(
-                            line.purchaseOrderId
-                          )}
-                          className="truncate text-foreground hover:underline"
-                        >
-                          {line.purchaseOrderReadableId ?? line.purchaseOrderId}
-                        </Link>
-                        <span className="truncate text-muted-foreground">
-                          {line.supplierName ?? "—"}
-                        </span>
-                        <span className="text-right tabular-nums">
-                          {line.quantityToReceive ?? 0}
-                        </span>
-                      </div>
-                    ))}
-                  </Group>
-                ))}
-              </VStack>
-            )}
-          </VStack>
-        )}
-      </CardContent>
+      <CardContent>{body}</CardContent>
     </Card>
   );
 }

@@ -9519,6 +9519,9 @@ msgstr "Grund"
 msgid "Reason Account"
 msgstr "Grund-Konto"
 
+msgid "Reason for change"
+msgstr ""
+
 msgid "Reason for Change"
 msgstr "Grund für Änderung"
 

@@ -9519,6 +9519,9 @@ msgstr "Raison"
 msgid "Reason Account"
 msgstr "Compte de raison"
 
+msgid "Reason for change"
+msgstr ""
+
 msgid "Reason for Change"
 msgstr "Raison du changement"
 

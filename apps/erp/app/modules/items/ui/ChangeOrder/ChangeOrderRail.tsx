@@ -1,5 +1,12 @@
 import type { JSONContent } from "@carbon/react";
-import { VStack } from "@carbon/react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+  Badge
+} from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
 import type {
   ChangeOrder,
   ChangeOrderActionTask,
@@ -7,15 +14,15 @@ import type {
   ChangeOrderReleaseConflict
 } from "~/modules/items";
 import ChangeOrderActions from "./ChangeOrderActions";
-import { ChangeOrderContent } from "./ChangeOrderContent";
+import { ChangeOrderContentSection } from "./ChangeOrderContent";
 import ChangeOrderProperties from "./ChangeOrderProperties";
 import ChangeOrderReleaseMerge from "./ChangeOrderReleaseMerge";
 import ImpactPanel from "./ImpactPanel";
 
 // Right pane of the change-order workspace: all CO-centric content (not tied to
-// any single affected item) — the Properties metadata, Reason for change,
-// Description, Actions, and (at Implementation/Done) the downstream Impact and the
-// release/merge control. The middle pane owns the per-item BoM/BoP/diff.
+// any single affected item), organized as collapsible sections so the narrow
+// column doesn't stack heavy cards. Sections: Properties, Reason for change,
+// Description, Actions, and (at Implementation/Done) Impact + Release.
 export default function ChangeOrderRail({
   id,
   changeOrder,
@@ -33,36 +40,114 @@ export default function ChangeOrderRail({
   isDisabled: boolean;
   showImplementation: boolean;
 }) {
+  const isImplementation = changeOrder.status === "Implementation";
+  const actionsDone = actions.filter(
+    (a) => a.status === "Completed" || a.status === "Skipped"
+  ).length;
+
+  // Open the always-relevant context by default; leave Actions collapsed and
+  // open Release only at the moment it matters (Implementation).
+  const defaultOpen = ["properties", "reason", "description"];
+  if (isImplementation) defaultOpen.push("release");
+
   return (
     <aside className="w-[420px] flex-shrink-0 bg-card h-full overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent border-l border-border text-sm">
-      <VStack spacing={4} className="p-2">
-        <ChangeOrderProperties />
+      <Accordion
+        type="multiple"
+        defaultValue={defaultOpen}
+        className="px-3 pb-4"
+      >
+        <AccordionItem value="properties">
+          <AccordionTrigger>
+            <Trans>Properties</Trans>
+          </AccordionTrigger>
+          <AccordionContent>
+            <ChangeOrderProperties />
+          </AccordionContent>
+        </AccordionItem>
 
-        <ChangeOrderContent
-          key={id}
-          id={id}
-          reasonForChange={changeOrder.reasonForChange as JSONContent}
-          description={changeOrder.description as JSONContent}
-          isDisabled={isDisabled}
-        />
+        <AccordionItem value="reason">
+          <AccordionTrigger>
+            <Trans>Reason for change</Trans>
+          </AccordionTrigger>
+          <AccordionContent>
+            <ChangeOrderContentSection
+              key={`${id}-reason`}
+              embedded
+              id={id}
+              title=""
+              field="reasonForChange"
+              content={changeOrder.reasonForChange as JSONContent}
+              isDisabled={isDisabled}
+            />
+          </AccordionContent>
+        </AccordionItem>
 
-        <ChangeOrderActions
-          changeOrderId={id}
-          actions={actions}
-          isDisabled={isDisabled}
-        />
+        <AccordionItem value="description">
+          <AccordionTrigger>
+            <Trans>Description</Trans>
+          </AccordionTrigger>
+          <AccordionContent>
+            <ChangeOrderContentSection
+              key={`${id}-description`}
+              embedded
+              id={id}
+              title=""
+              field="description"
+              content={changeOrder.description as JSONContent}
+              isDisabled={isDisabled}
+            />
+          </AccordionContent>
+        </AccordionItem>
+
+        <AccordionItem value="actions">
+          <AccordionTrigger>
+            <span className="flex items-center gap-2">
+              <Trans>Actions</Trans>
+              {actions.length > 0 && (
+                <Badge variant="secondary" className="tabular-nums">
+                  {actionsDone}/{actions.length}
+                </Badge>
+              )}
+            </span>
+          </AccordionTrigger>
+          <AccordionContent>
+            <ChangeOrderActions
+              embedded
+              changeOrderId={id}
+              actions={actions}
+              isDisabled={isDisabled}
+            />
+          </AccordionContent>
+        </AccordionItem>
 
         {showImplementation && (
-          <>
-            <ImpactPanel impact={impact} />
-            <ChangeOrderReleaseMerge
-              changeOrderId={id}
-              status={changeOrder.status}
-              conflicts={releaseConflicts}
-            />
-          </>
+          <AccordionItem value="impact">
+            <AccordionTrigger>
+              <Trans>Impact</Trans>
+            </AccordionTrigger>
+            <AccordionContent>
+              <ImpactPanel embedded impact={impact} />
+            </AccordionContent>
+          </AccordionItem>
         )}
-      </VStack>
+
+        {isImplementation && (
+          <AccordionItem value="release">
+            <AccordionTrigger>
+              <Trans>Release</Trans>
+            </AccordionTrigger>
+            <AccordionContent>
+              <ChangeOrderReleaseMerge
+                embedded
+                changeOrderId={id}
+                status={changeOrder.status}
+                conflicts={releaseConflicts}
+              />
+            </AccordionContent>
+          </AccordionItem>
+        )}
+      </Accordion>
     </aside>
   );
 }

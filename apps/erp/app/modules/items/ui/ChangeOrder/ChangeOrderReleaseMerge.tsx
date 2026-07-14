@@ -45,11 +45,15 @@ function stateKey(
 export default function ChangeOrderReleaseMerge({
   changeOrderId,
   status,
-  conflicts
+  conflicts,
+  embedded = false
 }: {
   changeOrderId: string;
   status: string | null;
   conflicts: ChangeOrderReleaseConflict[];
+  // When true, render without the Card chrome — the accordion rail supplies the
+  // section frame + title.
+  embedded?: boolean;
 }) {
   const { t } = useLingui();
   const [items] = useItems();
@@ -117,6 +121,137 @@ export default function ChangeOrderReleaseMerge({
     }
   }
 
+  const body = (
+    <VStack spacing={4}>
+      {hasConflicts && (
+        <Alert variant="warning">
+          <LuTriangleAlert className="size-4" />
+          <AlertTitle>
+            <Trans>The live method changed since you started</Trans>
+          </AlertTitle>
+          <AlertDescription>
+            <Trans>
+              Another change order released a newer version of{" "}
+              {conflicts.length === 1
+                ? t`this part`
+                : t`${conflicts.length} of these parts`}
+              . Resolve each one to choose which changes to keep before
+              releasing.
+            </Trans>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {conflicts.map((c) => {
+        const isResolved = resolvedParts.has(c.affectedItemId);
+        return (
+          <HStack
+            key={c.affectedItemId}
+            className="w-full justify-between gap-3 rounded-xl border border-border p-3"
+          >
+            <VStack spacing={0}>
+              <span className="text-sm font-medium text-foreground">
+                {partLabel(c)}
+              </span>
+              <span className="text-xs text-muted-foreground tabular-nums">
+                <Trans>{c.entries.length} conflicting change(s)</Trans>
+              </span>
+            </VStack>
+            <HStack spacing={2}>
+              {isResolved ? (
+                <Badge variant="green">
+                  <LuCircleCheck className="mr-1 size-3" />
+                  <Trans>Resolved</Trans>
+                </Badge>
+              ) : (
+                <Badge variant="yellow">
+                  <Trans>Review required</Trans>
+                </Badge>
+              )}
+              <Button
+                size="sm"
+                variant={isResolved ? "secondary" : "primary"}
+                leftIcon={<LuGitMerge />}
+                onClick={() => setOpenPartId(c.affectedItemId)}
+              >
+                {isResolved ? t`Review` : t`Resolve`}
+              </Button>
+            </HStack>
+          </HStack>
+        );
+      })}
+
+      <fetcher.Form
+        method="post"
+        action={path.to.changeOrderStatus(changeOrderId)}
+      >
+        <input type="hidden" name="id" value={changeOrderId} />
+        <input type="hidden" name="fromStatus" value="Implementation" />
+        <input type="hidden" name="status" value="Done" />
+        <input type="hidden" name="mergeAcknowledged" value="true" />
+        <input
+          type="hidden"
+          name="resolutions"
+          value={JSON.stringify(resolutions)}
+        />
+        <VStack spacing={1}>
+          <Button
+            type="submit"
+            leftIcon={<LuCircleCheck />}
+            variant="primary"
+            isDisabled={isSubmitting || (hasConflicts && !allResolved)}
+            isLoading={isSubmitting}
+          >
+            {hasConflicts ? t`Resolve & Release` : t`Release Change Order`}
+          </Button>
+          {hasConflicts && !allResolved && (
+            <span className="text-xs text-muted-foreground">
+              <Trans>Resolve every part above to release.</Trans>
+            </span>
+          )}
+        </VStack>
+      </fetcher.Form>
+    </VStack>
+  );
+
+  const modal = openConflict && (
+    <ChangeOrderConflictResolver
+      open={openPartId !== null}
+      partLabel={partLabel(openConflict)}
+      conflict={openConflict}
+      choices={openChoices}
+      onChoice={(entryKey, choice) =>
+        setChoices((p) => ({
+          ...p,
+          [`${openConflict.affectedItemId}:${entryKey}`]: choice
+        }))
+      }
+      onSetAll={(choice) =>
+        setChoices((p) => {
+          const next = { ...p };
+          for (const e of openConflict.entries) {
+            next[stateKey(openConflict.affectedItemId, e)] = choice;
+          }
+          return next;
+        })
+      }
+      onDone={() => {
+        setResolvedParts((p) => new Set(p).add(openConflict.affectedItemId));
+        setOpenPartId(null);
+      }}
+      onClose={() => setOpenPartId(null)}
+    />
+  );
+
+  if (embedded) {
+    return (
+      <>
+        {body}
+        {modal}
+      </>
+    );
+  }
+
   return (
     <Card className="w-full">
       <CardHeader>
@@ -134,129 +269,8 @@ export default function ChangeOrderReleaseMerge({
           )}
         </span>
       </CardHeader>
-      <CardContent>
-        <VStack spacing={4}>
-          {hasConflicts && (
-            <Alert variant="warning">
-              <LuTriangleAlert className="size-4" />
-              <AlertTitle>
-                <Trans>The live method changed since you started</Trans>
-              </AlertTitle>
-              <AlertDescription>
-                <Trans>
-                  Another change order released a newer version of{" "}
-                  {conflicts.length === 1
-                    ? t`this part`
-                    : t`${conflicts.length} of these parts`}
-                  . Resolve each one to choose which changes to keep before
-                  releasing.
-                </Trans>
-              </AlertDescription>
-            </Alert>
-          )}
-
-          {conflicts.map((c) => {
-            const isResolved = resolvedParts.has(c.affectedItemId);
-            return (
-              <HStack
-                key={c.affectedItemId}
-                className="w-full justify-between gap-3 rounded-xl border border-border p-3"
-              >
-                <VStack spacing={0}>
-                  <span className="text-sm font-medium text-foreground">
-                    {partLabel(c)}
-                  </span>
-                  <span className="text-xs text-muted-foreground tabular-nums">
-                    <Trans>{c.entries.length} conflicting change(s)</Trans>
-                  </span>
-                </VStack>
-                <HStack spacing={2}>
-                  {isResolved ? (
-                    <Badge variant="green">
-                      <LuCircleCheck className="mr-1 size-3" />
-                      <Trans>Resolved</Trans>
-                    </Badge>
-                  ) : (
-                    <Badge variant="yellow">
-                      <Trans>Review required</Trans>
-                    </Badge>
-                  )}
-                  <Button
-                    size="sm"
-                    variant={isResolved ? "secondary" : "primary"}
-                    leftIcon={<LuGitMerge />}
-                    onClick={() => setOpenPartId(c.affectedItemId)}
-                  >
-                    {isResolved ? t`Review` : t`Resolve`}
-                  </Button>
-                </HStack>
-              </HStack>
-            );
-          })}
-
-          <fetcher.Form
-            method="post"
-            action={path.to.changeOrderStatus(changeOrderId)}
-          >
-            <input type="hidden" name="id" value={changeOrderId} />
-            <input type="hidden" name="fromStatus" value="Implementation" />
-            <input type="hidden" name="status" value="Done" />
-            <input type="hidden" name="mergeAcknowledged" value="true" />
-            <input
-              type="hidden"
-              name="resolutions"
-              value={JSON.stringify(resolutions)}
-            />
-            <VStack spacing={1}>
-              <Button
-                type="submit"
-                leftIcon={<LuCircleCheck />}
-                variant="primary"
-                isDisabled={isSubmitting || (hasConflicts && !allResolved)}
-                isLoading={isSubmitting}
-              >
-                {hasConflicts ? t`Resolve & Release` : t`Release Change Order`}
-              </Button>
-              {hasConflicts && !allResolved && (
-                <span className="text-xs text-muted-foreground">
-                  <Trans>Resolve every part above to release.</Trans>
-                </span>
-              )}
-            </VStack>
-          </fetcher.Form>
-        </VStack>
-      </CardContent>
-
-      {openConflict && (
-        <ChangeOrderConflictResolver
-          open={openPartId !== null}
-          partLabel={partLabel(openConflict)}
-          conflict={openConflict}
-          choices={openChoices}
-          onChoice={(entryKey, choice) =>
-            setChoices((p) => ({
-              ...p,
-              [`${openConflict.affectedItemId}:${entryKey}`]: choice
-            }))
-          }
-          onSetAll={(choice) =>
-            setChoices((p) => {
-              const next = { ...p };
-              for (const e of openConflict.entries) {
-                next[stateKey(openConflict.affectedItemId, e)] = choice;
-              }
-              return next;
-            })
-          }
-          onDone={() => {
-            setResolvedParts((p) =>
-              new Set(p).add(openConflict.affectedItemId)
-            );
-            setOpenPartId(null);
-          }}
-          onClose={() => setOpenPartId(null)}
-        />
-      )}
+      <CardContent>{body}</CardContent>
+      {modal}
     </Card>
   );
 }

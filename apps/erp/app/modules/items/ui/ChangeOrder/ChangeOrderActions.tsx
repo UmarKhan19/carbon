@@ -66,11 +66,15 @@ export function ChangeOrderActionsProgress({
 export default function ChangeOrderActions({
   changeOrderId,
   actions,
-  isDisabled
+  isDisabled,
+  embedded = false
 }: {
   changeOrderId: string;
   actions: ChangeOrderActionTask[];
   isDisabled: boolean;
+  // When true, render without the Card chrome — the accordion rail supplies the
+  // section frame + title.
+  embedded?: boolean;
 }) {
   const orderFetcher = useFetcher<{ success: boolean }>();
 
@@ -111,6 +115,47 @@ export default function ChangeOrderActions({
     updateSortOrder(updates);
   };
 
+  const list = (
+    <VStack spacing={3}>
+      {actions.length > 0 && (
+        <Reorder.Group
+          axis="y"
+          values={sortOrder}
+          onReorder={onReorder}
+          className="w-full space-y-3"
+        >
+          {sortOrder.map((id) => {
+            const action = actions.find((a) => a.id === id);
+            if (!action) return null;
+            return (
+              <ReorderableActionItem
+                key={id}
+                changeOrderId={changeOrderId}
+                action={action}
+                isDisabled={isDisabled}
+              />
+            );
+          })}
+        </Reorder.Group>
+      )}
+
+      {!isDisabled && <NewAction changeOrderId={changeOrderId} />}
+    </VStack>
+  );
+
+  if (embedded) {
+    return (
+      <VStack spacing={3} className="w-full">
+        {actions.length > 0 && (
+          <HStack className="w-full justify-end">
+            <ChangeOrderActionsProgress actions={actions} />
+          </HStack>
+        )}
+        {list}
+      </VStack>
+    );
+  }
+
   return (
     <Card className="w-full">
       <HStack className="justify-between w-full">
@@ -121,33 +166,7 @@ export default function ChangeOrderActions({
         </CardHeader>
         {actions.length > 0 && <ChangeOrderActionsProgress actions={actions} />}
       </HStack>
-      <CardContent>
-        <VStack spacing={3}>
-          {actions.length > 0 && (
-            <Reorder.Group
-              axis="y"
-              values={sortOrder}
-              onReorder={onReorder}
-              className="w-full space-y-3"
-            >
-              {sortOrder.map((id) => {
-                const action = actions.find((a) => a.id === id);
-                if (!action) return null;
-                return (
-                  <ReorderableActionItem
-                    key={id}
-                    changeOrderId={changeOrderId}
-                    action={action}
-                    isDisabled={isDisabled}
-                  />
-                );
-              })}
-            </Reorder.Group>
-          )}
-
-          {!isDisabled && <NewAction changeOrderId={changeOrderId} />}
-        </VStack>
-      </CardContent>
+      <CardContent>{list}</CardContent>
     </Card>
   );
 }

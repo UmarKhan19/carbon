@@ -20,18 +20,22 @@ import { getPrivateUrl } from "~/utils/path";
 // and read/written the same way; the debounced writer targets the matching
 // column directly through the request-scoped supabase client (mirrors
 // IssueContent). Phase 1 keeps these inline — later phases add sections below.
-function ChangeOrderContentSection({
+export function ChangeOrderContentSection({
   id,
   title,
   field,
   content: initialContent,
-  isDisabled
+  isDisabled,
+  embedded = false
 }: {
   id: string;
   title: string;
   field: "reasonForChange" | "description";
   content: JSONContent;
   isDisabled: boolean;
+  // When true, render just the editor/prose with no Card chrome — the caller
+  // (e.g. the accordion rail) supplies the title + frame.
+  embedded?: boolean;
 }) {
   const {
     id: userId,
@@ -75,30 +79,33 @@ function ChangeOrderContentSection({
     true
   );
 
+  const body =
+    permissions.can("update", "parts") && !isDisabled ? (
+      <Editor
+        initialValue={(content ?? {}) as JSONContent}
+        onUpload={onUploadImage}
+        onChange={(value) => {
+          setContent(value);
+          onUpdateContent(value);
+        }}
+      />
+    ) : (
+      <div
+        className="prose dark:prose-invert"
+        dangerouslySetInnerHTML={{
+          __html: generateHTML(content as JSONContent)
+        }}
+      />
+    );
+
+  if (embedded) return body;
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>{title}</CardTitle>
       </CardHeader>
-      <CardContent>
-        {permissions.can("update", "parts") && !isDisabled ? (
-          <Editor
-            initialValue={(content ?? {}) as JSONContent}
-            onUpload={onUploadImage}
-            onChange={(value) => {
-              setContent(value);
-              onUpdateContent(value);
-            }}
-          />
-        ) : (
-          <div
-            className="prose dark:prose-invert"
-            dangerouslySetInnerHTML={{
-              __html: generateHTML(content as JSONContent)
-            }}
-          />
-        )}
-      </CardContent>
+      <CardContent>{body}</CardContent>
     </Card>
   );
 }

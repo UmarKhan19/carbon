@@ -9519,6 +9519,9 @@ msgstr "Neden"
 msgid "Reason Account"
 msgstr "Neden Hesabı"
 
+msgid "Reason for change"
+msgstr ""
+
 msgid "Reason for Change"
 msgstr "Değişiklik Nedeni"
 
