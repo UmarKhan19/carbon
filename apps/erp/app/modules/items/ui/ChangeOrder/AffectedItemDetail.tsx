@@ -29,7 +29,6 @@ import type { ChangeOrderAffectedItemWithLabel } from "../../changeOrder.service
 import type { SupersessionMode } from "../../items.models";
 import { supersessionModeMeta, supersessionModes } from "../../items.models";
 import { BillOfMaterial, BillOfProcess } from "../Item";
-import MakeMethodVersionStatus from "../Item/MakeMethodVersionStatus";
 import PartProperties from "../Parts/PartProperties";
 import type { AffectedItemDraft } from "./affectedItem.types";
 import ChangeOrderDiffViewer from "./ChangeOrderDiffViewer";
@@ -140,11 +139,10 @@ export default function AffectedItemDetail({
               </ItemLink>
             </CardTitle>
             <Badge variant="secondary">{changeType}</Badge>
+            {/* Version number only — the draft is always "Draft" while the CO is
+                open, so the status chip adds no signal here. */}
             {affected.makeMethod && (
-              <>
-                <Badge variant="outline">V{affected.makeMethod.version}</Badge>
-                <MakeMethodVersionStatus status={affected.makeMethod.status} />
-              </>
+              <Badge variant="outline">V{affected.makeMethod.version}</Badge>
             )}
           </HStack>
           {!isDisabled && (
