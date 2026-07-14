@@ -80,6 +80,119 @@ export interface EventWindow {
   durationSeconds: number;
 }
 
+// ---------------------------------------------------------------------------
+// Batch completion plan
+//
+// At batch completion the operator submits a produced (and optional scrap)
+// quantity per member operation. The whole batch ran under ONE set of recorded
+// Setup/Labor/Machine `productionEvent` rows (the shared timer). This turns that
+// aggregate into the exact per-member rows to write: each recorded event is
+// sliced into contiguous per-member sub-windows (proportional to each member's
+// planned `operationQuantity`), and each member gets a Production quantity row
+// plus a Scrap row when scrap was entered.
+//
+// Pure and I/O-free so the edge function's completion path (a Deno mirror of
+// this file lives at supabase/functions/shared/batch-time-split.ts) and any ERP
+// costing surface compute the identical split.
+// ---------------------------------------------------------------------------
+
+export interface BatchCompletionMember {
+  /** jobOperation id of the member. */
+  jobOperationId: string;
+  /** Planned operation quantity — the proportional time weight. May be 0. */
+  operationQuantity: number;
+  /** Produced quantity entered for this member at completion. */
+  quantity: number;
+  /** Scrap quantity entered for this member (a Scrap row is emitted when > 0). */
+  scrapQuantity?: number;
+}
+
+export interface RecordedBatchEvent {
+  id: string;
+  type: string | null;
+  startTime: string;
+  endTime: string;
+  workCenterId: string | null;
+  employeeId: string | null;
+}
+
+export interface PlannedMemberEvent {
+  jobOperationId: string;
+  /** The aggregate batch event this slice was carved from. */
+  sourceEventId: string;
+  type: string | null;
+  startTime: string;
+  endTime: string;
+  durationSeconds: number;
+  workCenterId: string | null;
+  employeeId: string | null;
+}
+
+export interface PlannedProductionQuantity {
+  jobOperationId: string;
+  type: "Production" | "Scrap";
+  quantity: number;
+}
+
+export interface BatchCompletionPlan {
+  /** Per-member productionEvent rows sliced from the recorded batch events. */
+  memberEvents: PlannedMemberEvent[];
+  /** Per-member Production (+ optional Scrap) productionQuantity rows. */
+  quantities: PlannedProductionQuantity[];
+}
+
+/**
+ * Build the exact set of per-member `productionEvent` and `productionQuantity`
+ * rows a batch completion must write. Each recorded batch event is sliced across
+ * the members proportionally to their planned `operationQuantity` (contiguous
+ * windows, largest-remainder rounding), and every member emits a Production row
+ * (plus a Scrap row when `scrapQuantity > 0`). Member order is preserved.
+ */
+export function buildBatchCompletionPlan(
+  events: RecordedBatchEvent[],
+  members: BatchCompletionMember[]
+): BatchCompletionPlan {
+  const weights: BatchMemberWeight[] = members.map((m) => ({
+    id: m.jobOperationId,
+    weight: m.operationQuantity
+  }));
+
+  const memberEvents: PlannedMemberEvent[] = [];
+  for (const event of events) {
+    const windows = sliceEventByWeight(event, weights);
+    for (const w of windows) {
+      memberEvents.push({
+        jobOperationId: w.id,
+        sourceEventId: event.id,
+        type: event.type,
+        startTime: w.startTime,
+        endTime: w.endTime,
+        durationSeconds: w.durationSeconds,
+        workCenterId: event.workCenterId,
+        employeeId: event.employeeId
+      });
+    }
+  }
+
+  const quantities: PlannedProductionQuantity[] = [];
+  for (const m of members) {
+    quantities.push({
+      jobOperationId: m.jobOperationId,
+      type: "Production",
+      quantity: m.quantity
+    });
+    if ((m.scrapQuantity ?? 0) > 0) {
+      quantities.push({
+        jobOperationId: m.jobOperationId,
+        type: "Scrap",
+        quantity: m.scrapQuantity as number
+      });
+    }
+  }
+
+  return { memberEvents, quantities };
+}
+
 /**
  * Slice a recorded event span [startTime, endTime) into contiguous per-member
  * sub-windows whose durations are the proportional split of the span. Windows

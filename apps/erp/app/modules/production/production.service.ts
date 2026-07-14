@@ -5835,7 +5835,16 @@ export type BatchOperation =
       jobOperationBatchId: string;
       workCenterId: string | null;
     }
-  | { type: "dissolve"; jobOperationBatchId: string };
+  | { type: "dissolve"; jobOperationBatchId: string }
+  | {
+      type: "complete";
+      jobOperationBatchId: string;
+      members: {
+        jobOperationId: string;
+        quantity: number;
+        scrapQuantity?: number;
+      }[];
+    };
 
 export async function batchOperations(
   client: SupabaseClient<Database>,
@@ -5846,6 +5855,7 @@ export async function batchOperations(
     id?: string;
     readableId?: string;
     dissolved?: boolean;
+    completed?: boolean;
     error?: string;
   }>("batch-operations", {
     body: params

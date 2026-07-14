@@ -4,6 +4,7 @@ import z from "npm:zod@^3.24.1";
 import { DB, getConnectionPool, getDatabaseClient } from "../lib/database.ts";
 import { corsHeaders } from "../lib/headers.ts";
 import { requirePermissions } from "../lib/supabase.ts";
+import { buildBatchCompletionPlan } from "../shared/batch-time-split.ts";
 import { getNextSequence } from "../shared/get-next-sequence.ts";
 
 // Job Operation Batching — membership lifecycle for a jobOperationBatch, a
@@ -61,6 +62,21 @@ const payloadValidator = z.discriminatedUnion("type", [
     companyId: z.string(),
     userId: z.string(),
     jobOperationBatchId: z.string(),
+  }),
+  z.object({
+    type: z.literal("complete"),
+    companyId: z.string(),
+    userId: z.string(),
+    jobOperationBatchId: z.string(),
+    members: z
+      .array(
+        z.object({
+          jobOperationId: z.string(),
+          quantity: z.number().min(0),
+          scrapQuantity: z.number().min(0).optional(),
+        })
+      )
+      .min(1),
   }),
 ]);
 
@@ -147,6 +163,193 @@ async function assertOperationsEligible(
   }
 }
 
+// Completion path. Turns the batch's ONE set of recorded (ended) timer events
+// into per-member `productionEvent` slices proportional to planned quantity,
+// writes per-member Production/Scrap `productionQuantity` rows, flips every
+// member Done, issues each member's own BOM, and posts GL per sliced event.
+async function completeBatch(
+  client: Awaited<ReturnType<typeof requirePermissions>>,
+  args: {
+    companyId: string;
+    userId: string;
+    now: string;
+    jobOperationBatchId: string;
+    members: { jobOperationId: string; quantity: number; scrapQuantity?: number }[];
+  }
+): Promise<Response> {
+  const { companyId, userId, now, jobOperationBatchId, members } = args;
+  const memberIds = members.map((m) => m.jobOperationId);
+
+  // Load & guard the batch (must be Active) and the member operations (their
+  // planned operationQuantity is the proportional time weight).
+  const batch = await db
+    .selectFrom("jobOperationBatch")
+    .select(["id", "status"])
+    .where("id", "=", jobOperationBatchId)
+    .where("companyId", "=", companyId)
+    .executeTakeFirst();
+
+  if (!batch) throw new Error(`Batch ${jobOperationBatchId} was not found`);
+  if (batch.status !== "Active") {
+    throw new Error("Only an active batch can be completed");
+  }
+
+  const operations = await db
+    .selectFrom("jobOperation")
+    .select(["id", "operationQuantity", "jobOperationBatchId"])
+    .where("id", "in", memberIds)
+    .where("companyId", "=", companyId)
+    .execute();
+
+  const opById = new Map(operations.map((o) => [o.id, o]));
+  for (const m of members) {
+    const op = opById.get(m.jobOperationId);
+    if (!op) throw new Error(`Operation ${m.jobOperationId} was not found`);
+    if (op.jobOperationBatchId !== jobOperationBatchId) {
+      throw new Error(
+        `Operation ${m.jobOperationId} is not a member of this batch`
+      );
+    }
+  }
+
+  // The recorded aggregate batch timers (ended). Each is sliced across members.
+  const recorded = await db
+    .selectFrom("productionEvent")
+    .select(["id", "type", "startTime", "endTime", "workCenterId", "employeeId"])
+    .where("jobOperationBatchId", "=", jobOperationBatchId)
+    .where("companyId", "=", companyId)
+    .where("endTime", "is not", null)
+    .execute();
+
+  const plan = buildBatchCompletionPlan(
+    recorded
+      .filter((e) => e.endTime)
+      .map((e) => ({
+        id: e.id,
+        type: e.type,
+        startTime: e.startTime,
+        endTime: e.endTime as string,
+        workCenterId: e.workCenterId,
+        employeeId: e.employeeId,
+      })),
+    members.map((m) => ({
+      jobOperationId: m.jobOperationId,
+      operationQuantity: opById.get(m.jobOperationId)?.operationQuantity ?? 0,
+      quantity: m.quantity,
+      scrapQuantity: m.scrapQuantity,
+    }))
+  );
+
+  // Pre-assign ids to the slice events so we can post each to GL after commit.
+  const memberEventRows = plan.memberEvents.map((e) => ({ ...e, id: nanoid() }));
+
+  await db.transaction().execute(async (trx) => {
+    // Replace the aggregate timers with the per-member slices.
+    if (recorded.length) {
+      await trx
+        .deleteFrom("productionEvent")
+        .where("jobOperationBatchId", "=", jobOperationBatchId)
+        .where("companyId", "=", companyId)
+        .where("endTime", "is not", null)
+        .execute();
+    }
+
+    if (memberEventRows.length) {
+      await trx
+        .insertInto("productionEvent")
+        .values(
+          // deno-lint-ignore no-explicit-any
+          memberEventRows.map((e) => ({
+            id: e.id,
+            jobOperationId: e.jobOperationId,
+            jobOperationBatchId,
+            type: e.type,
+            startTime: e.startTime,
+            endTime: e.endTime,
+            workCenterId: e.workCenterId,
+            employeeId: e.employeeId,
+            postedToGL: false,
+            companyId,
+            createdBy: userId,
+            createdAt: now,
+          })) as any
+        )
+        .execute();
+    }
+
+    if (plan.quantities.length) {
+      await trx
+        .insertInto("productionQuantity")
+        .values(
+          // deno-lint-ignore no-explicit-any
+          plan.quantities.map((q) => ({
+            id: nanoid(),
+            jobOperationId: q.jobOperationId,
+            type: q.type,
+            quantity: q.quantity,
+            companyId,
+            createdBy: userId,
+            createdAt: now,
+          })) as any
+        )
+        .execute();
+    }
+
+    await trx
+      .updateTable("jobOperationBatch")
+      .set({ status: "Completed", updatedBy: userId, updatedAt: now })
+      .where("id", "=", jobOperationBatchId)
+      .where("companyId", "=", companyId)
+      .execute();
+  });
+
+  // Post-commit orchestration (mirrors MES complete.tsx, which is likewise
+  // non-transactional across issue / finish / GL). Issue each member's OWN job
+  // BOM — the `issue` fn is backflush-capped, so per-member calls don't double-issue.
+  for (const m of members) {
+    const issue = await client.functions.invoke("issue", {
+      body: {
+        id: m.jobOperationId,
+        type: "jobOperation",
+        quantity: m.quantity,
+        companyId,
+        userId,
+      },
+    });
+    if (issue.error) {
+      throw new Error(
+        `Failed to issue materials for operation ${m.jobOperationId}: ${issue.error.message}`
+      );
+    }
+  }
+
+  // Flip every member Done in one action — the sync_finish_job_operation trigger
+  // readies each member job's next operation and completes the job independently.
+  const done = await client
+    .from("jobOperation")
+    .update({ status: "Done", updatedBy: userId })
+    .in("id", memberIds)
+    .eq("companyId", companyId);
+  if (done.error) {
+    throw new Error(`Failed to finish batch operations: ${done.error.message}`);
+  }
+
+  // Post GL for each per-member sliced event (proportional share, no special case).
+  for (const e of memberEventRows) {
+    await client.functions.invoke("post-production-event", {
+      body: { productionEventId: e.id, userId, companyId },
+    });
+  }
+
+  return new Response(
+    JSON.stringify({ success: true, id: jobOperationBatchId, completed: true }),
+    {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 200,
+    }
+  );
+}
+
 serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -157,12 +360,29 @@ serve(async (req: Request) => {
     const parsed = payloadValidator.parse(payload);
     const { companyId, userId } = parsed;
 
-    // Batch mutations are production updates.
-    await requirePermissions(req, companyId, userId, {
+    // Batch mutations are production updates. The service-role client is used
+    // only by the completion path (for its post-commit edge-function calls);
+    // the membership cases write exclusively through the Kysely transaction.
+    const client = await requirePermissions(req, companyId, userId, {
       update: "production",
     });
 
     const now = new Date().toISOString();
+
+    // Completion is a distinct flow: a Kysely transaction slices the recorded
+    // batch timer events into per-member events + writes per-member quantities,
+    // then a post-commit pass consumes each member's own BOM (issue), flips the
+    // members Done, and posts GL per sliced event. Kept out of the generic
+    // membership switch because it mixes transactional writes with edge-fn calls.
+    if (parsed.type === "complete") {
+      return await completeBatch(client, {
+        companyId,
+        userId,
+        now,
+        jobOperationBatchId: parsed.jobOperationBatchId,
+        members: parsed.members,
+      });
+    }
 
     const result = await db.transaction().execute(async (trx) => {
       switch (parsed.type) {
