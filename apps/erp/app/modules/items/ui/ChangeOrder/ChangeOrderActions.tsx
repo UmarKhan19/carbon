@@ -143,18 +143,9 @@ export default function ChangeOrderActions({
     </VStack>
   );
 
-  if (embedded) {
-    return (
-      <VStack spacing={3} className="w-full">
-        {actions.length > 0 && (
-          <HStack className="w-full justify-end">
-            <ChangeOrderActionsProgress actions={actions} />
-          </HStack>
-        )}
-        {list}
-      </VStack>
-    );
-  }
+  // Embedded (rail) mode: the section header shows the progress badge, so just
+  // render the list + add form with no card chrome.
+  if (embedded) return list;
 
   return (
     <Card className="w-full">
@@ -228,52 +219,34 @@ function ActionItem({
   };
 
   return (
-    <HStack className="w-full justify-between border border-border rounded-lg p-3">
-      <HStack spacing={2}>
-        {!isDisabled && (
-          <button
-            type="button"
-            className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground transition-colors p-1"
-            onPointerDown={(e) => dragControls.start(e)}
-          >
-            <LuGripVertical size={16} />
-          </button>
-        )}
-        <VStack spacing={0}>
+    // Fields stack vertically so the row stays readable in the narrow rail:
+    // title (+ grip / delete) on top, then meta, then the status action.
+    <VStack spacing={2} className="w-full border border-border rounded-lg p-3">
+      <HStack className="w-full justify-between gap-2">
+        <HStack spacing={2} className="min-w-0">
+          {!isDisabled && (
+            <button
+              type="button"
+              className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground transition-colors p-1 shrink-0"
+              onPointerDown={(e) => dragControls.start(e)}
+            >
+              <LuGripVertical size={16} />
+            </button>
+          )}
           <span
             className={cn(
-              "text-sm font-medium",
+              "text-sm font-medium truncate",
               isComplete && "line-through text-muted-foreground"
             )}
           >
             {action.name}
           </span>
-          <HStack spacing={2}>
-            {action.assignee && (
-              <EmployeeAvatar employeeId={action.assignee} size="xxs" />
-            )}
-            {action.dueDate && (
-              <span className="text-xs text-muted-foreground tabular-nums">
-                {action.dueDate}
-              </span>
-            )}
-          </HStack>
-        </VStack>
-      </HStack>
-      <HStack spacing={1}>
-        <Button
-          isDisabled={isDisabled}
-          leftIcon={statusAction.icon}
-          variant="secondary"
-          size="sm"
-          onClick={onStatusChange}
-        >
-          {statusAction.action}
-        </Button>
+        </HStack>
         {!isDisabled && (
           <deleteFetcher.Form
             method="post"
             action={path.to.deleteChangeOrderAction(changeOrderId, action.id)}
+            className="shrink-0"
           >
             <IconButton
               type="submit"
@@ -284,7 +257,31 @@ function ActionItem({
           </deleteFetcher.Form>
         )}
       </HStack>
-    </HStack>
+
+      {(action.assignee || action.dueDate) && (
+        <HStack spacing={2}>
+          {action.assignee && (
+            <EmployeeAvatar employeeId={action.assignee} size="xxs" />
+          )}
+          {action.dueDate && (
+            <span className="text-xs text-muted-foreground tabular-nums">
+              {action.dueDate}
+            </span>
+          )}
+        </HStack>
+      )}
+
+      <Button
+        isDisabled={isDisabled}
+        leftIcon={statusAction.icon}
+        variant="secondary"
+        size="sm"
+        onClick={onStatusChange}
+        className="w-full justify-center"
+      >
+        {statusAction.action}
+      </Button>
+    </VStack>
   );
 }
 
@@ -308,20 +305,16 @@ function NewAction({ changeOrderId }: { changeOrderId: string }) {
       resetAfterSubmit
     >
       <Hidden name="changeOrderId" value={changeOrderId} />
-      <HStack className="w-full items-end gap-2">
-        <div className="flex-grow">
-          <Input name="name" label={t`New action`} />
-        </div>
-        <div className="w-48">
-          <Employee name="assignee" label={t`Assignee`} />
-        </div>
-        <div className="w-40">
-          <DatePicker name="dueDate" label={t`Due date`} />
-        </div>
-        <Submit>
-          <Trans>Add</Trans>
-        </Submit>
-      </HStack>
+      <VStack spacing={2} className="w-full">
+        <Input name="name" label={t`New action`} />
+        <Employee name="assignee" label={t`Assignee`} />
+        <DatePicker name="dueDate" label={t`Due date`} />
+        <HStack className="w-full justify-end">
+          <Submit>
+            <Trans>Add</Trans>
+          </Submit>
+        </HStack>
+      </VStack>
     </ValidatedForm>
   );
 }
