@@ -2,8 +2,8 @@
 
 Date: 2026-07-02
 Status: Phases 1-3 implemented on `perf/ledger-queries` (migrations
-`20260702231544`, `20260702233127`, `20260702234618`, `20260702235112`,
-`20260702235521`, `20260702235858`). Deviations: 2f
+`20260713224517`, `20260713225803`, `20260713231142`, `20260713232634`,
+`20260713233919`, `20260713235406`). Deviations: 2f
 (`count: "exact"`) deferred — the journal-entries filters can hit view-only
 columns, so a side-count query is fragile, and the new `journalLine_journalId_idx`
 makes the view aggregation cheap; 2g dropped — `StockMovementsTable` subscribes to

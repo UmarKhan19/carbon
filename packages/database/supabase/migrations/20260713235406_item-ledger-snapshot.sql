@@ -88,7 +88,7 @@ SELECT
 
 -- ---------------------------------------------------------------------------
 -- get_inventory_quantities: snapshot + delta.
--- Forked from 20260702234618_inventory-quantities-item-filter.sql. Only the
+-- Forked from 20260713231142_inventory-quantities-item-filter.sql. Only the
 -- item_ledgers / item_storage_types / item_storage_units CTEs changed: each
 -- now combines three arms — the snapshot, live tracked rows, and the live
 -- untracked delta past the snapshot cutoff.

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-13T15:52:44.850Z",
+  "generated": "2026-07-14T01:23:55.918Z",
   "totalTools": 1327,
   "modules": 15,
   "tools": [
@@ -1486,13 +1486,13 @@
       "schema": {
         "type": "object",
         "properties": {
-          "inventoryAccount": {
+          "rawMaterialsAccount": {
+            "type": "string"
+          },
+          "finishedGoodsAccount": {
             "type": "string"
           },
           "goodsReceivedNotInvoicedAccount": {
-            "type": "string"
-          },
-          "inventoryShippedNotInvoicedAccount": {
             "type": "string"
           },
           "workInProgressAccount": {
@@ -1551,9 +1551,9 @@
           }
         },
         "required": [
-          "inventoryAccount",
+          "rawMaterialsAccount",
+          "finishedGoodsAccount",
           "goodsReceivedNotInvoicedAccount",
-          "inventoryShippedNotInvoicedAccount",
           "workInProgressAccount",
           "receivablesAccount",
           "bankCashAccount",

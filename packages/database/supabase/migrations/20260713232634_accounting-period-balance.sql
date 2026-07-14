@@ -9,16 +9,19 @@
 -- back to the full-history scan when no snapshot exists, so this table is
 -- inert until a close flow starts writing it.
 --
--- Correctness invariants the period-close flow MUST enforce:
+-- Correctness invariants the period-close flow MUST enforce (and where each is):
 --   1. No posting with a postingDate inside a closed period (the check must
 --      be on postingDate, not just the assigned accountingPeriodId — the edge
 --      functions' getCurrentAccountingPeriod resolves periods by server time,
 --      so a backdated postingDate could otherwise land behind a snapshot).
+--      Enforced by check_accounting_period_open (period-close-lifecycle), which
+--      also takes the period row FOR SHARE (migration 20260713235930) so a
+--      posting can't race the close and slip behind the snapshot.
 --   2. Periods close in order: a period cannot close while an earlier period
---      for the same company is open.
+--      for the same company is open. Enforced by closeAccountingPeriod.
 --   3. Reopening period N deletes this company's snapshots with
 --      "endingBalanceDate" >= that period's endDate (they are cumulative, so
---      later snapshots embed period N's data).
+--      later snapshots embed period N's data). Enforced by reopenAccountingPeriod.
 -- ============================================================
 
 CREATE TABLE IF NOT EXISTS "accountingPeriodBalance" (
@@ -75,10 +78,17 @@ FOR UPDATE USING (
   "companyId" = ANY ((SELECT get_companies_with_employee_permission('accounting_update'))::text[])
 );
 
+-- Snapshots are an internal, derived optimization artifact tied to the period
+-- lifecycle. reopenAccountingPeriod clears them through the RLS-enforced request
+-- client, and reopening is an update-tier action (like lock/close), so gate the
+-- DELETE on accounting_update — not accounting_delete — otherwise the reopen
+-- route (which holds accounting_update) would silently no-op the cleanup and
+-- leave stale snapshots behind. Deleting a snapshot only forces a full-scan
+-- recompute, so update-tier access is the right bar.
 DROP POLICY IF EXISTS "DELETE" ON "public"."accountingPeriodBalance";
 CREATE POLICY "DELETE" ON "public"."accountingPeriodBalance"
 FOR DELETE USING (
-  "companyId" = ANY ((SELECT get_companies_with_employee_permission('accounting_delete'))::text[])
+  "companyId" = ANY ((SELECT get_companies_with_employee_permission('accounting_update'))::text[])
 );
 
 -- Snapshot writer. Runs the last full-history scan a period will ever need —
@@ -92,12 +102,27 @@ CREATE OR REPLACE FUNCTION "snapshotAccountingPeriodBalances" (
 AS $$
 DECLARE
   v_end_date DATE;
+  v_close_status "periodCloseStatus";
 BEGIN
-  SELECT "endDate" INTO v_end_date FROM "accountingPeriod"
+  SELECT "endDate", "closeStatus" INTO v_end_date, v_close_status
+  FROM "accountingPeriod"
   WHERE "id" = p_period_id AND "companyId" = p_company_id;
 
   IF v_end_date IS NULL THEN
     RAISE EXCEPTION 'Accounting period % not found for company %', p_period_id, p_company_id;
+  END IF;
+
+  -- Only Closed periods may hold a snapshot. A Closed period cannot receive new
+  -- postings (the journal_check_period_open trigger from the period-close
+  -- lifecycle blocks any journal whose postingDate lands in a closed period), so
+  -- its cumulative balance is frozen and the snapshot can never go stale.
+  -- closeAccountingPeriod flips the period to Closed inside its transaction
+  -- before calling this, so the check passes for the intended caller; refusing
+  -- anything else is defense-in-depth against writing a snapshot a later posting
+  -- could invalidate.
+  IF v_close_status IS DISTINCT FROM 'Closed' THEN
+    RAISE EXCEPTION 'Cannot snapshot accounting period %: period is not Closed (closeStatus=%)',
+      p_period_id, v_close_status;
   END IF;
 
   INSERT INTO "accountingPeriodBalance"

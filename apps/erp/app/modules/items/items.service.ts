@@ -765,7 +765,7 @@ export async function getItemQuantities(
 ) {
   // item_id restricts the RPC to one item so it doesn't aggregate the whole
   // location's ledger/PO/SO/job history for a single detail page (added in
-  // migration 20260702234618; the committed DB types regenerate from the
+  // migration 20260713231142; the committed DB types regenerate from the
   // cloud DB after deploy, hence the cast).
   return client
     .rpc("get_inventory_quantities", {

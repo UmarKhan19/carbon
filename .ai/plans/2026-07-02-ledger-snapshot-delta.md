@@ -1,8 +1,8 @@
 # Phase 3: Snapshot + Delta for Ledger Balances
 
 Date: 2026-07-02
-Status: IMPLEMENTED on `perf/ledger-queries` (migrations `20260702235112`,
-`20260702235521`, `20260702235858`), with two deviations from the design below:
+Status: IMPLEMENTED on `perf/ledger-queries` (migrations `20260713232634`,
+`20260713233919`, `20260713235406`), with two deviations from the design below:
 
 1. **Inventory watermark is `createdAt < now() - 1 hour`, not `entryNumber`.**
    SERIAL values don't respect commit order, so an entryNumber watermark can
@@ -27,7 +27,7 @@ Until snapshots are written, the read path takes the identical full-scan
 fallback (verified by equivalence tests) — zero behavior change. Original
 design follows.
 
-Prerequisite: the Phase 1/2 migrations (`20260702231544_ledger-performance-indexes.sql`, `20260702233127_ledger-balance-posted-filter.sql`, `20260702234618_inventory-quantities-item-filter.sql`) — the read-path changes below assume the `Draft`-exclusion semantics and the new indexes.
+Prerequisite: the Phase 1/2 migrations (`20260713224517_ledger-performance-indexes.sql`, `20260713225803_ledger-balance-posted-filter.sql`, `20260713231142_inventory-quantities-item-filter.sql`) — the read-path changes below assume the `Draft`-exclusion semantics and the new indexes.
 Context: `.ai/plans/2026-07-02-ledger-query-performance.md` (the audit). The problem being solved: every GL balance and every on-hand quantity is a SUM over the full ledger history, so statement/inventory reads degrade linearly with ledger size. The fix is one pattern used twice — **an immutable snapshot plus a small live delta** — with no triggers on the posting path and no dual writes.
 
 ---
@@ -125,7 +125,7 @@ This is the **last** full-history scan a period will ever need — it runs once,
 
 ### Task A3 — Read path: snapshot + delta in `accountTreeBalancesByCompany`
 
-New migration forking the Phase-2 definition (`20260702233127_ledger-balance-posted-filter.sql`). Signature and return type unchanged. Replace `leafBalances` with:
+New migration forking the Phase-2 definition (`20260713225803_ledger-balance-posted-filter.sql`). Signature and return type unchanged. Replace `leafBalances` with:
 
 ```sql
     "latestSnapshot" AS (
@@ -260,7 +260,7 @@ Check for other consumers of the matview's current columns before changing its s
 
 ### Task B2 — Snapshot + delta in `get_inventory_quantities`
 
-Fork the latest definition (`20260702234618_inventory-quantities-item-filter.sql` after Phase 2). Replace the `item_ledgers` CTE's on-hand terms with:
+Fork the latest definition (`20260713231142_inventory-quantities-item-filter.sql` after Phase 2). Replace the `item_ledgers` CTE's on-hand terms with:
 
 ```
 quantityOnHand  = COALESCE(matview.quantityOnHand, 0)                        -- untracked snapshot

@@ -1,7 +1,7 @@
 -- ============================================================
 -- accountTreeBalancesByCompany: snapshot + delta.
 --
--- Forked from 20260702233127_ledger-balance-posted-filter.sql. Same signature
+-- Forked from 20260713225803_ledger-balance-posted-filter.sql. Same signature
 -- and return type; trialBalance / translateTrialBalance inherit automatically.
 --
 -- When the company has accountingPeriodBalance snapshots, each balance is
@@ -20,6 +20,17 @@
 --
 -- accountTreeBalances (group-wide, chart of accounts) intentionally stays on
 -- the full scan: snapshots are per company.
+--
+-- ⚠ KEEP IN SYNC: the two RETURN QUERY branches below (full-scan when there is
+-- no snapshot; snapshot+delta otherwise) share an IDENTICAL "accountTree"
+-- recursive CTE and an IDENTICAL final rollup (SUM by rootId). Only the
+-- "leafBalances" CTE differs — full-scan sums all history, snapshot+delta reads
+-- "snapshot + bounded delta". If you change account-tree construction or the
+-- root aggregation, change BOTH branches or they will disagree. The two branches
+-- MUST return identical results whenever snapshots are present (proven manually
+-- via a seed-both-ways psql diff). Collapsing them into one query with
+-- COALESCE-floored bounds is possible but is deferred until there is an
+-- automated (pgTAP) equivalence gate — do not hand-merge money-path SQL blind.
 -- ============================================================
 
 CREATE OR REPLACE FUNCTION "accountTreeBalancesByCompany" (
@@ -56,7 +67,7 @@ BEGIN
 
   IF v_latest_date IS NULL THEN
     -- No snapshots for this company (or group-wide call): full-history scan,
-    -- identical to the 20260702233127 definition.
+    -- identical to the 20260713225803 definition.
     RETURN QUERY
       WITH RECURSIVE "accountTree" AS (
         SELECT

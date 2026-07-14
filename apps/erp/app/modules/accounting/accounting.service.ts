@@ -10,6 +10,7 @@ import {
   toStoredAmount
 } from "@carbon/utils";
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
+import { sql } from "kysely";
 import type { z } from "zod";
 import { getNextSequence } from "~/modules/settings";
 import type { GenericQueryFilters } from "~/utils/query";
@@ -1035,6 +1036,28 @@ export async function closeAccountingPeriod(
         .where("id", "=", args.periodId)
         .where("companyId", "=", args.companyId)
         .execute();
+
+      // Write the per-account cumulative GL balance snapshot for this period
+      // *inside* the close transaction, after the flip to Closed. The snapshot
+      // is what makes accountTreeBalancesByCompany read "latest snapshot +
+      // lines after it" instead of scanning all history. It runs here (not as
+      // a supabase RPC) so it stays private to the service-role/Kysely path —
+      // the function is SECURITY DEFINER and takes companyId as an argument, so
+      // exposing it via PostgREST would be a cross-tenant write. The function
+      // asserts the period is Closed (true within this tx's view), so it can
+      // never snapshot a still-postable period.
+      //
+      // Race safety: the flip above holds the accountingPeriod row lock until
+      // commit, and check_accounting_period_open reads that row FOR SHARE on
+      // every posting (migration 20260713235930), so no journal can land in the
+      // period between this snapshot and the commit. Keeping the snapshot in the
+      // same transaction is deliberate: close ⇔ snapshot is atomic, so a snapshot
+      // failure rolls the whole close back cleanly rather than leaving a Closed
+      // period with a stale/absent snapshot. Any period without a snapshot is
+      // still correct — the read path falls back to the full-history scan.
+      await sql`SELECT "snapshotAccountingPeriodBalances"(${args.companyId}, ${args.periodId}, ${args.userId})`.execute(
+        trx
+      );
     });
   } catch (err) {
     return {
@@ -1100,6 +1123,24 @@ export async function reopenAccountingPeriod(
           "Later periods must be reopened first (reopen from the most recent close backwards)"
       }
     };
+  }
+
+  // Invariant #3 (accountingPeriodBalance migration): snapshots are cumulative
+  // through their period's endDate, so reopening this period invalidates its own
+  // snapshot and any later one that embeds it. Delete them BEFORE flipping to
+  // Open: if the delete fails we abort with the period still Closed (snapshots
+  // intact, consistent); if the flip later fails, the period stays Closed with
+  // no snapshots, so reads fall back to the full scan (correct, just slower)
+  // rather than trusting a stale snapshot once postings resume in the period.
+  // accountingPeriodBalance is not in the cloud-generated DB types yet, so the
+  // client is cast to reach it (same reason the period reads above use `as any`).
+  const deletedSnapshots = await (client as any)
+    .from("accountingPeriodBalance")
+    .delete()
+    .eq("companyId", args.companyId)
+    .gte("endingBalanceDate", period.data.endDate);
+  if (deletedSnapshots.error) {
+    return { data: null, error: deletedSnapshots.error };
   }
 
   return (client.from("accountingPeriod") as any)
@@ -2652,7 +2693,7 @@ export async function translateCompanyBalances(
   error: string | null;
 }> {
   // getConsolidationRates is defined in migration
-  // 20260702233127_ledger-balance-posted-filter.sql; the committed DB types
+  // 20260713225803_ledger-balance-posted-filter.sql; the committed DB types
   // regenerate from the cloud DB after deploy, hence the cast.
   const { data: ratesData, error: ratesError } = await (
     client.rpc as unknown as (
