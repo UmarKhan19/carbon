@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-15T00:11:05.860Z",
+  "generated": "2026-07-15T04:00:40.500Z",
   "totalTools": 1331,
   "modules": 15,
   "tools": [
@@ -35452,7 +35452,14 @@
               "quantity": {
                 "type": "number"
               },
-              "categoryMarkups": {}
+              "categoryMarkups": {},
+              "priceSource": {
+                "type": "string",
+                "enum": [
+                  "system",
+                  "manual"
+                ]
+              }
             },
             "required": [
               "quoteLineId",
