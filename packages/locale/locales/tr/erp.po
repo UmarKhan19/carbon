@@ -137,6 +137,9 @@ msgstr "{variances, plural, one {# satır beklenen miktardan farklı} other {# s
 msgid "/month/user"
 msgstr "/ay/kullanıcı"
 
+msgid "% of Total"
+msgstr "% Toplam"
+
 #. placeholder {0}: numberFormatter.format(redirectedTotal)
 #. placeholder {1}: redirectedParts.join(", ")
 msgid "↩ {0} redirected from superseded {1}"
@@ -784,6 +787,9 @@ msgstr "Tüm Öğeler"
 
 msgid "All jobs completed"
 msgstr "Tüm işler tamamlandı"
+
+msgid "All Locations"
+msgstr "Tüm Konumlar"
 
 msgid "All members of selected groups and selected individuals will be able to approve requests"
 msgstr "Seçilen gruplardaki ve bireylerdeki tüm üyeler talepleri onaylayabilecektir"
@@ -1827,6 +1833,12 @@ msgstr "Belge Tarihine Göre"
 msgid "By Due Date"
 msgstr "Vade Tarihine Göre"
 
+msgid "By Item"
+msgstr "Ürüne Göre"
+
+msgid "By Location"
+msgstr "Konuma Göre"
+
 msgid "By signing in, you agree to the <0>Terms of Service</0> and <1>Privacy Policy.</1>"
 msgstr "Oturum açarak <0>Hizmet Şartları</0> ve <1>Gizlilik Politikası</1>'na katılıyorsunuz."
 
@@ -2256,6 +2268,9 @@ msgstr "Şirket Adı"
 
 msgid "Company policy asks for a different person to inspect inbound items than the one who received them."
 msgstr "Şirket politikası, gelen ürünleri kontrol edecek kişinin, onları alan kişi olmamasını gerektirir."
+
+msgid "Company-wide — includes all locations"
+msgstr "Şirket genelinde — tüm konumları içerir"
 
 msgid "Compare and Order"
 msgstr "Karşılaştır ve Sipariş Ver"
@@ -6259,6 +6274,9 @@ msgstr "Envanter Geçmişi"
 msgid "Inventory Job Notifications"
 msgstr "Envanter İş Bildirimleri"
 
+msgid "Inventory Movements"
+msgstr "Envanter Hareketleri"
+
 msgid "Inventory Qty"
 msgstr "Stok Miktarı"
 
@@ -6267,6 +6285,9 @@ msgstr "Stok Takibi"
 
 msgid "Inventory Unit of Measure"
 msgstr "Stok Birimi"
+
+msgid "Inventory Valuation"
+msgstr "Envanter Değerlemesi"
 
 msgid "Invite"
 msgstr "Davet et"
@@ -6393,6 +6414,9 @@ msgstr "Ürün"
 
 msgid "Item {scannedItem} is not the same as the item {expectedItem}"
 msgstr "Ürün {scannedItem}, ürün {expectedItem} ile aynı değil"
+
+msgid "Item / Location"
+msgstr "Ürün / Konum"
 
 msgid "Item filters"
 msgstr "Ürün filtreleri"
@@ -6776,6 +6800,9 @@ msgstr "konum"
 
 msgid "Location"
 msgstr "Konum"
+
+msgid "Location / Item"
+msgstr "Konum / Ürün"
 
 msgid "Location Name"
 msgstr "Konum Adı"
@@ -7374,6 +7401,9 @@ msgstr "Çöp Sepetine Taşı"
 #. placeholder {1}: targetBucket === "parts" ? "Parts" : "Opportunity"
 msgid "Moved {0} to {1} bucket"
 msgstr "{0} dosyası {1} klasörüne taşındı"
+
+msgid "Movements"
+msgstr "Hareketler"
 
 msgid "MRP (planning)"
 msgstr "MRP (planlama)"
@@ -9284,6 +9314,9 @@ msgstr "Bu kanban için bir sonraki işlemi başlatmak üzere QR kod"
 msgid "Qty"
 msgstr "Miktar"
 
+msgid "Qty On Hand"
+msgstr "Elde Bulunan Miktar"
+
 msgid "Qty to Order"
 msgstr "Sipariş Edilecek Miktar"
 
@@ -9582,6 +9615,9 @@ msgstr "Son ödemeler"
 
 msgid "Recently Created"
 msgstr "Son Oluşturulanlar"
+
+msgid "Reconcile"
+msgstr "Uzlaştır"
 
 msgid "Reconciling a purchase order against what was received and invoiced — implicit in Carbon, via the line quantities and GR/IR balance."
 msgstr "Geri Kazanım Süresi"
@@ -11162,9 +11198,6 @@ msgstr "adımlar"
 msgid "Steps"
 msgstr "Adımlar"
 
-msgid "Stock Movements"
-msgstr "Stok Hareketleri"
-
 msgid "Stock Transfer ID"
 msgstr "Stok Transfer Kimliği"
 
@@ -12486,6 +12519,9 @@ msgstr "Sevkiyatları faturaya bağlayın, yeniden veri girişi olmadan"
 msgid "Tie-Out"
 msgstr "Mutabakat Kontrolü"
 
+msgid "Tie-Out unavailable"
+msgstr "Uzlaştırma kullanılamıyor"
+
 msgid "Tightened"
 msgstr "Sıkı"
 
@@ -12620,6 +12656,12 @@ msgstr "Bu konumdaki tüm depolama birimlerinde öğenin toplam eldeki miktarı.
 
 msgid "Total quantity required across all active jobs and sales orders at this location — not just this job."
 msgstr "Bu konumdaki tüm aktif işler ve satış siparişleri genelinde gereken toplam miktar — yalnızca bu iş için değil."
+
+msgid "Total Value"
+msgstr "Toplam Değer"
+
+msgid "Total Variance"
+msgstr "Toplam Fark"
 
 msgid "Total:"
 msgstr "Toplam:"
@@ -13123,6 +13165,9 @@ msgstr "Doğrulandı"
 msgid "Validating job..."
 msgstr "İş doğrulanıyor..."
 
+msgid "Valuation"
+msgstr "Değerleme"
+
 msgid "Value"
 msgstr "Değer"
 
@@ -13137,6 +13182,9 @@ msgstr "Katma değer vergisi kayıt numarası; AB faturalarında ters ücretlend
 
 msgid "Values"
 msgstr "Değerler"
+
+msgid "Values apply today's unit costs to historical quantities."
+msgstr "Değerler, tarihsel miktarlara bugünün birim maliyetlerini uygular."
 
 msgid "Variance"
 msgstr "Varyans"
