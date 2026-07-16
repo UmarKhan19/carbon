@@ -11129,6 +11129,9 @@ msgstr "Iniciar"
 msgid "Start {0} Day Free Trial"
 msgstr "Iniciar Teste Gratuito de {0} Dias"
 
+msgid "Start counting"
+msgstr "Iniciar contagem"
+
 msgid "Start Date"
 msgstr "Data de Início"
 

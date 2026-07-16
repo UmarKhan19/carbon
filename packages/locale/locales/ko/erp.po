@@ -11129,6 +11129,9 @@ msgstr "시작"
 msgid "Start {0} Day Free Trial"
 msgstr "{0}일 무료 체험 시작"
 
+msgid "Start counting"
+msgstr "실사 시작"
+
 msgid "Start Date"
 msgstr "시작일"
 

@@ -11129,6 +11129,9 @@ msgstr "Начать"
 msgid "Start {0} Day Free Trial"
 msgstr "Начать {0}-дневный бесплатный пробный период"
 
+msgid "Start counting"
+msgstr "Начать подсчёт"
+
 msgid "Start Date"
 msgstr "Дата начала"
 
