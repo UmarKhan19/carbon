@@ -53,6 +53,9 @@ export type ModelPreviewProps = {
   downloadName?: string;
   /** Re-run optimise when the model settled with no GLB (shows a Retry button). */
   onRetry?: () => void;
+  /** Called when the user cancels the "preparing" wait — the host should cancel
+   *  the in-flight optimise (job + run) so the row doesn't stay stuck. */
+  onCancelWait?: () => void;
   mode?: "dark" | "light";
   onDelete?: () => void;
   className?: string;
@@ -77,6 +80,7 @@ export function ModelPreview({
   rawFile = null,
   downloadName,
   onRetry,
+  onCancelWait,
   mode = "dark",
   onDelete,
   className
@@ -89,6 +93,12 @@ export function ModelPreview({
   // Gate orbit until the user opts in, so scrolling the page over the viewer
   // doesn't hijack the wheel (matches the WASM viewer's "click to interact").
   const [interactive, setInteractive] = useState(false);
+  // User escape from the "preparing" spinner (optimise can run minutes) —
+  // drops to the settled state early. Re-arms when a retry restarts the wait.
+  const [waitDismissed, setWaitDismissed] = useState(false);
+  useEffect(() => {
+    if (awaitingModel) setWaitDismissed(false);
+  }, [awaitingModel]);
 
   const interactiveUrl = optimizedUrl ?? glbUrl;
   // The instant 3D layer: the LOD if it's distinct from the interactive model
@@ -219,9 +229,11 @@ export function ModelPreview({
             )}
           </div>
         </>
-      ) : inView && awaitingModel ? (
-        // Server GLB still being prepared (upload / optimise in flight) — spinner.
-        <div className="absolute inset-0 flex items-center justify-center">
+      ) : inView && awaitingModel && !waitDismissed ? (
+        // Server GLB still being prepared (upload / optimise in flight) —
+        // spinner with a cancel escape (optimise can take minutes; never trap
+        // the user in an unbounded wait).
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
           <svg
             className="h-6 w-6 animate-spin text-muted-foreground"
             viewBox="0 0 24 24"
@@ -242,6 +254,16 @@ export function ModelPreview({
               d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
             />
           </svg>
+          <button
+            type="button"
+            onClick={() => {
+              setWaitDismissed(true);
+              onCancelWait?.();
+            }}
+            className="text-xs text-muted-foreground underline-offset-2 opacity-70 transition-opacity hover:opacity-100 hover:underline"
+          >
+            Cancel
+          </button>
         </div>
       ) : inView ? (
         // Settled with no server GLB (optimise failed / non-mesh). No in-browser

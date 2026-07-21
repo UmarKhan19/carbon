@@ -264,6 +264,18 @@ const CadModel = ({
     retry();
   };
 
+  // Cancel the in-flight optimise when the user dismisses the preparing
+  // spinner: stamps the row Failed and cancels the assembler job, so the
+  // waiting Inngest run fails fast instead of leaving a stuck Processing row.
+  const onCancelWait = () => {
+    const modelUploadId = modelIdFromPath(modelPath);
+    if (!modelUploadId) return;
+    reoptimizeFetcher.submit(
+      { modelUploadId },
+      { method: "post", action: path.to.api.modelOptimizeCancel }
+    );
+  };
+
   const onFileChange = async (file: File | null) => {
     const modelId = nanoid();
 
@@ -367,6 +379,7 @@ const CadModel = ({
                 mode={mode}
                 className={viewerClassName}
                 onRetry={!isReadOnly && modelPath ? onRetry : undefined}
+                onCancelWait={modelPath ? onCancelWait : undefined}
                 onDelete={canDelete ? deleteModal.onOpen : undefined}
               />
               {upload !== null && (
