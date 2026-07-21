@@ -13493,7 +13493,6 @@ msgid "Variance in outside processing costs"
 msgstr "Расхождение в затратах на внешнюю обработку"
 
 msgid "Variance only"
-msgstr "Только с расхождениями"
 msgstr "Только отклонения"
 
 msgid "VAT Number"

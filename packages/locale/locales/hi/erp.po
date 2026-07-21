@@ -13493,7 +13493,6 @@ msgid "Variance in outside processing costs"
 msgstr "बाहरी प्रसंस्करण लागत में विचरण"
 
 msgid "Variance only"
-msgstr "केवल विचरण"
 msgstr "केवल भिन्नता"
 
 msgid "VAT Number"

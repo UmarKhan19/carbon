@@ -13493,7 +13493,6 @@ msgid "Variance in outside processing costs"
 msgstr "Varianza en los costos de procesamiento externo"
 
 msgid "Variance only"
-msgstr "Solo con variación"
 msgstr "Solo varianza"
 
 msgid "VAT Number"
