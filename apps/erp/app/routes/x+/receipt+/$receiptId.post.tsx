@@ -47,9 +47,21 @@ export async function action({ request, params }: ActionFunctionArgs) {
   // fire here too.
   const { data: receiptForSurface } = await serviceRole
     .from("receipt")
-    .select("sourceDocument")
+    .select("sourceDocument, status")
     .eq("id", receiptId)
     .single();
+
+  // A voided receipt has already been reversed — re-posting would duplicate
+  // ledger entries, cost layers and journal lines. Block it before mutating
+  // any state (the route flips status to "Pending" below, which is why this
+  // guard lives here and not in the edge function).
+  if (receiptForSurface?.status === "Voided") {
+    throw redirect(
+      path.to.receipt(receiptId),
+      await flash(request, error(null, "Cannot post a voided receipt"))
+    );
+  }
+
   const surfaces: ("receipt" | "warehouseTransfer")[] = ["receipt"];
   if (receiptForSurface?.sourceDocument === "Inbound Transfer") {
     surfaces.push("warehouseTransfer");
