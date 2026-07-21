@@ -1,4 +1,4 @@
-name: Assembler Image
+name: Deploy Assembler
 
 # Isolated from deploy.yml so an assembler/crates change builds ONLY the
 # assembler image (and vice versa — erp/mes pushes never rebuild this).
@@ -73,13 +73,18 @@ jobs:
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Build and push OCCT base
+      # Split build from push: the ~30 min OCCT compile is combined with `push`
+      # in a single buildkit solve, so a push failure aborts before the GHA
+      # cache flushes and the whole compile is lost on retry. `load: true`
+      # finishes the build (and the cache-to export) into the local daemon
+      # first; the separate `docker push` then can't cost the compile.
+      - name: Build OCCT base
         if: steps.occt-exists.outputs.exists != 'true'
         uses: docker/build-push-action@v5
         with:
           context: apps/assembler
           file: apps/assembler/occt.Dockerfile
-          push: true
+          load: true
           tags: ${{ steps.login-ecr.outputs.registry }}/carbon/occt:8.0.0-p1
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -88,6 +93,10 @@ jobs:
           # manifest into one, so both must stay off.
           provenance: false
           sbom: false
+
+      - name: Push OCCT base
+        if: steps.occt-exists.outputs.exists != 'true'
+        run: docker push ${{ steps.login-ecr.outputs.registry }}/carbon/occt:8.0.0-p1
 
   build:
     name: Build assembler image
@@ -117,6 +126,19 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
+
+      # Fail fast if the immutable OCCT base isn't in ECR — the assembler image
+      # links it via OCCT_IMAGE, so without it the build would die cryptically at
+      # `FROM`. The base is built on demand (dispatch with build_occt_base=true),
+      # not on every deploy.
+      - name: Require OCCT base image
+        run: |
+          aws ecr describe-images --repository-name carbon/occt \
+            --image-ids imageTag=8.0.0-p1 >/dev/null 2>&1 || {
+            echo "carbon/occt:8.0.0-p1 is not in ECR."
+            echo "Dispatch this workflow once with build_occt_base=true to build it."
+            exit 1
+          }
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
