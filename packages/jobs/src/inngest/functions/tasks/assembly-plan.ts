@@ -7,6 +7,7 @@ import {
   internalizeStorageUrl,
   POLL_GAP,
   pollAssemblerJobOnce,
+  resolveModelSourceBucket,
   submitAssemblerJob
 } from "./assembler-client";
 import { loadPlanUnits } from "./plan-units";
@@ -218,9 +219,14 @@ export const assemblyPlanFunction = inngest.createFunction(
     await step.run("submit", async () => {
       const client = getCarbonServiceRole();
 
-      // Raw source lives in `temp-staging` (2.5 GB cap).
+      // Legacy (pre-assembler) raws live in `private`, current ones in
+      // `temp-staging`.
+      const sourceBucket = await resolveModelSourceBucket(
+        client,
+        job.modelPath
+      );
       const source = await client.storage
-        .from("temp-staging")
+        .from(sourceBucket)
         .createSignedUrl(job.modelPath, SIGNED_URL_EXPIRY);
       if (source.error) {
         throw new Error(`Failed to sign source URL: ${source.error.message}`);

@@ -4,6 +4,7 @@ import { inngest } from "../../client";
 import {
   assemblerEnabled,
   internalizeStorageUrl,
+  resolveModelSourceBucket,
   runAssemblerJob
 } from "./assembler-client";
 
@@ -124,10 +125,14 @@ export const assemblyConvertFunction = inngest.createFunction(
       logger,
       buildBody: async () => {
         const client = getCarbonServiceRole();
-        // Raw source lives in `temp-staging` (2.5 GB cap); assembly artifacts
-        // (glb/graph) are written to `private`.
+        // Legacy (pre-assembler) raws live in `private`, current ones in
+        // `temp-staging`; assembly artifacts (glb/graph) are written to `private`.
+        const sourceBucket = await resolveModelSourceBucket(
+          client,
+          job.modelPath
+        );
         const source = await client.storage
-          .from("temp-staging")
+          .from(sourceBucket)
           .createSignedUrl(job.modelPath, SIGNED_URL_EXPIRY);
         if (source.error) {
           throw new Error(`Failed to sign source URL: ${source.error.message}`);
@@ -140,7 +145,7 @@ export const assemblyConvertFunction = inngest.createFunction(
         let contentHash: string | undefined;
         try {
           const info = await client.storage
-            .from("temp-staging")
+            .from(sourceBucket)
             .info(job.modelPath);
           const etag = info.data?.etag?.replaceAll('"', "");
           if (!info.error && etag) {
