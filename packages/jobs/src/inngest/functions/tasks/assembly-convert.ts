@@ -25,9 +25,6 @@ export const assemblyConvertFunction = inngest.createFunction(
   {
     id: "assembly-convert",
     retries: 2,
-    // This function holds its run for the whole convert (it long-polls to
-    // completion); keep per-company fan-out from starving other tenants.
-    concurrency: [{ limit: 4 }, { key: "event.data.companyId", limit: 2 }],
     onFailure: async ({ event }) => {
       const { modelUploadId } = event.data.event.data;
       const client = getCarbonServiceRole();

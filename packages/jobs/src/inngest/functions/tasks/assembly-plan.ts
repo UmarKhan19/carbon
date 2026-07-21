@@ -14,11 +14,6 @@ import { loadPlanUnits } from "./plan-units";
 import { updateAssemblyStepMotionsFromPlan } from "./update-step-motions";
 
 const SIGNED_URL_EXPIRY = 60 * 60; // seconds — the source (read) URL only.
-// This function holds its run for the whole plan (it long-polls to completion),
-// so the global concurrency limit caps concurrent long-running plans
-// cluster-wide. Keep it aligned with the service's ASSEMBLER_MAX_CONCURRENCY
-// (default 2) so Inngest queues surplus plans instead of 429-storming.
-const PLAN_CONCURRENCY = 2;
 // Total wall-clock budget before giving up, bounded by time (not a fixed poll
 // count) so it holds whether the service long-polls or returns immediately.
 const MAX_PLAN_WAIT_MS = 40 * 60 * 1000;
@@ -41,10 +36,6 @@ export const assemblyPlanFunction = inngest.createFunction(
   {
     id: "assembly-plan",
     retries: 2,
-    concurrency: [
-      { limit: PLAN_CONCURRENCY },
-      { key: "event.data.companyId", limit: 1 }
-    ],
     onFailure: async ({ event }) => {
       const { modelUploadId } = event.data.event.data;
       const client = getCarbonServiceRole();

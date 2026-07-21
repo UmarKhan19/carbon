@@ -24,8 +24,6 @@ export const modelOptimizeFunction = inngest.createFunction(
   {
     id: "model-optimize",
     retries: 2,
-    // The assembler is CPU-bound; keep per-company fan-out from starving tenants.
-    concurrency: [{ limit: 4 }, { key: "event.data.companyId", limit: 2 }],
     onFailure: async ({ event }) => {
       const { modelUploadId } = event.data.event.data;
       const client = getCarbonServiceRole();
