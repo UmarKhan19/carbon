@@ -49,6 +49,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     .from("receipt")
     .select("sourceDocument, status")
     .eq("id", receiptId)
+    .eq("companyId", companyId)
     .single();
 
   // A voided receipt has already been reversed — re-posting would duplicate
@@ -168,7 +169,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
     .update({
       status: "Pending"
     })
-    .eq("id", receiptId);
+    .eq("id", receiptId)
+    .eq("companyId", companyId);
 
   if (setPendingState.error) {
     throw redirect(
