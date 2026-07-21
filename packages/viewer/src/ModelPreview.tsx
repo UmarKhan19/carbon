@@ -1,10 +1,10 @@
-import { cn, IconButton } from "@carbon/react";
+import { Button, cn, IconButton } from "@carbon/react";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import {
+  LuBox,
   LuChevronDown,
   LuDownload,
   LuMaximize,
-  LuRotateCw,
   LuTrash2
 } from "react-icons/lu";
 import type { ModelMetrics } from "./ModelCanvas";
@@ -22,7 +22,10 @@ const ModelCanvas = lazy(() =>
 // assembler artifacts opts out with VITE_CAD_VIEWER_USE_SERVER=true, and the
 // exact `import.meta.env.X` form is statically replaced by Vite so the whole
 // tier — occt WASM included — is then dead-code-eliminated from the build.
-const WASM_RAW_ENABLED = import.meta.env.VITE_CAD_VIEWER_USE_SERVER !== "true";
+// Exported so hosts can align their fallback logic (e.g. CadModel only treats
+// a small raw as renderable when the tier actually shipped in this build).
+export const WASM_RAW_ENABLED =
+  import.meta.env.VITE_CAD_VIEWER_USE_SERVER !== "true";
 const RawModelCanvas = WASM_RAW_ENABLED
   ? lazy(() =>
       import("./raw/RawModelCanvas").then((m) => ({
@@ -56,6 +59,9 @@ export type ModelPreviewProps = {
   /** Label for the retry action — e.g. "Load Preview" when the model was never
    *  optimised (first-time affordance) vs the default "Retry" after a failure. */
   retryLabel?: string;
+  /** Supporting line under the settled-state title — the host can explain a
+   *  failed attempt; defaults to the generate-on-demand invitation. */
+  settledHint?: string;
   /** Called when the user cancels the "preparing" wait — the host should cancel
    *  the in-flight optimise (job + run) so the row doesn't stay stuck. */
   onCancelWait?: () => void;
@@ -67,11 +73,11 @@ export type ModelPreviewProps = {
 /**
  * Progressive model preview. Renders the assembler's artifacts with three.js
  * (`ModelCanvas`): the single-draw LOD paints instantly, the full optimised GLB
- * cross-fades in on top. When there is no server GLB it shows a spinner (while
- * one may still arrive) or a "preview unavailable" notice — there is no
- * in-browser tessellation fallback. The renderer is lazy-imported and only
- * mounts once the viewer scrolls into view. Chrome: dimensions/properties, unit
- * toggle, download, reset view, click-to-interact.
+ * cross-fades in on top. With no server GLB the raw (WASM) tier renders the
+ * original upload in-browser; failing that, a cancellable preparing state
+ * (optimise in flight) or a generate-on-demand invitation. The renderer is
+ * lazy-imported and only mounts once the viewer scrolls into view. Chrome:
+ * dimensions/properties, unit toggle, download, reset view, click-to-interact.
  */
 export function ModelPreview({
   awaitingModel = false,
@@ -84,6 +90,7 @@ export function ModelPreview({
   downloadName,
   onRetry,
   retryLabel = "Retry",
+  settledHint,
   onCancelWait,
   mode = "dark",
   onDelete,
@@ -132,8 +139,10 @@ export function ModelPreview({
     >
       {hasServerModel || useRawTier ? (
         <>
-          {/* Tier 0: instant poster — thumbnail image while the 3D boots. */}
-          {thumbnailUrl && !fullLoaded && (
+          {/* Tier 0: instant poster — thumbnail image while the 3D boots.
+              Light mode only: the generated PNGs have an opaque white
+              background, which reads as a white flash on a dark viewer. */}
+          {thumbnailUrl && !fullLoaded && mode === "light" && (
             <img
               src={thumbnailUrl}
               alt=""
@@ -270,22 +279,25 @@ export function ModelPreview({
           </button>
         </div>
       ) : inView ? (
-        // Settled with no server GLB (optimise failed / non-mesh). No in-browser
-        // tessellation fallback — surface the state instead of a dead spinner.
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-4 text-center">
-          <p className="text-sm text-muted-foreground">
-            3D preview unavailable
-          </p>
+        // Settled with no renderable tier. Framed as an invitation, not a
+        // failure: the preview simply hasn't been generated yet (or the raw is
+        // over the in-browser cap) — the primary action generates it on demand.
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-4 text-center">
+          <div className="flex size-11 items-center justify-center rounded-full bg-muted/60">
+            <LuBox className="size-5 text-muted-foreground" />
+          </div>
+          <div className="flex flex-col gap-1">
+            <p className="text-sm font-medium text-foreground">3D preview</p>
+            <p className="max-w-[240px] text-xs text-pretty text-muted-foreground">
+              {settledHint ??
+                "Generate an interactive view of this model on demand."}
+            </p>
+          </div>
           <div className="flex items-center gap-2">
             {onRetry && (
-              <button
-                type="button"
-                onClick={onRetry}
-                className="flex items-center gap-1.5 rounded-md border border-border bg-popover px-3 py-1.5 text-xs font-medium text-foreground shadow-sm transition-transform hover:bg-accent active:scale-[0.96]"
-              >
-                <LuRotateCw className="size-3.5" />
+              <Button size="sm" onClick={onRetry}>
                 {retryLabel}
-              </button>
+              </Button>
             )}
             {onDelete && (
               <IconButton

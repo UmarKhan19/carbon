@@ -57,7 +57,14 @@ export function AssemblyViewer({
           far: 100000
         }}
         resize={{ debounce: 0 }}
-        style={{ position: "absolute", inset: 0 }}
+        // Explicit CSS background on the canvas element: with alpha:true the
+        // canvas layer is otherwise transparent, and Chrome's recomposite
+        // during page unload/reload flashes such layers white in dark mode.
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: isDarkMode ? "#141619" : "#ffffff"
+        }}
       >
         <ambientLight intensity={isDarkMode ? 0.6 : 0.8} />
         <hemisphereLight
