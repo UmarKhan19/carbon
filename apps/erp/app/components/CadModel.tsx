@@ -20,6 +20,7 @@ import {
 import {
   convertKbToString,
   getFileSizeLimit,
+  MODEL_RAW_KEEP_MAX_BYTES,
   supportedModelTypes
 } from "@carbon/utils";
 import { ModelPreview } from "@carbon/viewer/model-preview";
@@ -187,9 +188,9 @@ const CadModel = ({
   const { artifacts, pending, retry } = useModelArtifacts(modelPath);
   const reoptimizeFetcher = useFetcher<{ success: boolean }>();
   // A server GLB may still be on its way while a fresh file uploads or the
-  // optimise job runs. There is no in-browser tessellation fallback — the viewer
-  // shows a spinner until the GLB lands, then "preview unavailable" if it never
-  // does (optimise failed / non-mesh).
+  // optimise job runs. Raws <= MODEL_RAW_KEEP_MAX_BYTES render in-browser (WASM
+  // tier) in the meantime; bigger ones show a spinner until the GLB lands, then
+  // "preview unavailable" if it never does (optimise failed / non-mesh).
   const awaitingModel = pending || Boolean(file);
 
   const onDelete = async () => {
@@ -350,11 +351,14 @@ const CadModel = ({
                   artifacts?.lodPath ? getPrivateUrl(artifacts.lodPath) : null
                 }
                 rawUrl={
-                  artifacts?.rawPath
+                  artifacts?.rawPath &&
+                  (artifacts.size ?? 0) <= MODEL_RAW_KEEP_MAX_BYTES
                     ? getRawModelUrl(artifacts.rawBucket, artifacts.rawPath)
                     : null
                 }
-                rawFile={file}
+                rawFile={
+                  file && file.size <= MODEL_RAW_KEEP_MAX_BYTES ? file : null
+                }
                 thumbnailUrl={
                   artifacts?.thumbnailPath
                     ? getPrivateUrl(artifacts.thumbnailPath)

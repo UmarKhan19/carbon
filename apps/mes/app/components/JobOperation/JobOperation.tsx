@@ -53,7 +53,8 @@ import {
   convertDateStringToIsoString,
   convertKbToString,
   formatDurationMilliseconds,
-  getItemReadableId
+  getItemReadableId,
+  MODEL_RAW_KEEP_MAX_BYTES
 } from "@carbon/utils";
 import { ModelPreview } from "@carbon/viewer/model-preview";
 import { Trans, useLingui } from "@lingui/react/macro";
@@ -1769,7 +1770,8 @@ export const JobOperation = ({
                   artifacts?.lodPath ? getPrivateUrl(artifacts.lodPath) : null
                 }
                 rawUrl={
-                  artifacts?.rawPath
+                  artifacts?.rawPath &&
+                  (artifacts.size ?? 0) <= MODEL_RAW_KEEP_MAX_BYTES
                     ? getRawModelUrl(artifacts.rawBucket, artifacts.rawPath)
                     : null
                 }
