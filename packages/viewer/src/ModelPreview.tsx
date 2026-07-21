@@ -53,6 +53,9 @@ export type ModelPreviewProps = {
   downloadName?: string;
   /** Re-run optimise when the model settled with no GLB (shows a Retry button). */
   onRetry?: () => void;
+  /** Label for the retry action — e.g. "Load Preview" when the model was never
+   *  optimised (first-time affordance) vs the default "Retry" after a failure. */
+  retryLabel?: string;
   /** Called when the user cancels the "preparing" wait — the host should cancel
    *  the in-flight optimise (job + run) so the row doesn't stay stuck. */
   onCancelWait?: () => void;
@@ -80,6 +83,7 @@ export function ModelPreview({
   rawFile = null,
   downloadName,
   onRetry,
+  retryLabel = "Retry",
   onCancelWait,
   mode = "dark",
   onDelete,
@@ -280,7 +284,7 @@ export function ModelPreview({
                 className="flex items-center gap-1.5 rounded-md border border-border bg-popover px-3 py-1.5 text-xs font-medium text-foreground shadow-sm transition-transform hover:bg-accent active:scale-[0.96]"
               >
                 <LuRotateCw className="size-3.5" />
-                Retry
+                {retryLabel}
               </button>
             )}
             {onDelete && (

@@ -31,6 +31,7 @@ import { LuCloudUpload, LuZap } from "react-icons/lu";
 import { useFetcher, useRevalidator } from "react-router";
 import { useModelUpload, useUser } from "~/hooks";
 import { getPrivateUrl, getRawModelUrl, path } from "~/utils/path";
+import { ModelOptimizeProgress } from "./ModelOptimizeProgress";
 import { ModelUploadProgress } from "./ModelUploadProgress";
 
 const SIZE_LIMIT = getFileSizeLimit("CAD_MODEL_UPLOAD");
@@ -189,9 +190,25 @@ const CadModel = ({
   const reoptimizeFetcher = useFetcher<{ success: boolean }>();
   // A server GLB may still be on its way while a fresh file uploads or the
   // optimise job runs. Raws <= MODEL_RAW_KEEP_MAX_BYTES render in-browser (WASM
-  // tier) in the meantime; bigger ones show a spinner until the GLB lands, then
-  // "preview unavailable" if it never does (optimise failed / non-mesh).
+  // tier) in the meantime; bigger ones show a staged optimise progress overlay
+  // until the GLB lands, then "preview unavailable" if it never does.
   const awaitingModel = pending || Boolean(file);
+
+  const hasInteractive = Boolean(
+    artifacts?.optimizedModelPath || artifacts?.glbPath
+  );
+  const rawRenderable = Boolean(
+    (artifacts?.rawPath && (artifacts.size ?? 0) <= MODEL_RAW_KEEP_MAX_BYTES) ||
+      (file && file.size <= MODEL_RAW_KEEP_MAX_BYTES)
+  );
+  // Staged progress overlay: an optimise is running and nothing else can
+  // render (no artifact yet, raw too big / absent). When the raw tier renders,
+  // the optimise runs silently behind it and the GLB swaps in on success.
+  const optimizeInFlight =
+    artifacts?.optimizeStatus === "Queued" ||
+    artifacts?.optimizeStatus === "Processing";
+  const showOptimizeProgress =
+    optimizeInFlight && !hasInteractive && !rawRenderable && upload === null;
 
   const onDelete = async () => {
     if (!carbon) {
@@ -379,6 +396,11 @@ const CadModel = ({
                 mode={mode}
                 className={viewerClassName}
                 onRetry={!isReadOnly && modelPath ? onRetry : undefined}
+                retryLabel={
+                  artifacts?.optimizeStatus === "Failed"
+                    ? "Retry"
+                    : "Load Preview"
+                }
                 onCancelWait={modelPath ? onCancelWait : undefined}
                 onDelete={canDelete ? deleteModal.onOpen : undefined}
               />
@@ -389,6 +411,15 @@ const CadModel = ({
                     uploaded={upload.uploaded}
                     total={upload.total}
                     className="max-w-sm"
+                  />
+                </div>
+              )}
+              {showOptimizeProgress && modelPath && (
+                <div className="absolute inset-0 z-30 flex items-center justify-center rounded-lg bg-background/95 p-6">
+                  <ModelOptimizeProgress
+                    key={`${modelPath}:${artifacts?.optimizeStatus}`}
+                    modelUploadId={modelIdFromPath(modelPath) ?? ""}
+                    queued={artifacts?.optimizeStatus === "Queued"}
                   />
                 </div>
               )}
