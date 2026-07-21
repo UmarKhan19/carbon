@@ -59,9 +59,6 @@ export type ModelPreviewProps = {
   /** Label for the retry action — e.g. "Load Preview" when the model was never
    *  optimised (first-time affordance) vs the default "Retry" after a failure. */
   retryLabel?: string;
-  /** Supporting line under the settled-state title — the host can explain a
-   *  failed attempt; defaults to the generate-on-demand invitation. */
-  settledHint?: string;
   /** Called when the user cancels the "preparing" wait — the host should cancel
    *  the in-flight optimise (job + run) so the row doesn't stay stuck. */
   onCancelWait?: () => void;
@@ -90,7 +87,6 @@ export function ModelPreview({
   downloadName,
   onRetry,
   retryLabel = "Retry",
-  settledHint,
   onCancelWait,
   mode = "dark",
   onDelete,
@@ -286,29 +282,8 @@ export function ModelPreview({
           <div className="flex size-11 items-center justify-center rounded-full bg-muted/60">
             <LuBox className="size-5 text-muted-foreground" />
           </div>
-          <div className="flex flex-col gap-1">
-            <p className="text-sm font-medium text-foreground">3D preview</p>
-            <p className="max-w-[240px] text-xs text-pretty text-muted-foreground">
-              {settledHint ??
-                "Generate an interactive view of this model on demand."}
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            {onRetry && (
-              <Button size="sm" onClick={onRetry}>
-                {retryLabel}
-              </Button>
-            )}
-            {onDelete && (
-              <IconButton
-                aria-label="Delete model"
-                className="text-muted-foreground hover:bg-destructive hover:text-destructive-foreground"
-                icon={<LuTrash2 />}
-                variant="ghost"
-                onClick={onDelete}
-              />
-            )}
-          </div>
+          <p className="text-sm font-medium text-foreground">3D preview</p>
+          {onRetry && <Button onClick={onRetry}>{retryLabel}</Button>}
         </div>
       ) : null}
     </div>

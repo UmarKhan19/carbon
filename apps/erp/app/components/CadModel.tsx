@@ -437,11 +437,6 @@ const CadModel = ({
                     ? "Retry"
                     : "Load Preview"
                 }
-                settledHint={
-                  artifacts?.optimizeStatus === "Failed"
-                    ? "The last attempt didn't finish. You can try again."
-                    : undefined
-                }
                 onCancelWait={modelPath ? onCancelWait : undefined}
                 onDelete={canDelete ? deleteModal.onOpen : undefined}
               />
