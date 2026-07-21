@@ -6186,6 +6186,9 @@ msgstr "dans la période sélectionnée"
 msgid "In stock"
 msgstr "En stock"
 
+msgid "In stock only"
+msgstr "En stock uniquement"
+
 msgid "In the loop together"
 msgstr "Dans la boucle ensemble"
 
@@ -13488,6 +13491,10 @@ msgstr "Écart dû aux ajustements de comptage d'inventaire physique"
 
 msgid "Variance in outside processing costs"
 msgstr "Écart dans les coûts de traitement externe"
+
+msgid "Variance only"
+msgstr "Écart uniquement"
+msgstr "Écarts uniquement"
 
 msgid "VAT Number"
 msgstr "Numéro de TVA"
