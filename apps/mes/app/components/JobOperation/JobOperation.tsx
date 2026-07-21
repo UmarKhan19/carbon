@@ -140,7 +140,7 @@ import {
 } from "./components/Step";
 import { TableSkeleton } from "./components/TableSkeleton";
 import { useFiles } from "./hooks/useFiles";
-import { useModelArtifacts } from "./hooks/useModelArtifacts";
+import { modelIdFromPath, useModelArtifacts } from "./hooks/useModelArtifacts";
 import { useOperation } from "./hooks/useOperation";
 
 const log = getLogger("mes", "job-operation");
@@ -323,7 +323,21 @@ export const JobOperation = ({
       : null;
 
   const modelPath = operation.itemModelPath ?? job.modelPath ?? null;
-  const { artifacts, pending: modelPending } = useModelArtifacts(modelPath);
+  const {
+    artifacts,
+    pending: modelPending,
+    retry: retryModelArtifacts
+  } = useModelArtifacts(modelPath);
+  const reoptimizeFetcher = useFetcher<{ success: boolean }>();
+  const onModelRetry = () => {
+    const modelUploadId = modelIdFromPath(modelPath);
+    if (!modelUploadId) return;
+    reoptimizeFetcher.submit(
+      { modelUploadId },
+      { method: "post", action: path.to.api.modelReoptimize }
+    );
+    retryModelArtifacts();
+  };
 
   const fetcher = useFetcher<Result>();
 
@@ -1782,11 +1796,17 @@ export const JobOperation = ({
                 }
                 mode={mode}
                 className="rounded-none"
+                onRetry={onModelRetry}
+                retryLabel={
+                  artifacts?.optimizeStatus === "Failed"
+                    ? "Retry"
+                    : "Load Preview"
+                }
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center">
                 <p className="text-sm text-muted-foreground">
-                  3D preview unavailable
+                  No 3D model attached
                 </p>
               </div>
             )}

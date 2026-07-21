@@ -24,7 +24,7 @@ export type ModelArtifacts = {
 
 // modelUpload.id is the model's filename (`${company}/models/${id}.ext`), so the
 // id — and thus its artifact paths — is recoverable from `modelPath` alone.
-function modelIdFromPath(modelPath: string | null): string | null {
+export function modelIdFromPath(modelPath: string | null): string | null {
   if (!modelPath) return null;
   let base = modelPath.split("/").pop() ?? "";
   // Retained raws are compacted in place (`${id}.step` → `${id}.step.zst`); peel
@@ -43,9 +43,10 @@ function modelIdFromPath(modelPath: string | null): string | null {
  */
 export function useModelArtifacts(modelPath: string | null): {
   artifacts: ModelArtifacts | undefined;
-  /** True while a server GLB might still arrive (fetch unresolved / optimise in
-   *  flight). */
+  /** True while a server GLB is genuinely on its way (optimise in flight). */
   pending: boolean;
+  /** Restart polling (after a re-optimise is fired) even if it had settled. */
+  retry: () => void;
 } {
   const uid = useId();
   const modelUploadId = modelIdFromPath(modelPath);
@@ -56,7 +57,21 @@ export function useModelArtifacts(modelPath: string | null): {
   const dataRef = useRef<ModelArtifacts | undefined>(undefined);
   dataRef.current = fetcher.data;
   const [pending, setPending] = useState(true);
+  const [reloadKey, setReloadKey] = useState(0);
 
+  // `pending` must mean "a GLB is genuinely on its way", not "still checking":
+  // the viewer renders it as an optimise-in-progress spinner. Settle on the
+  // first response unless the status is actually in flight; the background
+  // polling below re-raises it on a real transition.
+  useEffect(() => {
+    const data = fetcher.data;
+    if (!data) return;
+    const inFlight =
+      data.optimizeStatus === "Queued" || data.optimizeStatus === "Processing";
+    setPending(inFlight && !(data.optimizedModelPath || data.glbPath));
+  }, [fetcher.data]);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: reloadKey re-runs the effect on retry without being read inside it
   useEffect(() => {
     if (!modelUploadId) {
       setPending(false);
@@ -78,8 +93,9 @@ export function useModelArtifacts(modelPath: string | null): {
       const inFlight =
         data?.optimizeStatus === "Queued" ||
         data?.optimizeStatus === "Processing";
-      // `Idle`/undefined is the brief window before the job starts (or a non-mesh
-      // upload that never optimises) — poll it only for a short grace period.
+      // `Idle`/undefined is the brief window before the job starts (or a
+      // non-mesh upload that never optimises) — keep polling quietly for a
+      // grace period (pending is driven by the data effect above).
       const cap = inFlight ? 60 : 8; // ~3min in flight vs ~24s settling
       attempts += 1;
       if (attempts > cap) {
@@ -91,7 +107,11 @@ export function useModelArtifacts(modelPath: string | null): {
     }, 3000);
 
     return () => clearInterval(timer);
-  }, [modelUploadId, load]);
+  }, [modelUploadId, load, reloadKey]);
 
-  return { artifacts: fetcher.data, pending };
+  return {
+    artifacts: fetcher.data,
+    pending,
+    retry: () => setReloadKey((k) => k + 1)
+  };
 }
