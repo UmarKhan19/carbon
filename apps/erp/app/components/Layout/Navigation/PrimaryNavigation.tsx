@@ -229,10 +229,10 @@ const NavigationIconLink = forwardRef<
       aria-current={isActive}
       ref={ref}
       to={link.to}
+      {...props}
       {...(link.external
         ? { target: "_blank", rel: "noopener noreferrer" }
         : {})}
-      {...props}
       onClick={onClick}
       className={cn(classes, props.className)}
       prefetch={link.external ? "none" : "intent"}
