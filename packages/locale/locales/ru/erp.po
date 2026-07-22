@@ -1029,6 +1029,9 @@ msgstr "Требования к утверждению"
 msgid "Approval Rules"
 msgstr "Правила утверждения"
 
+msgid "Approvals"
+msgstr "Утверждения"
+
 msgid "Approve"
 msgstr "Одобрить"
 
@@ -4678,11 +4681,17 @@ msgstr "Редактировать рабочий центр"
 msgid "Eliminated"
 msgstr "Исключено"
 
+msgid "email"
+msgstr "Электронная почта"
+
 msgid "Email"
 msgstr "Электронная почта"
 
 msgid "Email Address"
 msgstr "Адрес электронной почты"
+
+msgid "Email notifications are not included in your company's current plan; email preferences will apply if they are enabled."
+msgstr "Уведомления по электронной почте не включены в текущий план вашей компании; параметры электронной почты будут применены, если они включены."
 
 msgid "Email notifications not configured"
 msgstr "Уведомления по электронной почте не настроены"
@@ -5739,6 +5748,9 @@ msgstr "Датчики"
 msgid "Genealogy"
 msgstr "Главная Бухгалтерская Книга"
 
+msgid "General"
+msgstr "Общие"
+
 msgid "General ledger"
 msgstr "Счет для фиксации разницы в стоимости при внешней переработке."
 
@@ -6294,6 +6306,12 @@ msgstr "Только в наличии"
 
 msgid "In the loop together"
 msgstr "В курсе дела вместе"
+
+msgid "In-app notifications are always delivered. Choose which topics also reach you by email or Slack."
+msgstr "Уведомления в приложении всегда доставляются. Выберите, какие темы также будут доходить до вас по электронной почте или Slack."
+
+msgid "In-app notifications are always delivered. Choose which topics also reach you by email."
+msgstr "Уведомления в приложении всегда доставляются. Выберите, какие темы также будут доходить до вас по электронной почте."
 
 msgid "Inactive"
 msgstr "Неактивно"
@@ -11416,6 +11434,9 @@ msgstr "Пропустить состояние «выпущено, но не н
 msgid "Skipped"
 msgstr "Пропущено"
 
+msgid "Slack"
+msgstr "Slack"
+
 msgid "Smoke-test the core daily flows end to end"
 msgstr "Дымовое тестирование основных ежедневных процессов от начала до конца"
 
@@ -13074,6 +13095,9 @@ msgstr "Инструменты"
 
 msgid "Top-level classification (asset / liability / equity / revenue / expense); set only on root groups, inherited by children."
 msgstr "Классификация верхнего уровня (активы/пассивы/собственный капитал/доходы/расходы); устанавливается только в корневых группах, наследуется дочерними."
+
+msgid "Topic"
+msgstr "Тема"
 
 msgid "Total"
 msgstr "Итого"

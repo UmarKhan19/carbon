@@ -25,6 +25,7 @@ export enum NotificationEvent {
   ProcedureAssignment = "procedure-assignment",
   PurchaseInvoiceAssignment = "purchase-invoice-assignment",
   PurchaseOrderAssignment = "purchase-order-assignment",
+  PurchasingRfqAssignment = "purchasing-rfq-assignment",
   QuoteAssignment = "quote-assignment",
   QuoteExpired = "quote-expired",
   RiskAssignment = "risk-assignment",
@@ -59,6 +60,22 @@ export enum NotificationTopic {
   Suggestion = "suggestion",
   Training = "training"
 }
+
+// Display order for the notification-settings page (/x/account/notifications);
+// labels live in that route so Lingui extracts them.
+export const USER_FACING_NOTIFICATION_TOPICS = [
+  NotificationTopic.Approval,
+  NotificationTopic.Job,
+  NotificationTopic.Sales,
+  NotificationTopic.Quote,
+  NotificationTopic.Purchasing,
+  NotificationTopic.Inventory,
+  NotificationTopic.Quality,
+  NotificationTopic.Maintenance,
+  NotificationTopic.Training,
+  NotificationTopic.Suggestion,
+  NotificationTopic.General
+] as const satisfies readonly NotificationTopic[];
 
 // A labeled fact attached to a notification (e.g. Customer / Acme Corp),
 // rendered in the email, Slack text, and notification.payload.details.
@@ -105,6 +122,7 @@ export function getNotificationTopic(
       return NotificationTopic.Job;
     case NotificationEvent.PurchaseInvoiceAssignment:
     case NotificationEvent.PurchaseOrderAssignment:
+    case NotificationEvent.PurchasingRfqAssignment:
       return NotificationTopic.Purchasing;
     case NotificationEvent.QuoteAssignment:
     case NotificationEvent.QuoteExpired:
@@ -164,6 +182,8 @@ export function getNotificationEmailHeading(event: NotificationEvent): string {
       return "Purchase invoice assigned to you";
     case NotificationEvent.PurchaseOrderAssignment:
       return "Purchase order assigned to you";
+    case NotificationEvent.PurchasingRfqAssignment:
+      return "Purchasing RFQ assigned to you";
     case NotificationEvent.QuoteAssignment:
       return "Quote assigned to you";
     case NotificationEvent.QuoteExpired:

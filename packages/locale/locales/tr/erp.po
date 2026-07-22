@@ -1029,6 +1029,9 @@ msgstr "Onay Gereksinimleri"
 msgid "Approval Rules"
 msgstr "Onay Kuralları"
 
+msgid "Approvals"
+msgstr "Onaylar"
+
 msgid "Approve"
 msgstr "Onayla"
 
@@ -4678,11 +4681,17 @@ msgstr "İş Merkezi Düzenle"
 msgid "Eliminated"
 msgstr "Ortadan Kaldırılmış"
 
+msgid "email"
+msgstr "e-posta"
+
 msgid "Email"
 msgstr "E-posta"
 
 msgid "Email Address"
 msgstr "E-posta Adresi"
+
+msgid "Email notifications are not included in your company's current plan; email preferences will apply if they are enabled."
+msgstr "E-posta bildirimleri şirketinizin mevcut planına dahil değildir; e-posta tercihleriniz etkinleştirildiğinde uygulanacaktır."
 
 msgid "Email notifications not configured"
 msgstr "E-posta bildirimleri yapılandırılmamış"
@@ -5739,6 +5748,9 @@ msgstr "Kalibratörler"
 msgid "Genealogy"
 msgstr "Genel Muhasebe Defteri"
 
+msgid "General"
+msgstr "Genel"
+
 msgid "General ledger"
 msgstr "Dış işlem operasyonlarında maliyet farklarını yakalayan GL hesabı."
 
@@ -6294,6 +6306,12 @@ msgstr "Yalnızca stokta"
 
 msgid "In the loop together"
 msgstr "Birlikte döngüde"
+
+msgid "In-app notifications are always delivered. Choose which topics also reach you by email or Slack."
+msgstr "Uygulama içi bildirimler her zaman iletilir. Hangi konuların e-posta veya Slack aracılığıyla sizi ulaştıracağını seçin."
+
+msgid "In-app notifications are always delivered. Choose which topics also reach you by email."
+msgstr "Uygulama içi bildirimler her zaman iletilir. Hangi konuların e-posta aracılığıyla sizi ulaştıracağını seçin."
 
 msgid "Inactive"
 msgstr "Pasif"
@@ -11416,6 +11434,9 @@ msgstr "Yayınlanan ancak başlatılmayan durumu atlayın - iş tarama sırasın
 msgid "Skipped"
 msgstr "Atlanmış"
 
+msgid "Slack"
+msgstr "Slack"
+
 msgid "Smoke-test the core daily flows end to end"
 msgstr "Temel günlük akışları uçtan uca test et"
 
@@ -13074,6 +13095,9 @@ msgstr "Araçlar"
 
 msgid "Top-level classification (asset / liability / equity / revenue / expense); set only on root groups, inherited by children."
 msgstr "Üst düzey sınıflandırma (varlık/yükümlülük/öz sermaye/gelir/gider); yalnızca kök gruplarda ayarlanır, çocuklar tarafından devralınır."
+
+msgid "Topic"
+msgstr "Konu"
 
 msgid "Total"
 msgstr "Toplam"

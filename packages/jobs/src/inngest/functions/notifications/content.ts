@@ -27,6 +27,16 @@ export function buildNotificationLink(
   return `${ERP_URL}/api/link?${params.toString()}`;
 }
 
+// Routed through /api/link so the company-switch flow runs before landing on
+// the settings page.
+export function buildNotificationSettingsLink(companyId: string): string {
+  const params = new URLSearchParams({
+    page: "notification-settings",
+    companyId
+  });
+  return `${ERP_URL}/api/link?${params.toString()}`;
+}
+
 // One document inside a digest-shaped notification. documentId + description
 // drive the in-app child rows; the rest renders in the digest email.
 export type DigestItem = {
@@ -909,6 +919,35 @@ async function buildEventContent(
       };
     }
 
+    case NotificationEvent.PurchasingRfqAssignment: {
+      const purchasingRfq = await client
+        .from("purchasingRfq")
+        .select("*")
+        .eq("id", documentId)
+        .single();
+
+      if (purchasingRfq.error) {
+        console.error("Failed to get purchasing RFQ", purchasingRfq.error);
+        throw purchasingRfq.error;
+      }
+
+      return {
+        description: `Purchasing RFQ ${purchasingRfq?.data?.rfqId} assigned to you`,
+        reference: purchasingRfq?.data?.rfqId ?? undefined,
+        details: buildDetails([
+          {
+            label: "RFQ date",
+            value: formatDetailDate(purchasingRfq.data?.rfqDate)
+          },
+          {
+            label: "Expires",
+            value: formatDetailDate(purchasingRfq.data?.expirationDate)
+          },
+          { label: "Status", value: purchasingRfq.data?.status }
+        ])
+      };
+    }
+
     case NotificationEvent.SupplierQuoteAssignment: {
       const supplierQuoteAssignment = await client
         .from("supplierQuote")
@@ -1208,6 +1247,7 @@ export async function getNotificationContent(
 // Template dispatch: add a case to give a notification type its own email;
 // everything else renders the generic NotificationEmail card.
 export function getNotificationEmailComponent(args: {
+  companyId: string;
   content: NotificationContent;
   ctaLabel: string;
   ctaUrl: string;
@@ -1235,7 +1275,8 @@ export function getNotificationEmailComponent(args: {
         message: args.content.description,
         preview: args.heading,
         recipientName: args.recipientName,
-        reference: args.content.reference
+        reference: args.content.reference,
+        settingsUrl: buildNotificationSettingsLink(args.companyId)
       });
   }
 }

@@ -1029,6 +1029,9 @@ msgstr "Exigences d'approbation"
 msgid "Approval Rules"
 msgstr "Règles d'approbation"
 
+msgid "Approvals"
+msgstr "Approbations"
+
 msgid "Approve"
 msgstr "Approuver"
 
@@ -4678,11 +4681,17 @@ msgstr "Modifier le centre de travail"
 msgid "Eliminated"
 msgstr "Éliminé"
 
+msgid "email"
+msgstr "email"
+
 msgid "Email"
 msgstr "E-mail"
 
 msgid "Email Address"
 msgstr "Adresse e-mail"
+
+msgid "Email notifications are not included in your company's current plan; email preferences will apply if they are enabled."
+msgstr "Les notifications par e-mail ne sont pas incluses dans le forfait actuel de votre entreprise ; les préférences d'e-mail s'appliqueront s'ils sont activés."
 
 msgid "Email notifications not configured"
 msgstr "Les notifications par e-mail ne sont pas configurées"
@@ -5739,6 +5748,9 @@ msgstr "Jauges"
 msgid "Genealogy"
 msgstr "Grand Livre"
 
+msgid "General"
+msgstr "Général"
+
 msgid "General ledger"
 msgstr "Compte GL capturant les différences de coûts sur les opérations de sous-traitance."
 
@@ -6294,6 +6306,12 @@ msgstr "En stock uniquement"
 
 msgid "In the loop together"
 msgstr "Dans la boucle ensemble"
+
+msgid "In-app notifications are always delivered. Choose which topics also reach you by email or Slack."
+msgstr "Les notifications dans l'application sont toujours livrées. Choisissez les sujets qui vous parviennent également par e-mail ou Slack."
+
+msgid "In-app notifications are always delivered. Choose which topics also reach you by email."
+msgstr "Les notifications dans l'application sont toujours livrées. Choisissez les sujets qui vous parviennent également par e-mail."
 
 msgid "Inactive"
 msgstr "Inactif"
@@ -11416,6 +11434,9 @@ msgstr "Ignorer l'état libéré mais non démarré - le travail commence imméd
 msgid "Skipped"
 msgstr "Ignoré"
 
+msgid "Slack"
+msgstr "Slack"
+
 msgid "Smoke-test the core daily flows end to end"
 msgstr "Tester les flux quotidiens principaux de bout en bout"
 
@@ -13074,6 +13095,9 @@ msgstr "Outils"
 
 msgid "Top-level classification (asset / liability / equity / revenue / expense); set only on root groups, inherited by children."
 msgstr "Classification de niveau supérieur (actif/passif/capitaux propres/revenus/dépenses); défini uniquement sur les groupes racine, hérité par les enfants."
+
+msgid "Topic"
+msgstr "Sujet"
 
 msgid "Total"
 msgstr "Total"

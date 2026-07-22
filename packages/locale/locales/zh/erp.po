@@ -1029,6 +1029,9 @@ msgstr "批准要求"
 msgid "Approval Rules"
 msgstr "审批规则"
 
+msgid "Approvals"
+msgstr "审批"
+
 msgid "Approve"
 msgstr "批准"
 
@@ -4678,11 +4681,17 @@ msgstr "编辑工作中心"
 msgid "Eliminated"
 msgstr "已消除"
 
+msgid "email"
+msgstr "邮件"
+
 msgid "Email"
 msgstr "电子邮件"
 
 msgid "Email Address"
 msgstr "电子邮件地址"
+
+msgid "Email notifications are not included in your company's current plan; email preferences will apply if they are enabled."
+msgstr "电子邮件通知不包含在贵公司的当前计划中；如果启用电子邮件偏好设置，这些偏好将适用。"
 
 msgid "Email notifications not configured"
 msgstr "电子邮件通知未配置"
@@ -5739,6 +5748,9 @@ msgstr "量规"
 msgid "Genealogy"
 msgstr "总分类账"
 
+msgid "General"
+msgstr "常规"
+
 msgid "General ledger"
 msgstr "捕获外协加工操作成本差异的GL账户。"
 
@@ -6294,6 +6306,12 @@ msgstr "仅库存"
 
 msgid "In the loop together"
 msgstr "一起保持沟通"
+
+msgid "In-app notifications are always delivered. Choose which topics also reach you by email or Slack."
+msgstr "应用内通知始终会被传递。选择哪些主题也通过电子邮件或 Slack 发送给您。"
+
+msgid "In-app notifications are always delivered. Choose which topics also reach you by email."
+msgstr "应用内通知始终会被传递。选择哪些主题也通过电子邮件发送给您。"
 
 msgid "Inactive"
 msgstr "未激活"
@@ -11416,6 +11434,9 @@ msgstr "跳过已发布但未启动的状态 - 扫描时工作立即开始。"
 msgid "Skipped"
 msgstr "已跳过"
 
+msgid "Slack"
+msgstr "Slack"
+
 msgid "Smoke-test the core daily flows end to end"
 msgstr "端到端烟雾测试核心日常流程"
 
@@ -13074,6 +13095,9 @@ msgstr "工具"
 
 msgid "Top-level classification (asset / liability / equity / revenue / expense); set only on root groups, inherited by children."
 msgstr "顶级分类（资产/负债/权益/收益/费用）；仅在根组上设置，由子组继承。"
+
+msgid "Topic"
+msgstr "主题"
 
 msgid "Total"
 msgstr "总计"

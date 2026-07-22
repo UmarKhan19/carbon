@@ -34,6 +34,7 @@ import {
   LuLoader,
   LuMailCheck,
   LuMessageSquare,
+  LuPackageSearch,
   LuShieldAlert,
   LuShieldX,
   LuShoppingCart,
@@ -298,6 +299,14 @@ function GenericNotification({
         <Notification
           icon={<LuShoppingCart />}
           to={path.to.purchaseInvoiceDetails(id)}
+          {...props}
+        />
+      );
+    case NotificationEvent.PurchasingRfqAssignment:
+      return (
+        <Notification
+          icon={<LuPackageSearch />}
+          to={path.to.purchasingRfq(id)}
           {...props}
         />
       );

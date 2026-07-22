@@ -1029,6 +1029,9 @@ msgstr "Genehmigungsanforderungen"
 msgid "Approval Rules"
 msgstr "Genehmigungsregeln"
 
+msgid "Approvals"
+msgstr "Genehmigungen"
+
 msgid "Approve"
 msgstr "Genehmigen"
 
@@ -4678,11 +4681,17 @@ msgstr "Arbeitszentrum bearbeiten"
 msgid "Eliminated"
 msgstr "Beseitigt"
 
+msgid "email"
+msgstr "E-Mail"
+
 msgid "Email"
 msgstr "E-Mail"
 
 msgid "Email Address"
 msgstr "E-Mail-Adresse"
+
+msgid "Email notifications are not included in your company's current plan; email preferences will apply if they are enabled."
+msgstr "E-Mail-Benachrichtigungen sind nicht in Ihrem aktuellen Unternehmensplan enthalten; E-Mail-Einstellungen werden angewendet, falls sie aktiviert sind."
 
 msgid "Email notifications not configured"
 msgstr "E-Mail-Benachrichtigungen nicht konfiguriert"
@@ -5739,6 +5748,9 @@ msgstr "Messinstrumente"
 msgid "Genealogy"
 msgstr "Hauptbuch"
 
+msgid "General"
+msgstr "Allgemein"
+
 msgid "General ledger"
 msgstr "GL-Konto, das Kostenunterschiede bei Fremdbearbeitungsvorgängen erfasst."
 
@@ -6294,6 +6306,12 @@ msgstr "Nur auf Lager"
 
 msgid "In the loop together"
 msgstr "Im Prozess dabei"
+
+msgid "In-app notifications are always delivered. Choose which topics also reach you by email or Slack."
+msgstr "In-App-Benachrichtigungen werden immer zugestellt. Wählen Sie, welche Themen Sie auch per E-Mail oder Slack erreichen."
+
+msgid "In-app notifications are always delivered. Choose which topics also reach you by email."
+msgstr "In-App-Benachrichtigungen werden immer zugestellt. Wählen Sie, welche Themen Sie auch per E-Mail erreichen."
 
 msgid "Inactive"
 msgstr "Inaktiv"
@@ -11416,6 +11434,9 @@ msgstr "Überspringen Sie den freigegebenen, aber nicht gestarteten Zustand – 
 msgid "Skipped"
 msgstr "Übersprungen"
 
+msgid "Slack"
+msgstr "Slack"
+
 msgid "Smoke-test the core daily flows end to end"
 msgstr "Smoke-Test der täglichen Kernabläufe von Anfang bis Ende"
 
@@ -13074,6 +13095,9 @@ msgstr "Werkzeuge"
 
 msgid "Top-level classification (asset / liability / equity / revenue / expense); set only on root groups, inherited by children."
 msgstr "Klassifizierung auf oberster Ebene (Anlage / Verbindlichkeit / Eigenkapital / Umsatz / Ausgaben); nur auf Wurzelgruppen eingestellt, von Kindern geerbt."
+
+msgid "Topic"
+msgstr "Thema"
 
 msgid "Total"
 msgstr "Gesamt"
