@@ -1148,6 +1148,9 @@ msgstr "{0}を削除してもよろしいですか？"
 msgid "Are you sure you want to delete {0}? This cannot be undone."
 msgstr "本当に{0}を削除してもよろしいですか？この操作は取り消せません。"
 
+msgid "Are you sure you want to delete {name}? This cannot be undone."
+msgstr "本当に{name}を削除してもよろしいですか？この操作は取り消せません。"
+
 #. placeholder {0}: selectedCustomField?.name
 msgid "Are you sure you want to delete the {0} field?"
 msgstr "{0}フィールドを削除してもよろしいですか？"

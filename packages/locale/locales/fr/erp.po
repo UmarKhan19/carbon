@@ -1148,6 +1148,9 @@ msgstr "Êtes-vous sûr de vouloir supprimer {0} ?"
 msgid "Are you sure you want to delete {0}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer {0} ? Cette action ne peut pas être annulée."
 
+msgid "Are you sure you want to delete {name}? This cannot be undone."
+msgstr "Êtes-vous sûr de vouloir supprimer {name} ? Cette action ne peut pas être annulée."
+
 #. placeholder {0}: selectedCustomField?.name
 msgid "Are you sure you want to delete the {0} field?"
 msgstr "Êtes-vous sûr de vouloir supprimer le champ {0} ?"

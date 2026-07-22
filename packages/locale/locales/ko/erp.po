@@ -1148,6 +1148,9 @@ msgstr "{0}을(를) 삭제하시겠습니까?"
 msgid "Are you sure you want to delete {0}? This cannot be undone."
 msgstr "{0}을(를) 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
 
+msgid "Are you sure you want to delete {name}? This cannot be undone."
+msgstr "{name}을(를) 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+
 #. placeholder {0}: selectedCustomField?.name
 msgid "Are you sure you want to delete the {0} field?"
 msgstr "{0} 필드를 삭제하시겠습니까?"

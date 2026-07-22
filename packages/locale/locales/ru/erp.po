@@ -1148,6 +1148,9 @@ msgstr "Вы уверены, что хотите удалить {0}?"
 msgid "Are you sure you want to delete {0}? This cannot be undone."
 msgstr "Вы уверены, что хотите удалить {0}? Это действие невозможно отменить."
 
+msgid "Are you sure you want to delete {name}? This cannot be undone."
+msgstr "Вы уверены, что хотите удалить {name}? Это действие невозможно отменить."
+
 #. placeholder {0}: selectedCustomField?.name
 msgid "Are you sure you want to delete the {0} field?"
 msgstr "Вы уверены, что хотите удалить поле {0}?"

@@ -1148,6 +1148,9 @@ msgstr "{0} öğesini silmek istediğinizden emin misiniz?"
 msgid "Are you sure you want to delete {0}? This cannot be undone."
 msgstr "Emin misiniz ki {0}'ı silmek istiyorsunuz? Bu geri alınamaz."
 
+msgid "Are you sure you want to delete {name}? This cannot be undone."
+msgstr "Emin misiniz ki {name}'ı silmek istiyorsunuz? Bu geri alınamaz."
+
 #. placeholder {0}: selectedCustomField?.name
 msgid "Are you sure you want to delete the {0} field?"
 msgstr "{0} alanını silmek istediğinizden emin misiniz?"
