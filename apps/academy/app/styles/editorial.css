@@ -129,9 +129,18 @@
   color: rgba(38, 35, 35, 0.78);
 }
 
-/* Anchor navigation (the On-this-page TOC) glides; motion-sensitive users jump. */
-@media (prefers-reduced-motion: no-preference) {
-  html {
-    scroll-behavior: smooth;
+/* Flash a lesson row the TOC jumped to — hold the accent, then fade out. */
+@keyframes lesson-flash {
+  0%,
+  55% {
+    background-color: var(--color-ed-accent-fill);
+    box-shadow: inset 0 0 0 1px var(--color-ed-blue-border);
   }
+  100% {
+    background-color: transparent;
+    box-shadow: inset 0 0 0 1px transparent;
+  }
+}
+.lesson-flash {
+  animation: lesson-flash 2.2s ease-out both;
 }

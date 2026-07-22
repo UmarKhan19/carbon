@@ -136,7 +136,7 @@ function Document({
   title?: string;
 }) {
   return (
-    <html lang="en" className="h-full overflow-x-hidden">
+    <html lang="en" className="overflow-x-hidden">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -144,7 +144,7 @@ function Document({
         <title>{title}</title>
         <Links />
       </head>
-      <body className="h-full bg-background antialiased selection:bg-primary/10 selection:text-primary">
+      <body className="bg-background antialiased selection:bg-primary/10 selection:text-primary">
         <TooltipProvider>{children}</TooltipProvider>
         <Toaster position="bottom-right" visibleToasts={5} />
         <ScrollRestoration />

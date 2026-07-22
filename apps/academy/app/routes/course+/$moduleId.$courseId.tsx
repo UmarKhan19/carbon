@@ -277,7 +277,7 @@ function LessonRow({
       id={tocAnchor ? `lesson-${lessonId}` : undefined}
       data-toc-lesson={tocAnchor ? "" : undefined}
       data-toc-title={tocAnchor ? name : undefined}
-      className="flex scroll-mt-24 items-center justify-between gap-3 rounded-lg px-2 py-2 no-underline transition-colors hover:bg-ed-ink/[0.03] target:bg-ed-accent-fill target:ring-1 target:ring-ed-blue-border"
+      className="flex scroll-mt-24 items-center justify-between gap-3 rounded-lg px-2 py-2 no-underline transition-colors hover:bg-ed-ink/[0.03]"
     >
       <span className="flex min-w-0 items-center gap-3">
         <LessonThumb completed={completed} className="w-16" />
