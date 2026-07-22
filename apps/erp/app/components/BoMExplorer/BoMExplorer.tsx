@@ -425,7 +425,10 @@ export function BoMExplorerRow({ node, state, children }: BoMExplorerRowProps) {
 
   return (
     <HoverCard
-      open={openNodeId === node.id && !isBadgeHovered}
+      // `open` must mirror openNodeId exactly — gating it on transient state
+      // (e.g. badge hover) makes Radix's close a no-op, onOpenChange never
+      // fires, and the card gets stuck open on a stale node.
+      open={openNodeId === node.id}
       onOpenChange={(nextOpen) => {
         // Opening this node becomes the single open node (closing any other);
         // closing only clears if this node is still the open one.
@@ -433,7 +436,8 @@ export function BoMExplorerRow({ node, state, children }: BoMExplorerRowProps) {
           nextOpen ? node.id : current === node.id ? null : current
         );
       }}
-      openDelay={500}
+      // Once a card is open, moving across rows swaps quickly (hover-group UX).
+      openDelay={openNodeId !== null ? 100 : 500}
       closeDelay={150}
     >
       <HoverCardTrigger asChild>
@@ -508,7 +512,12 @@ export function BoMExplorerRow({ node, state, children }: BoMExplorerRowProps) {
           </div>
         </div>
       </HoverCardTrigger>
-      <HoverCardContent side="right">
+      {/* Visibility (not `open`) handles badge-hover suppression so the badge's
+          own tooltip is readable without desyncing Radix state. */}
+      <HoverCardContent
+        side="right"
+        className={cn(isBadgeHovered && "invisible")}
+      >
         <BoMNodePreview node={node} />
       </HoverCardContent>
     </HoverCard>
