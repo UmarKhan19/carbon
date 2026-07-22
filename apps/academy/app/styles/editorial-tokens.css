@@ -12,10 +12,10 @@
 
 @theme {
   --color-ed-ink: #262323;
-  --color-ed-ink-78: rgba(38, 35, 35, 0.78);
-  --color-ed-ink-66: rgba(38, 35, 35, 0.66);
-  --color-ed-ink-60: rgba(38, 35, 35, 0.6);
-  --color-ed-ink-45: rgba(38, 35, 35, 0.45);
+  --color-ed-ink-78: rgba(38, 35, 35, 0.86);
+  --color-ed-ink-66: rgba(38, 35, 35, 0.74);
+  --color-ed-ink-60: rgba(38, 35, 35, 0.68);
+  --color-ed-ink-45: rgba(38, 35, 35, 0.52);
   --color-ed-hairline: #e7e7e3;
   --color-ed-paper: #fbfbf8;
   --color-ed-svg-line: #d8d7d2;

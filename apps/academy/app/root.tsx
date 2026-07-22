@@ -165,7 +165,7 @@ export default function App() {
       <I18nProvider locale={prefs.locale}>
         <Document>
           <SiteHeader mobileNav={<CourseSidebarNav />} />
-          <div className="pt-16 min-h-screen bg-ed-paper">
+          <div className="pt-16 min-h-screen bg-background">
             <Outlet />
           </div>
           <script

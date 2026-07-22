@@ -118,7 +118,7 @@
 .reference-desc {
   font-size: 1.0625rem;
   line-height: 1.6;
-  color: rgba(38, 35, 35, 0.62);
+  color: rgba(38, 35, 35, 0.72);
 }
 
 /* Editorial reading rhythm for prose bodies (lesson description, about copy). */
@@ -126,7 +126,7 @@
 .guide-prose li {
   font-size: 1.0625rem;
   line-height: 1.75;
-  color: rgba(38, 35, 35, 0.78);
+  color: rgba(38, 35, 35, 0.86);
 }
 
 /* Flash a lesson row the TOC jumped to — hold the accent, then fade out. */
