@@ -106,7 +106,7 @@ export default function CourseRoute() {
       </p>
 
       <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-ed-hairline pt-5">
-        <div className="flex items-center gap-5 font-mono text-ed-12 text-ed-ink/50">
+        <div className="flex items-center gap-5 font-mono text-ed-12 text-ed-ink/70">
           <span>{formatDuration(totalDuration)}</span>
           <span>
             {progress.lessonsTotal} lesson
@@ -285,7 +285,7 @@ function LessonRow({
           {name}
         </span>
       </span>
-      <span className="shrink-0 font-mono text-ed-12 text-ed-ink/45">
+      <span className="shrink-0 font-mono text-ed-12 text-ed-ink/60">
         {formatDuration(duration)}
       </span>
     </Link>

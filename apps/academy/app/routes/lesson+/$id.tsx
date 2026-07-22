@@ -293,7 +293,7 @@ export default function LessonRoute() {
                       <LessonThumb completed={isCompleted} className="w-12" />
                       <span className="truncate">{topicLesson.name}</span>
                     </span>
-                    <span className="shrink-0 font-mono text-ed-11 text-ed-ink/40">
+                    <span className="shrink-0 font-mono text-ed-11 text-ed-ink/60">
                       {formatDuration(topicLesson.duration)}
                     </span>
                   </Link>
