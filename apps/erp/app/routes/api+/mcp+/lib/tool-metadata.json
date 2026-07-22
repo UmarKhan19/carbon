@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-22T10:02:02.348Z",
-  "totalTools": 1374,
+  "generated": "2026-07-22T10:57:38.910Z",
+  "totalTools": 1375,
   "modules": 15,
   "tools": [
     {
@@ -20861,6 +20861,35 @@
         "required": [
           "sourceId",
           "targetId"
+        ]
+      }
+    },
+    {
+      "name": "production_pullJobMaterialMakeMethod",
+      "module": "production",
+      "classification": "WRITE",
+      "description": "pull job material make method",
+      "paramCount": 2,
+      "serviceParams": [
+        "client",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "jobMaterialId": {
+            "type": "string"
+          },
+          "itemId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "jobMaterialId",
+          "itemId"
         ]
       }
     },
