@@ -101,6 +101,7 @@ export default function AccountNotifications() {
     [NotificationTopic.Approval]: t`Approvals`,
     [NotificationTopic.General]: t`General`,
     [NotificationTopic.Inventory]: t`Inventory`,
+    [NotificationTopic.Items]: t`Items`,
     [NotificationTopic.Job]: t`Jobs`,
     [NotificationTopic.Maintenance]: t`Maintenance`,
     [NotificationTopic.Purchasing]: t`Purchasing`,
