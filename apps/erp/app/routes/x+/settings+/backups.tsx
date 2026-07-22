@@ -617,7 +617,7 @@ function BackupRow({ file }: { file: CompanyBackupSummary }) {
         </span>
       </VStack>
       <HStack spacing={2}>
-        {file.status === "ready" ? (
+        {file.status === "ready" && !isDeleting ? (
           <Button asChild variant="secondary">
             <a
               href={`/api/settings/backup-archive/${encodeURIComponent(
@@ -643,6 +643,7 @@ function BackupRow({ file }: { file: CompanyBackupSummary }) {
           <Trans>Delete</Trans>
         </Button>
         <Confirm
+          action={path.to.backups}
           isOpen={deleteDisclosure.isOpen}
           title={t`Delete ${name}`}
           text={t`Are you sure you want to delete ${
