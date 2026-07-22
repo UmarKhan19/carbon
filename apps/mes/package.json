@@ -3,6 +3,7 @@
   "type": "module",
   "dependencies": {
     "@carbon/auth": "workspace:*",
+    "@tanstack/react-query": "5.97.0",
     "@carbon/database": "workspace:*",
     "@carbon/documents": "workspace:*",
     "@carbon/ee": "workspace:*",
@@ -17,6 +18,7 @@
     "@carbon/react": "workspace:*",
     "@carbon/stripe": "workspace:*",
     "@carbon/utils": "workspace:*",
+    "@carbon/viewer": "workspace:*",
     "@dagrejs/dagre": "^1.1.4",
     "@xyflow/react": "12.10.2",
     "@dnd-kit/core": "catalog:",
@@ -96,6 +98,7 @@
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plugin-babel-macros": "catalog:",
+    "vitest": "catalog:",
     "wait-on": "catalog:"
   },
   "private": true,

@@ -50,7 +50,7 @@ function useModuleDefinitions(): ModuleDefinition[] {
       key: "accounting",
       permission: "accounting",
       name: t`Accounting`,
-      to: path.to.chartOfAccounts,
+      to: path.to.accounting,
       icon: LuLandmark
     },
     {
@@ -135,7 +135,8 @@ function useModuleDefinitions(): ModuleDefinition[] {
       name: t`Shop Floor`,
       to: path.to.external.mes,
       icon: LuTvMinimalPlay,
-      role: "employee"
+      role: "employee",
+      external: true
     },
     {
       key: "users",

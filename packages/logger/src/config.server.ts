@@ -6,6 +6,7 @@ import {
   getJsonLinesFormatter
 } from "@logtape/logtape";
 import { redactByField } from "@logtape/redaction";
+import { readEnv } from "./env";
 import { httpDevFormatter } from "./http-formatter";
 import { type CarbonLogLevel, resolveLevel } from "./levels";
 import { CARBON_ROOT_CATEGORY } from "./logger";
@@ -34,7 +35,7 @@ export function ensureLoggingConfigured(
   const g = globalThis as Record<PropertyKey, unknown>;
   if (g[CONFIGURED]) return;
 
-  const isProd = process.env.NODE_ENV === "production";
+  const isProd = readEnv("NODE_ENV") === "production";
   const level = options.level ?? resolveLevel("server");
   const pretty = options.pretty ?? !isProd;
 

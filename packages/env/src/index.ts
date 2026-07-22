@@ -13,6 +13,7 @@ declare global {
       JIRA_CLIENT_ID: string;
       LOG_LEVEL: string;
       MES_URL: string;
+      NODE_ENV: string;
       ONSHAPE_CLIENT_ID: string;
       POSTHOG_API_HOST: string;
       POSTHOG_PROJECT_PUBLIC_KEY: string;
@@ -193,6 +194,27 @@ export const ERP_URL =
 export const MES_URL =
   getEnv("MES_URL", { isRequired: false, isSecret: false }) ??
   "https://mes.carbon.ms";
+
+export const ASSEMBLER_SERVICE_URL = getEnv("ASSEMBLER_SERVICE_URL", {
+  isRequired: false
+});
+// Dev-only (crbn-written): local kong port for the storage-URL rewrite in
+// internalizeStorageUrl. Unset in prod.
+export const PORT_API = getEnv("PORT_API", {
+  isRequired: false,
+  isSecret: false
+});
+export const ASSEMBLER_SERVICE_API_KEY = getEnv("ASSEMBLER_SERVICE_API_KEY", {
+  isRequired: false,
+  isSecret: true
+});
+// Dev-only: public tunnel origin substituted into assembler-bound storage URLs
+// when the assembler is remote (local `.dev` hosts resolve only on this
+// machine). Unset in prod/preview.
+export const ASSEMBLER_STORAGE_PUBLIC_URL = getEnv(
+  "ASSEMBLER_STORAGE_PUBLIC_URL",
+  { isRequired: false, isSecret: false }
+);
 
 export const GOOGLE_PLACES_API_KEY = getEnv("GOOGLE_PLACES_API_KEY", {
   isRequired: false

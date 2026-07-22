@@ -15,7 +15,12 @@ export const sendEmail = async (
   options?: CreateEmailRequestOptions
 ): Promise<CreateEmailResponse> => {
   if (process.env.DISABLE_RESEND) {
-    log.debug("Email send skipped (DISABLE_RESEND)", { payload, options });
+    // Log only non-sensitive metadata — the full payload carries recipient PII
+    // and the rendered HTML body (which can include verification codes).
+    log.debug("Email send skipped (DISABLE_RESEND)", {
+      to: payload.to,
+      subject: payload.subject
+    });
     return {
       error: null,
       data: null

@@ -40,11 +40,14 @@ import {
   weeklyFunction
 } from "./functions/scheduled";
 import {
+  assemblyConvertFunction,
+  assemblyPlanFunction,
   companyExportFunction,
   companyImportFunction,
   companyRestoreFinalizeFunction,
   companyRestoreFunction,
   companyRestoreRevertFunction,
+  modelOptimizeFunction,
   modelThumbnailFunction,
   onboardFunction,
   postTransactionFunction,
@@ -71,11 +74,14 @@ export const functions = [
   workflowFunction,
   embeddingFunction,
   // Tasks
+  assemblyConvertFunction,
+  assemblyPlanFunction,
   companyExportFunction,
   companyImportFunction,
   companyRestoreFunction,
   companyRestoreFinalizeFunction,
   companyRestoreRevertFunction,
+  modelOptimizeFunction,
   modelThumbnailFunction,
   updatePermissionsFunction,
   recalculateFunction,
