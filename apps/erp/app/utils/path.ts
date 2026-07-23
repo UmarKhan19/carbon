@@ -44,6 +44,10 @@ export const path = {
     api: {
       abilities: `${api}/resources/abilities`,
       accounts: `${api}/accounting/accounts`,
+      agentChat: `${api}/agent/chat`,
+      agentFeedback: `${api}/agent/feedback`,
+      agentThread: (id: string) => `${api}/agent/thread/${id}`,
+      agentThreads: `${api}/agent/threads`,
       assetClasses: `${api}/accounting/asset-classes`,
       assign: `${api}/assign`,
       batchNumbers: (itemId: string) =>
@@ -867,7 +871,6 @@ export const path = {
     failureMode: (id: string) =>
       generatePath(`${x}/resources/failure-modes/${id}`),
     failureModes: `${x}/resources/failure-modes`,
-    feedback: `${x}/feedback`,
     file: {
       cadModel: (id: string) => generatePath(`${file}/model/${id}`),
       jobTraveler: (id: string) => generatePath(`${file}/traveler/${id}.pdf`),
