@@ -3,7 +3,7 @@ import { validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { scheduleOperationUpdateValidator } from "~/modules/production/production.models";
 export async function action({ request }: ActionFunctionArgs) {
-  const { client, userId } = await requirePermissions(request, {
+  const { client, companyId, userId } = await requirePermissions(request, {
     update: "production"
   });
   const validation = await validator(scheduleOperationUpdateValidator).validate(
@@ -17,7 +17,7 @@ export async function action({ request }: ActionFunctionArgs) {
     };
   }
 
-  const { error } = await client
+  const { data, error } = await client
     .from("jobOperation")
     .update({
       workCenterId: validation.data.columnId,
@@ -25,10 +25,17 @@ export async function action({ request }: ActionFunctionArgs) {
       updatedBy: userId,
       updatedAt: new Date().toISOString()
     })
-    .eq("id", validation.data.id);
+    .eq("id", validation.data.id)
+    .eq("companyId", companyId)
+    .select("id")
+    .maybeSingle();
 
   if (error) {
     return { success: false, message: error.message };
+  }
+
+  if (data === null) {
+    return { success: false, message: "Operation unavailable" };
   }
 
   return { success: true };
