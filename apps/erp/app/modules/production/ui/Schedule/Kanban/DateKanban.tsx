@@ -17,7 +17,14 @@ import {
 } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { useLingui } from "@lingui/react/macro";
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState
+} from "react";
 import { createPortal } from "react-dom";
 import { useFetchers, useSubmit } from "react-router";
 import { path } from "~/utils/path";
@@ -44,6 +51,7 @@ const logger = getLogger("erp", "datekanban");
 type DateKanbanProps = {
   columns: Column[];
   items: JobItem[];
+  locationId: string;
   progressByItemId: Record<string, Progress>;
   tags: { name: string }[];
 } & DisplaySettings;
@@ -59,15 +67,19 @@ type DateDragState = {
 
 const DateDragPreviewContext = createContext<DateDragState | null>(null);
 
-function DatePreviewJobCard({
-  item,
-  isOverlay,
-  progressByItemId
-}: {
+type DatePreviewJobCardProps = {
   item: JobItem;
+  locationId: string;
   isOverlay?: boolean;
   progressByItemId: Record<string, Progress>;
-}) {
+};
+
+function DatePreviewJobCard({
+  item,
+  locationId,
+  isOverlay,
+  progressByItemId
+}: DatePreviewJobCardProps) {
   const dragState = useContext(DateDragPreviewContext);
   const preview = dragState?.preview;
   const marker =
@@ -90,6 +102,7 @@ function DatePreviewJobCard({
       )}
       <JobCard
         item={item}
+        locationId={locationId}
         isOverlay={isOverlay}
         progressByItemId={progressByItemId}
       />
@@ -163,7 +176,7 @@ function resolveDragPlacement(
   return null;
 }
 
-function usePendingItems() {
+function usePendingItems(locationId: string) {
   type PendingItem = ReturnType<typeof useFetchers>[number] & {
     formData: FormData;
   };
@@ -175,7 +188,10 @@ function usePendingItems() {
   };
   return useFetchers()
     .filter((fetcher): fetcher is PendingItem => {
-      return fetcher.formAction === path.to.scheduleDatesUpdate;
+      return (
+        fetcher.formAction === path.to.scheduleDatesUpdate &&
+        fetcher.formData?.get("locationId") === locationId
+      );
     })
     .map((fetcher): PendingProjection => {
       const persistenceColumnId = fetcher.formData.get("columnId");
@@ -239,12 +255,19 @@ function useDateUpdateFailureToast() {
 const DateKanban = ({
   columns,
   items: initialItems,
+  locationId,
   progressByItemId,
   tags,
   ...displaySettings
 }: DateKanbanProps) => {
   const submit = useSubmit();
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
+  const DateCardComponent = useCallback(
+    (props: Omit<DatePreviewJobCardProps, "locationId">) => (
+      <DatePreviewJobCard {...props} locationId={locationId} />
+    ),
+    [locationId]
+  );
 
   // For date-based kanban, always use the column order from props (don't persist)
   const [columnOrder, setColumnOrder] = useState<string[]>(
@@ -260,7 +283,7 @@ const DateKanban = ({
     initialItems.map((item) => [item.id, item])
   );
 
-  const pendingItems = usePendingItems();
+  const pendingItems = usePendingItems(locationId);
   useDateUpdateFailureToast();
 
   // Merge pending items and existing items for optimistic updates
@@ -376,6 +399,7 @@ const DateKanban = ({
       submit(
         {
           id: origin.item.id,
+          locationId,
           columnId: isSameDisplayBucket
             ? (origin.dueDate ?? origin.placement.columnId)
             : placement.columnId,
@@ -444,7 +468,7 @@ const DateKanban = ({
                     progressByItemId={progressByItemId}
                     isDateView={true}
                     disableColumnDrag={true}
-                    CardComponent={DatePreviewJobCard}
+                    CardComponent={DateCardComponent}
                   />
                   {showColumnPreview && (
                     <div
@@ -480,6 +504,7 @@ const DateKanban = ({
                           progressByItemId[dragState.origin.item.id]
                             ?.progress ?? 0
                       }}
+                      locationId={locationId}
                       isOverlay
                       progressByItemId={progressByItemId}
                     />

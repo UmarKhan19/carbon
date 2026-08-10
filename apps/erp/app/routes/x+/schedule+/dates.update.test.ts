@@ -88,6 +88,7 @@ async function runAction(fields: Record<string, string>) {
 
 const baseFields = {
   id: "job-1",
+  locationId: "location-1",
   columnId: "2026-08-09",
   priority: "-2.5"
 };
@@ -123,6 +124,7 @@ describe("Dates schedule update action", () => {
       "update",
       "eq:id:job-1",
       "eq:companyId:company-1",
+      "eq:locationId:location-1",
       "not:status:in:(Completed,Closed,Cancelled)",
       "select:id",
       "maybeSingle",
@@ -141,6 +143,25 @@ describe("Dates schedule update action", () => {
       expect.objectContaining({ dueDate: null })
     );
     expect(mocks.events.at(-1)).toBe("scheduler");
+  });
+
+  it.each([
+    ["missing", undefined],
+    ["blank", "   "]
+  ])("rejects a %s location before writing or scheduling", async (_name, locationId) => {
+    const fields = { ...baseFields } as Record<string, string>;
+    if (locationId === undefined) {
+      delete fields.locationId;
+    } else {
+      fields.locationId = locationId;
+    }
+
+    const result = await runAction(fields);
+
+    expect(result).toEqual({ success: false, message: "Invalid form data" });
+    expect(mocks.client.from).not.toHaveBeenCalled();
+    expect(mocks.query.update).not.toHaveBeenCalled();
+    expect(triggerJobSchedule).not.toHaveBeenCalled();
   });
 
   it("rejects an invalid date column without writing or scheduling", async () => {
@@ -212,9 +233,12 @@ describe("Dates schedule update action", () => {
     expect(triggerJobSchedule).not.toHaveBeenCalled();
   });
 
-  it("does not schedule when the atomic update matches no unlocked job", async () => {
+  it("treats a location mismatch as a failed zero-row update", async () => {
     mocks.result.data = null;
-    const result = await runAction(baseFields);
+    const result = await runAction({
+      ...baseFields,
+      locationId: "location-2"
+    });
 
     expect(result).toEqual({
       success: false,
@@ -225,6 +249,7 @@ describe("Dates schedule update action", () => {
       "update",
       "eq:id:job-1",
       "eq:companyId:company-1",
+      "eq:locationId:location-2",
       "not:status:in:(Completed,Closed,Cancelled)",
       "select:id",
       "maybeSingle"

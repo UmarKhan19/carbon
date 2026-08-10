@@ -16,6 +16,7 @@ import {
 import {
   getDateOnly,
   getEmptyDueDateColumnId,
+  getInlineDueDateUpdateFields,
   getOptimisticColumnId,
   getPendingDueDate,
   isDateColumnId,
@@ -79,6 +80,34 @@ describe("Dates board date helpers", () => {
     expect(getEmptyDueDateColumnId(["2026-08-01"], "2026-08-01")).toBe(
       "2026-08-01"
     );
+  });
+
+  it("builds location-scoped inline exact-date and clear submissions", () => {
+    const item = {
+      id: "job-1",
+      columnId: "2026-08-08",
+      priority: 4
+    };
+    const columnIds = ["2026-08-01", "2026-08-08", "next-month"];
+
+    expect(
+      getInlineDueDateUpdateFields(item, "location-1", "2026-08-09", columnIds)
+    ).toEqual({
+      id: "job-1",
+      locationId: "location-1",
+      columnId: "2026-08-09",
+      optimisticColumnId: "2026-08-08",
+      priority: 4
+    });
+    expect(
+      getInlineDueDateUpdateFields(item, "location-1", null, columnIds)
+    ).toEqual({
+      id: "job-1",
+      locationId: "location-1",
+      columnId: "next-month",
+      optimisticColumnId: "next-month",
+      priority: 4
+    });
   });
 });
 

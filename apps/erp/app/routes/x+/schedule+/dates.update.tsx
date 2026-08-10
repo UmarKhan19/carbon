@@ -44,6 +44,7 @@ export async function action({ request }: ActionFunctionArgs) {
     .update(updateData)
     .eq("id", validation.data.id)
     .eq("companyId", companyId)
+    .eq("locationId", validation.data.locationId)
     .not("status", "in", `(${JOB_LOCKED_STATUSES.join(",")})`)
     .select("id")
     .maybeSingle();

@@ -132,7 +132,7 @@ export function calculateFractionalPriority(
   } else if (previousPriority !== undefined && nextPriority === undefined) {
     candidate = previousPriority + 1;
   } else if (previousPriority !== undefined && nextPriority !== undefined) {
-    candidate = (previousPriority + nextPriority) / 2;
+    candidate = previousPriority / 2 + nextPriority / 2;
   } else {
     return null;
   }

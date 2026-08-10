@@ -168,7 +168,19 @@ describe("placement", () => {
     expect(getColumnPlacement(origin!, items, "b")?.priority).toBe(7);
   });
 
-  it("rejects non-finite and precision-exhausted candidates", () => {
+  it("calculates overflow-safe midpoints across large and mixed signs", () => {
+    expect(
+      calculateFractionalPriority(Number.MAX_VALUE / 2, Number.MAX_VALUE)
+    ).toBe(1.3482698511467367e308);
+    expect(
+      calculateFractionalPriority(-Number.MAX_VALUE, -Number.MAX_VALUE / 2)
+    ).toBe(-1.3482698511467367e308);
+    expect(
+      calculateFractionalPriority(-Number.MAX_VALUE, Number.MAX_VALUE)
+    ).toBe(0);
+  });
+
+  it("rejects non-finite inputs and adjacent values without a midpoint", () => {
     expect(calculateFractionalPriority(Number.NaN, 1)).toBeNull();
     expect(calculateFractionalPriority(1, Number.POSITIVE_INFINITY)).toBeNull();
     expect(calculateFractionalPriority(1, 1 + Number.EPSILON)).toBeNull();

@@ -43,7 +43,7 @@ type DndProps = {
 
 type TestFetcher = {
   formAction: string;
-  formData: FormData;
+  formData: FormData | undefined;
   key: string;
   state: "loading" | "submitting";
   data?: unknown;
@@ -251,6 +251,7 @@ function captureDatesBoard(
     ...settings,
     columns,
     items,
+    locationId: "location-1",
     progressByItemId: {},
     tags: []
   });
@@ -258,17 +259,20 @@ function captureDatesBoard(
 
 function pendingDateFetcher({
   id = "job-a",
+  locationId = "location-1",
   priority = "5",
   columnId,
   optimisticColumnId = columnId
 }: {
   id?: string;
+  locationId?: string;
   priority?: string;
   columnId?: string;
   optimisticColumnId?: string;
 }): TestFetcher {
   const formData = new FormData();
   formData.set("id", id);
+  formData.set("locationId", locationId);
   formData.set("priority", priority);
   if (columnId !== undefined) {
     formData.set("columnId", columnId);
@@ -332,6 +336,7 @@ describe("Dates board drag lifecycle", () => {
     expect(submit).toHaveBeenCalledWith(
       {
         id: "job-a",
+        locationId: "location-1",
         columnId: "2026-08-09",
         optimisticColumnId: "2026-08-08",
         priority: 11
@@ -368,6 +373,7 @@ describe("Dates board drag lifecycle", () => {
     expect(submit).toHaveBeenCalledWith(
       {
         id: "job-a",
+        locationId: "location-1",
         columnId: "2026-08-09",
         optimisticColumnId: "2026-08-08",
         priority: 21
@@ -377,6 +383,67 @@ describe("Dates board drag lifecycle", () => {
     expect(submit).not.toHaveBeenCalledWith(
       expect.objectContaining({ columnId: "2026-08-16" }),
       expect.anything()
+    );
+  });
+
+  it("ignores pending date data from another location", () => {
+    fetchers.current = [
+      pendingDateFetcher({
+        locationId: "location-2",
+        columnId: "2026-08-16",
+        optimisticColumnId: "2026-08-15"
+      })
+    ];
+    const board = captureDatesBoard();
+    const active = dateItems[0];
+
+    startItemDrag(board, active);
+    board.onDragEnd({
+      active: itemActive(active),
+      over: itemOver(dateItems[2])
+    });
+
+    expect(submit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        locationId: "location-1",
+        columnId: "2026-08-15"
+      }),
+      expect.objectContaining({ action: "/schedule/dates/update" })
+    );
+    expect(submit).not.toHaveBeenCalledWith(
+      expect.objectContaining({ columnId: "2026-08-16" }),
+      expect.anything()
+    );
+  });
+
+  it("ignores a Dates fetcher without form data and preserves the next drag origin", () => {
+    fetchers.current = [
+      {
+        formAction: "/schedule/dates/update",
+        formData: undefined,
+        key: "job:job-a",
+        state: "loading"
+      }
+    ];
+    const board = captureDatesBoard();
+    const active = dateItems[0];
+
+    startItemDrag(board, active);
+    board.onDragEnd({
+      active: itemActive(active),
+      over: itemOver(dateItems[1])
+    });
+
+    expect(submit).toHaveBeenCalledTimes(1);
+    expect(submit).toHaveBeenCalledWith(
+      {
+        id: "job-a",
+        locationId: "location-1",
+        columnId: "2026-08-09",
+        optimisticColumnId: "2026-08-08",
+        priority: 11
+      },
+      expect.objectContaining({ action: "/schedule/dates/update" })
     );
   });
 
@@ -461,6 +528,7 @@ describe("Dates board drag lifecycle", () => {
     expect(submit).toHaveBeenCalledWith(
       {
         id: "job-a",
+        locationId: "location-1",
         columnId: "next-week",
         optimisticColumnId: "next-week",
         priority: 21

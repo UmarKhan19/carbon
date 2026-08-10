@@ -1024,6 +1024,7 @@ export const scheduleOperationUpdateValidator = z.object({
 
 export const scheduleJobUpdateValidator = z.object({
   id: z.string().min(1, { message: "ID is required" }),
+  locationId: z.string().trim().min(1, { message: "Location is required" }),
   columnId: z
     .string()
     .min(1, { message: "Column is required" })

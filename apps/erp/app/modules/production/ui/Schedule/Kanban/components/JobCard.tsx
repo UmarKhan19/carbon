@@ -46,8 +46,7 @@ import JobStatus from "../../../Jobs/JobStatus";
 import { useKanban } from "../context/KanbanContext";
 import {
   getDateOnly,
-  getEmptyDueDateColumnId,
-  getOptimisticColumnId,
+  getInlineDueDateUpdateFields,
   isDateColumnId
 } from "../date-utils";
 import type { JobItem } from "../types";
@@ -93,11 +92,17 @@ const cardVariants = cva(
 
 type JobCardProps = {
   item: JobItem;
+  locationId: string;
   isOverlay?: boolean;
   progressByItemId: Record<string, Progress>;
 };
 
-export function JobCard({ item, isOverlay, progressByItemId }: JobCardProps) {
+export function JobCard({
+  item,
+  locationId,
+  isOverlay,
+  progressByItemId
+}: JobCardProps) {
   const { t } = useLingui();
   const submit = useSubmit();
   // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration
@@ -145,20 +150,13 @@ export function JobCard({ item, isOverlay, progressByItemId }: JobCardProps) {
   const scheduleColumnIds = columnIds ?? [];
 
   function submitDueDate(nextDueDate: string | null) {
-    const columnId = nextDueDate
-      ? nextDueDate
-      : getEmptyDueDateColumnId(scheduleColumnIds, item.columnId);
-    const optimisticColumnId = nextDueDate
-      ? getOptimisticColumnId(nextDueDate, scheduleColumnIds)
-      : columnId;
-
     submit(
-      {
-        id: item.id,
-        columnId,
-        optimisticColumnId,
-        priority: item.priority
-      },
+      getInlineDueDateUpdateFields(
+        item,
+        locationId,
+        nextDueDate,
+        scheduleColumnIds
+      ),
       {
         method: "post",
         action: path.to.scheduleDatesUpdate,

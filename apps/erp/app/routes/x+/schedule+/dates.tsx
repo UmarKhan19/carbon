@@ -864,6 +864,7 @@ function DateKanbanSchedule() {
           <DateKanban
             columns={columns}
             items={items}
+            locationId={locationId}
             progressByItemId={{}}
             tags={tags}
             showCustomer={displaySettings.showCustomer}

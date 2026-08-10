@@ -18,6 +18,35 @@ export function getDateOnly(value?: string | null): string | null {
   return value?.split("T")[0] ?? null;
 }
 
+type DueDateUpdateItem = {
+  id: string;
+  columnId: string;
+  priority: number;
+};
+
+/** Build the inline due-date request from the current board context. */
+export function getInlineDueDateUpdateFields(
+  item: DueDateUpdateItem,
+  locationId: string,
+  nextDueDate: string | null,
+  columnIds: readonly string[]
+) {
+  const columnId = nextDueDate
+    ? nextDueDate
+    : getEmptyDueDateColumnId(columnIds, item.columnId);
+  const optimisticColumnId = nextDueDate
+    ? getOptimisticColumnId(nextDueDate, columnIds)
+    : columnId;
+
+  return {
+    id: item.id,
+    locationId,
+    columnId,
+    optimisticColumnId,
+    priority: item.priority
+  };
+}
+
 /**
  * Map a persisted due date to the visible Dates board column. Week columns
  * represent exact dates; month columns represent seven-day buckets.
