@@ -10,6 +10,7 @@ import { PanelProvider, ResizablePanels } from "~/components/Layout";
 import { getCurrencyByCode } from "~/modules/accounting";
 import {
   getCompanyHasOpenCredits,
+  getInvoiceSettlementValues,
   getSalesInvoice,
   getSalesInvoiceLines,
   getSalesInvoiceShipment
@@ -51,12 +52,28 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       getSalesInvoiceShipment(client, invoiceId)
     ]);
 
-  if (salesInvoice.error) {
+  if (salesInvoice.error || !salesInvoice.data) {
     throw redirect(
       path.to.invoicingSales,
       await flash(
         request,
-        error(salesInvoice.error, "Failed to load sales invoice")
+        error(
+          salesInvoice.error ?? new Error("Sales invoice was not found"),
+          "Failed to load sales invoice"
+        )
+      )
+    );
+  }
+
+  let invoiceSettlement: ReturnType<typeof getInvoiceSettlementValues>;
+  try {
+    invoiceSettlement = getInvoiceSettlementValues(salesInvoice.data);
+  } catch (settlementError) {
+    throw redirect(
+      path.to.invoicingSales,
+      await flash(
+        request,
+        error(settlementError, "Failed to load sales invoice")
       )
     );
   }
@@ -87,6 +104,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   return {
     salesInvoice: salesInvoice.data,
+    invoiceSettlement,
     currency: currency?.data ?? null,
     salesInvoiceLines: salesInvoiceLines.data ?? [],
     salesInvoiceShipment: salesInvoiceShipment.data,

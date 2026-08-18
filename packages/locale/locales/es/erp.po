@@ -158,6 +158,9 @@ msgstr "{count, plural, one {# curso} other {# cursos}}"
 msgid "{done} of {total} phases complete"
 msgstr "{done} de {total} fases completadas"
 
+msgid "{excludedInvoiceCount, plural, one {# invoice is excluded because its currency or exchange-rate metadata is incompatible or missing.} other {# invoices are excluded because their currency or exchange-rate metadata is incompatible or missing.}}"
+msgstr "{excludedInvoiceCount, plural, one {# factura está excluida porque sus metadatos de moneda o tipo de cambio son incompatibles o faltan.} other {# facturas están excluidas porque sus metadatos de moneda o tipo de cambio son incompatibles o faltan.}}"
+
 msgid "{from}–{to} of {count}"
 msgstr "{from}–{to} de {count}"
 
@@ -2361,6 +2364,9 @@ msgstr "Copias de seguridad"
 msgid "Balance"
 msgstr "Saldo"
 
+msgid "Balance Remaining:"
+msgstr "Saldo restante:"
+
 msgid "Balance Sheet"
 msgstr "Balance General"
 
@@ -2905,7 +2911,7 @@ msgid "Change Notices"
 msgstr "Avisos de Cambio"
 
 msgid "Change notices could not be loaded, so new versions and revisions are blocked. Reload to try again."
-msgstr ""
+msgstr "No se pudieron cargar los avisos de cambio, por lo que las nuevas versiones y revisiones están bloqueadas. Vuelve a cargar para intentarlo de nuevo."
 
 msgid "Change order"
 msgstr "Orden de cambio"
@@ -10619,6 +10625,9 @@ msgstr "Página"
 
 msgid "Page {pdfViewPage} of {documentPageCount}"
 msgstr "Página {pdfViewPage} de {documentPageCount}"
+
+msgid "Paid"
+msgstr "Pagado"
 
 msgid "Paid Amount:"
 msgstr "Monto Pagado:"

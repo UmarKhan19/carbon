@@ -25,6 +25,10 @@ Both start at **Draft** and lock the moment they leave it — numbers that have 
 
 The posted state has a different name on each side, **Submitted** for sales and **Open** for purchase, but means the same thing: posted to the ledger, awaiting payment. **Overdue**, **Partially Paid**, and **Paid** aren't set by hand; they're computed from the invoice's settlements and due date. An unpaid invoice past its `dateDue` reads **Overdue**; once settlements cover the whole balance it reads **Paid**.
 
+## Summary amounts
+
+Invoice summaries show **Total**, **Paid Amount**, and **Balance Remaining**. After a partial settlement, **Balance Remaining** updates to the amount still due; once the invoice is fully settled, its existing **Paid** state is reflected in the summary.
+
 ## Line types
 
 An invoice line is one of a handful of types, most of which pull an item's details in for you. The two sides differ in one place:

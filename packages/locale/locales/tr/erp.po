@@ -158,6 +158,9 @@ msgstr "{count, plural, one {# kurs} other {# kurs}}"
 msgid "{done} of {total} phases complete"
 msgstr "{done} / {total} aşama tamamlandı"
 
+msgid "{excludedInvoiceCount, plural, one {# invoice is excluded because its currency or exchange-rate metadata is incompatible or missing.} other {# invoices are excluded because their currency or exchange-rate metadata is incompatible or missing.}}"
+msgstr "{excludedInvoiceCount, plural, one {# fatura, para birimi veya döviz kuru meta verileri uyumsuz ya da eksik olduğu için hariç tutuldu.} other {# fatura, para birimi veya döviz kuru meta verileri uyumsuz ya da eksik olduğu için hariç tutuldu.}}"
+
 msgid "{from}–{to} of {count}"
 msgstr "{from}–{to} / {count}"
 
@@ -2361,6 +2364,9 @@ msgstr "Yedeklemeler"
 msgid "Balance"
 msgstr "Bakiye"
 
+msgid "Balance Remaining:"
+msgstr "Kalan Bakiye:"
+
 msgid "Balance Sheet"
 msgstr "Bilanço"
 
@@ -2905,7 +2911,7 @@ msgid "Change Notices"
 msgstr "Değişiklik Bildirimleri"
 
 msgid "Change notices could not be loaded, so new versions and revisions are blocked. Reload to try again."
-msgstr ""
+msgstr "Değişiklik bildirimleri yüklenemedi, bu nedenle yeni sürümler ve revizyonlar engellendi. Tekrar denemek için yeniden yükleyin."
 
 msgid "Change order"
 msgstr "Değişim emri"
@@ -10619,6 +10625,9 @@ msgstr "Sayfa"
 
 msgid "Page {pdfViewPage} of {documentPageCount}"
 msgstr "Sayfa {pdfViewPage} / {documentPageCount}"
+
+msgid "Paid"
+msgstr "Ödendi"
 
 msgid "Paid Amount:"
 msgstr "Ödenen Tutar:"

@@ -14,6 +14,10 @@ Like a sales order in reverse, a purchase order line keeps two independent count
   - **Quantity invoiced**: Billed so far; `quantity to invoice` is the remainder.
   - **Conversion factor**: Converts the supplier's purchase unit to the stock unit.
 
+## Invoice settlement summary
+
+The order summary shows **Invoiced Amount**, **Paid Amount**, and **Balance Remaining** for supplier invoices linked to the order, alongside the order total. Receiving and billing are independent, so an order that is only partly invoiced can have an order total different from its remaining invoice balance. As linked invoices are settled, the summary updates and shows **Paid** when the linked settlement is complete.
+
 ## Types
 
 A purchase order is one of three kinds: a plain **Purchase**, a **Return** to the supplier, or **Outside Processing** — sending parts out to a vendor for a production step, where the line links to a job operation.

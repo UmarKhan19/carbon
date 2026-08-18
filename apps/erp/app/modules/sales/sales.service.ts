@@ -1756,22 +1756,26 @@ export async function getSalesOrderLines(
 
 export async function getSalesOrderInvoiceLines(
   client: SupabaseClient<Database>,
+  companyId: string,
   salesOrderId: string
 ) {
   return client
     .from("salesInvoiceLine")
     .select("invoiceId")
-    .eq("salesOrderId", salesOrderId);
+    .eq("salesOrderId", salesOrderId)
+    .eq("companyId", companyId);
 }
 
 export async function getSalesOrderInvoicesByIds(
   client: SupabaseClient<Database>,
+  companyId: string,
   invoiceIds: string[]
 ) {
   return client
     .from("salesInvoices")
-    .select("id, invoiceTotal, status, currencyCode")
-    .in("id", invoiceIds);
+    .select("id, totalAmount, balance, currencyCode, exchangeRate")
+    .in("id", invoiceIds)
+    .eq("companyId", companyId);
 }
 
 export async function getSalesOrderLinesByItemId(

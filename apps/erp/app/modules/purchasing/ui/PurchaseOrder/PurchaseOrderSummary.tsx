@@ -8,6 +8,7 @@ import {
   CardTitle,
   Heading,
   HStack,
+  Status,
   Table,
   Tbody,
   Td,
@@ -15,7 +16,7 @@ import {
   VStack
 } from "@carbon/react";
 import { getItemReadableId } from "@carbon/utils";
-import { Trans } from "@lingui/react/macro";
+import { Plural, Trans } from "@lingui/react/macro";
 import { useLocale } from "@react-aria/i18n";
 import { motion } from "framer-motion";
 import { useState } from "react";
@@ -30,6 +31,7 @@ import {
   useRouteData,
   useUser
 } from "~/hooks";
+import { isInvoiceSettlementSettled } from "~/modules/invoicing";
 import { useItems } from "~/stores";
 import { getPrivateUrl, path } from "~/utils/path";
 import { isPurchaseOrderLocked } from "../../purchasing.models";
@@ -413,6 +415,17 @@ const PurchaseOrderSummary = ({
     lines: PurchaseOrderLine[];
     purchaseOrderDelivery: PurchaseOrderDelivery;
     supplier: Supplier;
+    invoiceSummary: {
+      invoicedAmount: number;
+      paidAmount: number;
+      balanceRemaining: number;
+      presentationInvoicedAmount: number;
+      presentationPaidAmount: number;
+      presentationBalanceRemaining: number;
+      includedInvoiceCount: number;
+      currencyMismatchCount: number;
+      invalidExchangeRateCount: number;
+    };
   }>(path.to.purchaseOrder(orderId));
 
   const isEditable = !isPurchaseOrderLocked(routeData?.purchaseOrder?.status);
@@ -467,6 +480,19 @@ const PurchaseOrderSummary = ({
 
   const total = subtotal + tax + shippingCost;
   const supplierTotal = supplierSubtotal + supplierTax + supplierShippingCost;
+  const invoiceSummary = routeData?.invoiceSummary;
+  const excludedInvoiceCount =
+    (invoiceSummary?.currencyMismatchCount ?? 0) +
+    (invoiceSummary?.invalidExchangeRateCount ?? 0);
+  const isPaid = invoiceSummary
+    ? isInvoiceSettlementSettled({
+        totalAmount: invoiceSummary.invoicedAmount,
+        balanceRemaining: invoiceSummary.balanceRemaining,
+        includedInvoiceCount: invoiceSummary.includedInvoiceCount,
+        currencyMismatchCount: invoiceSummary.currencyMismatchCount,
+        invalidExchangeRateCount: invoiceSummary.invalidExchangeRateCount
+      })
+    : false;
 
   return (
     <Card>
@@ -578,6 +604,72 @@ const PurchaseOrderSummary = ({
               )}
             </VStack>
           </HStack>
+          <div className="h-px bg-border my-2 w-full" />
+          <HStack className="justify-between text-sm text-muted-foreground w-full">
+            <span>
+              <Trans>Invoiced Amount:</Trans>
+            </span>
+            <VStack spacing={0} className="items-end">
+              <span>
+                {formatter.format(invoiceSummary?.invoicedAmount ?? 0)}
+              </span>
+              {shouldConvertCurrency && (
+                <span className="text-sm">
+                  {presentationCurrencyFormatter.format(
+                    invoiceSummary?.presentationInvoicedAmount ?? 0
+                  )}
+                </span>
+              )}
+            </VStack>
+          </HStack>
+          <HStack className="justify-between text-sm text-muted-foreground w-full">
+            <span>
+              <Trans>Paid Amount:</Trans>
+            </span>
+            <VStack spacing={0} className="items-end">
+              <span>{formatter.format(invoiceSummary?.paidAmount ?? 0)}</span>
+              {shouldConvertCurrency && (
+                <span className="text-sm">
+                  {presentationCurrencyFormatter.format(
+                    invoiceSummary?.presentationPaidAmount ?? 0
+                  )}
+                </span>
+              )}
+            </VStack>
+          </HStack>
+          <HStack className="justify-between text-sm font-medium w-full">
+            <span>
+              <Trans>Balance Remaining:</Trans>
+            </span>
+            <HStack spacing={2}>
+              <VStack spacing={0} className="items-end">
+                <span>
+                  {formatter.format(invoiceSummary?.balanceRemaining ?? 0)}
+                </span>
+                {shouldConvertCurrency && (
+                  <span className="text-sm">
+                    {presentationCurrencyFormatter.format(
+                      invoiceSummary?.presentationBalanceRemaining ?? 0
+                    )}
+                  </span>
+                )}
+              </VStack>
+              {isPaid && (
+                <Status color="green">
+                  <Trans>Paid</Trans>
+                </Status>
+              )}
+            </HStack>
+          </HStack>
+          {excludedInvoiceCount > 0 && (
+            <span className="text-xs text-muted-foreground">
+              <Plural
+                value={excludedInvoiceCount}
+                one="# invoice is excluded because its currency or exchange-rate metadata is incompatible or missing."
+                other="# invoices are excluded because their currency or exchange-rate metadata is incompatible or missing."
+              />
+            </span>
+          )}
         </VStack>
       </CardContent>
     </Card>

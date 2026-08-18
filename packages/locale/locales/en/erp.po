@@ -158,6 +158,9 @@ msgstr "{count, plural, one {# course} other {# courses}}"
 msgid "{done} of {total} phases complete"
 msgstr "{done} of {total} phases complete"
 
+msgid "{excludedInvoiceCount, plural, one {# invoice is excluded because its currency or exchange-rate metadata is incompatible or missing.} other {# invoices are excluded because their currency or exchange-rate metadata is incompatible or missing.}}"
+msgstr "{excludedInvoiceCount, plural, one {# invoice is excluded because its currency or exchange-rate metadata is incompatible or missing.} other {# invoices are excluded because their currency or exchange-rate metadata is incompatible or missing.}}"
+
 msgid "{from}–{to} of {count}"
 msgstr "{from}–{to} of {count}"
 
@@ -2360,6 +2363,9 @@ msgstr "Backups"
 
 msgid "Balance"
 msgstr "Balance"
+
+msgid "Balance Remaining:"
+msgstr "Balance Remaining:"
 
 msgid "Balance Sheet"
 msgstr "Balance Sheet"
@@ -10619,6 +10625,9 @@ msgstr "Page"
 
 msgid "Page {pdfViewPage} of {documentPageCount}"
 msgstr "Page {pdfViewPage} of {documentPageCount}"
+
+msgid "Paid"
+msgstr "Paid"
 
 msgid "Paid Amount:"
 msgstr "Paid Amount:"

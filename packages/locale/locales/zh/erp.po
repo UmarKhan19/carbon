@@ -158,6 +158,9 @@ msgstr "{count, plural, one {# 门课程} other {# 门课程}}"
 msgid "{done} of {total} phases complete"
 msgstr "{done} 个，共 {total} 个阶段已完成"
 
+msgid "{excludedInvoiceCount, plural, one {# invoice is excluded because its currency or exchange-rate metadata is incompatible or missing.} other {# invoices are excluded because their currency or exchange-rate metadata is incompatible or missing.}}"
+msgstr "{excludedInvoiceCount, plural, one {由于其货币或汇率元数据不兼容或缺失，# 张发票被排除。} other {由于其货币或汇率元数据不兼容或缺失，# 张发票被排除。}}"
+
 msgid "{from}–{to} of {count}"
 msgstr "{from}–{to} 共 {count}"
 
@@ -2361,6 +2364,9 @@ msgstr "备份"
 msgid "Balance"
 msgstr "余额"
 
+msgid "Balance Remaining:"
+msgstr "剩余余额:"
+
 msgid "Balance Sheet"
 msgstr "资产负债表"
 
@@ -2905,7 +2911,7 @@ msgid "Change Notices"
 msgstr "更改单"
 
 msgid "Change notices could not be loaded, so new versions and revisions are blocked. Reload to try again."
-msgstr ""
+msgstr "无法加载变更通知，因此新版本和修订版本被阻止。重新加载后重试。"
 
 msgid "Change order"
 msgstr "变更单"
@@ -10619,6 +10625,9 @@ msgstr "页面"
 
 msgid "Page {pdfViewPage} of {documentPageCount}"
 msgstr "第 {pdfViewPage} 页，共 {documentPageCount} 页"
+
+msgid "Paid"
+msgstr "已支付"
 
 msgid "Paid Amount:"
 msgstr "已支付金额："

@@ -20,6 +20,10 @@ A line carries a **type** that sets what it sells: *Part*, *Service*, *Material*
   <Field name="Method" type="enum">How the line is fulfilled: *Make to Order*, *Pull from Inventory*, or *Purchase to Order*.</Field>
 </FieldTable>
 
+## Invoice settlement summary
+
+The order summary shows **Invoiced Amount**, **Paid Amount**, and **Balance Remaining** for invoices linked to the order, alongside the order total. These amounts describe the linked invoices, so an order that is only partly invoiced can have an order total different from its remaining invoice balance. As linked invoices are settled, the summary updates and shows **Paid** when the linked settlement is complete.
+
 ## Status
 
 The stored status reflects what's outstanding, and the order list shows a computed **display status** on top of it.

@@ -158,6 +158,9 @@ msgstr "교육과정 {count}개"
 msgid "{done} of {total} phases complete"
 msgstr "{done}개 중 {total}개 단계 완료"
 
+msgid "{excludedInvoiceCount, plural, one {# invoice is excluded because its currency or exchange-rate metadata is incompatible or missing.} other {# invoices are excluded because their currency or exchange-rate metadata is incompatible or missing.}}"
+msgstr "{excludedInvoiceCount, plural, one {#개의 송장이 통화 또는 환율 메타데이터가 호환되지 않거나 누락되어 제외됩니다.} other {#개의 송장이 통화 또는 환율 메타데이터가 호환되지 않거나 누락되어 제외됩니다.}}"
+
 msgid "{from}–{to} of {count}"
 msgstr "{count}개 중 {from}–{to}"
 
@@ -2361,6 +2364,9 @@ msgstr "백업"
 msgid "Balance"
 msgstr "잔액"
 
+msgid "Balance Remaining:"
+msgstr "남은 잔액:"
+
 msgid "Balance Sheet"
 msgstr "대차대조표"
 
@@ -2905,7 +2911,7 @@ msgid "Change Notices"
 msgstr "변경 공지"
 
 msgid "Change notices could not be loaded, so new versions and revisions are blocked. Reload to try again."
-msgstr ""
+msgstr "변경 통지를 불러올 수 없어 새 버전 및 리비전이 차단되었습니다. 다시 로드하여 시도하세요."
 
 msgid "Change order"
 msgstr "변경 주문"
@@ -10619,6 +10625,9 @@ msgstr "페이지"
 
 msgid "Page {pdfViewPage} of {documentPageCount}"
 msgstr "{documentPageCount}페이지 중 {pdfViewPage}페이지"
+
+msgid "Paid"
+msgstr "지급 완료"
 
 msgid "Paid Amount:"
 msgstr "지급액:"

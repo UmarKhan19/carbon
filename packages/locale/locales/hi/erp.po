@@ -158,6 +158,9 @@ msgstr "{count, plural, one {# कोर्स} other {# कोर्स}}"
 msgid "{done} of {total} phases complete"
 msgstr "{done} में से {total} चरण पूर्ण"
 
+msgid "{excludedInvoiceCount, plural, one {# invoice is excluded because its currency or exchange-rate metadata is incompatible or missing.} other {# invoices are excluded because their currency or exchange-rate metadata is incompatible or missing.}}"
+msgstr "{excludedInvoiceCount, plural, one {# इनवॉइस को बाहर रखा गया है क्योंकि इसकी मुद्रा या विनिमय-दर से संबंधित मेटाडेटा असंगत है या अनुपलब्ध है.} other {# इनवॉइस को बाहर रखा गया है क्योंकि इनकी मुद्रा या विनिमय-दर से संबंधित मेटाडेटा असंगत है या अनुपलब्ध है.}}"
+
 msgid "{from}–{to} of {count}"
 msgstr "{from}–{to} में से {count}"
 
@@ -2361,6 +2364,9 @@ msgstr "बैकअप"
 msgid "Balance"
 msgstr "शेष"
 
+msgid "Balance Remaining:"
+msgstr "शेष राशि:"
+
 msgid "Balance Sheet"
 msgstr "बैलेंस शीट"
 
@@ -2905,7 +2911,7 @@ msgid "Change Notices"
 msgstr "परिवर्तन सूचनाएं"
 
 msgid "Change notices could not be loaded, so new versions and revisions are blocked. Reload to try again."
-msgstr ""
+msgstr "परिवर्तन सूचनाएँ लोड नहीं की जा सकीं, इसलिए नए संस्करण और संशोधन अवरुद्ध हैं. पुनः लोड करके फिर से प्रयास करें."
 
 msgid "Change order"
 msgstr "परिवर्तन आदेश"
@@ -10619,6 +10625,9 @@ msgstr "पृष्ठ"
 
 msgid "Page {pdfViewPage} of {documentPageCount}"
 msgstr "पृष्ठ {pdfViewPage} का {documentPageCount}"
+
+msgid "Paid"
+msgstr "भुगतान किया गया"
 
 msgid "Paid Amount:"
 msgstr "भुगतान की गई राशि:"

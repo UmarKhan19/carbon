@@ -762,6 +762,7 @@
       "headings": [
         "Where they come from",
         "Status lifecycle",
+        "Summary amounts",
         "Line types",
         "Posting",
         "Settling an invoice",
@@ -1177,6 +1178,7 @@
       "keywords": ["purchase", "orders", "docs", "reference"],
       "headings": [
         "Line fields",
+        "Invoice settlement summary",
         "Types",
         "Status",
         "Related",
@@ -1311,6 +1313,7 @@
       "keywords": ["sales", "orders", "docs", "reference"],
       "headings": [
         "Line fields",
+        "Invoice settlement summary",
         "Status",
         "Related",
         "Troubleshooting",

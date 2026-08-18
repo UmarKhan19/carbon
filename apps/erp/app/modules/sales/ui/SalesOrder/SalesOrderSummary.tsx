@@ -10,6 +10,7 @@ import {
   cn,
   Heading,
   HStack,
+  Status,
   Table,
   Tbody,
   Td,
@@ -28,7 +29,7 @@ import {
   parseDate,
   today
 } from "@internationalized/date";
-import { Trans, useLingui } from "@lingui/react/macro";
+import { Plural, Trans, useLingui } from "@lingui/react/macro";
 import { useLocale } from "@react-aria/i18n";
 import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
@@ -55,6 +56,7 @@ import {
   usePermissions,
   useRouteData
 } from "~/hooks";
+import { isInvoiceSettlementSettled } from "~/modules/invoicing";
 import JobStatus from "~/modules/production/ui/Jobs/JobStatus";
 import { getPrivateUrl, path } from "~/utils/path";
 import { isSalesOrderLocked } from "../../sales.models";
@@ -84,7 +86,10 @@ const SalesOrderSummary = ({
     invoiceSummary: {
       invoicedAmount: number;
       paidAmount: number;
+      balanceRemaining: number;
+      includedInvoiceCount: number;
       currencyMismatchCount: number;
+      invalidExchangeRateCount: number;
     };
   }>(path.to.salesOrder(orderId));
 
@@ -126,6 +131,19 @@ const SalesOrderSummary = ({
     (routeData?.salesOrder?.exchangeRate ?? 1) *
     (routeData?.salesOrder?.shippingCost ?? 0);
   const total = subtotal + tax + convertedShippingCost;
+  const invoiceSummary = routeData?.invoiceSummary;
+  const excludedInvoiceCount =
+    (invoiceSummary?.currencyMismatchCount ?? 0) +
+    (invoiceSummary?.invalidExchangeRateCount ?? 0);
+  const isPaid = invoiceSummary
+    ? isInvoiceSettlementSettled({
+        totalAmount: invoiceSummary.invoicedAmount,
+        balanceRemaining: invoiceSummary.balanceRemaining,
+        includedInvoiceCount: invoiceSummary.includedInvoiceCount,
+        currencyMismatchCount: invoiceSummary.currencyMismatchCount,
+        invalidExchangeRateCount: invoiceSummary.invalidExchangeRateCount
+      })
+    : false;
   const permissions = usePermissions();
 
   const linesRequireJobs = hasLinesRequiringJobs({
@@ -316,19 +334,35 @@ const SalesOrderSummary = ({
                 <Trans>Paid Amount:</Trans>
               </span>
               <MotionMoney
-                value={routeData?.invoiceSummary?.paidAmount ?? 0}
+                value={invoiceSummary?.paidAmount ?? 0}
                 currency={routeData?.salesOrder?.currencyCode ?? "USD"}
                 decimalPlaces={currencyDecimals}
               />
             </HStack>
-            {(routeData?.invoiceSummary?.currencyMismatchCount ?? 0) > 0 && (
+            <HStack className="justify-between text-sm font-medium w-full">
+              <span>
+                <Trans>Balance Remaining:</Trans>
+              </span>
+              <HStack spacing={2}>
+                <MotionMoney
+                  value={invoiceSummary?.balanceRemaining ?? 0}
+                  currency={routeData?.salesOrder?.currencyCode ?? "USD"}
+                  decimalPlaces={currencyDecimals}
+                />
+                {isPaid && (
+                  <Status color="green">
+                    <Trans>Paid</Trans>
+                  </Status>
+                )}
+              </HStack>
+            </HStack>
+            {excludedInvoiceCount > 0 && (
               <span className="text-xs text-muted-foreground">
-                Excludes {routeData?.invoiceSummary?.currencyMismatchCount}{" "}
-                invoice
-                {(routeData?.invoiceSummary?.currencyMismatchCount ?? 0) > 1
-                  ? "s"
-                  : ""}{" "}
-                in a different currency.
+                <Plural
+                  value={excludedInvoiceCount}
+                  one="# invoice is excluded because its currency or exchange-rate metadata is incompatible or missing."
+                  other="# invoices are excluded because their currency or exchange-rate metadata is incompatible or missing."
+                />
               </span>
             )}
           </VStack>

@@ -9,6 +9,7 @@ import { PanelProvider, ResizablePanels } from "~/components/Layout";
 import { getCurrencyByCode } from "~/modules/accounting";
 import {
   getCompanyHasOpenCredits,
+  getInvoiceSettlementValues,
   getPurchaseInvoice,
   getPurchaseInvoiceDelivery,
   getPurchaseInvoiceLines,
@@ -49,12 +50,28 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       getPurchaseInvoiceDelivery(client, invoiceId)
     ]);
 
-  if (purchaseInvoice.error) {
+  if (purchaseInvoice.error || !purchaseInvoice.data) {
     throw redirect(
       path.to.invoicingPurchasing,
       await flash(
         request,
-        error(purchaseInvoice.error, "Failed to load purchase invoice")
+        error(
+          purchaseInvoice.error ?? new Error("Purchase invoice was not found"),
+          "Failed to load purchase invoice"
+        )
+      )
+    );
+  }
+
+  let invoiceSettlement: ReturnType<typeof getInvoiceSettlementValues>;
+  try {
+    invoiceSettlement = getInvoiceSettlementValues(purchaseInvoice.data);
+  } catch (settlementError) {
+    throw redirect(
+      path.to.invoicingPurchasing,
+      await flash(
+        request,
+        error(settlementError, "Failed to load purchase invoice")
       )
     );
   }
@@ -85,6 +102,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   return {
     purchaseInvoice: purchaseInvoice.data,
+    invoiceSettlement,
     currency: currency?.data ?? null,
     purchaseInvoiceLines: purchaseInvoiceLines.data ?? [],
     purchaseInvoiceDelivery: purchaseInvoiceDelivery.data,

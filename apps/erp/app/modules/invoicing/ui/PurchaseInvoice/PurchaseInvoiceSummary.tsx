@@ -33,6 +33,10 @@ import {
 import { useItems } from "~/stores";
 import { getPrivateUrl, path } from "~/utils/path";
 import { isPurchaseInvoiceLocked } from "../../invoicing.models";
+import {
+  getInvoicePresentationSettlement,
+  type InvoiceSettlementValues
+} from "../../invoicing.utils";
 import type {
   PurchaseInvoice,
   PurchaseInvoiceDelivery,
@@ -366,21 +370,34 @@ const PurchaseInvoiceSummary = ({
 
   const routeData = useRouteData<{
     purchaseInvoice: PurchaseInvoice;
+    invoiceSettlement: InvoiceSettlementValues;
     purchaseInvoiceLines: PurchaseInvoiceLine[];
     purchaseInvoiceDelivery: PurchaseInvoiceDelivery;
   }>(path.to.purchaseInvoice(invoiceId));
 
   const { locale } = useLocale();
   const { company } = useUser();
+  const baseCurrencyCode = company?.baseCurrencyCode ?? "USD";
+  const invoiceCurrencyCode = routeData?.purchaseInvoice?.currencyCode;
+  const invoiceSettlement = routeData?.invoiceSettlement;
+  const presentationSettlement =
+    routeData?.purchaseInvoice && invoiceSettlement
+      ? getInvoicePresentationSettlement(
+          routeData.purchaseInvoice,
+          invoiceSettlement
+        )
+      : null;
 
   const shouldConvertCurrency =
-    routeData?.purchaseInvoice?.currencyCode !== company?.baseCurrencyCode;
+    Boolean(invoiceCurrencyCode) &&
+    invoiceCurrencyCode !== baseCurrencyCode &&
+    presentationSettlement !== null;
 
   const formatter = useCurrencyFormatter({
-    currency: company?.baseCurrencyCode ?? "USD"
+    currency: baseCurrencyCode
   });
   const presentationCurrencyFormatter = useCurrencyFormatter({
-    currency: routeData?.purchaseInvoice?.currencyCode ?? "USD"
+    currency: invoiceCurrencyCode ?? baseCurrencyCode
   });
 
   const isEditable = !isPurchaseInvoiceLocked(
@@ -420,8 +437,8 @@ const PurchaseInvoiceSummary = ({
   const supplierShippingCost =
     routeData?.purchaseInvoiceDelivery?.supplierShippingCost ?? 0;
 
-  const total = subtotal + tax + shippingCost;
-  const supplierTotal = supplierSubtotal + supplierTax + supplierShippingCost;
+  const total = invoiceSettlement?.totalAmount;
+  const supplierTotal = presentationSettlement?.totalAmount;
 
   return (
     <Card>
@@ -526,10 +543,48 @@ const PurchaseInvoiceSummary = ({
           <HStack className="justify-between text-xl font-semibold w-full">
             <span>Total:</span>
             <VStack spacing={0} className="items-end">
-              <span>{formatter.format(total)}</span>
-              {shouldConvertCurrency && (
+              <span>{total == null ? null : formatter.format(total)}</span>
+              {shouldConvertCurrency && supplierTotal != null && (
                 <span className="text-sm">
                   {presentationCurrencyFormatter.format(supplierTotal)}
+                </span>
+              )}
+            </VStack>
+          </HStack>
+          <HStack className="justify-between text-sm text-muted-foreground w-full">
+            <span>
+              <Trans>Paid Amount:</Trans>
+            </span>
+            <VStack spacing={0} className="items-end">
+              <span>
+                {invoiceSettlement == null
+                  ? null
+                  : formatter.format(invoiceSettlement.amountPaid)}
+              </span>
+              {shouldConvertCurrency && presentationSettlement && (
+                <span className="text-sm">
+                  {presentationCurrencyFormatter.format(
+                    presentationSettlement.amountPaid
+                  )}
+                </span>
+              )}
+            </VStack>
+          </HStack>
+          <HStack className="justify-between text-sm font-medium w-full">
+            <span>
+              <Trans>Balance Remaining:</Trans>
+            </span>
+            <VStack spacing={0} className="items-end">
+              <span>
+                {invoiceSettlement == null
+                  ? null
+                  : formatter.format(invoiceSettlement.balanceRemaining)}
+              </span>
+              {shouldConvertCurrency && presentationSettlement && (
+                <span className="text-sm">
+                  {presentationCurrencyFormatter.format(
+                    presentationSettlement.balanceRemaining
+                  )}
                 </span>
               )}
             </VStack>

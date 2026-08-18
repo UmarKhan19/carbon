@@ -17,6 +17,12 @@ import { PanelProvider, ResizablePanels } from "~/components/Layout/Panels";
 import { getCurrencyByCode, getPaymentTermsList } from "~/modules/accounting";
 import { upsertDocument } from "~/modules/documents";
 import {
+  getInvoiceSettlementSummary,
+  getMissingInvoiceIds,
+  getPurchaseOrderInvoiceLines,
+  getPurchaseOrderInvoicesByIds
+} from "~/modules/invoicing";
+import {
   getDefaultAttachmentsForPO,
   getPurchaseOrder,
   getPurchaseOrderDelivery,
@@ -392,11 +398,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { orderId } = params;
   if (!orderId) throw new Error("Could not find orderId");
 
-  const [purchaseOrder, lines, purchaseOrderDelivery] = await Promise.all([
-    getPurchaseOrder(client, orderId),
-    getPurchaseOrderLines(client, orderId),
-    getPurchaseOrderDelivery(client, orderId)
-  ]);
+  const [purchaseOrder, lines, purchaseOrderDelivery, purchaseInvoiceLines] =
+    await Promise.all([
+      getPurchaseOrder(client, orderId),
+      getPurchaseOrderLines(client, orderId),
+      getPurchaseOrderDelivery(client, orderId),
+      getPurchaseOrderInvoiceLines(client, companyId, orderId)
+    ]);
 
   if (purchaseOrder.data?.companyId !== companyId) {
     throw redirect(
@@ -420,6 +428,98 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   if (companyId !== purchaseOrder.data?.companyId) {
     throw redirect(path.to.purchaseOrders);
+  }
+
+  if (purchaseInvoiceLines.error) {
+    throw redirect(
+      path.to.purchaseOrder(orderId),
+      await flash(
+        request,
+        error(
+          purchaseInvoiceLines.error,
+          "Failed to load linked purchase invoices"
+        )
+      )
+    );
+  }
+
+  const purchaseInvoiceIds = Array.from(
+    new Set(
+      (purchaseInvoiceLines.data ?? [])
+        .map((line) => line.invoiceId)
+        .filter(Boolean)
+    )
+  ) as string[];
+
+  let purchaseInvoiceRows: Awaited<
+    ReturnType<typeof getPurchaseOrderInvoicesByIds>
+  >["data"] = [];
+
+  if (purchaseInvoiceIds.length > 0) {
+    const invoices = await getPurchaseOrderInvoicesByIds(
+      client,
+      companyId,
+      purchaseInvoiceIds
+    );
+
+    if (invoices.error) {
+      throw redirect(
+        path.to.purchaseOrder(orderId),
+        await flash(
+          request,
+          error(invoices.error, "Failed to load purchase invoice totals")
+        )
+      );
+    }
+
+    const missingInvoiceIds = getMissingInvoiceIds(
+      purchaseInvoiceIds,
+      invoices.data ?? []
+    );
+    if (missingInvoiceIds.length > 0) {
+      throw redirect(
+        path.to.purchaseOrder(orderId),
+        await flash(
+          request,
+          error(
+            new Error(
+              `Missing linked purchase invoice rows: ${missingInvoiceIds.join(", ")}`
+            ),
+            "Failed to load purchase invoice totals"
+          )
+        )
+      );
+    }
+
+    purchaseInvoiceRows = (invoices.data ?? []).filter(
+      (invoice) => invoice.id && purchaseInvoiceIds.includes(invoice.id)
+    );
+  }
+
+  let invoiceSummary: ReturnType<typeof getInvoiceSettlementSummary>;
+  let presentationInvoiceSummary: ReturnType<
+    typeof getInvoiceSettlementSummary
+  >;
+  try {
+    invoiceSummary = getInvoiceSettlementSummary(purchaseInvoiceRows ?? [], {
+      targetCurrency: purchaseOrder.data?.currencyCode,
+      convertToTarget: false
+    });
+    presentationInvoiceSummary = getInvoiceSettlementSummary(
+      purchaseInvoiceRows ?? [],
+      {
+        targetCurrency: purchaseOrder.data?.currencyCode,
+        convertToTarget: true
+      }
+    );
+  } catch (settlementError) {
+    throw redirect(
+      path.to.purchaseOrder(orderId),
+      await flash(
+        request,
+        error(settlementError, "Failed to load purchase invoice totals")
+      )
+    );
   }
 
   const serviceRole = getCarbonServiceRole();
@@ -527,6 +627,18 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     purchaseOrderDelivery: purchaseOrderDelivery.data,
     currency: currency?.data ?? null,
     lines: lines.data ?? [],
+    invoiceSummary: {
+      invoicedAmount: invoiceSummary.totalAmount,
+      paidAmount: invoiceSummary.amountPaid,
+      balanceRemaining: invoiceSummary.balanceRemaining,
+      presentationInvoicedAmount: presentationInvoiceSummary.totalAmount,
+      presentationPaidAmount: presentationInvoiceSummary.amountPaid,
+      presentationBalanceRemaining: presentationInvoiceSummary.balanceRemaining,
+      includedInvoiceCount: invoiceSummary.includedInvoiceCount,
+      currencyMismatchCount: invoiceSummary.currencyMismatchCount,
+      invalidExchangeRateCount:
+        presentationInvoiceSummary.invalidExchangeRateCount
+    },
     files: getSupplierInteractionDocuments(
       client,
       companyId,

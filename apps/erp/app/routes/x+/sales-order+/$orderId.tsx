@@ -8,6 +8,10 @@ import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useParams } from "react-router";
 import { PanelProvider, ResizablePanels } from "~/components/Layout/Panels";
 import {
+  getInvoiceSettlementSummary,
+  getMissingInvoiceIds
+} from "~/modules/invoicing";
+import {
   getCustomer,
   getOpportunity,
   getOpportunityDocuments,
@@ -76,7 +80,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       ? getCustomer(client, salesOrder.data.customerId)
       : Promise.resolve(null),
     getCompanySettings(serviceRole, companyId),
-    getSalesOrderInvoiceLines(client, orderId)
+    getSalesOrderInvoiceLines(client, companyId, orderId)
   ]);
 
   if (invoiceLines.error) {
@@ -95,12 +99,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     )
   ) as string[];
 
-  let invoicedAmount = 0;
-  let paidAmount = 0;
-  let currencyMismatchCount = 0;
+  let invoiceRows: Awaited<
+    ReturnType<typeof getSalesOrderInvoicesByIds>
+  >["data"] = [];
 
   if (invoiceIds.length > 0) {
-    const invoices = await getSalesOrderInvoicesByIds(client, invoiceIds);
+    const invoices = await getSalesOrderInvoicesByIds(
+      client,
+      companyId,
+      invoiceIds
+    );
 
     if (invoices.error) {
       throw redirect(
@@ -112,27 +120,44 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       );
     }
 
-    const orderCurrency = salesOrder.data?.currencyCode;
-
-    for (const invoice of invoices.data ?? []) {
-      const invoiceTotal = invoice.invoiceTotal ?? 0;
-      const invoiceCurrency = invoice.currencyCode;
-
-      // Avoid mixing currencies in the same displayed number.
-      if (
-        orderCurrency &&
-        invoiceCurrency &&
-        invoiceCurrency !== orderCurrency
-      ) {
-        currencyMismatchCount += 1;
-        continue;
-      }
-
-      invoicedAmount += invoiceTotal;
-      if (invoice.status === "Paid") {
-        paidAmount += invoiceTotal;
-      }
+    const missingInvoiceIds = getMissingInvoiceIds(
+      invoiceIds,
+      invoices.data ?? []
+    );
+    if (missingInvoiceIds.length > 0) {
+      throw redirect(
+        path.to.salesOrder(orderId),
+        await flash(
+          request,
+          error(
+            new Error(
+              `Missing linked sales invoice rows: ${missingInvoiceIds.join(", ")}`
+            ),
+            "Failed to load sales invoice totals"
+          )
+        )
+      );
     }
+
+    invoiceRows = (invoices.data ?? []).filter(
+      (invoice) => invoice.id && invoiceIds.includes(invoice.id)
+    );
+  }
+
+  let invoiceSummary: ReturnType<typeof getInvoiceSettlementSummary>;
+  try {
+    invoiceSummary = getInvoiceSettlementSummary(invoiceRows ?? [], {
+      targetCurrency: salesOrder.data?.currencyCode,
+      convertToTarget: true
+    });
+  } catch (settlementError) {
+    throw redirect(
+      path.to.salesOrder(orderId),
+      await flash(
+        request,
+        error(settlementError, "Failed to load sales invoice totals")
+      )
+    );
   }
 
   const defaultCc = customer?.data?.defaultCc?.length
@@ -152,9 +177,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     customer: customer?.data ?? null,
     quote: quote?.data ?? null,
     invoiceSummary: {
-      invoicedAmount,
-      paidAmount,
-      currencyMismatchCount
+      invoicedAmount: invoiceSummary.totalAmount,
+      paidAmount: invoiceSummary.amountPaid,
+      balanceRemaining: invoiceSummary.balanceRemaining,
+      includedInvoiceCount: invoiceSummary.includedInvoiceCount,
+      currencyMismatchCount: invoiceSummary.currencyMismatchCount,
+      invalidExchangeRateCount: invoiceSummary.invalidExchangeRateCount
     },
     originatedFromQuote: !!opportunity.data.quotes[0]?.id,
     defaultCc
