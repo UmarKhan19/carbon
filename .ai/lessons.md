@@ -2061,3 +2061,13 @@ full-screen ERP route.
 **Rule:** A retry wrapper must never blindly retry a write with real side effects and no idempotency key. `fetchWithRetry` already carved out `isStorageUpload` for this exact reason ("re-sending a multi-GB PUT ... is wasteful"); the same reasoning applies even harder to Edge Function invocations, which routinely do multi-table, multi-transaction writes (`get-method`, `convert`, every `post-*` function). Added `isEdgeFunctionInvoke` (matches `/functions/v1/`) alongside it — one attempt only, honoring the caller's own signal, no retry on status or network error. When debugging "op failed but extra copies appeared," check for exactly this shape (one incoming request, several committed results) before assuming a client-side double-submit or a browser retry.
 
 **Applies to:** `packages/auth/src/lib/supabase/client.ts` (`fetchWithRetry`, `isEdgeFunctionInvoke`); any future retry/timeout wrapper placed in front of `client.functions.invoke`. Also: `$quoteId.duplicate.tsx` and similar routes that discard the real error into a generic message — add `logger.error` there so a recurrence is diagnosable from Vercel logs alone, without needing Supabase edge-function log access.
+
+## Nullable CHECK branches and missing RLS policies are both silent contract gaps
+
+**Context:** Slice 0 initially used a PostgreSQL CHECK branch for `No action required` that only tested `reason IN (...)`, and left server-owned write policies absent. PostgreSQL treats a NULL CHECK result as passing, while RLS policy absence denies correctly but obscures whether the denial is intentional.
+
+**Problem:** A `No action required` row with a NULL reason passed structural validation, and maintainers could mistake absent INSERT/UPDATE/DELETE policies for an accidental migration omission. Both defects were invisible in generated types and ordinary typechecking.
+
+**Rule:** When a CHECK branch requires a value, state `IS NOT NULL` explicitly before the allowed-value test. For intentionally unsupported PostgREST operations, keep Carbon's standardized `SELECT`/`INSERT`/`UPDATE`/`DELETE` policy shape and use explicit `WITH CHECK (false)` / `USING (false)` deny policies. Test both the rejected payload and the persisted row state through the actual user-scoped boundary.
+
+**Applies to:** PostgreSQL status/reason CHECK constraints, server-owned Carbon tables, source-aware RLS migrations, and SQL/PostgREST regression harnesses.
