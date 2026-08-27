@@ -7,7 +7,8 @@ import type {
   KyselyTx
 } from "@carbon/database/client";
 import { getLogger } from "@carbon/logger";
-import { datetime } from "@carbon/utils";
+import { datetime, round } from "@carbon/utils";
+import { parseDate } from "@internationalized/date";
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 import { nanoid } from "nanoid";
 import type { z } from "zod";
@@ -35,9 +36,33 @@ import {
   type SupplierPriceMap
 } from "../shared";
 import {
+  ACTIVE_JOB_MATERIAL,
+  ACTIVE_PRODUCING_JOB,
   type ChangeNoticeChangeType,
   type ChangeNoticeError,
+  type ChangeNoticeImpactCandidate,
+  type ChangeNoticeImpactCandidateOptions,
+  type ChangeNoticeImpactCandidateReadModel,
+  type ChangeNoticeImpactCandidateReadResult,
+  type ChangeNoticeImpactCoverage,
+  type ChangeNoticeImpactDecisionProjection,
+  type ChangeNoticeImpactDomainCursor,
+  type ChangeNoticeImpactExposureClassification,
+  type ChangeNoticeImpactItemContext,
+  type ChangeNoticeImpactJobMaterialSnapshotInput,
+  type ChangeNoticeImpactJobSnapshotInput,
+  type ChangeNoticeImpactParentContext,
+  type ChangeNoticeImpactProvenance,
+  type ChangeNoticeImpactPurchaseOrderLineSnapshotInput,
+  type ChangeNoticeImpactSnapshot,
+  type ChangeNoticeImpactSnapshotNormalization,
+  type ChangeNoticeImpactSourceAccess,
+  type ChangeNoticeImpactSourceAccessResult,
+  type ChangeNoticeImpactTargetType,
   type ChangeNoticeItemDiff,
+  changeNoticeImpactDecisionStatuses,
+  changeNoticeImpactNoActionReasonCodes,
+  changeNoticeImpactTargetTypes,
   changeNoticeOpenStatuses,
   type changeNoticeStatus,
   type changeNoticeTaskStatus,
@@ -61,6 +86,12 @@ import {
   type itemTrackingTypes,
   type itemUnitSalePriceValidator,
   type itemValidator,
+  JOB_MATERIAL_SNAPSHOT_V1,
+  JOB_SNAPSHOT_V1,
+  type JobImpactSnapshot,
+  type JobMaterialImpactSnapshot,
+  jobImpactActiveStatuses,
+  jobImpactHistoricalStatuses,
   type MethodDiffEntry,
   type MethodDiffStatus,
   type makeMethodVersionValidator,
@@ -73,11 +104,17 @@ import {
   type materialValidator,
   type methodMaterialValidator,
   type methodOperationValidator,
+  OPEN_PURCHASING_COMMITMENT,
   type OperationChildrenDiff,
   type OperationDiffEntry,
+  PO_LINE_SNAPSHOT_V1,
+  type PurchaseOrderLineImpactSnapshot,
   type partValidator,
   type pickMethodSortMethods,
   type pickMethodValidator,
+  purchaseOrderLineImpactCurrentStatuses,
+  purchaseOrderLineImpactHistoricalStatuses,
+  purchaseOrderLineImpactNonAssessmentTypes,
   type serviceValidator,
   type shelfLifeModes,
   type shelfLifeTriggerTimings,
@@ -6837,15 +6874,17 @@ async function stitchItemLabels(
   const labels = new Map<string, ChangeNoticeStagingItemLabel>();
   if (uniqueIds.length === 0) return { labels, error: null };
 
-  const items = await client
-    .from("item")
-    .select(ITEM_LABEL_COLUMNS)
-    .in("id", uniqueIds)
-    .eq("companyId", companyId);
+  for (const batch of impactIdBatches(uniqueIds)) {
+    const items = await client
+      .from("item")
+      .select(ITEM_LABEL_COLUMNS)
+      .in("id", batch)
+      .eq("companyId", companyId);
 
-  if (items.error) return { labels, error: items.error };
-  for (const it of items.data ?? [])
-    labels.set(it.id, it as ChangeNoticeStagingItemLabel);
+    if (items.error) return { labels, error: items.error };
+    for (const it of items.data ?? [])
+      labels.set(it.id, it as ChangeNoticeStagingItemLabel);
+  }
 
   return { labels, error: null };
 }
@@ -6859,16 +6898,28 @@ export async function getChangeNoticeAffectedItems(
   data: ChangeNoticeAffectedItemWithLabel[];
   error: { message: string } | null;
 }> {
-  const affected = await client
-    .from("changeOrderAffectedItem")
-    .select("*")
-    .eq("changeOrderId", changeNoticeId)
-    .eq("companyId", companyId)
-    .order("sortOrder", { ascending: true })
-    .order("createdAt", { ascending: true });
+  const affected = await fetchAllFromTable<ChangeNoticeAffectedItemRow>(
+    client,
+    "changeOrderAffectedItem",
+    "*",
+    (query) =>
+      query
+        .eq("changeOrderId", changeNoticeId)
+        .eq("companyId", companyId)
+        .order("sortOrder", { ascending: true })
+        .order("createdAt", { ascending: true })
+        .order("id", { ascending: true })
+  );
 
-  if (affected.error) return { data: [], error: affected.error };
-  const rows = affected.data ?? [];
+  if (affected.error || !affected.data) {
+    return {
+      data: [],
+      error: affected.error ?? {
+        message: "Change Notice affected items are unavailable."
+      }
+    };
+  }
+  const rows = affected.data;
   if (rows.length === 0) return { data: [], error: null };
 
   const { labels, error } = await stitchItemLabels(
@@ -8296,4 +8347,3718 @@ export async function createItemDocumentUploadUrl(
     entityId: args.itemId,
     name: args.name
   });
+}
+
+// =============================================================================
+// Change Notice Operational Impact — Slice 1 contracts and candidate reads.
+//
+// This section is intentionally read-only. It owns the fixed V1 target union,
+// deterministic snapshot normalization/comparison, and set-based source reads.
+// No Impact table is written here; Slice 2 owns reconciliation writes.
+// =============================================================================
+
+type ImpactRecord = Record<string, unknown>;
+
+type ImpactDateValue =
+  | { ok: true; value: string | null }
+  | { ok: false; reason: string };
+
+type ImpactNumberValue =
+  | { ok: true; value: number }
+  | { ok: false; reason: string };
+
+const IMPACT_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+const IMPACT_KEY_SEPARATOR = "\u001f";
+const IMPACT_PAGE_SIZE = 500;
+const IMPACT_ID_BATCH_SIZE = 50;
+
+const PO_LINE_TYPES = [
+  "Comment",
+  "G/L Account",
+  "Fixed Asset",
+  "Part",
+  "Material",
+  "Tool",
+  "Service",
+  "Consumable",
+  "Fixture"
+] as const;
+
+const PO_LINE_STATUS_TYPES = [
+  ...purchaseOrderLineImpactCurrentStatuses,
+  ...purchaseOrderLineImpactHistoricalStatuses
+] as const;
+
+const PO_LINE_ASSESSMENT_TYPES = PO_LINE_TYPES.filter(
+  (lineType) =>
+    !(purchaseOrderLineImpactNonAssessmentTypes as readonly string[]).includes(
+      lineType
+    )
+);
+
+const JOB_STATUS_TYPES = [
+  ...jobImpactActiveStatuses,
+  ...jobImpactHistoricalStatuses
+] as const;
+
+const METHOD_TYPES = [
+  "Purchase to Order",
+  "Pull from Inventory",
+  "Make to Order"
+] as const;
+
+const SNAPSHOT_KEYS = {
+  purchaseOrderLine: [
+    "schema",
+    "purchaseOrderLineId",
+    "purchaseOrderId",
+    "supplierId",
+    "itemId",
+    "itemRevision",
+    "purchaseOrderLineType",
+    "purchaseOrderStatus",
+    "receivedComplete",
+    "orderedQuantity",
+    "receivedQuantity",
+    "remainingQuantity",
+    "purchaseUnitOfMeasureCode",
+    "inventoryUnitOfMeasureCode",
+    "conversionFactor",
+    "requiredDate",
+    "promisedDate",
+    "eligibilityBasis"
+  ],
+  job: [
+    "schema",
+    "jobId",
+    "itemId",
+    "itemRevision",
+    "status",
+    "plannedQuantity",
+    "completedQuantity",
+    "remainingQuantity",
+    "quantityShipped",
+    "quantityReceivedToInventory",
+    "dueDate",
+    "effectiveMethodId",
+    "effectiveMethodVersion",
+    "unitOfMeasureCode",
+    "eligibilityBasis"
+  ],
+  jobMaterial: [
+    "schema",
+    "jobMaterialId",
+    "jobId",
+    "itemId",
+    "itemRevision",
+    "jobStatus",
+    "requiredQuantity",
+    "issuedQuantity",
+    "remainingQuantity",
+    "unitOfMeasureCode",
+    "methodType",
+    "jobOperationId",
+    "requiresTracking",
+    "eligibilityBasis"
+  ]
+} as const;
+
+function isImpactRecord(value: unknown): value is ImpactRecord {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function impactRecordRows(value: unknown): ImpactRecord[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter(isImpactRecord);
+}
+
+function impactValue(
+  input: ImpactRecord,
+  ...keys: string[]
+): unknown | undefined {
+  for (const key of keys) {
+    if (Object.prototype.hasOwnProperty.call(input, key)) return input[key];
+  }
+  return undefined;
+}
+
+function impactFirstDefined(
+  input: ImpactRecord,
+  ...keys: string[]
+): unknown | undefined {
+  for (const key of keys) {
+    if (
+      Object.prototype.hasOwnProperty.call(input, key) &&
+      input[key] !== undefined
+    ) {
+      return input[key];
+    }
+  }
+  return undefined;
+}
+
+function impactRequiredString(
+  value: unknown,
+  field: string
+): { ok: true; value: string } | { ok: false; reason: string } {
+  if (typeof value !== "string" || value.length === 0) {
+    return { ok: false, reason: `${field} is required` };
+  }
+  return { ok: true, value };
+}
+
+function impactNullableString(value: unknown): string | null {
+  return typeof value === "string" && value.length > 0 ? value : null;
+}
+
+function impactPersistedRequiredString(
+  value: unknown,
+  field: string
+): { ok: true; value: string } | { ok: false; reason: string } {
+  if (
+    typeof value !== "string" ||
+    value.trim().length === 0 ||
+    value !== value.trim()
+  ) {
+    return { ok: false, reason: `${field} is required` };
+  }
+  return { ok: true, value };
+}
+
+type ImpactCanonicalNullableString =
+  | { ok: true; value: string | null }
+  | { ok: false; reason: string };
+
+function impactCanonicalNullableString(
+  value: unknown,
+  field: string
+): ImpactCanonicalNullableString {
+  if (value === null) return { ok: true, value: null };
+  if (value === undefined) {
+    return {
+      ok: false,
+      reason: `${field} must be explicitly null or a string`
+    };
+  }
+  if (typeof value !== "string") {
+    return { ok: false, reason: `${field} must be a string or null` };
+  }
+  if (value.length === 0) {
+    return { ok: false, reason: `${field} must not be empty` };
+  }
+  return { ok: true, value };
+}
+
+function impactDate(value: unknown, field: string): ImpactDateValue {
+  if (value === null) return { ok: true, value: null };
+  if (value === undefined) {
+    return {
+      ok: false,
+      reason: `${field} must be explicitly null or a canonical date`
+    };
+  }
+  if (typeof value !== "string" || !IMPACT_DATE_PATTERN.test(value)) {
+    return {
+      ok: false,
+      reason: `${field} must be a canonical YYYY-MM-DD date`
+    };
+  }
+  try {
+    parseDate(value);
+  } catch {
+    return { ok: false, reason: `${field} is not a valid calendar date` };
+  }
+  return { ok: true, value };
+}
+
+function impactNumber(
+  value: unknown,
+  field: string
+): { ok: true; value: number } | { ok: false; reason: string };
+function impactNumber(
+  value: unknown,
+  field: string,
+  nullable: true
+): { ok: true; value: number | null } | { ok: false; reason: string };
+function impactNumber(
+  value: unknown,
+  field: string,
+  nullable = false
+): ImpactNumberValue | { ok: true; value: number | null } {
+  if (value === null || value === undefined || value === "") {
+    return nullable
+      ? { ok: true, value: null }
+      : { ok: false, reason: `${field} is required` };
+  }
+  const numeric =
+    typeof value === "number"
+      ? value
+      : typeof value === "string"
+        ? Number(value)
+        : Number.NaN;
+  if (!Number.isFinite(numeric)) {
+    return { ok: false, reason: `${field} must be a finite number` };
+  }
+  return { ok: true, value: round(numeric) };
+}
+
+function impactRawNumber(
+  value: unknown,
+  field: string
+): { ok: true; value: number } | { ok: false; reason: string } {
+  if (value === null || value === undefined || value === "") {
+    return { ok: false, reason: `${field} is required` };
+  }
+  const numeric =
+    typeof value === "number"
+      ? value
+      : typeof value === "string"
+        ? Number(value)
+        : Number.NaN;
+  return Number.isFinite(numeric)
+    ? { ok: true, value: numeric }
+    : { ok: false, reason: `${field} must be a finite number` };
+}
+
+function impactQuantity(value: unknown, field: string): ImpactNumberValue {
+  const numeric = impactRawNumber(value, field);
+  if (!numeric.ok) return numeric;
+  if (numeric.value < 0) {
+    return { ok: false, reason: `${field} must be non-negative` };
+  }
+  return { ok: true, value: round(numeric.value) };
+}
+
+function impactNullableQuantity(
+  value: unknown,
+  field: string
+): { ok: true; value: number | null } | { ok: false; reason: string } {
+  if (value === null) return { ok: true, value: null };
+  if (value === undefined || value === "") {
+    return {
+      ok: false,
+      reason: `${field} must be explicitly null or a number`
+    };
+  }
+  return impactQuantity(value, field);
+}
+
+function impactFactor(value: unknown): ImpactNumberValue {
+  // Carbon's purchasing paths consistently treat a null conversion factor as
+  // the database default of one. The normalized snapshot stores that effective
+  // factor, rather than preserving a storage-level null that means the same
+  // thing.
+  if (value === null || value === undefined || value === "") {
+    return { ok: true, value: 1 };
+  }
+  const numeric = impactRawNumber(value, "conversionFactor");
+  if (!numeric.ok || numeric.value <= 0) {
+    return {
+      ok: false,
+      reason: "conversionFactor must be greater than zero"
+    };
+  }
+  const normalized = round(numeric.value);
+  if (normalized <= 0) {
+    return {
+      ok: false,
+      reason:
+        "conversionFactor must remain greater than zero at Carbon precision"
+    };
+  }
+  return { ok: true, value: normalized };
+}
+
+function impactBoolean(
+  value: unknown,
+  field: string
+): { ok: true; value: boolean } | { ok: false; reason: string } {
+  if (typeof value !== "boolean") {
+    return { ok: false, reason: `${field} is required` };
+  }
+  return { ok: true, value };
+}
+
+function impactIn<T extends string>(
+  value: unknown,
+  values: readonly T[]
+): value is T {
+  return typeof value === "string" && values.includes(value as T);
+}
+
+function impactUnavailable(
+  reason: string
+): ChangeNoticeImpactSnapshotNormalization {
+  return { sourceAvailability: "Unavailable", snapshot: null, reason };
+}
+
+function impactDateOrUnavailable(
+  value: unknown,
+  field: string
+):
+  | { ok: true; value: string | null }
+  | { ok: false; result: ChangeNoticeImpactSnapshotNormalization } {
+  const normalized = impactDate(value, field);
+  return normalized.ok
+    ? normalized
+    : { ok: false, result: impactUnavailable(normalized.reason) };
+}
+
+/** Normalize one PO line into the exact PO_LINE_SNAPSHOT_V1 key set. */
+export function normalizePurchaseOrderLineImpactSnapshot(
+  source: ChangeNoticeImpactPurchaseOrderLineSnapshotInput
+): ChangeNoticeImpactSnapshotNormalization {
+  const input = source as ImpactRecord;
+  const lineId = impactRequiredString(
+    impactValue(input, "purchaseOrderLineId", "id"),
+    "purchaseOrderLineId"
+  );
+  const purchaseOrderId = impactRequiredString(
+    impactValue(input, "purchaseOrderId"),
+    "purchaseOrderId"
+  );
+  const supplierId = impactRequiredString(
+    impactValue(input, "supplierId"),
+    "supplierId"
+  );
+  const itemId = impactRequiredString(impactValue(input, "itemId"), "itemId");
+  if (!lineId.ok || !purchaseOrderId.ok || !supplierId.ok || !itemId.ok) {
+    return impactUnavailable(
+      [lineId, purchaseOrderId, supplierId, itemId]
+        .filter((value): value is { ok: false; reason: string } => !value.ok)
+        .map((value) => value.reason)
+        .join("; ")
+    );
+  }
+
+  const lineType = impactValue(input, "purchaseOrderLineType");
+  if (!impactIn(lineType, PO_LINE_TYPES)) {
+    return impactUnavailable("purchaseOrderLineType is unknown");
+  }
+  const status = impactValue(input, "purchaseOrderStatus");
+  if (!impactIn(status, PO_LINE_STATUS_TYPES)) {
+    return impactUnavailable("purchaseOrderStatus is unknown or unclassified");
+  }
+  const receivedComplete = impactBoolean(
+    impactValue(input, "receivedComplete"),
+    "receivedComplete"
+  );
+  if (!receivedComplete.ok) return impactUnavailable(receivedComplete.reason);
+
+  const deliveryRowPresent = impactValue(input, "deliveryRowPresent");
+  if (deliveryRowPresent === false) {
+    return impactUnavailable(
+      "Required purchase-order delivery facts are unavailable."
+    );
+  }
+  if (
+    deliveryRowPresent !== undefined &&
+    typeof deliveryRowPresent !== "boolean"
+  ) {
+    return impactUnavailable("deliveryRowPresent must be a boolean");
+  }
+
+  const factor = impactFactor(impactValue(input, "conversionFactor"));
+  if (!factor.ok) return impactUnavailable(factor.reason);
+
+  const ordered = impactQuantity(
+    impactValue(input, "purchaseQuantity"),
+    "purchaseQuantity"
+  );
+  const received = impactQuantity(
+    impactValue(input, "quantityReceived"),
+    "quantityReceived"
+  );
+  const remaining = impactQuantity(
+    impactValue(input, "quantityToReceive", "remainingQuantity"),
+    "quantityToReceive"
+  );
+  if (!ordered.ok || !received.ok || !remaining.ok) {
+    return impactUnavailable(
+      [ordered, received, remaining]
+        .filter((value): value is { ok: false; reason: string } => !value.ok)
+        .map((value) => value.reason)
+        .join("; ")
+    );
+  }
+
+  const requiredDate = impactDateOrUnavailable(
+    impactValue(input, "requiredDate"),
+    "requiredDate"
+  );
+  if (!requiredDate.ok) return requiredDate.result;
+  const linePromisedDate = impactDateOrUnavailable(
+    impactValue(input, "promisedDate", "linePromisedDate"),
+    "promisedDate"
+  );
+  if (!linePromisedDate.ok) return linePromisedDate.result;
+  const deliveryPromisedDate = impactDateOrUnavailable(
+    impactValue(input, "deliveryReceiptPromisedDate"),
+    "deliveryReceiptPromisedDate"
+  );
+  if (!deliveryPromisedDate.ok) return deliveryPromisedDate.result;
+
+  const itemRevision = impactCanonicalNullableString(
+    impactValue(input, "itemRevision", "revision"),
+    "itemRevision"
+  );
+  const purchaseUnitOfMeasureCode = impactCanonicalNullableString(
+    impactValue(input, "purchaseUnitOfMeasureCode"),
+    "purchaseUnitOfMeasureCode"
+  );
+  const inventoryUnitOfMeasureCode = impactCanonicalNullableString(
+    impactValue(input, "inventoryUnitOfMeasureCode"),
+    "inventoryUnitOfMeasureCode"
+  );
+  if (
+    !itemRevision.ok ||
+    !purchaseUnitOfMeasureCode.ok ||
+    !inventoryUnitOfMeasureCode.ok
+  ) {
+    return impactUnavailable(
+      [itemRevision, purchaseUnitOfMeasureCode, inventoryUnitOfMeasureCode]
+        .filter((value): value is { ok: false; reason: string } => !value.ok)
+        .map((value) => value.reason)
+        .join("; ")
+    );
+  }
+  const normalizedFactor = factor.value;
+  const promisedDate =
+    linePromisedDate.value ?? deliveryPromisedDate.value ?? null;
+
+  return {
+    sourceAvailability: "Present",
+    snapshot: {
+      schema: PO_LINE_SNAPSHOT_V1,
+      purchaseOrderLineId: lineId.value,
+      purchaseOrderId: purchaseOrderId.value,
+      supplierId: supplierId.value,
+      itemId: itemId.value,
+      itemRevision: itemRevision.value,
+      purchaseOrderLineType:
+        lineType as PurchaseOrderLineImpactSnapshot["purchaseOrderLineType"],
+      purchaseOrderStatus:
+        status as PurchaseOrderLineImpactSnapshot["purchaseOrderStatus"],
+      receivedComplete: receivedComplete.value,
+      orderedQuantity: round(ordered.value),
+      receivedQuantity: round(received.value),
+      remainingQuantity: round(remaining.value),
+      purchaseUnitOfMeasureCode: purchaseUnitOfMeasureCode.value,
+      inventoryUnitOfMeasureCode: inventoryUnitOfMeasureCode.value,
+      conversionFactor: normalizedFactor,
+      requiredDate: requiredDate.value,
+      promisedDate,
+      eligibilityBasis: OPEN_PURCHASING_COMMITMENT
+    }
+  };
+}
+
+/** Normalize one producing Job into the exact JOB_SNAPSHOT_V1 key set. */
+export function normalizeJobImpactSnapshot(
+  source: ChangeNoticeImpactJobSnapshotInput
+): ChangeNoticeImpactSnapshotNormalization {
+  const input = source as ImpactRecord;
+  const jobId = impactRequiredString(
+    impactValue(input, "jobId", "id"),
+    "jobId"
+  );
+  const itemId = impactRequiredString(impactValue(input, "itemId"), "itemId");
+  const methodId = impactRequiredString(
+    impactValue(input, "effectiveMethodId"),
+    "effectiveMethodId"
+  );
+  const unitOfMeasureCode = impactRequiredString(
+    impactValue(input, "unitOfMeasureCode"),
+    "unitOfMeasureCode"
+  );
+  if (!jobId.ok || !itemId.ok || !methodId.ok || !unitOfMeasureCode.ok) {
+    return impactUnavailable(
+      [jobId, itemId, methodId, unitOfMeasureCode]
+        .filter((value): value is { ok: false; reason: string } => !value.ok)
+        .map((value) => value.reason)
+        .join("; ")
+    );
+  }
+
+  const status = impactValue(input, "status");
+  if (!impactIn(status, JOB_STATUS_TYPES)) {
+    return impactUnavailable("job.status is unknown or unclassified");
+  }
+  // Carbon's canonical planned quantity is job.quantity. Keep the explicit
+  // normalized alias first, then the live source field.
+  const planned = impactQuantity(
+    impactFirstDefined(input, "plannedQuantity", "quantity"),
+    "plannedQuantity"
+  );
+  const completed = impactQuantity(
+    impactValue(input, "completedQuantity", "quantityComplete"),
+    "completedQuantity"
+  );
+  const shipped = impactQuantity(
+    impactValue(input, "quantityShipped"),
+    "quantityShipped"
+  );
+  const received = impactQuantity(
+    impactValue(input, "quantityReceivedToInventory"),
+    "quantityReceivedToInventory"
+  );
+  const version = impactNumber(
+    impactValue(input, "effectiveMethodVersion"),
+    "effectiveMethodVersion"
+  );
+  if (
+    !planned.ok ||
+    !completed.ok ||
+    !shipped.ok ||
+    !received.ok ||
+    !version.ok
+  ) {
+    return impactUnavailable(
+      [planned, completed, shipped, received, version]
+        .filter((value): value is { ok: false; reason: string } => !value.ok)
+        .map((value) => value.reason)
+        .join("; ")
+    );
+  }
+
+  const dueDate = impactDateOrUnavailable(
+    impactValue(input, "dueDate"),
+    "dueDate"
+  );
+  if (!dueDate.ok) return dueDate.result;
+  const remaining = {
+    ok: true as const,
+    value: round(Math.max(planned.value - completed.value, 0))
+  };
+  const itemRevision = impactCanonicalNullableString(
+    impactValue(input, "itemRevision", "revision"),
+    "itemRevision"
+  );
+  if (!itemRevision.ok) return impactUnavailable(itemRevision.reason);
+
+  return {
+    sourceAvailability: "Present",
+    snapshot: {
+      schema: JOB_SNAPSHOT_V1,
+      jobId: jobId.value,
+      itemId: itemId.value,
+      itemRevision: itemRevision.value,
+      status: status as JobImpactSnapshot["status"],
+      plannedQuantity: planned.value,
+      completedQuantity: completed.value,
+      remainingQuantity: remaining.value,
+      quantityShipped: shipped.value,
+      quantityReceivedToInventory: received.value,
+      dueDate: dueDate.value,
+      effectiveMethodId: methodId.value,
+      effectiveMethodVersion: version.value,
+      unitOfMeasureCode: unitOfMeasureCode.value,
+      eligibilityBasis: ACTIVE_PRODUCING_JOB
+    }
+  };
+}
+
+/** Normalize one Job Material into the exact JOB_MATERIAL_SNAPSHOT_V1 key set. */
+export function normalizeJobMaterialImpactSnapshot(
+  source: ChangeNoticeImpactJobMaterialSnapshotInput
+): ChangeNoticeImpactSnapshotNormalization {
+  const input = source as ImpactRecord;
+  const materialId = impactRequiredString(
+    impactValue(input, "jobMaterialId", "id"),
+    "jobMaterialId"
+  );
+  const jobId = impactRequiredString(impactValue(input, "jobId"), "jobId");
+  const itemId = impactRequiredString(impactValue(input, "itemId"), "itemId");
+  if (!materialId.ok || !jobId.ok || !itemId.ok) {
+    return impactUnavailable(
+      [materialId, jobId, itemId]
+        .filter((value): value is { ok: false; reason: string } => !value.ok)
+        .map((value) => value.reason)
+        .join("; ")
+    );
+  }
+
+  const status = impactValue(input, "jobStatus");
+  if (!impactIn(status, JOB_STATUS_TYPES)) {
+    return impactUnavailable("parent job.status is unknown or unclassified");
+  }
+  const required = impactQuantity(
+    impactValue(input, "requiredQuantity", "estimatedQuantity"),
+    "requiredQuantity"
+  );
+  const issued = impactNullableQuantity(
+    impactValue(input, "issuedQuantity", "quantityIssued"),
+    "issuedQuantity"
+  );
+  const remaining = impactQuantity(
+    impactValue(input, "remainingQuantity", "quantityToIssue"),
+    "remainingQuantity"
+  );
+  if (!required.ok || !issued.ok || !remaining.ok) {
+    return impactUnavailable(
+      [required, issued, remaining]
+        .filter((value): value is { ok: false; reason: string } => !value.ok)
+        .map((value) => value.reason)
+        .join("; ")
+    );
+  }
+
+  const method = impactValue(input, "methodType");
+  if (!impactIn(method, METHOD_TYPES)) {
+    return impactUnavailable("methodType is unknown or unclassified");
+  }
+
+  const trackingRecord = impactValue(input, "requiresTracking");
+  let batch: unknown;
+  let serial: unknown;
+  if (isImpactRecord(trackingRecord)) {
+    batch = trackingRecord.batch;
+    serial = trackingRecord.serial;
+  } else {
+    batch = impactValue(input, "requiresBatchTracking");
+    serial = impactValue(input, "requiresSerialTracking");
+  }
+  const requiresBatch = impactBoolean(batch, "requiresBatchTracking");
+  const requiresSerial = impactBoolean(serial, "requiresSerialTracking");
+  if (!requiresBatch.ok || !requiresSerial.ok) {
+    return impactUnavailable(
+      [requiresBatch, requiresSerial]
+        .filter((value): value is { ok: false; reason: string } => !value.ok)
+        .map((value) => value.reason)
+        .join("; ")
+    );
+  }
+  const itemRevision = impactCanonicalNullableString(
+    impactValue(input, "itemRevision", "revision"),
+    "itemRevision"
+  );
+  const unitOfMeasureCode = impactCanonicalNullableString(
+    impactValue(input, "unitOfMeasureCode"),
+    "unitOfMeasureCode"
+  );
+  const jobOperationId = impactCanonicalNullableString(
+    impactValue(input, "jobOperationId"),
+    "jobOperationId"
+  );
+  if (!itemRevision.ok || !unitOfMeasureCode.ok || !jobOperationId.ok) {
+    return impactUnavailable(
+      [itemRevision, unitOfMeasureCode, jobOperationId]
+        .filter((value): value is { ok: false; reason: string } => !value.ok)
+        .map((value) => value.reason)
+        .join("; ")
+    );
+  }
+
+  return {
+    sourceAvailability: "Present",
+    snapshot: {
+      schema: JOB_MATERIAL_SNAPSHOT_V1,
+      jobMaterialId: materialId.value,
+      jobId: jobId.value,
+      itemId: itemId.value,
+      itemRevision: itemRevision.value,
+      jobStatus: status as JobMaterialImpactSnapshot["jobStatus"],
+      requiredQuantity: required.value,
+      issuedQuantity: issued.value,
+      remainingQuantity: remaining.value,
+      unitOfMeasureCode: unitOfMeasureCode.value,
+      methodType: method as JobMaterialImpactSnapshot["methodType"],
+      jobOperationId: jobOperationId.value,
+      requiresTracking: {
+        batch: requiresBatch.value,
+        serial: requiresSerial.value
+      },
+      eligibilityBasis: ACTIVE_JOB_MATERIAL
+    }
+  };
+}
+
+export type ChangeNoticeImpactEligibility =
+  | ChangeNoticeImpactExposureClassification
+  | "Unavailable";
+
+export function classifyPurchaseOrderLineImpactEligibility(input: {
+  purchaseOrderLineType: string;
+  purchaseOrderStatus: string;
+  receivedComplete: boolean;
+  remainingQuantity: number;
+  conversionFactor?: number;
+}): ChangeNoticeImpactEligibility {
+  if (
+    !PO_LINE_TYPES.includes(
+      input.purchaseOrderLineType as (typeof PO_LINE_TYPES)[number]
+    )
+  ) {
+    return "Unavailable";
+  }
+  if (
+    (purchaseOrderLineImpactNonAssessmentTypes as readonly string[]).includes(
+      input.purchaseOrderLineType
+    )
+  ) {
+    return "Historical reference";
+  }
+  if (
+    !impactIn(
+      input.purchaseOrderStatus,
+      purchaseOrderLineImpactCurrentStatuses
+    ) &&
+    !impactIn(
+      input.purchaseOrderStatus,
+      purchaseOrderLineImpactHistoricalStatuses
+    )
+  ) {
+    return "Unavailable";
+  }
+  const effectiveRemainingQuantity = round(
+    input.remainingQuantity * (input.conversionFactor ?? 1)
+  );
+  if (
+    input.receivedComplete ||
+    effectiveRemainingQuantity <= 0 ||
+    impactIn(
+      input.purchaseOrderStatus,
+      purchaseOrderLineImpactHistoricalStatuses
+    )
+  ) {
+    return "Historical reference";
+  }
+  return "Current operational exposure";
+}
+
+export function classifyJobImpactEligibility(
+  status: string
+): ChangeNoticeImpactEligibility {
+  if (impactIn(status, jobImpactActiveStatuses))
+    return "Current operational exposure";
+  if (impactIn(status, jobImpactHistoricalStatuses))
+    return "Historical reference";
+  return "Unavailable";
+}
+
+export function classifyJobMaterialImpactEligibility(
+  jobStatus: string
+): ChangeNoticeImpactEligibility {
+  return classifyJobImpactEligibility(jobStatus);
+}
+
+export function deriveChangeNoticeImpactProvenance(input: {
+  sourceItemId: string | null;
+  currentAffectedItems: Array<{
+    id: string;
+    itemId: string;
+    label: string;
+  }>;
+  persistedProvenance: Array<{
+    affectedItemId: string;
+    affectedItemSourceId: string;
+    affectedItemLabel: string | null;
+    endedAt?: string | null;
+    endedReason?: string | null;
+  }>;
+}): {
+  currentProvenance: ChangeNoticeImpactProvenance[];
+  historicalProvenance: ChangeNoticeImpactProvenance[];
+} {
+  const currentProvenance = input.currentAffectedItems
+    .filter(
+      (affected) =>
+        input.sourceItemId !== null && affected.itemId === input.sourceItemId
+    )
+    .map((affected) => ({
+      affectedItemId: affected.id,
+      affectedItemSourceId: affected.itemId,
+      affectedItemLabel: affected.label,
+      status: "Current" as const,
+      endedReason: null
+    }));
+  const currentKeys = new Set(
+    currentProvenance.map(
+      (cause) =>
+        `${cause.affectedItemId}${IMPACT_KEY_SEPARATOR}${cause.affectedItemSourceId}`
+    )
+  );
+  const historicalByKey = new Map<string, ChangeNoticeImpactProvenance>();
+  for (const persisted of input.persistedProvenance) {
+    const key = `${persisted.affectedItemId}${IMPACT_KEY_SEPARATOR}${persisted.affectedItemSourceId}`;
+    if (
+      persisted.endedAt === null || persisted.endedAt === undefined
+        ? currentKeys.has(key)
+        : false
+    ) {
+      continue;
+    }
+    historicalByKey.set(key, {
+      affectedItemId: persisted.affectedItemId,
+      affectedItemSourceId: persisted.affectedItemSourceId,
+      // Historical labels are optional in persistence. Use a generic label at
+      // the read-model boundary rather than dropping a valid provenance row or
+      // exposing a fabricated source identity.
+      affectedItemLabel: persisted.affectedItemLabel ?? "Affected item",
+      status: "Historical",
+      endedReason: persisted.endedReason ?? "No longer in current scope"
+    });
+  }
+  return {
+    currentProvenance,
+    historicalProvenance: [...historicalByKey.values()]
+  };
+}
+
+function snapshotKeysMatch(
+  value: ImpactRecord,
+  expected: readonly string[]
+): boolean {
+  const keys = Object.keys(value);
+  return (
+    keys.length === expected.length &&
+    expected.every((key) => Object.prototype.hasOwnProperty.call(value, key))
+  );
+}
+
+function snapshotDateOrNull(value: unknown): boolean {
+  if (value === null) return true;
+  if (typeof value !== "string" || !IMPACT_DATE_PATTERN.test(value)) {
+    return false;
+  }
+  try {
+    parseDate(value);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function snapshotNullableString(value: unknown): boolean {
+  return value === null || (typeof value === "string" && value.length > 0);
+}
+
+function snapshotNonEmptyString(value: unknown): boolean {
+  return typeof value === "string" && value.length > 0;
+}
+
+function snapshotFiniteNumber(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value);
+}
+
+function snapshotCanonicalNumber(value: unknown): value is number {
+  return snapshotFiniteNumber(value) && value === round(value);
+}
+
+function snapshotCanonicalQuantity(value: unknown): value is number {
+  return snapshotCanonicalNumber(value) && value >= 0;
+}
+
+function snapshotCanonicalNullableQuantity(value: unknown): boolean {
+  return value === null || snapshotCanonicalQuantity(value);
+}
+
+function snapshotCanonicalFactor(value: unknown): value is number {
+  return snapshotCanonicalNumber(value) && value > 0;
+}
+
+const SNAPSHOT_ID_KEYS = {
+  purchaseOrderLine: "purchaseOrderLineId",
+  job: "jobId",
+  jobMaterial: "jobMaterialId"
+} as const;
+
+function snapshotIdentityValue(
+  targetType: ChangeNoticeImpactTargetType,
+  value: unknown
+): unknown {
+  return isImpactRecord(value)
+    ? value[SNAPSHOT_ID_KEYS[targetType]]
+    : undefined;
+}
+
+function snapshotIdentityMatches(
+  targetType: ChangeNoticeImpactTargetType,
+  value: unknown,
+  targetId: unknown
+): boolean {
+  return snapshotIdentityValue(targetType, value) === targetId;
+}
+
+function isCanonicalStoredImpactSnapshot(
+  targetType: ChangeNoticeImpactTargetType,
+  value: unknown
+): value is ChangeNoticeImpactSnapshot {
+  if (!isImpactRecord(value)) return false;
+  if (!snapshotKeysMatch(value, SNAPSHOT_KEYS[targetType])) return false;
+
+  if (targetType === "purchaseOrderLine") {
+    return (
+      value.schema === PO_LINE_SNAPSHOT_V1 &&
+      snapshotNonEmptyString(value.purchaseOrderLineId) &&
+      snapshotNonEmptyString(value.purchaseOrderId) &&
+      snapshotNonEmptyString(value.supplierId) &&
+      snapshotNonEmptyString(value.itemId) &&
+      snapshotNullableString(value.itemRevision) &&
+      PO_LINE_TYPES.includes(
+        value.purchaseOrderLineType as (typeof PO_LINE_TYPES)[number]
+      ) &&
+      PO_LINE_STATUS_TYPES.includes(
+        value.purchaseOrderStatus as (typeof PO_LINE_STATUS_TYPES)[number]
+      ) &&
+      typeof value.receivedComplete === "boolean" &&
+      snapshotCanonicalQuantity(value.orderedQuantity) &&
+      snapshotCanonicalQuantity(value.receivedQuantity) &&
+      snapshotCanonicalQuantity(value.remainingQuantity) &&
+      snapshotNullableString(value.purchaseUnitOfMeasureCode) &&
+      snapshotNullableString(value.inventoryUnitOfMeasureCode) &&
+      snapshotCanonicalFactor(value.conversionFactor) &&
+      snapshotDateOrNull(value.requiredDate) &&
+      snapshotDateOrNull(value.promisedDate) &&
+      value.eligibilityBasis === OPEN_PURCHASING_COMMITMENT
+    );
+  }
+
+  if (targetType === "job") {
+    const plannedQuantity = value.plannedQuantity;
+    const completedQuantity = value.completedQuantity;
+    const remainingQuantity = value.remainingQuantity;
+    return (
+      value.schema === JOB_SNAPSHOT_V1 &&
+      snapshotNonEmptyString(value.jobId) &&
+      snapshotNonEmptyString(value.itemId) &&
+      snapshotNullableString(value.itemRevision) &&
+      JOB_STATUS_TYPES.includes(
+        value.status as (typeof JOB_STATUS_TYPES)[number]
+      ) &&
+      snapshotCanonicalQuantity(plannedQuantity) &&
+      snapshotCanonicalQuantity(completedQuantity) &&
+      snapshotCanonicalQuantity(remainingQuantity) &&
+      remainingQuantity ===
+        round(Math.max(plannedQuantity - completedQuantity, 0)) &&
+      snapshotCanonicalQuantity(value.quantityShipped) &&
+      snapshotCanonicalQuantity(value.quantityReceivedToInventory) &&
+      snapshotDateOrNull(value.dueDate) &&
+      snapshotNonEmptyString(value.effectiveMethodId) &&
+      snapshotCanonicalNumber(value.effectiveMethodVersion) &&
+      snapshotNonEmptyString(value.unitOfMeasureCode) &&
+      value.eligibilityBasis === ACTIVE_PRODUCING_JOB
+    );
+  }
+
+  const tracking = value.requiresTracking;
+  return (
+    value.schema === JOB_MATERIAL_SNAPSHOT_V1 &&
+    snapshotNonEmptyString(value.jobMaterialId) &&
+    snapshotNonEmptyString(value.jobId) &&
+    snapshotNonEmptyString(value.itemId) &&
+    snapshotNullableString(value.itemRevision) &&
+    JOB_STATUS_TYPES.includes(
+      value.jobStatus as (typeof JOB_STATUS_TYPES)[number]
+    ) &&
+    snapshotCanonicalQuantity(value.requiredQuantity) &&
+    snapshotCanonicalNullableQuantity(value.issuedQuantity) &&
+    snapshotCanonicalQuantity(value.remainingQuantity) &&
+    snapshotNullableString(value.unitOfMeasureCode) &&
+    METHOD_TYPES.includes(value.methodType as (typeof METHOD_TYPES)[number]) &&
+    snapshotNullableString(value.jobOperationId) &&
+    isImpactRecord(tracking) &&
+    snapshotKeysMatch(tracking, ["batch", "serial"]) &&
+    typeof tracking.batch === "boolean" &&
+    typeof tracking.serial === "boolean" &&
+    value.eligibilityBasis === ACTIVE_JOB_MATERIAL
+  );
+}
+
+function impactSnapshotValuesEqual(left: unknown, right: unknown): boolean {
+  if (typeof left === "number" && typeof right === "number") {
+    return round(left) === round(right);
+  }
+  if (isImpactRecord(left) && isImpactRecord(right)) {
+    const keys = Object.keys(left);
+    return (
+      keys.length === Object.keys(right).length &&
+      keys.every(
+        (key) =>
+          Object.prototype.hasOwnProperty.call(right, key) &&
+          impactSnapshotValuesEqual(left[key], right[key])
+      )
+    );
+  }
+  return Object.is(left, right);
+}
+
+/**
+ * Compare only canonical snapshot fields. The stored version and exact key set
+ * are validated before comparison; cosmetic fields and updatedAt never enter
+ * this function.
+ */
+export function compareChangeNoticeImpactSnapshot(
+  targetType: ChangeNoticeImpactTargetType,
+  currentSnapshot: ChangeNoticeImpactSnapshot,
+  storedSnapshot: unknown,
+  snapshotVersion: number
+): "Current" | "Changed since assessment" | "Unknown" {
+  if (
+    snapshotVersion !== 1 ||
+    !isCanonicalStoredImpactSnapshot(targetType, storedSnapshot) ||
+    storedSnapshot.schema !== currentSnapshot.schema ||
+    !snapshotIdentityMatches(
+      targetType,
+      storedSnapshot,
+      snapshotIdentityValue(targetType, currentSnapshot)
+    )
+  ) {
+    return "Unknown";
+  }
+  return impactSnapshotValuesEqual(currentSnapshot, storedSnapshot)
+    ? "Current"
+    : "Changed since assessment";
+}
+
+// Small aliases make the pure contract easy to discover from the Items barrel.
+export const normalizePOLineImpactSnapshot =
+  normalizePurchaseOrderLineImpactSnapshot;
+export const normalizeJobSnapshot = normalizeJobImpactSnapshot;
+export const normalizeJobMaterialSnapshot = normalizeJobMaterialImpactSnapshot;
+export const compareImpactSnapshots = compareChangeNoticeImpactSnapshot;
+
+type ImpactSourcePage = {
+  rows: ImpactRecord[];
+  /** True only when this page began at the first row and reached the end. */
+  complete: boolean;
+  nextCursor: string | null;
+  error: unknown | null;
+};
+
+type ImpactCoverageSummary = {
+  currentExposureCount: number | null;
+  historicalReferenceCount: number | null;
+  /** True when one or more rows could not be semantically classified. */
+  partial: boolean;
+  error: unknown | null;
+  sourceRows: ImpactRecord[];
+  currentRows: ImpactRecord[];
+  historicalRows: ImpactRecord[];
+};
+
+type ImpactStreamPage = {
+  rows: ImpactRecord[];
+  nextCursor: string | null;
+  complete: boolean;
+};
+
+function impactPaginateRows(
+  rows: ImpactRecord[],
+  cursor: string | null | undefined,
+  limit: number
+): ImpactStreamPage {
+  // The cursor contract has three states: undefined means this stream has not
+  // started, a string continues it, and null means it is exhausted. Do not
+  // collapse undefined and null or an exhausted stream will restart.
+  if (cursor === null) {
+    return { rows: [], nextCursor: null, complete: false };
+  }
+
+  const ordered = [...rows].sort((left, right) =>
+    String(left.id).localeCompare(String(right.id))
+  );
+  const afterCursor =
+    cursor === undefined
+      ? ordered
+      : ordered.filter(
+          (row) =>
+            typeof row.id === "string" && row.id.localeCompare(cursor) > 0
+        );
+  const pageRows = afterCursor.slice(0, limit);
+  const hasMore = afterCursor.length > pageRows.length;
+  return {
+    rows: pageRows,
+    nextCursor:
+      hasMore && typeof pageRows.at(-1)?.id === "string"
+        ? (pageRows.at(-1)?.id as string)
+        : null,
+    complete: cursor === undefined && !hasMore
+  };
+}
+
+function impactCursor(
+  options: ResolvedImpactCandidateOptions,
+  targetType: ChangeNoticeImpactTargetType,
+  stream: "current" | "historical"
+): string | null | undefined {
+  const domainCursor = options.cursor?.[targetType] as
+    | ChangeNoticeImpactDomainCursor
+    | null
+    | undefined;
+  return domainCursor?.[stream];
+}
+
+function emptyImpactCoverageSummary(): ImpactCoverageSummary {
+  return {
+    currentExposureCount: 0,
+    historicalReferenceCount: 0,
+    partial: false,
+    error: null,
+    sourceRows: [],
+    currentRows: [],
+    historicalRows: []
+  };
+}
+
+type ImpactBatchRows = {
+  rows: ImpactRecord[];
+  error: unknown | null;
+};
+
+type ResolvedImpactCandidateOptions = Omit<
+  ChangeNoticeImpactCandidateOptions,
+  "sourceAccess"
+> & {
+  sourceAccess: ChangeNoticeImpactSourceAccess;
+};
+
+function impactTargetKey(targetType: string, targetId: string): string {
+  return `${targetType}${IMPACT_KEY_SEPARATOR}${targetId}`;
+}
+
+function impactPageSize(options: ResolvedImpactCandidateOptions): number {
+  const requested = options.limit ?? options.pageSize;
+  return requested !== undefined && Number.isInteger(requested) && requested > 0
+    ? Math.min(requested, IMPACT_PAGE_SIZE)
+    : IMPACT_PAGE_SIZE;
+}
+
+async function readPurchaseOrderLineCurrentRows(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  itemIds: string[],
+  options: ResolvedImpactCandidateOptions,
+  disabled: boolean
+): Promise<ImpactSourcePage> {
+  if (disabled || itemIds.length === 0) {
+    return { rows: [], complete: true, nextCursor: null, error: null };
+  }
+
+  const pageSize = impactPageSize(options);
+  const initialCursor = impactCursor(options, "purchaseOrderLine", "current");
+  if (initialCursor === null) {
+    return { rows: [], complete: false, nextCursor: null, error: null };
+  }
+  const rows: ImpactRecord[] = [];
+  for (const batch of impactIdBatches(itemIds)) {
+    let query = client
+      .from("purchaseOrderLine")
+      .select(
+        "id, purchaseOrderId, itemId, purchaseOrderLineType, purchaseQuantity, quantityReceived, quantityToReceive, receivedComplete, purchaseUnitOfMeasureCode, inventoryUnitOfMeasureCode, conversionFactor, requiredDate, promisedDate, companyId"
+      )
+      .eq("companyId", companyId)
+      .in("itemId", batch)
+      .order("id", { ascending: true })
+      .limit(pageSize + 1);
+    if (initialCursor !== undefined) query = query.gt("id", initialCursor);
+
+    const result = await query;
+    if (result.error) {
+      return {
+        rows: [],
+        complete: false,
+        nextCursor: null,
+        error: result.error
+      };
+    }
+    rows.push(...impactRecordRows(result.data));
+  }
+
+  return {
+    ...impactPaginateRows(rows, initialCursor, pageSize),
+    error: null
+  };
+}
+
+async function readJobCurrentRows(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  itemIds: string[],
+  options: ResolvedImpactCandidateOptions,
+  disabled: boolean
+): Promise<ImpactSourcePage> {
+  if (disabled || itemIds.length === 0) {
+    return { rows: [], complete: true, nextCursor: null, error: null };
+  }
+
+  const pageSize = impactPageSize(options);
+  const initialCursor = impactCursor(options, "job", "current");
+  if (initialCursor === null) {
+    return { rows: [], complete: false, nextCursor: null, error: null };
+  }
+  const rows: ImpactRecord[] = [];
+  for (const batch of impactIdBatches(itemIds)) {
+    let query = client
+      .from("job")
+      .select(
+        "id, jobId, itemId, status, quantity, quantityComplete, quantityShipped, quantityReceivedToInventory, dueDate, unitOfMeasureCode, companyId"
+      )
+      .eq("companyId", companyId)
+      .in("itemId", batch)
+      .order("id", { ascending: true })
+      .limit(pageSize + 1);
+    if (initialCursor !== undefined) query = query.gt("id", initialCursor);
+
+    const result = await query;
+    if (result.error) {
+      return {
+        rows: [],
+        complete: false,
+        nextCursor: null,
+        error: result.error
+      };
+    }
+    rows.push(...impactRecordRows(result.data));
+  }
+
+  return {
+    ...impactPaginateRows(rows, initialCursor, pageSize),
+    error: null
+  };
+}
+
+async function readJobMaterialCurrentRows(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  itemIds: string[],
+  options: ResolvedImpactCandidateOptions,
+  disabled: boolean
+): Promise<ImpactSourcePage> {
+  if (disabled || itemIds.length === 0) {
+    return { rows: [], complete: true, nextCursor: null, error: null };
+  }
+
+  const pageSize = impactPageSize(options);
+  const initialCursor = impactCursor(options, "jobMaterial", "current");
+  if (initialCursor === null) {
+    return { rows: [], complete: false, nextCursor: null, error: null };
+  }
+  const rows: ImpactRecord[] = [];
+  for (const batch of impactIdBatches(itemIds)) {
+    let query = client
+      .from("jobMaterial")
+      .select(
+        "id, jobId, itemId, estimatedQuantity, quantityIssued, quantityToIssue, unitOfMeasureCode, methodType, jobOperationId, requiresBatchTracking, requiresSerialTracking, companyId"
+      )
+      .eq("companyId", companyId)
+      .in("itemId", batch)
+      .order("id", { ascending: true })
+      .limit(pageSize + 1);
+    if (initialCursor !== undefined) query = query.gt("id", initialCursor);
+
+    const result = await query;
+    if (result.error) {
+      return {
+        rows: [],
+        complete: false,
+        nextCursor: null,
+        error: result.error
+      };
+    }
+    rows.push(...impactRecordRows(result.data));
+  }
+
+  return {
+    ...impactPaginateRows(rows, initialCursor, pageSize),
+    error: null
+  };
+}
+
+function failedImpactSummary(
+  error: unknown,
+  sourceRows: ImpactRecord[] = []
+): ImpactCoverageSummary {
+  return {
+    currentExposureCount: null,
+    historicalReferenceCount: null,
+    partial: false,
+    error,
+    sourceRows,
+    currentRows: [],
+    historicalRows: []
+  };
+}
+
+async function readPurchaseOrderLineImpactSummary(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  itemIds: string[],
+  persistedIds: string[] = [],
+  classificationItemIds: string[] = itemIds
+): Promise<ImpactCoverageSummary> {
+  if (itemIds.length === 0 && persistedIds.length === 0) {
+    return emptyImpactCoverageSummary();
+  }
+
+  const result =
+    itemIds.length > 0
+      ? await readImpactRowsByItemIds(
+          client,
+          companyId,
+          "purchaseOrderLine",
+          "id, purchaseOrderId, itemId, purchaseOrderLineType, purchaseQuantity, quantityReceived, quantityToReceive, receivedComplete, purchaseUnitOfMeasureCode, inventoryUnitOfMeasureCode, conversionFactor, requiredDate, promisedDate, companyId",
+          itemIds
+        )
+      : { rows: [], error: null };
+  if (result.error) {
+    return failedImpactSummary(result.error);
+  }
+  const liveSourceRows = result.rows;
+  const persistedResult = await readPurchaseOrderLineRowsByIds(
+    client,
+    companyId,
+    persistedIds
+  );
+  if (persistedResult.error) {
+    return failedImpactSummary(persistedResult.error);
+  }
+  const sourceRows = impactMergeRows(liveSourceRows, persistedResult.rows);
+  const sourceScanIds = new Set(
+    liveSourceRows.flatMap((row) =>
+      typeof row.id === "string" ? [row.id] : []
+    )
+  );
+  const currentItemIdSet = new Set(classificationItemIds);
+
+  const poIds = sourceRows.flatMap((row) =>
+    typeof row.purchaseOrderId === "string" ? [row.purchaseOrderId] : []
+  );
+  const sourceItemIds = sourceRows.flatMap((row) =>
+    typeof row.itemId === "string" ? [row.itemId] : []
+  );
+  const [parents, deliveries, items] = await Promise.all([
+    readImpactPurchaseOrders(client, companyId, poIds),
+    readImpactPurchaseOrderDeliveries(client, companyId, poIds),
+    readImpactItems(client, companyId, sourceItemIds)
+  ]);
+  if (parents.error || deliveries.error || items.error) {
+    return failedImpactSummary(
+      parents.error ?? deliveries.error ?? items.error,
+      sourceRows
+    );
+  }
+  const parentById = impactMapRowsById(parents.rows);
+  const deliveryById = impactMapRowsById(deliveries.rows);
+  const itemById = impactMapRowsById(items.rows);
+  const persistedIdSet = new Set(persistedIds);
+  const currentRows: ImpactRecord[] = [];
+  const historicalRows: ImpactRecord[] = [];
+  let partial = false;
+  const recordUnavailable = (row: ImpactRecord) => {
+    partial = true;
+    if (typeof row.id === "string" && sourceScanIds.has(row.id)) {
+      currentRows.push(row);
+    } else {
+      historicalRows.push(row);
+    }
+  };
+
+  for (const row of sourceRows) {
+    const lineType = row.purchaseOrderLineType;
+    if (!impactIn(lineType, PO_LINE_TYPES)) {
+      recordUnavailable(row);
+      continue;
+    }
+    if (typeof row.id !== "string" || row.id.length === 0) {
+      recordUnavailable(row);
+      continue;
+    }
+    if (
+      !PO_LINE_ASSESSMENT_TYPES.includes(
+        lineType as (typeof PO_LINE_ASSESSMENT_TYPES)[number]
+      )
+    ) {
+      if (persistedIdSet.has(row.id)) historicalRows.push(row);
+      continue;
+    }
+
+    const parent =
+      typeof row.purchaseOrderId === "string"
+        ? parentById.get(row.purchaseOrderId)
+        : undefined;
+    const item =
+      typeof row.itemId === "string" ? itemById.get(row.itemId) : undefined;
+    const delivery =
+      typeof row.purchaseOrderId === "string"
+        ? deliveryById.get(row.purchaseOrderId)
+        : undefined;
+    if (!parent || !item || !delivery) {
+      recordUnavailable(row);
+      continue;
+    }
+    const normalized = normalizePurchaseOrderLineImpactSnapshot({
+      purchaseOrderLineId: row.id,
+      purchaseOrderId: row.purchaseOrderId,
+      supplierId: parent.supplierId,
+      itemId: row.itemId,
+      itemRevision: item.revision,
+      purchaseOrderLineType: row.purchaseOrderLineType,
+      purchaseOrderStatus: parent.status,
+      receivedComplete: row.receivedComplete,
+      purchaseQuantity: row.purchaseQuantity,
+      quantityReceived: row.quantityReceived,
+      quantityToReceive: row.quantityToReceive,
+      purchaseUnitOfMeasureCode: row.purchaseUnitOfMeasureCode,
+      inventoryUnitOfMeasureCode: row.inventoryUnitOfMeasureCode,
+      conversionFactor: row.conversionFactor,
+      requiredDate: row.requiredDate,
+      promisedDate: row.promisedDate,
+      deliveryRowPresent: true,
+      deliveryReceiptPromisedDate: delivery.receiptPromisedDate
+    });
+    if (normalized.sourceAvailability !== "Present") {
+      recordUnavailable(row);
+      continue;
+    }
+    const snapshot = normalized.snapshot as PurchaseOrderLineImpactSnapshot;
+    const eligibility = classifyPurchaseOrderLineImpactEligibility({
+      purchaseOrderLineType: snapshot.purchaseOrderLineType,
+      purchaseOrderStatus: snapshot.purchaseOrderStatus,
+      receivedComplete: snapshot.receivedComplete,
+      remainingQuantity: snapshot.remainingQuantity,
+      conversionFactor: snapshot.conversionFactor
+    });
+    if (eligibility === "Unavailable") {
+      recordUnavailable(row);
+      continue;
+    }
+    if (!currentItemIdSet.has(snapshot.itemId)) {
+      historicalRows.push(row);
+    } else if (eligibility === "Current operational exposure") {
+      currentRows.push(row);
+    } else {
+      historicalRows.push(row);
+    }
+  }
+  return {
+    currentExposureCount: partial ? null : currentRows.length,
+    historicalReferenceCount: partial ? null : historicalRows.length,
+    partial,
+    error: null,
+    sourceRows,
+    currentRows,
+    historicalRows
+  };
+}
+
+async function readJobImpactSummary(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  itemIds: string[],
+  persistedIds: string[] = [],
+  classificationItemIds: string[] = itemIds
+): Promise<ImpactCoverageSummary> {
+  if (itemIds.length === 0 && persistedIds.length === 0) {
+    return emptyImpactCoverageSummary();
+  }
+  const result =
+    itemIds.length > 0
+      ? await readImpactRowsByItemIds(
+          client,
+          companyId,
+          "job",
+          "id, jobId, itemId, status, quantity, quantityComplete, quantityShipped, quantityReceivedToInventory, dueDate, unitOfMeasureCode, companyId",
+          itemIds
+        )
+      : { rows: [], error: null };
+  if (result.error) {
+    return failedImpactSummary(result.error);
+  }
+  const liveSourceRows = result.rows;
+  const persistedResult = await readJobRowsByIds(
+    client,
+    companyId,
+    persistedIds
+  );
+  if (persistedResult.error) {
+    return failedImpactSummary(persistedResult.error);
+  }
+  const sourceRows = impactMergeRows(liveSourceRows, persistedResult.rows);
+  const sourceScanIds = new Set(
+    liveSourceRows.flatMap((row) =>
+      typeof row.id === "string" ? [row.id] : []
+    )
+  );
+  const currentItemIdSet = new Set(classificationItemIds);
+  const jobIds = sourceRows.flatMap((row) =>
+    typeof row.id === "string" ? [row.id] : []
+  );
+  const itemIdsForRows = sourceRows.flatMap((row) =>
+    typeof row.itemId === "string" ? [row.itemId] : []
+  );
+  const [items, roots] = await Promise.all([
+    readImpactItems(client, companyId, itemIdsForRows),
+    readImpactJobRootMethods(client, companyId, jobIds)
+  ]);
+  if (items.error || roots.error) {
+    return failedImpactSummary(items.error ?? roots.error, sourceRows);
+  }
+  const itemById = impactMapRowsById(items.rows);
+  const rootByJobId = new Map<string, ImpactRecord>();
+  const duplicateRoots = new Set<string>();
+  for (const root of roots.rows) {
+    if (typeof root.jobId !== "string") continue;
+    if (rootByJobId.has(root.jobId)) duplicateRoots.add(root.jobId);
+    else rootByJobId.set(root.jobId, root);
+  }
+  const currentRows: ImpactRecord[] = [];
+  const historicalRows: ImpactRecord[] = [];
+  let partial = false;
+  const recordUnavailable = (row: ImpactRecord) => {
+    partial = true;
+    if (typeof row.id === "string" && sourceScanIds.has(row.id)) {
+      currentRows.push(row);
+    } else {
+      historicalRows.push(row);
+    }
+  };
+
+  for (const row of sourceRows) {
+    const jobId = typeof row.id === "string" ? row.id : null;
+    const item =
+      typeof row.itemId === "string" ? itemById.get(row.itemId) : undefined;
+    const root = jobId ? rootByJobId.get(jobId) : undefined;
+    if (
+      !jobId ||
+      !item ||
+      !root ||
+      duplicateRoots.has(jobId) ||
+      !impactJobRootMatchesItem(row, root)
+    ) {
+      recordUnavailable(row);
+      continue;
+    }
+    const normalized = normalizeJobImpactSnapshot({
+      jobId: row.id,
+      itemId: row.itemId,
+      itemRevision: item.revision,
+      status: row.status,
+      plannedQuantity: row.quantity,
+      quantityComplete: row.quantityComplete,
+      quantityShipped: row.quantityShipped,
+      quantityReceivedToInventory: row.quantityReceivedToInventory,
+      dueDate: row.dueDate,
+      effectiveMethodId: root.id,
+      effectiveMethodVersion: root.version,
+      unitOfMeasureCode: row.unitOfMeasureCode
+    });
+    if (normalized.sourceAvailability !== "Present") {
+      recordUnavailable(row);
+      continue;
+    }
+    const snapshot = normalized.snapshot as JobImpactSnapshot;
+    if (!currentItemIdSet.has(snapshot.itemId)) {
+      historicalRows.push(row);
+    } else if (
+      classifyJobImpactEligibility(snapshot.status) ===
+      "Current operational exposure"
+    ) {
+      currentRows.push(row);
+    } else {
+      historicalRows.push(row);
+    }
+  }
+  return {
+    currentExposureCount: partial ? null : currentRows.length,
+    historicalReferenceCount: partial ? null : historicalRows.length,
+    partial,
+    error: null,
+    sourceRows,
+    currentRows,
+    historicalRows
+  };
+}
+
+async function readJobMaterialImpactSummary(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  itemIds: string[],
+  persistedIds: string[] = [],
+  classificationItemIds: string[] = itemIds
+): Promise<ImpactCoverageSummary> {
+  if (itemIds.length === 0 && persistedIds.length === 0) {
+    return emptyImpactCoverageSummary();
+  }
+  const result =
+    itemIds.length > 0
+      ? await readImpactRowsByItemIds(
+          client,
+          companyId,
+          "jobMaterial",
+          "id, jobId, itemId, estimatedQuantity, quantityIssued, quantityToIssue, unitOfMeasureCode, methodType, jobOperationId, requiresBatchTracking, requiresSerialTracking, companyId",
+          itemIds
+        )
+      : { rows: [], error: null };
+  if (result.error) {
+    return failedImpactSummary(result.error);
+  }
+  const liveSourceRows = result.rows;
+  const persistedResult = await readJobMaterialRowsByIds(
+    client,
+    companyId,
+    persistedIds
+  );
+  if (persistedResult.error) {
+    return failedImpactSummary(persistedResult.error);
+  }
+  const sourceRows = impactMergeRows(liveSourceRows, persistedResult.rows);
+  const sourceScanIds = new Set(
+    liveSourceRows.flatMap((row) =>
+      typeof row.id === "string" ? [row.id] : []
+    )
+  );
+  const currentItemIdSet = new Set(classificationItemIds);
+  const parentIds = sourceRows.flatMap((row) =>
+    typeof row.jobId === "string" ? [row.jobId] : []
+  );
+  const sourceItemIds = sourceRows.flatMap((row) =>
+    typeof row.itemId === "string" ? [row.itemId] : []
+  );
+  const [parents, items] = await Promise.all([
+    readJobRowsByIds(client, companyId, parentIds),
+    readImpactItems(client, companyId, sourceItemIds)
+  ]);
+  if (parents.error || items.error) {
+    return failedImpactSummary(parents.error ?? items.error, sourceRows);
+  }
+  const parentById = impactMapRowsById(parents.rows);
+  const itemById = impactMapRowsById(items.rows);
+  const currentRows: ImpactRecord[] = [];
+  const historicalRows: ImpactRecord[] = [];
+  let partial = false;
+  const recordUnavailable = (row: ImpactRecord) => {
+    partial = true;
+    if (typeof row.id === "string" && sourceScanIds.has(row.id)) {
+      currentRows.push(row);
+    } else {
+      historicalRows.push(row);
+    }
+  };
+
+  for (const row of sourceRows) {
+    const parent =
+      typeof row.jobId === "string" ? parentById.get(row.jobId) : undefined;
+    const item =
+      typeof row.itemId === "string" ? itemById.get(row.itemId) : undefined;
+    if (!parent || !item) {
+      recordUnavailable(row);
+      continue;
+    }
+    const normalized = normalizeJobMaterialImpactSnapshot({
+      jobMaterialId: row.id,
+      jobId: row.jobId,
+      itemId: row.itemId,
+      itemRevision: item.revision,
+      jobStatus: parent.status,
+      estimatedQuantity: row.estimatedQuantity,
+      quantityIssued: row.quantityIssued,
+      quantityToIssue: row.quantityToIssue,
+      unitOfMeasureCode: row.unitOfMeasureCode,
+      methodType: row.methodType,
+      jobOperationId: row.jobOperationId,
+      requiresBatchTracking: row.requiresBatchTracking,
+      requiresSerialTracking: row.requiresSerialTracking
+    });
+    if (normalized.sourceAvailability !== "Present") {
+      recordUnavailable(row);
+      continue;
+    }
+    const snapshot = normalized.snapshot as JobMaterialImpactSnapshot;
+    if (!currentItemIdSet.has(snapshot.itemId)) {
+      historicalRows.push(row);
+    } else if (
+      classifyJobMaterialImpactEligibility(snapshot.jobStatus) ===
+      "Current operational exposure"
+    ) {
+      currentRows.push(row);
+    } else {
+      historicalRows.push(row);
+    }
+  }
+  return {
+    currentExposureCount: partial ? null : currentRows.length,
+    historicalReferenceCount: partial ? null : historicalRows.length,
+    partial,
+    error: null,
+    sourceRows,
+    currentRows,
+    historicalRows
+  };
+}
+
+function impactSummaryWithPersistedHistorical(
+  summary: ImpactCoverageSummary,
+  persistedIds: string[],
+  sourceRows: ImpactRecord[],
+  sourceScanComplete: boolean
+): ImpactCoverageSummary {
+  if (summary.error || summary.historicalReferenceCount === null) {
+    return summary;
+  }
+
+  const sourceById = impactMapRowsById(sourceRows);
+  let extraHistoricalCount = 0;
+  for (const targetId of new Set(persistedIds)) {
+    if (!sourceById.has(targetId)) {
+      if (!sourceScanComplete)
+        return { ...summary, historicalReferenceCount: null };
+      extraHistoricalCount += 1;
+    }
+  }
+
+  return {
+    ...summary,
+    historicalReferenceCount:
+      summary.historicalReferenceCount + extraHistoricalCount
+  };
+}
+
+function impactIdBatches(ids: string[]): string[][] {
+  const uniqueIds = [...new Set(ids)];
+  const batches: string[][] = [];
+  for (let index = 0; index < uniqueIds.length; index += IMPACT_ID_BATCH_SIZE) {
+    batches.push(uniqueIds.slice(index, index + IMPACT_ID_BATCH_SIZE));
+  }
+  return batches;
+}
+
+type ImpactItemIdTable = "purchaseOrderLine" | "job" | "jobMaterial";
+
+async function readImpactRowsByItemIds(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  table: ImpactItemIdTable,
+  selectColumns: string,
+  itemIds: string[]
+): Promise<ImpactBatchRows> {
+  const rows: ImpactRecord[] = [];
+  for (const batch of impactIdBatches(itemIds)) {
+    const result = await fetchAllFromTable<ImpactRecord>(
+      client,
+      table,
+      selectColumns,
+      (query) =>
+        query
+          .eq("companyId", companyId)
+          .in("itemId", batch)
+          .order("id", { ascending: true })
+    );
+    if (result.error || !result.data) {
+      return {
+        rows: [],
+        error: result.error ?? new Error(`${table} Impact scan failed`)
+      };
+    }
+    rows.push(...impactRecordRows(result.data));
+  }
+  return { rows, error: null };
+}
+
+async function readPurchaseOrderLineRowsByIds(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  ids: string[]
+): Promise<ImpactBatchRows> {
+  const rows: ImpactRecord[] = [];
+  for (const batch of impactIdBatches(ids)) {
+    const result = await client
+      .from("purchaseOrderLine")
+      .select(
+        "id, purchaseOrderId, itemId, purchaseOrderLineType, purchaseQuantity, quantityReceived, quantityToReceive, receivedComplete, purchaseUnitOfMeasureCode, inventoryUnitOfMeasureCode, conversionFactor, requiredDate, promisedDate, companyId"
+      )
+      .eq("companyId", companyId)
+      .in("id", batch);
+    if (result.error) return { rows: [], error: result.error };
+    rows.push(...impactRecordRows(result.data));
+  }
+  return { rows, error: null };
+}
+
+async function readJobRowsByIds(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  ids: string[]
+): Promise<ImpactBatchRows> {
+  const rows: ImpactRecord[] = [];
+  for (const batch of impactIdBatches(ids)) {
+    const result = await client
+      .from("job")
+      .select(
+        "id, jobId, itemId, status, quantity, quantityComplete, quantityShipped, quantityReceivedToInventory, dueDate, unitOfMeasureCode, companyId"
+      )
+      .eq("companyId", companyId)
+      .in("id", batch);
+    if (result.error) return { rows: [], error: result.error };
+    rows.push(...impactRecordRows(result.data));
+  }
+  return { rows, error: null };
+}
+
+async function readJobMaterialRowsByIds(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  ids: string[]
+): Promise<ImpactBatchRows> {
+  const rows: ImpactRecord[] = [];
+  for (const batch of impactIdBatches(ids)) {
+    const result = await client
+      .from("jobMaterial")
+      .select(
+        "id, jobId, itemId, estimatedQuantity, quantityIssued, quantityToIssue, unitOfMeasureCode, methodType, jobOperationId, requiresBatchTracking, requiresSerialTracking, companyId"
+      )
+      .eq("companyId", companyId)
+      .in("id", batch);
+    if (result.error) return { rows: [], error: result.error };
+    rows.push(...impactRecordRows(result.data));
+  }
+  return { rows, error: null };
+}
+
+async function readImpactItems(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  ids: string[]
+): Promise<ImpactBatchRows> {
+  const rows: ImpactRecord[] = [];
+  for (const batch of impactIdBatches(ids)) {
+    const result = await client
+      .from("item")
+      .select(
+        "id, readableId, readableIdWithRevision, revision, unitOfMeasureCode, companyId"
+      )
+      .eq("companyId", companyId)
+      .in("id", batch);
+    if (result.error) return { rows: [], error: result.error };
+    rows.push(...impactRecordRows(result.data));
+  }
+  return { rows, error: null };
+}
+
+async function readImpactPurchaseOrders(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  ids: string[]
+): Promise<ImpactBatchRows> {
+  const rows: ImpactRecord[] = [];
+  for (const batch of impactIdBatches(ids)) {
+    const result = await client
+      .from("purchaseOrder")
+      .select("id, purchaseOrderId, supplierId, status, companyId")
+      .eq("companyId", companyId)
+      .in("id", batch);
+    if (result.error) return { rows: [], error: result.error };
+    rows.push(...impactRecordRows(result.data));
+  }
+  return { rows, error: null };
+}
+
+async function readImpactPurchaseOrderDeliveries(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  ids: string[]
+): Promise<ImpactBatchRows> {
+  const rows: ImpactRecord[] = [];
+  for (const batch of impactIdBatches(ids)) {
+    const result = await client
+      .from("purchaseOrderDelivery")
+      .select("id, receiptPromisedDate, companyId")
+      .eq("companyId", companyId)
+      .in("id", batch);
+    if (result.error) return { rows: [], error: result.error };
+    rows.push(...impactRecordRows(result.data));
+  }
+  return { rows, error: null };
+}
+
+async function readImpactJobRootMethods(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  jobIds: string[]
+): Promise<ImpactBatchRows> {
+  if (jobIds.length === 0) return { rows: [], error: null };
+  const rows: ImpactRecord[] = [];
+  for (const batch of impactIdBatches(jobIds)) {
+    const result = await fetchAllFromTable<ImpactRecord>(
+      client,
+      "jobMakeMethod",
+      "id, jobId, itemId, version, parentMaterialId, companyId",
+      (query) =>
+        query
+          .eq("companyId", companyId)
+          .in("jobId", batch)
+          .is("parentMaterialId", null)
+          .order("jobId", { ascending: true })
+          .order("id", { ascending: true })
+    );
+    if (result.error || !result.data) {
+      return {
+        rows: [],
+        error: result.error ?? new Error("Job root method scan failed")
+      };
+    }
+    rows.push(...impactRecordRows(result.data));
+  }
+  return { rows, error: null };
+}
+
+type ImpactPersistedProvenance = {
+  affectedItemId: string;
+  affectedItemSourceId: string;
+  affectedItemLabel: string | null;
+  endedAt: string | null;
+  endedReason: string | null;
+};
+
+type ImpactPersistedDecision = {
+  id: string;
+  targetType: ChangeNoticeImpactTargetType;
+  targetId: string;
+  projection: ChangeNoticeImpactDecisionProjection | null;
+  snapshotIssue: string | null;
+  provenance: ImpactPersistedProvenance[];
+};
+
+type ImpactPersistedState = {
+  byTarget: Map<string, ImpactPersistedDecision>;
+  byId: Map<string, ImpactPersistedDecision>;
+  partialTargetTypes: Set<ChangeNoticeImpactTargetType>;
+  error: unknown | null;
+};
+
+function impactSourceAccessTypes(
+  options: ResolvedImpactCandidateOptions
+): ChangeNoticeImpactTargetType[] {
+  const accessible: ChangeNoticeImpactTargetType[] = [];
+  if (options.sourceAccess.purchaseOrderLine) {
+    accessible.push("purchaseOrderLine");
+  }
+  // Job and Job Material both inherit production_view. If a caller supplies an
+  // inconsistent partial capability map, fail closed for the whole production
+  // domain rather than hydrating a parent Job through the material path.
+  if (options.sourceAccess.job && options.sourceAccess.jobMaterial) {
+    accessible.push("job", "jobMaterial");
+  }
+  return accessible;
+}
+
+async function readImpactPersistedState(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  changeNoticeId: string,
+  options: ResolvedImpactCandidateOptions
+): Promise<ImpactPersistedState> {
+  const accessibleTypes = impactSourceAccessTypes(options);
+  if (accessibleTypes.length === 0) {
+    return {
+      byTarget: new Map(),
+      byId: new Map(),
+      partialTargetTypes: new Set(),
+      error: null
+    };
+  }
+
+  const decisionResult = await fetchAllFromTable<ImpactRecord>(
+    client,
+    "changeOrderImpactDecision",
+    "id, targetType, targetId, decisionStatus, noActionReasonCode, rationale, resolutionNote, revision, snapshotVersion, assessmentSnapshot, companyId, changeNoticeId",
+    (query) =>
+      query
+        .eq("companyId", companyId)
+        .eq("changeNoticeId", changeNoticeId)
+        .in("targetType", accessibleTypes)
+        .order("id", { ascending: true })
+  );
+  if (decisionResult.error || !decisionResult.data) {
+    logger.error("Failed to read persisted Change Notice Impact decisions", {
+      error: decisionResult.error,
+      companyId,
+      changeNoticeId
+    });
+    return {
+      byTarget: new Map(),
+      byId: new Map(),
+      partialTargetTypes: new Set(),
+      error:
+        decisionResult.error ??
+        new Error("Persisted Change Notice Impact decisions unavailable")
+    };
+  }
+
+  const byTarget = new Map<string, ImpactPersistedDecision>();
+  const byId = new Map<string, ImpactPersistedDecision>();
+  const partialTargetTypes = new Set<ChangeNoticeImpactTargetType>();
+  const decisionRows = impactRecordRows(decisionResult.data);
+  for (const row of decisionRows) {
+    const targetType = row.targetType;
+    if (!impactIn(targetType, changeNoticeImpactTargetTypes)) continue;
+
+    const id = impactPersistedRequiredString(row.id, "decision.id");
+    const targetId = impactPersistedRequiredString(
+      row.targetId,
+      "decision.targetId"
+    );
+    if (!id.ok || !targetId.ok) {
+      partialTargetTypes.add(targetType);
+      continue;
+    }
+
+    const status = row.decisionStatus;
+    const reason = row.noActionReasonCode;
+    const revision = impactNumber(row.revision, "decision.revision");
+    const snapshotVersion = impactNumber(
+      row.snapshotVersion,
+      "decision.snapshotVersion"
+    );
+    const statusValid = impactIn(status, changeNoticeImpactDecisionStatuses);
+    const reasonValid =
+      reason === null ||
+      reason === undefined ||
+      impactIn(reason, changeNoticeImpactNoActionReasonCodes);
+    const revisionValid = revision.ok;
+    const versionValid =
+      snapshotVersion.ok && Number.isInteger(snapshotVersion.value);
+    const rawSnapshot = row.assessmentSnapshot;
+    const persistedSnapshot =
+      versionValid &&
+      snapshotVersion.value === 1 &&
+      isCanonicalStoredImpactSnapshot(targetType, rawSnapshot) &&
+      snapshotIdentityMatches(targetType, rawSnapshot, targetId.value)
+        ? rawSnapshot
+        : null;
+    const snapshotIssue =
+      !versionValid || snapshotVersion.value !== 1
+        ? "Unsupported assessment snapshot version"
+        : persistedSnapshot === null
+          ? "Stored assessment snapshot has an unsupported shape"
+          : null;
+
+    const projection =
+      statusValid && reasonValid && revisionValid && versionValid
+        ? {
+            id: id.value,
+            status: status as ChangeNoticeImpactDecisionProjection["status"],
+            decisionStatus:
+              status as ChangeNoticeImpactDecisionProjection["decisionStatus"],
+            noActionReasonCode: (reason ??
+              null) as ChangeNoticeImpactDecisionProjection["noActionReasonCode"],
+            rationale: impactNullableString(row.rationale),
+            resolutionNote: impactNullableString(row.resolutionNote),
+            revision: revision.value,
+            snapshotVersion: snapshotVersion.value,
+            persistedSnapshot
+          }
+        : null;
+
+    const persisted: ImpactPersistedDecision = {
+      id: id.value,
+      targetType,
+      targetId: targetId.value,
+      projection,
+      snapshotIssue:
+        projection === null
+          ? "Stored Impact decision has an unsupported shape"
+          : snapshotIssue,
+      provenance: []
+    };
+    if (persisted.projection === null || persisted.snapshotIssue !== null) {
+      partialTargetTypes.add(targetType);
+    }
+    byTarget.set(impactTargetKey(targetType, targetId.value), persisted);
+    byId.set(id.value, persisted);
+  }
+
+  const decisionIds = [...byId.keys()];
+  if (decisionIds.length === 0) {
+    return { byTarget, byId, partialTargetTypes, error: null };
+  }
+
+  const provenanceRows: ImpactRecord[] = [];
+  for (const batch of impactIdBatches(decisionIds)) {
+    const result = await fetchAllFromTable<ImpactRecord>(
+      client,
+      "changeOrderImpactDecisionAffectedItem",
+      "decisionId, affectedItemId, affectedItemSourceId, affectedItemLabel, endedAt, endedReason, companyId",
+      (query) =>
+        query
+          .eq("companyId", companyId)
+          .in("decisionId", batch)
+          .order("decisionId", { ascending: true })
+          .order("affectedItemId", { ascending: true })
+    );
+    if (result.error || !result.data) {
+      logger.error("Failed to read persisted Change Notice Impact provenance", {
+        error: result.error,
+        companyId,
+        changeNoticeId
+      });
+      return {
+        byTarget,
+        byId,
+        partialTargetTypes,
+        error:
+          result.error ??
+          new Error("Persisted Change Notice Impact provenance unavailable")
+      };
+    }
+    provenanceRows.push(...impactRecordRows(result.data));
+  }
+
+  for (const row of provenanceRows) {
+    const decisionId = row.decisionId;
+    if (typeof decisionId !== "string") continue;
+    const decision = byId.get(decisionId);
+    if (!decision) continue;
+    const affectedItemId = impactPersistedRequiredString(
+      row.affectedItemId,
+      "provenance.affectedItemId"
+    );
+    const sourceId = impactPersistedRequiredString(
+      row.affectedItemSourceId,
+      "provenance.affectedItemSourceId"
+    );
+    if (!affectedItemId.ok || !sourceId.ok) {
+      partialTargetTypes.add(decision.targetType);
+      continue;
+    }
+    decision.provenance.push({
+      affectedItemId: affectedItemId.value,
+      affectedItemSourceId: sourceId.value,
+      affectedItemLabel: impactNullableString(row.affectedItemLabel),
+      endedAt: impactNullableString(row.endedAt),
+      endedReason: impactNullableString(row.endedReason)
+    });
+  }
+
+  return { byTarget, byId, partialTargetTypes, error: null };
+}
+
+function impactMapRowsById(rows: ImpactRecord[]): Map<string, ImpactRecord> {
+  const map = new Map<string, ImpactRecord>();
+  for (const row of rows) {
+    if (typeof row.id === "string") map.set(row.id, row);
+  }
+  return map;
+}
+
+function impactJobRootMatchesItem(
+  job: ImpactRecord,
+  root: ImpactRecord
+): boolean {
+  return (
+    typeof job.itemId === "string" &&
+    typeof root.itemId === "string" &&
+    job.itemId === root.itemId
+  );
+}
+
+function impactMergeRows(
+  first: ImpactRecord[],
+  second: ImpactRecord[]
+): ImpactRecord[] {
+  const byId = new Map<string, ImpactRecord>();
+  for (const row of [...first, ...second]) {
+    if (typeof row.id === "string" && !byId.has(row.id)) {
+      byId.set(row.id, row);
+    }
+  }
+  return [...byId.values()];
+}
+
+function impactAffectedItemLabel(
+  row: ImpactRecord & { item?: ImpactRecord | null }
+): string {
+  const item = isImpactRecord(row.item) ? row.item : null;
+  return (
+    impactNullableString(item ? item.readableIdWithRevision : null) ??
+    impactNullableString(item ? item.readableId : null) ??
+    impactNullableString(item ? item.name : null) ??
+    "Affected item"
+  );
+}
+
+function impactCurrentAffectedItems(
+  rows: Array<ImpactRecord & { item?: ImpactRecord | null }>
+): Array<{ id: string; itemId: string; label: string }> {
+  return rows.flatMap((row) => {
+    const id = impactRequiredString(row.id, "affectedItem.id");
+    const itemId = impactRequiredString(row.itemId, "affectedItem.itemId");
+    if (!id.ok || !itemId.ok) return [];
+    return [
+      {
+        id: id.value,
+        itemId: itemId.value,
+        label: impactAffectedItemLabel(row)
+      }
+    ];
+  });
+}
+
+function impactCandidateWithState(args: {
+  targetType: ChangeNoticeImpactTargetType;
+  targetId: string;
+  sourceItemId: string | null;
+  currentAffectedItems: Array<{ id: string; itemId: string; label: string }>;
+  persisted: ImpactPersistedDecision | undefined;
+  parent: ChangeNoticeImpactParentContext | null;
+  item: ChangeNoticeImpactItemContext | null;
+  snapshot: ChangeNoticeImpactSnapshot | null;
+  sourceAvailability: ChangeNoticeImpactCandidate["sourceAvailability"];
+  unavailableReason: string | null;
+  exposureClassification: ChangeNoticeImpactCandidate["exposureClassification"];
+}): ChangeNoticeImpactCandidate {
+  const provenance = deriveChangeNoticeImpactProvenance({
+    sourceItemId: args.sourceItemId,
+    currentAffectedItems: args.currentAffectedItems,
+    persistedProvenance: args.persisted?.provenance ?? []
+  });
+  let sourceAvailability = args.sourceAvailability;
+  let unavailableReason = args.unavailableReason;
+  let freshness: ChangeNoticeImpactCandidate["freshness"] = null;
+  const decision = args.persisted?.projection ?? null;
+
+  if (args.persisted?.projection === null && args.persisted !== undefined) {
+    sourceAvailability = "Unavailable";
+    unavailableReason =
+      args.persisted.snapshotIssue ?? "Stored Impact decision is unavailable";
+  } else if (decision) {
+    if (args.persisted?.snapshotIssue) {
+      sourceAvailability = "Unavailable";
+      unavailableReason = args.persisted.snapshotIssue;
+      freshness = "Unknown";
+    } else if (args.snapshot) {
+      freshness = compareChangeNoticeImpactSnapshot(
+        args.targetType,
+        args.snapshot,
+        decision.persistedSnapshot,
+        decision.snapshotVersion
+      );
+      if (freshness === "Unknown") {
+        sourceAvailability = "Unavailable";
+        unavailableReason = "Stored assessment snapshot requires migration";
+      }
+    } else {
+      freshness = "Unknown";
+    }
+  }
+
+  return {
+    targetType: args.targetType,
+    targetId: args.targetId,
+    parent: args.parent,
+    item: args.item,
+    currentSnapshot: args.snapshot,
+    currentProvenance: provenance.currentProvenance,
+    historicalProvenance: provenance.historicalProvenance,
+    provenance: [
+      ...provenance.currentProvenance,
+      ...provenance.historicalProvenance
+    ],
+    exposureClassification: args.exposureClassification,
+    sourceAvailability,
+    unavailableReason,
+    decision,
+    freshness
+  };
+}
+
+function impactCandidatesUnavailableWhenPersistedStateFails(
+  candidates: ChangeNoticeImpactCandidate[],
+  persistedStateError: unknown | null,
+  fallbackReason = "Persisted Impact state is unavailable."
+): ChangeNoticeImpactCandidate[] {
+  if (!persistedStateError) return candidates;
+  return candidates.map((candidate) => ({
+    ...candidate,
+    currentSnapshot: null,
+    exposureClassification: null,
+    sourceAvailability: "Unavailable" as const,
+    unavailableReason: candidate.unavailableReason ?? fallbackReason,
+    decision: null,
+    freshness: "Unknown" as const
+  }));
+}
+
+// A query or batch-hydration failure invalidates every selected fact in the
+// domain. Row-local semantic failures are recorded as partial coverage instead
+// and must never come through this domain-wide fail-closed path.
+function impactCandidatesUnavailableWhenSourceCoverageFails(
+  candidates: ChangeNoticeImpactCandidate[],
+  sourceCoverageError: unknown | null,
+  fallbackReason: string
+): ChangeNoticeImpactCandidate[] {
+  if (!sourceCoverageError) return candidates;
+  return candidates.map((candidate) => ({
+    ...candidate,
+    currentSnapshot: null,
+    exposureClassification: null,
+    sourceAvailability: "Unavailable" as const,
+    unavailableReason: candidate.unavailableReason ?? fallbackReason,
+    freshness: "Unknown" as const
+  }));
+}
+
+type ImpactDomainDiscovery = {
+  candidates: ChangeNoticeImpactCandidate[];
+  coverage: ChangeNoticeImpactCoverage;
+};
+
+function impactCoverage(
+  targetType: ChangeNoticeImpactTargetType,
+  status: ChangeNoticeImpactCoverage["status"],
+  nextCursor:
+    | { current: string | null; historical: string | null }
+    | string
+    | null,
+  candidates: ChangeNoticeImpactCandidate[],
+  errorMessage?: string,
+  summary?: ImpactCoverageSummary,
+  pageComplete = false
+): ChangeNoticeImpactCoverage {
+  const normalizedNextCursor =
+    typeof nextCursor === "string"
+      ? { current: nextCursor, historical: null }
+      : (nextCursor ?? { current: null, historical: null });
+  if (status !== "complete") {
+    return {
+      targetType,
+      status,
+      currentExposureCount: null,
+      historicalReferenceCount: null,
+      unassessedCount: null,
+      ...(errorMessage ? { errorMessage } : {}),
+      nextCursor: normalizedNextCursor
+    };
+  }
+
+  const hasUnavailable = candidates.some(
+    (candidate) => candidate.sourceAvailability === "Unavailable"
+  );
+  return {
+    targetType,
+    status,
+    // These counts come from the independent exact summary query, never from
+    // the visible candidate page. A page can have a cursor while the summary
+    // remains complete and trustworthy.
+    currentExposureCount:
+      hasUnavailable || summary?.error
+        ? null
+        : (summary?.currentExposureCount ?? null),
+    historicalReferenceCount:
+      hasUnavailable || summary?.error
+        ? null
+        : (summary?.historicalReferenceCount ?? null),
+    // The unassessed breakdown needs the complete candidate identity/decision
+    // set, so it is intentionally withheld on a paginated page.
+    unassessedCount:
+      hasUnavailable || summary?.error || !pageComplete
+        ? null
+        : candidates.filter(
+            (candidate) =>
+              candidate.exposureClassification ===
+                "Current operational exposure" && candidate.decision === null
+          ).length,
+    nextCursor: normalizedNextCursor
+  };
+}
+
+function impactMapItems(rows: ImpactBatchRows): Map<string, ImpactRecord> {
+  return impactMapRowsById(rows.rows);
+}
+
+async function discoverPurchaseOrderLineImpact(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  currentAffectedItems: Array<{ id: string; itemId: string; label: string }>,
+  changeNoticeStatus: string,
+  persisted: ImpactPersistedState,
+  options: ResolvedImpactCandidateOptions
+): Promise<ImpactDomainDiscovery> {
+  const targetType = "purchaseOrderLine" as const;
+  if (!options.sourceAccess.purchaseOrderLine) {
+    return {
+      candidates: [],
+      coverage: impactCoverage(
+        targetType,
+        "restricted",
+        null,
+        [],
+        "Purchasing source access is restricted."
+      )
+    };
+  }
+
+  const currentItemIds =
+    changeNoticeStatus === "Cancelled"
+      ? []
+      : [...new Set(currentAffectedItems.map((item) => item.itemId))];
+  const classificationItemIds = [
+    ...new Set(currentAffectedItems.map((item) => item.itemId))
+  ];
+  const persistedIds = [...persisted.byTarget.values()]
+    .filter((decision) => decision.targetType === targetType)
+    .map((decision) => decision.targetId);
+  const summary = await readPurchaseOrderLineImpactSummary(
+    client,
+    companyId,
+    currentItemIds,
+    persistedIds,
+    classificationItemIds
+  );
+  const currentRows: ImpactSourcePage = summary.error
+    ? await readPurchaseOrderLineCurrentRows(
+        client,
+        companyId,
+        currentItemIds,
+        options,
+        false
+      )
+    : (() => {
+        const page = impactPaginateRows(
+          summary.currentRows,
+          impactCursor(options, targetType, "current"),
+          impactPageSize(options)
+        );
+        return { ...page, error: null };
+      })();
+  const persistedIdSet = new Set(persistedIds);
+  const persistedRows = summary.error
+    ? await readPurchaseOrderLineRowsByIds(client, companyId, persistedIds)
+    : {
+        rows: summary.sourceRows.filter(
+          (row) => typeof row.id === "string" && persistedIdSet.has(row.id)
+        ),
+        error: null
+      };
+  const scannedIds = new Set(
+    summary.sourceRows.flatMap((row) =>
+      typeof row.id === "string" ? [row.id] : []
+    )
+  );
+  const persistedHistoricalPlaceholders = persistedIds
+    .filter((id) => !scannedIds.has(id))
+    .map((id) => ({ id, __impactPlaceholder: true }));
+  const currentSourceIds = new Set(
+    summary.currentRows.flatMap((row) =>
+      typeof row.id === "string" ? [row.id] : []
+    )
+  );
+  const persistedHistoricalRows = persistedRows.rows.filter(
+    (row) => typeof row.id !== "string" || !currentSourceIds.has(row.id)
+  );
+  const historicalPool = impactMergeRows(
+    summary.historicalRows,
+    impactMergeRows(persistedHistoricalRows, persistedHistoricalPlaceholders)
+  );
+  const historicalRows = impactPaginateRows(
+    historicalPool,
+    impactCursor(options, targetType, "historical"),
+    impactPageSize(options)
+  );
+  const selectedIds = new Set([
+    ...currentRows.rows.flatMap((row) =>
+      typeof row.id === "string" ? [row.id] : []
+    ),
+    ...historicalRows.rows.flatMap((row) =>
+      typeof row.id === "string" ? [row.id] : []
+    )
+  ]);
+  const sourceRows = impactMergeRows(
+    impactMergeRows(currentRows.rows, historicalRows.rows),
+    persistedRows.rows.filter((row) => selectedIds.has(row.id as string))
+  );
+  const sourceById = impactMapRowsById(sourceRows);
+  const coverageSummary = impactSummaryWithPersistedHistorical(
+    summary,
+    persistedIds,
+    summary.sourceRows,
+    !summary.error && !summary.partial
+  );
+  const targetIds = [...selectedIds];
+
+  const poIds = sourceRows.flatMap((row) =>
+    typeof row.purchaseOrderId === "string" ? [row.purchaseOrderId] : []
+  );
+  const itemIds = sourceRows.flatMap((row) =>
+    typeof row.itemId === "string" ? [row.itemId] : []
+  );
+  const [purchaseOrders, deliveries, items] = await Promise.all([
+    readImpactPurchaseOrders(client, companyId, poIds),
+    readImpactPurchaseOrderDeliveries(client, companyId, poIds),
+    readImpactItems(client, companyId, itemIds)
+  ]);
+  const purchaseOrderById = impactMapItems(purchaseOrders);
+  const deliveryById = impactMapItems(deliveries);
+  const itemById = impactMapItems(items);
+  const sourceCoverageError =
+    currentRows.error ??
+    persistedRows.error ??
+    coverageSummary.error ??
+    purchaseOrders.error ??
+    deliveries.error ??
+    items.error;
+  const sourceFailed = !!sourceCoverageError || !!persisted.error;
+  const candidates: ChangeNoticeImpactCandidate[] = [];
+
+  for (const targetId of targetIds) {
+    const persistedDecision = persisted.byTarget.get(
+      impactTargetKey(targetType, targetId)
+    );
+    const row = sourceById.get(targetId);
+    if (!row || row.__impactPlaceholder === true) {
+      const unavailable =
+        sourceFailed ||
+        summary.partial ||
+        persisted.partialTargetTypes.has(targetType)
+          ? "Coverage is incomplete; source deletion cannot be established."
+          : null;
+      candidates.push(
+        impactCandidateWithState({
+          targetType,
+          targetId,
+          sourceItemId: null,
+          currentAffectedItems,
+          persisted: persistedDecision,
+          parent: null,
+          item: null,
+          snapshot: null,
+          sourceAvailability: unavailable ? "Unavailable" : "Source deleted",
+          unavailableReason: unavailable,
+          exposureClassification: unavailable ? null : "Historical reference"
+        })
+      );
+      continue;
+    }
+
+    const sourceItemId = typeof row.itemId === "string" ? row.itemId : null;
+    const lineType = row.purchaseOrderLineType;
+    const parentRow =
+      typeof row.purchaseOrderId === "string"
+        ? purchaseOrderById.get(row.purchaseOrderId)
+        : undefined;
+    const itemRow = sourceItemId ? itemById.get(sourceItemId) : undefined;
+    const parentId = impactRequiredString(
+      row.purchaseOrderId,
+      "purchaseOrderLine.purchaseOrderId"
+    );
+    const parentReadableId = parentRow
+      ? impactRequiredString(
+          impactValue(parentRow, "purchaseOrderId"),
+          "purchaseOrder.purchaseOrderId"
+        )
+      : { ok: false as const, reason: "purchaseOrder parent is unavailable" };
+    const parentSupplierId = parentRow
+      ? impactRequiredString(
+          impactValue(parentRow, "supplierId"),
+          "purchaseOrder.supplierId"
+        )
+      : { ok: false as const, reason: "purchaseOrder parent is unavailable" };
+    const parentStatus = parentRow
+      ? impactRequiredString(
+          impactValue(parentRow, "status"),
+          "purchaseOrder.status"
+        )
+      : { ok: false as const, reason: "purchaseOrder parent is unavailable" };
+
+    // Non-assessment PO line types are excluded from new discovery. A persisted
+    // row is retained as a historical reference rather than silently dropped.
+    if (
+      (purchaseOrderLineImpactNonAssessmentTypes as readonly string[]).includes(
+        typeof lineType === "string" ? lineType : ""
+      ) &&
+      !persistedDecision
+    ) {
+      continue;
+    }
+
+    if (
+      !parentId.ok ||
+      !parentReadableId.ok ||
+      !parentSupplierId.ok ||
+      !parentStatus.ok
+    ) {
+      candidates.push(
+        impactCandidateWithState({
+          targetType,
+          targetId,
+          sourceItemId,
+          currentAffectedItems,
+          persisted: persistedDecision,
+          parent: null,
+          item: null,
+          snapshot: null,
+          sourceAvailability: "Unavailable",
+          unavailableReason:
+            "Required purchase-order parent facts are unavailable.",
+          exposureClassification: null
+        })
+      );
+      continue;
+    }
+
+    const parent: ChangeNoticeImpactParentContext = {
+      type: "purchaseOrder",
+      id: parentId.value,
+      readableId: parentReadableId.value,
+      status: parentStatus.value,
+      supplierId: parentSupplierId.value
+    };
+
+    if (
+      (purchaseOrderLineImpactNonAssessmentTypes as readonly string[]).includes(
+        typeof lineType === "string" ? lineType : ""
+      )
+    ) {
+      candidates.push(
+        impactCandidateWithState({
+          targetType,
+          targetId,
+          sourceItemId,
+          currentAffectedItems,
+          persisted: persistedDecision,
+          parent,
+          item: null,
+          snapshot: null,
+          sourceAvailability: "Present",
+          unavailableReason: null,
+          exposureClassification: "Historical reference"
+        })
+      );
+      continue;
+    }
+
+    if (!itemRow) {
+      candidates.push(
+        impactCandidateWithState({
+          targetType,
+          targetId,
+          sourceItemId,
+          currentAffectedItems,
+          persisted: persistedDecision,
+          parent,
+          item: null,
+          snapshot: null,
+          sourceAvailability: "Unavailable",
+          unavailableReason: "Required item facts are unavailable.",
+          exposureClassification: null
+        })
+      );
+      continue;
+    }
+
+    const deliveryRow = deliveryById.get(parent.id);
+    if (!deliveryRow) {
+      candidates.push(
+        impactCandidateWithState({
+          targetType,
+          targetId,
+          sourceItemId,
+          currentAffectedItems,
+          persisted: persistedDecision,
+          parent,
+          item: null,
+          snapshot: null,
+          sourceAvailability: "Unavailable",
+          unavailableReason:
+            "Required purchase-order delivery facts are unavailable.",
+          exposureClassification: null
+        })
+      );
+      continue;
+    }
+
+    const snapshotResult = normalizePurchaseOrderLineImpactSnapshot({
+      purchaseOrderLineId: row.id,
+      purchaseOrderId: row.purchaseOrderId,
+      supplierId: parent.supplierId,
+      itemId: row.itemId,
+      itemRevision: impactValue(itemRow, "revision"),
+      purchaseOrderLineType: row.purchaseOrderLineType,
+      purchaseOrderStatus: parent.status,
+      receivedComplete: row.receivedComplete,
+      purchaseQuantity: row.purchaseQuantity,
+      quantityReceived: row.quantityReceived,
+      quantityToReceive: row.quantityToReceive,
+      purchaseUnitOfMeasureCode: row.purchaseUnitOfMeasureCode,
+      inventoryUnitOfMeasureCode: row.inventoryUnitOfMeasureCode,
+      conversionFactor: row.conversionFactor,
+      requiredDate: row.requiredDate,
+      promisedDate: row.promisedDate,
+      deliveryRowPresent: true,
+      deliveryReceiptPromisedDate: deliveryRow.receiptPromisedDate
+    });
+    if (snapshotResult.sourceAvailability !== "Present") {
+      candidates.push(
+        impactCandidateWithState({
+          targetType,
+          targetId,
+          sourceItemId,
+          currentAffectedItems,
+          persisted: persistedDecision,
+          parent,
+          item: null,
+          snapshot: null,
+          sourceAvailability: "Unavailable",
+          unavailableReason: snapshotResult.reason,
+          exposureClassification: null
+        })
+      );
+      continue;
+    }
+
+    const snapshot = snapshotResult.snapshot as PurchaseOrderLineImpactSnapshot;
+    const item: ChangeNoticeImpactItemContext = {
+      id: snapshot.itemId,
+      readableId:
+        impactNullableString(impactValue(itemRow, "readableId")) ??
+        snapshot.itemId,
+      readableIdWithRevision: impactNullableString(
+        impactValue(itemRow, "readableIdWithRevision")
+      ),
+      revision: snapshot.itemRevision,
+      unitOfMeasureCode: impactNullableString(
+        impactValue(itemRow, "unitOfMeasureCode")
+      )
+    };
+    const hasCurrentCause = currentAffectedItems.some(
+      (affected) => affected.itemId === snapshot.itemId
+    );
+    const eligibility = classifyPurchaseOrderLineImpactEligibility({
+      purchaseOrderLineType: snapshot.purchaseOrderLineType,
+      purchaseOrderStatus: snapshot.purchaseOrderStatus,
+      receivedComplete: snapshot.receivedComplete,
+      remainingQuantity: snapshot.remainingQuantity,
+      conversionFactor: snapshot.conversionFactor
+    });
+    const exposure = !hasCurrentCause
+      ? "No longer in current scope"
+      : eligibility === "Unavailable"
+        ? null
+        : eligibility;
+    candidates.push(
+      impactCandidateWithState({
+        targetType,
+        targetId,
+        sourceItemId: snapshot.itemId,
+        currentAffectedItems,
+        persisted: persistedDecision,
+        parent,
+        item,
+        snapshot,
+        sourceAvailability: "Present",
+        unavailableReason:
+          eligibility === "Unavailable"
+            ? "PO line eligibility facts are unavailable."
+            : null,
+        exposureClassification: exposure
+      })
+    );
+  }
+
+  const sourceSafeCandidates =
+    impactCandidatesUnavailableWhenSourceCoverageFails(
+      candidates,
+      sourceCoverageError,
+      "Purchasing source facts are unavailable."
+    );
+  const safeCandidates = impactCandidatesUnavailableWhenPersistedStateFails(
+    sourceSafeCandidates,
+    persisted.error
+  );
+  const hasUnavailableCandidate = safeCandidates.some(
+    (candidate) =>
+      candidate.sourceAvailability === "Unavailable" &&
+      !persisted.byTarget.get(impactTargetKey(targetType, candidate.targetId))
+        ?.snapshotIssue
+  );
+  const status: ChangeNoticeImpactCoverage["status"] = sourceFailed
+    ? "failed"
+    : summary.partial || persisted.partialTargetTypes.has(targetType)
+      ? "partial"
+      : hasUnavailableCandidate
+        ? "failed"
+        : "complete";
+  const errorMessage =
+    status === "failed"
+      ? "Purchasing source coverage failed."
+      : status === "partial"
+        ? "Purchasing source coverage is partial."
+        : undefined;
+  safeCandidates.sort((left, right) =>
+    left.targetId.localeCompare(right.targetId)
+  );
+  return {
+    candidates: safeCandidates,
+    coverage: impactCoverage(
+      targetType,
+      status,
+      {
+        current: currentRows.nextCursor,
+        historical: historicalRows.nextCursor
+      },
+      safeCandidates,
+      errorMessage,
+      coverageSummary,
+      currentRows.complete
+    )
+  };
+}
+
+async function discoverJobAndMaterialImpact(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  currentAffectedItems: Array<{ id: string; itemId: string; label: string }>,
+  changeNoticeStatus: string,
+  persisted: ImpactPersistedState,
+  options: ResolvedImpactCandidateOptions
+): Promise<{
+  job: ImpactDomainDiscovery;
+  jobMaterial: ImpactDomainDiscovery;
+}> {
+  const jobTargetType = "job" as const;
+  const materialTargetType = "jobMaterial" as const;
+  const productionAccess =
+    options.sourceAccess.job && options.sourceAccess.jobMaterial;
+  const jobAccess = productionAccess;
+  const materialAccess = productionAccess;
+
+  if (!jobAccess && !materialAccess) {
+    return {
+      job: {
+        candidates: [],
+        coverage: impactCoverage(
+          jobTargetType,
+          "restricted",
+          null,
+          [],
+          "Production source access is restricted."
+        )
+      },
+      jobMaterial: {
+        candidates: [],
+        coverage: impactCoverage(
+          materialTargetType,
+          "restricted",
+          null,
+          [],
+          "Production source access is restricted."
+        )
+      }
+    };
+  }
+
+  const currentItemIds =
+    changeNoticeStatus === "Cancelled"
+      ? []
+      : [...new Set(currentAffectedItems.map((item) => item.itemId))];
+  const classificationItemIds = [
+    ...new Set(currentAffectedItems.map((item) => item.itemId))
+  ];
+  const persistedJobIds = [...persisted.byTarget.values()]
+    .filter((decision) => decision.targetType === jobTargetType)
+    .map((decision) => decision.targetId);
+  const persistedMaterialIds = [...persisted.byTarget.values()]
+    .filter((decision) => decision.targetType === materialTargetType)
+    .map((decision) => decision.targetId);
+  const [jobSummary, materialSummary] = await Promise.all([
+    jobAccess
+      ? readJobImpactSummary(
+          client,
+          companyId,
+          currentItemIds,
+          persistedJobIds,
+          classificationItemIds
+        )
+      : Promise.resolve(emptyImpactCoverageSummary()),
+    materialAccess
+      ? readJobMaterialImpactSummary(
+          client,
+          companyId,
+          currentItemIds,
+          persistedMaterialIds,
+          classificationItemIds
+        )
+      : Promise.resolve(emptyImpactCoverageSummary())
+  ]);
+  const jobCurrentRows: ImpactSourcePage = jobSummary.error
+    ? await readJobCurrentRows(
+        client,
+        companyId,
+        currentItemIds,
+        options,
+        false
+      )
+    : (() => {
+        const page = impactPaginateRows(
+          jobSummary.currentRows,
+          impactCursor(options, jobTargetType, "current"),
+          impactPageSize(options)
+        );
+        return { ...page, error: null };
+      })();
+  const materialCurrentRows: ImpactSourcePage = materialSummary.error
+    ? await readJobMaterialCurrentRows(
+        client,
+        companyId,
+        currentItemIds,
+        options,
+        false
+      )
+    : (() => {
+        const page = impactPaginateRows(
+          materialSummary.currentRows,
+          impactCursor(options, materialTargetType, "current"),
+          impactPageSize(options)
+        );
+        return { ...page, error: null };
+      })();
+  const persistedJobIdSet = new Set(persistedJobIds);
+  const persistedMaterialIdSet = new Set(persistedMaterialIds);
+  const [jobPersistedRows, materialPersistedRows] = await Promise.all([
+    jobAccess && jobSummary.error
+      ? readJobRowsByIds(client, companyId, persistedJobIds)
+      : {
+          rows: jobSummary.sourceRows.filter(
+            (row) => typeof row.id === "string" && persistedJobIdSet.has(row.id)
+          ),
+          error: null
+        },
+    materialAccess && materialSummary.error
+      ? readJobMaterialRowsByIds(client, companyId, persistedMaterialIds)
+      : {
+          rows: materialSummary.sourceRows.filter(
+            (row) =>
+              typeof row.id === "string" && persistedMaterialIdSet.has(row.id)
+          ),
+          error: null
+        }
+  ]);
+
+  const jobScannedIds = new Set(
+    jobSummary.sourceRows.flatMap((row) =>
+      typeof row.id === "string" ? [row.id] : []
+    )
+  );
+  const materialScannedIds = new Set(
+    materialSummary.sourceRows.flatMap((row) =>
+      typeof row.id === "string" ? [row.id] : []
+    )
+  );
+  const jobHistoricalPlaceholders = persistedJobIds
+    .filter((id) => !jobScannedIds.has(id))
+    .map((id) => ({ id, __impactPlaceholder: true }));
+  const materialHistoricalPlaceholders = persistedMaterialIds
+    .filter((id) => !materialScannedIds.has(id))
+    .map((id) => ({ id, __impactPlaceholder: true }));
+  const jobCurrentSourceIds = new Set(
+    jobSummary.currentRows.flatMap((row) =>
+      typeof row.id === "string" ? [row.id] : []
+    )
+  );
+  const materialCurrentSourceIds = new Set(
+    materialSummary.currentRows.flatMap((row) =>
+      typeof row.id === "string" ? [row.id] : []
+    )
+  );
+  const persistedHistoricalJobs = jobPersistedRows.rows.filter(
+    (row) => typeof row.id !== "string" || !jobCurrentSourceIds.has(row.id)
+  );
+  const persistedHistoricalMaterials = materialPersistedRows.rows.filter(
+    (row) => typeof row.id !== "string" || !materialCurrentSourceIds.has(row.id)
+  );
+  const jobHistoricalPool = impactMergeRows(
+    jobSummary.historicalRows,
+    impactMergeRows(persistedHistoricalJobs, jobHistoricalPlaceholders)
+  );
+  const materialHistoricalPool = impactMergeRows(
+    materialSummary.historicalRows,
+    impactMergeRows(
+      persistedHistoricalMaterials,
+      materialHistoricalPlaceholders
+    )
+  );
+  const jobHistoricalRows = impactPaginateRows(
+    jobHistoricalPool,
+    impactCursor(options, jobTargetType, "historical"),
+    impactPageSize(options)
+  );
+  const materialHistoricalRows = impactPaginateRows(
+    materialHistoricalPool,
+    impactCursor(options, materialTargetType, "historical"),
+    impactPageSize(options)
+  );
+  const jobTargetIds = [
+    ...new Set([
+      ...jobCurrentRows.rows.flatMap((row) =>
+        typeof row.id === "string" ? [row.id] : []
+      ),
+      ...jobHistoricalRows.rows.flatMap((row) =>
+        typeof row.id === "string" ? [row.id] : []
+      )
+    ])
+  ];
+  const materialTargetIds = [
+    ...new Set([
+      ...materialCurrentRows.rows.flatMap((row) =>
+        typeof row.id === "string" ? [row.id] : []
+      ),
+      ...materialHistoricalRows.rows.flatMap((row) =>
+        typeof row.id === "string" ? [row.id] : []
+      )
+    ])
+  ];
+  const selectedJobRows = jobPersistedRows.rows.filter((row) =>
+    jobTargetIds.includes(row.id as string)
+  );
+  const selectedMaterialRows = materialPersistedRows.rows.filter((row) =>
+    materialTargetIds.includes(row.id as string)
+  );
+  const materialRows = impactMergeRows(
+    impactMergeRows(materialCurrentRows.rows, materialHistoricalRows.rows),
+    selectedMaterialRows
+  );
+  const initialJobRows = impactMergeRows(
+    impactMergeRows(jobCurrentRows.rows, jobHistoricalRows.rows),
+    selectedJobRows
+  );
+  const initialJobById = impactMapRowsById(initialJobRows);
+  const materialParentJobIds = materialRows.flatMap((row) =>
+    typeof row.jobId === "string" ? [row.jobId] : []
+  );
+  const missingParentJobIds = materialParentJobIds.filter(
+    (jobId) => !initialJobById.has(jobId)
+  );
+  const additionalParentJobs =
+    materialAccess && missingParentJobIds.length > 0
+      ? await readJobRowsByIds(client, companyId, missingParentJobIds)
+      : { rows: [], error: null };
+  const allJobRows = impactMergeRows(initialJobRows, additionalParentJobs.rows);
+  const jobById = impactMapRowsById(allJobRows);
+  const jobCoverageSummary = impactSummaryWithPersistedHistorical(
+    jobSummary,
+    persistedJobIds,
+    jobSummary.sourceRows,
+    !jobSummary.error && !jobSummary.partial
+  );
+  const materialCoverageSummary = impactSummaryWithPersistedHistorical(
+    materialSummary,
+    persistedMaterialIds,
+    materialSummary.sourceRows,
+    !materialSummary.error && !materialSummary.partial
+  );
+  const sourceJobIds = [
+    ...new Set(
+      jobTargetIds.concat(
+        allJobRows
+          .map((row) => row.id)
+          .filter((id): id is string => typeof id === "string")
+      )
+    )
+  ];
+  const sourceItemIds = [
+    ...new Set(
+      allJobRows
+        .concat(materialRows)
+        .map((row) => row.itemId)
+        .filter((id): id is string => typeof id === "string")
+    )
+  ];
+  const [items, roots] = await Promise.all([
+    jobAccess || materialAccess
+      ? readImpactItems(client, companyId, sourceItemIds)
+      : Promise.resolve({ rows: [], error: null }),
+    jobAccess && sourceJobIds.length > 0
+      ? readImpactJobRootMethods(client, companyId, sourceJobIds)
+      : Promise.resolve({ rows: [], error: null })
+  ]);
+  const itemById = impactMapItems(items);
+  const rootByJobId = new Map<string, ImpactRecord>();
+  const duplicateRootJobs = new Set<string>();
+  for (const root of roots.rows) {
+    if (typeof root.jobId !== "string") continue;
+    if (rootByJobId.has(root.jobId)) duplicateRootJobs.add(root.jobId);
+    else rootByJobId.set(root.jobId, root);
+  }
+
+  const jobCandidates: ChangeNoticeImpactCandidate[] = [];
+  if (jobAccess) {
+    const jobSourceById = impactMapRowsById(
+      jobCurrentRows.rows.concat(jobHistoricalRows.rows, selectedJobRows)
+    );
+    for (const targetId of jobTargetIds) {
+      const persistedDecision = persisted.byTarget.get(
+        impactTargetKey(jobTargetType, targetId)
+      );
+      const row = jobSourceById.get(targetId);
+      if (!row || row.__impactPlaceholder === true) {
+        const unavailable =
+          jobCurrentRows.error ||
+          jobPersistedRows.error ||
+          jobSummary.error ||
+          jobSummary.partial ||
+          jobCoverageSummary.error ||
+          persisted.error ||
+          persisted.partialTargetTypes.has(jobTargetType)
+            ? "Coverage is incomplete; source deletion cannot be established."
+            : null;
+        jobCandidates.push(
+          impactCandidateWithState({
+            targetType: jobTargetType,
+            targetId,
+            sourceItemId: null,
+            currentAffectedItems,
+            persisted: persistedDecision,
+            parent: null,
+            item: null,
+            snapshot: null,
+            sourceAvailability: unavailable ? "Unavailable" : "Source deleted",
+            unavailableReason: unavailable,
+            exposureClassification: unavailable ? null : "Historical reference"
+          })
+        );
+        continue;
+      }
+
+      const sourceItemId = typeof row.itemId === "string" ? row.itemId : null;
+      const itemRow = sourceItemId ? itemById.get(sourceItemId) : undefined;
+      const root =
+        typeof row.id === "string" ? rootByJobId.get(row.id) : undefined;
+      const jobId = impactRequiredString(row.id, "job.id");
+      const jobReadableId = impactRequiredString(row.jobId, "job.jobId");
+      const rowStatus = impactRequiredString(row.status, "job.status");
+      if (
+        !jobId.ok ||
+        !jobReadableId.ok ||
+        !rowStatus.ok ||
+        !itemRow ||
+        !root ||
+        (typeof row.id === "string" && duplicateRootJobs.has(row.id)) ||
+        !impactJobRootMatchesItem(row, root)
+      ) {
+        jobCandidates.push(
+          impactCandidateWithState({
+            targetType: jobTargetType,
+            targetId,
+            sourceItemId,
+            currentAffectedItems,
+            persisted: persistedDecision,
+            parent: null,
+            item: null,
+            snapshot: null,
+            sourceAvailability: "Unavailable",
+            unavailableReason:
+              "Required Job, item, or root method facts are unavailable.",
+            exposureClassification: null
+          })
+        );
+        continue;
+      }
+
+      const snapshotResult = normalizeJobImpactSnapshot({
+        jobId: row.id,
+        itemId: row.itemId,
+        itemRevision: itemRow.revision,
+        status: rowStatus.value,
+        plannedQuantity: row.quantity,
+        quantityComplete: row.quantityComplete,
+        quantityShipped: row.quantityShipped,
+        quantityReceivedToInventory: row.quantityReceivedToInventory,
+        dueDate: row.dueDate,
+        effectiveMethodId: root.id,
+        effectiveMethodVersion: root.version,
+        unitOfMeasureCode: row.unitOfMeasureCode
+      });
+      if (snapshotResult.sourceAvailability !== "Present") {
+        jobCandidates.push(
+          impactCandidateWithState({
+            targetType: jobTargetType,
+            targetId,
+            sourceItemId,
+            currentAffectedItems,
+            persisted: persistedDecision,
+            parent: null,
+            item: null,
+            snapshot: null,
+            sourceAvailability: "Unavailable",
+            unavailableReason: snapshotResult.reason,
+            exposureClassification: null
+          })
+        );
+        continue;
+      }
+
+      const snapshot = snapshotResult.snapshot as JobImpactSnapshot;
+      const item: ChangeNoticeImpactItemContext = {
+        id: snapshot.itemId,
+        readableId:
+          impactNullableString(impactValue(itemRow, "readableId")) ??
+          snapshot.itemId,
+        readableIdWithRevision: impactNullableString(
+          impactValue(itemRow, "readableIdWithRevision")
+        ),
+        revision: snapshot.itemRevision,
+        unitOfMeasureCode: impactNullableString(
+          impactValue(itemRow, "unitOfMeasureCode")
+        )
+      };
+      const parent: ChangeNoticeImpactParentContext = {
+        type: "job",
+        id: snapshot.jobId,
+        readableId: jobReadableId.value,
+        status: snapshot.status
+      };
+      const hasCurrentCause = currentAffectedItems.some(
+        (affected) => affected.itemId === snapshot.itemId
+      );
+      const eligibility = classifyJobImpactEligibility(snapshot.status);
+      jobCandidates.push(
+        impactCandidateWithState({
+          targetType: jobTargetType,
+          targetId,
+          sourceItemId: snapshot.itemId,
+          currentAffectedItems,
+          persisted: persistedDecision,
+          parent,
+          item,
+          snapshot,
+          sourceAvailability: "Present",
+          unavailableReason: null,
+          exposureClassification: !hasCurrentCause
+            ? "No longer in current scope"
+            : eligibility === "Unavailable"
+              ? null
+              : eligibility
+        })
+      );
+    }
+  }
+
+  const materialCandidates: ChangeNoticeImpactCandidate[] = [];
+  if (materialAccess) {
+    const materialSourceById = impactMapRowsById(
+      materialCurrentRows.rows.concat(
+        materialHistoricalRows.rows,
+        selectedMaterialRows
+      )
+    );
+    for (const targetId of materialTargetIds) {
+      const persistedDecision = persisted.byTarget.get(
+        impactTargetKey(materialTargetType, targetId)
+      );
+      const row = materialSourceById.get(targetId);
+      if (!row || row.__impactPlaceholder === true) {
+        const unavailable =
+          materialCurrentRows.error ||
+          materialPersistedRows.error ||
+          materialSummary.error ||
+          materialSummary.partial ||
+          materialCoverageSummary.error ||
+          additionalParentJobs.error ||
+          persisted.error ||
+          persisted.partialTargetTypes.has(materialTargetType)
+            ? "Coverage is incomplete; source deletion cannot be established."
+            : null;
+        materialCandidates.push(
+          impactCandidateWithState({
+            targetType: materialTargetType,
+            targetId,
+            sourceItemId: null,
+            currentAffectedItems,
+            persisted: persistedDecision,
+            parent: null,
+            item: null,
+            snapshot: null,
+            sourceAvailability: unavailable ? "Unavailable" : "Source deleted",
+            unavailableReason: unavailable,
+            exposureClassification: unavailable ? null : "Historical reference"
+          })
+        );
+        continue;
+      }
+
+      const sourceItemId = typeof row.itemId === "string" ? row.itemId : null;
+      const parentRow =
+        typeof row.jobId === "string" ? jobById.get(row.jobId) : undefined;
+      const itemRow = sourceItemId ? itemById.get(sourceItemId) : undefined;
+      const parentId = impactRequiredString(row.jobId, "jobMaterial.jobId");
+      const parentReadableId = parentRow
+        ? impactRequiredString(parentRow.jobId, "job.jobId")
+        : { ok: false as const, reason: "parent Job is unavailable" };
+      const parentStatus = parentRow
+        ? impactRequiredString(parentRow.status, "job.status")
+        : { ok: false as const, reason: "parent Job is unavailable" };
+      if (
+        !parentId.ok ||
+        !parentReadableId.ok ||
+        !parentStatus.ok ||
+        !itemRow
+      ) {
+        materialCandidates.push(
+          impactCandidateWithState({
+            targetType: materialTargetType,
+            targetId,
+            sourceItemId,
+            currentAffectedItems,
+            persisted: persistedDecision,
+            parent: null,
+            item: null,
+            snapshot: null,
+            sourceAvailability: "Unavailable",
+            unavailableReason:
+              "Required parent Job or item facts are unavailable.",
+            exposureClassification: null
+          })
+        );
+        continue;
+      }
+
+      const parent: ChangeNoticeImpactParentContext = {
+        type: "job",
+        id: parentId.value,
+        readableId: parentReadableId.value,
+        status: parentStatus.value
+      };
+      const snapshotResult = normalizeJobMaterialImpactSnapshot({
+        jobMaterialId: row.id,
+        jobId: row.jobId,
+        itemId: row.itemId,
+        itemRevision: itemRow.revision,
+        jobStatus: parent.status,
+        estimatedQuantity: row.estimatedQuantity,
+        quantityIssued: row.quantityIssued,
+        quantityToIssue: row.quantityToIssue,
+        unitOfMeasureCode: row.unitOfMeasureCode,
+        methodType: row.methodType,
+        jobOperationId: row.jobOperationId,
+        requiresBatchTracking: row.requiresBatchTracking,
+        requiresSerialTracking: row.requiresSerialTracking
+      });
+      if (snapshotResult.sourceAvailability !== "Present") {
+        materialCandidates.push(
+          impactCandidateWithState({
+            targetType: materialTargetType,
+            targetId,
+            sourceItemId,
+            currentAffectedItems,
+            persisted: persistedDecision,
+            parent,
+            item: null,
+            snapshot: null,
+            sourceAvailability: "Unavailable",
+            unavailableReason: snapshotResult.reason,
+            exposureClassification: null
+          })
+        );
+        continue;
+      }
+
+      const snapshot = snapshotResult.snapshot as JobMaterialImpactSnapshot;
+      const item: ChangeNoticeImpactItemContext = {
+        id: snapshot.itemId,
+        readableId:
+          impactNullableString(impactValue(itemRow, "readableId")) ??
+          snapshot.itemId,
+        readableIdWithRevision: impactNullableString(
+          impactValue(itemRow, "readableIdWithRevision")
+        ),
+        revision: snapshot.itemRevision,
+        unitOfMeasureCode: impactNullableString(
+          impactValue(itemRow, "unitOfMeasureCode")
+        )
+      };
+      const hasCurrentCause = currentAffectedItems.some(
+        (affected) => affected.itemId === snapshot.itemId
+      );
+      const eligibility = classifyJobMaterialImpactEligibility(
+        snapshot.jobStatus
+      );
+      materialCandidates.push(
+        impactCandidateWithState({
+          targetType: materialTargetType,
+          targetId,
+          sourceItemId: snapshot.itemId,
+          currentAffectedItems,
+          persisted: persistedDecision,
+          parent,
+          item,
+          snapshot,
+          sourceAvailability: "Present",
+          unavailableReason: null,
+          exposureClassification: !hasCurrentCause
+            ? "No longer in current scope"
+            : eligibility === "Unavailable"
+              ? null
+              : eligibility
+        })
+      );
+    }
+  }
+
+  const jobSourceCoverageError =
+    jobCurrentRows.error ??
+    jobPersistedRows.error ??
+    jobCoverageSummary.error ??
+    (jobAccess ? items.error : null) ??
+    roots.error;
+  const materialSourceCoverageError =
+    materialCurrentRows.error ??
+    materialPersistedRows.error ??
+    materialCoverageSummary.error ??
+    (materialAccess ? items.error : null) ??
+    additionalParentJobs.error;
+  const jobFailed = !!jobSourceCoverageError || !!persisted.error;
+  const materialFailed = !!materialSourceCoverageError || !!persisted.error;
+  const sourceSafeJobCandidates =
+    impactCandidatesUnavailableWhenSourceCoverageFails(
+      jobCandidates,
+      jobSourceCoverageError,
+      "Production Job source facts are unavailable."
+    );
+  const sourceSafeMaterialCandidates =
+    impactCandidatesUnavailableWhenSourceCoverageFails(
+      materialCandidates,
+      materialSourceCoverageError,
+      "Job Material source facts are unavailable."
+    );
+  const safeJobCandidates = impactCandidatesUnavailableWhenPersistedStateFails(
+    sourceSafeJobCandidates,
+    persisted.error
+  );
+  const safeMaterialCandidates =
+    impactCandidatesUnavailableWhenPersistedStateFails(
+      sourceSafeMaterialCandidates,
+      persisted.error
+    );
+  const hasUnavailableJobCandidate = safeJobCandidates.some(
+    (candidate) =>
+      candidate.sourceAvailability === "Unavailable" &&
+      !persisted.byTarget.get(
+        impactTargetKey(jobTargetType, candidate.targetId)
+      )?.snapshotIssue
+  );
+  const hasUnavailableMaterialCandidate = safeMaterialCandidates.some(
+    (candidate) =>
+      candidate.sourceAvailability === "Unavailable" &&
+      !persisted.byTarget.get(
+        impactTargetKey(materialTargetType, candidate.targetId)
+      )?.snapshotIssue
+  );
+  const jobStatus: ChangeNoticeImpactCoverage["status"] = jobFailed
+    ? "failed"
+    : jobSummary.partial || persisted.partialTargetTypes.has(jobTargetType)
+      ? "partial"
+      : hasUnavailableJobCandidate
+        ? "failed"
+        : "complete";
+  const materialStatus: ChangeNoticeImpactCoverage["status"] = materialFailed
+    ? "failed"
+    : materialSummary.partial ||
+        persisted.partialTargetTypes.has(materialTargetType)
+      ? "partial"
+      : hasUnavailableMaterialCandidate
+        ? "failed"
+        : "complete";
+  safeJobCandidates.sort((left, right) =>
+    left.targetId.localeCompare(right.targetId)
+  );
+  safeMaterialCandidates.sort((left, right) =>
+    left.targetId.localeCompare(right.targetId)
+  );
+  return {
+    job: jobAccess
+      ? {
+          candidates: safeJobCandidates,
+          coverage: impactCoverage(
+            jobTargetType,
+            jobStatus,
+            {
+              current: jobCurrentRows.nextCursor,
+              historical: jobHistoricalRows.nextCursor
+            },
+            safeJobCandidates,
+            jobStatus === "failed"
+              ? "Production Job source coverage failed."
+              : jobStatus === "partial"
+                ? "Production Job source coverage is partial."
+                : undefined,
+            jobCoverageSummary,
+            jobCurrentRows.complete
+          )
+        }
+      : {
+          candidates: [],
+          coverage: impactCoverage(
+            jobTargetType,
+            "restricted",
+            null,
+            [],
+            "Production source access is restricted."
+          )
+        },
+    jobMaterial: materialAccess
+      ? {
+          candidates: safeMaterialCandidates,
+          coverage: impactCoverage(
+            materialTargetType,
+            materialStatus,
+            {
+              current: materialCurrentRows.nextCursor,
+              historical: materialHistoricalRows.nextCursor
+            },
+            safeMaterialCandidates,
+            materialStatus === "failed"
+              ? "Job Material source coverage failed."
+              : materialStatus === "partial"
+                ? "Job Material source coverage is partial."
+                : undefined,
+            materialCoverageSummary,
+            materialCurrentRows.complete
+          )
+        }
+      : {
+          candidates: [],
+          coverage: impactCoverage(
+            materialTargetType,
+            "restricted",
+            null,
+            [],
+            "Production source access is restricted."
+          )
+        }
+  };
+}
+
+function isImpactSourceAccessResult(
+  value: ChangeNoticeImpactCandidateOptions["sourceAccess"]
+): value is ChangeNoticeImpactSourceAccessResult {
+  return typeof value === "object" && value !== null && "status" in value;
+}
+
+function failedImpactCoverage(
+  targetType: ChangeNoticeImpactTargetType
+): ChangeNoticeImpactCoverage {
+  return {
+    targetType,
+    status: "failed",
+    currentExposureCount: null,
+    historicalReferenceCount: null,
+    unassessedCount: null,
+    errorMessage: "Impact source access could not be established.",
+    nextCursor: { current: null, historical: null }
+  };
+}
+
+/**
+ * Read-only supported-domain façade. The caller supplies source access already
+ * derived from Carbon permissions; omitting a domain from access prevents all
+ * source reads for that domain and returns a non-disclosing restricted result.
+ */
+export async function getChangeNoticeImpactCandidates(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  changeNoticeId: string,
+  options: ChangeNoticeImpactCandidateOptions
+): Promise<ChangeNoticeImpactCandidateReadResult> {
+  // Access-resolution failure is not equivalent to three proven denials. Stop
+  // before reading the Change Notice, persisted decisions, or any source table
+  // so no target identity or copied evidence can escape on the failure path.
+  const sourceAccessInput = options.sourceAccess;
+  if (
+    isImpactSourceAccessResult(sourceAccessInput) &&
+    sourceAccessInput.status === "failed"
+  ) {
+    return {
+      data: {
+        changeNoticeId,
+        changeNoticeStatus: null,
+        candidates: [],
+        coverage: {
+          purchaseOrderLine: failedImpactCoverage("purchaseOrderLine"),
+          job: failedImpactCoverage("job"),
+          jobMaterial: failedImpactCoverage("jobMaterial")
+        }
+      },
+      error: null
+    };
+  }
+
+  const sourceAccess = isImpactSourceAccessResult(sourceAccessInput)
+    ? sourceAccessInput.access
+    : sourceAccessInput;
+  const resolvedOptions: ResolvedImpactCandidateOptions = {
+    ...options,
+    sourceAccess
+  };
+
+  const changeNotice = await getChangeNotice(client, changeNoticeId, companyId);
+  if (changeNotice.error || !changeNotice.data) {
+    return {
+      data: null,
+      error: changeNotice.error ?? { message: "Change notice not found" }
+    };
+  }
+
+  const affected = await getChangeNoticeAffectedItems(
+    client,
+    changeNoticeId,
+    companyId
+  );
+  if (affected.error) {
+    return { data: null, error: affected.error };
+  }
+
+  const currentAffectedItems = impactCurrentAffectedItems(
+    affected.data.map((row) => ({
+      id: row.id,
+      itemId: row.itemId,
+      item: isImpactRecord(row.item) ? row.item : null
+    }))
+  );
+  const persisted = await readImpactPersistedState(
+    client,
+    companyId,
+    changeNoticeId,
+    resolvedOptions
+  );
+
+  const [purchaseOrderLines, production] = await Promise.all([
+    discoverPurchaseOrderLineImpact(
+      client,
+      companyId,
+      currentAffectedItems,
+      changeNotice.data.status,
+      persisted,
+      resolvedOptions
+    ),
+    discoverJobAndMaterialImpact(
+      client,
+      companyId,
+      currentAffectedItems,
+      changeNotice.data.status,
+      persisted,
+      resolvedOptions
+    )
+  ]);
+
+  const candidateReadModel: ChangeNoticeImpactCandidateReadModel = {
+    changeNoticeId,
+    changeNoticeStatus: changeNotice.data.status,
+    candidates: [
+      ...purchaseOrderLines.candidates,
+      ...production.job.candidates,
+      ...production.jobMaterial.candidates
+    ].sort((left, right) => {
+      const typeOrder = left.targetType.localeCompare(right.targetType);
+      return typeOrder !== 0
+        ? typeOrder
+        : left.targetId.localeCompare(right.targetId);
+    }),
+    coverage: {
+      purchaseOrderLine: purchaseOrderLines.coverage,
+      job: production.job.coverage,
+      jobMaterial: production.jobMaterial.coverage
+    }
+  };
+
+  return { data: candidateReadModel, error: null };
 }

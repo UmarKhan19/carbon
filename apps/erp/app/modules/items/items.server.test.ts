@@ -1,8 +1,11 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 // items.server's only runtime dependency; stubbed so the pure verdict logic
 // can be tested without dragging in the app's full module graph.
 vi.mock("~/modules/settings", () => ({ getCompanySettings: vi.fn() }));
+vi.mock("@carbon/auth/users.server", () => ({
+  getUserClaims: vi.fn()
+}));
 
 // items.server pulls the items module graph (via ~/modules/items), which
 // transitively loads @carbon/glossary — whose module-load-time Lingui `msg`
@@ -17,11 +20,133 @@ vi.mock("@carbon/glossary", () => ({
 }));
 
 const {
+  deriveChangeNoticeImpactSourceAccess,
+  getChangeNoticeImpactSourceAccess,
   getLockVerdict,
   LOCKED_REVISION_MESSAGE,
   getUnreleasedChangeOrderItems,
   getUnreleasedChangeOrderIssue
 } = await import("./items.server");
+const { getUserClaims } = await import("@carbon/auth/users.server");
+
+afterEach(() => {
+  vi.mocked(getUserClaims).mockReset();
+});
+
+const claims = (permissions: Record<string, { view: string[] }>) => ({
+  role: "employee",
+  permissions: Object.fromEntries(
+    Object.entries(permissions).map(([name, permission]) => [
+      name,
+      { view: permission.view, create: [], update: [], delete: [] }
+    ])
+  )
+});
+
+describe("Change Notice Impact source access", () => {
+  it("requires the source-domain view permission independently", () => {
+    expect(
+      deriveChangeNoticeImpactSourceAccess(
+        {
+          purchasing: { view: [companyId] },
+          production: { view: [] }
+        },
+        companyId
+      )
+    ).toEqual({
+      purchaseOrderLine: true,
+      job: false,
+      jobMaterial: false
+    });
+  });
+
+  it("resolves purchasing permission as Present access", async () => {
+    vi.mocked(getUserClaims).mockResolvedValue(
+      claims({ purchasing: { view: [companyId] }, production: { view: [] } })
+    );
+    await expect(
+      getChangeNoticeImpactSourceAccess({ userId: "user-1", companyId })
+    ).resolves.toEqual({
+      status: "resolved",
+      access: {
+        purchaseOrderLine: true,
+        job: false,
+        jobMaterial: false
+      }
+    });
+  });
+
+  it("keeps missing purchasing permission distinct from access failure", async () => {
+    vi.mocked(getUserClaims).mockResolvedValue(
+      claims({ purchasing: { view: [] }, production: { view: [companyId] } })
+    );
+    await expect(
+      getChangeNoticeImpactSourceAccess({ userId: "user-1", companyId })
+    ).resolves.toEqual({
+      status: "resolved",
+      access: {
+        purchaseOrderLine: false,
+        job: true,
+        jobMaterial: true
+      }
+    });
+  });
+
+  it("resolves production permission for both production target kinds", async () => {
+    vi.mocked(getUserClaims).mockResolvedValue(
+      claims({ purchasing: { view: [] }, production: { view: [companyId] } })
+    );
+    const result = await getChangeNoticeImpactSourceAccess({
+      userId: "user-1",
+      companyId
+    });
+    expect(result).toEqual({
+      status: "resolved",
+      access: {
+        purchaseOrderLine: false,
+        job: true,
+        jobMaterial: true
+      }
+    });
+  });
+
+  it("keeps missing production permission distinct from access failure", async () => {
+    vi.mocked(getUserClaims).mockResolvedValue(
+      claims({ purchasing: { view: [companyId] }, production: { view: [] } })
+    );
+    await expect(
+      getChangeNoticeImpactSourceAccess({ userId: "user-1", companyId })
+    ).resolves.toEqual({
+      status: "resolved",
+      access: {
+        purchaseOrderLine: true,
+        job: false,
+        jobMaterial: false
+      }
+    });
+  });
+
+  it("returns explicit failed access instead of Restricted when claims resolution fails", async () => {
+    vi.mocked(getUserClaims).mockRejectedValue(new Error("claims unavailable"));
+    const result = await getChangeNoticeImpactSourceAccess({
+      userId: "user-1",
+      companyId
+    });
+    expect(result).toEqual({
+      status: "failed",
+      errorMessage: "Impact source access could not be established."
+    });
+    expect(result).not.toEqual(
+      expect.objectContaining({
+        access: {
+          purchaseOrderLine: false,
+          job: false,
+          jobMaterial: false
+        }
+      })
+    );
+  });
+});
 
 describe("getLockVerdict", () => {
   it("allows edits when the revision is not locked", () => {

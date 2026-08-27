@@ -1,5 +1,6 @@
 import { error } from "@carbon/auth";
 import { flash } from "@carbon/auth/session.server";
+import { getUserClaims } from "@carbon/auth/users.server";
 import type { Database } from "@carbon/database";
 import type { Kysely, KyselyDatabase } from "@carbon/database/client";
 import { trigger } from "@carbon/jobs";
@@ -23,8 +24,58 @@ import {
   changeNoticeOpenStatuses,
   supersessionModes
 } from "./items.models";
+import type {
+  ChangeNoticeImpactSourceAccess,
+  ChangeNoticeImpactSourceAccessResult
+} from "./types";
 
 const logger = getLogger("erp", "change-orders");
+
+/**
+ * Convert the canonical Carbon claims shape into the three source capabilities
+ * consumed by the read-only Impact façade. This is deliberately separate from
+ * `requirePermissions`: a workspace may contain a Restricted Purchasing domain
+ * while still returning authorized Production candidates.
+ */
+export function deriveChangeNoticeImpactSourceAccess(
+  permissions: Record<string, { view?: string[] }>,
+  companyId: string
+): ChangeNoticeImpactSourceAccess {
+  const canView = (permission: string) =>
+    permissions[permission]?.view?.includes(companyId) ?? false;
+  return {
+    purchaseOrderLine: canView("purchasing"),
+    job: canView("production"),
+    jobMaterial: canView("production")
+  };
+}
+
+/** Resolve source access from the effective user's cached Carbon claims. */
+export async function getChangeNoticeImpactSourceAccess(args: {
+  userId: string;
+  companyId: string;
+}): Promise<ChangeNoticeImpactSourceAccessResult> {
+  try {
+    const claims = await getUserClaims(args.userId, args.companyId);
+    return {
+      status: "resolved",
+      access: deriveChangeNoticeImpactSourceAccess(
+        claims.permissions,
+        args.companyId
+      )
+    };
+  } catch (cause) {
+    logger.error("Failed to resolve Change Notice Impact source access", {
+      error: cause,
+      companyId: args.companyId,
+      userId: args.userId
+    });
+    return {
+      status: "failed",
+      errorMessage: "Impact source access could not be established."
+    };
+  }
+}
 
 // Release-lock helpers — gate BOM/BOP mutations on a released (Production)
 // revision. A Production revision is the controlled, released make method;

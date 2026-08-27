@@ -40,6 +40,32 @@ import type {
   getUnitOfMeasuresList
 } from "./items.service";
 
+export type {
+  ChangeNoticeImpactCandidate,
+  ChangeNoticeImpactCandidateOptions,
+  ChangeNoticeImpactCandidateReadModel,
+  ChangeNoticeImpactCandidateReadResult,
+  ChangeNoticeImpactCoverage,
+  ChangeNoticeImpactDecisionProjection,
+  ChangeNoticeImpactDomainCursor,
+  ChangeNoticeImpactExposureClassification,
+  ChangeNoticeImpactFreshnessStatus,
+  ChangeNoticeImpactItemContext,
+  ChangeNoticeImpactJobMaterialSnapshotInput,
+  ChangeNoticeImpactJobSnapshotInput,
+  ChangeNoticeImpactParentContext,
+  ChangeNoticeImpactProvenance,
+  ChangeNoticeImpactPurchaseOrderLineSnapshotInput,
+  ChangeNoticeImpactSnapshot,
+  ChangeNoticeImpactSnapshotNormalization,
+  ChangeNoticeImpactSourceAccess,
+  ChangeNoticeImpactSourceAccessResult,
+  ChangeNoticeImpactTargetType,
+  JobImpactSnapshot,
+  JobMaterialImpactSnapshot,
+  PurchaseOrderLineImpactSnapshot
+} from "./items.models";
+
 export type ItemRevisionStatus =
   Database["public"]["Enums"]["itemRevisionStatus"];
 

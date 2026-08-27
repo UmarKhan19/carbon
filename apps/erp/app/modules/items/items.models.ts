@@ -1,3 +1,4 @@
+import type { Database } from "@carbon/database";
 import type { PostgrestError } from "@supabase/supabase-js";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
@@ -1069,6 +1070,542 @@ export const changeNoticeTaskStatus = [
   "Completed",
   "Skipped"
 ] as const;
+
+// =============================================================================
+// Change Notice Operational Impact — Slice 1 contracts.
+//
+// These unions are deliberately closed. Operational Impact is a constrained
+// read model for the three V1 target kinds, not a registry for arbitrary source
+// tables or a second workflow state machine.
+// =============================================================================
+
+export const changeNoticeImpactTargetTypes = [
+  "purchaseOrderLine",
+  "job",
+  "jobMaterial"
+] as const;
+export type ChangeNoticeImpactTargetType =
+  (typeof changeNoticeImpactTargetTypes)[number];
+
+export const changeNoticeImpactDecisionStatuses = [
+  "No action required",
+  "Action required",
+  "Resolved"
+] as const;
+export type ChangeNoticeImpactDecisionStatus =
+  (typeof changeNoticeImpactDecisionStatuses)[number];
+
+export const changeNoticeImpactNoActionReasonCodes = [
+  "Outside effectivity",
+  "Not affected after review",
+  "No purchasing intervention remains"
+] as const;
+export type ChangeNoticeImpactNoActionReasonCode =
+  (typeof changeNoticeImpactNoActionReasonCodes)[number];
+
+export const changeNoticeImpactExposureClassifications = [
+  "Current operational exposure",
+  "Historical reference",
+  "No longer in current scope"
+] as const;
+export type ChangeNoticeImpactExposureClassification =
+  (typeof changeNoticeImpactExposureClassifications)[number];
+
+export const changeNoticeImpactSourceAvailabilities = [
+  "Present",
+  "Restricted",
+  "Source deleted",
+  "Unavailable"
+] as const;
+export type ChangeNoticeImpactSourceAvailability =
+  (typeof changeNoticeImpactSourceAvailabilities)[number];
+
+export const changeNoticeImpactFreshnessStatuses = [
+  "Current",
+  "Changed since assessment",
+  "Unknown"
+] as const;
+export type ChangeNoticeImpactFreshnessStatus =
+  (typeof changeNoticeImpactFreshnessStatuses)[number];
+
+export const changeNoticeImpactCoverageStatuses = [
+  "complete",
+  "partial",
+  "failed",
+  "restricted"
+] as const;
+export type ChangeNoticeImpactCoverageStatus =
+  (typeof changeNoticeImpactCoverageStatuses)[number];
+
+export const changeNoticeImpactDecisionStatusValidator = z.enum(
+  changeNoticeImpactDecisionStatuses
+);
+export const changeNoticeImpactNoActionReasonCodeValidator = z.enum(
+  changeNoticeImpactNoActionReasonCodes
+);
+export const changeNoticeImpactTargetTypeValidator = z.enum(
+  changeNoticeImpactTargetTypes
+);
+
+export const purchaseOrderLineImpactItemTypes = [
+  "Part",
+  "Material",
+  "Tool",
+  "Consumable",
+  "Fixture"
+] as const;
+export type PurchaseOrderLineImpactItemType =
+  (typeof purchaseOrderLineImpactItemTypes)[number];
+
+export const purchaseOrderLineImpactNonAssessmentTypes = [
+  "Comment",
+  "G/L Account",
+  "Fixed Asset",
+  "Service"
+] as const;
+
+export const purchaseOrderLineImpactCurrentStatuses = [
+  "Draft",
+  "Planned",
+  "Needs Approval",
+  "To Review",
+  "To Receive",
+  "To Receive and Invoice",
+  "To Invoice"
+] as const;
+export type PurchaseOrderLineImpactCurrentStatus =
+  (typeof purchaseOrderLineImpactCurrentStatuses)[number];
+
+export const purchaseOrderLineImpactHistoricalStatuses = [
+  "Completed",
+  "Closed",
+  "Rejected"
+] as const;
+export type PurchaseOrderLineImpactHistoricalStatus =
+  (typeof purchaseOrderLineImpactHistoricalStatuses)[number];
+
+export const jobImpactActiveStatuses = [
+  "Draft",
+  "Planned",
+  "Ready",
+  "In Progress",
+  "Paused"
+] as const;
+export type JobImpactActiveStatus = (typeof jobImpactActiveStatuses)[number];
+
+export const jobImpactHistoricalStatuses = [
+  "Completed",
+  "Closed",
+  "Cancelled"
+] as const;
+export type JobImpactHistoricalStatus =
+  (typeof jobImpactHistoricalStatuses)[number];
+
+export const PO_LINE_SNAPSHOT_V1 = "PO_LINE_SNAPSHOT_V1" as const;
+export const JOB_SNAPSHOT_V1 = "JOB_SNAPSHOT_V1" as const;
+export const JOB_MATERIAL_SNAPSHOT_V1 = "JOB_MATERIAL_SNAPSHOT_V1" as const;
+
+export const OPEN_PURCHASING_COMMITMENT = "openPurchasingCommitment" as const;
+export const ACTIVE_PRODUCING_JOB = "activeProducingJob" as const;
+export const ACTIVE_JOB_MATERIAL = "activeJobMaterial" as const;
+
+export type ChangeNoticeImpactEffectivityProof = {
+  complete: boolean;
+  decisionRelevant: boolean;
+  outsideEffectivity: boolean;
+  ambiguous: boolean;
+};
+
+export type ChangeNoticeImpactPurchasingInterventionConfirmation = {
+  supplierReturnReviewed: boolean;
+  replacementReviewed: boolean;
+  creditReviewed: boolean;
+  communicationReviewed: boolean;
+  noInterventionRemains: boolean;
+};
+
+export type ChangeNoticeImpactReasonValidation =
+  | { valid: true }
+  | { valid: false; message: string };
+
+/**
+ * Validate No Action semantics without creating a decision or mutating any
+ * source/Impact row. Historical evidence is intentionally not a reason.
+ */
+export function validateChangeNoticeImpactNoActionReason(input: {
+  targetType: ChangeNoticeImpactTargetType;
+  reasonCode: ChangeNoticeImpactNoActionReasonCode;
+  exposureClassification: ChangeNoticeImpactExposureClassification;
+  rationale?: string | null;
+  effectivityProof?: ChangeNoticeImpactEffectivityProof;
+  purchasingInterventionConfirmation?: ChangeNoticeImpactPurchasingInterventionConfirmation | null;
+}): ChangeNoticeImpactReasonValidation {
+  if (input.exposureClassification !== "Current operational exposure") {
+    return {
+      valid: false,
+      message: "No Action reasons require a current operational exposure."
+    };
+  }
+
+  const rationale = input.rationale?.trim() ?? "";
+
+  switch (input.reasonCode) {
+    case "Outside effectivity":
+      if (
+        !input.effectivityProof?.complete ||
+        !input.effectivityProof.decisionRelevant ||
+        !input.effectivityProof.outsideEffectivity
+      ) {
+        return {
+          valid: false,
+          message:
+            "Outside effectivity requires a complete, decision-relevant applicability proof."
+        };
+      }
+      if (input.effectivityProof.ambiguous && rationale.length === 0) {
+        return {
+          valid: false,
+          message:
+            "Ambiguous outside-effectivity evidence requires written rationale."
+        };
+      }
+      return { valid: true };
+    case "Not affected after review":
+      return rationale.length > 0
+        ? { valid: true }
+        : {
+            valid: false,
+            message: "Not affected after review requires written rationale."
+          };
+    case "No purchasing intervention remains": {
+      if (input.targetType !== "purchaseOrderLine") {
+        return {
+          valid: false,
+          message:
+            "No purchasing intervention remains applies only to purchase order lines."
+        };
+      }
+      const confirmation = input.purchasingInterventionConfirmation;
+      if (
+        !confirmation?.supplierReturnReviewed ||
+        !confirmation.replacementReviewed ||
+        !confirmation.creditReviewed ||
+        !confirmation.communicationReviewed ||
+        !confirmation.noInterventionRemains
+      ) {
+        return {
+          valid: false,
+          message:
+            "No purchasing intervention remains requires explicit confirmation that supplier return, replacement, credit, and communication intervention do not remain."
+        };
+      }
+      return rationale.length > 0
+        ? { valid: true }
+        : {
+            valid: false,
+            message:
+              "No purchasing intervention remains requires written rationale."
+          };
+    }
+  }
+}
+
+// =============================================================================
+// Change Notice Operational Impact — Slice 1 read contracts.
+//
+// Kept next to the closed product contracts so the service layer does not need
+// to import the broad Items type barrel (which also infers many service return
+// types).
+// =============================================================================
+
+export type ChangeNoticeImpactSourceAccess = {
+  purchaseOrderLine: boolean;
+  job: boolean;
+  jobMaterial: boolean;
+};
+
+export type ChangeNoticeImpactSourceAccessResult =
+  | {
+      status: "resolved";
+      access: ChangeNoticeImpactSourceAccess;
+    }
+  | {
+      status: "failed";
+      errorMessage: string;
+    };
+
+export type PurchaseOrderLineImpactSnapshot = {
+  schema: "PO_LINE_SNAPSHOT_V1";
+  purchaseOrderLineId: string;
+  purchaseOrderId: string;
+  supplierId: string;
+  itemId: string;
+  itemRevision: string | null;
+  purchaseOrderLineType: Database["public"]["Enums"]["purchaseOrderLineType"];
+  purchaseOrderStatus:
+    | "Draft"
+    | "Planned"
+    | "Needs Approval"
+    | "To Review"
+    | "To Receive"
+    | "To Receive and Invoice"
+    | "To Invoice"
+    | "Completed"
+    | "Closed"
+    | "Rejected";
+  receivedComplete: boolean;
+  orderedQuantity: number;
+  receivedQuantity: number;
+  remainingQuantity: number;
+  purchaseUnitOfMeasureCode: string | null;
+  inventoryUnitOfMeasureCode: string | null;
+  conversionFactor: number;
+  requiredDate: string | null;
+  promisedDate: string | null;
+  eligibilityBasis: "openPurchasingCommitment";
+};
+
+export type JobImpactSnapshot = {
+  schema: "JOB_SNAPSHOT_V1";
+  jobId: string;
+  itemId: string;
+  itemRevision: string | null;
+  status:
+    | "Draft"
+    | "Planned"
+    | "Ready"
+    | "In Progress"
+    | "Paused"
+    | "Completed"
+    | "Closed"
+    | "Cancelled";
+  plannedQuantity: number;
+  completedQuantity: number;
+  remainingQuantity: number;
+  quantityShipped: number;
+  quantityReceivedToInventory: number;
+  dueDate: string | null;
+  effectiveMethodId: string;
+  effectiveMethodVersion: number;
+  unitOfMeasureCode: string;
+  eligibilityBasis: "activeProducingJob";
+};
+
+export type JobMaterialImpactSnapshot = {
+  schema: "JOB_MATERIAL_SNAPSHOT_V1";
+  jobMaterialId: string;
+  jobId: string;
+  itemId: string;
+  itemRevision: string | null;
+  jobStatus:
+    | "Draft"
+    | "Planned"
+    | "Ready"
+    | "In Progress"
+    | "Paused"
+    | "Completed"
+    | "Closed"
+    | "Cancelled";
+  requiredQuantity: number;
+  issuedQuantity: number | null;
+  remainingQuantity: number;
+  unitOfMeasureCode: string | null;
+  methodType: Database["public"]["Enums"]["methodType"];
+  jobOperationId: string | null;
+  requiresTracking: {
+    batch: boolean;
+    serial: boolean;
+  };
+  eligibilityBasis: "activeJobMaterial";
+};
+
+export type ChangeNoticeImpactSnapshot =
+  | PurchaseOrderLineImpactSnapshot
+  | JobImpactSnapshot
+  | JobMaterialImpactSnapshot;
+
+export type ChangeNoticeImpactSnapshotNormalization =
+  | {
+      sourceAvailability: "Present";
+      snapshot: ChangeNoticeImpactSnapshot;
+    }
+  | {
+      sourceAvailability: "Unavailable";
+      snapshot: null;
+      reason: string;
+    };
+
+export type ChangeNoticeImpactPurchaseOrderLineSnapshotInput = {
+  purchaseOrderLineId?: unknown;
+  id?: unknown;
+  purchaseOrderId?: unknown;
+  supplierId?: unknown;
+  itemId?: unknown;
+  itemRevision?: unknown;
+  purchaseOrderLineType?: unknown;
+  purchaseOrderStatus?: unknown;
+  receivedComplete?: unknown;
+  purchaseQuantity?: unknown;
+  quantityReceived?: unknown;
+  quantityToReceive?: unknown;
+  purchaseUnitOfMeasureCode?: unknown;
+  inventoryUnitOfMeasureCode?: unknown;
+  conversionFactor?: unknown;
+  requiredDate?: unknown;
+  promisedDate?: unknown;
+  linePromisedDate?: unknown;
+  deliveryReceiptPromisedDate?: unknown;
+  /** Required parent-delivery hydration marker supplied by live discovery. */
+  deliveryRowPresent?: unknown;
+};
+
+export type ChangeNoticeImpactJobSnapshotInput = {
+  jobId?: unknown;
+  id?: unknown;
+  itemId?: unknown;
+  itemRevision?: unknown;
+  status?: unknown;
+  plannedQuantity?: unknown;
+  quantity?: unknown;
+  completedQuantity?: unknown;
+  quantityComplete?: unknown;
+  remainingQuantity?: unknown;
+  quantityShipped?: unknown;
+  quantityReceivedToInventory?: unknown;
+  dueDate?: unknown;
+  effectiveMethodId?: unknown;
+  effectiveMethodVersion?: unknown;
+  unitOfMeasureCode?: unknown;
+};
+
+export type ChangeNoticeImpactJobMaterialSnapshotInput = {
+  jobMaterialId?: unknown;
+  id?: unknown;
+  jobId?: unknown;
+  itemId?: unknown;
+  itemRevision?: unknown;
+  jobStatus?: unknown;
+  requiredQuantity?: unknown;
+  estimatedQuantity?: unknown;
+  issuedQuantity?: unknown;
+  quantityIssued?: unknown;
+  remainingQuantity?: unknown;
+  quantityToIssue?: unknown;
+  unitOfMeasureCode?: unknown;
+  methodType?: unknown;
+  jobOperationId?: unknown;
+  requiresTracking?: unknown;
+  requiresBatchTracking?: unknown;
+  requiresSerialTracking?: unknown;
+};
+
+export type ChangeNoticeImpactProvenance = {
+  affectedItemId: string;
+  affectedItemSourceId: string;
+  affectedItemLabel: string;
+  status: "Current" | "Historical";
+  endedReason: string | null;
+};
+
+export type ChangeNoticeImpactParentContext =
+  | {
+      type: "purchaseOrder";
+      id: string;
+      readableId: string;
+      status: string;
+      supplierId: string;
+    }
+  | {
+      type: "job";
+      id: string;
+      readableId: string;
+      status: string;
+    };
+
+export type ChangeNoticeImpactItemContext = {
+  id: string;
+  readableId: string;
+  readableIdWithRevision: string | null;
+  revision: string | null;
+  unitOfMeasureCode: string | null;
+};
+
+export type ChangeNoticeImpactDecisionProjection = {
+  id: string;
+  status: ChangeNoticeImpactDecisionStatus;
+  decisionStatus: ChangeNoticeImpactDecisionStatus;
+  noActionReasonCode: ChangeNoticeImpactNoActionReasonCode | null;
+  rationale: string | null;
+  resolutionNote: string | null;
+  revision: number;
+  snapshotVersion: number;
+  persistedSnapshot: ChangeNoticeImpactSnapshot | null;
+};
+
+export type ChangeNoticeImpactCandidate = {
+  targetType: ChangeNoticeImpactTargetType;
+  targetId: string;
+  parent: ChangeNoticeImpactParentContext | null;
+  item: ChangeNoticeImpactItemContext | null;
+  currentSnapshot: ChangeNoticeImpactSnapshot | null;
+  currentProvenance: ChangeNoticeImpactProvenance[];
+  historicalProvenance: ChangeNoticeImpactProvenance[];
+  provenance: ChangeNoticeImpactProvenance[];
+  exposureClassification: ChangeNoticeImpactExposureClassification | null;
+  sourceAvailability: ChangeNoticeImpactSourceAvailability;
+  unavailableReason: string | null;
+  decision: ChangeNoticeImpactDecisionProjection | null;
+  freshness: ChangeNoticeImpactFreshnessStatus | null;
+};
+
+export type ChangeNoticeImpactDomainCursor = {
+  // undefined = never started, string = continuation, null = exhausted.
+  current?: string | null;
+  historical?: string | null;
+};
+
+export type ChangeNoticeImpactCoverage = {
+  targetType: ChangeNoticeImpactTargetType;
+  status: ChangeNoticeImpactCoverageStatus;
+  currentExposureCount: number | null;
+  historicalReferenceCount: number | null;
+  unassessedCount: number | null;
+  errorMessage?: string;
+  nextCursor: {
+    current: string | null;
+    historical: string | null;
+  };
+};
+
+export type ChangeNoticeImpactCandidateOptions = {
+  sourceAccess:
+    | ChangeNoticeImpactSourceAccess
+    | ChangeNoticeImpactSourceAccessResult;
+  limit?: number;
+  pageSize?: number;
+  cursor?: Partial<
+    Record<
+      ChangeNoticeImpactTargetType,
+      ChangeNoticeImpactDomainCursor | null | undefined
+    >
+  >;
+};
+
+export type ChangeNoticeImpactCandidateReadModel = {
+  changeNoticeId: string;
+  changeNoticeStatus: Database["public"]["Enums"]["changeOrderStatus"] | null;
+  candidates: ChangeNoticeImpactCandidate[];
+  coverage: {
+    purchaseOrderLine: ChangeNoticeImpactCoverage;
+    job: ChangeNoticeImpactCoverage;
+    jobMaterial: ChangeNoticeImpactCoverage;
+  };
+};
+
+export type ChangeNoticeImpactCandidateReadResult = {
+  data: ChangeNoticeImpactCandidateReadModel | null;
+  error: { message: string } | null;
+};
 
 // v2 per-affected-item change type. Drives the release action + which editing
 // surface is shown. Two axes — is there a predecessor, and same part number?
