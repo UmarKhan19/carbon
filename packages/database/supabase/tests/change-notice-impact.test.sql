@@ -420,6 +420,43 @@ BEGIN
     'Tenant B provenance', v_user_id, v_user_id
   );
 
+  -- A readable label may be unavailable, but both persisted identifiers remain required.
+  INSERT INTO "changeOrderImpactDecisionAffectedItem" (
+    "companyId", "decisionId", "affectedItemId", "affectedItemSourceId",
+    "affectedItemLabel", "startedBy", "createdBy"
+  ) VALUES (
+    v_company_id, v_decision_id, 'nullable-label-item', 'nullable-label-source',
+    NULL, v_user_id, v_user_id
+  );
+  ASSERT (
+    SELECT "affectedItemLabel" IS NULL
+    FROM "changeOrderImpactDecisionAffectedItem"
+    WHERE "decisionId" = v_decision_id
+      AND "affectedItemId" = 'nullable-label-item'
+  ), 'NULL affectedItemLabel must be accepted';
+
+  BEGIN
+    INSERT INTO "changeOrderImpactDecisionAffectedItem" (
+      "companyId", "decisionId", "affectedItemId", "affectedItemSourceId",
+      "affectedItemLabel", "startedBy", "createdBy"
+    ) VALUES (
+      v_company_id, v_decision_id, NULL, 'required-source-id', NULL, v_user_id, v_user_id
+    );
+    ASSERT FALSE, 'affectedItemId must remain NOT NULL';
+  EXCEPTION WHEN not_null_violation THEN NULL;
+  END;
+
+  BEGIN
+    INSERT INTO "changeOrderImpactDecisionAffectedItem" (
+      "companyId", "decisionId", "affectedItemId", "affectedItemSourceId",
+      "affectedItemLabel", "startedBy", "createdBy"
+    ) VALUES (
+      v_company_id, v_decision_id, 'required-item-id', NULL, NULL, v_user_id, v_user_id
+    );
+    ASSERT FALSE, 'affectedItemSourceId must remain NOT NULL';
+  EXCEPTION WHEN not_null_violation THEN NULL;
+  END;
+
   -- Provenance interval checks and tenant-scoped current uniqueness.
   INSERT INTO "changeOrderImpactDecisionAffectedItem" (
     "companyId", "decisionId", "affectedItemId", "affectedItemSourceId",

@@ -7100,7 +7100,7 @@ export type Database = {
       changeOrderImpactDecisionAffectedItem: {
         Row: {
           affectedItemId: string
-          affectedItemLabel: string
+          affectedItemLabel: string | null
           affectedItemSourceId: string
           companyId: string
           createdAt: string
@@ -7117,7 +7117,7 @@ export type Database = {
         }
         Insert: {
           affectedItemId: string
-          affectedItemLabel: string
+          affectedItemLabel?: string | null
           affectedItemSourceId: string
           companyId: string
           createdAt?: string
@@ -7134,7 +7134,7 @@ export type Database = {
         }
         Update: {
           affectedItemId?: string
-          affectedItemLabel?: string
+          affectedItemLabel?: string | null
           affectedItemSourceId?: string
           companyId?: string
           createdAt?: string
