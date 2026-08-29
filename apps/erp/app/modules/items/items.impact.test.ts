@@ -899,6 +899,35 @@ describe("Change Notice Impact provenance", () => {
 
 type FakeRow = Record<string, unknown>;
 
+// PostgreSQL's verified en_US.UTF-8 order for Carbon's Base58 alphabet.
+const VERIFIED_DATABASE_BASE58_ORDER =
+  "123456789aAbBcCdDeEfFgGhHijJkKLmMnNopPqQrRsStTuUvVwWxXyYzZ";
+const databaseBase58Ranks = new Map(
+  [...VERIFIED_DATABASE_BASE58_ORDER].map((character, rank) => [
+    character,
+    rank
+  ])
+);
+
+// Keep the fake's database model independent from the production pagination code.
+// The fallback keeps non-Base58 fixture text on its existing locale-aware path.
+function compareDatabaseIds(left: string, right: string): number {
+  if (left === right) return 0;
+  const length = Math.min(left.length, right.length);
+  for (let index = 0; index < length; index += 1) {
+    const leftCharacter = left[index];
+    const rightCharacter = right[index];
+    if (leftCharacter === rightCharacter) continue;
+    const leftRank = databaseBase58Ranks.get(leftCharacter);
+    const rightRank = databaseBase58Ranks.get(rightCharacter);
+    if (leftRank !== undefined && rightRank !== undefined) {
+      return leftRank - rightRank;
+    }
+    return left.localeCompare(right);
+  }
+  return left.length - right.length;
+}
+
 type FakeClientOptions = {
   rows: Record<string, FakeRow[]>;
   errors?: Set<string>;
@@ -1073,7 +1102,7 @@ function fakeImpactClient(options: FakeClientOptions) {
             return (
               typeof actual === "string" &&
               typeof value === "string" &&
-              actual > value
+              compareDatabaseIds(actual, value) > 0
             );
           });
         }
@@ -1090,7 +1119,8 @@ function fakeImpactClient(options: FakeClientOptions) {
               const leftValue = relatedValue(left, column);
               const rightValue = relatedValue(right, column);
               if (leftValue === rightValue) continue;
-              const comparison = String(leftValue).localeCompare(
+              const comparison = compareDatabaseIds(
+                String(leftValue),
                 String(rightValue)
               );
               return ascending ? comparison : -comparison;
@@ -2436,6 +2466,53 @@ describe("Change Notice Impact candidate discovery", () => {
       historical: null
     });
     expect(third.data?.coverage.purchaseOrderLine.currentExposureCount).toBe(3);
+  });
+
+  it("does not skip or repeat mixed-case IDs across failed-coverage continuation pages", async () => {
+    const lines = [
+      poRow("pol_A"),
+      poRow("pol_B"),
+      poRow("pol_a"),
+      poRow("pol_b")
+    ];
+    const client = fakeImpactClient({
+      rows: baseImpactRows({
+        purchaseOrderLine: lines,
+        purchaseOrder: lines.map((line) =>
+          poParent(line.purchaseOrderId as string)
+        )
+      }),
+      errors: new Set(["purchaseOrderLine:count"])
+    });
+    const seen: string[] = [];
+    let cursor: string | undefined;
+
+    for (let index = 0; index < lines.length; index += 1) {
+      const result = await getChangeNoticeImpactCandidates(
+        client,
+        companyId,
+        changeNoticeId,
+        {
+          sourceAccess,
+          limit: 1,
+          ...(cursor
+            ? { cursor: { purchaseOrderLine: { current: cursor } } }
+            : {})
+        }
+      );
+      const candidate = result.data?.candidates.find(
+        (entry) => entry.targetType === "purchaseOrderLine"
+      );
+      expect(candidate).toBeDefined();
+      seen.push(candidate?.targetId ?? "");
+      const nextCursor =
+        result.data?.coverage.purchaseOrderLine.nextCursor.current;
+      if (nextCursor === null) break;
+      cursor = nextCursor;
+    }
+
+    expect(seen).toEqual(["pol_a", "pol_A", "pol_b", "pol_B"]);
+    expect(new Set(seen).size).toBe(seen.length);
   });
 
   it("reports a failed summary/count query without exposing fake exact totals", async () => {
