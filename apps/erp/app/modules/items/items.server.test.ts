@@ -21,6 +21,7 @@ vi.mock("@carbon/glossary", () => ({
 
 const {
   deriveChangeNoticeImpactSourceAccess,
+  getChangeNoticeImpactMutationAccess,
   getChangeNoticeImpactSourceAccess,
   getLockVerdict,
   LOCKED_REVISION_MESSAGE,
@@ -119,6 +120,45 @@ describe("Change Notice Impact source access", () => {
     ).resolves.toEqual({
       status: "resolved",
       access: {
+        purchaseOrderLine: true,
+        job: false,
+        jobMaterial: false
+      }
+    });
+  });
+
+  it("keeps Change Notice view and Impact update permissions independent", async () => {
+    vi.mocked(getUserClaims).mockResolvedValue({
+      role: "employee",
+      permissions: {
+        parts: {
+          view: [],
+          create: [],
+          update: [companyId],
+          delete: []
+        },
+        purchasing: {
+          view: [companyId],
+          create: [],
+          update: [],
+          delete: []
+        },
+        production: {
+          view: [],
+          create: [],
+          update: [],
+          delete: []
+        }
+      }
+    });
+
+    await expect(
+      getChangeNoticeImpactMutationAccess({ userId: "user-1", companyId })
+    ).resolves.toMatchObject({
+      status: "resolved",
+      canViewChangeNotice: false,
+      canUpdateItems: true,
+      sourceAccess: {
         purchaseOrderLine: true,
         job: false,
         jobMaterial: false

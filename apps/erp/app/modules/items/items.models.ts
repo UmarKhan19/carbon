@@ -1147,6 +1147,77 @@ export const changeNoticeImpactTargetTypeValidator = z.enum(
   changeNoticeImpactTargetTypes
 );
 
+/**
+ * The browser/API contract for one assessment. Company, actor, source access,
+ * operation, event type, and the canonical snapshot are all server-owned. The
+ * strict object is intentional: accepting an operation or client snapshot and
+ * silently stripping it would make the contract look authoritative when it is
+ * not.
+ */
+export const changeNoticeImpactDecisionRequestValidator = z
+  .object({
+    changeNoticeId: z.string().min(1, { message: "Change notice is required" }),
+    targetType: changeNoticeImpactTargetTypeValidator,
+    targetId: z.string().min(1, { message: "Impact target is required" }),
+    decisionStatus: changeNoticeImpactDecisionStatusValidator,
+    noActionReasonCode: changeNoticeImpactNoActionReasonCodeValidator
+      .nullable()
+      .optional(),
+    rationale: z.string().trim().nullable().optional(),
+    resolutionNote: z.string().trim().nullable().optional(),
+    confirmNoPurchasingInterventionRemains: z.boolean().optional(),
+    expectedRevision: z.number().int().positive().nullable().optional()
+  })
+  .strict();
+export type ChangeNoticeImpactDecisionRequest = z.infer<
+  typeof changeNoticeImpactDecisionRequestValidator
+>;
+
+/** Internal operation labels. Callers never submit one of these values. */
+export const changeNoticeImpactDecisionOperations = [
+  "createDecision",
+  "reassessDecision",
+  "correctDecision",
+  "reopenDecision",
+  "resolveActionRequired",
+  "updateDecision",
+  "noOp"
+] as const;
+export type ChangeNoticeImpactDecisionOperation =
+  (typeof changeNoticeImpactDecisionOperations)[number];
+
+/**
+ * Classify the lifecycle operation from persisted state and the requested
+ * conclusion. This helper deliberately has no public input field for the
+ * operation; it is used by the server after loading the current row.
+ */
+export function deriveChangeNoticeImpactDecisionOperation(input: {
+  existingStatus: ChangeNoticeImpactDecisionStatus | null;
+  requestedStatus: ChangeNoticeImpactDecisionStatus;
+}): ChangeNoticeImpactDecisionOperation {
+  if (input.existingStatus === null) return "createDecision";
+  if (input.existingStatus === input.requestedStatus) return "updateDecision";
+  if (
+    input.existingStatus === "Resolved" &&
+    input.requestedStatus === "Action required"
+  ) {
+    return "reopenDecision";
+  }
+  if (
+    input.existingStatus === "Action required" &&
+    input.requestedStatus === "Resolved"
+  ) {
+    return "resolveActionRequired";
+  }
+  if (
+    input.existingStatus === "Action required" &&
+    input.requestedStatus === "No action required"
+  ) {
+    return "correctDecision";
+  }
+  return "reassessDecision";
+}
+
 export const purchaseOrderLineImpactItemTypes = [
   "Part",
   "Material",
@@ -1227,6 +1298,148 @@ export type ChangeNoticeImpactPurchasingInterventionConfirmation = {
 export type ChangeNoticeImpactReasonValidation =
   | { valid: true }
   | { valid: false; message: string };
+
+export type ChangeNoticeImpactFirstAssessmentValidation =
+  | {
+      valid: true;
+      noActionReasonCode: ChangeNoticeImpactNoActionReasonCode | null;
+      rationale: string | null;
+      resolutionNote: string | null;
+    }
+  | { valid: false; message: string };
+
+/**
+ * Validate the state-specific part of a first assessment. Source availability,
+ * exposure, lifecycle, and the canonical snapshot are deliberately checked by
+ * the server after it reloads the live rows.
+ */
+export function validateChangeNoticeImpactFirstAssessment(input: {
+  targetType: ChangeNoticeImpactTargetType;
+  decisionStatus: ChangeNoticeImpactDecisionStatus;
+  noActionReasonCode?: ChangeNoticeImpactNoActionReasonCode | null;
+  rationale?: string | null;
+  resolutionNote?: string | null;
+  confirmNoPurchasingInterventionRemains?: boolean;
+  expectedRevision?: number | null;
+}): ChangeNoticeImpactFirstAssessmentValidation {
+  const rationale = input.rationale?.trim() ?? "";
+  const resolutionNote = input.resolutionNote?.trim() ?? "";
+  const reason = input.noActionReasonCode ?? null;
+
+  if (input.expectedRevision !== undefined && input.expectedRevision !== null) {
+    return {
+      valid: false,
+      message:
+        "First assessments must not include an expected decision revision."
+    };
+  }
+
+  if (input.decisionStatus !== "Resolved" && resolutionNote.length > 0) {
+    return {
+      valid: false,
+      message: "Resolution notes are only valid for a Resolved decision."
+    };
+  }
+
+  if (input.decisionStatus !== "No action required") {
+    if (input.confirmNoPurchasingInterventionRemains !== undefined) {
+      return {
+        valid: false,
+        message:
+          "Purchasing intervention confirmation is only valid for a No action required decision."
+      };
+    }
+  }
+
+  if (input.decisionStatus === "No action required") {
+    if (reason === null) {
+      return {
+        valid: false,
+        message: "No action required needs a reason."
+      };
+    }
+    if (reason === "Outside effectivity") {
+      return {
+        valid: false,
+        message:
+          "Outside effectivity is unavailable until Carbon can provide authoritative applicability evidence."
+      };
+    }
+    if (reason === "Not affected after review" && rationale.length === 0) {
+      return {
+        valid: false,
+        message: "Not affected after review requires written rationale."
+      };
+    }
+    if (
+      reason === "No purchasing intervention remains" &&
+      input.targetType !== "purchaseOrderLine"
+    ) {
+      return {
+        valid: false,
+        message:
+          "No purchasing intervention remains applies only to purchase order lines."
+      };
+    }
+    if (
+      reason !== "No purchasing intervention remains" &&
+      input.confirmNoPurchasingInterventionRemains !== undefined
+    ) {
+      return {
+        valid: false,
+        message:
+          "Purchasing intervention confirmation is only valid for No purchasing intervention remains."
+      };
+    }
+    if (
+      reason === "No purchasing intervention remains" &&
+      input.confirmNoPurchasingInterventionRemains !== true
+    ) {
+      return {
+        valid: false,
+        message:
+          "No purchasing intervention remains requires explicit confirmation that no supplier return, replacement, credit, or communication intervention remains."
+      };
+    }
+    if (
+      (reason === "Not affected after review" ||
+        reason === "No purchasing intervention remains") &&
+      rationale.length === 0
+    ) {
+      return {
+        valid: false,
+        message: `${reason} requires written rationale.`
+      };
+    }
+  } else if (reason !== null) {
+    return {
+      valid: false,
+      message:
+        "No Action reason is only valid for a No action required decision."
+    };
+  }
+
+  if (input.decisionStatus === "Action required" && rationale.length === 0) {
+    return {
+      valid: false,
+      message: "Action required needs written follow-up rationale."
+    };
+  }
+
+  if (input.decisionStatus === "Resolved" && resolutionNote.length === 0) {
+    return {
+      valid: false,
+      message: "Resolved requires written closure evidence."
+    };
+  }
+
+  return {
+    valid: true,
+    noActionReasonCode: reason,
+    rationale: rationale.length > 0 ? rationale : null,
+    resolutionNote: resolutionNote.length > 0 ? resolutionNote : null
+  };
+}
 
 /**
  * Validate No Action semantics without creating a decision or mutating any
@@ -1423,6 +1636,39 @@ export type ChangeNoticeImpactSnapshot =
   | PurchaseOrderLineImpactSnapshot
   | JobImpactSnapshot
   | JobMaterialImpactSnapshot;
+
+export type ChangeNoticeImpactDecisionMutationInput =
+  ChangeNoticeImpactDecisionRequest & {
+    /** Server-derived tenant and actor context. */
+    companyId: string;
+    userId: string;
+    /** Resolved from the actor's source-domain view permissions. */
+    sourceAccess: ChangeNoticeImpactSourceAccess;
+  };
+
+export type ChangeNoticeImpactDecisionWriteData = {
+  /** Derived by the server from persisted state, never supplied by a caller. */
+  operation: ChangeNoticeImpactDecisionOperation;
+  decision: {
+    id: string;
+    targetType: ChangeNoticeImpactTargetType;
+    targetId: string;
+    decisionStatus: ChangeNoticeImpactDecisionStatus;
+    noActionReasonCode: ChangeNoticeImpactNoActionReasonCode | null;
+    rationale: string | null;
+    resolutionNote: string | null;
+    assessmentSnapshot: ChangeNoticeImpactSnapshot;
+    snapshotVersion: number;
+    assessedBy: string;
+    assessedAt: string;
+    revision: number;
+  };
+};
+
+export type ChangeNoticeImpactDecisionWriteResult = {
+  data: ChangeNoticeImpactDecisionWriteData | null;
+  error: { message: string } | null;
+};
 
 export type ChangeNoticeImpactSnapshotNormalization =
   | {

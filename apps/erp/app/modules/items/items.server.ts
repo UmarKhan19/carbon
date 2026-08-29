@@ -1,4 +1,4 @@
-import { error } from "@carbon/auth";
+import { error, hasPermission } from "@carbon/auth";
 import { flash } from "@carbon/auth/session.server";
 import { getUserClaims } from "@carbon/auth/users.server";
 import type { Database } from "@carbon/database";
@@ -16,14 +16,20 @@ import {
 } from "~/modules/items";
 import { getCompanySettings } from "~/modules/settings";
 import { requireUnlockedBulk } from "~/utils/lockedGuard.server";
-import type { plmReleaseControl } from "./items.models";
+import type {
+  ChangeNoticeImpactDecisionRequest,
+  ChangeNoticeImpactDecisionWriteResult,
+  plmReleaseControl
+} from "./items.models";
 import {
   canEditChangeNoticeEngineering,
   canEditChangeNoticeWorkflow,
+  changeNoticeImpactDecisionRequestValidator,
   changeNoticeLockedMessage,
   changeNoticeOpenStatuses,
   supersessionModes
 } from "./items.models";
+import { writeChangeNoticeImpactDecision } from "./items.service";
 import type {
   ChangeNoticeImpactSourceAccess,
   ChangeNoticeImpactSourceAccessResult
@@ -42,7 +48,9 @@ export function deriveChangeNoticeImpactSourceAccess(
   companyId: string
 ): ChangeNoticeImpactSourceAccess {
   const canView = (permission: string) =>
-    permissions[permission]?.view?.includes(companyId) ?? false;
+    permissions[permission]?.view?.some(
+      (scope) => scope === companyId || scope === "0"
+    ) ?? false;
   return {
     purchaseOrderLine: canView("purchasing"),
     job: canView("production"),
@@ -75,6 +83,115 @@ export async function getChangeNoticeImpactSourceAccess(args: {
       errorMessage: "Impact source access could not be established."
     };
   }
+}
+
+export type ChangeNoticeImpactMutationAccessResult =
+  | {
+      status: "resolved";
+      canViewChangeNotice: boolean;
+      canUpdateItems: boolean;
+      sourceAccess: ChangeNoticeImpactSourceAccess;
+    }
+  | {
+      status: "failed";
+      errorMessage: string;
+    };
+
+/**
+ * Resolve the two independent server-side gates for an Impact mutation. The
+ * mutation service uses Kysely, so this claim check must happen before it is
+ * called; Kysely does not apply the requesting user's RLS policies.
+ */
+export async function getChangeNoticeImpactMutationAccess(args: {
+  userId: string;
+  companyId: string;
+}): Promise<ChangeNoticeImpactMutationAccessResult> {
+  try {
+    const claims = await getUserClaims(args.userId, args.companyId);
+    return {
+      status: "resolved",
+      canViewChangeNotice: hasPermission(
+        claims.permissions,
+        "parts",
+        "view",
+        args.companyId
+      ),
+      canUpdateItems: hasPermission(
+        claims.permissions,
+        "parts",
+        "update",
+        args.companyId
+      ),
+      sourceAccess: deriveChangeNoticeImpactSourceAccess(
+        claims.permissions,
+        args.companyId
+      )
+    };
+  } catch (cause) {
+    logger.error("Failed to resolve Change Notice Impact mutation access", {
+      error: cause,
+      companyId: args.companyId,
+      userId: args.userId
+    });
+    return {
+      status: "failed",
+      errorMessage: "Impact mutation access could not be established."
+    };
+  }
+}
+
+/**
+ * Server-authorized entry point for the first-assessment seam. It accepts only
+ * the final public request shape; tenant, actor, source access, and database
+ * client are supplied here rather than by the caller.
+ */
+export async function writeAuthorizedChangeNoticeImpactDecision(args: {
+  userId: string;
+  companyId: string;
+  decision: ChangeNoticeImpactDecisionRequest;
+}): Promise<ChangeNoticeImpactDecisionWriteResult> {
+  const parsedDecision = changeNoticeImpactDecisionRequestValidator.safeParse(
+    args.decision
+  );
+  if (!parsedDecision.success) {
+    return {
+      data: null,
+      error: {
+        message:
+          parsedDecision.error.issues[0]?.message ??
+          "Invalid Change Notice Impact assessment."
+      }
+    };
+  }
+
+  const access = await getChangeNoticeImpactMutationAccess(args);
+  if (access.status === "failed") {
+    return { data: null, error: { message: access.errorMessage } };
+  }
+  if (!access.canViewChangeNotice) {
+    return {
+      data: null,
+      error: {
+        message: "Change Notice Impact requires Change Notice view permission."
+      }
+    };
+  }
+  if (!access.canUpdateItems) {
+    return {
+      data: null,
+      error: {
+        message: "Change Notice Impact requires Items update permission."
+      }
+    };
+  }
+
+  const { getDatabaseClient } = await import("~/services/database.server");
+  return writeChangeNoticeImpactDecision(getDatabaseClient(), {
+    ...parsedDecision.data,
+    companyId: args.companyId,
+    userId: args.userId,
+    sourceAccess: access.sourceAccess
+  });
 }
 
 // Release-lock helpers — gate BOM/BOP mutations on a released (Production)

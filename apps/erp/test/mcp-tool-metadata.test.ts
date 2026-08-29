@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { MCP_BLOCKED_TOOL_NAMES } from "../app/routes/api+/mcp+/lib/mcp-blocked-tools";
 import metadata from "../app/routes/api+/mcp+/lib/tool-metadata.json";
 
 // Regression guards for the MCP tool-metadata generator (scripts/generate-mcp.ts).
@@ -29,6 +30,25 @@ const props = (t: Tool) => t.schema.properties ?? {};
 describe("mcp tool-metadata generator", () => {
   it("totalTools matches the tools array", () => {
     expect(metadata.totalTools).toBe(tools.length);
+  });
+
+  it("keeps raw Impact service boundaries and helpers out of generic MCP metadata", () => {
+    for (const name of [
+      "items_writeChangeNoticeImpactDecision",
+      "items_getChangeNoticeImpactCandidates",
+      "items_removeChangeNoticeAffectedItem",
+      "items_normalizePurchaseOrderLineImpactSnapshot",
+      "items_normalizeJobImpactSnapshot",
+      "items_normalizeJobMaterialImpactSnapshot",
+      "items_classifyPurchaseOrderLineImpactEligibility",
+      "items_classifyJobImpactEligibility",
+      "items_classifyJobMaterialImpactEligibility",
+      "items_deriveChangeNoticeImpactProvenance",
+      "items_compareChangeNoticeImpactSnapshot"
+    ]) {
+      expect(MCP_BLOCKED_TOOL_NAMES).toContain(name);
+      expect(byName.has(name)).toBe(false);
+    }
   });
 
   // #2 — an array-of-objects service param publishes as an array, not an object.

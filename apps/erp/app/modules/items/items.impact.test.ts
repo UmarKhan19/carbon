@@ -1,4 +1,5 @@
 import type { Database } from "@carbon/database";
+import type { Kysely, KyselyDatabase } from "@carbon/database/client";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { describe, expect, it, vi } from "vitest";
 
@@ -19,6 +20,8 @@ const {
   getChangeNoticeAffectedItems,
   getChangeNoticeImpactCandidates,
   normalizeJobImpactSnapshot,
+  removeChangeNoticeAffectedItem,
+  writeChangeNoticeImpactDecision,
   normalizeJobMaterialImpactSnapshot,
   normalizePurchaseOrderLineImpactSnapshot
 } = await import("./items.service");
@@ -29,8 +32,11 @@ const {
   JOB_SNAPSHOT_V1,
   OPEN_PURCHASING_COMMITMENT,
   PO_LINE_SNAPSHOT_V1,
+  changeNoticeImpactDecisionRequestValidator,
   changeNoticeImpactDecisionStatuses,
   changeNoticeImpactNoActionReasonCodes,
+  deriveChangeNoticeImpactDecisionOperation,
+  validateChangeNoticeImpactFirstAssessment,
   validateChangeNoticeImpactNoActionReason
 } = await import("./items.models");
 
@@ -108,6 +114,264 @@ function expectUnavailable(result: { sourceAvailability: string }) {
   expect(result.sourceAvailability).toBe("Unavailable");
 }
 
+function makeImpactKyselyRecorder(
+  options: {
+    failInsertTable?: string;
+    failInsertError?: unknown;
+    existingDecision?: Record<string, unknown>;
+  } = {}
+) {
+  const firstRows: Record<string, unknown> = {
+    changeOrder: { id: changeNoticeId, companyId, status: "Done" },
+    changeOrderImpactDecision: options.existingDecision ?? null,
+    purchaseOrderLine: {
+      id: "pol-1",
+      purchaseOrderId: "po-1",
+      itemId: "item-1",
+      purchaseOrderLineType: "Part",
+      purchaseQuantity: 10,
+      quantityReceived: 2,
+      quantityToReceive: 8,
+      receivedComplete: false,
+      purchaseUnitOfMeasureCode: "BOX",
+      inventoryUnitOfMeasureCode: "EA",
+      conversionFactor: 2,
+      requiredDate: "2026-08-25",
+      promisedDate: null
+    },
+    purchaseOrder: {
+      id: "po-1",
+      supplierId: "supplier-1",
+      status: "To Receive"
+    },
+    purchaseOrderDelivery: { id: "po-1", receiptPromisedDate: null },
+    item: {
+      id: "item-1",
+      readableId: "PART-1",
+      readableIdWithRevision: "PART-1 Rev A",
+      name: "Part",
+      revision: "A"
+    },
+    job: {
+      id: "job-1",
+      itemId: "item-1",
+      jobId: "JOB-1",
+      status: "In Progress",
+      quantity: 100,
+      quantityComplete: 20,
+      quantityShipped: 10,
+      quantityReceivedToInventory: 5,
+      dueDate: "2026-08-30",
+      unitOfMeasureCode: "EA"
+    },
+    jobMaterial: {
+      id: "material-1",
+      jobId: "job-1",
+      itemId: "item-1",
+      estimatedQuantity: 5,
+      quantityIssued: 5,
+      quantityToIssue: 0,
+      unitOfMeasureCode: "EA",
+      methodType: "Pull from Inventory",
+      jobOperationId: null,
+      requiresBatchTracking: true,
+      requiresSerialTracking: false
+    }
+  };
+  const rows: Record<string, unknown[]> = {
+    changeOrderAffectedItem: [{ id: "affected-1", itemId: "item-1" }],
+    jobMakeMethod: [{ id: "job-method-1", itemId: "item-1", version: 2 }]
+  };
+  const inserts: { table: string; values: unknown }[] = [];
+  let committed = false;
+  let rolledBack = false;
+
+  const makeBuilder = (table: string, isInsert = false) => {
+    const builder: Record<string, unknown> = {
+      select: () => builder,
+      values: (values: unknown) => {
+        inserts.push({ table, values });
+        return builder;
+      },
+      where: () => builder,
+      orderBy: () => builder,
+      forUpdate: () => builder,
+      returning: () => builder,
+      executeTakeFirst: async () => firstRows[table] ?? null,
+      executeTakeFirstOrThrow: async () => {
+        if (isInsert && options.failInsertTable === table) {
+          throw (
+            options.failInsertError ?? {
+              code: "23505",
+              constraint: "changeOrderImpactDecision_target_key",
+              detail: "changeOrderImpactDecision_target_key"
+            }
+          );
+        }
+        return { id: `${table}-generated` };
+      },
+      execute: async () => {
+        if (isInsert && options.failInsertTable === table) {
+          throw (
+            options.failInsertError ?? {
+              code: "23505",
+              constraint: "changeOrderImpactDecision_target_key",
+              detail: "changeOrderImpactDecision_target_key"
+            }
+          );
+        }
+        return rows[table] ?? [];
+      }
+    };
+    return builder;
+  };
+
+  const tx = {
+    selectFrom: (table: string) => makeBuilder(table),
+    insertInto: (table: string) => makeBuilder(table, true)
+  };
+  const db = {
+    transaction: () => ({
+      execute: async (
+        callback: (transaction: typeof tx) => Promise<unknown>
+      ) => {
+        try {
+          const result = await callback(tx);
+          committed = true;
+          return result;
+        } catch (cause) {
+          rolledBack = true;
+          throw cause;
+        }
+      }
+    })
+  };
+
+  return {
+    db,
+    inserts,
+    get committed() {
+      return committed;
+    },
+    get rolledBack() {
+      return rolledBack;
+    }
+  };
+}
+
+function makeImpactRemovalKyselyRecorder(
+  options: { failInsertTable?: string } = {}
+) {
+  const affectedItem = {
+    id: "affected-1",
+    changeOrderId: changeNoticeId,
+    draftMakeMethodId: null,
+    newItemId: null
+  };
+  const rows: Record<string, unknown[]> = {
+    changeOrderImpactDecisionAffectedItem: [
+      { id: "provenance-1", decisionId: "decision-1" }
+    ],
+    changeOrderImpactDecision: [
+      {
+        id: "decision-1",
+        targetType: "job",
+        targetId: "job-1",
+        decisionStatus: "Action required",
+        noActionReasonCode: null,
+        rationale: "The producing job still needs a cut-in review.",
+        resolutionNote: null,
+        assessmentSnapshot: {
+          schema: JOB_SNAPSHOT_V1,
+          jobId: "job-1",
+          itemId: "item-1"
+        }
+      }
+    ],
+    changeOrderAffectedItem: [affectedItem]
+  };
+  const updates: { table: string; values: unknown }[] = [];
+  const deletes: string[] = [];
+  const inserts: { table: string; values: unknown }[] = [];
+  let committed = false;
+  let rolledBack = false;
+
+  const makeBuilder = (
+    table: string,
+    kind: "select" | "insert" | "update" | "delete"
+  ) => {
+    const baseTable = table.split(" as ")[0];
+    const builder: Record<string, unknown> = {
+      select: () => builder,
+      innerJoin: () => builder,
+      values: (values: unknown) => {
+        inserts.push({ table: baseTable, values });
+        return builder;
+      },
+      set: (values: unknown) => {
+        updates.push({ table: baseTable, values });
+        return builder;
+      },
+      where: () => builder,
+      orderBy: () => builder,
+      forUpdate: () => builder,
+      returning: () => builder,
+      executeTakeFirst: async () => {
+        if (kind !== "select") return null;
+        if (baseTable === "changeOrder") {
+          return { id: changeNoticeId, status: "Draft" };
+        }
+        return rows[baseTable]?.[0] ?? null;
+      },
+      executeTakeFirstOrThrow: async () => ({ id: "generated-id" }),
+      execute: async () => {
+        if (kind === "insert" && options.failInsertTable === baseTable) {
+          throw new Error("history write failed");
+        }
+        if (kind === "delete") deletes.push(baseTable);
+        return rows[baseTable] ?? [];
+      }
+    };
+    return builder;
+  };
+
+  const tx = {
+    selectFrom: (table: string) => makeBuilder(table, "select"),
+    insertInto: (table: string) => makeBuilder(table, "insert"),
+    updateTable: (table: string) => makeBuilder(table, "update"),
+    deleteFrom: (table: string) => makeBuilder(table, "delete")
+  };
+  const db = {
+    transaction: () => ({
+      execute: async (
+        callback: (transaction: typeof tx) => Promise<unknown>
+      ) => {
+        try {
+          const result = await callback(tx);
+          committed = true;
+          return result;
+        } catch (cause) {
+          rolledBack = true;
+          throw cause;
+        }
+      }
+    })
+  };
+
+  return {
+    db,
+    inserts,
+    updates,
+    deletes,
+    get committed() {
+      return committed;
+    },
+    get rolledBack() {
+      return rolledBack;
+    }
+  };
+}
+
 describe("Change Notice Impact contracts", () => {
   it("keeps the exact target and persistent decision unions", () => {
     expect(changeNoticeImpactDecisionStatuses).toEqual([
@@ -120,6 +384,361 @@ describe("Change Notice Impact contracts", () => {
       "Not affected after review",
       "No purchasing intervention remains"
     ]);
+  });
+
+  it("keeps the mutation contract server-shaped", () => {
+    const valid = changeNoticeImpactDecisionRequestValidator.safeParse({
+      changeNoticeId,
+      targetType: "job",
+      targetId: "job-1",
+      decisionStatus: "Action required",
+      rationale: "Review the active production order."
+    });
+    expect(valid.success).toBe(true);
+
+    const clientDerivedFields =
+      changeNoticeImpactDecisionRequestValidator.safeParse({
+        changeNoticeId,
+        targetType: "job",
+        targetId: "job-1",
+        decisionStatus: "Action required",
+        operation: "createDecision",
+        assessmentSnapshot: {}
+      });
+    expect(clientDerivedFields.success).toBe(false);
+  });
+
+  it("derives lifecycle operations from persisted status, not a request enum", () => {
+    expect(
+      deriveChangeNoticeImpactDecisionOperation({
+        existingStatus: null,
+        requestedStatus: "Resolved"
+      })
+    ).toBe("createDecision");
+    expect(
+      deriveChangeNoticeImpactDecisionOperation({
+        existingStatus: "No action required",
+        requestedStatus: "Action required"
+      })
+    ).toBe("reassessDecision");
+    expect(
+      deriveChangeNoticeImpactDecisionOperation({
+        existingStatus: "Action required",
+        requestedStatus: "No action required"
+      })
+    ).toBe("correctDecision");
+    expect(
+      deriveChangeNoticeImpactDecisionOperation({
+        existingStatus: "Resolved",
+        requestedStatus: "Action required"
+      })
+    ).toBe("reopenDecision");
+  });
+
+  it("enforces first-assessment conclusion evidence rules", () => {
+    expect(
+      validateChangeNoticeImpactFirstAssessment({
+        targetType: "job",
+        decisionStatus: "Action required"
+      }).valid
+    ).toBe(false);
+    expect(
+      validateChangeNoticeImpactFirstAssessment({
+        targetType: "job",
+        decisionStatus: "Resolved",
+        resolutionNote: "Supplier cut-in was completed before this assessment."
+      })
+    ).toMatchObject({
+      valid: true,
+      rationale: null,
+      resolutionNote: "Supplier cut-in was completed before this assessment."
+    });
+    expect(
+      validateChangeNoticeImpactFirstAssessment({
+        targetType: "purchaseOrderLine",
+        decisionStatus: "No action required",
+        noActionReasonCode: "No purchasing intervention remains",
+        confirmNoPurchasingInterventionRemains: false,
+        rationale: "Reviewed supplier action."
+      }).valid
+    ).toBe(false);
+    expect(
+      validateChangeNoticeImpactFirstAssessment({
+        targetType: "purchaseOrderLine",
+        decisionStatus: "No action required",
+        noActionReasonCode: "Not affected after review"
+      }).valid
+    ).toBe(false);
+    expect(
+      validateChangeNoticeImpactFirstAssessment({
+        targetType: "job",
+        decisionStatus: "Action required",
+        resolutionNote: "The work was completed outside Carbon."
+      }).valid
+    ).toBe(false);
+    expect(
+      validateChangeNoticeImpactFirstAssessment({
+        targetType: "purchaseOrderLine",
+        decisionStatus: "No action required",
+        noActionReasonCode: "Not affected after review",
+        confirmNoPurchasingInterventionRemains: true,
+        rationale: "Reviewed supplier action."
+      }).valid
+    ).toBe(false);
+  });
+
+  it("persists a first assessment, provenance, and both initial history events atomically", async () => {
+    const recorder = makeImpactKyselyRecorder();
+    const result = await writeChangeNoticeImpactDecision(
+      recorder.db as unknown as Kysely<KyselyDatabase>,
+      {
+        companyId,
+        userId: "user-1",
+        sourceAccess,
+        changeNoticeId,
+        targetType: "purchaseOrderLine",
+        targetId: "pol-1",
+        decisionStatus: "Action required",
+        rationale: "Supplier cut-in and replacement still need follow-up."
+      }
+    );
+
+    expect(result.error).toBeNull();
+    expect(result.data?.operation).toBe("createDecision");
+    expect(recorder.committed).toBe(true);
+    expect(recorder.rolledBack).toBe(false);
+    expect(recorder.inserts).toHaveLength(3);
+    expect(recorder.inserts[0]).toMatchObject({
+      table: "changeOrderImpactDecision",
+      values: expect.objectContaining({
+        companyId,
+        changeNoticeId,
+        targetType: "purchaseOrderLine",
+        targetId: "pol-1",
+        decisionStatus: "Action required",
+        snapshotVersion: 1,
+        revision: 1
+      })
+    });
+    expect(
+      (recorder.inserts[0].values as Record<string, unknown>).assessmentSnapshot
+    ).toMatchObject({
+      schema: PO_LINE_SNAPSHOT_V1,
+      purchaseOrderLineId: "pol-1",
+      itemId: "item-1",
+      remainingQuantity: 8,
+      eligibilityBasis: OPEN_PURCHASING_COMMITMENT
+    });
+    expect(recorder.inserts[1]).toMatchObject({
+      table: "changeOrderImpactDecisionAffectedItem",
+      values: expect.objectContaining({
+        companyId,
+        affectedItemId: "affected-1",
+        affectedItemSourceId: "item-1",
+        affectedItemLabel: "PART-1 Rev A"
+      })
+    });
+    expect(recorder.inserts[2]).toMatchObject({
+      table: "changeOrderImpactDecisionHistory",
+      values: expect.arrayContaining([
+        expect.objectContaining({ eventType: "Decision created" }),
+        expect.objectContaining({
+          eventType: "Provenance started",
+          relatedAffectedItemId: "affected-1"
+        })
+      ])
+    });
+  });
+
+  it("rejects an existing assessment with the Slice 2A first-assessment message", async () => {
+    const recorder = makeImpactKyselyRecorder({
+      existingDecision: {
+        id: "decision-1",
+        decisionStatus: "Action required",
+        revision: 1
+      }
+    });
+    const result = await writeChangeNoticeImpactDecision(
+      recorder.db as unknown as Kysely<KyselyDatabase>,
+      {
+        companyId,
+        userId: "user-1",
+        sourceAccess,
+        changeNoticeId,
+        targetType: "purchaseOrderLine",
+        targetId: "pol-1",
+        decisionStatus: "No action required",
+        noActionReasonCode: "Not affected after review",
+        rationale:
+          "The existing assessment must be reassessed in a later slice."
+      }
+    );
+
+    expect(result).toEqual({
+      data: null,
+      error: {
+        message:
+          "This Impact target already has an assessment; Slice 2A only records first assessments."
+      }
+    });
+    expect(recorder.inserts).toEqual([]);
+    expect(recorder.committed).toBe(false);
+    expect(recorder.rolledBack).toBe(true);
+  });
+
+  it("rolls back all writes when the initial history insert fails", async () => {
+    const recorder = makeImpactKyselyRecorder({
+      failInsertTable: "changeOrderImpactDecisionHistory",
+      failInsertError: new Error("history write failed")
+    });
+    const result = await writeChangeNoticeImpactDecision(
+      recorder.db as unknown as Kysely<KyselyDatabase>,
+      {
+        companyId,
+        userId: "user-1",
+        sourceAccess,
+        changeNoticeId,
+        targetType: "purchaseOrderLine",
+        targetId: "pol-1",
+        decisionStatus: "Action required",
+        rationale: "Supplier cut-in still needs follow-up."
+      }
+    );
+
+    expect(result.data).toBeNull();
+    expect(result.error?.message).toBe("history write failed");
+    expect(recorder.committed).toBe(false);
+    expect(recorder.rolledBack).toBe(true);
+    expect(recorder.inserts.map((insert) => insert.table)).toEqual([
+      "changeOrderImpactDecision",
+      "changeOrderImpactDecisionAffectedItem",
+      "changeOrderImpactDecisionHistory"
+    ]);
+  });
+
+  it("ends open provenance and records removal history before deleting scope", async () => {
+    const recorder = makeImpactRemovalKyselyRecorder();
+    const result = await removeChangeNoticeAffectedItem(
+      {} as SupabaseClient<Database>,
+      recorder.db as unknown as Kysely<KyselyDatabase>,
+      "affected-1",
+      changeNoticeId,
+      companyId,
+      "user-2"
+    );
+
+    expect(result).toEqual({ data: null, error: null });
+    expect(recorder.committed).toBe(true);
+    expect(recorder.rolledBack).toBe(false);
+    expect(recorder.updates).toEqual([
+      expect.objectContaining({
+        table: "changeOrderImpactDecisionAffectedItem",
+        values: expect.objectContaining({
+          endedBy: "user-2",
+          endedReason: "Affected item removed from Change Notice"
+        })
+      })
+    ]);
+    expect(recorder.inserts).toEqual([
+      expect.objectContaining({
+        table: "changeOrderImpactDecisionHistory",
+        values: [
+          expect.objectContaining({
+            eventType: "Provenance ended",
+            decisionId: "decision-1",
+            relatedAffectedItemId: "affected-1",
+            createdBy: "user-2"
+          })
+        ]
+      })
+    ]);
+    expect(recorder.deletes).toEqual(["changeOrderAffectedItem"]);
+  });
+
+  it("rolls back provenance reconciliation when removal history fails", async () => {
+    const recorder = makeImpactRemovalKyselyRecorder({
+      failInsertTable: "changeOrderImpactDecisionHistory"
+    });
+    const result = await removeChangeNoticeAffectedItem(
+      {} as SupabaseClient<Database>,
+      recorder.db as unknown as Kysely<KyselyDatabase>,
+      "affected-1",
+      changeNoticeId,
+      companyId,
+      "user-2"
+    );
+
+    expect(result.error?.message).toBe("history write failed");
+    expect(recorder.committed).toBe(false);
+    expect(recorder.rolledBack).toBe(true);
+    expect(recorder.deletes).toEqual([]);
+  });
+
+  it("writes the same atomic seam for Jobs and Job Materials", async () => {
+    const cases = [
+      {
+        targetType: "job" as const,
+        targetId: "job-1",
+        decisionStatus: "Action required" as const,
+        rationale: "The producing job still needs a cut-in review."
+      },
+      {
+        targetType: "jobMaterial" as const,
+        targetId: "material-1",
+        decisionStatus: "No action required" as const,
+        noActionReasonCode: "Not affected after review" as const,
+        rationale: "The material use was reviewed and needs no intervention."
+      }
+    ];
+
+    for (const assessment of cases) {
+      const recorder = makeImpactKyselyRecorder();
+      const result = await writeChangeNoticeImpactDecision(
+        recorder.db as unknown as Kysely<KyselyDatabase>,
+        {
+          companyId,
+          userId: "user-1",
+          sourceAccess,
+          changeNoticeId,
+          ...assessment
+        }
+      );
+
+      expect(result.error).toBeNull();
+      expect(result.data?.decision.targetType).toBe(assessment.targetType);
+      expect(result.data?.decision.targetId).toBe(assessment.targetId);
+      expect(result.data?.decision.assessmentSnapshot.schema).toBe(
+        assessment.targetType === "job"
+          ? JOB_SNAPSHOT_V1
+          : JOB_MATERIAL_SNAPSHOT_V1
+      );
+      expect(recorder.committed).toBe(true);
+      expect(recorder.inserts).toHaveLength(3);
+    }
+  });
+
+  it("maps the target unique conflict to a retryable first-assessment error", async () => {
+    const recorder = makeImpactKyselyRecorder({
+      failInsertTable: "changeOrderImpactDecision"
+    });
+    const result = await writeChangeNoticeImpactDecision(
+      recorder.db as unknown as Kysely<KyselyDatabase>,
+      {
+        companyId,
+        userId: "user-1",
+        sourceAccess,
+        changeNoticeId,
+        targetType: "purchaseOrderLine",
+        targetId: "pol-1",
+        decisionStatus: "Action required",
+        rationale: "Supplier cut-in still needs follow-up."
+      }
+    );
+
+    expect(result.data).toBeNull();
+    expect(result.error?.message).toContain("assessed by someone else");
+    expect(recorder.committed).toBe(false);
+    expect(recorder.rolledBack).toBe(true);
   });
 
   it("enforces reason applicability and rationale rules", () => {

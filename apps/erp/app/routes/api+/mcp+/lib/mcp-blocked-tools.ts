@@ -48,6 +48,22 @@ export const MCP_BLOCKED_TOOL_NAMES: readonly string[] = [
   "sales_updateSalesRFQFavorite",
   "purchasing_updateSupplierQuoteFavorite",
   "resources_insertTrainingCompletion"
+  // Impact service boundaries require application-level authorization. Expose them
+  // later through a permission-aware MCP adapter, not the generic executor.
+  "items_writeChangeNoticeImpactDecision",
+  "items_getChangeNoticeImpactCandidates",
+  "items_removeChangeNoticeAffectedItem",
+  // These helpers are internal implementation details, not MCP contracts. Without
+  // an explicit exclusion, regenerating metadata publishes them as opaque WRITE
+  // tools (and the generic parser cannot describe all of their nested inputs).
+  "items_normalizePurchaseOrderLineImpactSnapshot",
+  "items_normalizeJobImpactSnapshot",
+  "items_normalizeJobMaterialImpactSnapshot",
+  "items_classifyPurchaseOrderLineImpactEligibility",
+  "items_classifyJobImpactEligibility",
+  "items_classifyJobMaterialImpactEligibility",
+  "items_deriveChangeNoticeImpactProvenance",
+  "items_compareChangeNoticeImpactSnapshot"
 ];
 
 export function isMcpBlockedTool(name: string): boolean {
