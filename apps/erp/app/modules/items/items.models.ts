@@ -1210,7 +1210,8 @@ export function deriveChangeNoticeImpactDecisionOperation(input: {
     return "resolveActionRequired";
   }
   if (
-    input.existingStatus === "Action required" &&
+    (input.existingStatus === "Action required" ||
+      input.existingStatus === "Resolved") &&
     input.requestedStatus === "No action required"
   ) {
     return "correctDecision";

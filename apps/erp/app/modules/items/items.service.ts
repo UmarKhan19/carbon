@@ -10,6 +10,7 @@ import { getLogger } from "@carbon/logger";
 import { datetime, round } from "@carbon/utils";
 import { parseDate } from "@internationalized/date";
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
+import { sql } from "kysely";
 import { nanoid } from "nanoid";
 import type { z } from "zod";
 import { createDocumentUploadUrl } from "~/modules/documents/documents.service";
@@ -46,6 +47,7 @@ import {
   type ChangeNoticeImpactCandidateReadResult,
   type ChangeNoticeImpactCoverage,
   type ChangeNoticeImpactDecisionMutationInput,
+  type ChangeNoticeImpactDecisionOperation,
   type ChangeNoticeImpactDecisionProjection,
   type ChangeNoticeImpactDecisionStatus,
   type ChangeNoticeImpactDecisionWriteResult,
@@ -9371,7 +9373,7 @@ export function deriveChangeNoticeImpactProvenance(input: {
         `${cause.affectedItemId}${IMPACT_KEY_SEPARATOR}${cause.affectedItemSourceId}`
     )
   );
-  const historicalByKey = new Map<string, ChangeNoticeImpactProvenance>();
+  const historicalProvenance: ChangeNoticeImpactProvenance[] = [];
   for (const persisted of input.persistedProvenance) {
     const key = `${persisted.affectedItemId}${IMPACT_KEY_SEPARATOR}${persisted.affectedItemSourceId}`;
     if (
@@ -9381,7 +9383,10 @@ export function deriveChangeNoticeImpactProvenance(input: {
     ) {
       continue;
     }
-    historicalByKey.set(key, {
+    // Preserve every ended interval. The same affected item can become the
+    // cause again after another cause intervenes; keying this read model by
+    // cause would silently erase that repeated history.
+    historicalProvenance.push({
       affectedItemId: persisted.affectedItemId,
       affectedItemSourceId: persisted.affectedItemSourceId,
       // Historical labels are optional in persistence. Use a generic label at
@@ -9394,7 +9399,7 @@ export function deriveChangeNoticeImpactProvenance(input: {
   }
   return {
     currentProvenance,
-    historicalProvenance: [...historicalByKey.values()]
+    historicalProvenance
   };
 }
 
@@ -12259,6 +12264,14 @@ export async function getChangeNoticeImpactCandidates(
 const IMPACT_TARGET_UNIQUE_CONSTRAINT = "changeOrderImpactDecision_target_key";
 const IMPACT_FIRST_ASSESSMENT_CONFLICT_MESSAGE =
   "This Impact target was assessed by someone else. Refresh and reassess.";
+const IMPACT_REVISION_CONFLICT_MESSAGE =
+  "This Impact assessment changed before your update. Refresh and try again.";
+const IMPACT_RESOLUTION_DEFERRED_MESSAGE =
+  "Impact resolution is deferred to a later slice.";
+const IMPACT_NO_ACTION_RESOLUTION_INVALID_MESSAGE =
+  "No action required decisions cannot transition directly to Resolved.";
+const IMPACT_PROVENANCE_CHANGED_REASON =
+  "Affected item provenance changed before reassessment";
 
 type ImpactFirstAssessmentEvidence = {
   affectedItemId: string;
@@ -12278,6 +12291,125 @@ function impactMutationFailure(message: string): ImpactDecisionWriteFailure {
 
 function impactMutationErrorMessage(cause: unknown): string {
   return cause instanceof Error ? cause.message : "Impact assessment failed.";
+}
+
+type ImpactExistingDecision = {
+  id: string;
+  targetType: string;
+  targetId: string;
+  decisionStatus: string;
+  noActionReasonCode: string | null;
+  rationale: string | null;
+  resolutionNote: string | null;
+  assessmentSnapshot: unknown;
+  snapshotVersion: number;
+  assessedBy: string;
+  assessedAt: string;
+  revision: number;
+};
+
+type ImpactPersistedProvenanceRow = {
+  id: string;
+  affectedItemId: string;
+  affectedItemSourceId: string;
+  affectedItemLabel: string | null;
+  startedAt: string;
+  startedBy: string;
+  endedAt: string | null;
+  endedBy: string | null;
+  endedReason: string | null;
+};
+
+type ImpactDecisionValues = {
+  decisionStatus: ChangeNoticeImpactDecisionStatus;
+  noActionReasonCode:
+    | (typeof changeNoticeImpactNoActionReasonCodes)[number]
+    | null;
+  rationale: string | null;
+  resolutionNote: string | null;
+};
+
+function impactTrimmedNullableText(value: string | null): string | null {
+  const trimmed = value?.trim() ?? "";
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+function impactStoredNullableText(value: unknown): string | null {
+  return typeof value === "string" ? impactTrimmedNullableText(value) : null;
+}
+
+function impactExistingDecisionValues(
+  decision: ImpactExistingDecision
+): ImpactDecisionValues {
+  return {
+    decisionStatus: decision.decisionStatus as ChangeNoticeImpactDecisionStatus,
+    noActionReasonCode: impactIn(
+      decision.noActionReasonCode,
+      changeNoticeImpactNoActionReasonCodes
+    )
+      ? decision.noActionReasonCode
+      : null,
+    rationale: impactStoredNullableText(decision.rationale),
+    resolutionNote: impactStoredNullableText(decision.resolutionNote)
+  };
+}
+
+function impactHistoryEventForOperation(
+  operation: Exclude<
+    ChangeNoticeImpactDecisionOperation,
+    "createDecision" | "noOp" | "resolveActionRequired"
+  >
+): string {
+  switch (operation) {
+    case "reassessDecision":
+      return "Decision reassessed";
+    case "correctDecision":
+      return "Conclusion corrected";
+    case "reopenDecision":
+      return "Decision reopened";
+    case "updateDecision":
+      return "Decision reassessed";
+  }
+}
+
+function impactDecisionHistoryRow(input: {
+  companyId: string;
+  decisionId: string;
+  targetType: ChangeNoticeImpactTargetType;
+  targetId: string;
+  eventType: string;
+  previous: ImpactDecisionValues;
+  next: ImpactDecisionValues;
+  previousSnapshot: Json | null;
+  newSnapshot: Json | null;
+  rationale: string | null;
+  resolutionNote: string | null;
+  priorAssessmentWasChanged: boolean;
+  createdBy: string;
+  createdAt: string;
+  relatedAffectedItemId?: string;
+}): Database["public"]["Tables"]["changeOrderImpactDecisionHistory"]["Insert"] {
+  return {
+    companyId: input.companyId,
+    decisionId: input.decisionId,
+    targetType: input.targetType,
+    targetId: input.targetId,
+    eventType: input.eventType,
+    previousStatus: input.previous.decisionStatus,
+    newStatus: input.next.decisionStatus,
+    previousReasonCode: input.previous.noActionReasonCode,
+    newReasonCode: input.next.noActionReasonCode,
+    previousSnapshot: input.previousSnapshot,
+    newSnapshot: input.newSnapshot,
+    rationale: input.rationale,
+    resolutionNote: input.resolutionNote,
+    ...(input.relatedAffectedItemId
+      ? { relatedAffectedItemId: input.relatedAffectedItemId }
+      : {}),
+    priorAssessmentWasChanged: input.priorAssessmentWasChanged,
+    createdBy: input.createdBy,
+    createdAt: input.createdAt
+  };
 }
 
 function isImpactTargetUniqueConflict(cause: unknown): boolean {
@@ -12348,6 +12480,149 @@ async function lockImpactAffectedItem(
     );
   }
   return affectedItems[0];
+}
+
+async function loadImpactDecisionProvenance(
+  trx: KyselyTx,
+  input: ChangeNoticeImpactDecisionMutationInput,
+  decisionId: string
+): Promise<ImpactPersistedProvenanceRow[]> {
+  return (await trx
+    .selectFrom("changeOrderImpactDecisionAffectedItem")
+    .select([
+      "id",
+      "affectedItemId",
+      "affectedItemSourceId",
+      "affectedItemLabel",
+      "startedAt",
+      "startedBy",
+      "endedAt",
+      "endedBy",
+      "endedReason"
+    ])
+    .where("companyId", "=", input.companyId)
+    .where("decisionId", "=", decisionId)
+    .orderBy("startedAt", "asc")
+    .orderBy("id", "asc")
+    .forUpdate()
+    .execute()) as ImpactPersistedProvenanceRow[];
+}
+
+/**
+ * Keep one current affected-item cause for an existing decision. The source row
+ * has one scalar item reference, so a changed current cause closes the old
+ * interval before opening the new one. All interval and history writes remain
+ * inside the caller's transaction.
+ */
+async function reconcileImpactDecisionProvenance(
+  trx: KyselyTx,
+  input: ChangeNoticeImpactDecisionMutationInput,
+  existing: ImpactExistingDecision,
+  previousValues: ImpactDecisionValues,
+  nextValues: ImpactDecisionValues,
+  evidence: ImpactFirstAssessmentEvidence,
+  previousSnapshot: Json,
+  newSnapshot: Json,
+  priorAssessmentWasChanged: boolean,
+  now: string,
+  rows: ImpactPersistedProvenanceRow[]
+): Promise<{
+  changed: boolean;
+  historyRows: Database["public"]["Tables"]["changeOrderImpactDecisionHistory"]["Insert"][];
+}> {
+  const openRows = rows.filter(
+    (row) => row.endedAt === null || row.endedAt === undefined
+  );
+  if (openRows.length > 1) {
+    throw new ImpactMutationRejected(
+      "Impact decision has more than one current provenance cause."
+    );
+  }
+
+  const open = openRows[0];
+  if (
+    open &&
+    open.affectedItemId === evidence.affectedItemId &&
+    open.affectedItemSourceId === evidence.affectedItemSourceId
+  ) {
+    return { changed: false, historyRows: [] };
+  }
+
+  const historyRows: Database["public"]["Tables"]["changeOrderImpactDecisionHistory"]["Insert"][] =
+    [];
+  if (open) {
+    await trx
+      .updateTable("changeOrderImpactDecisionAffectedItem")
+      .set({
+        endedAt: now,
+        endedBy: input.userId,
+        endedReason: IMPACT_PROVENANCE_CHANGED_REASON,
+        updatedAt: now,
+        updatedBy: input.userId
+      })
+      .where("id", "=", open.id)
+      .where("companyId", "=", input.companyId)
+      .where("decisionId", "=", existing.id)
+      .where("endedAt", "is", null)
+      .execute();
+
+    historyRows.push(
+      impactDecisionHistoryRow({
+        companyId: input.companyId,
+        decisionId: existing.id,
+        targetType: input.targetType,
+        targetId: input.targetId,
+        eventType: "Provenance ended",
+        previous: previousValues,
+        next: nextValues,
+        previousSnapshot,
+        newSnapshot,
+        rationale: IMPACT_PROVENANCE_CHANGED_REASON,
+        resolutionNote: nextValues.resolutionNote,
+        priorAssessmentWasChanged,
+        relatedAffectedItemId: open.affectedItemId,
+        createdBy: input.userId,
+        createdAt: now
+      })
+    );
+  }
+
+  await trx
+    .insertInto("changeOrderImpactDecisionAffectedItem")
+    .values({
+      companyId: input.companyId,
+      decisionId: existing.id,
+      affectedItemId: evidence.affectedItemId,
+      affectedItemSourceId: evidence.affectedItemSourceId,
+      affectedItemLabel: evidence.affectedItemLabel,
+      startedAt: now,
+      startedBy: input.userId,
+      createdBy: input.userId,
+      createdAt: now
+    })
+    .execute();
+
+  historyRows.push(
+    impactDecisionHistoryRow({
+      companyId: input.companyId,
+      decisionId: existing.id,
+      targetType: input.targetType,
+      targetId: input.targetId,
+      eventType: "Provenance started",
+      previous: previousValues,
+      next: nextValues,
+      previousSnapshot,
+      newSnapshot,
+      rationale: "Affected item provenance started during reassessment",
+      resolutionNote: nextValues.resolutionNote,
+      priorAssessmentWasChanged,
+      relatedAffectedItemId: evidence.affectedItemId,
+      createdBy: input.userId,
+      createdAt: now
+    })
+  );
+
+  return { changed: true, historyRows };
 }
 
 /**
@@ -12645,10 +12920,11 @@ async function loadImpactFirstAssessmentEvidence(
 }
 
 /**
- * Record the first assessment for one supported Impact target. The operation is
- * derived after locking the Change Notice and target decision; callers cannot
- * select an operation, event type, or snapshot. Decision, provenance, and the
- * two initial history events share one Kysely transaction.
+ * Record or reassess one supported Impact target. The operation, history event,
+ * snapshot, and provenance transitions are derived inside one transaction; a
+ * caller can submit only the requested conclusion and expected revision.
+ * Resolution transitions remain deferred, while an existing Resolved decision
+ * may still be corrected or updated.
  */
 export async function writeChangeNoticeImpactDecision(
   db: Kysely<KyselyDatabase>,
@@ -12738,8 +13014,9 @@ export async function writeChangeNoticeImpactDecision(
 
   try {
     return await db.transaction().execute(async (trx) => {
-      // Lock order: Change Notice → target decision → affected-item scope. This
-      // serializes lifecycle/scope writers without locking source evidence rows.
+      // Lock order: Change Notice → decision → affected-item scope →
+      // provenance. This matches the scope-removal writer and serializes
+      // lifecycle/provenance ownership without locking source evidence rows.
       const changeNotice = await trx
         .selectFrom("changeOrder")
         .select(["id", "companyId", "status"])
@@ -12750,23 +13027,30 @@ export async function writeChangeNoticeImpactDecision(
       if (!changeNotice) {
         throw new ImpactMutationRejected("Change notice not found.");
       }
-      if (!changeNoticeStageFlow.includes(changeNotice.status)) {
-        throw new ImpactMutationRejected(
-          changeNotice.status === "Cancelled"
-            ? "Cancelled Change Notices do not accept first Impact assessments."
-            : "Change Notice lifecycle does not allow a first Impact assessment."
-        );
-      }
 
-      const existingDecision = await trx
+      const existingDecision = (await trx
         .selectFrom("changeOrderImpactDecision")
-        .select(["id", "decisionStatus", "revision"])
+        .select([
+          "id",
+          "targetType",
+          "targetId",
+          "decisionStatus",
+          "noActionReasonCode",
+          "rationale",
+          "resolutionNote",
+          "assessmentSnapshot",
+          "snapshotVersion",
+          "assessedBy",
+          sql<string>`"assessedAt"::text`.as("assessedAt"),
+          "revision"
+        ])
         .where("companyId", "=", input.companyId)
         .where("changeNoticeId", "=", input.changeNoticeId)
         .where("targetType", "=", input.targetType)
         .where("targetId", "=", input.targetId)
         .forUpdate()
-        .executeTakeFirst();
+        .executeTakeFirst()) as ImpactExistingDecision | undefined;
+
       const existingStatus =
         existingDecision &&
         impactIn(
@@ -12775,137 +13059,457 @@ export async function writeChangeNoticeImpactDecision(
         )
           ? (existingDecision.decisionStatus as ChangeNoticeImpactDecisionStatus)
           : null;
+      if (existingDecision && existingStatus === null) {
+        throw new ImpactMutationRejected(
+          "Stored Impact decision has an unsupported status."
+        );
+      }
+
       const operation = deriveChangeNoticeImpactDecisionOperation({
         existingStatus,
         requestedStatus: input.decisionStatus
       });
-      if (existingDecision) {
-        throw new ImpactMutationRejected(
-          "This Impact target already has an assessment; Slice 2A only records first assessments."
-        );
-      }
-      if (operation !== "createDecision") {
-        throw new ImpactMutationRejected(
-          `Impact operation "${operation}" is not implemented in Slice 2A.`
-        );
-      }
 
-      const firstAssessmentValidation =
-        validateChangeNoticeImpactFirstAssessment({
-          targetType: input.targetType,
-          decisionStatus: input.decisionStatus,
-          noActionReasonCode: reason,
-          rationale: input.rationale,
-          resolutionNote: input.resolutionNote,
-          confirmNoPurchasingInterventionRemains:
-            input.confirmNoPurchasingInterventionRemains,
-          expectedRevision: input.expectedRevision
-        });
-      if (!firstAssessmentValidation.valid) {
-        throw new ImpactMutationRejected(firstAssessmentValidation.message);
-      }
+      if (!existingDecision) {
+        if (!changeNoticeStageFlow.includes(changeNotice.status)) {
+          throw new ImpactMutationRejected(
+            changeNotice.status === "Cancelled"
+              ? "Cancelled Change Notices do not accept first Impact assessments."
+              : "Change Notice lifecycle does not allow a first Impact assessment."
+          );
+        }
+        if (operation !== "createDecision") {
+          throw new ImpactMutationRejected(
+            `Impact operation "${operation}" is not valid without an existing assessment.`
+          );
+        }
 
-      const evidence = await loadImpactFirstAssessmentEvidence(trx, input);
-      const now = datetime.timestamp();
-      const snapshotJson = evidence.snapshot as unknown as Json;
-
-      const insertedDecision = await trx
-        .insertInto("changeOrderImpactDecision")
-        .values({
-          companyId: input.companyId,
-          changeNoticeId: input.changeNoticeId,
-          targetType: input.targetType,
-          targetId: input.targetId,
-          decisionStatus: input.decisionStatus,
-          noActionReasonCode: firstAssessmentValidation.noActionReasonCode,
-          rationale: firstAssessmentValidation.rationale,
-          resolutionNote: firstAssessmentValidation.resolutionNote,
-          assessmentSnapshot: snapshotJson,
-          snapshotVersion: 1,
-          assessedBy: input.userId,
-          assessedAt: now,
-          revision: 1,
-          createdBy: input.userId,
-          createdAt: now
-        })
-        .returning("id")
-        .executeTakeFirstOrThrow();
-      const decisionId = insertedDecision.id;
-
-      await trx
-        .insertInto("changeOrderImpactDecisionAffectedItem")
-        .values({
-          companyId: input.companyId,
-          decisionId,
-          affectedItemId: evidence.affectedItemId,
-          affectedItemSourceId: evidence.affectedItemSourceId,
-          affectedItemLabel: evidence.affectedItemLabel,
-          startedAt: now,
-          startedBy: input.userId,
-          createdBy: input.userId,
-          createdAt: now
-        })
-        .execute();
-
-      await trx
-        .insertInto("changeOrderImpactDecisionHistory")
-        .values([
-          {
-            companyId: input.companyId,
-            decisionId,
+        const firstAssessmentValidation =
+          validateChangeNoticeImpactFirstAssessment({
             targetType: input.targetType,
-            targetId: input.targetId,
-            eventType: "Decision created",
-            previousStatus: null,
-            newStatus: input.decisionStatus,
-            previousReasonCode: null,
-            newReasonCode: firstAssessmentValidation.noActionReasonCode,
-            previousSnapshot: null,
-            newSnapshot: snapshotJson,
-            rationale: firstAssessmentValidation.rationale,
-            resolutionNote: firstAssessmentValidation.resolutionNote,
-            priorAssessmentWasChanged: false,
-            createdBy: input.userId,
-            createdAt: now
-          },
-          {
-            companyId: input.companyId,
-            decisionId,
-            targetType: input.targetType,
-            targetId: input.targetId,
-            eventType: "Provenance started",
-            previousStatus: null,
-            newStatus: input.decisionStatus,
-            previousReasonCode: null,
-            newReasonCode: firstAssessmentValidation.noActionReasonCode,
-            previousSnapshot: null,
-            newSnapshot: snapshotJson,
-            rationale: firstAssessmentValidation.rationale,
-            resolutionNote: firstAssessmentValidation.resolutionNote,
-            relatedAffectedItemId: evidence.affectedItemId,
-            priorAssessmentWasChanged: false,
-            createdBy: input.userId,
-            createdAt: now
-          }
-        ])
-        .execute();
+            decisionStatus: input.decisionStatus,
+            noActionReasonCode: reason,
+            rationale: input.rationale,
+            resolutionNote: input.resolutionNote,
+            confirmNoPurchasingInterventionRemains:
+              input.confirmNoPurchasingInterventionRemains,
+            expectedRevision: input.expectedRevision
+          });
+        if (!firstAssessmentValidation.valid) {
+          throw new ImpactMutationRejected(firstAssessmentValidation.message);
+        }
 
-      return {
-        data: {
-          operation,
-          decision: {
-            id: decisionId,
+        const evidence = await loadImpactFirstAssessmentEvidence(trx, input);
+        const now = datetime.timestamp();
+        const snapshotJson = evidence.snapshot as unknown as Json;
+
+        const insertedDecision = await trx
+          .insertInto("changeOrderImpactDecision")
+          .values({
+            companyId: input.companyId,
+            changeNoticeId: input.changeNoticeId,
             targetType: input.targetType,
             targetId: input.targetId,
             decisionStatus: input.decisionStatus,
             noActionReasonCode: firstAssessmentValidation.noActionReasonCode,
             rationale: firstAssessmentValidation.rationale,
             resolutionNote: firstAssessmentValidation.resolutionNote,
-            assessmentSnapshot: evidence.snapshot,
+            assessmentSnapshot: snapshotJson,
             snapshotVersion: 1,
             assessedBy: input.userId,
             assessedAt: now,
-            revision: 1
+            revision: 1,
+            createdBy: input.userId,
+            createdAt: now
+          })
+          .returning("id")
+          .executeTakeFirstOrThrow();
+        const decisionId = insertedDecision.id;
+
+        await trx
+          .insertInto("changeOrderImpactDecisionAffectedItem")
+          .values({
+            companyId: input.companyId,
+            decisionId,
+            affectedItemId: evidence.affectedItemId,
+            affectedItemSourceId: evidence.affectedItemSourceId,
+            affectedItemLabel: evidence.affectedItemLabel,
+            startedAt: now,
+            startedBy: input.userId,
+            createdBy: input.userId,
+            createdAt: now
+          })
+          .execute();
+
+        await trx
+          .insertInto("changeOrderImpactDecisionHistory")
+          .values([
+            {
+              companyId: input.companyId,
+              decisionId,
+              targetType: input.targetType,
+              targetId: input.targetId,
+              eventType: "Decision created",
+              previousStatus: null,
+              newStatus: input.decisionStatus,
+              previousReasonCode: null,
+              newReasonCode: firstAssessmentValidation.noActionReasonCode,
+              previousSnapshot: null,
+              newSnapshot: snapshotJson,
+              rationale: firstAssessmentValidation.rationale,
+              resolutionNote: firstAssessmentValidation.resolutionNote,
+              priorAssessmentWasChanged: false,
+              createdBy: input.userId,
+              createdAt: now
+            },
+            {
+              companyId: input.companyId,
+              decisionId,
+              targetType: input.targetType,
+              targetId: input.targetId,
+              eventType: "Provenance started",
+              previousStatus: null,
+              newStatus: input.decisionStatus,
+              previousReasonCode: null,
+              newReasonCode: firstAssessmentValidation.noActionReasonCode,
+              previousSnapshot: null,
+              newSnapshot: snapshotJson,
+              rationale: firstAssessmentValidation.rationale,
+              resolutionNote: firstAssessmentValidation.resolutionNote,
+              relatedAffectedItemId: evidence.affectedItemId,
+              priorAssessmentWasChanged: false,
+              createdBy: input.userId,
+              createdAt: now
+            }
+          ])
+          .execute();
+
+        return {
+          data: {
+            operation,
+            decision: {
+              id: decisionId,
+              targetType: input.targetType,
+              targetId: input.targetId,
+              decisionStatus: input.decisionStatus,
+              noActionReasonCode: firstAssessmentValidation.noActionReasonCode,
+              rationale: firstAssessmentValidation.rationale,
+              resolutionNote: firstAssessmentValidation.resolutionNote,
+              assessmentSnapshot: evidence.snapshot,
+              snapshotVersion: 1,
+              assessedBy: input.userId,
+              assessedAt: now,
+              revision: 1
+            }
+          },
+          error: null
+        } satisfies ChangeNoticeImpactDecisionWriteResult;
+      }
+
+      const existing = existingDecision;
+      if (
+        existing.targetType !== input.targetType ||
+        existing.targetId !== input.targetId
+      ) {
+        throw new ImpactMutationRejected(
+          "Stored Impact decision identity is inconsistent."
+        );
+      }
+      if (
+        !Number.isInteger(existing.revision) ||
+        existing.revision <= 0 ||
+        typeof existing.assessedBy !== "string" ||
+        typeof existing.assessedAt !== "string"
+      ) {
+        throw new ImpactMutationRejected(
+          "Stored Impact decision revision or assessment metadata is invalid."
+        );
+      }
+      if (
+        input.expectedRevision === undefined ||
+        input.expectedRevision === null
+      ) {
+        throw new ImpactMutationRejected(
+          "Existing Impact assessments require an expected decision revision."
+        );
+      }
+      if (input.expectedRevision !== existing.revision) {
+        throw new ImpactMutationRejected(IMPACT_REVISION_CONFLICT_MESSAGE);
+      }
+      if (!changeNoticeStageFlow.includes(changeNotice.status)) {
+        throw new ImpactMutationRejected(
+          changeNotice.status === "Cancelled"
+            ? "Cancelled Change Notices do not accept Impact reassessment."
+            : "Change Notice lifecycle does not allow Impact reassessment."
+        );
+      }
+      if (
+        existingStatus === "No action required" &&
+        input.decisionStatus === "Resolved"
+      ) {
+        throw new ImpactMutationRejected(
+          IMPACT_NO_ACTION_RESOLUTION_INVALID_MESSAGE
+        );
+      }
+      if (operation === "resolveActionRequired") {
+        throw new ImpactMutationRejected(IMPACT_RESOLUTION_DEFERRED_MESSAGE);
+      }
+
+      const previousValues = impactExistingDecisionValues(existing);
+      if (
+        existing.noActionReasonCode !== null &&
+        existing.noActionReasonCode !== undefined &&
+        !impactIn(
+          existing.noActionReasonCode,
+          changeNoticeImpactNoActionReasonCodes
+        )
+      ) {
+        throw new ImpactMutationRejected(
+          "Stored Impact decision has an unsupported No Action reason."
+        );
+      }
+
+      const nextReason =
+        input.decisionStatus === "No action required"
+          ? input.noActionReasonCode === undefined
+            ? existingStatus === "No action required"
+              ? previousValues.noActionReasonCode
+              : null
+            : (input.noActionReasonCode ?? null)
+          : input.noActionReasonCode === undefined
+            ? null
+            : input.noActionReasonCode;
+      const nextRationale =
+        input.rationale === undefined
+          ? previousValues.rationale
+          : impactTrimmedNullableText(input.rationale);
+      const nextResolutionNote =
+        input.decisionStatus === "Resolved"
+          ? input.resolutionNote === undefined
+            ? previousValues.resolutionNote
+            : impactTrimmedNullableText(input.resolutionNote)
+          : input.resolutionNote === undefined
+            ? null
+            : impactTrimmedNullableText(input.resolutionNote);
+
+      // A conclusion-changing reassessment must carry a new explanation. Do
+      // not accidentally reuse the old Action Required or closure rationale as
+      // evidence for a different conclusion.
+      if (
+        existingStatus !== input.decisionStatus &&
+        (!input.rationale || input.rationale.trim().length === 0)
+      ) {
+        throw new ImpactMutationRejected(
+          "Changing an existing Impact conclusion requires written rationale."
+        );
+      }
+
+      // The attestation is required when a caller selects or changes to the
+      // purchasing reason, but it is not a persisted decision field. Preserve
+      // an already valid purchasing conclusion without forcing the user to
+      // re-attest on every same-state edit; an explicit false still fails
+      // validation.
+      const preservesPurchasingReason =
+        previousValues.noActionReasonCode ===
+          "No purchasing intervention remains" &&
+        nextReason === "No purchasing intervention remains" &&
+        (input.noActionReasonCode === undefined ||
+          input.noActionReasonCode === previousValues.noActionReasonCode) &&
+        input.confirmNoPurchasingInterventionRemains === undefined;
+      const updateValidation = validateChangeNoticeImpactFirstAssessment({
+        targetType: input.targetType,
+        decisionStatus: input.decisionStatus,
+        noActionReasonCode: nextReason,
+        rationale: nextRationale,
+        resolutionNote: nextResolutionNote,
+        confirmNoPurchasingInterventionRemains: preservesPurchasingReason
+          ? true
+          : input.confirmNoPurchasingInterventionRemains,
+        expectedRevision: undefined
+      });
+      if (!updateValidation.valid) {
+        throw new ImpactMutationRejected(updateValidation.message);
+      }
+
+      const evidence = await loadImpactFirstAssessmentEvidence(trx, input);
+      const previousSnapshot = existing.assessmentSnapshot;
+      if (
+        !isCanonicalStoredImpactSnapshot(input.targetType, previousSnapshot)
+      ) {
+        throw new ImpactMutationRejected(
+          "Stored Impact assessment snapshot is unavailable for reassessment."
+        );
+      }
+      const snapshotFreshness = compareChangeNoticeImpactSnapshot(
+        input.targetType,
+        evidence.snapshot,
+        previousSnapshot,
+        existing.snapshotVersion
+      );
+      if (snapshotFreshness === "Unknown") {
+        throw new ImpactMutationRejected(
+          "Stored Impact assessment snapshot is unavailable for reassessment."
+        );
+      }
+      const priorAssessmentWasChanged =
+        snapshotFreshness === "Changed since assessment";
+      const nextValues: ImpactDecisionValues = {
+        decisionStatus: input.decisionStatus,
+        noActionReasonCode: updateValidation.noActionReasonCode,
+        rationale: updateValidation.rationale,
+        resolutionNote: updateValidation.resolutionNote
+      };
+      const decisionValuesChanged =
+        previousValues.decisionStatus !== nextValues.decisionStatus ||
+        previousValues.noActionReasonCode !== nextValues.noActionReasonCode ||
+        previousValues.rationale !== nextValues.rationale ||
+        previousValues.resolutionNote !== nextValues.resolutionNote ||
+        priorAssessmentWasChanged;
+      const provenanceRows = await loadImpactDecisionProvenance(
+        trx,
+        input,
+        existing.id
+      );
+      const openProvenanceRows = provenanceRows.filter(
+        (row) => row.endedAt === null || row.endedAt === undefined
+      );
+      if (openProvenanceRows.length > 1) {
+        throw new ImpactMutationRejected(
+          "Impact decision has more than one current provenance cause."
+        );
+      }
+      const openProvenance = openProvenanceRows[0];
+      const provenanceChanged =
+        !openProvenance ||
+        openProvenance.affectedItemId !== evidence.affectedItemId ||
+        openProvenance.affectedItemSourceId !== evidence.affectedItemSourceId;
+
+      if (!decisionValuesChanged && !provenanceChanged) {
+        return {
+          data: {
+            operation: "noOp",
+            decision: {
+              id: existing.id,
+              targetType: input.targetType,
+              targetId: input.targetId,
+              decisionStatus: previousValues.decisionStatus,
+              noActionReasonCode: previousValues.noActionReasonCode,
+              rationale: previousValues.rationale,
+              resolutionNote: previousValues.resolutionNote,
+              assessmentSnapshot: previousSnapshot,
+              snapshotVersion: existing.snapshotVersion,
+              assessedBy: existing.assessedBy,
+              assessedAt: existing.assessedAt,
+              revision: existing.revision
+            }
+          },
+          error: null
+        } satisfies ChangeNoticeImpactDecisionWriteResult;
+      }
+
+      const now = datetime.timestamp();
+      const previousSnapshotJson = previousSnapshot as unknown as Json;
+      const newSnapshotJson = evidence.snapshot as unknown as Json;
+      const nextRevision = existing.revision + (decisionValuesChanged ? 1 : 0);
+      if (decisionValuesChanged) {
+        const updatedDecision = await trx
+          .updateTable("changeOrderImpactDecision")
+          .set({
+            decisionStatus: nextValues.decisionStatus,
+            noActionReasonCode: nextValues.noActionReasonCode,
+            rationale: nextValues.rationale,
+            resolutionNote: nextValues.resolutionNote,
+            assessmentSnapshot: newSnapshotJson,
+            snapshotVersion: 1,
+            assessedBy: input.userId,
+            assessedAt: now,
+            revision: nextRevision,
+            updatedBy: input.userId,
+            updatedAt: now
+          })
+          .where("id", "=", existing.id)
+          .where("companyId", "=", input.companyId)
+          .where("changeNoticeId", "=", input.changeNoticeId)
+          .where("targetType", "=", input.targetType)
+          .where("targetId", "=", input.targetId)
+          .where("revision", "=", existing.revision)
+          .returning("id")
+          .executeTakeFirst();
+        if (!updatedDecision) {
+          throw new ImpactMutationRejected(IMPACT_REVISION_CONFLICT_MESSAGE);
+        }
+      }
+
+      const provenance = await reconcileImpactDecisionProvenance(
+        trx,
+        input,
+        existing,
+        previousValues,
+        nextValues,
+        evidence,
+        previousSnapshotJson,
+        newSnapshotJson,
+        priorAssessmentWasChanged,
+        now,
+        provenanceRows
+      );
+      const historyRows: Database["public"]["Tables"]["changeOrderImpactDecisionHistory"]["Insert"][] =
+        [];
+      if (decisionValuesChanged) {
+        historyRows.push(
+          impactDecisionHistoryRow({
+            companyId: input.companyId,
+            decisionId: existing.id,
+            targetType: input.targetType,
+            targetId: input.targetId,
+            eventType: impactHistoryEventForOperation(
+              operation as Exclude<
+                ChangeNoticeImpactDecisionOperation,
+                "createDecision" | "noOp" | "resolveActionRequired"
+              >
+            ),
+            previous: previousValues,
+            next: nextValues,
+            previousSnapshot: previousSnapshotJson,
+            newSnapshot: newSnapshotJson,
+            rationale: nextValues.rationale,
+            resolutionNote: nextValues.resolutionNote,
+            priorAssessmentWasChanged,
+            createdBy: input.userId,
+            createdAt: now
+          })
+        );
+      }
+      historyRows.push(...provenance.historyRows);
+      if (historyRows.length > 0) {
+        await trx
+          .insertInto("changeOrderImpactDecisionHistory")
+          .values(historyRows)
+          .execute();
+      }
+
+      return {
+        data: {
+          operation,
+          decision: {
+            id: existing.id,
+            targetType: input.targetType,
+            targetId: input.targetId,
+            decisionStatus: nextValues.decisionStatus,
+            noActionReasonCode: nextValues.noActionReasonCode,
+            rationale: nextValues.rationale,
+            resolutionNote: nextValues.resolutionNote,
+            assessmentSnapshot: decisionValuesChanged
+              ? evidence.snapshot
+              : previousSnapshot,
+            snapshotVersion: decisionValuesChanged
+              ? 1
+              : existing.snapshotVersion,
+            assessedBy: decisionValuesChanged
+              ? input.userId
+              : existing.assessedBy,
+            assessedAt: decisionValuesChanged ? now : existing.assessedAt,
+            revision: nextRevision
           }
         },
         error: null
@@ -12916,7 +13520,7 @@ export async function writeChangeNoticeImpactDecision(
       return impactMutationFailure(IMPACT_FIRST_ASSESSMENT_CONFLICT_MESSAGE);
     }
     if (!(cause instanceof ImpactMutationRejected)) {
-      logger.error("Failed to write first Change Notice Impact assessment", {
+      logger.error("Failed to write Change Notice Impact assessment", {
         error: cause,
         companyId: input.companyId,
         changeNoticeId: input.changeNoticeId,

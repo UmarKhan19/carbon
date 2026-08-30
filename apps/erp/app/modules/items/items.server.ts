@@ -141,9 +141,9 @@ export async function getChangeNoticeImpactMutationAccess(args: {
 }
 
 /**
- * Server-authorized entry point for the first-assessment seam. It accepts only
- * the final public request shape; tenant, actor, source access, and database
- * client are supplied here rather than by the caller.
+ * Server-authorized entry point for the Impact decision mutation seam. It
+ * accepts only the final public request shape; tenant, actor, source access,
+ * and database client are supplied here rather than by the caller.
  */
 export async function writeAuthorizedChangeNoticeImpactDecision(args: {
   userId: string;

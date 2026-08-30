@@ -5,9 +5,10 @@
 **Planning baseline:** `upstream/main` at
 `5089ee75ee332ef22d74ebd8e230f4bbfb0c9221`
 
-**Review scope:** This is a document correction plus the confirmed minimal Slice 1
-cursor-compatibility fix. No Slice 2 code, migration, branch, commit, issue, or PR
-was created in this session.
+**Review scope:** This is the canonical product and architecture baseline. The
+committed Slice 2A first-assessment slice and the current narrow Slice 2B
+existing-decision write work are tracked in the implementation and focused tests;
+the remaining unchecked items below are still future work.
 
 The previous plan defended the feature against arbitrary SQL written by Carbon's own
 service-role/Kysely backend. Current Carbon does not use that trust model. This plan
@@ -18,7 +19,7 @@ security architecture that was built only for the withdrawn threat.
 
 - [x] Add the four Impact-owned tables, task origin, standard RLS, constraints, and indexes.
 - [x] Add fixed target contracts, source-aware candidate reads, coverage, and snapshots.
-- [ ] Add transactional decisions, provenance, reassessment history, and CAS checks.
+- [ ] Add the remaining transactional decisions, provenance, reassessment history, and CAS checks (Slice 2A first assessments are complete and the narrow Slice 2B existing-decision writes are implemented; Action Required resolution, explicit refresh/read reconciliation, and bulk operations remain deferred).
 - [ ] Integrate task origin, many-to-many links, lifecycle guards, MCP, and integrations.
 - [ ] Build the read-only document-first workspace.
 - [ ] Add decision, reassessment, resolution, task, and bulk UX.
@@ -294,10 +295,10 @@ atomicity
 history
 ```
 
-The server reads current source facts, validates the submitted revision and snapshot,
-checks the Change Notice state, writes the decision/task/link/history set in one normal
-Kysely transaction, and supplies explicit `companyId`, `changeNoticeId`, `targetType`,
-and `targetId` predicates.
+The server reads current source facts, validates the submitted revision, derives and
+validates the canonical snapshot, checks the Change Notice state, writes the
+decision/task/link/history set in one normal Kysely transaction, and supplies explicit
+`companyId`, `changeNoticeId`, `targetType`, and `targetId` predicates.
 
 ## 5. Required comparison
 
@@ -488,8 +489,8 @@ must be serialized, the affected scope row when a scope mutation is in the same
 transaction, the existing Impact Decision row when its revision is compared or
 updated, and current persisted provenance rows during reconciliation. Re-read the
 Change Notice status and parent/child ownership inside the transaction, using one
-deterministic order (Change Notice, affected scope row, decision, provenance) for
-paths that need all of them. Do not lock PO Lines, POs, Jobs, Job Materials, Items,
+deterministic order (Change Notice, decision, affected scope row, provenance) for
+paths that need all of them. This matches the existing Impact writer and affected-item removal path. Do not lock PO Lines, POs, Jobs, Job Materials, Items,
 or method/evidence rows by default: Impact reads them as evidence and owns none of
 those workflows. A source-row lock requires a concrete invariant, a Carbon
 precedent, and proof that a transaction-consistent read plus snapshot freshness is

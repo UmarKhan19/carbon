@@ -2071,3 +2071,13 @@ full-screen ERP route.
 **Rule:** When a CHECK branch requires a value, state `IS NOT NULL` explicitly before the allowed-value test. For intentionally unsupported PostgREST operations, keep Carbon's standardized `SELECT`/`INSERT`/`UPDATE`/`DELETE` policy shape and use explicit `WITH CHECK (false)` / `USING (false)` deny policies. Test both the rejected payload and the persisted row state through the actual user-scoped boundary.
 
 **Applies to:** PostgreSQL status/reason CHECK constraints, server-owned Carbon tables, source-aware RLS migrations, and SQL/PostgREST regression harnesses.
+
+## PostgreSQL timestamp results can violate Carbon's string DTO contract
+
+**Context:** The Slice 2B existing-decision writer validated persisted `assessedAt` metadata before a provenance-only reassessment.
+
+**Problem:** Kysely's generated Carbon type describes timestamps as strings, but the PostgreSQL driver returned the timestamp column as a `Date` at runtime. The strict validation rejected an otherwise valid persisted decision, and a real PostgreSQL harness exposed the mismatch that fake recorder tests could not.
+
+**Rule:** When a service boundary requires Carbon's string timestamp contract, cast the timestamp to `text` in the Kysely select (`assessedAt::text`) rather than weakening validation or introducing JavaScript `Date` parsing/formatting. Exercise timestamp-sensitive write paths against real PostgreSQL as well as recorders.
+
+**Applies to:** Existing-decision reads in `apps/erp/app/modules/items/items.service.ts` and any Kysely query whose generated timestamp type is `string` but whose driver result is runtime-sensitive.
