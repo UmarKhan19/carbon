@@ -1154,23 +1154,65 @@ export const changeNoticeImpactTargetTypeValidator = z.enum(
  * silently stripping it would make the contract look authoritative when it is
  * not.
  */
+const changeNoticeImpactDecisionTargetRequestShape = {
+  targetType: changeNoticeImpactTargetTypeValidator,
+  targetId: z.string().min(1, { message: "Impact target is required" }),
+  decisionStatus: changeNoticeImpactDecisionStatusValidator,
+  noActionReasonCode: changeNoticeImpactNoActionReasonCodeValidator
+    .nullable()
+    .optional(),
+  rationale: z.string().trim().nullable().optional(),
+  resolutionNote: z.string().trim().nullable().optional(),
+  confirmNoPurchasingInterventionRemains: z.boolean().optional(),
+  expectedRevision: z.number().int().positive().nullable().optional()
+};
+
 export const changeNoticeImpactDecisionRequestValidator = z
   .object({
     changeNoticeId: z.string().min(1, { message: "Change notice is required" }),
-    targetType: changeNoticeImpactTargetTypeValidator,
-    targetId: z.string().min(1, { message: "Impact target is required" }),
-    decisionStatus: changeNoticeImpactDecisionStatusValidator,
-    noActionReasonCode: changeNoticeImpactNoActionReasonCodeValidator
-      .nullable()
-      .optional(),
-    rationale: z.string().trim().nullable().optional(),
-    resolutionNote: z.string().trim().nullable().optional(),
-    confirmNoPurchasingInterventionRemains: z.boolean().optional(),
-    expectedRevision: z.number().int().positive().nullable().optional()
+    ...changeNoticeImpactDecisionTargetRequestShape
   })
   .strict();
 export type ChangeNoticeImpactDecisionRequest = z.infer<
   typeof changeNoticeImpactDecisionRequestValidator
+>;
+
+/**
+ * A bulk request names every target explicitly. It deliberately has no maximum
+ * selection size: authorization, complete preflight, and the one transaction
+ * are the safety boundaries rather than an arbitrary count cap.
+ */
+export const changeNoticeImpactDecisionBulkTargetRequestValidator = z
+  .object(changeNoticeImpactDecisionTargetRequestShape)
+  .strict();
+export type ChangeNoticeImpactDecisionBulkTargetRequest = z.infer<
+  typeof changeNoticeImpactDecisionBulkTargetRequestValidator
+>;
+
+export const changeNoticeImpactDecisionBulkRequestValidator = z
+  .object({
+    changeNoticeId: z.string().min(1, { message: "Change notice is required" }),
+    targets: z
+      .array(changeNoticeImpactDecisionBulkTargetRequestValidator)
+      .min(1, { message: "At least one Impact target is required" })
+  })
+  .strict()
+  .superRefine((input, context) => {
+    const seen = new Set<string>();
+    for (const [index, target] of input.targets.entries()) {
+      const key = `${target.targetType}\u0000${target.targetId}`;
+      if (seen.has(key)) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["targets", index, "targetId"],
+          message: "Bulk Impact targets must be unique."
+        });
+      }
+      seen.add(key);
+    }
+  });
+export type ChangeNoticeImpactDecisionBulkRequest = z.infer<
+  typeof changeNoticeImpactDecisionBulkRequestValidator
 >;
 
 /** Internal operation labels. Callers never submit one of these values. */
@@ -1647,6 +1689,15 @@ export type ChangeNoticeImpactDecisionMutationInput =
     sourceAccess: ChangeNoticeImpactSourceAccess;
   };
 
+export type ChangeNoticeImpactDecisionBulkMutationInput =
+  ChangeNoticeImpactDecisionBulkRequest & {
+    /** Server-derived tenant and actor context. */
+    companyId: string;
+    userId: string;
+    /** Resolved from the actor's source-domain view permissions. */
+    sourceAccess: ChangeNoticeImpactSourceAccess;
+  };
+
 export type ChangeNoticeImpactDecisionWriteData = {
   /** Derived by the server from persisted state, never supplied by a caller. */
   operation: ChangeNoticeImpactDecisionOperation;
@@ -1668,6 +1719,18 @@ export type ChangeNoticeImpactDecisionWriteData = {
 
 export type ChangeNoticeImpactDecisionWriteResult = {
   data: ChangeNoticeImpactDecisionWriteData | null;
+  error: { message: string } | null;
+};
+
+export type ChangeNoticeImpactDecisionBulkWriteData = {
+  changeNoticeId: string;
+  selectedCount: number;
+  appliedCount: number;
+  noOpCount: number;
+};
+
+export type ChangeNoticeImpactDecisionBulkWriteResult = {
+  data: ChangeNoticeImpactDecisionBulkWriteData | null;
   error: { message: string } | null;
 };
 

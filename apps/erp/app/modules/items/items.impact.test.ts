@@ -20,6 +20,7 @@ const {
   getChangeNoticeAffectedItems,
   getChangeNoticeImpactCandidates,
   normalizeJobImpactSnapshot,
+  writeChangeNoticeImpactDecisions,
   removeChangeNoticeAffectedItem,
   writeChangeNoticeImpactDecision,
   normalizeJobMaterialImpactSnapshot,
@@ -32,6 +33,7 @@ const {
   JOB_SNAPSHOT_V1,
   OPEN_PURCHASING_COMMITMENT,
   PO_LINE_SNAPSHOT_V1,
+  changeNoticeImpactDecisionBulkRequestValidator,
   changeNoticeImpactDecisionRequestValidator,
   changeNoticeImpactDecisionStatuses,
   changeNoticeImpactNoActionReasonCodes,
@@ -159,6 +161,7 @@ function makeImpactKyselyRecorder(
     changeOrderImpactDecision: existingDecision,
     purchaseOrderLine: {
       id: "pol-1",
+      companyId,
       purchaseOrderId: "po-1",
       itemId: "item-1",
       purchaseOrderLineType: "Part",
@@ -174,12 +177,18 @@ function makeImpactKyselyRecorder(
     },
     purchaseOrder: {
       id: "po-1",
+      companyId,
       supplierId: "supplier-1",
       status: "To Receive"
     },
-    purchaseOrderDelivery: { id: "po-1", receiptPromisedDate: null },
+    purchaseOrderDelivery: {
+      id: "po-1",
+      companyId,
+      receiptPromisedDate: null
+    },
     item: {
       id: "item-1",
+      companyId,
       readableId: "PART-1",
       readableIdWithRevision: "PART-1 Rev A",
       name: "Part",
@@ -187,6 +196,7 @@ function makeImpactKyselyRecorder(
     },
     job: {
       id: "job-1",
+      companyId,
       itemId: "item-1",
       jobId: "JOB-1",
       status: "In Progress",
@@ -199,6 +209,7 @@ function makeImpactKyselyRecorder(
     },
     jobMaterial: {
       id: "material-1",
+      companyId,
       jobId: "job-1",
       itemId: "item-1",
       estimatedQuantity: 5,
@@ -212,13 +223,26 @@ function makeImpactKyselyRecorder(
     }
   };
   const rows: Record<string, unknown[]> = {
-    changeOrderAffectedItem: [{ id: "affected-1", itemId: "item-1" }],
+    changeOrderAffectedItem: [
+      {
+        id: "affected-1",
+        companyId,
+        changeOrderId: changeNoticeId,
+        itemId: "item-1"
+      }
+    ],
     changeOrderImpactDecisionAffectedItem:
-      options.existingProvenance ??
+      options.existingProvenance?.map((row) => ({
+        companyId,
+        decisionId: "decision-1",
+        ...row
+      })) ??
       (existingDecision
         ? [
             {
               id: "provenance-1",
+              companyId,
+              decisionId: "decision-1",
               affectedItemId: "affected-1",
               affectedItemSourceId: "item-1",
               affectedItemLabel: "PART-1 Rev A",
@@ -230,7 +254,15 @@ function makeImpactKyselyRecorder(
             }
           ]
         : []),
-    jobMakeMethod: [{ id: "job-method-1", itemId: "item-1", version: 2 }]
+    jobMakeMethod: [
+      {
+        id: "job-method-1",
+        companyId,
+        jobId: "job-1",
+        itemId: "item-1",
+        version: 2
+      }
+    ]
   };
   const inserts: { table: string; values: unknown }[] = [];
   const updates: { table: string; values: unknown }[] = [];
@@ -306,7 +338,10 @@ function makeImpactKyselyRecorder(
         if (isUpdate && options.failUpdateTable === table) {
           throw options.failUpdateError ?? new Error("update failed");
         }
-        return isUpdate ? { numUpdatedRows: 1 } : (rows[table] ?? []);
+        if (isUpdate) return { numUpdatedRows: 1 };
+        if (rows[table]) return rows[table];
+        const firstRow = firstRows[table];
+        return firstRow ? [firstRow] : [];
       }
     };
     return builder;
@@ -348,6 +383,238 @@ function makeImpactKyselyRecorder(
     get rolledBack() {
       return rolledBack;
     }
+  };
+}
+
+function makeBulkImpactKyselyRecorder(options: {
+  rows: Record<string, unknown[]>;
+  failInsertAt?: number;
+  failInsertTable?: string;
+  failUpdateTable?: string;
+  updateReturnsNoRow?: boolean;
+  forbidSelectTables?: string[];
+}) {
+  const inserts: { table: string; values: unknown }[] = [];
+  const updates: { table: string; values: unknown }[] = [];
+  const selects: string[] = [];
+  let committed = false;
+  let rolledBack = false;
+  let insertCalls = 0;
+  let generatedDecisionIds = 0;
+
+  const matches = (
+    row: Record<string, unknown>,
+    predicates: Array<{ column: string; operator: string; value: unknown }>
+  ) =>
+    predicates.every(({ column, operator, value }) => {
+      if (!(column in row)) return true;
+      if (operator === "=") return row[column] === value;
+      if (operator === "in") {
+        return Array.isArray(value) && value.includes(row[column]);
+      }
+      if (operator === "is") return row[column] === value;
+      return true;
+    });
+
+  const makeBuilder = (table: string, kind: "select" | "insert" | "update") => {
+    const isInsert = kind === "insert";
+    const isUpdate = kind === "update";
+    const predicates: Array<{
+      column: string;
+      operator: string;
+      value: unknown;
+    }> = [];
+    const builder: Record<string, unknown> = {
+      select: () => builder,
+      values: (values: unknown) => {
+        inserts.push({ table, values });
+        return builder;
+      },
+      set: (values: unknown) => {
+        updates.push({ table, values });
+        return builder;
+      },
+      where: (column: string, operator: string, value: unknown) => {
+        predicates.push({ column, operator, value });
+        return builder;
+      },
+      orderBy: () => builder,
+      forUpdate: () => builder,
+      returning: () => builder,
+      executeTakeFirstOrThrow: async () => {
+        insertCalls += 1;
+        if (
+          options.failInsertTable === table ||
+          options.failInsertAt === insertCalls
+        ) {
+          throw new Error("insert failed");
+        }
+        generatedDecisionIds += 1;
+        return { id: `decision-generated-${generatedDecisionIds}` };
+      },
+      executeTakeFirst: async () => {
+        if (
+          !isInsert &&
+          !isUpdate &&
+          options.forbidSelectTables?.includes(table)
+        ) {
+          throw new Error(`Unexpected Impact source read: ${table}`);
+        }
+        if (isUpdate) {
+          if (options.failUpdateTable === table) {
+            throw new Error("update failed");
+          }
+          return options.updateReturnsNoRow ? null : { id: `${table}-updated` };
+        }
+        if (isInsert) {
+          insertCalls += 1;
+          if (
+            options.failInsertTable === table ||
+            options.failInsertAt === insertCalls
+          ) {
+            throw new Error("insert failed");
+          }
+          generatedDecisionIds += 1;
+          return { id: `decision-generated-${generatedDecisionIds}` };
+        }
+        const row = (options.rows[table] ?? []).find((value) =>
+          matches(value as Record<string, unknown>, predicates)
+        );
+        return row ?? null;
+      },
+      execute: async () => {
+        if (
+          !isInsert &&
+          !isUpdate &&
+          options.forbidSelectTables?.includes(table)
+        ) {
+          throw new Error(`Unexpected Impact source read: ${table}`);
+        }
+        if (isInsert) {
+          insertCalls += 1;
+          if (
+            options.failInsertTable === table ||
+            options.failInsertAt === insertCalls
+          ) {
+            throw new Error("insert failed");
+          }
+          return { numInsertedOrUpdatedRows: 1 };
+        }
+        if (isUpdate) {
+          if (options.failUpdateTable === table) {
+            throw new Error("update failed");
+          }
+          return { numUpdatedRows: 1 };
+        }
+        return (options.rows[table] ?? []).filter((value) =>
+          matches(value as Record<string, unknown>, predicates)
+        );
+      }
+    };
+    return builder;
+  };
+
+  const tx = {
+    selectFrom: (table: string) => {
+      selects.push(table);
+      return makeBuilder(table, "select");
+    },
+    insertInto: (table: string) => makeBuilder(table, "insert"),
+    updateTable: (table: string) => makeBuilder(table, "update")
+  };
+  const db = {
+    transaction: () => ({
+      execute: async (
+        callback: (transaction: typeof tx) => Promise<unknown>
+      ) => {
+        try {
+          const result = await callback(tx);
+          committed = true;
+          return result;
+        } catch (cause) {
+          rolledBack = true;
+          throw cause;
+        }
+      }
+    })
+  };
+
+  return {
+    db,
+    inserts,
+    updates,
+    selects,
+    get committed() {
+      return committed;
+    },
+    get rolledBack() {
+      return rolledBack;
+    }
+  };
+}
+
+function makeBulkPurchaseOrderRows(
+  existingDecisions: Record<string, unknown>[] = [],
+  provenance: Record<string, unknown>[] = [],
+  targetCount = 2
+): Record<string, unknown[]> {
+  const line = (id: string, itemId: string, purchaseOrderId: string) => ({
+    id,
+    companyId,
+    purchaseOrderId,
+    itemId,
+    purchaseOrderLineType: "Part",
+    purchaseQuantity: 10,
+    quantityReceived: 2,
+    quantityToReceive: 8,
+    receivedComplete: false,
+    purchaseUnitOfMeasureCode: "BOX",
+    inventoryUnitOfMeasureCode: "EA",
+    conversionFactor: 2,
+    requiredDate: "2026-08-25",
+    promisedDate: null
+  });
+  const parent = (id: string) => ({
+    id,
+    companyId,
+    supplierId: id === "po-1" ? "supplier-1" : `supplier-${id}`,
+    status: "To Receive"
+  });
+  const item = (id: string) => ({
+    id,
+    companyId,
+    readableId: id.toUpperCase(),
+    readableIdWithRevision: `${id.toUpperCase()} Rev A`,
+    name: "Part",
+    revision: "A"
+  });
+  const targetNumbers = Array.from(
+    { length: targetCount },
+    (_, index) => index + 1
+  );
+  return {
+    changeOrder: [{ id: changeNoticeId, companyId, status: "Done" }],
+    changeOrderImpactDecision: existingDecisions,
+    changeOrderImpactDecisionAffectedItem: provenance,
+    changeOrderAffectedItem: targetNumbers.map((number) => ({
+      id: `affected-${number}`,
+      companyId,
+      changeOrderId: changeNoticeId,
+      itemId: `item-${number}`
+    })),
+    purchaseOrderLine: targetNumbers.map((number) =>
+      line(`pol-${number}`, `item-${number}`, `po-${number}`)
+    ),
+    purchaseOrder: targetNumbers.map((number) => parent(`po-${number}`)),
+    purchaseOrderDelivery: targetNumbers.map((number) => ({
+      id: `po-${number}`,
+      companyId,
+      receiptPromisedDate: null
+    })),
+    item: targetNumbers.map((number) => item(`item-${number}`)),
+    job: [],
+    jobMaterial: [],
+    jobMakeMethod: []
   };
 }
 
@@ -498,6 +765,712 @@ describe("Change Notice Impact contracts", () => {
         assessmentSnapshot: {}
       });
     expect(clientDerivedFields.success).toBe(false);
+  });
+
+  it("validates explicit bulk targets and rejects duplicates or unknown fields", () => {
+    const valid = changeNoticeImpactDecisionBulkRequestValidator.safeParse({
+      changeNoticeId,
+      targets: [
+        {
+          targetType: "job",
+          targetId: "job-1",
+          decisionStatus: "Action required",
+          rationale: "The producing job needs review."
+        }
+      ]
+    });
+    expect(valid.success).toBe(true);
+
+    const duplicate = changeNoticeImpactDecisionBulkRequestValidator.safeParse({
+      changeNoticeId,
+      targets: [
+        {
+          targetType: "job",
+          targetId: "job-1",
+          decisionStatus: "Action required",
+          rationale: "Review the producing job."
+        },
+        {
+          targetType: "job",
+          targetId: "job-1",
+          decisionStatus: "Action required",
+          rationale: "Review the producing job again."
+        }
+      ]
+    });
+    expect(duplicate.success).toBe(false);
+
+    const unknownField =
+      changeNoticeImpactDecisionBulkRequestValidator.safeParse({
+        changeNoticeId,
+        targets: [
+          {
+            targetType: "job",
+            targetId: "job-1",
+            decisionStatus: "Action required",
+            rationale: "The producing job needs review.",
+            operation: "createDecision"
+          }
+        ]
+      });
+    expect(unknownField.success).toBe(false);
+  });
+
+  it("creates mixed explicit bulk decisions with one batched read per source dependency", async () => {
+    const recorder = makeBulkImpactKyselyRecorder({
+      rows: makeBulkPurchaseOrderRows()
+    });
+    const result = await writeChangeNoticeImpactDecisions(
+      recorder.db as unknown as Kysely<KyselyDatabase>,
+      {
+        companyId,
+        userId: "user-1",
+        sourceAccess,
+        changeNoticeId,
+        targets: [
+          {
+            targetType: "purchaseOrderLine",
+            targetId: "pol-1",
+            decisionStatus: "Action required",
+            rationale: "Supplier cut-in follow-up remains open."
+          },
+          {
+            targetType: "purchaseOrderLine",
+            targetId: "pol-2",
+            decisionStatus: "Action required",
+            rationale: "The second supplier commitment needs review."
+          }
+        ]
+      }
+    );
+
+    expect(result).toEqual({
+      data: {
+        changeNoticeId,
+        selectedCount: 2,
+        appliedCount: 2,
+        noOpCount: 0
+      },
+      error: null
+    });
+    expect(recorder.committed).toBe(true);
+    expect(recorder.rolledBack).toBe(false);
+    expect(
+      recorder.selects.filter((table) => table === "purchaseOrderLine")
+    ).toHaveLength(1);
+    expect(
+      recorder.selects.filter((table) => table === "purchaseOrder")
+    ).toHaveLength(1);
+    expect(
+      recorder.selects.filter((table) => table === "purchaseOrderDelivery")
+    ).toHaveLength(1);
+    expect(
+      recorder.inserts.filter(
+        (row) => row.table === "changeOrderImpactDecision"
+      )
+    ).toHaveLength(2);
+    expect(
+      recorder.inserts.filter(
+        (row) => row.table === "changeOrderImpactDecisionAffectedItem"
+      )
+    ).toHaveLength(2);
+    expect(
+      recorder.inserts.filter(
+        (row) => row.table === "changeOrderImpactDecisionHistory"
+      )
+    ).toHaveLength(2);
+  });
+
+  it("preflights every target before applying a mixed no-op and create set", async () => {
+    const existingSnapshot = normalizePurchaseOrderLineImpactSnapshot(
+      basePoInput()
+    );
+    if (existingSnapshot.sourceAvailability !== "Present") {
+      throw new Error("Test PO snapshot must be present");
+    }
+    const recorder = makeBulkImpactKyselyRecorder({
+      rows: makeBulkPurchaseOrderRows(
+        [
+          {
+            id: "decision-1",
+            companyId,
+            changeNoticeId,
+            targetType: "purchaseOrderLine",
+            targetId: "pol-1",
+            decisionStatus: "Action required",
+            noActionReasonCode: null,
+            rationale: "Supplier cut-in follow-up remains open.",
+            resolutionNote: null,
+            assessmentSnapshot: existingSnapshot.snapshot,
+            snapshotVersion: 1,
+            assessedBy: "user-0",
+            assessedAt: "2026-08-24T00:00:00.000Z",
+            revision: 1
+          }
+        ],
+        [
+          {
+            id: "provenance-1",
+            companyId,
+            decisionId: "decision-1",
+            affectedItemId: "affected-1",
+            affectedItemSourceId: "item-1",
+            affectedItemLabel: "ITEM-1 Rev A",
+            startedAt: "2026-08-24T00:00:00.000Z",
+            startedBy: "user-0",
+            endedAt: null,
+            endedBy: null,
+            endedReason: null
+          }
+        ]
+      )
+    });
+    const result = await writeChangeNoticeImpactDecisions(
+      recorder.db as unknown as Kysely<KyselyDatabase>,
+      {
+        companyId,
+        userId: "user-1",
+        sourceAccess,
+        changeNoticeId,
+        targets: [
+          {
+            targetType: "purchaseOrderLine",
+            targetId: "pol-1",
+            decisionStatus: "Action required",
+            expectedRevision: 1
+          },
+          {
+            targetType: "purchaseOrderLine",
+            targetId: "pol-2",
+            decisionStatus: "Action required",
+            rationale: "The second supplier commitment needs review."
+          }
+        ]
+      }
+    );
+
+    expect(result.data).toEqual({
+      changeNoticeId,
+      selectedCount: 2,
+      appliedCount: 1,
+      noOpCount: 1
+    });
+    expect(result.error).toBeNull();
+    expect(
+      recorder.inserts.filter(
+        (row) => row.table === "changeOrderImpactDecision"
+      )
+    ).toHaveLength(1);
+    expect(recorder.committed).toBe(true);
+  });
+
+  it("reassesses changed same-state evidence while keeping a true no-op untouched", async () => {
+    const current = normalizePurchaseOrderLineImpactSnapshot(basePoInput());
+    const currentSecond = normalizePurchaseOrderLineImpactSnapshot(
+      basePoInput({
+        purchaseOrderLineId: "pol-2",
+        purchaseOrderId: "po-2",
+        itemId: "item-2",
+        supplierId: "supplier-po-2"
+      })
+    );
+    const changed = normalizePurchaseOrderLineImpactSnapshot(
+      basePoInput({ quantityReceived: 1, quantityToReceive: 9 })
+    );
+    if (
+      current.sourceAvailability !== "Present" ||
+      currentSecond.sourceAvailability !== "Present" ||
+      changed.sourceAvailability !== "Present"
+    ) {
+      throw new Error("Test PO snapshots must be present");
+    }
+    const decision = (
+      id: string,
+      targetId: string,
+      snapshot: unknown,
+      rationale: string
+    ) => ({
+      id,
+      companyId,
+      changeNoticeId,
+      targetType: "purchaseOrderLine",
+      targetId,
+      decisionStatus: "Action required",
+      noActionReasonCode: null,
+      rationale,
+      resolutionNote: null,
+      assessmentSnapshot: snapshot,
+      snapshotVersion: 1,
+      assessedBy: "user-0",
+      assessedAt: "2026-08-24T00:00:00.000Z",
+      revision: 1
+    });
+    const recorder = makeBulkImpactKyselyRecorder({
+      rows: makeBulkPurchaseOrderRows(
+        [
+          decision(
+            "decision-1",
+            "pol-1",
+            changed.snapshot,
+            "Supplier review remains open."
+          ),
+          decision(
+            "decision-2",
+            "pol-2",
+            currentSecond.snapshot,
+            "Supplier review remains open."
+          )
+        ],
+        [
+          {
+            id: "provenance-1",
+            companyId,
+            decisionId: "decision-1",
+            affectedItemId: "affected-1",
+            affectedItemSourceId: "item-1",
+            affectedItemLabel: "ITEM-1 Rev A",
+            startedAt: "2026-08-24T00:00:00.000Z",
+            startedBy: "user-0",
+            endedAt: null,
+            endedBy: null,
+            endedReason: null
+          },
+          {
+            id: "provenance-2",
+            companyId,
+            decisionId: "decision-2",
+            affectedItemId: "affected-2",
+            affectedItemSourceId: "item-2",
+            affectedItemLabel: "ITEM-2 Rev A",
+            startedAt: "2026-08-24T00:00:00.000Z",
+            startedBy: "user-0",
+            endedAt: null,
+            endedBy: null,
+            endedReason: null
+          }
+        ]
+      )
+    });
+    const result = await writeChangeNoticeImpactDecisions(
+      recorder.db as unknown as Kysely<KyselyDatabase>,
+      {
+        companyId,
+        userId: "user-1",
+        sourceAccess,
+        changeNoticeId,
+        targets: [
+          {
+            targetType: "purchaseOrderLine",
+            targetId: "pol-1",
+            decisionStatus: "Action required",
+            expectedRevision: 1,
+            rationale: "Reassess the changed supplier facts."
+          },
+          {
+            targetType: "purchaseOrderLine",
+            targetId: "pol-2",
+            decisionStatus: "Action required",
+            expectedRevision: 1
+          }
+        ]
+      }
+    );
+
+    expect(result).toEqual({
+      data: {
+        changeNoticeId,
+        selectedCount: 2,
+        appliedCount: 1,
+        noOpCount: 1
+      },
+      error: null
+    });
+    expect(
+      recorder.updates.filter(
+        (row) => row.table === "changeOrderImpactDecision"
+      )
+    ).toHaveLength(1);
+    expect(
+      recorder.inserts.filter(
+        (row) => row.table === "changeOrderImpactDecisionHistory"
+      )
+    ).toHaveLength(1);
+    expect(recorder.committed).toBe(true);
+  });
+
+  it("rejects a stale target during preflight without writing any selected target", async () => {
+    const recorder = makeBulkImpactKyselyRecorder({
+      rows: makeBulkPurchaseOrderRows([
+        {
+          id: "decision-1",
+          companyId,
+          changeNoticeId,
+          targetType: "purchaseOrderLine",
+          targetId: "pol-1",
+          decisionStatus: "Action required",
+          noActionReasonCode: null,
+          rationale: "Existing review.",
+          resolutionNote: null,
+          assessmentSnapshot: normalizePurchaseOrderLineImpactSnapshot(
+            basePoInput()
+          ).snapshot,
+          snapshotVersion: 1,
+          assessedBy: "user-0",
+          assessedAt: "2026-08-24T00:00:00.000Z",
+          revision: 1
+        },
+        {
+          id: "decision-2",
+          companyId,
+          changeNoticeId,
+          targetType: "purchaseOrderLine",
+          targetId: "pol-2",
+          decisionStatus: "Action required",
+          noActionReasonCode: null,
+          rationale: "Existing review.",
+          resolutionNote: null,
+          assessmentSnapshot: normalizePurchaseOrderLineImpactSnapshot(
+            basePoInput({ purchaseOrderLineId: "pol-2", itemId: "item-2" })
+          ).snapshot,
+          snapshotVersion: 1,
+          assessedBy: "user-0",
+          assessedAt: "2026-08-24T00:00:00.000Z",
+          revision: 2
+        }
+      ])
+    });
+    const result = await writeChangeNoticeImpactDecisions(
+      recorder.db as unknown as Kysely<KyselyDatabase>,
+      {
+        companyId,
+        userId: "user-1",
+        sourceAccess,
+        changeNoticeId,
+        targets: [
+          {
+            targetType: "purchaseOrderLine",
+            targetId: "pol-1",
+            decisionStatus: "Action required",
+            expectedRevision: 1,
+            rationale: "Reconfirm the first supplier commitment."
+          },
+          {
+            targetType: "purchaseOrderLine",
+            targetId: "pol-2",
+            decisionStatus: "Action required",
+            expectedRevision: 1,
+            rationale: "Reconfirm the second supplier commitment."
+          }
+        ]
+      }
+    );
+
+    expect(result.data).toBeNull();
+    expect(result.error?.message).toContain("pol-2");
+    expect(result.error?.message).toContain("changed before your update");
+    expect(recorder.inserts).toEqual([]);
+    expect(recorder.updates).toEqual([]);
+    expect(recorder.rolledBack).toBe(true);
+  });
+
+  it("rolls back earlier bulk writes when a later apply write fails", async () => {
+    const recorder = makeBulkImpactKyselyRecorder({
+      rows: makeBulkPurchaseOrderRows(),
+      failInsertAt: 6
+    });
+    const result = await writeChangeNoticeImpactDecisions(
+      recorder.db as unknown as Kysely<KyselyDatabase>,
+      {
+        companyId,
+        userId: "user-1",
+        sourceAccess,
+        changeNoticeId,
+        targets: [
+          {
+            targetType: "purchaseOrderLine",
+            targetId: "pol-1",
+            decisionStatus: "Action required",
+            rationale: "Supplier cut-in follow-up remains open."
+          },
+          {
+            targetType: "purchaseOrderLine",
+            targetId: "pol-2",
+            decisionStatus: "Action required",
+            rationale: "The second supplier commitment needs review."
+          }
+        ]
+      }
+    );
+
+    expect(result.data).toBeNull();
+    expect(result.error?.message).toContain("insert failed");
+    expect(result.error?.message).toContain("pol-1");
+    expect(result.error?.message).toContain("pol-2");
+    expect(recorder.committed).toBe(false);
+    expect(recorder.rolledBack).toBe(true);
+  });
+
+  it("resolves a bulk set without reading source evidence or provenance", async () => {
+    const first = normalizePurchaseOrderLineImpactSnapshot(basePoInput());
+    const second = normalizePurchaseOrderLineImpactSnapshot(
+      basePoInput({
+        purchaseOrderLineId: "pol-2",
+        purchaseOrderId: "po-2",
+        itemId: "item-2",
+        supplierId: "supplier-po-2"
+      })
+    );
+    if (
+      first.sourceAvailability !== "Present" ||
+      second.sourceAvailability !== "Present"
+    ) {
+      throw new Error("Test PO snapshots must be present");
+    }
+    const decision = (id: string, targetId: string, snapshot: unknown) => ({
+      id,
+      companyId,
+      changeNoticeId,
+      targetType: "purchaseOrderLine",
+      targetId,
+      decisionStatus: "Action required",
+      noActionReasonCode: null,
+      rationale: "Supplier follow-up remains open.",
+      resolutionNote: null,
+      assessmentSnapshot: snapshot,
+      snapshotVersion: 1,
+      assessedBy: "user-0",
+      assessedAt: "2026-08-24T00:00:00.000Z",
+      revision: 1
+    });
+    const recorder = makeBulkImpactKyselyRecorder({
+      rows: makeBulkPurchaseOrderRows([
+        decision("decision-1", "pol-1", first.snapshot),
+        decision("decision-2", "pol-2", second.snapshot)
+      ]),
+      forbidSelectTables: [
+        "purchaseOrderLine",
+        "purchaseOrder",
+        "purchaseOrderDelivery",
+        "item",
+        "changeOrderAffectedItem",
+        "changeOrderImpactDecisionAffectedItem"
+      ]
+    });
+    const result = await writeChangeNoticeImpactDecisions(
+      recorder.db as unknown as Kysely<KyselyDatabase>,
+      {
+        companyId,
+        userId: "user-1",
+        sourceAccess,
+        changeNoticeId,
+        targets: [
+          {
+            targetType: "purchaseOrderLine",
+            targetId: "pol-1",
+            decisionStatus: "Resolved",
+            resolutionNote: "Supplier confirmed the cut-in externally.",
+            expectedRevision: 1
+          },
+          {
+            targetType: "purchaseOrderLine",
+            targetId: "pol-2",
+            decisionStatus: "Resolved",
+            resolutionNote: "Supplier confirmed the second cut-in externally.",
+            expectedRevision: 1
+          }
+        ]
+      }
+    );
+
+    expect(result.data).toEqual({
+      changeNoticeId,
+      selectedCount: 2,
+      appliedCount: 2,
+      noOpCount: 0
+    });
+    expect(recorder.selects).not.toContain("purchaseOrderLine");
+    expect(recorder.selects).not.toContain(
+      "changeOrderImpactDecisionAffectedItem"
+    );
+    expect(recorder.updates).toHaveLength(2);
+    expect(recorder.committed).toBe(true);
+  });
+
+  it("batches explicit PO, Job, and Job Material targets without collapsing identities", async () => {
+    const rows = makeBulkPurchaseOrderRows();
+    rows.purchaseOrderLine = [rows.purchaseOrderLine[0]];
+    rows.purchaseOrder = [rows.purchaseOrder[0]];
+    rows.purchaseOrderDelivery = [rows.purchaseOrderDelivery[0]];
+    rows.item = [
+      rows.item[0],
+      {
+        id: "item-3",
+        companyId,
+        readableId: "ITEM-3",
+        readableIdWithRevision: "ITEM-3 Rev A",
+        name: "Part",
+        revision: "A"
+      }
+    ];
+    rows.job = [
+      {
+        id: "job-1",
+        companyId,
+        itemId: "item-1",
+        jobId: "JOB-1",
+        status: "In Progress",
+        quantity: 100,
+        quantityComplete: 20,
+        quantityShipped: 10,
+        quantityReceivedToInventory: 5,
+        dueDate: "2026-08-30",
+        unitOfMeasureCode: "EA"
+      },
+      {
+        id: "job-2",
+        companyId,
+        itemId: "item-3",
+        jobId: "JOB-2",
+        status: "In Progress",
+        quantity: 50,
+        quantityComplete: 10,
+        quantityShipped: 0,
+        quantityReceivedToInventory: 0,
+        dueDate: "2026-08-30",
+        unitOfMeasureCode: "EA"
+      }
+    ];
+    rows.jobMaterial = [
+      {
+        id: "material-1",
+        companyId,
+        jobId: "job-2",
+        itemId: "item-3",
+        estimatedQuantity: 5,
+        quantityIssued: 1,
+        quantityToIssue: 4,
+        unitOfMeasureCode: "EA",
+        methodType: "Pull from Inventory",
+        jobOperationId: null,
+        requiresBatchTracking: true,
+        requiresSerialTracking: false
+      }
+    ];
+    rows.jobMakeMethod = [
+      {
+        id: "job-method-1",
+        companyId,
+        jobId: "job-1",
+        itemId: "item-1",
+        version: 2,
+        parentMaterialId: null
+      }
+    ];
+    rows.changeOrderAffectedItem = [
+      {
+        id: "affected-1",
+        companyId,
+        changeOrderId: changeNoticeId,
+        itemId: "item-1"
+      },
+      {
+        id: "affected-3",
+        companyId,
+        changeOrderId: changeNoticeId,
+        itemId: "item-3"
+      }
+    ];
+    const recorder = makeBulkImpactKyselyRecorder({ rows });
+    const result = await writeChangeNoticeImpactDecisions(
+      recorder.db as unknown as Kysely<KyselyDatabase>,
+      {
+        companyId,
+        userId: "user-1",
+        sourceAccess,
+        changeNoticeId,
+        targets: [
+          {
+            targetType: "purchaseOrderLine",
+            targetId: "pol-1",
+            decisionStatus: "Action required",
+            rationale: "Supplier cut-in follow-up remains open."
+          },
+          {
+            targetType: "job",
+            targetId: "job-1",
+            decisionStatus: "Action required",
+            rationale: "The producing job needs a cut-in review."
+          },
+          {
+            targetType: "jobMaterial",
+            targetId: "material-1",
+            decisionStatus: "Action required",
+            rationale: "The consuming material needs a cut-in review."
+          }
+        ]
+      }
+    );
+
+    expect(result.data).toEqual({
+      changeNoticeId,
+      selectedCount: 3,
+      appliedCount: 3,
+      noOpCount: 0
+    });
+    expect(
+      recorder.inserts.filter(
+        (row) => row.table === "changeOrderImpactDecision"
+      )
+    ).toHaveLength(3);
+    expect(
+      recorder.inserts.filter(
+        (row) => row.table === "changeOrderImpactDecisionHistory"
+      )
+    ).toHaveLength(3);
+  });
+
+  it("supports more than one source batch without imposing a selection cap", async () => {
+    const targetCount = 51;
+    const recorder = makeBulkImpactKyselyRecorder({
+      rows: makeBulkPurchaseOrderRows([], [], targetCount)
+    });
+    const result = await writeChangeNoticeImpactDecisions(
+      recorder.db as unknown as Kysely<KyselyDatabase>,
+      {
+        companyId,
+        userId: "user-1",
+        sourceAccess,
+        changeNoticeId,
+        targets: Array.from({ length: targetCount }, (_, index) => ({
+          targetType: "purchaseOrderLine" as const,
+          targetId: `pol-${index + 1}`,
+          decisionStatus: "Action required" as const,
+          rationale: `Supplier commitment ${index + 1} needs review.`
+        }))
+      }
+    );
+
+    expect(result).toEqual({
+      data: {
+        changeNoticeId,
+        selectedCount: targetCount,
+        appliedCount: targetCount,
+        noOpCount: 0
+      },
+      error: null
+    });
+    expect(
+      recorder.selects.filter((table) => table === "purchaseOrderLine")
+    ).toHaveLength(2);
+    expect(
+      recorder.selects.filter((table) => table === "purchaseOrder")
+    ).toHaveLength(2);
+    expect(
+      recorder.inserts.filter(
+        (row) => row.table === "changeOrderImpactDecision"
+      )
+    ).toHaveLength(targetCount);
+    expect(recorder.committed).toBe(true);
   });
 
   it("derives lifecycle operations from persisted status, not a request enum", () => {

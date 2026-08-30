@@ -6,10 +6,10 @@
 `5089ee75ee332ef22d74ebd8e230f4bbfb0c9221`
 
 **Review scope:** This is the canonical product and architecture baseline. The
-committed Slice 2A first-assessment, narrow Slice 2B existing-decision write, focused
-Slice 2C existing-resolution, and Slice 2D explicit provenance-reconciliation work are
-tracked in the implementation and focused tests; the remaining unchecked items below
-are still future work.
+Slice 2A first-assessment, narrow Slice 2B existing-decision write, focused Slice 2C
+existing-resolution, Slice 2D explicit provenance-reconciliation work, and Slice 2E
+atomic bulk decision backend are tracked in the implementation and focused tests; the
+remaining unchecked items below are still future work.
 
 The previous plan defended the feature against arbitrary SQL written by Carbon's own
 service-role/Kysely backend. Current Carbon does not use that trust model. This plan
@@ -20,11 +20,11 @@ security architecture that was built only for the withdrawn threat.
 
 - [x] Add the four Impact-owned tables, task origin, standard RLS, constraints, and indexes.
 - [x] Add fixed target contracts, source-aware candidate reads, coverage, and snapshots.
-- [ ] Add the remaining transactional decisions, provenance, reassessment history, and CAS checks (Slice 2A first assessments, the narrow Slice 2B existing-decision writes, Slice 2C existing Action Required resolution, and Slice 2D explicit provenance reconciliation are implemented; bulk operations remain deferred).
+- [x] Add the transactional decisions, provenance, reassessment history, and CAS checks (Slice 2A first assessments, the narrow Slice 2B existing-decision writes, Slice 2C existing Action Required resolution, Slice 2D explicit provenance reconciliation, and Slice 2E atomic bulk decision writes are implemented).
 - [x] Add explicit authorized Slice 2D provenance reconciliation with source-aware, lifecycle-safe interval/history writes.
 - [ ] Integrate task origin, many-to-many links, lifecycle guards, MCP, and integrations.
 - [ ] Build the read-only document-first workspace.
-- [ ] Add decision, reassessment, resolution, task, and bulk UX.
+- [ ] Add decision, reassessment, resolution, task, and bulk UX. Slice 2E supplies the backend bulk mutation; preview and commit UX remain Slice 5.
 - [ ] Run authorization, lifecycle, transaction, deletion, and browser verification.
 
 ## Dependencies
@@ -1105,10 +1105,31 @@ have no N+1 loops.
 ### Slice 2: decision ledger and feature history
 
 Add decision create/reassess/resolve/correct, provenance reconciliation, CAS, history,
-explicit refresh, and bulk transaction helpers. Slice 2D now provides the explicit
-server-authorized refresh boundary for persisted provenance; bulk remains deferred.
+explicit refresh, and bulk transaction helpers. Slice 2D provides the explicit
+server-authorized refresh boundary for persisted provenance. Slice 2E adds the
+server-authorized raw bulk decision boundary: explicit unique targets for one Change
+Notice, one complete preflight, batched authoritative reads, deterministic locks, and
+one Kysely transaction. Bulk preview and commit UX remain deferred to Slice 5.
 
 Exit condition: decision, provenance, and history writes are atomic and source-aware.
+
+### Slice 2E verification record
+
+- Bulk requests are strict and explicit: target identities are unique, server-derived
+  operation/event/snapshot fields are rejected, and there is no arbitrary selection cap.
+- Bulk authorization resolves the Change Notice gate, Items update gate, and source
+  domain access once before the raw Kysely service boundary; the raw service is blocked
+  from generic MCP discovery and execution.
+- Preflight groups PO Lines, Jobs, and Job Materials, batches source/dependency/scope/
+  decision/provenance reads at 50 IDs, locks the Change Notice and owned rows in a
+  deterministic order, and applies all target plans atomically.
+- Focused Vitest verification: 5 files, 171 tests passed; ERP TypeScript verification
+  passed with `NODE_OPTIONS=--max-old-space-size=8192`.
+- The database SQL harness passed, and a temporary Node/Vitest PostgreSQL harness
+  verified mixed commit, stale preflight rollback, late apply rollback, and concurrent
+  identical bulk serialization. The temporary harness was removed and its fixtures
+  cleaned up. `psql` is not installed; PostgreSQL was reached through the repository's
+  `pg` dependency.
 
 ### Slice 3: task origin, links, and lifecycle
 
@@ -1203,4 +1224,4 @@ The superseded feature-specific database privilege and cross-record task-securit
 design is absent from the implementation slices below. Nothing in the remaining
 product contract requires it.
 
-READY TO IMPLEMENT WITH DOCUMENTED ASSUMPTIONS
+READY FOR SLICE 2E FINAL REVIEW

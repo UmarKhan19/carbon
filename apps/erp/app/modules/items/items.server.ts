@@ -17,6 +17,8 @@ import {
 import { getCompanySettings } from "~/modules/settings";
 import { requireUnlockedBulk } from "~/utils/lockedGuard.server";
 import type {
+  ChangeNoticeImpactDecisionBulkRequest,
+  ChangeNoticeImpactDecisionBulkWriteResult,
   ChangeNoticeImpactDecisionRequest,
   ChangeNoticeImpactDecisionWriteResult,
   ChangeNoticeImpactProvenanceReconciliationResult,
@@ -25,6 +27,7 @@ import type {
 import {
   canEditChangeNoticeEngineering,
   canEditChangeNoticeWorkflow,
+  changeNoticeImpactDecisionBulkRequestValidator,
   changeNoticeImpactDecisionRequestValidator,
   changeNoticeLockedMessage,
   changeNoticeOpenStatuses,
@@ -32,7 +35,8 @@ import {
 } from "./items.models";
 import {
   reconcileChangeNoticeImpactProvenance,
-  writeChangeNoticeImpactDecision
+  writeChangeNoticeImpactDecision,
+  writeChangeNoticeImpactDecisions
 } from "./items.service";
 import type {
   ChangeNoticeImpactSourceAccess,
@@ -191,6 +195,59 @@ export async function writeAuthorizedChangeNoticeImpactDecision(args: {
 
   const { getDatabaseClient } = await import("~/services/database.server");
   return writeChangeNoticeImpactDecision(getDatabaseClient(), {
+    ...parsedDecision.data,
+    companyId: args.companyId,
+    userId: args.userId,
+    sourceAccess: access.sourceAccess
+  });
+}
+
+/**
+ * Server-authorized entry point for an atomic bulk Impact decision mutation.
+ * The request contains only explicit target decisions; claims, tenant, source
+ * access, and the Kysely client are supplied by this boundary.
+ */
+export async function writeAuthorizedChangeNoticeImpactDecisions(args: {
+  userId: string;
+  companyId: string;
+  decision: ChangeNoticeImpactDecisionBulkRequest;
+}): Promise<ChangeNoticeImpactDecisionBulkWriteResult> {
+  const parsedDecision =
+    changeNoticeImpactDecisionBulkRequestValidator.safeParse(args.decision);
+  if (!parsedDecision.success) {
+    return {
+      data: null,
+      error: {
+        message:
+          parsedDecision.error.issues[0]?.message ??
+          "Invalid Change Notice Impact bulk assessment."
+      }
+    };
+  }
+
+  const access = await getChangeNoticeImpactMutationAccess(args);
+  if (access.status === "failed") {
+    return { data: null, error: { message: access.errorMessage } };
+  }
+  if (!access.canViewChangeNotice) {
+    return {
+      data: null,
+      error: {
+        message: "Change Notice Impact requires Change Notice view permission."
+      }
+    };
+  }
+  if (!access.canUpdateItems) {
+    return {
+      data: null,
+      error: {
+        message: "Change Notice Impact requires Items update permission."
+      }
+    };
+  }
+
+  const { getDatabaseClient } = await import("~/services/database.server");
+  return writeChangeNoticeImpactDecisions(getDatabaseClient(), {
     ...parsedDecision.data,
     companyId: args.companyId,
     userId: args.userId,

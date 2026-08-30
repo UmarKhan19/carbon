@@ -35,6 +35,7 @@ describe("mcp tool-metadata generator", () => {
   it("keeps raw Impact service boundaries and helpers out of generic MCP metadata", () => {
     for (const name of [
       "items_writeChangeNoticeImpactDecision",
+      "items_writeChangeNoticeImpactDecisions",
       "items_reconcileChangeNoticeImpactProvenance",
       "items_getChangeNoticeImpactCandidates",
       "items_removeChangeNoticeAffectedItem",

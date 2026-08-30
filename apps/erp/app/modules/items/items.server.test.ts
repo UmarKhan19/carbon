@@ -24,6 +24,7 @@ const {
   getChangeNoticeImpactMutationAccess,
   getChangeNoticeImpactSourceAccess,
   reconcileAuthorizedChangeNoticeImpactProvenance,
+  writeAuthorizedChangeNoticeImpactDecisions,
   getLockVerdict,
   LOCKED_REVISION_MESSAGE,
   getUnreleasedChangeOrderItems,
@@ -46,6 +47,48 @@ const claims = (permissions: Record<string, { view: string[] }>) => ({
 });
 
 describe("Change Notice Impact source access", () => {
+  it("rejects an invalid bulk request before resolving claims", async () => {
+    const result = await writeAuthorizedChangeNoticeImpactDecisions({
+      userId: "user-1",
+      companyId,
+      decision: { changeNoticeId: "notice-1", targets: [] }
+    });
+
+    expect(result).toEqual({
+      data: null,
+      error: { message: "At least one Impact target is required" }
+    });
+    expect(getUserClaims).not.toHaveBeenCalled();
+  });
+
+  it("requires both Change Notice view and Impact update gates for bulk writes", async () => {
+    vi.mocked(getUserClaims).mockResolvedValue(
+      claims({ purchasing: { view: [companyId] }, production: { view: [] } })
+    );
+    const result = await writeAuthorizedChangeNoticeImpactDecisions({
+      userId: "user-1",
+      companyId,
+      decision: {
+        changeNoticeId: "notice-1",
+        targets: [
+          {
+            targetType: "purchaseOrderLine",
+            targetId: "pol-1",
+            decisionStatus: "Action required",
+            rationale: "Supplier follow-up remains open."
+          }
+        ]
+      }
+    });
+
+    expect(result).toEqual({
+      data: null,
+      error: {
+        message: "Change Notice Impact requires Change Notice view permission."
+      }
+    });
+  });
+
   it("requires the source-domain view permission independently", () => {
     expect(
       deriveChangeNoticeImpactSourceAccess(
