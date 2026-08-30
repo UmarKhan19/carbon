@@ -6,9 +6,10 @@
 `5089ee75ee332ef22d74ebd8e230f4bbfb0c9221`
 
 **Review scope:** This is the canonical product and architecture baseline. The
-committed Slice 2A first-assessment slice and the current narrow Slice 2B
-existing-decision write work are tracked in the implementation and focused tests;
-the remaining unchecked items below are still future work.
+committed Slice 2A first-assessment and narrow Slice 2B existing-decision write
+slices, and the current focused Slice 2C existing-resolution work are tracked in the
+implementation and focused tests; the remaining unchecked items below are still
+future work.
 
 The previous plan defended the feature against arbitrary SQL written by Carbon's own
 service-role/Kysely backend. Current Carbon does not use that trust model. This plan
@@ -19,7 +20,7 @@ security architecture that was built only for the withdrawn threat.
 
 - [x] Add the four Impact-owned tables, task origin, standard RLS, constraints, and indexes.
 - [x] Add fixed target contracts, source-aware candidate reads, coverage, and snapshots.
-- [ ] Add the remaining transactional decisions, provenance, reassessment history, and CAS checks (Slice 2A first assessments are complete and the narrow Slice 2B existing-decision writes are implemented; Action Required resolution, explicit refresh/read reconciliation, and bulk operations remain deferred).
+- [ ] Add the remaining transactional decisions, provenance, reassessment history, and CAS checks (Slice 2A first assessments, the narrow Slice 2B existing-decision writes, and Slice 2C existing Action Required resolution are implemented; explicit refresh/read reconciliation and bulk operations remain deferred).
 - [ ] Integrate task origin, many-to-many links, lifecycle guards, MCP, and integrations.
 - [ ] Build the read-only document-first workspace.
 - [ ] Add decision, reassessment, resolution, task, and bulk UX.
@@ -203,7 +204,7 @@ or database-level incapable of writing its own rows.
 | Financial posting and fixed assets | Accounting routes authorize the posting action before calling the server function | Kysely writes bypass RLS after route authorization | `accounting.ee.server.ts:102-273` writes journal, lines, dimensions, and asset state in one Kysely transaction | Journal/line FKs, account/period identities, status checks, balanced posting rules, explicit `companyId` predicates | Impact needs the same transaction and structural checks, without copying financial-specific privilege machinery. |
 | Inventory adjustment | `inventory+/quantities+/$itemId.adjustment.tsx` requires `create: "inventory"`; the edge function requires inventory permission again | Edge-function reads use a user-scoped client; the Kysely posting transaction is privileged | `post-inventory-adjustment` writes ledger, cost layers, tracked state, and optional GL posting in one transaction | Quantity validation, item/company lookup, accounting-period/default-account checks, ledger and FK constraints | Shows how a privileged server operation owns a multi-row business mutation while normal auth remains at the route/function boundary. |
 | Inventory count | Route authorizes inventory access; `generateInventoryCountLines` and `updateInventoryCountLine` use Kysely | Kysely bypasses RLS; service code repeats `companyId` and parent-status predicates | Snapshot, line replacement, and count timestamp commit together | Draft-only `EXISTS` guard, company predicates, grouped ledger read, FKs | This is the closest shape for Impact snapshot/provenance writes. |
-| Inspection/Quality | MES disposition route requires `update: "quality"`, then re-reads state with service role | Shared `@carbon/database/quality` engine writes through Kysely | `dispositionInspection` and sample/measurement functions transact status, samples, entities, and history | `requireOpen`, source/operation identity checks, terminal-status guards, inspection/sample links, company predicates | Impact should recompute current source facts and use a normal transaction. Task completion or a stale form is never enough. |
+| Inspection/Quality | MES disposition route requires `update: "quality"`, then re-reads state with service role | Shared `@carbon/database/quality` engine writes through Kysely | `dispositionInspection` and sample/measurement functions transact status, samples, entities, and history | `requireOpen`, source/operation identity checks, terminal-status guards, inspection/sample links, company predicates | Impact should recompute current source facts where the operation requires assessment or reassessment, and use a normal transaction. Task completion or a stale form is never enough. |
 | Workflow execution | `workflows.server.ts:81-99` explicitly documents that Kysely bypasses RLS and the calling route is the authorization gate | User-facing workflow tables use standard company RLS; execution jobs use trusted server code | Trigger synchronization and scheduler wake use a Kysely transaction and company advisory lock | Company-scoped rows, parent FKs, advisory transaction lock, workflow version ownership checks | Confirms that Carbon does not build a per-feature DB role for every trusted multi-row operation. |
 | Change Notice release | `$id.status.tsx` requires `update: "parts"`; `applyChangeNotice` re-reads `Implementation` and ends with a Kysely CAS | Normal route client plus selected privileged edge/service calls | Existing release orchestration activates draft methods and flips status with CAS | Change Notice status state machine, company predicates, draft ownership, FK/cascade rules | Impact must not gate or rewrite this release path. Done remains engineering release, not Impact closure. |
 | Change Notice tasks | Existing task routes use `requirePermissions`, `requireChangeNoticeEditable`, and a child ownership check. `updateChangeNoticeActionOrder` uses Kysely with CN/company predicates | Current task RLS is Parts-based and is not source-domain-aware | Existing service/client paths write tasks; no private writer exists | Task parent FK, company FK, task status enum, existing lifecycle guards | Reuse the task entity. Add only task origin, guarded server paths, and the Impact link/history transaction. |
@@ -295,10 +296,11 @@ atomicity
 history
 ```
 
-The server reads current source facts, validates the submitted revision, derives and
-validates the canonical snapshot, checks the Change Notice state, writes the
-decision/task/link/history set in one normal Kysely transaction, and supplies explicit
-`companyId`, `changeNoticeId`, `targetType`, and `targetId` predicates.
+The server reads current source facts and derives the canonical snapshot where
+required, validates the submitted revision and relevant persisted snapshot state,
+checks the Change Notice state, writes the decision/task/link/history set in one
+normal Kysely transaction, and supplies explicit `companyId`, `changeNoticeId`,
+`targetType`, and `targetId` predicates.
 
 ## 5. Required comparison
 
@@ -653,8 +655,11 @@ Constraints:
 - no source FK, so a deleted PO line, Job, or Job Material can display Source deleted;
 - index by `(companyId, changeNoticeId, decisionStatus)` and target identity.
 
-The service validates that the target exists, belongs to the active company, matches the
-fixed target type, and is authorized in the source domain before it inserts or updates.
+For create and reassessment operations, the service validates that the live target
+exists, belongs to the active company, matches the fixed target type, and is authorized
+in the source domain. Existing Action Required resolution validates the persisted
+decision identity, company/parent scope, source-domain authorization, and stored
+assessment state without universally requiring the live target to still exist.
 
 ### `changeOrderImpactDecisionAffectedItem`
 

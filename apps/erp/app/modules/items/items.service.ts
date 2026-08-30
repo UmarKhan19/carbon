@@ -12266,8 +12266,6 @@ const IMPACT_FIRST_ASSESSMENT_CONFLICT_MESSAGE =
   "This Impact target was assessed by someone else. Refresh and reassess.";
 const IMPACT_REVISION_CONFLICT_MESSAGE =
   "This Impact assessment changed before your update. Refresh and try again.";
-const IMPACT_RESOLUTION_DEFERRED_MESSAGE =
-  "Impact resolution is deferred to a later slice.";
 const IMPACT_NO_ACTION_RESOLUTION_INVALID_MESSAGE =
   "No action required decisions cannot transition directly to Resolved.";
 const IMPACT_PROVENANCE_CHANGED_REASON =
@@ -12920,11 +12918,12 @@ async function loadImpactFirstAssessmentEvidence(
 }
 
 /**
- * Record or reassess one supported Impact target. The operation, history event,
+ * Record, reassess, or resolve one supported Impact target. The operation, history event,
  * snapshot, and provenance transitions are derived inside one transaction; a
  * caller can submit only the requested conclusion and expected revision.
- * Resolution transitions remain deferred, while an existing Resolved decision
- * may still be corrected or updated.
+ * Existing Action Required resolution is a decision-only write that preserves the
+ * persisted assessment snapshot and metadata; it does not reload source evidence
+ * or reconcile provenance.
  */
 export async function writeChangeNoticeImpactDecision(
   db: Kysely<KyselyDatabase>,
@@ -13236,6 +13235,134 @@ export async function writeChangeNoticeImpactDecision(
       if (input.expectedRevision !== existing.revision) {
         throw new ImpactMutationRejected(IMPACT_REVISION_CONFLICT_MESSAGE);
       }
+
+      if (operation === "resolveActionRequired") {
+        if (
+          !changeNoticeStageFlow.includes(changeNotice.status) &&
+          changeNotice.status !== "Cancelled"
+        ) {
+          throw new ImpactMutationRejected(
+            "Change Notice lifecycle does not allow Impact resolution."
+          );
+        }
+
+        const previousValues = impactExistingDecisionValues(existing);
+        if (
+          existing.noActionReasonCode !== null &&
+          existing.noActionReasonCode !== undefined &&
+          !impactIn(
+            existing.noActionReasonCode,
+            changeNoticeImpactNoActionReasonCodes
+          )
+        ) {
+          throw new ImpactMutationRejected(
+            "Stored Impact decision has an unsupported No Action reason."
+          );
+        }
+
+        const resolutionValidation = validateChangeNoticeImpactFirstAssessment({
+          targetType: input.targetType,
+          decisionStatus: "Resolved",
+          noActionReasonCode: reason,
+          rationale: previousValues.rationale,
+          resolutionNote: input.resolutionNote,
+          confirmNoPurchasingInterventionRemains:
+            input.confirmNoPurchasingInterventionRemains,
+          expectedRevision: undefined
+        });
+        if (!resolutionValidation.valid) {
+          throw new ImpactMutationRejected(resolutionValidation.message);
+        }
+
+        const preservedSnapshot = existing.assessmentSnapshot;
+        if (
+          existing.snapshotVersion !== 1 ||
+          !isCanonicalStoredImpactSnapshot(
+            input.targetType,
+            preservedSnapshot
+          ) ||
+          !snapshotIdentityMatches(
+            input.targetType,
+            preservedSnapshot,
+            input.targetId
+          )
+        ) {
+          throw new ImpactMutationRejected(
+            "Stored Impact assessment snapshot is unavailable for resolution."
+          );
+        }
+
+        const now = datetime.timestamp();
+        const nextRevision = existing.revision + 1;
+        const updatedDecision = await trx
+          .updateTable("changeOrderImpactDecision")
+          .set({
+            decisionStatus: "Resolved",
+            noActionReasonCode: null,
+            resolutionNote: resolutionValidation.resolutionNote,
+            revision: nextRevision,
+            updatedBy: input.userId,
+            updatedAt: now
+          })
+          .where("id", "=", existing.id)
+          .where("companyId", "=", input.companyId)
+          .where("changeNoticeId", "=", input.changeNoticeId)
+          .where("targetType", "=", input.targetType)
+          .where("targetId", "=", input.targetId)
+          .where("revision", "=", existing.revision)
+          .returning("id")
+          .executeTakeFirst();
+        if (!updatedDecision) {
+          throw new ImpactMutationRejected(IMPACT_REVISION_CONFLICT_MESSAGE);
+        }
+
+        const preservedSnapshotJson = preservedSnapshot as unknown as Json;
+        await trx
+          .insertInto("changeOrderImpactDecisionHistory")
+          .values([
+            {
+              companyId: input.companyId,
+              decisionId: existing.id,
+              targetType: input.targetType,
+              targetId: input.targetId,
+              eventType: "Decision resolved",
+              previousStatus: previousValues.decisionStatus,
+              newStatus: "Resolved",
+              previousReasonCode: previousValues.noActionReasonCode,
+              newReasonCode: null,
+              previousSnapshot: preservedSnapshotJson,
+              newSnapshot: preservedSnapshotJson,
+              rationale: previousValues.rationale,
+              resolutionNote: resolutionValidation.resolutionNote,
+              priorAssessmentWasChanged: false,
+              createdBy: input.userId,
+              createdAt: now
+            }
+          ])
+          .execute();
+
+        return {
+          data: {
+            operation,
+            decision: {
+              id: existing.id,
+              targetType: input.targetType,
+              targetId: input.targetId,
+              decisionStatus: "Resolved",
+              noActionReasonCode: null,
+              rationale: previousValues.rationale,
+              resolutionNote: resolutionValidation.resolutionNote,
+              assessmentSnapshot: preservedSnapshot,
+              snapshotVersion: existing.snapshotVersion,
+              assessedBy: existing.assessedBy,
+              assessedAt: existing.assessedAt,
+              revision: nextRevision
+            }
+          },
+          error: null
+        } satisfies ChangeNoticeImpactDecisionWriteResult;
+      }
+
       if (!changeNoticeStageFlow.includes(changeNotice.status)) {
         throw new ImpactMutationRejected(
           changeNotice.status === "Cancelled"
@@ -13250,9 +13377,6 @@ export async function writeChangeNoticeImpactDecision(
         throw new ImpactMutationRejected(
           IMPACT_NO_ACTION_RESOLUTION_INVALID_MESSAGE
         );
-      }
-      if (operation === "resolveActionRequired") {
-        throw new ImpactMutationRejected(IMPACT_RESOLUTION_DEFERRED_MESSAGE);
       }
 
       const previousValues = impactExistingDecisionValues(existing);
