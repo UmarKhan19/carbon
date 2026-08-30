@@ -19,6 +19,7 @@ import { requireUnlockedBulk } from "~/utils/lockedGuard.server";
 import type {
   ChangeNoticeImpactDecisionRequest,
   ChangeNoticeImpactDecisionWriteResult,
+  ChangeNoticeImpactProvenanceReconciliationResult,
   plmReleaseControl
 } from "./items.models";
 import {
@@ -29,7 +30,10 @@ import {
   changeNoticeOpenStatuses,
   supersessionModes
 } from "./items.models";
-import { writeChangeNoticeImpactDecision } from "./items.service";
+import {
+  reconcileChangeNoticeImpactProvenance,
+  writeChangeNoticeImpactDecision
+} from "./items.service";
 import type {
   ChangeNoticeImpactSourceAccess,
   ChangeNoticeImpactSourceAccessResult
@@ -190,6 +194,46 @@ export async function writeAuthorizedChangeNoticeImpactDecision(args: {
     ...parsedDecision.data,
     companyId: args.companyId,
     userId: args.userId,
+    sourceAccess: access.sourceAccess
+  });
+}
+
+/**
+ * Server-authorized entry point for explicit Impact provenance reconciliation.
+ * The caller supplies no source capability or database handle; both are
+ * resolved here so restricted domains cannot be inferred through Kysely.
+ */
+export async function reconcileAuthorizedChangeNoticeImpactProvenance(args: {
+  userId: string;
+  companyId: string;
+  changeNoticeId: string;
+}): Promise<ChangeNoticeImpactProvenanceReconciliationResult> {
+  const access = await getChangeNoticeImpactMutationAccess(args);
+  if (access.status === "failed") {
+    return { data: null, error: { message: access.errorMessage } };
+  }
+  if (!access.canViewChangeNotice) {
+    return {
+      data: null,
+      error: {
+        message: "Change Notice Impact requires Change Notice view permission."
+      }
+    };
+  }
+  if (!access.canUpdateItems) {
+    return {
+      data: null,
+      error: {
+        message: "Change Notice Impact requires Items update permission."
+      }
+    };
+  }
+
+  const { getDatabaseClient } = await import("~/services/database.server");
+  return reconcileChangeNoticeImpactProvenance(getDatabaseClient(), {
+    companyId: args.companyId,
+    userId: args.userId,
+    changeNoticeId: args.changeNoticeId,
     sourceAccess: access.sourceAccess
   });
 }

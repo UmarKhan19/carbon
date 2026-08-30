@@ -1671,6 +1671,29 @@ export type ChangeNoticeImpactDecisionWriteResult = {
   error: { message: string } | null;
 };
 
+export type ChangeNoticeImpactProvenanceReconciliationInput = {
+  /** Server-derived tenant and actor context. */
+  companyId: string;
+  userId: string;
+  changeNoticeId: string;
+  /** Resolved from the actor's source-domain view permissions. */
+  sourceAccess: ChangeNoticeImpactSourceAccess;
+};
+
+export type ChangeNoticeImpactProvenanceReconciliationData = {
+  changeNoticeId: string;
+  changeNoticeStatus: Database["public"]["Enums"]["changeOrderStatus"];
+  started: number;
+  ended: number;
+  /** Domain names only; target identities from restricted domains are omitted. */
+  restrictedTargetTypes: ChangeNoticeImpactTargetType[];
+};
+
+export type ChangeNoticeImpactProvenanceReconciliationResult = {
+  data: ChangeNoticeImpactProvenanceReconciliationData | null;
+  error: { message: string } | null;
+};
+
 export type ChangeNoticeImpactSnapshotNormalization =
   | {
       sourceAvailability: "Present";

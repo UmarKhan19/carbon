@@ -58,6 +58,8 @@ import {
   type ChangeNoticeImpactJobSnapshotInput,
   type ChangeNoticeImpactParentContext,
   type ChangeNoticeImpactProvenance,
+  type ChangeNoticeImpactProvenanceReconciliationInput,
+  type ChangeNoticeImpactProvenanceReconciliationResult,
   type ChangeNoticeImpactPurchaseOrderLineSnapshotInput,
   type ChangeNoticeImpactSnapshot,
   type ChangeNoticeImpactSnapshotNormalization,
@@ -13650,6 +13652,843 @@ export async function writeChangeNoticeImpactDecision(
         changeNoticeId: input.changeNoticeId,
         targetType: input.targetType,
         targetId: input.targetId
+      });
+    }
+    return impactMutationFailure(impactMutationErrorMessage(cause));
+  }
+}
+
+const IMPACT_PROVENANCE_SOURCE_DELETED_REASON = "Impact source deleted";
+const IMPACT_PROVENANCE_SCOPE_REMOVED_REASON =
+  "Affected item removed from Change Notice";
+const IMPACT_PROVENANCE_RECONCILIATION_CHANGED_REASON =
+  "Affected item provenance changed during reconciliation";
+const IMPACT_PROVENANCE_STARTED_REASON =
+  "Affected item provenance started during reconciliation";
+
+type ImpactReconciliationOperation = "noOp" | "start" | "end" | "replace";
+
+type ImpactReconciliationPlan = {
+  decisionId: string;
+  targetType: ChangeNoticeImpactTargetType;
+  targetId: string;
+  operation: ImpactReconciliationOperation;
+  previous: {
+    id: string;
+    affectedItemId: string;
+    affectedItemSourceId: string;
+  } | null;
+  next: {
+    affectedItemId: string;
+    affectedItemSourceId: string;
+    affectedItemLabel: string | null;
+  } | null;
+  endReason: string | null;
+};
+
+type ImpactReconciliationPlanningInput = {
+  decision: Pick<
+    ImpactReconciliationPlan,
+    "decisionId" | "targetType" | "targetId"
+  >;
+  currentProvenance: ImpactReconciliationPlan["previous"];
+  /** Null means the exact authorized source lookup found no source row. */
+  currentSourceItemId: string | null;
+  currentAffectedItems: Array<{
+    id: string;
+    itemId: string;
+    label: string | null;
+  }>;
+  endOnly: boolean;
+};
+
+type ImpactReconciliationDecision = {
+  id: string;
+  companyId: string;
+  changeNoticeId: string;
+  targetType: ChangeNoticeImpactTargetType;
+  targetId: string;
+  decisionStatus: string;
+  noActionReasonCode: string | null;
+  rationale: string | null;
+  resolutionNote: string | null;
+  assessmentSnapshot: Json;
+};
+
+type ImpactReconciliationAffectedItem = {
+  id: string;
+  companyId: string;
+  changeOrderId: string;
+  itemId: string;
+};
+
+type ImpactReconciliationProvenance = {
+  id: string;
+  companyId: string;
+  decisionId: string;
+  affectedItemId: string;
+  affectedItemSourceId: string;
+  affectedItemLabel: string | null;
+  endedAt: unknown;
+};
+
+type ImpactReconciliationSource = {
+  id: string;
+  companyId: string;
+  itemId: string | null;
+};
+
+function impactReconciliationAccessTypes(
+  sourceAccess: unknown
+): ChangeNoticeImpactTargetType[] | null {
+  if (!isImpactRecord(sourceAccess)) return null;
+  if (
+    typeof sourceAccess.purchaseOrderLine !== "boolean" ||
+    typeof sourceAccess.job !== "boolean" ||
+    typeof sourceAccess.jobMaterial !== "boolean"
+  ) {
+    return null;
+  }
+
+  const types: ChangeNoticeImpactTargetType[] = [];
+  if (sourceAccess.purchaseOrderLine) types.push("purchaseOrderLine");
+  // Job and Job Material share the production source boundary. Do not process
+  // either one from an inconsistent partial capability map.
+  if (sourceAccess.job && sourceAccess.jobMaterial) {
+    types.push("job", "jobMaterial");
+  }
+  return types;
+}
+
+async function readImpactReconciliationSources(
+  trx: KyselyTx,
+  targetType: ChangeNoticeImpactTargetType,
+  targetIds: string[],
+  companyId: string
+): Promise<ImpactReconciliationSource[]> {
+  const rows: ImpactReconciliationSource[] = [];
+  for (const batch of impactIdBatches(targetIds)) {
+    const result =
+      targetType === "purchaseOrderLine"
+        ? await trx
+            .selectFrom("purchaseOrderLine")
+            .select(["id", "itemId", "companyId"])
+            .where("companyId", "=", companyId)
+            .where("id", "in", batch)
+            .orderBy("id", "asc")
+            .execute()
+        : targetType === "job"
+          ? await trx
+              .selectFrom("job")
+              .select(["id", "itemId", "companyId"])
+              .where("companyId", "=", companyId)
+              .where("id", "in", batch)
+              .orderBy("id", "asc")
+              .execute()
+          : await trx
+              .selectFrom("jobMaterial")
+              .select(["id", "itemId", "companyId"])
+              .where("companyId", "=", companyId)
+              .where("id", "in", batch)
+              .orderBy("id", "asc")
+              .execute();
+
+    rows.push(...(result as unknown as ImpactReconciliationSource[]));
+  }
+
+  const requestedIds = new Set(targetIds);
+  const seenIds = new Set<string>();
+  for (const row of rows) {
+    if (
+      typeof row.id !== "string" ||
+      !requestedIds.has(row.id) ||
+      seenIds.has(row.id)
+    ) {
+      throw new ImpactMutationRejected(
+        `Complete ${targetType} source evidence is unavailable.`
+      );
+    }
+    if (row.companyId !== companyId) {
+      throw new ImpactMutationRejected(
+        `Complete ${targetType} source evidence is unavailable.`
+      );
+    }
+    if (typeof row.itemId !== "string" || row.itemId.length === 0) {
+      throw new ImpactMutationRejected(
+        `Complete ${targetType} source evidence is unavailable.`
+      );
+    }
+    seenIds.add(row.id);
+  }
+
+  // A missing requested ID is meaningful only because every exact batch above
+  // succeeded. The caller can therefore distinguish Source deleted from a
+  // failed or truncated scan without treating an empty result as safe.
+  return rows;
+}
+
+async function readImpactReconciliationItemLabels(
+  trx: KyselyTx,
+  itemIds: string[],
+  companyId: string
+): Promise<Map<string, string | null>> {
+  const labels = new Map<string, string | null>();
+  const requestedIds = new Set(itemIds);
+  const seenIds = new Set<string>();
+
+  for (const batch of impactIdBatches(itemIds)) {
+    const rows = await trx
+      .selectFrom("item")
+      .select([
+        "id",
+        "companyId",
+        "readableId",
+        "readableIdWithRevision",
+        "name"
+      ])
+      .where("companyId", "=", companyId)
+      .where("id", "in", batch)
+      .orderBy("id", "asc")
+      .execute();
+
+    for (const row of rows) {
+      if (
+        typeof row.id !== "string" ||
+        !requestedIds.has(row.id) ||
+        seenIds.has(row.id) ||
+        row.companyId !== companyId
+      ) {
+        throw new ImpactMutationRejected(
+          "Complete affected-item label evidence is unavailable."
+        );
+      }
+      labels.set(
+        row.id,
+        impactNullableString(row.readableIdWithRevision) ??
+          impactNullableString(row.readableId) ??
+          impactNullableString(row.name)
+      );
+      seenIds.add(row.id);
+    }
+  }
+
+  return labels;
+}
+
+function planChangeNoticeImpactProvenanceReconciliation(
+  input: ImpactReconciliationPlanningInput
+): ImpactReconciliationPlan {
+  const affectedByItemId = new Map(
+    input.currentAffectedItems.map((affectedItem) => [
+      affectedItem.itemId,
+      affectedItem
+    ])
+  );
+  const labels = new Map(
+    input.currentAffectedItems.map((affectedItem) => [
+      affectedItem.itemId,
+      affectedItem.label
+    ])
+  );
+  const currentCause = input.currentSourceItemId
+    ? affectedByItemId.get(input.currentSourceItemId)
+    : undefined;
+  const nextCause =
+    input.currentSourceItemId && currentCause
+      ? {
+          affectedItemId: currentCause.id,
+          affectedItemSourceId: input.currentSourceItemId,
+          affectedItemLabel: labels.get(input.currentSourceItemId) ?? null
+        }
+      : null;
+
+  if (!input.currentProvenance) {
+    return {
+      ...input.decision,
+      operation: nextCause && !input.endOnly ? "start" : "noOp",
+      previous: null,
+      next: input.endOnly ? null : nextCause,
+      endReason: null
+    };
+  }
+
+  const previous = input.currentProvenance;
+  const matchesCurrent =
+    nextCause !== null &&
+    previous.affectedItemId === nextCause.affectedItemId &&
+    previous.affectedItemSourceId === nextCause.affectedItemSourceId;
+  if (matchesCurrent) {
+    return {
+      ...input.decision,
+      operation: "noOp",
+      previous,
+      next: nextCause,
+      endReason: null
+    };
+  }
+
+  const sourceItemChanged =
+    input.currentSourceItemId !== null &&
+    input.currentSourceItemId !== previous.affectedItemSourceId;
+  const endReason =
+    input.currentSourceItemId === null
+      ? IMPACT_PROVENANCE_SOURCE_DELETED_REASON
+      : sourceItemChanged
+        ? IMPACT_PROVENANCE_RECONCILIATION_CHANGED_REASON
+        : IMPACT_PROVENANCE_SCOPE_REMOVED_REASON;
+
+  return {
+    ...input.decision,
+    operation: input.endOnly || nextCause === null ? "end" : "replace",
+    previous,
+    next: input.endOnly ? null : nextCause,
+    endReason
+  };
+}
+
+function impactReconciliationHistoryRow(input: {
+  decision: ImpactReconciliationDecision;
+  companyId: string;
+  userId: string;
+  now: string;
+  eventType: "Provenance started" | "Provenance ended";
+  rationale: string;
+  relatedAffectedItemId: string;
+}): Database["public"]["Tables"]["changeOrderImpactDecisionHistory"]["Insert"] {
+  return {
+    companyId: input.companyId,
+    decisionId: input.decision.id,
+    targetType: input.decision.targetType,
+    targetId: input.decision.targetId,
+    eventType: input.eventType,
+    previousStatus: input.decision.decisionStatus,
+    newStatus: input.decision.decisionStatus,
+    previousReasonCode: input.decision.noActionReasonCode,
+    newReasonCode: input.decision.noActionReasonCode,
+    previousSnapshot: input.decision.assessmentSnapshot,
+    newSnapshot: input.decision.assessmentSnapshot,
+    rationale: input.rationale,
+    resolutionNote: input.decision.resolutionNote,
+    relatedAffectedItemId: input.relatedAffectedItemId,
+    priorAssessmentWasChanged: false,
+    createdBy: input.userId,
+    createdAt: input.now
+  };
+}
+
+async function applyImpactProvenanceReconciliation(
+  trx: KyselyTx,
+  input: ChangeNoticeImpactProvenanceReconciliationInput,
+  decisionsById: Map<string, ImpactReconciliationDecision>,
+  plans: ImpactReconciliationPlan[]
+): Promise<{ started: number; ended: number }> {
+  const changedPlans = plans.filter((plan) => plan.operation !== "noOp");
+  if (changedPlans.length === 0) return { started: 0, ended: 0 };
+
+  const now = datetime.timestamp();
+  const endGroups = new Map<string, string[]>();
+  for (const plan of changedPlans) {
+    if (!plan.previous || !plan.endReason) continue;
+    const provenanceIds = endGroups.get(plan.endReason) ?? [];
+    provenanceIds.push(plan.previous.id);
+    endGroups.set(plan.endReason, provenanceIds);
+  }
+
+  let ended = 0;
+  for (const [reason, provenanceIds] of endGroups) {
+    for (const batch of impactIdBatches(provenanceIds)) {
+      const result = await trx
+        .updateTable("changeOrderImpactDecisionAffectedItem")
+        .set({
+          endedAt: now,
+          endedBy: input.userId,
+          endedReason: reason,
+          updatedAt: now,
+          updatedBy: input.userId
+        })
+        .where("companyId", "=", input.companyId)
+        .where("id", "in", batch)
+        .where("endedAt", "is", null)
+        .executeTakeFirst();
+      if (!result || Number(result.numUpdatedRows) !== batch.length) {
+        throw new ImpactMutationRejected(
+          "Impact provenance changed while it was being reconciled."
+        );
+      }
+      ended += batch.length;
+    }
+  }
+
+  const starts = changedPlans.flatMap((plan) => {
+    if (
+      !plan.next ||
+      (plan.operation !== "start" && plan.operation !== "replace")
+    ) {
+      return [];
+    }
+    return [
+      {
+        companyId: input.companyId,
+        decisionId: plan.decisionId,
+        affectedItemId: plan.next.affectedItemId,
+        affectedItemSourceId: plan.next.affectedItemSourceId,
+        affectedItemLabel: plan.next.affectedItemLabel,
+        startedAt: now,
+        startedBy: input.userId,
+        createdBy: input.userId,
+        createdAt: now
+      }
+    ];
+  });
+  if (starts.length > 0) {
+    await trx
+      .insertInto("changeOrderImpactDecisionAffectedItem")
+      .values(starts)
+      .execute();
+  }
+
+  const historyRows: Database["public"]["Tables"]["changeOrderImpactDecisionHistory"]["Insert"][] =
+    [];
+  for (const plan of changedPlans) {
+    const decision = decisionsById.get(plan.decisionId);
+    if (!decision) {
+      throw new ImpactMutationRejected(
+        "Impact provenance decision identity is inconsistent."
+      );
+    }
+    if (plan.previous && plan.endReason) {
+      historyRows.push(
+        impactReconciliationHistoryRow({
+          decision,
+          companyId: input.companyId,
+          userId: input.userId,
+          now,
+          eventType: "Provenance ended",
+          rationale: plan.endReason,
+          relatedAffectedItemId: plan.previous.affectedItemId
+        })
+      );
+    }
+    if (
+      plan.next &&
+      (plan.operation === "start" || plan.operation === "replace")
+    ) {
+      historyRows.push(
+        impactReconciliationHistoryRow({
+          decision,
+          companyId: input.companyId,
+          userId: input.userId,
+          now,
+          eventType: "Provenance started",
+          rationale: IMPACT_PROVENANCE_STARTED_REASON,
+          relatedAffectedItemId: plan.next.affectedItemId
+        })
+      );
+    }
+  }
+
+  if (historyRows.length > 0) {
+    await trx
+      .insertInto("changeOrderImpactDecisionHistory")
+      .values(historyRows)
+      .execute();
+  }
+
+  return { started: starts.length, ended };
+}
+
+/**
+ * Reconcile persisted affected-item provenance for existing Impact decisions.
+ *
+ * This is deliberately narrower than assessment/reassessment: it never updates
+ * the decision row, snapshot, conclusion, revision, or decision audit fields.
+ * A complete exact source lookup may end an open interval when its source is
+ * deleted or no longer matches current Change Notice scope. Cancelled notices
+ * are end-only; they never start or replace a relationship.
+ */
+export async function reconcileChangeNoticeImpactProvenance(
+  db: Kysely<KyselyDatabase>,
+  input: ChangeNoticeImpactProvenanceReconciliationInput
+): Promise<ChangeNoticeImpactProvenanceReconciliationResult> {
+  if (!isImpactRecord(input)) {
+    return impactMutationFailure(
+      "Impact provenance reconciliation input is invalid."
+    );
+  }
+  if (
+    typeof input.companyId !== "string" ||
+    input.companyId.length === 0 ||
+    typeof input.userId !== "string" ||
+    input.userId.length === 0 ||
+    typeof input.changeNoticeId !== "string" ||
+    input.changeNoticeId.length === 0
+  ) {
+    return impactMutationFailure(
+      "Impact provenance reconciliation identity is required."
+    );
+  }
+
+  const accessibleTypes = impactReconciliationAccessTypes(input.sourceAccess);
+  if (!accessibleTypes) {
+    return impactMutationFailure("Impact source access is invalid.");
+  }
+  const restrictedTargetTypes = changeNoticeImpactTargetTypes.filter(
+    (targetType) => !accessibleTypes.includes(targetType)
+  );
+
+  try {
+    return await db.transaction().execute(async (trx) => {
+      const changeNotice = await trx
+        .selectFrom("changeOrder")
+        .select(["id", "companyId", "status"])
+        .where("id", "=", input.changeNoticeId)
+        .where("companyId", "=", input.companyId)
+        .forUpdate()
+        .executeTakeFirst();
+      if (!changeNotice) {
+        throw new ImpactMutationRejected("Change notice not found.");
+      }
+
+      const endOnly = changeNotice.status === "Cancelled";
+      if (!endOnly && !changeNoticeStageFlow.includes(changeNotice.status)) {
+        throw new ImpactMutationRejected(
+          "Change Notice lifecycle does not allow Impact provenance reconciliation."
+        );
+      }
+
+      if (accessibleTypes.length === 0) {
+        return {
+          data: {
+            changeNoticeId: input.changeNoticeId,
+            changeNoticeStatus: changeNotice.status,
+            started: 0,
+            ended: 0,
+            restrictedTargetTypes
+          },
+          error: null
+        } satisfies ChangeNoticeImpactProvenanceReconciliationResult;
+      }
+
+      const decisionRows = await trx
+        .selectFrom("changeOrderImpactDecision")
+        .select([
+          "id",
+          "companyId",
+          "changeNoticeId",
+          "targetType",
+          "targetId",
+          "decisionStatus",
+          "noActionReasonCode",
+          "rationale",
+          "resolutionNote",
+          "assessmentSnapshot"
+        ])
+        .where("companyId", "=", input.companyId)
+        .where("changeNoticeId", "=", input.changeNoticeId)
+        .where("targetType", "in", accessibleTypes)
+        .orderBy("targetType", "asc")
+        .orderBy("targetId", "asc")
+        .forUpdate()
+        .execute();
+
+      const decisions: ImpactReconciliationDecision[] = [];
+      const decisionsById = new Map<string, ImpactReconciliationDecision>();
+      const decisionsByTarget = new Map<string, ImpactReconciliationDecision>();
+      for (const row of decisionRows) {
+        const id = impactPersistedRequiredString(row.id, "decision.id");
+        const targetId = impactPersistedRequiredString(
+          row.targetId,
+          "decision.targetId"
+        );
+        if (
+          !id.ok ||
+          !targetId.ok ||
+          row.companyId !== input.companyId ||
+          row.changeNoticeId !== input.changeNoticeId
+        ) {
+          throw new ImpactMutationRejected(
+            "Stored Impact decision identity is inconsistent."
+          );
+        }
+        if (!impactIn(row.targetType, changeNoticeImpactTargetTypes)) {
+          throw new ImpactMutationRejected(
+            "Stored Impact decision type is unsupported."
+          );
+        }
+        if (!accessibleTypes.includes(row.targetType)) {
+          throw new ImpactMutationRejected(
+            "Impact source access is restricted for this target."
+          );
+        }
+        if (!impactIn(row.decisionStatus, changeNoticeImpactDecisionStatuses)) {
+          throw new ImpactMutationRejected(
+            "Stored Impact decision has an unsupported status."
+          );
+        }
+        if (row.decisionStatus === "No action required") {
+          if (
+            !impactIn(
+              row.noActionReasonCode,
+              changeNoticeImpactNoActionReasonCodes
+            )
+          ) {
+            throw new ImpactMutationRejected(
+              "Stored Impact decision has an unsupported No Action reason."
+            );
+          }
+        } else if (row.noActionReasonCode !== null) {
+          throw new ImpactMutationRejected(
+            "Stored Impact decision has an invalid No Action reason."
+          );
+        }
+        if (
+          decisionsById.has(id.value) ||
+          decisionsByTarget.has(impactTargetKey(row.targetType, targetId.value))
+        ) {
+          throw new ImpactMutationRejected(
+            "Stored Impact decisions contain a duplicate identity."
+          );
+        }
+
+        const decision: ImpactReconciliationDecision = {
+          id: id.value,
+          companyId: row.companyId,
+          changeNoticeId: row.changeNoticeId,
+          targetType: row.targetType,
+          targetId: targetId.value,
+          decisionStatus: row.decisionStatus,
+          noActionReasonCode: row.noActionReasonCode,
+          rationale: row.rationale,
+          resolutionNote: row.resolutionNote,
+          assessmentSnapshot: row.assessmentSnapshot
+        };
+        decisions.push(decision);
+        decisionsById.set(decision.id, decision);
+        decisionsByTarget.set(
+          impactTargetKey(decision.targetType, decision.targetId),
+          decision
+        );
+      }
+
+      if (decisions.length === 0) {
+        return {
+          data: {
+            changeNoticeId: input.changeNoticeId,
+            changeNoticeStatus: changeNotice.status,
+            started: 0,
+            ended: 0,
+            restrictedTargetTypes
+          },
+          error: null
+        } satisfies ChangeNoticeImpactProvenanceReconciliationResult;
+      }
+
+      const affectedRows = await trx
+        .selectFrom("changeOrderAffectedItem")
+        .select(["id", "companyId", "changeOrderId", "itemId"])
+        .where("companyId", "=", input.companyId)
+        .where("changeOrderId", "=", input.changeNoticeId)
+        .orderBy("id", "asc")
+        .forUpdate()
+        .execute();
+      const affectedByItemId = new Map<
+        string,
+        ImpactReconciliationAffectedItem
+      >();
+      const affectedIds = new Set<string>();
+      for (const row of affectedRows) {
+        const id = impactPersistedRequiredString(row.id, "affectedItem.id");
+        const itemId = impactPersistedRequiredString(
+          row.itemId,
+          "affectedItem.itemId"
+        );
+        if (
+          !id.ok ||
+          !itemId.ok ||
+          row.companyId !== input.companyId ||
+          row.changeOrderId !== input.changeNoticeId
+        ) {
+          throw new ImpactMutationRejected(
+            "Current Change Notice scope is unavailable."
+          );
+        }
+        if (affectedIds.has(id.value) || affectedByItemId.has(itemId.value)) {
+          throw new ImpactMutationRejected(
+            "Change Notice has more than one current affected-item cause."
+          );
+        }
+        const affected: ImpactReconciliationAffectedItem = {
+          id: id.value,
+          companyId: row.companyId,
+          changeOrderId: row.changeOrderId,
+          itemId: itemId.value
+        };
+        affectedIds.add(affected.id);
+        affectedByItemId.set(affected.itemId, affected);
+      }
+
+      const provenanceRows =
+        decisions.length === 0
+          ? []
+          : ((await trx
+              .selectFrom("changeOrderImpactDecisionAffectedItem")
+              .select([
+                "id",
+                "companyId",
+                "decisionId",
+                "affectedItemId",
+                "affectedItemSourceId",
+                "affectedItemLabel",
+                "endedAt"
+              ])
+              .where("companyId", "=", input.companyId)
+              .where(
+                "decisionId",
+                "in",
+                decisions.map((decision) => decision.id)
+              )
+              .orderBy("decisionId", "asc")
+              .orderBy("startedAt", "asc")
+              .orderBy("id", "asc")
+              .forUpdate()
+              .execute()) as unknown as ImpactReconciliationProvenance[]);
+      const provenanceByDecision = new Map<
+        string,
+        ImpactReconciliationProvenance[]
+      >();
+      const provenanceIds = new Set<string>();
+      for (const row of provenanceRows) {
+        const id = impactPersistedRequiredString(row.id, "provenance.id");
+        const decisionId = impactPersistedRequiredString(
+          row.decisionId,
+          "provenance.decisionId"
+        );
+        const affectedItemId = impactPersistedRequiredString(
+          row.affectedItemId,
+          "provenance.affectedItemId"
+        );
+        const sourceId = impactPersistedRequiredString(
+          row.affectedItemSourceId,
+          "provenance.affectedItemSourceId"
+        );
+        if (!id.ok || !decisionId.ok || !affectedItemId.ok || !sourceId.ok) {
+          throw new ImpactMutationRejected(
+            "Stored Impact provenance identity is inconsistent."
+          );
+        }
+        if (
+          !decisionsById.has(decisionId.value) ||
+          provenanceIds.has(id.value) ||
+          row.companyId !== input.companyId
+        ) {
+          throw new ImpactMutationRejected(
+            "Stored Impact provenance identity is inconsistent."
+          );
+        }
+        provenanceIds.add(id.value);
+        const provenance: ImpactReconciliationProvenance = {
+          id: id.value,
+          companyId: row.companyId,
+          decisionId: decisionId.value,
+          affectedItemId: affectedItemId.value,
+          affectedItemSourceId: sourceId.value,
+          affectedItemLabel: row.affectedItemLabel,
+          endedAt: row.endedAt
+        };
+        const rowsForDecision =
+          provenanceByDecision.get(decisionId.value) ?? [];
+        rowsForDecision.push(provenance);
+        provenanceByDecision.set(decisionId.value, rowsForDecision);
+      }
+
+      for (const decision of decisions) {
+        const openRows = (provenanceByDecision.get(decision.id) ?? []).filter(
+          (row) => row.endedAt === null || row.endedAt === undefined
+        );
+        if (openRows.length > 1) {
+          throw new ImpactMutationRejected(
+            "Impact decision has more than one current provenance cause."
+          );
+        }
+      }
+
+      const labels = await readImpactReconciliationItemLabels(
+        trx,
+        [...affectedByItemId.keys()],
+        input.companyId
+      );
+      const sourcesByTarget = new Map<string, ImpactReconciliationSource>();
+      for (const targetType of accessibleTypes) {
+        const targetIds = decisions
+          .filter((decision) => decision.targetType === targetType)
+          .map((decision) => decision.targetId);
+        const sources = await readImpactReconciliationSources(
+          trx,
+          targetType,
+          targetIds,
+          input.companyId
+        );
+        for (const source of sources) {
+          sourcesByTarget.set(impactTargetKey(targetType, source.id), source);
+        }
+      }
+
+      const currentAffectedItems = [...affectedByItemId.values()].map(
+        (affectedItem) => ({
+          id: affectedItem.id,
+          itemId: affectedItem.itemId,
+          label: labels.get(affectedItem.itemId) ?? null
+        })
+      );
+      const plans = decisions.map((decision) => {
+        const open = (provenanceByDecision.get(decision.id) ?? []).find(
+          (row) => row.endedAt === null || row.endedAt === undefined
+        );
+        return planChangeNoticeImpactProvenanceReconciliation({
+          decision: {
+            decisionId: decision.id,
+            targetType: decision.targetType,
+            targetId: decision.targetId
+          },
+          currentProvenance: open
+            ? {
+                id: open.id,
+                affectedItemId: open.affectedItemId,
+                affectedItemSourceId: open.affectedItemSourceId
+              }
+            : null,
+          currentSourceItemId:
+            sourcesByTarget.get(
+              impactTargetKey(decision.targetType, decision.targetId)
+            )?.itemId ?? null,
+          currentAffectedItems,
+          endOnly
+        });
+      });
+
+      const counts = await applyImpactProvenanceReconciliation(
+        trx,
+        input,
+        decisionsById,
+        plans
+      );
+
+      return {
+        data: {
+          changeNoticeId: input.changeNoticeId,
+          changeNoticeStatus: changeNotice.status,
+          ...counts,
+          restrictedTargetTypes
+        },
+        error: null
+      } satisfies ChangeNoticeImpactProvenanceReconciliationResult;
+    });
+  } catch (cause) {
+    if (!(cause instanceof ImpactMutationRejected)) {
+      logger.error("Failed to reconcile Change Notice Impact provenance", {
+        error: cause,
+        companyId: input.companyId,
+        changeNoticeId: input.changeNoticeId
       });
     }
     return impactMutationFailure(impactMutationErrorMessage(cause));

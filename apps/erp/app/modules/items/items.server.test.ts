@@ -23,6 +23,7 @@ const {
   deriveChangeNoticeImpactSourceAccess,
   getChangeNoticeImpactMutationAccess,
   getChangeNoticeImpactSourceAccess,
+  reconcileAuthorizedChangeNoticeImpactProvenance,
   getLockVerdict,
   LOCKED_REVISION_MESSAGE,
   getUnreleasedChangeOrderItems,
@@ -185,6 +186,20 @@ describe("Change Notice Impact source access", () => {
         }
       })
     );
+  });
+
+  it("fails authorized reconciliation before opening the database when claims fail", async () => {
+    vi.mocked(getUserClaims).mockRejectedValue(new Error("claims unavailable"));
+    await expect(
+      reconcileAuthorizedChangeNoticeImpactProvenance({
+        userId: "user-1",
+        companyId,
+        changeNoticeId: "notice-1"
+      })
+    ).resolves.toEqual({
+      data: null,
+      error: { message: "Impact mutation access could not be established." }
+    });
   });
 });
 

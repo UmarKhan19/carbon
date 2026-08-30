@@ -6,10 +6,10 @@
 `5089ee75ee332ef22d74ebd8e230f4bbfb0c9221`
 
 **Review scope:** This is the canonical product and architecture baseline. The
-committed Slice 2A first-assessment and narrow Slice 2B existing-decision write
-slices, and the current focused Slice 2C existing-resolution work are tracked in the
-implementation and focused tests; the remaining unchecked items below are still
-future work.
+committed Slice 2A first-assessment, narrow Slice 2B existing-decision write, focused
+Slice 2C existing-resolution, and Slice 2D explicit provenance-reconciliation work are
+tracked in the implementation and focused tests; the remaining unchecked items below
+are still future work.
 
 The previous plan defended the feature against arbitrary SQL written by Carbon's own
 service-role/Kysely backend. Current Carbon does not use that trust model. This plan
@@ -20,7 +20,8 @@ security architecture that was built only for the withdrawn threat.
 
 - [x] Add the four Impact-owned tables, task origin, standard RLS, constraints, and indexes.
 - [x] Add fixed target contracts, source-aware candidate reads, coverage, and snapshots.
-- [ ] Add the remaining transactional decisions, provenance, reassessment history, and CAS checks (Slice 2A first assessments, the narrow Slice 2B existing-decision writes, and Slice 2C existing Action Required resolution are implemented; explicit refresh/read reconciliation and bulk operations remain deferred).
+- [ ] Add the remaining transactional decisions, provenance, reassessment history, and CAS checks (Slice 2A first assessments, the narrow Slice 2B existing-decision writes, Slice 2C existing Action Required resolution, and Slice 2D explicit provenance reconciliation are implemented; bulk operations remain deferred).
+- [x] Add explicit authorized Slice 2D provenance reconciliation with source-aware, lifecycle-safe interval/history writes.
 - [ ] Integrate task origin, many-to-many links, lifecycle guards, MCP, and integrations.
 - [ ] Build the read-only document-first workspace.
 - [ ] Add decision, reassessment, resolution, task, and bulk UX.
@@ -1104,7 +1105,8 @@ have no N+1 loops.
 ### Slice 2: decision ledger and feature history
 
 Add decision create/reassess/resolve/correct, provenance reconciliation, CAS, history,
-explicit refresh, and bulk transaction helpers.
+explicit refresh, and bulk transaction helpers. Slice 2D now provides the explicit
+server-authorized refresh boundary for persisted provenance; bulk remains deferred.
 
 Exit condition: decision, provenance, and history writes are atomic and source-aware.
 

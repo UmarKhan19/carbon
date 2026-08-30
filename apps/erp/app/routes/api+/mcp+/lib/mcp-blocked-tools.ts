@@ -51,6 +51,7 @@ export const MCP_BLOCKED_TOOL_NAMES: readonly string[] = [
   // Impact service boundaries require application-level authorization. Expose them
   // later through a permission-aware MCP adapter, not the generic executor.
   "items_writeChangeNoticeImpactDecision",
+  "items_reconcileChangeNoticeImpactProvenance",
   "items_getChangeNoticeImpactCandidates",
   "items_removeChangeNoticeAffectedItem",
   // These helpers are internal implementation details, not MCP contracts. Without
