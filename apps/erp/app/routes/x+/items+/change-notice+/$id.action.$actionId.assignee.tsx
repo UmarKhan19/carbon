@@ -5,8 +5,8 @@ import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import {
-  changeNoticeActionStatusValidator,
-  updateChangeNoticeActionStatus
+  changeNoticeActionAssigneeValidator,
+  updateChangeNoticeActionAssignee
 } from "~/modules/items";
 import { requireChangeNoticeActionTaskEditable } from "~/modules/items/items.server";
 
@@ -16,20 +16,17 @@ export async function action({ request, params }: ActionFunctionArgs) {
     update: "parts"
   });
 
-  const changeNoticeId = params.id;
+  const { id: changeNoticeId, actionId } = params;
   if (!changeNoticeId) throw new Error("Could not find id");
+  if (!actionId) throw new Error("Could not find actionId");
 
-  const formData = await request.formData();
   const validation = await validator(
-    changeNoticeActionStatusValidator
-  ).validate(formData);
+    changeNoticeActionAssigneeValidator
+  ).validate(await request.formData());
+  if (validation.error) return validationError(validation.error);
 
-  if (validation.error) {
-    return validationError(validation.error);
-  }
-
-  const { id, status } = validation.data;
-  if (id !== params.actionId) {
+  const { id, assignee } = validation.data;
+  if (id !== actionId) {
     return data(
       { success: false },
       await flash(request, error("Invalid action ID", "Invalid action ID"))
@@ -37,7 +34,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   const editable = await requireChangeNoticeActionTaskEditable(client, {
-    actionTaskId: id,
+    actionTaskId: actionId,
     changeNoticeId,
     companyId
   });
@@ -48,18 +45,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
-  const update = await updateChangeNoticeActionStatus(client, {
-    id,
+  const update = await updateChangeNoticeActionAssignee(client, {
+    id: actionId,
     changeNoticeId,
     companyId,
-    status,
+    assignee: assignee || null,
     userId
   });
 
   if (update.error) {
     return data(
       { success: false },
-      await flash(request, error(update.error, "Failed to update status"))
+      await flash(request, error(update.error, "Failed to update assignee"))
     );
   }
 

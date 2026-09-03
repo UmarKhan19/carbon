@@ -7406,28 +7406,116 @@ export async function updateChangeNoticeActionStatus(
   client: SupabaseClient<Database>,
   input: {
     id: string;
+    changeNoticeId: string;
+    companyId: string;
     status: (typeof changeNoticeTaskStatus)[number];
     userId: string;
   }
 ) {
-  const today = new Date().toISOString().split("T")[0];
+  const completedDate =
+    input.status === "Completed"
+      ? datetime
+          .today(await getCompanyTimeZone(client, input.companyId))
+          .toString()
+      : null;
+
   return client
     .from("changeOrderActionTask")
     .update({
       status: input.status,
-      completedDate: input.status === "Completed" ? today : null,
-      updatedBy: input.userId
+      completedDate,
+      updatedBy: input.userId,
+      updatedAt: datetime.timestamp()
     })
     .eq("id", input.id)
+    .eq("changeOrderId", input.changeNoticeId)
+    .eq("companyId", input.companyId)
+    .select("id")
+    .single();
+}
+
+export async function updateChangeNoticeActionNotes(
+  client: SupabaseClient<Database>,
+  input: {
+    id: string;
+    changeNoticeId: string;
+    companyId: string;
+    notes: Json;
+    userId: string;
+  }
+) {
+  return client
+    .from("changeOrderActionTask")
+    .update({
+      notes: input.notes,
+      updatedBy: input.userId,
+      updatedAt: datetime.timestamp()
+    })
+    .eq("id", input.id)
+    .eq("changeOrderId", input.changeNoticeId)
+    .eq("companyId", input.companyId)
+    .select("id")
+    .single();
+}
+
+export async function updateChangeNoticeActionAssignee(
+  client: SupabaseClient<Database>,
+  input: {
+    id: string;
+    changeNoticeId: string;
+    companyId: string;
+    assignee: string | null;
+    userId: string;
+  }
+) {
+  return client
+    .from("changeOrderActionTask")
+    .update({
+      assignee: input.assignee,
+      updatedBy: input.userId,
+      updatedAt: datetime.timestamp()
+    })
+    .eq("id", input.id)
+    .eq("changeOrderId", input.changeNoticeId)
+    .eq("companyId", input.companyId)
+    .select("id")
+    .single();
+}
+
+export async function updateChangeNoticeActionDueDate(
+  client: SupabaseClient<Database>,
+  input: {
+    id: string;
+    changeNoticeId: string;
+    companyId: string;
+    dueDate: string | null;
+    userId: string;
+  }
+) {
+  return client
+    .from("changeOrderActionTask")
+    .update({
+      dueDate: input.dueDate,
+      updatedBy: input.userId,
+      updatedAt: datetime.timestamp()
+    })
+    .eq("id", input.id)
+    .eq("changeOrderId", input.changeNoticeId)
+    .eq("companyId", input.companyId)
     .select("id")
     .single();
 }
 
 export async function deleteChangeNoticeAction(
   client: SupabaseClient<Database>,
-  id: string
+  input: { id: string; changeNoticeId: string; companyId: string }
 ) {
-  return client.from("changeOrderActionTask").delete().eq("id", id);
+  return client
+    .from("changeOrderActionTask")
+    .delete()
+    .eq("id", input.id)
+    .eq("changeOrderId", input.changeNoticeId)
+    .eq("companyId", input.companyId);
 }
 
 // Bulk reorder (drag-sort) — a multi-row write, so Kysely (route passes
@@ -7555,13 +7643,16 @@ export async function deleteChangeNoticeRequiredAction(
     .eq("companyId", companyId);
 }
 
+const TEMPLATE_OWNED_ACTION_TASK_ORIGIN = "Template-owned" as const;
+
 // Reconcile a change notice's action tasks to a chosen set of required-action
 // templates — the sidebar's editable "Required Actions" multiselect (mirrors
 // Quality's requiredActionIds field). Templates newly selected are instantiated
-// (appended); templates deselected have their task removed. Tasks with no
-// template link (actionTypeId IS NULL) are left untouched.
+// (appended); template-owned tasks that are deselected are removed. Manual and
+// Impact follow-up tasks survive regardless of actionTypeId. This is a trusted
+// Kysely transaction because PostgREST callers may only assign the Manual origin.
 export async function setChangeNoticeActionTasks(
-  client: SupabaseClient<Database>,
+  db: Kysely<KyselyDatabase>,
   input: {
     changeNoticeId: string;
     requiredActionIds: string[];
@@ -7569,81 +7660,112 @@ export async function setChangeNoticeActionTasks(
     userId: string;
   }
 ) {
-  const existing = await client
-    .from("changeOrderActionTask")
-    .select("id, actionTypeId, sortOrder")
-    .eq("changeOrderId", input.changeNoticeId)
-    .eq("companyId", input.companyId);
-  if (existing.error) return existing;
+  return db.transaction().execute(async (trx) => {
+    const existing = await trx
+      .selectFrom("changeOrderActionTask")
+      .select(["id", "actionTypeId", "taskOrigin", "sortOrder"])
+      .where("changeOrderId", "=", input.changeNoticeId)
+      .where("companyId", "=", input.companyId)
+      .execute();
 
-  const rows = existing.data ?? [];
-  const desired = new Set(input.requiredActionIds);
-  const linked = new Set(
-    rows.map((r) => r.actionTypeId).filter((id): id is string => Boolean(id))
-  );
-
-  const toRemove = rows
-    .filter((r) => r.actionTypeId && !desired.has(r.actionTypeId))
-    .map((r) => r.id);
-  if (toRemove.length > 0) {
-    const del = await client
-      .from("changeOrderActionTask")
-      .delete()
-      .in("id", toRemove);
-    if (del.error) return del;
-  }
-
-  const toAddIds = input.requiredActionIds.filter((id) => !linked.has(id));
-  if (toAddIds.length > 0) {
-    const templates = await client
-      .from("changeOrderRequiredAction")
-      .select("id, name")
-      .in("id", toAddIds)
-      .eq("companyId", input.companyId);
-    if (templates.error) return templates;
-
-    const base = rows.reduce((max, r) => Math.max(max, r.sortOrder ?? 0), 0);
-    const ins = await client.from("changeOrderActionTask").insert(
-      (templates.data ?? []).map((template, index) => ({
-        changeOrderId: input.changeNoticeId,
-        actionTypeId: template.id,
-        name: template.name,
-        status: "Pending" as const,
-        sortOrder: base + index + 1,
-        companyId: input.companyId,
-        createdBy: input.userId
-      }))
+    const rows = existing;
+    const requestedIds = Array.from(new Set(input.requiredActionIds));
+    const desired = new Set(requestedIds);
+    const linked = new Set(
+      rows.map((r) => r.actionTypeId).filter((id): id is string => Boolean(id))
     );
-    if (ins.error) return ins;
-  }
 
-  return { data: null, error: null };
+    const toRemove = rows
+      .filter(
+        (row) =>
+          row.taskOrigin === TEMPLATE_OWNED_ACTION_TASK_ORIGIN &&
+          row.actionTypeId !== null &&
+          !desired.has(row.actionTypeId)
+      )
+      .map((row) => row.id);
+
+    if (toRemove.length > 0) {
+      await trx
+        .deleteFrom("changeOrderActionTask")
+        .where("id", "in", toRemove)
+        .where("changeOrderId", "=", input.changeNoticeId)
+        .where("companyId", "=", input.companyId)
+        .execute();
+    }
+
+    const toAddIds = requestedIds.filter((id) => !linked.has(id));
+    if (toAddIds.length > 0) {
+      const templates = await trx
+        .selectFrom("changeOrderRequiredAction")
+        .select(["id", "name"])
+        .where("id", "in", toAddIds)
+        .where("companyId", "=", input.companyId)
+        .execute();
+      const templatesById = new Map(
+        templates.map((template) => [template.id, template])
+      );
+      const base = rows.reduce(
+        (max, row) => Math.max(max, row.sortOrder ?? 0),
+        0
+      );
+      const values = toAddIds
+        .map((id) => templatesById.get(id))
+        .filter((template): template is { id: string; name: string } =>
+          Boolean(template)
+        )
+        .map((template, index) => ({
+          changeOrderId: input.changeNoticeId,
+          actionTypeId: template.id,
+          name: template.name,
+          status: "Pending" as const,
+          sortOrder: base + index + 1,
+          companyId: input.companyId,
+          createdBy: input.userId,
+          taskOrigin: TEMPLATE_OWNED_ACTION_TASK_ORIGIN
+        }));
+
+      if (values.length > 0) {
+        await trx.insertInto("changeOrderActionTask").values(values).execute();
+      }
+    }
+  });
 }
 
-// Instantiate one changeOrderActionTask per active template onto a new change
-// notice. Called by insertChangeNotice; non-gating, so callers ignore a soft
-// failure rather than roll back the change notice.
+// Instantiate one changeOrderActionTask per active template when this service is
+// used. Change Notice creation intentionally does not call it; the UI chooses
+// templates later. This trusted path explicitly marks every inserted task as
+// Template-owned.
 export async function seedDefaultChangeNoticeActions(
-  client: SupabaseClient<Database>,
+  db: Kysely<KyselyDatabase>,
   input: { changeNoticeId: string; companyId: string; userId: string }
 ) {
-  const templates = await getChangeNoticeRequiredActionsList(
-    client,
-    input.companyId
-  );
-  if (templates.error || !templates.data?.length) return templates;
+  return db.transaction().execute(async (trx) => {
+    const templates = await trx
+      .selectFrom("changeOrderRequiredAction")
+      .select(["id", "name"])
+      .where("companyId", "=", input.companyId)
+      .where("active", "=", true)
+      .orderBy("name", "asc")
+      .execute();
 
-  return client.from("changeOrderActionTask").insert(
-    templates.data.map((template, index) => ({
-      changeOrderId: input.changeNoticeId,
-      actionTypeId: template.id,
-      name: template.name,
-      status: "Pending" as const,
-      sortOrder: index + 1,
-      companyId: input.companyId,
-      createdBy: input.userId
-    }))
-  );
+    if (templates.length === 0) return;
+
+    await trx
+      .insertInto("changeOrderActionTask")
+      .values(
+        templates.map((template, index) => ({
+          changeOrderId: input.changeNoticeId,
+          actionTypeId: template.id,
+          name: template.name,
+          status: "Pending" as const,
+          sortOrder: index + 1,
+          companyId: input.companyId,
+          createdBy: input.userId,
+          taskOrigin: TEMPLATE_OWNED_ACTION_TASK_ORIGIN
+        }))
+      )
+      .execute();
+  });
 }
 
 // =============================================================================

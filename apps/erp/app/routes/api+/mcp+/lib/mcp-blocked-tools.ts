@@ -65,7 +65,18 @@ export const MCP_BLOCKED_TOOL_NAMES: readonly string[] = [
   "items_classifyJobImpactEligibility",
   "items_classifyJobMaterialImpactEligibility",
   "items_deriveChangeNoticeImpactProvenance",
-  "items_compareChangeNoticeImpactSnapshot"
+  "items_compareChangeNoticeImpactSnapshot",
+  // Change Notice action-task mutators are route-guarded (and some use the
+  // trusted Kysely boundary); the generic MCP executor must not bypass task
+  // lifecycle, workflow, and parent-scope checks.
+  "items_updateChangeNoticeActionStatus",
+  "items_deleteChangeNoticeAction",
+  "items_updateChangeNoticeActionOrder",
+  "items_setChangeNoticeActionTasks",
+  "items_seedDefaultChangeNoticeActions",
+  "items_updateChangeNoticeActionNotes",
+  "items_updateChangeNoticeActionAssignee",
+  "items_updateChangeNoticeActionDueDate"
 ];
 
 export function isMcpBlockedTool(name: string): boolean {

@@ -1,12 +1,13 @@
 import { assertIsPost, error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import type { Json } from "@carbon/database";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import {
-  changeNoticeActionStatusValidator,
-  updateChangeNoticeActionStatus
+  changeNoticeActionNotesValidator,
+  updateChangeNoticeActionNotes
 } from "~/modules/items";
 import { requireChangeNoticeActionTaskEditable } from "~/modules/items/items.server";
 
@@ -16,20 +17,17 @@ export async function action({ request, params }: ActionFunctionArgs) {
     update: "parts"
   });
 
-  const changeNoticeId = params.id;
+  const { id: changeNoticeId, actionId } = params;
   if (!changeNoticeId) throw new Error("Could not find id");
+  if (!actionId) throw new Error("Could not find actionId");
 
-  const formData = await request.formData();
-  const validation = await validator(
-    changeNoticeActionStatusValidator
-  ).validate(formData);
+  const validation = await validator(changeNoticeActionNotesValidator).validate(
+    await request.formData()
+  );
+  if (validation.error) return validationError(validation.error);
 
-  if (validation.error) {
-    return validationError(validation.error);
-  }
-
-  const { id, status } = validation.data;
-  if (id !== params.actionId) {
+  const { id, notes: notesJson } = validation.data;
+  if (id !== actionId) {
     return data(
       { success: false },
       await flash(request, error("Invalid action ID", "Invalid action ID"))
@@ -37,7 +35,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   const editable = await requireChangeNoticeActionTaskEditable(client, {
-    actionTaskId: id,
+    actionTaskId: actionId,
     changeNoticeId,
     companyId
   });
@@ -48,18 +46,35 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
-  const update = await updateChangeNoticeActionStatus(client, {
-    id,
+  let notes: Json;
+  try {
+    notes = JSON.parse(notesJson) as Json;
+  } catch (cause) {
+    return data(
+      { success: false },
+      await flash(request, error(cause, "Invalid notes"))
+    );
+  }
+
+  if (notes === null || typeof notes !== "object" || Array.isArray(notes)) {
+    return data(
+      { success: false },
+      await flash(request, error(null, "Invalid notes"))
+    );
+  }
+
+  const update = await updateChangeNoticeActionNotes(client, {
+    id: actionId,
     changeNoticeId,
     companyId,
-    status,
+    notes,
     userId
   });
 
   if (update.error) {
     return data(
       { success: false },
-      await flash(request, error(update.error, "Failed to update status"))
+      await flash(request, error(update.error, "Failed to update notes"))
     );
   }
 

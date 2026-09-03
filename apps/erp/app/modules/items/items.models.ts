@@ -1071,6 +1071,14 @@ export const changeNoticeTaskStatus = [
   "Skipped"
 ] as const;
 
+export const changeNoticeActionTaskOrigins = [
+  "Template-owned",
+  "Manual",
+  "Impact follow-up"
+] as const;
+export type ChangeNoticeActionTaskOrigin =
+  (typeof changeNoticeActionTaskOrigins)[number];
+
 // =============================================================================
 // Change Notice Operational Impact — Slice 1 contracts.
 //
@@ -2041,11 +2049,36 @@ export function changeNoticeLockedMessage(status: string | null | undefined) {
     : "This change notice is closed, so its changes are read-only.";
 }
 
-// Workflow content — action tasks, assignee, dates, priority. Editable until closed.
+// Workflow operations — adding, reconciling, reordering, and deleting tasks —
+// remain editable until the Change Notice is closed.
 export function canEditChangeNoticeWorkflow(
   status: string | null | undefined
 ): boolean {
   return !isChangeNoticeLocked(status);
+}
+
+// Task fields have a separate lifecycle from workflow operations such as adding,
+// reconciling, reordering, and deleting tasks. Only an Impact follow-up keeps its
+// fields editable after the Change Notice is Done or Cancelled.
+export function canEditChangeNoticeActionTaskFields(
+  status: string | null | undefined,
+  taskOrigin: string | null | undefined
+): boolean {
+  if (
+    !changeNoticeStatus.includes(status as (typeof changeNoticeStatus)[number])
+  ) {
+    return false;
+  }
+
+  if (
+    !changeNoticeActionTaskOrigins.includes(
+      taskOrigin as (typeof changeNoticeActionTaskOrigins)[number]
+    )
+  ) {
+    return false;
+  }
+
+  return !isChangeNoticeLocked(status) || taskOrigin === "Impact follow-up";
 }
 
 // -----------------------------------------------------------------------------
@@ -2136,6 +2169,21 @@ export const changeNoticeAffectedItemCutoverValidator = z.object({
 export const changeNoticeActionStatusValidator = z.object({
   id: z.string().min(1, { message: "Id is required" }),
   status: z.enum(changeNoticeTaskStatus)
+});
+
+export const changeNoticeActionNotesValidator = z.object({
+  id: z.string().min(1, { message: "Id is required" }),
+  notes: zfd.text(z.string().min(1, { message: "Notes are required" }))
+});
+
+export const changeNoticeActionAssigneeValidator = z.object({
+  id: z.string().min(1, { message: "Id is required" }),
+  assignee: zfd.text(z.string().optional())
+});
+
+export const changeNoticeActionDueDateValidator = z.object({
+  id: z.string().min(1, { message: "Id is required" }),
+  dueDate: zfd.text(z.string().optional())
 });
 
 // Configurable default actions (changeOrderRequiredAction templates) — the

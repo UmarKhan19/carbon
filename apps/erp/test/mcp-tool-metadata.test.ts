@@ -32,7 +32,7 @@ describe("mcp tool-metadata generator", () => {
     expect(metadata.totalTools).toBe(tools.length);
   });
 
-  it("keeps raw Impact service boundaries and helpers out of generic MCP metadata", () => {
+  it("keeps raw Impact and Change Notice task mutators out of generic MCP metadata", () => {
     for (const name of [
       "items_writeChangeNoticeImpactDecision",
       "items_writeChangeNoticeImpactDecisions",
@@ -46,11 +46,21 @@ describe("mcp tool-metadata generator", () => {
       "items_classifyJobImpactEligibility",
       "items_classifyJobMaterialImpactEligibility",
       "items_deriveChangeNoticeImpactProvenance",
-      "items_compareChangeNoticeImpactSnapshot"
+      "items_compareChangeNoticeImpactSnapshot",
+      "items_updateChangeNoticeActionStatus",
+      "items_deleteChangeNoticeAction",
+      "items_updateChangeNoticeActionOrder",
+      "items_setChangeNoticeActionTasks",
+      "items_seedDefaultChangeNoticeActions",
+      "items_updateChangeNoticeActionNotes",
+      "items_updateChangeNoticeActionAssignee",
+      "items_updateChangeNoticeActionDueDate"
     ]) {
       expect(MCP_BLOCKED_TOOL_NAMES).toContain(name);
       expect(byName.has(name)).toBe(false);
     }
+
+    expect(byName.has("items_getChangeNoticeActions")).toBe(true);
   });
 
   // #2 — an array-of-objects service param publishes as an array, not an object.

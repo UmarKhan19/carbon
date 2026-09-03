@@ -25,6 +25,7 @@ import type {
   plmReleaseControl
 } from "./items.models";
 import {
+  canEditChangeNoticeActionTaskFields,
   canEditChangeNoticeEngineering,
   canEditChangeNoticeWorkflow,
   changeNoticeImpactDecisionBulkRequestValidator,
@@ -597,6 +598,64 @@ export async function requireChangeNoticeChildRoute(
       { success: false },
       await flash(request, error(row.error, message))
     );
+  }
+
+  return null;
+}
+
+// Existing action-task fields have their own lifecycle from workflow operations.
+// This guard owns only status, notes, assignee, and due-date edits; deletion,
+// template reconciliation, and reorder remain on their workflow guards.
+export async function requireChangeNoticeActionTaskEditable(
+  client: SupabaseClient<Database>,
+  args: {
+    companyId: string;
+    changeNoticeId: string;
+    actionTaskId: string;
+  }
+): Promise<{ error: { message: string }; data: null } | null> {
+  const [task, changeNotice] = await Promise.all([
+    client
+      .from("changeOrderActionTask")
+      .select("id, companyId, changeOrderId, taskOrigin")
+      .eq("id", args.actionTaskId)
+      .eq("changeOrderId", args.changeNoticeId)
+      .eq("companyId", args.companyId)
+      .maybeSingle(),
+    client
+      .from("changeOrder")
+      .select("id, companyId, status")
+      .eq("id", args.changeNoticeId)
+      .eq("companyId", args.companyId)
+      .maybeSingle()
+  ]);
+
+  if (
+    task.error ||
+    !task.data ||
+    task.data.companyId !== args.companyId ||
+    task.data.changeOrderId !== args.changeNoticeId ||
+    changeNotice.error ||
+    !changeNotice.data ||
+    changeNotice.data.id !== args.changeNoticeId ||
+    changeNotice.data.companyId !== args.companyId
+  ) {
+    return {
+      error: { message: "Could not find editable action task" },
+      data: null
+    };
+  }
+
+  if (
+    !canEditChangeNoticeActionTaskFields(
+      changeNotice.data.status,
+      task.data.taskOrigin
+    )
+  ) {
+    return {
+      error: { message: "This action task is read-only" },
+      data: null
+    };
   }
 
   return null;

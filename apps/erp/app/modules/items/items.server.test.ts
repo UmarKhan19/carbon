@@ -23,6 +23,7 @@ const {
   deriveChangeNoticeImpactSourceAccess,
   getChangeNoticeImpactMutationAccess,
   getChangeNoticeImpactSourceAccess,
+  requireChangeNoticeActionTaskEditable,
   reconcileAuthorizedChangeNoticeImpactProvenance,
   writeAuthorizedChangeNoticeImpactDecisions,
   getLockVerdict,
@@ -31,6 +32,7 @@ const {
   getUnreleasedChangeOrderIssue
 } = await import("./items.server");
 const { getUserClaims } = await import("@carbon/auth/users.server");
+const { canEditChangeNoticeActionTaskFields } = await import("./items.models");
 
 afterEach(() => {
   vi.mocked(getUserClaims).mockReset();
@@ -332,6 +334,189 @@ function fakeListClient(
 
 const companyId = "company_1";
 const args = { itemId: "item_1", companyId };
+
+function fakeEditableActionClient({
+  task,
+  changeNotice,
+  taskError = null,
+  changeNoticeError = null
+}: {
+  task: {
+    id: string;
+    companyId: string;
+    changeOrderId: string;
+    taskOrigin: string;
+  } | null;
+  changeNotice: {
+    id: string;
+    companyId: string;
+    status: string;
+  } | null;
+  taskError?: { message: string } | null;
+  changeNoticeError?: { message: string } | null;
+}) {
+  return {
+    from(table: string) {
+      const filters = new Map<string, string>();
+      const builder = {
+        select: () => builder,
+        eq: (column: string, value: string) => {
+          filters.set(column, value);
+          return builder;
+        },
+        maybeSingle: async () => {
+          if (table === "changeOrderActionTask") {
+            const matches =
+              task &&
+              task.id === filters.get("id") &&
+              task.changeOrderId === filters.get("changeOrderId") &&
+              task.companyId === filters.get("companyId");
+            return {
+              data: matches ? task : null,
+              error: taskError
+            };
+          }
+
+          const matches =
+            changeNotice &&
+            changeNotice.id === filters.get("id") &&
+            changeNotice.companyId === filters.get("companyId");
+          return {
+            data: matches
+              ? {
+                  id: changeNotice.id,
+                  companyId: changeNotice.companyId,
+                  status: changeNotice.status
+                }
+              : null,
+            error: changeNoticeError
+          };
+        }
+      };
+      return builder;
+    }
+  } as never;
+}
+
+describe("canEditChangeNoticeActionTaskFields", () => {
+  it("locks ordinary task fields after Done and Cancelled", () => {
+    for (const status of ["Done", "Cancelled"]) {
+      expect(
+        canEditChangeNoticeActionTaskFields(status, "Template-owned")
+      ).toBe(false);
+      expect(canEditChangeNoticeActionTaskFields(status, "Manual")).toBe(false);
+      expect(
+        canEditChangeNoticeActionTaskFields(status, "Impact follow-up")
+      ).toBe(true);
+    }
+  });
+
+  it("allows every known origin before terminal workflow statuses", () => {
+    for (const status of [
+      "Draft",
+      "Start",
+      "Engineering Complete",
+      "Implementation"
+    ]) {
+      for (const origin of ["Template-owned", "Manual", "Impact follow-up"]) {
+        expect(canEditChangeNoticeActionTaskFields(status, origin)).toBe(true);
+      }
+    }
+  });
+
+  it("fails closed for unknown persisted values", () => {
+    expect(canEditChangeNoticeActionTaskFields("Done", "unknown")).toBe(false);
+    expect(canEditChangeNoticeActionTaskFields("unknown", "Manual")).toBe(
+      false
+    );
+  });
+});
+
+describe("requireChangeNoticeActionTaskEditable", () => {
+  const task = {
+    id: "task-1",
+    companyId,
+    changeOrderId: "notice-1",
+    taskOrigin: "Manual"
+  };
+  const changeNotice = { id: "notice-1", companyId, status: "Done" };
+
+  it("uses the persisted origin and parent status for the terminal lock", async () => {
+    await expect(
+      requireChangeNoticeActionTaskEditable(
+        fakeEditableActionClient({ task, changeNotice }),
+        { actionTaskId: task.id, changeNoticeId: task.changeOrderId, companyId }
+      )
+    ).resolves.toEqual({
+      error: { message: "This action task is read-only" },
+      data: null
+    });
+
+    await expect(
+      requireChangeNoticeActionTaskEditable(
+        fakeEditableActionClient({
+          task: { ...task, taskOrigin: "Impact follow-up" },
+          changeNotice
+        }),
+        { actionTaskId: task.id, changeNoticeId: task.changeOrderId, companyId }
+      )
+    ).resolves.toBeNull();
+  });
+
+  it("allows ordinary task edits while the Change Notice is open", async () => {
+    await expect(
+      requireChangeNoticeActionTaskEditable(
+        fakeEditableActionClient({
+          task,
+          changeNotice: { ...changeNotice, status: "Implementation" }
+        }),
+        { actionTaskId: task.id, changeNoticeId: task.changeOrderId, companyId }
+      )
+    ).resolves.toBeNull();
+  });
+
+  it("fails closed when the task or parent is not owned by the request scope", async () => {
+    await expect(
+      requireChangeNoticeActionTaskEditable(
+        fakeEditableActionClient({ task, changeNotice }),
+        { actionTaskId: task.id, changeNoticeId: "notice-2", companyId }
+      )
+    ).resolves.toEqual({
+      error: { message: "Could not find editable action task" },
+      data: null
+    });
+
+    await expect(
+      requireChangeNoticeActionTaskEditable(
+        fakeEditableActionClient({ task, changeNotice }),
+        {
+          actionTaskId: task.id,
+          changeNoticeId: task.changeOrderId,
+          companyId: "company-2"
+        }
+      )
+    ).resolves.toEqual({
+      error: { message: "Could not find editable action task" },
+      data: null
+    });
+  });
+
+  it("fails closed when either scoped read fails", async () => {
+    await expect(
+      requireChangeNoticeActionTaskEditable(
+        fakeEditableActionClient({
+          task,
+          changeNotice,
+          taskError: { message: "task read failed" }
+        }),
+        { actionTaskId: task.id, changeNoticeId: task.changeOrderId, companyId }
+      )
+    ).resolves.toEqual({
+      error: { message: "Could not find editable action task" },
+      data: null
+    });
+  });
+});
 
 describe("getUnreleasedChangeOrderItems", () => {
   it("reads nothing when given no ids", async () => {

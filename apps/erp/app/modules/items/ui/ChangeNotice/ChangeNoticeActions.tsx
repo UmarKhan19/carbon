@@ -1,11 +1,19 @@
-import { useCarbon } from "@carbon/auth";
-import { IconButton, type JSONContent, useDebounce } from "@carbon/react";
-import { useLingui } from "@lingui/react/macro";
+import {
+  Button,
+  DatePicker,
+  IconButton,
+  type JSONContent,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  useDebounce
+} from "@carbon/react";
+import { parseDate } from "@internationalized/date";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { DragControls } from "framer-motion";
-import { useCallback, useState } from "react";
-import { LuTrash2 } from "react-icons/lu";
-import { useFetcher } from "react-router";
-import { DateTime } from "~/components";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { LuCalendar, LuTrash2 } from "react-icons/lu";
+import { useFetcher, useFetchers, useSubmit } from "react-router";
 import {
   ActionTaskCard,
   type ActionTaskStatus
@@ -15,27 +23,35 @@ import { ActionTaskStatusButton } from "~/components/ActionTasks/ActionTaskStatu
 import { JiraIssueDialog } from "~/components/ActionTasks/Jira/IssueDialog";
 import { LinearIssueDialog } from "~/components/ActionTasks/Linear/IssueDialog";
 import { syncActionTaskNotes } from "~/components/ActionTasks/syncNotes";
-import { useImageUpload, usePermissions, useRouteData, useUser } from "~/hooks";
+import {
+  useDateFormatter,
+  useImageUpload,
+  usePermissions,
+  useRouteData
+} from "~/hooks";
 import { useIntegrations } from "~/hooks/useIntegrations";
 import type { ListItem } from "~/types";
 import { path } from "~/utils/path";
-import type { ChangeNoticeActionTask } from "../../types";
+import { canEditChangeNoticeActionTaskFields } from "../../items.models";
+import type { ChangeNoticeActionTask, ChangeNoticeStatus } from "../../types";
 
 // Change-order actions — a thin wrapper over the shared ActionTaskList (same
 // component the Quality issue uses). Adding picks from the change notice's
 // configured required-action templates via the "Add Actions" modal and writes
 // back through the reconcile route (`$id.action`), which instantiates the union
 // of the current tasks and the newly-picked templates. Each row is an ActionItem
-// (notes, status, assignee) with an inline delete. All actions live here on the
+// (notes, status, assignee, due date) with an inline delete. All actions live here on the
 // top-level detail route.
 export default function ChangeNoticeActions({
   changeOrderId,
+  changeNoticeStatus,
   actions,
-  isDisabled
+  canEditWorkflow
 }: {
   changeOrderId: string;
+  changeNoticeStatus: ChangeNoticeStatus;
   actions: ChangeNoticeActionTask[];
-  isDisabled: boolean;
+  canEditWorkflow: boolean;
 }) {
   const routeData = useRouteData<{ requiredActions: ListItem[] }>(
     path.to.changeNotice(changeOrderId)
@@ -68,12 +84,13 @@ export default function ChangeNoticeActions({
       templates={routeData?.requiredActions ?? []}
       onAdd={onAdd}
       isAddSubmitting={addFetcher.state !== "idle"}
-      isDisabled={isDisabled}
+      isDisabled={!canEditWorkflow}
       renderItem={(action, dragControls) => (
         <ActionItem
           changeOrderId={changeOrderId}
+          changeNoticeStatus={changeNoticeStatus}
           action={action}
-          isDisabled={isDisabled}
+          canEditWorkflow={canEditWorkflow}
           dragControls={dragControls}
         />
       )}
@@ -82,43 +99,43 @@ export default function ChangeNoticeActions({
 }
 
 // The CO wrapper over the shared ActionTaskCard: owns CO-specific persistence
-// (notes via supabase, status + delete via CO routes) and passes the due date
-// into the card's slots.
+// (notes, status, assignee, and due date) while keeping workflow operations
+// separate from task-field editability.
 function ActionItem({
   changeOrderId,
+  changeNoticeStatus,
   action,
-  isDisabled,
+  canEditWorkflow,
   dragControls
 }: {
   changeOrderId: string;
+  changeNoticeStatus: ChangeNoticeStatus;
   action: ChangeNoticeActionTask;
-  isDisabled: boolean;
+  canEditWorkflow: boolean;
   dragControls: DragControls;
 }) {
   const { t } = useLingui();
   const permissions = usePermissions();
   const integrations = useIntegrations();
-  const { id: userId } = useUser();
-  const { carbon } = useCarbon();
   const statusFetcher = useFetcher<{ success: boolean }>();
+  const notesFetcher = useFetcher<{ success: boolean }>();
   const deleteFetcher = useFetcher<{ success: boolean }>();
 
   const [content, setContent] = useState((action.notes ?? {}) as JSONContent);
   const status = (action.status ?? "Pending") as ActionTaskStatus;
-  const canEdit = permissions.can("update", "parts") && !isDisabled;
+  const canEditTaskFields =
+    permissions.can("update", "parts") &&
+    canEditChangeNoticeActionTaskFields(changeNoticeStatus, action.taskOrigin);
+  const canDelete = permissions.can("delete", "parts") && canEditWorkflow;
+  const pendingNotes = useRef<JSONContent | null>(null);
 
   const onUploadImage = useImageUpload("parts");
 
   const hasLinearLink = !!action.linearIssue;
   const hasJiraLink = !!action.jiraIssue;
 
-  const onUpdateContent = useDebounce(
+  const syncLinkedNotes = useCallback(
     async (value: JSONContent) => {
-      await carbon
-        ?.from("changeOrderActionTask")
-        .update({ notes: value, updatedBy: userId })
-        .eq("id", action.id);
-
       if (hasLinearLink) {
         await syncActionTaskNotes("Linear", {
           actionId: action.id,
@@ -135,12 +152,38 @@ function ActionItem({
         });
       }
     },
+    [action.id, hasJiraLink, hasLinearLink]
+  );
+
+  useEffect(() => {
+    if (notesFetcher.state !== "idle" || notesFetcher.data?.success !== true) {
+      return;
+    }
+
+    const notes = pendingNotes.current;
+    if (!notes) return;
+
+    pendingNotes.current = null;
+    void syncLinkedNotes(notes);
+  }, [notesFetcher.data, notesFetcher.state, syncLinkedNotes]);
+
+  const onUpdateContent = useDebounce(
+    (value: JSONContent) => {
+      pendingNotes.current = value;
+      const formData = new FormData();
+      formData.append("id", action.id);
+      formData.append("notes", JSON.stringify(value));
+      notesFetcher.submit(formData, {
+        method: "post",
+        action: path.to.changeNoticeActionNotes(changeOrderId, action.id)
+      });
+    },
     2500,
     true
   );
 
   const onStatusChange = (next: ActionTaskStatus) => {
-    if (isDisabled) return;
+    if (!canEditTaskFields) return;
     const formData = new FormData();
     formData.append("id", action.id);
     formData.append("status", next);
@@ -151,7 +194,7 @@ function ActionItem({
   };
 
   const onDelete = () => {
-    if (isDisabled) return;
+    if (!canEditWorkflow) return;
     deleteFetcher.submit(
       {},
       {
@@ -166,7 +209,7 @@ function ActionItem({
       title={action.name ?? ""}
       status={status}
       notes={content}
-      canEditNotes={canEdit}
+      canEditNotes={canEditTaskFields}
       onNotesChange={(value) => {
         setContent(value);
         onUpdateContent(value);
@@ -176,14 +219,18 @@ function ActionItem({
       assigneeTable="changeOrderActionTask"
       assigneeId={action.id}
       assignee={action.assignee ?? undefined}
-      isDisabled={isDisabled}
-      showDragHandle={!isDisabled}
+      assignmentAction={path.to.changeNoticeActionAssignee(
+        changeOrderId,
+        action.id
+      )}
+      isDisabled={!canEditTaskFields}
+      showDragHandle={canEditWorkflow}
       dragControls={dragControls}
       statusBadge={
         <ActionTaskStatusButton
           status={status}
           onChange={onStatusChange}
-          isDisabled={isDisabled}
+          isDisabled={!canEditTaskFields}
         />
       }
       headerExtras={
@@ -202,7 +249,7 @@ function ActionItem({
               linkedIssue={action.jiraIssue}
             />
           )}
-          {canEdit && (
+          {canDelete && (
             <IconButton
               aria-label={t`Delete action`}
               icon={<LuTrash2 />}
@@ -214,12 +261,97 @@ function ActionItem({
         </>
       }
       footerExtras={
-        action.dueDate ? (
-          <span className="text-xs text-muted-foreground tabular-nums whitespace-nowrap shrink-0">
-            <DateTime value={action.dueDate} variant="date" />
-          </span>
-        ) : undefined
+        <TaskDueDate
+          changeOrderId={changeOrderId}
+          task={action}
+          isDisabled={!canEditTaskFields}
+        />
       }
     />
+  );
+}
+
+function TaskDueDate({
+  changeOrderId,
+  task,
+  isDisabled
+}: {
+  changeOrderId: string;
+  task: ChangeNoticeActionTask;
+  isDisabled: boolean;
+}) {
+  const { t } = useLingui();
+  const { formatDate } = useDateFormatter();
+  const submit = useSubmit();
+  const [isOpen, setIsOpen] = useState(false);
+  const permissions = usePermissions();
+  const fetchers = useFetchers();
+  const canEdit = permissions.can("update", "parts") && !isDisabled;
+  const pendingUpdate = fetchers.find(
+    (fetcher) =>
+      fetcher.formData?.get("id") === task.id &&
+      fetcher.key === `changeNoticeTaskDueDate:${task.id}`
+  );
+  const pendingValue = pendingUpdate?.formData?.get("dueDate") ?? task.dueDate;
+
+  const handleDateChange = (date: string | null) => {
+    submit(
+      {
+        id: task.id,
+        dueDate: date || ""
+      },
+      {
+        method: "post",
+        action: path.to.changeNoticeActionDueDate(changeOrderId, task.id),
+        navigate: false,
+        fetcherKey: `changeNoticeTaskDueDate:${task.id}`
+      }
+    );
+  };
+
+  if (!canEdit) {
+    return (
+      <Button
+        variant="secondary"
+        size="sm"
+        leftIcon={<LuCalendar />}
+        isDisabled
+      >
+        <span>{task.dueDate ? formatDate(task.dueDate) : t`No due date`}</span>
+      </Button>
+    );
+  }
+
+  return (
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <PopoverTrigger disabled={isDisabled} asChild>
+        <Button
+          variant="secondary"
+          size="sm"
+          leftIcon={<LuCalendar />}
+          isDisabled={isDisabled}
+        >
+          {pendingValue ? formatDate(String(pendingValue)) : t`Due Date`}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-3" align="start">
+        <div className="space-y-2">
+          <DatePicker
+            value={pendingValue ? parseDate(String(pendingValue)) : null}
+            onChange={(date) => handleDateChange(date?.toString() || null)}
+          />
+          {pendingValue && (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => handleDateChange(null)}
+              className="w-full"
+            >
+              <Trans>Clear due date</Trans>
+            </Button>
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }

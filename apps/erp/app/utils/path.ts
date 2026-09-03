@@ -445,6 +445,16 @@ export const path = {
       generatePath(`${x}/items/change-notice/${id}`),
     changeNoticeAction: (id: string) =>
       generatePath(`${x}/items/change-notice/${id}/action`),
+    changeNoticeActionAssignee: (id: string, actionId: string) =>
+      generatePath(
+        `${x}/items/change-notice/${id}/action/${actionId}/assignee`
+      ),
+    changeNoticeActionDueDate: (id: string, actionId: string) =>
+      generatePath(
+        `${x}/items/change-notice/${id}/action/${actionId}/due-date`
+      ),
+    changeNoticeActionNotes: (id: string, actionId: string) =>
+      generatePath(`${x}/items/change-notice/${id}/action/${actionId}/notes`),
     changeNoticeActionOrder: (id: string) =>
       generatePath(`${x}/items/change-notice/${id}/action/order`),
     changeNoticeActionStatus: (id: string, actionId: string) =>

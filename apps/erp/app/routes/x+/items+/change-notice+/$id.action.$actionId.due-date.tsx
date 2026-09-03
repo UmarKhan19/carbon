@@ -2,11 +2,12 @@ import { assertIsPost, error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
+import { parseDate } from "@internationalized/date";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import {
-  changeNoticeActionStatusValidator,
-  updateChangeNoticeActionStatus
+  changeNoticeActionDueDateValidator,
+  updateChangeNoticeActionDueDate
 } from "~/modules/items";
 import { requireChangeNoticeActionTaskEditable } from "~/modules/items/items.server";
 
@@ -16,20 +17,17 @@ export async function action({ request, params }: ActionFunctionArgs) {
     update: "parts"
   });
 
-  const changeNoticeId = params.id;
+  const { id: changeNoticeId, actionId } = params;
   if (!changeNoticeId) throw new Error("Could not find id");
+  if (!actionId) throw new Error("Could not find actionId");
 
-  const formData = await request.formData();
   const validation = await validator(
-    changeNoticeActionStatusValidator
-  ).validate(formData);
+    changeNoticeActionDueDateValidator
+  ).validate(await request.formData());
+  if (validation.error) return validationError(validation.error);
 
-  if (validation.error) {
-    return validationError(validation.error);
-  }
-
-  const { id, status } = validation.data;
-  if (id !== params.actionId) {
+  const { id, dueDate: rawDueDate } = validation.data;
+  if (id !== actionId) {
     return data(
       { success: false },
       await flash(request, error("Invalid action ID", "Invalid action ID"))
@@ -37,7 +35,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   const editable = await requireChangeNoticeActionTaskEditable(client, {
-    actionTaskId: id,
+    actionTaskId: actionId,
     changeNoticeId,
     companyId
   });
@@ -48,18 +46,30 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
-  const update = await updateChangeNoticeActionStatus(client, {
-    id,
+  let dueDate: string | null = null;
+  if (rawDueDate?.trim()) {
+    try {
+      dueDate = parseDate(rawDueDate.trim()).toString();
+    } catch (cause) {
+      return data(
+        { success: false },
+        await flash(request, error(cause, "Invalid due date"))
+      );
+    }
+  }
+
+  const update = await updateChangeNoticeActionDueDate(client, {
+    id: actionId,
     changeNoticeId,
     companyId,
-    status,
+    dueDate,
     userId
   });
 
   if (update.error) {
     return data(
       { success: false },
-      await flash(request, error(update.error, "Failed to update status"))
+      await flash(request, error(update.error, "Failed to update due date"))
     );
   }
 

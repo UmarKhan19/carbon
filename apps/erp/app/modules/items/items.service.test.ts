@@ -1,3 +1,5 @@
+import { datetime } from "@carbon/utils";
+import { parseDate } from "@internationalized/date";
 import { describe, expect, it, vi } from "vitest";
 
 // diffMethod now lives in items.service. Importing the real module drags in the
@@ -13,9 +15,17 @@ vi.mock("@carbon/glossary", () => ({
   termSlug: vi.fn()
 }));
 
-const { diffMethod, duplicateMethodOperationStep } = await import(
-  "./items.service"
-);
+const {
+  deleteChangeNoticeAction,
+  diffMethod,
+  duplicateMethodOperationStep,
+  seedDefaultChangeNoticeActions,
+  setChangeNoticeActionTasks,
+  updateChangeNoticeActionAssignee,
+  updateChangeNoticeActionDueDate,
+  updateChangeNoticeActionNotes,
+  updateChangeNoticeActionStatus
+} = await import("./items.service");
 
 // A minimal live methodMaterial row (only the fields diffMethod compares + id).
 function baseMaterial(over: Record<string, unknown> = {}) {
@@ -462,6 +472,458 @@ describe("duplicateMethodOperationStep", () => {
     expect(result.error).not.toBeNull();
     // Tool-link copy failed → the material-link copy must never run.
     expect(inserts.some((i) => i.table === "methodMaterialStep")).toBe(false);
+  });
+});
+
+type FakeActionTask = {
+  id: string;
+  changeOrderId: string;
+  companyId: string;
+  actionTypeId: string | null;
+  taskOrigin: string;
+  sortOrder: number;
+};
+
+type FakeRequiredAction = {
+  id: string;
+  name: string;
+  companyId: string;
+  active: boolean;
+};
+
+function makeFakeActionTaskDb({
+  tasks: initialTasks,
+  templates
+}: {
+  tasks: FakeActionTask[];
+  templates: FakeRequiredAction[];
+}) {
+  let tasks = [...initialTasks];
+  const deletedIds: string[] = [];
+  const insertedRows: Record<string, unknown>[] = [];
+  const queries: { table: string; filters: string[] }[] = [];
+
+  function whereBuilder(table: string, source: unknown[]) {
+    const filters: { column: string; operator: string; value: unknown }[] = [];
+    const builder = {
+      select: () => builder,
+      where: (column: string, operator: string, value: unknown) => {
+        filters.push({ column, operator, value });
+        return builder;
+      },
+      orderBy: () => builder,
+      execute: async () => {
+        queries.push({
+          table,
+          filters: filters.map(
+            ({ column, operator }) => `${column} ${operator}`
+          )
+        });
+        return source.filter((row) =>
+          filters.every(({ column, operator, value }) => {
+            const current = (row as Record<string, unknown>)[column];
+            return operator === "in"
+              ? (value as unknown[]).includes(current)
+              : current === value;
+          })
+        );
+      }
+    };
+    return builder;
+  }
+
+  const db = {
+    transaction: () => ({
+      execute: async (callback: (trx: unknown) => Promise<unknown>) =>
+        callback(db)
+    }),
+    selectFrom: (table: string) => {
+      const source = table === "changeOrderActionTask" ? tasks : templates;
+      return whereBuilder(table, source);
+    },
+    deleteFrom: (table: string) => {
+      const filters: { column: string; operator: string; value: unknown }[] =
+        [];
+      const builder = {
+        where: (column: string, operator: string, value: unknown) => {
+          filters.push({ column, operator, value });
+          return builder;
+        },
+        execute: async () => {
+          queries.push({
+            table,
+            filters: filters.map(
+              ({ column, operator }) => `${column} ${operator}`
+            )
+          });
+          const matches = (row: FakeActionTask) =>
+            filters.every(({ column, operator, value }) => {
+              const current = row[column as keyof FakeActionTask];
+              return operator === "in"
+                ? (value as unknown[]).includes(current)
+                : current === value;
+            });
+          for (const task of tasks.filter(matches)) deletedIds.push(task.id);
+          tasks = tasks.filter((task) => !matches(task));
+        }
+      };
+      return builder;
+    },
+    insertInto: (_table: string) => ({
+      values: (rows: Record<string, unknown>[]) => ({
+        execute: async () => {
+          insertedRows.push(...rows);
+        }
+      })
+    })
+  };
+
+  return { db: db as never, deletedIds, insertedRows, queries };
+}
+
+type CapturedActionMutation = {
+  table: string;
+  operation: "update" | "delete";
+  filters: { column: string; value: unknown }[];
+  payload?: Record<string, unknown>;
+};
+
+function makeFakeActionMutationClient(timezone = "UTC") {
+  const mutations: CapturedActionMutation[] = [];
+
+  const client = {
+    from(table: string) {
+      const state: {
+        operation?: "update" | "delete";
+        filters: { column: string; value: unknown }[];
+        payload?: Record<string, unknown>;
+      } = { filters: [] };
+
+      const record = () => {
+        if (state.operation) {
+          mutations.push({ table, ...state } as CapturedActionMutation);
+        }
+      };
+
+      const builder = {
+        select: () => builder,
+        update: (payload: Record<string, unknown>) => {
+          state.operation = "update";
+          state.payload = payload;
+          return builder;
+        },
+        delete: () => {
+          state.operation = "delete";
+          return builder;
+        },
+        eq: (column: string, value: unknown) => {
+          state.filters.push({ column, value });
+          return builder;
+        },
+        single: async () => {
+          record();
+          return { data: { id: "task-1" }, error: null };
+        },
+        maybeSingle: async () =>
+          table === "company"
+            ? { data: { timezone }, error: null }
+            : { data: null, error: null },
+        then: (
+          resolve: (value: { data: null; error: null }) => unknown,
+          reject?: (error: unknown) => unknown
+        ) =>
+          Promise.resolve({ data: null, error: null }).then(() => {
+            record();
+            return resolve({ data: null, error: null });
+          }, reject)
+      };
+
+      return builder;
+    }
+  } as never;
+
+  return { client, mutations };
+}
+
+describe("Change Notice action task mutations", () => {
+  it("scopes every mutation by task, Change Notice, and company", async () => {
+    const input = {
+      id: "task-1",
+      changeNoticeId: "notice-1",
+      companyId: "company-1",
+      userId: "user-1"
+    };
+    const mutationRunners = [
+      {
+        operation: "update" as const,
+        run: (client: never) =>
+          updateChangeNoticeActionStatus(client, {
+            ...input,
+            status: "In Progress"
+          })
+      },
+      {
+        operation: "update" as const,
+        run: (client: never) =>
+          updateChangeNoticeActionNotes(client, {
+            ...input,
+            notes: { text: "updated" }
+          })
+      },
+      {
+        operation: "update" as const,
+        run: (client: never) =>
+          updateChangeNoticeActionAssignee(client, {
+            ...input,
+            assignee: "user-2"
+          })
+      },
+      {
+        operation: "update" as const,
+        run: (client: never) =>
+          updateChangeNoticeActionDueDate(client, {
+            ...input,
+            dueDate: "2026-09-03"
+          })
+      },
+      {
+        operation: "delete" as const,
+        run: (client: never) => deleteChangeNoticeAction(client, input)
+      }
+    ];
+
+    for (const { operation, run } of mutationRunners) {
+      const fake = makeFakeActionMutationClient();
+      await run(fake.client);
+
+      expect(fake.mutations).toHaveLength(1);
+      expect(fake.mutations[0]).toEqual(
+        expect.objectContaining({
+          table: "changeOrderActionTask",
+          operation
+        })
+      );
+      expect(fake.mutations[0].filters).toEqual([
+        { column: "id", value: "task-1" },
+        { column: "changeOrderId", value: "notice-1" },
+        { column: "companyId", value: "company-1" }
+      ]);
+    }
+  });
+
+  it("uses the company calendar day for completion and clears it otherwise", async () => {
+    const today = vi
+      .spyOn(datetime, "today")
+      .mockReturnValue(parseDate("2026-09-03"));
+
+    try {
+      const completed = makeFakeActionMutationClient("Pacific/Kiritimati");
+      await updateChangeNoticeActionStatus(completed.client, {
+        id: "task-1",
+        changeNoticeId: "notice-1",
+        companyId: "company-1",
+        status: "Completed",
+        userId: "user-1"
+      });
+
+      expect(today).toHaveBeenCalledWith("Pacific/Kiritimati");
+      expect(completed.mutations[0].payload).toEqual(
+        expect.objectContaining({
+          status: "Completed",
+          completedDate: "2026-09-03"
+        })
+      );
+
+      const reopened = makeFakeActionMutationClient();
+      await updateChangeNoticeActionStatus(reopened.client, {
+        id: "task-1",
+        changeNoticeId: "notice-1",
+        companyId: "company-1",
+        status: "In Progress",
+        userId: "user-1"
+      });
+
+      expect(reopened.mutations[0].payload).toEqual(
+        expect.objectContaining({
+          status: "In Progress",
+          completedDate: null
+        })
+      );
+    } finally {
+      today.mockRestore();
+    }
+  });
+});
+
+describe("Change Notice action task template reconciliation", () => {
+  it("removes only template-owned tasks and stamps new tasks as template-owned", async () => {
+    const fake = makeFakeActionTaskDb({
+      tasks: [
+        {
+          id: "template-remove",
+          changeOrderId: "notice-1",
+          companyId: "company-1",
+          actionTypeId: "template-remove",
+          taskOrigin: "Template-owned",
+          sortOrder: 1
+        },
+        {
+          id: "manual-remove",
+          changeOrderId: "notice-1",
+          companyId: "company-1",
+          actionTypeId: "template-remove",
+          taskOrigin: "Manual",
+          sortOrder: 2
+        },
+        {
+          id: "impact-remove",
+          changeOrderId: "notice-1",
+          companyId: "company-1",
+          actionTypeId: "template-remove",
+          taskOrigin: "Impact follow-up",
+          sortOrder: 3
+        },
+        {
+          id: "template-keep",
+          changeOrderId: "notice-1",
+          companyId: "company-1",
+          actionTypeId: "template-keep",
+          taskOrigin: "Template-owned",
+          sortOrder: 4
+        }
+      ],
+      templates: [
+        {
+          id: "template-new",
+          name: "New action",
+          companyId: "company-1",
+          active: true
+        }
+      ]
+    });
+
+    await setChangeNoticeActionTasks(fake.db, {
+      changeNoticeId: "notice-1",
+      requiredActionIds: ["template-keep", "template-new"],
+      companyId: "company-1",
+      userId: "user-1"
+    });
+
+    expect(fake.deletedIds).toEqual(["template-remove"]);
+    expect(fake.insertedRows).toEqual([
+      expect.objectContaining({
+        changeOrderId: "notice-1",
+        actionTypeId: "template-new",
+        taskOrigin: "Template-owned",
+        companyId: "company-1",
+        createdBy: "user-1"
+      })
+    ]);
+    expect(fake.queries).toEqual(
+      expect.arrayContaining([
+        {
+          table: "changeOrderActionTask",
+          filters: ["changeOrderId =", "companyId ="]
+        },
+        {
+          table: "changeOrderActionTask",
+          filters: ["id in", "changeOrderId =", "companyId ="]
+        },
+        {
+          table: "changeOrderRequiredAction",
+          filters: ["id in", "companyId ="]
+        }
+      ])
+    );
+  });
+
+  it("does not duplicate requested templates linked to Manual or Impact tasks", async () => {
+    const fake = makeFakeActionTaskDb({
+      tasks: [
+        {
+          id: "manual-1",
+          changeOrderId: "notice-1",
+          companyId: "company-1",
+          actionTypeId: "template-1",
+          taskOrigin: "Manual",
+          sortOrder: 1
+        },
+        {
+          id: "impact-1",
+          changeOrderId: "notice-1",
+          companyId: "company-1",
+          actionTypeId: "template-2",
+          taskOrigin: "Impact follow-up",
+          sortOrder: 2
+        }
+      ],
+      templates: [
+        {
+          id: "template-1",
+          name: "Existing manual action",
+          companyId: "company-1",
+          active: true
+        },
+        {
+          id: "template-2",
+          name: "Existing impact action",
+          companyId: "company-1",
+          active: true
+        }
+      ]
+    });
+
+    await setChangeNoticeActionTasks(fake.db, {
+      changeNoticeId: "notice-1",
+      requiredActionIds: ["template-1", "template-2"],
+      companyId: "company-1",
+      userId: "user-1"
+    });
+
+    expect(fake.deletedIds).toEqual([]);
+    expect(fake.insertedRows).toEqual([]);
+  });
+
+  it("seeds only active templates for the requested company with the persisted origin", async () => {
+    const fake = makeFakeActionTaskDb({
+      tasks: [],
+      templates: [
+        {
+          id: "template-1",
+          name: "A action",
+          companyId: "company-1",
+          active: true
+        },
+        {
+          id: "template-inactive",
+          name: "Inactive",
+          companyId: "company-1",
+          active: false
+        },
+        {
+          id: "template-other-company",
+          name: "Other",
+          companyId: "company-2",
+          active: true
+        }
+      ]
+    });
+
+    await seedDefaultChangeNoticeActions(fake.db, {
+      changeNoticeId: "notice-1",
+      companyId: "company-1",
+      userId: "user-1"
+    });
+
+    expect(fake.insertedRows).toEqual([
+      expect.objectContaining({
+        actionTypeId: "template-1",
+        taskOrigin: "Template-owned",
+        changeOrderId: "notice-1",
+        companyId: "company-1"
+      })
+    ]);
+    expect(fake.insertedRows).toHaveLength(1);
   });
 });
 
