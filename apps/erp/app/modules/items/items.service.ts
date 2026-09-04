@@ -59,6 +59,7 @@ import {
   type ChangeNoticeImpactItemContext,
   type ChangeNoticeImpactJobMaterialSnapshotInput,
   type ChangeNoticeImpactJobSnapshotInput,
+  type ChangeNoticeImpactNoActionReasonCode,
   type ChangeNoticeImpactParentContext,
   type ChangeNoticeImpactProvenance,
   type ChangeNoticeImpactProvenanceReconciliationInput,
@@ -69,8 +70,14 @@ import {
   type ChangeNoticeImpactSourceAccess,
   type ChangeNoticeImpactSourceAccessResult,
   type ChangeNoticeImpactTargetType,
+  type ChangeNoticeImpactTaskCreateMutationInput,
+  type ChangeNoticeImpactTaskCreateResult,
+  type ChangeNoticeImpactTaskDesignationResult,
+  type ChangeNoticeImpactTaskRelationshipMutationInput,
+  type ChangeNoticeImpactTaskRelationshipResult,
   type ChangeNoticeItemDiff,
   canEditChangeNoticeEngineering,
+  changeNoticeActionTaskOrigins,
   changeNoticeImpactDecisionStatuses,
   changeNoticeImpactNoActionReasonCodes,
   changeNoticeImpactTargetTypes,
@@ -13780,7 +13787,8 @@ type ImpactDecisionPlan = ImpactDecisionPreflight & {
 function planImpactDecisionWithoutEvidence(
   input: ChangeNoticeImpactDecisionMutationInput,
   changeNotice: ImpactMutationChangeNotice,
-  existing: ImpactExistingDecision | undefined
+  existing: ImpactExistingDecision | undefined,
+  allowDoneFirstAssessment = false
 ): ImpactDecisionPreflight {
   const existingStatus =
     existing &&
@@ -13799,7 +13807,10 @@ function planImpactDecisionWithoutEvidence(
   });
 
   if (!existing) {
-    if (!changeNoticeStageFlow.includes(changeNotice.status)) {
+    const firstAssessmentAllowed =
+      changeNoticeStageFlow.includes(changeNotice.status) ||
+      (allowDoneFirstAssessment && changeNotice.status === "Done");
+    if (!firstAssessmentAllowed) {
       throw new ImpactMutationRejected(
         changeNotice.status === "Cancelled"
           ? "Cancelled Change Notices do not accept first Impact assessments."
@@ -14022,7 +14033,8 @@ function planImpactDecisionWithoutEvidence(
 
 async function prepareImpactDecisionBatch(
   trx: KyselyTx,
-  inputs: ChangeNoticeImpactDecisionMutationInput[]
+  inputs: ChangeNoticeImpactDecisionMutationInput[],
+  options: { allowDoneFirstAssessment?: boolean } = {}
 ): Promise<ImpactDecisionPlan[]> {
   const changeNotice = await loadImpactMutationChangeNotice(trx, inputs[0]);
   const existingByTarget = await loadImpactMutationExistingDecisions(
@@ -14033,7 +14045,8 @@ async function prepareImpactDecisionBatch(
     planImpactDecisionWithoutEvidence(
       input,
       changeNotice,
-      existingByTarget.get(impactTargetKey(input.targetType, input.targetId))
+      existingByTarget.get(impactTargetKey(input.targetType, input.targetId)),
+      options.allowDoneFirstAssessment
     )
   );
 
@@ -14449,8 +14462,9 @@ function impactBulkFailure(
 
 /**
  * Apply explicit target decisions atomically. This raw service boundary is
- * intentionally not an MCP contract; the server wrapper resolves claims before
- * calling it because Kysely bypasses RLS.
+ * intentionally not an MCP contract; the server wrapper resolves
+ * credential-bound permission access before calling it because Kysely bypasses
+ * RLS.
  */
 export async function writeChangeNoticeImpactDecisions(
   db: Kysely<KyselyDatabase>,
@@ -14522,6 +14536,944 @@ export async function writeChangeNoticeImpactDecision(
       });
     }
     return impactMutationFailure(impactMutationErrorMessage(cause));
+  }
+}
+
+const CHANGE_NOTICE_IMPACT_TASK_DEFAULT_NAME =
+  "Follow up on Change Notice operational impact";
+
+const impactTaskOriginValues = new Set<string>(changeNoticeActionTaskOrigins);
+
+const IMPACT_TASK_SERVER_FIELDS = new Set([
+  "id",
+  "status",
+  "taskOrigin",
+  "actionTypeId",
+  "sortOrder",
+  "completedDate",
+  "createdAt",
+  "createdBy",
+  "updatedAt",
+  "updatedBy"
+]);
+
+type ImpactTaskDecisionRow = {
+  id: string;
+  companyId: string;
+  changeNoticeId: string;
+  targetType: ChangeNoticeImpactTargetType;
+  targetId: string;
+  decisionStatus: string;
+  noActionReasonCode: string | null;
+  rationale: string | null;
+  resolutionNote: string | null;
+  assessmentSnapshot: Json | null;
+};
+
+type ImpactTaskRow = {
+  id: string;
+  companyId: string;
+  changeOrderId: string;
+  taskOrigin: string;
+};
+
+type ImpactTaskChangeNoticeRow = {
+  id: string;
+  companyId: string;
+  status: Database["public"]["Enums"]["changeOrderStatus"];
+};
+
+function impactTaskFailure<T>({
+  cause,
+  fallback = "Impact task operation failed."
+}: {
+  cause: unknown;
+  fallback?: string;
+}): { data: T | null; error: { message: string } } {
+  return {
+    data: null,
+    error: {
+      message: cause instanceof Error ? cause.message : fallback
+    }
+  };
+}
+
+function isImpactTaskTargetType(
+  value: unknown
+): value is ChangeNoticeImpactTargetType {
+  return (
+    typeof value === "string" &&
+    (changeNoticeImpactTargetTypes as readonly string[]).includes(value)
+  );
+}
+
+function validateImpactTaskSourceAccess(
+  input:
+    | ChangeNoticeImpactTaskCreateMutationInput
+    | ChangeNoticeImpactTaskRelationshipMutationInput
+): string | null {
+  if (!isImpactRecord(input.sourceAccess)) {
+    return "Impact source access is invalid.";
+  }
+  if (
+    typeof input.sourceAccess.purchaseOrderLine !== "boolean" ||
+    typeof input.sourceAccess.job !== "boolean" ||
+    typeof input.sourceAccess.jobMaterial !== "boolean"
+  ) {
+    return "Impact source access is invalid.";
+  }
+  if (!impactSourceAccessAllows(input.targetType, input.sourceAccess)) {
+    return "Impact source access is restricted for this target.";
+  }
+  return null;
+}
+
+function validateImpactTaskIdentity(input: unknown): string | null {
+  if (!isImpactRecord(input)) return "Impact task input is invalid.";
+  const value = input as Record<string, unknown>;
+  if (
+    typeof value.companyId !== "string" ||
+    value.companyId.length === 0 ||
+    typeof value.userId !== "string" ||
+    value.userId.length === 0 ||
+    typeof value.changeNoticeId !== "string" ||
+    value.changeNoticeId.length === 0 ||
+    typeof value.targetId !== "string" ||
+    value.targetId.length === 0 ||
+    !isImpactTaskTargetType(value.targetType)
+  ) {
+    return "Impact task identity is required.";
+  }
+  return null;
+}
+
+function validateImpactTaskRelationshipInput(input: unknown): string | null {
+  const identityError = validateImpactTaskIdentity(input);
+  if (identityError) return identityError;
+  if (!isImpactRecord(input)) return "Impact task input is invalid.";
+  if (
+    typeof input.decisionId !== "string" ||
+    input.decisionId.length === 0 ||
+    typeof input.actionTaskId !== "string" ||
+    input.actionTaskId.length === 0
+  ) {
+    return "Impact decision and action task are required.";
+  }
+  return validateImpactTaskSourceAccess(
+    input as unknown as ChangeNoticeImpactTaskRelationshipMutationInput
+  );
+}
+
+function validateImpactTaskCreateInput(input: unknown): string | null {
+  const identityError = validateImpactTaskIdentity(input);
+  if (identityError) return identityError;
+  if (!isImpactRecord(input)) return "Impact task input is invalid.";
+
+  const value = input as Record<string, unknown>;
+  const decision = value.decision;
+  const bootstrapDecision = value.bootstrapDecision;
+  const hasDecision = isImpactRecord(decision);
+  const hasBootstrap = isImpactRecord(bootstrapDecision);
+  if ((hasDecision ? 1 : 0) + (hasBootstrap ? 1 : 0) !== 1) {
+    return "Impact task creation requires an existing decision or an Action Required bootstrap.";
+  }
+
+  if (hasDecision) {
+    if (
+      typeof decision.decisionId !== "string" ||
+      decision.decisionId.length === 0 ||
+      decision.targetType !== value.targetType ||
+      decision.targetId !== value.targetId
+    ) {
+      return "Impact task decision target does not match the requested target.";
+    }
+    if (
+      Object.keys(decision).some(
+        (key) =>
+          key !== "decisionId" && key !== "targetType" && key !== "targetId"
+      )
+    ) {
+      return "Impact task decision contains unsupported fields.";
+    }
+  }
+
+  if (hasBootstrap) {
+    if (
+      bootstrapDecision.decisionStatus !== "Action required" ||
+      typeof bootstrapDecision.rationale !== "string" ||
+      bootstrapDecision.rationale.trim().length === 0
+    ) {
+      return "Action required needs written follow-up rationale.";
+    }
+    if (
+      Object.keys(bootstrapDecision).some(
+        (key) => key !== "decisionStatus" && key !== "rationale"
+      )
+    ) {
+      return "Impact bootstrap contains unsupported fields.";
+    }
+  }
+
+  if (!isImpactRecord(value.task)) return "Impact task fields are required.";
+  const task = value.task as Record<string, unknown>;
+  if ([...IMPACT_TASK_SERVER_FIELDS].some((key) => key in task)) {
+    return "Impact task lifecycle fields are server-derived.";
+  }
+  if (
+    Object.keys(task).some(
+      (key) => !["name", "notes", "assignee", "dueDate"].includes(key)
+    )
+  ) {
+    return "Impact task contains unsupported fields.";
+  }
+  if (
+    task.name !== undefined &&
+    (typeof task.name !== "string" || task.name.trim().length === 0)
+  ) {
+    return "Impact task name must be non-empty text.";
+  }
+  if (
+    task.assignee !== undefined &&
+    task.assignee !== null &&
+    (typeof task.assignee !== "string" || task.assignee.trim().length === 0)
+  ) {
+    return "Impact task assignee must be text or null.";
+  }
+  if (
+    task.dueDate !== undefined &&
+    task.dueDate !== null &&
+    (typeof task.dueDate !== "string" || task.dueDate.trim().length === 0)
+  ) {
+    return "Impact task due date must be text or null.";
+  }
+
+  return validateImpactTaskSourceAccess(
+    input as unknown as ChangeNoticeImpactTaskCreateMutationInput
+  );
+}
+
+async function loadImpactTaskChangeNotice(
+  trx: KyselyTx,
+  companyId: string,
+  changeNoticeId: string
+): Promise<ImpactTaskChangeNoticeRow> {
+  const row = await trx
+    .selectFrom("changeOrder")
+    .select(["id", "companyId", "status"])
+    .where("id", "=", changeNoticeId)
+    .where("companyId", "=", companyId)
+    .forUpdate()
+    .executeTakeFirst();
+  if (!row) throw new ImpactMutationRejected("Change notice not found.");
+  return row;
+}
+
+async function loadImpactTaskDecision(
+  trx: KyselyTx,
+  input:
+    | ChangeNoticeImpactTaskRelationshipMutationInput
+    | ChangeNoticeImpactTaskCreateMutationInput,
+  decisionId: string,
+  requireActionRequired = true
+): Promise<ImpactTaskDecisionRow> {
+  const row = (await trx
+    .selectFrom("changeOrderImpactDecision")
+    .select([
+      "id",
+      "companyId",
+      "changeNoticeId",
+      "targetType",
+      "targetId",
+      "decisionStatus",
+      "noActionReasonCode",
+      "rationale",
+      "resolutionNote",
+      "assessmentSnapshot"
+    ])
+    .where("id", "=", decisionId)
+    .where("companyId", "=", input.companyId)
+    .where("changeNoticeId", "=", input.changeNoticeId)
+    .where("targetType", "=", input.targetType)
+    .where("targetId", "=", input.targetId)
+    .executeTakeFirst()) as unknown as ImpactTaskDecisionRow | undefined;
+
+  if (!row) throw new ImpactMutationRejected("Impact decision not found.");
+  if (
+    row.companyId !== input.companyId ||
+    row.changeNoticeId !== input.changeNoticeId ||
+    row.targetType !== input.targetType ||
+    row.targetId !== input.targetId
+  ) {
+    throw new ImpactMutationRejected(
+      "Impact decision does not belong to this Change Notice target."
+    );
+  }
+  if (requireActionRequired && row.decisionStatus !== "Action required") {
+    throw new ImpactMutationRejected(
+      "Only Action required Impact decisions can receive follow-up tasks."
+    );
+  }
+  if (!isImpactTaskTargetType(row.targetType)) {
+    throw new ImpactMutationRejected(
+      "Stored Impact target type is unsupported."
+    );
+  }
+  return row;
+}
+
+async function loadImpactTask(
+  trx: KyselyTx,
+  input: ChangeNoticeImpactTaskRelationshipMutationInput
+): Promise<ImpactTaskRow> {
+  const row = (await trx
+    .selectFrom("changeOrderActionTask")
+    .select(["id", "companyId", "changeOrderId", "taskOrigin"])
+    .where("id", "=", input.actionTaskId)
+    .where("companyId", "=", input.companyId)
+    .where("changeOrderId", "=", input.changeNoticeId)
+    .executeTakeFirst()) as unknown as ImpactTaskRow | undefined;
+  if (!row) throw new ImpactMutationRejected("Action task not found.");
+  if (
+    row.companyId !== input.companyId ||
+    row.changeOrderId !== input.changeNoticeId
+  ) {
+    throw new ImpactMutationRejected(
+      "Action task does not belong to this Change Notice."
+    );
+  }
+  if (!impactTaskOriginValues.has(row.taskOrigin)) {
+    throw new ImpactMutationRejected(
+      "Stored action task origin is unsupported."
+    );
+  }
+  return row;
+}
+
+async function loadImpactTaskLink(
+  trx: KyselyTx,
+  input: ChangeNoticeImpactTaskRelationshipMutationInput
+): Promise<{ decisionId: string; actionTaskId: string } | null> {
+  const row = await trx
+    .selectFrom("changeOrderImpactDecisionActionTask")
+    .select(["decisionId", "actionTaskId"])
+    .where("decisionId", "=", input.decisionId)
+    .where("actionTaskId", "=", input.actionTaskId)
+    .where("companyId", "=", input.companyId)
+    .executeTakeFirst();
+  if (!row) return null;
+  if (
+    row.decisionId !== input.decisionId ||
+    row.actionTaskId !== input.actionTaskId
+  ) {
+    throw new ImpactMutationRejected(
+      "Stored Impact task link is inconsistent."
+    );
+  }
+  return row;
+}
+
+function impactTaskHistoryRow(input: {
+  decision: ImpactTaskDecisionRow;
+  eventType:
+    | "Task linked"
+    | "Task unlinked"
+    | "Task designated as Impact follow-up";
+  actionTaskId: string;
+  userId: string;
+  now: string;
+  eventRationale?: string | null;
+}): Database["public"]["Tables"]["changeOrderImpactDecisionHistory"]["Insert"] {
+  return {
+    companyId: input.decision.companyId,
+    decisionId: input.decision.id,
+    targetType: input.decision.targetType,
+    targetId: input.decision.targetId,
+    eventType: input.eventType,
+    // Relationship/origin events are not assessment events. Do not duplicate
+    // decision conclusions, rationale, resolution notes, or snapshots here.
+    previousStatus: null,
+    newStatus: null,
+    previousReasonCode: null,
+    newReasonCode: null,
+    previousSnapshot: null,
+    newSnapshot: null,
+    rationale: input.eventRationale ?? null,
+    resolutionNote: null,
+    relatedActionTaskId: input.actionTaskId,
+    relatedAffectedItemId: null,
+    priorAssessmentWasChanged: false,
+    createdBy: input.userId,
+    createdAt: input.now
+  };
+}
+
+function assertImpactTaskLifecycle(
+  status: ImpactTaskChangeNoticeRow["status"],
+  operation: "create" | "link" | "unlink" | "designate",
+  taskOrigin?: string,
+  decisionStatus?: string
+): void {
+  if (operation === "designate") {
+    if (!changeNoticeOpenStatuses.includes(status)) {
+      throw new ImpactMutationRejected(
+        "Impact task designation is only allowed before the Change Notice is Done."
+      );
+    }
+    return;
+  }
+
+  if (status === "Cancelled") {
+    if (
+      taskOrigin !== "Impact follow-up" ||
+      decisionStatus !== "Action required"
+    ) {
+      throw new ImpactMutationRejected(
+        "Cancelled Change Notices only allow cleanup of Impact follow-up tasks."
+      );
+    }
+    return;
+  }
+
+  // Linking and unlinking are relationship operations, not task-content edits.
+  // Done permits those operations for ordinary tasks too; their task origin still
+  // controls whether the existing task-content routes may edit them.
+  if (status === "Done") return;
+
+  if (!changeNoticeStageFlow.includes(status)) {
+    throw new ImpactMutationRejected(
+      "Change Notice lifecycle does not allow Impact task operations."
+    );
+  }
+}
+
+function toImpactTaskDecisionRow(
+  input: ChangeNoticeImpactTaskCreateMutationInput,
+  decision: {
+    id: string;
+    targetType: ChangeNoticeImpactTargetType;
+    targetId: string;
+    decisionStatus: ChangeNoticeImpactDecisionStatus;
+    noActionReasonCode: ChangeNoticeImpactNoActionReasonCode | null;
+    rationale: string | null;
+    resolutionNote: string | null;
+    assessmentSnapshot: ChangeNoticeImpactSnapshot;
+  }
+): ImpactTaskDecisionRow {
+  return {
+    id: decision.id,
+    companyId: input.companyId,
+    changeNoticeId: input.changeNoticeId,
+    targetType: decision.targetType,
+    targetId: decision.targetId,
+    decisionStatus: decision.decisionStatus,
+    noActionReasonCode: decision.noActionReasonCode,
+    rationale: decision.rationale,
+    resolutionNote: decision.resolutionNote,
+    assessmentSnapshot: decision.assessmentSnapshot
+  };
+}
+
+/**
+ * Create one Impact follow-up task and link it to an existing Action required
+ * decision, or bootstrap the Action required decision in the same transaction.
+ * The raw service is intentionally blocked from generic MCP execution; its
+ * server wrapper resolves the user's source permissions first.
+ */
+export async function createChangeNoticeImpactTask(
+  db: Kysely<KyselyDatabase>,
+  input: ChangeNoticeImpactTaskCreateMutationInput
+): Promise<ChangeNoticeImpactTaskCreateResult> {
+  const validation = validateImpactTaskCreateInput(input);
+  if (validation) return { data: null, error: { message: validation } };
+
+  try {
+    return await db.transaction().execute(async (trx) => {
+      const changeNotice = await loadImpactTaskChangeNotice(
+        trx,
+        input.companyId,
+        input.changeNoticeId
+      );
+      const bootstrap = input.bootstrapDecision !== undefined;
+      let decision: ImpactTaskDecisionRow;
+      let decisionCreated = false;
+
+      if (bootstrap) {
+        if (changeNotice.status === "Cancelled") {
+          throw new ImpactMutationRejected(
+            "Cancelled Change Notices cannot bootstrap an Impact decision."
+          );
+        }
+        assertImpactTaskLifecycle(
+          changeNotice.status,
+          "create",
+          "Impact follow-up"
+        );
+        const decisionInput: ChangeNoticeImpactDecisionMutationInput = {
+          changeNoticeId: input.changeNoticeId,
+          targetType: input.targetType,
+          targetId: input.targetId,
+          decisionStatus: "Action required",
+          rationale: input.bootstrapDecision?.rationale,
+          companyId: input.companyId,
+          userId: input.userId,
+          sourceAccess: input.sourceAccess
+        };
+        const existing = await loadImpactMutationExistingDecisions(trx, [
+          decisionInput
+        ]);
+        if (existing.has(impactTargetKey(input.targetType, input.targetId))) {
+          throw new ImpactMutationRejected(
+            "Impact decision already exists; provide its decision anchor."
+          );
+        }
+        const plans = await prepareImpactDecisionBatch(trx, [decisionInput], {
+          allowDoneFirstAssessment: true
+        });
+        if (plans.length !== 1 || plans[0]?.existing) {
+          throw new ImpactMutationRejected(
+            "Impact decision bootstrap requires an unassessed target."
+          );
+        }
+        const applied = await applyImpactDecisionPlan(trx, plans[0]);
+        if (applied.operation !== "createDecision") {
+          throw new ImpactMutationRejected(
+            "Impact decision bootstrap did not create a decision."
+          );
+        }
+        decision = toImpactTaskDecisionRow(input, applied.decision);
+        decisionCreated = true;
+      } else {
+        const decisionRef = input.decision;
+        if (!decisionRef) {
+          throw new ImpactMutationRejected(
+            "Impact decision anchor is required."
+          );
+        }
+        decision = await loadImpactTaskDecision(
+          trx,
+          input,
+          decisionRef.decisionId
+        );
+        assertImpactTaskLifecycle(
+          changeNotice.status,
+          "create",
+          "Impact follow-up",
+          decision.decisionStatus
+        );
+      }
+
+      const taskFields = input.task;
+      const lastTask = await trx
+        .selectFrom("changeOrderActionTask")
+        .select(["sortOrder"])
+        .where("changeOrderId", "=", input.changeNoticeId)
+        .where("companyId", "=", input.companyId)
+        .orderBy("sortOrder", "desc")
+        .orderBy("id", "desc")
+        .executeTakeFirst();
+      const now = datetime.timestamp();
+      const taskValues: Database["public"]["Tables"]["changeOrderActionTask"]["Insert"] =
+        {
+          changeOrderId: input.changeNoticeId,
+          name:
+            taskFields.name?.trim() ?? CHANGE_NOTICE_IMPACT_TASK_DEFAULT_NAME,
+          status: "Pending",
+          actionTypeId: null,
+          sortOrder: (lastTask?.sortOrder ?? 0) + 1,
+          companyId: input.companyId,
+          createdBy: input.userId,
+          createdAt: now,
+          taskOrigin: "Impact follow-up"
+        };
+      if (taskFields.notes !== undefined && taskFields.notes !== null) {
+        taskValues.notes = taskFields.notes;
+      }
+      if (taskFields.assignee !== undefined) {
+        taskValues.assignee = taskFields.assignee?.trim() ?? null;
+      }
+      if (taskFields.dueDate !== undefined) {
+        taskValues.dueDate = taskFields.dueDate?.trim() || null;
+      }
+
+      const task = await trx
+        .insertInto("changeOrderActionTask")
+        .values(taskValues)
+        .returning(["id", "status", "taskOrigin"])
+        .executeTakeFirstOrThrow();
+
+      await trx
+        .insertInto("changeOrderImpactDecisionActionTask")
+        .values({
+          decisionId: decision.id,
+          actionTaskId: task.id,
+          companyId: input.companyId,
+          createdBy: input.userId,
+          createdAt: now
+        })
+        .execute();
+
+      await trx
+        .insertInto("changeOrderImpactDecisionHistory")
+        .values(
+          impactTaskHistoryRow({
+            decision,
+            eventType: "Task linked",
+            actionTaskId: task.id,
+            userId: input.userId,
+            now
+          })
+        )
+        .execute();
+
+      return {
+        data: {
+          decisionId: decision.id,
+          actionTaskId: task.id,
+          decisionCreated,
+          taskOrigin: "Impact follow-up",
+          status: task.status
+        },
+        error: null
+      } satisfies ChangeNoticeImpactTaskCreateResult;
+    });
+  } catch (cause) {
+    if (!(cause instanceof ImpactMutationRejected)) {
+      logger.error("Failed to create Change Notice Impact task", {
+        error: cause,
+        companyId: input.companyId,
+        changeNoticeId: input.changeNoticeId,
+        targetType: input.targetType,
+        targetId: input.targetId
+      });
+    }
+    return impactTaskFailure({ cause });
+  }
+}
+
+async function loadImpactTaskRelationshipContext(
+  trx: KyselyTx,
+  input: ChangeNoticeImpactTaskRelationshipMutationInput,
+  operation: "link" | "unlink" | "designate"
+): Promise<{
+  changeNotice: ImpactTaskChangeNoticeRow;
+  decision: ImpactTaskDecisionRow;
+  task: ImpactTaskRow;
+}> {
+  const changeNotice = await loadImpactTaskChangeNotice(
+    trx,
+    input.companyId,
+    input.changeNoticeId
+  );
+  const decision = await loadImpactTaskDecision(
+    trx,
+    input,
+    input.decisionId,
+    operation === "designate"
+  );
+  const task = await loadImpactTask(trx, input);
+  assertImpactTaskLifecycle(
+    changeNotice.status,
+    operation,
+    task.taskOrigin,
+    decision.decisionStatus
+  );
+  return { changeNotice, decision, task };
+}
+
+/** Link an existing Change Notice action task to an Impact decision. */
+export async function linkChangeNoticeImpactTask(
+  db: Kysely<KyselyDatabase>,
+  input: ChangeNoticeImpactTaskRelationshipMutationInput
+): Promise<ChangeNoticeImpactTaskRelationshipResult> {
+  const validation = validateImpactTaskRelationshipInput(input);
+  if (validation) return { data: null, error: { message: validation } };
+
+  try {
+    return await db.transaction().execute(async (trx) => {
+      const { decision, task } = await loadImpactTaskRelationshipContext(
+        trx,
+        input,
+        "link"
+      );
+      const existing = await loadImpactTaskLink(trx, input);
+      if (existing) {
+        return {
+          data: {
+            decisionId: decision.id,
+            actionTaskId: task.id,
+            changed: false
+          },
+          error: null
+        } satisfies ChangeNoticeImpactTaskRelationshipResult;
+      }
+
+      const now = datetime.timestamp();
+      await trx
+        .insertInto("changeOrderImpactDecisionActionTask")
+        .values({
+          decisionId: decision.id,
+          actionTaskId: task.id,
+          companyId: input.companyId,
+          createdBy: input.userId,
+          createdAt: now
+        })
+        .execute();
+      await trx
+        .insertInto("changeOrderImpactDecisionHistory")
+        .values(
+          impactTaskHistoryRow({
+            decision,
+            eventType: "Task linked",
+            actionTaskId: task.id,
+            userId: input.userId,
+            now
+          })
+        )
+        .execute();
+
+      return {
+        data: {
+          decisionId: decision.id,
+          actionTaskId: task.id,
+          changed: true
+        },
+        error: null
+      } satisfies ChangeNoticeImpactTaskRelationshipResult;
+    });
+  } catch (cause) {
+    if (!(cause instanceof ImpactMutationRejected)) {
+      logger.error("Failed to link Change Notice Impact task", {
+        error: cause,
+        companyId: input.companyId,
+        changeNoticeId: input.changeNoticeId,
+        decisionId: input.decisionId,
+        actionTaskId: input.actionTaskId
+      });
+    }
+    return impactTaskFailure({ cause });
+  }
+}
+
+/** Unlink an existing Change Notice action task without resolving its decision. */
+export async function unlinkChangeNoticeImpactTask(
+  db: Kysely<KyselyDatabase>,
+  input: ChangeNoticeImpactTaskRelationshipMutationInput
+): Promise<ChangeNoticeImpactTaskRelationshipResult> {
+  const validation = validateImpactTaskRelationshipInput(input);
+  if (validation) return { data: null, error: { message: validation } };
+
+  try {
+    return await db.transaction().execute(async (trx) => {
+      const { decision, task } = await loadImpactTaskRelationshipContext(
+        trx,
+        input,
+        "unlink"
+      );
+      const existing = await loadImpactTaskLink(trx, input);
+      if (!existing) {
+        return {
+          data: {
+            decisionId: decision.id,
+            actionTaskId: task.id,
+            changed: false
+          },
+          error: null
+        } satisfies ChangeNoticeImpactTaskRelationshipResult;
+      }
+
+      const deleted = await trx
+        .deleteFrom("changeOrderImpactDecisionActionTask")
+        .where("decisionId", "=", input.decisionId)
+        .where("actionTaskId", "=", input.actionTaskId)
+        .where("companyId", "=", input.companyId)
+        .executeTakeFirst();
+      if (!deleted || Number(deleted.numDeletedRows) !== 1) {
+        throw new ImpactMutationRejected(
+          "Impact task link changed while it was being removed."
+        );
+      }
+
+      const now = datetime.timestamp();
+      await trx
+        .insertInto("changeOrderImpactDecisionHistory")
+        .values(
+          impactTaskHistoryRow({
+            decision,
+            eventType: "Task unlinked",
+            actionTaskId: task.id,
+            userId: input.userId,
+            now
+          })
+        )
+        .execute();
+
+      return {
+        data: {
+          decisionId: decision.id,
+          actionTaskId: task.id,
+          changed: true
+        },
+        error: null
+      } satisfies ChangeNoticeImpactTaskRelationshipResult;
+    });
+  } catch (cause) {
+    if (!(cause instanceof ImpactMutationRejected)) {
+      logger.error("Failed to unlink Change Notice Impact task", {
+        error: cause,
+        companyId: input.companyId,
+        changeNoticeId: input.changeNoticeId,
+        decisionId: input.decisionId,
+        actionTaskId: input.actionTaskId
+      });
+    }
+    return impactTaskFailure({ cause });
+  }
+}
+
+/** Designate an ordinary task as Impact follow-up before Done. */
+export async function designateChangeNoticeImpactTask(
+  db: Kysely<KyselyDatabase>,
+  input: ChangeNoticeImpactTaskRelationshipMutationInput
+): Promise<ChangeNoticeImpactTaskDesignationResult> {
+  const validation = validateImpactTaskRelationshipInput(input);
+  if (validation) return { data: null, error: { message: validation } };
+
+  try {
+    return await db.transaction().execute(async (trx) => {
+      const { decision, task } = await loadImpactTaskRelationshipContext(
+        trx,
+        input,
+        "designate"
+      );
+      const existing = await loadImpactTaskLink(trx, input);
+      const now = datetime.timestamp();
+
+      if (task.taskOrigin === "Impact follow-up") {
+        if (!existing) {
+          await trx
+            .insertInto("changeOrderImpactDecisionActionTask")
+            .values({
+              decisionId: decision.id,
+              actionTaskId: task.id,
+              companyId: input.companyId,
+              createdBy: input.userId,
+              createdAt: now
+            })
+            .execute();
+          await trx
+            .insertInto("changeOrderImpactDecisionHistory")
+            .values(
+              impactTaskHistoryRow({
+                decision,
+                eventType: "Task linked",
+                actionTaskId: task.id,
+                userId: input.userId,
+                now
+              })
+            )
+            .execute();
+        }
+        return {
+          data: {
+            decisionId: decision.id,
+            actionTaskId: task.id,
+            previousTaskOrigin: "Impact follow-up",
+            taskOrigin: "Impact follow-up",
+            changed: !existing
+          },
+          error: null
+        } satisfies ChangeNoticeImpactTaskDesignationResult;
+      }
+      if (
+        task.taskOrigin !== "Template-owned" &&
+        task.taskOrigin !== "Manual"
+      ) {
+        throw new ImpactMutationRejected(
+          "Only ordinary action tasks can be designated as Impact follow-up."
+        );
+      }
+
+      // Designation owns the origin transition; relationship creation and both
+      // feature-history events remain in this same transaction.
+      const updated = await trx
+        .updateTable("changeOrderActionTask")
+        .set({
+          taskOrigin: "Impact follow-up",
+          updatedBy: input.userId,
+          updatedAt: now
+        })
+        .where("id", "=", task.id)
+        .where("changeOrderId", "=", input.changeNoticeId)
+        .where("companyId", "=", input.companyId)
+        .where("taskOrigin", "=", task.taskOrigin)
+        .executeTakeFirst();
+      if (!updated || Number(updated.numUpdatedRows) !== 1) {
+        throw new ImpactMutationRejected(
+          "Action task origin changed while it was being designated."
+        );
+      }
+
+      if (!existing) {
+        await trx
+          .insertInto("changeOrderImpactDecisionActionTask")
+          .values({
+            decisionId: decision.id,
+            actionTaskId: task.id,
+            companyId: input.companyId,
+            createdBy: input.userId,
+            createdAt: now
+          })
+          .execute();
+        await trx
+          .insertInto("changeOrderImpactDecisionHistory")
+          .values(
+            impactTaskHistoryRow({
+              decision,
+              eventType: "Task linked",
+              actionTaskId: task.id,
+              userId: input.userId,
+              now
+            })
+          )
+          .execute();
+      }
+
+      await trx
+        .insertInto("changeOrderImpactDecisionHistory")
+        .values(
+          impactTaskHistoryRow({
+            decision,
+            eventType: "Task designated as Impact follow-up",
+            actionTaskId: task.id,
+            userId: input.userId,
+            now,
+            eventRationale: `Task origin changed from ${task.taskOrigin} to Impact follow-up`
+          })
+        )
+        .execute();
+
+      return {
+        data: {
+          decisionId: decision.id,
+          actionTaskId: task.id,
+          previousTaskOrigin: task.taskOrigin as "Template-owned" | "Manual",
+          taskOrigin: "Impact follow-up",
+          changed: true
+        },
+        error: null
+      } satisfies ChangeNoticeImpactTaskDesignationResult;
+    });
+  } catch (cause) {
+    if (!(cause instanceof ImpactMutationRejected)) {
+      logger.error("Failed to designate Change Notice Impact task", {
+        error: cause,
+        companyId: input.companyId,
+        changeNoticeId: input.changeNoticeId,
+        decisionId: input.decisionId,
+        actionTaskId: input.actionTaskId
+      });
+    }
+    return impactTaskFailure({ cause });
   }
 }
 

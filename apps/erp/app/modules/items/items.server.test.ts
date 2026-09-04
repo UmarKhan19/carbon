@@ -1,8 +1,13 @@
+import type { Database } from "@carbon/database";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 // items.server's only runtime dependency; stubbed so the pure verdict logic
 // can be tested without dragging in the app's full module graph.
 vi.mock("~/modules/settings", () => ({ getCompanySettings: vi.fn() }));
+vi.mock("~/services/database.server", () => ({
+  getDatabaseClient: vi.fn()
+}));
 vi.mock("@carbon/auth/users.server", () => ({
   getUserClaims: vi.fn()
 }));
@@ -20,6 +25,7 @@ vi.mock("@carbon/glossary", () => ({
 }));
 
 const {
+  createAuthorizedChangeNoticeImpactTask,
   deriveChangeNoticeImpactSourceAccess,
   getChangeNoticeImpactMutationAccess,
   getChangeNoticeImpactSourceAccess,
@@ -32,10 +38,12 @@ const {
   getUnreleasedChangeOrderIssue
 } = await import("./items.server");
 const { getUserClaims } = await import("@carbon/auth/users.server");
+const { getDatabaseClient } = await import("~/services/database.server");
 const { canEditChangeNoticeActionTaskFields } = await import("./items.models");
 
 afterEach(() => {
   vi.mocked(getUserClaims).mockReset();
+  vi.mocked(getDatabaseClient).mockReset();
 });
 
 const claims = (permissions: Record<string, { view: string[] }>) => ({
@@ -48,9 +56,22 @@ const claims = (permissions: Record<string, { view: string[] }>) => ({
   )
 });
 
+function fakeImpactPermissionClient(
+  companies: Partial<Record<string, string[]>> = {},
+  rpcError: { message: string } | null = null
+): SupabaseClient<Database> {
+  return {
+    rpc: vi.fn(async (_name: string, args: { permission: string }) => ({
+      data: rpcError ? null : (companies[args.permission] ?? []),
+      error: rpcError
+    }))
+  } as unknown as SupabaseClient<Database>;
+}
+
 describe("Change Notice Impact source access", () => {
-  it("rejects an invalid bulk request before resolving claims", async () => {
+  it("rejects an invalid bulk request before resolving mutation access", async () => {
     const result = await writeAuthorizedChangeNoticeImpactDecisions({
+      client: fakeImpactPermissionClient(),
       userId: "user-1",
       companyId,
       decision: { changeNoticeId: "notice-1", targets: [] }
@@ -64,10 +85,13 @@ describe("Change Notice Impact source access", () => {
   });
 
   it("requires both Change Notice view and Impact update gates for bulk writes", async () => {
-    vi.mocked(getUserClaims).mockResolvedValue(
-      claims({ purchasing: { view: [companyId] }, production: { view: [] } })
-    );
     const result = await writeAuthorizedChangeNoticeImpactDecisions({
+      client: fakeImpactPermissionClient({
+        parts_view: [],
+        parts_update: [companyId],
+        purchasing_view: [companyId],
+        production_view: []
+      }),
       userId: "user-1",
       companyId,
       decision: {
@@ -174,32 +198,17 @@ describe("Change Notice Impact source access", () => {
   });
 
   it("keeps Change Notice view and Impact update permissions independent", async () => {
-    vi.mocked(getUserClaims).mockResolvedValue({
-      role: "employee",
-      permissions: {
-        parts: {
-          view: [],
-          create: [],
-          update: [companyId],
-          delete: []
-        },
-        purchasing: {
-          view: [companyId],
-          create: [],
-          update: [],
-          delete: []
-        },
-        production: {
-          view: [],
-          create: [],
-          update: [],
-          delete: []
-        }
-      }
-    });
-
     await expect(
-      getChangeNoticeImpactMutationAccess({ userId: "user-1", companyId })
+      getChangeNoticeImpactMutationAccess({
+        client: fakeImpactPermissionClient({
+          parts_view: [],
+          parts_update: [companyId],
+          purchasing_view: [companyId],
+          production_view: []
+        }),
+        userId: "user-1",
+        companyId
+      })
     ).resolves.toMatchObject({
       status: "resolved",
       canViewChangeNotice: false,
@@ -210,6 +219,98 @@ describe("Change Notice Impact source access", () => {
         jobMaterial: false
       }
     });
+  });
+
+  it("uses only the active client's target-specific source permission RPC", async () => {
+    const client = fakeImpactPermissionClient({
+      parts_view: [companyId],
+      parts_update: [companyId],
+      purchasing_view: [companyId]
+    });
+
+    await expect(
+      getChangeNoticeImpactMutationAccess({
+        client,
+        userId: "user-1",
+        companyId,
+        targetTypes: ["purchaseOrderLine"]
+      })
+    ).resolves.toEqual({
+      status: "resolved",
+      canViewChangeNotice: true,
+      canUpdateItems: true,
+      sourceAccess: {
+        purchaseOrderLine: true,
+        job: false,
+        jobMaterial: false
+      }
+    });
+
+    const rpcPermissions = vi
+      .mocked(client.rpc)
+      .mock.calls.map(
+        ([, args]) => (args as unknown as { permission: string }).permission
+      );
+    expect(rpcPermissions).toHaveLength(3);
+    expect(rpcPermissions).toEqual(
+      expect.arrayContaining(["parts_view", "parts_update", "purchasing_view"])
+    );
+  });
+
+  it("fails closed when the active client's permission RPC fails", async () => {
+    await expect(
+      getChangeNoticeImpactMutationAccess({
+        client: fakeImpactPermissionClient(
+          {},
+          { message: "permission RPC failed" }
+        ),
+        userId: "user-1",
+        companyId,
+        targetTypes: ["job"]
+      })
+    ).resolves.toEqual({
+      status: "failed",
+      errorMessage: "Impact mutation access could not be established."
+    });
+  });
+
+  it("denies a job task when the active credential lacks production_view before opening Kysely", async () => {
+    vi.mocked(getUserClaims).mockResolvedValue(
+      claims({ production: { view: [companyId] } })
+    );
+    const client = fakeImpactPermissionClient({
+      parts_view: [companyId],
+      parts_update: [companyId],
+      production_view: []
+    });
+
+    const result = await createAuthorizedChangeNoticeImpactTask({
+      client,
+      userId: "user-1",
+      companyId,
+      task: {
+        changeNoticeId: "notice-1",
+        targetType: "job",
+        targetId: "job-1",
+        decision: {
+          decisionId: "decision-1",
+          targetType: "job",
+          targetId: "job-1"
+        },
+        task: { name: "Production follow-up" }
+      }
+    });
+
+    expect(result).toEqual({
+      data: null,
+      error: { message: "Impact source access is restricted for this target." }
+    });
+    expect(client.rpc).toHaveBeenCalledWith(
+      "get_companies_with_employee_permission",
+      { permission: "production_view" }
+    );
+    expect(getUserClaims).not.toHaveBeenCalled();
+    expect(getDatabaseClient).not.toHaveBeenCalled();
   });
 
   it("returns explicit failed access instead of Restricted when claims resolution fails", async () => {
@@ -233,10 +334,13 @@ describe("Change Notice Impact source access", () => {
     );
   });
 
-  it("fails authorized reconciliation before opening the database when claims fail", async () => {
-    vi.mocked(getUserClaims).mockRejectedValue(new Error("claims unavailable"));
+  it("fails authorized reconciliation before opening the database when permission RPC fails", async () => {
     await expect(
       reconcileAuthorizedChangeNoticeImpactProvenance({
+        client: fakeImpactPermissionClient(
+          {},
+          { message: "permission RPC failed" }
+        ),
         userId: "user-1",
         companyId,
         changeNoticeId: "notice-1"

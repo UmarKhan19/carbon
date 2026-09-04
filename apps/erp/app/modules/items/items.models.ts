@@ -1,4 +1,4 @@
-import type { Database } from "@carbon/database";
+import type { Database, Json } from "@carbon/database";
 import type { PostgrestError } from "@supabase/supabase-js";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
@@ -1741,6 +1741,186 @@ export type ChangeNoticeImpactDecisionBulkWriteResult = {
   data: ChangeNoticeImpactDecisionBulkWriteData | null;
   error: { message: string } | null;
 };
+
+export type ChangeNoticeImpactTaskDecisionReference = {
+  decisionId: string;
+  targetType: ChangeNoticeImpactTargetType;
+  targetId: string;
+};
+
+export type ChangeNoticeImpactTaskFields = {
+  name?: string;
+  notes?: Json | null;
+  assignee?: string | null;
+  dueDate?: string | null;
+};
+
+export type ChangeNoticeImpactTaskCreateRequest = {
+  changeNoticeId: string;
+  targetType: ChangeNoticeImpactTargetType;
+  targetId: string;
+  decision?: ChangeNoticeImpactTaskDecisionReference;
+  bootstrapDecision?: {
+    decisionStatus: "Action required";
+    rationale: string;
+  };
+  task: ChangeNoticeImpactTaskFields;
+};
+
+export type ChangeNoticeImpactTaskRelationshipRequest =
+  ChangeNoticeImpactTaskDecisionReference & {
+    actionTaskId: string;
+  };
+
+export type ChangeNoticeImpactTaskCreateMutationInput =
+  ChangeNoticeImpactTaskCreateRequest & {
+    /** Server-derived tenant and actor context. */
+    companyId: string;
+    userId: string;
+    /** Resolved from the actor's source-domain view permissions. */
+    sourceAccess: ChangeNoticeImpactSourceAccess;
+  };
+
+export type ChangeNoticeImpactTaskRelationshipMutationInput =
+  ChangeNoticeImpactTaskRelationshipRequest & {
+    changeNoticeId: string;
+    /** Server-derived tenant and actor context. */
+    companyId: string;
+    userId: string;
+    /** Resolved from the actor's source-domain view permissions. */
+    sourceAccess: ChangeNoticeImpactSourceAccess;
+  };
+
+export type ChangeNoticeImpactTaskCreateData = {
+  decisionId: string;
+  actionTaskId: string;
+  decisionCreated: boolean;
+  taskOrigin: "Impact follow-up";
+  status: (typeof changeNoticeTaskStatus)[number];
+};
+
+export type ChangeNoticeImpactTaskRelationshipData = {
+  decisionId: string;
+  actionTaskId: string;
+  changed: boolean;
+};
+
+export type ChangeNoticeImpactTaskDesignationData =
+  ChangeNoticeImpactTaskRelationshipData & {
+    previousTaskOrigin: ChangeNoticeActionTaskOrigin;
+    taskOrigin: "Impact follow-up";
+  };
+
+export type ChangeNoticeImpactTaskCreateResult = {
+  data: ChangeNoticeImpactTaskCreateData | null;
+  error: { message: string } | null;
+};
+
+export type ChangeNoticeImpactTaskRelationshipResult = {
+  data: ChangeNoticeImpactTaskRelationshipData | null;
+  error: { message: string } | null;
+};
+
+export type ChangeNoticeImpactTaskDesignationResult = {
+  data: ChangeNoticeImpactTaskDesignationData | null;
+  error: { message: string } | null;
+};
+
+export const changeNoticeImpactTaskDecisionReferenceValidator = z
+  .object({
+    decisionId: z.string().min(1, { message: "Decision is required" }),
+    targetType: changeNoticeImpactTargetTypeValidator,
+    targetId: z.string().min(1, { message: "Impact target is required" })
+  })
+  .strict();
+
+const changeNoticeImpactTaskFieldsValidator = z
+  .object({
+    name: z.string().trim().min(1).optional(),
+    notes: z.custom<Json>().nullable().optional(),
+    assignee: z.string().trim().nullable().optional(),
+    dueDate: z.string().trim().nullable().optional()
+  })
+  .strict();
+
+export const changeNoticeImpactTaskCreateRequestValidator = z
+  .object({
+    changeNoticeId: z.string().min(1, { message: "Change notice is required" }),
+    targetType: changeNoticeImpactTargetTypeValidator,
+    targetId: z.string().min(1, { message: "Impact target is required" }),
+    decision: changeNoticeImpactTaskDecisionReferenceValidator.optional(),
+    bootstrapDecision: z
+      .object({
+        decisionStatus: z.literal("Action required"),
+        rationale: z.string().trim().min(1, {
+          message: "Action required needs written follow-up rationale."
+        })
+      })
+      .strict()
+      .optional(),
+    task: changeNoticeImpactTaskFieldsValidator
+  })
+  .strict()
+  .superRefine((input, context) => {
+    if ((input.decision ? 1 : 0) + (input.bootstrapDecision ? 1 : 0) !== 1) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["decision"],
+        message:
+          "Impact task creation requires an existing decision or an Action Required bootstrap."
+      });
+    }
+    if (
+      input.decision &&
+      (input.decision.targetType !== input.targetType ||
+        input.decision.targetId !== input.targetId)
+    ) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["decision"],
+        message:
+          "Impact task decision target does not match the requested target."
+      });
+    }
+  });
+
+export const changeNoticeImpactTaskRelationshipRequestValidator = z
+  .object({
+    decisionId: z.string().min(1, { message: "Decision is required" }),
+    targetType: changeNoticeImpactTargetTypeValidator,
+    targetId: z.string().min(1, { message: "Impact target is required" }),
+    actionTaskId: z.string().min(1, { message: "Action task is required" })
+  })
+  .strict();
+
+export const changeNoticeImpactTaskCreateFormValidator = z
+  .object({
+    decisionId: zfd.text(z.string().trim().min(1).optional()),
+    targetType: changeNoticeImpactTargetTypeValidator,
+    targetId: z.string().min(1, { message: "Impact target is required" }),
+    bootstrapRationale: zfd.text(z.string().trim().min(1).optional()),
+    name: zfd.text(z.string().trim().min(1).optional()),
+    notes: zfd.text(z.string().optional()),
+    assignee: zfd.text(z.string().trim().min(1).optional()),
+    dueDate: zfd.text(z.string().trim().min(1).optional())
+  })
+  .superRefine((input, context) => {
+    if ((input.decisionId ? 1 : 0) + (input.bootstrapRationale ? 1 : 0) !== 1) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["decisionId"],
+        message:
+          "Impact task creation requires an existing decision or an Action Required bootstrap."
+      });
+    }
+  });
+
+export const changeNoticeImpactTaskRelationshipFormValidator = z.object({
+  decisionId: z.string().min(1, { message: "Decision is required" }),
+  targetType: changeNoticeImpactTargetTypeValidator,
+  targetId: z.string().min(1, { message: "Impact target is required" }),
+  actionTaskId: z.string().min(1, { message: "Action task is required" })
+});
 
 export type ChangeNoticeImpactProvenanceReconciliationInput = {
   /** Server-derived tenant and actor context. */

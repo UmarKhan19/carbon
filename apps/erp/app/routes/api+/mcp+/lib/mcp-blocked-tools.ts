@@ -53,6 +53,10 @@ export const MCP_BLOCKED_TOOL_NAMES: readonly string[] = [
   "items_writeChangeNoticeImpactDecision",
   "items_writeChangeNoticeImpactDecisions",
   "items_reconcileChangeNoticeImpactProvenance",
+  "items_createChangeNoticeImpactTask",
+  "items_linkChangeNoticeImpactTask",
+  "items_unlinkChangeNoticeImpactTask",
+  "items_designateChangeNoticeImpactTask",
   "items_getChangeNoticeImpactCandidates",
   "items_removeChangeNoticeAffectedItem",
   // These helpers are internal implementation details, not MCP contracts. Without
