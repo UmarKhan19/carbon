@@ -80,7 +80,9 @@ export const MCP_BLOCKED_TOOL_NAMES: readonly string[] = [
   "items_seedDefaultChangeNoticeActions",
   "items_updateChangeNoticeActionNotes",
   "items_updateChangeNoticeActionAssignee",
-  "items_updateChangeNoticeActionDueDate"
+  "items_updateChangeNoticeActionDueDate",
+  "items_upsertChangeNoticeRequiredAction",
+  "items_deleteChangeNoticeRequiredAction"
 ];
 
 export function isMcpBlockedTool(name: string): boolean {

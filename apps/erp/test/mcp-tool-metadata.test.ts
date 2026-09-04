@@ -58,13 +58,73 @@ describe("mcp tool-metadata generator", () => {
       "items_seedDefaultChangeNoticeActions",
       "items_updateChangeNoticeActionNotes",
       "items_updateChangeNoticeActionAssignee",
-      "items_updateChangeNoticeActionDueDate"
+      "items_updateChangeNoticeActionDueDate",
+      "items_upsertChangeNoticeRequiredAction",
+      "items_deleteChangeNoticeRequiredAction"
     ]) {
       expect(MCP_BLOCKED_TOOL_NAMES).toContain(name);
       expect(byName.has(name)).toBe(false);
     }
 
-    expect(byName.has("items_getChangeNoticeActions")).toBe(true);
+    for (const name of [
+      "items_getChangeNoticeActions",
+      "items_getChangeNoticeRequiredActions",
+      "items_getChangeNoticeRequiredActionsList",
+      "items_getChangeNoticeRequiredAction"
+    ]) {
+      expect(byName.has(name)).toBe(true);
+    }
+  });
+
+  it("publishes only the explicit Slice 3D adapters with server-owned context", () => {
+    const adapterNames = [
+      "items_updateChangeNoticeTaskStatus",
+      "items_updateChangeNoticeTaskNotes",
+      "items_updateChangeNoticeTaskAssignee",
+      "items_updateChangeNoticeTaskDueDate",
+      "items_deleteChangeNoticeTask",
+      "items_upsertChangeNoticeActionTemplate",
+      "items_deleteChangeNoticeActionTemplate",
+      "items_createImpactFollowUpTask",
+      "items_linkImpactDecisionTask",
+      "items_unlinkImpactDecisionTask",
+      "items_designateImpactFollowUpTask"
+    ] as const;
+
+    const expectedClassifications = {
+      items_updateChangeNoticeTaskStatus: "WRITE",
+      items_updateChangeNoticeTaskNotes: "WRITE",
+      items_updateChangeNoticeTaskAssignee: "WRITE",
+      items_updateChangeNoticeTaskDueDate: "WRITE",
+      items_deleteChangeNoticeTask: "DESTRUCTIVE",
+      items_upsertChangeNoticeActionTemplate: "WRITE",
+      items_deleteChangeNoticeActionTemplate: "DESTRUCTIVE",
+      items_createImpactFollowUpTask: "WRITE",
+      items_linkImpactDecisionTask: "WRITE",
+      items_unlinkImpactDecisionTask: "WRITE",
+      items_designateImpactFollowUpTask: "WRITE"
+    } as const;
+
+    for (const name of adapterNames) {
+      const tool = get(name);
+      expect(tool.classification).toBe(expectedClassifications[name]);
+      expect(tool.serviceParams).not.toContain("db");
+      expect(props(tool)).not.toHaveProperty("client");
+      expect(props(tool)).not.toHaveProperty("companyId");
+      expect(props(tool)).not.toHaveProperty("userId");
+      expect(props(tool)).not.toHaveProperty("db");
+    }
+
+    expect(byName.has("items_manageChangeNoticeTask")).toBe(false);
+    expect(byName.has("items_manageImpactTask")).toBe(false);
+
+    const impactCreate = get("items_createImpactFollowUpTask");
+    const impactTask = props(impactCreate).task;
+    expect(impactCreate.schema.required).toContain("task");
+    expect(impactTask?.type).toBe("object");
+    for (const field of ["name", "notes", "assignee", "dueDate"]) {
+      expect(impactTask?.required ?? []).not.toContain(field);
+    }
   });
 
   // #2 — an array-of-objects service param publishes as an array, not an object.
