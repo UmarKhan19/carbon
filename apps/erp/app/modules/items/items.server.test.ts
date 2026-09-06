@@ -25,6 +25,7 @@ vi.mock("@carbon/glossary", () => ({
 }));
 
 const {
+  applyChangeNotice,
   createAuthorizedChangeNoticeImpactTask,
   deriveChangeNoticeImpactSourceAccess,
   getChangeNoticeImpactMutationAccess,
@@ -67,6 +68,22 @@ function fakeImpactPermissionClient(
     }))
   } as unknown as SupabaseClient<Database>;
 }
+
+describe("Change Notice Impact apply transition", () => {
+  it("rejects a Done transition unless the submitted source is Implementation", async () => {
+    const result = await applyChangeNotice(null as never, null as never, {
+      changeNoticeId: "notice-1",
+      userId: "user-1",
+      companyId: "company-1",
+      fromStatus: "Draft"
+    });
+
+    expect(result).toEqual({
+      data: null,
+      error: { message: "Change notice must be at Implementation to apply" }
+    });
+  });
+});
 
 describe("Change Notice Impact source access", () => {
   it("rejects an invalid bulk request before resolving mutation access", async () => {

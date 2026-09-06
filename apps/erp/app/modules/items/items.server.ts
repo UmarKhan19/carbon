@@ -28,6 +28,7 @@ import type {
   ChangeNoticeImpactTaskDesignationResult,
   ChangeNoticeImpactTaskRelationshipRequest,
   ChangeNoticeImpactTaskRelationshipResult,
+  changeNoticeStatus,
   plmReleaseControl
 } from "./items.models";
 import {
@@ -1049,9 +1050,16 @@ export async function applyChangeNotice(
     changeNoticeId: string;
     userId: string;
     companyId: string;
+    fromStatus: (typeof changeNoticeStatus)[number];
   }
 ): Promise<{ data: { id: string } | null; error: { message: string } | null }> {
-  const { changeNoticeId, userId, companyId } = args;
+  const { changeNoticeId, userId, companyId, fromStatus } = args;
+  if (fromStatus !== "Implementation") {
+    return {
+      data: null,
+      error: { message: "Change notice must be at Implementation to apply" }
+    };
+  }
 
   const cn = await client
     .from("changeOrder")
