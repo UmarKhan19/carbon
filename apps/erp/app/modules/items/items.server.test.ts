@@ -29,6 +29,7 @@ const {
   createAuthorizedChangeNoticeImpactTask,
   deriveChangeNoticeImpactSourceAccess,
   getChangeNoticeImpactMutationAccess,
+  getChangeNoticeImpactReadAccess,
   getChangeNoticeImpactSourceAccess,
   requireChangeNoticeActionTaskEditable,
   reconcileAuthorizedChangeNoticeImpactProvenance,
@@ -211,6 +212,57 @@ describe("Change Notice Impact source access", () => {
         job: false,
         jobMaterial: false
       }
+    });
+  });
+
+  it("resolves read access through the active credential-bound permission RPCs", async () => {
+    const client = fakeImpactPermissionClient({
+      parts_view: [companyId],
+      purchasing_view: [companyId],
+      production_view: []
+    });
+
+    await expect(
+      getChangeNoticeImpactReadAccess({ client, userId: "user-1", companyId })
+    ).resolves.toEqual({
+      status: "resolved",
+      canViewChangeNotice: true,
+      sourceAccess: {
+        purchaseOrderLine: true,
+        job: false,
+        jobMaterial: false
+      }
+    });
+
+    const rpcPermissions = vi
+      .mocked(client.rpc)
+      .mock.calls.map(
+        ([, args]) => (args as unknown as { permission: string }).permission
+      );
+    expect(rpcPermissions).toHaveLength(3);
+    expect(rpcPermissions).toEqual(
+      expect.arrayContaining([
+        "parts_view",
+        "purchasing_view",
+        "production_view"
+      ])
+    );
+    expect(getUserClaims).not.toHaveBeenCalled();
+  });
+
+  it("fails closed when read access resolution fails", async () => {
+    await expect(
+      getChangeNoticeImpactReadAccess({
+        client: fakeImpactPermissionClient(
+          {},
+          { message: "permission RPC failed" }
+        ),
+        userId: "user-1",
+        companyId
+      })
+    ).resolves.toEqual({
+      status: "failed",
+      errorMessage: "Impact source access could not be established."
     });
   });
 

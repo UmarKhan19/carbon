@@ -19,6 +19,7 @@ const {
   deriveChangeNoticeImpactProvenance,
   getChangeNoticeAffectedItems,
   getChangeNoticeImpactCandidates,
+  getChangeNoticeImpactWorkspace,
   normalizeJobImpactSnapshot,
   writeChangeNoticeImpactDecisions,
   removeChangeNoticeAffectedItem,
@@ -3417,7 +3418,7 @@ describe("Change Notice Impact provenance", () => {
     expect(result.historicalProvenance).toEqual([
       expect.objectContaining({
         affectedItemId: "removed",
-        affectedItemLabel: "Affected item",
+        affectedItemLabel: null,
         status: "Historical",
         endedReason: "Affected item removed from Change Notice"
       })
@@ -3466,6 +3467,11 @@ type FakeClientOptions = {
     column: string;
     values: unknown[];
   }>;
+  ranges?: Array<{
+    table: string;
+    from: number;
+    to: number;
+  }>;
   maxRows?: number;
 };
 
@@ -3473,6 +3479,7 @@ function fakeImpactClient(options: FakeClientOptions) {
   const queries = options.queries ?? [];
   const selects = options.selects ?? [];
   const inCalls = options.inCalls ?? [];
+  const ranges = options.ranges ?? [];
   const errors = options.errors ?? new Set<string>();
   const maxRows = options.maxRows ?? Number.POSITIVE_INFINITY;
 
@@ -3480,6 +3487,7 @@ function fakeImpactClient(options: FakeClientOptions) {
     queries,
     selects,
     inCalls,
+    ranges,
     from(table: string) {
       queries.push(table);
       const state: {
@@ -3575,6 +3583,7 @@ function fakeImpactClient(options: FakeClientOptions) {
         },
         range: (from: number, to: number) => {
           state.range = [from, to];
+          ranges.push({ table, from, to });
           return builder;
         },
         limit: (value: number) => {
@@ -3676,9 +3685,16 @@ function fakeImpactClient(options: FakeClientOptions) {
                     (column) => column.length > 0 && !column.includes("!")
                   );
                 return Object.fromEntries(
-                  columns
-                    .filter((column) => Object.hasOwn(row, column))
-                    .map((column) => [column, row[column]])
+                  columns.flatMap((column) => {
+                    if (column === "supplier(name)") {
+                      return Object.hasOwn(row, "supplier")
+                        ? [["supplier", row.supplier]]
+                        : [];
+                    }
+                    return Object.hasOwn(row, column)
+                      ? [[column, row[column]]]
+                      : [];
+                  })
                 );
               });
         if (state.single) {
@@ -3704,6 +3720,7 @@ function fakeImpactClient(options: FakeClientOptions) {
     queries: string[];
     selects: string[];
     inCalls: Array<{ table: string; column: string; values: unknown[] }>;
+    ranges: Array<{ table: string; from: number; to: number }>;
   };
 }
 
@@ -3790,11 +3807,16 @@ function poRow(id: string, itemId = "item-1", over: FakeRow = {}) {
   };
 }
 
-function poParent(id: string, status = "To Receive") {
+function poParent(
+  id: string,
+  status = "To Receive",
+  supplierName = "Acme Components"
+) {
   return {
     id,
     purchaseOrderId: id.toUpperCase(),
     supplierId: "supplier-1",
+    supplier: { name: supplierName },
     status,
     companyId
   };
@@ -3964,6 +3986,344 @@ describe("Change Notice Impact candidate discovery", () => {
         .filter((select) => select.includes("quantityComplete"))
         .every((select) => !select.includes("productionQuantity"))
     ).toBe(true);
+  });
+
+  it("classifies historical Jobs and Job Materials as references", async () => {
+    const cases = [
+      {
+        targetType: "job" as const,
+        targetId: "job-historical",
+        rows: {
+          job: [jobRow("job-historical", "item-1", "Completed")],
+          jobMakeMethod: [rootRow("job-historical")]
+        }
+      },
+      {
+        targetType: "jobMaterial" as const,
+        targetId: "material-historical",
+        rows: {
+          job: [jobRow("job-material-historical", "item-1", "Completed")],
+          jobMakeMethod: [rootRow("job-material-historical")],
+          jobMaterial: [
+            materialRow("material-historical", "job-material-historical")
+          ]
+        }
+      }
+    ];
+
+    for (const entry of cases) {
+      const result = await getChangeNoticeImpactCandidates(
+        fakeImpactClient({ rows: baseImpactRows(entry.rows) }),
+        companyId,
+        changeNoticeId,
+        { sourceAccess }
+      );
+      const candidate = result.data?.candidates.find(
+        (item) =>
+          item.targetType === entry.targetType &&
+          item.targetId === entry.targetId
+      );
+
+      expect(candidate).toMatchObject({
+        targetType: entry.targetType,
+        targetId: entry.targetId,
+        sourceAvailability: "Present",
+        exposureClassification: "Historical reference",
+        currentSnapshot: expect.any(Object),
+        decision: null,
+        freshness: null
+      });
+      expect(result.data?.coverage[entry.targetType]).toMatchObject({
+        status: "complete",
+        currentExposureCount: 0,
+        historicalReferenceCount: 1,
+        unassessedCount: 0
+      });
+    }
+  });
+
+  it("retains historical Job and Job Material decisions", async () => {
+    const storedJob = normalizeJobImpactSnapshot(
+      baseJobInput({
+        jobId: "job-assessed",
+        status: "Completed",
+        effectiveMethodId: "root-job-assessed"
+      })
+    );
+    const storedMaterial = normalizeJobMaterialImpactSnapshot(
+      baseMaterialInput({
+        jobMaterialId: "material-assessed",
+        jobId: "job-material-assessed",
+        jobStatus: "Completed"
+      })
+    );
+    if (
+      storedJob.sourceAvailability !== "Present" ||
+      storedMaterial.sourceAvailability !== "Present"
+    ) {
+      throw new Error("Production assessment fixtures must normalize");
+    }
+
+    const cases = [
+      {
+        targetType: "job" as const,
+        targetId: "job-assessed",
+        rows: {
+          job: [jobRow("job-assessed", "item-1", "Completed")],
+          jobMakeMethod: [rootRow("job-assessed")]
+        },
+        snapshot: storedJob.snapshot
+      },
+      {
+        targetType: "jobMaterial" as const,
+        targetId: "material-assessed",
+        rows: {
+          job: [jobRow("job-material-assessed", "item-1", "Completed")],
+          jobMakeMethod: [rootRow("job-material-assessed")],
+          jobMaterial: [
+            materialRow("material-assessed", "job-material-assessed")
+          ]
+        },
+        snapshot: storedMaterial.snapshot
+      }
+    ];
+
+    for (const entry of cases) {
+      const result = await getChangeNoticeImpactCandidates(
+        fakeImpactClient({
+          rows: baseImpactRows({
+            ...entry.rows,
+            changeOrderImpactDecision: [
+              {
+                id: `decision-${entry.targetId}`,
+                companyId,
+                changeNoticeId,
+                targetType: entry.targetType,
+                targetId: entry.targetId,
+                decisionStatus: "Action required",
+                noActionReasonCode: null,
+                rationale: "follow up",
+                resolutionNote: null,
+                revision: 1,
+                snapshotVersion: 1,
+                assessmentSnapshot: entry.snapshot
+              }
+            ]
+          })
+        }),
+        companyId,
+        changeNoticeId,
+        { sourceAccess }
+      );
+      const candidate = result.data?.candidates.find(
+        (item) =>
+          item.targetType === entry.targetType &&
+          item.targetId === entry.targetId
+      );
+
+      expect(candidate).toMatchObject({
+        sourceAvailability: "Present",
+        exposureClassification: "Historical reference",
+        currentSnapshot: expect.any(Object),
+        decision: {
+          status: "Action required",
+          persistedSnapshot: expect.any(Object)
+        },
+        freshness: "Current"
+      });
+      expect(result.data?.coverage[entry.targetType]).toMatchObject({
+        status: "complete",
+        currentExposureCount: 0,
+        historicalReferenceCount: 1,
+        unassessedCount: 0
+      });
+    }
+  });
+
+  it("reports changed freshness for Jobs and Job Materials", async () => {
+    const storedJob = normalizeJobImpactSnapshot(
+      baseJobInput({
+        jobId: "job-changed",
+        effectiveMethodId: "root-job-changed"
+      })
+    );
+    const storedMaterial = normalizeJobMaterialImpactSnapshot(
+      baseMaterialInput({
+        jobMaterialId: "material-changed",
+        jobId: "job-material-changed"
+      })
+    );
+    if (
+      storedJob.sourceAvailability !== "Present" ||
+      storedMaterial.sourceAvailability !== "Present"
+    ) {
+      throw new Error("Production assessment fixtures must normalize");
+    }
+
+    const cases = [
+      {
+        targetType: "job" as const,
+        targetId: "job-changed",
+        rows: {
+          job: [
+            {
+              ...jobRow("job-changed"),
+              quantityComplete: 25
+            }
+          ],
+          jobMakeMethod: [rootRow("job-changed")]
+        },
+        snapshot: storedJob.snapshot
+      },
+      {
+        targetType: "jobMaterial" as const,
+        targetId: "material-changed",
+        rows: {
+          job: [jobRow("job-material-changed")],
+          jobMakeMethod: [rootRow("job-material-changed")],
+          jobMaterial: [
+            materialRow("material-changed", "job-material-changed", "item-1")
+          ].map((row) => ({
+            ...row,
+            quantityIssued: 4,
+            quantityToIssue: 1
+          }))
+        },
+        snapshot: storedMaterial.snapshot
+      }
+    ];
+
+    for (const entry of cases) {
+      const result = await getChangeNoticeImpactCandidates(
+        fakeImpactClient({
+          rows: baseImpactRows({
+            ...entry.rows,
+            changeOrderImpactDecision: [
+              {
+                id: `decision-${entry.targetId}`,
+                companyId,
+                changeNoticeId,
+                targetType: entry.targetType,
+                targetId: entry.targetId,
+                decisionStatus: "Action required",
+                noActionReasonCode: null,
+                rationale: "follow up",
+                resolutionNote: null,
+                revision: 1,
+                snapshotVersion: 1,
+                assessmentSnapshot: entry.snapshot
+              }
+            ]
+          })
+        }),
+        companyId,
+        changeNoticeId,
+        { sourceAccess }
+      );
+      const candidate = result.data?.candidates.find(
+        (item) =>
+          item.targetType === entry.targetType &&
+          item.targetId === entry.targetId
+      );
+
+      expect(candidate).toMatchObject({
+        sourceAvailability: "Present",
+        exposureClassification: "Current operational exposure",
+        currentSnapshot: expect.any(Object),
+        decision: { status: "Action required" },
+        freshness: "Changed since assessment"
+      });
+      expect(result.data?.coverage[entry.targetType]).toMatchObject({
+        status: "complete",
+        currentExposureCount: 1,
+        historicalReferenceCount: 0,
+        unassessedCount: 0
+      });
+    }
+  });
+
+  it("establishes Source deleted for missing Production sources only after complete lookup", async () => {
+    const storedJob = normalizeJobImpactSnapshot(
+      baseJobInput({
+        jobId: "job-deleted",
+        effectiveMethodId: "root-job-deleted"
+      })
+    );
+    const storedMaterial = normalizeJobMaterialImpactSnapshot(
+      baseMaterialInput({
+        jobMaterialId: "material-deleted",
+        jobId: "job-material-deleted"
+      })
+    );
+    if (
+      storedJob.sourceAvailability !== "Present" ||
+      storedMaterial.sourceAvailability !== "Present"
+    ) {
+      throw new Error("Production assessment fixtures must normalize");
+    }
+
+    const cases = [
+      {
+        targetType: "job" as const,
+        targetId: "job-deleted",
+        snapshot: storedJob.snapshot
+      },
+      {
+        targetType: "jobMaterial" as const,
+        targetId: "material-deleted",
+        snapshot: storedMaterial.snapshot
+      }
+    ];
+
+    for (const entry of cases) {
+      const result = await getChangeNoticeImpactCandidates(
+        fakeImpactClient({
+          rows: baseImpactRows({
+            changeOrderImpactDecision: [
+              {
+                id: `decision-${entry.targetId}`,
+                companyId,
+                changeNoticeId,
+                targetType: entry.targetType,
+                targetId: entry.targetId,
+                decisionStatus: "Action required",
+                noActionReasonCode: null,
+                rationale: "follow up",
+                resolutionNote: null,
+                revision: 1,
+                snapshotVersion: 1,
+                assessmentSnapshot: entry.snapshot
+              }
+            ]
+          })
+        }),
+        companyId,
+        changeNoticeId,
+        { sourceAccess }
+      );
+      const candidate = result.data?.candidates.find(
+        (item) =>
+          item.targetType === entry.targetType &&
+          item.targetId === entry.targetId
+      );
+
+      expect(candidate).toMatchObject({
+        sourceAvailability: "Source deleted",
+        exposureClassification: "Historical reference",
+        currentSnapshot: null,
+        decision: {
+          status: "Action required",
+          persistedSnapshot: expect.any(Object)
+        },
+        freshness: "Unknown"
+      });
+      expect(result.data?.coverage[entry.targetType]).toMatchObject({
+        status: "complete",
+        currentExposureCount: 0,
+        historicalReferenceCount: 1,
+        unassessedCount: 0
+      });
+    }
   });
 
   it("keeps valid candidates when one domain row has a negative quantity", async () => {
@@ -4952,7 +5312,7 @@ describe("Change Notice Impact candidate discovery", () => {
       historical: null
     });
     expect(first.data?.coverage.purchaseOrderLine.currentExposureCount).toBe(3);
-    expect(first.data?.coverage.purchaseOrderLine.unassessedCount).toBeNull();
+    expect(first.data?.coverage.purchaseOrderLine.unassessedCount).toBe(3);
 
     const second = await getChangeNoticeImpactCandidates(
       client,
@@ -4994,6 +5354,36 @@ describe("Change Notice Impact candidate discovery", () => {
       historical: null
     });
     expect(third.data?.coverage.purchaseOrderLine.currentExposureCount).toBe(3);
+  });
+
+  it("treats an exhausted domain cursor as an exhausted stream", async () => {
+    const result = await getChangeNoticeImpactCandidates(
+      fakeImpactClient({
+        rows: baseImpactRows({
+          purchaseOrderLine: [poRow("pol-exhausted")],
+          purchaseOrder: [poParent("po-pol-exhausted")]
+        })
+      }),
+      companyId,
+      changeNoticeId,
+      {
+        sourceAccess,
+        limit: 1,
+        cursor: {
+          purchaseOrderLine: { current: null, historical: null }
+        }
+      }
+    );
+
+    expect(
+      result.data?.candidates.filter(
+        (candidate) => candidate.targetType === "purchaseOrderLine"
+      )
+    ).toEqual([]);
+    expect(result.data?.coverage.purchaseOrderLine).toMatchObject({
+      status: "complete",
+      nextCursor: { current: null, historical: null }
+    });
   });
 
   it("does not skip or repeat mixed-case IDs across failed-coverage continuation pages", async () => {
@@ -5071,6 +5461,43 @@ describe("Change Notice Impact candidate discovery", () => {
       sourceAvailability: "Unavailable",
       exposureClassification: null,
       currentSnapshot: null
+    });
+  });
+
+  it("preserves failed purchasing coverage when bounded fallback reaches the workspace limit", async () => {
+    const ids = Array.from(
+      { length: 501 },
+      (_, index) => `pol-${index.toString().padStart(4, "0")}`
+    );
+    const client = fakeImpactClient({
+      rows: baseImpactRows({
+        purchaseOrderLine: ids.map((id) => poRow(id)),
+        purchaseOrder: ids.map((id) => poParent(`po-${id}`))
+      }),
+      // The exact/full summary fails, while the bounded fallback row read has
+      // no count request and remains available to return a continuation cursor.
+      errors: new Set(["purchaseOrderLine:count"])
+    });
+
+    const result = await getChangeNoticeImpactWorkspace(
+      client,
+      companyId,
+      changeNoticeId,
+      { sourceAccess }
+    );
+    const purchaseCandidates = result.data?.candidates.filter(
+      (candidate) => candidate.targetType === "purchaseOrderLine"
+    );
+
+    expect(result.error).toBeNull();
+    expect(purchaseCandidates).toHaveLength(500);
+    expect(result.data?.coverage.purchaseOrderLine).toMatchObject({
+      status: "failed",
+      currentExposureCount: null,
+      historicalReferenceCount: null,
+      unassessedCount: null,
+      errorMessage: "Purchase Order Impact coverage failed.",
+      nextCursor: { current: "pol-0499", historical: null }
     });
   });
 
@@ -5197,14 +5624,21 @@ describe("Change Notice Impact candidate discovery", () => {
       sourceAvailability: "Present",
       exposureClassification: "Current operational exposure"
     });
-    expect(
-      result.data?.candidates.find(
-        (candidate) => candidate.targetId === "pol-bad"
-      )
-    ).toMatchObject({
-      sourceAvailability: "Unavailable",
+    const malformed = result.data?.candidates.find(
+      (candidate) => candidate.targetId === "pol-bad"
+    );
+    expect(malformed).toMatchObject({
+      sourceAvailability: "Present",
+      exposureClassification: "Current operational exposure",
+      currentSnapshot: expect.any(Object),
+      decision: {
+        status: "Action required",
+        persistedSnapshot: null
+      },
       freshness: "Unknown"
     });
+    expect(malformed?.sourceAvailability).not.toBe("Source deleted");
+    expect(malformed?.decision?.status).not.toBe("Unassessed");
   });
 
   it("keeps off-page malformed persisted snapshots in domain coverage", async () => {
@@ -5260,12 +5694,17 @@ describe("Change Notice Impact candidate discovery", () => {
         cursor: { purchaseOrderLine: { current: "pol-a" } }
       }
     );
-    expect(
-      second.data?.candidates.find(
-        (candidate) => candidate.targetId === "pol-z"
-      )
-    ).toMatchObject({
-      sourceAvailability: "Unavailable",
+    const malformed = second.data?.candidates.find(
+      (candidate) => candidate.targetId === "pol-z"
+    );
+    expect(malformed).toMatchObject({
+      sourceAvailability: "Present",
+      exposureClassification: "Current operational exposure",
+      currentSnapshot: expect.any(Object),
+      decision: {
+        status: "Action required",
+        persistedSnapshot: null
+      },
       freshness: "Unknown"
     });
     expect(
@@ -5489,7 +5928,8 @@ describe("Change Notice Impact candidate discovery", () => {
         targetType: entry.targetType,
         targetId: entry.malformedId,
         currentSnapshot: expect.any(Object),
-        sourceAvailability: "Unavailable",
+        sourceAvailability: "Present",
+        exposureClassification: "Current operational exposure",
         freshness: "Unknown",
         decision: {
           status: "Action required",
@@ -5497,6 +5937,7 @@ describe("Change Notice Impact candidate discovery", () => {
         }
       });
       expect(malformed?.sourceAvailability).not.toBe("Source deleted");
+      expect(malformed?.decision?.status).not.toBe("Unassessed");
     }
   });
 
@@ -5681,6 +6122,31 @@ describe("Change Notice Impact candidate discovery", () => {
     expect(client.queries).toEqual([]);
   });
 
+  it("fails closed for an incomplete source capability map", async () => {
+    const client = fakeImpactClient({
+      rows: baseImpactRows({
+        purchaseOrderLine: [poRow("secret-line")],
+        purchaseOrder: [poParent("po-secret-line")]
+      })
+    });
+    const incompleteSourceAccess = { ...sourceAccess };
+    Reflect.deleteProperty(incompleteSourceAccess, "jobMaterial");
+
+    const result = await getChangeNoticeImpactCandidates(
+      client,
+      companyId,
+      changeNoticeId,
+      { sourceAccess: incompleteSourceAccess }
+    );
+
+    expect(result.error).toBeNull();
+    expect(result.data?.candidates).toEqual([]);
+    expect(result.data?.coverage.purchaseOrderLine.status).toBe("failed");
+    expect(result.data?.coverage.job.status).toBe("failed");
+    expect(result.data?.coverage.jobMaterial.status).toBe("failed");
+    expect(client.queries).toEqual([]);
+  });
+
   it("isolates wrong-company source rows through every company predicate", async () => {
     const client = fakeImpactClient({
       rows: baseImpactRows({
@@ -5718,7 +6184,7 @@ describe("Change Notice Impact candidate discovery", () => {
       {
         sourceAccess: {
           purchaseOrderLine: true,
-          job: false,
+          job: true,
           jobMaterial: false
         }
       }
@@ -6057,6 +6523,12 @@ describe("Change Notice Impact candidate discovery", () => {
     expect(candidate).toMatchObject({
       sourceAvailability: "Unavailable",
       exposureClassification: null,
+      parent: null,
+      item: null,
+      currentSnapshot: null,
+      currentProvenance: [],
+      historicalProvenance: [],
+      provenance: [],
       decision: null,
       freshness: "Unknown"
     });
@@ -6079,6 +6551,70 @@ describe("Change Notice Impact candidate discovery", () => {
     expect(
       result.data?.coverage.purchaseOrderLine.currentExposureCount
     ).toBeNull();
+  });
+
+  it("redacts all candidate context when source coverage fails", async () => {
+    const stored = normalizePurchaseOrderLineImpactSnapshot(
+      poRow("pol-source-failure")
+    );
+    expect(stored.sourceAvailability).toBe("Present");
+    if (stored.sourceAvailability !== "Present") return;
+
+    const result = await getChangeNoticeImpactCandidates(
+      fakeImpactClient({
+        rows: baseImpactRows({
+          purchaseOrderLine: [poRow("pol-source-failure")],
+          purchaseOrder: [poParent("po-pol-source-failure")],
+          changeOrderImpactDecision: [
+            {
+              id: "decision-source-failure",
+              companyId,
+              changeNoticeId,
+              targetType: "purchaseOrderLine",
+              targetId: "pol-source-failure",
+              decisionStatus: "Action required",
+              noActionReasonCode: null,
+              rationale: "Supplier follow-up remains open.",
+              resolutionNote: null,
+              revision: 1,
+              snapshotVersion: 1,
+              assessmentSnapshot: stored.snapshot
+            }
+          ],
+          changeOrderImpactDecisionAffectedItem: [
+            {
+              id: "provenance-source-failure",
+              companyId,
+              decisionId: "decision-source-failure",
+              affectedItemId: "affected-1",
+              affectedItemSourceId: "item-1",
+              affectedItemLabel: "PART-1"
+            }
+          ]
+        }),
+        errors: new Set(["purchaseOrder"])
+      }),
+      companyId,
+      changeNoticeId,
+      { sourceAccess }
+    );
+    const candidate = result.data?.candidates.find(
+      (entry) => entry.targetId === "pol-source-failure"
+    );
+
+    expect(candidate).toMatchObject({
+      sourceAvailability: "Unavailable",
+      parent: null,
+      item: null,
+      currentSnapshot: null,
+      currentProvenance: [],
+      historicalProvenance: [],
+      provenance: [],
+      exposureClassification: null,
+      decision: null,
+      freshness: "Unknown"
+    });
+    expect(result.data?.coverage.purchaseOrderLine.status).toBe("failed");
   });
 
   it("keeps current and historical paging independent for persisted references", async () => {
@@ -6227,7 +6763,7 @@ describe("Change Notice Impact candidate discovery", () => {
     expect(candidate?.historicalProvenance).toEqual([
       expect.objectContaining({
         affectedItemId: "removed-affected-item",
-        affectedItemLabel: "Affected item"
+        affectedItemLabel: null
       })
     ]);
     expect(
@@ -6388,6 +6924,425 @@ describe("Change Notice Impact candidate discovery", () => {
         historicalReferenceCount: 0
       });
     }
+  });
+
+  it("projects authorized linked task names and statuses without changing decision state", async () => {
+    const stored = normalizePurchaseOrderLineImpactSnapshot(poRow("pol-1"));
+    expect(stored.sourceAvailability).toBe("Present");
+    if (stored.sourceAvailability !== "Present") return;
+
+    const client = fakeImpactClient({
+      rows: baseImpactRows({
+        purchaseOrderLine: [poRow("pol-1")],
+        purchaseOrder: [poParent("po-pol-1")],
+        changeOrderImpactDecision: [
+          {
+            id: "decision-pol-1",
+            companyId,
+            changeNoticeId,
+            targetType: "purchaseOrderLine",
+            targetId: "pol-1",
+            decisionStatus: "Action required",
+            noActionReasonCode: null,
+            rationale: "Supplier follow-up remains open.",
+            resolutionNote: null,
+            revision: 1,
+            snapshotVersion: 1,
+            assessmentSnapshot: stored.snapshot
+          }
+        ],
+        changeOrderImpactDecisionActionTask: [
+          {
+            decisionId: "decision-pol-1",
+            actionTaskId: "task-pol-1",
+            companyId
+          }
+        ],
+        changeOrderActionTask: [
+          {
+            id: "task-pol-1",
+            changeOrderId: changeNoticeId,
+            companyId,
+            name: "Confirm supplier cut-in",
+            status: "In Progress",
+            assignee: "user-2",
+            dueDate: "2026-09-01",
+            taskOrigin: "Impact follow-up"
+          }
+        ]
+      })
+    });
+
+    const result = await getChangeNoticeImpactWorkspace(
+      client,
+      companyId,
+      changeNoticeId,
+      { sourceAccess }
+    );
+    const candidate = result.data?.candidates.find(
+      (entry) => entry.targetId === "pol-1"
+    );
+
+    expect(result.error).toBeNull();
+    expect(result.data?.taskCoverage).toEqual({ status: "complete" });
+    expect(candidate).toMatchObject({
+      parent: { supplierName: "Acme Components" },
+      decision: { status: "Action required" },
+      taskLinks: [
+        {
+          decisionId: "decision-pol-1",
+          actionTaskId: "task-pol-1",
+          name: "Confirm supplier cut-in",
+          status: "In Progress",
+          assignee: "user-2",
+          dueDate: "2026-09-01",
+          taskOrigin: "Impact follow-up"
+        }
+      ]
+    });
+    expect(candidate?.currentSnapshot).toMatchObject({
+      schema: PO_LINE_SNAPSHOT_V1,
+      orderedQuantity: 10,
+      promisedDate: null
+    });
+    expect(candidate?.currentSnapshot).not.toHaveProperty(
+      "purchaseOrderLineId"
+    );
+    expect(candidate?.currentSnapshot).not.toHaveProperty("purchaseOrderId");
+    expect(candidate?.currentSnapshot).not.toHaveProperty("supplierId");
+    expect(candidate?.currentSnapshot).not.toHaveProperty("itemId");
+    expect(candidate?.decision?.persistedSnapshot).not.toHaveProperty(
+      "purchaseOrderLineId"
+    );
+    expect(candidate?.decision?.persistedSnapshot).not.toHaveProperty(
+      "supplierId"
+    );
+    expect(
+      client.selects.some((select) => select.includes("supplier(name)"))
+    ).toBe(true);
+    expect(client.queries).toContain("changeOrderImpactDecisionActionTask");
+    expect(client.queries).toContain("changeOrderActionTask");
+  });
+
+  it("strips internal identifiers from every workspace snapshot", async () => {
+    const poSnapshot = normalizePurchaseOrderLineImpactSnapshot(basePoInput());
+    const jobSnapshot = normalizeJobImpactSnapshot({
+      ...baseJobInput(),
+      effectiveMethodId: "method-1"
+    });
+    const materialSnapshot = normalizeJobMaterialImpactSnapshot(
+      baseMaterialInput()
+    );
+    expect(poSnapshot.sourceAvailability).toBe("Present");
+    expect(jobSnapshot.sourceAvailability).toBe("Present");
+    expect(materialSnapshot.sourceAvailability).toBe("Present");
+    if (
+      poSnapshot.sourceAvailability !== "Present" ||
+      jobSnapshot.sourceAvailability !== "Present" ||
+      materialSnapshot.sourceAvailability !== "Present"
+    ) {
+      return;
+    }
+
+    const result = await getChangeNoticeImpactWorkspace(
+      fakeImpactClient({
+        rows: baseImpactRows({
+          purchaseOrderLine: [poRow("pol-1")],
+          purchaseOrder: [poParent("po-pol-1")],
+          job: [jobRow("job-1")],
+          jobMakeMethod: [rootRow("job-1")],
+          jobMaterial: [materialRow("material-1", "job-1")],
+          changeOrderImpactDecision: [
+            {
+              id: "decision-pol-1",
+              companyId,
+              changeNoticeId,
+              targetType: "purchaseOrderLine",
+              targetId: "pol-1",
+              decisionStatus: "Action required",
+              noActionReasonCode: null,
+              rationale: "PO follow-up",
+              resolutionNote: null,
+              revision: 1,
+              snapshotVersion: 1,
+              assessmentSnapshot: poSnapshot.snapshot
+            },
+            {
+              id: "decision-job-1",
+              companyId,
+              changeNoticeId,
+              targetType: "job",
+              targetId: "job-1",
+              decisionStatus: "Action required",
+              noActionReasonCode: null,
+              rationale: "Job follow-up",
+              resolutionNote: null,
+              revision: 1,
+              snapshotVersion: 1,
+              assessmentSnapshot: jobSnapshot.snapshot
+            },
+            {
+              id: "decision-material-1",
+              companyId,
+              changeNoticeId,
+              targetType: "jobMaterial",
+              targetId: "material-1",
+              decisionStatus: "Action required",
+              noActionReasonCode: null,
+              rationale: "Material follow-up",
+              resolutionNote: null,
+              revision: 1,
+              snapshotVersion: 1,
+              assessmentSnapshot: materialSnapshot.snapshot
+            }
+          ]
+        })
+      }),
+      companyId,
+      changeNoticeId,
+      { sourceAccess }
+    );
+
+    expect(result.error).toBeNull();
+    const candidates = result.data?.candidates ?? [];
+    const po = candidates.find((candidate) => candidate.targetId === "pol-1");
+    const job = candidates.find(
+      (candidate) =>
+        candidate.targetType === "job" && candidate.targetId === "job-1"
+    );
+    const material = candidates.find(
+      (candidate) =>
+        candidate.targetType === "jobMaterial" &&
+        candidate.targetId === "material-1"
+    );
+
+    for (const snapshot of [
+      po?.currentSnapshot,
+      po?.decision?.persistedSnapshot
+    ]) {
+      expect(snapshot).not.toHaveProperty("purchaseOrderLineId");
+      expect(snapshot).not.toHaveProperty("purchaseOrderId");
+      expect(snapshot).not.toHaveProperty("supplierId");
+      expect(snapshot).not.toHaveProperty("itemId");
+    }
+    for (const snapshot of [
+      job?.currentSnapshot,
+      job?.decision?.persistedSnapshot
+    ]) {
+      expect(snapshot).not.toHaveProperty("jobId");
+      expect(snapshot).not.toHaveProperty("effectiveMethodId");
+      expect(snapshot).not.toHaveProperty("itemId");
+    }
+    for (const snapshot of [
+      material?.currentSnapshot,
+      material?.decision?.persistedSnapshot
+    ]) {
+      expect(snapshot).not.toHaveProperty("jobMaterialId");
+      expect(snapshot).not.toHaveProperty("jobId");
+      expect(snapshot).not.toHaveProperty("jobOperationId");
+      expect(snapshot).not.toHaveProperty("itemId");
+    }
+  });
+
+  it("batches linked-task reads without changing the task projection", async () => {
+    const ids = Array.from({ length: 51 }, (_, index) => `pol-${index}`);
+    const storedById = new Map(
+      ids.map((id) => {
+        const stored = normalizePurchaseOrderLineImpactSnapshot(poRow(id));
+        if (stored.sourceAvailability !== "Present") {
+          throw new Error("Expected the test PO snapshot to be present");
+        }
+        return [id, stored.snapshot] as const;
+      })
+    );
+    const client = fakeImpactClient({
+      rows: baseImpactRows({
+        purchaseOrderLine: ids.map((id) => poRow(id)),
+        purchaseOrder: ids.map((id) => poParent(`po-${id}`)),
+        changeOrderImpactDecision: ids.map((id) => ({
+          id: `decision-${id}`,
+          companyId,
+          changeNoticeId,
+          targetType: "purchaseOrderLine",
+          targetId: id,
+          decisionStatus: "Action required",
+          noActionReasonCode: null,
+          rationale: "Follow-up remains open.",
+          resolutionNote: null,
+          revision: 1,
+          snapshotVersion: 1,
+          assessmentSnapshot: storedById.get(id)
+        })),
+        changeOrderImpactDecisionActionTask: ids.map((id) => ({
+          decisionId: `decision-${id}`,
+          actionTaskId: `task-${id}`,
+          companyId
+        })),
+        changeOrderActionTask: ids.map((id) => ({
+          id: `task-${id}`,
+          changeOrderId: changeNoticeId,
+          companyId,
+          name: `Follow up ${id}`,
+          status: "Pending",
+          assignee: "user-2",
+          dueDate: "2026-09-01",
+          taskOrigin: "Impact follow-up"
+        }))
+      })
+    });
+
+    const result = await getChangeNoticeImpactWorkspace(
+      client,
+      companyId,
+      changeNoticeId,
+      { sourceAccess }
+    );
+
+    expect(result.error).toBeNull();
+    expect(result.data?.candidates).toHaveLength(51);
+    expect(
+      client.inCalls
+        .filter(
+          (call) =>
+            call.table === "changeOrderImpactDecisionActionTask" ||
+            call.table === "changeOrderActionTask"
+        )
+        .map((call) => call.values.length)
+        .sort((left, right) => left - right)
+    ).toEqual([1, 1, 50, 50]);
+    expect(
+      result.data?.candidates.every(
+        (candidate) =>
+          candidate.taskLinks.length === 1 &&
+          candidate.taskLinks[0]?.assignee === "user-2" &&
+          candidate.taskLinks[0]?.taskOrigin === "Impact follow-up"
+      )
+    ).toBe(true);
+  });
+
+  it("materializes the bounded workspace without replaying source scans", async () => {
+    const ids = ["pol-a", "pol-b", "pol-c"];
+    const client = fakeImpactClient({
+      rows: baseImpactRows({
+        purchaseOrderLine: ids.map((id) => poRow(id)),
+        purchaseOrder: ids.map((id) => poParent(`po-${id}`))
+      })
+    });
+
+    const result = await getChangeNoticeImpactWorkspace(
+      client,
+      companyId,
+      changeNoticeId,
+      { sourceAccess }
+    );
+
+    expect(result.error).toBeNull();
+    expect(
+      result.data?.candidates
+        .filter((candidate) => candidate.targetType === "purchaseOrderLine")
+        .map((candidate) => candidate.targetId)
+    ).toEqual(ids);
+    expect(result.data?.coverage.purchaseOrderLine).toMatchObject({
+      status: "complete",
+      currentExposureCount: 3,
+      historicalReferenceCount: 0,
+      unassessedCount: 3,
+      nextCursor: { current: null, historical: null }
+    });
+    expect(
+      client.queries.filter((table) => table === "purchaseOrderLine")
+    ).toHaveLength(1);
+  });
+
+  it("paginates source scans before materializing a workspace over the row cap", async () => {
+    const ids = Array.from(
+      { length: 1001 },
+      (_, index) => `pol-${index.toString().padStart(4, "0")}`
+    );
+    const client = fakeImpactClient({
+      maxRows: 1000,
+      rows: baseImpactRows({
+        purchaseOrderLine: ids.map((id) => poRow(id)),
+        purchaseOrder: ids.map((id) => poParent(`po-${id}`))
+      })
+    });
+
+    const result = await getChangeNoticeImpactWorkspace(
+      client,
+      companyId,
+      changeNoticeId,
+      { sourceAccess }
+    );
+    const candidates = result.data?.candidates.filter(
+      (candidate) => candidate.targetType === "purchaseOrderLine"
+    );
+
+    expect(result.error).toBeNull();
+    expect(candidates).toHaveLength(1001);
+    expect(candidates?.at(-1)).toMatchObject({ targetId: "pol-1000" });
+    expect(result.data?.coverage.purchaseOrderLine).toMatchObject({
+      status: "complete",
+      currentExposureCount: 1001,
+      historicalReferenceCount: 0,
+      unassessedCount: 1001
+    });
+    expect(
+      client.ranges
+        .filter((range) => range.table === "purchaseOrderLine")
+        .map((range) => range.from)
+    ).toContain(1000);
+  });
+
+  it("keeps task coverage failed instead of presenting an empty linked-task result", async () => {
+    const stored = normalizePurchaseOrderLineImpactSnapshot(poRow("pol-1"));
+    expect(stored.sourceAvailability).toBe("Present");
+    if (stored.sourceAvailability !== "Present") return;
+
+    const client = fakeImpactClient({
+      rows: baseImpactRows({
+        purchaseOrderLine: [poRow("pol-1")],
+        purchaseOrder: [poParent("po-pol-1")],
+        changeOrderImpactDecision: [
+          {
+            id: "decision-pol-1",
+            companyId,
+            changeNoticeId,
+            targetType: "purchaseOrderLine",
+            targetId: "pol-1",
+            decisionStatus: "Action required",
+            noActionReasonCode: null,
+            rationale: "Supplier follow-up remains open.",
+            resolutionNote: null,
+            revision: 1,
+            snapshotVersion: 1,
+            assessmentSnapshot: stored.snapshot
+          }
+        ],
+        changeOrderImpactDecisionActionTask: [
+          {
+            decisionId: "decision-pol-1",
+            actionTaskId: "task-pol-1",
+            companyId
+          }
+        ]
+      }),
+      errors: new Set(["changeOrderActionTask"])
+    });
+
+    const result = await getChangeNoticeImpactWorkspace(
+      client,
+      companyId,
+      changeNoticeId,
+      { sourceAccess }
+    );
+    const candidate = result.data?.candidates.find(
+      (entry) => entry.targetId === "pol-1"
+    );
+
+    expect(result.error).toBeNull();
+    expect(result.data?.taskCoverage.status).toBe("failed");
+    expect(candidate?.taskLinks).toEqual([]);
+    expect(candidate?.decision).toMatchObject({ status: "Action required" });
   });
 
   it("does not restart an exhausted stream while the other stream continues", async () => {

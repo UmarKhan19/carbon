@@ -107,6 +107,76 @@ export async function getChangeNoticeImpactSourceAccess(args: {
   }
 }
 
+export type ChangeNoticeImpactReadAccessResult =
+  | {
+      status: "resolved";
+      canViewChangeNotice: boolean;
+      sourceAccess: ChangeNoticeImpactSourceAccess;
+    }
+  | {
+      status: "failed";
+      errorMessage: string;
+    };
+
+/**
+ * Resolve Change Notice and source-domain read access through the active
+ * credential-bound client. A source denial is represented as restricted domain
+ * coverage; an RPC failure remains an explicit failed-access result.
+ */
+export async function getChangeNoticeImpactReadAccess(args: {
+  client: SupabaseClient<Database>;
+  userId: string;
+  companyId: string;
+}): Promise<ChangeNoticeImpactReadAccessResult> {
+  try {
+    const permissions = [
+      "parts_view",
+      "purchasing_view",
+      "production_view"
+    ] as const;
+    const results = await Promise.all(
+      permissions.map(async (permission) => {
+        const result = await args.client.rpc(
+          "get_companies_with_employee_permission",
+          { permission }
+        );
+        if (
+          result.error ||
+          !Array.isArray(result.data) ||
+          result.data.some((company) => typeof company !== "string")
+        ) {
+          throw (
+            result.error ?? new Error("Permission RPC returned invalid data.")
+          );
+        }
+        return [permission, result.data.includes(args.companyId)] as const;
+      })
+    );
+    const accessByPermission = new Map(results);
+    const productionAccess = accessByPermission.get("production_view") ?? false;
+
+    return {
+      status: "resolved",
+      canViewChangeNotice: accessByPermission.get("parts_view") ?? false,
+      sourceAccess: {
+        purchaseOrderLine: accessByPermission.get("purchasing_view") ?? false,
+        job: productionAccess,
+        jobMaterial: productionAccess
+      }
+    };
+  } catch (cause) {
+    logger.error("Failed to resolve Change Notice Impact read access", {
+      error: cause,
+      companyId: args.companyId,
+      userId: args.userId
+    });
+    return {
+      status: "failed",
+      errorMessage: "Impact source access could not be established."
+    };
+  }
+}
+
 export type ChangeNoticeImpactMutationAccessResult =
   | {
       status: "resolved";

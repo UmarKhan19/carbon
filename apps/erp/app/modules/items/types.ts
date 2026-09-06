@@ -72,6 +72,13 @@ export type {
   ChangeNoticeImpactSourceAccess,
   ChangeNoticeImpactSourceAccessResult,
   ChangeNoticeImpactTargetType,
+  ChangeNoticeImpactTaskCoverage,
+  ChangeNoticeImpactTaskLink,
+  ChangeNoticeImpactWorkspaceCandidate,
+  ChangeNoticeImpactWorkspaceDecisionProjection,
+  ChangeNoticeImpactWorkspaceReadModel,
+  ChangeNoticeImpactWorkspaceReadResult,
+  ChangeNoticeImpactWorkspaceSnapshot,
   JobImpactSnapshot,
   JobMaterialImpactSnapshot,
   PurchaseOrderLineImpactSnapshot

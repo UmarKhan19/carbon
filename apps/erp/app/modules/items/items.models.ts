@@ -1688,6 +1688,20 @@ export type ChangeNoticeImpactSnapshot =
   | JobImpactSnapshot
   | JobMaterialImpactSnapshot;
 
+// Browser-safe snapshot projection. Canonical snapshots retain source and
+// operation identifiers for persistence, comparison, and guarded writes; the
+// read-only workspace only needs the decision-relevant display facts.
+export type ChangeNoticeImpactWorkspaceSnapshot =
+  | Omit<
+      PurchaseOrderLineImpactSnapshot,
+      "purchaseOrderLineId" | "purchaseOrderId" | "supplierId" | "itemId"
+    >
+  | Omit<JobImpactSnapshot, "jobId" | "itemId" | "effectiveMethodId">
+  | Omit<
+      JobMaterialImpactSnapshot,
+      "jobMaterialId" | "jobId" | "itemId" | "jobOperationId"
+    >;
+
 export type ChangeNoticeImpactDecisionMutationInput =
   ChangeNoticeImpactDecisionRequest & {
     /** Server-derived tenant and actor context. */
@@ -2023,7 +2037,8 @@ export type ChangeNoticeImpactJobMaterialSnapshotInput = {
 export type ChangeNoticeImpactProvenance = {
   affectedItemId: string;
   affectedItemSourceId: string;
-  affectedItemLabel: string;
+  /** Null means the source label was not available; the UI localizes its fallback. */
+  affectedItemLabel: string | null;
   status: "Current" | "Historical";
   endedReason: string | null;
 };
@@ -2034,7 +2049,7 @@ export type ChangeNoticeImpactParentContext =
       id: string;
       readableId: string;
       status: string;
-      supplierId: string;
+      supplierName: string | null;
     }
   | {
       type: "job";
@@ -2045,7 +2060,7 @@ export type ChangeNoticeImpactParentContext =
 
 export type ChangeNoticeImpactItemContext = {
   id: string;
-  readableId: string;
+  readableId: string | null;
   readableIdWithRevision: string | null;
   revision: string | null;
   unitOfMeasureCode: string | null;
@@ -2079,6 +2094,52 @@ export type ChangeNoticeImpactCandidate = {
   freshness: ChangeNoticeImpactFreshnessStatus | null;
 };
 
+// Read-only projection of an existing Change Notice action task linked to an
+// Impact decision. Task lifecycle remains independent from the decision state.
+export type ChangeNoticeImpactTaskLink = {
+  decisionId: string;
+  actionTaskId: string;
+  name: string | null;
+  status: (typeof changeNoticeTaskStatus)[number];
+  assignee: string | null;
+  dueDate: string | null;
+  taskOrigin: string;
+};
+
+export type ChangeNoticeImpactTaskCoverage = {
+  status: "complete" | "partial" | "failed";
+  errorMessage?: string;
+};
+
+export type ChangeNoticeImpactWorkspaceDecisionProjection = Omit<
+  ChangeNoticeImpactDecisionProjection,
+  "persistedSnapshot"
+> & {
+  persistedSnapshot: ChangeNoticeImpactWorkspaceSnapshot | null;
+};
+
+export type ChangeNoticeImpactWorkspaceCandidate = Omit<
+  ChangeNoticeImpactCandidate,
+  "currentSnapshot" | "decision"
+> & {
+  currentSnapshot: ChangeNoticeImpactWorkspaceSnapshot | null;
+  decision: ChangeNoticeImpactWorkspaceDecisionProjection | null;
+  taskLinks: ChangeNoticeImpactTaskLink[];
+};
+
+export type ChangeNoticeImpactWorkspaceReadModel = Omit<
+  ChangeNoticeImpactCandidateReadModel,
+  "candidates"
+> & {
+  candidates: ChangeNoticeImpactWorkspaceCandidate[];
+  taskCoverage: ChangeNoticeImpactTaskCoverage;
+};
+
+export type ChangeNoticeImpactWorkspaceReadResult = {
+  data: ChangeNoticeImpactWorkspaceReadModel | null;
+  error: { message: string } | null;
+};
+
 export type ChangeNoticeImpactDomainCursor = {
   // undefined = never started, string = continuation, null = exhausted.
   current?: string | null;
@@ -2104,6 +2165,12 @@ export type ChangeNoticeImpactCandidateOptions = {
     | ChangeNoticeImpactSourceAccessResult;
   limit?: number;
   pageSize?: number;
+  /**
+   * Materialize the bounded workspace window in one candidate read instead of
+   * returning one regular page. The service caps this at its workspace page
+   * budget; it is not an unbounded result request.
+   */
+  fetchAll?: boolean;
   cursor?: Partial<
     Record<
       ChangeNoticeImpactTargetType,

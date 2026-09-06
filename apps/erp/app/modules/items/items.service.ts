@@ -70,11 +70,18 @@ import {
   type ChangeNoticeImpactSourceAccess,
   type ChangeNoticeImpactSourceAccessResult,
   type ChangeNoticeImpactTargetType,
+  type ChangeNoticeImpactTaskCoverage,
   type ChangeNoticeImpactTaskCreateMutationInput,
   type ChangeNoticeImpactTaskCreateResult,
   type ChangeNoticeImpactTaskDesignationResult,
+  type ChangeNoticeImpactTaskLink,
   type ChangeNoticeImpactTaskRelationshipMutationInput,
   type ChangeNoticeImpactTaskRelationshipResult,
+  type ChangeNoticeImpactWorkspaceCandidate,
+  type ChangeNoticeImpactWorkspaceDecisionProjection,
+  type ChangeNoticeImpactWorkspaceReadModel,
+  type ChangeNoticeImpactWorkspaceReadResult,
+  type ChangeNoticeImpactWorkspaceSnapshot,
   type ChangeNoticeItemDiff,
   canEditChangeNoticeEngineering,
   changeNoticeActionTaskOrigins,
@@ -85,7 +92,7 @@ import {
   changeNoticeOpenStatuses,
   changeNoticeStageFlow,
   type changeNoticeStatus,
-  type changeNoticeTaskStatus,
+  changeNoticeTaskStatus,
   type changeNoticeType,
   type configurationParameterGroupOrderValidator,
   type configurationParameterGroupValidator,
@@ -8700,6 +8707,9 @@ const IMPACT_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const IMPACT_KEY_SEPARATOR = "\u001f";
 const IMPACT_PAGE_SIZE = 500;
 const IMPACT_ID_BATCH_SIZE = 50;
+const IMPACT_WORKSPACE_MAX_PAGES = 100;
+const IMPACT_WORKSPACE_MAX_ROWS_PER_STREAM =
+  IMPACT_PAGE_SIZE * IMPACT_WORKSPACE_MAX_PAGES;
 
 const PO_LINE_TYPES = [
   "Comment",
@@ -8809,6 +8819,15 @@ function impactValue(
     if (Object.prototype.hasOwnProperty.call(input, key)) return input[key];
   }
   return undefined;
+}
+
+function impactRelatedName(value: unknown): string | null {
+  const relation = Array.isArray(value)
+    ? value.find(isImpactRecord)
+    : isImpactRecord(value)
+      ? value
+      : null;
+  return relation ? impactNullableString(relation.name) : null;
 }
 
 function impactFirstDefined(
@@ -9476,7 +9495,7 @@ export function deriveChangeNoticeImpactProvenance(input: {
   currentAffectedItems: Array<{
     id: string;
     itemId: string;
-    label: string;
+    label: string | null;
   }>;
   persistedProvenance: Array<{
     affectedItemId: string;
@@ -9523,10 +9542,10 @@ export function deriveChangeNoticeImpactProvenance(input: {
     historicalProvenance.push({
       affectedItemId: persisted.affectedItemId,
       affectedItemSourceId: persisted.affectedItemSourceId,
-      // Historical labels are optional in persistence. Use a generic label at
-      // the read-model boundary rather than dropping a valid provenance row or
-      // exposing a fabricated source identity.
-      affectedItemLabel: persisted.affectedItemLabel ?? "Affected item",
+      // Historical labels are optional in persistence. Keep the missing value
+      // nullable so the browser can render a localized fallback rather than
+      // serializing an English server-side label.
+      affectedItemLabel: persisted.affectedItemLabel,
       status: "Historical",
       endedReason: persisted.endedReason ?? "No longer in current scope"
     });
@@ -9761,6 +9780,7 @@ type ImpactSourcePage = {
 type ImpactCoverageSummary = {
   currentExposureCount: number | null;
   historicalReferenceCount: number | null;
+  unassessedCount: number | null;
   /** True when one or more rows could not be semantically classified. */
   partial: boolean;
   error: unknown | null;
@@ -9775,6 +9795,35 @@ type ImpactStreamPage = {
   complete: boolean;
 };
 
+// Carbon's id() function uses this Base58 alphabet. The ERP PostgreSQL
+// en_US.UTF-8 collation orders those characters as below; using the same
+// comparison for the in-memory merge keeps id > cursor continuation aligned
+// with the database predicate rather than with a process locale.
+const IMPACT_DATABASE_BASE58_ORDER =
+  "123456789aAbBcCdDeEfFgGhHijJkKLmMnNopPqQrRsStTuUvVwWxXyYzZ";
+const impactDatabaseBase58Ranks = new Map(
+  [...IMPACT_DATABASE_BASE58_ORDER].map((character, rank) => [character, rank])
+);
+
+function compareImpactIds(left: string, right: string): number {
+  if (left === right) return 0;
+  const length = Math.min(left.length, right.length);
+  for (let index = 0; index < length; index += 1) {
+    const leftCharacter = left[index];
+    const rightCharacter = right[index];
+    if (leftCharacter === rightCharacter) continue;
+    const leftRank = impactDatabaseBase58Ranks.get(leftCharacter);
+    const rightRank = impactDatabaseBase58Ranks.get(rightCharacter);
+    if (leftRank !== undefined && rightRank !== undefined) {
+      return leftRank - rightRank;
+    }
+    // Prefixes and legacy identifiers can contain characters outside Base58.
+    // Keep that fallback deterministic instead of consulting the host locale.
+    return leftCharacter < rightCharacter ? -1 : 1;
+  }
+  return left.length - right.length;
+}
+
 function impactPaginateRows(
   rows: ImpactRecord[],
   cursor: string | null | undefined,
@@ -9787,15 +9836,18 @@ function impactPaginateRows(
     return { rows: [], nextCursor: null, complete: false };
   }
 
-  const ordered = [...rows].sort((left, right) =>
-    String(left.id).localeCompare(String(right.id))
-  );
+  const ordered = rows
+    .filter(
+      (row): row is ImpactRecord & { id: string } =>
+        typeof row.id === "string" && row.id.length > 0
+    )
+    .sort((left, right) => compareImpactIds(left.id, right.id));
   const afterCursor =
     cursor === undefined
       ? ordered
       : ordered.filter(
           (row) =>
-            typeof row.id === "string" && row.id.localeCompare(cursor) > 0
+            typeof row.id === "string" && compareImpactIds(row.id, cursor) > 0
         );
   const pageRows = afterCursor.slice(0, limit);
   const hasMore = afterCursor.length > pageRows.length;
@@ -9818,6 +9870,7 @@ function impactCursor(
     | ChangeNoticeImpactDomainCursor
     | null
     | undefined;
+  if (domainCursor === null) return null;
   return domainCursor?.[stream];
 }
 
@@ -9825,6 +9878,7 @@ function emptyImpactCoverageSummary(): ImpactCoverageSummary {
   return {
     currentExposureCount: 0,
     historicalReferenceCount: 0,
+    unassessedCount: 0,
     partial: false,
     error: null,
     sourceRows: [],
@@ -9850,10 +9904,22 @@ function impactTargetKey(targetType: string, targetId: string): string {
 }
 
 function impactPageSize(options: ResolvedImpactCandidateOptions): number {
+  if (options.fetchAll && options.limit === undefined) {
+    return IMPACT_WORKSPACE_MAX_ROWS_PER_STREAM;
+  }
   const requested = options.limit ?? options.pageSize;
   return requested !== undefined && Number.isInteger(requested) && requested > 0
     ? Math.min(requested, IMPACT_PAGE_SIZE)
     : IMPACT_PAGE_SIZE;
+}
+
+function impactFallbackOptions(
+  options: ResolvedImpactCandidateOptions
+): ResolvedImpactCandidateOptions {
+  // A failed exact summary cannot support complete materialization. Its
+  // fallback only surfaces a bounded unavailable page; never turn the
+  // workspace materialization budget into a giant raw PostgREST limit.
+  return options.fetchAll ? { ...options, fetchAll: false } : options;
 }
 
 async function readPurchaseOrderLineCurrentRows(
@@ -10004,6 +10070,7 @@ function failedImpactSummary(
   return {
     currentExposureCount: null,
     historicalReferenceCount: null,
+    unassessedCount: null,
     partial: false,
     error,
     sourceRows,
@@ -10166,6 +10233,11 @@ async function readPurchaseOrderLineImpactSummary(
   return {
     currentExposureCount: partial ? null : currentRows.length,
     historicalReferenceCount: partial ? null : historicalRows.length,
+    unassessedCount: partial
+      ? null
+      : currentRows.filter(
+          (row) => typeof row.id === "string" && !persistedIdSet.has(row.id)
+        ).length,
     partial,
     error: null,
     sourceRows,
@@ -10213,6 +10285,7 @@ async function readJobImpactSummary(
     )
   );
   const currentItemIdSet = new Set(classificationItemIds);
+  const persistedIdSet = new Set(persistedIds);
   const jobIds = sourceRows.flatMap((row) =>
     typeof row.id === "string" ? [row.id] : []
   );
@@ -10294,6 +10367,11 @@ async function readJobImpactSummary(
   return {
     currentExposureCount: partial ? null : currentRows.length,
     historicalReferenceCount: partial ? null : historicalRows.length,
+    unassessedCount: partial
+      ? null
+      : currentRows.filter(
+          (row) => typeof row.id === "string" && !persistedIdSet.has(row.id)
+        ).length,
     partial,
     error: null,
     sourceRows,
@@ -10341,6 +10419,7 @@ async function readJobMaterialImpactSummary(
     )
   );
   const currentItemIdSet = new Set(classificationItemIds);
+  const persistedIdSet = new Set(persistedIds);
   const parentIds = sourceRows.flatMap((row) =>
     typeof row.jobId === "string" ? [row.jobId] : []
   );
@@ -10411,6 +10490,11 @@ async function readJobMaterialImpactSummary(
   return {
     currentExposureCount: partial ? null : currentRows.length,
     historicalReferenceCount: partial ? null : historicalRows.length,
+    unassessedCount: partial
+      ? null
+      : currentRows.filter(
+          (row) => typeof row.id === "string" && !persistedIdSet.has(row.id)
+        ).length,
     partial,
     error: null,
     sourceRows,
@@ -10576,7 +10660,9 @@ async function readImpactPurchaseOrders(
   for (const batch of impactIdBatches(ids)) {
     const result = await client
       .from("purchaseOrder")
-      .select("id, purchaseOrderId, supplierId, status, companyId")
+      .select(
+        "id, purchaseOrderId, supplierId, status, companyId, supplier(name)"
+      )
       .eq("companyId", companyId)
       .in("id", batch);
     if (result.error) return { rows: [], error: result.error };
@@ -10810,13 +10896,14 @@ async function readImpactPersistedState(
     const result = await fetchAllFromTable<ImpactRecord>(
       client,
       "changeOrderImpactDecisionAffectedItem",
-      "decisionId, affectedItemId, affectedItemSourceId, affectedItemLabel, endedAt, endedReason, companyId",
+      "id, decisionId, affectedItemId, affectedItemSourceId, affectedItemLabel, endedAt, endedReason, companyId",
       (query) =>
         query
           .eq("companyId", companyId)
           .in("decisionId", batch)
           .order("decisionId", { ascending: true })
           .order("affectedItemId", { ascending: true })
+          .order("id", { ascending: true })
     );
     if (result.error || !result.data) {
       logger.error("Failed to read persisted Change Notice Impact provenance", {
@@ -10899,19 +10986,18 @@ function impactMergeRows(
 
 function impactAffectedItemLabel(
   row: ImpactRecord & { item?: ImpactRecord | null }
-): string {
+): string | null {
   const item = isImpactRecord(row.item) ? row.item : null;
   return (
     impactNullableString(item ? item.readableIdWithRevision : null) ??
     impactNullableString(item ? item.readableId : null) ??
-    impactNullableString(item ? item.name : null) ??
-    "Affected item"
+    impactNullableString(item ? item.name : null)
   );
 }
 
 function impactCurrentAffectedItems(
   rows: Array<ImpactRecord & { item?: ImpactRecord | null }>
-): Array<{ id: string; itemId: string; label: string }> {
+): Array<{ id: string; itemId: string; label: string | null }> {
   return rows.flatMap((row) => {
     const id = impactRequiredString(row.id, "affectedItem.id");
     const itemId = impactRequiredString(row.itemId, "affectedItem.itemId");
@@ -10930,7 +11016,11 @@ function impactCandidateWithState(args: {
   targetType: ChangeNoticeImpactTargetType;
   targetId: string;
   sourceItemId: string | null;
-  currentAffectedItems: Array<{ id: string; itemId: string; label: string }>;
+  currentAffectedItems: Array<{
+    id: string;
+    itemId: string;
+    label: string | null;
+  }>;
   persisted: ImpactPersistedDecision | undefined;
   parent: ChangeNoticeImpactParentContext | null;
   item: ChangeNoticeImpactItemContext | null;
@@ -10955,8 +11045,9 @@ function impactCandidateWithState(args: {
       args.persisted.snapshotIssue ?? "Stored Impact decision is unavailable";
   } else if (decision) {
     if (args.persisted?.snapshotIssue) {
-      sourceAvailability = "Unavailable";
-      unavailableReason = args.persisted.snapshotIssue;
+      // The live source remains authoritative even when the persisted snapshot
+      // cannot be compared. Keep its facts and exposure visible, but withhold
+      // freshness rather than relabeling a readable source as unavailable.
       freshness = "Unknown";
     } else if (args.snapshot) {
       freshness = compareChangeNoticeImpactSnapshot(
@@ -10965,10 +11056,6 @@ function impactCandidateWithState(args: {
         decision.persistedSnapshot,
         decision.snapshotVersion
       );
-      if (freshness === "Unknown") {
-        sourceAvailability = "Unavailable";
-        unavailableReason = "Stored assessment snapshot requires migration";
-      }
     } else {
       freshness = "Unknown";
     }
@@ -11002,7 +11089,15 @@ function impactCandidatesUnavailableWhenPersistedStateFails(
   if (!persistedStateError) return candidates;
   return candidates.map((candidate) => ({
     ...candidate,
+    // A failed persisted-state read means the service cannot prove which
+    // decision/provenance data belongs to this candidate. Keep only the
+    // target identity needed to describe the unavailable row.
+    parent: null,
+    item: null,
     currentSnapshot: null,
+    currentProvenance: [],
+    historicalProvenance: [],
+    provenance: [],
     exposureClassification: null,
     sourceAvailability: "Unavailable" as const,
     unavailableReason: candidate.unavailableReason ?? fallbackReason,
@@ -11022,10 +11117,19 @@ function impactCandidatesUnavailableWhenSourceCoverageFails(
   if (!sourceCoverageError) return candidates;
   return candidates.map((candidate) => ({
     ...candidate,
+    // A failed source read invalidates every source-derived and persisted
+    // projection that could otherwise be mistaken for currently authorized
+    // evidence. Keep only the target key needed to report an unavailable row.
+    parent: null,
+    item: null,
     currentSnapshot: null,
+    currentProvenance: [],
+    historicalProvenance: [],
+    provenance: [],
     exposureClassification: null,
     sourceAvailability: "Unavailable" as const,
     unavailableReason: candidate.unavailableReason ?? fallbackReason,
+    decision: null,
     freshness: "Unknown" as const
   }));
 }
@@ -11044,8 +11148,7 @@ function impactCoverage(
     | null,
   candidates: ChangeNoticeImpactCandidate[],
   errorMessage?: string,
-  summary?: ImpactCoverageSummary,
-  pageComplete = false
+  summary?: ImpactCoverageSummary
 ): ChangeNoticeImpactCoverage {
   const normalizedNextCursor =
     typeof nextCursor === "string"
@@ -11080,16 +11183,12 @@ function impactCoverage(
       hasUnavailable || summary?.error
         ? null
         : (summary?.historicalReferenceCount ?? null),
-    // The unassessed breakdown needs the complete candidate identity/decision
-    // set, so it is intentionally withheld on a paginated page.
+    // This count comes from the same independent complete summary as the
+    // exposure totals, not from the visible candidate page.
     unassessedCount:
-      hasUnavailable || summary?.error || !pageComplete
+      hasUnavailable || summary?.error
         ? null
-        : candidates.filter(
-            (candidate) =>
-              candidate.exposureClassification ===
-                "Current operational exposure" && candidate.decision === null
-          ).length,
+        : (summary?.unassessedCount ?? null),
     nextCursor: normalizedNextCursor
   };
 }
@@ -11101,7 +11200,11 @@ function impactMapItems(rows: ImpactBatchRows): Map<string, ImpactRecord> {
 async function discoverPurchaseOrderLineImpact(
   client: SupabaseClient<Database>,
   companyId: string,
-  currentAffectedItems: Array<{ id: string; itemId: string; label: string }>,
+  currentAffectedItems: Array<{
+    id: string;
+    itemId: string;
+    label: string | null;
+  }>,
   changeNoticeStatus: string,
   persisted: ImpactPersistedState,
   options: ResolvedImpactCandidateOptions
@@ -11142,7 +11245,7 @@ async function discoverPurchaseOrderLineImpact(
         client,
         companyId,
         currentItemIds,
-        options,
+        impactFallbackOptions(options),
         false
       )
     : (() => {
@@ -11291,6 +11394,12 @@ async function discoverPurchaseOrderLineImpact(
           "purchaseOrder.status"
         )
       : { ok: false as const, reason: "purchaseOrder parent is unavailable" };
+    // The relation is selected only through the authorized, company-scoped
+    // purchase-order read. Never fall back to supplierId when the display name
+    // is unavailable.
+    const parentSupplierName = parentRow
+      ? impactRelatedName(impactValue(parentRow, "supplier"))
+      : null;
 
     // Non-assessment PO line types are excluded from new discovery. A persisted
     // row is retained as a historical reference rather than silently dropped.
@@ -11333,7 +11442,7 @@ async function discoverPurchaseOrderLineImpact(
       id: parentId.value,
       readableId: parentReadableId.value,
       status: parentStatus.value,
-      supplierId: parentSupplierId.value
+      supplierName: parentSupplierName
     };
 
     if (
@@ -11402,7 +11511,7 @@ async function discoverPurchaseOrderLineImpact(
     const snapshotResult = normalizePurchaseOrderLineImpactSnapshot({
       purchaseOrderLineId: row.id,
       purchaseOrderId: row.purchaseOrderId,
-      supplierId: parent.supplierId,
+      supplierId: parentSupplierId.value,
       itemId: row.itemId,
       itemRevision: impactValue(itemRow, "revision"),
       purchaseOrderLineType: row.purchaseOrderLineType,
@@ -11441,9 +11550,7 @@ async function discoverPurchaseOrderLineImpact(
     const snapshot = snapshotResult.snapshot as PurchaseOrderLineImpactSnapshot;
     const item: ChangeNoticeImpactItemContext = {
       id: snapshot.itemId,
-      readableId:
-        impactNullableString(impactValue(itemRow, "readableId")) ??
-        snapshot.itemId,
+      readableId: impactNullableString(impactValue(itemRow, "readableId")),
       readableIdWithRevision: impactNullableString(
         impactValue(itemRow, "readableIdWithRevision")
       ),
@@ -11512,12 +11619,12 @@ async function discoverPurchaseOrderLineImpact(
         : "complete";
   const errorMessage =
     status === "failed"
-      ? "Purchasing source coverage failed."
+      ? "Purchase Order Impact coverage failed."
       : status === "partial"
-        ? "Purchasing source coverage is partial."
+        ? "Purchase Order Impact coverage is partial."
         : undefined;
   safeCandidates.sort((left, right) =>
-    left.targetId.localeCompare(right.targetId)
+    compareImpactIds(left.targetId, right.targetId)
   );
   return {
     candidates: safeCandidates,
@@ -11530,8 +11637,7 @@ async function discoverPurchaseOrderLineImpact(
       },
       safeCandidates,
       errorMessage,
-      coverageSummary,
-      currentRows.complete
+      coverageSummary
     )
   };
 }
@@ -11539,7 +11645,11 @@ async function discoverPurchaseOrderLineImpact(
 async function discoverJobAndMaterialImpact(
   client: SupabaseClient<Database>,
   companyId: string,
-  currentAffectedItems: Array<{ id: string; itemId: string; label: string }>,
+  currentAffectedItems: Array<{
+    id: string;
+    itemId: string;
+    label: string | null;
+  }>,
   changeNoticeStatus: string,
   persisted: ImpactPersistedState,
   options: ResolvedImpactCandidateOptions
@@ -11617,7 +11727,7 @@ async function discoverJobAndMaterialImpact(
         client,
         companyId,
         currentItemIds,
-        options,
+        impactFallbackOptions(options),
         false
       )
     : (() => {
@@ -11633,7 +11743,7 @@ async function discoverJobAndMaterialImpact(
         client,
         companyId,
         currentItemIds,
-        options,
+        impactFallbackOptions(options),
         false
       )
     : (() => {
@@ -11922,9 +12032,7 @@ async function discoverJobAndMaterialImpact(
       const snapshot = snapshotResult.snapshot as JobImpactSnapshot;
       const item: ChangeNoticeImpactItemContext = {
         id: snapshot.itemId,
-        readableId:
-          impactNullableString(impactValue(itemRow, "readableId")) ??
-          snapshot.itemId,
+        readableId: impactNullableString(impactValue(itemRow, "readableId")),
         readableIdWithRevision: impactNullableString(
           impactValue(itemRow, "readableIdWithRevision")
         ),
@@ -12087,9 +12195,7 @@ async function discoverJobAndMaterialImpact(
       const snapshot = snapshotResult.snapshot as JobMaterialImpactSnapshot;
       const item: ChangeNoticeImpactItemContext = {
         id: snapshot.itemId,
-        readableId:
-          impactNullableString(impactValue(itemRow, "readableId")) ??
-          snapshot.itemId,
+        readableId: impactNullableString(impactValue(itemRow, "readableId")),
         readableIdWithRevision: impactNullableString(
           impactValue(itemRow, "readableIdWithRevision")
         ),
@@ -12191,10 +12297,10 @@ async function discoverJobAndMaterialImpact(
         ? "failed"
         : "complete";
   safeJobCandidates.sort((left, right) =>
-    left.targetId.localeCompare(right.targetId)
+    compareImpactIds(left.targetId, right.targetId)
   );
   safeMaterialCandidates.sort((left, right) =>
-    left.targetId.localeCompare(right.targetId)
+    compareImpactIds(left.targetId, right.targetId)
   );
   return {
     job: jobAccess
@@ -12209,12 +12315,11 @@ async function discoverJobAndMaterialImpact(
             },
             safeJobCandidates,
             jobStatus === "failed"
-              ? "Production Job source coverage failed."
+              ? "Producing Job Impact coverage failed."
               : jobStatus === "partial"
-                ? "Production Job source coverage is partial."
+                ? "Producing Job Impact coverage is partial."
                 : undefined,
-            jobCoverageSummary,
-            jobCurrentRows.complete
+            jobCoverageSummary
           )
         }
       : {
@@ -12239,12 +12344,11 @@ async function discoverJobAndMaterialImpact(
             },
             safeMaterialCandidates,
             materialStatus === "failed"
-              ? "Job Material source coverage failed."
+              ? "Job Material Impact coverage failed."
               : materialStatus === "partial"
-                ? "Job Material source coverage is partial."
+                ? "Job Material Impact coverage is partial."
                 : undefined,
-            materialCoverageSummary,
-            materialCurrentRows.complete
+            materialCoverageSummary
           )
         }
       : {
@@ -12260,10 +12364,30 @@ async function discoverJobAndMaterialImpact(
   };
 }
 
+function isImpactSourceAccess(
+  value: unknown
+): value is ChangeNoticeImpactSourceAccess {
+  if (typeof value !== "object" || value === null) return false;
+  const record = value as Record<string, unknown>;
+  return (
+    Object.hasOwn(record, "purchaseOrderLine") &&
+    typeof record.purchaseOrderLine === "boolean" &&
+    Object.hasOwn(record, "job") &&
+    typeof record.job === "boolean" &&
+    Object.hasOwn(record, "jobMaterial") &&
+    typeof record.jobMaterial === "boolean"
+  );
+}
+
 function isImpactSourceAccessResult(
-  value: ChangeNoticeImpactCandidateOptions["sourceAccess"]
+  value: unknown
 ): value is ChangeNoticeImpactSourceAccessResult {
-  return typeof value === "object" && value !== null && "status" in value;
+  if (typeof value !== "object" || value === null) return false;
+  const record = value as Record<string, unknown>;
+  if (record.status === "failed") {
+    return typeof record.errorMessage === "string";
+  }
+  return record.status === "resolved" && isImpactSourceAccess(record.access);
 }
 
 function failedImpactCoverage(
@@ -12295,6 +12419,24 @@ export async function getChangeNoticeImpactCandidates(
   // before reading the Change Notice, persisted decisions, or any source table
   // so no target identity or copied evidence can escape on the failure path.
   const sourceAccessInput = options.sourceAccess;
+  if (
+    !isImpactSourceAccess(sourceAccessInput) &&
+    !isImpactSourceAccessResult(sourceAccessInput)
+  ) {
+    return {
+      data: {
+        changeNoticeId,
+        changeNoticeStatus: null,
+        candidates: [],
+        coverage: {
+          purchaseOrderLine: failedImpactCoverage("purchaseOrderLine"),
+          job: failedImpactCoverage("job"),
+          jobMaterial: failedImpactCoverage("jobMaterial")
+        }
+      },
+      error: null
+    };
+  }
   if (
     isImpactSourceAccessResult(sourceAccessInput) &&
     sourceAccessInput.status === "failed"
@@ -12383,7 +12525,7 @@ export async function getChangeNoticeImpactCandidates(
       const typeOrder = left.targetType.localeCompare(right.targetType);
       return typeOrder !== 0
         ? typeOrder
-        : left.targetId.localeCompare(right.targetId);
+        : compareImpactIds(left.targetId, right.targetId);
     }),
     coverage: {
       purchaseOrderLine: purchaseOrderLines.coverage,
@@ -12393,6 +12535,376 @@ export async function getChangeNoticeImpactCandidates(
   };
 
   return { data: candidateReadModel, error: null };
+}
+
+type ImpactTaskLinkRead = {
+  links: ChangeNoticeImpactTaskLink[];
+  coverage: ChangeNoticeImpactTaskCoverage;
+};
+
+async function readChangeNoticeImpactTaskLinks(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  changeNoticeId: string,
+  decisionIds: string[]
+): Promise<ImpactTaskLinkRead> {
+  if (decisionIds.length === 0) {
+    return {
+      links: [],
+      coverage: { status: "complete" }
+    };
+  }
+
+  const linkRowsByBatch = await Promise.all(
+    impactIdBatches(decisionIds).map((batch) =>
+      fetchAllFromTable<ImpactRecord>(
+        client,
+        "changeOrderImpactDecisionActionTask",
+        "decisionId, actionTaskId, companyId",
+        (query) =>
+          query
+            .eq("companyId", companyId)
+            .in("decisionId", batch)
+            .order("decisionId", { ascending: true })
+            .order("actionTaskId", { ascending: true })
+      )
+    )
+  );
+  const linkRowsError = linkRowsByBatch.find(
+    (result) => result.error || !result.data
+  );
+  if (linkRowsError) {
+    logger.error("Failed to read Change Notice Impact task links", {
+      error: linkRowsError.error,
+      companyId,
+      changeNoticeId
+    });
+    return {
+      links: [],
+      coverage: {
+        status: "failed",
+        errorMessage: "Linked task coverage is unavailable."
+      }
+    };
+  }
+
+  const linkRows = linkRowsByBatch.flatMap((result) => result.data ?? []);
+  const decisionIdSet = new Set(decisionIds);
+  const parsedLinks = linkRows.flatMap((row) => {
+    const decisionId = impactPersistedRequiredString(
+      row.decisionId,
+      "taskLink.decisionId"
+    );
+    const actionTaskId = impactPersistedRequiredString(
+      row.actionTaskId,
+      "taskLink.actionTaskId"
+    );
+    const rowCompanyId = impactPersistedRequiredString(
+      row.companyId,
+      "taskLink.companyId"
+    );
+    return decisionId.ok &&
+      actionTaskId.ok &&
+      rowCompanyId.ok &&
+      rowCompanyId.value === companyId &&
+      decisionIdSet.has(decisionId.value)
+      ? [{ decisionId: decisionId.value, actionTaskId: actionTaskId.value }]
+      : [];
+  });
+  const linkRowsMalformed = parsedLinks.length !== linkRows.length;
+  const taskIds = [...new Set(parsedLinks.map((link) => link.actionTaskId))];
+  if (taskIds.length === 0) {
+    return {
+      links: [],
+      coverage: linkRowsMalformed
+        ? {
+            status: "partial",
+            errorMessage: "Some linked task records are malformed."
+          }
+        : { status: "complete" }
+    };
+  }
+
+  const taskRowsByBatch = await Promise.all(
+    impactIdBatches(taskIds).map((batch) =>
+      fetchAllFromTable<ImpactRecord>(
+        client,
+        "changeOrderActionTask",
+        "id, changeOrderId, companyId, name, status, assignee, dueDate, taskOrigin",
+        (query) =>
+          query
+            .eq("companyId", companyId)
+            .eq("changeOrderId", changeNoticeId)
+            .in("id", batch)
+            .order("id", { ascending: true })
+      )
+    )
+  );
+  const taskRowsError = taskRowsByBatch.find(
+    (result) => result.error || !result.data
+  );
+  if (taskRowsError) {
+    logger.error("Failed to read linked Change Notice Impact tasks", {
+      error: taskRowsError.error,
+      companyId,
+      changeNoticeId
+    });
+    return {
+      links: [],
+      coverage: {
+        status: "failed",
+        errorMessage: "Linked task coverage is unavailable."
+      }
+    };
+  }
+
+  const taskRows = taskRowsByBatch.flatMap((result) => result.data ?? []);
+  const tasksById = new Map<string, ChangeNoticeImpactTaskLink>();
+  let malformedTasks = false;
+  for (const row of taskRows) {
+    const id = impactPersistedRequiredString(row.id, "actionTask.id");
+    const rowCompanyId = impactPersistedRequiredString(
+      row.companyId,
+      "actionTask.companyId"
+    );
+    const rowChangeNoticeId = impactPersistedRequiredString(
+      row.changeOrderId,
+      "actionTask.changeOrderId"
+    );
+    const status = row.status;
+    if (
+      !id.ok ||
+      !rowCompanyId.ok ||
+      rowCompanyId.value !== companyId ||
+      !rowChangeNoticeId.ok ||
+      rowChangeNoticeId.value !== changeNoticeId ||
+      !impactIn(status, changeNoticeTaskStatus)
+    ) {
+      malformedTasks = true;
+      continue;
+    }
+    tasksById.set(id.value, {
+      decisionId: "",
+      actionTaskId: id.value,
+      name: impactNullableString(row.name),
+      status,
+      assignee: impactNullableString(row.assignee),
+      dueDate: impactNullableString(row.dueDate),
+      taskOrigin: impactNullableString(row.taskOrigin) ?? "Manual"
+    });
+  }
+
+  const links: ChangeNoticeImpactTaskLink[] = [];
+  let missingTasks = false;
+  for (const link of parsedLinks) {
+    const task = tasksById.get(link.actionTaskId);
+    if (!task) {
+      missingTasks = true;
+      continue;
+    }
+    links.push({ ...task, decisionId: link.decisionId });
+  }
+
+  return {
+    links,
+    coverage:
+      linkRowsMalformed || malformedTasks || missingTasks
+        ? {
+            status: "partial",
+            errorMessage: "Some linked task records are unavailable."
+          }
+        : { status: "complete" }
+  };
+}
+
+function projectImpactSnapshotForWorkspace(
+  snapshot: ChangeNoticeImpactSnapshot
+): ChangeNoticeImpactWorkspaceSnapshot {
+  if (snapshot.schema === PO_LINE_SNAPSHOT_V1) {
+    return {
+      schema: snapshot.schema,
+      itemRevision: snapshot.itemRevision,
+      purchaseOrderLineType: snapshot.purchaseOrderLineType,
+      purchaseOrderStatus: snapshot.purchaseOrderStatus,
+      receivedComplete: snapshot.receivedComplete,
+      orderedQuantity: snapshot.orderedQuantity,
+      receivedQuantity: snapshot.receivedQuantity,
+      remainingQuantity: snapshot.remainingQuantity,
+      purchaseUnitOfMeasureCode: snapshot.purchaseUnitOfMeasureCode,
+      inventoryUnitOfMeasureCode: snapshot.inventoryUnitOfMeasureCode,
+      conversionFactor: snapshot.conversionFactor,
+      requiredDate: snapshot.requiredDate,
+      promisedDate: snapshot.promisedDate,
+      eligibilityBasis: snapshot.eligibilityBasis
+    };
+  }
+
+  if (snapshot.schema === JOB_SNAPSHOT_V1) {
+    return {
+      schema: snapshot.schema,
+      itemRevision: snapshot.itemRevision,
+      status: snapshot.status,
+      plannedQuantity: snapshot.plannedQuantity,
+      completedQuantity: snapshot.completedQuantity,
+      remainingQuantity: snapshot.remainingQuantity,
+      quantityShipped: snapshot.quantityShipped,
+      quantityReceivedToInventory: snapshot.quantityReceivedToInventory,
+      dueDate: snapshot.dueDate,
+      effectiveMethodVersion: snapshot.effectiveMethodVersion,
+      unitOfMeasureCode: snapshot.unitOfMeasureCode,
+      eligibilityBasis: snapshot.eligibilityBasis
+    };
+  }
+
+  return {
+    schema: snapshot.schema,
+    itemRevision: snapshot.itemRevision,
+    jobStatus: snapshot.jobStatus,
+    requiredQuantity: snapshot.requiredQuantity,
+    issuedQuantity: snapshot.issuedQuantity,
+    remainingQuantity: snapshot.remainingQuantity,
+    unitOfMeasureCode: snapshot.unitOfMeasureCode,
+    methodType: snapshot.methodType,
+    requiresTracking: snapshot.requiresTracking,
+    eligibilityBasis: snapshot.eligibilityBasis
+  };
+}
+
+function projectImpactDecisionForWorkspace(
+  decision: ChangeNoticeImpactDecisionProjection
+): ChangeNoticeImpactWorkspaceDecisionProjection {
+  return {
+    ...decision,
+    persistedSnapshot: decision.persistedSnapshot
+      ? projectImpactSnapshotForWorkspace(decision.persistedSnapshot)
+      : null
+  };
+}
+
+function projectImpactCandidateForWorkspace(
+  candidate: ChangeNoticeImpactCandidate,
+  taskLinks: ChangeNoticeImpactTaskLink[]
+): ChangeNoticeImpactWorkspaceCandidate {
+  return {
+    ...candidate,
+    currentSnapshot: candidate.currentSnapshot
+      ? projectImpactSnapshotForWorkspace(candidate.currentSnapshot)
+      : null,
+    decision: candidate.decision
+      ? projectImpactDecisionForWorkspace(candidate.decision)
+      : null,
+    taskLinks
+  };
+}
+
+/**
+ * Read-only document workspace projection. Supported target discovery remains
+ * delegated to the existing source-aware candidate façade; this layer only
+ * adds the authorized task projection needed by the workspace rows. The
+ * previously integrated Slice 3 task APIs/MCP adapters remain separate and are
+ * not invoked or exposed as mutation controls by this projection.
+ */
+export async function getChangeNoticeImpactWorkspace(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  changeNoticeId: string,
+  options: Pick<ChangeNoticeImpactCandidateOptions, "sourceAccess">
+): Promise<ChangeNoticeImpactWorkspaceReadResult> {
+  const candidatePage = await getChangeNoticeImpactCandidates(
+    client,
+    companyId,
+    changeNoticeId,
+    { sourceAccess: options.sourceAccess, fetchAll: true }
+  );
+  if (candidatePage.error || !candidatePage.data) {
+    return {
+      data: null,
+      error: candidatePage.error ?? { message: "Impact workspace unavailable." }
+    };
+  }
+
+  // The candidate façade owns target ordering and deduplication. For complete
+  // coverage, a remaining cursor means this bounded workspace window was
+  // exhausted, not that the source scan was complete. Failed/partial coverage
+  // keeps its own status and message even if a bounded fallback has a cursor.
+  const candidateReadModel = candidatePage.data;
+  const candidates = candidateReadModel.candidates;
+  const domainNames = ["purchaseOrderLine", "job", "jobMaterial"] as const;
+  const coverage = Object.fromEntries(
+    domainNames.map((targetType) => {
+      const final = candidateReadModel.coverage[targetType];
+      const pageLimitReached =
+        final.status === "complete" &&
+        (final.nextCursor.current !== null ||
+          final.nextCursor.historical !== null);
+      const resultStatus: ChangeNoticeImpactCoverage["status"] =
+        pageLimitReached ? "partial" : final.status;
+      return [
+        targetType,
+        {
+          ...final,
+          status: resultStatus,
+          currentExposureCount:
+            resultStatus === "complete" ? final.currentExposureCount : null,
+          historicalReferenceCount:
+            resultStatus === "complete" ? final.historicalReferenceCount : null,
+          unassessedCount:
+            resultStatus === "complete" ? final.unassessedCount : null,
+          ...(pageLimitReached
+            ? { errorMessage: "Impact workspace result limit reached." }
+            : resultStatus !== "complete" && !final.errorMessage
+              ? {
+                  errorMessage:
+                    resultStatus === "failed"
+                      ? "Impact workspace coverage failed."
+                      : resultStatus === "partial"
+                        ? "Impact workspace coverage is partial."
+                        : "Impact workspace source access is restricted."
+                }
+              : {})
+        }
+      ];
+    })
+  ) as ChangeNoticeImpactCandidateReadModel["coverage"];
+
+  const decisionIds = [
+    ...new Set(
+      candidates.flatMap((candidate) =>
+        candidate.decision ? [candidate.decision.id] : []
+      )
+    )
+  ];
+  const taskRead = await readChangeNoticeImpactTaskLinks(
+    client,
+    companyId,
+    changeNoticeId,
+    decisionIds
+  );
+  const taskLinksByDecision = new Map<string, ChangeNoticeImpactTaskLink[]>();
+  for (const link of taskRead.links) {
+    const links = taskLinksByDecision.get(link.decisionId) ?? [];
+    links.push(link);
+    taskLinksByDecision.set(link.decisionId, links);
+  }
+
+  const workspaceCandidates: ChangeNoticeImpactWorkspaceCandidate[] =
+    candidates.map((candidate) =>
+      projectImpactCandidateForWorkspace(
+        candidate,
+        candidate.decision
+          ? (taskLinksByDecision.get(candidate.decision.id) ?? [])
+          : []
+      )
+    );
+
+  const data: ChangeNoticeImpactWorkspaceReadModel = {
+    changeNoticeId: candidateReadModel.changeNoticeId,
+    changeNoticeStatus: candidateReadModel.changeNoticeStatus,
+    candidates: workspaceCandidates,
+    coverage,
+    taskCoverage: taskRead.coverage
+  };
+  return { data, error: null };
 }
 
 const IMPACT_TARGET_UNIQUE_CONSTRAINT = "changeOrderImpactDecision_target_key";

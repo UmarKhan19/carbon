@@ -2081,3 +2081,33 @@ full-screen ERP route.
 **Rule:** When a service boundary requires Carbon's string timestamp contract, cast the timestamp to `text` in the Kysely select (`assessedAt::text`) rather than weakening validation or introducing JavaScript `Date` parsing/formatting. Exercise timestamp-sensitive write paths against real PostgreSQL as well as recorders.
 
 **Applies to:** Existing-decision reads in `apps/erp/app/modules/items/items.service.ts` and any Kysely query whose generated timestamp type is `string` but whose driver result is runtime-sensitive.
+
+## Cross-domain read workspaces need independent coverage contracts
+
+**Context:** Building the Change Notice Impact workspace from purchasing, production, persisted assessment, and action-task data.
+
+**Problem:** A mixed-domain where-used read can silently turn denied, incomplete, or failed source/task reads into empty arrays. Pagination can also make visible rows look complete while totals are unknown.
+
+**Rule:** Redact restricted domains before browser serialization; keep source coverage, task coverage, freshness, historical state, and persisted decisions separate; null counts whenever completeness is unproven; batch linked-task reads without inferring decision state; and reuse a source-aware domain façade instead of a legacy fan-out with weaker authorization semantics.
+
+**Applies to:** Read-only operational workspaces in `apps/erp/app/modules/items/`, especially Change Notice Impact and future cross-domain projections.
+
+## Full workspace materialization must not replay the candidate façade
+
+**Context:** The Change Notice Impact workspace needs all visible candidate rows for document grouping, while the candidate façade also supports ordinary cursor pages.
+
+**Problem:** Looping over regular candidate pages in the workspace re-ran the affected-item, persisted-decision, and source-domain scans for every page. The result was correct but multiplied expensive set reads by the page count.
+
+**Rule:** Keep ordinary candidate requests paged, but give a full workspace read one explicit, bounded materialization window (the normal page size multiplied by the workspace page budget). Each source scan must still use Carbon's normal `fetchAll` range pagination; the workspace budget must never become a giant raw `.limit(...)` request. Mark a non-exhausted cursor as partial instead of fetching beyond the budget, and add a query-count regression so the workspace cannot silently return to scan-per-page behavior.
+
+**Applies to:** `getChangeNoticeImpactWorkspace`, `getChangeNoticeImpactCandidates`, and any read model that materializes a bounded collection from a paged source façade.
+
+## Malformed persisted snapshots must not erase readable live source facts
+
+**Context:** A Change Notice Impact candidate had a valid live PO/production source and a valid persisted decision, but its stored assessment snapshot was malformed or no longer comparable.
+
+**Problem:** Treating the comparison artifact as source health moved the candidate to `Unavailable`, hid the live snapshot/exposure, and could make a real source look like a missing or unassessed row. The malformed row still correctly made domain coverage partial, so exact counts and source-deletion conclusions had to remain withheld.
+
+**Rule:** Keep a readable live source `Present` and retain its current facts, exposure, and valid decision when only the persisted snapshot is uncomparable. Set freshness to `Unknown`, set the persisted snapshot projection to unavailable, and mark the domain partial so counts stay null. Do not use source `Unavailable` merely because a stored assessment snapshot cannot be compared with an otherwise readable live source.
+
+**Applies to:** `impactCandidateWithState`, persisted Impact snapshot validation, and any read model that compares current source facts with stored evidence.
