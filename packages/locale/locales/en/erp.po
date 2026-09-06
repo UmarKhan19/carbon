@@ -4632,6 +4632,11 @@ msgstr "Create Change Notice"
 
 msgid "Create Forecast"
 msgstr "Create Forecast"
+msgid "Create follow-up"
+msgstr "Create follow-up"
+
+msgid "Create Impact follow-up"
+msgstr "Create Impact follow-up"
 
 msgid "Create Issue"
 msgstr "Create Issue"
@@ -4668,6 +4673,8 @@ msgstr "Create Rule"
 
 msgid "Create Supplier Return"
 msgstr "Create Supplier Return"
+msgid "Create task"
+msgstr "Create task"
 
 msgid "Create Transfer"
 msgstr "Create Transfer"
@@ -5873,6 +5880,12 @@ msgstr "Description of Change"
 
 msgid "Description of Issue"
 msgstr "Description of Issue"
+
+msgid "Designate"
+msgstr "Designate"
+
+msgid "Designate as Impact follow-up"
+msgstr "Designate as Impact follow-up"
 
 msgid "Detail"
 msgstr "Detail"
@@ -7899,6 +7912,9 @@ msgstr "Fixture ID"
 msgid "Flags"
 msgstr "Flags"
 
+msgid "Follow-up for"
+msgstr "Follow-up for"
+
 msgid "Follow-up rationale"
 msgstr "Follow-up rationale"
 
@@ -8673,6 +8689,15 @@ msgstr "Impact"
 
 msgid "Impact assessment changed while you were editing."
 msgstr "Impact assessment changed while you were editing."
+
+msgid "Impact follow-up"
+msgstr "Impact follow-up"
+
+msgid "Impact task could not be created."
+msgstr "Impact task could not be created."
+
+msgid "Impact task could not be linked."
+msgstr "Impact task could not be linked."
 
 msgid "Imperial"
 msgstr "Imperial"
@@ -9733,6 +9758,8 @@ msgstr "Link a purchase order"
 
 msgid "Link a sales order"
 msgstr "Link a sales order"
+msgid "Link existing task"
+msgstr "Link existing task"
 
 msgid "Link Jira Issue"
 msgstr "Link Jira Issue"
@@ -9742,6 +9769,8 @@ msgstr "Link Linear Issue"
 
 msgid "link outside company"
 msgstr "link outside company"
+msgid "Link task"
+msgstr "Link task"
 
 msgid "Link this Carbon customer to one of them, or create a separate Stripe customer."
 msgstr "Link this Carbon customer to one of them, or create a separate Stripe customer."
@@ -9762,6 +9791,9 @@ msgstr "Linked PO"
 
 msgid "Linked tasks"
 msgstr "Linked tasks"
+
+msgid "Linking preserves the task's existing origin and status. It does not resolve this Impact decision."
+msgstr "Linking preserves the task's existing origin and status. It does not resolve this Impact decision."
 
 msgid "List Options"
 msgstr "List Options"
@@ -11240,6 +11272,8 @@ msgstr "No eligible operations"
 
 msgid "No employees assigned this week"
 msgstr "No employees assigned this week"
+msgid "No eligible tasks are available to link."
+msgstr "No eligible tasks are available to link."
 
 msgid "No employees assigned yet. Add groups to see status."
 msgstr "No employees assigned yet. Add groups to see status."
@@ -12280,6 +12314,9 @@ msgstr "Orders"
 
 msgid "Orders submitted"
 msgstr "Orders submitted"
+
+msgid "Ordinary tasks are read-only after Done."
+msgstr "Ordinary tasks are read-only after Done."
 
 msgid "Origin"
 msgstr "Origin"
@@ -17041,6 +17078,12 @@ msgstr "Target Version"
 msgid "Task"
 msgstr "Task"
 
+msgid "Task name"
+msgstr "Task name"
+
+msgid "Task origin: Impact follow-up"
+msgstr "Task origin: Impact follow-up"
+
 msgid "tasks"
 msgstr "tasks"
 
@@ -17136,6 +17179,9 @@ msgstr "Temperature"
 
 msgid "Template ID"
 msgstr "Template ID"
+
+msgid "Template-owned"
+msgstr "Template-owned"
 
 msgid "Templates"
 msgstr "Templates"
@@ -18900,6 +18946,8 @@ msgstr "Unlink return from purchase order?"
 
 msgid "Unlink RMA from sales order?"
 msgstr "Unlink RMA from sales order?"
+msgid "Unlink task"
+msgstr "Unlink task"
 
 msgid "Unlock"
 msgstr "Unlock"
@@ -20269,6 +20317,9 @@ msgstr ""
 
 msgid "You do not have permission to edit workflows"
 msgstr "You do not have permission to edit workflows"
+
+msgid "You do not have permission to update this task."
+msgstr "You do not have permission to update this task."
 
 msgid "You don't have permission to edit this bill of material."
 msgstr "You don't have permission to edit this bill of material."

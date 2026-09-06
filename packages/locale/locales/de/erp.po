@@ -4632,6 +4632,11 @@ msgstr "Änderungsmitteilung erstellen"
 
 msgid "Create Forecast"
 msgstr "Prognose erstellen"
+msgid "Create follow-up"
+msgstr ""
+
+msgid "Create Impact follow-up"
+msgstr ""
 
 msgid "Create Issue"
 msgstr "Problem erstellen"
@@ -4668,6 +4673,8 @@ msgstr "Regel erstellen"
 
 msgid "Create Supplier Return"
 msgstr "Lieferantenrückgabe erstellen"
+msgid "Create task"
+msgstr ""
 
 msgid "Create Transfer"
 msgstr "Übertrag erstellen"
@@ -5873,6 +5880,12 @@ msgstr "Änderungsbeschreibung"
 
 msgid "Description of Issue"
 msgstr "Problembeschreibung"
+
+msgid "Designate"
+msgstr ""
+
+msgid "Designate as Impact follow-up"
+msgstr ""
 
 msgid "Detail"
 msgstr "Detail"
@@ -7899,6 +7912,9 @@ msgstr "Vorrichtungs-ID"
 msgid "Flags"
 msgstr "Flaggen"
 
+msgid "Follow-up for"
+msgstr ""
+
 msgid "Follow-up rationale"
 msgstr ""
 
@@ -8672,6 +8688,15 @@ msgid "Impact"
 msgstr "Auswirkung"
 
 msgid "Impact assessment changed while you were editing."
+msgstr ""
+
+msgid "Impact follow-up"
+msgstr ""
+
+msgid "Impact task could not be created."
+msgstr ""
+
+msgid "Impact task could not be linked."
 msgstr ""
 
 msgid "Imperial"
@@ -9733,6 +9758,9 @@ msgstr "Bestellung verknüpfen"
 
 msgid "Link a sales order"
 msgstr "Kundenauftrag verknüpfen"
+msgstr "Verkaufsauftrag verknüpfen"
+msgid "Link existing task"
+msgstr ""
 
 msgid "Link Jira Issue"
 msgstr "Jira-Problem verknüpfen"
@@ -9742,6 +9770,8 @@ msgstr "Linear-Problem verknüpfen"
 
 msgid "link outside company"
 msgstr "Link außerhalb des Unternehmens"
+msgid "Link task"
+msgstr ""
 
 msgid "Link this Carbon customer to one of them, or create a separate Stripe customer."
 msgstr "Verknüpfen Sie diesen Carbon-Kunden mit einem davon, oder erstellen Sie einen separaten Stripe-Kunden."
@@ -9761,6 +9791,9 @@ msgid "Linked PO"
 msgstr "Verknüpfte Bestellung"
 
 msgid "Linked tasks"
+msgstr ""
+
+msgid "Linking preserves the task's existing origin and status. It does not resolve this Impact decision."
 msgstr ""
 
 msgid "List Options"
@@ -11240,6 +11273,8 @@ msgstr "Keine berechtigten Arbeitsgänge"
 
 msgid "No employees assigned this week"
 msgstr "Keine Mitarbeiter in dieser Woche zugewiesen"
+msgid "No eligible tasks are available to link."
+msgstr ""
 
 msgid "No employees assigned yet. Add groups to see status."
 msgstr "Noch keine Mitarbeiter zugewiesen. Fügen Sie Gruppen hinzu, um den Status zu sehen."
@@ -12281,6 +12316,9 @@ msgstr "Bestellungen"
 
 msgid "Orders submitted"
 msgstr "Bestellungen eingereicht"
+
+msgid "Ordinary tasks are read-only after Done."
+msgstr ""
 
 msgid "Origin"
 msgstr "Ursprung"
@@ -17043,6 +17081,12 @@ msgstr "Zielversion"
 msgid "Task"
 msgstr "Aufgabe"
 
+msgid "Task name"
+msgstr ""
+
+msgid "Task origin: Impact follow-up"
+msgstr ""
+
 msgid "tasks"
 msgstr "Aufgaben"
 
@@ -17138,6 +17182,9 @@ msgstr "Temperatur"
 
 msgid "Template ID"
 msgstr "Vorlagen-ID"
+
+msgid "Template-owned"
+msgstr ""
 
 msgid "Templates"
 msgstr "Vorlagen"
@@ -18902,6 +18949,9 @@ msgstr "Retoure von der Bestellung trennen?"
 
 msgid "Unlink RMA from sales order?"
 msgstr "RMA vom Kundenauftrag abkoppeln?"
+msgstr "RMA vom Verkaufsauftrag trennen?"
+msgid "Unlink task"
+msgstr ""
 
 msgid "Unlock"
 msgstr "Entsperren"
@@ -20267,6 +20317,9 @@ msgstr "Sie haben {leftoverQuantity} weitere {0} als die bestellte Menge von {1}
 
 msgid "You do not have permission to edit workflows"
 msgstr "Sie haben keine Berechtigung, Workflows zu bearbeiten"
+
+msgid "You do not have permission to update this task."
+msgstr ""
 
 msgid "You don't have permission to edit this bill of material."
 msgstr "Sie haben keine Berechtigung, diese Stückliste zu bearbeiten."

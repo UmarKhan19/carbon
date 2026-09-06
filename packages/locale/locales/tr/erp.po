@@ -4632,6 +4632,11 @@ msgstr "Değişiklik Bildirisi Oluştur"
 
 msgid "Create Forecast"
 msgstr "Tahmin Oluştur"
+msgid "Create follow-up"
+msgstr ""
+
+msgid "Create Impact follow-up"
+msgstr ""
 
 msgid "Create Issue"
 msgstr "Sorun Oluştur"
@@ -4668,6 +4673,8 @@ msgstr "Kural Oluştur"
 
 msgid "Create Supplier Return"
 msgstr "Tedarikçi İadesi Oluştur"
+msgid "Create task"
+msgstr ""
 
 msgid "Create Transfer"
 msgstr "Transfer Oluştur"
@@ -5873,6 +5880,12 @@ msgstr "Değişiklimin Açıklaması"
 
 msgid "Description of Issue"
 msgstr "Sorun Açıklaması"
+
+msgid "Designate"
+msgstr ""
+
+msgid "Designate as Impact follow-up"
+msgstr ""
 
 msgid "Detail"
 msgstr "Detay"
@@ -7899,6 +7912,9 @@ msgstr "Bağlama aparatı ID"
 msgid "Flags"
 msgstr "Bayraklar"
 
+msgid "Follow-up for"
+msgstr ""
+
 msgid "Follow-up rationale"
 msgstr ""
 
@@ -8672,6 +8688,15 @@ msgid "Impact"
 msgstr "Etki"
 
 msgid "Impact assessment changed while you were editing."
+msgstr ""
+
+msgid "Impact follow-up"
+msgstr ""
+
+msgid "Impact task could not be created."
+msgstr ""
+
+msgid "Impact task could not be linked."
 msgstr ""
 
 msgid "Imperial"
@@ -9733,6 +9758,8 @@ msgstr "Satın alma siparişi bağla"
 
 msgid "Link a sales order"
 msgstr "Satış siparişi bağla"
+msgid "Link existing task"
+msgstr ""
 
 msgid "Link Jira Issue"
 msgstr "Jira Sorununu Bağla"
@@ -9742,6 +9769,8 @@ msgstr "Linear sorununu bağla"
 
 msgid "link outside company"
 msgstr "şirket dışı bağlantı"
+msgid "Link task"
+msgstr ""
 
 msgid "Link this Carbon customer to one of them, or create a separate Stripe customer."
 msgstr "Bu Carbon müşterisini bunlardan birine bağlayın veya ayrı bir Stripe müşterisi oluşturun."
@@ -9761,6 +9790,9 @@ msgid "Linked PO"
 msgstr "Bağlantılı Sipariş"
 
 msgid "Linked tasks"
+msgstr ""
+
+msgid "Linking preserves the task's existing origin and status. It does not resolve this Impact decision."
 msgstr ""
 
 msgid "List Options"
@@ -11240,6 +11272,8 @@ msgstr "Uygun operasyon yok"
 
 msgid "No employees assigned this week"
 msgstr "Bu hafta hiçbir çalışan atanmamış"
+msgid "No eligible tasks are available to link."
+msgstr ""
 
 msgid "No employees assigned yet. Add groups to see status."
 msgstr "Henüz çalışan atanmadı. Durumu görmek için gruplar ekleyin."
@@ -12281,6 +12315,9 @@ msgstr "Siparişler"
 
 msgid "Orders submitted"
 msgstr "Siparişler gönderildi"
+
+msgid "Ordinary tasks are read-only after Done."
+msgstr ""
 
 msgid "Origin"
 msgstr "Kaynak"
@@ -17044,6 +17081,12 @@ msgstr "Hedef Sürüm"
 msgid "Task"
 msgstr "Görev"
 
+msgid "Task name"
+msgstr ""
+
+msgid "Task origin: Impact follow-up"
+msgstr ""
+
 msgid "tasks"
 msgstr "görevler"
 
@@ -17139,6 +17182,9 @@ msgstr "Sıcaklık"
 
 msgid "Template ID"
 msgstr "Şablon Kimliği"
+
+msgid "Template-owned"
+msgstr ""
 
 msgid "Templates"
 msgstr "Şablonlar"
@@ -18904,6 +18950,8 @@ msgstr "İade satın alma siparişinden ayrılsın mı?"
 
 msgid "Unlink RMA from sales order?"
 msgstr "RMA satış siparişinden ayrılsın mı?"
+msgid "Unlink task"
+msgstr ""
 
 msgid "Unlock"
 msgstr "Kilidi Aç"
@@ -20269,6 +20317,9 @@ msgstr "Sipariş edilen miktardan {leftoverQuantity} fazla {0} tamamladınız. F
 
 msgid "You do not have permission to edit workflows"
 msgstr "İş akışlarını Düzenlemek için İzniniz yok"
+
+msgid "You do not have permission to update this task."
+msgstr ""
 
 msgid "You don't have permission to edit this bill of material."
 msgstr "Bu Malzeme listesini Düzenlemek için İzniniz yok."

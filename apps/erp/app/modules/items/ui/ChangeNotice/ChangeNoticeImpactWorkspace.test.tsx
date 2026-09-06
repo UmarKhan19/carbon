@@ -67,6 +67,9 @@ vi.mock("~/modules/purchasing/ui/PurchaseOrder/PurchasingStatus", () => ({
 }));
 vi.mock("~/utils/path", () => ({ path: { to: {} } }));
 vi.mock("./ChangeNoticeStatus", () => ({ default: () => null }));
+vi.mock("./ChangeNoticeImpactTasks", () => ({
+  ChangeNoticeImpactTasks: () => null
+}));
 
 const {
   getChangeNoticeImpactDecisionControls,

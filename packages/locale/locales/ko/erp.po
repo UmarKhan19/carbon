@@ -4632,6 +4632,11 @@ msgstr "변경 통지 생성"
 
 msgid "Create Forecast"
 msgstr "예측 생성"
+msgid "Create follow-up"
+msgstr ""
+
+msgid "Create Impact follow-up"
+msgstr ""
 
 msgid "Create Issue"
 msgstr "이슈 생성"
@@ -4668,6 +4673,8 @@ msgstr "규칙 생성"
 
 msgid "Create Supplier Return"
 msgstr "공급업체 반품 생성"
+msgid "Create task"
+msgstr ""
 
 msgid "Create Transfer"
 msgstr "이전 생성"
@@ -5873,6 +5880,12 @@ msgstr "변경 설명"
 
 msgid "Description of Issue"
 msgstr "이슈 설명"
+
+msgid "Designate"
+msgstr ""
+
+msgid "Designate as Impact follow-up"
+msgstr ""
 
 msgid "Detail"
 msgstr "상세"
@@ -7899,6 +7912,9 @@ msgstr "지그 ID"
 msgid "Flags"
 msgstr "플래그"
 
+msgid "Follow-up for"
+msgstr ""
+
 msgid "Follow-up rationale"
 msgstr ""
 
@@ -8672,6 +8688,15 @@ msgid "Impact"
 msgstr "영향"
 
 msgid "Impact assessment changed while you were editing."
+msgstr ""
+
+msgid "Impact follow-up"
+msgstr ""
+
+msgid "Impact task could not be created."
+msgstr ""
+
+msgid "Impact task could not be linked."
 msgstr ""
 
 msgid "Imperial"
@@ -9733,6 +9758,9 @@ msgstr "발주서 연결"
 
 msgid "Link a sales order"
 msgstr "수주 연결"
+msgstr "판매 주문 연결"
+msgid "Link existing task"
+msgstr ""
 
 msgid "Link Jira Issue"
 msgstr "Jira 이슈 연결"
@@ -9742,6 +9770,8 @@ msgstr "Linear 이슈 연결"
 
 msgid "link outside company"
 msgstr "회사 외부 링크"
+msgid "Link task"
+msgstr ""
 
 msgid "Link this Carbon customer to one of them, or create a separate Stripe customer."
 msgstr "이 Carbon 고객을 그 중 하나에 연결하거나 별도의 Stripe 고객을 생성합니다."
@@ -9761,6 +9791,9 @@ msgid "Linked PO"
 msgstr "연결된 구매주문"
 
 msgid "Linked tasks"
+msgstr ""
+
+msgid "Linking preserves the task's existing origin and status. It does not resolve this Impact decision."
 msgstr ""
 
 msgid "List Options"
@@ -11240,6 +11273,8 @@ msgstr "적격 공정이 없습니다"
 
 msgid "No employees assigned this week"
 msgstr "이번 주에 배치된 직원이 없습니다"
+msgid "No eligible tasks are available to link."
+msgstr ""
 
 msgid "No employees assigned yet. Add groups to see status."
 msgstr "아직 배정된 직원이 없습니다. 그룹을 추가하면 상태를 확인할 수 있습니다."
@@ -12280,6 +12315,9 @@ msgstr "주문"
 
 msgid "Orders submitted"
 msgstr "제출된 주문"
+
+msgid "Ordinary tasks are read-only after Done."
+msgstr ""
 
 msgid "Origin"
 msgstr "출처"
@@ -17044,6 +17082,12 @@ msgstr "대상 버전"
 msgid "Task"
 msgstr "작업"
 
+msgid "Task name"
+msgstr ""
+
+msgid "Task origin: Impact follow-up"
+msgstr ""
+
 msgid "tasks"
 msgstr "작업"
 
@@ -17139,6 +17183,9 @@ msgstr "온도"
 
 msgid "Template ID"
 msgstr "템플릿 ID"
+
+msgid "Template-owned"
+msgstr ""
 
 msgid "Templates"
 msgstr "템플릿"
@@ -18903,6 +18950,9 @@ msgstr "발주서에서 반품 연결을 해제하시겠습니까?"
 
 msgid "Unlink RMA from sales order?"
 msgstr "수주에서 RMA 연결을 해제하시겠습니까?"
+msgstr "판매 주문에서 RMA 연결을 해제하시겠습니까?"
+msgid "Unlink task"
+msgstr ""
 
 msgid "Unlock"
 msgstr "잠금 해제"
@@ -20268,6 +20318,9 @@ msgstr "발주 수량 {1}보다 {0} {leftoverQuantity}개를 더 완료했습니
 
 msgid "You do not have permission to edit workflows"
 msgstr "워크플로우를 편집할 권한이 없습니다."
+
+msgid "You do not have permission to update this task."
+msgstr ""
 
 msgid "You don't have permission to edit this bill of material."
 msgstr "이 자재 명세서를 편집할 권한이 없습니다."

@@ -3,6 +3,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import type { Json } from "@carbon/database";
 import { validationError, validator } from "@carbon/form";
+import { parseDate } from "@internationalized/date";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { changeNoticeImpactTaskCreateFormValidator } from "~/modules/items";
@@ -32,6 +33,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
     assignee,
     dueDate
   } = validation.data;
+
+  let normalizedDueDate: string | undefined;
+  if (dueDate?.trim()) {
+    try {
+      normalizedDueDate = parseDate(dueDate.trim()).toString();
+    } catch (cause) {
+      return data(
+        { success: false },
+        await flash(request, error(cause, "Invalid due date"))
+      );
+    }
+  }
 
   let notes: Json | null | undefined;
   if (notesJson) {
@@ -77,7 +90,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         name,
         notes,
         assignee,
-        dueDate
+        ...(normalizedDueDate ? { dueDate: normalizedDueDate } : {})
       }
     }
   });

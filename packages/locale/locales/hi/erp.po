@@ -4632,6 +4632,11 @@ msgstr "परिवर्तन सूचना बनाएं"
 
 msgid "Create Forecast"
 msgstr "पूर्वानुमान बनाएं"
+msgid "Create follow-up"
+msgstr ""
+
+msgid "Create Impact follow-up"
+msgstr ""
 
 msgid "Create Issue"
 msgstr "समस्या बनाएं"
@@ -4668,6 +4673,8 @@ msgstr "नियम बनाएं"
 
 msgid "Create Supplier Return"
 msgstr "आपूर्तिकर्ता रिटर्न बनाएं"
+msgid "Create task"
+msgstr ""
 
 msgid "Create Transfer"
 msgstr "ट्रांसफर बनाएं"
@@ -5873,6 +5880,12 @@ msgstr "परिवर्तन का विवरण"
 
 msgid "Description of Issue"
 msgstr "समस्या का विवरण"
+
+msgid "Designate"
+msgstr ""
+
+msgid "Designate as Impact follow-up"
+msgstr ""
 
 msgid "Detail"
 msgstr "विवरण"
@@ -7899,6 +7912,9 @@ msgstr "फिक्सचर आईडी"
 msgid "Flags"
 msgstr "झंडे"
 
+msgid "Follow-up for"
+msgstr ""
+
 msgid "Follow-up rationale"
 msgstr ""
 
@@ -8672,6 +8688,15 @@ msgid "Impact"
 msgstr "प्रभाव"
 
 msgid "Impact assessment changed while you were editing."
+msgstr ""
+
+msgid "Impact follow-up"
+msgstr ""
+
+msgid "Impact task could not be created."
+msgstr ""
+
+msgid "Impact task could not be linked."
 msgstr ""
 
 msgid "Imperial"
@@ -9733,6 +9758,8 @@ msgstr "क्रय आदेश लिंक करें"
 
 msgid "Link a sales order"
 msgstr "विक्रय आदेश लिंक करें"
+msgid "Link existing task"
+msgstr ""
 
 msgid "Link Jira Issue"
 msgstr "Jira समस्या को लिंक करें"
@@ -9742,6 +9769,8 @@ msgstr "Linear समस्या को लिंक करें"
 
 msgid "link outside company"
 msgstr "कंपनी के बाहर का लिंक"
+msgid "Link task"
+msgstr ""
 
 msgid "Link this Carbon customer to one of them, or create a separate Stripe customer."
 msgstr "इस Carbon ग्राहक को इनमें से किसी एक से जोड़ें, या एक अलग Stripe ग्राहक बनाएँ।"
@@ -9761,6 +9790,9 @@ msgid "Linked PO"
 msgstr "लिंक्ड PO"
 
 msgid "Linked tasks"
+msgstr ""
+
+msgid "Linking preserves the task's existing origin and status. It does not resolve this Impact decision."
 msgstr ""
 
 msgid "List Options"
@@ -11240,6 +11272,8 @@ msgstr "कोई पात्र ऑपरेशन नहीं"
 
 msgid "No employees assigned this week"
 msgstr "इस सप्ताह कोई कर्मचारी निर्धारित नहीं"
+msgid "No eligible tasks are available to link."
+msgstr ""
 
 msgid "No employees assigned yet. Add groups to see status."
 msgstr "अभी तक कोई कर्मचारी असाइन नहीं किया गया है। स्थिति देखने के लिए समूह जोड़ें।"
@@ -12280,6 +12314,9 @@ msgstr "आदेश"
 
 msgid "Orders submitted"
 msgstr "ऑर्डर जमा किए गए"
+
+msgid "Ordinary tasks are read-only after Done."
+msgstr ""
 
 msgid "Origin"
 msgstr "मूल"
@@ -17043,6 +17080,12 @@ msgstr "लक्ष्य संस्करण"
 msgid "Task"
 msgstr "कार्य"
 
+msgid "Task name"
+msgstr ""
+
+msgid "Task origin: Impact follow-up"
+msgstr ""
+
 msgid "tasks"
 msgstr "कार्य"
 
@@ -17138,6 +17181,9 @@ msgstr "तापमान"
 
 msgid "Template ID"
 msgstr "टेम्पलेट आईडी"
+
+msgid "Template-owned"
+msgstr ""
 
 msgid "Templates"
 msgstr "टेम्पलेट्स"
@@ -18902,6 +18948,8 @@ msgstr "वापसी को क्रय आदेश से अनलिं�
 
 msgid "Unlink RMA from sales order?"
 msgstr "RMA को विक्रय आदेश से अनलिंक करें?"
+msgid "Unlink task"
+msgstr ""
 
 msgid "Unlock"
 msgstr "अनलॉक करें"
@@ -20271,6 +20319,9 @@ msgstr ""
 
 msgid "You do not have permission to edit workflows"
 msgstr "आपके पास वर्कफ़्लो संपादित करने की अनुमति नहीं है"
+
+msgid "You do not have permission to update this task."
+msgstr ""
 
 msgid "You don't have permission to edit this bill of material."
 msgstr "आपके पास इस सामग्री विधि को संपादित करने की अनुमति नहीं है।"

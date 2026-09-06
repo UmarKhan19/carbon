@@ -28,7 +28,6 @@ import {
 } from "react-icons/lu";
 import { Link, useFetcher, useRevalidator } from "react-router";
 import type { z } from "zod";
-import { EmployeeAvatar } from "~/components";
 import {
   Boolean,
   Hidden,
@@ -44,7 +43,6 @@ import {
   type ChangeNoticeImpactCoverage,
   type ChangeNoticeImpactDecisionStatus,
   type ChangeNoticeImpactNoActionReasonCode,
-  type ChangeNoticeImpactTaskLink,
   type ChangeNoticeImpactWorkspaceReadModel,
   type ChangeNoticeImpactWorkspaceSnapshot,
   changeNoticeImpactDecisionFormValidator,
@@ -54,6 +52,8 @@ import {
 import JobStatus from "~/modules/production/ui/Jobs/JobStatus";
 import PurchasingStatus from "~/modules/purchasing/ui/PurchaseOrder/PurchasingStatus";
 import { path } from "~/utils/path";
+import type { ChangeNoticeActionTask } from "../../types";
+import { ChangeNoticeImpactTasks } from "./ChangeNoticeImpactTasks";
 import ChangeNoticeStatus from "./ChangeNoticeStatus";
 
 const CURRENT_EXPOSURE = "Current operational exposure";
@@ -64,6 +64,7 @@ type WorkspaceProps = {
   id: string;
   changeNotice: ChangeNotice | null;
   data: ChangeNoticeImpactWorkspaceReadModel;
+  actions: ChangeNoticeActionTask[];
 };
 
 type Candidate = ChangeNoticeImpactWorkspaceReadModel["candidates"][number];
@@ -237,19 +238,6 @@ function decisionLabel(
       return <Trans>Resolved</Trans>;
     default:
       return status;
-  }
-}
-
-function taskStatusLabel(status: ChangeNoticeImpactTaskLink["status"]) {
-  switch (status) {
-    case "Pending":
-      return <Trans>Pending</Trans>;
-    case "In Progress":
-      return <Trans>In Progress</Trans>;
-    case "Completed":
-      return <Trans>Completed</Trans>;
-    case "Skipped":
-      return <Trans>Skipped</Trans>;
   }
 }
 
@@ -1024,59 +1012,6 @@ function ImpactDecisionDrawer({
   );
 }
 
-function LinkedTasks({
-  tasks,
-  showNoTaskWarning
-}: {
-  tasks: ChangeNoticeImpactTaskLink[];
-  showNoTaskWarning: boolean;
-}) {
-  const { locale } = useLocale();
-  if (tasks.length === 0) {
-    if (!showNoTaskWarning) return null;
-    return (
-      <div className="text-xs text-amber-700 dark:text-amber-300">
-        <Trans>
-          No task linked. Keep a written rationale describing the follow-up
-          path.
-        </Trans>
-      </div>
-    );
-  }
-  return (
-    <div className="space-y-1 text-xs">
-      <div className="font-medium text-muted-foreground">
-        <Trans>Linked tasks</Trans>
-      </div>
-      {tasks.map((task) => (
-        <div
-          key={`${task.decisionId}-${task.actionTaskId}`}
-          className="flex flex-wrap items-center gap-2"
-        >
-          <span className="min-w-0 truncate">
-            {task.name ?? <Trans>Unnamed task</Trans>}
-          </span>
-          <Badge variant="outline" className="whitespace-nowrap">
-            {taskStatusLabel(task.status)}
-          </Badge>
-          {task.assignee ? (
-            <EmployeeAvatar employeeId={task.assignee} size="xxs" />
-          ) : (
-            <span className="text-muted-foreground">
-              <Trans>Unassigned</Trans>
-            </span>
-          )}
-          {task.dueDate && (
-            <span className="text-muted-foreground">
-              <Trans>Due</Trans> {formatImpactDate(task.dueDate, locale)}
-            </span>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
-
 function DecisionControls({
   candidate,
   coverageStatus,
@@ -1151,18 +1086,24 @@ function DecisionControls({
 }
 
 function ImpactRow({
+  changeNoticeId,
   candidate,
+  actions,
   coverageStatus,
   taskCoverageStatus,
   changeNoticeStatus,
   canUpdate,
+  onRefresh,
   onOpenDecision
 }: {
+  changeNoticeId: string;
   candidate: Candidate;
+  actions: ChangeNoticeActionTask[];
   coverageStatus: ChangeNoticeImpactCoverage["status"];
   taskCoverageStatus: ChangeNoticeImpactWorkspaceReadModel["taskCoverage"]["status"];
   changeNoticeStatus: ChangeNotice["status"] | null | undefined;
   canUpdate: boolean;
+  onRefresh: () => void;
   onOpenDecision: (
     candidate: Candidate,
     mode: ChangeNoticeImpactDecisionMode
@@ -1210,12 +1151,14 @@ function ImpactRow({
       <DecisionSummary candidate={candidate} />
       <AssessmentSnapshot candidate={candidate} />
       <Provenance candidate={candidate} />
-      <LinkedTasks
-        tasks={candidate.taskLinks}
-        showNoTaskWarning={
-          taskCoverageStatus === "complete" &&
-          candidate.decision?.status === "Action required"
-        }
+      <ChangeNoticeImpactTasks
+        changeNoticeId={changeNoticeId}
+        changeNoticeStatus={changeNoticeStatus}
+        candidate={candidate}
+        actions={actions}
+        canUpdate={canUpdate}
+        taskCoverageStatus={taskCoverageStatus}
+        onRefresh={onRefresh}
       />
       <DecisionControls
         candidate={candidate}
@@ -1255,20 +1198,26 @@ function groupCandidates(candidates: Candidate[]): Group[] {
 }
 
 function DocumentGroups({
+  changeNoticeId,
   candidates,
+  actions,
   emptyMessage,
   coverage,
   taskCoverageStatus,
   changeNoticeStatus,
   canUpdate,
+  onRefresh,
   onOpenDecision
 }: {
+  changeNoticeId: string;
   candidates: Candidate[];
+  actions: ChangeNoticeActionTask[];
   emptyMessage: ReactNode;
   coverage: ChangeNoticeImpactWorkspaceReadModel["coverage"];
   taskCoverageStatus: ChangeNoticeImpactWorkspaceReadModel["taskCoverage"]["status"];
   changeNoticeStatus: ChangeNotice["status"] | null | undefined;
   canUpdate: boolean;
+  onRefresh: () => void;
   onOpenDecision: (
     candidate: Candidate,
     mode: ChangeNoticeImpactDecisionMode
@@ -1302,11 +1251,14 @@ function DocumentGroups({
             {group.candidates.map((candidate) => (
               <ImpactRow
                 key={`${candidate.targetType}-${candidate.targetId}`}
+                changeNoticeId={changeNoticeId}
                 candidate={candidate}
+                actions={actions}
                 coverageStatus={coverage[candidate.targetType].status}
                 taskCoverageStatus={taskCoverageStatus}
                 changeNoticeStatus={changeNoticeStatus}
                 canUpdate={canUpdate}
+                onRefresh={onRefresh}
                 onOpenDecision={onOpenDecision}
               />
             ))}
@@ -1459,7 +1411,8 @@ function isUnavailable(candidate: Candidate) {
 export default function ChangeNoticeImpactWorkspace({
   id,
   changeNotice,
-  data
+  data,
+  actions
 }: WorkspaceProps) {
   const permissions = usePermissions();
   const revalidator = useRevalidator();
@@ -1501,6 +1454,9 @@ export default function ChangeNoticeImpactWorkspace({
     },
     [revalidator]
   );
+  const handleTaskMutation = useCallback(() => {
+    revalidator.revalidate();
+  }, [revalidator]);
 
   return (
     <VStack spacing={4} className="mx-auto w-full max-w-[1400px] p-4">
@@ -1625,28 +1581,34 @@ export default function ChangeNoticeImpactWorkspace({
         ) : (
           <>
             <DocumentGroups
+              changeNoticeId={id}
               candidates={currentCandidates.filter(
                 (candidate) => candidate.targetType === "purchaseOrderLine"
               )}
+              actions={actions}
               coverage={data.coverage}
               taskCoverageStatus={data.taskCoverage.status}
               changeNoticeStatus={status}
               canUpdate={canUpdate}
+              onRefresh={handleTaskMutation}
               onOpenDecision={openDecision}
               emptyMessage={
                 <Trans>No Purchase Order lines are available.</Trans>
               }
             />
             <DocumentGroups
+              changeNoticeId={id}
               candidates={currentCandidates.filter(
                 (candidate) =>
                   candidate.targetType === "job" ||
                   candidate.targetType === "jobMaterial"
               )}
+              actions={actions}
               coverage={data.coverage}
               taskCoverageStatus={data.taskCoverage.status}
               changeNoticeStatus={status}
               canUpdate={canUpdate}
+              onRefresh={handleTaskMutation}
               onOpenDecision={openDecision}
               emptyMessage={
                 <Trans>No Jobs or Job Materials are available.</Trans>
@@ -1669,11 +1631,14 @@ export default function ChangeNoticeImpactWorkspace({
           </p>
         </div>
         <DocumentGroups
+          changeNoticeId={id}
           candidates={historicalCandidates}
+          actions={actions}
           coverage={data.coverage}
           taskCoverageStatus={data.taskCoverage.status}
           changeNoticeStatus={status}
           canUpdate={canUpdate}
+          onRefresh={handleTaskMutation}
           onOpenDecision={openDecision}
           emptyMessage={
             coverageHasWarning ? (
@@ -1699,11 +1664,14 @@ export default function ChangeNoticeImpactWorkspace({
             </p>
           </div>
           <DocumentGroups
+            changeNoticeId={id}
             candidates={unavailableCandidates}
+            actions={actions}
             coverage={data.coverage}
             taskCoverageStatus={data.taskCoverage.status}
             changeNoticeStatus={status}
             canUpdate={canUpdate}
+            onRefresh={handleTaskMutation}
             onOpenDecision={openDecision}
             emptyMessage={
               <Trans>No unavailable source rows are available.</Trans>

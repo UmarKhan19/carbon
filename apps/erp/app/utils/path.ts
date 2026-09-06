@@ -495,6 +495,14 @@ export const path = {
       generatePath(`${x}/items/change-notice/${id}/impact`),
     changeNoticeImpactDecision: (id: string) =>
       generatePath(`${x}/items/change-notice/${id}/impact/decision`),
+    changeNoticeImpactTaskCreate: (id: string) =>
+      generatePath(`${x}/items/change-notice/${id}/impact/task/create`),
+    changeNoticeImpactTaskDesignate: (id: string) =>
+      generatePath(`${x}/items/change-notice/${id}/impact/task/designate`),
+    changeNoticeImpactTaskLink: (id: string) =>
+      generatePath(`${x}/items/change-notice/${id}/impact/task/link`),
+    changeNoticeImpactTaskUnlink: (id: string) =>
+      generatePath(`${x}/items/change-notice/${id}/impact/task/unlink`),
     changeNoticeRequiredAction: (id: string) =>
       generatePath(`${x}/items/change-notice-actions/${id}`),
     // Change Notice Actions config (the changeNoticeRequiredAction default-action

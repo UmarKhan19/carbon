@@ -2,7 +2,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import type { LoaderFunctionArgs } from "react-router";
 import { useLoaderData, useParams } from "react-router";
 import { useRouteData } from "~/hooks";
-import type { ChangeNotice } from "~/modules/items";
+import type { ChangeNotice, ChangeNoticeActionTask } from "~/modules/items";
 import { getChangeNoticeImpactWorkspace } from "~/modules/items";
 import { getChangeNoticeImpactReadAccess } from "~/modules/items/items.server";
 import { ChangeNoticeImpactWorkspace } from "~/modules/items/ui/ChangeNotice";
@@ -44,13 +44,14 @@ export default function ChangeNoticeImpactRoute() {
   const data = useLoaderData<typeof loader>();
   const routeData = useRouteData<{
     changeNotice: ChangeNotice;
+    actions: ChangeNoticeActionTask[];
   }>(path.to.changeNotice(id));
-
   return (
     <ChangeNoticeImpactWorkspace
       id={id}
       changeNotice={routeData?.changeNotice ?? null}
       data={data}
+      actions={routeData?.actions ?? []}
     />
   );
 }
