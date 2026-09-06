@@ -2578,6 +2578,12 @@ msgstr "조립 지침"
 msgid "Assembly:"
 msgstr "조립:"
 
+msgid "Assess"
+msgstr ""
+
+msgid "Assess operational impact"
+msgstr ""
+
 msgid "Assessment coverage"
 msgstr ""
 
@@ -3709,6 +3715,9 @@ msgstr "마감"
 msgid "Closure blocked"
 msgstr "마감 차단됨"
 
+msgid "Closure evidence"
+msgstr ""
+
 msgid "Cloud, or your self-hosted environment."
 msgstr "클라우드 또는 자체 호스팅 환경."
 
@@ -3869,6 +3878,9 @@ msgstr "{0}에 계산됨"
 msgid "Computed At"
 msgstr "계산 시간"
 
+msgid "Conclusion"
+msgstr ""
+
 msgid "Condensed P&L with margins and key subtotals"
 msgstr "마진 및 주요 소계를 포함한 축약 손익계산"
 
@@ -4000,6 +4012,9 @@ msgstr "재고 실사 확인"
 
 msgid "Confirm Mapping"
 msgstr "매핑 확인"
+
+msgid "Confirm no purchasing intervention remains"
+msgstr ""
 
 msgid "Confirm Password"
 msgstr "비밀번호 확인"
@@ -4396,6 +4411,9 @@ msgstr "수정"
 
 msgid "Correction {correctionNumber}"
 msgstr "수정 {correctionNumber}"
+
+msgid "Correction rationale"
+msgstr ""
 
 msgid "Corrections"
 msgstr "수정"
@@ -4916,6 +4934,9 @@ msgid "Current quantity"
 msgstr "현재 수량"
 
 msgid "Current source facts are unavailable."
+msgstr ""
+
+msgid "Current source facts changed since the stored assessment. Saving will capture a fresh assessment snapshot."
 msgstr ""
 
 msgid "Currently training for"
@@ -7041,6 +7062,9 @@ msgstr "모든 조건이 일치해야 함"
 msgid "Every in-scope test passes in your configured system, with your data."
 msgstr "설정한 시스템에서 귀사의 데이터로 범위 내 모든 테스트를 통과합니다."
 
+msgid "Every linked task must be Completed or Skipped before this Impact can be resolved."
+msgstr ""
+
 msgid "Every match"
 msgstr "모든 일치"
 
@@ -7875,6 +7899,9 @@ msgstr "지그 ID"
 msgid "Flags"
 msgstr "플래그"
 
+msgid "Follow-up rationale"
+msgstr ""
+
 msgid "for anything. They'll pull in the right person."
 msgstr "무엇이든지요. 적임자를 연결해 드립니다."
 
@@ -8643,6 +8670,9 @@ msgstr "III (까다로운 검사)"
 
 msgid "Impact"
 msgstr "영향"
+
+msgid "Impact assessment changed while you were editing."
+msgstr ""
 
 msgid "Imperial"
 msgstr "야드파운드법"
@@ -10770,6 +10800,9 @@ msgstr "신규 필드"
 msgid "New Fixed Asset"
 msgstr "신규 고정자산"
 
+msgid "New follow-up rationale"
+msgstr ""
+
 msgid "New Gauge"
 msgstr "신규 계측기"
 
@@ -11532,6 +11565,9 @@ msgstr "아직 공급업체가 없습니다"
 
 msgid "No sync operations yet"
 msgstr "아직 동기화된 공정이 없습니다"
+
+msgid "No task linked. Keep a written rationale describing the follow-up path."
+msgstr ""
 
 msgid "No time entries for this week"
 msgstr "이번 주 시간 기록이 없습니다"
@@ -13820,6 +13856,12 @@ msgstr "건너뛰기 사유 (필수)"
 msgid "Reasons"
 msgstr "사유"
 
+msgid "Reassess"
+msgstr ""
+
+msgid "Reassess operational impact"
+msgstr ""
+
 msgid "Reassign specific tracked entities from this row to another disposition row."
 msgstr "이 행의 추적된 특정 항목을 다른 처분 결정 행으로 재할당하세요."
 
@@ -14418,7 +14460,22 @@ msgstr "잔존가액"
 msgid "Residual Value %"
 msgstr "잔존가액 %"
 
+msgid "Resolution is unavailable until linked task coverage is complete."
+msgstr ""
+
 msgid "Resolution note"
+msgstr ""
+
+msgid "Resolve"
+msgstr ""
+
+msgid "Resolve after every linked task is Completed or Skipped."
+msgstr ""
+
+msgid "Resolve after linked task coverage is complete."
+msgstr ""
+
+msgid "Resolve operational impact"
 msgstr ""
 
 msgid "Resolve these before completing the NCR: every row must have a non-Pending disposition, and its linked entity quantities must match the row quantity."
@@ -14629,6 +14686,9 @@ msgstr ""
 
 msgid "Review each item's changes, then confirm — releasing can't be undone."
 msgstr "각 항목의 변경 사항을 검토한 후 확인하세요 — 릴리스는 실행 취소할 수 없습니다."
+
+msgid "Review rationale"
+msgstr ""
 
 msgid "Review the period's balance sheet and income statement and confirm the figures look right. This is a manual sign-off — mark it done once you have reviewed them."
 msgstr "기간의 재무상태표 및 손익계산서를 검토하고 수치가 올바른지 확인합니다. 이는 수동 승인입니다 — 검토한 후 완료로 표시합니다."
@@ -15039,6 +15099,9 @@ msgstr "저장 및 덮어쓰기"
 msgid "Save applications"
 msgstr "애플리케이션 저장"
 
+msgid "Save assessment"
+msgstr ""
+
 msgid "Save changes"
 msgstr "변경 사항 저장"
 
@@ -15053,6 +15116,8 @@ msgstr "저장 방법"
 
 msgid "Save Rate"
 msgstr "환율 저장"
+msgid "Save reassessment"
+msgstr ""
 
 msgid "Save the form you're editing"
 msgstr "편집 중인 양식 저장"
@@ -16804,6 +16869,8 @@ msgstr "공급업체 반품"
 
 msgid "Supplier RMA #"
 msgstr "공급업체 RMA #"
+msgid "Supplier return, replacement, credit, and communication interventions have been reviewed."
+msgstr ""
 
 msgid "Supplier Status"
 msgstr "공급업체 상태"
@@ -17316,6 +17383,8 @@ msgstr "보고 및 인원 계층구조에서 이 부서가 속하는 상위 부�
 
 msgid "The early hours, {name}."
 msgstr "이른 시간, {name}."
+msgid "The editor was closed and the workspace was refreshed. Review the current state before submitting again."
+msgstr ""
 
 msgid "The eight-disciplines quality method, modeled with the nonconformance workflow's tasks rather than hard-coded."
 msgstr "8D 품질 기법으로, 하드코딩되지 않고 부적합 워크플로의 작업으로 모델링됩니다."
@@ -19108,6 +19177,9 @@ msgstr "다른 이메일 사용"
 
 msgid "Use metric system for default material dimensions."
 msgstr "기본 자재 치수에 미터법 시스템 사용"
+
+msgid "Use No action required only if the earlier conclusion was incorrect and intervention was never required. If intervention occurred and closed the consequence, use Resolve."
+msgstr ""
 
 msgid "Used In"
 msgstr "사용처"

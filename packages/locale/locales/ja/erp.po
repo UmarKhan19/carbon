@@ -2578,6 +2578,12 @@ msgstr "組立指示"
 msgid "Assembly:"
 msgstr "アセンブリ:"
 
+msgid "Assess"
+msgstr ""
+
+msgid "Assess operational impact"
+msgstr ""
+
 msgid "Assessment coverage"
 msgstr ""
 
@@ -3709,6 +3715,9 @@ msgstr "終了残高"
 msgid "Closure blocked"
 msgstr "完了がブロックされています"
 
+msgid "Closure evidence"
+msgstr ""
+
 msgid "Cloud, or your self-hosted environment."
 msgstr "クラウド、またはセルフホストされた環境。"
 
@@ -3869,6 +3878,9 @@ msgstr "{0}で計算済み"
 msgid "Computed At"
 msgstr "計算日時"
 
+msgid "Conclusion"
+msgstr ""
+
 msgid "Condensed P&L with margins and key subtotals"
 msgstr "マージンと主要小計を含む圧縮P&L"
 
@@ -4000,6 +4012,9 @@ msgstr "在庫数確認"
 
 msgid "Confirm Mapping"
 msgstr "マッピングを確認"
+
+msgid "Confirm no purchasing intervention remains"
+msgstr ""
 
 msgid "Confirm Password"
 msgstr "パスワードを確認"
@@ -4396,6 +4411,9 @@ msgstr "修正"
 
 msgid "Correction {correctionNumber}"
 msgstr "訂正 {correctionNumber}"
+
+msgid "Correction rationale"
+msgstr ""
 
 msgid "Corrections"
 msgstr "修正"
@@ -4916,6 +4934,9 @@ msgid "Current quantity"
 msgstr "現在の数量"
 
 msgid "Current source facts are unavailable."
+msgstr ""
+
+msgid "Current source facts changed since the stored assessment. Saving will capture a fresh assessment snapshot."
 msgstr ""
 
 msgid "Currently training for"
@@ -7041,6 +7062,9 @@ msgstr "すべての条件が一致する必要があります"
 msgid "Every in-scope test passes in your configured system, with your data."
 msgstr "スコープ内のすべてのテストが、設定されたシステムで、あなたのデータを使用して合格します。"
 
+msgid "Every linked task must be Completed or Skipped before this Impact can be resolved."
+msgstr ""
+
 msgid "Every match"
 msgstr "すべてのマッチ"
 
@@ -7875,6 +7899,9 @@ msgstr "治具ID"
 msgid "Flags"
 msgstr "フラグ"
 
+msgid "Follow-up rationale"
+msgstr ""
+
 msgid "for anything. They'll pull in the right person."
 msgstr "何でも構いません。彼らが適切な人を連れてきます。"
 
@@ -8643,6 +8670,9 @@ msgstr "III(きつい検査)"
 
 msgid "Impact"
 msgstr "影響"
+
+msgid "Impact assessment changed while you were editing."
+msgstr ""
 
 msgid "Imperial"
 msgstr "インペリアル"
@@ -10770,6 +10800,9 @@ msgstr "新しいフィールド"
 msgid "New Fixed Asset"
 msgstr "新しい固定資産"
 
+msgid "New follow-up rationale"
+msgstr ""
+
 msgid "New Gauge"
 msgstr "新規測定器"
 
@@ -11532,6 +11565,9 @@ msgstr "仕入先がまだありません"
 
 msgid "No sync operations yet"
 msgstr "まだ同期工程はありません"
+
+msgid "No task linked. Keep a written rationale describing the follow-up path."
+msgstr ""
 
 msgid "No time entries for this week"
 msgstr "今週のタイムエントリがありません"
@@ -13820,6 +13856,12 @@ msgstr "スキップの理由（必須）"
 msgid "Reasons"
 msgstr "理由"
 
+msgid "Reassess"
+msgstr ""
+
+msgid "Reassess operational impact"
+msgstr ""
+
 msgid "Reassign specific tracked entities from this row to another disposition row."
 msgstr "この行から特定の追跡対象を別の処置行に再割り当てします。"
 
@@ -14418,7 +14460,22 @@ msgstr "残存価額"
 msgid "Residual Value %"
 msgstr "残存価額 %"
 
+msgid "Resolution is unavailable until linked task coverage is complete."
+msgstr ""
+
 msgid "Resolution note"
+msgstr ""
+
+msgid "Resolve"
+msgstr ""
+
+msgid "Resolve after every linked task is Completed or Skipped."
+msgstr ""
+
+msgid "Resolve after linked task coverage is complete."
+msgstr ""
+
+msgid "Resolve operational impact"
 msgstr ""
 
 msgid "Resolve these before completing the NCR: every row must have a non-Pending disposition, and its linked entity quantities must match the row quantity."
@@ -14629,6 +14686,9 @@ msgstr ""
 
 msgid "Review each item's changes, then confirm — releasing can't be undone."
 msgstr "各アイテムの変更をレビューしてから確認してください。リリースは取り消せません。"
+
+msgid "Review rationale"
+msgstr ""
 
 msgid "Review the period's balance sheet and income statement and confirm the figures look right. This is a manual sign-off — mark it done once you have reviewed them."
 msgstr "期間の貸借対照表と損益計算書をレビューして、数字が正しいことを確認してください。これは手動の承認です。レビュー後、完了にマークしてください。"
@@ -15039,6 +15099,9 @@ msgstr "保存して上書き"
 msgid "Save applications"
 msgstr "アプリケーションを保存"
 
+msgid "Save assessment"
+msgstr ""
+
 msgid "Save changes"
 msgstr "変更を保存"
 
@@ -15053,6 +15116,8 @@ msgstr "メソッドを保存"
 
 msgid "Save Rate"
 msgstr "レートを保存"
+msgid "Save reassessment"
+msgstr ""
 
 msgid "Save the form you're editing"
 msgstr "編集中のフォームを保存"
@@ -16804,6 +16869,9 @@ msgstr "仕入先返品"
 
 msgid "Supplier RMA #"
 msgstr "仕入先RMA #"
+msgstr "サプライヤー RMA #"
+msgid "Supplier return, replacement, credit, and communication interventions have been reviewed."
+msgstr ""
 
 msgid "Supplier Status"
 msgstr "仕入先ステータス"
@@ -17316,6 +17384,8 @@ msgstr "レポートとヘッドカウント階層のために、このロール
 
 msgid "The early hours, {name}."
 msgstr "早朝の時間、{name}。"
+msgid "The editor was closed and the workspace was refreshed. Review the current state before submitting again."
+msgstr ""
 
 msgid "The eight-disciplines quality method, modeled with the nonconformance workflow's tasks rather than hard-coded."
 msgstr "8つの規律品質法。ハードコーディングではなく、不適合ワークフローのタスクでモデル化されています。"
@@ -19108,6 +19178,9 @@ msgstr "別のメールアドレスを使用"
 
 msgid "Use metric system for default material dimensions."
 msgstr "デフォルト材料ディメンションにメートル法を使用してください。"
+
+msgid "Use No action required only if the earlier conclusion was incorrect and intervention was never required. If intervention occurred and closed the consequence, use Resolve."
+msgstr ""
 
 msgid "Used In"
 msgstr "使用されている"

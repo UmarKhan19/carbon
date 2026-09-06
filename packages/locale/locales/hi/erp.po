@@ -2578,6 +2578,12 @@ msgstr "असेंबली निर्देश"
 msgid "Assembly:"
 msgstr "असेंबली:"
 
+msgid "Assess"
+msgstr ""
+
+msgid "Assess operational impact"
+msgstr ""
+
 msgid "Assessment coverage"
 msgstr ""
 
@@ -3709,6 +3715,9 @@ msgstr "समापन"
 msgid "Closure blocked"
 msgstr "बंद करना अवरुद्ध"
 
+msgid "Closure evidence"
+msgstr ""
+
 msgid "Cloud, or your self-hosted environment."
 msgstr "क्लाउड, या आपका स्व-होस्ट किया गया वातावरण।"
 
@@ -3869,6 +3878,9 @@ msgstr "की गणना {0}"
 msgid "Computed At"
 msgstr "गणना समय"
 
+msgid "Conclusion"
+msgstr ""
+
 msgid "Condensed P&L with margins and key subtotals"
 msgstr "मार्जिन और मुख्य उप-योग के साथ संक्षिप्त P&L"
 
@@ -4000,6 +4012,9 @@ msgstr "इन्वेंटरी गणना की पुष्टि क�
 
 msgid "Confirm Mapping"
 msgstr "मैपिंग की पुष्टि करें"
+
+msgid "Confirm no purchasing intervention remains"
+msgstr ""
 
 msgid "Confirm Password"
 msgstr "पासवर्ड की पुष्टि करें"
@@ -4396,6 +4411,9 @@ msgstr "सुधार"
 
 msgid "Correction {correctionNumber}"
 msgstr "सुधार {correctionNumber}"
+
+msgid "Correction rationale"
+msgstr ""
 
 msgid "Corrections"
 msgstr "सुधार"
@@ -4916,6 +4934,9 @@ msgid "Current quantity"
 msgstr "वर्तमान मात्रा"
 
 msgid "Current source facts are unavailable."
+msgstr ""
+
+msgid "Current source facts changed since the stored assessment. Saving will capture a fresh assessment snapshot."
 msgstr ""
 
 msgid "Currently training for"
@@ -7041,6 +7062,9 @@ msgstr "हर शर्त मेल खानी चाहिए"
 msgid "Every in-scope test passes in your configured system, with your data."
 msgstr "आपकी कॉन्फ़िगर की गई सिस्टम में, आपके डेटा के साथ, हर स्कोप में आने वाला टेस्ट पास होता है।"
 
+msgid "Every linked task must be Completed or Skipped before this Impact can be resolved."
+msgstr ""
+
 msgid "Every match"
 msgstr "हर मेल"
 
@@ -7875,6 +7899,9 @@ msgstr "फिक्सचर आईडी"
 msgid "Flags"
 msgstr "झंडे"
 
+msgid "Follow-up rationale"
+msgstr ""
+
 msgid "for anything. They'll pull in the right person."
 msgstr "किसी भी चीज़ के लिए। वे सही व्यक्ति को शामिल करेंगे।"
 
@@ -8643,6 +8670,9 @@ msgstr "III (कठोर)"
 
 msgid "Impact"
 msgstr "प्रभाव"
+
+msgid "Impact assessment changed while you were editing."
+msgstr ""
 
 msgid "Imperial"
 msgstr "इंपीरियल"
@@ -10770,6 +10800,9 @@ msgstr "नया फील्ड"
 msgid "New Fixed Asset"
 msgstr "नई अचल संपत्ति"
 
+msgid "New follow-up rationale"
+msgstr ""
+
 msgid "New Gauge"
 msgstr "नया गेज"
 
@@ -11532,6 +11565,9 @@ msgstr "अभी तक कोई आपूर्तिकर्ता नह�
 
 msgid "No sync operations yet"
 msgstr "अभी तक कोई सिंक ऑपरेशन नहीं"
+
+msgid "No task linked. Keep a written rationale describing the follow-up path."
+msgstr ""
 
 msgid "No time entries for this week"
 msgstr "इस सप्ताह के लिए कोई समय प्रविष्टि नहीं"
@@ -13820,6 +13856,12 @@ msgstr "छोड़ने का कारण (आवश्यक)"
 msgid "Reasons"
 msgstr "कारणें"
 
+msgid "Reassess"
+msgstr ""
+
+msgid "Reassess operational impact"
+msgstr ""
+
 msgid "Reassign specific tracked entities from this row to another disposition row."
 msgstr "इस पंक्ति से विशिष्ट ट्रैक किए गए इकाइयों को दूसरी निपटान पंक्ति में पुनः असाइन करें।"
 
@@ -14418,7 +14460,22 @@ msgstr "अवशिष्ट मूल्य"
 msgid "Residual Value %"
 msgstr "अवशिष्ट मूल्य %"
 
+msgid "Resolution is unavailable until linked task coverage is complete."
+msgstr ""
+
 msgid "Resolution note"
+msgstr ""
+
+msgid "Resolve"
+msgstr ""
+
+msgid "Resolve after every linked task is Completed or Skipped."
+msgstr ""
+
+msgid "Resolve after linked task coverage is complete."
+msgstr ""
+
+msgid "Resolve operational impact"
 msgstr ""
 
 msgid "Resolve these before completing the NCR: every row must have a non-Pending disposition, and its linked entity quantities must match the row quantity."
@@ -14629,6 +14686,9 @@ msgstr ""
 
 msgid "Review each item's changes, then confirm — releasing can't be undone."
 msgstr "प्रत्येक आइटम के परिवर्तनों की समीक्षा करें, फिर पुष्टि करें — जारी करना वापस नहीं किया जा सकता।"
+
+msgid "Review rationale"
+msgstr ""
 
 msgid "Review the period's balance sheet and income statement and confirm the figures look right. This is a manual sign-off — mark it done once you have reviewed them."
 msgstr "अवधि के तुलन पत्र और आय विवरण की समीक्षा करें और पुष्टि करें कि आंकड़े सही दिखते हैं। यह एक मैनुअल हस्ताक्षर बंद है — समीक्षा के बाद इसे पूरा करें।"
@@ -15039,6 +15099,9 @@ msgstr "सहेजें और अधिलेखित करें"
 msgid "Save applications"
 msgstr "आवेदन सहेजें"
 
+msgid "Save assessment"
+msgstr ""
+
 msgid "Save changes"
 msgstr "परिवर्तन सहेजें"
 
@@ -15053,6 +15116,8 @@ msgstr "विधि सहेजें"
 
 msgid "Save Rate"
 msgstr "दर सहेजें"
+msgid "Save reassessment"
+msgstr ""
 
 msgid "Save the form you're editing"
 msgstr "जिस फॉर्म को आप संपादित कर रहे हैं उसे सहेजें"
@@ -16803,6 +16868,8 @@ msgstr "आपूर्तिकर्ता रिटर्न"
 
 msgid "Supplier RMA #"
 msgstr "आपूर्तिकर्ता RMA #"
+msgid "Supplier return, replacement, credit, and communication interventions have been reviewed."
+msgstr ""
 
 msgid "Supplier Status"
 msgstr "आपूर्तिकर्ता स्थिति"
@@ -17315,6 +17382,8 @@ msgstr "विभाग जिसके अंतर्गत यह रिप�
 
 msgid "The early hours, {name}."
 msgstr "सुबह के शुरुआती घंटे, {name}।"
+msgid "The editor was closed and the workspace was refreshed. Review the current state before submitting again."
+msgstr ""
 
 msgid "The eight-disciplines quality method, modeled with the nonconformance workflow's tasks rather than hard-coded."
 msgstr "आठ-अनुशासन गुणवत्ता विधि, गैर-अनुरूपता वर्कफ़्लो के कार्यों के साथ मॉडल किया गया, हार्ड-कोडेड नहीं।"
@@ -19107,6 +19176,9 @@ msgstr "एक अलग ईमेल का उपयोग करें"
 
 msgid "Use metric system for default material dimensions."
 msgstr "डिफ़ॉल्ट सामग्री आयामों के लिए मीट्रिक सिस्टम का उपयोग करें।"
+
+msgid "Use No action required only if the earlier conclusion was incorrect and intervention was never required. If intervention occurred and closed the consequence, use Resolve."
+msgstr ""
 
 msgid "Used In"
 msgstr "में उपयोग किया गया"

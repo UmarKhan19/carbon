@@ -1,32 +1,55 @@
+import { ValidatedForm } from "@carbon/form";
 import {
   Badge,
+  Button,
   Card,
   CardContent,
   CardHeader,
   CardTitle,
+  Drawer,
+  DrawerBody,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  HStack,
   VStack
 } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
-import { Trans } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useLocale } from "@react-aria/i18n";
 import type { ComponentProps, ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   LuChevronRight,
   LuExternalLink,
   LuRefreshCw,
   LuTriangle
 } from "react-icons/lu";
-import { Link } from "react-router";
+import { Link, useFetcher, useRevalidator } from "react-router";
+import type { z } from "zod";
 import { EmployeeAvatar } from "~/components";
-import type {
-  ChangeNotice,
-  ChangeNoticeImpactCandidate,
-  ChangeNoticeImpactCoverage,
-  ChangeNoticeImpactDecisionStatus,
-  ChangeNoticeImpactNoActionReasonCode,
-  ChangeNoticeImpactTaskLink,
-  ChangeNoticeImpactWorkspaceReadModel,
-  ChangeNoticeImpactWorkspaceSnapshot
+import {
+  Boolean,
+  Hidden,
+  Select,
+  Submit,
+  TextArea,
+  TextAreaControlled
+} from "~/components/Form";
+import { usePermissions } from "~/hooks";
+import {
+  type ChangeNotice,
+  type ChangeNoticeImpactCandidate,
+  type ChangeNoticeImpactCoverage,
+  type ChangeNoticeImpactDecisionStatus,
+  type ChangeNoticeImpactNoActionReasonCode,
+  type ChangeNoticeImpactTaskLink,
+  type ChangeNoticeImpactWorkspaceReadModel,
+  type ChangeNoticeImpactWorkspaceSnapshot,
+  changeNoticeImpactDecisionFormValidator,
+  changeNoticeImpactDecisionStatuses,
+  changeNoticeStageFlow
 } from "~/modules/items";
 import JobStatus from "~/modules/production/ui/Jobs/JobStatus";
 import PurchasingStatus from "~/modules/purchasing/ui/PurchaseOrder/PurchasingStatus";
@@ -51,6 +74,106 @@ type Group = {
   parent: Candidate["parent"];
   candidates: Candidate[];
 };
+
+export type ChangeNoticeImpactDecisionMode = "assess" | "reassess" | "resolve";
+
+type ImpactResolutionBlock = "taskCoverage" | "nonTerminalTask" | null;
+
+export type ChangeNoticeImpactDecisionControls = {
+  assess: boolean;
+  reassess: boolean;
+  resolve: boolean;
+  resolveBlock: ImpactResolutionBlock;
+};
+
+export function getChangeNoticeImpactDecisionStatusOptions(
+  decision: Candidate["decision"]
+): ChangeNoticeImpactDecisionStatus[] {
+  // Resolved is a same-state reassessment option. New and open decisions use
+  // the dedicated Resolve action for closure so it cannot bypass task gates.
+  return decision?.status === "Resolved"
+    ? [...changeNoticeImpactDecisionStatuses]
+    : ["No action required", "Action required"];
+}
+
+export function getChangeNoticeImpactRationaleDefault({
+  persistedStatus,
+  selectedStatus,
+  persistedRationale
+}: {
+  persistedStatus: ChangeNoticeImpactDecisionStatus | null;
+  selectedStatus: ChangeNoticeImpactDecisionStatus;
+  persistedRationale: string | null | undefined;
+}): string {
+  return persistedStatus === selectedStatus ? (persistedRationale ?? "") : "";
+}
+
+export function getChangeNoticeImpactDecisionControls({
+  candidate,
+  coverageStatus,
+  taskCoverageStatus,
+  changeNoticeStatus,
+  canUpdate
+}: {
+  candidate: Candidate;
+  coverageStatus: ChangeNoticeImpactCoverage["status"];
+  taskCoverageStatus: ChangeNoticeImpactWorkspaceReadModel["taskCoverage"]["status"];
+  changeNoticeStatus: ChangeNotice["status"] | null | undefined;
+  canUpdate: boolean;
+}): ChangeNoticeImpactDecisionControls {
+  const decision = candidate.decision;
+  const isCurrentAssessable =
+    candidate.exposureClassification === CURRENT_EXPOSURE &&
+    candidate.sourceAvailability === "Present" &&
+    candidate.currentSnapshot !== null;
+  const lifecycleAllowsNewWork =
+    changeNoticeStatus !== undefined &&
+    changeNoticeStatus !== null &&
+    (changeNoticeStageFlow as readonly string[]).includes(changeNoticeStatus);
+  const coverageComplete = coverageStatus === "complete";
+  const canReassess =
+    canUpdate &&
+    decision !== null &&
+    isCurrentAssessable &&
+    coverageComplete &&
+    lifecycleAllowsNewWork &&
+    candidate.freshness !== "Unknown";
+  const canAssess =
+    canUpdate &&
+    decision === null &&
+    isCurrentAssessable &&
+    coverageComplete &&
+    lifecycleAllowsNewWork;
+
+  const canResolveExisting =
+    canUpdate &&
+    decision?.status === "Action required" &&
+    candidate.sourceAvailability !== "Restricted" &&
+    (lifecycleAllowsNewWork || changeNoticeStatus === "Cancelled");
+  const canResolveFirst =
+    canUpdate &&
+    decision === null &&
+    isCurrentAssessable &&
+    coverageComplete &&
+    lifecycleAllowsNewWork;
+  const canShowResolve = canResolveExisting || canResolveFirst;
+  const hasNonTerminalTask = candidate.taskLinks.some(
+    (task) => task.status !== "Completed" && task.status !== "Skipped"
+  );
+
+  return {
+    assess: canAssess,
+    reassess: canReassess,
+    resolve: canShowResolve,
+    resolveBlock: canResolveExisting
+      ? taskCoverageStatus !== "complete"
+        ? "taskCoverage"
+        : hasNonTerminalTask
+          ? "nonTerminalTask"
+          : null
+      : null
+  };
+}
 
 function formatQuantity(
   value: number,
@@ -102,7 +225,7 @@ function ParentStatus({
 
 function decisionLabel(
   status: "Unassessed" | ChangeNoticeImpactDecisionStatus
-): ReactNode {
+): string | JSX.Element {
   switch (status) {
     case "Unassessed":
       return <Trans>Unassessed</Trans>;
@@ -145,7 +268,9 @@ function exposureLabel(
   }
 }
 
-function noActionReasonLabel(reason: ChangeNoticeImpactNoActionReasonCode) {
+function noActionReasonLabel(
+  reason: ChangeNoticeImpactNoActionReasonCode
+): string | JSX.Element {
   switch (reason) {
     case "Outside effectivity":
       return <Trans>Outside effectivity</Trans>;
@@ -572,9 +697,352 @@ function AssessmentSnapshot({ candidate }: { candidate: Candidate }) {
   );
 }
 
-function LinkedTasks({ tasks }: { tasks: ChangeNoticeImpactTaskLink[] }) {
+type ImpactDecisionFetcherData =
+  | { success: true; data: unknown }
+  | { success: false; error?: { message: string }; conflict?: boolean };
+
+type ImpactDecisionDrawerProps = {
+  changeNoticeId: string;
+  candidate: Candidate;
+  mode: ChangeNoticeImpactDecisionMode;
+  coverageStatus: ChangeNoticeImpactCoverage["status"];
+  taskCoverageStatus: ChangeNoticeImpactWorkspaceReadModel["taskCoverage"]["status"];
+  changeNoticeStatus: ChangeNotice["status"] | null | undefined;
+  onClose: () => void;
+  onSuccess: () => void;
+  onConflict: (message: string) => void;
+};
+
+function ImpactDecisionDrawer({
+  changeNoticeId,
+  candidate,
+  mode,
+  coverageStatus,
+  taskCoverageStatus,
+  changeNoticeStatus,
+  onClose,
+  onSuccess,
+  onConflict
+}: ImpactDecisionDrawerProps) {
+  const { t } = useLingui();
+  const fetcher = useFetcher<ImpactDecisionFetcherData>();
+  const decision = candidate.decision;
+  const initialStatus: ChangeNoticeImpactDecisionStatus =
+    mode === "resolve" ? "Resolved" : (decision?.status ?? "Action required");
+  const [decisionStatus, setDecisionStatus] =
+    useState<ChangeNoticeImpactDecisionStatus>(initialStatus);
+  const initialNoActionReason: ChangeNoticeImpactNoActionReasonCode =
+    decision?.noActionReasonCode ?? "Not affected after review";
+  const [noActionReason, setNoActionReason] =
+    useState<ChangeNoticeImpactNoActionReasonCode>(initialNoActionReason);
+  const [rationale, setRationale] = useState(() =>
+    getChangeNoticeImpactRationaleDefault({
+      persistedStatus: decision?.status ?? null,
+      selectedStatus: initialStatus,
+      persistedRationale: decision?.rationale
+    })
+  );
+  const isSubmitting = fetcher.state !== "idle";
+  const resolutionControls = getChangeNoticeImpactDecisionControls({
+    candidate,
+    coverageStatus,
+    taskCoverageStatus,
+    changeNoticeStatus,
+    canUpdate: true
+  });
+  const resolveBlocked =
+    mode === "resolve" && resolutionControls.resolveBlock !== null;
+  const formDefaults = useMemo<
+    z.infer<typeof changeNoticeImpactDecisionFormValidator>
+  >(
+    () => ({
+      changeNoticeId,
+      targetType: candidate.targetType,
+      targetId: candidate.targetId,
+      decisionStatus: initialStatus,
+      noActionReasonCode: initialNoActionReason,
+      rationale: decision?.rationale ?? undefined,
+      resolutionNote: decision?.resolutionNote ?? undefined,
+      expectedRevision: decision?.revision,
+      confirmNoPurchasingInterventionRemains: false
+    }),
+    [
+      candidate.targetId,
+      candidate.targetType,
+      changeNoticeId,
+      decision?.rationale,
+      decision?.resolutionNote,
+      decision?.revision,
+      initialNoActionReason,
+      initialStatus
+    ]
+  );
+
+  useEffect(() => {
+    if (fetcher.state !== "idle" || !fetcher.data) return;
+    if (fetcher.data.success) {
+      onSuccess();
+    } else if (fetcher.data.conflict) {
+      onConflict(
+        fetcher.data.error?.message ??
+          "The Impact assessment changed while you were editing."
+      );
+    }
+  }, [fetcher.data, fetcher.state, onConflict, onSuccess]);
+
+  const statusOptions = useMemo(
+    () =>
+      mode === "resolve"
+        ? []
+        : getChangeNoticeImpactDecisionStatusOptions(decision),
+    [decision, mode]
+  );
+  const isConclusionChange =
+    decision !== null && decisionStatus !== decision.status;
+
+  const reasonOptions = useMemo(
+    () => [
+      {
+        value: "Not affected after review" as const,
+        label: noActionReasonLabel("Not affected after review")
+      },
+      ...(candidate.targetType === "purchaseOrderLine"
+        ? [
+            {
+              value: "No purchasing intervention remains" as const,
+              label: noActionReasonLabel("No purchasing intervention remains")
+            }
+          ]
+        : [])
+    ],
+    [candidate.targetType]
+  );
+
+  const failedResponse =
+    fetcher.data && !fetcher.data.success ? fetcher.data : null;
+  const isPurchasingConfirmation =
+    decisionStatus === "No action required" &&
+    noActionReason === "No purchasing intervention remains";
+
+  return (
+    <Drawer open onOpenChange={(open) => !open && onClose()}>
+      <DrawerContent size="sm">
+        <ValidatedForm
+          key={`${candidate.targetType}-${candidate.targetId}-${mode}-${decision?.revision ?? "new"}`}
+          validator={changeNoticeImpactDecisionFormValidator}
+          method="post"
+          action={path.to.changeNoticeImpactDecision(changeNoticeId)}
+          defaultValues={formDefaults}
+          fetcher={fetcher}
+          className="flex h-full flex-col"
+        >
+          <DrawerHeader>
+            <DrawerTitle>
+              {mode === "resolve" ? (
+                <Trans>Resolve operational impact</Trans>
+              ) : decision ? (
+                <Trans>Reassess operational impact</Trans>
+              ) : (
+                <Trans>Assess operational impact</Trans>
+              )}
+            </DrawerTitle>
+          </DrawerHeader>
+          <DrawerBody>
+            <VStack spacing={4}>
+              <Hidden name="changeNoticeId" value={changeNoticeId} />
+              <Hidden name="targetType" value={candidate.targetType} />
+              <Hidden name="targetId" value={candidate.targetId} />
+              {decision && (
+                <Hidden name="expectedRevision" value={decision.revision} />
+              )}
+
+              <div className="w-full space-y-2 rounded-md bg-muted/40 p-3 text-xs">
+                <div className="font-medium">
+                  {domainLabel(candidate.targetType)} · {candidate.targetId}
+                </div>
+                <SnapshotFacts candidate={candidate} />
+                {candidate.freshness === "Changed since assessment" && (
+                  <p className="text-orange-700 dark:text-orange-300">
+                    <Trans>
+                      Current source facts changed since the stored assessment.
+                      Saving will capture a fresh assessment snapshot.
+                    </Trans>
+                  </p>
+                )}
+                <DecisionSummary candidate={candidate} />
+              </div>
+
+              {mode === "resolve" ? (
+                <Hidden name="decisionStatus" value="Resolved" />
+              ) : (
+                <Select
+                  name="decisionStatus"
+                  label={t`Conclusion`}
+                  options={statusOptions.map((status) => ({
+                    value: status,
+                    label: decisionLabel(status)
+                  }))}
+                  isRequired
+                  onChange={(option) => {
+                    if (option?.value) {
+                      const nextStatus =
+                        option.value as ChangeNoticeImpactDecisionStatus;
+                      setDecisionStatus(nextStatus);
+                      setRationale(
+                        getChangeNoticeImpactRationaleDefault({
+                          persistedStatus: decision?.status ?? null,
+                          selectedStatus: nextStatus,
+                          persistedRationale: decision?.rationale
+                        })
+                      );
+                    }
+                  }}
+                />
+              )}
+
+              {decisionStatus === "No action required" && (
+                <Select
+                  name="noActionReasonCode"
+                  label={t`No-action reason`}
+                  options={reasonOptions}
+                  isRequired
+                  onChange={(option) => {
+                    if (option?.value) {
+                      setNoActionReason(
+                        option.value as ChangeNoticeImpactNoActionReasonCode
+                      );
+                    }
+                  }}
+                />
+              )}
+
+              {isPurchasingConfirmation && (
+                <Boolean
+                  name="confirmNoPurchasingInterventionRemains"
+                  label={t`Confirm no purchasing intervention remains`}
+                  description={t`Supplier return, replacement, credit, and communication interventions have been reviewed.`}
+                />
+              )}
+
+              {isConclusionChange &&
+                decisionStatus === "No action required" && (
+                  <p className="w-full text-xs text-muted-foreground">
+                    <Trans>
+                      Use No action required only if the earlier conclusion was
+                      incorrect and intervention was never required. If
+                      intervention occurred and closed the consequence, use
+                      Resolve.
+                    </Trans>
+                  </p>
+                )}
+              {decisionStatus === "Action required" && (
+                <TextAreaControlled
+                  name="rationale"
+                  label={
+                    isConclusionChange
+                      ? t`New follow-up rationale`
+                      : t`Follow-up rationale`
+                  }
+                  value={rationale}
+                  onChange={setRationale}
+                  isRequired
+                />
+              )}
+              {decisionStatus === "No action required" && (
+                <TextAreaControlled
+                  name="rationale"
+                  label={
+                    isConclusionChange
+                      ? t`Correction rationale`
+                      : t`Review rationale`
+                  }
+                  value={rationale}
+                  onChange={setRationale}
+                  isRequired
+                />
+              )}
+              {decisionStatus === "Resolved" && (
+                <TextArea
+                  name="resolutionNote"
+                  label={t`Closure evidence`}
+                  isRequired
+                />
+              )}
+
+              {resolveBlocked && (
+                <div
+                  role="alert"
+                  className="w-full rounded-md border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-300"
+                >
+                  {resolutionControls.resolveBlock === "taskCoverage" ? (
+                    <Trans>
+                      Resolution is unavailable until linked task coverage is
+                      complete.
+                    </Trans>
+                  ) : (
+                    <Trans>
+                      Every linked task must be Completed or Skipped before this
+                      Impact can be resolved.
+                    </Trans>
+                  )}
+                </div>
+              )}
+              {failedResponse?.error?.message && (
+                <div
+                  role="alert"
+                  className="w-full rounded-md border border-destructive/40 bg-destructive/5 px-3 py-2 text-xs text-destructive"
+                >
+                  {failedResponse.error.message}
+                </div>
+              )}
+            </VStack>
+          </DrawerBody>
+          <DrawerFooter>
+            <HStack>
+              <Submit isDisabled={resolveBlocked} isLoading={isSubmitting}>
+                {mode === "resolve" ? (
+                  <Trans>Resolve</Trans>
+                ) : mode === "assess" ? (
+                  <Trans>Save assessment</Trans>
+                ) : (
+                  <Trans>Save reassessment</Trans>
+                )}
+              </Submit>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={onClose}
+                isDisabled={isSubmitting}
+              >
+                <Trans>Cancel</Trans>
+              </Button>
+            </HStack>
+          </DrawerFooter>
+        </ValidatedForm>
+      </DrawerContent>
+    </Drawer>
+  );
+}
+
+function LinkedTasks({
+  tasks,
+  showNoTaskWarning
+}: {
+  tasks: ChangeNoticeImpactTaskLink[];
+  showNoTaskWarning: boolean;
+}) {
   const { locale } = useLocale();
-  if (tasks.length === 0) return null;
+  if (tasks.length === 0) {
+    if (!showNoTaskWarning) return null;
+    return (
+      <div className="text-xs text-amber-700 dark:text-amber-300">
+        <Trans>
+          No task linked. Keep a written rationale describing the follow-up
+          path.
+        </Trans>
+      </div>
+    );
+  }
   return (
     <div className="space-y-1 text-xs">
       <div className="font-medium text-muted-foreground">
@@ -609,12 +1077,96 @@ function LinkedTasks({ tasks }: { tasks: ChangeNoticeImpactTaskLink[] }) {
   );
 }
 
-function ImpactRow({
+function DecisionControls({
   candidate,
-  coverageStatus
+  coverageStatus,
+  taskCoverageStatus,
+  changeNoticeStatus,
+  canUpdate,
+  onOpen
 }: {
   candidate: Candidate;
   coverageStatus: ChangeNoticeImpactCoverage["status"];
+  taskCoverageStatus: ChangeNoticeImpactWorkspaceReadModel["taskCoverage"]["status"];
+  changeNoticeStatus: ChangeNotice["status"] | null | undefined;
+  canUpdate: boolean;
+  onOpen: (mode: ChangeNoticeImpactDecisionMode) => void;
+}) {
+  const controls = getChangeNoticeImpactDecisionControls({
+    candidate,
+    coverageStatus,
+    taskCoverageStatus,
+    changeNoticeStatus,
+    canUpdate
+  });
+  if (!controls.assess && !controls.reassess && !controls.resolve) return null;
+
+  return (
+    <div className="flex flex-wrap items-center gap-2 border-t border-border/70 pt-3">
+      {controls.assess && (
+        <Button
+          type="button"
+          size="sm"
+          variant="secondary"
+          onClick={() => onOpen("assess")}
+        >
+          <Trans>Assess</Trans>
+        </Button>
+      )}
+      {controls.reassess && (
+        <Button
+          type="button"
+          size="sm"
+          variant="secondary"
+          onClick={() => onOpen("reassess")}
+        >
+          <Trans>Reassess</Trans>
+        </Button>
+      )}
+      {controls.resolve && (
+        <Button
+          type="button"
+          size="sm"
+          variant="primary"
+          isDisabled={controls.resolveBlock !== null}
+          onClick={() => onOpen("resolve")}
+        >
+          <Trans>Resolve</Trans>
+        </Button>
+      )}
+      {controls.resolveBlock === "taskCoverage" && (
+        <span className="text-xs text-amber-700 dark:text-amber-300">
+          <Trans>Resolve after linked task coverage is complete.</Trans>
+        </span>
+      )}
+      {controls.resolveBlock === "nonTerminalTask" && (
+        <span className="text-xs text-amber-700 dark:text-amber-300">
+          <Trans>
+            Resolve after every linked task is Completed or Skipped.
+          </Trans>
+        </span>
+      )}
+    </div>
+  );
+}
+
+function ImpactRow({
+  candidate,
+  coverageStatus,
+  taskCoverageStatus,
+  changeNoticeStatus,
+  canUpdate,
+  onOpenDecision
+}: {
+  candidate: Candidate;
+  coverageStatus: ChangeNoticeImpactCoverage["status"];
+  taskCoverageStatus: ChangeNoticeImpactWorkspaceReadModel["taskCoverage"]["status"];
+  changeNoticeStatus: ChangeNotice["status"] | null | undefined;
+  canUpdate: boolean;
+  onOpenDecision: (
+    candidate: Candidate,
+    mode: ChangeNoticeImpactDecisionMode
+  ) => void;
 }) {
   const itemLabel = candidate.item?.readableIdWithRevision ??
     candidate.item?.readableId ?? <Trans>Item details unavailable</Trans>;
@@ -658,7 +1210,21 @@ function ImpactRow({
       <DecisionSummary candidate={candidate} />
       <AssessmentSnapshot candidate={candidate} />
       <Provenance candidate={candidate} />
-      <LinkedTasks tasks={candidate.taskLinks} />
+      <LinkedTasks
+        tasks={candidate.taskLinks}
+        showNoTaskWarning={
+          taskCoverageStatus === "complete" &&
+          candidate.decision?.status === "Action required"
+        }
+      />
+      <DecisionControls
+        candidate={candidate}
+        coverageStatus={coverageStatus}
+        taskCoverageStatus={taskCoverageStatus}
+        changeNoticeStatus={changeNoticeStatus}
+        canUpdate={canUpdate}
+        onOpen={(mode) => onOpenDecision(candidate, mode)}
+      />
     </div>
   );
 }
@@ -691,11 +1257,22 @@ function groupCandidates(candidates: Candidate[]): Group[] {
 function DocumentGroups({
   candidates,
   emptyMessage,
-  coverage
+  coverage,
+  taskCoverageStatus,
+  changeNoticeStatus,
+  canUpdate,
+  onOpenDecision
 }: {
   candidates: Candidate[];
   emptyMessage: ReactNode;
   coverage: ChangeNoticeImpactWorkspaceReadModel["coverage"];
+  taskCoverageStatus: ChangeNoticeImpactWorkspaceReadModel["taskCoverage"]["status"];
+  changeNoticeStatus: ChangeNotice["status"] | null | undefined;
+  canUpdate: boolean;
+  onOpenDecision: (
+    candidate: Candidate,
+    mode: ChangeNoticeImpactDecisionMode
+  ) => void;
 }) {
   const groups = groupCandidates(candidates);
   if (groups.length === 0) {
@@ -727,6 +1304,10 @@ function DocumentGroups({
                 key={`${candidate.targetType}-${candidate.targetId}`}
                 candidate={candidate}
                 coverageStatus={coverage[candidate.targetType].status}
+                taskCoverageStatus={taskCoverageStatus}
+                changeNoticeStatus={changeNoticeStatus}
+                canUpdate={canUpdate}
+                onOpenDecision={onOpenDecision}
               />
             ))}
           </CardContent>
@@ -880,6 +1461,16 @@ export default function ChangeNoticeImpactWorkspace({
   changeNotice,
   data
 }: WorkspaceProps) {
+  const permissions = usePermissions();
+  const revalidator = useRevalidator();
+  const [decisionTarget, setDecisionTarget] = useState<{
+    candidate: Candidate;
+    mode: ChangeNoticeImpactDecisionMode;
+  } | null>(null);
+  const [decisionConflictMessage, setDecisionConflictMessage] = useState<
+    string | null
+  >(null);
+  const canUpdate = permissions.can("update", "parts") ?? false;
   const currentCandidates = data.candidates.filter(isCurrent);
   const historicalCandidates = data.candidates.filter(isHistorical);
   const unavailableCandidates = data.candidates.filter(isUnavailable);
@@ -890,6 +1481,26 @@ export default function ChangeNoticeImpactWorkspace({
   ].some((coverage) => coverage.status !== "complete");
   const taskCoverageHasWarning = data.taskCoverage.status !== "complete";
   const status = changeNotice?.status ?? data.changeNoticeStatus;
+  const openDecision = useCallback(
+    (candidate: Candidate, mode: ChangeNoticeImpactDecisionMode) => {
+      setDecisionConflictMessage(null);
+      setDecisionTarget({ candidate, mode });
+    },
+    []
+  );
+  const closeDecision = useCallback(() => setDecisionTarget(null), []);
+  const handleDecisionSuccess = useCallback(() => {
+    setDecisionTarget(null);
+    revalidator.revalidate();
+  }, [revalidator]);
+  const handleDecisionConflict = useCallback(
+    (message: string) => {
+      setDecisionTarget(null);
+      setDecisionConflictMessage(message);
+      revalidator.revalidate();
+    },
+    [revalidator]
+  );
 
   return (
     <VStack spacing={4} className="mx-auto w-full max-w-[1400px] p-4">
@@ -931,6 +1542,24 @@ export default function ChangeNoticeImpactWorkspace({
           <Trans>Refresh</Trans>
         </Link>
       </div>
+
+      {decisionConflictMessage && (
+        <div
+          role="alert"
+          className="w-full rounded-md border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-300"
+        >
+          <div className="font-medium">
+            <Trans>Impact assessment changed while you were editing.</Trans>
+          </div>
+          <div>{decisionConflictMessage}</div>
+          <div>
+            <Trans>
+              The editor was closed and the workspace was refreshed. Review the
+              current state before submitting again.
+            </Trans>
+          </div>
+        </div>
+      )}
 
       {coverageHasWarning && (
         <div className="space-y-2">
@@ -1000,6 +1629,10 @@ export default function ChangeNoticeImpactWorkspace({
                 (candidate) => candidate.targetType === "purchaseOrderLine"
               )}
               coverage={data.coverage}
+              taskCoverageStatus={data.taskCoverage.status}
+              changeNoticeStatus={status}
+              canUpdate={canUpdate}
+              onOpenDecision={openDecision}
               emptyMessage={
                 <Trans>No Purchase Order lines are available.</Trans>
               }
@@ -1011,6 +1644,10 @@ export default function ChangeNoticeImpactWorkspace({
                   candidate.targetType === "jobMaterial"
               )}
               coverage={data.coverage}
+              taskCoverageStatus={data.taskCoverage.status}
+              changeNoticeStatus={status}
+              canUpdate={canUpdate}
+              onOpenDecision={openDecision}
               emptyMessage={
                 <Trans>No Jobs or Job Materials are available.</Trans>
               }
@@ -1034,6 +1671,10 @@ export default function ChangeNoticeImpactWorkspace({
         <DocumentGroups
           candidates={historicalCandidates}
           coverage={data.coverage}
+          taskCoverageStatus={data.taskCoverage.status}
+          changeNoticeStatus={status}
+          canUpdate={canUpdate}
+          onOpenDecision={openDecision}
           emptyMessage={
             coverageHasWarning ? (
               <Trans>Historical coverage is incomplete.</Trans>
@@ -1060,6 +1701,10 @@ export default function ChangeNoticeImpactWorkspace({
           <DocumentGroups
             candidates={unavailableCandidates}
             coverage={data.coverage}
+            taskCoverageStatus={data.taskCoverage.status}
+            changeNoticeStatus={status}
+            canUpdate={canUpdate}
+            onOpenDecision={openDecision}
             emptyMessage={
               <Trans>No unavailable source rows are available.</Trans>
             }
@@ -1083,6 +1728,23 @@ export default function ChangeNoticeImpactWorkspace({
           </Trans>
         </CardContent>
       </Card>
+
+      {decisionTarget && (
+        <ImpactDecisionDrawer
+          key={`${decisionTarget.candidate.targetType}-${decisionTarget.candidate.targetId}-${decisionTarget.mode}-${decisionTarget.candidate.decision?.revision ?? "new"}`}
+          changeNoticeId={id}
+          candidate={decisionTarget.candidate}
+          mode={decisionTarget.mode}
+          coverageStatus={
+            data.coverage[decisionTarget.candidate.targetType].status
+          }
+          taskCoverageStatus={data.taskCoverage.status}
+          changeNoticeStatus={status}
+          onClose={closeDecision}
+          onSuccess={handleDecisionSuccess}
+          onConflict={handleDecisionConflict}
+        />
+      )}
     </VStack>
   );
 }

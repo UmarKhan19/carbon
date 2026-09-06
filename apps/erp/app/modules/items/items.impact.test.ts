@@ -127,6 +127,8 @@ function makeImpactKyselyRecorder(
     changeNoticeStatus?: string;
     existingDecision?: Record<string, unknown>;
     existingProvenance?: Record<string, unknown>[];
+    impactTasks?: Record<string, unknown>[];
+    impactTaskLinks?: Record<string, unknown>[];
     forbidSelectTables?: string[];
   } = {}
 ) {
@@ -263,7 +265,9 @@ function makeImpactKyselyRecorder(
         itemId: "item-1",
         version: 2
       }
-    ]
+    ],
+    changeOrderActionTask: options.impactTasks ?? [],
+    changeOrderImpactDecisionActionTask: options.impactTaskLinks ?? []
   };
   const inserts: { table: string; values: unknown }[] = [];
   const updates: { table: string; values: unknown }[] = [];
@@ -2116,6 +2120,93 @@ describe("Change Notice Impact contracts", () => {
   });
 
   it.each([
+    "Pending",
+    "In Progress"
+  ])("rejects resolution while a linked task is %s without writing decision history", async (taskStatus) => {
+    const recorder = makeImpactKyselyRecorder({
+      existingDecision: { decisionStatus: "Action required" },
+      impactTasks: [
+        {
+          id: "task-1",
+          companyId,
+          changeOrderId: changeNoticeId,
+          status: taskStatus
+        }
+      ],
+      impactTaskLinks: [
+        {
+          decisionId: "decision-1",
+          actionTaskId: "task-1",
+          companyId
+        }
+      ]
+    });
+    const result = await writeChangeNoticeImpactDecision(
+      recorder.db as unknown as Kysely<KyselyDatabase>,
+      {
+        companyId,
+        userId: "user-1",
+        sourceAccess,
+        changeNoticeId,
+        targetType: "purchaseOrderLine",
+        targetId: "pol-1",
+        decisionStatus: "Resolved",
+        resolutionNote: "Supplier replacement was completed.",
+        expectedRevision: 1
+      }
+    );
+
+    expect(result.error?.message).toBe(
+      "All linked Impact tasks must be Completed or Skipped before resolution."
+    );
+    expect(recorder.updates).toEqual([]);
+    expect(recorder.inserts).toEqual([]);
+    expect(recorder.rolledBack).toBe(true);
+  });
+
+  it.each([
+    "Completed",
+    "Skipped"
+  ])("allows resolution when every linked task is %s", async (taskStatus) => {
+    const recorder = makeImpactKyselyRecorder({
+      existingDecision: { decisionStatus: "Action required" },
+      impactTasks: [
+        {
+          id: "task-1",
+          companyId,
+          changeOrderId: changeNoticeId,
+          status: taskStatus
+        }
+      ],
+      impactTaskLinks: [
+        {
+          decisionId: "decision-1",
+          actionTaskId: "task-1",
+          companyId
+        }
+      ]
+    });
+    const result = await writeChangeNoticeImpactDecision(
+      recorder.db as unknown as Kysely<KyselyDatabase>,
+      {
+        companyId,
+        userId: "user-1",
+        sourceAccess,
+        changeNoticeId,
+        targetType: "purchaseOrderLine",
+        targetId: "pol-1",
+        decisionStatus: "Resolved",
+        resolutionNote: "Supplier replacement was completed.",
+        expectedRevision: 1
+      }
+    );
+
+    expect(result.error).toBeNull();
+    expect(result.data?.operation).toBe("resolveActionRequired");
+    expect(recorder.committed).toBe(true);
+  });
+
+  it.each([
     "Draft",
     "Start",
     "Engineering Complete",
@@ -2173,7 +2264,8 @@ describe("Change Notice Impact contracts", () => {
     });
     expect(recorder.selects).toEqual([
       "changeOrder",
-      "changeOrderImpactDecision"
+      "changeOrderImpactDecision",
+      "changeOrderImpactDecisionActionTask"
     ]);
     expect(recorder.updates).toEqual([
       expect.objectContaining({

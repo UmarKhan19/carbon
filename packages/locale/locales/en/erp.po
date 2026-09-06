@@ -2578,6 +2578,12 @@ msgstr "Assembly Instructions"
 msgid "Assembly:"
 msgstr "Assembly:"
 
+msgid "Assess"
+msgstr "Assess"
+
+msgid "Assess operational impact"
+msgstr "Assess operational impact"
+
 msgid "Assessment coverage"
 msgstr "Assessment coverage"
 
@@ -3709,6 +3715,9 @@ msgstr "Closing"
 msgid "Closure blocked"
 msgstr "Closure blocked"
 
+msgid "Closure evidence"
+msgstr "Closure evidence"
+
 msgid "Cloud, or your self-hosted environment."
 msgstr "Cloud, or your self-hosted environment."
 
@@ -3869,6 +3878,9 @@ msgstr "computed {0}"
 msgid "Computed At"
 msgstr "Computed At"
 
+msgid "Conclusion"
+msgstr "Conclusion"
+
 msgid "Condensed P&L with margins and key subtotals"
 msgstr "Condensed P&L with margins and key subtotals"
 
@@ -4000,6 +4012,9 @@ msgstr "Confirm Inventory Count"
 
 msgid "Confirm Mapping"
 msgstr "Confirm Mapping"
+
+msgid "Confirm no purchasing intervention remains"
+msgstr "Confirm no purchasing intervention remains"
 
 msgid "Confirm Password"
 msgstr "Confirm Password"
@@ -4396,6 +4411,9 @@ msgstr "Correction"
 
 msgid "Correction {correctionNumber}"
 msgstr "Correction {correctionNumber}"
+
+msgid "Correction rationale"
+msgstr "Correction rationale"
 
 msgid "Corrections"
 msgstr "Corrections"
@@ -4917,6 +4935,9 @@ msgstr "Current quantity"
 
 msgid "Current source facts are unavailable."
 msgstr "Current source facts are unavailable."
+
+msgid "Current source facts changed since the stored assessment. Saving will capture a fresh assessment snapshot."
+msgstr "Current source facts changed since the stored assessment. Saving will capture a fresh assessment snapshot."
 
 msgid "Currently training for"
 msgstr "Currently training for"
@@ -7041,6 +7062,9 @@ msgstr "Every condition must match"
 msgid "Every in-scope test passes in your configured system, with your data."
 msgstr "Every in-scope test passes in your configured system, with your data."
 
+msgid "Every linked task must be Completed or Skipped before this Impact can be resolved."
+msgstr "Every linked task must be Completed or Skipped before this Impact can be resolved."
+
 msgid "Every match"
 msgstr "Every match"
 
@@ -7875,6 +7899,9 @@ msgstr "Fixture ID"
 msgid "Flags"
 msgstr "Flags"
 
+msgid "Follow-up rationale"
+msgstr "Follow-up rationale"
+
 msgid "for anything. They'll pull in the right person."
 msgstr "for anything. They'll pull in the right person."
 
@@ -8643,6 +8670,9 @@ msgstr "III (tightened)"
 
 msgid "Impact"
 msgstr "Impact"
+
+msgid "Impact assessment changed while you were editing."
+msgstr "Impact assessment changed while you were editing."
 
 msgid "Imperial"
 msgstr "Imperial"
@@ -10770,6 +10800,9 @@ msgstr "New Field"
 msgid "New Fixed Asset"
 msgstr "New Fixed Asset"
 
+msgid "New follow-up rationale"
+msgstr "New follow-up rationale"
+
 msgid "New Gauge"
 msgstr "New Gauge"
 
@@ -11532,6 +11565,9 @@ msgstr "No suppliers yet"
 
 msgid "No sync operations yet"
 msgstr "No sync operations yet"
+
+msgid "No task linked. Keep a written rationale describing the follow-up path."
+msgstr "No task linked. Keep a written rationale describing the follow-up path."
 
 msgid "No time entries for this week"
 msgstr "No time entries for this week"
@@ -13820,6 +13856,12 @@ msgstr "Reason for skipping (required)"
 msgid "Reasons"
 msgstr "Reasons"
 
+msgid "Reassess"
+msgstr "Reassess"
+
+msgid "Reassess operational impact"
+msgstr "Reassess operational impact"
+
 msgid "Reassign specific tracked entities from this row to another disposition row."
 msgstr "Reassign specific tracked entities from this row to another disposition row."
 
@@ -14417,8 +14459,23 @@ msgstr "Residual value"
 msgid "Residual Value %"
 msgstr "Residual Value %"
 
+msgid "Resolution is unavailable until linked task coverage is complete."
+msgstr "Resolution is unavailable until linked task coverage is complete."
+
 msgid "Resolution note"
 msgstr "Resolution note"
+
+msgid "Resolve"
+msgstr "Resolve"
+
+msgid "Resolve after every linked task is Completed or Skipped."
+msgstr "Resolve after every linked task is Completed or Skipped."
+
+msgid "Resolve after linked task coverage is complete."
+msgstr "Resolve after linked task coverage is complete."
+
+msgid "Resolve operational impact"
+msgstr "Resolve operational impact"
 
 msgid "Resolve these before completing the NCR: every row must have a non-Pending disposition, and its linked entity quantities must match the row quantity."
 msgstr "Resolve these before completing the NCR: every row must have a non-Pending disposition, and its linked entity quantities must match the row quantity."
@@ -14628,6 +14685,9 @@ msgstr "Review current purchasing and production exposure with source coverage, 
 
 msgid "Review each item's changes, then confirm — releasing can't be undone."
 msgstr "Review each item's changes, then confirm — releasing can't be undone."
+
+msgid "Review rationale"
+msgstr "Review rationale"
 
 msgid "Review the period's balance sheet and income statement and confirm the figures look right. This is a manual sign-off — mark it done once you have reviewed them."
 msgstr "Review the period's balance sheet and income statement and confirm the figures look right. This is a manual sign-off — mark it done once you have reviewed them."
@@ -15038,6 +15098,9 @@ msgstr "Save and Overwrite"
 msgid "Save applications"
 msgstr "Save applications"
 
+msgid "Save assessment"
+msgstr "Save assessment"
+
 msgid "Save changes"
 msgstr "Save changes"
 
@@ -15052,6 +15115,8 @@ msgstr "Save Method"
 
 msgid "Save Rate"
 msgstr "Save Rate"
+msgid "Save reassessment"
+msgstr "Save reassessment"
 
 msgid "Save the form you're editing"
 msgstr "Save the form you're editing"
@@ -16801,6 +16866,8 @@ msgstr "Supplier Returns"
 
 msgid "Supplier RMA #"
 msgstr "Supplier RMA #"
+msgid "Supplier return, replacement, credit, and communication interventions have been reviewed."
+msgstr "Supplier return, replacement, credit, and communication interventions have been reviewed."
 
 msgid "Supplier Status"
 msgstr "Supplier Status"
@@ -17313,6 +17380,8 @@ msgstr "The department this one rolls up under for reporting and headcount hiera
 
 msgid "The early hours, {name}."
 msgstr "The early hours, {name}."
+msgid "The editor was closed and the workspace was refreshed. Review the current state before submitting again."
+msgstr "The editor was closed and the workspace was refreshed. Review the current state before submitting again."
 
 msgid "The eight-disciplines quality method, modeled with the nonconformance workflow's tasks rather than hard-coded."
 msgstr "The eight-disciplines quality method, modeled with the nonconformance workflow's tasks rather than hard-coded."
@@ -19105,6 +19174,9 @@ msgstr "Use a different email"
 
 msgid "Use metric system for default material dimensions."
 msgstr "Use metric system for default material dimensions."
+
+msgid "Use No action required only if the earlier conclusion was incorrect and intervention was never required. If intervention occurred and closed the consequence, use Resolve."
+msgstr "Use No action required only if the earlier conclusion was incorrect and intervention was never required. If intervention occurred and closed the consequence, use Resolve."
 
 msgid "Used In"
 msgstr "Used In"

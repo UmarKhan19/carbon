@@ -2578,6 +2578,12 @@ msgstr "Инструкции по сборке"
 msgid "Assembly:"
 msgstr "Сборка:"
 
+msgid "Assess"
+msgstr ""
+
+msgid "Assess operational impact"
+msgstr ""
+
 msgid "Assessment coverage"
 msgstr ""
 
@@ -3709,6 +3715,9 @@ msgstr "Закрытие"
 msgid "Closure blocked"
 msgstr "Закрытие заблокировано"
 
+msgid "Closure evidence"
+msgstr ""
+
 msgid "Cloud, or your self-hosted environment."
 msgstr "Облако или ваша собственная размещённая среда."
 
@@ -3869,6 +3878,9 @@ msgstr "вычислено {0}"
 msgid "Computed At"
 msgstr "Вычислено в"
 
+msgid "Conclusion"
+msgstr ""
+
 msgid "Condensed P&L with margins and key subtotals"
 msgstr "Сокращенный отчет о прибылях и убытках с маржами и ключевыми промежуточными итогами"
 
@@ -4000,6 +4012,9 @@ msgstr "Подтвердить инвентаризацию"
 
 msgid "Confirm Mapping"
 msgstr "Подтвердить сопоставление"
+
+msgid "Confirm no purchasing intervention remains"
+msgstr ""
 
 msgid "Confirm Password"
 msgstr "Подтвердить пароль"
@@ -4396,6 +4411,9 @@ msgstr "Исправление"
 
 msgid "Correction {correctionNumber}"
 msgstr "Исправление {correctionNumber}"
+
+msgid "Correction rationale"
+msgstr ""
 
 msgid "Corrections"
 msgstr "Исправления"
@@ -4916,6 +4934,9 @@ msgid "Current quantity"
 msgstr "Текущее количество"
 
 msgid "Current source facts are unavailable."
+msgstr ""
+
+msgid "Current source facts changed since the stored assessment. Saving will capture a fresh assessment snapshot."
 msgstr ""
 
 msgid "Currently training for"
@@ -7041,6 +7062,9 @@ msgstr "Каждое условие должно совпадать"
 msgid "Every in-scope test passes in your configured system, with your data."
 msgstr "Все тесты в области действия проходят в вашей настроенной системе с вашими данными."
 
+msgid "Every linked task must be Completed or Skipped before this Impact can be resolved."
+msgstr ""
+
 msgid "Every match"
 msgstr "Каждое совпадение"
 
@@ -7875,6 +7899,9 @@ msgstr "ID приспособления"
 msgid "Flags"
 msgstr "Флаги"
 
+msgid "Follow-up rationale"
+msgstr ""
+
 msgid "for anything. They'll pull in the right person."
 msgstr "для чего угодно. Они привлекут нужного человека."
 
@@ -8643,6 +8670,9 @@ msgstr "III (усиленный)"
 
 msgid "Impact"
 msgstr "Влияние"
+
+msgid "Impact assessment changed while you were editing."
+msgstr ""
 
 msgid "Imperial"
 msgstr "Имперская"
@@ -10770,6 +10800,9 @@ msgstr "Новое поле"
 msgid "New Fixed Asset"
 msgstr "Новое основное средство"
 
+msgid "New follow-up rationale"
+msgstr ""
+
 msgid "New Gauge"
 msgstr "Новое средство измерения"
 
@@ -11532,6 +11565,9 @@ msgstr "Поставщиков еще нет"
 
 msgid "No sync operations yet"
 msgstr "Операции синхронизации еще не выполнены"
+
+msgid "No task linked. Keep a written rationale describing the follow-up path."
+msgstr ""
 
 msgid "No time entries for this week"
 msgstr "Нет записей о времени на эту неделю"
@@ -13820,6 +13856,12 @@ msgstr "Причина пропуска (требуется)"
 msgid "Reasons"
 msgstr "Причины"
 
+msgid "Reassess"
+msgstr ""
+
+msgid "Reassess operational impact"
+msgstr ""
+
 msgid "Reassign specific tracked entities from this row to another disposition row."
 msgstr "Переназначить отслеживаемые сущности из этой строки в другую строку решения."
 
@@ -14417,7 +14459,22 @@ msgstr "Ликвидационная стоимость"
 msgid "Residual Value %"
 msgstr "Ликвидационная стоимость %"
 
+msgid "Resolution is unavailable until linked task coverage is complete."
+msgstr ""
+
 msgid "Resolution note"
+msgstr ""
+
+msgid "Resolve"
+msgstr ""
+
+msgid "Resolve after every linked task is Completed or Skipped."
+msgstr ""
+
+msgid "Resolve after linked task coverage is complete."
+msgstr ""
+
+msgid "Resolve operational impact"
 msgstr ""
 
 msgid "Resolve these before completing the NCR: every row must have a non-Pending disposition, and its linked entity quantities must match the row quantity."
@@ -14628,6 +14685,9 @@ msgstr ""
 
 msgid "Review each item's changes, then confirm — releasing can't be undone."
 msgstr "Рассмотреть изменения каждой номенклатуры, затем подтвердить — выпуск нельзя отменить."
+
+msgid "Review rationale"
+msgstr ""
 
 msgid "Review the period's balance sheet and income statement and confirm the figures look right. This is a manual sign-off — mark it done once you have reviewed them."
 msgstr "Рассмотреть бухгалтерский баланс и отчет о прибылях и убытках периода и подтвердить, что цифры выглядят правильно. Это ручное утверждение — отметьте как готово как только вы их рассмотрели."
@@ -15038,6 +15098,9 @@ msgstr "Сохранить и перезаписать"
 msgid "Save applications"
 msgstr "Сохранить применения"
 
+msgid "Save assessment"
+msgstr ""
+
 msgid "Save changes"
 msgstr "Сохранить изменения"
 
@@ -15052,6 +15115,8 @@ msgstr "Сохранить метод"
 
 msgid "Save Rate"
 msgstr "Сохранить курс"
+msgid "Save reassessment"
+msgstr ""
 
 msgid "Save the form you're editing"
 msgstr "Сохранить редактируемую форму"
@@ -16803,6 +16868,8 @@ msgstr "Возвраты поставщикам"
 
 msgid "Supplier RMA #"
 msgstr "Номер RMA поставщика"
+msgid "Supplier return, replacement, credit, and communication interventions have been reviewed."
+msgstr ""
 
 msgid "Supplier Status"
 msgstr "Статус поставщика"
@@ -17315,6 +17382,8 @@ msgstr "Отдел, под который это накапливается дл
 
 msgid "The early hours, {name}."
 msgstr "Ранние часы, {name}."
+msgid "The editor was closed and the workspace was refreshed. Review the current state before submitting again."
+msgstr ""
 
 msgid "The eight-disciplines quality method, modeled with the nonconformance workflow's tasks rather than hard-coded."
 msgstr "Метод качества восьми дисциплин, моделируемый с помощью задач рабочего процесса несоответствия, а не жестко закодированный."
@@ -19107,6 +19176,9 @@ msgstr "Использовать другой адрес электронной 
 
 msgid "Use metric system for default material dimensions."
 msgstr "Используйте метрическую систему для измерений материала по умолчанию."
+
+msgid "Use No action required only if the earlier conclusion was incorrect and intervention was never required. If intervention occurred and closed the consequence, use Resolve."
+msgstr ""
 
 msgid "Used In"
 msgstr "Используется в"

@@ -2578,6 +2578,12 @@ msgstr "装配说明"
 msgid "Assembly:"
 msgstr "装配体："
 
+msgid "Assess"
+msgstr ""
+
+msgid "Assess operational impact"
+msgstr ""
+
 msgid "Assessment coverage"
 msgstr ""
 
@@ -3709,6 +3715,9 @@ msgstr "结余"
 msgid "Closure blocked"
 msgstr "关闭被阻止"
 
+msgid "Closure evidence"
+msgstr ""
+
 msgid "Cloud, or your self-hosted environment."
 msgstr "云端或您自托管的环境。"
 
@@ -3869,6 +3878,9 @@ msgstr "计算于 {0}"
 msgid "Computed At"
 msgstr "计算于"
 
+msgid "Conclusion"
+msgstr ""
+
 msgid "Condensed P&L with margins and key subtotals"
 msgstr "精简损益表，含利润率和关键小计"
 
@@ -4000,6 +4012,9 @@ msgstr "确认库存盘点"
 
 msgid "Confirm Mapping"
 msgstr "确认映射"
+
+msgid "Confirm no purchasing intervention remains"
+msgstr ""
 
 msgid "Confirm Password"
 msgstr "确认密码"
@@ -4396,6 +4411,9 @@ msgstr "纠正"
 
 msgid "Correction {correctionNumber}"
 msgstr "修正 {correctionNumber}"
+
+msgid "Correction rationale"
+msgstr ""
 
 msgid "Corrections"
 msgstr "纠正"
@@ -4916,6 +4934,9 @@ msgid "Current quantity"
 msgstr "当前数量"
 
 msgid "Current source facts are unavailable."
+msgstr ""
+
+msgid "Current source facts changed since the stored assessment. Saving will capture a fresh assessment snapshot."
 msgstr ""
 
 msgid "Currently training for"
@@ -7041,6 +7062,9 @@ msgstr "每个条件都必须匹配"
 msgid "Every in-scope test passes in your configured system, with your data."
 msgstr "您配置的系统中的每项范围内测试都通过了您的数据。"
 
+msgid "Every linked task must be Completed or Skipped before this Impact can be resolved."
+msgstr ""
+
 msgid "Every match"
 msgstr "每次匹配"
 
@@ -7875,6 +7899,9 @@ msgstr "工装夹具ID"
 msgid "Flags"
 msgstr "标志"
 
+msgid "Follow-up rationale"
+msgstr ""
+
 msgid "for anything. They'll pull in the right person."
 msgstr "用于任何事项。他们会调配合适的人员。"
 
@@ -8643,6 +8670,9 @@ msgstr "III（加严检验）"
 
 msgid "Impact"
 msgstr "影响"
+
+msgid "Impact assessment changed while you were editing."
+msgstr ""
 
 msgid "Imperial"
 msgstr "英制"
@@ -10770,6 +10800,9 @@ msgstr "新字段"
 msgid "New Fixed Asset"
 msgstr "新固定资产"
 
+msgid "New follow-up rationale"
+msgstr ""
+
 msgid "New Gauge"
 msgstr "新建量具"
 
@@ -11532,6 +11565,9 @@ msgstr "还没有供应商"
 
 msgid "No sync operations yet"
 msgstr "还没有同步操作"
+
+msgid "No task linked. Keep a written rationale describing the follow-up path."
+msgstr ""
 
 msgid "No time entries for this week"
 msgstr "本周没有时间条目"
@@ -13820,6 +13856,12 @@ msgstr "跳过原因（必填）"
 msgid "Reasons"
 msgstr "原因"
 
+msgid "Reassess"
+msgstr ""
+
+msgid "Reassess operational impact"
+msgstr ""
+
 msgid "Reassign specific tracked entities from this row to another disposition row."
 msgstr "将此行中的特定追踪实体重新分配到另一个处置行。"
 
@@ -14417,7 +14459,22 @@ msgstr "残值"
 msgid "Residual Value %"
 msgstr "残值 %"
 
+msgid "Resolution is unavailable until linked task coverage is complete."
+msgstr ""
+
 msgid "Resolution note"
+msgstr ""
+
+msgid "Resolve"
+msgstr ""
+
+msgid "Resolve after every linked task is Completed or Skipped."
+msgstr ""
+
+msgid "Resolve after linked task coverage is complete."
+msgstr ""
+
+msgid "Resolve operational impact"
 msgstr ""
 
 msgid "Resolve these before completing the NCR: every row must have a non-Pending disposition, and its linked entity quantities must match the row quantity."
@@ -14628,6 +14685,9 @@ msgstr ""
 
 msgid "Review each item's changes, then confirm — releasing can't be undone."
 msgstr "评审每个物料的更改，然后确认——发布无法撤销。"
+
+msgid "Review rationale"
+msgstr ""
 
 msgid "Review the period's balance sheet and income statement and confirm the figures look right. This is a manual sign-off — mark it done once you have reviewed them."
 msgstr "评审期间的资产负债表和利润表，并确认数字正确。这是手动签核——一旦您评审完毕即标记为完成。"
@@ -15038,6 +15098,9 @@ msgstr "保存并覆盖"
 msgid "Save applications"
 msgstr "保存应用"
 
+msgid "Save assessment"
+msgstr ""
+
 msgid "Save changes"
 msgstr "保存更改"
 
@@ -15052,6 +15115,8 @@ msgstr "保存方法"
 
 msgid "Save Rate"
 msgstr "保存汇率"
+msgid "Save reassessment"
+msgstr ""
 
 msgid "Save the form you're editing"
 msgstr "保存您正在编辑的表单"
@@ -16802,6 +16867,8 @@ msgstr "供应商退货"
 
 msgid "Supplier RMA #"
 msgstr "供应商 RMA #"
+msgid "Supplier return, replacement, credit, and communication interventions have been reviewed."
+msgstr ""
 
 msgid "Supplier Status"
 msgstr "供应商状态"
@@ -17314,6 +17381,8 @@ msgstr "该部门汇总用于报告和人员数量层级的部门；对于顶级
 
 msgid "The early hours, {name}."
 msgstr "早晨时刻，{name}。"
+msgid "The editor was closed and the workspace was refreshed. Review the current state before submitting again."
+msgstr ""
 
 msgid "The eight-disciplines quality method, modeled with the nonconformance workflow's tasks rather than hard-coded."
 msgstr "八大纪律质量方法，通过不合格工作流的任务建模，而非硬编码。"
@@ -19106,6 +19175,9 @@ msgstr "使用不同的电子邮件"
 
 msgid "Use metric system for default material dimensions."
 msgstr "使用公制作为默认原材料尺寸。"
+
+msgid "Use No action required only if the earlier conclusion was incorrect and intervention was never required. If intervention occurred and closed the consequence, use Resolve."
+msgstr ""
 
 msgid "Used In"
 msgstr "用于"

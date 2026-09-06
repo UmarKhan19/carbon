@@ -2578,6 +2578,12 @@ msgstr "Instrukcje montażu"
 msgid "Assembly:"
 msgstr "Zespół:"
 
+msgid "Assess"
+msgstr ""
+
+msgid "Assess operational impact"
+msgstr ""
+
 msgid "Assessment coverage"
 msgstr ""
 
@@ -3709,6 +3715,9 @@ msgstr "Zamknięcie"
 msgid "Closure blocked"
 msgstr "Zamknięcie zablokowane"
 
+msgid "Closure evidence"
+msgstr ""
+
 msgid "Cloud, or your self-hosted environment."
 msgstr "Chmura lub Twoje środowisko hostowane samodzielnie."
 
@@ -3869,6 +3878,9 @@ msgstr "obliczono {0}"
 msgid "Computed At"
 msgstr "Obliczone o"
 
+msgid "Conclusion"
+msgstr ""
+
 msgid "Condensed P&L with margins and key subtotals"
 msgstr "Skondensowany P&L z marżami i kluczowymi sumami częściowymi"
 
@@ -4000,6 +4012,9 @@ msgstr "Potwierdź Inwentaryzację"
 
 msgid "Confirm Mapping"
 msgstr "Potwierdź mapowanie"
+
+msgid "Confirm no purchasing intervention remains"
+msgstr ""
 
 msgid "Confirm Password"
 msgstr "Potwierdź hasło"
@@ -4396,6 +4411,9 @@ msgstr "Korekta"
 
 msgid "Correction {correctionNumber}"
 msgstr "Korekta {correctionNumber}"
+
+msgid "Correction rationale"
+msgstr ""
 
 msgid "Corrections"
 msgstr "Korekty"
@@ -4916,6 +4934,9 @@ msgid "Current quantity"
 msgstr "Bieżąca ilość"
 
 msgid "Current source facts are unavailable."
+msgstr ""
+
+msgid "Current source facts changed since the stored assessment. Saving will capture a fresh assessment snapshot."
 msgstr ""
 
 msgid "Currently training for"
@@ -7041,6 +7062,9 @@ msgstr "Każdy warunek musi się zgadzać"
 msgid "Every in-scope test passes in your configured system, with your data."
 msgstr "Każdy test w zakresie przechodzi w Twoim skonfigurowanym systemie, z Twoimi danymi."
 
+msgid "Every linked task must be Completed or Skipped before this Impact can be resolved."
+msgstr ""
+
 msgid "Every match"
 msgstr "Każde dopasowanie"
 
@@ -7875,6 +7899,9 @@ msgstr "ID przyrządu obróbkowego"
 msgid "Flags"
 msgstr "Flagi"
 
+msgid "Follow-up rationale"
+msgstr ""
+
 msgid "for anything. They'll pull in the right person."
 msgstr "w sprawie czegokolwiek. Zaangażują odpowiednią osobę."
 
@@ -8643,6 +8670,9 @@ msgstr "III (Obostrzona)"
 
 msgid "Impact"
 msgstr "Wpływ"
+
+msgid "Impact assessment changed while you were editing."
+msgstr ""
 
 msgid "Imperial"
 msgstr "Imperialny"
@@ -10770,6 +10800,9 @@ msgstr "Nowe pole"
 msgid "New Fixed Asset"
 msgstr "Nowy Środek Trwały"
 
+msgid "New follow-up rationale"
+msgstr ""
+
 msgid "New Gauge"
 msgstr "Nowy Przyrząd pomiarowy"
 
@@ -11532,6 +11565,9 @@ msgstr "Brak dostawców"
 
 msgid "No sync operations yet"
 msgstr "Brak operacji synchronizacji"
+
+msgid "No task linked. Keep a written rationale describing the follow-up path."
+msgstr ""
 
 msgid "No time entries for this week"
 msgstr "Brak wpisów czasu pracy w tym tygodniu"
@@ -13820,6 +13856,12 @@ msgstr "Powód pominięcia (wymagane)"
 msgid "Reasons"
 msgstr "Powody"
 
+msgid "Reassess"
+msgstr ""
+
+msgid "Reassess operational impact"
+msgstr ""
+
 msgid "Reassign specific tracked entities from this row to another disposition row."
 msgstr "Przypisz ponownie określone śledzone jednostki z tego wiersza do innego wiersza dyspozycji."
 
@@ -14418,7 +14460,22 @@ msgstr "Wartość rezydualna"
 msgid "Residual Value %"
 msgstr "Wartość Rezydualna %"
 
+msgid "Resolution is unavailable until linked task coverage is complete."
+msgstr ""
+
 msgid "Resolution note"
+msgstr ""
+
+msgid "Resolve"
+msgstr ""
+
+msgid "Resolve after every linked task is Completed or Skipped."
+msgstr ""
+
+msgid "Resolve after linked task coverage is complete."
+msgstr ""
+
+msgid "Resolve operational impact"
 msgstr ""
 
 msgid "Resolve these before completing the NCR: every row must have a non-Pending disposition, and its linked entity quantities must match the row quantity."
@@ -14629,6 +14686,9 @@ msgstr ""
 
 msgid "Review each item's changes, then confirm — releasing can't be undone."
 msgstr "Przejrzyj zmiany w każdym artykule, a następnie potwierdź — uwolnienie nie może być cofnięte."
+
+msgid "Review rationale"
+msgstr ""
 
 msgid "Review the period's balance sheet and income statement and confirm the figures look right. This is a manual sign-off — mark it done once you have reviewed them."
 msgstr "Przejrzyj bilans i rachunek zysków i strat za okres i potwierdź, że liczby wyglądają prawidłowo. Jest to ręczne podpisanie — oznacz jako gotowe po ich przejrzeniu."
@@ -15039,6 +15099,9 @@ msgstr "Zapisz i Zastąp"
 msgid "Save applications"
 msgstr "Zapisz aplikacje"
 
+msgid "Save assessment"
+msgstr ""
+
 msgid "Save changes"
 msgstr "Zapisz zmiany"
 
@@ -15053,6 +15116,8 @@ msgstr "Zapisz metodę"
 
 msgid "Save Rate"
 msgstr "Zapisz kurs"
+msgid "Save reassessment"
+msgstr ""
 
 msgid "Save the form you're editing"
 msgstr "Zapisz formularz, który edytujesz"
@@ -16803,6 +16868,8 @@ msgstr "Zwroty do dostawcy"
 
 msgid "Supplier RMA #"
 msgstr "Nr RMA dostawcy"
+msgid "Supplier return, replacement, credit, and communication interventions have been reviewed."
+msgstr ""
 
 msgid "Supplier Status"
 msgstr "Status dostawcy"
@@ -17315,6 +17382,8 @@ msgstr "Dział, pod którym ten się zlicza dla raportowania i hierarchii liczby
 
 msgid "The early hours, {name}."
 msgstr "Wczesne godziny, {name}."
+msgid "The editor was closed and the workspace was refreshed. Review the current state before submitting again."
+msgstr ""
 
 msgid "The eight-disciplines quality method, modeled with the nonconformance workflow's tasks rather than hard-coded."
 msgstr "Metoda jakości ośmiu dyscyplin, modelowana z zadaniami przepływu pracy niezgodności zamiast hardkodowanymi."
@@ -19107,6 +19176,9 @@ msgstr "Użyj innego adresu e-mail"
 
 msgid "Use metric system for default material dimensions."
 msgstr "Użyj systemu metrycznego dla domyślnych wymiarów materiału."
+
+msgid "Use No action required only if the earlier conclusion was incorrect and intervention was never required. If intervention occurred and closed the consequence, use Resolve."
+msgstr ""
 
 msgid "Used In"
 msgstr "Używane w"

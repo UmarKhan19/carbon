@@ -493,6 +493,8 @@ export const path = {
       generatePath(`${x}/items/change-notice/${id}/details`),
     changeNoticeImpact: (id: string) =>
       generatePath(`${x}/items/change-notice/${id}/impact`),
+    changeNoticeImpactDecision: (id: string) =>
+      generatePath(`${x}/items/change-notice/${id}/impact/decision`),
     changeNoticeRequiredAction: (id: string) =>
       generatePath(`${x}/items/change-notice-actions/${id}`),
     // Change Notice Actions config (the changeNoticeRequiredAction default-action

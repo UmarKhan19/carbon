@@ -2578,6 +2578,12 @@ msgstr "Montageanleitungen"
 msgid "Assembly:"
 msgstr "Baugruppe:"
 
+msgid "Assess"
+msgstr ""
+
+msgid "Assess operational impact"
+msgstr ""
+
 msgid "Assessment coverage"
 msgstr ""
 
@@ -3709,6 +3715,9 @@ msgstr "Schlussbilanz"
 msgid "Closure blocked"
 msgstr "Abschluss blockiert"
 
+msgid "Closure evidence"
+msgstr ""
+
 msgid "Cloud, or your self-hosted environment."
 msgstr "Cloud oder Ihre selbst gehostete Umgebung."
 
@@ -3869,6 +3878,9 @@ msgstr "berechnet {0}"
 msgid "Computed At"
 msgstr "Berechnet am"
 
+msgid "Conclusion"
+msgstr ""
+
 msgid "Condensed P&L with margins and key subtotals"
 msgstr "Komprimierte Gewinn- und Verlustrechnung mit Margen und wichtigen Zwischensummen"
 
@@ -4000,6 +4012,9 @@ msgstr "Bestandszählung bestätigen"
 
 msgid "Confirm Mapping"
 msgstr "Zuordnung bestätigen"
+
+msgid "Confirm no purchasing intervention remains"
+msgstr ""
 
 msgid "Confirm Password"
 msgstr "Passwort bestätigen"
@@ -4396,6 +4411,9 @@ msgstr "Korrektur"
 
 msgid "Correction {correctionNumber}"
 msgstr "Korrektur {correctionNumber}"
+
+msgid "Correction rationale"
+msgstr ""
 
 msgid "Corrections"
 msgstr "Korrektionen"
@@ -4916,6 +4934,9 @@ msgid "Current quantity"
 msgstr "Aktuelle Menge"
 
 msgid "Current source facts are unavailable."
+msgstr ""
+
+msgid "Current source facts changed since the stored assessment. Saving will capture a fresh assessment snapshot."
 msgstr ""
 
 msgid "Currently training for"
@@ -7041,6 +7062,9 @@ msgstr "Jede Bedingung muss erfüllt sein"
 msgid "Every in-scope test passes in your configured system, with your data."
 msgstr "Jeder Test im Umfang wird in Ihrem konfigurierten System mit Ihren Daten bestanden."
 
+msgid "Every linked task must be Completed or Skipped before this Impact can be resolved."
+msgstr ""
+
 msgid "Every match"
 msgstr "Jede Übereinstimmung"
 
@@ -7875,6 +7899,9 @@ msgstr "Vorrichtungs-ID"
 msgid "Flags"
 msgstr "Flaggen"
 
+msgid "Follow-up rationale"
+msgstr ""
+
 msgid "for anything. They'll pull in the right person."
 msgstr "für alles. Sie werden die richtige Person hinzuziehen."
 
@@ -8643,6 +8670,9 @@ msgstr "III (verschärft)"
 
 msgid "Impact"
 msgstr "Auswirkung"
+
+msgid "Impact assessment changed while you were editing."
+msgstr ""
 
 msgid "Imperial"
 msgstr "Imperial"
@@ -10770,6 +10800,9 @@ msgstr "Neues Feld"
 msgid "New Fixed Asset"
 msgstr "Neues Anlage"
 
+msgid "New follow-up rationale"
+msgstr ""
+
 msgid "New Gauge"
 msgstr "Neues Prüfmittel"
 
@@ -11533,6 +11566,9 @@ msgstr "Noch keine Lieferanten"
 
 msgid "No sync operations yet"
 msgstr "Noch keine Synchronisierungsvorgänge"
+
+msgid "No task linked. Keep a written rationale describing the follow-up path."
+msgstr ""
 
 msgid "No time entries for this week"
 msgstr "Keine Zeiteinträge für diese Woche"
@@ -13821,6 +13857,12 @@ msgstr "Grund für das Überspringen (erforderlich)"
 msgid "Reasons"
 msgstr "Gründe"
 
+msgid "Reassess"
+msgstr ""
+
+msgid "Reassess operational impact"
+msgstr ""
+
 msgid "Reassign specific tracked entities from this row to another disposition row."
 msgstr "Ordnen Sie spezifische verfolgte Einheiten aus dieser Position einer anderen Verwendungsentscheid-Position zu."
 
@@ -14418,7 +14460,22 @@ msgstr "Restwert"
 msgid "Residual Value %"
 msgstr "Restwert %"
 
+msgid "Resolution is unavailable until linked task coverage is complete."
+msgstr ""
+
 msgid "Resolution note"
+msgstr ""
+
+msgid "Resolve"
+msgstr ""
+
+msgid "Resolve after every linked task is Completed or Skipped."
+msgstr ""
+
+msgid "Resolve after linked task coverage is complete."
+msgstr ""
+
+msgid "Resolve operational impact"
 msgstr ""
 
 msgid "Resolve these before completing the NCR: every row must have a non-Pending disposition, and its linked entity quantities must match the row quantity."
@@ -14629,6 +14686,9 @@ msgstr ""
 
 msgid "Review each item's changes, then confirm — releasing can't be undone."
 msgstr "Überprüfen Sie die Änderungen jedes Elements, und bestätigen Sie dann – die Freigabe kann nicht rückgängig gemacht werden."
+
+msgid "Review rationale"
+msgstr ""
 
 msgid "Review the period's balance sheet and income statement and confirm the figures look right. This is a manual sign-off — mark it done once you have reviewed them."
 msgstr "Überprüfen Sie die Bilanz und die Gewinn- und Verlustrechnung der Periode und bestätigen Sie, dass die Zahlen korrekt aussehen. Dies ist eine manuelle Genehmigung – markieren Sie sie als erledigt, sobald Sie diese überprüft haben."
@@ -15039,6 +15099,9 @@ msgstr "Speichern und Überschreiben"
 msgid "Save applications"
 msgstr "Anwendungen speichern"
 
+msgid "Save assessment"
+msgstr ""
+
 msgid "Save changes"
 msgstr "Änderungen speichern"
 
@@ -15053,6 +15116,8 @@ msgstr "Methode speichern"
 
 msgid "Save Rate"
 msgstr "Kurs speichern"
+msgid "Save reassessment"
+msgstr ""
 
 msgid "Save the form you're editing"
 msgstr "Das bearbeitete Formular speichern"
@@ -16803,6 +16868,8 @@ msgstr "Lieferantenrücksendungen"
 
 msgid "Supplier RMA #"
 msgstr "Lieferanten-RMA-Nummer"
+msgid "Supplier return, replacement, credit, and communication interventions have been reviewed."
+msgstr ""
 
 msgid "Supplier Status"
 msgstr "Lieferantenstatus"
@@ -17315,6 +17382,8 @@ msgstr "Die Abteilung, unter die diese für Berichterstattung und Kopfzahlen-Hie
 
 msgid "The early hours, {name}."
 msgstr "Die frühen Stunden, {name}."
+msgid "The editor was closed and the workspace was refreshed. Review the current state before submitting again."
+msgstr ""
 
 msgid "The eight-disciplines quality method, modeled with the nonconformance workflow's tasks rather than hard-coded."
 msgstr "Die Acht-Disziplinen-Qualitätsmethode, modelliert mit den Aufgaben des Nichtkonformitäts-Workflows statt hartcodiert."
@@ -19107,6 +19176,9 @@ msgstr "Verwenden Sie eine andere E-Mail"
 
 msgid "Use metric system for default material dimensions."
 msgstr "Metrisches System für Standard-Materialdimensionen verwenden."
+
+msgid "Use No action required only if the earlier conclusion was incorrect and intervention was never required. If intervention occurred and closed the consequence, use Resolve."
+msgstr ""
 
 msgid "Used In"
 msgstr "Verwendet in"

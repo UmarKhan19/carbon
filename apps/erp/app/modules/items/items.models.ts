@@ -1186,6 +1186,32 @@ export type ChangeNoticeImpactDecisionRequest = z.infer<
 >;
 
 /**
+ * The browser form shape deliberately differs from the JSON request shape:
+ * empty optional controls are omitted and numeric/checkbox values are decoded
+ * from FormData before the server-authorized request boundary is called.
+ */
+export const changeNoticeImpactDecisionFormValidator = z
+  .object({
+    changeNoticeId: zfd.text(
+      z.string().min(1, { message: "Change notice is required" })
+    ),
+    targetType: changeNoticeImpactTargetTypeValidator,
+    targetId: z.string().min(1, { message: "Impact target is required" }),
+    decisionStatus: changeNoticeImpactDecisionStatusValidator,
+    noActionReasonCode: zfd.text(
+      changeNoticeImpactNoActionReasonCodeValidator.optional()
+    ),
+    rationale: zfd.text(z.string().trim().optional()),
+    resolutionNote: zfd.text(z.string().trim().optional()),
+    confirmNoPurchasingInterventionRemains: zfd.checkbox(),
+    expectedRevision: zfd.numeric(z.number().int().positive().optional())
+  })
+  .strict();
+export type ChangeNoticeImpactDecisionFormValues = z.infer<
+  typeof changeNoticeImpactDecisionFormValidator
+>;
+
+/**
  * A bulk request names every target explicitly. It deliberately has no maximum
  * selection size: authorization, complete preflight, and the one transaction
  * are the safety boundaries rather than an arbitrary count cap.

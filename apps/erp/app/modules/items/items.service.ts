@@ -14289,6 +14289,121 @@ type ImpactDecisionPlan = ImpactDecisionPreflight & {
   provenanceChanged: boolean;
 };
 
+const IMPACT_RESOLUTION_TASK_NOT_TERMINAL_MESSAGE =
+  "All linked Impact tasks must be Completed or Skipped before resolution.";
+
+/**
+ * Lock resolution prerequisites in the same order used by the other Impact
+ * mutation paths: the Change Notice and decision are already locked by the
+ * caller, then task rows, then relationship rows. The initial relationship
+ * read is intentionally unlocked so no relationship row is locked before its
+ * task row; the Change Notice lock serializes supported link/unlink writers.
+ */
+async function lockAndValidateImpactResolutionTasks(
+  trx: KyselyTx,
+  input: ChangeNoticeImpactDecisionMutationInput,
+  decisionId: string
+): Promise<void> {
+  const linkRows = await trx
+    .selectFrom("changeOrderImpactDecisionActionTask")
+    .select(["decisionId", "actionTaskId", "companyId"])
+    .where("decisionId", "=", decisionId)
+    .where("companyId", "=", input.companyId)
+    .orderBy("actionTaskId", "asc")
+    .execute();
+
+  for (const row of linkRows) {
+    if (
+      row.decisionId !== decisionId ||
+      row.companyId !== input.companyId ||
+      typeof row.actionTaskId !== "string" ||
+      row.actionTaskId.length === 0
+    ) {
+      throw new ImpactMutationRejected(
+        "Stored Impact task link is inconsistent."
+      );
+    }
+  }
+  const taskIds = linkRows.map((row) => row.actionTaskId);
+  if (new Set(taskIds).size !== taskIds.length) {
+    throw new ImpactMutationRejected(
+      "Stored Impact task links contain a duplicate task identity."
+    );
+  }
+
+  // Zero linked tasks is valid. There is no task row to lock in that case,
+  // while the Change Notice row lock still prevents supported concurrent links.
+  const tasks =
+    taskIds.length === 0
+      ? []
+      : await trx
+          .selectFrom("changeOrderActionTask")
+          .select(["id", "companyId", "changeOrderId", "status"])
+          .where("id", "in", taskIds)
+          .where("companyId", "=", input.companyId)
+          .where("changeOrderId", "=", input.changeNoticeId)
+          .orderBy("id", "asc")
+          .forUpdate()
+          .execute();
+
+  if (tasks.length !== taskIds.length) {
+    throw new ImpactMutationRejected(
+      "A linked Impact task is unavailable for resolution."
+    );
+  }
+  for (const task of tasks) {
+    if (
+      task.companyId !== input.companyId ||
+      task.changeOrderId !== input.changeNoticeId ||
+      typeof task.id !== "string" ||
+      task.id.length === 0
+    ) {
+      throw new ImpactMutationRejected(
+        "Stored Impact task identity is inconsistent."
+      );
+    }
+    if (task.status !== "Completed" && task.status !== "Skipped") {
+      throw new ImpactMutationRejected(
+        IMPACT_RESOLUTION_TASK_NOT_TERMINAL_MESSAGE
+      );
+    }
+  }
+
+  if (taskIds.length === 0) return;
+
+  // Lock relationship rows only after all referenced task rows are locked and
+  // verify that the link set did not change while the prerequisite set was
+  // being read.
+  const lockedLinks = await trx
+    .selectFrom("changeOrderImpactDecisionActionTask")
+    .select(["decisionId", "actionTaskId", "companyId"])
+    .where("decisionId", "=", decisionId)
+    .where("companyId", "=", input.companyId)
+    .orderBy("actionTaskId", "asc")
+    .forUpdate()
+    .execute();
+  for (const row of lockedLinks) {
+    if (
+      row.decisionId !== decisionId ||
+      row.companyId !== input.companyId ||
+      typeof row.actionTaskId !== "string" ||
+      row.actionTaskId.length === 0
+    ) {
+      throw new ImpactMutationRejected(
+        "Stored Impact task link is inconsistent."
+      );
+    }
+  }
+  if (
+    lockedLinks.length !== linkRows.length ||
+    lockedLinks.some((row, index) => row.actionTaskId !== taskIds[index])
+  ) {
+    throw new ImpactMutationRejected(
+      "Impact task links changed while resolution was being prepared."
+    );
+  }
+}
+
 /**
  * Classify one requested conclusion without reading source evidence. Existing
  * Action Required resolution is intentionally the decision-only path: its
@@ -14561,6 +14676,22 @@ async function prepareImpactDecisionBatch(
       options.allowDoneFirstAssessment
     )
   );
+
+  const resolutionPlans = preflight
+    .filter(
+      (plan) =>
+        plan.operation === "resolveActionRequired" && plan.existing !== null
+    )
+    .sort((left, right) =>
+      (left.existing?.id ?? "").localeCompare(right.existing?.id ?? "")
+    );
+  for (const plan of resolutionPlans) {
+    await lockAndValidateImpactResolutionTasks(
+      trx,
+      plan.input,
+      plan.existing!.id
+    );
+  }
 
   const evidenceInputs = preflight
     .filter((plan) => plan.requiresEvidence)
@@ -15307,6 +15438,7 @@ async function loadImpactTaskDecision(
     .where("changeNoticeId", "=", input.changeNoticeId)
     .where("targetType", "=", input.targetType)
     .where("targetId", "=", input.targetId)
+    .forUpdate()
     .executeTakeFirst()) as unknown as ImpactTaskDecisionRow | undefined;
 
   if (!row) throw new ImpactMutationRejected("Impact decision not found.");
@@ -15343,6 +15475,7 @@ async function loadImpactTask(
     .where("id", "=", input.actionTaskId)
     .where("companyId", "=", input.companyId)
     .where("changeOrderId", "=", input.changeNoticeId)
+    .forUpdate()
     .executeTakeFirst()) as unknown as ImpactTaskRow | undefined;
   if (!row) throw new ImpactMutationRejected("Action task not found.");
   if (
@@ -15371,6 +15504,7 @@ async function loadImpactTaskLink(
     .where("decisionId", "=", input.decisionId)
     .where("actionTaskId", "=", input.actionTaskId)
     .where("companyId", "=", input.companyId)
+    .forUpdate()
     .executeTakeFirst();
   if (!row) return null;
   if (

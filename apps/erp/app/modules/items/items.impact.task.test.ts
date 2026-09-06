@@ -632,7 +632,12 @@ describe("Change Notice Impact task mutations", () => {
     });
     expect(recorder.rows.changeOrderActionTask[0]?.taskOrigin).toBe("Manual");
     expect(recorder.updates).toEqual([]);
-    expect(recorder.lockedTables).toEqual(["changeOrder"]);
+    expect(recorder.lockedTables).toEqual([
+      "changeOrder",
+      "changeOrderImpactDecision",
+      "changeOrderActionTask",
+      "changeOrderImpactDecisionActionTask"
+    ]);
     expect(insertedRows(recorder, "changeOrderImpactDecisionHistory")).toEqual([
       expect.objectContaining({
         eventType: "Task linked",

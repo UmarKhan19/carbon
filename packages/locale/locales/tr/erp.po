@@ -2578,6 +2578,12 @@ msgstr "Montaj Talimatları"
 msgid "Assembly:"
 msgstr "Montaj:"
 
+msgid "Assess"
+msgstr ""
+
+msgid "Assess operational impact"
+msgstr ""
+
 msgid "Assessment coverage"
 msgstr ""
 
@@ -3709,6 +3715,9 @@ msgstr "Kapanış"
 msgid "Closure blocked"
 msgstr "Kapanış engellendi"
 
+msgid "Closure evidence"
+msgstr ""
+
 msgid "Cloud, or your self-hosted environment."
 msgstr "Bulut veya kendi barındırılan ortamınız."
 
@@ -3869,6 +3878,9 @@ msgstr "hesaplanan {0}"
 msgid "Computed At"
 msgstr "Hesaplama Tarihi"
 
+msgid "Conclusion"
+msgstr ""
+
 msgid "Condensed P&L with margins and key subtotals"
 msgstr "Kenar boşluklarına ve anahtar ara toplamlarına sahip Sıkıştırılmış Kâr ve Zarar"
 
@@ -4000,6 +4012,9 @@ msgstr "Envanter Sayımını Onayla"
 
 msgid "Confirm Mapping"
 msgstr "Eşleştirmeyi Onayla"
+
+msgid "Confirm no purchasing intervention remains"
+msgstr ""
 
 msgid "Confirm Password"
 msgstr "Şifreyi Onayla"
@@ -4396,6 +4411,9 @@ msgstr "Düzeltme"
 
 msgid "Correction {correctionNumber}"
 msgstr "Düzeltme {correctionNumber}"
+
+msgid "Correction rationale"
+msgstr ""
 
 msgid "Corrections"
 msgstr "Düzeltmeler"
@@ -4916,6 +4934,9 @@ msgid "Current quantity"
 msgstr "Mevcut miktar"
 
 msgid "Current source facts are unavailable."
+msgstr ""
+
+msgid "Current source facts changed since the stored assessment. Saving will capture a fresh assessment snapshot."
 msgstr ""
 
 msgid "Currently training for"
@@ -7041,6 +7062,9 @@ msgstr "Her koşul eşleşmelidir"
 msgid "Every in-scope test passes in your configured system, with your data."
 msgstr "Kapsamdaki her test, yapılandırılmış sisteminizde, verilerinizle geçer."
 
+msgid "Every linked task must be Completed or Skipped before this Impact can be resolved."
+msgstr ""
+
 msgid "Every match"
 msgstr "Her eşleşme"
 
@@ -7875,6 +7899,9 @@ msgstr "Bağlama aparatı ID"
 msgid "Flags"
 msgstr "Bayraklar"
 
+msgid "Follow-up rationale"
+msgstr ""
+
 msgid "for anything. They'll pull in the right person."
 msgstr "herhangi bir şey için. Doğru kişiyi çekerler."
 
@@ -8643,6 +8670,9 @@ msgstr "III (Sıkılaştırılmış)"
 
 msgid "Impact"
 msgstr "Etki"
+
+msgid "Impact assessment changed while you were editing."
+msgstr ""
 
 msgid "Imperial"
 msgstr "İmparatorluk"
@@ -10770,6 +10800,9 @@ msgstr "Yeni Alan"
 msgid "New Fixed Asset"
 msgstr "Yeni sabit kıymet"
 
+msgid "New follow-up rationale"
+msgstr ""
+
 msgid "New Gauge"
 msgstr "Yeni ölçüm aleti"
 
@@ -11533,6 +11566,9 @@ msgstr "Henüz tedarikçi yok"
 
 msgid "No sync operations yet"
 msgstr "Henüz senkronizasyon operasyonu yok"
+
+msgid "No task linked. Keep a written rationale describing the follow-up path."
+msgstr ""
 
 msgid "No time entries for this week"
 msgstr "Bu hafta için zaman girişi yok"
@@ -13821,6 +13857,12 @@ msgstr "Atlamak için neden (gerekli)"
 msgid "Reasons"
 msgstr "Nedenler"
 
+msgid "Reassess"
+msgstr ""
+
+msgid "Reassess operational impact"
+msgstr ""
+
 msgid "Reassign specific tracked entities from this row to another disposition row."
 msgstr "Belirli takip edilen varlıkları bu satırdan başka bir karar satırına yeniden atayın."
 
@@ -14419,7 +14461,22 @@ msgstr "Kalıntı değer"
 msgid "Residual Value %"
 msgstr "Kalıntı Değer %"
 
+msgid "Resolution is unavailable until linked task coverage is complete."
+msgstr ""
+
 msgid "Resolution note"
+msgstr ""
+
+msgid "Resolve"
+msgstr ""
+
+msgid "Resolve after every linked task is Completed or Skipped."
+msgstr ""
+
+msgid "Resolve after linked task coverage is complete."
+msgstr ""
+
+msgid "Resolve operational impact"
 msgstr ""
 
 msgid "Resolve these before completing the NCR: every row must have a non-Pending disposition, and its linked entity quantities must match the row quantity."
@@ -14630,6 +14687,9 @@ msgstr ""
 
 msgid "Review each item's changes, then confirm — releasing can't be undone."
 msgstr "Her stok kartın değişikliklerini incele, sonra onayla — serbest bırakma geri alınamaz."
+
+msgid "Review rationale"
+msgstr ""
 
 msgid "Review the period's balance sheet and income statement and confirm the figures look right. This is a manual sign-off — mark it done once you have reviewed them."
 msgstr "Dönemin bilançosunu ve gelir tablosunu incele ve rakamların doğru göründüğünü onayla. Bu manuel bir onay işlemi — bunları inceledikten sonra bitti olarak işaretle."
@@ -15040,6 +15100,9 @@ msgstr "Kaydet ve Üzerine Yaz"
 msgid "Save applications"
 msgstr "Uygulamaları kaydet"
 
+msgid "Save assessment"
+msgstr ""
+
 msgid "Save changes"
 msgstr "Değişiklikleri kaydet"
 
@@ -15054,6 +15117,8 @@ msgstr "Yöntemi Kaydet"
 
 msgid "Save Rate"
 msgstr "Kuru kaydet"
+msgid "Save reassessment"
+msgstr ""
 
 msgid "Save the form you're editing"
 msgstr "Düzenlemekte olduğunuz formu kaydet"
@@ -16804,6 +16869,8 @@ msgstr "Tedarikçi İadeleri"
 
 msgid "Supplier RMA #"
 msgstr "Tedarikçi RMA #"
+msgid "Supplier return, replacement, credit, and communication interventions have been reviewed."
+msgstr ""
 
 msgid "Supplier Status"
 msgstr "Tedarikçi Durumu"
@@ -17316,6 +17383,8 @@ msgstr "Bu departmanın raporlama ve personel sayısı hiyerarşisinde bağlı o
 
 msgid "The early hours, {name}."
 msgstr "Sabah saatleri, {name}."
+msgid "The editor was closed and the workspace was refreshed. Review the current state before submitting again."
+msgstr ""
 
 msgid "The eight-disciplines quality method, modeled with the nonconformance workflow's tasks rather than hard-coded."
 msgstr "Sekiz disiplin kalite yöntemi, uygunsuzluk iş akışının görevleriyle modellenmiş olup sabit kodlanmamıştır."
@@ -19109,6 +19178,9 @@ msgstr "Farklı bir e-posta kullan"
 
 msgid "Use metric system for default material dimensions."
 msgstr "Varsayılan malzeme boyutları için metrik sistemi kullanın."
+
+msgid "Use No action required only if the earlier conclusion was incorrect and intervention was never required. If intervention occurred and closed the consequence, use Resolve."
+msgstr ""
 
 msgid "Used In"
 msgstr "Kullanıldığı Yer"
