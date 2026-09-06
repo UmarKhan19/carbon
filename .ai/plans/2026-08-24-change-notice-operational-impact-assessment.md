@@ -22,18 +22,19 @@ security architecture that was built only for the withdrawn threat.
 - [x] Add fixed target contracts, source-aware candidate reads, coverage, and snapshots.
 - [x] Add the transactional decisions, provenance, reassessment history, and CAS checks (Slice 2A first assessments, the narrow Slice 2B existing-decision writes, Slice 2C existing Action Required resolution, Slice 2D explicit provenance reconciliation, and Slice 2E atomic bulk decision writes are implemented).
 - [x] Add explicit authorized Slice 2D provenance reconciliation with source-aware, lifecycle-safe interval/history writes.
-- [ ] Integrate task origin, many-to-many links, lifecycle guards, MCP, and integrations.
-- [ ] Build the read-only document-first workspace.
-- [ ] Add decision, reassessment, resolution, task, and bulk UX. Slice 2E supplies the backend bulk mutation; preview and commit UX remain Slice 5.
-- [ ] Run authorization, lifecycle, transaction, deletion, and browser verification.
+- [x] Integrate task origin, many-to-many links, lifecycle guards, MCP, and integrations (Slice 3 backend boundaries).
+- [x] Build the read-only document-first workspace (Slice 4). It uses the source-aware candidate façade, keeps coverage failures visible, and loads linked task metadata without changing decisions. The workspace requests one bounded full candidate window rather than repeating source/persisted-state scans for each page. Legacy mixed-domain where-used context is not loaded in this implementation; the workspace shows an informational notice. Slice 4 intentionally has no decision, filter, or search controls.
+- [ ] Add decision, reassessment, resolution, task, filter/search, and bulk UX. Slice 2E supplies the backend bulk mutation; these controls and preview/commit UX remain Slice 5. Existing authorized Slice 3 task APIs and MCP adapters are not invoked or exposed as controls by the Slice 4 workspace.
+- [x] Run the focused correction-pass checks: 157 focused Impact/server tests passed, touched-file `tsgo` verification passed with a temporary focused config, targeted Biome check passed, ERP build passed, `git diff --check` passed, and the read-only workspace browser smoke passed for navigation, refresh, Job/Job Material source-link navigation, context-only notice, no decision/filter/search controls, no horizontal overflow, and no page errors.
+- [ ] Complete the full ERP typecheck: `pnpm exec turbo run typecheck --filter=erp` exited 137 (out of memory) with and without `NODE_OPTIONS=--max-old-space-size=8192`; no TypeScript diagnostics were emitted. The full authorization, lifecycle, transaction, deletion, and twenty-scenario browser matrix remains Slice 6 work.
 
 ## Dependencies
 
 1. Schema/types must exist before TypeScript contracts are added.
 2. Candidate contracts must exist before decision writes are implemented.
 3. Decision and history writes must exist before Impact task creation can be atomic.
-4. The workspace stays hidden until source coverage and authorization behavior are verified.
-5. Public enablement follows the complete test matrix, not an intermediate slice.
+4. The read-only workspace is exposed only with its source coverage and authorization behavior represented; decision controls remain out of Slice 4.
+5. Public decision/task enablement follows the complete test matrix, not an intermediate slice.
 
 ## 1. Planning verdict
 
@@ -1144,16 +1145,25 @@ fields.
 ### Slice 4: read-only workspace
 
 Build the document-first workspace, current exposure versus historical references,
-context-only groups, provenance, coverage banners, freshness, and Restricted/Unavailable
-representations. Keep it hidden until the read tests pass.
+context-only scope, provenance, coverage banners, freshness, and Restricted/Unavailable
+representations. Expose the read-only workspace, but keep decision controls hidden until
+Slice 5.
 
 Exit condition: no source permission failure is rendered as an empty safe result.
+
+**Implementation note:** The original Slice 1 and Slice 4 scope included context-only
+source groups. The three assessment-target domains are implemented in Slice 4. Legacy
+mixed-domain where-used context remains deliberately deferred because the existing
+reader cannot provide independent source authorization and coverage guarantees without
+expanding this slice substantially. This is a conscious scope deferral, not a change to
+V1 assessment semantics.
 
 ### Slice 5: decisions and task UX
 
 Add decision controls, reassessment/resolution forms, task creation/linking, history
-view, filters, and bulk preview/commit. Keep ordinary task UI and Impact relationship
-metadata separate.
+view, filters/search, and bulk preview/commit. Keep ordinary task UI and Impact
+relationship metadata separate. None of these controls are part of the Slice 4
+read-only workspace.
 
 Exit condition: all approved product scenarios behave correctly without source or task
 permission leaks.
@@ -1162,7 +1172,8 @@ permission leaks.
 
 Run scoped package checks, direct PostgREST authorization tests, MCP/integration tests,
 transaction failure tests, parent-delete tests, and browser verification for all twenty
-approved scenarios. Enable the workspace only after the complete gate passes.
+approved scenarios. Enable decision/task controls and any broader context scope only after
+the complete gate passes.
 
 ## 15. Risks, assumptions, and maintainer decisions
 
@@ -1224,4 +1235,4 @@ The superseded feature-specific database privilege and cross-record task-securit
 design is absent from the implementation slices below. Nothing in the remaining
 product contract requires it.
 
-READY FOR SLICE 2E FINAL REVIEW
+SLICE 4 READ-ONLY WORKSPACE IMPLEMENTED; SLICES 5/6 REMAIN

@@ -1,10 +1,16 @@
 # Change Notice Operational Impact Assessment
 
-> Status: draft
+> Status: in progress (supported Impact backend slices 1–3 and the read-only Slice 4 workspace implemented; context-only rows and Slice 5/6 pending)
 > Author: Coding agent with the Carbon discovery investigation
 > Date: 2026-08-24
 > Baseline: `refs/remotes/upstream/main` at `5089ee75ee332ef22d74ebd8e230f4bbfb0c9221`
 > Research: Prior read-only Carbon investigation in this session. No new research pass was performed.
+>
+> **Current implementation note:** The current Slice 4 workspace exposes supported
+> Purchase Order line, producing Job, and Job Material assessment targets as a
+> read-only surface. It does not load context-only where-used rows; it renders an
+> informational deferral notice instead. The context-only section below remains
+> approved product scope, not an implemented Slice 4 acceptance claim.
 
 ## TLDR
 
@@ -254,7 +260,7 @@ The workspace contains:
    - No new `Unassessed` obligation is created merely because a historical reference
      is discovered.
 
-4. **Context-only section**
+4. **Context-only section (approved scope; deferred from current Slice 4)**
    - Receipts, inspections, sales orders, shipments, assembly instructions, and
      other useful references.
    - A visible `Informational context only` label.
@@ -2046,6 +2052,11 @@ of this spec.
 
 ## Changelog
 
+- 2026-09-05: Recorded the current Slice 4 implementation status. The read-only
+  workspace exposes the three supported assessment domains, keeps decision/task UX
+  out of the slice, and shows an informational notice instead of loading legacy
+  mixed-domain context-only rows. Focused verification is tracked in the implementation
+  plan; Slice 5/6 remain pending.
 - 2026-08-24: Created from the completed read-only Carbon Change Notice Operational
   Impact Assessment discovery and design investigation. No application code,
   migrations, issues, branches, or PRs were created or modified.

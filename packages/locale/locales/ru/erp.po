@@ -1203,6 +1203,9 @@ msgstr "URL ACS"
 msgid "Action"
 msgstr "Действие"
 
+msgid "Action required"
+msgstr ""
+
 msgid "Action Status"
 msgstr "Статус действия"
 
@@ -1572,6 +1575,9 @@ msgstr "Перейти к {nextStatus}"
 
 msgid "Advanced"
 msgstr "Дополнительно"
+
+msgid "Affected item"
+msgstr ""
 
 msgid "Affected item not found."
 msgstr "Затронутый элемент не найден."
@@ -2572,6 +2578,18 @@ msgstr "Инструкции по сборке"
 msgid "Assembly:"
 msgstr "Сборка:"
 
+msgid "Assessment coverage"
+msgstr ""
+
+msgid "Assessment coverage needs attention"
+msgstr ""
+
+msgid "Assessment snapshot"
+msgstr ""
+
+msgid "Assessment snapshot · changed"
+msgstr ""
+
 msgid "Asset"
 msgstr "Актив"
 
@@ -2809,6 +2827,9 @@ msgstr "Ожидает утверждения"
 
 msgid "Back"
 msgstr "Назад"
+
+msgid "Back to Change Notice"
+msgstr ""
 
 msgid "Back to traceability"
 msgstr "Вернуться к прослеживаемости"
@@ -3510,6 +3531,9 @@ msgstr "Изменить тип"
 
 msgid "Changed By"
 msgstr "Изменено"
+
+msgid "Changed since assessment"
+msgstr ""
 
 msgid "Changes"
 msgstr "Изменения"
@@ -4507,6 +4531,11 @@ msgstr "Код страны"
 
 msgid "Coverage"
 msgstr "Покрытие"
+msgid "Coverage failed. This is not an empty or safe result; refresh after the source is available."
+msgstr ""
+
+msgid "Coverage is partial. Counts and source-deletion conclusions are withheld where the scan could not be completed."
+msgstr ""
 
 msgid "Create"
 msgstr "Создать"
@@ -4868,8 +4897,14 @@ msgstr "текущий"
 msgid "Current"
 msgstr "Текущее"
 
+msgid "Current cause"
+msgstr ""
+
 msgid "Current Net Book Value:"
 msgstr "Текущая остаточная стоимость:"
+
+msgid "Current operational exposure"
+msgstr ""
 
 msgid "Current Password"
 msgstr "Текущий пароль"
@@ -4879,6 +4914,12 @@ msgstr "Текущий прогноз"
 
 msgid "Current quantity"
 msgstr "Текущее количество"
+
+msgid "Current source facts are unavailable."
+msgstr ""
+
+msgid "Currently training for"
+msgstr "Текущее обучение для"
 
 msgid "Custom"
 msgstr "Пользовательский"
@@ -6034,6 +6075,9 @@ msgstr "готово"
 
 msgid "Done"
 msgstr "Готово"
+
+msgid "Done · Engineering released. Operational assessment remains available."
+msgstr ""
 
 msgid "Done when day-to-day runs without us in the room"
 msgstr "Готово, когда ежедневные операции работают без нас в офисе"
@@ -7877,6 +7921,9 @@ msgstr "Частоты"
 msgid "Frequency"
 msgstr "Частота"
 
+msgid "Freshness unavailable"
+msgstr ""
+
 msgid "Friday"
 msgstr "Пятница"
 
@@ -8300,6 +8347,15 @@ msgstr "Высокий"
 msgid "Hints in the first row"
 msgstr "Подсказки в первой строке"
 
+msgid "Historical"
+msgstr ""
+
+msgid "Historical causes"
+msgstr ""
+
+msgid "Historical coverage is incomplete."
+msgstr ""
+
 msgid "Historical data older than what's on the Data Migration Map"
 msgstr "Исторические данные старше, чем указано на карте миграции данных"
 
@@ -8308,6 +8364,12 @@ msgstr "Исторический курс (собственный капитал
 
 msgid "Historical Rate (Equity)"
 msgstr "Исторический курс (Собственный капитал)"
+
+msgid "Historical reference"
+msgstr ""
+
+msgid "Historical references"
+msgstr ""
 
 msgid "History"
 msgstr "История"
@@ -8730,6 +8792,9 @@ msgstr "Косвенные материалы и услуги"
 msgid "Indirect Materials & Services (default)"
 msgstr "Косвенные материалы и услуги (по умолчанию)"
 
+msgid "Informational context only"
+msgstr ""
+
 msgid "Infrastructure"
 msgstr "Инфраструктура"
 
@@ -9135,6 +9200,9 @@ msgstr "Товар"
 msgid "Item / Location"
 msgstr "Товар / Местоположение"
 
+msgid "Item details unavailable"
+msgstr ""
+
 msgid "Item filters"
 msgstr "Фильтры номенклатуры"
 
@@ -9231,6 +9299,9 @@ msgstr "Местоположение задания"
 msgid "Job make method"
 msgstr "Метод производства заказа"
 
+msgid "Job Material"
+msgstr ""
+
 msgid "Job Materials"
 msgstr "Материалы заказа"
 
@@ -9251,6 +9322,9 @@ msgstr "Приоритет работы"
 
 msgid "Job readable"
 msgstr "Читаемая работа"
+
+msgid "Job status"
+msgstr ""
 
 msgid "Job Traveler"
 msgstr "Маршрутный лист работы"
@@ -9655,6 +9729,9 @@ msgstr "Связанная проблема"
 
 msgid "Linked PO"
 msgstr "Связанный ПО"
+
+msgid "Linked tasks"
+msgstr ""
 
 msgid "List Options"
 msgstr "Параметры списка"
@@ -10996,6 +11073,9 @@ msgstr "Ни один счет не соответствует вашему по
 msgid "No action needed"
 msgstr "Никаких действий не требуется"
 
+msgid "No action required"
+msgstr ""
+
 msgid "No actions found."
 msgstr "Действия не найдены."
 
@@ -11013,9 +11093,6 @@ msgstr "Нет активных предложений"
 
 msgid "No addresses found"
 msgstr "Адреса не найдены"
-
-msgid "No affected items to assess."
-msgstr "Нет затронутых элементов для оценки."
 
 msgid "No affected items."
 msgstr "Нет затронутых элементов."
@@ -11069,6 +11146,9 @@ msgstr "Пока нет условий. Используйте добавлен�
 msgid "No comments yet. Be the first to add a comment."
 msgstr "Нет комментариев. Будьте первым, кто добавит комментарий."
 
+msgid "No complete current result is available."
+msgstr ""
+
 msgid "No completed jobs within range"
 msgstr "Нет завершенных производственных заказов в диапазоне"
 
@@ -11083,6 +11163,11 @@ msgstr "История себестоимости не найдена"
 
 msgid "No credits yet"
 msgstr "Никаких кредитов еще нет"
+msgid "No current operational exposure is available."
+msgstr ""
+
+msgid "No current snapshot is needed for this historical reference."
+msgstr ""
 
 msgid "No Data"
 msgstr "Нет данных"
@@ -11171,6 +11256,9 @@ msgstr "Нет сгруппированных уведомлений"
 msgid "No groups assigned"
 msgstr "Нет назначенных групп"
 
+msgid "No historical references are available."
+msgstr ""
+
 msgid "No image"
 msgstr "Нет изображения"
 
@@ -11191,6 +11279,8 @@ msgstr "Здесь еще нет активности с товарами."
 
 msgid "No jobs are scheduled at this location yet — release a job to see work-center load."
 msgstr "На этой площадке еще не запланированы производственные заказы — запустите производственный заказ в работу, чтобы увидеть нагрузку на рабочий центр."
+msgid "No Jobs or Job Materials are available."
+msgstr ""
 
 msgid "No jobs were created"
 msgstr "Производственные заказы не были созданы"
@@ -11215,6 +11305,9 @@ msgstr "Локации не найдены."
 
 msgid "No logo uploaded"
 msgstr "Логотип не загружен"
+
+msgid "No longer in current scope"
+msgstr ""
 
 msgid "No matches"
 msgstr "Нет совпадений"
@@ -11335,9 +11428,14 @@ msgstr "Для этой операции еще не записано ни од�
 
 msgid "No production recorded yet."
 msgstr "Производство еще не записано."
+msgid "No Purchase Order lines are available."
+msgstr ""
 
 msgid "No purchases in this period"
 msgstr "Нет покупок в этом периоде"
+
+msgid "No purchasing intervention remains"
+msgstr ""
 
 msgid "No Quote"
 msgstr "Отказ от предложения"
@@ -11450,6 +11548,9 @@ msgstr "Обучение не назначено"
 msgid "No transactions in this period"
 msgstr "Нет транзакций в этом периоде"
 
+msgid "No unavailable source rows are available."
+msgstr ""
+
 msgid "No unmapped accounts match a provider code"
 msgstr "Ни один несопоставленный счет не совпадает с кодом системы"
 
@@ -11485,6 +11586,9 @@ msgstr "На этой площадке нет рабочих центров"
 
 msgid "No work centers exist"
 msgstr "Рабочих центров не существует"
+
+msgid "No-action reason"
+msgstr ""
 
 msgid "Nom"
 msgstr "Номин"
@@ -11534,6 +11638,9 @@ msgstr "Обычный"
 msgid "Not a table but a general-ledger balance: cost accumulates as job materials are issued and clears when the job is received to stock."
 msgstr "Это не таблица, а остаток главной книги: себестоимость накапливается по мере выдачи материалов производственного заказа и очищается при получении заказа на запас."
 
+msgid "Not affected after review"
+msgstr ""
+
 msgid "Not certified"
 msgstr "Не сертифицировано"
 
@@ -11551,9 +11658,6 @@ msgstr "Не достигнуто"
 
 msgid "Not recorded"
 msgstr "Не записано"
-
-msgid "Not referenced anywhere yet."
-msgstr "Пока не на что-либо ссылается."
 
 msgid "Not Required"
 msgstr "Не требуется"
@@ -11859,6 +11963,9 @@ msgstr "Дата открытия"
 msgid "Open Dispatches"
 msgstr "Открыть Заявки на техобслуживание"
 
+msgid "Open Impact workspace"
+msgstr ""
+
 msgid "Open in Carbon"
 msgstr "Открыть в Carbon"
 
@@ -11921,6 +12028,9 @@ msgstr "Открытые Заказы покупателей"
 
 msgid "Open Scheduled"
 msgstr "Открытые запланированные"
+
+msgid "Open source"
+msgstr ""
 
 msgid "Open task details"
 msgstr "Открыть детали задачи"
@@ -12003,6 +12113,9 @@ msgstr "Тип операции"
 
 msgid "Operation unit cost"
 msgstr "Себестоимость операции за единицу"
+
+msgid "Operational Impact"
+msgstr ""
 
 msgid "Operations"
 msgstr "Операции"
@@ -12173,6 +12286,9 @@ msgstr "Выход"
 
 msgid "Output never outlasts its raw materials. Falls back to the fixed duration when no input has an expiry date."
 msgstr "Готовая продукция никогда не превышает срок действия сырья. Применяется фиксированная длительность, когда ни один исходный материал не имеет срока годности."
+
+msgid "Outside effectivity"
+msgstr ""
 
 msgid "Outside operation"
 msgstr "Отклонение косвенных затрат"
@@ -12747,6 +12863,9 @@ msgstr "Номер ПО"
 msgid "PO PDF"
 msgstr "ПО PDF"
 
+msgid "PO status"
+msgstr ""
+
 msgid "Policy"
 msgstr "Политика"
 
@@ -13011,6 +13130,12 @@ msgstr "Процессы"
 msgid "Procurement status — needs ordering, planned, on order, or received. The same indicator shown in the BoM tree."
 msgstr "Статус снабжения — требуется заказ, запланировано, заказано или получено. Тот же индикатор, что показан в дереве BoM."
 
+msgid "Producing Job"
+msgstr ""
+
+msgid "Producing Jobs"
+msgstr ""
+
 msgid "Product issues during hypercare"
 msgstr "Проблемы с продуктом во время гиперпомощи"
 
@@ -13125,6 +13250,8 @@ msgstr "Прогнозы"
 
 msgid "Projects"
 msgstr "Проекты"
+msgid "Promised"
+msgstr ""
 
 msgid "Promised Date"
 msgstr "Подтвержденная дата"
@@ -13155,6 +13282,9 @@ msgstr "Защищает данные вашей организации"
 
 msgid "Prove ownership of each email domain with a DNS TXT record before it can route SAML SSO sign-ins. Add the record at DNS host, then click Verify — only verified domains participate in single sign-on."
 msgstr "Докажите владение каждым доменом электронной почты с помощью TXT записи DNS перед маршрутизацией входов SAML SSO. Добавьте запись на хосте DNS, затем нажмите Проверить — только проверенные домены участвуют в единой авторизации."
+
+msgid "Provenance"
+msgstr ""
 
 msgid "Provide process knowledge and inputs"
 msgstr "Предоставить знания о процессе и входные данные"
@@ -13247,8 +13377,14 @@ msgstr "Правило утверждения заказа поставщику"
 msgid "Purchase Order ID"
 msgstr "ID Заказа поставщику"
 
+msgid "Purchase Order line"
+msgstr ""
+
 msgid "Purchase Order Line"
 msgstr "Строка Заказа поставщику"
+
+msgid "Purchase Order lines"
+msgstr ""
 
 msgid "Purchase Order Location"
 msgstr "Площадка Заказа поставщику"
@@ -13603,6 +13739,9 @@ msgstr "Курс, используемый для пересчета счето�
 msgid "Ratio"
 msgstr "Коэффициент"
 
+msgid "Rationale"
+msgstr ""
+
 msgid "Raw Materials"
 msgstr "Сырьё и материалы"
 
@@ -13696,6 +13835,9 @@ msgstr "Пересчет…"
 msgid "Receipt"
 msgstr "Квитанция"
 
+msgid "Receipt complete"
+msgstr ""
+
 msgid "Receipt ID"
 msgstr "ID квитанции"
 
@@ -13713,6 +13855,9 @@ msgstr "Запрошенная дата получения"
 
 msgid "Receipts"
 msgstr "Квитанции"
+
+msgid "Receipts, inspections, sales, shipments, and other where-used records are outside the three supported Impact target contracts in this workspace. They are not loaded as Impact rows until dedicated source-aware context readers can report their own coverage. They do not contribute to assessment totals or offer decision controls here."
+msgstr ""
 
 msgid "Receipts, shipments, sales invoices, purchase invoices, payments, and credit/debit memos that are still Draft or Pending must be posted or voided — both documents dated in this period and undated documents that would receive a date in it when posted. Until they post, their amounts aren't in the general ledger, so the period would be understated."
 msgstr "Поступления, отгрузки, счета-фактуры выданные, счета-фактуры полученные, платежи и кредит-ноты/дебет-ноты, которые по-прежнему находятся в статусе «Черновик» или «В ожидании», должны быть проведены или аннулированы — как документы, датированные в этом периоде, так и документы без даты, которые получат дату при проведении. До их проведения их суммы не находятся в главной книге, поэтому период будет отражен с недостатком."
@@ -13771,6 +13916,8 @@ msgstr "Полученное кол-во"
 
 msgid "Received quantity not yet credited. The credit memo is created as a draft."
 msgstr "Полученное количество еще не зачислено. Кредит-нота создана как черновик."
+msgid "Received to inventory"
+msgstr ""
 
 msgid "Receiving Location"
 msgstr "Площадка приемки"
@@ -14270,8 +14417,14 @@ msgstr "Ликвидационная стоимость"
 msgid "Residual Value %"
 msgstr "Ликвидационная стоимость %"
 
+msgid "Resolution note"
+msgstr ""
+
 msgid "Resolve these before completing the NCR: every row must have a non-Pending disposition, and its linked entity quantities must match the row quantity."
 msgstr "Решите эти вопросы перед завершением NCR: каждая строка должна иметь решение, которое не является Ожидающим, и количества связанных сущностей должны совпадать с количеством строки."
+
+msgid "Resolved"
+msgstr ""
 
 msgid "Resolved Price"
 msgstr "Разрешённая цена"
@@ -14330,6 +14483,8 @@ msgstr "Восстановление файлов"
 
 msgid "restoring…"
 msgstr "восстановление…"
+msgid "Restricted"
+msgstr ""
 
 msgid "Result"
 msgstr "Результат"
@@ -14468,6 +14623,8 @@ msgstr "Рассмотрение"
 
 msgid "Review & create"
 msgstr "Просмотр и создание"
+msgid "Review current purchasing and production exposure with source coverage, provenance, and freshness details."
+msgstr ""
 
 msgid "Review each item's changes, then confirm — releasing can't be undone."
 msgstr "Рассмотреть изменения каждой номенклатуры, затем подтвердить — выпуск нельзя отменить."
@@ -15725,6 +15882,8 @@ msgstr "Отправлено"
 
 msgid "Shipped lines for this customer with quantity remaining to return"
 msgstr "Отгруженные строки для этого покупателя с количеством, оставшимся для возврата"
+msgstr "Отправленные строки для этого клиента с количеством, подлежащим возврату"
+msgstr ""
 
 msgid "Shipped Qty"
 msgstr "Отправленное кол-во"
@@ -16013,6 +16172,8 @@ msgstr "Некоторые записи не вернутся. Введите <0
 
 msgid "Some Shifts"
 msgstr "Некоторые смены"
+msgid "Some linked task metadata is unavailable. Decision state is shown independently and has not been inferred from task status. Task details are omitted where linked-task coverage could not be read."
+msgstr ""
 
 msgid "Something went wrong. Please try again."
 msgstr "Что-то пошло не так. Пожалуйста, попробуйте еще раз."
@@ -16047,6 +16208,9 @@ msgstr "Анализ источников"
 msgid "Source Company"
 msgstr "Исходная Организация"
 
+msgid "Source deleted"
+msgstr ""
+
 msgid "Source document"
 msgstr "Документ-основание"
 
@@ -16059,6 +16223,9 @@ msgstr "ID документа-основания"
 msgid "Source document readable"
 msgstr "Читаемый документ-основание"
 
+msgid "Source identities are retained only where they were authorized; decision-relevant facts are withheld until coverage is restored."
+msgstr ""
+
 msgid "Source Item"
 msgstr "Исходный элемент"
 
@@ -16070,6 +16237,9 @@ msgstr "Список источников"
 
 msgid "Source Method"
 msgstr "Исходный метод"
+
+msgid "Source record unavailable"
+msgstr ""
 
 msgid "Source types"
 msgstr "Типы источников"
@@ -16363,6 +16533,9 @@ msgstr "Хранить фиксированное количество дней 
 
 msgid "Store a fixed number of days on this item. Expiry start date is set on each batch or serial when it's received."
 msgstr "Хранить фиксированное количество дней для этой номенклатуры. Дата начала срока годности устанавливается для каждой серии или серийного номера при его получении."
+
+msgid "Stored assessment snapshot is unavailable."
+msgstr ""
 
 msgid "Straight line"
 msgstr "Линейный метод"
@@ -16669,6 +16842,9 @@ msgstr "Обеспечение и потребность"
 
 msgid "Support"
 msgstr "Поддержка"
+
+msgid "Supported purchasing and production targets that can receive an independent Impact assessment."
+msgstr ""
 
 #. placeholder {0}: supportedModelTypes.join(", ")
 msgid "Supports {0} files"
@@ -17802,6 +17978,8 @@ msgstr "Эта резервная копия не может быть завер
 
 msgid "This backup hasn't been checked yet. Any differences are found when the restore runs."
 msgstr "Эта резервная копия еще не была проверена. Любые различия будут обнаружены при запуске восстановления."
+msgid "These references remain traceable but do not create a new Unassessed obligation."
+msgstr ""
 
 msgid "This Carbon instance is missing its Onshape OAuth credentials. Ask an administrator to set them."
 msgstr "В этом экземпляре Carbon отсутствуют учётные данные OAuth для Onshape. Попросите администратора настроить их."
@@ -17986,6 +18164,8 @@ msgstr "Эта станция выполняет работу, требующу�
 
 msgid "This station runs work with no ability requirement; operators assigned on the manning board shape available labor."
 msgstr "Эта станция выполняет работу без требований навыков; операторы, назначенные на таблицу назначений, формируют доступный труд."
+msgid "This source domain is restricted for your current permissions. No target identities or source facts are shown."
+msgstr ""
 
 #. placeholder {0}: usageCount === 1 ? "" : "s"
 msgid "This storage type is currently used by {usageCount} storage unit{0}."
@@ -18540,11 +18720,20 @@ msgstr "Неприменено:"
 msgid "Unapproved Supplier"
 msgstr "Неодобренный поставщик"
 
+msgid "Unassessed"
+msgstr ""
+
 msgid "Unassign rule"
 msgstr "Отменить назначение правила"
 
 msgid "Unassigned"
 msgstr "Не назначено"
+
+msgid "Unavailable"
+msgstr ""
+
+msgid "Unavailable source rows"
+msgstr ""
 
 msgid "Unballoon"
 msgstr "Удалить выноску"
@@ -18662,6 +18851,9 @@ msgstr "Неотображенные значения"
 
 msgid "Unmatched"
 msgstr "Несопоставленный"
+
+msgid "Unnamed task"
+msgstr ""
 
 msgid "Unpick"
 msgstr "Отменить выбор"
@@ -19697,9 +19889,6 @@ msgstr "Куда новый запас этого товара попадает 
 
 msgid "Where stock lives and how it ships."
 msgstr "Где находится запас и как он отправляется."
-
-msgid "Where the affected items are used across the system. Informational — nothing here blocks releasing."
-msgstr "Где затронутые элементы используются по всей системе. Информационно — ничто здесь не блокирует выпуск."
 
 msgid "Where this entry originated (manual entry, posting from sales/purchasing, recurring template, etc.)."
 msgstr "Откуда произошла эта запись (ручной ввод, проведение из продаж/закупок, повторяющийся шаблон и т. д.)."
