@@ -1579,6 +1579,9 @@ msgstr "高级"
 msgid "Affected item"
 msgstr ""
 
+msgid "Affected item details unavailable."
+msgstr ""
+
 msgid "Affected item not found."
 msgstr "未找到受影响的项目。"
 
@@ -2590,6 +2593,18 @@ msgstr ""
 msgid "Assessment coverage needs attention"
 msgstr ""
 
+msgid "Assessment created"
+msgstr ""
+
+msgid "Assessment reassessed"
+msgstr ""
+
+msgid "Assessment reopened"
+msgstr ""
+
+msgid "Assessment resolved"
+msgstr ""
+
 msgid "Assessment snapshot"
 msgstr ""
 
@@ -2974,6 +2989,8 @@ msgstr "待退货的生产批次"
 
 msgid "Batching"
 msgstr "分批"
+msgid "Before"
+msgstr ""
 
 msgid "Beginning"
 msgstr "开始"
@@ -3359,6 +3376,9 @@ msgstr "产能预留"
 
 msgid "Caption"
 msgstr "标题"
+
+msgid "Captured snapshot"
+msgstr ""
 
 msgid "Carbon"
 msgstr "Carbon"
@@ -3879,6 +3899,9 @@ msgid "Computed At"
 msgstr "计算于"
 
 msgid "Conclusion"
+msgstr ""
+
+msgid "Conclusion corrected"
 msgstr ""
 
 msgid "Condensed P&L with margins and key subtotals"
@@ -4940,10 +4963,19 @@ msgstr "当前预测"
 msgid "Current quantity"
 msgstr "当前数量"
 
+msgid "Current source facts are unavailable because the source was deleted."
+msgstr ""
+
 msgid "Current source facts are unavailable."
 msgstr ""
 
 msgid "Current source facts changed since the stored assessment. Saving will capture a fresh assessment snapshot."
+msgstr ""
+
+msgid "Current source facts had changed since the prior assessment."
+msgstr ""
+
+msgid "Current state"
 msgstr ""
 
 msgid "Currently training for"
@@ -7060,6 +7092,9 @@ msgstr "傍晚，{name}。"
 msgid "Event"
 msgstr "事件"
 
+msgid "Event details are unavailable for this event type."
+msgstr ""
+
 msgid "Event Type"
 msgstr "事件类型"
 
@@ -8690,7 +8725,13 @@ msgstr "影响"
 msgid "Impact assessment changed while you were editing."
 msgstr ""
 
+msgid "Impact event"
+msgstr ""
+
 msgid "Impact follow-up"
+msgstr ""
+
+msgid "Impact history"
 msgstr ""
 
 msgid "Impact task could not be created."
@@ -11326,6 +11367,9 @@ msgstr "没有已分配的组"
 msgid "No historical references are available."
 msgstr ""
 
+msgid "No history is recorded for this assessment."
+msgstr ""
+
 msgid "No image"
 msgstr "没有图像"
 
@@ -13357,6 +13401,12 @@ msgid "Prove ownership of each email domain with a DNS TXT record before it can 
 msgstr "在路由 SAML SSO 登录前，通过 DNS TXT 记录证明每个电子邮件域的所有权。在 DNS 主机上添加记录，然后单击验证 — 仅经过验证的域参与单点登录。"
 
 msgid "Provenance"
+msgstr ""
+
+msgid "Provenance ended"
+msgstr ""
+
+msgid "Provenance started"
 msgstr ""
 
 msgid "Provide process knowledge and inputs"
@@ -17079,10 +17129,22 @@ msgstr "目标版本"
 msgid "Task"
 msgstr "任务"
 
+msgid "Task designated as Impact follow-up"
+msgstr ""
+
+msgid "Task details unavailable."
+msgstr ""
+
+msgid "Task linked"
+msgstr ""
+
 msgid "Task name"
 msgstr ""
 
 msgid "Task origin: Impact follow-up"
+msgstr ""
+
+msgid "Task unlinked"
 msgstr ""
 
 msgid "tasks"

@@ -7,7 +7,11 @@ export { default as ChangeNoticeDiffViewer } from "./ChangeNoticeDiffViewer";
 export { default as ChangeNoticeExplorer } from "./ChangeNoticeExplorer";
 export { default as ChangeNoticeForm } from "./ChangeNoticeForm";
 export { default as ChangeNoticeHeader } from "./ChangeNoticeHeader";
-export { default as ChangeNoticeImpactWorkspace } from "./ChangeNoticeImpactWorkspace";
+export { ChangeNoticeImpactHistory } from "./ChangeNoticeImpactHistory";
+export {
+  canViewChangeNoticeImpactHistory,
+  default as ChangeNoticeImpactWorkspace
+} from "./ChangeNoticeImpactWorkspace";
 export { default as ChangeNoticeProperties } from "./ChangeNoticeProperties";
 export { default as ChangeNoticeReleaseMerge } from "./ChangeNoticeReleaseMerge";
 export { default as ChangeNoticeStatus } from "./ChangeNoticeStatus";

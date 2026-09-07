@@ -1579,6 +1579,9 @@ msgstr "고급"
 msgid "Affected item"
 msgstr ""
 
+msgid "Affected item details unavailable."
+msgstr ""
+
 msgid "Affected item not found."
 msgstr "영향받는 항목을 찾을 수 없습니다."
 
@@ -2590,6 +2593,18 @@ msgstr ""
 msgid "Assessment coverage needs attention"
 msgstr ""
 
+msgid "Assessment created"
+msgstr ""
+
+msgid "Assessment reassessed"
+msgstr ""
+
+msgid "Assessment reopened"
+msgstr ""
+
+msgid "Assessment resolved"
+msgstr ""
+
 msgid "Assessment snapshot"
 msgstr ""
 
@@ -2974,6 +2989,8 @@ msgstr "반품할 배치"
 
 msgid "Batching"
 msgstr "배치 처리"
+msgid "Before"
+msgstr ""
 
 msgid "Beginning"
 msgstr "시작"
@@ -3359,6 +3376,9 @@ msgstr "용량 예약"
 
 msgid "Caption"
 msgstr "캡션"
+
+msgid "Captured snapshot"
+msgstr ""
 
 msgid "Carbon"
 msgstr "Carbon"
@@ -3879,6 +3899,9 @@ msgid "Computed At"
 msgstr "계산 시간"
 
 msgid "Conclusion"
+msgstr ""
+
+msgid "Conclusion corrected"
 msgstr ""
 
 msgid "Condensed P&L with margins and key subtotals"
@@ -4940,10 +4963,19 @@ msgstr "현재 예측"
 msgid "Current quantity"
 msgstr "현재 수량"
 
+msgid "Current source facts are unavailable because the source was deleted."
+msgstr ""
+
 msgid "Current source facts are unavailable."
 msgstr ""
 
 msgid "Current source facts changed since the stored assessment. Saving will capture a fresh assessment snapshot."
+msgstr ""
+
+msgid "Current source facts had changed since the prior assessment."
+msgstr ""
+
+msgid "Current state"
 msgstr ""
 
 msgid "Currently training for"
@@ -7060,6 +7092,9 @@ msgstr "{name}님, 저녁이군요."
 msgid "Event"
 msgstr "이벤트"
 
+msgid "Event details are unavailable for this event type."
+msgstr ""
+
 msgid "Event Type"
 msgstr "이벤트 유형"
 
@@ -8690,7 +8725,13 @@ msgstr "영향"
 msgid "Impact assessment changed while you were editing."
 msgstr ""
 
+msgid "Impact event"
+msgstr ""
+
 msgid "Impact follow-up"
+msgstr ""
+
+msgid "Impact history"
 msgstr ""
 
 msgid "Impact task could not be created."
@@ -11327,6 +11368,9 @@ msgstr "배정된 그룹이 없습니다"
 msgid "No historical references are available."
 msgstr ""
 
+msgid "No history is recorded for this assessment."
+msgstr ""
+
 msgid "No image"
 msgstr "이미지 없음"
 
@@ -13358,6 +13402,12 @@ msgid "Prove ownership of each email domain with a DNS TXT record before it can 
 msgstr "이메일 도메인 소유권을 DNS TXT 레코드로 증명한 후 SAML SSO 로그인을 라우팅할 수 있습니다. DNS 호스트에서 레코드를 추가한 다음 확인을 클릭하세요 — 확인된 도메인만 싱글 사인온에 참여합니다."
 
 msgid "Provenance"
+msgstr ""
+
+msgid "Provenance ended"
+msgstr ""
+
+msgid "Provenance started"
 msgstr ""
 
 msgid "Provide process knowledge and inputs"
@@ -17082,10 +17132,22 @@ msgstr "대상 버전"
 msgid "Task"
 msgstr "작업"
 
+msgid "Task designated as Impact follow-up"
+msgstr ""
+
+msgid "Task details unavailable."
+msgstr ""
+
+msgid "Task linked"
+msgstr ""
+
 msgid "Task name"
 msgstr ""
 
 msgid "Task origin: Impact follow-up"
+msgstr ""
+
+msgid "Task unlinked"
 msgstr ""
 
 msgid "tasks"

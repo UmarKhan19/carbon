@@ -1579,6 +1579,9 @@ msgstr "उन्नत"
 msgid "Affected item"
 msgstr ""
 
+msgid "Affected item details unavailable."
+msgstr ""
+
 msgid "Affected item not found."
 msgstr "प्रभावित आइटम नहीं मिला।"
 
@@ -2590,6 +2593,18 @@ msgstr ""
 msgid "Assessment coverage needs attention"
 msgstr ""
 
+msgid "Assessment created"
+msgstr ""
+
+msgid "Assessment reassessed"
+msgstr ""
+
+msgid "Assessment reopened"
+msgstr ""
+
+msgid "Assessment resolved"
+msgstr ""
+
 msgid "Assessment snapshot"
 msgstr ""
 
@@ -2974,6 +2989,8 @@ msgstr "वापस करने के लिए बैच"
 
 msgid "Batching"
 msgstr "बैचिंग"
+msgid "Before"
+msgstr ""
 
 msgid "Beginning"
 msgstr "आरंभ"
@@ -3359,6 +3376,9 @@ msgstr "क्षमता आरक्षण"
 
 msgid "Caption"
 msgstr "कैप्शन"
+
+msgid "Captured snapshot"
+msgstr ""
 
 msgid "Carbon"
 msgstr "कार्बन"
@@ -3879,6 +3899,9 @@ msgid "Computed At"
 msgstr "गणना समय"
 
 msgid "Conclusion"
+msgstr ""
+
+msgid "Conclusion corrected"
 msgstr ""
 
 msgid "Condensed P&L with margins and key subtotals"
@@ -4940,10 +4963,19 @@ msgstr "वर्तमान प्रक्षेपण"
 msgid "Current quantity"
 msgstr "वर्तमान मात्रा"
 
+msgid "Current source facts are unavailable because the source was deleted."
+msgstr ""
+
 msgid "Current source facts are unavailable."
 msgstr ""
 
 msgid "Current source facts changed since the stored assessment. Saving will capture a fresh assessment snapshot."
+msgstr ""
+
+msgid "Current source facts had changed since the prior assessment."
+msgstr ""
+
+msgid "Current state"
 msgstr ""
 
 msgid "Currently training for"
@@ -7060,6 +7092,9 @@ msgstr "शाम, {name}।"
 msgid "Event"
 msgstr "घटना"
 
+msgid "Event details are unavailable for this event type."
+msgstr ""
+
 msgid "Event Type"
 msgstr "ईवेंट प्रकार"
 
@@ -8690,7 +8725,13 @@ msgstr "प्रभाव"
 msgid "Impact assessment changed while you were editing."
 msgstr ""
 
+msgid "Impact event"
+msgstr ""
+
 msgid "Impact follow-up"
+msgstr ""
+
+msgid "Impact history"
 msgstr ""
 
 msgid "Impact task could not be created."
@@ -11326,6 +11367,9 @@ msgstr "कोई समूह असाइन नहीं किया गय�
 msgid "No historical references are available."
 msgstr ""
 
+msgid "No history is recorded for this assessment."
+msgstr ""
+
 msgid "No image"
 msgstr "कोई छवि नहीं"
 
@@ -13357,6 +13401,12 @@ msgid "Prove ownership of each email domain with a DNS TXT record before it can 
 msgstr "SAML SSO साइन-इन को रूट करने से पहले DNS TXT रिकॉर्ड के साथ प्रत्येक ईमेल डोमेन का स्वामित्व साबित करें। DNS होस्ट पर रिकॉर्ड जोड़ें, फिर सत्यापित करें पर क्लिक करें — केवल सत्यापित डोमेन एकल साइन-ऑन में भाग लेते हैं।"
 
 msgid "Provenance"
+msgstr ""
+
+msgid "Provenance ended"
+msgstr ""
+
+msgid "Provenance started"
 msgstr ""
 
 msgid "Provide process knowledge and inputs"
@@ -17080,10 +17130,22 @@ msgstr "लक्ष्य संस्करण"
 msgid "Task"
 msgstr "कार्य"
 
+msgid "Task designated as Impact follow-up"
+msgstr ""
+
+msgid "Task details unavailable."
+msgstr ""
+
+msgid "Task linked"
+msgstr ""
+
 msgid "Task name"
 msgstr ""
 
 msgid "Task origin: Impact follow-up"
+msgstr ""
+
+msgid "Task unlinked"
 msgstr ""
 
 msgid "tasks"

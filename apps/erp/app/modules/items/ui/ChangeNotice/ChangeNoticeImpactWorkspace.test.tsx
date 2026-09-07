@@ -26,6 +26,7 @@ vi.mock("@react-aria/i18n", () => ({ useLocale: () => ({ locale: "en-US" }) }));
 vi.mock("react-icons/lu", () => ({
   LuChevronRight: () => null,
   LuExternalLink: () => null,
+  LuHistory: () => null,
   LuRefreshCw: () => null,
   LuTriangle: () => null
 }));
@@ -70,8 +71,12 @@ vi.mock("./ChangeNoticeStatus", () => ({ default: () => null }));
 vi.mock("./ChangeNoticeImpactTasks", () => ({
   ChangeNoticeImpactTasks: () => null
 }));
+vi.mock("./ChangeNoticeImpactHistory", () => ({
+  ChangeNoticeImpactHistory: () => null
+}));
 
 const {
+  canViewChangeNoticeImpactHistory,
   getChangeNoticeImpactDecisionControls,
   getChangeNoticeImpactDecisionStatusOptions,
   getChangeNoticeImpactRationaleDefault
@@ -108,6 +113,36 @@ const base = {
 
 describe("Change Notice Impact decision controls", () => {
   beforeEach(() => vi.clearAllMocks());
+
+  it("shows history only for a readable persisted decision", () => {
+    const assessed = candidate({ decision: pendingCandidateDecision() });
+    expect(canViewChangeNoticeImpactHistory(assessed)).toBe(true);
+    expect(
+      canViewChangeNoticeImpactHistory(
+        candidate({
+          decision: pendingCandidateDecision(),
+          sourceAvailability: "Source deleted"
+        })
+      )
+    ).toBe(true);
+    expect(
+      canViewChangeNoticeImpactHistory(
+        candidate({
+          decision: pendingCandidateDecision(),
+          sourceAvailability: "Restricted"
+        })
+      )
+    ).toBe(false);
+    expect(
+      canViewChangeNoticeImpactHistory(
+        candidate({
+          decision: pendingCandidateDecision(),
+          sourceAvailability: "Unavailable"
+        })
+      )
+    ).toBe(true);
+    expect(canViewChangeNoticeImpactHistory(candidate())).toBe(false);
+  });
 
   it("offers Assess and direct first-time Resolve only for current complete exposure", () => {
     expect(

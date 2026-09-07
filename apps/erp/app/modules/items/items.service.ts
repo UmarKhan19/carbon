@@ -56,6 +56,10 @@ import {
   type ChangeNoticeImpactDecisionWriteResult,
   type ChangeNoticeImpactDomainCursor,
   type ChangeNoticeImpactExposureClassification,
+  type ChangeNoticeImpactHistoryEntry,
+  type ChangeNoticeImpactHistoryProvenance,
+  type ChangeNoticeImpactHistoryReadResult,
+  type ChangeNoticeImpactHistorySnapshotStatus,
   type ChangeNoticeImpactItemContext,
   type ChangeNoticeImpactJobMaterialSnapshotInput,
   type ChangeNoticeImpactJobSnapshotInput,
@@ -12717,7 +12721,7 @@ async function readChangeNoticeImpactTaskLinks(
   };
 }
 
-function projectImpactSnapshotForWorkspace(
+function projectImpactSnapshotForBrowser(
   snapshot: ChangeNoticeImpactSnapshot
 ): ChangeNoticeImpactWorkspaceSnapshot {
   if (snapshot.schema === PO_LINE_SNAPSHOT_V1) {
@@ -12776,7 +12780,7 @@ function projectImpactDecisionForWorkspace(
   return {
     ...decision,
     persistedSnapshot: decision.persistedSnapshot
-      ? projectImpactSnapshotForWorkspace(decision.persistedSnapshot)
+      ? projectImpactSnapshotForBrowser(decision.persistedSnapshot)
       : null
   };
 }
@@ -12788,7 +12792,7 @@ function projectImpactCandidateForWorkspace(
   return {
     ...candidate,
     currentSnapshot: candidate.currentSnapshot
-      ? projectImpactSnapshotForWorkspace(candidate.currentSnapshot)
+      ? projectImpactSnapshotForBrowser(candidate.currentSnapshot)
       : null,
     decision: candidate.decision
       ? projectImpactDecisionForWorkspace(candidate.decision)
@@ -12905,6 +12909,366 @@ export async function getChangeNoticeImpactWorkspace(
     taskCoverage: taskRead.coverage
   };
   return { data, error: null };
+}
+
+type ImpactHistoryDecisionRow = Pick<
+  Database["public"]["Tables"]["changeOrderImpactDecision"]["Row"],
+  "id" | "companyId" | "changeNoticeId" | "targetType" | "targetId"
+>;
+
+type ImpactHistoryRow = Pick<
+  Database["public"]["Tables"]["changeOrderImpactDecisionHistory"]["Row"],
+  | "id"
+  | "companyId"
+  | "decisionId"
+  | "targetType"
+  | "targetId"
+  | "eventType"
+  | "previousStatus"
+  | "newStatus"
+  | "previousReasonCode"
+  | "newReasonCode"
+  | "previousSnapshot"
+  | "newSnapshot"
+  | "rationale"
+  | "resolutionNote"
+  | "relatedActionTaskId"
+  | "relatedAffectedItemId"
+  | "priorAssessmentWasChanged"
+  | "createdBy"
+  | "createdAt"
+>;
+
+type ImpactHistoryProvenanceRow = Pick<
+  Database["public"]["Tables"]["changeOrderImpactDecisionAffectedItem"]["Row"],
+  | "id"
+  | "companyId"
+  | "decisionId"
+  | "affectedItemId"
+  | "affectedItemLabel"
+  | "startedAt"
+  | "endedAt"
+  | "endedReason"
+>;
+
+/**
+ * Read one decision's independent Impact history. The decision lookup is the
+ * request-boundary ownership check; history and provenance are then read with
+ * the same tenant, decision, and stored target predicates so a guessed
+ * decision id cannot widen the result.
+ */
+export async function getChangeNoticeImpactHistory(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  changeNoticeId: string,
+  decisionId: string,
+  options: Pick<ChangeNoticeImpactCandidateOptions, "sourceAccess">
+): Promise<ChangeNoticeImpactHistoryReadResult> {
+  const sourceAccessResult = options.sourceAccess;
+  const sourceAccess =
+    "status" in sourceAccessResult
+      ? sourceAccessResult.status === "resolved"
+        ? sourceAccessResult.access
+        : null
+      : sourceAccessResult;
+  if (sourceAccess === null) {
+    return {
+      data: null,
+      error: {
+        kind: "unavailable",
+        message: "Impact source access could not be established."
+      }
+    };
+  }
+
+  const decisionResult = await client
+    .from("changeOrderImpactDecision")
+    .select("id, companyId, changeNoticeId, targetType, targetId")
+    .eq("companyId", companyId)
+    .eq("changeNoticeId", changeNoticeId)
+    .eq("id", decisionId)
+    .maybeSingle();
+  if (decisionResult.error) {
+    logger.error("Failed to read Change Notice Impact history decision", {
+      error: decisionResult.error,
+      companyId,
+      changeNoticeId,
+      decisionId
+    });
+    return {
+      data: null,
+      error: {
+        kind: "unavailable",
+        message: "Impact history could not be loaded."
+      }
+    };
+  }
+  if (!decisionResult.data) {
+    return {
+      data: null,
+      error: {
+        kind: "not-found",
+        message: "Impact decision was not found."
+      }
+    };
+  }
+
+  const decision = decisionResult.data as ImpactHistoryDecisionRow;
+  if (
+    !changeNoticeImpactTargetTypes.includes(
+      decision.targetType as ChangeNoticeImpactTargetType
+    ) ||
+    decision.targetId.length === 0 ||
+    !impactSourceAccessAllows(
+      decision.targetType as ChangeNoticeImpactTargetType,
+      sourceAccess
+    )
+  ) {
+    return {
+      data: null,
+      error: {
+        kind: "restricted",
+        message: "Impact history is restricted for this target."
+      }
+    };
+  }
+
+  const targetType = decision.targetType as ChangeNoticeImpactTargetType;
+  const historyResult = await fetchAllFromTable<ImpactHistoryRow>(
+    client,
+    "changeOrderImpactDecisionHistory",
+    "id, companyId, decisionId, targetType, targetId, eventType, previousStatus, newStatus, previousReasonCode, newReasonCode, previousSnapshot, newSnapshot, rationale, resolutionNote, relatedActionTaskId, relatedAffectedItemId, priorAssessmentWasChanged, createdBy, createdAt",
+    (query) =>
+      query
+        .eq("companyId", companyId)
+        .eq("decisionId", decision.id)
+        .eq("targetType", targetType)
+        .eq("targetId", decision.targetId)
+        .order("createdAt", { ascending: false })
+        .order("id", { ascending: false })
+  );
+  if (historyResult.error || !historyResult.data) {
+    logger.error("Failed to read Change Notice Impact history", {
+      error: historyResult.error,
+      companyId,
+      changeNoticeId,
+      decisionId
+    });
+    return {
+      data: null,
+      error: {
+        kind: "unavailable",
+        message: "Impact history could not be loaded."
+      }
+    };
+  }
+
+  const malformedHistory = historyResult.data.some(
+    (row) =>
+      row.companyId !== companyId ||
+      row.decisionId !== decision.id ||
+      row.targetType !== targetType ||
+      row.targetId !== decision.targetId ||
+      row.id.length === 0 ||
+      row.eventType.length === 0 ||
+      row.createdBy.length === 0 ||
+      row.createdAt.length === 0
+  );
+  if (malformedHistory) {
+    logger.error("Malformed Change Notice Impact history row", {
+      companyId,
+      changeNoticeId,
+      decisionId
+    });
+    return {
+      data: null,
+      error: {
+        kind: "unavailable",
+        message: "Impact history could not be loaded."
+      }
+    };
+  }
+
+  const entriesWithSource = historyResult.data.map((row) => ({
+    row,
+    entry: {
+      id: row.id,
+      eventType: row.eventType,
+      previousStatus: impactHistoryStatus(row.previousStatus),
+      newStatus: impactHistoryStatus(row.newStatus),
+      previousReasonCode: impactHistoryReasonCode(row.previousReasonCode),
+      newReasonCode: impactHistoryReasonCode(row.newReasonCode),
+      previousSnapshot: projectImpactHistorySnapshot(
+        targetType,
+        decision.targetId,
+        row.previousSnapshot
+      ),
+      previousSnapshotStatus: impactHistorySnapshotStatus(
+        targetType,
+        decision.targetId,
+        row.previousSnapshot
+      ),
+      newSnapshot: projectImpactHistorySnapshot(
+        targetType,
+        decision.targetId,
+        row.newSnapshot
+      ),
+      newSnapshotStatus: impactHistorySnapshotStatus(
+        targetType,
+        decision.targetId,
+        row.newSnapshot
+      ),
+      rationale: impactHistoryText(row.rationale),
+      resolutionNote: impactHistoryText(row.resolutionNote),
+      priorAssessmentWasChanged: row.priorAssessmentWasChanged === true,
+      relatedActionTaskId: impactHistoryText(row.relatedActionTaskId),
+      provenance: null as ChangeNoticeImpactHistoryProvenance | null,
+      createdBy: row.createdBy,
+      createdAt: row.createdAt
+    } satisfies ChangeNoticeImpactHistoryEntry
+  }));
+
+  const relatedAffectedItemIds = [
+    ...new Set(
+      entriesWithSource.flatMap(({ row }) =>
+        row.relatedAffectedItemId ? [row.relatedAffectedItemId] : []
+      )
+    )
+  ];
+  if (relatedAffectedItemIds.length === 0) {
+    return {
+      data: { entries: entriesWithSource.map(({ entry }) => entry) },
+      error: null
+    };
+  }
+
+  const provenanceResult = await fetchAllFromTable<ImpactHistoryProvenanceRow>(
+    client,
+    "changeOrderImpactDecisionAffectedItem",
+    "id, companyId, decisionId, affectedItemId, affectedItemLabel, startedAt, endedAt, endedReason",
+    (query) =>
+      query
+        .eq("companyId", companyId)
+        .eq("decisionId", decision.id)
+        .in("affectedItemId", relatedAffectedItemIds)
+        .order("startedAt", { ascending: false })
+        .order("id", { ascending: false })
+  );
+  if (provenanceResult.error || !provenanceResult.data) {
+    logger.error("Failed to read Change Notice Impact history provenance", {
+      error: provenanceResult.error,
+      companyId,
+      changeNoticeId,
+      decisionId
+    });
+    return {
+      data: null,
+      error: {
+        kind: "unavailable",
+        message: "Impact history could not be loaded."
+      }
+    };
+  }
+
+  const provenanceByAffectedItem = new Map<
+    string,
+    ImpactHistoryProvenanceRow[]
+  >();
+  for (const row of provenanceResult.data) {
+    if (
+      row.companyId !== companyId ||
+      row.decisionId !== decision.id ||
+      row.affectedItemId.length === 0
+    ) {
+      continue;
+    }
+    const rows = provenanceByAffectedItem.get(row.affectedItemId) ?? [];
+    rows.push(row);
+    provenanceByAffectedItem.set(row.affectedItemId, rows);
+  }
+
+  for (const { row, entry } of entriesWithSource) {
+    if (!row.relatedAffectedItemId) continue;
+    entry.provenance = resolveImpactHistoryProvenance(
+      provenanceByAffectedItem.get(row.relatedAffectedItemId) ?? [],
+      row.eventType,
+      row.createdAt
+    );
+  }
+
+  return {
+    data: { entries: entriesWithSource.map(({ entry }) => entry) },
+    error: null
+  };
+}
+
+function impactHistoryText(value: unknown): string | null {
+  return typeof value === "string" && value.length > 0 ? value : null;
+}
+
+function impactHistoryStatus(
+  value: unknown
+): ChangeNoticeImpactDecisionStatus | null {
+  return typeof value === "string" &&
+    (changeNoticeImpactDecisionStatuses as readonly string[]).includes(value)
+    ? (value as ChangeNoticeImpactDecisionStatus)
+    : null;
+}
+
+function impactHistoryReasonCode(
+  value: unknown
+): ChangeNoticeImpactNoActionReasonCode | null {
+  return typeof value === "string" &&
+    (changeNoticeImpactNoActionReasonCodes as readonly string[]).includes(value)
+    ? (value as ChangeNoticeImpactNoActionReasonCode)
+    : null;
+}
+
+function projectImpactHistorySnapshot(
+  targetType: ChangeNoticeImpactTargetType,
+  targetId: string,
+  value: unknown
+): ChangeNoticeImpactWorkspaceSnapshot | null {
+  if (
+    !isCanonicalStoredImpactSnapshot(targetType, value) ||
+    !snapshotIdentityMatches(targetType, value, targetId)
+  ) {
+    return null;
+  }
+  return projectImpactSnapshotForBrowser(value);
+}
+
+function impactHistorySnapshotStatus(
+  targetType: ChangeNoticeImpactTargetType,
+  targetId: string,
+  value: unknown
+): ChangeNoticeImpactHistorySnapshotStatus {
+  if (value === null) return "absent";
+  return isCanonicalStoredImpactSnapshot(targetType, value) &&
+    snapshotIdentityMatches(targetType, value, targetId)
+    ? "present"
+    : "unavailable";
+}
+
+function resolveImpactHistoryProvenance(
+  rows: ImpactHistoryProvenanceRow[],
+  eventType: string,
+  createdAt: string
+): ChangeNoticeImpactHistoryProvenance | null {
+  if (rows.length === 0) return null;
+  const isEndedEvent = eventType === "Provenance ended";
+  const relevantRows = rows.filter((row) =>
+    isEndedEvent ? row.endedAt !== null : row.startedAt.length > 0
+  );
+  const matchingRow = relevantRows.find((row) =>
+    isEndedEvent ? row.endedAt === createdAt : row.startedAt === createdAt
+  );
+  const row = matchingRow ?? relevantRows[0] ?? rows[0];
+  return {
+    affectedItemLabel: row.affectedItemLabel,
+    endedAt: row.endedAt,
+    endedReason: row.endedReason
+  };
 }
 
 const IMPACT_TARGET_UNIQUE_CONSTRAINT = "changeOrderImpactDecision_target_key";

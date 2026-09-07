@@ -1579,6 +1579,9 @@ msgstr "Gelişmiş"
 msgid "Affected item"
 msgstr ""
 
+msgid "Affected item details unavailable."
+msgstr ""
+
 msgid "Affected item not found."
 msgstr "Etkilenen öğe bulunamadı."
 
@@ -2590,6 +2593,18 @@ msgstr ""
 msgid "Assessment coverage needs attention"
 msgstr ""
 
+msgid "Assessment created"
+msgstr ""
+
+msgid "Assessment reassessed"
+msgstr ""
+
+msgid "Assessment reopened"
+msgstr ""
+
+msgid "Assessment resolved"
+msgstr ""
+
 msgid "Assessment snapshot"
 msgstr ""
 
@@ -2974,6 +2989,8 @@ msgstr "İade edilecek partiler"
 
 msgid "Batching"
 msgstr "Partileme"
+msgid "Before"
+msgstr ""
 
 msgid "Beginning"
 msgstr "Başlangıç"
@@ -3359,6 +3376,9 @@ msgstr "Kapasite Rezervasyonu"
 
 msgid "Caption"
 msgstr "Başlık"
+
+msgid "Captured snapshot"
+msgstr ""
 
 msgid "Carbon"
 msgstr "Karbon"
@@ -3879,6 +3899,9 @@ msgid "Computed At"
 msgstr "Hesaplama Tarihi"
 
 msgid "Conclusion"
+msgstr ""
+
+msgid "Conclusion corrected"
 msgstr ""
 
 msgid "Condensed P&L with margins and key subtotals"
@@ -4940,10 +4963,19 @@ msgstr "Mevcut projeksiyon"
 msgid "Current quantity"
 msgstr "Mevcut miktar"
 
+msgid "Current source facts are unavailable because the source was deleted."
+msgstr ""
+
 msgid "Current source facts are unavailable."
 msgstr ""
 
 msgid "Current source facts changed since the stored assessment. Saving will capture a fresh assessment snapshot."
+msgstr ""
+
+msgid "Current source facts had changed since the prior assessment."
+msgstr ""
+
+msgid "Current state"
 msgstr ""
 
 msgid "Currently training for"
@@ -7060,6 +7092,9 @@ msgstr "Akşam, {name}."
 msgid "Event"
 msgstr "Etkinlik"
 
+msgid "Event details are unavailable for this event type."
+msgstr ""
+
 msgid "Event Type"
 msgstr "Olay Türü"
 
@@ -8690,7 +8725,13 @@ msgstr "Etki"
 msgid "Impact assessment changed while you were editing."
 msgstr ""
 
+msgid "Impact event"
+msgstr ""
+
 msgid "Impact follow-up"
+msgstr ""
+
+msgid "Impact history"
 msgstr ""
 
 msgid "Impact task could not be created."
@@ -11326,6 +11367,9 @@ msgstr "Atanmış grup yok"
 msgid "No historical references are available."
 msgstr ""
 
+msgid "No history is recorded for this assessment."
+msgstr ""
+
 msgid "No image"
 msgstr "Resim yok"
 
@@ -13358,6 +13402,12 @@ msgid "Prove ownership of each email domain with a DNS TXT record before it can 
 msgstr "Her bir e-posta etki alanının sahipliğini kanıtlayın - SAML SSO oturum açma işlemini yönlendirebilmesi için DNS TXT kaydıyla. Kaydı DNS ana bilgisayarına ekleyin, ardından Doğrula'ya tıklayın — yalnızca doğrulanmış etki alanları çoklu oturum açmada yer alır."
 
 msgid "Provenance"
+msgstr ""
+
+msgid "Provenance ended"
+msgstr ""
+
+msgid "Provenance started"
 msgstr ""
 
 msgid "Provide process knowledge and inputs"
@@ -17081,10 +17131,22 @@ msgstr "Hedef Sürüm"
 msgid "Task"
 msgstr "Görev"
 
+msgid "Task designated as Impact follow-up"
+msgstr ""
+
+msgid "Task details unavailable."
+msgstr ""
+
+msgid "Task linked"
+msgstr ""
+
 msgid "Task name"
 msgstr ""
 
 msgid "Task origin: Impact follow-up"
+msgstr ""
+
+msgid "Task unlinked"
 msgstr ""
 
 msgid "tasks"

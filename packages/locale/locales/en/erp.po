@@ -1579,6 +1579,9 @@ msgstr "Advanced"
 msgid "Affected item"
 msgstr "Affected item"
 
+msgid "Affected item details unavailable."
+msgstr "Affected item details unavailable."
+
 msgid "Affected item not found."
 msgstr "Affected item not found."
 
@@ -2590,6 +2593,18 @@ msgstr "Assessment coverage"
 msgid "Assessment coverage needs attention"
 msgstr "Assessment coverage needs attention"
 
+msgid "Assessment created"
+msgstr "Assessment created"
+
+msgid "Assessment reassessed"
+msgstr "Assessment reassessed"
+
+msgid "Assessment reopened"
+msgstr "Assessment reopened"
+
+msgid "Assessment resolved"
+msgstr "Assessment resolved"
+
 msgid "Assessment snapshot"
 msgstr "Assessment snapshot"
 
@@ -2974,6 +2989,8 @@ msgstr "Batches to return"
 
 msgid "Batching"
 msgstr "Batching"
+msgid "Before"
+msgstr "Before"
 
 msgid "Beginning"
 msgstr "Beginning"
@@ -3359,6 +3376,9 @@ msgstr "Capacity reservation"
 
 msgid "Caption"
 msgstr "Caption"
+
+msgid "Captured snapshot"
+msgstr "Captured snapshot"
 
 msgid "Carbon"
 msgstr "Carbon"
@@ -3880,6 +3900,9 @@ msgstr "Computed At"
 
 msgid "Conclusion"
 msgstr "Conclusion"
+
+msgid "Conclusion corrected"
+msgstr "Conclusion corrected"
 
 msgid "Condensed P&L with margins and key subtotals"
 msgstr "Condensed P&L with margins and key subtotals"
@@ -4940,11 +4963,20 @@ msgstr "Current projection"
 msgid "Current quantity"
 msgstr "Current quantity"
 
+msgid "Current source facts are unavailable because the source was deleted."
+msgstr "Current source facts are unavailable because the source was deleted."
+
 msgid "Current source facts are unavailable."
 msgstr "Current source facts are unavailable."
 
 msgid "Current source facts changed since the stored assessment. Saving will capture a fresh assessment snapshot."
 msgstr "Current source facts changed since the stored assessment. Saving will capture a fresh assessment snapshot."
+
+msgid "Current source facts had changed since the prior assessment."
+msgstr "Current source facts had changed since the prior assessment."
+
+msgid "Current state"
+msgstr "Current state"
 
 msgid "Currently training for"
 msgstr "Currently training for"
@@ -7060,6 +7092,9 @@ msgstr "Evening, {name}."
 msgid "Event"
 msgstr "Event"
 
+msgid "Event details are unavailable for this event type."
+msgstr "Event details are unavailable for this event type."
+
 msgid "Event Type"
 msgstr "Event Type"
 
@@ -8690,8 +8725,14 @@ msgstr "Impact"
 msgid "Impact assessment changed while you were editing."
 msgstr "Impact assessment changed while you were editing."
 
+msgid "Impact event"
+msgstr "Impact event"
+
 msgid "Impact follow-up"
 msgstr "Impact follow-up"
+
+msgid "Impact history"
+msgstr "Impact history"
 
 msgid "Impact task could not be created."
 msgstr "Impact task could not be created."
@@ -11326,6 +11367,9 @@ msgstr "No groups assigned"
 msgid "No historical references are available."
 msgstr "No historical references are available."
 
+msgid "No history is recorded for this assessment."
+msgstr "No history is recorded for this assessment."
+
 msgid "No image"
 msgstr "No image"
 
@@ -13358,6 +13402,12 @@ msgstr "Prove ownership of each email domain with a DNS TXT record before it can
 
 msgid "Provenance"
 msgstr "Provenance"
+
+msgid "Provenance ended"
+msgstr "Provenance ended"
+
+msgid "Provenance started"
+msgstr "Provenance started"
 
 msgid "Provide process knowledge and inputs"
 msgstr "Provide process knowledge and inputs"
@@ -17078,11 +17128,23 @@ msgstr "Target Version"
 msgid "Task"
 msgstr "Task"
 
+msgid "Task designated as Impact follow-up"
+msgstr "Task designated as Impact follow-up"
+
+msgid "Task details unavailable."
+msgstr "Task details unavailable."
+
+msgid "Task linked"
+msgstr "Task linked"
+
 msgid "Task name"
 msgstr "Task name"
 
 msgid "Task origin: Impact follow-up"
 msgstr "Task origin: Impact follow-up"
+
+msgid "Task unlinked"
+msgstr "Task unlinked"
 
 msgid "tasks"
 msgstr "tasks"

@@ -15,7 +15,6 @@ import {
   HStack,
   VStack
 } from "@carbon/react";
-import { formatDate } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useLocale } from "@react-aria/i18n";
 import type { ComponentProps, ReactNode } from "react";
@@ -23,6 +22,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   LuChevronRight,
   LuExternalLink,
+  LuHistory,
   LuRefreshCw,
   LuTriangle
 } from "react-icons/lu";
@@ -44,7 +44,6 @@ import {
   type ChangeNoticeImpactDecisionStatus,
   type ChangeNoticeImpactNoActionReasonCode,
   type ChangeNoticeImpactWorkspaceReadModel,
-  type ChangeNoticeImpactWorkspaceSnapshot,
   changeNoticeImpactDecisionFormValidator,
   changeNoticeImpactDecisionStatuses,
   changeNoticeStageFlow
@@ -53,6 +52,8 @@ import JobStatus from "~/modules/production/ui/Jobs/JobStatus";
 import PurchasingStatus from "~/modules/purchasing/ui/PurchaseOrder/PurchasingStatus";
 import { path } from "~/utils/path";
 import type { ChangeNoticeActionTask } from "../../types";
+import { ChangeNoticeImpactHistory } from "./ChangeNoticeImpactHistory";
+import { SnapshotFacts } from "./ChangeNoticeImpactSnapshotFacts";
 import { ChangeNoticeImpactTasks } from "./ChangeNoticeImpactTasks";
 import ChangeNoticeStatus from "./ChangeNoticeStatus";
 
@@ -86,6 +87,14 @@ export type ChangeNoticeImpactDecisionControls = {
   resolve: boolean;
   resolveBlock: ImpactResolutionBlock;
 };
+
+export function canViewChangeNoticeImpactHistory(
+  candidate: Candidate
+): boolean {
+  return (
+    candidate.decision !== null && candidate.sourceAvailability !== "Restricted"
+  );
+}
 
 export function getChangeNoticeImpactDecisionStatusOptions(
   decision: Candidate["decision"]
@@ -174,21 +183,6 @@ export function getChangeNoticeImpactDecisionControls({
           : null
       : null
   };
-}
-
-function formatQuantity(
-  value: number,
-  unit: string | null | undefined,
-  locale: string
-) {
-  const formatted = value.toLocaleString(locale, {
-    maximumFractionDigits: 6
-  });
-  return unit ? `${formatted} ${unit}` : formatted;
-}
-
-function formatImpactDate(value: string | null | undefined, locale: string) {
-  return value ? formatDate(value, undefined, locale) : "—";
 }
 
 function domainLabel(targetType: Candidate["targetType"]): ReactNode {
@@ -359,219 +353,6 @@ function sourceLink(candidate: Candidate) {
       <LuExternalLink className="size-3" />
       <Trans>Open source</Trans>
     </Link>
-  );
-}
-
-function SnapshotFacts({
-  candidate,
-  snapshot = candidate.currentSnapshot,
-  emptyMessage
-}: {
-  candidate: Candidate;
-  snapshot?: ChangeNoticeImpactWorkspaceSnapshot | null;
-  emptyMessage?: ReactNode;
-}) {
-  const { locale } = useLocale();
-  if (!snapshot) {
-    return (
-      <span className="text-xs italic text-muted-foreground">
-        {emptyMessage ??
-          (candidate.sourceAvailability === "Unavailable" ? (
-            <Trans>Current source facts are unavailable.</Trans>
-          ) : (
-            <Trans>
-              No current snapshot is needed for this historical reference.
-            </Trans>
-          ))}
-      </span>
-    );
-  }
-
-  if (
-    candidate.targetType === "purchaseOrderLine" &&
-    snapshot.schema === "PO_LINE_SNAPSHOT_V1"
-  ) {
-    return (
-      <div className="grid gap-x-4 gap-y-1 text-xs sm:grid-cols-2 lg:grid-cols-4">
-        <Fact
-          label={<Trans>Ordered</Trans>}
-          value={formatQuantity(
-            snapshot.orderedQuantity,
-            snapshot.purchaseUnitOfMeasureCode,
-            locale
-          )}
-        />
-        <Fact
-          label={<Trans>Received</Trans>}
-          value={formatQuantity(
-            snapshot.receivedQuantity,
-            snapshot.inventoryUnitOfMeasureCode,
-            locale
-          )}
-        />
-        <Fact
-          label={<Trans>Remaining</Trans>}
-          value={formatQuantity(
-            snapshot.remainingQuantity,
-            snapshot.inventoryUnitOfMeasureCode,
-            locale
-          )}
-        />
-        <Fact
-          label={<Trans>Promised</Trans>}
-          value={formatImpactDate(snapshot.promisedDate, locale)}
-        />
-        <Fact
-          label={<Trans>Required</Trans>}
-          value={formatImpactDate(snapshot.requiredDate, locale)}
-        />
-        <Fact
-          label={<Trans>PO status</Trans>}
-          value={snapshot.purchaseOrderStatus}
-        />
-        <Fact
-          label={<Trans>Conversion</Trans>}
-          value={`${formatQuantity(snapshot.conversionFactor, null, locale)} ${snapshot.purchaseUnitOfMeasureCode ?? ""} → ${snapshot.inventoryUnitOfMeasureCode ?? ""}`}
-        />
-        <Fact
-          label={<Trans>Receipt complete</Trans>}
-          value={
-            snapshot.receivedComplete ? <Trans>Yes</Trans> : <Trans>No</Trans>
-          }
-        />
-      </div>
-    );
-  }
-
-  if (candidate.targetType === "job" && snapshot.schema === "JOB_SNAPSHOT_V1") {
-    return (
-      <div className="grid gap-x-4 gap-y-1 text-xs sm:grid-cols-2 lg:grid-cols-4">
-        <Fact
-          label={<Trans>Planned</Trans>}
-          value={formatQuantity(
-            snapshot.plannedQuantity,
-            snapshot.unitOfMeasureCode,
-            locale
-          )}
-        />
-        <Fact
-          label={<Trans>Completed</Trans>}
-          value={formatQuantity(
-            snapshot.completedQuantity,
-            snapshot.unitOfMeasureCode,
-            locale
-          )}
-        />
-        <Fact
-          label={<Trans>Remaining</Trans>}
-          value={formatQuantity(
-            snapshot.remainingQuantity,
-            snapshot.unitOfMeasureCode,
-            locale
-          )}
-        />
-        <Fact
-          label={<Trans>Due</Trans>}
-          value={formatImpactDate(snapshot.dueDate, locale)}
-        />
-        <Fact label={<Trans>Job status</Trans>} value={snapshot.status} />
-        <Fact
-          label={<Trans>Shipped</Trans>}
-          value={formatQuantity(
-            snapshot.quantityShipped,
-            snapshot.unitOfMeasureCode,
-            locale
-          )}
-        />
-        <Fact
-          label={<Trans>Received to inventory</Trans>}
-          value={formatQuantity(
-            snapshot.quantityReceivedToInventory,
-            snapshot.unitOfMeasureCode,
-            locale
-          )}
-        />
-        <Fact
-          label={<Trans>Method</Trans>}
-          value={`V${snapshot.effectiveMethodVersion}`}
-        />
-      </div>
-    );
-  }
-
-  if (
-    candidate.targetType === "jobMaterial" &&
-    snapshot.schema === "JOB_MATERIAL_SNAPSHOT_V1"
-  ) {
-    return (
-      <div className="grid gap-x-4 gap-y-1 text-xs sm:grid-cols-2 lg:grid-cols-4">
-        <Fact
-          label={<Trans>Required</Trans>}
-          value={formatQuantity(
-            snapshot.requiredQuantity,
-            snapshot.unitOfMeasureCode,
-            locale
-          )}
-        />
-        <Fact
-          label={<Trans>Issued</Trans>}
-          value={
-            snapshot.issuedQuantity === null
-              ? "—"
-              : formatQuantity(
-                  snapshot.issuedQuantity,
-                  snapshot.unitOfMeasureCode,
-                  locale
-                )
-          }
-        />
-        <Fact
-          label={<Trans>Remaining</Trans>}
-          value={formatQuantity(
-            snapshot.remainingQuantity,
-            snapshot.unitOfMeasureCode,
-            locale
-          )}
-        />
-        <Fact label={<Trans>Job status</Trans>} value={snapshot.jobStatus} />
-        <Fact label={<Trans>Method type</Trans>} value={snapshot.methodType} />
-        <Fact
-          label={<Trans>Batch tracking</Trans>}
-          value={
-            snapshot.requiresTracking.batch ? (
-              <Trans>Yes</Trans>
-            ) : (
-              <Trans>No</Trans>
-            )
-          }
-        />
-        <Fact
-          label={<Trans>Serial tracking</Trans>}
-          value={
-            snapshot.requiresTracking.serial ? (
-              <Trans>Yes</Trans>
-            ) : (
-              <Trans>No</Trans>
-            )
-          }
-        />
-      </div>
-    );
-  }
-
-  return (
-    <span className="text-xs italic text-muted-foreground">
-      <Trans>Current source facts are unavailable.</Trans>
-    </span>
-  );
-}
-
-function Fact({ label, value }: { label: ReactNode; value: ReactNode }) {
-  return (
-    <div className="flex min-w-0 gap-1">
-      <span className="shrink-0 text-muted-foreground">{label}:</span>
-      <span className="truncate font-medium">{value}</span>
-    </div>
   );
 }
 
@@ -1094,7 +875,8 @@ function ImpactRow({
   changeNoticeStatus,
   canUpdate,
   onRefresh,
-  onOpenDecision
+  onOpenDecision,
+  onOpenHistory
 }: {
   changeNoticeId: string;
   candidate: Candidate;
@@ -1108,6 +890,7 @@ function ImpactRow({
     candidate: Candidate,
     mode: ChangeNoticeImpactDecisionMode
   ) => void;
+  onOpenHistory: (candidate: Candidate) => void;
 }) {
   const itemLabel = candidate.item?.readableIdWithRevision ??
     candidate.item?.readableId ?? <Trans>Item details unavailable</Trans>;
@@ -1140,7 +923,23 @@ function ImpactRow({
             <span>{itemLabel}</span>
           </div>
         </div>
-        {sourceLink(candidate)}
+        {(sourceLink(candidate) ||
+          canViewChangeNoticeImpactHistory(candidate)) && (
+          <div className="flex shrink-0 items-center gap-1">
+            {sourceLink(candidate)}
+            {canViewChangeNoticeImpactHistory(candidate) && (
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                onClick={() => onOpenHistory(candidate)}
+              >
+                <LuHistory className="size-3.5" />
+                <Trans>History</Trans>
+              </Button>
+            )}
+          </div>
+        )}
       </div>
       <SnapshotFacts candidate={candidate} />
       {candidate.unavailableReason && (
@@ -1207,7 +1006,8 @@ function DocumentGroups({
   changeNoticeStatus,
   canUpdate,
   onRefresh,
-  onOpenDecision
+  onOpenDecision,
+  onOpenHistory
 }: {
   changeNoticeId: string;
   candidates: Candidate[];
@@ -1222,6 +1022,7 @@ function DocumentGroups({
     candidate: Candidate,
     mode: ChangeNoticeImpactDecisionMode
   ) => void;
+  onOpenHistory: (candidate: Candidate) => void;
 }) {
   const groups = groupCandidates(candidates);
   if (groups.length === 0) {
@@ -1260,6 +1061,7 @@ function DocumentGroups({
                 canUpdate={canUpdate}
                 onRefresh={onRefresh}
                 onOpenDecision={onOpenDecision}
+                onOpenHistory={onOpenHistory}
               />
             ))}
           </CardContent>
@@ -1420,6 +1222,7 @@ export default function ChangeNoticeImpactWorkspace({
     candidate: Candidate;
     mode: ChangeNoticeImpactDecisionMode;
   } | null>(null);
+  const [historyTarget, setHistoryTarget] = useState<Candidate | null>(null);
   const [decisionConflictMessage, setDecisionConflictMessage] = useState<
     string | null
   >(null);
@@ -1442,6 +1245,10 @@ export default function ChangeNoticeImpactWorkspace({
     []
   );
   const closeDecision = useCallback(() => setDecisionTarget(null), []);
+  const openHistory = useCallback((candidate: Candidate) => {
+    setHistoryTarget(candidate);
+  }, []);
+  const closeHistory = useCallback(() => setHistoryTarget(null), []);
   const handleDecisionSuccess = useCallback(() => {
     setDecisionTarget(null);
     revalidator.revalidate();
@@ -1592,6 +1399,7 @@ export default function ChangeNoticeImpactWorkspace({
               canUpdate={canUpdate}
               onRefresh={handleTaskMutation}
               onOpenDecision={openDecision}
+              onOpenHistory={openHistory}
               emptyMessage={
                 <Trans>No Purchase Order lines are available.</Trans>
               }
@@ -1610,6 +1418,7 @@ export default function ChangeNoticeImpactWorkspace({
               canUpdate={canUpdate}
               onRefresh={handleTaskMutation}
               onOpenDecision={openDecision}
+              onOpenHistory={openHistory}
               emptyMessage={
                 <Trans>No Jobs or Job Materials are available.</Trans>
               }
@@ -1640,6 +1449,7 @@ export default function ChangeNoticeImpactWorkspace({
           canUpdate={canUpdate}
           onRefresh={handleTaskMutation}
           onOpenDecision={openDecision}
+          onOpenHistory={openHistory}
           emptyMessage={
             coverageHasWarning ? (
               <Trans>Historical coverage is incomplete.</Trans>
@@ -1673,6 +1483,7 @@ export default function ChangeNoticeImpactWorkspace({
             canUpdate={canUpdate}
             onRefresh={handleTaskMutation}
             onOpenDecision={openDecision}
+            onOpenHistory={openHistory}
             emptyMessage={
               <Trans>No unavailable source rows are available.</Trans>
             }
@@ -1711,6 +1522,15 @@ export default function ChangeNoticeImpactWorkspace({
           onClose={closeDecision}
           onSuccess={handleDecisionSuccess}
           onConflict={handleDecisionConflict}
+        />
+      )}
+      {historyTarget && (
+        <ChangeNoticeImpactHistory
+          key={`${historyTarget.targetType}-${historyTarget.targetId}-${historyTarget.decision?.revision ?? "new"}`}
+          changeNoticeId={id}
+          candidate={historyTarget}
+          actions={actions}
+          onClose={closeHistory}
         />
       )}
     </VStack>

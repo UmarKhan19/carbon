@@ -1,6 +1,6 @@
 # Change Notice Impact workspace
 
-Last tested: 2026-09-06
+Last tested: 2026-09-07
 Route: `/x/items/change-notice/:id/impact`
 
 ## Prerequisites
@@ -22,6 +22,9 @@ Scroll the content pane through the full workspace. Confirm the content scrolls 
 
 ### 5. Verify Impact task controls
 On a Done or Cancelled Change Notice with an existing Action required Impact decision, open the Impact workspace and confirm **Create follow-up** is visible. Open it and verify the form contains task name, assignee, due date, and notes fields, but no first-assessment rationale; cancel without submitting. On an unassessed row, including an unassessed Cancelled row, confirm **Create follow-up** is not shown.
+
+### 6. Verify lazy Impact history
+On a row with an existing Impact decision, confirm **History** is visible. Open it and verify the drawer shows the current conclusion and source facts before the event timeline. Confirm the browser requests one decision-specific `/impact/history/<decisionId>` resource only after opening the drawer. Verify assessment events show conclusion changes, rationale, resolution notes, and expandable snapshots; task events show the task label or a details-unavailable fallback; provenance events show the affected-item label. Close the drawer and confirm the workspace remains usable.
 
 ## Selector Notes
 - Navigate through visible labels rather than cached accessibility refs.

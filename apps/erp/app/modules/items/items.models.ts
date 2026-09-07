@@ -2166,6 +2166,57 @@ export type ChangeNoticeImpactWorkspaceReadResult = {
   error: { message: string } | null;
 };
 
+// Browser-safe, lazy history projection. Source and database identifiers stay
+// behind the service boundary; only the task id is retained so the workspace
+// can resolve it against its already-authorized action collection.
+export type ChangeNoticeImpactHistoryProvenance = {
+  affectedItemLabel: string | null;
+  endedAt: string | null;
+  endedReason: string | null;
+};
+
+export type ChangeNoticeImpactHistorySnapshotStatus =
+  | "present"
+  | "absent"
+  | "unavailable";
+
+export type ChangeNoticeImpactHistoryEntry = {
+  id: string;
+  eventType: string;
+  previousStatus: ChangeNoticeImpactDecisionStatus | null;
+  newStatus: ChangeNoticeImpactDecisionStatus | null;
+  previousReasonCode: ChangeNoticeImpactNoActionReasonCode | null;
+  newReasonCode: ChangeNoticeImpactNoActionReasonCode | null;
+  previousSnapshot: ChangeNoticeImpactWorkspaceSnapshot | null;
+  previousSnapshotStatus: ChangeNoticeImpactHistorySnapshotStatus;
+  newSnapshot: ChangeNoticeImpactWorkspaceSnapshot | null;
+  newSnapshotStatus: ChangeNoticeImpactHistorySnapshotStatus;
+  rationale: string | null;
+  resolutionNote: string | null;
+  priorAssessmentWasChanged: boolean;
+  relatedActionTaskId: string | null;
+  provenance: ChangeNoticeImpactHistoryProvenance | null;
+  createdBy: string;
+  createdAt: string;
+};
+
+export type ChangeNoticeImpactHistoryReadModel = {
+  entries: ChangeNoticeImpactHistoryEntry[];
+};
+
+export type ChangeNoticeImpactHistoryReadErrorKind =
+  | "not-found"
+  | "restricted"
+  | "unavailable";
+
+export type ChangeNoticeImpactHistoryReadResult = {
+  data: ChangeNoticeImpactHistoryReadModel | null;
+  error: {
+    kind: ChangeNoticeImpactHistoryReadErrorKind;
+    message: string;
+  } | null;
+};
+
 export type ChangeNoticeImpactDomainCursor = {
   // undefined = never started, string = continuation, null = exhausted.
   current?: string | null;

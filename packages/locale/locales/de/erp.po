@@ -1579,6 +1579,9 @@ msgstr "Erweitert"
 msgid "Affected item"
 msgstr ""
 
+msgid "Affected item details unavailable."
+msgstr ""
+
 msgid "Affected item not found."
 msgstr "Betroffenes Element nicht gefunden."
 
@@ -2590,6 +2593,18 @@ msgstr ""
 msgid "Assessment coverage needs attention"
 msgstr ""
 
+msgid "Assessment created"
+msgstr ""
+
+msgid "Assessment reassessed"
+msgstr ""
+
+msgid "Assessment reopened"
+msgstr ""
+
+msgid "Assessment resolved"
+msgstr ""
+
 msgid "Assessment snapshot"
 msgstr ""
 
@@ -2974,6 +2989,8 @@ msgstr "Rückzugebende Lose"
 
 msgid "Batching"
 msgstr "Losbildung"
+msgid "Before"
+msgstr ""
 
 msgid "Beginning"
 msgstr "Anfang"
@@ -3359,6 +3376,9 @@ msgstr "Kapazitätsreservierung"
 
 msgid "Caption"
 msgstr "Beschriftung"
+
+msgid "Captured snapshot"
+msgstr ""
 
 msgid "Carbon"
 msgstr "Carbon"
@@ -3879,6 +3899,9 @@ msgid "Computed At"
 msgstr "Berechnet am"
 
 msgid "Conclusion"
+msgstr ""
+
+msgid "Conclusion corrected"
 msgstr ""
 
 msgid "Condensed P&L with margins and key subtotals"
@@ -4940,10 +4963,19 @@ msgstr "Aktuelle Prognose"
 msgid "Current quantity"
 msgstr "Aktuelle Menge"
 
+msgid "Current source facts are unavailable because the source was deleted."
+msgstr ""
+
 msgid "Current source facts are unavailable."
 msgstr ""
 
 msgid "Current source facts changed since the stored assessment. Saving will capture a fresh assessment snapshot."
+msgstr ""
+
+msgid "Current source facts had changed since the prior assessment."
+msgstr ""
+
+msgid "Current state"
 msgstr ""
 
 msgid "Currently training for"
@@ -7060,6 +7092,9 @@ msgstr "Abend, {name}."
 msgid "Event"
 msgstr "Ereignis"
 
+msgid "Event details are unavailable for this event type."
+msgstr ""
+
 msgid "Event Type"
 msgstr "Ereignistyp"
 
@@ -8690,7 +8725,13 @@ msgstr "Auswirkung"
 msgid "Impact assessment changed while you were editing."
 msgstr ""
 
+msgid "Impact event"
+msgstr ""
+
 msgid "Impact follow-up"
+msgstr ""
+
+msgid "Impact history"
 msgstr ""
 
 msgid "Impact task could not be created."
@@ -11327,6 +11368,9 @@ msgstr "Keine Gruppen zugewiesen"
 msgid "No historical references are available."
 msgstr ""
 
+msgid "No history is recorded for this assessment."
+msgstr ""
+
 msgid "No image"
 msgstr "Kein Bild"
 
@@ -13359,6 +13403,12 @@ msgid "Prove ownership of each email domain with a DNS TXT record before it can 
 msgstr "Weisen Sie den Besitz jeder E-Mail-Domäne mit einem DNS-TXT-Datensatz nach, bevor sie SAML-SSO-Anmeldungen weiterleiten kann. Fügen Sie den Datensatz bei Ihrem DNS-Host hinzu und klicken Sie auf „Überprüfen\" – nur verifizierte Domänen nehmen an Single Sign-On teil."
 
 msgid "Provenance"
+msgstr ""
+
+msgid "Provenance ended"
+msgstr ""
+
+msgid "Provenance started"
 msgstr ""
 
 msgid "Provide process knowledge and inputs"
@@ -17081,10 +17131,22 @@ msgstr "Zielversion"
 msgid "Task"
 msgstr "Aufgabe"
 
+msgid "Task designated as Impact follow-up"
+msgstr ""
+
+msgid "Task details unavailable."
+msgstr ""
+
+msgid "Task linked"
+msgstr ""
+
 msgid "Task name"
 msgstr ""
 
 msgid "Task origin: Impact follow-up"
+msgstr ""
+
+msgid "Task unlinked"
 msgstr ""
 
 msgid "tasks"

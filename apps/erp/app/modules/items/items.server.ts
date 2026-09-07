@@ -21,6 +21,7 @@ import type {
   ChangeNoticeImpactDecisionBulkWriteResult,
   ChangeNoticeImpactDecisionRequest,
   ChangeNoticeImpactDecisionWriteResult,
+  ChangeNoticeImpactHistoryReadResult,
   ChangeNoticeImpactProvenanceReconciliationResult,
   ChangeNoticeImpactTargetType,
   ChangeNoticeImpactTaskCreateRequest,
@@ -46,6 +47,7 @@ import {
 import {
   createChangeNoticeImpactTask,
   designateChangeNoticeImpactTask,
+  getChangeNoticeImpactHistory,
   linkChangeNoticeImpactTask,
   reconcileChangeNoticeImpactProvenance,
   unlinkChangeNoticeImpactTask,
@@ -175,6 +177,47 @@ export async function getChangeNoticeImpactReadAccess(args: {
       errorMessage: "Impact source access could not be established."
     };
   }
+}
+
+/**
+ * Server-authorized entry point for one Impact decision's history. The client
+ * supplies only the request-boundary identifiers; source access is resolved
+ * through the active credential before the service reads any history rows.
+ */
+export async function getAuthorizedChangeNoticeImpactHistory(args: {
+  client: SupabaseClient<Database>;
+  userId: string;
+  companyId: string;
+  changeNoticeId: string;
+  decisionId: string;
+}): Promise<ChangeNoticeImpactHistoryReadResult> {
+  const access = await getChangeNoticeImpactReadAccess({
+    client: args.client,
+    userId: args.userId,
+    companyId: args.companyId
+  });
+  if (access.status === "failed") {
+    return {
+      data: null,
+      error: { kind: "unavailable", message: access.errorMessage }
+    };
+  }
+  if (!access.canViewChangeNotice) {
+    return {
+      data: null,
+      error: {
+        kind: "not-found",
+        message: "Impact decision was not found."
+      }
+    };
+  }
+  return getChangeNoticeImpactHistory(
+    args.client,
+    args.companyId,
+    args.changeNoticeId,
+    args.decisionId,
+    { sourceAccess: access.sourceAccess }
+  );
 }
 
 export type ChangeNoticeImpactMutationAccessResult =

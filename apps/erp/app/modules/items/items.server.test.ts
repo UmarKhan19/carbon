@@ -28,6 +28,7 @@ const {
   applyChangeNotice,
   createAuthorizedChangeNoticeImpactTask,
   deriveChangeNoticeImpactSourceAccess,
+  getAuthorizedChangeNoticeImpactHistory,
   getChangeNoticeImpactMutationAccess,
   getChangeNoticeImpactReadAccess,
   getChangeNoticeImpactSourceAccess,
@@ -263,6 +264,28 @@ describe("Change Notice Impact source access", () => {
     ).resolves.toEqual({
       status: "failed",
       errorMessage: "Impact source access could not be established."
+    });
+  });
+
+  it("does not open the history reader without Change Notice view access", async () => {
+    const result = await getAuthorizedChangeNoticeImpactHistory({
+      client: fakeImpactPermissionClient({
+        parts_view: [],
+        purchasing_view: [companyId],
+        production_view: [companyId]
+      }),
+      userId: "user-1",
+      companyId,
+      changeNoticeId: "notice-1",
+      decisionId: "decision-1"
+    });
+
+    expect(result).toEqual({
+      data: null,
+      error: {
+        kind: "not-found",
+        message: "Impact decision was not found."
+      }
     });
   });
 
