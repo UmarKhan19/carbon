@@ -58,6 +58,8 @@ export const MCP_BLOCKED_TOOL_NAMES: readonly string[] = [
   "items_unlinkChangeNoticeImpactTask",
   "items_designateChangeNoticeImpactTask",
   "items_getChangeNoticeImpactCandidates",
+  "items_getChangeNoticeImpactWorkspace",
+  "items_getChangeNoticeImpactHistory",
   "items_removeChangeNoticeAffectedItem",
   // These helpers are internal implementation details, not MCP contracts. Without
   // an explicit exclusion, regenerating metadata publishes them as opaque WRITE
