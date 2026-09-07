@@ -2677,6 +2677,9 @@ msgstr "Назначено мне"
 msgid "Assignee"
 msgstr "Исполнитель"
 
+msgid "Assignees"
+msgstr ""
+
 msgid "Assignment"
 msgstr "Назначение"
 
@@ -2817,6 +2820,12 @@ msgstr "Автоматически запустить в работу произ
 
 msgid "Automatically start the job when the kanban is scanned"
 msgstr "Автоматически запустить задание при сканировании канбана"
+
+msgid "Availability"
+msgstr ""
+
+msgid "Availability states"
+msgstr ""
 
 msgid "available"
 msgstr "доступно"
@@ -5353,6 +5362,12 @@ msgstr "Решение о том, когда материал, отобранн�
 msgid "Decimal Places"
 msgstr "Десятичные разряды"
 
+msgid "Decision"
+msgstr ""
+
+msgid "Decisions"
+msgstr ""
+
 msgid "Declining balance"
 msgstr "Уменьшаемый остаток"
 
@@ -6129,6 +6144,12 @@ msgstr "«Документы» отправляет счета-фактуры, �
 
 msgid "Documents you open will show up here for quick access."
 msgstr "Открытые вами документы появятся здесь для быстрого доступа."
+
+msgid "Domain"
+msgstr ""
+
+msgid "Domains"
+msgstr ""
 
 msgid "Don't Cancel"
 msgstr "Не отменять"
@@ -7321,6 +7342,12 @@ msgstr "Экспортировать CSV"
 msgid "Export Lines to CSV"
 msgstr "Экспортировать строки в CSV"
 
+msgid "Exposure"
+msgstr ""
+
+msgid "Exposure states"
+msgstr ""
+
 msgid "Extended Price"
 msgstr "Расширенная цена"
 
@@ -7998,6 +8025,12 @@ msgstr "Частоты"
 
 msgid "Frequency"
 msgstr "Частота"
+
+msgid "Freshness"
+msgstr ""
+
+msgid "Freshness states"
+msgstr ""
 
 msgid "Freshness unavailable"
 msgstr ""
@@ -11374,6 +11407,9 @@ msgstr ""
 msgid "No image"
 msgstr "Нет изображения"
 
+msgid "No Impact rows match the current search and filters."
+msgstr ""
+
 msgid "No inspection plans"
 msgstr "Нет планов контроля"
 
@@ -11438,6 +11474,8 @@ msgstr "Нет совпадающих операций"
 
 msgid "No materials"
 msgstr "Нет материалов"
+msgid "No matching loaded Impact rows are visible. Coverage is incomplete, so this is not a complete result."
+msgstr ""
 
 msgid "No new notifications"
 msgstr "Нет новых уведомлений"
@@ -13076,6 +13114,9 @@ msgstr "Предоплаты"
 
 msgid "Prepayments (default)"
 msgstr "Предоплаты (по умолчанию)"
+
+msgid "Present"
+msgstr ""
 
 msgid "Present Week"
 msgstr "Текущая неделя"
@@ -17137,6 +17178,9 @@ msgstr ""
 msgid "Task details unavailable."
 msgstr ""
 
+msgid "Task filters use incomplete linked-task metadata. Missing tasks or assignees are not treated as absent."
+msgstr ""
+
 msgid "Task linked"
 msgstr ""
 
@@ -17144,6 +17188,12 @@ msgid "Task name"
 msgstr ""
 
 msgid "Task origin: Impact follow-up"
+msgstr ""
+
+msgid "Task status"
+msgstr ""
+
+msgid "Task statuses"
 msgstr ""
 
 msgid "Task unlinked"

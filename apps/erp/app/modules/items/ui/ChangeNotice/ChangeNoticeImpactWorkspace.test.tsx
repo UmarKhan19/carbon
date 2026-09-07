@@ -52,6 +52,24 @@ vi.mock("~/modules/items", () => ({
     "Action required",
     "Resolved"
   ],
+  changeNoticeImpactExposureClassifications: [
+    "Current operational exposure",
+    "Historical reference",
+    "No longer in current scope"
+  ],
+  changeNoticeImpactFreshnessStatuses: [
+    "Current",
+    "Changed since assessment",
+    "Unknown"
+  ],
+  changeNoticeImpactSourceAvailabilities: [
+    "Present",
+    "Restricted",
+    "Source deleted",
+    "Unavailable"
+  ],
+  changeNoticeImpactTargetTypes: ["purchaseOrderLine", "job", "jobMaterial"],
+  changeNoticeTaskStatus: ["Pending", "In Progress", "Completed", "Skipped"],
   changeNoticeStageFlow: [
     "Draft",
     "Start",
@@ -79,7 +97,8 @@ const {
   canViewChangeNoticeImpactHistory,
   getChangeNoticeImpactDecisionControls,
   getChangeNoticeImpactDecisionStatusOptions,
-  getChangeNoticeImpactRationaleDefault
+  getChangeNoticeImpactRationaleDefault,
+  groupCandidates
 } = await import("./ChangeNoticeImpactWorkspace");
 
 function candidate(over: Record<string, unknown> = {}) {
@@ -384,6 +403,39 @@ describe("Change Notice Impact decision controls", () => {
         persistedRationale: "The existing follow-up rationale."
       })
     ).toBe("The existing follow-up rationale.");
+  });
+
+  it("keeps filtered children in their document group without empty groups", () => {
+    const parent = {
+      type: "job" as const,
+      id: "job-1",
+      readableId: "JOB-100",
+      status: "In Progress"
+    };
+    const matchingChild = candidate({
+      targetType: "jobMaterial",
+      targetId: "material-1",
+      parent
+    });
+    const matchingParent = candidate({
+      targetType: "job",
+      targetId: "job-1",
+      parent
+    });
+    const otherDocument = candidate({
+      targetType: "jobMaterial",
+      targetId: "material-2",
+      parent: { ...parent, id: "job-2", readableId: "JOB-200" }
+    });
+
+    const groups = groupCandidates([matchingChild, matchingParent]);
+
+    expect(groups).toHaveLength(1);
+    expect(groups[0]?.label).toBe("JOB-100");
+    expect(groups[0]?.candidates).toEqual([matchingChild, matchingParent]);
+    expect(
+      groups.some((group) => group.candidates.includes(otherDocument))
+    ).toBe(false);
   });
 
   it("gates new conclusions while preserving Cancelled cleanup resolution", () => {

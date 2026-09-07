@@ -2677,6 +2677,9 @@ msgstr "나에게 배정됨"
 msgid "Assignee"
 msgstr "담당자"
 
+msgid "Assignees"
+msgstr ""
+
 msgid "Assignment"
 msgstr "배정"
 
@@ -2817,6 +2820,12 @@ msgstr "칸반이 스캔될 때 작업 지시를 자동으로 릴리스합니다
 
 msgid "Automatically start the job when the kanban is scanned"
 msgstr "칸반이 스캔되면 작업을 자동으로 시작"
+
+msgid "Availability"
+msgstr ""
+
+msgid "Availability states"
+msgstr ""
 
 msgid "available"
 msgstr "가용"
@@ -5353,6 +5362,12 @@ msgstr "작업장으로 이송했으나 소비하지 않은 재료가 창고로 
 msgid "Decimal Places"
 msgstr "소수 자릿수"
 
+msgid "Decision"
+msgstr ""
+
+msgid "Decisions"
+msgstr ""
+
 msgid "Declining balance"
 msgstr "정률법"
 
@@ -6129,6 +6144,12 @@ msgstr "문서는 송장, 청구서 및 지불을 기본 제공자 문서로 푸
 
 msgid "Documents you open will show up here for quick access."
 msgstr "열어본 문서는 빠른 접근을 위해 여기에 표시됩니다."
+
+msgid "Domain"
+msgstr ""
+
+msgid "Domains"
+msgstr ""
 
 msgid "Don't Cancel"
 msgstr "취소하지 않음"
@@ -7321,6 +7342,12 @@ msgstr "CSV 내보내기"
 msgid "Export Lines to CSV"
 msgstr "라인을 CSV로 내보내기"
 
+msgid "Exposure"
+msgstr ""
+
+msgid "Exposure states"
+msgstr ""
+
 msgid "Extended Price"
 msgstr "확장 가격"
 
@@ -7998,6 +8025,12 @@ msgstr "빈도"
 
 msgid "Frequency"
 msgstr "빈도"
+
+msgid "Freshness"
+msgstr ""
+
+msgid "Freshness states"
+msgstr ""
 
 msgid "Freshness unavailable"
 msgstr ""
@@ -11374,6 +11407,9 @@ msgstr ""
 msgid "No image"
 msgstr "이미지 없음"
 
+msgid "No Impact rows match the current search and filters."
+msgstr ""
+
 msgid "No inspection plans"
 msgstr "검사 계획 없음"
 
@@ -11438,6 +11474,8 @@ msgstr "일치하는 공정이 없습니다"
 
 msgid "No materials"
 msgstr "자재 없음"
+msgid "No matching loaded Impact rows are visible. Coverage is incomplete, so this is not a complete result."
+msgstr ""
 
 msgid "No new notifications"
 msgstr "새 알림이 없습니다"
@@ -13076,6 +13114,9 @@ msgstr "선급금"
 
 msgid "Prepayments (default)"
 msgstr "선급금(기본값)"
+
+msgid "Present"
+msgstr ""
 
 msgid "Present Week"
 msgstr "현재 주"
@@ -17138,6 +17179,9 @@ msgstr ""
 msgid "Task details unavailable."
 msgstr ""
 
+msgid "Task filters use incomplete linked-task metadata. Missing tasks or assignees are not treated as absent."
+msgstr ""
+
 msgid "Task linked"
 msgstr ""
 
@@ -17145,6 +17189,12 @@ msgid "Task name"
 msgstr ""
 
 msgid "Task origin: Impact follow-up"
+msgstr ""
+
+msgid "Task status"
+msgstr ""
+
+msgid "Task statuses"
 msgstr ""
 
 msgid "Task unlinked"

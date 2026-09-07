@@ -2677,6 +2677,9 @@ msgstr "Assigned to Me"
 msgid "Assignee"
 msgstr "Assignee"
 
+msgid "Assignees"
+msgstr "Assignees"
+
 msgid "Assignment"
 msgstr "Assignment"
 
@@ -2817,6 +2820,12 @@ msgstr "Automatically release the job when the kanban is scanned"
 
 msgid "Automatically start the job when the kanban is scanned"
 msgstr "Automatically start the job when the kanban is scanned"
+
+msgid "Availability"
+msgstr "Availability"
+
+msgid "Availability states"
+msgstr "Availability states"
 
 msgid "available"
 msgstr "available"
@@ -5353,6 +5362,12 @@ msgstr "Decide when material picked to a work center but not consumed flows back
 msgid "Decimal Places"
 msgstr "Decimal Places"
 
+msgid "Decision"
+msgstr "Decision"
+
+msgid "Decisions"
+msgstr "Decisions"
+
 msgid "Declining balance"
 msgstr "Declining balance"
 
@@ -6129,6 +6144,12 @@ msgstr "Documents pushes invoices, bills and payments as native provider documen
 
 msgid "Documents you open will show up here for quick access."
 msgstr "Documents you open will show up here for quick access."
+
+msgid "Domain"
+msgstr "Domain"
+
+msgid "Domains"
+msgstr "Domains"
 
 msgid "Don't Cancel"
 msgstr "Don't Cancel"
@@ -7321,6 +7342,12 @@ msgstr "Export CSV"
 msgid "Export Lines to CSV"
 msgstr "Export Lines to CSV"
 
+msgid "Exposure"
+msgstr "Exposure"
+
+msgid "Exposure states"
+msgstr "Exposure states"
+
 msgid "Extended Price"
 msgstr "Extended Price"
 
@@ -7998,6 +8025,12 @@ msgstr "Frequencies"
 
 msgid "Frequency"
 msgstr "Frequency"
+
+msgid "Freshness"
+msgstr "Freshness"
+
+msgid "Freshness states"
+msgstr "Freshness states"
 
 msgid "Freshness unavailable"
 msgstr "Freshness unavailable"
@@ -11373,6 +11406,9 @@ msgstr "No history is recorded for this assessment."
 msgid "No image"
 msgstr "No image"
 
+msgid "No Impact rows match the current search and filters."
+msgstr "No Impact rows match the current search and filters."
+
 msgid "No inspection plans"
 msgstr "No inspection plans"
 
@@ -11437,6 +11473,8 @@ msgstr "No matching operations"
 
 msgid "No materials"
 msgstr "No materials"
+msgid "No matching loaded Impact rows are visible. Coverage is incomplete, so this is not a complete result."
+msgstr "No matching loaded Impact rows are visible. Coverage is incomplete, so this is not a complete result."
 
 msgid "No new notifications"
 msgstr "No new notifications"
@@ -13075,6 +13113,9 @@ msgstr "Prepayments"
 
 msgid "Prepayments (default)"
 msgstr "Prepayments (default)"
+
+msgid "Present"
+msgstr "Present"
 
 msgid "Present Week"
 msgstr "Present Week"
@@ -17134,6 +17175,9 @@ msgstr "Task designated as Impact follow-up"
 msgid "Task details unavailable."
 msgstr "Task details unavailable."
 
+msgid "Task filters use incomplete linked-task metadata. Missing tasks or assignees are not treated as absent."
+msgstr "Task filters use incomplete linked-task metadata. Missing tasks or assignees are not treated as absent."
+
 msgid "Task linked"
 msgstr "Task linked"
 
@@ -17142,6 +17186,12 @@ msgstr "Task name"
 
 msgid "Task origin: Impact follow-up"
 msgstr "Task origin: Impact follow-up"
+
+msgid "Task status"
+msgstr "Task status"
+
+msgid "Task statuses"
+msgstr "Task statuses"
 
 msgid "Task unlinked"
 msgstr "Task unlinked"

@@ -2677,6 +2677,9 @@ msgstr "Przypisane do mnie"
 msgid "Assignee"
 msgstr "Osoba przypisana"
 
+msgid "Assignees"
+msgstr ""
+
 msgid "Assignment"
 msgstr "Przypisanie"
 
@@ -2817,6 +2820,12 @@ msgstr "Automatycznie zwolnij zadanie po zeskanowaniu kanban"
 
 msgid "Automatically start the job when the kanban is scanned"
 msgstr "Automatycznie uruchom zadanie po zeskanowaniu kanban"
+
+msgid "Availability"
+msgstr ""
+
+msgid "Availability states"
+msgstr ""
 
 msgid "available"
 msgstr "dostępne"
@@ -5353,6 +5362,12 @@ msgstr "Zdecyduj, kiedy materiał pobrany na stanowisko robocze, ale niezużyty,
 msgid "Decimal Places"
 msgstr "Miejsca Dziesiętne"
 
+msgid "Decision"
+msgstr ""
+
+msgid "Decisions"
+msgstr ""
+
 msgid "Declining balance"
 msgstr "Metoda degresywna"
 
@@ -6129,6 +6144,12 @@ msgstr "Dokumenty wysyłają faktury, rachunki i płatności jako natywne dokume
 
 msgid "Documents you open will show up here for quick access."
 msgstr "Dokumenty, które otworzysz, pojawią się tutaj w celu szybkiego dostępu."
+
+msgid "Domain"
+msgstr ""
+
+msgid "Domains"
+msgstr ""
 
 msgid "Don't Cancel"
 msgstr "Nie anuluj"
@@ -7321,6 +7342,12 @@ msgstr "Eksportuj CSV"
 msgid "Export Lines to CSV"
 msgstr "Eksportuj linie do CSV"
 
+msgid "Exposure"
+msgstr ""
+
+msgid "Exposure states"
+msgstr ""
+
 msgid "Extended Price"
 msgstr "Cena rozszerzona"
 
@@ -7998,6 +8025,12 @@ msgstr "Częstotliwości"
 
 msgid "Frequency"
 msgstr "Częstotliwość"
+
+msgid "Freshness"
+msgstr ""
+
+msgid "Freshness states"
+msgstr ""
 
 msgid "Freshness unavailable"
 msgstr ""
@@ -11373,6 +11406,9 @@ msgstr ""
 msgid "No image"
 msgstr "Brak obrazu"
 
+msgid "No Impact rows match the current search and filters."
+msgstr ""
+
 msgid "No inspection plans"
 msgstr "Brak planów kontroli"
 
@@ -11437,6 +11473,8 @@ msgstr "Brak zgodnych operacji"
 
 msgid "No materials"
 msgstr "Brak materiałów"
+msgid "No matching loaded Impact rows are visible. Coverage is incomplete, so this is not a complete result."
+msgstr ""
 
 msgid "No new notifications"
 msgstr "Brak nowych powiadomień"
@@ -13075,6 +13113,9 @@ msgstr "Zaliczki"
 
 msgid "Prepayments (default)"
 msgstr "Zaliczki (domyślnie)"
+
+msgid "Present"
+msgstr ""
 
 msgid "Present Week"
 msgstr "Bieżący tydzień"
@@ -17136,6 +17177,9 @@ msgstr ""
 msgid "Task details unavailable."
 msgstr ""
 
+msgid "Task filters use incomplete linked-task metadata. Missing tasks or assignees are not treated as absent."
+msgstr ""
+
 msgid "Task linked"
 msgstr ""
 
@@ -17143,6 +17187,12 @@ msgid "Task name"
 msgstr ""
 
 msgid "Task origin: Impact follow-up"
+msgstr ""
+
+msgid "Task status"
+msgstr ""
+
+msgid "Task statuses"
 msgstr ""
 
 msgid "Task unlinked"

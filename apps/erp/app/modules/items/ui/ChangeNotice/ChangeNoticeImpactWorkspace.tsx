@@ -36,7 +36,7 @@ import {
   TextArea,
   TextAreaControlled
 } from "~/components/Form";
-import { usePermissions } from "~/hooks";
+import { usePermissions, useUrlParams } from "~/hooks";
 import {
   type ChangeNotice,
   type ChangeNoticeImpactCandidate,
@@ -52,6 +52,15 @@ import JobStatus from "~/modules/production/ui/Jobs/JobStatus";
 import PurchasingStatus from "~/modules/purchasing/ui/PurchaseOrder/PurchasingStatus";
 import { path } from "~/utils/path";
 import type { ChangeNoticeActionTask } from "../../types";
+import {
+  ChangeNoticeImpactFilterBar,
+  filterChangeNoticeImpactCandidates,
+  getImpactDecisionFilterValue,
+  getImpactFilteredEmptyState,
+  getImpactFilterValues,
+  hasImpactDisplayFilters,
+  hasIncompleteImpactTaskFilter
+} from "./ChangeNoticeImpactFilters";
 import { ChangeNoticeImpactHistory } from "./ChangeNoticeImpactHistory";
 import { SnapshotFacts } from "./ChangeNoticeImpactSnapshotFacts";
 import { ChangeNoticeImpactTasks } from "./ChangeNoticeImpactTasks";
@@ -267,17 +276,12 @@ function stateBadge(
   candidate: Candidate,
   coverageStatus: ChangeNoticeImpactCoverage["status"]
 ) {
-  const status = candidate.decision?.status;
-  const isCurrentUnassessed =
-    coverageStatus === "complete" &&
-    status === undefined &&
-    candidate.sourceAvailability === "Present" &&
-    candidate.exposureClassification === CURRENT_EXPOSURE;
-  if (!status && !isCurrentUnassessed) return null;
+  const status = getImpactDecisionFilterValue(candidate, coverageStatus);
+  if (!status) return null;
 
   return (
     <Badge variant="outline" className="whitespace-nowrap">
-      {decisionLabel(status ?? "Unassessed")}
+      {decisionLabel(status)}
     </Badge>
   );
 }
@@ -971,7 +975,7 @@ function ImpactRow({
   );
 }
 
-function groupCandidates(candidates: Candidate[]): Group[] {
+export function groupCandidates(candidates: Candidate[]): Group[] {
   const groups = new Map<string, Group>();
   for (const candidate of candidates) {
     const documentType =
@@ -1218,6 +1222,7 @@ export default function ChangeNoticeImpactWorkspace({
 }: WorkspaceProps) {
   const permissions = usePermissions();
   const revalidator = useRevalidator();
+  const [params] = useUrlParams();
   const [decisionTarget, setDecisionTarget] = useState<{
     candidate: Candidate;
     mode: ChangeNoticeImpactDecisionMode;
@@ -1227,14 +1232,38 @@ export default function ChangeNoticeImpactWorkspace({
     string | null
   >(null);
   const canUpdate = permissions.can("update", "parts") ?? false;
-  const currentCandidates = data.candidates.filter(isCurrent);
-  const historicalCandidates = data.candidates.filter(isHistorical);
-  const unavailableCandidates = data.candidates.filter(isUnavailable);
+  const search = params.get("search") ?? "";
+  const filters = getImpactFilterValues(params.getAll("filter"));
   const coverageHasWarning = [
     data.coverage.purchaseOrderLine,
     data.coverage.job,
     data.coverage.jobMaterial
   ].some((coverage) => coverage.status !== "complete");
+  const hasDisplayFilters = hasImpactDisplayFilters(search, filters);
+  const filteredCandidates = filterChangeNoticeImpactCandidates({
+    candidates: data.candidates,
+    search,
+    filters,
+    coverage: data.coverage,
+    taskCoverageStatus: data.taskCoverage.status
+  });
+  const filteredEmptyState = getImpactFilteredEmptyState({
+    candidateCount: filteredCandidates.length,
+    hasDisplayFilters,
+    coverageHasWarning:
+      coverageHasWarning ||
+      hasIncompleteImpactTaskFilter(filters, data.taskCoverage.status)
+  });
+  const currentCandidates = filteredCandidates.filter(isCurrent);
+  const currentPurchaseOrderCandidates = currentCandidates.filter(
+    (candidate) => candidate.targetType === "purchaseOrderLine"
+  );
+  const currentProductionCandidates = currentCandidates.filter(
+    (candidate) =>
+      candidate.targetType === "job" || candidate.targetType === "jobMaterial"
+  );
+  const historicalCandidates = filteredCandidates.filter(isHistorical);
+  const unavailableCandidates = filteredCandidates.filter(isUnavailable);
   const taskCoverageHasWarning = data.taskCoverage.status !== "complete";
   const status = changeNotice?.status ?? data.changeNoticeStatus;
   const openDecision = useCallback(
@@ -1297,13 +1326,16 @@ export default function ChangeNoticeImpactWorkspace({
             </div>
           )}
         </div>
-        <Link
-          to={path.to.changeNoticeImpact(id)}
-          className="inline-flex items-center gap-1 rounded-md border border-border px-3 py-1.5 text-sm hover:bg-accent"
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => revalidator.revalidate()}
+          isDisabled={revalidator.state !== "idle"}
+          isLoading={revalidator.state !== "idle"}
         >
           <LuRefreshCw className="size-3.5" />
           <Trans>Refresh</Trans>
-        </Link>
+        </Button>
       </div>
 
       {decisionConflictMessage && (
@@ -1365,130 +1397,154 @@ export default function ChangeNoticeImpactWorkspace({
 
       <CoverageSummary data={data} />
 
-      <section className="w-full space-y-3">
-        <div>
-          <h2 className="text-base font-semibold">
-            <Trans>Current operational exposure</Trans>
-          </h2>
-          <p className="text-xs text-muted-foreground">
-            <Trans>
-              Supported purchasing and production targets that can receive an
-              independent Impact assessment.
-            </Trans>
-          </p>
-        </div>
-        {currentCandidates.length === 0 ? (
-          <div className="rounded-md border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
-            {coverageHasWarning ? (
-              <Trans>No complete current result is available.</Trans>
-            ) : (
-              <Trans>No current operational exposure is available.</Trans>
-            )}
-          </div>
-        ) : (
-          <>
-            <DocumentGroups
-              changeNoticeId={id}
-              candidates={currentCandidates.filter(
-                (candidate) => candidate.targetType === "purchaseOrderLine"
-              )}
-              actions={actions}
-              coverage={data.coverage}
-              taskCoverageStatus={data.taskCoverage.status}
-              changeNoticeStatus={status}
-              canUpdate={canUpdate}
-              onRefresh={handleTaskMutation}
-              onOpenDecision={openDecision}
-              onOpenHistory={openHistory}
-              emptyMessage={
-                <Trans>No Purchase Order lines are available.</Trans>
-              }
-            />
-            <DocumentGroups
-              changeNoticeId={id}
-              candidates={currentCandidates.filter(
-                (candidate) =>
-                  candidate.targetType === "job" ||
-                  candidate.targetType === "jobMaterial"
-              )}
-              actions={actions}
-              coverage={data.coverage}
-              taskCoverageStatus={data.taskCoverage.status}
-              changeNoticeStatus={status}
-              canUpdate={canUpdate}
-              onRefresh={handleTaskMutation}
-              onOpenDecision={openDecision}
-              onOpenHistory={openHistory}
-              emptyMessage={
-                <Trans>No Jobs or Job Materials are available.</Trans>
-              }
-            />
-          </>
-        )}
-      </section>
+      <ChangeNoticeImpactFilterBar
+        taskCoverageStatus={data.taskCoverage.status}
+      />
 
-      <section className="w-full space-y-3">
-        <div>
-          <h2 className="text-base font-semibold">
-            <Trans>Historical references</Trans>
-          </h2>
-          <p className="text-xs text-muted-foreground">
+      {filteredEmptyState ? (
+        <div className="w-full rounded-md border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
+          {filteredEmptyState === "incomplete" ? (
             <Trans>
-              These references remain traceable but do not create a new
-              Unassessed obligation.
+              No matching loaded Impact rows are visible. Coverage is
+              incomplete, so this is not a complete result.
             </Trans>
-          </p>
+          ) : (
+            <Trans>No Impact rows match the current search and filters.</Trans>
+          )}
         </div>
-        <DocumentGroups
-          changeNoticeId={id}
-          candidates={historicalCandidates}
-          actions={actions}
-          coverage={data.coverage}
-          taskCoverageStatus={data.taskCoverage.status}
-          changeNoticeStatus={status}
-          canUpdate={canUpdate}
-          onRefresh={handleTaskMutation}
-          onOpenDecision={openDecision}
-          onOpenHistory={openHistory}
-          emptyMessage={
-            coverageHasWarning ? (
-              <Trans>Historical coverage is incomplete.</Trans>
-            ) : (
-              <Trans>No historical references are available.</Trans>
-            )
-          }
-        />
-      </section>
+      ) : (
+        <>
+          {(currentCandidates.length > 0 || !hasDisplayFilters) && (
+            <section className="w-full space-y-3">
+              <div>
+                <h2 className="text-base font-semibold">
+                  <Trans>Current operational exposure</Trans>
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  <Trans>
+                    Supported purchasing and production targets that can receive
+                    an independent Impact assessment.
+                  </Trans>
+                </p>
+              </div>
+              {currentCandidates.length === 0 ? (
+                <div className="rounded-md border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
+                  {coverageHasWarning ? (
+                    <Trans>No complete current result is available.</Trans>
+                  ) : (
+                    <Trans>No current operational exposure is available.</Trans>
+                  )}
+                </div>
+              ) : (
+                <>
+                  {(currentPurchaseOrderCandidates.length > 0 ||
+                    !hasDisplayFilters) && (
+                    <DocumentGroups
+                      changeNoticeId={id}
+                      candidates={currentPurchaseOrderCandidates}
+                      actions={actions}
+                      coverage={data.coverage}
+                      taskCoverageStatus={data.taskCoverage.status}
+                      changeNoticeStatus={status}
+                      canUpdate={canUpdate}
+                      onRefresh={handleTaskMutation}
+                      onOpenDecision={openDecision}
+                      onOpenHistory={openHistory}
+                      emptyMessage={
+                        <Trans>No Purchase Order lines are available.</Trans>
+                      }
+                    />
+                  )}
+                  {(currentProductionCandidates.length > 0 ||
+                    !hasDisplayFilters) && (
+                    <DocumentGroups
+                      changeNoticeId={id}
+                      candidates={currentProductionCandidates}
+                      actions={actions}
+                      coverage={data.coverage}
+                      taskCoverageStatus={data.taskCoverage.status}
+                      changeNoticeStatus={status}
+                      canUpdate={canUpdate}
+                      onRefresh={handleTaskMutation}
+                      onOpenDecision={openDecision}
+                      onOpenHistory={openHistory}
+                      emptyMessage={
+                        <Trans>No Jobs or Job Materials are available.</Trans>
+                      }
+                    />
+                  )}
+                </>
+              )}
+            </section>
+          )}
 
-      {unavailableCandidates.length > 0 && (
-        <section className="w-full space-y-3">
-          <div>
-            <h2 className="text-base font-semibold">
-              <Trans>Unavailable source rows</Trans>
-            </h2>
-            <p className="text-xs text-muted-foreground">
-              <Trans>
-                Source identities are retained only where they were authorized;
-                decision-relevant facts are withheld until coverage is restored.
-              </Trans>
-            </p>
-          </div>
-          <DocumentGroups
-            changeNoticeId={id}
-            candidates={unavailableCandidates}
-            actions={actions}
-            coverage={data.coverage}
-            taskCoverageStatus={data.taskCoverage.status}
-            changeNoticeStatus={status}
-            canUpdate={canUpdate}
-            onRefresh={handleTaskMutation}
-            onOpenDecision={openDecision}
-            onOpenHistory={openHistory}
-            emptyMessage={
-              <Trans>No unavailable source rows are available.</Trans>
-            }
-          />
-        </section>
+          {(historicalCandidates.length > 0 || !hasDisplayFilters) && (
+            <section className="w-full space-y-3">
+              <div>
+                <h2 className="text-base font-semibold">
+                  <Trans>Historical references</Trans>
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  <Trans>
+                    These references remain traceable but do not create a new
+                    Unassessed obligation.
+                  </Trans>
+                </p>
+              </div>
+              <DocumentGroups
+                changeNoticeId={id}
+                candidates={historicalCandidates}
+                actions={actions}
+                coverage={data.coverage}
+                taskCoverageStatus={data.taskCoverage.status}
+                changeNoticeStatus={status}
+                canUpdate={canUpdate}
+                onRefresh={handleTaskMutation}
+                onOpenDecision={openDecision}
+                onOpenHistory={openHistory}
+                emptyMessage={
+                  coverageHasWarning ? (
+                    <Trans>Historical coverage is incomplete.</Trans>
+                  ) : (
+                    <Trans>No historical references are available.</Trans>
+                  )
+                }
+              />
+            </section>
+          )}
+
+          {unavailableCandidates.length > 0 && (
+            <section className="w-full space-y-3">
+              <div>
+                <h2 className="text-base font-semibold">
+                  <Trans>Unavailable source rows</Trans>
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  <Trans>
+                    Source identities are retained only where they were
+                    authorized; decision-relevant facts are withheld until
+                    coverage is restored.
+                  </Trans>
+                </p>
+              </div>
+              <DocumentGroups
+                changeNoticeId={id}
+                candidates={unavailableCandidates}
+                actions={actions}
+                coverage={data.coverage}
+                taskCoverageStatus={data.taskCoverage.status}
+                changeNoticeStatus={status}
+                canUpdate={canUpdate}
+                onRefresh={handleTaskMutation}
+                onOpenDecision={openDecision}
+                onOpenHistory={openHistory}
+                emptyMessage={
+                  <Trans>No unavailable source rows are available.</Trans>
+                }
+              />
+            </section>
+          )}
+        </>
       )}
 
       <Card className="w-full">

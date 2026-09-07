@@ -1,6 +1,6 @@
 # Change Notice Operational Impact Assessment
 
-> Status: in progress (supported Impact backend slices 1–3 and the read-only Slice 4 workspace implemented; context-only rows and Slice 5/6 pending)
+> Status: in progress (supported Impact backend slices 1–3, read-only Slice 4 workspace, and Slice 5D search/filtering implemented; Slice 5E/6 pending)
 > Author: Coding agent with the Carbon discovery investigation
 > Date: 2026-08-24
 > Baseline: `refs/remotes/upstream/main` at `5089ee75ee332ef22d74ebd8e230f4bbfb0c9221`
@@ -2052,6 +2052,7 @@ of this spec.
 
 ## Changelog
 
+- 2026-09-07: Implemented Slice 5D search and filtering in the existing document-first workspace. Search and filters stay URL-backed and client-side over the authorized browser DTO; coverage summaries remain authoritative and incomplete candidate/task coverage is disclosed.
 - 2026-09-05: Recorded the current Slice 4 implementation status. The read-only
   workspace exposes the three supported assessment domains, keeps decision/task UX
   out of the slice, and shows an informational notice instead of loading legacy

@@ -38,6 +38,9 @@ import type { MethodItemType, MethodType } from "~/modules/shared";
 import { getTagsList } from "~/modules/shared";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
+import { revalidateIgnoringImpactDisplay } from "~/utils/revalidate";
+
+export const shouldRevalidate = revalidateIgnoringImpactDisplay;
 
 export const handle: Handle = {
   // Leaf crumb: show the CO's readable number (from loader data), not a second

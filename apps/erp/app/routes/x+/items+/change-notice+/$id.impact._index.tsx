@@ -7,6 +7,9 @@ import { getChangeNoticeImpactWorkspace } from "~/modules/items";
 import { getChangeNoticeImpactReadAccess } from "~/modules/items/items.server";
 import { ChangeNoticeImpactWorkspace } from "~/modules/items/ui/ChangeNotice";
 import { path } from "~/utils/path";
+import { revalidateIgnoringImpactDisplay } from "~/utils/revalidate";
+
+export const shouldRevalidate = revalidateIgnoringImpactDisplay;
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { client, companyId, userId } = await requirePermissions(request, {

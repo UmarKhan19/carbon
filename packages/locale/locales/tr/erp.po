@@ -2677,6 +2677,9 @@ msgstr "Bana Atananlar"
 msgid "Assignee"
 msgstr "Atan"
 
+msgid "Assignees"
+msgstr ""
+
 msgid "Assignment"
 msgstr "Görevlendirme"
 
@@ -2817,6 +2820,12 @@ msgstr "Kanban taranmış olduğunda işi otomatik olarak serbest bırak"
 
 msgid "Automatically start the job when the kanban is scanned"
 msgstr "Kanban taranıp iş otomatik olarak başlatılır"
+
+msgid "Availability"
+msgstr ""
+
+msgid "Availability states"
+msgstr ""
 
 msgid "available"
 msgstr "kullanılabilir"
@@ -5353,6 +5362,12 @@ msgstr "Bir iş merkezine alınan ancak tüketilmeyen malzemenin depoya geri ak�
 msgid "Decimal Places"
 msgstr "Ondalık Basamaklar"
 
+msgid "Decision"
+msgstr ""
+
+msgid "Decisions"
+msgstr ""
+
 msgid "Declining balance"
 msgstr "Azalan Bakiye"
 
@@ -6129,6 +6144,12 @@ msgstr "Belgeler, faturaları, fatura bedelleri ve ödemeleri yerel sağlayıcı
 
 msgid "Documents you open will show up here for quick access."
 msgstr "Açtığınız belgeler hızlı erişim için burada görünecektir."
+
+msgid "Domain"
+msgstr ""
+
+msgid "Domains"
+msgstr ""
 
 msgid "Don't Cancel"
 msgstr "İptal Etme"
@@ -7321,6 +7342,12 @@ msgstr "CSV'yi dışa aktar"
 msgid "Export Lines to CSV"
 msgstr "Satırları CSV'ye Dışa Aktar"
 
+msgid "Exposure"
+msgstr ""
+
+msgid "Exposure states"
+msgstr ""
+
 msgid "Extended Price"
 msgstr "Genelletilmiş Fiyat"
 
@@ -7998,6 +8025,12 @@ msgstr "Sıklıklar"
 
 msgid "Frequency"
 msgstr "Sıklık"
+
+msgid "Freshness"
+msgstr ""
+
+msgid "Freshness states"
+msgstr ""
 
 msgid "Freshness unavailable"
 msgstr ""
@@ -11373,6 +11406,9 @@ msgstr ""
 msgid "No image"
 msgstr "Resim yok"
 
+msgid "No Impact rows match the current search and filters."
+msgstr ""
+
 msgid "No inspection plans"
 msgstr "Kontrol planı yok"
 
@@ -11438,6 +11474,8 @@ msgstr "Eşleşen operasyon yok"
 
 msgid "No materials"
 msgstr "Malzeme yok"
+msgid "No matching loaded Impact rows are visible. Coverage is incomplete, so this is not a complete result."
+msgstr ""
 
 msgid "No new notifications"
 msgstr "Yeni bildirim yok"
@@ -13076,6 +13114,9 @@ msgstr "Avanslar"
 
 msgid "Prepayments (default)"
 msgstr "Avanslar (varsayılan)"
+
+msgid "Present"
+msgstr ""
 
 msgid "Present Week"
 msgstr "Mevcut Hafta"
@@ -17137,6 +17178,9 @@ msgstr ""
 msgid "Task details unavailable."
 msgstr ""
 
+msgid "Task filters use incomplete linked-task metadata. Missing tasks or assignees are not treated as absent."
+msgstr ""
+
 msgid "Task linked"
 msgstr ""
 
@@ -17144,6 +17188,12 @@ msgid "Task name"
 msgstr ""
 
 msgid "Task origin: Impact follow-up"
+msgstr ""
+
+msgid "Task status"
+msgstr ""
+
+msgid "Task statuses"
 msgstr ""
 
 msgid "Task unlinked"
