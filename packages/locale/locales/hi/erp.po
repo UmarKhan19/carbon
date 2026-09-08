@@ -55,6 +55,17 @@ msgstr "{0, plural, one {# पंक्ति इस कंपनी के ब�
 #. placeholder {0}: totalScopeRows( exportRun.violationRowsByTable )
 msgid "{0, plural, one {# row links to data outside this company, so it can't be backed up. Skipping it backs up everything else.} other {# rows link to data outside this company, so they can't be backed up. Skipping them backs up everything else.}}"
 msgstr "{0, plural, one {# पंक्ति इस कंपनी के बाहर डेटा से जुड़ी है, इसलिए इसे बैकअप नहीं किया जा सकता। इसे छोड़ने से सब कुछ और बैकअप हो जाता है।} other {# पंक्तियाँ इस कंपनी के बाहर डेटा से जुड़ी हैं, इसलिए उन्हें बैकअप नहीं किया जा सकता। उन्हें छोड़ने से सब कुछ और बैकअप हो जाता है।}}"
+#. placeholder {0}: bulkSuccess.noOpCount
+msgid "{0, plural, one {# target was already current.} other {# targets were already current.}}"
+msgstr ""
+
+#. placeholder {0}: bulkSuccess.appliedCount
+msgid "{0, plural, one {Impact updated for # target;} other {Impact updated for # targets;}}"
+msgstr ""
+
+#. placeholder {0}: bulkSuccess.appliedCount
+msgid "{0, plural, one {Impact updated for # target.} other {Impact updated for # targets.}}"
+msgstr ""
 
 #. placeholder {0}: open.length
 msgid "{0, plural, one {This item is on 1 open change notice} other {This item is on # open change notices}}"
@@ -123,6 +134,9 @@ msgstr "{0} स्टॉक में है, {1} असेंबलीज़ �
 #. placeholder {2}: consumeFirst.successorReadableId
 msgid "{0} in stock; the remaining {1} will be picked as {2}"
 msgstr "{0} स्टॉक में है; शेष {1} को {2} के रूप में पिका जाएगा"
+#. placeholder {0}: selectedKeys.size
+msgid "{0} Impact rows selected"
+msgstr ""
 
 #. placeholder {0}: jobs.length
 msgid "{0} jobs created"
@@ -195,6 +209,9 @@ msgstr "{0} चुने गए"
 #. placeholder {0}: suggestions.length
 msgid "{0} suggested batches"
 msgstr "{0} सुझाए गए बैच"
+#. placeholder {0}: candidates.length
+msgid "{0} selected targets"
+msgstr ""
 
 #. placeholder {0}: ap.count
 msgid "{0} suppliers with a balance"
@@ -916,6 +933,9 @@ msgstr "एक बिक्रय RFQ (एक ग्राहक आपको �
 
 msgid "A scoped secret sent on the carbon-key request header that authenticates programmatic calls to Carbon, carrying its own permissions and rate limit rather than a user session's."
 msgstr "कार्बन-कुंजी अनुरोध हेडर पर भेजा गया एक स्कोप्ड गोपनीय जो कार्बन के लिए प्रोग्रामेटिक कॉल को प्रमाणित करता है, उपयोगकर्ता सत्र की बजाय अपनी स्वयं की अनुमतियां और दर सीमा ले जाता है।"
+
+msgid "A selected row is no longer readable in the current workspace. Refresh and review the selection."
+msgstr ""
 
 msgid "A separate schedule for tax reporting when tax rules require a method different from book depreciation."
 msgstr "कर रिपोर्टिंग के लिए एक अलग अनुसूची जब कर नियम पुस्तक मूल्यह्रास से अलग विधि की आवश्यकता होती है।"
@@ -1996,6 +2016,10 @@ msgstr "सुझाव लागू करें"
 
 msgid "Apply To"
 msgstr "लागू करें"
+
+#. placeholder {0}: candidates.length
+msgid "Apply to {0}"
+msgstr ""
 
 msgid "Apply to invoice"
 msgstr "चालान पर लागू करें"
@@ -3747,6 +3771,9 @@ msgstr "बंद करना अवरुद्ध"
 msgid "Closure evidence"
 msgstr ""
 
+msgid "Closure evidence for every selected target"
+msgstr ""
+
 msgid "Cloud, or your self-hosted environment."
 msgstr "क्लाउड, या आपका स्व-होस्ट किया गया वातावरण।"
 
@@ -3913,6 +3940,9 @@ msgstr ""
 msgid "Conclusion corrected"
 msgstr ""
 
+msgid "Conclusion for every selected target"
+msgstr ""
+
 msgid "Condensed P&L with margins and key subtotals"
 msgstr "मार्जिन और मुख्य उप-योग के साथ संक्षिप्त P&L"
 
@@ -4046,6 +4076,9 @@ msgid "Confirm Mapping"
 msgstr "मैपिंग की पुष्टि करें"
 
 msgid "Confirm no purchasing intervention remains"
+msgstr ""
+
+msgid "Confirm no purchasing intervention remains for every selected target"
 msgstr ""
 
 msgid "Confirm Password"
@@ -4955,6 +4988,9 @@ msgid "Current"
 msgstr "वर्तमान"
 
 msgid "Current cause"
+msgstr ""
+
+msgid "Current conclusion"
 msgstr ""
 
 msgid "Current Net Book Value:"
@@ -7978,6 +8014,9 @@ msgid "Follow-up for"
 msgstr ""
 
 msgid "Follow-up rationale"
+msgstr ""
+
+msgid "Follow-up rationale for every selected target"
 msgstr ""
 
 msgid "for anything. They'll pull in the right person."
@@ -11742,6 +11781,9 @@ msgstr "कोई वर्क सेंटर मौजूद नहीं ह�
 msgid "No-action reason"
 msgstr ""
 
+msgid "No-action reason for every selected target"
+msgstr ""
+
 msgid "Nom"
 msgstr "नाम"
 
@@ -12021,6 +12063,9 @@ msgstr "1 {0} कितने {1} के बराबर है?"
 
 msgid "One firing of a workflow, recorded step by step with the values each step used and produced, acting throughout with the permissions of the workflow's owner."
 msgstr "एक वर्कफ़्लो का एक निष्पादन, चरण दर चरण रिकॉर्ड किया गया जिसमें प्रत्येक चरण द्वारा उपयोग किए गए और उत्पादित मान शामिल हैं, वर्कफ़्लो के स्वामी की अनुमतियों के साथ पूरे समय कार्य करते हुए।"
+
+msgid "One or more selected rows are no longer eligible for a bulk assessment. Refresh and review the selection."
+msgstr ""
 
 msgid "One serial unit or one batch that Carbon follows individually, carrying its own status and attributes such as an expiry date."
 msgstr "एक सीरीज यूनिट या एक बैच जो Carbon व्यक्तिगत रूप से अनुसरण करता है, अपनी स्वयं की स्थिति और विशेषताएं जैसे समाप्ति तिथि ले जाता है।"
@@ -14809,6 +14854,9 @@ msgstr "समीक्षा"
 
 msgid "Review & create"
 msgstr "समीक्षा और बनाएं"
+msgid "Review bulk Impact assessment"
+msgstr ""
+
 msgid "Review current purchasing and production exposure with source coverage, provenance, and freshness details."
 msgstr ""
 
@@ -14816,6 +14864,12 @@ msgid "Review each item's changes, then confirm — releasing can't be undone."
 msgstr "प्रत्येक आइटम के परिवर्तनों की समीक्षा करें, फिर पुष्टि करें — जारी करना वापस नहीं किया जा सकता।"
 
 msgid "Review rationale"
+msgstr ""
+
+msgid "Review rationale for every selected target"
+msgstr ""
+
+msgid "Review selected"
 msgstr ""
 
 msgid "Review the period's balance sheet and income statement and confirm the figures look right. This is a manual sign-off — mark it done once you have reviewed them."
@@ -15628,6 +15682,9 @@ msgstr "आयाम चुनें"
 
 msgid "Select disposition"
 msgstr "निपटान चुनें"
+msgstr "निष्पादन चुनें"
+msgid "Select eligible rows for a shared decision."
+msgstr ""
 
 msgid "Select Employee"
 msgstr "कर्मचारी चुनें"
@@ -17959,6 +18016,11 @@ msgstr "यह शेड्यूल जिसका उपयोग इस स�
 
 msgid "The scheduler uses the first rule below that applies, then subtracts downtime and staffing."
 msgstr "शेड्यूलर नीचे दिए गए पहले नियम का उपयोग करता है जो लागू होता है, फिर डाउनटाइम और स्टाफिंग को घटाता है।"
+msgid "The selected rows do not share an available conclusion. Adjust the selection before reviewing it."
+msgstr ""
+
+msgid "The server will recheck every target and reject the whole batch if any source fact, eligibility rule, or decision revision changed after this preview."
+msgstr ""
 
 msgid "The shelves and bins where stock physically sits"
 msgstr "वह शेल्फ और बिन जहां स्टॉक भौतिक रूप से रखा जाता है"

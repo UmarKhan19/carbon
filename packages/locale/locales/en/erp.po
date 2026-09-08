@@ -55,6 +55,17 @@ msgstr "{0, plural, one {# row links to data outside this company, so a safety c
 #. placeholder {0}: totalScopeRows( exportRun.violationRowsByTable )
 msgid "{0, plural, one {# row links to data outside this company, so it can't be backed up. Skipping it backs up everything else.} other {# rows link to data outside this company, so they can't be backed up. Skipping them backs up everything else.}}"
 msgstr "{0, plural, one {# row links to data outside this company, so it can't be backed up. Skipping it backs up everything else.} other {# rows link to data outside this company, so they can't be backed up. Skipping them backs up everything else.}}"
+#. placeholder {0}: bulkSuccess.noOpCount
+msgid "{0, plural, one {# target was already current.} other {# targets were already current.}}"
+msgstr "{0, plural, one {# target was already current.} other {# targets were already current.}}"
+
+#. placeholder {0}: bulkSuccess.appliedCount
+msgid "{0, plural, one {Impact updated for # target;} other {Impact updated for # targets;}}"
+msgstr "{0, plural, one {Impact updated for # target;} other {Impact updated for # targets;}}"
+
+#. placeholder {0}: bulkSuccess.appliedCount
+msgid "{0, plural, one {Impact updated for # target.} other {Impact updated for # targets.}}"
+msgstr "{0, plural, one {Impact updated for # target.} other {Impact updated for # targets.}}"
 
 #. placeholder {0}: open.length
 msgid "{0, plural, one {This item is on 1 open change notice} other {This item is on # open change notices}}"
@@ -123,6 +134,9 @@ msgstr "{0} in stock, for {1} assemblies; the remaining {2} will be picked as {3
 #. placeholder {2}: consumeFirst.successorReadableId
 msgid "{0} in stock; the remaining {1} will be picked as {2}"
 msgstr "{0} in stock; the remaining {1} will be picked as {2}"
+#. placeholder {0}: selectedKeys.size
+msgid "{0} Impact rows selected"
+msgstr "{0} Impact rows selected"
 
 #. placeholder {0}: jobs.length
 msgid "{0} jobs created"
@@ -195,6 +209,9 @@ msgstr "{0} selected"
 #. placeholder {0}: suggestions.length
 msgid "{0} suggested batches"
 msgstr "{0} suggested batches"
+#. placeholder {0}: candidates.length
+msgid "{0} selected targets"
+msgstr "{0} selected targets"
 
 #. placeholder {0}: ap.count
 msgid "{0} suppliers with a balance"
@@ -916,6 +933,9 @@ msgstr "A sales RFQ (a customer asks you to quote) or a purchasing RFQ (you ask 
 
 msgid "A scoped secret sent on the carbon-key request header that authenticates programmatic calls to Carbon, carrying its own permissions and rate limit rather than a user session's."
 msgstr "A scoped secret sent on the carbon-key request header that authenticates programmatic calls to Carbon, carrying its own permissions and rate limit rather than a user session's."
+
+msgid "A selected row is no longer readable in the current workspace. Refresh and review the selection."
+msgstr "A selected row is no longer readable in the current workspace. Refresh and review the selection."
 
 msgid "A separate schedule for tax reporting when tax rules require a method different from book depreciation."
 msgstr "A separate schedule for tax reporting when tax rules require a method different from book depreciation."
@@ -1996,6 +2016,10 @@ msgstr "Apply suggestions"
 
 msgid "Apply To"
 msgstr "Apply To"
+
+#. placeholder {0}: candidates.length
+msgid "Apply to {0}"
+msgstr "Apply to {0}"
 
 msgid "Apply to invoice"
 msgstr "Apply to invoice"
@@ -3747,6 +3771,9 @@ msgstr "Closure blocked"
 msgid "Closure evidence"
 msgstr "Closure evidence"
 
+msgid "Closure evidence for every selected target"
+msgstr "Closure evidence for every selected target"
+
 msgid "Cloud, or your self-hosted environment."
 msgstr "Cloud, or your self-hosted environment."
 
@@ -3913,6 +3940,9 @@ msgstr "Conclusion"
 msgid "Conclusion corrected"
 msgstr "Conclusion corrected"
 
+msgid "Conclusion for every selected target"
+msgstr "Conclusion for every selected target"
+
 msgid "Condensed P&L with margins and key subtotals"
 msgstr "Condensed P&L with margins and key subtotals"
 
@@ -4047,6 +4077,9 @@ msgstr "Confirm Mapping"
 
 msgid "Confirm no purchasing intervention remains"
 msgstr "Confirm no purchasing intervention remains"
+
+msgid "Confirm no purchasing intervention remains for every selected target"
+msgstr "Confirm no purchasing intervention remains for every selected target"
 
 msgid "Confirm Password"
 msgstr "Confirm Password"
@@ -4956,6 +4989,9 @@ msgstr "Current"
 
 msgid "Current cause"
 msgstr "Current cause"
+
+msgid "Current conclusion"
+msgstr "Current conclusion"
 
 msgid "Current Net Book Value:"
 msgstr "Current Net Book Value:"
@@ -7979,6 +8015,9 @@ msgstr "Follow-up for"
 
 msgid "Follow-up rationale"
 msgstr "Follow-up rationale"
+
+msgid "Follow-up rationale for every selected target"
+msgstr "Follow-up rationale for every selected target"
 
 msgid "for anything. They'll pull in the right person."
 msgstr "for anything. They'll pull in the right person."
@@ -11742,6 +11781,9 @@ msgstr "No work centers exist"
 msgid "No-action reason"
 msgstr "No-action reason"
 
+msgid "No-action reason for every selected target"
+msgstr "No-action reason for every selected target"
+
 msgid "Nom"
 msgstr "Nom"
 
@@ -12021,6 +12063,9 @@ msgstr "One {0} is equal to how many {1}?"
 
 msgid "One firing of a workflow, recorded step by step with the values each step used and produced, acting throughout with the permissions of the workflow's owner."
 msgstr "One firing of a workflow, recorded step by step with the values each step used and produced, acting throughout with the permissions of the workflow's owner."
+
+msgid "One or more selected rows are no longer eligible for a bulk assessment. Refresh and review the selection."
+msgstr "One or more selected rows are no longer eligible for a bulk assessment. Refresh and review the selection."
 
 msgid "One serial unit or one batch that Carbon follows individually, carrying its own status and attributes such as an expiry date."
 msgstr "One serial unit or one batch that Carbon follows individually, carrying its own status and attributes such as an expiry date."
@@ -14808,6 +14853,9 @@ msgstr "Review"
 
 msgid "Review & create"
 msgstr "Review & create"
+msgid "Review bulk Impact assessment"
+msgstr "Review bulk Impact assessment"
+
 msgid "Review current purchasing and production exposure with source coverage, provenance, and freshness details."
 msgstr "Review current purchasing and production exposure with source coverage, provenance, and freshness details."
 
@@ -14816,6 +14864,12 @@ msgstr "Review each item's changes, then confirm — releasing can't be undone."
 
 msgid "Review rationale"
 msgstr "Review rationale"
+
+msgid "Review rationale for every selected target"
+msgstr "Review rationale for every selected target"
+
+msgid "Review selected"
+msgstr "Review selected"
 
 msgid "Review the period's balance sheet and income statement and confirm the figures look right. This is a manual sign-off — mark it done once you have reviewed them."
 msgstr "Review the period's balance sheet and income statement and confirm the figures look right. This is a manual sign-off — mark it done once you have reviewed them."
@@ -15627,6 +15681,8 @@ msgstr "Select dimension"
 
 msgid "Select disposition"
 msgstr "Select disposition"
+msgid "Select eligible rows for a shared decision."
+msgstr "Select eligible rows for a shared decision."
 
 msgid "Select Employee"
 msgstr "Select Employee"
@@ -17957,6 +18013,11 @@ msgstr "The schedule used to spread this asset's cost over its useful life (stra
 
 msgid "The scheduler uses the first rule below that applies, then subtracts downtime and staffing."
 msgstr "The scheduler uses the first rule below that applies, then subtracts downtime and staffing."
+msgid "The selected rows do not share an available conclusion. Adjust the selection before reviewing it."
+msgstr "The selected rows do not share an available conclusion. Adjust the selection before reviewing it."
+
+msgid "The server will recheck every target and reject the whole batch if any source fact, eligibility rule, or decision revision changed after this preview."
+msgstr "The server will recheck every target and reject the whole batch if any source fact, eligibility rule, or decision revision changed after this preview."
 
 msgid "The shelves and bins where stock physically sits"
 msgstr "The shelves and bins where stock physically sits"

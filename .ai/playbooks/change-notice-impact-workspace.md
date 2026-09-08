@@ -1,6 +1,6 @@
 # Change Notice Impact workspace
 
-Last tested: 2026-09-07 (Slice 5D authenticated browser QA and automated checks)
+Last tested: 2026-09-08 (Slice 5E authenticated browser QA and automated checks)
 Route: `/x/items/change-notice/:id/impact`
 
 ## Prerequisites
@@ -30,6 +30,11 @@ On a Done or Cancelled Change Notice with an existing Action required Impact dec
 
 ### 7. Verify lazy Impact history
 On a row with an existing Impact decision, confirm **History** is visible. Open it and verify the drawer shows the current conclusion and source facts before the event timeline. Confirm the browser requests one decision-specific `/impact/history/<decisionId>` resource only after opening the drawer. Verify assessment events show conclusion changes, rationale, resolution notes, and expandable snapshots; task events show the task label or a details-unavailable fallback; provenance events show the affected-item label. Close the drawer and confirm the workspace remains usable.
+
+### 8. Verify Slice 5E bulk Impact selection
+On a Change Notice with at least two eligible current production targets, select rows individually and confirm the count, **Review selected**, and **Clear selection** controls. There is no Select All or Clear Visible control. Open **Review selected** and verify each target's domain/identity, current conclusion, and snapshot facts are listed; confirm the available conclusion options are the intersection of the selected targets' valid operations. Choose the shared conclusion, enter the review rationale, and click the visible **Apply to <count>** button. Verify exactly one bulk POST, one workspace revalidation, the expected success/no-op message, cleared selection, and a closed drawer. Re-submit the same conclusion and rationale to verify the no-op state and that History has no new event. Search and refresh should preserve or reconcile the selection without writing.
+
+Slice 5E browser coverage on seeded data did not include PO targets, Changed-since facts, or a clean stale-preview conflict fixture. Those paths remain covered by focused tests until safe fixtures exist.
 
 ## Selector Notes
 - Navigate through visible labels rather than cached accessibility refs.

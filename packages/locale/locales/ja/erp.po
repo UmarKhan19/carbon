@@ -55,6 +55,17 @@ msgstr "{0, plural, one {# 行はこの会社の外部のデータにリンク�
 #. placeholder {0}: totalScopeRows( exportRun.violationRowsByTable )
 msgid "{0, plural, one {# row links to data outside this company, so it can't be backed up. Skipping it backs up everything else.} other {# rows link to data outside this company, so they can't be backed up. Skipping them backs up everything else.}}"
 msgstr "{0, plural, one {# 行はこの会社の外部のデータにリンクしているため、バックアップできません。スキップすると、他のすべてがバックアップされます。} other {# 行はこの会社の外部のデータにリンクしているため、バックアップできません。スキップすると、他のすべてがバックアップされます。}}"
+#. placeholder {0}: bulkSuccess.noOpCount
+msgid "{0, plural, one {# target was already current.} other {# targets were already current.}}"
+msgstr ""
+
+#. placeholder {0}: bulkSuccess.appliedCount
+msgid "{0, plural, one {Impact updated for # target;} other {Impact updated for # targets;}}"
+msgstr ""
+
+#. placeholder {0}: bulkSuccess.appliedCount
+msgid "{0, plural, one {Impact updated for # target.} other {Impact updated for # targets.}}"
+msgstr ""
 
 #. placeholder {0}: open.length
 msgid "{0, plural, one {This item is on 1 open change notice} other {This item is on # open change notices}}"
@@ -123,6 +134,9 @@ msgstr "{0}在庫あり、{1}組用；残り{2}は{3}としてピッキング"
 #. placeholder {2}: consumeFirst.successorReadableId
 msgid "{0} in stock; the remaining {1} will be picked as {2}"
 msgstr "{0}在庫あり；残り{1}は{2}としてピッキング"
+#. placeholder {0}: selectedKeys.size
+msgid "{0} Impact rows selected"
+msgstr ""
 
 #. placeholder {0}: jobs.length
 msgid "{0} jobs created"
@@ -195,6 +209,9 @@ msgstr "{0} 件選択"
 #. placeholder {0}: suggestions.length
 msgid "{0} suggested batches"
 msgstr "推奨バッチ {0} 個"
+#. placeholder {0}: candidates.length
+msgid "{0} selected targets"
+msgstr ""
 
 #. placeholder {0}: ap.count
 msgid "{0} suppliers with a balance"
@@ -916,6 +933,9 @@ msgstr "売上見積依頼（得意先が見積をお願いする）または購
 
 msgid "A scoped secret sent on the carbon-key request header that authenticates programmatic calls to Carbon, carrying its own permissions and rate limit rather than a user session's."
 msgstr "carbon-key リクエスト ヘッダーで送信されるスコープ付きシークレット。Carbon へのプログラマティック呼び出しを認証し、ユーザー セッションではなく独自の権限とレート制限を保有します。"
+
+msgid "A selected row is no longer readable in the current workspace. Refresh and review the selection."
+msgstr ""
 
 msgid "A separate schedule for tax reporting when tax rules require a method different from book depreciation."
 msgstr "税務報告のための別のスケジュール。税務ルールが帳簿減価償却とは異なる方法を要求する場合。"
@@ -1996,6 +2016,10 @@ msgstr "提案を適用"
 
 msgid "Apply To"
 msgstr "適用対象"
+
+#. placeholder {0}: candidates.length
+msgid "Apply to {0}"
+msgstr ""
 
 msgid "Apply to invoice"
 msgstr "請求書に適用"
@@ -3747,6 +3771,9 @@ msgstr "完了がブロックされています"
 msgid "Closure evidence"
 msgstr ""
 
+msgid "Closure evidence for every selected target"
+msgstr ""
+
 msgid "Cloud, or your self-hosted environment."
 msgstr "クラウド、またはセルフホストされた環境。"
 
@@ -3913,6 +3940,9 @@ msgstr ""
 msgid "Conclusion corrected"
 msgstr ""
 
+msgid "Conclusion for every selected target"
+msgstr ""
+
 msgid "Condensed P&L with margins and key subtotals"
 msgstr "マージンと主要小計を含む圧縮P&L"
 
@@ -4046,6 +4076,9 @@ msgid "Confirm Mapping"
 msgstr "マッピングを確認"
 
 msgid "Confirm no purchasing intervention remains"
+msgstr ""
+
+msgid "Confirm no purchasing intervention remains for every selected target"
 msgstr ""
 
 msgid "Confirm Password"
@@ -4956,6 +4989,9 @@ msgid "Current"
 msgstr "現在"
 
 msgid "Current cause"
+msgstr ""
+
+msgid "Current conclusion"
 msgstr ""
 
 msgid "Current Net Book Value:"
@@ -7979,6 +8015,9 @@ msgid "Follow-up for"
 msgstr ""
 
 msgid "Follow-up rationale"
+msgstr ""
+
+msgid "Follow-up rationale for every selected target"
 msgstr ""
 
 msgid "for anything. They'll pull in the right person."
@@ -11743,6 +11782,9 @@ msgstr "作業区がありません"
 msgid "No-action reason"
 msgstr ""
 
+msgid "No-action reason for every selected target"
+msgstr ""
+
 msgid "Nom"
 msgstr "公称値"
 
@@ -12022,6 +12064,9 @@ msgstr "1 {0} は何 {1} に相当しますか？"
 
 msgid "One firing of a workflow, recorded step by step with the values each step used and produced, acting throughout with the permissions of the workflow's owner."
 msgstr "ワークフローの1回の実行。各ステップが使用および生成した値を含めてステップバイステップで記録され、全体を通じてワークフロー責任者の権限で実行されます。"
+
+msgid "One or more selected rows are no longer eligible for a bulk assessment. Refresh and review the selection."
+msgstr ""
 
 msgid "One serial unit or one batch that Carbon follows individually, carrying its own status and attributes such as an expiry date."
 msgstr "Carbonが個別に追跡する1個のシリアルユニットまたは1つのバッチ。使用期限などのステータスと属性を独自に保有しています。"
@@ -14810,6 +14855,9 @@ msgstr "レビュー"
 
 msgid "Review & create"
 msgstr "確認と作成"
+msgid "Review bulk Impact assessment"
+msgstr ""
+
 msgid "Review current purchasing and production exposure with source coverage, provenance, and freshness details."
 msgstr ""
 
@@ -14817,6 +14865,12 @@ msgid "Review each item's changes, then confirm — releasing can't be undone."
 msgstr "各アイテムの変更をレビューしてから確認してください。リリースは取り消せません。"
 
 msgid "Review rationale"
+msgstr ""
+
+msgid "Review rationale for every selected target"
+msgstr ""
+
+msgid "Review selected"
 msgstr ""
 
 msgid "Review the period's balance sheet and income statement and confirm the figures look right. This is a manual sign-off — mark it done once you have reviewed them."
@@ -15629,6 +15683,9 @@ msgstr "ディメンションを選択"
 
 msgid "Select disposition"
 msgstr "処置を選択"
+msgstr "処分を選択"
+msgid "Select eligible rows for a shared decision."
+msgstr ""
 
 msgid "Select Employee"
 msgstr "従業員を選択"
@@ -17962,6 +18019,12 @@ msgstr "この資産の原価を耐用年数にわたって配分するために
 
 msgid "The scheduler uses the first rule below that applies, then subtracts downtime and staffing."
 msgstr "スケジューラは以下の適用される最初のルールを使用し、停止時間とスタッフィングを差し引きます。"
+msgstr "スケジューラーは以下の最初に適用されるルールを使用し、その後ダウンタイムとスタッフィングを差し引きます。"
+msgid "The selected rows do not share an available conclusion. Adjust the selection before reviewing it."
+msgstr ""
+
+msgid "The server will recheck every target and reject the whole batch if any source fact, eligibility rule, or decision revision changed after this preview."
+msgstr ""
 
 msgid "The shelves and bins where stock physically sits"
 msgstr "在庫が物理的に置かれている棚とビン。"

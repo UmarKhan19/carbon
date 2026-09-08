@@ -493,6 +493,8 @@ export const path = {
       generatePath(`${x}/items/change-notice/${id}/details`),
     changeNoticeImpact: (id: string) =>
       generatePath(`${x}/items/change-notice/${id}/impact`),
+    changeNoticeImpactBulk: (id: string) =>
+      generatePath(`${x}/items/change-notice/${id}/impact/bulk`),
     changeNoticeImpactDecision: (id: string) =>
       generatePath(`${x}/items/change-notice/${id}/impact/decision`),
     changeNoticeImpactHistory: (id: string, decisionId: string) =>

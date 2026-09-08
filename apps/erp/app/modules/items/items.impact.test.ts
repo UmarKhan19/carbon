@@ -15,6 +15,7 @@ const {
   classifyJobImpactEligibility,
   classifyJobMaterialImpactEligibility,
   classifyPurchaseOrderLineImpactEligibility,
+  createChangeNoticeImpactPreviewFingerprint,
   compareChangeNoticeImpactSnapshot,
   deriveChangeNoticeImpactProvenance,
   getChangeNoticeAffectedItems,
@@ -772,6 +773,51 @@ describe("Change Notice Impact contracts", () => {
     expect(clientDerivedFields.success).toBe(false);
   });
 
+  it("creates a deterministic opaque preview fingerprint from reviewed facts", async () => {
+    const first = normalizePurchaseOrderLineImpactSnapshot(basePoInput());
+    const changed = normalizePurchaseOrderLineImpactSnapshot(
+      basePoInput({ quantityReceived: 1, quantityToReceive: 9 })
+    );
+    if (
+      first.sourceAvailability !== "Present" ||
+      changed.sourceAvailability !== "Present"
+    ) {
+      throw new Error("Test PO snapshots must be present");
+    }
+
+    const fingerprint = await createChangeNoticeImpactPreviewFingerprint({
+      targetType: "purchaseOrderLine",
+      snapshot: first.snapshot,
+      affectedItemId: "affected-1",
+      affectedItemSourceId: "item-1"
+    });
+    expect(fingerprint).toMatch(/^[a-f0-9]{64}$/);
+    expect(
+      await createChangeNoticeImpactPreviewFingerprint({
+        targetType: "purchaseOrderLine",
+        snapshot: first.snapshot,
+        affectedItemId: "affected-1",
+        affectedItemSourceId: "item-1"
+      })
+    ).toBe(fingerprint);
+    expect(
+      await createChangeNoticeImpactPreviewFingerprint({
+        targetType: "purchaseOrderLine",
+        snapshot: changed.snapshot,
+        affectedItemId: "affected-1",
+        affectedItemSourceId: "item-1"
+      })
+    ).not.toBe(fingerprint);
+    expect(
+      await createChangeNoticeImpactPreviewFingerprint({
+        targetType: "purchaseOrderLine",
+        snapshot: first.snapshot,
+        affectedItemId: "affected-2",
+        affectedItemSourceId: "item-1"
+      })
+    ).not.toBe(fingerprint);
+  });
+
   it("validates explicit bulk targets and rejects duplicates or unknown fields", () => {
     const valid = changeNoticeImpactDecisionBulkRequestValidator.safeParse({
       changeNoticeId,
@@ -1173,6 +1219,101 @@ describe("Change Notice Impact contracts", () => {
     expect(result.data).toBeNull();
     expect(result.error?.message).toContain("pol-2");
     expect(result.error?.message).toContain("changed before your update");
+    expect(recorder.inserts).toEqual([]);
+    expect(recorder.updates).toEqual([]);
+    expect(recorder.rolledBack).toBe(true);
+  });
+
+  it("rejects a stale bulk preview before applying any selected target", async () => {
+    const first = normalizePurchaseOrderLineImpactSnapshot(basePoInput());
+    const second = normalizePurchaseOrderLineImpactSnapshot(
+      basePoInput({
+        purchaseOrderLineId: "pol-2",
+        purchaseOrderId: "po-2",
+        itemId: "item-2",
+        supplierId: "supplier-po-2"
+      })
+    );
+    if (
+      first.sourceAvailability !== "Present" ||
+      second.sourceAvailability !== "Present"
+    ) {
+      throw new Error("Test PO snapshots must be present");
+    }
+    const firstFingerprint = await createChangeNoticeImpactPreviewFingerprint({
+      targetType: "purchaseOrderLine",
+      snapshot: first.snapshot,
+      affectedItemId: "affected-1",
+      affectedItemSourceId: "item-1"
+    });
+    const recorder = makeBulkImpactKyselyRecorder({
+      rows: makeBulkPurchaseOrderRows([
+        {
+          id: "decision-1",
+          companyId,
+          changeNoticeId,
+          targetType: "purchaseOrderLine",
+          targetId: "pol-1",
+          decisionStatus: "Action required",
+          noActionReasonCode: null,
+          rationale: "Existing review.",
+          resolutionNote: null,
+          assessmentSnapshot: first.snapshot,
+          snapshotVersion: 1,
+          assessedBy: "user-0",
+          assessedAt: "2026-08-24T00:00:00.000Z",
+          revision: 1
+        },
+        {
+          id: "decision-2",
+          companyId,
+          changeNoticeId,
+          targetType: "purchaseOrderLine",
+          targetId: "pol-2",
+          decisionStatus: "Action required",
+          noActionReasonCode: null,
+          rationale: "Existing review.",
+          resolutionNote: null,
+          assessmentSnapshot: second.snapshot,
+          snapshotVersion: 1,
+          assessedBy: "user-0",
+          assessedAt: "2026-08-24T00:00:00.000Z",
+          revision: 1
+        }
+      ])
+    });
+    const result = await writeChangeNoticeImpactDecisions(
+      recorder.db as unknown as Kysely<KyselyDatabase>,
+      {
+        companyId,
+        userId: "user-1",
+        sourceAccess,
+        changeNoticeId,
+        targets: [
+          {
+            targetType: "purchaseOrderLine",
+            targetId: "pol-1",
+            decisionStatus: "Action required",
+            expectedRevision: 1,
+            expectedSnapshotFingerprint: firstFingerprint,
+            rationale: "Reconfirm the first supplier commitment."
+          },
+          {
+            targetType: "purchaseOrderLine",
+            targetId: "pol-2",
+            decisionStatus: "Action required",
+            expectedRevision: 1,
+            expectedSnapshotFingerprint: "stale-preview",
+            rationale: "Reconfirm the second supplier commitment."
+          }
+        ]
+      }
+    );
+
+    expect(result.data).toBeNull();
+    expect(result.error?.message).toContain(
+      "This Impact bulk preview is stale"
+    );
     expect(recorder.inserts).toEqual([]);
     expect(recorder.updates).toEqual([]);
     expect(recorder.rolledBack).toBe(true);

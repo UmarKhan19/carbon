@@ -1103,6 +1103,10 @@ export const changeNoticeImpactDecisionStatuses = [
 export type ChangeNoticeImpactDecisionStatus =
   (typeof changeNoticeImpactDecisionStatuses)[number];
 
+/** Returned when a bulk browser preview no longer matches live source facts. */
+export const CHANGE_NOTICE_IMPACT_BULK_PREVIEW_STALE_MESSAGE =
+  "This Impact bulk preview is stale. Refresh and review the selected targets.";
+
 export const changeNoticeImpactNoActionReasonCodes = [
   "Outside effectivity",
   "Not affected after review",
@@ -1217,7 +1221,11 @@ export type ChangeNoticeImpactDecisionFormValues = z.infer<
  * are the safety boundaries rather than an arbitrary count cap.
  */
 export const changeNoticeImpactDecisionBulkTargetRequestValidator = z
-  .object(changeNoticeImpactDecisionTargetRequestShape)
+  .object({
+    ...changeNoticeImpactDecisionTargetRequestShape,
+    /** Opaque server-issued source/eligibility proof from the browser preview. */
+    expectedSnapshotFingerprint: z.string().trim().min(1).optional()
+  })
   .strict();
 export type ChangeNoticeImpactDecisionBulkTargetRequest = z.infer<
   typeof changeNoticeImpactDecisionBulkTargetRequestValidator
@@ -1247,6 +1255,68 @@ export const changeNoticeImpactDecisionBulkRequestValidator = z
   });
 export type ChangeNoticeImpactDecisionBulkRequest = z.infer<
   typeof changeNoticeImpactDecisionBulkRequestValidator
+>;
+
+const changeNoticeImpactDecisionBulkFormTargetValidator = z
+  .object({
+    targetType: changeNoticeImpactTargetTypeValidator,
+    targetId: z.string().min(1, { message: "Impact target is required" }),
+    expectedRevision: z.number().int().positive().nullable().optional(),
+    expectedSnapshotFingerprint: z.string().trim().min(1)
+  })
+  .strict();
+export type ChangeNoticeImpactDecisionBulkFormTarget = z.infer<
+  typeof changeNoticeImpactDecisionBulkFormTargetValidator
+>;
+
+export const changeNoticeImpactDecisionBulkFormValidator = z
+  .object({
+    changeNoticeId: zfd.text(
+      z.string().min(1, { message: "Change notice is required" })
+    ),
+    targets: zfd.text(
+      z
+        .string()
+        .trim()
+        .min(1, { message: "Selected Impact targets are required" })
+        .transform((value, context) => {
+          let parsed: unknown;
+          try {
+            parsed = JSON.parse(value);
+          } catch {
+            context.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: "Selected Impact targets are invalid."
+            });
+            return z.NEVER;
+          }
+          const validation = z
+            .array(changeNoticeImpactDecisionBulkFormTargetValidator)
+            .min(1, { message: "At least one Impact target is required" })
+            .safeParse(parsed);
+          if (!validation.success) {
+            context.addIssue({
+              code: z.ZodIssueCode.custom,
+              message:
+                validation.error.issues[0]?.message ??
+                "Selected Impact targets are invalid."
+            });
+            return z.NEVER;
+          }
+          return validation.data;
+        })
+    ),
+    decisionStatus: zfd.text(changeNoticeImpactDecisionStatusValidator),
+    noActionReasonCode: zfd.text(
+      changeNoticeImpactNoActionReasonCodeValidator.optional()
+    ),
+    rationale: zfd.text(z.string().trim().optional()),
+    resolutionNote: zfd.text(z.string().trim().optional()),
+    confirmNoPurchasingInterventionRemains: zfd.checkbox()
+  })
+  .strict();
+export type ChangeNoticeImpactDecisionBulkFormValues = z.infer<
+  typeof changeNoticeImpactDecisionBulkFormValidator
 >;
 
 /** Internal operation labels. Callers never submit one of these values. */
@@ -1730,6 +1800,8 @@ export type ChangeNoticeImpactWorkspaceSnapshot =
 
 export type ChangeNoticeImpactDecisionMutationInput =
   ChangeNoticeImpactDecisionRequest & {
+    /** Optional only for the legacy/raw bulk boundary; browser bulk forms require it. */
+    expectedSnapshotFingerprint?: string;
     /** Server-derived tenant and actor context. */
     companyId: string;
     userId: string;
@@ -2150,6 +2222,8 @@ export type ChangeNoticeImpactWorkspaceCandidate = Omit<
 > & {
   currentSnapshot: ChangeNoticeImpactWorkspaceSnapshot | null;
   decision: ChangeNoticeImpactWorkspaceDecisionProjection | null;
+  /** Opaque proof that the reviewed source facts and current cause were read together. */
+  previewFingerprint: string | null;
   taskLinks: ChangeNoticeImpactTaskLink[];
 };
 

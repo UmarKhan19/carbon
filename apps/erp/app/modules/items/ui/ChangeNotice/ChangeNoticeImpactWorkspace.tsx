@@ -15,7 +15,7 @@ import {
   HStack,
   VStack
 } from "@carbon/react";
-import { Trans, useLingui } from "@lingui/react/macro";
+import { Plural, Trans, useLingui } from "@lingui/react/macro";
 import { useLocale } from "@react-aria/i18n";
 import type { ComponentProps, ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -36,14 +36,18 @@ import {
   TextArea,
   TextAreaControlled
 } from "~/components/Form";
+import IndeterminateCheckbox from "~/components/Table/components/IndeterminateCheckbox";
 import { usePermissions, useUrlParams } from "~/hooks";
 import {
   type ChangeNotice,
   type ChangeNoticeImpactCandidate,
   type ChangeNoticeImpactCoverage,
+  type ChangeNoticeImpactDecisionBulkFormTarget,
+  type ChangeNoticeImpactDecisionBulkWriteData,
   type ChangeNoticeImpactDecisionStatus,
   type ChangeNoticeImpactNoActionReasonCode,
   type ChangeNoticeImpactWorkspaceReadModel,
+  changeNoticeImpactDecisionBulkFormValidator,
   changeNoticeImpactDecisionFormValidator,
   changeNoticeImpactDecisionStatuses,
   changeNoticeStageFlow
@@ -96,6 +100,20 @@ export type ChangeNoticeImpactDecisionControls = {
   resolve: boolean;
   resolveBlock: ImpactResolutionBlock;
 };
+
+type ImpactBulkDecisionStatus = ChangeNoticeImpactDecisionStatus;
+type ImpactBulkFetcherData =
+  | { success: true; data: ChangeNoticeImpactDecisionBulkWriteData }
+  | { success: false; error?: { message: string }; conflict?: boolean };
+
+const impactSelectionSeparator = "\u0000";
+
+export function getChangeNoticeImpactSelectionKey(
+  targetType: Candidate["targetType"],
+  targetId: string
+) {
+  return `${targetType}${impactSelectionSeparator}${targetId}`;
+}
 
 export function canViewChangeNoticeImpactHistory(
   candidate: Candidate
@@ -194,6 +212,97 @@ export function getChangeNoticeImpactDecisionControls({
   };
 }
 
+export function canSelectChangeNoticeImpactCandidate({
+  candidate,
+  coverageStatus,
+  taskCoverageStatus,
+  changeNoticeStatus,
+  canUpdate
+}: {
+  candidate: Candidate;
+  coverageStatus: ChangeNoticeImpactCoverage["status"];
+  taskCoverageStatus: ChangeNoticeImpactWorkspaceReadModel["taskCoverage"]["status"];
+  changeNoticeStatus: ChangeNotice["status"] | null | undefined;
+  canUpdate: boolean;
+}) {
+  if (
+    !canUpdate ||
+    coverageStatus !== "complete" ||
+    candidate.exposureClassification !== CURRENT_EXPOSURE ||
+    candidate.sourceAvailability !== "Present" ||
+    candidate.currentSnapshot === null ||
+    candidate.previewFingerprint === null ||
+    (candidate.decision !== null && candidate.freshness === "Unknown")
+  ) {
+    return false;
+  }
+
+  const controls = getChangeNoticeImpactDecisionControls({
+    candidate,
+    coverageStatus,
+    taskCoverageStatus,
+    changeNoticeStatus,
+    canUpdate
+  });
+  return (
+    controls.assess ||
+    controls.reassess ||
+    (controls.resolve && controls.resolveBlock === null)
+  );
+}
+
+export function getChangeNoticeImpactBulkDecisionStatusOptions({
+  candidates,
+  coverage,
+  taskCoverageStatus,
+  changeNoticeStatus
+}: {
+  candidates: Candidate[];
+  coverage: ChangeNoticeImpactWorkspaceReadModel["coverage"];
+  taskCoverageStatus: ChangeNoticeImpactWorkspaceReadModel["taskCoverage"]["status"];
+  changeNoticeStatus: ChangeNotice["status"] | null | undefined;
+}): ImpactBulkDecisionStatus[] {
+  if (candidates.length === 0) return [];
+
+  const controls = candidates.map((candidate) =>
+    getChangeNoticeImpactDecisionControls({
+      candidate,
+      coverageStatus: coverage[candidate.targetType].status,
+      taskCoverageStatus,
+      changeNoticeStatus,
+      canUpdate: true
+    })
+  );
+  const canApplyConclusion = controls.every(
+    (control) => control.assess || control.reassess
+  );
+  const options: ImpactBulkDecisionStatus[] = canApplyConclusion
+    ? ["No action required", "Action required"]
+    : [];
+  if (
+    controls.every(
+      (control) => control.resolve && control.resolveBlock === null
+    )
+  ) {
+    options.push("Resolved");
+  }
+  return options;
+}
+
+export function getChangeNoticeImpactBulkNoActionReasonOptions(
+  candidates: Candidate[]
+): ChangeNoticeImpactNoActionReasonCode[] {
+  if (
+    candidates.length > 0 &&
+    candidates.every(
+      (candidate) => candidate.targetType === "purchaseOrderLine"
+    )
+  ) {
+    return ["Not affected after review", "No purchasing intervention remains"];
+  }
+  return ["Not affected after review"];
+}
+
 function domainLabel(targetType: Candidate["targetType"]): ReactNode {
   switch (targetType) {
     case "purchaseOrderLine":
@@ -286,7 +395,7 @@ function stateBadge(
   );
 }
 
-function conditionBadges(candidate: Candidate) {
+export function conditionBadges(candidate: Candidate) {
   const badges: ReactNode[] = [];
   if (candidate.exposureClassification !== CURRENT_EXPOSURE) {
     const label = exposureLabel(candidate.exposureClassification);
@@ -797,6 +906,258 @@ function ImpactDecisionDrawer({
   );
 }
 
+type ImpactBulkDecisionDrawerProps = {
+  changeNoticeId: string;
+  candidates: Candidate[];
+  coverage: ChangeNoticeImpactWorkspaceReadModel["coverage"];
+  taskCoverageStatus: ChangeNoticeImpactWorkspaceReadModel["taskCoverage"]["status"];
+  changeNoticeStatus: ChangeNotice["status"] | null | undefined;
+  onClose: () => void;
+  onSuccess: (data: ChangeNoticeImpactDecisionBulkWriteData) => void;
+  onConflict: (message: string) => void;
+};
+
+function ImpactBulkDecisionDrawer({
+  changeNoticeId,
+  candidates,
+  coverage,
+  taskCoverageStatus,
+  changeNoticeStatus,
+  onClose,
+  onSuccess,
+  onConflict
+}: ImpactBulkDecisionDrawerProps) {
+  const { t } = useLingui();
+  const fetcher = useFetcher<ImpactBulkFetcherData>();
+  const statusOptions = getChangeNoticeImpactBulkDecisionStatusOptions({
+    candidates,
+    coverage,
+    taskCoverageStatus,
+    changeNoticeStatus
+  });
+  const reasonOptions =
+    getChangeNoticeImpactBulkNoActionReasonOptions(candidates);
+  const [decisionStatus, setDecisionStatus] =
+    useState<ImpactBulkDecisionStatus>(statusOptions[0] ?? "Action required");
+  const [noActionReason, setNoActionReason] =
+    useState<ChangeNoticeImpactNoActionReasonCode>(
+      reasonOptions[0] ?? "Not affected after review"
+    );
+  const [rationale, setRationale] = useState("");
+  const isSubmitting = fetcher.state !== "idle";
+  const isPurchasingConfirmation =
+    decisionStatus === "No action required" &&
+    noActionReason === "No purchasing intervention remains";
+  const formTargets: ChangeNoticeImpactDecisionBulkFormTarget[] =
+    candidates.map((candidate) => ({
+      targetType: candidate.targetType,
+      targetId: candidate.targetId,
+      ...(candidate.decision
+        ? { expectedRevision: candidate.decision.revision }
+        : {}),
+      expectedSnapshotFingerprint: candidate.previewFingerprint ?? ""
+    }));
+  const formDefaults = useMemo<
+    z.infer<typeof changeNoticeImpactDecisionBulkFormValidator>
+  >(
+    () => ({
+      changeNoticeId,
+      targets: formTargets,
+      decisionStatus,
+      noActionReasonCode: noActionReason,
+      rationale,
+      resolutionNote: undefined,
+      confirmNoPurchasingInterventionRemains: false
+    }),
+    [changeNoticeId, decisionStatus, formTargets, noActionReason, rationale]
+  );
+
+  useEffect(() => {
+    if (fetcher.state !== "idle" || !fetcher.data) return;
+    if (fetcher.data.success) {
+      onSuccess(fetcher.data.data);
+    } else if (fetcher.data.conflict) {
+      onConflict(
+        fetcher.data.error?.message ??
+          "The selected Impact targets changed while you were reviewing them."
+      );
+    }
+  }, [fetcher.data, fetcher.state, onConflict, onSuccess]);
+
+  const failedResponse =
+    fetcher.data && !fetcher.data.success ? fetcher.data : null;
+  const selectedTargetLabel = (candidate: Candidate) => (
+    <div className="min-w-0">
+      <div className="font-medium">
+        {domainLabel(candidate.targetType)} · {candidate.targetId}
+      </div>
+      <div className="text-xs text-muted-foreground">
+        {candidate.parent?.readableId ?? (
+          <Trans>Source record unavailable</Trans>
+        )}
+        {candidate.item?.readableIdWithRevision
+          ? ` · ${candidate.item.readableIdWithRevision}`
+          : ""}
+      </div>
+    </div>
+  );
+
+  return (
+    <Drawer open onOpenChange={(open) => !open && onClose()}>
+      <DrawerContent size="sm">
+        <ValidatedForm
+          key={candidates
+            .map(
+              (candidate) =>
+                `${candidate.targetType}-${candidate.targetId}-${candidate.decision?.revision ?? "new"}`
+            )
+            .join("|")}
+          validator={changeNoticeImpactDecisionBulkFormValidator}
+          method="post"
+          action={path.to.changeNoticeImpactBulk(changeNoticeId)}
+          defaultValues={formDefaults}
+          fetcher={fetcher}
+          className="flex h-full flex-col"
+        >
+          <DrawerHeader>
+            <DrawerTitle>
+              <Trans>Review bulk Impact assessment</Trans>
+            </DrawerTitle>
+          </DrawerHeader>
+          <DrawerBody>
+            <VStack spacing={4}>
+              <Hidden name="changeNoticeId" value={changeNoticeId} />
+              <Hidden name="targets" value={JSON.stringify(formTargets)} />
+
+              <div className="w-full space-y-2 rounded-md bg-muted/40 p-3 text-xs">
+                <div className="font-medium">
+                  <Trans>{candidates.length} selected targets</Trans>
+                </div>
+                <p className="text-muted-foreground">
+                  <Trans>
+                    The server will recheck every target and reject the whole
+                    batch if any source fact, eligibility rule, or decision
+                    revision changed after this preview.
+                  </Trans>
+                </p>
+              </div>
+
+              <div className="max-h-64 w-full space-y-2 overflow-y-auto rounded-md border border-border/70 p-2">
+                {candidates.map((candidate) => (
+                  <div
+                    key={`${candidate.targetType}-${candidate.targetId}`}
+                    className="space-y-2 rounded-md border border-border/70 p-2"
+                  >
+                    {selectedTargetLabel(candidate)}
+                    <div className="flex flex-wrap items-center gap-2 text-xs">
+                      <span className="text-muted-foreground">
+                        <Trans>Current conclusion</Trans>:
+                      </span>
+                      {stateBadge(
+                        candidate,
+                        coverage[candidate.targetType].status
+                      )}
+                      {conditionBadges(candidate)}
+                    </div>
+                    <SnapshotFacts candidate={candidate} />
+                  </div>
+                ))}
+              </div>
+
+              <Select
+                name="decisionStatus"
+                label={t`Conclusion for every selected target`}
+                options={statusOptions.map((status) => ({
+                  value: status,
+                  label: decisionLabel(status)
+                }))}
+                isRequired
+                onChange={(option) => {
+                  if (!option?.value) return;
+                  const nextStatus = option.value as ImpactBulkDecisionStatus;
+                  setDecisionStatus(nextStatus);
+                  setRationale("");
+                }}
+              />
+
+              {decisionStatus === "No action required" && (
+                <Select
+                  name="noActionReasonCode"
+                  label={t`No-action reason for every selected target`}
+                  options={reasonOptions.map((reason) => ({
+                    value: reason,
+                    label: noActionReasonLabel(reason)
+                  }))}
+                  isRequired
+                  onChange={(option) => {
+                    if (option?.value) {
+                      setNoActionReason(
+                        option.value as ChangeNoticeImpactNoActionReasonCode
+                      );
+                    }
+                  }}
+                />
+              )}
+
+              {isPurchasingConfirmation && (
+                <Boolean
+                  name="confirmNoPurchasingInterventionRemains"
+                  label={t`Confirm no purchasing intervention remains for every selected target`}
+                  description={t`Supplier return, replacement, credit, and communication interventions have been reviewed.`}
+                />
+              )}
+
+              {decisionStatus === "Resolved" ? (
+                <TextArea
+                  name="resolutionNote"
+                  label={t`Closure evidence for every selected target`}
+                  isRequired
+                />
+              ) : (
+                <TextAreaControlled
+                  name="rationale"
+                  label={
+                    decisionStatus === "No action required"
+                      ? t`Review rationale for every selected target`
+                      : t`Follow-up rationale for every selected target`
+                  }
+                  value={rationale}
+                  onChange={setRationale}
+                  isRequired
+                />
+              )}
+
+              {failedResponse?.error?.message && (
+                <div
+                  role="alert"
+                  className="w-full rounded-md border border-destructive/40 bg-destructive/5 px-3 py-2 text-xs text-destructive"
+                >
+                  {failedResponse.error.message}
+                </div>
+              )}
+            </VStack>
+          </DrawerBody>
+          <DrawerFooter>
+            <HStack>
+              <Submit isLoading={isSubmitting}>
+                <Trans>Apply to {candidates.length}</Trans>
+              </Submit>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={onClose}
+                isDisabled={isSubmitting}
+              >
+                <Trans>Cancel</Trans>
+              </Button>
+            </HStack>
+          </DrawerFooter>
+        </ValidatedForm>
+      </DrawerContent>
+    </Drawer>
+  );
+}
+
 function DecisionControls({
   candidate,
   coverageStatus,
@@ -880,7 +1241,10 @@ function ImpactRow({
   canUpdate,
   onRefresh,
   onOpenDecision,
-  onOpenHistory
+  onOpenHistory,
+  selectionEnabled,
+  isSelected,
+  onToggleSelection
 }: {
   changeNoticeId: string;
   candidate: Candidate;
@@ -895,7 +1259,19 @@ function ImpactRow({
     mode: ChangeNoticeImpactDecisionMode
   ) => void;
   onOpenHistory: (candidate: Candidate) => void;
+  selectionEnabled: boolean;
+  isSelected: boolean;
+  onToggleSelection: (candidate: Candidate, selected: boolean) => void;
 }) {
+  const canSelect =
+    selectionEnabled &&
+    canSelectChangeNoticeImpactCandidate({
+      candidate,
+      coverageStatus,
+      taskCoverageStatus,
+      changeNoticeStatus,
+      canUpdate
+    });
   const itemLabel = candidate.item?.readableIdWithRevision ??
     candidate.item?.readableId ?? <Trans>Item details unavailable</Trans>;
   const badges = conditionBadges(candidate);
@@ -903,28 +1279,39 @@ function ImpactRow({
   return (
     <div className="space-y-3 rounded-md border border-border/70 p-3">
       <div className="flex flex-wrap items-start justify-between gap-2">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="font-medium">
-              {domainLabel(candidate.targetType)}
-            </span>
-            {stateBadge(candidate, coverageStatus)}
-            {badges}
-          </div>
-          <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
-            {candidate.parent && (
-              <span className="inline-flex items-center gap-1">
-                <span>{candidate.parent.readableId}</span>
-                <ParentStatus parent={candidate.parent} />
+        <div className="flex min-w-0 items-start gap-2">
+          {(canSelect || isSelected) && (
+            <IndeterminateCheckbox
+              checked={isSelected}
+              indeterminate={false}
+              disabled={!canSelect}
+              aria-label={`Select ${candidate.targetType} ${candidate.targetId}`}
+              onChange={(selected) => onToggleSelection(candidate, selected)}
+            />
+          )}
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-medium">
+                {domainLabel(candidate.targetType)}
               </span>
-            )}
-            {candidate.parent?.type === "purchaseOrder" &&
-              candidate.parent.supplierName && (
-                <span>
-                  <Trans>Supplier</Trans>: {candidate.parent.supplierName}
+              {stateBadge(candidate, coverageStatus)}
+              {badges}
+            </div>
+            <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+              {candidate.parent && (
+                <span className="inline-flex items-center gap-1">
+                  <span>{candidate.parent.readableId}</span>
+                  <ParentStatus parent={candidate.parent} />
                 </span>
               )}
-            <span>{itemLabel}</span>
+              {candidate.parent?.type === "purchaseOrder" &&
+                candidate.parent.supplierName && (
+                  <span>
+                    <Trans>Supplier</Trans>: {candidate.parent.supplierName}
+                  </span>
+                )}
+              <span>{itemLabel}</span>
+            </div>
           </div>
         </div>
         {(sourceLink(candidate) ||
@@ -1011,7 +1398,10 @@ function DocumentGroups({
   canUpdate,
   onRefresh,
   onOpenDecision,
-  onOpenHistory
+  onOpenHistory,
+  selectionEnabled,
+  selectedKeys,
+  onToggleSelection
 }: {
   changeNoticeId: string;
   candidates: Candidate[];
@@ -1027,6 +1417,9 @@ function DocumentGroups({
     mode: ChangeNoticeImpactDecisionMode
   ) => void;
   onOpenHistory: (candidate: Candidate) => void;
+  selectionEnabled: boolean;
+  selectedKeys: ReadonlySet<string>;
+  onToggleSelection: (candidate: Candidate, selected: boolean) => void;
 }) {
   const groups = groupCandidates(candidates);
   if (groups.length === 0) {
@@ -1066,6 +1459,14 @@ function DocumentGroups({
                 onRefresh={onRefresh}
                 onOpenDecision={onOpenDecision}
                 onOpenHistory={onOpenHistory}
+                selectionEnabled={selectionEnabled}
+                isSelected={selectedKeys.has(
+                  getChangeNoticeImpactSelectionKey(
+                    candidate.targetType,
+                    candidate.targetId
+                  )
+                )}
+                onToggleSelection={onToggleSelection}
               />
             ))}
           </CardContent>
@@ -1231,6 +1632,12 @@ export default function ChangeNoticeImpactWorkspace({
   const [decisionConflictMessage, setDecisionConflictMessage] = useState<
     string | null
   >(null);
+  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(
+    () => new Set()
+  );
+  const [bulkDrawerOpen, setBulkDrawerOpen] = useState(false);
+  const [bulkSuccess, setBulkSuccess] =
+    useState<ChangeNoticeImpactDecisionBulkWriteData | null>(null);
   const canUpdate = permissions.can("update", "parts") ?? false;
   const search = params.get("search") ?? "";
   const filters = getImpactFilterValues(params.getAll("filter"));
@@ -1266,9 +1673,66 @@ export default function ChangeNoticeImpactWorkspace({
   const unavailableCandidates = filteredCandidates.filter(isUnavailable);
   const taskCoverageHasWarning = data.taskCoverage.status !== "complete";
   const status = changeNotice?.status ?? data.changeNoticeStatus;
+  const visibleSelectableCandidates = currentCandidates.filter((candidate) =>
+    canSelectChangeNoticeImpactCandidate({
+      candidate,
+      coverageStatus: data.coverage[candidate.targetType].status,
+      taskCoverageStatus: data.taskCoverage.status,
+      changeNoticeStatus: status,
+      canUpdate
+    })
+  );
+  const visibleSelectableCandidateCount = visibleSelectableCandidates.length;
+  const selectedCandidates = useMemo(() => {
+    const byKey = new Map(
+      data.candidates.map((candidate) => [
+        getChangeNoticeImpactSelectionKey(
+          candidate.targetType,
+          candidate.targetId
+        ),
+        candidate
+      ])
+    );
+    return [...selectedKeys].flatMap((key) => {
+      const candidate = byKey.get(key);
+      return candidate ? [candidate] : [];
+    });
+  }, [data.candidates, selectedKeys]);
+  const hasMissingSelectedCandidates =
+    selectedCandidates.length !== selectedKeys.size;
+  const hasIneligibleSelectedCandidates = selectedCandidates.some(
+    (candidate) =>
+      !canSelectChangeNoticeImpactCandidate({
+        candidate,
+        coverageStatus: data.coverage[candidate.targetType].status,
+        taskCoverageStatus: data.taskCoverage.status,
+        changeNoticeStatus: status,
+        canUpdate
+      })
+  );
+  const selectedBulkDecisionStatusOptions =
+    !hasMissingSelectedCandidates && !hasIneligibleSelectedCandidates
+      ? getChangeNoticeImpactBulkDecisionStatusOptions({
+          candidates: selectedCandidates,
+          coverage: data.coverage,
+          taskCoverageStatus: data.taskCoverage.status,
+          changeNoticeStatus: status
+        })
+      : [];
+  const hasNoCommonBulkDecision =
+    selectedKeys.size > 0 &&
+    !hasMissingSelectedCandidates &&
+    !hasIneligibleSelectedCandidates &&
+    selectedCandidates.length > 0 &&
+    selectedBulkDecisionStatusOptions.length === 0;
+  const bulkSelectionBlocked =
+    hasMissingSelectedCandidates ||
+    hasIneligibleSelectedCandidates ||
+    hasNoCommonBulkDecision;
   const openDecision = useCallback(
     (candidate: Candidate, mode: ChangeNoticeImpactDecisionMode) => {
       setDecisionConflictMessage(null);
+      setBulkSuccess(null);
       setDecisionTarget({ candidate, mode });
     },
     []
@@ -1278,8 +1742,46 @@ export default function ChangeNoticeImpactWorkspace({
     setHistoryTarget(candidate);
   }, []);
   const closeHistory = useCallback(() => setHistoryTarget(null), []);
+  const toggleSelection = useCallback(
+    (candidate: Candidate, selected: boolean) => {
+      const key = getChangeNoticeImpactSelectionKey(
+        candidate.targetType,
+        candidate.targetId
+      );
+      setBulkSuccess(null);
+      setSelectedKeys((current) => {
+        const next = new Set(current);
+        if (selected) next.add(key);
+        else next.delete(key);
+        return next;
+      });
+    },
+    []
+  );
+  const clearSelection = useCallback(() => {
+    setSelectedKeys(new Set());
+    setBulkDrawerOpen(false);
+  }, []);
+  const openBulkDrawer = useCallback(() => {
+    setDecisionConflictMessage(null);
+    setBulkSuccess(null);
+    setBulkDrawerOpen(true);
+  }, []);
+  const handleBulkSuccess = useCallback(
+    (result: ChangeNoticeImpactDecisionBulkWriteData) => {
+      setBulkDrawerOpen(false);
+      setSelectedKeys(new Set());
+      setBulkSuccess(result);
+    },
+    []
+  );
+  const handleBulkConflict = useCallback((message: string) => {
+    setBulkDrawerOpen(false);
+    setDecisionConflictMessage(message);
+  }, []);
   const handleDecisionSuccess = useCallback(() => {
     setDecisionTarget(null);
+    setBulkSuccess(null);
     revalidator.revalidate();
   }, [revalidator]);
   const handleDecisionConflict = useCallback(
@@ -1337,6 +1839,34 @@ export default function ChangeNoticeImpactWorkspace({
           <Trans>Refresh</Trans>
         </Button>
       </div>
+
+      {bulkSuccess && (
+        <div
+          role="status"
+          className="w-full rounded-md border border-emerald-500/40 bg-emerald-500/5 px-3 py-2 text-xs text-emerald-700 dark:text-emerald-300"
+        >
+          {bulkSuccess.noOpCount > 0 ? (
+            <>
+              <Plural
+                value={bulkSuccess.appliedCount}
+                one="Impact updated for # target;"
+                other="Impact updated for # targets;"
+              />{" "}
+              <Plural
+                value={bulkSuccess.noOpCount}
+                one="# target was already current."
+                other="# targets were already current."
+              />
+            </>
+          ) : (
+            <Plural
+              value={bulkSuccess.appliedCount}
+              one="Impact updated for # target."
+              other="Impact updated for # targets."
+            />
+          )}
+        </div>
+      )}
 
       {decisionConflictMessage && (
         <div
@@ -1401,6 +1931,73 @@ export default function ChangeNoticeImpactWorkspace({
         taskCoverageStatus={data.taskCoverage.status}
       />
 
+      {((canUpdate && visibleSelectableCandidateCount > 0) ||
+        selectedKeys.size > 0) && (
+        <section
+          aria-label="Bulk Impact selection"
+          className="w-full rounded-md border border-border/70 bg-muted/20 px-3 py-2"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="text-sm">
+              <span className="font-medium">
+                {selectedKeys.size === 0 ? (
+                  <Trans>Select eligible rows for a shared decision.</Trans>
+                ) : (
+                  <Trans>{selectedKeys.size} Impact rows selected</Trans>
+                )}
+              </span>
+              {hasMissingSelectedCandidates && (
+                <div className="text-xs text-amber-700 dark:text-amber-300">
+                  <Trans>
+                    A selected row is no longer readable in the current
+                    workspace. Refresh and review the selection.
+                  </Trans>
+                </div>
+              )}
+              {hasIneligibleSelectedCandidates && (
+                <div className="text-xs text-amber-700 dark:text-amber-300">
+                  <Trans>
+                    One or more selected rows are no longer eligible for a bulk
+                    assessment. Refresh and review the selection.
+                  </Trans>
+                </div>
+              )}
+              {hasNoCommonBulkDecision && (
+                <div className="text-xs text-amber-700 dark:text-amber-300">
+                  <Trans>
+                    The selected rows do not share an available conclusion.
+                    Adjust the selection before reviewing it.
+                  </Trans>
+                </div>
+              )}
+            </div>
+            {selectedKeys.size > 0 && (
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="primary"
+                  onClick={openBulkDrawer}
+                  isDisabled={
+                    bulkSelectionBlocked || selectedCandidates.length === 0
+                  }
+                >
+                  <Trans>Review selected</Trans>
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  onClick={clearSelection}
+                >
+                  <Trans>Clear selection</Trans>
+                </Button>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
       {filteredEmptyState ? (
         <div className="w-full rounded-md border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
           {filteredEmptyState === "incomplete" ? (
@@ -1450,6 +2047,9 @@ export default function ChangeNoticeImpactWorkspace({
                       onRefresh={handleTaskMutation}
                       onOpenDecision={openDecision}
                       onOpenHistory={openHistory}
+                      selectionEnabled
+                      selectedKeys={selectedKeys}
+                      onToggleSelection={toggleSelection}
                       emptyMessage={
                         <Trans>No Purchase Order lines are available.</Trans>
                       }
@@ -1468,6 +2068,9 @@ export default function ChangeNoticeImpactWorkspace({
                       onRefresh={handleTaskMutation}
                       onOpenDecision={openDecision}
                       onOpenHistory={openHistory}
+                      selectionEnabled
+                      selectedKeys={selectedKeys}
+                      onToggleSelection={toggleSelection}
                       emptyMessage={
                         <Trans>No Jobs or Job Materials are available.</Trans>
                       }
@@ -1502,6 +2105,9 @@ export default function ChangeNoticeImpactWorkspace({
                 onRefresh={handleTaskMutation}
                 onOpenDecision={openDecision}
                 onOpenHistory={openHistory}
+                selectionEnabled={false}
+                selectedKeys={selectedKeys}
+                onToggleSelection={toggleSelection}
                 emptyMessage={
                   coverageHasWarning ? (
                     <Trans>Historical coverage is incomplete.</Trans>
@@ -1538,6 +2144,9 @@ export default function ChangeNoticeImpactWorkspace({
                 onRefresh={handleTaskMutation}
                 onOpenDecision={openDecision}
                 onOpenHistory={openHistory}
+                selectionEnabled={false}
+                selectedKeys={selectedKeys}
+                onToggleSelection={toggleSelection}
                 emptyMessage={
                   <Trans>No unavailable source rows are available.</Trans>
                 }
@@ -1563,6 +2172,21 @@ export default function ChangeNoticeImpactWorkspace({
           </Trans>
         </CardContent>
       </Card>
+
+      {bulkDrawerOpen &&
+        !bulkSelectionBlocked &&
+        selectedCandidates.length > 0 && (
+          <ImpactBulkDecisionDrawer
+            changeNoticeId={id}
+            candidates={selectedCandidates}
+            coverage={data.coverage}
+            taskCoverageStatus={data.taskCoverage.status}
+            changeNoticeStatus={status}
+            onClose={() => setBulkDrawerOpen(false)}
+            onSuccess={handleBulkSuccess}
+            onConflict={handleBulkConflict}
+          />
+        )}
 
       {decisionTarget && (
         <ImpactDecisionDrawer

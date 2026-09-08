@@ -83,6 +83,7 @@ function makeCandidate(
     sourceAvailability: "Present",
     unavailableReason: null,
     decision: makeDecision(),
+    previewFingerprint: null,
     freshness: "Current",
     taskLinks: [],
     ...overrides

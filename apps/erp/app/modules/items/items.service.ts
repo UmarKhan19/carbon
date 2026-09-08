@@ -39,6 +39,7 @@ import {
 import {
   ACTIVE_JOB_MATERIAL,
   ACTIVE_PRODUCING_JOB,
+  CHANGE_NOTICE_IMPACT_BULK_PREVIEW_STALE_MESSAGE,
   type ChangeNoticeChangeType,
   type ChangeNoticeError,
   type ChangeNoticeImpactCandidate,
@@ -9766,6 +9767,32 @@ export function compareChangeNoticeImpactSnapshot(
     : "Changed since assessment";
 }
 
+/**
+ * Create an opaque, non-reversible proof for the browser bulk preview. The
+ * source item and affected-item identities are included so a target whose
+ * current Change Notice cause changes cannot reuse a fingerprint for unchanged
+ * source facts.
+ */
+export async function createChangeNoticeImpactPreviewFingerprint(input: {
+  targetType: ChangeNoticeImpactTargetType;
+  snapshot: ChangeNoticeImpactSnapshot;
+  affectedItemId: string;
+  affectedItemSourceId: string;
+}): Promise<string> {
+  const encoded = new TextEncoder().encode(
+    JSON.stringify({
+      targetType: input.targetType,
+      affectedItemId: input.affectedItemId,
+      affectedItemSourceId: input.affectedItemSourceId,
+      snapshot: input.snapshot
+    })
+  );
+  const digest = await globalThis.crypto.subtle.digest("SHA-256", encoded);
+  return [...new Uint8Array(digest)]
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
 // Small aliases make the pure contract easy to discover from the Items barrel.
 export const normalizePOLineImpactSnapshot =
   normalizePurchaseOrderLineImpactSnapshot;
@@ -12787,7 +12814,8 @@ function projectImpactDecisionForWorkspace(
 
 function projectImpactCandidateForWorkspace(
   candidate: ChangeNoticeImpactCandidate,
-  taskLinks: ChangeNoticeImpactTaskLink[]
+  taskLinks: ChangeNoticeImpactTaskLink[],
+  previewFingerprint: string | null
 ): ChangeNoticeImpactWorkspaceCandidate {
   return {
     ...candidate,
@@ -12797,6 +12825,7 @@ function projectImpactCandidateForWorkspace(
     decision: candidate.decision
       ? projectImpactDecisionForWorkspace(candidate.decision)
       : null,
+    previewFingerprint,
     taskLinks
   };
 }
@@ -12892,12 +12921,28 @@ export async function getChangeNoticeImpactWorkspace(
   }
 
   const workspaceCandidates: ChangeNoticeImpactWorkspaceCandidate[] =
-    candidates.map((candidate) =>
-      projectImpactCandidateForWorkspace(
-        candidate,
-        candidate.decision
-          ? (taskLinksByDecision.get(candidate.decision.id) ?? [])
-          : []
+    await Promise.all(
+      candidates.map(async (candidate) =>
+        projectImpactCandidateForWorkspace(
+          candidate,
+          candidate.decision
+            ? (taskLinksByDecision.get(candidate.decision.id) ?? [])
+            : [],
+          candidate.currentSnapshot &&
+            candidate.sourceAvailability === "Present" &&
+            candidate.exposureClassification ===
+              "Current operational exposure" &&
+            candidate.currentProvenance[0]?.affectedItemId &&
+            candidate.currentProvenance[0].affectedItemSourceId
+            ? await createChangeNoticeImpactPreviewFingerprint({
+                targetType: candidate.targetType,
+                snapshot: candidate.currentSnapshot,
+                affectedItemId: candidate.currentProvenance[0].affectedItemId,
+                affectedItemSourceId:
+                  candidate.currentProvenance[0].affectedItemSourceId
+              })
+            : null
+        )
       )
     );
 
@@ -13664,6 +13709,13 @@ function validateImpactDecisionMutationInput(
   ) {
     return impactMutationFailure("Expected decision revision is invalid.");
   }
+  if (
+    mutation.expectedSnapshotFingerprint !== undefined &&
+    (typeof mutation.expectedSnapshotFingerprint !== "string" ||
+      mutation.expectedSnapshotFingerprint.trim().length === 0)
+  ) {
+    return impactMutationFailure("Impact preview fingerprint is invalid.");
+  }
 
   return null;
 }
@@ -13690,7 +13742,8 @@ const IMPACT_BULK_TARGET_KEYS = new Set([
   "rationale",
   "resolutionNote",
   "confirmNoPurchasingInterventionRemains",
-  "expectedRevision"
+  "expectedRevision",
+  "expectedSnapshotFingerprint"
 ]);
 
 function validateImpactDecisionBulkMutationInput(
@@ -14021,8 +14074,8 @@ async function readImpactMutationPurchaseOrderLines(
           "purchaseUnitOfMeasureCode",
           "inventoryUnitOfMeasureCode",
           "conversionFactor",
-          "requiredDate",
-          "promisedDate"
+          sql<string | null>`"requiredDate"::text`.as("requiredDate"),
+          sql<string | null>`"promisedDate"::text`.as("promisedDate")
         ])
         .where("companyId", "=", companyId)
         .where("id", "in", batch)
@@ -14067,7 +14120,13 @@ async function readImpactMutationPurchaseOrderDeliveries(
     (batch) =>
       trx
         .selectFrom("purchaseOrderDelivery")
-        .select(["id", "companyId", "receiptPromisedDate"])
+        .select([
+          "id",
+          "companyId",
+          sql<string | null>`"receiptPromisedDate"::text`.as(
+            "receiptPromisedDate"
+          )
+        ])
         .where("companyId", "=", companyId)
         .where("id", "in", batch)
         .orderBy("id", "asc")
@@ -14128,7 +14187,7 @@ async function readImpactMutationJobs(
           "quantityComplete",
           "quantityShipped",
           "quantityReceivedToInventory",
-          "dueDate",
+          sql<string | null>`"dueDate"::text`.as("dueDate"),
           "unitOfMeasureCode"
         ])
         .where("companyId", "=", companyId)
@@ -15025,7 +15084,10 @@ function planImpactDecisionWithoutEvidence(
 async function prepareImpactDecisionBatch(
   trx: KyselyTx,
   inputs: ChangeNoticeImpactDecisionMutationInput[],
-  options: { allowDoneFirstAssessment?: boolean } = {}
+  options: {
+    allowDoneFirstAssessment?: boolean;
+    requirePreviewFingerprint?: boolean;
+  } = {}
 ): Promise<ImpactDecisionPlan[]> {
   const changeNotice = await loadImpactMutationChangeNotice(trx, inputs[0]);
   const existingByTarget = await loadImpactMutationExistingDecisions(
@@ -15058,7 +15120,9 @@ async function prepareImpactDecisionBatch(
   }
 
   const evidenceInputs = preflight
-    .filter((plan) => plan.requiresEvidence)
+    .filter(
+      (plan) => plan.requiresEvidence || options.requirePreviewFingerprint
+    )
     .map((plan) => plan.input);
   const evidenceByTarget = await loadImpactMutationEvidence(
     trx,
@@ -15073,92 +15137,140 @@ async function prepareImpactDecisionBatch(
     existingDecisionIds
   );
 
-  return preflight.map((plan) => {
-    if (!plan.requiresEvidence) {
-      return {
-        ...plan,
-        evidence: null,
-        newSnapshot: plan.previousSnapshot,
-        priorAssessmentWasChanged: false,
-        decisionValuesChanged: true,
-        provenanceRows: [],
-        provenanceChanged: false
-      };
-    }
-    const evidence = evidenceByTarget.get(
-      impactTargetKey(plan.input.targetType, plan.input.targetId)
-    );
-    if (!evidence) {
-      throw new ImpactMutationRejected(
-        "Complete Impact assessment evidence is unavailable."
+  return Promise.all(
+    preflight.map(async (plan) => {
+      const evidence = evidenceByTarget.get(
+        impactTargetKey(plan.input.targetType, plan.input.targetId)
       );
-    }
-    if (!plan.existing) {
+      if (!plan.requiresEvidence) {
+        if (options.requirePreviewFingerprint) {
+          if (!evidence) {
+            throw new ImpactMutationRejected(
+              "Complete Impact assessment evidence is unavailable."
+            );
+          }
+          const expectedFingerprint = plan.input.expectedSnapshotFingerprint;
+          const currentFingerprint =
+            await createChangeNoticeImpactPreviewFingerprint({
+              targetType: plan.input.targetType,
+              snapshot: evidence.snapshot,
+              affectedItemId: evidence.affectedItemId,
+              affectedItemSourceId: evidence.affectedItemSourceId
+            });
+          if (
+            expectedFingerprint === undefined ||
+            expectedFingerprint !== currentFingerprint
+          ) {
+            throw new ImpactMutationRejected(
+              CHANGE_NOTICE_IMPACT_BULK_PREVIEW_STALE_MESSAGE
+            );
+          }
+        }
+        return {
+          ...plan,
+          evidence: null,
+          newSnapshot: plan.previousSnapshot,
+          priorAssessmentWasChanged: false,
+          decisionValuesChanged: true,
+          provenanceRows: [],
+          provenanceChanged: false
+        };
+      }
+      if (!evidence) {
+        throw new ImpactMutationRejected(
+          "Complete Impact assessment evidence is unavailable."
+        );
+      }
+      if (options.requirePreviewFingerprint) {
+        const expectedFingerprint = plan.input.expectedSnapshotFingerprint;
+        const currentFingerprint =
+          await createChangeNoticeImpactPreviewFingerprint({
+            targetType: plan.input.targetType,
+            snapshot: evidence.snapshot,
+            affectedItemId: evidence.affectedItemId,
+            affectedItemSourceId: evidence.affectedItemSourceId
+          });
+        if (
+          expectedFingerprint === undefined ||
+          expectedFingerprint !== currentFingerprint
+        ) {
+          throw new ImpactMutationRejected(
+            CHANGE_NOTICE_IMPACT_BULK_PREVIEW_STALE_MESSAGE
+          );
+        }
+      }
+      if (!plan.existing) {
+        return {
+          ...plan,
+          evidence,
+          newSnapshot: evidence.snapshot as Json,
+          priorAssessmentWasChanged: false,
+          decisionValuesChanged: true,
+          provenanceRows: [],
+          provenanceChanged: false
+        };
+      }
+
+      const previousSnapshot = plan.existing.assessmentSnapshot;
+      if (
+        !isCanonicalStoredImpactSnapshot(
+          plan.input.targetType,
+          previousSnapshot
+        )
+      ) {
+        throw new ImpactMutationRejected(
+          "Stored Impact assessment snapshot is unavailable for reassessment."
+        );
+      }
+      const snapshotFreshness = compareChangeNoticeImpactSnapshot(
+        plan.input.targetType,
+        evidence.snapshot,
+        previousSnapshot,
+        plan.existing.snapshotVersion
+      );
+      if (snapshotFreshness === "Unknown") {
+        throw new ImpactMutationRejected(
+          "Stored Impact assessment snapshot is unavailable for reassessment."
+        );
+      }
+      const priorAssessmentWasChanged =
+        snapshotFreshness === "Changed since assessment";
+      const decisionValuesChanged =
+        plan.previousValues?.decisionStatus !==
+          plan.nextValues.decisionStatus ||
+        plan.previousValues?.noActionReasonCode !==
+          plan.nextValues.noActionReasonCode ||
+        plan.previousValues?.rationale !== plan.nextValues.rationale ||
+        plan.previousValues?.resolutionNote !==
+          plan.nextValues.resolutionNote ||
+        priorAssessmentWasChanged;
+      const provenanceRows = provenanceByDecision.get(plan.existing.id) ?? [];
+      const openRows = provenanceRows.filter(
+        (row) => row.endedAt === null || row.endedAt === undefined
+      );
+      if (openRows.length > 1) {
+        throw new ImpactMutationRejected(
+          "Impact decision has more than one current provenance cause."
+        );
+      }
+      const openProvenance = openRows[0];
+      const provenanceChanged =
+        !openProvenance ||
+        openProvenance.affectedItemId !== evidence.affectedItemId ||
+        openProvenance.affectedItemSourceId !== evidence.affectedItemSourceId;
+
       return {
         ...plan,
         evidence,
         newSnapshot: evidence.snapshot as Json,
-        priorAssessmentWasChanged: false,
-        decisionValuesChanged: true,
-        provenanceRows: [],
-        provenanceChanged: false
+        priorAssessmentWasChanged,
+        decisionValuesChanged,
+        provenanceRows,
+        provenanceChanged,
+        previousSnapshot: previousSnapshot as Json
       };
-    }
-
-    const previousSnapshot = plan.existing.assessmentSnapshot;
-    if (
-      !isCanonicalStoredImpactSnapshot(plan.input.targetType, previousSnapshot)
-    ) {
-      throw new ImpactMutationRejected(
-        "Stored Impact assessment snapshot is unavailable for reassessment."
-      );
-    }
-    const snapshotFreshness = compareChangeNoticeImpactSnapshot(
-      plan.input.targetType,
-      evidence.snapshot,
-      previousSnapshot,
-      plan.existing.snapshotVersion
-    );
-    if (snapshotFreshness === "Unknown") {
-      throw new ImpactMutationRejected(
-        "Stored Impact assessment snapshot is unavailable for reassessment."
-      );
-    }
-    const priorAssessmentWasChanged =
-      snapshotFreshness === "Changed since assessment";
-    const decisionValuesChanged =
-      plan.previousValues?.decisionStatus !== plan.nextValues.decisionStatus ||
-      plan.previousValues?.noActionReasonCode !==
-        plan.nextValues.noActionReasonCode ||
-      plan.previousValues?.rationale !== plan.nextValues.rationale ||
-      plan.previousValues?.resolutionNote !== plan.nextValues.resolutionNote ||
-      priorAssessmentWasChanged;
-    const provenanceRows = provenanceByDecision.get(plan.existing.id) ?? [];
-    const openRows = provenanceRows.filter(
-      (row) => row.endedAt === null || row.endedAt === undefined
-    );
-    if (openRows.length > 1) {
-      throw new ImpactMutationRejected(
-        "Impact decision has more than one current provenance cause."
-      );
-    }
-    const openProvenance = openRows[0];
-    const provenanceChanged =
-      !openProvenance ||
-      openProvenance.affectedItemId !== evidence.affectedItemId ||
-      openProvenance.affectedItemSourceId !== evidence.affectedItemSourceId;
-
-    return {
-      ...plan,
-      evidence,
-      newSnapshot: evidence.snapshot as Json,
-      priorAssessmentWasChanged,
-      decisionValuesChanged,
-      provenanceRows,
-      provenanceChanged,
-      previousSnapshot: previousSnapshot as Json
-    };
-  });
+    })
+  );
 }
 
 async function applyImpactDecisionPlan(
@@ -15480,9 +15592,27 @@ export async function writeChangeNoticeImpactDecisions(
   const validation = validateImpactDecisionBulkMutationInput(input);
   if ("error" in validation) return validation.error;
 
+  const fingerprintCount = validation.decisions.filter(
+    (decision) => decision.expectedSnapshotFingerprint !== undefined
+  ).length;
+  if (
+    fingerprintCount > 0 &&
+    fingerprintCount !== validation.decisions.length
+  ) {
+    return impactMutationFailure(
+      "Every bulk target must include the reviewed Impact preview."
+    );
+  }
+
   try {
     return await db.transaction().execute(async (trx) => {
-      const plans = await prepareImpactDecisionBatch(trx, validation.decisions);
+      const plans = await prepareImpactDecisionBatch(
+        trx,
+        validation.decisions,
+        {
+          requirePreviewFingerprint: fingerprintCount > 0
+        }
+      );
       let appliedCount = 0;
       let noOpCount = 0;
       for (const plan of plans) {

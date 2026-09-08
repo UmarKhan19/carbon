@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { getImpactDecisionFilterValue } from "./ChangeNoticeImpactFilters";
 
 vi.mock("@carbon/form", () => ({ ValidatedForm: () => null }));
 vi.mock("@carbon/react", () => ({
@@ -8,6 +9,7 @@ vi.mock("@carbon/react", () => ({
   CardContent: () => null,
   CardHeader: () => null,
   CardTitle: () => null,
+  Checkbox: () => null,
   Drawer: () => null,
   DrawerBody: () => null,
   DrawerContent: () => null,
@@ -19,6 +21,7 @@ vi.mock("@carbon/react", () => ({
 }));
 vi.mock("@carbon/utils", () => ({ formatDate: vi.fn() }));
 vi.mock("@lingui/react/macro", () => ({
+  Plural: () => null,
   Trans: () => null,
   useLingui: () => ({ t: (value: string) => value })
 }));
@@ -44,8 +47,12 @@ vi.mock("~/components/Form", () => ({
   TextArea: () => null,
   TextAreaControlled: () => null
 }));
-vi.mock("~/hooks", () => ({ usePermissions: () => ({ can: () => true }) }));
+vi.mock("~/hooks", () => ({
+  usePermissions: () => ({ can: () => true }),
+  useUrlParams: () => [new URLSearchParams(), vi.fn()]
+}));
 vi.mock("~/modules/items", () => ({
+  changeNoticeImpactDecisionBulkFormValidator: {},
   changeNoticeImpactDecisionFormValidator: {},
   changeNoticeImpactDecisionStatuses: [
     "No action required",
@@ -94,7 +101,11 @@ vi.mock("./ChangeNoticeImpactHistory", () => ({
 }));
 
 const {
+  canSelectChangeNoticeImpactCandidate,
   canViewChangeNoticeImpactHistory,
+  conditionBadges,
+  getChangeNoticeImpactBulkDecisionStatusOptions,
+  getChangeNoticeImpactBulkNoActionReasonOptions,
   getChangeNoticeImpactDecisionControls,
   getChangeNoticeImpactDecisionStatusOptions,
   getChangeNoticeImpactRationaleDefault,
@@ -115,6 +126,7 @@ function candidate(over: Record<string, unknown> = {}) {
     sourceAvailability: "Present",
     unavailableReason: null,
     decision: null,
+    previewFingerprint: "preview-1",
     freshness: null,
     taskLinks: [],
     ...over
@@ -132,6 +144,106 @@ const base = {
 
 describe("Change Notice Impact decision controls", () => {
   beforeEach(() => vi.clearAllMocks());
+
+  it("only selects complete, current, readable candidates with a preview proof", () => {
+    expect(
+      canSelectChangeNoticeImpactCandidate({
+        candidate: candidate(),
+        ...base
+      })
+    ).toBe(true);
+    expect(
+      canSelectChangeNoticeImpactCandidate({
+        candidate: candidate({ previewFingerprint: null }),
+        ...base
+      })
+    ).toBe(false);
+    expect(
+      canSelectChangeNoticeImpactCandidate({
+        candidate: candidate({
+          exposureClassification: "Historical reference"
+        }),
+        ...base
+      })
+    ).toBe(false);
+    expect(
+      canSelectChangeNoticeImpactCandidate({
+        candidate: candidate(),
+        ...base,
+        coverageStatus: "partial"
+      })
+    ).toBe(false);
+  });
+
+  it("keeps bulk preview conclusions distinct from Unassessed and preserves changed freshness", () => {
+    const unassessed = candidate();
+    const changed = candidate({
+      decision: pendingCandidateDecision(),
+      freshness: "Changed since assessment"
+    });
+
+    expect(getImpactDecisionFilterValue(unassessed, "complete")).toBe(
+      "Unassessed"
+    );
+    expect(getImpactDecisionFilterValue(changed, "complete")).toBe(
+      "Action required"
+    );
+    expect(
+      getImpactDecisionFilterValue(
+        candidate({
+          decision: {
+            ...pendingCandidateDecision(),
+            status: "No action required",
+            decisionStatus: "No action required"
+          }
+        }),
+        "complete"
+      )
+    ).toBe("No action required");
+    expect(
+      getImpactDecisionFilterValue(
+        candidate({
+          decision: {
+            ...pendingCandidateDecision(),
+            status: "Resolved",
+            decisionStatus: "Resolved"
+          }
+        }),
+        "complete"
+      )
+    ).toBe("Resolved");
+    expect(conditionBadges(changed)).toHaveLength(1);
+  });
+
+  it("offers only shared bulk conclusions and domain-valid reasons", () => {
+    const options = getChangeNoticeImpactBulkDecisionStatusOptions({
+      candidates: [candidate(), candidate({ targetId: "pol-2" })],
+      coverage: {
+        purchaseOrderLine: { status: "complete" },
+        job: { status: "complete" },
+        jobMaterial: { status: "complete" }
+      } as any,
+      taskCoverageStatus: "complete",
+      changeNoticeStatus: "Implementation"
+    });
+    expect(options).toEqual([
+      "No action required",
+      "Action required",
+      "Resolved"
+    ]);
+    expect(
+      getChangeNoticeImpactBulkNoActionReasonOptions([candidate()])
+    ).toEqual([
+      "Not affected after review",
+      "No purchasing intervention remains"
+    ]);
+    expect(
+      getChangeNoticeImpactBulkNoActionReasonOptions([
+        candidate(),
+        candidate({ targetType: "job", targetId: "job-1" })
+      ])
+    ).toEqual(["Not affected after review"]);
+  });
 
   it("shows history only for a readable persisted decision", () => {
     const assessed = candidate({ decision: pendingCandidateDecision() });

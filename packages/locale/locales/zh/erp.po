@@ -55,6 +55,17 @@ msgstr "{0, plural, one {# 行链接到该公司外的数据，无法制作当�
 #. placeholder {0}: totalScopeRows( exportRun.violationRowsByTable )
 msgid "{0, plural, one {# row links to data outside this company, so it can't be backed up. Skipping it backs up everything else.} other {# rows link to data outside this company, so they can't be backed up. Skipping them backs up everything else.}}"
 msgstr "{0, plural, one {# 行链接到该公司外的数据，无法备份。跳过它可以备份其他所有内容。} other {# 行链接到该公司外的数据，无法备份。跳过它们可以备份其他所有内容。}}"
+#. placeholder {0}: bulkSuccess.noOpCount
+msgid "{0, plural, one {# target was already current.} other {# targets were already current.}}"
+msgstr ""
+
+#. placeholder {0}: bulkSuccess.appliedCount
+msgid "{0, plural, one {Impact updated for # target;} other {Impact updated for # targets;}}"
+msgstr ""
+
+#. placeholder {0}: bulkSuccess.appliedCount
+msgid "{0, plural, one {Impact updated for # target.} other {Impact updated for # targets.}}"
+msgstr ""
 
 #. placeholder {0}: open.length
 msgid "{0, plural, one {This item is on 1 open change notice} other {This item is on # open change notices}}"
@@ -123,6 +134,9 @@ msgstr "{0}库存，用于{1}个组件；剩余的{2}将按{3}拣货"
 #. placeholder {2}: consumeFirst.successorReadableId
 msgid "{0} in stock; the remaining {1} will be picked as {2}"
 msgstr "{0}库存；剩余的{1}将按{2}拣货"
+#. placeholder {0}: selectedKeys.size
+msgid "{0} Impact rows selected"
+msgstr ""
 
 #. placeholder {0}: jobs.length
 msgid "{0} jobs created"
@@ -195,6 +209,9 @@ msgstr "{0} 已选择"
 #. placeholder {0}: suggestions.length
 msgid "{0} suggested batches"
 msgstr "{0} 个建议生产批次"
+#. placeholder {0}: candidates.length
+msgid "{0} selected targets"
+msgstr ""
 
 #. placeholder {0}: ap.count
 msgid "{0} suppliers with a balance"
@@ -916,6 +933,9 @@ msgstr "销售RFQ（客户要求您报价）或采购RFQ（您要求供应商）
 
 msgid "A scoped secret sent on the carbon-key request header that authenticates programmatic calls to Carbon, carrying its own permissions and rate limit rather than a user session's."
 msgstr "在 carbon-key 请求标头上发送的范围内秘密，用于验证对 Carbon 的编程调用，携带自己的权限和速率限制，而不是用户会话的。"
+
+msgid "A selected row is no longer readable in the current workspace. Refresh and review the selection."
+msgstr ""
 
 msgid "A separate schedule for tax reporting when tax rules require a method different from book depreciation."
 msgstr "当税收规则要求与账面折旧不同的方法时，用于税收报告的单独税收折旧方案。"
@@ -1996,6 +2016,10 @@ msgstr "应用建议"
 
 msgid "Apply To"
 msgstr "应用于"
+
+#. placeholder {0}: candidates.length
+msgid "Apply to {0}"
+msgstr ""
 
 msgid "Apply to invoice"
 msgstr "应用到发票"
@@ -3747,6 +3771,9 @@ msgstr "关闭被阻止"
 msgid "Closure evidence"
 msgstr ""
 
+msgid "Closure evidence for every selected target"
+msgstr ""
+
 msgid "Cloud, or your self-hosted environment."
 msgstr "云端或您自托管的环境。"
 
@@ -3913,6 +3940,9 @@ msgstr ""
 msgid "Conclusion corrected"
 msgstr ""
 
+msgid "Conclusion for every selected target"
+msgstr ""
+
 msgid "Condensed P&L with margins and key subtotals"
 msgstr "精简损益表，含利润率和关键小计"
 
@@ -4046,6 +4076,9 @@ msgid "Confirm Mapping"
 msgstr "确认映射"
 
 msgid "Confirm no purchasing intervention remains"
+msgstr ""
+
+msgid "Confirm no purchasing intervention remains for every selected target"
 msgstr ""
 
 msgid "Confirm Password"
@@ -4955,6 +4988,9 @@ msgid "Current"
 msgstr "当前"
 
 msgid "Current cause"
+msgstr ""
+
+msgid "Current conclusion"
 msgstr ""
 
 msgid "Current Net Book Value:"
@@ -7978,6 +8014,9 @@ msgid "Follow-up for"
 msgstr ""
 
 msgid "Follow-up rationale"
+msgstr ""
+
+msgid "Follow-up rationale for every selected target"
 msgstr ""
 
 msgid "for anything. They'll pull in the right person."
@@ -11742,6 +11781,9 @@ msgstr "没有工作中心存在"
 msgid "No-action reason"
 msgstr ""
 
+msgid "No-action reason for every selected target"
+msgstr ""
+
 msgid "Nom"
 msgstr "标称值"
 
@@ -12021,6 +12063,9 @@ msgstr "1 {0} 等于多少 {1}？"
 
 msgid "One firing of a workflow, recorded step by step with the values each step used and produced, acting throughout with the permissions of the workflow's owner."
 msgstr "一次工作流执行，逐步记录每个步骤使用和产生的值，始终以工作流负责人的权限行动。"
+
+msgid "One or more selected rows are no longer eligible for a bulk assessment. Refresh and review the selection."
+msgstr ""
 
 msgid "One serial unit or one batch that Carbon follows individually, carrying its own status and attributes such as an expiry date."
 msgstr "Carbon单独跟踪的一个编号件或一个生产批次，具有自己的状态和属性，例如有效期。"
@@ -14808,6 +14853,9 @@ msgstr "评审"
 
 msgid "Review & create"
 msgstr "查看和创建"
+msgid "Review bulk Impact assessment"
+msgstr ""
+
 msgid "Review current purchasing and production exposure with source coverage, provenance, and freshness details."
 msgstr ""
 
@@ -14815,6 +14863,12 @@ msgid "Review each item's changes, then confirm — releasing can't be undone."
 msgstr "评审每个物料的更改，然后确认——发布无法撤销。"
 
 msgid "Review rationale"
+msgstr ""
+
+msgid "Review rationale for every selected target"
+msgstr ""
+
+msgid "Review selected"
 msgstr ""
 
 msgid "Review the period's balance sheet and income statement and confirm the figures look right. This is a manual sign-off — mark it done once you have reviewed them."
@@ -15627,6 +15681,8 @@ msgstr "选择维度"
 
 msgid "Select disposition"
 msgstr "选择处理方式"
+msgid "Select eligible rows for a shared decision."
+msgstr ""
 
 msgid "Select Employee"
 msgstr "选择员工"
@@ -17958,6 +18014,11 @@ msgstr "用于在其使用年限内分摊此资产成本的排程（直线法、
 
 msgid "The scheduler uses the first rule below that applies, then subtracts downtime and staffing."
 msgstr "调度程序应用以下适用的第一条规则，然后减去停机时间和人员配置。"
+msgid "The selected rows do not share an available conclusion. Adjust the selection before reviewing it."
+msgstr ""
+
+msgid "The server will recheck every target and reject the whole batch if any source fact, eligibility rule, or decision revision changed after this preview."
+msgstr ""
 
 msgid "The shelves and bins where stock physically sits"
 msgstr "库存实际存放的货架和料箱"
