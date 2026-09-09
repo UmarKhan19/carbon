@@ -22,7 +22,8 @@ const allTools = metadata.tools as Tool[];
 const OVERRIDDEN = new Set([
   "settings_getApiKeys",
   "settings_upsertApiKey",
-  "settings_deleteApiKey"
+  "settings_deleteApiKey",
+  "items_createImpactFollowUpTask"
 ]);
 
 const tools = allTools.filter((t) => !OVERRIDDEN.has(t.name));
@@ -31,11 +32,31 @@ const funcName = (t: Tool) => t.name.slice(t.module.length + 1).toLowerCase();
 
 describe("permission overrides", () => {
   it("API-key management gates on users_update, matching its ERP routes", () => {
-    for (const name of OVERRIDDEN) {
+    for (const name of [
+      "settings_getApiKeys",
+      "settings_upsertApiKey",
+      "settings_deleteApiKey"
+    ]) {
       const t = allTools.find((t) => t.name === name);
       expect(t, name).toBeDefined();
       expect(t?.permission, name).toEqual({
         module: "users",
+        actions: ["update"]
+      });
+    }
+  });
+
+  it("Impact task adapters gate on parts_update regardless of their verb", () => {
+    for (const name of [
+      "items_createImpactFollowUpTask",
+      "items_linkImpactDecisionTask",
+      "items_unlinkImpactDecisionTask",
+      "items_designateImpactFollowUpTask"
+    ]) {
+      const t = allTools.find((t) => t.name === name);
+      expect(t, name).toBeDefined();
+      expect(t?.permission, name).toEqual({
+        module: "parts",
         actions: ["update"]
       });
     }

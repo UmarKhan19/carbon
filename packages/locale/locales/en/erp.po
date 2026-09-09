@@ -55,6 +55,7 @@ msgstr "{0, plural, one {# row links to data outside this company, so a safety c
 #. placeholder {0}: totalScopeRows( exportRun.violationRowsByTable )
 msgid "{0, plural, one {# row links to data outside this company, so it can't be backed up. Skipping it backs up everything else.} other {# rows link to data outside this company, so they can't be backed up. Skipping them backs up everything else.}}"
 msgstr "{0, plural, one {# row links to data outside this company, so it can't be backed up. Skipping it backs up everything else.} other {# rows link to data outside this company, so they can't be backed up. Skipping them backs up everything else.}}"
+
 #. placeholder {0}: bulkSuccess.noOpCount
 msgid "{0, plural, one {# target was already current.} other {# targets were already current.}}"
 msgstr "{0, plural, one {# target was already current.} other {# targets were already current.}}"
@@ -206,12 +207,13 @@ msgstr "{0} scrapped"
 msgid "{0} selected"
 msgstr "{0} selected"
 
-#. placeholder {0}: suggestions.length
-msgid "{0} suggested batches"
-msgstr "{0} suggested batches"
 #. placeholder {0}: candidates.length
 msgid "{0} selected targets"
 msgstr "{0} selected targets"
+
+#. placeholder {0}: suggestions.length
+msgid "{0} suggested batches"
+msgstr "{0} suggested batches"
 
 #. placeholder {0}: ap.count
 msgid "{0} suppliers with a balance"
@@ -3022,6 +3024,7 @@ msgstr "Batches to return"
 
 msgid "Batching"
 msgstr "Batching"
+
 msgid "Before"
 msgstr "Before"
 
@@ -4614,6 +4617,7 @@ msgstr "Country code"
 
 msgid "Coverage"
 msgstr "Coverage"
+
 msgid "Coverage failed. This is not an empty or safe result; refresh after the source is available."
 msgstr "Coverage failed. This is not an empty or safe result; refresh after the source is available."
 
@@ -4695,10 +4699,11 @@ msgstr "Create Batch"
 msgid "Create Change Notice"
 msgstr "Create Change Notice"
 
-msgid "Create Forecast"
-msgstr "Create Forecast"
 msgid "Create follow-up"
 msgstr "Create follow-up"
+
+msgid "Create Forecast"
+msgstr "Create Forecast"
 
 msgid "Create Impact follow-up"
 msgstr "Create Impact follow-up"
@@ -5022,9 +5027,6 @@ msgstr "Current source facts had changed since the prior assessment."
 
 msgid "Current state"
 msgstr "Current state"
-
-msgid "Currently training for"
-msgstr "Currently training for"
 
 msgid "Custom"
 msgstr "Custom"
@@ -9882,6 +9884,7 @@ msgstr "Link Linear Issue"
 
 msgid "link outside company"
 msgstr "link outside company"
+
 msgid "Link task"
 msgstr "Link task"
 
@@ -11383,10 +11386,11 @@ msgstr "No editable properties for this item."
 msgid "No eligible operations"
 msgstr "No eligible operations"
 
-msgid "No employees assigned this week"
-msgstr "No employees assigned this week"
 msgid "No eligible tasks are available to link."
 msgstr "No eligible tasks are available to link."
+
+msgid "No employees assigned this week"
+msgstr "No employees assigned this week"
 
 msgid "No employees assigned yet. Add groups to see status."
 msgstr "No employees assigned yet. Add groups to see status."
@@ -11465,6 +11469,7 @@ msgstr "No items have inventory activity here yet."
 
 msgid "No jobs are scheduled at this location yet — release a job to see work-center load."
 msgstr "No jobs are scheduled at this location yet — release a job to see work-center load."
+
 msgid "No Jobs or Job Materials are available."
 msgstr "No Jobs or Job Materials are available."
 
@@ -11507,13 +11512,14 @@ msgstr "No matches. Type to create one."
 msgid "No matching bins"
 msgstr "No matching bins"
 
+msgid "No matching loaded Impact rows are visible. Coverage is incomplete, so this is not a complete result."
+msgstr "No matching loaded Impact rows are visible. Coverage is incomplete, so this is not a complete result."
+
 msgid "No matching operations"
 msgstr "No matching operations"
 
 msgid "No materials"
 msgstr "No materials"
-msgid "No matching loaded Impact rows are visible. Coverage is incomplete, so this is not a complete result."
-msgstr "No matching loaded Impact rows are visible. Coverage is incomplete, so this is not a complete result."
 
 msgid "No new notifications"
 msgstr "No new notifications"
@@ -11616,6 +11622,7 @@ msgstr "No production events recorded for this operation yet"
 
 msgid "No production recorded yet."
 msgstr "No production recorded yet."
+
 msgid "No Purchase Order lines are available."
 msgstr "No Purchase Order lines are available."
 
@@ -14713,6 +14720,7 @@ msgstr "Restoring files"
 
 msgid "restoring…"
 msgstr "restoring…"
+
 msgid "Restricted"
 msgstr "Restricted"
 
@@ -14853,6 +14861,7 @@ msgstr "Review"
 
 msgid "Review & create"
 msgstr "Review & create"
+
 msgid "Review bulk Impact assessment"
 msgstr "Review bulk Impact assessment"
 
@@ -15297,6 +15306,7 @@ msgstr "Save Method"
 
 msgid "Save Rate"
 msgstr "Save Rate"
+
 msgid "Save reassessment"
 msgstr "Save reassessment"
 
@@ -16414,13 +16424,14 @@ msgstr "Solutions Engineer"
 msgid "Some lines extracted from the PDF could not be automatically mapped to your inventory items. Review and map each line below."
 msgstr "Some lines extracted from the PDF could not be automatically mapped to your inventory items. Review and map each line below."
 
+msgid "Some linked task metadata is unavailable. Decision state is shown independently and has not been inferred from task status. Task details are omitted where linked-task coverage could not be read."
+msgstr "Some linked task metadata is unavailable. Decision state is shown independently and has not been inferred from task status. Task details are omitted where linked-task coverage could not be read."
+
 msgid "Some records won't come back. Type <0>{CONFIRM_WORD}</0> to continue."
 msgstr "Some records won't come back. Type <0>{CONFIRM_WORD}</0> to continue."
 
 msgid "Some Shifts"
 msgstr "Some Shifts"
-msgid "Some linked task metadata is unavailable. Decision state is shown independently and has not been inferred from task status. Task details are omitted where linked-task coverage could not be read."
-msgstr "Some linked task metadata is unavailable. Decision state is shown independently and has not been inferred from task status. Task details are omitted where linked-task coverage could not be read."
 
 msgid "Something went wrong. Please try again."
 msgstr "Something went wrong. Please try again."
@@ -17594,6 +17605,7 @@ msgstr "The department this one rolls up under for reporting and headcount hiera
 
 msgid "The early hours, {name}."
 msgstr "The early hours, {name}."
+
 msgid "The editor was closed and the workspace was refreshed. Review the current state before submitting again."
 msgstr "The editor was closed and the workspace was refreshed. Review the current state before submitting again."
 
@@ -18013,6 +18025,7 @@ msgstr "The schedule used to spread this asset's cost over its useful life (stra
 
 msgid "The scheduler uses the first rule below that applies, then subtracts downtime and staffing."
 msgstr "The scheduler uses the first rule below that applies, then subtracts downtime and staffing."
+
 msgid "The selected rows do not share an available conclusion. Adjust the selection before reviewing it."
 msgstr "The selected rows do not share an available conclusion. Adjust the selection before reviewing it."
 
@@ -18249,6 +18262,8 @@ msgstr "These operations use a process with multiple suppliers. Choose a supplie
 
 msgid "These parts are being replaced by this one. Each rule is set on the old part; open it to change the rule."
 msgstr "These parts are being replaced by this one. Each rule is set on the old part; open it to change the rule."
+msgid "These references remain traceable but do not create a new Unassessed obligation."
+msgstr "These references remain traceable but do not create a new Unassessed obligation."
 
 msgid "These rows link to data outside this company, so a safety copy of your current data can't be made. Deleting them cannot be undone. If they turn out to be shared with other companies in this group, nothing is deleted and the restore doesn't start."
 msgstr "These rows link to data outside this company, so a safety copy of your current data can't be made. Deleting them cannot be undone. If they turn out to be shared with other companies in this group, nothing is deleted and the restore doesn't start."
@@ -18264,8 +18279,6 @@ msgstr "This backup could not be completed."
 
 msgid "This backup hasn't been checked yet. Any differences are found when the restore runs."
 msgstr "This backup hasn't been checked yet. Any differences are found when the restore runs."
-msgid "These references remain traceable but do not create a new Unassessed obligation."
-msgstr "These references remain traceable but do not create a new Unassessed obligation."
 
 msgid "This Carbon instance is missing its Onshape OAuth credentials. Ask an administrator to set them."
 msgstr "This Carbon instance is missing its Onshape OAuth credentials. Ask an administrator to set them."
@@ -18445,13 +18458,14 @@ msgstr "This sales order has associated jobs. Choose what to do with them."
 msgid "This sales order has lines that require jobs to be created"
 msgstr "This sales order has lines that require jobs to be created"
 
+msgid "This source domain is restricted for your current permissions. No target identities or source facts are shown."
+msgstr "This source domain is restricted for your current permissions. No target identities or source facts are shown."
+
 msgid "This station runs ability-gated work — it only runs while a qualified operator is on shift; operators assigned on the manning board further shape available labor."
 msgstr "This station runs ability-gated work — it only runs while a qualified operator is on shift; operators assigned on the manning board further shape available labor."
 
 msgid "This station runs work with no ability requirement; operators assigned on the manning board shape available labor."
 msgstr "This station runs work with no ability requirement; operators assigned on the manning board shape available labor."
-msgid "This source domain is restricted for your current permissions. No target identities or source facts are shown."
-msgstr "This source domain is restricted for your current permissions. No target identities or source facts are shown."
 
 #. placeholder {0}: usageCount === 1 ? "" : "s"
 msgid "This storage type is currently used by {usageCount} storage unit{0}."

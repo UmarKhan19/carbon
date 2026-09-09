@@ -24,6 +24,10 @@ const spies = vi.hoisted(() => ({
   insertSalesOrder: vi.fn(),
   replaceInvoiceSettlements: vi.fn(),
   applyCreditsToInvoices: vi.fn(),
+  createImpactFollowUpTask: vi.fn(),
+  linkImpactDecisionTask: vi.fn(),
+  unlinkImpactDecisionTask: vi.fn(),
+  designateImpactFollowUpTask: vi.fn(),
   FAKE_DB: { __kysely: true },
   FAKE_CLIENT: { __supabase: true }
 }));
@@ -46,6 +50,12 @@ vi.mock("~/modules/inventory/inventory.service", () => ({
 vi.mock("~/modules/invoicing/invoicing.service", () => ({
   replaceInvoiceSettlements: spies.replaceInvoiceSettlements,
   applyCreditsToInvoices: spies.applyCreditsToInvoices
+}));
+vi.mock("~/modules/items/items.mcp.server", () => ({
+  createImpactFollowUpTask: spies.createImpactFollowUpTask,
+  linkImpactDecisionTask: spies.linkImpactDecisionTask,
+  unlinkImpactDecisionTask: spies.unlinkImpactDecisionTask,
+  designateImpactFollowUpTask: spies.designateImpactFollowUpTask
 }));
 vi.mock("~/modules/items/items.service", () => ({
   upsertMethodMaterial: spies.upsertMethodMaterial
@@ -151,7 +161,11 @@ const allSpies = [
   spies.insertPurchaseOrder,
   spies.insertSalesOrder,
   spies.replaceInvoiceSettlements,
-  spies.applyCreditsToInvoices
+  spies.applyCreditsToInvoices,
+  spies.createImpactFollowUpTask,
+  spies.linkImpactDecisionTask,
+  spies.unlinkImpactDecisionTask,
+  spies.designateImpactFollowUpTask
 ];
 
 beforeEach(() => {
@@ -649,6 +663,55 @@ const LEDGER_ARGS = {
   offset: 0
 };
 
+// These are the exact generated operation names. Calling through callOperation
+// proves the manifest lookup, oRPC procedure, shared registry, and adapter export
+// all agree; a direct adapter import would miss any of those seams.
+const IMPACT_ADAPTER_CALLS: Array<[string, Spy, Record<string, unknown>]> = [
+  [
+    "items_createImpactFollowUpTask",
+    spies.createImpactFollowUpTask,
+    {
+      changeNoticeId: "cn_1",
+      targetType: "purchaseOrderLine",
+      targetId: "pol_1",
+      task: {}
+    }
+  ],
+  [
+    "items_linkImpactDecisionTask",
+    spies.linkImpactDecisionTask,
+    {
+      changeNoticeId: "cn_1",
+      decisionId: "decision_1",
+      targetType: "purchaseOrderLine",
+      targetId: "pol_1",
+      actionTaskId: "task_1"
+    }
+  ],
+  [
+    "items_unlinkImpactDecisionTask",
+    spies.unlinkImpactDecisionTask,
+    {
+      changeNoticeId: "cn_1",
+      decisionId: "decision_1",
+      targetType: "purchaseOrderLine",
+      targetId: "pol_1",
+      actionTaskId: "task_1"
+    }
+  ],
+  [
+    "items_designateImpactFollowUpTask",
+    spies.designateImpactFollowUpTask,
+    {
+      changeNoticeId: "cn_1",
+      decisionId: "decision_1",
+      targetType: "purchaseOrderLine",
+      targetId: "pol_1",
+      actionTaskId: "task_1"
+    }
+  ]
+];
+
 function idIn(payload: unknown): string | undefined {
   // Mirror of packages/jobs/src/workflows/actions/create.ts — what the workflow
   // engine actually runs over a dispatch result.
@@ -676,6 +739,61 @@ describe("callOperation (the MCP/agent/workflow entry point)", () => {
     spy.mockResolvedValue({ data: [{ id: "rec_2" }], error: null });
     const asList = await callOperation(name, ctx, args);
     expect(idIn((asList as { data: unknown }).data)).toBe("rec_2");
+  });
+
+  it.each(
+    IMPACT_ADAPTER_CALLS
+  )("%s reaches its Items MCP adapter through the canonical dispatcher", async (name, spy, args) => {
+    spy.mockResolvedValue({ data: { id: "impact_1" }, error: null });
+
+    const result = await callOperation(name, ctx, args);
+
+    expect(result).toEqual({
+      success: true,
+      data: { id: "impact_1" }
+    });
+    expect(spy).toHaveBeenCalledWith(
+      spies.FAKE_CLIENT,
+      "c1",
+      "u1",
+      expect.objectContaining(args)
+    );
+  });
+
+  it.each([
+    ["empty scopes", {}],
+    ["parts_create without parts_update", { parts_create: ["c1"] }],
+    ["parts_update scoped to another company", { parts_update: ["c2"] }],
+    ["correct-company parts_update", { parts_update: ["c1"] }]
+  ] as Array<
+    [string, Record<string, string[]>]
+  >)("API-key Impact create scope: %s", async (_caseName, scopes) => {
+    spies.createImpactFollowUpTask.mockResolvedValue({
+      data: { id: "impact_1" },
+      error: null
+    });
+
+    const result = await callOperation(
+      "items_createImpactFollowUpTask",
+      { ...ctx, authKind: "api-key", scopes },
+      IMPACT_ADAPTER_CALLS[0][2]
+    );
+    const allowed = scopes.parts_update?.includes("c1") ?? false;
+
+    if (allowed) {
+      expect(result).toEqual({
+        success: true,
+        data: { id: "impact_1" }
+      });
+      expect(spies.createImpactFollowUpTask).toHaveBeenCalled();
+    } else {
+      expect(result).toEqual({
+        success: false,
+        errorKind: "execution",
+        error: "API key lacks the required scope: parts_update"
+      });
+      expect(spies.createImpactFollowUpTask).not.toHaveBeenCalled();
+    }
   });
 
   it("maps a Supabase error to the errorKind:database envelope with MCP's exact text", async () => {

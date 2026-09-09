@@ -47,9 +47,9 @@ export const MCP_BLOCKED_TOOL_NAMES: readonly string[] = [
   "sales_updateSalesOrderFavorite",
   "sales_updateSalesRFQFavorite",
   "purchasing_updateSupplierQuoteFavorite",
-  "resources_insertTrainingCompletion"
-  // Impact service boundaries require application-level authorization. Expose them
-  // later through a permission-aware MCP adapter, not the generic executor.
+  "resources_insertTrainingCompletion",
+  // Impact service boundaries require application-level authorization. Keep raw
+  // operations behind permission-aware adapters rather than generic dispatch.
   "items_writeChangeNoticeImpactDecision",
   "items_writeChangeNoticeImpactDecisions",
   "items_reconcileChangeNoticeImpactProvenance",
@@ -64,6 +64,7 @@ export const MCP_BLOCKED_TOOL_NAMES: readonly string[] = [
   // These helpers are internal implementation details, not MCP contracts. Without
   // an explicit exclusion, regenerating metadata publishes them as opaque WRITE
   // tools (and the generic parser cannot describe all of their nested inputs).
+  "items_createChangeNoticeImpactPreviewFingerprint",
   "items_normalizePurchaseOrderLineImpactSnapshot",
   "items_normalizeJobImpactSnapshot",
   "items_normalizeJobMaterialImpactSnapshot",

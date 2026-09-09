@@ -55,17 +55,18 @@ msgstr "{0, plural, one {# satır bu şirketin dışındaki verilere bağlantı 
 #. placeholder {0}: totalScopeRows( exportRun.violationRowsByTable )
 msgid "{0, plural, one {# row links to data outside this company, so it can't be backed up. Skipping it backs up everything else.} other {# rows link to data outside this company, so they can't be backed up. Skipping them backs up everything else.}}"
 msgstr "{0, plural, one {# satır bu şirketin dışındaki verilere bağlantı kuruyor, bu nedenle yedeklenemez. Bunu atlayarak diğer her şeyi yedekleyebilirsiniz.} other {# satır bu şirketin dışındaki verilere bağlantı kuruyor, bu nedenle yedeklenemez. Bunları atlayarak diğer her şeyi yedekleyebilirsiniz.}}"
+
 #. placeholder {0}: bulkSuccess.noOpCount
 msgid "{0, plural, one {# target was already current.} other {# targets were already current.}}"
-msgstr ""
+msgstr "{0, plural, one {# hedef zaten günceldi.} other {# hedef zaten günceldi.}}"
 
 #. placeholder {0}: bulkSuccess.appliedCount
 msgid "{0, plural, one {Impact updated for # target;} other {Impact updated for # targets;}}"
-msgstr ""
+msgstr "{0, plural, one {Etki # hedef için güncellendi;} other {Etki # hedef için güncellendi;}}"
 
 #. placeholder {0}: bulkSuccess.appliedCount
 msgid "{0, plural, one {Impact updated for # target.} other {Impact updated for # targets.}}"
-msgstr ""
+msgstr "{0, plural, one {Etki # hedef için güncellendi.} other {Etki # hedef için güncellendi.}}"
 
 #. placeholder {0}: open.length
 msgid "{0, plural, one {This item is on 1 open change notice} other {This item is on # open change notices}}"
@@ -136,7 +137,7 @@ msgid "{0} in stock; the remaining {1} will be picked as {2}"
 msgstr "{0} stokta; kalan {1} {2} olarak toplanacak"
 #. placeholder {0}: selectedKeys.size
 msgid "{0} Impact rows selected"
-msgstr ""
+msgstr "{0} Etki satırı seçildi"
 
 #. placeholder {0}: jobs.length
 msgid "{0} jobs created"
@@ -206,12 +207,13 @@ msgstr "{0} hurdaya alındı"
 msgid "{0} selected"
 msgstr "{0} seçildi"
 
+#. placeholder {0}: candidates.length
+msgid "{0} selected targets"
+msgstr "{0} hedef seçildi"
+
 #. placeholder {0}: suggestions.length
 msgid "{0} suggested batches"
 msgstr "{0} önerilen parti"
-#. placeholder {0}: candidates.length
-msgid "{0} selected targets"
-msgstr ""
 
 #. placeholder {0}: ap.count
 msgid "{0} suppliers with a balance"
@@ -935,7 +937,7 @@ msgid "A scoped secret sent on the carbon-key request header that authenticates 
 msgstr "Carbon'a programlı çağrıları doğrulayan carbon-key istek başlığında gönderilen kapsamlı bir gizli anahtar; bir kullanıcı oturumunun yerine kendi izinleri ve hız sınırını taşır."
 
 msgid "A selected row is no longer readable in the current workspace. Refresh and review the selection."
-msgstr ""
+msgstr "Seçilen bir satır artık mevcut çalışma alanında okunamıyor. Yenileyin ve seçimi inceleyin."
 
 msgid "A separate schedule for tax reporting when tax rules require a method different from book depreciation."
 msgstr "Vergi kuralları defter amortismanından farklı bir yöntem gerektirdiğinde vergi raporlaması için ayrı bir zaman çizelgesi."
@@ -1224,7 +1226,7 @@ msgid "Action"
 msgstr "İşlem"
 
 msgid "Action required"
-msgstr ""
+msgstr "İşlem gerekli"
 
 msgid "Action Status"
 msgstr "Aksiyon Durumu"
@@ -1597,10 +1599,10 @@ msgid "Advanced"
 msgstr "Gelişmiş"
 
 msgid "Affected item"
-msgstr ""
+msgstr "Etkilenen stok kartı"
 
 msgid "Affected item details unavailable."
-msgstr ""
+msgstr "Etkilenen stok kartı ayrıntıları kullanılamıyor."
 
 msgid "Affected item not found."
 msgstr "Etkilenen öğe bulunamadı."
@@ -2019,7 +2021,7 @@ msgstr "Uygulanacak Alan"
 
 #. placeholder {0}: candidates.length
 msgid "Apply to {0}"
-msgstr ""
+msgstr "{0} hedefe uygula"
 
 msgid "Apply to invoice"
 msgstr "Faturaya uygula"
@@ -2606,34 +2608,34 @@ msgid "Assembly:"
 msgstr "Montaj:"
 
 msgid "Assess"
-msgstr ""
+msgstr "Değerlendir"
 
 msgid "Assess operational impact"
-msgstr ""
+msgstr "Operasyonel etkiyi değerlendir"
 
 msgid "Assessment coverage"
-msgstr ""
+msgstr "Değerlendirme kapsamı"
 
 msgid "Assessment coverage needs attention"
-msgstr ""
+msgstr "Değerlendirme kapsamı dikkat gerektiriyor"
 
 msgid "Assessment created"
-msgstr ""
+msgstr "Değerlendirme oluşturuldu"
 
 msgid "Assessment reassessed"
-msgstr ""
+msgstr "Değerlendirme yeniden değerlendirildi"
 
 msgid "Assessment reopened"
-msgstr ""
+msgstr "Değerlendirme yeniden açıldı"
 
 msgid "Assessment resolved"
-msgstr ""
+msgstr "Değerlendirme çözüldü"
 
 msgid "Assessment snapshot"
-msgstr ""
+msgstr "Değerlendirme anlık görüntüsü"
 
 msgid "Assessment snapshot · changed"
-msgstr ""
+msgstr "Değerlendirme anlık görüntüsü · değiştirildi"
 
 msgid "Asset"
 msgstr "Varlık"
@@ -2702,7 +2704,7 @@ msgid "Assignee"
 msgstr "Atan"
 
 msgid "Assignees"
-msgstr ""
+msgstr "Atananlar"
 
 msgid "Assignment"
 msgstr "Görevlendirme"
@@ -2846,10 +2848,10 @@ msgid "Automatically start the job when the kanban is scanned"
 msgstr "Kanban taranıp iş otomatik olarak başlatılır"
 
 msgid "Availability"
-msgstr ""
+msgstr "Kullanılabilirlik"
 
 msgid "Availability states"
-msgstr ""
+msgstr "Kullanılabilirlik durumları"
 
 msgid "available"
 msgstr "kullanılabilir"
@@ -2883,7 +2885,7 @@ msgid "Back"
 msgstr "Geri"
 
 msgid "Back to Change Notice"
-msgstr ""
+msgstr "Değişiklik bildirimine dön"
 
 msgid "Back to traceability"
 msgstr "İzlenebilirliğe geri dön"
@@ -3022,8 +3024,9 @@ msgstr "İade edilecek partiler"
 
 msgid "Batching"
 msgstr "Partileme"
+
 msgid "Before"
-msgstr ""
+msgstr "Önce"
 
 msgid "Beginning"
 msgstr "Başlangıç"
@@ -3411,7 +3414,7 @@ msgid "Caption"
 msgstr "Başlık"
 
 msgid "Captured snapshot"
-msgstr ""
+msgstr "Kaydedilen anlık görüntü"
 
 msgid "Carbon"
 msgstr "Karbon"
@@ -3592,7 +3595,7 @@ msgid "Changed By"
 msgstr "Değiştiren"
 
 msgid "Changed since assessment"
-msgstr ""
+msgstr "Değerlendirmeden bu yana değişti"
 
 msgid "Changes"
 msgstr "Değişiklikler"
@@ -3769,10 +3772,10 @@ msgid "Closure blocked"
 msgstr "Kapanış engellendi"
 
 msgid "Closure evidence"
-msgstr ""
+msgstr "Kapatma kanıtı"
 
 msgid "Closure evidence for every selected target"
-msgstr ""
+msgstr "Seçilen her hedef için kapatma kanıtı"
 
 msgid "Cloud, or your self-hosted environment."
 msgstr "Bulut veya kendi barındırılan ortamınız."
@@ -3935,13 +3938,13 @@ msgid "Computed At"
 msgstr "Hesaplama Tarihi"
 
 msgid "Conclusion"
-msgstr ""
+msgstr "Sonuç"
 
 msgid "Conclusion corrected"
-msgstr ""
+msgstr "Sonuç düzeltildi"
 
 msgid "Conclusion for every selected target"
-msgstr ""
+msgstr "Seçilen her hedef için sonuç"
 
 msgid "Condensed P&L with margins and key subtotals"
 msgstr "Kenar boşluklarına ve anahtar ara toplamlarına sahip Sıkıştırılmış Kâr ve Zarar"
@@ -4076,10 +4079,10 @@ msgid "Confirm Mapping"
 msgstr "Eşleştirmeyi Onayla"
 
 msgid "Confirm no purchasing intervention remains"
-msgstr ""
+msgstr "Artık satın alma müdahalesi kalmadığını onayla"
 
 msgid "Confirm no purchasing intervention remains for every selected target"
-msgstr ""
+msgstr "Seçilen her hedef için artık satın alma müdahalesi kalmadığını onayla"
 
 msgid "Confirm Password"
 msgstr "Şifreyi Onayla"
@@ -4478,7 +4481,7 @@ msgid "Correction {correctionNumber}"
 msgstr "Düzeltme {correctionNumber}"
 
 msgid "Correction rationale"
-msgstr ""
+msgstr "Düzeltme gerekçesi"
 
 msgid "Corrections"
 msgstr "Düzeltmeler"
@@ -4614,11 +4617,12 @@ msgstr "Ülke kodu"
 
 msgid "Coverage"
 msgstr "Vardiya katılımı"
+
 msgid "Coverage failed. This is not an empty or safe result; refresh after the source is available."
-msgstr ""
+msgstr "Kapsam başarısız oldu. Bu, boş veya güvenli bir sonuç değildir; kaynak kullanılabilir olduktan sonra yenileyin."
 
 msgid "Coverage is partial. Counts and source-deletion conclusions are withheld where the scan could not be completed."
-msgstr ""
+msgstr "Kapsam kısmi. Taramanın tamamlanamadığı yerlerde sayımlar ve kaynak silme sonuçları gösterilmez."
 
 msgid "Create"
 msgstr "Oluştur"
@@ -4695,13 +4699,14 @@ msgstr "Parti Oluştur"
 msgid "Create Change Notice"
 msgstr "Değişiklik Bildirisi Oluştur"
 
+msgid "Create follow-up"
+msgstr "Takip oluştur"
+
 msgid "Create Forecast"
 msgstr "Tahmin Oluştur"
-msgid "Create follow-up"
-msgstr ""
 
 msgid "Create Impact follow-up"
-msgstr ""
+msgstr "Etki takibi oluştur"
 
 msgid "Create Issue"
 msgstr "Sorun Oluştur"
@@ -4739,7 +4744,7 @@ msgstr "Kural Oluştur"
 msgid "Create Supplier Return"
 msgstr "Tedarikçi İadesi Oluştur"
 msgid "Create task"
-msgstr ""
+msgstr "Görev oluştur"
 
 msgid "Create Transfer"
 msgstr "Transfer Oluştur"
@@ -4988,16 +4993,16 @@ msgid "Current"
 msgstr "Mevcut"
 
 msgid "Current cause"
-msgstr ""
+msgstr "Mevcut neden"
 
 msgid "Current conclusion"
-msgstr ""
+msgstr "Mevcut sonuç"
 
 msgid "Current Net Book Value:"
 msgstr "Cari Net Defter Değeri:"
 
 msgid "Current operational exposure"
-msgstr ""
+msgstr "Mevcut operasyonel maruziyet"
 
 msgid "Current Password"
 msgstr "Mevcut Şifre"
@@ -5009,22 +5014,19 @@ msgid "Current quantity"
 msgstr "Mevcut miktar"
 
 msgid "Current source facts are unavailable because the source was deleted."
-msgstr ""
+msgstr "Kaynak silindiği için mevcut kaynak bilgileri kullanılamıyor."
 
 msgid "Current source facts are unavailable."
-msgstr ""
+msgstr "Mevcut kaynak bilgileri kullanılamıyor."
 
 msgid "Current source facts changed since the stored assessment. Saving will capture a fresh assessment snapshot."
-msgstr ""
+msgstr "Mevcut kaynak bilgileri kaydedilmiş değerlendirmeden bu yana değişti. Kaydetme işlemi yeni bir değerlendirme anlık görüntüsü yakalayacak."
 
 msgid "Current source facts had changed since the prior assessment."
-msgstr ""
+msgstr "Mevcut kaynak bilgileri önceki değerlendirmeden bu yana değişmişti."
 
 msgid "Current state"
-msgstr ""
-
-msgid "Currently training for"
-msgstr "Şu anda eğitim alıyor"
+msgstr "Mevcut durum"
 
 msgid "Custom"
 msgstr "Özel"
@@ -5399,10 +5401,10 @@ msgid "Decimal Places"
 msgstr "Ondalık Basamaklar"
 
 msgid "Decision"
-msgstr ""
+msgstr "Karar"
 
 msgid "Decisions"
-msgstr ""
+msgstr "Kararlar"
 
 msgid "Declining balance"
 msgstr "Azalan Bakiye"
@@ -5965,10 +5967,10 @@ msgid "Description of Issue"
 msgstr "Sorun Açıklaması"
 
 msgid "Designate"
-msgstr ""
+msgstr "Ata"
 
 msgid "Designate as Impact follow-up"
-msgstr ""
+msgstr "Etki takibi olarak ata"
 
 msgid "Detail"
 msgstr "Detay"
@@ -6182,10 +6184,10 @@ msgid "Documents you open will show up here for quick access."
 msgstr "Açtığınız belgeler hızlı erişim için burada görünecektir."
 
 msgid "Domain"
-msgstr ""
+msgstr "Alan"
 
 msgid "Domains"
-msgstr ""
+msgstr "Alanlar"
 
 msgid "Don't Cancel"
 msgstr "İptal Etme"
@@ -6200,7 +6202,7 @@ msgid "Done"
 msgstr "Bitti"
 
 msgid "Done · Engineering released. Operational assessment remains available."
-msgstr ""
+msgstr "Tamamlandı · Mühendislik yayına alındı. Operasyonel değerlendirme kullanılabilir durumda."
 
 msgid "Done when day-to-day runs without us in the room"
 msgstr "Günlük işlemler bizim olmadan kendi kendine çalışırken bitti"
@@ -7150,7 +7152,7 @@ msgid "Event"
 msgstr "Etkinlik"
 
 msgid "Event details are unavailable for this event type."
-msgstr ""
+msgstr "Bu etkinlik türü için etkinlik ayrıntıları kullanılamıyor."
 
 msgid "Event Type"
 msgstr "Olay Türü"
@@ -7168,7 +7170,7 @@ msgid "Every in-scope test passes in your configured system, with your data."
 msgstr "Kapsamdaki her test, yapılandırılmış sisteminizde, verilerinizle geçer."
 
 msgid "Every linked task must be Completed or Skipped before this Impact can be resolved."
-msgstr ""
+msgstr "Bu Etki çözümlenebilmeden önce bağlantılı tüm görevler Tamamlandı veya Atlandı durumunda olmalıdır."
 
 msgid "Every match"
 msgstr "Her eşleşme"
@@ -7379,10 +7381,10 @@ msgid "Export Lines to CSV"
 msgstr "Satırları CSV'ye Dışa Aktar"
 
 msgid "Exposure"
-msgstr ""
+msgstr "Maruziyet"
 
 msgid "Exposure states"
-msgstr ""
+msgstr "Maruziyet durumları"
 
 msgid "Extended Price"
 msgstr "Genelletilmiş Fiyat"
@@ -8011,13 +8013,13 @@ msgid "Flags"
 msgstr "Bayraklar"
 
 msgid "Follow-up for"
-msgstr ""
+msgstr "Takip konusu"
 
 msgid "Follow-up rationale"
-msgstr ""
+msgstr "Takip gerekçesi"
 
 msgid "Follow-up rationale for every selected target"
-msgstr ""
+msgstr "Seçilen her hedef için takip gerekçesi"
 
 msgid "for anything. They'll pull in the right person."
 msgstr "herhangi bir şey için. Doğru kişiyi çekerler."
@@ -8066,13 +8068,13 @@ msgid "Frequency"
 msgstr "Sıklık"
 
 msgid "Freshness"
-msgstr ""
+msgstr "Güncellik"
 
 msgid "Freshness states"
-msgstr ""
+msgstr "Güncellik durumları"
 
 msgid "Freshness unavailable"
-msgstr ""
+msgstr "Güncellik bilgisi kullanılamıyor"
 
 msgid "Friday"
 msgstr "Cuma"
@@ -8498,13 +8500,13 @@ msgid "Hints in the first row"
 msgstr "İlk satırdaki ipuçları"
 
 msgid "Historical"
-msgstr ""
+msgstr "Tarihsel"
 
 msgid "Historical causes"
-msgstr ""
+msgstr "Tarihsel nedenler"
 
 msgid "Historical coverage is incomplete."
-msgstr ""
+msgstr "Tarihsel kapsam eksik."
 
 msgid "Historical data older than what's on the Data Migration Map"
 msgstr "Veri Taşıma Haritasında olanlardan daha eski geçmiş veriler"
@@ -8516,10 +8518,10 @@ msgid "Historical Rate (Equity)"
 msgstr "Tarihsel kur (Özkaynak)"
 
 msgid "Historical reference"
-msgstr ""
+msgstr "Tarihsel referans"
 
 msgid "Historical references"
-msgstr ""
+msgstr "Tarihsel referanslar"
 
 msgid "History"
 msgstr "Geçmiş"
@@ -8795,22 +8797,22 @@ msgid "Impact"
 msgstr "Etki"
 
 msgid "Impact assessment changed while you were editing."
-msgstr ""
+msgstr "Siz düzenlerken Etki değerlendirmesi değişti."
 
 msgid "Impact event"
-msgstr ""
+msgstr "Etki olayı"
 
 msgid "Impact follow-up"
-msgstr ""
+msgstr "Etki takibi"
 
 msgid "Impact history"
-msgstr ""
+msgstr "Etki geçmişi"
 
 msgid "Impact task could not be created."
-msgstr ""
+msgstr "Etki görevi oluşturulamadı."
 
 msgid "Impact task could not be linked."
-msgstr ""
+msgstr "Etki görevi bağlanamadı."
 
 msgid "Imperial"
 msgstr "İmparatorluk"
@@ -8961,7 +8963,7 @@ msgid "Indirect Materials & Services (default)"
 msgstr "Dolaylı Malzemeler ve Hizmetler (varsayılan)"
 
 msgid "Informational context only"
-msgstr ""
+msgstr "Yalnızca bilgi amaçlı bağlam"
 
 msgid "Infrastructure"
 msgstr "Altyapı"
@@ -9369,7 +9371,7 @@ msgid "Item / Location"
 msgstr "Ürün / Konum"
 
 msgid "Item details unavailable"
-msgstr ""
+msgstr "Stok kartı ayrıntıları kullanılabilir değil"
 
 msgid "Item filters"
 msgstr "Ürün filtreleri"
@@ -9468,7 +9470,7 @@ msgid "Job make method"
 msgstr "İş emri üretim yöntemi"
 
 msgid "Job Material"
-msgstr ""
+msgstr "İş emri malzemesi"
 
 msgid "Job Materials"
 msgstr "İş emri malzemeleri"
@@ -9492,7 +9494,7 @@ msgid "Job readable"
 msgstr "İş okunabilir"
 
 msgid "Job status"
-msgstr ""
+msgstr "İş emri durumu"
 
 msgid "Job Traveler"
 msgstr "İş takip kartı"
@@ -9533,6 +9535,7 @@ msgstr "Bu tarihte veya daha önce tarihli Muhasebe fişleri kilitli olarak kabu
 
 msgid "Jump to a section on detail pages (same modifiers + the section's letter)"
 msgstr "Detay sayfalarındaki bir bölüme atla (aynı değiştiriciler + bölümün harfi)"
+msgstr "Ayrıntı sayfalarında bir bölüme atla (aynı değiştiriciler + bölümün harfi)"
 
 msgid "Just one"
 msgstr "Sadece bir"
@@ -9872,7 +9875,7 @@ msgstr "Satın alma siparişi bağla"
 msgid "Link a sales order"
 msgstr "Satış siparişi bağla"
 msgid "Link existing task"
-msgstr ""
+msgstr "Mevcut görevi bağla"
 
 msgid "Link Jira Issue"
 msgstr "Jira Sorununu Bağla"
@@ -9882,8 +9885,9 @@ msgstr "Linear sorununu bağla"
 
 msgid "link outside company"
 msgstr "şirket dışı bağlantı"
+
 msgid "Link task"
-msgstr ""
+msgstr "Görevi bağla"
 
 msgid "Link this Carbon customer to one of them, or create a separate Stripe customer."
 msgstr "Bu Carbon müşterisini bunlardan birine bağlayın veya ayrı bir Stripe müşterisi oluşturun."
@@ -9903,10 +9907,10 @@ msgid "Linked PO"
 msgstr "Bağlantılı Sipariş"
 
 msgid "Linked tasks"
-msgstr ""
+msgstr "Bağlı görevler"
 
 msgid "Linking preserves the task's existing origin and status. It does not resolve this Impact decision."
-msgstr ""
+msgstr "Bağlama, görevin mevcut kaynağını ve durumunu korur. Bu, Etki kararını çözümlemez."
 
 msgid "List Options"
 msgstr "Liste Seçenekleri"
@@ -10946,7 +10950,7 @@ msgid "New Fixed Asset"
 msgstr "Yeni sabit kıymet"
 
 msgid "New follow-up rationale"
-msgstr ""
+msgstr "Yeni takip gerekçesi"
 
 msgid "New Gauge"
 msgstr "Yeni ölçüm aleti"
@@ -11252,7 +11256,7 @@ msgid "No action needed"
 msgstr "Yapılacak işlem yok"
 
 msgid "No action required"
-msgstr ""
+msgstr "İşlem gerekli değil"
 
 msgid "No actions found."
 msgstr "İşlem bulunamadı."
@@ -11325,7 +11329,7 @@ msgid "No comments yet. Be the first to add a comment."
 msgstr "Henüz yorum yok. İlk yorumu ekleyin."
 
 msgid "No complete current result is available."
-msgstr ""
+msgstr "Eksiksiz güncel sonuç kullanılabilir değil."
 
 msgid "No completed jobs within range"
 msgstr "Aralıkta tamamlanmış İş emri yok"
@@ -11342,10 +11346,10 @@ msgstr "Hiç maliyet geçmişi bulunamadı"
 msgid "No credits yet"
 msgstr "Henüz kredi yok"
 msgid "No current operational exposure is available."
-msgstr ""
+msgstr "Güncel operasyonel etkilenme kullanılabilir değil."
 
 msgid "No current snapshot is needed for this historical reference."
-msgstr ""
+msgstr "Bu geçmiş referans için güncel anlık görüntü gerekli değil."
 
 msgid "No Data"
 msgstr "Veri Yok"
@@ -11383,10 +11387,11 @@ msgstr "Bu öğe için düzenlenebilir özellik yok."
 msgid "No eligible operations"
 msgstr "Uygun operasyon yok"
 
+msgid "No eligible tasks are available to link."
+msgstr "Bağlanabilecek uygun ve kullanılabilir görev yok."
+
 msgid "No employees assigned this week"
 msgstr "Bu hafta hiçbir çalışan atanmamış"
-msgid "No eligible tasks are available to link."
-msgstr ""
 
 msgid "No employees assigned yet. Add groups to see status."
 msgstr "Henüz çalışan atanmadı. Durumu görmek için gruplar ekleyin."
@@ -11437,16 +11442,16 @@ msgid "No groups assigned"
 msgstr "Atanmış grup yok"
 
 msgid "No historical references are available."
-msgstr ""
+msgstr "Kullanılabilir geçmiş referans yok."
 
 msgid "No history is recorded for this assessment."
-msgstr ""
+msgstr "Bu değerlendirme için geçmiş kaydı yok."
 
 msgid "No image"
 msgstr "Resim yok"
 
 msgid "No Impact rows match the current search and filters."
-msgstr ""
+msgstr "Mevcut arama ve filtrelemelerle eşleşen Etki satırı yok."
 
 msgid "No inspection plans"
 msgstr "Kontrol planı yok"
@@ -11466,8 +11471,9 @@ msgstr "Burada henüz hiçbir maddenin envanter hareketi yok."
 msgid "No jobs are scheduled at this location yet — release a job to see work-center load."
 msgstr "Bu Lokasyonda henüz İş emri planlanmamış — çalışma merkezinin yükünü görmek için İş emrini Serbest bırakın."
 msgstr "Bu lokasyon'da henüz hiçbir iş emri planlanmadı — iş merkezi yükünü görmek için bir iş emri'ni serbest bırakın."
+
 msgid "No Jobs or Job Materials are available."
-msgstr ""
+msgstr "İş emirleri veya İş emri malzemeleri kullanılabilir değil."
 
 msgid "No jobs were created"
 msgstr "İş emri oluşturulmadı"
@@ -11494,7 +11500,7 @@ msgid "No logo uploaded"
 msgstr "Yüklenmiş logo yok"
 
 msgid "No longer in current scope"
-msgstr ""
+msgstr "Artık mevcut kapsamda değil"
 
 msgid "No matches"
 msgstr "Eşleşme yok"
@@ -11508,13 +11514,14 @@ msgstr "Eşleşme yok. Bir tane oluşturmak için yazın."
 msgid "No matching bins"
 msgstr "Eşleşen göz yok"
 
+msgid "No matching loaded Impact rows are visible. Coverage is incomplete, so this is not a complete result."
+msgstr "Yüklenmiş Etki satırlarıyla eşleşen bir satır görünür değil. Kapsam eksik olduğundan bu eksiksiz bir sonuç değil."
+
 msgid "No matching operations"
 msgstr "Eşleşen operasyon yok"
 
 msgid "No materials"
 msgstr "Malzeme yok"
-msgid "No matching loaded Impact rows are visible. Coverage is incomplete, so this is not a complete result."
-msgstr ""
 
 msgid "No new notifications"
 msgstr "Yeni bildirim yok"
@@ -11617,14 +11624,15 @@ msgstr "Bu operasyon için henüz kaydedilmiş üretim olayı yok"
 
 msgid "No production recorded yet."
 msgstr "Henüz kayıtlı üretim yok."
+
 msgid "No Purchase Order lines are available."
-msgstr ""
+msgstr "Satın alma siparişi satırları kullanılabilir değil."
 
 msgid "No purchases in this period"
 msgstr "Bu dönemde satın alma yok"
 
 msgid "No purchasing intervention remains"
-msgstr ""
+msgstr "Satın alma müdahalesi kalmadı"
 
 msgid "No Quote"
 msgstr "Teklif Yok"
@@ -11723,7 +11731,7 @@ msgid "No sync operations yet"
 msgstr "Henüz senkronizasyon operasyonu yok"
 
 msgid "No task linked. Keep a written rationale describing the follow-up path."
-msgstr ""
+msgstr "Hiçbir görev bağlanmadı. Takip yolunu açıklayan yazılı bir gerekçe ekleyin."
 
 msgid "No time entries for this week"
 msgstr "Bu hafta için zaman girişi yok"
@@ -11741,7 +11749,7 @@ msgid "No transactions in this period"
 msgstr "Bu dönemde işlem yok"
 
 msgid "No unavailable source rows are available."
-msgstr ""
+msgstr "Kullanılamayan kaynak satırı kullanılabilir değil."
 
 msgid "No unmapped accounts match a provider code"
 msgstr "Haritalanmamış hesaplar sağlayıcı kodundan herhangi biriyle uyuşmıyor"
@@ -11780,10 +11788,10 @@ msgid "No work centers exist"
 msgstr "İş merkezi bulunmamaktadır"
 
 msgid "No-action reason"
-msgstr ""
+msgstr "İşlem yapılmama nedeni"
 
 msgid "No-action reason for every selected target"
-msgstr ""
+msgstr "Seçilen her hedef için işlem yapılmama nedeni"
 
 msgid "Nom"
 msgstr "Nom"
@@ -11834,7 +11842,7 @@ msgid "Not a table but a general-ledger balance: cost accumulates as job materia
 msgstr "Bir tablo değil, büyük defter bakiyesi: iş emri malzemeleri çıktıkça maliyet birikir ve iş emri stoka alındığında temizlenir."
 
 msgid "Not affected after review"
-msgstr ""
+msgstr "İnceleme sonrasında etkilenmedi"
 
 msgid "Not certified"
 msgstr "Sertifikalı değil"
@@ -12066,7 +12074,7 @@ msgid "One firing of a workflow, recorded step by step with the values each step
 msgstr "Bir iş akışının bir kez çalıştırılması, her adımın kullandığı ve ürettiği değerlerle adım adım kaydedilmiş, iş akışının sahibinin izinleriyle hareket eder."
 
 msgid "One or more selected rows are no longer eligible for a bulk assessment. Refresh and review the selection."
-msgstr ""
+msgstr "Seçilen bir veya daha fazla satır artık toplu değerlendirme için uygun değil. Seçimi yenileyip inceleyin."
 
 msgid "One serial unit or one batch that Carbon follows individually, carrying its own status and attributes such as an expiry date."
 msgstr "Carbon tarafından bireysel takip edilen bir seri adet veya bir parti, son kullanma tarihi gibi kendi durumu ve öznitelikleri taşıyan."
@@ -12162,7 +12170,7 @@ msgid "Open Dispatches"
 msgstr "Açık Bakım emirleri"
 
 msgid "Open Impact workspace"
-msgstr ""
+msgstr "Etki çalışma alanını aç"
 
 msgid "Open in Carbon"
 msgstr "Carbon'da Aç"
@@ -12228,7 +12236,7 @@ msgid "Open Scheduled"
 msgstr "Planlanmış Açık"
 
 msgid "Open source"
-msgstr ""
+msgstr "Kaynağı aç"
 
 msgid "Open task details"
 msgstr "Görev ayrıntılarını aç"
@@ -12313,7 +12321,7 @@ msgid "Operation unit cost"
 msgstr "İşlem birim maliyeti"
 
 msgid "Operational Impact"
-msgstr ""
+msgstr "Operasyonel Etki"
 
 msgid "Operations"
 msgstr "Operasyonlar"
@@ -12444,7 +12452,7 @@ msgid "Orders submitted"
 msgstr "Siparişler gönderildi"
 
 msgid "Ordinary tasks are read-only after Done."
-msgstr ""
+msgstr "Normal görevler Bitti durumundan sonra salt okunurdur."
 
 msgid "Origin"
 msgstr "Kaynak"
@@ -12489,7 +12497,7 @@ msgid "Output never outlasts its raw materials. Falls back to the fixed duration
 msgstr "Ürün asla hammaddelerinden daha uzun sürmez. Hiçbir girdinin son kullanma tarihi olmadığında sabit süreye geri döner."
 
 msgid "Outside effectivity"
-msgstr ""
+msgstr "Geçerlilik dışında"
 
 msgid "Outside operation"
 msgstr "Genel Gider Sapması"
@@ -13065,7 +13073,7 @@ msgid "PO PDF"
 msgstr "PO PDF"
 
 msgid "PO status"
-msgstr ""
+msgstr "Satın alma siparişi durumu"
 
 msgid "Policy"
 msgstr "Politika"
@@ -13161,7 +13169,7 @@ msgid "Prepayments (default)"
 msgstr "Avanslar (varsayılan)"
 
 msgid "Present"
-msgstr ""
+msgstr "Mevcut"
 
 msgid "Present Week"
 msgstr "Mevcut Hafta"
@@ -13335,10 +13343,10 @@ msgid "Procurement status — needs ordering, planned, on order, or received. Th
 msgstr "Tedarik durumu — sipariş gerekli, planlandı, siparişte veya teslim alındı. BoM ağacında gösterilen göstergeyle aynı."
 
 msgid "Producing Job"
-msgstr ""
+msgstr "Üretim iş emri"
 
 msgid "Producing Jobs"
-msgstr ""
+msgstr "Üretim iş emirleri"
 
 msgid "Product issues during hypercare"
 msgstr "Hypercare sırasında ürün sorunları"
@@ -13455,7 +13463,7 @@ msgstr "Projeksiyonlar"
 msgid "Projects"
 msgstr "Projeler"
 msgid "Promised"
-msgstr ""
+msgstr "Taahhüt Edilen"
 
 msgid "Promised Date"
 msgstr "Taahhüt Tarihi"
@@ -13488,13 +13496,13 @@ msgid "Prove ownership of each email domain with a DNS TXT record before it can 
 msgstr "Her bir e-posta etki alanının sahipliğini kanıtlayın - SAML SSO oturum açma işlemini yönlendirebilmesi için DNS TXT kaydıyla. Kaydı DNS ana bilgisayarına ekleyin, ardından Doğrula'ya tıklayın — yalnızca doğrulanmış etki alanları çoklu oturum açmada yer alır."
 
 msgid "Provenance"
-msgstr ""
+msgstr "Köken"
 
 msgid "Provenance ended"
-msgstr ""
+msgstr "Köken sona erdi"
 
 msgid "Provenance started"
-msgstr ""
+msgstr "Köken takibi başlatıldı"
 
 msgid "Provide process knowledge and inputs"
 msgstr "Süreç bilgisi ve girdileri sağlayın"
@@ -13588,13 +13596,13 @@ msgid "Purchase Order ID"
 msgstr "Satın Alma Siparişi Numarası"
 
 msgid "Purchase Order line"
-msgstr ""
+msgstr "Satın alma siparişi satırı"
 
 msgid "Purchase Order Line"
 msgstr "Satın Alma Siparişi Kalemi"
 
 msgid "Purchase Order lines"
-msgstr ""
+msgstr "Satın alma siparişi satırları"
 
 msgid "Purchase Order Location"
 msgstr "Satın Alma Siparişi Konumu"
@@ -13950,7 +13958,7 @@ msgid "Ratio"
 msgstr "Oran"
 
 msgid "Rationale"
-msgstr ""
+msgstr "Gerekçe"
 
 msgid "Raw Materials"
 msgstr "Hammadde"
@@ -14031,10 +14039,10 @@ msgid "Reasons"
 msgstr "Nedenler"
 
 msgid "Reassess"
-msgstr ""
+msgstr "Yeniden değerlendir"
 
 msgid "Reassess operational impact"
-msgstr ""
+msgstr "Operasyonel etkiyi yeniden değerlendir"
 
 msgid "Reassign specific tracked entities from this row to another disposition row."
 msgstr "Belirli takip edilen varlıkları bu satırdan başka bir karar satırına yeniden atayın."
@@ -14052,7 +14060,7 @@ msgid "Receipt"
 msgstr "Makbuz"
 
 msgid "Receipt complete"
-msgstr ""
+msgstr "Mal kabulünü tamamla"
 
 msgid "Receipt ID"
 msgstr "Fiş No"
@@ -14073,7 +14081,7 @@ msgid "Receipts"
 msgstr "Makbuzlar"
 
 msgid "Receipts, inspections, sales, shipments, and other where-used records are outside the three supported Impact target contracts in this workspace. They are not loaded as Impact rows until dedicated source-aware context readers can report their own coverage. They do not contribute to assessment totals or offer decision controls here."
-msgstr ""
+msgstr "Mal kabulleri, muayeneler, satışlar, sevkiyatlar ve diğer kullanım yeri kayıtları, bu çalışma alanında desteklenen üç Etki hedefi sözleşmesinin dışındadır. Özel, kaynak bilgisi kullanan bağlam okuyucuları kendi kapsamlarını raporlayana kadar Etki satırları olarak yüklenmezler. Değerlendirme toplamlarına katkıda bulunmaz veya burada karar kontrolleri sunmazlar."
 
 msgid "Receipts, shipments, sales invoices, purchase invoices, payments, and credit/debit memos that are still Draft or Pending must be posted or voided — both documents dated in this period and undated documents that would receive a date in it when posted. Until they post, their amounts aren't in the general ledger, so the period would be understated."
 msgstr "Hala Taslak veya Beklemede olan mal kabuller, sevkiyatlar, satış faturaları, alış faturaları, ödemeler ve alacak/borç muhasebe fişleri muhasebeleştirilmeli veya hükümsüz kılınmalıdır — hem bu dönemde tarihli belgeler hem de muhasebeleştirildiğinde bu dönemde tarih alacak tarihi olmayan belgeler. Muhasebeleştirilene kadar, tutarları büyük defterde yoktur, bu nedenle dönem eksik gösterilecektir."
@@ -14134,7 +14142,7 @@ msgid "Received quantity not yet credited. The credit memo is created as a draft
 msgstr "Alınan Miktar henüz Alacak dekontusunda muhasebeleştirilmedi. Alacak dekontu Taslak olarak oluşturuldu."
 msgstr "Alınan miktar henüz kredilendirilmemiş. Kredi notu taslak olarak oluşturulur."
 msgid "Received to inventory"
-msgstr ""
+msgstr "Stoka alındı"
 
 msgid "Receiving Location"
 msgstr "Mal kabul lokasyonu"
@@ -14635,28 +14643,28 @@ msgid "Residual Value %"
 msgstr "Kalıntı Değer %"
 
 msgid "Resolution is unavailable until linked task coverage is complete."
-msgstr ""
+msgstr "Bağlı görev kapsamı tamamlanana kadar sonuçlandırma kullanılamaz."
 
 msgid "Resolution note"
-msgstr ""
+msgstr "Sonuçlandırma notu"
 
 msgid "Resolve"
-msgstr ""
+msgstr "Sonuçlandır"
 
 msgid "Resolve after every linked task is Completed or Skipped."
-msgstr ""
+msgstr "Bağlı tüm görevler Tamamlandı veya Atlandı durumuna geldikten sonra sonuçlandır."
 
 msgid "Resolve after linked task coverage is complete."
-msgstr ""
+msgstr "Bağlı görev kapsamı tamamlandıktan sonra sonuçlandır."
 
 msgid "Resolve operational impact"
-msgstr ""
+msgstr "Operasyonel etkiyi sonuçlandır"
 
 msgid "Resolve these before completing the NCR: every row must have a non-Pending disposition, and its linked entity quantities must match the row quantity."
 msgstr "NCR'yi tamamlamadan önce bunları çöz: her satırın Bekleme Dışı bir Karar'ı olmalı ve onun bağlı varlık miktarları satır miktarıyla eşleşmeli."
 
 msgid "Resolved"
-msgstr ""
+msgstr "Sonuçlandırıldı"
 
 msgid "Resolved Price"
 msgstr "Belirlenmiş Fiyat"
@@ -14715,8 +14723,9 @@ msgstr "Dosyalar geri yükleniyor"
 
 msgid "restoring…"
 msgstr "geri yükleniyor…"
+
 msgid "Restricted"
-msgstr ""
+msgstr "Kısıtlı"
 
 msgid "Result"
 msgstr "Sonuç"
@@ -14855,23 +14864,24 @@ msgstr "İncele"
 
 msgid "Review & create"
 msgstr "İncele ve oluştur"
+
 msgid "Review bulk Impact assessment"
-msgstr ""
+msgstr "Toplu Etki değerlendirmesini incele"
 
 msgid "Review current purchasing and production exposure with source coverage, provenance, and freshness details."
-msgstr ""
+msgstr "Mevcut satın alma ve üretim etkilenme durumunu, kaynak kapsamı, köken ve güncellik ayrıntılarıyla inceleyin."
 
 msgid "Review each item's changes, then confirm — releasing can't be undone."
 msgstr "Her stok kartın değişikliklerini incele, sonra onayla — serbest bırakma geri alınamaz."
 
 msgid "Review rationale"
-msgstr ""
+msgstr "Gerekçeyi incele"
 
 msgid "Review rationale for every selected target"
-msgstr ""
+msgstr "Seçilen her hedefin gerekçesini incele"
 
 msgid "Review selected"
-msgstr ""
+msgstr "Seçilenleri incele"
 
 msgid "Review the period's balance sheet and income statement and confirm the figures look right. This is a manual sign-off — mark it done once you have reviewed them."
 msgstr "Dönemin bilançosunu ve gelir tablosunu incele ve rakamların doğru göründüğünü onayla. Bu manuel bir onay işlemi — bunları inceledikten sonra bitti olarak işaretle."
@@ -15283,7 +15293,7 @@ msgid "Save applications"
 msgstr "Uygulamaları kaydet"
 
 msgid "Save assessment"
-msgstr ""
+msgstr "Değerlendirmeyi kaydet"
 
 msgid "Save changes"
 msgstr "Değişiklikleri kaydet"
@@ -15299,8 +15309,9 @@ msgstr "Yöntemi Kaydet"
 
 msgid "Save Rate"
 msgstr "Kuru kaydet"
+
 msgid "Save reassessment"
-msgstr ""
+msgstr "Yeniden değerlendirmeyi kaydet"
 
 msgid "Save the form you're editing"
 msgstr "Düzenlemekte olduğunuz formu kaydet"
@@ -15685,7 +15696,7 @@ msgid "Select disposition"
 msgstr "Karar Seç"
 msgstr "Disposisyon Seçin"
 msgid "Select eligible rows for a shared decision."
-msgstr ""
+msgstr "Ortak bir karar için uygun satırları seçin."
 
 msgid "Select Employee"
 msgstr "Çalışan Seç"
@@ -16135,6 +16146,7 @@ msgstr "Gönderildi"
 msgid "Shipped lines for this customer with quantity remaining to return"
 msgstr "Bu müşteriye gönderilen ve iade edilecek miktar kalan satırlar"
 msgstr ""
+msgstr "Sevk edildi"
 
 msgid "Shipped Qty"
 msgstr "Sevk Edilen Miktar"
@@ -16418,13 +16430,14 @@ msgstr "Çözüm Mühendisi"
 msgid "Some lines extracted from the PDF could not be automatically mapped to your inventory items. Review and map each line below."
 msgstr "PDF'den çıkarılan bazı satırlar stok kartlarınıza otomatik olarak eşleştirilemedi. Aşağıdaki her satırı gözden geçirin ve eşleştirin."
 
+msgid "Some linked task metadata is unavailable. Decision state is shown independently and has not been inferred from task status. Task details are omitted where linked-task coverage could not be read."
+msgstr "Bazı bağlı görev meta verileri kullanılamıyor. Karar durumu bağımsız olarak gösterilir ve görev durumundan çıkarılmamıştır. Bağlı görev kapsamının okunamadığı yerlerde görev ayrıntıları gösterilmez."
+
 msgid "Some records won't come back. Type <0>{CONFIRM_WORD}</0> to continue."
 msgstr "Bazı kayıtlar geri gelmeyecek. Devam etmek için <0>{CONFIRM_WORD}</0> yazın."
 
 msgid "Some Shifts"
 msgstr "Bazı Vardiyalar"
-msgid "Some linked task metadata is unavailable. Decision state is shown independently and has not been inferred from task status. Task details are omitted where linked-task coverage could not be read."
-msgstr ""
 
 msgid "Something went wrong. Please try again."
 msgstr "Bir şeyler ters gitti. Lütfen tekrar deneyin."
@@ -16460,7 +16473,7 @@ msgid "Source Company"
 msgstr "Kaynak Şirketi"
 
 msgid "Source deleted"
-msgstr ""
+msgstr "Kaynak silindi"
 
 msgid "Source document"
 msgstr "Kaynak belge"
@@ -16475,7 +16488,7 @@ msgid "Source document readable"
 msgstr "Okunabilir kaynak belge"
 
 msgid "Source identities are retained only where they were authorized; decision-relevant facts are withheld until coverage is restored."
-msgstr ""
+msgstr "Kaynak kimlikleri yalnızca yetki verilen durumlarda saklanır; kapsam geri yüklenene kadar kararla ilgili bilgiler gizlenir."
 
 msgid "Source Item"
 msgstr "Kaynak Ürün"
@@ -16490,7 +16503,7 @@ msgid "Source Method"
 msgstr "Kaynak Yöntem"
 
 msgid "Source record unavailable"
-msgstr ""
+msgstr "Kaynak kaydı kullanılamıyor"
 
 msgid "Source types"
 msgstr "Kaynak türleri"
@@ -16786,7 +16799,7 @@ msgid "Store a fixed number of days on this item. Expiry start date is set on ea
 msgstr "Bu stok kartında sabit gün sayılı raf ömrü belirleyin. Partiye veya seriye alındığında, son kullanma başlangıç tarihi ayarlanır."
 
 msgid "Stored assessment snapshot is unavailable."
-msgstr ""
+msgstr "Saklanan değerlendirme anlık görüntüsü kullanılamıyor."
 
 msgid "Straight line"
 msgstr "Doğrusal"
@@ -17055,7 +17068,7 @@ msgstr "Tedarikçi İadeleri"
 msgid "Supplier RMA #"
 msgstr "Tedarikçi RMA #"
 msgid "Supplier return, replacement, credit, and communication interventions have been reviewed."
-msgstr ""
+msgstr "Tedarikçi iadesi, ikame, kredi ve iletişim müdahaleleri incelendi."
 
 msgid "Supplier Status"
 msgstr "Tedarikçi Durumu"
@@ -17097,7 +17110,7 @@ msgid "Support"
 msgstr "Destek"
 
 msgid "Supported purchasing and production targets that can receive an independent Impact assessment."
-msgstr ""
+msgstr "Bağımsız Etki değerlendirmesi yapılabilen desteklenen satın alma ve üretim hedefleri."
 
 #. placeholder {0}: supportedModelTypes.join(", ")
 msgid "Supports {0} files"
@@ -17230,31 +17243,31 @@ msgid "Task"
 msgstr "Görev"
 
 msgid "Task designated as Impact follow-up"
-msgstr ""
+msgstr "Etki takibi olarak belirlenen görev"
 
 msgid "Task details unavailable."
-msgstr ""
+msgstr "Görev ayrıntıları kullanılamıyor."
 
 msgid "Task filters use incomplete linked-task metadata. Missing tasks or assignees are not treated as absent."
-msgstr ""
+msgstr "Görev filtreleri eksik bağlı görev meta verilerini kullanıyor. Eksik görevler veya atananlar yok kabul edilmiyor."
 
 msgid "Task linked"
-msgstr ""
+msgstr "Görev bağlandı"
 
 msgid "Task name"
-msgstr ""
+msgstr "Görev adı"
 
 msgid "Task origin: Impact follow-up"
-msgstr ""
+msgstr "Görev kaynağı: Etki takibi"
 
 msgid "Task status"
-msgstr ""
+msgstr "Görev durumu"
 
 msgid "Task statuses"
-msgstr ""
+msgstr "Görev durumları"
 
 msgid "Task unlinked"
-msgstr ""
+msgstr "Görev bağlantısı kaldırıldı"
 
 msgid "tasks"
 msgstr "görevler"
@@ -17353,7 +17366,7 @@ msgid "Template ID"
 msgstr "Şablon Kimliği"
 
 msgid "Template-owned"
-msgstr ""
+msgstr "Şablona ait"
 
 msgid "Templates"
 msgstr "Şablonlar"
@@ -17598,8 +17611,9 @@ msgstr "Bu departmanın raporlama ve personel sayısı hiyerarşisinde bağlı o
 
 msgid "The early hours, {name}."
 msgstr "Sabah saatleri, {name}."
+
 msgid "The editor was closed and the workspace was refreshed. Review the current state before submitting again."
-msgstr ""
+msgstr "Düzenleyici kapatıldı ve çalışma alanı yenilendi. Yeniden göndermeden önce mevcut durumu inceleyin."
 
 msgid "The eight-disciplines quality method, modeled with the nonconformance workflow's tasks rather than hard-coded."
 msgstr "Sekiz disiplin kalite yöntemi, uygunsuzluk iş akışının görevleriyle modellenmiş olup sabit kodlanmamıştır."
@@ -18018,11 +18032,12 @@ msgstr "Bu varlığın Maliyetini Faydalı ömrü boyunca yaymak için kullanıl
 msgid "The scheduler uses the first rule below that applies, then subtracts downtime and staffing."
 msgstr "Zamanlayıcı aşağıda uygulanan ilk Kuralı kullanır, ardından Duruş ve personel atamalarını çıkarır."
 msgstr "Planlayıcı, aşağıdaki geçerli olan ilk kuralı kullanır, ardından kapalı kalma süresini ve personel sayısını çıkarır."
+
 msgid "The selected rows do not share an available conclusion. Adjust the selection before reviewing it."
-msgstr ""
+msgstr "Seçilen satırlar kullanılabilir bir sonuç içermiyor. İncelemeden önce seçimi ayarlayın."
 
 msgid "The server will recheck every target and reject the whole batch if any source fact, eligibility rule, or decision revision changed after this preview."
-msgstr ""
+msgstr "Sunucu her hedefi yeniden kontrol edecek ve bu önizlemeden sonra herhangi bir kaynak bilgisi, uygunluk kuralı veya karar revizyonu değiştiyse tüm partiyi reddedecek."
 
 msgid "The shelves and bins where stock physically sits"
 msgstr "Stoğun fiziksel olarak bulunduğu raflar ve gözler"
@@ -18255,6 +18270,9 @@ msgstr "Bu operasyonlar birden fazla tedarikçili bir proses kullanır. Her biri
 msgid "These parts are being replaced by this one. Each rule is set on the old part; open it to change the rule."
 msgstr "Bu parçalar bu birim tarafından değiştiriliyor. Her kural eski parçaya ayarlanmış; kuralı değiştirmek için açın."
 
+msgid "These references remain traceable but do not create a new Unassessed obligation."
+msgstr "Bu referanslar izlenebilirliğini korur, ancak yeni bir Değerlendirilmemiş yükümlülük oluşturmaz."
+
 msgid "These rows link to data outside this company, so a safety copy of your current data can't be made. Deleting them cannot be undone. If they turn out to be shared with other companies in this group, nothing is deleted and the restore doesn't start."
 msgstr "Bu satırlar bu Şirket dışındaki verilere bağlı olduğundan, mevcut verilerinizin bir güvenlik kopyası oluşturulamaz. Bu satırları silmek geri alınamaz. Bunların bu gruptaki diğer Şirketlerle paylaşıldığı anlaşılırsa, hiçbir şey silinmez ve geri yükleme başlamaz."
 
@@ -18269,8 +18287,6 @@ msgstr "Bu yedekleme tamamlanamadı."
 
 msgid "This backup hasn't been checked yet. Any differences are found when the restore runs."
 msgstr "Bu yedek henüz kontrol edilmedi. Herhangi bir fark, geri yükleme çalıştığında bulunur."
-msgid "These references remain traceable but do not create a new Unassessed obligation."
-msgstr ""
 
 msgid "This Carbon instance is missing its Onshape OAuth credentials. Ask an administrator to set them."
 msgstr "Bu Carbon örneğinde Onshape OAuth kimlik bilgileri eksik. Bir yöneticiden bunları ayarlamasını isteyin."
@@ -18450,14 +18466,15 @@ msgstr "Bu satış siparişinin ilişkili iş emirleri var. Bunlarla ne yapacağ
 msgid "This sales order has lines that require jobs to be created"
 msgstr "Bu satış siparişi, oluşturulması gereken iş emirlerini gerektiren satırlar içerir"
 
+msgid "This source domain is restricted for your current permissions. No target identities or source facts are shown."
+msgstr "Bu kaynak alanı mevcut izinleriniz nedeniyle kısıtlıdır. Hedef kimlikleri veya kaynak bilgileri gösterilmez."
+
 msgid "This station runs ability-gated work — it only runs while a qualified operator is on shift; operators assigned on the manning board further shape available labor."
 msgstr "Bu istasyon yetkinlik kapısı geçmeli işleri çalıştırır — yalnızca nitelikli operatör vardiyada olduğu sürece çalışır; kadro tarafından atanan operatörler kullanılabilir işçiliği şekillendirir."
 
 msgid "This station runs work with no ability requirement; operators assigned on the manning board shape available labor."
 msgstr "Bu istasyon hiçbir Yetkinlik gereksinimi olmaksızın iş çalıştırır; personel panosuna atanan Operatörler mevcut İşçiliği şekillendirir."
 msgstr "Bu istasyon yetkinlik gereksinimi olmayan iş çalıştırır; personel görevlendirme tahtası'nda atanmış operatörler kullanılabilir işçilik'i şekillendirir."
-msgid "This source domain is restricted for your current permissions. No target identities or source facts are shown."
-msgstr ""
 
 #. placeholder {0}: usageCount === 1 ? "" : "s"
 msgid "This storage type is currently used by {usageCount} storage unit{0}."
@@ -19013,7 +19030,7 @@ msgid "Unapproved Supplier"
 msgstr "Onaylanmamış Tedarikçi"
 
 msgid "Unassessed"
-msgstr ""
+msgstr "Değerlendirilmemiş"
 
 msgid "Unassign rule"
 msgstr "Kuralı kaldır"
@@ -19022,10 +19039,10 @@ msgid "Unassigned"
 msgstr "Atanmamış"
 
 msgid "Unavailable"
-msgstr ""
+msgstr "Kullanılamaz"
 
 msgid "Unavailable source rows"
-msgstr ""
+msgstr "Kullanılamayan kaynak satırları"
 
 msgid "Unballoon"
 msgstr "Balonu Kaldır"
@@ -19126,7 +19143,7 @@ msgstr "İade satın alma siparişinden ayrılsın mı?"
 msgid "Unlink RMA from sales order?"
 msgstr "RMA satış siparişinden ayrılsın mı?"
 msgid "Unlink task"
-msgstr ""
+msgstr "Görev bağlantısını kaldır"
 
 msgid "Unlock"
 msgstr "Kilidi Aç"
@@ -19147,7 +19164,7 @@ msgid "Unmatched"
 msgstr "Eşleşmemiş"
 
 msgid "Unnamed task"
-msgstr ""
+msgstr "Adsız görev"
 
 msgid "Unpick"
 msgstr "Çıkart"
@@ -19403,7 +19420,7 @@ msgid "Use metric system for default material dimensions."
 msgstr "Varsayılan malzeme boyutları için metrik sistemi kullanın."
 
 msgid "Use No action required only if the earlier conclusion was incorrect and intervention was never required. If intervention occurred and closed the consequence, use Resolve."
-msgstr ""
+msgstr "Daha önceki sonucun hatalı olduğundan ve hiçbir zaman müdahale gerekmediğinden eminseniz yalnızca İşlem gerekmez seçeneğini kullanın. Müdahale gerçekleştiyse ve bunun sonucunu kapattıysa Çözümle seçeneğini kullanın."
 
 msgid "Used In"
 msgstr "Kullanıldığı Yer"
@@ -20494,7 +20511,7 @@ msgid "You do not have permission to edit workflows"
 msgstr "İş akışlarını Düzenlemek için İzniniz yok"
 
 msgid "You do not have permission to update this task."
-msgstr ""
+msgstr "Bu görevi güncellemek için izniniz yok."
 
 msgid "You don't have permission to edit this bill of material."
 msgstr "Bu Malzeme listesini Düzenlemek için İzniniz yok."

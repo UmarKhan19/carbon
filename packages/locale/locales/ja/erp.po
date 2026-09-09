@@ -55,17 +55,18 @@ msgstr "{0, plural, one {# 行はこの会社の外部のデータにリンク�
 #. placeholder {0}: totalScopeRows( exportRun.violationRowsByTable )
 msgid "{0, plural, one {# row links to data outside this company, so it can't be backed up. Skipping it backs up everything else.} other {# rows link to data outside this company, so they can't be backed up. Skipping them backs up everything else.}}"
 msgstr "{0, plural, one {# 行はこの会社の外部のデータにリンクしているため、バックアップできません。スキップすると、他のすべてがバックアップされます。} other {# 行はこの会社の外部のデータにリンクしているため、バックアップできません。スキップすると、他のすべてがバックアップされます。}}"
+
 #. placeholder {0}: bulkSuccess.noOpCount
 msgid "{0, plural, one {# target was already current.} other {# targets were already current.}}"
-msgstr ""
+msgstr "{0, plural, one {# 件の対象はすでに最新です。} other {# 件の対象はすでに最新です。}}"
 
 #. placeholder {0}: bulkSuccess.appliedCount
 msgid "{0, plural, one {Impact updated for # target;} other {Impact updated for # targets;}}"
-msgstr ""
+msgstr "{0, plural, one {# 件の対象の影響を更新しました;} other {# 件の対象の影響を更新しました;}}"
 
 #. placeholder {0}: bulkSuccess.appliedCount
 msgid "{0, plural, one {Impact updated for # target.} other {Impact updated for # targets.}}"
-msgstr ""
+msgstr "{0, plural, one {# 件の対象の影響を更新しました。} other {# 件の対象の影響を更新しました。}}"
 
 #. placeholder {0}: open.length
 msgid "{0, plural, one {This item is on 1 open change notice} other {This item is on # open change notices}}"
@@ -136,7 +137,7 @@ msgid "{0} in stock; the remaining {1} will be picked as {2}"
 msgstr "{0}在庫あり；残り{1}は{2}としてピッキング"
 #. placeholder {0}: selectedKeys.size
 msgid "{0} Impact rows selected"
-msgstr ""
+msgstr "{0} 件の影響行を選択"
 
 #. placeholder {0}: jobs.length
 msgid "{0} jobs created"
@@ -206,12 +207,13 @@ msgstr "{0}廃棄"
 msgid "{0} selected"
 msgstr "{0} 件選択"
 
+#. placeholder {0}: candidates.length
+msgid "{0} selected targets"
+msgstr "選択済みの対象 {0}件"
+
 #. placeholder {0}: suggestions.length
 msgid "{0} suggested batches"
 msgstr "推奨バッチ {0} 個"
-#. placeholder {0}: candidates.length
-msgid "{0} selected targets"
-msgstr ""
 
 #. placeholder {0}: ap.count
 msgid "{0} suppliers with a balance"
@@ -935,7 +937,7 @@ msgid "A scoped secret sent on the carbon-key request header that authenticates 
 msgstr "carbon-key リクエスト ヘッダーで送信されるスコープ付きシークレット。Carbon へのプログラマティック呼び出しを認証し、ユーザー セッションではなく独自の権限とレート制限を保有します。"
 
 msgid "A selected row is no longer readable in the current workspace. Refresh and review the selection."
-msgstr ""
+msgstr "選択した行を現在のワークスペースで読み取れなくなりました。更新して選択内容を確認してください。"
 
 msgid "A separate schedule for tax reporting when tax rules require a method different from book depreciation."
 msgstr "税務報告のための別のスケジュール。税務ルールが帳簿減価償却とは異なる方法を要求する場合。"
@@ -1224,7 +1226,7 @@ msgid "Action"
 msgstr "アクション"
 
 msgid "Action required"
-msgstr ""
+msgstr "対応が必要です"
 
 msgid "Action Status"
 msgstr "アクションステータス"
@@ -1316,6 +1318,7 @@ msgstr "部品表の各項目とその数量をリストアップした材料セ
 
 msgid "Add a parameter (in the procedure explorer)"
 msgstr "手順書エクスプローラーでパラメータを追加"
+msgstr "パラメータを追加（手順書エクスプローラー内）"
 
 msgid "Add a printer in the printing settings to print labels directly."
 msgstr "プリンター設定にプリンターを追加して、ラベルを直接印刷します。"
@@ -1331,6 +1334,7 @@ msgstr "ステップを追加"
 
 msgid "Add a step or question (in procedure and training explorers)"
 msgstr "手順書と教育訓練エクスプローラーでステップまたは質問を追加"
+msgstr "ステップまたは質問を追加（手順書および教育訓練エクスプローラー内）"
 
 msgid "Add Ability"
 msgstr "スキルを追加"
@@ -1597,10 +1601,10 @@ msgid "Advanced"
 msgstr "詳細"
 
 msgid "Affected item"
-msgstr ""
+msgstr "影響を受ける品目"
 
 msgid "Affected item details unavailable."
-msgstr ""
+msgstr "影響を受ける品目の詳細を利用できません。"
 
 msgid "Affected item not found."
 msgstr "影響を受けるアイテムが見つかりません。"
@@ -2019,7 +2023,7 @@ msgstr "適用対象"
 
 #. placeholder {0}: candidates.length
 msgid "Apply to {0}"
-msgstr ""
+msgstr "{0}件に適用"
 
 msgid "Apply to invoice"
 msgstr "請求書に適用"
@@ -2606,34 +2610,34 @@ msgid "Assembly:"
 msgstr "アセンブリ:"
 
 msgid "Assess"
-msgstr ""
+msgstr "評価"
 
 msgid "Assess operational impact"
-msgstr ""
+msgstr "業務への影響を評価"
 
 msgid "Assessment coverage"
-msgstr ""
+msgstr "評価の網羅状況"
 
 msgid "Assessment coverage needs attention"
-msgstr ""
+msgstr "評価の網羅状況に注意が必要です"
 
 msgid "Assessment created"
-msgstr ""
+msgstr "評価を作成しました"
 
 msgid "Assessment reassessed"
-msgstr ""
+msgstr "評価を再評価しました"
 
 msgid "Assessment reopened"
-msgstr ""
+msgstr "評価を再開しました"
 
 msgid "Assessment resolved"
-msgstr ""
+msgstr "評価を解決しました"
 
 msgid "Assessment snapshot"
-msgstr ""
+msgstr "評価スナップショット"
 
 msgid "Assessment snapshot · changed"
-msgstr ""
+msgstr "評価スナップショット · 変更あり"
 
 msgid "Asset"
 msgstr "資産"
@@ -2702,7 +2706,7 @@ msgid "Assignee"
 msgstr "担当者"
 
 msgid "Assignees"
-msgstr ""
+msgstr "担当者"
 
 msgid "Assignment"
 msgstr "割り当て"
@@ -2846,10 +2850,10 @@ msgid "Automatically start the job when the kanban is scanned"
 msgstr "かんばんがスキャンされたときに自動的に製造指図を開始"
 
 msgid "Availability"
-msgstr ""
+msgstr "利用可能状況"
 
 msgid "Availability states"
-msgstr ""
+msgstr "利用可能状態"
 
 msgid "available"
 msgstr "利用可能"
@@ -2883,7 +2887,7 @@ msgid "Back"
 msgstr "戻る"
 
 msgid "Back to Change Notice"
-msgstr ""
+msgstr "変更通知に戻る"
 
 msgid "Back to traceability"
 msgstr "トレーサビリティに戻る"
@@ -3022,8 +3026,9 @@ msgstr "返品するバッチ"
 
 msgid "Batching"
 msgstr "バッチ処理"
+
 msgid "Before"
-msgstr ""
+msgstr "変更前"
 
 msgid "Beginning"
 msgstr "開始"
@@ -3411,7 +3416,7 @@ msgid "Caption"
 msgstr "キャプション"
 
 msgid "Captured snapshot"
-msgstr ""
+msgstr "取得したスナップショット"
 
 msgid "Carbon"
 msgstr "カーボン"
@@ -3592,7 +3597,7 @@ msgid "Changed By"
 msgstr "変更者"
 
 msgid "Changed since assessment"
-msgstr ""
+msgstr "評価後に変更あり"
 
 msgid "Changes"
 msgstr "変更"
@@ -3769,10 +3774,10 @@ msgid "Closure blocked"
 msgstr "完了がブロックされています"
 
 msgid "Closure evidence"
-msgstr ""
+msgstr "完了証拠"
 
 msgid "Closure evidence for every selected target"
-msgstr ""
+msgstr "選択したすべての対象の完了証拠"
 
 msgid "Cloud, or your self-hosted environment."
 msgstr "クラウド、またはセルフホストされた環境。"
@@ -3935,13 +3940,13 @@ msgid "Computed At"
 msgstr "計算日時"
 
 msgid "Conclusion"
-msgstr ""
+msgstr "結論"
 
 msgid "Conclusion corrected"
-msgstr ""
+msgstr "結論を修正しました"
 
 msgid "Conclusion for every selected target"
-msgstr ""
+msgstr "選択したすべての対象の結論"
 
 msgid "Condensed P&L with margins and key subtotals"
 msgstr "マージンと主要小計を含む圧縮P&L"
@@ -4076,10 +4081,10 @@ msgid "Confirm Mapping"
 msgstr "マッピングを確認"
 
 msgid "Confirm no purchasing intervention remains"
-msgstr ""
+msgstr "購買対応が残っていないことを確認"
 
 msgid "Confirm no purchasing intervention remains for every selected target"
-msgstr ""
+msgstr "選択したすべての対象について、購買対応が残っていないことを確認"
 
 msgid "Confirm Password"
 msgstr "パスワードを確認"
@@ -4478,7 +4483,7 @@ msgid "Correction {correctionNumber}"
 msgstr "訂正 {correctionNumber}"
 
 msgid "Correction rationale"
-msgstr ""
+msgstr "修正理由"
 
 msgid "Corrections"
 msgstr "修正"
@@ -4614,11 +4619,12 @@ msgstr "国コード"
 
 msgid "Coverage"
 msgstr "配置"
+
 msgid "Coverage failed. This is not an empty or safe result; refresh after the source is available."
-msgstr ""
+msgstr "網羅状況の取得に失敗しました。これは空の結果でも安全な結果でもありません。ソースが利用可能になったら更新してください。"
 
 msgid "Coverage is partial. Counts and source-deletion conclusions are withheld where the scan could not be completed."
-msgstr ""
+msgstr "網羅状況は一部です。スキャンを完了できなかった箇所では、件数とソースが削除されたかどうかの判定は表示されません。"
 
 msgid "Create"
 msgstr "作成"
@@ -4695,13 +4701,14 @@ msgstr "バッチを作成"
 msgid "Create Change Notice"
 msgstr "変更通知を作成"
 
+msgid "Create follow-up"
+msgstr "フォローアップを作成"
+
 msgid "Create Forecast"
 msgstr "予測を作成"
-msgid "Create follow-up"
-msgstr ""
 
 msgid "Create Impact follow-up"
-msgstr ""
+msgstr "影響フォローアップを作成"
 
 msgid "Create Issue"
 msgstr "問題を作成"
@@ -4740,7 +4747,7 @@ msgid "Create Supplier Return"
 msgstr "仕入先返品を作成"
 msgstr "サプライヤー返品を作成"
 msgid "Create task"
-msgstr ""
+msgstr "タスクを作成"
 
 msgid "Create Transfer"
 msgstr "移動を作成"
@@ -4989,16 +4996,16 @@ msgid "Current"
 msgstr "現在"
 
 msgid "Current cause"
-msgstr ""
+msgstr "現在の原因"
 
 msgid "Current conclusion"
-msgstr ""
+msgstr "現在の結論"
 
 msgid "Current Net Book Value:"
 msgstr "現在の未償却残高:"
 
 msgid "Current operational exposure"
-msgstr ""
+msgstr "現在の業務上のエクスポージャー"
 
 msgid "Current Password"
 msgstr "現在のパスワード"
@@ -5010,22 +5017,19 @@ msgid "Current quantity"
 msgstr "現在の数量"
 
 msgid "Current source facts are unavailable because the source was deleted."
-msgstr ""
+msgstr "ソースが削除されたため、現在のソース情報を利用できません。"
 
 msgid "Current source facts are unavailable."
-msgstr ""
+msgstr "現在のソース情報を利用できません。"
 
 msgid "Current source facts changed since the stored assessment. Saving will capture a fresh assessment snapshot."
-msgstr ""
+msgstr "現在のソース情報は、保存済みの評価以降に変更されています。保存すると、新しい評価スナップショットが記録されます。"
 
 msgid "Current source facts had changed since the prior assessment."
-msgstr ""
+msgstr "現在のソース情報は、前回の評価以降に変更されていました。"
 
 msgid "Current state"
-msgstr ""
-
-msgid "Currently training for"
-msgstr "現在の教育訓練"
+msgstr "現在の状態"
 
 msgid "Custom"
 msgstr "カスタム"
@@ -5400,10 +5404,10 @@ msgid "Decimal Places"
 msgstr "小数位数"
 
 msgid "Decision"
-msgstr ""
+msgstr "判断"
 
 msgid "Decisions"
-msgstr ""
+msgstr "判断"
 
 msgid "Declining balance"
 msgstr "定率法"
@@ -5966,10 +5970,10 @@ msgid "Description of Issue"
 msgstr "問題の説明"
 
 msgid "Designate"
-msgstr ""
+msgstr "指定"
 
 msgid "Designate as Impact follow-up"
-msgstr ""
+msgstr "影響フォローアップとして指定"
 
 msgid "Detail"
 msgstr "詳細"
@@ -6183,10 +6187,10 @@ msgid "Documents you open will show up here for quick access."
 msgstr "開いたドキュメントはここに表示され、すぐにアクセスできます。"
 
 msgid "Domain"
-msgstr ""
+msgstr "ドメイン"
 
 msgid "Domains"
-msgstr ""
+msgstr "ドメイン"
 
 msgid "Don't Cancel"
 msgstr "キャンセルしない"
@@ -6201,7 +6205,7 @@ msgid "Done"
 msgstr "完了"
 
 msgid "Done · Engineering released. Operational assessment remains available."
-msgstr ""
+msgstr "完了 · エンジニアリングはリリース済み。業務評価は引き続き利用可能です。"
 
 msgid "Done when day-to-day runs without us in the room"
 msgstr "日常業務が私たちなしで円滑に進むようになったら完了"
@@ -7151,7 +7155,7 @@ msgid "Event"
 msgstr "イベント"
 
 msgid "Event details are unavailable for this event type."
-msgstr ""
+msgstr "このイベントタイプではイベント詳細を利用できません。"
 
 msgid "Event Type"
 msgstr "イベントタイプ"
@@ -7169,7 +7173,7 @@ msgid "Every in-scope test passes in your configured system, with your data."
 msgstr "スコープ内のすべてのテストが、設定されたシステムで、あなたのデータを使用して合格します。"
 
 msgid "Every linked task must be Completed or Skipped before this Impact can be resolved."
-msgstr ""
+msgstr "この影響を解決する前に、リンクされたすべてのタスクを完了またはスキップ済みにする必要があります。"
 
 msgid "Every match"
 msgstr "すべてのマッチ"
@@ -7380,10 +7384,10 @@ msgid "Export Lines to CSV"
 msgstr "CSVにラインをエクスポート"
 
 msgid "Exposure"
-msgstr ""
+msgstr "エクスポージャー"
 
 msgid "Exposure states"
-msgstr ""
+msgstr "エクスポージャーの状態"
 
 msgid "Extended Price"
 msgstr "拡張価格"
@@ -8012,13 +8016,13 @@ msgid "Flags"
 msgstr "フラグ"
 
 msgid "Follow-up for"
-msgstr ""
+msgstr "フォローアップ対象"
 
 msgid "Follow-up rationale"
-msgstr ""
+msgstr "フォローアップの理由"
 
 msgid "Follow-up rationale for every selected target"
-msgstr ""
+msgstr "選択したすべての対象のフォローアップ理由"
 
 msgid "for anything. They'll pull in the right person."
 msgstr "何でも構いません。彼らが適切な人を連れてきます。"
@@ -8067,13 +8071,13 @@ msgid "Frequency"
 msgstr "頻度"
 
 msgid "Freshness"
-msgstr ""
+msgstr "最新性"
 
 msgid "Freshness states"
-msgstr ""
+msgstr "最新性の状態"
 
 msgid "Freshness unavailable"
-msgstr ""
+msgstr "最新性を利用できません"
 
 msgid "Friday"
 msgstr "金曜日"
@@ -8499,13 +8503,13 @@ msgid "Hints in the first row"
 msgstr "最初の行のヒント"
 
 msgid "Historical"
-msgstr ""
+msgstr "過去の"
 
 msgid "Historical causes"
-msgstr ""
+msgstr "過去の原因"
 
 msgid "Historical coverage is incomplete."
-msgstr ""
+msgstr "過去の情報の網羅性が不完全です。"
 
 msgid "Historical data older than what's on the Data Migration Map"
 msgstr "データ移行マップにあるもの以前の履歴データ"
@@ -8517,10 +8521,10 @@ msgid "Historical Rate (Equity)"
 msgstr "取得時レート(純資産)"
 
 msgid "Historical reference"
-msgstr ""
+msgstr "過去の参照情報"
 
 msgid "Historical references"
-msgstr ""
+msgstr "過去の参照情報"
 
 msgid "History"
 msgstr "履歴"
@@ -8796,22 +8800,22 @@ msgid "Impact"
 msgstr "影響"
 
 msgid "Impact assessment changed while you were editing."
-msgstr ""
+msgstr "編集中に影響評価が変更されました。"
 
 msgid "Impact event"
-msgstr ""
+msgstr "影響イベント"
 
 msgid "Impact follow-up"
-msgstr ""
+msgstr "影響フォローアップ"
 
 msgid "Impact history"
-msgstr ""
+msgstr "影響履歴"
 
 msgid "Impact task could not be created."
-msgstr ""
+msgstr "影響タスクを作成できませんでした。"
 
 msgid "Impact task could not be linked."
-msgstr ""
+msgstr "影響タスクをリンクできませんでした。"
 
 msgid "Imperial"
 msgstr "インペリアル"
@@ -8962,7 +8966,7 @@ msgid "Indirect Materials & Services (default)"
 msgstr "間接材料とサービス（デフォルト）"
 
 msgid "Informational context only"
-msgstr ""
+msgstr "情報提供のみを目的としたコンテキスト"
 
 msgid "Infrastructure"
 msgstr "インフラストラクチャ"
@@ -9370,7 +9374,7 @@ msgid "Item / Location"
 msgstr "品目 / 場所"
 
 msgid "Item details unavailable"
-msgstr ""
+msgstr "品目の詳細は利用できません"
 
 msgid "Item filters"
 msgstr "品目の絞り込み"
@@ -9469,7 +9473,7 @@ msgid "Job make method"
 msgstr "ジョブ製造方法"
 
 msgid "Job Material"
-msgstr ""
+msgstr "指図材料"
 
 msgid "Job Materials"
 msgstr "指図材料"
@@ -9493,7 +9497,7 @@ msgid "Job readable"
 msgstr "ジョブ読取可能"
 
 msgid "Job status"
-msgstr ""
+msgstr "製造指図のステータス"
 
 msgid "Job Traveler"
 msgstr "現品票"
@@ -9534,6 +9538,7 @@ msgstr "この日付以前の仕訳はロック中として扱われます。両
 
 msgid "Jump to a section on detail pages (same modifiers + the section's letter)"
 msgstr "詳細ページのセクションにジャンプします (同じ修飾子 + セクションの文字)"
+msgstr "詳細ページのセクションへ移動（同じ修飾キー + セクションの文字）"
 
 msgid "Just one"
 msgstr "1つだけ"
@@ -9873,7 +9878,7 @@ msgstr "発注書をリンク"
 msgid "Link a sales order"
 msgstr "受注をリンク"
 msgid "Link existing task"
-msgstr ""
+msgstr "既存のタスクをリンク"
 
 msgid "Link Jira Issue"
 msgstr "Jira イシューをリンク"
@@ -9883,8 +9888,9 @@ msgstr "Linear イシューをリンク"
 
 msgid "link outside company"
 msgstr "会社外へのリンク"
+
 msgid "Link task"
-msgstr ""
+msgstr "タスクをリンク"
 
 msgid "Link this Carbon customer to one of them, or create a separate Stripe customer."
 msgstr "このCarbonの得意先をいずれかにリンクするか、別のStripe顧客を作成してください。"
@@ -9904,10 +9910,10 @@ msgid "Linked PO"
 msgstr "リンク済みPO"
 
 msgid "Linked tasks"
-msgstr ""
+msgstr "リンク済みタスク"
 
 msgid "Linking preserves the task's existing origin and status. It does not resolve this Impact decision."
-msgstr ""
+msgstr "リンクしても、タスクの既存の起点とステータスは維持されます。この操作で影響の判定は解決されません。"
 
 msgid "List Options"
 msgstr "リストオプション"
@@ -10947,7 +10953,7 @@ msgid "New Fixed Asset"
 msgstr "新しい固定資産"
 
 msgid "New follow-up rationale"
-msgstr ""
+msgstr "新しいフォローアップ理由"
 
 msgid "New Gauge"
 msgstr "新規測定器"
@@ -11253,7 +11259,7 @@ msgid "No action needed"
 msgstr "対応は不要です"
 
 msgid "No action required"
-msgstr ""
+msgstr "対応不要"
 
 msgid "No actions found."
 msgstr "アクションが見つかりません。"
@@ -11326,7 +11332,7 @@ msgid "No comments yet. Be the first to add a comment."
 msgstr "まだコメントがありません。最初のコメントを追加してください。"
 
 msgid "No complete current result is available."
-msgstr ""
+msgstr "現在の完全な結果は利用できません。"
 
 msgid "No completed jobs within range"
 msgstr "範囲内に完了した製造指図がありません"
@@ -11343,10 +11349,10 @@ msgstr "原価の履歴が見つかりません"
 msgid "No credits yet"
 msgstr "クレジットはまだありません"
 msgid "No current operational exposure is available."
-msgstr ""
+msgstr "現在の業務上の影響範囲は利用できません。"
 
 msgid "No current snapshot is needed for this historical reference."
-msgstr ""
+msgstr "この過去の参照情報には、現在のスナップショットは必要ありません。"
 
 msgid "No Data"
 msgstr "データなし"
@@ -11384,10 +11390,11 @@ msgstr "このアイテムの編集可能なプロパティはありません。
 msgid "No eligible operations"
 msgstr "対象の工程がありません"
 
+msgid "No eligible tasks are available to link."
+msgstr "リンク可能な対象タスクはありません。"
+
 msgid "No employees assigned this week"
 msgstr "今週割り当てられた従業員がいません"
-msgid "No eligible tasks are available to link."
-msgstr ""
 
 msgid "No employees assigned yet. Add groups to see status."
 msgstr "まだ従業員が割り当てられていません。グループを追加してステータスを確認してください。"
@@ -11438,16 +11445,16 @@ msgid "No groups assigned"
 msgstr "グループが割り当てられていません"
 
 msgid "No historical references are available."
-msgstr ""
+msgstr "過去の参照情報はありません。"
 
 msgid "No history is recorded for this assessment."
-msgstr ""
+msgstr "この評価の履歴は記録されていません。"
 
 msgid "No image"
 msgstr "画像なし"
 
 msgid "No Impact rows match the current search and filters."
-msgstr ""
+msgstr "現在の検索と絞り込みに一致する影響行はありません。"
 
 msgid "No inspection plans"
 msgstr "検査計画がありません"
@@ -11466,8 +11473,9 @@ msgstr "ここにはまだアイテムの在庫活動がありません。"
 
 msgid "No jobs are scheduled at this location yet — release a job to see work-center load."
 msgstr "この拠点ではまだ製造指図がスケジュール化されていません — 製造指図をリリースして作業区負荷を確認してください。"
+
 msgid "No Jobs or Job Materials are available."
-msgstr ""
+msgstr "利用可能な製造指図または指図材料はありません。"
 
 msgid "No jobs were created"
 msgstr "製造指図は作成されませんでした"
@@ -11494,7 +11502,7 @@ msgid "No logo uploaded"
 msgstr "ロゴがアップロードされていません"
 
 msgid "No longer in current scope"
-msgstr ""
+msgstr "現在の対象範囲外"
 
 msgid "No matches"
 msgstr "一致するものがありません"
@@ -11508,13 +11516,14 @@ msgstr "一致するものがありません。作成するには入力してく
 msgid "No matching bins"
 msgstr "一致するビンがありません"
 
+msgid "No matching loaded Impact rows are visible. Coverage is incomplete, so this is not a complete result."
+msgstr "一致する読み込み済みの影響行は表示されません。対象範囲が不完全なため、完全な結果ではありません。"
+
 msgid "No matching operations"
 msgstr "一致する工程がありません"
 
 msgid "No materials"
 msgstr "物料がありません"
-msgid "No matching loaded Impact rows are visible. Coverage is incomplete, so this is not a complete result."
-msgstr ""
 
 msgid "No new notifications"
 msgstr "新しい通知はありません"
@@ -11617,14 +11626,15 @@ msgstr "この操作で記録された生産イベントはまだありません
 
 msgid "No production recorded yet."
 msgstr "生産がまだ記録されていません。"
+
 msgid "No Purchase Order lines are available."
-msgstr ""
+msgstr "利用可能な発注書明細はありません。"
 
 msgid "No purchases in this period"
 msgstr "この期間に購入がありません"
 
 msgid "No purchasing intervention remains"
-msgstr ""
+msgstr "購買対応は残っていません"
 
 msgid "No Quote"
 msgstr "見積辞退"
@@ -11723,7 +11733,7 @@ msgid "No sync operations yet"
 msgstr "まだ同期工程はありません"
 
 msgid "No task linked. Keep a written rationale describing the follow-up path."
-msgstr ""
+msgstr "タスクはリンクされていません。フォローアップの進め方を説明する理由を文書で記録してください。"
 
 msgid "No time entries for this week"
 msgstr "今週のタイムエントリがありません"
@@ -11741,7 +11751,7 @@ msgid "No transactions in this period"
 msgstr "この期間に取引がありません"
 
 msgid "No unavailable source rows are available."
-msgstr ""
+msgstr "利用できないソース行はありません。"
 
 msgid "No unmapped accounts match a provider code"
 msgstr "マップされていない勘定科目でプロバイダーコードと一致するものがありません"
@@ -11780,10 +11790,10 @@ msgid "No work centers exist"
 msgstr "作業区がありません"
 
 msgid "No-action reason"
-msgstr ""
+msgstr "対応不要の理由"
 
 msgid "No-action reason for every selected target"
-msgstr ""
+msgstr "選択したすべての対象に対する対応不要の理由"
 
 msgid "Nom"
 msgstr "公称値"
@@ -11834,7 +11844,7 @@ msgid "Not a table but a general-ledger balance: cost accumulates as job materia
 msgstr "テーブルではなく総勘定元帳の残高です。指図材料が払い出されると原価が累積され、製造指図が在庫として受領されたときにクリアされます。"
 
 msgid "Not affected after review"
-msgstr ""
+msgstr "レビュー後に影響なし"
 
 msgid "Not certified"
 msgstr "認定されていない"
@@ -12066,7 +12076,7 @@ msgid "One firing of a workflow, recorded step by step with the values each step
 msgstr "ワークフローの1回の実行。各ステップが使用および生成した値を含めてステップバイステップで記録され、全体を通じてワークフロー責任者の権限で実行されます。"
 
 msgid "One or more selected rows are no longer eligible for a bulk assessment. Refresh and review the selection."
-msgstr ""
+msgstr "選択した1つ以上の行が一括評価の対象外になりました。更新して選択内容を確認してください。"
 
 msgid "One serial unit or one batch that Carbon follows individually, carrying its own status and attributes such as an expiry date."
 msgstr "Carbonが個別に追跡する1個のシリアルユニットまたは1つのバッチ。使用期限などのステータスと属性を独自に保有しています。"
@@ -12162,7 +12172,7 @@ msgid "Open Dispatches"
 msgstr "オープン保全指示"
 
 msgid "Open Impact workspace"
-msgstr ""
+msgstr "影響ワークスペースを開く"
 
 msgid "Open in Carbon"
 msgstr "Carbonで開く"
@@ -12228,7 +12238,7 @@ msgid "Open Scheduled"
 msgstr "スケジュール済みを開く"
 
 msgid "Open source"
-msgstr ""
+msgstr "ソースを開く"
 
 msgid "Open task details"
 msgstr "タスク詳細を開く"
@@ -12313,7 +12323,7 @@ msgid "Operation unit cost"
 msgstr "工程単位原価"
 
 msgid "Operational Impact"
-msgstr ""
+msgstr "業務上の影響"
 
 msgid "Operations"
 msgstr "工程"
@@ -12444,7 +12454,7 @@ msgid "Orders submitted"
 msgstr "注文が送信されました"
 
 msgid "Ordinary tasks are read-only after Done."
-msgstr ""
+msgstr "通常のタスクは完了後、読み取り専用になります。"
 
 msgid "Origin"
 msgstr "オリジン"
@@ -12489,7 +12499,7 @@ msgid "Output never outlasts its raw materials. Falls back to the fixed duration
 msgstr "製品は原材料より長く保持されることはありません。入力に使用期限がない場合は、固定期間にフォールバックします。"
 
 msgid "Outside effectivity"
-msgstr ""
+msgstr "有効日範囲外"
 
 msgid "Outside operation"
 msgstr "間接費差異"
@@ -13065,7 +13075,7 @@ msgid "PO PDF"
 msgstr "PO PDF"
 
 msgid "PO status"
-msgstr ""
+msgstr "発注書のステータス"
 
 msgid "Policy"
 msgstr "ポリシー"
@@ -13161,7 +13171,7 @@ msgid "Prepayments (default)"
 msgstr "前払金 (デフォルト)"
 
 msgid "Present"
-msgstr ""
+msgstr "存在"
 
 msgid "Present Week"
 msgstr "今週"
@@ -13335,10 +13345,10 @@ msgid "Procurement status — needs ordering, planned, on order, or received. Th
 msgstr "調達ステータス — 発注が必要、計画済み、発注済み、または入荷済み。BoM ツリーに表示されるものと同じインジケーター。"
 
 msgid "Producing Job"
-msgstr ""
+msgstr "製造中の製造指図"
 
 msgid "Producing Jobs"
-msgstr ""
+msgstr "製造中の製造指図"
 
 msgid "Product issues during hypercare"
 msgstr "ハイパーケア中の製品の問題"
@@ -13455,7 +13465,7 @@ msgstr "予測"
 msgid "Projects"
 msgstr "プロジェクト"
 msgid "Promised"
-msgstr ""
+msgstr "回答納期"
 
 msgid "Promised Date"
 msgstr "回答納期"
@@ -13488,13 +13498,13 @@ msgid "Prove ownership of each email domain with a DNS TXT record before it can 
 msgstr "SAML SSO サインインをルーティングする前に、DNS TXTレコードでメールドメインの所有権を証明してください。DNSホストでレコードを追加してから[確認]をクリックします。検証済みドメインのみシングル サインオンに参加できます。"
 
 msgid "Provenance"
-msgstr ""
+msgstr "由来"
 
 msgid "Provenance ended"
-msgstr ""
+msgstr "由来終了"
 
 msgid "Provenance started"
-msgstr ""
+msgstr "出所情報の処理を開始しました"
 
 msgid "Provide process knowledge and inputs"
 msgstr "プロセスの知識と入力を提供する"
@@ -13588,13 +13598,13 @@ msgid "Purchase Order ID"
 msgstr "発注書ID"
 
 msgid "Purchase Order line"
-msgstr ""
+msgstr "発注書の明細"
 
 msgid "Purchase Order Line"
 msgstr "発注書明細"
 
 msgid "Purchase Order lines"
-msgstr ""
+msgstr "発注書の明細"
 
 msgid "Purchase Order Location"
 msgstr "発注書拠点"
@@ -13950,7 +13960,7 @@ msgid "Ratio"
 msgstr "比率"
 
 msgid "Rationale"
-msgstr ""
+msgstr "根拠"
 
 msgid "Raw Materials"
 msgstr "原材料"
@@ -14031,10 +14041,10 @@ msgid "Reasons"
 msgstr "理由"
 
 msgid "Reassess"
-msgstr ""
+msgstr "再評価する"
 
 msgid "Reassess operational impact"
-msgstr ""
+msgstr "業務への影響を再評価する"
 
 msgid "Reassign specific tracked entities from this row to another disposition row."
 msgstr "この行から特定の追跡対象を別の処置行に再割り当てします。"
@@ -14052,7 +14062,7 @@ msgid "Receipt"
 msgstr "領収書"
 
 msgid "Receipt complete"
-msgstr ""
+msgstr "入荷を完了する"
 
 msgid "Receipt ID"
 msgstr "受取ID"
@@ -14073,7 +14083,7 @@ msgid "Receipts"
 msgstr "領収書"
 
 msgid "Receipts, inspections, sales, shipments, and other where-used records are outside the three supported Impact target contracts in this workspace. They are not loaded as Impact rows until dedicated source-aware context readers can report their own coverage. They do not contribute to assessment totals or offer decision controls here."
-msgstr ""
+msgstr "入荷、検査、販売、出荷、その他の使用箇所レコードは、このワークスペースでサポートされている3つの影響対象契約の範囲外です。専用のソース対応コンテキストリーダーが独自の対象範囲を報告できるようになるまで、これらは影響行として読み込まれません。評価の合計には寄与せず、ここでの意思決定コントロールも提供しません。"
 
 msgid "Receipts, shipments, sales invoices, purchase invoices, payments, and credit/debit memos that are still Draft or Pending must be posted or voided — both documents dated in this period and undated documents that would receive a date in it when posted. Until they post, their amounts aren't in the general ledger, so the period would be understated."
 msgstr "入荷、出荷、売上請求書、仕入先請求書、支払、およびクレジット/デビットメモで、まだ下書きまたは待機中のものは、転記するか取消す必要があります。この期間に日付があるドキュメントと、転記時にこの期間に日付を受け取るドキュメント（未日付）の両方が対象です。転記されるまで、金額は総勘定元帳に入らないため、期間が過小評価されます。"
@@ -14134,7 +14144,7 @@ msgid "Received quantity not yet credited. The credit memo is created as a draft
 msgstr "入荷数量がまだクレジットされていません。クレジットメモは下書きとして作成されます"
 msgstr "受領数量はまだクレジットされていません。クレジットメモはドラフトとして作成されます。"
 msgid "Received to inventory"
-msgstr ""
+msgstr "在庫に受け入れ済み"
 
 msgid "Receiving Location"
 msgstr "入荷拠点"
@@ -14280,6 +14290,7 @@ msgstr "リリース"
 #. placeholder {0}: releasable.length
 msgid "Release {0} batches"
 msgstr "{0}個のバッチをリリース"
+msgstr "{0}件のバッチをリリースする"
 
 msgid "Release Batch"
 msgstr "バッチをリリース"
@@ -14302,6 +14313,7 @@ msgstr "リリース済み"
 #. placeholder {0}: d.released
 msgid "Released {0} batches"
 msgstr "{0}個のバッチがリリース済"
+msgstr "{0}件のバッチをリリース済み"
 
 msgid "Released date"
 msgstr "リリース日"
@@ -14635,28 +14647,28 @@ msgid "Residual Value %"
 msgstr "残存価額 %"
 
 msgid "Resolution is unavailable until linked task coverage is complete."
-msgstr ""
+msgstr "紐付けられたタスクの対象範囲が完了するまで、解決処理を利用できません。"
 
 msgid "Resolution note"
-msgstr ""
+msgstr "解決メモ"
 
 msgid "Resolve"
-msgstr ""
+msgstr "解決する"
 
 msgid "Resolve after every linked task is Completed or Skipped."
-msgstr ""
+msgstr "紐付けられたすべてのタスクが完了またはスキップ済みになった後に解決する。"
 
 msgid "Resolve after linked task coverage is complete."
-msgstr ""
+msgstr "紐付けられたタスクの対象範囲が完了した後に解決する。"
 
 msgid "Resolve operational impact"
-msgstr ""
+msgstr "業務への影響を解決する"
 
 msgid "Resolve these before completing the NCR: every row must have a non-Pending disposition, and its linked entity quantities must match the row quantity."
 msgstr "NCRを完了する前にこれらを解決してください。すべての行に保留中ではない処置が必要で、リンクされたエンティティの数量は行の数量と一致する必要があります。"
 
 msgid "Resolved"
-msgstr ""
+msgstr "解決済み"
 
 msgid "Resolved Price"
 msgstr "解決済み価格"
@@ -14715,8 +14727,9 @@ msgstr "ファイルを復元中"
 
 msgid "restoring…"
 msgstr "復元中…"
+
 msgid "Restricted"
-msgstr ""
+msgstr "制限付き"
 
 msgid "Result"
 msgstr "結果"
@@ -14855,23 +14868,24 @@ msgstr "レビュー"
 
 msgid "Review & create"
 msgstr "確認と作成"
+
 msgid "Review bulk Impact assessment"
-msgstr ""
+msgstr "一括影響評価を確認する"
 
 msgid "Review current purchasing and production exposure with source coverage, provenance, and freshness details."
-msgstr ""
+msgstr "現在の購買と生産への影響を、ソース範囲、出所情報、鮮度の詳細とともに確認する。"
 
 msgid "Review each item's changes, then confirm — releasing can't be undone."
 msgstr "各アイテムの変更をレビューしてから確認してください。リリースは取り消せません。"
 
 msgid "Review rationale"
-msgstr ""
+msgstr "根拠を確認する"
 
 msgid "Review rationale for every selected target"
-msgstr ""
+msgstr "選択したすべての対象の根拠を確認する"
 
 msgid "Review selected"
-msgstr ""
+msgstr "選択内容を確認する"
 
 msgid "Review the period's balance sheet and income statement and confirm the figures look right. This is a manual sign-off — mark it done once you have reviewed them."
 msgstr "期間の貸借対照表と損益計算書をレビューして、数字が正しいことを確認してください。これは手動の承認です。レビュー後、完了にマークしてください。"
@@ -15283,7 +15297,7 @@ msgid "Save applications"
 msgstr "アプリケーションを保存"
 
 msgid "Save assessment"
-msgstr ""
+msgstr "評価を保存"
 
 msgid "Save changes"
 msgstr "変更を保存"
@@ -15299,8 +15313,9 @@ msgstr "メソッドを保存"
 
 msgid "Save Rate"
 msgstr "レートを保存"
+
 msgid "Save reassessment"
-msgstr ""
+msgstr "再評価を保存"
 
 msgid "Save the form you're editing"
 msgstr "編集中のフォームを保存"
@@ -15685,7 +15700,7 @@ msgid "Select disposition"
 msgstr "処置を選択"
 msgstr "処分を選択"
 msgid "Select eligible rows for a shared decision."
-msgstr ""
+msgstr "共通の意思決定の対象として適格な行を選択します。"
 
 msgid "Select Employee"
 msgstr "従業員を選択"
@@ -16419,13 +16434,14 @@ msgstr "ソリューションズエンジニア"
 msgid "Some lines extracted from the PDF could not be automatically mapped to your inventory items. Review and map each line below."
 msgstr "PDFから抽出された一部の明細は在庫品目に自動的にマップできませんでした。以下の各明細を確認してマップしてください。"
 
+msgid "Some linked task metadata is unavailable. Decision state is shown independently and has not been inferred from task status. Task details are omitted where linked-task coverage could not be read."
+msgstr "一部の紐付けタスクのメタデータを利用できません。意思決定の状態は独立して表示され、タスクのステータスから推測されたものではありません。紐付けタスクの対象範囲を読み取れなかった場合、そのタスクの詳細は省略されます。"
+
 msgid "Some records won't come back. Type <0>{CONFIRM_WORD}</0> to continue."
 msgstr "いくつかのレコードは戻りません。続行するには<0>{CONFIRM_WORD}</0>と入力してください。"
 
 msgid "Some Shifts"
 msgstr "一部のシフト"
-msgid "Some linked task metadata is unavailable. Decision state is shown independently and has not been inferred from task status. Task details are omitted where linked-task coverage could not be read."
-msgstr ""
 
 msgid "Something went wrong. Please try again."
 msgstr "何か問題が発生しました。もう一度お試しください。"
@@ -16461,7 +16477,7 @@ msgid "Source Company"
 msgstr "ソース会社"
 
 msgid "Source deleted"
-msgstr ""
+msgstr "ソースが削除されました"
 
 msgid "Source document"
 msgstr "参照伝票"
@@ -16476,7 +16492,7 @@ msgid "Source document readable"
 msgstr "参照伝票判読可能"
 
 msgid "Source identities are retained only where they were authorized; decision-relevant facts are withheld until coverage is restored."
-msgstr ""
+msgstr "認可された場合に限り、ソースの識別情報を保持しています。対象範囲が復元されるまで、意思決定に関連する事実は提示されません。"
 
 msgid "Source Item"
 msgstr "ソースアイテム"
@@ -16491,7 +16507,7 @@ msgid "Source Method"
 msgstr "ソース方法"
 
 msgid "Source record unavailable"
-msgstr ""
+msgstr "ソースレコードを利用できません"
 
 msgid "Source types"
 msgstr "ソースタイプ"
@@ -16787,7 +16803,7 @@ msgid "Store a fixed number of days on this item. Expiry start date is set on ea
 msgstr "このアイテムの使用期限を固定日数で管理します。各バッチまたはシリアルの使用期限開始日は、受け取られたときに設定されます。"
 
 msgid "Stored assessment snapshot is unavailable."
-msgstr ""
+msgstr "保存された評価スナップショットを利用できません。"
 
 msgid "Straight line"
 msgstr "定額法"
@@ -17057,7 +17073,7 @@ msgid "Supplier RMA #"
 msgstr "仕入先RMA #"
 msgstr "サプライヤー RMA #"
 msgid "Supplier return, replacement, credit, and communication interventions have been reviewed."
-msgstr ""
+msgstr "仕入先への返品、交換、クレジット、連絡の対応をレビュー済みです。"
 
 msgid "Supplier Status"
 msgstr "仕入先ステータス"
@@ -17099,7 +17115,7 @@ msgid "Support"
 msgstr "サポート"
 
 msgid "Supported purchasing and production targets that can receive an independent Impact assessment."
-msgstr ""
+msgstr "独立した影響評価を実施できる、サポート対象の購買・生産対象。"
 
 #. placeholder {0}: supportedModelTypes.join(", ")
 msgid "Supports {0} files"
@@ -17232,31 +17248,31 @@ msgid "Task"
 msgstr "タスク"
 
 msgid "Task designated as Impact follow-up"
-msgstr ""
+msgstr "影響フォローアップとして指定されたタスク"
 
 msgid "Task details unavailable."
-msgstr ""
+msgstr "タスク詳細を利用できません。"
 
 msgid "Task filters use incomplete linked-task metadata. Missing tasks or assignees are not treated as absent."
-msgstr ""
+msgstr "タスクの絞り込みでは、不完全なリンクされたタスクのメタデータが使用されます。タスクまたは担当者が不足していても、それらが存在しないものとして扱われることはありません。"
 
 msgid "Task linked"
-msgstr ""
+msgstr "タスクをリンク済み"
 
 msgid "Task name"
-msgstr ""
+msgstr "タスク名"
 
 msgid "Task origin: Impact follow-up"
-msgstr ""
+msgstr "タスクの起点: 影響のフォローアップ"
 
 msgid "Task status"
-msgstr ""
+msgstr "タスクステータス"
 
 msgid "Task statuses"
-msgstr ""
+msgstr "タスクステータス"
 
 msgid "Task unlinked"
-msgstr ""
+msgstr "タスクのリンク解除済み"
 
 msgid "tasks"
 msgstr "タスク"
@@ -17355,7 +17371,7 @@ msgid "Template ID"
 msgstr "テンプレートID"
 
 msgid "Template-owned"
-msgstr ""
+msgstr "テンプレート所有"
 
 msgid "Templates"
 msgstr "テンプレート"
@@ -17600,8 +17616,9 @@ msgstr "レポートとヘッドカウント階層のために、このロール
 
 msgid "The early hours, {name}."
 msgstr "早朝の時間、{name}。"
+
 msgid "The editor was closed and the workspace was refreshed. Review the current state before submitting again."
-msgstr ""
+msgstr "エディターが閉じられ、ワークスペースが更新されました。再度送信する前に、現在の状態を確認してください。"
 
 msgid "The eight-disciplines quality method, modeled with the nonconformance workflow's tasks rather than hard-coded."
 msgstr "8つの規律品質法。ハードコーディングではなく、不適合ワークフローのタスクでモデル化されています。"
@@ -18020,11 +18037,12 @@ msgstr "この資産の原価を耐用年数にわたって配分するために
 msgid "The scheduler uses the first rule below that applies, then subtracts downtime and staffing."
 msgstr "スケジューラは以下の適用される最初のルールを使用し、停止時間とスタッフィングを差し引きます。"
 msgstr "スケジューラーは以下の最初に適用されるルールを使用し、その後ダウンタイムとスタッフィングを差し引きます。"
+
 msgid "The selected rows do not share an available conclusion. Adjust the selection before reviewing it."
-msgstr ""
+msgstr "選択した行には利用可能な結論が共通していません。選択内容を調整してから確認してください。"
 
 msgid "The server will recheck every target and reject the whole batch if any source fact, eligibility rule, or decision revision changed after this preview."
-msgstr ""
+msgstr "サーバーはすべての対象を再確認し、このプレビュー後にソース情報、適格性ルール、または判定リビジョンのいずれかが変更されていた場合、バッチ全体を却下します。"
 
 msgid "The shelves and bins where stock physically sits"
 msgstr "在庫が物理的に置かれている棚とビン。"
@@ -18256,6 +18274,8 @@ msgstr "これらの工程は複数の仕入先に対応可能な工法を使用
 
 msgid "These parts are being replaced by this one. Each rule is set on the old part; open it to change the rule."
 msgstr "これらの部品はこの部品で置き換わっています。各ルールは旧部品に設定されています；ルールを変更するには旧部品を開いてください。"
+msgid "These references remain traceable but do not create a new Unassessed obligation."
+msgstr "これらの参照は引き続き追跡可能ですが、新たな未評価の義務を発生させません。"
 
 msgid "These rows link to data outside this company, so a safety copy of your current data can't be made. Deleting them cannot be undone. If they turn out to be shared with other companies in this group, nothing is deleted and the restore doesn't start."
 msgstr "これらの行はこの会社外のデータにリンクしているため、現在のデータのバックアップを作成できません。削除を元に戻すことはできません。このグループ内の他の会社と共有されていることが判明した場合、何も削除されず、復元は開始されません。"
@@ -18271,8 +18291,6 @@ msgstr "このバックアップを完了できませんでした。"
 
 msgid "This backup hasn't been checked yet. Any differences are found when the restore runs."
 msgstr "このバックアップはまだチェックされていません。違いは復元の実行時に見つかります。"
-msgid "These references remain traceable but do not create a new Unassessed obligation."
-msgstr ""
 
 msgid "This Carbon instance is missing its Onshape OAuth credentials. Ask an administrator to set them."
 msgstr "この Carbon インスタンスには Onshape の OAuth 認証情報がありません。管理者に設定を依頼してください。"
@@ -18452,13 +18470,14 @@ msgstr "この受注には関連する製造指図があります。それらで
 msgid "This sales order has lines that require jobs to be created"
 msgstr "この受注には製造指図の作成が必要な明細があります"
 
+msgid "This source domain is restricted for your current permissions. No target identities or source facts are shown."
+msgstr "このソースドメインは現在の権限では制限されています。対象の識別情報やソース情報は表示されません。"
+
 msgid "This station runs ability-gated work — it only runs while a qualified operator is on shift; operators assigned on the manning board further shape available labor."
 msgstr "このステーションはスキル制限のある作業を実行します — 適切なスキルを持つ作業者がシフト中のみ実行されます。人員配置ボードに割り当てられた作業者は、利用可能な労務をさらに決定します。"
 
 msgid "This station runs work with no ability requirement; operators assigned on the manning board shape available labor."
 msgstr "このステーションはスキル要求事項がない作業を実行します。マニング ボード上に割り当てられた作業者は、利用可能な労務を形作ります。"
-msgid "This source domain is restricted for your current permissions. No target identities or source facts are shown."
-msgstr ""
 
 #. placeholder {0}: usageCount === 1 ? "" : "s"
 msgid "This storage type is currently used by {usageCount} storage unit{0}."
@@ -19014,7 +19033,7 @@ msgid "Unapproved Supplier"
 msgstr "未承認の仕入先"
 
 msgid "Unassessed"
-msgstr ""
+msgstr "未評価"
 
 msgid "Unassign rule"
 msgstr "ルールの割り当てを解除"
@@ -19023,10 +19042,10 @@ msgid "Unassigned"
 msgstr "未割り当て"
 
 msgid "Unavailable"
-msgstr ""
+msgstr "利用不可"
 
 msgid "Unavailable source rows"
-msgstr ""
+msgstr "利用不可のソース行"
 
 msgid "Unballoon"
 msgstr "バルーンを削除"
@@ -19127,7 +19146,7 @@ msgstr "返品と発注書のリンクを解除しますか？"
 msgid "Unlink RMA from sales order?"
 msgstr "RMA と受注のリンクを解除しますか？"
 msgid "Unlink task"
-msgstr ""
+msgstr "タスクのリンクを解除"
 
 msgid "Unlock"
 msgstr "ロック解除"
@@ -19148,7 +19167,7 @@ msgid "Unmatched"
 msgstr "不一致"
 
 msgid "Unnamed task"
-msgstr ""
+msgstr "名前のないタスク"
 
 msgid "Unpick"
 msgstr "ピック解除"
@@ -19404,7 +19423,7 @@ msgid "Use metric system for default material dimensions."
 msgstr "デフォルト材料ディメンションにメートル法を使用してください。"
 
 msgid "Use No action required only if the earlier conclusion was incorrect and intervention was never required. If intervention occurred and closed the consequence, use Resolve."
-msgstr ""
+msgstr "以前の結論が誤っており、介入が一度も必要なかった場合にのみ「対応不要」を使用してください。介入が行われ、その結果を解消した場合は、「解決」を使用してください。"
 
 msgid "Used In"
 msgstr "使用されている"
@@ -20495,7 +20514,7 @@ msgid "You do not have permission to edit workflows"
 msgstr "ワークフローを編集する権限がありません"
 
 msgid "You do not have permission to update this task."
-msgstr ""
+msgstr "このタスクを更新する権限がありません。"
 
 msgid "You don't have permission to edit this bill of material."
 msgstr "この部品表を編集する権限がありません。"

@@ -129,6 +129,11 @@ const PERMISSION_OVERRIDES: Record<string, ToolPermission> = {
   settings_getApiKeys: { module: "users", actions: ["update"] },
   settings_upsertApiKey: { module: "users", actions: ["update"] },
   settings_deleteApiKey: { module: "users", actions: ["update"] },
+  // `createImpactFollowUpTask` would derive `create` from its verb, but the
+  // authorized Impact task boundary uses the existing Parts update capability.
+  // Link, unlink, and designation already fall through to that conservative
+  // update action, so keep this as the sole Impact-specific override.
+  items_createImpactFollowUpTask: { module: "parts", actions: ["update"] },
 };
 
 // ---------------------------------------------------------------------------
