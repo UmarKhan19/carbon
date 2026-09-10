@@ -17,6 +17,7 @@ const spies = vi.hoisted(() => ({
   upsertMethodMaterial: vi.fn(),
   upsertQuoteLinePrices: vi.fn(),
   generateInventoryCountLines: vi.fn(),
+  deleteChangeNotice: vi.fn(),
   upsertNotificationPreference: vi.fn(),
   insertJob: vi.fn(),
   insertIssue: vi.fn(),
@@ -28,6 +29,7 @@ const spies = vi.hoisted(() => ({
   linkImpactDecisionTask: vi.fn(),
   unlinkImpactDecisionTask: vi.fn(),
   designateImpactFollowUpTask: vi.fn(),
+  getUserClaims: vi.fn(),
   FAKE_DB: { __kysely: true },
   FAKE_CLIENT: { __supabase: true }
 }));
@@ -58,7 +60,8 @@ vi.mock("~/modules/items/items.mcp.server", () => ({
   designateImpactFollowUpTask: spies.designateImpactFollowUpTask
 }));
 vi.mock("~/modules/items/items.service", () => ({
-  upsertMethodMaterial: spies.upsertMethodMaterial
+  upsertMethodMaterial: spies.upsertMethodMaterial,
+  deleteChangeNotice: spies.deleteChangeNotice
 }));
 vi.mock("~/modules/people/people.service", () => ({}));
 vi.mock("~/modules/production/production.mcp.server", () => ({}));
@@ -89,6 +92,9 @@ vi.mock("~/modules/shared/shared.service", () => ({}));
 vi.mock("~/modules/users/users.service", () => ({}));
 vi.mock("~/services/database.server", () => ({
   getDatabaseClient: () => spies.FAKE_DB
+}));
+vi.mock("@carbon/auth/users.server", () => ({
+  getUserClaims: spies.getUserClaims
 }));
 vi.mock("@carbon/logger", () => ({
   getLogger: () => ({
@@ -155,6 +161,7 @@ const allSpies = [
   spies.upsertMethodMaterial,
   spies.upsertQuoteLinePrices,
   spies.generateInventoryCountLines,
+  spies.deleteChangeNotice,
   spies.upsertNotificationPreference,
   spies.insertJob,
   spies.insertIssue,
@@ -165,7 +172,8 @@ const allSpies = [
   spies.createImpactFollowUpTask,
   spies.linkImpactDecisionTask,
   spies.unlinkImpactDecisionTask,
-  spies.designateImpactFollowUpTask
+  spies.designateImpactFollowUpTask,
+  spies.getUserClaims
 ];
 
 beforeEach(() => {
@@ -327,6 +335,18 @@ describe("dispatchOperation service-call contract (golden, ex-executeFunction pa
         { startDate: "2026-01-01", companyId: "c1" }
       ]
     ]);
+  });
+
+  it("passes the server-owned Kysely client to Change Notice deletion without changing its wire argument", async () => {
+    const r = await runDispatch(
+      "items_deleteChangeNotice",
+      spies.deleteChangeNotice,
+      {
+        changeNoticeId: "notice-1"
+      }
+    );
+
+    expect(r.calls).toEqual([[spies.FAKE_DB, "notice-1", "c1"]]);
   });
 
   it("b. _operation create at top level: stripped, createdBy + companyId stamped, updatedBy NOT stamped (matches the create-variant service type / UI insert path)", async () => {
@@ -620,6 +640,148 @@ describe("dispatchOperation service-call contract (golden, ex-executeFunction pa
     expect(r.dispatchError).toBeInstanceOf(ORPCError);
     expect((r.dispatchError as ORPCError<string, unknown>).message).toBe(
       'production_upsertJobMaterial requires _operation to be "create" (insert a new record) or "update" (modify an existing one).'
+    );
+  });
+});
+
+describe("OAuth authorization for service-role deletion", () => {
+  const oauthContext: AuthedContext = {
+    ...ctx,
+    authKind: "oauth"
+  };
+
+  it("rejects Change Notice deletion without parts:delete", async () => {
+    spies.getUserClaims.mockResolvedValueOnce({
+      permissions: {
+        parts: { view: ["c1"], create: [], update: [], delete: [] }
+      },
+      role: "employee"
+    });
+
+    const result = await callOperation(
+      "items_deleteChangeNotice",
+      oauthContext,
+      { changeNoticeId: "notice-1" }
+    );
+
+    expect(result).toEqual({
+      success: false,
+      error: "OAuth caller lacks the required permission: parts_delete",
+      errorKind: "execution"
+    });
+    expect(spies.deleteChangeNotice).not.toHaveBeenCalled();
+    expect(spies.getUserClaims).toHaveBeenCalledWith("u1", "c1");
+  });
+
+  it("rejects an OAuth caller whose parts:delete grant belongs to another company", async () => {
+    spies.getUserClaims.mockResolvedValueOnce({
+      permissions: {
+        parts: { view: [], create: [], update: [], delete: ["c2"] }
+      },
+      role: "employee"
+    });
+
+    const result = await callOperation(
+      "items_deleteChangeNotice",
+      oauthContext,
+      { changeNoticeId: "notice-1" }
+    );
+
+    expect(result).toEqual({
+      success: false,
+      error: "OAuth caller lacks the required permission: parts_delete",
+      errorKind: "execution"
+    });
+    expect(spies.getUserClaims).toHaveBeenCalledWith("u1", "c1");
+    expect(spies.deleteChangeNotice).not.toHaveBeenCalled();
+  });
+
+  it("rejects an OAuth caller with a stale global wildcard grant", async () => {
+    spies.getUserClaims.mockResolvedValueOnce({
+      permissions: {
+        parts: { view: [], create: [], update: [], delete: ["0"] }
+      },
+      role: "employee"
+    });
+
+    const result = await callOperation(
+      "items_deleteChangeNotice",
+      oauthContext,
+      { changeNoticeId: "notice-1" }
+    );
+
+    expect(result).toEqual({
+      success: false,
+      error: "OAuth caller lacks the required permission: parts_delete",
+      errorKind: "execution"
+    });
+    expect(spies.getUserClaims).toHaveBeenCalledWith("u1", "c1");
+    expect(spies.deleteChangeNotice).not.toHaveBeenCalled();
+  });
+
+  it("passes an OAuth caller with parts:delete through to the service", async () => {
+    spies.getUserClaims.mockResolvedValueOnce({
+      permissions: {
+        parts: { view: ["c1"], create: [], update: [], delete: ["c1"] }
+      },
+      role: "employee"
+    });
+
+    const result = await callOperation(
+      "items_deleteChangeNotice",
+      oauthContext,
+      { changeNoticeId: "notice-1" }
+    );
+
+    expect(result.success).toBe(true);
+    expect(spies.deleteChangeNotice).toHaveBeenCalledWith(
+      spies.FAKE_DB,
+      "notice-1",
+      "c1"
+    );
+  });
+});
+
+describe("API-key authorization for Change Notice deletion", () => {
+  const unauthorizedScopes: Record<string, string[]>[] = [
+    {},
+    { parts_delete: ["company-2"] },
+    { parts_delete: ["0"] }
+  ];
+
+  it.each(
+    unauthorizedScopes
+  )("rejects a key without an exact parts:delete company scope", async (scopes) => {
+    const result = await callOperation(
+      "items_deleteChangeNotice",
+      { ...ctx, authKind: "api-key", scopes },
+      { changeNoticeId: "notice-1" }
+    );
+
+    expect(result).toEqual({
+      success: false,
+      error: "API key lacks the required scope: parts_delete",
+      errorKind: "execution"
+    });
+    expect(spies.deleteChangeNotice).not.toHaveBeenCalled();
+  });
+
+  it("passes a key with the exact parts:delete company scope", async () => {
+    const result = await callOperation(
+      "items_deleteChangeNotice",
+      {
+        ...ctx,
+        authKind: "api-key",
+        scopes: { parts_delete: ["c1"] }
+      },
+      { changeNoticeId: "notice-1" }
+    );
+
+    expect(result.success).toBe(true);
+    expect(spies.deleteChangeNotice).toHaveBeenCalledWith(
+      spies.FAKE_DB,
+      "notice-1",
+      "c1"
     );
   });
 });

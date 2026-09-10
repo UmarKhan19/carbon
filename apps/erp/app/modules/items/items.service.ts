@@ -5825,32 +5825,246 @@ export async function updateChangeNotice(
 }
 
 export async function deleteChangeNotice(
-  client: SupabaseClient<Database>,
+  db: Kysely<KyselyDatabase>,
   changeNoticeId: string,
   companyId: string
-) {
-  // Discard each affected item's CO-owned Draft first (the Draft make method for
-  // a Version, or the revealed inactive item for a Revision/New Part). These are
-  // NOT FK children of the change notice, so the cascade below won't remove them —
-  // only the changeOrderAffectedItem rows cascade. Without this, deleting a CO
-  // orphans its drafts (mirrors removeChangeNoticeAffectedItem's cleanup).
-  const affected = await client
-    .from("changeOrderAffectedItem")
-    .select("draftMakeMethodId, newItemId")
-    .eq("changeOrderId", changeNoticeId)
-    .eq("companyId", companyId);
-  if (!affected.error && affected.data) {
-    for (const item of affected.data) {
-      await discardChangeNoticeDraft(client, item, companyId);
-    }
-  }
+): Promise<{ data: null; error: { message: string } | null }> {
+  try {
+    await db.transaction().execute(async (trx) => {
+      const changeNotice = await trx
+        .selectFrom("changeOrder")
+        .select(["id", "status"])
+        .where("id", "=", changeNoticeId)
+        .where("companyId", "=", companyId)
+        .forUpdate()
+        .executeTakeFirst();
+      if (!changeNotice) {
+        throw new Error("Change notice not found.");
+      }
 
-  // Remaining children (affected items, action tasks) cascade via ON DELETE CASCADE.
-  return client
-    .from("changeOrder")
-    .delete()
-    .eq("id", changeNoticeId)
-    .eq("companyId", companyId);
+      const affected = await trx
+        .selectFrom("changeOrderAffectedItem")
+        .select(["draftMakeMethodId", "newItemId"])
+        .where("changeOrderId", "=", changeNoticeId)
+        .where("companyId", "=", companyId)
+        .forUpdate()
+        .execute();
+
+      const itemIds = [
+        ...new Set(
+          affected
+            .map(({ newItemId }) => newItemId)
+            .filter((id): id is string => id !== null)
+        )
+      ];
+      const methodIds = [
+        ...new Set(
+          affected
+            .map(({ draftMakeMethodId }) => draftMakeMethodId)
+            .filter((id): id is string => id !== null)
+        )
+      ];
+      const itemBackedMethodIds = new Set(
+        affected
+          .filter(({ newItemId }) => newItemId !== null)
+          .map(({ draftMakeMethodId }) => draftMakeMethodId)
+          .filter((id): id is string => id !== null)
+      );
+      const standaloneMethodIds = new Set(
+        affected
+          .filter(({ newItemId }) => newItemId === null)
+          .map(({ draftMakeMethodId }) => draftMakeMethodId)
+          .filter((id): id is string => id !== null)
+      );
+      if ([...standaloneMethodIds].some((id) => itemBackedMethodIds.has(id))) {
+        throw new Error("Change Notice draft references are inconsistent.");
+      }
+
+      const referencedItems =
+        itemIds.length === 0
+          ? []
+          : await trx
+              .selectFrom("item")
+              .select(["id", "companyId", "changeOrderId", "active"])
+              .where("id", "in", itemIds)
+              .where("companyId", "=", companyId)
+              .forUpdate()
+              .execute();
+      const referencedItemMethods =
+        itemIds.length === 0
+          ? []
+          : await trx
+              .selectFrom("makeMethod")
+              .select(["id", "itemId", "companyId", "changeOrderId", "status"])
+              .where("itemId", "in", itemIds)
+              .where("companyId", "=", companyId)
+              .forUpdate()
+              .execute();
+      const referencedStandaloneMethods =
+        standaloneMethodIds.size === 0
+          ? []
+          : await trx
+              .selectFrom("makeMethod")
+              .select(["id", "itemId", "companyId", "changeOrderId", "status"])
+              .where("id", "in", [...standaloneMethodIds])
+              .where("companyId", "=", companyId)
+              .forUpdate()
+              .execute();
+
+      if (referencedItems.length !== itemIds.length) {
+        throw new Error("Change Notice draft references are inconsistent.");
+      }
+
+      const itemsById = new Map(referencedItems.map((item) => [item.id, item]));
+      const referencedMethods = [
+        ...referencedItemMethods,
+        ...referencedStandaloneMethods
+      ];
+      const methodsById = new Map(
+        referencedMethods.map((method) => [method.id, method])
+      );
+      if (methodIds.some((id) => !methodsById.has(id))) {
+        throw new Error("Change Notice draft references are inconsistent.");
+      }
+      const methodsByItemId = new Map<string, typeof referencedMethods>();
+      for (const method of referencedItemMethods) {
+        const methods = methodsByItemId.get(method.itemId) ?? [];
+        methods.push(method);
+        methodsByItemId.set(method.itemId, methods);
+      }
+
+      const itemsToDelete = new Set<string>();
+      const methodsToDelete = new Set<string>();
+      const itemDispositionById = new Map<string, "delete" | "preserve">();
+
+      for (const itemId of itemIds) {
+        const item = itemsById.get(itemId);
+        if (!item || item.changeOrderId !== changeNoticeId) {
+          throw new Error("Change Notice draft references are inconsistent.");
+        }
+
+        const itemMethods = methodsByItemId.get(itemId) ?? [];
+        const hasDraftMethod = itemMethods.some(
+          (method) => method.status === "Draft"
+        );
+        const hasNonDraftMethod = itemMethods.some(
+          (method) => method.status !== "Draft"
+        );
+        const hasForeignOwnedMethod = itemMethods.some(
+          (method) =>
+            method.changeOrderId !== null &&
+            method.changeOrderId !== changeNoticeId
+        );
+        const hasOwnedNonDraftMethod = itemMethods.some(
+          (method) => method.status !== "Draft" && method.changeOrderId !== null
+        );
+
+        if (
+          hasForeignOwnedMethod ||
+          hasOwnedNonDraftMethod ||
+          (hasDraftMethod && hasNonDraftMethod)
+        ) {
+          throw new Error("Change Notice draft references are inconsistent.");
+        }
+
+        const shouldDelete = itemMethods.length === 0 || hasDraftMethod;
+        if (shouldDelete) {
+          if (changeNotice.status === "Done" || item.active !== false) {
+            throw new Error("Change Notice draft references are inconsistent.");
+          }
+          itemDispositionById.set(itemId, "delete");
+        } else {
+          itemDispositionById.set(itemId, "preserve");
+        }
+      }
+
+      for (const row of affected) {
+        if (row.newItemId !== null) {
+          const item = itemsById.get(row.newItemId);
+          if (!item || item.changeOrderId !== changeNoticeId) {
+            throw new Error("Change Notice draft references are inconsistent.");
+          }
+
+          if (
+            row.draftMakeMethodId !== null &&
+            (!methodsById.has(row.draftMakeMethodId) ||
+              methodsById.get(row.draftMakeMethodId)?.itemId !== item.id)
+          ) {
+            throw new Error("Change Notice draft references are inconsistent.");
+          }
+          if (itemDispositionById.get(item.id) === "delete") {
+            itemsToDelete.add(item.id);
+          }
+          continue;
+        }
+
+        if (row.draftMakeMethodId === null) continue;
+        const method = methodsById.get(row.draftMakeMethodId);
+        if (!method) {
+          throw new Error("Change Notice draft references are inconsistent.");
+        }
+        if (
+          method.changeOrderId === changeNoticeId &&
+          method.status === "Draft" &&
+          changeNotice.status !== "Done"
+        ) {
+          methodsToDelete.add(method.id);
+          continue;
+        }
+        if (method.changeOrderId === null && method.status !== "Draft") {
+          continue;
+        }
+        throw new Error("Change Notice draft references are inconsistent.");
+      }
+
+      if (methodsToDelete.size > 0) {
+        const deleted = await trx
+          .deleteFrom("makeMethod")
+          .where("id", "in", [...methodsToDelete])
+          .where("companyId", "=", companyId)
+          .where("changeOrderId", "=", changeNoticeId)
+          .where("status", "=", "Draft")
+          .executeTakeFirst();
+        if (Number(deleted.numDeletedRows) !== methodsToDelete.size) {
+          throw new Error("Failed to delete Change Notice draft methods.");
+        }
+      }
+
+      if (itemsToDelete.size > 0) {
+        const deleted = await trx
+          .deleteFrom("item")
+          .where("id", "in", [...itemsToDelete])
+          .where("companyId", "=", companyId)
+          .where("changeOrderId", "=", changeNoticeId)
+          .where("active", "=", false)
+          .executeTakeFirst();
+        if (Number(deleted.numDeletedRows) !== itemsToDelete.size) {
+          throw new Error("Failed to delete Change Notice draft items.");
+        }
+      }
+
+      const deleted = await trx
+        .deleteFrom("changeOrder")
+        .where("id", "=", changeNoticeId)
+        .where("companyId", "=", companyId)
+        .executeTakeFirst();
+      if (Number(deleted.numDeletedRows) !== 1) {
+        throw new Error("Change Notice was not deleted.");
+      }
+    });
+
+    return { data: null, error: null };
+  } catch (cause) {
+    return {
+      data: null,
+      error: {
+        message:
+          cause instanceof Error
+            ? cause.message
+            : "Failed to delete change notice."
+      }
+    };
+  }
 }
 
 // -----------------------------------------------------------------------------

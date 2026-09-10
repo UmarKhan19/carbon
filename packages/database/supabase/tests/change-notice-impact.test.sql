@@ -26,6 +26,8 @@ DECLARE
   v_resolved_decision_id TEXT;
   v_revision_decision_id TEXT;
   v_task_id TEXT;
+  v_backlink_item_id TEXT;
+  v_backlink_method_id TEXT;
   v_count INTEGER;
   v_column_default TEXT;
 BEGIN
@@ -108,6 +110,67 @@ BEGIN
     AND child.relname = 'changeOrderImpactDecision'
     AND parent.relname IN ('purchaseOrderLine', 'job', 'jobMaterial');
   ASSERT v_count = 0, 'decision must not have source FKs';
+
+  -- The service deletes only non-cascading draft references explicitly. Keep the
+  -- real database cascade contract visible here: direct Change Notice children
+  -- disappear with the parent, while non-cascading item/method backlinks survive.
+  -- Compare the complete direct-FK inventory, not only the children this fixture
+  -- happens to exercise. The constraint names and delete actions are part of the
+  -- parent-delete contract owned by the database.
+  WITH expected(child_name, constraint_name, delete_action) AS (
+    VALUES
+      ('changeOrderAffectedItem', 'changeOrderAffectedItem_changeOrderId_fkey', 'c'),
+      ('changeOrderSupersession', 'changeOrderSupersession_changeOrderId_fkey', 'c'),
+      ('changeOrderActionTask', 'changeOrderActionTask_changeOrderId_fkey', 'c'),
+      ('changeOrderImpactDecision', 'changeOrderImpactDecision_changeNoticeId_fkey', 'c'),
+      ('item', 'item_changeOrderId_fkey', 'n'),
+      ('makeMethod', 'makeMethod_changeOrderId_fkey', 'n')
+  ), actual AS (
+    SELECT child.relname::TEXT, fk.conname::TEXT, fk.confdeltype::TEXT
+    FROM pg_constraint fk
+    JOIN pg_class child ON child.oid = fk.conrelid
+    WHERE fk.contype = 'f'
+      AND fk.confrelid = '"public"."changeOrder"'::regclass
+  ), differences AS (
+    (
+      SELECT * FROM expected
+      EXCEPT
+      SELECT * FROM actual
+    )
+    UNION ALL
+    (
+      SELECT * FROM actual
+      EXCEPT
+      SELECT * FROM expected
+    )
+  )
+  SELECT COUNT(*) INTO v_count FROM differences;
+  ASSERT v_count = 0, 'Change Notice direct FK inventory or delete actions changed';
+
+  WITH expected(child_name, constraint_name, delete_action) AS (
+    VALUES ('makeMethod', 'method_itemId_fkey', 'c')
+  ), actual AS (
+    SELECT child.relname::TEXT, fk.conname::TEXT, fk.confdeltype::TEXT
+    FROM pg_constraint fk
+    JOIN pg_class child ON child.oid = fk.conrelid
+    WHERE fk.contype = 'f'
+      AND fk.conrelid = '"public"."makeMethod"'::regclass
+      AND fk.confrelid = '"public"."item"'::regclass
+  ), differences AS (
+    (
+      SELECT * FROM expected
+      EXCEPT
+      SELECT * FROM actual
+    )
+    UNION ALL
+    (
+      SELECT * FROM actual
+      EXCEPT
+      SELECT * FROM expected
+    )
+  )
+  SELECT COUNT(*) INTO v_count FROM differences;
+  ASSERT v_count = 0, 'item deletion must cascade its methods';
 
   SELECT COUNT(*) INTO v_count
   FROM pg_constraint fk
@@ -201,6 +264,33 @@ BEGIN
   ASSERT (
     SELECT "taskOrigin" FROM "changeOrderActionTask" WHERE "id" = v_task_id
   ) = 'Manual', 'new ordinary fixture task must default to Manual';
+
+  -- Real backlink fixtures verify that deleting the parent preserves the item and
+  -- method while clearing only their Change Notice ownership marker.
+  INSERT INTO "item" (
+    "readableId", "name", "type", "itemTrackingType", "companyId", "createdBy",
+    "changeOrderId"
+  ) VALUES (
+    v_prefix || '-backlink-item', 'Change Notice backlink item', 'Part', 'Inventory',
+    v_company_id, v_user_id, v_change_notice_id
+  ) RETURNING "id" INTO v_backlink_item_id;
+
+  -- Part INSERTs run the item's AFTER SYNC interceptor, which creates its
+  -- initial Draft makeMethod. Reuse that row instead of inserting a second
+  -- method and colliding with the per-item/version uniqueness contract.
+  SELECT COUNT(*) INTO v_count
+  FROM "makeMethod"
+  WHERE "itemId" = v_backlink_item_id
+    AND "companyId" = v_company_id;
+  ASSERT v_count = 1, 'Part insertion must create one Draft make method';
+  SELECT "id" INTO v_backlink_method_id
+  FROM "makeMethod"
+  WHERE "itemId" = v_backlink_item_id
+    AND "companyId" = v_company_id;
+  UPDATE "makeMethod"
+  SET "changeOrderId" = v_change_notice_id
+  WHERE "id" = v_backlink_method_id
+    AND "companyId" = v_company_id;
 
   BEGIN
     INSERT INTO "changeOrderActionTask" (
@@ -557,6 +647,25 @@ BEGIN
   FROM "changeOrderImpactDecisionHistory"
   WHERE "decisionId" = v_decision_id;
   ASSERT v_count = 0, 'Change Notice deletion must cascade Impact history';
+  SELECT COUNT(*) INTO v_count
+  FROM "changeOrderActionTask"
+  WHERE "id" = v_task_id;
+  ASSERT v_count = 0, 'Change Notice deletion must cascade action tasks';
+  ASSERT (
+    SELECT "changeOrderId" IS NULL
+    FROM "item"
+    WHERE "id" = v_backlink_item_id
+  ), 'Change Notice deletion must preserve items and clear their backlink';
+  ASSERT (
+    SELECT "changeOrderId" IS NULL
+    FROM "makeMethod"
+    WHERE "id" = v_backlink_method_id
+  ), 'Change Notice deletion must preserve methods and clear their backlink';
+  DELETE FROM "item" WHERE "id" = v_backlink_item_id;
+  SELECT COUNT(*) INTO v_count
+  FROM "makeMethod"
+  WHERE "id" = v_backlink_method_id;
+  ASSERT v_count = 0, 'item deletion must cascade its trigger-created method';
 
   RAISE NOTICE 'ALL CHANGE NOTICE IMPACT SLICE 0 SCHEMA CHECKS PASSED';
 END $$;

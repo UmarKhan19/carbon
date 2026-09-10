@@ -16,6 +16,7 @@ vi.mock("@carbon/glossary", () => ({
 }));
 
 const {
+  deleteChangeNotice,
   deleteChangeNoticeAction,
   diffMethod,
   duplicateMethodOperationStep,
@@ -580,6 +581,966 @@ function makeFakeActionTaskDb({
 
   return { db: db as never, deletedIds, insertedRows, queries };
 }
+
+type FakeDeleteRow = Record<string, unknown>;
+type DeleteTable = "makeMethod" | "item" | "changeOrder";
+type DeleteFailure =
+  | "affected-read"
+  | "method-read"
+  | "item-read"
+  | "makeMethod-delete"
+  | "item-delete"
+  | "changeOrder-delete";
+
+type DeleteQuery = {
+  table: string;
+  operation: "select" | "delete";
+  predicates: { column: string; operator: string; value: unknown }[];
+  forUpdate: boolean;
+};
+
+type DeleteFakeOptions = {
+  failure?: DeleteFailure;
+  deleteCount?: Partial<Record<DeleteTable, number>>;
+  rows?: Readonly<Record<string, readonly FakeDeleteRow[]>>;
+};
+
+// This fake records service-owned queries and decisions only. It deliberately
+// does not model PostgreSQL FK cascades, SET NULL actions, locks, or rollback.
+function makeFakeChangeNoticeDeleteDb(options: DeleteFakeOptions = {}) {
+  const defaults: Record<string, FakeDeleteRow[]> = {
+    changeOrder: [{ id: "notice-1", companyId: "company-1", status: "Draft" }],
+    changeOrderAffectedItem: [
+      {
+        id: "affected-item",
+        changeOrderId: "notice-1",
+        companyId: "company-1",
+        draftMakeMethodId: "draft-method",
+        newItemId: "draft-item"
+      }
+    ],
+    makeMethod: [
+      {
+        id: "draft-method",
+        itemId: "draft-item",
+        companyId: "company-1",
+        changeOrderId: "notice-1",
+        status: "Draft"
+      }
+    ],
+    item: [
+      {
+        id: "draft-item",
+        companyId: "company-1",
+        changeOrderId: "notice-1",
+        active: false
+      }
+    ]
+  };
+  const rows = Object.fromEntries(
+    Object.entries({ ...defaults, ...options.rows }).map(([table, values]) => [
+      table,
+      [...values]
+    ])
+  ) as Record<string, FakeDeleteRow[]>;
+  const queries: DeleteQuery[] = [];
+  const deleted: DeleteQuery[] = [];
+  let committed = false;
+  let callbackRejected = false;
+
+  const matches = (row: FakeDeleteRow, predicates: DeleteQuery["predicates"]) =>
+    predicates.every(({ column, operator, value }) =>
+      operator === "in"
+        ? Array.isArray(value) && value.includes(row[column])
+        : operator === "="
+          ? row[column] === value
+          : (() => {
+              throw new Error(`Unexpected fake predicate: ${operator}`);
+            })()
+    );
+
+  type Builder = {
+    select: (...args: unknown[]) => Builder;
+    where: (column: string, operator: string, value: unknown) => Builder;
+    forUpdate: () => Builder;
+    execute: () => Promise<unknown>;
+    executeTakeFirst: () => Promise<unknown>;
+  };
+
+  const makeBuilder = (
+    table: string,
+    operation: DeleteQuery["operation"]
+  ): Builder => {
+    const predicates: DeleteQuery["predicates"] = [];
+    let forUpdate = false;
+    const builder = {} as Builder;
+    builder.select = () => builder;
+    builder.where = (column, operator, value) => {
+      predicates.push({ column, operator, value });
+      return builder;
+    };
+    builder.forUpdate = () => {
+      forUpdate = true;
+      return builder;
+    };
+    builder.execute = async () => {
+      const query = {
+        table,
+        operation,
+        predicates: [...predicates],
+        forUpdate
+      };
+      queries.push(query);
+      if (operation === "delete") deleted.push(query);
+      if (
+        operation === "select" &&
+        ((table === "changeOrderAffectedItem" &&
+          options.failure === "affected-read") ||
+          (table === "makeMethod" && options.failure === "method-read") ||
+          (table === "item" && options.failure === "item-read"))
+      ) {
+        throw new Error(`${table} read failed`);
+      }
+      if (operation === "delete" && options.failure === `${table}-delete`) {
+        throw new Error(`${table} delete failed`);
+      }
+      const tableRows = rows[table] ?? [];
+      if (operation === "select") {
+        return tableRows.filter((row) => matches(row, query.predicates));
+      }
+      const count = tableRows.filter((row) =>
+        matches(row, query.predicates)
+      ).length;
+      return {
+        numDeletedRows: BigInt(
+          options.deleteCount?.[table as DeleteTable] ?? count
+        )
+      };
+    };
+    builder.executeTakeFirst = async () => {
+      const result = await builder.execute();
+      return Array.isArray(result) ? result[0] : result;
+    };
+    return builder;
+  };
+
+  const trx = {
+    selectFrom: (table: string) => makeBuilder(table, "select"),
+    deleteFrom: (table: string) => makeBuilder(table, "delete")
+  };
+  const db = {
+    transaction: () => ({
+      execute: async (
+        callback: (transaction: typeof trx) => Promise<unknown>
+      ) => {
+        try {
+          const result = await callback(trx);
+          committed = true;
+          return result;
+        } catch (cause) {
+          callbackRejected = true;
+          throw cause;
+        }
+      }
+    })
+  };
+
+  return {
+    db: db as never,
+    queries,
+    deleted,
+    get committed() {
+      return committed;
+    },
+    get callbackRejected() {
+      return callbackRejected;
+    }
+  };
+}
+
+describe("Change Notice parent deletion", () => {
+  it("deletes referenced drafts before the parent and leaves FK cascades to PostgreSQL", async () => {
+    const fake = makeFakeChangeNoticeDeleteDb();
+
+    const result = await deleteChangeNotice(fake.db, "notice-1", "company-1");
+
+    expect(result).toEqual({ data: null, error: null });
+    expect(fake.committed).toBe(true);
+    expect(fake.callbackRejected).toBe(false);
+    expect(fake.deleted.map(({ table }) => table)).toEqual([
+      "item",
+      "changeOrder"
+    ]);
+    expect(fake.queries.map(({ table }) => table)).not.toContain(
+      "changeOrderActionTask"
+    );
+    expect(fake.queries.map(({ table }) => table)).not.toContain(
+      "changeOrderSupersession"
+    );
+    expect(fake.queries.map(({ table }) => table)).not.toContain(
+      "changeOrderImpactDecision"
+    );
+
+    for (const query of fake.queries.filter(
+      ({ operation }) => operation === "select"
+    )) {
+      expect(query.predicates).toContainEqual({
+        column: "companyId",
+        operator: "=",
+        value: "company-1"
+      });
+    }
+    expect(
+      fake.queries.find(
+        ({ table, operation }) =>
+          table === "changeOrderAffectedItem" && operation === "select"
+      )?.forUpdate
+    ).toBe(true);
+  });
+
+  it("preserves an item with multiple released Make Method versions", async () => {
+    const fake = makeFakeChangeNoticeDeleteDb({
+      rows: {
+        changeOrder: [
+          { id: "notice-1", companyId: "company-1", status: "Done" }
+        ],
+        changeOrderAffectedItem: [
+          {
+            id: "affected-released",
+            changeOrderId: "notice-1",
+            companyId: "company-1",
+            draftMakeMethodId: "active-method",
+            newItemId: "released-item"
+          }
+        ],
+        makeMethod: [
+          {
+            id: "active-method",
+            itemId: "released-item",
+            companyId: "company-1",
+            changeOrderId: null,
+            status: "Active"
+          },
+          {
+            id: "archived-method",
+            itemId: "released-item",
+            companyId: "company-1",
+            changeOrderId: null,
+            status: "Archived"
+          }
+        ],
+        item: [
+          {
+            id: "released-item",
+            companyId: "company-1",
+            changeOrderId: "notice-1",
+            active: true
+          }
+        ]
+      }
+    });
+
+    const result = await deleteChangeNotice(fake.db, "notice-1", "company-1");
+
+    expect(result).toEqual({ data: null, error: null });
+    expect(fake.committed).toBe(true);
+    expect(fake.deleted.map(({ table }) => table)).toEqual(["changeOrder"]);
+  });
+
+  it("rejects a referenced released method with a Draft sibling", async () => {
+    const fake = makeFakeChangeNoticeDeleteDb({
+      rows: {
+        changeOrderAffectedItem: [
+          {
+            id: "affected-released",
+            changeOrderId: "notice-1",
+            companyId: "company-1",
+            draftMakeMethodId: "released-method",
+            newItemId: "released-item"
+          }
+        ],
+        makeMethod: [
+          {
+            id: "released-method",
+            itemId: "released-item",
+            companyId: "company-1",
+            changeOrderId: null,
+            status: "Active"
+          },
+          {
+            id: "draft-sibling",
+            itemId: "released-item",
+            companyId: "company-1",
+            changeOrderId: "notice-1",
+            status: "Draft"
+          }
+        ],
+        item: [
+          {
+            id: "released-item",
+            companyId: "company-1",
+            changeOrderId: "notice-1",
+            active: true
+          }
+        ]
+      }
+    });
+
+    const result = await deleteChangeNotice(fake.db, "notice-1", "company-1");
+
+    expect(result.error?.message).toBe(
+      "Change Notice draft references are inconsistent."
+    );
+    expect(fake.committed).toBe(false);
+    expect(fake.callbackRejected).toBe(true);
+    expect(fake.deleted).toHaveLength(0);
+  });
+
+  it("rejects a referenced Draft with a current-notice non-Draft sibling", async () => {
+    const fake = makeFakeChangeNoticeDeleteDb({
+      rows: {
+        changeOrderAffectedItem: [
+          {
+            id: "affected-draft",
+            changeOrderId: "notice-1",
+            companyId: "company-1",
+            draftMakeMethodId: "draft-method",
+            newItemId: "draft-item"
+          }
+        ],
+        makeMethod: [
+          {
+            id: "draft-method",
+            itemId: "draft-item",
+            companyId: "company-1",
+            changeOrderId: "notice-1",
+            status: "Draft"
+          },
+          {
+            id: "current-notice-active",
+            itemId: "draft-item",
+            companyId: "company-1",
+            changeOrderId: "notice-1",
+            status: "Active"
+          }
+        ],
+        item: [
+          {
+            id: "draft-item",
+            companyId: "company-1",
+            changeOrderId: "notice-1",
+            active: false
+          }
+        ]
+      }
+    });
+
+    const result = await deleteChangeNotice(fake.db, "notice-1", "company-1");
+
+    expect(result.error?.message).toBe(
+      "Change Notice draft references are inconsistent."
+    );
+    expect(fake.committed).toBe(false);
+    expect(fake.callbackRejected).toBe(true);
+    expect(fake.deleted).toHaveLength(0);
+  });
+
+  it("deletes an item-backed Draft when its method backlink is null", async () => {
+    const fake = makeFakeChangeNoticeDeleteDb({
+      rows: {
+        makeMethod: [
+          {
+            id: "draft-method",
+            itemId: "draft-item",
+            companyId: "company-1",
+            changeOrderId: null,
+            status: "Draft"
+          }
+        ]
+      }
+    });
+
+    const result = await deleteChangeNotice(fake.db, "notice-1", "company-1");
+
+    expect(result).toEqual({ data: null, error: null });
+    expect(fake.deleted.map(({ table }) => table)).toEqual([
+      "item",
+      "changeOrder"
+    ]);
+    expect(fake.deleted.map(({ table }) => table)).not.toContain("makeMethod");
+  });
+
+  it("rejects an item with a released sibling method before deleting the item", async () => {
+    const fake = makeFakeChangeNoticeDeleteDb({
+      rows: {
+        makeMethod: [
+          {
+            id: "draft-method",
+            itemId: "draft-item",
+            companyId: "company-1",
+            changeOrderId: "notice-1",
+            status: "Draft"
+          },
+          {
+            id: "released-sibling",
+            itemId: "draft-item",
+            companyId: "company-1",
+            changeOrderId: null,
+            status: "Active"
+          }
+        ]
+      }
+    });
+
+    const result = await deleteChangeNotice(fake.db, "notice-1", "company-1");
+
+    expect(result.error?.message).toBe(
+      "Change Notice draft references are inconsistent."
+    );
+    expect(fake.committed).toBe(false);
+    expect(fake.callbackRejected).toBe(true);
+    expect(fake.deleted).toHaveLength(0);
+
+    const itemMethodQuery = fake.queries.find(
+      ({ table, operation, predicates }) =>
+        table === "makeMethod" &&
+        operation === "select" &&
+        predicates.some(
+          ({ column, operator, value }) =>
+            column === "itemId" &&
+            operator === "in" &&
+            Array.isArray(value) &&
+            value.includes("draft-item")
+        )
+    );
+    expect(itemMethodQuery?.forUpdate).toBe(true);
+    expect(itemMethodQuery?.predicates).toContainEqual({
+      column: "companyId",
+      operator: "=",
+      value: "company-1"
+    });
+  });
+
+  it("rejects an item with a sibling method owned by another Change Notice", async () => {
+    const fake = makeFakeChangeNoticeDeleteDb({
+      rows: {
+        makeMethod: [
+          {
+            id: "draft-method",
+            itemId: "draft-item",
+            companyId: "company-1",
+            changeOrderId: "notice-1",
+            status: "Draft"
+          },
+          {
+            id: "other-notice-sibling",
+            itemId: "draft-item",
+            companyId: "company-1",
+            changeOrderId: "other-notice",
+            status: "Draft"
+          }
+        ]
+      }
+    });
+
+    const result = await deleteChangeNotice(fake.db, "notice-1", "company-1");
+
+    expect(result.error?.message).toBe(
+      "Change Notice draft references are inconsistent."
+    );
+    expect(fake.committed).toBe(false);
+    expect(fake.callbackRejected).toBe(true);
+    expect(fake.deleted).toHaveLength(0);
+  });
+
+  it("deletes an item when all of its methods are safely disposable Drafts", async () => {
+    const fake = makeFakeChangeNoticeDeleteDb({
+      rows: {
+        makeMethod: [
+          {
+            id: "draft-method",
+            itemId: "draft-item",
+            companyId: "company-1",
+            changeOrderId: "notice-1",
+            status: "Draft"
+          },
+          {
+            id: "trigger-draft",
+            itemId: "draft-item",
+            companyId: "company-1",
+            changeOrderId: null,
+            status: "Draft"
+          }
+        ]
+      }
+    });
+
+    const result = await deleteChangeNotice(fake.db, "notice-1", "company-1");
+
+    expect(result).toEqual({ data: null, error: null });
+    expect(fake.deleted.map(({ table }) => table)).toEqual([
+      "item",
+      "changeOrder"
+    ]);
+    expect(fake.committed).toBe(true);
+  });
+
+  it("preserves a released item after it is deactivated", async () => {
+    const fake = makeFakeChangeNoticeDeleteDb({
+      rows: {
+        changeOrder: [
+          { id: "notice-1", companyId: "company-1", status: "Done" }
+        ],
+        changeOrderAffectedItem: [
+          {
+            id: "affected-released",
+            changeOrderId: "notice-1",
+            companyId: "company-1",
+            draftMakeMethodId: "released-method",
+            newItemId: "released-item"
+          }
+        ],
+        makeMethod: [
+          {
+            id: "released-method",
+            itemId: "released-item",
+            companyId: "company-1",
+            changeOrderId: null,
+            status: "Active"
+          }
+        ],
+        item: [
+          {
+            id: "released-item",
+            companyId: "company-1",
+            changeOrderId: "notice-1",
+            active: false
+          }
+        ]
+      }
+    });
+
+    const result = await deleteChangeNotice(fake.db, "notice-1", "company-1");
+
+    expect(result).toEqual({ data: null, error: null });
+    expect(fake.deleted.map(({ table }) => table)).toEqual(["changeOrder"]);
+  });
+
+  it("deletes a standalone Version Draft method", async () => {
+    const fake = makeFakeChangeNoticeDeleteDb({
+      rows: {
+        changeOrderAffectedItem: [
+          {
+            id: "affected-version",
+            changeOrderId: "notice-1",
+            companyId: "company-1",
+            draftMakeMethodId: "version-method",
+            newItemId: null
+          }
+        ],
+        makeMethod: [
+          {
+            id: "version-method",
+            itemId: "source-item",
+            companyId: "company-1",
+            changeOrderId: "notice-1",
+            status: "Draft"
+          }
+        ],
+        item: []
+      }
+    });
+
+    const result = await deleteChangeNotice(fake.db, "notice-1", "company-1");
+
+    expect(result).toEqual({ data: null, error: null });
+    expect(fake.deleted.map(({ table }) => table)).toEqual([
+      "makeMethod",
+      "changeOrder"
+    ]);
+  });
+
+  it("rejects an unowned standalone Draft method", async () => {
+    const fake = makeFakeChangeNoticeDeleteDb({
+      rows: {
+        changeOrderAffectedItem: [
+          {
+            id: "affected-version",
+            changeOrderId: "notice-1",
+            companyId: "company-1",
+            draftMakeMethodId: "unowned-method",
+            newItemId: null
+          }
+        ],
+        makeMethod: [
+          {
+            id: "unowned-method",
+            itemId: "source-item",
+            companyId: "company-1",
+            changeOrderId: null,
+            status: "Draft"
+          }
+        ],
+        item: []
+      }
+    });
+
+    const result = await deleteChangeNotice(fake.db, "notice-1", "company-1");
+
+    expect(result.error?.message).toBe(
+      "Change Notice draft references are inconsistent."
+    );
+    expect(fake.committed).toBe(false);
+    expect(fake.callbackRejected).toBe(true);
+    expect(fake.deleted).toHaveLength(0);
+  });
+
+  it("preserves a released standalone method with no Change Notice owner", async () => {
+    const fake = makeFakeChangeNoticeDeleteDb({
+      rows: {
+        changeOrderAffectedItem: [
+          {
+            id: "affected-version",
+            changeOrderId: "notice-1",
+            companyId: "company-1",
+            draftMakeMethodId: "released-method",
+            newItemId: null
+          }
+        ],
+        makeMethod: [
+          {
+            id: "released-method",
+            itemId: "source-item",
+            companyId: "company-1",
+            changeOrderId: null,
+            status: "Active"
+          }
+        ],
+        item: []
+      }
+    });
+
+    const result = await deleteChangeNotice(fake.db, "notice-1", "company-1");
+
+    expect(result).toEqual({ data: null, error: null });
+    expect(fake.deleted.map(({ table }) => table)).toEqual(["changeOrder"]);
+  });
+
+  it("leaves stamped but unreferenced items and methods untouched", async () => {
+    const fake = makeFakeChangeNoticeDeleteDb({
+      rows: {
+        changeOrderAffectedItem: [],
+        makeMethod: [
+          {
+            id: "unreferenced-method",
+            itemId: "source-item",
+            companyId: "company-1",
+            changeOrderId: "notice-1",
+            status: "Draft"
+          }
+        ],
+        item: [
+          {
+            id: "unreferenced-item",
+            companyId: "company-1",
+            changeOrderId: "notice-1",
+            active: false
+          }
+        ]
+      }
+    });
+
+    const result = await deleteChangeNotice(fake.db, "notice-1", "company-1");
+
+    expect(result).toEqual({ data: null, error: null });
+    expect(fake.deleted.map(({ table }) => table)).toEqual(["changeOrder"]);
+    expect(fake.queries.map(({ table }) => table)).not.toContain("item");
+    expect(fake.queries.map(({ table }) => table)).not.toContain("makeMethod");
+  });
+
+  it.each([
+    ["missing", { changeOrder: [] }],
+    [
+      "wrong company",
+      {
+        changeOrder: [
+          { id: "notice-1", companyId: "company-2", status: "Draft" }
+        ]
+      }
+    ]
+  ] as const)("rejects a %s parent", async (_case, rows) => {
+    const fake = makeFakeChangeNoticeDeleteDb({ rows });
+
+    const result = await deleteChangeNotice(fake.db, "notice-1", "company-1");
+
+    expect(result.error?.message).toBe("Change notice not found.");
+    expect(fake.committed).toBe(false);
+    expect(fake.callbackRejected).toBe(true);
+    expect(fake.deleted).toHaveLength(0);
+  });
+
+  it.each([
+    [
+      "item",
+      { rows: { item: [{ id: "draft-item", companyId: "company-2" }] } }
+    ],
+    [
+      "method",
+      {
+        rows: {
+          makeMethod: [
+            {
+              id: "draft-method",
+              itemId: "draft-item",
+              companyId: "company-2",
+              changeOrderId: "notice-1",
+              status: "Draft"
+            }
+          ]
+        }
+      }
+    ]
+  ] as const)("rejects a referenced %s from another company", async (_kind, options) => {
+    const fake = makeFakeChangeNoticeDeleteDb(options);
+
+    const result = await deleteChangeNotice(fake.db, "notice-1", "company-1");
+
+    expect(result.error?.message).toBe(
+      "Change Notice draft references are inconsistent."
+    );
+    expect(fake.callbackRejected).toBe(true);
+    expect(fake.deleted).toHaveLength(0);
+  });
+
+  it.each([
+    [
+      "item",
+      {
+        rows: {
+          item: [
+            {
+              id: "draft-item",
+              companyId: "company-1",
+              changeOrderId: "other-notice",
+              active: false
+            }
+          ]
+        }
+      }
+    ],
+    [
+      "method",
+      {
+        rows: {
+          makeMethod: [
+            {
+              id: "draft-method",
+              itemId: "draft-item",
+              companyId: "company-1",
+              changeOrderId: "other-notice",
+              status: "Draft"
+            }
+          ]
+        }
+      }
+    ],
+    [
+      "method attached to another item",
+      {
+        rows: {
+          makeMethod: [
+            {
+              id: "draft-method",
+              itemId: "other-item",
+              companyId: "company-1",
+              changeOrderId: "notice-1",
+              status: "Draft"
+            }
+          ]
+        }
+      }
+    ],
+    [
+      "non-Draft method still owned by the notice",
+      {
+        rows: {
+          makeMethod: [
+            {
+              id: "draft-method",
+              itemId: "draft-item",
+              companyId: "company-1",
+              changeOrderId: "notice-1",
+              status: "Active"
+            }
+          ]
+        }
+      }
+    ]
+  ] as const)("rejects an invalid referenced %s state", async (_kind, options) => {
+    const fake = makeFakeChangeNoticeDeleteDb(options);
+
+    const result = await deleteChangeNotice(fake.db, "notice-1", "company-1");
+
+    expect(result.error?.message).toBe(
+      "Change Notice draft references are inconsistent."
+    );
+    expect(fake.callbackRejected).toBe(true);
+    expect(fake.deleted).toHaveLength(0);
+  });
+
+  it("rejects a Done notice that still owns a standalone Draft", async () => {
+    const fake = makeFakeChangeNoticeDeleteDb({
+      rows: {
+        changeOrder: [
+          { id: "notice-1", companyId: "company-1", status: "Done" }
+        ],
+        changeOrderAffectedItem: [
+          {
+            id: "affected-version",
+            changeOrderId: "notice-1",
+            companyId: "company-1",
+            draftMakeMethodId: "version-method",
+            newItemId: null
+          }
+        ],
+        makeMethod: [
+          {
+            id: "version-method",
+            itemId: "source-item",
+            companyId: "company-1",
+            changeOrderId: "notice-1",
+            status: "Draft"
+          }
+        ],
+        item: []
+      }
+    });
+
+    const result = await deleteChangeNotice(fake.db, "notice-1", "company-1");
+
+    expect(result.error?.message).toBe(
+      "Change Notice draft references are inconsistent."
+    );
+    expect(fake.callbackRejected).toBe(true);
+    expect(fake.deleted).toHaveLength(0);
+  });
+
+  it.each([
+    ["affected-read", "changeOrderAffectedItem read failed"],
+    ["method-read", "makeMethod read failed"],
+    ["item-read", "item read failed"]
+  ] as const)("surfaces a %s and rejects the transaction callback", async (failure, message) => {
+    const fake = makeFakeChangeNoticeDeleteDb({ failure });
+
+    const result = await deleteChangeNotice(fake.db, "notice-1", "company-1");
+
+    expect(result.error?.message).toBe(message);
+    expect(fake.committed).toBe(false);
+    expect(fake.callbackRejected).toBe(true);
+    expect(fake.deleted).toHaveLength(0);
+  });
+
+  it.each([
+    [
+      "standalone method",
+      "makeMethod-delete",
+      "makeMethod delete failed",
+      {
+        rows: {
+          changeOrderAffectedItem: [
+            {
+              id: "affected-version",
+              changeOrderId: "notice-1",
+              companyId: "company-1",
+              draftMakeMethodId: "version-method",
+              newItemId: null
+            }
+          ],
+          makeMethod: [
+            {
+              id: "version-method",
+              itemId: "source-item",
+              companyId: "company-1",
+              changeOrderId: "notice-1",
+              status: "Draft"
+            }
+          ],
+          item: []
+        }
+      }
+    ],
+    ["item", "item-delete", "item delete failed", undefined],
+    ["parent", "changeOrder-delete", "changeOrder delete failed", undefined]
+  ] as const)("surfaces a %s delete failure", async (_kind, failure, message, extra) => {
+    const fake = makeFakeChangeNoticeDeleteDb({
+      failure,
+      ...(extra?.rows ? extra : {})
+    });
+
+    const result = await deleteChangeNotice(fake.db, "notice-1", "company-1");
+
+    expect(result.error?.message).toBe(message);
+    expect(fake.committed).toBe(false);
+    expect(fake.callbackRejected).toBe(true);
+    if (_kind !== "parent") {
+      expect(fake.deleted.map(({ table }) => table)).not.toContain(
+        "changeOrder"
+      );
+    }
+  });
+
+  it.each([
+    [
+      "makeMethod",
+      "Failed to delete Change Notice draft methods.",
+      "makeMethod"
+    ],
+    ["item", "Failed to delete Change Notice draft items.", "item"],
+    ["changeOrder", "Change Notice was not deleted.", "changeOrder"]
+  ] as const)("rejects a short %s delete", async (table, message, attemptedTable) => {
+    const rows =
+      table === "makeMethod"
+        ? {
+            changeOrderAffectedItem: [
+              {
+                id: "affected-version",
+                changeOrderId: "notice-1",
+                companyId: "company-1",
+                draftMakeMethodId: "version-method",
+                newItemId: null
+              }
+            ],
+            makeMethod: [
+              {
+                id: "version-method",
+                itemId: "source-item",
+                companyId: "company-1",
+                changeOrderId: "notice-1",
+                status: "Draft"
+              }
+            ],
+            item: []
+          }
+        : undefined;
+    const fake = makeFakeChangeNoticeDeleteDb({
+      deleteCount: { [table]: 0 },
+      ...(rows ? { rows } : {})
+    });
+
+    const result = await deleteChangeNotice(fake.db, "notice-1", "company-1");
+
+    expect(result.error?.message).toBe(message);
+    expect(fake.callbackRejected).toBe(true);
+    expect(
+      fake.deleted.map(({ table: deletedTable }) => deletedTable)
+    ).toContain(attemptedTable);
+    if (table !== "changeOrder") {
+      expect(
+        fake.deleted.map(({ table: deletedTable }) => deletedTable)
+      ).not.toContain("changeOrder");
+    }
+  });
+});
 
 type CapturedActionMutation = {
   table: string;

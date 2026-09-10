@@ -11,6 +11,8 @@ type Tool = {
   name: string;
   classification: "READ" | "WRITE" | "DESTRUCTIVE";
   serviceParams: string[];
+  injectAuth: string[];
+  permission: { module: string | null; actions: string[] };
   schema: {
     type?: string;
     properties?: Record<string, any>;
@@ -30,6 +32,17 @@ const props = (t: Tool) => t.schema.properties ?? {};
 describe("mcp tool-metadata generator", () => {
   it("totalTools matches the tools array", () => {
     expect(metadata.totalTools).toBe(tools.length);
+  });
+
+  it("keeps Change Notice deletion destructive and internally database-backed", () => {
+    const tool = get("items_deleteChangeNotice");
+
+    expect(tool.classification).toBe("DESTRUCTIVE");
+    expect(tool.serviceParams).toEqual(["db", "changeNoticeId", "companyId"]);
+    expect(tool.injectAuth).toEqual(["companyId"]);
+    expect(tool.permission).toEqual({ module: "parts", actions: ["delete"] });
+    expect(Object.keys(props(tool))).toEqual(["changeNoticeId"]);
+    expect(tool.schema.required).toEqual(["changeNoticeId"]);
   });
 
   it("keeps raw Impact and Change Notice task mutators out of generic MCP metadata", () => {
@@ -143,7 +156,9 @@ describe("mcp tool-metadata generator", () => {
 
   // #8 — a delete-and-reinsert write is flagged destructive-by-omission.
   it("upsertQuoteLinePrices is classified DESTRUCTIVE", () => {
-    expect(get("sales_upsertQuoteLinePrices").classification).toBe("DESTRUCTIVE");
+    expect(get("sales_upsertQuoteLinePrices").classification).toBe(
+      "DESTRUCTIVE"
+    );
   });
 
   // #5 — a validator field after an `errorMap: () => (...)` is not truncated.
@@ -340,8 +355,9 @@ describe("mcp tool-metadata generator", () => {
   it("resolves generated DB enum references to value enums", () => {
     const status = props(get("inventory_updatePickingListStatus")).status;
     expect(status?.enum).toContain("In Progress");
-    const mode = props(get("items_updateChangeNoticeAffectedItemCutover"))
-      .supersessionMode;
+    const mode = props(
+      get("items_updateChangeNoticeAffectedItemCutover")
+    ).supersessionMode;
     expect(mode?.enum).toContain("Consume First");
   });
 
@@ -385,15 +401,19 @@ describe("mcp tool-metadata generator", () => {
   // generator used to detect only the `"createdBy" in` convention, so these tools
   // shipped without `_operation`, the dispatch always stamped updatedBy, and every
   // create was forced down the UPDATE branch (0 rows → PGRST116, silent no-op).
-  it("gives an `_operation` flag to `\"updatedBy\" in` upserts, not only `\"createdBy\" in` ones", () => {
+  it('gives an `_operation` flag to `"updatedBy" in` upserts, not only `"createdBy" in` ones', () => {
     const requiresOperation = (name: string) => {
       const t = get(name);
-      expect(props(t)._operation, `${name} should expose _operation`).toMatchObject({
+      expect(
+        props(t)._operation,
+        `${name} should expose _operation`
+      ).toMatchObject({
         enum: ["create", "update"]
       });
-      expect(t.schema.required ?? [], `${name} should require _operation`).toContain(
-        "_operation"
-      );
+      expect(
+        t.schema.required ?? [],
+        `${name} should require _operation`
+      ).toContain("_operation");
     };
     // Inverted (`"updatedBy" in`) — the ones that were broken.
     requiresOperation("sales_upsertQuoteMaterial");

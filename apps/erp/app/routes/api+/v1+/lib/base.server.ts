@@ -1,6 +1,7 @@
 // oRPC context + middleware shared by the HTTP transport and the MCP/agent bridges.
 
 import type { ManifestEntry, ToolPermission } from "@carbon/api";
+import { getUserClaims } from "@carbon/auth/users.server";
 import type { Database } from "@carbon/database";
 import { ORPCError, os } from "@orpc/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -16,11 +17,12 @@ export interface AuthedContext {
   userId: string;
   companyId: string;
   companyGroupId: string;
-  /** `"api-key"` runs the per-operation scope gate. `"oauth"` (MCP connector) does
-   *  not — its RLS/role already bounds it, exactly as MCP behaves today. `"session"`
-   *  is an already-authorized in-process caller (the in-app agent behind the route's
-   *  requirePermissions, and the workflow engine acting as the workflow's owner) —
-   *  not "oauth" because that names a wire protocol, not a trust decision. */
+  /** `"api-key"` runs the per-operation scope gate. `"oauth"` (MCP connector)
+   *  normally relies on its user-scoped RLS client; service-role operations are
+   *  explicitly checked by the gate. `"session"` is an already-authorized
+   *  in-process caller (the in-app agent behind the route's requirePermissions, and
+   *  the workflow engine acting as the workflow's owner) — not `"oauth"` because
+   *  that names a wire protocol, not a trust decision. */
   authKind: "api-key" | "oauth" | "session";
   /** The API key's scopes: `{ "<module>_<action>": [companyId, …] }`. */
   scopes: Record<string, string[]>;
@@ -50,8 +52,39 @@ export function assertScopes(
   }
 }
 
-/** Per-operation gate middleware — runs the scope check for API-key callers.
- *  The blocked-name guard is belt-and-braces: blocked tools are already excluded
+// These operations use a server-owned database connection instead of the
+// caller's RLS client. Keep the exception explicit so adding another DB-backed
+// destructive operation cannot silently drop OAuth permission enforcement. The
+// check mirrors requirePermissions: permissions are exact company grants; the
+// removed "0" wildcard is not accepted.
+const OAUTH_SERVICE_ROLE_OPERATIONS = new Set(["items_deleteChangeNotice"]);
+
+async function assertOAuthServiceRolePermission(
+  context: AuthedContext,
+  meta: ManifestEntry
+): Promise<void> {
+  if (!OAUTH_SERVICE_ROLE_OPERATIONS.has(meta.name)) return;
+  const module = meta.permission.module;
+  if (module === null) return;
+
+  const claims = await getUserClaims(context.userId, context.companyId);
+  const missingAction = meta.permission.actions.find(
+    (action) =>
+      !claims.permissions[module]?.[action]?.includes(context.companyId)
+  );
+
+  if (missingAction) {
+    throw new ORPCError("FORBIDDEN", {
+      message: `OAuth caller lacks the required permission: ${module}_${missingAction}`
+    });
+  }
+}
+
+/** Per-operation gate middleware — runs the scope check for API-key callers and
+ *  the explicit user-permission check for OAuth operations that bypass RLS. Current
+ *  session bridges expose only read tools or catalogued workflow writes, so they
+ *  cannot reach this deletion operation and remain intentionally unchanged. The
+ *  blocked-name guard is belt-and-braces: blocked tools are already excluded
  *  from the manifest at generation time, so this only fires if that exclusion
  *  ever regresses — the surface stays closed instead of silently opening. */
 export const gate = (meta: ManifestEntry) =>
@@ -59,6 +92,8 @@ export const gate = (meta: ManifestEntry) =>
     if (isMcpBlockedTool(meta.name)) throw new ORPCError("NOT_FOUND");
     if (context.authKind === "api-key") {
       assertScopes(context.scopes, context.companyId, meta.permission);
+    } else if (context.authKind === "oauth") {
+      await assertOAuthServiceRolePermission(context, meta);
     }
     return next();
   });

@@ -2111,3 +2111,13 @@ full-screen ERP route.
 **Rule:** Keep a readable live source `Present` and retain its current facts, exposure, and valid decision when only the persisted snapshot is uncomparable. Set freshness to `Unknown`, set the persisted snapshot projection to unavailable, and mark the domain partial so counts stay null. Do not use source `Unavailable` merely because a stored assessment snapshot cannot be compared with an otherwise readable live source.
 
 **Applies to:** `impactCandidateWithState`, persisted Impact snapshot validation, and any read model that compares current source facts with stored evidence.
+
+## Keep service deletion tests separate from PostgreSQL cascade tests
+
+**Context:** Change Notice deletion combines application-owned draft cleanup with database-owned foreign-key actions.
+
+**Problem:** A fake that replays PostgreSQL cascades can pass while drifting from the live schema.
+
+**Rule:** Service unit tests should model only service-owned decisions, predicates, delete order, and transaction failure. PostgreSQL-owned `CASCADE`, `SET NULL`, locks, and rollback belong in the real database harness.
+
+**Applies to:** `deleteChangeNotice` and services that combine explicit cleanup with PostgreSQL referential actions.
