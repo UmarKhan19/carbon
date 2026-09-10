@@ -2,6 +2,7 @@ import { createHash, createHmac, randomBytes } from "node:crypto";
 import { config as loadDotenv } from "dotenv";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { Client } from "pg";
 
 type ApiResult = { status: number; body: unknown };
@@ -9,13 +10,20 @@ type ApiResult = { status: number; body: unknown };
 type FixtureIds = {
   companies: string[];
   notices: string[];
-  decisions: string[];
-  provenance: string[];
-  history: string[];
+  decisions: Array<[string, string]>;
+  provenance: Array<[string, string]>;
+  history: Array<[string, string]>;
   tasks: string[];
   links: Array<[string, string, string]>;
   apiKeys: string[];
   employeeMemberships: Array<[string, string]>;
+  employeeRows: Array<[string, string]>;
+  employeeTypes: Array<[string, string]>;
+  employeeGroups: Array<[string, string | null]>;
+  groupMemberships: number[];
+  authUsers: string[];
+  publicUsers: string[];
+  generatedCompanyTables: string[];
 };
 
 const testDirectory = dirname(fileURLToPath(import.meta.url));
@@ -26,9 +34,16 @@ function loadEnv() {
     SUPABASE_URL: process.env.SUPABASE_URL,
     SUPABASE_DB_URL: process.env.SUPABASE_DB_URL,
     SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY,
-    SUPABASE_JWT_SECRET: process.env.SUPABASE_JWT_SECRET
+    SUPABASE_JWT_SECRET: process.env.SUPABASE_JWT_SECRET,
+    SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY
   };
-  if (!env.SUPABASE_URL || !env.SUPABASE_DB_URL || !env.SUPABASE_ANON_KEY || !env.SUPABASE_JWT_SECRET) {
+  if (
+    !env.SUPABASE_URL ||
+    !env.SUPABASE_DB_URL ||
+    !env.SUPABASE_ANON_KEY ||
+    !env.SUPABASE_JWT_SECRET ||
+    !env.SUPABASE_SERVICE_ROLE_KEY
+  ) {
     throw new Error("Expected Carbon Supabase environment in process.env or .env.local");
   }
   return env as {
@@ -36,6 +51,7 @@ function loadEnv() {
     SUPABASE_DB_URL: string;
     SUPABASE_ANON_KEY: string;
     SUPABASE_JWT_SECRET: string;
+    SUPABASE_SERVICE_ROLE_KEY: string;
   };
 }
 
@@ -170,7 +186,31 @@ async function runEmployeeSessionChecks(
   taskId: string
 ): Promise<void> {
   const employeeJwt = getEmployeeJwt(userId);
-  const decision = (id: string) => `?id=eq.${encodeURIComponent(id)}&select=id`;
+  const decision = (id: string) =>
+    `?companyId=eq.${encodeURIComponent(companyId)}&id=eq.${encodeURIComponent(id)}&select=id`;
+  const childRows = (decisionId: string) =>
+    `?companyId=eq.${encodeURIComponent(companyId)}&decisionId=eq.${encodeURIComponent(decisionId)}&select=id`;
+  const taskLink = (decisionId: string) =>
+    `?companyId=eq.${encodeURIComponent(companyId)}&decisionId=eq.${encodeURIComponent(decisionId)}&actionTaskId=eq.${encodeURIComponent(taskId)}&select=decisionId,actionTaskId,companyId`;
+  const childTables = [
+    ["changeOrderImpactDecisionAffectedItem", "provenance"],
+    ["changeOrderImpactDecisionActionTask", "task link"],
+    ["changeOrderImpactDecisionHistory", "history"]
+  ] as const;
+  const assertEmployeeImpactChildren = async (
+    sourceLabel: string,
+    decisionId: string,
+    expectedRows: number
+  ): Promise<void> => {
+    for (const [table, childLabel] of childTables) {
+      const query = table === "changeOrderImpactDecisionActionTask" ? taskLink(decisionId) : childRows(decisionId);
+      const childRead = await employeeRequest(employeeJwt, table, "GET", query);
+      assert(
+        `Employee ${sourceLabel} ${childLabel} ${expectedRows === 1 ? "can" : "cannot"} read`,
+        childRead.status === 200 && rows(childRead).length === expectedRows
+      );
+    }
+  };
 
   await setEmployeePermissions(db, userId, companyId, {
     partsView: true,
@@ -180,6 +220,8 @@ async function runEmployeeSessionChecks(
   });
   let read = await employeeRequest(employeeJwt, "changeOrderImpactDecision", "GET", decision(poDecisionId));
   assert("Employee PO parts_view + purchasing_view can read", read.status === 200 && rows(read).length === 1);
+  await assertEmployeeImpactChildren("PO", poDecisionId, 1);
+  await assertEmployeeImpactChildren("Job", jobDecisionId, 0);
 
   await setEmployeePermissions(db, userId, companyId, {
     partsView: true,
@@ -189,6 +231,7 @@ async function runEmployeeSessionChecks(
   });
   read = await employeeRequest(employeeJwt, "changeOrderImpactDecision", "GET", decision(poDecisionId));
   assert("Employee PO without purchasing_view cannot read", read.status === 200 && rows(read).length === 0);
+  await assertEmployeeImpactChildren("PO without purchasing_view", poDecisionId, 0);
 
   await setEmployeePermissions(db, userId, companyId, {
     partsView: true,
@@ -208,6 +251,9 @@ async function runEmployeeSessionChecks(
     "Employee Job Material production visibility can read",
     materialRead.status === 200 && rows(materialRead).length === 1
   );
+  await assertEmployeeImpactChildren("Job", jobDecisionId, 1);
+  await assertEmployeeImpactChildren("Job Material", materialDecisionId, 1);
+  await assertEmployeeImpactChildren("PO with production_view only", poDecisionId, 0);
 
   await setEmployeePermissions(db, userId, companyId, {
     partsView: true,
@@ -227,6 +273,8 @@ async function runEmployeeSessionChecks(
     "Employee Job Material without production_view cannot read",
     hiddenMaterial.status === 200 && rows(hiddenMaterial).length === 0
   );
+  await assertEmployeeImpactChildren("Job without production_view", jobDecisionId, 0);
+  await assertEmployeeImpactChildren("Job Material without production_view", materialDecisionId, 0);
 
   await setEmployeePermissions(db, userId, companyId, {
     partsView: true,
@@ -338,6 +386,104 @@ async function insertApiKey(
   return raw;
 }
 
+async function insertCompany(db: Client, fixture: FixtureIds, name: string, currency: string): Promise<string> {
+  const result = await db.query(
+    `INSERT INTO "company" ("name", "baseCurrencyCode") VALUES ($1, $2) RETURNING "id"`,
+    [name, currency]
+  );
+  const companyId = result.rows[0].id as string;
+  fixture.companies.push(companyId);
+  fixture.generatedCompanyTables.push(`searchIndex_${companyId}`, `auditLog_${companyId}`);
+  return companyId;
+}
+
+async function createEmployeeFixture(
+  db: Client,
+  fixture: FixtureIds,
+  authAdmin: SupabaseClient,
+  companyIds: string[]
+): Promise<string> {
+  const { data, error } = await authAdmin.auth.admin.createUser({
+    email: `${prefix}@carbonos.dev`,
+    password: randomBytes(24).toString("base64url"),
+    email_confirm: true,
+    user_metadata: { name: "Impact RLS Fixture" },
+    app_metadata: { role: "employee", provider: "email", providers: ["email"] }
+  });
+  if (error || !data.user) {
+    throw new Error(`Failed to create dedicated RLS employee: ${error?.message ?? "no user returned"}`);
+  }
+
+  const employeeUserId = data.user.id;
+  fixture.authUsers.push(employeeUserId);
+  fixture.publicUsers.push(employeeUserId);
+  fixture.employeeGroups.push([employeeUserId, null]);
+  const publicUser = await db.query(`SELECT 1 FROM "user" WHERE "id" = $1`, [employeeUserId]);
+  if (publicUser.rowCount !== 1) {
+    throw new Error("Auth user did not create the Carbon public user row");
+  }
+  const identityMembership = await db.query(
+    `SELECT "id" FROM "membership"
+     WHERE "groupId" = $1 AND "memberUserId" = $1 AND "memberGroupId" IS NULL`,
+    [employeeUserId]
+  );
+  if (identityMembership.rowCount !== 1) {
+    throw new Error("Carbon public user did not create the identity-group membership");
+  }
+  fixture.groupMemberships.push(Number(identityMembership.rows[0].id));
+  const permission = await db.query(`SELECT 1 FROM "userPermission" WHERE "id" = $1`, [employeeUserId]);
+  if (permission.rowCount !== 1) {
+    throw new Error("Auth user did not create the Carbon userPermission row");
+  }
+
+  for (const companyId of companyIds) {
+    const allEmployeesGroupId = `00000000-0000-${companyId.slice(0, 4)}-${companyId.slice(4, 8)}-${companyId.slice(8, 20)}`;
+    await db.query(
+      `INSERT INTO "group" ("id", "name", "companyId", "isEmployeeTypeGroup")
+       VALUES ($1, 'All Employees', $2, true)`,
+      [allEmployeesGroupId, companyId]
+    );
+    fixture.employeeGroups.push([allEmployeesGroupId, companyId]);
+    await db.query(
+      `INSERT INTO "userToCompany" ("userId", "companyId", "role") VALUES ($1, $2, 'employee')`,
+      [employeeUserId, companyId]
+    );
+    fixture.employeeMemberships.push([employeeUserId, companyId]);
+    const employeeType = await db.query(
+      `INSERT INTO "employeeType" ("name", "companyId", "protected") VALUES ($1, $2, false) RETURNING "id"`,
+      [`${prefix}-employee-type`, companyId]
+    );
+    const employeeTypeId = employeeType.rows[0].id as string;
+    fixture.employeeTypes.push([employeeTypeId, companyId]);
+    fixture.employeeGroups.push([employeeTypeId, companyId]);
+    const typeMembership = await db.query(
+      `SELECT "id" FROM "membership"
+       WHERE "groupId" = $1 AND "memberGroupId" = $2 AND "memberUserId" IS NULL`,
+      [allEmployeesGroupId, employeeTypeId]
+    );
+    if (typeMembership.rowCount !== 1) {
+      throw new Error("Employee type did not create the All Employees group membership");
+    }
+    fixture.groupMemberships.push(Number(typeMembership.rows[0].id));
+    await db.query(
+      `INSERT INTO "employee" ("id", "companyId", "employeeTypeId", "active") VALUES ($1, $2, $3, true)`,
+      [employeeUserId, companyId, employeeTypeId]
+    );
+    fixture.employeeRows.push([employeeUserId, companyId]);
+    const employeeMembership = await db.query(
+      `SELECT "id" FROM "membership"
+       WHERE "groupId" = $1 AND "memberUserId" = $2 AND "memberGroupId" IS NULL`,
+      [employeeTypeId, employeeUserId]
+    );
+    if (employeeMembership.rowCount !== 1) {
+      throw new Error("Employee did not create the employee-type group membership");
+    }
+    fixture.groupMemberships.push(Number(employeeMembership.rows[0].id));
+  }
+
+  return employeeUserId;
+}
+
 async function insertNotice(db: Client, companyId: string, name: string): Promise<string> {
   const result = await db.query(
     `INSERT INTO "changeOrder" ("changeOrderId", "name", "openDate", "companyId", "createdBy")
@@ -378,7 +524,7 @@ async function insertDecision(
      RETURNING "id"`,
     [companyId, noticeId, targetType, targetId, userId]
   );
-  fixture.decisions.push(result.rows[0].id);
+  fixture.decisions.push([result.rows[0].id, companyId]);
   return result.rows[0].id;
 }
 
@@ -393,30 +539,30 @@ async function main() {
     tasks: [],
     links: [],
     apiKeys: [],
-    employeeMemberships: []
+    employeeMemberships: [],
+    employeeRows: [],
+    employeeTypes: [],
+    employeeGroups: [],
+    groupMemberships: [],
+    authUsers: [],
+    publicUsers: [],
+    generatedCompanyTables: []
   };
   let employeeUserId = "";
-  let employeeOriginalPermissions: unknown;
+  let authAdmin: SupabaseClient | undefined;
   await db.connect();
 
   try {
-    const company = (
-      await db.query(`SELECT "id" FROM "company" ORDER BY "createdAt" LIMIT 1`)
-    ).rows[0]?.id;
-    if (!company) throw new Error("local DB needs a company fixture");
-    const employee = (
-      await db.query(
-        `SELECT utc."userId", up."permissions"
-         FROM "userToCompany" utc
-         JOIN "userPermission" up ON up."id" = utc."userId"
-         WHERE utc."companyId" = $1 AND utc."role" = 'employee'
-         LIMIT 1`,
-        [company]
-      )
-    ).rows[0];
-    if (!employee) throw new Error("local DB needs an authenticated employee fixture");
-    employeeUserId = employee.userId;
-    employeeOriginalPermissions = employee.permissions;
+    authAdmin = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, {
+      auth: { autoRefreshToken: false, persistSession: false }
+    });
+    const currency = (
+      await db.query(`SELECT "code" FROM "currencyCode" LIMIT 1`)
+    ).rows[0]?.code;
+    if (!currency) throw new Error("local DB needs a currency fixture");
+    const company = await insertCompany(db, fixture, `${prefix}-company-a`, currency);
+    const otherCompany = await insertCompany(db, fixture, `${prefix}-company-b`, currency);
+    employeeUserId = await createEmployeeFixture(db, fixture, authAdmin, [company, otherCompany]);
     const notice = await insertNotice(db, company, `${prefix}-primary-notice`);
     fixture.notices.push(notice);
 
@@ -457,7 +603,7 @@ async function main() {
          RETURNING "id"`,
         [company, decisionId, `${prefix}-${sourceId}`, userId]
       );
-      fixture.provenance.push(provenance.rows[0].id);
+      fixture.provenance.push([provenance.rows[0].id, company]);
       const history = await db.query(
         `INSERT INTO "changeOrderImpactDecisionHistory"
           ("companyId", "decisionId", "targetType", "targetId", "eventType", "newStatus", "newSnapshot", "createdBy")
@@ -466,42 +612,27 @@ async function main() {
          RETURNING "id"`,
         [company, decisionId, userId]
       );
-      fixture.history.push(history.rows[0].id);
+      fixture.history.push([history.rows[0].id, company]);
     }
 
     const task = await insertTask(db, company, notice, `${prefix}-task`);
     fixture.tasks.push(task);
     const sameNoticeTask = await insertTask(db, company, notice, `${prefix}-same-notice-task`);
     fixture.tasks.push(sameNoticeTask);
-    await db.query(
-      `INSERT INTO "changeOrderImpactDecisionActionTask" ("decisionId", "actionTaskId", "companyId", "createdBy")
-       VALUES ($1, $2, $3, $4)`,
-      [poDecision, task, company, userId]
-    );
-    fixture.links.push([poDecision, task, company]);
+    for (const decisionId of [poDecision, jobDecision, materialDecision]) {
+      await db.query(
+        `INSERT INTO "changeOrderImpactDecisionActionTask" ("decisionId", "actionTaskId", "companyId", "createdBy")
+         VALUES ($1, $2, $3, $4)`,
+        [decisionId, task, company, userId]
+      );
+      fixture.links.push([decisionId, task, company]);
+    }
 
     const otherNotice = await insertNotice(db, company, `${prefix}-other-notice`);
     fixture.notices.push(otherNotice);
     const otherTask = await insertTask(db, company, otherNotice, `${prefix}-other-task`);
     fixture.tasks.push(otherTask);
 
-    const currency = (
-      await db.query(`SELECT "code" FROM "currencyCode" LIMIT 1`)
-    ).rows[0]?.code;
-    if (!currency) throw new Error("local DB needs a currency fixture");
-    const otherCompany = (
-      await db.query(
-        `INSERT INTO "company" ("name", "baseCurrencyCode") VALUES ($1, $2) RETURNING "id"`,
-        [`${prefix}-other-company`, currency]
-      )
-    ).rows[0].id;
-    fixture.companies.push(otherCompany);
-    await db.query(
-      `INSERT INTO "userToCompany" ("userId", "companyId", "role")
-       VALUES ($1, $2, 'employee')`,
-      [employeeUserId, otherCompany]
-    );
-    fixture.employeeMemberships.push([employeeUserId, otherCompany]);
     const otherCompanyNotice = await insertNotice(
       db,
       otherCompany,
@@ -541,25 +672,43 @@ async function main() {
         userId
       ]
     );
-    fixture.decisions.push(sharedDecisionId);
-    const sharedProvenance = await db.query(
-      `INSERT INTO "changeOrderImpactDecisionAffectedItem"
-        ("companyId", "decisionId", "affectedItemId", "affectedItemSourceId", "affectedItemLabel", "startedBy", "createdBy")
-       VALUES ($1, $2, $3, $3, 'Shared Company A provenance', $4, $4)
-       RETURNING "id"`,
-      [company, sharedDecisionId, `${prefix}-shared-affected-item`, userId]
-    );
-    fixture.provenance.push(sharedProvenance.rows[0].id);
-    const sharedHistory = await db.query(
-      `INSERT INTO "changeOrderImpactDecisionHistory"
-        ("companyId", "decisionId", "targetType", "targetId", "eventType", "newStatus", "newSnapshot", "createdBy")
-       SELECT $1, "id", "targetType", "targetId", 'Decision created', "decisionStatus", '{}'::jsonb, $3
-       FROM "changeOrderImpactDecision"
-       WHERE "id" = $2 AND "companyId" = $1
-       RETURNING "id"`,
-      [company, sharedDecisionId, userId]
-    );
-    fixture.history.push(sharedHistory.rows[0].id);
+    fixture.decisions.push([sharedDecisionId, company]);
+    fixture.decisions.push([sharedDecisionId, otherCompany]);
+    for (const [sharedCompanyId, label] of [
+      [company, "Shared Company A provenance"],
+      [otherCompany, "Shared Company B provenance"]
+    ] as const) {
+      const sharedProvenance = await db.query(
+        `INSERT INTO "changeOrderImpactDecisionAffectedItem"
+          ("companyId", "decisionId", "affectedItemId", "affectedItemSourceId", "affectedItemLabel", "startedBy", "createdBy")
+         VALUES ($1, $2, $3, $3, $4, $5, $5)
+         RETURNING "id"`,
+        [sharedCompanyId, sharedDecisionId, `${prefix}-${sharedCompanyId === company ? "shared-a" : "shared-b"}-affected-item`, label, userId]
+      );
+      fixture.provenance.push([sharedProvenance.rows[0].id, sharedCompanyId]);
+      const sharedHistory = await db.query(
+        `INSERT INTO "changeOrderImpactDecisionHistory"
+          ("companyId", "decisionId", "targetType", "targetId", "eventType", "newStatus", "newSnapshot", "createdBy")
+         SELECT $1, "id", "targetType", "targetId", 'Decision created', "decisionStatus", '{}'::jsonb, $3
+         FROM "changeOrderImpactDecision"
+         WHERE "id" = $2 AND "companyId" = $1
+         RETURNING "id"`,
+        [sharedCompanyId, sharedDecisionId, userId]
+      );
+      fixture.history.push([sharedHistory.rows[0].id, sharedCompanyId]);
+    }
+    for (const [sharedCompanyId, sharedTaskId] of [
+      [company, task],
+      [otherCompany, otherCompanyTask]
+    ] as const) {
+      await db.query(
+        `INSERT INTO "changeOrderImpactDecisionActionTask"
+          ("decisionId", "actionTaskId", "companyId", "createdBy")
+         VALUES ($1, $2, $3, $4)`,
+        [sharedDecisionId, sharedTaskId, sharedCompanyId, userId]
+      );
+      fixture.links.push([sharedDecisionId, sharedTaskId, sharedCompanyId]);
+    }
 
     const partsOnly = await insertApiKey(db, fixture, "parts-only", company, {
       parts_view: [company]
@@ -583,13 +732,18 @@ async function main() {
     const full = await insertApiKey(db, fixture, "full", company, {
       parts_view: [company],
       parts_update: [company],
-      purchasing_view: [company]
+      purchasing_view: [company],
+      production_view: [company]
     });
     const taskWriter = await insertApiKey(db, fixture, "task-writer", company, {
       parts_view: [company],
       parts_create: [company],
       parts_update: [company],
       purchasing_view: [company]
+    });
+    const otherProductionRead = await insertApiKey(db, fixture, "other-production-read", otherCompany, {
+      parts_view: [otherCompany],
+      production_view: [otherCompany]
     });
 
     await db.query(
@@ -603,7 +757,11 @@ async function main() {
     await db.query(`UPDATE "changeOrderActionTask" SET "taskOrigin" = 'Manual' WHERE "id" = $1`, [task]);
 
     const row = (targetType: string, targetId: string) =>
-      `?targetType=eq.${targetType}&targetId=eq.${encodeURIComponent(targetId)}`;
+      `?companyId=eq.${encodeURIComponent(company)}&targetType=eq.${targetType}&targetId=eq.${encodeURIComponent(targetId)}&select=id`;
+    const childRows = (decisionId: string) =>
+      `?companyId=eq.${encodeURIComponent(company)}&decisionId=eq.${encodeURIComponent(decisionId)}&select=id`;
+    const taskLink = (decisionId: string) =>
+      `?companyId=eq.${encodeURIComponent(company)}&decisionId=eq.${encodeURIComponent(decisionId)}&actionTaskId=eq.${encodeURIComponent(task)}&select=decisionId,actionTaskId,companyId`;
     let result = await request(
       partsOnly,
       "changeOrderImpactDecision",
@@ -623,10 +781,10 @@ async function main() {
       "changeOrderImpactDecisionActionTask",
       "changeOrderImpactDecisionHistory"
     ]) {
-      result = await request(partsOnly, table, "GET");
+      result = await request(partsOnly, table, "GET", table === "changeOrderImpactDecisionActionTask" ? taskLink(poDecision) : childRows(poDecision));
       assert(`${table} with parts_view only is hidden`, result.status === 200 && rows(result).length === 0);
-      result = await request(poRead, table, "GET");
-      assert(`${table} with purchasing_view is readable`, result.status === 200 && rows(result).length > 0);
+      result = await request(poRead, table, "GET", table === "changeOrderImpactDecisionActionTask" ? taskLink(poDecision) : childRows(poDecision));
+      assert(`${table} with purchasing_view is readable`, result.status === 200 && rows(result).length === 1);
     }
     result = await request(
       partsOnly,
@@ -649,15 +807,37 @@ async function main() {
       row("jobMaterial", `${prefix}-material`)
     );
     assert("Job Material with production_view is readable", result.status === 200 && rows(result).length === 1);
+    for (const decisionId of [jobDecision, materialDecision]) {
+      for (const table of [
+        "changeOrderImpactDecisionAffectedItem",
+        "changeOrderImpactDecisionHistory"
+      ]) {
+        result = await request(productionRead, table, "GET", childRows(decisionId));
+        assert(`${table} production source row is readable`, result.status === 200 && rows(result).length === 1);
+      }
+      result = await request(productionRead, "changeOrderImpactDecisionActionTask", "GET", taskLink(decisionId));
+      assert(`Task link for ${decisionId} is readable with production_view`, result.status === 200 && rows(result).length === 1);
+      for (const table of [
+        "changeOrderImpactDecisionAffectedItem",
+        "changeOrderImpactDecisionActionTask",
+        "changeOrderImpactDecisionHistory"
+      ]) {
+        const query = table === "changeOrderImpactDecisionActionTask" ? taskLink(decisionId) : childRows(decisionId);
+        result = await request(partsOnly, table, "GET", query);
+        assert(`${table} with parts_view only hides production rows`, result.status === 200 && rows(result).length === 0);
+        result = await request(poRead, table, "GET", query);
+        assert(`${table} with purchasing_view hides production rows`, result.status === 200 && rows(result).length === 0);
+      }
+    }
     for (const table of [
       "changeOrderImpactDecisionAffectedItem",
+      "changeOrderImpactDecisionActionTask",
       "changeOrderImpactDecisionHistory"
     ]) {
-      result = await request(productionRead, table, "GET");
-      assert(`${table} with production_view is readable`, result.status === 200 && rows(result).length > 0);
+      const query = table === "changeOrderImpactDecisionActionTask" ? taskLink(poDecision) : childRows(poDecision);
+      result = await request(productionRead, table, "GET", query);
+      assert(`${table} with production_view hides purchasing rows`, result.status === 200 && rows(result).length === 0);
     }
-    result = await request(productionRead, "changeOrderImpactDecisionActionTask", "GET");
-    assert("Task links do not reveal PO links to production-only users", result.status === 200 && rows(result).length === 0);
     result = await request(
       productionRead,
       "changeOrderImpactDecision",
@@ -665,6 +845,39 @@ async function main() {
       row("purchaseOrderLine", `${prefix}-po`)
     );
     assert("Production-only source view cannot read PO", result.status === 200 && rows(result).length === 0);
+
+    const otherRow =
+      `?companyId=eq.${encodeURIComponent(otherCompany)}&targetType=eq.job&targetId=eq.${encodeURIComponent(`${prefix}-shared-job`)}&select=id`;
+    const otherChildRows = (decisionId: string) =>
+      `?companyId=eq.${encodeURIComponent(otherCompany)}&decisionId=eq.${encodeURIComponent(decisionId)}&select=id`;
+    const otherTaskLink =
+      `?companyId=eq.${encodeURIComponent(otherCompany)}&decisionId=eq.${encodeURIComponent(sharedDecisionId)}&actionTaskId=eq.${encodeURIComponent(otherCompanyTask)}&select=decisionId,actionTaskId,companyId`;
+    result = await request(otherProductionRead, "changeOrderImpactDecision", "GET", otherRow);
+    assert("Company B Job with production_view is readable", result.status === 200 && rows(result).length === 1);
+    for (const table of [
+      "changeOrderImpactDecisionAffectedItem",
+      "changeOrderImpactDecisionActionTask",
+      "changeOrderImpactDecisionHistory"
+    ]) {
+      const query = table === "changeOrderImpactDecisionActionTask"
+        ? otherTaskLink
+        : otherChildRows(sharedDecisionId);
+      result = await request(otherProductionRead, table, "GET", query);
+      assert(`Company B ${table} with production_view is readable`, result.status === 200 && rows(result).length === 1);
+    }
+    result = await request(full, "changeOrderImpactDecision", "GET", otherRow);
+    assert("Company A API key cannot read Company B Job", result.status === 200 && rows(result).length === 0);
+    for (const table of [
+      "changeOrderImpactDecisionAffectedItem",
+      "changeOrderImpactDecisionActionTask",
+      "changeOrderImpactDecisionHistory"
+    ]) {
+      const query = table === "changeOrderImpactDecisionActionTask"
+        ? otherTaskLink
+        : otherChildRows(sharedDecisionId);
+      result = await request(full, table, "GET", query);
+      assert(`Company A API key cannot read Company B ${table}`, result.status === 200 && rows(result).length === 0);
+    }
 
     const body = {
       companyId: company,
@@ -985,45 +1198,91 @@ async function main() {
         taskAfterOrdinaryUpdate.taskOrigin === "Manual"
     );
 
+    const sharedEmployeeJwt = getEmployeeJwt(employeeUserId);
+    await setEmployeePermissions(db, employeeUserId, company, {
+      partsView: true,
+      partsUpdate: false,
+      purchasingView: false,
+      productionView: true
+    });
+    const companyBDecisionHidden = await employeeRequest(
+      sharedEmployeeJwt,
+      "changeOrderImpactDecision",
+      "GET",
+      otherRow
+    );
+    assert(
+      "Employee membership without Company B permission cannot read Company B Job",
+      companyBDecisionHidden.status === 200 && rows(companyBDecisionHidden).length === 0
+    );
+    for (const table of [
+      "changeOrderImpactDecisionAffectedItem",
+      "changeOrderImpactDecisionActionTask",
+      "changeOrderImpactDecisionHistory"
+    ]) {
+      const query = table === "changeOrderImpactDecisionActionTask"
+        ? otherTaskLink
+        : otherChildRows(sharedDecisionId);
+      const hidden = await employeeRequest(sharedEmployeeJwt, table, "GET", query);
+      assert(
+        `Employee Company A-only permissions hide Company B ${table}`,
+        hidden.status === 200 && rows(hidden).length === 0
+      );
+    }
+
+    await setEmployeePermissions(db, employeeUserId, otherCompany, {
+      partsView: true,
+      partsUpdate: false,
+      purchasingView: false,
+      productionView: true
+    });
+    const companyBDecisionRead = await employeeRequest(
+      sharedEmployeeJwt,
+      "changeOrderImpactDecision",
+      "GET",
+      otherRow
+    );
+    assert(
+      "Employee Company B production permission reads the Company B Job",
+      companyBDecisionRead.status === 200 && rows(companyBDecisionRead).length === 1
+    );
+    for (const table of [
+      "changeOrderImpactDecisionAffectedItem",
+      "changeOrderImpactDecisionActionTask",
+      "changeOrderImpactDecisionHistory"
+    ]) {
+      const query = table === "changeOrderImpactDecisionActionTask"
+        ? otherTaskLink
+        : otherChildRows(sharedDecisionId);
+      const visible = await employeeRequest(sharedEmployeeJwt, table, "GET", query);
+      assert(
+        `Employee Company B production permission reads Company B ${table}`,
+        visible.status === 200 && rows(visible).length === 1
+      );
+    }
+
     await setEmployeePermissions(db, employeeUserId, [company, otherCompany], {
       partsView: true,
       partsUpdate: false,
       purchasingView: false,
       productionView: true
     });
-    const sharedEmployeeJwt = getEmployeeJwt(employeeUserId);
-    const sharedDecisionRead = await employeeRequest(
-      sharedEmployeeJwt,
-      "changeOrderImpactDecision",
-      "GET",
-      `?id=eq.${encodeURIComponent(sharedDecisionId)}&companyId=eq.${encodeURIComponent(otherCompany)}&targetType=eq.job&select=id`
-    );
-    assert(
-      "Employee can read Company B same-ID Job decision",
-      sharedDecisionRead.status === 200 && rows(sharedDecisionRead).length === 1
-    );
     const sharedChildQuery =
       `?companyId=eq.${encodeURIComponent(company)}&decisionId=eq.${encodeURIComponent(sharedDecisionId)}&select=id`;
-    const sharedProvenanceRead = await employeeRequest(
-      sharedEmployeeJwt,
+    for (const table of [
       "changeOrderImpactDecisionAffectedItem",
-      "GET",
-      sharedChildQuery
-    );
-    assert(
-      "Company A same-ID provenance cannot borrow Company B authorization",
-      sharedProvenanceRead.status === 200 && rows(sharedProvenanceRead).length === 0
-    );
-    const sharedHistoryRead = await employeeRequest(
-      sharedEmployeeJwt,
-      "changeOrderImpactDecisionHistory",
-      "GET",
-      sharedChildQuery
-    );
-    assert(
-      "Company A same-ID history cannot borrow Company B authorization",
-      sharedHistoryRead.status === 200 && rows(sharedHistoryRead).length === 0
-    );
+      "changeOrderImpactDecisionActionTask",
+      "changeOrderImpactDecisionHistory"
+    ]) {
+      const query = table === "changeOrderImpactDecisionActionTask"
+        ? `?companyId=eq.${encodeURIComponent(company)}&decisionId=eq.${encodeURIComponent(sharedDecisionId)}&actionTaskId=eq.${encodeURIComponent(task)}&select=decisionId,actionTaskId,companyId`
+        : sharedChildQuery;
+      const hidden = await employeeRequest(sharedEmployeeJwt, table, "GET", query);
+      assert(
+        `Company A same-ID ${table} cannot borrow Company B source authorization`,
+        hidden.status === 200 && rows(hidden).length === 0
+      );
+    }
 
     await runEmployeeSessionChecks(
       db,
@@ -1048,83 +1307,164 @@ async function main() {
       }
     };
 
-    if (employeeUserId && employeeOriginalPermissions !== undefined) {
-      await cleanup("restore employee permissions", () =>
-        db.query(
-          `UPDATE "userPermission" SET "permissions" = $1::jsonb WHERE "id" = $2`,
-          [JSON.stringify(employeeOriginalPermissions), employeeUserId]
-        )
-      );
-    }
     for (const [membershipUserId, membershipCompanyId] of fixture.employeeMemberships) {
-      await cleanup(`remove employee membership ${membershipCompanyId}`, () =>
-        db.query(
-          `DELETE FROM "userToCompany" WHERE "userId" = $1 AND "companyId" = $2`,
+      await cleanup(`remove employee membership ${membershipCompanyId}`, async () => {
+        const result = await db.query(
+          `DELETE FROM "userToCompany" WHERE "userId" = $1 AND "companyId" = $2 RETURNING "userId"`,
           [membershipUserId, membershipCompanyId]
-        )
-      );
+        );
+        if (result.rowCount !== 1) throw new Error("employee membership fixture was not removed");
+      });
+    }
+    if (fixture.groupMemberships.length) {
+      await cleanup("delete employee group memberships", async () => {
+        const result = await db.query(
+          `DELETE FROM "membership" WHERE "id" = ANY($1::int[]) RETURNING "id"`,
+          [fixture.groupMemberships]
+        );
+        if (result.rowCount !== fixture.groupMemberships.length) {
+          throw new Error(`expected ${fixture.groupMemberships.length} group memberships, deleted ${result.rowCount}`);
+        }
+      });
+    }
+    for (const [employeeId, employeeCompanyId] of fixture.employeeRows) {
+      await cleanup(`delete employee fixture ${employeeId}/${employeeCompanyId}`, async () => {
+        const result = await db.query(
+          `DELETE FROM "employee" WHERE "id" = $1 AND "companyId" = $2 RETURNING "id"`,
+          [employeeId, employeeCompanyId]
+        );
+        if (result.rowCount !== 1) throw new Error("employee fixture was not removed");
+      });
+    }
+    for (const [employeeTypeId, employeeCompanyId] of fixture.employeeTypes) {
+      await cleanup(`delete employee type fixture ${employeeTypeId}/${employeeCompanyId}`, async () => {
+        const result = await db.query(
+          `DELETE FROM "employeeType" WHERE "id" = $1 AND "companyId" = $2 RETURNING "id"`,
+          [employeeTypeId, employeeCompanyId]
+        );
+        if (result.rowCount !== 1) throw new Error("employee type fixture was not removed");
+      });
+    }
+    for (const [employeeGroupId, employeeGroupCompanyId] of fixture.employeeGroups) {
+      await cleanup(`delete employee group fixture ${employeeGroupId}`, async () => {
+        const result = await db.query(
+          `DELETE FROM "group"
+           WHERE "id" = $1 AND "companyId" IS NOT DISTINCT FROM $2
+           RETURNING "id"`,
+          [employeeGroupId, employeeGroupCompanyId]
+        );
+        if (result.rowCount !== 1) throw new Error("employee group fixture was not removed");
+      });
+    }
+    if (authAdmin) {
+      for (const fixtureEmployeeUserId of fixture.authUsers) {
+        await cleanup("delete dedicated auth employee", async () => {
+          const { error } = await authAdmin.auth.admin.deleteUser(fixtureEmployeeUserId);
+          if (error) throw error;
+        });
+      }
+    }
+    for (const fixtureEmployeeUserId of fixture.publicUsers) {
+      await cleanup("delete dedicated Carbon user", async () => {
+        const result = await db.query(
+          `DELETE FROM "user" WHERE "id" = $1 RETURNING "id"`,
+          [fixtureEmployeeUserId]
+        );
+        if (result.rowCount !== 1) throw new Error("Carbon public user fixture was not removed");
+      });
     }
     for (const [decisionId, actionTaskId, companyId] of fixture.links) {
-      await cleanup(`delete task link ${decisionId}/${actionTaskId}`, () =>
-        db.query(
+      await cleanup(`delete task link ${decisionId}/${actionTaskId}/${companyId}`, async () => {
+        const result = await db.query(
           `DELETE FROM "changeOrderImpactDecisionActionTask"
-           WHERE "decisionId" = $1 AND "actionTaskId" = $2 AND "companyId" = $3`,
+           WHERE "decisionId" = $1 AND "actionTaskId" = $2 AND "companyId" = $3
+           RETURNING "decisionId"`,
           [decisionId, actionTaskId, companyId]
-        )
-      );
+        );
+        if (result.rowCount !== 1) throw new Error("task link fixture was not removed");
+      });
     }
-    if (fixture.history.length) {
-      await cleanup("delete history fixtures", () =>
-        db.query(
-          `DELETE FROM "changeOrderImpactDecisionHistory" WHERE "id" = ANY($1::text[])`,
-          [fixture.history]
-        )
-      );
+    for (const [historyId, historyCompanyId] of fixture.history) {
+      await cleanup(`delete history fixture ${historyId}/${historyCompanyId}`, async () => {
+        const result = await db.query(
+          `DELETE FROM "changeOrderImpactDecisionHistory"
+           WHERE "id" = $1 AND "companyId" = $2 RETURNING "id"`,
+          [historyId, historyCompanyId]
+        );
+        if (result.rowCount !== 1) throw new Error("history fixture was not removed");
+      });
     }
-    if (fixture.provenance.length) {
-      await cleanup("delete provenance fixtures", () =>
-        db.query(
-          `DELETE FROM "changeOrderImpactDecisionAffectedItem" WHERE "id" = ANY($1::text[])`,
-          [fixture.provenance]
-        )
-      );
+    for (const [provenanceId, provenanceCompanyId] of fixture.provenance) {
+      await cleanup(`delete provenance fixture ${provenanceId}/${provenanceCompanyId}`, async () => {
+        const result = await db.query(
+          `DELETE FROM "changeOrderImpactDecisionAffectedItem"
+           WHERE "id" = $1 AND "companyId" = $2 RETURNING "id"`,
+          [provenanceId, provenanceCompanyId]
+        );
+        if (result.rowCount !== 1) throw new Error("provenance fixture was not removed");
+      });
     }
-    if (fixture.decisions.length) {
-      await cleanup("delete decision fixtures", () =>
-        db.query(
-          `DELETE FROM "changeOrderImpactDecision" WHERE "id" = ANY($1::text[])`,
-          [fixture.decisions]
-        )
-      );
+    for (const [decisionId, decisionCompanyId] of fixture.decisions) {
+      await cleanup(`delete decision fixture ${decisionId}/${decisionCompanyId}`, async () => {
+        const result = await db.query(
+          `DELETE FROM "changeOrderImpactDecision"
+           WHERE "id" = $1 AND "companyId" = $2 RETURNING "id"`,
+          [decisionId, decisionCompanyId]
+        );
+        if (result.rowCount !== 1) throw new Error("decision fixture was not removed");
+      });
     }
     if (fixture.tasks.length) {
-      await cleanup("delete task fixtures", () =>
-        db.query(`DELETE FROM "changeOrderActionTask" WHERE "id" = ANY($1::text[])`, [fixture.tasks])
-      );
+      await cleanup("delete task fixtures", async () => {
+        const result = await db.query(
+          `DELETE FROM "changeOrderActionTask" WHERE "id" = ANY($1::text[]) RETURNING "id"`,
+          [fixture.tasks]
+        );
+        if (result.rowCount !== fixture.tasks.length) {
+          throw new Error(`expected ${fixture.tasks.length} tasks, deleted ${result.rowCount}`);
+        }
+      });
     }
     if (fixture.notices.length) {
-      await cleanup("delete Change Notice fixtures", () =>
-        db.query(`DELETE FROM "changeOrder" WHERE "id" = ANY($1::text[])`, [fixture.notices])
-      );
+      await cleanup("delete Change Notice fixtures", async () => {
+        const result = await db.query(
+          `DELETE FROM "changeOrder" WHERE "id" = ANY($1::text[]) RETURNING "id"`,
+          [fixture.notices]
+        );
+        if (result.rowCount !== fixture.notices.length) {
+          throw new Error(`expected ${fixture.notices.length} Change Notices, deleted ${result.rowCount}`);
+        }
+      });
     }
     if (fixture.apiKeys.length) {
-      await cleanup("delete API key fixtures", () =>
-        db.query(`DELETE FROM "apiKey" WHERE "id" = ANY($1::text[])`, [fixture.apiKeys])
-      );
+      await cleanup("delete API key fixtures", async () => {
+        const result = await db.query(
+          `DELETE FROM "apiKey" WHERE "id" = ANY($1::text[]) RETURNING "id"`,
+          [fixture.apiKeys]
+        );
+        if (result.rowCount !== fixture.apiKeys.length) {
+          throw new Error(`expected ${fixture.apiKeys.length} API keys, deleted ${result.rowCount}`);
+        }
+      });
     }
-    for (const companyId of fixture.companies) {
-      const quotedCompanyId = companyId.replaceAll('"', '""');
-      await cleanup(`drop search index table ${companyId}`, () =>
-        db.query(`DROP TABLE IF EXISTS "searchIndex_${quotedCompanyId}" CASCADE`)
-      );
-      await cleanup(`drop audit log table ${companyId}`, () =>
-        db.query(`DROP TABLE IF EXISTS "auditLog_${quotedCompanyId}" CASCADE`)
-      );
+    for (const tableName of fixture.generatedCompanyTables) {
+      const quotedTableName = tableName.replaceAll('"', '""');
+      await cleanup(`drop generated company table ${tableName}`, async () => {
+        await db.query(`DROP TABLE IF EXISTS "${quotedTableName}" CASCADE`);
+        const result = await db.query(`SELECT to_regclass($1) AS "tableName"`, [`public.${tableName}`]);
+        if (result.rows[0]?.tableName !== null) throw new Error("generated company table was not removed");
+      });
     }
     if (fixture.companies.length) {
-      await cleanup("delete company fixtures", () =>
-        db.query(`DELETE FROM "company" WHERE "id" = ANY($1::text[])`, [fixture.companies])
-      );
+      await cleanup("delete company fixtures", async () => {
+        const result = await db.query(
+          `DELETE FROM "company" WHERE "id" = ANY($1::text[]) RETURNING "id"`,
+          [fixture.companies]
+        );
+        if (result.rowCount !== fixture.companies.length) {
+          throw new Error(`expected ${fixture.companies.length} companies, deleted ${result.rowCount}`);
+        }
+      });
     }
     await cleanup("close database connection", () => db.end());
     if (cleanupFailed) process.exitCode = 1;

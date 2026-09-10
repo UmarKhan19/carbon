@@ -2121,3 +2121,13 @@ full-screen ERP route.
 **Rule:** Service unit tests should model only service-owned decisions, predicates, delete order, and transaction failure. PostgreSQL-owned `CASCADE`, `SET NULL`, locks, and rollback belong in the real database harness.
 
 **Applies to:** `deleteChangeNotice` and services that combine explicit cleanup with PostgreSQL referential actions.
+
+## Dedicated Carbon RLS companies need the employee-group seed before employee types
+
+**Context:** The direct PostgREST RLS harness now creates per-run companies and a real Supabase Auth employee instead of borrowing a shared local employee.
+
+**Problem:** Inserting an `employeeType` into a bare company fired Carbon's employee-group interceptor, which expects that company's deterministic `All Employees` group to already exist. A minimal company row is enough for Impact rows, but not for a normal employee fixture.
+
+**Rule:** When a database harness creates an isolated Carbon company and inserts employee types, seed the deterministic `All Employees` group first (or use the repository's full company bootstrap). Do not bypass the interceptor or invent only partial auth/public-user records.
+
+**Applies to:** Direct PostgREST/RLS fixtures, `employeeType`/`employee` setup, and any future isolated authenticated-company harness.
