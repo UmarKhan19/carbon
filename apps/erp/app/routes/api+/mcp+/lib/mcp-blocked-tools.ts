@@ -1,6 +1,7 @@
 /**
- * Tools excluded from MCP discovery (tool-metadata.json) and blocked at runtime.
- * Keep this list small; add only operations that must never run via /api/mcp.
+ * Operations excluded from the generated generic API/MCP catalog and blocked at
+ * shared dispatch. This covers HTTP v1, MCP, agent, and workflow callers;
+ * direct browser imports remain unaffected.
  */
 export const MCP_BLOCKED_TOOL_NAMES: readonly string[] = [
   "settings_seedCompany",
@@ -73,6 +74,16 @@ export const MCP_BLOCKED_TOOL_NAMES: readonly string[] = [
   "items_classifyJobMaterialImpactEligibility",
   "items_deriveChangeNoticeImpactProvenance",
   "items_compareChangeNoticeImpactSnapshot",
+  // Change Notice engineering writers are route-guarded; the generic dispatcher
+  // must not bypass the engineering lock, parent ownership checks, or the
+  // Implementation -> Done apply orchestration. Keep the guarded browser paths
+  // and explicit adapters as the supported mutation boundaries.
+  "items_updateChangeNotice",
+  "items_updateChangeNoticeStatus",
+  "items_createChangeNoticeDraftMethod",
+  "items_addChangeNoticeAffectedItem",
+  "items_updateChangeNoticeAffectedItemChangeType",
+  "items_updateChangeNoticeAffectedItemCutover",
   // Change Notice action-task mutators are route-guarded (and some use the
   // trusted Kysely boundary); the generic MCP executor must not bypass task
   // lifecycle, workflow, and parent-scope checks.

@@ -25,6 +25,12 @@ const spies = vi.hoisted(() => ({
   insertSalesOrder: vi.fn(),
   replaceInvoiceSettlements: vi.fn(),
   applyCreditsToInvoices: vi.fn(),
+  updateChangeNotice: vi.fn(),
+  updateChangeNoticeStatus: vi.fn(),
+  createChangeNoticeDraftMethod: vi.fn(),
+  addChangeNoticeAffectedItem: vi.fn(),
+  updateChangeNoticeAffectedItemChangeType: vi.fn(),
+  updateChangeNoticeAffectedItemCutover: vi.fn(),
   createImpactFollowUpTask: vi.fn(),
   linkImpactDecisionTask: vi.fn(),
   unlinkImpactDecisionTask: vi.fn(),
@@ -61,7 +67,16 @@ vi.mock("~/modules/items/items.mcp.server", () => ({
 }));
 vi.mock("~/modules/items/items.service", () => ({
   upsertMethodMaterial: spies.upsertMethodMaterial,
-  deleteChangeNotice: spies.deleteChangeNotice
+  deleteChangeNotice: spies.deleteChangeNotice,
+  updateChangeNotice: spies.updateChangeNotice,
+  updateChangeNoticeStatus: spies.updateChangeNoticeStatus,
+  createChangeNoticeDraftMethod: spies.createChangeNoticeDraftMethod,
+  addChangeNoticeAffectedItem: spies.addChangeNoticeAffectedItem,
+  updateChangeNoticeAffectedItemChangeType:
+    spies.updateChangeNoticeAffectedItemChangeType,
+  updateChangeNoticeAffectedItemCutover:
+    spies.updateChangeNoticeAffectedItemCutover
+
 }));
 vi.mock("~/modules/people/people.service", () => ({}));
 vi.mock("~/modules/production/production.mcp.server", () => ({}));
@@ -162,6 +177,12 @@ const allSpies = [
   spies.upsertQuoteLinePrices,
   spies.generateInventoryCountLines,
   spies.deleteChangeNotice,
+  spies.updateChangeNotice,
+  spies.updateChangeNoticeStatus,
+  spies.createChangeNoticeDraftMethod,
+  spies.addChangeNoticeAffectedItem,
+  spies.updateChangeNoticeAffectedItemChangeType,
+  spies.updateChangeNoticeAffectedItemCutover,
   spies.upsertNotificationPreference,
   spies.insertJob,
   spies.insertIssue,
@@ -1016,5 +1037,45 @@ describe("blocked tools (D5)", () => {
       errorKind: "execution",
       error: "Tool disabled: settings_seedCompany is not available via MCP."
     });
+  });
+
+  it.each([
+    ["items_updateChangeNotice", spies.updateChangeNotice],
+    ["items_updateChangeNoticeStatus", spies.updateChangeNoticeStatus],
+    [
+      "items_createChangeNoticeDraftMethod",
+      spies.createChangeNoticeDraftMethod
+    ],
+    ["items_addChangeNoticeAffectedItem", spies.addChangeNoticeAffectedItem],
+    [
+      "items_updateChangeNoticeAffectedItemChangeType",
+      spies.updateChangeNoticeAffectedItemChangeType
+    ],
+    [
+      "items_updateChangeNoticeAffectedItemCutover",
+      spies.updateChangeNoticeAffectedItemCutover
+    ]
+  ] as Array<
+    [string, Spy]
+  >)("refuses a blocked Change Notice engineering writer: %s", async (name, spy) => {
+    const result = await callOperation(
+      name,
+      { ...ctx, authKind: "api-key", scopes: {} },
+      {
+        id: "notice-1",
+        changeNoticeId: "notice-1",
+        companyId: "forged-company",
+        userId: "forged-user",
+        createdBy: "forged-creator",
+        updatedBy: "forged-updater"
+      }
+    );
+
+    expect(result).toEqual({
+      success: false,
+      errorKind: "execution",
+      error: `Tool disabled: ${name} is not available via MCP.`
+    });
+    expect(spy).not.toHaveBeenCalled();
   });
 });

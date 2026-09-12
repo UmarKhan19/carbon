@@ -92,6 +92,43 @@ describe("mcp tool-metadata generator", () => {
     }
   });
 
+  it("keeps unguarded Change Notice engineering writers out of generic MCP metadata", () => {
+    for (const name of [
+      "items_updateChangeNotice",
+      "items_updateChangeNoticeStatus",
+      "items_createChangeNoticeDraftMethod",
+      "items_addChangeNoticeAffectedItem",
+      "items_updateChangeNoticeAffectedItemChangeType",
+      "items_updateChangeNoticeAffectedItemCutover"
+    ]) {
+      expect(MCP_BLOCKED_TOOL_NAMES).toContain(name);
+      expect(byName.has(name)).toBe(false);
+    }
+  });
+
+  it("keeps the supported Change Notice header operations explicit", () => {
+    const insert = get("items_insertChangeNotice");
+    expect(insert.classification).toBe("WRITE");
+    expect(insert.serviceParams).toEqual(["client", "input"]);
+    expect(insert.injectAuth).toEqual([
+      "companyId",
+      "createdBy",
+      "updatedBy"
+    ]);
+    expect(insert.permission).toEqual({
+      module: "parts",
+      actions: ["create"]
+    });
+    expect(insert.schema.required).toEqual(["name", "openDate"]);
+
+    const deletion = get("items_deleteChangeNotice");
+    expect(deletion.classification).toBe("DESTRUCTIVE");
+    expect(deletion.permission).toEqual({
+      module: "parts",
+      actions: ["delete"]
+    });
+  });
+
   it("publishes only the explicit Slice 3D adapters with server-owned context", () => {
     const adapterNames = [
       "items_updateChangeNoticeTaskStatus",
@@ -355,9 +392,7 @@ describe("mcp tool-metadata generator", () => {
   it("resolves generated DB enum references to value enums", () => {
     const status = props(get("inventory_updatePickingListStatus")).status;
     expect(status?.enum).toContain("In Progress");
-    const mode = props(
-      get("items_updateChangeNoticeAffectedItemCutover")
-    ).supersessionMode;
+    const mode = props(get("items_upsertItemSupersession")).supersessionMode;
     expect(mode?.enum).toContain("Consume First");
   });
 
