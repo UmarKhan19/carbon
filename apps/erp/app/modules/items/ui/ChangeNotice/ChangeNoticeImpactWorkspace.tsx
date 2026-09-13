@@ -106,7 +106,36 @@ type ImpactBulkFetcherData =
   | { success: true; data: ChangeNoticeImpactDecisionBulkWriteData }
   | { success: false; error?: { message: string }; conflict?: boolean };
 
+type ImpactRefreshFetcherData = { success: true } | { success: false };
+
 const impactSelectionSeparator = "\u0000";
+
+type ImpactRefreshSubmit = (
+  target: null,
+  options: { method: "post"; action: string }
+) => void;
+
+export function refreshChangeNoticeImpactWorkspace({
+  canUpdate,
+  id,
+  submit,
+  revalidate
+}: {
+  canUpdate: boolean;
+  id: string;
+  submit: ImpactRefreshSubmit;
+  revalidate: () => void;
+}) {
+  if (!canUpdate) {
+    revalidate();
+    return;
+  }
+
+  submit(null, {
+    method: "post",
+    action: path.to.changeNoticeImpact(id)
+  });
+}
 
 export function getChangeNoticeImpactSelectionKey(
   targetType: Candidate["targetType"],
@@ -1638,7 +1667,20 @@ export default function ChangeNoticeImpactWorkspace({
   const [bulkDrawerOpen, setBulkDrawerOpen] = useState(false);
   const [bulkSuccess, setBulkSuccess] =
     useState<ChangeNoticeImpactDecisionBulkWriteData | null>(null);
+  const refreshFetcher = useFetcher<ImpactRefreshFetcherData>();
   const canUpdate = permissions.can("update", "parts") ?? false;
+  const isRefreshing =
+    refreshFetcher.state !== "idle" || revalidator.state !== "idle";
+  const handleRefresh = useCallback(() => {
+    // A mutation fetcher gives React Router its normal post-action
+    // revalidation. Read-only viewers keep the old GET-only refresh path.
+    refreshChangeNoticeImpactWorkspace({
+      canUpdate,
+      id,
+      submit: refreshFetcher.submit,
+      revalidate: revalidator.revalidate
+    });
+  }, [canUpdate, id, revalidator, refreshFetcher]);
   const search = params.get("search") ?? "";
   const filters = getImpactFilterValues(params.getAll("filter"));
   const coverageHasWarning = [
@@ -1831,9 +1873,9 @@ export default function ChangeNoticeImpactWorkspace({
         <Button
           type="button"
           variant="secondary"
-          onClick={() => revalidator.revalidate()}
-          isDisabled={revalidator.state !== "idle"}
-          isLoading={revalidator.state !== "idle"}
+          onClick={handleRefresh}
+          isDisabled={isRefreshing}
+          isLoading={isRefreshing}
         >
           <LuRefreshCw className="size-3.5" />
           <Trans>Refresh</Trans>

@@ -91,7 +91,9 @@ vi.mock("~/modules/production/ui/Jobs/JobStatus", () => ({
 vi.mock("~/modules/purchasing/ui/PurchaseOrder/PurchasingStatus", () => ({
   default: () => null
 }));
-vi.mock("~/utils/path", () => ({ path: { to: {} } }));
+vi.mock("~/utils/path", () => ({
+  path: { to: { changeNoticeImpact: (id: string) => `/impact/${id}` } }
+}));
 vi.mock("./ChangeNoticeStatus", () => ({ default: () => null }));
 vi.mock("./ChangeNoticeImpactTasks", () => ({
   ChangeNoticeImpactTasks: () => null
@@ -109,7 +111,8 @@ const {
   getChangeNoticeImpactDecisionControls,
   getChangeNoticeImpactDecisionStatusOptions,
   getChangeNoticeImpactRationaleDefault,
-  groupCandidates
+  groupCandidates,
+  refreshChangeNoticeImpactWorkspace
 } = await import("./ChangeNoticeImpactWorkspace");
 
 function candidate(over: Record<string, unknown> = {}) {
@@ -141,6 +144,43 @@ const base = {
   changeNoticeStatus: "Implementation" as const,
   canUpdate: true
 };
+
+describe("Change Notice Impact refresh", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("keeps refresh GET-only for read-only viewers", () => {
+    const submit = vi.fn();
+    const revalidate = vi.fn();
+
+    refreshChangeNoticeImpactWorkspace({
+      canUpdate: false,
+      id: "change-1",
+      submit,
+      revalidate
+    });
+
+    expect(revalidate).toHaveBeenCalledOnce();
+    expect(submit).not.toHaveBeenCalled();
+  });
+
+  it("submits reconciliation and lets the router revalidate the workspace", () => {
+    const submit = vi.fn();
+    const revalidate = vi.fn();
+
+    refreshChangeNoticeImpactWorkspace({
+      canUpdate: true,
+      id: "change-1",
+      submit,
+      revalidate
+    });
+
+    expect(submit).toHaveBeenCalledWith(null, {
+      method: "post",
+      action: "/impact/change-1"
+    });
+    expect(revalidate).not.toHaveBeenCalled();
+  });
+});
 
 describe("Change Notice Impact decision controls", () => {
   beforeEach(() => vi.clearAllMocks());
