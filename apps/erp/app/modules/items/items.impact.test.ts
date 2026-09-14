@@ -6786,6 +6786,65 @@ describe("Change Notice Impact candidate discovery", () => {
     ).toBeNull();
   });
 
+  it("reports failed Job source coverage independently from Job Material", async () => {
+    const result = await getChangeNoticeImpactCandidates(
+      fakeImpactClient({
+        rows: baseImpactRows({
+          job: [jobRow("job-source-failure")],
+          jobMakeMethod: [rootRow("job-source-failure")]
+        }),
+        errors: new Set(["job"])
+      }),
+      companyId,
+      changeNoticeId,
+      { sourceAccess }
+    );
+
+    expect(result.error).toBeNull();
+    expect(result.data?.coverage.job).toMatchObject({
+      status: "failed",
+      currentExposureCount: null,
+      historicalReferenceCount: null,
+      unassessedCount: null
+    });
+    expect(result.data?.coverage.jobMaterial.status).toBe("complete");
+  });
+
+  it("reports failed Job Material source coverage independently from Job", async () => {
+    const result = await getChangeNoticeImpactCandidates(
+      fakeImpactClient({
+        rows: baseImpactRows({
+          job: [jobRow("job-material-source")],
+          jobMakeMethod: [rootRow("job-material-source")],
+          jobMaterial: [
+            materialRow("material-source-failure", "job-material-source")
+          ]
+        }),
+        errors: new Set(["jobMaterial"])
+      }),
+      companyId,
+      changeNoticeId,
+      { sourceAccess }
+    );
+
+    expect(result.error).toBeNull();
+    expect(result.data?.coverage.job.status).toBe("complete");
+    expect(result.data?.coverage.jobMaterial).toMatchObject({
+      status: "failed",
+      currentExposureCount: null,
+      historicalReferenceCount: null,
+      unassessedCount: null
+    });
+    expect(
+      result.data?.candidates.find(
+        (candidate) => candidate.targetType === "job"
+      )
+    ).toMatchObject({
+      targetId: "job-material-source",
+      sourceAvailability: "Present"
+    });
+  });
+
   it("redacts all candidate context when source coverage fails", async () => {
     const stored = normalizePurchaseOrderLineImpactSnapshot(
       poRow("pol-source-failure")

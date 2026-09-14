@@ -1374,6 +1374,113 @@ describe("Change Notice Impact scope lifecycle (real PostgreSQL)", () => {
     }
   });
 
+  it("reconciles deleted PO lines and Job Materials through their real source queries", async () => {
+    await runWithFixture({}, async (fixture) => {
+      const pool = requireReaderPool();
+      // Impact source IDs intentionally have no live FK; persisted decisions and
+      // provenance rows model sources deleted before reconciliation.
+      const cases = [
+        {
+          targetType: "purchaseOrderLine" as const,
+          targetId: `deleted-po-${randomBytes(8).toString("hex")}`,
+          decisionId: `deleted-po-decision-${randomBytes(8).toString("hex")}`,
+          provenanceId: `deleted-po-provenance-${randomBytes(8).toString("hex")}`,
+          snapshotSchema: "PO_LINE_SNAPSHOT_V1"
+        },
+        {
+          targetType: "jobMaterial" as const,
+          targetId: `deleted-material-${randomBytes(8).toString("hex")}`,
+          decisionId: `deleted-material-decision-${randomBytes(8).toString("hex")}`,
+          provenanceId: `deleted-material-provenance-${randomBytes(8).toString("hex")}`,
+          snapshotSchema: "JOB_MATERIAL_SNAPSHOT_V1"
+        }
+      ];
+
+      for (const target of cases) {
+        await pool.query(
+          `INSERT INTO "changeOrderImpactDecision"
+             ("id", "companyId", "changeNoticeId", "targetType", "targetId",
+              "decisionStatus", "rationale", "assessmentSnapshot", "assessedBy", "createdBy")
+           VALUES ($1, $2, $3, $4, $5, 'Action required', $6, $7::jsonb, $8, $8)`,
+          [
+            target.decisionId,
+            fixture.companyId,
+            fixture.noticeId,
+            target.targetType,
+            target.targetId,
+            "Review the deleted Impact source.",
+            JSON.stringify({ schema: target.snapshotSchema }),
+            fixture.primaryUserId
+          ]
+        );
+        await pool.query(
+          `INSERT INTO "changeOrderImpactDecisionAffectedItem"
+             ("id", "companyId", "decisionId", "affectedItemId", "affectedItemSourceId",
+              "affectedItemLabel", "startedBy", "createdBy")
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $7)`,
+          [
+            target.provenanceId,
+            fixture.companyId,
+            target.decisionId,
+            fixture.affectedItemAId,
+            fixture.itemAId,
+            `Deleted ${target.targetType} source`,
+            fixture.primaryUserId
+          ]
+        );
+      }
+
+      const before = await readImpactState(fixture);
+      const result = await reconcileChangeNoticeImpactProvenance(
+        requireWriterDb(),
+        makeReconciliationInput(fixture)
+      );
+
+      expect(result).toEqual({
+        data: {
+          changeNoticeId: fixture.noticeId,
+          changeNoticeStatus: "Draft",
+          started: 0,
+          ended: 2,
+          restrictedTargetTypes: []
+        },
+        error: null
+      });
+
+      const after = await readImpactState(fixture);
+      expect(after.decisions).toEqual(before.decisions);
+      expect(after.provenance).toHaveLength(2);
+      expect(after.history).toHaveLength(2);
+      for (const target of cases) {
+        const decision = before.decisions.find(
+          (row) => row.targetId === target.targetId
+        );
+        expect(decision).toBeDefined();
+        const provenance = after.provenance.find(
+          (row) => row.decisionId === decision?.id
+        );
+        expect(provenance).toMatchObject({
+          affectedItemId: fixture.affectedItemAId,
+          affectedItemSourceId: fixture.itemAId,
+          open: false,
+          endedBy: fixture.secondaryUserId,
+          endedReason: "Impact source deleted"
+        });
+        expect(
+          after.history.find((row) => row.decisionId === decision?.id)
+        ).toMatchObject({
+          targetId: target.targetId,
+          eventType: "Provenance ended",
+          relatedAffectedItemId: fixture.affectedItemAId,
+          rationale: "Impact source deleted",
+          previousSnapshot: decision?.assessmentSnapshot,
+          newSnapshot: decision?.assessmentSnapshot,
+          createdBy: fixture.secondaryUserId
+        });
+      }
+    });
+  });
+
   it("replaces provenance, rolls back an injected history failure, and retries cleanly", async () => {
     await runWithFixture({ includeSecondaryTarget: true }, async (fixture) => {
       const db = requireWriterDb();

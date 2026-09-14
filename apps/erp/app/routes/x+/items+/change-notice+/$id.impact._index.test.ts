@@ -28,13 +28,17 @@ vi.mock("~/modules/items/ui/ChangeNotice", () => ({
 }));
 vi.mock("~/utils/path", () => ({ path: { to: {} } }));
 
-const { action, shouldRevalidate } = await import("./$id.impact._index");
+const { action, loader, shouldRevalidate } = await import(
+  "./$id.impact._index"
+);
 const { requirePermissions } = await import("@carbon/auth/auth.server");
 const { flash } = await import("@carbon/auth/session.server");
 const { assertIsPost, error } = await import("@carbon/auth");
-const { reconcileAuthorizedChangeNoticeImpactProvenance } = await import(
-  "~/modules/items/items.server"
-);
+const { getChangeNoticeImpactWorkspace } = await import("~/modules/items");
+const {
+  getChangeNoticeImpactReadAccess,
+  reconcileAuthorizedChangeNoticeImpactProvenance
+} = await import("~/modules/items/items.server");
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -48,6 +52,76 @@ function postRequest(fields?: Record<string, string>) {
     init
   );
 }
+
+describe("Change Notice Impact route loader", () => {
+  it("forbids the workspace without Change Notice view access", async () => {
+    const request = new Request("https://erp.test");
+    const client = {};
+    vi.mocked(requirePermissions).mockResolvedValue({
+      client,
+      companyId: "company-1",
+      userId: "user-1"
+    } as never);
+    vi.mocked(getChangeNoticeImpactReadAccess).mockResolvedValue({
+      status: "resolved",
+      canViewChangeNotice: false,
+      sourceAccess: {
+        purchaseOrderLine: true,
+        job: true,
+        jobMaterial: true
+      }
+    });
+
+    await expect(
+      loader({ request, params: { id: "change-1" } } as never)
+    ).rejects.toMatchObject({ status: 403 });
+    expect(requirePermissions).toHaveBeenCalledWith(request, {
+      view: "parts"
+    });
+    expect(getChangeNoticeImpactWorkspace).not.toHaveBeenCalled();
+  });
+
+  it("forwards resolved source access and maps workspace failures to 503", async () => {
+    const client = {};
+    const sourceAccess = {
+      purchaseOrderLine: true,
+      job: false,
+      jobMaterial: false
+    };
+    vi.mocked(requirePermissions).mockResolvedValue({
+      client,
+      companyId: "company-1",
+      userId: "user-1"
+    } as never);
+    vi.mocked(getChangeNoticeImpactReadAccess).mockResolvedValue({
+      status: "resolved",
+      canViewChangeNotice: true,
+      sourceAccess
+    });
+    vi.mocked(getChangeNoticeImpactWorkspace).mockResolvedValue({
+      data: null,
+      error: { message: "Impact workspace unavailable." }
+    } as never);
+
+    await expect(
+      loader({
+        request: new Request("https://erp.test"),
+        params: { id: "change-1" }
+      } as never)
+    ).rejects.toMatchObject({ status: 503 });
+    expect(getChangeNoticeImpactReadAccess).toHaveBeenCalledWith({
+      client,
+      userId: "user-1",
+      companyId: "company-1"
+    });
+    expect(getChangeNoticeImpactWorkspace).toHaveBeenCalledWith(
+      client,
+      "company-1",
+      "change-1",
+      { sourceAccess: { status: "resolved", access: sourceAccess } }
+    );
+  });
+});
 
 describe("Change Notice Impact route action", () => {
   it("invokes the POST guard and ignores forged browser fields", async () => {
