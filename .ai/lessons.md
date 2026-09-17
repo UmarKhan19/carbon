@@ -1025,6 +1025,17 @@ canvas hosting Radix popovers/selects.
 **Rule:** An API call that only runs inside a cron/sweep is exercised for the first time in production — verify VERIFY-flagged endpoints against the live sandbox *before* wiring them into a loop (one curl answers it), and never let one entity family's listing failure discard another family's already-collected changes. When an assumed endpoint is missing, compose from verified ones instead: Rillet AP payments = `GET /bills?updated.gt` (payment activity bumps the bill's `updated_at`) + `GET /bills/{id}/payments` per changed bill.
 
 **Applies to:** `packages/ee/src/accounting/providers/rillet/provider.ts` (`listChanges`, `listBillPaymentsUpdatedSince`), any `SupportsIncrementalPull.listChanges` implementation, VERIFY-flagged calls anywhere under `packages/ee/src/accounting/providers/**`.
+
+## Use shared quantity formatting for read-only numeric facts
+
+**Context:** Change Notice Impact snapshot facts render quantities from persisted operational snapshots.
+
+**Problem:** A read-only component used `toLocaleString` with an inline fraction-digit limit. The value looked harmless because it only affected display, but the repository's conformance gate correctly treats digit choices as a shared numeric contract and rejected the new file.
+
+**Rule:** Use the named `@carbon/utils` formatter for quantities in display-only components too. Do not choose fraction digits at the call site; shared formatters keep tables, snapshots, and editable fields aligned with the numeric-precision standard.
+
+**Applies to:** `apps/erp/app/modules/items/ui/ChangeNotice/ChangeNoticeImpactSnapshotFacts.tsx`, `packages/utils/src/format.ts`, and any UI that displays stored quantities or rates.
+
 ## react-aria's blur commit makes the input formatter part of arithmetic
 
 **Context:** The numeric-precision standard's motivating bug — a user typed 6.25% tax, saved, reopened, and read 6.22%.
