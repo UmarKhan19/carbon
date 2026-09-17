@@ -1,4 +1,7 @@
-import { formatDate } from "@carbon/utils";
+import {
+  formatDate,
+  formatQuantity as formatNumericQuantity
+} from "@carbon/utils";
 import { Trans } from "@lingui/react/macro";
 import { useLocale } from "@react-aria/i18n";
 import type { ReactNode } from "react";
@@ -21,9 +24,7 @@ function formatQuantity(
   unit: string | null | undefined,
   locale: string
 ) {
-  const formatted = value.toLocaleString(locale, {
-    maximumFractionDigits: 6
-  });
+  const formatted = formatNumericQuantity(value, locale);
   return unit ? `${formatted} ${unit}` : formatted;
 }
 
