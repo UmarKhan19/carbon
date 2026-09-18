@@ -41,6 +41,7 @@ export const abilityCurveValidator = z.object({
 // process (renaming the process renames the ability).
 export const abilityValidator = z.object({
   processId: z.string().min(1, { message: "Process is required" }),
+  name: z.string().optional(), // derived from process, not editable
   recertifyEveryDays: zfd.numeric(z.number().int().min(1).optional())
 });
 
