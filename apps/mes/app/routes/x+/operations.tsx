@@ -58,9 +58,46 @@ import { path } from "~/utils/path";
 
 const log = getLogger("mes");
 
+type BatchTotals = {
+  size: number;
+  quantity: number;
+  targetQuantity: number;
+  jobReadableIds: string[];
+};
+
+// Member count and quantities for every batch on the board, taken before search
+// and the filters narrow the rows: a batch is five jobs whether or not the
+// operator searched for one of them, and a card that says otherwise misreports
+// the run.
+function getBatchTotals(
+  operations: NonNullable<
+    Awaited<ReturnType<typeof getActiveJobOperationsByLocation>>["data"]
+  >
+): Map<string, BatchTotals> {
+  const totals = new Map<string, BatchTotals>();
+  for (const op of operations) {
+    if (!op.jobOperationBatchId || !op.batchReadableId) continue;
+    const total = totals.get(op.jobOperationBatchId) ?? {
+      size: 0,
+      quantity: 0,
+      targetQuantity: 0,
+      jobReadableIds: []
+    };
+    total.size += 1;
+    total.quantity += op.operationQuantity ?? 0;
+    total.targetQuantity += op.targetQuantity ?? op.operationQuantity ?? 0;
+    if (op.jobReadableId) total.jobReadableIds.push(op.jobReadableId);
+    totals.set(op.jobOperationBatchId, total);
+  }
+  return totals;
+}
+
 // Collapse operations sharing a jobOperationBatchId into one card: keep the first
-// as the card, tag it with the member count and summed quantities.
-function collapseBatches(items: Item[]): Item[] {
+// as the card, tag it with the batch's member count and summed quantities.
+function collapseBatches(
+  items: Item[],
+  batchTotals: Map<string, BatchTotals>
+): Item[] {
   const byBatch = new Map<string, Item[]>();
   const result: Item[] = [];
   for (const item of items) {
@@ -75,16 +112,19 @@ function collapseBatches(items: Item[]): Item[] {
       result.push(item);
     }
   }
-  for (const members of byBatch.values()) {
+  for (const [batchId, members] of byBatch) {
+    const total = batchTotals.get(batchId);
     result.push({
       ...members[0],
-      batchSize: members.length,
-      batchJobReadableIds: members.map((m) => m.title).filter(Boolean),
-      quantity: members.reduce((sum, m) => sum + (m.quantity ?? 0), 0),
-      targetQuantity: members.reduce(
-        (sum, m) => sum + (m.targetQuantity ?? 0),
-        0
-      )
+      batchSize: total?.size ?? members.length,
+      batchJobReadableIds:
+        total?.jobReadableIds ?? members.map((m) => m.title).filter(Boolean),
+      quantity:
+        total?.quantity ??
+        members.reduce((sum, m) => sum + (m.quantity ?? 0), 0),
+      targetQuantity:
+        total?.targetQuantity ??
+        members.reduce((sum, m) => sum + (m.targetQuantity ?? 0), 0)
     });
   }
   return result;
@@ -217,6 +257,8 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
     log.error("Failed to load operations", { error: operations.error });
   }
 
+  const batchTotals = getBatchTotals(operations.data ?? []);
+
   const activeWorkCenters = new Set();
   operations.data?.forEach((op) => {
     if (op.operationStatus === "In Progress") {
@@ -255,12 +297,18 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
   }
 
   if (search) {
+    const term = search.toLowerCase();
     filteredOperations = filteredOperations.filter(
       (op) =>
-        op.jobReadableId.toLowerCase().includes(search.toLowerCase()) ||
-        op.itemReadableId.toLowerCase().includes(search.toLowerCase()) ||
-        op.itemDescription?.toLowerCase().includes(search.toLowerCase()) ||
-        op.description?.toLowerCase().includes(search.toLowerCase())
+        op.jobReadableId?.toLowerCase().includes(term) ||
+        op.itemReadableId?.toLowerCase().includes(term) ||
+        op.itemDescription?.toLowerCase().includes(term) ||
+        op.description?.toLowerCase().includes(term) ||
+        // A batched card shows its BAT number in place of the item id, so the
+        // number the operator reads off the card has to be searchable.
+        op.batchReadableId
+          ?.toLowerCase()
+          .includes(term)
     );
   }
 
@@ -352,7 +400,8 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
             hasConflict: op.hasConflict ?? undefined,
             conflictReason: op.conflictReason ?? undefined
           };
-        }) ?? []) satisfies Item[]
+        }) ?? []) satisfies Item[],
+        batchTotals
       ),
       processes: processes.data ?? [],
       workCenters: workCenters.data ?? [],
