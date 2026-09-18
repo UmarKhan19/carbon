@@ -47,6 +47,7 @@ import { getFilters, setFilters } from "~/services/operation.server";
 import {
   getActiveJobOperationsByLocation,
   getCustomers,
+  getJobOperationBatchMembers,
   getMyPeopleAssignment,
   getProcessesList,
   getWorkCentersByLocation
@@ -65,29 +66,31 @@ type BatchTotals = {
   jobReadableIds: string[];
 };
 
-// Member count and quantities for every batch on the board, taken before search
-// and the filters narrow the rows: a batch is five jobs whether or not the
-// operator searched for one of them, and a card that says otherwise misreports
-// the run.
+// Member count and quantities for every batch on the board, read from batch
+// membership rather than from the rows the board happens to be showing: a batch
+// is five jobs whether or not the operator searched for one of them, and members
+// can sit on different work centers, so a work-center filter would otherwise
+// undercount the same way a search did.
 function getBatchTotals(
-  operations: NonNullable<
-    Awaited<ReturnType<typeof getActiveJobOperationsByLocation>>["data"]
+  members: NonNullable<
+    Awaited<ReturnType<typeof getJobOperationBatchMembers>>["data"]
   >
 ): Map<string, BatchTotals> {
   const totals = new Map<string, BatchTotals>();
-  for (const op of operations) {
-    if (!op.jobOperationBatchId || !op.batchReadableId) continue;
-    const total = totals.get(op.jobOperationBatchId) ?? {
+  for (const member of members) {
+    if (!member.jobOperationBatchId) continue;
+    const total = totals.get(member.jobOperationBatchId) ?? {
       size: 0,
       quantity: 0,
       targetQuantity: 0,
       jobReadableIds: []
     };
     total.size += 1;
-    total.quantity += op.operationQuantity ?? 0;
-    total.targetQuantity += op.targetQuantity ?? op.operationQuantity ?? 0;
-    if (op.jobReadableId) total.jobReadableIds.push(op.jobReadableId);
-    totals.set(op.jobOperationBatchId, total);
+    total.quantity += member.operationQuantity ?? 0;
+    total.targetQuantity +=
+      member.targetQuantity ?? member.operationQuantity ?? 0;
+    if (member.job?.jobId) total.jobReadableIds.push(member.job.jobId);
+    totals.set(member.jobOperationBatchId, total);
   }
   return totals;
 }
@@ -257,8 +260,6 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
     log.error("Failed to load operations", { error: operations.error });
   }
 
-  const batchTotals = getBatchTotals(operations.data ?? []);
-
   const activeWorkCenters = new Set();
   operations.data?.forEach((op) => {
     if (op.operationStatus === "In Progress") {
@@ -311,6 +312,21 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
           .includes(term)
     );
   }
+
+  const batchIds = Array.from(
+    new Set(
+      filteredOperations
+        .map((op) => op.jobOperationBatchId)
+        .filter((id): id is string => Boolean(id))
+    )
+  );
+  const batchMembers = batchIds.length
+    ? await getJobOperationBatchMembers(serviceRole, batchIds, companyId)
+    : null;
+  if (batchMembers?.error) {
+    log.error("Failed to load batch members", { error: batchMembers.error });
+  }
+  const batchTotals = getBatchTotals(batchMembers?.data ?? []);
 
   const filteredWorkCenters =
     workCenters.data?.filter((wc: any) => {

@@ -410,6 +410,23 @@ export async function getActiveJobOperationsByLocation(
   });
 }
 
+// Every member of the given batches, unscoped by work center: a batch's members
+// can sit on different work centers, so the board's own (work-center-filtered)
+// rows are not a reliable basis for whole-batch totals.
+export async function getJobOperationBatchMembers(
+  client: SupabaseClient<Database>,
+  batchIds: string[],
+  companyId: string
+) {
+  return client
+    .from("jobOperation")
+    .select(
+      "jobOperationBatchId, operationQuantity, targetQuantity, job(jobId)"
+    )
+    .in("jobOperationBatchId", batchIds)
+    .eq("companyId", companyId);
+}
+
 export async function getActiveJobCount(
   client: SupabaseClient<Database>,
   args: {
