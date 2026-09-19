@@ -66,11 +66,6 @@ type BatchTotals = {
   jobReadableIds: string[];
 };
 
-// Member count and quantities for every batch on the board, read from batch
-// membership rather than from the rows the board happens to be showing: a batch
-// is five jobs whether or not the operator searched for one of them, and members
-// can sit on different work centers, so a work-center filter would otherwise
-// undercount the same way a search did.
 function getBatchTotals(
   members: NonNullable<
     Awaited<ReturnType<typeof getJobOperationBatchMembers>>["data"]
@@ -96,7 +91,7 @@ function getBatchTotals(
 }
 
 // Collapse operations sharing a jobOperationBatchId into one card: keep the first
-// as the card, tag it with the batch's member count and summed quantities.
+// as the card, tag it with the member count and summed quantities.
 function collapseBatches(
   items: Item[],
   batchTotals: Map<string, BatchTotals>
@@ -305,11 +300,7 @@ export async function loader({ context, request }: LoaderFunctionArgs) {
         op.itemReadableId?.toLowerCase().includes(term) ||
         op.itemDescription?.toLowerCase().includes(term) ||
         op.description?.toLowerCase().includes(term) ||
-        // A batched card shows its BAT number in place of the item id, so the
-        // number the operator reads off the card has to be searchable.
-        op.batchReadableId
-          ?.toLowerCase()
-          .includes(term)
+        op.batchReadableId?.toLowerCase().includes(term)
     );
   }
 
