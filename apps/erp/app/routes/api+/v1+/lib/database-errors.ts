@@ -29,7 +29,12 @@ export type DatabaseFailureKind =
  */
 export const DATABASE_ERROR_MESSAGES: Record<DatabaseFailureKind, string> = {
   conflict: "Database error: a record with these values already exists.",
-  reference: "Database error: a referenced record does not exist.",
+  // Direction-neutral on purpose: 23503 fires both when a row references a
+  // missing parent AND when a delete or update is blocked because dependent rows
+  // still reference the target. Naming only the first sends the caller to the
+  // wrong correction on the second.
+  reference:
+    "Database error: the operation would violate a reference between records.",
   required: "Database error: a required field was missing.",
   permission:
     "Database error: this credential is not permitted to perform that operation.",
