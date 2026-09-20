@@ -411,9 +411,18 @@ export function ChangeNoticeImpactFilterBar({
 
   return (
     <div className="w-full space-y-2">
-      <div className="flex min-w-0 flex-wrap items-center gap-2">
-        <SearchFilter param="search" size="sm" placeholder={t`Search`} />
-        <Filter filters={filters} />
+      <div className="flex min-w-0 flex-col gap-2 md:flex-row md:items-center">
+        <div className="min-w-0 flex-1">
+          <SearchFilter
+            param="search"
+            size="sm"
+            placeholder={t`Search`}
+            className="w-full"
+          />
+        </div>
+        <div className="shrink-0">
+          <Filter filters={filters} />
+        </div>
       </div>
       {hasFilters && (
         <div className="min-w-0 max-w-full [&>div]:flex-wrap [&>div]:gap-2 [&>div]:space-x-0">

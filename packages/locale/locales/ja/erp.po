@@ -123,6 +123,10 @@ msgstr "{0}が正常に削除されました"
 msgid "{0} draft journal entries"
 msgstr "{0}件の下書き仕訳"
 
+#. placeholder {0}: selectedKeys.size
+msgid "{0} Impact rows selected"
+msgstr "{0} 件の影響行を選択"
+
 #. placeholder {0}: formatter.format(onHand)
 #. placeholder {1}: formatter.format(assembliesInStock)
 #. placeholder {2}: formatter.format( shortfall * consumeFirst.conversionFactor )
@@ -135,9 +139,6 @@ msgstr "{0}在庫あり、{1}組用；残り{2}は{3}としてピッキング"
 #. placeholder {2}: consumeFirst.successorReadableId
 msgid "{0} in stock; the remaining {1} will be picked as {2}"
 msgstr "{0}在庫あり；残り{1}は{2}としてピッキング"
-#. placeholder {0}: selectedKeys.size
-msgid "{0} Impact rows selected"
-msgstr "{0} 件の影響行を選択"
 
 #. placeholder {0}: jobs.length
 msgid "{0} jobs created"
@@ -1317,7 +1318,6 @@ msgid "Add a materials section that lists each item on the bill of materials wit
 msgstr "部品表の各項目とその数量をリストアップした材料セクションを追加します。"
 
 msgid "Add a parameter (in the procedure explorer)"
-msgstr "手順書エクスプローラーでパラメータを追加"
 msgstr "パラメータを追加（手順書エクスプローラー内）"
 
 msgid "Add a printer in the printing settings to print labels directly."
@@ -1333,7 +1333,6 @@ msgid "Add a step"
 msgstr "ステップを追加"
 
 msgid "Add a step or question (in procedure and training explorers)"
-msgstr "手順書と教育訓練エクスプローラーでステップまたは質問を追加"
 msgstr "ステップまたは質問を追加（手順書および教育訓練エクスプローラー内）"
 
 msgid "Add Ability"
@@ -3370,6 +3369,9 @@ msgstr "キャンセル済み"
 msgid "Cancelled"
 msgstr "キャンセル済み"
 
+msgid "Cancelled · New Impact assessment is locked. Existing operational follow-up remains available."
+msgstr "キャンセル済み · 新規の影響評価はロック中です。既存の運用フォローアップは引き続き利用可能です。"
+
 msgid "Cannot add parameters to unsaved operation"
 msgstr "保存されていない操作にパラメータを追加できません"
 
@@ -4744,8 +4746,8 @@ msgid "Create Rule"
 msgstr "ルールを作成"
 
 msgid "Create Supplier Return"
-msgstr "仕入先返品を作成"
 msgstr "サプライヤー返品を作成"
+
 msgid "Create task"
 msgstr "タスクを作成"
 
@@ -9537,7 +9539,6 @@ msgid "Journals dated on or before this date are treated as locked. Merged with 
 msgstr "この日付以前の仕訳はロック中として扱われます。両方が存在する場合、プロバイダーが報告したロック日付とマージされます。"
 
 msgid "Jump to a section on detail pages (same modifiers + the section's letter)"
-msgstr "詳細ページのセクションにジャンプします (同じ修飾子 + セクションの文字)"
 msgstr "詳細ページのセクションへ移動（同じ修飾キー + セクションの文字）"
 
 msgid "Just one"
@@ -9877,6 +9878,7 @@ msgstr "発注書をリンク"
 
 msgid "Link a sales order"
 msgstr "受注をリンク"
+
 msgid "Link existing task"
 msgstr "既存のタスクをリンク"
 
@@ -11348,6 +11350,7 @@ msgstr "原価の履歴が見つかりません"
 
 msgid "No credits yet"
 msgstr "クレジットはまだありません"
+
 msgid "No current operational exposure is available."
 msgstr "現在の業務上の影響範囲は利用できません。"
 
@@ -13464,6 +13467,7 @@ msgstr "予測"
 
 msgid "Projects"
 msgstr "プロジェクト"
+
 msgid "Promised"
 msgstr "回答納期"
 
@@ -14082,8 +14086,8 @@ msgstr "入荷希望納期"
 msgid "Receipts"
 msgstr "領収書"
 
-msgid "Receipts, inspections, sales, shipments, and other where-used records are outside the three supported Impact target contracts in this workspace. They are not loaded as Impact rows until dedicated source-aware context readers can report their own coverage. They do not contribute to assessment totals or offer decision controls here."
-msgstr "入荷、検査、販売、出荷、その他の使用箇所レコードは、このワークスペースでサポートされている3つの影響対象契約の範囲外です。専用のソース対応コンテキストリーダーが独自の対象範囲を報告できるようになるまで、これらは影響行として読み込まれません。評価の合計には寄与せず、ここでの意思決定コントロールも提供しません。"
+msgid "Receipts, inspections, sales, shipments, and other related records are outside the current Impact assessment scope. They do not count toward assessment totals or offer decision controls here."
+msgstr "入荷、検査、販売、出荷、その他の関連記録は、現在の影響評価の対象外です。評価の集計には反映されず、この画面では意思決定用の操作も利用できません。"
 
 msgid "Receipts, shipments, sales invoices, purchase invoices, payments, and credit/debit memos that are still Draft or Pending must be posted or voided — both documents dated in this period and undated documents that would receive a date in it when posted. Until they post, their amounts aren't in the general ledger, so the period would be understated."
 msgstr "入荷、出荷、売上請求書、仕入先請求書、支払、およびクレジット/デビットメモで、まだ下書きまたは待機中のものは、転記するか取消す必要があります。この期間に日付があるドキュメントと、転記時にこの期間に日付を受け取るドキュメント（未日付）の両方が対象です。転記されるまで、金額は総勘定元帳に入らないため、期間が過小評価されます。"
@@ -14141,8 +14145,8 @@ msgid "Received Qty"
 msgstr "受け取り数量"
 
 msgid "Received quantity not yet credited. The credit memo is created as a draft."
-msgstr "入荷数量がまだクレジットされていません。クレジットメモは下書きとして作成されます"
 msgstr "受領数量はまだクレジットされていません。クレジットメモはドラフトとして作成されます。"
+
 msgid "Received to inventory"
 msgstr "在庫に受け入れ済み"
 
@@ -14289,7 +14293,6 @@ msgstr "リリース"
 
 #. placeholder {0}: releasable.length
 msgid "Release {0} batches"
-msgstr "{0}個のバッチをリリース"
 msgstr "{0}件のバッチをリリースする"
 
 msgid "Release Batch"
@@ -14312,7 +14315,6 @@ msgstr "リリース済み"
 
 #. placeholder {0}: d.released
 msgid "Released {0} batches"
-msgstr "{0}個のバッチがリリース済"
 msgstr "{0}件のバッチをリリース済み"
 
 msgid "Released date"
@@ -15697,8 +15699,8 @@ msgid "Select dimension"
 msgstr "ディメンションを選択"
 
 msgid "Select disposition"
-msgstr "処置を選択"
 msgstr "処分を選択"
+
 msgid "Select eligible rows for a shared decision."
 msgstr "共通の意思決定の対象として適格な行を選択します。"
 
@@ -16148,9 +16150,7 @@ msgid "Shipped"
 msgstr "出荷済み"
 
 msgid "Shipped lines for this customer with quantity remaining to return"
-msgstr "この得意先の出荷済明細のうち、返品待ち数量がある行"
-msgstr "返却予定数量が残っているこの顧客の出荷行"
-msgstr ""
+msgstr "返品可能な数量が残っている、この得意先の出荷明細"
 
 msgid "Shipped Qty"
 msgstr "出荷数量"
@@ -17066,14 +17066,14 @@ msgstr "仕入先返品明細"
 msgid "Supplier Return Lines"
 msgstr "仕入先返品明細"
 
+msgid "Supplier return, replacement, credit, and communication interventions have been reviewed."
+msgstr "仕入先への返品、交換、クレジット、連絡の対応をレビュー済みです。"
+
 msgid "Supplier Returns"
 msgstr "仕入先返品"
 
 msgid "Supplier RMA #"
-msgstr "仕入先RMA #"
 msgstr "サプライヤー RMA #"
-msgid "Supplier return, replacement, credit, and communication interventions have been reviewed."
-msgstr "仕入先への返品、交換、クレジット、連絡の対応をレビュー済みです。"
 
 msgid "Supplier Status"
 msgstr "仕入先ステータス"
@@ -18035,7 +18035,6 @@ msgid "The schedule used to spread this asset's cost over its useful life (strai
 msgstr "この資産の原価を耐用年数にわたって配分するために使用されるスケジュール（定額法、定率法、生産単位法）。"
 
 msgid "The scheduler uses the first rule below that applies, then subtracts downtime and staffing."
-msgstr "スケジューラは以下の適用される最初のルールを使用し、停止時間とスタッフィングを差し引きます。"
 msgstr "スケジューラーは以下の最初に適用されるルールを使用し、その後ダウンタイムとスタッフィングを差し引きます。"
 
 msgid "The selected rows do not share an available conclusion. Adjust the selection before reviewing it."
@@ -18274,6 +18273,7 @@ msgstr "これらの工程は複数の仕入先に対応可能な工法を使用
 
 msgid "These parts are being replaced by this one. Each rule is set on the old part; open it to change the rule."
 msgstr "これらの部品はこの部品で置き換わっています。各ルールは旧部品に設定されています；ルールを変更するには旧部品を開いてください。"
+
 msgid "These references remain traceable but do not create a new Unassessed obligation."
 msgstr "これらの参照は引き続き追跡可能ですが、新たな未評価の義務を発生させません。"
 
@@ -19145,6 +19145,7 @@ msgstr "返品と発注書のリンクを解除しますか？"
 
 msgid "Unlink RMA from sales order?"
 msgstr "RMA と受注のリンクを解除しますか？"
+
 msgid "Unlink task"
 msgstr "タスクのリンクを解除"
 

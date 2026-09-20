@@ -123,6 +123,10 @@ msgstr "{0} supprimé avec succès"
 msgid "{0} draft journal entries"
 msgstr "{0} écritures de journal brouillon"
 
+#. placeholder {0}: selectedKeys.size
+msgid "{0} Impact rows selected"
+msgstr "{0} lignes d’impact sélectionnées"
+
 #. placeholder {0}: formatter.format(onHand)
 #. placeholder {1}: formatter.format(assembliesInStock)
 #. placeholder {2}: formatter.format( shortfall * consumeFirst.conversionFactor )
@@ -135,9 +139,6 @@ msgstr "{0} en stock, pour {1} assemblages ; les {2} restants seront prélevés 
 #. placeholder {2}: consumeFirst.successorReadableId
 msgid "{0} in stock; the remaining {1} will be picked as {2}"
 msgstr "{0} en stock ; les {1} restants seront prélevés comme {2}"
-#. placeholder {0}: selectedKeys.size
-msgid "{0} Impact rows selected"
-msgstr "{0} lignes d’impact sélectionnées"
 
 #. placeholder {0}: jobs.length
 msgid "{0} jobs created"
@@ -1317,7 +1318,6 @@ msgid "Add a materials section that lists each item on the bill of materials wit
 msgstr "Ajouter une section de matériaux qui liste chaque article de la nomenclature avec sa quantité."
 
 msgid "Add a parameter (in the procedure explorer)"
-msgstr "Ajouter un paramètre (dans l'explorateur de procédures)"
 msgstr "Ajouter un paramètre (dans l’explorateur de procédures)"
 
 msgid "Add a printer in the printing settings to print labels directly."
@@ -3369,6 +3369,9 @@ msgstr "Annulé"
 msgid "Cancelled"
 msgstr "Annulé"
 
+msgid "Cancelled · New Impact assessment is locked. Existing operational follow-up remains available."
+msgstr "Annulé · La nouvelle évaluation d’Impact est verrouillée. Le suivi opérationnel existant reste disponible."
+
 msgid "Cannot add parameters to unsaved operation"
 msgstr "Impossible d'ajouter des paramètres à une opération non enregistrée"
 
@@ -4744,6 +4747,7 @@ msgstr "Créer une règle"
 
 msgid "Create Supplier Return"
 msgstr "Créer un retour fournisseur"
+
 msgid "Create task"
 msgstr "Créer une tâche"
 
@@ -9535,7 +9539,6 @@ msgid "Journals dated on or before this date are treated as locked. Merged with 
 msgstr "Les écritures datées de cette date ou antérieures sont traitées comme verrouillées. Fusionnées avec la date de verrouillage signalée par le fournisseur lorsque les deux existent."
 
 msgid "Jump to a section on detail pages (same modifiers + the section's letter)"
-msgstr "Aller à une section sur les pages de détail (mêmes modificateurs + la lettre de la section)"
 msgstr "Accéder à une section sur les pages de détail (mêmes modificateurs + lettre de la section)"
 
 msgid "Just one"
@@ -9875,6 +9878,7 @@ msgstr "Lier un bon de commande"
 
 msgid "Link a sales order"
 msgstr "Lier une commande client"
+
 msgid "Link existing task"
 msgstr "Lier une tâche existante"
 
@@ -11346,6 +11350,7 @@ msgstr "Aucun historique de coûts trouvé"
 
 msgid "No credits yet"
 msgstr "Pas encore de crédits"
+
 msgid "No current operational exposure is available."
 msgstr "Aucune exposition opérationnelle actuelle n’est disponible."
 
@@ -13462,6 +13467,7 @@ msgstr "Projections"
 
 msgid "Projects"
 msgstr "Projets"
+
 msgid "Promised"
 msgstr "Promis"
 
@@ -14080,8 +14086,8 @@ msgstr "Date de réception demandée"
 msgid "Receipts"
 msgstr "Reçus"
 
-msgid "Receipts, inspections, sales, shipments, and other where-used records are outside the three supported Impact target contracts in this workspace. They are not loaded as Impact rows until dedicated source-aware context readers can report their own coverage. They do not contribute to assessment totals or offer decision controls here."
-msgstr "Les réceptions, contrôles, ventes, expéditions et autres enregistrements d’utilisation ne font pas partie des trois contrats cibles d’impact pris en charge dans cet espace de travail. Ils ne sont pas chargés comme lignes d’impact tant que des lecteurs de contexte dédiés, capables de tenir compte de la source, ne peuvent pas rendre compte de leur propre couverture. Ils ne contribuent pas aux totaux de l’évaluation et ne fournissent pas de contrôles de décision ici."
+msgid "Receipts, inspections, sales, shipments, and other related records are outside the current Impact assessment scope. They do not count toward assessment totals or offer decision controls here."
+msgstr "Les réceptions, contrôles, ventes, expéditions et autres enregistrements associés ne relèvent pas du périmètre actuel de l’évaluation d’Impact. Ils ne sont pas pris en compte dans les totaux de l’évaluation et n’offrent pas ici de contrôles de décision."
 
 msgid "Receipts, shipments, sales invoices, purchase invoices, payments, and credit/debit memos that are still Draft or Pending must be posted or voided — both documents dated in this period and undated documents that would receive a date in it when posted. Until they post, their amounts aren't in the general ledger, so the period would be understated."
 msgstr "Les réceptions, expéditions, factures de vente, factures d'achat, paiements et mémos de crédit/débit restant en brouillon ou en attente doivent être comptabilisés ou invalidés — à la fois les documents datés de cette période et les documents sans date qui recevraient une date à la comptabilisation. Jusqu'à leur comptabilisation, leurs montants ne sont pas dans le grand livre, la période serait donc incomplète."
@@ -14140,6 +14146,7 @@ msgstr "Quantité reçue"
 
 msgid "Received quantity not yet credited. The credit memo is created as a draft."
 msgstr "Quantité reçue non encore facturisée. L'avoir est créé en tant que brouillon."
+
 msgid "Received to inventory"
 msgstr "Réceptionné en stock"
 
@@ -15692,8 +15699,8 @@ msgid "Select dimension"
 msgstr "Sélectionner un axe analytique"
 
 msgid "Select disposition"
-msgstr "Sélectionner le traitement"
 msgstr "Sélectionner la disposition"
+
 msgid "Select eligible rows for a shared decision."
 msgstr "Sélectionner les lignes éligibles pour une décision commune."
 
@@ -16143,8 +16150,7 @@ msgid "Shipped"
 msgstr "Expédié"
 
 msgid "Shipped lines for this customer with quantity remaining to return"
-msgstr "Lignes expédiées pour ce client avec quantité restante à retourner"
-msgstr ""
+msgstr "Lignes d’expédition de ce client dont la quantité reste à retourner"
 
 msgid "Shipped Qty"
 msgstr "Qté Expédiée"
@@ -16435,7 +16441,6 @@ msgid "Some records won't come back. Type <0>{CONFIRM_WORD}</0> to continue."
 msgstr "Certains enregistrements ne reviendront pas. Tapez <0>{CONFIRM_WORD}</0> pour continuer."
 
 msgid "Some Shifts"
-msgstr "Certaines équipes"
 msgstr "Certains postes"
 
 msgid "Something went wrong. Please try again."
@@ -17061,13 +17066,14 @@ msgstr "Ligne de retour fournisseur"
 msgid "Supplier Return Lines"
 msgstr "Lignes de retour fournisseur"
 
+msgid "Supplier return, replacement, credit, and communication interventions have been reviewed."
+msgstr "Les interventions de retour au fournisseur, de remplacement, d’avoir et de communication ont été examinées."
+
 msgid "Supplier Returns"
 msgstr "Retours fournisseur"
 
 msgid "Supplier RMA #"
 msgstr "RMA fournisseur n°"
-msgid "Supplier return, replacement, credit, and communication interventions have been reviewed."
-msgstr "Les interventions de retour au fournisseur, de remplacement, d’avoir et de communication ont été examinées."
 
 msgid "Supplier Status"
 msgstr "Statut du fournisseur"
@@ -18029,7 +18035,6 @@ msgid "The schedule used to spread this asset's cost over its useful life (strai
 msgstr "Le planning utilisé pour étaler le coût de cet actif sur sa durée d'utilité (linéaire, dégressif, unités de production)."
 
 msgid "The scheduler uses the first rule below that applies, then subtracts downtime and staffing."
-msgstr "Le planificateur utilise la première règle ci-dessous qui s'applique, puis soustrait le temps d'arrêt et les effectifs."
 msgstr "Le planificateur utilise la première règle ci-dessous qui s'applique, puis soustrait les arrêts et les effectifs."
 
 msgid "The selected rows do not share an available conclusion. Adjust the selection before reviewing it."
@@ -18268,6 +18273,7 @@ msgstr "Ces opérations utilisent un procédé avec plusieurs fournisseurs. Choi
 
 msgid "These parts are being replaced by this one. Each rule is set on the old part; open it to change the rule."
 msgstr "Ces pièces sont remplacées par celle-ci. Chaque règle est définie sur l'ancienne pièce ; ouvrez-la pour modifier la règle."
+
 msgid "These references remain traceable but do not create a new Unassessed obligation."
 msgstr "Ces références restent traçables, mais ne créent pas de nouvelle obligation non évaluée."
 
@@ -19139,6 +19145,7 @@ msgstr "Dissocier le retour du bon de commande ?"
 
 msgid "Unlink RMA from sales order?"
 msgstr "Dissocier la RMA de la commande client ?"
+
 msgid "Unlink task"
 msgstr "Dissocier la tâche"
 

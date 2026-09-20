@@ -1840,8 +1840,8 @@ export default function ChangeNoticeImpactWorkspace({
 
   return (
     <VStack spacing={4} className="mx-auto w-full max-w-[1400px] p-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
+      <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-start">
+        <div className="min-w-0 flex-1">
           <Link
             to={path.to.changeNoticeDetails(id)}
             className="mb-2 inline-flex items-center gap-1 text-xs text-primary hover:underline"
@@ -1869,10 +1869,19 @@ export default function ChangeNoticeImpactWorkspace({
               </Trans>
             </div>
           )}
+          {status === "Cancelled" && (
+            <div className="mt-2 text-xs text-amber-700 dark:text-amber-300">
+              <Trans>
+                Cancelled · New Impact assessment is locked. Existing
+                operational follow-up remains available.
+              </Trans>
+            </div>
+          )}
         </div>
         <Button
           type="button"
           variant="secondary"
+          className="shrink-0 sm:ml-auto"
           onClick={handleRefresh}
           isDisabled={isRefreshing}
           isLoading={isRefreshing}
@@ -2206,11 +2215,9 @@ export default function ChangeNoticeImpactWorkspace({
         </CardHeader>
         <CardContent className="text-xs text-muted-foreground">
           <Trans>
-            Receipts, inspections, sales, shipments, and other where-used
-            records are outside the three supported Impact target contracts in
-            this workspace. They are not loaded as Impact rows until dedicated
-            source-aware context readers can report their own coverage. They do
-            not contribute to assessment totals or offer decision controls here.
+            Receipts, inspections, sales, shipments, and other related records
+            are outside the current Impact assessment scope. They do not count
+            toward assessment totals or offer decision controls here.
           </Trans>
         </CardContent>
       </Card>

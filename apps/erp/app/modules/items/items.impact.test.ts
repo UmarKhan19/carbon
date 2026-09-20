@@ -5633,7 +5633,7 @@ describe("Change Notice Impact candidate discovery", () => {
           poParent(line.purchaseOrderId as string)
         )
       }),
-      errors: new Set(["purchaseOrderLine:count"])
+      errors: new Set(["purchaseOrder"])
     });
     const seen: string[] = [];
     let cursor: string | undefined;
@@ -5666,7 +5666,7 @@ describe("Change Notice Impact candidate discovery", () => {
     expect(new Set(seen).size).toBe(seen.length);
   });
 
-  it("reports a failed summary/count query without exposing fake exact totals", async () => {
+  it("reports failed purchasing summary hydration without exposing fake exact totals", async () => {
     const rows = baseImpactRows({
       purchaseOrderLine: [poRow("pol-count-failure")],
       purchaseOrder: [poParent("po-pol-count-failure")]
@@ -5674,7 +5674,7 @@ describe("Change Notice Impact candidate discovery", () => {
     const result = await getChangeNoticeImpactCandidates(
       fakeImpactClient({
         rows,
-        errors: new Set(["purchaseOrderLine:count"])
+        errors: new Set(["purchaseOrder"])
       }),
       companyId,
       changeNoticeId,
@@ -5707,9 +5707,9 @@ describe("Change Notice Impact candidate discovery", () => {
         purchaseOrderLine: ids.map((id) => poRow(id)),
         purchaseOrder: ids.map((id) => poParent(`po-${id}`))
       }),
-      // The exact/full summary fails, while the bounded fallback row read has
-      // no count request and remains available to return a continuation cursor.
-      errors: new Set(["purchaseOrderLine:count"])
+      // The full summary's parent hydration fails, while the bounded fallback
+      // row read remains available to return a continuation cursor.
+      errors: new Set(["purchaseOrder"])
     });
 
     const result = await getChangeNoticeImpactWorkspace(

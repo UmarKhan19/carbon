@@ -32,6 +32,10 @@ function formatImpactDate(value: string | null | undefined, locale: string) {
   return value ? formatDate(value, undefined, locale) : "—";
 }
 
+export function displayJobStatus(status: string | null | undefined) {
+  return status === "Ready" ? "Released" : status;
+}
+
 export function SnapshotFacts({
   candidate,
   snapshot = candidate.currentSnapshot,
@@ -140,7 +144,10 @@ export function SnapshotFacts({
           label={<Trans>Due</Trans>}
           value={formatImpactDate(snapshot.dueDate, locale)}
         />
-        <Fact label={<Trans>Job status</Trans>} value={snapshot.status} />
+        <Fact
+          label={<Trans>Job status</Trans>}
+          value={displayJobStatus(snapshot.status)}
+        />
         <Fact
           label={<Trans>Shipped</Trans>}
           value={formatQuantity(
@@ -199,7 +206,10 @@ export function SnapshotFacts({
             locale
           )}
         />
-        <Fact label={<Trans>Job status</Trans>} value={snapshot.jobStatus} />
+        <Fact
+          label={<Trans>Job status</Trans>}
+          value={displayJobStatus(snapshot.jobStatus)}
+        />
         <Fact label={<Trans>Method type</Trans>} value={snapshot.methodType} />
         <Fact
           label={<Trans>Batch tracking</Trans>}

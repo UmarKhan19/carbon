@@ -123,6 +123,10 @@ msgstr "{0} सफलतापूर्वक हटाया गया"
 msgid "{0} draft journal entries"
 msgstr "{0} ड्राफ्ट जर्नल प्रविष्टियाँ"
 
+#. placeholder {0}: selectedKeys.size
+msgid "{0} Impact rows selected"
+msgstr "{0} प्रभाव वाली पंक्तियाँ चयनित"
+
 #. placeholder {0}: formatter.format(onHand)
 #. placeholder {1}: formatter.format(assembliesInStock)
 #. placeholder {2}: formatter.format( shortfall * consumeFirst.conversionFactor )
@@ -135,9 +139,6 @@ msgstr "{0} स्टॉक में है, {1} असेंबलीज़ �
 #. placeholder {2}: consumeFirst.successorReadableId
 msgid "{0} in stock; the remaining {1} will be picked as {2}"
 msgstr "{0} स्टॉक में है; शेष {1} को {2} के रूप में पिका जाएगा"
-#. placeholder {0}: selectedKeys.size
-msgid "{0} Impact rows selected"
-msgstr "{0} प्रभाव वाली पंक्तियाँ चयनित"
 
 #. placeholder {0}: jobs.length
 msgid "{0} jobs created"
@@ -1317,7 +1318,6 @@ msgid "Add a materials section that lists each item on the bill of materials wit
 msgstr "बिल ऑफ मेटेरियल्स पर प्रत्येक आइटम और उसकी मात्रा को सूचीबद्ध करने वाली एक सामग्री अनुभाग जोड़ें।"
 
 msgid "Add a parameter (in the procedure explorer)"
-msgstr "एक पैरामीटर जोड़ें (कार्यविधि एक्सप्लोरर में)"
 msgstr "पैरामीटर जोड़ें (कार्यविधि एक्सप्लोरर में)"
 
 msgid "Add a printer in the printing settings to print labels directly."
@@ -3369,6 +3369,9 @@ msgstr "रद्द किया गया"
 msgid "Cancelled"
 msgstr "रद्द किया गया"
 
+msgid "Cancelled · New Impact assessment is locked. Existing operational follow-up remains available."
+msgstr "रद्द · नया प्रभाव आकलन लॉक है। मौजूदा परिचालन फ़ॉलो-अप अभी भी उपलब्ध है।"
+
 msgid "Cannot add parameters to unsaved operation"
 msgstr "असहेजे गए ऑपरेशन में पैरामीटर नहीं जोड़े जा सकते"
 
@@ -4563,8 +4566,6 @@ msgstr "दस्तावेज़ नहीं पढ़ा जा सका: 
 #. placeholder {0}: d.failed.length
 #. placeholder {1}: d.failed .map((f) => f.readableId) .join(", ")
 msgid "Could not release {0}: {1}"
-msgstr "जारी नहीं कर सके {0}: {1}"
-msgstr "{0} को जारी नहीं किया जा सका: {1}"
 msgstr "{0} जारी नहीं कर सके: {1}"
 
 msgid "Could not save"
@@ -4746,6 +4747,7 @@ msgstr "नियम बनाएं"
 
 msgid "Create Supplier Return"
 msgstr "आपूर्तिकर्ता रिटर्न बनाएं"
+
 msgid "Create task"
 msgstr "कार्य बनाएँ"
 
@@ -9537,7 +9539,6 @@ msgid "Journals dated on or before this date are treated as locked. Merged with 
 msgstr "इस तारीख को या इससे पहले दिनांकित जर्नल को लॉक माना जाता है। दोनों मौजूद होने पर प्रदाता द्वारा रिपोर्ट की गई लॉक तारीख के साथ मर्ज किया जाता है।"
 
 msgid "Jump to a section on detail pages (same modifiers + the section's letter)"
-msgstr "विस्तार पृष्ठों पर एक खंड पर जाएं (समान संशोधक + खंड का अक्षर)"
 msgstr "विवरण पृष्ठों पर किसी अनुभाग पर जाएँ (वही संशोधक + अनुभाग का अक्षर)"
 
 msgid "Just one"
@@ -9877,6 +9878,7 @@ msgstr "क्रय आदेश लिंक करें"
 
 msgid "Link a sales order"
 msgstr "विक्रय आदेश लिंक करें"
+
 msgid "Link existing task"
 msgstr "मौजूदा कार्य लिंक करें"
 
@@ -11348,6 +11350,7 @@ msgstr "कोई लागत इतिहास नहीं मिला"
 
 msgid "No credits yet"
 msgstr "अभी कोई क्रेडिट नहीं"
+
 msgid "No current operational exposure is available."
 msgstr "वर्तमान परिचालन जोखिम उपलब्ध नहीं है।"
 
@@ -13464,6 +13467,7 @@ msgstr "अनुमान"
 
 msgid "Projects"
 msgstr "परियोजनाएँ"
+
 msgid "Promised"
 msgstr "प्रतिबद्ध"
 
@@ -14082,8 +14086,8 @@ msgstr "प्राप्ति अनुरोधित तिथि"
 msgid "Receipts"
 msgstr "रसीदें"
 
-msgid "Receipts, inspections, sales, shipments, and other where-used records are outside the three supported Impact target contracts in this workspace. They are not loaded as Impact rows until dedicated source-aware context readers can report their own coverage. They do not contribute to assessment totals or offer decision controls here."
-msgstr "प्राप्तियाँ, निरीक्षण, बिक्री, शिपमेंट और अन्य उपयोग-स्थल रिकॉर्ड इस कार्यक्षेत्र में समर्थित तीन प्रभाव लक्ष्य अनुबंधों के दायरे से बाहर हैं। समर्पित स्रोत-जागरूक संदर्भ रीडर अपने कवरेज की रिपोर्ट करने में सक्षम होने तक इन्हें प्रभाव पंक्तियों के रूप में लोड नहीं किया जाता। ये यहाँ मूल्यांकन के योग में योगदान नहीं देते और निर्णय नियंत्रण उपलब्ध नहीं कराते।"
+msgid "Receipts, inspections, sales, shipments, and other related records are outside the current Impact assessment scope. They do not count toward assessment totals or offer decision controls here."
+msgstr "प्राप्तियाँ, निरीक्षण, बिक्री, शिपमेंट और अन्य संबंधित रिकॉर्ड वर्तमान प्रभाव आकलन के दायरे से बाहर हैं। वे आकलन के योग में नहीं गिने जाते और यहाँ निर्णय नियंत्रण उपलब्ध नहीं कराते।"
 
 msgid "Receipts, shipments, sales invoices, purchase invoices, payments, and credit/debit memos that are still Draft or Pending must be posted or voided — both documents dated in this period and undated documents that would receive a date in it when posted. Until they post, their amounts aren't in the general ledger, so the period would be understated."
 msgstr "प्राप्ति, शिपमेंट, विक्रय चालान, क्रय चालान, भुगतान, और जमा/नामे ज्ञापन जो अभी भी ड्राफ्ट या लंबित हैं, उन्हें पोस्ट किया जाना चाहिए या अमान्य किया जाना चाहिए — दोनों दस्तावेज़ इस अवधि में दिनांकित और बिना दिनांक के दस्तावेज़ जो पोस्ट होने पर इसमें एक तिथि प्राप्त करेंगे। जब तक वे पोस्ट नहीं होते, उनकी राशियाँ सामान्य खाता बही में नहीं हैं, इसलिए अवधि को कम दिखाया जाएगा।"
@@ -14141,8 +14145,8 @@ msgid "Received Qty"
 msgstr "प्राप्त मात्रा"
 
 msgid "Received quantity not yet credited. The credit memo is created as a draft."
-msgstr "प्राप्त मात्रा अभी तक जमा नहीं की गई। क्रेडिट नोट को ड्राफ्ट के रूप में बनाया गया है।"
 msgstr "प्राप्त मात्रा अभी क्रेडिट नहीं की गई है। क्रेडिट मेमो ड्राफ्ट के रूप में बनाया गया है।"
+
 msgid "Received to inventory"
 msgstr "स्टॉक में प्राप्त किया गया"
 
@@ -15695,8 +15699,8 @@ msgid "Select dimension"
 msgstr "आयाम चुनें"
 
 msgid "Select disposition"
-msgstr "निपटान चुनें"
 msgstr "निष्पादन चुनें"
+
 msgid "Select eligible rows for a shared decision."
 msgstr "साझा निर्णय के लिए पात्र पंक्तियाँ चुनें।"
 
@@ -16146,8 +16150,6 @@ msgid "Shipped"
 msgstr "भेजी गई"
 
 msgid "Shipped lines for this customer with quantity remaining to return"
-msgstr "इस ग्राहक के लिए भेजी गई लाइनें जिनमें वापसी के लिए मात्रा बाकी है"
-msgstr ""
 msgstr "भेजा गया"
 
 msgid "Shipped Qty"
@@ -17064,13 +17066,14 @@ msgstr "आपूर्तिकर्ता रिटर्न लाइन"
 msgid "Supplier Return Lines"
 msgstr "आपूर्तिकर्ता रिटर्न लाइनें"
 
+msgid "Supplier return, replacement, credit, and communication interventions have been reviewed."
+msgstr "आपूर्तिकर्ता को वापसी, प्रतिस्थापन, क्रेडिट और संचार संबंधी हस्तक्षेपों की जाँच की गई है।"
+
 msgid "Supplier Returns"
 msgstr "आपूर्तिकर्ता रिटर्न"
 
 msgid "Supplier RMA #"
 msgstr "आपूर्तिकर्ता RMA #"
-msgid "Supplier return, replacement, credit, and communication interventions have been reviewed."
-msgstr "आपूर्तिकर्ता को वापसी, प्रतिस्थापन, क्रेडिट और संचार संबंधी हस्तक्षेपों की जाँच की गई है।"
 
 msgid "Supplier Status"
 msgstr "आपूर्तिकर्ता स्थिति"
@@ -18270,6 +18273,7 @@ msgstr "ये ऑपरेशन कई आपूर्तिकर्ताओ
 
 msgid "These parts are being replaced by this one. Each rule is set on the old part; open it to change the rule."
 msgstr "ये पार्ट्स इसके द्वारा प्रतिस्थापित किए जा रहे हैं। प्रत्येक नियम पुराने पार्ट पर सेट है; नियम बदलने के लिए इसे खोलें।"
+
 msgid "These references remain traceable but do not create a new Unassessed obligation."
 msgstr "ये संदर्भ ट्रेस करने योग्य बने रहते हैं, लेकिन कोई नया “मूल्यांकन नहीं किया गया” दायित्व नहीं बनाते।"
 
@@ -19141,6 +19145,7 @@ msgstr "वापसी को क्रय आदेश से अनलिं�
 
 msgid "Unlink RMA from sales order?"
 msgstr "RMA को विक्रय आदेश से अनलिंक करें?"
+
 msgid "Unlink task"
 msgstr "कार्य का लिंक हटाएँ"
 
