@@ -5,6 +5,7 @@
 // the legacy executeFunction callers expect.
 
 import { call, ORPCError } from "@orpc/server";
+import { getEdgeFunctionErrorMessage } from "~/utils/error";
 import { isMcpBlockedTool } from "../../mcp+/lib/mcp-blocked-tools";
 import type { AuthedContext } from "./base.server";
 import {
@@ -22,6 +23,45 @@ import {
 export type CallResult =
   | { success: true; data: unknown; count?: number }
   | { success: false; error: string; errorKind: "database" | "execution" };
+
+/**
+ * The edge function's own message, for a `functions.invoke()` failure only. Null
+ * for every other Supabase error — a PostgREST error carries a `message` too, and
+ * reading it here would rewrite error text the parity tests pin byte for byte.
+ */
+async function edgeFunctionMessage(error: unknown): Promise<string | null> {
+  const candidate = error as { name?: unknown; context?: unknown };
+  if (candidate?.name !== "FunctionsHttpError" || !candidate.context)
+    return null;
+  const message = await getEdgeFunctionErrorMessage(error, "");
+  return message === "" ? null : message;
+}
+
+/**
+ * The published MCP instructions tell clients to send
+ * `arguments: { args: { … } }`, and clients have copied that shape, but only the
+ * operations that genuinely declare an `args` object want it — for every other
+ * one the envelope IS the payload, so each declared field arrives undefined and
+ * input validation rejects the call before the dispatcher ever unwraps it. Strip
+ * a lone envelope here, where the operation's own schema says whether it is one.
+ */
+function unwrapArgsEnvelope(
+  meta: { schema?: unknown },
+  args?: Record<string, unknown>
+): Record<string, unknown> | undefined {
+  if (!args) return args;
+  const declaresArgs = Boolean(
+    (meta.schema as { properties?: Record<string, unknown> } | undefined)
+      ?.properties?.args
+  );
+  if (declaresArgs) return args;
+  const keys = Object.keys(args);
+  if (keys.length !== 1 || keys[0] !== "args") return args;
+  const envelope = args.args;
+  return envelope && typeof envelope === "object" && !Array.isArray(envelope)
+    ? (envelope as Record<string, unknown>)
+    : args;
+}
 
 export async function callOperation(
   name: string,
@@ -59,15 +99,16 @@ export async function callOperation(
     };
   }
 
+  const callArgs = unwrapArgsEnvelope(
+    meta,
+    args as Record<string, unknown> | undefined
+  );
+
   try {
     // The handler shapes the HTTP body (bare single results, `{ results, count }`
     // lists); unshapeHttpBody reverses it so MCP/agent/workflow callers keep
     // DispatchResult semantics.
-    const body = await call(
-      procedure,
-      (args as Record<string, unknown> | undefined) ?? {},
-      { context }
-    );
+    const body = await call(procedure, callArgs ?? {}, { context });
     const result = unshapeHttpBody(meta, body);
     return {
       success: true,
@@ -80,11 +121,16 @@ export async function callOperation(
         ? (err.data as { supabase?: unknown } | undefined)?.supabase
         : undefined;
     if (supabase) {
-      // A Supabase failure keeps MCP's exact `Database error:` text, raw error
-      // JSON included — the errorKind lets the formatter skip its `Error: ` prefix.
+      // An edge-function failure carries its real message in an unread Response on
+      // `context`, which JSON.stringify empties — every failure from "the process is
+      // not batchable" to a missing field reached the caller as the same
+      // `{"name":"FunctionsHttpError","context":{}}`. Unwrap it with the helper the
+      // routes already use; anything else keeps the byte-exact legacy text, which
+      // the dispatch parity tests assert.
+      const edgeMessage = await edgeFunctionMessage(supabase);
       return {
         success: false,
-        error: `Database error: ${JSON.stringify(supabase)}`,
+        error: `Database error: ${edgeMessage ?? JSON.stringify(supabase)}`,
         errorKind: "database"
       };
     }

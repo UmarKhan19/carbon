@@ -235,12 +235,19 @@ dispatcher (`apps/erp/app/routes/api+/inngest.ts`). There is no separate
   arg array: `client`/`userId`/`companyId`/`companyGroupId` come from `ctx`; a
   service whose param is `db` is handed `getDatabaseClient()`; payload params are
   stamped with auth fields via `enrichWithAuthContext` (now in
-  `dispatch.server.ts`). A param literally named `args` is stamped too, and
-  which wire shape it takes is read off the operation's schema: a declared `args`
-  object means the body wraps it (`{ args: {...} }`) and the inner object is
+  `dispatch.server.ts`) — including `userId` when the payload itself declares one
+  (the edge-function wrappers), which the manifest marks via `injectAuth` and the
+  generator derives from the signature. Without it the service runs with no acting
+  user; `apps/erp/test/mcp-tool-auth-injection.test.ts` guards the pairing.
+  A param literally named `args` is stamped too, and which wire shape it takes
+  is read off the operation's schema: a declared `args` object means the body
+  wraps it (`{ args: {...} }`) and the inner object is
   unwrapped; a flat schema means the body already IS the args object. A flat body
-  is still accepted either way. A param the schema declares as a **scalar** is
-  passed `undefined` when no key matches rather than being handed the whole
+  is still accepted either way, and so is the reverse — a lone `{ args: {...} }`
+  envelope sent to a flat-schema operation is unwrapped in `callOperation` before
+  validation, since the published instructions taught that shape. A param the
+  schema declares as a **scalar** is passed `undefined` when no key matches
+  rather than being handed the whole
   payload object — that fallback made `deleteApiKey` run `.eq("id", {...})` and
   return `200 null`. Reading a key by the param's own name is likewise gated
   (`addressesWholeParam`): a service whose sole payload param is a destructured
