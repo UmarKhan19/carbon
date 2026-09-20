@@ -1191,6 +1191,31 @@ function computeInjectAuth(
   return ["companyId"];
 }
 
+/**
+ * A service takes the acting user one of two ways: as a positional `userId`
+ * param, which the dispatcher fills straight from context, or as a FIELD of its
+ * args object — the shape every edge-function wrapper uses
+ * (`createJobOperationBatch`, `pickPickingListLine`, …). `CONTEXT_PARAMS` strips
+ * that field from the published schema on the assumption something supplies it,
+ * so without this the service is invoked with no userId at all and the edge
+ * function rejects the payload. Deriving the flag from the signature keeps the
+ * strip and the injection in step.
+ *
+ * A textual test of the param type is exact here: every userId-bearing payload
+ * in the service layer is an inline object literal, and no type alias declares
+ * one. Should that change, the manifest guard test fails rather than the tool.
+ */
+export function withPayloadUserId(
+  fields: AuthField[],
+  func: ParsedFunction
+): AuthField[] {
+  if (fields.includes("userId")) return fields;
+  const declaresUserId = func.params.some(
+    (p) => p.name !== "userId" && /(^|[{;,\s])userId\s*\??\s*:/.test(p.typeStr)
+  );
+  return declaresUserId ? [...fields, "userId"] : fields;
+}
+
 // The permission an API-key caller must hold. `module` follows the service→permission
 // map; `actions` are derived from the operation verb, mirroring `computeInjectAuth`'s
 // verb groups but split into CRUD actions. An unmatched write verb (issue/post/ship/
@@ -1624,9 +1649,11 @@ export function buildAllToolMetadata(opts: BuildOptions = {}): ManifestEntry[] {
       if (MCP_BLOCKED_TOOL_NAMES.includes(toolName)) continue;
 
       const classification = classifyFunction(func.name, content);
-      const injectAuth =
+      const injectAuth = withPayloadUserId(
         INJECT_AUTH_OVERRIDES[toolName] ||
-        computeInjectAuth(func.name, classification);
+          computeInjectAuth(func.name, classification),
+        func
+      );
       // A JSDoc on the function itself beats the override table (code closest
       // wins); the de-camelCased name remains the fallback.
       const description =

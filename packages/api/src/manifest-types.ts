@@ -11,7 +11,11 @@ export type AuthField =
   | "companyId"
   | "companyGroupId"
   | "createdBy"
-  | "updatedBy";
+  | "updatedBy"
+  /** The acting user, for services that take it as a field of their args object
+   *  rather than as a positional param. A positional `userId` is filled straight
+   *  from context by the dispatcher and never appears here. */
+  | "userId";
 
 export type PermissionAction = "view" | "create" | "update" | "delete";
 

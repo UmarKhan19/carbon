@@ -507,8 +507,14 @@ describe("dispatchOperation service-call contract (golden, ex-executeFunction pa
       spies.upsertNotificationPreference,
       { args: { channel: "email", enabled: true } }
     );
+    // userId rides along because the payload declares one: the field is stripped
+    // from the published schema, so a caller cannot send it and the row used to be
+    // written without it.
     expect(r.calls).toEqual([
-      [spies.FAKE_CLIENT, { channel: "email", enabled: true, companyId: "c1" }]
+      [
+        spies.FAKE_CLIENT,
+        { channel: "email", enabled: true, companyId: "c1", userId: "u1" }
+      ]
     ]);
   });
 
