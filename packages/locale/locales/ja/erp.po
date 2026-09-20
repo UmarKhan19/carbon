@@ -2798,6 +2798,9 @@ msgstr "{0}の後に利用可能"
 msgid "Available hours"
 msgstr "利用可能時間"
 
+msgid "Available on the Business plan"
+msgstr "ビジネスプランで利用可能"
+
 msgid "Avatar url"
 msgstr "アバターURL"
 
@@ -5383,6 +5386,9 @@ msgstr "繰延税金負債（デフォルト）"
 
 msgid "Define a manufacturing operation first."
 msgstr "最初に製造作業を定義します。"
+
+msgid "Define custom roles with fine-grained, per-module permissions and assign them to your team."
+msgstr "細粒度で、モジュール単位の権限を持つカスタムロールを定義して、チームに割り当てます。"
 
 msgid "Define multi-level BOMs and Bill of Process (make methods)"
 msgstr "多階層BOMおよび工程表（製造方法）を定義"
@@ -8225,6 +8231,9 @@ msgstr "グレード"
 msgid "Grades"
 msgstr "等級"
 
+msgid "Grant each user fine-grained, per-module permissions instead of giving everyone full access."
+msgstr "全員にフルアクセスを付与するのではなく、各ユーザーに細粒度で、モジュール単位の権限を付与します。"
+
 msgid "Grants Ability"
 msgstr "スキルを付与"
 
@@ -9500,9 +9509,6 @@ msgstr "正確な一致のために空のままにしてください"
 msgid "Leave this page"
 msgstr "このページを離れる"
 
-msgid "Ledger"
-msgstr "元帳"
-
 msgid "Left item"
 msgstr "左側の項目"
 
@@ -10307,9 +10313,6 @@ msgstr "メートル法の単位は無効です"
 
 msgid "Metric units are enabled"
 msgstr "メートル法単位が有効です"
-
-msgid "MFA"
-msgstr "MFA"
 
 msgid "Mid-month / mid-quarter / half-year convention that determines the first-year deduction."
 msgstr "初年度控除を決定する中月/四半期中/半年の慣例。"
@@ -14155,9 +14158,6 @@ msgstr "希望納期"
 msgid "Require a 6-digit code from an authenticator app when signing in."
 msgstr "サインイン時に認証器アプリから6桁のコードが必要です。"
 
-msgid "Require a second factor when members sign in to this company."
-msgstr "メンバーがこの会社にサインインする際に、セカンドファクタを必須にする。"
-
 msgid "Require an assigned operator before the scheduler places work at a location. When on, unstaffed work centers get no work and an operation with no manned coverage shows as unschedulable. Lights-out (24×7) work centers are exempt."
 msgstr "スケジューラがある拠点に作業を配置する前に、割当済の作業者を必要とします。オンの場合、スタッフなしの作業区は作業を取得せず、配置された人員がいない工程はスケジュール不可として表示されます。ライトアウト（24×7）作業区は除外されます。"
 
@@ -14178,6 +14178,9 @@ msgstr "照合が必須"
 
 msgid "Require SAML SSO"
 msgstr "SAML SSOを必須にする"
+
+msgid "Require tiered sign-off on purchase orders, quality documents, and suppliers based on amount thresholds and approver groups."
+msgstr "金額閾値と承認者グループに基づいて、発注書、品質ドキュメント、および仕入先に対する段階的な承認を要求します。"
 
 msgid "Require two-factor authentication"
 msgstr "二要素認証が必要です"
@@ -18832,6 +18835,9 @@ msgstr "アップグレード"
 msgid "Upgrade to Business"
 msgstr "ビジネスプランにアップグレード"
 
+msgid "Upgrade to Enterprise"
+msgstr "エンタープライズにアップグレード"
+
 #. placeholder {0}: targetCopy.noun
 msgid "Upgrade to unlock {0} rules"
 msgstr "{0}ルールのロックを解除するにはアップグレード"
@@ -18948,6 +18954,9 @@ msgstr "耐用年数(月)"
 
 msgid "User"
 msgstr "ユーザー"
+
+msgid "User Permissions"
+msgstr "ユーザー権限"
 
 msgid "User roles"
 msgstr "ユーザーロール"

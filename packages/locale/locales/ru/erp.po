@@ -2798,6 +2798,9 @@ msgstr "Доступно после {0}"
 msgid "Available hours"
 msgstr "Доступные часы"
 
+msgid "Available on the Business plan"
+msgstr "Доступно в плане Business"
+
 msgid "Avatar url"
 msgstr "URL аватара"
 
@@ -5383,6 +5386,9 @@ msgstr "Отложенное налоговое обязательство (по
 
 msgid "Define a manufacturing operation first."
 msgstr "Сначала определите производственную операцию."
+
+msgid "Define custom roles with fine-grained, per-module permissions and assign them to your team."
+msgstr "Определить пользовательские роли с детальными правами доступа по модулям и назначить их сотрудникам."
 
 msgid "Define multi-level BOMs and Bill of Process (make methods)"
 msgstr "Определите многоуровневые BOM и перечни операций (методы производства)"
@@ -8225,6 +8231,9 @@ msgstr "сорта"
 msgid "Grades"
 msgstr "Сорта"
 
+msgid "Grant each user fine-grained, per-module permissions instead of giving everyone full access."
+msgstr "Предоставить каждому пользователю детальные права доступа по модулям вместо предоставления полного доступа всем."
+
 msgid "Grants Ability"
 msgstr "Предоставляет Навык"
 
@@ -9500,9 +9509,6 @@ msgstr "Оставьте пустым для точного совпадения
 msgid "Leave this page"
 msgstr "Покинуть эту страницу"
 
-msgid "Ledger"
-msgstr "Главная книга"
-
 msgid "Left item"
 msgstr "Левый элемент"
 
@@ -10307,9 +10313,6 @@ msgstr "Метрические единицы отключены"
 
 msgid "Metric units are enabled"
 msgstr "Метрические единицы включены"
-
-msgid "MFA"
-msgstr "MFA"
 
 msgid "Mid-month / mid-quarter / half-year convention that determines the first-year deduction."
 msgstr "Условие середины месяца / середины квартала / половины года, определяющее вычет первого года."
@@ -14155,9 +14158,6 @@ msgstr "Запрошенная дата"
 msgid "Require a 6-digit code from an authenticator app when signing in."
 msgstr "Требовать 6-значный код из приложения-аутентификатора при входе."
 
-msgid "Require a second factor when members sign in to this company."
-msgstr "Требовать второй фактор при входе сотрудников в эту организацию."
-
 msgid "Require an assigned operator before the scheduler places work at a location. When on, unstaffed work centers get no work and an operation with no manned coverage shows as unschedulable. Lights-out (24×7) work centers are exempt."
 msgstr "Требовать назначенного оператора перед размещением планировщиком работ на площадке. Когда включено, рабочие центры без персонала не получают работу, а операция без назначенного оператора отображается как невозможная для планирования. Круглосуточные (24×7) рабочие центры освобождены от этого требования."
 
@@ -14178,6 +14178,9 @@ msgstr "Требовать совпадение"
 
 msgid "Require SAML SSO"
 msgstr "Требовать SAML SSO"
+
+msgid "Require tiered sign-off on purchase orders, quality documents, and suppliers based on amount thresholds and approver groups."
+msgstr "Требовать многоуровневого одобрения заказов поставщикам, документов качества и поставщиков на основе пороговых сумм и групп утверждающих."
 
 msgid "Require two-factor authentication"
 msgstr "Требовать двухфакторную аутентификацию"
@@ -18832,6 +18835,9 @@ msgstr "Обновить"
 msgid "Upgrade to Business"
 msgstr "Перейти на Business"
 
+msgid "Upgrade to Enterprise"
+msgstr "Обновить до Enterprise"
+
 #. placeholder {0}: targetCopy.noun
 msgid "Upgrade to unlock {0} rules"
 msgstr "Обновитесь, чтобы разблокировать правила {0}"
@@ -18948,6 +18954,9 @@ msgstr "Срок полезного использования (месяцы)"
 
 msgid "User"
 msgstr "Пользователь"
+
+msgid "User Permissions"
+msgstr "Права доступа пользователя"
 
 msgid "User roles"
 msgstr "Роли пользователей"

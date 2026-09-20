@@ -2798,6 +2798,9 @@ msgstr "{0} 이후 가용"
 msgid "Available hours"
 msgstr "가용 시간"
 
+msgid "Available on the Business plan"
+msgstr "Business 플랜에서 사용 가능"
+
 msgid "Avatar url"
 msgstr "아바타 URL"
 
@@ -5383,6 +5386,9 @@ msgstr "이연법인세부채(기본값)"
 
 msgid "Define a manufacturing operation first."
 msgstr "먼저 제조 공정작업을 정의하세요."
+
+msgid "Define custom roles with fine-grained, per-module permissions and assign them to your team."
+msgstr "모듈별 세밀한 권한으로 사용자 정의 역할을 정의하고 팀에 할당합니다."
 
 msgid "Define multi-level BOMs and Bill of Process (make methods)"
 msgstr "다단계 BOM 및 공정 목록(생산 방법) 정의"
@@ -8225,6 +8231,9 @@ msgstr "등급"
 msgid "Grades"
 msgstr "등급"
 
+msgid "Grant each user fine-grained, per-module permissions instead of giving everyone full access."
+msgstr "모든 사용자에게 전체 접근 권한을 부여하는 대신 각 사용자에게 모듈별 세밀한 권한을 부여합니다."
+
 msgid "Grants Ability"
 msgstr "역량 부여"
 
@@ -9500,9 +9509,6 @@ msgstr "정확히 일치시키려면 비워두세요"
 msgid "Leave this page"
 msgstr "이 페이지 나가기"
 
-msgid "Ledger"
-msgstr "원장"
-
 msgid "Left item"
 msgstr "왼쪽 품목"
 
@@ -10307,9 +10313,6 @@ msgstr "미터법 단위가 비활성화됨"
 
 msgid "Metric units are enabled"
 msgstr "미터법 단위가 활성화됨"
-
-msgid "MFA"
-msgstr "MFA"
 
 msgid "Mid-month / mid-quarter / half-year convention that determines the first-year deduction."
 msgstr "1차년도 공제액을 결정하는 월중/분기중/반기 컨벤션입니다."
@@ -14155,9 +14158,6 @@ msgstr "요청일"
 msgid "Require a 6-digit code from an authenticator app when signing in."
 msgstr "로그인 시 인증 앱의 6자리 코드를 입력하세요."
 
-msgid "Require a second factor when members sign in to this company."
-msgstr "회사에 로그인할 때 구성원들이 두 번째 인증 요소를 사용하도록 요구"
-
 msgid "Require an assigned operator before the scheduler places work at a location. When on, unstaffed work centers get no work and an operation with no manned coverage shows as unschedulable. Lights-out (24×7) work centers are exempt."
 msgstr "스케줄러가 사업장에 작업을 배치하기 전에 할당된 작업자를 요구하세요. 활성화되면 인력이 부족한 작업장은 작업을 받지 않으며 배치된 작업자가 없는 공정은 일정을 잡을 수 없는 것으로 표시됩니다. 조명 없는(24×7) 작업장은 제외됩니다."
 
@@ -14178,6 +14178,9 @@ msgstr "필수 일치"
 
 msgid "Require SAML SSO"
 msgstr "SAML SSO 필수"
+
+msgid "Require tiered sign-off on purchase orders, quality documents, and suppliers based on amount thresholds and approver groups."
+msgstr "금액 한계 및 승인자 그룹을 기준으로 발주서, 품질 문서, 공급업체에 대한 단계별 승인을 요구합니다."
 
 msgid "Require two-factor authentication"
 msgstr "2단계 인증 필수"
@@ -18832,6 +18835,9 @@ msgstr "업그레이드"
 msgid "Upgrade to Business"
 msgstr "비즈니스로 업그레이드"
 
+msgid "Upgrade to Enterprise"
+msgstr "Enterprise로 업그레이드"
+
 #. placeholder {0}: targetCopy.noun
 msgid "Upgrade to unlock {0} rules"
 msgstr "{0}개의 규칙을 사용하려면 업그레이드하세요"
@@ -18948,6 +18954,9 @@ msgstr "내용연수(개월)"
 
 msgid "User"
 msgstr "사용자"
+
+msgid "User Permissions"
+msgstr "사용자 권한"
 
 msgid "User roles"
 msgstr "사용자 역할"

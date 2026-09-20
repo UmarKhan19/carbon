@@ -2798,6 +2798,9 @@ msgstr "在{0}之后可用"
 msgid "Available hours"
 msgstr "可用小时数"
 
+msgid "Available on the Business plan"
+msgstr "在商业计划中可用"
+
 msgid "Avatar url"
 msgstr "头像网址"
 
@@ -5383,6 +5386,9 @@ msgstr "递延所得税负债（默认）"
 
 msgid "Define a manufacturing operation first."
 msgstr "首先定义制造操作。"
+
+msgid "Define custom roles with fine-grained, per-module permissions and assign them to your team."
+msgstr "定义具有细粒度、按模块权限的自定义角色，并将其分配给您的团队。"
 
 msgid "Define multi-level BOMs and Bill of Process (make methods)"
 msgstr "定义多级BOM和工序清单（制造方法）"
@@ -8225,6 +8231,9 @@ msgstr "等级"
 msgid "Grades"
 msgstr "等级"
 
+msgid "Grant each user fine-grained, per-module permissions instead of giving everyone full access."
+msgstr "向每个用户授予细粒度、按模块权限，而不是给予所有人完全访问权。"
+
 msgid "Grants Ability"
 msgstr "授予能力"
 
@@ -9500,9 +9509,6 @@ msgstr "留空以精确匹配"
 msgid "Leave this page"
 msgstr "离开此页面"
 
-msgid "Ledger"
-msgstr "总账"
-
 msgid "Left item"
 msgstr "左项"
 
@@ -10307,9 +10313,6 @@ msgstr "公制单位已禁用"
 
 msgid "Metric units are enabled"
 msgstr "公制单位已启用"
-
-msgid "MFA"
-msgstr "MFA"
 
 msgid "Mid-month / mid-quarter / half-year convention that determines the first-year deduction."
 msgstr "决定首年扣除的月中/季中/半年约定俗成的方法。"
@@ -14155,9 +14158,6 @@ msgstr "要求日期"
 msgid "Require a 6-digit code from an authenticator app when signing in."
 msgstr "登录时需要来自身份验证器应用的 6 位数字代码。"
 
-msgid "Require a second factor when members sign in to this company."
-msgstr "成员登录此公司时需要第二因素验证"
-
 msgid "Require an assigned operator before the scheduler places work at a location. When on, unstaffed work centers get no work and an operation with no manned coverage shows as unschedulable. Lights-out (24×7) work centers are exempt."
 msgstr "排程前需要已分配的操作员才能在地点安排工作。启用时，无人工作中心不会分配工作，且无人工覆盖的工序显示为无法排程。熄灯（24×7）工作中心豁免。"
 
@@ -14178,6 +14178,9 @@ msgstr "必需匹配"
 
 msgid "Require SAML SSO"
 msgstr "需要 SAML SSO"
+
+msgid "Require tiered sign-off on purchase orders, quality documents, and suppliers based on amount thresholds and approver groups."
+msgstr "根据金额阈值和批准人组，对采购订单、质量文档和供应商要求分级批准。"
 
 msgid "Require two-factor authentication"
 msgstr "需要双因素认证"
@@ -18832,6 +18835,9 @@ msgstr "升级"
 msgid "Upgrade to Business"
 msgstr "升级到商业版"
 
+msgid "Upgrade to Enterprise"
+msgstr "升级到 Enterprise"
+
 #. placeholder {0}: targetCopy.noun
 msgid "Upgrade to unlock {0} rules"
 msgstr "升级以解锁 {0} 规则"
@@ -18948,6 +18954,9 @@ msgstr "使用年限（月）"
 
 msgid "User"
 msgstr "用户"
+
+msgid "User Permissions"
+msgstr "用户权限"
 
 msgid "User roles"
 msgstr "用户角色"

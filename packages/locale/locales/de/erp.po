@@ -2798,6 +2798,9 @@ msgstr "Verfügbar nach {0}"
 msgid "Available hours"
 msgstr "Verfügbare Stunden"
 
+msgid "Available on the Business plan"
+msgstr "Im Business-Plan verfügbar"
+
 msgid "Avatar url"
 msgstr "Avatar-URL"
 
@@ -5383,6 +5386,9 @@ msgstr "Latente Steuerverpflichtung (Standard)"
 
 msgid "Define a manufacturing operation first."
 msgstr "Definieren Sie zuerst einen Fertigungsarbeitsgang."
+
+msgid "Define custom roles with fine-grained, per-module permissions and assign them to your team."
+msgstr "Definieren Sie benutzerdefinierte Rollen mit granularen, modulspezifischen Berechtigungen und weisen Sie diese Ihrem Team zu."
 
 msgid "Define multi-level BOMs and Bill of Process (make methods)"
 msgstr "Definieren Sie mehrstufige BOMs und Arbeitsganglisten (Fertigungsmethoden)"
@@ -8225,6 +8231,9 @@ msgstr "Klassen"
 msgid "Grades"
 msgstr "Sorten"
 
+msgid "Grant each user fine-grained, per-module permissions instead of giving everyone full access."
+msgstr "Gewähren Sie jedem Benutzer granulare, modulspezifische Berechtigungen, anstatt jedem vollständigen Zugriff zu geben."
+
 msgid "Grants Ability"
 msgstr "Verleiht Qualifikation"
 
@@ -9500,9 +9509,6 @@ msgstr "Leer lassen für exakte Übereinstimmung"
 msgid "Leave this page"
 msgstr "Diese Seite verlassen"
 
-msgid "Ledger"
-msgstr "Hauptbuch"
-
 msgid "Left item"
 msgstr "Linkes Element"
 
@@ -10307,9 +10313,6 @@ msgstr "Metrische Einheiten sind deaktiviert"
 
 msgid "Metric units are enabled"
 msgstr "Metrische Einheiten sind aktiviert"
-
-msgid "MFA"
-msgstr "MFA"
 
 msgid "Mid-month / mid-quarter / half-year convention that determines the first-year deduction."
 msgstr "Konvention für Mitte des Monats / Quartal / Halbjahr, die den Abzug im ersten Jahr bestimmt."
@@ -14155,9 +14158,6 @@ msgstr "Wunschtermin"
 msgid "Require a 6-digit code from an authenticator app when signing in."
 msgstr "Erfordert einen 6-stelligen Code aus einer Authentifikator-App beim Anmelden."
 
-msgid "Require a second factor when members sign in to this company."
-msgstr "Zweiten Faktor anfordern, wenn sich Mitglieder bei diesem Unternehmen anmelden."
-
 msgid "Require an assigned operator before the scheduler places work at a location. When on, unstaffed work centers get no work and an operation with no manned coverage shows as unschedulable. Lights-out (24×7) work centers are exempt."
 msgstr "Erfordert einen zugewiesenen Werker, bevor der Planer Arbeiten an einem Standort platziert. Wenn aktiviert, erhalten unbesetzte Arbeitsplätze keine Arbeiten und ein Arbeitsgang ohne bemannte Abdeckung wird als nicht planbar angezeigt. Lichter-aus (24×7) Arbeitsplätze sind ausgenommen."
 
@@ -14178,6 +14178,9 @@ msgstr "Abgleich erforderlich"
 
 msgid "Require SAML SSO"
 msgstr "SAML SSO erforderlich"
+
+msgid "Require tiered sign-off on purchase orders, quality documents, and suppliers based on amount thresholds and approver groups."
+msgstr "Erfordern Sie mehrstufige Genehmigungen für Bestellungen, Qualitätsdokumente und Lieferanten basierend auf Schwellenwertbeträgen und Genehmigungsgruppen."
 
 msgid "Require two-factor authentication"
 msgstr "Zwei-Faktor-Authentifizierung erforderlich"
@@ -18832,6 +18835,9 @@ msgstr "Upgrade"
 msgid "Upgrade to Business"
 msgstr "Upgrade to Business"
 
+msgid "Upgrade to Enterprise"
+msgstr "Zu Enterprise upgraden"
+
 #. placeholder {0}: targetCopy.noun
 msgid "Upgrade to unlock {0} rules"
 msgstr "Upgraden Sie, um {0} Regeln freizuschalten"
@@ -18948,6 +18954,9 @@ msgstr "Nutzungsdauer (Monate)"
 
 msgid "User"
 msgstr "Benutzer"
+
+msgid "User Permissions"
+msgstr "Benutzerberechtigungen"
 
 msgid "User roles"
 msgstr "Benutzerrollen"

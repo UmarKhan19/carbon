@@ -2798,6 +2798,9 @@ msgstr "Available after {0}"
 msgid "Available hours"
 msgstr "Available hours"
 
+msgid "Available on the Business plan"
+msgstr "Available on the Business plan"
+
 msgid "Avatar url"
 msgstr "Avatar url"
 
@@ -5383,6 +5386,9 @@ msgstr "Deferred Tax Liability (default)"
 
 msgid "Define a manufacturing operation first."
 msgstr "Define a manufacturing operation first."
+
+msgid "Define custom roles with fine-grained, per-module permissions and assign them to your team."
+msgstr "Define custom roles with fine-grained, per-module permissions and assign them to your team."
 
 msgid "Define multi-level BOMs and Bill of Process (make methods)"
 msgstr "Define multi-level BOMs and Bill of Process (make methods)"
@@ -8225,6 +8231,9 @@ msgstr "grades"
 msgid "Grades"
 msgstr "Grades"
 
+msgid "Grant each user fine-grained, per-module permissions instead of giving everyone full access."
+msgstr "Grant each user fine-grained, per-module permissions instead of giving everyone full access."
+
 msgid "Grants Ability"
 msgstr "Grants Ability"
 
@@ -9500,9 +9509,6 @@ msgstr "Leave empty for exact match"
 msgid "Leave this page"
 msgstr "Leave this page"
 
-msgid "Ledger"
-msgstr "Ledger"
-
 msgid "Left item"
 msgstr "Left item"
 
@@ -10307,9 +10313,6 @@ msgstr "Metric units are disabled"
 
 msgid "Metric units are enabled"
 msgstr "Metric units are enabled"
-
-msgid "MFA"
-msgstr "MFA"
 
 msgid "Mid-month / mid-quarter / half-year convention that determines the first-year deduction."
 msgstr "Mid-month / mid-quarter / half-year convention that determines the first-year deduction."
@@ -14155,9 +14158,6 @@ msgstr "Requested Date"
 msgid "Require a 6-digit code from an authenticator app when signing in."
 msgstr "Require a 6-digit code from an authenticator app when signing in."
 
-msgid "Require a second factor when members sign in to this company."
-msgstr "Require a second factor when members sign in to this company."
-
 msgid "Require an assigned operator before the scheduler places work at a location. When on, unstaffed work centers get no work and an operation with no manned coverage shows as unschedulable. Lights-out (24×7) work centers are exempt."
 msgstr "Require an assigned operator before the scheduler places work at a location. When on, unstaffed work centers get no work and an operation with no manned coverage shows as unschedulable. Lights-out (24×7) work centers are exempt."
 
@@ -14178,6 +14178,9 @@ msgstr "Require Match"
 
 msgid "Require SAML SSO"
 msgstr "Require SAML SSO"
+
+msgid "Require tiered sign-off on purchase orders, quality documents, and suppliers based on amount thresholds and approver groups."
+msgstr "Require tiered sign-off on purchase orders, quality documents, and suppliers based on amount thresholds and approver groups."
 
 msgid "Require two-factor authentication"
 msgstr "Require two-factor authentication"
@@ -18832,6 +18835,9 @@ msgstr "Upgrade"
 msgid "Upgrade to Business"
 msgstr "Upgrade to Business"
 
+msgid "Upgrade to Enterprise"
+msgstr "Upgrade to Enterprise"
+
 #. placeholder {0}: targetCopy.noun
 msgid "Upgrade to unlock {0} rules"
 msgstr "Upgrade to unlock {0} rules"
@@ -18948,6 +18954,9 @@ msgstr "Useful Life (Months)"
 
 msgid "User"
 msgstr "User"
+
+msgid "User Permissions"
+msgstr "User Permissions"
 
 msgid "User roles"
 msgstr "User roles"
