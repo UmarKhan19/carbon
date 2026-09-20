@@ -241,15 +241,21 @@ dispatcher (`apps/erp/app/routes/api+/inngest.ts`). There is no separate
   user; `apps/erp/test/mcp-tool-auth-injection.test.ts` guards the pairing.
   A param literally named `args` is stamped too, and which wire shape it takes
   is read off the operation's schema: a declared `args` object means the body
-  wraps it (`{ args: {...} }`) and the inner object is
-  unwrapped; a flat schema means the body already IS the args object. A flat body
-  is still accepted either way, and so is the reverse — a lone `{ args: {...} }`
-  envelope sent to a flat-schema operation is unwrapped in `callOperation` before
-  validation, since the published instructions taught that shape. A param the
-  schema declares as a **scalar** is passed `undefined` when no key matches
-  rather than being handed the whole
-  payload object — that fallback made `deleteApiKey` run `.eq("id", {...})` and
-  return `200 null`. Reading a key by the param's own name is likewise gated
+  wraps it (`{ args: {...} }`) and the inner object is unwrapped; a flat schema
+  means the body already IS the args object. Both directions have a compatibility
+  path, and they are NOT symmetric:
+  - A wrapped schema also accepts the wrapper's contents sent flat, but only when
+    the wrapper is the schema's **sole required property** (`compileSoleWrapper`
+    in `packages/api/src/schema.ts`). An operation that requires `args` alongside
+    another property rejects a flat body at validation, before dispatch.
+  - A flat schema also accepts a lone `{ args: {...} }` envelope, unwrapped in
+    `callOperation` before validation because the published instructions taught
+    that shape.
+
+  A param the schema declares as a **scalar** is passed `undefined` when no key
+  matches rather than being handed the whole payload object — that fallback made
+  `deleteApiKey` run `.eq("id", {...})` and return `200 null`. Reading a key by
+  the param's own name is likewise gated
   (`addressesWholeParam`): a service whose sole payload param is a destructured
   object can share its name with one of that object's FIELDS —
   `insertNote(client, note: { note, documentId, … })` — and reading `body.note`

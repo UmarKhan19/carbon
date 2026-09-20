@@ -7,6 +7,7 @@
 import { call, ORPCError } from "@orpc/server";
 import { getEdgeFunctionErrorMessage } from "~/utils/error";
 import { isMcpBlockedTool } from "../../mcp+/lib/mcp-blocked-tools";
+import { unwrapArgsEnvelope } from "./args-envelope";
 import type { AuthedContext } from "./base.server";
 import {
   operationId,
@@ -35,32 +36,6 @@ async function edgeFunctionMessage(error: unknown): Promise<string | null> {
     return null;
   const message = await getEdgeFunctionErrorMessage(error, "");
   return message === "" ? null : message;
-}
-
-/**
- * The published MCP instructions tell clients to send
- * `arguments: { args: { … } }`, and clients have copied that shape, but only the
- * operations that genuinely declare an `args` object want it — for every other
- * one the envelope IS the payload, so each declared field arrives undefined and
- * input validation rejects the call before the dispatcher ever unwraps it. Strip
- * a lone envelope here, where the operation's own schema says whether it is one.
- */
-function unwrapArgsEnvelope(
-  meta: { schema?: unknown },
-  args?: Record<string, unknown>
-): Record<string, unknown> | undefined {
-  if (!args) return args;
-  const declaresArgs = Boolean(
-    (meta.schema as { properties?: Record<string, unknown> } | undefined)
-      ?.properties?.args
-  );
-  if (declaresArgs) return args;
-  const keys = Object.keys(args);
-  if (keys.length !== 1 || keys[0] !== "args") return args;
-  const envelope = args.args;
-  return envelope && typeof envelope === "object" && !Array.isArray(envelope)
-    ? (envelope as Record<string, unknown>)
-    : args;
 }
 
 export async function callOperation(
