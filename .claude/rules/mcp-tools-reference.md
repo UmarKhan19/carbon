@@ -310,10 +310,21 @@ dispatcher (`apps/erp/app/routes/api+/inngest.ts`). There is no separate
 - Supabase query builders returned by services are awaited and the
   `{ data, error, count }` envelope is **unwrapped by the dispatch**:
   `callOperation` returns `{ success: true, data, count? }` or
-  `{ success: false, error, errorKind: "database" | "execution" }`. A Supabase
-  failure keeps MCP's exact `Database error: ${JSON.stringify(error)}` text
-  (the raw error rides on `ORPCError.data.supabase`), and HTTP callers get the
-  Postgres `code`/`details`/`hint` in the 400 body.
+  `{ success: false, error, errorKind: "database" | "execution" }`. The raw error
+  rides on `ORPCError.data.supabase`, and the `Database error:` envelope carries
+  one of two things depending on what failed:
+  - A **PostgREST/Postgres** failure keeps MCP's exact
+    `Database error: ${JSON.stringify(error)}` text, byte for byte (pinned by
+    `dispatch-parity.test.ts`), and HTTP callers get the Postgres
+    `code`/`details`/`hint` in the 400 body.
+  - A **`FunctionsHttpError`** (an edge function answered non-2xx) carries the
+    function's own message instead — `Database error: The process is not
+    batchable` — read off the unread `Response` on `error.context` by
+    `edgeFunctionMessage` (`call.server.ts`, wrapping `getEdgeFunctionErrorMessage`
+    from `~/utils/error`). `JSON.stringify` empties that `Response`, so without
+    the unwrap every edge failure — a broken business rule and a malformed payload
+    alike — reached the caller as the same `{"name":"FunctionsHttpError","context":{}}`.
+    Falls back to the stringified error when the body carries no usable message.
 - The dispatch behavior is pinned by
   `api+/v1+/lib/dispatch-parity.test.ts` (golden cases carried over from the
   deleted `executeFunction`) — a change there is a behavior change for MCP,
