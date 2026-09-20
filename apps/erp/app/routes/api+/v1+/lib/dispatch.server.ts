@@ -366,9 +366,9 @@ export async function dispatchOperation(
   if (result && typeof result === "object" && "data" in result) {
     const r = result as { data: unknown; error?: unknown; count?: number };
     if (r.error) {
-      // The raw error rides along so callOperation can reconstruct MCP's
-      // byte-identical `Database error: ${JSON.stringify(error)}` text, and HTTP
-      // callers get the Postgres code/details/hint the way Supabase REST does.
+      // The raw error rides along so callOperation can classify it into a public
+      // message and log the detail, and so HTTP callers get the Postgres
+      // code/details/hint the way Supabase REST does.
       throw new ORPCError("BAD_REQUEST", {
         message: supabaseErrorMessage(r.error),
         data: { supabase: r.error }

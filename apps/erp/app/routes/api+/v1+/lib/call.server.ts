@@ -4,11 +4,16 @@
 // server-side call(), and folds the outcome back into the { success, … } envelope
 // the legacy executeFunction callers expect.
 
+import { getLogger } from "@carbon/logger";
 import { call, ORPCError } from "@orpc/server";
 import { getEdgeFunctionErrorMessage } from "~/utils/error";
 import { isMcpBlockedTool } from "../../mcp+/lib/mcp-blocked-tools";
 import { unwrapArgsEnvelope } from "./args-envelope";
 import type { AuthedContext } from "./base.server";
+import {
+  classifyDatabaseFailure,
+  publicDatabaseError
+} from "./database-errors";
 import {
   operationId,
   operationsByName,
@@ -20,6 +25,8 @@ import {
   formatValidationIssues,
   type StandardIssue
 } from "./validation-issues";
+
+const logger = getLogger("erp", "api", "call-operation");
 
 export type CallResult =
   | { success: true; data: unknown; count?: number }
@@ -96,16 +103,24 @@ export async function callOperation(
         ? (err.data as { supabase?: unknown } | undefined)?.supabase
         : undefined;
     if (supabase) {
-      // An edge-function failure carries its real message in an unread Response on
-      // `context`, which JSON.stringify empties — every failure from "the process is
-      // not batchable" to a missing field reached the caller as the same
-      // `{"name":"FunctionsHttpError","context":{}}`. Unwrap it with the helper the
-      // routes already use; anything else keeps the byte-exact legacy text, which
-      // the dispatch parity tests assert.
+      // The caller gets a fixed message from the closed set in database-errors.ts
+      // — never the serialized PostgREST body (which names columns, constraints
+      // and values) and never an edge function's own text, both of which are
+      // server-authored strings this surface should not echo (CWE-209). The full
+      // detail goes to the server log instead, keyed by operation name, and an
+      // edge function's message is read off its unread Response so the log has
+      // the rule that actually fired ("The process is not batchable") rather than
+      // an empty `{"name":"FunctionsHttpError","context":{}}`.
       const edgeMessage = await edgeFunctionMessage(supabase);
+      logger.error("Operation failed", {
+        name,
+        kind: classifyDatabaseFailure(supabase),
+        supabase,
+        ...(edgeMessage ? { edgeMessage } : {})
+      });
       return {
         success: false,
-        error: `Database error: ${edgeMessage ?? JSON.stringify(supabase)}`,
+        error: publicDatabaseError(supabase),
         errorKind: "database"
       };
     }

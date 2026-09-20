@@ -92,6 +92,7 @@ vi.mock("@carbon/logger", () => ({
 import { MCP_BLOCKED_TOOL_NAMES } from "../../mcp+/lib/mcp-blocked-tools";
 import type { AuthedContext } from "./base.server";
 import { callOperation } from "./call.server";
+import { DATABASE_ERROR_MESSAGES } from "./database-errors";
 import {
   type DispatchResult,
   dispatchOperation,
@@ -494,8 +495,9 @@ describe("dispatchOperation service-call contract (golden, ex-executeFunction pa
     expect(r.dispatchError).toBeInstanceOf(ORPCError);
     const orpcError = r.dispatchError as ORPCError<string, unknown>;
     expect(orpcError.message).toBe("duplicate key value");
-    // The raw error rides on the ORPCError so callOperation can reconstruct MCP's
-    // byte-identical `Database error: ${JSON.stringify(error)}` text.
+    // The raw error rides on the ORPCError: callOperation classifies it into a
+    // public message and logs the detail, and the HTTP handler serializes it into
+    // the 400 body.
     expect(
       (orpcError.data as { supabase?: unknown } | undefined)?.supabase
     ).toEqual(supabaseError);
@@ -684,7 +686,11 @@ describe("callOperation (the MCP/agent/workflow entry point)", () => {
     expect(idIn((asList as { data: unknown }).data)).toBe("rec_2");
   });
 
-  it("maps a Supabase error to the errorKind:database envelope with MCP's exact text", async () => {
+  it("maps a Supabase error to the errorKind:database envelope with a closed-set message", async () => {
+    // The envelope shape is the parity contract; the TEXT deliberately is not.
+    // It used to be `Database error: ${JSON.stringify(error)}`, which handed an
+    // API caller the column, constraint and value out of the PostgREST body
+    // (CWE-209). The detail now goes to the server log instead.
     const supabaseError = { message: "boom", code: "XX000" };
     spies.getAccountLedger.mockResolvedValue({
       data: null,
@@ -698,7 +704,30 @@ describe("callOperation (the MCP/agent/workflow entry point)", () => {
     expect(result).toEqual({
       success: false,
       errorKind: "database",
-      error: `Database error: ${JSON.stringify(supabaseError)}`
+      error: DATABASE_ERROR_MESSAGES.unknown
+    });
+    expect(result).not.toMatchObject({
+      error: expect.stringContaining("boom")
+    });
+  });
+
+  it("classifies a recognized failure without echoing the error", async () => {
+    spies.getAccountLedger.mockResolvedValue({
+      data: null,
+      error: {
+        code: "23505",
+        message: 'duplicate key value violates unique constraint "ledger_pkey"'
+      }
+    });
+    const result = await callOperation(
+      "accounting_getAccountLedger",
+      ctx,
+      LEDGER_ARGS
+    );
+    expect(result).toEqual({
+      success: false,
+      errorKind: "database",
+      error: DATABASE_ERROR_MESSAGES.conflict
     });
   });
 

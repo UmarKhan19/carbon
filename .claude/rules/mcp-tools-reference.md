@@ -311,20 +311,33 @@ dispatcher (`apps/erp/app/routes/api+/inngest.ts`). There is no separate
   `{ data, error, count }` envelope is **unwrapped by the dispatch**:
   `callOperation` returns `{ success: true, data, count? }` or
   `{ success: false, error, errorKind: "database" | "execution" }`. The raw error
-  rides on `ORPCError.data.supabase`, and the `Database error:` envelope carries
-  one of two things depending on what failed:
-  - A **PostgREST/Postgres** failure keeps MCP's exact
-    `Database error: ${JSON.stringify(error)}` text, byte for byte (pinned by
-    `dispatch-parity.test.ts`), and HTTP callers get the Postgres
-    `code`/`details`/`hint` in the 400 body.
-  - A **`FunctionsHttpError`** (an edge function answered non-2xx) carries the
-    function's own message instead — `Database error: The process is not
-    batchable` — read off the unread `Response` on `error.context` by
-    `edgeFunctionMessage` (`call.server.ts`, wrapping `getEdgeFunctionErrorMessage`
-    from `~/utils/error`). `JSON.stringify` empties that `Response`, so without
-    the unwrap every edge failure — a broken business rule and a malformed payload
-    alike — reached the caller as the same `{"name":"FunctionsHttpError","context":{}}`.
-    Falls back to the stringified error when the body carries no usable message.
+  rides on `ORPCError.data.supabase`, and the two surfaces treat it differently:
+  - `CallResult.error` (MCP, the in-app agent, workflows) carries a **fixed
+    message from the closed set** in `api+/v1+/lib/database-errors.ts` —
+    `conflict`, `reference`, `required`, `permission`, `notFound`, `rule`,
+    `unknown`. `classifyDatabaseFailure` picks one from STRUCTURED fields only
+    (a Postgres SQLSTATE, or the `FunctionsHttpError` name); message text is never
+    parsed, since parsing it would make the public string a function of the private
+    one. It used to interpolate `JSON.stringify(error)`, which handed a caller the
+    column, constraint and value out of the PostgREST body, and later an edge
+    function's own text — CWE-209 either way.
+  - The **full detail is logged** instead (`logger.error("Operation failed", …)` in
+    `call.server.ts`) with the operation name, the classification, the raw Supabase
+    error, and — for an edge function — the message read off the unread `Response`
+    on `error.context` by `edgeFunctionMessage`. Without that read the log would
+    hold an empty `{"name":"FunctionsHttpError","context":{}}` rather than the rule
+    that fired ("The process is not batchable"), so a business-rule rejection and a
+    malformed payload would be indistinguishable in the log too.
+  - **HTTP is a separate path and is unchanged**: a 400 body is serialized from the
+    `ORPCError` by the oRPC handler, never from `CallResult`, so HTTP callers still
+    receive the Postgres `code`/`details`/`hint`. Narrowing that is a separate
+    decision about the public API.
+
+  The consequence is deliberate and worth knowing when debugging an agent: a
+  business rule an agent could act on ("already in a batch") now reads as the
+  generic `rule` message, and the specific cause is in the server log. An
+  enumerated code returned by the edge functions themselves, mapped to public
+  strings here, is the way to give that back without echoing server text.
 - The dispatch behavior is pinned by
   `api+/v1+/lib/dispatch-parity.test.ts` (golden cases carried over from the
   deleted `executeFunction`) — a change there is a behavior change for MCP,
