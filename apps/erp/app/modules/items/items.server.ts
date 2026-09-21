@@ -45,6 +45,7 @@ import {
   supersessionModes
 } from "./items.models";
 import {
+  assertChangeNoticeAssigneeIsCompanyMember,
   createChangeNoticeImpactTask,
   designateChangeNoticeImpactTask,
   getChangeNoticeImpactHistory,
@@ -570,6 +571,12 @@ export async function createAuthorizedChangeNoticeImpactTask(args: {
     targetType: parsed.data.targetType
   });
   if ("error" in context) return { data: null, error: context.error };
+
+  const assigneeError = await assertChangeNoticeAssigneeIsCompanyMember(
+    args.client,
+    { companyId: args.companyId, assignee: parsed.data.task.assignee }
+  );
+  if (assigneeError) return { data: null, error: assigneeError.error };
 
   const { getDatabaseClient } = await import("~/services/database.server");
   return createChangeNoticeImpactTask(getDatabaseClient(), {

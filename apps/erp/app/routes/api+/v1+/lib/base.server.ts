@@ -52,18 +52,24 @@ export function assertScopes(
   }
 }
 
-// These operations use a server-owned database connection instead of the
-// caller's RLS client. Keep the exception explicit so adding another DB-backed
-// destructive operation cannot silently drop OAuth permission enforcement. The
-// check mirrors requirePermissions: permissions are exact company grants; the
-// removed "0" wildcard is not accepted.
-const OAUTH_SERVICE_ROLE_OPERATIONS = new Set(["items_deleteChangeNotice"]);
+// An operation whose service params include `db` is handed a server-owned Kysely
+// client by the dispatcher (see dispatchOperation), and that client bypasses RLS.
+// Every other operation runs as the OAuth caller's user-scoped client, where RLS
+// IS the permission check — which is why the scope gate is skipped for oauth.
+// So a DB-backed operation must pass the user-permission check explicitly, or a
+// connector caller could reach it without holding the operation's permission.
+// Derived from the manifest, not a hand-kept name list: a new DB-backed operation
+// cannot silently skip the check. The check mirrors requirePermissions:
+// permissions are exact company grants; the removed "0" wildcard is not accepted.
+function usesServerOwnedDatabase(meta: ManifestEntry): boolean {
+  return meta.serviceParams.includes("db");
+}
 
 async function assertOAuthServiceRolePermission(
   context: AuthedContext,
   meta: ManifestEntry
 ): Promise<void> {
-  if (!OAUTH_SERVICE_ROLE_OPERATIONS.has(meta.name)) return;
+  if (!usesServerOwnedDatabase(meta)) return;
   const module = meta.permission.module;
   if (module === null) return;
 
@@ -81,12 +87,12 @@ async function assertOAuthServiceRolePermission(
 }
 
 /** Per-operation gate middleware — runs the scope check for API-key callers and
- *  the explicit user-permission check for OAuth operations that bypass RLS. Current
- *  session bridges expose only read tools or catalogued workflow writes, so they
- *  cannot reach this deletion operation and remain intentionally unchanged. The
- *  blocked-name guard is belt-and-braces: blocked tools are already excluded
- *  from the manifest at generation time, so this only fires if that exclusion
- *  ever regresses — the surface stays closed instead of silently opening. */
+ *  the explicit user-permission check for OAuth operations that bypass RLS.
+ *  Session callers are already-authorized in-process callers and remain
+ *  intentionally unchanged here. The blocked-name guard is belt-and-braces:
+ *  blocked tools are already excluded from the manifest at generation time, so
+ *  this only fires if that exclusion ever regresses — the surface stays closed
+ *  instead of silently opening. */
 export const gate = (meta: ManifestEntry) =>
   base.middleware(async ({ context, next }) => {
     if (isMcpBlockedTool(meta.name)) throw new ORPCError("NOT_FOUND");

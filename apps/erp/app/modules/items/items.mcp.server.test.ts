@@ -579,6 +579,130 @@ describe("Impact follow-up task adapters", () => {
     });
   });
 
+  it("normalizes a padded Impact task due date before delegating", async () => {
+    const client = makeClient();
+
+    await createImpactFollowUpTask(client, companyId, userId, {
+      changeNoticeId,
+      targetType: "purchaseOrderLine",
+      targetId,
+      decision: {
+        decisionId,
+        targetType: "purchaseOrderLine",
+        targetId
+      },
+      task: { dueDate: "  2026-09-01  " }
+    });
+
+    expect(server.createAuthorizedChangeNoticeImpactTask).toHaveBeenCalledWith(
+      expect.objectContaining({
+        task: expect.objectContaining({
+          task: expect.objectContaining({ dueDate: "2026-09-01" })
+        })
+      })
+    );
+  });
+
+  it("maps a blank Impact task due date to null instead of an unparseable string", async () => {
+    const client = makeClient();
+
+    await createImpactFollowUpTask(client, companyId, userId, {
+      changeNoticeId,
+      targetType: "purchaseOrderLine",
+      targetId,
+      decision: {
+        decisionId,
+        targetType: "purchaseOrderLine",
+        targetId
+      },
+      task: { dueDate: "   " }
+    });
+
+    expect(server.createAuthorizedChangeNoticeImpactTask).toHaveBeenCalledWith(
+      expect.objectContaining({
+        task: expect.objectContaining({
+          task: expect.objectContaining({ dueDate: null })
+        })
+      })
+    );
+  });
+
+  it("rejects a malformed Impact task due date before delegating", async () => {
+    const client = makeClient();
+
+    const result = await createImpactFollowUpTask(client, companyId, userId, {
+      changeNoticeId,
+      targetType: "purchaseOrderLine",
+      targetId,
+      decision: {
+        decisionId,
+        targetType: "purchaseOrderLine",
+        targetId
+      },
+      task: { dueDate: "09/01/2026" }
+    });
+
+    expect(result).toEqual({
+      data: null,
+      error: { message: "Invalid Change Notice Impact task due date." }
+    });
+    expect(
+      server.createAuthorizedChangeNoticeImpactTask
+    ).not.toHaveBeenCalled();
+  });
+
+  it("rejects non-object JSON Impact task notes before delegating", async () => {
+    const client = makeClient();
+
+    for (const notes of ["hello", [1, 2, 3], 42] as unknown[]) {
+      const result = await createImpactFollowUpTask(client, companyId, userId, {
+        changeNoticeId,
+        targetType: "purchaseOrderLine",
+        targetId,
+        decision: {
+          decisionId,
+          targetType: "purchaseOrderLine",
+          targetId
+        },
+        task: { notes: notes as Json }
+      });
+
+      expect(result.data).toBeNull();
+      expect(result.error?.message).toEqual(expect.any(String));
+    }
+    expect(
+      server.createAuthorizedChangeNoticeImpactTask
+    ).not.toHaveBeenCalled();
+  });
+
+  it("accepts a nested JSON object as Impact task notes", async () => {
+    const client = makeClient();
+    const notes = {
+      type: "doc",
+      content: [{ type: "paragraph", content: [{ type: "text", text: "hi" }] }]
+    };
+
+    await createImpactFollowUpTask(client, companyId, userId, {
+      changeNoticeId,
+      targetType: "purchaseOrderLine",
+      targetId,
+      decision: {
+        decisionId,
+        targetType: "purchaseOrderLine",
+        targetId
+      },
+      task: { notes: notes as Json }
+    });
+
+    expect(server.createAuthorizedChangeNoticeImpactTask).toHaveBeenCalledWith(
+      expect.objectContaining({
+        task: expect.objectContaining({
+          task: expect.objectContaining({ notes })
+        })
+      })
+    );
+  });
+
   it("delegates link, unlink, and designation to their authorized wrappers", async () => {
     const client = makeClient();
     const args = relationshipArgs();

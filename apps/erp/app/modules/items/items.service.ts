@@ -7691,6 +7691,38 @@ export async function updateChangeNoticeActionNotes(
     .single();
 }
 
+/**
+ * A Change Notice task assignee is stored as a `user` id, and `user` is a global
+ * identity table — so without this check a caller could name a user who is not a
+ * member of the active company. Membership lives on `userToCompany`: the browser
+ * picker only offers company members, but API/MCP callers can send any id, so the
+ * check has to live here rather than in the picker. `null` clears the assignee.
+ */
+export async function assertChangeNoticeAssigneeIsCompanyMember(
+  client: SupabaseClient<Database>,
+  args: { companyId: string; assignee: string | null | undefined }
+): Promise<{ error: { message: string } } | null> {
+  const assignee = args.assignee?.trim();
+  if (!assignee) return null;
+
+  const membership = await client
+    .from("userToCompany")
+    .select("userId")
+    .eq("userId", assignee)
+    .eq("companyId", args.companyId)
+    .maybeSingle();
+
+  if (membership.error) {
+    return { error: { message: "Could not verify the task assignee." } };
+  }
+  if (!membership.data) {
+    return {
+      error: { message: "The task assignee is not a member of this company." }
+    };
+  }
+  return null;
+}
+
 export async function updateChangeNoticeActionAssignee(
   client: SupabaseClient<Database>,
   input: {
@@ -7700,7 +7732,19 @@ export async function updateChangeNoticeActionAssignee(
     assignee: string | null;
     userId: string;
   }
-) {
+): Promise<{
+  data: { id: string } | null;
+  error: { message: string } | null;
+}> {
+  const assigneeError = await assertChangeNoticeAssigneeIsCompanyMember(
+    client,
+    {
+      companyId: input.companyId,
+      assignee: input.assignee
+    }
+  );
+  if (assigneeError) return { data: null, error: assigneeError.error };
+
   return client
     .from("changeOrderActionTask")
     .update({

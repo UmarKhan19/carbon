@@ -1,4 +1,3 @@
-import { useCarbon } from "@carbon/auth";
 import {
   Button,
   DatePicker,
@@ -7,13 +6,11 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-  toast,
   useDebounce
 } from "@carbon/react";
 import { parseDate } from "@internationalized/date";
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { DragControls } from "framer-motion";
-import { nanoid } from "nanoid";
 import {
   type ReactNode,
   useCallback,
@@ -31,9 +28,9 @@ import { ActionTaskStatusButton } from "~/components/ActionTasks/ActionTaskStatu
 import { JiraIssueDialog } from "~/components/ActionTasks/Jira/IssueDialog";
 import { LinearIssueDialog } from "~/components/ActionTasks/Linear/IssueDialog";
 import { syncActionTaskNotes } from "~/components/ActionTasks/syncNotes";
-import { useDateFormatter, usePermissions, useUser } from "~/hooks";
+import { useDateFormatter, useImageUpload, usePermissions } from "~/hooks";
 import { useIntegrations } from "~/hooks/useIntegrations";
-import { getPrivateUrl, path } from "~/utils/path";
+import { path } from "~/utils/path";
 import { canEditChangeNoticeActionTaskFields } from "../../items.models";
 import type { ChangeNoticeActionTask, ChangeNoticeStatus } from "../../types";
 
@@ -65,10 +62,6 @@ export function ChangeNoticeActionTaskItem({
   const { t } = useLingui();
   const permissions = usePermissions();
   const integrations = useIntegrations();
-  const {
-    company: { id: companyId }
-  } = useUser();
-  const { carbon } = useCarbon();
   const statusFetcher = useFetcher<{ success: boolean }>();
   const notesFetcher = useFetcher<{ success: boolean }>();
   const deleteFetcher = useFetcher<{ success: boolean }>();
@@ -82,16 +75,10 @@ export function ChangeNoticeActionTaskItem({
     showDelete && permissions.can("delete", "parts") && canEditWorkflow;
   const pendingNotes = useRef<JSONContent | null>(null);
 
-  const onUploadImage = async (file: File) => {
-    const fileType = file.name.split(".").pop();
-    const fileName = `${companyId}/parts/${nanoid()}.${fileType}`;
-    const result = await carbon?.storage.from("private").upload(fileName, file);
-    if (result?.error || !result?.data) {
-      toast.error(t`Failed to upload image`);
-      throw new Error(result?.error?.message ?? "Failed to upload image");
-    }
-    return getPrivateUrl(result.data.path);
-  };
+  // Shared uploader: converts HEIC before storing and lands the file under
+  // `{companyId}/parts/…`, the same handler the Change Notice content editor and
+  // the Issue action tasks use.
+  const onUploadImage = useImageUpload("parts");
 
   useEffect(() => {
     if (

@@ -70,6 +70,9 @@ export const MCP_BLOCKED_TOOL_NAMES: readonly string[] = [
   "items_classifyJobMaterialImpactEligibility",
   "items_deriveChangeNoticeImpactProvenance",
   "items_compareChangeNoticeImpactSnapshot",
+  // Internal tenancy guard used by the authorized task mutation path; it is not
+  // a generic API/MCP operation of its own.
+  "items_assertChangeNoticeAssigneeIsCompanyMember",
   // Change Notice engineering writers are route-guarded; the generic dispatcher
   // must not bypass the engineering lock, parent ownership checks, or the
   // Implementation -> Done apply orchestration. Keep the guarded browser paths

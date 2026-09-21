@@ -61,13 +61,35 @@ const claims = (permissions: Record<string, { view: string[] }>) => ({
 
 function fakeImpactPermissionClient(
   companies: Partial<Record<string, string[]>> = {},
-  rpcError: { message: string } | null = null
+  rpcError: { message: string } | null = null,
+  memberships: { userId: string; companyId: string }[] = []
 ): SupabaseClient<Database> {
   return {
     rpc: vi.fn(async (_name: string, args: { permission: string }) => ({
       data: rpcError ? null : (companies[args.permission] ?? []),
       error: rpcError
-    }))
+    })),
+    // The `userToCompany` membership lookup the assignee guard walks.
+    from: vi.fn(() => {
+      const filters: Record<string, string> = {};
+      const builder = {
+        select: () => builder,
+        eq: (column: string, value: string) => {
+          filters[column] = value;
+          return builder;
+        },
+        maybeSingle: async () => ({
+          data:
+            memberships.find(
+              (membership) =>
+                membership.userId === filters.userId &&
+                membership.companyId === filters.companyId
+            ) ?? null,
+          error: null
+        })
+      };
+      return builder;
+    })
   } as unknown as SupabaseClient<Database>;
 }
 
@@ -389,7 +411,7 @@ describe("Change Notice Impact source access", () => {
           targetType: "job",
           targetId: "job-1"
         },
-        task: { name: "Production follow-up" }
+        task: { name: "Production follow-up", assignee: "outsider-1" }
       }
     });
 
@@ -401,8 +423,131 @@ describe("Change Notice Impact source access", () => {
       "get_companies_with_employee_permission",
       { permission: "production_view" }
     );
+    expect(client.from).not.toHaveBeenCalled();
     expect(getUserClaims).not.toHaveBeenCalled();
     expect(getDatabaseClient).not.toHaveBeenCalled();
+  });
+
+  it("rejects an Impact task assignee who is not a member of the active company", async () => {
+    // The `user` table is global, so an API/MCP caller can name any id. The
+    // browser picker only offers members; the boundary has to hold without it.
+    const client = fakeImpactPermissionClient(
+      {
+        parts_view: [companyId],
+        parts_update: [companyId],
+        production_view: [companyId]
+      },
+      null,
+      []
+    );
+
+    const result = await createAuthorizedChangeNoticeImpactTask({
+      client,
+      userId: "user-1",
+      companyId,
+      task: {
+        changeNoticeId: "notice-1",
+        targetType: "job",
+        targetId: "job-1",
+        decision: {
+          decisionId: "decision-1",
+          targetType: "job",
+          targetId: "job-1"
+        },
+        task: { name: "Production follow-up", assignee: "outsider-1" }
+      }
+    });
+
+    expect(result).toEqual({
+      data: null,
+      error: { message: "The task assignee is not a member of this company." }
+    });
+    expect(client.from).toHaveBeenCalledWith("userToCompany");
+    // Source authorization runs before the membership probe; the outsider is
+    // only revealed after the caller is allowed to assess this target.
+    expect(client.rpc).toHaveBeenCalledWith(
+      "get_companies_with_employee_permission",
+      { permission: "production_view" }
+    );
+    expect(getUserClaims).not.toHaveBeenCalled();
+    expect(getDatabaseClient).not.toHaveBeenCalled();
+  });
+
+  it("lets a company-member assignee reach the existing Impact task writer", async () => {
+    const client = fakeImpactPermissionClient(
+      {
+        parts_view: [companyId],
+        parts_update: [companyId],
+        production_view: [companyId]
+      },
+      null,
+      [{ userId: "member-1", companyId }]
+    );
+    const downstreamResult = {
+      data: {
+        decisionId: "decision-1",
+        actionTaskId: "task-1",
+        decisionCreated: false,
+        taskOrigin: "Impact follow-up" as const,
+        status: "Pending" as const
+      },
+      error: null
+    };
+    vi.mocked(getDatabaseClient).mockReturnValue({
+      transaction: () => ({
+        execute: vi.fn().mockResolvedValue(downstreamResult)
+      })
+    } as never);
+
+    const result = await createAuthorizedChangeNoticeImpactTask({
+      client,
+      userId: "user-1",
+      companyId,
+      task: {
+        changeNoticeId: "notice-1",
+        targetType: "job",
+        targetId: "job-1",
+        decision: {
+          decisionId: "decision-1",
+          targetType: "job",
+          targetId: "job-1"
+        },
+        task: { name: "Production follow-up", assignee: "member-1" }
+      }
+    });
+
+    expect(result).toEqual(downstreamResult);
+    expect(client.from).toHaveBeenCalledWith("userToCompany");
+    expect(getDatabaseClient).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not look up membership when the assignee is null or cleared", async () => {
+    for (const assignee of [null, "   "] as const) {
+      const client = fakeImpactPermissionClient({
+        parts_view: [],
+        parts_update: [companyId],
+        production_view: []
+      });
+
+      await createAuthorizedChangeNoticeImpactTask({
+        client,
+        userId: "user-1",
+        companyId,
+        task: {
+          changeNoticeId: "notice-1",
+          targetType: "job",
+          targetId: "job-1",
+          decision: {
+            decisionId: "decision-1",
+            targetType: "job",
+            targetId: "job-1"
+          },
+          task: { name: "Production follow-up", assignee }
+        }
+      });
+
+      expect(client.from).not.toHaveBeenCalled();
+    }
   });
 
   it("returns explicit failed access instead of Restricted when claims resolution fails", async () => {

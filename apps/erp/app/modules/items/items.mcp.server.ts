@@ -4,7 +4,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import {
   changeNoticeImpactTaskCreateRequestValidator,
-  changeNoticeImpactTaskRelationshipRequestValidator
+  changeNoticeImpactTaskRelationshipRequestValidator,
+  isJsonObjectTaskNotes
 } from "./items.models";
 import {
   createAuthorizedChangeNoticeImpactTask,
@@ -51,29 +52,6 @@ async function requireMcpCompanyPermission(
   }
 }
 
-function isJsonValue(value: unknown): value is Json {
-  if (
-    value === null ||
-    typeof value === "string" ||
-    typeof value === "number" ||
-    typeof value === "boolean"
-  ) {
-    return true;
-  }
-  if (Array.isArray(value)) return value.every(isJsonValue);
-  if (typeof value !== "object") return false;
-  return Object.values(value as Record<string, unknown>).every(isJsonValue);
-}
-
-function isJsonObject(value: unknown): value is Json {
-  return (
-    value !== null &&
-    typeof value === "object" &&
-    !Array.isArray(value) &&
-    isJsonValue(value)
-  );
-}
-
 const updateChangeNoticeTaskStatusArgsValidator = z.object({
   changeNoticeId: z.string().min(1),
   actionTaskId: z.string().min(1),
@@ -83,7 +61,7 @@ const updateChangeNoticeTaskStatusArgsValidator = z.object({
 const updateChangeNoticeTaskNotesArgsValidator = z.object({
   changeNoticeId: z.string().min(1),
   actionTaskId: z.string().min(1),
-  notes: z.custom<Json>(isJsonObject)
+  notes: z.custom<Json>(isJsonObjectTaskNotes)
 });
 
 const updateChangeNoticeTaskAssigneeArgsValidator = z.object({
@@ -406,6 +384,26 @@ export async function createImpactFollowUpTask(
     };
   }
 
+  // Normalize the due date the same way the update adapter does, so the create
+  // path cannot accept a non-canonical date the browser route rejects.
+  const rawDueDate = args.task.dueDate;
+  let normalizedDueDate = rawDueDate;
+  if (typeof rawDueDate === "string") {
+    const trimmed = rawDueDate.trim();
+    if (!trimmed) {
+      normalizedDueDate = null;
+    } else {
+      try {
+        normalizedDueDate = parseDate(trimmed).toString();
+      } catch {
+        return {
+          data: null,
+          error: { message: "Invalid Change Notice Impact task due date." }
+        };
+      }
+    }
+  }
+
   const request = {
     changeNoticeId: args?.changeNoticeId,
     targetType: args?.targetType,
@@ -427,7 +425,7 @@ export async function createImpactFollowUpTask(
       name: args.task.name ?? undefined,
       notes: args.task.notes,
       assignee: args.task.assignee,
-      dueDate: args.task.dueDate
+      dueDate: normalizedDueDate
     }
   };
   const parsed =

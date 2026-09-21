@@ -664,7 +664,7 @@ describe("dispatchOperation service-call contract (golden, ex-executeFunction pa
   });
 });
 
-describe("OAuth authorization for service-role deletion", () => {
+describe("OAuth authorization for server-owned database operations", () => {
   const oauthContext: AuthedContext = {
     ...ctx,
     authKind: "oauth"
@@ -759,6 +759,80 @@ describe("OAuth authorization for service-role deletion", () => {
       "notice-1",
       "c1"
     );
+  });
+
+  // The check keys off the manifest's `db` service param, so it covers every
+  // operation the dispatcher hands a RLS-bypassing Kysely client — not just the
+  // one that was special-cased. `inventory_generateInventoryCountLines` is the
+  // case the hand-kept list missed.
+  it("rejects a DB-backed inventory operation without inventory:create", async () => {
+    spies.getUserClaims.mockResolvedValueOnce({
+      permissions: {
+        inventory: { view: ["c1"], create: [], update: [], delete: [] }
+      },
+      role: "employee"
+    });
+
+    const result = await callOperation(
+      "inventory_generateInventoryCountLines",
+      oauthContext,
+      { inventoryCountId: "count-1", locationId: "loc1" }
+    );
+
+    expect(result).toEqual({
+      success: false,
+      error: "OAuth caller lacks the required permission: inventory_create",
+      errorKind: "execution"
+    });
+    expect(spies.getUserClaims).toHaveBeenCalledWith("u1", "c1");
+    expect(spies.generateInventoryCountLines).not.toHaveBeenCalled();
+  });
+
+  it("passes a DB-backed inventory operation through once the grant is held", async () => {
+    spies.getUserClaims.mockResolvedValueOnce({
+      permissions: {
+        inventory: { view: ["c1"], create: ["c1"], update: [], delete: [] }
+      },
+      role: "employee"
+    });
+    spies.generateInventoryCountLines.mockResolvedValue(0);
+
+    const result = await callOperation(
+      "inventory_generateInventoryCountLines",
+      oauthContext,
+      { inventoryCountId: "count-1", locationId: "loc1" }
+    );
+
+    expect(result).toEqual({ success: true, data: 0 });
+    expect(spies.generateInventoryCountLines).toHaveBeenCalledWith(
+      spies.FAKE_DB,
+      {
+        inventoryCountId: "count-1",
+        locationId: "loc1",
+        companyId: "c1",
+        createdBy: "u1",
+        updatedBy: "u1"
+      }
+    );
+  });
+
+  it("does not run the permission check for a caller-scoped operation", async () => {
+    // Non-`db` operations run on the OAuth caller's own RLS client, where RLS is
+    // the permission check — so the explicit gate must stay off for them.
+    spies.getUserClaims.mockClear();
+    spies.createImpactFollowUpTask.mockResolvedValue({
+      data: { id: "impact_1" },
+      error: null
+    });
+
+    const result = await callOperation(
+      "items_createImpactFollowUpTask",
+      oauthContext,
+      IMPACT_ADAPTER_CALLS[0][2]
+    );
+
+    expect(result).toEqual({ success: true, data: { id: "impact_1" } });
+    expect(spies.getUserClaims).not.toHaveBeenCalled();
   });
 });
 

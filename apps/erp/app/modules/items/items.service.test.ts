@@ -16,6 +16,7 @@ vi.mock("@carbon/glossary", () => ({
 }));
 
 const {
+  assertChangeNoticeAssigneeIsCompanyMember,
   deleteChangeNotice,
   deleteChangeNoticeAction,
   diffMethod,
@@ -1585,10 +1586,16 @@ function makeFakeActionMutationClient(timezone = "UTC") {
           record();
           return { data: { id: "task-1" }, error: null };
         },
-        maybeSingle: async () =>
-          table === "company"
-            ? { data: { timezone }, error: null }
-            : { data: null, error: null },
+        maybeSingle: async () => {
+          if (table === "company") return { data: { timezone }, error: null };
+          // The assignee guard reads `userToCompany`; answer it with a member so
+          // the mutation under test is reached. Its own filters are pinned by the
+          // `assertChangeNoticeAssigneeIsCompanyMember` tests below.
+          if (table === "userToCompany") {
+            return { data: { userId: "user-2" }, error: null };
+          }
+          return { data: null, error: null };
+        },
         then: (
           resolve: (value: { data: null; error: null }) => unknown,
           reject?: (error: unknown) => unknown
@@ -1933,5 +1940,99 @@ describe("diffMethod — attributes", () => {
     expect(attributes[0].status).toBe("added");
     expect(attributes[0].before).toBeNull();
     expect(attributes[0].after).toEqual(target);
+  });
+});
+
+// ── assertChangeNoticeAssigneeIsCompanyMember ────────────────────────────────
+// `changeOrderActionTask.assignee` is a `user` id, and `user` is a global table,
+// so membership has to be proven against `userToCompany` for the active company.
+function makeFakeMembershipClient(
+  membership: { userId: string; companyId: string } | null,
+  error: { message: string } | null = null
+) {
+  const lookups: { table: string; filters: Record<string, unknown> }[] = [];
+
+  const client = {
+    from(table: string) {
+      const filters: Record<string, unknown> = {};
+      const builder = {
+        select: () => builder,
+        eq: (column: string, value: unknown) => {
+          filters[column] = value;
+          return builder;
+        },
+        maybeSingle: async () => {
+          lookups.push({ table, filters });
+          return { data: error ? null : membership, error };
+        }
+      };
+      return builder;
+    }
+  } as never;
+
+  return { client, lookups };
+}
+
+describe("assertChangeNoticeAssigneeIsCompanyMember", () => {
+  it("treats a cleared assignee as a no-op without querying", async () => {
+    for (const assignee of [null, undefined, "", "   "]) {
+      const { client, lookups } = makeFakeMembershipClient(null);
+      await expect(
+        assertChangeNoticeAssigneeIsCompanyMember(client, {
+          companyId: "company-1",
+          assignee
+        })
+      ).resolves.toBeNull();
+      expect(lookups).toHaveLength(0);
+    }
+  });
+
+  it("scopes the membership lookup to the assignee and the active company", async () => {
+    const { client, lookups } = makeFakeMembershipClient({
+      userId: "user-2",
+      companyId: "company-1"
+    });
+
+    await expect(
+      assertChangeNoticeAssigneeIsCompanyMember(client, {
+        companyId: "company-1",
+        assignee: "user-2"
+      })
+    ).resolves.toBeNull();
+
+    expect(lookups).toEqual([
+      {
+        table: "userToCompany",
+        filters: { userId: "user-2", companyId: "company-1" }
+      }
+    ]);
+  });
+
+  it("rejects an assignee who is not a member of the active company", async () => {
+    const { client } = makeFakeMembershipClient(null);
+
+    await expect(
+      assertChangeNoticeAssigneeIsCompanyMember(client, {
+        companyId: "company-1",
+        assignee: "outsider-1"
+      })
+    ).resolves.toEqual({
+      error: { message: "The task assignee is not a member of this company." }
+    });
+  });
+
+  it("fails closed when the membership lookup errors", async () => {
+    const { client } = makeFakeMembershipClient(null, {
+      message: "lookup failed"
+    });
+
+    await expect(
+      assertChangeNoticeAssigneeIsCompanyMember(client, {
+        companyId: "company-1",
+        assignee: "user-2"
+      })
+    ).resolves.toEqual({
+      error: { message: "Could not verify the task assignee." }
+    });
   });
 });

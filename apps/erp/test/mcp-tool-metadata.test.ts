@@ -67,6 +67,7 @@ describe("mcp tool-metadata generator", () => {
       "items_classifyJobMaterialImpactEligibility",
       "items_deriveChangeNoticeImpactProvenance",
       "items_compareChangeNoticeImpactSnapshot",
+      "items_assertChangeNoticeAssigneeIsCompanyMember",
       "items_updateChangeNoticeActionStatus",
       "items_deleteChangeNoticeAction",
       "items_updateChangeNoticeActionOrder",

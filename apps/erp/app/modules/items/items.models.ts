@@ -1946,10 +1946,38 @@ export const changeNoticeImpactTaskDecisionReferenceValidator = z
   })
   .strict();
 
+/**
+ * Impact task notes cross the browser/API boundary as a JSON object. This is a
+ * narrow shape check, not a ProseMirror/Tiptap schema validator — the browser
+ * editor owns the document semantics. Without the predicate, `z.custom<Json>()`
+ * accepts anything and the API/MCP create path can store a string or array where
+ * the browser sends an object.
+ */
+export function isJsonObjectTaskNotes(value: unknown): value is Json {
+  if (value === null || typeof value !== "object" || Array.isArray(value)) {
+    return false;
+  }
+  return Object.values(value as Record<string, unknown>).every(isJsonValue);
+}
+
+function isJsonValue(value: unknown): boolean {
+  if (
+    value === null ||
+    typeof value === "string" ||
+    typeof value === "number" ||
+    typeof value === "boolean"
+  ) {
+    return true;
+  }
+  if (Array.isArray(value)) return value.every(isJsonValue);
+  if (typeof value !== "object") return false;
+  return Object.values(value as Record<string, unknown>).every(isJsonValue);
+}
+
 const changeNoticeImpactTaskFieldsValidator = z
   .object({
     name: z.string().trim().min(1).optional(),
-    notes: z.custom<Json>().nullable().optional(),
+    notes: z.custom<Json>(isJsonObjectTaskNotes).nullable().optional(),
     assignee: z.string().trim().nullable().optional(),
     dueDate: z.string().trim().nullable().optional()
   })
