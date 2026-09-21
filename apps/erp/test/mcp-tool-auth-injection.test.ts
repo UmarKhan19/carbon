@@ -4,19 +4,6 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import toolMetadataJson from "../app/routes/api+/mcp+/lib/tool-metadata.json";
 
-// Guard for the gap that broke every batch write over MCP (#1550 shipped the
-// batch tools; nothing exercised them through this surface). A service takes the
-// acting user either as a POSITIONAL `userId` param — which the dispatcher fills
-// straight from context — or as a FIELD of its payload object, the shape every
-// edge-function wrapper uses. `CONTEXT_PARAMS` strips that field from the
-// published schema on the assumption something supplies it, so unless the
-// manifest also marks the tool for injection the service is invoked with no
-// userId at all. In-app callers pass it explicitly, so the failure is invisible
-// until an API-key or MCP caller hits it.
-//
-// The contract this pins is already written down: .claude/rules/mcp-tools-reference.md
-// says companyId/userId come from the auth context and are injected server-side,
-// never trusted from tool arguments.
 
 const MODULES_DIR = join(dirname(fileURLToPath(import.meta.url)), "../app/modules");
 
@@ -47,7 +34,6 @@ function serviceSources(module: string): string {
   return joined;
 }
 
-/** The text between the parens of `export async function <fn>(…)`, or null. */
 function signatureOf(source: string, fn: string): string | null {
   const match = new RegExp(
     `export\\s+(?:async\\s+)?function\\s+${fn}\\s*\\(`
@@ -66,7 +52,6 @@ function signatureOf(source: string, fn: string): string | null {
   return null;
 }
 
-/** Split a parameter list on its top-level commas. */
 function splitParams(signature: string): string[] {
   const params: string[] = [];
   let depth = 0;
@@ -87,13 +72,12 @@ function splitParams(signature: string): string[] {
 
 const PAYLOAD_USER_ID = /(^|[{;,\s])userId\s*\??\s*:/;
 
-/** Does any non-positional param of this signature declare a `userId` field? */
 function payloadDeclaresUserId(signature: string): boolean {
   return splitParams(signature).some((param) => {
     const colon = param.indexOf(":");
     if (colon < 0) return false;
     const name = param.slice(0, colon).trim().replace(/\?$/, "");
-    if (name === "userId") return false; // positional — filled from context
+    if (name === "userId") return false;
     return PAYLOAD_USER_ID.test(param.slice(colon + 1));
   });
 }

@@ -87,11 +87,6 @@ export function enrichWithAuthContext(
   if (fields.includes("companyGroupId")) {
     enriched.companyGroupId = context.companyGroupId;
   }
-  // Services that take the acting user as a FIELD of their args object (the
-  // edge-function wrappers — batch-operations and friends) get it here; a
-  // positional userId param is filled from context in the loop below instead.
-  // Overwrite rather than fill, for the same reason as createdBy: the field is
-  // stripped from the published schema, so a caller-supplied one is a forgery.
   if (fields.includes("userId")) {
     enriched.userId = context.userId;
   }
@@ -366,9 +361,6 @@ export async function dispatchOperation(
   if (result && typeof result === "object" && "data" in result) {
     const r = result as { data: unknown; error?: unknown; count?: number };
     if (r.error) {
-      // The raw error rides along so callOperation can classify it into a public
-      // message and log the detail, and so HTTP callers get the Postgres
-      // code/details/hint the way Supabase REST does.
       throw new ORPCError("BAD_REQUEST", {
         message: supabaseErrorMessage(r.error),
         data: { supabase: r.error }

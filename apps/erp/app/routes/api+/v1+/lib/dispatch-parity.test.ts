@@ -495,9 +495,6 @@ describe("dispatchOperation service-call contract (golden, ex-executeFunction pa
     expect(r.dispatchError).toBeInstanceOf(ORPCError);
     const orpcError = r.dispatchError as ORPCError<string, unknown>;
     expect(orpcError.message).toBe("duplicate key value");
-    // The raw error rides on the ORPCError: callOperation classifies it into a
-    // public message and logs the detail, and the HTTP handler serializes it into
-    // the 400 body.
     expect(
       (orpcError.data as { supabase?: unknown } | undefined)?.supabase
     ).toEqual(supabaseError);
@@ -509,9 +506,6 @@ describe("dispatchOperation service-call contract (golden, ex-executeFunction pa
       spies.upsertNotificationPreference,
       { args: { channel: "email", enabled: true } }
     );
-    // userId rides along because the payload declares one: the field is stripped
-    // from the published schema, so a caller cannot send it and the row used to be
-    // written without it.
     expect(r.calls).toEqual([
       [
         spies.FAKE_CLIENT,
@@ -687,10 +681,6 @@ describe("callOperation (the MCP/agent/workflow entry point)", () => {
   });
 
   it("maps a Supabase error to the errorKind:database envelope with a closed-set message", async () => {
-    // The envelope shape is the parity contract; the TEXT deliberately is not.
-    // It used to be `Database error: ${JSON.stringify(error)}`, which handed an
-    // API caller the column, constraint and value out of the PostgREST body
-    // (CWE-209). The detail now goes to the server log instead.
     const supabaseError = { message: "boom", code: "XX000" };
     spies.getAccountLedger.mockResolvedValue({
       data: null,

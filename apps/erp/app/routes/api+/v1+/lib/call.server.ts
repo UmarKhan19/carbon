@@ -32,11 +32,6 @@ export type CallResult =
   | { success: true; data: unknown; count?: number }
   | { success: false; error: string; errorKind: "database" | "execution" };
 
-/**
- * The edge function's own message, for a `functions.invoke()` failure only. Null
- * for every other Supabase error — a PostgREST error carries a `message` too, and
- * reading it here would rewrite error text the parity tests pin byte for byte.
- */
 async function edgeFunctionMessage(error: unknown): Promise<string | null> {
   const candidate = error as { name?: unknown; context?: unknown };
   if (candidate?.name !== "FunctionsHttpError" || !candidate.context)
@@ -103,14 +98,6 @@ export async function callOperation(
         ? (err.data as { supabase?: unknown } | undefined)?.supabase
         : undefined;
     if (supabase) {
-      // The caller gets a fixed message from the closed set in database-errors.ts
-      // — never the serialized PostgREST body (which names columns, constraints
-      // and values) and never an edge function's own text, both of which are
-      // server-authored strings this surface should not echo (CWE-209). The full
-      // detail goes to the server log instead, keyed by operation name, and an
-      // edge function's message is read off its unread Response so the log has
-      // the rule that actually fired ("The process is not batchable") rather than
-      // an empty `{"name":"FunctionsHttpError","context":{}}`.
       const edgeMessage = await edgeFunctionMessage(supabase);
       logger.error("Operation failed", {
         name,

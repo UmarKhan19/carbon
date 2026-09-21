@@ -1191,20 +1191,6 @@ function computeInjectAuth(
   return ["companyId"];
 }
 
-/**
- * A service takes the acting user one of two ways: as a positional `userId`
- * param, which the dispatcher fills straight from context, or as a FIELD of its
- * args object — the shape every edge-function wrapper uses
- * (`createJobOperationBatch`, `pickPickingListLine`, …). `CONTEXT_PARAMS` strips
- * that field from the published schema on the assumption something supplies it,
- * so without this the service is invoked with no userId at all and the edge
- * function rejects the payload. Deriving the flag from the signature keeps the
- * strip and the injection in step.
- *
- * A textual test of the param type is exact here: every userId-bearing payload
- * in the service layer is an inline object literal, and no type alias declares
- * one. Should that change, the manifest guard test fails rather than the tool.
- */
 export function withPayloadUserId(
   fields: AuthField[],
   func: ParsedFunction

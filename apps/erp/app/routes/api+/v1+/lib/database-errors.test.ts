@@ -5,10 +5,6 @@ import {
   publicDatabaseError
 } from "./database-errors";
 
-// The point of the closed set is that no server-authored text can reach an API
-// caller through it (CWE-209), so the tests that matter are the ones proving a
-// message with secrets in it cannot come back out.
-
 describe("classifyDatabaseFailure", () => {
   it.each([
     ["23505", "conflict"],
@@ -35,8 +31,6 @@ describe("classifyDatabaseFailure", () => {
   });
 
   it("classifies on structured fields, never on message text", () => {
-    // A message that looks like a conflict must not be read as one — parsing text
-    // is what makes a public string a function of a private one.
     expect(
       classifyDatabaseFailure({ message: "duplicate key value violates 23505" })
     ).toBe("unknown");
