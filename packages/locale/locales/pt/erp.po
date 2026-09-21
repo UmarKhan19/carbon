@@ -123,6 +123,10 @@ msgstr "{0} eliminado com sucesso"
 msgid "{0} draft journal entries"
 msgstr "{0} lançamentos de diário em rascunho"
 
+#. placeholder {0}: op.description
+msgid "{0} has no supplier"
+msgstr ""
+
 #. placeholder {0}: selectedKeys.size
 msgid "{0} Impact rows selected"
 msgstr "{0} linhas de impacto selecionadas"
@@ -156,6 +160,10 @@ msgstr "{0} de {1} contas de contabilização mapeadas"
 #. placeholder {0}: rows.length
 msgid "{0} of {maxSlots} provider slots used"
 msgstr "{0} de {maxSlots} slots de provedor utilizados"
+
+#. placeholder {0}: pendingJobs.length
+msgid "{0} of {memberCount} member jobs are not completed yet — their output stays out of stock until each job is completed."
+msgstr "{0} de {memberCount} ordens de produção ainda não foram concluídas — sua saída permanece fora do estoque até que cada ordem de produção seja concluída."
 
 #. placeholder {0}: selected.length
 msgid "{0} operations · {totalQuantity} parts"
@@ -1684,6 +1692,10 @@ msgstr "Todos os Itens"
 msgid "All Locations"
 msgstr "Todos os Locais"
 
+#. placeholder {0}: tracked[0]?.itemReadableId ?? ""
+msgid "all make {0}"
+msgstr "toda Fabricação {0}"
+
 msgid "All members of selected groups and selected individuals will be able to approve requests"
 msgstr "Todos os membros dos grupos selecionados e indivíduos selecionados poderão aprovar solicitações"
 
@@ -2873,6 +2885,9 @@ msgstr "Disponível após {0}"
 msgid "Available hours"
 msgstr "Horas Disponíveis"
 
+msgid "Available on the Business plan"
+msgstr "Disponível no plano Business"
+
 msgid "Avatar url"
 msgstr "URL do avatar"
 
@@ -3637,6 +3652,9 @@ msgstr "Verifique seu email"
 msgid "Checking Stripe for this customer…"
 msgstr "Verificando Stripe para este cliente…"
 
+msgid "Checking the batch's jobs..."
+msgstr "Verificando as ordens de produção do lote de produção..."
+
 msgid "Checkpoint ·"
 msgstr "Checkpoint ·"
 
@@ -3660,6 +3678,10 @@ msgstr "Escolha uma linha à esquerda para ver de onde seu estoque pode vir."
 
 msgid "Choose a serial number"
 msgstr "Escolha um número de série"
+
+#. placeholder {0}: op.description
+msgid "choose a supplier for {0} on the job"
+msgstr ""
 
 msgid "Choose another file"
 msgstr "Escolher outro arquivo"
@@ -3828,6 +3850,9 @@ msgstr "Colunas"
 
 msgid "Combine filters"
 msgstr "Combinar filtros"
+
+msgid "Combine output into one lot"
+msgstr "Combinar produção em um único lote"
 
 msgid "Coming soon"
 msgstr "Em breve"
@@ -4643,6 +4668,9 @@ msgstr "Criar {0} valores"
 msgid "Create & Release"
 msgstr "Criar & liberar"
 
+msgid "Create & release batch"
+msgstr "Criar e liberar lote de produção"
+
 msgid "Create & Snapshot"
 msgstr "Criar e Capturar"
 
@@ -4720,6 +4748,9 @@ msgstr "Criar Ordens de produção"
 
 msgid "Create Kanban"
 msgstr "Criar Kanban"
+
+msgid "Create New"
+msgstr "Criar novo"
 
 msgid "Create new rule"
 msgstr "Criar nova regra"
@@ -5542,6 +5573,9 @@ msgstr "Passivo de imposto diferido (padrão)"
 
 msgid "Define a manufacturing operation first."
 msgstr "Defina primeiro uma operação de manufatura."
+
+msgid "Define custom roles with fine-grained, per-module permissions and assign them to your team."
+msgstr "Defina funções personalizadas com permissões granulares por módulo e atribua-as à sua equipe."
 
 msgid "Define multi-level BOMs and Bill of Process (make methods)"
 msgstr "Definir BOMs multinível e Lista de operações (métodos de fabricação)"
@@ -6437,6 +6471,12 @@ msgstr "p.ex. Zebra 2x1"
 msgid "Each cell is the people assigned against the people the day's work needs."
 msgstr "Cada célula mostra as pessoas atribuídas em comparação com as pessoas que o trabalho do dia precisa."
 
+msgid "Each job keeps its own lot. The shop floor can't change these."
+msgstr "Cada ordem de produção mantém seu próprio lote. O chão de fábrica não pode alterar estes."
+
+msgid "Each job needs its own lot number — or combine them into one lot."
+msgstr "Cada ordem de produção precisa de seu próprio número de lote — ou combine-os em um único lote."
+
 msgid "Each line is a link from this company's data to a row it doesn't own. A backup with these rows could never be restored."
 msgstr "Cada linha é um vínculo dos dados desta empresa para uma linha que não é de sua propriedade. Um backup com essas linhas nunca poderia ser restaurado."
 
@@ -6448,6 +6488,9 @@ msgstr "O material não utilizado de cada operação retorna assim que a operaç
 
 msgid "Each physical unit gets its own tracked entity and unique number — one entity, one unit."
 msgstr "Cada unidade física obtém sua própria entidade rastreada e número único — uma entidade, uma unidade."
+
+msgid "Each supplier's outside operations from every job go on one new purchase order, or on an existing draft you choose."
+msgstr "As operações terceirizadas de cada fornecedor de todas as ordens de produção vão em um novo pedido de compra ou em um rascunho existente que você escolhe."
 
 msgid "Each, lb, ft…"
 msgstr "Cada, lb, ft…"
@@ -7200,6 +7243,9 @@ msgstr "Tudo mais"
 
 msgid "Everything else covers people, imports, integrations and the API — anything that is not one of your workflows."
 msgstr "Tudo mais cobre pessoas, importações, integrações e a API — qualquer coisa que não seja um de seus fluxos de trabalho."
+
+msgid "Everything this run makes lands in one lot. The shop floor can't change it."
+msgstr "Tudo o que esta execução produz vai para um lote. O chão de fábrica não pode alterá-lo."
 
 msgid "Exceeds {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB total — remove some attachments to send."
 msgstr "Excede {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB no total — remova alguns anexos para enviar."
@@ -7984,6 +8030,9 @@ msgstr "Ajustar visualização"
 msgid "Fix the problems with this workflow before testing it"
 msgstr "Corrija os problemas com este fluxo de trabalho antes de testá-lo"
 
+msgid "Fix these jobs before releasing"
+msgstr "Corrija essas ordens de produção antes de liberar"
+
 msgid "Fixed"
 msgstr "Fixo"
 
@@ -8428,6 +8477,9 @@ msgstr "classificações"
 
 msgid "Grades"
 msgstr "Graus"
+
+msgid "Grant each user fine-grained, per-module permissions instead of giving everyone full access."
+msgstr "Conceda a cada usuário permissões granulares por módulo em vez de dar acesso completo a todos."
 
 msgid "Grants Ability"
 msgstr "Concede Habilidade"
@@ -9749,9 +9801,6 @@ msgstr "Deixe vazio para correspondência exata"
 msgid "Leave this page"
 msgstr "Sair desta página"
 
-msgid "Ledger"
-msgstr "Livro razão"
-
 msgid "Left item"
 msgstr "Item esquerdo"
 
@@ -9853,7 +9902,7 @@ msgid "Lines"
 msgstr "Linhas"
 
 msgid "Lines appear here once a purchase order receipt has been posted, and only for quantities not already authorized on another supplier return. Use Add Line Item for a blind return."
-msgstr "Linhas aparecem aqui após um recebimento de pedido de compra ser contabilizado, e apenas para quantidades não autorizadas em outra devolução de fornecedor. Use Adicionar item para uma devolução sem documento."
+msgstr "As linhas aparecem aqui após um recebimento de pedido de compra ter sido contabilizado, e apenas para quantidades não já autorizadas em outra devolução de fornecedor. Use Adicionar Item de Linha para uma devolução às cegas."
 
 msgid "Lines appear here once a sales order shipment has been posted, and only for quantities not already authorized on another RMA. Use Add Line Item for a blind return."
 msgstr "As linhas aparecem aqui uma vez que uma remessa de pedido de venda tenha sido contabilizada, e apenas para quantidades não já autorizadas em outro RMA. Use Adicionar Item de Linha para uma devolução cega."
@@ -10061,6 +10110,9 @@ msgstr "Perdido"
 msgid "Lot"
 msgstr "Lote"
 
+msgid "Lot number"
+msgstr "Número de lote"
+
 msgid "Lot size"
 msgstr "Tamanho do lote"
 
@@ -10240,6 +10292,9 @@ msgstr "Número de Peça do Fabricante"
 
 msgid "Manufacturing"
 msgstr "Manufatura"
+
+msgid "manufacturing is blocked"
+msgstr "a produção está bloqueada"
 
 msgid "Map accounts"
 msgstr "Mapear contas"
@@ -10530,6 +10585,13 @@ msgstr "ID do Memorando"
 msgid "Merchant"
 msgstr "Comerciante"
 
+#. placeholder {0}: getItemReadableId(items, itemId) ?? itemId
+msgid "Merge {0} lots"
+msgstr ""
+
+msgid "Merge output lots"
+msgstr "Mesclar lotes de saída"
+
 msgid "MES"
 msgstr "MES"
 
@@ -10568,9 +10630,6 @@ msgstr "Unidades métricas desativadas"
 
 msgid "Metric units are enabled"
 msgstr "Unidades métricas ativadas"
-
-msgid "MFA"
-msgstr "MFA"
 
 msgid "Mid-month / mid-quarter / half-year convention that determines the first-year deduction."
 msgstr "Convenção de meio de mês / meio de trimestre / meio de ano que determina a dedução do primeiro ano."
@@ -11554,6 +11613,10 @@ msgstr "Nenhuma linha de pedido de venda aberta"
 
 msgid "No operations found."
 msgstr "Nenhuma operação encontrada."
+
+#. placeholder {0}: job.missingAssemblies .map((m) => m.description) .join(", ")
+msgid "no operations on {0}"
+msgstr "nenhuma operação em {0}"
 
 msgid "No operations require picking at this location"
 msgstr "Nenhuma operação requer separação neste local"
@@ -13347,6 +13410,12 @@ msgstr "Processos"
 msgid "Procurement status — needs ordering, planned, on order, or received. The same indicator shown in the BoM tree."
 msgstr "Status de aquisição — requer pedido, planejado, em pedido ou recebido. O mesmo indicador exibido na árvore da BoM."
 
+msgid "produced item"
+msgstr "item produzido"
+
+msgid "Produced item"
+msgstr "Item produzido"
+
 msgid "Producing Job"
 msgstr "Ordem de produção produtora"
 
@@ -14298,6 +14367,11 @@ msgstr "Liberar {0} lotes de produção"
 msgid "Release Batch"
 msgstr "Liberar lote de produção"
 
+#. placeholder {0}: batch.readableId
+#. placeholder {0}: releaseTarget.readableId
+msgid "Release batch {0}"
+msgstr "Liberar lote de produção {0}"
+
 msgid "Release change notice"
 msgstr "Liberar aviso de alteração"
 
@@ -14325,6 +14399,9 @@ msgstr "Revisão lançada"
 
 msgid "Released revision is locked"
 msgstr "A revisão lançada está bloqueada"
+
+msgid "Releasing the batch releases its jobs, and each one must be ready for the floor."
+msgstr "Liberar o lote de produção libera suas ordens de produção, e cada uma deve estar pronta para o chão de fábrica."
 
 msgid "Remaining"
 msgstr "Restante"
@@ -14533,9 +14610,6 @@ msgstr "Data Solicitada"
 msgid "Require a 6-digit code from an authenticator app when signing in."
 msgstr "Exigir um código de 6 dígitos de uma aplicação autenticadora ao iniciar sessão."
 
-msgid "Require a second factor when members sign in to this company."
-msgstr "Exigir um segundo fator quando membros fazem login nesta empresa."
-
 msgid "Require an assigned operator before the scheduler places work at a location. When on, unstaffed work centers get no work and an operation with no manned coverage shows as unschedulable. Lights-out (24×7) work centers are exempt."
 msgstr "Exigir um operador atribuído antes que o programador coloque trabalho em um local. Quando ativado, centros de trabalho sem pessoal não recebem trabalho e uma operação sem cobertura de pessoal aparece como improgramável. Centros de trabalho lights-out (24×7) são isentos."
 
@@ -14556,6 +14630,9 @@ msgstr "Exigir Correspondência"
 
 msgid "Require SAML SSO"
 msgstr "Exigir SAML SSO"
+
+msgid "Require tiered sign-off on purchase orders, quality documents, and suppliers based on amount thresholds and approver groups."
+msgstr "Exija aprovação em camadas em pedidos de compra, documentos de qualidade e fornecedores com base em limites de valor e grupos de aprovadores."
 
 msgid "Require two-factor authentication"
 msgstr "Requerer autenticação de dois fatores"
@@ -15494,7 +15571,7 @@ msgid "Search by linear issue title..."
 msgstr "Pesquisar por título do problema Linear..."
 
 msgid "Search by receipt, PO, or item"
-msgstr "Pesquisar por recebimento, pedido de compra ou item"
+msgstr "Pesquise por recebimento, PO ou item"
 
 msgid "Search by shipment, sales order, or item"
 msgstr "Pesquisar por remessa, pedido de venda ou item"
@@ -15747,7 +15824,7 @@ msgid "Select operations"
 msgstr "Selecionar operações"
 
 msgid "Select posted receipt lines from this supplier to return."
-msgstr "Selecione linhas de recebimento contabilizadas deste fornecedor para devolução."
+msgstr "Selecione linhas de recebimento contabilizadas deste fornecedor para devolver."
 
 msgid "Select posted shipment lines to this customer to return."
 msgstr "Selecionar linhas de remessa contabilizada para este cliente para devolver."
@@ -16244,6 +16321,10 @@ msgstr "Atalhos"
 
 msgid "Show"
 msgstr "Mostrar"
+
+#. placeholder {0}: overflow.length
+msgid "Show {0} more"
+msgstr ""
 
 msgid "Show a readable Customer ID column on the customer list, customer forms, and dropdowns. Customers are still identified internally either way."
 msgstr "Mostrar uma coluna de ID de Cliente legível na lista de clientes, formulários de clientes e menus suspensos. Os clientes ainda são identificados internamente de qualquer forma."
@@ -17455,6 +17536,9 @@ msgstr "O trabalho de backup informou este erro."
 msgid "The backward-computed date an operation must finish by to keep its job on time, written to the operation's due date. A stable target for measuring progress — never a constraint on placement."
 msgstr "A data calculada retroativamente que uma operação deve terminar para manter sua ordem de produção no prazo, escrita na data de vencimento da operação. Um alvo estável para medir o progresso — nunca uma restrição de colocação."
 
+msgid "The batch goes to the shop floor. Its jobs are already released."
+msgstr "O lote de produção vai para o chão de fábrica. Suas ordens de produção já foram liberadas."
+
 msgid "The batch runs at its most urgent member's time — the others are pulled early"
 msgstr "O lote é executado no prazo do membro mais urgente — os demais são adiantados"
 
@@ -17742,6 +17826,9 @@ msgstr "O custo de inventário reconhecido quando uma remessa é registrada, ava
 
 msgid "The IRS recovery-period class for this asset under MACRS (3, 5, 7, 10, 15, 20, 27.5, 39-year)."
 msgstr "A classe de período de recuperação IRS para este ativo sob MACRS (3, 5, 7, 10, 15, 20, 27,5, 39 anos)."
+
+msgid "The item each job produces — require it to match to merge output lots"
+msgstr "O item que cada ordem de produção produz — exija que corresponda para mesclar lotes de saída"
 
 msgid "the job hours due that day (a due-date basis, not the day the work runs), with overdue work in Past due."
 msgstr "as horas de trabalho devidas naquele dia (com base na data de vencimento, não no dia em que o trabalho é executado), com trabalho atrasado em Vencido."
@@ -18285,6 +18372,11 @@ msgstr "Essas linhas estão vinculadas a dados fora desta empresa, portanto nunc
 
 msgid "this ability"
 msgstr "esta habilidade"
+
+#. placeholder {0}: jobIds.length
+#. placeholder {1}: jobIds.join(", ")
+msgid "This also releases {0} jobs ({1}). They become available to the shop floor and drive purchasing and production."
+msgstr "Isto também libera {0} ordens de produção ({1}). Elas ficam disponíveis para o chão de fábrica e impulsionam as compras e a produção."
 
 msgid "This backup could not be completed."
 msgstr "Este backup não pôde ser concluído."
@@ -19339,6 +19431,9 @@ msgstr "Atualizar"
 msgid "Upgrade to Business"
 msgstr "Atualizar para Business"
 
+msgid "Upgrade to Enterprise"
+msgstr "Faça upgrade para Enterprise"
+
 #. placeholder {0}: targetCopy.noun
 msgid "Upgrade to unlock {0} rules"
 msgstr "Atualize para desbloquear regras de {0}"
@@ -19458,6 +19553,9 @@ msgstr "Vida Útil (Meses)"
 
 msgid "User"
 msgstr "Usuário"
+
+msgid "User Permissions"
+msgstr "Permissões de Usuário"
 
 msgid "User roles"
 msgstr "Funções do usuário"

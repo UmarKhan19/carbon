@@ -18,11 +18,11 @@ const allTools = metadata.tools as Tool[];
 
 // PERMISSION_OVERRIDES in scripts/lib/service-metadata.ts — route-verified
 // exceptions that win over the derivation rules. Pinned exactly below and
-// excluded from the rule-based assertions.
+// excluded from the rule-based assertions. The API-key WRITES (upsert/delete)
+// moved to @carbon/ee/api-keys.server behind requireEntitlement, so they are no
+// longer MCP tools — only the read (getApiKeys) remains and keeps the override.
 const OVERRIDDEN = new Set([
   "settings_getApiKeys",
-  "settings_upsertApiKey",
-  "settings_deleteApiKey",
   "items_createImpactFollowUpTask"
 ]);
 
@@ -32,18 +32,12 @@ const funcName = (t: Tool) => t.name.slice(t.module.length + 1).toLowerCase();
 
 describe("permission overrides", () => {
   it("API-key management gates on users_update, matching its ERP routes", () => {
-    for (const name of [
-      "settings_getApiKeys",
-      "settings_upsertApiKey",
-      "settings_deleteApiKey"
-    ]) {
-      const t = allTools.find((t) => t.name === name);
-      expect(t, name).toBeDefined();
-      expect(t?.permission, name).toEqual({
-        module: "users",
-        actions: ["update"]
-      });
-    }
+    const t = allTools.find((t) => t.name === "settings_getApiKeys");
+    expect(t).toBeDefined();
+    expect(t?.permission).toEqual({
+      module: "users",
+      actions: ["update"]
+    });
   });
 
   it("Impact task adapters gate on parts_update regardless of their verb", () => {

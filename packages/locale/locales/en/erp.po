@@ -123,6 +123,10 @@ msgstr "{0} deleted successfully"
 msgid "{0} draft journal entries"
 msgstr "{0} draft journal entries"
 
+#. placeholder {0}: op.description
+msgid "{0} has no supplier"
+msgstr "{0} has no supplier"
+
 #. placeholder {0}: selectedKeys.size
 msgid "{0} Impact rows selected"
 msgstr "{0} Impact rows selected"
@@ -156,6 +160,10 @@ msgstr "{0} of {1} posting accounts mapped"
 #. placeholder {0}: rows.length
 msgid "{0} of {maxSlots} provider slots used"
 msgstr "{0} of {maxSlots} provider slots used"
+
+#. placeholder {0}: pendingJobs.length
+msgid "{0} of {memberCount} member jobs are not completed yet — their output stays out of stock until each job is completed."
+msgstr "{0} of {memberCount} member jobs are not completed yet — their output stays out of stock until each job is completed."
 
 #. placeholder {0}: selected.length
 msgid "{0} operations · {totalQuantity} parts"
@@ -1684,6 +1692,10 @@ msgstr "All Items"
 msgid "All Locations"
 msgstr "All Locations"
 
+#. placeholder {0}: tracked[0]?.itemReadableId ?? ""
+msgid "all make {0}"
+msgstr "all make {0}"
+
 msgid "All members of selected groups and selected individuals will be able to approve requests"
 msgstr "All members of selected groups and selected individuals will be able to approve requests"
 
@@ -2873,6 +2885,9 @@ msgstr "Available after {0}"
 msgid "Available hours"
 msgstr "Available hours"
 
+msgid "Available on the Business plan"
+msgstr "Available on the Business plan"
+
 msgid "Avatar url"
 msgstr "Avatar url"
 
@@ -3637,6 +3652,9 @@ msgstr "Check your email"
 msgid "Checking Stripe for this customer…"
 msgstr "Checking Stripe for this customer…"
 
+msgid "Checking the batch's jobs..."
+msgstr "Checking the batch's jobs..."
+
 msgid "Checkpoint ·"
 msgstr "Checkpoint ·"
 
@@ -3660,6 +3678,10 @@ msgstr "Choose a row on the left to see where its stock can come from."
 
 msgid "Choose a serial number"
 msgstr "Choose a serial number"
+
+#. placeholder {0}: op.description
+msgid "choose a supplier for {0} on the job"
+msgstr "choose a supplier for {0} on the job"
 
 msgid "Choose another file"
 msgstr "Choose another file"
@@ -3828,6 +3850,9 @@ msgstr "Columns"
 
 msgid "Combine filters"
 msgstr "Combine filters"
+
+msgid "Combine output into one lot"
+msgstr "Combine output into one lot"
 
 msgid "Coming soon"
 msgstr "Coming soon"
@@ -4643,6 +4668,9 @@ msgstr "Create {0} values"
 msgid "Create & Release"
 msgstr "Create & Release"
 
+msgid "Create & release batch"
+msgstr "Create & release batch"
+
 msgid "Create & Snapshot"
 msgstr "Create & Snapshot"
 
@@ -4720,6 +4748,9 @@ msgstr "Create Jobs"
 
 msgid "Create Kanban"
 msgstr "Create Kanban"
+
+msgid "Create New"
+msgstr "Create New"
 
 msgid "Create new rule"
 msgstr "Create new rule"
@@ -5542,6 +5573,9 @@ msgstr "Deferred Tax Liability (default)"
 
 msgid "Define a manufacturing operation first."
 msgstr "Define a manufacturing operation first."
+
+msgid "Define custom roles with fine-grained, per-module permissions and assign them to your team."
+msgstr "Define custom roles with fine-grained, per-module permissions and assign them to your team."
 
 msgid "Define multi-level BOMs and Bill of Process (make methods)"
 msgstr "Define multi-level BOMs and Bill of Process (make methods)"
@@ -6437,6 +6471,12 @@ msgstr "e.g. Zebra 2x1"
 msgid "Each cell is the people assigned against the people the day's work needs."
 msgstr "Each cell is the people assigned against the people the day's work needs."
 
+msgid "Each job keeps its own lot. The shop floor can't change these."
+msgstr "Each job keeps its own lot. The shop floor can't change these."
+
+msgid "Each job needs its own lot number — or combine them into one lot."
+msgstr "Each job needs its own lot number — or combine them into one lot."
+
 msgid "Each line is a link from this company's data to a row it doesn't own. A backup with these rows could never be restored."
 msgstr "Each line is a link from this company's data to a row it doesn't own. A backup with these rows could never be restored."
 
@@ -6448,6 +6488,9 @@ msgstr "Each operation's unused material returns as soon as the operation is don
 
 msgid "Each physical unit gets its own tracked entity and unique number — one entity, one unit."
 msgstr "Each physical unit gets its own tracked entity and unique number — one entity, one unit."
+
+msgid "Each supplier's outside operations from every job go on one new purchase order, or on an existing draft you choose."
+msgstr "Each supplier's outside operations from every job go on one new purchase order, or on an existing draft you choose."
 
 msgid "Each, lb, ft…"
 msgstr "Each, lb, ft…"
@@ -7200,6 +7243,9 @@ msgstr "Everything else"
 
 msgid "Everything else covers people, imports, integrations and the API — anything that is not one of your workflows."
 msgstr "Everything else covers people, imports, integrations and the API — anything that is not one of your workflows."
+
+msgid "Everything this run makes lands in one lot. The shop floor can't change it."
+msgstr "Everything this run makes lands in one lot. The shop floor can't change it."
 
 msgid "Exceeds {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB total — remove some attachments to send."
 msgstr "Exceeds {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB total — remove some attachments to send."
@@ -7984,6 +8030,9 @@ msgstr "Fit view"
 msgid "Fix the problems with this workflow before testing it"
 msgstr "Fix the problems with this workflow before testing it"
 
+msgid "Fix these jobs before releasing"
+msgstr "Fix these jobs before releasing"
+
 msgid "Fixed"
 msgstr "Fixed"
 
@@ -8428,6 +8477,9 @@ msgstr "grades"
 
 msgid "Grades"
 msgstr "Grades"
+
+msgid "Grant each user fine-grained, per-module permissions instead of giving everyone full access."
+msgstr "Grant each user fine-grained, per-module permissions instead of giving everyone full access."
 
 msgid "Grants Ability"
 msgstr "Grants Ability"
@@ -9749,9 +9801,6 @@ msgstr "Leave empty for exact match"
 msgid "Leave this page"
 msgstr "Leave this page"
 
-msgid "Ledger"
-msgstr "Ledger"
-
 msgid "Left item"
 msgstr "Left item"
 
@@ -10061,6 +10110,9 @@ msgstr "Lost"
 msgid "Lot"
 msgstr "Lot"
 
+msgid "Lot number"
+msgstr "Lot number"
+
 msgid "Lot size"
 msgstr "Lot size"
 
@@ -10240,6 +10292,9 @@ msgstr "Manufacturer Part Number"
 
 msgid "Manufacturing"
 msgstr "Manufacturing"
+
+msgid "manufacturing is blocked"
+msgstr "manufacturing is blocked"
 
 msgid "Map accounts"
 msgstr "Map accounts"
@@ -10530,6 +10585,13 @@ msgstr "Memo ID"
 msgid "Merchant"
 msgstr "Merchant"
 
+#. placeholder {0}: getItemReadableId(items, itemId) ?? itemId
+msgid "Merge {0} lots"
+msgstr "Merge {0} lots"
+
+msgid "Merge output lots"
+msgstr "Merge output lots"
+
 msgid "MES"
 msgstr "MES"
 
@@ -10568,9 +10630,6 @@ msgstr "Metric units are disabled"
 
 msgid "Metric units are enabled"
 msgstr "Metric units are enabled"
-
-msgid "MFA"
-msgstr "MFA"
 
 msgid "Mid-month / mid-quarter / half-year convention that determines the first-year deduction."
 msgstr "Mid-month / mid-quarter / half-year convention that determines the first-year deduction."
@@ -11554,6 +11613,10 @@ msgstr "No open sales order lines"
 
 msgid "No operations found."
 msgstr "No operations found."
+
+#. placeholder {0}: job.missingAssemblies .map((m) => m.description) .join(", ")
+msgid "no operations on {0}"
+msgstr "no operations on {0}"
 
 msgid "No operations require picking at this location"
 msgstr "No operations require picking at this location"
@@ -13347,6 +13410,12 @@ msgstr "Processes"
 msgid "Procurement status — needs ordering, planned, on order, or received. The same indicator shown in the BoM tree."
 msgstr "Procurement status — needs ordering, planned, on order, or received. The same indicator shown in the BoM tree."
 
+msgid "produced item"
+msgstr "produced item"
+
+msgid "Produced item"
+msgstr "Produced item"
+
 msgid "Producing Job"
 msgstr "Producing Job"
 
@@ -14298,6 +14367,11 @@ msgstr "Release {0} batches"
 msgid "Release Batch"
 msgstr "Release Batch"
 
+#. placeholder {0}: batch.readableId
+#. placeholder {0}: releaseTarget.readableId
+msgid "Release batch {0}"
+msgstr "Release batch {0}"
+
 msgid "Release change notice"
 msgstr "Release change notice"
 
@@ -14325,6 +14399,9 @@ msgstr "Released revision"
 
 msgid "Released revision is locked"
 msgstr "Released revision is locked"
+
+msgid "Releasing the batch releases its jobs, and each one must be ready for the floor."
+msgstr "Releasing the batch releases its jobs, and each one must be ready for the floor."
 
 msgid "Remaining"
 msgstr "Remaining"
@@ -14533,9 +14610,6 @@ msgstr "Requested Date"
 msgid "Require a 6-digit code from an authenticator app when signing in."
 msgstr "Require a 6-digit code from an authenticator app when signing in."
 
-msgid "Require a second factor when members sign in to this company."
-msgstr "Require a second factor when members sign in to this company."
-
 msgid "Require an assigned operator before the scheduler places work at a location. When on, unstaffed work centers get no work and an operation with no manned coverage shows as unschedulable. Lights-out (24×7) work centers are exempt."
 msgstr "Require an assigned operator before the scheduler places work at a location. When on, unstaffed work centers get no work and an operation with no manned coverage shows as unschedulable. Lights-out (24×7) work centers are exempt."
 
@@ -14556,6 +14630,9 @@ msgstr "Require Match"
 
 msgid "Require SAML SSO"
 msgstr "Require SAML SSO"
+
+msgid "Require tiered sign-off on purchase orders, quality documents, and suppliers based on amount thresholds and approver groups."
+msgstr "Require tiered sign-off on purchase orders, quality documents, and suppliers based on amount thresholds and approver groups."
 
 msgid "Require two-factor authentication"
 msgstr "Require two-factor authentication"
@@ -16245,6 +16322,10 @@ msgstr "Shortcuts"
 msgid "Show"
 msgstr "Show"
 
+#. placeholder {0}: overflow.length
+msgid "Show {0} more"
+msgstr "Show {0} more"
+
 msgid "Show a readable Customer ID column on the customer list, customer forms, and dropdowns. Customers are still identified internally either way."
 msgstr "Show a readable Customer ID column on the customer list, customer forms, and dropdowns. Customers are still identified internally either way."
 
@@ -17455,6 +17536,9 @@ msgstr "The backup job reported this error."
 msgid "The backward-computed date an operation must finish by to keep its job on time, written to the operation's due date. A stable target for measuring progress — never a constraint on placement."
 msgstr "The backward-computed date an operation must finish by to keep its job on time, written to the operation's due date. A stable target for measuring progress — never a constraint on placement."
 
+msgid "The batch goes to the shop floor. Its jobs are already released."
+msgstr "The batch goes to the shop floor. Its jobs are already released."
+
 msgid "The batch runs at its most urgent member's time — the others are pulled early"
 msgstr "The batch runs at its most urgent member's time — the others are pulled early"
 
@@ -17742,6 +17826,9 @@ msgstr "The inventory cost recognized when a shipment posts, valued by the item'
 
 msgid "The IRS recovery-period class for this asset under MACRS (3, 5, 7, 10, 15, 20, 27.5, 39-year)."
 msgstr "The IRS recovery-period class for this asset under MACRS (3, 5, 7, 10, 15, 20, 27.5, 39-year)."
+
+msgid "The item each job produces — require it to match to merge output lots"
+msgstr "The item each job produces — require it to match to merge output lots"
 
 msgid "the job hours due that day (a due-date basis, not the day the work runs), with overdue work in Past due."
 msgstr "the job hours due that day (a due-date basis, not the day the work runs), with overdue work in Past due."
@@ -18285,6 +18372,11 @@ msgstr "These rows link to data outside this company, so they could never be res
 
 msgid "this ability"
 msgstr "this ability"
+
+#. placeholder {0}: jobIds.length
+#. placeholder {1}: jobIds.join(", ")
+msgid "This also releases {0} jobs ({1}). They become available to the shop floor and drive purchasing and production."
+msgstr "This also releases {0} jobs ({1}). They become available to the shop floor and drive purchasing and production."
 
 msgid "This backup could not be completed."
 msgstr "This backup could not be completed."
@@ -19339,6 +19431,9 @@ msgstr "Upgrade"
 msgid "Upgrade to Business"
 msgstr "Upgrade to Business"
 
+msgid "Upgrade to Enterprise"
+msgstr "Upgrade to Enterprise"
+
 #. placeholder {0}: targetCopy.noun
 msgid "Upgrade to unlock {0} rules"
 msgstr "Upgrade to unlock {0} rules"
@@ -19458,6 +19553,9 @@ msgstr "Useful Life (Months)"
 
 msgid "User"
 msgstr "User"
+
+msgid "User Permissions"
+msgstr "User Permissions"
 
 msgid "User roles"
 msgstr "User roles"

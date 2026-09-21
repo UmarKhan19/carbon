@@ -123,6 +123,10 @@ msgstr "{0}が正常に削除されました"
 msgid "{0} draft journal entries"
 msgstr "{0}件の下書き仕訳"
 
+#. placeholder {0}: op.description
+msgid "{0} has no supplier"
+msgstr ""
+
 #. placeholder {0}: selectedKeys.size
 msgid "{0} Impact rows selected"
 msgstr "{0} 件の影響行を選択"
@@ -156,6 +160,10 @@ msgstr "{0} 件/{1} 件の転記勘定がマップされました"
 #. placeholder {0}: rows.length
 msgid "{0} of {maxSlots} provider slots used"
 msgstr "{0}個の{maxSlots}プロバイダースロットが使用されています"
+
+#. placeholder {0}: pendingJobs.length
+msgid "{0} of {memberCount} member jobs are not completed yet — their output stays out of stock until each job is completed."
+msgstr "{memberCount}個の製造指図のうち{0}件がまだ完了していません。各製造指図が完了するまで、それらの出力は在庫に入りません。"
 
 #. placeholder {0}: selected.length
 msgid "{0} operations · {totalQuantity} parts"
@@ -1684,6 +1692,10 @@ msgstr "すべてのアイテム"
 msgid "All Locations"
 msgstr "すべての場所"
 
+#. placeholder {0}: tracked[0]?.itemReadableId ?? ""
+msgid "all make {0}"
+msgstr "すべて内製 {0}"
+
 msgid "All members of selected groups and selected individuals will be able to approve requests"
 msgstr "選択されたグループのすべてのメンバーと選択された個人が承認リクエストを承認できます"
 
@@ -2873,6 +2885,9 @@ msgstr "{0}の後に利用可能"
 msgid "Available hours"
 msgstr "利用可能時間"
 
+msgid "Available on the Business plan"
+msgstr "ビジネスプランで利用可能"
+
 msgid "Avatar url"
 msgstr "アバターURL"
 
@@ -3637,6 +3652,9 @@ msgstr "メールを確認してください"
 msgid "Checking Stripe for this customer…"
 msgstr "この得意先の Stripe を確認中…"
 
+msgid "Checking the batch's jobs..."
+msgstr "バッチの製造指図を確認しています..."
+
 msgid "Checkpoint ·"
 msgstr "チェックポイント ·"
 
@@ -3660,6 +3678,10 @@ msgstr "左側の行を選択して、在庫がどこから来るかを確認し
 
 msgid "Choose a serial number"
 msgstr "シリアル番号を選択"
+
+#. placeholder {0}: op.description
+msgid "choose a supplier for {0} on the job"
+msgstr ""
 
 msgid "Choose another file"
 msgstr "別のファイルを選択"
@@ -3828,6 +3850,9 @@ msgstr "列"
 
 msgid "Combine filters"
 msgstr "絞り込みを組み合わせ"
+
+msgid "Combine output into one lot"
+msgstr "出力を1つのロットに統合"
 
 msgid "Coming soon"
 msgstr "近日公開予定"
@@ -4643,6 +4668,9 @@ msgstr "{0}個の値を作成"
 msgid "Create & Release"
 msgstr "作成 & リリース"
 
+msgid "Create & release batch"
+msgstr "バッチを作成してリリース"
+
 msgid "Create & Snapshot"
 msgstr "作成とスナップショット"
 
@@ -4720,6 +4748,9 @@ msgstr "製造指図を作成"
 
 msgid "Create Kanban"
 msgstr "かんばんを作成"
+
+msgid "Create New"
+msgstr "新規作成"
 
 msgid "Create new rule"
 msgstr "新しいルールを作成"
@@ -5542,6 +5573,9 @@ msgstr "繰延税金負債（デフォルト）"
 
 msgid "Define a manufacturing operation first."
 msgstr "最初に製造作業を定義します。"
+
+msgid "Define custom roles with fine-grained, per-module permissions and assign them to your team."
+msgstr "細粒度で、モジュール単位の権限を持つカスタムロールを定義して、チームに割り当てます。"
 
 msgid "Define multi-level BOMs and Bill of Process (make methods)"
 msgstr "多階層BOMおよび工程表（製造方法）を定義"
@@ -6437,6 +6471,12 @@ msgstr "例：Zebra 2x1"
 msgid "Each cell is the people assigned against the people the day's work needs."
 msgstr "各セルは、その日の作業に必要な人員に対して配置された人員です"
 
+msgid "Each job keeps its own lot. The shop floor can't change these."
+msgstr "各製造指図は独自のロットを保持します。製造現場は変更できません。"
+
+msgid "Each job needs its own lot number — or combine them into one lot."
+msgstr "各製造指図は独自のロット番号が必要です。または1つのロットに統合します。"
+
 msgid "Each line is a link from this company's data to a row it doesn't own. A backup with these rows could never be restored."
 msgstr "各明細はこの会社のデータから、それが所有していない行へのリンクです。これらの行を含むバックアップは復元できません。"
 
@@ -6448,6 +6488,9 @@ msgstr "各操作の未使用材料は操作が完了するとすぐに戻され
 
 msgid "Each physical unit gets its own tracked entity and unique number — one entity, one unit."
 msgstr "各物理的な個が独自の追跡対象と一意番号を取得します。1 追跡対象 = 1 個。"
+
+msgid "Each supplier's outside operations from every job go on one new purchase order, or on an existing draft you choose."
+msgstr "各仕入先の全製造指図からの外注工程は、1つの新規発注書、または選択した既存の下書きに計上されます。"
 
 msgid "Each, lb, ft…"
 msgstr "各、ポンド、フィート…"
@@ -7200,6 +7243,9 @@ msgstr "その他すべて"
 
 msgid "Everything else covers people, imports, integrations and the API — anything that is not one of your workflows."
 msgstr "その他はすべて、人員、インポート、連携、およびAPI（ワークフロー以外のすべて）をカバーしています。"
+
+msgid "Everything this run makes lands in one lot. The shop floor can't change it."
+msgstr "このランで製造されるすべてが1つのロットに入ります。製造現場は変更できません。"
 
 msgid "Exceeds {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB total — remove some attachments to send."
 msgstr "{PO_EMAIL_ATTACHMENT_LIMIT_MB} MBを超えています。送信するために一部の添付ファイルを除去してください。"
@@ -7984,6 +8030,9 @@ msgstr "ビューに合わせる"
 msgid "Fix the problems with this workflow before testing it"
 msgstr "テストする前に、このワークフローの問題を修正してください"
 
+msgid "Fix these jobs before releasing"
+msgstr "リリースする前にこれらの製造指図を修正してください"
+
 msgid "Fixed"
 msgstr "固定"
 
@@ -8428,6 +8477,9 @@ msgstr "グレード"
 
 msgid "Grades"
 msgstr "等級"
+
+msgid "Grant each user fine-grained, per-module permissions instead of giving everyone full access."
+msgstr "全員にフルアクセスを付与するのではなく、各ユーザーに細粒度で、モジュール単位の権限を付与します。"
 
 msgid "Grants Ability"
 msgstr "スキルを付与"
@@ -9749,9 +9801,6 @@ msgstr "正確な一致のために空のままにしてください"
 msgid "Leave this page"
 msgstr "このページを離れる"
 
-msgid "Ledger"
-msgstr "元帳"
-
 msgid "Left item"
 msgstr "左側の項目"
 
@@ -9853,7 +9902,7 @@ msgid "Lines"
 msgstr "行"
 
 msgid "Lines appear here once a purchase order receipt has been posted, and only for quantities not already authorized on another supplier return. Use Add Line Item for a blind return."
-msgstr "発注書入荷が転記済になった後、ここに明細が表示されます。別の仕入先返却で既に認可された数量は表示されません。盲目的な返却には明細を追加を使用してください。"
+msgstr "発注書の入荷が転記済になると、ここに明細が表示されます。ただし、他の仕入先返品で既に承認されていない数量のみです。その他の返品の場合は「明細を追加」を使用してください。"
 
 msgid "Lines appear here once a sales order shipment has been posted, and only for quantities not already authorized on another RMA. Use Add Line Item for a blind return."
 msgstr "受注出荷が転記された後に、別のRMAで既に認可されていない数量のみが表示されます。目隠し返品の場合は「明細を追加」を使用してください。"
@@ -10061,6 +10110,9 @@ msgstr "失注"
 msgid "Lot"
 msgstr "ロット"
 
+msgid "Lot number"
+msgstr "ロット番号"
+
 msgid "Lot size"
 msgstr "ロットサイズ"
 
@@ -10240,6 +10292,9 @@ msgstr "メーカー部品番号"
 
 msgid "Manufacturing"
 msgstr "製造"
+
+msgid "manufacturing is blocked"
+msgstr "製造がブロックされています"
 
 msgid "Map accounts"
 msgstr "勘定をマップ"
@@ -10530,6 +10585,13 @@ msgstr "メモID"
 msgid "Merchant"
 msgstr "マーチャント"
 
+#. placeholder {0}: getItemReadableId(items, itemId) ?? itemId
+msgid "Merge {0} lots"
+msgstr ""
+
+msgid "Merge output lots"
+msgstr "出力ロットをマージ"
+
 msgid "MES"
 msgstr "MES"
 
@@ -10568,9 +10630,6 @@ msgstr "メートル法の単位は無効です"
 
 msgid "Metric units are enabled"
 msgstr "メートル法単位が有効です"
-
-msgid "MFA"
-msgstr "MFA"
 
 msgid "Mid-month / mid-quarter / half-year convention that determines the first-year deduction."
 msgstr "初年度控除を決定する中月/四半期中/半年の慣例。"
@@ -11555,6 +11614,10 @@ msgstr "オープン受注明細がありません"
 msgid "No operations found."
 msgstr "工程が見つかりません。"
 
+#. placeholder {0}: job.missingAssemblies .map((m) => m.description) .join(", ")
+msgid "no operations on {0}"
+msgstr "{0}に工程がありません"
+
 msgid "No operations require picking at this location"
 msgstr "この拠点でピッキングが必要な工程はありません"
 
@@ -11682,7 +11745,7 @@ msgid "No results found"
 msgstr "検索結果が見つかりません"
 
 msgid "No returnable lines for this customer"
-msgstr "この得意先に返却可能な明細がありません"
+msgstr "この得意先の返品対象明細がありません"
 
 msgid "No returnable lines for this supplier"
 msgstr "この仕入先に返品対象の明細がありません。"
@@ -13347,6 +13410,12 @@ msgstr "プロセス"
 msgid "Procurement status — needs ordering, planned, on order, or received. The same indicator shown in the BoM tree."
 msgstr "調達ステータス — 発注が必要、計画済み、発注済み、または入荷済み。BoM ツリーに表示されるものと同じインジケーター。"
 
+msgid "produced item"
+msgstr "製造品目"
+
+msgid "Produced item"
+msgstr "製造品目"
+
 msgid "Producing Job"
 msgstr "製造中の製造指図"
 
@@ -14298,6 +14367,11 @@ msgstr "{0}件のバッチをリリースする"
 msgid "Release Batch"
 msgstr "バッチをリリース"
 
+#. placeholder {0}: batch.readableId
+#. placeholder {0}: releaseTarget.readableId
+msgid "Release batch {0}"
+msgstr "バッチ {0} をリリース"
+
 msgid "Release change notice"
 msgstr "変更通知をリリース"
 
@@ -14325,6 +14399,9 @@ msgstr "リリースされたリビジョン"
 
 msgid "Released revision is locked"
 msgstr "発行済みリビジョンはロック中です"
+
+msgid "Releasing the batch releases its jobs, and each one must be ready for the floor."
+msgstr "バッチをリリースするとその製造指図がリリースされ、それぞれが製造現場に対応可能である必要があります。"
 
 msgid "Remaining"
 msgstr "残高"
@@ -14533,9 +14610,6 @@ msgstr "希望納期"
 msgid "Require a 6-digit code from an authenticator app when signing in."
 msgstr "サインイン時に認証器アプリから6桁のコードが必要です。"
 
-msgid "Require a second factor when members sign in to this company."
-msgstr "メンバーがこの会社にサインインする際に、セカンドファクタを必須にする。"
-
 msgid "Require an assigned operator before the scheduler places work at a location. When on, unstaffed work centers get no work and an operation with no manned coverage shows as unschedulable. Lights-out (24×7) work centers are exempt."
 msgstr "スケジューラがある拠点に作業を配置する前に、割当済の作業者を必要とします。オンの場合、スタッフなしの作業区は作業を取得せず、配置された人員がいない工程はスケジュール不可として表示されます。ライトアウト（24×7）作業区は除外されます。"
 
@@ -14556,6 +14630,9 @@ msgstr "照合が必須"
 
 msgid "Require SAML SSO"
 msgstr "SAML SSOを必須にする"
+
+msgid "Require tiered sign-off on purchase orders, quality documents, and suppliers based on amount thresholds and approver groups."
+msgstr "金額閾値と承認者グループに基づいて、発注書、品質ドキュメント、および仕入先に対する段階的な承認を要求します。"
 
 msgid "Require two-factor authentication"
 msgstr "二要素認証が必要です"
@@ -15747,7 +15824,7 @@ msgid "Select operations"
 msgstr "工程を選択"
 
 msgid "Select posted receipt lines from this supplier to return."
-msgstr "この仕入先からの転記済の入荷明細を選択してください。"
+msgstr "この仕入先からの転記済入荷明細を返品するために選択してください。"
 
 msgid "Select posted shipment lines to this customer to return."
 msgstr "この得意先への転記済出荷明細を選択して返品する"
@@ -15946,7 +16023,7 @@ msgid "Session locked"
 msgstr "セッションがロック中"
 
 msgid "Set a customer on this return to add from a shipment."
-msgstr "この返却に得意先を設定して、出荷から追加してください。"
+msgstr "この返品に得意先を設定して出荷から追加してください。"
 
 msgid "Set a supplier on this return to add from a receipt."
 msgstr "この返品に仕入先を設定して入荷から追加"
@@ -16244,6 +16321,10 @@ msgstr "ショートカット"
 
 msgid "Show"
 msgstr "表示"
+
+#. placeholder {0}: overflow.length
+msgid "Show {0} more"
+msgstr ""
 
 msgid "Show a readable Customer ID column on the customer list, customer forms, and dropdowns. Customers are still identified internally either way."
 msgstr "得意先リスト、得意先フォーム、ドロップダウンで読みやすい得意先IDカラムを表示します。得意先はどちらの方法でも内部的に識別されます。"
@@ -17455,6 +17536,9 @@ msgstr "バックアップジョブがこのエラーを報告しました。"
 msgid "The backward-computed date an operation must finish by to keep its job on time, written to the operation's due date. A stable target for measuring progress — never a constraint on placement."
 msgstr "その製造指図を時間通りに保つために、工程が終了する必要のある後方計算日であり、工程の期日に書き込まれます。進捗を測定するための安定した目標であり、配置の制約ではありません。"
 
+msgid "The batch goes to the shop floor. Its jobs are already released."
+msgstr "バッチが製造現場に移動します。その製造指図は既にリリース済です。"
+
 msgid "The batch runs at its most urgent member's time — the others are pulled early"
 msgstr "バッチは最も急ぎのメンバーに合わせて実行され、他は前倒しになります"
 
@@ -17742,6 +17826,9 @@ msgstr "出荷が転記されるときに認識されるインベントリコス
 
 msgid "The IRS recovery-period class for this asset under MACRS (3, 5, 7, 10, 15, 20, 27.5, 39-year)."
 msgstr "MACRS（3、5、7、10、15、20、27.5、39年）に基づくこのアセットのIRS回収期間クラス。"
+
+msgid "The item each job produces — require it to match to merge output lots"
+msgstr "各製造指図が生産する品目 — 出力ロットをマージするには一致する必要があります"
 
 msgid "the job hours due that day (a due-date basis, not the day the work runs), with overdue work in Past due."
 msgstr "その日に期限切れになるジョブの時間（作業が実行される日ではなく、期限日ベース）、期限超過の作業は「期限超過」に表示されます。"
@@ -18285,6 +18372,11 @@ msgstr "これらの行は会社外のデータにリンクしているため、
 
 msgid "this ability"
 msgstr "このスキル"
+
+#. placeholder {0}: jobIds.length
+#. placeholder {1}: jobIds.join(", ")
+msgid "This also releases {0} jobs ({1}). They become available to the shop floor and drive purchasing and production."
+msgstr "これにより{0}個の製造指図({1})もリリースされます。それらは製造現場で利用可能になり、購買と生産を推進します。"
 
 msgid "This backup could not be completed."
 msgstr "このバックアップを完了できませんでした。"
@@ -19339,6 +19431,9 @@ msgstr "アップグレード"
 msgid "Upgrade to Business"
 msgstr "ビジネスプランにアップグレード"
 
+msgid "Upgrade to Enterprise"
+msgstr "エンタープライズにアップグレード"
+
 #. placeholder {0}: targetCopy.noun
 msgid "Upgrade to unlock {0} rules"
 msgstr "{0}ルールのロックを解除するにはアップグレード"
@@ -19458,6 +19553,9 @@ msgstr "耐用年数(月)"
 
 msgid "User"
 msgstr "ユーザー"
+
+msgid "User Permissions"
+msgstr "ユーザー権限"
 
 msgid "User roles"
 msgstr "ユーザーロール"
