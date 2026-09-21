@@ -40,7 +40,7 @@ describe("unwrapArgsEnvelope", () => {
 
   it("does not unwrap a non-object envelope", () => {
     for (const value of [null, ["jo_1"], "jobId"]) {
-      const body = { args: value } as Record<string, unknown>;
+      const body: Record<string, unknown> = { args: value };
       expect(unwrapArgsEnvelope({ schema: flatSchema }, body)).toBe(body);
     }
   });

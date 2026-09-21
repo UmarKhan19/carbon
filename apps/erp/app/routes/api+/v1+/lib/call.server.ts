@@ -12,7 +12,8 @@ import { unwrapArgsEnvelope } from "./args-envelope";
 import type { AuthedContext } from "./base.server";
 import {
   classifyDatabaseFailure,
-  publicDatabaseError
+  publicDatabaseError,
+  type SupabaseFailure
 } from "./database-errors";
 import {
   operationId,
@@ -32,9 +33,14 @@ export type CallResult =
   | { success: true; data: unknown; count?: number }
   | { success: false; error: string; errorKind: "database" | "execution" };
 
-async function edgeFunctionMessage(error: unknown): Promise<string | null> {
-  const candidate = error as { name?: unknown; context?: unknown };
-  if (candidate?.name !== "FunctionsHttpError" || !candidate.context)
+async function edgeFunctionMessage(
+  error: SupabaseFailure
+): Promise<string | null> {
+  if (
+    error.name !== "FunctionsHttpError" ||
+    !("context" in error) ||
+    !error.context
+  )
     return null;
   const message = await getEdgeFunctionErrorMessage(error, "");
   return message === "" ? null : message;
@@ -95,7 +101,7 @@ export async function callOperation(
   } catch (err) {
     const supabase =
       err instanceof ORPCError
-        ? (err.data as { supabase?: unknown } | undefined)?.supabase
+        ? (err.data as { supabase?: SupabaseFailure } | undefined)?.supabase
         : undefined;
     if (supabase) {
       const edgeMessage = await edgeFunctionMessage(supabase);

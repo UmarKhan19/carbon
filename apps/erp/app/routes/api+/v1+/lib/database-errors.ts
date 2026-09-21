@@ -1,3 +1,7 @@
+import type { FunctionsError, PostgrestError } from "@supabase/supabase-js";
+
+export type SupabaseFailure = PostgrestError | FunctionsError;
+
 export type DatabaseFailureKind =
   | "conflict"
   | "reference"
@@ -19,12 +23,13 @@ export const DATABASE_ERROR_MESSAGES: Record<DatabaseFailureKind, string> = {
   unknown: "Database error: the operation could not be completed."
 };
 
-export function classifyDatabaseFailure(error: unknown): DatabaseFailureKind {
-  const candidate = error as { code?: unknown; name?: unknown } | null;
-  if (candidate?.name === "FunctionsHttpError") return "rule";
+export function classifyDatabaseFailure(
+  error: SupabaseFailure | null | undefined
+): DatabaseFailureKind {
+  if (!error) return "unknown";
+  if (error.name === "FunctionsHttpError") return "rule";
 
-  const code = typeof candidate?.code === "string" ? candidate.code : "";
-  switch (code) {
+  switch ("code" in error ? error.code : undefined) {
     case "23505":
       return "conflict";
     case "23503":
@@ -40,6 +45,8 @@ export function classifyDatabaseFailure(error: unknown): DatabaseFailureKind {
   }
 }
 
-export function publicDatabaseError(error: unknown): string {
+export function publicDatabaseError(
+  error: SupabaseFailure | null | undefined
+): string {
   return DATABASE_ERROR_MESSAGES[classifyDatabaseFailure(error)];
 }

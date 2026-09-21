@@ -1,9 +1,24 @@
+import { FunctionsHttpError, PostgrestError } from "@supabase/supabase-js";
 import { describe, expect, it } from "vitest";
 import {
   classifyDatabaseFailure,
   DATABASE_ERROR_MESSAGES,
   publicDatabaseError
 } from "./database-errors";
+
+function postgrestError(
+  fields: Partial<ConstructorParameters<typeof PostgrestError>[0]>
+) {
+  return new PostgrestError({
+    message: "",
+    details: "",
+    hint: "",
+    code: "",
+    ...fields
+  });
+}
+
+const edgeFunctionError = new FunctionsHttpError(new Response("{}"));
 
 describe("classifyDatabaseFailure", () => {
   it.each([
@@ -13,26 +28,31 @@ describe("classifyDatabaseFailure", () => {
     ["42501", "permission"],
     ["PGRST116", "notFound"]
   ] as const)("maps SQLSTATE %s to %s", (code, kind) => {
-    expect(classifyDatabaseFailure({ code, message: "boom" })).toBe(kind);
+    expect(
+      classifyDatabaseFailure(postgrestError({ code, message: "boom" }))
+    ).toBe(kind);
   });
 
   it("maps an edge-function failure by its constructor name", () => {
-    expect(
-      classifyDatabaseFailure({ name: "FunctionsHttpError", context: {} })
-    ).toBe("rule");
+    expect(classifyDatabaseFailure(edgeFunctionError)).toBe("rule");
   });
 
   it("falls back to unknown for an unrecognized or absent code", () => {
-    expect(classifyDatabaseFailure({ code: "XX000" })).toBe("unknown");
-    expect(classifyDatabaseFailure({ message: "boom" })).toBe("unknown");
+    expect(classifyDatabaseFailure(postgrestError({ code: "XX000" }))).toBe(
+      "unknown"
+    );
+    expect(classifyDatabaseFailure(postgrestError({ message: "boom" }))).toBe(
+      "unknown"
+    );
     expect(classifyDatabaseFailure(null)).toBe("unknown");
     expect(classifyDatabaseFailure(undefined)).toBe("unknown");
-    expect(classifyDatabaseFailure("boom")).toBe("unknown");
   });
 
   it("classifies on structured fields, never on message text", () => {
     expect(
-      classifyDatabaseFailure({ message: "duplicate key value violates 23505" })
+      classifyDatabaseFailure(
+        postgrestError({ message: "duplicate key value violates 23505" })
+      )
     ).toBe("unknown");
   });
 });
@@ -41,16 +61,16 @@ describe("publicDatabaseError", () => {
   it("returns only strings from the closed set", () => {
     const allowed = Object.values(DATABASE_ERROR_MESSAGES);
     for (const error of [
-      {
+      postgrestError({
         code: "23505",
         message: "duplicate key value violates unique constraint"
-      },
-      {
+      }),
+      postgrestError({
         code: "42501",
         details: "user 48e8db84 lacks privilege on table employee"
-      },
-      { name: "FunctionsHttpError", context: {} },
-      { code: "XX000" },
+      }),
+      edgeFunctionError,
+      postgrestError({ code: "XX000" }),
       null
     ]) {
       expect(allowed).toContain(publicDatabaseError(error));
@@ -58,13 +78,13 @@ describe("publicDatabaseError", () => {
   });
 
   it("leaks nothing from the underlying error", () => {
-    const error = {
+    const error = postgrestError({
       code: "23505",
       message:
         'duplicate key value violates unique constraint "employee_email_key"',
       details: "Key (email)=(ceo@customer.example) already exists.",
       hint: "try another email"
-    };
+    });
     const publicMessage = publicDatabaseError(error);
 
     expect(publicMessage).toBe(DATABASE_ERROR_MESSAGES.conflict);
